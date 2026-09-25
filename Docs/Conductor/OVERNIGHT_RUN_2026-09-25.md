@@ -1,7 +1,7 @@
 # Overnight run — 25/26 September
 
-Written by **Puss · Conductor**. Five streams are live: Rig & atmosphere, Wing
-materiality, Soft goods, Look & camera, Effects sources (design only, queued).
+Written by **Puss · Conductor**. Six streams are live: Rig & atmosphere, Wing
+materiality, Soft goods, Look & camera, Effects sources, Director.
 This says what the run is for, how the exclusive resources are shared, what each
 stream must produce as evidence, and what waits for Gary in the morning.
 
@@ -39,7 +39,8 @@ things only: the **build**, the **editor**, and the **Show/level**. So:
 | Wing materiality | Survey, then the unification decision, then material work on its own packages | The unification proposal, to me, before executing |
 | Soft goods | Blender pattern-cutter → one hero Chaos cloth, hung and tunable | The asset exists and scrubs; no level or sequence edits |
 | Look & camera | H.9 camera piloting with write-back, new editor files | Compiles in review; relative-to-anchor write-back, verified from the Show |
-| Effects sources | Design only — idle until attachment kinds open | `Docs/EffectsSourcesDesign.md`, committed |
+| Effects sources | Own new files first, then the conductor's shared enum pass | Files compile in review before the shared change is made |
+| Director | Confirm or refute the seven transition findings, then fix | Transport tests, not screenshots |
 
 Blender runs in its own process, so Soft goods never blocks anyone.
 
@@ -87,7 +88,14 @@ happened earlier in the same session. So:
   tension/compression asymmetry are the settled values. Heaviness and raggedness
   are Gary's eye, not mine.
 - **Always**: zero dirty packages at rest, and a `Backups/Pre<Thing>-…` snapshot
-  named in the report for anything that mutated the Show or the level.
+  named in the report for anything that mutated the Show, the level **or the
+  Master sequence** — a camera key saves the Master, not the Show.
+
+**Editor screenshots are broken project-wide.** Captures return stale or black
+frames: a top-down from 60 m and an eye-level shot differ by <1.3/255 mean. The
+level viewport does not render while another window is in front. Until Gary
+fronts it, no stream may claim rendered acceptance, and "unverified" must be said
+out loud rather than implied.
 
 ## What I will not do unattended
 
