@@ -100,6 +100,20 @@ for settings in show.get_editor_property("passage_settings"):
         if position_error > POSITION_TOLERANCE_CM or rotation_error > ROTATION_TOLERANCE_DEG:
             failures.append(f"{label}@{frame}: solve differs by {position_error:.5f} cm / {rotation_error:.5f} deg")
 
+# The handoff watch (camera-pilot follow-up): loaded, enabled, and the current
+# production staleness recorded as the baseline anyone keying a camera starts from.
+watch_class = getattr(unreal, "InfinityStageHandoffWatchSubsystem", None)
+if watch_class is None or unreal.get_editor_subsystem(watch_class) is None:
+    failures.append("InfinityStageHandoffWatchSubsystem is not running")
+watch_enabled = unreal.SystemLibrary.get_console_variable_int_value("InfinityStage.HandoffWatch")
+handoff = unwrap(unreal.InfinityStageSequenceBuilderLibrary.check_scene_handoffs(show, world), 2)
+if handoff is None:
+    failures.append("read-only Scene handoff check failed")
+    stale_scene_guids, handoff_report = [], ""
+else:
+    stale_scene_guids, handoff_report = handoff
+    stale_scene_guids = [str(g) for g in stale_scene_guids]
+
 dirty_after = sorted(
     [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]
     + [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()]
@@ -110,6 +124,9 @@ if dirty_after != dirty_before:
 payload = {
     "world": world_path,
     "samples": samples,
+    "handoff_watch_enabled": watch_enabled,
+    "stale_scene_guids_at_verify": stale_scene_guids,
+    "handoff_report_at_verify": handoff_report,
     "failures": failures,
     "dirty_before": dirty_before,
     "dirty_after": dirty_after,
@@ -132,5 +149,6 @@ unreal.log(
     "PUSS_CAMERA_PILOT_READONLY_SUCCESS"
     f"|world={world_path}|samples={len(samples)}"
     f"|max_pos_err_cm={max_position:.6f}|max_rot_err_deg={max_rotation:.6f}"
+    f"|watch={watch_enabled}|stale_scenes_now={len(stale_scene_guids)}"
     f"|dirty_before={len(dirty_before)}|dirty_after={len(dirty_after)}"
 )
