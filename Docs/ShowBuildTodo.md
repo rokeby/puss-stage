@@ -10,7 +10,8 @@ Reasoning behind each line: https://claude.ai/code/artifact/7d8d8c4f-885c-436b-8
 
 | Date | What |
 | --- | --- |
-| **Now** | Windows workspace active at `E:\PussStage`; latest full suite **43/44**, same curtain-marker failure |
+| **Now** | Container-world build under way — see [`Docs/Conductor/`](Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md) for streams and ownership. Plugin **0.15.0**; latest full suite **45/46**, same curtain-marker failure |
+| **25 Sept** | Volumetric beams tuned and persisted (136 shaft fixtures); gridiron preview over all six Passages; mouse stand-in for the dog; Passage details stall fixed; git for source; full snapshot to `D:` |
 | **17 Sept** | Eight body-only captures packaged for Klara with matching source meshes; transfer/retarget by Klara is not yet confirmed |
 | **15 Sept** | All 261 active Wing rows handedness-audited and repaired; Show/level read-back clean. Final Rob package ready, not confirmed sent |
 | **14 Sept** | All six Passage → Scene handoffs and Scene-end holds passed in normal PIE; Shore playback reached through the Show. [Repair record](SceneTransitionRepair-20260914.md) |

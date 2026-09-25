@@ -77,7 +77,8 @@ write-back for free. Study how `FInfinityStageLightSettings` hangs off
   before mutating anything — a port mix-up otherwise edits the wrong project in
   silence.
 - Builds need the editor closed and go through the conductor.
-- Never Save All. Report DONE / NEXT / NEEDS-YOU to the conductor at milestones.
+- Never Save All.
+- Report status to the conductor session **"Puss · Conductor"** via `SendMessage` at milestones: one line, DONE / NEXT / NEEDS-YOU. Route **decisions** there too — anything touching a shared file, the build, the Show asset, the level, or another stream's ownership is the conductor's call, not yours.
 
 ## Relevant code
 

@@ -109,3 +109,7 @@ preview and may not survive save/reload cleanly.
   — owns fog colour every evaluation, so do not set inscattering on the fog actor
   and expect it to stick.
 - `Saved/CodexLighting/gridiron_build.py`, `haze_beams.py`, `persist_beams_to_show.py`.
+
+## Reporting
+
+Report status to the conductor session **"Puss · Conductor"** via `SendMessage` at milestones: one line, DONE / NEXT / NEEDS-YOU. Route **decisions** there too — anything touching a shared file, the build, the Show asset, the level, or another stream's ownership is the conductor's call, not yours.

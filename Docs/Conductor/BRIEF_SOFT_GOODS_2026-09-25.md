@@ -101,4 +101,5 @@ not a failure; ignore it in logs.
 - Source is in **git** — commit your own scripts. `DerivedAssets/` is not in git;
   it is covered by snapshots to `D:\PussStageBackups`.
 - Puss serves MCP on **port 8010**; assert the expected world before mutating.
-- Never Save All. Report DONE / NEXT / NEEDS-YOU to the conductor.
+- Never Save All.
+- Report status to the conductor session **"Puss · Conductor"** via `SendMessage` at milestones: one line, DONE / NEXT / NEEDS-YOU. Route **decisions** there too — anything touching a shared file, the build, the Show asset, the level, or another stream's ownership is the conductor's call, not yours.

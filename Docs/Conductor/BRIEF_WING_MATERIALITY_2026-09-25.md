@@ -79,7 +79,8 @@ default. Unifying that is likely your first structural decision.
 - **Never Save All.** Save only the material assets you touched.
 - Puss serves MCP on **port 8010** (MHFat holds 8000). Every script must assert
   the expected world before mutating, or a port mix-up edits the wrong project.
-- Report DONE / NEXT / NEEDS-YOU to the conductor at milestones.
+- Never Save All.
+- Report status to the conductor session **"Puss · Conductor"** via `SendMessage` at milestones: one line, DONE / NEXT / NEEDS-YOU. Route **decisions** there too — anything touching a shared file, the build, the Show asset, the level, or another stream's ownership is the conductor's call, not yours.
 
 ## Relevant paths
 

@@ -1,7 +1,11 @@
 # PussStage Agent Notes
 
-**Start here:** [`Docs/InfinityStageSessionHandover.md`](Docs/InfinityStageSessionHandover.md)
-(current as of 2026-09-18) and the three working lists —
+**Start here:** [`README.md`](README.md), then
+[`Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md`](Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md)
+— the container-world build runs several sessions in parallel, each owning
+different files; read your stream's brief before editing anything. Then
+[`Docs/InfinityStageSessionHandover.md`](Docs/InfinityStageSessionHandover.md)
+(current as of 2026-09-25) and the three working lists —
 [`ShowBuildTodo.md`](Docs/ShowBuildTodo.md) (engineering),
 [`ShowCreativeTodo.md`](Docs/ShowCreativeTodo.md) (creative production),
 [`ShowRehearsalTodo.md`](Docs/ShowRehearsalTodo.md) (rehearsal). Those three are

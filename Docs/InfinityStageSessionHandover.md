@@ -1,60 +1,91 @@
-# Session handover — 2026-09-18
+# Session handover — 2026-09-25
 
-## Current consolidated checkpoint — 18 September
+## Current consolidated checkpoint — 25 September
 
-The 14 September opening and Passage-to-Scene checkpoint below remains the
-latest full runtime regression: **43/44**, with only the existing
-`SavedFixturePIE` fully-lowered curtain-marker assertion still failing. No later
-task reran the full suite, so do not promote the result to green. The newer work
-on 15–17 September adds verified saved-state and transfer deliverables, not a
-new full-show or venue acceptance pass.
+Plugin **0.15.0-container-look**. Full suite **45/46** on a clean build with the
+new code proven present in both DLLs. The single failure is the long-standing
+`PussStage.InfinityStage.Functional.SavedFixturePIE` curtain-marker assertion,
+unchanged since 14 September. **Do not describe the suite as green.**
 
-### Wing handedness and Mountains collaborator package — 15 September
+The project has moved from "wings passing on a travellator" to building the
+**container**: a Baroque stage machine the audience travels inside. Direction,
+stream ownership and per-stream briefs are in `Docs/Conductor/`, which is now
+the first thing a new session should read after `AGENTS.md`.
 
-All **261** active Wing rows across Passages 1–6 were audited for the rule that
-the long flat edge faces outward and the featured edge faces into the Passage.
-The repair cleared 221 redundant horizontal flips (173 Left, 48 Right), swapped
-the incorrect Left/Right assignments on `P02 Wing 001` and `P02 Wing 002`, and
-rematerialized Passages 1, 2, 4, 5 and 6. Unreal read-back reports zero remaining
-Left/Right flips and zero dirty packages. Evidence:
-`Saved/CodexWingHandedness/verify_result.json`; backup:
-`Backups/PreWingHandedness-20260915-190308`.
+### Infrastructure — 25 September
 
-The current Rob Heppell handoff is
-`SharePackages/RobHeppell/RobHeppell_MountainsClouds_Animals_2026-09-15_CURRENT_READY_HANDEDNESS_VERIFIED_FINAL.zip`
-(278,809,692 bytes; SHA-256
-`80B56C43AA9321C2BF083ACF1B1E5DD2548DD33E7B12E639F2A6ED2AD4CB7DFC`).
-It contains the 22 Passage 5 cloud meshes currently serialized by the Show,
-clean 10 cm editable sources, Mountains brief/audio/contract, Klara's Deer/Pig/
-Raccoon content, legacy villager references and manifests. It has **not been
-confirmed sent externally**. Cameron's current villager delivery, final Scene 5
-surtitle text and a venue/framing photograph remain pending. For Rob's initial
-single-scene build, the Stage Wing Director and `Redirector_Reference` tree are
-not required; the redirectors are provenance/legacy compatibility material.
-Source orientation and saved Unreal state are verified, but rendered venue and
-camera framing are not.
+- **Version control is split.** Source, tooling, docs and config are now in
+  **git** at the project root (541 files, 5 MB; Content excluded by
+  `.gitignore`). `AGENTS.md` previously told every session the project had no
+  git repository — corrected.
+- **Full snapshot** at `D:\PussStageBackups\FullSnapshot-20260925-1853`:
+  16,982 files, 62.8 GB, verified, Show and level byte-identical to live.
+- **`README.md`** written for a person with no AI session open.
+- **MCP ports separated.** Both projects were configured for 8000 and MHFat won
+  the race, so Puss scripts were being addressed to the **MHFat** editor.
+  PussStage now owns **8010**; MHFat keeps 8000, untouched.
+  `Saved/CodexMocap/mcp_request.py` defaults to 8010 and takes `--url`.
+  **Every Puss script must assert the expected world before mutating.**
+- Note: any open Unreal editor blocks builds via Live Coding, **including
+  MHFat's**. The build gate is global, not per-project.
 
-### MetaHuman motion transfer for Klara — 17 September
+### Built and verified — 25 September
 
-`Transfers/Klara_MetaHuman_Mocap_20260917.zip` is the current transfer archive
-(33,195,805 bytes; SHA-256
-`4036131DE4F9B82FDD3E06A9D8929D59BAE1995C1FC9D513FA15328D798AD203`).
-It carries all eight completed body-only captures — six Shore people plus
-`child1` and `child2` — together with each take's matching source Skeletal Mesh,
-manifest, checksums and retargeting instructions. All 16 Unreal assets matched
-their originals byte-for-byte; the incomplete early Shore01 test was excluded.
-This proves the transfer package, not that Klara has received or retargeted it.
+- **Mouse stand-in for the dog.** Deliberately the same path the robot drives —
+  same rotation write, pitch limits, recentre and Show camera ownership — so it
+  only acts where the dog would. Set Live Camera Owner to **Force Dog** and the
+  mouse looks around; under Timeline it stays hands-off. One fresh telemetry
+  packet and the mouse stops contributing. Logs `GO1_MOUSE_LOOK_ACTIVE`.
+- **Passage details-panel stall fixed.** Selecting a Passage took 10–20 seconds
+  because the details view built rows for `MaterializedPanels` and
+  `ManagedAttachmentActors` — 279 structs and **837 actor-reference pickers** on
+  Passage 5. Now a one-line summary.
 
-### Current creative-document and tool state — 18 September
+### Lighting and atmosphere — 25 September (saved)
 
-The original Google script is unchanged. A separate organized review copy was
-created with a review map, passage headings and the Mountains block marked as
-the rewrite focus:
-[PUSS script — organised review version](https://docs.google.com/document/d/1sr0SHFizLQ6tOThyEJSlL_F76loGJcV3AqHig6R5OBY/edit).
-The Mountains rewrite itself is still open. On this machine, `python` now
-resolves to Python 3.14.7 and imports NumPy 2.5.2; `py` remains unavailable.
-The analyzer's Windows fallback to `python.exe` is therefore usable, although a
-fresh Cue Desk regeneration/reimport has not been run in this audit.
+Volumetric fog was **already enabled**; the problem was **fog density 0.5**,
+effectively opaque past a few metres, which is why distance read as flat colour.
+Now density 0.022, height falloff 0.12 (was 0.34, which starved the upper
+corridor), extinction 0.9, scattering distribution 0.55.
+
+**136 beam fixtures** — the two cross spots on every 4th bay — at volumetric
+scattering 9.0 with volumetric shadows; the other **2,382 at 0.6**. Persisted
+into the Show's light attachments, verified against live actors after
+rematerialize, Show and level saved.
+
+The finding worth keeping: raising scattering on all 2,257 fixtures produced
+uniform fog soup. **Discrete beams need discrete sources.** And haze is only
+visible where light is in or behind it — a far corridor reading as black is a
+missing-practicals problem, not a fog problem.
+
+### Gridiron preview — 25 September (saved, but Python)
+
+`Saved/CodexLighting/gridiron_build.py` generates **771 beams** over all six
+Passages: one cross beam per wing station plus continuous side rails, at 1150 cm
+with 220 cm overhang, 26 × 34 cm section. Stations are derived from
+`MaterializedPanels`, so it shares the wings' rhythm and re-fits automatically.
+Regenerable by the tag `InfinityStage.Gridiron`; destroys only its own output.
+
+It is **grey engine cubes and a Python preview** — components created this way
+may not survive save/reload cleanly. Promoting it to a C++ `MaterializeStructure`
+pass is the Rig & atmosphere stream's first job.
+
+### Route
+
+Passage 1 was banked to ~13° as a test of the "rolling music box" feeling and
+then **reverted; the route is straight, auto-fit is back on**. The agreed target
+is a **closed ring with rise and fall**, not yet applied. Banking is nearly free
+architecturally — wings and camera both take their full transform from the route
+spline — but **Passage 1's `Landscape` actor (192 references) cannot curve** and
+must be replaced with mesh ground first.
+
+### Not yet done
+
+Ground grooves and wooden floor, Landscape removal, wall bays, light fixture
+bodies, wing materiality, effects sources, the Scene transitions, the curtain's
+material and its Sequencer swap.
+
+## Earlier checkpoints
 
 ## Opening and PIE keyboard repair — 14 September
 
