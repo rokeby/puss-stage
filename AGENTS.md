@@ -18,9 +18,13 @@ to describe features that already exist in source. It carries a reconciliation
 block at the top — read that first. Grep the code before implementing anything a
 document says is missing.
 
-**This project has no git repository.** `Backups/` is the only version control
-that exists. Take a timestamped snapshot there before editing C++ or mutating
-Show data, following the existing `Pre<Thing>-YYYYMMDD-HHMM` convention.
+**Version control is split by file type.** Source, tooling, docs and config are
+in **git** at the project root (see `.gitignore` — Content is deliberately
+excluded). Commit your own stream's work; never commit another stream's files.
+Binary content is protected by **full snapshots** to `D:\PussStageBackups` and by
+timestamped folders in `Backups/`, following the `Pre<Thing>-YYYYMMDD-HHMM`
+convention. Take a `Backups/` snapshot before editing C++ or mutating Show data —
+git does not cover the Show asset or the level.
 
 Before automating the open Unreal Editor or changing Infinity Stage authoring data, read [`Docs/CodexUnrealMCPRunbook.md`](Docs/CodexUnrealMCPRunbook.md).
 
