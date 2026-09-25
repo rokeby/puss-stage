@@ -265,11 +265,10 @@ wood, iron, copper, leather, canvas. None of them is an electric fogger.
 - **Fire basket (cresset)**: an iron basket on a pole or on the floor, holding
   embers and flame.
 
-The meshes are Blender work, and the Blender GUI is held by Soft goods. Until
-one of those two routes is agreed, the apparatus stays as grey engine
-primitives. Either Soft goods is briefed, or this stream is given a Blender
-window through the conductor. Found assets such as StarterContent's
-`Blueprint_Effect_Fire` may serve as greybox references only.
+The meshes are Blender work. They stay as grey engine primitives through the
+overnight run (see Decisions), and the route for making them is to be settled
+with the conductor when the effects work starts. Found assets such as
+StarterContent's `Blueprint_Effect_Fire` may serve as greybox references only.
 
 ## Sequencing
 
@@ -295,15 +294,26 @@ Every Show or level mutation takes a `Backups/PreEffects…-YYYYMMDD-HHMM`
 snapshot first, and every script asserts the Puss world on port 8010 before it
 changes anything.
 
+## Decisions (conductor, 2026-09-25)
+
+- **One `Effect` kind, with sub-types: accepted.** When the conductor opens
+  attachment kinds, it will make the shared change once, working from
+  § "The shared change" as written.
+- **The first spike is approved** for a gap in Phase B: a transient, unsaved
+  Local Fog Volume in one P01 beam bay. It is low priority and waits for a slot.
+- **Apparatus stays greybox through the overnight run.** Soft goods has moved
+  from the Blender bake to Chaos Cloth, with Blender now a pattern cutter, and it
+  is fully committed to that. Do not queue apparatus meshes there.
+
 ## Open questions
 
-For the conductor:
-- One `Effect` kind with sub-types (recommended), or three separate enum kinds
-  as the plan currently says?
-- Does Rig & atmosphere want its own additions to `EInfinityAttachmentKind` in
-  the same pass?
+For the conductor (pending, and not to be designed around):
+- Does Rig & atmosphere need its own `EInfinityAttachmentKind` values? Fixture
+  bodies may turn out to be a mesh field on the Light settings instead. If they
+  do need values, both go in the same pass.
 
-For the user:
+For the user. The conductor is holding these until the effects work starts,
+rather than batching them with tonight's decisions:
 - Density: stride 12 (about 23 haze pots in the Show, 2–3 working at once), or
   stride 8 (about 33)?
 - Should the pots pump to the music (puffs on phrase boundaries) or on their
@@ -311,5 +321,5 @@ For the user:
 - Real fire, or stage fire? Baroque and later theatres made flame from **silk
   streamers blown by a fan and lit red from below**. That is exactly this
   project's register, a painted and mechanical effect rather than a simulated
-  one, and it would belong to Soft goods (cloth) plus a linked light. Both are
-  possible; they read very differently.
+  one. It would be Soft goods cloth (now on the Chaos Cloth route) plus a linked
+  light. Both are possible; they read very differently.
