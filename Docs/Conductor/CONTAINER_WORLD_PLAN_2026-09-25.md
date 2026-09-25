@@ -56,6 +56,24 @@ their Niagara systems are self-contained emitters that plug into bays once the
 bays and the volumetrics exist. It is the one stream that can start late without
 blocking anything.
 
+## Briefs
+
+One per stream, written the way the MHFat conductor writes them. Read the plan,
+then your brief.
+
+- `BRIEF_RIG_AND_ATMOSPHERE_2026-09-25.md`
+- `BRIEF_WING_MATERIALITY_2026-09-25.md`
+- `BRIEF_SOFT_GOODS_2026-09-25.md`
+- `BRIEF_EFFECTS_SOURCES_2026-09-25.md` — starts late, by design
+
+**Look & camera** has no brief yet: its immediate job (the mouse stand-in for the
+dog) is built and verified, and its next job — framing passes — is not worth
+starting until there is a container to frame.
+
+**One shared file, one owner.** `EInfinityAttachmentKind` in
+`InfinityStageTypes.h` is wanted by both Rig & atmosphere and Effects sources.
+That change is made **once, through the conductor**, never twice.
+
 ## Exclusive resources — these do not parallelise
 
 1. **The build.** One at a time, and the Unreal editor must be **closed**. Any
