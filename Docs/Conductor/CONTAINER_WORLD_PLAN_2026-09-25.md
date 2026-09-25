@@ -129,8 +129,11 @@ conductor writes it down. Undocumented work is treated as unfinished.
 - **The Show Asset is the authority.** Moving a placed light or attachment in the
   level writes its offset and settings back to the Show; replicate from the Show,
   never from actor world transforms.
-- **No git.** `Backups/Pre<Thing>-YYYYMMDD-HHMM` before touching C++, the Show or
-  the level. Say which backup covers your change.
+- **Version control is split.** Source, tooling, docs and config are in **git** at
+  the project root — commit your own stream's work, never another stream's files.
+  Content is excluded, and git does **not** cover the Show asset or the level, so
+  take `Backups/Pre<Thing>-YYYYMMDD-HHMM` before touching those. Say which backup
+  covers your change.
 - **Three tiers of proof, none substituting for another**: a clean build with the
   new code proven in the DLL; a saved Unreal read-back with zero dirty packages;
   rendered visual acceptance by the user. Report which tier you reached.
