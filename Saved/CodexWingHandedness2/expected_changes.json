@@ -1,0 +1,29 @@
+{
+ "expected_changes": {
+  "1:left": 48,
+  "2:left": 23,
+  "2:right": 23,
+  "3:left": 21,
+  "3:right": 21,
+  "5:left": 93,
+  "5:right": 93,
+  "6:left": 55
+ },
+ "expected_row_counts": {
+  "1": 48,
+  "2": 23,
+  "3": 21,
+  "4": 21,
+  "5": 93,
+  "6": 55
+ },
+ "expected_total_flips": 0,
+ "rows_touched": 155,
+ "target_passages": [
+  1,
+  2,
+  3,
+  5,
+  6
+ ]
+}

@@ -1,0 +1,1 @@
+{"name":"call_tool","arguments":{"toolset_name":"MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset","tool_name":"ExecuteProjectPythonFile","arguments":{"relativeSavedPath":"CodexLighting/persist_beams_to_show.py"}}}

@@ -1,0 +1,26 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "Go1 Remote Input",
+	"Description": "Receives Unitree GO1 remote-controller telemetry over UDP and drives camera rotation.",
+	"Category": "Input",
+	"CreatedBy": "GZZ Studio",
+	"EngineVersion": "5.8.0",
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Plugins": [
+		{
+			"Name": "InfinityStage",
+			"Enabled": true
+		}
+	],
+	"Modules": [
+		{
+			"Name": "Go1Input",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

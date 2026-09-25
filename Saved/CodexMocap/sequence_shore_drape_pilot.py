@@ -1,0 +1,38 @@
+import builtins
+import pathlib
+import unreal
+folder = pathlib.Path('E:/PussStage/Saved/CodexMocap')
+root = '/Game/Metahuman/ShoreCast_20260910'
+world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
+assert world.get_path_name().startswith(root + '/Review/L_ShoreDrape_Pilot.')
+actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+actor = next(a for a in actors if a.get_actor_label() == 'Shore01_M56 Drape Pilot')
+camera = next(a for a in actors if a.get_actor_label() == 'Shore Drape Review Camera')
+body = next(c for c in actor.get_components_by_class(unreal.SkeletalMeshComponent) if c.get_name() == 'Body')
+path = root + '/Review/LS_ShoreDrape_Pilot'
+assert not unreal.EditorAssetLibrary.does_asset_exist(path)
+seq = unreal.AssetToolsHelpers.get_asset_tools().create_asset('LS_ShoreDrape_Pilot', root + '/Review', unreal.LevelSequence, unreal.LevelSequenceFactoryNew())
+seq.set_display_rate(unreal.FrameRate(30, 1))
+seq.set_tick_resolution(unreal.FrameRate(24000, 1))
+seq.set_playback_start(0)
+seq.set_playback_end(797)
+a = seq.add_possessable(actor)
+b = seq.add_possessable(body)
+b.set_parent(a)
+section = b.add_track(unreal.MovieSceneSkeletalAnimationTrack).add_section()
+section.set_range(0, 797)
+params = section.get_editor_property('params')
+params.animation = unreal.load_asset(root + '/Animations/AS_Shore01_M56_shoreguy1_Full')
+params.force_custom_mode = True
+section.set_editor_property('params', params)
+cb = seq.add_possessable(camera)
+cut = seq.add_track(unreal.MovieSceneCameraCutTrack).add_section()
+cut.set_range(0, 797)
+cut.set_camera_binding_id(seq.get_binding_id(cb))
+assert unreal.EditorAssetLibrary.save_loaded_asset(seq, only_if_is_dirty=False)
+assert unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level()
+unreal.LevelSequenceEditorBlueprintLibrary.open_level_sequence(seq)
+unreal.LevelSequenceEditorBlueprintLibrary.set_current_time(300)
+unreal.LevelSequenceEditorBlueprintLibrary.refresh_current_level_sequence()
+task = getattr(builtins, 'PUSS_SHORE_SCREENSHOT_TASK', None)
+unreal.log('SHORE_DRAPE_PILOT_SEQUENCED|' + str(task) + '|task_api=' + str([n for n in dir(task) if 'task' in n.lower()]))

@@ -1,0 +1,37 @@
+# rsync exclude list for the PussStage Mac -> PC migration.
+# Everything here is either rebuilt on the PC, Mac-only, or actively harmful.
+
+# --- Rebuilt by Unreal on first open ---
+Intermediate/
+DerivedDataCache/
+Plugins/*/Intermediate/
+
+# --- Mac binaries. The PC builds its own Win64 ones from source. ---
+Binaries/
+Plugins/*/Binaries/
+
+# --- CONTAINS SYMLINKS INTO Content/. A following copy duplicates ~51 GB. ---
+Saved/AssetAuditHarness/
+
+# --- Editor scratch, not project data ---
+Saved/Autosaves/
+Saved/Logs/
+Saved/Crashes/
+Saved/ObsoletePluginPackages/
+Saved/FailedPluginBuilds/
+Saved/PluginBinaryBackups/
+Saved/SourceControl/
+
+# --- macOS noise ---
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+__pycache__/
+*.pyc
+
+# NOT excluded, and must not be:
+#   Saved/InfinityStage/    <- the regenerated 0.3.0 music analysis
+#   Saved/CodexWingIntegration/  <- wing verification evidence
+#   Backups/                <- the only version control this project has
+#   DerivedAssets/          <- wing art sources

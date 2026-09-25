@@ -1,0 +1,8 @@
+{
+  "dry_run": true,
+  "edits": [
+    { "match": {"passages": [1], "slots": ["Cross +Y", "Cross -Y"]}, "translate_cm": [0, 0, 40], "rotate_deg": [-5, 0, 0], "intensity_multiply": 1.5 },
+    { "match": {"slots": ["Low +Y", "Low -Y"]}, "intensity_multiply": 1 },
+    { "match": {"passages": [5], "ordinals": [1], "slots": ["Entry Top"]}, "enabled": false }
+  ]
+}

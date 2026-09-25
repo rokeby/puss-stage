@@ -1,0 +1,86 @@
+{
+  "manifestVersion": 1,
+  "observedAt": "2026-08-11T00:56:47+01:00",
+  "mappingStatus": "provisional_by_numbered_filename",
+  "sourceRoot": "/Users/zhexi-mbp-22/Library/CloudStorage/GoogleDrive-gary@zhexi.info/Shared drives/GZZ Studio Drive/Projects/2026. SHS 3 Evenings/Sound/Gary_For_Infinity_Scenes",
+  "defaultFit": {
+    "cameraSpeedCmPerSecond": 250.0,
+    "spacingCm": 500.0,
+    "entryClearanceCm": 250.0,
+    "exitClearanceCm": 250.0
+  },
+  "tracks": [
+    {
+      "passage": 1,
+      "filename": "Intro_WalkingMusic_1.wav",
+      "sha256": "d144a601b515abadfe466adeecb3d0a836a774564c8863f313729a8e34db0a47",
+      "channels": 2,
+      "sampleRateHz": 44100,
+      "encoding": "Float32 interleaved WAV",
+      "durationSeconds": 96.336054,
+      "defaultWingPairCount": 48,
+      "defaultTravelDistanceCm": 24084.0135,
+      "defaultResidualDistanceCm": 84.0135
+    },
+    {
+      "passage": 2,
+      "filename": "WalkingMusic_2.wav",
+      "sha256": "ccfa96c884dd72cfddf20a819fa44358253632a9efa1917a38868cae7c41713c",
+      "channels": 2,
+      "sampleRateHz": 44100,
+      "encoding": "Float32 interleaved WAV",
+      "durationSeconds": 47.431338,
+      "defaultWingPairCount": 23,
+      "defaultTravelDistanceCm": 11857.8345,
+      "defaultResidualDistanceCm": 357.8345
+    },
+    {
+      "passage": 3,
+      "filename": "WalkingMusic_3.wav",
+      "sha256": "3fa8a23b2438e514b7105e1a29436494810ec89e52b654fc99636233d35abd52",
+      "channels": 2,
+      "sampleRateHz": 44100,
+      "encoding": "Float32 interleaved WAV",
+      "durationSeconds": 43.687891,
+      "defaultWingPairCount": 21,
+      "defaultTravelDistanceCm": 10921.97275,
+      "defaultResidualDistanceCm": 421.97275
+    },
+    {
+      "passage": 4,
+      "filename": "WalkingMusic_4.wav",
+      "sha256": "9c84f87aa298cfdeba0ce14dc2d43ef3df8cdf4f1a30b7dd1632220d56ec8ee3",
+      "channels": 2,
+      "sampleRateHz": 44100,
+      "encoding": "Float32 interleaved WAV",
+      "durationSeconds": 42.673878,
+      "defaultWingPairCount": 21,
+      "defaultTravelDistanceCm": 10668.4695,
+      "defaultResidualDistanceCm": 168.4695
+    },
+    {
+      "passage": 5,
+      "filename": "WalkingMusic_5_with_Tennis_Ball_Moment.wav",
+      "sha256": "5e2a52a6cbe09be5e0e9a83f3eedce90c73002cbfa90bec3abd7fe72f55a13d4",
+      "channels": 2,
+      "sampleRateHz": 44100,
+      "encoding": "Float32 interleaved WAV",
+      "durationSeconds": 186.363605,
+      "defaultWingPairCount": 93,
+      "defaultTravelDistanceCm": 46590.90125,
+      "defaultResidualDistanceCm": 90.90125
+    },
+    {
+      "passage": 6,
+      "filename": "WalkingMusic_6_into_void.wav",
+      "sha256": "f13530cf1fdab6321ccce7c294822b277e99a4b0141d8b662738a319aa6210c2",
+      "channels": 2,
+      "sampleRateHz": 44100,
+      "encoding": "Float32 interleaved WAV",
+      "durationSeconds": 110.561134,
+      "defaultWingPairCount": 55,
+      "defaultTravelDistanceCm": 27640.2835,
+      "defaultResidualDistanceCm": 140.2835
+    }
+  ]
+}

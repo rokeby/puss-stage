@@ -1,0 +1,52 @@
+# PussStage versions source, scripts, docs and config only.
+#
+# Content (46 GB), DerivedAssets, Transfers and Backups are binary and are
+# protected by full snapshots to D:\PussStageBackups instead. See
+# Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md.
+#
+# Strategy: ignore everything at the root, then re-include what is worth
+# versioning. That way a new large folder is excluded by default rather than
+# accidentally committed.
+
+/*
+
+!/.gitignore
+!/AGENTS.md
+!/README.md
+!/PussStage.uproject
+!/Config/
+!/Docs/
+!/Scripts/
+!/Tools/
+!/go1_pi_bridge/
+!/Plugins/
+!/Saved/
+
+# Plugins: our two plugins' source only. MCPBlueprintsGenerator and
+# StageWingCutoutPipeline each carry their own git repository and are left alone.
+Plugins/*
+!Plugins/InfinityStage/
+!Plugins/Go1Input/
+Plugins/*/Binaries/
+Plugins/*/Intermediate/
+
+# Saved: the guarded MCP scripts have to live under Saved/ because the project
+# Python executor refuses paths outside it. Version those, never logs, captures,
+# caches or mocap payloads.
+# Version the tooling and the specs it reads - never its outputs. Result,
+# verify, dump and QC JSONs regenerate on every run and belong in the D: snapshot
+# and in handover references, not in the history.
+Saved/*
+!Saved/Codex*/
+Saved/Codex*/**
+!Saved/Codex*/**/
+!Saved/Codex*/**/*.py
+!Saved/Codex*/**/*_request.json
+!Saved/Codex*/**/lighting_plan.json
+!Saved/Codex*/**/light_adjust.json
+!Saved/Codex*/**/expected_changes.json
+
+*.pdb
+*.sln
+Thumbs.db
+.DS_Store

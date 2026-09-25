@@ -1,0 +1,36 @@
+{
+	"FileVersion": 3,
+	"Version": 20,
+	"VersionName": "0.15.0-container-look",
+	"FriendlyName": "Infinity Stage Director",
+	"Description": "Finite, music-led wing passages and scene handoffs for live Sequencer performance.",
+	"Category": "Cinematics",
+	"CreatedBy": "GZZ Studio",
+	"EngineVersion": "5.8.0",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": false,
+	"Plugins": [
+		{
+			"Name": "MovieRenderPipeline",
+			"Enabled": true
+		}
+	],
+	"Modules": [
+		{
+			"Name": "InfinityStage",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "InfinityStageEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		},
+		{
+			"Name": "InfinityStageTests",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}

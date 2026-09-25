@@ -1,0 +1,15 @@
+{
+  "images": {
+    "IMG_6250-stage-wing-transparent-v3.png": {
+      "height_m": 6.5
+    },
+    "IMG_6226-tree-wall-stage-wing-cutout.png": {
+      "height_m": 8.0,
+      "simplify_px": 2.0
+    },
+    "IMG_6232-hay-mound-stage-prop-cutout-v2.png": {
+      "height_m": 2.0,
+      "islands": "all"
+    }
+  }
+}

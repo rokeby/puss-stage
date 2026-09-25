@@ -1,0 +1,11 @@
+import unreal
+world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
+assert world.get_path_name().startswith('/Game/Metahuman/ShoreCast_20260910/Review/L_ShoreDrape_Pilot.')
+unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).editor_set_viewport_realtime(True)
+actor = next(a for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors() if a.get_actor_label() == 'Shore01_M56 Drape Pilot')
+cloth = actor.get_component_by_class(unreal.ChaosClothComponent)
+cloth.set_component_tick_enabled(True)
+cloth.resume_simulation()
+cloth.force_next_update_teleport_and_reset()
+unreal.LevelSequenceEditorBlueprintLibrary.play()
+unreal.log('SHORE_DRAPE_EDITOR_REALTIME_PLAY_STARTED')

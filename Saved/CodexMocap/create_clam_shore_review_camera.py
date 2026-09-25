@@ -1,0 +1,21 @@
+import json
+import pathlib
+import unreal
+levels=unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+assert not levels.is_in_play_in_editor()
+actors=unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+camera=next((a for a in actors.get_all_level_actors() if a.get_actor_label()=='Shore Cast Review Camera'),None)
+position=unreal.Vector(12380,159180,300)
+look_at=unreal.Vector(13200,159910,100)
+rotation=unreal.MathLibrary.find_look_at_rotation(position,look_at)
+if not camera:camera=actors.spawn_actor_from_class(unreal.CineCameraActor,position,rotation)
+camera.set_actor_label('Shore Cast Review Camera');camera.set_folder_path('Scenes/Shore/MetaHuman Cast')
+camera.set_actor_location_and_rotation(position,rotation,False,True)
+c=camera.get_cine_camera_component()
+c.set_editor_property('current_focal_length',28.0)
+c.set_editor_property('current_aperture',11.0)
+focus=c.get_editor_property('focus_settings');focus.focus_method=unreal.CameraFocusMethod.DISABLE;c.set_editor_property('focus_settings',focus)
+film=c.get_editor_property('filmback');film.sensor_width=36;film.sensor_height=20.25;c.set_editor_property('filmback',film)
+assert levels.save_current_level()
+pathlib.Path('E:/PussStage/Saved/CodexMocap/shore_clam_review_camera.json').write_text(json.dumps({'actor':camera.get_path_name(),'location':list(position.to_tuple()),'look_at':list(look_at.to_tuple()),'purpose':'Non-shot review camera, existing sequence camera cuts untouched'},indent=2),encoding='utf-8')
+unreal.log('CLAM_SHORE_REVIEW_CAMERA_SAVED')
