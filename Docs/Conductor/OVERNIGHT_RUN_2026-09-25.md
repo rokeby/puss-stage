@@ -38,7 +38,7 @@ things only: the **build**, the **editor**, and the **Show/level**. So:
 | Rig & atmosphere | Write the C++ `MaterializeStructure` pass. Do **not** build. | Compiles cleanly in review; new files only; plan for ground grooves |
 | Wing materiality | Survey, then the unification decision, then material work on its own packages | The unification proposal, to me, before executing |
 | Soft goods | Blender pattern-cutter → one hero Chaos cloth, hung and tunable | The asset exists and scrubs; no level or sequence edits |
-| Look & camera | H.9 camera piloting with write-back, new editor files | Compiles in review; relative-to-anchor write-back, verified from the Show |
+| Look & camera | H.9 camera piloting with write-back, new editor files | Compiles in review; keys the Master's Passage camera channels, verified through the rig's evaluation, never writes the Show |
 | Effects sources | Own new files first, then the conductor's shared enum pass | Files compile in review before the shared change is made |
 | Director | Confirm or refute the seven transition findings, then fix | Transport tests, not screenshots |
 
