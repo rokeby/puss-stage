@@ -13,6 +13,7 @@
 #include "Framework/Docking/TabManager.h"
 #include "Framework/Application/SlateApplication.h"
 #include "DragAndDrop/DecoratedDragDropOp.h"
+#include "InfinityStageCameraPilot.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageCueProxy.h"
 #include "InfinityStageMusicAnalysisImporter.h"
@@ -3533,6 +3534,22 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildCameraCurveActionsMenu()
             "Remove passage-relative timing anchors. Wing anchors remain pinned."),
         FSlateIcon(),
         FUIAction(FExecuteAction::CreateSP(this, &SInfinityStageCueDesk::ClearPassageFrameCameraAnchors)));
+    MenuBuilder.AddSeparator();
+    MenuBuilder.AddSubMenu(
+        NSLOCTEXT("InfinityStage", "PilotCameraSubmenu", "Pilot Camera from Viewport"),
+        NSLOCTEXT(
+            "InfinityStage",
+            "PilotCameraSubmenuTip",
+            "Look through the Passage camera at the playhead, fly it in the Level Viewport, and key the view you chose back onto the camera channels."),
+        FNewMenuDelegate::CreateLambda([this](FMenuBuilder& SubMenuBuilder)
+        {
+            const FInfinityPassageSettings* Passage = GetSelectedPassage();
+            FInfinityStageCameraPilot::BuildMenu(
+                SubMenuBuilder,
+                ShowAsset.Get(),
+                Passage ? Passage->PassageGuid : FGuid(),
+                GetCameraCurveEditFrame());
+        }));
     MenuBuilder.AddSeparator();
     MenuBuilder.AddMenuEntry(
         NSLOCTEXT("InfinityStage", "OpenMasterCameraCurves", "Open Master in Sequencer"),
