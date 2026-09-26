@@ -1,0 +1,922 @@
+#include "InfinityStageStructureActor.h"
+
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Components/SceneComponent.h"
+#include "Components/SplineComponent.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/World.h"
+#include "InfinityStageCompiler.h"
+#include "InfinityStagePassageActor.h"
+#include "InfinityStageShowAsset.h"
+#include "Materials/MaterialInterface.h"
+#include "Math/RandomStream.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageStructure, Log, All);
+
+namespace
+{
+const FName StructureTag(TEXT("InfinityStage.Structure"));
+const FName GridironLayerTag(TEXT("InfinityStage.Structure.Gridiron"));
+const FName GroundLayerTag(TEXT("InfinityStage.Structure.Ground"));
+const FName UnderstageLayerTag(TEXT("InfinityStage.Structure.Understage"));
+const FName ClothLayerTag(TEXT("InfinityStage.Structure.Cloth"));
+const FName FixtureLayerTag(TEXT("InfinityStage.Structure.Fixtures"));
+const FName LineLayerTag(TEXT("InfinityStage.Structure.Lines"));
+
+/** Per-instance custom data: variation 0..1, then length, width, depth in cm. */
+constexpr int32 TimberCustomDataFloats = 4;
+
+/** Which piece a random stream belongs to. Streams are keyed by a stable identity
+ * (cue or attachment), not by index, so inserting a pair or a light re-rolls only
+ * the new pieces. */
+enum class ETimberPart : uint32
+{
+    CrossBeam = 0,
+    RailNegative = 1,
+    RailPositive = 2,
+    Housing = 3,
+    BoardLane = 4,
+    Cloth = 5
+};
+
+FRandomStream MakeTimberStream(const FGuid& Identity, const ETimberPart Part)
+{
+    return FRandomStream(static_cast<int32>(
+        HashCombineFast(GetTypeHash(Identity), ::GetTypeHash(static_cast<uint32>(Part)))));
+}
+
+struct FFixturePlacement
+{
+    FGuid AttachmentGuid;
+    int32 StationIndex = INDEX_NONE;
+    FTransform LightWorld;
+};
+
+/**
+ * Where every enabled light on the Passage's bays sits, computed from the Show
+ * exactly as materialization places a station-anchored attachment: its relative
+ * offset on the pair root. Reading the Show rather than the spawned light actors
+ * keeps the Show the only authority.
+ */
+TArray<FFixturePlacement> GatherFixturePlacements(
+    const UInfinityStageShowAsset& Show,
+    const TArray<FInfinityStructureStation>& Stations,
+    int32& OutMovingLights)
+{
+    OutMovingLights = 0;
+    TMap<FGuid, const FInfinityShowCue*> CuesByGuid;
+    for (const FInfinityShowCue& Cue : Show.Cues)
+    {
+        CuesByGuid.Add(Cue.CueGuid, &Cue);
+    }
+    TArray<FFixturePlacement> Placements;
+    for (int32 StationIndex = 0; StationIndex < Stations.Num(); ++StationIndex)
+    {
+        const FInfinityShowCue* const* Cue = CuesByGuid.Find(Stations[StationIndex].CueGuid);
+        if (!Cue || (*Cue)->Type != EInfinityCueType::WingPair)
+        {
+            continue;
+        }
+        const FTransform PairWorld = (*Cue)->WingPair.OccurrenceOffset * Stations[StationIndex].StationWorld;
+        for (const FInfinityCueAttachment& Attachment : (*Cue)->WingPair.Attachments)
+        {
+            if (!Attachment.bEnabled || Attachment.Kind != EInfinityAttachmentKind::Light)
+            {
+                continue;
+            }
+            if (Attachment.Anchor != EInfinityAttachmentAnchor::Station)
+            {
+                ++OutMovingLights;
+                continue;
+            }
+            FFixturePlacement& Placement = Placements.AddDefaulted_GetRef();
+            Placement.AttachmentGuid = Attachment.AttachmentGuid;
+            Placement.StationIndex = StationIndex;
+            Placement.LightWorld = Attachment.RelativeTransform * PairWorld;
+        }
+    }
+    return Placements;
+}
+
+/**
+ * Fits any mesh to a timber by its bounds: scale each axis to the wanted size and
+ * put the bounds centre, not the pivot, on the beam centre. A Blender timber with
+ * its pivot at one end therefore drops in with no placement correction.
+ */
+FTransform FitMeshToTimber(
+    const FBox& MeshBounds,
+    const FVector& CentreWorld,
+    const FQuat& Rotation,
+    const FVector& SizeCm)
+{
+    const FVector MeshSize = MeshBounds.GetSize();
+    const FVector Scale(
+        MeshSize.X > UE_KINDA_SMALL_NUMBER ? SizeCm.X / MeshSize.X : 1.0,
+        MeshSize.Y > UE_KINDA_SMALL_NUMBER ? SizeCm.Y / MeshSize.Y : 1.0,
+        MeshSize.Z > UE_KINDA_SMALL_NUMBER ? SizeCm.Z / MeshSize.Z : 1.0);
+    const FVector PivotOffset = Rotation.RotateVector(MeshBounds.GetCenter() * Scale);
+    return FTransform(Rotation, CentreWorld - PivotOffset, Scale);
+}
+
+void ApplyInstances(
+    UInstancedStaticMeshComponent& Component,
+    const TArray<FTransform>& Transforms,
+    const TArray<float>& CustomData)
+{
+    Component.AddInstances(Transforms, false, true, false);
+    for (int32 InstanceIndex = 0; InstanceIndex < Transforms.Num(); ++InstanceIndex)
+    {
+        Component.SetCustomData(
+            InstanceIndex,
+            MakeArrayView(CustomData.GetData() + InstanceIndex * TimberCustomDataFloats, TimberCustomDataFloats),
+            false);
+    }
+    Component.MarkRenderStateDirty();
+}
+
+uint32 HashFrame(uint32 Hash, const FTransform& Frame)
+{
+    // Quantized to a millimetre and a thousandth of direction, so float noise from
+    // re-evaluating the same spline cannot report a false re-fit.
+    const FVector Location = Frame.GetLocation();
+    const FVector Forward = Frame.GetUnitAxis(EAxis::X) * 100.0;
+    const FVector Up = Frame.GetUnitAxis(EAxis::Z) * 100.0;
+    for (const double Value : { Location.X, Location.Y, Location.Z, Forward.X, Forward.Y, Forward.Z, Up.X, Up.Y, Up.Z })
+    {
+        Hash = HashCombineFast(Hash, ::GetTypeHash(FMath::RoundToInt64(Value * 10.0)));
+    }
+    return Hash;
+}
+
+int32 ComputeStructureSignature(
+    const TArray<FInfinityStructureStation>& Stations,
+    const TArray<FFixturePlacement>& Fixtures)
+{
+    uint32 Hash = HashCombineFast(::GetTypeHash(Stations.Num()), ::GetTypeHash(Fixtures.Num()));
+    for (const FInfinityStructureStation& Station : Stations)
+    {
+        Hash = HashCombineFast(Hash, GetTypeHash(Station.CueGuid));
+        Hash = HashFrame(Hash, Station.StationWorld);
+        Hash = HashCombineFast(Hash, ::GetTypeHash(FMath::RoundToInt64(Station.HalfWidthCm * 10.0)));
+    }
+    for (const FFixturePlacement& Fixture : Fixtures)
+    {
+        Hash = HashCombineFast(Hash, GetTypeHash(Fixture.AttachmentGuid));
+        Hash = HashFrame(Hash, Fixture.LightWorld);
+    }
+    return static_cast<int32>(Hash);
+}
+}
+
+AInfinityStageStructureActor::AInfinityStageStructureActor()
+{
+    PrimaryActorTick.bCanEverTick = false;
+
+    // The building does not move; Static lets shadows and lighting cache it.
+    SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
+    SceneRoot->SetMobility(EComponentMobility::Static);
+    SetRootComponent(SceneRoot);
+
+    Tags.Add(StructureTag);
+}
+
+bool AInfinityStageStructureActor::GatherStations(
+    TArray<FInfinityStructureStation>& OutStations,
+    FString& OutError) const
+{
+    OutStations.Reset();
+    if (!Passage)
+    {
+        OutError = TEXT("Structure has no Passage.");
+        return false;
+    }
+    if (!Passage->ShowAsset || !Passage->Route)
+    {
+        OutError = FString::Printf(TEXT("Passage '%s' has no Show Asset or Route."), *Passage->GetActorNameOrLabel());
+        return false;
+    }
+    if (!Passage->PassageGuid.IsValid())
+    {
+        OutError = FString::Printf(TEXT("Passage '%s' has never been materialized."), *Passage->GetActorNameOrLabel());
+        return false;
+    }
+
+    const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Passage->ShowAsset);
+    const FInfinityCompiledPassage* CompiledPassage = Compiled.Passages.FindByPredicate(
+        [this](const FInfinityCompiledPassage& Candidate) { return Candidate.PassageGuid == Passage->PassageGuid; });
+    if (Compiled.HasErrors() || !CompiledPassage)
+    {
+        OutError = FString::Printf(TEXT("Passage '%s' does not compile."), *Passage->GetActorNameOrLabel());
+        return false;
+    }
+    // The width comes from placed panels and the stations from the compile; if the
+    // two disagree the Passage is stale and the building would fit the wrong wings.
+    if (Passage->MaterializedWingPairCount != CompiledPassage->Wings.Num())
+    {
+        OutError = FString::Printf(
+            TEXT("Passage '%s' is stale: %d pairs materialized, Show compiles %d. Materialize the Passage first."),
+            *Passage->GetActorNameOrLabel(),
+            Passage->MaterializedWingPairCount,
+            CompiledPassage->Wings.Num());
+        return false;
+    }
+
+    TMap<FGuid, TArray<FVector, TInlineAllocator<2>>> PanelLocationsByCue;
+    for (const FInfinityMaterializedPanelRef& Ref : Passage->MaterializedPanels)
+    {
+        if (Ref.Side != EInfinityPanelSide::Top)
+        {
+            PanelLocationsByCue.FindOrAdd(Ref.CueGuid).Add(Ref.BaseWorldTransform.GetLocation());
+        }
+    }
+
+    for (const FInfinityCompiledWing& Wing : CompiledPassage->Wings)
+    {
+        const TArray<FVector, TInlineAllocator<2>>* PanelLocations = PanelLocationsByCue.Find(Wing.CueGuid);
+        if (!PanelLocations)
+        {
+            // A pair with no side meshes has no width to span; it is not a bay.
+            continue;
+        }
+        FInfinityStructureStation& Station = OutStations.AddDefaulted_GetRef();
+        Station.CueGuid = Wing.CueGuid;
+        Station.DistanceCm = Wing.DistanceCm;
+        Station.StationWorld = Passage->Route->GetTransformAtDistanceAlongSpline(
+            Wing.DistanceCm,
+            ESplineCoordinateSpace::World,
+            false);
+        Station.StationWorld.SetScale3D(FVector::OneVector);
+        const FVector Origin = Station.StationWorld.GetLocation();
+        const FVector Across = Station.StationWorld.GetUnitAxis(EAxis::Y);
+        for (const FVector& PanelLocation : *PanelLocations)
+        {
+            Station.HalfWidthCm = FMath::Max(
+                Station.HalfWidthCm,
+                FMath::Abs(FVector::DotProduct(PanelLocation - Origin, Across)));
+        }
+    }
+    OutStations.StableSort([](const FInfinityStructureStation& A, const FInfinityStructureStation& B)
+    {
+        return A.DistanceCm < B.DistanceCm;
+    });
+
+    if (OutStations.IsEmpty())
+    {
+        OutError = FString::Printf(
+            TEXT("Passage '%s' has no materialized side panels to derive stations from."),
+            *Passage->GetActorNameOrLabel());
+        return false;
+    }
+    return true;
+}
+
+bool AInfinityStageStructureActor::IsStructureCurrent() const
+{
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    if (StationCount == 0 || !GatherStations(Stations, Error))
+    {
+        return false;
+    }
+    int32 MovingLights = 0;
+    return ComputeStructureSignature(
+        Stations,
+        GatherFixturePlacements(*Passage->ShowAsset, Stations, MovingLights)) == StationSignature;
+}
+
+void AInfinityStageStructureActor::ClearStructure()
+{
+    if (GetWorld() && GetWorld()->IsGameWorld())
+    {
+        UE_LOG(LogInfinityStageStructure, Warning, TEXT("Refusing to clear stage structure in a game world."));
+        return;
+    }
+
+    Modify();
+
+    // The array is the ownership record, but undo or reinstancing can drop a
+    // reference while the component lives on. Recover those by tag, exactly as the
+    // Passage does, so a rebuild never stacks a new grid on an untracked old one.
+    TSet<UInstancedStaticMeshComponent*> ComponentsToDestroy;
+    for (UInstancedStaticMeshComponent* Component : ManagedComponents)
+    {
+        if (IsValid(Component))
+        {
+            ComponentsToDestroy.Add(Component);
+        }
+    }
+    const int32 ReferencedCount = ComponentsToDestroy.Num();
+    TInlineComponentArray<UInstancedStaticMeshComponent*> OwnedComponents(this);
+    for (UInstancedStaticMeshComponent* Component : OwnedComponents)
+    {
+        if (IsValid(Component) && Component->ComponentTags.Contains(StructureTag))
+        {
+            ComponentsToDestroy.Add(Component);
+        }
+    }
+    if (ComponentsToDestroy.Num() > ReferencedCount)
+    {
+        UE_LOG(
+            LogInfinityStageStructure,
+            Display,
+            TEXT("INFINITY_STAGE_STRUCTURE_ORPHANS_RECOVERED actor='%s' components=%d"),
+            *GetActorNameOrLabel(),
+            ComponentsToDestroy.Num() - ReferencedCount);
+    }
+
+    for (UInstancedStaticMeshComponent* Component : ComponentsToDestroy)
+    {
+        Component->Modify();
+        RemoveInstanceComponent(Component);
+        Component->DestroyComponent();
+    }
+    ManagedComponents.Reset();
+    StationCount = 0;
+    CrossBeamCount = 0;
+    RailSegmentCount = 0;
+    GridHalfWidthCm = 0.0;
+    BoardCount = 0;
+    SlotCount = 0;
+    ClothCount = 0;
+    FixtureBodyCount = 0;
+    HangingLineCount = 0;
+    MovingLightsWithoutHousing = 0;
+    StationSignature = 0;
+    MarkPackageDirty();
+}
+
+bool AInfinityStageStructureActor::MaterializeStructure()
+{
+    if (GetWorld() && GetWorld()->IsGameWorld())
+    {
+        UE_LOG(LogInfinityStageStructure, Error, TEXT("MaterializeStructure is editor authoring only; the structure must exist before PIE."));
+        return false;
+    }
+
+    // Validate everything before clearing, so a failure leaves the last good
+    // building standing rather than an empty stage.
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    if (!GatherStations(Stations, Error))
+    {
+        UE_LOG(LogInfinityStageStructure, Error, TEXT("%s Keeping the previous structure."), *Error);
+        return false;
+    }
+    // A mesh that will not load is an error; a material that will not load only
+    // falls back to the mesh's own, since the geometry is still right.
+    bool bMeshesLoaded = true;
+    const auto LoadMesh = [&bMeshesLoaded](const TSoftObjectPtr<UStaticMesh>& Mesh, const TCHAR* Role) -> UStaticMesh*
+    {
+        UStaticMesh* Loaded = Mesh.LoadSynchronous();
+        if (!Loaded)
+        {
+            UE_LOG(LogInfinityStageStructure, Error, TEXT("%s mesh '%s' does not load. Keeping the previous structure."),
+                Role, *Mesh.ToSoftObjectPath().ToString());
+            bMeshesLoaded = false;
+        }
+        return Loaded;
+    };
+    const auto LoadMaterial = [](const TSoftObjectPtr<UMaterialInterface>& Material, const TCHAR* Role) -> UMaterialInterface*
+    {
+        UMaterialInterface* Loaded = Material.LoadSynchronous();
+        if (!Loaded && !Material.IsNull())
+        {
+            UE_LOG(LogInfinityStageStructure, Warning, TEXT("%s material '%s' does not load; using the mesh's own."),
+                Role, *Material.ToSoftObjectPath().ToString());
+        }
+        return Loaded;
+    };
+    UStaticMesh* BeamMesh = Gridiron.bEnabled ? LoadMesh(Gridiron.BeamMesh, TEXT("Gridiron beam")) : nullptr;
+    UStaticMesh* BoardMesh = Ground.bEnabled ? LoadMesh(Ground.BoardMesh, TEXT("Ground board")) : nullptr;
+    UStaticMesh* UnderstageMesh = Ground.bEnabled && Ground.bUnderstage
+        ? LoadMesh(Ground.UnderstageMesh, TEXT("Understage"))
+        : nullptr;
+    UStaticMesh* BodyMesh = Fixtures.bEnabled ? LoadMesh(Fixtures.BodyMesh, TEXT("Fixture body")) : nullptr;
+    // Cloth pieces arrive from another stream on their own schedule, so a piece
+    // that will not load is skipped with a warning rather than failing the build.
+    TArray<UStaticMesh*> ClothPieces;
+    if (Cloth.bEnabled)
+    {
+        for (const TSoftObjectPtr<UStaticMesh>& Piece : Cloth.Pieces)
+        {
+            if (UStaticMesh* Loaded = Piece.LoadSynchronous())
+            {
+                ClothPieces.Add(Loaded);
+            }
+            else
+            {
+                UE_LOG(LogInfinityStageStructure, Warning, TEXT("Cloth piece '%s' does not load; skipping it."),
+                    *Piece.ToSoftObjectPath().ToString());
+            }
+        }
+    }
+    UStaticMesh* LineMesh = Fixtures.bEnabled && Fixtures.bHangFromGrid && Gridiron.bEnabled
+        ? LoadMesh(Fixtures.LineMesh, TEXT("Hanging line"))
+        : nullptr;
+    if (!bMeshesLoaded)
+    {
+        return false;
+    }
+
+    ClearStructure();
+    Modify();
+
+    // Everything is placed in world space and the actor is never moved here: a
+    // re-fit must not drag anything the artist attached to the building.
+    StationCount = Stations.Num();
+    if (BeamMesh)
+    {
+        UInstancedStaticMeshComponent* Component = CreateManagedComponent(
+            TEXT("StructureGridiron"),
+            GridironLayerTag,
+            BeamMesh,
+            LoadMaterial(Gridiron.Material, TEXT("Gridiron")),
+            Gridiron.bCastShadow);
+        BuildGridiron(Stations, *Component, BeamMesh->GetBoundingBox());
+    }
+    if (BoardMesh)
+    {
+        BuildGround(
+            Stations,
+            *BoardMesh,
+            LoadMaterial(Ground.BoardMaterial, TEXT("Ground board")),
+            UnderstageMesh,
+            LoadMaterial(Ground.UnderstageMaterial, TEXT("Understage")));
+    }
+    if (!ClothPieces.IsEmpty())
+    {
+        BuildCloth(Stations, ClothPieces, LoadMaterial(Cloth.Material, TEXT("Cloth")));
+    }
+    if (BodyMesh)
+    {
+        BuildFixtures(
+            Stations,
+            *BodyMesh,
+            LoadMaterial(Fixtures.BodyMaterial, TEXT("Fixture body")),
+            LineMesh,
+            LoadMaterial(Fixtures.LineMaterial, TEXT("Hanging line")));
+    }
+    int32 MovingLights = 0;
+    StationSignature = ComputeStructureSignature(
+        Stations,
+        GatherFixturePlacements(*Passage->ShowAsset, Stations, MovingLights));
+    MarkPackageDirty();
+
+    int32 InstanceCount = 0;
+    for (const UInstancedStaticMeshComponent* Component : ManagedComponents)
+    {
+        InstanceCount += Component ? Component->GetInstanceCount() : 0;
+    }
+    UE_LOG(
+        LogInfinityStageStructure,
+        Display,
+        TEXT("INFINITY_STAGE_STRUCTURE_OK actor='%s' passage='%s' stations=%d cross_beams=%d rails=%d ")
+        TEXT("boards=%d slots=%d cloths=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f"),
+        *GetActorNameOrLabel(),
+        *Passage->GetActorNameOrLabel(),
+        StationCount,
+        CrossBeamCount,
+        RailSegmentCount,
+        BoardCount,
+        SlotCount,
+        ClothCount,
+        FixtureBodyCount,
+        HangingLineCount,
+        MovingLightsWithoutHousing,
+        InstanceCount,
+        GridHalfWidthCm);
+    return true;
+}
+
+void AInfinityStageStructureActor::MaterializeStructureInEditor()
+{
+    if (!MaterializeStructure())
+    {
+        UE_LOG(
+            LogInfinityStageStructure,
+            Error,
+            TEXT("Infinity Stage Materialize Structure editor action failed for '%s'; the previous structure was retained."),
+            *GetActorNameOrLabel());
+    }
+}
+
+UInstancedStaticMeshComponent* AInfinityStageStructureActor::CreateManagedComponent(
+    const FName BaseName,
+    const FName LayerTag,
+    UStaticMesh* Mesh,
+    UMaterialInterface* Material,
+    const bool bCastShadow)
+{
+    const FName ComponentName = MakeUniqueObjectName(this, UInstancedStaticMeshComponent::StaticClass(), BaseName);
+    UInstancedStaticMeshComponent* Component =
+        NewObject<UInstancedStaticMeshComponent>(this, ComponentName, RF_Transactional);
+    Component->CreationMethod = EComponentCreationMethod::Instance;
+    Component->ComponentTags.Add(StructureTag);
+    Component->ComponentTags.Add(LayerTag);
+    Component->SetupAttachment(SceneRoot);
+    Component->SetMobility(EComponentMobility::Static);
+    Component->SetStaticMesh(Mesh);
+    if (Material)
+    {
+        for (int32 MaterialIndex = 0; MaterialIndex < FMath::Max(1, Mesh->GetStaticMaterials().Num()); ++MaterialIndex)
+        {
+            Component->SetMaterial(MaterialIndex, Material);
+        }
+    }
+    Component->SetCastShadow(bCastShadow);
+    Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Component->SetCanEverAffectNavigation(false);
+    Component->SetNumCustomDataFloats(TimberCustomDataFloats);
+    AddInstanceComponent(Component);
+    Component->RegisterComponent();
+    ManagedComponents.Add(Component);
+    return Component;
+}
+
+void AInfinityStageStructureActor::BuildGridiron(
+    const TArray<FInfinityStructureStation>& Stations,
+    UInstancedStaticMeshComponent& Component,
+    const FBox& MeshBounds)
+{
+    double WidestPanelCm = 0.0;
+    for (const FInfinityStructureStation& Station : Stations)
+    {
+        WidestPanelCm = FMath::Max(WidestPanelCm, Station.HalfWidthCm);
+    }
+    // One width for the whole Passage: a gridiron is a rigid building, and rails
+    // that followed each pair's width would wander.
+    const double HalfSpanCm = WidestPanelCm + Gridiron.OverhangCm;
+    GridHalfWidthCm = HalfSpanCm;
+
+    const double Variation = FMath::Clamp(Gridiron.SectionVariation, 0.0, 0.5);
+    const double MaxTwist = FMath::Clamp(Gridiron.TwistDegrees, 0.0, 10.0);
+    TArray<FTransform> Transforms;
+    TArray<float> CustomData;
+    const auto AddTimber = [&](
+        const FVector& CentreWorld,
+        const FVector& Along,
+        const FVector& Up,
+        const double LengthCm,
+        FRandomStream Stream)
+    {
+        // Always draw the same four numbers in the same order, so changing one
+        // wear setting never reshuffles the others.
+        const double WidthJitter = Stream.FRandRange(-1.0, 1.0);
+        const double DepthJitter = Stream.FRandRange(-1.0, 1.0);
+        const double TwistJitter = Stream.FRandRange(-1.0, 1.0);
+        const float Tone = Stream.FRand();
+        const FVector SizeCm(
+            LengthCm,
+            Gridiron.BeamWidthCm * (1.0 + WidthJitter * Variation),
+            Gridiron.BeamDepthCm * (1.0 + DepthJitter * Variation));
+        const FQuat Rotation = FRotationMatrix::MakeFromXZ(Along, Up).ToQuat()
+            * FQuat(FVector::ForwardVector, FMath::DegreesToRadians(TwistJitter * MaxTwist));
+        Transforms.Add(FitMeshToTimber(MeshBounds, CentreWorld, Rotation, SizeCm));
+        CustomData.Append({ Tone, static_cast<float>(SizeCm.X), static_cast<float>(SizeCm.Y), static_cast<float>(SizeCm.Z) });
+    };
+
+    const int32 Every = FMath::Max(1, Gridiron.CrossBeamEvery);
+    // Rails sit on top of the crosses: rail centre one nominal depth higher.
+    const double RailLiftCm = Gridiron.HeightCm + Gridiron.BeamDepthCm;
+    for (int32 Index = 0; Index < Stations.Num(); ++Index)
+    {
+        const FInfinityStructureStation& Station = Stations[Index];
+        const FVector Origin = Station.StationWorld.GetLocation();
+        const FVector Across = Station.StationWorld.GetUnitAxis(EAxis::Y);
+        const FVector Up = Station.StationWorld.GetUnitAxis(EAxis::Z);
+        if (Index % Every == 0)
+        {
+            AddTimber(
+                Origin + Up * Gridiron.HeightCm,
+                Across,
+                Up,
+                HalfSpanCm * 2.0,
+                MakeTimberStream(Station.CueGuid, ETimberPart::CrossBeam));
+            ++CrossBeamCount;
+        }
+        if (Index + 1 >= Stations.Num())
+        {
+            continue;
+        }
+        const FInfinityStructureStation& Next = Stations[Index + 1];
+        const FVector NextOrigin = Next.StationWorld.GetLocation();
+        const FVector NextAcross = Next.StationWorld.GetUnitAxis(EAxis::Y);
+        const FVector NextUp = Next.StationWorld.GetUnitAxis(EAxis::Z);
+        const FVector RailUp = (Up + NextUp).GetSafeNormal();
+        for (const double Side : { -1.0, 1.0 })
+        {
+            const FVector Start = Origin + Across * (Side * HalfSpanCm) + Up * RailLiftCm;
+            const FVector End = NextOrigin + NextAcross * (Side * HalfSpanCm) + NextUp * RailLiftCm;
+            const double LengthCm = FVector::Distance(Start, End);
+            if (LengthCm < 1.0)
+            {
+                continue;
+            }
+            AddTimber(
+                (Start + End) * 0.5,
+                (End - Start) / LengthCm,
+                RailUp,
+                LengthCm,
+                MakeTimberStream(Station.CueGuid, Side < 0.0 ? ETimberPart::RailNegative : ETimberPart::RailPositive));
+            ++RailSegmentCount;
+        }
+    }
+
+    ApplyInstances(Component, Transforms, CustomData);
+}
+
+void AInfinityStageStructureActor::BuildGround(
+    const TArray<FInfinityStructureStation>& Stations,
+    UStaticMesh& BoardMesh,
+    UMaterialInterface* BoardMaterial,
+    UStaticMesh* UnderstageMesh,
+    UMaterialInterface* UnderstageMaterial)
+{
+    const USplineComponent& Route = *Passage->Route;
+    const double RouteLengthCm = Route.GetSplineLength();
+    const double StartCm = FMath::Clamp(Stations[0].DistanceCm - Ground.ApronCm, 0.0, RouteLengthCm);
+    const double EndCm = FMath::Clamp(Stations.Last().DistanceCm + Ground.ApronCm, 0.0, RouteLengthCm);
+    if (EndCm - StartCm < 1.0)
+    {
+        return;
+    }
+
+    const double HalfSpanCm = GetFloorHalfSpanCm(Stations);
+
+    const double BoardWidthCm = FMath::Max(4.0, Ground.BoardWidthCm);
+    const double GapCm = FMath::Max(0.0, Ground.BoardGapCm);
+    const double ThicknessCm = FMath::Max(0.5, Ground.BoardThicknessCm);
+    const double MinLengthCm = FMath::Max(20.0, FMath::Min(Ground.MinBoardLengthCm, Ground.MaxBoardLengthCm));
+    const double MaxLengthCm = FMath::Max(MinLengthCm, Ground.MaxBoardLengthCm);
+    const double HalfSlotCm = FMath::Max(1.0, Ground.SlotWidthCm) * 0.5;
+    const double LanePitchCm = BoardWidthCm + GapCm;
+    const int32 LaneCount = FMath::Max(1, FMath::FloorToInt32((HalfSpanCm * 2.0 + GapCm) / LanePitchCm));
+    const double FirstLaneCm = -(LaneCount * LanePitchCm - GapCm) * 0.5 + BoardWidthCm * 0.5;
+
+    // Where each station's slots begin, measured out from the route line. Never
+    // nearer than the cat's clearance, whatever the wings do.
+    TArray<double> SlotInnerCm;
+    for (const FInfinityStructureStation& Station : Stations)
+    {
+        const double InnerCm = FMath::Max(Station.HalfWidthCm - Ground.SlotInboardCm, Ground.CatClearanceCm);
+        const bool bCut = Ground.bCutChariotSlots && InnerCm < HalfSpanCm;
+        SlotInnerCm.Add(bCut ? InnerCm : TNumericLimits<double>::Max());
+        SlotCount += bCut ? 2 : 0;
+    }
+
+    const FBox BoardBounds = BoardMesh.GetBoundingBox();
+    TArray<FTransform> Boards;
+    TArray<float> BoardData;
+    const auto AddBoard = [&](const double LaneCm, const double FromCm, const double ToCm, FRandomStream& Stream)
+    {
+        const double LengthCm = ToCm - FromCm;
+        if (LengthCm < 1.0)
+        {
+            return;
+        }
+        // Each board is a chord of the route, so a curving route still gets
+        // straight timber rather than bent planks.
+        const FTransform Frame = Route.GetTransformAtDistanceAlongSpline(
+            (FromCm + ToCm) * 0.5, ESplineCoordinateSpace::World, false);
+        const FVector CentreWorld = Frame.GetLocation()
+            + Frame.GetUnitAxis(EAxis::Y) * LaneCm
+            + Frame.GetUnitAxis(EAxis::Z) * (Ground.FloorHeightCm - ThicknessCm * 0.5);
+        Boards.Add(FitMeshToTimber(BoardBounds, CentreWorld, Frame.GetRotation(), FVector(LengthCm, BoardWidthCm, ThicknessCm)));
+        BoardData.Append({ Stream.FRand(), static_cast<float>(LengthCm), static_cast<float>(BoardWidthCm), static_cast<float>(ThicknessCm) });
+    };
+
+    for (int32 Lane = 0; Lane < LaneCount; ++Lane)
+    {
+        const double LaneCm = FirstLaneCm + Lane * LanePitchCm;
+        const double LaneOuterCm = FMath::Abs(LaneCm) + BoardWidthCm * 0.5;
+        // Stations are in route order, so the cuts this lane crosses are too.
+        TArray<double> CutsCm;
+        for (int32 Index = 0; Index < Stations.Num(); ++Index)
+        {
+            if (LaneOuterCm > SlotInnerCm[Index])
+            {
+                CutsCm.Add(Stations[Index].DistanceCm);
+            }
+        }
+        FRandomStream Stream(static_cast<int32>(HashCombineFast(
+            HashCombineFast(GetTypeHash(Passage->PassageGuid), ::GetTypeHash(static_cast<uint32>(ETimberPart::BoardLane))),
+            ::GetTypeHash(Lane))));
+        // Each lane starts part-way through a board, so joints stagger across the floor.
+        double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * Stream.FRandRange(0.2, 1.0);
+        double FromCm = StartCm;
+        int32 CutIndex = 0;
+        while (FromCm < EndCm - 1.0)
+        {
+            while (CutIndex < CutsCm.Num() && CutsCm[CutIndex] + HalfSlotCm <= FromCm)
+            {
+                ++CutIndex;
+            }
+            double ToCm = FMath::Min(FromCm + NextLengthCm, EndCm);
+            double NextFromCm = ToCm + GapCm;
+            if (CutIndex < CutsCm.Num() && CutsCm[CutIndex] - HalfSlotCm < ToCm)
+            {
+                // The board stops at the slot's edge and the next begins beyond it.
+                ToCm = CutsCm[CutIndex] - HalfSlotCm;
+                NextFromCm = CutsCm[CutIndex] + HalfSlotCm;
+                ++CutIndex;
+            }
+            AddBoard(LaneCm, FromCm, ToCm, Stream);
+            FromCm = NextFromCm;
+            NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm);
+        }
+    }
+
+    // Boards cast shadows: without them every lamp would light the understage
+    // straight through the floor, and the slots would stop reading as dark cuts.
+    UInstancedStaticMeshComponent* BoardComponent = CreateManagedComponent(
+        TEXT("StructureGround"), GroundLayerTag, &BoardMesh, BoardMaterial, true);
+    ApplyInstances(*BoardComponent, Boards, BoardData);
+    BoardCount = Boards.Num();
+
+    if (!UnderstageMesh)
+    {
+        return;
+    }
+    // A floor far below, in route-following slabs, seen only through slots and gaps.
+    constexpr double SlabLengthCm = 1000.0;
+    constexpr double SlabThicknessCm = 10.0;
+    const FBox UnderstageBounds = UnderstageMesh->GetBoundingBox();
+    TArray<FTransform> Slabs;
+    TArray<float> SlabData;
+    for (double FromCm = StartCm; FromCm < EndCm - 1.0; FromCm += SlabLengthCm)
+    {
+        const double ToCm = FMath::Min(FromCm + SlabLengthCm, EndCm);
+        const FTransform Frame = Route.GetTransformAtDistanceAlongSpline(
+            (FromCm + ToCm) * 0.5, ESplineCoordinateSpace::World, false);
+        const FVector CentreWorld = Frame.GetLocation() + Frame.GetUnitAxis(EAxis::Z)
+            * (Ground.FloorHeightCm - ThicknessCm - Ground.UnderstageDepthCm - SlabThicknessCm * 0.5);
+        const FVector SizeCm(ToCm - FromCm, HalfSpanCm * 2.0, SlabThicknessCm);
+        Slabs.Add(FitMeshToTimber(UnderstageBounds, CentreWorld, Frame.GetRotation(), SizeCm));
+        SlabData.Append({ 0.5f, static_cast<float>(SizeCm.X), static_cast<float>(SizeCm.Y), static_cast<float>(SizeCm.Z) });
+    }
+    UInstancedStaticMeshComponent* UnderstageComponent = CreateManagedComponent(
+        TEXT("StructureUnderstage"), UnderstageLayerTag, UnderstageMesh, UnderstageMaterial, false);
+    ApplyInstances(*UnderstageComponent, Slabs, SlabData);
+}
+
+double AInfinityStageStructureActor::GetFloorHalfSpanCm(const TArray<FInfinityStructureStation>& Stations) const
+{
+    // The floor meets the building's walls: the grid's span when there is one.
+    if (GridHalfWidthCm > 0.0)
+    {
+        return GridHalfWidthCm;
+    }
+    double WidestPanelCm = 0.0;
+    for (const FInfinityStructureStation& Station : Stations)
+    {
+        WidestPanelCm = FMath::Max(WidestPanelCm, Station.HalfWidthCm);
+    }
+    return WidestPanelCm + Gridiron.OverhangCm;
+}
+
+void AInfinityStageStructureActor::BuildCloth(
+    const TArray<FInfinityStructureStation>& Stations,
+    const TArray<UStaticMesh*>& Pieces,
+    UMaterialInterface* Material)
+{
+    const USplineComponent& Route = *Passage->Route;
+    const double RouteLengthCm = Route.GetSplineLength();
+    const double FloorWidthCm = GetFloorHalfSpanCm(Stations) * 2.0;
+    const double MinWidth = FMath::Max(0.1, FMath::Min(Cloth.WidthFraction.X, Cloth.WidthFraction.Y));
+    const double MaxWidth = FMath::Max(MinWidth, FMath::Max(Cloth.WidthFraction.X, Cloth.WidthFraction.Y));
+    const double MaxOffsetCm = FMath::Max(0.0, Cloth.MaxOffsetCm);
+    const double MaxYaw = FMath::Clamp(Cloth.MaxYawDegrees, 0.0, 45.0);
+
+    TArray<TArray<FTransform>> TransformsByPiece;
+    TArray<TArray<float>> DataByPiece;
+    TransformsByPiece.SetNum(Pieces.Num());
+    DataByPiece.SetNum(Pieces.Num());
+    // One chance per bay, between each station and the next.
+    for (int32 Bay = 0; Bay + 1 < Stations.Num(); ++Bay)
+    {
+        FRandomStream Stream = MakeTimberStream(Stations[Bay].CueGuid, ETimberPart::Cloth);
+        // Draw every number up front, so coverage never reshuffles the pieces.
+        const bool bCovered = Stream.FRand() < Cloth.Coverage;
+        const int32 PieceIndex = Stream.RandRange(0, Pieces.Num() - 1);
+        const double AlongCm = Stream.FRandRange(-MaxOffsetCm, MaxOffsetCm) * 0.5;
+        const double AcrossCm = Stream.FRandRange(-MaxOffsetCm, MaxOffsetCm);
+        const double LengthScale = Stream.FRandRange(0.85, 1.2);
+        const double WidthScale = Stream.FRandRange(MinWidth, MaxWidth);
+        const double YawDegrees = (Stream.FRand() < 0.5 ? 180.0 : 0.0) + Stream.FRandRange(-MaxYaw, MaxYaw);
+        const float Tone = Stream.FRand();
+        if (!bCovered)
+        {
+            continue;
+        }
+
+        UStaticMesh* Piece = Pieces[PieceIndex];
+        const double FromCm = Stations[Bay].DistanceCm;
+        const double ToCm = Stations[Bay + 1].DistanceCm;
+        const FTransform Frame = Route.GetTransformAtDistanceAlongSpline(
+            FMath::Clamp((FromCm + ToCm) * 0.5 + AlongCm, 0.0, RouteLengthCm), ESplineCoordinateSpace::World, false);
+        const FVector MeshSize = Piece->GetBoundingBox().GetSize();
+        const double LengthCm = (ToCm - FromCm) * LengthScale;
+        const double WidthCm = FloorWidthCm * WidthScale;
+        // Placed by pivot at floor height and never scaled vertically: the cloth
+        // keeps its simulated rumple and the clearance built in above the boards.
+        const FVector Scale(
+            MeshSize.X > UE_KINDA_SMALL_NUMBER ? LengthCm / MeshSize.X : 1.0,
+            MeshSize.Y > UE_KINDA_SMALL_NUMBER ? WidthCm / MeshSize.Y : 1.0,
+            1.0);
+        const FQuat Rotation = Frame.GetRotation() * FQuat(FVector::UpVector, FMath::DegreesToRadians(YawDegrees));
+        const FVector Location = Frame.GetLocation()
+            + Frame.GetUnitAxis(EAxis::Y) * AcrossCm
+            + Frame.GetUnitAxis(EAxis::Z) * Ground.FloorHeightCm;
+        TransformsByPiece[PieceIndex].Add(FTransform(Rotation, Location, Scale));
+        DataByPiece[PieceIndex].Append({ Tone, static_cast<float>(LengthCm), static_cast<float>(WidthCm), static_cast<float>(MeshSize.Z) });
+    }
+
+    for (int32 PieceIndex = 0; PieceIndex < Pieces.Num(); ++PieceIndex)
+    {
+        if (TransformsByPiece[PieceIndex].IsEmpty())
+        {
+            continue;
+        }
+        UInstancedStaticMeshComponent* Component = CreateManagedComponent(
+            TEXT("StructureCloth"), ClothLayerTag, Pieces[PieceIndex], Material, Cloth.bCastShadow);
+        ApplyInstances(*Component, TransformsByPiece[PieceIndex], DataByPiece[PieceIndex]);
+        ClothCount += TransformsByPiece[PieceIndex].Num();
+    }
+}
+
+void AInfinityStageStructureActor::BuildFixtures(
+    const TArray<FInfinityStructureStation>& Stations,
+    UStaticMesh& BodyMesh,
+    UMaterialInterface* BodyMaterial,
+    UStaticMesh* LineMesh,
+    UMaterialInterface* LineMaterial)
+{
+    const TArray<FFixturePlacement> Placements =
+        GatherFixturePlacements(*Passage->ShowAsset, Stations, MovingLightsWithoutHousing);
+    if (Placements.IsEmpty())
+    {
+        return;
+    }
+
+    const FBox BodyBounds = BodyMesh.GetBoundingBox();
+    const FVector BodySize = Fixtures.BodySizeCm.ComponentMax(FVector(1.0));
+    const double LineThickness = FMath::Max(0.5, Fixtures.LineThicknessCm);
+    TArray<FTransform> Bodies;
+    TArray<float> BodyData;
+    TArray<FTransform> Lines;
+    TArray<float> LineData;
+    for (const FFixturePlacement& Placement : Placements)
+    {
+        const FInfinityStructureStation& Station = Stations[Placement.StationIndex];
+        const FVector Throw = Placement.LightWorld.GetUnitAxis(EAxis::X);
+        const FVector Across = Station.StationWorld.GetUnitAxis(EAxis::Y);
+        // Lamps hang plumb whatever the route does; only a lamp thrown straight up
+        // or down needs a second reference to stay upright.
+        const FQuat Rotation = FMath::Abs(Throw.Z) > 0.98
+            ? FRotationMatrix::MakeFromXY(Throw, Across).ToQuat()
+            : FRotationMatrix::MakeFromXZ(Throw, FVector::UpVector).ToQuat();
+        // The source is the housing's open front, so the housing sits behind it.
+        const FVector BodyCentre = Placement.LightWorld.GetLocation() - Throw * (BodySize.X * 0.5);
+        Bodies.Add(FitMeshToTimber(BodyBounds, BodyCentre, Rotation, BodySize));
+        FRandomStream Stream = MakeTimberStream(Placement.AttachmentGuid, ETimberPart::Housing);
+        BodyData.Append({ Stream.FRand(), static_cast<float>(BodySize.X), static_cast<float>(BodySize.Y), static_cast<float>(BodySize.Z) });
+
+        if (!LineMesh || GridHalfWidthCm <= 0.0)
+        {
+            continue;
+        }
+        // A line only where there is grid overhead: inside the building's span and
+        // within reach below it. Lamps beyond the span wait for the wall bays.
+        const FVector Origin = Station.StationWorld.GetLocation();
+        const FVector StationUp = Station.StationWorld.GetUnitAxis(EAxis::Z);
+        const double Lateral = FMath::Abs(FVector::DotProduct(BodyCentre - Origin, Across));
+        const double GridTopZ = (Origin + StationUp * (Gridiron.HeightCm + Gridiron.BeamDepthCm * 1.5)).Z;
+        const double HousingTopZ = BodyCentre.Z + BodySize.Z * 0.5;
+        const double Drop = GridTopZ - HousingTopZ;
+        if (Lateral > GridHalfWidthCm || Drop < 1.0 || Drop > Fixtures.MaxDropCm)
+        {
+            continue;
+        }
+        Lines.Add(FitMeshToTimber(
+            LineMesh->GetBoundingBox(),
+            FVector(BodyCentre.X, BodyCentre.Y, HousingTopZ + Drop * 0.5),
+            FRotationMatrix::MakeFromXY(FVector::UpVector, Across).ToQuat(),
+            FVector(Drop, LineThickness, LineThickness)));
+        LineData.Append({ Stream.FRand(), static_cast<float>(Drop), static_cast<float>(LineThickness), static_cast<float>(LineThickness) });
+    }
+
+    // Housings and lines cast no shadow. Each source sits on its housing's face,
+    // where a caster invites self-shadow acne, and the rig already spends the VSM
+    // budget on the lamps themselves.
+    UInstancedStaticMeshComponent* BodyComponent = CreateManagedComponent(
+        TEXT("StructureFixtures"), FixtureLayerTag, &BodyMesh, BodyMaterial, false);
+    ApplyInstances(*BodyComponent, Bodies, BodyData);
+    FixtureBodyCount = Bodies.Num();
+    if (!Lines.IsEmpty())
+    {
+        UInstancedStaticMeshComponent* LineComponent = CreateManagedComponent(
+            TEXT("StructureLines"), LineLayerTag, LineMesh, LineMaterial, false);
+        ApplyInstances(*LineComponent, Lines, LineData);
+        HangingLineCount = Lines.Num();
+    }
+}
