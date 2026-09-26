@@ -8,9 +8,11 @@ What changes, and why:
   faces, grazing slashes, and back-lights thrown toward the approaching camera,
   the only direction forward-scattering haze shows a shaft in.
 - REWORK every existing P03 light into quiet fill: one consistent level per
-  slot (+-12%) instead of the 1-101 cd per-cue spread that read as patchy, and
-  shadows off, so the Passage net-reduces shadow casters against a VSM budget
-  that already overflows. The rig carries the keys and the shadows.
+  slot (+-12%) instead of the 1-101 cd per-cue spread that read as patchy,
+  shaped along the route by a slow path envelope (35-100%) so the journey has
+  dark stretches and arrivals, and shadows off, so the Passage net-reduces
+  shadow casters against a VSM budget that already overflows. The rig carries
+  the keys, the shadows and the parts of the wings.
 - DRAMA (PIE and renders only; the editor always shows authored values):
   slashes and back-lights strike on approach, about a third of the pools
   slow-sweep.
@@ -47,6 +49,11 @@ FILL_CD = {"Cross +Y": 8.0, "Cross -Y": 8.0, "Entry Fwd +Y": 6.0, "Entry Fwd -Y"
            "Entry High +Y": 12.0, "Entry High -Y": 12.0, "Entry Top": 18.0, "Low +Y": 3.0, "Low -Y": 3.0}
 FILL_JITTER = 0.12
 FILL_SCATTER = 0.6
+# Gary, 26 Sep: "attention to lighting path and wings". The fill is a floor under
+# the composition, not a second key, and it breathes along the route: the plan's
+# per-bay fill_envelope (35-100%, about five bays per swell) sinks whole
+# stretches toward dark so the next pool, or a pair of back-light shafts, reads
+# as an arrival instead of twenty identically lit bays.
 RECORDED_FIELDS = ("intensity", "cast_shadows", "cast_volumetric_shadow", "volumetric_scattering_intensity")
 FINGERPRINT_FIELDS = ("type", "intensity_units", "intensity", "color", "use_temperature", "temperature_kelvin",
                       "attenuation_radius_cm", "inner_cone_angle_degrees", "outer_cone_angle_degrees",
@@ -192,6 +199,11 @@ if reread["existing_lights"] != existing_lights or len(reread["cues"]) != len(p0
 unreal.log(f"P03_RIG_REVERT_RECORD_OK|cues={len(p03)}|lights={existing_lights}|path={RECORD}")
 
 # ---- Build the new light lists (still nothing written to the Show) ---------
+# The path envelope comes from the plan, which owns it for every P03 pair.
+route_order = [bay["cue"] for bay in sorted(plan["plan"], key=lambda b: b["route_x"])]
+envelope = {bay["cue"]: float(bay["fill_envelope"]) for bay in plan["plan"]}
+if sorted(envelope) != sorted(p03):
+    fail(f"plan envelope covers {len(envelope)} pairs, the Show has {len(p03)} P03 pairs - re-run the plan")
 
 
 def rework(label, att):
@@ -202,7 +214,7 @@ def rework(label, att):
     # Fill levels are candelas; a light in other units keeps its brightness and
     # only loses its shadow.
     if L.get_editor_property("intensity_units") == unreal.InfinityStageLightIntensityUnits.CANDELAS:
-        L.set_editor_property("intensity", FILL_CD[slot] * random.Random(
+        L.set_editor_property("intensity", FILL_CD[slot] * envelope[label] * random.Random(
             guid_str(att.get_editor_property("attachment_guid"))).uniform(1.0 - FILL_JITTER, 1.0 + FILL_JITTER))
     L.set_editor_property("cast_shadows", False)
     L.set_editor_property("cast_volumetric_shadow", False)
@@ -286,7 +298,8 @@ if globals().get("P03_DRY_RUN"):
     # were built and the revert record verified; stop before the first write.
     rig_rows = sum(len(r) for r in rows_by_cue.values())
     unreal.log(f"P03_RIG_DRY_RUN_OK|cues={len(p03)}|existing_lights={existing_lights}|fill_to_rework={fill_changed}"
-               f"|rig_to_add={rig_rows}|p03_shadow_casters_now={casters_before}|mutated=0")
+               f"|rig_to_add={rig_rows}|p03_shadow_casters_now={casters_before}"
+               f"|path_envelope={','.join(f'{envelope[l]:.2f}' for l in route_order)}|mutated=0")
     raise RuntimeError("P03_RIG_DRY_RUN_COMPLETE")
 show.modify()
 template = max(rows_by_cue, key=lambda label: len(rows_by_cue[label]))

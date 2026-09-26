@@ -5,10 +5,13 @@ wings. So every bay hangs lamps under its cross beam and throws them forward
 and down onto the next pair's faces, the faces the camera sees on approach:
 
   Rig L / Rig R  a pool on the near wing, inboard of the corridor edge
-  Rig Slash      odd bays, alternating sides, a grazing cross-shot from the
-                 far side that stretches into a slash across the opposite wing
-  Rig Back       even bays: thrown BACK toward the approaching camera and down
-                 to the floor about 2.5 bays upstream. Forward-scattering haze
+  Rig Slash      bays without a back-light, alternating sides, a grazing
+                 cross-shot that stretches into a slash across the far wing
+  Rig Back       thrown BACK toward the approaching camera and down to the
+                 floor about 2.5 bays upstream, crossing eye height ~2 bays
+                 back. Placed by the PATH, not by rhythm: a bay gets one when
+                 the stretch its shaft crosses is dark, so the shafts come in
+                 crossing pairs out of each dark trough. Forward-scattering haze
                  (g=0.55) only shows a shaft to a viewer the light travels
                  toward; the conductor's 4-state capture A/B (25 Sep) proved the
                  forward-thrown rig showed none and the fog only cost light.
@@ -46,6 +49,19 @@ BACK_CD = 90.0
 BACK_PITCH_DEG = 40.0     # down from horizontal; shallower reads as more shaft
 BACK_SCATTER = 4.0
 DARK_WING_CHANCE = 0.18
+# The path (Gary, 26 Sep: "attention to lighting path and wings"): the existing
+# lights become fill shaped by a slow envelope along the route. This plan owns
+# the envelope; p03_rig_apply.py reads it from here, so the two cannot disagree.
+PATH_PERIOD_BAYS = 5.5
+PATH_FLOOR = 0.35
+BACK_WHEN_ENVELOPE_BELOW = 0.55
+BACK_SHAFT_REACH_BAYS = 2
+
+
+def envelope(route_index):
+    phase = random.Random("P03-path").uniform(0.0, 2.0 * math.pi)
+    return PATH_FLOOR + (1.0 - PATH_FLOOR) * (
+        0.5 + 0.5 * math.cos(2.0 * math.pi * route_index / PATH_PERIOD_BAYS + phase))
 
 ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
 world = ed.get_editor_world()
@@ -113,6 +129,7 @@ def to_local(pair_world, loc_world, aim_world):
 
 plan = []
 wing_tops = []
+backs_placed = 0
 for index, bay in enumerate(bays[:-1]):
     nxt = bays[index + 1]
     rng = random.Random(f"{PREFIX}-rig-{bay['ordinal']}")
@@ -146,10 +163,12 @@ for index, bay in enumerate(bays[:-1]):
                          "kelvin": 3000, "volumetric_scattering": 2.0, "cast_volumetric_shadow": False,
                          "target": [round(face_x), round(ty), round(tz)]})
 
-    if index % 2 == 0:
+    if envelope(index - BACK_SHAFT_REACH_BAYS) < BACK_WHEN_ENVELOPE_BELOW:
         # Back light: hung on the upstream face, thrown toward the audience and
         # down, crossing the corridor so the shaft passes over the cat's line.
-        sign = 1.0 if (index // 2) % 2 == 0 else -1.0
+        # Consecutive back-lights alternate sides, so a pair crosses.
+        sign = 1.0 if backs_placed % 2 == 0 else -1.0
+        backs_placed += 1
         own = bay["panels"].get("RIGHT" if sign > 0 else "LEFT")
         # Corridor edge of this bay's own wing on that side: its inboard face.
         edge = abs((own[0][1] if sign > 0 else own[1][1]) - origin.y) if own else 400.0
@@ -163,7 +182,8 @@ for index, bay in enumerate(bays[:-1]):
                      "intensity_cd": round(BACK_CD * rng.uniform(0.8, 1.25), 1),
                      "kelvin": 3400, "volumetric_scattering": BACK_SCATTER, "cast_volumetric_shadow": True,
                      "target": [round(floor.x), round(floor.y), round(floor.z)]})
-        plan.append({"cue": bay["label"], "route_x": round(bay["route_x"]), "lights": rows})
+        plan.append({"cue": bay["label"], "route_x": round(bay["route_x"]),
+                     "fill_envelope": round(envelope(index), 3), "lights": rows})
         continue
 
     # Slash: from the far side, alternating, grazing across the opposite wing.
@@ -184,11 +204,15 @@ for index, bay in enumerate(bays[:-1]):
                      "intensity_cd": round(SLASH_CD * rng.uniform(0.75, 1.3) * (throw / 1100.0) ** 2, 1),
                      "kelvin": 3600, "volumetric_scattering": 2.0, "cast_volumetric_shadow": False,
                      "target": [round(lo[0]), round(ty), round(tz)]})
-    plan.append({"cue": bay["label"], "route_x": round(bay["route_x"]), "lights": rows})
+    plan.append({"cue": bay["label"], "route_x": round(bay["route_x"]),
+                 "fill_envelope": round(envelope(index), 3), "lights": rows})
+# The last pair hangs no rig (nothing downstream to light) but still takes fill.
+plan.append({"cue": bays[-1]["label"], "route_x": round(bays[-1]["route_x"]),
+             "fill_envelope": round(envelope(len(bays) - 1), 3), "lights": []})
 
 report = {
     "passage": PASSAGE,
-    "bays_rigged": len(plan),
+    "bays_rigged": sum(1 for bay in plan if bay["lights"]),
     "lamps": sum(len(p["lights"]) for p in plan),
     "wing_top_cm": [round(min(wing_tops)), round(max(wing_tops))] if wing_tops else None,
     "lamp_height_cm": GRID_HEIGHT - BEAM_DEPTH / 2.0 - HANG_DROP,
