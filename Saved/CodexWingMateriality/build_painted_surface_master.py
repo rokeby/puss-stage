@@ -370,6 +370,9 @@ def build_master():
         "RoughJit": g.scalar("RoughnessJitter", 0.10, "06 Variation", -1000, 2000, 3),
         "WearJit": g.scalar("WearJitter", 0.6, "06 Variation", -1000, 2100, 4),
         "BurnPreview": g.scalar("BurnPreview", 0.0, "07 Burn", -1000, 2400, 2),
+        # BurnEdgeCm and BurnIrregularityCm are COUPLED to Effects sources' Wing Burn:
+        # their front pad InfinityStageWingBurn::FrontPadCm = Irregularity/2 + 1.25*Edge = 130.
+        # Change both sides together (and never override these per MI), or flames leave the char line.
         "BurnEdgeCm": g.scalar("BurnEdgeCm", 40.0, "07 Burn", -1000, 2500, 3),
         "IrregularityCm": g.scalar("BurnIrregularityCm", 160.0, "07 Burn", -1000, 2575, 8),
         "ScorchTint": g.vector("ScorchTint", (0.55, 0.36, 0.2), "07 Burn", -1000, 2590, 9),

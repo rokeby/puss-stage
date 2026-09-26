@@ -69,8 +69,10 @@ untouched, as the rollback.
 | 1, 2 | ignition UV on the panel face (V-down) | 0.5, 1.0 (bottom centre) |
 | 3 | VariationSeed; replaces PerInstanceRandom when ≥ 0 | −1 |
 
-`SetNumCustomDataFloats(4)` and a deterministic seed in slot 3 are in the
-conductor's build of 2026-09-25 night. From that build on, slot 3 replaces
+`SetNumCustomDataFloats(4)` and a deterministic seed in slot 3 landed in
+e0c2c2f: `(HashCombine(cue, side) % 100000) / 100000`, so the value is in [0, 1).
+The floats are reserved only when a component is **created**, so components
+serialized before that build carry 0 floats until their passage is re-materialized. From that build on, slot 3 replaces
 PerInstanceRandom as the variation source.
 
 **Burn contract with Effects sources' WingBurn Niagara.** The front spreads in
@@ -84,7 +86,9 @@ centimetres, not UV:
 - Mean front radius R = BurnProgress × (Dmax + pad), where Dmax is the distance
   from the ignition UV to the farthest corner of the UV square (in cm), and
   pad = IrregularityCm/2 + 1.25 × BurnEdgeCm (160 and 40 by default, so
-  130 cm). Progress 1 is therefore always fully consumed. BurnMask moves the
+  130 cm). Progress 1 is therefore always fully consumed. The pad is **coupled**
+  to `InfinityStageWingBurn::FrontPadCm` in Effects' code (79bb2d2). Change both
+  sides together, and never override these two per MI. BurnMask moves the
   visible front by ±IrregularityCm/2 around R.
 - Every wing mesh has exact planar UVs: V = aV·Z + bV with aV < 0 (V-down), and
   U = aU·Y + bU with aU < 0 on 145 meshes and > 0 on 4. The per-mesh a/b values
