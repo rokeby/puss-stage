@@ -9,6 +9,7 @@
 #include "Components/SpotLightComponent.h"
 #include "Components/SplineComponent.h"
 #include "InfinityStageEffectSource.h"
+#include "InfinityStageEffectTypes.h"
 #include "InfinityStageLightDrama.h"
 #include "Engine/PointLight.h"
 #include "Engine/RectLight.h"
@@ -991,6 +992,10 @@ bool AInfinityStagePassageActor::AddPanelInstance(
         // temporal AA, Lumen reflections and motion blur. Existing serialized
         // components are also enabled defensively in the evaluation path.
         Component->SetHasPerInstancePrevTransforms(true);
+        // Per-instance floats the wing material and Wing Burn effects read.
+        // Reserved before the first instance is added, because widening the
+        // stride afterwards discards values already written.
+        Component->SetNumCustomDataFloats(InfinityStageWingCustomData::NumFloats);
         Component->SetCastShadow(Panel.bCastShadow);
         Component->SetVisibility(true, true);
         Component->SetRenderInMainPass(Panel.bVisibleInMainPass);
@@ -1014,6 +1019,18 @@ bool AInfinityStagePassageActor::AddPanelInstance(
     const FTransform WorldTransform = ImageTransform * FacingTransform
         * Panel.LocalTransform * OccurrenceOffset * StationTransform;
     const int32 InstanceIndex = Component->AddInstance(WorldTransform, true);
+    // Deterministic variation seed from cue + side, so the same wing carries the
+    // same tint and wear at every performance. PerInstanceRandom is not stable
+    // across a rebuild, and this show is performed repeatedly.
+    if (Component->NumCustomDataFloats > InfinityStageWingCustomData::VariationSeed)
+    {
+        const uint32 SeedHash = HashCombine(GetTypeHash(CueGuid), GetTypeHash(static_cast<uint8>(Side)));
+        Component->SetCustomDataValue(
+            InstanceIndex,
+            InfinityStageWingCustomData::VariationSeed,
+            static_cast<float>(SeedHash % 100000u) / 100000.0f,
+            false);
+    }
     FInfinityMaterializedPanelRef& Ref = MaterializedPanels.AddDefaulted_GetRef();
     Ref.CueGuid = CueGuid;
     Ref.Side = Side;
