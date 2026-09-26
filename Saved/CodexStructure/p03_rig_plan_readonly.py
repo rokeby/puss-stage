@@ -232,7 +232,7 @@ report = {
     "wing_top_cm": [round(min(wing_tops)), round(max(wing_tops))] if wing_tops else None,
     "lamp_height_cm": GRID_HEIGHT - BEAM_DEPTH / 2.0 - HANG_DROP,
     "shared_settings": {"type": "Spot", "units": "Candelas", "cast_shadows": True,
-                        "attenuation": "1.6 x throw", "light_function": None,
+                        "attenuation": "1.25 x throw (set in p03_rig_apply.py)", "light_function": None,
                         "per_lamp": "volumetric_scattering, cast_volumetric_shadow"},
     "plan": plan,
 }

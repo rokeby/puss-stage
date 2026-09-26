@@ -54,6 +54,7 @@ FILL_SCATTER = 0.6
 # per-pair fill_envelope (35-100%, three composed dark troughs at irregular
 # spacing, never repeating) sinks whole stretches toward dark so the next pool,
 # or a crossing pair of back-light shafts, reads as an arrival.
+RIG_RADIUS_OVER_THROW = 1.25
 RECORDED_FIELDS = ("intensity", "cast_shadows", "cast_volumetric_shadow", "volumetric_scattering_intensity")
 FINGERPRINT_FIELDS = ("type", "intensity_units", "intensity", "color", "use_temperature", "temperature_kelvin",
                       "attenuation_radius_cm", "inner_cone_angle_degrees", "outer_cone_angle_degrees",
@@ -244,7 +245,11 @@ def make_rig_light(label, row):
     L.set_editor_property("intensity", float(row["intensity_cd"]))
     L.set_editor_property("use_temperature", True)
     L.set_editor_property("temperature_kelvin", float(row["kelvin"]))
-    L.set_editor_property("attenuation_radius_cm", float(row["throw_cm"]) * 1.6)
+    # Just past the target. The P03 before-captures show VSM one-pass overflow
+    # ("max lights overflow" in the editor log) cutting hard rectangles into the
+    # wings; a tight radius keeps the rig itself from stacking more shadowed
+    # lights per pixel than the 16 the projection allows.
+    L.set_editor_property("attenuation_radius_cm", float(row["throw_cm"]) * RIG_RADIUS_OVER_THROW)
     L.set_editor_property("inner_cone_angle_degrees", float(row["inner"]))
     L.set_editor_property("outer_cone_angle_degrees", float(row["outer"]))
     L.set_editor_property("cast_shadows", True)
