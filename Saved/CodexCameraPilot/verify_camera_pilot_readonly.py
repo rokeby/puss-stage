@@ -102,8 +102,11 @@ for settings in show.get_editor_property("passage_settings"):
 
 # The handoff watch (camera-pilot follow-up): loaded, enabled, and the current
 # production staleness recorded as the baseline anyone keying a camera starts from.
-watch_class = getattr(unreal, "InfinityStageHandoffWatchSubsystem", None)
-if watch_class is None or unreal.get_editor_subsystem(watch_class) is None:
+# The subsystem class has no Blueprint surface, so Python has no type for it;
+# resolve the UClass by path; get_editor_subsystem accepts the class object.
+watch_class = unreal.load_class(None, "/Script/InfinityStageEditor.InfinityStageHandoffWatchSubsystem")
+watch_instance = unreal.get_editor_subsystem(watch_class) if watch_class is not None else None
+if watch_instance is None:
     failures.append("InfinityStageHandoffWatchSubsystem is not running")
 watch_enabled = unreal.SystemLibrary.get_console_variable_int_value("InfinityStage.HandoffWatch")
 handoff = unwrap(unreal.InfinityStageSequenceBuilderLibrary.check_scene_handoffs(show, world), 2)
@@ -112,7 +115,7 @@ if handoff is None:
     stale_scene_guids, handoff_report = [], ""
 else:
     stale_scene_guids, handoff_report = handoff
-    stale_scene_guids = [str(g) for g in stale_scene_guids]
+    stale_scene_guids = [unreal.GuidLibrary.conv_guid_to_string(g) for g in stale_scene_guids]
 
 dirty_after = sorted(
     [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]
@@ -126,6 +129,7 @@ payload = {
     "samples": samples,
     "handoff_watch_enabled": watch_enabled,
     "stale_scene_guids_at_verify": stale_scene_guids,
+    "handoff_watch_instance": str(watch_instance.get_name()) if watch_instance is not None else None,
     "handoff_report_at_verify": handoff_report,
     "failures": failures,
     "dirty_before": dirty_before,
