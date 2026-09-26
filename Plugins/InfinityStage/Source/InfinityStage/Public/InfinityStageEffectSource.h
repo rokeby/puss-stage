@@ -12,6 +12,7 @@ class UInstancedStaticMeshComponent;
 class ULightComponent;
 class ULocalFogVolumeComponent;
 class USceneComponent;
+class UStaticMesh;
 class UStaticMeshComponent;
 
 /**
@@ -101,6 +102,17 @@ public:
     /** Flame flicker in -1..1 from three incommensurate sines. */
     static float ComputeFlicker(double TimeSeconds, float InPhase01);
 
+    /**
+     * The wing master's mean burn front in panel-local cm: the ignition point on
+     * the panel's mid-plane (X = 0) and the front radius at this progress, by the
+     * contract in InfinityStageWingBurn. False while the UV mapping is unmeasured.
+     */
+    static bool ComputeBurnFront(
+        const FInfinityStageEffectSettings& InSettings,
+        float Progress,
+        FVector& OutIgnitionLocal,
+        float& OutRadiusCm);
+
     /** Re-applies Settings to this actor's own components and FX systems. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Effects")
     void ApplySettings();
@@ -122,6 +134,9 @@ private:
     /** Resolves the wing panel and route position this effect is anchored to. */
     void BindAnchor();
     void BindLinkedLight();
+    /** Gives a Wing Burn's FX systems the panel's geometry: bounds for its
+     * thickness, and the UV square and ignition point for the front. */
+    void PushBurnGeometry(const UStaticMesh& PanelMesh);
     void TrackAnchor();
     void SetEffectActive(bool bNewActive);
     bool IsWithinRenderedViewRadius() const;

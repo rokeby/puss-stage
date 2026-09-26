@@ -36,6 +36,10 @@ const FName IgnitionParameter(TEXT("User.Ignition"));
 const FName ExtentParameter(TEXT("User.Extent"));
 const FName PanelOriginParameter(TEXT("User.PanelOrigin"));
 const FName PanelExtentParameter(TEXT("User.PanelExtent"));
+const FName IgnitionLocalParameter(TEXT("User.IgnitionLocal"));
+const FName UVRectMinParameter(TEXT("User.UVRectMin"));
+const FName UVRectMaxParameter(TEXT("User.UVRectMax"));
+const FName FrontRadiusParameter(TEXT("User.FrontRadiusCm"));
 
 constexpr double RigSearchIntervalSeconds = 1.0;
 constexpr double LinkedLightSearchIntervalSeconds = 1.0;
@@ -220,6 +224,37 @@ float AInfinityStageEffectSource::ComputeFlicker(const double TimeSeconds, const
     return static_cast<float>(Value);
 }
 
+bool AInfinityStageEffectSource::ComputeBurnFront(
+    const FInfinityStageEffectSettings& InSettings,
+    const float Progress,
+    FVector& OutIgnitionLocal,
+    float& OutRadiusCm)
+{
+    const double ScaleU = InSettings.BurnUAxis.X;
+    const double ScaleV = InSettings.BurnVAxis.X;
+    if (FMath::IsNearlyZero(ScaleU) || FMath::IsNearlyZero(ScaleV))
+    {
+        return false;
+    }
+    const double IgnitionU = InSettings.IgnitionUV.X;
+    const double IgnitionV = InSettings.IgnitionUV.Y;
+    // Invert U = a * Y + b and V = a * Z + b. The signs vary by mesh (V runs down
+    // on every wing, U on most), so they are never assumed.
+    OutIgnitionLocal = FVector(
+        0.0,
+        (IgnitionU - InSettings.BurnUAxis.Y) / ScaleU,
+        (IgnitionV - InSettings.BurnVAxis.Y) / ScaleV);
+    // One UV unit spans 1 / |a| cm; the farthest corner of the UV square bounds
+    // the front, and the master's pad takes the ragged edge to hole depth.
+    const double ReachUCm = FMath::Max(IgnitionU, 1.0 - IgnitionU) / FMath::Abs(ScaleU);
+    const double ReachVCm = FMath::Max(IgnitionV, 1.0 - IgnitionV) / FMath::Abs(ScaleV);
+    const double FarthestCornerCm = FMath::Sqrt(ReachUCm * ReachUCm + ReachVCm * ReachVCm);
+    OutRadiusCm = static_cast<float>(
+        FMath::Clamp(static_cast<double>(Progress), 0.0, 1.0)
+        * (FarthestCornerCm + static_cast<double>(InfinityStageWingBurn::FrontPadCm)));
+    return true;
+}
+
 void AInfinityStageEffectSource::ApplySettings()
 {
     Phase01 = ComputePhase(CueGuid, AttachmentGuid);
@@ -313,17 +348,10 @@ void AInfinityStageEffectSource::BindAnchor()
             PanelInstanceIndex = Panel->InstanceIndex;
             PanelBaseWorld = Panel->BaseWorldTransform;
             AnchorLocation = Panel->BaseWorldTransform.GetLocation();
-            // The flame front must sit on the wing master's char line, so the
-            // system gets the panel's own bounds in its local space.
-            if (const UStaticMesh* PanelMesh = Panel->Component->GetStaticMesh())
+            const UStaticMesh* PanelMesh = Panel->Component->GetStaticMesh();
+            if (PanelMesh && Settings.Type == EInfinityStageEffectType::WingBurn)
             {
-                const FBoxSphereBounds Bounds = PanelMesh->GetBounds();
-                TInlineComponentArray<UFXSystemComponent*> Systems(this);
-                for (UFXSystemComponent* System : Systems)
-                {
-                    System->SetVectorParameter(PanelOriginParameter, Bounds.Origin);
-                    System->SetVectorParameter(PanelExtentParameter, Bounds.BoxExtent);
-                }
+                PushBurnGeometry(*PanelMesh);
             }
         }
     }
@@ -343,6 +371,56 @@ void AInfinityStageEffectSource::BindAnchor()
             AnchorLocation,
             ESplineCoordinateSpace::World);
         bHaveAnchorRouteDistance = true;
+    }
+}
+
+void AInfinityStageEffectSource::PushBurnGeometry(const UStaticMesh& PanelMesh)
+{
+    TInlineComponentArray<UFXSystemComponent*> Systems(this);
+    // Bounds only for the panel's thickness (X): the UV square, not the bounds,
+    // is what the char is drawn across.
+    const FBoxSphereBounds Bounds = PanelMesh.GetBounds();
+    for (UFXSystemComponent* System : Systems)
+    {
+        System->SetVectorParameter(PanelOriginParameter, Bounds.Origin);
+        System->SetVectorParameter(PanelExtentParameter, Bounds.BoxExtent);
+    }
+
+    FVector IgnitionLocal;
+    float UnusedRadiusCm = 0.0f;
+    if (!ComputeBurnFront(Settings, 0.0f, IgnitionLocal, UnusedRadiusCm))
+    {
+        UE_LOG(
+            LogInfinityStageEffects,
+            Warning,
+            TEXT("INFINITY_STAGE_EFFECT_BURN_NO_UV_MAPPING actor='%s' mesh=%s; the wing still chars, but its flames cannot be placed on the front until the UV mapping is set."),
+            *GetActorNameOrLabel(),
+            *PanelMesh.GetPathName());
+        return;
+    }
+    if (!Settings.BurnUVMeasuredMesh.IsNull()
+        && Settings.BurnUVMeasuredMesh.ToSoftObjectPath() != FSoftObjectPath(&PanelMesh))
+    {
+        UE_LOG(
+            LogInfinityStageEffects,
+            Warning,
+            TEXT("INFINITY_STAGE_EFFECT_BURN_UV_STALE actor='%s' measured=%s panel=%s; re-measure, or the flames may leave the char line."),
+            *GetActorNameOrLabel(),
+            *Settings.BurnUVMeasuredMesh.ToString(),
+            *PanelMesh.GetPathName());
+    }
+    // Corners of the UV square in mesh-local Y and Z.
+    const double Y0 = -Settings.BurnUAxis.Y / Settings.BurnUAxis.X;
+    const double Y1 = (1.0 - Settings.BurnUAxis.Y) / Settings.BurnUAxis.X;
+    const double Z0 = -Settings.BurnVAxis.Y / Settings.BurnVAxis.X;
+    const double Z1 = (1.0 - Settings.BurnVAxis.Y) / Settings.BurnVAxis.X;
+    const FVector RectMin(0.0, FMath::Min(Y0, Y1), FMath::Min(Z0, Z1));
+    const FVector RectMax(0.0, FMath::Max(Y0, Y1), FMath::Max(Z0, Z1));
+    for (UFXSystemComponent* System : Systems)
+    {
+        System->SetVectorParameter(IgnitionLocalParameter, IgnitionLocal);
+        System->SetVectorParameter(UVRectMinParameter, RectMin);
+        System->SetVectorParameter(UVRectMaxParameter, RectMax);
     }
 }
 
@@ -533,10 +611,17 @@ void AInfinityStageEffectSource::UpdateWingBurn(const bool bDriveWing)
         Settings.BurnStartAheadCm,
         Settings.BurnSpanCm);
 
+    FVector IgnitionLocal;
+    float FrontRadiusCm = 0.0f;
+    const bool bHaveFront = ComputeBurnFront(Settings, CurrentBurnProgress, IgnitionLocal, FrontRadiusCm);
     TInlineComponentArray<UFXSystemComponent*> Systems(this);
     for (UFXSystemComponent* System : Systems)
     {
         System->SetFloatParameter(BurnProgressParameter, CurrentBurnProgress);
+        if (bHaveFront)
+        {
+            System->SetFloatParameter(FrontRadiusParameter, FrontRadiusCm);
+        }
     }
 
     UInstancedStaticMeshComponent* Panel = PanelComponent.Get();

@@ -7,6 +7,7 @@
 #include "InfinityStageEffectLibrary.generated.h"
 
 class UInfinityStageShowAsset;
+class UStaticMesh;
 
 /**
  * Show-side authoring for Effect attachments, callable from Unreal Python and MCP
@@ -38,6 +39,22 @@ public:
         EInfinityAttachmentAnchor Anchor,
         FTransform RelativeTransform,
         FText Label);
+
+    /**
+     * Records the burning panel's planar UV mapping on a Wing Burn attachment,
+     * so its flames sit on the wing master's char line: U = UAxis.X * Y + UAxis.Y,
+     * V = VAxis.X * Z + VAxis.Y in mesh-local cm. Take the values from Wing
+     * materiality's probe_uv_axes_readonly.py, re-run rather than trusted stale.
+     * Returns false for anything but a Wing Burn, or a degenerate mapping.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Effects")
+    static bool SetWingBurnUVMapping(
+        UInfinityStageShowAsset* Show,
+        FGuid CueGuid,
+        FGuid AttachmentGuid,
+        FVector2D UAxis,
+        FVector2D VAxis,
+        TSoftObjectPtr<UStaticMesh> MeasuredMesh);
 
     /** The cues, in the given order, that carry an enabled volumetric beam
      * fixture: a light casting volumetric shadow at or above this scattering. */

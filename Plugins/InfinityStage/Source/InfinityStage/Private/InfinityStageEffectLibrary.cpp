@@ -109,6 +109,49 @@ FGuid UInfinityStageEffectLibrary::AddEffectAttachment(
     return Attachment.AttachmentGuid;
 }
 
+bool UInfinityStageEffectLibrary::SetWingBurnUVMapping(
+    UInfinityStageShowAsset* Show,
+    const FGuid CueGuid,
+    const FGuid AttachmentGuid,
+    const FVector2D UAxis,
+    const FVector2D VAxis,
+    const TSoftObjectPtr<UStaticMesh> MeasuredMesh)
+{
+    if (!Show || FMath::IsNearlyZero(UAxis.X) || FMath::IsNearlyZero(VAxis.X))
+    {
+        return false;
+    }
+    FInfinityShowCue* Cue = Show->Cues.FindByPredicate(
+        [CueGuid](const FInfinityShowCue& Candidate) { return Candidate.CueGuid == CueGuid; });
+    FInfinityCueAttachment* Attachment = Cue
+        ? Cue->WingPair.Attachments.FindByPredicate(
+            [AttachmentGuid](const FInfinityCueAttachment& Candidate)
+            { return Candidate.AttachmentGuid == AttachmentGuid; })
+        : nullptr;
+    if (!Attachment
+        || Attachment->Kind != EInfinityAttachmentKind::Effect
+        || Attachment->Effect.Type != EInfinityStageEffectType::WingBurn)
+    {
+        return false;
+    }
+    Show->Modify();
+    Attachment->Effect.BurnUAxis = UAxis;
+    Attachment->Effect.BurnVAxis = VAxis;
+    Attachment->Effect.BurnUVMeasuredMesh = MeasuredMesh;
+    UE_LOG(
+        LogInfinityStageEffectAuthoring,
+        Display,
+        TEXT("INFINITY_STAGE_EFFECT_BURN_UV_SET cue='%s' attachment=%s u=(%.9f, %.6f) v=(%.9f, %.6f) mesh=%s; written to the Show, save it intentionally."),
+        *Cue->Label.ToString(),
+        *AttachmentGuid.ToString(EGuidFormats::DigitsWithHyphens),
+        UAxis.X,
+        UAxis.Y,
+        VAxis.X,
+        VAxis.Y,
+        *MeasuredMesh.ToString());
+    return true;
+}
+
 TArray<FGuid> UInfinityStageEffectLibrary::SelectBeamBays(
     const UInfinityStageShowAsset* Show,
     const TArray<FGuid>& CueGuids,

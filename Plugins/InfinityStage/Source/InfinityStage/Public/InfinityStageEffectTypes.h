@@ -1,7 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/SoftObjectPtr.h"
 #include "InfinityStageEffectTypes.generated.h"
+
+class UStaticMesh;
 
 /**
  * Per-instance custom data on the Passage's wing ISMs.
@@ -21,6 +24,18 @@ namespace InfinityStageWingCustomData
     /** 0..1 deterministic variation seed, written by the Passage at materialize. */
     inline constexpr int32 VariationSeed = 3;
     inline constexpr int32 NumFloats = 4;
+}
+
+/**
+ * The burn front, as the wing master draws it (agreed with Wing materiality).
+ * Mean front radius in cm = BurnProgress * (Dmax + FrontPadCm), where Dmax is the
+ * distance from the ignition point to the farthest corner of the UV square. The
+ * pad — the master's IrregularityCm / 2 + 1.25 * BurnEdgeCm at its defaults —
+ * is what lets progress 1 reach hole depth everywhere.
+ */
+namespace InfinityStageWingBurn
+{
+    inline constexpr float FrontPadCm = 130.0f;
 }
 
 /**
@@ -143,6 +158,28 @@ struct INFINITYSTAGE_API FInfinityStageEffectSettings
         meta = (ClampMin = "0.0", ClampMax = "1.0",
             EditCondition = "Type == EInfinityStageEffectType::WingBurn", EditConditionHides))
     FVector2D IgnitionUV = FVector2D(0.5, 1.0);
+
+    /**
+     * The panel mesh's planar UV mapping in mesh-local cm, X being thickness:
+     * U = UAxis.X * Y + UAxis.Y and V = VAxis.X * Z + VAxis.Y. Images carry
+     * transparent margins, so the mesh bounds are not the UV square and cannot
+     * stand in for this. Measured per mesh by Wing materiality's
+     * probe_uv_axes_readonly.py. Only the flames' placement uses it: the char is
+     * drawn in UV space by the wing master and does not depend on it.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect|Wing Burn",
+        meta = (EditCondition = "Type == EInfinityStageEffectType::WingBurn", EditConditionHides))
+    FVector2D BurnUAxis = FVector2D::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect|Wing Burn",
+        meta = (EditCondition = "Type == EInfinityStageEffectType::WingBurn", EditConditionHides))
+    FVector2D BurnVAxis = FVector2D::ZeroVector;
+
+    /** The mesh the mapping was measured on. A different mesh on the panel warns
+     * that the flames may no longer sit on the char line. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect|Wing Burn",
+        meta = (EditCondition = "Type == EInfinityStageEffectType::WingBurn", EditConditionHides))
+    TSoftObjectPtr<UStaticMesh> BurnUVMeasuredMesh;
 
     /** Half-size of the drifting volume. Sent as User.Extent. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect|Motes",

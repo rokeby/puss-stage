@@ -108,6 +108,52 @@ bool FInfinityStageEffectBurnProgressTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageEffectBurnFrontTest,
+    "InfinityStage.Effects.BurnFrontFollowsTheWingMastersContract",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageEffectBurnFrontTest::RunTest(const FString& Parameters)
+{
+    // A 733 x 1000 cm UV square (SM_R__1_roccoco's span), U running right to
+    // left and V down, as on most wings: V = 1 at Z = 0, V = 0 at Z = 1000.
+    FInfinityStageEffectSettings Settings =
+        UInfinityStageEffectLibrary::MakeDefaultEffectSettings(EInfinityStageEffectType::WingBurn);
+    FVector Ignition;
+    float Radius = 0.0f;
+    TestFalse(TEXT("No front before the UV mapping is measured"),
+        AInfinityStageEffectSource::ComputeBurnFront(Settings, 0.5f, Ignition, Radius));
+
+    Settings.BurnUAxis = FVector2D(-1.0 / 733.0, 0.5);
+    Settings.BurnVAxis = FVector2D(-1.0 / 1000.0, 1.0);
+    TestTrue(TEXT("A measured mapping gives a front"),
+        AInfinityStageEffectSource::ComputeBurnFront(Settings, 1.0f, Ignition, Radius));
+    TestTrue(TEXT("Default ignition is bottom centre of the UV square"),
+        Ignition.Equals(FVector::ZeroVector, 0.01));
+    const double FarthestCorner = FMath::Sqrt(FMath::Square(0.5 * 733.0) + FMath::Square(1000.0));
+    TestEqual(TEXT("Progress 1 reaches the farthest corner plus the master's pad"),
+        Radius, static_cast<float>(FarthestCorner + InfinityStageWingBurn::FrontPadCm), 0.01f);
+    AInfinityStageEffectSource::ComputeBurnFront(Settings, 0.5f, Ignition, Radius);
+    TestEqual(TEXT("The front grows linearly with progress"),
+        Radius, static_cast<float>(0.5 * (FarthestCorner + InfinityStageWingBurn::FrontPadCm)), 0.01f);
+    AInfinityStageEffectSource::ComputeBurnFront(Settings, 0.0f, Ignition, Radius);
+    TestEqual(TEXT("An intact wing has no front"), Radius, 0.0f);
+
+    // The U sign differs between meshes and must never be assumed.
+    Settings.IgnitionUV = FVector2D(0.0, 0.0);
+    AInfinityStageEffectSource::ComputeBurnFront(Settings, 1.0f, Ignition, Radius);
+    TestTrue(TEXT("U = 0 lies at +Y when U runs right to left"),
+        Ignition.Equals(FVector(0.0, 366.5, 1000.0), 0.01));
+    Settings.BurnUAxis = FVector2D(1.0 / 733.0, 0.5);
+    AInfinityStageEffectSource::ComputeBurnFront(Settings, 1.0f, Ignition, Radius);
+    TestTrue(TEXT("U = 0 lies at -Y when U runs left to right"),
+        Ignition.Equals(FVector(0.0, -366.5, 1000.0), 0.01));
+    TestEqual(TEXT("A corner ignition reaches across the whole square"),
+        Radius, static_cast<float>(FMath::Sqrt(FMath::Square(733.0) + FMath::Square(1000.0))
+            + InfinityStageWingBurn::FrontPadCm), 0.01f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FInfinityStageEffectPumpTest,
     "InfinityStage.Effects.PumpIsSoftEdgedPhasedAndBounded",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -409,6 +455,13 @@ bool FInfinityStageEffectMaterializeTest::RunTest(const FString& Parameters)
     const FGuid BurnGuid = UInfinityStageEffectLibrary::AddEffectAttachment(
         Show, CueGuid, EInfinityStageEffectType::WingBurn, EInfinityAttachmentAnchor::LeftPanel,
         FTransform::Identity, FText::FromString(TEXT("Burning wing")));
+    // The engine cube spans -50..50 cm; map it as a wing would be, V down.
+    TestTrue(TEXT("The burn's UV mapping is recorded"),
+        UInfinityStageEffectLibrary::SetWingBurnUVMapping(
+            Show, CueGuid, BurnGuid, FVector2D(-0.01, 0.5), FVector2D(-0.01, 0.5), Cube));
+    TestFalse(TEXT("A haze pot takes no UV mapping"),
+        UInfinityStageEffectLibrary::SetWingBurnUVMapping(
+            Show, CueGuid, HazeGuid, FVector2D(-0.01, 0.5), FVector2D(-0.01, 0.5), Cube));
 
     AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
     Passage->ShowAsset = Show;

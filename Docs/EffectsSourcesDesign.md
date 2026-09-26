@@ -90,13 +90,45 @@ panels are 10 m and bays about 5 m, so it would bleed onto neighbours.
 The layout is `InfinityStageWingCustomData` in `InfinityStageEffectTypes.h`,
 with 4 floats in total.
 
-The material (`M_Wing_PaintedSurface_Master`, Wing materiality's) spreads the
-front in panel-local centimetres. It chars, then shows an ember band, then clips
-to a hole behind the front so that stage light comes through. It takes
-`max(MI BurnPreview, custom data)`, so the look can be authored in the editor.
-The flame Niagara receives `User.BurnProgress`, `User.Ignition`,
-`User.PanelOrigin` and `User.PanelExtent`, which are the panel mesh's local
-bounds, so the flames can sit on the same front.
+The material (`M_Wing_PaintedSurface_Master`, Wing materiality's) burns in UV
+space, converting to centimetres per material instance. It chars, then shows an
+ember band, then clips to a hole behind the front so that stage light comes
+through. It takes `max(MI BurnPreview, custom data)`, so the look can be
+authored in the editor. `UseBurn` is on for the two P01 trial material
+instances: `SM_R__1_roccoco` (16 panels) and `SM_CloudCeilingSmall_02_C` (24
+ceiling panels).
+
+**The front, agreed with Wing materiality:**
+- Mean radius in cm = `BurnProgress × (Dmax + 130)`.
+- `Dmax` is the distance from the ignition point to the farthest corner of the
+  **UV square**.
+- 130 is `IrregularityCm/2 + 1.25 × BurnEdgeCm` at the master's defaults, and is
+  `InfinityStageWingBurn::FrontPadCm` in code. Wing materiality will not vary it
+  per material instance without saying so.
+- The visible char wanders about ±80 cm around that mean. The flames follow the
+  mean, so a little overlap into the ember band is intended.
+
+**The mesh bounds are not the UV square.** Images carry transparent margins:
+`SM_CloudCeilingSmall_02_C`'s UV square is 4726 × 1889 cm on a 2129 × 1000 cm
+mesh. Every wing mesh has exact planar UVs, identical on Front, Back and Edge:
+- `U = aU·Y + bU` and `V = aV·Z + bV`, in mesh-local cm, with X as thickness.
+- `aV < 0` on all 149 meshes: V runs down, with V = 0 at the top.
+- `aU < 0` on 145 meshes, so its sign is never assumed.
+
+These are measured by `Saved/CodexWingMateriality/probe_uv_axes_readonly.py`
+(committed in `320cbb9`; re-run it rather than trusting `uv_axes.json`). Each
+Wing Burn attachment carries its own `BurnUAxis`, `BurnVAxis` and
+`BurnUVMeasuredMesh`, recorded with `SetWingBurnUVMapping`. That keeps the Show
+the authority and PIE, MRQ and cooked runs identical. A burn on a different
+mesh logs `INFINITY_STAGE_EFFECT_BURN_UV_STALE`. Only the flames depend on the
+mapping, because the char is drawn in UV space.
+
+The flame Niagara receives, in panel-local space:
+- `User.BurnProgress` and `User.FrontRadiusCm` (the agreed formula, worked out
+  in C++ as `ComputeBurnFront`);
+- `User.IgnitionLocal`;
+- `User.UVRectMin` / `User.UVRectMax` (the image square, to clip spawning);
+- `User.PanelOrigin` / `User.PanelExtent` (bounds, used only for the thickness).
 
 ## The shared change, in full, for the conductor to make once
 
@@ -178,7 +210,7 @@ Look & camera.
 | `InfinityStage/Public/InfinityStageEffectTypes.h` | Custom-data layout, `EInfinityStageEffectType`, `FInfinityStageEffectSettings`, `FInfinityEffectReplicationVariation` |
 | `InfinityStage/Public/InfinityStageEffectSource.h`, `Private/…cpp` | `AInfinityStageEffectSource` (details below) |
 | `InfinityStage/Public/InfinityStageEffectLibrary.h`, `Private/…cpp` | Authoring and stride replication, `BlueprintCallable` for Unreal Python and MCP |
-| `InfinityStageTests/Private/InfinityStageEffectTests.cpp` | Seven tests (below) |
+| `InfinityStageTests/Private/InfinityStageEffectTests.cpp` | Eight tests (below) |
 | `/Game/Scenes/Effects/` | `BP_Effect_HazePot`, `…_SmokePot`, `…_SteamKettle`, `…_FireBasket`, `…_WingBurn`, `…_Motes`, with their `NS_*` and `M_*` |
 | `Saved/CodexEffects/` | Authoring and read-back scripts, following the MCP runbook |
 
@@ -204,8 +236,9 @@ install, so it cannot be confirmed that `SetCustomDataValue` does not call
 `Modify()` and dirty the editor level. The editor world keeps zero dirty
 packages at rest.
 
-Tests (`InfinityStage.Effects.*`):
+Tests (`InfinityStage.Effects.*`, eight):
 - `BurnProgressFollowsCameraTravel`
+- `BurnFrontFollowsTheWingMastersContract` (formula, pad, and both signs of U)
 - `PumpIsSoftEdgedPhasedAndBounded`
 - `StrideCountsAfreshWithinEachPassage`
 - `BeamBaysAreThoseWithVolumetricFixtures`
@@ -278,7 +311,7 @@ the corridor.
 - Whether `SetCustomDataValue` dirties the editor level: avoided by design
   (game-world only), not proved.
 - Every line of this C++: build exit 0, the UTF-16 marker in the DLL, and the
-  suite with the seven new tests. All of that happens in the conductor's build
+  suite with the eight new tests. All of that happens in the conductor's build
   window.
 
 ## Decisions
