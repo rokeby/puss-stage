@@ -8,6 +8,8 @@
 #include "Components/SceneComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/SplineComponent.h"
+#include "InfinityStageEffectSource.h"
+#include "InfinityStageLightDrama.h"
 #include "Engine/PointLight.h"
 #include "Engine/RectLight.h"
 #include "Engine/Scene.h"
@@ -812,6 +814,10 @@ int32 AInfinityStagePassageActor::MaterializeAttachments()
             {
                 SpawnClass = ResolveNativeLightClass(Attachment.Lighting.Type);
             }
+            if (!SpawnClass && Attachment.Kind == EInfinityAttachmentKind::Effect)
+            {
+                SpawnClass = AInfinityStageEffectSource::ResolveDefaultClass(Attachment.Effect);
+            }
             if (!SpawnClass)
             {
                 // A mesh-only prop needs no Blueprint; anything else with no
@@ -876,6 +882,10 @@ int32 AInfinityStagePassageActor::MaterializeAttachments()
             // Native light actors reconstruct some type-specific defaults while
             // their movable root is parented. Apply the Show-owned settings only
             // after parenting so cone, radius and source shape remain authoritative.
+            if (Attachment.Kind == EInfinityAttachmentKind::Effect)
+            {
+                AInfinityStageEffectSource::ApplyAttachment(*Spawned, Cue.CueGuid, Attachment);
+            }
             if (Attachment.Kind == EInfinityAttachmentKind::Light)
             {
                 if (!ApplyAttachmentLightSettings(*Spawned, Attachment.Lighting))
@@ -1433,6 +1443,50 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
         FlushContiguousSpan();
         Component->MarkRenderStateDirty();
     }
+    // Light drama belongs to Rig & atmosphere (InfinityStageLightDrama.cpp). Game
+    // worlds only: in the editor a lamp must keep its authored values, because
+    // editing it captures live settings and aim back into the Show.
+    if (GetWorld() && GetWorld()->IsGameWorld())
+    {
+        const double ShowSeconds = MasterFrame.Value / ShowAsset->TickResolution.AsDecimal();
+        for (AActor* Lamp : ManagedAttachmentActors)
+        {
+            FGuid CueGuid;
+            FGuid AttachmentGuid;
+            if (!IsValid(Lamp) || !FindAttachmentByActor(Lamp, CueGuid, AttachmentGuid))
+            {
+                continue;
+            }
+            const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
+            const FInfinityCueAttachment* Attachment = Cue
+                ? Cue->WingPair.Attachments.FindByPredicate([&AttachmentGuid](const FInfinityCueAttachment& Candidate)
+                    { return Candidate.AttachmentGuid == AttachmentGuid; })
+                : nullptr;
+            const FInfinityCompiledWing* Wing = Passage->Wings.FindByPredicate([&CueGuid](const FInfinityCompiledWing& Candidate)
+                { return Candidate.CueGuid == CueGuid; });
+            if (!Attachment || !Wing || Attachment->Kind != EInfinityAttachmentKind::Light
+                || Attachment->Anchor != EInfinityAttachmentAnchor::Station
+                || !InfinityStageLightDrama::IsActive(Attachment->Lighting.Drama))
+            {
+                continue;
+            }
+            // Station anchor: the authored pose is the offset on the pair root,
+            // computed here without a recompile per lamp.
+            const FTransform AuthoredWorld = Attachment->RelativeTransform
+                * Cue->WingPair.OccurrenceOffset
+                * Route->GetTransformAtDistanceAlongSpline(Wing->DistanceCm, ESplineCoordinateSpace::World, true);
+            InfinityStageLightDrama::ApplyToLamp(
+                *Lamp,
+                Attachment->Lighting.Drama,
+                Attachment->Lighting.Intensity,
+                AuthoredWorld,
+                AttachmentGuid,
+                Wing->DistanceCm + Attachment->RelativeTransform.GetLocation().X,
+                EvaluatedCameraDistanceCm,
+                ShowSeconds);
+        }
+    }
+
     return bAllUpdatesSucceeded;
 }
 

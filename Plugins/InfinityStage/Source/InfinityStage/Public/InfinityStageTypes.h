@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "Misc/FrameRate.h"
 #include "Sound/SoundBase.h"
+#include "InfinityStageEffectTypes.h"
+#include "InfinityStageLightDrama.h"
 #include "InfinityStageTypes.generated.h"
 
 class ULevelSequence;
@@ -138,7 +140,8 @@ enum class EInfinityAttachmentKind : uint8
     Prop,
     Light,
     AnimationTrigger,
-    Sound
+    Sound,
+    Effect
 };
 
 /** Whether an attachment rides a moving panel or stays at the fixed station. */
@@ -352,6 +355,11 @@ struct INFINITYSTAGE_API FInfinityStageLightSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Function", meta = (ClampMin = "0.0"))
     float LightFunctionDisabledBrightness = 0.0f;
+
+    /** Strike on approach and slow moves. Evaluated in game worlds only; the
+     * editor always shows authored values. See InfinityStageLightDrama.h. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama", meta = (ShowOnlyInnerProperties))
+    FInfinityStageLightDrama Drama;
 };
 
 /**
@@ -454,6 +462,11 @@ struct INFINITYSTAGE_API FInfinityCueAttachment
         meta = (ShowOnlyInnerProperties,
             EditCondition = "Kind == EInfinityAttachmentKind::Light", EditConditionHides))
     FInfinityStageLightSettings Lighting;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effect",
+        meta = (ShowOnlyInnerProperties,
+            EditCondition = "Kind == EInfinityAttachmentKind::Effect", EditConditionHides))
+    FInfinityStageEffectSettings Effect;
 
     /** AnimationTrigger: fires when the evaluated camera is this close, in cm.
      * Distance rather than time, so retiming cannot desynchronise it. */
