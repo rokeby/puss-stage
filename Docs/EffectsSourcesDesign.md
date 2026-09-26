@@ -7,10 +7,20 @@ wings". Read `Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md` and
 `Docs/Conductor/BRIEF_EFFECTS_SOURCES_2026-09-25.md` first.
 
 **State:** the C++ is written in new files and reviewed by hand against the 5.8
-engine headers. It is **not built**. The conductor landed shared changes **A and
-B** in `63e5500`, exactly as specified below, so the tree should compile as it
-stands. **C** (the wing ISM custom-data floats) is still outstanding. Until it
-lands, everything works except the char on a burning wing.
+engine headers. It is **not built**. The conductor has landed the whole shared
+footprint as specified below: **A and B** in `63e5500`, **C and C2** in
+`e0c2c2f`. Nothing more is owed before the build window.
+
+**Read shafts and motes against the right light.** The conductor's shaft A/B
+(2026-09-25) found **no visible shaft at the beam bays yet**. Every beam lamp
+throws forward, away from the camera, so only back-scatter is seen, and the fog
+dims the scene by about 32% while giving nothing back. Rig & atmosphere is
+turning some of the P03 lamps to throw back toward the audience, which is how
+stage haze has always been lit. Until that lands, "where the light already is"
+means where it is *supposed* to be. The Local Fog Volume spike therefore goes
+in a **back-lit P03 bay** once Rig's change is in, not a P01 beam bay. There, a
+null result would prove nothing about the mechanism. Motes are judged on the
+same condition.
 
 ## What it is
 
@@ -260,8 +270,9 @@ the corridor.
 
 ## Unverified, and where each gets proved
 
-- Local Fog Volume base size (radius or diameter at scale 1): the first rendered
-  spike.
+- Local Fog Volume base size (radius or diameter at scale 1), and whether a
+  volume inside volumetric fog scatters with its own `FogPhaseG` or the global
+  distribution (0.55): the first rendered spike, in a back-lit bay.
 - Per-instance custom data on Nanite wings in 5.8: Wing materiality proves it on
   one Nanite and one non-Nanite panel in PIE once C lands.
 - Whether `SetCustomDataValue` dirties the editor level: avoided by design
