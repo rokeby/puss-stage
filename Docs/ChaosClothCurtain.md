@@ -125,6 +125,15 @@ whole curtain with crumples painted in and must not be used on simulated cloth.
 - Built: the CA/DF/mesh/material/textures under `/Game/Scenes/Curtain/Chaos`. **Tier: saved
   read-back.** 7/7 assets load, the cloth is linked to its graph and carries the velvet MI, 0 dirty
   (`Saved/CodexSoftGoods/verify_chaos_curtain.json`).
+- Placed (26 Sep, 01:57, approved by Gary): `BP_CurtainChaos` and one instance, "CurtainChaos
+  Preview", in `L_InfinityStage_V1VerticalSlice` at (5400, 0, 0), yaw 90 (P01's world, currently
+  dark: judge the velvet after Rig's back-thrown lamps). Simulate In Editor is off; switching it
+  on is Gary's call. Read-back: one actor, the right asset, dirty 0/0. Backup
+  `Backups/PreCurtainChaosPreview-20260926-0156`. This save also absorbed the conductor's
+  capture-tool map flag (`absorbed_capture_map_flag`). The conductor's HOLD reached this stream
+  only after the save.
+- The actor's bounds extend about 128 cm deeper and lower than the geometry. Probably cloth bounds
+  padding; not confirmed.
 - **Not yet proven:** that Chaos keeps the static-mesh vertex order, i.e. that the heading pin
   lands on the top row. The import order *is* proven. Only a running sim proves the pin.
 - **Not yet seen:** any rendered frame. The look, the weight and the frame rate are unverified.
