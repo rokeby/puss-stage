@@ -46,7 +46,11 @@ FString NormalizedAssetKey(FString Value)
     return Result.TrimChar(TEXT('_'));
 }
 
-bool ContainsAny(const FString& Value, const std::initializer_list<const TCHAR*>& Needles)
+// File-specific name on purpose. InfinityStageDevFixtureBuilder.cpp defines an
+// identical helper in its own anonymous namespace; internal linkage keeps those
+// apart in a normal build, but a unity build merges both into one translation
+// unit and they collide. Do not rename this back to ContainsAny.
+bool WingNameContainsAny(const FString& Value, const std::initializer_list<const TCHAR*>& Needles)
 {
     for (const TCHAR* Needle : Needles)
     {
@@ -66,23 +70,23 @@ EInfinityWingAssetRole ClassifyRole(const FString& AssetName)
     {
         return EInfinityWingAssetRole::Excluded;
     }
-    if (ContainsAny(Name, { TEXT("ceiling"), TEXT("celing"), TEXT("overhead"), TEXT("canopy") }))
+    if (WingNameContainsAny(Name, { TEXT("ceiling"), TEXT("celing"), TEXT("overhead"), TEXT("canopy") }))
     {
         return EInfinityWingAssetRole::Top;
     }
-    if (Name.StartsWith(TEXT("l_")) || ContainsAny(Name, { TEXT("_l_"), TEXT("left") }))
+    if (Name.StartsWith(TEXT("l_")) || WingNameContainsAny(Name, { TEXT("_l_"), TEXT("left") }))
     {
         return EInfinityWingAssetRole::LeftArchitectural;
     }
-    if (Name.StartsWith(TEXT("r_")) || ContainsAny(Name, { TEXT("_r_"), TEXT("right") }))
+    if (Name.StartsWith(TEXT("r_")) || WingNameContainsAny(Name, { TEXT("_r_"), TEXT("right") }))
     {
         return EInfinityWingAssetRole::RightArchitectural;
     }
-    if (ContainsAny(Name, { TEXT("ground"), TEXT("mound"), TEXT("rubble"), TEXT("mossy_rock"), TEXT("blob"), TEXT("log"), TEXT("clam"), TEXT("paper"), TEXT("bone_wave") }))
+    if (WingNameContainsAny(Name, { TEXT("ground"), TEXT("mound"), TEXT("rubble"), TEXT("mossy_rock"), TEXT("blob"), TEXT("log"), TEXT("clam"), TEXT("paper"), TEXT("bone_wave") }))
     {
         return EInfinityWingAssetRole::GroundOrProp;
     }
-    if (ContainsAny(Name, {
+    if (WingNameContainsAny(Name, {
         TEXT("wing"), TEXT("pillar"), TEXT("pilaster"), TEXT("curtain"), TEXT("wall"),
         TEXT("facade"), TEXT("archway"), TEXT("doorway"), TEXT("tower"), TEXT("downpipe"),
         TEXT("tree"), TEXT("barn"), TEXT("building"), TEXT("cloud"), TEXT("bones"),
@@ -97,7 +101,7 @@ EInfinityWingAssetRole ClassifyRole(const FString& AssetName)
 bool IsOrientationNeutralObject(const FString& AssetName)
 {
     const FString Name = AssetName.ToLower();
-    return ContainsAny(Name, {
+    return WingNameContainsAny(Name, {
         TEXT("building"), TEXT("barn"), TEXT("tree"), TEXT("cloud"), TEXT("bone"),
         TEXT("paper"), TEXT("clam"), TEXT("ground"), TEXT("mound"), TEXT("blob"),
         TEXT("log"), TEXT("animal"), TEXT("object") });
