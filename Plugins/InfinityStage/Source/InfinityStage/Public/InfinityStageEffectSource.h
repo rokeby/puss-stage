@@ -144,6 +144,8 @@ private:
 
     TWeakObjectPtr<ULightComponent> LinkedLight;
     float LinkedLightBaseIntensity = 0.0f;
+    /** The linked light has drama, which owns its intensity; stop looking for it. */
+    bool bLinkedLightYieldedToDrama = false;
     double NextLinkedLightSearchSeconds = 0.0;
 
     mutable TWeakObjectPtr<AInfinityStageCameraRig> CachedRig;

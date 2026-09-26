@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "InfinityStageCameraRig.h"
+#include "InfinityStageLightDrama.h"
 #include "InfinityStagePassageActor.h"
 #include "InfinityStageShowAsset.h"
 #include "Misc/PackageName.h"
@@ -267,6 +268,7 @@ void AInfinityStageEffectSource::BeginPlay()
     // Weak references do not survive duplication into a PIE or render world.
     ApplySettings();
     BindAnchor();
+    bLinkedLightYieldedToDrama = false;
     BindLinkedLight();
     bActivityKnown = false;
 }
@@ -367,6 +369,19 @@ void AInfinityStageEffectSource::BindLinkedLight()
         : nullptr;
     if (!LightAttachment)
     {
+        return;
+    }
+    if (InfinityStageLightDrama::IsActive(LightAttachment->Lighting.Drama))
+    {
+        // One writer per lamp. A light with drama is the rig's to animate, and a
+        // flicker on top would fight it frame by frame.
+        bLinkedLightYieldedToDrama = true;
+        UE_LOG(
+            LogInfinityStageEffects,
+            Warning,
+            TEXT("INFINITY_STAGE_EFFECT_LIGHT_YIELDED actor='%s' light=%s; the linked light has drama, so this effect will not flicker it."),
+            *GetActorNameOrLabel(),
+            *LightGuid.ToString(EGuidFormats::DigitsWithHyphens));
         return;
     }
     for (AActor* Candidate : Passage->ManagedAttachmentActors)
@@ -564,7 +579,7 @@ void AInfinityStageEffectSource::UpdateWingBurn(const bool bDriveWing)
 
 void AInfinityStageEffectSource::UpdateLinkedLight(const double TimeSeconds)
 {
-    if (!Settings.LinkedLightAttachmentGuid.IsValid())
+    if (!Settings.LinkedLightAttachmentGuid.IsValid() || bLinkedLightYieldedToDrama)
     {
         return;
     }

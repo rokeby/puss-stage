@@ -7,10 +7,10 @@ wings". Read `Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md` and
 `Docs/Conductor/BRIEF_EFFECTS_SOURCES_2026-09-25.md` first.
 
 **State:** the C++ is written in new files and reviewed by hand against the 5.8
-engine headers. It is **not built**. It compiles only together with the shared
-change below (A + B + C), which the conductor makes after these files exist.
-**No build may run between this stream's commit and change A**, because
-`Kind == Effect` and `Attachment.Effect` do not exist until A lands.
+engine headers. It is **not built**. The conductor landed shared changes **A and
+B** in `63e5500`, exactly as specified below, so the tree should compile as it
+stands. **C** (the wing ISM custom-data floats) is still outstanding. Until it
+lands, everything works except the char on a burning wing.
 
 ## What it is
 
@@ -254,7 +254,7 @@ the corridor.
 | Local Fog Volume | Analytic; radius scaled to the corridor; density modest against the global 0.022; aim for ≤ 6 in view |
 | Plume | GPU sim, ≤ 256 particles per active source, Volumetric NonDirectional lighting, no shadows, **no Volume-domain particles** in v1 |
 | Gating | Plume off beyond `ActiveRadiusCm`; the apparatus and medium stay |
-| Fire / burn light | Rig-owned, linked by GUID, **non-shadow-casting** because of the VSM overflow (a request to Rig & atmosphere) |
+| Fire / burn light | Rig-owned, linked by GUID, **non-shadow-casting** because of the VSM overflow (a request to Rig & atmosphere). **One writer per lamp:** if the linked light has Light Drama active, the effect yields (`INFINITY_STAGE_EFFECT_LIGHT_YIELDED`) and never flickers it |
 | Burn writes | `SetCustomDataValue(…, true)` re-creates that one wing ISM's render state each frame, but only during the burn window. Components hold about 5 instances each (765 panels over 149 meshes), so this is expected to be cheap. To be measured. |
 | Target | ≤ 1 ms GPU in the worst view (proposed; the frame budget is for the conductor and user to confirm) |
 
