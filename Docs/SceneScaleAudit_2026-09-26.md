@@ -121,7 +121,29 @@ design**, just what the machine already has, or nearly has, that could move:
   rooms **open** (walls). Drama's distance-driven strike already gives a model
   for timing: movement keyed to where the audience is, not to a clock.
 
-## 5. Questions for Gary
+## 5. Tunnel and hangar: what each way back costs
+
+Gary, 02:40: the passage rigging is "like a tunnel that reveals a huge 'hangar'
+space that we occupy for the scene before finding a subtle way to return to the
+passage". The hangar is the Scene Volume. Arrival is a reveal; the return must
+be subtle. What each candidate return costs in **geometry**, none chosen:
+
+| Return | What it needs | Cost |
+| --- | --- | --- |
+| **The mouth stays visible behind us**, and we leave the way we came | One **portal** in the hangar's wall layer: a wall bay left open, framed as a proscenium in the same timber, with the passage's rails and grid continuing into the hangar's lattice. The Scene Volume registers where the portal is. | Low. One portal per hangar. The passage must physically dock with the hangar, which the current layout already allows at a passage's end. |
+| **A second mouth**: we leave by a different opening | **Two portals** per hangar, in different walls, with the next passage starting at the second. | Medium, and a layout change: today Passages run in parallel lanes 800 m apart and Scenes sit in the gaps. Docking passage N's end and passage N+1's start on one hangar means passages chain hangar to hangar. That is the **closed-ring route** already agreed as the target, with hangars at the joints. |
+| **A cut**: we are simply back | Nothing. The hangar and the next passage need not be adjacent; the current layout works as it is. | None in geometry. The price is continuity: the audience is told, not shown, that the building connects. |
+| *Hybrid*: the camera drifts to a second mouth during the last shot and the cut lands as it enters | Two portals, but the second need not lead anywhere real: the cut covers the join. | Low–medium. Subtle by construction; keeps the ring layout optional. |
+
+Every geometric option needs the same new pieces: a **portal** as a kind of
+wall bay (an opening plus a timber frame), and the Scene Volume knowing which of
+its stations are portals and which passage docks there. The Passage structure
+already ends cleanly at its last station, so docking is a placement question,
+not a rebuild. The deeper choice is layout: parallel lanes with cuts, or the
+ring with hangars at the joints. The ring is the only one where a visible second
+mouth can really lead on.
+
+## 6. Questions for Gary
 
 1. Scene content: are Scenes 1–5 to be built as self-contained dioramas (per
    the Klara setup) and then instanced, or assembled from the environment packs
