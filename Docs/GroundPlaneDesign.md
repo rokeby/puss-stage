@@ -1,208 +1,120 @@
 # Infinity Stage ground design
 
+Rewritten 26 September 2026 by Rig & atmosphere for the container world
+(`Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md`). The earlier version
+specified a naturalistic forest floor. The direction has changed: we are inside a
+Baroque stage machine, so the floor is machinery. The earlier three-layer logic
+survives; its implementation does not.
+
 ## Creative direction
 
-The ground is not a background texture. It is the closest piece of scenery to the camera and should carry evidence of use: repairs, compression, dampness, swept paths, footprints, leaf fall, and the boundary between tended and untended space.
+The floor is the stage of the machine: timber boards, chariot slots cut across
+them where the wings run, darkness beneath, and cloth laid over the boards and
+worn through at frays and holes so the boards and slots show beneath. Gary's
+idea, and historically right: Baroque stages covered their boards with painted
+ground cloths.
 
-The visual target is **tactile theatrical realism**: materially convincing at close range, slightly composed and storybook in shape and colour, and controlled enough that the wing artwork remains the visual lead.
+It is still the closest scenery to the camera, so it must still carry evidence
+of use — worn cloth, repaired boards, dropped rope, sandbags — and still let the
+wings lead.
 
-![Floorboards, forest floor, and beaten-track transition concept](../DerivedAssets/GeneratedConcepts/GroundSystem/Ground_Surface_Transition_Concept_v01.png)
-
-This image is a visual-development reference, not a texture source. Its useful idea is the transition language: soil and moss invade the timber joints; forest litter becomes thinner and more compressed until it reads as a track.
+**Puss is the one thing in the machine not on rails.** No slot, groove or track
+ever crosses the cat's centre line. This is enforced by construction, not by
+convention (below).
 
 ## Core decision
 
-Use separate, section-owned **Ground Zones**, in line with the Infinity Stage specification, rather than one enormous plane whose material changes for the whole show.
+The floor is a layer of the **structure pass**, `AInfinityStageStructureActor`
+(one per Passage, `Plugins/InfinityStage/Source/InfinityStage/…/InfinityStageStructureActor.*`),
+beside the gridiron and the lamp housings. Like every structure layer it derives
+from the Passage's compiled wing stations, so the floor re-fits when the wings are
+re-spaced, and it owns only components tagged `InfinityStage.Structure`, so
+anything placed by hand survives every regeneration.
 
-- A Passage or Scene can own one or more Ground Zones.
-- Separate spatial bays are the default for major world changes.
-- A Ground Zone can be a modular mesh floor, spline strip, terrain mesh/Landscape, Level Instance, or artist-built set.
-- Continuous changes use an art-directed overlap zone.
-- Disconnected worlds change behind a Scene cut.
-- The ground remains persistent and visible in the editor; it is not spawned at playback time.
+Generate the spine, hand-place the accidents: the pass lays boards, slots and
+cloth with deterministic variation; sandbags, rope, ladders and debris are
+dropped by eye and never touched by it.
 
-This preserves editability and lets forest, theatre floor, path, shore, or stone exist together without forcing one universal shader to solve every geometric problem.
+Disconnected worlds still change behind a Scene cut, not by blending floors.
 
-## The three-layer construction
+## The three layers
 
-Every Ground Zone should separate three responsibilities.
+### 1. Walkable substrate — the boards
 
-### 1. Walkable substrate
+Plank boards in lanes along the route, tops at the route line (`FloorHeightCm`,
+default 0), 24 cm wide with 0.8 cm joints and 5 cm thick. Lengths are drawn per
+lane from 240–480 cm, and each lane starts part-way through a board, so joints
+stagger instead of forming a grid. Boards run along the direction of travel, so
+perspective reinforces the passage. They are chords of the route, so a curving or
+rising route gets straight timber, not bent planks.
 
-A simple, stable collision surface defines the performance floor. It must not inherit the tiny bumps, cracks, or scattered pieces used for appearance.
+The floor spans the building: the gridiron's half-span (widest panel plus
+overhang) either side of the route line.
 
-- Keep the main walking line broadly level.
-- Use simple collision even when the visible surface is Nanite/high detail.
-- Keep ordinary dressing below about 8 cm on the safe walking line.
-- Push roots, stones, lifted boards, plants, and deep ruts toward the margins.
+Boards currently have **no collision**: nothing on the stage is physics-driven
+(the cat follows the GO1 telemetry path). Add simple collision only if a walker
+ever needs it; never collide the visible detail.
 
-### 2. Hero surface
+### 2. Hero surface — slots and understage
 
-The hero surface supplies the large and middle scales: board layout, terrain undulation, compacted track, ruts, eroded edges, repairs, and main material breakup.
+A **chariot slot** (8 cm) is cut across the boards at every wing station, on both
+sides, running from `SlotInboardCm` (150 cm) inside the wing's line out to the
+building's wall, so a wing travelling inward still stands over its slot. No slot
+comes nearer the route line than `CatClearanceCm` (120 cm): **the cat's line is
+clear by construction**, whatever the wings do.
 
-It may be modular geometry, a spline strip, a terrain mesh, or Landscape. Material displacement alone should not be expected to create every silhouette or transition.
+A dark **understage** slab lies 2.5 m below the boards, seen only through slots
+and joints, so a slot reads as a cut into depth rather than a painted line. The
+boards cast shadows precisely so that lamps cannot light the understage through
+the floor.
 
-### 3. Dressing and history
+### 3. Dressing and history — cloth and accidents
 
-Small geometry, decals, and controlled scatter provide specificity: leaves in cracks, twigs, pebbles, nail heads, mud splashes, footprints, worn board centres, damp pockets, and sparse plants.
+**Ground cloths** from Soft goods (`/Game/Scenes/Curtain/FloorCloth/SM_FloorCloth_A–D`,
+sources in `DerivedAssets/FloorCloth/`): four settled cloth-sim pieces, pivot at
+centre, 0.3–3.3 cm above the boards, two with torn ends, masked material with
+three wear patterns. The pass lays at most one per bay (coverage 0.7 by default),
+with 180° flips, ±4° yaw and small offsets, fitted to the bay by bounds and never
+scaled vertically, so the simulated rumple survives. The cat's line may be
+covered: cloth is not rails.
 
-Dressing density should be mask-driven and biased away from the central walking line. Manual hero placements remain possible on top of procedural scatter.
+**Accidents** are placed by hand and are never regenerated.
 
-## Master material family
+## Material vocabulary
 
-Create one shared surface framework, `M_Ground_Master`, but allow specialised child materials where the geometry differs. Each material instance should expose the same art-direction vocabulary where practical.
+Every structure instance carries four custom-data floats: `[0]` variation 0..1,
+`[1]` length, `[2]` width, `[3]` depth in cm. Materials use `[1]`/`[2]` to tile
+grain or weave at true scale however the piece is fitted, and `[0]` for tone
+(and, for cloth, the wear pattern). Per-Passage variation is by material instance
+on each structure actor (`BoardMaterial`, `UnderstageMaterial`, `Cloth.Material`).
 
-| Control | Purpose |
-| --- | --- |
-| Base colour, normal, packed AO/roughness/height | Primary PBR surface set |
-| Local or world UV scale/rotation | Correct scale without re-authoring textures |
-| Macro tint and macro roughness breakup | Prevent repetition over long passages |
-| Detail normal and detail roughness | Hold up in low, grazing camera angles |
-| Dampness | Darken colour, reduce roughness, and strengthen normals selectively |
-| Dirt/litter overlay | Connect adjacent surface types and accumulate history |
-| Wear/compaction mask | Create the travelled centre and protected edges |
-| Per-instance variation | Break repeated modular panels without extra instances |
-| Distance fade | Remove expensive micro detail when it no longer contributes |
+Still worth keeping from the earlier design: vary colour, normal and roughness
+together, never colour alone; worn centres and protected edges; dark, shallow
+joints; restrained repairs rather than uniform newness.
 
-Do not blend only base colour. A believable change must blend colour, normal, roughness, height response, and dressing density together.
+## State, 26 September 2026
 
-The current `M_StageMovingGround` is useful as a legacy reference for tiling/offset, but it only samples the wooden colour texture. It should not become the new master.
+| Passage | Ground | Why |
+| --- | --- | --- |
+| P01, P02, P04, P05, P06 | on | corridor floor was empty |
+| P03 | off | the "Passage 3 - Wet Ground" Landscape sits at about +10 cm and would bury the boards |
 
-## Surface recipes
+- **Built and verified:** the ground layer compiled into `UnrealEditor-InfinityStage.dll`;
+  `InfinityStage.Structure.GroundSlotsKeepTheCatLineClear` and
+  `ClothLiesOverTheBoards` pass; swapped into the level (26,090 boards, 480 slots),
+  saved and read back after a reload from disk, zero dirty.
+- **Not yet seen in a frame.** P01 is the test: its "ForestedLandscape" lies
+  at y 54,800–67,400, not under the corridor, which is why P01 looked down into a
+  void. Nobody has accepted the floor by eye.
+- **Boards are engine cubes** with no material yet. A timber board mesh (Blender)
+  and a board material are the next look work.
+- **Cloth is off** until Soft goods' pieces are imported into `/Game`.
+- **The two Landscapes** (P01's misplaced ForestedLandscape, P03's Wet Ground)
+  still exist. Removing P03's lets its ground go on; P01's is not in the way.
 
-### Worn floorboards
+## Non-goals
 
-Use the existing high-poly wooden floor as the first hero-surface candidate:
-
-- `/Game/KK_S1_Animals/Wooden_Floor/StaticMeshes/wooden_floor_highpoly`
-- `/Game/KK_S1_Animals/Wooden_Floor/Textures/wooden_floor_Albedo`
-- `/Game/KK_S1_Animals/Wooden_Floor/Textures/wooden_floor_Normal`
-- `/Game/KK_S1_Animals/Wooden_Floor/Textures/wooden_floor_Roughness`
-
-Visual notes:
-
-- Run boards primarily along the direction of travel so perspective reinforces the passage.
-- Establish several board widths and lengths rather than a perfect grid.
-- Use dark, shallow joints; avoid deep gaps on the walking line.
-- Add repaired boards, restrained nail/peg detail, heel scuffs, and a slightly polished central route.
-- Keep dampness local to edges, entrances, or the forest transition.
-- Vary repeated modules with 180-degree rotation, tint, roughness, and decal passes.
-
-### Natural forest floor
-
-Build the forest floor as layers, not as one green-brown texture.
-
-Available starting material:
-
-- `/Game/MWTropicalRainforest/Textures/Ground/TEX_TRF_GroundMoss_col`
-- `/Game/MWTropicalRainforest/Textures/Ground/TEX_TRF_GroundMoss_nrm`
-- `/Game/MWTropicalRainforest/Textures/Ground/TEX_TRF_GroundMoss_msk`
-- Rainforest grass and small-plant meshes under `/Game/MWTropicalRainforest/Meshes/Plants`
-- Leaf meshes under `/Game/KK_S2_Shrine/Falling_Leaves/Mesh`
-
-Visual notes:
-
-- Begin with dark soil and make moss, litter, roots, stones, and plants separate distributions.
-- Use a soft depression/compaction mask through the travelled centre.
-- Concentrate intact leaves, moss, and shoots at protected edges.
-- Mix a few recognisable hero roots and stones into lower-frequency random scatter.
-- Use damp, darker roughness variation in hollows rather than making the whole floor glossy.
-
-### Beaten track
-
-The track is compacted forest soil, not a separate beige carpet.
-
-Existing dirt assets under `/Game/KK_S1_Animals/Dirt_etc` can be evaluated as temporary source material; a dedicated earth PBR set will probably be required for the final result.
-
-Visual notes:
-
-- Shape two or three broad paths of use rather than a perfectly centred stripe.
-- Let the middle be smoother, lighter, and more compacted, with damp dark pockets.
-- Keep shallow ruts and footprints readable through grazing light without compromising the collision floor.
-- Distribute pebbles, leaf fragments, and grass increasingly toward the edges.
-- Break the track outline with erosion, puddled patches, and small areas where forest growth returns.
-
-## Transition language
-
-Transitions should tell a physical story and normally occupy 2–4 m, adjusted for camera speed.
-
-### Floorboards to forest
-
-1. Dirt gathers in board joints.
-2. Moss and leaf fragments appear in protected cracks.
-3. Several boards become darker, worn, or partly obscured.
-4. Soil and litter cover more of the timber until only broken board rhythms remain.
-5. Forest-floor geometry takes full ownership.
-
-### Forest to beaten track
-
-1. Plants and intact litter thin out.
-2. Leaves fragment and soil becomes exposed.
-3. A compaction band strengthens and the surface becomes smoother.
-4. Repeated footprints/ruts establish direction.
-5. Edge vegetation frames a clearly readable track.
-
-For hard world changes, do not fake this blend. Use independent Ground Zones in separate bays and conceal the switch with the Scene's camera language.
-
-## First vertical slice
-
-Build a camera-test strip before authoring a full Passage:
-
-- 15 m long by 6 m wide, or scaled to the current passage envelope.
-- 5 m worn boards, 5 m forest floor, 5 m beaten track.
-- Maintain one continuous safe collision plane.
-- Include both transition types in the same strip.
-- Dress the centre lightly and the outer 1–1.5 m richly.
-- Test with the production camera height, focal length, speed, shadow figures, and representative wing lighting.
-- Review from the actual moving camera and one low grazing angle; an overhead editor view is not an approval view.
-
-The first pass succeeds when:
-
-- repeated tiling is not obvious during a complete camera move;
-- the surface reads as detailed without competing with characters and wings;
-- transitions read as physical accumulation/erosion rather than shader crossfades;
-- the performance line remains visually and physically safe;
-- no bay edge or ground seam enters an establishing or closing shot; and
-- material/dressing density can be reduced predictably for performance.
-
-## Suggested asset layout
-
-```text
-/Game/InfinityStage/Ground/
-  Materials/
-    M_Ground_Master
-    Functions/
-      MF_Ground_MacroVariation
-      MF_Ground_Dampness
-      MF_Ground_WearMask
-      MF_Ground_Transition
-    Instances/
-      MI_Ground_Floorboards_Worn
-      MI_Ground_ForestFloor_Damp
-      MI_Ground_BeatenTrack
-  Meshes/
-    Floorboards/
-    ForestFloor/
-    Track/
-    Dressing/
-  Blueprints/
-    BP_GroundZone_Prototype
-  PCG/
-    PCG_GroundEdgeDressing
-  Tests/
-    L_GroundLookdev
-```
-
-`AInfinityStageGroundZone` is specified but not yet implemented in the plugin. The look-development strip can begin with a lightweight prototype Blueprint, then migrate to the registered actor once Ground Zone runtime/editor support is built.
-
-## Deliberate non-goals for the first pass
-
-- No single material graph that tries to solve wood, soil, stone, water, and vegetation identically.
-- No runtime regeneration of fixed ground.
-- No dense foliage across the central performance line.
-- No deep tessellation/displacement collision.
-- No full-show procedural generation before one camera-tested strip is approved.
-
-## Generated concept provenance
-
-The concept image was generated with the built-in image-generation tool from a project-specific prompt for a three-quarter overhead theatrical ground strip. It was requested as visual development only, with no characters, labels, walls, or large obstacles, and with surface dressing constrained to a broadly level, actor-safe plane.
+- No forest floor, soil or moss: the register is timber, rope and canvas.
+- No generated clutter on the cat's line.
+- No runtime regeneration: the floor is materialized in the editor and saved.
+- No blending between disconnected worlds; change them behind a Scene cut.
