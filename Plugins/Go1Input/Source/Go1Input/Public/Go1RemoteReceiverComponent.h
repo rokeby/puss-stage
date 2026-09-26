@@ -141,7 +141,8 @@ public:
 	 * Which actor gets rotated. Leave empty for the recommended setup: the
 	 * component lives on the Show Root and rotates whichever camera is live,
 	 * resolved from the player's view target, so it follows Sequencer camera
-	 * cuts across Passages and Scenes without reconfiguration.
+	 * cuts across Passages and Scenes without reconfiguration. During a blended
+	 * handover it is the incoming camera, from the blend's first frame.
 	 *
 	 * Set it explicitly to pin one camera, or when running in the editor, where
 	 * there is no player controller to ask. Falls back to this component's own

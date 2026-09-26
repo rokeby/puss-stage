@@ -230,6 +230,23 @@ Transitions re-centre automatically: taking the camera back from the timeline,
 or a camera cut changing the view target, adopts the current rotation as the new
 centre so nothing snaps.
 
+**Blended handovers (2026-09-25, unverified until built and tested).** The
+transport can now blend a handover instead of cutting (Show Root → Transport →
+Transport|Handover; both blend defaults ship at 0.0, i.e. cuts). While a blend is
+in flight the engine's `GetViewTarget()` still reports the **outgoing** camera.
+Resolving from it would make the dog steer the outgoing camera for the whole
+blend, then re-centre on the incoming one when the blend ends. In Gaze mode a
+deflected stick then steps the view by up to the 30.3° range, mid-motion rather
+than behind a cut. `GetDrivenCameraActor()` therefore prefers the camera
+manager's `PendingViewTarget` while `BlendTimeToGo > 0`. The re-centre happens
+on the blend's first frame, on the camera the audience is watching arrive. Cuts
+are unchanged. Covered by `InfinityStage.Go1.ReceiverDrivesIncomingCameraDuringBlend`.
+Today the only dog-owned segment is Scene 6, the Void, set to Dog Free Look on
+2026-09-25 (decision F.5 of 21 Aug). An open question for Gary is whether a
+re-centre should also subtract the current stick offset, so even a cut never
+steps the view. The argument against: in Gaze mode the dog's look is meant to be
+absolute, and the step is honest about where the dog is looking.
+
 **Verified:** UE 5.8 build clean; `nm` confirms `GetDrivenCameraActor`,
 `ResolveShowRoot` and `bUseShowCameraOwnership` in the **base** dylib with the
 editor closed and no numbered side-libraries; **37/37 automation tests pass**
