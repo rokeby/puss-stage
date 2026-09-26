@@ -10,6 +10,7 @@ class UChildActorComponent;
 class UCineCameraComponent;
 class USceneComponent;
 class UInfinityStageShadowCatComponent;
+struct FInfinityCompiledPassage;
 struct FInfinityPassageCameraEvaluation;
 
 UCLASS(BlueprintType)
@@ -181,8 +182,14 @@ private:
     FTransform BuildShadowCatRelativeTransform() const;
     void ConfigureShadowCat();
     void DestroyOrphanedShadowCats();
-    void UpdateShadowCatAtMasterFrame(FFrameNumber MasterFrame, const FTransform& CameraTransform);
-    double CalculateCameraSpeedAtMasterFrame(FFrameNumber MasterFrame, const FTransform& CameraTransform) const;
+    void UpdateShadowCatAtMasterFrame(
+        FFrameNumber MasterFrame,
+        const FTransform& CameraTransform,
+        const FInfinityCompiledPassage& Passage);
+    double CalculateCameraSpeedAtMasterFrame(
+        FFrameNumber MasterFrame,
+        const FTransform& CameraTransform,
+        const FInfinityCompiledPassage& Passage) const;
 
     /** Current gait lift of the reference bone over its rest pose, in world cm, scaled by the bob gain. */
     double SampleShadowCatGaitLiftCm() const;
@@ -190,6 +197,13 @@ private:
     bool bShadowCatBobReported = false;
 
     bool GetCameraStateAtMasterFrame(
+        FFrameNumber MasterFrame,
+        FTransform& OutWorldTransform,
+        FInfinityPassageCameraEvaluation& OutEvaluation) const;
+
+    /** As GetCameraStateAtMasterFrame, against a Passage the caller has already compiled. */
+    bool GetCameraStateForCompiledPassage(
+        const FInfinityCompiledPassage& Passage,
         FFrameNumber MasterFrame,
         FTransform& OutWorldTransform,
         FInfinityPassageCameraEvaluation& OutEvaluation) const;

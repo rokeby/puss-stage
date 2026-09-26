@@ -77,6 +77,14 @@ void ApplyDirectShadowCatAnimation(
     }
 }
 
+const FInfinityCompiledPassage* FindCompiledPassage(const FInfinityCompileResult& Compiled, const FGuid& PassageGuid)
+{
+    return Compiled.Passages.FindByPredicate([&PassageGuid](const FInfinityCompiledPassage& Candidate)
+    {
+        return Candidate.PassageGuid == PassageGuid;
+    });
+}
+
 }
 
 AInfinityStageCameraRig::AInfinityStageCameraRig()
@@ -215,9 +223,25 @@ void AInfinityStageCameraRig::DestroyOrphanedShadowCats()
 
 bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFrame)
 {
+    if (!PassageActor || !PassageActor->ShowAsset)
+    {
+        return false;
+    }
+    // One compile serves this frame's pose and the neighbouring speed samples
+    // below. This only removes a redundant recompute; compile cost is not a
+    // problem. Measured 2026-09-25 on the production Show (274 cues): 0.047 ms
+    // per compile, about five per playback frame across the rig, the Passage
+    // mechanisms and AInfinityStageShowRoot's camera-owner and curtain queries.
+    // Those per-call compiles are deliberately NOT cached: the Show is mutated
+    // without Modify() (EnsureStableIds and ReconcilePassageSettings inside
+    // InitializeTransport; tests edit fixtures and evaluate in one frame), so a
+    // cache would serve a stale segment table, meaning a wrong camera owner or
+    // curtain state with the dog driving.
+    const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*PassageActor->ShowAsset);
+    const FInfinityCompiledPassage* Passage = FindCompiledPassage(Compiled, PassageActor->PassageGuid);
     FTransform CameraTransform;
     FInfinityPassageCameraEvaluation CameraEvaluation;
-    if (!GetCameraStateAtMasterFrame(MasterFrame, CameraTransform, CameraEvaluation))
+    if (!Passage || !GetCameraStateForCompiledPassage(*Passage, MasterFrame, CameraTransform, CameraEvaluation))
     {
         return false;
     }
@@ -247,7 +271,7 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
         ShadowFigureRoot->SetWorldRotation(FRotator(0.0, CameraRotation.Yaw, 0.0));
     }
 
-    UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform);
+    UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform, *Passage);
 
     PassageActor->EvaluateMechanismsAtCameraDistance(MasterFrame, CameraEvaluation.DistanceCm);
     return true;
@@ -359,7 +383,8 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
 
 void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
     const FFrameNumber MasterFrame,
-    const FTransform& CameraTransform)
+    const FTransform& CameraTransform,
+    const FInfinityCompiledPassage& Passage)
 {
     ConfigureShadowCat();
     AActor* CatActor = ShadowCat ? ShadowCat->GetChildActor() : nullptr;
@@ -372,7 +397,8 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
 
     CurrentShadowCatCameraSpeedCmPerSecond = CalculateCameraSpeedAtMasterFrame(
         MasterFrame,
-        CameraTransform);
+        CameraTransform,
+        Passage);
     const double ReferenceSpeed = FMath::Max(1.0, ShadowCatReferenceWalkSpeedCmPerSecond);
     CurrentShadowCatPlayRate = FMath::Clamp(
         (CurrentShadowCatCameraSpeedCmPerSecond / ReferenceSpeed)
@@ -452,7 +478,8 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
 
 double AInfinityStageCameraRig::CalculateCameraSpeedAtMasterFrame(
     const FFrameNumber MasterFrame,
-    const FTransform& CameraTransform) const
+    const FTransform& CameraTransform,
+    const FInfinityCompiledPassage& Passage) const
 {
     if (!PassageActor || !PassageActor->ShowAsset
         || !PassageActor->ShowAsset->TickResolution.IsValid()
@@ -470,7 +497,8 @@ double AInfinityStageCameraRig::CalculateCameraSpeedAtMasterFrame(
 
     FInfinityPassageCameraEvaluation SampleEvaluation;
     FTransform SampleTransform;
-    if (GetCameraStateAtMasterFrame(
+    if (GetCameraStateForCompiledPassage(
+        Passage,
         FFrameNumber(MasterFrame.Value - SampleFrameDelta),
         SampleTransform,
         SampleEvaluation))
@@ -479,7 +507,8 @@ double AInfinityStageCameraRig::CalculateCameraSpeedAtMasterFrame(
             / SampleSeconds;
     }
 
-    if (GetCameraStateAtMasterFrame(
+    if (GetCameraStateForCompiledPassage(
+        Passage,
         FFrameNumber(MasterFrame.Value + SampleFrameDelta),
         SampleTransform,
         SampleEvaluation))
@@ -524,16 +553,23 @@ bool AInfinityStageCameraRig::GetCameraStateAtMasterFrame(
     {
         return false;
     }
-
     const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*PassageActor->ShowAsset);
-    const FInfinityCompiledPassage* Passage = Compiled.Passages.FindByPredicate([this](const FInfinityCompiledPassage& Candidate)
-    {
-        return Candidate.PassageGuid == PassageActor->PassageGuid;
-    });
-    if (!Passage || MasterFrame < Passage->SegmentStartFrame || MasterFrame > Passage->SegmentEndFrame)
+    const FInfinityCompiledPassage* Passage = FindCompiledPassage(Compiled, PassageActor->PassageGuid);
+    return Passage && GetCameraStateForCompiledPassage(*Passage, MasterFrame, OutWorldTransform, OutEvaluation);
+}
+
+bool AInfinityStageCameraRig::GetCameraStateForCompiledPassage(
+    const FInfinityCompiledPassage& CompiledPassage,
+    const FFrameNumber MasterFrame,
+    FTransform& OutWorldTransform,
+    FInfinityPassageCameraEvaluation& OutEvaluation) const
+{
+    if (!PassageActor || !PassageActor->ShowAsset || !PassageActor->Route
+        || MasterFrame < CompiledPassage.SegmentStartFrame || MasterFrame > CompiledPassage.SegmentEndFrame)
     {
         return false;
     }
+    const FInfinityCompiledPassage* Passage = &CompiledPassage;
 
     OutEvaluation.DistanceMasterFrame = FFrameTime(MasterFrame);
     OutEvaluation.FocalLengthMm = Camera ? Camera->CurrentFocalLength : 35.0;
