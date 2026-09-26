@@ -23,6 +23,21 @@ the whole corridor. **The fix is a rig change, not a fog change**: lamps ahead o
 the audience throwing back toward it. Re-judge fog density 0.022 only after that
 lands; it was tuned against a rig that could never show shafts.
 
+**"The save only contains my change" is never quite true for a level.** Any level
+save also serialises evaluated-but-not-dirty state — rig transforms, wing ISM
+instance transforms at whatever frame the editor last evaluated. Observed on
+2026-09-26: a net-nil save shrank the .umap by about 200 KB. It is harmless for
+playback, which re-evaluates everything, but it means a level diff or a file-size
+delta is **not** a reliable measure of what a script changed, and that one
+stream's save can persist another's in-memory level state. Verify by probing the
+level's contents, not by inspecting the package.
+
+**A passing guard proves what it checks, and nothing else.** A dirty-package
+guard sees which packages are dirty, not what changed inside them. On 2026-09-26
+one stream's save legitimately persisted another's in-memory level state for
+exactly this reason — caught because the stream asked what its own guard could
+not see.
+
 **Editor screenshots: use an offscreen SceneCapture2D, not HighResShot.**
 `take_high_res_screenshot` and console `HighResShot` return a stale or black frame
 whenever the level viewport is not the visible, focused window, and
