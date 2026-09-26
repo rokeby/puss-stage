@@ -53,8 +53,20 @@ if world is None or world.get_path_name().split(".", 1)[0] != EXPECTED_WORLD:
     raise RuntimeError("Unexpected editor world")
 if editor.get_game_world() is not None:
     raise RuntimeError("PIE/SIE is active")
+# Only one pre-existing dirt is acceptable: the level flag left by the
+# conductor's completed 7-shot SceneCapture2D run at 05:55:42 UTC (confirmed by
+# the conductor, net-nil). Re-check it here rather than trusting that message:
+# content clean, no capture actors left, the level the only dirty package.
 if dirty():
-    raise RuntimeError(f"Refusing: already dirty {dirty()}")
+    content = [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]
+    maps = [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()]
+    leftovers = [
+        a.get_actor_label() for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+        if a.get_class().get_name() == "SceneCapture2D" or a.get_actor_label().startswith("ZZ_")
+    ]
+    if content or maps != [EXPECTED_WORLD] or leftovers:
+        raise RuntimeError(f"Refusing: dirty state is not the known capture flag content={content} maps={maps} leftovers={leftovers}")
+    unreal.log("PUSS_MATCH_P1_S1_PRECHECK|accepted known net-nil capture flag on the level|content=0|leftovers=0")
 
 show = unreal.load_asset(SHOW_PATH)
 library = unreal.InfinityStageCameraPilotLibrary
