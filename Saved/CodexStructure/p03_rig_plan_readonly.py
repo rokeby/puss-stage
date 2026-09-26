@@ -52,16 +52,31 @@ DARK_WING_CHANCE = 0.18
 # The path (Gary, 26 Sep: "attention to lighting path and wings"): the existing
 # lights become fill shaped by a slow envelope along the route. This plan owns
 # the envelope; p03_rig_apply.py reads it from here, so the two cannot disagree.
-PATH_PERIOD_BAYS = 5.5
 PATH_FLOOR = 0.35
 BACK_WHEN_ENVELOPE_BELOW = 0.55
 BACK_SHAFT_REACH_BAYS = 2
+# Composed, not periodic: a single sine (first draft) closed exactly at 11 bays,
+# so P03's 21 bays replayed one sequence twice - the conductor caught it. Three
+# dark troughs are placed deliberately instead, each jittered in position, depth
+# and width from a fixed seed, over a gentle drift, so the passage has three
+# arrivals at irregular (here quickening) spacing and never repeats.
+TROUGH_BASES_BAYS = (3.0, 9.5, 16.0)
+TROUGH_JITTER_BAYS = 1.2
+TROUGH_DEPTH = (0.5, 0.65)
+TROUGH_WIDTH_BAYS = (0.9, 1.6)
+DRIFT_DEPTH = 0.08
+DRIFT_PERIOD_BAYS = 7.3
+_path = random.Random("P03-path")
+TROUGHS = [(base + _path.uniform(-TROUGH_JITTER_BAYS, TROUGH_JITTER_BAYS),
+            _path.uniform(*TROUGH_DEPTH), _path.uniform(*TROUGH_WIDTH_BAYS)) for base in TROUGH_BASES_BAYS]
+DRIFT_PHASE = _path.uniform(0.0, 2.0 * math.pi)
 
 
 def envelope(route_index):
-    phase = random.Random("P03-path").uniform(0.0, 2.0 * math.pi)
-    return PATH_FLOOR + (1.0 - PATH_FLOOR) * (
-        0.5 + 0.5 * math.cos(2.0 * math.pi * route_index / PATH_PERIOD_BAYS + phase))
+    dip = sum(depth * math.exp(-((route_index - centre) ** 2) / (2.0 * width * width))
+              for centre, depth, width in TROUGHS)
+    drift = DRIFT_DEPTH * (0.5 + 0.5 * math.cos(2.0 * math.pi * route_index / DRIFT_PERIOD_BAYS + DRIFT_PHASE))
+    return min(1.0, max(PATH_FLOOR, 1.0 - dip - drift))
 
 ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
 world = ed.get_editor_world()

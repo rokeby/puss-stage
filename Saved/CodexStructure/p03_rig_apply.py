@@ -9,8 +9,8 @@ What changes, and why:
   the only direction forward-scattering haze shows a shaft in.
 - REWORK every existing P03 light into quiet fill: one consistent level per
   slot (+-12%) instead of the 1-101 cd per-cue spread that read as patchy,
-  shaped along the route by a slow path envelope (35-100%) so the journey has
-  dark stretches and arrivals, and shadows off, so the Passage net-reduces
+  shaped along the route by the plan's composed path envelope (35-100%, three
+  irregular dark troughs) so the journey has arrivals, and shadows off, so the Passage net-reduces
   shadow casters against a VSM budget that already overflows. The rig carries
   the keys, the shadows and the parts of the wings.
 - DRAMA (PIE and renders only; the editor always shows authored values):
@@ -51,9 +51,9 @@ FILL_JITTER = 0.12
 FILL_SCATTER = 0.6
 # Gary, 26 Sep: "attention to lighting path and wings". The fill is a floor under
 # the composition, not a second key, and it breathes along the route: the plan's
-# per-bay fill_envelope (35-100%, about five bays per swell) sinks whole
-# stretches toward dark so the next pool, or a pair of back-light shafts, reads
-# as an arrival instead of twenty identically lit bays.
+# per-pair fill_envelope (35-100%, three composed dark troughs at irregular
+# spacing, never repeating) sinks whole stretches toward dark so the next pool,
+# or a crossing pair of back-light shafts, reads as an arrival.
 RECORDED_FIELDS = ("intensity", "cast_shadows", "cast_volumetric_shadow", "volumetric_scattering_intensity")
 FINGERPRINT_FIELDS = ("type", "intensity_units", "intensity", "color", "use_temperature", "temperature_kelvin",
                       "attenuation_radius_cm", "inner_cone_angle_degrees", "outer_cone_angle_degrees",
