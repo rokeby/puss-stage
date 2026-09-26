@@ -92,7 +92,10 @@ ULevelSequence* MakeSequence(
 
 void AddHiddenChangeoverMarker(ULevelSequence& Sequence, const int32 AbsoluteFrame)
 {
-    FMovieSceneMarkedFrame Marker(FFrameNumber(AbsoluteFrame));
+    // Default-construct and assign: Marker(FFrameNumber(AbsoluteFrame)) is a
+    // most-vexing-parse and declares a function taking an FFrameNumber.
+    FMovieSceneMarkedFrame Marker;
+    Marker.FrameNumber = FFrameNumber(AbsoluteFrame);
     Marker.Label = TEXT("InfinityStage.HiddenChangeover");
     Sequence.GetMovieScene()->AddMarkedFrame(Marker);
 }
