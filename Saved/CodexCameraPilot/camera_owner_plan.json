@@ -1,6 +1,6 @@
 {
-  "apply": false,
-  "decided_by": "",
+  "apply": true,
+  "decided_by": "Gary (in the Look & camera session, 2026-09-26: \"4. Please run those\")",
   "_note": "A.5 is Gary's decision. Pre-filled with the Look & camera recommendation relayed to him on 2026-09-25 (Passages Dog Gaze, Scenes 1-5 Timeline); edit freely, then set decided_by and apply=true. Labels must match the Show exactly. Scene 6 (the Void) is already DOG_FREE_LOOK (F.5).",
   "owners": {
     "Passage 1": "DOG_GAZE_ONLY",
