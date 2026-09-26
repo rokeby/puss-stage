@@ -7,6 +7,70 @@ new code proven present in both DLLs. The single failure is the long-standing
 `PussStage.InfinityStage.Functional.SavedFixturePIE` curtain-marker assertion,
 unchanged since 14 September. **Do not describe the suite as green.**
 
+### Facts from the night of 25/26 September that outlive their session
+
+**There is no visible light shaft in Passage 1, and volumetric fog is currently
+net-NEGATIVE.** A four-state console A/B at beam bay 005, captured offscreen with
+the `VolumetricFog` show flag forced on, gave means of 4.367 baseline, **6.419
+with fog off**, 4.563 with `r.VolumetricFog.UseLightFunctionAtlas 1`, and 4.422
+with MegaLights additionally off. Fog off is the brightest state: the haze removes
+roughly a third of the light and returns nothing. The brightest half-percent of
+pixels (p99.5) is 54–59 in every state, so no faint shaft is being missed.
+The light-function atlas is **not** the cause. The cause is direction: with
+g=0.55 forward-scattering haze and every beam lamp throwing away from the camera,
+only back-scatter is ever seen — about 16× dimmer — while extinction applies to
+the whole corridor. **The fix is a rig change, not a fog change**: lamps ahead of
+the audience throwing back toward it. Re-judge fog density 0.022 only after that
+lands; it was tuned against a rig that could never show shafts.
+
+**Editor screenshots: use an offscreen SceneCapture2D, not HighResShot.**
+`take_high_res_screenshot` and console `HighResShot` return a stale or black frame
+whenever the level viewport is not the visible, focused window, and
+`set_level_viewport_camera_info` addresses a different viewport client from the one
+that is captured. `Saved/CodexConductor/capture_probe.py` spawns a transient
+SceneCapture2D, captures through its own pipeline, exports a PNG and destroys the
+actor; it works with the editor behind another window. Two caveats: it leaves the
+**map flagged dirty** although the net change is nil, and there is no Python API to
+clear that flag (checked on `Package`, `EditorLoadingAndSavingUtils`,
+`SystemLibrary` and `EditorAssetLibrary`); and always force the `VolumetricFog`
+show flag explicitly before drawing any fog conclusion from a capture.
+
+**The Show compile is ~0.05 ms (274 cues, measured 2026-09-25) and runs ~5× per
+playback frame** — ShowRoot's owner and curtain queries, the camera rig, and
+Passage mechanisms. **Deliberately not cached**: the Show is mutated without
+`Modify()` (`EnsureStableIds` and `ReconcilePassageSettings` inside
+`InitializeTransport`; the suite edits fixtures then evaluates within one frame),
+so a cache invalidated by editor delegates would serve stale segments — a wrong
+camera owner or curtain state, with the dog driving. See
+`InfinityStageCameraRig.cpp`, `EvaluateAtMasterFrame`.
+
+**There are two authoring authorities, not one.** The Show asset owns cue content
+and attachments. The **Master Level Sequence owns time and the Passage camera** —
+a camera write-back keys its channels and must not touch the Show, and a camera
+key therefore saves the Master package, so snapshot that before camera work.
+
+**`FTransform::Equals(Other, 0.5f)` applies the tolerance to quaternion components
+as well as translation**, so `InfinityStageSceneHandoffBuilder.cpp` currently
+accepts a handoff camera re-aimed by roughly 60° as "matching". A pure re-aim of a
+Passage end camera never registers as stale. Compare location to 0.5 cm and
+`FQuat::AngularDistance` to ~0.05° instead.
+
+**A channel with exactly one key is constant everywhere**, so a lone mid-Passage
+camera key redefines `SegmentEndFrame` — which is where Scene handoffs snapshot.
+Adjusting framing mid-Passage silently changes a handoff two segments away.
+
+**Wing image UVs are not mesh bounds.** The source images carry transparent
+margins: the cloud ceiling's UV covers 4726 × 1889 cm on a 2129 × 1000 cm mesh.
+Anything placing effects or damage by UV must use measured spans.
+
+**Two Landscapes exist, not one** — "Passage 1 - ForestedLandscape" and
+"Passage 3 - Wet Ground" — both near z=0, so mesh ground at z=0 will z-fight until
+they are removed.
+
+**P03's cue labels do not run in route order** (Wing 002 sits upstream of 001), and
+Passage 5 reuses labels `P05 Wing 001..008` across different rows. Sort by route
+position; never trust label order.
+
 The project has moved from "wings passing on a travellator" to building the
 **container**: a Baroque stage machine the audience travels inside. Direction,
 stream ownership and per-stream briefs are in `Docs/Conductor/`, which is now
