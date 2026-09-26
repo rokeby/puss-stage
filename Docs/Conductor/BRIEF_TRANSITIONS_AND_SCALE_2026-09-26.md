@@ -41,6 +41,46 @@ But we are **still inside the machine**. A larger one — a sound stage, a grand
 theatre — and we must still feel **walls and rigging** around us. The change
 between passage and scene is a **change of scale**, not an escape.
 
+## Tunnel and hangar (Gary, 02:40)
+
+The architecture, in his words: the wing passage rigging is **like a tunnel**
+that **reveals a huge "hangar" space**, which **we occupy for the scene**, before
+finding **a subtle way to return to the passage** for the next part.
+
+That settles several open questions at once:
+
+- **Passage = tunnel.** Narrow, rigged, travelled through.
+- **Scene = hangar.** Huge, volumetric, still unmistakably a built structure.
+  A scene dock and an aircraft hangar are the same building type — the place
+  where big things are assembled and flown. The machine does not stop at the
+  tunnel mouth; it gets bigger.
+- **We OCCUPY the hangar.** We do not pass through it. The scene happens while
+  we are inside a volume, which is why cuts are available there and not in the
+  passage.
+- **Entry is a reveal; the return is subtle.** The asymmetry is deliberate and
+  it is the interesting part. Arriving is theatrical — a curtain falls and the
+  space opens out. Leaving is quiet enough that the audience does not experience
+  it as a second event.
+
+### What this resolves
+
+- Rig & atmosphere's question about how Scene structure relates to Passage
+  structure: the hangar is the **Scene Volume**, and the "one generator, two
+  station sources" design fits it directly.
+- Why scale contrast matters: tunnel → hangar → tunnel is a **rhythm**, not a
+  single expansion. The narrow is what makes the vast read.
+- Why cuts belong in Scenes and not Passages.
+
+### Still open
+
+- **How the subtle return works.** A reverse reveal would be a second event,
+  which he has ruled out by implication. Candidates, none chosen: the tunnel
+  mouth stays visible behind us the whole time; the hangar has more than one
+  mouth and we leave by a different one than we entered; the return is covered
+  by a cut, so we are simply back.
+- Whether every Scene is a hangar, or whether the type varies (the void, Scene 6,
+  he has already set aside as "may be quite different").
+
 ## The scale progression
 
 Mapped to the real spine (6 Passages, 6 Scenes, 7 Sequence blocks).
