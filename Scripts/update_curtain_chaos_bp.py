@@ -28,7 +28,9 @@ import unreal
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 STEM = os.environ.get("CURTAIN_STEM", "CurtainChaos_Ragged_Q15")
 ROOT = "/Game/Scenes/Curtain/Chaos"
-BP_PATH = f"{ROOT}/BP_CurtainChaos"
+# The ragged Q15 curtain owns the original BP (placed in the level); other patterns get their own,
+# duplicated from it, for Gary to drag in and compare. No level write here either way.
+BP_PATH = f"{ROOT}/BP_CurtainChaos" if STEM == "CurtainChaos_Ragged_Q15" else f"{ROOT}/BP_CurtainChaos_{STEM.split('CurtainChaos_')[-1]}"
 FALL_ASSET = f"{ROOT}/CA_{STEM}_Fall"
 FLOOR_HALF = unreal.Vector(1500.0, 1500.0, 25.0)
 LOG = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods", "update_curtain_chaos_bp.json")
@@ -61,6 +63,10 @@ if dirty_content:
 report["dirty_maps_before"] = dirty_maps()
 
 eal = unreal.EditorAssetLibrary
+if not eal.does_asset_exist(BP_PATH):
+    if eal.duplicate_asset(f"{ROOT}/BP_CurtainChaos", BP_PATH) is None:
+        finish(False, f"Could not duplicate BP_CurtainChaos to {BP_PATH}")
+    report["bp_duplicated_from"] = f"{ROOT}/BP_CurtainChaos"
 bp = eal.load_asset(BP_PATH)
 fall = eal.load_asset(FALL_ASSET)
 if bp is None or fall is None:

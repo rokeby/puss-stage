@@ -171,149 +171,161 @@ def build():
     # --- velvet material ------------------------------------------------------------------------
     mat_dir = f"{ROOT}/Materials"
     mat_path = f"{mat_dir}/M_CurtainVelvet"
-    if eal.does_asset_exist(mat_path):
+    # The base material is shared by every curtain pattern, so it is built once and left alone
+    # (CURTAIN_REBUILD_MATERIAL=1 forces a rebuild). Per-pattern values (width, drop, seams) live on
+    # each pattern's own instance, so building one pattern can never re-scale another's seams.
+    build_material = not eal.does_asset_exist(mat_path) or os.environ.get("CURTAIN_REBUILD_MATERIAL") == "1"
+    if not build_material:
         material = eal.load_asset(mat_path)
-        # DeleteAllMaterialExpressions removes only about half per call in UE 5.8 (15 -> 7 -> 3,
-        # Saved/CodexSoftGoods/diag_material_count.json), so repeat until the graph is empty.
-        for _ in range(32):
-            if mel.get_num_material_expressions(material) == 0:
-                break
-            mel.delete_all_material_expressions(material)
-        if mel.get_num_material_expressions(material):
-            fail(f"Could not clear M_CurtainVelvet: {mel.get_num_material_expressions(material)} expressions remain")
+        step("material", path=material.get_path_name(), rebuilt=False)
     else:
-        material = asset_tools.create_asset("M_CurtainVelvet", mat_dir, unreal.Material, unreal.MaterialFactoryNew())
-    created.append(material)
-    material.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_CLOTH)
-    material.set_editor_property("two_sided", True)
-    material.set_editor_property("used_with_skeletal_mesh", True)
-    material.set_editor_property("used_with_clothing", True)   # else saving the cloth asset re-dirties the MI
+        if eal.does_asset_exist(mat_path):
+            material = eal.load_asset(mat_path)
+            # DeleteAllMaterialExpressions removes only about half per call in UE 5.8 (15 -> 7 -> 3,
+            # Saved/CodexSoftGoods/diag_material_count.json), so repeat until the graph is empty.
+            for _ in range(32):
+                if mel.get_num_material_expressions(material) == 0:
+                    break
+                mel.delete_all_material_expressions(material)
+            if mel.get_num_material_expressions(material):
+                fail(f"Could not clear M_CurtainVelvet: {mel.get_num_material_expressions(material)} expressions remain")
+        else:
+            material = asset_tools.create_asset("M_CurtainVelvet", mat_dir, unreal.Material, unreal.MaterialFactoryNew())
+        created.append(material)
+        material.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_CLOTH)
+        material.set_editor_property("two_sided", True)
+        material.set_editor_property("used_with_skeletal_mesh", True)
+        material.set_editor_property("used_with_clothing", True)   # else saving the cloth asset re-dirties the MI
 
-    X = [-1800]
-
-
-    def expr(cls, y, x=None, **props):
-        node = mel.create_material_expression(material, cls, x if x is not None else X[0], y)
-        for key, value in props.items():
-            node.set_editor_property(key, value)
-        return node
-
-
-    def scalar(name, value, y, x=None):
-        return expr(unreal.MaterialExpressionScalarParameter, y, x, parameter_name=name, default_value=value)
-
-
-    def vector(name, rgba, y, x=None):
-        return expr(unreal.MaterialExpressionVectorParameter, y, x, parameter_name=name, default_value=unreal.LinearColor(*rgba))
+        X = [-1800]
 
 
-    def link(a, a_out, b, b_in):
-        if not mel.connect_material_expressions(a, a_out, b, b_in):
-            fail(f"Material link failed: {a.get_name()}.{a_out} -> {b.get_name()}.{b_in}")
+        def expr(cls, y, x=None, **props):
+            node = mel.create_material_expression(material, cls, x if x is not None else X[0], y)
+            for key, value in props.items():
+                node.set_editor_property(key, value)
+            return node
 
 
-    def binop(cls, a, b, y, x, a_out="", b_out=""):
-        node = expr(cls, y, x)
-        link(a, a_out, node, "A")
-        link(b, b_out, node, "B")
-        return node
+        def scalar(name, value, y, x=None):
+            return expr(unreal.MaterialExpressionScalarParameter, y, x, parameter_name=name, default_value=value)
 
 
-    # UV0 in metres of flat fabric.
-    uv = expr(unreal.MaterialExpressionTextureCoordinate, 0, -1800)
-    width = scalar("PatternWidthM", float(sidecar["pattern_width_m"]), 120, -1800)
-    drop = scalar("DropM", float(sidecar["drop_m"]), 220, -1800)
-    size = binop(unreal.MaterialExpressionAppendVector, width, drop, 160, -1600)
-    uv_m = binop(unreal.MaterialExpressionMultiply, uv, size, 60, -1400)
+        def vector(name, rgba, y, x=None):
+            return expr(unreal.MaterialExpressionVectorParameter, y, x, parameter_name=name, default_value=unreal.LinearColor(*rgba))
 
-    # Weave: thread-scale grey detail and normal, tiled in metres.
-    tile = scalar("WeaveTileM", 0.12, 300, -1400)
-    weave_uv = binop(unreal.MaterialExpressionDivide, uv_m, tile, 200, -1200)
-    weave_tex = expr(unreal.MaterialExpressionTextureSampleParameter2D, 100, -1000, parameter_name="Weave", texture=weave,
-                     sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE)
-    link(weave_uv, "", weave_tex, "UVs")
-    weave_n_tex = expr(unreal.MaterialExpressionTextureSampleParameter2D, 500, -1000, parameter_name="WeaveNormal", texture=weave_n,
-                       sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL)
-    link(weave_uv, "", weave_n_tex, "UVs")
-    two = expr(unreal.MaterialExpressionConstant, 0, -800, r=2.0)
-    weave_x2 = binop(unreal.MaterialExpressionMultiply, weave_tex, two, 60, -700, a_out="R")
-    one = expr(unreal.MaterialExpressionConstant, -80, -700, r=1.0)
-    weave_amt = scalar("WeaveColorAmount", 0.2, 180, -700)
-    weave_mod = expr(unreal.MaterialExpressionLinearInterpolate, 60, -500)
-    link(one, "", weave_mod, "A")
-    link(weave_x2, "", weave_mod, "B")
-    link(weave_amt, "", weave_mod, "Alpha")
 
-    # Seams: every SeamWidthM of flat fabric, a narrow darker line (the stitched join between bolts).
-    u_m = expr(unreal.MaterialExpressionComponentMask, -300, -1200, r=True, g=False, b=False, a=False)
-    link(uv_m, "", u_m, "")
-    seam_w = scalar("SeamWidthM", float(sidecar["seam_width_m"]), -200, -1200)
-    u_bolts = binop(unreal.MaterialExpressionDivide, u_m, seam_w, -300, -1000)
-    t = expr(unreal.MaterialExpressionFrac, -300, -850)
-    link(u_bolts, "", t, "")
-    t_inv = expr(unreal.MaterialExpressionOneMinus, -220, -750)
-    link(t, "", t_inv, "")
-    t_min = binop(unreal.MaterialExpressionMin, t, t_inv, -300, -650)
-    dist_m = binop(unreal.MaterialExpressionMultiply, t_min, seam_w, -300, -550)
-    half = scalar("SeamHalfWidthM", 0.012, -200, -550)
-    ratio = binop(unreal.MaterialExpressionDivide, dist_m, half, -300, -450)
-    ratio_sat = expr(unreal.MaterialExpressionSaturate, -300, -350)
-    link(ratio, "", ratio_sat, "")
-    seam_dark = scalar("SeamDarken", 0.55, -180, -350)
-    seam_mod = expr(unreal.MaterialExpressionLinearInterpolate, -300, -200)
-    link(seam_dark, "", seam_mod, "A")
-    link(one, "", seam_mod, "B")
-    link(ratio_sat, "", seam_mod, "Alpha")
+        def link(a, a_out, b, b_in):
+            if not mel.connect_material_expressions(a, a_out, b, b_in):
+                fail(f"Material link failed: {a.get_name()}.{a_out} -> {b.get_name()}.{b_in}")
 
-    # Nap: velvet reads darker face-on and lifts toward grazing; the Cloth model's fuzz adds the sheen.
-    fresnel = expr(unreal.MaterialExpressionFresnel, 700, -700)
-    nap_exp = scalar("NapExponent", 2.5, 800, -900)
-    link(nap_exp, "", fresnel, "ExponentIn")
-    facing = scalar("FacingDarken", 0.7, 650, -500)
-    nap_mod = expr(unreal.MaterialExpressionLinearInterpolate, 700, -350)
-    link(facing, "", nap_mod, "A")
-    link(one, "", nap_mod, "B")
-    link(fresnel, "", nap_mod, "Alpha")
 
-    colour = vector("VelvetColor", VELVET["VelvetColor"], 300, -500)
-    c1 = binop(unreal.MaterialExpressionMultiply, colour, weave_mod, 200, -200)
-    c2 = binop(unreal.MaterialExpressionMultiply, c1, seam_mod, 100, 0)
-    base = binop(unreal.MaterialExpressionMultiply, c2, nap_mod, 300, 150)
+        def binop(cls, a, b, y, x, a_out="", b_out=""):
+            node = expr(cls, y, x)
+            link(a, a_out, node, "A")
+            link(b, b_out, node, "B")
+            return node
 
-    sheen = vector("SheenColor", VELVET["SheenColor"], 500, 0)
-    cloth_amt = scalar("ClothAmount", 1.0, 620, 0)
-    rough = scalar("Roughness", 0.85, 720, 0)
-    spec = scalar("Specular", 0.3, 820, 0)
 
-    flat_n = expr(unreal.MaterialExpressionConstant3Vector, 950, -700, constant=unreal.LinearColor(0.0, 0.0, 1.0, 1.0))
-    n_amt = scalar("WeaveNormalStrength", 0.35, 1050, -700)
-    n_mix = expr(unreal.MaterialExpressionLinearInterpolate, 950, -450)
-    link(flat_n, "", n_mix, "A")
-    link(weave_n_tex, "RGB", n_mix, "B")
-    link(n_amt, "", n_mix, "Alpha")
-    n_norm = expr(unreal.MaterialExpressionNormalize, 950, -250)
-    link(n_mix, "", n_norm, "VectorInput")
+        # UV0 in metres of flat fabric.
+        uv = expr(unreal.MaterialExpressionTextureCoordinate, 0, -1800)
+        width = scalar("PatternWidthM", float(sidecar["pattern_width_m"]), 120, -1800)
+        drop = scalar("DropM", float(sidecar["drop_m"]), 220, -1800)
+        size = binop(unreal.MaterialExpressionAppendVector, width, drop, 160, -1600)
+        uv_m = binop(unreal.MaterialExpressionMultiply, uv, size, 60, -1400)
 
-    # The Cloth model's "Cloth" amount is CustomData0, which Python cannot address as a material
-    # property; Make Material Attributes exposes it as its ClearCoat pin (CustomData0).
-    attrs = expr(unreal.MaterialExpressionMakeMaterialAttributes, 0, 1300)
-    for source, pin in ((base, "BaseColor"), (sheen, "SubsurfaceColor"), (cloth_amt, "ClearCoat"),
-                        (rough, "Roughness"), (spec, "Specular"), (n_norm, "Normal")):
-        link(source, "", attrs, pin)
-    material.set_editor_property("use_material_attributes", True)
-    if not mel.connect_material_property(attrs, "", unreal.MaterialProperty.MP_MATERIAL_ATTRIBUTES):
-        fail("Could not connect Make Material Attributes to the material")
+        # Weave: thread-scale grey detail and normal, tiled in metres.
+        tile = scalar("WeaveTileM", 0.12, 300, -1400)
+        weave_uv = binop(unreal.MaterialExpressionDivide, uv_m, tile, 200, -1200)
+        weave_tex = expr(unreal.MaterialExpressionTextureSampleParameter2D, 100, -1000, parameter_name="Weave", texture=weave,
+                         sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE)
+        link(weave_uv, "", weave_tex, "UVs")
+        weave_n_tex = expr(unreal.MaterialExpressionTextureSampleParameter2D, 500, -1000, parameter_name="WeaveNormal", texture=weave_n,
+                           sampler_type=unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL)
+        link(weave_uv, "", weave_n_tex, "UVs")
+        two = expr(unreal.MaterialExpressionConstant, 0, -800, r=2.0)
+        weave_x2 = binop(unreal.MaterialExpressionMultiply, weave_tex, two, 60, -700, a_out="R")
+        one = expr(unreal.MaterialExpressionConstant, -80, -700, r=1.0)
+        weave_amt = scalar("WeaveColorAmount", 0.2, 180, -700)
+        weave_mod = expr(unreal.MaterialExpressionLinearInterpolate, 60, -500)
+        link(one, "", weave_mod, "A")
+        link(weave_x2, "", weave_mod, "B")
+        link(weave_amt, "", weave_mod, "Alpha")
 
-    mel.recompile_material(material)
-    step("material", path=material.get_path_name(), expressions=mel.get_num_material_expressions(material))
+        # Seams: every SeamWidthM of flat fabric, a narrow darker line (the stitched join between bolts).
+        u_m = expr(unreal.MaterialExpressionComponentMask, -300, -1200, r=True, g=False, b=False, a=False)
+        link(uv_m, "", u_m, "")
+        seam_w = scalar("SeamWidthM", float(sidecar["seam_width_m"]), -200, -1200)
+        u_bolts = binop(unreal.MaterialExpressionDivide, u_m, seam_w, -300, -1000)
+        t = expr(unreal.MaterialExpressionFrac, -300, -850)
+        link(u_bolts, "", t, "")
+        t_inv = expr(unreal.MaterialExpressionOneMinus, -220, -750)
+        link(t, "", t_inv, "")
+        t_min = binop(unreal.MaterialExpressionMin, t, t_inv, -300, -650)
+        dist_m = binop(unreal.MaterialExpressionMultiply, t_min, seam_w, -300, -550)
+        half = scalar("SeamHalfWidthM", 0.012, -200, -550)
+        ratio = binop(unreal.MaterialExpressionDivide, dist_m, half, -300, -450)
+        ratio_sat = expr(unreal.MaterialExpressionSaturate, -300, -350)
+        link(ratio, "", ratio_sat, "")
+        seam_dark = scalar("SeamDarken", 0.55, -180, -350)
+        seam_mod = expr(unreal.MaterialExpressionLinearInterpolate, -300, -200)
+        link(seam_dark, "", seam_mod, "A")
+        link(one, "", seam_mod, "B")
+        link(ratio_sat, "", seam_mod, "Alpha")
 
-    mi_path = f"{mat_dir}/MI_CurtainVelvet_DeepRed"
+        # Nap: velvet reads darker face-on and lifts toward grazing; the Cloth model's fuzz adds the sheen.
+        fresnel = expr(unreal.MaterialExpressionFresnel, 700, -700)
+        nap_exp = scalar("NapExponent", 2.5, 800, -900)
+        link(nap_exp, "", fresnel, "ExponentIn")
+        facing = scalar("FacingDarken", 0.7, 650, -500)
+        nap_mod = expr(unreal.MaterialExpressionLinearInterpolate, 700, -350)
+        link(facing, "", nap_mod, "A")
+        link(one, "", nap_mod, "B")
+        link(fresnel, "", nap_mod, "Alpha")
+
+        colour = vector("VelvetColor", VELVET["VelvetColor"], 300, -500)
+        c1 = binop(unreal.MaterialExpressionMultiply, colour, weave_mod, 200, -200)
+        c2 = binop(unreal.MaterialExpressionMultiply, c1, seam_mod, 100, 0)
+        base = binop(unreal.MaterialExpressionMultiply, c2, nap_mod, 300, 150)
+
+        sheen = vector("SheenColor", VELVET["SheenColor"], 500, 0)
+        cloth_amt = scalar("ClothAmount", 1.0, 620, 0)
+        rough = scalar("Roughness", 0.85, 720, 0)
+        spec = scalar("Specular", 0.3, 820, 0)
+
+        flat_n = expr(unreal.MaterialExpressionConstant3Vector, 950, -700, constant=unreal.LinearColor(0.0, 0.0, 1.0, 1.0))
+        n_amt = scalar("WeaveNormalStrength", 0.35, 1050, -700)
+        n_mix = expr(unreal.MaterialExpressionLinearInterpolate, 950, -450)
+        link(flat_n, "", n_mix, "A")
+        link(weave_n_tex, "RGB", n_mix, "B")
+        link(n_amt, "", n_mix, "Alpha")
+        n_norm = expr(unreal.MaterialExpressionNormalize, 950, -250)
+        link(n_mix, "", n_norm, "VectorInput")
+
+        # The Cloth model's "Cloth" amount is CustomData0, which Python cannot address as a material
+        # property; Make Material Attributes exposes it as its ClearCoat pin (CustomData0).
+        attrs = expr(unreal.MaterialExpressionMakeMaterialAttributes, 0, 1300)
+        for source, pin in ((base, "BaseColor"), (sheen, "SubsurfaceColor"), (cloth_amt, "ClearCoat"),
+                            (rough, "Roughness"), (spec, "Specular"), (n_norm, "Normal")):
+            link(source, "", attrs, pin)
+        material.set_editor_property("use_material_attributes", True)
+        if not mel.connect_material_property(attrs, "", unreal.MaterialProperty.MP_MATERIAL_ATTRIBUTES):
+            fail("Could not connect Make Material Attributes to the material")
+
+        mel.recompile_material(material)
+        step("material", path=material.get_path_name(), expressions=mel.get_num_material_expressions(material))
+
+    # One instance per pattern (the ragged Q15 keeps the original name the existing assets reference).
+    mi_name = "MI_CurtainVelvet_DeepRed" if STEM == "CurtainChaos_Ragged_Q15" else f"MI_CurtainVelvet_DeepRed_{STEM.split('CurtainChaos_')[-1]}"
+    mi_path = f"{mat_dir}/{mi_name}"
     mi = eal.load_asset(mi_path) if eal.does_asset_exist(mi_path) else asset_tools.create_asset(
-        "MI_CurtainVelvet_DeepRed", mat_dir, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+        mi_name, mat_dir, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
     created.append(mi)
     mel.set_material_instance_parent(mi, material)
     mel.set_material_instance_vector_parameter_value(mi, "VelvetColor", unreal.LinearColor(*VELVET["VelvetColor"]))
     mel.set_material_instance_vector_parameter_value(mi, "SheenColor", unreal.LinearColor(*VELVET["SheenColor"]))
+    for name, value in (("PatternWidthM", sidecar["pattern_width_m"]), ("DropM", sidecar["drop_m"]), ("SeamWidthM", sidecar["seam_width_m"])):
+        mel.set_material_instance_scalar_parameter_value(mi, name, float(value))
     mel.update_material_instance(mi)
     step("material_instance", path=mi.get_path_name())
 
@@ -362,7 +374,7 @@ def build():
     created.append(dataflow)
 
     nodes = {}
-    X[0] = 0
+    X = [0]   # Dataflow node layout cursor (the material branch sets its own when it runs)
 
 
     def node(key, type_name, props):
