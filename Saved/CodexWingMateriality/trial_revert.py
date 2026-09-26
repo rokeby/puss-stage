@@ -7,7 +7,7 @@ wm = importlib.util.module_from_spec(spec); spec.loader.exec_module(wm)
 MEL = wm.MEL
 
 wm.editor_ready()
-wm.require(wm.dirty() == [], f"Refusing to write with dirty packages present: {wm.dirty()}")
+before = wm.dirty()  # other streams may hold unsaved level work; add nothing to it
 snap = wm.read_json("trial_rollback.json")
 for path, state in snap.items():
     mi = unreal.EditorAssetLibrary.load_asset(path)
@@ -22,8 +22,8 @@ for path, state in snap.items():
     MEL.update_material_instance(mi)
     wm.require(wm.pkg(mi.get_editor_property("parent")) == state["parent"], f"{path} parent not restored")
 dirty = wm.dirty()
-wm.require(set(dirty) <= set(snap), f"Unexpected dirty packages: {dirty}")
-for p in dirty:
+wm.require(set(dirty) <= set(snap) | set(before), f"Unexpected dirty packages: {dirty}")
+for p in set(dirty) - set(before):
     wm.require(unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=True), f"save failed {p}")
-wm.require(wm.dirty() == [], f"Dirty after save: {wm.dirty()}")
+wm.require(set(wm.dirty()) <= set(before), f"Dirty after save: {wm.dirty()}")
 unreal.log(f"PUSS_WING_TRIAL_REVERT_SUCCESS|mis={len(snap)}|dirty=0")

@@ -162,8 +162,15 @@ float charAmt = 0.0, ember = 0.0, hole = 0.0, scorch = 0.0;
 float p = max(BurnPreview, BurnProgressCD);
 if (BurnM >= 0.0 && p > 1e-4)
 {
-    float dist = length((UV - float2(IgnU, IgnV)) * float2(PanelWidthCm, PanelHeightCm));
-    float front = p * MaxRadiusCm - dist - (BurnM - 0.5) * IrregularityCm;
+    // UVSpan*Cm = centimetres covered by UV 0..1 on this mesh (measured, not the bounds:
+    // the images carry transparent margins). Radius reaches the farthest UV corner plus
+    // the noise and hole pad at progress 1, so 1 always means fully consumed.
+    float2 span = float2(UVSpanUCm, UVSpanVCm);
+    float2 ign = float2(IgnU, IgnV);
+    float dist = length((UV - ign) * span);
+    float dmax = length(max(ign, 1.0 - ign) * span);
+    float pad = IrregularityCm * 0.5 + 1.25 * BurnEdgeCm;
+    float front = p * (dmax + pad) - dist - (BurnM - 0.5) * IrregularityCm;
     float d = front / max(BurnEdgeCm, 1.0);
     scorch = saturate(1.0 + d * 0.5);
     charAmt = saturate(d * 1.4);
@@ -343,7 +350,7 @@ def build_master():
     paint_in = ["BC", "H", "Rand", "Grime", "BrushH", "Fade", "BurnM", "RefPlane", "CreviceDarken", "RidgeLighten",
                 "GrimeAmount", "GrimeTint", "TintVar", "TintWarm", "TintCool", "Rough", "RoughJit", "VarnishAmt",
                 "VarnishRough", "WearJit", "BrushTone", "BurnPreview", "BurnProgressCD", "IgnU", "IgnV", "UV",
-                "PanelWidthCm", "PanelHeightCm", "MaxRadiusCm", "IrregularityCm", "BurnEdgeCm", "ScorchTint",
+                "UVSpanUCm", "UVSpanVCm", "IrregularityCm", "BurnEdgeCm", "ScorchTint",
                 "CharColor", "EmberColor", "EmberIntensity"]
     paint = g.custom(-700, 600, "Painted surface: grime, wear, varnish, variation, burn", CODE_PAINT, paint_in, F3,
                      [("OutRoughness", F1), ("OutClearCoat", F1), ("OutClearCoatRoughness", F1),
@@ -364,11 +371,10 @@ def build_master():
         "WearJit": g.scalar("WearJitter", 0.6, "06 Variation", -1000, 2100, 4),
         "BurnPreview": g.scalar("BurnPreview", 0.0, "07 Burn", -1000, 2400, 2),
         "BurnEdgeCm": g.scalar("BurnEdgeCm", 40.0, "07 Burn", -1000, 2500, 3),
-        "MaxRadiusCm": g.scalar("BurnMaxRadiusCm", 1100.0, "07 Burn", -1000, 2550, 7),
         "IrregularityCm": g.scalar("BurnIrregularityCm", 160.0, "07 Burn", -1000, 2575, 8),
         "ScorchTint": g.vector("ScorchTint", (0.55, 0.36, 0.2), "07 Burn", -1000, 2590, 9),
-        "PanelWidthCm": g.scalar("PanelWidthCm", 500.0, "08 Panel", -1000, 2900, 0),
-        "PanelHeightCm": g.scalar("PanelHeightCm", 1000.0, "08 Panel", -1000, 3000, 1),
+        "UVSpanUCm": g.scalar("UVSpanUCm", 1000.0, "08 Panel", -1000, 2900, 0),
+        "UVSpanVCm": g.scalar("UVSpanVCm", 1500.0, "08 Panel", -1000, 3000, 1),
         "CharColor": g.vector("CharColor", (0.018, 0.014, 0.012), "07 Burn", -1000, 2600, 4),
         "EmberColor": g.vector("EmberColor", (1.0, 0.32, 0.06), "07 Burn", -1000, 2700, 5),
         "EmberIntensity": g.scalar("EmberIntensity", 12.0, "07 Burn", -1000, 2800, 6),
@@ -471,7 +477,9 @@ def build_edge():
 
 wm.editor_ready()
 before = wm.dirty()
-wm.require(set(before) <= {MASTER, EDGE}, f"Refusing to write with other dirty packages present: {before}")
+# Other streams may hold unsaved level work; targeted saves never persist it. The invariant
+# is that this script adds nothing to the dirty set beyond its own two packages.
+before_others = set(before) - {MASTER, EDGE}
 results = {}
 for path, builder in ((MASTER, build_master), (EDGE, build_edge)):
     mat = builder()
@@ -489,7 +497,7 @@ for path, builder in ((MASTER, build_master), (EDGE, build_edge)):
     wm.require(results[path]["used_with_ism"] and results[path]["used_with_nanite"], f"usage flags not set on {path}")
     wm.require(unreal.EditorAssetLibrary.save_asset(path, only_if_is_dirty=False), f"save failed {path}")
 after = wm.dirty()
-wm.require(after == [], f"Dirty after save: {after}")
+wm.require(set(after) <= before_others, f"Build left new dirty packages: {sorted(set(after) - before_others)}")
 wm.write_json("build_masters_result.json", {"log": LOG, "results": results})
 unreal.log("PUSS_WING_MASTERS_BUILD_SUCCESS|" + "|".join(
     f"{p.rsplit('/', 1)[-1]}:ps={r['stats']['num_pixel_shader_instructions']},samplers={r['stats']['num_samplers']}"

@@ -64,7 +64,7 @@ def set_scalar(mi, name, value):
 
 
 wm.editor_ready()
-wm.require(wm.dirty() == [], f"Refusing to write with dirty packages present: {wm.dirty()}")
+before = wm.dirty()  # other streams may hold unsaved level work; add nothing to it
 mis = {p: unreal.EditorAssetLibrary.load_asset(p) for p in TARGETS}
 for p, mi in mis.items():
     wm.require(isinstance(mi, unreal.MaterialInstanceConstant), f"{p} is not an MIC")
@@ -77,6 +77,13 @@ if not os.path.exists(rollback_path):
     wm.require(snap[CLOUD]["parent"] == OLD_RELIEF, f"cloud parent is {snap[CLOUD]['parent']}")
     wm.write_json("trial_rollback.json", snap)
 master = unreal.EditorAssetLibrary.load_asset(MASTER)
+# Centimetres covered by UV 0..1, measured from each mesh's UVs (probe_uv_axes_readonly.py).
+UV = wm.read_json("uv_axes.json")["rows"]
+def span(mesh):
+    r = UV[mesh]
+    return abs(1.0 / r["U_per_cm_Y"]), abs(1.0 / r["V_per_cm_Z"])
+ROCOCO_SPAN = span("/Game/Scenes/Wings/StaticMeshes/SM_R__1_roccoco")
+CLOUD_SPAN = span("/Game/Scenes/Wings/Passage05_BirdToMountain/StaticMeshes/SM_CloudCeilingSmall_02_C")
 edge = unreal.EditorAssetLibrary.load_asset(EDGE)
 
 # A. Rococo right wing: luminance relief, same image on Front and Back as before.
@@ -91,8 +98,9 @@ for side in ("Front", "Back"):
     set_tex(mi, "Normal", FLAT_N)
     set_switch(mi, "HasHeightMap", False)
     set_scalar(mi, "HeightRatio", 0.003)
-    set_scalar(mi, "PanelWidthCm", 730.0)
-    set_scalar(mi, "PanelHeightCm", 1000.0)
+    set_scalar(mi, "UVSpanUCm", ROCOCO_SPAN[0])
+    set_scalar(mi, "UVSpanVCm", ROCOCO_SPAN[1])
+    set_switch(mi, "UseBurn", True)  # P01 only, for Effects sources' first PIE proof
     MEL.update_material_instance(mi)
 mi = mis[ROCOCO + "Edge"]
 MEL.clear_all_material_instance_parameters(mi)
@@ -103,8 +111,9 @@ MEL.update_material_instance(mi)
 # B. Cloud ceiling: V2 relief with real maps; parameter names match, so textures carry over.
 mi = mis[CLOUD]
 MEL.set_material_instance_parent(mi, master)
-set_scalar(mi, "PanelWidthCm", 2129.0)
-set_scalar(mi, "PanelHeightCm", 1000.0)
+set_scalar(mi, "UVSpanUCm", CLOUD_SPAN[0])
+set_scalar(mi, "UVSpanVCm", CLOUD_SPAN[1])
+set_switch(mi, "UseBurn", True)
 MEL.update_material_instance(mi)
 for name, want in (("BaseColor", "T_CloudCeilingSmall_02_C"), ("Height", "T_CloudCeilingSmall_02_C_H"),
                    ("Normal", "T_CloudCeilingSmall_02_C_N"), ("OpacityMask", "T_CloudCeilingSmall_02_C")):
@@ -112,12 +121,12 @@ for name, want in (("BaseColor", "T_CloudCeilingSmall_02_C"), ("Height", "T_Clou
     wm.require(got.endswith("/" + want), f"cloud {name} = {got}")
 
 dirty = wm.dirty()
-wm.require(set(dirty) <= set(TARGETS), f"Unexpected dirty packages: {dirty}")
+wm.require(set(dirty) <= set(TARGETS) | set(before), f"Unexpected dirty packages: {dirty}")
 for p in TARGETS:
-    if p in dirty:
+    if p in dirty and p not in before:
         wm.require(unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=True), f"save failed {p}")
 after = wm.dirty()
-wm.require(after == [], f"Dirty after save: {after}")
+wm.require(set(after) <= set(before), f"Dirty after save: {after}")
 readback = {p: wm.pkg(unreal.EditorAssetLibrary.load_asset(p).get_editor_property("parent")) for p in TARGETS}
 wm.require(all(v in (MASTER, EDGE) for v in readback.values()), f"parents: {readback}")
 wm.write_json("trial_apply_result.json", {"parents": readback, "dirty_after": after})
