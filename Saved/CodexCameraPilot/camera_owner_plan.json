@@ -1,0 +1,18 @@
+{
+  "apply": false,
+  "decided_by": "",
+  "_note": "A.5 is Gary's decision. Pre-filled with the Look & camera recommendation relayed to him on 2026-09-25 (Passages Dog Gaze, Scenes 1-5 Timeline); edit freely, then set decided_by and apply=true. Labels must match the Show exactly. Scene 6 (the Void) is already DOG_FREE_LOOK (F.5).",
+  "owners": {
+    "Passage 1": "DOG_GAZE_ONLY",
+    "Passage 2": "DOG_GAZE_ONLY",
+    "Passage 3": "DOG_GAZE_ONLY",
+    "Passage 4": "DOG_GAZE_ONLY",
+    "Passage 5": "DOG_GAZE_ONLY",
+    "Passage 6": "DOG_GAZE_ONLY",
+    "Scene 1 — External Sound": "TIMELINE",
+    "Scene 2 — External Sound": "TIMELINE",
+    "Scene 3 — External Sound": "TIMELINE",
+    "Scene 4 — External Sound": "TIMELINE",
+    "Scene 5 — External Sound": "TIMELINE"
+  }
+}
