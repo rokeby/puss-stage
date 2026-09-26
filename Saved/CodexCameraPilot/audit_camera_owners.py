@@ -120,7 +120,6 @@ for segment in segments:
     owners[segment["camera_owner"]] = owners.get(segment["camera_owner"], 0) + 1
 
 for row in passage_rows:
-    owners[row["camera_owner"]] = owners.get(row["camera_owner"], 0) + 1
     row["first_cue_index"] = cue_guid_strings.index(row["first_cue_guid"]) if row["first_cue_guid"] in cue_guid_strings else None
 
 payload = {"world": world_path, "segments": segments, "passages": passage_rows, "show_roots": root_state, "owner_counts": owners}
