@@ -37,6 +37,8 @@ public class InfinityStageEditor : ModuleRules
             "MovieRenderPipelineEditor",
             "CurveEditor",
             "UniversalObjectLocator",
+            // UInfinityStageHandoffWatchSubsystem derives from UEditorSubsystem.
+            "EditorSubsystem",
             "InfinityStage"
         });
     }
