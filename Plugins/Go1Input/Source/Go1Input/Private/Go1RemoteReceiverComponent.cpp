@@ -160,6 +160,61 @@ void UGo1RemoteReceiverComponent::RecenterRotation()
 	}
 }
 
+FRotator UGo1RemoteReceiverComponent::ComposeGazeRotation(
+	const FRotator& Centre,
+	const float StickX,
+	const float StickY,
+	const float YawRangeDegrees,
+	const float PitchRangeDegrees,
+	const float PitchDirection,
+	const float MinPitchDegrees,
+	const float MaxPitchDegrees)
+{
+	FRotator Rotation = Centre;
+	Rotation.Yaw += StickX * YawRangeDegrees;
+	Rotation.Pitch = FMath::Clamp(
+		Centre.Pitch + PitchDirection * StickY * PitchRangeDegrees,
+		MinPitchDegrees, MaxPitchDegrees);
+	Rotation.Roll = Centre.Roll;
+	return Rotation;
+}
+
+FRotator UGo1RemoteReceiverComponent::CentreKeepingView(
+	const FRotator& CurrentView,
+	const float StickX,
+	const float StickY,
+	const float YawRangeDegrees,
+	const float PitchRangeDegrees,
+	const float PitchDirection)
+{
+	FRotator Centre = CurrentView;
+	Centre.Yaw -= StickX * YawRangeDegrees;
+	Centre.Pitch -= PitchDirection * StickY * PitchRangeDegrees;
+	return Centre;
+}
+
+void UGo1RemoteReceiverComponent::RecenterRotationKeepingView()
+{
+	// A plain re-centre adopts the view as the centre, so a stick held over at
+	// that moment steps the picture by the whole deflection. This one subtracts
+	// the deflection, so the Gaze output on this frame is exactly the current
+	// view: no step at a cut, a blend or an ownership change. The dog's centre
+	// is then relative to where it was pointing (Gary, 2026-09-26: "don't
+	// jump"). The explicit remote re-centre button keeps the plain meaning,
+	// "where I'm looking now is the centre".
+	if (const AActor* Target = GetDrivenCameraActor())
+	{
+		const float PitchDir = bInvertPitch ? -1.0f : 1.0f;
+		BaseRotation = CentreKeepingView(
+			Target->GetActorRotation(), SmoothedRx, SmoothedRy, YawRangeDeg, PitchRangeDeg, PitchDir);
+		bBaseRotationCaptured = true;
+		UE_LOG(LogGo1Input, Log,
+			TEXT("Centre rotation captured keeping the view: P=%.1f Y=%.1f (stick offset P=%.1f Y=%.1f)"),
+			BaseRotation.Pitch, BaseRotation.Yaw,
+			PitchDir * SmoothedRy * PitchRangeDeg, SmoothedRx * YawRangeDeg);
+	}
+}
+
 void UGo1RemoteReceiverComponent::StopReceiver()
 {
 	if (Receiver != nullptr)
@@ -401,7 +456,7 @@ void UGo1RemoteReceiverComponent::TickComponent(
 	if (TargetActor != LastDrivenActor.Get())
 	{
 		LastDrivenActor = TargetActor;
-		RecenterRotation();
+		RecenterRotationKeepingView();
 	}
 
 	// --- Camera ownership: the Show is authoritative when one exists ---------
@@ -435,7 +490,7 @@ void UGo1RemoteReceiverComponent::TickComponent(
 				// wherever the sequence left it as the new centre.
 				if (!bTimelineOwnsCamera)
 				{
-					RecenterRotation();
+					RecenterRotationKeepingView();
 				}
 				UE_LOG(LogGo1Input, Log, TEXT("Camera owner -> %s"),
 					bTimelineOwnsCamera ? TEXT("Timeline (input released)")
@@ -468,7 +523,7 @@ void UGo1RemoteReceiverComponent::TickComponent(
 			{
 				RotationMode = EGo1RotationMode::Absolute;
 				// Adopt the current view as centre so the switch doesn't snap.
-				RecenterRotation();
+				RecenterRotationKeepingView();
 			}
 			UE_LOG(LogGo1Input, Log, TEXT("Rotation mode -> %s"),
 				RotationMode == EGo1RotationMode::Absolute ? TEXT("Absolute") : TEXT("Velocity"));
@@ -501,13 +556,8 @@ void UGo1RemoteReceiverComponent::TickComponent(
 				// Stick position IS the angle, so there is no limit to run into
 				// and nothing to integrate. Applied even when stale, because the
 				// zeroed axes then return the view smoothly to centre.
-				FRotator Rotation = BaseRotation;
-				Rotation.Yaw += SmoothedRx * YawRangeDeg;
-				Rotation.Pitch = FMath::Clamp(
-					BaseRotation.Pitch + PitchDir * SmoothedRy * PitchRangeDeg,
-					MinPitch, MaxPitch);
-				Rotation.Roll = BaseRotation.Roll;
-				Owner->SetActorRotation(Rotation);
+				Owner->SetActorRotation(ComposeGazeRotation(
+					BaseRotation, SmoothedRx, SmoothedRy, YawRangeDeg, PitchRangeDeg, PitchDir, MinPitch, MaxPitch));
 			}
 			else if (bFresh)
 			{

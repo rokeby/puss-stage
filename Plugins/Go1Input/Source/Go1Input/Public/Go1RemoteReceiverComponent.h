@@ -247,6 +247,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Go1|Camera")
 	void RecenterRotation();
 
+	/** Gaze (Absolute) output: the centre turned by the stick angle, pitch clamped. */
+	static FRotator ComposeGazeRotation(
+		const FRotator& Centre,
+		float StickX,
+		float StickY,
+		float YawRangeDegrees,
+		float PitchRangeDegrees,
+		float PitchDirection,
+		float MinPitchDegrees,
+		float MaxPitchDegrees);
+
+	/**
+	 * The centre that makes ComposeGazeRotation return CurrentView for the stick
+	 * as it is held now, so a re-centre never steps the picture.
+	 */
+	static FRotator CentreKeepingView(
+		const FRotator& CurrentView,
+		float StickX,
+		float StickY,
+		float YawRangeDegrees,
+		float PitchRangeDegrees,
+		float PitchDirection);
+
 	/**
 	 * When the rotation write happens in the frame.
 	 *
@@ -342,6 +365,10 @@ private:
 	// Absolute mode: rotation the stick offsets are applied relative to.
 	FRotator BaseRotation = FRotator::ZeroRotator;
 	bool bBaseRotationCaptured = false;
+
+	// Automatic re-centre (camera change, ownership change, mode switch): keeps
+	// the picture where it is by subtracting the stick's present deflection.
+	void RecenterRotationKeepingView();
 
 	// For rising-edge detection on remote buttons.
 	uint32 PrevKeys = 0;

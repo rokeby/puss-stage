@@ -40,7 +40,9 @@ public:
      * Live operator override of authored camera ownership.
      *
      * Transient on purpose: a performance decision to take the camera back from
-     * the dog must never silently rewrite the score.
+     * the dog must never silently rewrite the score. Forcing Timeline wins
+     * everywhere; forcing a Dog mode does not apply inside Sequence cues (the
+     * Opening, the Interactions, the Closing), which keep their authored owner.
      */
     UPROPERTY(Transient, BlueprintReadWrite, Category = "Infinity Stage|Camera")
     bool bOverrideCameraOwner = false;

@@ -5467,12 +5467,12 @@ void SInfinityStageCueDesk::BuildLiveCameraOwnerMenu(FMenuBuilder& MenuBuilder)
         EInfinityCameraOwner::Timeline);
     AddEntry(
         NSLOCTEXT("InfinityStage", "OwnerForceDog", "Force Dog"),
-        NSLOCTEXT("InfinityStage", "OwnerForceDogTip", "Give look control to external telemetry everywhere, for rehearsal."),
+        NSLOCTEXT("InfinityStage", "OwnerForceDogTip", "Give look control to external telemetry for rehearsal, everywhere except Sequence cues (the Opening, the Interactions, the Closing), which stay on their authored owner so the camera cannot swing behind the curtain while the dog is walked."),
         true,
         EInfinityCameraOwner::DogFreeLook);
     AddEntry(
         NSLOCTEXT("InfinityStage", "OwnerForceGaze", "Force Dog (Gaze Only)"),
-        NSLOCTEXT("InfinityStage", "OwnerForceGazeTip", "External look within the authored gaze limits only."),
+        NSLOCTEXT("InfinityStage", "OwnerForceGazeTip", "External look within the authored gaze limits only. Like Force Dog, it does not apply inside Sequence cues."),
         true,
         EInfinityCameraOwner::DogGazeOnly);
 }

@@ -55,4 +55,41 @@ bool FGo1ReceiverDrivesIncomingCameraDuringBlendTest::RunTest(const FString& Par
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FGo1ReceiverRecentreKeepsViewTest,
+	"InfinityStage.Go1.RecentreKeepsViewWithStickHeld",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FGo1ReceiverRecentreKeepsViewTest::RunTest(const FString& Parameters)
+{
+	// The production rig: 30.3 x 18.2 degree gaze, pitch inverted.
+	constexpr float YawRange = 30.3f;
+	constexpr float PitchRange = 18.2f;
+	constexpr float PitchDirection = -1.0f;
+	constexpr float MinPitch = -80.0f;
+	constexpr float MaxPitch = 80.0f;
+	const FRotator AuthoredView(-4.0f, 350.0f, 0.0f);
+
+	for (const FVector2f Stick : { FVector2f(0.0f, 0.0f), FVector2f(0.8f, -0.5f), FVector2f(-1.0f, 1.0f) })
+	{
+		const FRotator Centre = UGo1RemoteReceiverComponent::CentreKeepingView(
+			AuthoredView, Stick.X, Stick.Y, YawRange, PitchRange, PitchDirection);
+		const FRotator Output = UGo1RemoteReceiverComponent::ComposeGazeRotation(
+			Centre, Stick.X, Stick.Y, YawRange, PitchRange, PitchDirection, MinPitch, MaxPitch);
+		TestTrue(
+			*FString::Printf(TEXT("Re-centring with the stick at (%.1f, %.1f) leaves the view where it was"), Stick.X, Stick.Y),
+			Output.Equals(AuthoredView, 0.001f));
+
+		// Letting go of the stick then turns the view by exactly the deflection
+		// that was held: the dog's centre is relative, as decided.
+		const FRotator Released = UGo1RemoteReceiverComponent::ComposeGazeRotation(
+			Centre, 0.0f, 0.0f, YawRange, PitchRange, PitchDirection, MinPitch, MaxPitch);
+		TestTrue(TEXT("Releasing the stick turns the view by the held deflection"),
+			FMath::IsNearlyEqual(
+				FRotator::NormalizeAxis(Released.Yaw - AuthoredView.Yaw), -Stick.X * YawRange, 0.001f)
+			&& FMath::IsNearlyEqual(Released.Pitch - AuthoredView.Pitch, -PitchDirection * Stick.Y * PitchRange, 0.001f));
+	}
+	return true;
+}
+
 #endif

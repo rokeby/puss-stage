@@ -100,6 +100,24 @@ public:
         FRotator& OutCurrentLocalRotation,
         FString& OutReport);
 
+    /**
+     * Re-takes the handoff cameras of exactly the named Scenes from the current
+     * Passage endpoints (the Cue Desk's Match, made scriptable). Writes the level
+     * and those Scenes' sequences, undoably, and saves nothing.
+     *
+     * Deliberately narrow: the engine-side Match treats an empty list as "every
+     * Scene", so this refuses an empty list, requires ExpectedSceneCount to equal
+     * the number of GUIDs passed, and requires each to be an enabled Scene cue.
+     * Nothing can be matched wide by passing nothing. The report gives the named
+     * Scenes' staleness before and after.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Camera Pilot")
+    static bool MatchNamedSceneHandoffs(
+        UInfinityStageShowAsset* Show,
+        const TArray<FGuid>& SceneCueGuids,
+        int32 ExpectedSceneCount,
+        FString& OutReport);
+
     /** The compiled Master-frame range of one Passage, lead-in and tail included. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Camera Pilot")
     static bool GetPassageFrameRange(

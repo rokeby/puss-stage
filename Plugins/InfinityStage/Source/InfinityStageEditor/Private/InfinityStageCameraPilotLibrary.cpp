@@ -7,6 +7,7 @@
 #include "InfinityStageCameraRig.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStagePassageActor.h"
+#include "InfinityStageSceneHandoffBuilder.h"
 #include "InfinityStageShowAsset.h"
 #include "LevelSequence.h"
 #include "Math/RotationMatrix.h"
@@ -533,6 +534,81 @@ bool UInfinityStageCameraPilotLibrary::SolvePassageCameraPose(
         *Anchor.CurrentLocalOffsetCm.ToCompactString(),
         *Anchor.CurrentLocalRotation.ToCompactString());
     return true;
+}
+
+bool UInfinityStageCameraPilotLibrary::MatchNamedSceneHandoffs(
+    UInfinityStageShowAsset* Show,
+    const TArray<FGuid>& SceneCueGuids,
+    const int32 ExpectedSceneCount,
+    FString& OutReport)
+{
+    UWorld* World = GetEditorWorld();
+    if (!Show || !World || !GEditor)
+    {
+        OutReport = TEXT("Needs a Show asset and an open editor world.");
+        return false;
+    }
+    if (GEditor->PlayWorld)
+    {
+        OutReport = TEXT("Stop PIE before matching Scene handoffs.");
+        return false;
+    }
+    if (SceneCueGuids.IsEmpty() || SceneCueGuids.Num() != ExpectedSceneCount)
+    {
+        OutReport = FString::Printf(
+            TEXT("Refused: name the Scenes to match and state how many (got %d GUIDs, expected count %d). An empty list would match every Scene."),
+            SceneCueGuids.Num(),
+            ExpectedSceneCount);
+        return false;
+    }
+    TArray<FString> Labels;
+    for (const FGuid& SceneGuid : SceneCueGuids)
+    {
+        const FInfinityShowCue* Cue = Show->Cues.FindByPredicate(
+            [&SceneGuid](const FInfinityShowCue& Candidate) { return Candidate.CueGuid == SceneGuid; });
+        if (!Cue || !Cue->bEnabled || Cue->Type != EInfinityCueType::Scene)
+        {
+            OutReport = FString::Printf(
+                TEXT("Refused: %s is not an enabled Scene cue of this Show."),
+                *SceneGuid.ToString(EGuidFormats::DigitsWithHyphens));
+            return false;
+        }
+        Labels.Add(Cue->Label.ToString());
+    }
+
+    TArray<FGuid> StaleBefore;
+    FString CheckBefore;
+    FInfinityStageSceneHandoffBuilder::CheckSceneHandoffs(*Show, *World, SceneCueGuids, StaleBefore, CheckBefore);
+
+    FString MatchReport;
+    bool bMatched = false;
+    {
+        const FScopedTransaction Transaction(NSLOCTEXT(
+            "InfinityStage", "MatchNamedSceneHandoffsTransaction", "Match Named Scene Camera Handoffs"));
+        bMatched = FInfinityStageSceneHandoffBuilder::MatchSceneHandoffs(*Show, *World, SceneCueGuids, MatchReport);
+    }
+
+    TArray<FGuid> StaleAfter;
+    FString CheckAfter;
+    FInfinityStageSceneHandoffBuilder::CheckSceneHandoffs(*Show, *World, SceneCueGuids, StaleAfter, CheckAfter);
+
+    OutReport = FString::Printf(
+        TEXT("%s %s. Stale before: %d, after: %d. %s"),
+        bMatched ? TEXT("Matched") : TEXT("Match FAILED for"),
+        *FString::Join(Labels, TEXT(", ")),
+        StaleBefore.Num(),
+        StaleAfter.Num(),
+        *MatchReport);
+    UE_LOG(
+        LogInfinityStageCameraPilot,
+        Display,
+        TEXT("INFINITY_SCENE_HANDOFF_MATCHED|scenes=%s|ok=%d|stale_before=%d|stale_after=%d|report=%s"),
+        *FString::Join(Labels, TEXT(", ")),
+        bMatched ? 1 : 0,
+        StaleBefore.Num(),
+        StaleAfter.Num(),
+        *MatchReport);
+    return bMatched && StaleAfter.IsEmpty();
 }
 
 bool UInfinityStageCameraPilotLibrary::GetPassageFrameRange(

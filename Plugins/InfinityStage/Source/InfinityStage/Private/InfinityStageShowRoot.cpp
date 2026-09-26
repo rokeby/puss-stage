@@ -232,13 +232,14 @@ void AInfinityStageShowRoot::UpdateCurtainForCurrentFrame()
 
 EInfinityCameraOwner AInfinityStageShowRoot::GetCameraOwnerAtFrame(const FFrameNumber MasterFrame) const
 {
-    if (bOverrideCameraOwner)
+    // Forcing Timeline is the dog-failure drill (F.4): it wins everywhere.
+    if (bOverrideCameraOwner && CameraOwnerOverride == EInfinityCameraOwner::Timeline)
     {
-        return CameraOwnerOverride;
+        return EInfinityCameraOwner::Timeline;
     }
     if (!ShowAsset)
     {
-        return EInfinityCameraOwner::Timeline;
+        return bOverrideCameraOwner ? CameraOwnerOverride : EInfinityCameraOwner::Timeline;
     }
 
     const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*ShowAsset);
@@ -257,15 +258,28 @@ EInfinityCameraOwner AInfinityStageShowRoot::GetCameraOwnerAtFrame(const FFrameN
             const FInfinityPassageSettings* Settings = ShowAsset->PassageSettings.FindByPredicate(
                 [&Segment](const FInfinityPassageSettings& Candidate)
                 { return Candidate.PassageGuid == Segment.SegmentGuid; });
+            if (bOverrideCameraOwner)
+            {
+                return CameraOwnerOverride;
+            }
             return Settings ? Settings->CameraOwner : EInfinityCameraOwner::Timeline;
         }
         const FInfinityShowCue* Cue = ShowAsset->Cues.FindByPredicate(
             [&Segment](const FInfinityShowCue& Candidate)
             { return Candidate.CueGuid == Segment.SegmentGuid; });
-        return Cue ? Cue->Scene.CameraOwner : EInfinityCameraOwner::Timeline;
+        const EInfinityCameraOwner Authored = Cue ? Cue->Scene.CameraOwner : EInfinityCameraOwner::Timeline;
+        // Sequence cues (the Opening, the Interactions, the Closing) are locked
+        // against a live Dog override, so the camera cannot swing behind the
+        // curtain while the dog is being walked (A.5, Gary 2026-09-26). Only the
+        // override is refused; the authored owner still stands.
+        if (bOverrideCameraOwner && Segment.Type != EInfinityCueType::Sequence)
+        {
+            return CameraOwnerOverride;
+        }
+        return Authored;
     }
     // Outside every segment there is nothing authored to hand over to.
-    return EInfinityCameraOwner::Timeline;
+    return bOverrideCameraOwner ? CameraOwnerOverride : EInfinityCameraOwner::Timeline;
 }
 
 EInfinityCameraOwner AInfinityStageShowRoot::GetCurrentCameraOwner() const
