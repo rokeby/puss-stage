@@ -301,6 +301,39 @@ the corridor.
 | Burn writes | `SetCustomDataValue(…, true)` re-creates that one wing ISM's render state each frame, but only during the burn window. Components hold about 5 instances each (765 panels over 149 meshes), so this is expected to be cheap. To be measured. |
 | Target | ≤ 1 ms GPU in the worst view (proposed; the frame budget is for the conductor and user to confirm) |
 
+## Wing-burn PIE proof: procedure
+
+This runs after the build window and needs one conductor editor slot. It must
+be followed as written, because a read-back taken against the wrong state
+proves nothing.
+
+1. Take a backup: `Backups/PreEffectsBurnProof-YYYYMMDD-HHMM` covering the Show
+   and level. Assert the Puss world on port 8010.
+2. Add one Wing Burn to a `SM_R__1_roccoco` panel in P01, anchored to its side,
+   with `AddEffectAttachment`. Record its UV mapping with `SetWingBurnUVMapping`,
+   using values from a fresh run of
+   `Saved/CodexWingMateriality/probe_uv_axes_readonly.py`.
+3. **Re-materialize P01.** This one mutation both spawns the burn actor and
+   recreates the wing ISMs with 4 custom floats. Components serialized before
+   change C have 0 floats, and burn writes to them are dropped (logged once as
+   `INFINITY_STAGE_EFFECT_BURN_NO_CUSTOM_DATA`).
+4. **Check `NumCustomDataFloats == 4`** on that panel's component before trusting
+   anything else.
+5. In PIE, at several show-camera distances (before, during and after the burn
+   window), read back and send to Wing materiality:
+   - the instance index;
+   - the ignition UV;
+   - slots 0–3;
+   - `FrontRadiusCm`.
+   They check the front against where their char line should sit in local cm.
+6. Save only the Show and the level; end with zero dirty packages. The user
+   judges the look.
+
+The pad (`FrontPadCm` = 130) is coupled to the master's `IrregularityCm` and
+`BurnEdgeCm`. Wing materiality marked those parameters in `e8a29d5` and in
+`Docs/WingMateriality.md`: change both sides together, never per material
+instance.
+
 ## Unverified, and where each gets proved
 
 - Local Fog Volume base size (radius or diameter at scale 1), and whether a
