@@ -306,8 +306,9 @@ void AInfinityStageStructureActor::ClearStructure()
         }
     }
     const int32 ReferencedCount = ComponentsToDestroy.Num();
-    TInlineComponentArray<UInstancedStaticMeshComponent*> OwnedComponents(this);
-    for (UInstancedStaticMeshComponent* Component : OwnedComponents)
+    // Not "OwnedComponents": that name is AActor's own member.
+    TInlineComponentArray<UInstancedStaticMeshComponent*> AttachedInstanceComponents(this);
+    for (UInstancedStaticMeshComponent* Component : AttachedInstanceComponents)
     {
         if (IsValid(Component) && Component->ComponentTags.Contains(StructureTag))
         {
@@ -365,24 +366,24 @@ bool AInfinityStageStructureActor::MaterializeStructure()
     // A mesh that will not load is an error; a material that will not load only
     // falls back to the mesh's own, since the geometry is still right.
     bool bMeshesLoaded = true;
-    const auto LoadMesh = [&bMeshesLoaded](const TSoftObjectPtr<UStaticMesh>& Mesh, const TCHAR* Role) -> UStaticMesh*
+    const auto LoadMesh = [&bMeshesLoaded](const TSoftObjectPtr<UStaticMesh>& Mesh, const TCHAR* MeshRole) -> UStaticMesh*
     {
         UStaticMesh* Loaded = Mesh.LoadSynchronous();
         if (!Loaded)
         {
             UE_LOG(LogInfinityStageStructure, Error, TEXT("%s mesh '%s' does not load. Keeping the previous structure."),
-                Role, *Mesh.ToSoftObjectPath().ToString());
+                MeshRole, *Mesh.ToSoftObjectPath().ToString());
             bMeshesLoaded = false;
         }
         return Loaded;
     };
-    const auto LoadMaterial = [](const TSoftObjectPtr<UMaterialInterface>& Material, const TCHAR* Role) -> UMaterialInterface*
+    const auto LoadMaterial = [](const TSoftObjectPtr<UMaterialInterface>& Material, const TCHAR* MaterialRole) -> UMaterialInterface*
     {
         UMaterialInterface* Loaded = Material.LoadSynchronous();
         if (!Loaded && !Material.IsNull())
         {
             UE_LOG(LogInfinityStageStructure, Warning, TEXT("%s material '%s' does not load; using the mesh's own."),
-                Role, *Material.ToSoftObjectPath().ToString());
+                MaterialRole, *Material.ToSoftObjectPath().ToString());
         }
         return Loaded;
     };
