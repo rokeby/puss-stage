@@ -1,6 +1,5 @@
 #include "Go1RemoteReceiverComponent.h"
 
-#include "Camera/PlayerCameraManager.h"
 #include "Common/UdpSocketBuilder.h"
 #include "Common/UdpSocketReceiver.h"
 #include "Dom/JsonObject.h"
@@ -101,20 +100,12 @@ AActor* UGo1RemoteReceiverComponent::GetDrivenCameraActor() const
 		{
 			if (const APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0))
 			{
-				// A blend in flight leaves GetViewTarget() reporting the OUTGOING
-				// camera until it completes, while the audience is already watching
-				// the incoming one arrive. Steer, and re-centre on, the incoming
-				// camera from the blend's first frame. Otherwise the re-centre lands
-				// at the end of the blend, where a deflected stick steps the view
-				// mid-motion instead of behind a cut. A cut leaves BlendTimeToGo at
-				// zero, so cuts behave exactly as before.
-				if (const APlayerCameraManager* CameraManager = PC->PlayerCameraManager)
-				{
-					if (CameraManager->BlendTimeToGo > 0.0f && CameraManager->PendingViewTarget.Target)
-					{
-						return CameraManager->PendingViewTarget.Target;
-					}
-				}
+				// During a blended handover UE 5.8 already reports the PENDING
+				// (incoming) camera here, so the receiver steers and re-centres on
+				// the shot the audience is watching arrive from the blend's first
+				// frame. Verified by InfinityStage.Go1.ReceiverDrivesIncomingCameraDuringBlend,
+				// which also asserts the engine behaviour so an upgrade that
+				// changes it is caught.
 				if (AActor* ViewTarget = PC->GetViewTarget())
 				{
 					return ViewTarget;

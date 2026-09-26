@@ -230,22 +230,34 @@ Transitions re-centre automatically: taking the camera back from the timeline,
 or a camera cut changing the view target, adopts the current rotation as the new
 centre so nothing snaps.
 
-**Blended handovers (2026-09-25, unverified until built and tested).** The
-transport can now blend a handover instead of cutting (Show Root → Transport →
-Transport|Handover; both blend defaults ship at 0.0, i.e. cuts). While a blend is
-in flight the engine's `GetViewTarget()` still reports the **outgoing** camera.
-Resolving from it would make the dog steer the outgoing camera for the whole
-blend, then re-centre on the incoming one when the blend ends. In Gaze mode a
-deflected stick then steps the view by up to the 30.3° range, mid-motion rather
-than behind a cut. `GetDrivenCameraActor()` therefore prefers the camera
-manager's `PendingViewTarget` while `BlendTimeToGo > 0`. The re-centre happens
-on the blend's first frame, on the camera the audience is watching arrive. Cuts
-are unchanged. Covered by `InfinityStage.Go1.ReceiverDrivesIncomingCameraDuringBlend`.
-Today the only dog-owned segment is Scene 6, the Void, set to Dog Free Look on
-2026-09-25 (decision F.5 of 21 Aug). An open question for Gary is whether a
-re-centre should also subtract the current stick offset, so even a cut never
-steps the view. The argument against: in Gaze mode the dog's look is meant to be
-absolute, and the step is honest about where the dog is looking.
+**Blended handovers (verified 2026-09-26).** The transport can blend a
+handover instead of cutting (Show Root → Transport → Transport|Handover; both
+blend defaults ship at 0.0, i.e. cuts). While a blend is in flight, UE 5.8's
+`GetViewTarget()` reports the **pending (incoming)** camera, so the receiver
+already steers and re-centres on the shot the audience is watching arrive, from
+the blend's first frame. Verified by
+`InfinityStage.Go1.ReceiverDrivesIncomingCameraDuringBlend`. That test also
+asserts the engine behaviour, so an engine upgrade that changes it is caught.
+*Correction:* on 2026-09-25 this section said the opposite, that
+`GetViewTarget()` reports the outgoing camera mid-blend, and a code change
+(50a07fd) was made on that premise. The test disproved it; the change was
+removed as redundant.
+
+**Re-centre without a jump (2026-09-26, Gary: "don't jump"; built and tested 01:53).** The automatic re-centres subtract the stick's present deflection, so
+the Gaze output on that frame equals the current view. These are camera change
+(cut or blend start), ownership change, and the remote mode switch. **This
+changes behaviour at cuts, not only at blends.** A stick held over at a cut no
+longer steps the picture; the dog's centre becomes relative to where it was
+pointing, and letting go turns the view back by the held deflection. The
+explicit remote re-centre button keeps its plain meaning: where I'm looking now
+is the centre. Covered by `InfinityStage.Go1.RecentreKeepsViewWithStickHeld`.
+
+**Camera owners (2026-09-26, Gary).** Passages 1–6 are Dog Gaze Only, Scene 6
+(the Void) is Dog Free Look, and everything else is Timeline. The live
+**Force Dog** override no longer applies inside Sequence cues (the Opening, the
+five Interactions, the Closing), so walking the dog cannot swing the camera
+behind the curtain. **Force Timeline** still wins everywhere (the dog-failure
+drill).
 
 **Verified:** UE 5.8 build clean; `nm` confirms `GetDrivenCameraActor`,
 `ResolveShowRoot` and `bUseShowCameraOwnership` in the **base** dylib with the

@@ -4,6 +4,7 @@
 #include "Camera/PlayerCameraManager.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Misc/AutomationTest.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -19,6 +20,23 @@ bool FGo1ReceiverDrivesIncomingCameraDuringBlendTest::RunTest(const FString& Par
 {
 	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
 	APlayerController* PlayerController = World->SpawnActor<APlayerController>();
+	// A bare world has no GameMode or local player, so the controller may come
+	// up without the camera manager and controller-list entry a real session
+	// gives it (the first run of this test failed exactly there). Supply both.
+	if (PlayerController && !PlayerController->PlayerCameraManager)
+	{
+		FActorSpawnParameters ManagerSpawn;
+		ManagerSpawn.Owner = PlayerController;
+		PlayerController->PlayerCameraManager = World->SpawnActor<APlayerCameraManager>(ManagerSpawn);
+		if (PlayerController->PlayerCameraManager)
+		{
+			PlayerController->PlayerCameraManager->InitializeFor(PlayerController);
+		}
+	}
+	if (PlayerController && UGameplayStatics::GetPlayerController(World, 0) != PlayerController)
+	{
+		World->AddController(PlayerController);
+	}
 	ACameraActor* Outgoing = World->SpawnActor<ACameraActor>(FVector(0.0, 0.0, 200.0), FRotator::ZeroRotator);
 	ACameraActor* Incoming = World->SpawnActor<ACameraActor>(FVector(1000.0, 0.0, 200.0), FRotator(0.0, 90.0, 0.0));
 	ACameraActor* CutTo = World->SpawnActor<ACameraActor>(FVector(0.0, 1000.0, 200.0), FRotator(0.0, -90.0, 0.0));
@@ -27,9 +45,15 @@ bool FGo1ReceiverDrivesIncomingCameraDuringBlendTest::RunTest(const FString& Par
 	// socket. Resolving the driven camera needs only the world and controller.
 	UGo1RemoteReceiverComponent* Receiver = Host ? NewObject<UGo1RemoteReceiverComponent>(Host) : nullptr;
 
+	TestNotNull(TEXT("Fixture: player controller"), PlayerController);
+	TestTrue(TEXT("Fixture: camera manager"), PlayerController && PlayerController->PlayerCameraManager);
+	TestTrue(TEXT("Fixture: controller is player 0"),
+		PlayerController && UGameplayStatics::GetPlayerController(World, 0) == PlayerController);
+	TestTrue(TEXT("Fixture: three cameras"), Outgoing && Incoming && CutTo);
+	TestNotNull(TEXT("Fixture: receiver"), Receiver);
 	const bool bFixture = PlayerController && PlayerController->PlayerCameraManager
+		&& UGameplayStatics::GetPlayerController(World, 0) == PlayerController
 		&& Outgoing && Incoming && CutTo && Receiver;
-	TestTrue(TEXT("Test world has a player controller, camera manager, three cameras and a receiver"), bFixture);
 	if (bFixture)
 	{
 		PlayerController->SetViewTarget(Outgoing);
@@ -37,8 +61,13 @@ bool FGo1ReceiverDrivesIncomingCameraDuringBlendTest::RunTest(const FString& Par
 			Receiver->GetDrivenCameraActor() == Outgoing);
 
 		PlayerController->SetViewTargetWithBlend(Incoming, 1.0f);
-		TestTrue(TEXT("Mid-blend the engine still reports the outgoing camera"),
-			PlayerController->GetViewTarget() == Outgoing);
+		TestTrue(TEXT("Fixture: a blend is in flight"),
+			PlayerController->PlayerCameraManager->BlendTimeToGo > 0.0f);
+		// UE 5.8 reports the PENDING (incoming) target while a blend is in
+		// flight. The receiver relies on that, so assert it: if an engine
+		// upgrade changes it, this is the line that says so.
+		TestTrue(TEXT("Mid-blend the engine reports the incoming camera"),
+			PlayerController->GetViewTarget() == Incoming);
 		TestTrue(TEXT("Mid-blend the receiver drives the incoming camera"),
 			Receiver->GetDrivenCameraActor() == Incoming);
 

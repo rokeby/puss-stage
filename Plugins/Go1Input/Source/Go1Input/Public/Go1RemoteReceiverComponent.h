@@ -142,7 +142,8 @@ public:
 	 * component lives on the Show Root and rotates whichever camera is live,
 	 * resolved from the player's view target, so it follows Sequencer camera
 	 * cuts across Passages and Scenes without reconfiguration. During a blended
-	 * handover it is the incoming camera, from the blend's first frame.
+	 * handover that is the incoming camera, from the blend's first frame
+	 * (the engine reports the pending view target while a blend is in flight).
 	 *
 	 * Set it explicitly to pin one camera, or when running in the editor, where
 	 * there is no player controller to ask. Falls back to this component's own
