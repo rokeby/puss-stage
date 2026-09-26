@@ -54,10 +54,19 @@ if world_path != EXPECTED_WORLD:
     finish(False, f"Unexpected editor world: {world_path}")
 if editor.get_game_world() is not None:
     finish(False, "PIE/SIE is active")
-if dirty_packages():
-    finish(False, f"Refusing to start with dirty packages: {dirty_packages()}")
-
 actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+# The conductor's offscreen capture (Saved/CodexConductor/capture_probe.py) spawns and destroys
+# a transient SceneCapture2D, which leaves the level's dirty flag set with no content change, and
+# UE 5.8 Python cannot clear it. This script saves the level anyway, so it may absorb exactly that
+# flag: the level is the ONLY dirty package, and no ZZ_TransientCapture actor survives. Anything
+# else dirty means someone is mid-change, and we stop.
+dirty_content = [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]
+dirty_maps = [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()]
+stray_captures = [a.get_actor_label() for a in actors.get_all_level_actors()
+                  if "ZZ_TransientCapture" in a.get_actor_label() or "ZZ_TransientCapture" in a.get_name()]
+if dirty_content or any(m != EXPECTED_WORLD for m in dirty_maps) or stray_captures:
+    finish(False, f"Refusing to start: dirty content {dirty_content}, dirty maps {dirty_maps}, stray captures {stray_captures}")
+report["absorbed_capture_map_flag"] = bool(dirty_maps)
 if any(a.get_actor_label() == LABEL for a in actors.get_all_level_actors()):
     finish(False, f"'{LABEL}' already exists in the level")
 
