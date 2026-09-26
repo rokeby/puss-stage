@@ -10,6 +10,7 @@
 #include "InfinityStageCelestialRig.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStagePassageActor.h"
+#include "InfinityStageTransportController.h"
 
 namespace
 {
@@ -108,39 +109,73 @@ struct FInfinityPassageExecutionToken final : IMovieSceneExecutionToken
             return;
         }
 
-        UInfinityStageShowAsset* ActiveShowAsset = nullptr;
-        for (TActorIterator<AInfinityStageCameraRig> It(World); It; ++It)
-        {
-            AInfinityStageCameraRig* CameraRig = *It;
-            if (CameraRig
-                && CameraRig->PassageActor
-                && CameraRig->PassageActor->PassageGuid == PassageGuid)
-            {
-                ActiveShowAsset = CameraRig->PassageActor->ShowAsset;
-                CameraRig->EvaluateAtMasterFrame(Context.GetTime().FloorToFrame());
+        // One authority owns the view target. When a transport is driving this
+        // world it issues every handover, with the blend the seam asks for, and
+        // it remembers what it asked for - which is the only way a blend can
+        // ever complete. A claim from here would restart that blend on every
+        // evaluated frame, because a blend in flight leaves GetViewTarget()
+        // still reporting the outgoing camera.
+        UInfinityStageTransportController* Transport =
+            UInfinityStageTransportController::FindForWorld(World);
 
-                // IMovieScenePlayer::UpdateCameraCut is a deprecated compatibility hook and is
-                // intentionally a no-op for ULevelSequencePlayer in UE 5.8. Passage cameras are
-                // resolved dynamically by Passage GUID, so they cannot use a conventional fixed
-                // possessable Camera Cut binding. Claim the live game viewport explicitly here;
-                // authored Scene subsequences take it back through their native Camera Cut tracks.
-                if (World->IsGameWorld())
+        // The cached lookup replaces a full actor walk on every evaluated frame.
+        AInfinityStageCameraRig* CameraRig =
+            Transport ? Transport->FindCameraRigForPassage(PassageGuid) : nullptr;
+        if (!CameraRig)
+        {
+            for (TActorIterator<AInfinityStageCameraRig> It(World); It; ++It)
+            {
+                AInfinityStageCameraRig* Candidate = *It;
+                if (Candidate
+                    && Candidate->PassageActor
+                    && Candidate->PassageActor->PassageGuid == PassageGuid)
                 {
-                    if (APlayerController* PlayerController = World->GetFirstPlayerController())
+                    CameraRig = Candidate;
+                    break;
+                }
+            }
+        }
+
+        UInfinityStageShowAsset* ActiveShowAsset = nullptr;
+        if (CameraRig && CameraRig->PassageActor)
+        {
+            ActiveShowAsset = CameraRig->PassageActor->ShowAsset;
+            CameraRig->EvaluateAtMasterFrame(Context.GetTime().FloorToFrame());
+
+            // IMovieScenePlayer::UpdateCameraCut is a deprecated compatibility hook and is
+            // intentionally a no-op for ULevelSequencePlayer in UE 5.8. Passage cameras are
+            // resolved dynamically by Passage GUID, so they cannot use a conventional fixed
+            // possessable Camera Cut binding. With no transport registered - a Passage
+            // previewed on its own, or a show whose transport failed to initialize - this
+            // remains the only thing that can claim the viewport, so it still does.
+            if (World->IsGameWorld() && !Transport)
+            {
+                if (APlayerController* PlayerController = World->GetFirstPlayerController())
+                {
+                    if (PlayerController->GetViewTarget() != CameraRig)
                     {
-                        if (PlayerController->GetViewTarget() != CameraRig)
-                        {
-                            UE_LOG(LogTemp, Verbose, TEXT("INFINITY_PASSAGE_CLAIM frame=%d target=%s previous=%s"),
-                                Context.GetTime().FloorToFrame().Value, *GetNameSafe(CameraRig), *GetNameSafe(PlayerController->GetViewTarget()));
-                            PlayerController->SetViewTarget(CameraRig);
-                        }
-                        if (Context.HasJumped() && PlayerController->PlayerCameraManager)
-                        {
-                            PlayerController->PlayerCameraManager->SetGameCameraCutThisFrame();
-                        }
+                        UE_LOG(LogInfinityStageTransport, Verbose,
+                            TEXT("INFINITY_PASSAGE_CLAIM frame=%d target=%s previous=%s (no transport)"),
+                            Context.GetTime().FloorToFrame().Value,
+                            *GetNameSafe(CameraRig),
+                            *GetNameSafe(PlayerController->GetViewTarget()));
+                        PlayerController->SetViewTarget(CameraRig);
                     }
                 }
-                break;
+            }
+        }
+
+        // A jump has no in-between frames whoever owns the view, so the renderer
+        // is told to drop its temporal history either way. This is a render hint,
+        // not a view-target change, so it does not contend for the camera.
+        if (World->IsGameWorld() && Context.HasJumped())
+        {
+            if (APlayerController* PlayerController = World->GetFirstPlayerController())
+            {
+                if (PlayerController->PlayerCameraManager)
+                {
+                    PlayerController->PlayerCameraManager->SetGameCameraCutThisFrame();
+                }
             }
         }
 
