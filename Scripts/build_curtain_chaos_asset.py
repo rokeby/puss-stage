@@ -12,11 +12,17 @@ Creates, all under /Game/Scenes/Curtain/Chaos and nothing else:
 - Materials/M_CurtainVelvet (Cloth shading model: sheen from Fuzz Color, flat colour,
   weave and seams from UV0) and Materials/MI_CurtainVelvet_DeepRed
 - Meshes/SM_<STEM>                      the cut pattern: UV0 = flat 2D pattern, positions = pleated start pose
-- DF_<STEM>                             the Chaos Dataflow graph, built node by node
-- CA_<STEM>                             the Chaos Cloth Asset, evaluated from DF_<STEM>
+- DF_<STEM>[_Fall]_v<N>                the Chaos Dataflow graph, built node by node, a new version per run
+- CA_<STEM>[_Fall]                      the Chaos Cloth Asset, evaluated from the newest graph
 
-It touches no level actor and saves only the packages above. It refuses to run with any
-dirty package, and rebuilds DF_/CA_ from scratch each run (they are derived data).
+MODE "fall" (Gary, 26 Sep: the curtain is already down and FALLS, then piles on the floor):
+nothing is pinned, and the component starts suspended so the cloth holds its hanging start pose
+until the cue resumes it. It collides with the environment and piles with thick self-collision.
+MODE "fly" is the earlier pinned-heading build (CA_<STEM>), kept for reference.
+
+It touches no level actor and saves only the packages above. It refuses to run with any dirty
+package. The cloth asset is NEVER deleted (Blueprints and the level reference it): each run makes
+a new graph version, re-links the cloth asset to it, evaluates, then deletes the older graphs.
 
 The physics carries the Blender findings over as relationships, not numbers:
 - rest shape = flat pattern (2D rest lengths, flat rest angles), pleats only in the start pose;
@@ -34,7 +40,10 @@ import unreal
 
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 STEM = os.environ.get("CURTAIN_STEM", "CurtainChaos_Ragged_Q15")
+MODE = os.environ.get("CURTAIN_MODE", "fall")   # "fall" (current) or "fly" (pinned heading, superseded)
 ROOT = "/Game/Scenes/Curtain/Chaos"
+CLOTH_NAME = f"CA_{STEM}" if MODE == "fly" else f"CA_{STEM}_Fall"
+DF_BASE = f"DF_{STEM}" if MODE == "fly" else f"DF_{STEM}_Fall"
 PROJECT = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
 SOURCE = os.path.join(PROJECT, "DerivedAssets", "CurtainCloth", "Chaos")
 LOG = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods", f"build_{STEM}.json")
@@ -53,14 +62,17 @@ PHYSICS = {
     "substeps": 2,
     "iterations": 2,
     "tether_scale": 1.0,
-    "max_distance_cm": 10000.0,  # everything free except the heading selection
+    "max_distance_cm": 10000.0,  # everything free (fly mode: except the heading selection)
+    "self_thickness_cm": 0.6,    # per side: a thick fabric, so the pile has body
+    "collision_thickness_cm": 1.0,
+    "floor_friction": 0.8,       # the pile grips the boards instead of skating
 }
 VELVET = {
     "VelvetColor": (0.12, 0.004, 0.008, 1.0),   # deep velvet red, linear
     "SheenColor": (0.45, 0.05, 0.07, 1.0),      # the travelling highlight as the nap turns
 }
 
-log = {"stem": STEM, "steps": [], "property_failures": [], "physics": PHYSICS}
+log = {"stem": STEM, "mode": MODE, "steps": [], "property_failures": [], "physics": PHYSICS}
 
 
 def step(name, **info):
@@ -105,8 +117,13 @@ def build():
         fail(f"Unexpected editor world: {world_path}")
     if editor.get_game_world() is not None:
         fail("PIE/SIE is active")
-    if dirty_packages():
-        fail(f"Refusing to build with dirty packages: {dirty_packages()}")
+    # This script writes content packages only, never the level. So: no dirty content at the start
+    # (someone would be mid-change), and the level's dirty flag must be the same at the end as at
+    # the start (e.g. the conductor's net-nil capture flag is left exactly as found, not absorbed).
+    dirty_content = [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]
+    if dirty_content:
+        fail(f"Refusing to build with dirty content packages: {dirty_content}")
+    log["dirty_maps_before"] = [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()]
 
     sidecar_path = os.path.join(SOURCE, f"{STEM}.json")
     fbx_path = os.path.join(SOURCE, f"SM_{STEM}.fbx")
@@ -337,10 +354,11 @@ def build():
 
     # --- Dataflow graph -------------------------------------------------------------------------
     dfl = unreal.DataflowEditorBlueprintLibrary
-    for old in (f"{ROOT}/CA_{STEM}", f"{ROOT}/DF_{STEM}"):   # the cloth asset references the graph: delete it first
-        if eal.does_asset_exist(old):
-            eal.delete_asset(old)   # derived data from a previous run of this script
-    dataflow = asset_tools.create_asset(f"DF_{STEM}", ROOT, unreal.Dataflow, unreal.DataflowAssetFactory())
+    # A new graph version per run; the cloth asset is re-linked to it, and older versions go at the end.
+    old_graphs = [str(a).split(".")[0] for a in eal.list_assets(ROOT, recursive=False)
+                  if str(a).split(".")[0].split("/")[-1].startswith(f"{DF_BASE}_v")]
+    version = 1 + max([int(g.rsplit("_v", 1)[1]) for g in old_graphs if g.rsplit("_v", 1)[1].isdigit()] or [0])
+    dataflow = asset_tools.create_asset(f"{DF_BASE}_v{version}", ROOT, unreal.Dataflow, unreal.DataflowAssetFactory())
     created.append(dataflow)
 
     nodes = {}
@@ -401,32 +419,40 @@ def build():
     })
     node("Damping", "FChaosClothAssetSimulationDampingConfigNode", {"DampingCoefficientWeighted": weighted(p["damping"])})
     node("Aero", "FChaosClothAssetSimulationAerodynamicsConfigNode", {"Drag": weighted(p["drag"]), "Lift": weighted(p["lift"])})
+    node("Collision", "FChaosClothAssetSimulationCollisionConfigNode", {
+        "CollisionThicknessImported": f"(ImportedValue={p['collision_thickness_cm']},bUseImportedValue=False)",
+        "FrictionCoefficientImported": f"(ImportedValue={p['floor_friction']},bUseImportedValue=False)",
+    })
     node("SelfCollision", "FChaosClothAssetSimulationSelfCollisionConfigNode_v2", {
         "bUseSelfCollisions": "True",
         "SelfCollisionFriction": f"(ImportedValue={p['self_friction']},bUseImportedValue=False)",
+        "SelfCollisionThickness": weighted(p["self_thickness_cm"]),
     })
     node("Solver", "FChaosClothAssetSimulationSolverConfigNode", {
         "NumIterations": str(p["iterations"]),
         "NumSubstepsImported": f"(ImportedValue={p['substeps']},bUseImportedValue=False)",
     })
+    # Fall: nothing kinematic (the component starts suspended instead). Fly: the heading is pinned.
     node("MaxDistance", "FChaosClothAssetSimulationMaxDistanceConfigNode", {
         "MaxDistance": weighted(p["max_distance_cm"]),
-        "InKinematic": '(StringValue="Heading")',
+        "InKinematic": '(StringValue="Heading")' if MODE == "fly" else '(StringValue="")',
     })
-    node("Tethers", "FChaosClothAssetSimulationLongRangeAttachmentConfigNode_v2", {
-        "TetherStiffness": weighted(1.0),
-        "TetherScale": weighted(p["tether_scale"]),
-    })
+    chain = ["Import", "BindToRoot", "Heading", "Mass", "Stretch", "Bending", "Damping", "Aero",
+             "Collision", "SelfCollision", "Solver", "MaxDistance"]
+    if MODE == "fly":   # tethers hang from the kinematic set; with nothing pinned there is nothing to tether to
+        node("Tethers", "FChaosClothAssetSimulationLongRangeAttachmentConfigNode_v2", {
+            "TetherStiffness": weighted(1.0),
+            "TetherScale": weighted(p["tether_scale"]),
+        })
+        chain.append("Tethers")
     terminal = node("Terminal", "FChaosClothAssetTerminalNode_v2", {})
 
-    chain = ["Import", "BindToRoot", "Heading", "Mass", "Stretch", "Bending", "Damping", "Aero",
-             "SelfCollision", "Solver", "MaxDistance", "Tethers"]
     for a, b in zip(chain, chain[1:]):
         if not dfl.connect_dataflow_nodes(dataflow, nodes[a], "Collection", nodes[b], "Collection"):
             fail(f"Could not connect {a} -> {b}")
     terminal_input = None
     for candidate in ("CollectionLods[0]", "CollectionLods_0", "CollectionLods", "Collection"):
-        if dfl.connect_dataflow_nodes(dataflow, nodes["Tethers"], "Collection", terminal, candidate):
+        if dfl.connect_dataflow_nodes(dataflow, nodes[chain[-1]], "Collection", terminal, candidate):
             terminal_input = candidate
             break
     if terminal_input is None:
@@ -438,9 +464,13 @@ def build():
 
 
     # --- cloth asset ----------------------------------------------------------------------------
-    factory = unreal.ChaosClothAssetFactory()
-    factory.set_editor_property("edit_after_new", False)
-    cloth = asset_tools.create_asset(f"CA_{STEM}", ROOT, unreal.ChaosClothAsset, factory)
+    cloth_path = f"{ROOT}/{CLOTH_NAME}"
+    if eal.does_asset_exist(cloth_path):
+        cloth = eal.load_asset(cloth_path)   # never deleted: Blueprints and the level reference it
+    else:
+        factory = unreal.ChaosClothAssetFactory()
+        factory.set_editor_property("edit_after_new", False)
+        cloth = asset_tools.create_asset(CLOTH_NAME, ROOT, unreal.ChaosClothAsset, factory)
     created.append(cloth)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -459,6 +489,15 @@ def build():
         materials = f"unreadable: {exc}"
     step("cloth", path=cloth.get_path_name(), evaluated=evaluated, materials=materials)
 
+    # Older graph versions are now unreferenced derived data.
+    retired = []
+    for old in old_graphs:
+        if eal.delete_asset(old):
+            retired.append(old)
+        else:
+            log.setdefault("retire_failures", []).append(old)
+    step("retired_graphs", retired=retired)
+
 
     # --- save only what this script made --------------------------------------------------------
     saved = []
@@ -469,9 +508,12 @@ def build():
             fail(f"Save failed: {asset.get_path_name()}")
     log["saved"] = saved
     log["dirty_after"] = dirty_packages()
+    log["dirty_maps_after"] = [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()]
     write_log()
-    if log["dirty_after"]:
-        fail(f"Packages still dirty after save: {log['dirty_after']}")
+    if [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]:
+        fail(f"Content packages still dirty after save: {log['dirty_after']}")
+    if sorted(log["dirty_maps_after"]) != sorted(log["dirty_maps_before"]):
+        fail(f"Level dirty state changed during a content-only build: {log['dirty_maps_before']} -> {log['dirty_maps_after']}")
     unreal.log(f"PUSS_SOFTGOODS_CHAOS_BUILD_SUCCESS|stem={STEM}|saved={len(saved)}|cloth={cloth.get_path_name()}")
 
 

@@ -1,5 +1,22 @@
 # Chaos Cloth curtain — pipeline and traps
 
+> **26 Sep: the curtain FALLS, it does not fly** (Gary; `Docs/Conductor/BRIEF_TRANSITIONS_AND_SCALE_2026-09-26.md`).
+> It is already down and lit; at the cue it drops to the floor and stays as a pile. It is the
+> Kabuki *furi-otoshi*. **Chaos cannot un-pin at runtime**: the kinematic set
+> (`KinematicVertices3D`) is baked when the simulation initialises, and changing MaxDistance later
+> does not free those particles. So the falling asset `CA_<STEM>_Fall` pins **nothing**, and
+> `BP_CurtainChaos` starts its ChaosClothComponent **suspended** (`bSuspendSimulation`,
+> Sequencer-keyable), holding the hanging start pose. Un-suspending is the drop: it falls as a whole,
+> the hem lands first, and it crumples up from the floor. The BP carries a hidden `FloorCatch` box (top
+> at z = 0, WorldStatic, ignores Pawn/Camera/Visibility) because **the stage boards have no
+> collision** (Rig & atmosphere: every structure ISM is NoCollision; the chariot slots are open).
+> Unproven: whether Chaos environment collision counts a box in the cloth's *own* actor. If the
+> pile drops through, FloorCatch must become a separate actor, which is a level write.
+> Asymmetric release (one side first) would be pins as a stiff anim-drive spring whose stiffness
+> goes to 0 at the cue. Not built.
+> Scrub: tick **Simulate In Editor** (the cloth appears, hanging), then untick **Suspend
+> Simulation** to drop it; `Hard Reset Simulation` and re-tick Suspend to hang it again.
+
 Soft goods stream, 25 September 2026. The show curtain is now **Chaos Cloth simulated live
 in the editor**, not a Blender bake. The bake route (`Scripts/build_curtain_cloth_bake.py`,
 `DerivedAssets/CurtainCloth/CurtainCloth_Fly_V1.abc`) is kept for the one case it still wins:
