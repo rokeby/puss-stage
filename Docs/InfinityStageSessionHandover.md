@@ -38,6 +38,20 @@ one stream's save legitimately persisted another's in-memory level state for
 exactly this reason — caught because the stream asked what its own guard could
 not see.
 
+**A freely-released sheet cannot sprawl.** Proven on 2026-09-26 across four
+benches: with a stiff solver, 2 cm/side self-collision, high bending, no
+buckle-softening, a 4-degree lean, low friction and a real 2.5 m/s gust, a
+curtain released all at once still piles inside its own footprint and deflates
+to a flat strip. Symmetric sheet, symmetric result — no solver tuning fixes it.
+
+**What works is guiding the heading.** Keep the top row PINNED and carry it down
+(gravity-timed) and FORWARD over about 1.4 s, as a falling batten would. The top
+folds over the body and the cloth lands crumpled and spread 2–3 m deep. Forward
+distance is the dial: 0 m narrow, 3 m, 6 m progressively sprawled. It is a
+transform track on the cloth component, so it is **directable in Sequencer** and
+draggable in the editor with Simulate In Editor on — a staging decision rather
+than a physics parameter. This is the Kabuki *furi-otoshi* made literal.
+
 **Chaos cloth gathers environment colliders from the component's BOUNDS, and
 those bounds are the REFERENCE POSE, not the simulated state.** A cloth lifted
 away from its rest position stops overlapping the floor it should collide with,
