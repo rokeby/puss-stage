@@ -71,8 +71,12 @@ Passage end camera never registers as stale. Compare location to 0.5 cm and
 `FQuat::AngularDistance` to ~0.05° instead.
 
 **A channel with exactly one key is constant everywhere**, so a lone mid-Passage
-camera key redefines `SegmentEndFrame` — which is where Scene handoffs snapshot.
-Adjusting framing mid-Passage silently changes a handoff two segments away.
+camera key redefines `SegmentEndFrame` — which is where Scene handoffs snapshot,
+so setting a value mid-Passage silently changes a handoff two segments away.
+**Do not "fix" this.** Gary confirmed on 2026-09-26 that single-key holds are his
+deliberate way of setting a Passage-wide constant. It is a working authoring
+method with a side effect; the handoff watch exists to surface that side effect
+for a match-or-keep decision, not to stop it happening.
 
 **Wing image UVs are not mesh bounds.** The source images carry transparent
 margins: the cloud ceiling's UV covers 4726 × 1889 cm on a 2129 × 1000 cm mesh.
