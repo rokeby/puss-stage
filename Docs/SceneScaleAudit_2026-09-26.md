@@ -143,6 +143,15 @@ not a rebuild. The deeper choice is layout: parallel lanes with cuts, or the
 ring with hangars at the joints. The ring is the only one where a visible second
 mouth can really lead on.
 
+**The portal and the curtain may be one assembly.** Gary: every passage end's
+hold "is preceded by a curtain cloth falling again, can be same camera". The
+curtain and the portal sit at the same passage/hangar joint. A portal framed in
+timber is a proscenium, and the curtain that falls is its house curtain. So they
+may be one piece of stage machinery with two moving parts, the frame docking
+tunnel to hangar and the cloth dropping within it, rather than two objects
+placed side by side. Not designed: noted so the portal is never designed as
+though the curtain isn't there.
+
 ## 6. Questions for Gary
 
 1. Scene content: are Scenes 1–5 to be built as self-contained dioramas (per
