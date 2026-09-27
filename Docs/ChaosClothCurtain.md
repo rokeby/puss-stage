@@ -156,4 +156,11 @@ whole curtain with crumples painted in and must not be used on simulated cloth.
 - **Not yet seen:** any rendered frame. The look, the weight and the frame rate are unverified.
 - Not started: the sequencer swap (conductor's call), velvet/sack/hanging-cloth variants,
   peeling wing-edge strips, dust sheets.
-- The festoon Geometry Cache and its preview actor stay as they are.
+- **Festoon retired** (26 Sep, 20:01, Gary's go): the "CurtainCloth Preview" actor at x = 4400 and
+  `GC_CurtainCloth_Festoon_V1` are gone. Before deleting, the asset registry, a byte search of all 30
+  LevelSequences and the in-memory bindings all confirmed the level was the only referencer.
+  Backup `Backups/PreFestoonRemoval-20260926-2001` (the .umap + the cache, hash-verified). The fly
+  bake `.abc` on disk stays as a record.
+- **Plain variant**: `CA_CurtainChaos_Plain_Q15_Fall` (fullness 1.25, no rags) and
+  `BP_CurtainChaos_Plain_Q15`, unplaced, for Gary to compare with the ragged one. This is the one that
+  matches "heavy, thick… nothing too fancy, a core fabric rather than drapery".
