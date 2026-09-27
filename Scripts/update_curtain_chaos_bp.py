@@ -108,7 +108,11 @@ floor.set_editor_property("visible", False)
 floor.set_collision_enabled(unreal.CollisionEnabled.QUERY_AND_PHYSICS)
 floor.set_collision_object_type(unreal.CollisionChannel.ECC_WORLD_STATIC)
 floor.set_collision_response_to_all_channels(unreal.CollisionResponseType.ECR_BLOCK)
-for channel in (unreal.CollisionChannel.ECC_PAWN, unreal.CollisionChannel.ECC_CAMERA, unreal.CollisionChannel.ECC_VISIBILITY):
+# CatFloor (ECC_GameTraceChannel1, conductor 26 Sep) is how the cat finds what to stand on. FloorCatch
+# is a hidden safety net for the cloth, not a floor, so it must NOT answer the cat's traces: setting
+# 'all channels' to Block also sets that slot, so ignore it explicitly. Pile proxies opt in instead.
+for channel in (unreal.CollisionChannel.ECC_PAWN, unreal.CollisionChannel.ECC_CAMERA, unreal.CollisionChannel.ECC_VISIBILITY,
+                unreal.CollisionChannel.ECC_GAME_TRACE_CHANNEL1):
     floor.set_collision_response_to_channel(channel, unreal.CollisionResponseType.ECR_IGNORE)
 
 unreal.BlueprintEditorLibrary.compile_blueprint(bp)
