@@ -334,6 +334,21 @@ The pad (`FrontPadCm` = 130) is coupled to the master's `IrregularityCm` and
 `Docs/WingMateriality.md`: change both sides together, never per material
 instance.
 
+## Known consequences of the closed ring (Gary's choice, 2026-09-26)
+
+Nothing is built for the ring yet, so nothing here is designed against it. When
+it lands:
+- **Wing Burn progress** uses the show camera's distance along the owning
+  Passage's route. If a route becomes a single closed-loop spline
+  (`IsClosedLoop()`), the wing-minus-camera difference must be wrapped to the
+  shortest signed distance modulo the spline length. Otherwise a burn near the
+  seam reads the camera as a whole lap away and snaps to intact or consumed.
+  Open per-Passage segments need no change.
+- **Stride replication** counts in Show order within each Passage, so it is
+  unaffected by geometry. But bays, and so beam bays, will move: re-run
+  selection and replication after the ring's stations settle, then clear any
+  stale copies. Replication already removes only its own copies.
+
 ## Unverified, and where each gets proved
 
 - Local Fog Volume base size (radius or diameter at scale 1), and whether a
@@ -367,6 +382,12 @@ For Gary, held by the conductor:
   the light behind; lit cloth cannot eat through scenery. **Silk is better for
   contained fire that must run every night without variance**, such as a
   cresset or footlight flames. That would be Soft goods cloth on Chaos, plus a
-  linked light.
+  linked light. Two Chaos traps, found by Soft goods, apply if silk goes ahead:
+  - **Wind is in m/s, not cm/s.** A gust is above 8 m/s. Entering 250 meaning
+    2.5 m/s blows the cloth out of frame.
+  - **Chaos gathers colliders from the component's reference-pose bounds.**
+    Silk on anything that moves (a carried cresset, a pot on a chariot) stops
+    overlapping what it should hit and falls through it. Scale the bounds by
+    about 2.
 - Which wings burn? That is a creative choice, and it gates Wing materiality's
   per-mesh `UseBurn` switch.
