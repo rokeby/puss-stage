@@ -118,6 +118,17 @@ public:
         int32 ExpectedSceneCount,
         FString& OutReport);
 
+    /**
+     * The Cue Desk's "Link / Reimport Music Analysis", made scriptable. Imports
+     * every Passage analysis in Saved/InfinityStage/MusicAnalysis into its
+     * MM_Pxx_Analysis map, relinks the Show's music rails, and saves those maps
+     * and the Show (the importer saves them itself). Cue timing is not changed,
+     * and marker and tempo Confirmed/Suggested states are kept. Refuses during
+     * PIE.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Music")
+    static bool ImportMusicAnalysis(UInfinityStageShowAsset* Show, FString& OutReport);
+
     /** The compiled Master-frame range of one Passage, lead-in and tail included. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Camera Pilot")
     static bool GetPassageFrameRange(

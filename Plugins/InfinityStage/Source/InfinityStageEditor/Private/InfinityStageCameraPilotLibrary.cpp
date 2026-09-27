@@ -6,7 +6,9 @@
 #include "EngineUtils.h"
 #include "InfinityStageCameraRig.h"
 #include "InfinityStageCompiler.h"
+#include "InfinityStageMusicAnalysisImporter.h"
 #include "InfinityStagePassageActor.h"
+#include "Misc/Paths.h"
 #include "InfinityStageSceneHandoffBuilder.h"
 #include "InfinityStageShowAsset.h"
 #include "LevelSequence.h"
@@ -609,6 +611,34 @@ bool UInfinityStageCameraPilotLibrary::MatchNamedSceneHandoffs(
         StaleAfter.Num(),
         *MatchReport);
     return bMatched && StaleAfter.IsEmpty();
+}
+
+bool UInfinityStageCameraPilotLibrary::ImportMusicAnalysis(UInfinityStageShowAsset* Show, FString& OutReport)
+{
+    if (!Show || !GEditor)
+    {
+        OutReport = TEXT("Needs a Show asset and the editor.");
+        return false;
+    }
+    if (GEditor->PlayWorld)
+    {
+        OutReport = TEXT("Stop PIE before importing music analysis.");
+        return false;
+    }
+    const FString AnalysisDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("InfinityStage/MusicAnalysis"));
+    bool bImported = false;
+    {
+        const FScopedTransaction Transaction(NSLOCTEXT(
+            "InfinityStage", "ScriptedMusicAnalysisImport", "Link Infinity Stage Music Analysis"));
+        bImported = FInfinityStageMusicAnalysisImporter::ImportDirectory(AnalysisDirectory, Show, OutReport);
+    }
+    UE_LOG(
+        LogInfinityStageCameraPilot,
+        Display,
+        TEXT("INFINITY_MUSIC_ANALYSIS_IMPORTED|ok=%d|report=%s"),
+        bImported ? 1 : 0,
+        *OutReport);
+    return bImported;
 }
 
 bool UInfinityStageCameraPilotLibrary::GetPassageFrameRange(

@@ -567,9 +567,21 @@ bool CheckOneScene(
             continue;
         }
 
-        if (!HandoffCamera->GetActorTransform().Equals(ExpectedTransform, 0.5f))
+        // Location and aim are compared separately. FTransform::Equals applies
+        // one tolerance to translation AND to quaternion components, so the
+        // former 0.5 let a handoff camera be re-aimed by up to about 60 degrees
+        // without moving and still count as matched.
+        const double PositionErrorCm = FVector::Distance(
+            HandoffCamera->GetActorLocation(), ExpectedTransform.GetLocation());
+        const double AimErrorDegrees = FMath::RadiansToDegrees(
+            HandoffCamera->GetActorQuat().AngularDistance(ExpectedTransform.GetRotation()));
+        if (PositionErrorCm > 0.5 || AimErrorDegrees > 0.05)
         {
-            Differences.Add(FString::Printf(TEXT("%s transform"), Boundary.Role));
+            Differences.Add(FString::Printf(
+                TEXT("%s transform (%.2f cm, %.2f deg)"),
+                Boundary.Role,
+                PositionErrorCm,
+                AimErrorDegrees));
         }
         if (!FMath::IsNearlyEqual(Component->CurrentFocalLength, ExpectedFocalLength, 0.01f))
         {
