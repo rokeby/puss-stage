@@ -6,10 +6,19 @@ only. The stream was activated the same night: Gary asked, unprompted, for
 wings". Read `Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md` and
 `Docs/Conductor/BRIEF_EFFECTS_SOURCES_2026-09-25.md` first.
 
-**State:** the C++ is written in new files and reviewed by hand against the 5.8
-engine headers. It is **not built**. The conductor has landed the whole shared
-footprint as specified below: **A and B** in `63e5500`, **C and C2** in
-`e0c2c2f`. Nothing more is owed before the build window.
+**State (2026-09-26): built, tests passing. Tier 1 reached; tiers 2 and 3 not
+attempted.** The whole shared footprint is in: **A and B** in `63e5500`, **C
+and C2** in `e0c2c2f`. It went into the conductor's batched build at 01:46,
+alongside Rig's structure pass and Look & camera's pilot. The conductor then
+verified it:
+- `INFINITY_STAGE_EFFECTS_REPLICATED`, `INFINITY_STAGE_EFFECT_LIGHT_YIELDED` and
+  `INFINITY_STAGE_EFFECT_BURN_NO_CUSTOM_DATA` are present as UTF-16 in
+  `UnrealEditor-InfinityStage.dll`.
+- All eight `InfinityStage.Effects.*` tests pass. That includes
+  `MaterializeSpawnsAndTracksEffectSources`, which proves hook B end to end.
+
+Nothing is authored in the Show yet. What remains waits on an editor slot and
+Gary's creative decisions.
 
 **Read shafts and motes against the right light.** The conductor's shaft A/B
 (2026-09-25) found **no visible shaft at the beam bays yet**. Every beam lamp
@@ -301,6 +310,35 @@ the corridor.
 | Burn writes | `SetCustomDataValue(…, true)` re-creates that one wing ISM's render state each frame, but only during the burn window. Components hold about 5 instances each (765 panels over 149 meshes), so this is expected to be cheap. To be measured. |
 | Target | ≤ 1 ms GPU in the worst view (proposed; the frame budget is for the conductor and user to confirm) |
 
+## Local Fog Volume spike: procedure
+
+**Precondition met (2026-09-26):** Rig has turned three crossing pairs of P03
+lamps to throw back toward the audience, at route bays 4–5, 12–13 and 17–18,
+applied and verified.
+
+**The spike runs in Simulate-in-Editor, not in the editor world.** Simulate is a
+game world whose packages are never saved, so spawning a transient volume
+there cannot dirty the level. (It cannot be confirmed that a temporary actor
+spawned in the editor world would not dirty the level, because the engine
+`.cpp` is not in this install.) It also keeps the free viewport camera, and it
+is the only place Rig's Light Drama evaluates, so the back-lit lamps look as
+they will in the show.
+
+1. Read-only first: assert the Puss world on port 8010 with zero dirty packages.
+   Resolve the P03 bay 12–13 station transform and confirm its lamps face back
+   along the route.
+2. Start Simulate. In the Simulate world, spawn one `LocalFogVolume` in the bay
+   at the default settings (radius 400 cm, density 0.15, falloff 1000, white
+   albedo). Park the viewport camera upstream, looking into the lamps.
+3. Capture a still and `stat GPU` (VolumetricFog, Translucency) with the volume
+   and without it, at the same frame and camera.
+4. Stop Simulate. Read back that the editor world has zero dirty packages.
+5. Record whether the LFV's base size reads as radius or diameter at scale 1,
+   and whether it scatters with its own `FogPhaseG` or the global 0.55.
+
+This needs Gary's approval for the editor automation, and his eye for the
+result. It is not run unattended.
+
 ## Wing-burn PIE proof: procedure
 
 This runs after the build window and needs one conductor editor slot. It must
@@ -358,9 +396,10 @@ it lands:
   one Nanite and one non-Nanite panel in PIE once C lands.
 - Whether `SetCustomDataValue` dirties the editor level: avoided by design
   (game-world only), not proved.
-- Every line of this C++: build exit 0, the UTF-16 marker in the DLL, and the
-  suite with the eight new tests. All of that happens in the conductor's build
-  window.
+- Everything *not* covered by the eight tests: pumping, flicker, gating and
+  burn writes in a live game world. Proved by the spike and the PIE proof
+  above. (The build itself is done: 01:46, markers in the DLL, eight tests
+  passing.)
 
 ## Decisions
 
