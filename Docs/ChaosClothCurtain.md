@@ -171,6 +171,13 @@ whole curtain with crumples painted in and must not be used on simulated cloth.
    Also, `set_collision_response_to_all_channels(BLOCK)` writes all 32 slots, including channels
    not yet defined, and an explicit per-component response beats the channel's default. So FloorCatch
    ignores CatFloor explicitly (the cat must not stand on the cloth's hidden safety net).
+9. **`suspend_simulation` is a bool PROPERTY in Python**: it shadows the SuspendSimulation function, so
+   calling it raises "'bool' object is not callable". Set it with `set_editor_property`.
+   `resume_simulation()` is a real method.
+10. **To put a curtain back to rest, switch Simulate In Editor off FIRST, then suspend.** The other order
+    undoes the suspend and leaves the curtain live-simulating in the editor (hit twice on 27 Sep, once by
+    the conductor and once by this stream; both caught on read-back). `simulate_in_editor` refuses
+    `set_editor_property` on templates: use `set_simulate_in_editor()`.
 7. `ChaosClothComponent.bSimulateInEditor` is transient and per instance ("Simulate In Editor" in
    Details): switching it on never dirties the level. `bEnableSimulation` and `bSuspendSimulation`
    are Sequencer-keyable.
