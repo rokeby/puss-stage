@@ -164,3 +164,40 @@ conductor writes it down. Undocumented work is treated as unfinished.
 
 - Scene volumes: how far does the container carry into them before it lifts away?
 - How much industrial precision, and where, once the Baroque register is established?
+
+## The CatFloor convention (added 2026-09-26)
+
+Gary: *"It seems preferable for floor to have collisions and so do objects so
+that the cat doesn't walk flatly thru everything?"* So the cat stands on, and
+steps over, what is actually there.
+
+**`CatFloor` is a trace channel** (`ECC_GameTraceChannel1`, defined in
+`Config/DefaultEngine.ini`), and it **defaults to Ignore**. Nothing catches the
+cat unless it deliberately opts in. Wings, lights, fixtures, the gridiron and
+hemp lines must never block it — a cat climbing a lantern is worse than a cat
+sliding through a sandbag.
+
+**Opt in when, and only when, the cat should stand on or step over the thing:**
+
+- **Ground** (Rig & atmosphere): one invisible, query-only slab per bay or per
+  Passage at `Ground.FloorHeightCm` — **not** per-board collision on the 26,090
+  ISM instances. It cannot disagree with the boards because it is laid at the
+  same value. P03's Landscape already collides and needs only to answer this
+  channel.
+- **Fallen cloth piles** (Soft goods): a simple proxy per pile, the FloorCatch
+  pattern. Cloth itself cannot be traced reliably.
+- **Hand-placed objects** (sandbags, rope, debris, anything dropped by eye): set
+  the profile to block `CatFloor`. This is the one rule a human has to remember,
+  so it belongs in every brief.
+
+**Query-only, no physics.** Nothing here is meant to push, fall or be pushed.
+
+**Known limit, stated by Look & camera and accepted:** the cat climbs over things
+but does **not steer around them**. It still follows the camera path. Anything on
+the centre line too tall to climb is a separate decision — and the standing rule
+that the cat's centre line stays clear of grooves and slots exists for exactly
+this reason.
+
+**Fallback:** when a trace hits nothing, the cat falls back to route z +
+`Ground.FloorHeightCm`. So the feature degrades to the cheap correct answer
+rather than to a hole.
