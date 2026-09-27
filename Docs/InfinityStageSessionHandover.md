@@ -58,9 +58,11 @@ away from its rest position stops overlapping the floor it should collide with,
 so the floor is never gathered and the cloth falls straight through. Found
 2026-09-26: the placed curtains only land because their hem sits exactly at z=0,
 touching the top of their catch box — that is luck, not design, and it breaks the
-moment anything is raised, flown or retimed. The fix is a **bounds scale on the
-cloth component (~2)**. Suspect this first whenever cloth ignores a collider it
-clearly overlaps on screen.
+moment anything is raised, flown or retimed. A bounds scale of ~2 on the cloth
+component was tried and **did not fix it** — a lifted cloth still fell straight
+through its catch box. **The correct fix is not known.** Suspect this first
+whenever cloth ignores a collider it clearly overlaps on screen, and do not
+assume the bounds scale resolves it.
 
 **Chaos cloth wind is in m/s, not cm/s** — unlike almost every other length in
 this project, which is centimetres. The Aerodynamics node's own header says a
