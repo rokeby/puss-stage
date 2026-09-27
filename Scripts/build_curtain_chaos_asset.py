@@ -52,18 +52,20 @@ LOG = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.proje
 PHYSICS = {
     "density_kg_m2": 0.8,        # heavy stage velour 0.6-0.8; heaviness comes from low drag and no stretch
     "stretch_stiffness": 1.0,    # PBD, maximum: the fabric does not stretch
-    "bending_stiffness": 0.05,   # low
-    "buckling_ratio": 0.5,
+    "bending_stiffness": 0.8,    # 27 Sep bench: heavy velvet folds broad; 0.05 read as silk crinkle
+    "buckling_ratio": 0.0,       # no buckle-softening: folds keep their body instead of collapsing flat
     "buckling_stiffness": 0.005, # an order below bending: once it starts to fold it folds freely
     "damping": 0.05,
     "drag": 0.03,
     "lift": 0.03,
-    "self_friction": 0.8,
-    "substeps": 2,
-    "iterations": 2,
+    "self_friction": 0.9,        # grip holds the heap
+    "substeps": 4,
+    "iterations": 8,
+    "max_iterations": 10,
     "tether_scale": 1.0,
     "max_distance_cm": 10000.0,  # everything free (fly mode: except the heading selection)
-    "self_thickness_cm": 0.6,    # per side: a thick fabric, so the pile has body
+    "self_thickness_cm": 3.0,    # per side: thick velvet, so the pile has body
+    "self_collision_stiffness": 1.0,
     "collision_thickness_cm": 1.0,
     "floor_friction": 0.8,       # the pile grips the boards instead of skating
 }
@@ -439,9 +441,11 @@ def build():
         "bUseSelfCollisions": "True",
         "SelfCollisionFriction": f"(ImportedValue={p['self_friction']},bUseImportedValue=False)",
         "SelfCollisionThickness": weighted(p["self_thickness_cm"]),
+        "SelfCollisionStiffness": str(p["self_collision_stiffness"]),
     })
     node("Solver", "FChaosClothAssetSimulationSolverConfigNode", {
         "NumIterations": str(p["iterations"]),
+        "MaxNumIterations": str(p["max_iterations"]),
         "NumSubstepsImported": f"(ImportedValue={p['substeps']},bUseImportedValue=False)",
     })
     # Fall: nothing kinematic (the component starts suspended instead). Fly: the heading is pinned.

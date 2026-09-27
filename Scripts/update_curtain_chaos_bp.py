@@ -31,7 +31,11 @@ ROOT = "/Game/Scenes/Curtain/Chaos"
 # The ragged Q15 curtain owns the original BP (placed in the level); other patterns get their own,
 # duplicated from it, for Gary to drag in and compare. No level write here either way.
 BP_PATH = f"{ROOT}/BP_CurtainChaos" if STEM == "CurtainChaos_Ragged_Q15" else f"{ROOT}/BP_CurtainChaos_{STEM.split('CurtainChaos_')[-1]}"
-FALL_ASSET = f"{ROOT}/CA_{STEM}_Fall"
+# "guided" (27 Sep, Gary: "swap to guided"): the pinned-heading asset CA_<STEM>; the fall is staged by
+# carrying the cloth component down and forward (Sequencer transform track). "free" = the free-release
+# CA_<STEM>_Fall, which cannot sprawl (four benches) and is kept only as a record.
+MODE = os.environ.get("CURTAIN_BP_MODE", "guided")
+FALL_ASSET = f"{ROOT}/CA_{STEM}" if MODE == "guided" else f"{ROOT}/CA_{STEM}_Fall"
 FLOOR_HALF = unreal.Vector(1500.0, 1500.0, 25.0)
 # The CatFloor trace channel (ECC_GameTraceChannel1 in Config/DefaultEngine.ini). Python names a
 # configured game channel by its display name, so it is ECC_CAT_FLOOR, not ECC_GAME_TRACE_CHANNEL1.
@@ -94,6 +98,9 @@ report["asset_before"] = cloth.get_editor_property("asset").get_path_name() if c
 cloth.set_editor_property("asset", fall)
 cloth.set_editor_property("suspend_simulation", True)
 cloth.set_editor_property("collide_with_environment", True)
+# Cheap insurance: environment colliders are gathered from the cloth bounds (reference pose). This did
+# NOT fix the lifted-cloth fall-through in the bench; it is kept because the failure without it is silent.
+cloth.set_editor_property("bounds_scale", 2.0)
 
 floor = next((o for _, o in objects.values() if isinstance(o, unreal.BoxComponent)), None)
 if floor is None:
