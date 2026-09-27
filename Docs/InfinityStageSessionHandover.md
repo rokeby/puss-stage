@@ -38,6 +38,22 @@ one stream's save legitimately persisted another's in-memory level state for
 exactly this reason — caught because the stream asked what its own guard could
 not see.
 
+**Chaos cloth gathers environment colliders from the component's BOUNDS, and
+those bounds are the REFERENCE POSE, not the simulated state.** A cloth lifted
+away from its rest position stops overlapping the floor it should collide with,
+so the floor is never gathered and the cloth falls straight through. Found
+2026-09-26: the placed curtains only land because their hem sits exactly at z=0,
+touching the top of their catch box — that is luck, not design, and it breaks the
+moment anything is raised, flown or retimed. The fix is a **bounds scale on the
+cloth component (~2)**. Suspect this first whenever cloth ignores a collider it
+clearly overlaps on screen.
+
+**Chaos cloth wind is in m/s, not cm/s** — unlike almost every other length in
+this project, which is centimetres. The Aerodynamics node's own header says a
+gust is above 8 m/s. Entering 250 or 400 (thinking cm/s) is a hurricane and
+launches the cloth out of frame. Relevant to anything using wind, including
+Effects' silk flames.
+
 **Editor screenshots: use an offscreen SceneCapture2D, not HighResShot.**
 `take_high_res_screenshot` and console `HighResShot` return a stale or black frame
 whenever the level viewport is not the visible, focused window, and
