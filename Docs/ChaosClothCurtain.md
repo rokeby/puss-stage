@@ -44,6 +44,11 @@ ticks, full cleanup) found:
   (0 m: narrow; 3 m, 6 m: progressively sprawled). Bench config: `Scripts/curtain_fall_bench_guided.json`;
   clip: `Saved/CodexSoftGoods/curtain_guided_fall_plain_vs_ragged.gif`. In the show this is a transform
   track on the cloth component; in the editor, drag the component down with Simulate In Editor on.
+- **Heavy-fabric loft** (bench5, guided 4.5 m, plain): bending 0.8, no buckle-softening (BucklingRatio 0),
+  3 cm/side self-collision at stiffness 1.0 turns the fine crinkle into broad heavy folds. Grip (0.9 cloth,
+  0.8 floor) holds them, and damping plus 3 self-collision substeps adds crumple. A **faster drop (0.9 s)**
+  billows on the way down and lands as the most crumpled, overlapping heap: the best match so far for
+  "big crumpled heavy fabric sprawled". Clip: `Saved/CodexSoftGoods/curtain_guided_fall_loft.gif`.
 - **WindVelocity is in m/s**, not cm/s ("a gust is above 8 m/s"). 250 means a hurricane.
 - **Environment collision is gathered from the cloth's bounds, which are the reference pose.** A cloth lifted
   off the floor (even with bounds scale 2) fell straight through FloorCatch. The placed curtains land only

@@ -1,0 +1,115 @@
+{
+ "name": "bench5_loft",
+ "ticks": 240,
+ "capture_every": 4,
+ "bounds_every": 1000,
+ "spacing": 3000.0,
+ "width": 480,
+ "height": 270,
+ "bounds_scale": 2.0,
+ "variants": [
+  {
+   "id": "R_stiffthick",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 450.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 3.0,
+    "BendingStiffness": 0.8,
+    "BendingElementStiffness": 0.8,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.5,
+    "SelfCollisionFriction": 0.5,
+    "BucklingRatio": 0.0
+   }
+  },
+  {
+   "id": "S_grip",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 450.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 3.0,
+    "BendingStiffness": 0.8,
+    "BendingElementStiffness": 0.8,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.8,
+    "SelfCollisionFriction": 0.9,
+    "BucklingRatio": 0.0
+   }
+  },
+  {
+   "id": "T_damped_sub",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 450.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4,
+    "EnableNumSelfCollisionSubsteps": 1,
+    "NumSelfCollisionSubsteps": 3
+   },
+   "floats": {
+    "SelfCollisionThickness": 3.0,
+    "BendingStiffness": 0.8,
+    "BendingElementStiffness": 0.8,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.8,
+    "SelfCollisionFriction": 0.9,
+    "BucklingRatio": 0.0,
+    "DampingCoefficient": 0.15
+   }
+  },
+  {
+   "id": "U_fastdrop",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 450.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 3.0,
+    "BendingStiffness": 0.8,
+    "BendingElementStiffness": 0.8,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.8,
+    "SelfCollisionFriction": 0.9,
+    "BucklingRatio": 0.0
+   }
+  }
+ ]
+}
