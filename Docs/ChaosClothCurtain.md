@@ -133,6 +133,11 @@ whole curtain with crumples painted in and must not be used on simulated cloth.
    names are the struct names, e.g. `FChaosClothAssetStaticMeshImportNode_v2`. The cloth asset
    links to its graph through `dataflow_instance.dataflow_asset` / `dataflow_terminal`, a
    deprecated-warning property path that still works.
+8. **A configured game trace channel is named by its display name in Python.** `ECC_GameTraceChannel1`
+   = "CatFloor" is `unreal.CollisionChannel.ECC_CAT_FLOOR`; there is no `ECC_GAME_TRACE_CHANNEL1`.
+   Also, `set_collision_response_to_all_channels(BLOCK)` writes all 32 slots, including channels
+   not yet defined, and an explicit per-component response beats the channel's default. So FloorCatch
+   ignores CatFloor explicitly (the cat must not stand on the cloth's hidden safety net).
 7. `ChaosClothComponent.bSimulateInEditor` is transient and per instance ("Simulate In Editor" in
    Details): switching it on never dirties the level. `bEnableSimulation` and `bSuspendSimulation`
    are Sequencer-keyable.

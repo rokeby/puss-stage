@@ -33,6 +33,9 @@ ROOT = "/Game/Scenes/Curtain/Chaos"
 BP_PATH = f"{ROOT}/BP_CurtainChaos" if STEM == "CurtainChaos_Ragged_Q15" else f"{ROOT}/BP_CurtainChaos_{STEM.split('CurtainChaos_')[-1]}"
 FALL_ASSET = f"{ROOT}/CA_{STEM}_Fall"
 FLOOR_HALF = unreal.Vector(1500.0, 1500.0, 25.0)
+# The CatFloor trace channel (ECC_GameTraceChannel1 in Config/DefaultEngine.ini). Python names a
+# configured game channel by its display name, so it is ECC_CAT_FLOOR, not ECC_GAME_TRACE_CHANNEL1.
+CAT_FLOOR = getattr(unreal.CollisionChannel, "ECC_CAT_FLOOR", None)
 LOG = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods", "update_curtain_chaos_bp.json")
 
 report = {}
@@ -61,6 +64,8 @@ dirty_content = [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_co
 if dirty_content:
     finish(False, f"Refusing to start with dirty content packages: {dirty_content}")
 report["dirty_maps_before"] = dirty_maps()
+if CAT_FLOOR is None:
+    finish(False, "CatFloor channel not registered (no ECC_CAT_FLOOR); restart the editor after the config change")
 
 eal = unreal.EditorAssetLibrary
 if not eal.does_asset_exist(BP_PATH):
@@ -111,8 +116,7 @@ floor.set_collision_response_to_all_channels(unreal.CollisionResponseType.ECR_BL
 # CatFloor (ECC_GameTraceChannel1, conductor 26 Sep) is how the cat finds what to stand on. FloorCatch
 # is a hidden safety net for the cloth, not a floor, so it must NOT answer the cat's traces: setting
 # 'all channels' to Block also sets that slot, so ignore it explicitly. Pile proxies opt in instead.
-for channel in (unreal.CollisionChannel.ECC_PAWN, unreal.CollisionChannel.ECC_CAMERA, unreal.CollisionChannel.ECC_VISIBILITY,
-                unreal.CollisionChannel.ECC_GAME_TRACE_CHANNEL1):
+for channel in (unreal.CollisionChannel.ECC_PAWN, unreal.CollisionChannel.ECC_CAMERA, unreal.CollisionChannel.ECC_VISIBILITY, CAT_FLOOR):
     floor.set_collision_response_to_channel(channel, unreal.CollisionResponseType.ECR_IGNORE)
 
 unreal.BlueprintEditorLibrary.compile_blueprint(bp)
@@ -125,6 +129,8 @@ report["bp_template"] = {
     "suspend_simulation": cloth.get_editor_property("suspend_simulation"),
     "collide_with_environment": cloth.get_editor_property("collide_with_environment"),
     "floor_extent": [floor.get_editor_property("box_extent").x, floor.get_editor_property("box_extent").y, floor.get_editor_property("box_extent").z],
+    "floor_catfloor_response": str(floor.get_collision_response_to_channel(CAT_FLOOR)),
+    "floor_worldstatic_response": str(floor.get_collision_response_to_channel(unreal.CollisionChannel.ECC_WORLD_STATIC)),
 }
 instances = []
 bp_class = unreal.BlueprintEditorLibrary.generated_class(bp)
@@ -134,7 +140,9 @@ for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_
         asset = c[0].get_editor_property("asset") if c else None
         instances.append({"label": a.get_actor_label(), "asset": asset.get_path_name() if asset else None,
                           "suspend_simulation": c[0].get_editor_property("suspend_simulation") if c else None,
-                          "floor_catch": len(a.get_components_by_class(unreal.BoxComponent))})
+                          "floor_catch": len(a.get_components_by_class(unreal.BoxComponent)),
+                          "floor_catfloor_response": [str(bx.get_collision_response_to_channel(CAT_FLOOR))
+                                                      for bx in a.get_components_by_class(unreal.BoxComponent)]})
 report["instances"] = instances
 report["dirty_content_after"] = [str(p) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]
 report["dirty_maps_after"] = dirty_maps()
