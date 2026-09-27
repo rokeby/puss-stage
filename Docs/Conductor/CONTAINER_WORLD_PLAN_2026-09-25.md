@@ -208,6 +208,12 @@ channels.
 
 **Query-only, no physics.** Nothing here is meant to push, fall or be pushed.
 
+**From Python, the channel is `unreal.CollisionChannel.ECC_CAT_FLOOR`**, not
+`ECC_GAME_TRACE_CHANNEL1` — a configured channel is exposed by its display name
+and the raw slot name does not resolve. Check the channel resolves **before**
+editing anything: a script that discovers this mid-edit has already half-rewritten
+a collision profile.
+
 **Known limit, stated by Look & camera and accepted:** the cat climbs over things
 but does **not steer around them**. It still follows the camera path. Anything on
 the centre line too tall to climb is a separate decision — and the standing rule
