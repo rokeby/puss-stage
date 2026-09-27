@@ -157,7 +157,10 @@ int32 ComputeStructureSignature(
     {
         Hash = HashCombineFast(Hash, GetTypeHash(Station.CueGuid));
         Hash = HashFrame(Hash, Station.StationWorld);
-        Hash = HashCombineFast(Hash, ::GetTypeHash(FMath::RoundToInt64(Station.HalfWidthCm * 10.0)));
+        for (const double SideCm : { Station.NegativeSideCm, Station.PositiveSideCm })
+        {
+            Hash = HashCombineFast(Hash, ::GetTypeHash(FMath::RoundToInt64(SideCm * 10.0)));
+        }
     }
     for (const FFixturePlacement& Fixture : Fixtures)
     {
@@ -250,10 +253,11 @@ bool AInfinityStageStructureActor::GatherStations(
         const FVector Across = Station.StationWorld.GetUnitAxis(EAxis::Y);
         for (const FVector& PanelLocation : *PanelLocations)
         {
-            Station.HalfWidthCm = FMath::Max(
-                Station.HalfWidthCm,
-                FMath::Abs(FVector::DotProduct(PanelLocation - Origin, Across)));
+            const double LateralCm = FVector::DotProduct(PanelLocation - Origin, Across);
+            double& SideCm = LateralCm < 0.0 ? Station.NegativeSideCm : Station.PositiveSideCm;
+            SideCm = FMath::Max(SideCm, FMath::Abs(LateralCm));
         }
+        Station.HalfWidthCm = FMath::Max(Station.NegativeSideCm, Station.PositiveSideCm);
     }
     OutStations.StableSort([](const FInfinityStructureStation& A, const FInfinityStructureStation& B)
     {
@@ -654,15 +658,25 @@ void AInfinityStageStructureActor::BuildGround(
     const int32 LaneCount = FMath::Max(1, FMath::FloorToInt32((HalfSpanCm * 2.0 + GapCm) / LanePitchCm));
     const double FirstLaneCm = -(LaneCount * LanePitchCm - GapCm) * 0.5 + BoardWidthCm * 0.5;
 
-    // Where each station's slots begin, measured out from the route line. Never
-    // nearer than the cat's clearance, whatever the wings do.
-    TArray<double> SlotInnerCm;
+    // Where each station's slots begin, measured out from the route line, per
+    // side: each side's slots start under that side's own wing, so an
+    // asymmetric pair (P01: -750 / +500) still stands over its slots. A side
+    // with no wing gets no slot, and no slot ever comes nearer the route line
+    // than the cat's clearance, whatever the wings do.
+    TArray<double> SlotInnerNegativeCm;
+    TArray<double> SlotInnerPositiveCm;
+    const auto SlotInner = [this, HalfSpanCm](const double WingCm)
+    {
+        const double InnerCm = FMath::Max(WingCm - Ground.SlotInboardCm, Ground.CatClearanceCm);
+        return Ground.bCutChariotSlots && WingCm > 0.0 && InnerCm < HalfSpanCm
+            ? InnerCm
+            : TNumericLimits<double>::Max();
+    };
     for (const FInfinityStructureStation& Station : Stations)
     {
-        const double InnerCm = FMath::Max(Station.HalfWidthCm - Ground.SlotInboardCm, Ground.CatClearanceCm);
-        const bool bCut = Ground.bCutChariotSlots && InnerCm < HalfSpanCm;
-        SlotInnerCm.Add(bCut ? InnerCm : TNumericLimits<double>::Max());
-        SlotCount += bCut ? 2 : 0;
+        SlotInnerNegativeCm.Add(SlotInner(Station.NegativeSideCm));
+        SlotInnerPositiveCm.Add(SlotInner(Station.PositiveSideCm));
+        SlotCount += (SlotInnerNegativeCm.Last() < HalfSpanCm ? 1 : 0) + (SlotInnerPositiveCm.Last() < HalfSpanCm ? 1 : 0);
     }
 
     const FBox BoardBounds = BoardMesh.GetBoundingBox();
@@ -690,11 +704,12 @@ void AInfinityStageStructureActor::BuildGround(
     {
         const double LaneCm = FirstLaneCm + Lane * LanePitchCm;
         const double LaneOuterCm = FMath::Abs(LaneCm) + BoardWidthCm * 0.5;
+        const TArray<double>& SideSlotInnerCm = LaneCm < 0.0 ? SlotInnerNegativeCm : SlotInnerPositiveCm;
         // Stations are in route order, so the cuts this lane crosses are too.
         TArray<double> CutsCm;
         for (int32 Index = 0; Index < Stations.Num(); ++Index)
         {
-            if (LaneOuterCm > SlotInnerCm[Index])
+            if (LaneOuterCm > SideSlotInnerCm[Index])
             {
                 CutsCm.Add(Stations[Index].DistanceCm);
             }

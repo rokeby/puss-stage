@@ -16,7 +16,9 @@ constexpr double FixtureHalfWidthCm = 400.0;
 AInfinityStagePassageActor* SpawnMaterializedPassage(
     UWorld& World,
     const int32 PairCount,
-    const FRotator& Rotation = FRotator::ZeroRotator)
+    const FRotator& Rotation = FRotator::ZeroRotator,
+    const double LeftLateralCm = -FixtureHalfWidthCm,
+    const double RightLateralCm = FixtureHalfWidthCm)
 {
     UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
     const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
@@ -27,9 +29,9 @@ AInfinityStagePassageActor* SpawnMaterializedPassage(
         Cue.CueGuid = FGuid::NewGuid();
         Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
         Cue.WingPair.Left.Mesh = Cube;
-        Cue.WingPair.Left.LocalTransform.SetLocation(FVector(0.0, -FixtureHalfWidthCm, 0.0));
+        Cue.WingPair.Left.LocalTransform.SetLocation(FVector(0.0, LeftLateralCm, 0.0));
         Cue.WingPair.Right.Mesh = Cube;
-        Cue.WingPair.Right.LocalTransform.SetLocation(FVector(0.0, FixtureHalfWidthCm, 0.0));
+        Cue.WingPair.Right.LocalTransform.SetLocation(FVector(0.0, RightLateralCm, 0.0));
         Cue.WingPair.GapToNextCm = 500.0;
         Cue.WingPair.IntervalToNext = 48000;
     }
@@ -491,6 +493,73 @@ bool FInfinityStageStructureClothTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("No coverage lays no cloth"), Structure->ClothCount, 0);
     TestNull(TEXT("No coverage leaves no empty cloth layer"),
         FindLayer(*Structure, TEXT("InfinityStage.Structure.Cloth")));
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageStructureAsymmetricSlotsTest,
+    "InfinityStage.Structure.SlotsStartUnderEachSidesOwnWing",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageStructureAsymmetricSlotsTest::RunTest(const FString& Parameters)
+{
+    // P01's shape: wings at -750 and +500, so each side's slots must start under
+    // that side's own wing, not both under the wider one.
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 3, FRotator::ZeroRotator, -750.0, 500.0);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    Structure->Ground.bEnabled = true;
+    TestTrue(TEXT("Asymmetric structure materializes"), Structure->MaterializeStructure());
+
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    Structure->GatherStations(Stations, Error);
+    UInstancedStaticMeshComponent* Boards = FindLayer(*Structure, TEXT("InfinityStage.Structure.Ground"));
+    if (Stations.Num() != 3 || !Boards)
+    {
+        AddError(TEXT("Expected boards over three stations."));
+        World->DestroyWorld(false);
+        return false;
+    }
+    TestTrue(TEXT("The negative side reads its own wing"), FMath::IsNearlyEqual(Stations[1].NegativeSideCm, 750.0, 0.01));
+    TestTrue(TEXT("The positive side reads its own wing"), FMath::IsNearlyEqual(Stations[1].PositiveSideCm, 500.0, 0.01));
+    TestTrue(TEXT("Half width is still the wider side"), FMath::IsNearlyEqual(Stations[1].HalfWidthCm, 750.0, 0.01));
+
+    const FInfinityStageGroundSettings& Ground = Structure->Ground;
+    const double NegativeInnerCm = 750.0 - Ground.SlotInboardCm;   // 600
+    const double PositiveInnerCm = 500.0 - Ground.SlotInboardCm;   // 350
+    const double HalfBoardCm = Ground.BoardWidthCm * 0.5;
+    const double StationCm = Stations[1].StationWorld.GetLocation().X;
+    // Lanes wholly between the two slot starts: cut at the station on the narrow
+    // (+) side, continuous across it on the wide (-) side. Before the fix both
+    // sides used the wider wing, so the + side ran continuous here.
+    bool bPositiveCut = true;
+    bool bNegativeWhole = false;
+    for (const FTransform& Plank : ReadInstances(*Boards))
+    {
+        const FVector Centre = Plank.GetLocation();
+        const double OuterCm = FMath::Abs(Centre.Y) + HalfBoardCm;
+        const double InnerCm = FMath::Abs(Centre.Y) - HalfBoardCm;
+        if (InnerCm <= PositiveInnerCm || OuterCm >= NegativeInnerCm)
+        {
+            continue;
+        }
+        const double HalfLengthCm = Plank.GetScale3D().X * 50.0;
+        const bool bSpansStation = Centre.X - HalfLengthCm < StationCm && Centre.X + HalfLengthCm > StationCm;
+        if (Centre.Y > 0.0)
+        {
+            bPositiveCut &= !bSpansStation;
+        }
+        else
+        {
+            bNegativeWhole |= bSpansStation;
+        }
+    }
+    TestTrue(TEXT("The narrow side's slot starts under its own wing"), bPositiveCut);
+    TestTrue(TEXT("The wide side is not cut inside its own wing's line"), bNegativeWhole);
+    TestEqual(TEXT("Still one slot per side per station"), Structure->SlotCount, 6);
 
     World->DestroyWorld(false);
     return true;

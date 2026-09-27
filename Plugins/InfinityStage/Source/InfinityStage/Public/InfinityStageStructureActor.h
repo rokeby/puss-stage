@@ -38,6 +38,16 @@ struct INFINITYSTAGE_API FInfinityStructureStation
     /** Farthest materialized panel from the route line, measured across it. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Structure", meta = (Units = "cm"))
     double HalfWidthCm = 0.0;
+
+    /** Farthest panel on each side of the route line, as positive distances (-Y
+     * and +Y of the station frame). Corridors are often asymmetric (P01's wings
+     * stand at -750 and +500), and each side's slots must start under that
+     * side's own wing. Zero means the side has no panel. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Structure", meta = (Units = "cm"))
+    double NegativeSideCm = 0.0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Structure", meta = (Units = "cm"))
+    double PositiveSideCm = 0.0;
 };
 
 /**
