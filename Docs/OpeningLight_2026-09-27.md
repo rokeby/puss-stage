@@ -81,10 +81,10 @@ the beam.
 
 | | Value | Reason |
 | --- | --- | --- |
-| Where | One per wing station per side, just inboard of each wing's foot (the panel's line minus ~40 cm), **only downstream of the curtain** (x > 5400) | Along the wing and slot lines, the Baroque float row. None upstream: the approach to the curtain stays dark, so the opening is still one light in darkness. |
+| Where | One per wing station per side, just inboard of each wing's foot (the panel's line minus ~40 cm), **60 cm downstream of the station's slot**, and **only downstream of the curtain** (x > 5400) | Along the wing and slot lines, the Baroque float row, but never standing over a slot's gap. None upstream: the approach to the curtain stays dark, so the opening is still one light in darkness. |
 | Height | ≈ 25 cm above the boards | A low trough of lamps. |
 | Aim | Inward and forward, yaw about ±60° toward the corridor centre, pitch +5° | Each float fans across the floor ahead of it, so the cat's path gets warm light from both sides and underlight as it passes. |
-| Cone / reach | Outer 35°, attenuation radius 350 cm | Short and wide. The cone's lower edge would only reach the understage after 485 cm, beyond the radius, so the dark under the slots stays dark. |
+| Cone / reach | Outer 35°, attenuation radius 350 cm | Short and wide. The cone's lower edge would only reach the understage after 485 cm, beyond the radius, so the dark under the slots stays dark. Re-checked after the per-side slot fix (c8aee3b): the clearance depends only on lamp height, cone and understage depth, not on where the slots are, because a shadowless lamp ignores the boards either way. It still holds. |
 | Shadows | **Off** | Cheap, because P01 already overflows VSM, and safe because the short radius keeps them off the understage. |
 | Colour | ≈ 2500 K | Warmer than the opening spot, so the spot stays the evening's "white". |
 | Level | ≈ 6 cd ±15% per lamp (≈ 1.5 lux at 2 m) | A floor under the composition, not a key. Tuned by capture with the spot. |
@@ -99,10 +99,12 @@ under the grid.
 
 **Placed from the wing, not the slot.** The floats key off each wing panel's
 actual line. This matters because of a bug found while designing them: the
-ground layer currently starts every station's slots from the *wider* side's
-wing on both sides, so in P01 (wings at −750 / +500) the right-hand slots begin
-at 600 cm and the right-hand wings do not stand over them. Fix pending in the
-structure pass (per-side slot extents), C++, next build window.
+ground layer started every station's slots from the *wider* side's wing on both
+sides, so in P01 (wings at −750 / +500) the right-hand slots began at 600 cm and
+the right-hand wings did not stand over them. Fixed in source (c8aee3b,
+per-side extents, new asymmetric test), unbuilt. It takes effect after the next
+build window and a structure re-materialize, a level write sequenced after the
+opening light.
 
 ## With the P01 floor problem
 
