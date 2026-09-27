@@ -172,10 +172,26 @@ that the cat doesn't walk flatly thru everything?"* So the cat stands on, and
 steps over, what is actually there.
 
 **`CatFloor` is a trace channel** (`ECC_GameTraceChannel1`, defined in
-`Config/DefaultEngine.ini`), and it **defaults to Ignore**. Nothing catches the
-cat unless it deliberately opts in. Wings, lights, fixtures, the gridiron and
-hemp lines must never block it — a cat climbing a lantern is worse than a cat
-sliding through a sandbag.
+`Config/DefaultEngine.ini`), and it **defaults to Ignore**. Wings, lights,
+fixtures, the gridiron and hemp lines must never block it — a cat climbing a
+lantern is worse than a cat sliding through a sandbag.
+
+**The default does NOT protect you, and this is the trap.** A response container
+covers all 32 channel slots, so any component authored as "respond to all
+channels = Block" already carries an **explicit** Block on
+`GameTraceChannel1` — written before `CatFloor` existed and named nothing — and
+an explicit per-component response **overrides the channel default**. Such a
+collider silently opts in and the cat climbs onto it.
+
+Found on 2026-09-26 in the curtains' own `FloorCatch` boxes: authored block-all
+with Pawn/Camera/Visibility set to Ignore, so they would have put a hidden
+30 × 30 m plane at z=0 around each curtain, invisible where boards are also at
+z=0 and plainly wrong in P03, which has no boards.
+
+So: **audit every block-all collider in the project before trusting a trace**,
+and set `GameTraceChannel1` explicitly to Ignore on anything that should not
+catch the cat. The default only protects components that do not answer all
+channels.
 
 **Opt in when, and only when, the cat should stand on or step over the thing:**
 
