@@ -1,0 +1,108 @@
+{
+ "name": "bench4",
+ "ticks": 240,
+ "capture_every": 4,
+ "bounds_every": 1000,
+ "spacing": 3000.0,
+ "width": 480,
+ "height": 270,
+ "bounds_scale": 2.0,
+ "variants": [
+  {
+   "id": "N_guided_plain_f300",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 300.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 2.0,
+    "BendingStiffness": 0.3,
+    "BendingElementStiffness": 0.3,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.5,
+    "SelfCollisionFriction": 0.5
+   }
+  },
+  {
+   "id": "O_guided_plain_f600",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 600.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 2.0,
+    "BendingStiffness": 0.3,
+    "BendingElementStiffness": 0.3,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.5,
+    "SelfCollisionFriction": 0.5
+   }
+  },
+  {
+   "id": "P_guided_ragged_f400",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Ragged_Q15",
+   "guide": {
+    "forward_cm": 400.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 2.0,
+    "BendingStiffness": 0.3,
+    "BendingElementStiffness": 0.3,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.5,
+    "SelfCollisionFriction": 0.5
+   }
+  },
+  {
+   "id": "Q_guided_plain_f0",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": 0.0,
+    "drop_cm": 995.0,
+    "ticks": 50,
+    "forward_exp": 1.5
+   },
+   "ints": {
+    "NumIterations": 8,
+    "MaxNumIterations": 10,
+    "NumSubsteps": 4
+   },
+   "floats": {
+    "SelfCollisionThickness": 2.0,
+    "BendingStiffness": 0.3,
+    "BendingElementStiffness": 0.3,
+    "BucklingStiffness": 0.06,
+    "SelfCollisionStiffness": 1.0,
+    "FrictionCoefficient": 0.5,
+    "SelfCollisionFriction": 0.5
+   }
+  }
+ ]
+}

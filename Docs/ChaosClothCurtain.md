@@ -26,6 +26,34 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## 27 Sep: why the free fall was a "viennetta", and the guided fall
+
+Gary rejected the first fall: "It should be a big crumpled heavy fabric sprawled on the floor, not a very
+narrowly squished viennetta." Four off-stage benches (`Scripts/curtain_fall_bench.py`: transient
+curtains at y >= 60000, runtime overrides through the ChaosClothAssetInteractor, one capture per few
+ticks, full cleanup) found:
+
+- **A free-released sheet cannot sprawl.** Released uniformly, a symmetric vertical sheet falls straight
+  down and piles in its own footprint. Stiffer solver (8 iterations, 4 substeps), 2 cm/side
+  self-collision, bending 0.3–0.5, no buckle-softening, a 4° lean, low friction and a real 2.5 m/s gust
+  all still end as a strip. With the stiffer settings the pile first has volume, then **deflates** to a
+  strip over ~200 ticks.
+- **Guiding the heading works.** Keep the heading pinned (`CA_<STEM>`, fly mode) and carry the cloth
+  component down (gravity-timed, s²) and forward over ~1.4 s, like a batten falling forward. The top edge
+  folds over the body and the cloth lands crumpled and spread 2–3 m deep. **Forward distance is the dial**
+  (0 m: narrow; 3 m, 6 m: progressively sprawled). Bench config: `Scripts/curtain_fall_bench_guided.json`;
+  clip: `Saved/CodexSoftGoods/curtain_guided_fall_plain_vs_ragged.gif`. In the show this is a transform
+  track on the cloth component; in the editor, drag the component down with Simulate In Editor on.
+- **WindVelocity is in m/s**, not cm/s ("a gust is above 8 m/s"). 250 means a hurricane.
+- **Environment collision is gathered from the cloth's bounds, which are the reference pose.** A cloth lifted
+  off the floor (even with bounds scale 2) fell straight through FloorCatch. The placed curtains land only
+  because the hem touches z = 0. Unresolved.
+- **The editor currently ticks at ~2.5 s idle** (background throttling plus intermittent 3 s HTTP stalls to
+  generate_204), so cloth cost can't be measured until the editor runs in the foreground. The physics is
+  still valid (Chaos clamps dt), just slow-motion.
+- Setting a cloth component's transform through `set_editor_property` re-registers it, and its interactor
+  never comes up. Use `set_relative_location/rotation(..., teleport)`.
+
 ## Read this first: the rest-shape trap
 
 **Chaos takes the cloth's rest shape from the 3D mesh by default.** Two settings:
