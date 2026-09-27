@@ -52,6 +52,19 @@ transform track on the cloth component, so it is **directable in Sequencer** and
 draggable in the editor with Simulate In Editor on — a staging decision rather
 than a physics parameter. This is the Kabuki *furi-otoshi* made literal.
 
+**The fall has three directable dials**, established 2026-09-26:
+1. **Forward distance** — how far the heading travels. 0 m narrow, 3 m, 6 m
+   progressively sprawled.
+2. **Drop speed** — and this is the surprising one. A *faster* drop (0.9 s rather
+   than 1.4 s) **billows on the way down** and lands as the most crumpled,
+   overlapping heap. Speed buys crumple, not just urgency.
+3. **Fabric weight and stiffness** — bending 0.8 with no buckle-softening and
+   3 cm/side self-collision at stiffness 1.0 turns fine crinkle into **broad heavy
+   folds**; it stops reading as silk. Grip (0.9 cloth-on-cloth, 0.8 floor) holds
+   those folds; damping plus 3 self-collision substeps adds crumple.
+
+So a curtain's fall is staged, not tuned: three values a director sets by eye.
+
 **Chaos cloth gathers environment colliders from the component's BOUNDS, and
 those bounds are the REFERENCE POSE, not the simulated state.** A cloth lifted
 away from its rest position stops overlapping the floor it should collide with,
