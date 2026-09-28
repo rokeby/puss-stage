@@ -166,7 +166,10 @@ if (BurnM >= 0.0 && p > 1e-4)
     // the images carry transparent margins). Radius reaches the farthest UV corner plus
     // the noise and hole pad at progress 1, so 1 always means fully consumed.
     float2 span = float2(UVSpanUCm, UVSpanVCm);
-    float2 ign = float2(IgnU, IgnV);
+    // Once the ISMs carry 4 floats the slots read 0, not the node defaults, so (0,0) means
+    // "no ignition written": use bottom centre, where fire climbs from. Effects always
+    // writes a real ignition when it burns; this only governs BurnPreview in the editor.
+    float2 ign = (IgnU == 0.0 && IgnV == 0.0) ? float2(0.5, 1.0) : float2(IgnU, IgnV);
     float dist = length((UV - ign) * span);
     float dmax = length(max(ign, 1.0 - ign) * span);
     float pad = IrregularityCm * 0.5 + 1.25 * BurnEdgeCm;
