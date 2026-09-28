@@ -84,6 +84,7 @@ QUALITY = int(os.environ.get("QUALITY", "10"))
 DENSITY = 0.8                                   # kg/m2, as the Chaos curtain
 OUT_DIR = Path(os.environ.get("OUT_DIR", str(ROOT / "Saved" / "CodexSoftGoods" / "DropBake")))
 EXPORT_ABC = os.environ.get("EXPORT_ABC", "0") == "1"
+ABC_START = int(os.environ.get("ABC_START", "1"))   # first exported frame (e.g. 1 s before the release): the show needs the hang + fall only
 CLIP_STEP = int(os.environ.get("CLIP_STEP", "0"))   # >0: also render the fall every N frames, 3/4 and side, for a clip
 CLIP_START = int(os.environ.get("CLIP_START", "1"))  # first frame of the clip (e.g. a second before the release)
 LENS_34 = float(os.environ.get("LENS_34", "50"))      # 3/4 camera lens (mm); wider for the good run so a spill isn't cropped
@@ -447,8 +448,10 @@ def main():
     if EXPORT_ABC:
         bpy.ops.object.select_all(action="DESELECT")
         obj.select_set(True)
-        bpy.ops.wm.alembic_export(filepath=str(OUT_DIR / f"{DROP_ID}.abc"), start=1, end=FRAMES, selected=True,
-                                  uvs=True, normals=True, face_sets=True, apply_subdiv=False)
+        # VIEWPORT evaluation: the simulated cloth mesh only. The default (render) evaluation applied the render-only
+        # subdivision + solidify: ~16x the geometry, 5.5 GB for one take (28 Sep). Unreal adds its own material.
+        bpy.ops.wm.alembic_export(filepath=str(OUT_DIR / f"{DROP_ID}.abc"), start=ABC_START, end=FRAMES, selected=True,
+                                  uvs=True, normals=True, face_sets=True, apply_subdiv=False, evaluation_mode="VIEWPORT")
     (OUT_DIR / f"{DROP_ID}.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"CURTAIN_DROP_BAKE_DONE|{DROP_ID}|released={report['released']}|final={json.dumps(final)}"
           f"|hang_depth={report['hang_depth_m']}|solve_s={report['solve_seconds_total']}")
