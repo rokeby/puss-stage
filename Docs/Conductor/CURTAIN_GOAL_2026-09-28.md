@@ -43,18 +43,49 @@ the cause (147 pinned of 9,849; free particles drift in the baked air).
 assets through hang and drop, diverging only in the chaotic pile phase. The
 bench technique is trustworthy.
 
-## The prime suspect for the thin pile: no fullness
+## THE CAUSE (found 28 Sep, Blender scout): compression stiffness, not fullness
 
-A real theatre curtain is **gathered** — 12–18 m of fabric on a 7 m bar, 1.5x to
-2.5x fullness. That excess is why a dropped drape lands in a deep heap: the
-fabric has nowhere to go but outward. A flat plane the same width as its heading
-has no slack and **can only concertina in its own plane** — which is exactly
-"a thin slice of space almost folding on itself".
+**Virtual cloth resists being squashed as hard as it resists being stretched.
+Real cloth resists squashing not at all — it buckles the instant you push on
+it.** That asymmetry is the entire difference between cloth and cardboard, and a
+symmetric solver makes cardboard.
 
-If that holds, every solver parameter tuned so far is downstream of missing
-fabric. **Check the cloth's flat width against the heading span first.**
+Demonstrated in Blender: with the hem at z=0, the pleated sheet **stood 10 m
+tall on its own hem after release, and with no pins at all** — a corrugated
+column. Compression 40 and bending 5 out-stiffed gravity; dropping them to 1 and
+0.5 still stood, because Blender's stiffness is not normalised by mass and the
+physical 0.8 kg/m² gave ~0.06 kg per scout vertex.
 
-Ranked candidates behind it, as hypotheses to test:
+With a **heavy vertex mass (1 kg) plus low compression (1)** it falls and heaps.
+
+> "Heavy" means weight dominates the fabric's resistance to compression, so it
+> buckles OUT of plane instead of concertina-ing IN plane.
+
+That is Gary's complaint restated as mechanics: "thin slice of space almost
+folding on itself" is in-plane concertina; "heavy, physical" is out-of-plane
+buckling.
+
+**Untested hypothesis for Chaos:** our PBD stretch at stiffness 1.0 resists
+compression as hard as tension — the same column behaviour. **First thing to
+check when the editor returns:** does the Chaos cloth expose compression
+stiffness separately from stretch, and is ours symmetric?
+
+Measured at fullness 1.25 (frame 90, still settling): bending 5 gives pile depth
+2.0 m = **6.7× the 0.30 m hang**; bending 0.5 gives 1.37 m = 4.6×. Stiffer bend
+makes the bigger heap, as predicted. Metric validated against renders before any
+number was used.
+
+## Fullness: a contributor, DEMOTED from prime suspect
+
+The conductor's fullness hypothesis was **wrong as a cause**. A 1.25× curtain
+heaps 6.7× its hanging depth once it is heavy and buckles. Fullness contributes;
+it is not why the pile was thin.
+
+The numbers, still worth having. PLAIN (the Opening curtain): 22.22 m of flat
+fabric on a 17.77 m track = **1.25×**, hanging **29 cm** deep. RAGGED: 35.47 m =
+**2.0×**, hanging 70 cm. A real gathered drape is 1.5-2.5×.
+
+Remaining candidates, as hypotheses to test:
 
 2. **Self-collision thickness** — pile volume comes from layers refusing to
    occupy each other.
