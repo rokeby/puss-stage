@@ -195,3 +195,62 @@ A wide low mound or a narrow tall one, not both.
 **The deliverable is a CLIP, not a still.** Gary asked for "a dramatic sense of
 physical stage hefty material *falling*". The whole day was spent optimising a
 still frame of the aftermath for a complaint about motion.
+
+## The heaviness is ACHIEVED — and the one remaining defect (28 Sep, evening)
+
+Gary on the true-speed clip:
+
+> "This is looking much better, especially the final moment of the fall, although
+> the bounce is off - when it first hits the ground there's a movement where the
+> whole fabric seems to bounce, but it does read as heavy"
+
+**The objective is met.** He praises the settle specifically, and says nothing
+about pile height, footprint or the ~1.8 m spill past each track end, having seen
+all three with posts for scale. **Do not spend on pile height.**
+
+### The bounce is NOT a bounce, and measurement settled it in 20 minutes
+
+Silhouette tracked per frame on the real-time clip (top, area-centroid, bottom):
+
+| time | what happens |
+|---|---|
+| +0.2 s | hem touches the floor — **nothing happens** |
+| +1.73 s | fully collapsed (top 1.29 m, centroid 0.49 m) |
+| +1.73 → +2.1 s | **swells back up**: top 1.91 m, centroid 0.72 m, area nearly doubles |
+| after | sinks slowly |
+
+Energy is returned from **inside the compressed pile**, after the collapse — not
+from the floor contact, which has been stable since +0.2 s.
+
+**Falsified by that timing** (all had been ranked plausible or high):
+- Floor restitution / `floor.collision.damping` — contact stable throughout.
+- Elastic recoil through the sheet at impact (the conductor's hypothesis) — wrong
+  by 1.5 s.
+- The mathematically level hem landing across 17.8 m in one frame — real, and a
+  sharp find, but not the trigger: the simultaneous touch produces nothing.
+
+**It is resolution-dependent.** Identical settings at the 27 cm scout do not
+bounce (COM bottoms at 0.183 m and rises 5 mm). A coarse run cannot test the fix.
+
+### The ratio rule — self-collision distance scales with edge length
+
+The only candidate that explains the resolution dependence:
+
+| mesh | self-collision | ratio | shell dia vs edge | result |
+|---|---|---|---|---|
+| 27 cm scout | 3 cm | 0.11 | 6 cm vs 27 cm | no bounce |
+| 9.1 cm fine | 3 cm | **0.33** | 6 cm vs 9.1 cm | **bounce** |
+
+At 0.33, **adjacent vertices in the same sheet are almost touching at rest**. Any
+fold compression makes neighbours overlap and repel each other: the sheet stops
+behaving like cloth and becomes a pressurised foam. The collapse squashes it and
+it inflates back — which is exactly the measured area doubling.
+
+**RULE: keep self-collision distance below ~0.2 x edge length.** At 9.1 cm that is
+<=1.8 cm. Now enforced in `Scripts/bake_curtain_drop.py` as a hard refusal with an
+explicit override used only to reproduce the fault. Same class of bug as the mass
+and air-damping scaling: **a parameter chosen in absolute units that must scale
+with resolution.**
+
+Cost: thinner fabric lowers the pile. Accepted — Gary has not asked about pile
+height.
