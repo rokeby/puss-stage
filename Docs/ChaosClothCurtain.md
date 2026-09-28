@@ -147,14 +147,60 @@ z = 0. Frames are in `Saved/CodexSoftGoods/Frames/teleport_drop/`.
   time (the idle editor ticks at ~2.5 s and Chaos clamps dt). If the drop is slow, the heading's
   acceleration stays under g and the cloth simply hangs taut from it all the way down.
 
-**Next, in order:** (1) run one off-stage control bench on the pinned plain cloth, with three
-arrangements: the in-actor FloorCatch with the cloth component moved (the old bench method); the
-separate floor actor with the actor moved; and the separate floor with a much thicker box. That
-tells separate-actor gathering apart from a thin box being tunnelled. (2) Once something catches the
-cloth, re-run the throw, drop-speed, loft and gust numbers on the correctly pinned cloth, and try
-`LinearVelocityScale` 1.0. (3) Only then return to the Opening sequence, and record it with Movie
-Render Queue (fixed timestep, warm-up frames), not by stepping the playhead. (4) After that, the
-position-based pin.
+(The "next steps" first written here are superseded by the section below.)
+
+## 28 Sep (evening): moving the component CARRIES the cloth, so a guided fall cannot work
+
+Five benches, all off-stage and transient, measured with SIDE ORTHOGRAPHIC show-only captures
+of the cloth alone in base colour, so the z-range below ground and the upstage spread are read in
+pixels, not by eye. Measure scripts: `Scripts/curtain_floor_bench_measure.py`,
+`Scripts/curtain_carriage_measure.py`. Bench scripts: `Scripts/curtain_{floor_control,floor_timing,vscale,carriage}_bench.py`.
+
+- **Floor control (six variants).** Every floor variant ends 75–80% below z = 0, against 98% with no
+  floor. That includes a 400 cm-thick box and CCD on (read back as present), so it is **not
+  tunnelling**. (The in-actor variant with `BP_CurtainChaos` never simulated, so it is void.)
+- **Floor timing.** A floor RISING into a static curtain leaves a bulge at the slab's current
+  height (z≈420), and so does a floor SPAWNED after the sim starts. **Environment colliders are live and
+  late ones are gathered.** The thin 50 cm slab still passes through: my reading is that cloth caught
+  inside is pushed out through the nearer face.
+- **Velocity scale.** A transient in-memory copy of the plain cloth, WITHOUT the node, matches the
+  saved asset exactly through the drop, so the technique is faithful. With `LinearVelocityScale` 1.0
+  (read back as (1,1,1) from the running interactor), the result is **unchanged**: 0.42 s into the
+  drop, the heading has come down 217 cm, free fall would be 86 cm, and the hem has come down 215 cm.
+- **Carriage probe (the decisive one).** Heading jerked 300 cm UP in 0.25 s: the hem rose −1 → 299 in the
+  same 0.25 s. Cloth cannot be pushed up. Sideways jerk: the hem arrives 300 cm across on the same
+  tick, with no lag or swing, and identically at velocity scale 0.75 and 1.0. The free particles still
+  drift ~11 cm in the baked 1.5 m/s air afterwards, so they ARE simulating.
+
+**Conclusion.** Under Simulate In Editor, moving a ChaosClothComponent (by actor or by component)
+moves the whole simulation frame, and the free cloth rides along with none of that motion felt as
+inertia. That explains the taut descent, the hem welded to the heading, and the floor failure (the
+floor slides up through a carried sheet). **A guided fall by moving the component cannot work.**
+Untested: whether PIE or a packaged game differ. Rehearsal in the editor would not, either way.
+
+**Candidate fix, which is Gary's decision:** move a BONE, not the component. Build a Root + Heading
+skeleton (Blender, skeletal import through `FChaosClothAssetSkeletalMeshImportNode_v2`), with the
+heading skinned to Heading, and parent the cloth under a SkeletalMeshComponent playing a short drop
+animation. `bUseAttachedParentAsPoseComponent` is a plain component property, so no runtime hook is
+needed. The component and reference frame stay put, as with any character's cape. **Unverified:** that
+bone motion is felt as inertia. The current assets have ONE bone (Root), which is also the reference
+bone, so no no-content test exists. The pin must be re-derived for the skeletal import (the pin check
+covers that).
+
+**Other facts from these benches:**
+- The editor's tick delta is CLAMPED at 0.125 s. Any frame slower than that runs the sim in slow
+  motion, so bench "seconds" are delta seconds, not wall seconds.
+- Cloth cost, wall-clock with no captures: frame 333 ms with 3 curtains spawned, 340 ms with 3
+  simulating, i.e. ~+7 ms for three (median of 19 each; p90 546 ms). The cloth is cheap; the frame
+  was not.
+- The environment collision config's `UseCCD` is present in the asset; `LinearVelocityScale` is not
+  (there is no VelocityScale node).
+
+**TRAP, which crashed the editor (28 Sep 17:09):** `SetSkinnedAssetAndUpdate` on a REGISTERED
+Poseable or SkeletalMesh component with a Chaos cloth asset asserts
+(`AssetSkeletalMeshObj || AssetSkeletonObj`, BoneContainer.cpp:163). The cloth asset has no Skeleton.
+The same call on an unregistered `new_object` component passes, which is misleading. Never give a
+cloth asset to a pose component; a pose parent needs a real SkeletalMesh with a Skeleton.
 
 ## Read this first: the rest-shape trap
 
