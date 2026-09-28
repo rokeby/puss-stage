@@ -319,6 +319,10 @@ def main():
         t0 = time.perf_counter()
         scene.frame_set(f)
         report["frame_seconds"].append(round(time.perf_counter() - t0, 3))
+        if f >= RELEASE_FRAME - 1:        # per-frame centre of mass and top: the landing "bounce" is measured, not judged
+            co = world_coords(obj)
+            report.setdefault("com_z", []).append(round(sum(p.z for p in co) / len(co), 4))
+            report.setdefault("top_z", []).append(round(max(p.z for p in co), 4))
         if f in (RELEASE_FRAME - 1, RELEASE_FRAME + 5, RELEASE_FRAME + 15, RELEASE_FRAME + 30, FRAMES - 30, FRAMES):
             report["checkpoints"][f] = metrics(world_coords(obj), top)
     final = report["checkpoints"][FRAMES]
