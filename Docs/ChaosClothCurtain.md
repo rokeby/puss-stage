@@ -59,6 +59,26 @@ ticks, full cleanup) found:
 - Setting a cloth component's transform through `set_editor_property` re-registers it, and its interactor
   never comes up. Use `set_relative_location/rotation(..., teleport)`.
 
+## 28 Sep: THE PIN WAS WRONG ALL ALONG. Chaos re-sorts sim vertices
+
+**Every guided fall before 28 Sep was from a mis-pinned curtain.** The heading selection used static-mesh
+vertex indices (verified on the imported mesh), but **Chaos does not use the static mesh's vertex order
+for its sim vertices**. Observed on running sims (in-situ settle tests plus an off-stage pin-order test):
+Chaos orders sim vertices **column by column across the 2D pattern (low u first), bottom-to-top within
+each column**. So the mesh's "top row" indices 0–146 pinned the bottom-up runs of the first two columns:
+the curtain hung from its LEFT EDGE. Renumbering the source mesh (first-appearance order) changed nothing,
+because Chaos re-sorts regardless. For the plain 147×67 grid the true heading is `c·67 + 66`; that holds
+the whole top edge level (pin-order test, silhouettes). The indices always read back correctly on the
+imported mesh, so this is invisible until a sim runs. Treat ANY index-based cloth selection or weight map
+as suspect.
+
+The sprawl, loft, breeze and gust bench findings were all measured on this mis-pinned cloth. They point
+the right way but are not trustworthy numbers until re-run on a correctly pinned curtain.
+
+Fix status: see the handover and this stream's report. The rule-derived pin (with an automated
+pin-flatness check in every build) versus a position-based pin (UV mask via TextureToAttribute, or vertex
+colour) is under decision. No position-based cloth selection node has been found in 5.8.
+
 ## 28 Sep: the Chaos Opening (in a duplicate sequence)
 
 Gary: the curtain doesn't follow the camera. It stands fully in front of every wing (x ≈ 0, just
@@ -232,8 +252,7 @@ whole curtain with crumples painted in and must not be used on simulated cloth.
   only after the save.
 - The actor's bounds extend about 128 cm deeper and lower than the geometry. Probably cloth bounds
   padding; not confirmed.
-- **Not yet proven:** that Chaos keeps the static-mesh vertex order, i.e. that the heading pin
-  lands on the top row. The import order *is* proven. Only a running sim proves the pin.
+- **Disproven (28 Sep):** Chaos does NOT keep the static-mesh vertex order; see "THE PIN WAS WRONG ALL ALONG".
 - **Not yet seen:** any rendered frame. The look, the weight and the frame rate are unverified.
 - Not started: the sequencer swap (conductor's call), velvet/sack/hanging-cloth variants,
   peeling wing-edge strips, dust sheets.

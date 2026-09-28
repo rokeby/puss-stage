@@ -409,6 +409,23 @@ def keep_islands_attached_to_top(bm) -> None:
         bmesh.ops.delete(bm, geom=orphans, context="VERTS")
 
 
+def renumber_by_first_appearance(bm) -> None:
+    """Give each vertex the index of its first appearance when walking faces (and their corners) in order."""
+    bm.faces.ensure_lookup_table()
+    order = {}
+    for face in bm.faces:
+        for v in face.verts:
+            if v not in order:
+                order[v] = len(order)
+    for v in bm.verts:
+        if v not in order:          # not expected: keep_islands_attached_to_top removes orphans
+            order[v] = len(order)
+    for v, i in order.items():
+        v.index = i
+    bm.verts.sort()
+    bm.verts.index_update()
+
+
 def apply_start_pose(bm, pleats: Pleats) -> None:
     """Move every vertex from its flat pattern position to the pleated start pose. UVs keep the flat pattern."""
     for v in bm.verts:
@@ -488,6 +505,14 @@ def main() -> None:
     pleats = Pleats(random.Random(SEED + 1))
     apply_start_pose(bm, pleats)
 
+    # Vertex order for Chaos (27 Sep, found on a running sim): Chaos numbers its sim vertices by first
+    # appearance while walking the triangles, not in mesh order, so heading indices taken from the mesh
+    # pinned only the top two rows of the LEFT half. Triangulate here (so Unreal can't choose another
+    # diagonal) and renumber vertices by first appearance in face order: the mesh order then IS the
+    # first-appearance order, and the heading indices are right whichever order Chaos keeps.
+    bmesh.ops.triangulate(bm, faces=bm.faces[:], quad_method="FIXED", ngon_method="BEAUTY")
+    renumber_by_first_appearance(bm)
+
     mesh = bpy.data.meshes.new(STEM)
     bm.to_mesh(mesh)
     bm.free()
@@ -499,6 +524,14 @@ def main() -> None:
     obj.data.materials.append(mat)
 
     mesh.validate()
+    seen, first_order = set(), []
+    for poly in mesh.polygons:
+        for vi in poly.vertices:
+            if vi not in seen:
+                seen.add(vi)
+                first_order.append(vi)
+    if first_order != list(range(len(mesh.vertices))):
+        raise SystemExit("Vertex order is not first-appearance order after renumbering")
     top_indices = [v.index for v in mesh.vertices if abs(v.co.z - DROP) < 1e-6]
 
     preview = write_preview_png(obj)
