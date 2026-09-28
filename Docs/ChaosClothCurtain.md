@@ -121,6 +121,41 @@ did NOT measurably reach the cloth, so a Sequencer-keyed wind actor cannot deliv
 timed gust would need a small C++ component (a keyable float feeding the interactor's WindVelocity).
 Not built.
 
+## 28 Sep (late): the Opening fall goes THROUGH the floor, and Gary was right
+
+The conductor captured `LS_Opening_Curtain_Chaos` by stepping the playhead one frame per tick. The
+curtain slid down and vanished, and Gary said "it seems to fall through the ground". I predicted a
+Sequencer teleport-with-reset. **That prediction was falsified.** `Scripts/curtain_teleport_drop_test.py`
+reproduces the Opening arrangement off-stage: `BP_CurtainChaosCloth` with the correctly pinned plain cloth
+stands over a SEPARATE `BP_CurtainFloorCatch`, and the cloth ACTOR is carried 995 cm down and 180 cm
+upstage (s² / s^1.5) over 32 ticks. Variant A used `teleport=False` and variant B `teleport=True`. **They
+are indistinguishable.** Both descend taut and rigid, with the hanging folds unchanged. The lower curtain
+goes BELOW the floor instead of bunching on it, and only a small crumple near the heading stays above
+z = 0. Frames are in `Saved/CodexSoftGoods/Frames/teleport_drop/`.
+
+- **`UChaosClothComponent` ignores the actor/component `ETeleportType`.** It teleports only on its own
+  `bTeleport`/`bReset` (Interp, so Sequencer-keyable), on `ForceNextUpdateTeleport[AndReset]`, or when
+  one frame's move exceeds `TeleportDistanceThreshold`. That threshold is 300 cm on both BPs, and the
+  rotation threshold is 0, which is off. The drop moves at most ~62 cm per tick, so it never auto-teleports.
+- **A separate floor-catch actor did NOT catch the correctly pinned cloth.** It is unknown whether the
+  in-actor `FloorCatch` (`BP_CurtainChaos`) does, because that has only been seen on the mis-pinned
+  cloth. So **the guided fall has never been seen working on a correctly pinned curtain.**
+- The conductor's per-tick scrub capture is not shown to be the cause. Whether scrubbing resets the
+  cloth is a separate, unmeasured question.
+- The rigid descent is not explained. Two suspects, neither measured: the default `LinearVelocityScale`
+  0.75 (a quarter of the reference-frame motion is carried rigidly), and a drop that is slow in sim
+  time (the idle editor ticks at ~2.5 s and Chaos clamps dt). If the drop is slow, the heading's
+  acceleration stays under g and the cloth simply hangs taut from it all the way down.
+
+**Next, in order:** (1) run one off-stage control bench on the pinned plain cloth, with three
+arrangements: the in-actor FloorCatch with the cloth component moved (the old bench method); the
+separate floor actor with the actor moved; and the separate floor with a much thicker box. That
+tells separate-actor gathering apart from a thin box being tunnelled. (2) Once something catches the
+cloth, re-run the throw, drop-speed, loft and gust numbers on the correctly pinned cloth, and try
+`LinearVelocityScale` 1.0. (3) Only then return to the Opening sequence, and record it with Movie
+Render Queue (fixed timestep, warm-up frames), not by stepping the playhead. (4) After that, the
+position-based pin.
+
 ## Read this first: the rest-shape trap
 
 **Chaos takes the cloth's rest shape from the 3D mesh by default.** Two settings:
