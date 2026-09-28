@@ -26,6 +26,41 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## 28 Sep (night): the goal is WEIGHT and a WIDE pile, and the Blender drop bake
+
+Gary reset the goal: "heavy, rough cloth... a wider pile than on top of itself... not a pile of virtual
+silk falling into a thin slice of space". The mechanism is free, and he approved baking the fall in Blender.
+The tool is `Scripts/bake_curtain_drop.py` (headless Blender 4.4, the SAME pattern code, all settings as env
+vars). It measures the settled pile in metres: depth, width, height, footprint, LAYERS and FOLD SIZE.
+Renders go on phone cards via `Scripts/drop_bake_card.py`, clips via `Scripts/drop_bake_clip.sh`, and
+tables via `Scripts/drop_bake_summary.py`. Outputs are in `Saved/CodexSoftGoods/DropBake/`.
+
+What the scouts found (27 cm quads; pictures checked before any number was trusted):
+- **Compression.** Cloth that out-stiffs gravity is cardboard. The pleated sheet STOOD 10 m TALL ON ITS
+  HEM with no pins. Blender stiffness is not normalised by mass, so it needs a heavy per-vertex mass
+  (`VERTEX_MASS_SCOUT`, area-scaled) and low compression. Too stiff and it tips over whole as a "PLANK";
+  too soft and it crinkles into a low silky "MAT". Both were shown to Gary.
+- **Rest shape (Gary's catch).** A curtain MODELLED pleated has pleats as its rest shape, and they survive the
+  fall. Blender's `rest_shape_key` has NO effect in 4.4. The working route is `REST=gather`: model it
+  FLAT and gather the pinned heading onto the track with an animated shape key. It then hangs in soft swags,
+  and after the fall the fold size rises from 0.42 m to 0.72 m (the pleat pitch is gone). The pile is FLATTER,
+  because flat fabric wants to lie flat.
+- **Thickness.** Self-collision 1 → 3 cm doubles the pile height (0.14 → 0.30 m) and rounds the folds
+  (0.69 → 0.94 m). With a flat rest shape, thickness is what holds a pile up.
+- **Creasing (Gary's catch).** 27 cm quads with zero thickness fold to knife edges. At 0.7–0.9 m folds,
+  9 cm quads give ~8 quads per fold. Measured cost at 2.0×: 15 cm 15.7k verts ~1 s/frame; 9.1 cm 42.9k
+  ~2–5 s/frame (~30 min a run); 7.6 cm 61.8k ~5–9 s/frame (~1 h).
+- **Arithmetic ceiling.** ~12 m² of fabric per metre of track heaps to ~0.5 m, not more.
+- **Chaos side, not yet tested.** PBD stretch is symmetric, with no compression knob, and BucklingRatio = 0
+  (set 27 Sep) disables buckle-softening. The Chaos rest shape is already flat (2D rest lengths, FlatnessRatio 1).
+
+Blender traps, each of which produced a plausible-looking wrong result:
+- An animated Vertex Weight Mix does not release pins. Use weight 0.99 with pin stiffness keyed to 0.
+- ANY data change to the cloth after the sim (adding a modifier, or creating its material at render time)
+  frees the in-memory cache, so the "final" render shows the unsimulated or hanging pose. Build everything
+  first, and render the final frame BEFORE stepping the timeline back.
+- A/B results identical to every digit mean a disconnected knob, not a result.
+
 ## 27 Sep: why the free fall was a "viennetta", and the guided fall
 
 Gary rejected the first fall: "It should be a big crumpled heavy fabric sprawled on the floor, not a very
