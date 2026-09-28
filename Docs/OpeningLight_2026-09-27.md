@@ -178,3 +178,56 @@ geometry waits for that choice. What already follows:
 - **The opening frame will be asymmetric.** P01's first station has wings at
   −750 / +500 where the rest are ±750. Characterful or a mistake: Gary's call,
   but it is in the most scrutinised shot of the show.
+
+## Re-staging 2, 28 September — the curtain in front of the machine
+
+Gary: the curtain should be "fully in front of all of the wings… the full curtain
+filling the frame with a little sense of the surrounding structure… curtain in
+the beginning of an empty space, maybe with rigging and some lighting, maybe as
+an implication of a tunnel." The curtain stands at x ≈ 0, just upstream of P01's
+first station. At 17.77 m it is wider than the 15 m corridor, so it hides every
+wing and border behind it. The camera sits back at about x −1400 on a 15 mm lens
+(curtain ≈ 80% of frame width). It falls **upstage**, so the pile lands at
+x ≈ 0–450, at the mouth of the machine, and the camera travels over it. Gary
+has confirmed the warmer (house spots plus floats at the lip) and fixing P01's
+first station to ±750.
+
+**The idea survives, turned round.** The curtain falls away from the audience
+now, so after the fall the house light no longer rakes a floor in front of us:
+it pours *into the mouth of the machine*, lighting the heap on the threshold
+and fading into the first bays. The light was always on; the cloth was in its
+way. Only the shape of what it reveals has changed.
+
+**The warmer (not yet solved; lens and camera still open):** two house spots
+crossing from behind and either side of the camera, e.g. about (−2000, ±650, 700),
+each wide enough (~39° half-angle) to reach the far edge of the cloth, ≈1450 cd
+each for ≈6 lux combined at ≈22 m, the level at which the dark velvet read well
+in the 28 Sep capture (R ≈ 152, unsaturated). Plus a float trough along the lip,
+glowing up the cloth. Warm, steady, no drama. The lone 4° lamp authored today
+is replaced, not kept.
+
+**Framing, for Look & camera:** at 15 mm from 14 m the frame at the curtain is
+22.2 × 12.5 m. A *level* camera at z 150 sees only z −474…774 there, cutting off
+the top 2.3 m of the 10 m cloth and filling half the frame with the void below
+the stage. Centring the cloth needs the eye at about z 500 or a ~14° tilt up.
+That is their call, but the warmer is solved against it.
+
+**The surrounding structure is the portal.** "Empty space, rigging, the
+implication of a tunnel" around a curtain is the portal already costed for the
+hangar returns (Docs/SceneScaleAudit §5): one object doing both jobs. A sketch,
+from the same constant modules as the rest of the machine:
+
+- Two timber **posts** just outside the curtain's track (about ±950), and a
+  **header** beam above the cloth: the proscenium frame, visible in the 20%
+  margin around the curtain.
+- The **gridiron runs forward** over the header to meet it, so above the curtain
+  the rails recede into the dark behind: the tunnel, implied rather than shown.
+- A short **forestage**: boards extended ~1.5 m in front of the curtain (the
+  floor currently starts at the route's start, x 0) with the **float trough**
+  at its lip.
+- A few **hemp lines** dropping from the dark to the header and the curtain's
+  batten; the house spots' own lanterns stay behind the camera, never in shot.
+
+This is a structure-pass layer (C++, a build), a "portal" placed at a Passage's
+start (and later at hangar mouths). It is the first image of the show, so it is
+Gary's to see as a design before anything is built.
