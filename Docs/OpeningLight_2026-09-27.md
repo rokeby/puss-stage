@@ -231,3 +231,21 @@ from the same constant modules as the rest of the machine:
 This is a structure-pass layer (C++, a build), a "portal" placed at a Passage's
 start (and later at hangar mouths). It is the first image of the show, so it is
 Gary's to see as a design before anything is built.
+
+## State, 28 September (warmer)
+
+**The curtain warmer is authored** for Gary's stalls view (camera −1400, 0, 150,
+tilted up 14°, 15 mm; curtain at x 0 as a spawnable in LS_Opening_Curtain_Chaos):
+two crossing house spots at (−2100, ±650, 1265), 33°/20°, 1740 cd each, 2800 K,
+steady, shadows on; 18 floats added behind the curtain's new line (stations
+x 250–5050); the lone 4° Opening Light disabled (kept, for the revert).
+
+- Backup `Backups/PreWarmer-20260928-0928` (with plan and revert record). Undo:
+  `Saved/CodexStructure/p01_warmer_revert.py`.
+- `P01_WARMER_APPLY_OK` (GUIDs minted from scratch pair Wing 048, restored
+  exactly) and independent `P01_WARMER_VERIFY_OK`: live spots at the designed
+  pose to 0.0 cm / 0.000°, 96 floats, 579 P01 lights with unique GUIDs,
+  Structure 01 current, 0/0.
+- **Held for the portal build:** the float trough's lip floats. From the stalls
+  the hem is the feature, and it gets no modelling uplight until the portal is
+  enabled. Tier: saved read-back; the look is Gary's to judge from the capture.
