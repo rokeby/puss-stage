@@ -303,7 +303,7 @@ the corridor.
 
 | Element | Rule |
 | --- | --- |
-| Local Fog Volume | Analytic; radius scaled to the corridor; density modest against the global 0.022; aim for ≤ 6 in view |
+| Local Fog Volume | Analytic; radius scaled to the corridor; density modest against the global medium (was 0.022; Gary has chosen about 0.012, 2026-09-28, so re-judge the 0.15 default against it in the spike); aim for ≤ 6 in view |
 | Plume | GPU sim, ≤ 256 particles per active source, Volumetric NonDirectional lighting, no shadows, **no Volume-domain particles** in v1 |
 | Gating | Plume off beyond `ActiveRadiusCm`; the apparatus and medium stay |
 | Fire / burn light | Rig-owned, linked by GUID, **non-shadow-casting** because of the VSM overflow (a request to Rig & atmosphere). **One writer per lamp:** if the linked light has Light Drama active, the effect yields (`INFINITY_STAGE_EFFECT_LIGHT_YIELDED`) and never flickers it |
@@ -314,7 +314,15 @@ the corridor.
 
 **Precondition met (2026-09-26):** Rig has turned three crossing pairs of P03
 lamps to throw back toward the audience, at route bays 4–5, 12–13 and 17–18,
-applied and verified.
+applied and verified. They now measurably scatter: at one framing, 12,400
+pixels gained more than +20, where the forward-thrown rig added nothing
+anywhere. Motes have somewhere real to live. The fog is still net-negative by
+2–3 in the mean overall, which is why Gary chose to lower the global density
+to about 0.012 rather than add more back-lights. The spike should be judged in
+that thinner medium.
+
+**Queue on resume, all waiting on Gary:** this spike, then greybox placement
+on P01, then his creative calls (see Open questions).
 
 **The spike runs in Simulate-in-Editor, not in the editor world.** Simulate is a
 game world whose packages are never saved, so spawning a transient volume
