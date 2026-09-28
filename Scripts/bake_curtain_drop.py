@@ -46,12 +46,13 @@ os.environ.setdefault("CURTAIN_QUADS_PER_BOLT", "5")
 DROP_ID = os.environ.get("DROP_ID", "scout")
 BEND = float(os.environ.get("BEND", "5.0"))
 SELF_DIST = float(os.environ.get("SELF_DIST_M", "0.01"))
-# 28 Sep: self-collision shells must be small against the EDGE, not an absolute thickness. At 9.1 cm edges a
-# 3 cm distance (ratio 0.33) made neighbours in the same sheet nearly touch: the collapsed pile stored
-# repulsion like a foam and re-inflated (the landing "bounce", top 1.29 -> 1.91 m). At 27 cm (ratio 0.11) no
-# bounce. Rule: SELF_DIST <= SELF_DIST_MAX_RATIO x edge. ALLOW_THICK_SELF=1 only to reproduce the fault.
+# Self-collision distance vs edge length: a WARNING, not a rule (28 Sep). Keeping the self-collision distance well
+# under the edge length is ordinary cloth-sim practice, but THIS PROJECT HAS NO EVIDENCE FOR IT AS A HARD LIMIT.
+# It was briefly a hard refusal on the hypothesis that 3 cm shells on 9.1 cm edges (ratio 0.33) turned the pile
+# into a pressurised foam that caused the landing "bounce". That hypothesis was REFUTED (bt0 at 0.33 vs bta at
+# 0.16: the same swell, COM rise 0.106 vs 0.096 m). The real cause was solver under-stepping (fixed by QUALITY 20
+# / COLLISION_QUALITY 8). The take Gary APPROVED uses ratio 0.33 and looks right. So: noticed, reported, never blocked.
 SELF_DIST_MAX_RATIO = 0.2
-ALLOW_THICK_SELF = os.environ.get("ALLOW_THICK_SELF", "0") == "1"
 COLLISION_QUALITY = int(os.environ.get("COLLISION_QUALITY", "4"))
 # Collision impulse clamps (Blender default 0 = unlimited). A candidate for the post-collapse swell: unbounded
 # push-out impulses inside the compressed pile (28 Sep). 0 keeps Blender's default.
@@ -243,9 +244,10 @@ def finish_cloth(scene, obj, mesh, top, cloth):
     c.self_impulse_clamp = SELF_IMPULSE_CLAMP
     c.impulse_clamp = IMPULSE_CLAMP
     ratio = SELF_DIST / pattern.QUAD_X
-    if ratio > SELF_DIST_MAX_RATIO and not ALLOW_THICK_SELF:
-        raise SystemExit(f"SELF_DIST {SELF_DIST} m is {ratio:.2f} x the {pattern.QUAD_X:.3f} m edge (> {SELF_DIST_MAX_RATIO}): "
-                         f"the pile inflates like foam. Use <= {SELF_DIST_MAX_RATIO * pattern.QUAD_X:.3f} m, or ALLOW_THICK_SELF=1 to reproduce.")
+    if ratio > SELF_DIST_MAX_RATIO:
+        print(f"CURTAIN_DROP_WARNING|self-collision {SELF_DIST} m is {ratio:.2f} x the {pattern.QUAD_X:.3f} m edge "
+              f"(> {SELF_DIST_MAX_RATIO}). Usual practice keeps it lower, but the approved take used 0.33 and the "
+              f"'foam bounce' rationale was refuted; see the comment at SELF_DIST_MAX_RATIO.")
     c.use_self_collision = True
     c.self_distance_min = SELF_DIST
     c.self_friction = SELF_FRICTION
