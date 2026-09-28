@@ -38,6 +38,24 @@ one stream's save legitimately persisted another's in-memory level state for
 exactly this reason — caught because the stream asked what its own guard could
 not see.
 
+**Chaos does NOT use the static mesh's vertex order for its simulation
+vertices.** A vertex selection built from static-mesh indices — a pinned heading,
+a weight map, anything index-based — will address the WRONG particles. Proven
+2026-09-28: a "pinned top edge" built from mesh indices 0–146 turned out to pin
+the top two rows across the LEFT HALF only, so the curtain collapsed asymmetrically
+— the right side fell to the floor while the left still hung. The pattern fits
+Chaos re-walking the triangles and numbering by first appearance.
+
+This is invisible until a sim actually runs: the indices read back correctly on
+the imported static mesh, which proves only that the mesh import preserved order,
+not that Chaos keeps it. **Every guided-fall result produced before this was
+found used a half-pinned curtain.**
+
+The fix is to make the question moot rather than to chase the mapping: renumber
+the source mesh's vertices by first appearance in face order before export, so
+static-mesh order and first-appearance order are the same and an index-based
+selection is correct either way.
+
 **A freely-released sheet cannot sprawl.** Proven on 2026-09-26 across four
 benches: with a stiff solver, 2 cm/side self-collision, high bending, no
 buckle-softening, a 4-degree lean, low friction and a real 2.5 m/s gust, a
