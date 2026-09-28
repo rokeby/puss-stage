@@ -59,6 +59,33 @@ ticks, full cleanup) found:
 - Setting a cloth component's transform through `set_editor_property` re-registers it, and its interactor
   never comes up. Use `set_relative_location/rotation(..., teleport)`.
 
+## 28 Sep: the Chaos Opening (in a duplicate sequence)
+
+Gary: the curtain doesn't follow the camera. It stands fully in front of every wing (x ≈ 0, just
+upstream of station 1) and falls UPSTAGE. `Scripts/build_opening_chaos_sequence.py` made
+`/Game/InfinityStage/Interactions/LS_Opening_Curtain_Chaos`, a duplicate; **the original
+`LS_Opening_Curtain` is untouched** and Show cue 0 still plays it. The copy spawns:
+
+- "Chaos Curtain" = `BP_CurtainChaosCloth` (a plain Actor with the pinned PLAIN cloth). Its actor
+  transform track parks it at (0, 0, 0), yaw 90, then from frame 50 to 72 (≈0.9 s) carries it 1.8 m
+  upstage and 995 cm down (s^1.5 / s² keys): the guided fall.
+- "Curtain Floor" = `BP_CurtainFloorCatch` (a hidden WorldStatic box, top at z = 0, ignoring
+  Pawn/Camera/Visibility/CatFloor).
+
+Why not a subclass of `AInfinityStageCurtainRig` (the old Fire Safety rig): its constructor calls
+`SetActorEnableCollision(false)` (a bare UPROPERTY Blueprint cannot flip, so a floor box inside it
+is dead), it force-shows `SM_FireSafetyCurtain_01` whenever active, and the Interaction-1 automation
+test counts exactly one rig. With `bSequenceOwnsCurtain` nothing outside the sequence reads
+`CurtainProgress`.
+
+The 1.8 m throw (not 4.5 m) keeps the ±888 cm pile in front of station 1's wings (x = 250, ±750).
+Still open: persistence (a default spawnable pops the pile at 15 s), the camera pose and lens,
+removing the x = 5400 preview (a level write), and repointing cue 0 (a Show write). All are Gary's.
+
+**Breeze** (bench6): under 1 m/s, a breeze makes no measurable difference to the hanging 0.8 kg/m²
+velvet. Mean frame-to-frame change: still 1.50, 0.3 m/s 1.48, 0.6 m/s 1.47, 0.6 m/s with drag 0.15
+1.17. Not baked. Options: none, a 1–2 m/s gust timed at release, or a lighter-feeling fabric.
+
 ## Read this first: the rest-shape trap
 
 **Chaos takes the cloth's rest shape from the 3D mesh by default.** Two settings:

@@ -1,0 +1,86 @@
+{
+ "name": "bench6_breeze",
+ "ticks": 200,
+ "capture_every": 3,
+ "bounds_every": 1000,
+ "spacing": 3000.0,
+ "width": 480,
+ "height": 270,
+ "bounds_scale": 2.0,
+ "variants": [
+  {
+   "id": "W0_still",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   }
+  },
+  {
+   "id": "W1_breeze03",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   },
+   "floats": {
+    "Drag": 0.08
+   },
+   "vectors": {
+    "WindVelocity": [
+     0.3,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "id": "W2_breeze06",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   },
+   "floats": {
+    "Drag": 0.08
+   },
+   "vectors": {
+    "WindVelocity": [
+     0.6,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "id": "W3_breeze06_drag",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   },
+   "floats": {
+    "Drag": 0.15
+   },
+   "vectors": {
+    "WindVelocity": [
+     0.6,
+     0.0,
+     0.0
+    ]
+   }
+  }
+ ]
+}
