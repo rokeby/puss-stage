@@ -147,3 +147,34 @@ Wing 001 as a Station offset; 78 floats on 39 pairs past the curtain, 5 dark.
   current, 0/0.
 - **Tier: saved read-back. Not yet seen in a frame.** Intensity is a starting
   point to be tuned by capture (expect two or three passes: the velvet is dark).
+
+## Re-staging, 28 September — notes before the re-solve
+
+Gary has fixed the staging: the camera sits where an imagined audience would
+(0, 0, 150), centred on the curtain, which moves to about 15 m (x ≈ 1500). The
+whole proscenium should read, and the curtain should be "fully visible and
+nicely lit in a conventional way while being a relatively dark stage". The lens
+is undecided (16 mm at 15 m, or 25 mm with the camera back at 23.4 m), so the
+geometry waits for that choice. What already follows:
+
+- **The idea survives; the instrument changes.** It becomes a curtain warmer:
+  the whole 17.8 × 10 m cloth lit evenly and softly, with the darkness coming
+  from everything around it. Conventionally that is two crossing spots from the
+  house, behind and either side of the camera, plus the Baroque convention of
+  **floats at the stage lip** glowing up the cloth. The floats already designed
+  for P01 would move forward to the proscenium edge rather than start past the
+  curtain. Still steady, warm, shadowed, under the borders, and the beam still
+  runs on down the floor after the fall.
+- **The third border masks the curtain's top.** P01's borders hang 800–1800 cm
+  at stations 250, 850 and 1450. With the curtain 50 cm behind the third one, the
+  camera sees the cloth only up to about 8.2 m (either lens option): the top
+  ~1.8 m is behind the border. That is the conventional header over a house
+  curtain, but it is what "fully visible" will actually mean, and moving the
+  curtain in front of station 1450 would change it.
+- **Today's authored lamp will be wrong the moment the curtain moves.** Solved
+  for 57 m, on a curtain at 18.4 m it makes a 2.6 m pool at about 58 lux, ten
+  times the designed level. The curtain move and the re-solve should land
+  together, or the lamp should be disabled in between.
+- **The opening frame will be asymmetric.** P01's first station has wings at
+  −750 / +500 where the rest are ±750. Characterful or a mistake: Gary's call,
+  but it is in the most scrutinised shot of the show.
