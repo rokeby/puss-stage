@@ -23,6 +23,9 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
 RECORD = os.path.join(HERE, "portal_enable_revert_record.json")
 OUT = os.path.join(HERE, "portal_enable.json")
+# None keeps the C++ default (150). Set it only from the chosen bake's all-frame
+# downstage extent: p01_lip_floats_plan_readonly.py names the depth it needs.
+FORESTAGE_DEPTH_CM = None
 COUNTS = ("station_count", "cross_beam_count", "rail_segment_count", "board_count", "slot_count",
           "cloth_count", "fixture_body_count", "hanging_line_count", "portal_piece_count")
 
@@ -113,7 +116,8 @@ timbers, lanes, lines, breakdown = predicted_pieces(target)
 
 # ---- Revert record: on disk, flushed and re-read before anything changes ----
 record = {"written": datetime.datetime.now().isoformat(timespec="seconds"),
-          "structure": target.get_actor_label(), "portal_enabled_before": False, "before": before}
+          "structure": target.get_actor_label(), "portal_enabled_before": False, "before": before,
+          "forestage_depth_before": target.get_editor_property("portal").get_editor_property("forestage_depth_cm")}
 with open(RECORD, "w", encoding="utf-8") as fh:
     json.dump(record, fh, indent=1)
     fh.flush()
@@ -133,6 +137,8 @@ if globals().get("PORTAL_ENABLE_DRY_RUN"):
 target.modify()
 portal = target.get_editor_property("portal")
 portal.set_editor_property("enabled", True)
+if FORESTAGE_DEPTH_CM is not None:
+    portal.set_editor_property("forestage_depth_cm", float(FORESTAGE_DEPTH_CM))
 target.set_editor_property("portal", portal)
 if not target.get_editor_property("portal").get_editor_property("enabled"):
     fail("Portal.bEnabled did not take")
@@ -173,4 +179,5 @@ if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_lev
     fail("level save failed")
 content2, maps2 = dirty()
 unreal.log(f"PORTAL_ENABLE_OK|structure={target.get_actor_label()}|portal_pieces={pieces}|breakdown={breakdown}"
+           f"|forestage_cm={target.get_editor_property('portal').get_editor_property('forestage_depth_cm'):.0f}"
            f"|current={sum(v['current'] for v in after.values())}/6|level_saved=1|dirty_after={len(content2)}+{len(maps2)}")

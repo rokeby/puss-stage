@@ -49,6 +49,7 @@ if target is None:
 target.modify()
 portal = target.get_editor_property("portal")
 portal.set_editor_property("enabled", False)
+portal.set_editor_property("forestage_depth_cm", float(record.get("forestage_depth_before", 150.0)))
 target.set_editor_property("portal", portal)
 if not target.materialize_structure():
     fail(f"{record['structure']} did not re-fit")
