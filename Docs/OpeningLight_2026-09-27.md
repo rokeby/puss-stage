@@ -249,3 +249,32 @@ x 250–5050); the lone 4° Opening Light disabled (kept, for the revert).
 - **Held for the portal build:** the float trough's lip floats. From the stalls
   the hem is the feature, and it gets no modelling uplight until the portal is
   enabled. Tier: saved read-back; the look is Gary's to judge from the capture.
+
+## The portal and the forward fall, 28 September (evening)
+
+Gary approved the portal and its lip floats ("go ahead"). Scripts are written but
+not run, because this session's permission layer blocked editor runs:
+`portal_enable_*` (3a) and `p01_lip_floats_*` (3b), plus a read-only
+`wing001_footprint_probe` with a file-side analyser.
+
+- **The fall goes forward.** The upstage throw was dropped ("It falling forward
+  doesnt seem an issue"). The pile centres near the curtain line and reaches
+  about x +190 upstage, short of Wing 001 (250) and station 1's floats (310).
+  Downstage it reaches −250 to −320, and that number is not final.
+- **The stage edge.** The portal's forestage is 150 cm deep (boards x −150…0).
+  The bake lands on an infinite plane, so fabric past −150 lies flat on air.
+- **The frame sees below the lip.** At eye z 150, tilt 14° and 15 mm, the
+  bottom ray crosses the lip plane at z ≈ −305. So about the bottom 17% of the
+  opening frame there is below stage level: void, very likely, though not yet
+  swept. The portal has no stage front, which is a design gap independent of
+  the cloth.
+- **The options, for Gary:** (i) deepen the apron to 430–460 cm, which clears
+  the lamps but recomposes his frame; (ii) drape the cloth over the lip, which
+  needs (iii); (iii) a stage front (fascia plus house floor) in the portal
+  layer, C++; (iv) bury the lamps: the trough and housings must be bake
+  colliders, and shadowless buried lamps leak light (+16 VSM casters to fix).
+  Rig & atmosphere recommends (iii), with (ii) as the cloth fix it enables.
+- **Guards in place.** The 3b plan refuses until `PILE_DOWNSTAGE_X` (the
+  chosen bake's all-frame reach) is set, and names the forestage depth that
+  would clear it. The lamps' aim and level follow their distance from the
+  cloth (centre ray at 110 cm, 4 lux per lamp there).
