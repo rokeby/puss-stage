@@ -120,7 +120,10 @@ if not passage.materialize_passage():
 guid = after_cues[index].get_editor_property("cue_guid")
 live_y = None
 for ref in passage.get_editor_property("materialized_panels"):
-    if ref.get_editor_property("cue_guid") == guid and "RIGHT" in str(ref.get_editor_property("side")):
+    # Compare GUIDs as strings: unreal.Guid structs do not compare equal with ==
+    # (the first run stopped here with the edit correct but reported as None).
+    if (unreal.GuidLibrary.conv_guid_to_string(ref.get_editor_property("cue_guid")) == unreal.GuidLibrary.conv_guid_to_string(guid)
+            and "RIGHT" in str(ref.get_editor_property("side"))):
         live_y = ref.get_editor_property("base_world_transform").translation.y - passage.get_actor_location().y
 if live_y is None or abs(live_y - TO_Y) > 1.0:
     fail(f"materialized right panel at {live_y}, expected {TO_Y}")
