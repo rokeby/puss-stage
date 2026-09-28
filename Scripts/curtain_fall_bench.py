@@ -157,7 +157,7 @@ def tick(delta):
             if guide and state["n"] >= 1:
                 # Carry the pinned heading down (gravity-timed: s^2) and forward, like a falling
                 # batten. Local +Y is the curtain's face direction; the heading ends just off the floor.
-                s = min(1.0, (state["n"] - 1) / float(guide.get("ticks", 50)))
+                s = max(0.0, min(1.0, (state["n"] - 1 - guide.get("hold_ticks", 0)) / float(guide.get("ticks", 50))))
                 fwd = guide.get("forward_cm", 0.0) * (s ** guide.get("forward_exp", 1.5))
                 down = guide.get("drop_cm", 995.0) * (s * s)
                 run["cloth"].set_relative_location(unreal.Vector(0.0, fwd, -down), False, False)
