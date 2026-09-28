@@ -20,17 +20,31 @@ Everything below waits on **Gary**, not on another stream:
    Gary's OK. Don't run it during heavy disk work on D:.
 3. **Which wings burn.** This gates the per-MI `UseBurn` switch, which is on only
    for the two P01 trial MIs.
-4. **Read-only check** of `C:\Users\Administrator\AppData\Local\CaptureManager\Media\PussStage`
-   for wing source imagery. That path was not moved in the C:→D: migration, so
-   anything the wings depend on there is now split from what did move.
+4. ~~CaptureManager check~~ **Done 2026-09-28, nothing for the wings.**
+   `C:\Users\Administrator\AppData\Local\CaptureManager\Media\PussStage` holds
+   4.9 GB of facial-capture video ingest (8 takes: child1/2, shoreguy1–6; 28,406
+   JPEG frames, WAVs, .cparch). It contains no wing imagery. Only
+   `Saved/CodexMocap` references it, so the C:/D: split is the mocap stream's
+   concern.
+
+To judge the trial in your own viewport, paste these into the editor console
+(`trial_viewpoints_readonly.py`; eye height 1.7 m, 30° off the face, both from
+the corridor side):
+
+```
+BugItGo 3763 -450 170 0.0 -30.0 0   (rococo L, legacy, 1 m)
+BugItGo 3677 -400 170 0.0 -30.0 0   (rococo L, legacy, 2 m)
+BugItGo 3763 450 170 0.0 30.0 0     (rococo R, new master, 1 m)
+BugItGo 3677 400 170 0.0 30.0 0     (rococo R, new master, 2 m)
+```
 
 Facts that landed while stood down:
 
-- Per-instance custom data is reported live: 4 floats, with the deterministic
-  seed in slot 3 written at materialize from cue and side, so slot 3 now drives
-  variation instead of PerInstanceRandom. Before relying on it, read back
-  `NumCustomDataFloats == 4` on the live ISMs (read-only). Components created
-  before e0c2c2f carry 0 floats until re-materialized.
+- Per-instance custom data **verified live on 2026-09-28** (read-back): P01
+  (9 components) and P03 (18) carry 4 floats, with distinct seeds in [0, 1) in
+  slot 3. **P02, P04, P05 and P06 still carry 0 floats** and fall back to
+  PerInstanceRandom until their next re-materialize, so any variation judged
+  there now is **not** the variation the show will have.
 - P01 station spacing is deliberately irregular: ±750 on station 1 and 21 other
   pairs, 15 at ±500, 3 at ±400, 7 asymmetric at −400/+750. Nothing in this stream
   depends on spacing. The rollout reparents MIs per mesh, and the burn front and
@@ -124,6 +138,10 @@ centimetres, not UV:
 - Every wing mesh has exact planar UVs: V = aV·Z + bV with aV < 0 (V-down), and
   U = aU·Y + bU with aU < 0 on 145 meshes and > 0 on 4. The per-mesh a/b values
   are in `uv_axes.json`.
+- **Ignition (0, 0) means "not set", which is bottom centre (0.5, 1.0), not the
+  UV top-left corner** (since 21bc807). Once the ISMs carry 4 floats, unwritten
+  slots read 0 rather than the node defaults. Effects: write a real ignition
+  whenever you burn, and never use exactly (0, 0) to mean a corner.
 
 `UseBurn` is on only for the P01 trial MIs, at Effects' request, for the first
 PIE proof. Which wings burn is Gary's call.
