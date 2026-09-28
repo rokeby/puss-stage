@@ -1,0 +1,10 @@
+import unreal
+els = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+world = els.get_editor_world()
+strays = sorted(a.get_actor_label() for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+                if a.get_actor_label().startswith(("ZZ_", "TEMP_")))
+unreal.log("STRAYS_NOW|%d" % len(strays))
+for s in strays: unreal.log("  STRAY|%s" % s)
+c = len(unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages())
+m = len(unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages())
+unreal.log("AUDIT_DIRTY|%d+%d" % (c, m))
