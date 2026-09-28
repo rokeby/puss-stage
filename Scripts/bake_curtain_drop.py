@@ -46,6 +46,17 @@ os.environ.setdefault("CURTAIN_QUADS_PER_BOLT", "5")
 DROP_ID = os.environ.get("DROP_ID", "scout")
 BEND = float(os.environ.get("BEND", "5.0"))
 SELF_DIST = float(os.environ.get("SELF_DIST_M", "0.01"))
+# 28 Sep: self-collision shells must be small against the EDGE, not an absolute thickness. At 9.1 cm edges a
+# 3 cm distance (ratio 0.33) made neighbours in the same sheet nearly touch: the collapsed pile stored
+# repulsion like a foam and re-inflated (the landing "bounce", top 1.29 -> 1.91 m). At 27 cm (ratio 0.11) no
+# bounce. Rule: SELF_DIST <= SELF_DIST_MAX_RATIO x edge. ALLOW_THICK_SELF=1 only to reproduce the fault.
+SELF_DIST_MAX_RATIO = 0.2
+ALLOW_THICK_SELF = os.environ.get("ALLOW_THICK_SELF", "0") == "1"
+COLLISION_QUALITY = int(os.environ.get("COLLISION_QUALITY", "4"))
+# Collision impulse clamps (Blender default 0 = unlimited). A candidate for the post-collapse swell: unbounded
+# push-out impulses inside the compressed pile (28 Sep). 0 keeps Blender's default.
+SELF_IMPULSE_CLAMP = float(os.environ.get("SELF_IMPULSE_CLAMP", "0"))
+IMPULSE_CLAMP = float(os.environ.get("IMPULSE_CLAMP", "0"))
 FLOOR_FRICTION = float(os.environ.get("FLOOR_FRICTION", "10.0"))
 SELF_FRICTION = float(os.environ.get("SELF_FRICTION", "10.0"))
 AIR_DAMPING = float(os.environ.get("AIR_DAMPING", "1.0"))
@@ -86,6 +97,12 @@ REST = os.environ.get("REST", "pleated")
 # from flat to the pleated track positions by a shape key over GATHER_FRAMES, the fabric drapes itself, then the
 # heading is released. Pleats then exist only because the heading gathers them, as on a real curtain.
 GATHER_FRAMES = int(os.environ.get("GATHER_FRAMES", "40"))
+# UPSTAGE THROW (28 Sep; Gary's staging: the curtain falls UPSTAGE). The Chaos asset had 1.5 m/s upstage air; the
+# first Blender port had none, so the pile centred on the curtain line and reached the footlights. The gathered
+# heading is carried THROW_M metres UPSTAGE (+y) over the THROW_FRAMES before release at CONSTANT speed, so it is
+# still moving when the pins let go and the top topples upstage. Blender gives that motion real inertia.
+THROW_M = float(os.environ.get("THROW_M", "0"))
+THROW_FRAMES = int(os.environ.get("THROW_FRAMES", "10"))
 
 spec = importlib.util.spec_from_file_location("curtain_pattern", ROOT / "Scripts" / "build_curtain_chaos_pattern.py")
 pattern = importlib.util.module_from_spec(spec)
@@ -116,6 +133,13 @@ def build_curtain():
     obj = bpy.data.objects.new(f"Curtain_{DROP_ID}", mesh)
     scene.collection.objects.link(obj)
     obj.location.z = LIFT_M
+    if REST == "flat":
+        obj.shape_key_add(name="Basis", from_mix=False)          # the pleated start pose (what is simulated)
+        key = obj.shape_key_add(name="Flat", from_mix=False)
+        for i, co in enumerate(flat):                            # bm.to_mesh keeps vertex order
+            key.data[i].co = co
+        key.value = 0.0
+    top = [v.index for v in mesh.vertices if abs(v.co.z - pattern.DROP) < 1e-4]
     if REST == "gather":
         obj.shape_key_add(name="Basis", from_mix=False)          # flat: the cloth's rest shape
         key = obj.shape_key_add(name="Gathered", from_mix=False)
@@ -125,13 +149,16 @@ def build_curtain():
         key.keyframe_insert("value", frame=1)
         key.value = 1.0
         key.keyframe_insert("value", frame=1 + GATHER_FRAMES)
-    if REST == "flat":
-        obj.shape_key_add(name="Basis", from_mix=False)          # the pleated start pose (what is simulated)
-        key = obj.shape_key_add(name="Flat", from_mix=False)
-        for i, co in enumerate(flat):                            # bm.to_mesh keeps vertex order
-            key.data[i].co = co
-        key.value = 0.0
-    top = [v.index for v in mesh.vertices if abs(v.co.z - pattern.DROP) < 1e-4]
+        if THROW_M:
+            # Relative to the FLAT basis: this key holds only the heading's upstage offset (the gathered pose
+            # comes from the Gathered key), so the two add instead of doubling the gather.
+            throw = obj.shape_key_add(name="Throw", from_mix=False)
+            for i in top:
+                throw.data[i].co = flat[i] + Vector((0.0, THROW_M, 0.0))
+            start = RELEASE_FRAME - THROW_FRAMES
+            for f in range(start, RELEASE_FRAME + 1):       # a key every frame = constant speed, moving at release
+                throw.value = (f - start) / THROW_FRAMES
+                throw.keyframe_insert("value", frame=f)
     pin = obj.vertex_groups.new(name="Pin")
     if RELEASE_METHOD != "none":        # "none": no pinned vertices at all (control: must fall from frame 1)
         pin.add(top, 0.99 if RELEASE_METHOD == "stiffness" else 1.0, "REPLACE")
@@ -185,6 +212,13 @@ def finish_cloth(scene, obj, mesh, top, cloth):
     s.bending_stiffness = BEND
     s.tension_damping = s.compression_damping = s.shear_damping = 5.0
     s.bending_damping = float(os.environ.get("BEND_DAMPING", "0.5"))
+    if os.environ.get("BEND_DAMPING_AFTER"):
+        # Change bending damping only AT RELEASE, so the hang (and so the starting shape) matches the baseline.
+        # 28 Sep: bending damping 5 from frame 1 stopped the drape forming in a 40-frame gather (hang_depth 0).
+        s.keyframe_insert("bending_damping", frame=RELEASE_FRAME - 1)
+        s.bending_damping = float(os.environ["BEND_DAMPING_AFTER"])
+        s.keyframe_insert("bending_damping", frame=RELEASE_FRAME)
+        s.bending_damping = float(os.environ.get("BEND_DAMPING", "0.5"))   # the value in force until release
     s.vertex_group_mass = "Pin"
     s.pin_stiffness = PIN_STIFFNESS if RELEASE_METHOD == "stiffness" else 1.0
     if RELEASE_METHOD == "stiffness":
@@ -194,7 +228,13 @@ def finish_cloth(scene, obj, mesh, top, cloth):
     c = cloth.collision_settings
     c.use_collision = True
     c.distance_min = 0.01
-    c.collision_quality = 4
+    c.collision_quality = COLLISION_QUALITY
+    c.self_impulse_clamp = SELF_IMPULSE_CLAMP
+    c.impulse_clamp = IMPULSE_CLAMP
+    ratio = SELF_DIST / pattern.QUAD_X
+    if ratio > SELF_DIST_MAX_RATIO and not ALLOW_THICK_SELF:
+        raise SystemExit(f"SELF_DIST {SELF_DIST} m is {ratio:.2f} x the {pattern.QUAD_X:.3f} m edge (> {SELF_DIST_MAX_RATIO}): "
+                         f"the pile inflates like foam. Use <= {SELF_DIST_MAX_RATIO * pattern.QUAD_X:.3f} m, or ALLOW_THICK_SELF=1 to reproduce.")
     c.use_self_collision = True
     c.self_distance_min = SELF_DIST
     c.self_friction = SELF_FRICTION
@@ -238,6 +278,11 @@ def metrics(co, top):
     out = {"height_m": round(pct([p.z for p in co], 0.95), 3), "max_z_m": round(max(p.z for p in co), 3),
            "heading_mean_z_m": round(sum(co[i].z for i in top) / len(top), 3), "low_fraction": round(len(low) / len(co), 3)}
     out["mean_z_m"] = round(sum(p.z for p in co) / len(co), 3)
+    # Full-extent AABB in Blender metres (x = along the track, +y = UPSTAGE, see the front camera at -y). For
+    # Unreal (curtain yaw 90, upstage = +X): UE_X_cm = 100 * y, UE_Y_cm = 100 * x, UE_Z_cm = 100 * z.
+    out["aabb_m"] = {"x": [round(min(p.x for p in co), 3), round(max(p.x for p in co), 3)],
+                     "y": [round(min(p.y for p in co), 3), round(max(p.y for p in co), 3)],
+                     "z": [round(min(p.z for p in co), 3), round(max(p.z for p in co), 3)]}
     if cells:
         footprint = len(cells) * cell * cell
         out["footprint_m2"] = round(footprint, 2)
@@ -306,12 +351,19 @@ def render(obj, floor, name, loc, rot, ortho=None):
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     scene, obj, top, floor = build_curtain()
-    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
+    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
               "air_damping": AIR_DAMPING, "air_damping_applied": None, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
               "frame_seconds": [], "checkpoints": {}}
     report["mass_per_vertex"] = round(obj.modifiers["Cloth"].settings.mass, 4)
     report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
+    cs = obj.modifiers["Cloth"].collision_settings
+    report["self_dist_applied_m"] = round(cs.self_distance_min, 4)
+    report["self_dist_edge_ratio"] = round(cs.self_distance_min / pattern.QUAD_X, 3)
+    report["collision_quality_applied"] = cs.collision_quality
+    report["bending_damping_applied"] = round(obj.modifiers["Cloth"].settings.bending_damping, 3)
+    report["self_impulse_clamp_applied"] = round(cs.self_impulse_clamp, 3)
+    report["impulse_clamp_applied"] = round(cs.impulse_clamp, 3)
     scene.frame_set(1)
     start = world_coords(obj)
     report["hang_depth_m"] = round(pct([p.y for p in start], 0.95) - pct([p.y for p in start], 0.05), 3)
