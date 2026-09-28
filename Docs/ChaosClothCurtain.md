@@ -86,6 +86,15 @@ removing the x = 5400 preview (a level write), and repointing cue 0 (a Show writ
 velvet. Mean frame-to-frame change: still 1.50, 0.3 m/s 1.48, 0.6 m/s 1.47, 0.6 m/s with drag 0.15
 1.17. Not baked. Options: none, a 1–2 m/s gust timed at release, or a lighter-feeling fabric.
 
+**Air at the release** (28 Sep, Gary's choice): the plain pinned asset carries a constant 1.5 m/s
+wind UPSTAGE, in the cloth's COMPONENT space (upstage = local −Y for a yaw-90 curtain), drag 0.08
+(`AIR_BY_STEM` in `build_curtain_chaos_asset.py`). Benched (bench8): inert while hanging (motion
+1.41 vs 1.46 still), and it adds a subtle upstage billow once the cloth falls, so it is functionally
+"air at the release" with no timing machinery. A scene Wind Directional Source (strength 1, speed 5)
+did NOT measurably reach the cloth, so a Sequencer-keyed wind actor cannot deliver a gust. A literally
+timed gust would need a small C++ component (a keyable float feeding the interactor's WindVelocity).
+Not built.
+
 ## Read this first: the rest-shape trap
 
 **Chaos takes the cloth's rest shape from the 3D mesh by default.** Two settings:

@@ -84,6 +84,19 @@ for i, v in enumerate(CFG["variants"]):
     cloth.set_enable_simulation(True)
     runs.append({"v": v, "actor": act, "cloth": cloth, "rt": rt, "cc": cc})
 
+# Optional scene wind (a Wind Directional Source is GLOBAL, so use it with a single variant):
+# {"yaw": 0.0, "events": [{"at": tick, "speed": s, "strength": st}, ...]}
+wind_comp = None
+if CFG.get("wind_source"):
+    ws = CFG["wind_source"]
+    wind_actor = actors_ss.spawn_actor_from_class(unreal.WindDirectionalSource, unreal.Vector(5400.0, 60000.0, 500.0),
+                                                  unreal.Rotator(roll=0.0, pitch=0.0, yaw=float(ws.get("yaw", 0.0))))
+    wind_actor.set_actor_label("ZZ_TEMP_SoftGoods_Wind")
+    temps.append(wind_actor)
+    wind_comp = wind_actor.get_component_by_class(unreal.WindDirectionalSourceComponent)
+    wind_comp.set_strength(0.0)
+    wind_comp.set_speed(0.0)
+
 state = {"n": 0, "handle": None, "t0": None, "last": None}
 
 
@@ -152,6 +165,12 @@ def tick(delta):
         else:
             report["ticks"].append(round(now - state["last"], 4))
         state["last"] = now
+        if wind_comp is not None:
+            for event in CFG["wind_source"].get("events", []):
+                if event["at"] == state["n"]:
+                    wind_comp.set_speed(float(event.get("speed", 0.0)))
+                    wind_comp.set_strength(float(event.get("strength", 0.0)))
+                    report.setdefault("wind_events", []).append([state["n"], event])
         for run in runs:
             guide = run["v"].get("guide")
             if guide and state["n"] >= 1:

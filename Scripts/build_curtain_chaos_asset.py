@@ -69,12 +69,21 @@ PHYSICS = {
     "collision_thickness_cm": 1.0,
     "floor_friction": 0.8,       # the pile grips the boards instead of skating
 }
+# Per-pattern air (28 Sep, Gary chose "air at the release" over a breeze or a C++ timed gust): a
+# constant 1.5 m/s wind UPSTAGE, in the cloth's own component space so it stays upstage wherever the
+# curtain is placed (yaw 90 faces the audience, so upstage is local -Y). Benched inert while the
+# curtain hangs (motion 1.41 vs 1.46 still), so it only acts once the cloth moves. Drag 0.08 as benched.
+AIR_BY_STEM = {
+    "CurtainChaos_Plain_Q15": {"wind_ms": (0.0, -1.5, 0.0), "space": "ComponentSpace", "drag": 0.08},
+}
+AIR = AIR_BY_STEM.get(STEM, {"wind_ms": (0.0, 0.0, 0.0), "space": "WorldSpace", "drag": None})
+
 VELVET = {
     "VelvetColor": (0.12, 0.004, 0.008, 1.0),   # deep velvet red, linear
     "SheenColor": (0.45, 0.05, 0.07, 1.0),      # the travelling highlight as the nap turns
 }
 
-log = {"stem": STEM, "mode": MODE, "steps": [], "property_failures": [], "physics": PHYSICS}
+log = {"stem": STEM, "mode": MODE, "air": AIR, "steps": [], "property_failures": [], "physics": PHYSICS}
 
 
 def step(name, **info):
@@ -432,7 +441,12 @@ def build():
         "BucklingStiffness": weighted(p["buckling_stiffness"]),
     })
     node("Damping", "FChaosClothAssetSimulationDampingConfigNode", {"DampingCoefficientWeighted": weighted(p["damping"])})
-    node("Aero", "FChaosClothAssetSimulationAerodynamicsConfigNode", {"Drag": weighted(p["drag"]), "Lift": weighted(p["lift"])})
+    node("Aero", "FChaosClothAssetSimulationAerodynamicsConfigNode", {
+        "Drag": weighted(AIR["drag"] if AIR["drag"] is not None else p["drag"]),
+        "Lift": weighted(p["lift"]),
+        "WindVelocitySpace": AIR["space"],
+        "WindVelocity": "(X={},Y={},Z={})".format(*AIR["wind_ms"]),   # m/s, not cm/s
+    })
     node("Collision", "FChaosClothAssetSimulationCollisionConfigNode", {
         "CollisionThicknessImported": f"(ImportedValue={p['collision_thickness_cm']},bUseImportedValue=False)",
         "FrictionCoefficientImported": f"(ImportedValue={p['floor_friction']},bUseImportedValue=False)",

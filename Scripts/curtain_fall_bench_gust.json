@@ -1,0 +1,109 @@
+{
+ "name": "bench8_gust",
+ "ticks": 200,
+ "capture_every": 3,
+ "bounds_every": 1000,
+ "spacing": 3000.0,
+ "width": 480,
+ "height": 270,
+ "bounds_scale": 2.0,
+ "variants": [
+  {
+   "id": "G0_still",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   }
+  },
+  {
+   "id": "G1_const15",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   },
+   "floats": {
+    "Drag": 0.08
+   },
+   "vectors": {
+    "WindVelocity": [
+     1.5,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "id": "G2_gust20_held",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   },
+   "schedule": [
+    {
+     "at": 21,
+     "floats": {
+      "Drag": 0.08
+     },
+     "vectors": {
+      "WindVelocity": [
+       2.0,
+       0.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "G3_gust20_burst",
+   "asset": "/Game/Scenes/Curtain/Chaos/CA_CurtainChaos_Plain_Q15",
+   "guide": {
+    "forward_cm": -180.0,
+    "drop_cm": 995.0,
+    "ticks": 32,
+    "forward_exp": 1.5,
+    "hold_ticks": 20
+   },
+   "schedule": [
+    {
+     "at": 21,
+     "floats": {
+      "Drag": 0.08
+     },
+     "vectors": {
+      "WindVelocity": [
+       2.0,
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "at": 46,
+     "floats": {
+      "Drag": 0.03
+     },
+     "vectors": {
+      "WindVelocity": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}
