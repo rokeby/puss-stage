@@ -75,9 +75,15 @@ as suspect.
 The sprawl, loft, breeze and gust bench findings were all measured on this mis-pinned cloth. They point
 the right way but are not trustworthy numbers until re-run on a correctly pinned curtain.
 
-Fix status: see the handover and this stream's report. The rule-derived pin (with an automated
-pin-flatness check in every build) versus a position-based pin (UV mask via TextureToAttribute, or vertex
-colour) is under decision. No position-based cloth selection node has been found in 5.8.
+**Fixed (28 Sep), and the fix cannot ship wrong silently.** The pattern cutter reproduces Chaos's sort
+(2D pattern UV: u asc, then v asc) and writes `heading_sim_indices`, which the build pins; the mesh-order
+`heading_vertex_indices` are still verified on import. Every pinned build must PASS the automated check:
+`Scripts/curtain_pin_check.py` hangs each pinned curtain off-stage under its own lamp (the bench site is
+unlit) for 120 ticks, and `Scripts/curtain_pin_check_score.py` requires ≥95% of the top edge within 8 px
+and ≥95% of the width retained. Result: plain PASS and ragged PASS (100% held); a negative control (the
+old left-edge hang) scores 26.6% and fails. Next: a position-based pin (UV-mask TextureToAttribute, then
+vertex colour) as the durable replacement, validated by the same check. No position-based cloth selection
+node has been found in 5.8.
 
 ## 28 Sep: the Chaos Opening (in a duplicate sequence)
 

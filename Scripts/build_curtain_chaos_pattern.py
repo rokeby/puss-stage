@@ -534,6 +534,19 @@ def main() -> None:
         raise SystemExit("Vertex order is not first-appearance order after renumbering")
     top_indices = [v.index for v in mesh.vertices if abs(v.co.z - DROP) < 1e-6]
 
+    # Chaos does NOT use this mesh's vertex order for its sim vertices (28 Sep, running sims): it
+    # orders them column by column across the 2D pattern (low u first) and bottom-to-top within a
+    # column. Reproduce that sort on the pattern UVs to get the heading's SIM indices. The build
+    # verifies top_indices on the imported mesh; heading_sim_indices is what the pin uses; and an
+    # automated off-stage pin check (Scripts/curtain_pin_check.py) must pass before a build ships.
+    uv_layer = mesh.uv_layers.active.data
+    vertex_uv = {}
+    for loop in mesh.loops:
+        vertex_uv.setdefault(loop.vertex_index, (uv_layer[loop.index].uv[0], uv_layer[loop.index].uv[1]))
+    sim_order = sorted(range(len(mesh.vertices)), key=lambda i: (vertex_uv[i][0], vertex_uv[i][1]))
+    sim_index_of = {mesh_i: sim_i for sim_i, mesh_i in enumerate(sim_order)}
+    heading_sim_indices = sorted(sim_index_of[i] for i in top_indices)
+
     preview = write_preview_png(obj)
 
     bpy.ops.object.select_all(action="DESELECT")
@@ -577,7 +590,9 @@ def main() -> None:
         "faces": len(mesh.polygons),
         # Chaos Static Mesh Import: UVChannel 0, UVScale in cm.
         "uv_scale_cm": [PATTERN_WIDTH * 100.0, DROP * 100.0],
-        "heading_vertex_indices": top_indices,
+        "heading_vertex_indices": top_indices,          # static-mesh order: verified on import
+        "heading_sim_indices": heading_sim_indices,     # Chaos sim order (column by u, bottom-up): pinned
+        "sim_order_rule": "sort by (u asc, v asc) of the 2D pattern; verified by Scripts/curtain_pin_check.py",
         "heading_vertex_count": len(top_indices),
         "rags": rag_report,
     }

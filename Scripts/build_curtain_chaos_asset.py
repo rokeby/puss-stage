@@ -366,6 +366,9 @@ def build():
     zs = [desc.get_vertex_position(unreal.VertexID(i)).z for i in range(count)]
     top = max(zs)
     heading = sidecar["heading_vertex_indices"]
+    if "heading_sim_indices" not in sidecar:
+        fail("Sidecar has no heading_sim_indices: re-run build_curtain_chaos_pattern.py (Chaos sim order)")
+    heading_sim = sidecar["heading_sim_indices"]
     off_top = [i for i in heading if abs(zs[i] - top) > 0.01]
     if off_top:
         fail(f"{len(off_top)} heading indices are not on the top edge after import (first {off_top[:5]})")
@@ -418,7 +421,9 @@ def build():
     node("Heading", "FChaosClothAssetSelectionNode_v2", {
         "OutputName": '(StringValue="Heading")',
         "Group": '(Name="SimVertices3D")',
-        "Indices": "(" + ",".join(str(i) for i in heading) + ")",
+        # SIM-order indices: Chaos re-sorts sim vertices (column by u, bottom-up), so mesh indices
+        # pin the wrong particles. Proven only by Scripts/curtain_pin_check.py on a running sim.
+        "Indices": "(" + ",".join(str(i) for i in heading_sim) + ")",
     })
     node("Mass", "FChaosClothAssetSimulationMassConfigNode", {
         "MassMode": "Density",
