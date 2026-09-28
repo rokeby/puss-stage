@@ -212,6 +212,16 @@ def finish_cloth(scene, obj, mesh, top, cloth):
     s.bending_stiffness = BEND
     s.tension_damping = s.compression_damping = s.shear_damping = 5.0
     s.bending_damping = float(os.environ.get("BEND_DAMPING", "0.5"))
+    if os.environ.get("BEND_DAMPING_RAMP"):
+        # "start:end:value": ramp bending damping from BEND_DAMPING to value between two frames (linear, a key per
+        # frame), e.g. AT THE COLLAPSE only, so the fall and the thump keep the low damping and only the post-collapse
+        # rebound is absorbed (28 Sep: damping 5 from release killed the swell but also slowed the whole fall).
+        a, b, v = os.environ["BEND_DAMPING_RAMP"].split(":")
+        a, b, v, base = int(a), int(b), float(v), float(os.environ.get("BEND_DAMPING", "0.5"))
+        for f in range(a, b + 1):
+            s.bending_damping = base + (v - base) * (f - a) / max(1, b - a)
+            s.keyframe_insert("bending_damping", frame=f)
+        s.bending_damping = base
     if os.environ.get("BEND_DAMPING_AFTER"):
         # Change bending damping only AT RELEASE, so the hang (and so the starting shape) matches the baseline.
         # 28 Sep: bending damping 5 from frame 1 stopped the drape forming in a 40-frame gather (hang_depth 0).
@@ -351,7 +361,7 @@ def render(obj, floor, name, loc, rot, ortho=None):
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     scene, obj, top, floor = build_curtain()
-    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
+    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
               "air_damping": AIR_DAMPING, "air_damping_applied": None, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
               "frame_seconds": [], "checkpoints": {}}
@@ -371,6 +381,16 @@ def main():
         t0 = time.perf_counter()
         scene.frame_set(f)
         report["frame_seconds"].append(round(time.perf_counter() - t0, 3))
+        if f > GATHER_FRAMES + 1:
+            # Rig's limits apply to the FURTHEST vertex in ANY frame of the hang and fall, not the settled pile
+            # ("a cloth that billows through a post mid-fall is as broken as one that settles through it").
+            # Blender metres: y = UE X / 100 (+ upstage), x = UE Y / 100, z = UE Z / 100 (relative to the curtain line).
+            co = world_coords(obj)
+            portal = [p for p in co if abs(p.y) <= 0.2]           # the portal band, UE X -20..+20 cm
+            report.setdefault("extents", []).append([
+                f, round(min(p.y for p in co), 3), round(max(p.y for p in co), 3),
+                round(max((abs(p.x) for p in portal), default=0.0), 3), round(max((p.z for p in portal), default=0.0), 3),
+                round(min(p.x for p in co), 3), round(max(p.x for p in co), 3)])
         if f >= RELEASE_FRAME - 1:        # per-frame centre of mass and top: the landing "bounce" is measured, not judged
             co = world_coords(obj)
             report.setdefault("com_z", []).append(round(sum(p.z for p in co) / len(co), 4))
@@ -385,6 +405,17 @@ def main():
         report["hang_depth_m"] = hang["depth_m"]
     if "depth_m" in final:
         final["depth_ratio"] = round(final["depth_m"] / max(report["hang_depth_m"], 1e-6), 2)
+    ext = report.get("extents", [])
+    if ext:
+        def worst(col, fn):
+            row = fn(ext, key=lambda r: r[col])
+            return {"value_m": row[col], "frame": row[0], "phase": "hang" if row[0] < RELEASE_FRAME else "fall"}
+        report["rig_limits"] = {                              # worst case over hang + fall, in Blender metres
+            "downstage_min_y": worst(1, min), "upstage_max_y": worst(2, max),
+            "portal_abs_x_max": worst(3, max), "portal_z_max": worst(4, max),
+            "unreal_cm": {"X_min": round(100 * min(r[1] for r in ext)), "X_max": round(100 * max(r[2] for r in ext)),
+                          "portal_absY_max": round(100 * max(r[3] for r in ext)), "portal_Z_max": round(100 * max(r[4] for r in ext)),
+                          "Y_min": round(100 * min(r[5] for r in ext)), "Y_max": round(100 * max(r[6] for r in ext))}}
     report["released"] = report["checkpoints"][RELEASE_FRAME + 15]["heading_mean_z_m"] < pattern.DROP + LIFT_M - 0.5
     prev = report["checkpoints"].get(FRAMES - 30, {})
     report["settled"] = bool(prev) and abs(prev.get("height_m", 0) - final["height_m"]) < 0.05 and abs(prev.get("depth_m", 0) - final.get("depth_m", 0)) < 0.1
