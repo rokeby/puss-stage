@@ -20,6 +20,10 @@ FROM_Y, TO_Y = 500.0, 750.0
 RECORD = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
                       "CodexStructure", "p01_station1_symmetry_record.json")
 LABEL = re.compile(r"^P01 Wing \d{3}$")
+# The conductor confirmed (28 Sep) that the only level flag is its capture tool's,
+# net-nil; a flag can only be cleared by a level save, so this save absorbs it.
+# Content must still be clean, and a stray capture actor still refuses the run.
+ACCEPT_CAPTURE_MAP_FLAG = True
 
 
 def fail(message):
@@ -54,8 +58,13 @@ if not world or world.get_path_name().split(".", 1)[0] != EXPECTED_WORLD:
 if ed.get_game_world() is not None:
     fail("PIE active")
 content0, maps0 = dirty()
-if content0 or maps0:
+if content0 or (maps0 and not (ACCEPT_CAPTURE_MAP_FLAG and maps0 == [EXPECTED_WORLD])):
     fail(f"editor already dirty: {content0} {maps0}")
+absorbed = bool(maps0)
+strays = [a.get_actor_label() for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+          if a.get_actor_label().startswith("ZZ_") or "TransientCapture" in a.get_actor_label()]
+if strays:
+    fail(f"stray capture actors in the level, the map flag is not net-nil: {strays}")
 
 show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
 cues = list(show.get_editor_property("cues"))
@@ -132,4 +141,5 @@ if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_lev
     fail("level save failed")
 content2, maps2 = dirty()
 unreal.log(f"P01_STATION1_APPLY_OK|cue={TARGET}|right_y={FROM_Y}->{TO_Y}|live_right_y={round(live_y, 2)}"
-           f"|structure_refit={refit}|show_saved=1|level_saved=1|dirty_after={len(content2)}+{len(maps2)}")
+           f"|structure_refit={refit}|absorbed_capture_map_flag={absorbed}|show_saved=1|level_saved=1"
+           f"|dirty_after={len(content2)}+{len(maps2)}")
