@@ -5,6 +5,37 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Resume here (stood down 2026-09-28 for a studio visit)
+
+Working tree clean; last stream commit is the one that added this section.
+Everything below waits on **Gary**, not on another stream:
+
+1. **Rollout** of P01/P02/P06 (80 meshes, 92 MIs, P04 collateral through shared
+   meshes). Planned and dry-run, not executed. Gary judges the P01 trial first
+   (rococo R new beside rococo L legacy, plus the cloud ceiling). Re-run
+   `rollout_plan.py` before applying: the plan is a snapshot of live MIs, and
+   other streams have changed P01 and P03 since.
+2. **Upscale.** Upscaling was chosen over regeneration; the spec is below. No
+   tiled upscaler is installed, and installing one (tool plus models) needs
+   Gary's OK. Don't run it during heavy disk work on D:.
+3. **Which wings burn.** This gates the per-MI `UseBurn` switch, which is on only
+   for the two P01 trial MIs.
+4. **Read-only check** of `C:\Users\Administrator\AppData\Local\CaptureManager\Media\PussStage`
+   for wing source imagery. That path was not moved in the C:→D: migration, so
+   anything the wings depend on there is now split from what did move.
+
+Facts that landed while stood down:
+
+- Per-instance custom data is reported live: 4 floats, with the deterministic
+  seed in slot 3 written at materialize from cue and side, so slot 3 now drives
+  variation instead of PerInstanceRandom. Before relying on it, read back
+  `NumCustomDataFloats == 4` on the live ISMs (read-only). Components created
+  before e0c2c2f carry 0 floats until re-materialized.
+- P01 station spacing is deliberately irregular: ±750 on station 1 and 21 other
+  pairs, 15 at ±500, 3 at ±400, 7 asymmetric at −400/+750. Nothing in this stream
+  depends on spacing. The rollout reparents MIs per mesh, and the burn front and
+  detail coordinates are computed per panel in mesh-local centimetres.
+
 ## State at 2026-09-25, end of the first session
 
 | | Status | Tier |
