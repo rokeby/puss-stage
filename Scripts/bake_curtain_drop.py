@@ -167,12 +167,17 @@ def add_render_modifiers(obj):
 def finish_cloth(scene, obj, mesh, top, cloth):
     s = cloth.settings
     area = pattern.PATTERN_WIDTH * pattern.DROP
+    s.air_damping = AIR_DAMPING
     if os.environ.get("VERTEX_MASS_SCOUT"):
-        s.mass = float(os.environ["VERTEX_MASS_SCOUT"]) * (pattern.QUAD_X / (1.37 / 5)) ** 2
+        area_scale = (pattern.QUAD_X / (1.37 / 5)) ** 2
+        s.mass = float(os.environ["VERTEX_MASS_SCOUT"]) * area_scale
+        # Air damping acts per vertex too, so it must scale with vertex area like the mass. Unscaled, the
+        # 9.1 cm run (1/9 the mass per vertex) fell through syrup: 2.3 m in the first second, not 4.9 (28 Sep).
+        # At the 27.4 cm scout spacing the scale is exactly 1, so the scouts are unchanged.
+        s.air_damping = AIR_DAMPING * area_scale
     else:
         s.mass = VERTEX_MASS if VERTEX_MASS else DENSITY * area / len(mesh.vertices)   # Blender cloth mass is per vertex, kg
     s.quality = QUALITY
-    s.air_damping = AIR_DAMPING
     s.bending_model = "ANGULAR"
     s.tension_stiffness = TENSION
     s.compression_stiffness = COMPRESSION
@@ -303,9 +308,10 @@ def main():
     scene, obj, top, floor = build_curtain()
     report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
-              "air_damping": AIR_DAMPING, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
+              "air_damping": AIR_DAMPING, "air_damping_applied": None, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
               "frame_seconds": [], "checkpoints": {}}
     report["mass_per_vertex"] = round(obj.modifiers["Cloth"].settings.mass, 4)
+    report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
     scene.frame_set(1)
     start = world_coords(obj)
     report["hang_depth_m"] = round(pct([p.y for p in start], 0.95) - pct([p.y for p in start], 0.05), 3)
