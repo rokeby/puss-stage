@@ -263,11 +263,20 @@ not run, because this session's permission layer blocked editor runs:
   Downstage it reaches −250 to −320, and that number is not final.
 - **The stage edge.** The portal's forestage is 150 cm deep (boards x −150…0).
   The bake lands on an infinite plane, so fabric past −150 lies flat on air.
-- **The frame sees below the lip.** At eye z 150, tilt 14° and 15 mm, the
-  bottom ray crosses the lip plane at z ≈ −305. So about the bottom 17% of the
-  opening frame there is below stage level: void, very likely, though not yet
-  swept. The portal has no stage front, which is a design gap independent of
-  the cloth.
+- **The frame sees below the lip.** At eye z 150, tilt 14° and 15 mm on the
+  Super 35 filmback (23.76 × 13.365 mm, which this doc's 22.2 × 12.5 m framing
+  already assumes), the bottom ray crosses the lip plane at z ≈ −70. So about
+  the bottom 7% of the frame height, at the lip, looks below stage level into
+  what is very likely void, though not yet swept. (First reported as z −305 and
+  17%, which wrongly used a full-frame sensor. The filmback itself is still to
+  be confirmed from the camera.) The portal has no stage front, which is a
+  design gap independent of the cloth.
+- **The coarse pile (good2, every frame).** Downstage to x −383, still
+  creeping. Upstage to +235, only 15 cm short of Wing 001. Top 1000 in show
+  placement, with no upward kick. Width ±890 while hanging, ±964 mid-fall and
+  ±1220 settled. The frame's half-width is about ±1110 at the curtain line, so
+  posts widened past ±1220 would leave the shot. The floor spans only ±970
+  (ground) and ±950 (forestage), so the side spill also lies on air.
 - **The options, for Gary:** (i) deepen the apron to 430–460 cm, which clears
   the lamps but recomposes his frame; (ii) drape the cloth over the lip, which
   needs (iii); (iii) a stage front (fascia plus house floor) in the portal
