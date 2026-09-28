@@ -232,21 +232,29 @@ from the floor contact, which has been stable since +0.2 s.
 **It is resolution-dependent.** Identical settings at the 27 cm scout do not
 bounce (COM bottoms at 0.183 m and rises 5 mm). A coarse run cannot test the fix.
 
-### The ratio rule — self-collision distance scales with edge length
+### LEADING HYPOTHESIS (not confirmed): the self-collision / edge-length ratio
 
-The only candidate that explains the resolution dependence:
+**Status: the conductor's hypothesis, Soft goods' candidate (a). Awaiting the
+bt0-vs-bta comparison. Do not cite as cause until that lands.** It is the only
+candidate that so far accounts for the resolution dependence:
 
 | mesh | self-collision | ratio | shell dia vs edge | result |
 |---|---|---|---|---|
 | 27 cm scout | 3 cm | 0.11 | 6 cm vs 27 cm | no bounce |
 | 9.1 cm fine | 3 cm | **0.33** | 6 cm vs 9.1 cm | **bounce** |
 
-At 0.33, **adjacent vertices in the same sheet are almost touching at rest**. Any
-fold compression makes neighbours overlap and repel each other: the sheet stops
-behaving like cloth and becomes a pressurised foam. The collapse squashes it and
-it inflates back — which is exactly the measured area doubling.
+At 0.33, adjacent vertices in the same sheet would be almost touching at rest, so
+fold compression would make neighbours overlap and repel: the sheet would stop
+behaving like cloth and behave as a pressurised foam, squashed by the collapse
+and inflating back. That WOULD account for the measured area doubling and for the
+resolution dependence. It is not yet demonstrated.
 
-**RULE: keep self-collision distance below ~0.2 x edge length.** At 9.1 cm that is
+Other live candidates: unbounded push-out impulse (`impulse_clamp` /
+`self_impulse_clamp`), bending damping 0.5 against bending stiffness 5, and
+solver quality too low at fine resolution.
+
+**GUARD (justified by the scaling argument regardless of the bounce's cause):
+keep self-collision distance below ~0.2 x edge length.** At 9.1 cm that is
 <=1.8 cm. Now enforced in `Scripts/bake_curtain_drop.py` as a hard refusal with an
 explicit override used only to reproduce the fault. Same class of bug as the mass
 and air-damping scaling: **a parameter chosen in absolute units that must scale
