@@ -20,6 +20,7 @@ const FName GridironLayerTag(TEXT("InfinityStage.Structure.Gridiron"));
 const FName GroundLayerTag(TEXT("InfinityStage.Structure.Ground"));
 const FName UnderstageLayerTag(TEXT("InfinityStage.Structure.Understage"));
 const FName ClothLayerTag(TEXT("InfinityStage.Structure.Cloth"));
+const FName PortalLayerTag(TEXT("InfinityStage.Structure.Portal"));
 const FName FixtureLayerTag(TEXT("InfinityStage.Structure.Fixtures"));
 const FName LineLayerTag(TEXT("InfinityStage.Structure.Lines"));
 
@@ -36,7 +37,8 @@ enum class ETimberPart : uint32
     RailPositive = 2,
     Housing = 3,
     BoardLane = 4,
-    Cloth = 5
+    Cloth = 5,
+    Portal = 6
 };
 
 FRandomStream MakeTimberStream(const FGuid& Identity, const ETimberPart Part)
@@ -343,6 +345,7 @@ void AInfinityStageStructureActor::ClearStructure()
     BoardCount = 0;
     SlotCount = 0;
     ClothCount = 0;
+    PortalPieceCount = 0;
     FixtureBodyCount = 0;
     HangingLineCount = 0;
     MovingLightsWithoutHousing = 0;
@@ -391,7 +394,11 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         }
         return Loaded;
     };
-    UStaticMesh* BeamMesh = Gridiron.bEnabled ? LoadMesh(Gridiron.BeamMesh, TEXT("Gridiron beam")) : nullptr;
+    // The portal is built from the gridiron's timber, so it needs the beam mesh
+    // even where a Passage has no grid.
+    UStaticMesh* BeamMesh = Gridiron.bEnabled || Portal.bEnabled
+        ? LoadMesh(Gridiron.BeamMesh, TEXT("Gridiron beam"))
+        : nullptr;
     UStaticMesh* BoardMesh = Ground.bEnabled ? LoadMesh(Ground.BoardMesh, TEXT("Ground board")) : nullptr;
     UStaticMesh* UnderstageMesh = Ground.bEnabled && Ground.bUnderstage
         ? LoadMesh(Ground.UnderstageMesh, TEXT("Understage"))
@@ -415,7 +422,9 @@ bool AInfinityStageStructureActor::MaterializeStructure()
             }
         }
     }
-    UStaticMesh* LineMesh = Fixtures.bEnabled && Fixtures.bHangFromGrid && Gridiron.bEnabled
+    const bool bFixtureLines = Fixtures.bEnabled && Fixtures.bHangFromGrid && Gridiron.bEnabled;
+    const bool bPortalLines = Portal.bEnabled && Portal.HangingLines > 0;
+    UStaticMesh* LineMesh = bFixtureLines || bPortalLines
         ? LoadMesh(Fixtures.LineMesh, TEXT("Hanging line"))
         : nullptr;
     if (!bMeshesLoaded)
@@ -429,7 +438,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
     // Everything is placed in world space and the actor is never moved here: a
     // re-fit must not drag anything the artist attached to the building.
     StationCount = Stations.Num();
-    if (BeamMesh)
+    if (BeamMesh && Gridiron.bEnabled)
     {
         UInstancedStaticMeshComponent* Component = CreateManagedComponent(
             TEXT("StructureGridiron"),
@@ -452,13 +461,24 @@ bool AInfinityStageStructureActor::MaterializeStructure()
     {
         BuildCloth(Stations, ClothPieces, LoadMaterial(Cloth.Material, TEXT("Cloth")));
     }
+    if (BeamMesh && Portal.bEnabled)
+    {
+        BuildPortal(
+            Stations,
+            *BeamMesh,
+            LoadMaterial(Gridiron.Material, TEXT("Portal timber")),
+            BoardMesh,
+            LoadMaterial(Ground.BoardMaterial, TEXT("Forestage board")),
+            bPortalLines ? LineMesh : nullptr,
+            LoadMaterial(Fixtures.LineMaterial, TEXT("Portal line")));
+    }
     if (BodyMesh)
     {
         BuildFixtures(
             Stations,
             *BodyMesh,
             LoadMaterial(Fixtures.BodyMaterial, TEXT("Fixture body")),
-            LineMesh,
+            bFixtureLines ? LineMesh : nullptr,
             LoadMaterial(Fixtures.LineMaterial, TEXT("Hanging line")));
     }
     int32 MovingLights = 0;
@@ -476,7 +496,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         LogInfinityStageStructure,
         Display,
         TEXT("INFINITY_STAGE_STRUCTURE_OK actor='%s' passage='%s' stations=%d cross_beams=%d rails=%d ")
-        TEXT("boards=%d slots=%d cloths=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f"),
+        TEXT("boards=%d slots=%d cloths=%d portal=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f"),
         *GetActorNameOrLabel(),
         *Passage->GetActorNameOrLabel(),
         StationCount,
@@ -485,6 +505,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         BoardCount,
         SlotCount,
         ClothCount,
+        PortalPieceCount,
         FixtureBodyCount,
         HangingLineCount,
         MovingLightsWithoutHousing,
@@ -788,6 +809,158 @@ double AInfinityStageStructureActor::GetFloorHalfSpanCm(const TArray<FInfinitySt
         WidestPanelCm = FMath::Max(WidestPanelCm, Station.HalfWidthCm);
     }
     return WidestPanelCm + Gridiron.OverhangCm;
+}
+
+void AInfinityStageStructureActor::BuildPortal(
+    const TArray<FInfinityStructureStation>& Stations,
+    UStaticMesh& TimberMesh,
+    UMaterialInterface* TimberMaterial,
+    UStaticMesh* BoardMesh,
+    UMaterialInterface* BoardMaterial,
+    UStaticMesh* LineMesh,
+    UMaterialInterface* LineMaterial)
+{
+    const USplineComponent& Route = *Passage->Route;
+    const double RouteLengthCm = Route.GetSplineLength();
+    // The portal may stand before the route begins (P01's route starts at its
+    // curtain line), so its frame is the route's nearest frame carried along its
+    // own forward axis rather than a spline sample clamped to the start.
+    const double PortalCm = Stations[0].DistanceCm + Portal.OffsetFromFirstStationCm;
+    const double SampleCm = FMath::Clamp(PortalCm, 0.0, RouteLengthCm);
+    const FTransform Frame = Route.GetTransformAtDistanceAlongSpline(SampleCm, ESplineCoordinateSpace::World, false);
+    const FVector Forward = Frame.GetUnitAxis(EAxis::X);
+    const FVector Across = Frame.GetUnitAxis(EAxis::Y);
+    const FVector Up = Frame.GetUnitAxis(EAxis::Z);
+    const FVector RoutePoint = Frame.GetLocation() + Forward * (PortalCm - SampleCm);
+    const auto AtRoute = [&](const double DistanceCm) { return RoutePoint + Forward * (DistanceCm - PortalCm); };
+    const FVector FloorPoint = RoutePoint + Up * Ground.FloorHeightCm;
+
+    const FQuat Vertical = FRotationMatrix::MakeFromXY(Up, Across).ToQuat();
+    const FQuat Crosswise = FRotationMatrix::MakeFromXZ(Across, Up).ToQuat();
+    const FQuat Lengthwise = FRotationMatrix::MakeFromXZ(Forward, Up).ToQuat();
+    const double HalfOpeningCm = FMath::Max(50.0, Portal.OpeningHalfWidthCm);
+    const double PostCm = FMath::Max(5.0, Portal.PostWidthCm);
+    const double HeaderCm = FMath::Max(5.0, Portal.HeaderDepthCm);
+    const double OpeningCm = FMath::Max(100.0, Portal.OpeningHeightCm);
+
+    FRandomStream Stream = MakeTimberStream(Passage->PassageGuid, ETimberPart::Portal);
+    const auto Piece = [&Stream](TArray<FTransform>& Transforms, TArray<float>& Data, const FBox& Bounds,
+                                 const FVector& CentreWorld, const FQuat& Rotation, const FVector& SizeCm)
+    {
+        Transforms.Add(FitMeshToTimber(Bounds, CentreWorld, Rotation, SizeCm));
+        Data.Append({ Stream.FRand(), static_cast<float>(SizeCm.X), static_cast<float>(SizeCm.Y), static_cast<float>(SizeCm.Z) });
+    };
+
+    // The frame: two posts and a header, the proscenium around the curtain.
+    const FBox TimberBounds = TimberMesh.GetBoundingBox();
+    TArray<FTransform> Timbers;
+    TArray<float> TimberData;
+    const double PostHeightCm = OpeningCm + HeaderCm;
+    for (const double Side : { -1.0, 1.0 })
+    {
+        Piece(Timbers, TimberData, TimberBounds,
+            FloorPoint + Across * (Side * (HalfOpeningCm + PostCm * 0.5)) + Up * (PostHeightCm * 0.5),
+            Vertical, FVector(PostHeightCm, PostCm, PostCm));
+    }
+    Piece(Timbers, TimberData, TimberBounds, FloorPoint + Up * (OpeningCm + HeaderCm * 0.5),
+        Crosswise, FVector((HalfOpeningCm + PostCm) * 2.0, PostCm, HeaderCm));
+
+    // The forestage covers only floor the ground layer does not, so boards never
+    // double up. P01's ground starts at the route start, which is its portal line.
+    const double GroundStartCm = Ground.bEnabled
+        ? FMath::Clamp(Stations[0].DistanceCm - Ground.ApronCm, 0.0, RouteLengthCm)
+        : PortalCm;
+    const double ForestageStartCm = PortalCm - FMath::Max(0.0, Portal.ForestageDepthCm);
+    const double ForestageEndCm = FMath::Min(PortalCm, GroundStartCm);
+    TArray<FTransform> Boards;
+    TArray<float> BoardData;
+    if (BoardMesh && ForestageEndCm - ForestageStartCm > 1.0)
+    {
+        const double BoardWidthCm = FMath::Max(4.0, Ground.BoardWidthCm);
+        const double GapCm = FMath::Max(0.0, Ground.BoardGapCm);
+        const double ThicknessCm = FMath::Max(0.5, Ground.BoardThicknessCm);
+        const double PitchCm = BoardWidthCm + GapCm;
+        const int32 Lanes = FMath::Max(1, FMath::FloorToInt32((HalfOpeningCm * 2.0 + GapCm) / PitchCm));
+        const double FirstLaneCm = -(Lanes * PitchCm - GapCm) * 0.5 + BoardWidthCm * 0.5;
+        const FBox BoardBounds = BoardMesh->GetBoundingBox();
+        const FVector Middle = AtRoute((ForestageStartCm + ForestageEndCm) * 0.5)
+            + Up * (Ground.FloorHeightCm - ThicknessCm * 0.5);
+        for (int32 Lane = 0; Lane < Lanes; ++Lane)
+        {
+            Piece(Boards, BoardData, BoardBounds, Middle + Across * (FirstLaneCm + Lane * PitchCm), Lengthwise,
+                FVector(ForestageEndCm - ForestageStartCm, BoardWidthCm, ThicknessCm));
+        }
+    }
+    // The float trough at the lip, sitting on the boards.
+    if (Portal.bFloatTrough && Portal.ForestageDepthCm > 1.0)
+    {
+        const double TroughDepthCm = FMath::Max(1.0, Portal.TroughDepthCm);
+        const double TroughHeightCm = FMath::Max(1.0, Portal.TroughHeightCm);
+        Piece(Timbers, TimberData, TimberBounds,
+            AtRoute(ForestageStartCm + TroughDepthCm * 0.5) + Up * (Ground.FloorHeightCm + TroughHeightCm * 0.5),
+            Crosswise, FVector(HalfOpeningCm * 2.0, TroughDepthCm, TroughHeightCm));
+    }
+    // The gridiron carried forward to meet the portal: a cross beam over it and
+    // rails back to the first station, so the tunnel recedes above the curtain.
+    const double GridTopCm = Gridiron.HeightCm + Gridiron.BeamDepthCm * 1.5;
+    if (Portal.bExtendGridiron && Gridiron.bEnabled && GridHalfWidthCm > 0.0)
+    {
+        Piece(Timbers, TimberData, TimberBounds, RoutePoint + Up * Gridiron.HeightCm,
+            Crosswise, FVector(GridHalfWidthCm * 2.0, Gridiron.BeamWidthCm, Gridiron.BeamDepthCm));
+        const FInfinityStructureStation& First = Stations[0];
+        const FVector FirstOrigin = First.StationWorld.GetLocation();
+        const FVector FirstAcross = First.StationWorld.GetUnitAxis(EAxis::Y);
+        const FVector FirstUp = First.StationWorld.GetUnitAxis(EAxis::Z);
+        const double RailLiftCm = Gridiron.HeightCm + Gridiron.BeamDepthCm;
+        for (const double Side : { -1.0, 1.0 })
+        {
+            const FVector Start = RoutePoint + Across * (Side * GridHalfWidthCm) + Up * RailLiftCm;
+            const FVector End = FirstOrigin + FirstAcross * (Side * GridHalfWidthCm) + FirstUp * RailLiftCm;
+            const double LengthCm = FVector::Distance(Start, End);
+            if (LengthCm >= 1.0)
+            {
+                Piece(Timbers, TimberData, TimberBounds, (Start + End) * 0.5,
+                    FRotationMatrix::MakeFromXZ((End - Start) / LengthCm, Up).ToQuat(),
+                    FVector(LengthCm, Gridiron.BeamWidthCm, Gridiron.BeamDepthCm));
+            }
+        }
+    }
+    // Hemp lines from the header up into the dark, spread across the opening.
+    TArray<FTransform> Lines;
+    TArray<float> LineData;
+    if (LineMesh && Portal.HangingLines > 0)
+    {
+        const double FromCm = OpeningCm + HeaderCm;
+        const double ToCm = Gridiron.bEnabled ? GridTopCm : FromCm + 600.0;
+        const double ThicknessCm = FMath::Max(0.5, Fixtures.LineThicknessCm);
+        const FBox LineBounds = LineMesh->GetBoundingBox();
+        for (int32 Index = 0; Index < Portal.HangingLines && ToCm - FromCm > 1.0; ++Index)
+        {
+            const double LateralCm = -HalfOpeningCm + (Index + 0.5) * (HalfOpeningCm * 2.0 / Portal.HangingLines);
+            Piece(Lines, LineData, LineBounds,
+                RoutePoint + Across * LateralCm + Up * ((FromCm + ToCm) * 0.5),
+                Vertical, FVector(ToCm - FromCm, ThicknessCm, ThicknessCm));
+        }
+    }
+
+    UInstancedStaticMeshComponent* TimberComponent = CreateManagedComponent(
+        TEXT("StructurePortal"), PortalLayerTag, &TimberMesh, TimberMaterial, true);
+    ApplyInstances(*TimberComponent, Timbers, TimberData);
+    PortalPieceCount = Timbers.Num();
+    if (!Boards.IsEmpty())
+    {
+        UInstancedStaticMeshComponent* BoardComponent = CreateManagedComponent(
+            TEXT("StructureForestage"), PortalLayerTag, BoardMesh, BoardMaterial, true);
+        ApplyInstances(*BoardComponent, Boards, BoardData);
+        PortalPieceCount += Boards.Num();
+    }
+    if (!Lines.IsEmpty())
+    {
+        UInstancedStaticMeshComponent* LineComponent = CreateManagedComponent(
+            TEXT("StructurePortalLines"), PortalLayerTag, LineMesh, LineMaterial, false);
+        ApplyInstances(*LineComponent, Lines, LineData);
+        PortalPieceCount += Lines.Num();
+    }
 }
 
 void AInfinityStageStructureActor::BuildCloth(

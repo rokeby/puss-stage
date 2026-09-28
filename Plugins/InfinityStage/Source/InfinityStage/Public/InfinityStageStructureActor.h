@@ -241,6 +241,71 @@ struct INFINITYSTAGE_API FInfinityStageClothSettings
 };
 
 /**
+ * The portal: a timber proscenium where a Passage begins, with the house curtain
+ * hanging in it. Two posts, a header, the gridiron carried forward to meet it,
+ * a short forestage with a float trough at its lip, and hemp lines dropping to
+ * the header out of the dark. It is the first image of the show (Gary, 28 Sep:
+ * "the full curtain filling the frame with a little sense of the surrounding
+ * structure") and the same object a hangar mouth will need.
+ *
+ * Built only from the machine's constant modules: the gridiron's beam mesh for
+ * timber, the floor's board mesh for the forestage, the fixtures' line mesh for
+ * the lines. Off by default, so existing structures are unchanged.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityStagePortalSettings
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
+    bool bEnabled = false;
+
+    /** Where the portal stands along the route, from the first station. Negative
+     * is in front of it: -250 puts P01's portal at the route start, just ahead of
+     * its first wing pair. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (Units = "cm"))
+    double OffsetFromFirstStationCm = -250.0;
+
+    /** Half the clear opening, route line to the inside of a post. 950 frames the
+     * 17.77 m curtain with a little room. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "50.0", Units = "cm"))
+    double OpeningHalfWidthCm = 950.0;
+
+    /** Underside of the header above the floor: above the 10 m curtain's batten. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "100.0", Units = "cm"))
+    double OpeningHeightCm = 1050.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "5.0", Units = "cm"))
+    double PostWidthCm = 40.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "5.0", Units = "cm"))
+    double HeaderDepthCm = 45.0;
+
+    /** Boards carried forward of the portal line, so the curtain stands on a stage. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "0.0", Units = "cm"))
+    double ForestageDepthCm = 150.0;
+
+    /** A long low timber box at the forestage lip, for the floats. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
+    bool bFloatTrough = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "1.0", Units = "cm"))
+    double TroughHeightCm = 25.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "1.0", Units = "cm"))
+    double TroughDepthCm = 35.0;
+
+    /** Carry the gridiron's rails forward from the first station to the portal,
+     * with a cross beam over it: the tunnel, implied above the curtain. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
+    bool bExtendGridiron = true;
+
+    /** Hemp lines from the header up into the dark, spread across the opening. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "0", ClampMax = "32"))
+    int32 HangingLines = 5;
+};
+
+/**
  * Lamp housings for the Show's lights, so the rig reads as apparatus rather than
  * light from nowhere. A housing sits behind every enabled station-anchored light
  * attachment, and a hemp line runs from it up through the grid when the lamp
@@ -326,6 +391,9 @@ public:
     FInfinityStageClothSettings Cloth;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage")
+    FInfinityStagePortalSettings Portal;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage")
     FInfinityStageFixtureSettings Fixtures;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Instanced, Category = "Materialization")
@@ -352,6 +420,10 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 ClothCount = 0;
+
+    /** Timbers, forestage boards and lines that make up the portal. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 PortalPieceCount = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 FixtureBodyCount = 0;
@@ -408,6 +480,15 @@ private:
         UMaterialInterface* BoardMaterial,
         UStaticMesh* UnderstageMesh,
         UMaterialInterface* UnderstageMaterial);
+
+    void BuildPortal(
+        const TArray<FInfinityStructureStation>& Stations,
+        UStaticMesh& TimberMesh,
+        UMaterialInterface* TimberMaterial,
+        UStaticMesh* BoardMesh,
+        UMaterialInterface* BoardMaterial,
+        UStaticMesh* LineMesh,
+        UMaterialInterface* LineMaterial);
 
     void BuildCloth(
         const TArray<FInfinityStructureStation>& Stations,

@@ -565,4 +565,95 @@ bool FInfinityStageStructureAsymmetricSlotsTest::RunTest(const FString& Paramete
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageStructurePortalTest,
+    "InfinityStage.Structure.PortalFramesTheCurtain",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageStructurePortalTest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 3);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    TestTrue(TEXT("Without a portal the structure builds"), Structure->MaterializeStructure());
+    TestNull(TEXT("The portal is off by default"), FindLayer(*Structure, TEXT("InfinityStage.Structure.Portal")));
+
+    // No apron, so the forestage fills the floor in front of the portal line.
+    Structure->Ground.bEnabled = true;
+    Structure->Ground.ApronCm = 0.0;
+    Structure->Portal.bEnabled = true;
+    TestTrue(TEXT("Structure with a portal materializes"), Structure->MaterializeStructure());
+
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    Structure->GatherStations(Stations, Error);
+    UInstancedStaticMeshComponent* Timber = nullptr;
+    UInstancedStaticMeshComponent* Forestage = nullptr;
+    UInstancedStaticMeshComponent* Lines = nullptr;
+    for (UInstancedStaticMeshComponent* Component : Structure->ManagedComponents)
+    {
+        if (!Component || !Component->ComponentTags.Contains(FName(TEXT("InfinityStage.Structure.Portal"))))
+        {
+            continue;
+        }
+        const FString Name = Component->GetName();
+        if (Name.StartsWith(TEXT("StructurePortalLines"))) { Lines = Component; }
+        else if (Name.StartsWith(TEXT("StructureForestage"))) { Forestage = Component; }
+        else if (Name.StartsWith(TEXT("StructurePortal"))) { Timber = Component; }
+    }
+    if (!Timber || !Forestage || !Lines || Stations.IsEmpty())
+    {
+        AddError(TEXT("Expected portal timber, forestage and lines over gathered stations."));
+        World->DestroyWorld(false);
+        return false;
+    }
+    const FInfinityStagePortalSettings& Portal = Structure->Portal;
+    const double PortalX = Stations[0].StationWorld.GetLocation().X + Portal.OffsetFromFirstStationCm;
+    const double PostHeightCm = Portal.OpeningHeightCm + Portal.HeaderDepthCm;
+
+    // Posts, header, trough, the grid's forward cross beam and its two rails.
+    TestEqual(TEXT("Seven portal timbers"), Timber->GetInstanceCount(), 7);
+    int32 Posts = 0;
+    bool bPostsFrame = true;
+    bool bHeaderOverOpening = false;
+    for (const FTransform& Piece : ReadInstances(*Timber))
+    {
+        if (FMath::Abs(Piece.GetRotation().GetAxisX().Z) > 0.99)
+        {
+            ++Posts;
+            bPostsFrame &= FMath::IsNearlyEqual(Piece.GetScale3D().X * 100.0, PostHeightCm, 0.1)
+                && FMath::IsNearlyEqual(FMath::Abs(Piece.GetLocation().Y), Portal.OpeningHalfWidthCm + Portal.PostWidthCm * 0.5, 0.1)
+                && FMath::IsNearlyEqual(Piece.GetLocation().X, PortalX, 0.1);
+        }
+        bHeaderOverOpening |= FMath::Abs(Piece.GetRotation().GetAxisX().Y) > 0.99
+            && FMath::IsNearlyEqual(Piece.GetLocation().Z, Portal.OpeningHeightCm + Portal.HeaderDepthCm * 0.5, 0.1);
+    }
+    TestEqual(TEXT("Two posts"), Posts, 2);
+    TestTrue(TEXT("Posts stand either side of the opening, on the portal line"), bPostsFrame);
+    TestTrue(TEXT("A header spans the opening at its height"), bHeaderOverOpening);
+
+    bool bForestageInFront = Forestage->GetInstanceCount() > 0;
+    for (const FTransform& Board : ReadInstances(*Forestage))
+    {
+        const double HalfLengthCm = Board.GetScale3D().X * 50.0;
+        bForestageInFront &= FMath::IsNearlyEqual(Board.GetLocation().X + HalfLengthCm, PortalX, 0.1)
+            && FMath::IsNearlyEqual(HalfLengthCm * 2.0, Portal.ForestageDepthCm, 0.1)
+            && FMath::IsNearlyEqual(Board.GetLocation().Z + Board.GetScale3D().Z * 50.0, Structure->Ground.FloorHeightCm, 0.01);
+    }
+    TestTrue(TEXT("The forestage runs from the portal line toward the audience, flush with the floor"), bForestageInFront);
+    TestEqual(TEXT("One hemp line per setting"), Lines->GetInstanceCount(), Portal.HangingLines);
+    TestEqual(TEXT("Portal pieces are counted"), Structure->PortalPieceCount,
+        Timber->GetInstanceCount() + Forestage->GetInstanceCount() + Lines->GetInstanceCount());
+    TestTrue(TEXT("A structure with a portal is current"), Structure->IsStructureCurrent());
+
+    const FTransform FirstPiece = ReadInstances(*Timber)[0];
+    TestTrue(TEXT("Rebuild succeeds"), Structure->MaterializeStructure());
+    UInstancedStaticMeshComponent* Rebuilt = FindLayer(*Structure, TEXT("InfinityStage.Structure.Portal"));
+    TestTrue(TEXT("Rebuilding places the same portal"),
+        Rebuilt && Rebuilt->GetInstanceCount() > 0 && ReadInstances(*Rebuilt)[0].Equals(FirstPiece, 1.0e-4));
+
+    World->DestroyWorld(false);
+    return true;
+}
+
 #endif
