@@ -128,3 +128,70 @@ repeatedly agreed with each other while the picture stayed wrong.
 - **Two Unreal editors on one GPU** (Puss + MHFat) accounts for the 333 ms
   frame. Cloth cost is ~7 ms for three curtains, measured under that contention
   and therefore pessimistic. The cloth is cheap; the frame is not.
+
+## Gary's two catches from the scout renders (28 Sep, late)
+
+Both came from showing him pictures, and both are more consequential than
+anything the metrics found. Neither was visible in any number.
+
+### 1. Pleat memory — the rest shape is wrong
+
+> "but it shouldn't keep the pleats of the curtain when it falls, right"
+
+Correct. In every scout render the settled corrugations are **evenly spaced at
+the 0.85 m pleat pitch**. They are not folds the fall produced — they are the
+modelled pleats surviving intact. The conductor praised them as "heavy velour
+folds" in Gary_03; that was wrong.
+
+**Mechanism:** the curtain is *modelled* pleated, so pleated is its zero-energy
+rest state. Bending stiffness does not resist folding in general — it actively
+**restores the pleats**. Hence more stiffness gave a corrugated plank, and the
+soft case crinkled only at mesh scale *between* surviving pleats.
+
+A real curtain's rest state is **flat fabric**; pleats exist only because the
+heading gathers 22.2 m of cloth onto a 17.8 m track. Release the heading and
+they have no restoring force.
+
+**Fix to test:** model flat at full width, produce the pleats by *constraint*
+(pin the heading to gathered positions and let it settle) rather than by
+geometry. Check for a rest-shape mesh input that allows pleated sim geometry
+with flat rest geometry.
+
+**This was already written down** in memory `puss-chaos-cloth-rest-shape` ("rest
+shape defaults to the 3D pose; free-fall can't sprawl") and nobody connected it
+to the thin pile. A conductor failure.
+
+**Also reopens Chaos:** if our Chaos curtain's rest shape is likewise the
+pleated mesh, BucklingRatio and everything else is downstream of this.
+
+### 2. Graphic creasing — resolution and zero thickness
+
+> "it's smooth and shiny and seems to crumple in a graphically flat and weird
+> way, not like folding thick fabric"
+
+The **shine** is the scout shader (default clay, too much specular) and is not
+representative. The **graphic creasing is real** and is two things:
+
+- **Mesh resolution.** 27 cm quads against 20-40 cm folds is roughly *one
+  polygon per fold*. The fabric cannot curve; it can only crease at panel
+  boundaries. Want quads several times smaller than the smallest fold — 5-8 cm.
+  The planned 15 cm delivery is still only ~2 quads per fold.
+- **Zero thickness.** A surface folds to a knife edge, which is paper and foil.
+  Real velour cannot fold tighter than roughly twice its pile thickness, so its
+  creases are **rounded rolls**. That rounding is most of what reads as "thick
+  fabric". Self-collision distance is the lever.
+
+### Resulting priority
+
+Three independent faults, in this order: **rest shape** (structural),
+**resolution and thickness** (creasing), **loft** (pile height — demoted;
+arithmetic-limited and never actually complained about).
+
+**Arithmetic on loft, for expectations:** 222 m² over an 18 m track is ~12.3 m²
+of fabric per metre of track. Heaped 1.5 m wide that is ~8 layers; at 6 cm per
+layer including trapped air, ~0.5 m tall. Height and footprint trade directly.
+A wide low mound or a narrow tall one, not both.
+
+**The deliverable is a CLIP, not a still.** Gary asked for "a dramatic sense of
+physical stage hefty material *falling*". The whole day was spent optimising a
+still frame of the aftermath for a complaint about motion.
