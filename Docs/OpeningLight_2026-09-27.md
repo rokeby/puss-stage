@@ -130,3 +130,20 @@ opening beam starts. Sketch only.
 - The P01 borders' true bottom edge (pivot is at 800 cm; the mesh may hang lower).
 - That the curtain actor's track spans y ≈ −890…+890 at x = 5400, and which way
   "forward" is for its fall (assumed −x, toward the audience).
+
+## State, 28 September 2026
+
+**Authored** on Gary's "Yes" in the Rig & atmosphere session, re-solved for the
+measured opening camera (x 0, z 150, facing +X, held for the whole Opening):
+the lamp at (−300, −125, 650), 4° cone, 19,600 cd, 2800 K, steady, on P01
+Wing 001 as a Station offset; 78 floats on 39 pairs past the curtain, 5 dark.
+
+- Backup `Backups/PreOpeningLight-20260928-0826` (Show + umap, md5-matched, with
+  the plan and revert record). Undo: `Saved/CodexStructure/p01_opening_revert.py`.
+- `P01_OPENING_APPLY_OK`: 79 added, existing P01 lights verified field-for-field,
+  Structure 01 re-fitted (506 housings), only the Show and level saved, 0/0.
+- `P01_OPENING_VERIFY_OK` (independent): live lamp at the designed position and
+  aim to 0.0 cm / 0.000°, settings as designed, 73 live floats, Structure 01
+  current, 0/0.
+- **Tier: saved read-back. Not yet seen in a frame.** Intensity is a starting
+  point to be tuned by capture (expect two or three passes: the velvet is dark).
