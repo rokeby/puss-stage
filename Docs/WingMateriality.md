@@ -5,6 +5,30 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Kit floor: walnut planks rejected; options for Gary (29 Sep, nothing applied)
+
+Gary on `MI_Kit_WalnutPlank` on the real boards: the planks "don't work", and
+"we only needed the metal grooves". He likes the walnut on the continuous slab,
+so it's the plank articulation he's rejecting. Offline mockups
+(`Tools/WingMateriality/floor_mockups.py`, output in
+`DerivedAssets/WingMateriality/FloorMockups/`; not Unreal, herringbone
+synthesised) compare four options next to the steel grooves:
+
+- **A: continuous walnut herringbone like the slab, no board seams.**
+  Recommended. The diagonals never line up with the grooves, so the steel reads
+  as tracks let into one floor.
+- A': the same with the kit's 0.8 cm gaps. The gaps redraw the slats parallel to
+  the grooves and bury them.
+- B: subtle planks. The seams still run parallel to the grooves. Not recommended.
+- **C: plain dark waxed lacquer.** The grooves are the only lines, with the
+  strongest reflections, but no walnut.
+
+**A and C both need Rig to close the board gaps** (`GapCm` and end gaps → 0) so
+only the grooves break the floor. A then needs a world-aligned mode on
+`M_Kit_Surface_Master`, using the slab's `T_Walnut_Hrrngbn_02` at the slab's texel
+density (a read-only look at the slab MI and its size first). It lands with
+`MI_Kit_SteelGroove` after Rig's build.
+
 ## P04 rolled out; kit master built (29 Sep)
 
 - **P04 DONE:** 26 meshes, 78 MIs, 39 panels, no collateral; read-back 78/78, 0
