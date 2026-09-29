@@ -21,11 +21,12 @@ import unreal
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 SCENE_PREFIX = "Scene 4"
-KEYS = [(0.0, 0.0), (2.3, 0.0), (4.3, 8.0), (8.8, 8.0), (11.0, 30.0), (18.8, 30.0), (23.9, 0.0)]
-BEATS = [(1.0, "arrival"), (3.3, "beams"), (6.0, "walls"), (9.9, "chase"), (10.5, "plate_escapes"),
-         (15.5, "swing"), (21.35, "lattice_down"), (23.5, "settle")]
+# Opening moved off the arrival onto the rising walls (edit_scene4_score_opening.py).
+KEYS = [(0.0, 0.0), (4.3, 0.0), (6.3, 8.0), (8.8, 8.0), (11.0, 30.0), (18.8, 30.0), (23.9, 0.0)]
+BEATS = [(1.0, "dark"), (2.5, "horizon_glow"), (3.3, "lamp_rises"), (5.3, "walls_rise"), (7.5, "walls_up"),
+         (9.9, "chase"), (10.5, "plate_escapes"), (15.5, "swing"), (21.35, "lattice_down"), (23.5, "settle")]
 TOLERANCE_DEG = 0.5
-STATE_VERSION = 1
+STATE_VERSION = 2
 
 
 def expected_pitch(t):
