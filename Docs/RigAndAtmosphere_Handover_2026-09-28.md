@@ -337,3 +337,15 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
 - **Preview-restore lesson (also in memory):** snapshot originals as floats; a
   UE struct wrapper tracked the live rotation and left Floor 3 flat. The
   verified save caught it.
+- **Look & camera's score is hosted inside the fold** (`LS_S4_CameraScore`, a
+  subsequence of `LS_S4_HangarFold`), so the fold's Time Scale retimes both.
+  - Their keys follow the side walls (4–8.5 s), the far wall (8–12 s), the roof
+    swing (12.5–18.5 s), the lattice (18.5–22.5 s) and Scene 4's exit cut (24 s).
+  - Before ANY fold rework, ask them to unhost it (`revert_scene4_score.py`), then
+    send them the new timings. `scene4_fold_revert.py` refuses while it's hosted.
+  - The floor slabs 1–3 and the ghost light sit in their level window (0–4.3 s).
+- **Approach measured** (`scene4_approach_capture.py`, rendered with and without
+  the hangar): the hangar is 0.25–1% of the frame from 43–85 m out and nothing
+  of it is lit. Floor slab 1 (never moves) reads as floor past the tunnel end.
+  Gary's objection is the inward wall swing ("boxing-in" vs pop-up); the design
+  is his to choose.
