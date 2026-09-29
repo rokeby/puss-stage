@@ -61,6 +61,31 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 28–29 Sep: the landing bounce (fixed) and the final bake
+
+Gary on the true-speed take: "it does read as heavy... the bounce is off". Measured before theorising:
+per-frame silhouette, then per-frame centre of mass (`Scripts/drop_bake_bounce.py`). The hem touches at
++0.2 s with no effect. The pile collapses at ~+1.7 s and THEN swells: COM +0.106 m, top +0.72 m. It happens at
+9.1 cm only; the 27 cm scout rose 1.6 cm.
+- **Cause: solver under-stepping.** QUALITY 10 → 20 with COLLISION_QUALITY 4 → 8 removes it (COM rise +0.001 m).
+  COM crossings match the old fall to the frame down to 2 m, and the final pile is unchanged. Finer edges need
+  more steps. Cost: ~2x solve.
+- **Refuted:** self-collision/edge ratio (the swell is the same at 3 and 1.5 cm); impulse clamps (1.0 never engages,
+  0.1 barely moves it).
+- **Trades, not fixes:** bending damping 5 or 2 from release kills the swell but slows the whole fall into a sink.
+- **Dead end, do not retry:** keying bending damping up at the collapse. The descent stayed bit-identical, then the
+  cloth BLEW UP (top 6.2 m).
+- The self-collision ratio check is a WARNING only. The approved take uses 3 cm on 9.1 cm edges.
+
+**Final bake** `final1_q15_quality20`: the approved settings with only the solver fixed, and a real-time clip plus
+Alembic (frames 120–330, simulated mesh only, 110 MB; take 1 was 5.5 GB because the export evaluated the
+render-only subdivision + solidify). There is no bounce. After the heap forms (+1.6 s) it SLUMPS outward for ~4 s
+to ~0.5 m high. Staging (full extents over every frame, UE cm, UE X = 100 × Blender y upstage, UE Y = 100 ×
+Blender x): downstage −379 (lip at −150), upstage +435 (Wing 001 at 250), portal |Y| 1354 settled and ±1188
+mid-fall (limit ±920), header 1000 (passes). All were still growing at +6 s. The drop has NO upstage bias:
+Gary accepted a forward fall; the Chaos asset's upstage air was not carried over. An upstage throw
+(THROW_M) moves the pile upstage, but the hem kicks downstage as the top goes over.
+
 ## 27 Sep: why the free fall was a "viennetta", and the guided fall
 
 Gary rejected the first fall: "It should be a big crumpled heavy fabric sprawled on the floor, not a very
