@@ -70,6 +70,14 @@ explicit approval. A clean verified build has zero hits.
 "D:\Unreal Engine\UE_5.8\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" "E:\PussStage\PussStage.uproject" -Unattended -NoP4 -NullRHI -NoSplash -ExecCmds="Automation RunTests InfinityStage; Quit" -TestExit="Automation Test Queue Empty" -AbsLog="E:\PussStage\Saved\Logs\<RunName>.log" -stdout -FullStdOutLogOutput
 ```
 
+> **DO NOT BROADEN THIS FILTER TO `PussStage`.** `Automation RunTests InfinityStage`
+> is deliberately narrow. A `PussStage` filter also matches
+> `PussStageBootstrap.RebuildCurrentMaster`, which is an automation test that
+> **rebuilds AND SAVES both the Show asset and the Master Level Sequence**
+> (`InfinityStageEditorAutomationTests.cpp:718-748`). Running it silently
+> rewrites two authoring authorities. Confirmed absent from
+> `SuiteAfterBuild-1358.log` under the narrow filter.
+
 Require `**** TEST COMPLETE. EXIT CODE: 0 ****` and zero `Result={Fail}` lines.
 Exit code 3 means at least one automation failure.
 
