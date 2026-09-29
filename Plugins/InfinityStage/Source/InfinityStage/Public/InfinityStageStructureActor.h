@@ -312,7 +312,10 @@ struct INFINITYSTAGE_API FInfinityStagePortalSettings
     double TroughDepthCm = 35.0;
 
     /** Carry the gridiron's rails forward from the first station to the portal,
-     * with a cross beam over it: the tunnel, implied above the curtain. */
+     * with a cross beam over it: the tunnel, implied above the curtain. The rails
+     * are |OffsetFromFirstStationCm| long (2.5 m at a passage mouth). Turn this
+     * off for a portal placed far from its passage's first station (a hangar
+     * mouth in a Scene), or the rails bridge the whole distance. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
     bool bExtendGridiron = true;
 

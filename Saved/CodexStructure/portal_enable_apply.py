@@ -124,6 +124,13 @@ if stale:
     fail(f"not current, run structure_refit_all.py first: {stale}")
 if target.get_editor_property("portal").get_editor_property("enabled"):
     fail(f"{target.get_actor_label()} already has its portal on")
+# The carried-forward rails run from the portal line to the first station, so they
+# are |OffsetFromFirstStationCm| long: 2.5 m at a passage mouth, but huge for a
+# portal placed far away (e.g. a hangar mouth). Refuse that combination.
+_portal = target.get_editor_property("portal")
+if _portal.get_editor_property("extend_gridiron") and abs(_portal.get_editor_property("offset_from_first_station_cm")) > 2000.0:
+    fail("bExtendGridiron with the portal more than 20 m from the first station would carry rails that far; turn it off")
+del _portal
 if before[target.get_actor_label()]["portal_piece_count"] != 0:
     fail(f"{target.get_actor_label()} has portal pieces with the portal off")
 breakdown = predicted_pieces(target)
