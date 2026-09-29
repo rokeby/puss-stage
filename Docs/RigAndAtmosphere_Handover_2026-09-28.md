@@ -263,3 +263,40 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   - Captures: in near-dark the motion reads only as silhouettes. The lights-up
     reads; the roof and lattice move out of frame. Whether to light the flats
     while they move is Gary's call. Motion blur isn't judged yet.
+
+## 29 September, late evening: after the build
+
+- **Build:** patch A (`e88a12d`), 0af1130 + 62d8f2a, 1ef583b, Look & camera's
+  ae92198 + 01d3152.
+  - The celestial test caught a redundant pre-BeginPlay walk, fixed in
+    `37e711e`. That fix is NOT the stutter fix.
+  - Suite `InfinityStage`: 84/1/85; the only red is `SavedFixturePIE`.
+  - Next queue: Look & camera's 7e2c544 (+1 test) and Soft goods' held patch C.
+- **Grooves on** (Gary: "Save it"). `Ground.GrooveMaterial` = MI_Kit_SteelGroove
+  on all six structures, 3 plates per slot.
+  - The re-fit also moved board counts: S01 +1, S02 −1, S04 +4, S05 −1, S06 −6.
+    It's deterministic, and the cause is UNEXPLAINED: no board-laying code
+    changed and the Show was untouched. Suspect station extents following
+    evaluated wing positions at the current transport time. Investigate.
+  - Backup `PreGrooveMaterial-20260929-2044`; revert `groove_material_revert.py`.
+- **The grooves don't read** from eye height or 4.5 m (8 cm wide, recessed
+  2.2–5 cm).
+  - The close-up is blocked: the wing's upright stands in the slot. Next time,
+    shoot straight down.
+  - Levers for Gary: `SlotWidthCm` (8), `SlotInboardCm` (150; safe up to about
+    380–630 per passage). `CatClearanceCm` 120 always keeps a 2.4 m lane.
+- **Fold lit** (Gary): practicals strike 2–4 s, before the walls rise.
+  - From outside, the lit wall and its rank of lamps visibly lift. From Scene 4's
+    camera, the hall brightens as the walls rise.
+  - Beams don't read as sweeping shafts: 400 cd, shadowless, wide cones.
+  - Motion blur is unjudged; it needs playback.
+  - Backup `PreFoldRelight-20260929-2103`; revert `scene4_fold_relight_revert.py`.
+- **Lighting audit:** `Docs/LightingEfficiencyPlan_2026-09-29.md`.
+  - Light Drama is authored on 20 of about 2500 lamps.
+  - Stop proposing `MaxLightsPerPixel`.
+  - Read `sg.ShadowQuality` with the fixed `vsm_cvars_readonly.py`, which now
+    records whether each cvar exists.
+  - `MaxDrawDistanceCm` does reach the lamps (`PassageActor.cpp:383`), so
+    "distance culling not biting" is about the values, not plumbing.
+- **Look & camera's request:** a `FloorHeightCm` getter on the structure actor,
+  for the next source slot.

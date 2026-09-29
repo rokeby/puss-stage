@@ -21,6 +21,12 @@ COLLIDERS = os.path.normpath(os.path.join(unreal.Paths.convert_relative_path_to_
 OUT = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
                    "CodexStructure", "verify_stage_front.json")
 TOL = 1.0
+# The stage front laps its corners: a return or fascia board runs one board
+# thickness (5 cm) past the neighbouring face to close the corner. A board that
+# overruns a box by up to that much still belongs to it; the union is clipped to
+# the box before the edges are compared. (29 Sep: counting only boards WHOLLY
+# inside flagged both complete end returns as 223 and 98 cm short.)
+CORNER = 5.0 + TOL
 NOT_PORTAL = ("Stage floor: ground beyond the mouth",)   # the ground layer's own floor
 
 ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
@@ -63,13 +69,14 @@ for b in spec["boxes"]:
         continue
     lo, hi = b["min_cm"], b["max_cm"]
     inside = [(l, h) for l, h in portal
-              if all(l[i] >= lo[i] - TOL and h[i] <= hi[i] + TOL for i in range(3))]
+              if all(l[i] >= lo[i] - CORNER and h[i] <= hi[i] + CORNER for i in range(3))
+              and all(l[i] < hi[i] - TOL and h[i] > lo[i] + TOL for i in range(3))]
     if not inside:
         problems.append(f"{b['name']}: nothing built inside it")
         report["boxes"][b["name"]] = None
         continue
-    ulo = [min(l[i] for l, _ in inside) for i in range(3)]
-    uhi = [max(h[i] for _, h in inside) for i in range(3)]
+    ulo = [max(lo[i], min(l[i] for l, _ in inside)) for i in range(3)]
+    uhi = [min(hi[i], max(h[i] for _, h in inside)) for i in range(3)]
     err = max(max(abs(ulo[i] - lo[i]), abs(uhi[i] - hi[i])) for i in range(3))
     report["boxes"][b["name"]] = {"pieces": len(inside), "worst_edge_cm": round(err, 2)}
     if err > TOL:

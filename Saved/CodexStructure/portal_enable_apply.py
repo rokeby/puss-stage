@@ -16,6 +16,8 @@ Run it only AFTER the stage-front build: it refuses on binaries without it. The
 stage front's edges are proven afterwards against
 Docs/StageFrontColliders_2026-09-28.json by verify_stage_front_readonly.py. Refuses on any dirty state or stray ZZ_ actor. A read-only rehearsal: set
 PORTAL_ENABLE_DRY_RUN via runpy (portal_enable_dryrun.py).
+Lean since the 29 Sep python311 crash: all work inside main(), no UE objects at
+module level; the dry run returns instead of raising.
 """
 import datetime
 import json
@@ -86,124 +88,128 @@ def predicted_pieces(actor):
             "StructureStageFront": "present" if stage_front else 0}
 
 
-ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
-world = ed.get_editor_world()
-if not world or world.get_path_name().split(".", 1)[0] != EXPECTED_WORLD:
-    fail("wrong project or world")
-if ed.get_game_world() is not None:
-    fail("PIE active")
-if not hasattr(unreal, "InfinityStagePortalSettings"):
-    fail("the loaded plugin predates the 28 Sep build (no portal settings) - stale binaries")
-try:
-    unreal.InfinityStagePortalSettings().get_editor_property("stage_front")
-except Exception:
-    fail("the loaded plugin predates the stage-front build - stale binaries; 3a waits for it")
-content0, maps0 = dirty()
-if content0 or maps0:
-    fail(f"editor already dirty: {content0} {maps0}")
-sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-actors = sub.get_all_level_actors()
-if any(a.get_actor_label().startswith("ZZ_") for a in actors):
-    fail("stray ZZ_ actors in the level")
+def main():
+    ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    world = ed.get_editor_world()
+    if not world or world.get_path_name().split(".", 1)[0] != EXPECTED_WORLD:
+        fail("wrong project or world")
+    if ed.get_game_world() is not None:
+        fail("PIE active")
+    if not hasattr(unreal, "InfinityStagePortalSettings"):
+        fail("the loaded plugin predates the 28 Sep build (no portal settings) - stale binaries")
+    try:
+        unreal.InfinityStagePortalSettings().get_editor_property("stage_front")
+    except Exception:
+        fail("the loaded plugin predates the stage-front build - stale binaries; 3a waits for it")
+    content0, maps0 = dirty()
+    if content0 or maps0:
+        fail(f"editor already dirty: {content0} {maps0}")
+    sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    actors = sub.get_all_level_actors()
+    if any(a.get_actor_label().startswith("ZZ_") for a in actors):
+        fail("stray ZZ_ actors in the level")
 
-structures = sorted((a for a in actors if isinstance(a, unreal.InfinityStageStructureActor)),
-                    key=lambda a: a.get_actor_label())
-if len(structures) != 6:
-    fail(f"expected 6 structure actors, found {len(structures)}")
-passage = next((a for a in actors if isinstance(a, unreal.InfinityStagePassageActor)
-                and a.get_actor_label().startswith("Passage 01")), None)
-if passage is None:
-    fail("no Passage 01")
-targets = [a for a in structures if a.get_editor_property("passage") == passage]
-if len(targets) != 1:
-    fail(f"expected one structure on Passage 01, found {len(targets)}")
-target = targets[0]
-before = {a.get_actor_label(): state(a) for a in structures}
-stale = [label for label, rec in before.items() if not rec["current"]]
-if stale:
-    fail(f"not current, run structure_refit_all.py first: {stale}")
-if target.get_editor_property("portal").get_editor_property("enabled"):
-    fail(f"{target.get_actor_label()} already has its portal on")
-# The carried-forward rails run from the portal line to the first station, so they
-# are |OffsetFromFirstStationCm| long: 2.5 m at a passage mouth, but huge for a
-# portal placed far away (e.g. a hangar mouth). Refuse that combination.
-_portal = target.get_editor_property("portal")
-if _portal.get_editor_property("extend_gridiron") and abs(_portal.get_editor_property("offset_from_first_station_cm")) > 2000.0:
-    fail("bExtendGridiron with the portal more than 20 m from the first station would carry rails that far; turn it off")
-del _portal
-if before[target.get_actor_label()]["portal_piece_count"] != 0:
-    fail(f"{target.get_actor_label()} has portal pieces with the portal off")
-breakdown = predicted_pieces(target)
+    structures = sorted((a for a in actors if isinstance(a, unreal.InfinityStageStructureActor)),
+                        key=lambda a: a.get_actor_label())
+    if len(structures) != 6:
+        fail(f"expected 6 structure actors, found {len(structures)}")
+    passage = next((a for a in actors if isinstance(a, unreal.InfinityStagePassageActor)
+                    and a.get_actor_label().startswith("Passage 01")), None)
+    if passage is None:
+        fail("no Passage 01")
+    targets = [a for a in structures if a.get_editor_property("passage") == passage]
+    if len(targets) != 1:
+        fail(f"expected one structure on Passage 01, found {len(targets)}")
+    target = targets[0]
+    before = {a.get_actor_label(): state(a) for a in structures}
+    stale = [label for label, rec in before.items() if not rec["current"]]
+    if stale:
+        fail(f"not current, run structure_refit_all.py first: {stale}")
+    if target.get_editor_property("portal").get_editor_property("enabled"):
+        fail(f"{target.get_actor_label()} already has its portal on")
+    # The carried-forward rails run from the portal line to the first station, so they
+    # are |OffsetFromFirstStationCm| long: 2.5 m at a passage mouth, but huge for a
+    # portal placed far away (e.g. a hangar mouth). Refuse that combination.
+    _portal = target.get_editor_property("portal")
+    if _portal.get_editor_property("extend_gridiron") and abs(_portal.get_editor_property("offset_from_first_station_cm")) > 2000.0:
+        fail("bExtendGridiron with the portal more than 20 m from the first station would carry rails that far; turn it off")
+    if before[target.get_actor_label()]["portal_piece_count"] != 0:
+        fail(f"{target.get_actor_label()} has portal pieces with the portal off")
+    breakdown = predicted_pieces(target)
 
-# ---- Revert record: on disk, flushed and re-read before anything changes ----
-record = {"written": datetime.datetime.now().isoformat(timespec="seconds"),
-          "structure": target.get_actor_label(), "portal_enabled_before": False, "before": before,
-          "forestage_depth_before": target.get_editor_property("portal").get_editor_property("forestage_depth_cm")}
-with open(RECORD, "w", encoding="utf-8") as fh:
-    json.dump(record, fh, indent=1)
-    fh.flush()
-    os.fsync(fh.fileno())
-if json.load(open(RECORD, encoding="utf-8"))["before"] != before:
-    fail("revert record did not read back complete")
-unreal.log(f"PORTAL_ENABLE_REVERT_RECORD_OK|structure={target.get_actor_label()}|predicted={breakdown}")
+    # ---- Revert record: on disk, flushed and re-read before anything changes ----
+    record = {"written": datetime.datetime.now().isoformat(timespec="seconds"),
+              "structure": target.get_actor_label(), "portal_enabled_before": False, "before": before,
+              "forestage_depth_before": target.get_editor_property("portal").get_editor_property("forestage_depth_cm")}
+    with open(RECORD, "w", encoding="utf-8") as fh:
+        json.dump(record, fh, indent=1)
+        fh.flush()
+        os.fsync(fh.fileno())
+    if json.load(open(RECORD, encoding="utf-8"))["before"] != before:
+        fail("revert record did not read back complete")
+    unreal.log(f"PORTAL_ENABLE_REVERT_RECORD_OK|structure={target.get_actor_label()}|predicted={breakdown}")
 
-if globals().get("PORTAL_ENABLE_DRY_RUN"):
-    json.dump({"before": before, "structure": target.get_actor_label(), "predicted": breakdown},
-              open(OUT, "w"), indent=1)
-    unreal.log(f"PORTAL_ENABLE_DRY_RUN_OK|structure={target.get_actor_label()}|current_before="
-               f"{sum(v['current'] for v in before.values())}/6|mutated=0")
-    raise RuntimeError("PORTAL_ENABLE_DRY_RUN_COMPLETE")
+    if globals().get("PORTAL_ENABLE_DRY_RUN"):
+        json.dump({"before": before, "structure": target.get_actor_label(), "predicted": breakdown},
+                  open(OUT, "w"), indent=1)
+        unreal.log(f"PORTAL_ENABLE_DRY_RUN_OK|structure={target.get_actor_label()}|current_before="
+                   f"{sum(v['current'] for v in before.values())}/6|mutated=0")
+        return "dry"
 
-# ---- Mutate -----------------------------------------------------------------
-target.modify()
-portal = target.get_editor_property("portal")
-portal.set_editor_property("enabled", True)
-if FORESTAGE_DEPTH_CM is not None:
-    portal.set_editor_property("forestage_depth_cm", float(FORESTAGE_DEPTH_CM))
-target.set_editor_property("portal", portal)
-if not target.get_editor_property("portal").get_editor_property("enabled"):
-    fail("Portal.bEnabled did not take")
-if not target.materialize_structure():
-    fail(f"{target.get_actor_label()} did not re-fit")
+    # ---- Mutate -----------------------------------------------------------------
+    target.modify()
+    portal = target.get_editor_property("portal")
+    portal.set_editor_property("enabled", True)
+    if FORESTAGE_DEPTH_CM is not None:
+        portal.set_editor_property("forestage_depth_cm", float(FORESTAGE_DEPTH_CM))
+    target.set_editor_property("portal", portal)
+    if not target.get_editor_property("portal").get_editor_property("enabled"):
+        fail("Portal.bEnabled did not take")
+    if not target.materialize_structure():
+        fail(f"{target.get_actor_label()} did not re-fit")
 
-# ---- Verify before any save ---------------------------------------------------
-after = {a.get_actor_label(): state(a) for a in structures}
-problems = []
-for label, rec in after.items():
-    if not rec["current"]:
-        problems.append(f"{label} not current after the change")
-    for c in COUNTS:
-        if label == target.get_actor_label() and c == "portal_piece_count":
-            continue
-        if rec[c] != before[label][c]:
-            problems.append(f"{label} {c}: {before[label][c]} -> {rec[c]}")
-pieces = after[target.get_actor_label()]["portal_piece_count"]
-portal_components = [c for c in target.get_editor_property("managed_components")
-                     if c and "InfinityStage.Structure.Portal" in [str(t) for t in c.get_editor_property("component_tags")]]
-instances = sum(c.get_instance_count() for c in portal_components)
-if instances != pieces:
-    problems.append(f"portal components hold {instances} instances, count says {pieces}")
-built = {}
-for c in portal_components:
-    stem = next((k for k in sorted(breakdown, key=len, reverse=True) if c.get_name().startswith(k)), c.get_name())
-    built[stem] = built.get(stem, 0) + c.get_instance_count()
-for stem, want in breakdown.items():
-    got = built.get(stem, 0)
-    if (want == "present" and got <= 0) or (want != "present" and got != want):
-        problems.append(f"{stem}: built {got}, predicted {want}")
-unexpected = set(built) - set(breakdown)
-if unexpected:
-    problems.append(f"unpredicted portal components: {sorted(unexpected)}")
-json.dump({"before": before, "after": after, "predicted": breakdown, "built": built, "portal_instances": instances,
-           "problems": problems}, open(OUT, "w"), indent=1)
-if problems:
-    fail(f"unexpected changes, NOT saved: {problems}")
-content1, maps1 = dirty()
-if content1 or maps1 != [EXPECTED_WORLD]:
-    fail(f"unexpected dirty set before save: {content1} {maps1}")
-if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level():
-    fail("level save failed")
-content2, maps2 = dirty()
-unreal.log(f"PORTAL_ENABLE_OK|structure={target.get_actor_label()}|portal_pieces={pieces}|breakdown={breakdown}"
-           f"|forestage_cm={target.get_editor_property('portal').get_editor_property('forestage_depth_cm'):.0f}"
-           f"|current={sum(v['current'] for v in after.values())}/6|level_saved=1|dirty_after={len(content2)}+{len(maps2)}")
+    # ---- Verify before any save ---------------------------------------------------
+    after = {a.get_actor_label(): state(a) for a in structures}
+    problems = []
+    for label, rec in after.items():
+        if not rec["current"]:
+            problems.append(f"{label} not current after the change")
+        for c in COUNTS:
+            if label == target.get_actor_label() and c == "portal_piece_count":
+                continue
+            if rec[c] != before[label][c]:
+                problems.append(f"{label} {c}: {before[label][c]} -> {rec[c]}")
+    pieces = after[target.get_actor_label()]["portal_piece_count"]
+    portal_components = [c for c in target.get_editor_property("managed_components")
+                         if c and "InfinityStage.Structure.Portal" in [str(t) for t in c.get_editor_property("component_tags")]]
+    instances = sum(c.get_instance_count() for c in portal_components)
+    if instances != pieces:
+        problems.append(f"portal components hold {instances} instances, count says {pieces}")
+    built = {}
+    for c in portal_components:
+        stem = next((k for k in sorted(breakdown, key=len, reverse=True) if c.get_name().startswith(k)), c.get_name())
+        built[stem] = built.get(stem, 0) + c.get_instance_count()
+    for stem, want in breakdown.items():
+        got = built.get(stem, 0)
+        if (want == "present" and got <= 0) or (want != "present" and got != want):
+            problems.append(f"{stem}: built {got}, predicted {want}")
+    unexpected = set(built) - set(breakdown)
+    if unexpected:
+        problems.append(f"unpredicted portal components: {sorted(unexpected)}")
+    json.dump({"before": before, "after": after, "predicted": breakdown, "built": built, "portal_instances": instances,
+               "problems": problems}, open(OUT, "w"), indent=1)
+    if problems:
+        fail(f"unexpected changes, NOT saved: {problems}")
+    content1, maps1 = dirty()
+    if content1 or maps1 != [EXPECTED_WORLD]:
+        fail(f"unexpected dirty set before save: {content1} {maps1}")
+    if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level():
+        fail("level save failed")
+    content2, maps2 = dirty()
+    unreal.log(f"PORTAL_ENABLE_OK|structure={target.get_actor_label()}|portal_pieces={pieces}|breakdown={breakdown}"
+               f"|forestage_cm={target.get_editor_property('portal').get_editor_property('forestage_depth_cm'):.0f}"
+               f"|current={sum(v['current'] for v in after.values())}/6|level_saved=1|dirty_after={len(content2)}+{len(maps2)}")
+    return "applied"
+
+
+result = main()

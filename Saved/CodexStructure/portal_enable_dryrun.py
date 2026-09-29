@@ -6,9 +6,5 @@ import runpy
 import unreal
 
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
-try:
-    runpy.run_path(os.path.join(HERE, "portal_enable_apply.py"), init_globals={"PORTAL_ENABLE_DRY_RUN": True})
-except RuntimeError as exc:
-    if "PORTAL_ENABLE_DRY_RUN_COMPLETE" not in str(exc):
-        raise
+runpy.run_path(os.path.join(HERE, "portal_enable_apply.py"), init_globals={"PORTAL_ENABLE_DRY_RUN": True})
 unreal.log("PORTAL_ENABLE_DRY_RUN_FINISHED")
