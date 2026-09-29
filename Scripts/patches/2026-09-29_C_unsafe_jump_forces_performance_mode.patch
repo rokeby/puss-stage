@@ -1,0 +1,15 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+index d7343ea..813e88d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+@@ -986,6 +986,10 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+             TestTrue(TEXT("Scene Entry Camera owns the PIE viewport at the boundary"),
+                 SceneViewTarget && SceneViewTarget->ActorHasTag(TEXT("InfinityStage.SceneEntry")));
+         }
++        // The unsafe-jump guard only refuses in performance mode, and the saved level may be in rehearsal mode (it is
++        // for Gary's walk). Force performance mode for this step instead of depending on how the level was saved:
++        // on 29 Sep a rehearsal-mode level let this jump succeed, and the steps below then started one segment late.
++        ShowRoot->Transport->bPerformanceMode = true;
+         const EInfinityTransportResult UnsafeJump = ShowRoot->Transport->JumpToNextSegment();
+         AddInfo(FString::Printf(TEXT("UnsafeJump=%d Current=%d Selected=%d"),
+             static_cast<int32>(UnsafeJump),
