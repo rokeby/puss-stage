@@ -328,3 +328,12 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
 - **Map-dirty after benches:** `level_verified_save.py` saves only if the hangar
   is exactly at rest (and the uplights at 0 cd) and the handoff cameras are
   untouched. The conductor approved it for clearing no-net-change flags.
+- **Floor rise (Gary; no rim):** floor slabs 2 and 3 rest HANGING (−90°) and rise
+  (1–4 s and 3–6 s); the ghost light rides slab 2. In capture, a glow breaks on
+  the horizon at about 2.5 s, then the lamp arrives standing.
+  - Built by `scene4_floor_rise_apply.py`; revert `scene4_floor_rise_revert.py`;
+    backup `PreFloorRise-*`.
+  - The fold record's rest pose was updated; `level_verified_save.py` reads it.
+- **Preview-restore lesson (also in memory):** snapshot originals as floats; a
+  UE struct wrapper tracked the live rotation and left Floor 3 flat. The
+  verified save caught it.
