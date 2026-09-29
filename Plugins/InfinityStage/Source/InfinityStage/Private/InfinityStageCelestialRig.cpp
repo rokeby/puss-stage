@@ -11,7 +11,9 @@
 #include "Engine/ExponentialHeightFog.h"
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/World.h"
 #include "EngineUtils.h"
+#include "HAL/PlatformTime.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
 #include "Materials/MaterialInterface.h"
@@ -89,10 +91,21 @@ void AInfinityStageCelestialRig::BeginPlay()
 {
     Super::BeginPlay();
     ResolveEnvironmentBindings();
-    if (bSuppressForeignEnvironmentLighting && !LevelAddedHandle.IsValid())
+    if (bSuppressForeignEnvironmentLighting)
     {
-        LevelAddedHandle = FWorldDelegates::LevelAddedToWorld.AddUObject(
-            this, &AInfinityStageCelestialRig::HandleLevelAddedToWorld);
+        if (!LevelAddedHandle.IsValid())
+        {
+            LevelAddedHandle = FWorldDelegates::LevelAddedToWorld.AddUObject(
+                this, &AInfinityStageCelestialRig::HandleLevelAddedToWorld);
+        }
+        UWorld* World = GetWorld();
+        if (World && !ActorSpawnedHandle.IsValid())
+        {
+            ActorSpawnedHandle = World->AddOnActorSpawnedHandler(
+                FOnActorSpawned::FDelegate::CreateUObject(this, &AInfinityStageCelestialRig::HandleActorSpawned));
+        }
+        // Everything already in the world, once; arrivals are handled as they come.
+        SuppressForeignEnvironmentLighting();
     }
     if (IsManualEditorLightingActive())
     {
@@ -109,6 +122,14 @@ void AInfinityStageCelestialRig::EndPlay(const EEndPlayReason::Type EndPlayReaso
     {
         FWorldDelegates::LevelAddedToWorld.Remove(LevelAddedHandle);
         LevelAddedHandle.Reset();
+    }
+    if (ActorSpawnedHandle.IsValid())
+    {
+        if (UWorld* World = GetWorld())
+        {
+            World->RemoveOnActorSpawnedHandler(ActorSpawnedHandle);
+        }
+        ActorSpawnedHandle.Reset();
     }
     Super::EndPlay(EndPlayReason);
 }
@@ -209,6 +230,53 @@ void AInfinityStageCelestialRig::SetUseManualEditorLighting(const bool bEnabled)
     }
 }
 
+bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
+{
+    if (!Actor)
+    {
+        return false;
+    }
+    const AActor* const Own[] = {
+        this, SunLightActor.Get(), MoonLightActor.Get(), SkyLightActor.Get(), HeightFogActor.Get()};
+    for (const AActor* Mine : Own)
+    {
+        if (Actor == Mine)
+        {
+            return false;
+        }
+    }
+    bool bForeign = false;
+    TInlineComponentArray<UActorComponent*> Components(Actor);
+    for (UActorComponent* Component : Components)
+    {
+        const bool bExteriorLight = Component->IsA<UDirectionalLightComponent>() || Component->IsA<USkyLightComponent>()
+            || Component->IsA<USkyAtmosphereComponent>() || Component->IsA<UExponentialHeightFogComponent>()
+            || Component->IsA<UVolumetricCloudComponent>()
+            || (Component->IsA<UStaticMeshComponent>() && Actor->GetActorNameOrLabel().Contains(TEXT("SkySphere")));
+        if (bExteriorLight)
+        {
+            // Lights keep their authored values; a hidden light simply stops
+            // contributing. Re-hiding an already hidden component is a no-op.
+            Cast<USceneComponent>(Component)->SetVisibility(false, true);
+            bForeign = true;
+        }
+    }
+    if (!bForeign)
+    {
+        return false;
+    }
+    Actor->SetActorHiddenInGame(true);
+    bool bAlreadySuppressed = false;
+    SuppressedForeignActors.Add(Actor, &bAlreadySuppressed);
+    if (!bAlreadySuppressed)
+    {
+        ++ForeignLightingSuppressedCount;
+        UE_LOG(LogTemp, Display, TEXT("CELESTIAL_FOREIGN_LIGHTING_SUPPRESSED|world=%s|actor=%s|total=%d"),
+            *GetNameSafe(GetWorld()), *Actor->GetActorNameOrLabel(), ForeignLightingSuppressedCount);
+    }
+    return true;
+}
+
 int32 AInfinityStageCelestialRig::SuppressForeignEnvironmentLighting()
 {
     UWorld* World = GetWorld();
@@ -217,57 +285,23 @@ int32 AInfinityStageCelestialRig::SuppressForeignEnvironmentLighting()
         return 0;
     }
     ResolveEnvironmentBindings();
-    const TSet<const AActor*> Own = {
-        static_cast<const AActor*>(SunLightActor),
-        static_cast<const AActor*>(MoonLightActor),
-        static_cast<const AActor*>(SkyLightActor),
-        static_cast<const AActor*>(HeightFogActor),
-        static_cast<const AActor*>(this)};
-
-    int32 Touched = 0;
-    FString TouchedLabels;
+    ++ForeignLightingWalkCount;
+    LastForeignLightingWalkSeconds = FPlatformTime::Seconds();
+    int32 Foreign = 0;
     for (TActorIterator<AActor> It(World); It; ++It)
     {
-        AActor* Actor = *It;
-        if (!Actor || Own.Contains(Actor))
-        {
-            continue;
-        }
-        bool bForeign = false;
-        TInlineComponentArray<UActorComponent*> Components(Actor);
-        for (UActorComponent* Component : Components)
-        {
-            if (Component->IsA<UDirectionalLightComponent>() || Component->IsA<USkyLightComponent>())
-            {
-                // Lights keep their authored values; a hidden light simply stops contributing.
-                Cast<USceneComponent>(Component)->SetVisibility(false, true);
-                bForeign = true;
-            }
-            else if (Component->IsA<USkyAtmosphereComponent>() || Component->IsA<UExponentialHeightFogComponent>()
-                || Component->IsA<UVolumetricCloudComponent>())
-            {
-                Cast<USceneComponent>(Component)->SetVisibility(false, true);
-                bForeign = true;
-            }
-            else if (Component->IsA<UStaticMeshComponent>() && Actor->GetActorNameOrLabel().Contains(TEXT("SkySphere")))
-            {
-                Cast<USceneComponent>(Component)->SetVisibility(false, true);
-                bForeign = true;
-            }
-        }
-        if (bForeign)
-        {
-            Actor->SetActorHiddenInGame(true);
-            ++Touched;
-            TouchedLabels += (TouchedLabels.IsEmpty() ? TEXT("") : TEXT(",")) + Actor->GetActorNameOrLabel();
-        }
+        Foreign += SuppressIfForeign(*It) ? 1 : 0;
     }
-    if (Touched > 0)
+    return Foreign;
+}
+
+void AInfinityStageCelestialRig::HandleActorSpawned(AActor* Actor)
+{
+    // A spawned actor arrives with its components; check it alone, never the world.
+    if (bSuppressForeignEnvironmentLighting)
     {
-        UE_LOG(LogTemp, Display, TEXT("CELESTIAL_FOREIGN_LIGHTING_SUPPRESSED|world=%s|actors=%d|labels=%s"),
-            *World->GetName(), Touched, *TouchedLabels);
+        SuppressIfForeign(Actor);
     }
-    return Touched;
 }
 
 void AInfinityStageCelestialRig::HandleLevelAddedToWorld(ULevel* Level, UWorld* World)
@@ -282,9 +316,19 @@ void AInfinityStageCelestialRig::HandleLevelAddedToWorld(ULevel* Level, UWorld* 
 
 void AInfinityStageCelestialRig::ApplyCyclePhase(const double NormalizedPhase)
 {
+    // The Master applies a phase every frame, so the world walk is not done here
+    // every time: once if nothing has walked yet (the editor, before BeginPlay),
+    // then at most every ForeignLightingRecheckSeconds as a safety net for skies
+    // a sequence re-shows. Arrivals are handled by the spawn and level hooks.
     if (bSuppressForeignEnvironmentLighting)
     {
-        SuppressForeignEnvironmentLighting();
+        const bool bNeverWalked = LastForeignLightingWalkSeconds < 0.0;
+        const bool bRecheckDue = ForeignLightingRecheckSeconds > 0.0f
+            && FPlatformTime::Seconds() - LastForeignLightingWalkSeconds >= ForeignLightingRecheckSeconds;
+        if (bNeverWalked || bRecheckDue)
+        {
+            SuppressForeignEnvironmentLighting();
+        }
     }
     if (!FMath::IsFinite(NormalizedPhase))
     {

@@ -94,17 +94,37 @@ public:
      * The stage is an enclosed machine: no exterior light may reach it. Every
      * directional light, sky light, sky atmosphere, height fog, volumetric cloud
      * or sky-sphere mesh that is not one of this rig's own bound actors is
-     * silenced (no world contribution, hidden in game) whenever the rig applies
-     * lighting, including inside Level Instances brought in with scene content.
-     * Nothing is modified on disk; the suppression is re-applied every time.
+     * silenced (no world contribution, hidden in game), including inside Level
+     * Instances brought in with scene content. Nothing is modified on disk.
+     *
+     * Event-driven, not per frame: one walk of the world at BeginPlay (and on the
+     * first lighting apply in the editor), a check of each actor as it is
+     * spawned (Sequencer spawnables), a walk whenever a level is added (Level
+     * Instances, streamed scenes), and a throttled safety-net walk at most every
+     * ForeignLightingRecheckSeconds while the Master applies phases, which
+     * catches a sky a sequence re-shows. Each actor is logged once, when first
+     * silenced.
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting",
         meta = (DisplayName = "Suppress Foreign Environment Lighting"))
     bool bSuppressForeignEnvironmentLighting = true;
 
-    /** Silence exterior lighting actors that do not belong to this rig. Returns the number of actors touched. */
+    /** The safety-net interval for re-walking the world during phase applies; 0 turns the safety net off. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting",
+        meta = (ClampMin = "0.0", Units = "s", EditCondition = "bSuppressForeignEnvironmentLighting"))
+    float ForeignLightingRecheckSeconds = 2.0f;
+
+    /** Walk the whole world now and silence exterior lighting actors that do not belong to this rig. Returns the number of foreign actors found. */
     UFUNCTION(BlueprintCallable, CallInEditor, Category = "Infinity Stage|Celestial|Lighting")
     int32 SuppressForeignEnvironmentLighting();
+
+    /** How many full-world walks the suppression has made: for measurement and tests. */
+    UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")
+    int32 ForeignLightingWalkCount = 0;
+
+    /** How many distinct actors have been silenced, and so logged, once each. */
+    UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")
+    int32 ForeignLightingSuppressedCount = 0;
 
     /** Editor-only working time using an ordinary 24-hour clock. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Editor Preview",
@@ -199,7 +219,13 @@ protected:
 
 private:
     void HandleLevelAddedToWorld(ULevel* Level, UWorld* World);
+    void HandleActorSpawned(AActor* Actor);
+    /** Silence one actor if it carries exterior lighting and is not the rig's own. */
+    bool SuppressIfForeign(AActor* Actor);
     FDelegateHandle LevelAddedHandle;
+    FDelegateHandle ActorSpawnedHandle;
+    TSet<TWeakObjectPtr<AActor>> SuppressedForeignActors;
+    double LastForeignLightingWalkSeconds = -1.0;
 
 protected:
 #if WITH_EDITOR
