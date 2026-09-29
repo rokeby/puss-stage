@@ -193,3 +193,42 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   tests plus 1 master test; the grooves add assertions only.
 - **Hangar light event:** designed in `Docs/HangarLightEvent_2026-09-29.md`.
   Lumen gives sky occlusion for free. Pin exposure before any A/B/C test.
+
+## 29 September, evening
+
+- **Celestial: the running DLL walks the world every frame.** The DLL was built
+  29 Sep 01:39, from the initial-commit code. `ApplyCyclePhase` walks every
+  actor and logs `CELESTIAL_FOREIGN_LIGHTING_SUPPRESSED` on every phase apply.
+  That's a constant cost, not a rhythm, so it can't be Gary's periodic hitch.
+  `0af1130` makes it event-driven. `62d8f2a` removes the 2 s full-world
+  safety-net walk, which never reached a binary, and re-hides only the actors
+  already silenced. Build order: patch A, then `0af1130` + `62d8f2a`, then
+  `1ef583b`.
+- **Blink spots (Gary liked P01's).** P01 Wing 041 "Entry High -Y":
+  - 2000 cd, cone 9.8/11.7, 9280 K, shadowed;
+  - light function `MI_LF_Flicker_Buzz`;
+  - a **22 cm source radius**.
+
+  That radius is the "shadow focus" knob; UE's default is 0. A bar of width w at
+  distance d from the lens throws a shadow w·D/d wide, blurred by 44·(D−d)/d,
+  with peak darkness about w/44. So: near the lens is vast and soft; far out
+  with a wider bar is smaller, with a core.
+  - **Plan** (`blink_spots_plan_readonly.py` → `blink_spots_plan.json`): one per
+    passage, two in P05.
+    - Gobos are timber from the rig: the Forest pack's `SM_wood_beam_01/02`.
+      Props take their mesh's own material; the Show has no override.
+    - Distances run from 0.9 m (P05, vast and soft) through 1.25 m (P02, P01's
+      twin) to 5.5 m (P06, the only hard core).
+    - 9280 K at P05's second spot and P06, 4000 K elsewhere.
+  - **Dry run passed:** census 612 → 618 casters; `blink_spots_apply.py`,
+    `blink_spots_revert.py`. Apply approved by the conductor.
+  - **Pools:** every pool, P01's included, now lands on walnut boards, except
+    P03's (Wet Ground). Captures: `blink_capture.py`.
+- **Structure 01 portal: defaults are load-bearing.** Soft goods baked the
+  Opening drape against the portal's default colliders. The cloth wraps the
+  OUTSIDE of the posts (inner face ±950, x ±20) at frames 170–180, and the
+  heading is at 1020 under a header whose underside is at 1050.
+  - Don't move the posts; that means a 3 h re-bake.
+  - Raising the header is harmless; lowering it below about 1030 cuts the
+    heading.
+  - `portal_enable_apply.py` now works inside `main()`.
