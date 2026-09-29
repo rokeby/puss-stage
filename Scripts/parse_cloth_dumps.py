@@ -56,6 +56,16 @@ def main():
             name = m.group(3).split(" - ")[0].strip()
             if not name.startswith(GENERIC):
                 block["stats"][name] = max(block["stats"].get(name, 0.0), float(m.group(1)))
+    # ListTimers: print the block that follows each command (rate / looping / delegate per timer).
+    for i, line in enumerate(lines):
+        if "Cmd: ListTimers" in line:
+            print("TIMERS " + line.split("]")[0].lstrip("["))
+            for follow in lines[i + 1:i + 60]:
+                if "Cmd:" in follow:
+                    break
+                body = follow.split("]", 2)[-1].strip()
+                if body:
+                    print("       " + body[:220])
     for h in hitches[:20]:
         top = sorted(h["stats"].items(), key=lambda kv: -kv[1])[:8]
         print("HITCH " + h["header"])

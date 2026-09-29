@@ -14,11 +14,14 @@ One mode per MCP call, read from cloth_gate_mode.json next to this file ({"mode"
                over the threshold, which names the owner of Gary's ~1 Hz "40 -> 12 fps" stutter (a different
                signature from the cloth's constant 13.4 ms floor)
   hitch_off    `stat dumphitches` again (it toggles)
+  timers       `ListTimers`: logs every active timer (rate, looping, delegate owner/function). Gary's `stat game`
+               shows TimerManager Heap Size 8, and a ~1 s looping timer is the classic periodic hitch
   frames       record N frame deltas via a self-unregistering Slate post-tick callback (floats only), then log
                mean/p95/max, the frames over 40 ms and the INTERVALS between them. Periodic spikes = a finding.
                Issue NO other call until its PUSS_SOFTGOODS_FRAMES line appears: every MCP call is itself a hitch.
-Procedure (each line one call): to_passage, frames, hitch_on, dump, dump, set_suspend, frames, dump, dump,
-set_disable, dump, dump, set_restore, dump, hitch_off, then `python Scripts/parse_cloth_dumps.py`.
+Procedure (each line one call; the STUTTER half first, the conductor's priority): to_passage, timers, hitch_on,
+frames, [wait for PUSS_SOFTGOODS_FRAMES], hitch_off, then the cloth half: dump, dump, set_suspend, frames, dump, dump,
+set_disable, dump, dump, set_restore, dump; then `python Scripts/parse_cloth_dumps.py`.
 Hitches logged within ~1 s of a PUSS_SOFTGOODS_CLOTH_GATE marker are self-inflicted by the MCP call; ignore them. Each call logs PUSS_SOFTGOODS_CLOTH_GATE|<mode>|<tag>|<state>,
 which the parser uses to label the dumps that follow it. Crash rules: all inside main(), nothing kept at module level.
 """
@@ -109,6 +112,8 @@ def main():
     elif mode == "hitch_on":
         unreal.SystemLibrary.execute_console_command(world, f"t.HitchFrameTimeThreshold {int(cfg.get('hitch_ms', 45))}")
         unreal.SystemLibrary.execute_console_command(world, "stat dumphitches")
+    elif mode == "timers":
+        unreal.SystemLibrary.execute_console_command(world, "ListTimers")
     elif mode == "hitch_off":
         unreal.SystemLibrary.execute_console_command(world, "stat dumphitches")
     elif mode == "frames":
