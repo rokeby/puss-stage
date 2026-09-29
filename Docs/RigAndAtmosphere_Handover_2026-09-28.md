@@ -232,3 +232,19 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   - Raising the header is harmless; lowering it below about 1030 cuts the
     heading.
   - `portal_enable_apply.py` now works inside `main()`.
+- **Build window: NEVER run the unfiltered suite** (conductor, 29 Sep evening).
+  `PussStageBootstrap.RebuildCurrentMaster` rebuilds the Master from the Show and
+  SAVES both (`InfinityStageEditorAutomationTests.cpp:718–748`). Scene 3's length
+  is disputed: 585.64 s authored on 14 Sep, 65.542 s walked today. So an
+  unfiltered run could bake a wrong answer over the evidence. Filter with
+  `Automation RunTests InfinityStage.`: it matches `InfinityStage.*` and
+  `PussStage.InfinityStage.*`, never `PussStageBootstrap.*`. Counts will differ
+  from the 81/82 full-suite figure; report what the filter ran.
+- **Stutter (Soft goods measured it, 29 Sep):**
+  - Spikes every 1–1.5 s, owned by "Render Lights and Shadows", called 338 times
+    per frame. **338 is P01's shadow-caster count exactly** (525 enabled), and
+    336 of those also carry a flicker light function.
+  - I left P01 out of the P04–P06 caster cut. Cutting P01 is a look change: Gary's
+    call, not prepared.
+  - The toggle A/B belongs to Soft goods. Pausing the transport freezes the wings;
+    `ShowFlag.LightFunctions 0` kills the flicker.
