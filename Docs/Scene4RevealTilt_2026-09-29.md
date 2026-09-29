@@ -104,6 +104,29 @@ The Exit cut at 24 s is level. Either the rest pitch returns to 0 in the 1.5 s
 after the lattice settles (the attention releasing), or the Exit camera carries
 the rest pitch with KeepState, so the end of the Scene doesn't snap it back.
 
+## Keyed (29 Sep, 18:40) and verified by playing (after the relaunch)
+
+- `LS_S4_CameraScore` is nested in `LS_S4_HangarFold`, which is nested in
+  `LS_DevScene_04`. The keys sit on the Entry Handoff Camera's COMPONENT
+  (binding parent confirmed by Guid string): 0/0/8/8/30/30/0° at 0, 2.3, 4.3,
+  8.8, 11.0, 18.8 and 23.9 s, with flat tangents. Peak rates are about 6, 15 and
+  9 deg/s.
+- Stepwise read-back of the component pitch at 8 beats, each within 0.5° of the
+  smoothstep prediction: 0.0, 3.88, 8.0, 19.3, 26.89, 30.0, 14.91 and 0.48. The
+  actor's pitch stayed 0.000 throughout, and the component restored to 0 when
+  Sequencer closed. Scripts: `key_scene4_score.py`, `verify_scene4_score.py`,
+  `revert_scene4_score.py`.
+- True stills: at 15.5 s and 30° the roof underside glows through the lattice (the
+  image the design exists for). **The chase frames (9.9 and 10.5 s) are nearly
+  black**: the rising plate's dark metal barely catches the uplight, so in stills
+  the tilt goes up into dark. Judge it in motion before changing anything. The
+  fix, if one is needed, is a lighter plate surface (Rig's default, never Gary's
+  choice), not a different score.
+- **The Time Scale caveat:** the Entry→Exit cut at 24 s is in `LS_DevScene_04` and
+  does not scale with the fold. Below 1.0, the descent runs past the cut.
+- The first inspection script crashed the editor (an open range passed to
+  `SequencerTools.get_bound_objects`); nothing unsaved was lost.
+
 ## Open
 
 - From Rig: the lattice footprint (distance, depth); the plate width and hinge
