@@ -5,6 +5,8 @@
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
 #include "CineCameraComponent.h"
 #include "CineCameraSettings.h"
 #include "Components/ChildActorComponent.h"
@@ -89,7 +91,11 @@ const FInfinityCompiledPassage* FindCompiledPassage(const FInfinityCompileResult
 
 AInfinityStageCameraRig::AInfinityStageCameraRig()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    // Ticks in game worlds only (actors do not tick in the editor), and last in
+    // the frame, so the figures' visibility follows a view-target change made
+    // earlier in the same frame instead of flashing for one frame in the next shot.
+    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.TickGroup = TG_LastDemotable;
 
     SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
     SetRootComponent(SceneRoot);
@@ -138,7 +144,55 @@ void AInfinityStageCameraRig::ConfigureFollowLight()
     // than only at spawn.
     FollowLight->SetRelativeLocation(FollowLightOffset);
     FollowLight->SetRelativeRotation(FollowLightRotation);
-    FollowLight->SetVisibility(bEnableFollowLight);
+    FollowLight->SetVisibility(bEnableFollowLight && bShadowFiguresLive);
+}
+
+void AInfinityStageCameraRig::Tick(const float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    UpdateShadowFigureVisibility();
+}
+
+void AInfinityStageCameraRig::UpdateShadowFigureVisibility()
+{
+    const UWorld* World = GetWorld();
+    if (!World || !World->IsGameWorld())
+    {
+        return;
+    }
+    bool bLive = false;
+    if (const APlayerController* PlayerController = World->GetFirstPlayerController())
+    {
+        // Mid-blend, GetViewTarget() already reports the INCOMING camera in UE
+        // 5.8, so also wait for the blend to finish. Otherwise a stalls-to-rig
+        // blend would fly the view past the cat while it is being shown.
+        const APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager;
+        bLive = PlayerController->GetViewTarget() == this
+            && (!CameraManager || CameraManager->BlendTimeToGo <= 0.0f);
+    }
+    if (bLive != bShadowFiguresLive)
+    {
+        bShadowFiguresLive = bLive;
+        ApplyShadowFigureVisibility();
+    }
+}
+
+void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
+{
+    const bool bShowCat = bEnableShadowCat && bShadowFiguresLive;
+    if (AActor* CatActor = ShadowCat ? ShadowCat->GetChildActor() : nullptr)
+    {
+        CatActor->SetActorHiddenInGame(!bShowCat);
+        TInlineComponentArray<USkeletalMeshComponent*> CatMeshes(CatActor);
+        for (USkeletalMeshComponent* CatMesh : CatMeshes)
+        {
+            CatMesh->SetHiddenInGame(!bShowCat, true);
+        }
+    }
+    if (FollowLight)
+    {
+        FollowLight->SetVisibility(bEnableFollowLight && bShadowFiguresLive);
+    }
 }
 
 void AInfinityStageCameraRig::BeginPlay()
@@ -153,7 +207,16 @@ void AInfinityStageCameraRig::BeginPlay()
 
     // PIE duplicates can restore Blueprint tick defaults after construction.
     // Reassert the camera-driven configuration once the game world is live.
+    // A rig is not live until the player is looking through it: while the
+    // Opening's stalls cut is up, the P01 rig is never evaluated, and its cat
+    // would otherwise stand wherever the last level save left it, in shot.
+    if (GetWorld() && GetWorld()->IsGameWorld())
+    {
+        bShadowFiguresLive = false;
+    }
     ConfigureShadowCat();
+    ApplyShadowFigureVisibility();
+    UpdateShadowFigureVisibility();
 }
 
 FTransform AInfinityStageCameraRig::BuildShadowCatRelativeTransform() const
@@ -304,7 +367,7 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
         return;
     }
 
-    CatActor->SetActorHiddenInGame(!bEnableShadowCat);
+    CatActor->SetActorHiddenInGame(!(bEnableShadowCat && bShadowFiguresLive));
     CatActor->SetActorEnableCollision(false);
     CatActor->SetActorTickEnabled(false);
 
@@ -341,7 +404,7 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
         CatMesh->bPauseAnims = false;
         CatMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
         CatMesh->SetVisibility(bEnableShadowCat, true);
-        CatMesh->SetHiddenInGame(!bEnableShadowCat, true);
+        CatMesh->SetHiddenInGame(!(bEnableShadowCat && bShadowFiguresLive), true);
         CatMesh->SetCastShadow(bShadowCatCastShadow);
         CatMesh->SetRenderInMainPass(bShadowCatRenderInMainPass);
         CatMesh->SetVisibleInRayTracing(bShadowCatVisibleInReflections);

@@ -159,6 +159,22 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
     bool EvaluateAtMasterFrame(FFrameNumber MasterFrame);
 
+    /**
+     * True while this rig is the camera the player is actually looking through,
+     * with no blend in flight. In game the shadow cat and the follow light are
+     * shown only then, so a rig that is not live never puts its figure into
+     * another camera's shot (the Opening's stalls cut, a transition's stalls
+     * view). Always true in the editor, where the figures stay visible for
+     * authoring.
+     */
+    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Shadow Cat")
+    bool AreShadowFiguresLive() const { return bShadowFiguresLive; }
+
+    /** Re-reads whether this rig is live and shows or hides its figures. Runs every game tick. */
+    void UpdateShadowFigureVisibility();
+
+    virtual void Tick(float DeltaSeconds) override;
+
     virtual void OnConstruction(const FTransform& Transform) override;
 
     /** Applies the follow-light properties to its component. */
@@ -181,6 +197,10 @@ protected:
 private:
     FTransform BuildShadowCatRelativeTransform() const;
     void ConfigureShadowCat();
+    void ApplyShadowFigureVisibility();
+
+    /** See AreShadowFiguresLive. Starts true so the editor shows the figures; game worlds re-derive it. */
+    bool bShadowFiguresLive = true;
     void DestroyOrphanedShadowCats();
     void UpdateShadowCatAtMasterFrame(
         FFrameNumber MasterFrame,
