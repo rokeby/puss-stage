@@ -61,6 +61,54 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (afternoon): the curtain at the front and at the transitions — IMPORTED; placement written, NOT RUN
+
+Gary (via the conductor): "place the opening curtain where it's supposed to be (at the front and also in between
+transitions)... functioning end to end".
+
+**Why it wasn't "at the front":** every sequence curtain is `BP_InfinityStageSequenceCurtain`, a CAMERA-FOLLOWING rig
+with the flat fire-safety mesh. In the Opening it sits 100 cm from the lens at 0.1 scale ("too close, focus off").
+The Opening has no camera cut, so the transport shows Passage 1's camera, which starts at X = 0, ON the curtain line
+(`InfinityStageTransportController.cpp`: "Establish the next Passage's frozen opening view behind the closed
+curtain", with an authored Camera Cut taking priority).
+
+**DONE (content only, `Saved/CodexSoftGoods/curtain_baked_import.py`):** under `/Game/Scenes/Curtain/Baked/`:
+`GC_CurtainDrop_Opening` (final2_stage_v2, Blender frames 120–450, 11.0 s, motion vectors computed),
+`SM_CurtainDrape_Hanging` (frame 121) and `SM_CurtainDrape_Pile` (frame 450), and `MI_CurtainVelvet_DeepRed_Drop`
+(PatternWidthM 35.529, DropM 10, SeamWidthM 1.37). `M_CurtainVelvet` now has Used with Geometry Cache (backup
+`Backups/PreCurtainBakedImport-*`). Source: `DerivedAssets/CurtainCloth/Baked/CurtainDrop_Opening_final2.abc`.
+- **Axis check passed exactly.** Conversion is Custom, scale (100, −100, 100), rotation (90, 0, 90). The cache is
+  world-true (curtain line at X = 0), so the actor transform is identity. Hanging frame: X −103.7…+69.0,
+  Y ±888.5. Pile: X −468.6…+508.4, Y −1084.6…+1167.6. Both are the bake's own numbers to 0.1 cm.
+- **Trap: UE numbers Alembic frames ABSOLUTELY.** The file holds Blender frames 120–450, so sampling "330" gave
+  Blender frame 330, not the 330th frame. The first run's check caught it; nothing was saved from that run.
+- **Trap: `mcp_request.py` times out after 30 s by default,** while the import keeps running in the editor. Pass
+  `--timeout 900`, and do not re-send (a re-sent call queues and re-runs the script).
+
+**WRITTEN, NOT RUN (the classifier blocks level/sequence writes without Gary's direct yes in this session):**
+1. `Saved/CodexSoftGoods/curtain_place_opening_and_transitions.py`. It backs up the level and seven sequences first.
+   - It creates a level CineCamera "Opening — Stalls Camera": (−1400, 0, 150), pitch +14, 15 mm on 23.76 × 13.365,
+     focus off. This is Gary's 28 Sep stalls view, and it's a level actor because the transport locates a
+     sub-sequence cut in the world.
+   - It duplicates the Opening to `LS_Opening_Curtain_Baked`, which:
+     - drops the fire-safety rig;
+     - adds a spawnable "Opening Drape (baked)" GeometryCacheActor with three sections: HOLD 0–25 (first frame looped),
+       FALL 25–300 (release lands on frame 50, as the old lift did) and PILE 300–375 (last frame looped);
+     - adds a Camera Cut 0–375 to the stalls camera.
+   - It swaps the mesh of the six transition rigs (Interactions 1–5 and Closing) from SM_FireSafetyCurtain_01 to
+     SM_CurtainDrape_Hanging. The frame is the same 17.8 × 10 m, so the rig keys, distances and tests hold.
+2. `Saved/CodexSoftGoods/repoint_opening_rebuild.py`: it repoints cue 0 to the new sequence, runs the guarded
+   RebuildManagedMaster and requires the Master's first section to play LS_Opening_Curtain_Baked. The revert is to
+   point cue 0 back and rebuild.
+- **REAL vs STAND-IN:** the Opening gets the real baked fall. The six transitions get the velvet drape flying in and
+  out on the old camera-following rig: a stand-in, with no fall.
+- **Known consequences:**
+  - The pile vanishes at 15 s. That's the cut to Passage 1's camera, so the pop is hidden.
+  - `SavedFixturePIE`'s "Opening reveal establishes Passage 1 camera before lifting" will FAIL by design once the
+    Opening authors a camera cut. The test needs updating to accept an authored cut.
+- **Not covered:** the passage-end curtains (run-through note: the dusky end of the tunnel). They need a drape at
+  each passage end that falls at the Scene's start, which means edits inside the Scene sequences.
+
 ## 29 Sep: Master rebuilt; two durable lessons
 
 - **Master rebuilt** (`Scripts/rebuild_managed_master_guarded.py`, Gary's go after saving Scene 3). Before, every
