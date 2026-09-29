@@ -23,6 +23,7 @@ const FName ClothLayerTag(TEXT("InfinityStage.Structure.Cloth"));
 const FName PortalLayerTag(TEXT("InfinityStage.Structure.Portal"));
 const FName FixtureLayerTag(TEXT("InfinityStage.Structure.Fixtures"));
 const FName LineLayerTag(TEXT("InfinityStage.Structure.Lines"));
+const FName GrooveLayerTag(TEXT("InfinityStage.Structure.Grooves"));
 
 /** Per-instance custom data: variation 0..1, then length, width, depth in cm. */
 constexpr int32 TimberCustomDataFloats = 4;
@@ -38,7 +39,8 @@ enum class ETimberPart : uint32
     Housing = 3,
     BoardLane = 4,
     Cloth = 5,
-    Portal = 6
+    Portal = 6,
+    Groove = 7
 };
 
 FRandomStream MakeTimberStream(const FGuid& Identity, const ETimberPart Part)
@@ -344,6 +346,7 @@ void AInfinityStageStructureActor::ClearStructure()
     GridHalfWidthCm = 0.0;
     BoardCount = 0;
     SlotCount = 0;
+    GroovePieceCount = 0;
     ClothCount = 0;
     PortalPieceCount = 0;
     FixtureBodyCount = 0;
@@ -455,7 +458,8 @@ bool AInfinityStageStructureActor::MaterializeStructure()
             *BoardMesh,
             LoadMaterial(Ground.BoardMaterial, TEXT("Ground board")),
             UnderstageMesh,
-            LoadMaterial(Ground.UnderstageMaterial, TEXT("Understage")));
+            LoadMaterial(Ground.UnderstageMaterial, TEXT("Understage")),
+            LoadMaterial(Ground.GrooveMaterial, TEXT("Groove")));
     }
     if (!ClothPieces.IsEmpty())
     {
@@ -656,7 +660,8 @@ void AInfinityStageStructureActor::BuildGround(
     UStaticMesh& BoardMesh,
     UMaterialInterface* BoardMaterial,
     UStaticMesh* UnderstageMesh,
-    UMaterialInterface* UnderstageMaterial)
+    UMaterialInterface* UnderstageMaterial,
+    UMaterialInterface* GrooveMaterial)
 {
     const USplineComponent& Route = *Passage->Route;
     const double RouteLengthCm = Route.GetSplineLength();
@@ -769,6 +774,76 @@ void AInfinityStageStructureActor::BuildGround(
         TEXT("StructureGround"), GroundLayerTag, &BoardMesh, BoardMaterial, true);
     ApplyInstances(*BoardComponent, Boards, BoardData);
     BoardCount = Boards.Num();
+
+    // Steel grooves: each slot's gap lined with a channel, two walls on the faces
+    // where the boards stop and a bottom plate, running across the stage from the
+    // first cut lane's inner edge to the floor's edge. Local X is the run.
+    if (Ground.bSteelGrooves && SlotCount > 0)
+    {
+        const double PlateCm = FMath::Clamp(Ground.GroovePlateCm, 0.1, FMath::Min(HalfSlotCm, ThicknessCm * 0.5));
+        const double FloorOuterCm = (LaneCount * LanePitchCm - GapCm) * 0.5;
+        TArray<FTransform> Plates;
+        TArray<float> PlateData;
+        for (int32 Index = 0; Index < Stations.Num(); ++Index)
+        {
+            const FTransform Frame = Route.GetTransformAtDistanceAlongSpline(
+                Stations[Index].DistanceCm, ESplineCoordinateSpace::World, false);
+            const FVector Forward = Frame.GetUnitAxis(EAxis::X);
+            const FVector Across = Frame.GetUnitAxis(EAxis::Y);
+            const FVector Up = Frame.GetUnitAxis(EAxis::Z);
+            FRandomStream Stream = MakeTimberStream(Stations[Index].CueGuid, ETimberPart::Groove);
+            for (const double Side : { -1.0, 1.0 })
+            {
+                const double InnerCm = (Side < 0.0 ? SlotInnerNegativeCm : SlotInnerPositiveCm)[Index];
+                if (InnerCm >= HalfSpanCm)
+                {
+                    continue;
+                }
+                // The first lane this slot cuts, counted from the route line out.
+                double RunFromCm = FloorOuterCm;
+                for (int32 Lane = 0; Lane < LaneCount; ++Lane)
+                {
+                    const double LaneCm = FMath::Abs(FirstLaneCm + Lane * LanePitchCm);
+                    if (LaneCm + BoardWidthCm * 0.5 > InnerCm)
+                    {
+                        RunFromCm = FMath::Min(RunFromCm, LaneCm - BoardWidthCm * 0.5);
+                    }
+                }
+                const double RunCm = FloorOuterCm - RunFromCm;
+                if (RunCm < 1.0)
+                {
+                    continue;
+                }
+                const FVector RunCentre = Frame.GetLocation() + Across * (Side * (RunFromCm + FloorOuterCm) * 0.5)
+                    + Up * Ground.FloorHeightCm;
+                const float Variation = Stream.FRand();
+                const auto Plate = [&](const FVector& Centre, const FQuat& PlateRotation, const FVector& SizeCm)
+                {
+                    Plates.Add(FitMeshToTimber(BoardMesh.GetBoundingBox(), Centre, PlateRotation, SizeCm));
+                    PlateData.Append({ Variation, static_cast<float>(SizeCm.X), static_cast<float>(SizeCm.Y), static_cast<float>(SizeCm.Z) });
+                };
+                // The bottom sits on whatever is below (the floor slab at -5 where
+                // there is one), its top a plate's thickness above the boards' underside.
+                Plate(RunCentre + Up * (-ThicknessCm + PlateCm * 0.5),
+                    FRotationMatrix::MakeFromXY(Across, Forward).ToQuat(),
+                    FVector(RunCm, HalfSlotCm * 2.0, PlateCm));
+                for (const double Face : { -1.0, 1.0 })
+                {
+                    Plate(RunCentre + Forward * (Face * (HalfSlotCm - PlateCm * 0.5)) + Up * (-(ThicknessCm - PlateCm) * 0.5),
+                        FRotationMatrix::MakeFromXY(Across, Up).ToQuat(),
+                        FVector(RunCm, ThicknessCm - PlateCm, PlateCm));
+                }
+            }
+        }
+        if (!Plates.IsEmpty())
+        {
+            // Like housings: thin pieces cast no shadow.
+            UInstancedStaticMeshComponent* GrooveComponent = CreateManagedComponent(
+                TEXT("StructureGrooves"), GrooveLayerTag, &BoardMesh, GrooveMaterial, false);
+            ApplyInstances(*GrooveComponent, Plates, PlateData);
+            GroovePieceCount = Plates.Num();
+        }
+    }
 
     if (!UnderstageMesh)
     {

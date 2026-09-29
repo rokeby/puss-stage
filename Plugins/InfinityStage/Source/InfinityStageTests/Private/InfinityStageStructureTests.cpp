@@ -436,6 +436,41 @@ bool FInfinityStageStructureGroundTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("The understage lies well below the boards"),
         ReadInstances(*Understage)[0].GetLocation().Z < Ground.FloorHeightCm - Ground.UnderstageDepthCm);
 
+    // Steel grooves: every slot lined by two walls and a bottom, all inside the
+    // gap, between the boards' underside and the floor, reaching the floor's edge.
+    UInstancedStaticMeshComponent* Grooves = FindLayer(*Structure, TEXT("InfinityStage.Structure.Grooves"));
+    TestTrue(TEXT("Slots are lined with steel grooves"), Grooves != nullptr);
+    if (Grooves)
+    {
+        TestEqual(TEXT("Three plates per slot"), Structure->GroovePieceCount, Structure->SlotCount * 3);
+        TestEqual(TEXT("Groove pieces are counted"), Structure->GroovePieceCount, Grooves->GetInstanceCount());
+        TestFalse(TEXT("Groove plates cast no shadow"), static_cast<bool>(Grooves->CastShadow));
+        const FBox MeshBounds = Grooves->GetStaticMesh()->GetBoundingBox();
+        const double PitchCm = Ground.BoardWidthCm + Ground.BoardGapCm;
+        const int32 Lanes = FMath::FloorToInt32((Structure->GridHalfWidthCm * 2.0 + Ground.BoardGapCm) / PitchCm);
+        const double FloorOuterCm = (Lanes * PitchCm - Ground.BoardGapCm) * 0.5;
+        bool bInsideGaps = true;
+        bool bBetweenFloorAndUnderside = true;
+        double OuterReachCm = 0.0;
+        for (const FTransform& Piece : ReadInstances(*Grooves))
+        {
+            const FBox Box = MeshBounds.TransformBy(Piece);
+            bool bInSomeGap = false;
+            for (const FInfinityStructureStation& Station : Stations)
+            {
+                const double SlotCm = Station.StationWorld.GetLocation().X;
+                bInSomeGap |= Box.Min.X >= SlotCm - HalfSlotCm - 0.01 && Box.Max.X <= SlotCm + HalfSlotCm + 0.01;
+            }
+            bInsideGaps &= bInSomeGap;
+            bBetweenFloorAndUnderside &= Box.Max.Z <= Ground.FloorHeightCm + 0.01
+                && Box.Min.Z >= Ground.FloorHeightCm - Ground.BoardThicknessCm - 0.01;
+            OuterReachCm = FMath::Max(OuterReachCm, FMath::Max(FMath::Abs(Box.Min.Y), FMath::Abs(Box.Max.Y)));
+        }
+        TestTrue(TEXT("Every groove plate sits inside a slot's gap"), bInsideGaps);
+        TestTrue(TEXT("Every groove plate lies between the boards' underside and the floor"), bBetweenFloorAndUnderside);
+        TestTrue(TEXT("Grooves run out to the floor's edge"), FMath::IsNearlyEqual(OuterReachCm, FloorOuterCm, 0.05));
+    }
+
     TestTrue(TEXT("Rebuild succeeds"), Structure->MaterializeStructure());
     UInstancedStaticMeshComponent* Rebuilt = FindLayer(*Structure, TEXT("InfinityStage.Structure.Ground"));
     TestTrue(TEXT("Rebuilding lays the same boards"),

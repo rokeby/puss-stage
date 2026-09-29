@@ -166,6 +166,18 @@ struct INFINITYSTAGE_API FInfinityStageGroundSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ground|Slots", meta = (ClampMin = "0.0", Units = "cm"))
     double CatClearanceCm = 120.0;
 
+    /** Line each chariot slot with a steel channel (Gary, 29 Sep: "walnut planks,
+     * procedural steel for the grooves"): a plate on each face of the gap and one
+     * across its bottom, so the slot reads as a tram-track groove let into the
+     * planked floor. Engine Cubes like the boards, local X along the slot's run
+     * across the stage, with the kit's custom data [variation, length, width,
+     * thickness]. They take Ground.GrooveMaterial. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ground|Slots")
+    bool bSteelGrooves = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ground|Slots", meta = (ClampMin = "0.1", Units = "cm"))
+    double GroovePlateCm = 0.5;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ground|Understage")
     bool bUnderstage = true;
 
@@ -187,6 +199,10 @@ struct INFINITYSTAGE_API FInfinityStageGroundSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ground|Look")
     TSoftObjectPtr<UMaterialInterface> UnderstageMaterial;
+
+    /** The slot grooves' steel (bSteelGrooves). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ground|Look")
+    TSoftObjectPtr<UMaterialInterface> GrooveMaterial;
 };
 
 /**
@@ -458,6 +474,10 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 SlotCount = 0;
 
+    /** Steel plates lining the slots: three per slot (two walls and a bottom). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 GroovePieceCount = 0;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 ClothCount = 0;
 
@@ -519,7 +539,8 @@ private:
         UStaticMesh& BoardMesh,
         UMaterialInterface* BoardMaterial,
         UStaticMesh* UnderstageMesh,
-        UMaterialInterface* UnderstageMaterial);
+        UMaterialInterface* UnderstageMaterial,
+        UMaterialInterface* GrooveMaterial);
 
     void BuildPortal(
         const TArray<FInfinityStructureStation>& Stations,
