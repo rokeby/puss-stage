@@ -61,6 +61,25 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep: Master rebuilt; two durable lessons
+
+- **Master rebuilt** (`Scripts/rebuild_managed_master_guarded.py`, Gary's go after saving Scene 3). Before, every
+  section from Scene 3 on was 520.098 s off (Scene 3: Show 272.455–337.997 vs Master 272.455–858.095). After, all
+  13 sequence sections match their Show segments to 0.000 s. Only the Master was dirtied and saved. Backup:
+  `Backups/PreMasterRebuild-20260929-125656`. Proven by read-back; `SavedFixturePIE`'s Closing assertion is
+  predicted to pass but has NOT been run (it starts PIE while Gary works). Scene 3 now reads 65.5 s, not the "2 min"
+  mentioned, so Gary should check it.
+- **STANDING STEP: after changing any Scene's playback range, rebuild the Master.** The 14 Sep repair doc already
+  said so and it was not followed, which cost the back half of the show. A note alone has failed once, so the fix is a
+  TEST asserting every managed Master section equals its sub-sequence's own playback range, naming the cue
+  (to write next; source-only; needs a build window).
+- **Scene-scoped cost is a class of problem.** Two things measured today cost the WHOLE show for one place: the
+  Chaos curtain preview (removed, `Backups/PreRemovePreview-20260929-123440`) and the six Shore drapes on the
+  Scene 3 MetaHumans (13.4 ms of a 23.6 ms PIE frame, a stall in `FChaosClothComponentEndTickFunction`, every
+  frame). The plan is to switch them off outside Scene 3 (keyable `bSuspendSimulation`/`bEnableSimulation`, the switch
+  to be picked by `stat dumpframe` in PIE), driven by Scene 3's sequence with Restore State. The entry settle is Gary's
+  look call.
+
 ## 29 Sep (night): plan for curtains at the transitions (Gary's morning brief), nothing built
 
 Gary: "implementing the curtain in many of those transition areas ready for later different more tattered and
