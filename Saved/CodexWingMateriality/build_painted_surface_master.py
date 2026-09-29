@@ -47,6 +47,10 @@ def load(path):
 def get_or_create(path):
     folder, name = path.rsplit("/", 1)
     if unreal.EditorAssetLibrary.does_asset_exist(path):
+        # NEVER delete expressions in an asset this stream didn't create. On 2026-09-28,
+        # DeleteMaterialExpression on M_StageOpeningV2_Edge hit "Assertion failed: !IsRooted()"
+        # and crashed the editor. Deletion is only allowed in our own PaintedSurface folder.
+        wm.require(path.startswith(FOLDER + "/"), f"refusing to clear expressions outside {FOLDER}: {path}")
         mat = load(path)
         # delete_all_material_expressions leaves nodes behind in 5.8; delete one by one and prove it.
         for e in list(MEL.get_material_expressions(mat)):
@@ -421,8 +425,14 @@ def build_master():
     return mat
 
 
-def build_edge():
-    mat = get_or_create(EDGE)
+def build_edge(path=EDGE):
+    """Build (or rebuild) the canvas-edge master, which lives in our own folder."""
+    return edge_graph(get_or_create(path))
+
+
+def edge_graph(mat):
+    """Add the canvas-edge nodes to `mat` and wire its outputs to them. Deletes nothing,
+    so rebuild_v2_edge.py can use it on M_StageOpeningV2_Edge (see get_or_create)."""
     g = Graph(mat)
     mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_OPAQUE)
     mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_DEFAULT_LIT)
@@ -481,30 +491,36 @@ def build_edge():
     return mat
 
 
-wm.editor_ready()
-before = wm.dirty()
-# Other streams may hold unsaved level work; targeted saves never persist it. The invariant
-# is that this script adds nothing to the dirty set beyond its own two packages.
-before_others = set(before) - {MASTER, EDGE}
-results = {}
-for path, builder in ((MASTER, build_master), (EDGE, build_edge)):
-    mat = builder()
-    MEL.layout_material_expressions(mat)
-    MEL.recompile_material(mat)
-    stats = MEL.get_statistics(mat)
-    results[path] = {
-        "expressions": MEL.get_num_material_expressions(mat),
-        "used_with_ism": bool(mat.get_editor_property("used_with_instanced_static_meshes")),
-        "used_with_nanite": bool(mat.get_editor_property("used_with_nanite")),
-        "stats": {p: str(stats.get_editor_property(p)) for p in
-                  ("num_pixel_shader_instructions", "num_vertex_shader_instructions", "num_samplers",
-                   "num_vertex_texture_samples", "num_pixel_texture_samples")},
-    }
-    wm.require(results[path]["used_with_ism"] and results[path]["used_with_nanite"], f"usage flags not set on {path}")
-    wm.require(unreal.EditorAssetLibrary.save_asset(path, only_if_is_dirty=False), f"save failed {path}")
-after = wm.dirty()
-wm.require(set(after) <= before_others, f"Build left new dirty packages: {sorted(set(after) - before_others)}")
-wm.write_json("build_masters_result.json", {"log": LOG, "results": results})
-unreal.log("PUSS_WING_MASTERS_BUILD_SUCCESS|" + "|".join(
-    f"{p.rsplit('/', 1)[-1]}:ps={r['stats']['num_pixel_shader_instructions']},samplers={r['stats']['num_samplers']}"
-    for p, r in results.items()))
+def main():
+    wm.editor_ready()
+    before = wm.dirty()
+    # Other streams may hold unsaved level work; targeted saves never persist it. The invariant
+    # is that this script adds nothing to the dirty set beyond its own two packages.
+    before_others = set(before) - {MASTER, EDGE}
+    results = {}
+    for path, builder in ((MASTER, build_master), (EDGE, build_edge)):
+        mat = builder()
+        MEL.layout_material_expressions(mat)
+        MEL.recompile_material(mat)
+        stats = MEL.get_statistics(mat)
+        results[path] = {
+            "expressions": MEL.get_num_material_expressions(mat),
+            "used_with_ism": bool(mat.get_editor_property("used_with_instanced_static_meshes")),
+            "used_with_nanite": bool(mat.get_editor_property("used_with_nanite")),
+            "stats": {p: str(stats.get_editor_property(p)) for p in
+                      ("num_pixel_shader_instructions", "num_vertex_shader_instructions", "num_samplers",
+                       "num_vertex_texture_samples", "num_pixel_texture_samples")},
+        }
+        wm.require(results[path]["used_with_ism"] and results[path]["used_with_nanite"], f"usage flags not set on {path}")
+        wm.require(unreal.EditorAssetLibrary.save_asset(path, only_if_is_dirty=False), f"save failed {path}")
+    after = wm.dirty()
+    wm.require(set(after) <= before_others, f"Build left new dirty packages: {sorted(set(after) - before_others)}")
+    wm.write_json("build_masters_result.json", {"log": LOG, "results": results})
+    unreal.log("PUSS_WING_MASTERS_BUILD_SUCCESS|" + "|".join(
+        f"{p.rsplit('/', 1)[-1]}:ps={r['stats']['num_pixel_shader_instructions']},samplers={r['stats']['num_samplers']}"
+        for p, r in results.items()))
+
+
+# rebuild_v2_edge.py loads this module with WM_IMPORT_ONLY set, to reuse build_edge.
+if not globals().get("WM_IMPORT_ONLY"):
+    main()
