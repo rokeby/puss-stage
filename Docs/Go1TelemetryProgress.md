@@ -162,19 +162,17 @@ Component on the "Passage 1 Camera + Shadow figures" actor:
   binds second gets nothing. Untick `Run In Editor` before pressing Play. Since
   §10, a single receiver on the Show Root can serve every camera, so this stops
   being a constraint on multi-camera use once the component is moved there.
-- **Editor mode rotates the actor for real**, dirtying the level package. The
-  rotation is captured on switch-on and restored on switch-off, but do not Save
-  All while it runs. It also does not change the main viewport view unless you
+- **Editor mode rotates the camera for real**, dirtying the level package. The
+  camera is put back as it was when editor mode is switched off, but do not
+  Save All while it runs. It also does not change the main viewport view unless you
   are piloting the camera or watching its preview thumbnail — so its usefulness
   for framing is limited.
-- **Absolute mode overrides sequence-driven camera rotation** (intended here,
-  since Passage 1's rotation keyframes are suspended). Sequence-driven camera
-  *location* still applies. To have both compose instead, the structure is a
-  parent "gaze pivot" actor with the camera attached beneath — a deliberate
-  change to InfinityStage authoring data, not done.
-- **Velocity mode loses to a live rotation track.** It integrates on top of a
-  value the sequence rewrites each frame, so the stick feels dead. Mute the
-  track if velocity mode is needed.
+- **Superseded 2026-09-29 (source; unbuilt as of writing, see §10 "Look
+  layering"):** Absolute mode used to *override* sequence-driven camera
+  rotation, and Velocity mode lost to a live rotation track. Both are replaced
+  by a look offset layered on the camera component, which composes with the
+  route or sequence instead. That is the "gaze pivot" this section once named,
+  done inside the component rather than as authoring data.
 - **No auto-start.** The bridge is a foreground process by choice; it stays
   manual until the setup has proven itself over several sessions.
 - **Wi-Fi means no internet on the Mac**, so no Claude access while untethered
@@ -200,8 +198,8 @@ Arbitration now belongs to the Show, not to this component.
 
 | Authored owner | Behaviour |
 | --- | --- |
-| `Timeline` | The component writes **nothing**. The sequence drives the camera. |
-| `DogGazeOnly` | Absolute mode — stick is a bounded angle, springs back to centre. |
+| `Timeline` | The look eases back to zero, then the component writes **nothing**. The sequence drives the camera. |
+| `DogGazeOnly` | Absolute mode — stick is a bounded angle off the driven view, springs back to it. |
 | `DogFreeLook` | Velocity mode — stick is a turn rate, the view holds. |
 
 **Operational consequence — read this before wondering why the dog is dead.**
@@ -226,9 +224,8 @@ or for editor mode, where there is no player controller to ask. It falls back to
 the component's own actor, so the original "component on the camera" setup still
 works.
 
-Transitions re-centre automatically: taking the camera back from the timeline,
-or a camera cut changing the view target, adopts the current rotation as the new
-centre so nothing snaps.
+Transitions do not snap: see "Look layering" below for what happens at owner
+changes, cuts and blends.
 
 **Blended handovers (verified 2026-09-26).** The transport can blend a
 handover instead of cutting (Show Root → Transport → Transport|Handover; both
@@ -243,14 +240,58 @@ asserts the engine behaviour, so an engine upgrade that changes it is caught.
 (50a07fd) was made on that premise. The test disproved it; the change was
 removed as redundant.
 
-**Re-centre without a jump (2026-09-26, Gary: "don't jump"; built and tested 01:53).** The automatic re-centres subtract the stick's present deflection, so
-the Gaze output on that frame equals the current view. These are camera change
-(cut or blend start), ownership change, and the remote mode switch. **This
-changes behaviour at cuts, not only at blends.** A stick held over at a cut no
-longer steps the picture; the dog's centre becomes relative to where it was
-pointing, and letting go turns the view back by the held deflection. The
-explicit remote re-centre button keeps its plain meaning: where I'm looking now
-is the centre. Covered by `InfinityStage.Go1.RecentreKeepsViewWithStickHeld`.
+**Look layering (2026-09-29, Look & camera; conductor-approved. Source only:
+UNBUILT and UNTESTED until the conductor's build batch runs).** This replaces
+the 26 Sep re-centre scheme below it.
+
+*The regression it fixes (diagnosed in source 29 Sep, independently confirmed
+by a second audit).* Absolute mode wrote `SetActorRotation(Base + stick)` every
+frame in `TG_DuringPhysics`, after Sequencer, where `Base` was a world rotation
+captured once. It did this even with no telemetry. So on a dog-owned Passage
+the camera held its starting direction however the route bent, and the mouse
+stand-in's turn was thrown away on the next frame. Velocity mode's write was
+gated on fresh telemetry, so with no dog the mouse worked in the Void (Free
+Look) and rubber-banded in every Passage (Gaze). This went live on 26 Sep, when
+every Passage became Dog Gaze. Under Timeline ownership the cameras had
+followed the route tangent correctly.
+
+*What it does now.* The look is a pitch/yaw **offset** written to the live
+camera's component: the first active camera below the root, or the root when
+there is none. The root keeps its route or sequence rotation, so the view is
+driven + look. Yaw turns about world up and pitch about the camera's right, so
+the horizon never rolls. Min/Max Pitch limit only what the look adds. Anything
+that writes that component between our writes (the route, a sequence, an
+operator) is adopted as the new driven rotation, so a held playhead never
+accumulates. On a rig, the shadow cat and follow light hang off the root: they
+stay on the route when the dog looks away. On 26–29 Sep they swung with the
+gaze.
+
+| Situation | Look |
+| --- | --- |
+| Gaze | stick × range off the driven view; mouse (no dog) adds up within the same range |
+| Free Look | stick rate and mouse integrate; the view holds |
+| Timeline | eases to zero over `LookHandoverSeconds` (0.6 s), then hands off entirely |
+| Owner change, dog arrives or drops out, re-centre | eases from the look as it stands, so nothing steps (Gary: "don't jump") |
+| Cut between dog-owned cameras | the look carries across unchanged |
+| Hard cut into a Timeline shot | the look drops at once; the shot opens as authored. Timeline taking over within 0.1 s after a cut counts as the same cut |
+| Blend | the incoming camera carries the look; the outgoing one keeps its look until the blend lands, then is put back as driven |
+
+The remote re-centre button and `RecenterRotation()` now mean *look back down
+the driven view*: they clear what Free Look and the mouse accumulated. In Gaze
+the stick still decides the angle. `ComposeGazeRotation`, `CentreKeepingView`
+and the captured base are gone.
+
+Tests (new, unbuilt): `InfinityStage.Go1.LookLayersOnDrivenCamera`,
+`InfinityStage.Go1.MouseLookHoldsInGazeAndFreeLook` (pins the Gaze/Free Look
+asymmetry above) and `InfinityStage.Go1.LookHandoverEasesWithoutStep`.
+`ReceiverDrivesIncomingCameraDuringBlend` gains the blend-hold assertions.
+`RecentreKeepsViewWithStickHeld` is removed, because the functions it tested
+no longer exist. Backup: `Backups/PreGo1LookLayering-20260929-1434`.
+
+**Re-centre without a jump (2026-09-26; SUPERSEDED 29 Sep by Look layering
+above).** The automatic re-centres subtracted the stick's present deflection
+from a captured world base. That base was the root cause of the route-follow
+regression.
 
 **Camera owners (2026-09-26, Gary).** Passages 1–6 are Dog Gaze Only, Scene 6
 (the Void) is Dog Free Look, and everything else is Timeline. The live

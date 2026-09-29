@@ -6,6 +6,7 @@
 #include "Go1RemoteReceiverComponent.generated.h"
 
 class AInfinityStageShowRoot;
+class USceneComponent;
 class FSocket;
 class FUdpSocketReceiver;
 class FArrayReader;
@@ -41,8 +42,9 @@ enum class EGo1RotationMode : uint8
 	Velocity UMETA(DisplayName = "Velocity (stick = turn rate)"),
 
 	/**
-	 * Stick deflection = angle offset from the rotation captured at BeginPlay,
-	 * bounded by Yaw/Pitch Range. Centring the stick returns to centre.
+	 * Stick deflection = angle offset from the camera's driven rotation (its
+	 * route or its sequence), bounded by Yaw/Pitch Range. Centring the stick
+	 * returns to that rotation, wherever it has turned to meanwhile.
 	 * Best when the view maps to a physical screen at a known distance.
 	 */
 	Absolute UMETA(DisplayName = "Absolute (stick = angle within range)")
@@ -50,7 +52,13 @@ enum class EGo1RotationMode : uint8
 
 /**
  * Listens for JSON telemetry packets from the GO1 bridge (go1_remote_bridge)
- * and optionally drives the owning actor's rotation from the right stick.
+ * and optionally turns the live camera from the right stick.
+ *
+ * The turn is a look OFFSET layered on top of whatever drives the camera: it
+ * is written to the camera component under the actor's root, so the root keeps
+ * the rotation its route or sequence gives it and the view is driven + look.
+ * Nothing is captured once and held, so the view follows a bending route and
+ * never fights the sequence (the 26 Sep regression this replaced).
  *
  * Add this component to any actor (e.g. a camera actor) and press Play.
  * Staleness is measured on this machine's clock as time since the last
@@ -120,7 +128,8 @@ public:
 	 *
 	 * `AInfinityStageShowRoot::GetCurrentCameraOwner()` returns the authored
 	 * owner for the current Master segment (or the operator's live override):
-	 *   Timeline    -> this component writes nothing; the sequence drives.
+	 *   Timeline    -> the look eases back to zero, then this component writes
+	 *                  nothing; the sequence drives.
 	 *   DogGazeOnly -> Absolute mode (stick = bounded angle, springs to centre).
 	 *   DogFreeLook -> Velocity mode (stick = turn rate, view holds).
 	 *
@@ -138,7 +147,7 @@ public:
 	TObjectPtr<AInfinityStageShowRoot> ShowRoot;
 
 	/**
-	 * Which actor gets rotated. Leave empty for the recommended setup: the
+	 * Which camera carries the look. Leave empty for the recommended setup: the
 	 * component lives on the Show Root and rotates whichever camera is live,
 	 * resolved from the player's view target, so it follows Sequencer camera
 	 * cuts across Passages and Scenes without reconfiguration. During a blended
@@ -173,6 +182,19 @@ public:
 	/** Absolute mode: pitch offset at full stick deflection, degrees either side of centre. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera", meta = (ClampMin = "1.0", ClampMax = "89.0"))
 	float PitchRangeDeg = 20.0f;
+
+	/**
+	 * Seconds the look takes to settle on its new target when its source
+	 * changes: a camera-owner change (Timeline, Gaze, Free Look), telemetry
+	 * arriving or lost, or a re-centre. The ease starts at the look as it
+	 * stands, so none of these steps the picture (Gary, 26 Sep: "don't jump").
+	 * A cut between dog-owned cameras carries the look across unchanged; a
+	 * hard cut into a Timeline shot drops it at once, since the cut already
+	 * hides the change and the shot should open as authored.
+	 * 0 = settle at once.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera", meta = (ClampMin = "0.0", UIMax = "3.0"))
+	float LookHandoverSeconds = 0.6f;
 
 
 	/**
@@ -222,8 +244,9 @@ public:
 	 * Stand in for the dog with the mouse while no telemetry is arriving.
 	 *
 	 * This is deliberately the same path the robot drives, not a second one: it
-	 * writes the same camera rotation, obeys the same pitch limits, recentre and
-	 * Show camera ownership. So it only takes effect where the dog would — set
+	 * moves the same look offset, obeys the same pitch limits, recentre and
+	 * Show camera ownership (in Gaze it stays inside Yaw/Pitch Range, as the
+	 * stick does). So it only takes effect where the dog would — set
 	 * the Cue Desk's Live Camera Owner to Force Dog (or author DogFreeLook) and
 	 * the mouse looks around; under Timeline ownership it stays hands-off, as
 	 * the dog does. Real telemetry always wins: one fresh packet and the mouse
@@ -241,35 +264,60 @@ public:
 	bool bMouseLookActive = false;
 
 	/**
-	 * Absolute mode: re-capture the centre rotation from the owner's current
-	 * rotation. Called automatically at BeginPlay; call again from Blueprint to
-	 * re-centre mid-session (e.g. after the stage camera is repositioned).
+	 * Look back down the camera's driven rotation: clears what Free Look and
+	 * the mouse have accumulated and eases there over Look Handover Seconds.
+	 * In Gaze the stick still decides the angle; a held stick stays held.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Go1|Camera")
 	void RecenterRotation();
 
-	/** Gaze (Absolute) output: the centre turned by the stick angle, pitch clamped. */
-	static FRotator ComposeGazeRotation(
-		const FRotator& Centre,
-		float StickX,
-		float StickY,
-		float YawRangeDegrees,
-		float PitchRangeDegrees,
-		float PitchDirection,
+	/** The look offset (pitch, yaw) currently layered on the driven camera. */
+	UFUNCTION(BlueprintPure, Category = "Go1|Camera")
+	FRotator GetLookOffset() const { return LookOffset; }
+
+	/**
+	 * The view the audience sees: Driven turned by the look Offset. Yaw is about
+	 * world up and pitch about the camera's own right, so the horizon never
+	 * rolls. The offset's pitch is limited to Min/Max Pitch, but an authored
+	 * pitch beyond those limits is kept as authored.
+	 */
+	static FRotator ComposeLook(
+		const FRotator& Driven,
+		const FRotator& Offset,
 		float MinPitchDegrees,
 		float MaxPitchDegrees);
 
 	/**
-	 * The centre that makes ComposeGazeRotation return CurrentView for the stick
-	 * as it is held now, so a re-centre never steps the picture.
+	 * Layer Offset on DrivenActor's view: on its camera component when it has
+	 * one below the root, otherwise on its root. Whatever wrote that component
+	 * since our last write (the route, a sequence) is adopted as the driven
+	 * rotation first, so repeating this under a held playhead never drifts.
+	 * Switching to another actor puts the previous one back as it was driven,
+	 * but only once no blend is in flight: mid-blend the outgoing camera is
+	 * still half the picture, and restoring it then would step that half.
 	 */
-	static FRotator CentreKeepingView(
-		const FRotator& CurrentView,
-		float StickX,
-		float StickY,
-		float YawRangeDegrees,
-		float PitchRangeDegrees,
-		float PitchDirection);
+	void ApplyLookOffset(AActor* DrivenActor, const FRotator& Offset);
+
+	/** Stop layering and put every camera we turned back as it was driven. */
+	void ReleaseLook();
+
+	/** Start easing from the look as it stands (see Look Handover Seconds). */
+	void BeginLookHandover();
+
+	/** Advance the look toward Target, through any handover ease; returns the new look. */
+	FRotator AdvanceLookOffset(const FRotator& Target, float DeltaSeconds);
+
+	/**
+	 * One frame of look: integrate Free Look and the mouse, aim at the target
+	 * for the current mode, ease, and layer the result on TargetActor. Under
+	 * Timeline ownership the look eases to zero and is then released. Called by
+	 * TickComponent; public so the behaviour can be tested without a dog.
+	 */
+	void UpdateLook(AActor* TargetActor, bool bTimelineOwnsCamera, bool bFresh,
+		const FVector2D& MouseDelta, float DeltaSeconds);
+
+	/** A new camera owner (or mode): ease from the look as it stands. */
+	void OnLookOwnerChanged(bool bTimelineOwnsCamera);
 
 	/**
 	 * When the rotation write happens in the frame.
@@ -296,10 +344,10 @@ public:
 	 * Receive telemetry and drive rotation in the editor viewport WITHOUT
 	 * pressing Play, so the remote can frame shots while authoring.
 	 *
-	 * WARNING: this rotates the actor for real, which dirties the level package
-	 * exactly as if you had dragged it. The rotation the actor had when this was
-	 * switched on is restored when it is switched off (or the component
-	 * unregisters), but do not Save All while it is running.
+	 * WARNING: this rotates the camera for real, which dirties the level package
+	 * exactly as if you had dragged it. The camera's own rotation is restored
+	 * when this is switched off (or the component unregisters), but do not
+	 * Save All while it is running.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Editor")
 	bool bRunInEditor = false;
@@ -363,13 +411,42 @@ private:
 	float SmoothedRx = 0.0f;
 	float SmoothedRy = 0.0f;
 
-	// Absolute mode: rotation the stick offsets are applied relative to.
-	FRotator BaseRotation = FRotator::ZeroRotator;
-	bool bBaseRotationCaptured = false;
+	// The look layered on the driven camera, and what Free Look (stick rate) and
+	// the mouse have integrated into it. In Gaze only the mouse accumulates.
+	FRotator LookOffset = FRotator::ZeroRotator;
+	FRotator AccumulatedLook = FRotator::ZeroRotator;
 
-	// Automatic re-centre (camera change, ownership change, mode switch): keeps
-	// the picture where it is by subtracting the stick's present deflection.
-	void RecenterRotationKeepingView();
+	// Handover ease: from the look as it stood toward the live target.
+	FRotator HandoverFrom = FRotator::ZeroRotator;
+	float HandoverAlpha = 1.0f;
+
+	// The component carrying the look, its rotation as driven (relative), and
+	// what we last wrote there, to tell our own write from the route's.
+	TWeakObjectPtr<USceneComponent> LookComponent;
+	FRotator LookDrivenRelative = FRotator::ZeroRotator;
+	FRotator LookWrittenRelative = FRotator::ZeroRotator;
+	bool bLookWritten = false;
+	float LastDrivenPitch = 0.0f;
+
+	// Telemetry freshness last tick: a change is a look-source handover.
+	bool bWasFresh = false;
+
+	// A camera cut away from keeps its look until the blend away from it has
+	// landed (see ApplyLookOffset).
+	TWeakObjectPtr<USceneComponent> LeftBehindComponent;
+	FRotator LeftBehindDrivenRelative = FRotator::ZeroRotator;
+	FRotator LeftBehindWrittenRelative = FRotator::ZeroRotator;
+
+	// Cut detection: a view-target change with no blend in flight.
+	TWeakObjectPtr<AActor> LastViewTarget;
+	float SecondsSinceHardCut = 1.0e6f;
+
+	bool IsViewBlendInFlight() const;
+	void SettleLeftBehindLook(bool bEvenMidBlend);
+	void ReleaseCurrentLook();
+	void SettleLookAtOnce();
+	void RestoreIfStillOurs(USceneComponent* Component, const FRotator& DrivenRelative,
+		const FRotator& WrittenRelative) const;
 
 	// For rising-edge detection on remote buttons.
 	uint32 PrevKeys = 0;
@@ -385,11 +462,6 @@ private:
 	// -1 until an owner has been seen; stores EInfinityCameraOwner as an int so
 	// this header need not depend on the InfinityStage module.
 	int32 LastCameraOwner = -1;
-	TWeakObjectPtr<AActor> LastDrivenActor;
-
-	// Editor-mode bookkeeping: restore the authored rotation when we stop.
-	bool bEditorDriving = false;
-	FRotator EditorRestoreRotation = FRotator::ZeroRotator;
 
 	FSocket* Socket = nullptr;
 	FUdpSocketReceiver* Receiver = nullptr;

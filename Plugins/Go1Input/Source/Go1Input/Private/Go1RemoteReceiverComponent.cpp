@@ -1,6 +1,9 @@
 #include "Go1RemoteReceiverComponent.h"
 
+#include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Common/UdpSocketBuilder.h"
+#include "Components/SceneComponent.h"
 #include "Common/UdpSocketReceiver.h"
 #include "Dom/JsonObject.h"
 #include "Engine/Engine.h"
@@ -56,8 +59,6 @@ void UGo1RemoteReceiverComponent::StartReceiver()
 	Receiver->Start();
 
 	UE_LOG(LogGo1Input, Log, TEXT("Listening for GO1 telemetry on UDP port %d"), ListenPort);
-
-	RecenterRotation();
 
 	PrimaryComponentTick.TickGroup = RotationTickGroup;
 	UE_LOG(LogGo1Input, Log, TEXT("Rotation tick group: %d (TG_DuringPhysics=%d)"),
@@ -142,68 +143,337 @@ AInfinityStageShowRoot* UGo1RemoteReceiverComponent::ResolveShowRoot()
 
 void UGo1RemoteReceiverComponent::RecenterRotation()
 {
-	if (const AActor* Target = GetDrivenCameraActor())
-	{
-		BaseRotation = Target->GetActorRotation();
-		bBaseRotationCaptured = true;
-		UE_LOG(LogGo1Input, Log, TEXT("Centre rotation captured: P=%.1f Y=%.1f"),
-			BaseRotation.Pitch, BaseRotation.Yaw);
-	}
+	AccumulatedLook = FRotator::ZeroRotator;
+	BeginLookHandover();
+	UE_LOG(LogGo1Input, Log, TEXT("Look re-centred on the driven camera (was P=%.1f Y=%.1f)"),
+		LookOffset.Pitch, LookOffset.Yaw);
 }
 
-FRotator UGo1RemoteReceiverComponent::ComposeGazeRotation(
-	const FRotator& Centre,
-	const float StickX,
-	const float StickY,
-	const float YawRangeDegrees,
-	const float PitchRangeDegrees,
-	const float PitchDirection,
+FRotator UGo1RemoteReceiverComponent::ComposeLook(
+	const FRotator& Driven,
+	const FRotator& Offset,
 	const float MinPitchDegrees,
 	const float MaxPitchDegrees)
 {
-	FRotator Rotation = Centre;
-	Rotation.Yaw += StickX * YawRangeDegrees;
-	Rotation.Pitch = FMath::Clamp(
-		Centre.Pitch + PitchDirection * StickY * PitchRangeDegrees,
-		MinPitchDegrees, MaxPitchDegrees);
-	Rotation.Roll = Centre.Roll;
-	return Rotation;
+	FRotator View = Driven;
+	View.Yaw = FRotator::NormalizeAxis(Driven.Yaw + Offset.Yaw);
+	// Limit only what the look adds: an authored pitch beyond the limits stands.
+	View.Pitch = FMath::Clamp(
+		Driven.Pitch + Offset.Pitch,
+		FMath::Min<double>(MinPitchDegrees, Driven.Pitch),
+		FMath::Max<double>(MaxPitchDegrees, Driven.Pitch));
+	return View;
 }
 
-FRotator UGo1RemoteReceiverComponent::CentreKeepingView(
-	const FRotator& CurrentView,
-	const float StickX,
-	const float StickY,
-	const float YawRangeDegrees,
-	const float PitchRangeDegrees,
-	const float PitchDirection)
+namespace Go1Look
 {
-	FRotator Centre = CurrentView;
-	Centre.Yaw -= StickX * YawRangeDegrees;
-	Centre.Pitch -= PitchDirection * StickY * PitchRangeDegrees;
-	return Centre;
-}
-
-void UGo1RemoteReceiverComponent::RecenterRotationKeepingView()
-{
-	// A plain re-centre adopts the view as the centre, so a stick held over at
-	// that moment steps the picture by the whole deflection. This one subtracts
-	// the deflection, so the Gaze output on this frame is exactly the current
-	// view: no step at a cut, a blend or an ownership change. The dog's centre
-	// is then relative to where it was pointing (Gary, 2026-09-26: "don't
-	// jump"). The explicit remote re-centre button keeps the plain meaning,
-	// "where I'm looking now is the centre".
-	if (const AActor* Target = GetDrivenCameraActor())
+	// The component whose rotation is the view: the first active camera, as
+	// AActor::CalcCamera picks it. Below the root it carries the look alone, so
+	// the root keeps its route or sequence rotation and whatever else hangs on
+	// the root (a rig's shadow cat, its follow light) stays on the route.
+	USceneComponent* FindLookComponent(AActor* Actor)
 	{
-		const float PitchDir = bInvertPitch ? -1.0f : 1.0f;
-		BaseRotation = CentreKeepingView(
-			Target->GetActorRotation(), SmoothedRx, SmoothedRy, YawRangeDeg, PitchRangeDeg, PitchDir);
-		bBaseRotationCaptured = true;
-		UE_LOG(LogGo1Input, Log,
-			TEXT("Centre rotation captured keeping the view: P=%.1f Y=%.1f (stick offset P=%.1f Y=%.1f)"),
-			BaseRotation.Pitch, BaseRotation.Yaw,
-			PitchDir * SmoothedRy * PitchRangeDeg, SmoothedRx * YawRangeDeg);
+		if (!Actor)
+		{
+			return nullptr;
+		}
+		TInlineComponentArray<UCameraComponent*> Cameras(Actor);
+		for (UCameraComponent* Camera : Cameras)
+		{
+			if (Camera && Camera->IsActive())
+			{
+				return Camera;
+			}
+		}
+		return Actor->GetRootComponent();
 	}
+
+	constexpr float OwnWriteTolerance = 1.0e-3f;
+
+	// The Show's owner and the camera cut come from the same Master frame but
+	// through different systems, so the owner may land a frame or two after
+	// the cut. Timeline taking over this soon after a hard cut still counts as
+	// part of that cut.
+	constexpr float CutGraceSeconds = 0.1f;
+}
+
+bool UGo1RemoteReceiverComponent::IsViewBlendInFlight() const
+{
+	const UWorld* World = GetWorld();
+	const APlayerController* Controller = World ? UGameplayStatics::GetPlayerController(World, 0) : nullptr;
+	return Controller && Controller->PlayerCameraManager
+		&& Controller->PlayerCameraManager->BlendTimeToGo > 0.0f;
+}
+
+void UGo1RemoteReceiverComponent::RestoreIfStillOurs(
+	USceneComponent* Component,
+	const FRotator& DrivenRelative,
+	const FRotator& WrittenRelative) const
+{
+	const UWorld* World = Component ? Component->GetWorld() : nullptr;
+	const AActor* Owner = Component ? Component->GetOwner() : nullptr;
+	if (IsValid(Component)
+		&& (!World || !World->bIsTearingDown)
+		&& (!Owner || !Owner->IsActorBeingDestroyed())
+		&& Component->GetRelativeRotation().Equals(WrittenRelative, Go1Look::OwnWriteTolerance))
+	{
+		// Only while the rotation there is still ours; a newer write belongs to
+		// whatever drives the camera.
+		Component->SetRelativeRotation(DrivenRelative);
+	}
+}
+
+void UGo1RemoteReceiverComponent::SettleLeftBehindLook(const bool bEvenMidBlend)
+{
+	if (!LeftBehindComponent.IsValid())
+	{
+		LeftBehindComponent.Reset();
+		return;
+	}
+	if (!bEvenMidBlend && IsViewBlendInFlight())
+	{
+		return;
+	}
+	RestoreIfStillOurs(LeftBehindComponent.Get(), LeftBehindDrivenRelative, LeftBehindWrittenRelative);
+	LeftBehindComponent.Reset();
+}
+
+void UGo1RemoteReceiverComponent::ReleaseCurrentLook()
+{
+	if (bLookWritten)
+	{
+		RestoreIfStillOurs(LookComponent.Get(), LookDrivenRelative, LookWrittenRelative);
+	}
+	LookComponent.Reset();
+	bLookWritten = false;
+}
+
+void UGo1RemoteReceiverComponent::SettleLookAtOnce()
+{
+	LookOffset = FRotator::ZeroRotator;
+	AccumulatedLook = FRotator::ZeroRotator;
+	HandoverAlpha = 1.0f;
+}
+
+void UGo1RemoteReceiverComponent::ApplyLookOffset(AActor* DrivenActor, const FRotator& Offset)
+{
+	SettleLeftBehindLook(false);
+
+	USceneComponent* Component = Go1Look::FindLookComponent(DrivenActor);
+	if (Component != LookComponent.Get())
+	{
+		// A cut or a blend: the look carries over to the new camera unchanged,
+		// and the camera being left waits to be put back as driven until no
+		// blend is in flight.
+		USceneComponent* Leaving = LookComponent.Get();
+		const bool bLeavingWritten = Leaving && bLookWritten;
+		const FRotator LeavingDriven = LookDrivenRelative;
+		const FRotator LeavingWritten = LookWrittenRelative;
+
+		if (Component && Component == LeftBehindComponent.Get())
+		{
+			// Cut back before the blend away had landed: carry on where we were.
+			LookDrivenRelative = LeftBehindDrivenRelative;
+			LookWrittenRelative = LeftBehindWrittenRelative;
+			bLookWritten = true;
+			LeftBehindComponent.Reset();
+		}
+		else
+		{
+			// Only one camera waits; an older one goes back now.
+			SettleLeftBehindLook(true);
+			bLookWritten = false;
+		}
+		if (bLeavingWritten)
+		{
+			LeftBehindComponent = Leaving;
+			LeftBehindDrivenRelative = LeavingDriven;
+			LeftBehindWrittenRelative = LeavingWritten;
+		}
+		LookComponent = Component;
+		SettleLeftBehindLook(false);
+	}
+	if (!Component)
+	{
+		return;
+	}
+
+	const FRotator Current = Component->GetRelativeRotation();
+	if (!bLookWritten || !Current.Equals(LookWrittenRelative, Go1Look::OwnWriteTolerance))
+	{
+		// Not our write: the route, a sequence or an operator put it there, so
+		// that is the driven rotation now. This is what stops a held playhead
+		// from accumulating the look frame on frame.
+		LookDrivenRelative = Current;
+	}
+
+	const USceneComponent* Parent = Component->GetAttachParent();
+	const FQuat ParentWorld = (Parent && !Component->IsUsingAbsoluteRotation())
+		? Parent->GetSocketQuaternion(Component->GetAttachSocketName())
+		: FQuat::Identity;
+	const FRotator Driven = (ParentWorld * LookDrivenRelative.Quaternion()).Rotator();
+	LastDrivenPitch = static_cast<float>(Driven.Pitch);
+
+	Component->SetWorldRotation(ComposeLook(Driven, Offset, MinPitch, MaxPitch));
+	LookWrittenRelative = Component->GetRelativeRotation();
+	bLookWritten = true;
+}
+
+void UGo1RemoteReceiverComponent::ReleaseLook()
+{
+	ReleaseCurrentLook();
+	SettleLeftBehindLook(true);
+}
+
+void UGo1RemoteReceiverComponent::BeginLookHandover()
+{
+	HandoverFrom = LookOffset;
+	HandoverAlpha = (LookHandoverSeconds > 0.0f) ? 0.0f : 1.0f;
+}
+
+FRotator UGo1RemoteReceiverComponent::AdvanceLookOffset(const FRotator& Target, const float DeltaSeconds)
+{
+	if (HandoverAlpha < 1.0f)
+	{
+		HandoverAlpha = (LookHandoverSeconds > 0.0f)
+			? FMath::Min(1.0f, HandoverAlpha + DeltaSeconds / LookHandoverSeconds)
+			: 1.0f;
+		const double Blend = FMath::SmoothStep(0.0, 1.0, static_cast<double>(HandoverAlpha));
+		LookOffset.Pitch = FMath::Lerp(HandoverFrom.Pitch, Target.Pitch, Blend);
+		// The short way round, so a Free Look that has spun a full turn eases
+		// back by the angle that shows, not by the turns it made.
+		LookOffset.Yaw = HandoverFrom.Yaw + FRotator::NormalizeAxis(Target.Yaw - HandoverFrom.Yaw) * Blend;
+	}
+	else
+	{
+		LookOffset.Pitch = Target.Pitch;
+		LookOffset.Yaw = Target.Yaw;
+	}
+	LookOffset.Roll = 0.0;
+	return LookOffset;
+}
+
+void UGo1RemoteReceiverComponent::OnLookOwnerChanged(const bool bTimelineOwnsCamera)
+{
+	// Free Look holds the view where the handover finds it; Gaze and the
+	// Timeline aim back at the driven camera (Gaze then adds the stick).
+	AccumulatedLook = (!bTimelineOwnsCamera && RotationMode == EGo1RotationMode::Velocity)
+		? LookOffset
+		: FRotator::ZeroRotator;
+	if (bTimelineOwnsCamera && SecondsSinceHardCut < Go1Look::CutGraceSeconds)
+	{
+		SettleLookAtOnce();
+		return;
+	}
+	BeginLookHandover();
+}
+
+void UGo1RemoteReceiverComponent::UpdateLook(
+	AActor* TargetActor,
+	const bool bTimelineOwnsCamera,
+	const bool bFresh,
+	const FVector2D& MouseDelta,
+	const float DeltaSeconds)
+{
+	const bool bGaze = RotationMode == EGo1RotationMode::Absolute;
+	const float PitchDir = bInvertPitch ? -1.0f : 1.0f;
+
+	SettleLeftBehindLook(false);
+
+	// A hard cut (a new view target with no blend in flight; the first camera
+	// seen is not a cut). Into a Timeline shot the look is dropped at once: the
+	// cut hides it, and the shot should open exactly as authored.
+	SecondsSinceHardCut += DeltaSeconds;
+	if (TargetActor != LastViewTarget.Get())
+	{
+		if (LastViewTarget.IsValid() && !IsViewBlendInFlight())
+		{
+			SecondsSinceHardCut = 0.0f;
+			if (bTimelineOwnsCamera)
+			{
+				SettleLookAtOnce();
+			}
+		}
+		LastViewTarget = TargetActor;
+	}
+
+	if (bFresh != bWasFresh)
+	{
+		// The dog arriving or dropping out changes who is looking. In Gaze the
+		// mouse's look ends (or starts from the driven view); Free Look keeps
+		// the view where it is. Either way the change eases, never steps.
+		if (bGaze)
+		{
+			AccumulatedLook = FRotator::ZeroRotator;
+		}
+		BeginLookHandover();
+		bWasFresh = bFresh;
+	}
+
+	bMouseLookActive = false;
+	FRotator Target = FRotator::ZeroRotator;
+	if (!bTimelineOwnsCamera)
+	{
+		if (!bGaze && bFresh)
+		{
+			// Free Look: the stick is a turn rate, integrated into the look.
+			AccumulatedLook.Yaw += SmoothedRx * YawDegPerSec * DeltaSeconds;
+			AccumulatedLook.Pitch += PitchDir * SmoothedRy * PitchDegPerSec * DeltaSeconds;
+		}
+
+		// No dog: the mouse stands in on the same look. A mouse delta is a
+		// movement, not a held deflection, so it is added rather than
+		// integrated as a rate. It persists because nothing overwrites it: the
+		// look is an offset on the driven camera, not a captured rotation.
+		if (bMouseLookWhenNoTelemetry && !bFresh && !MouseDelta.IsNearlyZero())
+		{
+			AccumulatedLook.Yaw += MouseDelta.X * MouseLookDegreesPerUnit;
+			AccumulatedLook.Pitch += PitchDir * MouseDelta.Y * MouseLookDegreesPerUnit;
+			bMouseLookActive = true;
+			if (!bMouseLookReported)
+			{
+				bMouseLookReported = true;
+				UE_LOG(
+					LogGo1Input,
+					Display,
+					TEXT("GO1_MOUSE_LOOK_ACTIVE|target=%s|deg_per_unit=%.2f|mode=%s"),
+					*GetNameSafe(TargetActor),
+					MouseLookDegreesPerUnit,
+					bGaze ? TEXT("Absolute") : TEXT("Velocity"));
+			}
+		}
+
+		AccumulatedLook.Yaw = FRotator::NormalizeAxis(AccumulatedLook.Yaw);
+		// Keep the integral inside the pitch the view can reach, so it never
+		// winds up past a limit and has to be unwound before it moves again.
+		AccumulatedLook.Pitch = FMath::Clamp(
+			AccumulatedLook.Pitch,
+			FMath::Min(MinPitch, LastDrivenPitch) - LastDrivenPitch,
+			FMath::Max(MaxPitch, LastDrivenPitch) - LastDrivenPitch);
+		AccumulatedLook.Roll = 0.0;
+
+		Target = AccumulatedLook;
+		if (bGaze)
+		{
+			// Stick position IS the angle, so there is nothing to integrate; the
+			// mouse stands in within the same range the stick has.
+			Target.Yaw = FMath::Clamp(Target.Yaw + SmoothedRx * YawRangeDeg, -YawRangeDeg, YawRangeDeg);
+			Target.Pitch = FMath::Clamp(Target.Pitch + PitchDir * SmoothedRy * PitchRangeDeg, -PitchRangeDeg, PitchRangeDeg);
+			AccumulatedLook.Yaw = FMath::Clamp(AccumulatedLook.Yaw, -YawRangeDeg, YawRangeDeg);
+			AccumulatedLook.Pitch = FMath::Clamp(AccumulatedLook.Pitch, -PitchRangeDeg, PitchRangeDeg);
+		}
+	}
+
+	AdvanceLookOffset(Target, DeltaSeconds);
+
+	if (bTimelineOwnsCamera && HandoverAlpha >= 1.0f && LookOffset.IsNearlyZero(Go1Look::OwnWriteTolerance))
+	{
+		// Timeline ownership is hands off once the look has settled: the
+		// sequence drives, and any write from here would fight it.
+		ReleaseCurrentLook();
+		return;
+	}
+	ApplyLookOffset(TargetActor, LookOffset);
 }
 
 void UGo1RemoteReceiverComponent::StopReceiver()
@@ -221,15 +491,9 @@ void UGo1RemoteReceiverComponent::StopReceiver()
 		Socket = nullptr;
 	}
 
-	// Editor mode: put the actor back where the level author left it.
-	if (bEditorDriving)
-	{
-		if (AActor* Target = GetDrivenCameraActor())
-		{
-			Target->SetActorRotation(EditorRestoreRotation);
-		}
-		bEditorDriving = false;
-	}
+	// Put the camera back as it is driven (in the editor: as the level author
+	// left it).
+	ReleaseLook();
 }
 
 void UGo1RemoteReceiverComponent::BeginPlay()
@@ -386,11 +650,6 @@ void UGo1RemoteReceiverComponent::TickComponent(
 	{
 		if (bRunInEditor && Socket == nullptr)
 		{
-			if (const AActor* Target = GetDrivenCameraActor())
-			{
-				EditorRestoreRotation = Target->GetActorRotation();
-			}
-			bEditorDriving = true;
 			StartReceiver();
 		}
 		else if (!bRunInEditor && Socket != nullptr)
@@ -441,14 +700,9 @@ void UGo1RemoteReceiverComponent::TickComponent(
 	}
 
 	// --- Which camera are we driving? ----------------------------------------
-	// The view target changes on Sequencer camera cuts, so re-centre when it does
-	// or the new camera inherits the previous one's centre.
+	// The view target, so Sequencer cuts change it. The look carries across a
+	// cut unchanged; ApplyLookOffset puts the camera being left back as driven.
 	AActor* TargetActor = GetDrivenCameraActor();
-	if (TargetActor != LastDrivenActor.Get())
-	{
-		LastDrivenActor = TargetActor;
-		RecenterRotationKeepingView();
-	}
 
 	// --- Camera ownership: the Show is authoritative when one exists ---------
 	bool bOwnershipGoverning = false;
@@ -477,14 +731,11 @@ void UGo1RemoteReceiverComponent::TickComponent(
 			const int32 OwnerValue = static_cast<int32>(Owner);
 			if (OwnerValue != LastCameraOwner)
 			{
-				// Taking the camera back from the timeline must not snap: adopt
-				// wherever the sequence left it as the new centre.
-				if (!bTimelineOwnsCamera)
-				{
-					RecenterRotationKeepingView();
-				}
+				// A new owner eases from the look as it stands, so taking the
+				// camera from the timeline or giving it back never snaps.
+				OnLookOwnerChanged(bTimelineOwnsCamera);
 				UE_LOG(LogGo1Input, Log, TEXT("Camera owner -> %s"),
-					bTimelineOwnsCamera ? TEXT("Timeline (input released)")
+					bTimelineOwnsCamera ? TEXT("Timeline (look eases out, then input released)")
 					: (RotationMode == EGo1RotationMode::Absolute ? TEXT("DogGazeOnly (Absolute)")
 					                                              : TEXT("DogFreeLook (Velocity)")));
 				LastCameraOwner = OwnerValue;
@@ -506,16 +757,10 @@ void UGo1RemoteReceiverComponent::TickComponent(
 		if (!bOwnershipGoverning && bAllowRemoteModeToggle &&
 			(Pressed & (1u << static_cast<uint32>(ModeToggleButton))) != 0)
 		{
-			if (RotationMode == EGo1RotationMode::Absolute)
-			{
-				RotationMode = EGo1RotationMode::Velocity;
-			}
-			else
-			{
-				RotationMode = EGo1RotationMode::Absolute;
-				// Adopt the current view as centre so the switch doesn't snap.
-				RecenterRotationKeepingView();
-			}
+			RotationMode = (RotationMode == EGo1RotationMode::Absolute)
+				? EGo1RotationMode::Velocity
+				: EGo1RotationMode::Absolute;
+			OnLookOwnerChanged(false);
 			UE_LOG(LogGo1Input, Log, TEXT("Rotation mode -> %s"),
 				RotationMode == EGo1RotationMode::Absolute ? TEXT("Absolute") : TEXT("Velocity"));
 		}
@@ -529,76 +774,25 @@ void UGo1RemoteReceiverComponent::TickComponent(
 		PrevKeys = Copy.Keys;
 	}
 
-	// Timeline ownership means hands off entirely — the sequence drives, and any
-	// write from here would fight it.
-	if (bDriveOwnerRotation && !bTimelineOwnsCamera)
+	// --- The look: an offset layered on whatever drives the camera ----------
+	if (bDriveOwnerRotation && TargetActor != nullptr)
 	{
-		if (AActor* Owner = TargetActor)
+		FVector2D MouseDelta = FVector2D::ZeroVector;
+		if (bMouseLookWhenNoTelemetry && !bFresh && !bTimelineOwnsCamera)
 		{
-			const float PitchDir = bInvertPitch ? -1.0f : 1.0f;
-
-			if (RotationMode == EGo1RotationMode::Absolute)
+			if (APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0))
 			{
-				if (!bBaseRotationCaptured)
-				{
-					RecenterRotation();
-				}
-
-				// Stick position IS the angle, so there is no limit to run into
-				// and nothing to integrate. Applied even when stale, because the
-				// zeroed axes then return the view smoothly to centre.
-				Owner->SetActorRotation(ComposeGazeRotation(
-					BaseRotation, SmoothedRx, SmoothedRy, YawRangeDeg, PitchRangeDeg, PitchDir, MinPitch, MaxPitch));
-			}
-			else if (bFresh)
-			{
-				FRotator Rotation = Owner->GetActorRotation();
-				Rotation.Yaw += SmoothedRx * YawDegPerSec * DeltaTime;
-				Rotation.Pitch = FMath::Clamp(
-					Rotation.Pitch + PitchDir * SmoothedRy * PitchDegPerSec * DeltaTime,
-					MinPitch, MaxPitch);
-				Rotation.Roll = 0.0f;
-				Owner->SetActorRotation(Rotation);
-			}
-
-			// No dog: the mouse stands in on the same rotation, so a look pass can
-			// be judged before the robot is on site. A mouse delta is a movement,
-			// not a held deflection, so it is applied directly rather than
-			// integrated as a rate.
-			const bool bMouseEligible = bMouseLookWhenNoTelemetry && !bFresh;
-			bMouseLookActive = false;
-			if (bMouseEligible)
-			{
-				if (APlayerController* Controller = UGameplayStatics::GetPlayerController(this, 0))
-				{
-					float MouseDeltaX = 0.0f;
-					float MouseDeltaY = 0.0f;
-					Controller->GetInputMouseDelta(MouseDeltaX, MouseDeltaY);
-					if (!FMath::IsNearlyZero(MouseDeltaX) || !FMath::IsNearlyZero(MouseDeltaY))
-					{
-						FRotator Rotation = Owner->GetActorRotation();
-						Rotation.Yaw += MouseDeltaX * MouseLookDegreesPerUnit;
-						Rotation.Pitch = FMath::Clamp(
-							Rotation.Pitch + PitchDir * MouseDeltaY * MouseLookDegreesPerUnit,
-							MinPitch, MaxPitch);
-						Rotation.Roll = 0.0f;
-						Owner->SetActorRotation(Rotation);
-						bMouseLookActive = true;
-						if (!bMouseLookReported)
-						{
-							bMouseLookReported = true;
-							UE_LOG(
-								LogGo1Input,
-								Display,
-								TEXT("GO1_MOUSE_LOOK_ACTIVE|target=%s|deg_per_unit=%.2f|mode=%s"),
-								*Owner->GetName(),
-								MouseLookDegreesPerUnit,
-								RotationMode == EGo1RotationMode::Absolute ? TEXT("Absolute") : TEXT("Velocity"));
-						}
-					}
-				}
+				float MouseDeltaX = 0.0f;
+				float MouseDeltaY = 0.0f;
+				Controller->GetInputMouseDelta(MouseDeltaX, MouseDeltaY);
+				MouseDelta = FVector2D(MouseDeltaX, MouseDeltaY);
 			}
 		}
+		UpdateLook(TargetActor, bTimelineOwnsCamera, bFresh, MouseDelta, DeltaTime);
+	}
+	else
+	{
+		ReleaseLook();
 	}
 
 	if (bShowDebug && GEngine != nullptr)
@@ -642,7 +836,7 @@ void UGo1RemoteReceiverComponent::TickComponent(
 				*Status, ModeName, OwnerSource, Copy.Seq, AgeMs, Copy.GapCount, Fps,
 				Copy.DogMode, Copy.DogGait,
 				SmoothedRx, SmoothedRy,
-				SmoothedRx * YawRangeDeg, SmoothedRy * PitchRangeDeg, Copy.Keys)
+				LookOffset.Yaw, LookOffset.Pitch, Copy.Keys)
 			: FString::Printf(TEXT("GO1 %s"), *Status);
 
 		GEngine->AddOnScreenDebugMessage(
