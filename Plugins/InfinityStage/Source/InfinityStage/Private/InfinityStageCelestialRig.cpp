@@ -347,14 +347,19 @@ void AInfinityStageCelestialRig::ApplyCyclePhase(const double NormalizedPhase)
     // and level hooks.
     if (bSuppressForeignEnvironmentLighting)
     {
+        // In a game world BeginPlay makes the first walk, with the arrival hooks
+        // bound; a phase applied before it (at construction) must not walk as
+        // well. Only the editor, which never begins play, walks on its first apply.
+        const UWorld* World = GetWorld();
+        const bool bBeforeGameBegins = World && World->IsGameWorld() && !HasActorBegunPlay();
         const bool bNeverWalked = LastForeignLightingWalkSeconds < 0.0;
         const bool bRecheckDue = ForeignLightingRecheckSeconds > 0.0f
             && FPlatformTime::Seconds() - LastForeignLightingCheckSeconds >= ForeignLightingRecheckSeconds;
-        if (bNeverWalked)
+        if (!bBeforeGameBegins && bNeverWalked)
         {
             SuppressForeignEnvironmentLighting();
         }
-        else if (bRecheckDue)
+        else if (!bBeforeGameBegins && bRecheckDue)
         {
             ReapplyForeignSuppression();
         }

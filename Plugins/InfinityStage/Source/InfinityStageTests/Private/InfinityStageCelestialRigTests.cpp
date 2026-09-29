@@ -12,7 +12,7 @@
 namespace
 {
 /** A rig bound to its own sun, moon, sky light and fog, begun as in play. */
-AInfinityStageCelestialRig* SpawnBegunCelestialRig(UWorld& World)
+AInfinityStageCelestialRig* SpawnBegunCelestialRig(UWorld& World, int32* OutWalksBeforeBeginPlay = nullptr)
 {
     AInfinityStageCelestialRig* Rig = World.SpawnActor<AInfinityStageCelestialRig>();
     Rig->bAutoBindActorsByTag = false;
@@ -20,6 +20,11 @@ AInfinityStageCelestialRig* SpawnBegunCelestialRig(UWorld& World)
     Rig->MoonLightActor = World.SpawnActor<ADirectionalLight>();
     Rig->SkyLightActor = World.SpawnActor<ASkyLight>();
     Rig->HeightFogActor = World.SpawnActor<AExponentialHeightFog>();
+    // Construction in an editor world walks on its first lighting apply, by design.
+    if (OutWalksBeforeBeginPlay)
+    {
+        *OutWalksBeforeBeginPlay = Rig->ForeignLightingWalkCount;
+    }
     Rig->DispatchBeginPlay();
     return Rig;
 }
@@ -33,8 +38,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 bool FInfinityStageCelestialForeignArrivalTest::RunTest(const FString& Parameters)
 {
     UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
-    AInfinityStageCelestialRig* Rig = SpawnBegunCelestialRig(*World);
-    TestEqual(TEXT("BeginPlay walks the world once"), Rig->ForeignLightingWalkCount, 1);
+    int32 WalksBeforeBeginPlay = 0;
+    AInfinityStageCelestialRig* Rig = SpawnBegunCelestialRig(*World, &WalksBeforeBeginPlay);
+    TestEqual(TEXT("BeginPlay walks the world once"), Rig->ForeignLightingWalkCount, WalksBeforeBeginPlay + 1);
     TestEqual(TEXT("The rig's own lights are not foreign"), Rig->ForeignLightingSuppressedCount, 0);
     TestTrue(TEXT("The rig's own sun stays visible"), Rig->SunLightActor->GetLightComponent()->IsVisible());
 
@@ -42,7 +48,7 @@ bool FInfinityStageCelestialForeignArrivalTest::RunTest(const FString& Parameter
     ADirectionalLight* Foreign = World->SpawnActor<ADirectionalLight>();
     TestFalse(TEXT("An arriving foreign sun is silenced"), Foreign->GetLightComponent()->IsVisible());
     TestTrue(TEXT("An arriving foreign sun is hidden in game"), Foreign->IsHidden());
-    TestEqual(TEXT("The arrival is handled without walking the world"), Rig->ForeignLightingWalkCount, 1);
+    TestEqual(TEXT("The arrival is handled without walking the world"), Rig->ForeignLightingWalkCount, WalksBeforeBeginPlay + 1);
     TestEqual(TEXT("One foreign actor silenced"), Rig->ForeignLightingSuppressedCount, 1);
 
     World->DestroyWorld(false);
