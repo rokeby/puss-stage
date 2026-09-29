@@ -205,33 +205,76 @@ def add_render_modifiers(obj):
     sol.thickness, sol.show_viewport = 0.006, False
 
 
+def ue_oriented_corners(o):
+    """The 8 corners (UE cm) of an oriented box: centre, size (local X fwd, Y right, Z up), yaw about Z then pitch,
+    using UE's FRotationMatrix axes with roll 0."""
+    cy, sy = math.cos(math.radians(o["yaw_deg"])), math.sin(math.radians(o["yaw_deg"]))
+    cp, sp = math.cos(math.radians(o["pitch_deg"])), math.sin(math.radians(o["pitch_deg"]))
+    ax = (cp * cy, cp * sy, sp)
+    ay = (-sy, cy, 0.0)
+    az = (-sp * cy, -sp * sy, cp)
+    hx, hy, hz = (v / 2.0 for v in o["size_cm"])
+    c = o["centre_cm"]
+    return [[c[k] + a * hx * ax[k] + b * hy * ay[k] + d * hz * az[k] for k in range(3)]
+            for a in (-1, 1) for b in (-1, 1) for d in (-1, 1)]
+
+
+def collider_from_corners(name, corners_ue, side_hide=False):
+    """A convex box mesh from 8 UE-cm corners (a, b, d order from ue_oriented_corners), mapped to Blender metres."""
+    verts = [(c[1] / 100.0, c[0] / 100.0, c[2] / 100.0) for c in corners_ue]      # Bx = UE_Y, By = UE_X, Bz = UE_Z
+    idx = lambda a, b, d: (a * 4) + (b * 2) + d
+    faces = [(idx(0, 0, 0), idx(0, 1, 0), idx(0, 1, 1), idx(0, 0, 1)), (idx(1, 0, 0), idx(1, 0, 1), idx(1, 1, 1), idx(1, 1, 0)),
+             (idx(0, 0, 0), idx(0, 0, 1), idx(1, 0, 1), idx(1, 0, 0)), (idx(0, 1, 0), idx(1, 1, 0), idx(1, 1, 1), idx(0, 1, 1)),
+             (idx(0, 0, 0), idx(1, 0, 0), idx(1, 1, 0), idx(0, 1, 0)), (idx(0, 0, 1), idx(0, 1, 1), idx(1, 1, 1), idx(1, 0, 1))]
+    me = bpy.data.meshes.new(f"Collider_{name}")
+    me.from_pydata(verts, [], faces)
+    me.validate()
+    me.update()
+    o = bpy.data.objects.new(f"Collider_{name}", me)
+    bpy.context.scene.collection.objects.link(o)
+    o.modifiers.new("Collision", "COLLISION")
+    o.collision.cloth_friction = FLOOR_FRICTION
+    o.collision.thickness_outer = 0.01
+    o["side_hide"] = side_hide
+    m = bpy.data.materials.new(f"M_{o.name}")
+    m.diffuse_color = (0.35, 0.33, 0.3, 1.0)
+    o.data.materials.append(m)
+    return o
+
+
+def aabb_corners(box):
+    lo, hi = box["min_cm"], box["max_cm"]
+    return [[(lo, hi)[a][0], (lo, hi)[b][1], (lo, hi)[d][2]] for a in (0, 1) for b in (0, 1) for d in (0, 1)]
+
+
 def add_stage_colliders():
-    """Build the listed stage boxes as collision objects; return one representative (for the floor material)."""
+    """Build Rig's stage colliders (Docs/StageFrontColliders_2026-09-28.json) in place of the infinite floor.
+    v1 ("path|option"): options[option] axis-aligned boxes. v2 ("path|v2"): boxes + lamp_housings, the housings built
+    from their exact ORIENTED box, whose corners must reproduce the file's own AABB to 1 cm (a convention check)."""
     path, option = COLLIDERS.split("|")
-    spec = json.loads((ROOT / path).read_text(encoding="utf-8"))["options"][option]
-    first = None
-    for box in spec:
-        lo = [box["min_cm"][1] / 100.0, box["min_cm"][0] / 100.0, box["min_cm"][2] / 100.0]   # (Bx, By, Bz)
-        hi = [box["max_cm"][1] / 100.0, box["max_cm"][0] / 100.0, box["max_cm"][2] / 100.0]
-        centre = [(a + b) / 2.0 for a, b in zip(lo, hi)]
-        size = [max(b - a, 0.001) for a, b in zip(lo, hi)]
-        bpy.ops.mesh.primitive_cube_add(size=1.0, location=centre)
-        o = bpy.context.active_object
-        o.name, o.scale = f"Collider_{box['name']}", size
-        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-        o.modifiers.new("Collision", "COLLISION")
-        o.collision.cloth_friction = FLOOR_FRICTION
-        o.collision.thickness_outer = 0.01
-        o["side_hide"] = box["name"].startswith(("Post", "Header"))
+    spec = json.loads((ROOT / path).read_text(encoding="utf-8"))
+    boxes = spec["options"][option] if option != "v2" else spec["boxes"]
+    first, built = None, {"boxes": 0, "housings": 0}
+    for box in boxes:
+        o = collider_from_corners(box["name"], aabb_corners(box), side_hide=box["name"].startswith(("Post", "Header")))
+        built["boxes"] += 1
         if POSTS_FROM and box["name"].startswith("Post"):
             o.location.z -= 40.0
             o.keyframe_insert("location", index=2, frame=POSTS_FROM - 1)
             o.location.z += 40.0
             o.keyframe_insert("location", index=2, frame=POSTS_FROM)
-        m = bpy.data.materials.new(f"M_{o.name}")
-        m.diffuse_color = (0.35, 0.33, 0.3, 1.0)
-        o.data.materials.append(m)
         first = first or o
+    for h in (spec.get("lamp_housings", []) if option == "v2" else []):
+        corners = ue_oriented_corners(h["oriented"]) if "oriented" in h else aabb_corners(h)
+        lo = [min(c[k] for c in corners) for k in range(3)]
+        hi = [max(c[k] for c in corners) for k in range(3)]
+        err = max(max(abs(a - b) for a, b in zip(lo, h["min_cm"])), max(abs(a - b) for a, b in zip(hi, h["max_cm"])))
+        if err > 1.0:
+            raise SystemExit(f"COLLIDER_CONVENTION_MISMATCH|{h['name']}: oriented corners miss the file's AABB by {err:.1f} cm")
+        collider_from_corners(h["name"], corners)
+        built["housings"] += 1
+    bpy.context.scene["colliders_built"] = json.dumps(built)
+    print(f"CURTAIN_DROP_COLLIDERS|{json.dumps(built)}")
     return first
 
 
@@ -419,11 +462,12 @@ def set_side_hide(side):
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     scene, obj, top, floor = build_curtain()
-    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "colliders": COLLIDERS, "posts_from": POSTS_FROM, "show_start": SHOW_START, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
+    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "colliders": COLLIDERS, "colliders_built": None, "posts_from": POSTS_FROM, "show_start": SHOW_START, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
               "air_damping": AIR_DAMPING, "air_damping_applied": None, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
               "frame_seconds": [], "checkpoints": {}}
     report["mass_per_vertex"] = round(obj.modifiers["Cloth"].settings.mass, 4)
+    report["colliders_built"] = json.loads(scene.get("colliders_built", "null"))
     report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
     cs = obj.modifiers["Cloth"].collision_settings
     report["self_dist_applied_m"] = round(cs.self_distance_min, 4)
