@@ -61,6 +61,24 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep: Opening repoint preflight (read-only), and an anomaly in the Master (NOT curtain work)
+
+`Saved/CodexSoftGoods/preflight_opening_repoint.py` (read-only; dirty set empty before and after; run after Wing
+materiality's saves) compared every Show cue that has a sequence against the Master
+(`LS_InfinityStage_V1Master`: 25 fps, 24000 tick, 0–32942 = 1317.7 s, 13 subsequence sections).
+- **The Opening is consistent.** Cue 0 "Opening — Curtain" → `LS_Opening_Curtain`, sequence_owns_curtain true,
+  15.0 s at 25 fps; Master section frames 0–375 = 15.0 s. The curtain holds closed 0–50 and flies out 50–150
+  (CurtainProgress 1 → 0), so a replacement curtain must release at frame 50.
+- **ANOMALY, cue 97 "Scene 3 — External Sound" → `LS_DevScene_03`:** its Master section is **585.64 s**
+  (frames 6811–21452), against a sequence of **160.375 s**, 3.65 times as long. It is also the **only 24 fps**
+  sequence in the show; every other one is 25. The other 11 sequence cues match their sections exactly. It is
+  NOT known whether this is a deliberate hold/loop laid by the builder or a stale Master. It sits in the
+  passage→scene→passage path Gary calls "clunky and buggy", but it has NOT been shown to cause that. It is carried
+  into the transitions work (conductor). Consequence here: a full `RebuildManagedMaster` would re-lay it, so the
+  Opening repoint is a NARROW edit: cue 0 in the Show plus only the Master's Opening section (0–375), retargeted to
+  a 15.0 s / 25 fps sequence, which is what a rebuild would produce for cue 0. Do NOT use the
+  `PussStageBootstrap.RebuildCurrentMaster` automation test: it rebuilds AND SAVES the Show and the Master.
+
 ## 28–29 Sep: the landing bounce (fixed) and the final bake
 
 Gary on the true-speed take: "it does read as heavy... the bounce is off". Measured before theorising:
