@@ -22,6 +22,8 @@ OUT = os.path.join(HERE, "wing001_footprint.json")
 BANDS_CM = (30.0, 60.0, 100.0)
 CLIP = 1.0 / 3.0
 BIN_CM = 10.0
+COLLIDER_TOP_CM = 200.0   # the curtain pile stays well under this at the wing line
+COLLIDER_STEP_CM = 10.0
 
 
 def pick_section(panel):
@@ -31,9 +33,23 @@ def pick_section(panel):
     return panel["sections"][0], (panel["materials"][0] if panel["materials"] else {})
 
 
-def alpha_source(material):
-    for t in material.get("textures", []):
-        src = t.get("source")
+# When a texture's recorded import source isn't on this machine (the Mac-era
+# /private/tmp paths) or the probe couldn't read the parameter, use the wing's
+# delivered base image in the repo, by mesh name. Same pixels, same handedness.
+ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
+SOURCE_OVERRIDES = {
+    "SM_SaltFormation_01_L_v2": os.path.join(ROOT, "DerivedAssets", "GeneratedWingsV2", "SaltFormation_01_L_v2",
+                                             "Textures", "SaltFormation_01_L_v2.png"),
+    "SM_R__1_roccoco": os.path.join(ROOT, "DerivedAssets", "WingMateriality", "SourceExports", "R__1_roccoco.png"),
+}
+
+
+def alpha_source(material, mesh=""):
+    candidates = [t.get("source") for t in material.get("textures", [])]
+    stem = mesh.rsplit("/", 1)[-1].split(".")[0]
+    if stem in SOURCE_OVERRIDES:
+        candidates.append(SOURCE_OVERRIDES[stem])
+    for src in candidates:
         if src and os.path.isfile(src):
             img = Image.open(src)
             if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
@@ -59,7 +75,7 @@ probe = json.load(open(PROBE, encoding="utf-8"))
 report = {"cue": probe["cue"], "flip_image_horizontally": probe["flip_image_horizontally"], "clip": CLIP, "sides": []}
 for panel in probe["panels"]:
     section, material = pick_section(panel)
-    src, alpha = alpha_source(material)
+    src, alpha = alpha_source(material, panel["mesh"])
     rec = {"side": panel["side"], "mesh": panel["mesh"], "material": material.get("material"),
            "slot_name": material.get("slot_name"), "alpha_source": src}
     if alpha is None:
@@ -101,6 +117,26 @@ for panel in probe["panels"]:
         rec["bands"][f"z<={band:.0f}"] = {
             "x_range": [round(float(near[:, 0].min()), 1), round(float(near[:, 0].max()), 1)] if len(near) else None,
             "y_intervals": intervals(near[:, 1])}
+    # Collider boxes that follow the painted silhouette: one per opaque Y
+    # interval per 10 cm course of height, up to COLLIDER_TOP_CM, through the
+    # card's full thickness (all sections), merged where a course repeats the
+    # one below it. Transparent parts of the card get no box, so the cloth is
+    # never held up by visible air.
+    all_verts = np.concatenate([np.asarray(sec["verts"], dtype=np.float64) for sec in panel["sections"]])
+    x0, x1 = float(all_verts[:, 0].min()), float(all_verts[:, 0].max())
+    runs = []
+    for z0 in np.arange(0.0, COLLIDER_TOP_CM, COLLIDER_STEP_CM):
+        band = pts[(pts[:, 2] >= floor_z + z0) & (pts[:, 2] < floor_z + z0 + COLLIDER_STEP_CM)]
+        ivs = intervals(band[:, 1]) if len(band) else []
+        if runs and runs[-1]["y_intervals"] == ivs:
+            runs[-1]["z1"] = float(z0 + COLLIDER_STEP_CM)
+        else:
+            runs.append({"z0": float(z0), "z1": float(z0 + COLLIDER_STEP_CM), "y_intervals": ivs})
+    side = panel["side"].split(".")[-1].split(":")[0]
+    rec["collider_boxes"] = [
+        {"name": f"Wing 001 {side} card {i + 1}", "min_cm": [round(x0, 1), y0, round(floor_z + r["z0"], 1)],
+         "max_cm": [round(x1, 1), y1, round(floor_z + r["z1"], 1)]}
+        for i, (r, (y0, y1)) in enumerate((r, iv) for r in runs for iv in r["y_intervals"])]
     report["sides"].append(rec)
 
 json.dump(report, open(OUT, "w"), indent=1)
