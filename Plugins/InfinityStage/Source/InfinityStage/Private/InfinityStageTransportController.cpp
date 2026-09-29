@@ -424,18 +424,6 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
 {
     RefreshSelectedSegment();
 
-    // Sitting exactly on a segment's own start frame means it has been cued but
-    // not played. Advancing from there must PLAY that segment, not step over it:
-    // otherwise an operator walking the show from the top loses every segment
-    // they land on. JumpToPreviousSegment has always carried the mirror of this
-    // test -- it re-cues the current segment rather than stepping back -- and the
-    // absence of it here is why Right appeared to skip a Passage.
-    if (Segments.IsValidIndex(SelectedSegmentIndex)
-        && GetCurrentMasterFrame() == Segments[SelectedSegmentIndex].StartFrame)
-    {
-        return PlayForwardToBoundary();
-    }
-
     const int32 TargetIndex = SelectedSegmentIndex + 1;
     const EInfinityTransportResult CueResult = JumpToSegment(TargetIndex, false);
     if (CueResult != EInfinityTransportResult::Succeeded)
