@@ -26,8 +26,10 @@ import os
 
 import unreal
 
-MODE = None               # "above" or "below": Gary's choice, via the conductor
-TRIM_P01_AT_LIP = None    # True or False: Gary's choice, via the conductor
+# Gary, 29 Sep, via the conductor: "Show me the boards" (slabs under them), and
+# trim P01 at the lip so the stage front shows.
+MODE = "below"
+TRIM_P01_AT_LIP = True
 
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 FOREIGN_OK = {"/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"}
