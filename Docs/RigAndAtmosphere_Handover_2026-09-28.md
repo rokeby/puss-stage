@@ -248,3 +248,18 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
     call, not prepared.
   - The toggle A/B belongs to Soft goods. Pausing the transport freezes the wings;
     `ShowFlag.LightFunctions 0` kills the flicker.
+- **Scene 4 hangar built** (`scene4_hangar_build.py`): 64 actors, tag
+  `RigAtmos.Scene4Hangar`.
+  - Size: 60 × 20 × 30 m around Scene 4's camera at (0, 280000, 180).
+  - Surfaces: walnut floor, black-metal walls and roof, a 12 m lattice.
+  - Light: a ghost light, 14 practicals, and a volume pinning exposure at EV100
+    0.5 with Local Exposure neutral.
+  - Backup `PreScene4Hangar-20260929-1441`; revert `scene4_hangar_revert.py`.
+  - The lattice is out of the establishing frame (FOV 37.5°).
+- **The fold is keyed** in `/Game/InfinityStage/RigAtmos/LS_S4_HangarFold`: 25 s,
+  practicals attached to their walls, hinge tags rewritten to verified angles.
+  - The build-time far-wall tag had the wrong sign.
+  - Backup `PreScene4Fold-20260929-1452`; revert `scene4_fold_revert.py`.
+  - Captures: in near-dark the motion reads only as silhouettes. The lights-up
+    reads; the roof and lattice move out of frame. Whether to light the flats
+    while they move is Gary's call. Motion blur isn't judged yet.
