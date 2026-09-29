@@ -82,8 +82,14 @@ otherwise dramatic curtains to replace them in their fall to transition between 
 - **Swapping:** a Sequencer GeometryCache section stores its own asset reference, so swap by RE-IMPORTING OVER THE
   SAME ASSET PATH (no sequence edits) or with a one-field section edit. Start with one shared placeholder per
   block type; give a transition its own named asset when its tattered curtain arrives.
-- **HYPOTHESIS (unverified), SavedFixturePIE's failing "Closing sequence evaluates exactly one curtain rig" (1
-  expected, 0 found):** segments are built from the SHOW; the Master (saved 21 Sep) lays Scene 3 at 585.64 s
+- **CONFIRMED 29 Sep (read-only, `Saved/CodexSoftGoods/segments_vs_master.py`): the Master is STALE from Scene 3
+  on.** BuildSegments on a transient transport matches the Master exactly up to Scene 3's start (272.455 s). Scene 3
+  is 160.375 s in the Show and 585.640 s in the Master, so every later segment is 425.265 s off (Closing: Show
+  877.429 vs Master 1302.694). SavedFixturePIE scrubs to the Show's Closing + 4 s = 881.4 s, which falls between
+  Interaction 3 and Scene 4 in the Master, so it finds 0 rigs. In PIE the transport lands 425 s off for every segment
+  after Scene 3. Fix: RebuildManagedMaster (the library call, never the PussStageBootstrap.RebuildCurrentMaster
+  test), with the Show and Master backed up and Gary's yes. The original hypothesis follows:
+  SavedFixturePIE's failing "Closing sequence evaluates exactly one curtain rig" (1 expected, 0 found): segments are built from the SHOW; the Master (saved 21 Sep) lays Scene 3 at 585.64 s
   against a 160.375 s sequence, so every segment after Scene 3 may sit ~425 s earlier in the Show than in the
   Master, and the Closing scrub (+4 s) then lands outside the Master's Closing section. That fits it being the only
   curtain assertion that fails (Interaction 1, before Scene 3, passes). Check read-only: Segments[18].StartFrame
