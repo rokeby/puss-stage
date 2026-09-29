@@ -45,6 +45,14 @@ def size(path):
 wm.editor_ready()
 before = wm.dirty()
 bounds = wm.read_json("mesh_bounds.json")
+UVROWS = wm.read_json("uv_axes.json")["rows"]
+
+
+def uv_span(mesh):
+    """Centimetres covered by UV 0..1 (measured from the mesh UVs, not the bounds)."""
+    r = UVROWS.get(mesh)
+    wm.require(r is not None, f"{mesh} missing from uv_axes.json - rerun probe_uv_axes_readonly.py")
+    return abs(1.0 / r["U_per_cm_Y"]), abs(1.0 / r["V_per_cm_Z"])
 
 # Live components -> mesh -> slot MIs and passages.
 meshes = {}
@@ -70,6 +78,7 @@ counts = collections.Counter()
 for mesh, rec in sorted(meshes.items()):
     b = bounds.get(mesh)
     width, height, half = (b[3] - b[2], b[5] - b[4], (b[1] - b[0]) / 2.0) if b else (500.0, 1000.0, 5.0)
+    span_u, span_v = uv_span(mesh)
     stem = mesh.rsplit("/", 1)[-1][3:]
     slots = rec["slots"]
     front = unreal.EditorAssetLibrary.load_asset(slots[0])
@@ -79,13 +88,26 @@ for mesh, rec in sorted(meshes.items()):
         family = "V2"
         base, om = tex(front, "BaseColor"), tex(front, "OpacityMask")
         change = {"mi": slots[0], "parent": MASTER, "keep_textures": True,
-                  "scalars": {"PanelWidthCm": width, "PanelHeightCm": height}}
+                  "scalars": {"UVSpanUCm": span_u, "UVSpanVCm": span_v}}
         if om != base:
             change["textures"] = {"OpacityMask": base}
             problems.append(f"{slots[0]}: OpacityMask {om} != BaseColor {base} (fixed by plan)")
         item["changes"].append(change)
     elif parent in (MASTER,):
         family = "already"
+        # The P01 trial ran rococo R on luminance relief. Give it the generated maps its
+        # legacy mirror gets, so the pair stays like-for-like. UseBurn is left as it is.
+        base = tex(front, "BaseColor")
+        gh = f"{GEN_RELIEF}/T_{base.rsplit('/', 1)[-1]}_H" if base else None
+        gn = f"{GEN_RELIEF}/T_{base.rsplit('/', 1)[-1]}_N" if base else None
+        on = MEL.get_material_instance_static_switch_parameter_value(front, "HasHeightMap")
+        if (not on and gh and unreal.EditorAssetLibrary.does_asset_exist(gh)
+                and unreal.EditorAssetLibrary.does_asset_exist(gn)):
+            family = "upgrade"
+            for mi in dict.fromkeys(slots[:2]):
+                item["changes"].append({"mi": mi, "parent": MASTER, "textures": {"Height": gh, "Normal": gn},
+                                        "switches": {"HasHeightMap": True},
+                                        "scalars": {"HeightRatio": 0.006, "UVSpanUCm": span_u, "UVSpanVCm": span_v}})
     elif parent == LEGACY:
         diffuse = tex(front, "DiffuseColorMap")
         relief = relief_by_stem.get(stem)
@@ -110,7 +132,7 @@ for mesh, rec in sorted(meshes.items()):
             else:
                 textures = {"BaseColor": diffuse, "OpacityMask": diffuse, "Normal": "/Engine/EngineMaterials/DefaultNormal"}
                 switches = {"HasHeightMap": False}
-        scalars = {"PanelWidthCm": width, "PanelHeightCm": height,
+        scalars = {"UVSpanUCm": span_u, "UVSpanVCm": span_v,
                    "HeightRatio": 0.006 if switches["HasHeightMap"] else 0.003}
         for mi in dict.fromkeys(slots[:2]):  # Front, Back (distinct MIs on legacy meshes)
             item["changes"].append({"mi": mi, "parent": MASTER, "clear": True, "textures": textures,

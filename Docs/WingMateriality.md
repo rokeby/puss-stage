@@ -5,6 +5,38 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Rollout of P01/P02/P06: DONE 2026-09-28 (approved by Gary via the conductor)
+
+- **81 meshes, 94 MIs** reparented and saved; every change read back
+  (`verify_rollout_readonly.py`: 94/94 match); 0 dirty; no compile failures.
+  - V2: 74 MIs (all of P02, 14 StageOpeningV2 in P06) moved to the painted
+    master, textures kept, measured UV spans set.
+  - Legacy Group B: 6 meshes × Front/Back/Edge = 18 MIs, generated `_H`/`_N` wired.
+  - Trial rococo R: moved from luminance relief onto its generated maps (2 MIs).
+    `UseBurn` stays on only for the two P01 trial MIs.
+- Panels changed: P01 119, P02 69, P06 159, **plus 6 in P04** as collateral
+  through 4 shared meshes (`SM_L_1_roccoco`, `SM_L_pillar1_bw`,
+  `SM_R_Pillar1_bw`, `SM_R_Pillar2_bw`). P04's other 39 panels are still legacy.
+- Live undo: `Saved/CodexWingMateriality/rollout_rollback_20260928-205959.json`.
+  File backup: `Backups/PreWingRollout-20260928-205743` (687 assets).
+- **Usage flags, stated correctly** (read-only probe, `usage_flags.json`): the
+  packaged-build hazard was the old `M_StageOpeningV2_Relief_Master` alone
+  (`used_with_instanced_static_meshes` False). It carried all 74 V2 relief meshes,
+  about 173 panels in P02 and P06, and none of them are Nanite. The legacy FBX Phong
+  material (ISM and Nanite True) and `M_StageOpeningV2_Edge` (ISM True, non-Nanite
+  meshes) were never at risk. After this rollout **no wing renders with the old
+  relief master**, so the hazard is gone. Earlier notes and a commit message said
+  "every wing"; that was an overstatement.
+- **V2 edges unchanged:** the 74 V2 meshes use `M_StageOpeningV2_Edge` directly
+  (a Material, not an MI), so their edges are still flat dark brown. Matching
+  them to the batten-and-fray edge means rebuilding that material's graph in
+  place. That's a separate yes/no for Gary.
+- Known false alarm: right after an editor restart, the plan's registration check
+  reports Group A relief maps as 32×32 (the texture placeholder while compiling).
+  Fix the check to read the real size before any P03/P05 run.
+- Still waiting on Gary: P03/P04/P05 (Group A plus the rest of P04), V2 edges,
+  upscale install, which wings burn.
+
 ## Resume here (stood down 2026-09-28 for a studio visit)
 
 Working tree clean; last stream commit is the one that added this section.
