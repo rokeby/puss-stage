@@ -66,9 +66,14 @@ def main():
                 body = follow.split("]", 2)[-1].strip()
                 if body:
                     print("       " + body[:220])
+    # Which side of the performed/authored line? A HEURISTIC on stat names (verify by reading the tree): editor or
+    # engine-tooling owners would not exist in a packaged build; game-world owners would.
+    EDITOR_HINTS = ("Editor", "Slate", "AssetRegistry", "Asset Registry", "AutoSave", "Python", "LiveCoding",
+                    "Live Coding", "DDC", "Derived Data", "Thumbnail", "Level Viewport", "Transaction", "PIE")
     for h in hitches[:20]:
         top = sorted(h["stats"].items(), key=lambda kv: -kv[1])[:8]
-        print("HITCH " + h["header"])
+        side = "EDITOR/ENGINE-SIDE?" if top and any(k in top[0][0] for k in EDITOR_HINTS) else "game-world?"
+        print(f"HITCH [{side} by name only] " + h["header"])
         print("      " + "; ".join(f"{n} {v:.1f} ms" for n, v in top))
     print(f"{'state':<11} {'cloth end-tick ms':>18} {'(n)':>5} {'stall ms':>9} {'world tick ms':>14}")
     for r in rows:
