@@ -1,0 +1,330 @@
+{
+ "source": "Docs/StageFrontSpec_2026-09-28.md (8343341); predicted from the settings, NOT yet built",
+ "units": "UE world cm, Passage 01; curtain line and posts at x 0, lip at x -150",
+ "to_blender_m": "Bx = UE_Y/100, By = UE_X/100 (+y upstage), Bz = UE_Z/100. The list is mirror-symmetric in Y, so the stage-left sign doesn't matter",
+ "verify_after_build": "a read-only check compares the built portal instances with these boxes to 1 cm",
+ "options": {
+  "A_raised_stage": [
+   {
+    "name": "Post L",
+    "min_cm": [
+     -20,
+     -990,
+     0
+    ],
+    "max_cm": [
+     20,
+     -950,
+     1095
+    ]
+   },
+   {
+    "name": "Post R",
+    "min_cm": [
+     -20,
+     950,
+     0
+    ],
+    "max_cm": [
+     20,
+     990,
+     1095
+    ]
+   },
+   {
+    "name": "Header",
+    "min_cm": [
+     -20,
+     -990,
+     1050
+    ],
+    "max_cm": [
+     20,
+     990,
+     1095
+    ],
+    "note": "not reached: the coarse top peaks at 1000"
+   },
+   {
+    "name": "Trough",
+    "min_cm": [
+     -150,
+     -950,
+     0
+    ],
+    "max_cm": [
+     -115,
+     950,
+     25
+    ]
+   },
+   {
+    "name": "Stage floor (forestage + mouth)",
+    "min_cm": [
+     -150,
+     -1300,
+     -5.0
+    ],
+    "max_cm": [
+     250,
+     1300,
+     0
+    ],
+    "note": "the ground beyond x 250 stays +-970 as today"
+   },
+   {
+    "name": "Stage floor (ground beyond the mouth)",
+    "min_cm": [
+     250,
+     -970,
+     -5.0
+    ],
+    "max_cm": [
+     5400,
+     970,
+     0
+    ]
+   },
+   {
+    "name": "Fascia (lip face)",
+    "min_cm": [
+     -155.0,
+     -1300,
+     -120
+    ],
+    "max_cm": [
+     -150,
+     1300,
+     0
+    ]
+   },
+   {
+    "name": "Mouth side return L",
+    "min_cm": [
+     -150,
+     -1305.0,
+     -120
+    ],
+    "max_cm": [
+     250,
+     -1300,
+     0
+    ]
+   },
+   {
+    "name": "Mouth side return R",
+    "min_cm": [
+     -150,
+     1300,
+     -120
+    ],
+    "max_cm": [
+     250,
+     1305.0,
+     0
+    ]
+   },
+   {
+    "name": "House floor",
+    "min_cm": [
+     -2600,
+     -2000,
+     -125.0
+    ],
+    "max_cm": [
+     -150,
+     2000,
+     -120
+    ]
+   }
+  ],
+  "B_pit": [
+   {
+    "name": "Post L",
+    "min_cm": [
+     -20,
+     -990,
+     0
+    ],
+    "max_cm": [
+     20,
+     -950,
+     1095
+    ]
+   },
+   {
+    "name": "Post R",
+    "min_cm": [
+     -20,
+     950,
+     0
+    ],
+    "max_cm": [
+     20,
+     990,
+     1095
+    ]
+   },
+   {
+    "name": "Header",
+    "min_cm": [
+     -20,
+     -990,
+     1050
+    ],
+    "max_cm": [
+     20,
+     990,
+     1095
+    ],
+    "note": "not reached: the coarse top peaks at 1000"
+   },
+   {
+    "name": "Trough",
+    "min_cm": [
+     -150,
+     -950,
+     0
+    ],
+    "max_cm": [
+     -115,
+     950,
+     25
+    ]
+   },
+   {
+    "name": "Stage floor (forestage + mouth)",
+    "min_cm": [
+     -150,
+     -1300,
+     -5.0
+    ],
+    "max_cm": [
+     250,
+     1300,
+     0
+    ],
+    "note": "the ground beyond x 250 stays +-970 as today"
+   },
+   {
+    "name": "Stage floor (ground beyond the mouth)",
+    "min_cm": [
+     250,
+     -970,
+     -5.0
+    ],
+    "max_cm": [
+     5400,
+     970,
+     0
+    ]
+   },
+   {
+    "name": "Fascia (lip face, into the pit)",
+    "min_cm": [
+     -155.0,
+     -1300,
+     -250
+    ],
+    "max_cm": [
+     -150,
+     1300,
+     0
+    ]
+   },
+   {
+    "name": "Pit floor",
+    "min_cm": [
+     -450,
+     -1300,
+     -255.0
+    ],
+    "max_cm": [
+     -150,
+     1300,
+     -250
+    ]
+   },
+   {
+    "name": "Pit wall (house side)",
+    "min_cm": [
+     -450,
+     -1300,
+     -250
+    ],
+    "max_cm": [
+     -445.0,
+     1300,
+     -120
+    ]
+   },
+   {
+    "name": "Pit side L",
+    "min_cm": [
+     -450,
+     -1305.0,
+     -250
+    ],
+    "max_cm": [
+     -150,
+     -1300,
+     -120
+    ]
+   },
+   {
+    "name": "Pit side R",
+    "min_cm": [
+     -450,
+     1300,
+     -250
+    ],
+    "max_cm": [
+     -150,
+     1305.0,
+     -120
+    ]
+   },
+   {
+    "name": "Mouth side return L",
+    "min_cm": [
+     -150,
+     -1305.0,
+     -120
+    ],
+    "max_cm": [
+     250,
+     -1300,
+     0
+    ]
+   },
+   {
+    "name": "Mouth side return R",
+    "min_cm": [
+     -150,
+     1300,
+     -120
+    ],
+    "max_cm": [
+     250,
+     1305.0,
+     0
+    ]
+   },
+   {
+    "name": "House floor",
+    "min_cm": [
+     -2600,
+     -2000,
+     -125.0
+    ],
+    "max_cm": [
+     -450,
+     2000,
+     -120
+    ]
+   }
+  ],
+  "C_painted_fascia": "same boxes as A"
+ },
+ "conditional": "if the footlights (3b) go ahead, their 16 housings join this list (positions from the 3b plan)"
+}
