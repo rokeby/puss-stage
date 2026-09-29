@@ -314,3 +314,17 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   - Backups `PreScene4Redock-*`, `PreScene4Nest-20260929-171111`.
   - `scene4_fold_revert.py` refuses while the fold hosts Look & camera's pitch
     subsequence.
+- **Portals at every mouth** (Gary: yes, full stage front): Structures 02–06 on
+  at defaults, via `portal_mouths_apply.py`; revert `portal_mouths_revert.py`.
+  - The house floor now reaches P04's stalls seat (14 m back, top −120).
+  - S03 has the frame only: no ground on S03, so no stage front.
+- **Upper hangar lit** (Gary: options 1 + 2): 3 far-wall uplights (strike 4.0 s
+  in the fold) and 24 emissive lattice bulbs (`M_RigAtmos_WorkBulb`), via
+  `scene4_uplight_apply.py`; revert `scene4_uplight_revert.py`.
+  - At a 30° tilt the lid closing reads (roof underside lit through the lattice
+    at 15.5 s).
+  - At 48° it's still black: grazing light on black metal. The levers are a
+    lighter surface, steeper and brighter uplights, or haze.
+- **Map-dirty after benches:** `level_verified_save.py` saves only if the hangar
+  is exactly at rest (and the uplights at 0 cd) and the handoff cameras are
+  untouched. The conductor approved it for clearing no-net-change flags.
