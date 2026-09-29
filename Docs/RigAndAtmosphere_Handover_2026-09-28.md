@@ -300,3 +300,17 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
     "distance culling not biting" is about the values, not plumbing.
 - **Look & camera's request:** a `FloorHeightCm` getter on the structure actor,
   for the next source slot.
+- **Scene 4 re-docked (29 Sep late).** The hangar's mouth now sits on "Scene 4 —
+  External Sound — Entry Handoff Camera" (10668.5, 240000): P04's route end, and
+  the camera the show cuts to.
+  - The build and fold scripts READ the site from that actor; nothing is typed.
+  - The level rests PACKED (frame 0), so nothing snaps on arrival.
+  - The fold is nested in LS_DevScene_04 on a "Hangar Fold" subsequence track.
+    Its section Time Scale is Gary's speed dial.
+  - `scene4_fold_nest.py` derives the section end, the scene end (floor 15 s),
+    the camera cuts, and a Master rebuild with a 13/13 check. Rerun it after any
+    Time Scale change.
+  - Scene 4 is now 25 s; show total 1003.396 s.
+  - Backups `PreScene4Redock-*`, `PreScene4Nest-20260929-171111`.
+  - `scene4_fold_revert.py` refuses while the fold hosts Look & camera's pitch
+    subsequence.
