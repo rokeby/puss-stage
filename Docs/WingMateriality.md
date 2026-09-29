@@ -5,6 +5,49 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## P04 / P05: PLANNED, READY TO RUN, NOT APPLIED (prepared 2026-09-29 overnight)
+
+Prepared read-only from disk, for Gary's go. Nothing has been applied.
+
+| | P04 (remaining) | P05 |
+| --- | --- | --- |
+| Meshes / MIs | 26 / 78 | 22 / 66 |
+| Panels | 39 (+6 already done = 45) | 279 |
+| Family | Group B legacy, **generated** `_H`/`_N` (all 26 imported) | Group A, existing relief set in the `Passage05_BirdToMountain` root (cross-root, as approved) |
+| Edge half-thickness | 2.5 (legacy 5 cm FBXs) | 5 |
+| Collateral into done passages | **none** | **none** |
+
+- **P05 registration is clean.** The 21 flags are the post-restart 32×32 compile
+  placeholder. All 66 P05 textures were last modified on **18 Sep**. The 25 Sep
+  plan checked compiled sizes on all 40 Group A meshes with 0 problems, and the
+  colour pairs were proven pixel-identical then. The 22nd isn't flagged because
+  its height map is also used by the P01 ceiling, so it was already compiled.
+- **Nothing needs generating.** All maps exist.
+- **What's different from the first four passages:**
+  1. The deferral was scope, not a known defect. On 25 Sep Gary said P04/P05 were
+     "barely lit", so nobody could judge them. He's lighting all wing series
+     from 29 Sep.
+  2. **P05 relief is an art call.** In August Gary said "not to worry about
+     Passage 5 height/bump maps" for the clouds. The plan wires real relief
+     (HeightRatio 0.006). If he wants flat clouds, run with `HeightRatio` 0
+     (the rest of the material still applies).
+  3. **P05 clouds are 45–98 % transparent**, and the legacy material is opaque,
+     so any part of the cut-out mesh over transparent texels likely draws
+     black (the P01 ceiling mechanism). The new master's mask would fix it.
+     This is likely, not measured: the mesh outlines aren't readable from disk.
+  4. **Cost:** P05 alone is 279 panels, about as many as P01+P02+P03 together.
+     They're Nanite, so opaque → masked plus POM on mostly transparent clouds
+     is the largest raster/VSM cost step of the rollout. Watch frame time.
+  5. P04 is the legacy 5 cm FBX set (phone photos, stone, pillars). Changing its
+     materials is not rebuilding the FBXs, so the conventions doc's
+     no-retro-rebuild rule isn't engaged.
+- **To run it** (editor write slot, a fresh backup of the P04 and P05 material
+  folders first):
+  1. `rollout_plan.py` (read-only; refreshes the snapshot, which predates P03)
+  2. `rollout_request.json` = `{"passages": ["P04","P05"], "families": ["GroupA","GroupB"], "dry_run": true}`,
+     run `rollout_apply.py`, and report the numbers
+  3. set `"dry_run": false`, run it again, then `verify_rollout_readonly.py`
+
 ## V2 edges rebuilt and P03 rolled out: DONE 2026-09-28 late (approved by Gary via the conductor)
 
 - **`M_StageOpeningV2_Edge` rebuilt in place, delete-free.** The first attempt
