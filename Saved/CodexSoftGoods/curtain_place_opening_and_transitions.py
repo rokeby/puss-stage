@@ -13,7 +13,7 @@ cue 0 can be pointed back) and in the duplicate:
     23.76 x 13.365 filmback, focus off: Gary's stalls view from 28 Sep. Level actor (not spawnable) because the
     transport resolves a sub-sequence camera cut by locating it in the world. Without a cut the transport shows
     Passage 1's camera, which starts at X = 0, on the curtain line.
-TRANSITIONS (stand-in). In LS_Interaction_01..05 and LS_Closing_Curtain, the camera-following rig's CurtainMesh
+TRANSITIONS (stand-in, DO_TRANSITIONS, OFF since 29 Sep: Gary ruled out the 1500 cm staging). In LS_Interaction_01..05 and LS_Closing_Curtain, the camera-following rig's CurtainMesh
 changes from SM_FireSafetyCurtain_01 to SM_CurtainDrape_Hanging (the bake's settled hang, velvet, the same
 17.8 x 10 m frame), override materials cleared. Rig transforms, keys, distances and tests are unchanged.
 
@@ -41,6 +41,9 @@ TRANSITIONS = ["LS_Interaction_01_WashingTheBoy", "LS_Interaction_02_Turnips", "
 RIG_BINDING = "Curtain Rig - Fire Safety Curtain"
 CAMERA_LABEL = "Opening — Stalls Camera"
 FPS = 25
+# 29 Sep: OFF. The mesh swap alone keeps the 1500 cm staging Gary has since ruled out; the transitions wait for his
+# staging choice (world-anchored vs camera-space) and then go in ONE write with stage + key + mesh.
+DO_TRANSITIONS = False
 HOLD_END, FALL_END, SEQ_END = 25, 300, 375
 
 
@@ -220,7 +223,7 @@ def main():
     backup = os.path.join(project(), "Backups", "PreCurtainPlacement-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     os.makedirs(backup, exist_ok=True)
     shutil.copy2(content_file(EXPECTED_WORLD, ".umap"), backup)
-    for name in ["LS_Opening_Curtain"] + TRANSITIONS:
+    for name in ["LS_Opening_Curtain"] + (TRANSITIONS if DO_TRANSITIONS else []):
         shutil.copy2(content_file(f"{SEQ_DIR}/{name}", ".uasset"), backup)
     report["backup"] = backup
 
@@ -228,12 +231,13 @@ def main():
         cam = make_camera(report)
         author_opening(report, cam)
         del cam
-        swap_transition_meshes(report)
+        if DO_TRANSITIONS:
+            swap_transition_meshes(report)
     except Exception as exc:  # noqa: BLE001
         report["dirty_after_failure"] = dirty()
         return finish(f"FAILED mid-authoring, NOTHING saved (relaunch to discard; backup {backup}): {exc}")
 
-    expected = {EXPECTED_WORLD, DST} | {f"{SEQ_DIR}/{n}" for n in TRANSITIONS}
+    expected = {EXPECTED_WORLD, DST} | ({f"{SEQ_DIR}/{n}" for n in TRANSITIONS} if DO_TRANSITIONS else set())
     now = dirty()
     report["dirty_before_save"] = now
     unexpected = [p for p in now if p not in expected]
