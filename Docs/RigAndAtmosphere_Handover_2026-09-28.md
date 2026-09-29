@@ -180,3 +180,11 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
 - **Editor crashes today, each with a lesson:** don't reload the open level from
   Python, and don't re-run heavy MCP scripts that keep UE wrappers at module
   level. Both are in memory.
+- **At the next build window, before building:** apply Soft goods' patch A from
+  git (`git show HEAD:Scripts/patches/2026-09-29_A_opening_cut_and_master_test.patch
+  | git apply`, approved by the conductor under Gary's delegation). It adds the
+  test `InfinityStage.Editor.SavedMasterMatchesShow` and tightens
+  `SavedFixturePIE`. Commit it separately, crediting Soft goods. **Don't apply
+  patch B** (held for Gary). Then build with `0af1130` and `1ef583b`.
+- **Hangar light event:** designed in `Docs/HangarLightEvent_2026-09-29.md`.
+  Lumen gives sky occlusion for free. Pin exposure before any A/B/C test.
