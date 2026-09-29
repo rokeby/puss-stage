@@ -61,6 +61,34 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (night): plan for curtains at the transitions (Gary's morning brief), nothing built
+
+Gary: "implementing the curtain in many of those transition areas ready for later different more tattered and
+otherwise dramatic curtains to replace them in their fall to transition between scenes".
+- **The slot exists.** `Saved/CodexCurtainAuthoring/author_sequence_curtains.py` gave all 7 sequence blocks
+  (Opening, Interactions 1–5, Closing) a spawned `BP_InfinityStageSequenceCurtain` (an AInfinityStageCurtainRig) and
+  a CurtainProgress track, and the Show holds each block's cover/handoff timing. A baked curtain belongs INSIDE
+  that slot: a rig subclass with a GeometryCacheComponent plus a GeometryCache track. That keeps the transport's
+  covered handoff and the tests' "exactly one curtain rig". Traps: the rig force-shows SM_FireSafetyCurtain_01
+  when active, and it disables actor collision.
+- **A fall only REVEALS.** The Opening covers from frame 0 and reveals 50–150 (the bake). Interactions COVER 0–50 then
+  REVEAL 325–375. The Closing only COVERS 0–100. So Interactions need a fly-in before the drop (a small addition to
+  the bake: keyed heading motion), and the Closing a fly-in without a drop. Fly-in vs appear vs cut is Gary's call.
+- **One bake per distinct site geometry.** The bake is only as right as its colliders, and the stage front is defined
+  for Passage 01 only. Identical sites can share one asset (instanced); different ones need their own bake
+  (~2.5–3.5 h unattended each).
+- **Cost:** imported caches are STREAMABLE (UGeometryCacheTrackStreamable: per-sample info resident, chunks
+  streamed), so RAM follows what plays; disk is one asset each.
+- **Swapping:** a Sequencer GeometryCache section stores its own asset reference, so swap by RE-IMPORTING OVER THE
+  SAME ASSET PATH (no sequence edits) or with a one-field section edit. Start with one shared placeholder per
+  block type; give a transition its own named asset when its tattered curtain arrives.
+- **HYPOTHESIS (unverified), SavedFixturePIE's failing "Closing sequence evaluates exactly one curtain rig" (1
+  expected, 0 found):** segments are built from the SHOW; the Master (saved 21 Sep) lays Scene 3 at 585.64 s
+  against a 160.375 s sequence, so every segment after Scene 3 may sit ~425 s earlier in the Show than in the
+  Master, and the Closing scrub (+4 s) then lands outside the Master's Closing section. That fits it being the only
+  curtain assertion that fails (Interaction 1, before Scene 3, passes). Check read-only: Segments[18].StartFrame
+  vs the Master's Closing section start (frame 32567 = 1302.69 s).
+
 ## 29 Sep: Opening repoint preflight (read-only), and an anomaly in the Master (NOT curtain work)
 
 `Saved/CodexSoftGoods/preflight_opening_repoint.py` (read-only; dirty set empty before and after; run after Wing
