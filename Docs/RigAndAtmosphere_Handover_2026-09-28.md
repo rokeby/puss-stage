@@ -133,3 +133,9 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
 - **Framing:** use the Super 35 filmback (see the camera memory). A
   full-frame assumption produced a wrong 17% / z −305 figure, since
   corrected in `Docs/OpeningLight_2026-09-27.md`.
+- **Queued after the stage-front chain** (Gary, via the conductor): P04 and P05
+  lighting passes, both "barely there" and never lit; fog density to 0.012.
+  Also a read-only spine check for the conductor, `master_vs_show_readonly.py`
+  (Master saved 21 Sep vs the Show saved 28 Sep). Never run
+  `PussStageBootstrap.RebuildCurrentMaster`: it is a test that rebuilds and
+  SAVES both assets.
