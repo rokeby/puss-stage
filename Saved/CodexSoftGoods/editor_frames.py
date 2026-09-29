@@ -5,6 +5,7 @@ Refuses while PIE runs. VALIDITY: if the mean is very slow (background throttle,
 than read a rhythm into it. Also logs the throttle cvar. Writes nothing to the world or any asset."""
 import json
 import os
+import time
 
 import unreal
 
@@ -19,21 +20,27 @@ def main():
         unreal.log("PUSS_SOFTGOODS_EDITOR_FRAMES_STOPPED|PIE is running; this is the PIE-off split test")
         return
     throttle = unreal.SystemLibrary.get_console_variable_int_value("Slate.bAllowThrottling")
-    state = {"t": [], "handle": None}
+    # WALL-CLOCK deltas (time.perf_counter between callbacks). The Slate delta handed to the callback is CLAMPED at
+    # 125 ms (1/8 s): every bench before 29 Sep 19:10Z read max_ms = 125.0 exactly, so spike magnitude was censored.
+    state = {"t": [], "slate": [], "last": time.perf_counter(), "handle": None}
 
     def tick(delta):
-        state["t"].append(float(delta))
+        now = time.perf_counter()
+        state["t"].append(now - state["last"])
+        state["last"] = now
+        state["slate"].append(float(delta))
         if len(state["t"]) < count:
             return
         unreal.unregister_slate_post_tick_callback(state["handle"])
-        t = state["t"]
+        t = state["t"][1:]                                # the first delta spans the MCP call's own return
         ms = sorted(x * 1000 for x in t)
         clock, spikes = 0.0, []
         for x in t:
             clock += x
             if x * 1000 > 40:
                 spikes.append(round(clock, 3))
-        summary = {"tag": tag, "pie": False, "slate_allow_throttling": throttle, "frames": len(t),
+        summary = {"tag": tag, "pie": False, "clock": "wall (perf_counter)", "slate_delta_max_ms": round(max(state["slate"]) * 1000, 2),
+                   "slate_allow_throttling": throttle, "frames": len(t),
                    "seconds": round(sum(t), 2), "mean_ms": round(sum(ms) / len(ms), 2),
                    "median_ms": round(ms[len(ms) // 2], 2), "p95_ms": round(ms[int(len(ms) * 0.95)], 2),
                    "max_ms": round(ms[-1], 2), "over_40ms": len(spikes), "spike_times_s": spikes[:60],
