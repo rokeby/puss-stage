@@ -61,6 +61,35 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (late): Opening fall fixed; Scene 1 full length; the stutter measured
+
+- **Opening fall fixed.** The drape template's GeometryCacheComponent had `running = False`, which I set to stop
+  auto-play, and that froze the GeometryCache track on frame 0. The bench (`opening_fall_bench.py`) showed identical
+  frames. With running on, frame 150 is fallen and frame 350 is the bake's pile. Saved on Gary's "yes fix" (backup
+  `PreOpeningRunningFix-20260929-142225`) and re-proven from disk. Gary in PIE: "curtain fell ... and it looks ok".
+  Traps: memory `ue58-geometrycache-sequencer-traps`.
+- **Scene 1 plays its full 210.8 s.** Every cue already had bUseSequenceLength = true. The cut came from LS_DevScene_01's
+  PLAYBACK RANGE (0–15 s) against its LS_Animals_1 shot section (to 210.8 s). `scene1_extend_rebuild.py` sets the playback end
+  from the shot SECTION end, rebuilds, and verifies 13/13 at 0.000 s. Show total 993.4 s (16:33). Scene 3 is untouched: its
+  LS_Clams section is placed for 60.58 s of a 119.93 s shot, which looks like Gary's trim, so it is his call. The lasting fix
+  is in the compiler: ResolveSceneDuration = max(playback end, latest nested shot SECTION end). Section, not child: a
+  trimmed section is a decision. Queued for a build.
+- **Cloth gate, measured** (`cloth_gate_measure.py`, PIE copies only). Suspending the six Shore drapes removes their
+  end-tick (4–10 ms ×6 down to <1 ms). A/B mean frame: 30.2 → 24.3 ms; frames over 40 ms: 45 → 13. SUSPEND is the
+  switch. `cloth_gate_apply.py` (level default suspended, plus an infinite RESTORE STATE track in LS_DevScene_03) is ready
+  and needs Gary's yes. Python trap: `suspend_simulation` is the bool property and shadows the UFUNCTION.
+- **The ~1 s stutter is periodic, and the show does not set its rhythm.**
+  - Measured in all three states: PIE with the transport paused, PIE with toggles, and the editor with PIE off.
+  - Things that change the SIZE of the spikes but never the RHYTHM: flicker light functions off (−1.5 ms mean, Gary's flicker
+    decision priced), dynamic shadows off (−4.5 ms), VSM cache off (worse), MaxLightsPerPixel 32 (no effect), and
+    instanced meshes hidden (−4.7 ms).
+  - The hitch owner is the scene render on the game thread. In the editor it shows `UpdatePrimitive` and
+    `FScene_EndFrame`, which look like render-state churn.
+  - Ruled out: other editors, scene captures, BP lights (all 2450 lights are native), and effect sources (0 instances).
+  - Gary says it is a regression. The leading bet is accumulated editor state, a leaked callback or similar. The test is
+    a clean-editor recording at the next build.
+  - Trace of the dirty state: `Saved/Profiling/Stutter_DirtyEditor_20260929.utrace`.
+
 ## 29 Sep (14:00): THE OPENING IS PLACED (Gary: "yes opening", typed in this session)
 
 - `curtain_place_opening_and_transitions.py` with `DO_TRANSITIONS = False` (backup
