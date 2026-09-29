@@ -67,7 +67,7 @@ def main():
         "lipcut": camera("lipcut", (-30.0, -1.5, -0.2), (0.0, -1.5, -0.2), ortho=4.5),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    for f in SHOT_FRAMES:
+    for f in (SHOT_FRAMES if os.environ.get("SKIP_RENDERS") != "1" else []):
         scene.frame_set(f)
         for name, cam in shots.items():
             bake.set_side_hide(name == "lipcut")    # the near post would stand in the section view
@@ -88,9 +88,50 @@ def main():
                        "cloth_top_over_m": round(max((p.z for p in over), default=0.0), 3),
                        "cloth_above_housing_m": round(max((p.z for p in over), default=hi[2]) - hi[2], 3),
                        "ue_x_cm": [h["min_cm"][0], h["max_cm"][0]], "ue_y_cm": [h["min_cm"][1], h["max_cm"][1]]})
-    (OUT.parent / f"{OUT.name}_buried.json").write_text(json.dumps({"frame": SHOT_FRAMES[-1], "housings": buried}, indent=1),
+    # PENETRATION: cloth vertices more than 2 cm INSIDE any collider's AABB, sampled every PEN_STEP frames over the
+    # whole export. "Overspill is ok" is about where cloth goes, never permission to pass through timber.
+    # Axis-aligned boxes by AABB; the ORIENTED lamp housings (pitched 38.7 deg, yawed 60 deg) by their own axes, since
+    # their AABB is much bigger than the box and cloth draped over one sits inside its AABB (false positives, 29 Sep).
+    boxes = [(b["name"], b["min_cm"], b["max_cm"]) for b in data.get("boxes", [])]
+    oriented = []
+    for h in data.get("lamp_housings", []):
+        o = h["oriented"]
+        cy, sy = math.cos(math.radians(o["yaw_deg"])), math.sin(math.radians(o["yaw_deg"]))
+        cp, sp = math.cos(math.radians(o["pitch_deg"])), math.sin(math.radians(o["pitch_deg"]))
+        oriented.append({"name": h["name"], "c": o["centre_cm"], "half": [v / 2 for v in o["size_cm"]],
+                         "axes": [(cp * cy, cp * sy, sp), (-sy, cy, 0.0), (-sp * cy, -sp * sy, cp)]})
+    pen_o = {h["name"]: {"max_inside": 0, "frame": None} for h in oriented}
+    inset = 0.02
+    pen = {n: {"max_inside": 0, "frame": None} for n, _, _ in boxes}
+    step = int(os.environ.get("PEN_STEP", "5"))
+    f0, f1 = int(os.environ.get("PEN_FROM", "120")), SHOT_FRAMES[-1]
+    for f in range(f0, f1 + 1, step):
+        scene.frame_set(f)
+        ev = cloth.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        pts = [ev.matrix_world @ v.co for v in ev.data.vertices]
+        for h in oriented:                                 # exact test in the housing's own frame (UE cm)
+            k = 0
+            for p in pts:
+                d = (p.y * 100 - h["c"][0], p.x * 100 - h["c"][1], p.z * 100 - h["c"][2])
+                if all(abs(sum(d[i] * ax[i] for i in range(3))) < half - inset * 100 for ax, half in zip(h["axes"], h["half"])):
+                    k += 1
+            if k > pen_o[h["name"]]["max_inside"]:
+                pen_o[h["name"]] = {"max_inside": k, "frame": f}
+        for n, lo_cm, hi_cm in boxes:
+            lo = (lo_cm[1] / 100 + inset, lo_cm[0] / 100 + inset, lo_cm[2] / 100 + inset)
+            hi = (hi_cm[1] / 100 - inset, hi_cm[0] / 100 - inset, hi_cm[2] / 100 - inset)
+            if lo[0] >= hi[0] or lo[1] >= hi[1] or lo[2] >= hi[2]:
+                continue                                   # thinner than 4 cm (floors, fascia): an AABB can't judge it
+            k = sum(1 for p in pts if lo[0] < p.x < hi[0] and lo[1] < p.y < hi[1] and lo[2] < p.z < hi[2])
+            if k > pen[n]["max_inside"]:
+                pen[n] = {"max_inside": k, "frame": f}
+    (OUT.parent / f"{OUT.name}_buried.json").write_text(json.dumps({"frame": SHOT_FRAMES[-1], "housings": buried,
+                                                                    "penetration": pen, "penetration_housings_oriented": pen_o,
+                                                                    "pen_step": step}, indent=1),
                                                          encoding="utf-8")
-    print(f"CURTAIN_CLOSEUPS_DONE|shots={len(SHOT_FRAMES) * len(shots)}|buried={sum(1 for b in buried if b['cloth_vertices_over'])}")
+    print(f"CURTAIN_CLOSEUPS_DONE|shots={len(SHOT_FRAMES) * len(shots)}|buried={sum(1 for b in buried if b['cloth_vertices_over'])}"
+          f"|penetrated_boxes={sum(1 for v in pen.values() if v['max_inside'])}"
+          f"|penetrated_housings={sum(1 for v in pen_o.values() if v['max_inside'])}")
 
 
 main()
