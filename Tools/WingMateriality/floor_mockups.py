@@ -29,7 +29,12 @@ W_PX, H_PX, SS = 1200, 675, 2
 HFOV = np.radians(68.0)
 CAM = np.array([0.0, 0.0, 170.0])
 PITCH = np.radians(-11.0)
-GROOVES_Y = (-500.0, -250.0, 250.0, 500.0)
+# Chariot slots as Rig builds them: across the route at every wing station, from
+# SlotInboardCm (150) inside the wing's inner edge out to the floor edge, never across
+# the middle. The wing flat stands over its slot (its pole drops through to a chariot).
+STATIONS_X = tuple(400.0 + 500.0 * k for k in range(8))
+WING_INNER, WING_WIDTH, WING_H = 600.0, 380.0, 700.0
+SLOT_INNER, FLOOR_EDGE = WING_INNER - 150.0, 1300.0
 GROOVE_HALF, LIP = 4.0, 0.5
 MAX_DIST = 4500.0
 
@@ -201,20 +206,33 @@ def render(option, levels, mean_col, cam=None, pitch=None):
     floor = shade(P, V, np.clip(alb, 0, 1), rough, 0.04, 0.0)
 
     # ---- steel grooves: recessed U-channel, worn lips --------------------------------
-    gmask = np.zeros(x.shape, bool); lip = np.zeros(x.shape, bool); off = np.full(x.shape, 99.0)
-    for gy in GROOVES_Y:
-        dy = np.abs(y - gy)
-        off = np.minimum(off, dy)
+    off = np.full(x.shape, 99.0)
+    outboard = (np.abs(y) >= SLOT_INNER) & (np.abs(y) <= FLOOR_EDGE)
+    for sx in STATIONS_X:
+        off = np.minimum(off, np.where(outboard, np.abs(x - sx), 99.0))
     gmask = off < GROOVE_HALF
     lip = (off >= GROOVE_HALF - LIP) & gmask
     inner = gmask & ~lip
     steel_alb = np.full(x.shape + (3,), 0.56) * np.array([0.98, 0.98, 1.0])
     # Recessed channel: the walls shade the bottom plate, so only a narrow sheen reaches it.
     ao = (0.10 + 0.35 * (1 - (off / GROOVE_HALF) ** 2))[..., None]
-    steel = shade(P, V, steel_alb * 0.8, np.full(x.shape, 0.35), 0.5, 1.0, aniso=(0.12, 0.5)) * ao
+    steel = shade(P, V, steel_alb * 0.8, np.full(x.shape, 0.35), 0.5, 1.0, aniso=(0.5, 0.12)) * ao
     lip_col = shade(P, V, steel_alb * 1.1, np.full(x.shape, 0.18), 0.62, 1.0)
     img = np.where(inner[..., None], steel, floor)
     img = np.where(lip[..., None], lip_col, img)
+
+    # ---- wing flats over their slots (dark painted canvas, lit from the front) -------
+    for sx in STATIONS_X:
+        with np.errstate(divide="ignore", invalid="ignore"):
+            tf = (sx - cam[0]) / d[..., 0]
+        hitf = (tf > 0) & (tf < t)
+        Pf = cam[None, None] + d * tf[..., None]
+        on = hitf & (np.abs(Pf[..., 1]) >= WING_INNER) & (np.abs(Pf[..., 1]) <= WING_INNER + WING_WIDTH)             & (Pf[..., 2] >= 0) & (Pf[..., 2] <= WING_H)
+        shade_f = 0.020 + 0.030 * np.clip(1 - Pf[..., 2] / WING_H, 0, 1)
+        flat = np.stack([shade_f * 1.1, shade_f * 0.95, shade_f * 0.8], -1)
+        img = np.where(on[..., None], flat, img)
+        t = np.where(on, tf, t)
+        valid = valid | on
 
     # ---- haze and background ----------------------------------------------------------
     fog = np.clip(t / MAX_DIST, 0, 1)[..., None] ** 1.6
@@ -243,7 +261,7 @@ def main():
         "C": "C  Plain dark waxed lacquer, faint grain, high gloss",
     }
     panels = []
-    for opt in ("A", "A'", "B", "C"):
+    for opt in ("A", "A'", "B", "C"):  # B kept for comparison
         im = render(opt, levels, mean_col)
         dr = ImageDraw.Draw(im)
         try:
@@ -262,12 +280,12 @@ def main():
         small = ImageFont.truetype("arial.ttf", 18)
     except OSError:
         small = ImageFont.load_default()
-    dr.text((12, H_PX * 2 + 10), "Offline mockup, not an Unreal render. Camera 1.7 m, 4 steel grooves "
-            "(8 cm, recessed, worn 0.5 cm lips). Herringbone synthesised from the pack's walnut strip; "
+    dr.text((12, H_PX * 2 + 10), "Offline mockup, not an Unreal render. Camera 1.7 m. Chariot slots across the route at each wing (8 cm steel channel), wings standing over them. "
+            "Herringbone synthesised from the pack's walnut strip; "
             "generic stage lights.", fill=(200, 200, 200), font=small)
     grid.save(OUT / "floor_options.png")
     # Close-up at a groove: 1.2 m high, standing 1 m off the y=250 groove, looking down the run.
-    close_cam, close_pitch = np.array([0.0, 150.0, 120.0]), np.radians(-32.0)
+    close_cam, close_pitch = np.array([STATIONS_X[1] - 260.0, 380.0, 130.0]), np.radians(-28.0)
     pair = Image.new("RGB", (W_PX * 2, H_PX))
     for k, opt in enumerate(("A", "C")):
         im = render(opt, levels, mean_col, close_cam, close_pitch)
