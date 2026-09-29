@@ -20,6 +20,8 @@
 #include "InfinityStageWingLibraryAsset.h"
 #include "CineCameraActor.h"
 #include "CineCameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Engine/StaticMesh.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -882,10 +884,39 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
             TEXT("Opening evaluation lands on the first Master frame"),
             ShowRoot->Transport->JumpToCurrentStart(),
             EInfinityTransportResult::Succeeded);
+        // An Opening that authors its own Camera Cut (the stalls view onto the baked drape at the stage front,
+        // 29 Sep) owns the view, as the transport intends; without one, Passage 1's camera waits behind the curtain.
+        bool bOpeningAuthorsCameraCut = false;
+        if (ShowRoot->ShowAsset && ShowRoot->ShowAsset->Cues.IsValidIndex(ShowRoot->Transport->Segments[0].CueIndex))
+        {
+            const ULevelSequence* OpeningSequence =
+                ShowRoot->ShowAsset->Cues[ShowRoot->Transport->Segments[0].CueIndex].Scene.Sequence.LoadSynchronous();
+            const UMovieScene* OpeningScene = OpeningSequence ? OpeningSequence->GetMovieScene() : nullptr;
+            const UMovieSceneTrack* OpeningCuts = OpeningScene ? OpeningScene->GetCameraCutTrack() : nullptr;
+            if (OpeningCuts)
+            {
+                const FFrameNumber OpeningStart = OpeningScene->GetPlaybackRange().GetLowerBoundValue();
+                for (const UMovieSceneSection* Section : OpeningCuts->GetAllSections())
+                {
+                    bOpeningAuthorsCameraCut |= Section && Section->GetRange().Contains(OpeningStart);
+                }
+            }
+        }
         if (PlayerController && PassageOneCamera)
         {
-            TestEqual(TEXT("Opening reveal establishes Passage 1 camera before lifting"),
-                PlayerController->GetViewTarget(), static_cast<AActor*>(PassageOneCamera));
+            if (bOpeningAuthorsCameraCut)
+            {
+                const AActor* OpeningViewTarget = PlayerController->GetViewTarget();
+                TestTrue(TEXT("Opening's authored Camera Cut owns the view before lifting"),
+                    OpeningViewTarget
+                    && OpeningViewTarget != PassageOneCamera
+                    && OpeningViewTarget->IsA<ACameraActor>());
+            }
+            else
+            {
+                TestEqual(TEXT("Opening reveal establishes Passage 1 camera before lifting"),
+                    PlayerController->GetViewTarget(), static_cast<AActor*>(PassageOneCamera));
+            }
             TestTrue(TEXT("PIE controller supports viewport keyboard transport"),
                 PlayerController->IsA<AInfinityStageShowPlayerController>());
             if (PlayerController->PlayerInput && PlayerController->InputComponent)
@@ -1301,6 +1332,94 @@ bool FInfinityStageMasterSequenceOpensTest::RunTest(const FString& Parameters)
 
     TestTrue(TEXT("Master Sequence opens with registered Infinity Stage track editors"), AssetEditors->OpenEditorForAsset(Master));
     AssetEditors->CloseAllEditorsForAsset(Master);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageSavedMasterMatchesShowTest,
+    "InfinityStage.Editor.SavedMasterMatchesShow",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// The saved Master must lay every Sequence cue where the Show puts it, at its sub-sequence's own length. On 29 Sep a
+// Scene shortened without rebuilding the Master left every later segment 425 s off: PIE could not get past Scene 3,
+// and SavedFixturePIE's Closing scrub found no curtain. Read-only: nothing is rebuilt or saved.
+bool FInfinityStageSavedMasterMatchesShowTest::RunTest(const FString& Parameters)
+{
+    UInfinityStageShowAsset* Show = LoadObject<UInfinityStageShowAsset>(
+        nullptr,
+        TEXT("/Game/InfinityStage/Dev/DA_InfinityStage_V1Show.DA_InfinityStage_V1Show"));
+    ULevelSequence* Master = LoadObject<ULevelSequence>(
+        nullptr,
+        TEXT("/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master.LS_InfinityStage_V1Master"));
+    TestNotNull(TEXT("Saved Show resolves"), Show);
+    TestNotNull(TEXT("Saved Master resolves"), Master);
+    if (!Show || !Master || !Master->GetMovieScene())
+    {
+        return false;
+    }
+
+    const UMovieScene* MasterScene = Master->GetMovieScene();
+    const FFrameRate MasterTicks = MasterScene->GetTickResolution();
+    struct FLaidSection
+    {
+        FString Sequence;
+        double StartSeconds = 0.0;
+        double EndSeconds = 0.0;
+    };
+    TArray<FLaidSection> Laid;
+    for (const UMovieSceneTrack* Track : MasterScene->GetTracks())
+    {
+        if (!Track)
+        {
+            continue;
+        }
+        for (const UMovieSceneSection* Section : Track->GetAllSections())
+        {
+            const UMovieSceneSubSection* Sub = Cast<UMovieSceneSubSection>(Section);
+            const UMovieSceneSequence* SubSequence = Sub ? Sub->GetSequence() : nullptr;
+            const UMovieScene* SubScene = SubSequence ? SubSequence->GetMovieScene() : nullptr;
+            if (!SubScene || !Sub->HasStartFrame() || !Sub->HasEndFrame())
+            {
+                continue;
+            }
+            const TRange<FFrameNumber> Playback = SubScene->GetPlaybackRange();
+            const double AuthoredSeconds = SubScene->GetTickResolution().AsSeconds(
+                FFrameTime(Playback.GetUpperBoundValue() - Playback.GetLowerBoundValue()));
+            FLaidSection Row;
+            Row.Sequence = SubSequence->GetName();
+            Row.StartSeconds = MasterTicks.AsSeconds(FFrameTime(Sub->GetInclusiveStartFrame()));
+            Row.EndSeconds = MasterTicks.AsSeconds(FFrameTime(Sub->GetExclusiveEndFrame()));
+            TestTrue(FString::Printf(TEXT("The Master lays %s at its own length (%.3f s laid, %.3f s authored)"),
+                *Row.Sequence, Row.EndSeconds - Row.StartSeconds, AuthoredSeconds),
+                FMath::IsNearlyEqual(Row.EndSeconds - Row.StartSeconds, AuthoredSeconds, 0.05));
+            Laid.Add(Row);
+        }
+    }
+    Laid.Sort([](const FLaidSection& A, const FLaidSection& B) { return A.StartSeconds < B.StartSeconds; });
+
+    UInfinityStageTransportController* Transport = NewObject<UInfinityStageTransportController>();
+    TestTrue(TEXT("The saved Show compiles to transport segments"), Transport->BuildSegments(Show));
+    TArray<const FInfinityTransportSegment*> SequenceSegments;
+    for (const FInfinityTransportSegment& Segment : Transport->Segments)
+    {
+        if (Segment.Type != EInfinityCueType::WingPair)
+        {
+            SequenceSegments.Add(&Segment);
+        }
+    }
+    TestEqual(TEXT("The Master lays one section per Scene and Sequence cue"), Laid.Num(), SequenceSegments.Num());
+    for (int32 Index = 0; Index < FMath::Min(Laid.Num(), SequenceSegments.Num()); ++Index)
+    {
+        const FInfinityTransportSegment& Segment = *SequenceSegments[Index];
+        const double ShowStart = Show->TickResolution.AsSeconds(FFrameTime(Segment.StartFrame));
+        const double ShowEnd = Show->TickResolution.AsSeconds(FFrameTime(Segment.EndFrame));
+        TestTrue(FString::Printf(
+            TEXT("%s: the Master lays %s at %.3f-%.3f s and the Show at %.3f-%.3f s (rebuild the Master after changing a Scene's length)"),
+            *Segment.Label.ToString(), *Laid[Index].Sequence, Laid[Index].StartSeconds, Laid[Index].EndSeconds,
+            ShowStart, ShowEnd),
+            FMath::IsNearlyEqual(Laid[Index].StartSeconds, ShowStart, 0.05)
+            && FMath::IsNearlyEqual(Laid[Index].EndSeconds, ShowEnd, 0.05));
+    }
     return true;
 }
 
