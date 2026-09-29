@@ -158,3 +158,25 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
 - **Board material:** every structure piece is an engine Cube with no material
   (grey). Per-layer material settings already exist. A convincing material must
   tile using per-instance custom data or world-aligned UVs. The look is Gary's.
+
+## 29 September, afternoon
+
+- **Structure re-fit saved** (the per-side slot fix): 6/6 current; P05 has 185
+  slots, because P05 Wing 004's Right panel stands on the route line.
+- **Floors:** the slabs are still under the boards (top −5). Gary chose walnut
+  planks on the boards (`Ground.BoardMaterial`, from Wing materiality's
+  `MI_Kit_WalnutPlank`, still to come) and procedural steel grooves. The floor
+  raise and Top Down are both held.
+- **P04/P05/P06 baseline lighting applied:** P01's tuned rig, rewritten in place
+  and found by GUID, because P05 reuses cue labels. Shadow casters 1643 → 612
+  (P04 42, P05 0, P06 110). Backup `Backups/PreP456Baseline-20260929-1323`; undo
+  `p456_baseline_revert.py`. Not yet seen in a frame.
+- **Unbuilt C++ for the next window:** the celestial fix (`0af1130`: stops the
+  per-frame world walk) and the steel grooves (`1ef583b`).
+- **Specs with Gary:** `Docs/LegibleMachineSpec_2026-09-29.md` (grooves, wing
+  poles, border pipes, side frame, floating lamps). Lamp culling: other
+  passages already cost nothing (they're frustum-culled). The lever is the
+  shadow distance within the current passage, or MegaLights.
+- **Editor crashes today, each with a lesson:** don't reload the open level from
+  Python, and don't re-run heavy MCP scripts that keep UE wrappers at module
+  level. Both are in memory.
