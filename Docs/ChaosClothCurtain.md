@@ -61,6 +61,29 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (evening): restart protocol, the stutter after a clean editor
+
+- **Instrument fix first.** The Slate post-tick delta is CLAMPED at 125 ms (1/8 s), so every max_ms before 19:10Z read
+  125.0 and spike magnitude was censored. `editor_frames.py` now times frames with a wall clock (perf_counter) and reports
+  the clamped Slate delta beside it. The recorder unregisters cleanly: each of 12 recordings logged exactly one summary.
+- **Results** (editor pid 45468, new binaries, PIE off, 450 frames each; wall clock):
+
+  | Step | Mean | p95 | Frames over 40 ms | Max |
+  | --- | --- | --- | --- | --- |
+  | (1) Virgin | 21.5 ms | 34.2 ms | 13 | 217 ms |
+  | (3) After Look & camera's read-only probe | 20.3 ms | 32.6 ms | 8 | 101 ms |
+  | (5) After Rig's writes (6 refits, a save, captures) | 22.2 ms | 36.1 ms | 16 | 195 ms |
+  | Afternoon's dirty editor, for comparison | 23.7 ms | 49.6 ms | 33 | (censored) |
+
+  In the afternoon the spikes came on a steady beat about 1 s apart.
+- **Reading:**
+  - A milder periodic stutter (clusters every ~1–2.5 s) is INHERENT to a fresh editor.
+  - One round of read-only or writing scripts did not rebuild the afternoon's heavier state.
+  - That extra weight was either cumulative (hours of use) or removed by today's code. One restart cannot separate the
+    two, so neither is claimed.
+- **Traces:** `Saved/Profiling/Stutter_DirtyEditor_20260929.utrace` and `Stutter_CleanEditor_20260929.utrace`.
+- **Still missing:** `stat unit` (Game, Draw, GPU) during a spike.
+
 ## 29 Sep (late): Opening fall fixed; Scene 1 full length; the stutter measured
 
 - **Opening fall fixed.** The drape template's GeometryCacheComponent had `running = False`, which I set to stop
