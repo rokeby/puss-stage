@@ -46,6 +46,10 @@ wm.editor_ready()
 before = wm.dirty()
 bounds = wm.read_json("mesh_bounds.json")
 UVROWS = wm.read_json("uv_axes.json")["rows"]
+try:
+    REGISTRATION = wm.read_json("groupa_registration.json")
+except Exception:  # noqa: BLE001
+    REGISTRATION = {}
 
 
 def uv_span(mesh):
@@ -117,7 +121,12 @@ for mesh, rec in sorted(meshes.items()):
             rmi = unreal.EditorAssetLibrary.load_asset(relief)
             h, n, rbase = tex(rmi, "Height"), tex(rmi, "Normal"), tex(rmi, "BaseColor")
             if size(h) != size(diffuse):
-                problems.append(f"{mesh}: relief {h} {size(h)} not registered with colour {diffuse} {size(diffuse)}")
+                # Right after an editor restart, unused textures report the 32x32 placeholder
+                # until they compile. Fall back to the source-size check made on exported pixels
+                # (groupa_registration.json); only a real mismatch is a problem.
+                reg = REGISTRATION.get(mesh)
+                if not (reg and reg["ok"]):
+                    problems.append(f"{mesh}: relief {h} {size(h)} not registered with colour {diffuse} {size(diffuse)}")
             textures = {"BaseColor": diffuse, "OpacityMask": diffuse, "Height": h, "Normal": n}
             switches = {"HasHeightMap": True}
             item["relief_source"] = relief

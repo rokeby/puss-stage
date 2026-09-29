@@ -5,6 +5,35 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## V2 edges rebuilt and P03 rolled out: DONE 2026-09-28 late (approved by Gary via the conductor)
+
+- **`M_StageOpeningV2_Edge` rebuilt in place, delete-free.** The first attempt
+  deleted a node and hit `Assertion failed: !IsRooted()`, crashing the editor
+  (nothing saved; the asset stayed at 17 Aug). **Project rule: never delete
+  expressions on assets this stream didn't create.** The builder's
+  `get_or_create` now refuses outside `PaintedSurface`. `rebuild_v2_edge.py` renamed
+  the 3 originals to `Legacy_*` (left inert), added the 19 canvas-edge nodes and
+  rewired the outputs (mode=added, 22 expressions, 0 dirty, no compile failures).
+  All 75 live users are 10 cm (HalfThicknessCm 5). Unplaced referencers include
+  `SM_FireSafetyCurtain_01` (also 10 cm). Undo, delete-free:
+  `restore_v2_edge_original.py`. Backup: `Backups/PreV2EdgeRebuild-20260928-232203`.
+  The ISM flag was already True there and its users aren't Nanite, so it never
+  had the packaged-build hazard; the Nanite flag is belt and braces.
+- **P03 rolled out:** 18 meshes, 54 MIs, 63 panels, **no collateral**. 36
+  Front/Back MIs are on the painted master with the P03 relief maps, 18 Edge MIs
+  on the canvas edge. Read-back 54/54, 0 dirty, no compile failures. Registration
+  was proven from exported source pixels (`groupa_registration.json`), because
+  placeholder 32×32 sizes after a restart are not dimensions. Undo:
+  `rollout_rollback_20260928-232414.json`. Backup:
+  `Backups/PreWingRolloutP03-20260928-232314`.
+- VSM: the one `[VSM] One Pass Projection max lights overflow` line in the log is
+  from the editor relaunch, before P03 changed. Unreal usually prints it once per
+  session, so the log alone can't show whether it recurs. Opaque → masked
+  changes shadow **cost**, not the **count** of lights per pixel that the overflow
+  measures. P03 lighting is Rig's.
+- Now on the new look: **P01, P02, P03, P06**. Deferred by Gary: P04 (39 panels
+  still legacy) and P05.
+
 ## Rollout of P01/P02/P06: DONE 2026-09-28 (approved by Gary via the conductor)
 
 - **81 meshes, 94 MIs** reparented and saved; every change read back
