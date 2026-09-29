@@ -24,7 +24,6 @@ def main():
             mode, comps = parts[0], parts[-1]
             if mode.startswith("set_") or state == "no marker":
                 state = {"set_suspend": "suspended", "set_disable": "disabled", "set_restore": "restored"}.get(mode, "baseline")
-            state_detail = comps[:120]
             continue
         if "Cmd: stat dumpframe" in line:
             current = {"state": state, "cloth_ms": None, "cloth_n": None, "stall_ms": None, "world_tick_ms": None}
@@ -40,6 +39,27 @@ def main():
             current["stall_ms"] = ms
         elif name.startswith("World Tick Time") and current["world_tick_ms"] is None:
             current["world_tick_ms"] = ms
+    # The stutter: frame recordings (periodicity) and hitch dumps (the owner of each spike).
+    GENERIC = ("Self", "OtherChildren", "FrameTime", "World Tick Time", "Tick Time", "Thread_", "FTickFunctionTask",
+               "Game TaskGraph Tasks", "ReleaseTickGroup Block", "TG_")
+    hitches, block = [], None
+    for line in lines:
+        if "PUSS_SOFTGOODS_FRAMES|" in line:
+            print("FRAMES " + line.split("PUSS_SOFTGOODS_FRAMES|", 1)[1][:400])
+        low = line.lower()
+        if "hitch" in low and "LogStats" in line and not STAT.search(line):
+            block = {"header": line.split("LogStats:", 1)[-1].strip()[:140], "stats": {}}
+            hitches.append(block)
+            continue
+        m = STAT.search(line)
+        if block is not None and m and "Cmd: stat dumpframe" not in line:
+            name = m.group(3).split(" - ")[0].strip()
+            if not name.startswith(GENERIC):
+                block["stats"][name] = max(block["stats"].get(name, 0.0), float(m.group(1)))
+    for h in hitches[:20]:
+        top = sorted(h["stats"].items(), key=lambda kv: -kv[1])[:8]
+        print("HITCH " + h["header"])
+        print("      " + "; ".join(f"{n} {v:.1f} ms" for n, v in top))
     print(f"{'state':<11} {'cloth end-tick ms':>18} {'(n)':>5} {'stall ms':>9} {'world tick ms':>14}")
     for r in rows:
         cloth = f"{r['cloth_ms']:.3f}" if r["cloth_ms"] is not None else "absent (<1 ms)"

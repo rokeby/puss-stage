@@ -10,8 +10,16 @@ One mode per MCP call, read from cloth_gate_mode.json next to this file ({"mode"
   set_suspend  SuspendSimulation() on all six (holds the last pose)
   set_disable  ResumeSimulation() + SetEnableSimulation(False) (skinned pose)
   set_restore  SetEnableSimulation(True) + ResumeSimulation()
-Procedure (each line one call): to_passage, dump, dump, set_suspend, dump, dump, set_disable, dump, dump, set_restore,
-dump, then `python Scripts/parse_cloth_dumps.py`. Each call logs PUSS_SOFTGOODS_CLOTH_GATE|<mode>|<tag>|<state>,
+  hitch_on     t.HitchFrameTimeThreshold <ms> + `stat dumphitches`: the engine logs the stat tree of every frame
+               over the threshold, which names the owner of Gary's ~1 Hz "40 -> 12 fps" stutter (a different
+               signature from the cloth's constant 13.4 ms floor)
+  hitch_off    `stat dumphitches` again (it toggles)
+  frames       record N frame deltas via a self-unregistering Slate post-tick callback (floats only), then log
+               mean/p95/max, the frames over 40 ms and the INTERVALS between them. Periodic spikes = a finding.
+               Issue NO other call until its PUSS_SOFTGOODS_FRAMES line appears: every MCP call is itself a hitch.
+Procedure (each line one call): to_passage, frames, hitch_on, dump, dump, set_suspend, frames, dump, dump,
+set_disable, dump, dump, set_restore, dump, hitch_off, then `python Scripts/parse_cloth_dumps.py`.
+Hitches logged within ~1 s of a PUSS_SOFTGOODS_CLOTH_GATE marker are self-inflicted by the MCP call; ignore them. Each call logs PUSS_SOFTGOODS_CLOTH_GATE|<mode>|<tag>|<state>,
 which the parser uses to label the dumps that follow it. Crash rules: all inside main(), nothing kept at module level.
 """
 import json
@@ -34,6 +42,34 @@ def cloth_components(world):
             if comp.get_class().get_name() == "ChaosClothComponent":
                 rows.append((actor, comp))
     return rows
+
+
+def record_frames(tag, count):
+    """Collect `count` frame deltas (floats only, no UE objects held), then unregister and log a summary."""
+    state = {"t": [], "handle": None}
+
+    def tick(delta):
+        state["t"].append(float(delta))
+        if len(state["t"]) < count:
+            return
+        unreal.unregister_slate_post_tick_callback(state["handle"])
+        t = state["t"]
+        ms = sorted(x * 1000 for x in t)
+        clock, spikes = 0.0, []
+        for x in t:
+            clock += x
+            if x * 1000 > 40:
+                spikes.append(round(clock, 3))
+        gaps = [round(b - a, 3) for a, b in zip(spikes, spikes[1:])]
+        summary = {"tag": tag, "frames": len(t), "seconds": round(sum(t), 2), "mean_ms": round(sum(ms) / len(ms), 2),
+                   "median_ms": round(ms[len(ms) // 2], 2), "p95_ms": round(ms[int(len(ms) * 0.95)], 2),
+                   "max_ms": round(ms[-1], 2), "over_40ms": len(spikes), "spike_times_s": spikes[:40],
+                   "spike_gaps_s": gaps[:40]}
+        with open(os.path.join(HERE, f"cloth_gate_frames_{tag or 'untagged'}.json"), "w", encoding="utf-8") as h:
+            json.dump(summary, h, indent=1)
+        unreal.log("PUSS_SOFTGOODS_FRAMES|" + json.dumps(summary))
+
+    state["handle"] = unreal.register_slate_post_tick_callback(tick)
 
 
 def main():
@@ -70,6 +106,13 @@ def main():
     unreal.log(f"PUSS_SOFTGOODS_CLOTH_GATE|{mode}|{tag}|n={report['count']}|{state}")
     if mode == "dump":
         unreal.SystemLibrary.execute_console_command(world, "stat dumpframe -ms=1")
+    elif mode == "hitch_on":
+        unreal.SystemLibrary.execute_console_command(world, f"t.HitchFrameTimeThreshold {int(cfg.get('hitch_ms', 45))}")
+        unreal.SystemLibrary.execute_console_command(world, "stat dumphitches")
+    elif mode == "hitch_off":
+        unreal.SystemLibrary.execute_console_command(world, "stat dumphitches")
+    elif mode == "frames":
+        record_frames(tag, int(cfg.get("frames", 300)))
     del world
     with open(os.path.join(HERE, f"cloth_gate_{mode}.json"), "w", encoding="utf-8") as h:
         json.dump(report, h, indent=1, default=str)
