@@ -100,16 +100,17 @@ public:
      * Event-driven, not per frame: one walk of the world at BeginPlay (and on the
      * first lighting apply in the editor), a check of each actor as it is
      * spawned (Sequencer spawnables), a walk whenever a level is added (Level
-     * Instances, streamed scenes), and a throttled safety-net walk at most every
+     * Instances, streamed scenes), and a throttled safety net at most every
      * ForeignLightingRecheckSeconds while the Master applies phases, which
-     * catches a sky a sequence re-shows. Each actor is logged once, when first
+     * re-hides only the actors already silenced (a sequence can re-show one)
+     * without walking the world again. Each actor is logged once, when first
      * silenced.
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting",
         meta = (DisplayName = "Suppress Foreign Environment Lighting"))
     bool bSuppressForeignEnvironmentLighting = true;
 
-    /** The safety-net interval for re-walking the world during phase applies; 0 turns the safety net off. */
+    /** The safety-net interval for re-hiding already-silenced actors during phase applies; 0 turns the safety net off. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting",
         meta = (ClampMin = "0.0", Units = "s", EditCondition = "bSuppressForeignEnvironmentLighting"))
     float ForeignLightingRecheckSeconds = 2.0f;
@@ -121,6 +122,10 @@ public:
     /** How many full-world walks the suppression has made: for measurement and tests. */
     UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")
     int32 ForeignLightingWalkCount = 0;
+
+    /** How many safety-net re-hides of the already-silenced actors have run: for measurement and tests. */
+    UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")
+    int32 ForeignLightingReapplyCount = 0;
 
     /** How many distinct actors have been silenced, and so logged, once each. */
     UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")
@@ -222,10 +227,13 @@ private:
     void HandleActorSpawned(AActor* Actor);
     /** Silence one actor if it carries exterior lighting and is not the rig's own. */
     bool SuppressIfForeign(AActor* Actor);
+    /** The safety net: re-hide the actors already silenced, never walking the world. */
+    int32 ReapplyForeignSuppression();
     FDelegateHandle LevelAddedHandle;
     FDelegateHandle ActorSpawnedHandle;
     TSet<TWeakObjectPtr<AActor>> SuppressedForeignActors;
     double LastForeignLightingWalkSeconds = -1.0;
+    double LastForeignLightingCheckSeconds = -1.0;
 
 protected:
 #if WITH_EDITOR

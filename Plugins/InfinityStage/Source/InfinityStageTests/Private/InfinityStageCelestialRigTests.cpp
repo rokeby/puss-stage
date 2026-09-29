@@ -60,6 +60,7 @@ bool FInfinityStageCelestialPhaseDoesNotWalkTest::RunTest(const FString& Paramet
     AInfinityStageCelestialRig* Rig = SpawnBegunCelestialRig(*World);
     Rig->ForeignLightingRecheckSeconds = 60.0f;
     const int32 WalksAfterBeginPlay = Rig->ForeignLightingWalkCount;
+    const int32 ReappliesAfterBeginPlay = Rig->ForeignLightingReapplyCount;
     // A second of show at 60 fps, as the Master applies it.
     for (int32 Frame = 0; Frame < 60; ++Frame)
     {
@@ -73,7 +74,8 @@ bool FInfinityStageCelestialPhaseDoesNotWalkTest::RunTest(const FString& Paramet
     Rig->ForeignLightingRecheckSeconds = 0.000001f;
     FPlatformProcess::Sleep(0.01f);
     Rig->ApplyCyclePhase(0.25);
-    TestEqual(TEXT("The safety net walks once when due"), Rig->ForeignLightingWalkCount, WalksAfterBeginPlay + 1);
+    TestEqual(TEXT("The safety net runs once when due"), Rig->ForeignLightingReapplyCount, ReappliesAfterBeginPlay + 1);
+    TestEqual(TEXT("The safety net never walks the world"), Rig->ForeignLightingWalkCount, WalksAfterBeginPlay);
 
     World->DestroyWorld(false);
     return true;
@@ -102,6 +104,16 @@ bool FInfinityStageCelestialLogsOnceTest::RunTest(const FString& Parameters)
     Rig->SuppressForeignEnvironmentLighting();
     TestFalse(TEXT("A re-shown foreign sun is silenced again"), Baked->GetLightComponent()->IsVisible());
     TestEqual(TEXT("Re-silencing is not a new log"), Rig->ForeignLightingSuppressedCount, 1);
+
+    // Re-shown again, the throttled safety net catches it without a walk.
+    Baked->GetLightComponent()->SetVisibility(true);
+    const int32 WalksBefore = Rig->ForeignLightingWalkCount;
+    Rig->ForeignLightingRecheckSeconds = 0.000001f;
+    FPlatformProcess::Sleep(0.01f);
+    Rig->ApplyCyclePhase(0.25);
+    TestFalse(TEXT("The safety net silences a re-shown sun"), Baked->GetLightComponent()->IsVisible());
+    TestEqual(TEXT("The safety net does not walk the world"), Rig->ForeignLightingWalkCount, WalksBefore);
+    TestEqual(TEXT("Nor does it log again"), Rig->ForeignLightingSuppressedCount, 1);
 
     World->DestroyWorld(false);
     return true;

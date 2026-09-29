@@ -287,12 +287,36 @@ int32 AInfinityStageCelestialRig::SuppressForeignEnvironmentLighting()
     ResolveEnvironmentBindings();
     ++ForeignLightingWalkCount;
     LastForeignLightingWalkSeconds = FPlatformTime::Seconds();
+    LastForeignLightingCheckSeconds = LastForeignLightingWalkSeconds;
     int32 Foreign = 0;
     for (TActorIterator<AActor> It(World); It; ++It)
     {
         Foreign += SuppressIfForeign(*It) ? 1 : 0;
     }
     return Foreign;
+}
+
+int32 AInfinityStageCelestialRig::ReapplyForeignSuppression()
+{
+    // Only the actors already silenced. Every foreign sky present at BeginPlay
+    // was found by the first walk, and every arrival by the spawn and level
+    // hooks, so a sequence re-showing one of these is the only case left. A walk
+    // of a full show level every couple of seconds was a periodic frame hitch.
+    ++ForeignLightingReapplyCount;
+    LastForeignLightingCheckSeconds = FPlatformTime::Seconds();
+    int32 Rehidden = 0;
+    for (const TWeakObjectPtr<AActor>& Known : SuppressedForeignActors.Array())
+    {
+        if (AActor* Actor = Known.Get())
+        {
+            Rehidden += SuppressIfForeign(Actor) ? 1 : 0;
+        }
+        else
+        {
+            SuppressedForeignActors.Remove(Known);
+        }
+    }
+    return Rehidden;
 }
 
 void AInfinityStageCelestialRig::HandleActorSpawned(AActor* Actor)
@@ -316,18 +340,23 @@ void AInfinityStageCelestialRig::HandleLevelAddedToWorld(ULevel* Level, UWorld* 
 
 void AInfinityStageCelestialRig::ApplyCyclePhase(const double NormalizedPhase)
 {
-    // The Master applies a phase every frame, so the world walk is not done here
-    // every time: once if nothing has walked yet (the editor, before BeginPlay),
-    // then at most every ForeignLightingRecheckSeconds as a safety net for skies
-    // a sequence re-shows. Arrivals are handled by the spawn and level hooks.
+    // The Master applies a phase every frame, so the world walk is not done here:
+    // once if nothing has walked yet (the editor, before BeginPlay), then at most
+    // every ForeignLightingRecheckSeconds a re-hide of the actors already
+    // silenced, for skies a sequence re-shows. Arrivals are handled by the spawn
+    // and level hooks.
     if (bSuppressForeignEnvironmentLighting)
     {
         const bool bNeverWalked = LastForeignLightingWalkSeconds < 0.0;
         const bool bRecheckDue = ForeignLightingRecheckSeconds > 0.0f
-            && FPlatformTime::Seconds() - LastForeignLightingWalkSeconds >= ForeignLightingRecheckSeconds;
-        if (bNeverWalked || bRecheckDue)
+            && FPlatformTime::Seconds() - LastForeignLightingCheckSeconds >= ForeignLightingRecheckSeconds;
+        if (bNeverWalked)
         {
             SuppressForeignEnvironmentLighting();
+        }
+        else if (bRecheckDue)
+        {
+            ReapplyForeignSuppression();
         }
     }
     if (!FMath::IsFinite(NormalizedPhase))
