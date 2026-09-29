@@ -62,6 +62,48 @@ same beats, with a dry-run report. Rough examples: 60 m tall at 150 m ≈ 13°;
 40 m at 150 m ≈ 6°; 60 m at 300 m ≈ 3°. Wider hangars need less tilt. No ceiling:
 the cap governs.
 
+## Stills (29 Sep evening, `Saved/CodexCameraPilot/capture_scene4_stepwise.py`)
+
+- The survey (read-only, dirty 0/0) found the camera is Super 35 at 35 mm, at
+  (10668.5, 240000, 180), rotation 0. LS_DevScene_04 runs 25 s at 25 fps. The
+  Entry camera holds 0–24 s, then the Scene **cuts to a level Exit camera**
+  (retained hold) at the same position. The fold subsection starts at frame 0.
+- **At level, nothing changes after 12 s**: the swing and the lattice happen
+  above the frame, which confirms the need to look up.
+- **Geometry pass (unlit base colour):** 30° frames the wall tops, the gaps to
+  the void and the flown lattice; 48° frames the upright plate and the roof
+  closing. The design works geometrically.
+- **True pass (EV100 0.5):** everything above about 20° is **black at every
+  moment**. The plate, roof and lattice are unlit. **The look-up reveals darkness
+  until the upper hangar is lit.** That's Rig's lighting and Gary's call, and it
+  comes before choosing the cap.
+- A brighter pass using min/max brightness changed nothing; the room's exposure
+  ignores those overrides. Use the base-colour pass to judge framing.
+- A single-call capture that scrubs and captures in one frame DOES render the
+  new state, because SceneCapture flushes it. Identical PNG byte sizes had
+  suggested otherwise, and pixel diffs disproved that. The stepwise script and
+  its structure fingerprint remain the checked path.
+
+## GO1 performability (source and docs only)
+
+- The camera look comes from the handheld remote's right stick, not the robot's
+  body. In Gaze the stick adds at most ±18.2° of pitch, so **a 30° look-up
+  can't be performed live in Gaze**; Free Look can reach it, by rate.
+- Scene 4 is Timeline-owned: the keys play the score and the stick doesn't
+  touch the camera, so the dog can follow the score physically without adding
+  to it. If it were ever dog-owned, the keys and the live look would add
+  together, and the operator should perform glances only.
+- The robot's body-pitch range is unknown (not in the docs; standing with the
+  bridge is not yet exercised). Only the operator can find it; nothing here
+  commands the robot.
+- About 8°/s peak is trackable by hand, and the eased edges make it easier.
+
+## Exit
+
+The Exit cut at 24 s is level. Either the rest pitch returns to 0 in the 1.5 s
+after the lattice settles (the attention releasing), or the Exit camera carries
+the rest pitch with KeepState, so the end of the Scene doesn't snap it back.
+
 ## Open
 
 - From Rig: the lattice footprint (distance, depth); the plate width and hinge
