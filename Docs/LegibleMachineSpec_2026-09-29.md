@@ -95,7 +95,7 @@ materials from whoever does materials.**
   panel (black, or a timber or metal skin) between posts. It masks the void
   and makes the grid rest on something, a second legibility gain.
 - **Constraint:** wing cards reach past the rails in most passages (P01 up to
-  ±1094, P06 ±1078, one P02 card ±3879). So the frame must stand outboard of
+  ±1094, P06 ±1078; P02's reach must be re-measured route-relative, because its bent route made the first figure, ±3879, an artifact). So the frame must stand outboard of
   each passage's widest card, measured per passage, or it cuts cards. That's
   the "reads as broken" case.
 - **Cost:** C++ (a new layer, at stations only, like the gridiron), one build,
