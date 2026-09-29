@@ -85,7 +85,19 @@ QUALITY = int(os.environ.get("QUALITY", "10"))
 DENSITY = 0.8                                   # kg/m2, as the Chaos curtain
 OUT_DIR = Path(os.environ.get("OUT_DIR", str(ROOT / "Saved" / "CodexSoftGoods" / "DropBake")))
 EXPORT_ABC = os.environ.get("EXPORT_ABC", "0") == "1"
-ABC_START = int(os.environ.get("ABC_START", "1"))   # first exported frame (e.g. 1 s before the release): the show needs the hang + fall only
+ABC_START = int(os.environ.get("ABC_START", "1"))
+# STAGE COLLIDERS (29 Sep, Gary chose option A, a raised boarded stage). "path|option", e.g.
+# "Docs/StageFrontColliders_2026-09-28.json|A_raised_stage": boxes in UE world cm, mapped Bx = UE_Y/100,
+# By = UE_X/100 (+upstage), Bz = UE_Z/100. They REPLACE the infinite floor plane, so cloth past the lip drapes
+# down the fascia instead of lying on air. Posts and header are hidden from the SIDE views only (the near post
+# would stand between the side camera and the curtain); they still collide.
+COLLIDERS = os.environ.get("COLLIDERS", "")
+# The flat SETUP sheet is 35 m wide, far wider than the portal, so fixed posts pierce it before the gather and the
+# curtain ends up wrapped round a post (29 Sep smoke test). Posts are parked 40 m below until POSTS_FROM (the start of
+# the show window), by which time the gathered curtain hangs inside them. A moving collider is not a data change.
+POSTS_FROM = int(os.environ.get("POSTS_FROM", "0"))
+# Rig's limits apply to the frames the SHOW uses (the export window), not the setup gather.
+SHOW_START = int(os.environ.get("SHOW_START", "0"))   # first exported frame (e.g. 1 s before the release): the show needs the hang + fall only
 CLIP_STEP = int(os.environ.get("CLIP_STEP", "0"))   # >0: also render the fall every N frames, 3/4 and side, for a clip
 CLIP_START = int(os.environ.get("CLIP_START", "1"))  # first frame of the clip (e.g. a second before the release)
 LENS_34 = float(os.environ.get("LENS_34", "50"))      # 3/4 camera lens (mm); wider for the good run so a spill isn't cropped
@@ -193,6 +205,36 @@ def add_render_modifiers(obj):
     sol.thickness, sol.show_viewport = 0.006, False
 
 
+def add_stage_colliders():
+    """Build the listed stage boxes as collision objects; return one representative (for the floor material)."""
+    path, option = COLLIDERS.split("|")
+    spec = json.loads((ROOT / path).read_text(encoding="utf-8"))["options"][option]
+    first = None
+    for box in spec:
+        lo = [box["min_cm"][1] / 100.0, box["min_cm"][0] / 100.0, box["min_cm"][2] / 100.0]   # (Bx, By, Bz)
+        hi = [box["max_cm"][1] / 100.0, box["max_cm"][0] / 100.0, box["max_cm"][2] / 100.0]
+        centre = [(a + b) / 2.0 for a, b in zip(lo, hi)]
+        size = [max(b - a, 0.001) for a, b in zip(lo, hi)]
+        bpy.ops.mesh.primitive_cube_add(size=1.0, location=centre)
+        o = bpy.context.active_object
+        o.name, o.scale = f"Collider_{box['name']}", size
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        o.modifiers.new("Collision", "COLLISION")
+        o.collision.cloth_friction = FLOOR_FRICTION
+        o.collision.thickness_outer = 0.01
+        o["side_hide"] = box["name"].startswith(("Post", "Header"))
+        if POSTS_FROM and box["name"].startswith("Post"):
+            o.location.z -= 40.0
+            o.keyframe_insert("location", index=2, frame=POSTS_FROM - 1)
+            o.location.z += 40.0
+            o.keyframe_insert("location", index=2, frame=POSTS_FROM)
+        m = bpy.data.materials.new(f"M_{o.name}")
+        m.diffuse_color = (0.35, 0.33, 0.3, 1.0)
+        o.data.materials.append(m)
+        first = first or o
+    return first
+
+
 def finish_cloth(scene, obj, mesh, top, cloth):
     s = cloth.settings
     area = pattern.PATTERN_WIDTH * pattern.DROP
@@ -254,12 +296,15 @@ def finish_cloth(scene, obj, mesh, top, cloth):
     cloth.point_cache.frame_start, cloth.point_cache.frame_end = 1, FRAMES
     if RENDER_STYLE == "matte":
         add_render_modifiers(obj)
-    bpy.ops.mesh.primitive_plane_add(size=60.0, location=(0.0, 0.0, 0.0))
-    floor = bpy.context.active_object
-    floor.name = "Floor"
-    floor.modifiers.new("Collision", "COLLISION")
-    floor.collision.cloth_friction = FLOOR_FRICTION
-    floor.collision.thickness_outer = 0.01
+    if COLLIDERS:
+        floor = add_stage_colliders()
+    else:
+        bpy.ops.mesh.primitive_plane_add(size=60.0, location=(0.0, 0.0, 0.0))
+        floor = bpy.context.active_object
+        floor.name = "Floor"
+        floor.modifiers.new("Collision", "COLLISION")
+        floor.collision.cloth_friction = FLOOR_FRICTION
+        floor.collision.thickness_outer = 0.01
     if RENDER_FRONT:
         # Track-end posts (upstage, out of the fall) so a spill past the 17.8 m track reads without explanation.
         for x in (-0.5 * pattern.TRACK_WIDTH, 0.5 * pattern.TRACK_WIDTH):
@@ -268,6 +313,8 @@ def finish_cloth(scene, obj, mesh, top, cloth):
             post.name, post.scale = f"TrackEnd_{x:+.1f}", (0.06, 0.06, 10.0)
     # Materials now, not at render: touching the cloth's data after the sim resets its in-memory cache.
     for o, rgba in ((obj, (0.45, 0.02, 0.04, 1.0)), (floor, (0.35, 0.33, 0.3, 1.0))):
+        if o.data.materials:
+            continue
         m = bpy.data.materials.new(f"M_{o.name}")
         m.diffuse_color = rgba
         o.data.materials.append(m)
@@ -356,15 +403,23 @@ def render(obj, floor, name, loc, rot, ortho=None):
         con = cam.constraints.new("TRACK_TO")
         con.target, con.track_axis, con.up_axis = target, "TRACK_NEGATIVE_Z", "UP_Y"
     scene.camera = cam
+    set_side_hide(name.startswith("side"))
     scene.render.filepath = str(OUT_DIR / f"{DROP_ID}_{name}.png")
     bpy.ops.render.render(write_still=True)
     return cam
 
 
+def set_side_hide(side):
+    """Posts/header hidden in side views only (render visibility is not geometry: it doesn't touch the cloth cache)."""
+    for o in bpy.data.objects:
+        if o.get("side_hide"):
+            o.hide_render = side
+
+
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     scene, obj, top, floor = build_curtain()
-    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
+    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "colliders": COLLIDERS, "posts_from": POSTS_FROM, "show_start": SHOW_START, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
               "air_damping": AIR_DAMPING, "air_damping_applied": None, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
               "frame_seconds": [], "checkpoints": {}}
@@ -384,7 +439,7 @@ def main():
         t0 = time.perf_counter()
         scene.frame_set(f)
         report["frame_seconds"].append(round(time.perf_counter() - t0, 3))
-        if f > GATHER_FRAMES + 1:
+        if f > max(GATHER_FRAMES + 1, SHOW_START):
             # Rig's limits apply to the FURTHEST vertex in ANY frame of the hang and fall, not the settled pile
             # ("a cloth that billows through a post mid-fall is as broken as one that settles through it").
             # Blender metres: y = UE X / 100 (+ upstage), x = UE Y / 100, z = UE Z / 100 (relative to the curtain line).
@@ -443,6 +498,7 @@ def main():
             clip_dir = OUT_DIR / f"{DROP_ID}_clip_{tag}"
             clip_dir.mkdir(parents=True, exist_ok=True)
             scene.camera = cam
+            set_side_hide(tag == "side")
             for n, f in enumerate(range(CLIP_START, FRAMES + 1, CLIP_STEP)):
                 scene.frame_set(f)
                 scene.render.filepath = str(clip_dir / f"f{n:04d}.png")
