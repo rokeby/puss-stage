@@ -186,5 +186,10 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   test `InfinityStage.Editor.SavedMasterMatchesShow` and tightens
   `SavedFixturePIE`. Commit it separately, crediting Soft goods. **Don't apply
   patch B** (held for Gary). Then build with `0af1130` and `1ef583b`.
+  **Patch A has never been compiled.** If the build fails in it, don't fix it
+  in place: `git checkout -- Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp`,
+  build without it, and send Soft goods the error. Expected with everything
+  in: 81 pass, 1 fail (`SavedFixturePIE`). That's today's 77 plus 3 celestial
+  tests plus 1 master test; the grooves add assertions only.
 - **Hangar light event:** designed in `Docs/HangarLightEvent_2026-09-29.md`.
   Lumen gives sky occlusion for free. Pin exposure before any A/B/C test.
