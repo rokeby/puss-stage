@@ -1,6 +1,20 @@
 {
- "version": 2,
- "source": "Docs/StageFrontSpec_2026-09-28.md option A; predicted from the settings, NOT yet built",
+ "version": 3,
+ "baked_version": "v2 at 070ffe4 is what the running curtain bake uses; delta_from_v2 lists every box that differs",
+ "delta_from_v2_cm": {
+  "Stage floor: ground beyond the mouth": 3.2,
+  "Fascia: lip face": 5.0,
+  "End return at the first station L": 3.2,
+  "End return at the first station R": 3.2,
+  "Ground side return L": 5.0,
+  "Ground side return R": 5.0,
+  "House floor: front": 5.0,
+  "House floor: beside the mouth L": 5.0,
+  "House floor: beside the mouth R": 5.0,
+  "House floor: beside the ground L": 5.0,
+  "House floor: beside the ground R": 5.0
+ },
+ "source": "Docs/StageFrontSpec_2026-09-28.md option A, as BuildPortal lays it (the nosing is off); predicted, NOT yet built",
  "units": "UE world cm, Passage 01; the curtain line and posts at x 0, the lip at x -150",
  "to_blender_m": "Bx = UE_Y/100, By = UE_X/100 (+y upstage), Bz = UE_Z/100. Mirror-symmetric in Y except the lip-float housings, which follow a fixed seed; their Y is exact either way",
  "verify_after_build": "a read-only check compares the built portal and fixture instances with these boxes to 1 cm",
@@ -76,12 +90,12 @@
    "name": "Stage floor: ground beyond the mouth",
    "min_cm": [
     250.0,
-    -970.0,
+    -966.8000000000001,
     -5.0
    ],
    "max_cm": [
     5400,
-    970.0,
+    966.8000000000001,
     0
    ]
   },
@@ -89,12 +103,12 @@
    "name": "Fascia: lip face",
    "min_cm": [
     -155.0,
-    -1300.0,
+    -1305.0,
     -120.0
    ],
    "max_cm": [
     -150,
-    1300.0,
+    1305.0,
     0
    ]
   },
@@ -133,7 +147,7 @@
    ],
    "max_cm": [
     255.0,
-    -970.0,
+    -966.8000000000001,
     0
    ]
   },
@@ -141,7 +155,7 @@
    "name": "End return at the first station R",
    "min_cm": [
     250.0,
-    970.0,
+    966.8000000000001,
     -120.0
    ],
    "max_cm": [
@@ -153,26 +167,26 @@
   {
    "name": "Ground side return L",
    "min_cm": [
-    250.0,
-    -975.0,
+    255.0,
+    -971.8000000000001,
     -120.0
    ],
    "max_cm": [
     1000.0,
-    -970.0,
+    -966.8000000000001,
     0
    ]
   },
   {
    "name": "Ground side return R",
    "min_cm": [
-    250.0,
-    970.0,
+    255.0,
+    966.8000000000001,
     -120.0
    ],
    "max_cm": [
     1000.0,
-    975.0,
+    971.8000000000001,
     0
    ]
   },
@@ -184,7 +198,7 @@
     -125.0
    ],
    "max_cm": [
-    -150,
+    -155.0,
     2000.0,
     -120.0
    ]
@@ -192,25 +206,25 @@
   {
    "name": "House floor: beside the mouth L",
    "min_cm": [
-    -150,
+    -155.0,
     -2000.0,
     -125.0
    ],
    "max_cm": [
-    250.0,
-    -1300.0,
+    255.0,
+    -1305.0,
     -120.0
    ]
   },
   {
    "name": "House floor: beside the mouth R",
    "min_cm": [
-    -150,
-    1300.0,
+    -155.0,
+    1305.0,
     -125.0
    ],
    "max_cm": [
-    250.0,
+    255.0,
     2000.0,
     -120.0
    ]
@@ -218,21 +232,21 @@
   {
    "name": "House floor: beside the ground L",
    "min_cm": [
-    250.0,
+    255.0,
     -2000.0,
     -125.0
    ],
    "max_cm": [
     1000.0,
-    -970.0,
+    -971.8000000000001,
     -120.0
    ]
   },
   {
    "name": "House floor: beside the ground R",
    "min_cm": [
-    250.0,
-    970.0,
+    255.0,
+    971.8000000000001,
     -125.0
    ],
    "max_cm": [

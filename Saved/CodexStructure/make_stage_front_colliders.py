@@ -3,11 +3,21 @@ curtain bake's collider boxes for stage-front option A (Gary, 28 Sep), predicted
 from the spec and the C++ settings. It's the single source of truth: the
 post-build check compares the built geometry against this file.
 
-v2 (28 Sep): the lower house floor wraps both sides of the mouth ("catch
-everywhere"), with an end return at x 250 and side returns along the ground's
-edge to x +1000. Adds the two station-1 float housings and the 16 lip-float
-housings (Gary: footlights shadowless, buried by the overspill, judged in the
-capture). Only ENABLED lamps get a housing, as in GatherFixturePlacements.
+v2 (28 Sep, 070ffe4, what the running bake uses): the lower house floor wraps
+both sides of the mouth ("catch everywhere"), with an end return at x 250 and
+side returns along the ground's edge to x +1000. Adds the two station-1 float
+housings and the lit lip-float housings (Gary: footlights shadowless, buried by
+the overspill, judged in the capture). Only ENABLED lamps get a housing, as in
+GatherFixturePlacements.
+
+v3 (28 Sep, with the C++): the numbers the build lays exactly. The passage
+floor's real edge is its last lane's edge, (78 x 24.8 - 0.8) / 2 = 966.8, not
+the grid's 970, so the returns, the mouth strips and the house floor beside the
+ground move in by 3.2 cm, and every face's thickness sits where BuildPortal puts
+it. The file records each box's largest coordinate delta from v2. A surface the
+cloth rests or hangs on moves by at most 3.2 cm, with the built faces inside the
+baked ones, so the cloth hangs 3.2 cm clear of them. The 5 cm deltas are the
+ends of faces overlapping at corners, along the face's own plane.
 """
 import json
 import math
@@ -19,7 +29,9 @@ OUT = os.path.normpath(os.path.join(HERE, "..", "..", "Docs", "StageFrontCollide
 T = 5.0                  # one board course: floors, fascia and returns
 HOUSE_Z = -120.0         # house floor top
 MOUTH_HALF = 1300.0      # raised mouth, lip to the first station
-GROUND_HALF = 970.0      # P01's floor half-span (grid half-width) beyond the mouth
+GRID_HALF = 970.0        # P01's grid half-width: the floor's nominal half-span
+LANE_PITCH, LANE_GAP = 24.8, 0.8
+GROUND_HALF = (math.floor((GRID_HALF * 2 + LANE_GAP) / LANE_PITCH) * LANE_PITCH - LANE_GAP) / 2  # 966.8, the laid edge
 MOUTH_END = 250.0        # the first station
 SIDES_TO = 1000.0        # house floor and ground side returns run upstage to here
 HOUSE_HALF = 2000.0
@@ -60,14 +72,15 @@ boxes = [
     box("Header", -20, 20, -990, 990, 1050, 1095, "not reached in the coarse run"),
     box("Trough", -150, -115, -950, 950, 0, 25),
     box("Stage floor: forestage and mouth", -150, MOUTH_END, -MOUTH_HALF, MOUTH_HALF, -T, 0),
+    # (the mouth strips start one board gap outside the passage floor's edge)
     box("Stage floor: ground beyond the mouth", MOUTH_END, 5400, -GROUND_HALF, GROUND_HALF, -T, 0),
-    box("Fascia: lip face", -150 - T, -150, -MOUTH_HALF, MOUTH_HALF, HOUSE_Z, 0),
+    box("Fascia: lip face", -150 - T, -150, -MOUTH_HALF - T, MOUTH_HALF + T, HOUSE_Z, 0),
     *mirrored("Mouth side return", -150, MOUTH_END, MOUTH_HALF, MOUTH_HALF + T, HOUSE_Z, 0),
     *mirrored("End return at the first station", MOUTH_END, MOUTH_END + T, GROUND_HALF, MOUTH_HALF, HOUSE_Z, 0),
-    *mirrored("Ground side return", MOUTH_END, SIDES_TO, GROUND_HALF, GROUND_HALF + T, HOUSE_Z, 0),
-    box("House floor: front", HOUSE_FROM, -150, -HOUSE_HALF, HOUSE_HALF, HOUSE_Z - T, HOUSE_Z),
-    *mirrored("House floor: beside the mouth", -150, MOUTH_END, MOUTH_HALF, HOUSE_HALF, HOUSE_Z - T, HOUSE_Z),
-    *mirrored("House floor: beside the ground", MOUTH_END, SIDES_TO, GROUND_HALF, HOUSE_HALF, HOUSE_Z - T, HOUSE_Z),
+    *mirrored("Ground side return", MOUTH_END + T, SIDES_TO, GROUND_HALF, GROUND_HALF + T, HOUSE_Z, 0),
+    box("House floor: front", HOUSE_FROM, -150 - T, -HOUSE_HALF, HOUSE_HALF, HOUSE_Z - T, HOUSE_Z),
+    *mirrored("House floor: beside the mouth", -150 - T, MOUTH_END + T, MOUTH_HALF + T, HOUSE_HALF, HOUSE_Z - T, HOUSE_Z),
+    *mirrored("House floor: beside the ground", MOUTH_END + T, SIDES_TO, GROUND_HALF + T, HOUSE_HALF, HOUSE_Z - T, HOUSE_Z),
 ]
 
 # Station 1's floats, authored 28 Sep (p01_warmer_plan.json): (310, +-710, 25),
@@ -87,8 +100,28 @@ for i in range(16):
     lateral = -825.0 + i * (1650.0 / 15.0)
     lamps.append(housing(f"Lip {i + 1:02d} housing", (source_x, lateral, source_z), 0.0, pitch))
 
-out = {"version": 2,
-       "source": "Docs/StageFrontSpec_2026-09-28.md option A; predicted from the settings, NOT yet built",
+v2 = None
+try:
+    import subprocess
+    v2 = json.loads(subprocess.run(["git", "show", "070ffe4:Docs/StageFrontColliders_2026-09-28.json"],
+                                   cwd=os.path.dirname(OUT), capture_output=True, text=True, check=True).stdout)
+except Exception as exc:  # the delta is a report, not a dependency
+    print(f"no v2 to compare: {exc}")
+deltas = {}
+if v2:
+    old = {b["name"]: b for b in v2["boxes"] + v2["lamp_housings"]}
+    for b in boxes + lamps:
+        o = old.get(b["name"])
+        if o:
+            d = max(abs(a - c) for a, c in zip(b["min_cm"] + b["max_cm"], o["min_cm"] + o["max_cm"]))
+            if d > 0.05:
+                deltas[b["name"]] = round(d, 2)
+        else:
+            deltas[b["name"]] = "new in v3"
+out = {"version": 3,
+       "baked_version": "v2 at 070ffe4 is what the running curtain bake uses; delta_from_v2 lists every box that differs",
+       "delta_from_v2_cm": deltas,
+       "source": "Docs/StageFrontSpec_2026-09-28.md option A, as BuildPortal lays it (the nosing is off); predicted, NOT yet built",
        "units": "UE world cm, Passage 01; the curtain line and posts at x 0, the lip at x -150",
        "to_blender_m": "Bx = UE_Y/100, By = UE_X/100 (+y upstage), Bz = UE_Z/100. Mirror-symmetric in Y except the "
                        "lip-float housings, which follow a fixed seed; their Y is exact either way",

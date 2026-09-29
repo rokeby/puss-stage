@@ -6,10 +6,15 @@ Backups/PrePortal-* umap snapshot. portal_enable_revert.py undoes it.
 
 The portal (68057a2) is built from the gridiron's timber: two posts framing the
 curtain, a header, the gridiron carried forward, a forestage with a float trough
-at its lip, and hemp lines from the header. Every piece is counted in
+at its lip, and hemp lines from the header. With it, since the stage-front build,
+comes the stage front (Gary, 28 Sep, option A): the mouth widened, a fascia down
+to a house floor that wraps the mouth, and returns. Every piece is counted in
 PortalPieceCount, so the guard is exact: on Structure 01 only portal_piece_count
-may change (0 -> the predicted count), and nothing on the other five changes at
-all. Refuses on any dirty state or stray ZZ_ actor. A read-only rehearsal: set
+may change, each portal component must hold its predicted count (the stage
+front's boards only as present), and nothing on the other five changes at all.
+Run it only AFTER the stage-front build: it refuses on binaries without it. The
+stage front's edges are proven afterwards against
+Docs/StageFrontColliders_2026-09-28.json by verify_stage_front_readonly.py. Refuses on any dirty state or stray ZZ_ actor. A read-only rehearsal: set
 PORTAL_ENABLE_DRY_RUN via runpy (portal_enable_dryrun.py).
 """
 import datetime
@@ -50,30 +55,35 @@ def state(actor):
 
 
 def predicted_pieces(actor):
-    """PortalPieceCount as BuildPortal will make it, from the actor's own settings."""
+    """The portal's components as BuildPortal will fill them, from the actor's own
+    settings: timbers and lines exactly, forestage lanes exactly, and the stage
+    front's boards only as present (their staggered lengths come from a seeded
+    stream; the geometry check against the collider file proves their edges)."""
     portal = actor.get_editor_property("portal")
     ground = actor.get_editor_property("ground")
     grid = actor.get_editor_property("gridiron")
     half = max(50.0, portal.get_editor_property("opening_half_width_cm"))
+    stage_front = bool(portal.get_editor_property("stage_front")) and ground.get_editor_property("enabled")
     timbers = 3                                                   # two posts and a header
-    breakdown = {"frame": 3}
     if portal.get_editor_property("float_trough") and portal.get_editor_property("forestage_depth_cm") > 1.0:
         timbers += 1
-        breakdown["trough"] = 1
     if (portal.get_editor_property("extend_gridiron") and grid.get_editor_property("enabled")
             and actor.get_editor_property("grid_half_width_cm") > 0.0):
         timbers += 3                                              # a cross beam and two rails
-        breakdown["grid_forward"] = 3
-    # The forestage covers only floor the ground layer does not (see BuildPortal).
+    if stage_front and portal.get_editor_property("nosing_depth_cm") > 0.5 and portal.get_editor_property("nosing_height_cm") > 0.5:
+        timbers += 1
     lanes = 0
     if ground.get_editor_property("enabled"):
         width = max(4.0, ground.get_editor_property("board_width_cm"))
         gap = max(0.0, ground.get_editor_property("board_gap_cm"))
-        lanes = max(1, math.floor((half * 2.0 + gap) / (width + gap)))
-    breakdown["forestage_lanes_if_any"] = lanes
+        if stage_front:
+            mouth = max(half, portal.get_editor_property("mouth_half_width_cm"))
+            lanes = max(1, round((mouth * 2.0 + gap) / (width + gap)))
+        else:
+            lanes = max(1, math.floor((half * 2.0 + gap) / (width + gap)))
     lines = max(0, int(portal.get_editor_property("hanging_lines")))
-    breakdown["lines"] = lines
-    return timbers, lanes, lines, breakdown
+    return {"StructurePortal": timbers, "StructureForestage": lanes, "StructurePortalLines": lines,
+            "StructureStageFront": "present" if stage_front else 0}
 
 
 ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
@@ -84,6 +94,10 @@ if ed.get_game_world() is not None:
     fail("PIE active")
 if not hasattr(unreal, "InfinityStagePortalSettings"):
     fail("the loaded plugin predates the 28 Sep build (no portal settings) - stale binaries")
+try:
+    unreal.InfinityStagePortalSettings().get_editor_property("stage_front")
+except Exception:
+    fail("the loaded plugin predates the stage-front build - stale binaries; 3a waits for it")
 content0, maps0 = dirty()
 if content0 or maps0:
     fail(f"editor already dirty: {content0} {maps0}")
@@ -112,7 +126,7 @@ if target.get_editor_property("portal").get_editor_property("enabled"):
     fail(f"{target.get_actor_label()} already has its portal on")
 if before[target.get_actor_label()]["portal_piece_count"] != 0:
     fail(f"{target.get_actor_label()} has portal pieces with the portal off")
-timbers, lanes, lines, breakdown = predicted_pieces(target)
+breakdown = predicted_pieces(target)
 
 # ---- Revert record: on disk, flushed and re-read before anything changes ----
 record = {"written": datetime.datetime.now().isoformat(timespec="seconds"),
@@ -157,18 +171,23 @@ for label, rec in after.items():
         if rec[c] != before[label][c]:
             problems.append(f"{label} {c}: {before[label][c]} -> {rec[c]}")
 pieces = after[target.get_actor_label()]["portal_piece_count"]
-# The forestage exists only where the ground layer leaves floor uncovered, which
-# the plan puts at 150 cm for P01 (its ground starts at the route start); allow
-# either, but nothing else.
-allowed = {timbers + lanes + lines, timbers + lines}
-if pieces not in allowed:
-    problems.append(f"portal_piece_count {pieces}, predicted {sorted(allowed)} ({breakdown})")
 portal_components = [c for c in target.get_editor_property("managed_components")
                      if c and "InfinityStage.Structure.Portal" in [str(t) for t in c.get_editor_property("component_tags")]]
 instances = sum(c.get_instance_count() for c in portal_components)
 if instances != pieces:
     problems.append(f"portal components hold {instances} instances, count says {pieces}")
-json.dump({"before": before, "after": after, "predicted": breakdown, "portal_instances": instances,
+built = {}
+for c in portal_components:
+    stem = next((k for k in sorted(breakdown, key=len, reverse=True) if c.get_name().startswith(k)), c.get_name())
+    built[stem] = built.get(stem, 0) + c.get_instance_count()
+for stem, want in breakdown.items():
+    got = built.get(stem, 0)
+    if (want == "present" and got <= 0) or (want != "present" and got != want):
+        problems.append(f"{stem}: built {got}, predicted {want}")
+unexpected = set(built) - set(breakdown)
+if unexpected:
+    problems.append(f"unpredicted portal components: {sorted(unexpected)}")
+json.dump({"before": before, "after": after, "predicted": breakdown, "built": built, "portal_instances": instances,
            "problems": problems}, open(OUT, "w"), indent=1)
 if problems:
     fail(f"unexpected changes, NOT saved: {problems}")

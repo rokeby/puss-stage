@@ -872,23 +872,52 @@ void AInfinityStageStructureActor::BuildPortal(
         : PortalCm;
     const double ForestageStartCm = PortalCm - FMath::Max(0.0, Portal.ForestageDepthCm);
     const double ForestageEndCm = FMath::Min(PortalCm, GroundStartCm);
+    // The stage front is boarded from the ground's kit, so it needs the ground.
+    const bool bStageFront = Portal.bStageFront && BoardMesh && Ground.bEnabled;
+    const double MouthHalfCm = FMath::Max(HalfOpeningCm, Portal.MouthHalfWidthCm);
+    const double BoardWidthCm = FMath::Max(4.0, Ground.BoardWidthCm);
+    const double BoardGapCm = FMath::Max(0.0, Ground.BoardGapCm);
+    const double BoardThicknessCm = FMath::Max(0.5, Ground.BoardThicknessCm);
+    const double BoardPitchCm = BoardWidthCm + BoardGapCm;
+    const FBox BoardBounds = BoardMesh ? BoardMesh->GetBoundingBox() : FBox(ForceInit);
+    // Lanes that fill [FromCm, ToCm] edge to edge, all one width, so a stage-front
+    // edge lands exactly where the spec (and the curtain bake's colliders) put it.
+    const auto EvenLanes = [BoardGapCm, BoardPitchCm](const double FromCm, const double ToCm, TArray<double>& OutCentres)
+    {
+        const int32 Count = FMath::Max(1, FMath::RoundToInt32((ToCm - FromCm + BoardGapCm) / BoardPitchCm));
+        const double LaneWidthCm = FMath::Max(1.0, (ToCm - FromCm - (Count - 1) * BoardGapCm) / Count);
+        for (int32 Lane = 0; Lane < Count; ++Lane)
+        {
+            OutCentres.Add(FromCm + Lane * (LaneWidthCm + BoardGapCm) + LaneWidthCm * 0.5);
+        }
+        return LaneWidthCm;
+    };
     TArray<FTransform> Boards;
     TArray<float> BoardData;
     if (BoardMesh && ForestageEndCm - ForestageStartCm > 1.0)
     {
-        const double BoardWidthCm = FMath::Max(4.0, Ground.BoardWidthCm);
-        const double GapCm = FMath::Max(0.0, Ground.BoardGapCm);
-        const double ThicknessCm = FMath::Max(0.5, Ground.BoardThicknessCm);
-        const double PitchCm = BoardWidthCm + GapCm;
-        const int32 Lanes = FMath::Max(1, FMath::FloorToInt32((HalfOpeningCm * 2.0 + GapCm) / PitchCm));
-        const double FirstLaneCm = -(Lanes * PitchCm - GapCm) * 0.5 + BoardWidthCm * 0.5;
-        const FBox BoardBounds = BoardMesh->GetBoundingBox();
         const FVector Middle = AtRoute((ForestageStartCm + ForestageEndCm) * 0.5)
-            + Up * (Ground.FloorHeightCm - ThicknessCm * 0.5);
-        for (int32 Lane = 0; Lane < Lanes; ++Lane)
+            + Up * (Ground.FloorHeightCm - BoardThicknessCm * 0.5);
+        if (bStageFront)
         {
-            Piece(Boards, BoardData, BoardBounds, Middle + Across * (FirstLaneCm + Lane * PitchCm), Lengthwise,
-                FVector(ForestageEndCm - ForestageStartCm, BoardWidthCm, ThicknessCm));
+            // As wide as the mouth, to take the curtain's spill.
+            TArray<double> LaneCentres;
+            const double LaneWidthCm = EvenLanes(-MouthHalfCm, MouthHalfCm, LaneCentres);
+            for (const double LaneCm : LaneCentres)
+            {
+                Piece(Boards, BoardData, BoardBounds, Middle + Across * LaneCm, Lengthwise,
+                    FVector(ForestageEndCm - ForestageStartCm, LaneWidthCm, BoardThicknessCm));
+            }
+        }
+        else
+        {
+            const int32 Lanes = FMath::Max(1, FMath::FloorToInt32((HalfOpeningCm * 2.0 + BoardGapCm) / BoardPitchCm));
+            const double FirstLaneCm = -(Lanes * BoardPitchCm - BoardGapCm) * 0.5 + BoardWidthCm * 0.5;
+            for (int32 Lane = 0; Lane < Lanes; ++Lane)
+            {
+                Piece(Boards, BoardData, BoardBounds, Middle + Across * (FirstLaneCm + Lane * BoardPitchCm), Lengthwise,
+                    FVector(ForestageEndCm - ForestageStartCm, BoardWidthCm, BoardThicknessCm));
+            }
         }
     }
     // The float trough at the lip, sitting on the boards.
@@ -899,6 +928,117 @@ void AInfinityStageStructureActor::BuildPortal(
         Piece(Timbers, TimberData, TimberBounds,
             AtRoute(ForestageStartCm + TroughDepthCm * 0.5) + Up * (Ground.FloorHeightCm + TroughHeightCm * 0.5),
             Crosswise, FVector(HalfOpeningCm * 2.0, TroughDepthCm, TroughHeightCm));
+    }
+    // The stage front (FInfinityStagePortalSettings::bStageFront): every stage edge
+    // the curtain can reach gets a boarded face down to a house floor that wraps
+    // the mouth on the front and both sides. Positions are along the route from
+    // the portal line (negative toward the audience), across it, and up from the
+    // stage floor, all square to the portal.
+    TArray<FTransform> FrontBoards;
+    TArray<float> FrontData;
+    if (bStageFront)
+    {
+        const double ThickCm = BoardThicknessCm;
+        const double LipCm = ForestageStartCm - PortalCm;
+        const double MouthStartCm = ForestageEndCm - PortalCm;
+        const double MouthEndCm = Stations[0].DistanceCm - PortalCm;
+        const double SideEndCm = MouthEndCm + FMath::Max(0.0, Portal.SideRunUpstageCm);
+        const double HouseCm = FMath::Max(10.0, Portal.HouseFloorDepthCm);
+        const double HouseHalfCm = FMath::Max(MouthHalfCm + ThickCm, Portal.HouseFloorHalfWidthCm);
+        const double MinLengthCm = FMath::Max(20.0, FMath::Min(Ground.MinBoardLengthCm, Ground.MaxBoardLengthCm));
+        const double MaxLengthCm = FMath::Max(MinLengthCm, Ground.MaxBoardLengthCm);
+        // The passage floor's actual outer edge, from its lanes as BuildGround lays them.
+        const int32 GroundLanes = FMath::Max(1, FMath::FloorToInt32((GetFloorHalfSpanCm(Stations) * 2.0 + BoardGapCm) / BoardPitchCm));
+        const double GroundOuterCm = (GroundLanes * BoardPitchCm - BoardGapCm) * 0.5;
+        const auto At = [&](const double AlongCm, const double AcrossCm, const double UpCm)
+        {
+            return FloorPoint + Forward * AlongCm + Across * AcrossCm + Up * UpCm;
+        };
+        // Boards along LengthAxis, in even lanes across WidthAxis, filling the
+        // rectangle [L0, L1] x [W0, W1] on the plane through PlaneOrigin, with
+        // staggered joints as on the passage floor.
+        const auto LayBoards = [&](const FVector& PlaneOrigin, const FVector& LengthAxis, const FVector& WidthAxis,
+                                   const double L0, const double L1, const double W0, const double W1)
+        {
+            if (L1 - L0 < 1.0 || W1 - W0 < 1.0)
+            {
+                return;
+            }
+            const FQuat BoardRotation = FRotationMatrix::MakeFromXY(LengthAxis, WidthAxis).ToQuat();
+            TArray<double> LaneCentres;
+            const double LaneWidthCm = EvenLanes(W0, W1, LaneCentres);
+            for (const double LaneCm : LaneCentres)
+            {
+                double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * Stream.FRandRange(0.2, 1.0);
+                double FromCm = L0;
+                while (FromCm < L1 - 0.5)
+                {
+                    double ToCm = FMath::Min(FromCm + NextLengthCm, L1);
+                    if (L1 - ToCm < MinLengthCm * 0.25)
+                    {
+                        ToCm = L1;    // no sliver at the end of a run
+                    }
+                    Piece(FrontBoards, FrontData, BoardBounds,
+                        PlaneOrigin + LengthAxis * ((FromCm + ToCm) * 0.5) + WidthAxis * LaneCm,
+                        BoardRotation, FVector(ToCm - FromCm, LaneWidthCm, ThickCm));
+                    FromCm = ToCm + BoardGapCm;
+                    NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm);
+                }
+            }
+        };
+        // The mouth: stage-level floor either side of the passage floor, out to the
+        // mouth's width, from the forestage to the first station; and across the
+        // middle too, where the passage floor starts only after the portal line.
+        const double GroundStartAlongCm = GroundStartCm - PortalCm;
+        if (GroundStartAlongCm > MouthStartCm + 1.0)
+        {
+            LayBoards(At(0.0, 0.0, -ThickCm * 0.5), Forward, Across,
+                MouthStartCm + BoardGapCm, FMath::Min(GroundStartAlongCm - BoardGapCm, MouthEndCm),
+                -GroundOuterCm, GroundOuterCm);
+        }
+        if (MouthHalfCm > GroundOuterCm + BoardGapCm)
+        {
+            LayBoards(At(0.0, 0.0, -ThickCm * 0.5), Forward, Across,
+                MouthStartCm + BoardGapCm, MouthEndCm, GroundOuterCm + BoardGapCm, MouthHalfCm);
+            LayBoards(At(0.0, 0.0, -ThickCm * 0.5), Forward, Across,
+                MouthStartCm + BoardGapCm, MouthEndCm, -MouthHalfCm, -GroundOuterCm - BoardGapCm);
+        }
+        // The fascia at the lip, coursed horizontally down to the house floor, and
+        // wide enough to close the corners with the side returns.
+        LayBoards(At(LipCm - ThickCm * 0.5, 0.0, 0.0), Across, Up,
+            -MouthHalfCm - ThickCm, MouthHalfCm + ThickCm, -HouseCm, 0.0);
+        for (const double Side : { -1.0, 1.0 })
+        {
+            // The mouth's sides, from the lip to the first station.
+            LayBoards(At(0.0, Side * (MouthHalfCm + ThickCm * 0.5), 0.0), Forward, Up,
+                LipCm, MouthEndCm, -HouseCm, 0.0);
+            // Where the mouth steps back to the passage floor's width.
+            if (MouthHalfCm > GroundOuterCm)
+            {
+                LayBoards(At(MouthEndCm + ThickCm * 0.5, 0.0, 0.0), Across, Up,
+                    Side > 0.0 ? GroundOuterCm : -MouthHalfCm - ThickCm,
+                    Side > 0.0 ? MouthHalfCm + ThickCm : -GroundOuterCm, -HouseCm, 0.0);
+            }
+            // Along the passage floor's sides, past the first station.
+            LayBoards(At(0.0, Side * (GroundOuterCm + ThickCm * 0.5), 0.0), Forward, Up,
+                MouthEndCm + ThickCm, SideEndCm, -HouseCm, 0.0);
+        }
+        // The house floor: in front of the lip, then beside the mouth and beside the
+        // passage floor on both sides.
+        const FVector HouseOrigin = At(0.0, 0.0, -HouseCm - ThickCm * 0.5);
+        LayBoards(HouseOrigin, Forward, Across,
+            LipCm - FMath::Max(0.0, Portal.HouseFloorDownstageCm), LipCm - ThickCm, -HouseHalfCm, HouseHalfCm);
+        LayBoards(HouseOrigin, Forward, Across, LipCm - ThickCm, MouthEndCm + ThickCm, MouthHalfCm + ThickCm, HouseHalfCm);
+        LayBoards(HouseOrigin, Forward, Across, LipCm - ThickCm, MouthEndCm + ThickCm, -HouseHalfCm, -MouthHalfCm - ThickCm);
+        LayBoards(HouseOrigin, Forward, Across, MouthEndCm + ThickCm, SideEndCm, GroundOuterCm + ThickCm, HouseHalfCm);
+        LayBoards(HouseOrigin, Forward, Across, MouthEndCm + ThickCm, SideEndCm, -HouseHalfCm, -GroundOuterCm - ThickCm);
+        // A timber nosing along the lip, proud of the fascia.
+        if (Portal.NosingDepthCm > 0.5 && Portal.NosingHeightCm > 0.5)
+        {
+            Piece(Timbers, TimberData, TimberBounds,
+                At(LipCm - ThickCm - Portal.NosingDepthCm * 0.5, 0.0, -Portal.NosingHeightCm * 0.5),
+                Crosswise, FVector((MouthHalfCm + ThickCm) * 2.0, Portal.NosingDepthCm, Portal.NosingHeightCm));
+        }
     }
     // The gridiron carried forward to meet the portal: a cross beam over it and
     // rails back to the first station, so the tunnel recedes above the curtain.
@@ -953,6 +1093,13 @@ void AInfinityStageStructureActor::BuildPortal(
             TEXT("StructureForestage"), PortalLayerTag, BoardMesh, BoardMaterial, true);
         ApplyInstances(*BoardComponent, Boards, BoardData);
         PortalPieceCount += Boards.Num();
+    }
+    if (!FrontBoards.IsEmpty())
+    {
+        UInstancedStaticMeshComponent* FrontComponent = CreateManagedComponent(
+            TEXT("StructureStageFront"), PortalLayerTag, BoardMesh, BoardMaterial, true);
+        ApplyInstances(*FrontComponent, FrontBoards, FrontData);
+        PortalPieceCount += FrontBoards.Num();
     }
     if (!Lines.IsEmpty())
     {

@@ -578,10 +578,12 @@ bool FInfinityStageStructurePortalTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Without a portal the structure builds"), Structure->MaterializeStructure());
     TestNull(TEXT("The portal is off by default"), FindLayer(*Structure, TEXT("InfinityStage.Structure.Portal")));
 
-    // No apron, so the forestage fills the floor in front of the portal line.
+    // No apron, so the forestage fills the floor in front of the portal line. The
+    // frame on its own here; the stage front has its own test.
     Structure->Ground.bEnabled = true;
     Structure->Ground.ApronCm = 0.0;
     Structure->Portal.bEnabled = true;
+    Structure->Portal.bStageFront = false;
     TestTrue(TEXT("Structure with a portal materializes"), Structure->MaterializeStructure());
 
     TArray<FInfinityStructureStation> Stations;
@@ -651,6 +653,135 @@ bool FInfinityStageStructurePortalTest::RunTest(const FString& Parameters)
     UInstancedStaticMeshComponent* Rebuilt = FindLayer(*Structure, TEXT("InfinityStage.Structure.Portal"));
     TestTrue(TEXT("Rebuilding places the same portal"),
         Rebuilt && Rebuilt->GetInstanceCount() > 0 && ReadInstances(*Rebuilt)[0].Equals(FirstPiece, 1.0e-4));
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageStructureStageFrontTest,
+    "InfinityStage.Structure.StageFrontCatchesTheOverspill",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageStructureStageFrontTest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 3);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    Structure->Ground.bEnabled = true;
+    Structure->Ground.ApronCm = 0.0;
+    Structure->Portal.bEnabled = true;
+    TestTrue(TEXT("The stage front is on by default with the portal"), Structure->Portal.bStageFront);
+    TestTrue(TEXT("Structure with a stage front materializes"), Structure->MaterializeStructure());
+
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    Structure->GatherStations(Stations, Error);
+    UInstancedStaticMeshComponent* Front = nullptr;
+    UInstancedStaticMeshComponent* Forestage = nullptr;
+    int32 PortalInstances = 0;
+    for (UInstancedStaticMeshComponent* Component : Structure->ManagedComponents)
+    {
+        if (!Component || !Component->ComponentTags.Contains(FName(TEXT("InfinityStage.Structure.Portal"))))
+        {
+            continue;
+        }
+        PortalInstances += Component->GetInstanceCount();
+        const FString Name = Component->GetName();
+        if (Name.StartsWith(TEXT("StructureStageFront"))) { Front = Component; }
+        else if (Name.StartsWith(TEXT("StructureForestage"))) { Forestage = Component; }
+    }
+    if (!Front || !Forestage || Stations.IsEmpty())
+    {
+        AddError(TEXT("Expected stage-front and forestage boards over gathered stations."));
+        World->DestroyWorld(false);
+        return false;
+    }
+    TestEqual(TEXT("Stage-front boards are counted as portal pieces"), Structure->PortalPieceCount, PortalInstances);
+
+    const FInfinityStagePortalSettings& Portal = Structure->Portal;
+    const double ThickCm = Structure->Ground.BoardThicknessCm;
+    const double FloorCm = Structure->Ground.FloorHeightCm;
+    const double MouthEndX = Stations[0].StationWorld.GetLocation().X;
+    const double LipX = MouthEndX + Portal.OffsetFromFirstStationCm - Portal.ForestageDepthCm;
+    const double HouseZ = FloorCm - Portal.HouseFloorDepthCm;
+    const auto Boxes = [](const UInstancedStaticMeshComponent& Component)
+    {
+        TArray<FBox> Out;
+        const FBox MeshBounds = Component.GetStaticMesh()->GetBoundingBox();
+        for (const FTransform& Instance : ReadInstances(Component))
+        {
+            Out.Add(MeshBounds.TransformBy(Instance));
+        }
+        return Out;
+    };
+    const TArray<FBox> FrontBoxes = Boxes(*Front);
+    const TArray<FBox> ForestageBoxes = Boxes(*Forestage);
+
+    FBox Fascia(ForceInit);
+    FBox HouseFloor(ForceInit);
+    FBox StageLevel(ForceInit);
+    FBox MouthReturn(ForceInit);
+    bool bNothingAboveTheStage = true;
+    for (const FBox& Board : FrontBoxes)
+    {
+        bNothingAboveTheStage &= Board.Max.Z <= FloorCm + 0.01;
+        if (Board.Max.X <= LipX + 0.1 && Board.Min.X >= LipX - ThickCm - 0.1)
+        {
+            Fascia += Board;
+        }
+        if (FMath::IsNearlyEqual(Board.Max.Z, HouseZ, 0.1))
+        {
+            HouseFloor += Board;
+        }
+        if (FMath::IsNearlyEqual(Board.Max.Z, FloorCm, 0.1) && Board.Min.Z >= FloorCm - ThickCm - 0.1)
+        {
+            StageLevel += Board;
+        }
+        if (Board.Min.Y >= Portal.MouthHalfWidthCm - 0.1 && Board.Max.Y <= Portal.MouthHalfWidthCm + ThickCm + 0.1
+            && Board.Max.Z <= FloorCm + 0.1 && Board.Min.Z < FloorCm - ThickCm - 1.0)
+        {
+            MouthReturn += Board;
+        }
+    }
+    for (const FBox& Board : ForestageBoxes)
+    {
+        StageLevel += Board;
+    }
+    TestTrue(TEXT("No stage-front board rises above the stage"), bNothingAboveTheStage);
+    TestTrue(TEXT("The fascia stands at the lip, from the stage down to the house floor, the mouth's width"),
+        Fascia.IsValid
+        && FMath::IsNearlyEqual(Fascia.Max.Z, FloorCm, 0.1) && FMath::IsNearlyEqual(Fascia.Min.Z, HouseZ, 0.1)
+        && FMath::IsNearlyEqual(Fascia.Max.Y, Portal.MouthHalfWidthCm + ThickCm, 0.1)
+        && FMath::IsNearlyEqual(Fascia.Min.Y, -Portal.MouthHalfWidthCm - ThickCm, 0.1));
+    TestTrue(TEXT("The stage-level floor reaches the mouth's width exactly"),
+        StageLevel.IsValid && FMath::IsNearlyEqual(StageLevel.Max.Y, Portal.MouthHalfWidthCm, 0.1)
+        && FMath::IsNearlyEqual(StageLevel.Min.Y, -Portal.MouthHalfWidthCm, 0.1)
+        && FMath::IsNearlyEqual(StageLevel.Min.X, LipX, 0.1));
+    TestTrue(TEXT("The house floor runs its set distance toward the audience, its set width"),
+        HouseFloor.IsValid
+        && FMath::IsNearlyEqual(HouseFloor.Min.X, LipX - Portal.HouseFloorDownstageCm, 0.5)
+        && FMath::IsNearlyEqual(HouseFloor.Max.Y, Portal.HouseFloorHalfWidthCm, 0.1)
+        && FMath::IsNearlyEqual(HouseFloor.Min.Y, -Portal.HouseFloorHalfWidthCm, 0.1));
+    TestTrue(TEXT("The house floor wraps the sides past the first station"),
+        HouseFloor.IsValid && FMath::IsNearlyEqual(HouseFloor.Max.X, MouthEndX + Portal.SideRunUpstageCm, 0.5));
+    TestTrue(TEXT("The mouth's side is a face from the lip to the first station, down to the house floor"),
+        MouthReturn.IsValid && FMath::IsNearlyEqual(MouthReturn.Min.X, LipX, 0.5)
+        && FMath::IsNearlyEqual(MouthReturn.Max.X, MouthEndX, 0.5) && FMath::IsNearlyEqual(MouthReturn.Min.Z, HouseZ, 0.1));
+    TestTrue(TEXT("A structure with a stage front is current"), Structure->IsStructureCurrent());
+
+    const FTransform FirstBoard = ReadInstances(*Front)[0];
+    TestTrue(TEXT("Rebuild succeeds"), Structure->MaterializeStructure());
+    UInstancedStaticMeshComponent* Rebuilt = nullptr;
+    for (UInstancedStaticMeshComponent* Component : Structure->ManagedComponents)
+    {
+        if (Component && Component->GetName().StartsWith(TEXT("StructureStageFront")))
+        {
+            Rebuilt = Component;
+        }
+    }
+    TestTrue(TEXT("Rebuilding lays the same stage front"),
+        Rebuilt && Rebuilt->GetInstanceCount() == FrontBoxes.Num() && ReadInstances(*Rebuilt)[0].Equals(FirstBoard, 1.0e-4));
 
     World->DestroyWorld(false);
     return true;

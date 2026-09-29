@@ -303,6 +303,46 @@ struct INFINITYSTAGE_API FInfinityStagePortalSettings
     /** Hemp lines from the header up into the dark, spread across the opening. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal", meta = (ClampMin = "0", ClampMax = "32"))
     int32 HangingLines = 5;
+
+    /** A raised stage round the portal's mouth (Gary, 28 Sep, option A): the
+     * forestage and the mouth widened to MouthHalfWidthCm, a boarded fascia from
+     * the lip down to a house floor, and returns wherever a stage edge meets the
+     * house. A curtain that overspills any edge then drapes over it onto
+     * something instead of lying on air. Built square to the portal, for a
+     * straight approach. Needs the ground layer's boards. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front")
+    bool bStageFront = true;
+
+    /** The house floor, this far below the stage. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "10.0", Units = "cm"))
+    double HouseFloorDepthCm = 120.0;
+
+    /** The stage-level floor's half-width from the lip to the first station:
+     * wider than the passage's own floor, to take the curtain's spill. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "50.0", Units = "cm"))
+    double MouthHalfWidthCm = 1300.0;
+
+    /** How far the house floor runs toward the audience from the lip: past the
+     * camera, so no view runs off its far edge. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "0.0", Units = "cm"))
+    double HouseFloorDownstageCm = 2450.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "0.0", Units = "cm"))
+    double HouseFloorHalfWidthCm = 2000.0;
+
+    /** Past the first station, the house floor and the returns along the
+     * passage floor's sides run this far upstage. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "0.0", Units = "cm"))
+    double SideRunUpstageCm = 750.0;
+
+    /** A timber nosing along the lip, proud of the fascia, top flush with the
+     * stage. Off (depth 0) until a curtain bake includes it: the cloth drapes
+     * over the lip there, and a rail the bake never saw would cut through it. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "0.0", Units = "cm"))
+    double NosingHeightCm = 12.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "0.0", Units = "cm"))
+    double NosingDepthCm = 0.0;
 };
 
 /**
