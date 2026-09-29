@@ -61,8 +61,15 @@ Prepared read-only from disk, for Gary's go. Nothing has been applied.
   `get_or_create` now refuses outside `PaintedSurface`. `rebuild_v2_edge.py` renamed
   the 3 originals to `Legacy_*` (left inert), added the 19 canvas-edge nodes and
   rewired the outputs (mode=added, 22 expressions, 0 dirty, no compile failures).
-  All 75 live users are 10 cm (HalfThicknessCm 5). Unplaced referencers include
-  `SM_FireSafetyCurtain_01` (also 10 cm). Undo, delete-free:
+  All 75 live users are 10 cm (HalfThicknessCm 5). **Correction (29 Sep, from
+  Soft goods): `SM_FireSafetyCurtain_01` (also 10 cm) is not placed in the level,
+  but `AInfinityStageCurtainRig` force-shows it when active. There's a curtain rig
+  in all seven sequence blocks, so this edge change IS visible at every
+  transition.** It gains the batten and canvas edge instead of flat dark brown.
+  If Gary dislikes it on the curtain: `restore_v2_edge_original.py` reverts the
+  material for **all** its users (the 74 V2 wings too), so separating the curtain
+  would need its own edge material and a change to that mesh's slot. That's
+  Soft goods' asset. Undo, delete-free:
   `restore_v2_edge_original.py`. Backup: `Backups/PreV2EdgeRebuild-20260928-232203`.
   The ISM flag was already True there and its users aren't Nanite, so it never
   had the packaged-build hazard; the Nanite flag is belt and braces.
