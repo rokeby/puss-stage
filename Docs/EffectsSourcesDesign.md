@@ -321,8 +321,21 @@ anywhere. Motes have somewhere real to live. The fog is still net-negative by
 to about 0.012 rather than add more back-lights. The spike should be judged in
 that thinner medium.
 
-**Queue on resume, all waiting on Gary:** this spike, then greybox placement
-on P01, then his creative calls (see Open questions).
+**Queue on resume, and who approves each step.** Gary, 29 Sep: "the conductor
+can approve reversible backed-up writes on my behalf; creative changes still
+come to me". Anything unclear is treated as creative.
+
+| Step | Writes | Approval |
+| --- | --- | --- |
+| This spike (Simulate, transient volume, measurements) | none: Simulate never saves | **Conductor** grants the slot. **Gary** judges the look. |
+| Wing-burn PIE proof (one burn on a trial P01 wing, read back, then **removed** and re-materialized) | Show + level, backed up, reverted at the end | **Conductor**: it is a reversible test fixture that leaves the show as it was |
+| Leaving any burn in place | Show + level | **Gary**: which wings burn is creative |
+| Greybox haze pots / motes on P01 (stride, bays) | Show + level | **Gary**: it changes what the audience sees, and the stride is his call |
+| Fire versus silk, pumping to the music | — | **Gary** |
+
+An approval is not a classifier clearance. If an editor run is blocked, it goes
+back to Gary in-session and is never routed around (see memory
+`puss-mutation-scripts-need-gary`).
 
 **The spike runs in Simulate-in-Editor, not in the editor world.** Simulate is a
 game world whose packages are never saved, so spawning a transient volume
