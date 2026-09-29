@@ -29,8 +29,12 @@ Prepared read-only from disk, for Gary's go. Nothing has been applied.
      from 29 Sep.
   2. **P05 relief is an art call.** In August Gary said "not to worry about
      Passage 5 height/bump maps" for the clouds. The plan wires real relief
-     (HeightRatio 0.006). If he wants flat clouds, run with `HeightRatio` 0
-     (the rest of the material still applies).
+     (HeightRatio 0.006). For flat **and cheaper** clouds, set `HeightRatio` 0
+     **plus `POMMinSteps` 1 and `POMMaxSteps` 1**: with the ratio at 0 alone, the
+     POM loop still runs its 8–24 steps and costs the same. These are MI scalars,
+     so there's no master change. The masked cut-out (the black-area fix) and the
+     paint look still apply. Options for Gary: (a) full relief, (b) lean flat
+     clouds, (c) not yet.
   3. **P05 clouds are 45–98 % transparent**, and the legacy material is opaque,
      so any part of the cut-out mesh over transparent texels likely draws
      black (the P01 ceiling mechanism). The new master's mask would fix it.
