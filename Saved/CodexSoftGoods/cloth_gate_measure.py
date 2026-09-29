@@ -93,13 +93,15 @@ def main():
         del roots, transport
     for actor, comp in rows:
         if mode == "set_suspend":
-            comp.suspend_simulation()
+            # bSuspendSimulation's Python name `suspend_simulation` SHADOWS the SuspendSimulation() UFUNCTION (a bool,
+            # not callable: TypeError on 29 Sep). Set the property.
+            comp.set_editor_property("suspend_simulation", True)
         elif mode == "set_disable":
             comp.resume_simulation()
             comp.set_enable_simulation(False)
         elif mode == "set_restore":
             comp.set_enable_simulation(True)
-            comp.resume_simulation()
+            comp.set_editor_property("suspend_simulation", False)
         report["components"].append({"actor": actor.get_actor_label(), "class": actor.get_class().get_name(),
                                      "enabled": comp.is_simulation_enabled(),
                                      "suspended": comp.is_simulation_suspended()})

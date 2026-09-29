@@ -57,7 +57,7 @@ def set_level_default(comp):
     try:
         comp.set_editor_property(py_name, OFF_VALUE)
     except Exception:  # noqa: BLE001
-        comp.suspend_simulation() if PROPERTY == "bSuspendSimulation" else comp.set_enable_simulation(False)
+        comp.call_method("SuspendSimulation") if PROPERTY == "bSuspendSimulation" else comp.set_enable_simulation(False)
     return is_off(comp)
 
 
