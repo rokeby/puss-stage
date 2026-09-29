@@ -139,3 +139,22 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   (Master saved 21 Sep vs the Show saved 28 Sep). Never run
   `PussStageBootstrap.RebuildCurrentMaster`: it is a test that rebuilds and
   SAVES both assets.
+
+## 29 September, morning
+
+- **Floors dropped under the boards** (Gary: "drop all floors to zero", "show
+  me the boards"; the conductor approved it under the delegation). Three textured
+  slabs, `StaticMeshActor_0` (P01 walnut), `_1` (P06 Versailles) and `_7` (P05
+  oak), were 100 cm engine Cubes with their tops at +49.5, burying every
+  structure floor, the wing feet, the floats and the cats. They are now 1 cm
+  thick with tops at −5, under the boards. P01's slab is trimmed to end at the
+  lip (x −150), so the stage front shows. Backup
+  `Backups/PreFloorsToStage-20260929-1233`; undo `floors_to_stage_revert.py`.
+  Consequence: the slots show the slab 5 cm down, not the dark understage.
+- **Structure re-fit still unsaved:** the first run refused on P05 Wing 004
+  (its Right panel stands on the route line, so it's one-sided). The guard now
+  follows the mechanism (`be716f3`). My Python reload of the open level crashed
+  the editor; never do that. The re-run waits for its slot.
+- **Board material:** every structure piece is an engine Cube with no material
+  (grey). Per-layer material settings already exist. A convincing material must
+  tile using per-instance custom data or world-aligned UVs. The look is Gary's.
