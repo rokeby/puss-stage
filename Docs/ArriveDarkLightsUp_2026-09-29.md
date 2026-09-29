@@ -82,3 +82,21 @@ read.
 - Does it stay on or give way at the ping?
 - Wave speed: a snap, or a roll.
 - Whether every passage takes the rhythm, or only the ones after a scene.
+
+## 7. At passage mouths: the show cloth, its lantern, the scrim
+
+Added 29 September, from Gary's transition design.
+
+- **The front lantern on the show cloth is the arrival light.** It's front-lit,
+  from the house side like P01's warmer, so the shadow play reads. In a
+  near-dark arrival it's the only lit thing in view, so at a mouth it can *be*
+  the ghost-light role: one light, not two.
+- **Scrim reveal: key it, don't gate it on distance.** The camera **holds** at
+  the mouth during the shadow play. Camera distance stops advancing during a
+  hold, so a distance-driven gate can't time a reveal there. The ping behind a
+  scrim must be **keyed on the transition's own sequence**. The distance-driven
+  passage gate still lights the rest of the passage as the camera travels in.
+  Two mechanisms: keyed for the reveal, distance for the rest.
+- **The mouths aren't identical** (up to 3× in width and 60% in height between
+  passages; P02 has no stable mouth at all). One cloth bake fits all of them
+  only if the cloth hangs in a **portal**, the constant module, at every mouth.
