@@ -38,6 +38,19 @@ def main():
     scene.render.fps = 30
     bpy.ops.wm.alembic_import(filepath=str(ABC))
     cloth = next(o for o in scene.objects if o.type == "MESH")
+    # UPPER CLOTH (29 Sep, Gary: "the upper parts of the cloth when they finally collide ... flop upwards and down"):
+    # the top UPPER_FRAC of the curtain by grid row, from the same pattern code (row 0 = heading).
+    import importlib.util
+    os.environ.setdefault("CURTAIN_RAGGED", "0")
+    spec = importlib.util.spec_from_file_location("pattern", ROOT / "Scripts" / "build_curtain_chaos_pattern.py")
+    pattern = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pattern)
+    per_row = pattern.COLS + 1
+    nverts = len(cloth.data.vertices)
+    if nverts != per_row * (pattern.ROWS + 1):
+        raise SystemExit(f"grid mismatch: {nverts} vertices vs {per_row} x {pattern.ROWS + 1} (set CURTAIN_FULLNESS / CURTAIN_QUADS_PER_BOLT)")
+    upper_frac = float(os.environ.get("UPPER_FRAC", "0.2"))
+    upper = [i for i in range(nverts) if i // per_row <= upper_frac * pattern.ROWS]
     boxes = []
     if COLLIDERS:
         data = json.loads((ROOT / COLLIDERS.split("|")[0]).read_text(encoding="utf-8"))
@@ -61,6 +74,8 @@ def main():
         floor = sum(1 for p in pts if abs(p.z) < 0.03 or abs(p.z + 1.2) < 0.03)
         near = sum(1 for p in pts if any(lo[0] < p.x < hi[0] and lo[1] < p.y < hi[1] and lo[2] < p.z < hi[2] for lo, hi in boxes))
         row["contact_floor"], row["contact_boxes"] = floor, near
+        up = [pts[i].z for i in upper]
+        row["upper_mean"], row["upper_max"] = sum(up) / len(up), max(up)
         rows.append(row)
     out = {"abc": str(ABC.name), "frames": [F0, F1], "rows": rows}
     summary = {}
@@ -68,6 +83,12 @@ def main():
         series = [r[key] for r in rows if r[key] is not None]
         rise, j = rebound(series)
         summary[key] = {"rise_m": rise, "min_frame": (F0 + j) if j is not None else None}
+    for key in ("upper_mean", "upper_max"):
+        series = [r[key] for r in rows]
+        rise, j = rebound(series)
+        k = (j + max(range(len(series[j:j + 30])), key=lambda m: series[j + m])) if j is not None else None
+        summary[key] = {"rise_m": rise, "min_frame": (F0 + j) if j is not None else None,
+                        "peak_frame": (F0 + k) if k is not None else None}
     summary["peak_contact_boxes"] = max(r["contact_boxes"] for r in rows)
     summary["peak_contact_floor"] = max(r["contact_floor"] for r in rows)
     out["summary"] = summary
