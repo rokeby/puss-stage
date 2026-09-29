@@ -61,6 +61,36 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (night): transition-curtain placeholder, sized (plan only, nothing built)
+
+Gary's redesign: no curtain on Scene entry. On exit, the view meets a curtain at the next Passage's mouth, the shadow
+play runs on it, and it falls; then the Passage lights come up. Placeholder until the box rotation exists: a CUT from
+the Scene to the mouth.
+- **Ownership, one owner per asset.** Look & camera place a level "Transition N — Stalls Camera" per Passage 2–6,
+  downstage of the mouth, on the pattern of the Opening's (−1400 along the route start, 150 high, +14°, 15 mm). Soft goods
+  own the drape spawnable, its sections, and the camera-cut section in LS_Interaction_0N (N = 1–5).
+- **Per Interaction (20 s = 500 frames):**
+  - The fire-safety rig is kept but inactive. The tests count it, so its assertions change in the same build.
+  - The drape spawnable (GC_CurtainDrop_Opening) sits at Passage N+1's mouth: the actor transform is that Passage's route
+    start, and the cache is world-true for P01 at the origin.
+  - Sections: HOLD from 0 until the release, then FALL, then PILE.
+  - Release at about 16 s, where the old rig began to rise (frame 400), so the fall and landing finish by about 19 s.
+  - A camera cut 0–500 to the stalls camera. An authored cut outranks the transport's retained Scene camera, as it does
+    for the Opening.
+  - The pile goes at 20 s, under the cut to the Passage rig.
+- **Blockers:**
+  - (a) Rig confirms the mouths are identical modules: portal defaults and a stage front. Otherwise the pile's spill
+    floats or clips there, and each distinct mouth needs its own bake of about 3 h.
+  - (b) Look & camera's cameras.
+  - (c) The SavedFixturePIE Interaction block asserts the RETAINED Scene camera and an ACTIVE fire-safety mesh. That
+    encodes the old design, so it is rewritten in the same build (the successor to shelved patch B).
+- **Effort once unblocked:** one guarded script for 5 sequences (backup first, dry run, revert = restore the 5 .uassets),
+  about 1 h with verification, plus the test patch.
+- **Gary's calls:**
+  1. Cut to the mouth at the Interaction's start (recommended) or at the 14.4 s covered handoff.
+  2. Release at about 16 s (recommended) or later.
+- **Not in the placeholder:** the shadow play itself and the scrim/calico show cloth. Parked.
+
 ## 29 Sep (evening): restart protocol, the stutter after a clean editor
 
 - **Instrument fix first.** The Slate post-tick delta is CLAMPED at 125 ms (1/8 s), so every max_ms before 19:10Z read
