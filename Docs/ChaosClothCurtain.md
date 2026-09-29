@@ -61,6 +61,29 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (14:00): THE OPENING IS PLACED (Gary: "yes opening", typed in this session)
+
+- `curtain_place_opening_and_transitions.py` with `DO_TRANSITIONS = False` (backup
+  `Backups/PreCurtainPlacement-20260929-135157`):
+  - level CineCamera "Opening — Stalls Camera": (−1400, 0, 150), +14°, 15 mm, HFOV 76.8°, focus off;
+  - `LS_Opening_Curtain_Baked`: the Fire Safety rig is removed; "Opening Drape (baked)" GeometryCacheActor spawnable
+    with HOLD 0–25 / FALL 25–300 / PILE 300–375 (tick 24000, 960 per frame, loop offsets 263040); Camera Cut 0–375.
+  - It saved only that sequence and the level; dirty after [].
+- `repoint_opening_rebuild.py` (backup `Backups/PreOpeningRepoint-20260929-135221`): cue 0 now points at the baked
+  sequence, RebuildManagedMaster ran, and it saved only the Show and the Master. 13/13 sections matched before
+  (0.000 s: the 12:56 rebuild held) and after, and the Master's first section plays LS_Opening_Curtain_Baked.
+- **Tier: read-back, NOT rendered.** Nobody has seen the fall in Unreal yet. Watch:
+  - frames 0–25 should show the hang;
+  - the PIE view should cut to the stalls camera, then to P01 at 15 s;
+  - the pile goes at 15 s, under the cut.
+- **Known red until patch A is built:** SavedFixturePIE "Opening reveal establishes Passage 1 camera before lifting".
+- **Revert:** point cue 0 back to `LS_Opening_Curtain` and rebuild the Master. The camera actor and the new sequence
+  can stay, since nothing else references them.
+- **Transitions: not touched.** Gary's redesign (22:00 conductor): there is no curtain on scene entry. On exit the box
+  rotates back, and a show cloth at the passage mouth carries the shadow play, then drops. The scrim/calico/velvet
+  panels are in `Saved/CodexSoftGoods/ShowCloth/` (`Scripts/render_show_cloth_compare.py`), parked on Gary's
+  "don't get distracted from end to end".
+
 ## 29 Sep (afternoon): the curtain at the front and at the transitions — IMPORTED; placement written, NOT RUN
 
 Gary (via the conductor): "place the opening curtain where it's supposed to be (at the front and also in between
