@@ -5,6 +5,29 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Proposal (29 Sep, not authored): walnut on the structure kit
+
+Gary asked for "texture plus geometry": his walnut floor on the kit's real boards.
+The kit is engine Cubes scaled to size (about 29k instances, empty material slot).
+Per-instance data is `[variation, length, width, thickness]` cm, with local
+X = length. Rig owns assignment (`Ground.BoardMaterial`, re-fit); this stream
+would own the material.
+
+- **New kit master in our folder**, reusing the pack's textures. The walnut MI's
+  parent `M_Flooring_Mat` is UV plus CustomRotator only, and editing a
+  marketplace master is off-limits.
+- **Two mapping modes, one static switch:** *world-aligned* (continuous
+  herringbone with the slots cut through it) or *per-member* (grain along each
+  board, offset by variation). Per-member is required for anything that moves.
+  The pack also has straight walnut planks (`T_Walnut_Strp_02`).
+- **Cost:** box faces are axis-aligned, so the projection is picked per face:
+  one texture set per pixel, no triplanar, no POM. About half the wing master's
+  instructions.
+- **Presets for** floor, grooves, wing poles and side frames: same kit, same master.
+- **Open for Gary:** (A) herringbone deck or walnut planks; (B) which parts are
+  "metal", and whether a procedural stopgap is acceptable. There's no convincing
+  textured metal in the project; real metal would need a download.
+
 ## P04 / P05: PLANNED, READY TO RUN, NOT APPLIED (prepared 2026-09-29 overnight)
 
 Prepared read-only from disk, for Gary's go. Nothing has been applied.
