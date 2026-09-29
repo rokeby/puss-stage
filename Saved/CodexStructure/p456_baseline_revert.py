@@ -27,14 +27,13 @@ def main():
     show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
     show.modify()
     cues = list(show.get_editor_property("cues"))
-    index_of = {str(c.get_editor_property("label")): i for i, c in enumerate(cues)}
     by_cue = {}
     for guid, rec in record["rows"].items():
-        by_cue.setdefault(rec["cue"], []).append((guid, rec))
+        by_cue.setdefault(rec["cue_index"], []).append((guid, rec))   # labels repeat in P05; use the index
     restored = 0
-    for label, items in by_cue.items():
-        ci = index_of[label]
+    for ci, items in by_cue.items():
         cue = cues[ci]
+        label = str(cue.get_editor_property("label"))
         pair = cue.get_editor_property("wing_pair")
         atts = list(pair.get_editor_property("attachments"))
         for guid, rec in items:

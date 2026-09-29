@@ -81,13 +81,14 @@ def census(show, passage_of_cue):
     return lit, casters, per
 
 
-def fingerprints(show, skip_cues):
+def fingerprints(show, skip_cue_guids):
+    """Every other wing pair's lights, keyed by cue GUID (P05 reuses cue labels)."""
     out = {}
     for cue in show.get_editor_property("cues"):
-        label = str(cue.get_editor_property("label"))
-        if label in skip_cues or cue.get_editor_property("type") != unreal.InfinityCueType.WING_PAIR:
+        key = unreal.GuidLibrary.conv_guid_to_string(cue.get_editor_property("cue_guid"))
+        if key in skip_cue_guids or cue.get_editor_property("type") != unreal.InfinityCueType.WING_PAIR:
             continue
-        out[label] = json.dumps([snapshot(a) for a in cue.get_editor_property("wing_pair").get_editor_property("attachments")
+        out[key] = json.dumps([snapshot(a) for a in cue.get_editor_property("wing_pair").get_editor_property("attachments")
                                  if a.get_editor_property("kind") == unreal.InfinityAttachmentKind.LIGHT])
     return out
 
@@ -116,25 +117,38 @@ def main():
     for pn, p in passages.items():
         for g in show.get_wing_pair_cue_guids_in_passage(p.get_editor_property("passage_guid")):
             passage_of_cue[unreal.GuidLibrary.conv_guid_to_string(g)] = pn
-    target_cues = {r["cue"] for r in rows}
-    in_targets = {str(c.get_editor_property("label")) for c in show.get_editor_property("cues")
-                  if passage_of_cue.get(unreal.GuidLibrary.conv_guid_to_string(c.get_editor_property("cue_guid"))) in TARGETS}
-    if target_cues != in_targets:
-        fail(f"plan cues differ from the three passages' pairs: {sorted(target_cues ^ in_targets)[:6]}")
-
-    # Locate every planned attachment by cue label, index and GUID, and record it.
+    # Locate every planned attachment by its own GUID: cue labels repeat in P05,
+    # so a label cannot identify a pair. The plan's index and label must agree.
     cues = list(show.get_editor_property("cues"))
-    index_of = {str(c.get_editor_property("label")): i for i, c in enumerate(cues)}
+    where = {}
+    for ci, c in enumerate(cues):
+        if c.get_editor_property("type") != unreal.InfinityCueType.WING_PAIR:
+            continue
+        for ai, a in enumerate(c.get_editor_property("wing_pair").get_editor_property("attachments")):
+            where[unreal.GuidLibrary.conv_guid_to_string(a.get_editor_property("attachment_guid"))] = (ci, ai)
     record = {"written": datetime.datetime.now().isoformat(timespec="seconds"), "rows": {}}
+    target_ci = set()
     for r in rows:
-        atts = cues[index_of[r["cue"]]].get_editor_property("wing_pair").get_editor_property("attachments")
-        att = atts[r["index"]]
-        if unreal.GuidLibrary.conv_guid_to_string(att.get_editor_property("attachment_guid")) != r["guid"] \
-                or str(att.get_editor_property("label")) != f"{r['cue']} {r['slot']}":
-            fail(f"{r['cue']} {r['slot']}: not at index {r['index']} with GUID {r['guid']}")
-        record["rows"][r["guid"]] = {"cue": r["cue"], "index": r["index"], "slot": r["slot"], "before": snapshot(att)}
+        if r["guid"] not in where:
+            fail(f"{r['cue']} {r['slot']}: GUID {r['guid']} not in the Show")
+        ci, ai = where[r["guid"]]
+        cue = cues[ci]
+        att = cue.get_editor_property("wing_pair").get_editor_property("attachments")[ai]
+        cg = unreal.GuidLibrary.conv_guid_to_string(cue.get_editor_property("cue_guid"))
+        ok = (ai == r["index"] and str(cue.get_editor_property("label")) == r["cue"]
+              and str(att.get_editor_property("label")) == f"{r['cue']} {r['slot']}"
+              and passage_of_cue.get(cg) in TARGETS)
+        if not ok:
+            fail(f"{r['cue']} {r['slot']}: found at cue {ci} index {ai}, not as planned")
+        target_ci.add(ci)
+        record["rows"][r["guid"]] = {"cue": r["cue"], "cue_index": ci, "index": ai, "slot": r["slot"], "before": snapshot(att)}
+    in_targets = {ci for ci, c in enumerate(cues)
+                  if passage_of_cue.get(unreal.GuidLibrary.conv_guid_to_string(c.get_editor_property("cue_guid"))) in TARGETS}
+    if target_ci != in_targets:
+        fail(f"planned pairs ({len(target_ci)}) differ from the three passages' pairs ({len(in_targets)})")
+    target_cue_guids = {unreal.GuidLibrary.conv_guid_to_string(cues[ci].get_editor_property("cue_guid")) for ci in target_ci}
     lit0, casters0, per0 = census(show, passage_of_cue)
-    others0 = fingerprints(show, target_cues)
+    others0 = fingerprints(show, target_cue_guids)
     record.update({"lit_before": lit0, "casters_before": casters0, "per_passage_before": per0})
     with open(RECORD, "w", encoding="utf-8") as fh:
         json.dump(record, fh, indent=1)
@@ -150,9 +164,8 @@ def main():
     show.modify()
     by_cue = {}
     for r in rows:
-        by_cue.setdefault(r["cue"], []).append(r)
-    for label, rs in by_cue.items():
-        ci = index_of[label]
+        by_cue.setdefault(record["rows"][r["guid"]]["cue_index"], []).append(r)
+    for ci, rs in by_cue.items():
         cue = cues[ci]
         pair = cue.get_editor_property("wing_pair")
         atts = list(pair.get_editor_property("attachments"))
@@ -190,7 +203,7 @@ def main():
     for pn, (lit, cas) in per1.items():
         if cas > per0.get(pn, [0, 0])[1]:
             problems.append(f"{pn} casters rose {per0.get(pn)} -> {[lit, cas]}")
-    if fingerprints(show, target_cues) != others0:
+    if fingerprints(show, target_cue_guids) != others0:
         problems.append("a cue outside P04/P05/P06 changed")
     if problems:
         fail(f"Show edit wrong, NOT saved: {problems}")
