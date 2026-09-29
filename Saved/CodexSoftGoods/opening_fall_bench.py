@@ -42,12 +42,18 @@ def main():
         report["opened"] = lib.open_level_sequence(unreal.load_asset(SEQ))
     elif mode == "frame":
         frame = int(cfg.get("frame", 0))
+        world = editor.get_editor_world()
+        # Sequencer's spawned drape is TRANSIENT: EditorActorSubsystem skips it, GameplayStatics does not.
+        drapes = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.GeometryCacheActor))
+        if cfg.get("force_running") and drapes:
+            # Hypothesis test on the TRANSIENT spawned copy only (no asset is touched): does bRunning gate the track?
+            drapes[0].get_editor_property("geometry_cache_component").set_editor_property("running", True)
+            report["forced_running"] = True
         lib.set_current_time(frame)
         report["frame"] = frame
-        ss = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-        actors = ss.get_all_level_actors()
-        drapes = [a for a in actors if a.get_class().get_name() == "GeometryCacheActor"]
+        actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
         cams = [a for a in actors if a.get_actor_label() == CAMERA_LABEL]
+        del world
         report["drapes"] = len(drapes)
         if drapes:
             comp = drapes[0].get_editor_property("geometry_cache_component")
@@ -61,7 +67,7 @@ def main():
         if cams:
             out_dir = os.path.join(HERE, "OpeningBench")
             os.makedirs(out_dir, exist_ok=True)
-            report["screenshot"] = os.path.join(out_dir, f"f{frame:04d}.png")
+            report["screenshot"] = os.path.join(out_dir, f"f{frame:04d}{'_forced' if cfg.get('force_running') else ''}.png")
             unreal.AutomationLibrary.take_high_res_screenshot(1600, 900, report["screenshot"], camera=cams[0])
         del actors, drapes, cams
     elif mode == "close":
