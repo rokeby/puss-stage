@@ -36,29 +36,43 @@ MI_WOOD = KIT + "/MI_Kit_WalnutPlank"
 MI_STEEL = KIT + "/MI_Kit_SteelGroove"
 PACK = "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Textures/Strip/T_Walnut_Strp_02_"
 WOOD = {"D": PACK + "D", "N": PACK + "N", "R": PACK + "R", "AO": PACK + "AO"}
-# Texture layout, confirmed from the exported walnut strip before the first build
-# (kit_texture_layout.json). These are the master defaults; the MIs can override them.
-LAYOUT = wm.read_json("kit_texture_layout.json")
+# Texture layout, read off T_Walnut_Strp_02_D and its strip mask T_Strp_01_M
+# (exported 2026-09-29 to DerivedAssets/WingMateriality/SourceExports/KitWalnut).
+# Strips run along U, 20 rows, and each plank is 0.5 U long; even rows joint at
+# 0/0.5, odd rows at 0.25/0.75. A 960 cm tile gives one painted plank per 480 cm
+# (Rig's MaxBoardLengthCm), so no painted joint lands mid-board. A 24 cm board maps
+# to one strip, about 1.7x grain stretch. These are the master defaults; MIs can override.
+LAYOUT = {"tile_length_cm": 960, "strips_across": 20, "strip_inset": 0.08, "swap_uv": 0,
+          "plank_length_u": 0.5, "plank_offset_odd_u": 0.25, "joint_margin_u": 0.01}
 
 CODE_COORDS = r"""
-// Member-space centimetres and the face this pixel is on. Grain axis = local X.
+// Member-space centimetres and the face this pixel is on. Grain axis = local X
+// (always, even when a board is shorter than it is wide).
 float3 s = float3(max(length(AxisX), 1e-3), max(length(AxisY), 1e-3), max(length(AxisZ), 1e-3));
 float3 p = LocalPos * s;
 float3 n = abs(normalize(NormalLocal));
+float L = LengthCm > 0.0 ? LengthCm : 100.0 * s.x;
 float W = WidthCm > 0.0 ? WidthCm : 100.0 * s.y;
 float T = ThickCm > 0.0 ? ThickCm : 100.0 * s.z;
 float N = max(StripsAcrossTile, 1.0);
 float strip = floor(frac(Seed * 7.31) * N);
-float along = p.x / max(TileLengthCm, 1.0) + frac(Seed * 13.7);
+// Each painted strip holds planks PlankLength long (in U). Odd rows are phase-shifted
+// by PlankOffsetOdd. Put the whole board inside one painted plank, at a random slide,
+// so no painted butt joint lands mid-board; the board's own ends are the real joints.
+float plankStart = (fmod(strip, 2.0) > 0.5) ? PlankOffsetOdd : 0.0;
+float Lu = L / max(TileLengthCm, 1.0);
+float slack = max(PlankLength - Lu - 2.0 * JointMargin, 0.0);
+float u0 = plankStart + JointMargin + slack * frac(Seed * 13.7);
+float along = u0 + (p.x + 0.5 * L) / max(TileLengthCm, 1.0);
 float across;
 if (n.z >= n.x && n.z >= n.y) { across = p.y / W + 0.5; Face = 0.0; }
 else if (n.y >= n.x)          { across = p.z / T + 0.5; Face = 1.0; }
-else                          { across = p.y / W + 0.5; along = p.z / max(TileLengthCm, 1.0); Face = 2.0; }
+else                          { across = p.y / W + 0.5; along = u0 + (p.z + 0.5 * T) / max(TileLengthCm, 1.0); Face = 2.0; }
 float v = (strip + StripInset + (1.0 - 2.0 * StripInset) * saturate(across)) / N;
 float2 uv = float2(along, v);
 uv = lerp(uv, uv.yx, saturate(SwapUV));
 // Distance to the nearest edge of this face, in cm (drives steel edge wear).
-float3 hs = 0.5 * float3(100.0 * s.x, W, T);
+float3 hs = 0.5 * float3(L, W, T);
 float3 d = hs - abs(p);
 EdgeCm = (Face == 0.0) ? min(d.x, d.y) : ((Face == 1.0) ? min(d.x, d.z) : min(d.y, d.z));
 MemberCm = p;
@@ -161,13 +175,17 @@ def build_master():
         "StripsAcrossTile": g.scalar("StripsAcrossTile", float(LAYOUT["strips_across"]), "01 Layout", -2900, 1400, 1),
         "StripInset": g.scalar("StripInset", float(LAYOUT["strip_inset"]), "01 Layout", -2900, 1500, 2),
         "SwapUV": g.scalar("SwapUV", float(LAYOUT["swap_uv"]), "01 Layout", -2900, 1600, 3),
+        "PlankLength": g.scalar("PlankLengthU", float(LAYOUT["plank_length_u"]), "01 Layout", -2900, 1700, 4),
+        "PlankOffsetOdd": g.scalar("PlankOffsetOddU", float(LAYOUT["plank_offset_odd_u"]), "01 Layout", -2900, 1800, 5),
+        "JointMargin": g.scalar("JointMarginU", float(LAYOUT["joint_margin_u"]), "01 Layout", -2900, 1900, 6),
     }
     coords = g.custom(-2400, 300, "Kit coords: member cm, face, strip UV", CODE_COORDS,
-                      ["LocalPos", "AxisX", "AxisY", "AxisZ", "NormalLocal", "Seed", "WidthCm", "ThickCm",
-                       "TileLengthCm", "StripsAcrossTile", "StripInset", "SwapUV"], F2,
+                      ["LocalPos", "AxisX", "AxisY", "AxisZ", "NormalLocal", "Seed", "LengthCm", "WidthCm", "ThickCm",
+                       "TileLengthCm", "StripsAcrossTile", "StripInset", "SwapUV", "PlankLength", "PlankOffsetOdd",
+                       "JointMargin"], F2,
                       [("Face", F1), ("EdgeCm", F1), ("MemberCm", F3)])
     for src, pin in ((lpos, "LocalPos"), (axes[0], "AxisX"), (axes[1], "AxisY"), (axes[2], "AxisZ"),
-                     (nl, "NormalLocal"), (seed, "Seed"), (cd[2], "WidthCm"), (cd[3], "ThickCm")):
+                     (nl, "NormalLocal"), (seed, "Seed"), (cd[1], "LengthCm"), (cd[2], "WidthCm"), (cd[3], "ThickCm")):
         g.link(src, "", coords, pin)
     for k, node in p.items():
         g.link(node, "", coords, k)

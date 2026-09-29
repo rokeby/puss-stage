@@ -5,7 +5,25 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
-## Proposal (29 Sep, not authored): walnut on the structure kit
+## P04 rolled out; kit master built (29 Sep)
+
+- **P04 DONE:** 26 meshes, 78 MIs, 39 panels, no collateral; read-back 78/78, 0
+  dirty, 0 compile failures. **All 45 P04 panels are now on the new master.**
+  Undo: `rollout_rollback_20260929-132520.json`. Backup:
+  `Backups/PreWingRolloutP04-20260929-132505`. P05 is still held for Gary (relief
+  and cost).
+- **Kit master BUILT** per Gary's choice ("walnut planks, procedural steel for
+  the grooves"): `/Game/Scenes/Wings/PaintedSurface/Kit/M_Kit_Surface_Master`
+  (60 nodes, ISM and Nanite set, world-space normals), presets
+  `MI_Kit_WalnutPlank` (IsMetal off) and `MI_Kit_SteelGroove` (IsMetal on). 0
+  dirty, 0 compile failures. **Not assigned:** Rig assigns them
+  (`Ground.BoardMaterial`, `Ground.GrooveMaterial`) and re-fits. Built by
+  `build_kit_surface_master.py`. The texture layout, read off the exported walnut
+  strip, is embedded there: 960 cm tile, 20 strips, one painted plank per
+  480 cm board, so no painted joint lands mid-board.
+- **Rendered look not yet seen.** It shows once Rig assigns and re-fits.
+
+## Proposal (29 Sep, now built, see above): walnut on the structure kit
 
 Gary asked for "texture plus geometry": his walnut floor on the kit's real boards.
 The kit is engine Cubes scaled to size (about 29k instances, empty material slot).
