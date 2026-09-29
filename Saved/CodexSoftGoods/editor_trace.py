@@ -18,6 +18,13 @@ def main():
         unreal.log("PUSS_SOFTGOODS_EDITOR_TRACE_STOPPED|PIE is running")
         return
     world = editor.get_editor_world()
+    if cfg.get("mode") in ("csv_start", "csv_stop"):
+        # CSV profiler: one row per frame with per-thread timings (Game / Render / RHI / GPU), written to
+        # Saved/Profiling/CSV. The split `stat unit` only draws on screen.
+        unreal.SystemLibrary.execute_console_command(world, "csvprofile " + ("start" if cfg["mode"] == "csv_start" else "stop"))
+        unreal.log(f"PUSS_SOFTGOODS_EDITOR_TRACE|{cfg['mode']}")
+        del world
+        return
     if cfg.get("mode") == "start":
         path = cfg["path"]
         unreal.SystemLibrary.execute_console_command(world, f'trace.file "{path}" default,cpu,frame')
