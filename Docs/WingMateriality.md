@@ -22,6 +22,14 @@ is next. Scope is `/Game/Scenes/Wings` materials only.
   strip, is embedded there: 960 cm tile, 20 strips, one painted plank per
   480 cm board, so no painted joint lands mid-board.
 - **Rendered look not yet seen.** It shows once Rig assigns and re-fits.
+- **One painted strip per member holds across the whole kit** (Rig, from source,
+  29 Sep). Every face is laid in even lanes at the board pitch (24 + 0.8 cm).
+  Fascia and returns are 5 courses of about 23.4 cm, other lanes about 24.8 cm,
+  and the widest possible lane is about 36 cm. That's under the ~40 cm point where
+  a single strip would look stretched, so no fascia variant is needed. If
+  BoardWidthCm or the course logic changes, revisit (Rig will say).
+  Walnut: Rig's `board_material_apply.py`. Steel: after Rig's next build
+  (`Ground.GrooveMaterial` is unbuilt C++).
 
 ## Proposal (29 Sep, now built, see above): walnut on the structure kit
 
