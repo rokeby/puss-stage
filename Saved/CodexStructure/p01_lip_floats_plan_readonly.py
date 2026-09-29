@@ -14,10 +14,10 @@ behind its source) sits partly in the trough and shows its head above it, like
 lamps nested in a float trough. The report gives how far; it is Gary's to judge
 in the capture.
 
-The fallen curtain's hem kicks DOWNSTAGE as the top goes over (to x -250 in the
-28 Sep throw smoke test), so the plan refuses until PILE_DOWNSTAGE_X is set from
-the chosen bake's all-frame bounds, and names the Portal.ForestageDepthCm that
-would clear it. Aim and level follow the lamps' distance from the cloth, so a
+The curtain falls forward over the lip (approved), so the pile may bury these
+lamps: Gary chose to keep them shadowless and judge it in the capture
+(BURIAL_ACCEPTED). With burial off, the plan refuses unless the lamps clear the
+bake's reach, and names the Portal.ForestageDepthCm that would. Aim and level follow the lamps' distance from the cloth, so a
 deeper forestage keeps the same glow on the hem without re-tuning.
 """
 import json
@@ -44,11 +44,13 @@ LIP_HEM_LUX = 4.0            # per lamp where its centre ray meets the cloth; ~8
 LIP_JITTER = 0.15
 LIP_DEAD_CHANCE = 1.0 / 12.0  # the float rule's wear, by a fixed seed per lamp
 HOUSING = (45.0, 32.0, 32.0)  # FInfinityStageFixtureSettings::BodySizeCm default, for the report only
-# The fallen curtain's furthest DOWNSTAGE vertex over ALL frames of the chosen,
-# settled bake (UE world X, cm), from Soft goods. The hem kicks downstage as the
-# top goes over (-250 in the 28 Sep throw smoke test), so the lamps must stand
-# clear of it, not just of the hanging pleats. Unknown until the bake is chosen:
-# the plan refuses until it is set, so 3b cannot run ahead of that number.
+# Burial: Gary accepted the curtain falling forward and overspilling the lip
+# (28 Sep), and chose shadowless footlights left where they are, to be judged in
+# the capture. So the pile may cover them. Their housings are colliders in the
+# bake (Docs/StageFrontColliders_2026-09-28.json). With BURIAL_ACCEPTED False,
+# the plan instead refuses unless the lamps clear PILE_DOWNSTAGE_X (the chosen
+# bake's furthest downstage vertex over all frames, UE world X) by PILE_CLEARANCE.
+BURIAL_ACCEPTED = True
 PILE_DOWNSTAGE_X = None
 PILE_CLEARANCE = 60.0
 
@@ -163,11 +165,11 @@ slant_m = math.hypot(clearance, AIM_Z - SOURCE_HEIGHT) / 100.0
 LIP_CD = LIP_HEM_LUX * slant_m * slant_m / math.cos(math.radians(PITCH))
 # The lamp hardware's upstage-most point is the housing's upper front corner.
 hardware_upstage = source_along + HOUSING[2] * 0.5 * math.sin(math.radians(PITCH))
-assert PILE_DOWNSTAGE_X is not None, "set PILE_DOWNSTAGE_X from Soft goods' all-frame bake bounds first"
-assert forward.x > 0.99, "PILE_DOWNSTAGE_X is a world X; this Passage's route no longer runs along +X"
-pile_along = PILE_DOWNSTAGE_X - tc.x
-short_cm = hardware_upstage + PILE_CLEARANCE - pile_along
-if short_cm > 0.0:
+assert BURIAL_ACCEPTED or PILE_DOWNSTAGE_X is not None, "set PILE_DOWNSTAGE_X from the bake's all-frame bounds first"
+assert forward.x > 0.99, "positions are world X; this Passage's route no longer runs along +X"
+pile_along = (PILE_DOWNSTAGE_X - tc.x) if PILE_DOWNSTAGE_X is not None else None
+short_cm = (hardware_upstage + PILE_CLEARANCE - pile_along) if pile_along is not None else 0.0
+if not BURIAL_ACCEPTED and short_cm > 0.0:
     forestage = portal.get_editor_property("forestage_depth_cm")
     raise AssertionError(f"the pile reaches the lamps: {short_cm:.0f} cm short. Deepen Portal.ForestageDepthCm "
                          f"from {forestage:.0f} to at least {math.ceil((forestage + short_cm) / 10.0) * 10:.0f} and "
@@ -208,7 +210,8 @@ report = {"passage": "Passage 01", "anchor_cue": first["label"], "structure": st
           "floor_z": round(floor_z, 1), "trough_centre": [round(tc.x, 1), round(tc.y, 1), round(tc.z, 1)],
           "forward": [round(forward.x, 4), round(forward.y, 4)], "pitch": round(PITCH, 3), "lip_cd": round(LIP_CD, 2),
           "trough_back_along": round(trough_back, 1),
-          "pile_downstage_x": PILE_DOWNSTAGE_X, "pile_margin_cm": round(pile_along - hardware_upstage, 1),
+          "burial_accepted": BURIAL_ACCEPTED, "pile_downstage_x": PILE_DOWNSTAGE_X,
+          "pile_margin_cm": round(pile_along - hardware_upstage, 1) if pile_along is not None else None,
           "portal_line_along": round(portal_line, 1), "post_lateral": [round(v, 1) for v in post_lateral],
           "source_to_curtain_cm": round(clearance, 1),
           "cloth_hit": {"centre_ray_z": round(SOURCE_HEIGHT + clearance * math.tan(math.radians(PITCH)), 1),
@@ -224,6 +227,6 @@ json.dump(report, open(out, "w"), indent=1)
 dirty = (len(unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()),
          len(unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()))
 unreal.log(f"P01_LIP_FLOATS_PLAN_OK|anchor={first['label']}|lamps={LIP_COUNT}|dark={dead}"
-           f"|to_curtain_cm={clearance:.0f}|pitch={PITCH:.1f}|cd={LIP_CD:.1f}|pile_margin_cm={pile_along - hardware_upstage:.0f}"
+           f"|to_curtain_cm={clearance:.0f}|pitch={PITCH:.1f}|cd={LIP_CD:.1f}|burial_accepted={BURIAL_ACCEPTED}"
            f"|housing_above_trough={report['housing']['top_above_trough']}"
            f"|dirty={dirty[0]}+{dirty[1]}|mutated=0")
