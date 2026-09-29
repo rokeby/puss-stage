@@ -79,7 +79,7 @@ Blender traps, each of which produced a plausible-looking wrong result:
 - **Known red until patch A is built:** SavedFixturePIE "Opening reveal establishes Passage 1 camera before lifting".
 - **Revert:** point cue 0 back to `LS_Opening_Curtain` and rebuild the Master. The camera actor and the new sequence
   can stay, since nothing else references them.
-- **Transitions: not touched.** Gary's redesign (22:00 conductor): there is no curtain on scene entry. On exit the box
+- **Transitions: not touched.** Gary's redesign (via the conductor, 29 Sep afternoon): there is no curtain on scene entry. On exit the box
   rotates back, and a show cloth at the passage mouth carries the shadow play, then drops. The scrim/calico/velvet
   panels are in `Saved/CodexSoftGoods/ShowCloth/` (`Scripts/render_show_cloth_compare.py`), parked on Gary's
   "don't get distracted from end to end".
