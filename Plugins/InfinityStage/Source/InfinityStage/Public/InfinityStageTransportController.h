@@ -424,6 +424,10 @@ private:
     void ReassertPassageClaimIfLost();
 
     bool IsUnsafeExternalMove(FFrameNumber TargetFrame) const;
+    /** True when holding or rate-changing would disturb a segment whose sound a live
+     * performer owns. Unlike IsUnsafeExternalMove this takes no target frame, because
+     * a hold has no target -- passing the current frame in made the test vacuous. */
+    bool IsUnsafeExternalHold() const;
     void RefreshSelectedSegment();
 
     void RegisterForWorld();

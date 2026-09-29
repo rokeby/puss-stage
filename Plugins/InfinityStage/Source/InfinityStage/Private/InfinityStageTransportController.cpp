@@ -423,6 +423,19 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToNextSegment()
 EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment()
 {
     RefreshSelectedSegment();
+
+    // Sitting exactly on a segment's own start frame means it has been cued but
+    // not played. Advancing from there must PLAY that segment, not step over it:
+    // otherwise an operator walking the show from the top loses every segment
+    // they land on. JumpToPreviousSegment has always carried the mirror of this
+    // test -- it re-cues the current segment rather than stepping back -- and the
+    // absence of it here is why Right appeared to skip a Passage.
+    if (Segments.IsValidIndex(SelectedSegmentIndex)
+        && GetCurrentMasterFrame() == Segments[SelectedSegmentIndex].StartFrame)
+    {
+        return PlayForwardToBoundary();
+    }
+
     const int32 TargetIndex = SelectedSegmentIndex + 1;
     const EInfinityTransportResult CueResult = JumpToSegment(TargetIndex, false);
     if (CueResult != EInfinityTransportResult::Succeeded)
@@ -458,7 +471,7 @@ EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
     }
-    if (IsUnsafeExternalMove(GetCurrentMasterFrame()))
+    if (IsUnsafeExternalHold())
     {
         return LastResult = EInfinityTransportResult::UnsafeExternalClock;
     }
@@ -487,7 +500,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float 
     {
         return PauseTransport();
     }
-    if (IsUnsafeExternalMove(GetCurrentMasterFrame()) && (!FMath::IsNearlyEqual(Rate, 1.0f)))
+    if (IsUnsafeExternalHold() && (!FMath::IsNearlyEqual(Rate, 1.0f)))
     {
         return LastResult = EInfinityTransportResult::UnsafeExternalClock;
     }
@@ -1140,6 +1153,23 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
         ClaimSegmentCamera(CurrentIndex, CurrentFrame);
     }
     return LastResult = EInfinityTransportResult::Succeeded;
+}
+
+bool UInfinityStageTransportController::IsUnsafeExternalHold() const
+{
+    // Holding or rate-changing a segment whose sound a live musician owns is the
+    // unsafe act, whatever the playhead reads. PauseTransport and Shuttle used to
+    // call IsUnsafeExternalMove(GetCurrentMasterFrame()), whose final clause is
+    // "TargetFrame != GetCurrentMasterFrame()" -- false by construction -- so the
+    // guard ALWAYS passed and pause was permitted on a DeclaredUnpausable segment
+    // while Right could not leave it. Exactly backwards from the stated intent.
+    if (!bPerformanceMode)
+    {
+        return false;
+    }
+    const int32 CurrentIndex = FindSegmentAtFrame(GetCurrentMasterFrame());
+    return Segments.IsValidIndex(CurrentIndex)
+        && Segments[CurrentIndex].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable;
 }
 
 bool UInfinityStageTransportController::IsUnsafeExternalMove(const FFrameNumber TargetFrame) const
