@@ -14,6 +14,7 @@
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SplineComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -213,10 +214,33 @@ void AInfinityStageCameraRig::BeginPlay()
     if (GetWorld() && GetWorld()->IsGameWorld())
     {
         bShadowFiguresLive = false;
+        HideCameraBodyInGame();
     }
     ConfigureShadowCat();
     ApplyShadowFigureVisibility();
     UpdateShadowFigureVisibility();
+}
+
+void AInfinityStageCameraRig::HideCameraBodyInGame()
+{
+    if (!Camera)
+    {
+        return;
+    }
+#if WITH_EDITORONLY_DATA
+    Camera->bCameraMeshHiddenInGame = true;
+#endif
+    // The proxy already exists by now (the camera builds it on register, from
+    // the flag as saved), so hide it directly. Only editor-only meshes hung on
+    // the camera: that is the proxy, never a real prop.
+    TInlineComponentArray<UStaticMeshComponent*> Meshes(this);
+    for (UStaticMeshComponent* Mesh : Meshes)
+    {
+        if (Mesh && Mesh->GetAttachParent() == Camera && Mesh->IsEditorOnly())
+        {
+            Mesh->SetHiddenInGame(true);
+        }
+    }
 }
 
 FTransform AInfinityStageCameraRig::BuildShadowCatRelativeTransform() const

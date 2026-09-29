@@ -173,6 +173,15 @@ public:
     /** Re-reads whether this rig is live and shows or hides its figures. Runs every game tick. */
     void UpdateShadowFigureVisibility();
 
+    /**
+     * Hides the camera's editor body (the SM_CineCam proxy) in game, whatever
+     * the saved "camera mesh hidden in game" flag says. Four saved rigs had it
+     * showing, which put a camera body into other cameras' shots in PIE (the
+     * box in the Opening's stalls view, 29 Sep). Called at BeginPlay in game
+     * worlds; the editor keeps the body for authoring.
+     */
+    void HideCameraBodyInGame();
+
     virtual void Tick(float DeltaSeconds) override;
 
     virtual void OnConstruction(const FTransform& Transform) override;

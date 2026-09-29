@@ -2,6 +2,8 @@
 #include "InfinityStageShadowCatComponent.h"
 #include "Camera/CameraActor.h"
 #include "Camera/PlayerCameraManager.h"
+#include "CineCameraComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -79,6 +81,59 @@ bool FInfinityStageShadowFiguresOnlyWhenLiveTest::RunTest(const FString& Paramet
         PlayerController->PlayerCameraManager->BlendTimeToGo = 0.0f;
         Rig->UpdateShadowFigureVisibility();
         TestTrue(TEXT("Once the blend has landed the figures come back"), Rig->AreShadowFiguresLive());
+    }
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageRigCameraBodyHiddenTest,
+    "InfinityStage.Camera.RigCameraBodyHiddenInGame",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageRigCameraBodyHiddenTest::RunTest(const FString& Parameters)
+{
+    // 29 Sep: the P01, P03, P04 and P06 rigs were saved with "camera mesh
+    // hidden in game" off, so in PIE the P01 camera's body stood in the
+    // Opening's stalls shot as a beige box.
+    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+    AInfinityStageCameraRig* Rig = World->SpawnActor<AInfinityStageCameraRig>();
+    TArray<UStaticMeshComponent*> Bodies;
+    if (Rig && Rig->Camera)
+    {
+        TInlineComponentArray<UStaticMeshComponent*> Meshes(Rig);
+        for (UStaticMeshComponent* Mesh : Meshes)
+        {
+            if (Mesh && Mesh->GetAttachParent() == Rig->Camera && Mesh->IsEditorOnly())
+            {
+                Bodies.Add(Mesh);
+            }
+        }
+    }
+    TestTrue(TEXT("Fixture: the rig's camera builds its editor body in a game world"), Bodies.Num() > 0);
+    if (Bodies.Num() > 0)
+    {
+        // Reproduce the saved state: the flag off and the body built visible.
+#if WITH_EDITORONLY_DATA
+        Rig->Camera->bCameraMeshHiddenInGame = false;
+#endif
+        for (UStaticMeshComponent* Body : Bodies)
+        {
+            Body->SetHiddenInGame(false);
+        }
+
+        Rig->HideCameraBodyInGame();
+
+        bool bAllHidden = true;
+        for (const UStaticMeshComponent* Body : Bodies)
+        {
+            bAllHidden = bAllHidden && Body->bHiddenInGame != 0;
+        }
+        TestTrue(TEXT("A rig's camera body never appears in game, whatever its saved flag says"), bAllHidden);
+#if WITH_EDITORONLY_DATA
+        TestTrue(TEXT("...and the flag now says so too"), static_cast<bool>(Rig->Camera->bCameraMeshHiddenInGame));
+#endif
     }
 
     World->DestroyWorld(false);
