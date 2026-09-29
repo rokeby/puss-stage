@@ -559,4 +559,5 @@ def main():
           f"|hang_depth={report['hang_depth_m']}|solve_s={report['solve_seconds_total']}")
 
 
-main()
+if __name__ == "__main__":      # Blender's --python runs this as __main__; importing it (close-up renders) does not bake
+    main()
