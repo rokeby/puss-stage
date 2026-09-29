@@ -1,15 +1,30 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
-index d7343ea..813e88d 100644
+index d7343ea..8d94c75 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
-@@ -986,6 +986,10 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+@@ -986,6 +986,15 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
              TestTrue(TEXT("Scene Entry Camera owns the PIE viewport at the boundary"),
                  SceneViewTarget && SceneViewTarget->ActorHasTag(TEXT("InfinityStage.SceneEntry")));
          }
 +        // The unsafe-jump guard only refuses in performance mode, and the saved level may be in rehearsal mode (it is
 +        // for Gary's walk). Force performance mode for this step instead of depending on how the level was saved:
 +        // on 29 Sep a rehearsal-mode level let this jump succeed, and the steps below then started one segment late.
++        const bool bSavedPerformanceMode = ShowRoot->Transport->bPerformanceMode;
++        AddInfo(FString::Printf(TEXT("SavedLevelPerformanceMode=%d (the fixture forces the mode each step needs)"),
++            bSavedPerformanceMode ? 1 : 0));
 +        ShowRoot->Transport->bPerformanceMode = true;
++        TestTrue(TEXT("Unsafe-jump step runs in performance mode, whatever mode the level was saved in"),
++            ShowRoot->Transport->bPerformanceMode);
          const EInfinityTransportResult UnsafeJump = ShowRoot->Transport->JumpToNextSegment();
          AddInfo(FString::Printf(TEXT("UnsafeJump=%d Current=%d Selected=%d"),
              static_cast<int32>(UnsafeJump),
+@@ -1126,6 +1135,9 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+             ++ClosingCurtainRigCount;
+             ClosingCurtainRig = *It;
+         }
++        // Log it so a pass is visible: "passed" and "never reached" must not look the same in the log.
++        AddInfo(FString::Printf(TEXT("ClosingCurtainRigCount=%d ClosingCoveredFrame=%d"),
++            ClosingCurtainRigCount, ClosingCoveredFrame.Value));
+         TestEqual(TEXT("Closing sequence evaluates exactly one curtain rig"),
+             ClosingCurtainRigCount, 1);
+         if (ClosingCurtainRig)
