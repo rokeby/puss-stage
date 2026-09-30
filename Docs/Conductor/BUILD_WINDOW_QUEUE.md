@@ -30,7 +30,26 @@ per build window**, not ad hoc.
 | **Cat body never drawn in a game world** (`0f2d276`) | Look & camera | Committed, **unbuilt**. Source has the categorical guard in `ShouldDrawShadowCatBody()`; a binary check confirms the installed DLL predates it. Fixes the cat Gary saw in front of the camera at two transitions. |
 | **Celestial writes only on change** (`Scripts/patches/2026-09-30_C_celestial_write_only_on_change.patch`) | Rig | Held as a patch, tree at HEAD, applies cleanly. Skips a sun/moon rotation, intensity, colour, fog or stars write when the value is already there. **Cannot change a value — a mismatch falls through to the setter — so it can only remove writes.** |
 
-| **Passage keys travel with their section** (`MoveSection(Δ)` before `SetRange` in the rebuild) | Look & camera | To be held as a patch. **~5 lines, and its TEST is the point:** `MoveSection` carrying its keys is **inferred** from a doc comment and Sequencer's drag behaviour — the engine `.cpp` is not shipped. The test (*a two-key channel keeps its section-relative frames across a rebuild that moves the section*) converts that inference into a measurement at every future build. **Without it, lengthening a Scene leaves every later Passage's camera score Δ early**, and `SavedMasterMatchesShow` stays green because it checks section placement only. |
+| **Passage keys travel with their section** — patch **K**, `Scripts/patches/2026-09-30_K_passage_keys_follow_section.patch` | Look & camera | **Held, tree at HEAD, `git apply --check` passes, no file contention with C or the cat build.** **~5 lines, and its TEST is the point:** `MoveSection` carrying its keys is **inferred** from a doc comment and Sequencer's drag behaviour — the engine `.cpp` is not shipped. The test (*a two-key channel keeps its section-relative frames across a rebuild that moves the section*) converts that inference into a measurement at every future build. **Without it, lengthening a Scene leaves every later Passage's camera score Δ early**, and `SavedMasterMatchesShow` stays green because it checks section placement only. |
+
+### Patch K's test is the point of patch K
+
+**`InfinityStage.Editor.PassageKeysFollowSection`** (a new file, so no merge
+contention). It builds Passage → Scene → Passage, keys a **two-key**
+SpeedMultiplier and a WingPhaseBias on the later Passage and a height key on the
+earlier one, lengthens the Scene by 1 s, rebuilds, then asserts: the later
+section moved by exactly the added length; **every key kept its section-relative
+frame and value**; the earlier Passage's key did not move; and an unchanged
+rebuild moves nothing again.
+
+**A RED HERE IS A FINDING, NOT A FAILURE.** `MoveSection` carrying its keys is
+**inferred** — from a doc comment and from Sequencer's drag behaviour — because
+the engine `.cpp` is not shipped. **If the test is red at the build, the
+inference is wrong** and the fix becomes a manual per-channel offset. That is
+worth knowing at a build window rather than after a Scene length change.
+
+**No effect on the show at its first rebuild:** every section already sits at its
+compiled start, so nothing moves until a Scene's length actually changes.
 
 ## Expected suite delta
 

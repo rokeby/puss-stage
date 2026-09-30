@@ -390,7 +390,10 @@ from beginning to end, and **nobody has ever seen this.**
 would have made 0–14.52 s P01's own first fifteen seconds. It is not a recent
 regression, and it is not from any of today's work.
 
-**Restoring it means shifting those keys +15 s.** Reversible, small, and entirely
+**Restoring it means shifting those keys +15.0 s — a precise number, not an
+estimate.** The Opening is 375 frames at 25 fps, exactly 15.0 s, which is what
+pushed P01 from 0 to 15.0. **Confirm against a pre-Opening Master backup before
+shifting**, in case P01 has moved more than once. Reversible, small, and entirely
 a look decision — it changes how the first passage's wings behave for its opening
 fifteen seconds.
 
