@@ -8,6 +8,10 @@ must pass before anything is placed:
   1. STILL: still_window_max_mm < STILL_LIMIT_MM over the hold window before anything moves. The traveller must also
      pass at the END, so its open stacks can be held. settle_to_2mm_s separates "never settles" from "the window
      opened too early".
+     WHICH FRAMES the limit bounds: exactly those the audience sees move between the frozen hold and the release. The
+     HOLD shows the cache's first sample frozen (zero motion by construction), then the window (show_start to release)
+     plays. The settle BEFORE show_start is never exported, so a restless settle there (still_mm before show_start)
+     is diagnostic only. It is not on screen.
   2. HANG: the bake's own hang_profile.pass. That means flare at most 1.15 at the Opening's width, and fold count kept
      at least 0.75 and depth kept at least 0.5 at 75/50/25% of the height, against the heading's.
   3. PILE, the approved fall preserved: height, depth, width, layers and fold size each within PILE_TOL of the
