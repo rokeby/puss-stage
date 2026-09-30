@@ -1,8 +1,21 @@
 # Infinity Stage — session handover
 
-**Current as of 30 September 2026, 07:00.** Supersedes the 25 September version.
-Written by the conductor across an overnight run with three streams (Rig &
-atmosphere, Soft goods, Look & camera) plus Wing materiality.
+**Current as of 30 September 2026, 17:00.** Supersedes the 25 September version.
+Written by the conductor across an overnight run and a full day with three streams
+(Rig & atmosphere, Soft goods, Look & camera) plus Wing materiality.
+
+**READ SECTION 5 FIRST IF YOU ARE PICKING THIS UP TODAY.** The ~1 Hz stutter is
+gone as of 16:47 and **nobody knows what removed it** — narrowed to two candidates
+with a pre-registered test not yet run. It also carries a correction to a claim this
+document itself had been making all week (*"the rhythm survives on a virgin
+editor"* — false; that editor was 85 minutes old).
+
+**AND GARY DELETED ALL THE LANDSCAPES AT 16:36**, saved. Verified: `strings -a` on
+`L_InfinityStage_V1VerticalSlice.umap` returns zero matches for "landscape". His
+words: *"I just deleted the landscapes as I don't need them any more."* The floors
+Rig built today survive (P02, P03's 535.6 m oak plane, P05, P06). **P03 did not lose
+its floor — it lost about 10 cm of height**, because the Wet Ground landscape sat
+above the surface beneath it.
 
 ---
 
@@ -163,40 +176,109 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 
 ---
 
-## 5. THE FRAME-RATE STUTTER — STILL UNSOLVED
+## 5. THE FRAME-RATE STUTTER — GONE AS OF 16:47, CAUSE NOT ATTRIBUTED
 
-**Ruled out by measurement:** cloth simulation, the celestial world-walk, wing
-motion, all 432 flicker light functions, the shadow cache, every dynamic shadow,
-lights-per-pixel, GPU contention with MHFat, and the
-timers, scene captures and reflections, the Go1 socket, fog, the entire structure
-kit and every wing, and PIE itself.
+**The ~1 Hz rhythm is not there any more.** Measured 30 Sep 16:47 in a fresh
+editor, four 60-second phases with a 5-second settle, cluster starts counted
+(`Saved/CodexStructure/stutter_abab_164704.json`, commit f3afebf):
 
-**What is established:**
+| phase | cluster starts / 60 s | spikes | max |
+| --- | --- | --- | --- |
+| P1 — Master playing inside P05's section | 4 | 8 | 102 ms |
+| X1 — Sequencer closed | 2 | 2 | 65 ms |
+| P2 | 3 | 5 | 147 ms |
+| X2 | 2 | 3 | 137 ms |
 
-- **The GPU is flat** — 14.8 to 15.5 ms, max 17.2, while CPU frames reach 113 ms.
-- **Every thread inflates together** on a spike, GPU unmoved. *"The CPU as a whole
-  running slow for a moment."*
-- **No other process bursts** (every process sampled at 250 ms for 15 s).
-  **BUT THAT SAMPLING CANNOT SEE THE THING WE ARE LOOKING FOR.** The spikes are
-  40–100 ms; a 250 ms interval misses any burst that starts and ends inside one
-  sample. So this rules out a **sustained** competing load and nothing else. It
-  has been carried as "ruled out" and it is not. (Found 30 Sep by a Codex audit.)
-- **A restart helped materially**: p95 49.6 to 34.2 ms, slow frames 33 to 13.
-- **The rhythm survives on a virgin editor**, so it is not our scripts leaking.
+**Median gap between starts 3–59 s: no rhythm.** Several "starts" sit at
+t ≈ 0.05 s, the first frame after a phase switch, so the true rate is lower still.
+**Against the same definitions applied to 29 Sep's editor-only files: 23–58 cluster
+starts/min and 53–265 spikes/min.** Mean frame **16.8–17.8 ms** now against 19–35 ms
+then.
 
-**The power plan was switched to Ultimate Performance** (30 Sep 01:50) — processor
-min and max both pinned at 100%, no frequency scaling, no core parking. Previously
-Balanced, `381b4222-f694-41f0-9685-ff5bb260df2e`. The re-record was deliberately
-NOT run overnight because three Blender bakes were using the machine and it would
-not have been a like-for-like.
+**THE A/B PROTOCOL'S 90% CRITERION WAS NOT MEASURABLE and Rig said so rather than
+filing "not decisive"** — you cannot show a 90% reduction against a baseline of
+nearly nothing. Verdict fields 0.50 / 0.33, with the reason recorded.
 
-**Gary's objection stands and is the stronger argument:** a power plan does not
-drift on its own, and he is certain this was not always happening. It is a
-regression with a cause and a date.
+### What removed it: TWO candidates, narrowed from five by Gary's own timeline
 
-**Separately: suspending Scene 3's head cloths is worth about 6 ms a frame and
-three-quarters of the slow frames.** Baking them rather than simulating them is
-the real win and is not yet done.
+**Gary reported the stutter in PIE on the AFTERNOON of 30 Sep**
+(`Docs/Conductor/RUNTHROUGH_NOTES_2026-09-30.md`): *"there's a regular stutter still
+which really needs solving."* **Anything that changed before that cannot be the
+fix.** That kills three candidates outright:
+
+- **The power plan is REFUTED as the fix.** Switched Balanced → Ultimate Performance
+  at **30 Sep 01:50** — hours before he saw it. It may explain part of the 29 Sep →
+  30 Sep mean-frame improvement; **it did not remove what he is complaining about.**
+  **Do not spend a run switching it back.**
+- **Code landed before his run-through: refuted**, same argument.
+- **"Nothing baking": refuted** — `final14` was still baking while he complained.
+
+**Only three things changed between his complaint and the clean run:** final13 going
+in at 16:21–16:23 (which **adds** content), **Gary deleting all the landscapes at
+16:36** (~2,950 grass components), and **the editor being force-closed and relaunched
+at 16:44:50** — age reset from ~9.5 hours to ~2 minutes.
+
+**So it is the landscapes or it is editor age.** The consequences differ sharply:
+
+- **Landscapes → permanently fixed**, by deleting something Gary did not want anyway.
+- **Editor age → it returns every session**, and he meets it again in rehearsal.
+
+**THE DISCRIMINATING TEST, pre-registered and not yet run:** re-run
+`stutter_abab.py` late in a session after hours of normal work, landscapes still
+gone. **Rhythm returns → editor age. Stays clean → the landscapes.** Report the
+editor's age when it runs; an inconclusive late run beats a confident early one.
+
+### CORRECTION: "the rhythm survives on a virgin editor" was FALSE
+
+**Earlier versions of this section carried that line, and it was wrong.** Checked
+against `Saved/Logs/PussStage-backup-2026.09.29-22.41.14.log`: the session opened
+15:07 local, and **its first MCP dispatch — `virgin_1`'s own call — was at 20:32:12
+UTC. The editor was about 85 MINUTES OLD.** "Virgin" meant **no scripts had run**,
+not freshly started.
+
+**So `virgin_1` weakens "our scripts leak" and does NOT weaken "editor age".** No
+fresh-minutes editor was ever measured on 29 Sep. **The handover's own "a restart
+helped materially: p95 49.6 → 34.2, slow frames 33 → 13" is exactly
+`editor_pie_off → virgin_1`** — which is the restart effect, recorded without being
+recognised as one.
+
+**Rig found this by going looking to be wrong about their own claim.** It is the
+single most consequential correction of the day.
+
+### Also refuted, at no build cost: the celestial rig
+
+**`ApplyCyclePhase` was the leading suspect** — it rewrites sun, moon, sky and fog
+unconditionally, and is reachable with PIE off. **Refuted by construction:** the
+celestial rig never ticks (`CelestialRig.cpp:49`), its only per-frame editor path is
+the Master's Passage track (`MovieScenePassageTrack.cpp:187`), and the Cue Desk
+timer is one-shot (`CueDesk.cpp:1531`). **In the P phase the Master calls
+`ApplyCyclePhase` every frame and there is no rhythm.**
+
+**So patch C (`2026-09-30_C_celestial_write_only_on_change.patch`) is DEMOTED: a
+harmless write-reduction, not a stutter fix.** It stays in the build queue because
+it applies cleanly and removes work, not because it fixes anything.
+
+### Still true, still unmeasured against the current state
+
+- **The GPU is flat** — 14.8–15.5 ms, max 17.2, while CPU frames reached 113 ms.
+- **Every thread inflated together** on a spike, GPU unmoved.
+- **The per-process sampling CANNOT see what we were looking for**: spikes are
+  40–100 ms and the sampling interval was 250 ms. That ruled out a **sustained**
+  competing load and nothing else. It was carried as "ruled out" and should not be.
+- **Ruled out by measurement earlier, and not re-tested since:** cloth simulation,
+  the celestial world-walk, wing motion, all 432 flicker light functions, the shadow
+  cache, every dynamic shadow, lights-per-pixel, GPU contention with MHFat, timers,
+  scene captures and reflections, the Go1 socket, fog, the structure kit, every
+  wing, and PIE itself.
+- **Suspending Scene 3's head cloths is worth about 6 ms a frame and three-quarters
+  of the slow frames.** Baking rather than simulating them is the real win and is
+  still not done. **Unaffected by today's result.**
+
+### WHAT GARY ACTUALLY CARES ABOUT IS STILL UNMEASURED
+
+**His complaint was in PIE. Every number above is editor-only.** A 60-second PIE
+cluster count under the same definitions is the check that would mean something to
+him. **Take it free on the next PIE session — do not schedule one for it.**
 
 ---
 
