@@ -864,3 +864,20 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - `hangar_build.py` makes future hangars the same way.
   - Backup PreS4ArrivalLight-20260930-1739; revert with `s4_arrival_light_revert_run.py`.
   - The look is NOT verified by capture.
+- **S4 "all at once, gradually", 30 Sep 18:26.** Gary confirmed it in this session.
+  - The P04 curtain moved 2 s earlier: lead 5.0, release −5.874, section to +4.126.
+  - `s4_rekey_window_apply.py` (Codex-drafted, reviewed) re-keyed the rise, lights and exposure. The rise runs
+    −5.874 → +4.126, and the lights and exposure ramp 0 → +4.126. The later beats are shifted −11.87 s.
+  - Measured seam: −33.418° against −33.417°, so the rig is ~63% up at the cut (it was 9%).
+  - Backup PreS4RekeyWindow-20260930-1826.
+  - Held patches:
+    - **P**: the Arrival drives light and exposure before the cut.
+    - **Q**: a cvar A/B for PassageActor.cpp:1461. At 0 it may freeze the wings' rendered pose.
+    - Both apply with `--ignore-whitespace`.
+  - After P builds: re-key the lights and exposure to start at W0, and author the 39 drives on the S4 Arrival.
+- **Gary's notes, recorded and not yet costed:**
+  - (a) The rise should be more mechanical: "dragged up then swung by its own weight into a crunking landing", with
+    the ceiling rig dropping "like a rig on a chain".
+  - (b) Scene 1's content starts at the cut, not at the landing. That's an offset question, plus who owns S1's content
+    sub-sequence.
+  - (c) The upper wings flicker uniformly and should vary.
