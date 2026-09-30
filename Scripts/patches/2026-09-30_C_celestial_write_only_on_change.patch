@@ -1,0 +1,125 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp
+index 5ca7658..4b877d8 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCelestialRig.cpp
+@@ -377,29 +377,53 @@ void AInfinityStageCelestialRig::ApplyCyclePhase(const double NormalizedPhase)
+     const float MoonlightAmount = FMath::SmoothStep(-Band, Band, -SolarAltitude);
+     CurrentStarsAmount = FMath::Pow(MoonlightAmount, 1.35f);
+ 
++    // Every write below is skipped when the value is already in place. Editor Sequencer and Cue Desk preview can
++    // re-apply one unchanged phase every frame, and rotating a directional light invalidates its whole shadow
++    // cache. Where the engine's own quantisation is not visible from its headers, a mismatch only means the
++    // setter runs as it always did, so the checks can only remove writes, never change a value.
+     const float SunPitch = 90.0f - static_cast<float>(CurrentNormalizedPhase * 360.0);
++    const auto SetRotationIfChanged = [](AActor* Actor, const FRotator& Rotation)
++    {
++        if (!Actor->GetActorQuat().Equals(Rotation.Quaternion(), 1.0e-6f))
++        {
++            Actor->SetActorRotation(Rotation);
++        }
++    };
++    const auto SetDirectionalIfChanged = [](UDirectionalLightComponent* Light, float Intensity, const FLinearColor& Color, uint8 AtmosphereIndex)
++    {
++        if (Light->Intensity != Intensity)
++        {
++            Light->SetIntensity(Intensity);
++        }
++        if (Light->LightColor != Color.ToFColor(false))
++        {
++            Light->SetLightColor(Color, false);
++        }
++        if (!Light->IsUsedAsAtmosphereSunLight())
++        {
++            Light->SetAtmosphereSunLight(true);
++        }
++        if (Light->GetAtmosphereSunLightIndex() != AtmosphereIndex)
++        {
++            Light->SetAtmosphereSunLightIndex(AtmosphereIndex);
++        }
++    };
+     if (SunLightActor)
+     {
+-        SunLightActor->SetActorRotation(FRotator(SunPitch, SunAzimuthDegrees, 0.0f));
++        SetRotationIfChanged(SunLightActor, FRotator(SunPitch, SunAzimuthDegrees, 0.0f));
+         if (UDirectionalLightComponent* Sun = GetDirectionalComponent(SunLightActor))
+         {
+             const float HeightBlend = FMath::Sqrt(FMath::Clamp(SolarAltitude, 0.0f, 1.0f));
+-            Sun->SetIntensity(MaximumSunIntensity * CurrentDaylightAmount);
+-            Sun->SetLightColor(FMath::Lerp(HorizonSunColor, NoonSunColor, HeightBlend), false);
+-            Sun->SetAtmosphereSunLight(true);
+-            Sun->SetAtmosphereSunLightIndex(0);
++            SetDirectionalIfChanged(Sun, MaximumSunIntensity * CurrentDaylightAmount, FMath::Lerp(HorizonSunColor, NoonSunColor, HeightBlend), 0);
+         }
+     }
+ 
+     if (MoonLightActor)
+     {
+-        MoonLightActor->SetActorRotation(FRotator(SunPitch + 180.0f, SunAzimuthDegrees, 0.0f));
++        SetRotationIfChanged(MoonLightActor, FRotator(SunPitch + 180.0f, SunAzimuthDegrees, 0.0f));
+         if (UDirectionalLightComponent* Moon = GetDirectionalComponent(MoonLightActor))
+         {
+-            Moon->SetIntensity(MaximumMoonIntensity * MoonlightAmount);
+-            Moon->SetLightColor(MoonColor, false);
+-            Moon->SetAtmosphereSunLight(true);
+-            Moon->SetAtmosphereSunLightIndex(1);
++            SetDirectionalIfChanged(Moon, MaximumMoonIntensity * MoonlightAmount, MoonColor, 1);
+         }
+     }
+ 
+@@ -407,8 +431,16 @@ void AInfinityStageCelestialRig::ApplyCyclePhase(const double NormalizedPhase)
+     {
+         if (USkyLightComponent* Sky = SkyLightActor->GetLightComponent())
+         {
+-            Sky->SetIntensity(FMath::Lerp(NightSkyLightIntensity, DaySkyLightIntensity, CurrentDaylightAmount));
+-            Sky->SetLightColor(FMath::Lerp(NightSkyLightColor, DaySkyLightColor, CurrentDaylightAmount));
++            const float SkyIntensity = FMath::Lerp(NightSkyLightIntensity, DaySkyLightIntensity, CurrentDaylightAmount);
++            const FLinearColor SkyColor = FMath::Lerp(NightSkyLightColor, DaySkyLightColor, CurrentDaylightAmount);
++            if (Sky->Intensity != SkyIntensity)
++            {
++                Sky->SetIntensity(SkyIntensity);
++            }
++            if (Sky->LightColor != SkyColor.ToFColor(true))
++            {
++                Sky->SetLightColor(SkyColor);
++            }
+         }
+     }
+ 
+@@ -417,19 +449,30 @@ void AInfinityStageCelestialRig::ApplyCyclePhase(const double NormalizedPhase)
+         if (UExponentialHeightFogComponent* Fog = HeightFogActor->GetComponent())
+         {
+             const FLinearColor FogColor = FMath::Lerp(NightFogColor, DayFogColor, CurrentDaylightAmount);
+-            Fog->SetFogInscatteringColor(FogColor);
+-            Fog->SetDirectionalInscatteringColor(FMath::Lerp(MoonColor, HorizonSunColor, CurrentDaylightAmount));
++            const FLinearColor DirectionalColor = FMath::Lerp(MoonColor, HorizonSunColor, CurrentDaylightAmount);
++            if (Fog->FogInscatteringLuminance != FogColor)
++            {
++                Fog->SetFogInscatteringColor(FogColor);
++            }
++            if (Fog->DirectionalInscatteringLuminance != DirectionalColor)
++            {
++                Fog->SetDirectionalInscatteringColor(DirectionalColor);
++            }
+         }
+     }
+ 
+     if (StarsDome)
+     {
+         const bool bStarsVisible = bShowBuiltInStars && CurrentStarsAmount > 0.002f;
+-        StarsDome->SetVisibility(bStarsVisible, true);
+-        StarsDome->SetRelativeRotation(FRotator(
+-            static_cast<float>(CurrentNormalizedPhase * 360.0),
+-            SunAzimuthDegrees,
+-            0.0f));
++        if (StarsDome->GetVisibleFlag() != bStarsVisible)
++        {
++            StarsDome->SetVisibility(bStarsVisible, true);
++        }
++        const FRotator StarsRotation(static_cast<float>(CurrentNormalizedPhase * 360.0), SunAzimuthDegrees, 0.0f);
++        if (!StarsDome->GetRelativeRotation().Equals(StarsRotation, 1.0e-4f))
++        {
++            StarsDome->SetRelativeRotation(StarsRotation);
++        }
+         if (bStarsVisible)
+         {
+             StarsDome->SetScalarParameterValueOnMaterials(
