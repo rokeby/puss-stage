@@ -823,3 +823,14 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - The celestial path runs every frame in P, so it is refuted as the cause.
   - **Not attributed.** Gary deleted all landscapes at 16:36, and the editor was fresh with nothing baking.
     Ways to attribute it are in the conductor report and in memory.
+- **Stutter attribution run, DEFERRED to the next naturally long session** (conductor, 30 Sep). The editor clock
+  was reset at 16:44:50 and 17:14:24, and another reset is coming. Run the same `stutter_abab.py` on an editor
+  that is hours old, and report its age at arming.
+  - **The reading was fixed on 30 Sep, BEFORE any run. Do not revise it.**
+  - **≥ 20 cluster starts/min in either X phase → editor age.** The stutter returns every session.
+  - **≤ 5/min in both X phases → the landscapes.** Gary's 16:36 delete fixed it.
+  - **Anything between → inconclusive, and say so.**
+- **Any Sequencer operation on the Master dirties the map: open, scrub or play.** (Measured 30 Sep, mine and Look &
+  camera's.)
+  - Discard it with a Don't-Save restart. Never save it: that would persist the evaluated state.
+  - No level save until the map is clean.

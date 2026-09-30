@@ -17,8 +17,10 @@ than the P before it, TWICE, and P2 restores them. Clusters in X at ~1 Hz instea
 idle rhythm, by construction (no call path there). Even a decisive P/X split implicates Sequencer evaluation as a whole,
 not the celestial rig alone; isolating it needs patch C (held).
 Guards: no PIE, Sequencer closed at start. Restores the camera-cut lock setting and closes Sequencer at the end. Writes
-no asset, but PLAYING THE MASTER DIRTIES THE MAP (measured 30 Sep): the post-run census reports it, and the map must then be
-discarded (a restart without saving), never saved, since a save would persist the playback state. Everything inside main(); the callback keeps plain data only."""
+no asset, but OPENING THE MASTER IN SEQUENCER DIRTIES THE MAP, and so do scrubbing and playing it (measured 30 Sep: my
+P phases dirtied it; Look & camera's open + scrub dirtied it at step one, with no play). No Sequencer operation on the Master
+is map-safe. The post-run census reports it, and the map must then be discarded (a Don't-Save restart), never saved, since a
+save would persist the evaluated state. Everything inside main(); the callback keeps plain data only."""
 import datetime
 import json
 import os
