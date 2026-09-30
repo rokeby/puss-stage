@@ -227,6 +227,10 @@ def main():
     ap.add_argument("--ref", default="final2_stage_v2", help="pile reference for full-width drapes")
     ap.add_argument("--strip-ref", default="sw_b5_g0", help="pile reference for strip bakes (track under 17 m)")
     ap.add_argument("--sheet", default="", help="a,b: write a side-by-side sheet")
+    # A NAMED override, not a looser number (30 Sep: Gary, having SEEN the piles, "all actually look usable as piles").
+    # "id=who, when, what they saw" marks that bake's PILE criterion passed by a person's eye. It is recorded in
+    # acceptance.json with the reason, and it never touches stillness or the hang.
+    ap.add_argument("--pile-approved", action="append", default=[], metavar="ID=REASON")
     args = ap.parse_args()
     ref, strip_ref = load(args.ref), load(args.strip_ref)
     head = ["# Curtain acceptance (30 Sep)", "",
@@ -248,10 +252,16 @@ def main():
             if d.get("collider_origin_cm"):          # a passage backcloth: a different site, so no pile reference
                 rname, r = "none (different site)", None
             ls, v = drape_lines(i, d, rname, r)
+            approvals = dict(a.split("=", 1) for a in args.pile_approved)
+            if i in approvals and v.get("pile") is False:
+                v["pile"] = True
+                v["pile_override"] = approvals[i]
+                v["ALL"] = v["still"] and v["hang"] and all(x is not False for k, x in v.items() if k not in ("ALL", "pile_override"))
+                ls.append(f"- **pile PASSED BY EYE (override)**: {approvals[i]}")
         body += ls + [""]
         verdicts[i] = v
         summary.append(f"| {i} | {'PASS' if v['ALL'] else 'FAIL'} | "
-                       + ", ".join(f"{k}={val}" for k, val in v.items() if k != "ALL") + " |")
+                       + ", ".join(f"{k}={val}" for k, val in v.items() if k not in ("ALL", "pile_override")) + " |")
     lines = head + ["| bake | verdict | criteria |", "|---|---|---|"] + summary + [""] + body
     if args.sheet:
         a, b = args.sheet.split(",")
