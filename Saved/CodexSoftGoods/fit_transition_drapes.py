@@ -11,7 +11,7 @@ and will keep changing, so this is IDEMPOTENT and derives everything:
                   SavedFixturePIE Interaction block is rewritten in the same build).
 Mode from fit_transition_drapes_mode.json: {"dry_run": true, "lead_s": 5.0, "interactions": [1,2,3,4,5]}.
 DRY RUN (default) reads and reports the plan: transforms, frames, camera found or not. It writes nothing.
-APPLY: no PIE; nothing dirty; exactly one camera per mouth. Backs up the five .uassets to
+APPLY: no PIE; no dirty CONTENT (a dirty map is tolerated, never saved); exactly one camera per mouth. Backs up the five .uassets to
 Backups/PreTransitionDrapes-<ts>/ (the revert is to restore them). Saves ONLY those sequences.
 Run after Gary changes an Interaction's length, then the guarded Master rebuild. Crash rules: all inside main().
 """
@@ -187,9 +187,14 @@ def main():
     if problems:
         del actors
         return finish(f"refusing to apply: {problems}")
-    if dirty():
+    # A dirty MAP is tolerated (30 Sep: Look & camera's stills leave the level dirty with no net change); the fit never
+    # saves it. Any dirty CONTENT package still refuses, since this script must save only its own sequences.
+    baseline = dirty()
+    maps_before = set(p.get_path_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages())
+    if [p for p in baseline if p not in maps_before]:
         del actors
-        return finish(f"refusing: dirty packages {dirty()}")
+        return finish(f"refusing: dirty content packages {[p for p in baseline if p not in maps_before]}")
+    report["dirty_maps_tolerated"] = sorted(maps_before)
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     backup = os.path.join(project, "Backups", "PreTransitionDrapes-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     os.makedirs(backup, exist_ok=True)
@@ -209,11 +214,11 @@ def main():
     del actors
     expected = {f"{SEQ_DIR}/{SEQS[n]}" for n in which}
     now = dirty()
-    if [p for p in now if p not in expected]:
+    if [p for p in now if p not in expected and p not in maps_before]:
         return finish(f"unexpected dirty packages {now}; NOTHING saved (backup {backup})")
     report["saved"] = {p: unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False) for p in sorted(expected)}
     report["dirty_final"] = dirty()
-    report["ok"] = all(report["saved"].values()) and not report["dirty_final"]
+    report["ok"] = all(report["saved"].values()) and not [p for p in report["dirty_final"] if p not in maps_before]
     finish(f"applied|saved={report['saved']}|dirty_final={report['dirty_final']}|backup={backup}")
 
 

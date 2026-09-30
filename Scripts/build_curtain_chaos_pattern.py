@@ -57,7 +57,9 @@ FULLNESS = float(os.environ.get("CURTAIN_FULLNESS", "2.0"))
 SEAM_WIDTH_M = 1.37                     # one bolt of cloth
 # Grid spacing: quads per bolt width. 9 per bolt = 15.2 cm (interactive), 15 = 9.1 cm (the bake resolution).
 QUADS_PER_BOLT = int(os.environ.get("CURTAIN_QUADS_PER_BOLT", "9"))
-FOLD_WAVELENGTH = 0.85                  # pleat spacing along the track
+# Pleat spacing along the track. 30 Sep, Gary: "approximately 40% more pleats", same weight and fall, so only this
+# changes (0.85 / 1.4 = 0.607 m): the same fabric per metre (FULLNESS) is gathered into more, shallower folds.
+FOLD_WAVELENGTH = float(os.environ.get("CURTAIN_FOLD_WAVELENGTH", "0.85"))
 SEED = int(os.environ.get("CURTAIN_SEED", "20260925"))
 RAGGED = os.environ.get("CURTAIN_RAGGED", "1") != "0"
 

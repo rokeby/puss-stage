@@ -26,6 +26,56 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## 30 Sep (night): three overnight bakes, the traveller, and what is blocked
+
+Gary, via the Conductor: "The main thing I need to get right is the first part of the bake - a still acceptable
+curtain that can be extended in its stillness for as long as I need". So EVERY bake now has the following:
+- an 18 s settle after the gather;
+- a 1 s still window before anything moves;
+- `still_window_max_mm`, the largest single-vertex move per frame in that window. The target is under about 2 mm per
+  frame, and a bake that fails it is not placed.
+
+The bake's first sample is then looped for as long as a cue needs, with a one-tick HOLD window.
+
+| id | what | changes from final2 |
+|---|---|---|
+| `final3_settled` | the Opening drape re-baked to settle | release at 570 not 150; export, clip and show start at 540; `SETTLE_PROBE=480` |
+| `final4_dense_pleats` | ~40% more pleats, the same weight and fall | as final3 plus `CURTAIN_FOLD_WAVELENGTH=0.607` (0.85 / 1.4); `FULLNESS` stays 2.0, so the fabric per metre is unchanged |
+| `final5_traveller` | the side-opening traveller (Gary: "doesn't fall, but like a normal curtain, opens slowly to the sides") | `Scripts/bake_curtain_traveller.py` |
+
+**The traveller** is `Scripts/bake_curtain_traveller.py`. It imports `bake_curtain_drop.py`, so the fabric, solver,
+colliders, renders and export are the drop's, not a copy.
+- **Two halves** in one cloth object, as two islands, so self-collision handles the centre. The halves overlap by
+  0.4 m on tracks 15 cm apart, with the left half downstage.
+- **A ripplefold heading.** Carriers sit at the pleat nodes, and the heading between them bows as a stadium. Closed,
+  that is a smooth S-wave. Stacked, it is a comb of U-loops one carrier pitch (7 cm) wide, so the stack never pinches
+  the fabric tighter than the self-collision distance.
+- **The opening.** The lead carrier moves offstage with a cosine ease over 12 s. The carriers bunch behind it as a
+  compression front.
+- **The heading is pinned KINEMATICALLY** (weight 1.0) and never released. Its path is animated by one shape key
+  every 2 frames, cross-faded linearly. The weights are checked to sum to 1 at every whole and half frame (build
+  refuses otherwise).
+- **The flat sheets are laid out from each leading edge outward**, so the gather never crosses the halves.
+- **Measured as well:** end stillness (`end_still_max_mm`, the last 60 frames, so the OPEN stacks can be held too);
+  the clear opening; stack width and depth; hem clearance; worst extents against Rig's posts.
+- **Renders** include the Opening's stalls camera, emulated at 15 mm on Super 35.
+- **Assumed size, a look question left to Gary:** a 17.77 m track, as the drape. The stacks are 1.8 m per side at the
+  heading, leaving a 14.2 m clear opening. They sit INSIDE the posts (±9.5 m), so they frame the stage. The hem is
+  5 cm off the floor.
+
+Smoke test (`traveller_smoke`, 27 cm quads, short settle): the mechanism works (closed, then two halves, then stacks)
+and the key-weight error was 3e-8. At that resolution the lower fabric spread the stacks to about 3.2 m wide and
+±1.1 m deep, and nothing had time to settle. So the smoke's numbers are not the result.
+
+**Blocked (30 Sep, 01:30).** The classifier refused even a DRY RUN of `fit_transition_drapes.py` through MCP. Every
+editor step waits for Gary:
+- the fit, into all five Interactions (the shadow-puppet Interactions ARE these five);
+- the re-import of the settled bake;
+- the Opening's one-tick HOLD.
+
+One re-import of `final3_settled` into `GC_CurtainDrop_Opening` upgrades the Opening and all five transitions at once.
+Its window has the same length (330 frames) with the release 1 s in, so the fit's timings hold.
+
 ## 28 Sep (night): the goal is WEIGHT and a WIDE pile, and the Blender drop bake
 
 Gary reset the goal: "heavy, rough cloth... a wider pile than on top of itself... not a pile of virtual
