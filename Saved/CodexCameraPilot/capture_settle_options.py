@@ -36,6 +36,7 @@ SETTLES_S = (0.0, 0.5, 1.0, 2.0)          # 0.0 = as now: full speed into the cu
 BEFORE_S, AFTER_S, FPS = 2.5, 0.5, 25
 EV100 = -3.0
 TICKS_PER_S = 24000.0
+WALK_CM_PER_S = 250.0                     # measured in PIE at P04's end, 30 Sep: 246-256 cm/s
 STATE_VERSION = 1
 
 
@@ -180,7 +181,10 @@ def main():
         fov = math.degrees(2.0 * math.atan(sensor / (2.0 * focal)))
         name = "settle_%03.1fs_f%03d" % (settle, index)
         capture(world, location, rotation, fov, out_dir, name)
+        remaining = remaining_equivalent_s(tau, settle)
         state["stills"].append({"settle": settle, "t": step["t"], "name": name,
+                                "remaining_equiv_s": round(remaining, 4),
+                                "to_go_cm": round(remaining * WALK_CM_PER_S, 1),
                                 "xyz": [round(location.x, 1), round(location.y, 1), round(location.z, 1)]})
         if settle == 0.0 and index in (0, len(state["plan"]) - 1):
             state["ground"][str(index)] = ground_below(world, location, [rig, entry])
