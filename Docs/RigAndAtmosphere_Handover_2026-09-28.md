@@ -759,3 +759,36 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - Negative controls fail; all six scenes are clean.
   - Positive control: `blocker_positive_control.py` (S2 landscape un-allowed) is detected by
     the sweep.
+
+## 30 September, afternoon: pit-holes, nesting, and the landscape block (Gary: "go ahead on landscape and nesting")
+
+- **Pit-hole floors and liners at S1/S5/S6** (091eddb). They fix the "bright dusky horizon" my trim had opened
+  from the APPROACH.
+  - Against the old full floor: S1 0.00%, S5 and S6 ≤1.3%.
+- **Nesting** (02d6fa1, and S3 today).
+  - S1 and S3 are nested in Scene 4's "Hangar Fold" pattern. Seams are exact: S1, S3 and S4 all read −82.119°
+    on both sides of the boundary.
+  - S2, S5 and S6 are REFUSED because their scenes (15 s) are shorter than their rises (31/49/31 s). The
+    compiler follows each Scene sequence's playback range, and Show DurationFrames is 15 s everywhere.
+    Gary says the scenes are placeholder, so lengthening them is cheap; it goes with the Master repair.
+- **Landscape block** (hide, not delete; each step atomic, backed up and saved clean):
+  1. Both landscapes hidden in game; they no longer render.
+     - Their heightfield COLLISION is left on: it follows the landscape's own body settings, not the actor
+       flag or the components (verified), and sits within ~12 cm of the new floors.
+     - Traces that care ignore the landscapes. It goes away on the delete.
+  2. Structure 03 ground on: 0 → 2,144 boards, walnut plank from Structure 02.
+  3. Floors:
+     - P03: one oak plane at −5. NO pit-hole at S3, knowingly: six cast figures stand inside its swept
+       footprint and would hover over an open pit. **S3's box still rises through the floor — a KNOWN FAULT
+       left on purpose;** the fix is a staging decision for Gary (the cast rides the box floor up, appears at
+       landing, or moves out of the footprint).
+     - P02: four walnut pieces around S2's pit-hole in its −43.6° frame, plus a liner.
+  4. Five P03 props re-seated: −10.1 to −17.7 cm.
+  5. S2 rebuilt with floor and apron. This was the first live run of the fixed partial Arrival revert.
+     S2's Arrival was re-applied with its own record (arrivals_s2_record.json).
+- **Findings:**
+  - About 2,950 landscape-GRASS components (not foliage actors) are a strong candidate for Gary's P02 "background
+    loaded late". In the editor world they hold 0 instances; the decisive count is in PIE.
+  - Capture census (GameplayStatics, transient included): 0 now.
+  - P03 floor brightness under the scene light: 33 → 7 (−78%), wet ground → oak
+    (`Captures/P03_Floor_BeforeAfter.png`).

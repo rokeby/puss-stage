@@ -42,7 +42,9 @@ def main():
         if a is None or label not in old:
             fail(f"{label}: missing in the level or the scope")
         o, e = a.get_actor_bounds(False)
-        others = [x for x in actors if x.get_actor_label() in PROPS]
+        # The hidden landscapes keep their heightfield collision (it follows the landscape's own body settings, not
+        # the actor flag, and is left alone until the delete), so the trace ignores them explicitly.
+        others = [x for x in actors if x.get_actor_label() in PROPS or isinstance(x, unreal.LandscapeProxy)]
         hit = unreal.SystemLibrary.line_trace_single(world, unreal.Vector(o.x, o.y, o.z - e.z + 60.0), unreal.Vector(o.x, o.y, -600.0),
                                                      unreal.TraceTypeQuery.TRACE_TYPE_QUERY1, True, others, unreal.DrawDebugTrace.NONE, True)
         parts = hit.to_tuple() if hit else ()

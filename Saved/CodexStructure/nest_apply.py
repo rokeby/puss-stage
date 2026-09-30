@@ -17,7 +17,7 @@ import shutil
 import unreal
 
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
-RECORD = os.path.join(HERE, "nest_record.json")
+RECORD = globals().get("NEST_RECORD") or os.path.join(HERE, "nest_record.json")   # one record per batch
 SCENES = tuple(globals().get("NEST_SCENES", (1,)))
 TRACK_NAME = "Hangar Fold"
 
