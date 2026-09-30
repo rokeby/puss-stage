@@ -66,7 +66,7 @@ def main():
     drop.add_render_modifiers(cloth)
     # MASK_Z_OFFSET_M: raise the whole cached hang (a what-if for a longer drop: the TOP edge's geometry is unchanged, only
     # its height; the hem then floats, so read only the top band from such a run).
-    cloth.location.z += float(os.environ.get("MASK_Z_OFFSET_M", "0"))
+    cloth.location.z += float(os.environ.get("MASK_Z_OFFSET_M") or 0)
     drop.add_stage_colliders()
     # MASK_EXTRA_BOXES: what-if masking pieces (a border or teaser) as JSON [{"name", "min_cm", "max_cm"}] in UE world cm,
     # the same convention as Rig's collider file. They are obstacles for the rays and drawn in any render.
@@ -91,7 +91,12 @@ def main():
                 unmasked += 1
                 line, _ = at_y(d, 0.0)
                 rows.append([px, py, round(line.x, 3), round(line.z, 3)])
+    import hashlib
+    cpath = os.environ["COLLIDERS"].split("|")[0]
     report = {"abc": ABC, "frame": FRAME, "step_px": STEP, "rays_through_opening": through, "unmasked": unmasked,
+              "colliders": os.environ["COLLIDERS"],
+              "colliders_sha256": hashlib.sha256((ROOT / cpath).read_bytes()).hexdigest(),
+              "extra_boxes": json.loads(os.environ.get("MASK_EXTRA_BOXES") or "[]"),
               "unmasked_fraction": round(unmasked / through, 6) if through else None,
               "unmasked_z_at_curtain_line_m": [min((r[3] for r in rows), default=None), max((r[3] for r in rows), default=None)],
               "unmasked_pixel_rows": [min((r[1] for r in rows), default=None), max((r[1] for r in rows), default=None)],

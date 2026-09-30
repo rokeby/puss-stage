@@ -75,6 +75,9 @@ FPS = 30.0
 BLENDER = r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe"
 
 
+MASK_COLLIDERS = None     # set by --mask-colliders: the CURRENT built stage, if it differs from the bake's own file
+
+
 def mask_top(d):
     """TOP MASKED (30 Sep, required with the Conductor's agreement): no ray from the stalls eye through the portal opening
     may pass OVER the drape top and reach the Passage. The header underside is 10.50 m, and the pleats can put the top
@@ -86,11 +89,20 @@ def mask_top(d):
         return None, "not measured (no .abc or no release frame)"
     frame = int(d["release_frame"]) - 1
     out_id = f"mask_{d['id']}_f{frame}"
+    # The rays are cast against the stage AS BUILT (a border added after the bake masks it too), so a result is re-used
+    # only for the same .abc bytes AND the same stage file bytes. Keyed on the .abc alone, a border added later would
+    # have left the stale FAIL standing (the Conductor's caution, 30 Sep).
+    stage = MASK_COLLIDERS or d.get("colliders") or "Docs/StageFrontColliders_2026-09-28.json|v2"
+    stage_digest = sha256_file(ROOT / stage.split("|")[0])
     mpath, digest = OUT / f"{out_id}.json", sha256_file(abc)
     m = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {}
-    if m.get("abc_sha256") != digest:
+    if m.get("abc_sha256") != digest or m.get("colliders_sha256") != stage_digest or m.get("colliders") != stage             or m.get("extra_boxes"):
         env = dict(os.environ, PUSS_PROJECT_ROOT=str(ROOT), ABC=str(abc), MASK_FRAME=str(frame), OUT_ID=out_id,
-                   MASK_STEP="2", COLLIDERS=d.get("colliders") or "Docs/StageFrontColliders_2026-09-28.json|v2")
+                   MASK_STEP="2", COLLIDERS=stage)
+        for k in ("MASK_EXTRA_BOXES", "MASK_Z_OFFSET_M"):      # never judge against a what-if
+            env.pop(k, None)
+        # A failed run must not leave the OLD result standing in for a new one (30 Sep: an env crash did exactly that).
+        mpath.unlink(missing_ok=True)
         subprocess.run([BLENDER, "-b", "--factory-startup", "-t", "4", "--python",
                         str(ROOT / "Scripts" / "mask_raycast_stalls.py")], env=env, check=False,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -359,7 +371,11 @@ def main():
     # "id=who, when, what they saw" marks that bake's PILE criterion passed by a person's eye. It is recorded in
     # acceptance.json with the reason, and it never touches stillness or the hang.
     ap.add_argument("--pile-approved", action="append", default=[], metavar="ID=REASON")
+    ap.add_argument("--mask-colliders", default="", help="path|option of the CURRENT built stage for the top-masked ray "
+                    "test, when it is a different file or version from the one the bake simulated against")
     args = ap.parse_args()
+    global MASK_COLLIDERS
+    MASK_COLLIDERS = args.mask_colliders or None
     ref, strip_ref = load(args.ref), load(args.strip_ref)
     head = ["# Curtain acceptance (30 Sep)", "",
             f"Targets: still < {STILL_LIMIT_MM} mm/frame; hang = flare AND bulge (widest row) at most 1.15, fold count kept at least 0.75 and depth "

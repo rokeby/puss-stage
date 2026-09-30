@@ -627,6 +627,11 @@ def main():
               "frame_seconds": [], "checkpoints": {}}
     report["mass_per_vertex"] = round(obj.modifiers["Cloth"].settings.mass, 4)
     report["colliders_built"] = json.loads(scene.get("colliders_built", "null"))
+    # The collider FILE's bytes, not just its path: the file is shared and edited (30 Sep: Rig's upstage border), so two
+    # bakes of one recipe across an edit simulate against different geometry and must not be compared as like for like.
+    if COLLIDERS:
+        import hashlib
+        report["colliders_sha256"] = hashlib.sha256((ROOT / COLLIDERS.split("|")[0]).read_bytes()).hexdigest()
     report["hem_guided_vertices"] = scene.get("hem_guided")
     report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
     cs = obj.modifiers["Cloth"].collision_settings
