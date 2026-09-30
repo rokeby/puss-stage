@@ -33,6 +33,15 @@ resident. About 1,990 MB of wing textures are loaded now, 182 of them uncompress
 BGRA8; full mips would add about 660 MB. (c), compressing the uncompressed ones,
 more than pays that back. Rollout goes to Gary: P01+P02 first, then judge in motion.
 
+**Applied (30 Sep, Gary: "Yes, P01+P02 first"; the conductor ruled INCLUDE for
+the shared textures):** 207 textures set to MipGen FromTextureGroup at native
+size. That's 189 used only in P01/P02, plus 18 shared (12 with P04's 6 panels on the
+shared meshes, and 6 with P06's Ceiling_bw and salt formation). ListTextures
+read-back: 201 at 11 mips, 6 at 12, none left at 1. Census 0/0 before and after.
+Backup: `Backups/PreWingMipsP01P02-20260930-1749`. Live undo: `mips_p01p02.py`
+phase `revert` (uses `mips_rollback.json`). Gary judges the smudge in motion; the
+other passages and compression wait on that.
+
 ## Kit floor: walnut planks rejected; options for Gary (29 Sep, nothing applied)
 
 Gary on `MI_Kit_WalnutPlank` on the real boards: the planks "don't work", and
