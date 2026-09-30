@@ -12,18 +12,37 @@ marked **[conductor approved]** and named as mine, not yours.
 
 ## A. THE FOUR THAT UNBLOCK PEOPLE
 
-### A1. Exposure blend on the approach — A, B or C
-**You have the picture** (`ExposureBlend_forGary.png`): three rows against five
-positions, the cloth line is the 2.2 m column.
+### A1. Exposure on the approach — ANSWERED, and the premise was wrong
+**He rejected all three options because all three tied the drop to POSITION ON
+THE PATH. He wants it tied to THE RIG.** His words:
 
-**Recommendation: A — the drop happens as you pass through the cloth.**
-Because it matches what you already decided the transition IS: the cloth is the
-threshold, and crossing it is the change. A stays dusk-blue and legible right up to
-the cloth line, then goes black at the stop, which is exactly the "virtually unlit
-until we light it" staging you asked for. B dims from 19 m out, which spends the
-darkness before you arrive at it. C is the compromise and reads as neither.
+> *"I'm not really sure why the light needs to drop, or if it does so it should
+> be quite slowly as the rig comes up. Right now it's as if the lights just
+> switch off from the sky. It does make sense for the lights to start lowering
+> as we pass through the cloth but it should happen over 5-10 seconds AS the rig
+> is rising — almost as if it's the shadow of the rig, or the new exposure
+> settings of adjusting to the rig's (brightened) lights."*
 
-**Unblocks:** Look & camera's post-landing re-key, held all night.
+So: **5 to 10 seconds, not a switch. The cloth is the TRIGGER, not the event.
+And it must be motivated** — by the box's own shadow, or by an eye adapting to
+the rig's lights.
+
+**FIRST CONSEQUENCE: it may not need authoring at all.** A box rising around you
+physically blocks skylight. Rig is measuring whether that occlusion is real and
+substantial at the stop across the rise. **If it is, the keyed drop is
+duplicating a physical effect and the fix is to DELETE a key, not reshape one.**
+
+**SECOND CONSEQUENCE: A1 and A2 are now one decision.** "Exposure adjusting to
+the rig's brightened lights" only works if the lattice is bright enough to be
+something an eye would stop down TO. That is exactly his *"it just needs to be a
+bit brighter"*. So the 20 / 40 / 80 cd sheet coming from Rig answers a sharper
+question than "which looks best": **which is bright enough that stopping down to
+it is plausible.**
+
+**Timing, for when it is authored:** the cloth releases at about −3.9 s and the
+box lands at 16 s, so a 5–10 s drop starting at the cloth settles between about
++1 and +6 s — inside the first third of the rise, well before the landing. The
+dark hold survives it, with the lattice as the thing seen during it.
 
 ### A2. The box rise — early, or the authored timing
 **You have the picture** (`EarlyVsAuthored_forGary.png`), now with a measurement
