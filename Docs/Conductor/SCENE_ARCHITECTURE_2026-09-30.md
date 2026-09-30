@@ -155,6 +155,36 @@ where he stands.
 
 ---
 
+## AN INVARIANT THAT SURVIVES WHICHEVER ARCHITECTURE WINS
+
+**Every Scene and Interaction sequence's camera-cut track must cover its ENTIRE
+playback range.** An uncovered stretch is a segment with no camera rule, and
+anyone who **jumps** into it sees the dev grid at the world origin.
+
+**Found 30 Sep**, after three wrong hypotheses about a one-frame flash. A probe
+into Scene 1's tail logged `INFINITY_HANDOVER_UNRESOLVED … 'Scene 1 — External
+Sound' … NoRuleForSegment — no camera was claimed`, with the view target left as
+the **player controller at (0,0,0)**. Scene 1's cut track covers **frames 0–375**
+— 15 s at 25 fps — while **Scene 1 was restored to its full 210.8 s.** So the
+tail has no cut section at all.
+
+**Continuous playback hides it** by leaving the previous camera live. **A scrub
+exposes it**, and the operator scrubs in rehearsal, which is when the show gets
+judged.
+
+**This gets MORE important under the new architecture, not less.** "Cut into the
+scene's sequence" means each sequence owns its cameras outright, and there is no
+handover machinery left to paper over a gap. **A fix to the handover would have
+been thrown away with it; an invariant on the data survives.**
+
+**AND THE REPAIR ALREADY SCHEDULED WILL CREATE THIS FAULT THREE MORE TIMES.**
+Scenes 2, 5 and 6 are to be lengthened to 31 / 49 / 31 s so their hangar rises
+fit. **Lengthening a sequence without extending its cut track is exactly what
+created this.** So the invariant and its test are a **precondition** for that
+work, not cleanup after it.
+
+---
+
 ## What is NOT changed by this
 
 - The hangar rises themselves, the Arrivals, and the one-curve-two-evaluators
