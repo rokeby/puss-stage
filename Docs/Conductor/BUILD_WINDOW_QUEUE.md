@@ -56,6 +56,30 @@ worth knowing at a build window rather than after a Scene length change.
 **No effect on the show at its first rebuild:** every section already sits at its
 compiled start, so nothing moves until a Scene's length actually changes.
 
+### Patch L also fixes a clamp that silently eats the designed hold
+
+**Declaration-proven** (`MovieSceneSection.h:391-393`): `SetStartFrame` is
+clamped to the current **end**, and `SetEndFrame` to the current **start**. The
+builder set the Exit start before the end — so **after any lengthening the new
+start lands past the old end, clamps to it, and the Exit runs from the OLD end to
+the new one instead of holding for its designed second.**
+
+**It has already happened.** Scene 1's repair produced an Exit at `[375, 5270]` —
+full coverage, zero camera delta, and **a 195-second Exit where a 1-second hold
+was intended.** Invisible today, because a retained Exit copies the Entry camera
+so the view never changes. **The coverage gate passes it, because coverage IS
+whole.**
+
+L now sets each range in **one `SetRange` call**, removing the intermediate state
+entirely. **That fixes both paths.** Setting only the retained path would have
+masked the clamp where L touches and left it live on the normal exit — the fault
+surviving in the branch nobody looks at.
+
+**Second test, `InfinityStage.Editor.ExitHoldSurvivesLengthening`:** match a
+retained Scene, lengthen it, rematch, and assert the Exit is **still the designed
+hold** rather than running from the old end. **Red on today's code.** Coverage is
+whole in both cases, so this is the only assertion that can see the fault.
+
 ### Patch L's test discriminates
 
 **`InfinityStage.Editor.RetainedExitLeavesNoGap`** — a fixture whose designed
