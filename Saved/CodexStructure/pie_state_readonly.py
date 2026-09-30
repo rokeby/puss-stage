@@ -1,7 +1,11 @@
-"""Read-only, one line: is PIE running, is Sequencer open, what is dirty. Mutates nothing."""
+"""READ-ONLY: is PIE running, and what do the editor/game worlds report? Marker PIE_STATE."""
 import unreal
 
-ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
-seq = unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence()
-unreal.log(f"EDITOR_STATE|pie={ed.get_game_world() is not None}|sequencer={seq.get_name() if seq else None}"
-           f"|dirty={len(unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages())}+{len(unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages())}")
+
+def main():
+    ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    gw, ew = ed.get_game_world(), ed.get_editor_world()
+    unreal.log(f"PIE_STATE|game_world={gw.get_path_name() if gw else None}|editor_world={ew.get_path_name() if ew else None}")
+
+
+main()
