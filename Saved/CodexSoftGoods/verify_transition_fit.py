@@ -22,6 +22,9 @@ HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.proj
 def main():
     fit = json.load(open(os.path.join(HERE, "fit_transition_drapes.json"), encoding="utf-8"))
     mouths = {r["interaction"]: r["mouth"] for r in fit["rows"]}
+    # The fit records the sections it planned (HOLD at the first sample or one frame before the release); older runs
+    # without that record are checked against the legacy layout.
+    planned = {r["interaction"]: r.get("sections_planned") for r in fit["rows"]}
     actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
     cache = unreal.load_asset(GC)
     rows, ok = [], True
@@ -61,7 +64,9 @@ def main():
                 secs.append([s.get_start_frame(), s.get_end_frame(), p.get_editor_property("start_frame_offset").value,
                              p.get_editor_property("end_frame_offset").value])
             row["gc_sections"] = secs
-            c["hold_fall"] = secs == [[0, fall_start, 0, dur_ticks - 1], [fall_start, end, 0, 0]]
+            want = planned.get(n) or [[0, fall_start, 0, dur_ticks - 1], [fall_start, end, 0, 0]]
+            row["gc_sections_expected"] = want
+            c["hold_fall"] = secs == want
         cuts = [t for t in seq.get_tracks() if t.get_class().get_name() == "MovieSceneCameraCutTrack"]
         c["one_cut_track"] = len(cuts) == 1
         if cuts:

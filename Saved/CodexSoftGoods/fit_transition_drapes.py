@@ -33,7 +33,18 @@ RIG = "Curtain Rig - Fire Safety Curtain"
 SITE_NOTES = {3: "S03 is FRAME ONLY: no stage front, because P03 stands on the Wet Ground landscape. The pile was baked onto "
                  "P01's stage front (lip, fascia, house floor at -120), so its spill may float or clip here. CHECK "
                  "this mouth before trusting it."}
-RELEASE_S, LANDED_S = 1.0, 3.5   # into the FALL section: the bake releases 1.0 s in and is down by about 3.5 s
+# HOLD AT THE RELEASE (30 Sep, conductor-approved on Gary's delegation; "say if you disagree and it comes back out").
+# The HOLD used to freeze the cache's FIRST sample, then the FALL played 1 s of still-settling hang before the release.
+# That moving second is visible or not depending on the lens (P04's 35 mm made 1.59 mm/frame about 0.5 px). Now the HOLD
+# freezes the sample ONE FRAME BEFORE the release, and the FALL starts from there. Nothing moves on screen before the
+# release, whatever the lens.
+# TIMING CHANGE WITH THE SAME PICTURE: lead_s drops from 5.0 to 4.0. The FALL no longer carries the 1 s of hang, so it
+# starts one frame before the release instead of 1 s before, and the pile still shows about 1.5 s before the cut.
+# CONDITION: the frozen frame must read as a curtain AT REST. final2's release-minus-one frame is arrested mid-sway
+# (check_frozen_frames_at_rest_NOT_SHOW_FRAME.png), so hold_at="release" is applied only with a settled cache.
+LANDED_AFTER_RELEASE_S = 2.5     # the 10 m drape's top is under 1.35 m about 2.7 s after release; "down" about 2.5 s
+CACHE_FPS = 30.0
+BAKE_DIR = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods", "DropBake")
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods")
 
 
@@ -69,28 +80,49 @@ def camera_for(actors, passage_number):
     return hits
 
 
-def timeline(length_s, lead_s):
+def release_in_cache_s(cache):
+    """Seconds from the cache's first sample to its release, read from the cache's own import chain: its source is
+    <cache>_<bake_id>.abc (import_passing_bake.py), which gives DropBake/<bake_id>.json and so (release - start) / 30.
+    final2 predates that naming, and its bake JSON is named explicitly. Anything else refuses; the value is never assumed."""
+    src = os.path.basename(cache.get_editor_property("asset_import_data").get_first_filename())
+    stem = GC.split("/")[-1] + "_"
+    if src.startswith(stem) and src.endswith(".abc"):
+        bake_id = src[len(stem):-4]
+    elif src == "CurtainDrop_Opening_final2.abc":
+        bake_id = "final2_stage_v2"
+    else:
+        raise RuntimeError(f"cannot trace {GC} to a bake: source {src}")
+    with open(os.path.join(BAKE_DIR, f"{bake_id}.json"), encoding="utf-8") as h:
+        bake = json.load(h)
+    return (bake["release_frame"] - bake["show_start"]) / CACHE_FPS, bake_id
+
+
+def timeline(length_s, lead_s, release_into_fall_s):
     fall = max(0.0, length_s - lead_s)
-    return (f"hangs 0-{fall:.1f} s (the shadow play), releases at {fall + RELEASE_S:.1f} s, down by about "
-            f"{fall + LANDED_S:.1f} s, cut to the Passage at {length_s:.1f} s")
+    return (f"hangs 0-{fall:.1f} s (the shadow play), releases at {fall + release_into_fall_s:.1f} s, down by about "
+            f"{fall + release_into_fall_s + LANDED_AFTER_RELEASE_S:.1f} s, cut to the Passage at {length_s:.1f} s")
 
 
-def plan_for(seq, lead_s):
+def plan_for(seq, lead_s, release_into_fall_s):
     rate = seq.get_display_rate()
     fps = rate.numerator / rate.denominator
     end = seq.get_playback_end()
     lead = int(round(lead_s * fps))
     length_s = end / fps
     return {"fps": fps, "end": end, "fall_start": max(0, end - lead), "length_s": round(length_s, 3),
-            "now": timeline(length_s, lead_s), "if_60s": timeline(60.0, lead_s)}
+            "now": timeline(length_s, lead_s, release_into_fall_s), "if_60s": timeline(60.0, lead_s, release_into_fall_s)}
 
 
-def apply_one(seq, mouth, camera, plan, report_row):
+def apply_one(seq, mouth, camera, plan, report_row, hold_at, release_s):
     cache = unreal.load_asset(GC)
     tick = seq.get_tick_resolution()
-    one = int(round((tick.numerator / tick.denominator) / plan["fps"]))
-    dur_ticks = int(round((cache.get_editor_property("end_frame") - cache.get_editor_property("start_frame")) / 30.0
-                          * tick.numerator / tick.denominator))
+    tps = tick.numerator / tick.denominator
+    dur_ticks = int(round((cache.get_editor_property("end_frame") - cache.get_editor_property("start_frame")) / CACHE_FPS * tps))
+    # the sample held, in ticks from the cache's start: 0 (first) or one cache frame before the release
+    hold_off = int(round((release_s - 1.0 / CACHE_FPS) * tps)) if hold_at == "release" else 0
+    fall_len = int(round((plan["end"] - plan["fall_start"]) / plan["fps"] * tps))
+    if hold_off + fall_len > dur_ticks:
+        raise RuntimeError(f"FALL ({fall_len} ticks) from offset {hold_off} overruns the {dur_ticks}-tick cache: it would LOOP")
     drape = next((b for b in seq.get_bindings() if str(b.get_display_name()) == DRAPE), None)
     if drape is None:
         drape = seq.add_spawnable_from_class(unreal.GeometryCacheActor)
@@ -118,8 +150,10 @@ def apply_one(seq, mouth, camera, plan, report_row):
     # HOLD loops a ONE-TICK window at the cache's start, so it shows exactly the first sample. The Opening's first
     # version looped one DISPLAY frame (960 ticks): the evaluated time wandered up to 0.04 s, between cache samples,
     # and flickered on a cloth still moving (30 Sep).
-    for name, a, b, start_off, end_off in (("HOLD", 0, plan["fall_start"], 0, dur_ticks - 1),
-                                          ("FALL", plan["fall_start"], plan["end"], 0, 0)):
+    planned = (("HOLD", 0, plan["fall_start"], hold_off, dur_ticks - hold_off - 1),
+               ("FALL", plan["fall_start"], plan["end"], hold_off, 0))
+    report_row["sections_planned"] = [[a, b, so, eo] for _, a, b, so, eo in planned]
+    for name, a, b, start_off, end_off in planned:
         if b <= a:
             continue
         s = gt.add_section()
@@ -158,7 +192,8 @@ def main():
     with open(os.path.join(HERE, "fit_transition_drapes_mode.json"), encoding="utf-8") as h:
         cfg = json.load(h)
     dry = bool(cfg.get("dry_run", True))
-    lead_s = float(cfg.get("lead_s", 5.0))
+    hold_at = cfg.get("hold_at", "first")                     # "release" only with a settled cache (see HOLD AT THE RELEASE)
+    lead_s = float(cfg.get("lead_s", 4.0 if hold_at == "release" else 5.0))
     which = [int(n) for n in cfg.get("interactions", [1, 2, 3, 4, 5])]
     report = {"ok": False, "dry_run": dry, "lead_s": lead_s, "rows": []}
     out = os.path.join(HERE, "fit_transition_drapes.json")
@@ -172,11 +207,23 @@ def main():
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if editor.get_game_world() is not None:
         return finish("PIE is running")
+    try:
+        cache0 = unreal.load_asset(GC)
+        release_s, bake_id = release_in_cache_s(cache0)
+        del cache0
+    except Exception as exc:  # noqa: BLE001
+        return finish(f"refusing: {exc}")
+    # When the HOLD sits one frame before the release, the FALL releases one cache frame in; otherwise release_s in.
+    release_into_fall_s = 1.0 / CACHE_FPS if hold_at == "release" else release_s
+    report.update({"hold_at": hold_at, "release_in_cache_s": release_s, "cache_bake": bake_id,
+                   "timing_note": ("lead_s 4.0 (was 5.0): the FALL starts one frame before the release instead of 1 s "
+                                   "before; the picture is unchanged, the pile still shows about 1.5 s before the cut")
+                   if hold_at == "release" else "legacy: HOLD freezes the cache's first sample"})
     actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
     problems = []
     for n in which:
         seq = unreal.load_asset(f"{SEQ_DIR}/{SEQS[n]}")
-        plan = plan_for(seq, lead_s)
+        plan = plan_for(seq, lead_s, release_into_fall_s)
         mouth, err = mouth_of(actors, n + 1)
         cams = camera_for(actors, n + 1)
         row = {"interaction": n, "sequence": SEQS[n], "plan": plan, "mouth": mouth,
@@ -213,7 +260,7 @@ def main():
             n = row["interaction"]
             seq = unreal.load_asset(f"{SEQ_DIR}/{SEQS[n]}")
             camera = camera_for(actors, n + 1)[0]
-            apply_one(seq, row["mouth"], camera, row["plan"], row)
+            apply_one(seq, row["mouth"], camera, row["plan"], row, hold_at, release_s)
             del seq, camera
     except Exception as exc:  # noqa: BLE001
         del actors

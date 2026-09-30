@@ -104,8 +104,16 @@ def judge_drape(d, ref):
     hp = d.get("hang_profile") or {}
     site = "P04_passage" if d.get("collider_origin_cm") else "stalls"
     limit = derived_still_limit_mm(site)
-    d["_still_limit"] = {"site_view": site, "lens_mm_distance_m": SITE_VIEW[site], "limit_mm_per_frame": limit}
-    verdict = {"still": still is not None and still < limit, "hang": bool(hp.get("pass"))}
+    # AT REST (30 Sep): every site now HOLDS the frame one before the release, so nothing moves on screen before the
+    # fall, and no lens can see a seam. What remains is whether the FROZEN frame reads as a curtain AT REST, not one
+    # arrested mid-sway (final2's frame 149 billowed past a post). That is judged at the stalls standard (2 mm/frame
+    # on the window, lens-independent because the frame is frozen). The per-site seam limit is kept as INFORMATION,
+    # for any site still holding the first sample (legacy).
+    d["_still_limit"] = {"gate": "at rest (hold at release): window max < 2.0 mm/frame",
+                         "legacy_seam_if_held_at_first_sample": {"site_view": site, "lens_mm_distance_m": SITE_VIEW[site],
+                                                                 "limit_mm_per_frame": limit,
+                                                                 "would_pass": still is not None and still < limit}}
+    verdict = {"still": still is not None and still < STILL_LIMIT_MM, "hang": bool(hp.get("pass"))}
     # BULGE (30 Sep): the flare compares only hem with heading, so a curtain held at both ends that BARRELS out at
     # mid-height (the hem guide on sw_b5_g07) read 1.00. Use the widest sampled row instead, converted to the Opening
     # width the same way as the flare.
