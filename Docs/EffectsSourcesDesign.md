@@ -393,6 +393,31 @@ The pad (`FrontPadCm` = 130) is coupled to the master's `IrregularityCm` and
 `Docs/WingMateriality.md`: change both sides together, never per material
 instance.
 
+## Stutter hypothesis (30 Sep): ruled out for Effect sources
+
+The conductor proposed per-frame `SetIntensity` from linked-light flicker as the
+cause of the long-standing stutter. It cannot be, for two independent reasons:
+
+1. **No Effect source exists.** In the saved Show's name table,
+   `EInfinityAttachmentKind::Light` and `::Prop` are present but `::Effect` is
+   absent, so no attachment has Kind Effect (Kind defaults to Prop, so an Effect
+   attachment must write that name). The saved level imports
+   `InfinityStagePassageActor` and `InfinityStageStructureActor` but not
+   `InfinityStageEffectSource`. This was checked read-only on disk against the
+   Show saved 02:48 and the level saved 10:36 on 30 Sep. Unsaved in-memory state
+   is not covered; one read-only count of `InfinityStageEffectSource` actors in
+   the editor settles it.
+2. **Even if one existed, the light write is game-world only.** `UpdateLinkedLight`
+   is reached only under `World->IsGameWorld()`, so with PIE off no light is
+   written. In the editor an effect moves only its own components and pushes FX
+   parameters.
+
+**A design point that stands for when fires exist:** writing a light's intensity
+every frame in PIE or MRQ is a cost, and constant-rate flicker is not what Gary
+wants. Before fire effects are placed, rate-limit the flicker writes and skip
+changes below perception (or drive the flicker through a light function), and
+vary the rhythm. Not built; measure first.
+
 ## Known consequences of the closed ring (Gary's choice, 2026-09-26)
 
 Nothing is built for the ring yet, so nothing here is designed against it. When
