@@ -1,0 +1,169 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+index 43e9506..888cd81 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+@@ -181,22 +181,62 @@ bool AInfinityStageCameraRig::ShouldDrawShadowCatBody() const
+ {
+     const UWorld* World = GetWorld();
+     return bShadowCatRenderInMainPass && !(World && World->IsGameWorld());
+ }
+ 
++static void ApplyShadowCatBodyRendering(
++    USkeletalMeshComponent* CatMesh,
++    const bool bDrawBody,
++    const bool bGameWorld,
++    const bool bVisibleInReflections)
++{
++    if (!CatMesh)
++    {
++        return;
++    }
++
++    CatMesh->SetRenderInMainPass(bDrawBody);
++    CatMesh->SetVisibleInRayTracing(!bGameWorld && bVisibleInReflections);
++    if (!bGameWorld)
++    {
++        return;
++    }
++
++    bool bCaptureVisibilityChanged = false;
++    if (CatMesh->bVisibleInReflectionCaptures)
++    {
++        CatMesh->bVisibleInReflectionCaptures = false;
++        bCaptureVisibilityChanged = true;
++    }
++    if (CatMesh->bVisibleInRealTimeSkyCaptures)
++    {
++        CatMesh->bVisibleInRealTimeSkyCaptures = false;
++        bCaptureVisibilityChanged = true;
++    }
++    if (bCaptureVisibilityChanged)
++    {
++        CatMesh->MarkRenderStateDirty();
++    }
++    CatMesh->SetRenderInDepthPass(false);
++}
++
+ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
+ {
+     // Live: the cat is present for its SHADOW (the follow light throws it
+     // ahead); in a game world its body stays out of the main pass, so no camera
+     // ever sees a cat in front of it. Not live: neither body nor shadow.
+     const bool bShowCat = bEnableShadowCat && bShadowFiguresLive;
+     if (AActor* CatActor = ShadowCat ? ShadowCat->GetChildActor() : nullptr)
+     {
+         CatActor->SetActorHiddenInGame(!bShowCat);
+         TInlineComponentArray<USkeletalMeshComponent*> CatMeshes(CatActor);
+         for (USkeletalMeshComponent* CatMesh : CatMeshes)
+         {
+             CatMesh->SetHiddenInGame(!bShowCat, true);
+-            CatMesh->SetRenderInMainPass(ShouldDrawShadowCatBody());
++            ApplyShadowCatBodyRendering(
++                CatMesh,
++                ShouldDrawShadowCatBody(),
++                GetWorld() && GetWorld()->IsGameWorld(),
++                bShadowCatVisibleInReflections);
+             CatMesh->SetCastShadow(bShadowCatCastShadow);
+         }
+     }
+@@ -441,8 +481,11 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
+         CatMesh->SetVisibility(bEnableShadowCat, true);
+         CatMesh->SetHiddenInGame(!(bEnableShadowCat && bShadowFiguresLive), true);
+         CatMesh->SetCastShadow(bShadowCatCastShadow);
+-        CatMesh->SetRenderInMainPass(ShouldDrawShadowCatBody());
+-        CatMesh->SetVisibleInRayTracing(bShadowCatVisibleInReflections);
++        ApplyShadowCatBodyRendering(
++            CatMesh,
++            ShouldDrawShadowCatBody(),
++            GetWorld() && GetWorld()->IsGameWorld(),
++            bShadowCatVisibleInReflections);
+     }
+ 
+     const FName ReadyTag(TEXT("InfinityStageShadowCatReady"));
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatNeverSeenTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatNeverSeenTests.cpp
+new file mode 100644
+index 0000000..bedd5f6
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowCatNeverSeenTests.cpp
+@@ -0,0 +1,81 @@
++#include "InfinityStageCameraRig.h"
++#include "InfinityStageShadowCatComponent.h"
++#include "Camera/PlayerCameraManager.h"
++#include "Components/SkeletalMeshComponent.h"
++#include "Engine/World.h"
++#include "GameFramework/PlayerController.h"
++#include "Kismet/GameplayStatics.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowCatBodyNeverSeenInGameTest,
++    "InfinityStage.ShadowCat.BodyNeverSeenInGame",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowCatBodyNeverSeenInGameTest::RunTest(const FString& Parameters)
++{
++    UWorld* GameWorld = UWorld::CreateWorld(EWorldType::Game, false);
++    APlayerController* PlayerController = GameWorld->SpawnActor<APlayerController>();
++    if (PlayerController && !PlayerController->PlayerCameraManager)
++    {
++        FActorSpawnParameters ManagerSpawn;
++        ManagerSpawn.Owner = PlayerController;
++        PlayerController->PlayerCameraManager = GameWorld->SpawnActor<APlayerCameraManager>(ManagerSpawn);
++        if (PlayerController->PlayerCameraManager)
++        {
++            PlayerController->PlayerCameraManager->InitializeFor(PlayerController);
++        }
++    }
++    if (PlayerController && UGameplayStatics::GetPlayerController(GameWorld, 0) != PlayerController)
++    {
++        GameWorld->AddController(PlayerController);
++    }
++
++    AInfinityStageCameraRig* GameRig = GameWorld->SpawnActor<AInfinityStageCameraRig>();
++    const bool bGameFixture = PlayerController && PlayerController->PlayerCameraManager && GameRig;
++    TestTrue(TEXT("Fixture: the game world has a controller, camera manager and rig"), bGameFixture);
++    if (bGameFixture)
++    {
++        PlayerController->SetViewTarget(GameRig);
++        GameRig->UpdateShadowFigureVisibility();
++        TestTrue(TEXT("Fixture: the game rig is live"), GameRig->AreShadowFiguresLive());
++
++        TArray<USkeletalMeshComponent*> CatMeshes;
++        if (AActor* Cat = GameRig->ShadowCat ? GameRig->ShadowCat->GetChildActor() : nullptr)
++        {
++            Cat->GetComponents(CatMeshes);
++        }
++        TestTrue(TEXT("Fixture: the live shadow cat has a mesh"), CatMeshes.Num() > 0);
++        for (const USkeletalMeshComponent* Mesh : CatMeshes)
++        {
++            // Pre-fix the ray-tracing and depth-pass assertions fail: only the main pass was disabled.
++            TestFalse(TEXT("The cat body is absent from the main pass"), static_cast<bool>(Mesh->bRenderInMainPass));
++            TestFalse(TEXT("The cat body is absent from ray tracing"), static_cast<bool>(Mesh->bVisibleInRayTracing));
++            TestFalse(TEXT("The cat body is absent from reflection captures"), static_cast<bool>(Mesh->bVisibleInReflectionCaptures));
++            TestFalse(TEXT("The cat body is absent from real-time sky captures"), static_cast<bool>(Mesh->bVisibleInRealTimeSkyCaptures));
++            TestFalse(TEXT("The cat body is absent from the depth pass"), static_cast<bool>(Mesh->bRenderInDepthPass));
++            TestTrue(TEXT("The cat still casts its shadow"), static_cast<bool>(Mesh->CastShadow));
++            TestFalse(TEXT("The live cat is not hidden"), static_cast<bool>(Mesh->bHiddenInGame));
++        }
++    }
++    GameWorld->DestroyWorld(false);
++
++    UWorld* EditorWorld = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStageCameraRig* EditorRig = EditorWorld->SpawnActor<AInfinityStageCameraRig>();
++    TArray<USkeletalMeshComponent*> EditorCatMeshes;
++    if (AActor* Cat = EditorRig && EditorRig->ShadowCat ? EditorRig->ShadowCat->GetChildActor() : nullptr)
++    {
++        Cat->GetComponents(EditorCatMeshes);
++    }
++    TestTrue(TEXT("Fixture: the editor shadow cat has a mesh"), EditorCatMeshes.Num() > 0);
++    for (const USkeletalMeshComponent* Mesh : EditorCatMeshes)
++    {
++        TestTrue(TEXT("The editor still draws the cat body for authoring"), static_cast<bool>(Mesh->bRenderInMainPass));
++    }
++    EditorWorld->DestroyWorld(false);
++    return true;
++}
++
++#endif

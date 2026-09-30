@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp
-index cebae17..053c551 100644
+index cebae17..c5ea24f 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp
 @@ -15,6 +15,13 @@
@@ -16,7 +16,7 @@ index cebae17..053c551 100644
  #include "ScopedTransaction.h"
  
  DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageCameraPilot, Log, All);
-@@ -613,6 +620,157 @@ bool UInfinityStageCameraPilotLibrary::MatchNamedSceneHandoffs(
+@@ -613,6 +620,169 @@ bool UInfinityStageCameraPilotLibrary::MatchNamedSceneHandoffs(
      return bMatched && StaleAfter.IsEmpty();
  }
  
@@ -30,9 +30,17 @@ index cebae17..053c551 100644
 +    TArray<FString>& OutLines,
 +    int32& OutUnresolvedCount)
 +{
-+    UMovieScene* MovieScene = Sequence.GetMovieScene();
-+    if (!MovieScene || Depth > 4)
++    if (Depth > 4)
 +    {
++        OutLines.Add(FString::Printf(TEXT("%s: UNCHECKED: nested deeper than 4; not inspected"), *Where));
++        ++OutUnresolvedCount;
++        return;
++    }
++    UMovieScene* MovieScene = Sequence.GetMovieScene();
++    if (!MovieScene)
++    {
++        OutLines.Add(FString::Printf(TEXT("%s: UNCHECKED: sequence has no MovieScene; not inspected"), *Where));
++        ++OutUnresolvedCount;
 +        return;
 +    }
 +    if (const UMovieSceneCameraCutTrack* CutTrack = Cast<UMovieSceneCameraCutTrack>(MovieScene->GetCameraCutTrack()))
@@ -121,11 +129,15 @@ index cebae17..053c551 100644
 +        {
 +            const UMovieSceneSubSection* Sub = Cast<UMovieSceneSubSection>(Section);
 +            UMovieSceneSequence* Child = Sub ? Sub->GetSequence() : nullptr;
-+            if (Child)
++            if (!Child)
 +            {
-+                CheckCutBindingsIn(*Child, WorldContext, Where + TEXT(" > ") + Child->GetName(), Depth + 1,
-+                    OutLines, OutUnresolvedCount);
++                OutLines.Add(FString::Printf(
++                    TEXT("%s > <null>: UNCHECKED: sub-section has no sequence; not inspected"), *Where));
++                ++OutUnresolvedCount;
++                continue;
 +            }
++            CheckCutBindingsIn(*Child, WorldContext, Where + TEXT(" > ") + Child->GetName(), Depth + 1,
++                OutLines, OutUnresolvedCount);
 +        }
 +    }
 +}
@@ -176,10 +188,10 @@ index cebae17..053c551 100644
      if (!Show || !GEditor)
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCutBindingTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCutBindingTests.cpp
 new file mode 100644
-index 0000000..ea068fe
+index 0000000..44aeebb
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCutBindingTests.cpp
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,133 @@
 +#include "InfinityStageCameraPilotLibrary.h"
 +#include "CineCameraActor.h"
 +#include "Engine/Engine.h"
@@ -275,6 +287,33 @@ index 0000000..ea068fe
 +    TestTrue(TEXT("With every camera bound here, the Scene passes"),
 +        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(Root, World, Lines, Unresolved));
 +    TestEqual(TEXT("...with nothing unresolved"), Unresolved, 0);
++
++    ULevelSequence* Parent = Root;
++    for (int32 Depth = 1; Depth <= 6; ++Depth)
++    {
++        ULevelSequence* Child = MakeSequence();
++        UMovieSceneSubTrack* DeepTrack = Parent->GetMovieScene()->AddTrack<UMovieSceneSubTrack>();
++        DeepTrack->AddSequence(Child, FFrameNumber(0), 240000);
++        Parent = Child;
++    }
++    AddCut(Parent, TEXT("Bound Camera Beyond Inspection Limit"), CameraA, 0, 240000);
++    // Pre-fix this passes: depth > 4 returns silently, so the bound innermost cut is never inspected
++    // and the gate incorrectly counts the whole six-deep branch as resolved.
++    TestFalse(TEXT("A branch nested six deep fails closed when it cannot be fully inspected"),
++        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(Root, World, Lines, Unresolved));
++    TestEqual(TEXT("The depth limit counts as unresolved"), Unresolved, 1);
++    TestEqual(TEXT("The depth limit is reported exactly once"),
++        Count(Lines, TEXT("UNCHECKED: nested deeper than 4; not inspected")), 1);
++
++    ULevelSequence* EmptySubRoot = MakeSequence();
++    UMovieSceneSubTrack* EmptySubTrack = EmptySubRoot->GetMovieScene()->AddTrack<UMovieSceneSubTrack>();
++    UMovieSceneSection* EmptySubSection = EmptySubTrack->CreateNewSection();
++    EmptySubTrack->AddSection(*EmptySubSection);
++    TestFalse(TEXT("A sub-section with no sequence fails closed"),
++        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(EmptySubRoot, World, Lines, Unresolved));
++    TestEqual(TEXT("The empty sub-section counts as unresolved"), Unresolved, 1);
++    TestEqual(TEXT("The empty sub-section is reported exactly once"),
++        Count(Lines, TEXT("UNCHECKED: sub-section has no sequence; not inspected")), 1);
 +
 +    TestFalse(TEXT("No sequence fails closed"),
 +        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(nullptr, World, Lines, Unresolved));

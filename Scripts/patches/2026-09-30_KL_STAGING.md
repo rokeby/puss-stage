@@ -140,3 +140,14 @@ R's already-weighted lift, so a fade invented roll. MR is one patch:
 - Test: `InfinityStage.ShadowCat.GaitBobMasterTimed`, with each defect visible (pause, reverse, repeat,
   contention).
 Apply whole in stage 2. It applies alone and with K, L, N, O, P and S (measured).
+
+## N v2 and T (review fixes, 30 Sep evening): apply whole, in stage 2
+
+- **N v2:** the binding check fails CLOSED. The depth limit, a missing MovieScene and a null sub-sequence
+  are each reported UNCHECKED and counted. The test adds a bound cut nested 6 deep, which must FAIL; on v1 it
+  passed.
+- **T (new):** the Shadow Cat BODY is never seen in game worlds: main pass, ray tracing, reflection
+  captures, real-time sky captures and the depth pass are all off, while it still casts its shadow. The editor
+  keeps the body for authoring. Test `InfinityStage.ShadowCat.BodyNeverSeenInGame`.
+- Measured: N, O, K, L, P, S, T and MR apply together on HEAD. C and Q no longer apply to HEAD alone (their
+  owners').
