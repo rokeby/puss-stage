@@ -373,6 +373,39 @@ line. **It reads as lights rising in a pit and a silhouette at the horizon, not
 as the box arriving early.** Whether that is acceptable is yours, but it is no
 longer a number.
 
+### A1b. THE CAMERA RIDES LOW AND TILTED THROUGH EVERY PASSAGE — and it is coupled to A1
+**You have the flip GIF.** At P04 → Scene 4 the camera rises **21.3 cm** and its
+roll snaps from **−2.55° to 0** in one frame. **The rotation is the visible part**
+— the lattice goes from visibly tilted to level. An earlier note called this
+"15 cm, probably invisible"; that was translation only and understated it.
+
+**THE POP IS THE SYMPTOM. THE FINDING IS UNDERNEATH IT: the cat's gait bob is
+BIASED, not zero-centred.** The code says it is zero-centred *"regardless of which
+clip is playing"*. **Measured, it never is:** the walking spine sits 1.0–1.2 cm
+below its bind pose, so the lift is **always negative** — −7 to −23 cm across
+P04's last two seconds, and never once positive.
+
+**So throughout every Passage the camera rides roughly 7–23 cm BELOW its authored
+height, with the horizon tilted 1–2.8° to one side.** Authored framing is never
+shown as authored, and **a constant tilt reads as a crooked camera rather than as
+a gait.** (Measured over two 2-second windows; a longer log would firm it up.)
+
+**AND IT IS COUPLED TO A1.** Today **none of this can be seen** — every frame at
+the crossing is near-black, because of the hangar volume's pinned exposure. **The
+pop becomes visible exactly when you answer A1 by moving or deleting that drop**
+— which is what the sky-eclipse measurement argued for. **So answering A1 one way
+makes A1b a question you have to answer too.**
+
+**Three options, all look decisions:**
+1. **Zero-centre the bob for real** — reference the walk clip's mean pose, or
+   high-pass the lift. **This is what the code already claims to do**, and it
+   removes both the bias and most of the crossing pop. *Recommended, but it
+   changes how every Passage looks, so it wants before-and-after pictures.*
+2. **Ease the bob to zero over the last half-second before a crossing.** Removes
+   the pop only, leaves the ride low and tilted.
+3. **Keep it as the cat's crouch**, and re-match the Scene entry cameras to the
+   bobbed view instead.
+
 ### A5. THE EXIT FROM A SCENE — the cost is now complete, and the cheap version is cheap
 **You asked how the hangar leads you to the next passage. Two options were mocked
 up for you; here is what each actually costs, with nothing left uncounted except
