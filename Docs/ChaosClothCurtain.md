@@ -52,6 +52,17 @@ touch a parameter while watching the cloth. Chaos puts the solver in the editor.
   - Interaction 1 (P02, rotated): hold 200→399→400 at 0.09–0.12 (capture noise in a dark scene), release 400→402 at 0.28.
     At frame 450 the curtain is down with the jungle revealed.
   - Pictures: `Saved/CodexSoftGoods/RenderCheck/opening_final13_contact.png`, `interaction1_final13_contact.png`.
+- **P03 (Interaction 2's mouth)**: final13 is placed there (read-back: P03's route start, within 1 cm and 0.01°), but
+  its PILE is unchecked.
+  - Deliberately DEFERRED (the Conductor, 30 Sep). Gary approved "remove all landscapes and replace them with the floors"
+    (`Docs/Conductor/RUNTHROUGH_NOTES_2026-09-30.md` §5), so the Wet Ground the pile would be judged against is going
+    away. A PASS today would outlive its floor.
+  - Order: the P03 floor first, then the rendered check at I2's pile frame.
+  - Measured: the shared cache's pile spills over P01's lip to about −71 cm (pile AABB z −0.713 m). On a flat P03 floor
+    with no lip, that spill hangs in the air whatever the check says. So P03 needs either a P01-like stage front or its
+    own cache; a single shared cache cannot fit both.
+  - The END-of-P03 curtain (the P04 pattern) waits on Rig's P03 hangar and site. Nothing is to be baked before Gary
+    judges final13's pile.
 - **Side effect**: capturing (spawning and destroying the transient capture actor) left the MAP dirty with no intended
   change. It must NOT be saved. Quit the editor without saving.
 
