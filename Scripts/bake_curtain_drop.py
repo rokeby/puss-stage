@@ -590,6 +590,8 @@ def main():
         t0 = time.perf_counter()
         scene.frame_set(f)
         report["frame_seconds"].append(round(time.perf_counter() - t0, 3))
+        if f % 60 == 0:                   # progress, flushed: a loaded machine made "is it nearly done?" unanswerable
+            print(f"CURTAIN_DROP_FRAME|{f}/{FRAMES}|{report['frame_seconds'][-1]}s", flush=True)
         if SHOW_START and SHOW_START - SETTLE_PROBE <= f < RELEASE_FRAME:
             # STILLNESS (30 Sep, Gary: the Opening drape was "weirdly bouncy and gathered a bit inwards at the top when it
             # should really be still"). final2 was exported 2.6 s after the gather, mid-swing: the hem moved 24 cm and
