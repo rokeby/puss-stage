@@ -841,8 +841,21 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - P05's mislabelled floor is now "Passage 05 - Floor (oak)", renamed in the same save with its records.
   - P06's house plane was first Versailles because the tool copied the floor's material; fixed to oak.
   - Tool: `mouth_floor_apply.py` (MOUTH=P03/P05/P06).
-  - P02 is NOT done. Its floor is rotated 66.5° to its mouth, so it needs a notch (46.5 × 38.4 m) plus one
-    P02-aligned refill slab. That's with Gary via the conductor.
+  - **P02: A KNOWINGLY RETAINED FAULT** (Gary, 30 Sep, via the conductor: "Leave P02 for now").
+    "Passage 02 - Floor Near" (top −5, laid in S2's dock frame at yaw −43.57) still covers P02's house side. At P02's
+    mouth the shared curtain pile's spill CLIPS into it: the spill reaches x −190.5 and hangs to z −71.3.
+  - Ready when P02 comes back (computed, not rendered):
+    - Its floor is rotated 66.5° to the mouth (yaw +22.91), so a straight trim can't express the lip.
+    - Clearing the house band (x −2600..−150, |y| ≤ 20 m in P02's frame) needs an S2-aligned cut of 46.5 × 38.4 m.
+      That leaves 805 m² bare in four wedges.
+    - The two downstage wedges lie beyond |y| 20 m or x < −26 m: the same void P03 has.
+    - The two upstage wedges reach up to 13 m past the lip, at |y| 13.6–29 m. One P02-aligned refill slab, 2 mm
+      lower, removes them.
+    - Then the oak house plane goes on as at P03.
+    - From the stalls seat (at x −14 m, 15 mm, pitch +14°) the frame is ±9.9 m wide at the lip and meets the ground
+      8.5 m ahead, so the wedges are out of frame.
+  - `lip_guard.py` would now REFUSE a re-run of landscape_floors_apply.py until P02's notch exists. That is
+    intended.
   - `lip_guard.py` now stops both floor builders from laying a slab downstage of any lip.
 - **S4 arrival lighting, 30 Sep 17:39.** Gary: "just build them" (no sheet).
   - The practical wave and the lattice glow start at the cut: 0.2–2.0 s and 2.0 s.
