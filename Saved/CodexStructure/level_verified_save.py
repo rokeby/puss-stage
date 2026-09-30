@@ -77,9 +77,10 @@ def main():
         cd = mine[label].get_component_by_class(unreal.SpotLightComponent).get_editor_property("intensity")
         if abs(cd) > 1e-3:
             bad.append(f"{label} {cd:.1f} cd")
-    for a in actors:   # uplights (if present) also rest at 0 cd; the fold strikes them
-        if "RigAtmos.Scene4Uplight" in [str(t) for t in a.get_editor_property("tags")]:
-            sc = a.get_component_by_class(unreal.SpotLightComponent)
+    for a in actors:   # uplights and lattice glow lights (if present) also rest at 0 cd; the rise strikes them
+        tags = [str(t) for t in a.get_editor_property("tags")]
+        if "RigAtmos.Scene4Uplight" in tags or "RigAtmos.LatticeGlow" in tags:
+            sc = a.get_component_by_class(unreal.LightComponent)
             if sc and abs(sc.get_editor_property("intensity")) > 1e-3:
                 bad.append(f"{a.get_actor_label()} {sc.get_editor_property('intensity'):.1f} cd")
     for a in actors:
