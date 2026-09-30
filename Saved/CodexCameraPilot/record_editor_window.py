@@ -36,11 +36,19 @@ def main():
     parser.add_argument("--out", required=True)
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--dry", action="store_true")
+    parser.add_argument("--method", choices=("ddagrab", "gdigrab"), default="ddagrab")
     args = parser.parse_args()
     title = editor_window_title()
-    command = ["ffmpeg", "-hide_banner", "-y", "-f", "gdigrab", "-framerate", str(args.fps), "-draw_mouse", "0",
-               "-i", "title=%s" % title, "-t", str(args.seconds),
-               "-c:v", "libx264", "-preset", "ultrafast", "-crf", "18", "-pix_fmt", "yuv420p", args.out]
+    if args.method == "gdigrab":
+        # FAILED 30 Sep: a window-title GDI grab of the editor returned ONE stale frame for the whole take while
+        # the engine ticked at 57 fps. The DirectX viewport doesn't reach the window's GDI surface.
+        source = ["-f", "gdigrab", "-framerate", str(args.fps), "-draw_mouse", "0", "-i", "title=%s" % title]
+    else:
+        # Desktop Duplication: the composited monitor, DirectX content included. The editor is maximized on the
+        # primary display (output 0); the composer crops to the region that moves.
+        source = ["-f", "lavfi", "-i", "ddagrab=output_idx=0:framerate=%d:draw_mouse=0,hwdownload,format=bgra" % args.fps]
+    command = (["ffmpeg", "-hide_banner", "-y"] + source + ["-t", str(args.seconds),
+               "-c:v", "libx264", "-preset", "ultrafast", "-crf", "18", "-pix_fmt", "yuv420p", args.out])
     if args.dry:
         print(json.dumps({"title": title, "command": command}, ensure_ascii=False))
         return
