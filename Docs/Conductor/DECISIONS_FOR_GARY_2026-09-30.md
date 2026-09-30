@@ -36,9 +36,31 @@ Scene 4 Dog Gaze, so the look-down is live — and roughly nine of the hold's tw
 seconds have nothing lit to find. Early release arrives into a glowing, nearly
 landed box in 4 s with the rise hidden behind the cloth while you walk.
 
-**Pending:** Rig is checking read-only whether the ghost light is **occluded**
-during the hold or merely **not aimed** at the lip. If it is only aimed wrong, the
-authored hold becomes viable and this decision reopens with a lit thing in it.
+**ANSWERED 07:45 — the ghost light cannot rescue the hold. It is OCCLUDED by the
+box's own floor.** The stop sits 471 cm below the floor plane at the cut and only
+31 cm by +9.5 s, so the lamp and its whole 15 m reach are behind the floor slab
+until exactly the moment that was measured from rendered frames. Two independent
+methods — geometry and photometry — landed on +9.5 s separately. Removing the
+lamp's reach entirely still gives at most 0.08 lux at +3 s against 1.6 lux at
++9.5 s; moving it to the mouth buys about 3 s of the 12. **No lamp inside the box
+fixes this, and nobody needs to try.**
+
+**BUT THERE IS ALREADY A LIT THING IN FRAME, AND IT IS DARK BY A DECISION RATHER
+THAN BY GEOMETRY.** The lattice sits on the trough's open side, outside the floor's
+shadow, with 6 of 24 bulbs in a look-down at the cut, 9 at +3 s, 12 at +6 s. It is
+black only because its glow lights are keyed to 0 until +4 s — a fix for a leak
+into the P04 approach, and that leak was a rest-state problem, so **a fade starting
+AT the cut would light the hold without reopening it.** One measurement is in
+flight: whether 20 cd on 9–12 bulbs actually reads at the show's exposure.
+
+**So this may become a choice between two live options rather than one.** If the
+lattice reads, the authored hold is fixable by a timing change to an element
+already there — and then the question is genuinely about taste: the rise as the
+thing you watch, or a dark hold with the machine's own rigging glowing above you.
+**What is lit at the cut is a look decision and has deliberately not been changed.**
+If it does not read, the authored hold needs a new element — a raking light on the
+floor's underside from the lip, or light into the pit beyond the open side — and
+that is yours to want or not.
 
 **Unblocks:** the same held re-key, and every scene's rise start.
 
