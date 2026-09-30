@@ -1,36 +1,47 @@
-"""READ-ONLY (30 Sep): what surfaces lie under the shared drape's pile at a mouth? P01 (the reference the cache was baked
-on) and P03 (the question: Interaction 2's drape; the landscape was deleted at 16:36; Structure 03's ground on since 12:25).
+"""READ-ONLY (30 Sep): what surfaces lie under the shared drape's pile at each mouth, in each mouth's ROUTE frame?
 
-For each mouth (route start) it reports, over the pile footprint (x -200..+470 cm from the curtain line, y +-1100):
-  1. every Structure's instanced-mesh instances whose world AABB overlaps the footprint, grouped by component: count,
-     x range, top and bottom z. The stage front (lip, fascia, house floor) is built as instances inside the Structure
-     actor, so an actor's own bounds cannot show it.
-  2. every other actor overlapping it (floor planes etc.): label, class, AABB.
-  3. a SURFACE-TOP map: on a 25 cm grid over the footprint, the highest top z among LOW boxes (top z at most 150 cm, so
-     posts and walls are excluded) whose AABB contains the point, summarised per x band.
-AABBs of rotated instances are conservative (a slightly larger box). NOTHING IS SAVED OR MODIFIED: there is no save call in
-this file. Writes probe_mouth_surfaces.json; logs PUSS_SOFTGOODS_MOUTH_SURFACES|... Crash rules: everything in main().
+The drape cache (final13) is world-true for P01's stage front; each Interaction places it at a Passage's route start,
+yawed to the route's start tangent. So every mouth is measured in its own route frame (x along the route from the curtain
+line, y across), over the pile footprint (x -200..+470 cm, y +-1100). P02's mouth is rotated 22.9 deg, so world-axis boxes
+would be wrong there (the Conductor's warning): every mesh is taken as its LOCAL bounds carried through its own
+transform into the route frame, which is exact for pieces aligned with the route.
+
+Surfaces only: the instances of every InstancedStaticMeshComponent and every plain StaticMeshComponent (lights, skies and
+rigs are not surfaces). For each mouth:
+  - the instance groups overlapping the footprint (count, x range, top and bottom z);
+  - a SURFACE-TOP map on a 25 x 50 cm grid, the highest top among LOW pieces (top <= 150 cm, so posts and walls are
+    excluded), summarised per x band;
+  - the spill check: in the house-side band (x -200..-155) the top must be BELOW -72 cm, since the cache's spill hangs
+    to z -71.3 within 1.9 m of the curtain line (final13, measured). P01, the reference, reads -120.
+NOTHING IS SAVED OR MODIFIED: there is no save call in this file. Writes probe_mouth_surfaces.json; logs
+PUSS_SOFTGOODS_MOUTH_SURFACES|... Crash rules: everything inside main().
 """
 import json
+import math
 import os
 
 import unreal
 
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods")
-MOUTHS = {"P01": (0.0, 0.0), "P03": (0.0, 160000.0)}
-FOOT_X, FOOT_Y, LOW_TOP = (-200.0, 470.0), (-1100.0, 1100.0), 150.0
-BANDS = [(-200, -155, "beyond the lip (house side)"), (-155, -115, "lip/fascia line"), (-115, 0, "forestage"),
-         (0, 250, "mouth"), (250, 470, "beyond the mouth")]
+# Route starts and start-tangent yaws: fit_transition_drapes' mouths (P02-P06) and the Opening's P01.
+MOUTHS = {"P01": (0.0, 0.0, 0.0), "P02": (0.0, 80000.0, 22.908), "P03": (0.0, 160000.0, 0.0),
+          "P04": (0.0, 240000.0, 0.0), "P05": (0.0, 320000.0, 0.0), "P06": (0.0, 400000.0, 0.0)}
+FOOT_X, FOOT_Y, LOW_TOP, NEAR_CM, SPILL_Z = (-200.0, 470.0), (-1100.0, 1100.0), 150.0, 3000.0, -72.0
+BANDS = [(-200, -155, "house side"), (-155, -115, "lip/fascia line"), (-115, 0, "forestage"), (0, 250, "mouth"),
+         (250, 471, "beyond the mouth")]
 
 
-def aabb_of_instance(comp, i, lo_l, hi_l):
-    t = comp.get_instance_transform(i, True)
-    pts = []
-    for x in (lo_l.x, hi_l.x):
-        for y in (lo_l.y, hi_l.y):
-            for z in (lo_l.z, hi_l.z):
-                p = t.transform_location(unreal.Vector(x, y, z))
-                pts.append((p.x, p.y, p.z))
+def to_route(p, m):
+    """World point (UE cm) -> the mouth's route frame (x along the route, y across, z up)."""
+    mx, my, yaw = m
+    c, s = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+    dx, dy = p.x - mx, p.y - my
+    return (dx * c + dy * s, -dx * s + dy * c, p.z)
+
+
+def route_box(transform, lo_l, hi_l, m):
+    pts = [to_route(transform.transform_location(unreal.Vector(x, y, z)), m)
+           for x in (lo_l.x, hi_l.x) for y in (lo_l.y, hi_l.y) for z in (lo_l.z, hi_l.z)]
     return [min(p[k] for p in pts) for k in range(3)], [max(p[k] for p in pts) for k in range(3)]
 
 
@@ -38,80 +49,74 @@ def main():
     dirty0 = sorted(p.get_path_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()) + \
         sorted(p.get_path_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages())
     actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
-    out = {"dirty_before": dirty0, "mouths": {}}
-    for tag, (mx, my) in MOUTHS.items():
-        fx0, fx1, fy0, fy1 = mx + FOOT_X[0], mx + FOOT_X[1], my + FOOT_Y[0], my + FOOT_Y[1]
-        overlaps = lambda lo, hi: not (hi[0] < fx0 or lo[0] > fx1 or hi[1] < fy0 or lo[1] > fy1 or hi[2] < -400 or lo[2] > 400)
-        boxes, groups, others = [], {}, []
+    out = {"dirty_before": dirty0, "spill_limit_z_cm": SPILL_Z, "mouths": {}}
+    for tag, m in MOUTHS.items():
+        boxes, groups = [], {}
         for a in actors:
-            is_structure = a.get_class().get_name() == "InfinityStageStructureActor"
-            if is_structure:
-                for comp in a.get_components_by_class(unreal.InstancedStaticMeshComponent):
-                    mesh = comp.get_editor_property("static_mesh")
-                    if mesh is None:
-                        continue
-                    b = mesh.get_bounds()
-                    lo_l, hi_l = b.origin - b.box_extent, b.origin + b.box_extent
-                    for i in range(comp.get_instance_count()):
-                        lo, hi = aabb_of_instance(comp, i, lo_l, hi_l)
-                        if not overlaps(lo, hi):
-                            continue
-                        key = f"{a.get_actor_label()} / {comp.get_name()}"
-                        g = groups.setdefault(key, {"count": 0, "x_rel": [1e9, -1e9], "top_z": [1e9, -1e9],
-                                                    "bottom_z": [1e9, -1e9], "mesh": mesh.get_name()})
-                        g["count"] += 1
-                        g["x_rel"] = [min(g["x_rel"][0], lo[0] - mx), max(g["x_rel"][1], hi[0] - mx)]
-                        g["top_z"] = [min(g["top_z"][0], hi[2]), max(g["top_z"][1], hi[2])]
-                        g["bottom_z"] = [min(g["bottom_z"][0], lo[2]), max(g["bottom_z"][1], lo[2])]
-                        boxes.append((lo, hi, key))
-                continue
             try:
                 o, e = a.get_actor_bounds(False)
             except Exception:  # noqa: BLE001
                 continue
-            lo, hi = [o.x - e.x, o.y - e.y, o.z - e.z], [o.x + e.x, o.y + e.y, o.z + e.z]
-            if overlaps(lo, hi) and (e.x > 100 or e.y > 100):
-                others.append({"label": a.get_actor_label(), "class": a.get_class().get_name(),
-                               "x_rel": [round(lo[0] - mx, 1), round(hi[0] - mx, 1)], "top_z": round(hi[2], 2),
-                               "bottom_z": round(lo[2], 2)})
-                boxes.append((lo, hi, a.get_actor_label()))
-        low = [b for b in boxes if b[1][2] <= LOW_TOP]
+            if abs(o.x - m[0]) - e.x > NEAR_CM or abs(o.y - m[1]) - e.y > NEAR_CM:
+                continue                                   # nowhere near this mouth
+            for comp in a.get_components_by_class(unreal.StaticMeshComponent):
+                mesh = comp.get_editor_property("static_mesh")
+                if mesh is None:
+                    continue
+                b = mesh.get_bounds()
+                lo_l, hi_l = b.origin - b.box_extent, b.origin + b.box_extent
+                if isinstance(comp, unreal.InstancedStaticMeshComponent):
+                    transforms = [comp.get_instance_transform(i, True) for i in range(comp.get_instance_count())]
+                else:
+                    transforms = [comp.get_world_transform()]
+                for t in transforms:
+                    loc = t.translation
+                    if abs(loc.x - m[0]) > 60000 or abs(loc.y - m[1]) > 60000:
+                        continue
+                    lo, hi = route_box(t, lo_l, hi_l, m)
+                    if hi[0] < FOOT_X[0] or lo[0] > FOOT_X[1] or hi[1] < FOOT_Y[0] or lo[1] > FOOT_Y[1] \
+                            or hi[2] < -400 or lo[2] > 400:
+                        continue
+                    key = f"{a.get_actor_label()} / {comp.get_name()}"
+                    g = groups.setdefault(key, {"count": 0, "x": [1e9, -1e9], "top_z": [1e9, -1e9], "mesh": mesh.get_name()})
+                    g["count"] += 1
+                    g["x"] = [round(min(g["x"][0], lo[0]), 1), round(max(g["x"][1], hi[0]), 1)]
+                    g["top_z"] = [round(min(g["top_z"][0], hi[2]), 2), round(max(g["top_z"][1], hi[2]), 2)]
+                    boxes.append((lo, hi, key))
+        low = [bx for bx in boxes if bx[1][2] <= LOW_TOP]
         bands = {}
         x = FOOT_X[0]
         while x <= FOOT_X[1]:
+            label = next(bn for (a0, a1, bn) in BANDS if a0 <= x < a1)
             y = FOOT_Y[0]
             while y <= FOOT_Y[1]:
-                px, py = mx + x, my + y
-                tops = [(hi[2], name) for lo, hi, name in low if lo[0] <= px <= hi[0] and lo[1] <= py <= hi[1]]
-                top = max(tops) if tops else (None, None)
-                label = next(bn for (a0, a1, bn) in BANDS if a0 <= x < a1) if x < 470 else BANDS[-1][2]
+                tops = [(hi[2], name) for lo, hi, name in low if lo[0] <= x <= hi[0] and lo[1] <= y <= hi[1]]
                 s = bands.setdefault(label, {"samples": 0, "no_surface": 0, "top_min": None, "top_max": None, "by": {}})
                 s["samples"] += 1
-                if top[0] is None:
+                if not tops:
                     s["no_surface"] += 1
                 else:
-                    s["top_min"] = top[0] if s["top_min"] is None else min(s["top_min"], top[0])
-                    s["top_max"] = top[0] if s["top_max"] is None else max(s["top_max"], top[0])
-                    s["by"][top[1]] = s["by"].get(top[1], 0) + 1
+                    t, name = max(tops)
+                    s["top_min"] = t if s["top_min"] is None else min(s["top_min"], t)
+                    s["top_max"] = t if s["top_max"] is None else max(s["top_max"], t)
+                    s["by"][name] = s["by"].get(name, 0) + 1
                 y += 50.0
             x += 25.0
         for s in bands.values():
             for k in ("top_min", "top_max"):
                 s[k] = round(s[k], 2) if s[k] is not None else None
-        out["mouths"][tag] = {"route_start": [mx, my], "structure_instances": {k: {**g,
-                              "x_rel": [round(v, 1) for v in g["x_rel"]], "top_z": [round(v, 2) for v in g["top_z"]],
-                              "bottom_z": [round(v, 2) for v in g["bottom_z"]]} for k, g in groups.items()},
-                              "other_actors": others, "surface_tops_by_band": bands}
+        house = bands.get("house side", {})
+        spill_ok = house.get("no_surface", 1) == 0 and house.get("top_max") is not None and house["top_max"] < SPILL_Z
+        out["mouths"][tag] = {"route": m, "groups": groups, "surface_tops_by_band": bands, "spill_clear": spill_ok}
     dirty1 = sorted(p.get_path_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()) + \
         sorted(p.get_path_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages())
-    out["dirty_after"] = dirty1
-    out["dirty_changed"] = dirty0 != dirty1
+    out["dirty_after"], out["dirty_changed"] = dirty1, dirty0 != dirty1
     with open(os.path.join(HERE, "probe_mouth_surfaces.json"), "w", encoding="utf-8") as h:
         json.dump(out, h, indent=1)
-    summary = {t: {b: (v["top_min"], v["top_max"], v["no_surface"]) for b, v in m["surface_tops_by_band"].items()}
-               for t, m in out["mouths"].items()}
+    summary = {t: (v["spill_clear"], v["surface_tops_by_band"].get("house side", {}).get("top_max"))
+               for t, v in out["mouths"].items()}
     del actors
-    unreal.log(f"PUSS_SOFTGOODS_MOUTH_SURFACES|{summary}|dirty_changed={dirty0 != dirty1}")
+    unreal.log(f"PUSS_SOFTGOODS_MOUTH_SURFACES|spill_clear,house_top={summary}|dirty_changed={dirty0 != dirty1}")
 
 
 main()
