@@ -7,8 +7,10 @@ frame late (TG_PostUpdateWork). ClaimSceneCameraCut resolves the cut's binding
 through the ROOT player (Player->GetBoundObjects) without the sub-sequence's
 context, which looks the GUID up among the Master's own bindings. This lists,
 for every Interaction and Scene sequence, its cut sections' binding GUIDs and
-names, and whether each GUID also names a binding in the Master (and what that
-binding is called). Plain property reads only: no SequencerTools helpers.
+names, whether each GUID also names a binding in the Master (and what that
+binding is called), and which stretches of its PLAYBACK RANGE no cut covers:
+a jump into one finds no camera to claim (Soft goods' probe, 30 Sep: Scene 1's
+tail left the player controller at the origin). Plain property reads only: no SequencerTools helpers.
 Success marker: PUSS_CUT_BINDING_PROBE
 """
 
@@ -54,15 +56,29 @@ def main():
                     "binding_guid": g, "name_in_own_sequence": own.get(g),
                     "ALSO_IN_MASTER_AS": master_bindings.get(g),
                 })
-        rows.append({"cue": label, "sequence": sequence.get_path_name().split(".")[0], "cuts": cuts})
+        start, end = sequence.get_playback_start(), sequence.get_playback_end()
+        # Uncovered stretches of the playback range: where a jump finds no cut and,
+        # with no other rule, the transport claims no camera (dev grid at the origin).
+        gaps, cursor = [], start
+        for c in sorted(cuts, key=lambda c: c["start"]):
+            if c["start"] > cursor:
+                gaps.append([cursor, c["start"]])
+            cursor = max(cursor, c["end"])
+        if cursor < end:
+            gaps.append([cursor, end])
+        rate = sequence.get_display_rate()
+        rows.append({"cue": label, "sequence": sequence.get_path_name().split(".")[0], "cuts": cuts,
+                     "playback": [start, end], "fps": rate.numerator / float(rate.denominator),
+                     "uncovered": gaps})
     collisions = [(r["cue"], c["name_in_own_sequence"], c["ALSO_IN_MASTER_AS"]) for r in rows for c in r["cuts"] if c["ALSO_IN_MASTER_AS"]]
     out = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
                        "CodexCameraPilot", "probe_interaction_cut_binding.json")
     with open(out, "w", encoding="utf-8") as handle:
         json.dump({"master": master.get_path_name(), "master_binding_count": len(master_bindings),
                    "rows": rows, "collisions": collisions}, handle, indent=1, ensure_ascii=False)
-    unreal.log("PUSS_CUT_BINDING_PROBE|cues=%d|master_bindings=%d|collisions=%d"
-               % (len(rows), len(master_bindings), len(collisions)))
+    uncovered = [(r["cue"], r["uncovered"]) for r in rows if r["uncovered"]]
+    unreal.log("PUSS_CUT_BINDING_PROBE|cues=%d|master_bindings=%d|collisions=%d|uncovered=%d"
+               % (len(rows), len(master_bindings), len(collisions), len(uncovered)))
 
 
 main()
