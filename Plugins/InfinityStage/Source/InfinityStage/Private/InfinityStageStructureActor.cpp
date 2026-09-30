@@ -744,7 +744,12 @@ void AInfinityStageStructureActor::BuildGround(
             HashCombineFast(GetTypeHash(Passage->PassageGuid), ::GetTypeHash(static_cast<uint32>(ETimberPart::BoardLane))),
             ::GetTypeHash(Lane))));
         // Each lane starts part-way through a board, so joints stagger across the floor.
-        double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * Stream.FRandRange(0.2, 1.0);
+        // Two statements, never one product: C++ leaves the order of a product's operands
+        // unspecified, and the 29 Sep rebuild flipped it here, re-rolling the joints of
+        // every saved floor. Length first is the order the saved floors were laid in
+        // (pinned by InfinityStage.Structure.SavedFloorsSurviveARebuild).
+        const double FirstLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm);
+        double NextLengthCm = FirstLengthCm * Stream.FRandRange(0.2, 1.0);
         double FromCm = StartCm;
         int32 CutIndex = 0;
         while (FromCm < EndCm - 1.0)
@@ -1044,7 +1049,11 @@ void AInfinityStageStructureActor::BuildPortal(
             const double LaneWidthCm = EvenLanes(W0, W1, LaneCentres);
             for (const double LaneCm : LaneCentres)
             {
-                double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * Stream.FRandRange(0.2, 1.0);
+                // Fraction first, then length: the order the saved stage fronts were laid
+                // in. The compiler chose the opposite order here to BuildGround's, from
+                // the same expression, which is why neither is left to it (see BuildGround).
+                const double FirstFraction = Stream.FRandRange(0.2, 1.0);
+                double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * FirstFraction;
                 double FromCm = L0;
                 while (FromCm < L1 - 0.5)
                 {
@@ -1213,7 +1222,8 @@ void AInfinityStageStructureActor::BuildCloth(
         const double AcrossCm = Stream.FRandRange(-MaxOffsetCm, MaxOffsetCm);
         const double LengthScale = Stream.FRandRange(0.85, 1.2);
         const double WidthScale = Stream.FRandRange(MinWidth, MaxWidth);
-        const double YawDegrees = (Stream.FRand() < 0.5 ? 180.0 : 0.0) + Stream.FRandRange(-MaxYaw, MaxYaw);
+        const double FlipDegrees = Stream.FRand() < 0.5 ? 180.0 : 0.0;     // two statements: see BuildGround
+        const double YawDegrees = FlipDegrees + Stream.FRandRange(-MaxYaw, MaxYaw);
         const float Tone = Stream.FRand();
         if (!bCovered)
         {

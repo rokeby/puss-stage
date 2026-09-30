@@ -2,6 +2,8 @@
 
 #include "LevelSequence.h"
 #include "MovieScene.h"
+#include "MovieSceneSection.h"
+#include "Tracks/MovieSceneSubTrack.h"
 
 namespace
 {
@@ -35,6 +37,45 @@ FFrameNumber ResolveSceneDuration(const UInfinityStageShowAsset& Show, const FIn
         FFrameTime(Length),
         MovieScene->GetTickResolution(),
         Show.TickResolution).RoundToFrame();
+}
+
+/**
+ * Nested shots or sub-sequences that run past a Scene sequence's playback end are cut, because a nested sequence is
+ * evaluated only inside its parent's playback range. Lengthening the Scene here would not help: the Master would lay a
+ * longer section with nothing playing in it. So report the cut and let the author extend the playback range.
+ * Measure each nested SECTION's end, never the child sequence's own length. A trimmed section is an authoring decision
+ * (29 Sep: Scene 3 places 60.6 s of a 119.9 s take) and is not a cut. Scene 1 played 15 s of a 210.8 s shot until
+ * this was found by hand.
+ */
+bool FindNestedContentPastPlayback(const FInfinityShowCue& Cue, double& OutPlaybackEndSeconds, double& OutContentEndSeconds)
+{
+    const ULevelSequence* Sequence = Cue.Scene.Sequence.LoadSynchronous();
+    const UMovieScene* MovieScene = Sequence ? Sequence->GetMovieScene() : nullptr;
+    if (!MovieScene || !MovieScene->GetTickResolution().IsValid())
+    {
+        return false;
+    }
+    const FFrameNumber PlaybackEnd = MovieScene->GetPlaybackRange().GetUpperBoundValue();
+    FFrameNumber ContentEnd = PlaybackEnd;
+    for (const UMovieSceneTrack* Track : MovieScene->GetTracks())
+    {
+        // Cinematic shot tracks are sub tracks, so both kinds of nesting are covered.
+        if (!Track || !Track->IsA<UMovieSceneSubTrack>())
+        {
+            continue;
+        }
+        for (const UMovieSceneSection* Section : Track->GetAllSections())
+        {
+            if (Section && Section->IsActive() && Section->HasEndFrame())
+            {
+                ContentEnd = FMath::Max(ContentEnd, Section->GetExclusiveEndFrame());
+            }
+        }
+    }
+    const FFrameRate TickRate = MovieScene->GetTickResolution();
+    OutPlaybackEndSeconds = TickRate.AsSeconds(FFrameTime(PlaybackEnd));
+    OutContentEndSeconds = TickRate.AsSeconds(FFrameTime(ContentEnd));
+    return ContentEnd > PlaybackEnd;
 }
 
 const FInfinityPassageSettings* FindPassageSettings(const UInfinityStageShowAsset& Show, const int32 FirstIndex, const int32 LastIndex)
@@ -183,6 +224,14 @@ FInfinityCompileResult FInfinityStageCompiler::Compile(const UInfinityStageShowA
             {
                 Cursor += SceneDuration;
                 Segment.EndFrame = Cursor;
+            }
+            double PlaybackEndSeconds = 0.0;
+            double ContentEndSeconds = 0.0;
+            if (Cue.Scene.bUseSequenceLength && FindNestedContentPastPlayback(Cue, PlaybackEndSeconds, ContentEndSeconds))
+            {
+                AddIssue(Result, EInfinityCompileIssueSeverity::Warning, Cue.CueGuid, FString::Printf(
+                    TEXT("%s: nested shots run to %.3f s but the sequence plays only to %.3f s, so %.3f s of placed content is cut. Extend the sequence's playback range to keep it."),
+                    *Cue.Label.ToString(), ContentEndSeconds, PlaybackEndSeconds, ContentEndSeconds - PlaybackEndSeconds));
             }
             ++Index;
             continue;

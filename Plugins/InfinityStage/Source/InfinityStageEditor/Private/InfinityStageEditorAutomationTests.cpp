@@ -986,6 +986,15 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
             TestTrue(TEXT("Scene Entry Camera owns the PIE viewport at the boundary"),
                 SceneViewTarget && SceneViewTarget->ActorHasTag(TEXT("InfinityStage.SceneEntry")));
         }
+        // The unsafe-jump guard only refuses in performance mode, and the saved level may be in rehearsal mode (it is
+        // for Gary's walk). Force performance mode for this step instead of depending on how the level was saved:
+        // on 29 Sep a rehearsal-mode level let this jump succeed, and the steps below then started one segment late.
+        const bool bSavedPerformanceMode = ShowRoot->Transport->bPerformanceMode;
+        AddInfo(FString::Printf(TEXT("SavedLevelPerformanceMode=%d (the fixture forces the mode each step needs)"),
+            bSavedPerformanceMode ? 1 : 0));
+        ShowRoot->Transport->bPerformanceMode = true;
+        TestTrue(TEXT("Unsafe-jump step runs in performance mode, whatever mode the level was saved in"),
+            ShowRoot->Transport->bPerformanceMode);
         const EInfinityTransportResult UnsafeJump = ShowRoot->Transport->JumpToNextSegment();
         AddInfo(FString::Printf(TEXT("UnsafeJump=%d Current=%d Selected=%d"),
             static_cast<int32>(UnsafeJump),
@@ -1007,14 +1016,43 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
         TestEqual(TEXT("Rehearsal can hold again for deterministic curtain inspection"),
             ShowRoot->Transport->PauseTransport(),
             EInfinityTransportResult::Succeeded);
+        // Transition curtain (29 Sep): once an Interaction authors its own Camera Cut, the Interaction happens ON the
+        // baked drape at the next Passage's mouth, seen from Look & camera's tagged stalls camera, and the old
+        // camera-following rig stays present but inactive. Until the data carries that, the legacy staging is asserted.
+        bool bInteractionAuthorsCut = false;
+        {
+            const int32 InteractionCueIndex = ShowRoot->Transport->Segments[3].CueIndex;
+            const ULevelSequence* InteractionSequence =
+                ShowRoot->ShowAsset && ShowRoot->ShowAsset->Cues.IsValidIndex(InteractionCueIndex)
+                    ? ShowRoot->ShowAsset->Cues[InteractionCueIndex].Scene.Sequence.LoadSynchronous()
+                    : nullptr;
+            const UMovieScene* InteractionScene = InteractionSequence ? InteractionSequence->GetMovieScene() : nullptr;
+            const UMovieSceneTrack* InteractionCuts = InteractionScene ? InteractionScene->GetCameraCutTrack() : nullptr;
+            bInteractionAuthorsCut = InteractionCuts && !InteractionCuts->GetAllSections().IsEmpty();
+        }
+        AddInfo(FString::Printf(TEXT("Interaction1AuthorsCameraCut=%d"), bInteractionAuthorsCut ? 1 : 0));
+        const auto IsPassageTwoMouthStalls = [](const AActor* Actor)
+        {
+            return Actor
+                && Actor->ActorHasTag(TEXT("InfinityStage.TransitionStalls"))
+                && Actor->ActorHasTag(TEXT("InfinityStage.Mouth.P02"));
+        };
         if (PlayerController)
         {
             AActor* InteractionViewTarget = PlayerController->GetViewTarget();
             TestNotNull(TEXT("Interaction 1 retains a camera owner"), InteractionViewTarget);
-            TestTrue(TEXT("Interaction 1 holds the Scene 1 exit camera"),
-                InteractionViewTarget
-                && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneExit"))
-                && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneRetainedHold")));
+            if (bInteractionAuthorsCut)
+            {
+                TestTrue(TEXT("Interaction 1 happens on its curtain: the view is the stalls camera at Passage 2's mouth"),
+                    IsPassageTwoMouthStalls(InteractionViewTarget));
+            }
+            else
+            {
+                TestTrue(TEXT("Interaction 1 holds the Scene 1 exit camera"),
+                    InteractionViewTarget
+                    && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneExit"))
+                    && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneRetainedHold")));
+            }
         }
         float InteractionCurtainProgress = -1.0f;
         TestFalse(TEXT("Interaction 1 sequence owns the visible curtain"),
@@ -1035,7 +1073,21 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
         }
         TestEqual(TEXT("Interaction sequence evaluates exactly one curtain rig"),
             SequenceCurtainRigCount, 1);
-        if (SequenceCurtainRig)
+        if (SequenceCurtainRig && bInteractionAuthorsCut)
+        {
+            SequenceCurtainRig->Tick(0.0f);
+            TestFalse(TEXT("The old camera-following rig is kept but inactive once the Interaction has its drape"),
+                SequenceCurtainRig->bCurtainActive);
+            TestTrue(TEXT("The old rig's fire-safety mesh is not shown"),
+                !SequenceCurtainRig->CurtainMesh || !SequenceCurtainRig->CurtainMesh->IsVisible());
+            int32 DrapeCount = 0;
+            for (TActorIterator<AActor> It(PieWorld); It; ++It)
+            {
+                DrapeCount += It->GetClass()->GetName() == TEXT("GeometryCacheActor") ? 1 : 0;
+            }
+            TestTrue(TEXT("The Interaction spawns its baked drape"), DrapeCount >= 1);
+        }
+        else if (SequenceCurtainRig)
         {
             TestTrue(TEXT("Interaction curtain actor tick is enabled"),
                 SequenceCurtainRig->IsActorTickEnabled());
@@ -1077,7 +1129,12 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
                 }
             }
         }
-        if (PlayerController && PassageTwoCamera)
+        if (PlayerController && bInteractionAuthorsCut)
+        {
+            TestTrue(TEXT("The authored cut keeps the drape in view through the covered frame"),
+                IsPassageTwoMouthStalls(PlayerController->GetViewTarget()));
+        }
+        else if (PlayerController && PassageTwoCamera)
         {
             TestEqual(TEXT("Covered curtain switches the hidden world to Passage 2 start"),
                 PlayerController->GetViewTarget(), static_cast<AActor*>(PassageTwoCamera));
@@ -1126,6 +1183,9 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
             ++ClosingCurtainRigCount;
             ClosingCurtainRig = *It;
         }
+        // Log it so a pass is visible: "passed" and "never reached" must not look the same in the log.
+        AddInfo(FString::Printf(TEXT("ClosingCurtainRigCount=%d ClosingCoveredFrame=%d"),
+            ClosingCurtainRigCount, ClosingCoveredFrame.Value));
         TestEqual(TEXT("Closing sequence evaluates exactly one curtain rig"),
             ClosingCurtainRigCount, 1);
         if (ClosingCurtainRig)
@@ -1332,6 +1392,70 @@ bool FInfinityStageMasterSequenceOpensTest::RunTest(const FString& Parameters)
 
     TestTrue(TEXT("Master Sequence opens with registered Infinity Stage track editors"), AssetEditors->OpenEditorForAsset(Master));
     AssetEditors->CloseAllEditorsForAsset(Master);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageScenePlaybackCutWarnsTest,
+    "InfinityStage.Editor.ScenePlaybackCutWarns",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// A Scene whose nested shot runs past its playback range compiles with a warning naming the cut, and a shot section
+// trimmed inside the range does not warn (a trim is authoring). 29 Sep: Scene 1 played 15 s of a 210.8 s shot, silently.
+bool FInfinityStageScenePlaybackCutWarnsTest::RunTest(const FString& Parameters)
+{
+    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
+    FInfinityShowCue& SceneCue = Show->Cues.AddDefaulted_GetRef();
+    SceneCue.Type = EInfinityCueType::Scene;
+    SceneCue.CueGuid = FGuid::NewGuid();
+    SceneCue.Label = FText::FromString(TEXT("Playback Cut Test Scene"));
+    SceneCue.Scene.bUseSequenceLength = true;
+    const FGuid SceneGuid = SceneCue.CueGuid;
+    const int32 FifteenSeconds = Show->TickResolution.AsFrameNumber(15.0).Value;
+
+    ULevelSequence* SceneSequence = NewObject<ULevelSequence>(GetTransientPackage());
+    SceneSequence->Initialize();
+    UMovieScene* SceneMovie = SceneSequence->GetMovieScene();
+    SceneMovie->SetTickResolutionDirectly(Show->TickResolution);
+    SceneMovie->SetPlaybackRange(0, FifteenSeconds);
+    ULevelSequence* Shot = NewObject<ULevelSequence>(GetTransientPackage());
+    Shot->Initialize();
+    Shot->GetMovieScene()->SetTickResolutionDirectly(Show->TickResolution);
+    Shot->GetMovieScene()->SetPlaybackRange(0, FifteenSeconds * 4);
+    UMovieSceneSubTrack* ShotTrack = SceneMovie->AddTrack<UMovieSceneSubTrack>();
+    UMovieSceneSubSection* ShotSection = ShotTrack ? ShotTrack->AddSequence(Shot, FFrameNumber(0), FifteenSeconds * 4) : nullptr;
+    TestNotNull(TEXT("Fixture places a 60 s shot in a 15 s Scene"), ShotSection);
+    if (!ShotSection)
+    {
+        return false;
+    }
+    SceneCue.Scene.Sequence = SceneSequence;
+
+    const auto WarnsAboutCut = [SceneGuid](const FInfinityCompileResult& Compiled)
+    {
+        return Compiled.Issues.ContainsByPredicate([SceneGuid](const FInfinityCompileIssue& Issue)
+        {
+            return Issue.Severity == EInfinityCompileIssueSeverity::Warning
+                && Issue.SubjectGuid == SceneGuid
+                && Issue.Message.Contains(TEXT("is cut"));
+        });
+    };
+    const FInfinityCompileResult Cut = FInfinityStageCompiler::Compile(*Show);
+    TestTrue(TEXT("A shot running past the Scene's playback range compiles with a warning naming the cut"), WarnsAboutCut(Cut));
+    TestFalse(TEXT("The cut is a warning, not an error, so a Master rebuild is not blocked"),
+        Cut.Issues.ContainsByPredicate([SceneGuid](const FInfinityCompileIssue& Issue)
+        {
+            return Issue.Severity == EInfinityCompileIssueSeverity::Error && Issue.SubjectGuid == SceneGuid;
+        }));
+    if (Cut.Segments.Num() == 1)
+    {
+        TestEqual(TEXT("The Scene's compiled length still follows its playback range"),
+            (Cut.Segments[0].EndFrame - Cut.Segments[0].StartFrame).Value, FifteenSeconds);
+    }
+
+    ShotSection->SetRange(TRange<FFrameNumber>(FFrameNumber(0), FFrameNumber(FifteenSeconds)));
+    const FInfinityCompileResult Trimmed = FInfinityStageCompiler::Compile(*Show);
+    TestFalse(TEXT("A shot section trimmed inside the playback range is authoring, not a cut"), WarnsAboutCut(Trimmed));
     return true;
 }
 

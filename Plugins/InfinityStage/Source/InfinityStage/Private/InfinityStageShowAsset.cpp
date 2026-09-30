@@ -547,10 +547,21 @@ int32 UInfinityStageShowAsset::ReplicateLightAttachmentsWithVariation(
             const float P = FMath::Max(0.0f, Variation.PositionJitterCm);
             const float R = FMath::Max(0.0f, Variation.RotationJitterDegrees);
             const float I = FMath::Clamp(Variation.IntensityJitterFraction, 0.0f, 0.9f);
-            Attachment.RelativeTransform.AddToTranslation(FVector(
-                Stream.FRandRange(-P, P), Stream.FRandRange(-P, P), Stream.FRandRange(-P, P)));
-            const FQuat Aim = FRotator(
-                Stream.FRandRange(-R, R), Stream.FRandRange(-R, R), Stream.FRandRange(-R, R) * 0.5f).Quaternion();
+            // Draw order pinned by statement sequencing. These six draws used to be FVector(...) and FRotator(...)
+            // ARGUMENTS, whose evaluation order C++ leaves to the compiler, so "same seed, same corridor" held only
+            // within one binary. MSVC evaluated them right to left, and the saved P02 corridor (21 Wing Pairs, 126
+            // lights, copied from P02 Wing 001) reproduces exactly only in that order (translation to 1e-11 cm,
+            // rotation to 1e-15, intensity to float rounding: Scripts/check_light_variation_order.py, 29 Sep).
+            // Keep the draws in FVector::FReal, as they were when passed straight in. Never put two draws in one
+            // expression.
+            const FVector::FReal JitterZ = Stream.FRandRange(-P, P);
+            const FVector::FReal JitterY = Stream.FRandRange(-P, P);
+            const FVector::FReal JitterX = Stream.FRandRange(-P, P);
+            Attachment.RelativeTransform.AddToTranslation(FVector(JitterX, JitterY, JitterZ));
+            const FVector::FReal RollJitter = Stream.FRandRange(-R, R) * 0.5f;
+            const FVector::FReal YawJitter = Stream.FRandRange(-R, R);
+            const FVector::FReal PitchJitter = Stream.FRandRange(-R, R);
+            const FQuat Aim = FRotator(PitchJitter, YawJitter, RollJitter).Quaternion();
             Attachment.RelativeTransform.SetRotation((Aim * Attachment.RelativeTransform.GetRotation()).GetNormalized());
             Attachment.Lighting.Intensity *= Stream.FRandRange(1.0f - I, 1.0f + I);
         }
