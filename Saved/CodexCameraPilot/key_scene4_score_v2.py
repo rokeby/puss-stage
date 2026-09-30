@@ -1,3 +1,12 @@
+"""RETIRED 30 Sep 2026 (Look & camera, approved under the conductor's delegation). DO NOT RUN; refuses at import.
+
+Gary (30 Sep, via the conductor): "the camera should not be constrained when we get into the hangar even though
+we might look up manually (with free dog view)", and he chose free dog look for ALL hangar Scenes 1-6. Nobody keys
+a tilt during or after the hangar rise; the look-up is the dog's, live. This script keyed exactly such a tilt (the
+post-landing 0 -> 30 -> 0 deg score). The original body is kept below the refusal, unreachable, for the record.
+"""
+raise RuntimeError("key_scene4_score_v2.py is RETIRED (30 Sep): the hangar look is the dog's (free look), not keyed.")
+
 """Scene 4 v2: re-key the camera score (post-landing only) and host it in LS_S4_HangarRise.
 
 Gary (30 Sep): the rise belongs to the DOG (Scene 4 is Dog Gaze): the look over

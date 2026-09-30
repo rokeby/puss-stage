@@ -1,8 +1,13 @@
 {
   "apply": false,
-  "decided_by": "Gary, relayed by the conductor on 30 Sep: \"In Scene 4, Puss maintains camera ownership so that when he peers over or looks up, it's his movement and the robot dog's movement in sync.\"",
-  "_note": "Scene 4 only: Timeline -> Dog Gaze. Dry run first (apply false), then the conductor approves under Gary's delegation.",
+  "decided_by": "Gary, via Puss - Conductor (v2), 30 Sep: 'All hangar scenes 1-6' to free dog look (asked: Scene 4 only / all hangar scenes 1-6 / 4 and 6)",
+  "_note": "Dry run first (apply false), then apply=true in the editor slot. Scene 6 is already DOG_FREE_LOOK, so it reports no change. Passages are not touched.",
   "owners": {
-    "Scene 4 — External Sound": "DOG_GAZE_ONLY"
+    "Scene 1 — External Sound": "DOG_FREE_LOOK",
+    "Scene 2 — External Sound": "DOG_FREE_LOOK",
+    "Scene 3 — External Sound": "DOG_FREE_LOOK",
+    "Scene 4 — External Sound": "DOG_FREE_LOOK",
+    "Scene 5 — External Sound": "DOG_FREE_LOOK",
+    "Scene 6 — External Sound": "DOG_FREE_LOOK"
   }
 }
