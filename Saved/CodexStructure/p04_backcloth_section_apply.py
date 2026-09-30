@@ -22,10 +22,13 @@ bake that was stopped: every precondition would still pass and the fall would si
   to DerivedAssets/.../<cache name>_<bake_id>.abc), and that bake's own DropBake/<bake_id>.json
   gives (release_frame - show_start) / 30 fps. Fallback: Soft goods' import_passing_bake.json, but
   only if it names THIS cache (that file is overwritten by every import). No artifact: refuse.
+  Both the bake JSON and the imported Alembic must match the SHA-256s in Soft goods' acceptance.json
+  for that bake id (a re-used bake id would otherwise change the JSON underneath); mismatch: refuse.
   RELEASE_IN_CACHE_S, if passed, is only a cross-check: refuse if it disagrees by more than a frame.
 - BACKCLOTH_LEAD_S is REQUIRED (Soft goods' measured fall for THE placed bake). Apply refuses
   without it; the dry run names what is missing. Lean: main()."""
 import datetime
+import hashlib
 import json
 import os
 import shutil
@@ -92,11 +95,23 @@ def release_from_artifact(cache):
         stem = os.path.splitext(os.path.basename(files[0]))[0]
         prefix = cache.get_name() + "_"
         if stem.startswith(prefix):
-            bake_json = os.path.join(SOFTGOODS, "DropBake", stem[len(prefix):] + ".json")
+            bake_id = stem[len(prefix):]
+            bake_json = os.path.join(SOFTGOODS, "DropBake", bake_id + ".json")
+            # A bake id can be re-used, so the JSON is mutable: both it and the Alembic the cache was
+            # imported from must match the SHA-256s Soft goods' acceptance recorded for this bake id.
+            acc_path = os.path.join(SOFTGOODS, "DropBake", "acceptance.json")
+            recorded = json.load(open(acc_path, encoding="utf-8")).get(bake_id, {}).get("artifacts", {}) if os.path.exists(acc_path) else {}
+            sha = lambda path: hashlib.sha256(open(path, "rb").read()).hexdigest()
+            if not recorded.get(bake_id + ".json") or not recorded.get(bake_id + ".abc"):
+                return None, f"acceptance.json records no artifact hashes for {bake_id}"
+            if not os.path.exists(files[0]) or sha(files[0]) != recorded[bake_id + ".abc"]:
+                return None, f"the imported Alembic {os.path.basename(files[0])} does not match the accepted {bake_id}.abc"
+            if os.path.exists(bake_json) and sha(bake_json) != recorded[bake_id + ".json"]:
+                return None, f"{os.path.basename(bake_json)} has changed since acceptance (sha256 mismatch)"
             if os.path.exists(bake_json):
                 bake = json.load(open(bake_json, encoding="utf-8"))
                 if bake.get("release_frame") is not None and bake.get("show_start") is not None:   # travellers carry None
-                    return (int(bake["release_frame"]) - int(bake["show_start"])) / BAKE_FPS, os.path.relpath(bake_json, SOFTGOODS)
+                    return (int(bake["release_frame"]) - int(bake["show_start"])) / BAKE_FPS, os.path.relpath(bake_json, SOFTGOODS) + " (sha256 = acceptance, .abc too)"
                 why = f"{os.path.basename(bake_json)} has no release_frame/show_start (a bake with no release?)"
             else:
                 why = f"no {os.path.basename(bake_json)}"
