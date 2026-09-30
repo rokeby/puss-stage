@@ -113,6 +113,7 @@ def mask_top(d):
         m.pop("all_unmasked", None)                 # keep the verdict file small; re-run for the picture
         mpath.write_text(json.dumps(m, indent=1), encoding="utf-8")
     reg = m.get("by_region") or {}
+    d["_mask_stage"] = {"colliders": stage, "sha256": stage_digest}
     return reg.get("top", 1) == 0, (f"frame {frame}: {reg.get('top')} rays over the top (rows {m.get('top_rows_px')}, "
                                     f"z at the curtain line {m.get('top_z_at_line_m')} m); side {reg.get('side')}, "
                                     f"bottom {reg.get('bottom')}, interior {reg.get('interior')} (step 2 px)")
@@ -220,6 +221,9 @@ def judge_drape(d, ref):
     # SITE check at a passage end (where the pile has no reference). Plus COVERAGE wherever it was measured.
     if not d.get("collider_origin_cm") and (d.get("track_m") or 0) >= 17.0:
         verdict["top_masked"], d["_mask"] = mask_top(d)
+        # The stage the rays were cast against, so the import can refuse a PASS judged against a stage that has since
+        # changed (a border moved or removed): the verdict is bound to the stage bytes as well as the bake's.
+        verdict["mask_stage"] = d.get("_mask_stage")
     required = ["still", "hang", "site" if d.get("collider_origin_cm") else "pile"]
     if "coverage" in verdict:
         required.append("coverage")
@@ -410,7 +414,7 @@ def main():
         verdicts[i] = v
         summary.append(f"| {i} | {'PASS' if v['ALL'] else 'FAIL'} | "
                        + ", ".join(f"{k}={val}" for k, val in v.items()
-                                   if k not in ("ALL", "pile_override", "artifacts", "required")) + " |")
+                                   if k not in ("ALL", "pile_override", "artifacts", "required", "mask_stage")) + " |")
     lines = head + ["| bake | verdict | criteria |", "|---|---|---|"] + summary + [""] + body
     if args.sheet:
         a, b = args.sheet.split(",")
