@@ -103,6 +103,30 @@ the fall spends it unfolding instead of heaping.
 
 **Unblocks:** placing any cloth anywhere. Nothing is placed yet.
 
+**UPDATE 09:15 — TWO OF THE THREE GATES ARE PASSED, AND THE THIRD IS YOURS.**
+
+- **Stillness: PASSED, and derived.** 0.41 mm/frame against a 2 mm limit, and the
+  motion that used to GROW is gone — 10.9 in the first second, then settling under
+  1.4. The hem guide cured it.
+- **Hang: PASSED.** 8 folds at every height, depth 99–100%, flare 1.00, bulge 1.00.
+- **Pile: YOURS TO JUDGE, and Soft goods refused to call it a pass.** The heap is
+  the right size and shape — height 0.91, depth 1.16, width 1.11, layers 0.82,
+  all inside 25% of the fall you approved. **But its creases are 1.58× coarser,
+  and that IS visible from the stalls:** crease spacing goes from about 80 px to
+  130 px in a 45 px band at the lip. Tens of pixels, not the one or two where
+  stillness lives.
+
+**Why this one comes to you rather than being settled by a number: the pile is
+judged against the fall you already approved, and you did not approve a number —
+you approved an image.** The 25% tolerance has no derivation, and Soft goods said
+so rather than hiding behind it. A side-by-side of the two piles at the stalls
+camera's framing is being made for you.
+
+**Recommendation: look at the two piles before spending more bakes on it.** There
+is a real possibility that the hem guide — the thing that cured the stillness — is
+also what coarsens the creases, in which case this cloth may not be able to have
+both, and that is a cleaner thing to know than another night of bakes.
+
 ### A4. Nesting the five hangars
 Rig has authored the rises and placed five Arrival actors for Scenes 1, 2, 3, 5, 6.
 **All inert, nothing nested, the Show asset byte-identical to its backup.**
