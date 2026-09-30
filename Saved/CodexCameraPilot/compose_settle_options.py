@@ -23,7 +23,9 @@ HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Captures", "Set
 CELL = (640, 360)
 COLOURS = [(230, 90, 70), (240, 200, 60), (90, 200, 120), (90, 150, 240)]
 NOTE = ("Frame-exact renders: silent about smoothness, including any stutter the show may still have. "
-        "Bob not shown. Lit at the passage's own exposure (EV100 -3).")
+        "Lit at the passage's own exposure (EV100 -3)." "\n"
+        "Bob not shown: in the real settle it fades out across these frames, so the middle of each settle "
+        "will be a little less clean than this.")
 
 
 def label(settle):
@@ -44,7 +46,7 @@ def main():
     work = tempfile.mkdtemp()
     grid_paths = []
     for index, t in enumerate(times):
-        grid = Image.new("RGB", (CELL[0] * 2, CELL[1] * 2 + 44), (15, 15, 15))
+        grid = Image.new("RGB", (CELL[0] * 2, CELL[1] * 2 + 56), (15, 15, 15))
         for slot, settle in enumerate(settles):
             still = frames[t][settle]
             cell = Image.open(os.path.join(HERE, still["name"] + ".png")).convert("RGB").resize(CELL)
@@ -53,7 +55,7 @@ def main():
             draw.rectangle([0, 0, CELL[0], 26], fill=(0, 0, 0))
             draw.text((8, 7), "%s    %s" % (label(settle), state), fill=COLOURS[slot])
             grid.paste(cell, ((slot % 2) * CELL[0], (slot // 2) * CELL[1]))
-        ImageDraw.Draw(grid).text((8, CELL[1] * 2 + 14), NOTE, fill=(200, 200, 200))
+        ImageDraw.Draw(grid).multiline_text((8, CELL[1] * 2 + 10), NOTE, fill=(200, 200, 200), spacing=6)
         path = os.path.join(work, "grid_%04d.png" % index)
         grid.save(path)
         grid_paths.append(path)
@@ -64,7 +66,7 @@ def main():
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(run["fps"]),
                     "-i", os.path.join(work, "grid_%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p", mp4],
                    check=True)
-    frames_small = [Image.open(p).resize((CELL[0], CELL[1] + 22)) for p in sorted(
+    frames_small = [Image.open(p).resize((CELL[0], CELL[1] + 28)) for p in sorted(
         os.path.join(work, f) for f in os.listdir(work))]
     gif = os.path.join(HERE, "settle_grid%s.gif" % suffix)
     frames_small[0].save(gif, save_all=True, append_images=frames_small[1:], duration=int(1000 / run["fps"]), loop=0)
