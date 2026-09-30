@@ -165,8 +165,7 @@ def main():
     # removed must not import. Re-run the acceptance tool after any stage edit.
     if "top_masked" in (verdict.get("required") or []):
         ms = verdict.get("mask_stage") or {}
-        project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
-        spath = os.path.join(project, *(ms.get("colliders") or "").split("|")[0].split("/")) if ms.get("colliders") else None
+        spath = os.path.join(project(), *(ms.get("colliders") or "").split("|")[0].split("/")) if ms.get("colliders") else None
         now_stage = sha256_file(spath) if spath and os.path.isfile(spath) else None
         report["mask_stage"] = {"judged": ms, "now_sha256": now_stage}
         if not ms.get("sha256") or now_stage != ms["sha256"]:

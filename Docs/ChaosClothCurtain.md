@@ -26,6 +26,35 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## 30 Sep (16:20): final13 PLACED at the Opening and all five transitions
+
+- **Approval, recorded as it happened**: Gary, relayed by the Conductor at 16:20, "OK place the cloths". The placement
+  was INSTRUCTED BEFORE he viewed the pile. The video was resent for review.
+  - The acceptance tool now labels this a "RECORDED OVERRIDE", not "by eye".
+  - If the pile is wrong, revert from the backups and re-bake.
+- **Import**: `GC_CurtainDrop_Opening` now plays final13; one asset feeds all six sites.
+  - Measured read-back: frames 450–780, `release_in_cache_s` 1.0, axis check clean, MI PatternWidthM 37.629 (18.8 m track).
+  - It passed the stage-hash check (v4, border in).
+  - Backup `PreBakeImport-GC_CurtainDrop_Opening-20260930-162139`.
+  - `MI_CurtainVelvet_DeepRed_Drop` is also the parent of Rig's border material. The pattern-width change reaches it:
+    invisible on black (inferred), noted to Rig.
+- **Transitions**: fit at `hold_at="release"`, lead 4.0 s: each holds bake sample 479 until 16.0 s, then falls.
+  - Five sequences saved; backup `PreTransitionDrapes-20260930-162304`.
+  - `verify_transition_fit`: ok, all eleven checks true at I1–I5.
+- **Opening**: `opening_hold_at_release` applied. HOLD 0–49 is a one-tick window at 23200 ticks (sample 479), FALL
+  49–299 from the same point (ends 10.97 s < 11.0 s), PILE 299–375.
+  - Read back equal to the plan. Backup `PreOpeningHoldAtRelease-20260930-162328`.
+- **Rendered check** (`rendered_check_drape.py`, measured): Sequencer posed twice per frame (the GeometryCache rule), two
+  captures each, from the stalls seats, no exposure override.
+  - Opening: the two captures agree to a mean 0.02–0.23 of 255. The hold is frozen (20→48→49: 0.04–0.05), the release
+    starts with no pop (49→50: 0.10, 50→52: 0.49), and the pile has settled at 350.
+  - The top edge's gaps between pleat crests show the BLACK border, with no bright slots.
+  - Interaction 1 (P02, rotated): hold 200→399→400 at 0.09–0.12 (capture noise in a dark scene), release 400→402 at 0.28.
+    At frame 450 the curtain is down with the jungle revealed.
+  - Pictures: `Saved/CodexSoftGoods/RenderCheck/opening_final13_contact.png`, `interaction1_final13_contact.png`.
+- **Side effect**: capturing (spawning and destroying the transient capture actor) left the MAP dirty with no intended
+  change. It must NOT be saved. Quit the editor without saving.
+
 ## 30 Sep (14:00): THE CURTAIN TOP DOES NOT MASK (a comb of notches), the adaptive release, and a fourth gate
 
 Each claim below is marked with its evidence: **measured** (a test was run and read back), **declaration-proven** (read
