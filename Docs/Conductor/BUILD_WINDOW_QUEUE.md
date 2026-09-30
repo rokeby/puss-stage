@@ -18,6 +18,24 @@ proving it costs one extra compile:
    `RetainedExitLeavesNoGap` and `ExitHoldSurvivesLengthening`. **Expect red.**
 2. **Apply the fix hunks, rebuild, run again. Expect green.**
 
+**The exact commands are in `Scripts/patches/2026-09-30_KL_STAGING.md`, and no
+split patches are needed:** `git apply --include=` takes only the two test files
+for stage 1, `--exclude=` takes only the two fixes for stage 2. Both stages are
+verified to pass `git apply --check` on HEAD and to select exactly their two
+files. C touches neither, so it rides in either stage.
+
+**That note also pre-registers WHICH ASSERTIONS should be red in stage 1** — K's
+"key N stays at the same section-relative frame", L's "cuts cover the whole
+Scene" and "Exit starts where the designed shot ends", and the hold test's "still
+a 24000-frame hold at the new end". **The other assertions in each test should
+PASS.** That is what closes the last gap: a fixture fault would show up as the
+*wrong* assertions failing, which a bare red/green could not distinguish.
+
+**The reading table:** K still red after stage 2, on the same assertions →
+`MoveSection` does not carry keys, and the fix becomes a per-channel offset. **Any
+stage-1 red elsewhere, or a stage-1 GREEN, means fix the test before trusting
+anything.**
+
 **This is not optional for K.** K's test is the **measurement of an inference
 nobody here can read** — that `MoveSection` carries its keys, taken from a doc
 comment because the engine `.cpp` is not shipped. **If K's test is red after
