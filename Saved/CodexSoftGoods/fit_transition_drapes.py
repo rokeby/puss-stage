@@ -50,6 +50,10 @@ def mouth_of(actors, passage_number):
     passage = hits[0]
     route = passage.get_editor_property("route")
     if route:
+        # DISTANCE 0 IS LOAD-BEARING (30 Sep). The portal is built in the route-start frame. P02's route curves (tangent yaw
+        # 22.908 deg at 0 m, 24.30 at the first station), and at an 18.8 m track with about 10 cm to each 40 cm-deep post,
+        # 1.4 deg of yaw error puts the curtain's ends about +-23 cm fore and aft of the post plane. Never "improve" this
+        # to the first station.
         loc = route.get_location_at_distance_along_spline(0.0, unreal.SplineCoordinateSpace.WORLD)
         tan = route.get_tangent_at_distance_along_spline(0.0, unreal.SplineCoordinateSpace.WORLD)
         yaw = math.degrees(math.atan2(tan.y, tan.x))
