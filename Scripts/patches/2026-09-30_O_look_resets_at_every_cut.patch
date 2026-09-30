@@ -1,14 +1,17 @@
 diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
 new file mode 100644
-index 0000000..ce4ad82
+index 0000000..98bf77e
 --- /dev/null
 +++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
-@@ -0,0 +1,88 @@
+@@ -0,0 +1,201 @@
 +#include "Go1RemoteReceiverComponent.h"
 +
 +#include "Camera/CameraActor.h"
 +#include "Camera/CameraComponent.h"
++#include "Camera/PlayerCameraManager.h"
 +#include "Engine/World.h"
++#include "GameFramework/PlayerController.h"
++#include "Kismet/GameplayStatics.h"
 +#include "Misc/AutomationTest.h"
 +
 +#if WITH_DEV_AUTOMATION_TESTS
@@ -91,59 +94,183 @@ index 0000000..ce4ad82
 +	return true;
 +}
 +
++/** A blended view-target change eases the reset while both cameras are visible. */
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++	FGo1LookResetEasesAcrossBlendTest,
++	"InfinityStage.Go1.LookResetEasesAcrossBlend",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FGo1LookResetEasesAcrossBlendTest::RunTest(const FString& Parameters)
++{
++	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++	APlayerController* PlayerController = World->SpawnActor<APlayerController>();
++	// A bare world has no GameMode or local player, so supply the camera manager
++	// and controller-list entry that make IsViewBlendInFlight observable.
++	if (PlayerController && !PlayerController->PlayerCameraManager)
++	{
++		FActorSpawnParameters ManagerSpawn;
++		ManagerSpawn.Owner = PlayerController;
++		PlayerController->PlayerCameraManager = World->SpawnActor<APlayerCameraManager>(ManagerSpawn);
++		if (PlayerController->PlayerCameraManager)
++		{
++			PlayerController->PlayerCameraManager->InitializeFor(PlayerController);
++		}
++	}
++	if (PlayerController && UGameplayStatics::GetPlayerController(World, 0) != PlayerController)
++	{
++		World->AddController(PlayerController);
++	}
++	ACameraActor* ShotA = World->SpawnActor<ACameraActor>(FVector(0.0, 0.0, 200.0), FRotator(0.0, 30.0, 0.0));
++	ACameraActor* ShotB = World->SpawnActor<ACameraActor>(FVector(0.0, 1000.0, 200.0), FRotator(0.0, -90.0, 0.0));
++	for (ACameraActor* Camera : { ShotA, ShotB })
++	{
++		if (Camera && Camera->GetCameraComponent() && !Camera->GetCameraComponent()->IsActive())
++		{
++			Camera->GetCameraComponent()->Activate(true);
++		}
++	}
++	AActor* Host = World->SpawnActor<AActor>();
++	// Never registered: registering would open the telemetry socket.
++	UGo1RemoteReceiverComponent* Receiver = Host ? NewObject<UGo1RemoteReceiverComponent>(Host) : nullptr;
++
++	TestNotNull(TEXT("Fixture: player controller"), PlayerController);
++	TestTrue(TEXT("Fixture: camera manager"), PlayerController && PlayerController->PlayerCameraManager);
++	TestTrue(TEXT("Fixture: controller is player 0"),
++		PlayerController && UGameplayStatics::GetPlayerController(World, 0) == PlayerController);
++	TestTrue(TEXT("Fixture: two active cameras and a receiver"), ShotA && ShotB && Receiver);
++	const bool bFixture = PlayerController && PlayerController->PlayerCameraManager
++		&& UGameplayStatics::GetPlayerController(World, 0) == PlayerController
++		&& ShotA && ShotB && Receiver;
++	if (!bFixture)
++	{
++		World->DestroyWorld(false);
++		return true;
++	}
++
++	constexpr float Frame = 1.0f / 60.0f;
++	Receiver->RotationMode = EGo1RotationMode::Velocity;
++	Receiver->LookHandoverSeconds = 0.6f;
++	PlayerController->SetViewTarget(ShotA);
++	PlayerController->PlayerCameraManager->BlendTimeToGo = 0.0f;
++
++	// Free Look is 20 degrees off the authored aim on shot A.
++	Receiver->UpdateLook(ShotA, false, false, FVector2D(5.0, 0.0), Frame);
++	for (int32 Tick = 0; Tick < 60; ++Tick)
++	{
++		Receiver->UpdateLook(ShotA, false, false, FVector2D::ZeroVector, Frame);
++	}
++	TestTrue(TEXT("Fixture: looking 20 degrees off shot A"),
++		FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, 20.0, 0.01));
++
++	PlayerController->SetViewTargetWithBlend(ShotB, 1.0f);
++	TestTrue(TEXT("Fixture: a blend to shot B is in flight"),
++		PlayerController->PlayerCameraManager->BlendTimeToGo > 0.0f
++		&& PlayerController->GetViewTarget() == ShotB);
++
++	const int32 EaseTicks = FMath::CeilToInt(Receiver->LookHandoverSeconds / Frame);
++	const double MaxEaseStep = 20.0 * 1.5 * Frame / Receiver->LookHandoverSeconds + 0.01;
++	double PreviousYaw = Receiver->GetLookOffset().Yaw;
++	bool bMonotonic = true;
++	bool bNoVisibleStep = true;
++	for (int32 Tick = 0; Tick < EaseTicks; ++Tick)
++	{
++		Receiver->UpdateLook(ShotB, false, false, FVector2D::ZeroVector, Frame);
++		const double CurrentYaw = Receiver->GetLookOffset().Yaw;
++		bMonotonic &= CurrentYaw >= -1.0e-6 && CurrentYaw <= PreviousYaw + 1.0e-6;
++		// SmoothStep's maximum slope is 1.5, so this is the largest legitimate
++		// one-frame move for a 20-degree ease over LookHandoverSeconds.
++		bNoVisibleStep &= PreviousYaw - CurrentYaw <= MaxEaseStep;
++		PreviousYaw = CurrentYaw;
++	}
++	TestTrue(TEXT("During the blend the look eases monotonically toward zero"), bMonotonic);
++	TestTrue(TEXT("...without a step larger than the per-tick ease"), bNoVisibleStep);
++	TestTrue(TEXT("...and reaches authored aim within LookHandoverSeconds"),
++		Receiver->GetLookOffset().IsNearlyZero(0.001));
++
++	// Before the fix, LastViewTarget changed on the first blended tick but no
++	// reset began, so every assertion below saw the original 20-degree look.
++	PlayerController->PlayerCameraManager->BlendTimeToGo = 0.0f;
++	for (int32 Tick = 0; Tick < 10; ++Tick)
++	{
++		Receiver->UpdateLook(ShotB, false, false, FVector2D::ZeroVector, Frame);
++	}
++	TestTrue(TEXT("After the blend lands the look stays at authored aim"),
++		Receiver->GetLookOffset().IsNearlyZero(0.001));
++	TestTrue(TEXT("...and the left-behind camera is restored only after landing"),
++		ShotA->GetCameraComponent()->GetRelativeRotation().IsNearlyZero(0.001));
++
++	Receiver->ReleaseLook();
++	World->DestroyWorld(false);
++	return true;
++}
++
 +#endif
 diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
-index 79f4a88..0f4c7b7 100644
+index 79f4a88..08a5ca5 100644
 --- a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
 +++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
-@@ -381,15 +381,17 @@ void UGo1RemoteReceiverComponent::UpdateLook(
+@@ -380,18 +380,27 @@ void UGo1RemoteReceiverComponent::UpdateLook(
+ 
  	SettleLeftBehindLook(false);
  
- 	// A hard cut (a new view target with no blend in flight; the first camera
+-	// A hard cut (a new view target with no blend in flight; the first camera
 -	// seen is not a cut). Into a Timeline shot the look is dropped at once: the
 -	// cut hides it, and the shot should open exactly as authored.
-+	// seen is not a cut). The look is dropped at once: the cut hides it, and
-+	// the shot should open exactly as authored. Always into a Timeline shot;
-+	// into a dog-owned shot too while bResetLookAtCut (Gary, 30 Sep: "Reset at
-+	// every cut"), after which the dog looks around from the authored aim.
++	// A view-target change (the first camera seen is not a transition). A hard
++	// cut drops the look at once because the cut hides it. During a blend both
++	// cameras are visible, so ease the same reset instead of stepping it.
  	SecondsSinceHardCut += DeltaSeconds;
  	if (TargetActor != LastViewTarget.Get())
  	{
- 		if (LastViewTarget.IsValid() && !IsViewBlendInFlight())
+-		if (LastViewTarget.IsValid() && !IsViewBlendInFlight())
++		if (LastViewTarget.IsValid())
  		{
- 			SecondsSinceHardCut = 0.0f;
+-			SecondsSinceHardCut = 0.0f;
 -			if (bTimelineOwnsCamera)
-+			if (bTimelineOwnsCamera || bResetLookAtCut)
++			const bool bBlendInFlight = IsViewBlendInFlight();
++			if (!bBlendInFlight)
  			{
- 				SettleLookAtOnce();
+-				SettleLookAtOnce();
++				SecondsSinceHardCut = 0.0f;
++				if (bTimelineOwnsCamera || bResetLookAtCut)
++				{
++					SettleLookAtOnce();
++				}
++			}
++			else if (bTimelineOwnsCamera || bResetLookAtCut)
++			{
++				AccumulatedLook = FRotator::ZeroRotator;
++				BeginLookHandover();
  			}
+ 		}
+ 		LastViewTarget = TargetActor;
 diff --git a/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h b/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
-index 9f6cfb9..dc7629a 100644
+index 9f6cfb9..868c0b0 100644
 --- a/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
 +++ b/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
-@@ -188,14 +188,25 @@ public:
+@@ -188,14 +188,26 @@ public:
  	 * changes: a camera-owner change (Timeline, Gaze, Free Look), telemetry
  	 * arriving or lost, or a re-centre. The ease starts at the look as it
  	 * stands, so none of these steps the picture (Gary, 26 Sep: "don't jump").
 -	 * A cut between dog-owned cameras carries the look across unchanged; a
 -	 * hard cut into a Timeline shot drops it at once, since the cut already
 -	 * hides the change and the shot should open as authored.
--	 * 0 = settle at once.
 +	 * A hard cut drops the look at once whoever owns the camera (see
 +	 * bResetLookAtCut), since the cut already hides the change and the shot
-+	 * should open as authored. 0 = settle at once.
++	 * should open as authored. A blended change eases the look to zero over
++	 * this duration instead, because both cameras are then on screen.
+ 	 * 0 = settle at once.
  	 */
  	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera", meta = (ClampMin = "0.0", UIMax = "3.0"))
  	float LookHandoverSeconds = 0.6f;
  
 +	/**
-+	 * Reset the look at every hard cut (a new view target with no blend in
-+	 * flight), not only at a cut into a Timeline shot. Gary, 30 Sep, asked what
-+	 * the dog's look should do at a cut inside a Scene: "Reset at every cut";
-+	 * "it's not essential that dog has 'neck mobility' during cut scenes". So a
-+	 * Scene's authored cut opens as authored and the dog looks around from
-+	 * there. This includes the Passage -> Scene entry cut. Off restores the
-+	 * earlier behaviour: a cut between dog-owned cameras carried the look.
++	 * Reset the look whenever the view target changes, not only when the
++	 * Timeline takes the camera. Gary, 30 Sep, asked what the dog's look should
++	 * do at a cut inside a Scene: "Reset at every cut"; "it's not essential that
++	 * dog has 'neck mobility' during cut scenes". A hard cut resets instantly;
++	 * a blended transition eases to zero so neither visible camera steps. Off
++	 * restores the earlier behaviour between dog-owned cameras.
 +	 */
 +	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera")
 +	bool bResetLookAtCut = true;
@@ -151,3 +278,12 @@ index 9f6cfb9..dc7629a 100644
  
  	/**
  	 * Fallback only, ignored while Show ownership is governing: let a remote
+@@ -437,7 +449,7 @@ private:
+ 	FRotator LeftBehindDrivenRelative = FRotator::ZeroRotator;
+ 	FRotator LeftBehindWrittenRelative = FRotator::ZeroRotator;
+ 
+-	// Cut detection: a view-target change with no blend in flight.
++	// Transition detection: a view-target change, hard or blended.
+ 	TWeakObjectPtr<AActor> LastViewTarget;
+ 	float SecondsSinceHardCut = 1.0e6f;
+ 
