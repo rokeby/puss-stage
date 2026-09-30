@@ -174,8 +174,10 @@ def compiled_segments(show):
 
 
 def downstream_keyed_passages(master, after_s):
-    """Passage sections starting at or after after_s (Master seconds) that carry a channel with 2+ keys. A single key is a
-    constant and survives any shift; two or more are a score tied to absolute Master frames."""
+    """Passage sections starting at or after after_s (Master seconds) that carry a VARYING channel (2+ distinct key
+    values). A single key, or several with one value, is a constant and survives any shift; a varying channel is a score
+    tied to absolute Master frames. Measured 30 Sep (probe_passage_key_alignment): every keyed channel on the Master sits
+    BEFORE its section, P02's exactly 195.8 s behind (the 29 Sep Scene 1 extension); only P01's wing channels vary."""
     found = []
     for track in master.get_tracks():
         if "InfinityPassage" not in track.get_class().get_name():
@@ -186,9 +188,9 @@ def downstream_keyed_passages(master, after_s):
                 continue
             multi = []
             for ch in sec.get_all_channels():
-                n = len(ch.get_keys())
-                if n >= 2:
-                    multi.append(f"{ch.get_editor_property('channel_name')}={n}")
+                values = {round(float(k.get_value()), 6) for k in ch.get_keys()}
+                if len(values) >= 2:       # 2+ keys with EQUAL values are a constant (P03's 50/50 mm focal, 30 Sep)
+                    multi.append(f"{ch.get_editor_property('channel_name')}={sorted(values)}")
             if multi:
                 found.append({"section_start_s": round(start, 3), "passage_guid": str(sec.get_editor_property("passage_guid")),
                               "multi_key_channels": multi})
