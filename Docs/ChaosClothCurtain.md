@@ -101,6 +101,17 @@ The dense cloth hangs perfectly but never settles. It moves at 14–16 mm/frame 
 - **Wrong if** final14 is under 2 mm, or final13 is over 3.
 - A near-miss goes to the Conductor as the frozen frame plus the number. The Conductor decides and it is recorded as an override. The threshold does not move.
 - If both fail, the lever is a longer settle: release at about 600 instead of 480, with the cache start following. That costs about 1.5 h of bake.
+  (Corrected the same day: a whole 900-frame bake is 5–6 h. The 1.5 h was only the added cost.)
+
+**RESULT, final13 (landed 14:37), measured:**
+- still **PASS at 0.9 mm/frame** (mean 0.73; under 2 mm from 0.2 s). **The prediction was wrong on the low side.** The
+  18.8 m, 23-fold hang is far quieter than final9's 17.77 m, 21-fold one. (The "wrong if" clause, above 3, was not hit,
+  but the 1.8–2.4 range missed.)
+- hang PASS; coverage PASS (0.101 m per side).
+- **top_masked FAIL**: 4,105 rays, the comb.
+- The pile needs Gary's eye.
+
+final13 is a complete candidate in every respect but the comb. final14 had not landed at the time of writing.
 
 ## 30 Sep (night): three overnight bakes, the traveller, and what is blocked
 
