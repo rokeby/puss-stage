@@ -108,7 +108,10 @@ def apply_one(seq, mouth, camera, plan, report_row):
     ch.set_default(True)
     ch.add_key(unreal.FrameNumber(0), True)
     gt = drape.add_track(unreal.MovieSceneGeometryCacheTrack)
-    for name, a, b, start_off, end_off in (("HOLD", 0, plan["fall_start"], 0, dur_ticks - one),
+    # HOLD loops a ONE-TICK window at the cache's start, so it shows exactly the first sample. The Opening's first
+    # version looped one DISPLAY frame (960 ticks): the evaluated time wandered up to 0.04 s, between cache samples,
+    # and flickered on a cloth still moving (30 Sep).
+    for name, a, b, start_off, end_off in (("HOLD", 0, plan["fall_start"], 0, dur_ticks - 1),
                                           ("FALL", plan["fall_start"], plan["end"], 0, 0)):
         if b <= a:
             continue
