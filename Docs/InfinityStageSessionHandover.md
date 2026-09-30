@@ -213,8 +213,15 @@ Recorded because each is a class of fault, not a one-off.
   p99 of **16** and looked black; the show's real setting gave **194**; and a
   capture with **no exposure override at all** was **byte-identical to the show**,
   because a SceneCapture2D picks up the unbound global PostProcessVolume by itself.
-  **At least one design decision rested on this** — "at 48° the hangar is still
-  black" was half the argument for a 30° tilt cap, and needs re-taking. Also:
+  **RE-MEASURED AND RESOLVED (30 Sep 02:30):** every Scene 4 reading was re-taken
+  with no override and **stands, to 0.05 of 255** — because the override had never
+  taken effect there at all (min/max brightness only act in an AUTO exposure
+  method, and the hangar has its own bound volume). Only the Opening seat moved,
+  by about half a stop. **So the 30° tilt cap rests on photometry as well as
+  composition: 48° is black in v2 (p99 0.0), and at 17.8 s even 30° is black
+  because the upright roof is unlit BEFORE the swing — while at 21.5 s, 30° reads
+  strongly (p99 213). The look-up should therefore start WITH the swing at 18.5 s,
+  not before it.** Also:
   a capture's `HiddenComponents` hides **primitives only, not lights**, so a true
   "before" frame must be taken before the light exists.
 
