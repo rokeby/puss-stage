@@ -68,6 +68,10 @@ def main():
     # its height; the hem then floats, so read only the top band from such a run).
     cloth.location.z += float(os.environ.get("MASK_Z_OFFSET_M", "0"))
     drop.add_stage_colliders()
+    # MASK_EXTRA_BOXES: what-if masking pieces (a border or teaser) as JSON [{"name", "min_cm", "max_cm"}] in UE world cm,
+    # the same convention as Rig's collider file. They are obstacles for the rays and drawn in any render.
+    for box in json.loads(os.environ.get("MASK_EXTRA_BOXES") or "[]"):
+        drop.collider_from_corners(box["name"], drop.aabb_corners(box), side_hide=False)
     scene.frame_set(FRAME)
     dg = bpy.context.evaluated_depsgraph_get()
     unmasked, through, rows = 0, 0, []
