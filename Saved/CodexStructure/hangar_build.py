@@ -18,7 +18,8 @@ yaw kept, so Scene 2's rotated dock works; origin on the camera at floor level, 
 WHAT IS PARAMETRIC (HANGAR_PARAMS in globals; defaults are Scene 4's): depth, half-width, height, hinge height,
 floor/apron/exposure-volume on or off (a site whose own ground is the floor gets none),
 wall and floor thickness, apron, lattice height and fly, beam/bulb/practical spacing,
-rail and uplight positions (as fractions of the half-width), ghost light position, roof
+the COUNTS and spacings of rails, bulbs, glow lights (within a light budget), practicals and
+uplights, which grow with the hall (Scene 4: 3 rails at +-8 m, 3 uplights at +-6 m), ghost light position, roof
 on/off, practical height, pinned exposure, placeholder tag, and K. K defaults to
 sqrt(max(depth, 2 x height) / 6000): 1 for Scene 4; a deeper or taller box rises slower
 ("a taller wall is a longer rise, not a broken one"). Every position derives from those.
@@ -59,7 +60,8 @@ BULB_MAT = "/Game/InfinityStage/RigAtmos/M_RigAtmos_WorkBulb"
 FPS = 30
 HANGAR = {"scene": 4, "depth": 6000.0, "half_w": 1000.0, "height": 3000.0, "wall_t": 50.0, "floor_t": 20.0,
           "apron": 500.0, "lattice_z": 1200.0, "lattice_fly": 1600.0, "beam_step": 400.0, "bulb_step": 750.0,
-          "rail_frac": (-0.8, 0.0, 0.8), "uplight_frac": (-0.6, 0.0, 0.6), "practical_first": 1000.0,
+          "rail_pitch": 800.0, "rail_margin": 200.0, "uplight_pitch": 600.0, "uplight_margin": 400.0,
+          "glow_budget": 150, "practical_first": 1000.0,
           "practical_step": 800.0, "practical_z": 700.0, "ghost_x": 2500.0, "ghost_y": -400.0, "roof": True,
           "pinned_ev100": 0.5, "placeholder": False, "k": None, "allow": (), "floor": True, "apron_slab": True, "ppv": True, "hinge_z": 0.0}
 HANGAR.update(globals().get("HANGAR_PARAMS", {}))
@@ -68,6 +70,13 @@ HANGAR.update(globals().get("HANGAR_PARAMS", {}))
 def fail(msg):
     unreal.log_error("HANGAR_BUILD_STOPPED|" + msg)
     raise RuntimeError(msg)
+
+
+def ranked(half_w, pitch, margin):
+    """Evenly pitched positions across the width, centred, keeping margin from each wall:
+    Scene 4's 3 rails (+-8 m) and 3 uplights (+-6 m) at 20 m wide; more as the hall widens."""
+    n = int((2.0 * half_w - 2.0 * margin) // pitch) + 1
+    return [(-(n - 1) / 2.0 + j) * pitch for j in range(n)]
 
 
 def plan_for(h):
@@ -115,15 +124,20 @@ def plan_for(h):
         beams += 1
         add(f"{P} Hangar Lattice Beam {beams:02d}", "slab", (x, 0.0, fly_z), (26.0, 2.0 * w, 34.0), fly, mat="lattice", shadows=False)
         x += h["beam_step"]
-    for r, frac in enumerate(h["rail_frac"]):
-        add(f"{P} Hangar Lattice Rail {r + 1}", "slab", (d / 2.0, frac * w, fly_z + 34.0), (d, 26.0, 34.0), fly, mat="lattice", shadows=False)
+    rails = ranked(w, h["rail_pitch"], h["rail_margin"])
+    for r, ry in enumerate(rails):
+        add(f"{P} Hangar Lattice Rail {r + 1}", "slab", (d / 2.0, ry, fly_z + 34.0), (d, 26.0, 34.0), fly, mat="lattice", shadows=False)
     per_rail = max(1, int(round(d / h["bulb_step"])))
     step = d / per_rail
-    for r, frac in enumerate(h["rail_frac"]):
+    # Every bulb glows as an emissive; a real light rides only every Nth one past the budget,
+    # so a big hall's lattice reads without hundreds of lights.
+    every = max(1, -(-len(rails) * per_rail // int(h["glow_budget"])))
+    for r, ry in enumerate(rails):
         for i in range(per_rail):
             bulb = f"{P} Lattice Bulb {r + 1}-{i + 1}"
-            add(bulb, "bulb", (step / 2.0 + i * step, frac * w, fly_z + 11.0), (6.0, 6.0, 6.0), fly)
-            add(f"{P} Lattice Glow {r + 1}-{i + 1}", "glow", (step / 2.0 + i * step, frac * w, fly_z + 11.0), parent=bulb)
+            add(bulb, "bulb", (step / 2.0 + i * step, ry, fly_z + 11.0), (6.0, 6.0, 6.0), fly)
+            if (r * per_rail + i) % every == 0:
+                add(f"{P} Lattice Glow {r + 1}-{i + 1}", "glow", (step / 2.0 + i * step, ry, fly_z + 11.0), parent=bulb)
     gx, gy = h["ghost_x"], h["ghost_y"]
     ghost_row = min(rows - 1, int(gx // tile_x))
     ghost_parent = f"{P} Hangar Floor {ghost_row + 1} Hinge"
@@ -142,9 +156,11 @@ def plan_for(h):
                 mat="steel", shadows=False)
             add(f"{P} Practical {side}{i + 1}", "practical", (px, sign * (w - 40.0), h["practical_z"] - 10.0), parent=hinge,
                 rot=(0.0, -35.0, -90.0 * sign), order=i)
-    for i, frac in enumerate(h["uplight_frac"]):
-        add(f"{P} Uplight {i + 1}", "uplight", (d - 150.0, frac * w, 30.0), parent=far, rot=(0.0, 89.0, 0.0), order=i)
-    return items, {"rows": rows, "cols": cols, "beams": beams, "bulbs": per_rail * len(h["rail_frac"]), "practicals": 2 * len(xs)}
+    ups = ranked(w, h["uplight_pitch"], h["uplight_margin"])
+    for i, uy in enumerate(ups):
+        add(f"{P} Uplight {i + 1}", "uplight", (d - 150.0, uy, 30.0), parent=far, rot=(0.0, 89.0, 0.0), order=i)
+    return items, {"rows": rows, "cols": cols, "beams": beams, "rails": len(rails), "bulbs": per_rail * len(rails),
+                   "glows": sum(1 for it in items if it["kind"] == "glow"), "practicals": 2 * len(xs), "uplights": len(ups)}
 
 
 def corners(item):
@@ -445,7 +461,7 @@ def main():
         t = T(16.5) + (i // 2) * T(0.3)
         key_intensity(spawned[it["label"]], [(0.0, 0.0), (t, 0.0), (t + T(0.2), 400.0)])
     for it in (it for it in items if it["kind"] == "uplight"):
-        t = T(18.0) + it["order"] * T(0.15)
+        t = T(18.0) + (it["order"] % 3) * T(0.15)            # Scene 4's three strikes, repeated along a wider wall
         key_intensity(spawned[it["label"]], [(0.0, 0.0), (t, 0.0), (t + T(0.2), 10000.0)])
     for it in (it for it in items if it["kind"] == "glow"):
         key_intensity(spawned[it["label"]], [(0.0, 0.0), (T(4.0), 0.0), (T(8.0), 20.0)])
