@@ -42,6 +42,11 @@ CLOTH_LABEL = globals().get("CLOTH_LABEL", "P04 Backcloth (baked)")
 CLOTH_X, SPEED = 10450.0, 250.0
 BACKCLOTH_LEAD_S = globals().get("BACKCLOTH_LEAD_S")
 RELEASE_IN_CACHE_S = globals().get("RELEASE_IN_CACHE_S")     # optional cross-check only
+# Hold the LAST pre-release sample (Soft goods + conductor, 30 Sep): the section starts one frame before
+# the release with StartFrameOffset = release_in_cache - 1 frame, so the engine's clamp before the section
+# returns sample 479 (a curtain at rest, identical to 451 for final11), not sample 450 plus a second of
+# still-settling hang; length = duration - offset, so it cannot loop. False = the original layout.
+HOLD_PRE_RELEASE = bool(globals().get("HOLD_PRE_RELEASE", True))
 SOFTGOODS = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods")
 BAKE_FPS = 30.0                                                # Soft goods' bake and plan rate
 
@@ -60,6 +65,7 @@ def api_checks():
         p = unreal.MovieSceneGeometryCacheParams()
         p.set_editor_property("play_rate", 1.0)
         p.get_editor_property("geometry_cache_asset")
+        p.set_editor_property("start_frame_offset", unreal.FrameNumber(0))
         out["gc_params"] = True
     except Exception as exc:
         out["gc_params"] = f"FAIL {exc}"
@@ -131,12 +137,19 @@ def main():
     disagree = (RELEASE_IN_CACHE_S is not None and in_cache is not None and abs(float(RELEASE_IN_CACHE_S) - in_cache) > 1.0 / BAKE_FPS)
     missing = [k for k, v in (("BACKCLOTH_LEAD_S", BACKCLOTH_LEAD_S), ("release time in the cache", in_cache)) if v is None]
     release_s = cross_s - float(BACKCLOTH_LEAD_S) if BACKCLOTH_LEAD_S is not None else None
-    start_s = release_s - in_cache if release_s is not None and in_cache is not None else None
     duration = float(gcc.get_duration()) if gcc and gcc.get_editor_property("geometry_cache") else None
+    frame = 1.0 / BAKE_FPS
+    offset_s = (in_cache - frame) if (HOLD_PRE_RELEASE and in_cache is not None) else 0.0
+    start_s = None
+    if release_s is not None and in_cache is not None:
+        start_s = release_s - frame if HOLD_PRE_RELEASE else release_s - in_cache
+    length_s = duration - offset_s if duration is not None else None
     plan = {"cloth_label": CLOTH_LABEL, "cache": gcc.get_editor_property("geometry_cache").get_path_name() if gcc and gcc.get_editor_property("geometry_cache") else None,
             "cross_s": round(cross_s, 4), "cloth_release_s": round(release_s, 4) if release_s is not None else None,
             "section_start_s": round(start_s, 4) if start_s is not None else None, "missing_required": missing,
-            "duration_s": duration, "section_end_s": round(start_s + duration, 4) if duration and start_s is not None else None,
+            "duration_s": duration, "hold_pre_release": HOLD_PRE_RELEASE, "start_offset_s": round(offset_s, 4),
+            "section_length_s": round(length_s, 4) if length_s is not None else None,
+            "section_end_s": round(start_s + length_s, 4) if length_s is not None and start_s is not None else None,
             "lead_s": BACKCLOTH_LEAD_S, "release_in_cache_s": in_cache, "release_in_cache_from": in_cache_src,
             "release_in_cache_passed": RELEASE_IN_CACHE_S, "release_disagrees": disagree, "checks": checks,
             "gc_track_class": hasattr(unreal, "MovieSceneGeometryCacheTrack"),
@@ -178,9 +191,12 @@ def main():
         params = sec.get_editor_property("params")
         params.set_editor_property("geometry_cache_asset", gcc.get_editor_property("geometry_cache"))
         params.set_editor_property("play_rate", 1.0)
+        tick = rise.get_tick_resolution()
+        tick_rate = tick.numerator / tick.denominator
+        params.set_editor_property("start_frame_offset", unreal.FrameNumber(int(round(offset_s * tick_rate))))
         sec.set_editor_property("params", params)
-        # Section range in the sequence's TICK resolution, so the end is exactly start + duration.
-        sec.set_range_seconds(start_s, start_s + duration)
+        # Section range in the sequence's TICK resolution: start + length = the cache's end exactly.
+        sec.set_range_seconds(start_s, start_s + length_s)
         ev = sec.get_editor_property("eval_options")
         ev.set_editor_property("completion_mode", unreal.MovieSceneCompletionMode.KEEP_STATE)
         sec.set_editor_property("eval_options", ev)
@@ -189,8 +205,22 @@ def main():
         with open(RECORD, "w", encoding="utf-8") as fh:
             json.dump({"written": datetime.datetime.now().isoformat(timespec="seconds"), "binding": binding.get_id().to_string(), "plan": plan}, fh, indent=1)
         got = (sec.get_start_frame_seconds(), sec.get_end_frame_seconds())
-        if abs(got[0] - start_s) > 1.0 / fps or abs((got[1] - got[0]) - duration) > 1.0 / fps:
-            fail(f"section landed at {got}, wanted [{start_s:.4f}, {start_s + duration:.4f}] (NOT saved)")
+        if abs(got[0] - start_s) > 1.0 / fps or abs((got[1] - got[0]) - length_s) > 1.0 / fps:
+            fail(f"section landed at {got}, wanted [{start_s:.4f}, {start_s + length_s:.4f}] (NOT saved)")
+        # The engine's own mapping, through the Arrival, before saving: 1 s before the section the cache
+        # must read the offset (the held sample), and at the release 1.0 s in.
+        show = unreal.load_asset("/Game/InfinityStage/Dev/DA_InfinityStage_V1Show")
+        srate = show.get_editor_property("tick_resolution")
+        srate = srate.numerator / srate.denominator
+        tr = unreal.new_object(unreal.InfinityStageTransportController)
+        tr.build_segments(show)
+        s4 = next(s for s in tr.get_editor_property("segments") if str(s.get_editor_property("label")).startswith("Scene 4")).get_editor_property("start_frame").value
+        del tr
+        at = lambda t: arrival.resolve_backcloth_time_at_master_frame(show, unreal.FrameTime(frame_number=unreal.FrameNumber(int(round(s4 + t * srate))), sub_frame=0.0), duration)
+        held, at_release = at(start_s - 1.0), at(release_s)
+        plan["readback_cache_s"] = {"one_s_before_section": held, "at_release": at_release}
+        if held is None or at_release is None or abs(held - offset_s) > 0.5 * frame or abs(at_release - in_cache) > 0.5 * frame:
+            fail(f"Arrival mapping: held {held} (want {offset_s:.4f}), at release {at_release} (want {in_cache}) (NOT saved)")
     if not unreal.EditorAssetLibrary.save_asset(RISE, only_if_is_dirty=False):
         fail("sequence save failed")
     if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level():
