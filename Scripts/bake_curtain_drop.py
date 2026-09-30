@@ -258,9 +258,12 @@ def add_stage_colliders():
     boxes = spec["options"][option] if option != "v2" else spec["boxes"]
     first, built = None, {"boxes": 0, "housings": 0}
     for box in boxes:
-        o = collider_from_corners(box["name"], aabb_corners(box), side_hide=box["name"].startswith(("Post", "Header")))
+        o = collider_from_corners(box["name"], aabb_corners(box),
+                                  side_hide=box["name"].startswith(("Post", "Header", "Wing", "Border")))
         built["boxes"] += 1
-        if POSTS_FROM and box["name"].startswith("Post"):
+        # Anything standing where the wide FLAT setup sheet hangs is parked until POSTS_FROM: posts at the stage front,
+        # wings at a passage end (30 Sep), or any box marked "park": true.
+        if POSTS_FROM and (box["name"].startswith(("Post", "Wing")) or box.get("park")):
             o.location.z -= 40.0
             o.keyframe_insert("location", index=2, frame=POSTS_FROM - 1)
             o.location.z += 40.0

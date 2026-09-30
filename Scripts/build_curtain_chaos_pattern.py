@@ -50,9 +50,10 @@ def _project_root() -> Path:
 PROJECT_ROOT = _project_root()
 OUTPUT_DIR = PROJECT_ROOT / "DerivedAssets" / "CurtainCloth" / "Chaos"
 
-# Stage geometry (metres). Matches SM_FireSafetyCurtain_01.
-TRACK_WIDTH = 17.77
-DROP = 10.0
+# Stage geometry (metres). Defaults match SM_FireSafetyCurtain_01. 30 Sep: overridable for cloths sized to another
+# aperture (the passage-end backcloth hangs between the last wings, under the borders).
+TRACK_WIDTH = float(os.environ.get("CURTAIN_TRACK_M", "17.77"))
+DROP = float(os.environ.get("CURTAIN_DROP_M", "10.0"))
 FULLNESS = float(os.environ.get("CURTAIN_FULLNESS", "2.0"))
 SEAM_WIDTH_M = 1.37                     # one bolt of cloth
 # Grid spacing: quads per bolt width. 9 per bolt = 15.2 cm (interactive), 15 = 9.1 cm (the bake resolution).
