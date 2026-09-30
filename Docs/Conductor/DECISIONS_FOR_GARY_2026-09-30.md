@@ -140,15 +140,28 @@ The sheet shows it directly with a 1-second exposure at each rise's fastest mome
 **So the K law is vindicated, and the real finding is elsewhere: from where the cat
 stands, Scene 5's rise is mostly invisible.**
 
-| From the stop | Scene 5 | Scene 4 |
-| --- | --- | --- |
-| Frame before about 12 s | black (p99 1–2) | — |
-| Frame lit after landing | **1.2%** | **20.8%** |
+**Corrected at 08:30 — the first numbers compared mismatched phases.** Measured
+from the stop at Scene 4's beats scaled by K, and there is a second sheet for it
+(`WhyS5Dark_Sheet.png`):
 
-Its lights scaled with the box, but at 150 m they are points. **This is Scene 4's
-dark-hold problem again, worse**, and it will not be fixed by scaling — a room
-that big needs a different lighting approach, not a proportionally larger one.
-If you take the lattice glow for Scene 4 (A2), it scales here to 6.3–12.6 s.
+| Phase | Scene 4 lit | Scene 5 lit |
+| --- | --- | --- |
+| landed | 1.0% | 1.2% — the same |
+| uplights on | 20.7% | **2.8%** |
+| roof shut | 20.7% | **2.8%** |
+| end | 24.0% | **4.9%** |
+
+**So Scene 5 is 5–7× darker, not 17×.** On the floor half of the frame alone it is
+20.6% against 2.0%. It is also black from the stop until about 12 s.
+
+**The why, in a picture rather than a number:** Scene 4's lights sit metres from
+surfaces the cat sees, so light fills the frame. Scene 5's walls are 100 m to each
+side and the far wall 150 m, so the same rig hangs as **points and cones in a
+void**. The sheet's last panel brightens the frame by 6.6 stops — measured from
+the pixels, not assumed — and shows the floor is there and unlit except under the
+ghost light. **The rig scaled in number; its distance to anything the cat can see
+scaled too.** That is why scaling cannot fix it. If you take the lattice glow for
+Scene 4 (A2), it scales here to 6.3–12.6 s.
 
 **Recommendation: accept the rise; treat Scene 5's lighting as its own job.** It
 is Tier 3 work, not a rise problem, and it is now measured rather than suspected.
@@ -178,6 +191,32 @@ where the audience is looking, and only matters from outside — which nobody se
 
 **Also visible on the sheet:** at 12 s Scene 6 is still rising **through its flat
 ground plane**. That is the known S1/S5/S6 fault, now with a picture of it.
+
+### B4. The hangars rise through the ground at FIVE sites, not three
+Found by two read-only surveys. **Two different mechanisms, so two different
+jobs** — and Rig's own note is that their builder allowed all five by name, so
+these were deferrals rather than misses.
+
+**The three PLANES — S1, S5, S6 — are one parametric fix. [conductor approved]**
+Each Passage's hand-placed floor plane runs on past the Passage end: S1's by
+**399 m**, S6's by 139 m, S5's by 16 m. Nothing stands on any of them beyond the
+hinge line. The fix ends each plane AT its hinge line, exactly as P04's Structure
+Ground already does — void beyond, the box hanging in it. **The near end is
+untouched, so the Passages themselves do not change.** I approved this as
+conforming three sites to a convention P04 already sets, not as a new look:
+reversible, backed up, with a revert script. **Say if you disagree and it comes
+straight back out** — the visible change is that ground beyond the stop becomes
+void, which at show exposure is dark either way.
+
+**The two LANDSCAPES — S2, S3 — are NOT approved and are waiting for you.** S2's
+forested landscape covers its whole footprint at hinge level; **S3's wet ground
+sits 1.2 m ABOVE its lowered hinge**, so that box rises through terrain where your
+cast is standing. A landscape cannot be shortened — it needs a hole, via a
+visibility layer or a hole material. That is a different and riskier job, it
+touches the P02 and P03 environments, and **no stream currently owns those**.
+**Recommendation: yes in principle, but say who owns it**, and let it be a
+daylight job rather than an overnight one. Previously recorded as S3 being "built
+around its cast", which undersold it.
 
 ---
 
