@@ -1,5 +1,15 @@
 {
- "version": 3,
+ "version": 4,
+ "history": [
+  {
+   "version": 4,
+   "when": "2026-09-30T14:52",
+   "what": "ADDED box 'Portal border (black velvet)' [45,-990,1020]..[50,990,1100]. Nothing else changed.",
+   "why": "masks the comb above the Opening drape (Soft goods' ray test on final13 f479: 0 rays through; the lowered header leaked 324)",
+   "consequence": "every bake simulated against this file AFTER this edit collides with the border; bakes before it (final13 and earlier) did not",
+   "sha256_before": "fc3a88dbe76cbc968c64dff777471ebb7c5f79b7c4159e4b7e2ec4e8c9a65467"
+  }
+ ],
  "baked_version": "v2 at 070ffe4 is what the running curtain bake uses; delta_from_v2 lists every box that differs",
  "delta_from_v2_cm": {
   "Stage floor: ground beyond the mouth": 3.2,
@@ -254,6 +264,20 @@
     2000.0,
     -120.0
    ]
+  },
+  {
+   "name": "Portal border (black velvet)",
+   "min_cm": [
+    45,
+    -990,
+    1020
+   ],
+   "max_cm": [
+    50,
+    990,
+    1100
+   ],
+   "note": "built 30 Sep 14:52 by Saved/CodexStructure/portal_border_apply.py at all six mouths (portal frame; P02 rotated 22.91 deg); upstage of the header, masks the curtain-top comb"
   }
  ],
  "lamp_housings": [
