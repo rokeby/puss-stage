@@ -178,8 +178,17 @@ void AInfinityStageCameraRig::UpdateShadowFigureVisibility()
     }
 }
 
+bool AInfinityStageCameraRig::ShouldDrawShadowCatBody() const
+{
+    const UWorld* World = GetWorld();
+    return bShadowCatRenderInMainPass && !(World && World->IsGameWorld());
+}
+
 void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
 {
+    // Live: the cat is present for its SHADOW (the follow light throws it
+    // ahead); in a game world its body stays out of the main pass, so no camera
+    // ever sees a cat in front of it. Not live: neither body nor shadow.
     const bool bShowCat = bEnableShadowCat && bShadowFiguresLive;
     if (AActor* CatActor = ShadowCat ? ShadowCat->GetChildActor() : nullptr)
     {
@@ -188,6 +197,8 @@ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
         for (USkeletalMeshComponent* CatMesh : CatMeshes)
         {
             CatMesh->SetHiddenInGame(!bShowCat, true);
+            CatMesh->SetRenderInMainPass(ShouldDrawShadowCatBody());
+            CatMesh->SetCastShadow(bShadowCatCastShadow);
         }
     }
     if (FollowLight)
@@ -430,7 +441,7 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
         CatMesh->SetVisibility(bEnableShadowCat, true);
         CatMesh->SetHiddenInGame(!(bEnableShadowCat && bShadowFiguresLive), true);
         CatMesh->SetCastShadow(bShadowCatCastShadow);
-        CatMesh->SetRenderInMainPass(bShadowCatRenderInMainPass);
+        CatMesh->SetRenderInMainPass(ShouldDrawShadowCatBody());
         CatMesh->SetVisibleInRayTracing(bShadowCatVisibleInReflections);
     }
 

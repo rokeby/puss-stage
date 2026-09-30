@@ -208,6 +208,14 @@ private:
     void ConfigureShadowCat();
     void ApplyShadowFigureVisibility();
 
+    /**
+     * Whether the cat's BODY is drawn. Never in a game world: the camera IS the
+     * cat in any passage or curtain view (Gary, 30 Sep: "we are always the cat
+     * when in passage or curtain view"), so only its shadow may appear. The
+     * editor keeps the body (per bShadowCatRenderInMainPass) for authoring.
+     */
+    bool ShouldDrawShadowCatBody() const;
+
     /** See AreShadowFiguresLive. Starts true so the editor shows the figures; game worlds re-derive it. */
     bool bShadowFiguresLive = true;
     void DestroyOrphanedShadowCats();

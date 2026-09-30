@@ -4,6 +4,7 @@
 #include "Camera/PlayerCameraManager.h"
 #include "CineCameraComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -50,6 +51,16 @@ bool FInfinityStageShadowFiguresOnlyWhenLiveTest::RunTest(const FString& Paramet
             const AActor* Cat = Rig->ShadowCat ? Rig->ShadowCat->GetChildActor() : nullptr;
             return !Cat || Cat->IsHidden();
         };
+        const auto CatMeshes = [Rig]()
+        {
+            TArray<USkeletalMeshComponent*> Meshes;
+            if (AActor* Cat = Rig->ShadowCat ? Rig->ShadowCat->GetChildActor() : nullptr)
+            {
+                Cat->GetComponents(Meshes);
+            }
+            return Meshes;
+        };
+        TestTrue(TEXT("Fixture: the shadow cat has a mesh"), CatMeshes().Num() > 0);
 
         // The Opening case: another camera is live, so this rig's cat must not be in its shot.
         PlayerController->SetViewTarget(Stalls);
@@ -61,8 +72,20 @@ bool FInfinityStageShadowFiguresOnlyWhenLiveTest::RunTest(const FString& Paramet
         PlayerController->SetViewTarget(Rig);
         Rig->UpdateShadowFigureVisibility();
         TestTrue(TEXT("The rig the player looks through is live"), Rig->AreShadowFiguresLive());
-        TestFalse(TEXT("...and its cat is shown"), CatHidden());
+        TestFalse(TEXT("...and its cat is present"), CatHidden());
         TestTrue(TEXT("...and its follow light is on"), Rig->FollowLight->IsVisible());
+        // Gary, 30 Sep: "we are always the cat when in passage or curtain view".
+        // The camera IS the cat, so in a game world its body is never drawn;
+        // only the shadow the follow light throws ahead of it appears.
+        bool bBodyDrawn = false;
+        bool bCastsShadow = false;
+        for (const USkeletalMeshComponent* Mesh : CatMeshes())
+        {
+            bBodyDrawn = bBodyDrawn || Mesh->bRenderInMainPass != 0;
+            bCastsShadow = bCastsShadow || (Mesh->CastShadow != 0 && !Mesh->bHiddenInGame);
+        }
+        TestFalse(TEXT("...but its body is never drawn in a game world"), bBodyDrawn);
+        TestTrue(TEXT("...only its shadow is cast"), bCastsShadow);
 
         // Blending away: GetViewTarget() already reports the incoming stalls camera.
         PlayerController->SetViewTargetWithBlend(Stalls, 1.0f);
