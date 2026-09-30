@@ -40,3 +40,23 @@ RESOLVABLE difference in how crumpled the heap reads from the stalls.** The arit
 only say the difference is visible. Whether his approved image survives a coarser crumple is then a LOOK question for
 Gary, answered with the two piles side by side from the stalls camera, not by the number. The 25% fold-size tolerance
 remains provisional and has no derivation. It is flagged as such in the acceptance report.
+
+## Addendum (09:15, still before the 0.4/0.6/0.8 strips land): the noise floor, and the contingent next sweep
+
+**Mechanism correction.** The hem guide is released WITH the heading (pin stiffness keyed to 0 at the release frame),
+so it cannot constrain the FALL. It only shapes the cloth's state at the moment of release: how ordered the columns
+are, and how still. Any effect of the guide on the pile runs through that initial state.
+
+**The unmeasured noise floor comes first.** Every pile comparison today is one run against one run. A falling cloth is
+chaotic, so a different pleat seed alone may move fold size by an unknown amount. Until that spread is measured, a
+1.58x difference cannot be fully attributed to the recipe, and the 25% tolerance cannot be justified. Test:
+sw_ps_a10_g07 repeated with CURTAIN_SEED + 1 (the pleat gains change; nothing else does), same timeline.
+- If the two fold sizes differ by less than 10%, the 1.58x is the recipe.
+- If they differ by 25% or more, the pile metrics are too noisy to gate on as single runs, and the comparison must be
+  an ensemble, or a look.
+
+**Contingent next sweep, if outcome 1 holds (all amounts ~1.6x):** GUIDE STRENGTH, at a fixed amount: weights 0.7, 0.4
+and 0.2, watching fold size AND stillness together.
+- If fold size falls as the guide weakens while stillness holds under 2 mm, there is a window.
+- If stillness degrades in lockstep, this cloth cannot have both, and that is the finding for Gary. It is not a reason
+  for more bakes.
