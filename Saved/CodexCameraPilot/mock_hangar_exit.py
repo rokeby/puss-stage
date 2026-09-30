@@ -111,12 +111,16 @@ def main():
     i4 = cue_sequence(show, "Interaction 4")
 
     def mine():
-        return [a for a in subsystem.get_all_level_actors() if a.get_actor_label().startswith("ZZ_HangarExit")]
+        # Spawned TRANSIENT, so get_all_level_actors() does not list them (found the hard
+        # way on the first run); GameplayStatics iterates every actor in the world.
+        return [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+                if a.get_actor_label().startswith("ZZ_HangarExit")]
 
     if state is None or state.get("version") != STATE_VERSION:
         if [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()]:
             raise RuntimeError("Refusing: content dirty")
-        if [a for a in subsystem.get_all_level_actors() if a.get_actor_label().startswith("ZZ_")]:
+        if [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+                if a.get_actor_label().startswith("ZZ_")]:
             raise RuntimeError("Refusing: ZZ_ actors present")
         sequencer.open_level_sequence(s4)
         sequencer.set_current_time(frame_at(s4, S4_TIME))
@@ -167,7 +171,8 @@ def main():
             "Fallback_B_P05_stalls_after_cut")
     sequencer.close_level_sequence()
     os.remove(state_path)
-    left = [a.get_actor_label() for a in subsystem.get_all_level_actors() if a.get_actor_label().startswith("ZZ_")]
+    left = [a.get_actor_label() for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+            if a.get_actor_label().startswith("ZZ_")]
     unreal.log("PUSS_HANGAR_EXIT_MOCK_DONE|zz_left=%s" % left)
 
 
