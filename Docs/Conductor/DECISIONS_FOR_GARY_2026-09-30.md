@@ -402,15 +402,34 @@ the known hold-still fault.
 
 **Bottom edge: masked.** Sides: the known leak the 18.8 m track fixes.
 
-**ONE QUESTION, NOT THREE OPTIONS. The only fix that works is a longer drop** —
-heading at about **10.7 m**, so no sightline under the header's back edge can
-reach the top even at the deepest upstage trough. Moving the heading upstage does
-not work; the rays still pass over it. **That is 0.5 m more cloth, so the fall and
-the pile change** — and you approved that fall.
+**THE ANSWER IS A BORDER, AND IT IS MEASURED: 0 RAYS, WITH THE CLOTH UNCHANGED.**
 
-**Accept a row of bright slots at the Opening, or spend half a metre of cloth and
-re-judge the fall.** Nothing has been changed, and the ray test now runs on any
-cache in about a minute, so every future bake is judged on this too.
+A border 5 cm thick, hung **upstage of the heading** (x +45 to +50 cm) with its
+**bottom at 10.20 m** — 30 cm below the header underside, level with the drape's
+own heading — lets **not one ray through**, including the post-corner slivers. At
+10.35 m, 157 leak. **So 10.20 is the number, with margin.**
+
+**Upstage is what makes it work without hiding anything.** A border hung
+*downstage* would have to come down to 9.65 m to mask — and that **hides the top
+55 cm of the curtain.** At 9.90 it leaks 1,104 rays. **The border goes BEHIND the
+heading, not in front of it.**
+
+**Why this beats the alternatives:**
+- **No bake.** The cloth stays exactly as approved — the fall and the pile you
+  signed off are untouched.
+- **It fixes the class.** Any future drape, at any drop, is masked by the
+  architecture rather than by being tall enough.
+- **It is what a theatre does.** A house masks the top of its opening with a
+  border; it does not make the house curtain taller.
+- **It is more of what you have asked for all week** — *"more scaffold/rig
+  structure"*, *"situated inside a stage structure, not just under an open sky"*.
+  **A border is stage structure doing a job.**
+
+**So the question is now a look question, not a trade.** Rig is costing it at six
+mouths — whether it is a portal-builder parameter or new geometry. **The two
+cloth answers stay on the table as fallbacks:** accept the slots, or a 10.5 m
+drop (0.5 m masks it, 0.4 m leaves a sliver — measured) at four to five hours and
+a changed fall.
 
 ### A1b. THE CAMERA RIDES LOW AND TILTED THROUGH EVERY PASSAGE — and it is coupled to A1
 **You have the flip GIF.** At P04 → Scene 4 the camera rises **21.3 cm** and its
