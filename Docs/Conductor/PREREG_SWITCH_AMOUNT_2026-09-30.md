@@ -96,3 +96,25 @@ seed repeat, which remains the quantitative test.
 **On 0.6 being baked (final9/10/11): it was a GUESS that held, not a derived choice.** It was launched at 06:35 as the
 middle of the range, before any strip reported. If the seed repeat confirms that single runs are trustworthy, 0.6
 passes as a single run; it was still not selected by evidence. Anyone reading "0.6 is the amount" later should know that.
+
+## Noise floor result (10:50): single-run pile numbers are TOO NOISY TO GATE ON
+
+sw_ps_a10_g07 against sw_ps_a10_g07_s2: identical recipe, CURTAIN_SEED + 1, nothing else changed.
+
+| metric | seed 1 | seed 2 | seed2 / seed1 |
+|---|---|---|---|
+| fold size (m) | 1.304 | 0.934 | **0.72** |
+| width (m) | 9.233 | 7.607 | 0.82 |
+| layers | 2.91 | 3.41 | 1.17 |
+| height (m) | 0.395 | 0.440 | 1.11 |
+| depth (m) | 3.528 | 3.234 | 0.92 |
+
+**Fold size moved 28%, past the pre-registered 25% line.** Per the rule above, the pile metrics are too noisy to gate on
+as single runs: the comparison must be an ensemble, or a LOOK. Consequences, stated plainly:
+- The U shape (1.51 / 1.12 / 1.08 / 1.58) is within noise: the same recipe at 1.0 scored 1.58 on one seed and 1.13 on
+  the other. The amount is not shown to be a lever, and 0.6 is not shown to be better than 1.0.
+- The PILE half of this morning's final6/7/8 stop (the unguided switch's 2.05x) inherits this uncertainty. The STILLNESS
+  half stands: that was a trend that GREW over 30 s, which is not a single-draw artifact.
+- Stillness and hang are robust to the seed (still 0.41 vs 0.01 mm/frame, both passing; hang identical in kind).
+- The PILE gate becomes Gary's eye, with the numbers shown as context, which is what he has already been doing ("all
+  the piles look usable"). The 25% tolerance is withdrawn as a gate.

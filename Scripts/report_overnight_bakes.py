@@ -133,7 +133,11 @@ def judge_drape(d, ref):
         for k in PILE_KEYS:
             if p.get(k) is not None and r.get(k):
                 ratios[k] = round(p[k] / r[k], 2)
-        verdict["pile"] = bool(ratios) and all(abs(v - 1.0) <= PILE_TOL for v in ratios.values())
+        # 30 Sep noise floor (Docs/Conductor/PREREG_SWITCH_AMOUNT_2026-09-30.md): a seed change alone moved fold size
+        # 28%, width 18% and layers 17%. Single-run pile numbers are too noisy to gate on, so the pile verdict is "look"
+        # (None) unless a person's approval is recorded (--pile-approved). The ratios are shown as context only.
+        verdict["pile"] = None
+        verdict["pile_within_25pct_single_run"] = bool(ratios) and all(abs(v - 1.0) <= PILE_TOL for v in ratios.values())
     else:
         verdict["pile"] = None
     if d.get("collider_origin_cm"):
@@ -149,7 +153,8 @@ def judge_drape(d, ref):
         clearance = round((P01_OPENING_M - max(r["width_m"] for r in rows.values())) / 2.0, 3)
         hp["coverage_gap_per_side_m"], hp["post_clearance_per_side_m"] = gap, clearance
         verdict["coverage"] = gap <= COVERAGE_GAP_MAX_M and clearance >= POST_CLEARANCE_MIN_M
-    verdict["ALL"] = verdict["still"] and verdict["hang"] and all(v is not False for v in verdict.values())
+    verdict["ALL"] = verdict["still"] and verdict["hang"] and all(v is not False for k, v in verdict.items()
+                                                                 if k != "pile_within_25pct_single_run")
     return verdict, ratios
 
 
@@ -313,10 +318,11 @@ def main():
                 rname, r = "none (different site)", None
             ls, v = drape_lines(i, d, rname, r)
             approvals = dict(a.split("=", 1) for a in args.pile_approved)
-            if i in approvals and v.get("pile") is False:
+            if i in approvals and v.get("pile") is not True:
                 v["pile"] = True
                 v["pile_override"] = approvals[i]
-                v["ALL"] = v["still"] and v["hang"] and all(x is not False for k, x in v.items() if k not in ("ALL", "pile_override"))
+                v["ALL"] = v["still"] and v["hang"] and all(x is not False for k, x in v.items()
+                                                            if k not in ("ALL", "pile_override", "pile_within_25pct_single_run"))
                 ls.append(f"- **pile PASSED BY EYE (override)**: {approvals[i]}")
                 ls[0] = ls[0].replace(": FAIL", ": PASS" if v["ALL"] else ": FAIL").replace("pile False", "pile True (by eye)")
         body += ls + [""]
