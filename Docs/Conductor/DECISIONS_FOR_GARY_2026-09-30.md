@@ -373,6 +373,45 @@ line. **It reads as lights rising in a pit and a silhouette at the horizon, not
 as the box arriving early.** Whether that is acceptable is yours, but it is no
 longer a number.
 
+### A3b. THE CURTAIN DOESN'T MASK THE TOP — and at the Opening it's bright
+**You have both pictures.** Rays cast from the stalls seat through every other
+pixel, against the baked cloth and the real colliders: **4,132 samples get past
+the top of the curtain**, forming a **21-notch comb** — one V per upstage pleat
+trough, about 58 px tall.
+
+**The cause is the pleats themselves.** The heading is pinned at 10.20 m; the
+header's underside is at 10.50. Where a pleat swings up to 40 cm **upstage**,
+behind the header's back face, a sightline clears the curtain and still passes
+under the beam. **The pleating that makes the hang good is what opens the gap.**
+
+**It only matters at one mouth, and it is the worst one.** Overlaying the notches
+on the no-drape view:
+
+| | mean / p99 |
+| --- | --- |
+| **Opening (P01)** | **28 / 146 — bright**, on the lit gilded relief |
+| Interaction 1 (P02) | 6.6 / 118 — dark but for a green lantern |
+| Interactions 2–4 | p99 10–15 — invisible |
+| Interaction 5 | p99 22 — faint |
+
+**So this is not "the curtain leaks". It is "the first image of the show has a row
+of bright slots above the curtain"** — at the moment the audience is most
+attentive and least able to explain what it is seeing. **It is already live**: the
+current Opening drape has the same comb, plus the side wedges and lifted hem of
+the known hold-still fault.
+
+**Bottom edge: masked.** Sides: the known leak the 18.8 m track fixes.
+
+**ONE QUESTION, NOT THREE OPTIONS. The only fix that works is a longer drop** —
+heading at about **10.7 m**, so no sightline under the header's back edge can
+reach the top even at the deepest upstage trough. Moving the heading upstage does
+not work; the rays still pass over it. **That is 0.5 m more cloth, so the fall and
+the pile change** — and you approved that fall.
+
+**Accept a row of bright slots at the Opening, or spend half a metre of cloth and
+re-judge the fall.** Nothing has been changed, and the ray test now runs on any
+cache in about a minute, so every future bake is judged on this too.
+
 ### A1b. THE CAMERA RIDES LOW AND TILTED THROUGH EVERY PASSAGE — and it is coupled to A1
 **You have the flip GIF.** At P04 → Scene 4 the camera rises **21.3 cm** and its
 roll snaps from **−2.55° to 0** in one frame. **The rotation is the visible part**
