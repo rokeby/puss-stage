@@ -294,7 +294,16 @@ from a captured world base. That base was the root cause of the route-follow
 regression.
 
 **Camera owners (2026-09-26, Gary).** Passages 1–6 are Dog Gaze Only, Scene 6
-(the Void) is Dog Free Look, and everything else is Timeline. The live
+(the Void) is Dog Free Look, and everything else is Timeline. **Updated 2026-09-30:
+Scene 4 is Dog Gaze Only too** (Gary: "Puss maintains camera ownership so that
+when he peers over or looks up, it's his movement and the robot dog's movement
+in sync"). Applied under the conductor's delegation with
+`apply_camera_owners.py`: backup `Backups/PreCameraOwners-20260930-015519`, read
+back by a fresh dry run (`changes=[]`). The look over the lip (about −15°, 82% of
+the stick) and the look up at the stars (up to +18.2°) are OPPOSITE deflections
+of the ±18.2° Gaze range, not one shared budget. **Still unknown:** the robot's own
+body pitch in stand mode, which only its operator can measure; `Pitch Range Deg`
+is the knob that matches the projection's look to it. The live
 **Force Dog** override no longer applies inside Sequence cues (the Opening, the
 five Interactions, the Closing), so walking the dog cannot swing the camera
 behind the curtain. **Force Timeline** still wins everywhere (the dog-failure
