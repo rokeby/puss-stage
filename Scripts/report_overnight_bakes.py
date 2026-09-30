@@ -58,6 +58,12 @@ def fall_timing(d):
         low = low if low is not None else min(range(len(com)), key=lambda i: com[i])
         out["landing_at_s"] = round((first + low - d["release_frame"]) / FPS, 2)
         out["landing_rebound_m"] = round(max(com[low:low + 90]) - com[low], 3)
+        # A SOFT TAIL (the Conductor, 30 Sep): Rig sizes the Scene 4 section to the cache's duration, so a pile still
+        # creeping at the end becomes a visible hold at the boundary. COM settled = first frame from which it moves
+        # under 0.5 mm per frame for the rest of the cache.
+        last_moving = max((i for i in range(1, len(com)) if abs(com[i] - com[i - 1]) >= 0.0005), default=0)
+        out["com_settled_at_s"] = round((first + last_moving - d["release_frame"]) / FPS, 2)
+        out["cache_ends_at_s"] = round((d["frames"] - d["release_frame"]) / FPS, 2)
     return out
 
 
@@ -106,8 +112,13 @@ def site_ok(d):
         worst["y_max_m"] = max(worst["y_max_m"] or -1e9, a["y"][1])
         worst["abs_x_max_m"] = max(worst["abs_x_max_m"] or 0.0, abs(a["x"][0]), abs(a["x"][1]))
         worst["z_min_m"] = min(worst["z_min_m"] if worst["z_min_m"] is not None else 1e9, a["z"][0])
-    d["_site"] = {"hinge_y_m": hinge_y, "floor_half_width_m": half, **worst}
-    return worst["y_max_m"] < hinge_y - 0.5 and worst["abs_x_max_m"] < half and worst["z_min_m"] > -0.05
+    # MARGINS (the Conductor, 30 Sep): which criteria pass comfortably and which scrape. A marginal one shows up in
+    # Rig's integration as a bad frame, so say so in advance.
+    margins = {"hinge_m": round(hinge_y - 0.5 - worst["y_max_m"], 3), "boards_m": round(half - worst["abs_x_max_m"], 3),
+               "floor_m": round(worst["z_min_m"] + 0.05, 3)}
+    d["_site"] = {"hinge_y_m": hinge_y, "floor_half_width_m": half, **worst, "margins": margins,
+                  "tight": [k for k, v in margins.items() if 0 <= v < 0.25]}
+    return all(v > 0 for v in margins.values())
 
 
 def drape_lines(name, d, ref_name, ref):
