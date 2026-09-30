@@ -15,6 +15,9 @@ ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
 world = ed.get_editor_world()
 assert world and world.get_path_name().split(".", 1)[0] == EXPECTED_WORLD and ed.get_game_world() is None, "wrong world or PIE"
 assert not unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages(), "foreign dirty content"
+# No record means nothing to revert: the apply writes its record before any mutation (even on a dry run),
+# so it never ran. Held, not applied (handover, 28 Sep; revert audit, 30 Sep).
+assert os.path.exists(RECORD), "NOTHING TO REVERT: no record, so top_down_enable_apply.py never ran"
 record = json.load(open(RECORD, encoding="utf-8"))
 old = {t["guid"]: t for t in record["targets"]}
 show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)

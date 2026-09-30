@@ -33,6 +33,9 @@ if (unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()
 if any(a.get_actor_label().startswith("ZZ_")
        for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()):
     fail("stray ZZ_ actors in the level")
+# No record means nothing to revert: the apply writes its record before any mutation (even on a dry run),
+# so it never ran. Held, not applied (handover, 28 Sep; revert audit, 30 Sep).
+assert os.path.exists(RECORD), "NOTHING TO REVERT: no record, so p01_lip_floats_apply.py never ran"
 record = json.load(open(RECORD, encoding="utf-8"))
 remove = set(record["added_labels"])
 enable = set(record["disabled_labels"])

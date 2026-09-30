@@ -3,7 +3,10 @@ tagged RigAtmos.Scene{N}Hangar that the build CREATED (the labels in its record,
 those), and the sequence LS_S{N}_HangarRise it created. Refuses for Scene 4 (built by the
 five-pass scripts, with its own revert chain), if the sequence is played by any Scene's
 sequence (un-nest first), and on PIE, dirty state, an open Sequencer or ZZ_ actors.
-Saves the level. Lean: all work in main()."""
+Saves the level only after reading back that NO recorded actor is left and the sequence is
+gone. The deleted count may be lower than the recorded count, because a child can go with its
+parent (S2 rebuild, 30 Sep: 113 of 114), so the gate is absence, not the count. Lean: all
+work in main()."""
 import json
 import os
 
@@ -43,7 +46,11 @@ def main():
     for a in sorted(mine, key=depth, reverse=True):      # children first, so nothing dangles mid-delete
         if sub.destroy_actor(a):
             deleted += 1
+    left = [a.get_actor_label() for a in sub.get_all_level_actors()
+            if tag in [str(t) for t in a.get_editor_property("tags")] and a.get_actor_label() in created]
+    assert not left, f"NOT saved, level holds unsaved deletions: {len(left)} recorded actors survived, e.g. {left[:5]}"
     seq_deleted = unreal.EditorAssetLibrary.delete_asset(rec["sequence"])
+    assert not unreal.EditorAssetLibrary.does_asset_exist(rec["sequence"]), f"NOT saved: {rec['sequence']} still exists"
     assert unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level(), "level save failed"
     os.replace(record_path, record_path + ".reverted")
     unreal.log(f"HANGAR_REVERTED|S{n}|deleted={deleted}/{len(created)}|sequence_deleted={seq_deleted}|level_saved=1")
