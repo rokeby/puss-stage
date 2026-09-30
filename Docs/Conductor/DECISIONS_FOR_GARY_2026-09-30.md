@@ -168,9 +168,21 @@ Rig has authored the rises and placed five Arrival actors for Scenes 1, 2, 3, 5,
 **All inert, nothing nested, the Show asset byte-identical to its backup.**
 Nesting is the switch that makes them live, and it is yours.
 
-**Recommendation: don't nest until a drape passes acceptance.** The rise start is
-currently a transplanted number (see B1) and the first 3.6 s of rise would be
-visible from the passage with nothing in front of it. Wait for the cloth and the
+**THREE OF THE FAULTS YOU REPORTED ARE THIS ONE DECISION, not three problems.**
+Verified by read-back: only Scene 4 is nested. So —
+- *"P05's hangar movement does not play"* — Scene 5 is not nested.
+- *"the next hangar after P06 also does not play"* — Scene 6 is not nested.
+- *"Space does nothing at P01's lattice-light-dark-bg moment"* — Scene 1 is not
+  nested. An unnested hangar rests at −90° in its pit with its bulb **meshes**
+  still emissive, which is exactly the few unmoving points of light you saw.
+
+**Nothing needs building before nesting. The rises, Arrivals and records are
+ready and waiting on your word.** Everything else in your transition list is
+transport, which is the item below with nobody on it.
+
+**Recommendation: nest once a drape passes acceptance** — `final13` is due about
+15:30. The rise start is currently a transplanted number (see B1), so the first
+3.6 s of rise would otherwise show with nothing in front of it. Wait for the cloth and the
 question never arises live.
 
 ---
