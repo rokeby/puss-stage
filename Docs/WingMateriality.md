@@ -25,7 +25,13 @@ Fix candidates, all per-texture settings with sources untouched:
   silhouettes need checking.
 - (c) separately: EditorIcon → BC7.
 
-Next: a test on duplicates in my folder. P01+P02 first, then Gary judges in motion.
+**Test done (30 Sep, on duplicates in `PaintedSurface/MipTest`): option (a)
+works.** With MipGen FromTextureGroup at native size, ListTextures shows 11 mips
+(originals: 1). Mip 0 keeps its size and format, so silhouettes can't move. Cost:
++33% per texture, and non-power-of-two textures still don't stream, so it's all
+resident. About 1,990 MB of wing textures are loaded now, 182 of them uncompressed
+BGRA8; full mips would add about 660 MB. (c), compressing the uncompressed ones,
+more than pays that back. Rollout goes to Gary: P01+P02 first, then judge in motion.
 
 ## Kit floor: walnut planks rejected; options for Gary (29 Sep, nothing applied)
 
