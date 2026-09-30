@@ -99,9 +99,16 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 ### Build
 
 - **90 passing / 0 failing / 90 total. THE SUITE IS GREEN FOR THE FIRST TIME**,
-  up from 84/1/85 at midnight. **Eight patches applied across five build
-  windows**, every one verified linked by UTF-16 string literal in the DLLs
-  rather than by exit code. Zero hot-reload leftovers.
+  up from 84/1/85 at midnight, and **still 90/0/90 after patch G3 at 07:06**.
+  **Nine patches applied across six build windows**, every one verified linked by
+  UTF-16 string literal in the DLLs rather than by exit code. Zero hot-reload
+  leftovers.
+- **G3 is the shape a verification should take.** Its marker was proven ABSENT
+  from all three plugin DLLs before the build and PRESENT after, in both the
+  plugin and the test DLL — which distinguishes "these binaries are the new code"
+  from "these binaries are merely consistent with it", something an exit code
+  cannot do. And the automation warning count stayed at **29, identical to the
+  patch-H baseline**: the noise floor was shown not to move, not just the tally.
 - **ALL SIX `SavedFixturePIE` FAILURES WERE FIXTURE FAULTS. NOT ONE WAS A
   PRODUCT FAULT.** Four came from the rehearsal-mode flag the conductor set in
   the saved level on 29 Sep morning; one from curtain keying the transition
