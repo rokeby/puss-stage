@@ -1,6 +1,6 @@
 # Infinity Stage — session handover
 
-**Current as of 30 September 2026, 02:00.** Supersedes the 25 September version.
+**Current as of 30 September 2026, 07:00.** Supersedes the 25 September version.
 Written by the conductor across an overnight run with three streams (Rig &
 atmosphere, Soft goods, Look & camera) plus Wing materiality.
 
@@ -98,12 +98,25 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 
 ### Build
 
-- **88 passing / 1 failing / 89 total**, up from 84/1/85. Six patches applied,
-  every one verified linked by UTF-16 string literal in the DLLs rather than by
-  exit code. Zero hot-reload leftovers.
-- **The failing set collapsed from five assertions to one.** The remaining red is
-  `SavedFixturePIE` — **"Reverse navigation restores the retained Scene 1 exit
-  camera"**, newly exposed once the five ahead of it were fixed. Soft goods'.
+- **90 passing / 0 failing / 90 total. THE SUITE IS GREEN FOR THE FIRST TIME**,
+  up from 84/1/85 at midnight. **Eight patches applied across five build
+  windows**, every one verified linked by UTF-16 string literal in the DLLs
+  rather than by exit code. Zero hot-reload leftovers.
+- **ALL SIX `SavedFixturePIE` FAILURES WERE FIXTURE FAULTS. NOT ONE WAS A
+  PRODUCT FAULT.** Four came from the rehearsal-mode flag the conductor set in
+  the saved level on 29 Sep morning; one from curtain keying the transition
+  redesign had retired; the last was caused at 01:00 on 30 Sep by a stalls camera
+  the reverse assertion did not know about. **The transport was right every
+  time.** The test was measuring a world that kept moving underneath it.
+- The last red — *"Reverse navigation restores the retained Scene 1 exit camera"* —
+  was patch F's own blind spot: F branched the **forward** Interaction assertions
+  on `bInteractionAuthorsCut` and left the **reverse** one asserting the retired
+  retained-camera behaviour. Patch H (`10d3244`) corrected the assertion, not the
+  product. Diagnosed by a Codex agent, verified first-hand against the 04:00 log
+  by Soft goods before the patch was written.
+- Every fix also added a log line, so the test now names **which** camera it got
+  instead of reporting a bare `false`. It is becoming a test that explains
+  itself, which is exactly what it was not the six times it misled us.
 
 ---
 
@@ -178,7 +191,7 @@ the real win and is not yet done.
 
 ## 6. THE OVERNIGHT RUN — RESULTS
 
-### Built and passing: 89 / 1 / 90
+### Built and passing: 90 / 0 / 90 — GREEN
 
 Two more build windows after the first. **Patch G: `AInfinityStageArrival`.** The
 hangar's rise now **starts while you are still walking**, driven from Master time,
@@ -233,8 +246,42 @@ resolution by two piles from an identical hang: **a loose crumpled heap versus
 regimented corrugated rows.** That is the thing that was thought impossible: the
 hang you want and the fall you approved, from one cloth.
 
-Three full bakes are running in that config (the Opening, the denser version, and
-the P04 backcloth), plus three strips as full-resolution validation.
+**UPDATE 06:50 — the full-resolution result split the verdict, and the three
+bakes in that config were STOPPED.** `sw_b5_pswitch` at full resolution:
+
+- **Hang: perfect.** 8 folds at every height, depth 99-100%, flare 1.00, bulge 1.00.
+- **Stillness: fails, and getting worse.** 2.87 mm/frame, and the worst move per
+  second **grows** — 1.4 to 2.9 across 30 s. It never settles.
+- **Pile: fails.** Depth 1.34x the control, layers 0.70x, fold size 2.05x, centre
+  of mass still sinking at 10 s. The side view shows a thin sheet slid out over
+  the lip, not a heap.
+
+**The measured reading:** cloth hanging in pleats its *flat* rest shape does not
+want **stores bending energy**, and the fall spends that energy **unfolding the
+cloth** — so it lands flat. The pleats and the pile were trading against each
+other after all, just one level deeper than the first test could see.
+`final6/7/8` were stopped rather than allowed to fail the same way at 08:00.
+
+**The remedy, from measurements not hunches** (running since 06:35): switch the
+rest shape only **part way** to flat (`REST_SWITCH_AMOUNT`), storing less
+unfolding energy while leaving faint pleat memory — strips at 0.4 / 0.6 / 0.8 /
+1.0, all with the hem guide at 0.7, which measured 0.08 mm/frame on a pleated
+rest. Three speculative full bakes run in parallel at 0.6
+(`final9_opening_a06`, `final10_opening_dense_a06`, `final11_backcloth_p04_a06`),
+ready if 0.6 wins and re-baked if a strip picks another amount.
+
+**The traveller (`final5`) also failed stillness — 21 mm/frame — and the cause
+was LOCATED in the cache, not guessed.** In the hold the motion is at the centre
+overlap, a 21 cm drift per second: the halves' lower fabric swung into each other
+and **crossed by 1.57 m** against a 0.4 m design. At the end both stacks move at
+every height, because a pleated rest shape pushes back against its bunched
+carriers forever. Fix under smoke test: the rest shape **follows the carriers**
+via Dynamic Mesh so the stack is at rest, and the track gap goes 0.15 to 0.4 m so
+the pleats stop colliding — with a static-rest control at the same gap to
+separate the two effects.
+
+**Nothing is placed.** `Docs/` carries the numbers; the acceptance test has now
+refused three bakes.
 
 ### Codex
 
@@ -261,11 +308,14 @@ not.**
 
 Recorded because each is a class of fault, not a one-off.
 
-- **A test can silently measure the wrong thing.** `SavedFixturePIE` depended on
-  the saved level's performance mode; when that changed, four assertions kept
-  passing while testing a state nobody intended. **The count hid it: 84/1 looked
-  identical to 84/1 while the failing SET changed underneath.** Report assertion
-  names, never tallies.
+- **A test can silently measure the wrong thing — and six times running, the test
+  was wrong and the product was right.** Every one of `SavedFixturePIE`'s six
+  failures was a **fixture** fault: four from the saved level's performance mode,
+  one from retired curtain keying, one from a camera placed after the assertion
+  was written. **The tally hid it: 84/1 looked identical to 84/1 while the
+  failing SET changed completely underneath.** Report assertion names, never
+  tallies — and when a long-standing red keeps moving, suspect the fixture before
+  the product.
 - **Procedural layout can change between BUILDS.** `FRandRange(a,b) * FRandRange(c,d)`
   — C++ leaves the operand order unspecified, the compiler picks per call site, and
   editing the function flipped it. **288 of 337 floor lanes silently re-rolled, and
