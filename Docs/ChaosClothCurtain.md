@@ -89,6 +89,21 @@ every ray test records the stage file's LF-normalised SHA-256, which equals git'
   stage front, and the shared cache fits.** That is Rig's geometry.
 - Measured separately: the oak plane under the ground is invisible there (the ground's top 0 is above −5).
 
+**AFTER RIG'S TRIMS (30 Sep 17:42; probe v2, every mouth in its own route frame, read-only, map clean before and after):**
+- House-side top (x −200..−155), which the spill needs below −72:
+  - P01 −120, P04 −120 (reference);
+  - **P03, P05, P06 −119** (the new oak house floors): clear;
+  - **P02 −5: fails, RETAINED** by Gary ("Leave P02 for now").
+- Lip 0..25 and forestage 0 at every mouth.
+- Two site differences inside the footprint:
+  - P03 has 2 Structure fixtures at x 68–156, top 87 cm, where P01 has none. The pile passes through them (inferred).
+  - P04's ground shows the understage (−255) at 18 of about 855 samples, the open chariot slots, which the pile bridges.
+- **I2 rendered at P03** (17:44): hold frozen (200→399 0.008), no pop at the release (399→400 0.049, 400→402 0.086),
+  down by 450. At 499 the pile lies on the forestage with the spill hanging down the stage front to the oak house floor,
+  as at the Opening: not floating, not cut off.
+  - Two dark lumps in the pile are probably those fixtures (inferred).
+  - Picture: `RenderCheck/interaction2_final13_contact.png`.
+
 **To make a new site fit the shared cache**: reproduce the table relative to that mouth's route start. Otherwise, bake
 that site against its own stage (`COLLIDER_ORIGIN_CM`, as P04's backcloth was) and give it its own cache.
 
