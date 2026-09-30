@@ -268,8 +268,26 @@ def build_traveller():
             kb.keyframe_insert("value", frame=f + KEY_STEP)
     pin = obj.vertex_groups.new(name="Pin")
     pin.add(top, 1.0, "REPLACE")                                         # kinematic: the heading rides the carriers
+    guided = []
+    if drop.HEM_GUIDE_WEIGHT > 0:
+        # The HEM GUIDE (see bake_curtain_drop.py): the lowest rows spring toward the columns under their heading pleats
+        # while the curtain hangs still, and let go as the opening starts, so the flat cloth moves as freely as the smoke
+        # Gary liked ("the motion we see when it moves is good"). The heading (weight 1.0) is kinematic and ignores pin
+        # stiffness, so keying the stiffness to 0 releases only the guide.
+        for (first, last), h in zip(spans, halves):
+            per_row = h.cols + 1
+            guided += list(range(last - drop.HEM_GUIDE_ROWS * per_row, last))
+        pin.add(guided, drop.HEM_GUIDE_WEIGHT, "REPLACE")
     cloth = obj.modifiers.new("Cloth", "CLOTH")
     scene, obj, top, floor = drop.finish_cloth(scene, obj, mesh, top, cloth)
+    if guided:
+        s = obj.modifiers["Cloth"].settings
+        s.pin_stiffness = drop.PIN_STIFFNESS
+        s.keyframe_insert("pin_stiffness", frame=OPEN_START - 1)
+        s.pin_stiffness = 0.0
+        s.keyframe_insert("pin_stiffness", frame=OPEN_START)
+        s.pin_stiffness = drop.PIN_STIFFNESS
+    scene["hem_guided"] = len(guided)
     return scene, obj, top, hem, floor, halves, spans
 
 
@@ -303,6 +321,30 @@ def coords_np(obj):
 
 def pcts(v, lo=0.02, hi=0.98):
     return [round(float(np.quantile(v, lo)), 3), round(float(np.quantile(v, hi)), 3)]
+
+
+def traveller_hang_profile(co, spans, halves):
+    """The Conductor's hang test for the closed traveller, per half: its OUTER edge's spread from heading to hem (the
+    flare, converted to the whole track), and the folds kept at 75/50/25% of the height against the heading's."""
+    out, spread, ok = {"halves": []}, 0.0, True
+    for (first, last), h in zip(spans, halves):
+        a = co[first:last].reshape(pattern.ROWS + 1, h.cols + 1, 3)
+        head, hemrow = a[0], a[-1]
+        outer = float(head[:, 0].min() - hemrow[:, 0].min()) if h.side < 0 else float(hemrow[:, 0].max() - head[:, 0].max())
+        spread += max(0.0, outer)
+        rows = {label: drop.row_folds(a[int(round(frac * pattern.ROWS))])
+                for label, frac in (("heading", 0.0), ("75%", 0.25), ("50%", 0.5), ("25%", 0.75), ("hem", 1.0))}
+        for label in ("75%", "50%", "25%"):
+            r, hd = rows[label], rows["heading"]
+            r["count_kept"] = round(r["folds"] / hd["folds"], 2) if hd["folds"] else None
+            r["depth_kept"] = round(r["mean_depth_m"] / hd["mean_depth_m"], 2) if hd["mean_depth_m"] else None
+            ok = ok and (r["count_kept"] or 0) >= drop.FOLD_COUNT_MIN and (r["depth_kept"] or 0) >= drop.FOLD_DEPTH_MIN
+        out["halves"].append({"side": h.side, "outer_edge_spread_m": round(outer, 3), "rows": rows})
+    out["flare_ratio"] = round((TRACK + spread) / TRACK, 3)
+    out["pass"] = bool(ok and out["flare_ratio"] <= drop.FLARE_MAX)
+    out["targets"] = {"flare_max": drop.FLARE_MAX, "fold_count_kept_min": drop.FOLD_COUNT_MIN,
+                      "fold_depth_kept_min": drop.FOLD_DEPTH_MIN}
+    return out
 
 
 def traveller_metrics(co, spans, top, hem):
@@ -344,8 +386,11 @@ def main():
               "mass_per_vertex": round(obj.modifiers["Cloth"].settings.mass, 4),
               "air_damping_applied": round(obj.modifiers["Cloth"].settings.air_damping, 4),
               "pin": "kinematic (weight 1.0)", "start": START, "key_weight_max_error": None,
+              "hem_guide_weight": drop.HEM_GUIDE_WEIGHT, "hem_guide_rows": drop.HEM_GUIDE_ROWS, "hem_guided_vertices": None,
+              "hang_profile": None,
               "build_seconds": None, "frame_seconds": [], "move_mm": [], "hem_min_z": [], "checkpoints": {}}
     report["key_weight_max_error"] = key_weight_error(obj)
+    report["hem_guided_vertices"] = scene.get("hem_guided")
     if report["key_weight_max_error"] > 1e-4:
         raise SystemExit(f"TRAVELLER_KEY_WEIGHTS_BAD|{report['key_weight_max_error']}")
     report["build_seconds"] = round(time.perf_counter() - t_build, 1)
@@ -370,6 +415,8 @@ def main():
             band = co[np.abs(co[:, 1]) <= 0.2]                           # the portal band, UE X -20..+20 cm
             extents.append([f, float(co[:, 1].min()), float(co[:, 1].max()), float(co[:, 0].min()), float(co[:, 0].max()),
                             float(np.abs(band[:, 0]).max()) if len(band) else 0.0])
+        if f == OPEN_START - 1:
+            report["hang_profile"] = traveller_hang_profile(co, spans, halves)
         if f in (OPEN_START - 1, OPEN_START + OPEN_FRAMES // 2, OPEN_END, drop.FRAMES):
             cp = drop.metrics(drop.world_coords(obj), top)
             cp["traveller"] = traveller_metrics(co, spans, top, hem)
@@ -385,6 +432,11 @@ def main():
     report["end_still_max_mm"] = max(end) if end else None
     report["end_still_mean_mm"] = round(sum(end) / len(end), 2) if end else None
     report["opening_max_move_mm"] = max(opening) if opening else None
+    pre = [(f_, m) for f_, m in moves if f_ < OPEN_START]
+    last_bad = max((f_ for f_, m in pre if m >= 2.0), default=None)
+    start_s = (drop.GATHER_FRAMES + 1) if START == "gather" else 1
+    report["settle_to_2mm_s"] = round((((last_bad + 1) if last_bad is not None else pre[0][0]) - start_s) / 30.0, 1) if pre else None
+    report["settle_to_2mm_reached"] = bool(pre) and (last_bad is None or last_bad < pre[-1][0])
     if extents:
         def worst(col, fn):
             row = fn(extents, key=lambda r: r[col])

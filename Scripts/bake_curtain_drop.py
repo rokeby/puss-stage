@@ -96,6 +96,24 @@ COLLIDERS = os.environ.get("COLLIDERS", "")
 # curtain ends up wrapped round a post (29 Sep smoke test). Posts are parked 40 m below until POSTS_FROM (the start of
 # the show window), by which time the gathered curtain hangs inside them. A moving collider is not a data change.
 POSTS_FROM = int(os.environ.get("POSTS_FROM", "0"))
+# HEM GUIDE (30 Sep). The coarse long-settle hang showed that a FLAT cloth on the pinned ripplefold heading does not
+# hold columns: the fine pleats die within ~1.5 m of the heading, and the rest merges into soft swags and a flare. Real
+# curtains hold theirs with a weighted hem (lead tape) and by being trained. Blender cloth has no per-vertex mass, so
+# the stand-in is a GUIDE: the lowest HEM_GUIDE_ROWS rows join the pin group at weight HEM_GUIDE_WEIGHT. That is a
+# soft goal spring toward the column directly below each row's heading pleat (the Gathered key places every row under
+# its heading position). It is released WITH the heading (pin stiffness keyed to 0), so the fall itself is
+# unconstrained. 0 = off, as in every bake before this.
+HEM_GUIDE_WEIGHT = float(os.environ.get("HEM_GUIDE_WEIGHT", "0"))
+HEM_GUIDE_ROWS = int(os.environ.get("HEM_GUIDE_ROWS", "1"))
+# A collider file for a site other than P01's stage front (world cm): "x,y,z" of the cloth line, subtracted from every box.
+COLLIDER_ORIGIN_CM = [float(v) for v in os.environ["COLLIDER_ORIGIN_CM"].split(",")] if os.environ.get("COLLIDER_ORIGIN_CM") else None
+# The hang-profile acceptance (30 Sep, the Conductor, for Gary's "structured hanging profile"). These are provisional
+# targets, stated so the data can argue with them:
+#   - flare = hem width / heading width at rest, at most FLARE_MAX (a strip bake converts its edge spread to the 17.77 m
+#     Opening width);
+#   - fold count retained at least FOLD_COUNT_MIN, and fold depth at least FOLD_DEPTH_MIN, of the heading's, at 75%,
+#     50% and 25% of the height.
+FLARE_MAX, FOLD_COUNT_MIN, FOLD_DEPTH_MIN, OPENING_TRACK_M = 1.15, 0.75, 0.5, 17.77
 # Frames BEFORE SHOW_START over which stillness is also measured (to see the settle converge).
 SETTLE_PROBE = int(os.environ.get("SETTLE_PROBE", "60"))
 # Rig's limits apply to the frames the SHOW uses (the export window), not the setup gather.
@@ -113,6 +131,13 @@ REST = os.environ.get("REST", "pleated")
 # from flat to the pleated track positions by a shape key over GATHER_FRAMES, the fabric drapes itself, then the
 # heading is released. Pleats then exist only because the heading gathers them, as on a real curtain.
 GATHER_FRAMES = int(os.environ.get("GATHER_FRAMES", "40"))
+# REST=pleated_switch (30 Sep, for Gary's "structured hanging profile" AND "the good fall we already got"). The mesh
+# IS the pleated pose, so the hang's rest shape holds columns from heading to hem, like a trained curtain. From
+# RELEASE_FRAME a "Flat" shape key ramps the INPUT mesh to the flat pattern over REST_SWITCH_FRAMES, and the cloth's
+# Dynamic Mesh option recomputes the rest lengths and bend angles from the input every frame. So the falling cloth
+# has a FLAT rest shape and does not rebuild its pleats in the pile, which is what he rejected on 28 Sep. The pins are
+# released at the same frame, so the input's move does not drag them.
+REST_SWITCH_FRAMES = int(os.environ.get("REST_SWITCH_FRAMES", "15"))
 # UPSTAGE THROW (28 Sep; Gary's staging: the curtain falls UPSTAGE). The Chaos asset had 1.5 m/s upstage air; the
 # first Blender port had none, so the pile centred on the curtain line and reached the footlights. The gathered
 # heading is carried THROW_M metres UPSTAGE (+y) over the THROW_FRAMES before release at CONSTANT speed, so it is
@@ -175,14 +200,30 @@ def build_curtain():
             for f in range(start, RELEASE_FRAME + 1):       # a key every frame = constant speed, moving at release
                 throw.value = (f - start) / THROW_FRAMES
                 throw.keyframe_insert("value", frame=f)
+    if REST == "pleated_switch":
+        obj.shape_key_add(name="Basis", from_mix=False)          # pleated: the hang's rest shape
+        key = obj.shape_key_add(name="Flat", from_mix=False)
+        for i, co in enumerate(flat):
+            key.data[i].co = co
+        key.value = 0.0
+        key.keyframe_insert("value", frame=RELEASE_FRAME)
+        key.value = 1.0
+        key.keyframe_insert("value", frame=RELEASE_FRAME + REST_SWITCH_FRAMES)
     pin = obj.vertex_groups.new(name="Pin")
     if RELEASE_METHOD != "none":        # "none": no pinned vertices at all (control: must fall from frame 1)
         pin.add(top, 0.99 if RELEASE_METHOD == "stiffness" else 1.0, "REPLACE")
+    if HEM_GUIDE_WEIGHT > 0 and RELEASE_METHOD == "stiffness":
+        levels = sorted({round(v.co.z, 4) for v in mesh.vertices})[:HEM_GUIDE_ROWS]
+        guided = [v.index for v in mesh.vertices if round(v.co.z, 4) in levels]
+        pin.add(guided, HEM_GUIDE_WEIGHT, "REPLACE")
+        scene["hem_guided"] = len(guided)
     if RELEASE_METHOD == "weightmix":
         add_weightmix_release(obj)
     cloth = obj.modifiers.new("Cloth", "CLOTH")
     if REST == "flat":
         cloth.settings.rest_shape_key = obj.data.shape_keys.key_blocks["Flat"]
+    if REST == "pleated_switch":
+        cloth.settings.use_dynamic_mesh = True
     return finish_cloth(scene, obj, mesh, top, cloth)
 
 
@@ -256,10 +297,18 @@ def add_stage_colliders():
     path, option = COLLIDERS.split("|")
     spec = json.loads((ROOT / path).read_text(encoding="utf-8"))
     boxes = spec["options"][option] if option != "v2" else spec["boxes"]
+    if COLLIDER_ORIGIN_CM:
+        o = COLLIDER_ORIGIN_CM
+        shift = lambda q: [q[k] - o[k] for k in range(3)]
+        for b in list(boxes) + list(spec.get("lamp_housings", [])):
+            b["min_cm"], b["max_cm"] = shift(b["min_cm"]), shift(b["max_cm"])
+            if "oriented" in b:
+                b["oriented"]["centre_cm"] = shift(b["oriented"]["centre_cm"])
     first, built = None, {"boxes": 0, "housings": 0}
     for box in boxes:
-        o = collider_from_corners(box["name"], aabb_corners(box),
-                                  side_hide=box["name"].startswith(("Post", "Header", "Wing", "Border")))
+        o = collider_from_corners(box["name"], aabb_corners(box),       # hidden from the SIDE views only
+                                  side_hide=any(k in box["name"] for k in ("Post", "Header", "Wing", "Border", "Gridiron",
+                                                                          "Fixtures", "Lines")))
         built["boxes"] += 1
         # Anything standing where the wide FLAT setup sheet hangs is parked until POSTS_FROM: posts at the stage front,
         # wings at a passage end (30 Sep), or any box marked "park": true.
@@ -402,6 +451,54 @@ def metrics(co, top):
     return out
 
 
+def row_folds(row):
+    """Folds along one horizontal row of the grid (fabric order): its across-track depth y, detrended by a cubic over
+    the row (so a flare's bow or tilt is not counted), then counted with 3 cm hysteresis. Two lobes make one fold."""
+    import numpy as np
+    y = row[:, 1]
+    t = np.linspace(-1.0, 1.0, len(y))
+    dy = y - np.polyval(np.polyfit(t, y, 3), t)
+    lobes, state, peak = [], 0, 0.0
+    for v in dy:
+        s_ = 1 if v > 0.03 else (-1 if v < -0.03 else 0)
+        if s_ and s_ != state:
+            if state:
+                lobes.append(peak)
+            state, peak = s_, 0.0
+        peak = max(peak, abs(v))
+    if state:
+        lobes.append(peak)
+    return {"folds": round(len(lobes) / 2.0, 1), "mean_depth_m": round(2.0 * float(np.mean(lobes)), 3) if lobes else 0.0,
+            "width_m": round(float(row[:, 0].max() - row[:, 0].min()), 3)}
+
+
+def hang_profile(co):
+    """The hang's structure at rest (the Conductor's test): the flare, and the folds kept at 75/50/25% of the height."""
+    import numpy as np
+    n_rows, n_cols = pattern.ROWS + 1, pattern.COLS + 1
+    if len(co) != n_rows * n_cols:
+        return {"skipped": f"{len(co)} vertices is not a plain {n_rows} x {n_cols} grid"}
+    a = np.array([[p.x, p.y, p.z] for p in co]).reshape(n_rows, n_cols, 3)
+    head, hem = a[0], a[-1]
+    spread = [round(float(head[:, 0].min() - hem[:, 0].min()), 3), round(float(hem[:, 0].max() - head[:, 0].max()), 3)]
+    out = {"flare_ratio": round(float((hem[:, 0].max() - hem[:, 0].min()) / (head[:, 0].max() - head[:, 0].min())), 3),
+           "edge_spread_m": spread,
+           "flare_at_opening_width": round((OPENING_TRACK_M + max(0.0, spread[0]) + max(0.0, spread[1])) / OPENING_TRACK_M, 3),
+           "rows": {}}
+    for label, frac in (("heading", 0.0), ("75%", 0.25), ("50%", 0.5), ("25%", 0.75), ("hem", 1.0)):
+        out["rows"][label] = row_folds(a[int(round(frac * pattern.ROWS))])
+    h = out["rows"]["heading"]
+    ok = out["flare_at_opening_width"] <= FLARE_MAX
+    for label in ("75%", "50%", "25%"):
+        r = out["rows"][label]
+        r["count_kept"] = round(r["folds"] / h["folds"], 2) if h["folds"] else None
+        r["depth_kept"] = round(r["mean_depth_m"] / h["mean_depth_m"], 2) if h["mean_depth_m"] else None
+        ok = ok and (r["count_kept"] or 0) >= FOLD_COUNT_MIN and (r["depth_kept"] or 0) >= FOLD_DEPTH_MIN
+    out["targets"] = {"flare_max": FLARE_MAX, "fold_count_kept_min": FOLD_COUNT_MIN, "fold_depth_kept_min": FOLD_DEPTH_MIN}
+    out["pass"] = bool(ok)
+    return out
+
+
 def fold_size(obj, crease_deg=45.0):
     """Characteristic fold size (m) = cloth area / total length of creased edges (dihedral > crease_deg).
     Fine crinkle has many creases (small), a plank few (large). Resolution-bound: compare at equal mesh size."""
@@ -461,18 +558,23 @@ def set_side_hide(side):
     """Posts/header hidden in side views only (render visibility is not geometry: it doesn't touch the cloth cache)."""
     for o in bpy.data.objects:
         if o.get("side_hide"):
-            o.hide_render = side
+            # At a passage site (COLLIDER_ORIGIN_CM) the wing cards stand between every camera and the cloth, so they are
+            # hidden from ALL views there. They still collide: render visibility is not geometry.
+            o.hide_render = side or bool(COLLIDER_ORIGIN_CM)
 
 
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     scene, obj, top, floor = build_curtain()
-    report = {"id": DROP_ID, "rest": REST, "release_method": RELEASE_METHOD, "colliders": COLLIDERS, "colliders_built": None, "posts_from": POSTS_FROM, "show_start": SHOW_START, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
+    report = {"id": DROP_ID, "rest": REST, "hem_guide_weight": HEM_GUIDE_WEIGHT, "hem_guide_rows": HEM_GUIDE_ROWS,
+              "hem_guided_vertices": None, "fold_wavelength_m": pattern.FOLD_WAVELENGTH, "track_m": pattern.TRACK_WIDTH,
+              "drop_m": pattern.DROP, "collider_origin_cm": COLLIDER_ORIGIN_CM, "release_method": RELEASE_METHOD, "colliders": COLLIDERS, "colliders_built": None, "posts_from": POSTS_FROM, "show_start": SHOW_START, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
               "air_damping": AIR_DAMPING, "air_damping_applied": None, "release_frame": RELEASE_FRAME, "frames": FRAMES, "quality": QUALITY,
               "frame_seconds": [], "checkpoints": {}}
     report["mass_per_vertex"] = round(obj.modifiers["Cloth"].settings.mass, 4)
     report["colliders_built"] = json.loads(scene.get("colliders_built", "null"))
+    report["hem_guided_vertices"] = scene.get("hem_guided")
     report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
     cs = obj.modifiers["Cloth"].collision_settings
     report["self_dist_applied_m"] = round(cs.self_distance_min, 4)
@@ -513,12 +615,15 @@ def main():
             co = world_coords(obj)
             report.setdefault("com_z", []).append(round(sum(p.z for p in co) / len(co), 4))
             report.setdefault("top_z", []).append(round(max(p.z for p in co), 4))
+        if f == RELEASE_FRAME - 1:
+            report["_hang_profile"] = hang_profile(world_coords(obj))
         if f in (RELEASE_FRAME - 1, RELEASE_FRAME + 5, RELEASE_FRAME + 15, RELEASE_FRAME + 30, FRAMES - 30, FRAMES):
             report["checkpoints"][f] = metrics(world_coords(obj), top)
     final = report["checkpoints"][FRAMES]
     final["fold_size_m"] = fold_size(obj)
     # Hanging depth = the hem's front-to-back spread just before release (frame 1 is flat for REST=gather).
     hang = report["checkpoints"].get(RELEASE_FRAME - 1, {})
+    report["hang_profile"] = report.pop("_hang_profile", None)
     if hang.get("depth_m"):
         report["hang_depth_m"] = hang["depth_m"]
     if "depth_m" in final:
@@ -547,6 +652,8 @@ def main():
         render(obj, floor, "front", Vector((0.0, -40.0, 5.0)), (math.radians(90), 0.0, 0.0), ortho=24.0)
     scene.frame_set(RELEASE_FRAME - 1)                          # the hang just before release (a cache read)
     render(obj, floor, "hang34", Vector((-13.0, -19.0, 11.0)), None)
+    if RENDER_FRONT:                                            # the hang from the front: columns or a flare
+        render(obj, floor, "hangfront", Vector((0.0, -40.0, 5.0)), (math.radians(90), 0.0, 0.0), ortho=24.0)
     if CLIP_STEP > 0:
         # The cloth cache holds every simulated frame, so stepping back to render them is a cache read.
         # The clip's side camera is wider than the still's (19 m ortho) so the whole 10 m fall is in frame.
@@ -575,6 +682,13 @@ def main():
         window = [m for f_, m in report["still_mm"] if f_ >= SHOW_START]
         report["still_window_max_mm"] = max(window) if window else None
         report["still_window_mean_mm"] = round(sum(window) / len(window), 2) if window else None
+        # TIME TO 2 mm: the first frame from which EVERY later pre-release frame moves under 2 mm, in seconds after the
+        # gather ends. It separates "never settles" from "its window opened too early" (the Conductor, 30 Sep).
+        still = report["still_mm"]
+        last_bad = max((f_ for f_, m in still if m >= 2.0), default=None)
+        report["settle_to_2mm_s"] = (round((last_bad + 1 - (GATHER_FRAMES + 1)) / 30.0, 1) if last_bad is not None
+                                     else round((still[0][0] - (GATHER_FRAMES + 1)) / 30.0, 1))
+        report["settle_to_2mm_reached"] = last_bad is None or last_bad < still[-1][0]
     (OUT_DIR / f"{DROP_ID}.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"CURTAIN_DROP_BAKE_DONE|{DROP_ID}|released={report['released']}|final={json.dumps(final)}"
           f"|hang_depth={report['hang_depth_m']}|solve_s={report['solve_seconds_total']}")
