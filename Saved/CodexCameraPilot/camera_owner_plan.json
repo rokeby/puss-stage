@@ -1,18 +1,8 @@
 {
-  "apply": true,
-  "decided_by": "Gary (in the Look & camera session, 2026-09-26: \"4. Please run those\")",
-  "_note": "A.5 is Gary's decision. Pre-filled with the Look & camera recommendation relayed to him on 2026-09-25 (Passages Dog Gaze, Scenes 1-5 Timeline); edit freely, then set decided_by and apply=true. Labels must match the Show exactly. Scene 6 (the Void) is already DOG_FREE_LOOK (F.5).",
+  "apply": false,
+  "decided_by": "Gary, relayed by the conductor on 30 Sep: \"In Scene 4, Puss maintains camera ownership so that when he peers over or looks up, it's his movement and the robot dog's movement in sync.\"",
+  "_note": "Scene 4 only: Timeline -> Dog Gaze. Dry run first (apply false), then the conductor approves under Gary's delegation.",
   "owners": {
-    "Passage 1": "DOG_GAZE_ONLY",
-    "Passage 2": "DOG_GAZE_ONLY",
-    "Passage 3": "DOG_GAZE_ONLY",
-    "Passage 4": "DOG_GAZE_ONLY",
-    "Passage 5": "DOG_GAZE_ONLY",
-    "Passage 6": "DOG_GAZE_ONLY",
-    "Scene 1 — External Sound": "TIMELINE",
-    "Scene 2 — External Sound": "TIMELINE",
-    "Scene 3 — External Sound": "TIMELINE",
-    "Scene 4 — External Sound": "TIMELINE",
-    "Scene 5 — External Sound": "TIMELINE"
+    "Scene 4 — External Sound": "DOG_GAZE_ONLY"
   }
 }
