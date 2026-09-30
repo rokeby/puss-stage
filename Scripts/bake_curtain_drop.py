@@ -62,6 +62,16 @@ FLOOR_FRICTION = float(os.environ.get("FLOOR_FRICTION", "10.0"))
 SELF_FRICTION = float(os.environ.get("SELF_FRICTION", "10.0"))
 AIR_DAMPING = float(os.environ.get("AIR_DAMPING", "1.0"))
 RELEASE_FRAME = int(os.environ.get("RELEASE_FRAME", "10"))
+# ADAPTIVE RELEASE (30 Sep). RELEASE_AUTO="min:max:limit_mm:window", e.g. "300:600:1.5:30". The hang SURGES (final9:
+# 2.0-2.9 mm/frame for 10-20 frames between quiet spells of 0.4-0.6) and the show freezes sample R-1, so the release is
+# placed where the cloth is genuinely still: at the first frame f >= min-1 whose last `window` per-frame moves were ALL
+# under limit_mm, the release keys (pin stiffness, the rest switch, any bend-damping change) are MOVED from max to
+# R = f + 1, and the export window, the at-rest window and the clip follow R. No quiet window by max: release at max.
+# FRAMES is then R + (FRAMES - max), so the fall and pile keep their length. PROVEN on a coarse strip (30 Sep, 2 threads):
+# keys moved mid-bake give a bit-identical result to keys placed there from the start (no cache reset).
+RELEASE_AUTO = [float(x) for x in os.environ["RELEASE_AUTO"].split(":")] if os.environ.get("RELEASE_AUTO") else None
+if RELEASE_AUTO:
+    RELEASE_FRAME = int(RELEASE_AUTO[1])      # the fallback, and where the keys are built
 # 28 Sep test: an animated Vertex Weight Mix does NOT release (cloth reads pin weights once, heading stayed at
 # 10.02 m). "stiffness" pins at weight 0.99 (a spring; >= 0.999 is a hard snap) and keys pin stiffness to 0.
 RELEASE_METHOD = os.environ.get("RELEASE_METHOD", "stiffness")
@@ -230,6 +240,34 @@ def build_curtain():
     if REST == "pleated_switch":
         cloth.settings.use_dynamic_mesh = True
     return finish_cloth(scene, obj, mesh, top, cloth)
+
+
+def move_release_keys(obj, old_r, new_r):
+    """Shift every key tied to the release (pin stiffness at R-1/R, the Flat rest switch at R and R+REST_SWITCH_FRAMES,
+    a BEND_DAMPING_AFTER change at R-1/R) by new_r - old_r. Blender 4.4 keeps the object's and the shape keys' curves in
+    one SLOTTED action, whose legacy .fcurves shows only the first slot, so the channelbags are walked."""
+    d, moved, curves, seen = new_r - old_r, [], [], set()
+    for owner in (obj, obj.data.shape_keys):
+        ad = owner.animation_data if owner else None
+        if not ad or not ad.action or ad.action.name in seen:
+            continue
+        seen.add(ad.action.name)
+        for layer in ad.action.layers:
+            for strip in layer.strips:
+                for cb in strip.channelbags:
+                    curves.extend(cb.fcurves)
+    tied = {old_r - 1, old_r, old_r + REST_SWITCH_FRAMES}
+    for fc in curves:
+        if not any(k in fc.data_path for k in ("pin_stiffness", "Flat", "bending_damping")):
+            continue
+        for kp in fc.keyframe_points:
+            if round(kp.co.x) in tied:
+                moved.append([fc.data_path, round(kp.co.x), round(kp.co.x) + d])
+                kp.co.x += d
+                kp.handle_left.x += d
+                kp.handle_right.x += d
+        fc.update()
+    return moved
 
 
 def add_weightmix_release(obj):
@@ -572,7 +610,13 @@ def set_side_hide(side):
 
 
 def main():
+    global RELEASE_FRAME, SHOW_START, ABC_START, CLIP_START, FRAMES, SETTLE_PROBE
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    if RELEASE_AUTO:
+        if THROW_M or os.environ.get("BEND_DAMPING_RAMP"):
+            raise SystemExit("RELEASE_AUTO refuses THROW_M and BEND_DAMPING_RAMP (their keys are not moved)")
+        SHOW_START, SETTLE_PROBE = RELEASE_FRAME - int(RELEASE_AUTO[3]), RELEASE_FRAME   # record motion from frame 2
+        ABC_START = CLIP_START = SHOW_START
     scene, obj, top, floor = build_curtain()
     report = {"id": DROP_ID, "rest": REST, "rest_switch_amount": REST_SWITCH_AMOUNT if REST == "pleated_switch" else None,
               "hem_guide_weight": HEM_GUIDE_WEIGHT, "hem_guide_rows": HEM_GUIDE_ROWS,
@@ -595,7 +639,13 @@ def main():
     scene.frame_set(1)
     start = world_coords(obj)
     report["hang_depth_m"] = round(pct([p.y for p in start], 0.95) - pct([p.y for p in start], 0.05), 3)
-    for f in range(1, FRAMES + 1):
+    auto_post = FRAMES - RELEASE_FRAME if RELEASE_AUTO else None
+    if RELEASE_AUTO:
+        report["release_auto"] = {"min": int(RELEASE_AUTO[0]), "max": RELEASE_FRAME, "limit_mm": RELEASE_AUTO[2],
+                                  "window": int(RELEASE_AUTO[3]), "chosen": None, "reason": None, "moved_keys": None}
+    f = 0
+    while f < FRAMES:
+        f += 1
         t0 = time.perf_counter()
         scene.frame_set(f)
         report["frame_seconds"].append(round(time.perf_counter() - t0, 3))
@@ -612,7 +662,20 @@ def main():
                 move = max((a_ - b_).length for a_, b_ in zip(co_s, prev))
                 report.setdefault("still_mm", []).append([f, round(move * 1000, 2)])
             report["_still_prev"] = co_s
-        if f > max(GATHER_FRAMES + 1, SHOW_START):
+            ra = report.get("release_auto")
+            if ra and ra["chosen"] is None and f >= ra["min"] - 1 and f < RELEASE_FRAME - 1:
+                last = [m for f_, m in report.get("still_mm", []) if f_ > f - ra["window"]]
+                if len(last) == ra["window"] and max(last) < ra["limit_mm"]:
+                    r_new = f + 1
+                    ra["moved_keys"] = move_release_keys(obj, RELEASE_FRAME, r_new)
+                    ra.update({"chosen": r_new, "reason": f"quiet: frames {f - ra['window'] + 1}-{f} max {max(last):.2f} mm"})
+                    RELEASE_FRAME = r_new
+                    SHOW_START = ABC_START = CLIP_START = r_new - ra["window"]
+                    FRAMES = r_new + auto_post
+                    report.update({"release_frame": RELEASE_FRAME, "frames": FRAMES, "show_start": SHOW_START})
+                    print(f"CURTAIN_DROP_RELEASE_AUTO|chosen={r_new}|{ra['reason']}", flush=True)
+        # (adaptive release: from the earliest possible window, trimmed to the chosen one after the loop)
+        if f > max(GATHER_FRAMES + 1, int(RELEASE_AUTO[0] - RELEASE_AUTO[3]) if RELEASE_AUTO else SHOW_START):
             # Rig's limits apply to the FURTHEST vertex in ANY frame of the hang and fall, not the settled pile
             # ("a cloth that billows through a post mid-fall is as broken as one that settles through it").
             # Blender metres: y = UE X / 100 (+ upstage), x = UE Y / 100, z = UE Z / 100 (relative to the curtain line).
@@ -630,6 +693,12 @@ def main():
             report["_hang_profile"] = hang_profile(world_coords(obj))
         if f in (RELEASE_FRAME - 1, RELEASE_FRAME + 5, RELEASE_FRAME + 15, RELEASE_FRAME + 30, FRAMES - 30, FRAMES):
             report["checkpoints"][f] = metrics(world_coords(obj), top)
+    if RELEASE_AUTO:
+        ra = report["release_auto"]
+        if ra["chosen"] is None:
+            ra.update({"chosen": RELEASE_FRAME, "reason": "fallback: no quiet window before max"})
+            print(f"CURTAIN_DROP_RELEASE_AUTO|chosen={RELEASE_FRAME}|fallback", flush=True)
+        report["extents"] = [r for r in report.get("extents", []) if r[0] > SHOW_START]
     final = report["checkpoints"][FRAMES]
     final["fold_size_m"] = fold_size(obj)
     # Hanging depth = the hem's front-to-back spread just before release (frame 1 is flat for REST=gather).
