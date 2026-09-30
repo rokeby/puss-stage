@@ -92,8 +92,66 @@ them his yet:
 - **A curtain closes the scene** and the box is simply gone behind it, which
   rhymes with the transition drape already being built.
 
-That last one is the cheapest and it reuses what exists. **It is also the one
-that most resembles a theatre.**
+That last one is the cheapest and it reuses what exists.
+
+---
+
+## THE PROPOSAL ON THE TABLE: the hangar IS the house
+
+Look & camera, 30 Sep. **Better than the four above, and the reason is their own
+line: "it's a trick where the first option is a place."** The four are mechanisms
+for getting the cat out of a box. This makes the box somewhere he already knows
+how to be.
+
+**The Opening is a house** — stalls seat, parquet, gilded ceiling — looking at
+P01's proscenium with its drape. **Every hangar becomes that house again.** The
+room rises around the cat, the lights strike, we cut into the Scene. At the
+Scene's end **the hangar's FAR WALL opens, and behind it stands the next
+Passage's proscenium with its drape.** The cat takes a stalls seat inside the
+hangar; the Interaction's shadow play runs on the drape; the drape falls; he
+walks out of the house onto the next stage.
+
+**No teleport, no hand-off camera, no retained-camera machinery.** The box leads
+you to the next opening, which is exactly what Gary asked for.
+
+**The geometry already fits**, checked not assumed: the far wall is 21 × 30 m
+against a 19 × 10.5 m portal, so the proscenium sits inside it with room to
+spare; the stalls seat 14 m back from the portal is 46 m from the Scene's stop,
+inside the 60 m nave.
+
+**And almost nothing needs re-authoring, by construction.** The five transition
+cameras are derived live from each route start, the drape lives at the mouth, and
+the portal is built at the route start — so **all three follow a docked Passage
+automatically.**
+
+**Cost sits almost entirely with Rig:** dock each Passage N+1's mouth at Hangar
+N's far wall, and give the far wall an opening mechanism (the fold vocabulary in
+reverse — hinging down and outward, drawbridge-style). Soft goods: nothing new.
+Look & camera: the move to the seat and the cut timing. Director: nothing, the
+segment order is unchanged.
+
+**Unknowns, stated by them:** the Passages sit in 800 m lanes, so docking carries
+wings, lights and the celestial frame; P03's landscape may not want to move; and
+whether the move to the seat is dog-driven or authored.
+
+### THE FALLBACK, if docking is too dear: a match cut on the cloth
+
+At the Scene's end the drape **flies in inside the hangar**, in front of a
+stalls-seat camera there. Once it fills the frame, **cut to the real stalls
+camera at the next mouth**, where the identical drape hangs in identical framing.
+**The cut is invisible because the same cloth fills the frame at the same seat
+geometry.** The world changes behind the curtain, which is how a theatre changes
+scenes. One extra drape spawn and one camera; no docking.
+
+### ONE THING TO PUT TO GARY IN HIS OWN WORDS
+
+He said of the hangar: *"It's essentially a little viewing cinema… **the cat does
+not walk through the box.** It's more like a cutscene."* The proposal has him
+walking about 46 m to the seat and then out. **Taking a seat is not traversing,
+and the exit is what he asked to design** — but it is close enough that it must
+be asked, not assumed: **does the cat move inside the box, or does the box move
+around a cat who stays still?** There may be a version where the seat is already
+where he stands.
 
 ---
 
