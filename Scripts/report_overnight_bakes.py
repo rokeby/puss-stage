@@ -38,7 +38,8 @@ OUT = ROOT / "Saved" / "CodexSoftGoods" / "DropBake"
 STILL_LIMIT_MM = 2.0
 PILE_TOL = 0.25                      # provisional: each pile number within +-25% of the reference's
 PILE_KEYS = ("height_m", "depth_m", "width_m", "layers", "fold_size_m")
-P01_OPENING_M, COVERAGE_GAP_MAX_M = 19.0, 0.2       # P01's post inner faces at +-9.5 m (StageFrontColliders)
+P01_OPENING_M, COVERAGE_GAP_MAX_M = 19.0, 0.2       # post inner faces at +-9.5 m; all six portals identical (Rig, 30 Sep)
+POST_CLEARANCE_MIN_M = 0.03                          # the widest hung row must not run into a post
 FPS = 30.0
 
 
@@ -101,8 +102,11 @@ def judge_drape(d, ref):
     # 10 cm the least achievable, so at most 0.2 m per side.
     if rows and not d.get("collider_origin_cm") and (d.get("track_m") or 0) >= 17.0:
         gap = round((P01_OPENING_M - min(r["width_m"] for r in rows.values())) / 2.0, 3)
-        hp["coverage_gap_per_side_m"] = gap
-        verdict["coverage"] = gap <= COVERAGE_GAP_MAX_M
+        # ...and not TOO wide. All six portals are the same 19.0 m (Rig, 30 Sep), so the ~10 cm left at an 18.8 m track
+        # is the tolerance at six sites. The WIDEST hung row must keep POST_CLEARANCE_MIN_M from each post face.
+        clearance = round((P01_OPENING_M - max(r["width_m"] for r in rows.values())) / 2.0, 3)
+        hp["coverage_gap_per_side_m"], hp["post_clearance_per_side_m"] = gap, clearance
+        verdict["coverage"] = gap <= COVERAGE_GAP_MAX_M and clearance >= POST_CLEARANCE_MIN_M
     verdict["ALL"] = verdict["still"] and verdict["hang"] and all(v is not False for v in verdict.values())
     return verdict, ratios
 
@@ -142,8 +146,9 @@ def drape_lines(name, d, ref_name, ref):
              f"under 2 mm from {d.get('settle_to_2mm_s')} s (reached: {d.get('settle_to_2mm_reached')})"]
     if rows:
         if "coverage_gap_per_side_m" in hp:
-            lines.append(f"- **coverage**: narrowest hung row leaves {hp['coverage_gap_per_side_m']} m to each P01 post face "
-                         f"(target at most {COVERAGE_GAP_MAX_M} m; the opening is {P01_OPENING_M} m)")
+            lines.append(f"- **coverage**: narrowest hung row leaves {hp['coverage_gap_per_side_m']} m to each post face (at most "
+                         f"{COVERAGE_GAP_MAX_M}); widest keeps {hp['post_clearance_per_side_m']} m clear (at least "
+                         f"{POST_CLEARANCE_MIN_M}). The opening is {P01_OPENING_M} m, the same at all six portals.")
         lines.append(f"- **hang**: bulge {hp.get('bulge_at_opening_width')} and flare {hp.get('flare_at_opening_width')} at the Opening width (edge spread "
                      f"{hp.get('edge_spread_m')} m); folds (count, depth m, kept) "
                      + "; ".join(f"{k} {v['folds']}, {v['mean_depth_m']}"
