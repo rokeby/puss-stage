@@ -99,6 +99,19 @@ In flight: `final6_columns`, `final7_columns_dense` (0.607 m pleats) and `final8
 10 m wide with a 12 m drop at x 10450; 12 m spilled off the passage floor at ±9.67 m. Alongside them runs an 8-run
 full-resolution strip sweep (`sw_*`), the evidence.
 
+## 30 Sep (13:00): the "standing curtain" at P04 was a stale frame after a jump, not the cache
+
+Rig's bench showed a full-height curtain standing over the backcloth's pile after the fall, while the component's bounds
+already reported the pile. It was NOT the cache: the .abc holds one object, a pile at the end. It was not temporal AA
+either (0.00% difference with it off). **Geometry Cache frames decode asynchronously.** A jump requests an undecoded
+frame, the proxy keeps drawing its last one, and only the next request after the decode shows it. Continuous playback
+is unaffected.
+- **For any capture of a GC:** pose, tick, RE-POSE the same time, then capture. Repeated captures without re-posing stay
+  stale.
+- **OPEN, a real show behaviour:** after a transport JUMP (a rehearsal scrub, reverse navigation, or the Arrival's first
+  evaluation after one), a cloth may show a stale frame for a frame or two. Check it with PIE at real time: jump into
+  and across each cloth's window, and screenshot the first frames.
+
 ## 30 Sep (10:30): THE P04 BACKCLOTH IS PLACED (final11), and the recipe that got it there
 
 **Recipe, for every falling cloth from now on:** `REST=pleated_switch`, `REST_SWITCH_AMOUNT=0.6`, `HEM_GUIDE_WEIGHT=0.7`,
