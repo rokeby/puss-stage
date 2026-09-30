@@ -62,6 +62,14 @@ else is a proposal for him to cut.
   (the Wicker Man link: woven hurdles are structural, see-through and sinister).
 - **Sources to try:** Saenredam's whitewashed Dutch church interiors (paintings
   and drawings); Emanuel de Witte; barns and hayricks; woven fences and basketry.
+- **Also (Gary, 30 Sep):** the Wicker Man, lithic prehistoric structures like
+  Stonehenge, and "weird alien obelisk things". Sources: Aylett Sammes' 1676
+  engraving of the wicker man (*Britannia Antiqua Illustrata*, the image the
+  idea descends from); William Stukeley's 1740 Stonehenge and Avebury plates;
+  Inigo Jones's Stonehenge; dolmens and menhirs (Carnac); Athanasius Kircher's
+  hieroglyph-covered obelisks (*Obeliscus Pamphilius*, 1650) and Bernini's and
+  Piranesi's obelisks for the alien note. Trilithons are ready-made wings:
+  structural, with holes, and scale-free.
 - **Palette:** cool whites, straw yellow, pale sky; hard, bright light.
 - **Concept hook:** peeling as forgetting — earlier passages' posters surface
   through the skin here.
