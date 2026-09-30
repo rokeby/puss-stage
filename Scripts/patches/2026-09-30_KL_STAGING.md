@@ -53,3 +53,24 @@ git apply --exclude='*/InfinityStagePassageKeyCarryTests.cpp' --exclude='*/Infin
 Verified 30 Sep: both stages pass `git apply --check` on HEAD, and each selects
 exactly its two files. Patch C (celestial) touches neither, so it applies in
 either stage.
+
+## Patch M (`2026-09-30_M_gait_roll_centred.patch`): apply whole, in stage 2
+
+M's test (`InfinityStage.ShadowCat.GaitRollCentredOnRunningMean`, a new file) calls
+`AInfinityStageCameraRig::StepGaitRollBaseline`, which only exists with M's fix. So in stage 1
+it would fail to COMPILE rather than go red. **Keep all of M out of stage 1 and apply it
+whole in stage 2:**
+
+```bash
+git show HEAD:Scripts/patches/2026-09-30_M_gait_roll_centred.patch > "$TMP/M.patch"
+git apply "$TMP/M.patch"
+```
+
+It discriminates without a stage-1 run, because the test checks the behaviour against the
+old rule's input directly:
+- **"The roll swings both ways"** and **"averages about zero"** hold only for the centred roll.
+- **"The old rule's input, the lift itself, was one-sided"** documents why the old roll held
+  a tilt.
+
+It needs no world, so it is a pure-function test. C, K, L and M were verified to apply together
+on HEAD (30 Sep).
