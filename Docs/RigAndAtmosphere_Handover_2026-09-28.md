@@ -738,3 +738,24 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
 - **Bench incident:** a two-phase check failed mid-bench and left the rig posed. It was
   restored from `BenchOriginals/p04_render_check.json` via the Arrival's rest evaluation, with
   0+0 dirty. `p04_render_check.py` now restores on failure.
+
+## 30 September, afternoon: the builder's blocker gap is closed (26c12fd)
+
+- **Old behaviour:** `hangar_build.py` skipped any actor wider than 10 km and reported clean.
+- **New behaviour:**
+  - The sky is excluded by CLASS (InfinityStageCelestialRig).
+  - A 5 × 5 vertical-trace sweep over the footprint runs for EVERY build and reports the
+    actual hit.
+  - Large instanced actors (Passages, Structures, which do not collide) keep the per-instance
+    test.
+  - A large non-colliding actor that overlaps the swept box is listed as
+    `unchecked_large_no_collision`, never skipped.
+- **Who wrote what:** Codex drafted it in an isolated worktree from my spec, and its draft
+  passed as delivered. I amended the design (a one-shot sweep, large ISM actors routed to an
+  untraceable path, and an unfiltered unchecked list).
+- **Validation:** `blocker_compare_dryrun.py` is now falsifiable.
+  - It deletes each plan before the run and FAILs on a missing or throwing script, a sky
+    blocker, or an unexpected blocker.
+  - Negative controls fail; all six scenes are clean.
+  - Positive control: `blocker_positive_control.py` (S2 landscape un-allowed) is detected by
+    the sweep.
