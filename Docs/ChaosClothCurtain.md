@@ -99,6 +99,20 @@ In flight: `final6_columns`, `final7_columns_dense` (0.607 m pleats) and `final8
 10 m wide with a 12 m drop at x 10450; 12 m spilled off the passage floor at ±9.67 m. Alongside them runs an 8-run
 full-resolution strip sweep (`sw_*`), the evidence.
 
+## 30 Sep (12:10): the spawnable drapes are NOT late. Frame-count test in PIE, pre-registered
+
+The hypothesis was that the transition drapes, as spawnables that decode their first frame asynchronously, would draw a
+few frames late, so the Passage shows first (Gary: "misloaded wings followed by cloth"). Tested at real time
+(Saved/CodexSoftGoods/drape_first_frame_test.py; Scripts/analyse_drape_first_frame.py): the show plays across the
+boundary into Interaction 1, with dense and sparse screenshot runs. **The drape is DRAWN at tick 0 in both runs**
+(curtain-red 86-88% of the frame centre against a 90% reference; tick 0 ran at 38-44 ms, not a stalled frame). The
+hypothesis is dead, so fix (a) (level actors at each mouth) is NOT needed for the reveal. It remains an option only
+for making "fall the curtain" a Master-time event.
+**Observed, and handed to Look & camera (not a cloth fault):** at TICK 1 the view is, for one frame, a different camera
+(an empty dark box with a grid floor, no drape). The transport's handover is logged one frame after the boundary
+(`INFINITY_HANDOVER … source=SceneCameraCut`, frame 7732091 against a start of 7731265). Frames are in
+Saved/CodexSoftGoods/DrapeFirstFrame/.
+
 ## RULE (30 Sep): a coarse bake can only FAIL something, never PASS it
 
 27 cm quads (CURTAIN_QUADS_PER_BOLT=5) are for catching broken mechanisms quickly, not for clearing a recipe. Today
