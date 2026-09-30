@@ -3,7 +3,7 @@ and Soft goods' "P04 Backcloth (baked)" PLACED with bManualTick = true, running 
 
 Derives the cloth's release from the CROSSING, never from the box (Soft goods):
     cloth_release = T_cross(x CLOTH_X) - BACKCLOTH_LEAD_S          (Scene 4 time, negative)
-    section_start = cloth_release - RELEASE_IN_CACHE_S             (the bake's release is 1.0 s in)
+    section_start = cloth_release - release_in_cache            (read from the bake, see below)
     section_end   = section_start + the component's own GetDuration()   (exactly, or it loops)
 T_cross comes from P04's route: the camera walks a constant 2.5 m/s to its dead stop at the route
 end, Scene 4's first frame (the compiler's distance is piecewise-linear; verified 30 Sep).
@@ -15,7 +15,16 @@ Sequencer plays the section from Scene 4's first frame; the Arrival plays it bef
 Dry run (default): every derived number and every precondition, nothing written. Apply
 (P04_CLOTH_APPLY): guards, plain record, backups of the sequence and the level, read-back, saves
 those two. Revert: P04_CLOTH_REVERT removes the binding and clears the Arrival's two properties.
-Parameters: BACKCLOTH_LEAD_S (Soft goods sends it from final8's measured fall). Lean: main()."""
+NO DEFAULTS FROM A DEAD BAKE (30 Sep). The old defaults (lead 2.70, release 1.0 s) were final8's, a
+bake that was stopped: every precondition would still pass and the fall would simply be mistimed.
+- The release time inside the cache is READ FROM THE ARTIFACT, never typed. The placed actor's
+  cache names the Alembic it was imported from (Soft goods' import copies DropBake/<bake_id>.abc
+  to DerivedAssets/.../<cache name>_<bake_id>.abc), and that bake's own DropBake/<bake_id>.json
+  gives (release_frame - show_start) / 30 fps. Fallback: Soft goods' import_passing_bake.json, but
+  only if it names THIS cache (that file is overwritten by every import). No artifact: refuse.
+  RELEASE_IN_CACHE_S, if passed, is only a cross-check: refuse if it disagrees by more than a frame.
+- BACKCLOTH_LEAD_S is REQUIRED (Soft goods' measured fall for THE placed bake). Apply refuses
+  without it; the dry run names what is missing. Lean: main()."""
 import datetime
 import json
 import os
@@ -31,8 +40,10 @@ RECORD = os.path.join(HERE, "p04_backcloth_section_record.json")
 # or whichever bake passes), and the section's length is that component's own duration.
 CLOTH_LABEL = globals().get("CLOTH_LABEL", "P04 Backcloth (baked)")
 CLOTH_X, SPEED = 10450.0, 250.0
-BACKCLOTH_LEAD_S = float(globals().get("BACKCLOTH_LEAD_S", 2.70))
-RELEASE_IN_CACHE_S = float(globals().get("RELEASE_IN_CACHE_S", 1.0))
+BACKCLOTH_LEAD_S = globals().get("BACKCLOTH_LEAD_S")
+RELEASE_IN_CACHE_S = globals().get("RELEASE_IN_CACHE_S")     # optional cross-check only
+SOFTGOODS = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods")
+BAKE_FPS = 30.0                                                # Soft goods' bake and plan rate
 
 
 def fail(msg):
@@ -61,6 +72,39 @@ def api_checks():
     return out
 
 
+def release_from_artifact(cache):
+    """(seconds from the cache's first sample to the release, where it was read), or (None, why).
+    Reads Soft goods' files; writes nothing."""
+    try:
+        aid = cache.get_editor_property("asset_import_data")
+        files = list(aid.extract_filenames()) if aid else []
+    except Exception as exc:  # noqa: BLE001
+        files, why = [], f"no import source ({exc})"
+    else:
+        why = "the cache names no import source"
+    if files:
+        stem = os.path.splitext(os.path.basename(files[0]))[0]
+        prefix = cache.get_name() + "_"
+        if stem.startswith(prefix):
+            bake_json = os.path.join(SOFTGOODS, "DropBake", stem[len(prefix):] + ".json")
+            if os.path.exists(bake_json):
+                bake = json.load(open(bake_json, encoding="utf-8"))
+                if bake.get("release_frame") is not None and bake.get("show_start") is not None:   # travellers carry None
+                    return (int(bake["release_frame"]) - int(bake["show_start"])) / BAKE_FPS, os.path.relpath(bake_json, SOFTGOODS)
+                why = f"{os.path.basename(bake_json)} has no release_frame/show_start (a bake with no release?)"
+            else:
+                why = f"no {os.path.basename(bake_json)}"
+        else:
+            why = f"import source {os.path.basename(files[0])} is not <{cache.get_name()}>_<bake_id>.abc"
+    report = os.path.join(SOFTGOODS, "import_passing_bake.json")
+    if os.path.exists(report):
+        rep = json.load(open(report, encoding="utf-8"))
+        if rep.get("ok") and rep.get("cfg", {}).get("gc_name") == cache.get_name() and "plan" in rep:
+            return float(rep["plan"]["release_in_cache_s"]), "import_passing_bake.json"
+        why += "; import_passing_bake.json does not name this cache"
+    return None, why
+
+
 def main():
     apply, revert = bool(globals().get("P04_CLOTH_APPLY")), bool(globals().get("P04_CLOTH_REVERT"))
     ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
@@ -82,19 +126,28 @@ def main():
     p04 = next(a for a in actors if isinstance(a, unreal.InfinityStagePassageActor) and a.get_actor_label().startswith("Passage 04"))
     route_len = p04.get_editor_property("route").get_spline_length()
     cross_s = -(route_len - CLOTH_X) / SPEED
-    release_s = cross_s - BACKCLOTH_LEAD_S
-    start_s = release_s - RELEASE_IN_CACHE_S
+    cache_asset = gcc.get_editor_property("geometry_cache") if gcc else None
+    in_cache, in_cache_src = release_from_artifact(cache_asset) if cache_asset else (None, "no cache placed")
+    disagree = (RELEASE_IN_CACHE_S is not None and in_cache is not None and abs(float(RELEASE_IN_CACHE_S) - in_cache) > 1.0 / BAKE_FPS)
+    missing = [k for k, v in (("BACKCLOTH_LEAD_S", BACKCLOTH_LEAD_S), ("release time in the cache", in_cache)) if v is None]
+    release_s = cross_s - float(BACKCLOTH_LEAD_S) if BACKCLOTH_LEAD_S is not None else None
+    start_s = release_s - in_cache if release_s is not None and in_cache is not None else None
     duration = float(gcc.get_duration()) if gcc and gcc.get_editor_property("geometry_cache") else None
     plan = {"cloth_label": CLOTH_LABEL, "cache": gcc.get_editor_property("geometry_cache").get_path_name() if gcc and gcc.get_editor_property("geometry_cache") else None,
-            "cross_s": round(cross_s, 4), "cloth_release_s": round(release_s, 4), "section_start_s": round(start_s, 4),
-            "duration_s": duration, "section_end_s": round(start_s + duration, 4) if duration else None,
-            "lead_s": BACKCLOTH_LEAD_S, "release_in_cache_s": RELEASE_IN_CACHE_S, "checks": checks,
+            "cross_s": round(cross_s, 4), "cloth_release_s": round(release_s, 4) if release_s is not None else None,
+            "section_start_s": round(start_s, 4) if start_s is not None else None, "missing_required": missing,
+            "duration_s": duration, "section_end_s": round(start_s + duration, 4) if duration and start_s is not None else None,
+            "lead_s": BACKCLOTH_LEAD_S, "release_in_cache_s": in_cache, "release_in_cache_from": in_cache_src,
+            "release_in_cache_passed": RELEASE_IN_CACHE_S, "release_disagrees": disagree, "checks": checks,
             "gc_track_class": hasattr(unreal, "MovieSceneGeometryCacheTrack"),
             "api": api_checks()}
     unreal.log(f"P04_CLOTH_PLAN|{json.dumps(plan)}")
     if not (apply or revert):
-        unreal.log("P04_CLOTH_DRY_RUN_OK|mutated=0")
+        unreal.log(f"P04_CLOTH_DRY_RUN_OK|mutated=0|missing_required={missing}")
         return
+    if apply and (missing or disagree):
+        fail(f"timing inputs: missing {missing} ({in_cache_src}); passed release {RELEASE_IN_CACHE_S} vs the bake's {in_cache}"
+             f" disagrees={disagree}. No defaults by design.")
     if unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages() or unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages():
         fail("something is already dirty")
     if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence():
