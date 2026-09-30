@@ -105,6 +105,16 @@ for name, (label, loc, scale) in SLABS.items():
         new_scale[0] = (far_x - P01_LIP_X) / 100.0
     plan[name] = {"loc": new_loc, "scale": new_scale}
 record["plan"] = plan
+# LIP GUARD (30 Sep): TRIM_P01_AT_LIP only ever protected P01; P05's and P06's slabs from this pass buried their fascia.
+# Refuse any planned slab downstage of any stage-front lip (lip_guard.py) before anything is written.
+import runpy
+_guard = runpy.run_path(os.path.join(HERE, "lip_guard.py"))
+_lip_bad = _guard["violations"](_guard["mouth_frames"](actors),
+                                [{"label": found[n].get_actor_label(), "loc": q["loc"], "size": [v * 100.0 for v in q["scale"]], "yaw": 0.0}
+                                 for n, q in plan.items()])
+unreal.log(f"FLOORS_TO_STAGE_LIP_GUARD|violations={_lip_bad}")
+if _lip_bad:
+    fail(f"lip guard: {_lip_bad}")
 
 with open(RECORD, "w", encoding="utf-8") as fh:
     json.dump(record, fh, indent=1)

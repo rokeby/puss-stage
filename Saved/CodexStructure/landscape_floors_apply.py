@@ -81,6 +81,13 @@ def main():
         plan.append({"label": label, "loc": [round(loc.x, 2), round(loc.y, 2), round(loc.z, 2)], "size": [round(s, 2) for s in size],
                      "yaw": round(pyaw, 4), "src": src, "tag": tag})
     unreal.log(f"FLOORS_PLAN|dock_yaw={yaw:.3f}|reach={reach}|hole_u=[{hu0},{hu1:.0f}] hole_v=+-{hv:.0f}|{json.dumps(plan)}")
+    # LIP GUARD (30 Sep): no floor slab downstage of any stage-front lip (lip_guard.py); this builder laid four such.
+    import runpy
+    guard = runpy.run_path(os.path.join(HERE, "lip_guard.py"))
+    lip_bad = guard["violations"](guard["mouth_frames"](actors), [p for p in plan if p["tag"] == "RigAtmos.LandscapeFloor"])
+    unreal.log(f"FLOORS_LIP_GUARD|violations={lip_bad}")
+    if lip_bad and (apply and not revert):
+        fail(f"lip guard: {lip_bad}")
     if not (apply or revert):
         unreal.log("FLOORS_DRY_RUN_OK|mutated=0")
         return
