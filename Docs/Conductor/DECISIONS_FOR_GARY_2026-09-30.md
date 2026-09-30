@@ -127,6 +127,15 @@ is a real possibility that the hem guide — the thing that cured the stillness 
 also what coarsens the creases, in which case this cloth may not be able to have
 both, and that is a cleaner thing to know than another night of bakes.
 
+**One honest caveat on the 1.58×, raised by Soft goods against their own result:
+every pile comparison today is ONE run against ONE run, and a falling cloth is
+chaotic. The noise floor has never been measured.** If re-running the same recipe
+with a different seed moves fold size by 25% on its own, then the tolerance is
+measuring nothing and 1.58× is partly luck. That test is running now, with its
+thresholds written down before it started. **So treat the pile numbers as
+provisional until it reports** — the stillness and hang results are unaffected,
+because a trend measured over 30 s is not a single-draw artifact.
+
 ### A4. Nesting the five hangars
 Rig has authored the rises and placed five Arrival actors for Scenes 1, 2, 3, 5, 6.
 **All inert, nothing nested, the Show asset byte-identical to its backup.**
