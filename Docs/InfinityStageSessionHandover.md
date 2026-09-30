@@ -83,7 +83,18 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 - **Floor material is unresolved.** Gary rejected the plank articulation
   (*"the floorboard like slats don't work great, we only needed the metal grooves"*).
   Options A (continuous herringbone) and C (dark waxed lacquer) are rendered and
-  with him. He is waiting to see real grooves before choosing.
+  with him.
+
+  **AND A MEASUREMENT THAT CHANGES WHAT THAT DECISION IS: THE GROOVES ARE NOT
+  VISIBLE FROM EYE HEIGHT.** He approved widening them 8 cm to 16 cm; done across
+  all six floors, it changed **0.05% of pixels** from the standing and rhythm
+  views — and a difference image shows even that was temporal noise on the wing
+  cards, not the floor. Only the close view down a slot changed (13.9%).
+  **Because the slots start 150 cm inboard of each wing, under the wing bases.**
+  So **width was never the legibility lever — `SlotInboardCm` is** (about 380
+  would bring them toward the cat line). **As things stand his A-vs-C choice is a
+  judgement about BOARDS, not about grooves.** The widening is harmless and stays;
+  it simply achieved nothing visible.
 
 ### Build
 
