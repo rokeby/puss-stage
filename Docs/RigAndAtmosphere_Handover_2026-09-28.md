@@ -550,3 +550,58 @@ but no longer referenced.
     backcloth bake.
   - **`p04_arrival_apply.py` is ready** (dry run: release −3.574 s, rise 19.57 s, landing
     at 16 s). It needs patch G built.
+
+## 30 September, morning: the other five arrivals, placed inert
+
+The conductor approved steps 1 and 2 of 3 for Scenes 1, 2, 3, 5 and 6 under Gary's 29 Sep
+delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not been done.**
+
+- **What was written** (`arrivals_apply.py`):
+  - Each `LS_SN_HangarRise` root pitch is re-keyed the way Scene 4's was: −90 at −3.567 s,
+    then 0 at the builder's landing (16 s × K), AUTO. Every later beat is unchanged.
+  - An inert `SN Arrival` is placed on each root. Its cue GUID is read from the Show (the
+    Show is never written) and its binding GUID from the rise.
+  - Backup: `Backups/PreArrivalSequences-20260930-0652` (the level, the five rises, and the
+    Show). Record: `arrivals_record.json`.
+  - Revert: `arrivals_revert_run.py`. Read-back: `arrivals_check_readonly.py`.
+- **Verified from saved state:**
+  - The Show is byte-identical to the backup, and no Scene sequence was written.
+  - Each rise is referenced by the level only.
+  - Each new Arrival declines two seconds before its Scene. S4, the control, resolves
+    −88.361° there.
+- **The one live side effect:** each unnested Arrival logs
+  `INFINITY_STAGE_ARRIVAL_SKIPPED reason=NoSubSection` once per play session. That is a
+  test warning, not a failure: this project does not elevate log warnings. It also costs
+  one Show compile per Passage frame each, about 0.05 ms, so about 0.25 ms for all five.
+- **Order of operations:** `hangar_revert.py` now refuses while an Arrival references the
+  rise. Run `arrivals_revert_run.py` first.
+
+| Scene | Box d × w × h (m) | K | Builder rise | Keyed rise (start → land) | Pitch at the cut |
+|---|---|---|---|---|---|
+| 1 | 60 × 20 × 30, placeholder | 1 | 15.0 s | 19.567 s (−3.567 → 16.0) | −82.119° |
+| 2 | 60 × 20 × 30, placeholder, on terrain | 1 | 15.0 s | 19.567 s (−3.567 → 16.0) | −82.119° |
+| 3 | 60 × 20 × 30, hinge −120 cm | 1 | 15.0 s | 19.567 s (−3.567 → 16.0) | −82.119° |
+| 5 | 150 × 200 × 50 | 1.581 | 23.733 s | 28.867 s (−3.567 → 25.3) | −86.218° |
+| 6 | 60 × 20 × 30, no roof | 1 | 15.0 s | 19.567 s (−3.567 → 16.0) | −82.119° |
+
+- **Derived vs guessed:**
+  - **The start is transplanted, not measured (all five).** It is S4's applied start,
+    which is P04's cloth release. Every Passage ends at 2.5 m/s, so the same time before
+    the cut is the same distance before the stop. No backcloth exists in those Passages,
+    so the first 3.6 s of rise would be visible from the Passage, uncovered. That look is
+    decided at nesting.
+    - Once a bake passes for Passage N, revert, then rerun with
+      `ARRIVAL_RISE_START_S = {N: cross_N − lead_N}`, where
+      `cross_N = −(distance from cloth line to stop) / 250`.
+    - Passage tails before each stop, from `arrivals_probe.json`: P01 334 cm (last
+      interval at 3.0 m/s), P02 608 cm, P03 672 cm, P05 341 cm, P06 390 cm.
+  - **S1, S2, S3, S6 carry S4's curve exactly** (K = 1). S1's and S2's boxes are
+    placeholder sizes, so resizing them changes K and moves the landing.
+  - **S5 is a judgement, not a measurement.** Its curve combines two rules: the start from
+    P04's cloth and the landing from the K law. The K law (time ∝ √length) is my builder's
+    assumption and Gary has never seen it. The peak tip speed is about 12 m/s, against
+    Scene 4's 7 m/s. At the cut the box has barely begun (−86.2°).
+  - **S6 is a judgement:** the curve is S4's, but a roofless box rising, and the empty
+    roof beat (18.5–24.5 s) after landing, have never been looked at.
+  - **S3:** the far Celadon clip (−30° to −20°) now falls at Scene time 8.43–10.03 s,
+    inside the Scene. Its four to-dos stand.
