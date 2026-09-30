@@ -218,11 +218,42 @@ def main():
     reach = max(math.hypot(x, z) for (x, _, z) in pts) + 100.0
     half_y = h["half_w"] + h["wall_t"] + 100.0
     blockers = []
+    mine = [a for a in actors if unreal.Name(TAG) in a.tags or a.get_actor_label().startswith(f"S{n} ")]
+    trace_ignored = mine + [a for a in actors if a.get_class().get_name() == "InfinityStageCelestialRig"]
+    # Swept-volume clearance by vertical traces over the footprint (hangar_ground_survey_readonly.py's
+    # grid): ONE sweep, always, before the per-actor tests. It sees what bounds cannot judge (a landscape
+    # or a plane far bigger than the box) and reports where it is actually hit.
+    traced_blockers, trace_hits = set(), {}
+    for fx in (0.1, 0.3, 0.5, 0.7, 0.9):
+        for fy in (-0.9, -0.45, 0.0, 0.45, 0.9):
+            top = dock.transform_location(unreal.Vector(apron + fx * h["depth"], fy * h["half_w"], h["hinge_z"] + 3000.0))
+            bot = dock.transform_location(unreal.Vector(apron + fx * h["depth"], fy * h["half_w"], h["hinge_z"] - h["depth"] - 500.0))
+            hit = unreal.SystemLibrary.line_trace_single(world, top, bot, unreal.TraceTypeQuery.TRACE_TYPE_QUERY1, True,
+                                                         trace_ignored, unreal.DrawDebugTrace.NONE, True)
+            if hit is None:
+                continue
+            parts = hit.to_tuple()
+            hit_actor = next((p for p in parts if isinstance(p, unreal.Actor)), None)
+            loc = next((p for p in parts if isinstance(p, unreal.Vector)), None)
+            if hit_actor is None or loc is None or hit_actor.get_actor_label() in h["allow"]:
+                continue
+            trace_hits.setdefault(hit_actor.get_path_name(), (hit_actor, []))[1].append(unreal.MathLibrary.inverse_transform_location(dock, loc))
+    for path, (hit_actor, hit_points) in trace_hits.items():
+        blockers.append(f"{hit_actor.get_actor_label()} ({hit_actor.get_class().get_name()}) pieces_in_way=n/a"
+                        f" dock-frame x[{min(p.x for p in hit_points):.0f},{max(p.x for p in hit_points):.0f}]"
+                        f" y[{min(p.y for p in hit_points):.0f},{max(p.y for p in hit_points):.0f}]"
+                        f" z[{min(p.z for p in hit_points):.0f},{max(p.z for p in hit_points):.0f}]"
+                        f" hit_z_rel_hinge[{min(p.z - h['hinge_z'] for p in hit_points):.0f},"
+                        f"{max(p.z - h['hinge_z'] for p in hit_points):.0f}]")
+        traced_blockers.add(path)
+    # A trace cannot see a mesh with no collision, so a LARGE one is listed, never silently skipped.
+    unchecked = []
     for a in actors:
-        if a == cam or a.get_actor_label().startswith(f"S{n} ") or isinstance(a, (unreal.PostProcessVolume, unreal.CameraActor)):
+        if (a == cam or a.get_actor_label().startswith(f"S{n} ") or isinstance(a, (unreal.PostProcessVolume, unreal.CameraActor))
+                or a.get_class().get_name() == "InfinityStageCelestialRig"):
             continue
         o, e = a.get_actor_bounds(False)
-        if e.length() < 1.0 or max(e.x, e.y) > 1.0e6:
+        if e.length() < 1.0:
             continue
         # The actor's world box, its 8 corners in the dock frame, against the swept box.
         cs = [unreal.MathLibrary.inverse_transform_location(dock, unreal.Vector(o.x + sx * e.x, o.y + sy * e.y, o.z + sz * e.z))
@@ -231,6 +262,16 @@ def main():
             return (max(c.x for c in cs) >= apron - 25.0 and min(c.x for c in cs) <= apron + reach
                     and max(c.y for c in cs) >= -half_y and min(c.y for c in cs) <= half_y
                     and max(c.z for c in cs) >= -reach and min(c.z for c in cs) <= reach)
+        # Bounds far larger than the swept box say nothing about overlap. An instanced actor (a
+        # Passage, a Structure) still gets the per-instance test below, whatever its size; any other
+        # large actor is the sweep's if it collides, and is LISTED if it cannot be traced.
+        large = 4.0 * e.x * e.y > 10.0 * (reach + 25.0) * 2.0 * half_y
+        if large and not [c for c in a.get_components_by_class(unreal.InstancedStaticMeshComponent) if c.get_instance_count()]:
+            colliding = [c for c in a.get_components_by_class(unreal.PrimitiveComponent)
+                         if c.get_collision_enabled() != unreal.CollisionEnabled.NO_COLLISION]
+            if not colliding and hits(cs) and a.get_actor_label() not in h["allow"]:
+                unchecked.append(f"{a.get_actor_label()} ({a.get_class().get_name()}) extent_m[{e.x / 100:.0f},{e.y / 100:.0f}]")
+            continue
         if hits(cs):
             # A Passage, its structure or its camera rig spans far more than it occupies: test
             # its instanced pieces one by one and keep it only if one of them is in the way.
@@ -250,7 +291,7 @@ def main():
                 if inside == 0:
                     continue
                 cs = cs + [unreal.Vector(0.0, 0.0, float(inside))]
-            if a.get_actor_label() not in h["allow"]:
+            if a.get_actor_label() not in h["allow"] and a.get_path_name() not in traced_blockers:
                 blockers.append(f"{a.get_actor_label()} ({a.get_class().get_name()}) pieces_in_way={int(cs[-1].z) if len(cs) > 8 else 'n/a'} dock-frame x[{min(c.x for c in cs):.0f},{max(c.x for c in cs):.0f}]"
                                 f" y[{min(c.y for c in cs):.0f},{max(c.y for c in cs):.0f}] z[{min(c.z for c in cs):.0f},{max(c.z for c in cs):.0f}]")
     # ---- Scene 4 acceptance: the plan against the live hangar, root-relative ----------------
@@ -279,9 +320,10 @@ def main():
             extra = sorted(l for l in live if l not in by_label and l not in ("S4 Hangar Apron", "S4 Hangar Pinned Exposure"))
             compare = {"worst_cm": round(worst, 3), "missing": missing, "off_by_more_than_1cm": off[:20], "extra_live": extra[:20]}
     plan = {"scene": n, "dock": {"loc": [cl.x, cl.y, cl.z], "yaw": cr.yaw}, "k": round(k, 3), "counts": counts, "pieces": len(items),
-            "reach_cm": round(reach), "problems": problems, "blockers": blockers[:30], "compare_with_live_s4": compare, "hangar": h}
+            "reach_cm": round(reach), "problems": problems, "blockers": blockers[:30], "unchecked_large_no_collision": unchecked[:30],
+            "compare_with_live_s4": compare, "hangar": h}
     json.dump(plan, open(os.path.join(HERE, f"hangar_s{n}_plan.json"), "w"), indent=1, default=str)
-    unreal.log(f"HANGAR_PLAN|S{n}|pieces={len(items)}|k={k:.3f}|counts={counts}|problems={len(problems)}|blockers={len(blockers)}"
+    unreal.log(f"HANGAR_PLAN|S{n}|pieces={len(items)}|k={k:.3f}|counts={counts}|problems={len(problems)}|blockers={len(blockers)}|unchecked={len(unchecked)}"
                f"|compare={json.dumps(compare) if compare else None}")
     if not apply:
         unreal.log("HANGAR_DRY_RUN_OK|mutated=0")
