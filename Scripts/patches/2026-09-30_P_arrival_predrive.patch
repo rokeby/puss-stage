@@ -1,0 +1,328 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+index fe89d30..9119812 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+@@ -2,7 +2,10 @@
+ 
+ #include "Channels/MovieSceneChannelProxy.h"
+ #include "Channels/MovieSceneDoubleChannel.h"
++#include "Channels/MovieSceneFloatChannel.h"
++#include "Components/LightComponent.h"
+ #include "Components/SceneComponent.h"
++#include "Engine/PostProcessVolume.h"
+ #include "GeometryCacheComponent.h"
+ #include "InfinityStageCompiler.h"
+ #include "InfinityStageShowAsset.h"
+@@ -11,8 +14,10 @@
+ #include "MovieSceneGeometryCacheSection.h"
+ #include "MovieSceneGeometryCacheTrack.h"
+ #include "Sections/MovieScene3DTransformSection.h"
++#include "Sections/MovieSceneFloatSection.h"
+ #include "Sections/MovieSceneSubSection.h"
+ #include "Tracks/MovieScene3DTransformTrack.h"
++#include "Tracks/MovieSceneFloatTrack.h"
+ #include "Tracks/MovieSceneSubTrack.h"
+ 
+ DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageArrival, Log, All);
+@@ -61,6 +66,30 @@ const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid
+     }
+     return nullptr;
+ }
++
++/** The first float section on the named property track of a binding. */
++const UMovieSceneFloatSection* FindFloatBindingSection(
++    const UMovieScene& MovieScene,
++    const FGuid& BindingGuid,
++    const FName PropertyName)
++{
++    const FMovieSceneBinding* Binding = MovieScene.FindBinding(BindingGuid);
++    if (!Binding)
++    {
++        return nullptr;
++    }
++    for (const UMovieSceneTrack* Track : Binding->GetTracks())
++    {
++        const UMovieSceneFloatTrack* FloatTrack = Cast<UMovieSceneFloatTrack>(Track);
++        if (!FloatTrack || FloatTrack->GetPropertyName() != PropertyName)
++        {
++            continue;
++        }
++        const TArray<UMovieSceneSection*>& Sections = FloatTrack->GetAllSections();
++        return Sections.IsEmpty() ? nullptr : Cast<UMovieSceneFloatSection>(Sections[0]);
++    }
++    return nullptr;
++}
+ }
+ 
+ AInfinityStageArrival::AInfinityStageArrival()
+@@ -243,6 +272,57 @@ bool AInfinityStageArrival::ResolveBackclothTimeAtMasterFrame(
+     return true;
+ }
+ 
++bool AInfinityStageArrival::ResolveFloatDriveAtMasterFrame(
++    const UInfinityStageShowAsset* Show,
++    const FFrameTime MasterTime,
++    const int32 DriveIndex,
++    float& OutValue) const
++{
++    if (!PreSceneFloatDrives.IsValidIndex(DriveIndex))
++    {
++        WarnOnce(TEXT("NoFloatDrive"), FString::FromInt(DriveIndex));
++        return false;
++    }
++    const FInfinityArrivalFloatDrive& Drive = PreSceneFloatDrives[DriveIndex];
++    if (!Drive.BindingGuid.IsValid() || Drive.PropertyName.IsNone())
++    {
++        WarnOnce(TEXT("InvalidFloatDrive"), FString::Printf(
++            TEXT("index=%d binding=%s property=%s"),
++            DriveIndex,
++            *Drive.BindingGuid.ToString(),
++            *Drive.PropertyName.ToString()));
++        return false;
++    }
++
++    FFrameTime MotionTime;
++    const UMovieScene* MotionMovieScene = nullptr;
++    if (!ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
++    {
++        return false;
++    }
++    const UMovieSceneFloatSection* Section =
++        FindFloatBindingSection(*MotionMovieScene, Drive.BindingGuid, Drive.PropertyName);
++    if (!Section)
++    {
++        WarnOnce(TEXT("NoFloatTrack"), FString::Printf(
++            TEXT("index=%d binding=%s property=%s"),
++            DriveIndex,
++            *Drive.BindingGuid.ToString(),
++            *Drive.PropertyName.ToString()));
++        return false;
++    }
++    if (!Section->GetChannel().Evaluate(MotionTime, OutValue))
++    {
++        WarnOnce(TEXT("NoFloatChannelValue"), FString::Printf(
++            TEXT("index=%d binding=%s property=%s"),
++            DriveIndex,
++            *Drive.BindingGuid.ToString(),
++            *Drive.PropertyName.ToString()));
++        return false;
++    }
++    return true;
++}
++
+ bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset* Show, const FFrameTime MasterTime)
+ {
+     bool bDrove = false;
+@@ -274,6 +354,55 @@ bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset*
+                 *Cloth->GetActorNameOrLabel(), Cache->GetDuration(), CacheSeconds, MasterTime.FloorToFrame().Value);
+         }
+     }
++
++    // Sequencer also calls Arrivals while evaluating editor worlds. Unlike the existing
++    // root/backcloth behaviour, component property writes can be saved into the level later,
++    // so pre-Scene light/exposure drives are deliberately game-world-only.
++    const UWorld* World = GetWorld();
++    if (!World || !World->IsGameWorld())
++    {
++        return bDrove;
++    }
++    for (int32 DriveIndex = 0; DriveIndex < PreSceneFloatDrives.Num(); ++DriveIndex)
++    {
++        float Value = 0.0f;
++        if (!ResolveFloatDriveAtMasterFrame(Show, MasterTime, DriveIndex, Value))
++        {
++            continue;
++        }
++
++        const FInfinityArrivalFloatDrive& Drive = PreSceneFloatDrives[DriveIndex];
++        UObject* Target = Drive.Target.Get();
++        if (!Target)
++        {
++            WarnOnce(TEXT("NoFloatTarget"), FString::Printf(TEXT("index=%d target=%s"), DriveIndex, *Drive.Target.ToString()));
++            continue;
++        }
++        if (ULightComponent* Light = Cast<ULightComponent>(Target))
++        {
++            if (!FMath::IsNearlyEqual(Light->Intensity, Value, 1.0e-3f))
++            {
++                Light->SetIntensity(Value);
++            }
++            bDrove = true;
++        }
++        else if (APostProcessVolume* Volume = Cast<APostProcessVolume>(Target))
++        {
++            if (!FMath::IsNearlyEqual(Volume->BlendWeight, Value, 1.0e-4f))
++            {
++                Volume->BlendWeight = Value;
++            }
++            bDrove = true;
++        }
++        else
++        {
++            WarnOnce(TEXT("UnsupportedFloatTarget"), FString::Printf(
++                TEXT("index=%d target=%s class=%s"),
++                DriveIndex,
++                *Target->GetPathName(),
++                *Target->GetClass()->GetName()));
++        }
++    }
+     return bDrove;
+ }
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+index fab2bc7..ff4f860 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+@@ -12,13 +12,40 @@ class UMovieScene;
+ class UMovieSceneSubSection;
+ class USceneComponent;
+ 
++/**
++ * One float channel the Arrival reads before its Scene starts. The target is either a
++ * light component (Intensity) or a post-process volume (BlendWeight).
++ *
++ * Patch P authoring contract (30 Sep 2026): LS_S4_HangarRise currently keys the
++ * practicals/glow and exposure from 0 to W1, where W0 is approximately -5.874 s
++ * (the P04 cloth release) and W1 is approximately +4.126 s (the cloth section end),
++ * as recorded in Saved/CodexStructure/p04_backcloth_section_record.json. After this
++ * patch is built, Rig & atmosphere re-keys those tracks from W0 to W1 and authors the
++ * S4 Arrival's 14 practical, 24 glow and one exposure-volume drives. This struct does
++ * not perform either authoring step.
++ */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityArrivalFloatDrive
++{
++    GENERATED_BODY()
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    TSoftObjectPtr<UObject> Target;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    FGuid BindingGuid;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    FName PropertyName;
++};
++
+ /**
+  * Starts a Scene's opening motion before the Scene does: while the Master is still in
+  * the Passage that arrives there (Scene 4's hangar rises as the camera walks through
+  * the falling backcloth).
+  *
+- * One curve, two evaluators, no handover. The motion is keyed on a binding in the
+- * sequence the Scene plays as a sub-section, and its keys may sit at NEGATIVE time.
++ * One motion sequence, no handover. The motion is keyed on bindings in the sequence
++ * the Scene plays as a sub-section, and its keys may sit at NEGATIVE time.
+  * Sequencer evaluates it from the Scene's first frame on; before that, this actor maps
+  * Master time through the same sub-section placement (play rate, offsets, tick
+  * resolutions) to a negative motion time and evaluates the same channels there. Both
+@@ -75,6 +102,13 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+     FGuid BackclothBindingGuid;
+ 
++    /** Float channels shared with the Scene sequence for pre-cut light/exposure motion.
++     * Resolution is side-effect-free in every world, but EvaluateAtMasterFrame writes
++     * these targets only in game worlds: editor Sequencer evaluation must never persist
++     * a previewed intensity or BlendWeight in a later level save. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    TArray<FInfinityArrivalFloatDrive> PreSceneFloatDrives;
++
+     /** The cache time EvaluateAtMasterFrame would play on the backcloth, with no side effects:
+      * the engine's own section mapping (MapTimeToAnimation) at the negative motion time, so
+      * sample 0 before the section and the last sample after it. */
+@@ -85,6 +119,15 @@ public:
+         float CacheDurationSeconds,
+         float& OutCacheSeconds) const;
+ 
++    /** A pre-Scene drive's float-channel value at the mapped motion time, with no side effects.
++     * Returns false at or after the Scene's first frame or when the indexed drive cannot resolve. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Arrival")
++    bool ResolveFloatDriveAtMasterFrame(
++        const UInfinityStageShowAsset* Show,
++        FFrameTime MasterTime,
++        int32 DriveIndex,
++        float& OutValue) const;
++
+     /**
+      * A time in the parent (Scene) sequence, in its tick resolution, mapped to the
+      * sub-section's inner (motion) sequence exactly as the sub-section places it:
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
+index d814ed0..4f352d7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
+@@ -3,6 +3,8 @@
+ #include "InfinityStageShowAsset.h"
+ #include "Channels/MovieSceneChannelProxy.h"
+ #include "Channels/MovieSceneDoubleChannel.h"
++#include "Channels/MovieSceneFloatChannel.h"
++#include "Components/PointLightComponent.h"
+ #include "Components/StaticMeshComponent.h"
+ #include "Engine/StaticMeshActor.h"
+ #include "Engine/World.h"
+@@ -12,8 +14,10 @@
+ #include "MovieSceneGeometryCacheSection.h"
+ #include "MovieSceneGeometryCacheTrack.h"
+ #include "Sections/MovieScene3DTransformSection.h"
++#include "Sections/MovieSceneFloatSection.h"
+ #include "Sections/MovieSceneSubSection.h"
+ #include "Tracks/MovieScene3DTransformTrack.h"
++#include "Tracks/MovieSceneFloatTrack.h"
+ #include "Tracks/MovieSceneSubTrack.h"
+ 
+ #if WITH_DEV_AUTOMATION_TESTS
+@@ -182,6 +186,55 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
+     TestTrue(TEXT("Past its section the cloth holds its last sample (the pile), it does not loop"),
+         ClothSection->MapTimeToAnimation(CacheSeconds, MotionRate.AsFrameTime(20.0), MotionRate) > CacheSeconds - 0.1f);
+ 
++    // A practical's Intensity uses the same negative-time mapping and the same channel
++    // Sequencer takes over at the cut: 0 -> 400 from motion time -2 s to +2 s.
++    const FGuid LightBinding = MotionScene->AddPossessable(TEXT("Practical"), UPointLightComponent::StaticClass());
++    UMovieSceneFloatTrack* IntensityTrack = MotionScene->AddTrack<UMovieSceneFloatTrack>(LightBinding);
++    IntensityTrack->SetPropertyNameAndPath(TEXT("Intensity"), TEXT("Intensity"));
++    UMovieSceneFloatSection* IntensitySection = CastChecked<UMovieSceneFloatSection>(IntensityTrack->CreateNewSection());
++    IntensitySection->SetRange(TRange<FFrameNumber>::All());
++    IntensityTrack->AddSection(*IntensitySection);
++    FMovieSceneFloatChannel* IntensityChannel = &IntensitySection->GetChannel();
++    IntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-2.0).FloorToFrame(), 0.0f);
++    IntensityChannel->AddLinearKey(MotionRate.AsFrameTime(2.0).FloorToFrame(), 400.0f);
++    const auto IntensityAt = [IntensityChannel, MotionRate](const double Seconds)
++    {
++        float Value = 0.0f;
++        IntensityChannel->Evaluate(MotionRate.AsFrameTime(Seconds), Value);
++        return Value;
++    };
++
++    UPointLightComponent* Practical = NewObject<UPointLightComponent>(Arrival);
++    Practical->SetIntensity(777.0f);
++    FInfinityArrivalFloatDrive& FloatDrive = Arrival->PreSceneFloatDrives.AddDefaulted_GetRef();
++    FloatDrive.Target = Practical;
++    FloatDrive.BindingGuid = LightBinding;
++    FloatDrive.PropertyName = TEXT("Intensity");
++    float Intensity = -1.0f;
++    TestTrue(TEXT("At motion -1 s the pre-Scene float drive resolves to 100"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(1.0), 0, Intensity)
++        && FMath::IsNearlyEqual(Intensity, 100.0f, 1.0f));
++    TestTrue(TEXT("One tick before the cut the float drive meets Sequencer's value at motion 0"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, SceneStart - FFrameTime(1), 0, Intensity)
++        && FMath::IsNearlyEqual(Intensity, IntensityAt(0.0), 1.0e-2f));
++    TestFalse(TEXT("At the Scene's first frame Sequencer owns the float drive"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, SceneStart, 0, Intensity));
++
++    FloatDrive.PropertyName = TEXT("NotIntensity");
++    AddExpectedMessagePlain(TEXT("reason=NoFloatTrack"), ELogVerbosity::Warning, EAutomationExpectedMessageFlags::Contains, 1);
++    TestFalse(TEXT("A wrong float property name does not resolve"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(1.0), 0, Intensity));
++    TestFalse(TEXT("A repeated wrong float property name still does not resolve"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(0.5), 0, Intensity));
++    FloatDrive.PropertyName = TEXT("Intensity");
++
++    // This fixture is deliberately an editor world: resolution remains available for
++    // editor tests, but evaluation must not leave a saveable preview intensity behind.
++    TestTrue(TEXT("Fixture is a non-game editor world"), !World->IsGameWorld());
++    Arrival->EvaluateAtMasterFrame(Show, Master(1.0));
++    TestTrue(TEXT("Editor evaluation leaves the practical's intensity untouched"),
++        FMath::IsNearlyEqual(Practical->Intensity, 777.0f, 1.0e-6f));
++
+     // Placed ahead of its nesting (Scenes 1, 2, 3, 5, 6 on 30 Sep): an Arrival whose motion the
+     // Scene does not play declines, leaves its actor alone, and says so exactly once at Display
+     // (not the old per-session warning), however many frames ask.
