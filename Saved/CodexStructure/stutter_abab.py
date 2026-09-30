@@ -17,7 +17,8 @@ than the P before it, TWICE, and P2 restores them. Clusters in X at ~1 Hz instea
 idle rhythm, by construction (no call path there). Even a decisive P/X split implicates Sequencer evaluation as a whole,
 not the celestial rig alone; isolating it needs patch C (held).
 Guards: no PIE, Sequencer closed at start. Restores the camera-cut lock setting and closes Sequencer at the end. Writes
-nothing to the world or any asset. Everything inside main(); the callback keeps plain data only."""
+no asset, but PLAYING THE MASTER DIRTIES THE MAP (measured 30 Sep): the post-run census reports it, and the map must then be
+discarded (a restart without saving), never saved, since a save would persist the playback state. Everything inside main(); the callback keeps plain data only."""
 import datetime
 import json
 import os
@@ -100,6 +101,13 @@ def main():
             lib.pause()
             lib.close_level_sequence()
         lib.set_lock_camera_cut_to_viewport(lock_before)
+        # POST-RUN census, both packages (30 Sep: the arming census was reported as the after-state; Sequencer playback
+        # of the Master DIRTIES THE MAP, and the next stream's guard caught it). Report this, never the arming one.
+        w = ed.get_editor_world()
+        after = {"dirty_maps": [str(x.get_name()) for x in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()],
+                 "dirty_content": [str(x.get_name()) for x in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()],
+                 "temp_actors": [a.get_actor_label() for a in unreal.GameplayStatics.get_all_actors_of_class(w, unreal.Actor)
+                                 if a.get_actor_label().startswith(("ZZ_", "TEMP_"))]}
         res = {p: stats(st["rows"][p]) for p in PHASES}
         c = {p: res[p].get("cluster_starts", 0) for p in PHASES}
         red1 = 1.0 - c["X1"] / c["P1"] if c["P1"] else None
@@ -109,11 +117,11 @@ def main():
                    "decisive_master_evaluation": bool(red1 is not None and red2 is not None and red1 >= 0.9 and red2 >= 0.9 and c["P1"] and c["P2"] >= 0.5 * c["P1"]),
                    "idle_clusters_per_min": [res["X1"].get("cluster_starts_per_min"), res["X2"].get("cluster_starts_per_min")]}
         out = {"run": run, "why": why, "passage_section_s": [round(best[0], 2), round(best[1], 2)], "fps": fps, "start_frame": start_frame,
-               "census": census, "camera_lock_before": lock_before, "notes": st["notes"], "phases": res, "verdict": verdict,
+               "census": census, "census_after": after, "camera_lock_before": lock_before, "notes": st["notes"], "phases": res, "verdict": verdict,
                "definitions": {"spike_ms": SPIKE_MS, "cluster_gap_s": CLUSTER_GAP_S, "settle_s": SETTLE_S, "measure_s": MEASURE_S}}
         with open(os.path.join(HERE, f"stutter_abab_{run}.json"), "w", encoding="utf-8") as fh:
             json.dump(out, fh, indent=1)
-        unreal.log(f"STUTTER_ABAB|done|run={run}|{why}|clusters={c}|verdict={json.dumps(verdict)}")
+        unreal.log(f"STUTTER_ABAB|done|run={run}|{why}|clusters={c}|verdict={json.dumps(verdict)}|AFTER dirty_maps={after['dirty_maps']} dirty_content={after['dirty_content']} temps={after['temp_actors']}")
 
     def tick(_delta):
         now = time.perf_counter()
