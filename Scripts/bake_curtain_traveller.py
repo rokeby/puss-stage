@@ -89,6 +89,17 @@ END_PROBE = int(os.environ.get("END_PROBE", "60"))
 # row in the closed ripplefold, which is then also the cloth's rest shape, as fabric that has hung in its folds holds
 # them. So it starts at rest, and the settle only takes up gravity's stretch. "gather" is the first version.
 START = os.environ.get("TRAVELLER_START", "pleated")
+# DYNAMIC REST (30 Sep, final5_traveller). A pleated rest shape made the STACK restless: fabric that remembers the closed
+# S-wave keeps pushing to re-expand against its bunched carriers. It measured 20-24 mm/frame at every height of both
+# stacks, even at the heading, and never settled. The Open_ keys already carry the WHOLE curtain in each carrier pose,
+# so with Dynamic Mesh the cloth's rest shape follows the carriers: the stack becomes the fabric's rest state, as a
+# ripplefold's folds stack by design. Only the pleated start supports this (the gather start's input rows are flat).
+DYNAMIC_REST = os.environ.get("TRAVELLER_DYNAMIC_REST", "0") == "1"
+# SETTLE DAMPING (30 Sep). final5's open stacks kept moving at 20-24 mm/frame for 10 s. A stack is a dense self-colliding
+# bundle, and the opening leaves it swinging. Air damping is multiplied by this over the second after the opening
+# ENDS, so the opening's motion (Gary: "the motion we see when it moves is good") is untouched. Damping only removes
+# energy; the 28 Sep blow-up was a BENDING damping step mid-collapse. 1 = off.
+SETTLE_AIR_DAMPING = float(os.environ.get("TRAVELLER_SETTLE_AIR_DAMPING", "1"))
 PLEATED = 0.5 * TRACK + 0.5 * OVERLAP - LEAD     # pleated track per half, outer end to the lead carrier
 N = max(1, round(PLEATED / (0.5 * pattern.FOLD_WAVELENGTH)))
 S_C = PLEATED / N                                 # closed carrier spacing (half a fold wavelength)
@@ -279,7 +290,18 @@ def build_traveller():
             guided += list(range(last - drop.HEM_GUIDE_ROWS * per_row, last))
         pin.add(guided, drop.HEM_GUIDE_WEIGHT, "REPLACE")
     cloth = obj.modifiers.new("Cloth", "CLOTH")
+    if DYNAMIC_REST:
+        if START != "pleated":
+            raise SystemExit("TRAVELLER_CONFIG_REFUSED|dynamic rest needs the pleated start")
+        cloth.settings.use_dynamic_mesh = True
     scene, obj, top, floor = drop.finish_cloth(scene, obj, mesh, top, cloth)
+    if SETTLE_AIR_DAMPING != 1.0:
+        cs = obj.modifiers["Cloth"].settings
+        base = cs.air_damping
+        cs.keyframe_insert("air_damping", frame=OPEN_END)
+        cs.air_damping = base * SETTLE_AIR_DAMPING
+        cs.keyframe_insert("air_damping", frame=OPEN_END + 30)
+        cs.air_damping = base
     if guided:
         s = obj.modifiers["Cloth"].settings
         s.pin_stiffness = drop.PIN_STIFFNESS
@@ -385,7 +407,8 @@ def main():
               "quality": drop.QUALITY, "collision_quality": drop.COLLISION_QUALITY,
               "mass_per_vertex": round(obj.modifiers["Cloth"].settings.mass, 4),
               "air_damping_applied": round(obj.modifiers["Cloth"].settings.air_damping, 4),
-              "pin": "kinematic (weight 1.0)", "start": START, "key_weight_max_error": None,
+              "pin": "kinematic (weight 1.0)", "start": START, "dynamic_rest": DYNAMIC_REST,
+              "settle_air_damping": SETTLE_AIR_DAMPING, "key_weight_max_error": None,
               "hem_guide_weight": drop.HEM_GUIDE_WEIGHT, "hem_guide_rows": drop.HEM_GUIDE_ROWS, "hem_guided_vertices": None,
               "hang_profile": None,
               "build_seconds": None, "frame_seconds": [], "move_mm": [], "hem_min_z": [], "checkpoints": {}}
