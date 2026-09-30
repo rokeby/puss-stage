@@ -44,12 +44,13 @@ BEFORE_S, AFTER_S, FPS = 2.5, 0.5, 25
 EV100 = -3.0
 TICKS_PER_S = 24000.0
 WALK_CM_PER_S = 250.0                     # measured in PIE at P04's end, 30 Sep: 246-256 cm/s
-STATE_VERSION = 3
+STATE_VERSION = 4
 BATCH = 10                                # frames per call (4 captures each)
 # Option (a), approved 30 Sep: Passage 04's wings respond to camera distance at runtime, so in the frozen world
 # one stands across the route (the v2 frames failed the eye check). Hide the Passage actor, with its child actors,
 # from the CAPTURE ONLY (the capture component's hidden list; no level change). Labelled "wings absent".
 HIDE_PASSAGE_ACTOR = True
+HIDE_LABEL_PREFIXES = ("P04 Backcloth",)  # hidden from the capture only; labelled on the frames
 
 
 def unwrap(result, count):
@@ -187,6 +188,14 @@ def main():
               == unreal.GuidLibrary.conv_guid_to_string(guid)]
     if HIDE_PASSAGE_ACTOR and len(hidden) != 1:
         raise RuntimeError(f"expected exactly one {PASSAGE_LABEL} actor to hide from the capture, found {len(hidden)}")
+    # The red panel was NOT the wings (the v3 run still showed it with P04 hidden): it is Rig's baked P04 backcloth,
+    # a cloth drop that starts ~3 s before P04 ends (BackclothLeadS 3.0), frozen here at its editor pose.
+    for prefix in HIDE_LABEL_PREFIXES:
+        matches = [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+                   if a.get_actor_label().startswith(prefix)]
+        if len(matches) != 1:
+            raise RuntimeError(f"expected exactly one actor labelled '{prefix}...' to hide, found {len(matches)}")
+        hidden += matches
     state["hidden"] = [a.get_actor_label() for a in hidden]
     del actors
     first = state["index"]

@@ -50,8 +50,10 @@ def main():
     suffix = "_INTERNAL" if unknown and not stamped else ""
     note = NOTE
     if run.get("hidden_from_capture"):
+        names = ["Passage 4 wings" if "Fixed Wings" in h else ("P04 backcloth" if "Backcloth" in h else h)
+                 for h in run["hidden_from_capture"]]
         note = note.replace("World frozen: only the camera moves.",
-                            "World frozen: only the camera moves. Wings absent (hidden from the capture).")
+                            "World frozen: only the camera moves. Hidden from the capture: %s." % ", ".join(names))
     if unknown and stamped:
         note = note + "\n" + "Ground unverified: no collision found under the camera on the approach."
     settles = run["settles_s"]
