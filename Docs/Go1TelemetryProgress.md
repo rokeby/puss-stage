@@ -662,3 +662,18 @@ In the order worth checking:
 
 Everything else — the robot endpoint, the local port, the 100 Hz rate, the
 component settings, the button bits — is unchanged from the Mac setup.
+
+## Retired: `Saved/Go1Move/` (30 Sep 2026)
+
+`move.py`, `verify.py` and `inspect.py` were the one-off from 20 Aug that moved the
+`Go1RemoteReceiverComponent` onto the Show Root. **They now refuse unconditionally; do not
+revive them.** `Saved/` is gitignored, so this note is their only versioned record.
+- **Measured 30 Sep:** the level has exactly one receiver, on `InfinityStageShowRoot`, port 9876.
+- **Why retired (the conductor's unasserted-value sweep):** they call `load_level` on the open
+  map, a recorded editor-crash pattern, and hold UE wrappers at module level. `move.py` skips
+  failed property reads and writes, destroys the source component anyway, and prints `MOVE_DONE`
+  unconditionally. `verify.py` swallows missing properties, so it can't fail.
+- **If a receiver move is ever needed again,** write a new script: everything inside `main()`;
+  no `load_level`; refuse on any read or write failure; destroy the source only after reading back
+  every property on the new component; print the success marker only after a saved level and a
+  read-back.
