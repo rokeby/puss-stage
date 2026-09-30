@@ -94,7 +94,7 @@ throughput limit or bad luck.
 | # | Outcome | Verification cost | Note |
 | --- | --- | --- | --- |
 | A | **USABLE** | ~2 min, 3 spot-checks, all passed | See below. |
-| B | — | — | — |
+| B | **USABLE** | ~2 min, header checks | See below. |
 | D | — | — | — |
 | E | **USABLE — best of the five** | ~3 min, citations verified in the raw logs | See below. |
 
@@ -169,3 +169,31 @@ task was expensive, open-ended and had defeated four streams over several days �
 and the useful output was not a solution but *an audit of our own certainty*,
 which is exactly the kind of work that needs fresh eyes and no memory of having
 been confident.
+
+### B — landscape holes: USABLE, and it changes what the job IS
+
+Report: `Saved/CodexRuns/last-message-20260930-100735.txt`.
+
+**The decision-relevant finding: this cannot be scripted from stock Unreal
+Python.** `FLandscapeEditDataInterface::SetAlphaData` and `ALandscape::CreateLayer`
+are both plain `LANDSCAPE_API` with **no `UFUNCTION` macro**, verified in the
+headers. So the S2/S3 landscape holes are an **editor-mode manual job or a C++
+helper**, not a script — which is a different task, with a different owner, from
+the one we had been discussing.
+
+Also useful: **component deletion is far too coarse** — the components are
+63–67 m wide, against a hangar footprint. And **eight skeletal actors are standing
+on landscapes at P3**, which is the site where a bad edit is most visible.
+
+**It stated its own source limitation before using it**, unprompted: the
+Landscape, LandscapeEditor and LandscapePatch trees have headers and zero `.cpp`,
+so API existence and shader maths are source-proven while editor stroke
+behaviour, undo, and which packages get dirtied are not. It then marked which of
+its own claims fell on which side of that line, and flagged that its Python
+spellings were derived from reflected declarations and never executed.
+
+**Verification cost: two minutes**, two header greps and a `find`.
+
+**The pattern across A, B and E:** all three were usable because each drew a line
+between what it could prove and what it could not, and put the line where a
+reader could check it. That is the property to select for.

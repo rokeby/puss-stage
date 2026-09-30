@@ -276,9 +276,16 @@ void, which at show exposure is dark either way.
 **The two LANDSCAPES — S2, S3 — are NOT approved and are waiting for you.** S2's
 forested landscape covers its whole footprint at hinge level; **S3's wet ground
 sits 1.2 m ABOVE its lowered hinge**, so that box rises through terrain where your
-cast is standing. A landscape cannot be shortened — it needs a hole, via a
-visibility layer or a hole material. That is a different and riskier job, it
-touches the P02 and P03 environments, and **no stream currently owns those**.
+cast is standing. A landscape cannot be shortened — it needs a hole.
+
+**INVESTIGATED 11:00, and it changes what the job is: this CANNOT BE SCRIPTED.**
+The two engine calls it needs are not exposed to Unreal Python (verified in the
+headers, no `UFUNCTION` on either). So it is an **editor-mode manual job, or
+someone writes a C++ helper first** — not a script anyone can run. Deleting whole
+landscape components instead is far too coarse: they are 63–67 m wide. And
+**eight skeletal actors stand on the landscape at P3**, which is the site where a
+bad edit shows up in a scene you care about. It touches the P02 and P03
+environments, and **no stream currently owns those**.
 **Recommendation: yes in principle, but say who owns it**, and let it be a
 daylight job rather than an overnight one. Previously recorded as S3 being "built
 around its cast", which undersold it.
