@@ -113,6 +113,25 @@ The dense cloth hangs perfectly but never settles. It moves at 14–16 mm/frame 
 
 final13 is a complete candidate in every respect but the comb. final14 had not landed at the time of writing.
 
+**The comb has a fix that needs no bake (measured on final13, frame 479):**
+- An UPSTAGE border at x +45..+50 cm, bottom 10.20 m, lets **0 rays** through. Rig's proposed 1020–1100 also gives 0, and
+  so does a top at 1090.
+- Bottom at 10.35: 157 rays leak.
+- A header lowered to 10.20: 324 leak.
+- A downstage border must come down to 9.65 m, hiding the top 55 cm of the curtain.
+- Contact: the cloth's highest exported point is 10.1998 m, at R−1, and it only falls afterwards. The hang reaches 0.391 m
+  upstage, 6 cm short of the border.
+- Rig is costing six black slabs. The file every bake simulates against changes when the border enters it, so bakes and
+  ray tests now record `colliders_sha256`, and the gate re-casts when the stage bytes change.
+- The import refuses a top_masked PASS judged against a stage that has since changed.
+
+**final15 (the guided traveller, landed 14:52): FAIL, and PARKED; it was the last traveller bake until Gary gives it a
+site.**
+- still 17.81 mm/frame at the start (under 2 mm only from 13.0 s).
+- end 6.5 mm/frame, even with ×10 air damping.
+- hang passes (flare 1.00, bulge 1.02).
+- The stacks open to only 11.96 m clear against a 14.17 m design (about 3.6–4.0 m per side instead of 1.8).
+
 ## 30 Sep (night): three overnight bakes, the traveller, and what is blocked
 
 Gary, via the Conductor: "The main thing I need to get right is the first part of the bake - a still acceptable
