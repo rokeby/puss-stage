@@ -347,9 +347,16 @@ it is simply waiting.
 
 **Your options:**
 1. **Lengthen Scenes 2, 5 and 6** to 31 / 49 / 31 s, as Scene 4 already was.
-   **This moves every later segment's timing**, and the Master is already stale
-   from Scene 3 onward — so it wants doing together with that repair, by whoever
-   ends up owning the transport.
+   **THE REASON THIS WAS BEING HELD HAS GONE.** It was held because the Master
+   was believed 425 s out of step from Scene 3 onward, making the two repairs one
+   job. **The suite's own `SavedMasterMatchesShow` test passed at 11:06 today with
+   zero failed assertions** — it compares every Master subsection against the
+   Show-compiled segment to 0.05 s, so that discrepancy cannot still exist. **The
+   Master and the Show agree.** The staleness was repaired at some point and
+   nobody noticed, because that test only logs when it fails.
+   So this is now an ordinary job through the gated script, and the remaining
+   care is the opposite of what it was: **a rebuild now has a correct Master to
+   preserve, not a broken one to fix.**
 2. **Accept a truncated fold** at those three.
 3. **Compress those hangars' beats into 15 s**, which is a look change to the
    rise itself.
