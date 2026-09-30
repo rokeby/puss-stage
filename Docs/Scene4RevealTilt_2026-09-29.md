@@ -158,6 +158,24 @@ from the old fold (hosted 0) and waits for v2 to be re-keyed and re-hosted.**
 - **Needed from Rig:** the ghost light's position in the box, the box's
   extents, the rise easing, and the new exit-cut frame.
 
+## v2 option stills (29 Sep, late; `capture_scene4_v2_options.py`, sheet `Captures/Scene4V2/Scene4V2_options.png`)
+
+Rig docked the hinge 5 m ahead of the camera, so the lip sits at −19.8°. The
+ghost light lands 30 m ahead at eye height; while hanging it is 25 m below. The
+Scene sequence is 25 fps, 31 s, with the exit cut at 30.0 s.
+
+- **1–9 s: near-black at every pitch.** The box rises dark by design; only a
+  faint silhouette shows against the dusk.
+- **A (level):** the glow first clears the frame bottom at about 12.5 s.
+- **B (horizon illusion, 0 → −8°):** like A, but the horizon ends about a third
+  of the way up the frame. Subtle in stills; judge it in motion.
+- **C (look down −15°, then rise with the light):** the light enters at about
+  11 s and the camera rises with it to centre at landing. The earliest and most
+  legible subject; the creature watching the only light.
+- **After landing (all):** 30° for the roof swing (the underside glows through the
+  lattice at 21.5 s), then down with the lattice, level by 29.5 s.
+- Recommendation to Gary: **C**.
+
 ## Open
 
 - From Rig: the lattice footprint (distance, depth); the plate width and hinge
