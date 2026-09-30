@@ -11,6 +11,13 @@ LS_DevScene_01 to Backups/PreScene1Extend-<ts>/. Saves LS_DevScene_01, then Rebu
 never the PussStageBootstrap test), then saves ONLY the Master (and the Show if the rebuild dirtied it). AFTER: all 13
 sequence segments match their Master sections to 0.05 s, and Scene 1's segment equals the section end.
 Scene 3 is NOT touched (its 60.58 s section trim is Gary's to judge). Everything inside main().
+
+!! MISSED STEP (found 30 Sep by Look & camera's cut-coverage probe and a PIE view-target log): changing a scene's
+PLAYBACK RANGE must be followed by the scene-handoff REMATCH (FInfinityStageSceneHandoffBuilder::MatchSceneHandoffs, via
+the camera pilot library). The rematch moves the Exit Handoff cut to the new end and stretches the Entry cut. This
+script did not do it, so Scene 1's Exit cut stayed at 350-375 with 375-5270 uncovered, and a jump into the tail showed
+the player controller at the origin (the dev grid). Any future range change (e.g. Scene 3) must run the rematch, or
+refuse.
 """
 import datetime
 import json
