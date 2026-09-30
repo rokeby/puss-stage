@@ -77,8 +77,19 @@ changed it.
 
 | **A retained exit leaves no gap** — patch **L**, `Scripts/patches/2026-09-30_L_retained_exit_leaves_no_gap.patch` | Look & camera | **Held, tree at HEAD.** The handoff builder starts a retained exit at `max(sceneEnd − hold, lastInteriorEnd)`, so whenever the last interior shot ends before the hold it **opens a gap** — 48 frames at Scene 3, against the 23 it was being run to fix. Scoped to the **retained** path only; the normal Passage exit is unchanged, with a comment saying its stretch is a look decision. Carries one stated refinement: the Exit now copies the cut that **ends last** (the transport's own overlap rule) rather than the one that starts latest, since only the camera **on screen at the seam** makes the join seamless. Identical for every current Scene. |
 
-**C, K and L pass `git apply --check` together on HEAD — the queue is
-file-disjoint**, and both new tests are new files, so nothing contends.
+| **The gait bob's roll is centred on a running mean** — patch **M**, `Scripts/patches/2026-09-30_M_gait_roll_running_mean.patch` (8dfd463) | Look & camera | **Held, not applied, not compiled; tree at HEAD.** **Gary's ruling, 30 Sep: *“no need to permanently tilt and the camera is at an ok height as it is”*.** Roll stops deriving from the lift's ABSOLUTE value and derives from its deviation from an exponential running mean (`ShadowCatCameraBobRollMeanSeconds = 1.0`, editable). **Height is untouched — the whole lift stays.** Re-primes on the first sample, a backwards step, or a gap over 0.5 s, so a jump or a resumed Passage never kicks the roll; a zero step leaves the mean alone, so several evaluations in one frame agree. **Also corrects the code comment claiming the lift “is zero-centred… needs no running average”** — that comment was the root of the fault and would have misled the next reader. |
+
+**C, K, L and M apply together on HEAD — the queue is file-disjoint**, and the
+new tests are new files, so nothing contends.
+
+**M IS APPLIED WHOLE IN STAGE 2, not split like K and L.** Its test
+`InfinityStage.ShadowCat.GaitRollCentredOnRunningMean` calls the new function, so
+without the fix it fails to **COMPILE** rather than going red — there is no stage-1
+reading to take. The test is a pure function with no world: a constant biased lift
+holds no roll; a −15 ± 8 cm gait rolls both ways and averages about zero; the
+**old rule's input — the lift itself — is one-sided**, and that assertion is what
+discriminates the fix from the fault; re-prime on gap and on reverse; the zero step
+is stable.
 
 ### Patch K's test is the point of patch K
 

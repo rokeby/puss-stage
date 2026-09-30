@@ -475,12 +475,31 @@ for it yet).
 > that sequence, not a decision: **about 1 second** — a cat stops in a stride or
 > two, not over two seconds, but an instant stop is the lurch above.
 
-**ONE THING TO SETTLE BEFORE GARY IS ASKED**, because otherwise his answer decides
-it silently: decelerating over the last N seconds means the cat either **arrives
-later at the same point** or **arrives on time but short of it**. The first moves
-every downstream cue; the second changes where the Entry camera picks up its
-geometry. Look & camera to determine which the SpeedMultiplier tail actually
-produces and state it alongside the pictures.
+**THE MECHANISM QUESTION IS ANSWERED, AND THE ANSWER IS THAT THE SETTLE IS FREE.**
+It was neither of the two worrying options. `EvaluateCamera` normalises the
+SpeedMultiplier integral **within each span between pinned frames**, and a
+Passage's start and end are always pins
+(`MovieSceneInfinityPassageTrack.cpp:318-367`, declaration-proven). **So a settle
+keyed into the last span still arrives at the end point exactly on the end frame:
+no downstream cue moves, and the Entry camera picks up its geometry exactly where
+it does today.** The lost distance is made up earlier in the same span — a 1 s
+linear settle at 250 cm/s loses about 125 cm, which over a 20 s span is roughly
+2.6% quicker beforehand (inferred arithmetic; real span lengths depend on each
+Passage's pinned wings).
+
+> **In plain terms, and this is how it should be put to Gary: the cat arrives at
+> the same place at the same moment. It walks very slightly quicker beforehand and
+> comes to rest over the last N seconds.** The ONLY thing "how long" decides is how
+> much quicker — which is worth showing in the pictures too, since it is the entire
+> cost.
+
+**And the bob must then be weighted by SPEED, not by the walk/idle boolean.** The
+boolean is `speed > KINDA_SMALL_NUMBER` and the walk clip's play rate scales down
+to zero while keeping **full vertical amplitude** — it cycles slower, it does not
+shrink. So a boolean gate would leave a full-size bob running until the final
+instant of the settle. Weight = `saturate(speed / reference walk speed)`, smoothed.
+With that, the camera ends the settle at its authored height — 180 at P04
+(measured).
 
 **No longer coupled to A1.** The pop was invisible only because the crossing is
 black at the hangar's pinned exposure; with the settle it stops existing rather
@@ -613,6 +632,43 @@ the hinge, which is inherent to how S3 is staged rather than new.
 
 Each is a different piece of theatre, not a different fix. Nothing will be done
 at S3 until you choose.
+
+
+### B0c. THE FLOORS THAT REPLACE THE LANDSCAPES NEED A STAGE FRONT — or the shared drape dies at five mouths
+**You approved *"remove all landscapes and replace them with the floors."* That
+turns out to decide the SHAPE of the floor, not only its material, and the number
+is measured rather than modelled.**
+
+**final13's pile reaches z −0.713 m and runs 1.9 m DOWNSTAGE of the curtain line.**
+P01's lip is at −1.5 m. **So part of the pile is draped down P01's fascia — the
+shared cache does not just sit on P01's floor, it encodes P01's stage front.**
+
+**At a lip-less floor neither outcome works:**
+- floor runs past the curtain line → **the spill sinks INTO the floor**;
+- floor stops at the line → **the spill FLOATS in the air.**
+
+**Two ways out:**
+- **(a) build a P01-like stage front into the floor spec** — lip at x −150, fascia.
+  The shared cache then fits everywhere as it fits at P01, and P03's pending pile
+  check becomes a formality. **Rig geometry; no bake.**
+- **(b) bake each site its own cache** — ~6 h plus preparation **per site**, and it
+  ends "one asset feeds six sites".
+
+> **CONDUCTOR'S VIEW, offered as reasoning and not as your answer: (a) is the
+> consistent choice rather than the cheap one.** Every Passage mouth in this show
+> is a proscenium with a drape that falls. If a mouth is a proscenium, it wants a
+> proscenium's stage front. **P01 having a lip while the others do not is the
+> anomaly — P03 needing one is not a special case.**
+
+**THE REASON THIS IS ON YOUR SHEET RATHER THAN JUST DONE: it is a look decision
+about what a Passage mouth IS**, and it is decided once for all six. The floor
+spec written once either carries the shared cache through the landscape swap at
+every mouth, or breaks it at five.
+
+**Nothing is blocked on you today** — the swap sits behind the stutter test, and
+Rig has the constraint in hand so they will not build a flat floor and rebuild it.
+**But P03 is the site you said you would test first**, and its drape pile is
+unverified precisely because of this.
 
 ### B5. A cloth can show a stale frame after a scrub — and it needs an owner
 **Measured today, and it is a rehearsal problem rather than a performance one.** A
