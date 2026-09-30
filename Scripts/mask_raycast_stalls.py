@@ -64,6 +64,9 @@ def main():
     bpy.ops.wm.alembic_import(filepath=ABC)
     cloth = next(o for o in scene.objects if o.type == "MESH")
     drop.add_render_modifiers(cloth)
+    # MASK_Z_OFFSET_M: raise the whole cached hang (a what-if for a longer drop: the TOP edge's geometry is unchanged, only
+    # its height; the hem then floats, so read only the top band from such a run).
+    cloth.location.z += float(os.environ.get("MASK_Z_OFFSET_M", "0"))
     drop.add_stage_colliders()
     scene.frame_set(FRAME)
     dg = bpy.context.evaluated_depsgraph_get()

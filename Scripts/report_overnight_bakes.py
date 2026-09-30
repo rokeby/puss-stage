@@ -34,6 +34,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import subprocess
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -68,6 +70,40 @@ PILE_KEYS = ("height_m", "depth_m", "width_m", "layers", "fold_size_m")
 P01_OPENING_M, COVERAGE_GAP_MAX_M = 19.0, 0.2       # post inner faces at +-9.5 m; all six portals identical (Rig, 30 Sep)
 POST_CLEARANCE_MIN_M = 0.03                          # the widest hung row must not run into a post
 FPS = 30.0
+
+
+BLENDER = r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe"
+
+
+def mask_top(d):
+    """TOP MASKED (30 Sep, required with the Conductor's agreement): no ray from the stalls eye through the portal opening
+    may pass OVER the drape top and reach the Passage. The header underside is 10.50 m, and the pleats can put the top
+    behind the header's back face, leaving a comb of notches (final9: 21 of them, bright at the Opening). The ray test
+    (Scripts/mask_raycast_stalls.py) runs on the bake's own .abc at the frozen sample (release - 1). Its result is re-used
+    only when it was made from these exact .abc bytes. Returns (verdict, summary); None when it cannot be measured."""
+    abc = OUT / f"{d['id']}.abc"
+    if not abc.exists() or not d.get("release_frame"):
+        return None, "not measured (no .abc or no release frame)"
+    frame = int(d["release_frame"]) - 1
+    out_id = f"mask_{d['id']}_f{frame}"
+    mpath, digest = OUT / f"{out_id}.json", sha256_file(abc)
+    m = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {}
+    if m.get("abc_sha256") != digest:
+        env = dict(os.environ, PUSS_PROJECT_ROOT=str(ROOT), ABC=str(abc), MASK_FRAME=str(frame), OUT_ID=out_id,
+                   MASK_STEP="2", COLLIDERS=d.get("colliders") or "Docs/StageFrontColliders_2026-09-28.json|v2")
+        subprocess.run([BLENDER, "-b", "--factory-startup", "-t", "4", "--python",
+                        str(ROOT / "Scripts" / "mask_raycast_stalls.py")], env=env, check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if not mpath.exists():
+            return None, "ray test failed to run"
+        m = json.loads(mpath.read_text(encoding="utf-8"))
+        m["abc_sha256"] = digest
+        m.pop("all_unmasked", None)                 # keep the verdict file small; re-run for the picture
+        mpath.write_text(json.dumps(m, indent=1), encoding="utf-8")
+    reg = m.get("by_region") or {}
+    return reg.get("top", 1) == 0, (f"frame {frame}: {reg.get('top')} rays over the top (rows {m.get('top_rows_px')}, "
+                                    f"z at the curtain line {m.get('top_z_at_line_m')} m); side {reg.get('side')}, "
+                                    f"bottom {reg.get('bottom')}, interior {reg.get('interior')} (step 2 px)")
 
 
 def sha256_file(path):
@@ -170,9 +206,13 @@ def judge_drape(d, ref):
     # the bake would have imported itself.
     # Required: still and hang, always. Then the PILE (a person's recorded approval) for a P01-reference drape, or the
     # SITE check at a passage end (where the pile has no reference). Plus COVERAGE wherever it was measured.
+    if not d.get("collider_origin_cm") and (d.get("track_m") or 0) >= 17.0:
+        verdict["top_masked"], d["_mask"] = mask_top(d)
     required = ["still", "hang", "site" if d.get("collider_origin_cm") else "pile"]
     if "coverage" in verdict:
         required.append("coverage")
+    if "top_masked" in verdict:
+        required.append("top_masked")
     verdict["required"] = required
     verdict["ALL"] = all(verdict.get(k) is True for k in required)
     return verdict, ratios
@@ -228,6 +268,8 @@ def drape_lines(name, d, ref_name, ref):
     lines.append(f"- **pile**: height {p.get('height_m')}, depth {p.get('depth_m')}, width {p.get('width_m')}, "
                  f"layers {p.get('layers')}, fold size {p.get('fold_size_m')}; vs {ref_name}: {ratios}")
     lines.append(f"- **fall**: {fall_timing(d)}")
+    if "_mask" in d:
+        lines.append(f"- **top masked** (stalls ray test): {d['_mask']}")
     if "_site" in d:
         lines.append(f"- **site**: {d['_site']} (pile must stay 0.5 m short of the hinge, inside the floor, above z -0.05)")
     return lines, verdict
