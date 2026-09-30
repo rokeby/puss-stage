@@ -349,3 +349,69 @@ P03's Landscape · the grid-through-borders clash · P01's other asymmetric pair
   of it is lit. Floor slab 1 (never moves) reads as floor past the tunnel end.
   Gary's objection is the inward wall swing ("boxing-in" vs pop-up); the design
   is his to choose.
+
+## 29 September, night: Scene 4 v2, the whole box rises
+
+This SUPERSEDES the fold above for playback. v1 (`LS_S4_HangarFold`) is kept
+but no longer referenced.
+
+- **Gary's sketch, Order A.** The whole box hangs below the passage floor,
+  hinged at the mouth. It rises ASSEMBLED and dark except the ghost light; then
+  the lights strike, the roof swings over and the lattice flies in. The walls'
+  inward swing is dropped. The camera is stopped at the end of the path.
+- **Rig.** "S4 Hangar Root" (tags `RigAtmos.Scene4Root`,
+  `Hinge|edge=mouth|axis=Y|closed=-90|open=0`) carries the floor slabs, walls,
+  far wall and lattice fly.
+  - The hinge is world Y through (11168.5, 240000, 0): the handoff camera +5 m.
+  - A world-fixed 5 m walnut apron ("S4 Hangar Apron") bridges camera to hinge.
+    With the hinge under the lens the lip sat 84° down, out of frame (Look &
+    camera's catch).
+  - The PPV stays world-fixed. The level rests at frame 0: root −90, box hanging
+    60 m down.
+- **Sequence** `/Game/InfinityStage/RigAtmos/LS_S4_HangarRise`, 30 fps, 31 s:
+  - rise 1→16 s, which is exactly smoothstep:
+    θ = −90 + 90·(3u² − 2u³), u = (t − 1)/15;
+  - practicals in L/R pairs from 16.5 s, 0.3 s apart, all on by 18.5;
+  - uplights strike 18.0/18.15/18.3;
+  - roof 18.5–24.5;
+  - lattice z 28 → 12 m over 24.5–28.5;
+  - hold to 31.
+- **Nested.** Scene 4's "Hangar Fold" section now plays LS_S4_HangarRise
+  (`scene4_fold_nest_v2.py`, a wrapper round `scene4_fold_nest.py` with
+  `FOLD_PATH`).
+  - Scene 4 runs 596.471–627.471 (31 s); cuts [0,30] and [30,31]; show total
+    1009.396 s; Master 13/13, worst 0.000 s.
+  - Time Scale is still Gary's dial. `scene4_fold_check_readonly.py` knows both
+    sequences' motion ends (22.5 s and 28.5 s).
+- **Verified.**
+  - Save gate: dirty 0+0, no ZZ_.
+  - `level_verified_save.py` is v2-aware: when `scene4_v2_record.json` exists it
+    checks root −90, roof upright, inner hinges 0, lattice root-relative z, and
+    lamps at 0 cd.
+  - Arc: 512 points recomposed through the attachment chain never enter the
+    passage. Analytically, x′ ≥ 0 for every box point with x, z ≥ 0 between −90
+    and 0.
+  - Captures in `Saved/CodexStructure/Captures/RiseV2/`:
+    - p0: dark with lattice dots, the glow breaking over the lip at about 12 s,
+      hall lit by 18 s, uplight shafts reading as cones;
+    - p-15: lip and lamp by 14 s;
+    - side, EV −3: the mechanism reads plainly.
+  - NOT yet played in PIE.
+- **Numbers for Look & camera.** `scene4_v2_numbers_readonly.py` (read-only)
+  prints every actor's LANDED extents relative to the camera, plus Scene 4's
+  cuts.
+  - Ghost bulb at +30 m, y −4 m, z 1.88 m.
+  - Box interior x +5..+65, y ±10, z 0..30; roof upright to z 90.
+  - They re-host `LS_S4_CameraScore` in LS_S4_HangarRise.
+- **Revert** (Scene 4 first, then the level):
+  - `scene4_fold_nest_v1.py`, then `scene4_v2_revert.py`, which works from
+    `scene4_v2_record.json`.
+  - Backups `PreScene4V2-20260929-2015`, `PreScene4Nest-20260929-201525`.
+- **Capture script.** `scene4_fold_capture.py` takes per-view exposure
+  (`FOLD_VIEW_EV`); `scene4_v2_side.py` uses it.
+- **Still to do:**
+  - patch R's fix message names LS_S4_HangarFold; update it to HangarRise
+    before it's applied;
+  - the "mechanical rig" lighting steer (Gary, on hold until the mechanism
+    settles);
+  - PIE playback of the rise.
