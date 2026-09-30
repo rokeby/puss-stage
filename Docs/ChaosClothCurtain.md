@@ -219,6 +219,11 @@ The dense cloth hangs perfectly but never settles. It moves at 14–16 mm/frame 
 
 final13 is a complete candidate in every respect but the comb. final14 had not landed at the time of writing.
 
+**RESULT, final14 (dense; landed 14:49, judged 17:28), measured:** still **FAIL at 8.95 mm/frame** (mean 6.49; never under
+2 mm). **The prediction ("fails at about 6–8") was right in direction and missed its range high by about 1 mm.** Hang,
+coverage (0.10 m per side), top_masked (against v4, with the border) and stage_clear all pass. The dense recipe stays
+out: it never finds a quiet window.
+
 **The comb has a fix that needs no bake (measured on final13, frame 479):**
 - An UPSTAGE border at x +45..+50 cm, bottom 10.20 m, lets **0 rays** through. Rig's proposed 1020–1100 also gives 0, and
   so does a top at 1090.
