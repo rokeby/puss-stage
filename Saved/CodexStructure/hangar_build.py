@@ -446,6 +446,7 @@ def main():
     if ppv:
         ppv.set_actor_scale3d(unreal.Vector(span / 200.0, (2.0 * h["half_w"] + 200.0) / 200.0, (h["height"] + 200.0) / 200.0))
         ppv.set_editor_property("unbound", False)
+        ppv.set_editor_property("blend_weight", 0.0)          # 30 Sep: the rise keys it 0 -> 1 (no position switch)
         st = ppv.get_editor_property("settings")
         for name, v in (("auto_exposure_min_brightness", h["pinned_ev100"]), ("auto_exposure_max_brightness", h["pinned_ev100"]),
                         ("local_exposure_highlight_contrast_scale", 1.0), ("local_exposure_shadow_contrast_scale", 1.0)):
@@ -499,14 +500,27 @@ def main():
         key_transform(roof_hinge, roof_rel, [0.0, 0.0, 0.0], 4, [(0.0, -90.0), (ROOF[0], -90.0), (ROOF[1], 0.0)])
     key_transform(fly, fly_rel, [0.0, 0.0, 0.0], 2, [(0.0, fly_rel[2]), (LATTICE[0], fly_rel[2]), (LATTICE[1], fly_rel[2] - h["lattice_fly"])])
     pracs = sorted((it for it in items if it["kind"] == "practical"), key=lambda it: (it["order"], it["label"]))
+    # 30 Sep (Gary: "light the rise from the curtain"): the practical wave starts AT THE CUT (was 16.5 s), so the walls
+    # are lit as they emerge. Same 0.3 s stagger and 0.2 s ramp.
     for i, it in enumerate(pracs):
-        t = T(16.5) + (i // 2) * T(0.3)
-        key_intensity(spawned[it["label"]], [(0.0, 0.0), (t, 0.0), (t + T(0.2), 400.0)])
+        t = (i // 2) * T(0.3)
+        key_intensity(spawned[it["label"]], [(0.0, 0.0), (T(0.2), 400.0)] if t == 0.0 else [(0.0, 0.0), (t, 0.0), (t + T(0.2), 400.0)])
     for it in (it for it in items if it["kind"] == "uplight"):
         t = T(18.0) + (it["order"] % 3) * T(0.15)            # Scene 4's three strikes, repeated along a wider wall
         key_intensity(spawned[it["label"]], [(0.0, 0.0), (t, 0.0), (t + T(0.2), 10000.0)])
-    for it in (it for it in items if it["kind"] == "glow"):
-        key_intensity(spawned[it["label"]], [(0.0, 0.0), (T(4.0), 0.0), (T(8.0), 20.0)])
+    for it in (it for it in items if it["kind"] == "glow"):           # 30 Sep: glow from the cut (was 0 until 4 s, 20 at 8 s)
+        key_intensity(spawned[it["label"]], [(0.0, 0.0), (T(2.0), 20.0)])
+    if ppv:
+        # 30 Sep (Gary: "slow exposure fade with the rise"): the pinned exposure fades in with the rise, 0 -> 1 over 8 s,
+        # instead of switching when the camera crosses into the volume (its saved weight is 0, set above).
+        pb = seq.add_possessable(ppv)
+        wtr = pb.add_track(unreal.MovieSceneFloatTrack)
+        wtr.set_property_name_and_path("BlendWeight", "BlendWeight")
+        wsec = wtr.add_section()
+        wsec.set_range(0, end)
+        wch = wsec.get_all_channels()[0]
+        for t_s, v in ((0.0, 0.0), (T(8.0), 1.0)):
+            wch.add_key(f(t_s), float(v), time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE, interpolation=unreal.MovieSceneKeyInterpolation.AUTO)
 
     # ---- Read back, save ----------------------------------------------------------------
     got = root.root_component.get_editor_property("relative_rotation")
