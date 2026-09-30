@@ -1,0 +1,1 @@
+{"name":"call_tool","arguments":{"toolset_name":"MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset","tool_name":"ExecuteProjectPythonFile","arguments":{"relativeSavedPath":"CodexStructure/blink_spots_plan_readonly.py"}}}
