@@ -37,6 +37,27 @@ def fail(msg):
     raise RuntimeError(msg)
 
 
+def api_checks():
+    """Every Python API the apply path uses, probed without writing: a throwaway params struct and
+    eval-options struct, and the section range setter's existence."""
+    out = {"set_range_seconds": hasattr(unreal.MovieSceneSection, "set_range_seconds"),
+           "get_start_frame_seconds": hasattr(unreal.MovieSceneSection, "get_start_frame_seconds")}
+    try:
+        p = unreal.MovieSceneGeometryCacheParams()
+        p.set_editor_property("play_rate", 1.0)
+        p.get_editor_property("geometry_cache_asset")
+        out["gc_params"] = True
+    except Exception as exc:
+        out["gc_params"] = f"FAIL {exc}"
+    try:
+        ev = unreal.MovieSceneSectionEvalOptions()
+        ev.set_editor_property("completion_mode", unreal.MovieSceneCompletionMode.KEEP_STATE)
+        out["eval_options"] = True
+    except Exception as exc:
+        out["eval_options"] = f"FAIL {exc}"
+    return out
+
+
 def main():
     apply, revert = bool(globals().get("P04_CLOTH_APPLY")), bool(globals().get("P04_CLOTH_REVERT"))
     ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
@@ -64,7 +85,8 @@ def main():
     plan = {"cross_s": round(cross_s, 4), "cloth_release_s": round(release_s, 4), "section_start_s": round(start_s, 4),
             "duration_s": duration, "section_end_s": round(start_s + duration, 4) if duration else None,
             "lead_s": BACKCLOTH_LEAD_S, "release_in_cache_s": RELEASE_IN_CACHE_S, "checks": checks,
-            "gc_track_class": hasattr(unreal, "MovieSceneGeometryCacheTrack")}
+            "gc_track_class": hasattr(unreal, "MovieSceneGeometryCacheTrack"),
+            "api": api_checks()}
     unreal.log(f"P04_CLOTH_PLAN|{json.dumps(plan)}")
     if not (apply or revert):
         unreal.log("P04_CLOTH_DRY_RUN_OK|mutated=0")
@@ -101,7 +123,6 @@ def main():
         params.set_editor_property("play_rate", 1.0)
         sec.set_editor_property("params", params)
         # Section range in the sequence's TICK resolution, so the end is exactly start + duration.
-        tick = rise.get_movie_scene().get_editor_property("tick_resolution") if hasattr(rise, "get_movie_scene") else None
         sec.set_range_seconds(start_s, start_s + duration)
         ev = sec.get_editor_property("eval_options")
         ev.set_editor_property("completion_mode", unreal.MovieSceneCompletionMode.KEEP_STATE)
