@@ -132,10 +132,12 @@ def keys_match(got, expected, fps):
 
 
 def interpolation_matches(channel, expected_name):
+    """UE Python prints the enum as '<RichCurveInterpMode.RCIM_LINEAR: 0>', so str() never ends with the name (30 Sep:
+    that failed every channel's read-back). Compare the enum's .name. AUTO keys are stored as RCIM_CUBIC (auto tangents)."""
+    wanted = {"LINEAR": "RCIM_LINEAR", "AUTO": "RCIM_CUBIC"}[expected_name]
     keys = list(channel.get_keys())
     return bool(keys) and all(
-        hasattr(key, "get_interpolation_mode")
-        and str(key.get_interpolation_mode()).upper().endswith(expected_name)
+        hasattr(key, "get_interpolation_mode") and key.get_interpolation_mode().name == wanted
         for key in keys
     )
 
@@ -276,11 +278,17 @@ def discover_python_api(arrival, run):
     return {"struct_fields": fields, "arrival_property": arrival_property, "resolve_method": resolve_method}
 
 
+def guid_text(guid):
+    """30 Sep: str(unreal.Guid) is "<Struct 'Guid' (0x...) {}>", a MEMORY ADDRESS, so it differs per read. That broke the
+    39-unique check (always passed), drive read-back and the revert's GUID lookup. Use the project's proven conversion."""
+    return str(unreal.GuidLibrary.conv_guid_to_string(guid))
+
+
 def plain_drive(drive, api):
     fields = api["struct_fields"]
     return {
         "target": object_path(drive.get_editor_property(fields["target"])),
-        "binding_guid": str(drive.get_editor_property(fields["binding_guid"])),
+        "binding_guid": guid_text(drive.get_editor_property(fields["binding_guid"])),
         "property_name": str(drive.get_editor_property(fields["property_name"])),
     }
 
@@ -310,7 +318,7 @@ def build_applied_drives(actors, intensity, exposure_binding, exposure_actor, ap
                 "target_object": component,
                 "target": object_path(component),
                 "binding_guid_object": row["binding"].get_id(),
-                "binding_guid": str(row["binding"].get_id()),
+                "binding_guid": guid_text(row["binding"].get_id()),
                 "property_name": "Intensity",
             }
         )
@@ -320,7 +328,7 @@ def build_applied_drives(actors, intensity, exposure_binding, exposure_actor, ap
             "target_object": exposure_actor,
             "target": object_path(exposure_actor),
             "binding_guid_object": exposure_binding.get_id(),
-            "binding_guid": str(exposure_binding.get_id()),
+            "binding_guid": guid_text(exposure_binding.get_id()),
             "property_name": "BlendWeight",
         }
     )
@@ -357,7 +365,7 @@ def current_object_index(actors):
 
 def restore_drive_structs(recorded, actors, sequence, api, run):
     objects = current_object_index(actors)
-    guids = {str(binding.get_id()): binding.get_id() for binding in sequence.get_bindings()}
+    guids = {guid_text(binding.get_id()): binding.get_id() for binding in sequence.get_bindings()}
     structs = []
     for index, row in enumerate(recorded["entries"]):
         target = None if row["target"] == "None" else objects.get(row["target"])
@@ -525,6 +533,40 @@ def main():
         actors, intensity, exposure_binding, exposure_actor, api, run
     )
     current_drives = capture_drives(arrival, api)
+    if bool(globals().get("S4PREDRIVE_FINISH")):
+        # 30 Sep 19:55: an apply stopped at its read-back only because of two check bugs (str(enum), str(Guid); both
+        # fixed above). Its edits sit UNSAVED in memory. FINISH verifies them and saves, instead of discarding them.
+        # Refuses unless the ONLY dirty packages are this sequence and the level, the keys equal the attempt record's
+        # after_keys, and the drives equal a freshly built expected set (the record's drive GUID text was broken).
+        if not os.path.exists(RECORD):
+            fail(run, "finish: no attempt record")
+        with open(RECORD, encoding="utf-8") as handle:
+            record = json.load(handle)
+        census = package_census()
+        if census["dirty_maps"] != [EXPECTED_WORLD] or census["dirty_content"] != [SEQ]:
+            fail(run, f"finish: the dirty set is not exactly this sequence and the level: {census}")
+        if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence():
+            fail(run, "finish: Sequencer is open")
+        temps = [a.get_actor_label() for a in actors if a.get_actor_label().startswith(("ZZ_", "TEMP_"))]
+        if temps:
+            fail(run, f"finish: temporary actors present: {temps}")
+        bad = key_mismatches(intensity, exposure_channel, record["after_keys"], fps)
+        if bad or not drive_state_matches(current_drives, applied_plain):
+            fail(run, f"finish refused: live state is not the planned state; keys={bad[:8]}, drives={current_drives['count']}")
+        if playback != record["playback_before"]:
+            fail(run, "finish: playback range changed")
+        live_keys = capture_keys(intensity, exposure_channel, fps)
+        seam = verify_seams(arrival, api, drive_rows, live_keys, record["W0"], show, run)
+        record["after_drives"] = applied_plain            # repaired GUID text, so a later revert's drift check works
+        record["finished"] = run
+        with open(RECORD, "w", encoding="utf-8") as handle:
+            json.dump(record, handle, indent=1, sort_keys=True)
+        if not unreal.EditorAssetLibrary.save_asset(SEQ, only_if_is_dirty=False):
+            fail(run, "sequence save failed")
+        if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level():
+            fail(run, "level save failed")
+        unreal.log(f"S4PREDRIVE_OK|run={run}|finished|drives=39|seam={json.dumps(seam, sort_keys=True)}|{json.dumps(package_census(), sort_keys=True)}")
+        return
     if revert:
         assert_write_guards(editor, world, run, applying=False)
         with open(RECORD, encoding="utf-8") as handle:
