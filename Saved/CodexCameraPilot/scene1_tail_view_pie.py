@@ -30,6 +30,14 @@ Scene-local +3.3 and +4.1 s the view target:
     the scene's sequence" would never show authored scene cameras as things stand.
   - changes, but outside 3.3-4.1 s or to anything else: reported as found; the partition was incomplete.
 
+CROSSING POP RUNS (30 Sep, same harness; {"mode": "run", "scene": "Scene 4", "end_s": 1, "shots": [],
+"crossing_shots_s": 0.15, "out": "scene4_crossing_pop"}). The P01 -> Scene 1 play-through measured a camera pop at the
+crossing: about 15 cm up and 9 cm forward, from the rig's bobbing height to the Entry camera's authored 150. Gary
+said "no jumps". This is a PICTURE for him to judge, not a hypothesis. It screenshots EVERY tick within
+crossing_shots_s either side of the Scene's first frame, and logs the camera rotation as well as the location
+(rotation was not logged before, so a rotational pop is unmeasured). Screenshot stalls do not matter here; frame
+identity does. Shots are listed in order with their Scene-relative time, so ScreenShotNNNNN files map by order.
+
 One mode per MCP call, from scene1_tail_view_mode.json {"mode": "start" | "run" | "stop"}:
   start  request PIE (only in a slot the Conductor gave)
   run    in PIE: scrub to 2 s before Scene 1, then PlayForwardThroughBoundaries. A Slate post-tick callback logs
@@ -59,6 +67,7 @@ def main():
     end_s = float(cfg.get("end_s", END_S))
     shots_at_s = [float(x) for x in cfg.get("shots", SHOTS_AT_S)]
     out_name = cfg.get("out", "scene1_tail_view")
+    crossing_window_s = float(cfg.get("crossing_shots_s", 0.0))
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if mode == "start":
         if editor.get_game_world() is None:
@@ -92,7 +101,7 @@ def main():
     ticks_per_s = 24000.0                                   # Master tick resolution (24 kHz)
     scrub = transport.scrub_to_master_frame(unreal.FrameNumber(int(start - LEAD_S * ticks_per_s)))
     play = transport.play_forward_through_boundaries()
-    state = {"rows": [], "shots": [], "handle": None}
+    state = {"rows": [], "shots": [], "crossing_shots": [], "handle": None}
     pending_shots = list(shots_at_s)
 
     def finish(note):
@@ -102,6 +111,7 @@ def main():
         at_20 = next((r for r in rows if r["scene_s"] is not None and r["scene_s"] >= 20.0), None)
         out = {"scene": scene_prefix, "scene_segment": index, "previous_segment": previous_label, "start_frame": start, "end_frame": end,
                "scrub": str(scrub), "play": str(play), "shots_at_scene_s": state["shots"],
+               "crossing_shots_in_order": state["crossing_shots"],
                "view_target_changes": changes, "at_20s": at_20, "rows": rows, "note": note}
         with open(os.path.join(HERE, out_name + ".json"), "w", encoding="utf-8") as h:
             json.dump(out, h, indent=1)
@@ -121,16 +131,24 @@ def main():
             return finish("transport gone")
         frame = tr.get_current_master_frame().value
         scene_s = round((frame - start) / ticks_per_s, 3) if frame >= start else None
+        relative_s = round((frame - start) / ticks_per_s, 3)
         pc = unreal.GameplayStatics.get_player_controller(w, 0)
         vt = pc.get_view_target() if pc else None
         pcm = pc.get_editor_property("player_camera_manager") if pc else None
         cam = pcm.get_camera_location() if pcm else None
+        rot = pcm.get_camera_rotation() if pcm else None
         state["rows"].append({
             "tick": len(state["rows"]), "dt_ms": round(delta * 1000, 2), "master": frame, "scene_s": scene_s,
             "segment": tr.get_editor_property("selected_segment_index"),
             "view_target": "%s (%s) '%s'" % (vt.get_name(), vt.get_class().get_name(), vt.get_actor_label())
             if vt else None,
-            "camera_xyz": [round(cam.x), round(cam.y), round(cam.z)] if cam else None})
+            "camera_xyz": [round(cam.x), round(cam.y), round(cam.z)] if cam else None,
+            "camera_xyz_precise": [round(cam.x, 2), round(cam.y, 2), round(cam.z, 2)] if cam else None,
+            "camera_pyr": [round(rot.pitch, 3), round(rot.yaw, 3), round(rot.roll, 3)] if rot else None,
+            "relative_s": relative_s})
+        if crossing_window_s > 0.0 and abs(relative_s) <= crossing_window_s:
+            unreal.SystemLibrary.execute_console_command(w, "shot")
+            state["crossing_shots"].append({"tick": len(state["rows"]) - 1, "relative_s": relative_s})
         if scene_s is not None and pending_shots and scene_s >= pending_shots[0]:
             unreal.SystemLibrary.execute_console_command(w, "shot")
             state["shots"].append(scene_s)
