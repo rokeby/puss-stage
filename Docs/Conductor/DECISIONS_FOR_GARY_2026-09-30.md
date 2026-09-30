@@ -425,11 +425,64 @@ heading, not in front of it.**
   structure"*, *"situated inside a stage structure, not just under an open sky"*.
   **A border is stage structure doing a job.**
 
-**So the question is now a look question, not a trade.** Rig is costing it at six
-mouths — whether it is a portal-builder parameter or new geometry. **The two
-cloth answers stay on the table as fallbacks:** accept the slots, or a 10.5 m
-drop (0.5 m masks it, 0.4 m leaves a sliver — measured) at four to five hours and
-a changed fall.
+**SO THE ONLY FREE VARIABLE LEFT ON THE BORDER IS ITS MATERIAL — its geometry is
+spoken for.** That is new as of 30 Sep evening and it is measured, so the question
+you asked ("which border?") turns out to be the only part of it still open.
+
+**The border's position is the ONLY position that works. It is pinned from both
+sides:**
+
+| move it | what happens | tier |
+| --- | --- | --- |
+| **down**, or more than ~6 cm downstage | **cuts into the heading pleats** | measured |
+| **up** (bottom at 10.35 m) | **157 rays leak — the comb returns** | measured |
+| **remove it** | **4,105 rays** | measured |
+
+**And the margins are not symmetrical.** Horizontally there is 6 cm: the hang's
+upstage reach is **x +39.1 cm** at the hold frame against the border box at
+**x +45..+50**. **Vertically there is none** — the heading tops out at **z 1019.98**
+against the border's bottom at **1020**.
+
+**That 0.2 mm is NOT fragility, and it should not be read as one.** The heading is
+authored at 1020 and the border's bottom was built at 1020; they sit on the same
+line by construction and do not drift apart. **What it means is that the vertical
+adjustment range is zero, and the one direction that is open is the one that
+reopens the fault.**
+
+**The clearance was designed from the BORDER's side, not the cloth's** — the cloth
+never knew the border existed. **final13's bake ran against 18 collider boxes with
+no border** (its own launch log, measured); the border was added to the collider
+set at 14:52 as box 19. x +45 was chosen in the ray test to clear final9's +40.7 cm
+pleats, and Rig built exactly that. **So it fits this cache and was meant to — but
+it is not a constraint the cloth respects, it is a gap two records agree on.**
+
+**THE THREE ALTERNATIVES, NOW ALL COSTED, so this is a complete choice rather than
+an open one:**
+- **(a) accept the comb** — bright slots at the Opening, **p99 146/255** (measured
+  on the no-drape capture). This is the fault as you saw it.
+- **(b) a 0.5 m longer drop** — masks on final9's hang with the masks shifted up,
+  **not on a real bake**, and **the fall changes.** Four to five hours.
+- **(c) a downstage border down to 9.65 m** — masks (measured), but **hides the top
+  55 cm of the curtain.**
+
+> **So your border question is really: keep the border, or pick one of those three.
+> Not "keep or remove" — removing it is (a).**
+
+**A BLIND SPOT FOUND AND BEING CLOSED, approved under the delegation rather than
+sent to you**, since it is offline tooling and mutates nothing: today a border edit
+would have been reported as *"the stage changed"* while the cloth quietly
+intersected it. **A stage-clearance gate now counts cloth vertices inside every
+stage box, every frame, recast whenever the stage bytes change** — so a border edit
+reads *"the cloth intersects Portal border at frame N"*. Contact surfaces (floor,
+fascia) assert a maximum penetration depth **and record the measured value**, so
+drift shows as a number moving rather than as a pass against a threshold somebody
+picked once.
+
+**Also fixed today, and it explains a gate that would have cried wolf:** the
+collider file's working copy is CRLF under git's autocrlf, so raw-byte hashing
+called a line-ending-only change a "stage change". All four tools now hash
+LF-normalised bytes, equal to git's blob hash. **That pins final13's bake to commit
+`c467046` (v3) — which is how we know the border was not in it.**
 
 ### A1b. ANSWERED — the tilt goes, the height stays, and ONE NEW QUESTION opened underneath
 **Gary, 30 Sep: *"the crossing pop needs to force the cat's bob to be straight at
