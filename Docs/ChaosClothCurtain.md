@@ -99,6 +99,32 @@ In flight: `final6_columns`, `final7_columns_dense` (0.607 m pleats) and `final8
 10 m wide with a 12 m drop at x 10450; 12 m spilled off the passage floor at ±9.67 m. Alongside them runs an 8-run
 full-resolution strip sweep (`sw_*`), the evidence.
 
+## 30 Sep (10:30): THE P04 BACKCLOTH IS PLACED (final11), and the recipe that got it there
+
+**Recipe, for every falling cloth from now on:** `REST=pleated_switch`, `REST_SWITCH_AMOUNT=0.6`, `HEM_GUIDE_WEIGHT=0.7`,
+bending 5, final2's fabric.
+- The hang holds pleated columns from heading to hem, and the hem guide holds it still (0.41 mm/frame on strips).
+- At release the rest shape goes 60% of the way to flat and the guide lets go, so the pile keeps no rows and is not
+  thrown flat.
+- 0.6 was a GUESS that held, not a derived choice (Docs/Conductor/PREREG_SWITCH_AMOUNT_2026-09-30.md: the amount sweep
+  came back U-shaped and inconclusive).
+- Pile numbers from 6 m strips transfer per area (layers, fold size) but not in shape (height, depth).
+
+**final11_backcloth_p04_a06:**
+- 10 m track, 12 m drop, cloth line x 10450 at P04.
+- Still 1.59 mm/frame (a thin pass; the hold wanders 1.4–3.7), hang perfect (12 folds everywhere).
+- Site: 3.05 m short of the hinge, 1.25 m inside the boards, resting on the floor. Settles 5.4 s into its 10 s fall.
+- Placed by import_passing_bake.py as "P04 Backcloth (baked)" (GC_CurtainBackcloth_P04; manual_tick, running, no
+  looping). Axis exact, map saved clean.
+- Rig's G2/section script drives it: BackclothLeadS 3.0 s (the whole cloth is under the 1.80 m lens 2.20 s after
+  release), release-in-cache 1.0 s.
+
+**Coverage:**
+- The straight columns hang at EXACTLY track width, so 17.77 m leaves 0.615 m to each post: Gary's light leak.
+- All six portals are 19.0 m and coaxial with the drape, so 18.8 m tracks (final13/14, due about 15:30) serve the
+  Opening and every transition.
+- The fit's mouth yaw at distance 0 is load-bearing at that width, because P02 curves.
+
 ## 28 Sep (night): the goal is WEIGHT and a WIDE pile, and the Blender drop bake
 
 Gary reset the goal: "heavy, rough cloth... a wider pile than on top of itself... not a pile of virtual
