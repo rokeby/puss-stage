@@ -15,6 +15,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 
 from PIL import Image, ImageDraw
@@ -36,7 +37,16 @@ def main():
     with open(os.path.join(HERE, "settle_options.json"), encoding="utf-8") as handle:
         run = json.load(handle)
     unknown = [v for v in run["ground"].values() if v.startswith("UNKNOWN")]
-    suffix = "_INTERNAL" if unknown else ""
+    # "--ground-unverified-label" (the conductor, 30 Sep): the frames may go to Gary with the gap stamped on every
+    # frame instead of being withheld. Only when passed explicitly, and still only after an eye check.
+    stamped = "--ground-unverified-label" in sys.argv[1:]
+    suffix = "_INTERNAL" if unknown and not stamped else ""
+    note = NOTE
+    if run.get("hidden_from_capture"):
+        note = note.replace("World frozen: only the camera moves.",
+                            "World frozen: only the camera moves. Wings absent (hidden from the capture).")
+    if unknown and stamped:
+        note = note + "\n" + "Ground unverified: no collision found under the camera on the approach."
     settles = run["settles_s"]
     frames = {}
     for still in run["stills"]:
@@ -46,7 +56,7 @@ def main():
     work = tempfile.mkdtemp()
     grid_paths = []
     for index, t in enumerate(times):
-        grid = Image.new("RGB", (CELL[0] * 2, CELL[1] * 2 + 56), (15, 15, 15))
+        grid = Image.new("RGB", (CELL[0] * 2, CELL[1] * 2 + 76), (15, 15, 15))
         for slot, settle in enumerate(settles):
             still = frames[t][settle]
             cell = Image.open(os.path.join(HERE, still["name"] + ".png")).convert("RGB").resize(CELL)
@@ -55,7 +65,7 @@ def main():
             draw.rectangle([0, 0, CELL[0], 26], fill=(0, 0, 0))
             draw.text((8, 7), "%s    %s" % (label(settle), state), fill=COLOURS[slot])
             grid.paste(cell, ((slot % 2) * CELL[0], (slot // 2) * CELL[1]))
-        ImageDraw.Draw(grid).multiline_text((8, CELL[1] * 2 + 10), NOTE, fill=(200, 200, 200), spacing=6)
+        ImageDraw.Draw(grid).multiline_text((8, CELL[1] * 2 + 10), note, fill=(200, 200, 200), spacing=6)
         path = os.path.join(work, "grid_%04d.png" % index)
         grid.save(path)
         grid_paths.append(path)
@@ -66,7 +76,7 @@ def main():
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(run["fps"]),
                     "-i", os.path.join(work, "grid_%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p", mp4],
                    check=True)
-    frames_small = [Image.open(p).resize((CELL[0], CELL[1] + 28)) for p in sorted(
+    frames_small = [Image.open(p).resize((CELL[0], CELL[1] + 38)) for p in sorted(
         os.path.join(work, f) for f in os.listdir(work))]
     gif = os.path.join(HERE, "settle_grid%s.gif" % suffix)
     frames_small[0].save(gif, save_all=True, append_images=frames_small[1:], duration=int(1000 / run["fps"]), loop=0)

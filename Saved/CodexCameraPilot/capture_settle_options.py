@@ -44,8 +44,12 @@ BEFORE_S, AFTER_S, FPS = 2.5, 0.5, 25
 EV100 = -3.0
 TICKS_PER_S = 24000.0
 WALK_CM_PER_S = 250.0                     # measured in PIE at P04's end, 30 Sep: 246-256 cm/s
-STATE_VERSION = 2
+STATE_VERSION = 3
 BATCH = 10                                # frames per call (4 captures each)
+# Option (a), approved 30 Sep: Passage 04's wings respond to camera distance at runtime, so in the frozen world
+# one stands across the route (the v2 frames failed the eye check). Hide the Passage actor, with its child actors,
+# from the CAPTURE ONLY (the capture component's hidden list; no level change). Labelled "wings absent".
+HIDE_PASSAGE_ACTOR = True
 
 
 def unwrap(result, count):
@@ -71,7 +75,7 @@ def dirty():
             + [p.get_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()])
 
 
-def capture(world, location, rotation, fov, out_dir, name):
+def capture(world, location, rotation, fov, out_dir, name, hidden=()):
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     target = unreal.RenderingLibrary.create_render_target2d(world, 960, 540, unreal.TextureRenderTargetFormat.RTF_RGBA8_SRGB)
     actor = subsystem.spawn_actor_from_class(unreal.SceneCapture2D, location, rotation, True)
@@ -81,6 +85,8 @@ def capture(world, location, rotation, fov, out_dir, name):
         component.set_editor_property("texture_target", target)
         component.set_editor_property("capture_source", unreal.SceneCaptureSource.SCS_FINAL_TONE_CURVE_HDR)
         component.set_editor_property("fov_angle", fov)
+        for actor_to_hide in hidden:
+            component.hide_actor_components(actor_to_hide, True)
         post = component.post_process_settings
         for key, value in (("auto_exposure_method", unreal.AutoExposureMethod.AEM_HISTOGRAM),
                            ("auto_exposure_min_brightness", EV100), ("auto_exposure_max_brightness", EV100),
@@ -104,12 +110,20 @@ def ground_below(world, location, ignore):
         hit = result[1] if isinstance(result, tuple) else result
         if hit is None:                   # a bool UFUNCTION returning false gives None in UE Python
             return "UNKNOWN (no hit within 6 m)"
-        # break_hit_result has a documented order; a struct's to_tuple follows its declaration order.
-        fields = unreal.GameplayStatics.break_hit_result(hit)
+        # 5.8 Python has no GameplayStatics.break_hit_result. HitResult.to_tuple() is measured (30 Sep) as
+        # [blocking, start_penetrating, time, distance, location, impact_point, normal, impact_normal, phys_mat, ...].
+        fields = hit.to_tuple()
         if not fields[0]:
             return "UNKNOWN (no blocking hit within 6 m)"
-        actor = fields[9]
-        return "%s at %.0f cm" % (actor.get_actor_label() if actor else "?", fields[3])
+        owner = "?"
+        for field in fields:
+            if isinstance(field, unreal.ActorComponent) and field.get_owner():
+                owner = "%s/%s" % (field.get_owner().get_actor_label(), field.get_name())
+                break
+            if isinstance(field, unreal.Actor):
+                owner = field.get_actor_label()
+                break
+        return "%s at %.0f cm" % (owner, fields[3])
     except Exception as error:
         return "UNKNOWN (%s)" % error
 
@@ -167,6 +181,13 @@ def main():
     entry = next(a for a in actors if isinstance(a, unreal.CineCameraActor)
                  and a.get_actor_label().startswith(SCENE_PREFIX) and "Entry Handoff" in a.get_actor_label())
     sensor = rig.get_editor_property("camera").get_editor_property("filmback").get_editor_property("sensor_width")
+    hidden = [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.InfinityStagePassageActor)
+              if HIDE_PASSAGE_ACTOR and a.get_editor_property("passage_guid") is not None
+              and unreal.GuidLibrary.conv_guid_to_string(a.get_editor_property("passage_guid"))
+              == unreal.GuidLibrary.conv_guid_to_string(guid)]
+    if HIDE_PASSAGE_ACTOR and len(hidden) != 1:
+        raise RuntimeError(f"expected exactly one {PASSAGE_LABEL} actor to hide from the capture, found {len(hidden)}")
+    state["hidden"] = [a.get_actor_label() for a in hidden]
     del actors
     first = state["index"]
     last = min(len(state["plan"]), first + BATCH)
@@ -187,7 +208,7 @@ def main():
                 focal = component.get_editor_property("current_focal_length")
             fov = math.degrees(2.0 * math.atan(sensor / (2.0 * focal)))
             name = "settle_%03.1fs_f%03d" % (settle, index)
-            capture(world, location, rotation, fov, out_dir, name)
+            capture(world, location, rotation, fov, out_dir, name, hidden)
             remaining = remaining_equivalent_s(tau, settle)
             state["stills"].append({"settle": settle, "t": t, "name": name,
                                     "remaining_equiv_s": round(remaining, 4),
@@ -206,7 +227,8 @@ def main():
     os.remove(state_path)
     with open(os.path.join(out_dir, "settle_options.json"), "w", encoding="utf-8") as handle:
         json.dump({"stills": state["stills"], "ground": state["ground"], "settles_s": SETTLES_S, "fps": FPS,
-                   "world": "frozen in its editor state (no Sequencer)", "dirty_after": dirty()}, handle, indent=1)
+                   "world": "frozen in its editor state (no Sequencer)", "hidden_from_capture": state.get("hidden", []),
+                   "dirty_after": dirty()}, handle, indent=1)
     unreal.log("PUSS_SETTLE_OPTIONS_DONE|stills=%d|ground=%s|dirty_after=%s" % (len(state["stills"]), state["ground"], dirty()))
 
 
