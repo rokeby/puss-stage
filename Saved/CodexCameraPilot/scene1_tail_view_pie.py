@@ -19,6 +19,17 @@ PRE-REGISTERED, before any run. At Scene-local +20 s the view target is:
 The tick where the view target changes (expected at Scene-local 15.0 s, frame 375) is reported too. Screenshot
 timing does not matter here: the question is identity, not frame timing.
 
+SCENE 3 RUN (30 Sep, same harness; mode file {"mode": "run", "scene": "Scene 3", "end_s": 8, "shots": [2, 7],
+"out": "scene3_cut_view"}). Scene 1's own cuts never took the view in play. Scene 3's root track has an interior cut,
+ClamCam1 (root frames 81-1501 at 24 fps = 3.375-62.54 s), overlapping the Entry cut (0-95 = 0-3.958 s). The Master
+plays LS_DevScene_03 1:1 from 468.255 s (probe_master_scene_sections.json). PRE-REGISTERED, before the run. Between
+Scene-local +3.3 and +4.1 s the view target:
+  - becomes ClamCam1: Sequencer's ROOT Scene cuts do drive the view in play. Scene 1's case has a local cause.
+  - becomes a camera bound in LS_Clams (the nested shot): Sequencer cuts drive the view, nested outranking root.
+  - stays the Entry camera through +8 s: Scene cuts do NOT drive the view in play. It generalises, and "cut into
+    the scene's sequence" would never show authored scene cameras as things stand.
+  - changes, but outside 3.3-4.1 s or to anything else: reported as found; the partition was incomplete.
+
 One mode per MCP call, from scene1_tail_view_mode.json {"mode": "start" | "run" | "stop"}:
   start  request PIE (only in a slot the Conductor gave)
   run    in PIE: scrub to 2 s before Scene 1, then PlayForwardThroughBoundaries. A Slate post-tick callback logs
@@ -42,7 +53,12 @@ MAX_TICKS = 3000
 
 def main():
     with open(os.path.join(HERE, "scene1_tail_view_mode.json"), encoding="utf-8") as h:
-        mode = json.load(h)["mode"]
+        cfg = json.load(h)
+    mode = cfg["mode"]
+    scene_prefix = cfg.get("scene", "Scene 1")
+    end_s = float(cfg.get("end_s", END_S))
+    shots_at_s = [float(x) for x in cfg.get("shots", SHOTS_AT_S)]
+    out_name = cfg.get("out", "scene1_tail_view")
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if mode == "start":
         if editor.get_game_world() is None:
@@ -65,9 +81,9 @@ def main():
         unreal.log("PUSS_SCENE1_TAIL_VIEW|refused: no transport")
         return
     segments = transport.get_editor_property("segments")
-    scene1 = [i for i, s in enumerate(segments) if str(s.get_editor_property("label")).startswith("Scene 1")]
+    scene1 = [i for i, s in enumerate(segments) if str(s.get_editor_property("label")).startswith(scene_prefix + " ")]
     if len(scene1) != 1 or scene1[0] == 0:
-        unreal.log("PUSS_SCENE1_TAIL_VIEW|refused: expected one Scene 1 segment after another, found %s" % scene1)
+        unreal.log("PUSS_SCENE1_TAIL_VIEW|refused: expected one %s segment after another, found %s" % (scene_prefix, scene1))
         return
     index = scene1[0]
     start = segments[index].get_editor_property("start_frame").value
@@ -77,20 +93,20 @@ def main():
     scrub = transport.scrub_to_master_frame(unreal.FrameNumber(int(start - LEAD_S * ticks_per_s)))
     play = transport.play_forward_through_boundaries()
     state = {"rows": [], "shots": [], "handle": None}
-    pending_shots = list(SHOTS_AT_S)
+    pending_shots = list(shots_at_s)
 
     def finish(note):
         unreal.unregister_slate_post_tick_callback(state["handle"])
         rows = state["rows"]
         changes = [r for i, r in enumerate(rows) if i == 0 or r["view_target"] != rows[i - 1]["view_target"]]
         at_20 = next((r for r in rows if r["scene_s"] is not None and r["scene_s"] >= 20.0), None)
-        out = {"scene_segment": index, "previous_segment": previous_label, "start_frame": start, "end_frame": end,
+        out = {"scene": scene_prefix, "scene_segment": index, "previous_segment": previous_label, "start_frame": start, "end_frame": end,
                "scrub": str(scrub), "play": str(play), "shots_at_scene_s": state["shots"],
                "view_target_changes": changes, "at_20s": at_20, "rows": rows, "note": note}
-        with open(os.path.join(HERE, "scene1_tail_view.json"), "w", encoding="utf-8") as h:
+        with open(os.path.join(HERE, out_name + ".json"), "w", encoding="utf-8") as h:
             json.dump(out, h, indent=1)
-        unreal.log("PUSS_SCENE1_TAIL_VIEW|done|%s|at_20s=%s|changes=%s|shots=%s" % (
-            note,
+        unreal.log("PUSS_SCENE1_TAIL_VIEW|done|%s|%s|at_20s=%s|changes=%s|shots=%s" % (
+            scene_prefix, note,
             (at_20["view_target"], at_20["camera_xyz"]) if at_20 else None,
             [(c["scene_s"], c["view_target"]) for c in changes],
             state["shots"]))
@@ -119,14 +135,14 @@ def main():
             unreal.SystemLibrary.execute_console_command(w, "shot")
             state["shots"].append(scene_s)
             pending_shots.pop(0)
-        if scene_s is not None and scene_s >= END_S:
+        if scene_s is not None and scene_s >= end_s:
             return finish("ok")
         if len(state["rows"]) > MAX_TICKS:
-            return finish("did not reach Scene-local %.0f s within %d ticks" % (END_S, MAX_TICKS))
+            return finish("did not reach Scene-local %.0f s within %d ticks" % (end_s, MAX_TICKS))
 
     state["handle"] = unreal.register_slate_post_tick_callback(tick)
-    unreal.log("PUSS_SCENE1_TAIL_VIEW|armed|scene1_segment=%d|previous='%s'|start=%d|scrub=%s|play=%s"
-               % (index, previous_label, start, scrub, play))
+    unreal.log("PUSS_SCENE1_TAIL_VIEW|armed|%s|segment=%d|previous='%s'|start=%d (%.3f s)|scrub=%s|play=%s"
+               % (scene_prefix, index, previous_label, start, start / ticks_per_s, scrub, play))
 
 
 main()
