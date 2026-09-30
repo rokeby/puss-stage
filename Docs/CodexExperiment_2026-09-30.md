@@ -95,7 +95,7 @@ throughput limit or bad luck.
 | --- | --- | --- | --- |
 | A | **USABLE** | ~2 min, 3 spot-checks, all passed | See below. |
 | B | **USABLE** | ~2 min, header checks | See below. |
-| D | — | — | — |
+| D | **USABLE — highest value of the five** | ~10 min for the P0 and my four | 21 findings, one P0 live. See below. |
 | E | **USABLE — best of the five** | ~3 min, citations verified in the raw logs | See below. |
 
 
@@ -197,3 +197,42 @@ spellings were derived from reflected declarations and never executed.
 **The pattern across A, B and E:** all three were usable because each drew a line
 between what it could prove and what it could not, and put the line where a
 reader could check it. That is the property to select for.
+
+### D — adversarial review of the day's commits: the highest-value run
+
+Report: `Saved/CodexRuns/last-message-20260930-100748.txt`. **21 findings with
+line citations, across ~50 commits, and it named the 32 commits it found nothing
+in** — which is what makes the 21 mean something.
+
+**One P0, live, and it would have fired at 15:30.** The new human pile-approval
+gate did not gate: `verdict["pile"] = None`, and `ALL` was computed as *nothing
+is `False`* — so `None` passed, and the importer proceeds on `ALL`. **A bake
+would have imported without Gary's approval**, on the one criterion we had just
+proved was measuring noise. Verified in the code, fixed and tested the same hour:
+pending now FAILS, missing metrics are reported rather than skipped.
+
+**Four findings were the conductor's own**, and each was a claim I had made
+confidently:
+- `.codex/config.toml`, holding the port fix I was pleased to have found, **was
+  gitignored** — so a fresh checkout never received the fix my own documentation
+  said was in the repo.
+- My stdin fix closed stdin **only on the default path**, leaving `--review` and
+  `--raw` hanging exactly as that commit's message described.
+- The handover still said **"nothing is placed"** after `final11` went in, and
+  still listed three stutter hypotheses as ruled out after I had demoted them
+  elsewhere.
+- I had written that the backcloth's timing chain was **immutable**. It was not —
+  the cache filename selects a mutable bake JSON. Now bound by SHA-256.
+
+**The recurring class, worth more than any single finding: scripts that compute
+the critical value and never assert it**, or emit a success marker regardless of
+whether restoration failed. At least six findings are that shape. Work that looks
+verified because a number was printed next to it.
+
+**Verification cost: about ten minutes** for the P0 and my four. The rest went to
+their owners with citations attached.
+
+**This is the run that changes what I would delegate.** A, B and E were research.
+D was *review of our own work by something with no memory of having done it* —
+and it found, in one pass, faults that four careful streams had walked past all
+day. That is the highest-leverage use of a second agent in this project.
