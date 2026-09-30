@@ -299,6 +299,26 @@ environments, and **no stream currently owns those**.
 daylight job rather than an overnight one. Previously recorded as S3 being "built
 around its cast", which undersold it.
 
+### B5. A cloth can show a stale frame after a scrub — and it needs an owner
+**Measured today, and it is a rehearsal problem rather than a performance one.** A
+Geometry Cache decodes asynchronously: a jump requests a frame that is not
+decoded yet, and the proxy keeps drawing its **last decoded** frame until
+something requests again. Continuous playback re-requests every frame, so it
+self-heals. **The damaging case is a jump followed by a HOLD** — scrub to a
+moment, then pause and look — where nothing re-requests, so a fallen curtain can
+keep drawing as a standing one **for as long as you are looking at it.**
+
+**Use this today:** after scrubbing onto a cloth shot, **nudge the playhead one
+frame** (or play a moment) before judging the cloth.
+
+**The fix, and why it is not built:** an investigation confirmed UE 5.8 exposes
+**no API** that waits for a decode to be presented — no completion event, fence
+or presented-frame query. So the right fix is to have the transport re-evaluate
+the current time once more a few frames after any jump. **That is
+`InfinityStageTransportController`, which no session owns**, and it is core show
+code. **Recommendation: name an owner** — or let Soft goods' cloth actor do it
+locally, which is narrower and needs no transport change.
+
 ---
 
 ## C. THE REST — real, not urgent

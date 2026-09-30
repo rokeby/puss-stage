@@ -305,3 +305,30 @@ day's commits, audits of documents against source, engine-API investigations, an
 **What still needs a stream:** anything on the critical path, anything writing to
 the Show asset or the level, judgement, and code whose correctness depends on
 knowing the project rather than reading it.
+
+### F — forcing a GeometryCache decode after a seek: USABLE, and it closes the question
+
+Report: `Saved/CodexRuns/last-message-20260930-104337.txt`.
+
+**Finding: UE 5.8 exposes no API that closes the chain** `seek → chunk resident →
+frame decoded → GPU buffers updated → proxy presenting target`. There are APIs
+for requesting a time, for prefetching and awaiting compressed chunks, and for
+decoding inside the codec layer — but **no completion event, future, fence or
+"presented frame index" query** on the public or reflected surface.
+
+**So the workaround is the answer, not a shortcut**: re-evaluating the same time
+after the decode has had a chance to finish is the correct practical fix, and
+nothing better is being overlooked.
+
+**It invented an evidence label we did not ask for, and should adopt:
+BINARY-PROVEN.** Alongside declaration-proven, inferred and measured, it recovered
+names and descriptions from the installed UE DLL's **symbols and strings** where
+the headers ran out. This project's standing limitation is that the engine
+install ships headers and shaders with **zero private `.cpp`** — we have recorded
+that as "behaviour is unverifiable". It is not quite: the shipped binaries carry
+more than the headers do, and that is a tier of evidence between declaration and
+guess.
+
+**Consequence for the show:** the fix belongs in Director's transport, which no
+session owns. It is on Gary's sheet as needing an owner, with Soft goods' cloth
+actor as the narrower alternative. Nothing is being built on my say-so.
