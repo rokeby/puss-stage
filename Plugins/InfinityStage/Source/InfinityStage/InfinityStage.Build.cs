@@ -21,7 +21,10 @@ public class InfinityStage : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(new[]
         {
-            "UMG"
+            "UMG",
+            // Scene arrivals play a backcloth's GeometryCache before the Scene (AInfinityStageArrival).
+            "GeometryCache",
+            "GeometryCacheTracks"
         });
     }
 }

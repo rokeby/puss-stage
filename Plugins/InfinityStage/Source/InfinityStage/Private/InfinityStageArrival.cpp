@@ -3,10 +3,13 @@
 #include "Channels/MovieSceneChannelProxy.h"
 #include "Channels/MovieSceneDoubleChannel.h"
 #include "Components/SceneComponent.h"
+#include "GeometryCacheComponent.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
 #include "LevelSequence.h"
 #include "MovieScene.h"
+#include "MovieSceneGeometryCacheSection.h"
+#include "MovieSceneGeometryCacheTrack.h"
 #include "Sections/MovieScene3DTransformSection.h"
 #include "Sections/MovieSceneSubSection.h"
 #include "Tracks/MovieScene3DTransformTrack.h"
@@ -38,6 +41,26 @@ const UMovieSceneSubSection* FindMotionSection(const UMovieScene& SceneMovieScen
     }
     return nullptr;
 }
+
+/** The first section of a binding's track of the given class, read through the base track. */
+template <typename SectionType, typename TrackType>
+const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid& BindingGuid)
+{
+    const FMovieSceneBinding* Binding = MovieScene.FindBinding(BindingGuid);
+    if (!Binding)
+    {
+        return nullptr;
+    }
+    for (const UMovieSceneTrack* Track : Binding->GetTracks())
+    {
+        if (Track && Track->IsA<TrackType>())
+        {
+            const TArray<UMovieSceneSection*>& Sections = Track->GetAllSections();
+            return Sections.IsEmpty() ? nullptr : Cast<SectionType>(Sections[0]);
+        }
+    }
+    return nullptr;
+}
 }
 
 AInfinityStageArrival::AInfinityStageArrival()
@@ -46,6 +69,22 @@ AInfinityStageArrival::AInfinityStageArrival()
     PrimaryActorTick.bCanEverTick = false;
     SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
     SetRootComponent(SceneRoot);
+}
+
+void AInfinityStageArrival::BeginPlay()
+{
+    Super::BeginPlay();
+    // A GeometryCache that is running auto-plays whenever nothing holds it in manual tick, so a
+    // Show started far from this Arrival would drop the cloth on its own clock. Hold the still
+    // hang (sample 0) until the Master says otherwise.
+    if (AActor* Cloth = BackclothActor.Get())
+    {
+        if (UGeometryCacheComponent* Cache = Cloth->FindComponentByClass<UGeometryCacheComponent>())
+        {
+            Cache->SetManualTick(true);
+            Cache->TickAtThisTime(0.0f, true, false, false);
+        }
+    }
 }
 
 bool AInfinityStageArrival::MapOuterToInnerTime(
@@ -71,10 +110,11 @@ bool AInfinityStageArrival::MapOuterToInnerTime(
     return true;
 }
 
-bool AInfinityStageArrival::ResolveRotationAtMasterFrame(
+bool AInfinityStageArrival::ResolveMotionTime(
     const UInfinityStageShowAsset* Show,
     const FFrameTime MasterTime,
-    FRotator& OutRotation) const
+    FFrameTime& OutMotionTime,
+    const UMovieScene*& OutMotionScene) const
 {
     if (!Show || !Show->TickResolution.IsValid())
     {
@@ -93,7 +133,7 @@ bool AInfinityStageArrival::ResolveRotationAtMasterFrame(
         WarnOnce(TEXT("NoSceneSegment"), SceneCueGuid.ToString());
         return false;
     }
-    // From the Scene's first frame on, Sequencer owns the value.
+    // From the Scene's first frame on, Sequencer owns everything this actor drives.
     if (MasterTime >= FFrameTime(Segment->StartFrame))
     {
         return false;
@@ -119,29 +159,28 @@ bool AInfinityStageArrival::ResolveRotationAtMasterFrame(
     // Master -> the Scene sequence's own time -> the motion sequence's time (negative here).
     const FFrameTime SceneTime = FFrameTime(SceneMovieScene->GetPlaybackRange().GetLowerBoundValue())
         + FFrameRate::TransformTime(MasterTime - FFrameTime(Segment->StartFrame), Show->TickResolution, SceneMovieScene->GetTickResolution());
-    FFrameTime MotionTime;
-    if (!MapOuterToInnerTime(*Section, SceneMovieScene->GetTickResolution(), SceneTime, MotionTime))
+    if (!MapOuterToInnerTime(*Section, SceneMovieScene->GetTickResolution(), SceneTime, OutMotionTime))
     {
         WarnOnce(TEXT("NotFixedPlayRate"), SceneSequence->GetName());
         return false;
     }
+    OutMotionScene = MotionMovieScene;
+    return true;
+}
 
-    const FMovieSceneBinding* Binding = MotionMovieScene->FindBinding(MotionBindingGuid);
-    const UMovieScene3DTransformSection* TransformSection = nullptr;
-    if (Binding)
+bool AInfinityStageArrival::ResolveRotationAtMasterFrame(
+    const UInfinityStageShowAsset* Show,
+    const FFrameTime MasterTime,
+    FRotator& OutRotation) const
+{
+    FFrameTime MotionTime;
+    const UMovieScene* MotionMovieScene = nullptr;
+    if (!ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
     {
-        for (const UMovieSceneTrack* Track : Binding->GetTracks())
-        {
-            if (const UMovieScene3DTransformTrack* TransformTrack = Cast<UMovieScene3DTransformTrack>(Track))
-            {
-                if (!TransformTrack->GetAllSections().IsEmpty())
-                {
-                    TransformSection = Cast<UMovieScene3DTransformSection>(TransformTrack->GetAllSections()[0]);
-                }
-                break;
-            }
-        }
+        return false;
     }
+    const UMovieScene3DTransformSection* TransformSection =
+        FindBindingSection<UMovieScene3DTransformSection, UMovieScene3DTransformTrack>(*MotionMovieScene, MotionBindingGuid);
     if (!TransformSection)
     {
         WarnOnce(TEXT("NoTransformTrack"), MotionBindingGuid.ToString());
@@ -164,20 +203,62 @@ bool AInfinityStageArrival::ResolveRotationAtMasterFrame(
     return true;
 }
 
-bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset* Show, const FFrameTime MasterTime)
+bool AInfinityStageArrival::ResolveBackclothTimeAtMasterFrame(
+    const UInfinityStageShowAsset* Show,
+    const FFrameTime MasterTime,
+    const float CacheDurationSeconds,
+    float& OutCacheSeconds) const
 {
-    FRotator Rotation;
-    const USceneComponent* DrivenRoot = DrivenActor ? DrivenActor->GetRootComponent() : nullptr;
-    if (!DrivenRoot || !ResolveRotationAtMasterFrame(Show, MasterTime, Rotation))
+    FFrameTime MotionTime;
+    const UMovieScene* MotionMovieScene = nullptr;
+    if (!BackclothBindingGuid.IsValid() || !ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
     {
         return false;
     }
-    // Transient evaluation, like the Passage mechanisms: no Modify(), nothing dirtied.
-    if (!DrivenRoot->GetRelativeRotation().Equals(Rotation, 1.0e-4))
+    const UMovieSceneGeometryCacheSection* Section =
+        FindBindingSection<UMovieSceneGeometryCacheSection, UMovieSceneGeometryCacheTrack>(*MotionMovieScene, BackclothBindingGuid);
+    if (!Section)
     {
-        DrivenActor->SetActorRelativeRotation(Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+        WarnOnce(TEXT("NoBackclothSection"), BackclothBindingGuid.ToString());
+        return false;
     }
+    // The engine's own mapping, exactly as Sequencer plays the same section after the boundary.
+    OutCacheSeconds = Section->MapTimeToAnimation(CacheDurationSeconds, MotionTime, MotionMovieScene->GetTickResolution());
     return true;
+}
+
+bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset* Show, const FFrameTime MasterTime)
+{
+    bool bDrove = false;
+    FRotator Rotation;
+    const USceneComponent* DrivenRoot = DrivenActor ? DrivenActor->GetRootComponent() : nullptr;
+    if (DrivenRoot && ResolveRotationAtMasterFrame(Show, MasterTime, Rotation))
+    {
+        // Transient evaluation, like the Passage mechanisms: no Modify(), nothing dirtied.
+        if (!DrivenRoot->GetRelativeRotation().Equals(Rotation, 1.0e-4))
+        {
+            DrivenActor->SetActorRelativeRotation(Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+        }
+        bDrove = true;
+    }
+
+    AActor* Cloth = BackclothActor.Get();
+    UGeometryCacheComponent* Cache = Cloth ? Cloth->FindComponentByClass<UGeometryCacheComponent>() : nullptr;
+    float CacheSeconds = 0.0f;
+    if (Cache && ResolveBackclothTimeAtMasterFrame(Show, MasterTime, Cache->GetDuration(), CacheSeconds))
+    {
+        // Every evaluation, not once: a running cache left out of manual tick plays on its own clock.
+        Cache->SetManualTick(true);
+        Cache->TickAtThisTime(CacheSeconds, true, false, false);
+        bDrove = true;
+        if (!bLoggedBackcloth)
+        {
+            bLoggedBackcloth = true;
+            UE_LOG(LogInfinityStageArrival, Display, TEXT("ArrivalBackcloth|actor=%s|duration=%.3f|cache_time=%.3f|master_frame=%d"),
+                *Cloth->GetActorNameOrLabel(), Cache->GetDuration(), CacheSeconds, MasterTime.FloorToFrame().Value);
+        }
+    }
+    return bDrove;
 }
 
 void AInfinityStageArrival::WarnOnce(const TCHAR* Reason, const FString& Detail) const

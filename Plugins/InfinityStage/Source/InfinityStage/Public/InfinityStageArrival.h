@@ -8,6 +8,7 @@
 
 class ULevelSequence;
 class UInfinityStageShowAsset;
+class UMovieScene;
 class UMovieSceneSubSection;
 class USceneComponent;
 
@@ -63,6 +64,27 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Arrival")
     bool ResolveRotationAtMasterFrame(const UInfinityStageShowAsset* Show, FFrameTime MasterTime, FRotator& OutRotation) const;
 
+    /** A cloth that falls as the motion begins (Scene 4: the Passage's backcloth), placed as its
+     * own GeometryCache actor. Its timeline is a GeometryCache section in MotionSequence, which
+     * may start at negative time: this actor plays it before the Scene, Sequencer after, so the
+     * fall finishes inside the Scene instead of freezing at the boundary. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+    TSoftObjectPtr<AActor> BackclothActor;
+
+    /** The possessable in MotionSequence whose GeometryCache track holds the cloth's section. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+    FGuid BackclothBindingGuid;
+
+    /** The cache time EvaluateAtMasterFrame would play on the backcloth, with no side effects:
+     * the engine's own section mapping (MapTimeToAnimation) at the negative motion time, so
+     * sample 0 before the section and the last sample after it. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Arrival")
+    bool ResolveBackclothTimeAtMasterFrame(
+        const UInfinityStageShowAsset* Show,
+        FFrameTime MasterTime,
+        float CacheDurationSeconds,
+        float& OutCacheSeconds) const;
+
     /**
      * A time in the parent (Scene) sequence, in its tick resolution, mapped to the
      * sub-section's inner (motion) sequence exactly as the sub-section places it:
@@ -76,9 +98,21 @@ public:
         FFrameTime OuterTime,
         FFrameTime& OutInnerTime);
 
+protected:
+    virtual void BeginPlay() override;
+
 private:
+    /** Master time -> the motion sequence's own time (negative before the Scene). False at or
+     * after the Scene's first frame, or when any link is missing. */
+    bool ResolveMotionTime(
+        const UInfinityStageShowAsset* Show,
+        FFrameTime MasterTime,
+        FFrameTime& OutMotionTime,
+        const UMovieScene*& OutMotionScene) const;
+
     /** One warning per failure reason, not one per evaluated frame. */
     void WarnOnce(const TCHAR* Reason, const FString& Detail) const;
 
     mutable TSet<FString> WarnedReasons;
+    bool bLoggedBackcloth = false;
 };

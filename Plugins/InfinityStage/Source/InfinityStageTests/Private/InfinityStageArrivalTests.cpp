@@ -9,6 +9,8 @@
 #include "LevelSequence.h"
 #include "Misc/AutomationTest.h"
 #include "MovieScene.h"
+#include "MovieSceneGeometryCacheSection.h"
+#include "MovieSceneGeometryCacheTrack.h"
 #include "Sections/MovieScene3DTransformSection.h"
 #include "Sections/MovieSceneSubSection.h"
 #include "Tracks/MovieScene3DTransformTrack.h"
@@ -154,6 +156,31 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("The speed dial scales the pre-roll too"),
         Arrival->ResolveRotationAtMasterFrame(Show, Master(1.5), Rotation)
         && FMath::IsNearlyEqual(Rotation.Pitch, PitchAt(-1.2), 1.0e-3));
+
+    // The backcloth: a GeometryCache section in the same motion sequence, starting at negative
+    // time. No cache asset is needed to test the mapping: the duration is passed in, as the
+    // component's own would be. These are Soft goods' rules, asserted one by one.
+    SubSection->Parameters.TimeScale = FMovieSceneTimeWarpVariant(1.0);
+    const FGuid Cloth = MotionScene->AddPossessable(TEXT("Cloth"), AStaticMeshActor::StaticClass());
+    UMovieSceneTrack* ClothTrack = MotionScene->AddTrack<UMovieSceneGeometryCacheTrack>(Cloth);
+    UMovieSceneGeometryCacheSection* ClothSection = CastChecked<UMovieSceneGeometryCacheSection>(ClothTrack->CreateNewSection());
+    constexpr float CacheSeconds = 11.0f;
+    ClothSection->SetRange(TRange<FFrameNumber>(
+        MotionRate.AsFrameTime(-2.5).FloorToFrame(), MotionRate.AsFrameTime(-2.5 + CacheSeconds).FloorToFrame()));
+    ClothTrack->AddSection(*ClothSection);
+    Arrival->BackclothBindingGuid = Cloth;
+    float ClothTime = -1.0f;
+    TestTrue(TEXT("Before its section the cloth holds sample 0 exactly (the still hang)"),
+        Arrival->ResolveBackclothTimeAtMasterFrame(Show, Master(3.5), CacheSeconds, ClothTime) && ClothTime == 0.0f);
+    TestTrue(TEXT("Inside its section the cloth runs on the section's clock"),
+        Arrival->ResolveBackclothTimeAtMasterFrame(Show, Master(1.5), CacheSeconds, ClothTime) && FMath::IsNearlyEqual(ClothTime, 1.0f, 1.0e-3f));
+    TestTrue(TEXT("One Master tick before the Scene the cloth is where Sequencer takes it up"),
+        Arrival->ResolveBackclothTimeAtMasterFrame(Show, SceneStart - FFrameTime(1), CacheSeconds, ClothTime)
+        && FMath::IsNearlyEqual(ClothTime, 2.5f, 1.0e-2f));
+    TestFalse(TEXT("At the Scene's first frame Sequencer plays the cloth"),
+        Arrival->ResolveBackclothTimeAtMasterFrame(Show, SceneStart, CacheSeconds, ClothTime));
+    TestTrue(TEXT("Past its section the cloth holds its last sample (the pile), it does not loop"),
+        ClothSection->MapTimeToAnimation(CacheSeconds, MotionRate.AsFrameTime(20.0), MotionRate) > CacheSeconds - 0.1f);
 
     World->DestroyWorld(false);
     return true;

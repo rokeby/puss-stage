@@ -13,6 +13,8 @@ public class InfinityStageTests : ModuleRules
             "Engine",
             "MovieScene",
             "MovieSceneTracks",
+            "GeometryCache",
+            "GeometryCacheTracks",
             "LevelSequence",
             "InfinityStage"
         });
