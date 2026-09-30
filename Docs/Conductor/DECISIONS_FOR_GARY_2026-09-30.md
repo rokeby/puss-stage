@@ -366,6 +366,31 @@ line. **It reads as lights rising in a pit and a silhouette at the horizon, not
 as the box arriving early.** Whether that is acceptable is yours, but it is no
 longer a number.
 
+### B0b. SCENE 3's CAST STANDS WHERE ITS HANGAR RISES — a staging decision
+**At P03, and you called P03 the first place you would test characters with the
+hangar.** The six "Shore" cast figures, the Celadon set and a light stand all sit
+**inside the hangar's swept footprint** — which is why they are on its exemption
+list.
+
+**So the fix applied everywhere else cannot be applied here.** Cutting a pit-hole
+in the floor under a rising box is what stops it slicing through the ground; at
+S3 it would leave **your cast hovering over an open pit**, visible from the
+approach, until the box lands beneath them.
+
+**So S3 keeps a flat floor and keeps its existing behaviour: the box rises
+through the ground there, as it always has.** That is a **knowingly retained
+known fault**, not an oversight — recorded as such so nobody later reads it as
+one. The lattice also sweeps through floor level near the cast, 28 to 62 m past
+the hinge, which is inherent to how S3 is staged rather than new.
+
+**The real fix is yours, and it is about the cast rather than the floor:**
+1. **The cast rides the box floor up** — they are part of the machine, arriving with it.
+2. **The cast appears at landing** — the box arrives empty and they are revealed in it.
+3. **The cast moves out of the footprint** — the box rises beside them rather than under them.
+
+Each is a different piece of theatre, not a different fix. Nothing will be done
+at S3 until you choose.
+
 ### B5. A cloth can show a stale frame after a scrub — and it needs an owner
 **Measured today, and it is a rehearsal problem rather than a performance one.** A
 Geometry Cache decodes asynchronously: a jump requests a frame that is not
