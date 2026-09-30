@@ -393,6 +393,25 @@ Recorded because each is a class of fault, not a one-off.
   the blind call, it could not have counted the kind that leak, and it comes off
   the ruled-out list.
 
+- **A REVERT COUNTS AS A SAFETY NET WHEN IT HAS BEEN EXERCISED OR READ, NOT WHEN
+  IT HAS BEEN NAMED.** Risky writes were approved all day on the grounds that a
+  named revert existed. An audit of all 47 revert-shaped scripts on 30 Sep found
+  **four that WOULD FAIL** and several destructive ones that might:
+  - one reads a record saying `steel_grooves: true` and **hardcodes `False`** —
+    it would succeed into the WRONG state and emit its success marker. **A revert
+    that fails is recoverable; one that succeeds wrongly is not**, because nobody
+    looks afterwards.
+  - **three have neither a record file nor a matching backup**, which makes the
+    changes they guard effectively permanent while reading as reversible.
+  - `hangar_revert.py` never requires `deleted == len(created)` — **exactly the
+    113-of-114 seen in the S2 rebuild the same afternoon.** A stream verified by
+    hand that nothing from the record survived; the script would have emitted
+    `HANGAR_REVERTED` either way.
+  Separately, a revert found by reading it rather than by needing it compared its
+  read-back against the **current** keys instead of the **recorded originals**,
+  so it would have refused to save at exactly the moment it mattered. Fixed, and
+  its first live run worked.
+
 - **Every MCP call costs a 40–80 ms hitch.** A session polling the editor
   manufactures the stutter it is measuring.
 - **A GEOMETRY CACHE DECODES ASYNCHRONOUSLY, AND A CAPTURE AFTER A JUMP SHOWS
