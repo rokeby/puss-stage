@@ -105,3 +105,8 @@ ticks), so baked cloth shows its decoded frame instead of the stale one (`StepJu
 test references the new function, so apply S whole in stage 2. **Watch in stage 2 (inferred):** the
 same-frame Jump also triggers the Passage track's jumped-render hint (a temporal-history reset while
 paused, once), and any Sequencer event set to fire on jump would fire again.
+
+**Correction to commit 47e99a7's message (measured, 30 Sep):** S applies alone and with C, K, L, M, N, O,
+P and R. It does NOT apply "with Q", because **Q itself no longer applies to HEAD** (fails at
+InfinityStageCompilerTests.cpp:21; the conductor's commits e0c2c2f and 63e5500 changed that area after Q was
+drafted). That is Q's owner's to regenerate. S and Q share no files.
