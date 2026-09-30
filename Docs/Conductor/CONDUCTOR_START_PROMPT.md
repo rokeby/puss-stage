@@ -83,9 +83,11 @@ on it; it is the part that goes stale.
   Rig holds a pre-registered late re-run: >=20 cluster starts/min in either X
   phase means editor age, <=5 in both means the landscapes, between is
   inconclusive. That reading is binding.
-- THE EDITOR QUEUE: Look & camera hold it for a settle capture; Soft goods are
-  second with one read of P03's stage-front and surface tops; Rig's attribution
-  run is LAST and needs the most elapsed time, so a slow queue eats it first.
+- THE EDITOR QUEUE: relaunched 17:14:24, verified clean. Look & camera are RUNNING
+  the settle capture; Soft goods are second with one read of P03's stage-front
+  instance count and surface tops across the pile footprint; Rig's attribution run
+  is LAST and its clock started at 17:14:24, so the longer the queue takes the
+  better that test gets -- but it cannot run at all if the session ends first.
 - FIVE PATCHES ARE HELD AND NONE HAS COMPILED: the cat body, C, K, L, M. They
   apply together on HEAD. Two-stage build, red assertions pre-registered; M
   applies whole in stage 2. The build needs every editor closed.
