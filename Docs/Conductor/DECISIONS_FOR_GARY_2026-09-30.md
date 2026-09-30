@@ -330,6 +330,42 @@ environments, and **no stream currently owns those**.
 daylight job rather than an overnight one. Previously recorded as S3 being "built
 around its cast", which undersold it.
 
+### B0. THREE SCENES ARE SHORTER THAN THEIR HANGAR RISES — blocking, and new
+**Nesting is done at Scene 1 and refused at Scenes 2, 5 and 6, correctly.** The
+Show says every scene is 15 s, but the compiler follows each Scene **sequence's**
+playback range, and those three are still 15 s while their rises are 31, 49 and
+31 s. Scene 1 is 210.8 s and Scene 3 is 65.5 s, so both fit; Scene 4 was
+lengthened to 31 s by hand to host its hangar.
+
+**What nesting them as-is would do:**
+- **S2 and S6** — cut at **−0.7°**, a fraction short of landing, with **none** of
+  their light, roof or lattice beats, which start at 16.5 s.
+- **S5** — cut **mid-rise at about −24°.**
+
+The apply script refuses rather than truncating silently, so nothing is broken;
+it is simply waiting.
+
+**Your options:**
+1. **Lengthen Scenes 2, 5 and 6** to 31 / 49 / 31 s, as Scene 4 already was.
+   **This moves every later segment's timing**, and the Master is already stale
+   from Scene 3 onward — so it wants doing together with that repair, by whoever
+   ends up owning the transport.
+2. **Accept a truncated fold** at those three.
+3. **Compress those hangars' beats into 15 s**, which is a look change to the
+   rise itself.
+
+**Recommendation: (1), but not today and not piecemeal.** It is the same
+timeline that the stale Master sits on, and doing it twice would be worse than
+doing it once.
+
+**Meanwhile, the transplanted start now has a picture** (`Captures/S1Transplant/`).
+From the cat's approach it is much milder than the number suggested: nothing
+visible until −2.5 s, then three lattice bulbs rising in a dark pit, peaking at
+**1.7% of the frame** around −1.0 s as the box's mouth frame breaks the far floor
+line. **It reads as lights rising in a pit and a silhouette at the horizon, not
+as the box arriving early.** Whether that is acceptable is yours, but it is no
+longer a number.
+
 ### B5. A cloth can show a stale frame after a scrub — and it needs an owner
 **Measured today, and it is a rehearsal problem rather than a performance one.** A
 Geometry Cache decodes asynchronously: a jump requests a frame that is not
