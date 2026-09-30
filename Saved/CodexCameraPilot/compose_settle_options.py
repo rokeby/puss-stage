@@ -40,6 +40,13 @@ def main():
     # "--ground-unverified-label" (the conductor, 30 Sep): the frames may go to Gary with the gap stamped on every
     # frame instead of being withheld. Only when passed explicitly, and still only after an eye check.
     stamped = "--ground-unverified-label" in sys.argv[1:]
+    # "--ground-verified-by=<who, when, what>": the ground was MEASURED by someone else where this trace cannot
+    # see it (30 Sep, Rig 01:47: P04's board ISMs don't block the trace channel). Recorded in a sidecar, no stamp.
+    verified_by = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--ground-verified-by=")), "")
+    if verified_by:
+        with open(os.path.join(HERE, "ground_verification.txt"), "w", encoding="utf-8") as handle:
+            handle.write("trace: %s\nverified by: %s\n" % (run["ground"], verified_by))
+        unknown = []
     suffix = "_INTERNAL" if unknown and not stamped else ""
     note = NOTE
     if run.get("hidden_from_capture"):
