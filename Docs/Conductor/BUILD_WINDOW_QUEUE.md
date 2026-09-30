@@ -6,6 +6,31 @@ build. The editor is currently held by the landscape block, so this waits.
 Gary set the review cadence on 30 Sep: **the adversarial Codex review runs once
 per build window**, not ad hoc.
 
+## BUILD IT IN TWO STAGES — the tests' redness is INFERRED, not measured
+
+**Nothing in this queue has compiled.** "Every test is red without its patch" is
+read from the code — the clamp, the `SetRange`-only rebuild — and it is
+**inferred**. Each new test lives in its own new file, separate from its fix, so
+proving it costs one extra compile:
+
+1. **Build with ONLY the three new test files** (`InfinityStagePassageKeyCarryTests.cpp`,
+   `InfinityStageHandoffGapTests.cpp`). Run `PassageKeysFollowSection`,
+   `RetainedExitLeavesNoGap` and `ExitHoldSurvivesLengthening`. **Expect red.**
+2. **Apply the fix hunks, rebuild, run again. Expect green.**
+
+**This is not optional for K.** K's test is the **measurement of an inference
+nobody here can read** — that `MoveSection` carries its keys, taken from a doc
+comment because the engine `.cpp` is not shipped. **If K's test is red after
+applying K, that result is uninterpretable without stage 1**: it means either
+"the engine does not behave as documented" or "the test is broken", and those
+have completely different consequences. Stage 1 separates them.
+
+**And it guards the exact fault class that cost the morning of 30 Sep.** All six
+`SavedFixturePIE` failures that day were **fixture** faults — a test red for the
+wrong reason looks identical to a test red for the right one. A stage-1 red
+proves the test *runs and sees something*; a stage-2 green proves the fix is what
+changed it.
+
 ## Order
 
 1. **Close the editor** (`Saved/CodexConductor/quit_editor_clean.py` — it refuses
