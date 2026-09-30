@@ -412,6 +412,20 @@ Recorded because each is a class of fault, not a one-off.
   so it would have refused to save at exactly the moment it mattered. Fixed, and
   its first live run worked.
 
+- **"APPLIES CLEANLY" IS NOT "STILL VALID", and a held TEST patch is the most
+  likely thing in this repo to be stale.** A patch held from 29 Sep applied
+  cleanly to HEAD a day later, would have compiled, and **would never have
+  executed one of its assertions.** The redesign it predated had not deleted the
+  old lines — it had wrapped them in an `else` branch that runs only when an
+  Interaction has no camera cut of its own. **So the patch's context still
+  matched perfectly, while the branch it targeted was measured never to run.**
+  Its premise was superseded too: it required the curtain within 250 cm of the
+  camera, and the stalls drape now hangs about 1400 cm away.
+  **Check a held patch against what the code now DOES, not against whether it
+  applies.** And prefer deleting a stale patch to leaving it, because one that
+  applies cleanly is read as ready — this one survived eight patches and three
+  build windows by looking fine.
+
 - **Every MCP call costs a 40–80 ms hitch.** A session polling the editor
   manufactures the stutter it is measuring.
 - **A GEOMETRY CACHE DECODES ASYNCHRONOUSLY, AND A CAPTURE AFTER A JUMP SHOWS
