@@ -398,13 +398,15 @@ relight); the two bent links stay cloth cuts. **What it costs, counted:**
 | | |
 | --- | --- |
 | Passage + Structure actors to move | **6** |
-| Camera rigs | **3** — *how a rig follows its Passage is the ONE open question* |
+| Camera rigs | **0 work.** They derive their transform from the route spline every evaluation, and the spline is attached to the Passage — so a moved Passage carries them, and authored camera offsets are in the route's frame so they follow too. |
+| Scene handoff cameras | **One gated rematch per adjacent Scene**, minutes each — but **only AFTER the build**, or the clamp eats the hold again. |
+| Transition stalls cameras | **One small re-seat script**, for moved mouths only. They are placed once, not derived, and the Interaction cuts bind them **as actors** — so they must be moved in place, never replaced. |
 | Hand-placed actors (lanterns, stalls cameras, floors, liners, the backcloth) | **24**, none with children |
 | Handoff cameras | 6, they regenerate |
 | Hangar actors + Arrivals | 1,127 + 3, **rebuilt anyway for the new roof** |
 | **World-space re-keys outside the hangars** | **ZERO** |
 
-**That last row is the one that mattered.** The uncounted remainder was expected
+**The zero-re-keys row is the one that mattered.** The uncounted remainder was expected
 to *"turn this into hours"*. It is **zero**. The full chain adds P02, P03 and
 Scene 3's cast, five Scene 3 re-keys and the turns — **so the cheap mix is not a
 compromise, it is most of the value for a small fraction of the work.**

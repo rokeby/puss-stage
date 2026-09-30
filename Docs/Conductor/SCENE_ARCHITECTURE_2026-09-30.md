@@ -119,10 +119,18 @@ against a 19 × 10.5 m portal, so the proscenium sits inside it with room to
 spare; the stalls seat 14 m back from the portal is 46 m from the Scene's stop,
 inside the 60 m nave.
 
-**And almost nothing needs re-authoring, by construction.** The five transition
-cameras are derived live from each route start, the drape lives at the mouth, and
-the portal is built at the route start — so **all three follow a docked Passage
-automatically.**
+**Most of it follows a docked Passage by construction** — the drape lives at the
+mouth, the portal is built at the route start, and the **camera RIGS** derive
+their transform from the route spline every evaluation, so a moved Passage
+carries them.
+
+**CORRECTED 30 Sep, by its own author: the five TRANSITION STALLS cameras are NOT
+derived.** They are placed once by a script that refuses if they already exist.
+After a docking move they must be **re-seated in place** — not replaced, because
+the Interaction cuts bind them **as actors**, so new ones would break the
+bindings. A small script, for moved mouths only. **The Scene handoff cameras are
+also static copies** taken at match time, so adjacent Scenes need a gated
+rematch after any move.
 
 **Cost sits almost entirely with Rig:** dock each Passage N+1's mouth at Hangar
 N's far wall, and give the far wall an opening mechanism (the fold vocabulary in
