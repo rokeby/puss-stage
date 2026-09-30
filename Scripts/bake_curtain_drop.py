@@ -506,7 +506,10 @@ def hang_profile(co):
 
 def fold_size(obj, crease_deg=45.0):
     """Characteristic fold size (m) = cloth area / total length of creased edges (dihedral > crease_deg).
-    Fine crinkle has many creases (small), a plank few (large). Resolution-bound: compare at equal mesh size."""
+    Fine crinkle has many creases (small), a plank few (large). Resolution-bound: compare at equal mesh size.
+    NOT A BUG (30 Sep, sw_ps_a04_g07): gentle REGULAR ripples (pleat memory surviving the fall) bend less than
+    crease_deg, so they count as no creases at all, and that pile scores COARSE (1.51x) although it looks rippled. The
+    metric measures sharp creases, not waviness: read it beside the picture."""
     dg = bpy.context.evaluated_depsgraph_get()
     ev = obj.evaluated_get(dg)
     me = ev.to_mesh()
