@@ -371,6 +371,19 @@ Recorded because each is a class of fault, not a one-off.
   scripts. A bad argument crashes as hard as a bad write.
 - **Every MCP call costs a 40–80 ms hitch.** A session polling the editor
   manufactures the stutter it is measuring.
+- **A SHARED MUTABLE FILE IS NOT A SOURCE OF TRUTH — it is a cache of the last
+  thing that happened.** The backcloth section script defaulted its release time
+  to 1.0 s, which was `final8`'s value: a bake that had been stopped and no
+  longer existed. Every precondition would still have passed and the fall would
+  simply have been mistimed. The conductor's fix — read it from
+  `import_passing_bake.json` — was **the same bug one step later**, because that
+  file is overwritten by every import, so a later Opening import would have made
+  it describe the wrong cache. The working answer is to follow the **artifact
+  chain**: placed actor, its cache, the Alembic it was imported from, that bake's
+  own `DropBake/<id>.json`. Each link is immutable once written, so the number is
+  derived from the thing it describes and cannot drift. A value that lives in no
+  artifact — `BackclothLeadS` — is required with no default instead, because a
+  default there is a guess wearing a number's clothes.
 - **Measure before judging.** Four cloth bakes were rejected on look this week
   before anyone measured anything. Every bake now carries a number.
 - **THE CAPTURE CONVENTION EVERY STREAM USED WAS SEVERAL STOPS DARK.** Setting
