@@ -1,7 +1,7 @@
 {
   "apply": false,
-  "decided_by": "Gary, via Puss - Conductor (v2), 30 Sep: 'All hangar scenes 1-6' to free dog look (asked: Scene 4 only / all hangar scenes 1-6 / 4 and 6)",
-  "_note": "Dry run first (apply false), then apply=true in the editor slot. Scene 6 is already DOG_FREE_LOOK, so it reports no change. Passages are not touched.",
+  "decided_by": "Gary, via Puss - Conductor (v2), 30 Sep: chose 'All hangar scenes 1-6' for free dog look; asked 'Apply free dog look to Scenes 1-5 now?', answered 'Free until we handover to the cutscene sequences, to come.'",
+  "_note": "APPLIED 30 Sep 17:42 (backup Backups/PreCameraOwners-20260930-174243): Scenes 1-5 -> DOG_FREE_LOOK; Scene 6 already was. Read back: all six DOG_FREE_LOOK. apply reset to false so a re-run is a dry run.",
   "owners": {
     "Scene 1 — External Sound": "DOG_FREE_LOOK",
     "Scene 2 — External Sound": "DOG_FREE_LOOK",
