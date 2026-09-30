@@ -258,6 +258,7 @@ def main():
                 v["pile_override"] = approvals[i]
                 v["ALL"] = v["still"] and v["hang"] and all(x is not False for k, x in v.items() if k not in ("ALL", "pile_override"))
                 ls.append(f"- **pile PASSED BY EYE (override)**: {approvals[i]}")
+                ls[0] = ls[0].replace(": FAIL", ": PASS" if v["ALL"] else ": FAIL").replace("pile False", "pile True (by eye)")
         body += ls + [""]
         verdicts[i] = v
         summary.append(f"| {i} | {'PASS' if v['ALL'] else 'FAIL'} | "
