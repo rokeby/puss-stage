@@ -1,0 +1,95 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+index 9e6469e..fe89d30 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+@@ -120,6 +120,39 @@ bool AInfinityStageArrival::ResolveMotionTime(
+     {
+         return false;
+     }
++    const int32 CueIndex = Show->FindCueIndex(SceneCueGuid);
++    if (CueIndex == INDEX_NONE || Show->Cues[CueIndex].Type != EInfinityCueType::Scene)
++    {
++        WarnOnce(TEXT("NoSceneSegment"), SceneCueGuid.ToString());
++        return false;
++    }
++    const ULevelSequence* SceneSequence = Show->Cues[CueIndex].Scene.Sequence.LoadSynchronous();
++    const ULevelSequence* Motion = MotionSequence.LoadSynchronous();
++    const UMovieScene* SceneMovieScene = SceneSequence ? SceneSequence->GetMovieScene() : nullptr;
++    const UMovieScene* MotionMovieScene = Motion ? Motion->GetMovieScene() : nullptr;
++    if (!SceneMovieScene || !MotionMovieScene)
++    {
++        WarnOnce(TEXT("NoSequence"), MotionSequence.ToString());
++        return false;
++    }
++    // Not nested yet is a designed state, not a fault: an Arrival can be placed ahead of its
++    // hangar's nesting and stays inert until then. Checked BEFORE the compile, so a waiting
++    // Arrival costs a cue lookup and a track scan per frame, not a Show compile, and it says
++    // so once at Display: nothing in a test report, nothing to subtract from a Passage tick.
++    const UMovieSceneSubSection* Section = FindMotionSection(*SceneMovieScene, *Motion);
++    if (!Section)
++    {
++        bool bAlreadyNoted = false;
++        WarnedReasons.Add(TEXT("NotNested"), &bAlreadyNoted);
++        if (!bAlreadyNoted)
++        {
++            UE_LOG(LogInfinityStageArrival, Display,
++                TEXT("INFINITY_STAGE_ARRIVAL_WAITING actor='%s' reason=NotNested detail='%s' (inert until %s plays %s)"),
++                *GetActorNameOrLabel(), *SceneSequence->GetName(), *SceneSequence->GetName(), *Motion->GetName());
++        }
++        return false;
++    }
++
+     // Compiled every call and never cached: the Show is edited without Modify(), and a
+     // compile costs about 0.05 ms.
+     const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
+@@ -139,23 +172,6 @@ bool AInfinityStageArrival::ResolveMotionTime(
+         return false;
+     }
+ 
+-    const int32 CueIndex = Show->FindCueIndex(SceneCueGuid);
+-    const ULevelSequence* SceneSequence = CueIndex != INDEX_NONE ? Show->Cues[CueIndex].Scene.Sequence.LoadSynchronous() : nullptr;
+-    const ULevelSequence* Motion = MotionSequence.LoadSynchronous();
+-    const UMovieScene* SceneMovieScene = SceneSequence ? SceneSequence->GetMovieScene() : nullptr;
+-    const UMovieScene* MotionMovieScene = Motion ? Motion->GetMovieScene() : nullptr;
+-    if (!SceneMovieScene || !MotionMovieScene)
+-    {
+-        WarnOnce(TEXT("NoSequence"), MotionSequence.ToString());
+-        return false;
+-    }
+-    const UMovieSceneSubSection* Section = FindMotionSection(*SceneMovieScene, *Motion);
+-    if (!Section)
+-    {
+-        WarnOnce(TEXT("NoSubSection"), SceneSequence->GetName());
+-        return false;
+-    }
+-
+     // Master -> the Scene sequence's own time -> the motion sequence's time (negative here).
+     const FFrameTime SceneTime = FFrameTime(SceneMovieScene->GetPlaybackRange().GetLowerBoundValue())
+         + FFrameRate::TransformTime(MasterTime - FFrameTime(Segment->StartFrame), Show->TickResolution, SceneMovieScene->GetTickResolution());
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
+index d53201b..d814ed0 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
+@@ -182,6 +182,22 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
+     TestTrue(TEXT("Past its section the cloth holds its last sample (the pile), it does not loop"),
+         ClothSection->MapTimeToAnimation(CacheSeconds, MotionRate.AsFrameTime(20.0), MotionRate) > CacheSeconds - 0.1f);
+ 
++    // Placed ahead of its nesting (Scenes 1, 2, 3, 5, 6 on 30 Sep): an Arrival whose motion the
++    // Scene does not play declines, leaves its actor alone, and says so exactly once at Display
++    // (not the old per-session warning), however many frames ask.
++    ULevelSequence* Unnested = NewObject<ULevelSequence>(GetTransientPackage());
++    Unnested->Initialize();
++    AInfinityStageArrival* Waiting = World->SpawnActor<AInfinityStageArrival>();
++    Waiting->SceneCueGuid = SceneCue.CueGuid;
++    Waiting->MotionSequence = Unnested;
++    Waiting->MotionBindingGuid = Binding;
++    Waiting->DrivenActor = Driven;
++    AddExpectedMessagePlain(TEXT("INFINITY_STAGE_ARRIVAL_WAITING"), ELogVerbosity::Display, EAutomationExpectedMessageFlags::Contains, 1);
++    const FRotator Resting = Driven->GetActorRotation();
++    TestFalse(TEXT("Unnested, the Arrival declines"), Waiting->ResolveRotationAtMasterFrame(Show, Master(1.5), Rotation));
++    TestFalse(TEXT("Unnested, it drives nothing"), Waiting->EvaluateAtMasterFrame(Show, Master(1.0)));
++    TestTrue(TEXT("...and leaves its actor alone"), Driven->GetActorRotation().Equals(Resting, 1.0e-6));
++
+     World->DestroyWorld(false);
+     return true;
+ }

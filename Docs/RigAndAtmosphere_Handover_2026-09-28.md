@@ -605,3 +605,42 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
     roof beat (18.5–24.5 s) after landing, have never been looked at.
   - **S3:** the far Celadon clip (−30° to −20°) now falls at Scene time 8.43–10.03 s,
     inside the Scene. Its four to-dos stand.
+
+## 30 September, morning: why the authored hold is dark (diagnosis; nothing changed)
+
+- **The ghost light is occluded, not mis-aimed.** "S4 Ghost Light" is an omni point light:
+  60 cd, 15 m attenuation, shadowed. It rides Floor 2 Hinge, 25 m into the box and 1.88 m
+  off the floor.
+  - From the stop, the camera sits **under the floor plane** of the hanging box: 471 cm
+    at the cut, 386 cm at +3 s, 31 cm at +9.5 s.
+  - The lamp, and everything within its reach, is behind the floor slab. The bulb clears
+    the lip at +9.5 s: the same threshold Look & camera measured photometrically.
+  - Counterfactuals (`ghost_geom.py [reach] [lamp_x]`):
+    - With the reach removed, at most 0.08 lux lands on anything visible at +3 s.
+    - With the lamp at the mouth, the bulb shows from +6 s instead of +9.5 s.
+  - **No lamp inside the box fixes the hold.**
+- **The lattice is in view from the cut** (`lattice_vis.py`). It is flown on the trough's
+  open side, outside the floor's shadow, and 6 → 9 → 12 of its 24 bulbs are in a −15°
+  look-down at the cut, +3 s and +6 s. It is dark only because its glow is keyed at 0 cd
+  until +4 s.
+- **Do not move the 4–8 s glow fade before the cut.** The leak it fixed was a REST-state
+  problem: before the cut, nothing evaluates the rise's light keys, so the P04 approach
+  sees the level's saved rest value, which must stay 0 cd.
+  - A fade starting AT the cut lights the hold without reopening the leak.
+  - A key before the cut does nothing in the show but changes nothing either. What must
+    never change is the rest value.
+  - Whether to light the hold at the cut is Gary's look decision. Whether 20 cd reads at
+    the show's exposure is Look & camera's bench.
+
+## 30 September: G3 held (arrival quiet while unnested)
+
+- `Scripts/patches/2026-09-30_G3_arrival_unnested_quiet.patch` (conductor-approved; not yet
+  built).
+  - An Arrival whose motion is not nested now checks that BEFORE compiling the Show.
+  - It logs `INFINITY_STAGE_ARRIVAL_WAITING … reason=NotNested` once at Display, instead
+    of a per-session warning.
+  - The Arrival test gains the unnested case, still one test, with an exact-once expected
+    message.
+- Apply at build time only: `git apply Scripts/patches/2026-09-30_G3_arrival_unnested_quiet.patch`.
+- DLL marker: `INFINITY_STAGE_ARRIVAL_WAITING` (UTF-16).
+- Backup of the two files: `Backups/PreG3ArrivalQuiet-*`.
