@@ -40,6 +40,28 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "Saved" / "CodexSoftGoods" / "DropBake"
 STILL_LIMIT_MM = 2.0
+# PER-SITE STILLNESS LIMIT (30 Sep, after Look & camera: P04's passage camera is 35 mm, not the stalls' 15 mm). The
+# standard is PIXELS, not millimetres: 2 mm/frame at the stalls (15 mm on 23.76 mm Super 35, 14 m, 1920 px) is
+# STD_PX_PER_FRAME. Each site's limit in mm/frame is derived from the lens that SEES that cloth, and the distance at the
+# seam:
+#   - Opening and the five transition drapes: their own stalls cameras (15 mm, 14 m; L&C copied the Opening's).
+#   - The P04 backcloth: the passage camera, 35 mm, closing from 10 m to 7.5 m over the last second (the worst case is
+#     taken).
+# A number derived in one context must not be carried into another.
+FILMBACK_W_MM, IMAGE_W_PX = 23.76, 1920
+SITE_VIEW = {"stalls": (15.0, 14.0), "P04_passage": (35.0, 7.5)}   # (lens mm, distance m at the seam, worst case)
+
+
+def mm_per_px(site):
+    lens, dist = SITE_VIEW[site]
+    return dist * FILMBACK_W_MM / lens / IMAGE_W_PX * 1000.0       # 2 d tan(hfov/2) / px, since tan(hfov/2) = w/(2 f)
+
+
+STD_PX_PER_FRAME = STILL_LIMIT_MM / mm_per_px("stalls")          # about 0.173 px/frame: the stalls' 2 mm, in pixels
+
+
+def derived_still_limit_mm(site):
+    return round(STD_PX_PER_FRAME * mm_per_px(site), 2)
 PILE_TOL = 0.25                      # provisional: each pile number within +-25% of the reference's
 PILE_KEYS = ("height_m", "depth_m", "width_m", "layers", "fold_size_m")
 P01_OPENING_M, COVERAGE_GAP_MAX_M = 19.0, 0.2       # post inner faces at +-9.5 m; all six portals identical (Rig, 30 Sep)
@@ -80,7 +102,10 @@ def pile(d):
 def judge_drape(d, ref):
     still = d.get("still_window_max_mm")
     hp = d.get("hang_profile") or {}
-    verdict = {"still": still is not None and still < STILL_LIMIT_MM, "hang": bool(hp.get("pass"))}
+    site = "P04_passage" if d.get("collider_origin_cm") else "stalls"
+    limit = derived_still_limit_mm(site)
+    d["_still_limit"] = {"site_view": site, "lens_mm_distance_m": SITE_VIEW[site], "limit_mm_per_frame": limit}
+    verdict = {"still": still is not None and still < limit, "hang": bool(hp.get("pass"))}
     # BULGE (30 Sep): the flare compares only hem with heading, so a curtain held at both ends that BARRELS out at
     # mid-height (the hem guide on sw_b5_g07) read 1.00. Use the widest sampled row instead, converted to the Opening
     # width the same way as the flare.
@@ -146,6 +171,7 @@ def drape_lines(name, d, ref_name, ref):
              f"pile {verdict['pile']})",
              f"- rest `{d.get('rest')}`, fold wavelength {d.get('fold_wavelength_m')} m, hem guide {d.get('hem_guide_weight')} "
              f"x {d.get('hem_guide_rows')} rows, bending {d.get('bend')}, track {d.get('track_m')} m, drop {d.get('drop_m')} m",
+             f"- **still limit for this site**: {d['_still_limit']}",
              f"- **still**: window max {d.get('still_window_max_mm')} mm/frame (mean {d.get('still_window_mean_mm')}); "
              f"under 2 mm from {d.get('settle_to_2mm_s')} s (reached: {d.get('settle_to_2mm_reached')})"]
     if rows:
