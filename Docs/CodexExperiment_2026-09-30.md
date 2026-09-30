@@ -96,7 +96,7 @@ throughput limit or bad luck.
 | A | **USABLE** | ~2 min, 3 spot-checks, all passed | See below. |
 | B | — | — | — |
 | D | — | — | — |
-| E | — | — | — |
+| E | **USABLE — best of the five** | ~3 min, citations verified in the raw logs | See below. |
 
 
 ### A — task-tracker audit: USABLE
@@ -129,3 +129,43 @@ clearance validation, and artist-authored groups plus the Operator workspace.
 *citations*. Checking three of them took two minutes and covers the method, not
 just those three rows. Any task whose output can be spot-checked this way is
 safe to hand over.
+
+### E — the stutter: USABLE, and it corrected our own records
+
+Report: `Saved/CodexRuns/last-message-20260930-100748.txt`.
+
+**It defined its evidence terms before using them** — ruled out by intervention,
+confirmed contributor not root, **not observed**, insufficiently documented — and
+then applied them strictly enough to disagree with the handover.
+
+**Two corrections, both verified in the raw logs:**
+
+1. **"All eight timers ruled out" was wrong.** The `ListTimers` census logs
+   `------- 1 Active Timers -------` and `1 Total Timers`: a single 0.1 s
+   GameState timer, with no disable A/B. Corrected in the handover.
+2. **"No other process bursts" cannot mean what we took it to mean.** Every
+   process was sampled at **250 ms**; the spikes are **40–100 ms**. The method
+   cannot see a burst that starts and ends inside one sample. It rules out a
+   sustained competing load and nothing more. **We spent days treating a
+   methodologically blind result as an exclusion.**
+
+It also demoted fog, the Go1 socket and the AI recorder from "ruled out" to
+**provisionally excluded**, because no surviving raw A/B says how each was
+disabled or reports a before/after rate — which is fair, and checkable.
+
+**Then it ranked 19 untested hypotheses by likelihood over test cost**, each with
+a confirm/refute criterion and a common baseline: A/B/A, 60 s, camera parked, PIE
+off, **count cluster starts rather than slow frames**, and require a 90% reduction
+twice with the reversal restoring them. Top of its list is the one thing we
+deferred: **re-record under Ultimate Performance while the machine is idle**,
+then a WPR trace with context switches, DPC/ISR and hard faults — which is
+precisely the instrument that would see the burst the 250 ms sampling could not.
+
+**Verification cost: three minutes**, because every claim carried a log line and
+the two that mattered were checkable by reading them.
+
+**This is the strongest argument for delegation in the whole experiment.** The
+task was expensive, open-ended and had defeated four streams over several days —
+and the useful output was not a solution but *an audit of our own certainty*,
+which is exactly the kind of work that needs fresh eyes and no memory of having
+been confident.

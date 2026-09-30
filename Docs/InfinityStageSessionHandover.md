@@ -167,7 +167,7 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 
 **Ruled out by measurement:** cloth simulation, the celestial world-walk, wing
 motion, all 432 flicker light functions, the shadow cache, every dynamic shadow,
-lights-per-pixel, GPU contention with MHFat, the AI logging recorder, all eight
+lights-per-pixel, GPU contention with MHFat, the AI logging recorder, the
 timers, scene captures and reflections, the Go1 socket, fog, the entire structure
 kit and every wing, and PIE itself.
 
@@ -177,6 +177,10 @@ kit and every wing, and PIE itself.
 - **Every thread inflates together** on a spike, GPU unmoved. *"The CPU as a whole
   running slow for a moment."*
 - **No other process bursts** (every process sampled at 250 ms for 15 s).
+  **BUT THAT SAMPLING CANNOT SEE THE THING WE ARE LOOKING FOR.** The spikes are
+  40–100 ms; a 250 ms interval misses any burst that starts and ends inside one
+  sample. So this rules out a **sustained** competing load and nothing else. It
+  has been carried as "ruled out" and it is not. (Found 30 Sep by a Codex audit.)
 - **A restart helped materially**: p95 49.6 to 34.2 ms, slow frames 33 to 13.
 - **The rhythm survives on a virgin editor**, so it is not our scripts leaking.
 
