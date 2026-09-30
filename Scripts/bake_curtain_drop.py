@@ -631,7 +631,9 @@ def main():
     # bakes of one recipe across an edit simulate against different geometry and must not be compared as like for like.
     if COLLIDERS:
         import hashlib
-        report["colliders_sha256"] = hashlib.sha256((ROOT / COLLIDERS.split("|")[0]).read_bytes()).hexdigest()
+        # Line endings normalised to LF, so the hash equals git's blob hash and a CRLF checkout is not a "change".
+        report["colliders_sha256"] = hashlib.sha256(
+            (ROOT / COLLIDERS.split("|")[0]).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     report["hem_guided_vertices"] = scene.get("hem_guided")
     report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
     cs = obj.modifiers["Cloth"].collision_settings

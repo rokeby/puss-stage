@@ -166,7 +166,8 @@ def main():
     if "top_masked" in (verdict.get("required") or []):
         ms = verdict.get("mask_stage") or {}
         spath = os.path.join(project(), *(ms.get("colliders") or "").split("|")[0].split("/")) if ms.get("colliders") else None
-        now_stage = sha256_file(spath) if spath and os.path.isfile(spath) else None
+        now_stage = (hashlib.sha256(open(spath, "rb").read().replace(b"\r\n", b"\n")).hexdigest()
+                     if spath and os.path.isfile(spath) else None)       # LF-normalised, as the acceptance tool
         report["mask_stage"] = {"judged": ms, "now_sha256": now_stage}
         if not ms.get("sha256") or now_stage != ms["sha256"]:
             return finish(f"REFUSED: {bake_id}'s top_masked verdict was judged against a stage that has changed or is "

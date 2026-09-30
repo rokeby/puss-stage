@@ -93,7 +93,8 @@ def mask_top(d):
     # only for the same .abc bytes AND the same stage file bytes. Keyed on the .abc alone, a border added later would
     # have left the stale FAIL standing (the Conductor's caution, 30 Sep).
     stage = MASK_COLLIDERS or d.get("colliders") or "Docs/StageFrontColliders_2026-09-28.json|v2"
-    stage_digest = sha256_file(ROOT / stage.split("|")[0])
+    # LF-normalised: equals git's blob hash, and a CRLF checkout (autocrlf) is not a stage change.
+    stage_digest = hashlib.sha256((ROOT / stage.split("|")[0]).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
     mpath, digest = OUT / f"{out_id}.json", sha256_file(abc)
     m = json.loads(mpath.read_text(encoding="utf-8")) if mpath.exists() else {}
     if m.get("abc_sha256") != digest or m.get("colliders_sha256") != stage_digest or m.get("colliders") != stage             or m.get("extra_boxes"):

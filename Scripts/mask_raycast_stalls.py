@@ -95,7 +95,7 @@ def main():
     cpath = os.environ["COLLIDERS"].split("|")[0]
     report = {"abc": ABC, "frame": FRAME, "step_px": STEP, "rays_through_opening": through, "unmasked": unmasked,
               "colliders": os.environ["COLLIDERS"],
-              "colliders_sha256": hashlib.sha256((ROOT / cpath).read_bytes()).hexdigest(),
+              "colliders_sha256": hashlib.sha256((ROOT / cpath).read_bytes().replace(b"\r\n", b"\n")).hexdigest(),
               "extra_boxes": json.loads(os.environ.get("MASK_EXTRA_BOXES") or "[]"),
               "unmasked_fraction": round(unmasked / through, 6) if through else None,
               "unmasked_z_at_curtain_line_m": [min((r[3] for r in rows), default=None), max((r[3] for r in rows), default=None)],
