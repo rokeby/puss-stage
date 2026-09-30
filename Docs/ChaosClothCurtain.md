@@ -26,6 +26,54 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## WHAT THE SHARED CACHE ASSUMES ABOUT ITS SITE (read this before building any floor, portal or mouth)
+
+`GC_CurtainDrop_Opening` holds final13 as of 30 Sep 16:22. It is ONE cache played at SIX sites: the Opening at P01, and
+Interactions 1–5 at the mouths of P02–P06.
+
+**It is world-true for P01.** The bake simulated against P01's stage front, and each placement just moves and turns that
+result to a mouth: the root sits at the route start, yawed to the route's start tangent, at the Passage actor's z. So
+every mouth must reproduce P01's stage front, measured from its own route start. What the cloth depends on is listed
+below, then what goes wrong at a site that lacks each part.
+
+Coordinates below are UE cm with x downstage-negative/upstage-positive from the curtain line, y across, z up. Sources:
+the bake record `DropBake/final13_opening_a06_w188.json` (measured) and `Docs/StageFrontColliders_2026-09-28.json`.
+
+**Stage version.** final13 simulated against commit c467046 ("v3", LF SHA-256 fc3a88…). It ran 09:32–14:37 on 30 Sep,
+before v4 added the border at 14:52; the border sits above everything the cloth reaches. From 30 Sep every bake and
+every ray test records the stage file's LF-normalised SHA-256, which equals git's blob hash.
+
+| What the cloth relies on | Where (P01, cm) | What the cloth does there (final13, measured) |
+|---|---|---|
+| Curtain line and posts | posts x −20..+20, inner faces y ±950 (19.0 m opening) | Hangs 18.8 m wide (y −940..+940), 10 cm inside each post. |
+| Header underside | z 1050 (x −20..+20) | Heading at z 1020 (drop 10.0 m + lift 0.2 m). The pleats span x −41..+39. |
+| Upstage border (v4) | x +45..+50, z 1020..1100 | Masks the top edge's gaps; the cloth never enters it (6 cm clear). |
+| Stage floor | z 0 (x −150..+250), then "ground beyond" z 0 to x 5400 | The hem hangs at z 20. The pile lies on z 0, up to 99 cm high, reaching x +467 upstage. |
+| The lip (trough) | x −150..−115, z 0..25 | The pile spills over it. |
+| The fascia | x −155..−150, z −120..0 | The spill hangs down it to **z −71**. |
+| House floor | z −125..−120, downstage of x −155 | Not reached (the spill stops at z −71). |
+| Lip lamp housings (16) | x −145..+325, y −841..+758, z −11..+43 | The pile's footprint (x −190..+467) covers them, so it presumably drapes over them (inferred: the footprints overlap; not seen). |
+| Mouth side returns | y ±1300..±1305, x −150..+250 | The pile spreads to y −1072..+1091 (wider than the opening), inside the returns. |
+
+**What goes wrong at a site that lacks a part** (inferred from the numbers above; not rendered at any such site yet):
+- **No floor at z 0** (a void, as P03 has had since the landscapes were deleted on 30 Sep): the pile is drawn where it was
+  baked, so it floats in the air over nothing. The fall looks the same until it lands.
+- **A floor at another height**: the pile's lower layers sink into a higher floor, or float above a lower one, by the
+  difference. The hem's 20 cm clearance changes the same way.
+- **No lip or fascia (a flat floor)**: the spill that hangs down P01's fascia to z −71 at x about −150 to −190 either
+  sinks into a floor that carries on downstage, or floats if the floor stops at the curtain line. **One shared cache
+  cannot fit a lip-less mouth.** Gary's sheet B0c: (a) a P01-like stage front at every mouth, or (b) per-site bakes.
+- **A lip at another x**: the spill folds over the wrong line and hangs in the air or through the lip.
+- **A narrower or wider opening**: coverage is 10 cm a side at 19.0 m. All six portals are 19.0 m (Rig, 30 Sep). Wider
+  leaks at the sides; narrower pushes the cloth through the posts.
+- **A lower header or no border**: the comb of notches returns over the top. The ray test `mask_raycast_stalls.py`
+  measures any stage file.
+- **No lamp housings where P01 has them**: the pile shows the drape over objects that are not there. Small dents; the
+  first to notice would be a close camera.
+
+**To make a new site fit the shared cache**: reproduce the table relative to that mouth's route start. Otherwise, bake
+that site against its own stage (`COLLIDER_ORIGIN_CM`, as P04's backcloth was) and give it its own cache.
+
 ## 30 Sep (16:20): final13 PLACED at the Opening and all five transitions
 
 - **Approval, recorded as it happened**: Gary, relayed by the Conductor at 16:20, "OK place the cloths". The placement
