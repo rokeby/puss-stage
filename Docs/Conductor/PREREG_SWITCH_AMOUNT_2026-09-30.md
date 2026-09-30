@@ -79,3 +79,20 @@ repeat (sw_ps_a10_g07_s2):
 - if it lands near 1.58 (within 10%), single runs are trustworthy and 0.6 or 0.8 is the amount;
 - if it lands near 1.1, the U is noise, and the pile is a look call for Gary.
 Stillness (0.41) and hang (perfect) are identical at every amount, as they must be: the amount acts only after release.
+
+## Separate observation (09:35): the CHARACTER of the two failures. Not a reinterpretation; the verdict stays inconclusive.
+
+Suggested by the Conductor as a test that noise cannot pass: if the U shape is two mechanisms, the failing ends
+should look different in KIND. The zoomed 3/4 renders (zoom_piles_a04_a06_a10.png, compare_switch_amounts_piles.png):
+- **0.4:** a flattish sheet whose top carries faint REGULAR parallel ripples. That is pleat memory surviving as gentle
+  waves, too shallow to count as creases (dihedral under 45 deg), which is why the metric scores it coarse.
+- **1.0:** a SMOOTH sheet with one large fold turned over at the end: the unfolding "thrown sheet".
+- **0.6:** overlapping LAYERED folds, the most heap-like of the three.
+
+The ends do differ in kind (regular ripples against smooth sheeting), which favours the two-mechanism reading over
+noise. **Confidence: modest.** These are partial crops of Workbench renders judged by one eye. It is independent of the
+seed repeat, which remains the quantitative test.
+
+**On 0.6 being baked (final9/10/11): it was a GUESS that held, not a derived choice.** It was launched at 06:35 as the
+middle of the range, before any strip reported. If the seed repeat confirms that single runs are trustworthy, 0.6
+passes as a single run; it was still not selected by evidence. Anyone reading "0.6 is the amount" later should know that.
