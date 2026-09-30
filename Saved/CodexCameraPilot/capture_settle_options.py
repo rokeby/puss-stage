@@ -152,6 +152,14 @@ def main():
 
     with open(state_path, encoding="utf-8") as handle:
         state = json.load(handle)
+    # Rig (30 Sep): PLAYING the Master dirties the map, and the only safe cure is a discard. If scrubbing it
+    # does too, stop at the first step, not the 76th, and say so; never save.
+    if dirty():
+        sequencer.close_level_sequence()
+        os.remove(state_path)
+        unreal.log_error("PUSS_SETTLE_OPTIONS_ABORTED|packages went dirty during the run: %s|NOT saved; the cure is a "
+                         "discard (close without saving), never a save" % dirty())
+        raise RuntimeError("packages went dirty during the run")
     index = state["index"]
     step = state["plan"][index]
     if sequencer.get_current_time() != step["world_display_frame"]:
