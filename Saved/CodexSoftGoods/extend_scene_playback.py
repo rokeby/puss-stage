@@ -15,7 +15,9 @@ Steps (apply):
   4. InfinityStageCameraPilotLibrary.match_named_scene_handoffs(show, [cue guid], 1). This is the Cue Desk's Match,
      narrow by construction (it refuses an empty list). It moves the Exit cut to the NEW end and stretches the Entry cut.
   5. CUT COVERAGE: the scene's camera cut track must cover [playback start, playback end) with no gap, or NOTHING is saved.
-  6. Rebuild the managed Master (the library call, never PussStageBootstrap.RebuildCurrentMaster).
+  6. Rebuild the managed Master (the library call, never PussStageBootstrap.RebuildCurrentMaster). NOT in rematch_only:
+     the range is unchanged, so the Master's section for the scene is unchanged, and the Master (stale from Scene 3 on,
+     under investigation on 30 Sep) is not touched at all. rematch_only REFUSES if the Master or the Show goes dirty.
   7. Save exactly: the scene sequence, the level (the rematch writes the handoff cameras), the Master, and the Show if
      the rebuild dirtied it. Read back the coverage and the Show/Master match.
 Logs PUSS_SOFTGOODS_SCENE_EXTENDED|... or _STOPPED|... Crash rules: everything inside main().
@@ -141,9 +143,13 @@ def main():
     if not matched or report["coverage_after_match"]["gaps"]:
         return finish(f"STOPPED: match={matched} gaps={report['coverage_after_match']['gaps']}; NOTHING saved "
                       f"(relaunch to discard; backup {backup})")
-    result = unreal.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master)
+    if rematch_only:
+        result = "skipped (rematch_only: range unchanged, the Master is not touched)"
+        expected = {seq_path, EXPECTED_WORLD}
+    else:
+        result = unreal.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master)
+        expected = {seq_path, EXPECTED_WORLD, MASTER, SHOW}
     report["rebuild_result"] = result
-    expected = {seq_path, EXPECTED_WORLD, MASTER, SHOW}
     now = dirty()
     report["dirty_before_save"] = now
     if not result or [p for p in now if p not in expected]:
@@ -156,7 +162,8 @@ def main():
     seq = unreal.load_asset(seq_path)
     report["coverage_after"] = cut_coverage(seq)
     report["playback_after"] = [seq.get_playback_start(), seq.get_playback_end()]
-    report["show_master"] = show_master_match(unreal.load_asset(SHOW), unreal.load_asset(MASTER))
+    report["show_master"] = ({"match": True, "note": "not checked: the Master was not rebuilt (rematch_only)"}
+                             if rematch_only else show_master_match(unreal.load_asset(SHOW), unreal.load_asset(MASTER)))
     report["dirty_final"] = dirty()
     report["ok"] = (all(saved.values()) and not report["coverage_after"]["gaps"] and report["show_master"]["match"]
                     and not report["dirty_final"] and report["playback_after"][1] == new_end)
