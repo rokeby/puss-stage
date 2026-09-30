@@ -431,38 +431,62 @@ cloth answers stay on the table as fallbacks:** accept the slots, or a 10.5 m
 drop (0.5 m masks it, 0.4 m leaves a sliver — measured) at four to five hours and
 a changed fall.
 
-### A1b. THE CAMERA RIDES LOW AND TILTED THROUGH EVERY PASSAGE — and it is coupled to A1
-**You have the flip GIF.** At P04 → Scene 4 the camera rises **21.3 cm** and its
-roll snaps from **−2.55° to 0** in one frame. **The rotation is the visible part**
-— the lattice goes from visibly tilted to level. An earlier note called this
-"15 cm, probably invisible"; that was translation only and understated it.
+### A1b. ANSWERED — the tilt goes, the height stays, and ONE NEW QUESTION opened underneath
+**Gary, 30 Sep: *"the crossing pop needs to force the cat's bob to be straight at
+that moment? but actually in that moment between passages, we don't need the cat's
+bob at all"*, then *"no need to permanently tilt and the camera is at an ok height
+as it is."*** Both halves ruled; the section is kept because what it uncovered is
+not closed.
 
-**THE POP IS THE SYMPTOM. THE FINDING IS UNDERNEATH IT: the cat's gait bob is
-BIASED, not zero-centred.** The code says it is zero-centred *"regardless of which
-clip is playing"*. **Measured, it never is:** the walking spine sits 1.0–1.2 cm
-below its bind pose, so the lift is **always negative** — −7 to −23 cm across
-P04's last two seconds, and never once positive.
+**RULED — the constant roll goes.** Roll is derived from lift at 0.12°/cm, and the
+lift is always negative, so the horizon sat tilted 1–2.8° to the same side for the
+length of every Passage. **A gait rolls one way and then the other; a constant roll
+is a crooked camera.** Roll will be derived from the lift's deviation from its own
+running mean instead of from its absolute value.
 
-**So throughout every Passage the camera rides roughly 7–23 cm BELOW its authored
-height, with the horizon tilted 1–2.8° to one side.** Authored framing is never
-shown as authored, and **a constant tilt reads as a crooked camera rather than as
-a gait.** (Measured over two 2-second windows; a longer log would firm it up.)
+**RULED — the height stays.** The 7–23 cm ride below authored height during a walk
+is accepted as the cat's crouch. **This forces the roll derivation rather than
+merely permitting it**, since keeping a negative lift is exactly what produced the
+constant tilt — the two rulings are one change.
 
-**AND IT IS COUPLED TO A1.** Today **none of this can be seen** — every frame at
-the crossing is near-black, because of the hangar volume's pinned exposure. **The
-pop becomes visible exactly when you answer A1 by moving or deleting that drop**
-— which is what the sky-eclipse measurement argued for. **So answering A1 one way
-makes A1b a question you have to answer too.**
+**RULED — no bob between passages, and the reason is better than the mechanism.**
+The bob is a walk cycle; between Passages the cat is not walking. So it is scoped
+to walking rather than eased before a crossing. **The rig already has the signal it
+needs** (`bIsMoving` from `CurrentShadowCatCameraSpeedCmPerSecond`,
+`InfinityStageCameraRig.cpp:430-434, 508-516`) — `SampleShadowCatGaitLiftCm` simply
+ignores it and samples the Spine whatever clip is playing, so the idle clip bobs too.
 
-**Three options, all look decisions:**
-1. **Zero-centre the bob for real** — reference the walk clip's mean pose, or
-   high-pass the lift. **This is what the code already claims to do**, and it
-   removes both the bias and most of the crossing pop. *Recommended, but it
-   changes how every Passage looks, so it wants before-and-after pictures.*
-2. **Ease the bob to zero over the last half-second before a crossing.** Removes
-   the pop only, leaves the ride low and tilted.
-3. **Keep it as the cat's crouch**, and re-match the Scene entry cameras to the
-   bobbed view instead.
+**AND THAT RULING CANNOT ACT, WHICH IS THE NEW QUESTION.** Measured from today's
+PIE logs: at **both** crossings the camera is travelling at a constant **~250 cm/s
+on the last frame before the cut** — 246–256 over P04's last 0.51 s, 244–255 over
+P01's last 0.54 s. **The cat is legitimately still walking when the cut lands, so
+gating the bob on the walk signal changes nothing there.**
+
+**A SECOND JUMP NOBODY HAD NAMED, and it is the stronger argument:** 2.5 m/s to a
+dead stop in one frame. Today it hides behind the tilt and the black; at 35 mm a
+dead stop from walking pace reads as a **lurch** (inferred — there is no picture
+for it yet).
+
+> **THE OPEN QUESTION: the cat should come to a stop before the Scene begins. How
+> long a settle?** One settle fixes both jumps — the walk ends, the bob fades with
+> it, and the cut lands on a still, level view already at its authored height.
+> **A picture sequence of the last 2 s will answer this better than a number**, and
+> is queued behind the stutter test for the editor. Conductor's starting frame for
+> that sequence, not a decision: **about 1 second** — a cat stops in a stride or
+> two, not over two seconds, but an instant stop is the lurch above.
+
+**ONE THING TO SETTLE BEFORE GARY IS ASKED**, because otherwise his answer decides
+it silently: decelerating over the last N seconds means the cat either **arrives
+later at the same point** or **arrives on time but short of it**. The first moves
+every downstream cue; the second changes where the Entry camera picks up its
+geometry. Look & camera to determine which the SpeedMultiplier tail actually
+produces and state it alongside the pictures.
+
+**No longer coupled to A1.** The pop was invisible only because the crossing is
+black at the hangar's pinned exposure; with the settle it stops existing rather
+than staying hidden, so A1 can be answered on its own merits.
+
+**Not a build-window item** — runtime look, no patch, nothing held.
 
 ### A5. THE EXIT FROM A SCENE — the cost is now complete, and the cheap version is cheap
 **You asked how the hangar leads you to the next passage. Two options were mocked
