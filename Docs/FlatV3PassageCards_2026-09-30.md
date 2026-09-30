@@ -111,5 +111,12 @@ else is a proposal for him to cut.
 
 - **What works:** "various forms of scaffolding and draped over structures that
   are both mysterious and have distinctive form." Acceptable as it is.
+- **Gary loves scaffolding "for their form"** (his night photos, 30 Sep:
+  `DerivedAssets/FlatV3/GaryPhotos/Scaffolding_2026-09-30/`): ladder frames and
+  X-braces in a lit bay grid, one lamp per bay, black netting veiling the
+  building behind, and a stepped, swagged top edge against the sky.
+  Scaffolding is thin members, so it should be **real instanced geometry with a
+  netting layer**, not a painted cutout. Best combined with a painted wing
+  half-sheathed in scaffold and net: the building under construction, veiled.
 - **Mood / arrives at:** *to be filled in by Gary.*
 - **Work:** a V3 rebuild on the approved art.
