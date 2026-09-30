@@ -14,7 +14,16 @@ must pass before anything is placed:
      reference. The reference is final2 (Gary: "the animation, the feel, looks good") for full-width Opening drapes; a
      strip is judged against its own strip control.
 The fall timing (top below 1.8 m and 1.35 m) and the landing rebound are reported alongside, since they are what
-"reads heavy" is made of. Writes <OUT>/acceptance_report.md, plus a side-by-side sheet for --sheet a,b.
+"reads heavy" is made of.
+
+WHY 2 mm/frame. The Opening's stalls camera is 14 m from the cloth, with a 15 mm lens on Super 35 (79 deg across), so at
+1920 px one pixel is about 1.2 cm of cloth.
+  - 2 mm/frame is about 1/6 px per frame. A one-tick HOLD frozen on the first sample, then released into motion that
+    slow, has no visible seam, and a whole second of it drifts under 5 px.
+  - final2, which Gary called "weirdly bouncy", moved about 8 mm/frame (24 cm of hem drift in its last second): 0.7 px
+    per frame, 20 px of swim.
+  - sw_b5_pswitch's slowly GROWING 2-3 mm/frame is marginal. It was caught only because it was measured, and on a
+    projected shadow play it would be the screen swimming under the puppet. Writes <OUT>/acceptance_report.md, plus a side-by-side sheet for --sheet a,b.
 """
 from __future__ import annotations
 

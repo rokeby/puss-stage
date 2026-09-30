@@ -29,7 +29,7 @@ def main():
     assert not any(a.get_actor_label().startswith("ZZ_") for a in actors), "bench actors (ZZ_) in the level"
     referencers = [r for r in unreal.EditorAssetLibrary.find_package_referencers_for_asset(rec["sequence"], False)
                    if str(r) != rec["sequence"]]
-    assert not referencers, f"{rec['sequence']} is referenced by {referencers}: un-nest it first"
+    assert not referencers, f"{rec['sequence']} is referenced by {referencers}: un-nest it first, and if the level is a referencer, remove its Arrival (arrivals_revert_run.py)"
     tag = rec["tag"]
     created = set(rec["labels"])
     mine = [a for a in actors if tag in [str(t) for t in a.get_editor_property("tags")] and a.get_actor_label() in created]
