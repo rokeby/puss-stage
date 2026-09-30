@@ -1,9 +1,9 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
 new file mode 100644
-index 0000000..3301ce4
+index 0000000..dc96264
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
-@@ -0,0 +1,191 @@
+@@ -0,0 +1,192 @@
 +#include "InfinityStageArrival.h"
 +
 +#include "Channels/MovieSceneChannelProxy.h"
@@ -173,12 +173,13 @@ index 0000000..3301ce4
 +bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset* Show, const FFrameTime MasterTime)
 +{
 +    FRotator Rotation;
-+    if (!DrivenActor || !ResolveRotationAtMasterFrame(Show, MasterTime, Rotation))
++    const USceneComponent* DrivenRoot = DrivenActor ? DrivenActor->GetRootComponent() : nullptr;
++    if (!DrivenRoot || !ResolveRotationAtMasterFrame(Show, MasterTime, Rotation))
 +    {
 +        return false;
 +    }
 +    // Transient evaluation, like the Passage mechanisms: no Modify(), nothing dirtied.
-+    if (!DrivenActor->GetActorRelativeRotation().Equals(Rotation, 1.0e-4))
++    if (!DrivenRoot->GetRelativeRotation().Equals(Rotation, 1.0e-4))
 +    {
 +        DrivenActor->SetActorRelativeRotation(Rotation, false, nullptr, ETeleportType::TeleportPhysics);
 +    }
