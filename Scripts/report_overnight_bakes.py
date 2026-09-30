@@ -195,7 +195,7 @@ def main():
             f"Targets: still < {STILL_LIMIT_MM} mm/frame; hang = flare at most 1.15, fold count kept at least 0.75 and depth "
             f"kept at least 0.5 at 75/50/25% height; pile within +-{int(PILE_TOL * 100)}% of the reference on "
             f"{', '.join(PILE_KEYS)}.", ""]
-    body, summary = [], []
+    body, summary, verdicts = [], [], {}
     for i in args.ids:
         d = load(i)
         if d is None:
@@ -211,6 +211,7 @@ def main():
                 rname, r = "none (different site)", None
             ls, v = drape_lines(i, d, rname, r)
         body += ls + [""]
+        verdicts[i] = v
         summary.append(f"| {i} | {'PASS' if v['ALL'] else 'FAIL'} | "
                        + ", ".join(f"{k}={val}" for k, val in v.items() if k != "ALL") + " |")
     lines = head + ["| bake | verdict | criteria |", "|---|---|---|"] + summary + [""] + body
@@ -218,6 +219,11 @@ def main():
         a, b = args.sheet.split(",")
         if load(a) and load(b):
             lines.append(f"Sheet: {compare_sheet(a, b, load(a), load(b))}")
+    # Machine-readable verdicts, merged into earlier runs: the import script refuses any bake not marked ALL here.
+    vpath = OUT / "acceptance.json"
+    merged = json.loads(vpath.read_text(encoding="utf-8")) if vpath.exists() else {}
+    merged.update({k: {kk: vv for kk, vv in v.items()} for k, v in verdicts.items()})
+    vpath.write_text(json.dumps(merged, indent=1), encoding="utf-8")
     report = OUT / "acceptance_report.md"
     report.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines))
