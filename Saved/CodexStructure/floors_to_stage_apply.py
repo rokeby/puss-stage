@@ -3,7 +3,7 @@
 only. Found by floor_slabs_sweep_readonly.py:
   StaticMeshActor_0  "Passage 01 - Opening Floor"    under P01, walnut
   StaticMeshActor_1  "Passage 01 - Opening Floor2"   under P06, Versailles
-  StaticMeshActor_7  "Passage 03 - Dark Wood Floor2" under P05, oak
+  StaticMeshActor_7  "Passage 05 - Floor (oak)" under P05, oak
 Every structure's stage level is 0, and our ground boards' top is also 0, so the
 slab's new top is chosen by MODE to avoid two coplanar floors fighting:
   "above": top +0.5, so his textures stay the visible stage.
@@ -39,7 +39,7 @@ CUBE = "/Engine/BasicShapes/Cube.Cube"
 SLABS = {   # name: (label, expected loc, expected scale), as swept on 29 Sep
     "StaticMeshActor_0": ("Passage 01 - Opening Floor", (17000.0, 0.0, -0.5), (1042.9992, 200.0, 1.0)),
     "StaticMeshActor_1": ("Passage 01 - Opening Floor2", (17000.0, 399485.79, -0.5), (500.0, 200.0, 1.0)),
-    "StaticMeshActor_7": ("Passage 03 - Dark Wood Floor2", (23714.58, 320309.98, -0.5), (500.0, 200.0, 1.0)),
+    "StaticMeshActor_7": ("Passage 05 - Floor (oak)", (23714.58, 320309.98, -0.5), (500.0, 200.0, 1.0)),
 }
 THICKNESS_SCALE = 0.01    # 1 cm: the engine Cube is 100 cm
 P01_LIP_X = -150.0

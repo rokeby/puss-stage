@@ -2,7 +2,7 @@
 S1, S5 and S6 to the convention P04's Structure Ground already sets: void beyond the hinge, the
 box hanging in it). The near end of each plane is unchanged, so the Passages do not change.
   S1 "Passage 01 - Opening Floor"     overruns its hinge by 399 m
-  S5 "Passage 03 - Dark Wood Floor2"  by 16 m
+  S5 "Passage 05 - Floor (oak)"  by 16 m
   S6 "Passage 01 - Opening Floor2"    by 139 m
 Each plane is a scaled engine Cube (100 cm, centred pivot), unrotated, untagged, unattached; the
 far end moves to x = hinge (the Scene's Entry Handoff Camera x + the hangar's apron, from its
@@ -24,7 +24,7 @@ import unreal
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
 RECORD = os.path.join(HERE, "plane_trim_record.json")
-PLANES = {1: "Passage 01 - Opening Floor", 5: "Passage 03 - Dark Wood Floor2", 6: "Passage 01 - Opening Floor2"}
+PLANES = {1: "Passage 01 - Opening Floor", 5: "Passage 05 - Floor (oak)", 6: "Passage 01 - Opening Floor2"}
 CUBE = "/Engine/BasicShapes/Cube.Cube"
 
 

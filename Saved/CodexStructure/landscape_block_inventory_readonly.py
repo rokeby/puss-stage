@@ -1,6 +1,6 @@
 """Read-only inventory before the landscape block (30 Sep): Structure 02's and 03's `ground` struct (every field,
 so the switch that lays boards is known rather than guessed) and board counts; every actor whose label contains
-"Floor" (P03 may still own its original floor: P05's plane is a copy named "Passage 03 - Dark Wood Floor2");
+"Floor" (P03 may still own its original floor: P05's plane is a copy named "Passage 05 - Floor (oak)");
 the two landscapes' visibility/collision state; the S2 and S3 hangar build params. Mutates nothing."""
 import json
 import os

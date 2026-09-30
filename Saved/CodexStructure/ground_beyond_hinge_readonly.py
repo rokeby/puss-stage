@@ -8,7 +8,7 @@ import os
 import unreal
 
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
-PLANES = {1: "Passage 01 - Opening Floor", 5: "Passage 03 - Dark Wood Floor2", 6: "Passage 01 - Opening Floor2"}
+PLANES = {1: "Passage 01 - Opening Floor", 5: "Passage 05 - Floor (oak)", 6: "Passage 01 - Opening Floor2"}
 
 
 def main():

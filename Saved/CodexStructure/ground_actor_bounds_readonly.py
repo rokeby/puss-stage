@@ -1,7 +1,7 @@
 """Read-only: world bounds and transform of the ground actors the hangar survey found. Mutates nothing."""
 import unreal
 
-LABELS = ("Passage 01 - Opening Floor", "Passage 01 - Opening Floor2", "Passage 03 - Dark Wood Floor2")
+LABELS = ("Passage 01 - Opening Floor", "Passage 01 - Opening Floor2", "Passage 05 - Floor (oak)")
 
 
 def main():

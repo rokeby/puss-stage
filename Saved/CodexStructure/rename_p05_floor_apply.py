@@ -1,4 +1,7 @@
-"""Rename the MISLABELLED P05 floor (30 Sep; conductor-approved as non-creative): "Passage 03 - Dark Wood Floor2" sits under
+"""SUPERSEDED 30 Sep 17:36: the rename ran inside mouth_floor_apply.py (MOUTH=P05), with the same pairs and record rewrites,
+so P05's trim and rename were one save. Kept for its revert logic only.
+
+Rename the MISLABELLED P05 floor (30 Sep; conductor-approved as non-creative): "Passage 03 - Dark Wood Floor2" sits under
 P05 (y ~320,000; Structure 05 at 320,000), not P03 (160,000). Its label sent at least one stream looking for "P03 oak" to
 P05. Its pit strip carries the same prefix. New labels: "Passage 05 - Floor (oak)" and "... - Pit Strip Right".
 A bare rename would break every record that finds these actors BY LABEL, so the records are rewritten IN THE SAME RUN

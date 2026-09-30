@@ -46,7 +46,7 @@ def main():
     w3 = scope["Passage 3 - Wet Ground"]
     cx, cy = w3["centre"][0], w3["centre"][1]
     ex, ey = w3["extent_m"][0] * 100.0, w3["extent_m"][1] * 100.0
-    pieces.append(("Passage 03 - Floor", (cx, cy, TOP - THICK / 2), (2 * ex, 2 * ey, THICK), 0.0, "Passage 03 - Dark Wood Floor2", "RigAtmos.LandscapeFloor"))
+    pieces.append(("Passage 03 - Floor", (cx, cy, TOP - THICK / 2), (2 * ex, 2 * ey, THICK), 0.0, "Passage 05 - Floor (oak)", "RigAtmos.LandscapeFloor"))
     # P02: in S2's dock frame, around S2's pit-hole.
     cam = next(a for a in actors if a.get_actor_label().startswith("Scene 2 ") and "Entry Handoff Camera" in a.get_actor_label())
     yaw = cam.get_actor_rotation().yaw
