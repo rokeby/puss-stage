@@ -24,6 +24,7 @@ import shutil
 import unreal
 
 SEQ_DIR = "/Game/InfinityStage/Interactions"
+EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SEQS = {1: "LS_Interaction_01_WashingTheBoy", 2: "LS_Interaction_02_Turnips", 3: "LS_Interaction_03_ForgetsHisName",
         4: "LS_Interaction_04_GetsAName", 5: "LS_Interaction_05_BecomesKing"}
 GC = "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening"
@@ -207,6 +208,10 @@ def main():
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if editor.get_game_world() is not None:
         return finish("PIE is running")
+    # The mouths are read from whichever level is open, and two projects serve MCP on this machine: refuse anything else.
+    world = editor.get_editor_world().get_outermost().get_name()
+    if world != EXPECTED_WORLD:
+        return finish(f"refusing: open world is {world}, not {EXPECTED_WORLD}")
     try:
         cache0 = unreal.load_asset(GC)
         release_s, bake_id = release_in_cache_s(cache0)

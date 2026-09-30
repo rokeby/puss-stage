@@ -55,8 +55,12 @@ def main():
             json.dump(report, h, indent=1, default=str)
         unreal.log(f"PUSS_SOFTGOODS_OPENING_HOLD_AT_RELEASE|ok={report['ok']}|{msg}")
 
-    if unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_game_world() is not None:
+    editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    if editor.get_game_world() is not None:
         return finish("PIE is running")
+    world = editor.get_editor_world().get_outermost().get_name()
+    if world != "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice":                                   # two projects serve MCP here
+        return finish(f"refusing: open world is {world}")
     content = sorted(p.get_path_name() for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages())
     if content:
         return finish(f"refusing: dirty content {content}")

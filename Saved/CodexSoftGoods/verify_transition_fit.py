@@ -25,6 +25,10 @@ def main():
     # The fit records the sections it planned (HOLD at the first sample or one frame before the release); older runs
     # without that record are checked against the legacy layout.
     planned = {r["interaction"]: r.get("sections_planned") for r in fit["rows"]}
+    world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world().get_outermost().get_name()
+    if world != "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice":
+        unreal.log(f"PUSS_SOFTGOODS_FIT_VERIFY|ok=False|refusing: open world is {world}")
+        return
     actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
     cache = unreal.load_asset(GC)
     rows, ok = [], True

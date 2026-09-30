@@ -27,6 +27,7 @@ Saves only its own assets, and the map when placing; backs up everything it repl
 PUSS_SOFTGOODS_BAKE_IMPORT_SUCCESS or _STOPPED. Crash rules: everything inside main().
 """
 import datetime
+import hashlib
 import json
 import os
 import shutil
@@ -121,6 +122,14 @@ def expected_cm(aabb_m):
             "z": [100 * aabb_m["z"][0], 100 * aabb_m["z"][1]]}
 
 
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def main():
     here = saved_dir()
     with open(os.path.join(here, "import_passing_bake_mode.json"), encoding="utf-8") as h:
@@ -142,10 +151,17 @@ def main():
     report["verdict"] = verdict
     if not verdict or verdict.get("ALL") is not True:
         return finish(f"REFUSED: {bake_id} has not passed acceptance ({verdict})")
-    bake = json.load(open(os.path.join(bake_dir, f"{bake_id}.json"), encoding="utf-8"))
-    src_abc = os.path.join(bake_dir, f"{bake_id}.abc")
+    src_json, src_abc = os.path.join(bake_dir, f"{bake_id}.json"), os.path.join(bake_dir, f"{bake_id}.abc")
     if not os.path.isfile(src_abc):
         return finish(f"missing {src_abc}")
+    # THE VERDICT IS BOUND TO THE BYTES (30 Sep, adversarial review): the files must hash to what the acceptance test
+    # judged, so a re-used bake id cannot import an untested replacement under a stale pass.
+    judged = (verdict or {}).get("artifacts") or {}
+    now_hash = {f"{bake_id}.json": sha256_file(src_json), f"{bake_id}.abc": sha256_file(src_abc)}
+    report["artifacts"] = now_hash
+    if any(judged.get(k) != v for k, v in now_hash.items()):
+        return finish(f"REFUSED: {bake_id}'s files are not the ones that were judged (judged {judged}, now {now_hash})")
+    bake = json.load(open(src_json, encoding="utf-8"))
     first, last = int(bake["show_start"]), int(bake["frames"])
     hang_f, pile_f = int(bake["release_frame"]) - 1, last
     exp = {f"{sm_prefix}_Hanging": (hang_f, expected_cm(bake["checkpoints"][str(hang_f)]["aabb_m"])),
@@ -204,7 +220,7 @@ def main():
             return finish(f"static mesh import produced nothing for {name}; NOTHING saved")
         got = bounds_cm(path)
         report["static_meshes"][name] = {"frame": frame, "bounds_cm": got, "expected_cm": want}
-        for ax in ("x", "y"):
+        for ax in ("x", "y", "z"):                         # Z too: a vertical inversion or offset must not pass
             if abs(got[ax][0] - want[ax][0]) > TOL_CM or abs(got[ax][1] - want[ax][1]) > TOL_CM:
                 fails.append(f"{name}.{ax} got {got[ax]} expected {[round(v, 1) for v in want[ax]]}")
     report["axis_check_failures"] = fails
@@ -298,9 +314,16 @@ def main():
         else:
             ok_actor = False
         del hits
+    # The material is part of success, not a log line: the MI's parameters and the cache's slots must read back as set.
+    mi = unreal.load_asset(mi_path)
+    rb["mi_params"] = {k: unreal.MaterialEditingLibrary.get_material_instance_scalar_parameter_value(mi, k) for k in mi_params}
+    del mi
+    ok_material = (all(abs(rb["mi_params"][k] - v) < 1e-3 for k, v in mi_params.items())
+                   and bool(rb["gc_material"]) and all(m.split(".")[0] == mi_path for m in rb["gc_material"]))
     report["read_back"] = rb
     report["dirty_final"] = dirty_content() + dirty_maps()
-    report["ok"] = all(saved.values()) and not report["dirty_final"] and rb["gc_frames"] == [first, last] and ok_actor
+    report["ok"] = (all(saved.values()) and not report["dirty_final"] and rb["gc_frames"] == [first, last] and ok_actor
+                    and ok_material)
     finish(f"{bake_id}->{gc_path}|saved={saved}|read_back={rb}|dirty_final={report['dirty_final']}|backup={backup}")
 
 

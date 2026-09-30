@@ -32,6 +32,7 @@ WHY 2 mm/frame. The Opening's stalls camera is 14 m from the cloth, with a 15 mm
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -67,6 +68,14 @@ PILE_KEYS = ("height_m", "depth_m", "width_m", "layers", "fold_size_m")
 P01_OPENING_M, COVERAGE_GAP_MAX_M = 19.0, 0.2       # post inner faces at +-9.5 m; all six portals identical (Rig, 30 Sep)
 POST_CLEARANCE_MIN_M = 0.03                          # the widest hung row must not run into a post
 FPS = 30.0
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def load(drop_id):
@@ -133,11 +142,14 @@ def judge_drape(d, ref):
         for k in PILE_KEYS:
             if p.get(k) is not None and r.get(k):
                 ratios[k] = round(p[k] / r[k], 2)
+        missing = [k for k in PILE_KEYS if k not in ratios]
+        if missing:
+            ratios["_missing"] = missing                   # a missing metric is reported, never silently skipped
         # 30 Sep noise floor (Docs/Conductor/PREREG_SWITCH_AMOUNT_2026-09-30.md): a seed change alone moved fold size
         # 28%, width 18% and layers 17%. Single-run pile numbers are too noisy to gate on, so the pile verdict is "look"
         # (None) unless a person's approval is recorded (--pile-approved). The ratios are shown as context only.
         verdict["pile"] = None
-        verdict["pile_within_25pct_single_run"] = bool(ratios) and all(abs(v - 1.0) <= PILE_TOL for v in ratios.values())
+        verdict["pile_within_25pct_single_run"] = (not missing) and all(abs(ratios[k] - 1.0) <= PILE_TOL for k in PILE_KEYS)
     else:
         verdict["pile"] = None
     if d.get("collider_origin_cm"):
@@ -153,8 +165,16 @@ def judge_drape(d, ref):
         clearance = round((P01_OPENING_M - max(r["width_m"] for r in rows.values())) / 2.0, 3)
         hp["coverage_gap_per_side_m"], hp["post_clearance_per_side_m"] = gap, clearance
         verdict["coverage"] = gap <= COVERAGE_GAP_MAX_M and clearance >= POST_CLEARANCE_MIN_M
-    verdict["ALL"] = verdict["still"] and verdict["hang"] and all(v is not False for k, v in verdict.items()
-                                                                 if k != "pile_within_25pct_single_run")
+    # FAIL CLOSED (30 Sep, the Conductor, from the adversarial review): ALL requires every REQUIRED criterion to be
+    # explicitly True. Pending (None) FAILS. It used to be "not False", so a pile still awaiting Gary's eye passed and
+    # the bake would have imported itself.
+    # Required: still and hang, always. Then the PILE (a person's recorded approval) for a P01-reference drape, or the
+    # SITE check at a passage end (where the pile has no reference). Plus COVERAGE wherever it was measured.
+    required = ["still", "hang", "site" if d.get("collider_origin_cm") else "pile"]
+    if "coverage" in verdict:
+        required.append("coverage")
+    verdict["required"] = required
+    verdict["ALL"] = all(verdict.get(k) is True for k in required)
     return verdict, ratios
 
 
@@ -223,7 +243,8 @@ def traveller_lines(name, d):
                     for h in hp["halves"])
         hp["bulge"] = round((d["track_m"] + extra) / d["track_m"], 3)
         v["hang"] = v["hang"] and hp["bulge"] <= 1.15
-    v["ALL"] = all(x is True for x in v.values())
+    v["required"] = ["still", "end_still", "hang"]
+    v["ALL"] = all(v.get(k) is True for k in v["required"])            # fail closed: a missing profile FAILS
     lines = [f"### {name} (traveller): {'PASS' if v['ALL'] else 'FAIL'}  {v}",
              f"- start `{d.get('start')}`, hem guide {d.get('hem_guide_weight')}; still {still} mm/frame "
              f"(under 2 mm from {d.get('settle_to_2mm_s')} s); END still {end} mm/frame",
@@ -321,14 +342,17 @@ def main():
             if i in approvals and v.get("pile") is not True:
                 v["pile"] = True
                 v["pile_override"] = approvals[i]
-                v["ALL"] = v["still"] and v["hang"] and all(x is not False for k, x in v.items()
-                                                            if k not in ("ALL", "pile_override", "pile_within_25pct_single_run"))
+                v["ALL"] = all(v.get(k) is True for k in v["required"])      # the same fail-closed rule
                 ls.append(f"- **pile PASSED BY EYE (override)**: {approvals[i]}")
                 ls[0] = ls[0].replace(": FAIL", ": PASS" if v["ALL"] else ": FAIL").replace("pile False", "pile True (by eye)")
         body += ls + [""]
+        # BIND THE VERDICT TO THE BYTES: the import refuses unless the bake JSON and .abc still hash to what was judged,
+        # so re-using a bake id can never import an untested replacement under a stale pass.
+        v["artifacts"] = {name: sha256_file(OUT / name) for name in (f"{i}.json", f"{i}.abc") if (OUT / name).exists()}
         verdicts[i] = v
         summary.append(f"| {i} | {'PASS' if v['ALL'] else 'FAIL'} | "
-                       + ", ".join(f"{k}={val}" for k, val in v.items() if k not in ("ALL", "pile_override")) + " |")
+                       + ", ".join(f"{k}={val}" for k, val in v.items()
+                                   if k not in ("ALL", "pile_override", "artifacts", "required")) + " |")
     lines = head + ["| bake | verdict | criteria |", "|---|---|---|"] + summary + [""] + body
     if args.sheet:
         a, b = args.sheet.split(",")
