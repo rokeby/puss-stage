@@ -312,6 +312,16 @@ separate the two effects.
   gives the best PILE, and the drapes and backcloth take whichever gives the best
   HANG plus STILLNESS at an acceptable pile.
 
+**THE SWITCH AMOUNT ACTS ONLY AFTER RELEASE — which is why the strips gate less
+than anyone assumed.** The hold is a pleated rest plus the hem guide at 0.7 and is
+**identical at every amount**, so stillness and hang read the same at 0.4 as at
+1.0. The amount decides only the **pile**. And the P04 backcloth is judged on
+stillness, hang and its SITE — pile short of the hinge, inside the boards, on the
+floor — not on pile-against-`final2` the way the Opening and the drapes are. So
+the backcloth bake stands or falls on its own numbers whatever the strips pick,
+and a later preference is an optional re-bake rather than a gate. **This converted
+a blocking dependency into an option and saved the morning's integration.**
+
 **Nothing is placed.** `Docs/` carries the numbers; the acceptance test has now
 refused three bakes.
 
