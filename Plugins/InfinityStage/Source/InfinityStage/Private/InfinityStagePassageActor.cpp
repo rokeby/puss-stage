@@ -18,6 +18,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Engine/Texture.h"
 #include "Engine/TextureLightProfile.h"
+#include "HAL/IConsoleManager.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
 #include "InfinityStageWingLibraryAsset.h"
@@ -27,6 +28,15 @@
 #include "MovieSceneInfinityPassageTrack.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageMaterialization, Log, All);
+
+static TAutoConsoleVariable<int32> CVarInfinityStageMechanismMarkRenderStateDirty(
+    TEXT("InfinityStage.Mechanism.MarkRenderStateDirty"),
+    1,
+    TEXT("Controls how moving wing ISM batch updates become visible.\n")
+    TEXT("0: do not mark render state dirty (freeze diagnostic).\n")
+    TEXT("1: preserve existing behaviour with a separate MarkRenderStateDirty call (default).\n")
+    TEXT("2: mark only the last contiguous batch dirty through BatchUpdateInstancesTransforms.\n")
+    TEXT("Compare 1 vs 2 for the in-motion smudge; use 0 only as a freeze diagnostic."));
 
 namespace
 {
@@ -1394,6 +1404,13 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
             continue;
         }
 
+        int32 RenderStateUpdateMode =
+            CVarInfinityStageMechanismMarkRenderStateDirty.GetValueOnGameThread();
+        if (RenderStateUpdateMode < 0 || RenderStateUpdateMode > 2)
+        {
+            RenderStateUpdateMode = 1;
+        }
+
         Component->SetHasPerInstancePrevTransforms(true);
         Updates.Sort([](
             const FPendingMechanismInstanceTransform& A,
@@ -1409,7 +1426,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
         int32 SpanStartIndex = INDEX_NONE;
         int32 ExpectedInstanceIndex = INDEX_NONE;
 
-        const auto FlushContiguousSpan = [&]()
+        const auto FlushContiguousSpan = [&](const bool bMarkRenderStateDirty)
         {
             if (SpanStartIndex == INDEX_NONE || NewWorldTransforms.IsEmpty())
             {
@@ -1420,7 +1437,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                 NewWorldTransforms,
                 PreviousWorldTransforms,
                 true,
-                false,
+                bMarkRenderStateDirty,
                 false);
             if (!bUpdated)
             {
@@ -1449,7 +1466,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
             }
             else if (Update.InstanceIndex != ExpectedInstanceIndex)
             {
-                FlushContiguousSpan();
+                FlushContiguousSpan(false);
                 SpanStartIndex = Update.InstanceIndex;
                 ExpectedInstanceIndex = Update.InstanceIndex;
             }
@@ -1457,8 +1474,11 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
             PreviousWorldTransforms.Add(Update.PreviousWorldTransform);
             ++ExpectedInstanceIndex;
         }
-        FlushContiguousSpan();
-        Component->MarkRenderStateDirty();
+        FlushContiguousSpan(RenderStateUpdateMode == 2);
+        if (RenderStateUpdateMode == 1)
+        {
+            Component->MarkRenderStateDirty();
+        }
     }
     // Light drama belongs to Rig & atmosphere (InfinityStageLightDrama.cpp). Game
     // worlds only: in the editor a lamp must keep its authored values, because

@@ -2,7 +2,10 @@
 
 #include "Channels/MovieSceneChannelProxy.h"
 #include "Channels/MovieSceneDoubleChannel.h"
+#include "Channels/MovieSceneFloatChannel.h"
+#include "Components/LightComponent.h"
 #include "Components/SceneComponent.h"
+#include "Engine/PostProcessVolume.h"
 #include "GeometryCacheComponent.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
@@ -11,8 +14,10 @@
 #include "MovieSceneGeometryCacheSection.h"
 #include "MovieSceneGeometryCacheTrack.h"
 #include "Sections/MovieScene3DTransformSection.h"
+#include "Sections/MovieSceneFloatSection.h"
 #include "Sections/MovieSceneSubSection.h"
 #include "Tracks/MovieScene3DTransformTrack.h"
+#include "Tracks/MovieSceneFloatTrack.h"
 #include "Tracks/MovieSceneSubTrack.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageArrival, Log, All);
@@ -60,6 +65,51 @@ const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid
         }
     }
     return nullptr;
+}
+
+/** The float section on the named property track that owns MotionTime, or the earliest section. */
+const UMovieSceneFloatSection* FindFloatBindingSection(
+    const UMovieScene& MovieScene,
+    const FGuid& BindingGuid,
+    const FName PropertyName,
+    const FFrameTime MotionTime)
+{
+    const FMovieSceneBinding* Binding = MovieScene.FindBinding(BindingGuid);
+    if (!Binding)
+    {
+        return nullptr;
+    }
+    const UMovieSceneFloatSection* EarliestSection = nullptr;
+    for (const UMovieSceneTrack* Track : Binding->GetTracks())
+    {
+        const UMovieSceneFloatTrack* FloatTrack = Cast<UMovieSceneFloatTrack>(Track);
+        if (!FloatTrack || FloatTrack->GetPropertyName() != PropertyName)
+        {
+            continue;
+        }
+        for (const UMovieSceneSection* Candidate : FloatTrack->GetAllSections())
+        {
+            const UMovieSceneFloatSection* Section = Cast<UMovieSceneFloatSection>(Candidate);
+            if (!Section)
+            {
+                continue;
+            }
+            if (Section->GetRange().Contains(MotionTime.FloorToFrame()))
+            {
+                return Section;
+            }
+            if (!EarliestSection
+                || (!Section->HasStartFrame() && EarliestSection->HasStartFrame())
+                || (Section->HasStartFrame() && EarliestSection->HasStartFrame()
+                    && Section->GetInclusiveStartFrame() < EarliestSection->GetInclusiveStartFrame()))
+            {
+                EarliestSection = Section;
+            }
+        }
+    }
+    // Pre-cut motion time is negative by construction. If it precedes every section,
+    // read the earliest section's channel outside its range on purpose, exactly as the root does.
+    return EarliestSection;
 }
 }
 
@@ -243,6 +293,65 @@ bool AInfinityStageArrival::ResolveBackclothTimeAtMasterFrame(
     return true;
 }
 
+bool AInfinityStageArrival::ResolveFloatDriveAtMasterFrame(
+    const UInfinityStageShowAsset* Show,
+    const FFrameTime MasterTime,
+    const int32 DriveIndex,
+    float& OutValue) const
+{
+    FFrameTime MotionTime;
+    const UMovieScene* MotionMovieScene = nullptr;
+    if (!ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
+    {
+        return false;
+    }
+    return EvaluateFloatDriveAtMotionTime(*MotionMovieScene, MotionTime, DriveIndex, OutValue);
+}
+
+bool AInfinityStageArrival::EvaluateFloatDriveAtMotionTime(
+    const UMovieScene& MotionScene,
+    const FFrameTime MotionTime,
+    const int32 DriveIndex,
+    float& OutValue) const
+{
+    if (!PreSceneFloatDrives.IsValidIndex(DriveIndex))
+    {
+        WarnOnce(TEXT("NoFloatDrive"), FString::FromInt(DriveIndex));
+        return false;
+    }
+    const FInfinityArrivalFloatDrive& Drive = PreSceneFloatDrives[DriveIndex];
+    if (!Drive.BindingGuid.IsValid() || Drive.PropertyName.IsNone())
+    {
+        WarnOnce(TEXT("InvalidFloatDrive"), FString::Printf(
+            TEXT("index=%d binding=%s property=%s"),
+            DriveIndex,
+            *Drive.BindingGuid.ToString(),
+            *Drive.PropertyName.ToString()));
+        return false;
+    }
+    const UMovieSceneFloatSection* Section =
+        FindFloatBindingSection(MotionScene, Drive.BindingGuid, Drive.PropertyName, MotionTime);
+    if (!Section)
+    {
+        WarnOnce(TEXT("NoFloatTrack"), FString::Printf(
+            TEXT("index=%d binding=%s property=%s"),
+            DriveIndex,
+            *Drive.BindingGuid.ToString(),
+            *Drive.PropertyName.ToString()));
+        return false;
+    }
+    if (!Section->GetChannel().Evaluate(MotionTime, OutValue))
+    {
+        WarnOnce(TEXT("NoFloatChannelValue"), FString::Printf(
+            TEXT("index=%d binding=%s property=%s"),
+            DriveIndex,
+            *Drive.BindingGuid.ToString(),
+            *Drive.PropertyName.ToString()));
+        return false;
+    }
+    return true;
+}
+
 bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset* Show, const FFrameTime MasterTime)
 {
     bool bDrove = false;
@@ -272,6 +381,69 @@ bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset*
             bLoggedBackcloth = true;
             UE_LOG(LogInfinityStageArrival, Display, TEXT("ArrivalBackcloth|actor=%s|duration=%.3f|cache_time=%.3f|master_frame=%d"),
                 *Cloth->GetActorNameOrLabel(), Cache->GetDuration(), CacheSeconds, MasterTime.FloorToFrame().Value);
+        }
+    }
+
+    // Sequencer also calls Arrivals while evaluating editor worlds. Unlike the existing
+    // root/backcloth behaviour, component property writes can be saved into the level later,
+    // so pre-Scene light/exposure drives are deliberately game-world-only.
+    const UWorld* World = GetWorld();
+    if (!World || !World->IsGameWorld())
+    {
+        return bDrove;
+    }
+
+    FFrameTime MotionTime;
+    const UMovieScene* MotionMovieScene = nullptr;
+    if (PreSceneFloatDrives.IsEmpty()
+        || !ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
+    {
+        return bDrove;
+    }
+    for (int32 DriveIndex = 0; DriveIndex < PreSceneFloatDrives.Num(); ++DriveIndex)
+    {
+        float Value = 0.0f;
+        if (!EvaluateFloatDriveAtMotionTime(*MotionMovieScene, MotionTime, DriveIndex, Value))
+        {
+            continue;
+        }
+
+        const FInfinityArrivalFloatDrive& Drive = PreSceneFloatDrives[DriveIndex];
+        UObject* Target = Drive.Target.Get();
+        if (!Target)
+        {
+            WarnOnce(TEXT("NoFloatTarget"), FString::Printf(TEXT("index=%d target=%s"), DriveIndex, *Drive.Target.ToString()));
+            continue;
+        }
+        if (Target->GetWorld() != GetWorld())
+        {
+            WarnOnce(TEXT("ForeignWorldTarget"), FString::Printf(
+                TEXT("index=%d target=%s"), DriveIndex, *Target->GetPathName()));
+            continue;
+        }
+        if (ULightComponent* Light = Cast<ULightComponent>(Target))
+        {
+            if (!FMath::IsNearlyEqual(Light->Intensity, Value, 1.0e-3f))
+            {
+                Light->SetIntensity(Value);
+            }
+            bDrove = true;
+        }
+        else if (APostProcessVolume* Volume = Cast<APostProcessVolume>(Target))
+        {
+            if (!FMath::IsNearlyEqual(Volume->BlendWeight, Value, 1.0e-4f))
+            {
+                Volume->BlendWeight = Value;
+            }
+            bDrove = true;
+        }
+        else
+        {
+            WarnOnce(TEXT("UnsupportedFloatTarget"), FString::Printf(
+                TEXT("index=%d target=%s class=%s"),
+                DriveIndex,
+                *Target->GetPathName(),
+                *Target->GetClass()->GetName()));
         }
     }
     return bDrove;

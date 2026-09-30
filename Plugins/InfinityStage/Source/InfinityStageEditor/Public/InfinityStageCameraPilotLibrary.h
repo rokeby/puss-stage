@@ -5,6 +5,7 @@
 #include "InfinityStageCameraPilotLibrary.generated.h"
 
 class AInfinityStageCameraRig;
+class ULevelSequence;
 class UInfinityStageShowAsset;
 class UMovieSceneInfinityPassageSection;
 class USplineComponent;
@@ -117,6 +118,39 @@ public:
         const TArray<FGuid>& SceneCueGuids,
         int32 ExpectedSceneCount,
         FString& OutReport);
+
+    /**
+     * Whether every camera cut in a cue's Level Sequence, and in its nested
+     * sub-sequences and shots, resolves in the open editor world. Read-only.
+     *
+     * Why (30 Sep): nested shot cuts outrank a Scene's root cuts, and a nested
+     * cut whose camera is not in the show level shows NOTHING while the
+     * transport's Entry claim stays up (Scene 1's LS_Animals_1: four cameras
+     * authored in another level). Imported sequences will keep arriving, and
+     * Python's only route, SequencerTools.get_bound_objects, has crashed the
+     * editor. One line per cut, in OutLines:
+     *   resolved     a possessable bound to an object in this world;
+     *   spawnable / custom binding   made by the sequence when it plays, so it
+     *                resolves anywhere (LocateBoundObjects cannot see these);
+     *   UNRESOLVED   a possessable with nothing bound here, or no binding;
+     *   UNCHECKED    a binding that lives in another sequence of the hierarchy.
+     * UNRESOLVED and UNCHECKED both count in OutUnresolvedCount: unknown is not
+     * fine. Returns true only when that count is zero. Logs
+     * INFINITY_SCENE_CUT_BINDINGS.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Camera Pilot")
+    static bool CheckSceneCutBindings(
+        UInfinityStageShowAsset* Show,
+        FGuid CueGuid,
+        TArray<FString>& OutLines,
+        int32& OutUnresolvedCount);
+
+    /** The core of CheckSceneCutBindings for a sequence and a world the caller supplies (tests, other worlds). */
+    static bool CheckSequenceCutBindings(
+        ULevelSequence* Sequence,
+        UObject* WorldContext,
+        TArray<FString>& OutLines,
+        int32& OutUnresolvedCount);
 
     /**
      * The Cue Desk's "Link / Reimport Music Analysis", made scriptable. Imports

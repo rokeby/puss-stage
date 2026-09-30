@@ -255,6 +255,7 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
                 break;
             }
         }
+        const bool bNewSection = Section == nullptr;
         if (!Section)
         {
             Section = CastChecked<UMovieSceneInfinityPassageSection>(PassageTrack->CreateNewSection());
@@ -294,6 +295,15 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
             {
                 Section->PinnedPassageFrames.RemoveAt(PinIndex);
             }
+        }
+        // Channel keys sit at absolute Master frames and SetRange moves only the
+        // range, so a Passage pushed later by a longer Scene used to keep its
+        // camera score where it was. MoveSection carries every channel in the
+        // proxy with the section, the way the relative pins already travel.
+        if (!bNewSection && Section->HasStartFrame()
+            && Section->GetInclusiveStartFrame() != Passage.SegmentStartFrame)
+        {
+            Section->MoveSection(Passage.SegmentStartFrame - Section->GetInclusiveStartFrame());
         }
         Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
     }

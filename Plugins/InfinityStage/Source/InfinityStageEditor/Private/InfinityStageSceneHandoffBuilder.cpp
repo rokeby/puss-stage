@@ -375,6 +375,7 @@ bool MatchOneScene(
     int32 FirstInteriorStart = SceneEndValue;
     int32 LastInteriorEnd = SceneStartValue;
     int32 LastInteriorStart = SceneStartValue - 1;
+    int32 LastInteriorCameraEnd = SceneStartValue - 1;
     ACineCameraActor* LastInteriorCamera = nullptr;
 
     for (UMovieSceneSection* Section : CutTrack->GetAllSections())
@@ -397,9 +398,16 @@ bool MatchOneScene(
             continue;
         }
         FirstInteriorStart = FMath::Min(FirstInteriorStart, FMath::Max(CutStart, SceneStartValue));
-        LastInteriorEnd = FMath::Max(LastInteriorEnd, FMath::Min(CutEnd, SceneEndValue));
-        if (CutCamera && CutStart >= LastInteriorStart)
+        const int32 ClampedEnd = FMath::Min(CutEnd, SceneEndValue);
+        LastInteriorEnd = FMath::Max(LastInteriorEnd, ClampedEnd);
+        // The camera on screen at the last interior frame: the cut that ends
+        // last, and of those the one that starts latest (the transport's rule
+        // for overlapping cuts). A retained Exit copies it and starts where it
+        // ends, so the join shows no change of view.
+        if (CutCamera && (ClampedEnd > LastInteriorCameraEnd
+            || (ClampedEnd == LastInteriorCameraEnd && CutStart >= LastInteriorStart)))
         {
+            LastInteriorCameraEnd = ClampedEnd;
             LastInteriorStart = CutStart;
             LastInteriorCamera = CutCamera;
         }
@@ -422,17 +430,26 @@ bool MatchOneScene(
         int32 ExitStart = SceneEndValue - FMath::Min(RequestedHold, FMath::Max(1, SceneLength - 1));
         if (LastInteriorEnd > SceneStartValue && LastInteriorEnd < SceneEndValue)
         {
-            ExitStart = FMath::Max(ExitStart, LastInteriorEnd);
+            // A normal Exit never starts inside the last designed shot. A retained
+            // Exit is a copy of that shot's camera, so it starts exactly where the
+            // shot ends: starting at the hold instead left frames no cut covered
+            // (Scene 3, 30 Sep: 1501-1549). A normal Exit whose hold begins after
+            // the last shot ends still leaves that stretch uncovered; holding the
+            // shot or cutting to the Passage early is a look decision, not this
+            // builder's.
+            ExitStart = bRetainedExit ? LastInteriorEnd : FMath::Max(ExitStart, LastInteriorEnd);
         }
         ExitStart = FMath::Min(SceneEndValue - 1, FMath::Max(SceneStartValue, ExitStart));
-        ExitCut->SetStartFrame(FFrameNumber(ExitStart));
-        ExitCut->SetEndFrame(SceneEnd);
+        // One call, not SetStartFrame then SetEndFrame: SetStartFrame clamps to
+        // the CURRENT end, so after a Scene is lengthened a new start beyond the
+        // old end stuck at the old end, and the Exit ran from there to the new
+        // end instead of holding (Scene 1, 30 Sep: [375, 5270], not [5245, 5270]).
+        ExitCut->SetRange(TRange<FFrameNumber>(FFrameNumber(ExitStart), SceneEnd));
     }
 
     if (EntryCut)
     {
         EntryCut->Modify();
-        EntryCut->SetStartFrame(SceneStart);
         const int32 ExitStart = ExitCut ? ExitCut->GetInclusiveStartFrame().Value : (SceneEndValue - 1);
         int32 EntryEnd = FMath::Min(FirstInteriorStart, ExitStart);
         if (FirstInteriorStart == SceneEndValue && LastInteriorEnd == SceneStartValue)
@@ -440,7 +457,8 @@ bool MatchOneScene(
             EntryEnd = ExitStart;
         }
         EntryEnd = FMath::Clamp(EntryEnd, SceneStartValue + 1, SceneEndValue);
-        EntryCut->SetEndFrame(FFrameNumber(EntryEnd));
+        // One call, for the same clamping reason as the Exit.
+        EntryCut->SetRange(TRange<FFrameNumber>(SceneStart, FFrameNumber(EntryEnd)));
     }
     Sequence->MarkPackageDirty();
     World.MarkPackageDirty();

@@ -188,13 +188,25 @@ public:
 	 * changes: a camera-owner change (Timeline, Gaze, Free Look), telemetry
 	 * arriving or lost, or a re-centre. The ease starts at the look as it
 	 * stands, so none of these steps the picture (Gary, 26 Sep: "don't jump").
-	 * A cut between dog-owned cameras carries the look across unchanged; a
-	 * hard cut into a Timeline shot drops it at once, since the cut already
-	 * hides the change and the shot should open as authored.
+	 * A hard cut drops the look at once whoever owns the camera (see
+	 * bResetLookAtCut), since the cut already hides the change and the shot
+	 * should open as authored. A blended change eases the look to zero over
+	 * this duration instead, because both cameras are then on screen.
 	 * 0 = settle at once.
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera", meta = (ClampMin = "0.0", UIMax = "3.0"))
 	float LookHandoverSeconds = 0.6f;
+
+	/**
+	 * Reset the look whenever the view target changes, not only when the
+	 * Timeline takes the camera. Gary, 30 Sep, asked what the dog's look should
+	 * do at a cut inside a Scene: "Reset at every cut"; "it's not essential that
+	 * dog has 'neck mobility' during cut scenes". A hard cut resets instantly;
+	 * a blended transition eases to zero so neither visible camera steps. Off
+	 * restores the earlier behaviour between dog-owned cameras.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera")
+	bool bResetLookAtCut = true;
 
 
 	/**
@@ -437,7 +449,7 @@ private:
 	FRotator LeftBehindDrivenRelative = FRotator::ZeroRotator;
 	FRotator LeftBehindWrittenRelative = FRotator::ZeroRotator;
 
-	// Cut detection: a view-target change with no blend in flight.
+	// Transition detection: a view-target change, hard or blended.
 	TWeakObjectPtr<AActor> LastViewTarget;
 	float SecondsSinceHardCut = 1.0e6f;
 

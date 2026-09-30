@@ -15,6 +15,13 @@
 #include "Math/RotationMatrix.h"
 #include "MovieScene.h"
 #include "MovieSceneInfinityPassageTrack.h"
+#include "MovieSceneBindingReferences.h"
+#include "MovieSceneSequenceID.h"
+#include "Sections/MovieSceneCameraCutSection.h"
+#include "Sections/MovieSceneSubSection.h"
+#include "Tracks/MovieSceneCameraCutTrack.h"
+#include "Tracks/MovieSceneSubTrack.h"
+#include "UniversalObjectLocatorResolveParams.h"
 #include "ScopedTransaction.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageCameraPilot, Log, All);
@@ -611,6 +618,169 @@ bool UInfinityStageCameraPilotLibrary::MatchNamedSceneHandoffs(
         StaleAfter.Num(),
         *MatchReport);
     return bMatched && StaleAfter.IsEmpty();
+}
+
+namespace
+{
+void CheckCutBindingsIn(
+    UMovieSceneSequence& Sequence,
+    UObject* WorldContext,
+    const FString& Where,
+    const int32 Depth,
+    TArray<FString>& OutLines,
+    int32& OutUnresolvedCount)
+{
+    if (Depth > 4)
+    {
+        OutLines.Add(FString::Printf(TEXT("%s: UNCHECKED: nested deeper than 4; not inspected"), *Where));
+        ++OutUnresolvedCount;
+        return;
+    }
+    UMovieScene* MovieScene = Sequence.GetMovieScene();
+    if (!MovieScene)
+    {
+        OutLines.Add(FString::Printf(TEXT("%s: UNCHECKED: sequence has no MovieScene; not inspected"), *Where));
+        ++OutUnresolvedCount;
+        return;
+    }
+    if (const UMovieSceneCameraCutTrack* CutTrack = Cast<UMovieSceneCameraCutTrack>(MovieScene->GetCameraCutTrack()))
+    {
+        for (UMovieSceneSection* Section : CutTrack->GetAllSections())
+        {
+            const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(Section);
+            if (!Cut)
+            {
+                continue;
+            }
+            const FMovieSceneObjectBindingID& Binding = Cut->GetCameraBindingID();
+            const FGuid Guid = Binding.GetGuid();
+            FString Name = Guid.ToString(EGuidFormats::Short);
+            FString Verdict;
+            bool bResolves = false;
+            if (!Binding.IsValid())
+            {
+                Verdict = TEXT("UNRESOLVED: the cut names no binding");
+            }
+            else if (Binding.IsFixedBinding() || Binding.GetRelativeSequenceID() != MovieSceneSequenceID::Root)
+            {
+                Verdict = TEXT("UNCHECKED: the binding lives in another sequence of the hierarchy");
+            }
+            else if (const FMovieSceneSpawnable* Spawnable = MovieScene->FindSpawnable(Guid))
+            {
+                Name = Spawnable->GetName();
+                Verdict = TEXT("spawnable: made by the sequence when it plays");
+                bResolves = true;
+            }
+            else if (const FMovieScenePossessable* Possessable = MovieScene->FindPossessable(Guid))
+            {
+                Name = Possessable->GetName();
+                const FMovieSceneBindingReferences* References =
+                    static_cast<const UMovieSceneSequence&>(Sequence).GetBindingReferences();
+                if (References && References->GetCustomBinding(Guid, 0))
+                {
+                    Verdict = TEXT("custom binding: made or found by the sequence when it plays");
+                    bResolves = true;
+                }
+                else
+                {
+                    // Possessables only: LocateBoundObjects cannot see spawnables or custom bindings.
+                    TArray<UObject*, TInlineAllocator<1>> Objects;
+                    Sequence.LocateBoundObjects(
+                        Guid, UE::UniversalObjectLocator::FResolveParams(WorldContext), nullptr, Objects);
+                    const UObject* Found = Objects.Num() > 0 ? Objects[0] : nullptr;
+                    if (Found)
+                    {
+                        const AActor* Actor = Cast<AActor>(Found);
+                        Verdict = FString::Printf(TEXT("resolved: %s"),
+                            Actor ? *Actor->GetActorLabel() : *Found->GetName());
+                        bResolves = true;
+                    }
+                    else
+                    {
+                        Verdict = TEXT("UNRESOLVED: a possessable with nothing bound in this world");
+                    }
+                }
+            }
+            else
+            {
+                Verdict = TEXT("UNRESOLVED: the binding is not in this sequence");
+            }
+            OutLines.Add(FString::Printf(TEXT("%s cut [%d, %d) -> '%s': %s"),
+                *Where,
+                Cut->HasStartFrame() ? Cut->GetInclusiveStartFrame().Value : 0,
+                Cut->HasEndFrame() ? Cut->GetExclusiveEndFrame().Value : 0,
+                *Name,
+                *Verdict));
+            if (!bResolves)
+            {
+                ++OutUnresolvedCount;
+            }
+        }
+    }
+    // Nested sub-sequences and shots: their cuts outrank this sequence's own.
+    for (UMovieSceneTrack* Track : MovieScene->GetTracks())
+    {
+        const UMovieSceneSubTrack* SubTrack = Cast<UMovieSceneSubTrack>(Track);
+        if (!SubTrack)
+        {
+            continue;
+        }
+        for (UMovieSceneSection* Section : SubTrack->GetAllSections())
+        {
+            const UMovieSceneSubSection* Sub = Cast<UMovieSceneSubSection>(Section);
+            UMovieSceneSequence* Child = Sub ? Sub->GetSequence() : nullptr;
+            if (!Child)
+            {
+                OutLines.Add(FString::Printf(
+                    TEXT("%s > <null>: UNCHECKED: sub-section has no sequence; not inspected"), *Where));
+                ++OutUnresolvedCount;
+                continue;
+            }
+            CheckCutBindingsIn(*Child, WorldContext, Where + TEXT(" > ") + Child->GetName(), Depth + 1,
+                OutLines, OutUnresolvedCount);
+        }
+    }
+}
+}
+
+bool UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(
+    ULevelSequence* Sequence,
+    UObject* WorldContext,
+    TArray<FString>& OutLines,
+    int32& OutUnresolvedCount)
+{
+    OutLines.Reset();
+    OutUnresolvedCount = 0;
+    if (!Sequence || !WorldContext)
+    {
+        OutLines.Add(TEXT("UNRESOLVED: needs a sequence and a world to resolve in"));
+        OutUnresolvedCount = 1;
+        return false;
+    }
+    CheckCutBindingsIn(*Sequence, WorldContext, Sequence->GetName(), 0, OutLines, OutUnresolvedCount);
+    return OutUnresolvedCount == 0;
+}
+
+bool UInfinityStageCameraPilotLibrary::CheckSceneCutBindings(
+    UInfinityStageShowAsset* Show,
+    const FGuid CueGuid,
+    TArray<FString>& OutLines,
+    int32& OutUnresolvedCount)
+{
+    const FInfinityShowCue* Cue = Show
+        ? Show->Cues.FindByPredicate([&CueGuid](const FInfinityShowCue& Candidate) { return Candidate.CueGuid == CueGuid; })
+        : nullptr;
+    ULevelSequence* Sequence = Cue ? Cue->Scene.Sequence.LoadSynchronous() : nullptr;
+    const bool bResolves = CheckSequenceCutBindings(Sequence, GetEditorWorld(), OutLines, OutUnresolvedCount);
+    UE_LOG(
+        LogInfinityStageCameraPilot,
+        Display,
+        TEXT("INFINITY_SCENE_CUT_BINDINGS|cue=%s|ok=%d|unresolved=%d|cuts=%d"),
+        Cue ? *Cue->Label.ToString() : TEXT("<no such cue>"),
+        bResolves ? 1 : 0,
+        OutUnresolvedCount,
+        OutLines.Num());
+    return bResolves;
 }
 
 bool UInfinityStageCameraPilotLibrary::ImportMusicAnalysis(UInfinityStageShowAsset* Show, FString& OutReport)

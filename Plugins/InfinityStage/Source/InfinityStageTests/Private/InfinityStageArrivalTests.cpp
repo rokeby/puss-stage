@@ -3,17 +3,24 @@
 #include "InfinityStageShowAsset.h"
 #include "Channels/MovieSceneChannelProxy.h"
 #include "Channels/MovieSceneDoubleChannel.h"
+#include "Channels/MovieSceneFloatChannel.h"
+#include "Components/PointLightComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/Engine.h"
+#include "Engine/PostProcessVolume.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/World.h"
+#include "GameFramework/Actor.h"
 #include "LevelSequence.h"
 #include "Misc/AutomationTest.h"
 #include "MovieScene.h"
 #include "MovieSceneGeometryCacheSection.h"
 #include "MovieSceneGeometryCacheTrack.h"
 #include "Sections/MovieScene3DTransformSection.h"
+#include "Sections/MovieSceneFloatSection.h"
 #include "Sections/MovieSceneSubSection.h"
 #include "Tracks/MovieScene3DTransformTrack.h"
+#include "Tracks/MovieSceneFloatTrack.h"
 #include "Tracks/MovieSceneSubTrack.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -181,6 +188,143 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
         Arrival->ResolveBackclothTimeAtMasterFrame(Show, SceneStart, CacheSeconds, ClothTime));
     TestTrue(TEXT("Past its section the cloth holds its last sample (the pile), it does not loop"),
         ClothSection->MapTimeToAnimation(CacheSeconds, MotionRate.AsFrameTime(20.0), MotionRate) > CacheSeconds - 0.1f);
+
+    // A practical's Intensity uses the same negative-time mapping and the same channel
+    // Sequencer takes over at the cut: 0 -> 400 from motion time -2 s to +2 s.
+    const FGuid LightBinding = MotionScene->AddPossessable(TEXT("Practical"), UPointLightComponent::StaticClass());
+    UMovieSceneFloatTrack* IntensityTrack = MotionScene->AddTrack<UMovieSceneFloatTrack>(LightBinding);
+    IntensityTrack->SetPropertyNameAndPath(TEXT("Intensity"), TEXT("Intensity"));
+    UMovieSceneFloatSection* IntensitySection = CastChecked<UMovieSceneFloatSection>(IntensityTrack->CreateNewSection());
+    IntensitySection->SetRange(TRange<FFrameNumber>(FFrameNumber(0), MotionRate.AsFrameTime(5.0).FloorToFrame()));
+    IntensityTrack->AddSection(*IntensitySection);
+    FMovieSceneFloatChannel* IntensityChannel = &IntensitySection->GetChannel();
+    IntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-2.0).FloorToFrame(), 0.0f);
+    IntensityChannel->AddLinearKey(MotionRate.AsFrameTime(2.0).FloorToFrame(), 400.0f);
+    const auto IntensityAt = [IntensityChannel, MotionRate](const double Seconds)
+    {
+        float Value = 0.0f;
+        IntensityChannel->Evaluate(MotionRate.AsFrameTime(Seconds), Value);
+        return Value;
+    };
+
+    UPointLightComponent* Practical = NewObject<UPointLightComponent>(Arrival);
+    Practical->SetIntensity(777.0f);
+    FInfinityArrivalFloatDrive& FloatDrive = Arrival->PreSceneFloatDrives.AddDefaulted_GetRef();
+    FloatDrive.Target = Practical;
+    FloatDrive.BindingGuid = LightBinding;
+    FloatDrive.PropertyName = TEXT("Intensity");
+    float Intensity = -1.0f;
+    TestTrue(TEXT("At motion -1 s the pre-Scene float drive resolves to 100"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(1.0), 0, Intensity)
+        && FMath::IsNearlyEqual(Intensity, 100.0f, 1.0f));
+    TestTrue(TEXT("One tick before the cut the float drive meets Sequencer's value at motion 0"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, SceneStart - FFrameTime(1), 0, Intensity)
+        && FMath::IsNearlyEqual(Intensity, IntensityAt(0.0), 1.0e-2f));
+    TestFalse(TEXT("At the Scene's first frame Sequencer owns the float drive"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, SceneStart, 0, Intensity));
+
+    FloatDrive.PropertyName = TEXT("NotIntensity");
+    AddExpectedMessagePlain(TEXT("reason=NoFloatTrack"), ELogVerbosity::Warning, EAutomationExpectedMessageFlags::Contains, 1);
+    TestFalse(TEXT("A wrong float property name does not resolve"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(1.0), 0, Intensity));
+    TestFalse(TEXT("A repeated wrong float property name still does not resolve"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(0.5), 0, Intensity));
+    FloatDrive.PropertyName = TEXT("Intensity");
+
+    // This fixture is deliberately an editor world: resolution remains available for
+    // editor tests, but evaluation must not leave a saveable preview intensity behind.
+    TestTrue(TEXT("Fixture is a non-game editor world"), !World->IsGameWorld());
+    Arrival->EvaluateAtMasterFrame(Show, Master(1.0));
+    TestTrue(TEXT("Editor evaluation leaves the practical's intensity untouched"),
+        FMath::IsNearlyEqual(Practical->Intensity, 777.0f, 1.0e-6f));
+
+    // When sections are split, prefer the one containing the motion time. If none
+    // contains it, use the earliest section and deliberately evaluate outside its range.
+    UMovieSceneFloatSection* ContainedIntensitySection =
+        CastChecked<UMovieSceneFloatSection>(IntensityTrack->CreateNewSection());
+    ContainedIntensitySection->SetRange(TRange<FFrameNumber>(
+        MotionRate.AsFrameTime(-1.5).FloorToFrame(), MotionRate.AsFrameTime(-0.5).FloorToFrame()));
+    IntensityTrack->AddSection(*ContainedIntensitySection);
+    FMovieSceneFloatChannel* ContainedIntensityChannel = &ContainedIntensitySection->GetChannel();
+    ContainedIntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-1.5).FloorToFrame(), 250.0f);
+    ContainedIntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-0.5).FloorToFrame(), 250.0f);
+    TestTrue(TEXT("A float section containing motion time is preferred"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(1.0), 0, Intensity)
+        && FMath::IsNearlyEqual(Intensity, 250.0f, 1.0e-3f));
+    TestTrue(TEXT("With no containing section the earliest section evaluates out of range"),
+        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(3.0), 0, Intensity)
+        && FMath::IsNearlyEqual(Intensity, 250.0f, 1.0e-3f));
+
+    const FGuid ExposureBinding = MotionScene->AddPossessable(TEXT("Exposure"), APostProcessVolume::StaticClass());
+    UMovieSceneFloatTrack* BlendWeightTrack = MotionScene->AddTrack<UMovieSceneFloatTrack>(ExposureBinding);
+    BlendWeightTrack->SetPropertyNameAndPath(TEXT("BlendWeight"), TEXT("BlendWeight"));
+    UMovieSceneFloatSection* BlendWeightSection =
+        CastChecked<UMovieSceneFloatSection>(BlendWeightTrack->CreateNewSection());
+    BlendWeightSection->SetRange(TRange<FFrameNumber>(FFrameNumber(0), MotionRate.AsFrameTime(5.0).FloorToFrame()));
+    BlendWeightTrack->AddSection(*BlendWeightSection);
+    FMovieSceneFloatChannel* BlendWeightChannel = &BlendWeightSection->GetChannel();
+    BlendWeightChannel->AddLinearKey(MotionRate.AsFrameTime(-2.0).FloorToFrame(), 0.0f);
+    BlendWeightChannel->AddLinearKey(MotionRate.AsFrameTime(2.0).FloorToFrame(), 1.0f);
+
+    UWorld* GameWorld = UWorld::CreateWorld(EWorldType::Game, false);
+    FWorldContext& GameWorldContext = GEngine->CreateNewWorldContext(EWorldType::Game);
+    GameWorldContext.SetCurrentWorld(GameWorld);
+    AInfinityStageArrival* GameArrival = GameWorld->SpawnActor<AInfinityStageArrival>();
+    GameArrival->SceneCueGuid = SceneCue.CueGuid;
+    GameArrival->MotionSequence = Motion;
+
+    AActor* LightOwner = GameWorld->SpawnActor<AActor>();
+    UPointLightComponent* GamePractical = NewObject<UPointLightComponent>(LightOwner, TEXT("ArrivalPractical"));
+    LightOwner->AddInstanceComponent(GamePractical);
+    GamePractical->RegisterComponent();
+    GamePractical->SetIntensity(777.0f);
+    APostProcessVolume* Exposure = GameWorld->SpawnActor<APostProcessVolume>();
+    Exposure->BlendWeight = 0.9f;
+
+    FInfinityArrivalFloatDrive& GameLightDrive = GameArrival->PreSceneFloatDrives.AddDefaulted_GetRef();
+    GameLightDrive.Target = GamePractical;
+    GameLightDrive.BindingGuid = LightBinding;
+    GameLightDrive.PropertyName = TEXT("Intensity");
+    FInfinityArrivalFloatDrive& GameExposureDrive = GameArrival->PreSceneFloatDrives.AddDefaulted_GetRef();
+    GameExposureDrive.Target = Exposure;
+    GameExposureDrive.BindingGuid = ExposureBinding;
+    GameExposureDrive.PropertyName = TEXT("BlendWeight");
+    FInfinityArrivalFloatDrive& ForeignWorldDrive = GameArrival->PreSceneFloatDrives.AddDefaulted_GetRef();
+    ForeignWorldDrive.Target = Practical;
+    ForeignWorldDrive.BindingGuid = LightBinding;
+    ForeignWorldDrive.PropertyName = TEXT("Intensity");
+
+    TestTrue(TEXT("Fixture is a game world"), GameWorld->IsGameWorld());
+    AddExpectedMessagePlain(TEXT("reason=ForeignWorldTarget"), ELogVerbosity::Warning, EAutomationExpectedMessageFlags::Contains, 1);
+    TestTrue(TEXT("Game-world evaluation writes supported float targets"),
+        GameArrival->EvaluateAtMasterFrame(Show, Master(1.0)));
+    TestTrue(TEXT("Game-world evaluation writes the practical intensity from the containing section"),
+        FMath::IsNearlyEqual(GamePractical->Intensity, 250.0f, 1.0e-3f));
+    TestTrue(TEXT("Game-world evaluation writes the exposure BlendWeight from the channel"),
+        FMath::IsNearlyEqual(Exposure->BlendWeight, 0.25f, 1.0e-3f));
+    TestTrue(TEXT("A target in another world is not written"),
+        FMath::IsNearlyEqual(Practical->Intensity, 777.0f, 1.0e-6f));
+
+    GamePractical->SetIntensity(901.0f);
+    Exposure->BlendWeight = 0.83f;
+    TestFalse(TEXT("At the Scene's first frame the game-world Arrival writes nothing"),
+        GameArrival->EvaluateAtMasterFrame(Show, SceneStart));
+    TestTrue(TEXT("At the Scene's first frame the practical intensity is unchanged"),
+        FMath::IsNearlyEqual(GamePractical->Intensity, 901.0f, 1.0e-6f));
+    TestTrue(TEXT("At the Scene's first frame the exposure BlendWeight is unchanged"),
+        FMath::IsNearlyEqual(Exposure->BlendWeight, 0.83f, 1.0e-6f));
+
+    GamePractical->SetIntensity(902.0f);
+    Exposure->BlendWeight = 0.84f;
+    TestFalse(TEXT("After the Scene starts the game-world Arrival writes nothing"),
+        GameArrival->EvaluateAtMasterFrame(Show, SceneStart + MasterRate.AsFrameTime(1.0)));
+    TestTrue(TEXT("After the Scene starts the practical intensity is unchanged"),
+        FMath::IsNearlyEqual(GamePractical->Intensity, 902.0f, 1.0e-6f));
+    TestTrue(TEXT("After the Scene starts the exposure BlendWeight is unchanged"),
+        FMath::IsNearlyEqual(Exposure->BlendWeight, 0.84f, 1.0e-6f));
+
+    GEngine->DestroyWorldContext(GameWorld);
+    GameWorld->DestroyWorld(false);
 
     // Placed ahead of its nesting (Scenes 1, 2, 3, 5, 6 on 30 Sep): an Arrival whose motion the
     // Scene does not play declines, leaves its actor alone, and says so exactly once at Display

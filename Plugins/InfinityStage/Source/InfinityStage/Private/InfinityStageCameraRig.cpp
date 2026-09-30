@@ -184,6 +184,42 @@ bool AInfinityStageCameraRig::ShouldDrawShadowCatBody() const
     return bShadowCatRenderInMainPass && !(World && World->IsGameWorld());
 }
 
+static void ApplyShadowCatBodyRendering(
+    USkeletalMeshComponent* CatMesh,
+    const bool bDrawBody,
+    const bool bGameWorld,
+    const bool bVisibleInReflections)
+{
+    if (!CatMesh)
+    {
+        return;
+    }
+
+    CatMesh->SetRenderInMainPass(bDrawBody);
+    CatMesh->SetVisibleInRayTracing(!bGameWorld && bVisibleInReflections);
+    if (!bGameWorld)
+    {
+        return;
+    }
+
+    bool bCaptureVisibilityChanged = false;
+    if (CatMesh->bVisibleInReflectionCaptures)
+    {
+        CatMesh->bVisibleInReflectionCaptures = false;
+        bCaptureVisibilityChanged = true;
+    }
+    if (CatMesh->bVisibleInRealTimeSkyCaptures)
+    {
+        CatMesh->bVisibleInRealTimeSkyCaptures = false;
+        bCaptureVisibilityChanged = true;
+    }
+    if (bCaptureVisibilityChanged)
+    {
+        CatMesh->MarkRenderStateDirty();
+    }
+    CatMesh->SetRenderInDepthPass(false);
+}
+
 void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
 {
     // Live: the cat is present for its SHADOW (the follow light throws it
@@ -197,7 +233,11 @@ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
         for (USkeletalMeshComponent* CatMesh : CatMeshes)
         {
             CatMesh->SetHiddenInGame(!bShowCat, true);
-            CatMesh->SetRenderInMainPass(ShouldDrawShadowCatBody());
+            ApplyShadowCatBodyRendering(
+                CatMesh,
+                ShouldDrawShadowCatBody(),
+                GetWorld() && GetWorld()->IsGameWorld(),
+                bShadowCatVisibleInReflections);
             CatMesh->SetCastShadow(bShadowCatCastShadow);
         }
     }
@@ -343,13 +383,33 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
     {
         return false;
     }
-    // Gait bob: the cat's pose from the previous tick lifts this frame's camera.
-    // The lift is applied on top of the authored camera state, never written back.
-    CurrentShadowCatCameraBobCm = SampleShadowCatGaitLiftCm();
+    // Establish this master frame's speed before sampling or applying its gait
+    // lift, so no weight can leak in from a previous play of this rig.
+    UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform, *Passage);
+    const FFrameRate& TickResolution = PassageActor->ShowAsset->TickResolution;
+    const double TickRate = TickResolution.IsValid() ? TickResolution.AsDecimal() : 0.0;
+    const double MasterSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
+        ? static_cast<double>(MasterFrame.Value) / TickRate
+        : 0.0;
+    const double RawLiftCm = SampleShadowCatGaitLiftCm();
+    const FInfinityGaitBob GaitBob = StepGaitBob(
+        ShadowCatGaitBobState,
+        MasterSeconds,
+        RawLiftCm,
+        CurrentShadowCatCameraSpeedCmPerSecond,
+        ShadowCatReferenceWalkSpeedCmPerSecond,
+        ShadowCatCameraBobRollMeanSeconds,
+        ShadowCatBobFadeSeconds,
+        ShadowCatCameraBobRollDegreesPerCm);
+    CurrentShadowCatBobWalkWeight = ShadowCatGaitBobState.WalkWeight;
+    CurrentShadowCatCameraBobCm = GaitBob.HeightCm;
     if (!FMath::IsNearlyZero(CurrentShadowCatCameraBobCm))
     {
         CameraTransform.AddToTranslation(FVector(0.0, 0.0, CurrentShadowCatCameraBobCm));
-        const FQuat Roll = FRotator(0.0, 0.0, CurrentShadowCatCameraBobCm * ShadowCatCameraBobRollDegreesPerCm).Quaternion();
+    }
+    if (!FMath::IsNearlyZero(GaitBob.RollDeg))
+    {
+        const FQuat Roll = FRotator(0.0, 0.0, GaitBob.RollDeg).Quaternion();
         CameraTransform.SetRotation((CameraTransform.GetRotation() * Roll).GetNormalized());
     }
 
@@ -368,8 +428,6 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
         const FRotator CameraRotation = GetActorRotation();
         ShadowFigureRoot->SetWorldRotation(FRotator(0.0, CameraRotation.Yaw, 0.0));
     }
-
-    UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform, *Passage);
 
     PassageActor->EvaluateMechanismsAtCameraDistance(MasterFrame, CameraEvaluation.DistanceCm);
     return true;
@@ -441,8 +499,11 @@ void AInfinityStageCameraRig::ConfigureShadowCat()
         CatMesh->SetVisibility(bEnableShadowCat, true);
         CatMesh->SetHiddenInGame(!(bEnableShadowCat && bShadowFiguresLive), true);
         CatMesh->SetCastShadow(bShadowCatCastShadow);
-        CatMesh->SetRenderInMainPass(ShouldDrawShadowCatBody());
-        CatMesh->SetVisibleInRayTracing(bShadowCatVisibleInReflections);
+        ApplyShadowCatBodyRendering(
+            CatMesh,
+            ShouldDrawShadowCatBody(),
+            GetWorld() && GetWorld()->IsGameWorld(),
+            bShadowCatVisibleInReflections);
     }
 
     const FName ReadyTag(TEXT("InfinityStageShadowCatReady"));
@@ -518,6 +579,54 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
     }
 }
 
+FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
+    FInfinityGaitBobState& State,
+    const double MasterSeconds,
+    const double RawLiftCm,
+    const double SpeedCmPerSecond,
+    const double ReferenceSpeed,
+    const double RollMeanSeconds,
+    const double FadeSeconds,
+    const double RollDegPerCm,
+    const double MaxGapSeconds)
+{
+    const double DeltaSeconds = MasterSeconds - State.LastMasterSeconds;
+    if (!State.bPrimed || DeltaSeconds < 0.0 || DeltaSeconds > MaxGapSeconds)
+    {
+        State.bPrimed = true;
+        State.LastMasterSeconds = MasterSeconds;
+        State.LiftMeanCm = RawLiftCm;
+        State.WalkWeight = 0.0;
+        return FInfinityGaitBob{};
+    }
+
+    if (DeltaSeconds == 0.0)
+    {
+        return {
+            State.WalkWeight * RawLiftCm,
+            State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
+    }
+
+    State.LastMasterSeconds = MasterSeconds;
+    const double MeanAlpha = RollMeanSeconds > UE_DOUBLE_SMALL_NUMBER
+        ? 1.0 - FMath::Exp(-DeltaSeconds / RollMeanSeconds)
+        : 1.0;
+    State.LiftMeanCm += (RawLiftCm - State.LiftMeanCm) * MeanAlpha;
+
+    const double TargetWeight = FMath::Clamp(
+        SpeedCmPerSecond / FMath::Max(1.0, ReferenceSpeed),
+        0.0,
+        1.0);
+    const double WeightAlpha = FadeSeconds > UE_DOUBLE_SMALL_NUMBER
+        ? 1.0 - FMath::Exp(-DeltaSeconds / FadeSeconds)
+        : 1.0;
+    State.WalkWeight += (TargetWeight - State.WalkWeight) * WeightAlpha;
+
+    return {
+        State.WalkWeight * RawLiftCm,
+        State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
+}
+
 double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
 {
     if (!bShadowCatCameraBob || !bEnableShadowCat || ShadowCatCameraBobGain <= 0.0 || !ShadowCat)
@@ -543,8 +652,9 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
         return 0.0;
     }
 
-    // Rest height comes from the reference pose, so the lift is zero-centred
-    // regardless of which clip is playing and needs no running average.
+    // Rest height comes from the reference (bind) pose. That is not the walk's
+    // mean: a walking cat sits lower, so the raw lift can stay biased negative.
+    // Height keeps that bias; StepGaitBob centres only the roll on the raw mean.
     TArray<FTransform> RestComponentSpace;
     FAnimationRuntime::FillUpComponentSpaceTransforms(RefSkeleton, RefSkeleton.GetRefBonePose(), RestComponentSpace);
     if (!RestComponentSpace.IsValidIndex(BoneIndex))

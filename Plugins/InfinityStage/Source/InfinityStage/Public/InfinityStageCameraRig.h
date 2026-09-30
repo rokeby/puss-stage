@@ -13,6 +13,20 @@ class UInfinityStageShadowCatComponent;
 struct FInfinityCompiledPassage;
 struct FInfinityPassageCameraEvaluation;
 
+struct FInfinityGaitBobState
+{
+    bool bPrimed = false;
+    double LastMasterSeconds = 0.0;
+    double LiftMeanCm = 0.0;
+    double WalkWeight = 0.0;
+};
+
+struct FInfinityGaitBob
+{
+    double HeightCm = 0.0;
+    double RollDeg = 0.0;
+};
+
 UCLASS(BlueprintType)
 class INFINITYSTAGE_API AInfinityStageCameraRig : public AActor
 {
@@ -113,6 +127,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "1.0", Units = "cm/s"))
     double ShadowCatReferenceWalkSpeedCmPerSecond = 250.0;
 
+    /** Time constant for fading the whole gait bob with walking speed. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
+        meta = (ClampMin = "0.05", Units = "s", EditCondition = "bShadowCatCameraBob"))
+    double ShadowCatBobFadeSeconds = 0.5;
+
+    /** Smoothed share of the reference walk speed applied to this master frame's gait bob. */
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|Camera Bob")
+    double CurrentShadowCatBobWalkWeight = 0.0;
+
     /** Fine adjustment applied after converting camera speed to animation play rate. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "0.0", UIMax = "2.0"))
     double ShadowCatAnimationSpeedMultiplier = 0.6;
@@ -137,10 +160,31 @@ public:
         meta = (ClampMin = "0.0", UIMax = "3.0", EditCondition = "bShadowCatCameraBob"))
     double ShadowCatCameraBobGain = 1.0;
 
-    /** Small roll coupled to the lift so the bob reads as a body, not an elevator. Degrees per centimetre of lift. */
+    /** Small roll coupled to the lift's deviation from its running mean. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
         meta = (UIMin = "-1.0", UIMax = "1.0", EditCondition = "bShadowCatCameraBob"))
     double ShadowCatCameraBobRollDegreesPerCm = 0.12;
+
+    /** Time constant of the raw gait lift's running mean used to centre the roll. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
+        meta = (ClampMin = "0.05", UIMax = "5.0", Units = "s", EditCondition = "bShadowCatCameraBob"))
+    double ShadowCatCameraBobRollMeanSeconds = 1.0;
+
+    /**
+     * Advances the master-timed gait state and returns the camera offsets for
+     * this sample. The first sample, reverse, or a forward jump re-primes at the
+     * raw lift with zero weight. Re-evaluating the same master time is read-only.
+     */
+    static FInfinityGaitBob StepGaitBob(
+        FInfinityGaitBobState& State,
+        double MasterSeconds,
+        double RawLiftCm,
+        double SpeedCmPerSecond,
+        double ReferenceSpeed,
+        double RollMeanSeconds,
+        double FadeSeconds,
+        double RollDegPerCm,
+        double MaxGapSeconds = 0.5);
 
     /** Bone whose height carries the gait. AnimX cats have no pelvis; Spine sits over the hips. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
@@ -232,6 +276,7 @@ private:
     double SampleShadowCatGaitLiftCm() const;
 
     bool bShadowCatBobReported = false;
+    FInfinityGaitBobState ShadowCatGaitBobState;
 
     bool GetCameraStateAtMasterFrame(
         FFrameNumber MasterFrame,

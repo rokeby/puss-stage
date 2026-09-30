@@ -380,18 +380,27 @@ void UGo1RemoteReceiverComponent::UpdateLook(
 
 	SettleLeftBehindLook(false);
 
-	// A hard cut (a new view target with no blend in flight; the first camera
-	// seen is not a cut). Into a Timeline shot the look is dropped at once: the
-	// cut hides it, and the shot should open exactly as authored.
+	// A view-target change (the first camera seen is not a transition). A hard
+	// cut drops the look at once because the cut hides it. During a blend both
+	// cameras are visible, so ease the same reset instead of stepping it.
 	SecondsSinceHardCut += DeltaSeconds;
 	if (TargetActor != LastViewTarget.Get())
 	{
-		if (LastViewTarget.IsValid() && !IsViewBlendInFlight())
+		if (LastViewTarget.IsValid())
 		{
-			SecondsSinceHardCut = 0.0f;
-			if (bTimelineOwnsCamera)
+			const bool bBlendInFlight = IsViewBlendInFlight();
+			if (!bBlendInFlight)
 			{
-				SettleLookAtOnce();
+				SecondsSinceHardCut = 0.0f;
+				if (bTimelineOwnsCamera || bResetLookAtCut)
+				{
+					SettleLookAtOnce();
+				}
+			}
+			else if (bTimelineOwnsCamera || bResetLookAtCut)
+			{
+				AccumulatedLook = FRotator::ZeroRotator;
+				BeginLookHandover();
 			}
 		}
 		LastViewTarget = TargetActor;

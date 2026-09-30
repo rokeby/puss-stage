@@ -21,6 +21,7 @@
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "HAL/IConsoleManager.h"
 #include "HAL/PlatformTime.h"
 #include "LevelSequence.h"
 #include "Misc/AutomationTest.h"
@@ -1039,6 +1040,33 @@ bool FInfinityStageWingModulationChannelTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageMechanismRenderStateDirtyCVarTest,
+    "InfinityStage.Mechanism.RenderStateDirtyCVar",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageMechanismRenderStateDirtyCVarTest::RunTest(const FString& Parameters)
+{
+    IConsoleVariable* CVar = IConsoleManager::Get().FindConsoleVariable(
+        TEXT("InfinityStage.Mechanism.MarkRenderStateDirty"));
+    TestNotNull(TEXT("Mechanism render-state cvar exists"), CVar);
+    if (CVar)
+    {
+        TestEqual(TEXT("Mechanism render-state cvar defaults to existing behaviour"), CVar->GetInt(), 1);
+        CVar->Set(0, ECVF_SetByCode);
+        TestEqual(TEXT("Mechanism render-state cvar accepts freeze diagnostic mode"), CVar->GetInt(), 0);
+        CVar->Set(1, ECVF_SetByCode);
+        TestEqual(TEXT("Mechanism render-state cvar accepts existing behaviour mode"), CVar->GetInt(), 1);
+        CVar->Set(2, ECVF_SetByCode);
+        TestEqual(TEXT("Mechanism render-state cvar accepts final-batch dirty mode"), CVar->GetInt(), 2);
+        CVar->Set(1, ECVF_SetByCode);
+    }
+    TestNull(
+        TEXT("A misspelled mechanism render-state cvar is not registered"),
+        IConsoleManager::Get().FindConsoleVariable(TEXT("InfinityStage.Mechanism.MarkRenderStateDirt")));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FInfinityStageUndulationEvaluationTest,
     "InfinityStage.Mechanism.UndulationMovesPanelsDeterministically",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -1120,6 +1148,44 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
             FMath::IsNearlyEqual(LeftCrest.GetLocation().Y - LeftRest.GetLocation().Y, 100.0, 0.01));
         TestTrue(TEXT("Right moves 100 cm inward"),
             FMath::IsNearlyEqual(RightRest.GetLocation().Y - RightCrest.GetLocation().Y, 100.0, 0.01));
+
+        IConsoleVariable* RenderStateCVar = IConsoleManager::Get().FindConsoleVariable(
+            TEXT("InfinityStage.Mechanism.MarkRenderStateDirty"));
+        if (TestNotNull(TEXT("Mechanism render-state cvar is available to the moving fixture"), RenderStateCVar))
+        {
+            RenderStateCVar->Set(0, ECVF_SetByCode);
+            TestTrue(TEXT("Rest frame evaluates in freeze diagnostic mode"),
+                Actor->EvaluateMechanismsAtMasterFrame(0));
+            TestTrue(TEXT("Crest frame evaluates in freeze diagnostic mode"),
+                Actor->EvaluateMechanismsAtMasterFrame(48000));
+            FTransform LeftCrestWithoutRenderStateDirty;
+            FTransform RightCrestWithoutRenderStateDirty;
+            Left->Component->GetInstanceTransform(
+                Left->InstanceIndex, LeftCrestWithoutRenderStateDirty, true);
+            Right->Component->GetInstanceTransform(
+                Right->InstanceIndex, RightCrestWithoutRenderStateDirty, true);
+            TestTrue(TEXT("Left transform matches mode 1 in freeze diagnostic mode"),
+                LeftCrestWithoutRenderStateDirty.Equals(LeftCrest, 0.001));
+            TestTrue(TEXT("Right transform matches mode 1 in freeze diagnostic mode"),
+                RightCrestWithoutRenderStateDirty.Equals(RightCrest, 0.001));
+
+            RenderStateCVar->Set(2, ECVF_SetByCode);
+            TestTrue(TEXT("Rest frame evaluates in final-batch dirty mode"),
+                Actor->EvaluateMechanismsAtMasterFrame(0));
+            TestTrue(TEXT("Crest frame evaluates in final-batch dirty mode"),
+                Actor->EvaluateMechanismsAtMasterFrame(48000));
+            FTransform LeftCrestWithFinalBatchDirty;
+            FTransform RightCrestWithFinalBatchDirty;
+            Left->Component->GetInstanceTransform(
+                Left->InstanceIndex, LeftCrestWithFinalBatchDirty, true);
+            Right->Component->GetInstanceTransform(
+                Right->InstanceIndex, RightCrestWithFinalBatchDirty, true);
+            TestTrue(TEXT("Left transform matches mode 1 in final-batch dirty mode"),
+                LeftCrestWithFinalBatchDirty.Equals(LeftCrest, 0.001));
+            TestTrue(TEXT("Right transform matches mode 1 in final-batch dirty mode"),
+                RightCrestWithFinalBatchDirty.Equals(RightCrest, 0.001));
+            RenderStateCVar->Set(1, ECVF_SetByCode);
+        }
 
         TestTrue(TEXT("Later frame evaluates"), Actor->EvaluateMechanismsAtMasterFrame(96000));
         TestTrue(TEXT("Direct seek back to crest evaluates"), Actor->EvaluateMechanismsAtMasterFrame(48000));
