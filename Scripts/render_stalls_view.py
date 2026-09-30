@@ -29,7 +29,10 @@ drop = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(drop)
 
 ABC = os.environ["ABC"]
-RENDER_FRAMES = [int(f) for f in os.environ["RENDER_FRAMES"].split(",")]
+# "541,870" renders those frames; "450-780" renders every frame in the range, into <OUT_ID>_clip/ for a video.
+_rf = os.environ["RENDER_FRAMES"]
+CLIP = "-" in _rf
+RENDER_FRAMES = list(range(int(_rf.split("-")[0]), int(_rf.split("-")[1]) + 1)) if CLIP else [int(f) for f in _rf.split(",")]
 OUT_ID = os.environ.get("OUT_ID", Path(ABC).stem + "_stalls")
 OUT = Path(os.environ.get("OUT_DIR", str(ROOT / "Saved" / "CodexSoftGoods" / "DropBake")))
 FILMBACK_W_MM, LENS_MM = 23.76, 15.0
@@ -62,9 +65,11 @@ def main():
     cam.location = Vector((0.0, -14.0, 1.5))
     cam.rotation_euler = (math.radians(90 + 14), 0.0, 0.0)
     scene.camera = cam
-    for f in RENDER_FRAMES:
+    if CLIP:
+        (OUT / f"{OUT_ID}_clip").mkdir(parents=True, exist_ok=True)
+    for n, f in enumerate(RENDER_FRAMES):
         scene.frame_set(f)
-        scene.render.filepath = str(OUT / f"{OUT_ID}_f{f}_NOT_SHOW_FRAME.png")
+        scene.render.filepath = str(OUT / f"{OUT_ID}_clip" / f"f{n:04d}.png") if CLIP else             str(OUT / f"{OUT_ID}_f{f}_NOT_SHOW_FRAME.png")
         bpy.ops.render.render(write_still=True)
         print(f"STALLS_RENDER|{scene.render.filepath}", flush=True)
 
