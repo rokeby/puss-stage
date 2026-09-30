@@ -439,15 +439,30 @@ only matters if the border has already been moved downstage into the pleats' dep
 
 | move it | what happens | tier |
 | --- | --- | --- |
-| **bottom DOWN**, at its current x | **clear of the hang** — but clear of the **FALL** is **UNCHECKED** (the bake records whole-cloth extents, not extents by height) | measured / unchecked |
+| **bottom DOWN**, at its current x | **clear of the hang AND of the fall, as far down as about 8.1 m.** Inside the border's footprint the cloth's highest reach in any of 331 frames is **z 812.5 cm**, at frame 501, as the falling cloth swings upstage 0.7 s after release | measured, every vertex, all frames |
 | **UPSTAGE** | more clearance, **and it still masks** with the same bottom, since sightlines over the drape top keep rising. **Its top must rise with it** — sightlines under the header reach about **10.69 m at x +50**, higher further back | measured records, geometry inferred |
 | **DOWNSTAGE more than 5.9 cm** | fine **only if the bottom stays at or above 1020** | measured |
 | **bottom UP** (10.35 m) | **157 rays leak — the comb returns.** **This is the one closed direction.** | measured |
 | **removed** | **4,105 rays** | measured |
 
-> **In one line: the border can move upstage, or its bottom can come down, subject
-> to one unchecked fall test. It cannot go up.** Plus its material, which is fully
-> free.
+> **In one line: the border can move upstage, or its bottom can come down as far as
+> about 8.1 m. It cannot go up.** Plus its material, which is fully free.
+
+**THAT 2.1 m OF HEADROOM IS AN OPPORTUNITY RATHER THAN SLACK, and it connects to
+something you have asked for twice this week.** You wanted *"more scaffold/rig
+structure to make the lattice more heavy looking"*, and the passage to feel
+*"situated inside a stage structure, not just under an open sky"*. **A deeper border
+is stage structure doing a job** — and it is now measured as free to take rather
+than a risk to manage.
+
+**The trade, stated plainly, because it is real.** While the curtain is up the border
+is invisible: it hangs upstage at x +45..+50, behind a drape covering the full
+height. **After the curtain falls the border IS visible, and its bottom edge becomes
+the top of the apparent stage opening.** So lowering it does not hide the curtain
+— **it lowers the proscenium**, permanently, in every Scene seen through that mouth.
+
+**So the question is not "how much clearance is safe". It is "how high should the
+opening read".** A look decision with no engineering cost attached to either answer.
 
 **The clearance was designed from the BORDER's side, not the cloth's** — the cloth
 never knew the border existed. **final13's bake ran against 18 collider boxes with
@@ -468,16 +483,31 @@ rather than an open one:**
 > **So your border question is: keep the border, or pick one of those three. Not
 > "keep or remove" — removing it is (a).**
 
-**A BLIND SPOT FOUND AND BEING CLOSED, approved under the delegation rather than
-sent to you**, since it is offline tooling and mutates nothing: today a border edit
-would have been reported as *"the stage changed"* while the cloth quietly
-intersected it. **A stage-clearance gate now counts cloth vertices inside every
-stage box, every frame, recast whenever the stage bytes change** — so a border edit
-reads *"the cloth intersects Portal border at frame N"*. Non-contact boxes (border,
-header, posts, housings) assert **zero vertices**; contact surfaces (floor, fascia,
-lip) assert a maximum penetration depth **and record the measured value**, so drift
-shows as a number moving rather than as a pass against a threshold somebody picked
-once. **It is also what will check the unchecked cell in the table above.**
+**A BLIND SPOT FOUND AND CLOSED, approved under the delegation rather than sent to
+you**, since it is offline tooling and mutates nothing: until this evening a border
+edit would have been reported as *"the stage changed"* while the cloth quietly
+intersected it. **A stage-clearance gate now counts cloth vertices inside every stage
+box, every frame, recast whenever the stage bytes change** — so a border edit reads
+*"the cloth intersects Portal border at frame N"*. **It is now a REQUIRED gate**, and
+it has already done its second job: **it is what measured the 8.1 m figure above.**
+
+**Non-contact boxes (border, header, posts) must hold ZERO vertices.** final13
+against the current stage: **zero, in all 331 frames, hang and fall.** **Contact
+surfaces (floors, lip, fascia, returns, lamp housings) must not be penetrated deeper
+than 1.0 cm — which is not a number somebody picked, it is the cloth's own collision
+margin — and the measured depth is recorded in every verdict**, so drift shows as a
+number moving rather than as a pass against a chosen threshold. final13's deepest
+contact: **0.12 cm into the stage floor**, one vertex, frame 518.
+
+**One trap the gate caught on itself, and this is the more useful lesson:** its first
+run tested the 16 lamp housings as axis-aligned boxes and reported a **13.6 cm
+penetration that did not exist** — the housings are rotated. They are now tested as
+exact oriented boxes, validated against the file's own bounds to within 0.065 cm.
+**A gate whose first act is a false red is a gate nobody obeys.**
+
+**final13 has been re-judged and passes all six gates** — still, hang, coverage,
+top_masked, stage_clear, and the pile by recorded override — now carrying the
+LF-normalised stage hash, so the import's stage check matches again.
 
 **Also fixed today, and it explains a gate that would have cried wolf:** the
 collider file's working copy is CRLF under git's autocrlf, so raw-byte hashing
