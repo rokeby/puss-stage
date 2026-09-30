@@ -133,11 +133,16 @@ def traveller_lines(name, d):
     still, end = d.get("still_window_max_mm"), d.get("end_still_max_mm")
     v = {"still": still is not None and still < STILL_LIMIT_MM, "end_still": end is not None and end < STILL_LIMIT_MM,
          "hang": bool(hp.get("pass")) if hp else None}
+    if hp.get("halves"):                        # the same widest-row BULGE check as the drapes, per half
+        extra = sum(max(0.0, max(r["width_m"] for r in h["rows"].values()) - h["rows"]["heading"]["width_m"])
+                    for h in hp["halves"])
+        hp["bulge"] = round((d["track_m"] + extra) / d["track_m"], 3)
+        v["hang"] = v["hang"] and hp["bulge"] <= 1.15
     v["ALL"] = all(x is True for x in v.values())
     lines = [f"### {name} (traveller): {'PASS' if v['ALL'] else 'FAIL'}  {v}",
              f"- start `{d.get('start')}`, hem guide {d.get('hem_guide_weight')}; still {still} mm/frame "
              f"(under 2 mm from {d.get('settle_to_2mm_s')} s); END still {end} mm/frame",
-             f"- hang: flare {hp.get('flare_ratio')}, per half "
+             f"- hang: flare {hp.get('flare_ratio')}, bulge {hp.get('bulge')}, per half "
              + "; ".join(f"side {h['side']}: " + ", ".join(f"{k} {r['folds']}/{r['mean_depth_m']}" for k, r in h['rows'].items())
                          for h in hp.get("halves", [])),
              f"- design: stack {d.get('design_stack_width_per_side_m')} m per side, clear opening {d.get('design_clear_opening_m')} m; "
