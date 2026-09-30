@@ -176,21 +176,84 @@ the real win and is not yet done.
 
 ---
 
-## 6. RUNNING OVERNIGHT
+## 6. THE OVERNIGHT RUN — RESULTS
 
-- **Cloth bakes** with a new acceptance test: stillness under 2 mm/frame, **flare
-  ratio at most 1.15**, fold count and depth at 25/50/75% of the drop, and the pile
-  measured against `final2` (the fall Gary approved). **Nothing gets placed that
-  fails.**
-- **A finding that cost two bakes and saved four hours:** a flat cloth on a pinned
-  ripplefold heading **does not hold columns** — the fine pleats die within 1.5 m
-  and it merges into soft swags below. So `final3`/`final4` will be still-ish but
-  flared. They finish as controls; they do not get imported.
-- **A hem-guide sweep** (the lead-tape stand-in) crossed with bending 5 vs 2 is
-  testing whether low bending — needed for the good fall — can still hold columns.
-- **Rig**: mouth lanterns, the Arrival C++ (held patch G), the backcloth, six
-  parametric hangars, Scene 3.
-- **Look & camera**: Scene 4's post-landing re-key once v2 settles.
+### Built and passing: 89 / 1 / 90
+
+Two more build windows after the first. **Patch G: `AInfinityStageArrival`.** The
+hangar's rise now **starts while you are still walking**, driven from Master time,
+and hands to Sequencer at Scene 4's first frame **with no seam** — one curve read
+by two evaluators at negative sequence time. Measured at the boundary: the Arrival
+says −82.119°, Sequencer says −82.119°.
+
+**Patch G2:** the Arrival also drives the backcloth, so **the cloth finishes its
+fall inside the scene** instead of freezing six seconds short at the boundary.
+That matters because Scene 4 is Dog Gaze — peering over the lip at what you just
+walked through is the look the staging invites, and it is the one view that would
+have seen a pile stopped in mid-air.
+
+**G failed its first build on one line** (`GetActorRelativeRotation` is not a
+member of `AActor`). Reverted rather than patched, fixed by its owner, rebuilt.
+
+### All six scenes have a hangar, from one parametric builder
+
+Dimensions, layout, switches, exposure and **beat timings** all driven by numbers —
+a taller box rises more slowly, automatically. **Scene 3 was built AROUND its cast;
+nothing moved.** Scene 5 is 200 × 150 × 50 m. Scene 6 has no roof. **None is
+nested**, so none affects the show until you approve it.
+
+**And the lighting scales too**, after Scene 5 first read as a dark void: rails and
+uplights placed by pitch and margin, glow lights riding every Nth bulb past a
+budget. The proof that the generalisation is sound is that **Scene 4 still
+reproduces exactly** — 115/115 pieces at zero error.
+
+### Also landed
+
+- **Mouth lanterns at all five transitions.** Every mouth was black; they now read
+  at the show's own exposure with the drape lit for the shadow play.
+- **The lattice reads as architecture** — legible pixels in the upper frame from
+  0.06% to 9.84% during the sweep-up, and unchanged after, so the fix is confined
+  to the moment you described.
+- **P01's shadow casters 338 → 99**, show-wide 618 → 379, every light still
+  enabled. Your blinking spot at Wing 041 deliberately exempt, because you like it
+  *for* its shadow.
+- **Grooves widened to 16 cm** — and measured to be invisible (see §2).
+
+### The cloths: the acceptance test earned its place
+
+`final3_settled` **failed stillness at 15.7 mm against a 2 mm limit** and was NOT
+placed. Its settle curve showed it needed about ten more seconds. **Without the
+test it would have been imported to all six sites on the strength of looking
+plausible.** Its sibling was stopped rather than allowed to fail identically.
+
+**The breakthrough is `pleated_switch`:** the cloth hangs with its pleats as its
+rest shape — true columns, 21 folds at every height, flare 1.00 — and **the rest
+shape ramps to flat at release**, so the pile has no pleat memory. Proven at coarse
+resolution by two piles from an identical hang: **a loose crumpled heap versus
+regimented corrugated rows.** That is the thing that was thought impossible: the
+hang you want and the fall you approved, from one cloth.
+
+Three full bakes are running in that config (the Opening, the denser version, and
+the P04 backcloth), plus three strips as full-resolution validation.
+
+### Codex
+
+Set up and working, **but not dependable**: it hit "model at capacity" twice,
+including partway through drafting the Arrival, which a stream then wrote by hand.
+**Use it where a failure costs nothing.** See `Docs/CodexAgents.md`.
+
+---
+
+## 6b. A DOCUMENT THIS PROJECT DOES NOT HAVE
+
+**Operator's notes.** There is a growing set of things that are neither code nor
+authored data: cues for the live performer. *"The cloth is still settling for the
+first few seconds of Scene 4 — look back at it if the dog would."* What the dog
+should be curious about and when; what the stick can and cannot reach (Gaze is
+±18.2°, and the look-down and the look-up are opposite deflections, so they do not
+share a budget). **Scene 4 is Dog Gaze precisely so these are performed rather than
+keyed — which means they have to be written down somewhere, and currently they are
+not.**
 
 ---
 
