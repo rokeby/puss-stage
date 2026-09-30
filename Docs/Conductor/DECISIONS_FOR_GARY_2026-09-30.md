@@ -197,7 +197,21 @@ Found by two read-only surveys. **Two different mechanisms, so two different
 jobs** — and Rig's own note is that their builder allowed all five by name, so
 these were deferrals rather than misses.
 
-**The three PLANES — S1, S5, S6 — are one parametric fix. [conductor approved]**
+**The three PLANES — S1, S5, S6 — are DONE AND VERIFIED. [conductor approved]**
+`PlaneTrim_S6_BeforeAfter.png` is the proof, and one step reverts it.
+
+**The fault was worse than "sunk in the ground".** Mid-rise, the floor plane
+**sliced the box, leaving a seam across the lattice** — so if you take the lattice
+glow in A2, this trim removes a fault that decision would have lit up. At +8 s
+from the stop, 8.2% of the frame changed and the interior now reads whole into the
+pit; from outside at 12 s the box hangs in the void past the floor's edge, like
+Scene 4, instead of sunk in ground.
+
+**My "dark either way" was tested, not assumed:** from the stop the frame changes
+**0.00% at the cut, 0.03% at +4 s, 0.01% after landing.** The only visible
+difference is the fix itself.
+
+The mechanics, for the record:
 Each Passage's hand-placed floor plane runs on past the Passage end: S1's by
 **399 m**, S6's by 139 m, S5's by 16 m. Nothing stands on any of them beyond the
 hinge line. The fix ends each plane AT its hinge line, exactly as P04's Structure
