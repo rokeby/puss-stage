@@ -426,6 +426,20 @@ Recorded because each is a class of fault, not a one-off.
   applies cleanly is read as ready — this one survived eight patches and three
   build windows by looking fine.
 
+- **TO FIND OUT WHICH BAKE IS ACTUALLY IN THE LEVEL, GREP THE `.uasset` FOR
+  `FileMD5`.** Unreal Python does **not** expose an import's MD5 —
+  `AssetImportInfo.source_files` is not a property — so a script cannot recover a
+  GeometryCache's provenance, and one stream reported it unconfirmable. **The
+  saved `.uasset` carries the record on disk**: a `RelativeFilename` and a
+  `FileMD5`. Grep for it, match the MD5 against the `.abc`, then match that
+  `.abc` by SHA-256 against the bake archive.
+  **Settled on 30 Sep in five links**: the asset's record named
+  `CurtainDrop_Opening_final2.abc`; the file on disk carried that MD5; it was
+  byte-identical to `final2_stage_v2.abc`; the cache frames 120–450 matched that
+  bake's export window; and the Opening sequence holds frame 120.
+  **Older caches predate the `<cache>_<bake_id>.abc` naming**, so the filename
+  alone does not identify them — which is why the naming convention exists now.
+
 - **Every MCP call costs a 40–80 ms hitch.** A session polling the editor
   manufactures the stutter it is measuring.
 - **A GEOMETRY CACHE DECODES ASYNCHRONOUSLY, AND A CAPTURE AFTER A JUMP SHOWS
