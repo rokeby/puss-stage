@@ -125,6 +125,25 @@ final13 is a complete candidate in every respect but the comb. final14 had not l
   ray tests now record `colliders_sha256`, and the gate re-casts when the stage bytes change.
 - The import refuses a top_masked PASS judged against a stage that has since changed.
 
+**The in-level Opening cache is final2_stage_v2. Provenance measured end to end, 30 Sep 15:10:**
+- The saved `GC_CurtainDrop_Opening.uasset` carries its own import record: RelativeFilename
+  `DerivedAssets/CurtainCloth/Baked/CurtainDrop_Opening_final2.abc`, `FileMD5 687572618c16e10bbbe2545cc36a4d38`.
+- That equals the MD5 of the .abc on disk.
+- The .abc is byte-identical (SHA-256) to `DropBake/final2_stage_v2.abc`, the only final2 bake with a cache (the other
+  final2 ids have JSON only).
+- The cache spans frames 120–450, as that bake's export window does.
+- The Opening sequence (`probe_opening_cache_provenance.py`, read-only) holds the first sample (frame 120) for 1 s, then
+  plays from 120: about 1 s of pre-release swing before the release at 150.
+- All five transitions use the same asset.
+- Python does not expose the import MD5 (`AssetImportInfo.source_files` is not a property), but the saved file carries
+  it. Grep the .uasset for `"FileMD5"`.
+
+**Gary described both of its faults from PIE, unprompted, before seeing any measurement:** "doesn't have a setting where it
+holds still, and it's already kind of mid motion bunched towards the centre". "Doesn't hold still" is the frame-120
+mid-sway hold. "Bunched towards the centre" is the measured side wedges (43k ray samples, the edges drawn in). That is the
+third time on 30 Sep his eye matched a measured criterion, after the pile verdict and the straight-versus-flare hang. It
+is the best evidence that the acceptance gates measure what a director sees.
+
 **final15 (the guided traveller, landed 14:52): FAIL, and PARKED; it was the last traveller bake until Gary gives it a
 site.**
 - still 17.81 mm/frame at the start (under 2 mm only from 13.0 s).
