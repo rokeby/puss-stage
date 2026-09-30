@@ -71,6 +71,24 @@ every ray test records the stage file's LF-normalised SHA-256, which equals git'
 - **No lamp housings where P01 has them**: the pile shows the drape over objects that are not there. Small dents; the
   first to notice would be a close camera.
 
+**P03 MEASURED (30 Sep 17:10, `probe_mouth_surfaces.py`, read-only, instance by instance over the pile footprint).**
+- Structure 03 (ground on since 12:25) BUILDS P01's stage front at P03's mouth. From the curtain line:
+  - forestage x −150..0, top 0 (89 instances);
+  - portal pieces (3; lip trough to 25);
+  - ground from 0 to +906, top 0 (139);
+  - stage front with fascia and house floor, top −120..0 (250; P01 has 192);
+  - understage at −255.
+- The lamp-housing fixtures differ: 2 in the footprint at P03 against 5 at P01, so there would be small phantom dents.
+- **But the oak plane "Passage 03 - Floor" (top z −5.0, 1 cm thick) runs from 84 m downstage to 451 m upstage.**
+  Downstage of the lip, EVERY sample's top surface is that plane at −5, so it buries the fascia below −5 and the house
+  floor at −120.
+- At P01 the equivalent "Passage 01 - Opening Floor" STARTS at x −150, the lip, and leaves them exposed.
+- So at P03 the lip EXISTS (B0c is not "no lip" here). The pile's spill down the fascia (to z −71) is cut off where it
+  enters the oak plane at −5: it clips, it does not float.
+- **Trimming the oak plane to start at the lip (x ≥ −150 from P03's route start), as at P01, makes P03's mouth match P01's
+  stage front, and the shared cache fits.** That is Rig's geometry.
+- Measured separately: the oak plane under the ground is invisible there (the ground's top 0 is above −5).
+
 **To make a new site fit the shared cache**: reproduce the table relative to that mouth's route start. Otherwise, bake
 that site against its own stage (`COLLIDER_ORIGIN_CM`, as P04's backcloth was) and give it its own cache.
 
