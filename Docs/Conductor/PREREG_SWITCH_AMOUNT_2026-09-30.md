@@ -1,0 +1,42 @@
+# Pre-registration: does REST_SWITCH_AMOUNT move pile fold size? (30 Sep, 09:10, before the 0.4/0.6/0.8 strips land)
+
+Soft goods, at the Conductor's request. Written and committed BEFORE sw_ps_a04_g07, sw_ps_a06_g07 and sw_ps_a08_g07
+report. At the time of writing only sw_ps_a10_g07 had landed (fold size 1.304 m = 1.58x the flat control sw_b5_g0's
+0.825 m).
+
+## The confound
+
+The flat-rest hem-guide strip (sw_b5_g07) also gave fold size 1.6x (1.316 m). So the smoother pile may come from the
+GUIDE, not from how far the rest shape switches.
+
+## What each outcome will mean, decided now
+
+Fold size of each amount, as a ratio to sw_b5_g0 (0.825 m):
+
+1. **All four within 1.42–1.74 (±10% of 1.58).** The amount does NOT move fold size. Either the guide dominates, or
+   the knob is not doing what its name says. Knob check: the unguided full switch (sw_b5_pswitch) gave 2.05x, and
+   coarse pleated rest (amount 0) against coarse full switch gave 0.44 vs 0.65 m. If the four also agree on layers and
+   depth, the knob is suspect. If those spread while fold size does not, the guide dominates fold size.
+2. **Monotonic spread of at least 0.3 in ratio, lower amount giving smaller folds** (e.g. 0.4 at 1.3x or below, 1.0 at
+   1.58x). The amount is a real lever, and the confound is dissolved for this range.
+3. **Non-monotonic, or spread under 0.3 but outside band 1.** Inconclusive. Report it as that; do not pick the best
+   number and call it a trend.
+
+Also checked by eye at amount 0.4: some REGULAR pleat memory in the pile would confirm the knob works, and would also
+be the rejected "corrugated rows" risk. That is reported whatever the numbers say.
+
+## Is 1.58x a real fail? The arithmetic, not a look
+
+The stalls camera: 14 m, pitched +14 deg, 15 mm on a 23.76 x 13.365 mm filmback, so 79 deg across at 1920 px (24
+px/deg) and 48 deg high at 1080 px (22.5 px/deg). The pile on the floor at the lip sits about 6 deg below horizontal,
+inside the frame's lower edge at -10 deg, so it IS in the stalls view as a band about 45 px tall.
+
+Fold size is area / crease length. It is not literally a spacing, but it scales with the spacing between creases:
+- control, 0.83 m at 14 m ≈ 3.4 deg ≈ 80 px;
+- guided, 1.30 m ≈ 5.3 deg ≈ 130 px.
+
+That difference is tens of pixels, far above the 1-2 px level where the stillness limit lives. **So 1.58x is a
+RESOLVABLE difference in how crumpled the heap reads from the stalls.** The arithmetic cannot say it passes; it can
+only say the difference is visible. Whether his approved image survives a coarser crumple is then a LOOK question for
+Gary, answered with the two piles side by side from the stalls camera, not by the number. The 25% fold-size tolerance
+remains provisional and has no derivation. It is flagged as such in the acceptance report.
