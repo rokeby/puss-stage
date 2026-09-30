@@ -138,6 +138,11 @@ GATHER_FRAMES = int(os.environ.get("GATHER_FRAMES", "40"))
 # has a FLAT rest shape and does not rebuild its pleats in the pile, which is what he rejected on 28 Sep. The pins are
 # released at the same frame, so the input's move does not drag them.
 REST_SWITCH_FRAMES = int(os.environ.get("REST_SWITCH_FRAMES", "15"))
+# How far the rest shape goes toward flat (30 Sep, sw_b5_pswitch). The FULL switch (1.0) threw the pile flat: a cloth
+# hanging in pleats its rest shape no longer wants stores bending energy, which the fall spends UNFOLDING it. Against
+# the strip control that gave depth 1.34x, layers 0.7x, fold size 2.05x, and the COM was still sinking at 10 s. A
+# partial switch keeps a little pleat memory (0.0 is the rejected corrugated rows) and stores less energy.
+REST_SWITCH_AMOUNT = float(os.environ.get("REST_SWITCH_AMOUNT", "1.0"))
 # UPSTAGE THROW (28 Sep; Gary's staging: the curtain falls UPSTAGE). The Chaos asset had 1.5 m/s upstage air; the
 # first Blender port had none, so the pile centred on the curtain line and reached the footlights. The gathered
 # heading is carried THROW_M metres UPSTAGE (+y) over the THROW_FRAMES before release at CONSTANT speed, so it is
@@ -207,7 +212,7 @@ def build_curtain():
             key.data[i].co = co
         key.value = 0.0
         key.keyframe_insert("value", frame=RELEASE_FRAME)
-        key.value = 1.0
+        key.value = REST_SWITCH_AMOUNT
         key.keyframe_insert("value", frame=RELEASE_FRAME + REST_SWITCH_FRAMES)
     pin = obj.vertex_groups.new(name="Pin")
     if RELEASE_METHOD != "none":        # "none": no pinned vertices at all (control: must fall from frame 1)
@@ -566,7 +571,8 @@ def set_side_hide(side):
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     scene, obj, top, floor = build_curtain()
-    report = {"id": DROP_ID, "rest": REST, "hem_guide_weight": HEM_GUIDE_WEIGHT, "hem_guide_rows": HEM_GUIDE_ROWS,
+    report = {"id": DROP_ID, "rest": REST, "rest_switch_amount": REST_SWITCH_AMOUNT if REST == "pleated_switch" else None,
+              "hem_guide_weight": HEM_GUIDE_WEIGHT, "hem_guide_rows": HEM_GUIDE_ROWS,
               "hem_guided_vertices": None, "fold_wavelength_m": pattern.FOLD_WAVELENGTH, "track_m": pattern.TRACK_WIDTH,
               "drop_m": pattern.DROP, "collider_origin_cm": COLLIDER_ORIGIN_CM, "release_method": RELEASE_METHOD, "colliders": COLLIDERS, "colliders_built": None, "posts_from": POSTS_FROM, "show_start": SHOW_START, "bend_damping_ramp": os.environ.get("BEND_DAMPING_RAMP", ""), "throw_m": THROW_M, "throw_frames": THROW_FRAMES, "render_style": RENDER_STYLE, "mass_per_vertex": None, "pin_stiffness": PIN_STIFFNESS, "fullness": pattern.FULLNESS, "quad_m": round(pattern.QUAD_X, 3), "vertices": len(obj.data.vertices),
               "vertex_mass": VERTEX_MASS, "bend": BEND, "tension": TENSION, "compression": COMPRESSION, "lift_m": LIFT_M, "self_dist_m": SELF_DIST, "floor_friction": FLOOR_FRICTION, "self_friction": SELF_FRICTION,
