@@ -101,23 +101,38 @@ def camera_deltas(before, after):
     return rows
 
 
-def next_segment_rule(show, cue_index):
-    """The match needs the cue AFTER the scene to be a Passage, or to retain the previous camera; otherwise it refuses
-    ("has neither an outgoing Passage nor a retained-camera interstitial")."""
-    cues = show.get_editor_property("cues")
-    for c in list(cues)[cue_index + 1:]:
-        if not c.get_editor_property("enabled"):
-            continue
-        kind = str(c.get_editor_property("type"))
+def neighbour_rule(show, scene_label):
+    """Predicts whether the match will REFUSE, the way the builder decides (InfinityStageSceneHandoffBuilder.cpp:176-206,
+    via Look & camera): it reads the COMPILED segments, not the cue list. It refuses if the segment BEFORE the scene is
+    not a WingPair (Passage), or if the segment AFTER is neither a WingPair nor a cue whose scene.retain_previous_camera
+    is true."""
+    tr = unreal.new_object(unreal.InfinityStageTransportController)
+    tr.build_segments(show)
+    segs = list(tr.get_editor_property("segments"))
+    cues = list(show.get_editor_property("cues"))
+    labels = [str(sg.get_editor_property("label")) for sg in segs]
+    if scene_label not in labels:
+        del tr
+        return {"error": f"'{scene_label}' is not a compiled segment", "match_would_refuse": True}
+    i = labels.index(scene_label)
+
+    def describe(j):
+        if j < 0 or j >= len(segs):
+            return None
+        cue = cues[segs[j].get_editor_property("cue_index")]
+        kind = str(cue.get_editor_property("type"))
         retain = None
         try:
-            retain = bool(c.get_editor_property("scene").get_editor_property("retain_previous_camera"))
+            retain = bool(cue.get_editor_property("scene").get_editor_property("retain_previous_camera"))
         except Exception:  # noqa: BLE001
             pass
-        ok = "PASSAGE" in kind.upper() or bool(retain)
-        return {"next_cue": str(c.get_editor_property("label")), "type": kind, "retain_previous_camera": retain,
-                "match_would_refuse": not ok}
-    return {"next_cue": None, "match_would_refuse": True}
+        return {"segment": j, "label": labels[j], "type": kind, "wing_pair": "WING_PAIR" in kind.upper(),
+                "retain_previous_camera": retain}
+
+    before, after = describe(i - 1), describe(i + 1)
+    del tr
+    refuse = (not before or not before["wing_pair"]) or (not after or not (after["wing_pair"] or after["retain_previous_camera"]))
+    return {"scene_segment": i, "before": before, "after": after, "match_would_refuse": refuse}
 
 
 def show_master_match(show, master):
@@ -173,7 +188,7 @@ def main():
     new_end = seq.get_playback_end() if rematch_only else int(round(float(cfg["new_end_s"]) * fps))
     report.update({"sequence": seq_path, "fps": fps, "playback_before": [seq.get_playback_start(), seq.get_playback_end()],
                    "new_end": new_end, "coverage_before": cut_coverage(seq),
-                   "next_segment": next_segment_rule(show, all_cues.index(cues[0])),
+                   "next_segment": neighbour_rule(show, cfg["scene_label"]),
                    "cameras_before": handoff_cameras(cfg["scene_label"])})
     if not rematch_only and new_end <= seq.get_playback_start():
         return finish(f"refusing: new end {new_end} is not after the start")
