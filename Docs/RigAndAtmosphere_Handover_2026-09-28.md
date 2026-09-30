@@ -644,3 +644,28 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
 - Apply at build time only: `git apply Scripts/patches/2026-09-30_G3_arrival_unnested_quiet.patch`.
 - DLL marker: `INFINITY_STAGE_ARRIVAL_WAITING` (UTF-16).
 - Backup of the two files: `Backups/PreG3ArrivalQuiet-*`.
+
+## 30 September, morning: S5 speed and S6 roof beat, as pictures for Gary
+
+- Sheets: `Saved/CodexStructure/Captures/RiseSpeed_S5_vs_S4_Sheet.png` and
+  `RoofBeat_S6_vs_S4_Sheet.png`.
+  - Frames come from `rise_compare_bench.py`: the owner's keys are scrubbed in Sequencer,
+    with no exposure override.
+  - The sheets are composed offline by `rise_sheets.py`, which also measures the caption
+    numbers.
+- Bench runs: S4 speed, S5 speed, S4 roof, S6 roof, S4 arc and S6 arc.
+  - Every run wrote its originals to `BenchOriginals/` before posing anything.
+  - Nothing needed restoring, and every run ended with 0+0 dirty.
+- **S5 speed:**
+  - From the stop the cat stands almost on the hinge, so the eye reads the SWEEP: 4.7°/s
+    against Scene 4's 6.9°/s. S5 therefore reads about 1.5× slower, not faster; its far
+    wall's 12 m/s is 150 m away.
+  - From the stop S5 is black until about 12 s. After landing, 1.2% of its frame is lit,
+    against Scene 4's 20.8%.
+- **S6 roof beat:**
+  - Outside, S6's frame changes 0.00% from 18.5 to 24.5 s.
+  - From the stop looking up, S4's roof shows only as a glint (22.5 s) and a lit ceiling
+    (24.5 s). Once shut, S4 and S6 are the same frame (0.4% of pixels differ).
+  - **Scene 4's own roof beat barely reads from the cat's position.**
+- Caveat: Sequencer does not evaluate before the playback start (0). The −3 s side frame
+  shows rest (−90.00°), not −89.78°.
