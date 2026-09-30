@@ -1,0 +1,744 @@
+{
+ "version": 1,
+ "source": "Saved/CodexStructure/p04_end_colliders_readonly.py (read-only, 30 Sep), from the saved level and Show",
+ "units": "UE world cm. Passage 04 runs straight along +X at y 240000; route distance = world x. Upstage (toward the hangar) is +X.",
+ "to_blender_m": "Bx = (UE_Y - 240000)/100, By = UE_X/100 (+y upstage), Bz = UE_Z/100",
+ "key_lines_world_x": {
+  "last_wing_pair": 10250.0,
+  "floor_boards_end": 10650.0,
+  "camera_stop_route_end": 10668.5,
+  "hinge_static_floor_ends": 11168.5,
+  "gridiron_ends": 10262.5
+ },
+ "camera": {
+  "height_cm": 180.0,
+  "speed_cm_s": 250.0,
+  "motion": "constant 2.5 m/s through the last intervals and the 4.18 m tail (compiler distance is piecewise linear), then a dead stop at x 10668.5 when Passage 4 ends and Scene 4 cuts in",
+  "passage_segment_s": 42.673875,
+  "last_wing_pass_s_from_segment_start": 41.0,
+  "route_end_s_from_segment_start": 42.673875
+ },
+ "beyond_the_hinge": "x > 11168.5 is the hangar box: at release it hangs at -90 below the passage floor (nothing to land on), then rises. The pile must stay short of x 11168.5.",
+ "overhead": "The gridiron ends at the last station (x 10262.5, z 1134-1201). Nothing hangs over x > 10262.5, so a backcloth upstage of the last wings needs its own batten.",
+ "boxes": [
+  {
+   "name": "Passage floor boards (to their end)",
+   "min_cm": [
+    9000.0,
+    239033.2,
+    -5.0
+   ],
+   "max_cm": [
+    10650.0,
+    240966.8,
+    0.0
+   ],
+   "note": "top z 0; 8 cm chariot slots cross it at each station line (x 9250, 9750, 10250) for |y - 240000| beyond each side's slot inner edge"
+  },
+  {
+   "name": "HOLE: boards end to apron start (to be closed)",
+   "min_cm": [
+    10650.0,
+    239033.2,
+    -5.0
+   ],
+   "max_cm": [
+    10668.5,
+    240966.8,
+    0.0
+   ],
+   "note": "18.5 cm with no floor today (Structure 04 Ground.ApronCm 400 stops the boards 18.5 cm short of the route end). Rig will close it (ApronCm 420) before the bake is placed; bake as if this box is floor"
+  },
+  {
+   "name": "Hangar apron (STATIC, never moves)",
+   "min_cm": [
+    10668.5,
+    239000.0,
+    -20.0
+   ],
+   "max_cm": [
+    11168.5,
+    241000.0,
+    0.0
+   ]
+  },
+  {
+   "name": "P04 Wing 019 L (SM_L_1_roccoco)",
+   "min_cm": [
+    9247.5,
+    239134.3,
+    -0.0
+   ],
+   "max_cm": [
+    9252.5,
+    239865.7,
+    1000.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     9250.0,
+     239500.0,
+     500.0
+    ],
+    "size_cm": [
+     5.0,
+     731.4,
+     1000.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 0.0,
+    "yaw_deg": 0.0
+   },
+   "note": "painted card with alpha: the box is the card's full rectangle, not its opaque silhouette (same caveat as P01's Wing 001)"
+  },
+  {
+   "name": "P04 Wing 019 R (SM_R_Pillar2_bw)",
+   "min_cm": [
+    9247.5,
+    240484.4,
+    -0.0
+   ],
+   "max_cm": [
+    9252.5,
+    241015.6,
+    1000.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     9250.0,
+     240750.0,
+     500.0
+    ],
+    "size_cm": [
+     5.0,
+     531.2,
+     1000.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 0.0,
+    "yaw_deg": 180.0
+   },
+   "note": "painted card with alpha: the box is the card's full rectangle, not its opaque silhouette (same caveat as P01's Wing 001)"
+  },
+  {
+   "name": "P04 Wing 020 L (SM_small_stone_outbuilding)",
+   "min_cm": [
+    9747.5,
+    238867.8,
+    -0.0
+   ],
+   "max_cm": [
+    9752.5,
+    239932.2,
+    1000.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     9750.0,
+     239400.0,
+     500.0
+    ],
+    "size_cm": [
+     5.0,
+     1064.4,
+     1000.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 0.0,
+    "yaw_deg": 0.0
+   },
+   "note": "painted card with alpha: the box is the card's full rectangle, not its opaque silhouette (same caveat as P01's Wing 001)"
+  },
+  {
+   "name": "P04 Wing 020 R (SM_reinforced_concrete_rebar_block)",
+   "min_cm": [
+    9747.5,
+    240094.2,
+    -0.0
+   ],
+   "max_cm": [
+    9752.5,
+    241105.8,
+    1000.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     9750.0,
+     240600.0,
+     500.0
+    ],
+    "size_cm": [
+     5.0,
+     1011.7,
+     1000.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 0.0,
+    "yaw_deg": 0.0
+   },
+   "note": "painted card with alpha: the box is the card's full rectangle, not its opaque silhouette (same caveat as P01's Wing 001)"
+  },
+  {
+   "name": "P04 Wing 021 L (SM_L_Children_Wing2)",
+   "min_cm": [
+    10247.5,
+    239154.8,
+    0.0
+   ],
+   "max_cm": [
+    10252.5,
+    239645.2,
+    1000.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     10250.0,
+     239400.0,
+     500.0
+    ],
+    "size_cm": [
+     5.0,
+     490.4,
+     1000.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 0.0,
+    "yaw_deg": 0.0
+   },
+   "note": "painted card with alpha: the box is the card's full rectangle, not its opaque silhouette (same caveat as P01's Wing 001)"
+  },
+  {
+   "name": "P04 Wing 021 R (SM_R_Pillar2_gold)",
+   "min_cm": [
+    10247.5,
+    240334.4,
+    -0.0
+   ],
+   "max_cm": [
+    10252.5,
+    240865.6,
+    1000.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     10250.0,
+     240600.0,
+     500.0
+    ],
+    "size_cm": [
+     5.0,
+     531.2,
+     1000.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 0.0,
+    "yaw_deg": 180.0
+   },
+   "note": "painted card with alpha: the box is the card's full rectangle, not its opaque silhouette (same caveat as P01's Wing 001)"
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9457.0,
+    239279.0,
+    221.7
+   ],
+   "max_cm": [
+    9507.8,
+    239311.8,
+    276.7
+   ],
+   "oriented": {
+    "centre_cm": [
+     9482.4,
+     239295.4,
+     249.2
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 59.93,
+    "yaw_deg": 0.94
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9785.2,
+    241179.7,
+    1335.7
+   ],
+   "max_cm": [
+    9843.0,
+    241234.7,
+    1372.5
+   ],
+   "oriented": {
+    "centre_cm": [
+     9814.1,
+     241207.2,
+     1354.1
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": -6.39,
+    "yaw_deg": -38.04
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9773.1,
+    239093.4,
+    726.5
+   ],
+   "max_cm": [
+    9836.6,
+    239148.7,
+    776.4
+   ],
+   "oriented": {
+    "centre_cm": [
+     9804.9,
+     239121.1,
+     751.5
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": -29.2,
+    "yaw_deg": 30.41
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9855.1,
+    240522.5,
+    205.0
+   ],
+   "max_cm": [
+    9901.9,
+    240555.7,
+    258.4
+   ],
+   "oriented": {
+    "centre_cm": [
+     9878.5,
+     240539.1,
+     231.7
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 69.14,
+    "yaw_deg": -1.47
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9957.0,
+    239279.0,
+    221.7
+   ],
+   "max_cm": [
+    10007.8,
+    239311.8,
+    276.7
+   ],
+   "oriented": {
+    "centre_cm": [
+     9982.4,
+     239295.4,
+     249.2
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": 59.93,
+    "yaw_deg": 0.94
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9745.2,
+    239966.2,
+    2154.0
+   ],
+   "max_cm": [
+    9800.3,
+    240003.7,
+    2209.3
+   ],
+   "oriented": {
+    "centre_cm": [
+     9772.7,
+     239985.0,
+     2181.7
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": -55.54,
+    "yaw_deg": -6.3
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9791.9,
+    241035.2,
+    1747.5
+   ],
+   "max_cm": [
+    9848.9,
+    241097.9,
+    1802.2
+   ],
+   "oriented": {
+    "centre_cm": [
+     9820.4,
+     241066.6,
+     1774.8
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": -46.96,
+    "yaw_deg": -55.51
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9828.5,
+    239136.8,
+    1233.7
+   ],
+   "max_cm": [
+    9892.2,
+    239194.1,
+    1286.4
+   ],
+   "oriented": {
+    "centre_cm": [
+     9860.4,
+     239165.4,
+     1260.1
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": -37.12,
+    "yaw_deg": 33.69
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9701.7,
+    240679.2,
+    950.3
+   ],
+   "max_cm": [
+    9756.6,
+    240729.3,
+    982.3
+   ],
+   "oriented": {
+    "centre_cm": [
+     9729.2,
+     240704.3,
+     966.3
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": -0.0,
+    "pitch_deg": -0.0,
+    "yaw_deg": -29.75
+   }
+  },
+  {
+   "name": "StructureFixtures",
+   "min_cm": [
+    9785.8,
+    238960.7,
+    1835.8
+   ],
+   "max_cm": [
+    9849.4,
+    239013.6,
+    1888.8
+   ],
+   "oriented": {
+    "centre_cm": [
+     9817.6,
+     238987.1,
+     1862.3
+    ],
+    "size_cm": [
+     45.0,
+     32.0,
+     32.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": -38.14,
+    "yaw_deg": 26.03
+   }
+  },
+  {
+   "name": "StructureGridiron",
+   "min_cm": [
+    9250.0,
+    239017.5,
+    1167.2
+   ],
+   "max_cm": [
+    9750.0,
+    239042.5,
+    1200.8
+   ],
+   "oriented": {
+    "centre_cm": [
+     9500.0,
+     239030.0,
+     1184.0
+    ],
+    "size_cm": [
+     500.0,
+     24.9,
+     33.6
+    ],
+    "roll_deg": 0.05,
+    "pitch_deg": -0.0,
+    "yaw_deg": 0.0
+   }
+  },
+  {
+   "name": "StructureGridiron",
+   "min_cm": [
+    9250.0,
+    240957.5,
+    1167.8
+   ],
+   "max_cm": [
+    9750.0,
+    240982.5,
+    1200.2
+   ],
+   "oriented": {
+    "centre_cm": [
+     9500.0,
+     240970.0,
+     1184.0
+    ],
+    "size_cm": [
+     500.0,
+     25.0,
+     32.4
+    ],
+    "roll_deg": -0.08,
+    "pitch_deg": 0.0,
+    "yaw_deg": 0.0
+   }
+  },
+  {
+   "name": "StructureGridiron",
+   "min_cm": [
+    9737.4,
+    239030.0,
+    1133.7
+   ],
+   "max_cm": [
+    9762.6,
+    240970.0,
+    1166.3
+   ],
+   "oriented": {
+    "centre_cm": [
+     9750.0,
+     240000.0,
+     1150.0
+    ],
+    "size_cm": [
+     1940.0,
+     25.0,
+     32.5
+    ],
+    "roll_deg": -0.11,
+    "pitch_deg": -0.0,
+    "yaw_deg": 90.0
+   }
+  },
+  {
+   "name": "StructureGridiron",
+   "min_cm": [
+    9750.0,
+    239017.5,
+    1167.2
+   ],
+   "max_cm": [
+    10250.0,
+    239042.5,
+    1200.8
+   ],
+   "oriented": {
+    "centre_cm": [
+     10000.0,
+     239030.0,
+     1184.0
+    ],
+    "size_cm": [
+     500.0,
+     24.9,
+     33.7
+    ],
+    "roll_deg": 0.02,
+    "pitch_deg": -0.0,
+    "yaw_deg": 0.0
+   }
+  },
+  {
+   "name": "StructureGridiron",
+   "min_cm": [
+    9750.0,
+    240957.2,
+    1166.8
+   ],
+   "max_cm": [
+    10250.0,
+    240982.8,
+    1201.2
+   ],
+   "oriented": {
+    "centre_cm": [
+     10000.0,
+     240970.0,
+     1184.0
+    ],
+    "size_cm": [
+     500.0,
+     25.3,
+     34.1
+    ],
+    "roll_deg": -0.37,
+    "pitch_deg": 0.0,
+    "yaw_deg": 0.0
+   }
+  },
+  {
+   "name": "StructureGridiron",
+   "min_cm": [
+    10237.5,
+    239030.0,
+    1133.5
+   ],
+   "max_cm": [
+    10262.5,
+    240970.0,
+    1166.5
+   ],
+   "oriented": {
+    "centre_cm": [
+     10250.0,
+     240000.0,
+     1150.0
+    ],
+    "size_cm": [
+     1940.0,
+     24.6,
+     32.7
+    ],
+    "roll_deg": 0.59,
+    "pitch_deg": 0.0,
+    "yaw_deg": 90.0
+   }
+  },
+  {
+   "name": "StructureLines",
+   "min_cm": [
+    9803.4,
+    239119.6,
+    767.5
+   ],
+   "max_cm": [
+    9806.4,
+    239122.6,
+    1201.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     9804.9,
+     239121.1,
+     984.2
+    ],
+    "size_cm": [
+     433.5,
+     3.0,
+     3.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": 90.0,
+    "yaw_deg": 0.0
+   }
+  },
+  {
+   "name": "StructureLines",
+   "min_cm": [
+    9727.7,
+    240702.8,
+    982.3
+   ],
+   "max_cm": [
+    9730.7,
+    240705.8,
+    1201.0
+   ],
+   "oriented": {
+    "centre_cm": [
+     9729.2,
+     240704.3,
+     1091.7
+    ],
+    "size_cm": [
+     218.7,
+     3.0,
+     3.0
+    ],
+    "roll_deg": 0.0,
+    "pitch_deg": 90.0,
+    "yaw_deg": 0.0
+   }
+  }
+ ]
+}
