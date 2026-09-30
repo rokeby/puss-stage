@@ -68,6 +68,58 @@ def cut_coverage(seq):
     return {"range": [start, end], "cuts": [list(x) for x in spans], "gaps": [g for g in gaps if g[1] > g[0]]}
 
 
+def handoff_cameras(scene_label):
+    """The scene's Entry and Exit handoff cameras: transform, focal length and focus. The match RE-COPIES them from the
+    neighbouring Passages (Look & camera, 30 Sep), so a rematch can MOVE them even when the range is unchanged. They are
+    recorded before and after, and a move is stated, not discovered."""
+    out = {}
+    for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors():
+        label = a.get_actor_label()
+        for kind in ("Entry", "Exit"):
+            if label == f"{scene_label} — {kind} Handoff Camera":
+                cc = a.get_editor_property("camera_component")
+                loc, rot = a.get_actor_location(), a.get_actor_rotation()
+                fs = cc.get_editor_property("focus_settings")
+                out[kind] = {"loc": [round(loc.x, 2), round(loc.y, 2), round(loc.z, 2)],
+                             "rot": [round(rot.pitch, 3), round(rot.yaw, 3), round(rot.roll, 3)],
+                             "focal_mm": round(cc.get_editor_property("current_focal_length"), 3),
+                             "focus_cm": round(fs.get_editor_property("manual_focus_distance"), 2)}
+    return out
+
+
+def camera_deltas(before, after):
+    rows = {}
+    for kind in set(before) | set(after):
+        b, a = before.get(kind), after.get(kind)
+        if not b or not a:
+            rows[kind] = {"before": b, "after": a}
+            continue
+        rows[kind] = {"moved_cm": round(sum((x - y) ** 2 for x, y in zip(a["loc"], b["loc"])) ** 0.5, 2),
+                      "turned_deg": round(max(abs(x - y) for x, y in zip(a["rot"], b["rot"])), 3),
+                      "focal_delta_mm": round(a["focal_mm"] - b["focal_mm"], 3),
+                      "focus_delta_cm": round(a["focus_cm"] - b["focus_cm"], 2)}
+    return rows
+
+
+def next_segment_rule(show, cue_index):
+    """The match needs the cue AFTER the scene to be a Passage, or to retain the previous camera; otherwise it refuses
+    ("has neither an outgoing Passage nor a retained-camera interstitial")."""
+    cues = show.get_editor_property("cues")
+    for c in list(cues)[cue_index + 1:]:
+        if not c.get_editor_property("enabled"):
+            continue
+        kind = str(c.get_editor_property("type"))
+        retain = None
+        try:
+            retain = bool(c.get_editor_property("scene").get_editor_property("retain_previous_camera"))
+        except Exception:  # noqa: BLE001
+            pass
+        ok = "PASSAGE" in kind.upper() or bool(retain)
+        return {"next_cue": str(c.get_editor_property("label")), "type": kind, "retain_previous_camera": retain,
+                "match_would_refuse": not ok}
+    return {"next_cue": None, "match_would_refuse": True}
+
+
 def show_master_match(show, master):
     tick = show.get_editor_property("tick_resolution")
     rate = tick.numerator / tick.denominator
@@ -106,7 +158,8 @@ def main():
     if dirty():
         return finish(f"refusing: dirty packages {dirty()}")
     show, master = unreal.load_asset(SHOW), unreal.load_asset(MASTER)
-    cues = [c for c in show.get_editor_property("cues") if str(c.get_editor_property("label")) == cfg["scene_label"]]
+    all_cues = list(show.get_editor_property("cues"))
+    cues = [c for c in all_cues if str(c.get_editor_property("label")) == cfg["scene_label"]]
     if len(cues) != 1 or str(cues[0].get_editor_property("type")) != str(unreal.InfinityCueType.SCENE) \
             or not cues[0].get_editor_property("enabled"):
         return finish(f"refusing: '{cfg['scene_label']}' is not exactly one enabled Scene cue")
@@ -119,13 +172,16 @@ def main():
     fps = rate.numerator / rate.denominator
     new_end = seq.get_playback_end() if rematch_only else int(round(float(cfg["new_end_s"]) * fps))
     report.update({"sequence": seq_path, "fps": fps, "playback_before": [seq.get_playback_start(), seq.get_playback_end()],
-                   "new_end": new_end, "coverage_before": cut_coverage(seq)})
+                   "new_end": new_end, "coverage_before": cut_coverage(seq),
+                   "next_segment": next_segment_rule(show, all_cues.index(cues[0])),
+                   "cameras_before": handoff_cameras(cfg["scene_label"])})
     if not rematch_only and new_end <= seq.get_playback_start():
         return finish(f"refusing: new end {new_end} is not after the start")
     if dry:
         report["ok"] = True
         return finish(f"DRY RUN|{seq_path}|{report['playback_before']} -> end {new_end}|gaps before "
-                      f"{report['coverage_before']['gaps']}")
+                      f"{report['coverage_before']['gaps']}|next={report['next_segment']}"
+                      f"|cameras={list(report['cameras_before'])}")
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     backup = os.path.join(project, "Backups", f"PreSceneExtend-{seq_path.split('/')[-1]}-{stamp}")
@@ -140,6 +196,7 @@ def main():
     matched, match_report = (res if isinstance(res, tuple) else (res, ""))
     report["match"] = {"ok": bool(matched), "report": str(match_report)}
     report["coverage_after_match"] = cut_coverage(seq)
+    report["camera_deltas"] = camera_deltas(report["cameras_before"], handoff_cameras(cfg["scene_label"]))
     if not matched or report["coverage_after_match"]["gaps"]:
         return finish(f"STOPPED: match={matched} gaps={report['coverage_after_match']['gaps']}; NOTHING saved "
                       f"(relaunch to discard; backup {backup})")
@@ -168,7 +225,8 @@ def main():
     report["ok"] = (all(saved.values()) and not report["coverage_after"]["gaps"] and report["show_master"]["match"]
                     and not report["dirty_final"] and report["playback_after"][1] == new_end)
     del show, master, seq, cues, world
-    finish(f"{seq_path}|end={new_end}|gaps={report['coverage_after']['gaps']}|master_match={report['show_master']}"
+    finish(f"{seq_path}|end={new_end}|gaps={report['coverage_after']['gaps']}|cameras_moved={report['camera_deltas']}"
+           f"|master_match={report['show_master']}"
            f"|saved={saved}|backup={backup}")
 
 
