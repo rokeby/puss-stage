@@ -92,8 +92,11 @@ def apply_one(seq, mouth, camera, plan, report_row):
         drape = seq.add_spawnable_from_class(unreal.GeometryCacheActor)
         drape.set_display_name(DRAPE)
     tmpl = drape.get_object_template()
-    tmpl.set_actor_location(unreal.Vector(mouth["x"], mouth["y"], mouth["z"]), False, False)
-    tmpl.set_actor_rotation(unreal.Rotator(roll=0.0, pitch=0.0, yaw=mouth["yaw"]), False)
+    # A spawnable TEMPLATE has no world: set_actor_location/rotation on it saved (0, 0, 0) and yaw 0 on all five (30 Sep
+    # read-back), so every drape would have spawned at P01's stage front. Write the root component's relative transform.
+    root = tmpl.get_editor_property("root_component")
+    root.set_editor_property("relative_location", unreal.Vector(mouth["x"], mouth["y"], mouth["z"]))
+    root.set_editor_property("relative_rotation", unreal.Rotator(roll=0.0, pitch=0.0, yaw=mouth["yaw"]))
     comp = tmpl.get_editor_property("geometry_cache_component")
     comp.set_editor_property("geometry_cache", cache)
     comp.set_editor_property("running", True)       # running=False freezes the track on frame 0 (29 Sep)
@@ -144,7 +147,7 @@ def apply_one(seq, mouth, camera, plan, report_row):
                     ch.set_default(False)
                     ch.add_key(unreal.FrameNumber(0), False)
     report_row["applied"] = True
-    del cache, drape, tmpl, comp, gt, cam_binding, cut_track, cut, rig
+    del cache, drape, tmpl, root, comp, gt, cam_binding, cut_track, cut, rig
 
 
 def main():
