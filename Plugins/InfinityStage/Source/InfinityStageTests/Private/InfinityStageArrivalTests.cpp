@@ -182,6 +182,22 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Past its section the cloth holds its last sample (the pile), it does not loop"),
         ClothSection->MapTimeToAnimation(CacheSeconds, MotionRate.AsFrameTime(20.0), MotionRate) > CacheSeconds - 0.1f);
 
+    // Placed ahead of its nesting (Scenes 1, 2, 3, 5, 6 on 30 Sep): an Arrival whose motion the
+    // Scene does not play declines, leaves its actor alone, and says so exactly once at Display
+    // (not the old per-session warning), however many frames ask.
+    ULevelSequence* Unnested = NewObject<ULevelSequence>(GetTransientPackage());
+    Unnested->Initialize();
+    AInfinityStageArrival* Waiting = World->SpawnActor<AInfinityStageArrival>();
+    Waiting->SceneCueGuid = SceneCue.CueGuid;
+    Waiting->MotionSequence = Unnested;
+    Waiting->MotionBindingGuid = Binding;
+    Waiting->DrivenActor = Driven;
+    AddExpectedMessagePlain(TEXT("INFINITY_STAGE_ARRIVAL_WAITING"), ELogVerbosity::Display, EAutomationExpectedMessageFlags::Contains, 1);
+    const FRotator Resting = Driven->GetActorRotation();
+    TestFalse(TEXT("Unnested, the Arrival declines"), Waiting->ResolveRotationAtMasterFrame(Show, Master(1.5), Rotation));
+    TestFalse(TEXT("Unnested, it drives nothing"), Waiting->EvaluateAtMasterFrame(Show, Master(1.0)));
+    TestTrue(TEXT("...and leaves its actor alone"), Driven->GetActorRotation().Equals(Resting, 1.0e-6));
+
     World->DestroyWorld(false);
     return true;
 }

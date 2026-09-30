@@ -120,6 +120,39 @@ bool AInfinityStageArrival::ResolveMotionTime(
     {
         return false;
     }
+    const int32 CueIndex = Show->FindCueIndex(SceneCueGuid);
+    if (CueIndex == INDEX_NONE || Show->Cues[CueIndex].Type != EInfinityCueType::Scene)
+    {
+        WarnOnce(TEXT("NoSceneSegment"), SceneCueGuid.ToString());
+        return false;
+    }
+    const ULevelSequence* SceneSequence = Show->Cues[CueIndex].Scene.Sequence.LoadSynchronous();
+    const ULevelSequence* Motion = MotionSequence.LoadSynchronous();
+    const UMovieScene* SceneMovieScene = SceneSequence ? SceneSequence->GetMovieScene() : nullptr;
+    const UMovieScene* MotionMovieScene = Motion ? Motion->GetMovieScene() : nullptr;
+    if (!SceneMovieScene || !MotionMovieScene)
+    {
+        WarnOnce(TEXT("NoSequence"), MotionSequence.ToString());
+        return false;
+    }
+    // Not nested yet is a designed state, not a fault: an Arrival can be placed ahead of its
+    // hangar's nesting and stays inert until then. Checked BEFORE the compile, so a waiting
+    // Arrival costs a cue lookup and a track scan per frame, not a Show compile, and it says
+    // so once at Display: nothing in a test report, nothing to subtract from a Passage tick.
+    const UMovieSceneSubSection* Section = FindMotionSection(*SceneMovieScene, *Motion);
+    if (!Section)
+    {
+        bool bAlreadyNoted = false;
+        WarnedReasons.Add(TEXT("NotNested"), &bAlreadyNoted);
+        if (!bAlreadyNoted)
+        {
+            UE_LOG(LogInfinityStageArrival, Display,
+                TEXT("INFINITY_STAGE_ARRIVAL_WAITING actor='%s' reason=NotNested detail='%s' (inert until %s plays %s)"),
+                *GetActorNameOrLabel(), *SceneSequence->GetName(), *SceneSequence->GetName(), *Motion->GetName());
+        }
+        return false;
+    }
+
     // Compiled every call and never cached: the Show is edited without Modify(), and a
     // compile costs about 0.05 ms.
     const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
@@ -136,23 +169,6 @@ bool AInfinityStageArrival::ResolveMotionTime(
     // From the Scene's first frame on, Sequencer owns everything this actor drives.
     if (MasterTime >= FFrameTime(Segment->StartFrame))
     {
-        return false;
-    }
-
-    const int32 CueIndex = Show->FindCueIndex(SceneCueGuid);
-    const ULevelSequence* SceneSequence = CueIndex != INDEX_NONE ? Show->Cues[CueIndex].Scene.Sequence.LoadSynchronous() : nullptr;
-    const ULevelSequence* Motion = MotionSequence.LoadSynchronous();
-    const UMovieScene* SceneMovieScene = SceneSequence ? SceneSequence->GetMovieScene() : nullptr;
-    const UMovieScene* MotionMovieScene = Motion ? Motion->GetMovieScene() : nullptr;
-    if (!SceneMovieScene || !MotionMovieScene)
-    {
-        WarnOnce(TEXT("NoSequence"), MotionSequence.ToString());
-        return false;
-    }
-    const UMovieSceneSubSection* Section = FindMotionSection(*SceneMovieScene, *Motion);
-    if (!Section)
-    {
-        WarnOnce(TEXT("NoSubSection"), SceneSequence->GetName());
         return false;
     }
 
