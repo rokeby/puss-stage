@@ -74,3 +74,18 @@ old rule's input directly:
 
 It needs no world, so it is a pure-function test. C, K, L and M were verified to apply together
 on HEAD (30 Sep).
+
+## Patches N and O: apply whole, in stage 2 (like M)
+
+- **N** (`2026-09-30_N_scene_cut_bindings_resolve.patch`): `UInfinityStageCameraPilotLibrary::CheckSceneCutBindings`
+  and `CheckSequenceCutBindings`, the binding-resolution gate for imported sequences, with test
+  `InfinityStage.Editor.SceneCutBindingsResolve`.
+- **O** (`2026-09-30_O_look_resets_at_every_cut.patch`): the Go1 receiver resets the look at every hard cut
+  (`bResetLookAtCut`, default on; Gary, 30 Sep: "Reset at every cut"), with test
+  `InfinityStage.Go1.LookResetsAtEveryCut`.
+
+Each test references code the fix adds, so without the fix it fails to COMPILE rather than go red.
+**Apply both whole in stage 2.** O's test discriminates by construction: its first assertion ("a cut
+between dog-owned shots drops the look at once") is false on the pre-O receiver, which carried the offset.
+
+C, K, L, M, N and O were verified to apply together on HEAD (30 Sep 17:5x).

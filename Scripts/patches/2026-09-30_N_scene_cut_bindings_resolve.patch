@@ -1,0 +1,340 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp
+index cebae17..053c551 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCameraPilotLibrary.cpp
+@@ -15,6 +15,13 @@
+ #include "Math/RotationMatrix.h"
+ #include "MovieScene.h"
+ #include "MovieSceneInfinityPassageTrack.h"
++#include "MovieSceneBindingReferences.h"
++#include "MovieSceneSequenceID.h"
++#include "Sections/MovieSceneCameraCutSection.h"
++#include "Sections/MovieSceneSubSection.h"
++#include "Tracks/MovieSceneCameraCutTrack.h"
++#include "Tracks/MovieSceneSubTrack.h"
++#include "UniversalObjectLocatorResolveParams.h"
+ #include "ScopedTransaction.h"
+ 
+ DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageCameraPilot, Log, All);
+@@ -613,6 +620,157 @@ bool UInfinityStageCameraPilotLibrary::MatchNamedSceneHandoffs(
+     return bMatched && StaleAfter.IsEmpty();
+ }
+ 
++namespace
++{
++void CheckCutBindingsIn(
++    UMovieSceneSequence& Sequence,
++    UObject* WorldContext,
++    const FString& Where,
++    const int32 Depth,
++    TArray<FString>& OutLines,
++    int32& OutUnresolvedCount)
++{
++    UMovieScene* MovieScene = Sequence.GetMovieScene();
++    if (!MovieScene || Depth > 4)
++    {
++        return;
++    }
++    if (const UMovieSceneCameraCutTrack* CutTrack = Cast<UMovieSceneCameraCutTrack>(MovieScene->GetCameraCutTrack()))
++    {
++        for (UMovieSceneSection* Section : CutTrack->GetAllSections())
++        {
++            const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(Section);
++            if (!Cut)
++            {
++                continue;
++            }
++            const FMovieSceneObjectBindingID& Binding = Cut->GetCameraBindingID();
++            const FGuid Guid = Binding.GetGuid();
++            FString Name = Guid.ToString(EGuidFormats::Short);
++            FString Verdict;
++            bool bResolves = false;
++            if (!Binding.IsValid())
++            {
++                Verdict = TEXT("UNRESOLVED: the cut names no binding");
++            }
++            else if (Binding.IsFixedBinding() || Binding.GetRelativeSequenceID() != MovieSceneSequenceID::Root)
++            {
++                Verdict = TEXT("UNCHECKED: the binding lives in another sequence of the hierarchy");
++            }
++            else if (const FMovieSceneSpawnable* Spawnable = MovieScene->FindSpawnable(Guid))
++            {
++                Name = Spawnable->GetName();
++                Verdict = TEXT("spawnable: made by the sequence when it plays");
++                bResolves = true;
++            }
++            else if (const FMovieScenePossessable* Possessable = MovieScene->FindPossessable(Guid))
++            {
++                Name = Possessable->GetName();
++                const FMovieSceneBindingReferences* References =
++                    static_cast<const UMovieSceneSequence&>(Sequence).GetBindingReferences();
++                if (References && References->GetCustomBinding(Guid, 0))
++                {
++                    Verdict = TEXT("custom binding: made or found by the sequence when it plays");
++                    bResolves = true;
++                }
++                else
++                {
++                    // Possessables only: LocateBoundObjects cannot see spawnables or custom bindings.
++                    TArray<UObject*, TInlineAllocator<1>> Objects;
++                    Sequence.LocateBoundObjects(
++                        Guid, UE::UniversalObjectLocator::FResolveParams(WorldContext), nullptr, Objects);
++                    const UObject* Found = Objects.Num() > 0 ? Objects[0] : nullptr;
++                    if (Found)
++                    {
++                        const AActor* Actor = Cast<AActor>(Found);
++                        Verdict = FString::Printf(TEXT("resolved: %s"),
++                            Actor ? *Actor->GetActorLabel() : *Found->GetName());
++                        bResolves = true;
++                    }
++                    else
++                    {
++                        Verdict = TEXT("UNRESOLVED: a possessable with nothing bound in this world");
++                    }
++                }
++            }
++            else
++            {
++                Verdict = TEXT("UNRESOLVED: the binding is not in this sequence");
++            }
++            OutLines.Add(FString::Printf(TEXT("%s cut [%d, %d) -> '%s': %s"),
++                *Where,
++                Cut->HasStartFrame() ? Cut->GetInclusiveStartFrame().Value : 0,
++                Cut->HasEndFrame() ? Cut->GetExclusiveEndFrame().Value : 0,
++                *Name,
++                *Verdict));
++            if (!bResolves)
++            {
++                ++OutUnresolvedCount;
++            }
++        }
++    }
++    // Nested sub-sequences and shots: their cuts outrank this sequence's own.
++    for (UMovieSceneTrack* Track : MovieScene->GetTracks())
++    {
++        const UMovieSceneSubTrack* SubTrack = Cast<UMovieSceneSubTrack>(Track);
++        if (!SubTrack)
++        {
++            continue;
++        }
++        for (UMovieSceneSection* Section : SubTrack->GetAllSections())
++        {
++            const UMovieSceneSubSection* Sub = Cast<UMovieSceneSubSection>(Section);
++            UMovieSceneSequence* Child = Sub ? Sub->GetSequence() : nullptr;
++            if (Child)
++            {
++                CheckCutBindingsIn(*Child, WorldContext, Where + TEXT(" > ") + Child->GetName(), Depth + 1,
++                    OutLines, OutUnresolvedCount);
++            }
++        }
++    }
++}
++}
++
++bool UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(
++    ULevelSequence* Sequence,
++    UObject* WorldContext,
++    TArray<FString>& OutLines,
++    int32& OutUnresolvedCount)
++{
++    OutLines.Reset();
++    OutUnresolvedCount = 0;
++    if (!Sequence || !WorldContext)
++    {
++        OutLines.Add(TEXT("UNRESOLVED: needs a sequence and a world to resolve in"));
++        OutUnresolvedCount = 1;
++        return false;
++    }
++    CheckCutBindingsIn(*Sequence, WorldContext, Sequence->GetName(), 0, OutLines, OutUnresolvedCount);
++    return OutUnresolvedCount == 0;
++}
++
++bool UInfinityStageCameraPilotLibrary::CheckSceneCutBindings(
++    UInfinityStageShowAsset* Show,
++    const FGuid CueGuid,
++    TArray<FString>& OutLines,
++    int32& OutUnresolvedCount)
++{
++    const FInfinityShowCue* Cue = Show
++        ? Show->Cues.FindByPredicate([&CueGuid](const FInfinityShowCue& Candidate) { return Candidate.CueGuid == CueGuid; })
++        : nullptr;
++    ULevelSequence* Sequence = Cue ? Cue->Scene.Sequence.LoadSynchronous() : nullptr;
++    const bool bResolves = CheckSequenceCutBindings(Sequence, GetEditorWorld(), OutLines, OutUnresolvedCount);
++    UE_LOG(
++        LogInfinityStageCameraPilot,
++        Display,
++        TEXT("INFINITY_SCENE_CUT_BINDINGS|cue=%s|ok=%d|unresolved=%d|cuts=%d"),
++        Cue ? *Cue->Label.ToString() : TEXT("<no such cue>"),
++        bResolves ? 1 : 0,
++        OutUnresolvedCount,
++        OutLines.Num());
++    return bResolves;
++}
++
+ bool UInfinityStageCameraPilotLibrary::ImportMusicAnalysis(UInfinityStageShowAsset* Show, FString& OutReport)
+ {
+     if (!Show || !GEditor)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCutBindingTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCutBindingTests.cpp
+new file mode 100644
+index 0000000..ea068fe
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageCutBindingTests.cpp
+@@ -0,0 +1,106 @@
++#include "InfinityStageCameraPilotLibrary.h"
++#include "CineCameraActor.h"
++#include "Engine/Engine.h"
++#include "Engine/World.h"
++#include "LevelSequence.h"
++#include "MovieScene.h"
++#include "Sections/MovieSceneCameraCutSection.h"
++#include "Tracks/MovieSceneCameraCutTrack.h"
++#include "Tracks/MovieSceneSubTrack.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/**
++ * CheckSequenceCutBindings finds cameras that do not resolve, in the Scene and in its nested shots.
++ *
++ * 30 Sep: nested shot cuts outrank a Scene's root cuts, and Scene 1's LS_Animals_1 binds four cameras
++ * no actor in the show level carries, so its cuts show nothing. Imported sequences will keep arriving.
++ * This builds a root sequence and a nested sub-sequence, each with one camera bound in the world and one
++ * possessable bound to nothing, and expects exactly the two unbound ones reported. It then binds them and
++ * expects a clean pass. Spawnable and custom bindings are classified by the code but are not built here.
++ * Red without the fix: the function does not exist.
++ */
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCutBindingsResolveTest,
++    "InfinityStage.Editor.SceneCutBindingsResolve",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageCutBindingsResolveTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    FWorldContext& WorldContext = GEngine->CreateNewWorldContext(EWorldType::EditorPreview);
++    WorldContext.SetCurrentWorld(World);
++
++    const auto MakeSequence = []()
++    {
++        ULevelSequence* Sequence = NewObject<ULevelSequence>(GetTransientPackage());
++        Sequence->Initialize();
++        Sequence->GetMovieScene()->SetPlaybackRange(0, 240000);
++        UMovieSceneCameraCutTrack* Track = Cast<UMovieSceneCameraCutTrack>(
++            Sequence->GetMovieScene()->AddCameraCutTrack(UMovieSceneCameraCutTrack::StaticClass()));
++        Track->SetIsAutoManagingSections(false);
++        return Sequence;
++    };
++    const auto AddCut = [World](ULevelSequence* Sequence, const TCHAR* Name, ACineCameraActor* BindTo, int32 Start, int32 End)
++    {
++        UMovieScene* MovieScene = Sequence->GetMovieScene();
++        UMovieSceneCameraCutTrack* Track = Cast<UMovieSceneCameraCutTrack>(MovieScene->GetCameraCutTrack());
++        const FGuid Guid = MovieScene->AddPossessable(Name, ACineCameraActor::StaticClass());
++        if (BindTo)
++        {
++            Sequence->BindPossessableObject(Guid, *BindTo, World);
++        }
++        UMovieSceneCameraCutSection* Cut = Track->AddNewCameraCut(
++            FMovieSceneObjectBindingID(UE::MovieScene::FRelativeObjectBindingID(Guid)), FFrameNumber(Start));
++        Cut->SetRange(TRange<FFrameNumber>(FFrameNumber(Start), FFrameNumber(End)));
++        return Guid;
++    };
++    const auto Count = [](const TArray<FString>& Lines, const TCHAR* Needle)
++    {
++        int32 Found = 0;
++        for (const FString& Line : Lines)
++        {
++            Found += Line.Contains(Needle, ESearchCase::CaseSensitive) ? 1 : 0;
++        }
++        return Found;
++    };
++
++    ACineCameraActor* CameraA = World->SpawnActor<ACineCameraActor>();
++    ACineCameraActor* CameraB = World->SpawnActor<ACineCameraActor>();
++    ACineCameraActor* CameraC = World->SpawnActor<ACineCameraActor>();
++    ULevelSequence* Root = MakeSequence();
++    ULevelSequence* Shot = MakeSequence();
++    AddCut(Root, TEXT("Scene Camera"), CameraA, 0, 120000);
++    const FGuid RootMissing = AddCut(Root, TEXT("Camera From Another Level"), nullptr, 120000, 240000);
++    const FGuid ShotMissing = AddCut(Shot, TEXT("Nested Camera From Another Level"), nullptr, 0, 120000);
++    AddCut(Shot, TEXT("Nested Scene Camera"), CameraB, 120000, 240000);
++    UMovieSceneSubTrack* SubTrack = Root->GetMovieScene()->AddTrack<UMovieSceneSubTrack>();
++    SubTrack->AddSequence(Shot, FFrameNumber(0), 240000);
++
++    TArray<FString> Lines;
++    int32 Unresolved = 0;
++    TestFalse(TEXT("A Scene with unbound cameras does not pass"),
++        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(Root, World, Lines, Unresolved));
++    TestEqual(TEXT("Every cut is reported, root and nested"), Lines.Num(), 4);
++    TestEqual(TEXT("Exactly the two unbound cameras are unresolved"), Unresolved, 2);
++    TestEqual(TEXT("Two cuts resolve to cameras in this world"), Count(Lines, TEXT("resolved: ")), 2);
++    TestEqual(TEXT("Two cuts are reported UNRESOLVED"), Count(Lines, TEXT("UNRESOLVED")), 2);
++    TestEqual(TEXT("The nested shot's cuts are reported under it"), Count(Lines, *(TEXT(" > ") + Shot->GetName())), 2);
++
++    Root->BindPossessableObject(RootMissing, *CameraC, World);
++    Shot->BindPossessableObject(ShotMissing, *CameraC, World);
++    TestTrue(TEXT("With every camera bound here, the Scene passes"),
++        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(Root, World, Lines, Unresolved));
++    TestEqual(TEXT("...with nothing unresolved"), Unresolved, 0);
++
++    TestFalse(TEXT("No sequence fails closed"),
++        UInfinityStageCameraPilotLibrary::CheckSequenceCutBindings(nullptr, World, Lines, Unresolved));
++    TestEqual(TEXT("...and counts as unresolved"), Unresolved, 1);
++
++    GEngine->DestroyWorldContext(World);
++    World->DestroyWorld(false);
++    return true;
++}
++
++#endif
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStageCameraPilotLibrary.h b/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStageCameraPilotLibrary.h
+index 88f9149..36578d9 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStageCameraPilotLibrary.h
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStageCameraPilotLibrary.h
+@@ -5,6 +5,7 @@
+ #include "InfinityStageCameraPilotLibrary.generated.h"
+ 
+ class AInfinityStageCameraRig;
++class ULevelSequence;
+ class UInfinityStageShowAsset;
+ class UMovieSceneInfinityPassageSection;
+ class USplineComponent;
+@@ -118,6 +119,39 @@ public:
+         int32 ExpectedSceneCount,
+         FString& OutReport);
+ 
++    /**
++     * Whether every camera cut in a cue's Level Sequence, and in its nested
++     * sub-sequences and shots, resolves in the open editor world. Read-only.
++     *
++     * Why (30 Sep): nested shot cuts outrank a Scene's root cuts, and a nested
++     * cut whose camera is not in the show level shows NOTHING while the
++     * transport's Entry claim stays up (Scene 1's LS_Animals_1: four cameras
++     * authored in another level). Imported sequences will keep arriving, and
++     * Python's only route, SequencerTools.get_bound_objects, has crashed the
++     * editor. One line per cut, in OutLines:
++     *   resolved     a possessable bound to an object in this world;
++     *   spawnable / custom binding   made by the sequence when it plays, so it
++     *                resolves anywhere (LocateBoundObjects cannot see these);
++     *   UNRESOLVED   a possessable with nothing bound here, or no binding;
++     *   UNCHECKED    a binding that lives in another sequence of the hierarchy.
++     * UNRESOLVED and UNCHECKED both count in OutUnresolvedCount: unknown is not
++     * fine. Returns true only when that count is zero. Logs
++     * INFINITY_SCENE_CUT_BINDINGS.
++     */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Camera Pilot")
++    static bool CheckSceneCutBindings(
++        UInfinityStageShowAsset* Show,
++        FGuid CueGuid,
++        TArray<FString>& OutLines,
++        int32& OutUnresolvedCount);
++
++    /** The core of CheckSceneCutBindings for a sequence and a world the caller supplies (tests, other worlds). */
++    static bool CheckSequenceCutBindings(
++        ULevelSequence* Sequence,
++        UObject* WorldContext,
++        TArray<FString>& OutLines,
++        int32& OutUnresolvedCount);
++
+     /**
+      * The Cue Desk's "Link / Reimport Music Analysis", made scriptable. Imports
+      * every Passage analysis in Saved/InfinityStage/MusicAnalysis into its

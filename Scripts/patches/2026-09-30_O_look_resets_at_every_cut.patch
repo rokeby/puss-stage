@@ -1,0 +1,153 @@
+diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
+new file mode 100644
+index 0000000..ce4ad82
+--- /dev/null
++++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1LookResetAtCutTests.cpp
+@@ -0,0 +1,88 @@
++#include "Go1RemoteReceiverComponent.h"
++
++#include "Camera/CameraActor.h"
++#include "Camera/CameraComponent.h"
++#include "Engine/World.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/**
++ * A hard cut resets the dog's look even when the dog owns the camera.
++ *
++ * Gary, 30 Sep, on the look at a cut inside a Scene (the hangar Scenes are free
++ * look and "built on sequencers with lots of camera cuts"): "Reset at every
++ * cut". Before this, only a cut into a Timeline shot dropped the look; a cut
++ * between dog-owned cameras carried the offset, so the next authored shot
++ * opened turned by it. Red without the fix: the offset carries onto the new
++ * camera (20 degrees), and bResetLookAtCut does not exist.
++ */
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++	FGo1LookResetsAtEveryCutTest,
++	"InfinityStage.Go1.LookResetsAtEveryCut",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FGo1LookResetsAtEveryCutTest::RunTest(const FString& Parameters)
++{
++	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++	ACameraActor* ShotA = World->SpawnActor<ACameraActor>(FVector(0.0, 0.0, 200.0), FRotator(0.0, 30.0, 0.0));
++	ACameraActor* ShotB = World->SpawnActor<ACameraActor>(FVector(0.0, 1000.0, 200.0), FRotator(0.0, -90.0, 0.0));
++	for (ACameraActor* Camera : { ShotA, ShotB })
++	{
++		// A bare world never runs InitializeComponents, where a real session
++		// auto-activates cameras; the look goes on the active camera.
++		if (Camera && Camera->GetCameraComponent() && !Camera->GetCameraComponent()->IsActive())
++		{
++			Camera->GetCameraComponent()->Activate(true);
++		}
++	}
++	AActor* Host = World->SpawnActor<AActor>();
++	// Never registered: registering would open the telemetry socket. No player
++	// controller either, so no blend is ever in flight: every change is a hard cut.
++	UGo1RemoteReceiverComponent* Receiver = Host ? NewObject<UGo1RemoteReceiverComponent>(Host) : nullptr;
++	if (!TestTrue(TEXT("Fixture: two active cameras and a receiver"), ShotA && ShotB && Receiver))
++	{
++		World->DestroyWorld(false);
++		return true;
++	}
++	const auto ViewOf = [](const ACameraActor* Camera) { return Camera->GetCameraComponent()->GetComponentRotation(); };
++	constexpr float Frame = 1.0f / 60.0f;
++	Receiver->RotationMode = EGo1RotationMode::Velocity;            // Free Look, as the hangar Scenes are
++	Receiver->LookHandoverSeconds = 0.6f;
++
++	// The dog's stand-in (the mouse; no telemetry) looks 20 degrees off shot A.
++	Receiver->UpdateLook(ShotA, false, false, FVector2D(5.0, 0.0), Frame);
++	for (int32 Tick = 0; Tick < 60; ++Tick)
++	{
++		Receiver->UpdateLook(ShotA, false, false, FVector2D::ZeroVector, Frame);
++	}
++	TestTrue(TEXT("Fixture: looking 20 degrees off shot A"), FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, 20.0, 0.01));
++
++	// A hard cut to shot B, the dog still owning the camera.
++	Receiver->UpdateLook(ShotB, false, false, FVector2D::ZeroVector, Frame);
++	TestTrue(TEXT("A cut between dog-owned shots drops the look at once"), Receiver->GetLookOffset().IsNearlyZero(0.001));
++	TestTrue(TEXT("...so shot B opens exactly as authored"),
++		ViewOf(ShotB).Equals(FRotator(0.0, -90.0, 0.0), 0.01)
++		&& ShotB->GetCameraComponent()->GetRelativeRotation().IsNearlyZero(0.001));
++	TestTrue(TEXT("...and shot A is put back as driven"),
++		ShotA->GetCameraComponent()->GetRelativeRotation().IsNearlyZero(0.001));
++
++	// The dog looks around from the authored aim afterwards.
++	Receiver->UpdateLook(ShotB, false, false, FVector2D(-2.0, 0.0), Frame);
++	TestTrue(TEXT("After the cut the dog looks around from shot B's authored aim"),
++		FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, -8.0, 0.01)
++		&& ViewOf(ShotB).Equals(FRotator(0.0, -98.0, 0.0), 0.01));
++
++	// Off restores the earlier behaviour: the look carries across a dog-owned cut.
++	Receiver->bResetLookAtCut = false;
++	Receiver->UpdateLook(ShotA, false, false, FVector2D::ZeroVector, Frame);
++	TestTrue(TEXT("With bResetLookAtCut off the look carries across the cut"),
++		FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, -8.0, 0.01)
++		&& ViewOf(ShotA).Equals(FRotator(0.0, 22.0, 0.0), 0.01));
++
++	Receiver->ReleaseLook();
++	World->DestroyWorld(false);
++	return true;
++}
++
++#endif
+diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
+index 79f4a88..0f4c7b7 100644
+--- a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
++++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
+@@ -381,15 +381,17 @@ void UGo1RemoteReceiverComponent::UpdateLook(
+ 	SettleLeftBehindLook(false);
+ 
+ 	// A hard cut (a new view target with no blend in flight; the first camera
+-	// seen is not a cut). Into a Timeline shot the look is dropped at once: the
+-	// cut hides it, and the shot should open exactly as authored.
++	// seen is not a cut). The look is dropped at once: the cut hides it, and
++	// the shot should open exactly as authored. Always into a Timeline shot;
++	// into a dog-owned shot too while bResetLookAtCut (Gary, 30 Sep: "Reset at
++	// every cut"), after which the dog looks around from the authored aim.
+ 	SecondsSinceHardCut += DeltaSeconds;
+ 	if (TargetActor != LastViewTarget.Get())
+ 	{
+ 		if (LastViewTarget.IsValid() && !IsViewBlendInFlight())
+ 		{
+ 			SecondsSinceHardCut = 0.0f;
+-			if (bTimelineOwnsCamera)
++			if (bTimelineOwnsCamera || bResetLookAtCut)
+ 			{
+ 				SettleLookAtOnce();
+ 			}
+diff --git a/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h b/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
+index 9f6cfb9..dc7629a 100644
+--- a/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
++++ b/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
+@@ -188,14 +188,25 @@ public:
+ 	 * changes: a camera-owner change (Timeline, Gaze, Free Look), telemetry
+ 	 * arriving or lost, or a re-centre. The ease starts at the look as it
+ 	 * stands, so none of these steps the picture (Gary, 26 Sep: "don't jump").
+-	 * A cut between dog-owned cameras carries the look across unchanged; a
+-	 * hard cut into a Timeline shot drops it at once, since the cut already
+-	 * hides the change and the shot should open as authored.
+-	 * 0 = settle at once.
++	 * A hard cut drops the look at once whoever owns the camera (see
++	 * bResetLookAtCut), since the cut already hides the change and the shot
++	 * should open as authored. 0 = settle at once.
+ 	 */
+ 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera", meta = (ClampMin = "0.0", UIMax = "3.0"))
+ 	float LookHandoverSeconds = 0.6f;
+ 
++	/**
++	 * Reset the look at every hard cut (a new view target with no blend in
++	 * flight), not only at a cut into a Timeline shot. Gary, 30 Sep, asked what
++	 * the dog's look should do at a cut inside a Scene: "Reset at every cut";
++	 * "it's not essential that dog has 'neck mobility' during cut scenes". So a
++	 * Scene's authored cut opens as authored and the dog looks around from
++	 * there. This includes the Passage -> Scene entry cut. Off restores the
++	 * earlier behaviour: a cut between dog-owned cameras carried the look.
++	 */
++	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Go1|Camera")
++	bool bResetLookAtCut = true;
++
+ 
+ 	/**
+ 	 * Fallback only, ignored while Show ownership is governing: let a remote
