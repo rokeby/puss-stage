@@ -1,0 +1,89 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+index 8d94c75..539e591 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+@@ -1016,14 +1016,43 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+         TestEqual(TEXT("Rehearsal can hold again for deterministic curtain inspection"),
+             ShowRoot->Transport->PauseTransport(),
+             EInfinityTransportResult::Succeeded);
++        // Transition curtain (29 Sep): once an Interaction authors its own Camera Cut, the Interaction happens ON the
++        // baked drape at the next Passage's mouth, seen from Look & camera's tagged stalls camera, and the old
++        // camera-following rig stays present but inactive. Until the data carries that, the legacy staging is asserted.
++        bool bInteractionAuthorsCut = false;
++        {
++            const int32 InteractionCueIndex = ShowRoot->Transport->Segments[3].CueIndex;
++            const ULevelSequence* InteractionSequence =
++                ShowRoot->ShowAsset && ShowRoot->ShowAsset->Cues.IsValidIndex(InteractionCueIndex)
++                    ? ShowRoot->ShowAsset->Cues[InteractionCueIndex].Scene.Sequence.LoadSynchronous()
++                    : nullptr;
++            const UMovieScene* InteractionScene = InteractionSequence ? InteractionSequence->GetMovieScene() : nullptr;
++            const UMovieSceneTrack* InteractionCuts = InteractionScene ? InteractionScene->GetCameraCutTrack() : nullptr;
++            bInteractionAuthorsCut = InteractionCuts && !InteractionCuts->GetAllSections().IsEmpty();
++        }
++        AddInfo(FString::Printf(TEXT("Interaction1AuthorsCameraCut=%d"), bInteractionAuthorsCut ? 1 : 0));
++        const auto IsPassageTwoMouthStalls = [](const AActor* Actor)
++        {
++            return Actor
++                && Actor->ActorHasTag(TEXT("InfinityStage.TransitionStalls"))
++                && Actor->ActorHasTag(TEXT("InfinityStage.Mouth.P02"));
++        };
+         if (PlayerController)
+         {
+             AActor* InteractionViewTarget = PlayerController->GetViewTarget();
+             TestNotNull(TEXT("Interaction 1 retains a camera owner"), InteractionViewTarget);
+-            TestTrue(TEXT("Interaction 1 holds the Scene 1 exit camera"),
+-                InteractionViewTarget
+-                && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneExit"))
+-                && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneRetainedHold")));
++            if (bInteractionAuthorsCut)
++            {
++                TestTrue(TEXT("Interaction 1 happens on its curtain: the view is the stalls camera at Passage 2's mouth"),
++                    IsPassageTwoMouthStalls(InteractionViewTarget));
++            }
++            else
++            {
++                TestTrue(TEXT("Interaction 1 holds the Scene 1 exit camera"),
++                    InteractionViewTarget
++                    && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneExit"))
++                    && InteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneRetainedHold")));
++            }
+         }
+         float InteractionCurtainProgress = -1.0f;
+         TestFalse(TEXT("Interaction 1 sequence owns the visible curtain"),
+@@ -1044,7 +1073,21 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+         }
+         TestEqual(TEXT("Interaction sequence evaluates exactly one curtain rig"),
+             SequenceCurtainRigCount, 1);
+-        if (SequenceCurtainRig)
++        if (SequenceCurtainRig && bInteractionAuthorsCut)
++        {
++            SequenceCurtainRig->Tick(0.0f);
++            TestFalse(TEXT("The old camera-following rig is kept but inactive once the Interaction has its drape"),
++                SequenceCurtainRig->bCurtainActive);
++            TestTrue(TEXT("The old rig's fire-safety mesh is not shown"),
++                !SequenceCurtainRig->CurtainMesh || !SequenceCurtainRig->CurtainMesh->IsVisible());
++            int32 DrapeCount = 0;
++            for (TActorIterator<AActor> It(PieWorld); It; ++It)
++            {
++                DrapeCount += It->GetClass()->GetName() == TEXT("GeometryCacheActor") ? 1 : 0;
++            }
++            TestTrue(TEXT("The Interaction spawns its baked drape"), DrapeCount >= 1);
++        }
++        else if (SequenceCurtainRig)
+         {
+             TestTrue(TEXT("Interaction curtain actor tick is enabled"),
+                 SequenceCurtainRig->IsActorTickEnabled());
+@@ -1086,7 +1129,12 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+                 }
+             }
+         }
+-        if (PlayerController && PassageTwoCamera)
++        if (PlayerController && bInteractionAuthorsCut)
++        {
++            TestTrue(TEXT("The authored cut keeps the drape in view through the covered frame"),
++                IsPassageTwoMouthStalls(PlayerController->GetViewTarget()));
++        }
++        else if (PlayerController && PassageTwoCamera)
+         {
+             TestEqual(TEXT("Covered curtain switches the hidden world to Passage 2 start"),
+                 PlayerController->GetViewTarget(), static_cast<AActor*>(PassageTwoCamera));
