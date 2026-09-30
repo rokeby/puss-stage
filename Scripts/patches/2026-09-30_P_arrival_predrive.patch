@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
-index fe89d30..9119812 100644
+index fe89d30..6534c5e 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
 @@ -2,7 +2,10 @@
@@ -24,22 +24,24 @@ index fe89d30..9119812 100644
  #include "Tracks/MovieSceneSubTrack.h"
  
  DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageArrival, Log, All);
-@@ -61,6 +66,30 @@ const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid
+@@ -61,6 +66,51 @@ const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid
      }
      return nullptr;
  }
 +
-+/** The first float section on the named property track of a binding. */
++/** The float section on the named property track that owns MotionTime, or the earliest section. */
 +const UMovieSceneFloatSection* FindFloatBindingSection(
 +    const UMovieScene& MovieScene,
 +    const FGuid& BindingGuid,
-+    const FName PropertyName)
++    const FName PropertyName,
++    const FFrameTime MotionTime)
 +{
 +    const FMovieSceneBinding* Binding = MovieScene.FindBinding(BindingGuid);
 +    if (!Binding)
 +    {
 +        return nullptr;
 +    }
++    const UMovieSceneFloatSection* EarliestSection = nullptr;
 +    for (const UMovieSceneTrack* Track : Binding->GetTracks())
 +    {
 +        const UMovieSceneFloatTrack* FloatTrack = Cast<UMovieSceneFloatTrack>(Track);
@@ -47,21 +49,55 @@ index fe89d30..9119812 100644
 +        {
 +            continue;
 +        }
-+        const TArray<UMovieSceneSection*>& Sections = FloatTrack->GetAllSections();
-+        return Sections.IsEmpty() ? nullptr : Cast<UMovieSceneFloatSection>(Sections[0]);
++        for (const UMovieSceneSection* Candidate : FloatTrack->GetAllSections())
++        {
++            const UMovieSceneFloatSection* Section = Cast<UMovieSceneFloatSection>(Candidate);
++            if (!Section)
++            {
++                continue;
++            }
++            if (Section->GetRange().Contains(MotionTime.FloorToFrame()))
++            {
++                return Section;
++            }
++            if (!EarliestSection
++                || (!Section->HasStartFrame() && EarliestSection->HasStartFrame())
++                || (Section->HasStartFrame() && EarliestSection->HasStartFrame()
++                    && Section->GetInclusiveStartFrame() < EarliestSection->GetInclusiveStartFrame()))
++            {
++                EarliestSection = Section;
++            }
++        }
 +    }
-+    return nullptr;
++    // Pre-cut motion time is negative by construction. If it precedes every section,
++    // read the earliest section's channel outside its range on purpose, exactly as the root does.
++    return EarliestSection;
 +}
  }
  
  AInfinityStageArrival::AInfinityStageArrival()
-@@ -243,6 +272,57 @@ bool AInfinityStageArrival::ResolveBackclothTimeAtMasterFrame(
+@@ -243,6 +293,65 @@ bool AInfinityStageArrival::ResolveBackclothTimeAtMasterFrame(
      return true;
  }
  
 +bool AInfinityStageArrival::ResolveFloatDriveAtMasterFrame(
 +    const UInfinityStageShowAsset* Show,
 +    const FFrameTime MasterTime,
++    const int32 DriveIndex,
++    float& OutValue) const
++{
++    FFrameTime MotionTime;
++    const UMovieScene* MotionMovieScene = nullptr;
++    if (!ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
++    {
++        return false;
++    }
++    return EvaluateFloatDriveAtMotionTime(*MotionMovieScene, MotionTime, DriveIndex, OutValue);
++}
++
++bool AInfinityStageArrival::EvaluateFloatDriveAtMotionTime(
++    const UMovieScene& MotionScene,
++    const FFrameTime MotionTime,
 +    const int32 DriveIndex,
 +    float& OutValue) const
 +{
@@ -80,15 +116,8 @@ index fe89d30..9119812 100644
 +            *Drive.PropertyName.ToString()));
 +        return false;
 +    }
-+
-+    FFrameTime MotionTime;
-+    const UMovieScene* MotionMovieScene = nullptr;
-+    if (!ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
-+    {
-+        return false;
-+    }
 +    const UMovieSceneFloatSection* Section =
-+        FindFloatBindingSection(*MotionMovieScene, Drive.BindingGuid, Drive.PropertyName);
++        FindFloatBindingSection(MotionScene, Drive.BindingGuid, Drive.PropertyName, MotionTime);
 +    if (!Section)
 +    {
 +        WarnOnce(TEXT("NoFloatTrack"), FString::Printf(
@@ -113,7 +142,7 @@ index fe89d30..9119812 100644
  bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset* Show, const FFrameTime MasterTime)
  {
      bool bDrove = false;
-@@ -274,6 +354,55 @@ bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset*
+@@ -274,6 +383,69 @@ bool AInfinityStageArrival::EvaluateAtMasterFrame(const UInfinityStageShowAsset*
                  *Cloth->GetActorNameOrLabel(), Cache->GetDuration(), CacheSeconds, MasterTime.FloorToFrame().Value);
          }
      }
@@ -126,10 +155,18 @@ index fe89d30..9119812 100644
 +    {
 +        return bDrove;
 +    }
++
++    FFrameTime MotionTime;
++    const UMovieScene* MotionMovieScene = nullptr;
++    if (PreSceneFloatDrives.IsEmpty()
++        || !ResolveMotionTime(Show, MasterTime, MotionTime, MotionMovieScene))
++    {
++        return bDrove;
++    }
 +    for (int32 DriveIndex = 0; DriveIndex < PreSceneFloatDrives.Num(); ++DriveIndex)
 +    {
 +        float Value = 0.0f;
-+        if (!ResolveFloatDriveAtMasterFrame(Show, MasterTime, DriveIndex, Value))
++        if (!EvaluateFloatDriveAtMotionTime(*MotionMovieScene, MotionTime, DriveIndex, Value))
 +        {
 +            continue;
 +        }
@@ -139,6 +176,12 @@ index fe89d30..9119812 100644
 +        if (!Target)
 +        {
 +            WarnOnce(TEXT("NoFloatTarget"), FString::Printf(TEXT("index=%d target=%s"), DriveIndex, *Drive.Target.ToString()));
++            continue;
++        }
++        if (Target->GetWorld() != GetWorld())
++        {
++            WarnOnce(TEXT("ForeignWorldTarget"), FString::Printf(
++                TEXT("index=%d target=%s"), DriveIndex, *Target->GetPathName()));
 +            continue;
 +        }
 +        if (ULightComponent* Light = Cast<ULightComponent>(Target))
@@ -170,7 +213,7 @@ index fe89d30..9119812 100644
  }
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
-index fab2bc7..ff4f860 100644
+index fab2bc7..12e518c 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
 @@ -12,13 +12,40 @@ class UMovieScene;
@@ -246,20 +289,39 @@ index fab2bc7..ff4f860 100644
      /**
       * A time in the parent (Scene) sequence, in its tick resolution, mapped to the
       * sub-section's inner (motion) sequence exactly as the sub-section places it:
+@@ -110,6 +153,13 @@ private:
+         FFrameTime& OutMotionTime,
+         const UMovieScene*& OutMotionScene) const;
+ 
++    /** Evaluate one configured float drive after the shared Master-to-motion mapping is known. */
++    bool EvaluateFloatDriveAtMotionTime(
++        const UMovieScene& MotionScene,
++        FFrameTime MotionTime,
++        int32 DriveIndex,
++        float& OutValue) const;
++
+     /** One warning per failure reason, not one per evaluated frame. */
+     void WarnOnce(const TCHAR* Reason, const FString& Detail) const;
+ 
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
-index d814ed0..4f352d7 100644
+index d814ed0..1ac47a2 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageArrivalTests.cpp
-@@ -3,6 +3,8 @@
+@@ -3,17 +3,24 @@
  #include "InfinityStageShowAsset.h"
  #include "Channels/MovieSceneChannelProxy.h"
  #include "Channels/MovieSceneDoubleChannel.h"
 +#include "Channels/MovieSceneFloatChannel.h"
 +#include "Components/PointLightComponent.h"
  #include "Components/StaticMeshComponent.h"
++#include "Engine/Engine.h"
++#include "Engine/PostProcessVolume.h"
  #include "Engine/StaticMeshActor.h"
  #include "Engine/World.h"
-@@ -12,8 +14,10 @@
++#include "GameFramework/Actor.h"
+ #include "LevelSequence.h"
+ #include "Misc/AutomationTest.h"
+ #include "MovieScene.h"
  #include "MovieSceneGeometryCacheSection.h"
  #include "MovieSceneGeometryCacheTrack.h"
  #include "Sections/MovieScene3DTransformSection.h"
@@ -270,7 +332,7 @@ index d814ed0..4f352d7 100644
  #include "Tracks/MovieSceneSubTrack.h"
  
  #if WITH_DEV_AUTOMATION_TESTS
-@@ -182,6 +186,55 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
+@@ -182,6 +189,143 @@ bool FInfinityStageArrivalTest::RunTest(const FString& Parameters)
      TestTrue(TEXT("Past its section the cloth holds its last sample (the pile), it does not loop"),
          ClothSection->MapTimeToAnimation(CacheSeconds, MotionRate.AsFrameTime(20.0), MotionRate) > CacheSeconds - 0.1f);
  
@@ -280,7 +342,7 @@ index d814ed0..4f352d7 100644
 +    UMovieSceneFloatTrack* IntensityTrack = MotionScene->AddTrack<UMovieSceneFloatTrack>(LightBinding);
 +    IntensityTrack->SetPropertyNameAndPath(TEXT("Intensity"), TEXT("Intensity"));
 +    UMovieSceneFloatSection* IntensitySection = CastChecked<UMovieSceneFloatSection>(IntensityTrack->CreateNewSection());
-+    IntensitySection->SetRange(TRange<FFrameNumber>::All());
++    IntensitySection->SetRange(TRange<FFrameNumber>(FFrameNumber(0), MotionRate.AsFrameTime(5.0).FloorToFrame()));
 +    IntensityTrack->AddSection(*IntensitySection);
 +    FMovieSceneFloatChannel* IntensityChannel = &IntensitySection->GetChannel();
 +    IntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-2.0).FloorToFrame(), 0.0f);
@@ -322,6 +384,94 @@ index d814ed0..4f352d7 100644
 +    Arrival->EvaluateAtMasterFrame(Show, Master(1.0));
 +    TestTrue(TEXT("Editor evaluation leaves the practical's intensity untouched"),
 +        FMath::IsNearlyEqual(Practical->Intensity, 777.0f, 1.0e-6f));
++
++    // When sections are split, prefer the one containing the motion time. If none
++    // contains it, use the earliest section and deliberately evaluate outside its range.
++    UMovieSceneFloatSection* ContainedIntensitySection =
++        CastChecked<UMovieSceneFloatSection>(IntensityTrack->CreateNewSection());
++    ContainedIntensitySection->SetRange(TRange<FFrameNumber>(
++        MotionRate.AsFrameTime(-1.5).FloorToFrame(), MotionRate.AsFrameTime(-0.5).FloorToFrame()));
++    IntensityTrack->AddSection(*ContainedIntensitySection);
++    FMovieSceneFloatChannel* ContainedIntensityChannel = &ContainedIntensitySection->GetChannel();
++    ContainedIntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-1.5).FloorToFrame(), 250.0f);
++    ContainedIntensityChannel->AddLinearKey(MotionRate.AsFrameTime(-0.5).FloorToFrame(), 250.0f);
++    TestTrue(TEXT("A float section containing motion time is preferred"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(1.0), 0, Intensity)
++        && FMath::IsNearlyEqual(Intensity, 250.0f, 1.0e-3f));
++    TestTrue(TEXT("With no containing section the earliest section evaluates out of range"),
++        Arrival->ResolveFloatDriveAtMasterFrame(Show, Master(3.0), 0, Intensity)
++        && FMath::IsNearlyEqual(Intensity, 250.0f, 1.0e-3f));
++
++    const FGuid ExposureBinding = MotionScene->AddPossessable(TEXT("Exposure"), APostProcessVolume::StaticClass());
++    UMovieSceneFloatTrack* BlendWeightTrack = MotionScene->AddTrack<UMovieSceneFloatTrack>(ExposureBinding);
++    BlendWeightTrack->SetPropertyNameAndPath(TEXT("BlendWeight"), TEXT("BlendWeight"));
++    UMovieSceneFloatSection* BlendWeightSection =
++        CastChecked<UMovieSceneFloatSection>(BlendWeightTrack->CreateNewSection());
++    BlendWeightSection->SetRange(TRange<FFrameNumber>(FFrameNumber(0), MotionRate.AsFrameTime(5.0).FloorToFrame()));
++    BlendWeightTrack->AddSection(*BlendWeightSection);
++    FMovieSceneFloatChannel* BlendWeightChannel = &BlendWeightSection->GetChannel();
++    BlendWeightChannel->AddLinearKey(MotionRate.AsFrameTime(-2.0).FloorToFrame(), 0.0f);
++    BlendWeightChannel->AddLinearKey(MotionRate.AsFrameTime(2.0).FloorToFrame(), 1.0f);
++
++    UWorld* GameWorld = UWorld::CreateWorld(EWorldType::Game, false);
++    FWorldContext& GameWorldContext = GEngine->CreateNewWorldContext(EWorldType::Game);
++    GameWorldContext.SetCurrentWorld(GameWorld);
++    AInfinityStageArrival* GameArrival = GameWorld->SpawnActor<AInfinityStageArrival>();
++    GameArrival->SceneCueGuid = SceneCue.CueGuid;
++    GameArrival->MotionSequence = Motion;
++
++    AActor* LightOwner = GameWorld->SpawnActor<AActor>();
++    UPointLightComponent* GamePractical = NewObject<UPointLightComponent>(LightOwner, TEXT("ArrivalPractical"));
++    LightOwner->AddInstanceComponent(GamePractical);
++    GamePractical->RegisterComponent();
++    GamePractical->SetIntensity(777.0f);
++    APostProcessVolume* Exposure = GameWorld->SpawnActor<APostProcessVolume>();
++    Exposure->BlendWeight = 0.9f;
++
++    FInfinityArrivalFloatDrive& GameLightDrive = GameArrival->PreSceneFloatDrives.AddDefaulted_GetRef();
++    GameLightDrive.Target = GamePractical;
++    GameLightDrive.BindingGuid = LightBinding;
++    GameLightDrive.PropertyName = TEXT("Intensity");
++    FInfinityArrivalFloatDrive& GameExposureDrive = GameArrival->PreSceneFloatDrives.AddDefaulted_GetRef();
++    GameExposureDrive.Target = Exposure;
++    GameExposureDrive.BindingGuid = ExposureBinding;
++    GameExposureDrive.PropertyName = TEXT("BlendWeight");
++    FInfinityArrivalFloatDrive& ForeignWorldDrive = GameArrival->PreSceneFloatDrives.AddDefaulted_GetRef();
++    ForeignWorldDrive.Target = Practical;
++    ForeignWorldDrive.BindingGuid = LightBinding;
++    ForeignWorldDrive.PropertyName = TEXT("Intensity");
++
++    TestTrue(TEXT("Fixture is a game world"), GameWorld->IsGameWorld());
++    AddExpectedMessagePlain(TEXT("reason=ForeignWorldTarget"), ELogVerbosity::Warning, EAutomationExpectedMessageFlags::Contains, 1);
++    TestTrue(TEXT("Game-world evaluation writes supported float targets"),
++        GameArrival->EvaluateAtMasterFrame(Show, Master(1.0)));
++    TestTrue(TEXT("Game-world evaluation writes the practical intensity from the containing section"),
++        FMath::IsNearlyEqual(GamePractical->Intensity, 250.0f, 1.0e-3f));
++    TestTrue(TEXT("Game-world evaluation writes the exposure BlendWeight from the channel"),
++        FMath::IsNearlyEqual(Exposure->BlendWeight, 0.25f, 1.0e-3f));
++    TestTrue(TEXT("A target in another world is not written"),
++        FMath::IsNearlyEqual(Practical->Intensity, 777.0f, 1.0e-6f));
++
++    GamePractical->SetIntensity(901.0f);
++    Exposure->BlendWeight = 0.83f;
++    TestFalse(TEXT("At the Scene's first frame the game-world Arrival writes nothing"),
++        GameArrival->EvaluateAtMasterFrame(Show, SceneStart));
++    TestTrue(TEXT("At the Scene's first frame the practical intensity is unchanged"),
++        FMath::IsNearlyEqual(GamePractical->Intensity, 901.0f, 1.0e-6f));
++    TestTrue(TEXT("At the Scene's first frame the exposure BlendWeight is unchanged"),
++        FMath::IsNearlyEqual(Exposure->BlendWeight, 0.83f, 1.0e-6f));
++
++    GamePractical->SetIntensity(902.0f);
++    Exposure->BlendWeight = 0.84f;
++    TestFalse(TEXT("After the Scene starts the game-world Arrival writes nothing"),
++        GameArrival->EvaluateAtMasterFrame(Show, SceneStart + MasterRate.AsFrameTime(1.0)));
++    TestTrue(TEXT("After the Scene starts the practical intensity is unchanged"),
++        FMath::IsNearlyEqual(GamePractical->Intensity, 902.0f, 1.0e-6f));
++    TestTrue(TEXT("After the Scene starts the exposure BlendWeight is unchanged"),
++        FMath::IsNearlyEqual(Exposure->BlendWeight, 0.84f, 1.0e-6f));
++
++    GEngine->DestroyWorldContext(GameWorld);
++    GameWorld->DestroyWorld(false);
 +
      // Placed ahead of its nesting (Scenes 1, 2, 3, 5, 6 on 30 Sep): an Arrival whose motion the
      // Scene does not play declines, leaves its actor alone, and says so exactly once at Display
