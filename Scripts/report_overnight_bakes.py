@@ -156,6 +156,11 @@ def traveller_lines(name, d):
                          for h in hp.get("halves", [])),
              f"- design: stack {d.get('design_stack_width_per_side_m')} m per side, clear opening {d.get('design_clear_opening_m')} m; "
              f"opening {d.get('open_frames', 0) / FPS:.0f} s"]
+    if (d.get("settle_air_damping") or 1.0) != 1.0:
+        # Say it plainly (the Conductor, 30 Sep): a still END here is DAMPED, not a natural settle. A real curtain's
+        # stacks keep some residual life; if Gary wants them alive, TRAVELLER_SETTLE_AIR_DAMPING=1 is the knob.
+        lines.append(f"- **END stillness is DAMPED**, not settled: air damping x{d['settle_air_damping']} from the end of the "
+                     f"opening. Don't compare it with a real curtain's residual life. The knob is TRAVELLER_SETTLE_AIR_DAMPING.")
     for f, cp in sorted(d["checkpoints"].items(), key=lambda kv: int(kv[0])):
         t = cp["traveller"]
         lines.append(f"- frame {f}: clear opening {t['clear_opening_all_m']} m; stacks L {t['left']['width_m']} x "
