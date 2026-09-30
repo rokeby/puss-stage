@@ -96,6 +96,8 @@ COLLIDERS = os.environ.get("COLLIDERS", "")
 # curtain ends up wrapped round a post (29 Sep smoke test). Posts are parked 40 m below until POSTS_FROM (the start of
 # the show window), by which time the gathered curtain hangs inside them. A moving collider is not a data change.
 POSTS_FROM = int(os.environ.get("POSTS_FROM", "0"))
+# Frames BEFORE SHOW_START over which stillness is also measured (to see the settle converge).
+SETTLE_PROBE = int(os.environ.get("SETTLE_PROBE", "60"))
 # Rig's limits apply to the frames the SHOW uses (the export window), not the setup gather.
 SHOW_START = int(os.environ.get("SHOW_START", "0"))   # first exported frame (e.g. 1 s before the release): the show needs the hang + fall only
 CLIP_STEP = int(os.environ.get("CLIP_STEP", "0"))   # >0: also render the fall every N frames, 3/4 and side, for a clip
@@ -483,6 +485,17 @@ def main():
         t0 = time.perf_counter()
         scene.frame_set(f)
         report["frame_seconds"].append(round(time.perf_counter() - t0, 3))
+        if SHOW_START and SHOW_START - SETTLE_PROBE <= f < RELEASE_FRAME:
+            # STILLNESS (30 Sep, Gary: the Opening drape was "weirdly bouncy and gathered a bit inwards at the top when it
+            # should really be still"). final2 was exported 2.6 s after the gather, mid-swing: the hem moved 24 cm and
+            # the cloth spread 55 cm a side before release. Measure the largest per-frame vertex move over the window
+            # the audience sees before release (and a probe before it), so "at rest" is a number, not a judgement.
+            co_s = world_coords(obj)
+            prev = report.pop("_still_prev", None)
+            if prev is not None:
+                move = max((a_ - b_).length for a_, b_ in zip(co_s, prev))
+                report.setdefault("still_mm", []).append([f, round(move * 1000, 2)])
+            report["_still_prev"] = co_s
         if f > max(GATHER_FRAMES + 1, SHOW_START):
             # Rig's limits apply to the FURTHEST vertex in ANY frame of the hang and fall, not the settled pile
             # ("a cloth that billows through a post mid-fall is as broken as one that settles through it").
@@ -554,6 +567,11 @@ def main():
         # subdivision + solidify: ~16x the geometry, 5.5 GB for one take (28 Sep). Unreal adds its own material.
         bpy.ops.wm.alembic_export(filepath=str(OUT_DIR / f"{DROP_ID}.abc"), start=ABC_START, end=FRAMES, selected=True,
                                   uvs=True, normals=True, face_sets=True, apply_subdiv=False, evaluation_mode="VIEWPORT")
+    report.pop("_still_prev", None)
+    if report.get("still_mm"):
+        window = [m for f_, m in report["still_mm"] if f_ >= SHOW_START]
+        report["still_window_max_mm"] = max(window) if window else None
+        report["still_window_mean_mm"] = round(sum(window) / len(window), 2) if window else None
     (OUT_DIR / f"{DROP_ID}.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"CURTAIN_DROP_BAKE_DONE|{DROP_ID}|released={report['released']}|final={json.dumps(final)}"
           f"|hang_depth={report['hang_depth_m']}|solve_s={report['solve_seconds_total']}")
