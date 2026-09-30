@@ -43,4 +43,18 @@ Key project rules:
 - Use the guarded loopback project-Python MCP route as the standard no-UI authoring transport for now: toolset `MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset`, tool `ExecuteProjectPythonFile`, with scripts restricted to project `Saved/`. Prefer a narrower semantic MCP tool when one directly supports the operation. Epic Remote Python discovery and the macOS desktop executor are fallbacks documented in the runbook; desktop-driven execution is last resort.
 - Always verify saved state by reading it back from Unreal and checking an explicit success marker in the Unreal log.
 - The GO1 is treated as read-only infrastructure: no `sudo`, no installs, nothing written outside `~/go1_bridge/`, and no command that could move the robot. Keep the dog prone and the handheld remote with the operator when testing.
+- **Mark your own uncertainty, where a reader can check it.** Every report,
+  audit or investigation must separate what it PROVED from what it INFERRED, and
+  say which is which per claim, not once at the top. Use these tiers:
+  **declaration-proven** (stated by a header, signature or config we can read),
+  **binary-proven** (recovered from an installed DLL's symbols or strings, which
+  carry more than the headers do), **measured** (an intervention was run and its
+  result read back), **inferred** (a conclusion that could not be verified, and
+  why). A verdict of UNCLEAR, naming exactly what was searched, is a **better**
+  answer than a confident guess, and a report that names what it found nothing in
+  is worth more than one that only lists hits. Cite `file:line` for anything
+  claimed to exist. **Reject any agent output that does not do this, whatever it
+  claims to have found** — an unmarked report costs more to verify than to redo.
+  — adopted 30 Sep 2026, after six delegated runs in which this property alone
+  separated the usable results from the unusable ones.
 - All newly generated production Wing FBXs must use the V2 profile in `Docs/WingGenerationConventions.md`: final source handedness before derived maps, explicit 10 cm thickness, Base/alpha plus `_H` height and `_N` normal textures with a relief preview, Front/Back/Edge slots, and a clean FBX re-import validation. The pipeline's 5 cm default is legacy and must not be used implicitly for new production Wings.

@@ -52,3 +52,6 @@ Saved/Codex*/**
 *.sln
 Thumbs.db
 .DS_Store
+
+# Codex run logs and ledger are transcripts, not source.
+Saved/CodexRuns/

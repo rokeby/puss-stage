@@ -35,11 +35,12 @@ fi
 REPO="E:\PussStage"
 SANDBOX="read-only"
 MODE=""
+LABEL="read-only"
 EXTRA=()
 
 case "${1:-}" in
-  --write)    SANDBOX="workspace-write"; shift ;;
-  --worktree) SANDBOX="workspace-write"; MODE="--worktree"; shift ;;
+  --write)    SANDBOX="workspace-write"; LABEL="write"; shift ;;
+  --worktree) SANDBOX="workspace-write"; MODE="--worktree"; LABEL="worktree"; shift ;;
   --unreal)
     # Two things are needed to reach the editor, and both are non-obvious.
     #
@@ -55,7 +56,7 @@ case "${1:-}" in
     # client, and `python Saved/CodexMocap/mcp_request.py`, which is the path every
     # Claude stream uses and which leaves a request JSON on disk for review.
     # Prefer the shell route for anything you may need to audit afterwards.
-    SANDBOX=""
+    SANDBOX=""; LABEL="unreal"
     EXTRA+=(--approve-for-me -c sandbox_workspace_write.network_access=true)
     shift ;;
   --review)   shift; exec "$EXE" exec review -C "$REPO" "$@" < /dev/null ;;
@@ -73,11 +74,34 @@ fi
 # producing nothing, while looking exactly like a slow run from outside.
 STAMP="$(date +%Y%m%d-%H%M%S)"
 OUTDIR="Saved/CodexRuns"
+LEDGER="$OUTDIR/ledger.tsv"
 mkdir -p "$OUTDIR"
 LAST="$OUTDIR/last-message-$STAMP.txt"
+[ -f "$LEDGER" ] || printf 'started	label	seconds	exit	bytes	capacity	last_message	prompt
+' > "$LEDGER"
 
 echo "codex $( "$EXE" --version 2>/dev/null )  |  sandbox=${SANDBOX:-approve-for-me}  |  cwd=$REPO" >&2
 echo "final message -> $LAST" >&2
 
-exec "$EXE" exec -C "$REPO" ${SANDBOX:+-s "$SANDBOX"} ${MODE:+$MODE} \
+# NOT exec: the run is timed and recorded. Monitoring belongs in the instrument
+# rather than in whoever remembers to write it down -- reliability data that
+# depends on being remembered is the data you do not have when you need it.
+T0=$(date +%s)
+set +e
+"$EXE" exec -C "$REPO" ${SANDBOX:+-s "$SANDBOX"} ${MODE:+$MODE} \
   "${EXTRA[@]+"${EXTRA[@]}"}" -o "$LAST" "$@" < /dev/null
+RC=$?
+set -e
+T1=$(date +%s)
+
+BYTES=0; [ -f "$LAST" ] && BYTES=$(wc -c < "$LAST" | tr -d ' ')
+# A real capacity failure is Codex refusing, which leaves NO final message.
+# Grepping a transcript for the phrase gives false positives, because agents read
+# this project's own documentation ABOUT capacity failures. That cost an hour.
+CAP=no; { [ "$RC" -ne 0 ] || [ "$BYTES" -eq 0 ]; } && CAP=suspect
+printf '%s	%s	%s	%s	%s	%s	%s	%s
+' "$STAMP" "$LABEL" "$((T1-T0))" "$RC" "$BYTES" "$CAP" "$LAST" "$(printf '%s' "$1" | tr -d '	
+' | cut -c1-120)" >> "$LEDGER"
+
+[ "$BYTES" -eq 0 ] && echo "WARNING: no final message written -- the run produced nothing." >&2
+exit "$RC"
