@@ -792,3 +792,12 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - Capture census (GameplayStatics, transient included): 0 now.
   - P03 floor brightness under the scene light: 33 → 7 (−78%), wet ground → oak
     (`Captures/P03_Floor_BeforeAfter.png`).
+- **Verification trap: a stale log line.** My first post-nest check on S3 reported "declined" because `tail -1` read
+  the line from BEFORE the nest; the live recheck said nested and seamless. A check that reads an old log line only
+  checks the past. Parse by the marker, and give new probes a run id in every marker (`grass_pie_probe.py` does).
+- **The grass question needs PIE.** `Saved/CodexStructure/grass_pie_probe.py` (outcomes pre-registered in its
+  docstring) rides with someone else's PIE run: mode `p02`, then mode `control` at the same camera. The `control`
+  un-hides only the PIE copies and re-hides them at the end.
+  - Hidden instances > 0: the delete is the repair for Gary's P02 load complaint.
+  - 0 with control > 0: the hide already fixed it.
+  - 0 and 0: inconclusive.
