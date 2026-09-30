@@ -29,12 +29,26 @@ darkness before you arrive at it. C is the compromise and reads as neither.
 **You have the picture** (`EarlyVsAuthored_forGary.png`), now with a measurement
 on it.
 
-**Recommendation: early release — unless the ghost-light answer below rescues the
-hold.** Not on taste, on a number: peering over the lip during the authored hold
-finds **black** (p99 of 2) at the +3 s angle, and glow only by +9.5 s. You made
-Scene 4 Dog Gaze, so the look-down is live — and roughly nine of the hold's twelve
-seconds have nothing lit to find. Early release arrives into a glowing, nearly
-landed box in 4 s with the rise hidden behind the cloth while you walk.
+**RECOMMENDATION CHANGED AT 08:00, AND I WANT THE CHANGE ON THE RECORD.** An hour
+ago I recommended early release, because the authored hold measured **black** —
+p99 of 2 at the +3 s angle, with glow only by +9.5 s, and you made Scene 4 Dog
+Gaze so the look-down is live. Roughly nine of the hold's twelve seconds had
+nothing lit to find. That was a fair reading of the evidence then.
+
+**A measurement since has rescued the authored option, so I now recommend
+AUTHORED PLUS THE LATTICE GLOW FADING UP FROM THE CUT.** Reason: it is what your
+own words asked for. *"Keep the new box virtually unlit, only lit via an exit-sign
+style light when we enter, before pinging the lights on when we're ready, in a
+dramatic way."* The authored hold with the lattice lit IS that — you arrive into a
+dark pit with the machine's own rigging glowing above you, and then the strike.
+Early release deletes the dark hold entirely and arrives into a nearly landed,
+already glowing box, which is a good image but a different one, and further from
+the Tier 2 note you have repeated all week about wanting to feel **inside a big
+machine** rather than in a wide dusky space.
+
+**Early release remains a real option** and the sheet still shows it honestly: it
+arrives in 4 s with the rise hidden behind the cloth while you walk, and it has no
+dark-hold problem to solve because the rise is the thing you watch.
 
 **ANSWERED 07:45 — the ghost light cannot rescue the hold. It is OCCLUDED by the
 box's own floor.** The stop sits 471 cm below the floor plane at the cut and only
@@ -53,14 +67,24 @@ into the P04 approach, and that leak was a rest-state problem, so **a fade start
 AT the cut would light the hold without reopening it.** One measurement is in
 flight: whether 20 cd on 9–12 bulbs actually reads at the show's exposure.
 
-**So this may become a choice between two live options rather than one.** If the
-lattice reads, the authored hold is fixable by a timing change to an element
-already there — and then the question is genuinely about taste: the rise as the
-thing you watch, or a dark hold with the machine's own rigging glowing above you.
-**What is lit at the cut is a look decision and has deliberately not been changed.**
-If it does not read, the authored hold needs a new element — a raking light on the
-floor's underside from the lip, or light into the pit beyond the open side — and
-that is yours to want or not.
+**MEASURED 08:00 — THE LATTICE READS, CLEARLY, AND YOU HAVE THE PICTURE**
+(`LatticeGlow_forGary.png`). Benched by scrubbing the scene to +3 s so Rig's own
+keys posed the box, not a hand pose — the root read −66.39° against −66.5°
+expected, so the measurement is of the thing that will actually run.
+
+| At +3 s, −15° look-down | p99 | Pixels above 40 |
+| --- | --- | --- |
+| Glow as keyed (0 cd) | **1** | 434, bulb meshes only |
+| Glow at 20 cd | **112** | **59,900** (24,400 above 100) |
+
+At −25° it still gives p99 44 with one row in frame. What reads is two rows of
+three bulbs, each with a warm halo on the structure beside it: **the lattice
+becomes a lit object in the pit rather than points in a void.**
+
+**So the choice is now genuinely about taste, not about a dead option.** No new
+lamp is needed — the fix is a timing change to an element already in frame, and
+the fade curve and level are Rig's once you say yes. **Nothing has been changed:
+what is lit at the cut is a look decision and it is yours.**
 
 **Unblocks:** the same held re-key, and every scene's rise start.
 
