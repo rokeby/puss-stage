@@ -534,3 +534,19 @@ but no longer referenced.
   The last two are approved but queued behind the transition focus.
 - **Still Gary's:** exposure option A/B/C, lattice glow brightness (20 cd), haze, and
   S5's scale.
+- **Later that night:**
+  - **Grooves are now 16 cm on all six floors** (revert: `groove_width_apply.py` with
+    `GROOVE_WIDTH_REVERT`).
+    - From eye height and in the rhythm view, 0.05% of pixels changed: the slots sit
+      150 cm inboard, under the wings. The legibility lever is **SlotInboardCm**, not
+      the width.
+  - **P01 shadow pass: casters 338 → 99** (P04/P06 rule: keys Entry Top and Entry Fwd +Y
+    keep their shadows). Revert: `p01_shadow_revert.py`.
+    - Exempt: the Wing 041 blink spot and the house spots.
+    - The look is held at the show's exposure. Frame rate is not yet measured.
+  - **Lighting now scales with hangar size** (rails, bulbs, glow within a budget,
+    uplights). S5 was rebuilt and reads.
+  - **Structure 04 ApronCm is now 420**: the P04 boards meet the hangar apron, for the
+    backcloth bake.
+  - **`p04_arrival_apply.py` is ready** (dry run: release −3.574 s, rise 19.57 s, landing
+    at 16 s). It needs patch G built.
