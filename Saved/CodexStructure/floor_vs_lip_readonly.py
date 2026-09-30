@@ -48,7 +48,8 @@ def main():
                 continue
             hits.append({"label": a.get_actor_label(), "min_x_cm": round(lo_x, 1), "max_x_cm": round(hi_x, 1), "top_z_cm": round(top, 2),
                          "buries_fascia": bool(lo_x < lip - 1.0 and top > -120.0)})
-        rows[f"P0{n}"] = {"lip_x_cm": lip, "stage_front": bool(portal.get_editor_property("stage_front")),
+        house = {k: float(portal.get_editor_property(k)) for k in ("house_floor_depth_cm", "house_floor_downstage_cm", "house_floor_half_width_cm", "mouth_half_width_cm")}
+        rows[f"P0{n}"] = {"lip_x_cm": lip, "house": house, "stage_front": bool(portal.get_editor_property("stage_front")),
                           "ground_on": bool(s.get_editor_property("ground").get_editor_property("enabled")), "floors": hits}
     with open(os.path.join(HERE, f"floor_vs_lip_{run}.json"), "w", encoding="utf-8") as fh:
         json.dump(rows, fh, indent=1)
