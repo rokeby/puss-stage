@@ -1,5 +1,5 @@
 {
- "source": "30 Sep 17:39: practicals/glow = s4_arrival_light_record.json 'after'; others = s4_rise_inspect_173943.json (read from the saved asset)",
+ "source": "30 Sep 17:39: practicals/glow = s4_arrival_light_record.json 'after'; others = s4_rise_inspect_173943.json (read from the saved asset); uplights = the distinct key sets with a 10000 value in the inspection (per-label mapping not recorded)",
  "intensity": {
   "S4 Lattice Glow 1-1": [
    [
@@ -431,14 +431,46 @@
   ]
  },
  "uplights": {
-  "S4 Uplight 1": [
+  "uplight key set 1 (label not recorded)": [
    [
     0.0,
     0.0
    ],
    [
-    2.0,
-    20.0
+    18.0,
+    0.0
+   ],
+   [
+    18.2,
+    10000.0
+   ]
+  ],
+  "uplight key set 2 (label not recorded)": [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    18.133,
+    0.0
+   ],
+   [
+    18.333,
+    10000.0
+   ]
+  ],
+  "uplight key set 3 (label not recorded)": [
+   [
+    0.0,
+    0.0
+   ],
+   [
+    18.3,
+    0.0
+   ],
+   [
+    18.5,
+    10000.0
    ]
   ]
  },
