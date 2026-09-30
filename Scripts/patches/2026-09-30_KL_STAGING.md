@@ -127,3 +127,16 @@ drafted). That is Q's owner's to regenerate. S and Q share no files.
      L. L v2's fixture uses `SetRange(TRange(24000, 120000))`.
 - Expected on a stage-1 re-run of L v2: the registered reds, plus the three product +1 reds above, and
   nothing else.
+
+## M and R are SUPERSEDED by MR (`2026-09-30_MR_bob_roll_and_walk_weight.patch`); their files are removed
+
+The adversarial review (30 Sep evening) found M and R used WORLD time for Master-time behaviour: a pause
+re-primed R, so the bob popped off on resume, and a reverse or jump didn't re-prime. It also found M centred
+R's already-weighted lift, so a fade invented roll. MR is one patch:
+- `StepGaitBob`, driven by MASTER-time deltas: re-prime on reverse or a jump over 0.5 s; the same frame is a
+  pure read; a pause is invisible.
+- height = W x raw lift; roll = W x (raw - mean(raw)) x k.
+- The speed is updated BEFORE the sample, so no stale weight.
+- Test: `InfinityStage.ShadowCat.GaitBobMasterTimed`, with each defect visible (pause, reverse, repeat,
+  contention).
+Apply whole in stage 2. It applies alone and with K, L, N, O, P and S (measured).

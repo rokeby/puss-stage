@@ -1,0 +1,363 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+index 43e9506..e8a2aa3 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+@@ -343,13 +343,33 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+     {
+         return false;
+     }
+-    // Gait bob: the cat's pose from the previous tick lifts this frame's camera.
+-    // The lift is applied on top of the authored camera state, never written back.
+-    CurrentShadowCatCameraBobCm = SampleShadowCatGaitLiftCm();
++    // Establish this master frame's speed before sampling or applying its gait
++    // lift, so no weight can leak in from a previous play of this rig.
++    UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform, *Passage);
++    const FFrameRate& TickResolution = PassageActor->ShowAsset->TickResolution;
++    const double TickRate = TickResolution.IsValid() ? TickResolution.AsDecimal() : 0.0;
++    const double MasterSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
++        ? static_cast<double>(MasterFrame.Value) / TickRate
++        : 0.0;
++    const double RawLiftCm = SampleShadowCatGaitLiftCm();
++    const FInfinityGaitBob GaitBob = StepGaitBob(
++        ShadowCatGaitBobState,
++        MasterSeconds,
++        RawLiftCm,
++        CurrentShadowCatCameraSpeedCmPerSecond,
++        ShadowCatReferenceWalkSpeedCmPerSecond,
++        ShadowCatCameraBobRollMeanSeconds,
++        ShadowCatBobFadeSeconds,
++        ShadowCatCameraBobRollDegreesPerCm);
++    CurrentShadowCatBobWalkWeight = ShadowCatGaitBobState.WalkWeight;
++    CurrentShadowCatCameraBobCm = GaitBob.HeightCm;
+     if (!FMath::IsNearlyZero(CurrentShadowCatCameraBobCm))
+     {
+         CameraTransform.AddToTranslation(FVector(0.0, 0.0, CurrentShadowCatCameraBobCm));
+-        const FQuat Roll = FRotator(0.0, 0.0, CurrentShadowCatCameraBobCm * ShadowCatCameraBobRollDegreesPerCm).Quaternion();
++    }
++    if (!FMath::IsNearlyZero(GaitBob.RollDeg))
++    {
++        const FQuat Roll = FRotator(0.0, 0.0, GaitBob.RollDeg).Quaternion();
+         CameraTransform.SetRotation((CameraTransform.GetRotation() * Roll).GetNormalized());
+     }
+ 
+@@ -369,8 +389,6 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+         ShadowFigureRoot->SetWorldRotation(FRotator(0.0, CameraRotation.Yaw, 0.0));
+     }
+ 
+-    UpdateShadowCatAtMasterFrame(MasterFrame, CameraTransform, *Passage);
+-
+     PassageActor->EvaluateMechanismsAtCameraDistance(MasterFrame, CameraEvaluation.DistanceCm);
+     return true;
+ }
+@@ -518,6 +536,54 @@ void AInfinityStageCameraRig::UpdateShadowCatAtMasterFrame(
+     }
+ }
+ 
++FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
++    FInfinityGaitBobState& State,
++    const double MasterSeconds,
++    const double RawLiftCm,
++    const double SpeedCmPerSecond,
++    const double ReferenceSpeed,
++    const double RollMeanSeconds,
++    const double FadeSeconds,
++    const double RollDegPerCm,
++    const double MaxGapSeconds)
++{
++    const double DeltaSeconds = MasterSeconds - State.LastMasterSeconds;
++    if (!State.bPrimed || DeltaSeconds < 0.0 || DeltaSeconds > MaxGapSeconds)
++    {
++        State.bPrimed = true;
++        State.LastMasterSeconds = MasterSeconds;
++        State.LiftMeanCm = RawLiftCm;
++        State.WalkWeight = 0.0;
++        return FInfinityGaitBob{};
++    }
++
++    if (DeltaSeconds == 0.0)
++    {
++        return {
++            State.WalkWeight * RawLiftCm,
++            State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
++    }
++
++    State.LastMasterSeconds = MasterSeconds;
++    const double MeanAlpha = RollMeanSeconds > UE_DOUBLE_SMALL_NUMBER
++        ? 1.0 - FMath::Exp(-DeltaSeconds / RollMeanSeconds)
++        : 1.0;
++    State.LiftMeanCm += (RawLiftCm - State.LiftMeanCm) * MeanAlpha;
++
++    const double TargetWeight = FMath::Clamp(
++        SpeedCmPerSecond / FMath::Max(1.0, ReferenceSpeed),
++        0.0,
++        1.0);
++    const double WeightAlpha = FadeSeconds > UE_DOUBLE_SMALL_NUMBER
++        ? 1.0 - FMath::Exp(-DeltaSeconds / FadeSeconds)
++        : 1.0;
++    State.WalkWeight += (TargetWeight - State.WalkWeight) * WeightAlpha;
++
++    return {
++        State.WalkWeight * RawLiftCm,
++        State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
++}
++
+ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+ {
+     if (!bShadowCatCameraBob || !bEnableShadowCat || ShadowCatCameraBobGain <= 0.0 || !ShadowCat)
+@@ -543,8 +609,9 @@ double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
+         return 0.0;
+     }
+ 
+-    // Rest height comes from the reference pose, so the lift is zero-centred
+-    // regardless of which clip is playing and needs no running average.
++    // Rest height comes from the reference (bind) pose. That is not the walk's
++    // mean: a walking cat sits lower, so the raw lift can stay biased negative.
++    // Height keeps that bias; StepGaitBob centres only the roll on the raw mean.
+     TArray<FTransform> RestComponentSpace;
+     FAnimationRuntime::FillUpComponentSpaceTransforms(RefSkeleton, RefSkeleton.GetRefBonePose(), RestComponentSpace);
+     if (!RestComponentSpace.IsValidIndex(BoneIndex))
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+index 8301ade..d7ec2de 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+@@ -13,6 +13,20 @@ class UInfinityStageShadowCatComponent;
+ struct FInfinityCompiledPassage;
+ struct FInfinityPassageCameraEvaluation;
+ 
++struct FInfinityGaitBobState
++{
++    bool bPrimed = false;
++    double LastMasterSeconds = 0.0;
++    double LiftMeanCm = 0.0;
++    double WalkWeight = 0.0;
++};
++
++struct FInfinityGaitBob
++{
++    double HeightCm = 0.0;
++    double RollDeg = 0.0;
++};
++
+ UCLASS(BlueprintType)
+ class INFINITYSTAGE_API AInfinityStageCameraRig : public AActor
+ {
+@@ -113,6 +127,15 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "1.0", Units = "cm/s"))
+     double ShadowCatReferenceWalkSpeedCmPerSecond = 250.0;
+ 
++    /** Time constant for fading the whole gait bob with walking speed. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
++        meta = (ClampMin = "0.05", Units = "s", EditCondition = "bShadowCatCameraBob"))
++    double ShadowCatBobFadeSeconds = 0.5;
++
++    /** Smoothed share of the reference walk speed applied to this master frame's gait bob. */
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat|Camera Bob")
++    double CurrentShadowCatBobWalkWeight = 0.0;
++
+     /** Fine adjustment applied after converting camera speed to animation play rate. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Animation", meta = (ClampMin = "0.0", UIMax = "2.0"))
+     double ShadowCatAnimationSpeedMultiplier = 0.6;
+@@ -137,11 +160,32 @@ public:
+         meta = (ClampMin = "0.0", UIMax = "3.0", EditCondition = "bShadowCatCameraBob"))
+     double ShadowCatCameraBobGain = 1.0;
+ 
+-    /** Small roll coupled to the lift so the bob reads as a body, not an elevator. Degrees per centimetre of lift. */
++    /** Small roll coupled to the lift's deviation from its running mean. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
+         meta = (UIMin = "-1.0", UIMax = "1.0", EditCondition = "bShadowCatCameraBob"))
+     double ShadowCatCameraBobRollDegreesPerCm = 0.12;
+ 
++    /** Time constant of the raw gait lift's running mean used to centre the roll. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
++        meta = (ClampMin = "0.05", UIMax = "5.0", Units = "s", EditCondition = "bShadowCatCameraBob"))
++    double ShadowCatCameraBobRollMeanSeconds = 1.0;
++
++    /**
++     * Advances the master-timed gait state and returns the camera offsets for
++     * this sample. The first sample, reverse, or a forward jump re-primes at the
++     * raw lift with zero weight. Re-evaluating the same master time is read-only.
++     */
++    static FInfinityGaitBob StepGaitBob(
++        FInfinityGaitBobState& State,
++        double MasterSeconds,
++        double RawLiftCm,
++        double SpeedCmPerSecond,
++        double ReferenceSpeed,
++        double RollMeanSeconds,
++        double FadeSeconds,
++        double RollDegPerCm,
++        double MaxGapSeconds = 0.5);
++
+     /** Bone whose height carries the gait. AnimX cats have no pelvis; Spine sits over the hips. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
+         meta = (EditCondition = "bShadowCatCameraBob"))
+@@ -232,6 +276,7 @@ private:
+     double SampleShadowCatGaitLiftCm() const;
+ 
+     bool bShadowCatBobReported = false;
++    FInfinityGaitBobState ShadowCatGaitBobState;
+ 
+     bool GetCameraStateAtMasterFrame(
+         FFrameNumber MasterFrame,
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp
+new file mode 100644
+index 0000000..27c23ad
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGaitBobTests.cpp
+@@ -0,0 +1,156 @@
++#include "InfinityStageCameraRig.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageGaitBobMasterTimedTest,
++    "InfinityStage.ShadowCat.GaitBobMasterTimed",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageGaitBobMasterTimedTest::RunTest(const FString& Parameters)
++{
++    constexpr double FrameSeconds = 1.0 / 25.0;
++    constexpr double ReferenceSpeed = 250.0;
++    constexpr double RollMeanSeconds = 1.0;
++    constexpr double FadeSeconds = 0.5;
++    constexpr double RollDegPerCm = 0.12;
++
++    // (a) A biased constant lift remains as height but converges to no roll.
++    {
++        FInfinityGaitBobState State;
++        FInfinityGaitBob Bob = AInfinityStageCameraRig::StepGaitBob(
++            State, 0.0, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        TestEqual(TEXT("The first sample returns zero height"), Bob.HeightCm, 0.0);
++        TestEqual(TEXT("The first sample returns zero roll"), Bob.RollDeg, 0.0);
++        for (int32 Frame = 1; Frame <= 250; ++Frame)
++        {
++            Bob = AInfinityStageCameraRig::StepGaitBob(
++                State, Frame * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
++                RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        }
++        TestEqual(TEXT("Walking weight converges to the full -15 cm height"), Bob.HeightCm, -15.0, 0.001);
++        TestTrue(TEXT("A constant biased raw lift converges to zero roll"), FMath::Abs(Bob.RollDeg) < 1.0e-9);
++    }
++
++    // (b) Wall time is absent from the state. After a pause with no evaluations,
++    // the next contiguous master frame is identical to uninterrupted playback.
++    {
++        FInfinityGaitBobState BeforePause;
++        AInfinityStageCameraRig::StepGaitBob(
++            BeforePause, 0.0, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        for (int32 Frame = 1; Frame <= 20; ++Frame)
++        {
++            AInfinityStageCameraRig::StepGaitBob(
++                BeforePause, Frame * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
++                RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        }
++        FInfinityGaitBobState Paused = BeforePause;
++        FInfinityGaitBobState Uninterrupted = BeforePause;
++        const double WeightBeforePause = Paused.WalkWeight;
++        AInfinityStageCameraRig::StepGaitBob(
++            Paused, 20.0 * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        TestEqual(TEXT("A held master frame does not change weight across a wall-time pause"),
++            Paused.WalkWeight, WeightBeforePause);
++        const FInfinityGaitBob AfterPause = AInfinityStageCameraRig::StepGaitBob(
++            Paused, 21.0 * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        const FInfinityGaitBob WithoutPause = AInfinityStageCameraRig::StepGaitBob(
++            Uninterrupted, 21.0 * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        TestEqual(TEXT("A pause does not re-prime the walk weight"), Paused.WalkWeight, Uninterrupted.WalkWeight);
++        TestEqual(TEXT("A pause resumes with the uninterrupted height"), AfterPause.HeightCm, WithoutPause.HeightCm);
++        TestTrue(TEXT("The resumed weight remains non-zero"), Paused.WalkWeight > 0.5);
++    }
++
++    // (c) Reverse master time re-primes both filters and suppresses this sample.
++    {
++        FInfinityGaitBobState State;
++        AInfinityStageCameraRig::StepGaitBob(
++            State, 1.0, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        AInfinityStageCameraRig::StepGaitBob(
++            State, 1.0 + FrameSeconds, -10.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        const FInfinityGaitBob Reversed = AInfinityStageCameraRig::StepGaitBob(
++            State, 0.5, -7.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        TestEqual(TEXT("Reverse re-primes the weight to zero"), State.WalkWeight, 0.0);
++        TestEqual(TEXT("Reverse re-primes the mean on the raw lift"), State.LiftMeanCm, -7.0);
++        TestEqual(TEXT("Reverse returns zero height"), Reversed.HeightCm, 0.0);
++        TestEqual(TEXT("Reverse returns zero roll"), Reversed.RollDeg, 0.0);
++    }
++
++    // (d) The same master frame is a pure read: state and output repeat exactly.
++    {
++        FInfinityGaitBobState State;
++        AInfinityStageCameraRig::StepGaitBob(
++            State, 2.0, -15.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        const FInfinityGaitBob First = AInfinityStageCameraRig::StepGaitBob(
++            State, 2.0 + FrameSeconds, -11.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        const FInfinityGaitBobState BeforeRepeat = State;
++        const FInfinityGaitBob Repeated = AInfinityStageCameraRig::StepGaitBob(
++            State, 2.0 + FrameSeconds, -11.0, ReferenceSpeed, ReferenceSpeed,
++            RollMeanSeconds, FadeSeconds, RollDegPerCm);
++        TestEqual(TEXT("Repeat leaves last master seconds unchanged"), State.LastMasterSeconds, BeforeRepeat.LastMasterSeconds);
++        TestEqual(TEXT("Repeat leaves the lift mean unchanged"), State.LiftMeanCm, BeforeRepeat.LiftMeanCm);
++        TestEqual(TEXT("Repeat leaves the walk weight unchanged"), State.WalkWeight, BeforeRepeat.WalkWeight);
++        TestEqual(TEXT("Repeat returns identical height"), Repeated.HeightCm, First.HeightCm);
++        TestEqual(TEXT("Repeat returns identical roll"), Repeated.RollDeg, First.RollDeg);
++    }
++
++    // (e) The raw mean is independent of the fade. Under the old weighted-lift
++    // formula, at the W=0.5 fade midpoint the lagging mean produced about -0.75
++    // degrees of roll for this -15 cm input; the raw-centred formula stays at 0.
++    {
++        FInfinityGaitBobState State;
++        double MaxAbsRoll = 0.0;
++        for (int32 Frame = 0; Frame <= 100; ++Frame)
++        {
++            const FInfinityGaitBob Bob = AInfinityStageCameraRig::StepGaitBob(
++                State, Frame * FrameSeconds, -15.0, ReferenceSpeed, ReferenceSpeed,
++                RollMeanSeconds, FadeSeconds, RollDegPerCm);
++            MaxAbsRoll = FMath::Max(MaxAbsRoll, FMath::Abs(Bob.RollDeg));
++        }
++        TestTrue(TEXT("Fade contention never invents roll from a constant raw lift"), MaxAbsRoll < 0.05);
++    }
++
++    // (f) At full weight, a -15 +/- 8 cm gait rolls both ways and averages near zero.
++    {
++        FInfinityGaitBobState State;
++        State.bPrimed = true;
++        State.LastMasterSeconds = 0.0;
++        State.LiftMeanCm = -15.0;
++        State.WalkWeight = 1.0;
++        double MinRoll = 0.0;
++        double MaxRoll = 0.0;
++        double RollSum = 0.0;
++        int32 Samples = 0;
++        for (int32 Frame = 1; Frame <= 500; ++Frame)
++        {
++            const double Seconds = Frame * FrameSeconds;
++            const double RawLiftCm = -15.0 + 8.0 * FMath::Sin(2.0 * UE_DOUBLE_PI * Seconds / 0.8);
++            const FInfinityGaitBob Bob = AInfinityStageCameraRig::StepGaitBob(
++                State, Seconds, RawLiftCm, ReferenceSpeed, ReferenceSpeed,
++                RollMeanSeconds, FadeSeconds, RollDegPerCm);
++            if (Frame > 300)
++            {
++                MinRoll = FMath::Min(MinRoll, Bob.RollDeg);
++                MaxRoll = FMath::Max(MaxRoll, Bob.RollDeg);
++                RollSum += Bob.RollDeg;
++                ++Samples;
++            }
++        }
++        TestTrue(TEXT("A biased oscillating gait rolls to both sides"), MinRoll < -0.5 && MaxRoll > 0.5);
++        TestTrue(TEXT("A biased oscillating gait averages near zero roll"), FMath::Abs(RollSum / Samples) < 0.02);
++    }
++
++    return true;
++}
++
++#endif
