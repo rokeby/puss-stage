@@ -26,6 +26,27 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## 30 Sep (13:00): final9 and final10 judged; a prediction for final13/14 registered BEFORE they land
+
+final9 and final10 are 17.77 m test pieces, so both fail coverage (0.615 m to each post). The deliverable pair is
+final13/final14 at 18.8 m. Both used the same recipe: pleated_switch at amount 0.6, hem guide 0.7, release at frame 480.
+
+| bake | at-rest window max (mean), mm/frame | under 2 mm from | hang | verdict |
+|---|---|---|---|---|
+| final9 (standard) | **2.02** (1.39) | 13.0 s | bulge/flare 1.00, folds kept | FAIL (still by 0.02, coverage) |
+| final10 (dense) | **6.93** (5.59) | never | bulge 1.00, folds kept 1.0/0.97 | FAIL (still, coverage) |
+| final11 (P04, for reference) | 1.59 (1.25) | 10.7 s | | PASS |
+
+The dense cloth hangs perfectly but never settles. It moves at 14–16 mm/frame through the whole pre-release run.
+
+**Registered at 12:56, sent to the Conductor, before either landed:**
+- final13 (standard, 18.8 m): at-rest max 1.8–2.4 mm. A coin toss at the limit.
+- final14 (dense, 18.8 m): fails stillness at about 6–8 mm.
+- Both pass coverage and hang.
+- **Wrong if** final14 is under 2 mm, or final13 is over 3.
+- A near-miss goes to the Conductor as the frozen frame plus the number. The Conductor decides and it is recorded as an override. The threshold does not move.
+- If both fail, the lever is a longer settle: release at about 600 instead of 480, with the cache start following. That costs about 1.5 h of bake.
+
 ## 30 Sep (night): three overnight bakes, the traveller, and what is blocked
 
 Gary, via the Conductor: "The main thing I need to get right is the first part of the bake - a still acceptable
