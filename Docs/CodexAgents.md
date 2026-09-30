@@ -78,3 +78,28 @@ The standing rules apply to any agent in this repo, not just Claude ones:
 - **The editor is exclusive** — one process authoring at a time. If a Codex agent
   is going to drive Unreal over MCP, it needs the slot like everyone else.
 - **The build gate is machine-wide**: any open UE editor blocks any build.
+
+## RELIABILITY, MEASURED ON 30 SEP
+
+**Codex was not dependable on this run, and both failure modes matter.**
+
+1. **"Selected model is at capacity."** Hit twice: once drafting the Arrival C++
+   from a settled design (it read the headers and wrote nothing, and the stream
+   wrote it by hand instead), once on a source audit. **So Codex is not a
+   substitute for a stream on anything on the critical path.** Use it where a
+   failure costs nothing and can simply be redone.
+2. **A read-only agent cannot write its own report.** Asking one to "write your
+   findings to <path>" under the default `read-only` sandbox makes it stop and ask
+   for write access. **Have it PRINT the findings and capture stdout instead** —
+   that keeps the run read-only and still gets the deliverable:
+
+   ```bash
+   Scripts/codex.sh "…PRINT your findings as your final message…" > out.log
+   ```
+
+   Only reach for `--write` or `--worktree` when the agent genuinely has to change
+   the repo.
+
+**What it did do well:** a read-only run answered a question about `AGENTS.md`
+correctly and quickly, and picked up the project's briefing without being told —
+because `AGENTS.md` is Codex's own convention and this repo already had one.
