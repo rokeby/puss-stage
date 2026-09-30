@@ -113,7 +113,7 @@ index 0000000..9b5e964
 +            ArtistCut = CutTrack->AddNewCameraCut(
 +                FMovieSceneObjectBindingID(UE::MovieScene::FRelativeObjectBindingID(ArtistGuid)),
 +                FFrameNumber(24000));
-+            ArtistCut->SetEndFrame(FFrameNumber(ArtistCutEnd));
++            ArtistCut->SetRange(TRange<FFrameNumber>(FFrameNumber(24000), FFrameNumber(ArtistCutEnd)));  // exclusive end; SetEndFrame(FFrameNumber) is INCLUSIVE
 +        }
 +        return true;
 +    }

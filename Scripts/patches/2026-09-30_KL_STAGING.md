@@ -110,3 +110,20 @@ paused, once), and any Sequencer event set to fire on jump would fire again.
 P and R. It does NOT apply "with Q", because **Q itself no longer applies to HEAD** (fails at
 InfinityStageCompilerTests.cpp:21; the conductor's commits e0c2c2f and 63e5500 changed that area after Q was
 drafted). That is Q's owner's to regenerate. S and Q share no files.
+
+## Stage 1 result (measured by the conductor, 30 Sep evening) and L v2
+
+- K: a clean red, exactly as registered.
+- L: the registered reds were present. The UNREGISTERED reds were a consistent +1 on END bounds, and they
+  have two different causes:
+  1. **The product (HEAD, pre-L), a real finding.** The builder's `SetEndFrame(FFrameNumber)` converts
+     implicitly to an INCLUSIVE `TRangeBound`, so every Exit runs one tick past the playback end and the Entry
+     overlaps the Exit by one tick (1/24000 s; harmless, invisible at display rate). L's one-call
+     `SetRange(TRange(a, b))` is exclusive, so these reds are genuine pre-fix behaviour and should turn GREEN in
+     stage 2: "the Exit runs to the Scene end" (240001 vs 240000), "the Exit ends at the new end" (480001 vs
+     480000), "the Entry runs up to the Exit" (240002).
+  2. **The test fixture, a test bug, fixed in L v2.** The fixture's own `ArtistCut->SetEndFrame(120000)` was
+     inclusive too, so "the designed shot is left as authored" (120001 vs 120000) would have stayed red after
+     L. L v2's fixture uses `SetRange(TRange(24000, 120000))`.
+- Expected on a stage-1 re-run of L v2: the registered reds, plus the three product +1 reds above, and
+  nothing else.
