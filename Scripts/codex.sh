@@ -67,6 +67,10 @@ if [ $# -eq 0 ]; then
   exit 2
 fi
 
+# stdin MUST be closed on the exec below. Codex reads extra instructions from
+# stdin when it is a pipe, so a backgrounded run with an inherited pipe hangs on
+# "Reading additional input from stdin..." forever -- holding its worktree and
+# producing nothing, while looking exactly like a slow run from outside.
 STAMP="$(date +%Y%m%d-%H%M%S)"
 OUTDIR="Saved/CodexRuns"
 mkdir -p "$OUTDIR"
@@ -76,4 +80,4 @@ echo "codex $( "$EXE" --version 2>/dev/null )  |  sandbox=${SANDBOX:-approve-for
 echo "final message -> $LAST" >&2
 
 exec "$EXE" exec -C "$REPO" ${SANDBOX:+-s "$SANDBOX"} ${MODE:+$MODE} \
-  "${EXTRA[@]+"${EXTRA[@]}"}" -o "$LAST" "$@"
+  "${EXTRA[@]+"${EXTRA[@]}"}" -o "$LAST" "$@" < /dev/null
