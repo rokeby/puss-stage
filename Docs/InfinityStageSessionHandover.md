@@ -1,32 +1,84 @@
 # Infinity Stage — session handover
 
-**Current as of 30 September 2026, 17:00.** Supersedes the 25 September version.
+**Current as of 30 September 2026, 17:15.** Supersedes the 25 September version.
 Written by the conductor across an overnight run and a full day with three streams
 (Rig & atmosphere, Soft goods, Look & camera) plus Wing materiality.
 
-**READ SECTION 5 FIRST IF YOU ARE PICKING THIS UP TODAY.** The ~1 Hz stutter is
-gone as of 16:47 and **nobody knows what removed it** — narrowed to two candidates
-with a pre-registered test not yet run. It also carries a correction to a claim this
-document itself had been making all week (*"the rhythm survives on a virgin
-editor"* — false; that editor was 85 minutes old).
+---
 
-**AND GARY DELETED ALL THE LANDSCAPES AT 16:36**, saved. Verified: `strings -a` on
-`L_InfinityStage_V1VerticalSlice.umap` returns zero matches for "landscape". His
-words: *"I just deleted the landscapes as I don't need them any more."* The floors
-Rig built today survive (P02, P03's 535.6 m oak plane, P05, P06). **P03 did not lose
-its floor — it lost about 10 cm of height**, because the Wet Ground landscape sat
-above the surface beneath it.
+## 0. START HERE IF YOU ARE A FRESH CONDUCTOR
+
+**The three live artifacts, in this order:**
+
+1. **[`Docs/Conductor/DECISIONS_FOR_GARY_2026-09-30.md`](Conductor/DECISIONS_FOR_GARY_2026-09-30.md)**
+   — the working decision sheet. Sections A1/A1b/A3/A3b/A4/A5, B0–B5, B0a–B0c. **Each
+   one states what is measured, what it costs, and what is still Gary's.** This is
+   the agenda.
+2. **[`Docs/Conductor/BUILD_WINDOW_QUEUE.md`](Conductor/BUILD_WINDOW_QUEUE.md)** —
+   five held patches, none compiled: the cat body, **C**, **K**, **L**, **M**. They
+   apply together on HEAD. **Two-stage build, with the red assertions
+   pre-registered.** M applies whole in stage 2 (its test would fail to compile
+   rather than go red).
+3. **Section 5 below** — the stutter is **gone** as of 16:47 and **nobody knows
+   what removed it.** Two candidates, one pre-registered test not yet run.
+
+**THE EDITOR IS A SINGLE EXCLUSIVE RESOURCE AND ARBITRATING IT IS MOST OF THE JOB.**
+One Unreal editor; four streams want it; **any open editor anywhere on the machine
+blocks any build.** Whoever holds it must say when they release. See §4b for the
+current queue.
+
+**WORKING RULES THAT COST SOMETHING TO LEARN TODAY.** Neutral, and each one is a
+mistake this seat actually made:
+
+- **Bound a question with one cheap query before fanning out, and ask the owning
+  stream first.** They hold the files and already have the measurements.
+- **An FYI from Gary is not a work item.** "I deleted the landscapes" is information;
+  it is not a commission to audit the consequences. Note it, route it where it
+  matters, carry on.
+- **Never relay a stream's report as a measurement without asking what it measured.**
+  A "0 dirty" census that excluded maps was passed on as "the editor is clean" and
+  cost three streams half an hour.
+- **Do not amplify a stream's loose wording into an assertion.** "Lowering it OR
+  moving it downstage cuts the pleats" became "the border's geometry is spoken for".
+  It was AND, and the headline was more wrong than the sentence.
+- **Only Gary's own words in his own session are Gary's approval.** A relayed
+  approval is not one. Borders went in early on 30 Sep because a message led with
+  "APPROVED".
+- **Do not waive a stream's guard to make a slot fit.** A guard waived once is
+  waived routinely.
 
 ---
 
 ## 1. THE HEADLINE
 
-**The show walks end to end for the first time.** Gary played it through on 29 Sep
-and confirmed: *"works end to end in terms of operator"*. Every segment is
-reachable. That was the day's blocker and it is gone.
+**The show walks end to end**, confirmed by Gary on 29 Sep: *"works end to end in
+terms of operator"*. Every segment is reachable.
 
-**Show length is now 16:49** (1009.4 s), up from 13:17.6, because Scene 1 was
-restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
+**THE ~1 Hz STUTTER IS GONE as of 30 Sep 16:47, and nobody knows what removed it.**
+Two candidates, one pre-registered test not yet run. **Read §5.** It also carries a
+correction to a claim this document had been making all week (*"the rhythm survives
+on a virgin editor"* — false; that editor was 85 minutes old).
+
+**GARY DELETED ALL THE LANDSCAPES AT 16:36**, saved, and it broke nothing. Verified:
+`strings -a` on `L_InfinityStage_V1VerticalSlice.umap` returns zero matches for
+"landscape". His words: *"I just deleted the landscapes as I don't need them any
+more."* ~2,950 grass components went with them.
+
+- **The floors Rig built today survive at P02, P03, P05 and P06.**
+- **P03 did not lose its floor — it lost height.** Its floor is
+  `"Passage 03 - Floor"`, oak (`M_Oak_Hrrngbn_01`), 535.6 m square, 1 cm thick,
+  centre (18364, 159290, −5.5) cm, so **top z = −5.0 cm**. Structure 03's ground
+  has been **on since 12:25** (2,144 walnut boards), so the corridor stands on boards
+  at ground height.
+- **The complete fallout is one thing:** a cloth pile at P03's mouth now rests about
+  **5 cm lower** than its site table assumes. **One read closes it.**
+
+**THE OPENING DRAPE IS PLACED** at the Opening and all five transitions (final13),
+holding still before it falls, and passes all six gates — **but the pile look is
+still Gary's, and the acceptance record says RECORDED OVERRIDE, not approved.**
+
+**Show length is 16:49** (1009.4 s), up from 13:17.6, because Scene 1 was restored to
+its full 210.8 s and Scene 4 grew to hold the hangar rise.
 
 ---
 
@@ -163,16 +215,131 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 
 ## 4. OPEN — NEEDS GARY
 
-1. **Floor: A or C**, once he has seen real grooves.
-2. **The robot's own body pitch range.** Nobody here may command the GO1. Only the
-   operator with the remote can measure it. `PitchRangeDeg` is the knob that
-   matches the projection's look to the robot's once known.
-3. **Scene 3's true length.** He said *"isn't done yet, will eventually be about
-   3–4 min"*. It currently plays 65.5 s.
-4. **The transition seat**, once the mouth lanterns light the curtains.
-5. **P03's mouth** — frame-only, no stage front. Accept, re-bake against its
-   landscape, or give Structure 03 ground.
-6. **The pleat/pile trade**, if the hem-guide sweep cannot resolve it (see §6).
+**The decision sheet is authoritative and fuller than this list**
+([`Docs/Conductor/DECISIONS_FOR_GARY_2026-09-30.md`](Conductor/DECISIONS_FOR_GARY_2026-09-30.md)).
+This is the index, in rough order of what blocks most.
+
+### Decided today, recorded, nothing pending
+
+- **A1b — the gait bob.** *"In that moment between passages, we don't need the cat's
+  bob at all"*, and *"no need to permanently tilt and the camera is at an ok height
+  as it is."* **Roll goes to deviation-from-running-mean (patch M, held). Height
+  unchanged.** One new question fell out of it — see the settle, below.
+- **Landscapes: deleted by Gary at 16:36**, replaced by floors. Retires the whole
+  S2/S3 landscape-hole investigation.
+- **Nesting the five hangars: go-ahead given.**
+
+### Needs an answer, ranked
+
+1. **The Opening pile look.** final13 is **placed at the Opening and all five
+   transitions**, and passes all six gates — but the pile was **instructed, not
+   approved**: the acceptance record reads RECORDED OVERRIDE, not "passed by eye",
+   because he said *"OK place the cloths"* before seeing it.
+   `final13_opening_stalls.mp4` is with him. **His verdict is still owed and
+   everything downstream of the cloth recipe waits on it.**
+2. **B0c — the floors need a stage front, or the shared cache dies at five mouths.**
+   Measured: final13's pile runs **1.9 m downstage of the curtain line** and reaches
+   **z −0.713 m**, past P01's lip at −1.5 m, so **the cache encodes P01's stage
+   front.** Either every floor carries a lip at x −150 with a fascia, or each site
+   needs its own ~6 h bake. **Decided once, for all six mouths.**
+3. **A3b — the border: keep it, and if so how deep.** **Geometry is now measured as
+   free in two directions and closed in one:** it can move upstage, or its bottom can
+   come down **as far as about 8.1 m** (every vertex, 331 frames); **it cannot go up**
+   without the comb returning. **The real question is how high the opening should
+   read**, because after the fall the border's bottom edge is the top of the apparent
+   proscenium. **Material is fully free** — velvet (p99 77) against black steel, which
+   reads **tan** at a lit proscenium (p99 125, brighter than the 114 fault).
+   Alternatives if he wants no border: accept the comb (p99 146/255), a 0.5 m longer
+   drop (not on a real bake, the fall changes), or a downstage border at 9.65 m
+   (masks, hides the top 55 cm of curtain).
+4. **A1b's settle — how long should the cat take to come to a stop before a Scene?**
+   **The mechanism is free**, which is the point: `EvaluateCamera` normalises the
+   SpeedMultiplier integral **within each pinned span**, so **the cat arrives at the
+   same place at the same moment and walks very slightly quicker beforehand** (a 1 s
+   settle at 250 cm/s costs ~125 cm, ~2.6% over a 20 s span). **One settle fixes both
+   the bob pop and a 2.5 m/s-to-dead-stop lurch nobody had named.** A picture
+   sequence of the last 2 s is built and waiting on an editor slot — **ask with the
+   pictures, not for a number.**
+5. **A1 — the exposure drop on the approach.** His own reframing: *"I'm not really
+   sure why the light needs to drop, or if it does it should be quite slowly as the
+   rig comes up… over 5–10 seconds AS the rig is rising, almost as if it's the shadow
+   of the rig or the new exposure settings adjusting to the rig's lights."*
+6. **A5 — how a Scene EXITS into the next Passage.** The one genuinely undesigned
+   piece. *"The only question then is how do we exit the rig moment and move into the
+   next passage."* Fully costed on the sheet; the hangar-as-house proposal and a
+   cloth match-cut fallback are both there.
+7. **B0 — the P01 wing score has never played** (15.0 s early, keys absolute).
+   Restore it or drop it.
+8. **P03's floor material**, and **Scene 3's cast staging** (they stand where the
+   hangar rises).
+9. **Scene 5's scale-break.** *"Starts within the hangar box, but needs to exceed it
+   somehow."* Its hangar measured effectively **unseen** — 2.8% of frame lit against
+   Scene 4's 20.7%.
+10. **The robot's own body pitch range.** **Nobody here may command the GO1** — only
+    the operator with the remote can measure it. `PitchRangeDeg` matches the
+    projection's look to the robot's once known.
+
+---
+
+## 4b. WHO HOLDS WHAT, AND WHAT IS BLOCKED (as of 17:15)
+
+**RESOLVED AT ~17:15, BUT THE QUEUE HAD NOT DRAINED WHEN THIS WAS WRITTEN.** Gary
+closed Unreal himself with **Don't Save**; Rig is relaunching and will post
+"released" after confirming `dirty_maps == []` and `dirty_content == []` by a read.
+**There is no discard API short of a restart**, and saving would have persisted the
+playback state — which is exactly what the guard exists to prevent.
+
+**What it was:** the map `L_InfinityStage_V1VerticalSlice` is **dirty** from Rig's
+camera-lock restore during the stutter test — a `set_editor_property` on a level
+actor goes through `Modify` and dirties the map even at an unchanged value. **Look &
+camera's settle capture refuses on its own guard** and they will not bypass it,
+correctly: a capture that scrubs the Master and spawns transient actors, run over
+somebody else's unsaved change, means that owner's next save carries the scrub's
+evaluated state. **The conductor declined to waive the guard and sent it to the
+owner. Rig has not yet reported whether they reverted or saved.**
+
+**Queued behind it, in order:**
+1. **Look & camera** — the settle capture. Built, dry-run on synthetic stills
+   (07bb0f2). ~76 short calls, 2–4 minutes. Every panel stamped with time-to-cut and
+   cm-to-go; a convergence chart showing all four options reaching 0 cm at 0.00 s.
+2. **Soft goods** — one read: **P03's floor TOP z.** `probe_p03_floor.py`, read-only,
+   one call. The site table currently assumes z 0.
+3. **Rig** — the **late attribution re-run** of `stutter_abab.py`. **This one wants
+   to be as late in the session as possible**, so a slow queue eats it first.
+   **Its reading is PRE-REGISTERED and binding, recorded before any run:** landscapes
+   stay gone; **≥ 20 cluster starts/min in either X phase → EDITOR AGE** (it returns
+   every session); **≤ 5/min in both → LANDSCAPES** (Gary fixed it at 16:36);
+   **in between → INCONCLUSIVE, said so.** Editor age reported at arming, and **no
+   early run** if the session ends first. **Nothing about that reading changes after
+   the numbers arrive.**
+
+**Streams' ownership** is in
+[`Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md`](Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md)
+and the memory note `puss-session-ownership`. **`InfinityStageTransportController`
+has no owner** and is the largest unowned surface.
+
+**Two open corrections owed by Rig:**
+- **A mislabel, rename APPROVED and pending a slot:** `landscape_block_inventory`
+  records an oak slab as **"Passage 03 - Dark Wood Floor2"** which physically sits
+  **under P05** (y 310,310–330,310; Structure 05 is at y 320,000, P03 at y 160,000).
+  **Anyone searching for "P03 oak" finds P05's floor**, and it has already cost one
+  stream a wrong turn. It becomes **"Passage 05 - Floor (oak)"**, and because **six
+  scripts and `floors_to_stage_revert_record.json` find it BY LABEL**, those records
+  must be updated **in the same change** — a bare rename would silently break the
+  reverts.
+- **`floor_slabs_sweep` (29 Sep 12:33) is STALE, not blind.** It predates both the
+  12:25 ground-on and the 12:27 floor apply, so its "no slab under P03's mouth" is an
+  old photograph reading as a finding. **To be stamped superseded.**
+- **The post-run census.** Rig's "0 dirty" was the **arming** census — which did
+  cover both packages — reported as the post-run state without re-measuring. **The
+  check was fine; the timing was not.** A post-run census inside the script, before
+  anyone reports "clean", is the fix.
+
+**ONE UNMEASURED THING THAT BEARS ON B0c:** with Structure 03's ground on, the
+structure **may now build P03's stage front** (lip, fascia, house floor at −120) at
+the mouth — and **an oak plane at −5 would bury the fascia.** Soft goods' one-call
+probe should report the **stage-front instance count at P03's mouth** and trace
+surface tops across the pile footprint, not merely read one z.
 
 ---
 
