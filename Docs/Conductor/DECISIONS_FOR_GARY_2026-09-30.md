@@ -456,10 +456,13 @@ is stage structure doing a job** — and it is now measured as free to take rath
 than a risk to manage.
 
 **The trade, stated plainly, because it is real.** While the curtain is up the border
-is invisible: it hangs upstage at x +45..+50, behind a drape covering the full
-height. **After the curtain falls the border IS visible, and its bottom edge becomes
-the top of the apparent stage opening.** So lowering it does not hide the curtain
-— **it lowers the proscenium**, permanently, in every Scene seen through that mouth.
+shows only as **black through the notches between the pleat crests** — which is its
+whole job, and is what replaced the bright slots (**p99 77 in that band**, measured).
+**Lowering it does not change that**: the extra depth hangs upstage at x +45..+50
+behind a drape covering the full height, so the notch band still reads the same
+black. **What changes is after the fall. The border's bottom edge becomes the top of
+the apparent stage opening** — so lowering it does not hide the curtain, **it lowers
+the proscenium**, permanently, in every Scene seen through that mouth.
 
 **So the question is not "how much clearance is safe". It is "how high should the
 opening read".** A look decision with no engineering cost attached to either answer.
