@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
-index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1f60d7585 100644
+index 2df05fd3d168076c4b156470066cbcb947c733aa..7fa71c31a621f95259abe886d6c7ef5b6bc4e5b9 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 @@ -22,6 +22,7 @@ DEFINE_LOG_CATEGORY(LogInfinityStageTransport);
@@ -46,15 +46,21 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
  void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
  {
      UnregisterForWorld();
-@@ -192,6 +222,30 @@ void UInfinityStageTransportController::TickComponent(
+@@ -191,6 +221,47 @@ void UInfinityStageTransportController::TickComponent(
+         ClaimSegmentCamera(FrameSegment, CurrentFrame);
          return;
      }
-     ReassertPassageClaimIfLost();
++    RunTickTail(CurrentFrame, DeltaTime);
++}
 +
++void UInfinityStageTransportController::RunTickTail(
++    const FFrameNumber CurrentFrame,
++    const float DeltaTime)
++{
 +    if (StepJumpResettle(
 +        JumpResettleState,
 +        CurrentFrame,
-+        Player->IsPlaying(),
++        Player && Player->IsPlaying(),
 +        DeltaTime,
 +        JumpResettleSeconds,
 +        JumpResettleMinTicks))
@@ -63,7 +69,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
 +        // frame. Keep the external-clock safety gate explicit even though that
 +        // makes this a same-frame evaluation rather than a move.
 +        const FFrameNumber TargetFrame = JumpResettleState.Frame;
-+        if (!IsUnsafeExternalMove(TargetFrame))
++        if (Player && !IsUnsafeExternalMove(TargetFrame))
 +        {
 +            const FFrameTime DisplayFrame = ShowAsset
 +                ? FFrameRate::TransformTime(FFrameTime(TargetFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
@@ -72,12 +78,23 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
 +            ++JumpResettleCount;
 +            UE_LOG(LogInfinityStageTransport, Verbose,
 +                TEXT("INFINITY_JUMP_RESETTLE frame=%d"), TargetFrame.Value);
++
++            // TEST SEAM: Sequencer may restore the pre-animated view target as
++            // part of the evaluation above. The test performs that steal here.
++            if (JumpResettlePostEvaluationTestSeam)
++            {
++                JumpResettlePostEvaluationTestSeam();
++            }
 +        }
 +    }
++
++    // This must remain after the same-frame evaluation. A Passage's Camera Cut
++    // can restore its pre-animated target during SetPlaybackPosition, and the
++    // transport must reclaim the Passage before this tick's camera update.
+     ReassertPassageClaimIfLost();
  }
  
- bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* InShowAsset)
-@@ -303,6 +357,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -303,6 +374,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
  bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer* InPlayer, UInfinityStageShowAsset* InShowAsset)
  {
      Player = InPlayer;
@@ -85,7 +102,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
      LastResult = EInfinityTransportResult::NoPlayer;
      if (!InPlayer || !InShowAsset)
      {
-@@ -473,6 +528,7 @@ EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
+@@ -473,6 +545,7 @@ EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
      }
@@ -93,7 +110,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
      Player->SetPlayRate(FMath::Max(0.001f, FMath::Abs(Player->GetPlayRate())));
      Player->Play();
      return LastResult = EInfinityTransportResult::Succeeded;
-@@ -484,6 +540,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float
+@@ -484,6 +557,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
      }
@@ -101,7 +118,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
      if (FMath::IsNearlyZero(Rate))
      {
          return PauseTransport();
-@@ -529,6 +586,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
+@@ -529,6 +603,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
          : FFrameTime(TargetFrame);
      Player->Pause();
      Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
@@ -109,7 +126,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
      SelectedSegmentIndex = TargetIndex;
      bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
      ClaimSegmentCamera(TargetIndex, TargetFrame);
-@@ -618,6 +676,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const
+@@ -618,6 +693,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const
          : FFrameTime(Target);
      Player->Pause();
      Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
@@ -117,7 +134,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
      SelectedSegmentIndex = SegmentIndex;
      bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, Target);
      ClaimSegmentCamera(SegmentIndex, Target);
-@@ -1118,6 +1177,7 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
+@@ -1118,6 +1194,7 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
      {
          return LastResult = EInfinityTransportResult::NoPlayer;
      }
@@ -126,7 +143,7 @@ index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1
      // boundary. Only reverse/seek/hold/rate-changing operations are unsafe.
      if (IsUnsafeExternalMove(TargetFrame) && TargetFrame < GetCurrentMasterFrame())
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
-index 160d7a0daeaf40555df0b64020b039a813f611cc..8dacb601808b920475ac310f2f4ec6e42049c20b 100644
+index 160d7a0daeaf40555df0b64020b039a813f611cc..406cbacbb079653f283e16b670a390b78dbcec9a 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 @@ -220,6 +220,15 @@ struct INFINITYSTAGE_API FInfinityTransportSegment
@@ -166,7 +183,7 @@ index 160d7a0daeaf40555df0b64020b039a813f611cc..8dacb601808b920475ac310f2f4ec6e4
      /**
       * How the view arrives at a Passage's travelling camera - a Scene or a
       * mechanism handing back to the route.
-@@ -346,6 +369,15 @@ public:
+@@ -346,6 +369,28 @@ public:
      UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
      FFrameNumber GetCurrentMasterFrame() const;
  
@@ -179,10 +196,23 @@ index 160d7a0daeaf40555df0b64020b039a813f611cc..8dacb601808b920475ac310f2f4ec6e4
 +        float SettleSeconds,
 +        int32 MinTicks);
 +
++    /**
++     * TEST SEAM: runs immediately after the resettle evaluation and before the
++     * Passage camera reassert. Automation uses it to emulate Sequencer restoring
++     * its pre-animated view target during SetPlaybackPosition.
++     */
++    TFunction<void()> JumpResettlePostEvaluationTestSeam;
++
++    /** TEST ONLY: exercises the ordered tick tail without boundary detection. */
++    void RunTickTailForTests(FFrameNumber CurrentFrame, float DeltaTime)
++    {
++        RunTickTail(CurrentFrame, DeltaTime);
++    }
++
      /** True while the Master player is running, so a toggle can tell play from pause. */
      UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
      bool IsTransportPlaying() const;
-@@ -398,6 +430,8 @@ private:
+@@ -398,6 +443,8 @@ private:
  
      bool bCoveredHandoffActive = false;
  
@@ -191,14 +221,35 @@ index 160d7a0daeaf40555df0b64020b039a813f611cc..8dacb601808b920475ac310f2f4ec6e4
      /** What ClaimViewTarget last asked for, and when, so a running blend is not
       * restarted every frame by a repeat of the same request. */
      TWeakObjectPtr<AActor> ClaimedViewTarget;
+@@ -423,6 +470,9 @@ private:
+     /** Restores a Passage claim that Sequencer's Camera Cut restore took away. */
+     void ReassertPassageClaimIfLost();
+ 
++    /** Resettles the held frame before repairing any Passage view-target steal. */
++    void RunTickTail(FFrameNumber CurrentFrame, float DeltaTime);
++
+     bool IsUnsafeExternalMove(FFrameNumber TargetFrame) const;
+     /** True when holding or rate-changing would disturb a segment whose sound a live
+      * performer owns. Unlike IsUnsafeExternalMove this takes no target frame, because
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageJumpResettleTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageJumpResettleTests.cpp
 new file mode 100644
-index 0000000000000000000000000000000000000000..0cfdfa2cd549576e8082fb90047bedc9af06ea80
+index 0000000000000000000000000000000000000000..bd0a2b09d7782a843cd35d513671d12d2870a0fd
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageJumpResettleTests.cpp
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,264 @@
 +#include "InfinityStageTransportController.h"
++
++#include "Camera/PlayerCameraManager.h"
++#include "Engine/World.h"
++#include "GameFramework/PlayerController.h"
++#include "InfinityStageCameraRig.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "LevelSequence.h"
++#include "LevelSequenceActor.h"
++#include "LevelSequencePlayer.h"
 +#include "Misc/AutomationTest.h"
++#include "MovieScene.h"
 +
 +#if WITH_DEV_AUTOMATION_TESTS
 +
@@ -311,6 +362,141 @@ index 0000000000000000000000000000000000000000..0cfdfa2cd549576e8082fb90047bedc9
 +                State, FirstFrame, false, 0.0f, SettleSeconds, MinTicks));
 +    }
 +
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageJumpResettleReassertsPassageSameTickTest,
++    "InfinityStage.Transport.JumpResettleReassertsPassageSameTick",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageJumpResettleReassertsPassageSameTickTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    APlayerController* PlayerController = World ? World->SpawnActor<APlayerController>() : nullptr;
++    if (PlayerController && !PlayerController->PlayerCameraManager)
++    {
++        FActorSpawnParameters ManagerSpawn;
++        ManagerSpawn.Owner = PlayerController;
++        PlayerController->PlayerCameraManager = World->SpawnActor<APlayerCameraManager>(ManagerSpawn);
++        if (PlayerController->PlayerCameraManager)
++        {
++            PlayerController->PlayerCameraManager->InitializeFor(PlayerController);
++        }
++    }
++    if (World && PlayerController && World->GetFirstPlayerController() != PlayerController)
++    {
++        World->AddController(PlayerController);
++    }
++
++    AActor* Host = World ? World->SpawnActor<AActor>() : nullptr;
++    UInfinityStageTransportController* Transport = Host
++        ? NewObject<UInfinityStageTransportController>(Host)
++        : nullptr;
++    if (Host && Transport)
++    {
++        Host->AddInstanceComponent(Transport);
++        Transport->RegisterComponent();
++    }
++
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    for (int32 Index = 0; Index < 2; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.GapToNextCm = 500.0;
++        Cue.WingPair.IntervalToNext = 48000;
++    }
++
++    const bool bSegmentsBuilt = Transport && Transport->BuildSegments(Show);
++    const FGuid PassageGuid = bSegmentsBuilt && !Transport->Segments.IsEmpty()
++        ? Transport->Segments[0].SegmentGuid
++        : FGuid();
++    AInfinityStagePassageActor* Passage = World ? World->SpawnActor<AInfinityStagePassageActor>() : nullptr;
++    AInfinityStageCameraRig* ClaimedRig = World ? World->SpawnActor<AInfinityStageCameraRig>() : nullptr;
++    AActor* StolenTarget = World ? World->SpawnActor<AActor>() : nullptr;
++    if (Passage)
++    {
++        Passage->ShowAsset = Show;
++        Passage->PassageGuid = PassageGuid;
++    }
++    if (ClaimedRig)
++    {
++        ClaimedRig->PassageActor = Passage;
++    }
++
++    ULevelSequence* MasterSequence = NewObject<ULevelSequence>(GetTransientPackage());
++    MasterSequence->Initialize();
++    MasterSequence->GetMovieScene()->SetDisplayRate(Show->DisplayRate);
++    MasterSequence->GetMovieScene()->SetTickResolutionDirectly(Show->TickResolution);
++    MasterSequence->GetMovieScene()->SetPlaybackRange(FFrameNumber(0), 48000);
++    FMovieSceneSequencePlaybackSettings PlaybackSettings;
++    ALevelSequenceActor* SequenceActor = nullptr;
++    ULevelSequencePlayer* SequencePlayer = World
++        ? ULevelSequencePlayer::CreateLevelSequencePlayer(
++            World, MasterSequence, PlaybackSettings, SequenceActor)
++        : nullptr;
++
++    TestNotNull(TEXT("Fixture: Game world"), World);
++    TestNotNull(TEXT("Fixture: player controller"), PlayerController);
++    TestTrue(TEXT("Fixture: camera manager"), PlayerController && PlayerController->PlayerCameraManager);
++    TestTrue(TEXT("Fixture: controller is player 0"),
++        World && World->GetFirstPlayerController() == PlayerController);
++    TestTrue(TEXT("Fixture: Passage segments compile"), bSegmentsBuilt);
++    TestTrue(TEXT("Fixture: Passage GUID"), PassageGuid.IsValid());
++    TestTrue(TEXT("Fixture: Passage rig and steal target"), ClaimedRig && StolenTarget);
++    TestNotNull(TEXT("Fixture: real Level Sequence player"), SequencePlayer);
++
++    const bool bInitialized = Transport && SequencePlayer
++        && Transport->InitializeTransport(SequencePlayer, Show);
++    TestTrue(TEXT("Fixture: transport initializes"), bInitialized);
++    TestTrue(TEXT("Fixture: reassert gates describe a selected Passage rig"),
++        bInitialized
++        && Transport->LastHandover.Source == EInfinityHandoverSource::PassageRig
++        && Transport->Segments.IsValidIndex(Transport->SelectedSegmentIndex)
++        && Transport->Segments[Transport->SelectedSegmentIndex].Type == EInfinityCueType::WingPair);
++    TestTrue(TEXT("Fixture: the Passage rig is initially claimed"),
++        PlayerController && PlayerController->GetViewTarget() == ClaimedRig);
++
++    if (bInitialized && PlayerController && ClaimedRig && StolenTarget)
++    {
++        Transport->JumpResettleSeconds = 0.001f;
++        TestEqual(TEXT("A paused scrub arms the delayed same-frame evaluation"),
++            Transport->ScrubToMasterFrame(FFrameNumber(0)), EInfinityTransportResult::Succeeded);
++
++        // Prime the two-tick gate without firing; the next tick-tail call is the
++        // single observed operation that both evaluates and repairs the steal.
++        Transport->RunTickTailForTests(FFrameNumber(0), 0.001f);
++        TestEqual(TEXT("Fixture: the priming tick does not resettle"), Transport->JumpResettleCount, 0);
++
++        bool bSeamRan = false;
++        bool bStealVisible = false;
++        Transport->JumpResettlePostEvaluationTestSeam = [PlayerController, StolenTarget, &bSeamRan, &bStealVisible]()
++        {
++            bSeamRan = true;
++            PlayerController->SetViewTarget(StolenTarget);
++            bStealVisible = PlayerController->GetViewTarget() == StolenTarget;
++        };
++        Transport->RunTickTailForTests(FFrameNumber(0), 0.0f);
++
++        TestTrue(TEXT("The post-evaluation seam ran"), bSeamRan);
++        // Control: the steal must really take effect inside the seam, or the
++        // restore assertion below would pass whatever order the tail used.
++        TestTrue(TEXT("Control: the seam's steal is visible before the tail continues"), bStealVisible);
++        TestEqual(TEXT("The due same-frame jump evaluated once"), Transport->JumpResettleCount, 1);
++        // This is deliberately order-sensitive. With S v1's reassert-before-jump
++        // order, the seam steals after the last reclaim and this remains StolenTarget.
++        TestTrue(TEXT("The Passage claim is restored in the same tick tail"),
++            PlayerController->GetViewTarget() == ClaimedRig);
++        Transport->JumpResettlePostEvaluationTestSeam = nullptr;
++    }
++
++    if (World)
++    {
++        World->DestroyWorld(false);
++    }
 +    return true;
 +}
 +

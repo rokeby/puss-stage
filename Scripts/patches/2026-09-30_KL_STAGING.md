@@ -151,3 +151,23 @@ Apply whole in stage 2. It applies alone and with K, L, N, O, P and S (measured)
   keeps the body for authoring. Test `InfinityStage.ShadowCat.BodyNeverSeenInGame`.
 - Measured: N, O, K, L, P, S, T and MR apply together on HEAD. C and Q no longer apply to HEAD alone (their
   owners').
+
+## S v2 (held after the cc1331e window; review P1 fixed): apply whole, in stage 2
+
+- **The fault (inferred by the adversarial review):** v1 ran the resettle's same-frame
+  `SetPlaybackPosition(Jump)` AFTER `ReassertPassageClaimIfLost()` in `TickComponent`. If that evaluation
+  makes Sequencer restore its pre-animated view target, nothing reclaims until the next tick, and since O
+  (built) the Go1 receiver treats that one-frame change as a cut and resets the dog's look.
+- **The fix:** the tick tail is now `RunTickTail`: step the resettle, fire the jump if it's due, then
+  reassert, in that order. The boundary-claim early return still comes first. A public test-only seam
+  (`JumpResettlePostEvaluationTestSeam`) runs right after the resettle's evaluation.
+- **Tests:** `InfinityStage.Transport.JumpResettlesOnce` is kept (the pure `StepJumpResettle` cases). The new
+  test `InfinityStage.Transport.JumpResettleReassertsPassageSameTick` builds a Game world with a PC, a camera
+  manager, a Passage rig claimed by `InitializeTransport` and a real `ULevelSequencePlayer`. The seam steals
+  the view target. A control asserts the steal is visible inside the seam, and then that the claim is back
+  after one tail call. On v1's order, the claim would still be stolen (reasoned in a comment, not run).
+- **Not seen by any test (inferred):** that Sequencer really steals during a same-frame Jump in PIE. The
+  test simulates the steal at the seam. Nothing is compiled or run yet: that happens in the build window.
+- **Measured:** `git apply --check --whitespace=error-all` passes on HEAD a056b80 alone. The APIs were
+  spot-checked against the UE 5.8 headers: `FrameNumber.h:27`, `MovieScene.h:1008`,
+  `PlayerController.h:2154`, `World.h:3032`.
