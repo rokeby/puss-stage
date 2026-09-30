@@ -120,6 +120,39 @@ def mask_top(d):
                                     f"bottom {reg.get('bottom')}, interior {reg.get('interior')} (step 2 px)")
 
 
+def stage_clear(d):
+    """STAGE CLEARANCE (30 Sep, approved by the Conductor): the cache against the stage AS BUILT, every exported frame
+    (Scripts/stage_clearance_cache.py). Non-contact boxes (posts, header, border) must hold ZERO cloth vertices; contact
+    boxes (floors, lip, fascia, returns, lamp housings as exact oriented boxes) must not be penetrated deeper than the
+    cloth's 1 cm collision margin, and the measured depth is recorded so a change shows as a number moving. The same
+    re-use key and fail-closed order as mask_top. final13 vs v4: clear, worst 0.12 cm into the stage floor."""
+    abc = OUT / f"{d['id']}.abc"
+    if not abc.exists():
+        return None, "not measured (no .abc)"
+    stage = MASK_COLLIDERS or d.get("colliders") or "Docs/StageFrontColliders_2026-09-28.json|v2"
+    stage_digest = hashlib.sha256((ROOT / stage.split("|")[0]).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+    out_id = f"clear_{d['id']}"
+    cpath, digest = OUT / f"{out_id}.json", sha256_file(abc)
+    c = json.loads(cpath.read_text(encoding="utf-8")) if cpath.exists() else {}
+    if c.get("abc_sha256") != digest or c.get("colliders_sha256") != stage_digest or c.get("colliders") != stage:
+        env = dict(os.environ, PUSS_PROJECT_ROOT=str(ROOT), ABC=str(abc), OUT_ID=out_id, COLLIDERS=stage)
+        for k in ("CLEAR_FRAMES", "CLEAR_CONTACT_MAX_CM", "CLEAR_PROBE_FOOTPRINT"):     # never judge a what-if
+            env.pop(k, None)
+        cpath.unlink(missing_ok=True)                                          # invalidate BEFORE computing
+        subprocess.run([BLENDER, "-b", "--factory-startup", "-t", "4", "--python",
+                        str(ROOT / "Scripts" / "stage_clearance_cache.py")], env=env, check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if not cpath.exists():
+            return None, "clearance test failed to run"
+        c = json.loads(cpath.read_text(encoding="utf-8"))
+        c["abc_sha256"] = digest
+        cpath.write_text(json.dumps(c, indent=1), encoding="utf-8")
+    worst = c.get("contact_worst") or {}
+    return c.get("clear") is True, (f"frames {c.get('frames')}: non-contact hits {list(c.get('non_contact_hits') or {})}; "
+                                    f"deepest contact {worst.get('max_depth_cm')} cm into {worst.get('box')} at frame "
+                                    f"{worst.get('frame')} (limit {c.get('contact_max_cm')} cm)")
+
+
 def sha256_file(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -225,11 +258,14 @@ def judge_drape(d, ref):
         # The stage the rays were cast against, so the import can refuse a PASS judged against a stage that has since
         # changed (a border moved or removed): the verdict is bound to the stage bytes as well as the bake's.
         verdict["mask_stage"] = d.get("_mask_stage")
+        verdict["stage_clear"], d["_clear"] = stage_clear(d)
     required = ["still", "hang", "site" if d.get("collider_origin_cm") else "pile"]
     if "coverage" in verdict:
         required.append("coverage")
     if "top_masked" in verdict:
         required.append("top_masked")
+    if "stage_clear" in verdict:
+        required.append("stage_clear")
     verdict["required"] = required
     verdict["ALL"] = all(verdict.get(k) is True for k in required)
     return verdict, ratios
@@ -285,6 +321,8 @@ def drape_lines(name, d, ref_name, ref):
     lines.append(f"- **pile**: height {p.get('height_m')}, depth {p.get('depth_m')}, width {p.get('width_m')}, "
                  f"layers {p.get('layers')}, fold size {p.get('fold_size_m')}; vs {ref_name}: {ratios}")
     lines.append(f"- **fall**: {fall_timing(d)}")
+    if "_clear" in d:
+        lines.append(f"- **stage clear** (cache vs the stage as built): {d['_clear']}")
     if "_mask" in d:
         lines.append(f"- **top masked** (stalls ray test): {d['_mask']}")
     if "_site" in d:
