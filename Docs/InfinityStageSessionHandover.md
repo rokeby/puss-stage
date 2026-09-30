@@ -377,6 +377,22 @@ Recorded because each is a class of fault, not a one-off.
   into the template.
 - **"Read-only" does not mean safe.** Four of five editor crashes were inspection
   scripts. A bad argument crashes as hard as a bad write.
+- **A GUARD THAT CANNOT SEE WHAT IT GUARDS AGAINST IS WORSE THAN NONE, because it
+  reports clean.** An actor spawned **transient** does not appear in
+  `EditorActorSubsystem.get_all_level_actors()` — so every "no `ZZ_` actors left"
+  check written that way is blind to exactly the actors that leak.
+  `GameplayStatics.get_all_actors_of_class` sees them.
+  **Found on 30 Sep when a sweep written the working way turned up two
+  `ZZ_P04HistoryProbe` actors still live** — transient `SceneCapture2D`s with
+  `capture_every_frame = TRUE`, **re-rendering the level every editor frame from
+  about 15:00 to 16:30 UTC.** Discount or re-take any frame-time measurement from
+  that window.
+  **Two consequences.** A bench must destroy what it spawns **by object
+  reference**, not by looking it up afterwards. And **the stutter's "census found
+  zero SceneCapture actors" exclusion must be re-checked** — if that census used
+  the blind call, it could not have counted the kind that leak, and it comes off
+  the ruled-out list.
+
 - **Every MCP call costs a 40–80 ms hitch.** A session polling the editor
   manufactures the stutter it is measuring.
 - **A GEOMETRY CACHE DECODES ASYNCHRONOUSLY, AND A CAPTURE AFTER A JUMP SHOWS
