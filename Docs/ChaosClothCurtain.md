@@ -26,6 +26,61 @@ a cue that needs the same silhouette every night.
 creases", "pretty poor"). Each was a blind guess plus a 10–15 min bake, because nobody could
 touch a parameter while watching the cloth. Chaos puts the solver in the editor.
 
+## 30 Sep (14:00): THE CURTAIN TOP DOES NOT MASK (a comb of notches), the adaptive release, and a fourth gate
+
+Each claim below is marked with its evidence: **measured** (a test was run and read back), **declaration-proven** (read
+from a file, header or config) or **inferred** (reasoned from numbers, not run).
+
+**The finding.** The pieces:
+- The bake hangs the heading at 10.20 m (drop 10.0 + lift 0.2; bake script l.72/181/188, declaration-proven).
+- The pleats reach 41 cm upstage of the curtain line (final9 frame 479, measured).
+- Rig's header is x −20..+20 cm with its underside at 10.50 m (portal_drape_alignment.json).
+
+So wherever a pleat's top sits behind the header's back face, a sightline from the stalls can clear the drape top and
+still pass under the header. This was inferred first by hand, then measured.
+
+`Scripts/mask_raycast_stalls.py` is an offline ray test on the baked cloth plus Rig's colliders. It casts one ray per
+two pixels from the stalls eye and counts the rays through the portal opening that reach 2.5 m upstage unmasked, split
+into side, top, bottom and interior. Measured results:
+- final9 (the final13 recipe): a **21-notch comb** over the top, 4,132 samples, pixel rows 138–196. The bottom is masked
+  (the floor catches the rays under the hem).
+- The **live** Opening cache, final2 at its held frame 120: the same comb, plus side wedges and a lifted hem, because
+  that frame is the mid-sway one.
+
+What the comb shows depends on what is behind it. Measured by overlaying the notch mask on Look & camera's no-drape seat
+captures (02:04 editor state, not show-evaluated), as luminance mean / p99 on 0–255:
+- **Opening: 28 / 146. Bright:** the lit gilded relief shows as a row of bright slots.
+- P02: 6.6 / 118, a green lantern glow behind the centre notches.
+- P03–P05: p99 10–15, invisible HERE.
+- P06: p99 22.
+
+**The fix, measured on final9's hang raised by an offset:**
+- Raised 0.5 m (heading 10.7 m): the top is masked, except the 17.77 m corner, which the 18.8 m track closes.
+- Raised 0.4 m (heading 10.6 m): a sliver remains.
+- Moving the heading downstage cannot work while it stays at 10.2 m (inferred).
+- A 10.5 m drop is 0.5 m more cloth, so the fall changes. That is **Gary's** decision; the pictures went to him.
+
+**The adaptive release** (`RELEASE_AUTO=min:max:limit_mm:window`, a6f151a). The hang **surges**, so it is not a smooth
+settle. final9's per-frame series shows 2.0–2.9 mm/frame for 10–20 frames between quiet spells of 0.4–0.6, with peaks
+decaying only about 0.2 mm per 100 frames. final11 passed with a 3.29 mm surge at f340. So a fixed release is a lottery
+on whether a surge lands in the 30-frame window.
+- The bake now watches its own motion. At the first quiet window after `min`, it **moves the release keys** there. The
+  export window, the at-rest window, the clip and the frame count all follow.
+- **Moving keys mid-bake is safe, measured.** On a coarse strip, keys moved from 60 to 46 at frame 40 gave a result
+  bit-identical, over all 90 frames, to keying at 46 from the start. That is also the first evidence of run-to-run
+  determinism: two processes, 2 threads, identical output.
+- **Trap:** Blender 4.4 keeps the object's and the shape keys' curves in ONE slotted action, and the legacy `.fcurves`
+  lists only the first slot. Walk `action.layers[].strips[].channelbags[].fcurves`.
+- Replayed on the old series with `min` 360: final9 would have released at 393 and final11 at 457. Dense final10 never
+  finds a quiet window, so the dense recipe is out.
+- Launcher: `DropBake/run_final16_auto.ps1 -DropM 10.0|10.5`, final13's recipe plus the adaptive release.
+
+**The fourth machine gate** (8f554a3): **TOP MASKED** is required for full-width Opening-type drapes. It runs the ray
+test on the bake's frozen sample and re-uses a result only for identical .abc bytes. Consequences:
+- final9 now also fails top_masked.
+- final13 and final14 hang at 10.2 m, so they **fail it by construction**. They ship only if Gary accepts the comb, as a
+  recorded override.
+
 ## 30 Sep (13:00): final9 and final10 judged; a prediction for final13/14 registered BEFORE they land
 
 final9 and final10 are 17.77 m test pieces, so both fail coverage (0.615 m to each post). The deliverable pair is
