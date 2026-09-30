@@ -19,6 +19,10 @@ import unreal
 
 OUT = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure", "Captures")
 EV = 1.0
+# "legacy": Manual + compensation, the 29 Sep convention (several stops darker than the show).
+# "show": no override, exactly what the show renders. SUFFIX keeps before and after apart.
+MODE = globals().get("GROOVE_EXPOSURE", "legacy")
+SUFFIX = globals().get("GROOVE_SUFFIX", "")
 
 
 def main():
@@ -91,14 +95,16 @@ def main():
             comp.set_editor_property("texture_target", rt)
             comp.set_editor_property("capture_source", unreal.SceneCaptureSource.SCS_FINAL_TONE_CURVE_HDR)
             comp.set_editor_property("fov_angle", fov)
-            pp = comp.post_process_settings
-            pp.set_editor_property("override_auto_exposure_method", True)
-            pp.set_editor_property("auto_exposure_method", unreal.AutoExposureMethod.AEM_MANUAL)
-            pp.set_editor_property("override_auto_exposure_bias", True)
-            pp.set_editor_property("auto_exposure_bias", EV + (1.0 if name == "slot" else 0.0))
-            comp.set_editor_property("post_process_settings", pp)
-            comp.capture_scene()
-            unreal.RenderingLibrary.export_render_target(world, rt, OUT, f"Grooves_{name}.png")
+            if MODE == "legacy":
+                pp = comp.post_process_settings
+                pp.set_editor_property("override_auto_exposure_method", True)
+                pp.set_editor_property("auto_exposure_method", unreal.AutoExposureMethod.AEM_MANUAL)
+                pp.set_editor_property("override_auto_exposure_bias", True)
+                pp.set_editor_property("auto_exposure_bias", EV + (1.0 if name == "slot" else 0.0))
+                comp.set_editor_property("post_process_settings", pp)
+            for _ in range(2):
+                comp.capture_scene()
+            unreal.RenderingLibrary.export_render_target(world, rt, OUT, f"Grooves_{name}_{MODE}{SUFFIX}.png")
         finally:
             sub.destroy_actor(cap)
     c1 = len(unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages())
