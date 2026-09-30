@@ -60,6 +60,14 @@ def judge_drape(d, ref):
     still = d.get("still_window_max_mm")
     hp = d.get("hang_profile") or {}
     verdict = {"still": still is not None and still < STILL_LIMIT_MM, "hang": bool(hp.get("pass"))}
+    # BULGE (30 Sep): the flare compares only hem with heading, so a curtain held at both ends that BARRELS out at
+    # mid-height (the hem guide on sw_b5_g07) read 1.00. Use the widest sampled row instead, converted to the Opening
+    # width the same way as the flare.
+    rows = hp.get("rows", {})
+    if rows:
+        extra = max(r["width_m"] for r in rows.values()) - rows["heading"]["width_m"]
+        hp["bulge_at_opening_width"] = round((17.77 + max(0.0, extra)) / 17.77, 3)
+        verdict["hang"] = verdict["hang"] and hp["bulge_at_opening_width"] <= 1.15
     ratios = {}
     if ref is not None:
         p, r = pile(d), pile(ref)
@@ -104,7 +112,7 @@ def drape_lines(name, d, ref_name, ref):
              f"- **still**: window max {d.get('still_window_max_mm')} mm/frame (mean {d.get('still_window_mean_mm')}); "
              f"under 2 mm from {d.get('settle_to_2mm_s')} s (reached: {d.get('settle_to_2mm_reached')})"]
     if rows:
-        lines.append(f"- **hang**: flare {hp.get('flare_at_opening_width')} at the Opening width (edge spread "
+        lines.append(f"- **hang**: bulge {hp.get('bulge_at_opening_width')} and flare {hp.get('flare_at_opening_width')} at the Opening width (edge spread "
                      f"{hp.get('edge_spread_m')} m); folds (count, depth m, kept) "
                      + "; ".join(f"{k} {v['folds']}, {v['mean_depth_m']}"
                                  + (f", {v.get('count_kept')}/{v.get('depth_kept')}" if 'count_kept' in v else "")
@@ -192,7 +200,7 @@ def main():
     args = ap.parse_args()
     ref, strip_ref = load(args.ref), load(args.strip_ref)
     head = ["# Curtain acceptance (30 Sep)", "",
-            f"Targets: still < {STILL_LIMIT_MM} mm/frame; hang = flare at most 1.15, fold count kept at least 0.75 and depth "
+            f"Targets: still < {STILL_LIMIT_MM} mm/frame; hang = flare AND bulge (widest row) at most 1.15, fold count kept at least 0.75 and depth "
             f"kept at least 0.5 at 75/50/25% height; pile within +-{int(PILE_TOL * 100)}% of the reference on "
             f"{', '.join(PILE_KEYS)}.", ""]
     body, summary, verdicts = [], [], {}
