@@ -1,0 +1,317 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index 2df05fd3d168076c4b156470066cbcb947c733aa..07d581adc4163964d305a8c7b4c7a3a1f60d7585 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -22,6 +22,7 @@ DEFINE_LOG_CATEGORY(LogInfinityStageTransport);
+ namespace
+ {
+ constexpr TCHAR HiddenChangeoverMarker[] = TEXT("InfinityStage.HiddenChangeover");
++constexpr int32 JumpResettleMinTicks = 2;
+ 
+ /**
+  * One transport per world, so sequence evaluation can find the single camera
+@@ -151,6 +152,35 @@ UInfinityStageTransportController::UInfinityStageTransportController()
+     PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
+ }
+ 
++bool UInfinityStageTransportController::StepJumpResettle(
++    FInfinityJumpResettle& State,
++    const FFrameNumber CurrentFrame,
++    const bool bPlaying,
++    const float DeltaSeconds,
++    const float SettleSeconds,
++    const int32 MinTicks)
++{
++    if (!State.bPending)
++    {
++        return false;
++    }
++    if (SettleSeconds <= 0.0f || bPlaying || CurrentFrame != State.Frame)
++    {
++        State.bPending = false;
++        return false;
++    }
++
++    State.Elapsed += FMath::Max(0.0f, DeltaSeconds);
++    ++State.Ticks;
++    if (State.Elapsed < SettleSeconds || State.Ticks < MinTicks)
++    {
++        return false;
++    }
++
++    State.bPending = false;
++    return true;
++}
++
+ void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+ {
+     UnregisterForWorld();
+@@ -192,6 +222,30 @@ void UInfinityStageTransportController::TickComponent(
+         return;
+     }
+     ReassertPassageClaimIfLost();
++
++    if (StepJumpResettle(
++        JumpResettleState,
++        CurrentFrame,
++        Player->IsPlaying(),
++        DeltaTime,
++        JumpResettleSeconds,
++        JumpResettleMinTicks))
++    {
++        // StepJumpResettle fires only while the playhead is still on this exact
++        // frame. Keep the external-clock safety gate explicit even though that
++        // makes this a same-frame evaluation rather than a move.
++        const FFrameNumber TargetFrame = JumpResettleState.Frame;
++        if (!IsUnsafeExternalMove(TargetFrame))
++        {
++            const FFrameTime DisplayFrame = ShowAsset
++                ? FFrameRate::TransformTime(FFrameTime(TargetFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
++                : FFrameTime(TargetFrame);
++            Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
++            ++JumpResettleCount;
++            UE_LOG(LogInfinityStageTransport, Verbose,
++                TEXT("INFINITY_JUMP_RESETTLE frame=%d"), TargetFrame.Value);
++        }
++    }
+ }
+ 
+ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* InShowAsset)
+@@ -303,6 +357,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer* InPlayer, UInfinityStageShowAsset* InShowAsset)
+ {
+     Player = InPlayer;
++    JumpResettleState.bPending = false;
+     LastResult = EInfinityTransportResult::NoPlayer;
+     if (!InPlayer || !InShowAsset)
+     {
+@@ -473,6 +528,7 @@ EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
+     {
+         return LastResult = EInfinityTransportResult::NoPlayer;
+     }
++    JumpResettleState.bPending = false;
+     Player->SetPlayRate(FMath::Max(0.001f, FMath::Abs(Player->GetPlayRate())));
+     Player->Play();
+     return LastResult = EInfinityTransportResult::Succeeded;
+@@ -484,6 +540,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float
+     {
+         return LastResult = EInfinityTransportResult::NoPlayer;
+     }
++    JumpResettleState.bPending = false;
+     if (FMath::IsNearlyZero(Rate))
+     {
+         return PauseTransport();
+@@ -529,6 +586,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
+         : FFrameTime(TargetFrame);
+     Player->Pause();
+     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
++    JumpResettleState = {true, TargetFrame, 0.0f, 0};
+     SelectedSegmentIndex = TargetIndex;
+     bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
+     ClaimSegmentCamera(TargetIndex, TargetFrame);
+@@ -618,6 +676,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const
+         : FFrameTime(Target);
+     Player->Pause();
+     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
++    JumpResettleState = {true, Target, 0.0f, 0};
+     SelectedSegmentIndex = SegmentIndex;
+     bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, Target);
+     ClaimSegmentCamera(SegmentIndex, Target);
+@@ -1118,6 +1177,7 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
+     {
+         return LastResult = EInfinityTransportResult::NoPlayer;
+     }
++    JumpResettleState.bPending = false;
+     // An externally clocked Scene may continue normally at 1x toward its next
+     // boundary. Only reverse/seek/hold/rate-changing operations are unsafe.
+     if (IsUnsafeExternalMove(TargetFrame) && TargetFrame < GetCurrentMasterFrame())
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+index 160d7a0daeaf40555df0b64020b039a813f611cc..8dacb601808b920475ac310f2f4ec6e42049c20b 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+@@ -220,6 +220,15 @@ struct INFINITYSTAGE_API FInfinityTransportSegment
+     bool bReady = true;
+ };
+ 
++/** Pending one-shot re-evaluation of a frame after an operator jump. */
++struct INFINITYSTAGE_API FInfinityJumpResettle
++{
++    bool bPending = false;
++    FFrameNumber Frame = 0;
++    float Elapsed = 0.0f;
++    int32 Ticks = 0;
++};
++
+ UCLASS(ClassGroup = "Infinity Stage", BlueprintType, meta = (BlueprintSpawnableComponent))
+ class INFINITYSTAGE_API UInfinityStageTransportController : public UActorComponent
+ {
+@@ -248,6 +257,20 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
+     bool bAutoPlaySceneAfterPassage = false;
+ 
++    /**
++     * Delay before one same-frame re-evaluation after a paused jump or scrub.
++     * Geometry Caches decode asynchronously and otherwise keep drawing their
++     * previous sample while held (Gary, 30 Sep: "takes ages to load up a slot").
++     * Zero disables the re-evaluation.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport",
++        meta = (ClampMin = "0.0", Units = "s"))
++    float JumpResettleSeconds = 0.1f;
++
++    /** Number of delayed same-frame jump re-evaluations fired by this instance. */
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Transport")
++    int32 JumpResettleCount = 0;
++
+     /**
+      * How the view arrives at a Passage's travelling camera - a Scene or a
+      * mechanism handing back to the route.
+@@ -346,6 +369,15 @@ public:
+     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
+     FFrameNumber GetCurrentMasterFrame() const;
+ 
++    /** Advances a pending same-frame resettle without requiring a world or player. */
++    static bool StepJumpResettle(
++        FInfinityJumpResettle& State,
++        FFrameNumber CurrentFrame,
++        bool bPlaying,
++        float DeltaSeconds,
++        float SettleSeconds,
++        int32 MinTicks);
++
+     /** True while the Master player is running, so a toggle can tell play from pause. */
+     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
+     bool IsTransportPlaying() const;
+@@ -398,6 +430,8 @@ private:
+ 
+     bool bCoveredHandoffActive = false;
+ 
++    FInfinityJumpResettle JumpResettleState;
++
+     /** What ClaimViewTarget last asked for, and when, so a running blend is not
+      * restarted every frame by a repeat of the same request. */
+     TWeakObjectPtr<AActor> ClaimedViewTarget;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageJumpResettleTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageJumpResettleTests.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..0cfdfa2cd549576e8082fb90047bedc9af06ea80
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageJumpResettleTests.cpp
+@@ -0,0 +1,118 @@
++#include "InfinityStageTransportController.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageJumpResettlesOnceTest,
++    "InfinityStage.Transport.JumpResettlesOnce",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageJumpResettlesOnceTest::RunTest(const FString& Parameters)
++{
++    constexpr FFrameNumber FirstFrame(1200);
++    constexpr FFrameNumber SecondFrame(2400);
++    constexpr float Dt = 1.0f / 60.0f;
++    constexpr float SettleSeconds = 0.1f;
++    constexpr int32 MinTicks = 2;
++
++    // Held paused on one frame: due once, and only after both gates are met.
++    {
++        FInfinityJumpResettle State{true, FirstFrame, 0.0f, 0};
++        int32 Fires = 0;
++        int32 FireTick = INDEX_NONE;
++        for (int32 Tick = 1; Tick <= 60; ++Tick)
++        {
++            if (UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, false, Dt, SettleSeconds, MinTicks))
++            {
++                ++Fires;
++                FireTick = Tick;
++                TestTrue(TEXT("The elapsed-time gate has passed before the resettle fires"), State.Elapsed >= SettleSeconds);
++                TestTrue(TEXT("The minimum-tick gate has passed before the resettle fires"), State.Ticks >= MinTicks);
++            }
++        }
++        TestEqual(TEXT("A held paused jump resettles exactly once"), Fires, 1);
++        TestTrue(TEXT("The resettle does not fire before the minimum tick count"), FireTick >= MinTicks);
++        TestFalse(TEXT("The pending flag is cleared after firing"), State.bPending);
++    }
++
++    // Starting playback cancels the pending re-evaluation permanently.
++    {
++        FInfinityJumpResettle State{true, FirstFrame, 0.0f, 0};
++        TestFalse(TEXT("Playing never fires a pending resettle"),
++            UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, true, Dt, SettleSeconds, MinTicks));
++        TestFalse(TEXT("Playing clears the pending resettle"), State.bPending);
++        bool bFiredLater = false;
++        for (int32 Tick = 0; Tick < 60; ++Tick)
++        {
++            bFiredLater = bFiredLater || UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, false, Dt, SettleSeconds, MinTicks);
++        }
++        TestFalse(TEXT("A cancelled playing resettle never fires later"), bFiredLater);
++    }
++
++    // Leaving the target frame before the deadline cancels it.
++    {
++        FInfinityJumpResettle State{true, FirstFrame, 0.0f, 0};
++        UInfinityStageTransportController::StepJumpResettle(
++            State, FirstFrame, false, Dt, SettleSeconds, MinTicks);
++        TestFalse(TEXT("Changing frame never fires the old target"),
++            UInfinityStageTransportController::StepJumpResettle(
++                State, SecondFrame, false, Dt, SettleSeconds, MinTicks));
++        TestFalse(TEXT("Changing frame clears the pending resettle"), State.bPending);
++        bool bFiredLater = false;
++        for (int32 Tick = 0; Tick < 60; ++Tick)
++        {
++            bFiredLater = bFiredLater || UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, false, Dt, SettleSeconds, MinTicks);
++        }
++        TestFalse(TEXT("Returning to the old target does not revive the cancelled resettle"), bFiredLater);
++    }
++
++    // A new jump replaces the old target and restarts both countdowns.
++    {
++        FInfinityJumpResettle State{true, FirstFrame, 0.0f, 0};
++        for (int32 Tick = 0; Tick < 3; ++Tick)
++        {
++            TestFalse(TEXT("The first jump is not due before it is replaced"),
++                UInfinityStageTransportController::StepJumpResettle(
++                    State, FirstFrame, false, Dt, SettleSeconds, MinTicks));
++        }
++        State = {true, SecondFrame, 0.0f, 0};
++        int32 Fires = 0;
++        for (int32 Tick = 1; Tick <= 60; ++Tick)
++        {
++            Fires += UInfinityStageTransportController::StepJumpResettle(
++                State, SecondFrame, false, Dt, SettleSeconds, MinTicks) ? 1 : 0;
++        }
++        TestEqual(TEXT("The replacement jump fires exactly once"), Fires, 1);
++        TestEqual(TEXT("Only the replacement frame is retained"), State.Frame, SecondFrame);
++    }
++
++    // Zero disables the feature and clears an already armed request.
++    {
++        FInfinityJumpResettle State{true, FirstFrame, 0.0f, 0};
++        TestFalse(TEXT("A zero settle time never fires"),
++            UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, false, 1.0f, 0.0f, MinTicks));
++        TestFalse(TEXT("A zero settle time clears the pending resettle"), State.bPending);
++    }
++
++    // A long first tick satisfies time but never bypasses the two-tick gate.
++    {
++        FInfinityJumpResettle State{true, FirstFrame, 0.0f, 0};
++        TestFalse(TEXT("A single 0.5 second tick is still only one tick"),
++            UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, false, 0.5f, SettleSeconds, MinTicks));
++        TestTrue(TEXT("The request remains pending after that first large tick"), State.bPending);
++        TestTrue(TEXT("The second tick may now fire"),
++            UInfinityStageTransportController::StepJumpResettle(
++                State, FirstFrame, false, 0.0f, SettleSeconds, MinTicks));
++    }
++
++    return true;
++}
++
++#endif

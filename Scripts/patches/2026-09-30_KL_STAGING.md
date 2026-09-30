@@ -96,3 +96,12 @@ The walk-weighted bob fade: `StepGaitWalkWeight`, `ShadowCatBobFadeSeconds` (0.5
 `CurrentShadowCatBobWalkWeight`, with test `InfinityStage.ShadowCat.BobFadesWithTheWalk`. The test
 references the new function, so apply R whole in stage 2. It is independent of M (verified: R alone, M
 then R, R then M, and all of C, K, L, M, N, O and R together, each `--check` on HEAD).
+
+## Patch S (`2026-09-30_S_jump_resettles_cloth.patch`): apply whole, in stage 2
+
+After a paused jump or scrub, the transport re-evaluates the same frame once (after 0.1 s and at least 2
+ticks), so baked cloth shows its decoded frame instead of the stale one (`StepJumpResettle`,
+`JumpResettleSeconds`, `JumpResettleCount`), with test `InfinityStage.Transport.JumpResettlesOnce`. The
+test references the new function, so apply S whole in stage 2. **Watch in stage 2 (inferred):** the
+same-frame Jump also triggers the Passage track's jumped-render hint (a temporal-history reset while
+paused, once), and any Sequencer event set to fire on jump would fire again.
