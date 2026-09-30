@@ -31,7 +31,8 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 S4_RISE = "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise"
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
-RECORD = os.path.join(HERE, "arrivals_record.json")
+# A separate record per batch (ARRIVALS_RECORD) lets a re-apply for some scenes leave another batch's record alone.
+RECORD = globals().get("ARRIVALS_RECORD") or os.path.join(HERE, "arrivals_record.json")
 SCENES = tuple(globals().get("ARRIVAL_SCENES", (1, 2, 3, 5, 6)))
 RISE_START_S = dict(globals().get("ARRIVAL_RISE_START_S", {}))
 
@@ -156,10 +157,18 @@ def main():
     if temps:
         fail(f"bench/temp actors in the level: {temps[:5]}")
     rises = {r["scene"]: unreal.load_asset(r["rise"]) for r in rows}
+    rec_by, targets = {}, [r["scene"] for r in rows]
     if revert:
+        # Only the scenes asked for (ARRIVAL_SCENES), with the ORIGINAL keys from the record; a nested scene is
+        # refused (removing its Arrival would break a live transition: un-nest it first).
         rec = json.load(open(RECORD, encoding="utf-8"))
-        for r in rec["scenes"]:
-            n = r["scene"]
+        rec_by = {r["scene"]: r for r in rec["scenes"]}
+        targets = [n for n in SCENES if n in rec_by]
+        nested_now = [r["scene"] for r in rows if r["nested"] and r["scene"] in targets]
+        if nested_now or not targets:
+            fail(f"revert refused: nested={nested_now} (un-nest first), targets={targets}")
+        for n in targets:
+            r = rec_by[n]
             fps = rises[n].get_display_rate().numerator / rises[n].get_display_rate().denominator
             pitch = root_pitch(rises[n], n)[1]
             for k in list(pitch.get_keys()):
@@ -213,9 +222,12 @@ def main():
     back = []
     for r in rows:
         n = r["scene"]
+        if n not in targets:
+            continue
         fps = rises[n].get_display_rate().numerator / rises[n].get_display_rate().denominator
         got = [(round(f / fps, 4), v) for f, v in keys_of(root_pitch(rises[n], n)[1])]
-        want = [(round(round(t * fps) / fps, 4), v) for t, v in (r["keys_before"] if revert else r["keys_new"])]
+        # Revert compares with the RECORDED originals (the fresh plan row holds the current, applied keys).
+        want = [(round(round(t * fps) / fps, 4), v) for t, v in (rec_by[n]["keys_before"] if revert else r["keys_new"])]
         if got != want:
             fail(f"S{n}: keys {got}, wanted {want} (NOT saved)")
         if not revert:
@@ -233,12 +245,19 @@ def main():
         else:
             back.append(f"S{n}:keys={got}")
     for r in rows:
-        if not unreal.EditorAssetLibrary.save_asset(r["rise"], only_if_is_dirty=False):
+        if r["scene"] in targets and not unreal.EditorAssetLibrary.save_asset(r["rise"], only_if_is_dirty=False):
             fail(f"save failed: {r['rise']}")
     if not unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level():
         fail("level save failed")
     if revert:
-        os.replace(RECORD, RECORD + ".reverted")
+        remaining = [r for r in rec["scenes"] if r["scene"] not in targets]
+        with open(RECORD + ".reverted_" + "_".join(str(n) for n in targets), "w", encoding="utf-8") as fh:
+            json.dump({"reverted": [rec_by[n] for n in targets]}, fh, indent=1)
+        if remaining:
+            rec["scenes"] = remaining
+            json.dump(rec, open(RECORD, "w", encoding="utf-8"), indent=1)
+        else:
+            os.replace(RECORD, RECORD + ".reverted")
     dirty = [str(p.get_name()) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()] + \
             [str(p.get_name()) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages()]
     unreal.log(f"ARRIVALS_OK|{'reverted' if revert else 'applied'}|{'|'.join(back)}|dirty_after={dirty}")
