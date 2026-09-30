@@ -44,10 +44,10 @@ index 5ca7658..8704690 100644
 +
 +void AInfinityStageCelestialRig::InvalidateStarsMaterialParameterCache()
 +{
-+    LastStarsBrightnessWritten = TNumericLimits<float>::QuietNaN();
-+    LastSunBrightnessWritten = TNumericLimits<float>::QuietNaN();
-+    LastCloudOpacityWritten = TNumericLimits<float>::QuietNaN();
-+    LastSunHeightWritten = TNumericLimits<float>::QuietNaN();
++    LastStarsBrightnessWritten = TNumericLimits<float>::Max();
++    LastSunBrightnessWritten = TNumericLimits<float>::Max();
++    LastCloudOpacityWritten = TNumericLimits<float>::Max();
++    LastSunHeightWritten = TNumericLimits<float>::Max();
  }
  
  bool AInfinityStageCelestialRig::EvaluateAtMasterFrame(
@@ -231,16 +231,16 @@ index 2a77796..7ce5cb6 100644
      double LastForeignLightingCheckSeconds = -1.0;
  
 +    UPROPERTY(Transient)
-+    float LastStarsBrightnessWritten = TNumericLimits<float>::QuietNaN();
++    float LastStarsBrightnessWritten = TNumericLimits<float>::Max();
 +
 +    UPROPERTY(Transient)
-+    float LastSunBrightnessWritten = TNumericLimits<float>::QuietNaN();
++    float LastSunBrightnessWritten = TNumericLimits<float>::Max();
 +
 +    UPROPERTY(Transient)
-+    float LastCloudOpacityWritten = TNumericLimits<float>::QuietNaN();
++    float LastCloudOpacityWritten = TNumericLimits<float>::Max();
 +
 +    UPROPERTY(Transient)
-+    float LastSunHeightWritten = TNumericLimits<float>::QuietNaN();
++    float LastSunHeightWritten = TNumericLimits<float>::Max();
 +
 +#if WITH_DEV_AUTOMATION_TESTS
 +    int32 StarsMaterialParameterWriteCountForTests = 0;
