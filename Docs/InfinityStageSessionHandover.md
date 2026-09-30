@@ -280,6 +280,31 @@ via Dynamic Mesh so the stack is at rest, and the track gap goes 0.15 to 0.4 m s
 the pleats stop colliding — with a static-rest control at the same gap to
 separate the two effects.
 
+**UPDATE 07:15 — the traveller's hold is FIXED, and the split has a shape.**
+
+- **The traveller's 21 mm/frame was the two halves COLLIDING, not the cloth.**
+  Opening the track gap from 0.15 to 0.4 m took the hold to **0.06 mm/frame**,
+  under the 2 mm limit by 3.5 s. `final12_traveller` is running at full
+  resolution with a static rest, that gap, and air damping x10 applied only over
+  the second **after the opening ends** — so the motion you liked is untouched.
+  The stacks stayed restless at coarse resolution, but 27 cm quads cannot resolve
+  7 cm stack loops, so that reading proves nothing either way.
+- **THE 2 mm LIMIT NOW HAS ITS PROVENANCE WRITTEN DOWN**, which it did not before.
+  At the stalls camera — 14 m, 15 mm on Super 35, 1920 px — **one pixel is about
+  1.2 cm of cloth**, so 2 mm/frame is about **1/6 of a pixel per frame** and
+  leaves no visible seam where the hold ends. For contrast, `final2`'s "bouncy"
+  hang was about 8 mm/frame: 0.7 px per frame, and **20 px of swim over its last
+  second**. That is the number Gary was reacting to when he called it bouncy.
+- **The three jobs are not three cloths, and the split narrows accordingly.** The
+  shadow play is not a separate screen: **the five transition drapes ARE the
+  screens** — the Interaction plays on the drape, which then falls. So the drapes
+  carry the same demands as the backcloth: hang, stillness AND a fall. The
+  Opening is the only site that can trade stillness away, because its stillness
+  is met for any bake by the one-tick hold on sample 0. **So the likely outcome
+  is two recipes, not one and not three:** the Opening takes whichever amount
+  gives the best PILE, and the drapes and backcloth take whichever gives the best
+  HANG plus STILLNESS at an acceptable pile.
+
 **Nothing is placed.** `Docs/` carries the numbers; the acceptance test has now
 refused three bakes.
 
