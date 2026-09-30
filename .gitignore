@@ -18,6 +18,8 @@
 !/Docs/
 !/Scripts/
 !/Tools/
+!/.codex/
+!/.codex/config.toml
 !/go1_pi_bridge/
 !/Plugins/
 !/Saved/

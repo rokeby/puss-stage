@@ -167,7 +167,7 @@ restored to its full 210.8 s and Scene 4 grew to hold the hangar rise.
 
 **Ruled out by measurement:** cloth simulation, the celestial world-walk, wing
 motion, all 432 flicker light functions, the shadow cache, every dynamic shadow,
-lights-per-pixel, GPU contention with MHFat, the AI logging recorder, the
+lights-per-pixel, GPU contention with MHFat, and the
 timers, scene captures and reflections, the Go1 socket, fog, the entire structure
 kit and every wing, and PIE itself.
 
@@ -326,7 +326,11 @@ the backcloth bake stands or falls on its own numbers whatever the strips pick,
 and a later preference is an optional re-bake rather than a gate. **This converted
 a blocking dependency into an option and saved the morning's integration.**
 
-**Nothing is placed.** `Docs/` carries the numbers; the acceptance test has now
+**AS OF 10:45, `final11` IS PLACED AND INTEGRATED AT P04** — through stillness,
+hang, site, at-rest and the rendered gate, with the section applied, the seam
+measured clean and no loop past the end. Everything else is still unplaced: the
+Opening and the five transitions wait on `final13`. `Docs/` carries the numbers;
+the acceptance test has now
 refused three bakes.
 
 ### Codex

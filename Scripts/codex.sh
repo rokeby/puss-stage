@@ -58,8 +58,8 @@ case "${1:-}" in
     SANDBOX=""
     EXTRA+=(--approve-for-me -c sandbox_workspace_write.network_access=true)
     shift ;;
-  --review)   shift; exec "$EXE" exec review -C "$REPO" "$@" ;;
-  --raw)      shift; exec "$EXE" "$@" ;;
+  --review)   shift; exec "$EXE" exec review -C "$REPO" "$@" < /dev/null ;;
+  --raw)      shift; exec "$EXE" "$@" < /dev/null ;;
 esac
 
 if [ $# -eq 0 ]; then

@@ -1,0 +1,8 @@
+# Codex project config for PussStage.
+#
+# PORT: PussStage's Unreal MCP listener is 8010. MHFat's is 8000.
+# This file said 8000 until 30 Sep 2026, which would have pointed a Codex agent
+# running in this folder at the WRONG PROJECT'S EDITOR. See Saved/CodexMocap/mcp_request.py,
+# which is the route every Claude stream uses and which has always used 8010.
+[mcp_servers.unreal-mcp]
+url = "http://127.0.0.1:8010/mcp"
