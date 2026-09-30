@@ -26,10 +26,14 @@ leads to the next opening.
 
 - **The geometry is right:** the far wall is 21 × 30 m and the portal opening is
   19 × 10.5 m. The seat sits inside the 60 m nave.
-- **The transition cameras are already this seat,** derived live from each
-  route start (`place_transition_stalls.py`). The drape lives at the mouth, and
-  the portal is built at the route start. All three follow a re-docked Passage
-  without re-authoring.
+- **The transition cameras are already this seat,** placed once from each
+  route start (`place_transition_stalls.py`). They are NOT derived live
+  (corrected 30 Sep): after a Passage moves they must be re-seated IN PLACE,
+  because the Interaction cuts bind them as actors, and a revert-and-replace
+  would break those bindings. The drape lives at the mouth, and the portal is
+  built at the route start. The Passage camera rigs DO follow a moved Passage
+  with no work: they derive their transform from the route spline every
+  evaluation (InfinityStageCameraRig.cpp:356, :701–703).
 - **It's the Opening's grammar at every transition,** now always from inside the
   machine that just rose around the cat.
 
