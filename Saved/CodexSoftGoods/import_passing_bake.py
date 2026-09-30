@@ -20,6 +20,9 @@ bounds with the bake's own checkpoint extents (Blender m to UE cm: X = 100 y, Y 
 asymmetric pile cannot pass a flip or swap. If it fails, the cache is not imported and nothing is saved.
 The placed actor is saved with manual_tick = true, running = true and looping = false (Rig, G2), so it never auto-plays
 and a Restore State returns it to manual. All three are read back.
+CROSS-STREAM CONTRACT: import_passing_bake.json's `plan.release_in_cache_s` (seconds from the cache's first sample
+to the release, float) is READ by Rig's Saved/CodexStructure/p04_backcloth_section_apply.py, which refuses on
+disagreement. Changing that field's name, meaning or units is a cross-stream change: tell Rig first.
 Saves only its own assets, and the map when placing; backs up everything it replaces first. Logs
 PUSS_SOFTGOODS_BAKE_IMPORT_SUCCESS or _STOPPED. Crash rules: everything inside main().
 """
