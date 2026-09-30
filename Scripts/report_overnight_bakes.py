@@ -106,9 +106,14 @@ def judge_drape(d, ref):
     limit = derived_still_limit_mm(site)
     # AT REST (30 Sep): every site now HOLDS the frame one before the release, so nothing moves on screen before the
     # fall, and no lens can see a seam. What remains is whether the FROZEN frame reads as a curtain AT REST, not one
-    # arrested mid-sway (final2's frame 149 billowed past a post). That is judged at the stalls standard (2 mm/frame
-    # on the window, lens-independent because the frame is frozen). The per-site seam limit is kept as INFORMATION,
-    # for any site still holding the first sample (legacy).
+    # arrested mid-sway (final2's frame 149 billowed past a post).
+    # WHY NO LENS ENTERS: not "because the frame is frozen" (a frozen frame shows zero motion at any threshold). The
+    # gate measures whether the SOURCE sample comes from a SETTLED moment of the simulation, a pose-quality property
+    # of the cache, and the window's motion is the evidence of that.
+    # THE 2 mm IS INHERITED, NOT DERIVED: it was the stalls pixel standard (0.173 px at 15 mm and 14 m) and is kept as a
+    # reasonable proxy for "settled". A derivation on its own terms would bound the frozen pose's distance from the
+    # equilibrium pose (e.g. net drift over a longer settle), which is not yet measured. The per-site seam limit is
+    # kept as INFORMATION, for any site still holding the first sample (legacy).
     d["_still_limit"] = {"gate": "at rest (hold at release): window max < 2.0 mm/frame",
                          "legacy_seam_if_held_at_first_sample": {"site_view": site, "lens_mm_distance_m": SITE_VIEW[site],
                                                                  "limit_mm_per_frame": limit,
