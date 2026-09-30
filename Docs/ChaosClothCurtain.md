@@ -67,14 +67,37 @@ Smoke test (`traveller_smoke`, 27 cm quads, short settle): the mechanism works (
 and the key-weight error was 3e-8. At that resolution the lower fabric spread the stacks to about 3.2 m wide and
 ±1.1 m deep, and nothing had time to settle. So the smoke's numbers are not the result.
 
-**Blocked (30 Sep, 01:30).** The classifier refused even a DRY RUN of `fit_transition_drapes.py` through MCP. Every
-editor step waits for Gary:
-- the fit, into all five Interactions (the shadow-puppet Interactions ARE these five);
-- the re-import of the settled bake;
-- the Opening's one-tick HOLD.
+**The fit is APPLIED and VERIFIED (30 Sep, 01:43, on Gary's go-ahead).** All five Interactions (the shadow-puppet
+Interactions ARE these five) have the drape at their mouth. Each cuts to its mouth's tagged stalls camera, with HOLD
+0–375 on a one-tick window, FALL 375–500, and the fire-safety rig keyed off. The marker is
+`PUSS_SOFTGOODS_FIT_VERIFY|ok=True`.
+- The read-back caught a real fault in the first apply: **`set_actor_location` on a spawnable TEMPLATE does not
+  persist**. All five were saved at (0,0,0), which would have been the Opening's stage front. The fit now writes the
+  root component's relative transform.
+- The backups are `Backups/PreTransitionDrapes-20260930-014009` and the one from the re-apply.
+- The five drapes still play the OLD cache. One re-import into `GC_CurtainDrop_Opening` upgrades them and the Opening
+  together, provided the new window is 330 frames with the release 1 s in.
 
-One re-import of `final3_settled` into `GC_CurtainDrop_Opening` upgrades the Opening and all five transitions at once.
-Its window has the same length (330 frames) with the release 1 s in, so the fit's timings hold.
+**The hang was wrong, and it has been fixed at the method level (30 Sep, 02:00–02:30).** Gary asked for a "dignified
+and stable still set of nicely sculptural pleats", with ripplefold photos, and "structured hanging profile, the good
+fall we already got". A coarse 29 s hang showed a FLAT-rest cloth on the pinned heading flares, and merges its pleats
+into soft swags within 1.5 m of the heading, so `final3_settled` / `final4_dense_pleats` are NOT to be placed. They
+finish as full-width controls. A hem guide (`HEM_GUIDE_WEIGHT`) stops the flare but not the merging.
+
+**`REST=pleated_switch` fixes it.** The mesh is pleated, so the hang is true columns. From the release, a Flat key
+plus `use_dynamic_mesh` ramps the rest shape to flat over 0.5 s, so the pile keeps no pleat memory.
+- Coarse proof, identical hang: `pswitch_coarse_hangfront.png` shows 21 folds at every height, depth kept 99–100%,
+  flare 1.00.
+- `pswitch_coarse_34.png` is a loose heap; `pleated_coarse_34.png`, with a plain pleated rest, is regimented rows.
+
+The acceptance test is `Scripts/report_overnight_bakes.py`. A bake is placed only if all three pass:
+- stillness under 2 mm/frame;
+- the hang: flare at most 1.15, fold count kept at least 0.75 and depth kept at least 0.5 at 75/50/25% height;
+- the pile within 25% of final2 (or, at P04, the site).
+
+In flight: `final6_columns`, `final7_columns_dense` (0.607 m pleats) and `final8_backcloth_p04`. The backcloth is
+10 m wide with a 12 m drop at x 10450; 12 m spilled off the passage floor at ±9.67 m. Alongside them runs an 8-run
+full-resolution strip sweep (`sw_*`), the evidence.
 
 ## 28 Sep (night): the goal is WEIGHT and a WIDE pile, and the Blender drop bake
 
