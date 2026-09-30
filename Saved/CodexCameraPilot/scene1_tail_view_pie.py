@@ -53,7 +53,7 @@ import os
 import unreal
 
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexCameraPilot")
-LEAD_S = 2.0
+LEAD_S = 2.0                                  # default; the mode file may set "lead_s"
 SHOTS_AT_S = (10.0, 20.0)
 END_S = 21.0
 MAX_TICKS = 3000
@@ -67,6 +67,7 @@ def main():
     end_s = float(cfg.get("end_s", END_S))
     shots_at_s = [float(x) for x in cfg.get("shots", SHOTS_AT_S)]
     out_name = cfg.get("out", "scene1_tail_view")
+    lead_s = float(cfg.get("lead_s", LEAD_S))
     crossing_window_s = float(cfg.get("crossing_shots_s", 0.0))
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if mode == "start":
@@ -99,7 +100,7 @@ def main():
     end = segments[index].get_editor_property("end_frame").value
     previous_label = str(segments[index - 1].get_editor_property("label"))
     ticks_per_s = 24000.0                                   # Master tick resolution (24 kHz)
-    scrub = transport.scrub_to_master_frame(unreal.FrameNumber(int(start - LEAD_S * ticks_per_s)))
+    scrub = transport.scrub_to_master_frame(unreal.FrameNumber(int(start - lead_s * ticks_per_s)))
     play = transport.play_forward_through_boundaries()
     state = {"rows": [], "shots": [], "crossing_shots": [], "handle": None}
     pending_shots = list(shots_at_s)
