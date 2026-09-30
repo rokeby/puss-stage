@@ -669,3 +669,33 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - **Scene 4's own roof beat barely reads from the cat's position.**
 - Caveat: Sequencer does not evaluate before the playback start (0). The −3 s side frame
   shows rest (−90.00°), not −89.78°.
+
+### Correction and the ground-plane fault (30 Sep, late morning)
+
+- **Correction:** the speed sheet's "1.2% vs 20.8% lit" compared S5 just landed with S4
+  after its uplights. At MATCHED phases (Scene 4's beats × K), measured from the stop:
+
+  | Phase | S4 lit | S5 lit |
+  |---|---|---|
+  | landed | 1.0% | 1.2% |
+  | uplights on | 20.7% | 2.8% |
+  | end | 24.0% | 4.9% |
+
+  - On the floor half of the frame: S4 20.6%, S5 2.0%.
+  - Sheet: `Captures/WhyS5Dark_Sheet.png`. The speed sheet's caption now points to it.
+- **Ground-plane fault: five sites, not three, and two mechanisms**
+  (`hangar_ground_survey_readonly.py`, `ground_beyond_hinge_readonly.py`).
+  - **Planes (S1, S5, S6).** The Passage's own hand-placed floor plane (a scaled Cube,
+    1 cm thick, top 5 cm below the hinge) runs past the Passage end:
+    - S1: 399 m ("Opening Floor");
+    - S6: 139 m ("Opening Floor2");
+    - S5: 16 m ("Dark Wood Floor2"), so only the first 16 m of its box.
+    - Nothing stands on any of them beyond the hinge. One fix: end each plane at its hinge
+      line, as P04's Structure Ground does, with the near end unchanged.
+  - **Landscapes (S2, S3).** The Passage's landscape covers the whole footprint: S2 at
+    hinge level, S3 1.2 m above its lowered hinge. The box hangs underground and rises
+    through the terrain. A landscape can't be shortened; it needs a hole, which is a
+    different fix and touches the Passage environments.
+  - **S4 is the only clean site** (a void beyond the hinge).
+  - The builder allowed all five by name, so they are deferrals, not misses. Its blocker
+    test also skips anything wider than 10 km; that isn't the cause here, but it is a gap.

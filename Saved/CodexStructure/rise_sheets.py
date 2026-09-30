@@ -3,6 +3,7 @@
 (rise_sheets prints them) or read from the bench's logged pitches.
   Captures/RiseSpeed_S5_vs_S4_Sheet.png   is Scene 5's rise thrilling or absurd?
   Captures/RoofBeat_S6_vs_S4_Sheet.png    what the empty roof beat looks like
+  Captures/WhyS5Dark_Sheet.png            Scene 5 vs 4 at MATCHED phases (corrects the speed sheet)
 The 1-second exposures average 11 frames over +-0.5 s around each rise's fastest moment in
 LINEAR light, so the smear is what a 1 s shutter would record."""
 import json
@@ -109,8 +110,8 @@ def speed_sheet():
         "The smear is the distance moved in one second. Scene 4 sweeps 6.9° in that second (its far end moves 7.2 m); Scene 5 sweeps 4.7° (its far end moves 12.2 m).",
         "From the stop the cat stands almost on the hinge, so the eye reads the SWEEP, not the far wall's speed: Scene 5 reads about 1.5x slower and heavier than Scene 4, not faster. "
         "Its bulb streaks are shorter.",
-        f"From the stop Scene 5 is black until about 12 s (p99 1 to 2 of 255), and after landing only {lit[5][-1]:.1f}% of the frame is lit, against Scene 4's {lit[4][-1]:.1f}%. "
-        "Its lights did scale with its size, but at 150 m they are points. From the cat's position the rise is mostly unseen.",
+        "From the stop Scene 5 is black until about 12 s of its rise (p99 1 to 2 of 255); Scene 4 is black until about 6 s. "
+        "Lit fraction compared at MATCHED moments (not these clock times): see WhyS5Dark_Sheet.png. Scene 5 is 5 to 7 times darker once the lights are on.",
         "Judgement for Gary: is a slower, darker, much bigger rise the right Scene 5? These are the builder's K law and budgeted lights, not a design.",
     ]
     for f_ in facts:
@@ -164,6 +165,70 @@ def roof_sheet():
     return still6, moving4, same_up, peak_up
 
 
+
+
+
+def tag(d, xy, text, f, fill=ACC):
+    x, y = xy
+    box = d.textbbox((x, y), text, font=f)
+    d.rectangle((box[0] - 4, box[1] - 3, box[2] + 4, box[3] + 3), fill=(0, 0, 0))
+    d.text((x, y), text, font=f, fill=fill)
+
+
+def lit_sheet():
+    """Why Scene 5 reads dark, at MATCHED phases (Scene 4's beats x each hangar's K). Corrects the
+    speed sheet's 1.2% vs 20.8%, which compared S5 just landed with S4 after its uplights."""
+    phases = {4: [16.0, 20.0, 25.0, 30.9], 5: [25.3, 31.62, 39.53, 48.86]}
+    names = ["landed", "uplights on", "roof shut", "end of the beats"]
+    lit = {s: [100 * (lum(f"S{s}_lit_cam_p{t:05.2f}.png") > 40).mean() for t in phases[s]] for s in (4, 5)}
+    floor = {s: 100 * (lum(f"S{s}_lit_cam_p{phases[s][-1]:05.2f}.png")[270:, :] > 40).mean() for s in (4, 5)}
+    tw, th, lw = 420, 236, 190
+    W = lw + 4 * (tw + 6) + 10
+    sheet = Image.new("RGB", (W, 1500), BG)
+    d = ImageDraw.Draw(sheet)
+    ft, fl, fs, fb = font(30, True), font(19, True), font(15), font(18)
+    d.text((12, 12), "Why Scene 5 reads dark: the same moments, from the cat's stop", font=ft, fill=FG)
+    d.text((12, 52), "Each column is the same point in each hangar's own sequence (Scene 4's beats x Scene 5's K 1.58). Level view from the stop; "
+                     "no exposure override.", font=fs, fill=DIM)
+    for i, nm in enumerate(names):
+        d.text((lw + i * (tw + 6) + 6, 82), f"{nm}   (S4 {phases[4][i]:g} s / S5 {phases[5][i]:g} s)", font=fs, fill=FG)
+    y = 108
+    for s in (4, 5):
+        d.text((12, y + th // 2 - 22), f"Scene {s}", font=fl, fill=FG)
+        d.text((12, y + th // 2 + 4), "from the stop", font=fs, fill=DIM)
+        for i, t in enumerate(phases[s]):
+            x = lw + i * (tw + 6)
+            sheet.paste(img(f"S{s}_lit_cam_p{t:05.2f}.png", (tw, th)), (x, y))
+            tag(d, (x + 8, y + th - 26), f"{lit[s][i]:.1f}% of frame lit", fs)
+        y += th + 8
+    y += 10
+    d.text((12, y), "End of the beats: a wider look, and the same frame with the exposure raised", font=fl, fill=FG)
+    y += 30
+    for i, (name, lab) in enumerate((("S4_lit_wide_p30.90.png", "Scene 4, 100° wide"), ("S5_lit_wide_p48.86.png", "Scene 5, 100° wide"),
+                                     ("S4_lit_cam5_p30.90.png", "Scene 4, bias +5 (renders ~6 stops brighter)"),
+                                     ("S5_lit_cam5_p48.86.png", "Scene 5, bias +5 (renders ~6.6 stops brighter)"))):
+        x = lw + i * (tw + 6)
+        sheet.paste(img(name, (tw, th)), (x, y))
+        tag(d, (x + 8, y + 8), lab, fs)
+    y += th + 16
+    facts = [
+        f"CORRECTION to the speed sheet: its 1.2% vs 20.8% compared Scene 5 just landed with Scene 4 after its uplights. At matched moments both are dark on landing "
+        f"({lit[4][0]:.1f}% vs {lit[5][0]:.1f}%). The gap opens when the lights come on: {lit[4][1]:.1f}% vs {lit[5][1]:.1f}% with the uplights on, and "
+        f"{lit[4][3]:.1f}% vs {lit[5][3]:.1f}% at the end. Scene 5 is 5 to 7 times darker, not 17.",
+        f"Why: in Scene 4 every light sits a few metres from a wall, floor or roof the cat can see, so the light lands on surfaces that fill the frame "
+        f"(the floor half of the frame: {floor[4]:.1f}% lit). In Scene 5 the side walls are 100 m away and the far wall 150 m, so the lights read as points "
+        f"and cones hanging in a void, and the floor in front of the cat is lit only by the ghost light ({floor[5]:.1f}% of the floor half lit).",
+        "The brightened frame shows the floor and the room are there and nothing reaches them. The rig scaled in NUMBER with the room; its distance to what the cat "
+        "sees scaled too. Lighting Scene 5 is a design question in its own right, not a bigger copy of Scene 4's rig.",
+    ]
+    for f_ in facts:
+        y = wrap(d, "- " + f_, 12, y, W - 24, fb, FG)
+    sheet = sheet.crop((0, 0, W, y + 10))
+    sheet.save(os.path.join(OUT, "WhyS5Dark_Sheet.png"))
+    return lit, floor
+
+
 if __name__ == "__main__":
     print("speed: lit% from the stop by time", speed_sheet())
     print("roof: S6 still, S4 moving, same-after-shut, peak up diff", roof_sheet())
+    print("why S5 dark: lit% by phase, floor-half lit%", lit_sheet())

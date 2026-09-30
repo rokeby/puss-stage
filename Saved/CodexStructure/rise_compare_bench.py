@@ -14,7 +14,7 @@ Saved/CodexStructure/BenchOriginals/, and the path is logged. After Sequencer cl
 level is compared with that file. Anything that differs is restored from the file and
 reported. No save anywhere in this script. Transient capture actors are destroyed in a
 finally.
-Mode: rise_bench_mode.json {"scene": N, "set": "speed"|"roof"|"roofarc"}. Writes Captures/RiseBench/.
+Mode: rise_bench_mode.json {"scene": N, "set": "speed"|"roof"|"roofarc"|"lit"}. Writes Captures/RiseBench/.
 Lean: main()."""
 import datetime
 import json
@@ -33,7 +33,11 @@ SETS = {"speed": {"strip": [(-3.0, ("side",)), (0.0, ("cam", "side")), (3.0, ("c
                            (16.0, ("up", "side")), (18.5, ("up", "side")), (20.5, ("up", "side")), (22.5, ("up", "side")),
                            (24.5, ("up", "side")), (26.5, ("up", "side")), (29.0, ("up", "side"))], "smear": ()},
         # The whole roof arc (hinge on the far wall's top, up to height + depth when upright).
-        "roofarc": {"strip": [(t, ("arc",)) for t in (12.0, 16.0, 18.5, 20.5, 22.5, 24.5, 26.5, 29.0)], "smear": ()}}
+        "roofarc": {"strip": [(t, ("arc",)) for t in (12.0, 16.0, 18.5, 20.5, 22.5, 24.5, 26.5, 29.0)], "smear": ()},
+        # Matched PHASES, not clock times: Scene 4's beats x the hangar's own K (landing, uplights
+        # on, roof shut, end), so a big hall is compared after ITS lights have come on. cam5 is the
+        # stop view with the exposure bias overridden to +5: the room is there, the light is not.
+        "lit": {"strip": [(t, ("cam", "cam5", "wide", "up")) for t in (16.0, 20.0, 25.0, 30.9)], "smear": (), "k_scale": True}}
 
 
 def state_of(actors):
@@ -97,6 +101,8 @@ def main():
     side = dock.transform_location(unreal.Vector(apron + d * 0.45, -(w + max(3000.0, 1.2 * d)), ht * 0.6))
     look = dock.transform_location(unreal.Vector(apron + d * 0.45, 0.0, -d * 0.15))
     views = {"cam": (cam.get_actor_location(), unreal.Rotator(roll=0.0, pitch=0.0, yaw=yaw), fov),
+             "cam5": (cam.get_actor_location(), unreal.Rotator(roll=0.0, pitch=0.0, yaw=yaw), fov, 5.0),
+             "wide": (cam.get_actor_location(), unreal.Rotator(roll=0.0, pitch=0.0, yaw=yaw), 100.0),
              "up": (cam.get_actor_location(), unreal.Rotator(roll=0.0, pitch=25.0, yaw=yaw), 90.0),
              "side": (side, unreal.MathLibrary.find_look_at_rotation(side, look), 70.0)}
     # arc: frames the box AND the roof's whole swing (the region x apron..apron+d, z 0..ht+d),
@@ -116,7 +122,8 @@ def main():
             for k in track.get_sections()[0].get_all_channels()[4].get_keys()]
     start, land = keys[0], keys[-1]
     peak = (start + land) / 2.0
-    shots = [(t, v, f"S{n}_{which}_{v}_{'m' if t < 0 else 'p'}{abs(t):05.2f}.png") for t, vs in cfg["strip"] for v in vs]
+    k = float(rec["k"]) if rec and cfg.get("k_scale") else 1.0
+    shots = [(t * k, v, f"S{n}_{which}_{v}_{'m' if t < 0 else 'p'}{abs(t * k):05.2f}.png") for t, vs in cfg["strip"] for v in vs]
     shots += [(peak + (i - 5) * 0.1, v, f"S{n}_smear_{v}_{i:02d}.png") for v in cfg["smear"] for i in range(11)]
     os.makedirs(OUT, exist_ok=True)
     rt = unreal.RenderingLibrary.create_render_target2d(world, 960, 540, unreal.TextureRenderTargetFormat.RTF_RGBA8_SRGB)
@@ -130,10 +137,16 @@ def main():
                 unreal.LevelSequenceEditorBlueprintLibrary.refresh_current_level_sequence()
                 log.append(f"{t:.2f}:{root.root_component.get_editor_property('relative_rotation').pitch:.2f}")
                 last_t = t
-            loc, rot, f = views[v]
+            loc, rot, f = views[v][:3]
             cap = sub.spawn_actor_from_class(unreal.SceneCapture2D, loc, rot, True)
             try:
                 comp = cap.capture_component2d
+                if len(views[v]) > 3:
+                    pps = comp.get_editor_property("post_process_settings")
+                    pps.set_editor_property("override_auto_exposure_bias", True)
+                    pps.set_editor_property("auto_exposure_bias", views[v][3])
+                    comp.set_editor_property("post_process_settings", pps)
+                    comp.set_editor_property("post_process_blend_weight", 1.0)
                 comp.set_editor_property("texture_target", rt)
                 comp.set_editor_property("capture_source", unreal.SceneCaptureSource.SCS_FINAL_TONE_CURVE_HDR)
                 comp.set_editor_property("fov_angle", f)
