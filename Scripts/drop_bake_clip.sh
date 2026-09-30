@@ -6,7 +6,9 @@ ID="$1"; STEP="${2:-1}"
 DIR="$(cd "$(dirname "$0")/.." && pwd)/Saved/CodexSoftGoods/DropBake"
 FFMPEG="$LOCALAPPDATA/Microsoft/WinGet/Links/ffmpeg.exe"
 FPS=$(python -c "print(30/$STEP)")
-for view in side 34; do
+# Every clip view the bake wrote (the drop: side, 34; the traveller: stalls, front).
+for d in "$DIR/${ID}"_clip_*/; do
+  view="$(basename "$d")"; view="${view#${ID}_clip_}"
   "$FFMPEG" -y -loglevel error -framerate "$FPS" -i "$DIR/${ID}_clip_${view}/f%04d.png" \
     -vf "scale=1280:-2,format=yuv420p" -c:v libx264 -crf 20 -movflags +faststart "$DIR/${ID}_${view}.mp4"
   echo "$DIR/${ID}_${view}.mp4"

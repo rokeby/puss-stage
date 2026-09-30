@@ -83,6 +83,12 @@ LEAD = float(os.environ.get("TRAVELLER_LEAD_M", "0.4"))
 GAP = float(os.environ.get("TRAVELLER_TRACK_GAP_M", "0.15"))
 PITCH = float(os.environ.get("TRAVELLER_STACK_PITCH_M", "0.07"))
 END_PROBE = int(os.environ.get("END_PROBE", "60"))
+# 30 Sep, Gary on the first smoke: "it should begin in a dignified and stable still set of nicely sculptural pleats"
+# (with photos of a ripplefold: round waves running unbroken from heading to floor). A flat sheet gathered at the
+# heading can only settle into a FLARE, and takes seconds of swinging to get there. "pleated" (default) builds every
+# row in the closed ripplefold, which is then also the cloth's rest shape, as fabric that has hung in its folds holds
+# them. So it starts at rest, and the settle only takes up gravity's stretch. "gather" is the first version.
+START = os.environ.get("TRAVELLER_START", "pleated")
 PLEATED = 0.5 * TRACK + 0.5 * OVERLAP - LEAD     # pleated track per half, outer end to the lead carrier
 N = max(1, round(PLEATED / (0.5 * pattern.FOLD_WAVELENGTH)))
 S_C = PLEATED / N                                 # closed carrier spacing (half a fold wavelength)
@@ -207,8 +213,11 @@ def build_traveller():
     top, hem, spans = [], [], []
     for h in halves:
         first = len(bm.verts)
-        xf = h.flat_x()
-        grid = [[bm.verts.new((xf[c], h.track_y, zs[r])) for c in range(h.cols + 1)] for r in range(pattern.ROWS + 1)]
+        if START == "pleated":                # every row in the closed ripplefold: columns from heading to hem
+            xs, ys = h.pose(0.0)
+        else:                                 # "gather": the flat sheet, laid out from the leading edge outward
+            xs, ys = h.flat_x(), np.full(h.cols + 1, h.track_y)
+        grid = [[bm.verts.new((xs[c], ys[c], zs[r])) for c in range(h.cols + 1)] for r in range(pattern.ROWS + 1)]
         # One pattern across both halves (outer left edge u = 0, outer right edge u = 1), so texel density matches the drape.
         u = h.w / total_w if h.side < 0 else 1.0 - h.w / total_w
         for r in range(pattern.ROWS):
@@ -231,18 +240,20 @@ def build_traveller():
     obj = bpy.data.objects.new(f"Curtain_{drop.DROP_ID}", mesh)
     scene.collection.objects.link(obj)
     obj.location.z = drop.LIFT_M
-    obj.shape_key_add(name="Basis", from_mix=False)                      # flat: the cloth's rest shape
-    gathered = obj.shape_key_add(name="Gathered", from_mix=False)
-    gathered.data.foreach_set("co", coords_for(halves, 0.0, zs))
-    gathered.value = 0.0
-    gathered.keyframe_insert("value", frame=1)
-    gathered.value = 1.0
-    gathered.keyframe_insert("value", frame=1 + drop.GATHER_FRAMES)
+    obj.shape_key_add(name="Basis", from_mix=False)                      # the cloth's rest shape (pleated or flat)
     prefs = bpy.context.preferences.edit
-    prefs.keyframe_new_interpolation_type = "LINEAR"                    # the open cross-fades must sum to exactly 1
-    gathered.keyframe_insert("value", frame=OPEN_START)
-    gathered.value = 0.0
-    gathered.keyframe_insert("value", frame=OPEN_START + KEY_STEP)
+    if START == "gather":
+        gathered = obj.shape_key_add(name="Gathered", from_mix=False)
+        gathered.data.foreach_set("co", coords_for(halves, 0.0, zs))
+        gathered.value = 0.0
+        gathered.keyframe_insert("value", frame=1)
+        gathered.value = 1.0
+        gathered.keyframe_insert("value", frame=1 + drop.GATHER_FRAMES)
+        prefs.keyframe_new_interpolation_type = "LINEAR"                # the open cross-fades must sum to exactly 1
+        gathered.keyframe_insert("value", frame=OPEN_START)
+        gathered.value = 0.0
+        gathered.keyframe_insert("value", frame=OPEN_START + KEY_STEP)
+    prefs.keyframe_new_interpolation_type = "LINEAR"
     steps = OPEN_FRAMES // KEY_STEP
     for j in range(1, steps + 1):
         kb = obj.shape_key_add(name=f"Open_{j:03d}", from_mix=False)
@@ -263,13 +274,20 @@ def build_traveller():
 
 
 def key_weight_error(obj):
-    """Worst |sum of the heading keys' weights - 1| over the opening, at whole and half frames."""
+    """The heading must always be a CONVEX blend of at most two exact poses. The closed pose's weight is the Gathered
+    key ("gather") or the basis' implicit 1 - sum ("pleated"). Returns the worst violation over the opening, at whole
+    and half frames: a weight outside [0, 1], a total off 1, or more than two poses in play."""
     action = obj.data.shape_keys.animation_data.action
-    curves = [fc for fc in action.fcurves if "Gathered" in fc.data_path or "Open_" in fc.data_path]
+    opens = [fc for fc in action.fcurves if "Open_" in fc.data_path]
+    gathered = [fc for fc in action.fcurves if "Gathered" in fc.data_path]
     worst = 0.0
     for f in range(OPEN_START - 2, OPEN_END + 3):
         for sub in (0.0, 0.5):
-            worst = max(worst, abs(sum(fc.evaluate(f + sub) for fc in curves) - 1.0))
+            w = [fc.evaluate(f + sub) for fc in opens]
+            closed = gathered[0].evaluate(f + sub) if gathered else 1.0 - sum(w)
+            allw = [closed] + w
+            worst = max(worst, abs(sum(allw) - 1.0), max(0.0, -min(allw)), max(0.0, max(allw) - 1.0),
+                        1.0 if sum(1 for x in allw if abs(x) > 1e-6) > 2 else 0.0)
     return worst
 
 
@@ -325,7 +343,7 @@ def main():
               "quality": drop.QUALITY, "collision_quality": drop.COLLISION_QUALITY,
               "mass_per_vertex": round(obj.modifiers["Cloth"].settings.mass, 4),
               "air_damping_applied": round(obj.modifiers["Cloth"].settings.air_damping, 4),
-              "pin": "kinematic (weight 1.0)", "key_weight_max_error": None,
+              "pin": "kinematic (weight 1.0)", "start": START, "key_weight_max_error": None,
               "build_seconds": None, "frame_seconds": [], "move_mm": [], "hem_min_z": [], "checkpoints": {}}
     report["key_weight_max_error"] = key_weight_error(obj)
     if report["key_weight_max_error"] > 1e-4:
