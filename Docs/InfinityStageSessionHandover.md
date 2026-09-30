@@ -237,11 +237,17 @@ This is the index, in rough order of what blocks most.
    because he said *"OK place the cloths"* before seeing it.
    `final13_opening_stalls.mp4` is with him. **His verdict is still owed and
    everything downstream of the cloth recipe waits on it.**
-2. **B0c — the floors need a stage front, or the shared cache dies at five mouths.**
-   Measured: final13's pile runs **1.9 m downstage of the curtain line** and reaches
-   **z −0.713 m**, past P01's lip at −1.5 m, so **the cache encodes P01's stage
-   front.** Either every floor carries a lip at x −150 with a fascia, or each site
-   needs its own ~6 h bake. **Decided once, for all six mouths.**
+2. **B0c — SUPERSEDED, and it shrank.** It said every floor needed a stage front or
+   each site needed its own ~6 h bake. **Measured false:** P03 already builds P01's
+   stage front (forestage, portal, fascia and house floor −120..0, 250 instances
+   against P01's 192). **The real fault is one plane in the wrong place** —
+   `"Passage 03 - Floor"` starts 84 m DOWNSTAGE of the curtain line, and its surface
+   at −5 buries the fascia, so the drape's spill (to z −71) clips into it. P01's
+   floor starts at the lip. **Fix: trim P03's floor to x ≥ −150. One edit, no bake,
+   and "one asset feeds six sites" survives.** What is left for Gary is small: the
+   trim makes the fascia and the 1.2 m drop visible where oak shows now — **and
+   separately, freely, the house floor at −120 can be oak if he wants it (one
+   material, no geometry, no cloth effect).** Those are not alternatives.
 3. **A3b — the border: keep it, and if so how deep.** **Geometry is now measured as
    free in two directions and closed in one:** it can move upstage, or its bottom can
    come down **as far as about 8.1 m** (every vertex, 331 frames); **it cannot go up**
@@ -281,65 +287,52 @@ This is the index, in rough order of what blocks most.
 
 ---
 
-## 4b. WHO HOLDS WHAT, AND WHAT IS BLOCKED (as of 17:15)
+## 4b. WHO HOLDS WHAT, AND WHAT IS BLOCKED (as of 17:25)
 
-**RESOLVED AT ~17:15, BUT THE QUEUE HAD NOT DRAINED WHEN THIS WAS WRITTEN.** Gary
-closed Unreal himself with **Don't Save**; Rig is relaunching and will post
-"released" after confirming `dirty_maps == []` and `dirty_content == []` by a read.
-**There is no discard API short of a restart**, and saving would have persisted the
-playback state — which is exactly what the guard exists to prevent.
+**THE MAP DIRTIED TWICE THIS AFTERNOON AND WAS DISCARDED TWICE. The rule that came
+out of it is durable and is in memory as `ue58-sequencer-read-traps`:**
 
-**What it was:** the map `L_InfinityStage_V1VerticalSlice` is **dirty** from Rig's
-camera-lock restore during the stutter test — a `set_editor_property` on a level
-actor goes through `Modify` and dirties the map even at an unchanged value. **Look &
-camera's settle capture refuses on its own guard** and they will not bypass it,
-correctly: a capture that scrubs the Master and spawns transient actors, run over
-somebody else's unsaved change, means that owner's next save carries the scrub's
-evaluated state. **The conductor declined to waive the guard and sent it to the
-owner. Rig has not yet reported whether they reverted or saved.**
+> **NO Sequencer operation on the Master is map-safe.** Opening it dirties the map;
+> so do scrubbing and playing. Take the dirty census **AFTER** the run, on **both**
+> packages, and discard with a **Don't-Save restart — never a save.** A save would
+> fold evaluated playback state into the level.
 
-**Queued behind it, in order:**
-1. **Look & camera** — the settle capture. Built, dry-run on synthetic stills
-   (07bb0f2). ~76 short calls, 2–4 minutes. Every panel stamped with time-to-cut and
-   cm-to-go; a convergence chart showing all four options reaching 0 cm at 0.00 s.
-2. **Soft goods** — one read: **P03's floor TOP z.** `probe_p03_floor.py`, read-only,
-   one call. The site table currently assumes z 0.
-3. **Rig** — the **late attribution re-run** of `stutter_abab.py`. **This one wants
-   to be as late in the session as possible**, so a slow queue eats it first.
-   **Its reading is PRE-REGISTERED and binding, recorded before any run:** landscapes
-   stay gone; **≥ 20 cluster starts/min in either X phase → EDITOR AGE** (it returns
-   every session); **≤ 5/min in both → LANDSCAPES** (Gary fixed it at 16:36);
-   **in between → INCONCLUSIVE, said so.** Editor age reported at arming, and **no
-   early run** if the session ends first. **Nothing about that reading changes after
-   the numbers arrive.**
+**Found twice on 30 Sep:** Rig's stutter P phases, then Look & camera's per-step
+abort firing at step one on an open-and-scrub. **Neither saved.** Gary closed with
+Don't Save both times; the map on disk still carries his 16:36:08 landscape save.
+**Editor relaunched 17:20:45, verified clean by a read at 17:21:08** — `dirty_maps`
+and `dirty_content` both empty, Sequencer closed, 0 temps, 0 capture actors, PIE off.
+
+**THE QUEUE:**
+
+1. **Look & camera — RUNNING.** The settle pictures, by a **camera-only** method:
+   `GetPassageCameraPose` computes a view without touching Sequencer, so there is no
+   scrub and nothing to dirty. Wings and lights stay in their editor state, which is
+   fine for judging a deceleration and is labelled. Per-step dirty abort retained.
+   **They send the outputs to Gary directly.**
+2. **Rig — next, two steps.** First a **read-only floor-vs-lip probe at ALL SIX
+   mouths** (740312e): for every floor slab reaching a mouth, its downstage edge **in
+   that portal's own frame** (true corners, so P02's 22.9° is handled) and its top z,
+   reporting which start downstage of x −150. **That answers the generator question
+   once.** Then the trim(s) — dry-run default, record, backup, clean-map guard — but
+   **only after Gary answers**, because the trim changes what he sees. **If more than
+   P03 comes back wrong, the conductor hears before any trim**, and site-fix versus
+   generator-fix is decided together.
+3. **Rig — then the P05 floor rename**, with the six scripts and
+   `floors_to_stage_revert_record.json` rewritten in the same run. Level save, so it
+   needs the clean map; its guard refuses on any dirty package.
+
+**DEFERRED, NOT QUEUED: Rig's stutter attribution re-run.** It needs an editor hours
+old; the clock has been reset three times today. **The question does not need
+answering today** — if it is editor age the rhythm reappears on any long session, and
+if it is the landscapes it stays gone. **The next naturally long session answers it
+for free, with a better editor age than today can offer.** Its reading is fixed and
+recorded; do not revise the thresholds when it runs.
 
 **Streams' ownership** is in
 [`Docs/Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md`](Conductor/CONTAINER_WORLD_PLAN_2026-09-25.md)
 and the memory note `puss-session-ownership`. **`InfinityStageTransportController`
 has no owner** and is the largest unowned surface.
-
-**Two open corrections owed by Rig:**
-- **A mislabel, rename APPROVED and pending a slot:** `landscape_block_inventory`
-  records an oak slab as **"Passage 03 - Dark Wood Floor2"** which physically sits
-  **under P05** (y 310,310–330,310; Structure 05 is at y 320,000, P03 at y 160,000).
-  **Anyone searching for "P03 oak" finds P05's floor**, and it has already cost one
-  stream a wrong turn. It becomes **"Passage 05 - Floor (oak)"**, and because **six
-  scripts and `floors_to_stage_revert_record.json` find it BY LABEL**, those records
-  must be updated **in the same change** — a bare rename would silently break the
-  reverts.
-- **`floor_slabs_sweep` (29 Sep 12:33) is STALE, not blind.** It predates both the
-  12:25 ground-on and the 12:27 floor apply, so its "no slab under P03's mouth" is an
-  old photograph reading as a finding. **To be stamped superseded.**
-- **The post-run census.** Rig's "0 dirty" was the **arming** census — which did
-  cover both packages — reported as the post-run state without re-measuring. **The
-  check was fine; the timing was not.** A post-run census inside the script, before
-  anyone reports "clean", is the fix.
-
-**ONE UNMEASURED THING THAT BEARS ON B0c:** with Structure 03's ground on, the
-structure **may now build P03's stage front** (lip, fascia, house floor at −120) at
-the mouth — and **an oak plane at −5 would bury the fascia.** Soft goods' one-call
-probe should report the **stage-front instance count at P03's mouth** and trace
-surface tops across the pile footprint, not merely read one z.
 
 ---
 

@@ -83,11 +83,18 @@ on it; it is the part that goes stale.
   Rig holds a pre-registered late re-run: >=20 cluster starts/min in either X
   phase means editor age, <=5 in both means the landscapes, between is
   inconclusive. That reading is binding.
-- THE EDITOR QUEUE: relaunched 17:14:24, verified clean. Look & camera are RUNNING
-  the settle capture; Soft goods are second with one read of P03's stage-front
-  instance count and surface tops across the pile footprint; Rig's attribution run
-  is LAST and its clock started at 17:14:24, so the longer the queue takes the
-  better that test gets -- but it cannot run at all if the session ends first.
+- NO SEQUENCER OPERATION ON THE MASTER IS MAP-SAFE. Opening it dirties the map; so
+  do scrubbing and playing. Take the dirty census AFTER a run, on BOTH packages, and
+  discard with a Don't-Save restart -- never a save, which would fold evaluated
+  playback state into the level. Found twice on 30 Sep; recorded in memory as
+  ue58-sequencer-read-traps.
+- THE EDITOR QUEUE: relaunched 17:20:45, verified clean at 17:21:08. Look & camera
+  are RUNNING the settle pictures by a camera-only method that never touches
+  Sequencer, and will send them to Gary directly. Rig is next: a read-only
+  floor-vs-lip probe at all six mouths, then trims only after Gary answers, then the
+  P05 floor rename. Rig's stutter attribution run is DEFERRED to the next naturally
+  long session, not queued -- it needs an editor hours old and today's clock has
+  been reset three times.
 - FIVE PATCHES ARE HELD AND NONE HAS COMPILED: the cat body, C, K, L, M. They
   apply together on HEAD. Two-stage build, red assertions pre-registered; M
   applies whole in stage 2. The build needs every editor closed.
