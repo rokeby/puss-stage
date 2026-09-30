@@ -60,3 +60,22 @@ and 0.2, watching fold size AND stillness together.
 - If fold size falls as the guide weakens while stillness holds under 2 mm, there is a window.
 - If stillness degrades in lockstep, this cloth cannot have both, and that is the finding for Gary. It is not a reason
   for more bakes.
+
+## Result (09:20). Written after the numbers, against the criteria above.
+
+| amount | fold size ratio | height | depth | width | layers | still mm/frame | hang |
+|---|---|---|---|---|---|---|---|
+| 0.4 | 1.51 | 0.81 | 1.17 | 0.87 | 0.97 | 0.41 | pass |
+| 0.6 | **1.12** | 0.94 | 1.11 | 0.85 | 0.99 | 0.41 | pass |
+| 0.8 | **1.08** | 0.91 | 0.99 | 0.94 | 1.06 | 0.41 | pass |
+| 1.0 | 1.58 | 0.91 | 1.16 | 1.11 | 0.82 | 0.41 | pass |
+
+**Pre-registered verdict: outcome 3, INCONCLUSIVE.** The spread is U-shaped (coarse at both ends, fine in the middle):
+neither outcome 1 (flat near 1.6) nor outcome 2 (monotonic). It is NOT reported as "a lever".
+
+**Separately, the acceptance test:** 0.6 and 0.8 pass the provisional 25% pile criterion on all five numbers, as
+single runs. 0.4 and 1.0 fail on fold size. Whether that pass is the recipe or a lucky draw depends on the seed
+repeat (sw_ps_a10_g07_s2):
+- if it lands near 1.58 (within 10%), single runs are trustworthy and 0.6 or 0.8 is the amount;
+- if it lands near 1.1, the U is noise, and the pile is a look call for Gary.
+Stillness (0.41) and hang (perfect) are identical at every amount, as they must be: the amount acts only after release.
