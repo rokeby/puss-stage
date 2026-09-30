@@ -471,3 +471,66 @@ but no longer referenced.
     the fold.
   - Only the `_v1`/`_v2` wrappers re-point. Dry run confirmed:
     LS_S4_HangarRise, 31 s, nothing mutated.
+
+## 30 September, overnight (Gary away): what landed
+
+- **Build (conductor-driven):** C, F, D, E, R and S are in; suite 88 / 1 / 89.
+  - The one red is a new assertion in Soft goods' file.
+  - The applied tree is committed as `9da3c82`.
+- **Held for the next build:** patch G, `Scripts/patches/2026-09-30_G_scene_arrival.patch`.
+  - What it adds: `AInfinityStageArrival` ("one curve, two evaluators"). A Scene's opening
+    motion is keyed at negative time; the Arrival plays it before the Scene starts, from
+    the Passage track, and Sequencer plays it after.
+  - The hook: 8 lines in `MovieSceneInfinityPassageTrack.cpp`, which is Director's file.
+    It carries a comment, was approved by the conductor, and **Director should review
+    it**.
+  - The test: `InfinityStage.Arrival.OneCurveAcrossTheSceneBoundary`.
+  - Codex failed on capacity; the patch was written by hand.
+- **Capture convention (in memory):** Manual + Exposure Compensation is NOT EV100.
+  - Those captures render several stops darker than the show.
+  - Capture with no exposure override instead: it is byte-identical to the show.
+  - A scene capture cannot hide a light.
+  - The convention hid the P04 pit's bulb dots on 29 Sep.
+- **Mouth lanterns P02–P06:**
+  - One spot per mouth, low and raking from house left, 210 cd, 2800 K.
+  - The intensity is calibrated to the show's real exposure: the unbound PPV pins EV100 −3.
+  - P04's drape reads: median R 95, lit faces 171–194, no clipping.
+  - Revert: `mouth_lanterns_revert.py`.
+- **Lattice glow (Gary's note):**
+  - The bulbs were emissive cubes, and no light rode the lattice.
+  - Added: 24 shadowless 20 cd point lights, plus burnished-steel beams.
+  - The glow **rests at 0 cd** and fades in over 4–8 s in the rise. It had leaked into P04's
+    approach; I found the leak by projecting every light into that camera.
+  - Legible pixels at 10 s: 0.06% → 9.8%. Frames from 14 s on are unchanged.
+  - The verified save now checks the glow is at 0 cd at rest.
+- **P04 end:** colliders and timing for Soft goods' bake are in
+  `Docs/P04EndColliders_2026-09-30.json`.
+  - Static floor runs to the hinge. There is an 18.5 cm hole at x 10650–10668.5 to close
+    with Structure 04 ApronCm 420.
+  - The camera moves at a constant 2.5 m/s and stops dead at x 10668.5.
+  - Recommended cloth line: x 10450.
+- **Exposure at P04's end:**
+  - Today the hangar volume starts 1 m before the stop, so a 3.5-stop drop lands on the
+    cloth crossing.
+  - Three strips (A instant / B over 26 m / C over 10 m) were simulated without touching
+    the volume.
+  - This is Gary's pick.
+- **Parametric hangars:** `hangar_build.py` builds any Scene's hangar from numbers in its
+  dock frame.
+  - Scene 4 is reproduced to 0.000 cm.
+  - Built: S1, S2 (on its terrain), S3 (around its cast), S5 (200 × 150 × 50 m) and S6
+    (no roof).
+  - Revert (`hangar_revert.py`) was tested on S6; S6 was then rebuilt.
+  - **None is nested yet.**
+  - Scene 3 has four to-dos before nesting: the far Celadon panel clip (−30° to −20°),
+    light calibration for EV −3, the ghost light among the cast, and the enclosure's
+    effect on its open-sky light.
+  - Scene 5's lighting does not scale with its size.
+- **Gary's four answers (29 Sep night):**
+  - the rise is settled;
+  - "the passage rig again" for the hangar's lighting;
+  - grooves to 16 cm;
+  - P03's recipe on P01's casters.
+  The last two are approved but queued behind the transition focus.
+- **Still Gary's:** exposure option A/B/C, lattice glow brightness (20 cd), haze, and
+  S5's scale.
