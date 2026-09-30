@@ -29,6 +29,11 @@ SEQS = {1: "LS_Interaction_01_WashingTheBoy", 2: "LS_Interaction_02_Turnips", 3:
 GC = "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening"
 DRAPE = "Transition Drape (baked)"
 RIG = "Curtain Rig - Fire Safety Curtain"
+# Mouths that are NOT the P01 stage front the pile was baked onto (29 Sep, Rig): flag, do not assume.
+SITE_NOTES = {3: "S03 is FRAME ONLY: no stage front, because P03 stands on the Wet Ground landscape. The pile was baked onto "
+                 "P01's stage front (lip, fascia, house floor at -120), so its spill may float or clip here. CHECK "
+                 "this mouth before trusting it."}
+RELEASE_S, LANDED_S = 1.0, 3.5   # into the FALL section: the bake releases 1.0 s in and is down by about 3.5 s
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods")
 
 
@@ -60,12 +65,20 @@ def camera_for(actors, passage_number):
     return hits
 
 
+def timeline(length_s, lead_s):
+    fall = max(0.0, length_s - lead_s)
+    return (f"hangs 0-{fall:.1f} s (the shadow play), releases at {fall + RELEASE_S:.1f} s, down by about "
+            f"{fall + LANDED_S:.1f} s, cut to the Passage at {length_s:.1f} s")
+
+
 def plan_for(seq, lead_s):
     rate = seq.get_display_rate()
     fps = rate.numerator / rate.denominator
     end = seq.get_playback_end()
     lead = int(round(lead_s * fps))
-    return {"fps": fps, "end": end, "fall_start": max(0, end - lead), "length_s": round(end / fps, 3)}
+    length_s = end / fps
+    return {"fps": fps, "end": end, "fall_start": max(0, end - lead), "length_s": round(length_s, 3),
+            "now": timeline(length_s, lead_s), "if_60s": timeline(60.0, lead_s)}
 
 
 def apply_one(seq, mouth, camera, plan, report_row):
@@ -157,7 +170,7 @@ def main():
         mouth, err = mouth_of(actors, n + 1)
         cams = camera_for(actors, n + 1)
         row = {"interaction": n, "sequence": SEQS[n], "plan": plan, "mouth": mouth,
-               "camera": [c.get_actor_label() for c in cams]}
+               "camera": [c.get_actor_label() for c in cams], "site_note": SITE_NOTES.get(n + 1)}
         if err:
             problems.append(f"I{n}: {err}")
         if len(cams) != 1:
