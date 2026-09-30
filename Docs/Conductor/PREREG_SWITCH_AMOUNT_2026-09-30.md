@@ -118,3 +118,11 @@ as single runs: the comparison must be an ensemble, or a LOOK. Consequences, sta
 - Stillness and hang are robust to the seed (still 0.41 vs 0.01 mm/frame, both passing; hang identical in kind).
 - The PILE gate becomes Gary's eye, with the numbers shown as context, which is what he has already been doing ("all
   the piles look usable"). The 25% tolerance is withdrawn as a gate.
+
+**The character check is now UNSUPPORTED, not refuted, and must not be cited as corroboration.** The observation
+(ripples at 0.4, smooth sheet at 1.0, layered at 0.6) was one look at ONE seed per amount. The noise floor shows a
+seed change alone moves the pile a lot, and nobody has shown that character is seed-stable. If it ever matters, the
+test is the same character look across two or more seeds at one amount.
+
+**Gary was right first.** He looked at three piles and called them all usable while the single-run numbers said two
+failed. The numbers were measuring noise; his eye was measuring the pile. The pile gate is now his recorded approval.
