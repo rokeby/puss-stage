@@ -236,3 +236,72 @@ their owners with citations attached.
 D was *review of our own work by something with no memory of having done it* —
 and it found, in one pass, faults that four careful streams had walked past all
 day. That is the highest-leverage use of a second agent in this project.
+
+### C — the blocker-gap fix: DELEGABLE WITH REVIEW, not unreviewed
+
+The only task today that was **actual code**. Committed under Rig's name as
+`26c12fd`, after their own amendments.
+
+**The draft passed the pre-registered test.** Applied cleanly to the exact base
+blob; PASS on all six scenes under both builders; the sky sphere never appeared;
+no unexpected blockers; dirty 0+0. The **positive control** — S2 with its
+landscape removed from the allow list — was flagged by both builders, and the new
+path **reported it better**: the actual hit extent at 0 cm relative to the hinge,
+where the old builder reported a ±250 m bounding box.
+
+**And review still found a real design flaw that no test could have caught.** The
+draft sent every large-bounds actor to "trace or nothing". But **Structures are
+large, ISM-based, and have no collision** — a trace cannot see them. So a
+Structure overlapping a hangar would have gone from precisely tested to
+**unchecked**, silently. Nothing overlaps today, so the harness passes either
+way. **Only reading the code could find it.**
+
+Rig also fixed the harness *before* judging the draft with it, after the
+adversarial review found it emitted its success marker unconditionally — and
+found a second hole the review had not named: it judged a builder on a stale plan
+file, so a builder that threw early could still be scored. It now deletes each
+plan before the run and requires it after, fails on a missing script, any raise,
+a sky blocker or an unpredicted blocker, and has negative controls for a missing
+draft and a throwing draft.
+
+**The conclusion, in Rig's words: delegable WITH review, not unreviewed.**
+
+**And the general lesson is bigger than Codex: a passing test certifies behaviour
+on today's data, not a design.** The draft was correct for every case the project
+currently contains and wrong for a case it will contain as soon as a Structure
+sits near a hangar. No amount of test-passing substitutes for someone who knows
+that Structures have no collision.
+
+---
+
+## 7. The verdict, five runs in
+
+**Usable: all five.** No capacity failures across six concurrent runs, against a
+reliability note written yesterday saying Codex was "not dependable".
+
+**What made every one of them usable was the same property**, and it is a better
+selection rule than the one in §1: **the agent marked its own uncertainty, and
+put the mark where a reader could check it.** A returned 14 honest UNCLEARs. B
+stated the engine ships no `.cpp` before relying on headers. E defined "ruled out"
+against "not observed" before applying either. D named the 32 commits it found
+nothing in. C listed what it had resolved by guessing. **Reject output that does
+not do this**, whatever it claims to have found.
+
+**The ranking by value was not the one I expected:**
+1. **Review of our own work** (D) — 21 findings including a live P0, and four
+   false claims of the conductor's own. Highest leverage by a wide margin,
+   because it is the one thing a fresh agent can do that a steeped one cannot:
+   read what we wrote without remembering why we were sure.
+2. **Auditing our certainty** (E) — two "ruled out" claims that were not, one of
+   them methodologically incapable of seeing what it excluded.
+3. **Bounded research** (B, A) — cheap, correct, and it changed what a job *is*.
+4. **Writing code** (C) — worked, passed its test, and still needed an owner who
+   knew the domain.
+
+**What I would delegate tomorrow without hesitation:** adversarial review of any
+day's commits, audits of documents against source, engine-API investigations, and
+"what have we convinced ourselves of without evidence" passes.
+
+**What still needs a stream:** anything on the critical path, anything writing to
+the Show asset or the level, judgement, and code whose correctness depends on
+knowing the project rather than reading it.
