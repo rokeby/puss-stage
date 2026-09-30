@@ -6,6 +6,7 @@
 #include "Evaluation/MovieSceneExecutionTokens.h"
 #include "GameFramework/PlayerController.h"
 #include "IMovieScenePlayer.h"
+#include "InfinityStageArrival.h"
 #include "InfinityStageCameraRig.h"
 #include "InfinityStageCelestialRig.h"
 #include "InfinityStageCompiler.h"
@@ -187,6 +188,14 @@ struct FInfinityPassageExecutionToken final : IMovieSceneExecutionToken
                     ActiveShowAsset,
                     PassageGuid,
                     Context.GetTime().FloorToFrame());
+            }
+            // Added 30 Sep 2026 by the Rig & atmosphere stream (Scene arrivals), approved by the
+            // conductor while this file's owner (Director & transitions) was not live: the Scene
+            // track has no execution token, so Passage frames are the only clean per-frame hook
+            // for a motion that begins before its Scene does. Director should review.
+            for (TActorIterator<AInfinityStageArrival> It(World); It; ++It)
+            {
+                It->EvaluateAtMasterFrame(ActiveShowAsset, Context.GetTime());
             }
         }
     }

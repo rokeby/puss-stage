@@ -12,6 +12,7 @@ public class InfinityStageTests : ModuleRules
             "CoreUObject",
             "Engine",
             "MovieScene",
+            "MovieSceneTracks",
             "LevelSequence",
             "InfinityStage"
         });
