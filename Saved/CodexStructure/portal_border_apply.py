@@ -1,4 +1,5 @@
-"""Portal borders (30 Sep; Gary's word via the conductor, after the mock PortalBorder_Opening_BeforeAfter.png). A black VELVET
+"""Portal borders (30 Sep). APPLIED 14:52 ON THE CONDUCTOR'S RELAYED APPROVAL BEFORE GARY HAD ANSWERED (he had the mock,
+PortalBorder_Opening_BeforeAfter.png, but had not said yes); kept pending his word, revert below. A black VELVET
 border 5 cm x 19.8 m x 80 cm hangs 45-50 cm upstage of each of the six portal planes, z 10.20-11.00 m, masking the comb at
 the curtain top without touching the cloth. Soft goods' ray test on final13 f479: 0 rays through (the lowered header leaked
 324). The mock measured the material: black steel read as a lit tan band (p99 125 vs 114), velvet dark (77).

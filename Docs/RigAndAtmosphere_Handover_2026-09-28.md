@@ -801,7 +801,8 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - Hidden instances > 0: the delete is the repair for Gary's P02 load complaint.
   - 0 with control > 0: the hide already fixed it.
   - 0 and 0: inconclusive.
-- **Portal borders (30 Sep 14:52, on Gary's word after the mock).**
+- **Portal borders (30 Sep 14:52).** Applied on the conductor's relayed approval BEFORE Gary had answered: he had
+  the mock but had not said yes. Kept pending his word; `portal_border_revert_run.py` removes them.
   - What: six "P0N Portal Border" black VELVET slabs, 5 cm × 19.8 m × 80 cm, placed 45–50 cm upstage of each
     portal plane, z 10.20–11.00 m. Each is attached to its Structure and tagged RigAtmos.PortalBorder.
   - Material: MI_PortalBorder_BlackVelvet.
