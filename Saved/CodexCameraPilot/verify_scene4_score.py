@@ -1,10 +1,10 @@
 """Prove the Scene 4 score evaluates end to end, STEPWISE (one MCP call per step).
 
-LS_DevScene_04 hosts Rig's LS_S4_HangarFold, which hosts LS_S4_CameraScore. This
+LS_DevScene_04 hosts Rig's LS_S4_HangarRise (v2), which hosts LS_S4_CameraScore. This
 opens the Scene sequence in Sequencer. Each call reads the Entry Handoff
 Camera's component pitch at the time the previous call scrubbed to, compares it
 with the smoothstep the flat-tangent keys predict, and captures a TRUE still
-from the camera's actual view (EV100 0.5, as the hangar volume). Then it scrubs
+from the camera's actual view (no exposure override). Then it scrubs
 on. Run the same request until PUSS_S4_SCORE_VERIFIED.
 
 Plain property reads only; no SequencerTools helpers (see the crash memory).
@@ -21,12 +21,12 @@ import unreal
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 SCENE_PREFIX = "Scene 4"
-# Opening moved off the arrival onto the rising walls (edit_scene4_score_opening.py).
-KEYS = [(0.0, 0.0), (4.3, 0.0), (6.3, 8.0), (8.8, 8.0), (11.0, 30.0), (18.8, 30.0), (23.9, 0.0)]
-BEATS = [(1.0, "dark"), (2.5, "horizon_glow"), (3.3, "lamp_rises"), (5.3, "walls_rise"), (7.5, "walls_up"),
-         (9.9, "chase"), (10.5, "plate_escapes"), (15.5, "swing"), (21.35, "lattice_down"), (23.5, "settle")]
+# Scene 4 v2 (30 Sep): post-landing only; the rise is the dog's (Dog Gaze), so the base stays level.
+KEYS = [(0.0, 0.0), (18.8, 0.0), (22.0, 30.0), (24.8, 30.0), (29.6, 0.0)]
+BEATS = [(10.0, "rise_dog_owned"), (18.0, "lights_level"), (20.4, "swing_rising"), (23.0, "swing_held"),
+         (27.2, "lattice_down"), (29.3, "settle")]
 TOLERANCE_DEG = 0.5
-STATE_VERSION = 2
+STATE_VERSION = 3
 
 
 def expected_pitch(t):
@@ -64,13 +64,7 @@ def capture(world, target, location, rotation, fov, hidden_actors, out_dir, name
         component.set_editor_property("capture_every_frame", False)
         component.set_editor_property("capture_on_movement", False)
         component.set_editor_property("show_flag_settings", show_flags())
-        post = component.get_editor_property("post_process_settings")
-        for key, value in (("auto_exposure_min_brightness", 0.5), ("auto_exposure_max_brightness", 0.5),
-                           ("local_exposure_highlight_contrast_scale", 1.0),
-                           ("local_exposure_shadow_contrast_scale", 1.0)):
-            post.set_editor_property("override_" + key, True)
-            post.set_editor_property(key, value)
-        component.set_editor_property("post_process_settings", post)
+        # No post-process override: the global volume applies itself (30 Sep finding).
         for hidden in hidden_actors:
             component.hide_actor_components(hidden, True)
         component.capture_scene()
