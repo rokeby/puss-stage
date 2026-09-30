@@ -5,6 +5,28 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Finding (30 Sep): wing textures have NO MIPMAPS (read from disk; nothing changed)
+
+Routed from Flat V3 via the conductor (21 Sep audit), and re-checked against
+today's live set. **367 of the 371 textures the rolled-out wing materials use are
+`TMGS_NoMipmaps`**, 63 of them `TC_EditorIcon` (uncompressed). The only ones with
+mips are the four 1024² detail maps.
+
+Likely cause (inferred): the importer switches mips off for non-power-of-two
+images, and all the wing art is ImageGen-sized (about 1024×1536). My generated
+relief maps came out the same way without anyone setting it. This fits Gary's
+"sharp paused, smudged in motion": minified textures alias, TSR hides that when
+paused and smears it in motion. It also stops streaming.
+
+Fix candidates, all per-texture settings with sources untouched:
+- (a) mips on at the native size, *if* 5.8 builds mips for non-power-of-two
+  textures. Mip 0 stays identical, so silhouettes can't move.
+- (b) `StretchToPowerOfTwo` plus mips. Mip 0 is resampled, so the alpha
+  silhouettes need checking.
+- (c) separately: EditorIcon → BC7.
+
+Next: a test on duplicates in my folder. P01+P02 first, then Gary judges in motion.
+
 ## Kit floor: walnut planks rejected; options for Gary (29 Sep, nothing applied)
 
 Gary on `MI_Kit_WalnutPlank` on the real boards: the planks "don't work", and
