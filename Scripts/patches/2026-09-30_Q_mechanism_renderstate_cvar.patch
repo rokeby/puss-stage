@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
-index 58439c7..772b08b 100644
+index 58439c7..dcb7ce2 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 @@ -18,6 +18,7 @@
@@ -10,25 +10,71 @@ index 58439c7..772b08b 100644
  #include "InfinityStageCompiler.h"
  #include "InfinityStageShowAsset.h"
  #include "InfinityStageWingLibraryAsset.h"
-@@ -28,6 +29,12 @@
+@@ -28,6 +29,15 @@
  
  DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageMaterialization, Log, All);
  
 +static TAutoConsoleVariable<int32> CVarInfinityStageMechanismMarkRenderStateDirty(
 +    TEXT("InfinityStage.Mechanism.MarkRenderStateDirty"),
 +    1,
-+    TEXT("Controls the per-frame MarkRenderStateDirty call after moving wing ISM batch updates.\n")
-+    TEXT("0 skips that call for a live motion-vector A/B; 1 preserves the existing behaviour."));
++    TEXT("Controls how moving wing ISM batch updates become visible.\n")
++    TEXT("0: do not mark render state dirty (freeze diagnostic).\n")
++    TEXT("1: preserve existing behaviour with a separate MarkRenderStateDirty call (default).\n")
++    TEXT("2: mark only the last contiguous batch dirty through BatchUpdateInstancesTransforms.\n")
++    TEXT("Compare 1 vs 2 for the in-motion smudge; use 0 only as a freeze diagnostic."));
 +
  namespace
  {
  const FString InfinityStageAttachmentTagPrefix(TEXT("InfinityStage.Attachment."));
-@@ -1458,7 +1465,10 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+@@ -1394,6 +1404,13 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+             continue;
+         }
+ 
++        int32 RenderStateUpdateMode =
++            CVarInfinityStageMechanismMarkRenderStateDirty.GetValueOnGameThread();
++        if (RenderStateUpdateMode < 0 || RenderStateUpdateMode > 2)
++        {
++            RenderStateUpdateMode = 1;
++        }
++
+         Component->SetHasPerInstancePrevTransforms(true);
+         Updates.Sort([](
+             const FPendingMechanismInstanceTransform& A,
+@@ -1409,7 +1426,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+         int32 SpanStartIndex = INDEX_NONE;
+         int32 ExpectedInstanceIndex = INDEX_NONE;
+ 
+-        const auto FlushContiguousSpan = [&]()
++        const auto FlushContiguousSpan = [&](const bool bMarkRenderStateDirty)
+         {
+             if (SpanStartIndex == INDEX_NONE || NewWorldTransforms.IsEmpty())
+             {
+@@ -1420,7 +1437,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+                 NewWorldTransforms,
+                 PreviousWorldTransforms,
+                 true,
+-                false,
++                bMarkRenderStateDirty,
+                 false);
+             if (!bUpdated)
+             {
+@@ -1449,7 +1466,7 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+             }
+             else if (Update.InstanceIndex != ExpectedInstanceIndex)
+             {
+-                FlushContiguousSpan();
++                FlushContiguousSpan(false);
+                 SpanStartIndex = Update.InstanceIndex;
+                 ExpectedInstanceIndex = Update.InstanceIndex;
+             }
+@@ -1457,8 +1474,11 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+             PreviousWorldTransforms.Add(Update.PreviousWorldTransform);
              ++ExpectedInstanceIndex;
          }
-         FlushContiguousSpan();
+-        FlushContiguousSpan();
 -        Component->MarkRenderStateDirty();
-+        if (CVarInfinityStageMechanismMarkRenderStateDirty.GetValueOnGameThread() != 0)
++        FlushContiguousSpan(RenderStateUpdateMode == 2);
++        if (RenderStateUpdateMode == 1)
 +        {
 +            Component->MarkRenderStateDirty();
 +        }
@@ -36,7 +82,7 @@ index 58439c7..772b08b 100644
      // Light drama belongs to Rig & atmosphere (InfinityStageLightDrama.cpp). Game
      // worlds only: in the editor a lamp must keep its authored values, because
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-index 08af683..2edf3fa 100644
+index 08af683..0ee2fa0 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
 @@ -21,6 +21,7 @@
@@ -47,7 +93,7 @@ index 08af683..2edf3fa 100644
  #include "HAL/PlatformTime.h"
  #include "LevelSequence.h"
  #include "Misc/AutomationTest.h"
-@@ -1038,6 +1039,30 @@ bool FInfinityStageWingModulationChannelTest::RunTest(const FString& Parameters)
+@@ -1038,6 +1039,33 @@ bool FInfinityStageWingModulationChannelTest::RunTest(const FString& Parameters)
      return true;
  }
  
@@ -65,9 +111,12 @@ index 08af683..2edf3fa 100644
 +    {
 +        TestEqual(TEXT("Mechanism render-state cvar defaults to existing behaviour"), CVar->GetInt(), 1);
 +        CVar->Set(0, ECVF_SetByCode);
-+        TestEqual(TEXT("Mechanism render-state cvar can disable the call live"), CVar->GetInt(), 0);
++        TestEqual(TEXT("Mechanism render-state cvar accepts freeze diagnostic mode"), CVar->GetInt(), 0);
 +        CVar->Set(1, ECVF_SetByCode);
-+        TestEqual(TEXT("Mechanism render-state cvar can restore the call live"), CVar->GetInt(), 1);
++        TestEqual(TEXT("Mechanism render-state cvar accepts existing behaviour mode"), CVar->GetInt(), 1);
++        CVar->Set(2, ECVF_SetByCode);
++        TestEqual(TEXT("Mechanism render-state cvar accepts final-batch dirty mode"), CVar->GetInt(), 2);
++        CVar->Set(1, ECVF_SetByCode);
 +    }
 +    TestNull(
 +        TEXT("A misspelled mechanism render-state cvar is not registered"),
@@ -78,7 +127,7 @@ index 08af683..2edf3fa 100644
  IMPLEMENT_SIMPLE_AUTOMATION_TEST(
      FInfinityStageUndulationEvaluationTest,
      "InfinityStage.Mechanism.UndulationMovesPanelsDeterministically",
-@@ -1121,6 +1146,28 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
+@@ -1121,6 +1149,44 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
          TestTrue(TEXT("Right moves 100 cm inward"),
              FMath::IsNearlyEqual(RightRest.GetLocation().Y - RightCrest.GetLocation().Y, 100.0, 0.01));
  
@@ -87,9 +136,9 @@ index 08af683..2edf3fa 100644
 +        if (TestNotNull(TEXT("Mechanism render-state cvar is available to the moving fixture"), RenderStateCVar))
 +        {
 +            RenderStateCVar->Set(0, ECVF_SetByCode);
-+            TestTrue(TEXT("Rest frame evaluates with render-state recreation disabled"),
++            TestTrue(TEXT("Rest frame evaluates in freeze diagnostic mode"),
 +                Actor->EvaluateMechanismsAtMasterFrame(0));
-+            TestTrue(TEXT("Crest frame evaluates with render-state recreation disabled"),
++            TestTrue(TEXT("Crest frame evaluates in freeze diagnostic mode"),
 +                Actor->EvaluateMechanismsAtMasterFrame(48000));
 +            FTransform LeftCrestWithoutRenderStateDirty;
 +            FTransform RightCrestWithoutRenderStateDirty;
@@ -97,10 +146,26 @@ index 08af683..2edf3fa 100644
 +                Left->InstanceIndex, LeftCrestWithoutRenderStateDirty, true);
 +            Right->Component->GetInstanceTransform(
 +                Right->InstanceIndex, RightCrestWithoutRenderStateDirty, true);
-+            TestTrue(TEXT("Left transform is identical with render-state recreation disabled"),
++            TestTrue(TEXT("Left transform matches mode 1 in freeze diagnostic mode"),
 +                LeftCrestWithoutRenderStateDirty.Equals(LeftCrest, 0.001));
-+            TestTrue(TEXT("Right transform is identical with render-state recreation disabled"),
++            TestTrue(TEXT("Right transform matches mode 1 in freeze diagnostic mode"),
 +                RightCrestWithoutRenderStateDirty.Equals(RightCrest, 0.001));
++
++            RenderStateCVar->Set(2, ECVF_SetByCode);
++            TestTrue(TEXT("Rest frame evaluates in final-batch dirty mode"),
++                Actor->EvaluateMechanismsAtMasterFrame(0));
++            TestTrue(TEXT("Crest frame evaluates in final-batch dirty mode"),
++                Actor->EvaluateMechanismsAtMasterFrame(48000));
++            FTransform LeftCrestWithFinalBatchDirty;
++            FTransform RightCrestWithFinalBatchDirty;
++            Left->Component->GetInstanceTransform(
++                Left->InstanceIndex, LeftCrestWithFinalBatchDirty, true);
++            Right->Component->GetInstanceTransform(
++                Right->InstanceIndex, RightCrestWithFinalBatchDirty, true);
++            TestTrue(TEXT("Left transform matches mode 1 in final-batch dirty mode"),
++                LeftCrestWithFinalBatchDirty.Equals(LeftCrest, 0.001));
++            TestTrue(TEXT("Right transform matches mode 1 in final-batch dirty mode"),
++                RightCrestWithFinalBatchDirty.Equals(RightCrest, 0.001));
 +            RenderStateCVar->Set(1, ECVF_SetByCode);
 +        }
 +
