@@ -44,6 +44,47 @@ Owner would be Director & transitions (`InfinityStageTransportController`,
 by hand; the other five are the transplanted rises placed inert this morning.
 That is the first thing to check.
 
+## 2b. RESOLVED — THE TRANSPORT IS A CUE DESK, NOT A FAST-FORWARD
+
+**RIGHT means "stand by the next cue", not "play what is on screen".** Verified
+in source, and the contract is written in the header:
+
+> *"Operator advance: play a sequence/interstitial, or a Scene when automatic
+> Scene playback is enabled. **A new Passage remains held at its first frame.**"*
+> — `InfinityStageTransportController.h:324`
+
+After RIGHT lands: a **Sequence** plays to its boundary; a **Scene** plays only
+if automatic Scene playback is on; **a Passage is HELD.** The project's own
+automation test presses RIGHT **twice** to get Opening → Passage 1 → playing
+Scene 1 **without ever walking Passage 1**
+(`InfinityStageEditorAutomationTests.cpp:941-945`).
+
+**SPACE is the go button** — `PlayForwardToBoundary`.
+
+**So "pushing through the sequence with Right meant lots of sections didn't seem
+to play right" is RIGHT doing precisely what it is specified to do.** Gary was
+using it as a fast-forward; it is a stand-by. The same explains *"Right from
+P06's curtain doesn't fall the curtain and walk the passage — it goes straight to
+the next hangar."*
+
+**This is theatrically correct rather than accidental**: an operator stands by a
+cue while the performer settles, then executes it. RIGHT stands by, SPACE goes.
+**Whether that is the model Gary wants is his decision, and it is a design choice
+rather than a bug to fix.**
+
+**"Space does nothing at P01's lattice moment"** is not explained by this, but his
+log shows every input returned `result=0` — SPACE succeeded. The candidate that
+fits a success with no visible movement is **already at the terminal boundary**:
+`PlayTo` succeeds with no remaining distance. The un-nested Scene 1 rise (since
+nested) would also mean nothing moved even on a successful play.
+
+**WHAT IS LEFT GENUINELY UNEXPLAINED** after this and the nesting collapse:
+- the **one-frame flash** to an empty dev grid at a Scene→Interaction crossing
+  (mechanism identified, test pending);
+- the arrival ordering, *"misloaded wings followed by cloth"*.
+The cat is fixed. Everything else was correct behaviour, an un-made decision, or
+a change the conductor approved.
+
 ## 3. LIGHTING
 
 - **P01's flicker is constant-rate, expensive, and not effective.** *"P01's
