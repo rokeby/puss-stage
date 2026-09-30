@@ -233,6 +233,26 @@ Package`/`Moving output files` log lines, unique marker and Unreal read-back.
 
 Avoid **Save All** when the editor already contains unrelated dirty packages. Save only the Show Asset and the affected level. Be aware that saving the current level also persists any pre-existing unsaved edits in that level; inspect the dirty state and confirm scope with the user when it is not already authorized.
 
+## Recording PIE on screen does not work while the editor is in the background (30 Sep 2026)
+
+Don't retry this without a new idea. Two real-time screen recordings of a PIE transport play-through
+(`Saved/CodexCameraPilot/record_editor_window.py`, driven by `run_arrival_take.sh`) both came out static:
+- **ffmpeg `gdigrab` of the editor window title** recorded one stale frame for the whole take. Measured: the
+  frames were identical over 26 s, while the engine ticked at 57 fps (median 17.6 ms, per-tick log).
+- **ffmpeg `ddagrab` (Desktop Duplication), which records what is actually on screen,** was also static.
+  Measured: 111 of 129 sampled frame pairs unchanged.
+- **Inferred:** the PIE viewport doesn't PRESENT new frames on screen while the editor isn't the foreground
+  app, even with CPU throttling off. That's why both capture methods fail. A `shot` console screenshot forces
+  a render and does capture the true PIE frame.
+- **The ways that remain:**
+  - bring the editor to the foreground for the take (Gary must be off the keyboard, or his keys drive the
+    transport);
+  - per-tick `shot` screenshots placed at their logged times (`compose_arrival_shots.py`, about 8–15
+    effective fps; it judges timing, not smoothness);
+  - Movie Render Queue (untried here).
+- Also measured on that run: **a PIE transport play-through left maps=[] content=[]** (two-package census).
+  Opening or scrubbing the Master in editor Sequencer DOES dirty the map.
+
 ## Materializing an affected Passage
 
 The Passage 1 actor used during validation had:

@@ -1,3 +1,7 @@
+"""DOES NOT WORK FOR PIE WITH THE EDITOR IN THE BACKGROUND (30 Sep): both gdigrab and ddagrab recorded a static
+viewport, because the PIE viewport doesn't present frames on screen while the editor isn't the foreground app.
+See Docs/CodexUnrealMCPRunbook.md, "Recording PIE on screen". Kept for a foreground take only.
+"""
 """Host-side, not Unreal: record the Unreal Editor window in real time with ffmpeg gdigrab. (30 Sep)
 
 For Gary's as-played arrival clip: P04's last ~10 s through Scene 4 +10 s, played by the transport in PIE,
