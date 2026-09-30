@@ -38,6 +38,7 @@ OUT = ROOT / "Saved" / "CodexSoftGoods" / "DropBake"
 STILL_LIMIT_MM = 2.0
 PILE_TOL = 0.25                      # provisional: each pile number within +-25% of the reference's
 PILE_KEYS = ("height_m", "depth_m", "width_m", "layers", "fold_size_m")
+P01_OPENING_M, COVERAGE_GAP_MAX_M = 19.0, 0.2       # P01's post inner faces at +-9.5 m (StageFrontColliders)
 FPS = 30.0
 
 
@@ -94,6 +95,14 @@ def judge_drape(d, ref):
         verdict["pile"] = None
     if d.get("collider_origin_cm"):
         verdict["site"] = site_ok(d)
+    # COVERAGE (30 Sep, Gary: "the curtain blocks only about 80% of the stage, light leaks past both sides"). A curtain's
+    # job is to MASK. At P01 the opening between the post faces is P01_OPENING_M; the gap per side is taken at the
+    # NARROWEST hung row, since a leak anywhere shows. The target is provisional: posts on the curtain line make about
+    # 10 cm the least achievable, so at most 0.2 m per side.
+    if rows and not d.get("collider_origin_cm") and (d.get("track_m") or 0) >= 17.0:
+        gap = round((P01_OPENING_M - min(r["width_m"] for r in rows.values())) / 2.0, 3)
+        hp["coverage_gap_per_side_m"] = gap
+        verdict["coverage"] = gap <= COVERAGE_GAP_MAX_M
     verdict["ALL"] = verdict["still"] and verdict["hang"] and all(v is not False for v in verdict.values())
     return verdict, ratios
 
@@ -132,6 +141,9 @@ def drape_lines(name, d, ref_name, ref):
              f"- **still**: window max {d.get('still_window_max_mm')} mm/frame (mean {d.get('still_window_mean_mm')}); "
              f"under 2 mm from {d.get('settle_to_2mm_s')} s (reached: {d.get('settle_to_2mm_reached')})"]
     if rows:
+        if "coverage_gap_per_side_m" in hp:
+            lines.append(f"- **coverage**: narrowest hung row leaves {hp['coverage_gap_per_side_m']} m to each P01 post face "
+                         f"(target at most {COVERAGE_GAP_MAX_M} m; the opening is {P01_OPENING_M} m)")
         lines.append(f"- **hang**: bulge {hp.get('bulge_at_opening_width')} and flare {hp.get('flare_at_opening_width')} at the Opening width (edge spread "
                      f"{hp.get('edge_spread_m')} m); folds (count, depth m, kept) "
                      + "; ".join(f"{k} {v['folds']}, {v['mean_depth_m']}"
