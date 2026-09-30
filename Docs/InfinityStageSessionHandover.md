@@ -375,6 +375,31 @@ Recorded because each is a class of fault, not a one-off.
   scripts. A bad argument crashes as hard as a bad write.
 - **Every MCP call costs a 40–80 ms hitch.** A session polling the editor
   manufactures the stutter it is measuring.
+- **A GEOMETRY CACHE DECODES ASYNCHRONOUSLY, AND A CAPTURE AFTER A JUMP SHOWS
+  THE PREVIOUS FRAME.** A jump requests a frame that is not decoded yet; the
+  proxy keeps drawing its last decoded frame; only the **next request after the
+  decode lands** shows the new one. On 30 Sep this made a placed cloth render as
+  a full-height standing curtain after its fall, and it survived three wrong
+  explanations: a second object in the `.abc` (refuted — one object, and a
+  static-mesh import of the last frame agreed), temporal AA history (refuted —
+  AA off changed the frame by **0.00%**), and a one-frame render lag (refuted —
+  a later call **without re-posing** was still stale).
+  **The component's BOUNDS were correct throughout**, because those come from
+  always-resident per-sample data — which is why every number agreed while the
+  picture lied.
+  **The capture rule: pose, tick, RE-POSE THE SAME TIME, then capture.**
+  "Repeat until it stops changing" is NOT sufficient and is actively dangerous
+  here: repeat captures without re-posing sit on the stale frame and look
+  perfectly stable, so a bench converges confidently on the wrong answer. This
+  applies to any capture that *contains* a Geometry Cache, not only one whose
+  subject is one.
+  **Live playback is unaffected** — it re-requests every frame — which is why the
+  Opening always fell cleanly in a viewport.
+  **ONE SHOW-LEVEL CONSEQUENCE, unresolved:** after a transport **jump** (a
+  rehearsal scrub, a reverse, or the Arrival's first evaluation after one) the
+  cloth may show a stale frame until its chunk decodes. The operator scrubs in
+  rehearsal, so this is real behaviour, not a bench artifact. A PIE transport
+  jump, first frame only, would show it.
 - **A SHARED MUTABLE FILE IS NOT A SOURCE OF TRUTH — it is a cache of the last
   thing that happened.** The backcloth section script defaulted its release time
   to 1.0 s, which was `final8`'s value: a bake that had been stopped and no
