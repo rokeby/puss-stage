@@ -99,6 +99,22 @@ In flight: `final6_columns`, `final7_columns_dense` (0.607 m pleats) and `final8
 10 m wide with a 12 m drop at x 10450; 12 m spilled off the passage floor at ±9.67 m. Alongside them runs an 8-run
 full-resolution strip sweep (`sw_*`), the evidence.
 
+## RULE (30 Sep): a coarse bake can only FAIL something, never PASS it
+
+27 cm quads (CURTAIN_QUADS_PER_BOLT=5) are for catching broken mechanisms quickly, not for clearing a recipe. Today
+they misled in BOTH directions:
+- They exaggerated fold merging, because they can't resolve a 0.85 m pleat.
+- They falsely CLEARED the traveller's 0.4 m track gap: 0.06 mm/frame coarse, 24 mm/frame at full resolution
+  (final12), with the halves still crossing by 1.79 m.
+A fast green is the most seductive result there is. Accept a recipe only at full resolution. Strips (full resolution,
+narrower) are valid for comparing recipes against each other, and for per-area pile properties, not for shape or
+width.
+
+**The traveller is parked.** final15_traveller_guide (hem guide in the hold, released as it opens) is the last bake
+until Gary gives it a site. A site sets its lens, its seam distance and its masking, so a fourth bake before that would
+be guessing at a target. Whatever final15 shows, its OPEN stacks will read as DAMPED, not settled; a pass does not mean
+the stacks are solved.
+
 ## 30 Sep (13:00): the "standing curtain" at P04 was a stale frame after a jump, not the cache
 
 Rig's bench showed a full-height curtain standing over the backcloth's pile after the fall, while the component's bounds
