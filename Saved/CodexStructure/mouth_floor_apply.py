@@ -28,7 +28,8 @@ import unreal
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
 MOUTHS = {"P03": {"structure": "Infinity Stage - Structure 03", "floor": "Passage 03 - Floor", "house": "Passage 03 - House Floor (oak)"},
-          "P05": {"structure": "Infinity Stage - Structure 05", "floor": "Passage 03 - Dark Wood Floor2", "house": "Passage 05 - House Floor (oak)",
+          # P05's floor was renamed by this tool's own run (17:36); the pairs stay so a REVERT can rename it back.
+          "P05": {"structure": "Infinity Stage - Structure 05", "floor": "Passage 05 - Floor (oak)", "house": "Passage 05 - House Floor (oak)",
                   "renames": [("Passage 03 - Dark Wood Floor2 - Pit Strip Right", "Passage 05 - Floor (oak) - Pit Strip Right"),
                               ("Passage 03 - Dark Wood Floor2", "Passage 05 - Floor (oak)")]},
           "P06": {"structure": "Infinity Stage - Structure 06", "floor": "Passage 01 - Opening Floor2", "house": "Passage 06 - House Floor (oak)"}}
@@ -92,6 +93,10 @@ def main():
         h = by.get(HOUSE)
         if h is not None and TAG in [str(t) for t in h.get_editor_property("tags")]:
             sub.destroy_actor(h)
+        for old_label, new_label in rec.get("renames", []):      # undo the rename too (reverse pairs)
+            hits = [a for a in sub.get_all_level_actors() if a.get_actor_label() == new_label]
+            if len(hits) == 1:
+                hits[0].set_actor_label(old_label)
         now = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
         if any(a.get_actor_label() == HOUSE for a in now) or (floor.get_actor_location() - unreal.Vector(*o["loc"])).length() > 0.5:
             fail("NOT saved: read-back after revert failed")
