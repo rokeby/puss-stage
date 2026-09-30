@@ -125,18 +125,59 @@ masking it.** Not a timing number — it is "you can see the machinery".
 release once a bake passes. Formula is in place: start = cross − lead, every
 passage ends at 2.50 m/s.
 
-### B2. Scene 5's rise is built on a law you have never seen
-Rig's builder assumes rise time proportional to √length. At Scene 5's
-200 × 150 × 50 m that gives a 28.9 s rise whose **far wall peaks near 12 m/s,
-against Scene 4's 7 m/s**. That is either thrilling or absurd and cannot be judged
-from the number. **Recommendation:** look at a capture before accepting it; Rig is
-making one if it is cheap.
+### B2. Scene 5 is not too fast. It is UNSEEN — and that is a different problem
+**You have the picture** (`RiseSpeed_S5_vs_S4_Sheet.png`), and it overturns the
+way I put this to you an hour ago.
 
-### B3. Scene 6 is roofless, and has an empty roof beat
-The curve is Scene 4's exactly, but a roofless box rising — and a beat 18.5–24.5 s
-after landing where the roof would have arrived — has never been looked at. **A roof
-that never comes is either a held breath or a missing piece, and only you can say
-which.**
+**I framed this as "the far wall peaks near 12 m/s against Scene 4's 7 — thrilling
+or absurd?" That was the wrong measure and the answer is neither.** From the stop
+the cat is nearly ON the hinge, so the eye reads the **sweep**, not the far wall's
+linear speed: **4.7°/s against Scene 4's 6.9°/s.** Scene 5 therefore reads about
+**1.5× SLOWER and heavier** than Scene 4, which for a box four times the size is
+right. The 12 m/s is real and happens 150 m away, where it registers as a streak.
+The sheet shows it directly with a 1-second exposure at each rise's fastest moment.
+
+**So the K law is vindicated, and the real finding is elsewhere: from where the cat
+stands, Scene 5's rise is mostly invisible.**
+
+| From the stop | Scene 5 | Scene 4 |
+| --- | --- | --- |
+| Frame before about 12 s | black (p99 1–2) | — |
+| Frame lit after landing | **1.2%** | **20.8%** |
+
+Its lights scaled with the box, but at 150 m they are points. **This is Scene 4's
+dark-hold problem again, worse**, and it will not be fixed by scaling — a room
+that big needs a different lighting approach, not a proportionally larger one.
+If you take the lattice glow for Scene 4 (A2), it scales here to 6.3–12.6 s.
+
+**Recommendation: accept the rise; treat Scene 5's lighting as its own job.** It
+is Tier 3 work, not a rise problem, and it is now measured rather than suspected.
+
+### B3. Scene 6's roofless rise — and a question about Scene 4's roof
+**You have the picture** (`RoofBeat_S6_vs_S4_Sheet.png`), 12 s to 29 s.
+
+**From outside, Scene 6's empty roof beat is a missing piece.** The frame changes
+**0.00%** between 18.5 and 24.5 s: a landed box and nothing, with light escaping
+upward through the open top. If you want that beat to be a held breath rather than
+an absence, it needs something to happen in it.
+
+**But from the cat's position it is nearly a non-event — and so is Scene 4's.**
+This is the finding Rig went and got without being asked, and it is the more
+interesting half:
+
+- Scene 4's roof, seen from the stop on a 25° look-up, shows only as **a glint
+  around 22.5 s** and a faintly lit ceiling behind the lattice at 24.5 s — **at
+  most 3.7% of the frame**. On a level look it never enters frame at all.
+- **Once shut, Scene 4 and Scene 6 are the same frame from inside: 0.4% of pixels
+  differ.**
+
+**So the real question is yours and it is about Scene 4, not Scene 6: does the roof
+beat need to read from the cat at all?** If yes, Scene 4's roof needs help too and
+this stops being a Scene 6 item. If no, then Scene 6's missing roof costs nothing
+where the audience is looking, and only matters from outside — which nobody sees.
+
+**Also visible on the sheet:** at 12 s Scene 6 is still rising **through its flat
+ground plane**. That is the known S1/S5/S6 fault, now with a picture of it.
 
 ---
 
