@@ -25,7 +25,7 @@ def red_fraction(path):
     im = Image.open(path).convert("RGB")
     w, h = im.size
     im = im.crop((int(w * 0.2), int(h * 0.2), int(w * 0.8), int(h * 0.8))).resize((240, 135))
-    px = list(im.getdata())
+    px = list(im.get_flattened_data()) if hasattr(im, 'get_flattened_data') else list(im.getdata())
     return sum(1 for r, g, b in px if r > 20 and r > 1.5 * g and r > 1.5 * b) / len(px)
 
 
@@ -33,7 +33,10 @@ def analyse(density):
     run = RUN_DIR / f"drape_first_frame_{density}.json"
     d = json.loads(run.read_text(encoding="utf-8"))
     t = run.stat().st_mtime
-    shots = sorted((p for p in SHOT_DIR.glob("ScreenShot*.png") if abs(p.stat().st_mtime - t) < 60),
+    # A run's shots are written up to about a second AFTER its JSON (the last shot lands on the next frame), and never
+    # after the NEXT run starts. So take the newest len(shots) files written between 60 s before and 3 s after this
+    # run's JSON. A symmetric +-60 s window pulled a following run's shots into this one.
+    shots = sorted((p for p in SHOT_DIR.glob("ScreenShot*.png") if -60 < p.stat().st_mtime - t < 3),
                    key=lambda p: p.name)[-len(d["shots_at_k"]):]
     if len(shots) != len(d["shots_at_k"]):
         return {"density": density, "error": f"found {len(shots)} screenshots for {len(d['shots_at_k'])} shots"}
