@@ -47,7 +47,11 @@ def main():
             if hi_x < -400.0 or lo_x > 50.0 or hi_y < -1300.0 or lo_y > 1300.0:
                 continue
             hits.append({"label": a.get_actor_label(), "min_x_cm": round(lo_x, 1), "max_x_cm": round(hi_x, 1), "top_z_cm": round(top, 2),
-                         "buries_fascia": bool(lo_x < lip - 1.0 and top > -120.0)})
+                         # 30 Sep: "> -120" flagged P03's intended oak house plane (top -119, 1 cm above the house floor).
+                         # A slab downstage of the lip buries the fascia only if it hides a meaningful part of its 120 cm
+                         # drop: the pile hangs to z -71.3 (Soft goods), so anything above -72 there is the real fault.
+                         "exposed_fascia_cm": round(max(0.0, -max(top, -120.0)), 1) if lo_x < lip - 1.0 else 120.0,
+                         "buries_fascia": bool(lo_x < lip - 1.0 and top > -72.0)})
         house = {k: float(portal.get_editor_property(k)) for k in ("house_floor_depth_cm", "house_floor_downstage_cm", "house_floor_half_width_cm", "mouth_half_width_cm")}
         rows[f"P0{n}"] = {"lip_x_cm": lip, "house": house, "stage_front": bool(portal.get_editor_property("stage_front")),
                           "ground_on": bool(s.get_editor_property("ground").get_editor_property("enabled")), "floors": hits}
