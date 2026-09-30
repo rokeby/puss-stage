@@ -373,6 +373,52 @@ line. **It reads as lights rising in a pit and a silhouette at the horizon, not
 as the box arriving early.** Whether that is acceptable is yours, but it is no
 longer a number.
 
+### A5. THE EXIT FROM A SCENE — the cost is now complete, and the cheap version is cheap
+**You asked how the hangar leads you to the next passage. Two options were mocked
+up for you; here is what each actually costs, with nothing left uncounted except
+one question.**
+
+**THE BLOCKER IS REAL AND NOW MEASURED, not modelled.** The live rise was posed
+every 0.5 s and read: **Scene 1's roof crosses ground level 113.7 m out — 48.2 m
+PAST its far wall.** Scene 5's is 100 m past. **So nothing can stand behind a far
+wall while the roof sweeps up**, and any docked exit needs **a new roof beat**.
+The live rise matches the model to 0.1 m.
+
+**But you already know that beat barely reads**: at most 3.7% of the frame at its
+peak, never in frame on a level look, and Scenes 4 and 6 differing by 0.4% of
+pixels once shut. **So the climax you would be changing is one the audience
+essentially does not see** — and two leaves sweeping sideways may read better
+than a roof that currently arrives unnoticed. **Still yours; you have not seen
+either.**
+
+**THE CHEAP MIX — three places, two cloth cuts.** Dock only where the headings
+already agree (S3→P04, S4→P05, S5→P06 are pure translations, no turn, no
+relight); the two bent links stay cloth cuts. **What it costs, counted:**
+
+| | |
+| --- | --- |
+| Passage + Structure actors to move | **6** |
+| Camera rigs | **3** — *how a rig follows its Passage is the ONE open question* |
+| Hand-placed actors (lanterns, stalls cameras, floors, liners, the backcloth) | **24**, none with children |
+| Handoff cameras | 6, they regenerate |
+| Hangar actors + Arrivals | 1,127 + 3, **rebuilt anyway for the new roof** |
+| **World-space re-keys outside the hangars** | **ZERO** |
+
+**That last row is the one that mattered.** The uncounted remainder was expected
+to *"turn this into hours"*. It is **zero**. The full chain adds P02, P03 and
+Scene 3's cast, five Scene 3 re-keys and the turns — **so the cheap mix is not a
+compromise, it is most of the value for a small fraction of the work.**
+
+**The image in it: a portal-sized panel falls outward as a drawbridge across the
+pit onto the next forestage, and the cat walks out over it.** The fold vocabulary
+in reverse.
+
+**The alternative stays on the table:** one drape bake serves all five exits,
+since every portal is the same size, plus one hangar stalls camera and one cut.
+Nothing moves, the rise is untouched, **and the real cost is matching the light on
+the cloth across the cut.** In Look & camera's phrase: *a trick, where the first
+option is a place.*
+
 ### B0. AN AUTHORED WING SCORE ON P01 HAS NEVER PLAYED — restore it?
 **Found by a read-only probe, 16:46.** Passage 1 carries **three keys on every
 wing channel**:
