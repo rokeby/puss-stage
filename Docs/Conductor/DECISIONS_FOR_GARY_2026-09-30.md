@@ -136,6 +136,24 @@ thresholds written down before it started. **So treat the pile numbers as
 provisional until it reports** — the stillness and hang results are unaffected,
 because a trend measured over 30 s is not a single-draw artifact.
 
+**UPDATE 09:40 — THE FOUR AMOUNTS ARE IN, AND THE RECIPE ALREADY BAKING MAY
+SIMPLY PASS.** Fold size against the approved fall: 0.4 → 1.51, **0.6 → 1.12**,
+**0.8 → 1.08**, 1.0 → 1.58. **As single runs, 0.6 and 0.8 pass the pile test on
+all five numbers** — and 0.6 is the amount already baking. Stillness 0.41 and a
+perfect hang at every amount.
+
+**Two honest qualifications.** The pre-registered verdict is **INCONCLUSIVE**: the
+curve is U-shaped rather than flat or monotonic, so the switch amount is not
+reported as a lever even though 0.6 looks best. And **0.6 was a guess that held,
+not a choice made on evidence** — it was picked speculatively hours before these
+numbers existed. Whether 0.6 and 0.8 really pass still rests on the seed repeat.
+
+**What this means for you: there is a real chance the pile question resolves
+itself before you have to judge it.** If the seed repeat says single runs are
+trustworthy, the cloth passes all three gates on numbers and the comparison image
+becomes confirmation rather than a decision. If it does not, the picture is
+waiting and the call is yours as described above.
+
 ### A4. Nesting the five hangars
 Rig has authored the rises and placed five Arrival actors for Scenes 1, 2, 3, 5, 6.
 **All inert, nothing nested, the Show asset byte-identical to its backup.**
