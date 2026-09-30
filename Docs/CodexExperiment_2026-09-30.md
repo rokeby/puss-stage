@@ -93,7 +93,39 @@ throughput limit or bad luck.
 
 | # | Outcome | Verification cost | Note |
 | --- | --- | --- | --- |
-| A | — | — | — |
+| A | **USABLE** | ~2 min, 3 spot-checks, all passed | See below. |
 | B | — | — | — |
 | D | — | — | — |
 | E | — | — | — |
+
+
+### A — task-tracker audit: USABLE
+
+**Output:** all 28 outstanding rows, each with a verdict and, for EXISTS or
+PARTIAL, an exact `file:line`. Full report:
+`Saved/CodexRuns/last-message-20260930-100735.txt`.
+
+**Verification:** three citations spot-checked, all correct.
+- `InfinityStage.uplugin:4` → `0.15.0-container-look`. **The row asking to load
+  `0.6.0-wing-modulation` is stale by nine minor versions.**
+- `SInfinityStageCueDesk.cpp:5563` → `It->Transport->bPerformanceMode =
+  !bRehearsalTransport;`, verbatim.
+- MIDI ABSENT → the only hits repo-wide are `.pdb` and `.obj` build artifacts.
+  **Right, and right for the stated reason**: it scoped itself to non-generated
+  text source and said so at the top. A naive grep gets this wrong.
+
+**Why it qualifies as usable, beyond being correct:** it kept "source proves
+implementation" separate from "source cannot prove live acceptance", on every row,
+without being asked twice. Fourteen rows came back UNCLEAR, each naming exactly
+what was searched — which is the honest answer for saved Show state, visual
+acceptance and audio approval, none of which live in source. **An agent that
+returned 28 confident verdicts would have been useless.**
+
+**Three genuine ABSENTs worth someone's attention**, each from an exhaustive
+scoped search: the MIDI review/import layer, spline/route visualization with
+clearance validation, and artist-authored groups plus the Operator workspace.
+
+**The generalisable lesson:** this task was delegable because its output is
+*citations*. Checking three of them took two minutes and covers the method, not
+just those three rows. Any task whose output can be spot-checked this way is
+safe to hand over.
