@@ -815,3 +815,11 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - Durable portal-builder parameter: deferred until Gary keeps it.
   - Scripts: `portal_border_apply.py` (dry run / apply / revert gated on absence) and
     `portal_border_mock_bench.py`.
+- **The stutter, 30 Sep 16:47 (Gary: "fix the stutter by that test").** Gary approved force-closing and relaunching
+  the editor without saving; he closed it himself at the same moment. `stutter_abab.py` then ran P/X/P/X,
+  60 s each: P = the Master playing in P05's section with the camera parked, X = Sequencer closed.
+  - **Result: the ~1 Hz rhythm is gone in all four phases.** 2–4 cluster starts per minute, against 23–58
+    on the 29 Sep editor-only files, measured with the same definitions.
+  - The celestial path runs every frame in P, so it is refuted as the cause.
+  - **Not attributed.** Gary deleted all landscapes at 16:36, and the editor was fresh with nothing baking.
+    Ways to attribute it are in the conductor report and in memory.
