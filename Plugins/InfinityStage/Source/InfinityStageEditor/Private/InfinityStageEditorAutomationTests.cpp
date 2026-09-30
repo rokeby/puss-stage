@@ -1163,9 +1163,22 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
         if (PlayerController)
         {
             AActor* ReverseInteractionViewTarget = PlayerController->GetViewTarget();
-            TestTrue(TEXT("Reverse navigation restores the retained Scene 1 exit camera"),
-                ReverseInteractionViewTarget
-                && ReverseInteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneExit")));
+            AddInfo(FString::Printf(TEXT("ReverseInteractionViewTarget=%s"),
+                ReverseInteractionViewTarget ? *ReverseInteractionViewTarget->GetActorLabel() : TEXT("null")));
+            // 30 Sep: reverse entry re-runs forward entry's camera arbitration, so once Interaction 1 authors its own
+            // Camera Cut it is seen from the same tagged stalls camera as on the way in. The retained Scene 1 exit camera
+            // is still built, and is still the fallback when no cut is authored (the legacy branch, unchanged).
+            if (bInteractionAuthorsCut)
+            {
+                TestTrue(TEXT("Reverse navigation returns to the Interaction's authored stalls camera"),
+                    IsPassageTwoMouthStalls(ReverseInteractionViewTarget));
+            }
+            else
+            {
+                TestTrue(TEXT("Reverse navigation restores the retained Scene 1 exit camera"),
+                    ReverseInteractionViewTarget
+                    && ReverseInteractionViewTarget->ActorHasTag(TEXT("InfinityStage.SceneExit")));
+            }
         }
 
         float ClosingCurtainProgress = -1.0f;
