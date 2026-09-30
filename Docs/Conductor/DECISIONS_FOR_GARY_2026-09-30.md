@@ -721,41 +721,60 @@ Each is a different piece of theatre, not a different fix. Nothing will be done
 at S3 until you choose.
 
 
-### B0c. THE FLOORS THAT REPLACE THE LANDSCAPES NEED A STAGE FRONT — or the shared drape dies at five mouths
-**You approved *"remove all landscapes and replace them with the floors."* That
-turns out to decide the SHAPE of the floor, not only its material, and the number
-is measured rather than modelled.**
+### B0c. SUPERSEDED — P03 already HAS P01's stage front. One edit, and one small look question
+**This section previously said the floors replacing the landscapes needed a stage
+front built into them, or the shared cloth cache would die at five of six mouths.
+Its premise was FALSE and is now measured false.** Kept because what replaced it is
+a real, much smaller question.
 
-**final13's pile reaches z −0.713 m and runs 1.9 m DOWNSTAGE of the curtain line.**
-P01's lip is at −1.5 m. **So part of the pile is draped down P01's fascia — the
-shared cache does not just sit on P01's floor, it encodes P01's stage front.**
+**P03 ALREADY BUILDS P01's STAGE FRONT.** Structure 03's ground has been on since
+12:25 today, and a read-only probe over the pile footprint, instance by instance,
+with P01 read the same way as the reference, found from the curtain line:
 
-**At a lip-less floor neither outcome works:**
-- floor runs past the curtain line → **the spill sinks INTO the floor**;
-- floor stops at the line → **the spill FLOATS in the air.**
+| piece | extent | top | instances |
+| --- | --- | --- | --- |
+| forestage | x −150..0 | 0 | 89 |
+| portal pieces | (lip trough) | to 25 | 3 |
+| ground | 0..+906 | 0 | 139 |
+| **StageFront — fascia and house floor** | | **−120..0** | **250** (P01 has 192) |
+| understage | | −255 | |
 
-**Two ways out:**
-- **(a) build a P01-like stage front into the floor spec** — lip at x −150, fascia.
-  The shared cache then fits everywhere as it fits at P01, and P03's pending pile
-  check becomes a formality. **Rig geometry; no bake.**
-- **(b) bake each site its own cache** — ~6 h plus preparation **per site**, and it
-  ends "one asset feeds six sites".
+**So the lip and the fascia are there.** The cache's site assumptions are met
+upstage of the lip, and the pile lies on forestage and ground at z 0 exactly as it
+does at P01.
 
-> **CONDUCTOR'S VIEW, offered as reasoning and not as your answer: (a) is the
-> consistent choice rather than the cheap one.** Every Passage mouth in this show
-> is a proscenium with a drape that falls. If a mouth is a proscenium, it wants a
-> proscenium's stage front. **P01 having a lip while the others do not is the
-> anomaly — P03 needing one is not a special case.**
+### WHAT IS ACTUALLY WRONG: the oak plane buries the stage front
 
-**THE REASON THIS IS ON YOUR SHEET RATHER THAN JUST DONE: it is a look decision
-about what a Passage mouth IS**, and it is decided once for all six. The floor
-spec written once either carries the shared cache through the landscape swap at
-every mouth, or breaks it at five.
+**`"Passage 03 - Floor"` — top −5.0, 1 cm thick — runs from 84 m DOWNSTAGE to 451 m
+upstage.** In the house-side band (x −200..−155) **every sample's top surface is that
+plane at −5**: it covers the house floor at −120 and **buries the fascia except its
+top 5 cm.**
 
-**Nothing is blocked on you today** — the swap sits behind the stutter test, and
-Rig has the constraint in hand so they will not build a flat floor and rebuild it.
-**But P03 is the site you said you would test first**, and its drape pile is
-unverified precisely because of this.
+**At P01 the equivalent floor STARTS at the lip (x −150) and leaves the drop
+exposed.** That is the whole difference between the two mouths, and it confirms Rig's
+own worry, measured rather than suspected.
+
+**Consequence for the drape at P03's mouth** (inferred from these surfaces plus the
+cache's measured extents): the pile lies correctly on forestage and ground, but **the
+spill down the fascia — which reaches z −71 — CLIPS INTO the oak plane at −5.** It
+does not float. Plus a small cosmetic: **P03 has 2 lamp-housing fixtures in the
+footprint against P01's 5**, so there are a few phantom dents where the pile drapes
+over housings that are not there.
+
+### THE FIX IS ONE RIG EDIT — no bake, no new stage front
+
+**Trim `"Passage 03 - Floor"` to start at the lip** (x ≥ −150 from P03's route
+start), as P01's floor already does. **Then P03's mouth matches P01's, the shared
+cache fits, and the pending I2 check becomes the formality it was predicted to be.**
+Upstage the plane is harmless — under ground at top 0, a plane at −5 is invisible.
+
+> **THE ONLY THING LEFT FOR YOU, and it is small: should the house side at P03 read
+> as a DROP, the way it does at P01 — fascia visible, house floor 1.2 m below — or as
+> OAK FLOOR carried right through?** The measured difference is above. **A drop is
+> what the cache was built for and what P01 does; oak through is what P03 has today,
+> by accident rather than by choice.**
+
+**"One asset feeds six sites" survives**, and per-site bakes are off the table.
 
 ### B5. A cloth can show a stale frame after a scrub — and it needs an owner
 **Measured today, and it is a rehearsal problem rather than a performance one.** A
