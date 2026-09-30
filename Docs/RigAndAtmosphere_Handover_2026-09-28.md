@@ -834,3 +834,20 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   camera's.)
   - Discard it with a Don't-Save restart. Never save it: that would persist the evaluated state.
   - No level save until the map is clean.
+- **Mouth floors, 30 Sep 17:32–17:36.** Gary's own yes, in this session or confirmed here.
+  - P03, P05, P06: each floor trimmed to start at the lip (x −150 in the portal frame), so the fascia and the 1.2 m
+    drop show, as at P01. Each mouth also got an OAK house-floor plane, x −2600..−155, |y| ≤ 20 m, top −119.
+    The pile clears it by 47 cm.
+  - P05's mislabelled floor is now "Passage 05 - Floor (oak)", renamed in the same save with its records.
+  - P06's house plane was first Versailles because the tool copied the floor's material; fixed to oak.
+  - Tool: `mouth_floor_apply.py` (MOUTH=P03/P05/P06).
+  - P02 is NOT done. Its floor is rotated 66.5° to its mouth, so it needs a notch (46.5 × 38.4 m) plus one
+    P02-aligned refill slab. That's with Gary via the conductor.
+  - `lip_guard.py` now stops both floor builders from laying a slab downstage of any lip.
+- **S4 arrival lighting, 30 Sep 17:39.** Gary: "just build them" (no sheet).
+  - The practical wave and the lattice glow start at the cut: 0.2–2.0 s and 2.0 s.
+  - The S4 exposure volume's saved weight is 0, and the rise keys it 0 → 1 over 8 s, so the drop fades with the
+    rise instead of switching on camera position.
+  - `hangar_build.py` makes future hangars the same way.
+  - Backup PreS4ArrivalLight-20260930-1739; revert with `s4_arrival_light_revert_run.py`.
+  - The look is NOT verified by capture.
