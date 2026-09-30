@@ -83,10 +83,10 @@ def main():
             L["global"].append(label)
         elif edge:
             L["boundary"].append(row)
+        elif cls == "InfinityStageArrival":            # before the hangar test: an Arrival carries its hangar's tag
+            L["arrival"].append(label)
         elif any(t.startswith("RigAtmos.Scene") and t.endswith("Hangar") for t in tags):
             L["hangar"] += 1 + children.get(label, 0)
-        elif cls == "InfinityStageArrival":
-            L["arrival"].append(label)
         elif cls in ("InfinityStagePassageActor", "InfinityStageStructureActor"):
             L["the_move"].append(row)
         elif cls.startswith("InfinityStage"):          # camera rig, curtain rig, shadow cat, effect source, wing proxy:
@@ -99,7 +99,7 @@ def main():
     reg = unreal.AssetRegistryHelpers.get_asset_registry()
     seq_paths = sorted({str(d.package_name) for d in reg.get_assets_by_path("/Game", recursive=True)
                         if str(d.asset_class_path.asset_name) == "LevelSequence"})
-    rekey, relative, unresolved, seq_errors = [], 0, [], []
+    rekey, relative, unresolved, seq_errors, located = [], 0, [], [], []
     for path in seq_paths:
         seq = unreal.EditorAssetLibrary.load_asset(path)
         if not isinstance(seq, unreal.LevelSequence):
@@ -112,23 +112,25 @@ def main():
                     continue
                 name = str(b.get_display_name())
                 attached = bool(list(b.find_tracks_by_type(unreal.MovieScene3DAttachTrack)))
-                keys, has_def, sample = 0, False, None
+                keys, has_def, sample, names = 0, False, None, []
                 for t in tracks:
                     for s in t.get_sections():
-                        for ch in s.get_all_channels():
-                            if not str(ch.get_name()).startswith("Location"):
-                                continue
+                        loc = [ch for ch in s.get_all_channels() if str(ch.get_name()).startswith("Location")]
+                        names = [str(ch.get_name()) for ch in loc]
+                        for i, ch in enumerate(loc):
                             k = ch.get_keys()
                             keys += len(k)
                             d = ch.has_default()
                             has_def = has_def or d
-                            if str(ch.get_name()).endswith("Y") and sample is None:
+                            # the second Location channel is Y (order X, Y, Z; the name is recorded to check)
+                            if i == 1 and sample is None:
                                 sample = k[0].get_value() if k else (ch.get_default() if d else None)
                 if not keys and not has_def:
                     continue
                 spawnable = str(b.get_id()) in spawn_ids
                 matched = by_label.get(name, []) if not spawnable else []
-                entry = {"sequence": path, "binding": name, "spawnable": spawnable, "location_keys": keys, "location_default": has_def}
+                entry = {"sequence": path, "binding": name, "spawnable": spawnable, "location_keys": keys, "location_default": has_def,
+                         "location_channels": names, "y_sample_cm": sample, "label_matches": len(matched)}
                 if attached or (len(matched) == 1 and matched[0].get_attach_parent_actor() is not None):
                     relative += 1
                     continue
@@ -142,15 +144,19 @@ def main():
                     unresolved.append(entry)
                     continue
                 entry["lane"], entry["boundary"] = n, edge
+                located.append(entry)
                 if n in lanes_out:
                     rekey.append(entry)
         except Exception as exc:  # noqa: BLE001  read-only: report API drift, never stop the inventory
             seq_errors.append(f"{path}: {exc}")
 
+    refs = {}
+    for path in sorted({e["sequence"] for e in located}):
+        refs[path] = [str(r) for r in unreal.EditorAssetLibrary.find_package_referencers_for_asset(path, False) if str(r) != path]
     dirty1 = sorted(str(p.get_name()) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_content_packages()) + \
         sorted(str(p.get_name()) for p in unreal.EditorLoadingAndSavingUtils.get_dirty_map_packages())
     out = {"run": run, "lanes": lanes_out, "sequences_scanned": len(seq_paths), "rekey": rekey, "relative_bindings": relative,
-           "unresolved": unresolved, "sequence_errors": seq_errors, "dirty_before": dirty0, "dirty_after": dirty1}
+           "unresolved": unresolved, "located_all_lanes": located, "referencers": refs, "sequence_errors": seq_errors, "dirty_before": dirty0, "dirty_after": dirty1}
     path = os.path.join(HERE, f"lane_inventory_{run}.json")
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=1)

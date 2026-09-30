@@ -27,13 +27,20 @@ new rise, and in the full version a relight too.**
     rig's `.cpp` and found only that property.
   - That a 66.5° turn visibly relights a set is *inferred*; it has not been rendered.
 - **With the rise as built, nothing can stand within 48 m of a far wall** (Scene 5: 100 m).
-  - The box swings up out of its pit with the roof standing upright on the far wall. The roof
-    tip crosses ground level 114 m from the camera stop, then climbs to 90 m before folding over.
-  - These figures are *computed* from the builder's own swing formula and reach
-    (`hangar_build.py:209-218`, reach 109.8 m; Scene 5 251.7 m). That model generated the rise
-    keys.
-  - The sweep has **not been measured** in the editor against the live rise, so "the live rise
-    matches its model" is *inferred*, though strongly: the keys came from it.
+  - The box swings up out of its pit with the roof standing upright on the far wall.
+  - **MEASURED on the live rise, 30 Sep 13:02** (`rise_sweep_measure_readonly.py`). It posed
+    the saved rise every 0.5 s and read the world corners of every hangar mesh in the dock
+    frame:
+
+    | | far wall | roof crosses ground level | past the far wall | box alone |
+    |---|---|---|---|---|
+    | Scene 1 | 65.5 m | 113.7 m, at 5.0 s | **+48.2 m** | +7.0 m |
+    | Scene 5 | 155.5 m | 255.5 m, at 9.5 s | **+100.0 m** | +8.1 m |
+
+    The model predicted 113.6 m, +48, +7 and +100, +8, so the live rise matches it.
+  - After the run the root pitch read back at −90 and the editor was 0+0 dirty.
+  - Limit: 0.5 s sampling can under-read a peak slightly. The model agrees with the samples to
+    0.1–0.2 m.
 
 **Cheapest version that is still a place: dock only where the headings already agree.**
 - S3→P04, S4→P05 and S5→P06 are pure translations into P03's lane: 821 m, 1,642 m and 2,601 m
@@ -75,13 +82,39 @@ new rise, and in the full version a relight too.**
      Passage's own hangar and Arrival.
    - **Must be re-keyed:** sequence transform tracks on moved, unparented actors with
      world-space keys. `LS_S4_HangarFold` is the known one (docking audit).
-   - **NOT COUNTED.** `Saved/CodexStructure/lane_inventory_readonly.py` (written, not run; it
-     needs an editor slot) counts, per lane:
-     - root actors to move, with their attached children;
-     - Infinity Stage actors whose following is not assumed;
-     - hangars and Arrivals;
-     - every sequence binding holding world-space Location keys or defaults.
-     It marks where a binding's lane is only *inferred* from key positions.
+   - **COUNTED, 30 Sep 13:04** (`lane_inventory_readonly.py`, run 130421, read-only, dirty
+     unchanged). The table is *measured*; the notes after it mark what is inferred.
+
+     | lane | the move | camera rig | placed by hand (of which handoff cams, which regenerate) | hangar actors + Arrival (rebuilt) | world-space re-keys outside the hangar |
+     |---|---|---|---|---|---|
+     | P02 | 2 | 1 | 14 (2) | 117 + 1 | 0 |
+     | P03 | 2 | 1 | 68 (2) | 112 + 1 | **5 bindings**: Scene 3's clams (`LS_Clams` ×4, one with 12 keys; `LS_DevScene_03` ClamCam1) |
+     | P04 | 2 | 1 | 6 (2) | 117 + 1 | 0 |
+     | P05 | 2 | 1 | 11 (2) | 895 + 1 | 0 |
+     | P06 | 2 | 1 | 13 (2) | 115 + 1 | 0 |
+
+     - **Cheap mix (P04–P06):** 6 move actors, 3 camera rigs, 24 hand-placed actors (plus 6
+       handoff cameras that regenerate), 1,127 hangar actors rebuilt with 3 Arrivals, and
+       **zero** world-space re-keys outside the hangars.
+       - Each hangar root holds a world Location default in its rise, so a hangar moved rather
+         than rebuilt costs one re-key.
+       - The hand-placed pieces are lanterns, stalls cameras, floors, pit liners, the P04
+         backcloth and the Ortolan sheet. None has attached children.
+     - **Full chain (P02–P06)** adds P02, and P03's 68, which include Scene 3's cast and props.
+       It also adds the 5 Scene 3 re-keys and the turns.
+     - Not ridden or re-keyed: 4 dev establishing cameras sit on lane boundaries (unconsumed per
+       the docking audit).
+     - Env-pack demo sequences (LSM `S_Sequencer_*`, `LS_Sunset`) have world keys in these lanes
+       but are referenced only by other maps or nothing (*measured*: asset referencers). Not a
+       cost.
+     - `LS_OrtalanSheetSway`'s 8 bindings are skeletal-mesh components under `BP_OrtalanSheet*`
+       actor bindings, which is relative. No actor with those labels exists in the level
+       (*measured*), so it binds nothing here.
+     - `LS_S4_HangarFold` still exists. The scan found no unparented world-space binding in it
+       (its actors are attached since v2). Whether anything still plays it was not checked.
+     - **Camera rigs:** one per lane. How each follows its Passage when moved is **not
+       assumed**; that needs a code read or a test.
+
 4. **New adjacency** *(inferred, not rendered)*:
    - P04–P06 would stand on or near P03's oak floor, which runs to x 452 m.
    - The next proscenium would be visible about 76 m ahead down the lane before a hangar rises.
@@ -102,7 +135,6 @@ The cloth match cut: per exit, one drape, one stalls camera in the hangar, and o
 4. Whether the next stage should be visible down the lane before the hangar rises.
 
 If the mix is chosen, the engineering order is:
-1. Run the lane inventory.
-2. Builder change: roof leaves plus the drawbridge panel, with swept checks.
-3. One test hangar, then Gary looks.
-4. The three translations.
+1. Builder change: roof leaves plus the drawbridge panel, with swept checks.
+2. One test hangar, then Gary looks.
+3. The three translations (camera rig behaviour checked first).
