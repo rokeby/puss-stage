@@ -61,6 +61,22 @@ Blender traps, each of which produced a plausible-looking wrong result:
   first, and render the final frame BEFORE stepping the timeline back.
 - A/B results identical to every digit mean a disconnected knob, not a result.
 
+## 29 Sep (night): held patch E, light-replication draw order (not a curtain item; recorded here as its author's log)
+
+`ReplicateLightAttachmentsWithVariation` passed six random draws as FVector/FRotator ARGUMENTS, so the compiler chose
+their order. `Scripts/check_light_variation_order.py` reproduces UE 5.8 offline: the seed is
+uint32(CityHash64(FGuid)) ^ Seed, then the FRandomStream LCG, with FRandRange in double. Run on a read-only dump of all
+261 Wing Pairs / 2676 lights:
+- **Result:** P02's corridor (21 Wing Pairs, 126 lights, jittered copies of P02 Wing 001, Cue Desk "with variation",
+  seed 0) reproduces exactly under RIGHT-TO-LEFT order (MSVC): translation 7e-12 cm, rotation 7e-16, intensity at float
+  rounding. Left-to-right reproduces none, and the other rotator order fails at 4e-2. Patch E pins that order, keeping
+  FVector::FReal.
+- **SCOPE OF THE PROOF:** it proves P02's corridor. A passage varied under a DIFFERENT binary would show as "no match",
+  not as a contradiction. No other passage matched in either order, so nothing else in the saved Show depends on the
+  draw order. If a future dump shows a new variation match, re-run the checker before trusting the pinned order for it.
+- **Same bug class, flagged to Rig (their file, InfinityStageStructureActor.cpp):** lines 747 and 1047
+  (`FRandRange * FRandRange`) and line 1216 (`(FRand() < 0.5 ? 180 : 0) + FRandRange(...)`).
+
 ## 29 Sep (night): transition curtain, RE-SIZED after Gary's reframe (plan only, nothing built)
 
 Gary: "since the interaction is a shadow interaction my idea was for it to happen on the curtain and to drop it and
