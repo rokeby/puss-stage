@@ -23,7 +23,7 @@ HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Captures", "Set
 CELL = (640, 360)
 COLOURS = [(230, 90, 70), (240, 200, 60), (90, 200, 120), (90, 150, 240)]
 NOTE = ("Frame-exact renders: silent about smoothness, including any stutter the show may still have. "
-        "Lit at the passage's own exposure (EV100 -3)." "\n"
+        "Lit at the passage's own exposure (EV100 -3). World frozen: only the camera moves." "\n"
         "Bob not shown: in the real settle it fades out across these frames, so the middle of each settle "
         "will be a little less clean than this.")
 

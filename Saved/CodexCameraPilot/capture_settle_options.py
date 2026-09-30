@@ -10,8 +10,15 @@ Nothing is authored. Each option is simulated on the REAL route: at a moment tau
 linear settle of length T leaves r = v * tau^2 / (2T) cm to go (tau <= T), else v * (tau - T/2). With the
 measured constant speed, that is the authored pose at "equivalent time before end" r / v, read from the
 Camera Pilot's GetPassageCameraPose (the rig's own evaluation, UN-BOBBED: the bob is not shown in any
-option). After the end, every option shows the Scene 4 Entry camera, still. The world (lights, hangar)
-follows the REAL time: the Master is scrubbed to each frame, stepwise (pose change -> a later call).
+option). After the end, every option shows the Scene 4 Entry camera, still.
+
+WORLD FROZEN (30 Sep, second version). The first version scrubbed the Master in Sequencer so the world
+followed real time. Opening and scrubbing the Master DIRTIED THE MAP at its first step (measured; the
+per-step guard aborted it, and nothing was saved; the cure is a discard). So this version never opens
+Sequencer: the world stays in its editor state (P04's wings and lights as the level holds them), and only
+the capture camera moves. That's fine for judging a deceleration, and it is labelled. The camera poses
+are pure read-backs (GetPassageCameraPose -> GetCameraView). Captures run in batches of BATCH frames per
+call (no pose change, so no stepwise rule), and the dirty check between batches stays.
 Exposure is pinned the validated way at EV100 -3, the passage's look. At the current look the hangar volume
 blacks out the last metre (Gary's A1), which would hide the settle.
 
@@ -20,7 +27,7 @@ trace from the camera at the first and last frame. No hit is recorded as UNKNOWN
 will not write the Gary-facing file while any is UNKNOWN.
 
 Run the same request until PUSS_SETTLE_OPTIONS_DONE. Captures: Captures/Settle/. Refuses while PIE runs,
-while content or maps are dirty, or while ZZ_ actors exist. Sequencer closes at the end.
+while content or maps are dirty, while ZZ_ actors exist, or while Sequencer has anything open.
 """
 import json
 import math
@@ -37,7 +44,8 @@ BEFORE_S, AFTER_S, FPS = 2.5, 0.5, 25
 EV100 = -3.0
 TICKS_PER_S = 24000.0
 WALK_CM_PER_S = 250.0                     # measured in PIE at P04's end, 30 Sep: 246-256 cm/s
-STATE_VERSION = 1
+STATE_VERSION = 2
+BATCH = 10                                # frames per call (4 captures each)
 
 
 def unwrap(result, count):
@@ -118,14 +126,10 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     state_path = os.path.join(out_dir, "state.json")
     show = unreal.load_asset(SHOW_PATH)
-    master = show.get_editor_property("managed_master_sequence")
     library = unreal.InfinityStageCameraPilotLibrary
-    sequencer = unreal.LevelSequenceEditorBlueprintLibrary
     passage = next(p for p in show.get_editor_property("passage_settings")
                    if str(p.get_editor_property("label")) == PASSAGE_LABEL)
     guid = passage.get_editor_property("passage_guid")
-    rate = master.get_display_rate()
-    ticks_per_display = TICKS_PER_S * rate.denominator / float(rate.numerator)
 
     if not os.path.exists(state_path):
         if dirty():
@@ -133,37 +137,28 @@ def main():
         if [a for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
                 if a.get_actor_label().startswith("ZZ_")]:
             raise RuntimeError("Refusing: ZZ_ actors present")
-        if sequencer.get_current_level_sequence():
-            raise RuntimeError("Sequencer already open")
+        if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence():
+            raise RuntimeError("Refusing: Sequencer has a sequence open (this version never uses it)")
         frame_range = unwrap(library.get_passage_frame_range(show, guid), 2)
         if frame_range is None:
             raise RuntimeError(f"{PASSAGE_LABEL} has no frame range")
         end_tick = int(frame_range[1])
-        steps = [round(-BEFORE_S + i / FPS, 4) for i in range(int(round((BEFORE_S + AFTER_S) * FPS)) + 1)]
-        plan = [{"t": t, "world_display_frame": int(math.floor((end_tick + t * TICKS_PER_S) / ticks_per_display))}
-                for t in steps]
-        sequencer.open_level_sequence(master)
-        sequencer.set_current_time(plan[0]["world_display_frame"])
+        plan = [round(-BEFORE_S + i / FPS, 4) for i in range(int(round((BEFORE_S + AFTER_S) * FPS)) + 1)]
         state = {"version": STATE_VERSION, "end_tick": end_tick, "plan": plan, "index": 0, "stills": [], "ground": {}}
         with open(state_path, "w", encoding="utf-8") as handle:
             json.dump(state, handle)
-        unreal.log("PUSS_SETTLE_OPTIONS_STEP|opened Master|end_tick=%d|frames=%d" % (end_tick, len(plan)))
+        unreal.log("PUSS_SETTLE_OPTIONS_STEP|planned|end_tick=%d|frames=%d|world frozen, no Sequencer" % (end_tick, len(plan)))
         return
 
     with open(state_path, encoding="utf-8") as handle:
         state = json.load(handle)
-    # Rig (30 Sep): PLAYING the Master dirties the map, and the only safe cure is a discard. If scrubbing it
-    # does too, stop at the first step, not the 76th, and say so; never save.
+    # Opening and scrubbing the Master dirtied the map (30 Sep). This version never opens Sequencer, but the
+    # guard stays: if ANYTHING goes dirty between batches, stop, say so, never save.
     if dirty():
-        sequencer.close_level_sequence()
         os.remove(state_path)
         unreal.log_error("PUSS_SETTLE_OPTIONS_ABORTED|packages went dirty during the run: %s|NOT saved; the cure is a "
                          "discard (close without saving), never a save" % dirty())
         raise RuntimeError("packages went dirty during the run")
-    index = state["index"]
-    step = state["plan"][index]
-    if sequencer.get_current_time() != step["world_display_frame"]:
-        raise RuntimeError("Sequencer is not at the expected frame; delete state.json and restart")
     actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
     rig = next(a for a in actors if a.get_class().get_name() == "InfinityStageCameraRig"
                and a.get_editor_property("passage_actor") is not None
@@ -173,43 +168,45 @@ def main():
                  and a.get_actor_label().startswith(SCENE_PREFIX) and "Entry Handoff" in a.get_actor_label())
     sensor = rig.get_editor_property("camera").get_editor_property("filmback").get_editor_property("sensor_width")
     del actors
-    tau = -step["t"]
-    for settle in SETTLES_S:
-        if tau > 0.0:
-            tick = int(round(state["end_tick"] - remaining_equivalent_s(tau, settle) * TICKS_PER_S))
-            pose = unwrap(library.get_passage_camera_pose(show, guid, tick), 3)
-            if pose is None:
-                raise RuntimeError(f"{PASSAGE_LABEL} camera does not evaluate at {tick}")
-            view, focal, _ = pose
-            location, rotation = view.translation, view.rotation.rotator()
-        else:
-            component = entry.get_cine_camera_component()
-            location, rotation = component.get_world_location(), component.get_world_rotation()
-            focal = component.get_editor_property("current_focal_length")
-        fov = math.degrees(2.0 * math.atan(sensor / (2.0 * focal)))
-        name = "settle_%03.1fs_f%03d" % (settle, index)
-        capture(world, location, rotation, fov, out_dir, name)
-        remaining = remaining_equivalent_s(tau, settle)
-        state["stills"].append({"settle": settle, "t": step["t"], "name": name,
-                                "remaining_equiv_s": round(remaining, 4),
-                                "to_go_cm": round(remaining * WALK_CM_PER_S, 1),
-                                "xyz": [round(location.x, 1), round(location.y, 1), round(location.z, 1)]})
-        if settle == 0.0 and index in (0, len(state["plan"]) - 1):
-            state["ground"][str(index)] = ground_below(world, location, [rig, entry])
+    first = state["index"]
+    last = min(len(state["plan"]), first + BATCH)
+    for index in range(first, last):
+        t = state["plan"][index]
+        tau = -t
+        for settle in SETTLES_S:
+            if tau > 0.0:
+                tick = int(round(state["end_tick"] - remaining_equivalent_s(tau, settle) * TICKS_PER_S))
+                pose = unwrap(library.get_passage_camera_pose(show, guid, tick), 3)
+                if pose is None:
+                    raise RuntimeError(f"{PASSAGE_LABEL} camera does not evaluate at {tick}")
+                view, focal, _ = pose
+                location, rotation = view.translation, view.rotation.rotator()
+            else:
+                component = entry.get_cine_camera_component()
+                location, rotation = component.get_world_location(), component.get_world_rotation()
+                focal = component.get_editor_property("current_focal_length")
+            fov = math.degrees(2.0 * math.atan(sensor / (2.0 * focal)))
+            name = "settle_%03.1fs_f%03d" % (settle, index)
+            capture(world, location, rotation, fov, out_dir, name)
+            remaining = remaining_equivalent_s(tau, settle)
+            state["stills"].append({"settle": settle, "t": t, "name": name,
+                                    "remaining_equiv_s": round(remaining, 4),
+                                    "to_go_cm": round(remaining * WALK_CM_PER_S, 1),
+                                    "xyz": [round(location.x, 1), round(location.y, 1), round(location.z, 1)]})
+            if settle == 0.0 and index in (0, len(state["plan"]) - 1):
+                state["ground"][str(index)] = ground_below(world, location, [rig, entry])
 
-    if index + 1 < len(state["plan"]):
-        state["index"] = index + 1
-        sequencer.set_current_time(state["plan"][index + 1]["world_display_frame"])
+    if last < len(state["plan"]):
+        state["index"] = last
         with open(state_path, "w", encoding="utf-8") as handle:
             json.dump(state, handle)
-        unreal.log("PUSS_SETTLE_OPTIONS_STEP|%d/%d|t=%+.2f" % (index + 1, len(state["plan"]), step["t"]))
+        unreal.log("PUSS_SETTLE_OPTIONS_STEP|%d/%d|dirty=%s" % (last, len(state["plan"]), dirty()))
         return
 
-    sequencer.close_level_sequence()
     os.remove(state_path)
     with open(os.path.join(out_dir, "settle_options.json"), "w", encoding="utf-8") as handle:
         json.dump({"stills": state["stills"], "ground": state["ground"], "settles_s": SETTLES_S, "fps": FPS,
-                   "dirty_after": dirty()}, handle, indent=1)
+                   "world": "frozen in its editor state (no Sequencer)", "dirty_after": dirty()}, handle, indent=1)
     unreal.log("PUSS_SETTLE_OPTIONS_DONE|stills=%d|ground=%s|dirty_after=%s" % (len(state["stills"]), state["ground"], dirty()))
 
 
