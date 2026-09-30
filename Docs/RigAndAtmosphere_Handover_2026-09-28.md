@@ -699,3 +699,15 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - **S4 is the only clean site** (a void beyond the hinge).
   - The builder allowed all five by name, so they are deferrals, not misses. Its blocker
     test also skips anything wider than 10 km; that isn't the cause here, but it is a gap.
+- **Planes trimmed (conductor-approved; `plane_trim_apply.py`).** The S1, S5 and S6 Passage
+  floor planes now end at their hinge lines: x 29284.0, 47090.9 and 28140.3. Their near ends
+  are unchanged.
+  - Backup: `Backups/PrePlaneTrim-20260930-0727`. Record: `plane_trim_record.json`.
+  - Revert: `plane_trim_revert_run.py`.
+  - Re-surveyed from saved state: all three footprints trace to nothing, like S4's.
+  - Rendered S6 before/after (`Captures/PlaneTrim_S6_BeforeAfter.png`; pre-trim frames in
+    `Captures/RiseBench_PreTrim/`):
+    - From the stop, 0.00% changes at the cut and 0.01% after landing.
+    - Mid-rise (+8 s), the box is no longer sliced by the plane.
+  - **S2 and S3 (landscapes) are held for Gary.** They have no owning stream, and S3 is
+    among his cast.
