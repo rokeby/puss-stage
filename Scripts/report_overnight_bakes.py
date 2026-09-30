@@ -405,8 +405,8 @@ def main():
                 v["pile"] = True
                 v["pile_override"] = approvals[i]
                 v["ALL"] = all(v.get(k) is True for k in v["required"])      # the same fail-closed rule
-                ls.append(f"- **pile PASSED BY EYE (override)**: {approvals[i]}")
-                ls[0] = ls[0].replace(": FAIL", ": PASS" if v["ALL"] else ": FAIL").replace("pile False", "pile True (by eye)")
+                ls.append(f"- **pile PASSED BY RECORDED OVERRIDE** (the reason says what was and was not seen): {approvals[i]}")
+                ls[0] = ls[0].replace(": FAIL", ": PASS" if v["ALL"] else ": FAIL").replace("pile False", "pile True (override)")
         body += ls + [""]
         # BIND THE VERDICT TO THE BYTES: the import refuses unless the bake JSON and .abc still hash to what was judged,
         # so re-using a bake id can never import an untested replacement under a stale pass.
