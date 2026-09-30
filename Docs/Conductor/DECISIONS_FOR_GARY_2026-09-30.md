@@ -373,6 +373,34 @@ line. **It reads as lights rising in a pit and a silhouette at the horizon, not
 as the box arriving early.** Whether that is acceptable is yours, but it is no
 longer a number.
 
+### B0. AN AUTHORED WING SCORE ON P01 HAS NEVER PLAYED — restore it?
+**Found by a read-only probe, 16:46.** Passage 1 carries **three keys on every
+wing channel**:
+
+- **InwardTravelScale** 0.5 → 1.3 → 1.0
+- **CycleRateScale** 0.6 → 2.0 → 1.0
+- **PhaseBias** 0 → 1 → 0
+
+That is a tempo: the wings open slow and wide, accelerate to double rate, and
+settle. **Every key sits between 0.0 and 14.52 s — and P01 does not start until
+15.0 s.** So none of it ever plays. P01 holds the last values (1.0 / 1.0 / 0.0)
+from beginning to end, and **nobody has ever seen this.**
+
+**The likeliest cause is the 15 s Opening being inserted ahead of P01**, which
+would have made 0–14.52 s P01's own first fifteen seconds. It is not a recent
+regression, and it is not from any of today's work.
+
+**Restoring it means shifting those keys +15 s.** Reversible, small, and entirely
+a look decision — it changes how the first passage's wings behave for its opening
+fifteen seconds.
+
+**A possible connection, offered as a possibility and not a claim.** You said
+this morning that P01's flicker *"seems both expensive and not visually
+effective"*, and P01 has recurred in your notes as wanting more happening in it.
+**A tempo arc that has never once played is the kind of absence that reads as
+monotony.** It is about wings rather than the lights you named, so this may be
+unrelated — but it is authored motion the show has never shown.
+
 ### B0a. THE LANDSCAPES CARRY ~2,950 GRASS COMPONENTS — and that may be your load complaint
 **You said:** *"P02 open curtain is OK although everything loaded at once and the
 background loaded less than a second before the curtain, ruining the effect."*
