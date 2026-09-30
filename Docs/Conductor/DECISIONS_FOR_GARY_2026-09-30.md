@@ -101,7 +101,16 @@ best **pile**; the five drapes and the P04 backcloth take whichever gives the be
 both — the measurement says pleats held by a flat rest store bending energy, and
 the fall spends it unfolding instead of heaping.
 
-**Unblocks:** placing any cloth anywhere. Nothing is placed yet.
+**Unblocks:** placing any cloth anywhere.
+
+**A4b. WHICH OPENING CACHE — and the recommendation is nearly forced.**
+Two candidates: **`final9`**, ready about 12:30, which **fails coverage by 0.615 m
+per side**; and **`final13`**, about 15:30, which does not. **That 0.615 m gap IS
+your own complaint** — "the curtain blocks only about 80% of the stage, light
+leaks past both sides". **Recommendation: wait for `final13`.** Placing `final9`
+would knowingly re-install the fault you asked us to fix, to save three hours, on
+a day when nothing downstream is waiting on the Opening. Say if you would rather
+see something sooner; it is reversible either way.
 
 **UPDATE 09:15 — TWO OF THE THREE GATES ARE PASSED, AND THE THIRD IS YOURS.**
 
