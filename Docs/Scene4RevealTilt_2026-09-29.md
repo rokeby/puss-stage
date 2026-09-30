@@ -127,6 +127,37 @@ the rest pitch with KeepState, so the end of the Scene doesn't snap it back.
 - The first inspection script crashed the editor (an open range passed to
   `SequencerTools.get_bound_objects`); nothing unsaved was lost.
 
+## v2 (29 Sep, late): the whole hangar rises from below the mouth
+
+Gary's sketch meant the WHOLE BOX hangs below the passage floor, hinged at the
+mouth (x 10668.5, axis Y), and rotates up as one piece: assembled, dark except
+the ghost light, over 1–16 s. Then the practicals strike (16.5–18.3), the roof
+swings over (18.5–24.5), and the lattice flies in (24.5–28.5). Scene 4 grows to
+about 31 s, with the exit cut at about 30 s. It is a new asset,
+`LS_S4_HangarRise`; the old fold is kept unreferenced. **The score was unhosted
+from the old fold (hosted 0) and waits for v2 to be re-keyed and re-hosted.**
+
+- **Roll: rejected (Look & camera's call).** The box turns about the hinge, which
+  is the camera's PITCH axis: a symmetric fore-and-aft tip whose edges stay
+  horizontal in frame. A roll, even one proportional to the box's angle, lays a
+  sideways lean over a straight-ahead motion, so it reads as two motions. A head
+  answers the world on the axis the world tips: a nod, not a cock.
+- **Gary's "the horizon rotates with the box" is a PITCH illusion.** A ground
+  plane tipping about a hinge at the viewer slides the horizon vertically. The
+  cheap version: camera pitch coupled to the box's rise curve, starting level
+  (to match P04's end) and easing about 6–8° DOWN over the rise, so the horizon
+  rises in frame with the box. It's a device: it's locked to the box but moves
+  opposite to it. The creature alternative is a level frame that the room rises
+  into. Gary picks, from stills.
+- **The "look down at the lip" beat: undecided.** The camera stands on the hinge
+  line, so the lip is at its feet (about 84–90° down). A −12 to −20° look sees
+  mostly void unless the ghost light or the box interior falls in −9 to −31°. It
+  also conflicts with the pitch illusion (the horizon would move opposite to the
+  box). Decide from a still. If the edge must be seen, dock the mouth about 5 m
+  ahead of the camera (Rig's call).
+- **Needed from Rig:** the ghost light's position in the box, the box's
+  extents, the rise easing, and the new exit-cut frame.
+
 ## Open
 
 - From Rig: the lattice footprint (distance, depth); the plate width and hinge
