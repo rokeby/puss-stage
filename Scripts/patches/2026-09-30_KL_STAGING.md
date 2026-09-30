@@ -89,3 +89,10 @@ Each test references code the fix adds, so without the fix it fails to COMPILE r
 between dog-owned shots drops the look at once") is false on the pre-O receiver, which carried the offset.
 
 C, K, L, M, N and O were verified to apply together on HEAD (30 Sep 17:5x).
+
+## Patch R (`2026-09-30_R_bob_walk_weight.patch`): apply whole, in stage 2
+
+The walk-weighted bob fade: `StepGaitWalkWeight`, `ShadowCatBobFadeSeconds` (0.5 s) and
+`CurrentShadowCatBobWalkWeight`, with test `InfinityStage.ShadowCat.BobFadesWithTheWalk`. The test
+references the new function, so apply R whole in stage 2. It is independent of M (verified: R alone, M
+then R, R then M, and all of C, K, L, M, N, O and R together, each `--check` on HEAD).
