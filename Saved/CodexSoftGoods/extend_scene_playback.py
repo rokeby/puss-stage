@@ -16,10 +16,21 @@ Steps (apply):
      narrow by construction (it refuses an empty list). It moves the Exit cut to the NEW end and stretches the Entry cut.
   5. CUT COVERAGE: the scene's camera cut track must cover [playback start, playback end) with no gap, or NOTHING is saved.
   6. Rebuild the managed Master (the library call, never PussStageBootstrap.RebuildCurrentMaster). NOT in rematch_only:
-     the range is unchanged, so the Master's section for the scene is unchanged, and the Master (stale from Scene 3 on,
-     under investigation on 30 Sep) is not touched at all. rematch_only REFUSES if the Master or the Show goes dirty.
+     the range is unchanged, so the Master's section for the scene is unchanged and the Master is not touched at all.
+     rematch_only REFUSES if the Master or the Show goes dirty. (The Master is NOT stale: SavedMasterMatchesShow passed
+     at 11:06 on 30 Sep with zero failed assertions, and Look & camera measured Scene 3's section 1:1 with the transport.
+     The care is to PRESERVE a correct Master.)
   7. Save exactly: the scene sequence, the level (the rematch writes the handoff cameras), the Master, and the Show if
      the rebuild dirtied it. Read back the coverage and the Show/Master match.
+Downstream (full mode only):
+  - KEY GATE. Passage camera and wing channels are evaluated and keyed at ABSOLUTE Master time
+    (MovieSceneInfinityPassageTrack.cpp, CameraPilotLibrary KeyPassageCameraPose), and the rebuild moves a Passage section
+    with SetRange, which does not move keys. So a later Passage carrying a channel with 2+ keys would be left with its
+    score displaced by the change. The script REFUSES then, and lists them. Carrying keys is a camera-key write
+    (Look & camera's), never done here.
+  - SEGMENT DELTAS. Every compiled segment before and after, with its shift: segments ending at or before the scene's
+    start must not move, and later ones must move by exactly the change. A mismatch fails ok.
+  - Verify with InfinityStage.Editor.SavedMasterMatchesShow afterwards (run_master_match_test.py).
 Logs PUSS_SOFTGOODS_SCENE_EXTENDED|... or _STOPPED|... Crash rules: everything inside main().
 """
 import datetime
@@ -150,6 +161,57 @@ def show_master_match(show, master):
     return {"worst_err_s": round(worst, 3), "match": len(seq_segs) == len(secs) and worst <= 0.05}
 
 
+def compiled_segments(show):
+    tick = show.get_editor_property("tick_resolution")
+    rate = tick.numerator / tick.denominator
+    tr = unreal.new_object(unreal.InfinityStageTransportController)
+    tr.build_segments(show)
+    segs = [{"label": str(s.get_editor_property("label")),
+             "start": round(s.get_editor_property("start_frame").value / rate, 3),
+             "end": round(s.get_editor_property("end_frame").value / rate, 3)} for s in tr.get_editor_property("segments")]
+    del tr
+    return segs
+
+
+def downstream_keyed_passages(master, after_s):
+    """Passage sections starting at or after after_s (Master seconds) that carry a channel with 2+ keys. A single key is a
+    constant and survives any shift; two or more are a score tied to absolute Master frames."""
+    found = []
+    for track in master.get_tracks():
+        if "InfinityPassage" not in track.get_class().get_name():
+            continue
+        for sec in track.get_sections():
+            start = sec.get_start_frame_seconds()
+            if start < after_s - 1e-3:
+                continue
+            multi = []
+            for ch in sec.get_all_channels():
+                n = len(ch.get_keys())
+                if n >= 2:
+                    multi.append(f"{ch.get_editor_property('channel_name')}={n}")
+            if multi:
+                found.append({"section_start_s": round(start, 3), "passage_guid": str(sec.get_editor_property("passage_guid")),
+                              "multi_key_channels": multi})
+    return found
+
+
+def segment_deltas(before, after, scene_label, delta_s):
+    """Every segment's shift; the scene itself may only grow at its end, earlier ones stay, later ones move by delta_s."""
+    rows, bad = [], []
+    idx = next((i for i, s in enumerate(before) if s["label"] == scene_label), None)
+    for i, (b, a) in enumerate(zip(before, after)):
+        expect = 0.0 if idx is None or i <= idx else delta_s
+        shift = round(a["start"] - b["start"], 3)
+        row = {"label": b["label"], "before": [b["start"], b["end"]], "after": [a["start"], a["end"]], "shift_s": shift,
+               "expected_shift_s": round(expect, 3)}
+        rows.append(row)
+        if b["label"] != a["label"] or abs(shift - expect) > 0.05:
+            bad.append(row)
+    if len(before) != len(after):
+        bad.append({"error": f"segment count {len(before)} -> {len(after)}"})
+    return rows, bad
+
+
 def main():
     with open(os.path.join(HERE, "extend_scene_playback_mode.json"), encoding="utf-8") as h:
         cfg = json.load(h)
@@ -192,11 +254,20 @@ def main():
                    "cameras_before": handoff_cameras(cfg["scene_label"])})
     if not rematch_only and new_end <= seq.get_playback_start():
         return finish(f"refusing: new end {new_end} is not after the start")
+    report["segments_before"] = compiled_segments(show)
+    scene_seg = next((s for s in report["segments_before"] if s["label"] == cfg["scene_label"]), None)
+    report["delta_s"] = round((new_end - seq.get_playback_end()) / fps, 3)
+    if not rematch_only:
+        report["key_gate"] = downstream_keyed_passages(master, scene_seg["end"] if scene_seg else 0.0)
+        if report["key_gate"]:
+            return finish(f"REFUSING (key gate): later Passages carry multi-key channels that the rebuild would leave "
+                          f"{report['delta_s']} s behind their sections: {report['key_gate']}. Nothing changed.")
     if dry:
         report["ok"] = True
         return finish(f"DRY RUN|{seq_path}|{report['playback_before']} -> end {new_end}|gaps before "
                       f"{report['coverage_before']['gaps']}|next={report['next_segment']}"
-                      f"|cameras={list(report['cameras_before'])}")
+                      f"|cameras={list(report['cameras_before'])}|delta_s={report['delta_s']}"
+                      f"|key_gate={report.get('key_gate', 'n/a (rematch_only)')}")
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     backup = os.path.join(project, "Backups", f"PreSceneExtend-{seq_path.split('/')[-1]}-{stamp}")
@@ -236,12 +307,15 @@ def main():
     report["playback_after"] = [seq.get_playback_start(), seq.get_playback_end()]
     report["show_master"] = ({"match": True, "note": "not checked: the Master was not rebuilt (rematch_only)"}
                              if rematch_only else show_master_match(unreal.load_asset(SHOW), unreal.load_asset(MASTER)))
+    report["segments"], report["segment_errors"] = segment_deltas(
+        report["segments_before"], compiled_segments(unreal.load_asset(SHOW)), cfg["scene_label"], report["delta_s"])
     report["dirty_final"] = dirty()
     report["ok"] = (all(saved.values()) and not report["coverage_after"]["gaps"] and report["show_master"]["match"]
-                    and not report["dirty_final"] and report["playback_after"][1] == new_end)
+                    and not report["dirty_final"] and report["playback_after"][1] == new_end
+                    and not report["segment_errors"])
     del show, master, seq, cues, world
     finish(f"{seq_path}|end={new_end}|gaps={report['coverage_after']['gaps']}|cameras_moved={report['camera_deltas']}"
-           f"|master_match={report['show_master']}"
+           f"|master_match={report['show_master']}|segment_errors={report['segment_errors']}"
            f"|saved={saved}|backup={backup}")
 
 
