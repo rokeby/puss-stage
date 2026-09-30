@@ -86,6 +86,13 @@ def main():
         draw.text((pad, top - 22), title, fill=(30, 30, 30))
         draw.line([(x_of(0.0), top), (x_of(0.0), bottom)], fill=(160, 160, 160))
         draw.text((x_of(0.0) + 4, bottom - 16), "the cut", fill=(90, 90, 90))
+        draw.text((pad - 60, top + 4), "%.0f" % top_value, fill=(90, 90, 90))
+        draw.text((pad - 20, bottom - 12), "0", fill=(90, 90, 90))
+        second = int(t_min)
+        while second <= t_max:
+            draw.line([(x_of(second), bottom), (x_of(second), bottom + 5)], fill=(90, 90, 90))
+            draw.text((x_of(second) - 10, bottom + 8), "%+d s" % second if second else "0 s", fill=(90, 90, 90))
+            second += 1
         for slot, settle in enumerate(settles):
             series = sorted((s["t"], s["to_go_cm"]) for s in run["stills"] if s["settle"] == settle)
             if title.startswith("speed"):
