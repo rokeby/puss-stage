@@ -415,3 +415,59 @@ but no longer referenced.
   - the "mechanical rig" lighting steer (Gary, on hold until the mechanism
     settles);
   - PIE playback of the rise.
+
+## 29 September, night: the board drift is explained and closed
+
+- **What moved.** The groove re-fit (16:33) was the first fit after the 14:52
+  build. It changed board counts on S01 +1, S02 −1, S04 +4, S05 −1, S06 −6
+  (S03 has no floor).
+  - Behind those counts, the joint pattern changed in 288 of the 337 lanes. The
+    other 49 lanes' first boards are cut by a slot either way.
+  - Stations, slots, lanes, widths, extents and grooves did not move. Nothing
+    anyone authored moved.
+- **Why.** `BuildGround` seeds each lane's first board with
+  `Stream.FRandRange(Min, Max) * Stream.FRandRange(0.2, 1.0)`. C++ leaves the
+  evaluation order of a product's operands unspecified.
+  - The grooves commit `1ef583b` edited that function. The rebuild then
+    evaluated the length draw first where the old binary drew the fraction
+    first.
+  - The same expression in `BuildPortal`'s stage front is evaluated fraction
+    first by today's binary: the compiler chose differently at two sites.
+- **Proof.** `board_dump_readonly.py` dumps every board (read-only).
+  `board_drift_analysis.py` is offline Python. It re-lays each lane from the
+  Passage GUID using CityHash64, HashCombineFast and the FRandomStream LCG, all
+  per the UE 5.8 headers.
+  - Length first reproduces every board of all 337 lanes: position within
+    0.05 cm and tone bit-exact.
+  - Fraction first reproduces the OLD counts exactly: 7170 / 2615 / 2915 /
+    6381 / 7068.
+  - For the stage front, `portal_data_dump_readonly.py` shows 690 decisive lane
+    starts on S02 and S06, all fraction first.
+- **The conductor's three questions:**
+  - Deterministic? Yes. The layout is a pure function of the inputs and the
+    binary.
+  - Compounding? No. It toggles between two layouts, and only when a rebuild
+    flips the compiler's choice.
+  - Visible? Only as a different random joint stagger.
+- **Fix, held, not built:** `Scripts/patches/2026-09-29_S_board_draw_order_pin.patch`.
+  - It splits the draws into sequenced statements, each in today's saved
+    order: the floor draws length first, the stage front fraction first. The
+    unused cloth yaw is split too.
+  - New test `InfinityStage.Structure.SavedFloorsSurviveARebuild` reads both
+    orders back from the boards.
+  - Applying it re-rolls nothing. Backup `Backups/PreDrawOrderPin-*`.
+- **Also a hazard, not mine, stored data safe:**
+  `UInfinityStageShowAsset::ReplicateLightAttachmentsWithVariation`
+  (`ShowAsset.cpp:551/553`) draws three jitters as function arguments, whose
+  order is unspecified. Its output is written into the Show, so saved lights
+  are safe. The "same seed, same corridor" promise, though, holds only within
+  one binary.
+- **Future comparison:** re-run the dump and the analysis after any re-fit.
+  Every lane must reproduce exactly.
+- **Patch R updated.** Its fix messages now name both `LS_S4_HangarFold` and
+  `LS_S4_HangarRise`.
+  - Bare, `scene4_fold_nest.py` now KEEPS whichever sequence Scene 4 plays.
+    Before this it defaulted to v1 and would have re-pointed Scene 4 back to
+    the fold.
+  - Only the `_v1`/`_v2` wrappers re-point. Dry run confirmed:
+    LS_S4_HangarRise, 31 s, nothing mutated.

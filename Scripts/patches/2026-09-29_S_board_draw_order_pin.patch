@@ -1,0 +1,189 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+index dae4b60..f508985 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+@@ -744,7 +744,12 @@ void AInfinityStageStructureActor::BuildGround(
+             HashCombineFast(GetTypeHash(Passage->PassageGuid), ::GetTypeHash(static_cast<uint32>(ETimberPart::BoardLane))),
+             ::GetTypeHash(Lane))));
+         // Each lane starts part-way through a board, so joints stagger across the floor.
+-        double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * Stream.FRandRange(0.2, 1.0);
++        // Two statements, never one product: C++ leaves the order of a product's operands
++        // unspecified, and the 29 Sep rebuild flipped it here, re-rolling the joints of
++        // every saved floor. Length first is the order the saved floors were laid in
++        // (pinned by InfinityStage.Structure.SavedFloorsSurviveARebuild).
++        const double FirstLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm);
++        double NextLengthCm = FirstLengthCm * Stream.FRandRange(0.2, 1.0);
+         double FromCm = StartCm;
+         int32 CutIndex = 0;
+         while (FromCm < EndCm - 1.0)
+@@ -1044,7 +1049,11 @@ void AInfinityStageStructureActor::BuildPortal(
+             const double LaneWidthCm = EvenLanes(W0, W1, LaneCentres);
+             for (const double LaneCm : LaneCentres)
+             {
+-                double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * Stream.FRandRange(0.2, 1.0);
++                // Fraction first, then length: the order the saved stage fronts were laid
++                // in. The compiler chose the opposite order here to BuildGround's, from
++                // the same expression, which is why neither is left to it (see BuildGround).
++                const double FirstFraction = Stream.FRandRange(0.2, 1.0);
++                double NextLengthCm = Stream.FRandRange(MinLengthCm, MaxLengthCm) * FirstFraction;
+                 double FromCm = L0;
+                 while (FromCm < L1 - 0.5)
+                 {
+@@ -1213,7 +1222,8 @@ void AInfinityStageStructureActor::BuildCloth(
+         const double AcrossCm = Stream.FRandRange(-MaxOffsetCm, MaxOffsetCm);
+         const double LengthScale = Stream.FRandRange(0.85, 1.2);
+         const double WidthScale = Stream.FRandRange(MinWidth, MaxWidth);
+-        const double YawDegrees = (Stream.FRand() < 0.5 ? 180.0 : 0.0) + Stream.FRandRange(-MaxYaw, MaxYaw);
++        const double FlipDegrees = Stream.FRand() < 0.5 ? 180.0 : 0.0;     // two statements: see BuildGround
++        const double YawDegrees = FlipDegrees + Stream.FRandRange(-MaxYaw, MaxYaw);
+         const float Tone = Stream.FRand();
+         if (!bCovered)
+         {
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+index d5b34d6..f2c3f2d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+@@ -4,6 +4,7 @@
+ #include "Components/InstancedStaticMeshComponent.h"
+ #include "Engine/StaticMesh.h"
+ #include "Engine/World.h"
++#include "Math/RandomStream.h"
+ #include "Misc/AutomationTest.h"
+ 
+ #if WITH_DEV_AUTOMATION_TESTS
+@@ -480,6 +481,135 @@ bool FInfinityStageStructureGroundTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageStructureDrawOrderTest,
++    "InfinityStage.Structure.SavedFloorsSurviveARebuild",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++/**
++ * A lane's first board is two random draws multiplied. C++ leaves the order of a
++ * product's operands unspecified, and the 29 Sep rebuild flipped it for the passage
++ * floor, re-rolling the joints of all five saved floors (boards S01 +1, S02 -1,
++ * S04 +4, S05 -1, S06 -6). The draws are now separate statements, each site in the
++ * order its saved boards were laid in: the passage floor draws a lane's length
++ * first, the stage front its fraction first. Both are read back from the boards.
++ */
++bool FInfinityStageStructureDrawOrderTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 3);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    Structure->Ground.bEnabled = true;
++    Structure->Portal.bEnabled = true;
++    TestTrue(TEXT("Structure with a floor and a stage front materializes"), Structure->MaterializeStructure());
++
++    constexpr int32 DataFloats = 4;         // [tone, length, width, thickness]
++    constexpr uint32 BoardLanePart = 4;     // ETimberPart::BoardLane
++    constexpr uint32 PortalPart = 6;        // ETimberPart::Portal
++    const FInfinityStageGroundSettings& Ground = Structure->Ground;
++    const double MinLengthCm = FMath::Max(20.0, FMath::Min(Ground.MinBoardLengthCm, Ground.MaxBoardLengthCm));
++    const double MaxLengthCm = FMath::Max(MinLengthCm, Ground.MaxBoardLengthCm);
++    // A lane's first length from its two draws: Key if the length is drawn first,
++    // Value if the fraction is.
++    const auto FirstLengths = [MinLengthCm, MaxLengthCm](const float First, const float Second)
++    {
++        return TPair<double, double>(
++            (MinLengthCm + (MaxLengthCm - MinLengthCm) * First) * (0.2 + (1.0 - 0.2) * Second),
++            (MinLengthCm + (MaxLengthCm - MinLengthCm) * Second) * (0.2 + (1.0 - 0.2) * First));
++    };
++    UInstancedStaticMeshComponent* Boards = FindLayer(*Structure, TEXT("InfinityStage.Structure.Ground"));
++    UInstancedStaticMeshComponent* Front = nullptr;
++    for (UInstancedStaticMeshComponent* Component : Structure->ManagedComponents)
++    {
++        if (Component && Component->GetName().StartsWith(TEXT("StructureStageFront")))
++        {
++            Front = Component;
++        }
++    }
++    if (!Boards || !Front || Boards->GetInstanceCount() == 0 || Front->GetInstanceCount() == 0)
++    {
++        AddError(TEXT("Expected a boarded floor and a stage front."));
++        World->DestroyWorld(false);
++        return false;
++    }
++
++    // The passage floor: the first board of the lane beside the route line, which no
++    // slot cuts and no end clamps.
++    const double PitchCm = Ground.BoardWidthCm + Ground.BoardGapCm;
++    const int32 Lanes = FMath::FloorToInt32((Structure->GridHalfWidthCm * 2.0 + Ground.BoardGapCm) / PitchCm);
++    const int32 Lane = (Lanes - 1) / 2;
++    const double LaneCm = -(Lanes * PitchCm - Ground.BoardGapCm) * 0.5 + Ground.BoardWidthCm * 0.5 + Lane * PitchCm;
++    int32 FirstBoard = INDEX_NONE;
++    double FirstBoardX = TNumericLimits<double>::Max();
++    for (int32 Index = 0; Index < Boards->GetInstanceCount(); ++Index)
++    {
++        FTransform Plank;
++        Boards->GetInstanceTransform(Index, Plank, true);
++        if (FMath::Abs(Plank.GetLocation().Y - LaneCm) < 1.0 && Plank.GetLocation().X < FirstBoardX)
++        {
++            FirstBoardX = Plank.GetLocation().X;
++            FirstBoard = Index;
++        }
++    }
++    FRandomStream LaneStream(static_cast<int32>(HashCombineFast(
++        HashCombineFast(GetTypeHash(Passage->PassageGuid), ::GetTypeHash(BoardLanePart)), ::GetTypeHash(Lane))));
++    const float LaneFirstDraw = LaneStream.FRand();
++    const float LaneSecondDraw = LaneStream.FRand();
++    const TPair<double, double> LaneWays = FirstLengths(LaneFirstDraw, LaneSecondDraw);
++    TestTrue(TEXT("The two draw orders lay different first boards, so the check can tell them apart"),
++        !FMath::IsNearlyEqual(LaneWays.Key, LaneWays.Value, 0.01));
++    TestTrue(TEXT("The passage floor draws a lane's first length before its fraction"),
++        FirstBoard != INDEX_NONE && FMath::IsNearlyEqual(
++            static_cast<double>(Boards->PerInstanceSMCustomData[FirstBoard * DataFloats + 1]), LaneWays.Key, 0.01));
++
++    // The stage front: every portal piece draws its tone from one stream, in build
++    // order, so a board's tone says where it sits in that stream. A lane starts where
++    // three or more draws separate two tones (the last lane's unused next length, then
++    // this lane's two); within a lane only one does.
++    FRandomStream PortalStream(static_cast<int32>(HashCombineFast(GetTypeHash(Passage->PassageGuid), ::GetTypeHash(PortalPart))));
++    TArray<float> Draws;
++    TMap<float, int32> DrawIndex;
++    for (int32 Index = 0; Index < 20000; ++Index)
++    {
++        const float Draw = PortalStream.FRand();
++        Draws.Add(Draw);
++        if (!DrawIndex.Contains(Draw))
++        {
++            DrawIndex.Add(Draw, Index);
++        }
++    }
++    int32 Located = 0;
++    int32 LengthFirst = 0;
++    int32 FractionFirst = 0;
++    int32 Previous = INDEX_NONE;
++    for (int32 Index = 0; Index < Front->GetInstanceCount(); ++Index)
++    {
++        const int32* At = DrawIndex.Find(Front->PerInstanceSMCustomData[Index * DataFloats]);
++        if (!At)
++        {
++            Previous = INDEX_NONE;
++            continue;
++        }
++        ++Located;
++        if ((Previous == INDEX_NONE || *At - Previous >= 3) && *At >= 2)
++        {
++            const TPair<double, double> Ways = FirstLengths(Draws[*At - 2], Draws[*At - 1]);
++            const double LengthCm = Front->PerInstanceSMCustomData[Index * DataFloats + 1];
++            const bool bLengthFirst = FMath::IsNearlyEqual(LengthCm, Ways.Key, 0.01);
++            const bool bFractionFirst = FMath::IsNearlyEqual(LengthCm, Ways.Value, 0.01);
++            LengthFirst += bLengthFirst && !bFractionFirst ? 1 : 0;
++            FractionFirst += bFractionFirst && !bLengthFirst ? 1 : 0;
++        }
++        Previous = *At;
++    }
++    TestEqual(TEXT("Every stage-front board's tone comes from the portal stream"), Located, Front->GetInstanceCount());
++    TestTrue(TEXT("Some stage-front lanes start with a board no run end clamps"), LengthFirst + FractionFirst > 0);
++    TestEqual(TEXT("The stage front draws a lane's first fraction before its length"), LengthFirst, 0);
++
++    World->DestroyWorld(false);
++    return true;
++}
++
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+     FInfinityStageStructureClothTest,
+     "InfinityStage.Structure.ClothLiesOverTheBoards",

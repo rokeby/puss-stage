@@ -8,8 +8,8 @@ Scale and reports:
 - HOLD CUT: the motion (lattice landed at 22.5 s) still fits, but part of the
   final hold is lost.
 - CLIPPED: the motion itself is cut.
-It ends with the exact fix: run scene4_fold_nest.py. The margin today: motion
-ends at 22.5 s inside a 25 s section, so any Time Scale >= 0.9 cannot cut motion.
+It ends with the exact fix: run scene4_fold_nest.py, which keeps whichever
+sequence Scene 4 plays (v1 fold or v2 rise) and re-derives everything from the dial.
 Mutates nothing. Lean: all work in main().
 """
 import unreal

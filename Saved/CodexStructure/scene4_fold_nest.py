@@ -1,7 +1,9 @@
 """Nest the fold in Scene 4 and let its speed be ONE dial (Gary, 29 Sep: "grow to fit
 and make speed changeable").
 
-The fold (LS_S4_HangarFold) plays as a subsequence section in LS_DevScene_04,
+The fold plays as a subsequence section in LS_DevScene_04 (v1 LS_S4_HangarFold,
+v2 LS_S4_HangarRise); run bare, this keeps whichever Scene 4 plays now, and only
+the _v1/_v2 wrappers (FOLD_PATH) re-point it. It plays
 starting at the Scene's first frame. Its section Time Scale IS the speed dial:
 native, and in Sequencer's UI. Gary can drag it himself, then run this script
 again (or have any session run it) to make everything follow. Nothing here is
@@ -34,7 +36,8 @@ import unreal
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 SCENE4 = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04"
-FOLD = globals().get("FOLD_PATH", "/Game/InfinityStage/RigAtmos/LS_S4_HangarFold")   # v2: LS_S4_HangarRise
+FOLD = globals().get("FOLD_PATH")      # None: keep what Scene 4 plays; the _v1/_v2 wrappers set it to re-point
+FIRST_FOLD = "/Game/InfinityStage/RigAtmos/LS_S4_HangarFold"   # only when Scene 4 has no section yet
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 TRACK_NAME = "Hangar Fold"
 SCENE_FLOOR_S = 15.0
@@ -99,16 +102,22 @@ def main():
         return finish(f"refusing: dirty packages {dirty()}")
     if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence():
         return finish("a sequence is open in Sequencer; close it first")
-    scene, fold = unreal.load_asset(SCENE4), unreal.load_asset(FOLD)
-    if not scene or not fold:
-        return finish("Scene 4 or the fold sequence is missing")
+    scene = unreal.load_asset(SCENE4)
+    if not scene:
+        return finish("Scene 4 is missing")
+    tracks = [t for t in scene.find_tracks_by_type(unreal.MovieSceneSubTrack) if str(t.get_display_name()) == TRACK_NAME]
+    existing = tracks[0].get_sections()[0] if tracks and tracks[0].get_sections() else None
+    playing = existing.get_sequence() if existing is not None else None
+    fold_path = FOLD or (playing.get_path_name().split(".")[0] if playing else FIRST_FOLD)
+    fold = unreal.load_asset(fold_path)
+    if not fold:
+        return finish(f"the fold sequence {fold_path} is missing")
+    report["fold"] = fold_path
     ext = unreal.MovieSceneTimeWarpExtensions
     fold_len_s = fold.get_playback_end_seconds() - fold.get_playback_start_seconds()
     fps = scene.get_display_rate()
     fps_f = fps.numerator / fps.denominator
 
-    tracks = [t for t in scene.find_tracks_by_type(unreal.MovieSceneSubTrack) if str(t.get_display_name()) == TRACK_NAME]
-    existing = tracks[0].get_sections()[0] if tracks and tracks[0].get_sections() else None
     if globals().get("FOLD_TIME_SCALE") is not None:
         time_scale = float(globals()["FOLD_TIME_SCALE"])
     elif existing is not None:
@@ -144,7 +153,7 @@ def main():
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     backup = os.path.join(project, "Backups", "PreScene4Nest-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     os.makedirs(backup, exist_ok=True)
-    for p in (SHOW, MASTER, SCENE4, FOLD):
+    for p in (SHOW, MASTER, SCENE4, fold_path):
         shutil.copy2(content_file(p), backup)
     report["backup"] = backup
 
@@ -189,7 +198,7 @@ def main():
     report["dirty_final"] = dirty()
     report["ok"] = all(saved.values()) and report["after"]["match"] and not report["dirty_final"] and s4 is not None \
         and abs((s4["show"][1] - s4["show"][0]) - scene_end_s) < 0.05
-    del scene, fold, show, master, section, cuts
+    del scene, fold, playing, show, master, section, cuts
     finish(f"time_scale={time_scale}|scene4={s4}|total={report['after']['total_s']}s|match={report['after']['match']}"
            f"|worst={report['after']['worst_err_s']}|saved={saved}|dirty_final={report['dirty_final']}|backup={backup}")
 

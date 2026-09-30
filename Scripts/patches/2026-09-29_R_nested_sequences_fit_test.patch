@@ -1,9 +1,9 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageNestedSequenceTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageNestedSequenceTests.cpp
 new file mode 100644
-index 0000000..34bedd9
+index 0000000..1afa32f
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageNestedSequenceTests.cpp
-@@ -0,0 +1,131 @@
+@@ -0,0 +1,137 @@
 +#include "LevelSequence.h"
 +#include "Misc/AutomationTest.h"
 +#include "MovieScene.h"
@@ -15,18 +15,24 @@ index 0000000..34bedd9
 +
 +namespace
 +{
++/** Scene 4's hangar sequence: v1 the fold, v2 (29 Sep) the rise; Scene 4 plays one of them. */
++bool IsScene4Hangar(const UMovieSceneSequence& Sequence)
++{
++    return Sequence.GetName() == TEXT("LS_S4_HangarFold") || Sequence.GetName() == TEXT("LS_S4_HangarRise");
++}
++
 +/** The fix to print for a known nested section, so a failure costs nobody twenty minutes. */
 +FString FixForNestedSection(const UMovieSceneSequence& Parent, const UMovieSceneSequence& Child)
 +{
-+    if (Child.GetName() == TEXT("LS_S4_HangarFold"))
++    if (IsScene4Hangar(Child))
 +    {
-+        return TEXT("run Saved/CodexStructure/scene4_fold_nest.py (it resizes the section, the Scene and its camera cuts "
-+                    "from the Time Scale, then rebuilds the Master)");
++        return TEXT("run Saved/CodexStructure/scene4_fold_nest.py (it keeps the sequence Scene 4 plays, resizes the section, "
++                    "the Scene and its camera cuts from the Time Scale, then rebuilds the Master)");
 +    }
-+    if (Parent.GetName() == TEXT("LS_S4_HangarFold"))
++    if (IsScene4Hangar(Parent))
 +    {
-+        return TEXT("the Scene 4 fold hosts this section (Look & camera's pitch): keep it inside the fold's playback "
-+                    "range, then run Saved/CodexStructure/scene4_fold_nest.py");
++        return TEXT("the Scene 4 hangar sequence hosts this section (Look & camera's score): keep it inside that "
++                    "sequence's playback range, then run Saved/CodexStructure/scene4_fold_nest.py");
 +    }
 +    return TEXT("extend the parent's playback end or trim the section; for a Scene, then rebuild the Master "
 +                "(RebuildManagedMaster) and check InfinityStage.Editor.SavedMasterMatchesShow");
