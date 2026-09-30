@@ -30,7 +30,8 @@ import unreal
 
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexSoftGoods")
 MOUTHS = {1: (0.0, 80000.0), 2: (0.0, 160000.0), 3: (0.0, 240000.0), 4: (0.0, 320000.0), 5: (0.0, 400000.0)}
-DENSITY = {"dense": list(range(0, 9)) + [20], "sparse": [0, 4, 8, 20]}   # tick 20 = the "surely drawn" reference
+DENSITY = {"dense": list(range(0, 9)) + [20], "sparse": [0, 4, 8, 20],   # tick 20 = the "surely drawn" reference
+           "boundary": [0, 1, 2, 3]}                                          # Look & camera's tick-1 view-target check
 TICKS_AFTER = 20
 
 
@@ -69,6 +70,10 @@ def main():
     scrub = transport.scrub_to_master_frame(unreal.FrameNumber(start - lead))
     play = transport.play_forward_through_boundaries()
     mx, my = MOUTHS[n]
+    # Look & camera's discriminator (30 Sep): which actor the view is on, and where the camera is, every tick. If tick 1
+    # names a pawn or spectator (not a camera) at the x = 0 dev grid, Sequencer restored its pre-animated view target
+    # when Scene 1's cut ended. The transport's INFINITY_VIEW_TARGET line is Verbose only, so raise that category.
+    unreal.SystemLibrary.execute_console_command(world, "log LogInfinityStageTransport Verbose")
     shots = set(DENSITY[density])
     state = {"rows": [], "t0": None, "handle": None, "shots": []}
 
@@ -110,10 +115,21 @@ def main():
             state["t0"] = len(state["rows"])
         k = None if state["t0"] is None else len(state["rows"]) - state["t0"]
         ds = drape_state(w)
+        pc = unreal.GameplayStatics.get_player_controller(w, 0)
+        vt = pc.get_view_target() if pc else None
+        pcm = pc.get_editor_property("player_camera_manager") if pc else None
+        cam = pcm.get_camera_location() if pcm else None
+        try:
+            blend = float(pcm.get_editor_property("blend_time_to_go")) if pcm else None
+        except Exception:  # noqa: BLE001
+            blend = "n/a"
         state["rows"].append({"tick": len(state["rows"]), "k": k, "dt_ms": round(delta * 1000, 2), "master": frame,
                               "segment": tr.get_editor_property("selected_segment_index"),
                               "drape_exists": ds is not None, "drape_visible": ds[1] if ds else None,
-                              "drape_anim_time": ds[2] if ds else None})
+                              "drape_anim_time": ds[2] if ds else None,
+                              "view_target": f"{vt.get_name()} ({vt.get_class().get_name()})" if vt else None,
+                              "camera_xyz": [round(cam.x), round(cam.y), round(cam.z)] if cam else None,
+                              "blend_time_to_go": blend})
         if k is not None and k in shots:
             unreal.SystemLibrary.execute_console_command(w, "shot")
             state["shots"].append(k)
