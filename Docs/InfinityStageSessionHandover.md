@@ -413,6 +413,25 @@ Recorded because each is a class of fault, not a one-off.
   derived from the thing it describes and cannot drift. A value that lives in no
   artifact — `BackclothLeadS` — is required with no default instead, because a
   default there is a guess wearing a number's clothes.
+- **AND MEASURE THE NOISE FLOOR BEFORE TRUSTING A MEASUREMENT.** On 30 Sep the
+  cloth pile was gated on numbers from **one run against one run**, on a chaotic
+  simulation whose run-to-run variation nobody had measured. When it finally was
+  measured — the same recipe, only the seed changed — it came back at **28%**,
+  past a **25%** line written down before the test ran. Consequences, taken in
+  full rather than argued around: **the U-shaped fold-size curve was noise** (the
+  same recipe scored 1.58 on one seed and 1.13 on the other), **the switch amount
+  is not shown to be a lever**, **0.6 is not shown to be better than 1.0**, and
+  the pile half of the `final6/7/8` stop softens — while the stillness half, a
+  *trend* over 30 s rather than a single draw, stands. Stillness and hang are
+  robust to the seed; the pile was not.
+  **Gary was right before any of it.** He looked at three piles and said all
+  three were usable; the metric said two failed. **The metric was measuring
+  noise.** The pile is now reported as "look", with numbers as context, gated by
+  a recorded approval with a name and a date.
+  **What made this honest rather than embarrassing was the pre-registration** —
+  the thresholds and their consequences written down before the numbers existed,
+  by the stream whose own morning it invalidated.
+
 - **Measure before judging.** Four cloth bakes were rejected on look this week
   before anyone measured anything. Every bake now carries a number.
 - **THE CAPTURE CONVENTION EVERY STREAM USED WAS SEVERAL STOPS DARK.** Setting
