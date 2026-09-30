@@ -711,3 +711,30 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
     - Mid-rise (+8 s), the box is no longer sliced by the plane.
   - **S2 and S3 (landscapes) are held for Gary.** They have no owning stream, and S3 is
     among his cast.
+
+## 30 September, midday: the P04 backcloth is integrated; its cache renders wrong
+
+- **Integrated (mine):** `p04_backcloth_section_apply.py` via `p04_backcloth_final11_apply.py`
+  (label "P04 Backcloth (baked)", BackclothLeadS 3.0).
+  - The release in the cache (1.0 s) was found by the artifact chain itself.
+  - Section −4.874 → +6.126 s (11.0 s), completion KeepState.
+  - Backup: `Backups/PreP04BackclothSection-20260930-1025`. Revert: `P04_CLOTH_REVERT`.
+- **Timing verified through the production path:** cache 1.0 s at release (−3.874 s) and
+  4.0 s at the crossing (−0.874 s). The box eases from −3.567 s and reads −82.12° at the cut.
+- **The rise start is a deliberate discrepancy (option (a), conductor).** It stays at −3.567 s,
+  from the 2.70 s estimate, where the rule with the measured 3.0 s lead gives −3.874 s.
+  - That's 0.066° into the ease: invisible.
+  - Not corrected, because doing so means re-keying a verified handover. The rule is now "rise
+    starts at cloth release, within a rise-ease tolerance". Noted in `p04_arrival_record.json`
+    and in `p04_arrival_apply.py`.
+- **FAULT with Soft goods: the cache renders a standing curtain after the fall.**
+  - The component's bounds follow the fall (0.84 m pile at −0.1 s).
+  - Renders show a full-height curtain above a growing pile, through +12 s.
+  - Hiding only the backcloth removes it; an editor tick between pose and capture changes
+    nothing.
+  - Guess: a second object in the .abc flattened into the one track at import.
+  - Frames: `Captures/P04FallObserver/`, `Captures/P04RenderCheck/`, `Captures/P04PassThrough/`.
+  - Re-test with `p04_fall_observer.py` when there's a new cache.
+- **Bench incident:** a two-phase check failed mid-bench and left the rig posed. It was
+  restored from `BenchOriginals/p04_render_check.json` via the Arrival's rest evaluation, with
+  0+0 dirty. `p04_render_check.py` now restores on failure.

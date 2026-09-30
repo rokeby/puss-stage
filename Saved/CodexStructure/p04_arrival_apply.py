@@ -15,7 +15,12 @@ Needs patch G BUILT (AInfinityStageArrival). Two changes, one timing decision:
 Dry run (default) reports every derived number and the class check; nothing is written.
 Apply (P04_ARRIVAL_APPLY): guards, plain record first, backups of the sequence and the
 level, read-back, saves only those two. Revert: P04_ARRIVAL_REVERT restores the recorded
-keys and deletes the Arrival. Lean: all work in main()."""
+keys and deletes the Arrival. Lean: all work in main().
+
+30 Sep NOTE AT THE KEY: the applied start (-3.567 s) is from the 2.70 s lead estimate; final11's measured
+lead (3.0 s) derives -3.874 s. The 0.307 s gap is 0.066 deg into the ease and DELIBERATELY not corrected
+(conductor, option (a)): fixing it means re-keying a verified seamless handover for no visible gain. The
+rule stands as "rise starts at cloth release, within a rise-ease tolerance". See p04_arrival_record.json."""
 import datetime
 import json
 import os
