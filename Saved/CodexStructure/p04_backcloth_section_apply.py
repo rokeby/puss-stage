@@ -27,7 +27,10 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 RISE = "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise"
 HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
 RECORD = os.path.join(HERE, "p04_backcloth_section_record.json")
-CLOTH_LABEL, CLOTH_X, SPEED = "P04 Backcloth (baked)", 10450.0, 250.0
+# The actor's label is the only name used: the cache is whatever the placed actor carries (final11_a06
+# or whichever bake passes), and the section's length is that component's own duration.
+CLOTH_LABEL = globals().get("CLOTH_LABEL", "P04 Backcloth (baked)")
+CLOTH_X, SPEED = 10450.0, 250.0
 BACKCLOTH_LEAD_S = float(globals().get("BACKCLOTH_LEAD_S", 2.70))
 RELEASE_IN_CACHE_S = float(globals().get("RELEASE_IN_CACHE_S", 1.0))
 
@@ -82,7 +85,8 @@ def main():
     release_s = cross_s - BACKCLOTH_LEAD_S
     start_s = release_s - RELEASE_IN_CACHE_S
     duration = float(gcc.get_duration()) if gcc and gcc.get_editor_property("geometry_cache") else None
-    plan = {"cross_s": round(cross_s, 4), "cloth_release_s": round(release_s, 4), "section_start_s": round(start_s, 4),
+    plan = {"cloth_label": CLOTH_LABEL, "cache": gcc.get_editor_property("geometry_cache").get_path_name() if gcc and gcc.get_editor_property("geometry_cache") else None,
+            "cross_s": round(cross_s, 4), "cloth_release_s": round(release_s, 4), "section_start_s": round(start_s, 4),
             "duration_s": duration, "section_end_s": round(start_s + duration, 4) if duration else None,
             "lead_s": BACKCLOTH_LEAD_S, "release_in_cache_s": RELEASE_IN_CACHE_S, "checks": checks,
             "gc_track_class": hasattr(unreal, "MovieSceneGeometryCacheTrack"),
