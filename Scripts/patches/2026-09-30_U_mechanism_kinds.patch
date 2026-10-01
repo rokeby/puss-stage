@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
-index dcb7ce2..cd57f88 100644
+index dcb7ce2..b34027d 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 @@ -15,7 +15,9 @@
@@ -12,7 +12,7 @@ index dcb7ce2..cd57f88 100644
  #include "Engine/Texture.h"
  #include "Engine/TextureLightProfile.h"
  #include "HAL/IConsoleManager.h"
-@@ -146,6 +148,57 @@ FVector GetPairLocalInwardDirection(const EInfinityPanelSide Side)
+@@ -146,6 +148,61 @@ FVector GetPairLocalInwardDirection(const EInfinityPanelSide Side)
      return FVector(0.0, 1.0, 0.0);
  }
  
@@ -57,8 +57,12 @@ index dcb7ce2..cd57f88 100644
 +    // particular direction along that line, so cache the sign once here.
 +    if (bTopple)
 +    {
-+        const FVector AxisWorld = BaseWorldTransform.TransformVectorNoScale(AxisLocal).GetSafeNormal();
-+        const FVector UpWorld = BaseWorldTransform.GetRotation().GetUpVector();
++        const FTransform RigidBase(
++            BaseWorldTransform.GetRotation(),
++            BaseWorldTransform.GetTranslation());
++        const FVector AxisScaled = (AxisLocal * BaseWorldTransform.GetScale3D()).GetSafeNormal();
++        const FVector AxisWorld = RigidBase.GetRotation().RotateVector(AxisScaled);
++        const FVector UpWorld = RigidBase.GetRotation().GetUpVector();
 +        if (FVector::DotProduct(FVector::CrossProduct(AxisWorld, UpWorld), InwardWorldDirection) < 0.0)
 +        {
 +            AxisLocal *= -1.0;
@@ -70,7 +74,7 @@ index dcb7ce2..cd57f88 100644
  double InterpolateFrame(
      const double FrameA,
      const double ValueA,
-@@ -1051,6 +1104,12 @@ bool AInfinityStagePassageActor::AddPanelInstance(
+@@ -1051,6 +1108,12 @@ bool AInfinityStagePassageActor::AddPanelInstance(
      Ref.InwardWorldDirection = PairWorldTransform.GetRotation()
          .RotateVector(GetPairLocalInwardDirection(Side))
          .GetSafeNormal();
@@ -83,7 +87,7 @@ index dcb7ce2..cd57f88 100644
      return true;
  }
  
-@@ -1366,13 +1425,36 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+@@ -1366,13 +1429,48 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                      .GetSafeNormal();
              }
          }
@@ -108,15 +112,27 @@ index dcb7ce2..cd57f88 100644
 +        {
 +            const FVector PivotLocal = Ref.MechanismPivotLocal.GetLocation();
 +            const FVector AxisLocal = Ref.MechanismPivotLocal.GetRotation().GetAxisX().GetSafeNormal();
++            const FVector BaseScale = Ref.BaseWorldTransform.GetScale3D();
++            const FVector PivotScaled = PivotLocal * BaseScale;
++            const FVector AxisScaled = (AxisLocal * BaseScale).GetSafeNormal();
++            const FTransform RigidBase(
++                Ref.BaseWorldTransform.GetRotation(),
++                Ref.BaseWorldTransform.GetTranslation());
 +            const double AngleRadians = FMath::DegreesToRadians(
 +                NormalizedTravel * Motion.MaxAngleDeg * TravelScale);
-+            // FTransform A * B applies A then B: move the pivot to the origin,
-+            // rotate, restore it, and only then apply the cached base transform.
-+            const FTransform LocalRotationAboutPivot =
-+                FTransform(FQuat::Identity, -PivotLocal)
-+                * FTransform(FQuat(AxisLocal, AngleRadians))
-+                * FTransform(FQuat::Identity, PivotLocal);
-+            NewWorldTransform = LocalRotationAboutPivot * Ref.BaseWorldTransform;
++            // FTransform A * B applies A then B. Apply the authored scale first,
++            // then rotate rigidly about the correspondingly scaled pivot/axis.
++            // Every factor after BaseScaleTransform has unit scale, avoiding the
++            // shear produced by rotating before a non-uniform scale.
++            const FTransform BaseScaleTransform(
++                FQuat::Identity,
++                FVector::ZeroVector,
++                BaseScale);
++            NewWorldTransform = BaseScaleTransform
++                * FTransform(FQuat::Identity, -PivotScaled)
++                * FTransform(FQuat(AxisScaled, AngleRadians))
++                * FTransform(FQuat::Identity, PivotScaled)
++                * RigidBase;
 +        }
 +        else
 +        {
@@ -194,10 +210,10 @@ index e96fb8d..9c7a6b1 100644
      FRuntimeFloatCurve LeftNormalizedCurve;
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-index 0ee2fa0..306b756 100644
+index 0ee2fa0..14ac237 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-@@ -1198,6 +1198,195 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
+@@ -1198,6 +1198,307 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
      return true;
  }
  
@@ -307,6 +323,118 @@ index 0ee2fa0..306b756 100644
 +            FVector::DotProduct(NegativeTop - RestTop, Left->InwardWorldDirection),
 +            -100.0,
 +            0.1));
++
++    Motion.MaxAngleDeg = 90.0;
++    Motion.PhaseOffsetCycles = 0.0;
++    Cue.WingPair.Left.bFlipImageHorizontally = false;
++    Cue.WingPair.Left.LocalTransform.SetScale3D(FVector::OneVector);
++    TestTrue(TEXT("Unmirrored Topple comparison fixture materializes"), Actor->MaterializePassage());
++    Left = FindLeft();
++    if (!TestNotNull(TEXT("Unmirrored Topple comparison instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    const FVector UnmirroredRestTop = Left->BaseWorldTransform.TransformPosition(LocalTop);
++    Motion.PhaseOffsetCycles = 1.0;
++    TestTrue(TEXT("Unmirrored comparison Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FVector UnmirroredTop = ReadTransform(*Left).TransformPosition(LocalTop);
++    const FVector UnmirroredTopDisplacement = UnmirroredTop - UnmirroredRestTop;
++
++    Cue.WingPair.Left.bFlipImageHorizontally = true;
++    Motion.PhaseOffsetCycles = 0.0;
++    TestTrue(TEXT("Mirrored Topple fixture materializes"), Actor->MaterializePassage());
++    Left = FindLeft();
++    if (!TestNotNull(TEXT("Mirrored Topple instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(TEXT("Mirrored Topple base carries scale (1,-1,1)"),
++        Left->BaseWorldTransform.GetScale3D().Equals(FVector(1.0, -1.0, 1.0), 0.0001));
++    TestTrue(TEXT("Mirrored Topple progress zero evaluates"),
++        Actor->EvaluateMechanismsAtMasterFrame(0));
++    TestTrue(TEXT("Mirrored Topple progress zero equals the base transform"),
++        ReadTransform(*Left).Equals(Left->BaseWorldTransform, 0.0001));
++    const FVector MirroredRestTop = Left->BaseWorldTransform.TransformPosition(LocalTop);
++    Motion.PhaseOffsetCycles = 1.0;
++    TestTrue(TEXT("Mirrored positive Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FVector MirroredTop = ReadTransform(*Left).TransformPosition(LocalTop);
++    const FVector MirroredTopDisplacement = MirroredTop - MirroredRestTop;
++    TestTrue(TEXT("Mirrored positive Topple still falls toward the route"),
++        FVector::DotProduct(MirroredTopDisplacement, Left->InwardWorldDirection) > 0.0);
++    TestTrue(TEXT("Mirrored and unmirrored positive Topple fall in the same world direction"),
++        MirroredTopDisplacement.Equals(UnmirroredTopDisplacement, 0.01));
++
++    const FVector NonUniformScale(2.0, 1.0, 0.5);
++    const FVector RigidityPointA(-20.0, 10.0, -35.0);
++    const FVector RigidityPointB(30.0, -25.0, 40.0);
++    const double ScaledPointDistance = ((RigidityPointB - RigidityPointA) * NonUniformScale).Size();
++    Cue.WingPair.Left.bFlipImageHorizontally = false;
++    Cue.WingPair.Left.LocalTransform.SetScale3D(NonUniformScale);
++    Motion.Kind = EInfinityMechanismKind::Topple;
++    Motion.MaxAngleDeg = 45.0;
++    Motion.PhaseOffsetCycles = 0.0;
++    TestTrue(TEXT("Non-uniform Topple fixture materializes"), Actor->MaterializePassage());
++    Left = FindLeft();
++    if (!TestNotNull(TEXT("Non-uniform Topple instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(TEXT("Non-uniform Topple base carries scale (2,1,0.5)"),
++        Left->BaseWorldTransform.GetScale3D().Equals(NonUniformScale, 0.0001));
++    TestTrue(TEXT("Non-uniform Topple progress zero evaluates"),
++        Actor->EvaluateMechanismsAtMasterFrame(0));
++    TestTrue(TEXT("Non-uniform Topple progress zero equals the base transform"),
++        ReadTransform(*Left).Equals(Left->BaseWorldTransform, 0.0001));
++    const FVector TopplePivotLocal = Left->MechanismPivotLocal.GetLocation();
++    const FVector TopplePivotWorld = Left->BaseWorldTransform.TransformPosition(TopplePivotLocal);
++    Motion.PhaseOffsetCycles = 1.0;
++    TestTrue(TEXT("Non-uniform 45 degree Topple evaluates"),
++        Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FTransform NonUniformTopple = ReadTransform(*Left);
++    TestTrue(TEXT("Non-uniform Topple keeps the scaled pivot invariant"),
++        NonUniformTopple.TransformPosition(TopplePivotLocal).Equals(TopplePivotWorld, 0.01));
++    TestTrue(TEXT("Non-uniform Topple remains rigid after authored scale"),
++        FMath::IsNearlyEqual(
++            FVector::Distance(
++                NonUniformTopple.TransformPosition(RigidityPointA),
++                NonUniformTopple.TransformPosition(RigidityPointB)),
++            ScaledPointDistance,
++            0.01));
++
++    Motion.Kind = EInfinityMechanismKind::Turn;
++    Motion.MaxAngleDeg = 90.0;
++    Motion.PhaseOffsetCycles = 0.0;
++    TestTrue(TEXT("Non-uniform Turn fixture materializes"), Actor->MaterializePassage());
++    Left = FindLeft();
++    if (!TestNotNull(TEXT("Non-uniform Turn instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(TEXT("Non-uniform Turn progress zero evaluates"),
++        Actor->EvaluateMechanismsAtMasterFrame(0));
++    TestTrue(TEXT("Non-uniform Turn progress zero equals the base transform"),
++        ReadTransform(*Left).Equals(Left->BaseWorldTransform, 0.0001));
++    const FVector TurnPivotLocal = Left->MechanismPivotLocal.GetLocation();
++    const FVector TurnPivotWorld = Left->BaseWorldTransform.TransformPosition(TurnPivotLocal);
++    Motion.PhaseOffsetCycles = 1.0;
++    TestTrue(TEXT("Non-uniform 90 degree Turn evaluates"),
++        Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FTransform NonUniformTurn = ReadTransform(*Left);
++    TestTrue(TEXT("Non-uniform Turn keeps the scaled pivot invariant"),
++        NonUniformTurn.TransformPosition(TurnPivotLocal).Equals(TurnPivotWorld, 0.01));
++    TestTrue(TEXT("Non-uniform Turn remains rigid after authored scale"),
++        FMath::IsNearlyEqual(
++            FVector::Distance(
++                NonUniformTurn.TransformPosition(RigidityPointA),
++                NonUniformTurn.TransformPosition(RigidityPointB)),
++            ScaledPointDistance,
++            0.01));
++
++    Cue.WingPair.Left.LocalTransform.SetScale3D(FVector::OneVector);
 +
 +    Motion.Kind = EInfinityMechanismKind::Turn;
 +    Motion.MaxAngleDeg = 180.0;
