@@ -100,11 +100,13 @@ This overrides "use SendMessage to reach the streams" above.
 CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
 - BUILT and committed: cc1331e (K, L v2, MR, N v2, O v2, P v2, Q v2, T), 35094de (C v2,
   S v2), 7af58f3 (U mechanism kinds; suite 103/0/103). NOTHING is held for a build window.
-- AT HANDOVER, Rig's Scene 3 slot was RUNNING in the editor, via Codex --unreal, brief
-  0074b56. It re-times S1/S2/S3/S6 to the 10 s rise, does the S3 cast reveal and the
-  Celadon removal, the pit + oak deck, and the strike. Check its result (Rig's handover, git
-  log, Saved/CodexRuns) and take a census before giving the editor to anyone.
-  Then Gary judges in PIE: the drapes at the reveal, and the strike brightness.
+- SCENE 3 SLOT COMPLETE (Conductor 3, 1 Oct 12:31), every marker read back from the log,
+  census clean each time: HANGAR_RETIME_DONE 120540; S3_CAST_REVEAL_DONE 121100 (FINISH);
+  S3_PIT_DECK_DONE 123004; S3_STRIKE_DONE 123043. Backups/PreS3PitDeck-20261001-1230,
+  PreS3Strike-20261001-123043. Gary saw the cast reveal work in PIE (12:17). Fixes on the
+  way: 69816a1 (pit guard frame), fd0990a (STEEL object path). Briefs' "stop on any
+  BLOCKERS line" is too broad: those lines are inventories; stop only on unknown != [].
+  Gary still to judge in PIE: the pit + deck, and the strike brightness.
 - NEXT for Scene 3: Wings and Textures' van Goyen backdrop + 3 wooden-wave rows (art via
   their Codex pipeline). Then Rig's step 4-5 placement (waves keyed as actors, appearing at
   the strike; backdrop plane ~20x30 m on the back wall, child MI of MI_Billboard_Front).
