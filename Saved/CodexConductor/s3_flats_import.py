@@ -256,38 +256,18 @@ def uv_ranges(mesh, lod):
 
 
 def front_direction(mesh):
-    desc = mesh.get_static_mesh_description(0)
-    normals = []
-    for index in range(desc.get_polygon_count()):
-        polygon = unreal.PolygonID(index)
-        group = desc.get_polygon_polygon_group(polygon)
-        if int(group.id_value) != 0:
-            continue
-        perimeter = list(_polygon_instances(desc, polygon))
-        if len(perimeter) < 3:
-            continue
-        points = []
-        for vertex_instance in perimeter[:3]:
-            vertex = desc.get_vertex_instance_vertex(vertex_instance)
-            points.append(desc.get_vertex_position(vertex))
-        a = points[1] - points[0]
-        b = points[2] - points[0]
-        cross = a.cross(b)
-        length = (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z) ** 0.5
-        if length <= 1e-9:
-            continue
-        normal = unreal.Vector(cross.x / length, cross.y / length, cross.z / length)
-        normals.append(normal)
-    if not normals:
+    # Mean IMPORTED vertex normal of the Front section (slot 0), LOD0. Run 190045 built the normal
+    # from triangle winding and got +X for every wave while the backdrop, read from vertex normals,
+    # gave -X: the winding cross product flips sign in Unreal's left-handed frame. Use the normals.
+    section = unreal.ProceduralMeshLibrary.get_section_from_static_mesh(mesh, 0, 0)
+    normals = section[2]
+    if len(normals) < 3:
         raise RuntimeError("FRONT_POLYGONS_MISSING|mesh=" + mesh.get_path_name())
-    mean = unreal.Vector(sum(n.x for n in normals),
-                         sum(n.y for n in normals),
-                         sum(n.z for n in normals))
-    length = (mean.x * mean.x + mean.y * mean.y + mean.z * mean.z) ** 0.5
+    mean = [sum(float(n.x) for n in normals), sum(float(n.y) for n in normals), sum(float(n.z) for n in normals)]
+    length = sum(v * v for v in mean) ** 0.5
     if length <= 1e-9:
         raise RuntimeError("FRONT_NORMAL_MEAN_DEGENERATE|mesh=" + mesh.get_path_name())
-    mean = unreal.Vector(mean.x / length, mean.y / length, mean.z / length)
-    return [float(mean.x), float(mean.y), float(mean.z)]
+    return [v / length for v in mean]
 
 
 def static_mesh_socket_names(mesh):
