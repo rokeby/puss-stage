@@ -44,10 +44,32 @@ conductor's reading of what it implies — marked as such, not decided.
 
 - Crowd: a **loose ring around the clam, thinner on the camera side** so the wide sees the
   clam between the figures.
-- Pedestal: the existing one. Gary **renamed `Clam_with_Pearl_Clam_with_Pearl_0` to
-  `Clam_Pedastal`** (the pedestal; the clam sits on it) and saved the level 12:54:14.
-  **TRAP:** `s3_cast_reveal_apply.py:44` and `s3_pit_deck_apply.py:46` still list the old
-  label, and the cast-reveal record is keyed by it. A revert of either will fail its
+- Pedestal: the existing one, now labelled **`Clam_Pedastal`** (Gary renamed it; level
+  saved 12:54:14). CORRECTED after probe 125725: `Clam_with_Pearl_Clam_with_Pearl_0` still
+  exists (the static clam on top, beside the skeletal `source_Anim` clam), so the renamed
+  actor was **`tg0pfjxda_tier_0`** (INFERRED: it was a reveal target and is no longer found).
+  **TRAP:** `s3_cast_reveal_apply.py:46` and `s3_pit_deck_apply.py:48` still list
+  `tg0pfjxda_tier_0`, and the cast-reveal record is keyed by it. A revert of either will fail its
   label lookup (INFERRED, not tested: both tools resolve targets by exact label and fail on
   a missing one, so it should fail closed rather than mis-target). Left as is on purpose: editing
   the label would desync the record. Map the label explicitly if a revert is ever needed.
+
+## Landed box and placement (1 Oct ~13:10)
+
+- Measured/inferred by probe 130916 (rest-pose check 0.000 cm over 56 actors, so the
+  composition method is verified; landed values themselves are composed, i.e. inferred):
+  landed interior is **60 m deep (dock x 500..6500), 20 m wide (y ±1000)**, floor top z −5,
+  **roof underside 28.8 m, lattice ~10.6–11.3 m** — the roof is 17.5 m above the lattice,
+  so in dim light only the lattice reads as a ceiling (Gary's "just the rig ceiling").
+- The "right up close" view Gary saw was `LS_Clams` ClamCam1, 2.8 m from the cast (measured
+  125725); the arrival camera stops ~23 m from the cast.
+- **Gary: the pedestal goes to the middle of the landed floor, 35 m from the arrival point**
+  (dock (3500, 0)). Ring around it, gap toward camera. Spec:
+  `Saved/CodexConductor/specs/S3_DIORAMA_MOVE.md`.
+- Beat markers: placeholder timings approved (table in the conductor session; 0:00, 0:15,
+  0:40, 1:00, 2:00, 2:05, 2:25, 2:55, 3:15, 3:30, 3:50, 4:05, end 4:20). Structure per Look &
+  camera: markers on LS_DevScene_03's ROOT; all cameras ROOT cuts; never use the label
+  `InfinityStage.HiddenChangeover`. Order: extend to 260 s → S3 Wide spawnable (Entry pose)
+  [95, end−hold) + deactivate both ClamCam1 cuts → `rematch_only`. Hole: scrubs landing on
+  frames 81–94 may claim the retired root ClamCam1 (IsActive unchecked, declaration-proven) —
+  2-line patch for the next build window.
