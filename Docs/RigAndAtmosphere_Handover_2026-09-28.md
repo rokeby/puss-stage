@@ -894,7 +894,7 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
       as (−0.1,4,10): the same matrix, but component-wise Equals fails.
     - Fix (8046114): that assertion compares ToMatrixWithScale and logs both transforms if it fails.
 - **Scene 3 brief (Gary via the conductor, 1 Oct): plan sent, nothing built.** I'm the lead; Wings & Textures do the art.
-  - Rise times per hangar: S4 runs −5.874 → +4.126 (frame 124 = 4.133 at 30 fps). S1/S2/S3/S6 are still on the old
+  - Rise times per hangar: S4's LIVE keys run −5.867 → +4.133 s (frames −176 → 124; the record's −5.8739/4.1261 are plan values, and the tools round to display frames). S1/S2/S3/S6 are still on the old
     −3.567 → +16.0, and S5 on −3.567 → +25.3.
   - Waves are keyed actors on the S3 root, NOT Passage occurrences: mechanisms only evaluate inside their Passage
     segment (PassageActor.cpp:1166), so they would freeze at the cut.
