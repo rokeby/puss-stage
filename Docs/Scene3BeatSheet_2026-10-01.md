@@ -89,3 +89,14 @@ conductor's reading of what it implies — marked as such, not decided.
 - INFERRED, not measured: Sequencer playback honours the nested ClamCam1 cut being inactive
   (FindSceneCameraCut reads root cuts only, so the transport never sees it). Check in PIE.
 - Next for Gary: author the static cameras as ROOT cuts in LS_DevScene_03 (never nested).
+
+## Waves and backdrop PLACED, 1 Oct ~19:11 (measured, markers read back; census clean)
+- Import: `S3_FLATS_IMPORT_DONE run=190842 finished` (verify pass, no failures). 41 new assets
+  under `/Game/Scenes/Wings/FlatV3/Scene3/` (7 meshes, 21 textures, MIs). Timber/Edge slots use
+  `M_Wing_CanvasEdge_Master` TEMPORARILY (until Wing materiality's V3 masters exist).
+- Placement: `S3_FLATS_PLACE_DONE run=191151`, backup `PreS3FlatsPlace-20261001-1911`.
+  Waves `S3 Wave Row{1,2,3} {A,B}` on `S3 Hangar Root` at landed dock x 4200/5000/5800;
+  `S3 Backdrop` on `S3 Hangar Far Wall`, landed dock (6497,0,-5). UV0 read back u->right,
+  v down, normal -X (V-flip fixed by W&T's re-export). Revert: s3_flats_place revert mode.
+- NOT YET: Gary's visual check in PIE (sky up, cottages right); the wave slides (keys);
+  Gary's lighting (the white strike floods the side walls; NOT velvet — it's daylight).
