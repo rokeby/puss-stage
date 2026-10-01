@@ -10,6 +10,30 @@ marked **[conductor approved]** and named as mine, not yours.
 
 ---
 
+## DECIDED 30 Sep evening (Gary, in the conductor session unless noted)
+
+- **Show length is not a constraint:** *"no limits on length, all good for all things"*
+  (asked about Interaction 1 growing to 25.5 s). This settles B0 option (1) in principle:
+  lengthening Scenes 2, 5 and 6 to fit their rises is length he's fine with, though still
+  gated on K and L being built.
+- The border: keep at 10.2 m. P02, P05, P06: trim like P03 (P02 then "leave for now").
+- Free dog look in all Scenes 1–6 (applied). Look **resets at every cut** (patch O).
+- S4 arrival: lights and exposure dim together with the rise, from the curtain (re-key, plus patch P).
+  Curtain 2 s earlier (confirmed in Rig's session). No picture sheet.
+- Walk-in after the curtain instead of a cut: trial at I1 → P02, slow zoom 15→35 mm (patch R first).
+- Wing mipmaps: P01+P02 applied. The blur persists "only while moving" in P02 and other passages; probing next.
+
+## DECIDED 1 Oct morning — the hangar arrival and Scene 3 (Gary, conductor session)
+
+- **The S4 rise timing is right** ("its dim lit form rises up and swallows the frame").
+  Cameron will add a chain-rolling sound once each rise has a defined duration (Rig to supply).
+- **The real lights strike only AFTER landing**, per scene, coordinated with Klara for S1, S2 and S4.
+- **Scene 3 first.** The shore cast doesn't ride the box: they can appear while the landed hangar is
+  dark, then a very bright strike (this settles B0b, option 2). Behind them, layers of wooden
+  waves sliding back and forth. On the back wall, a painted backdrop (maybe for every hangar): a grey,
+  foggy Atlantic coastline with one island, barely visible. Later maybe a shack, firewood, rocks or a boat.
+- Velvet texture parked; the curtain stays plain oxblood B.
+
 ## A. THE FOUR THAT UNBLOCK PEOPLE
 
 ### A1. Exposure on the approach — ANSWERED, and the premise was wrong
@@ -209,7 +233,8 @@ question never arises live.
 ## B. RIG'S THREE FLAGGED JUDGEMENTS — he separated these out himself
 
 ### B1. The rise start is a GUESS at all five sites
-−3.567 s is Scene 4's applied start (P04's cloth release) transplanted. No
+−3.567 s is Scene 4's applied RISE start, transplanted. (Corrected ~17:55 by Rig: P04's cloth releases at −3.874, 0.3 s earlier. Before the cut the Arrival drives the root; Sequencer plays the Scene only from frame 0.)
+**~17:58 Gary chose the shared window at S4:** the rise runs with the cloth over ~10 s, the lights and exposure ramp across the same window, and they also dim from the cloth itself (patch P, C++, next build). No
 backcloth exists in those passages, so **the first 3.6 s of rise shows with nothing
 masking it.** Not a timing number — it is "you can see the machinery".
 **Recommendation:** leave provisional; set each start from its own passage's cloth
@@ -807,6 +832,28 @@ locally, which is narrower and needs no transport change.
 - **Floor A (continuous herringbone) vs C (dark waxed lacquer).** Now known to be a
   decision about **boards**: the grooves are invisible from eye height, measured at
   0.05% of pixels changed. `SlotInboardCm` (~380) is the real lever, not width.
+  **~17:40 (Wing materiality):** you said "A seems good", then asked what the grooves
+  are for. They're the chariot slots across the floor at each wing. **A is not yet
+  confirmed.** Also yours: whether the slots should start further inboard, to read
+  more as a feature. If you say A, it's ~30 min of editor for Wing, landing with Rig's
+  steel groove in the post-build re-fit.
+- **Flat V3 pilot: a mixed stage.** V3 flats carry baked poles, and the ~260 legacy
+  cards have none until LegibleMachineSpec §2's follow exists. The pilot pair at P01
+  would show both side by side. A look state, so yours (Rig, 30 Sep evening).
+- **"Smudged in motion": a new suspect, unmeasured.** `InfinityStagePassageActor.cpp:1461`
+  recreates each moving wing's render state every frame, right after supplying its
+  motion history, which may discard its motion vectors (Rig: inferred plausible). An
+  A/B with the call removed would settle it; it's a C++ edit, so it waits for a build
+  window. It's also a candidate alongside the missing mipmaps on the wing textures.
+  **Mipmaps re-verified ~17:45 (Wing materiality, read from the .uasset files): 367 of
+  371 live wing textures across ALL six passages have NO mipmaps**, and 63 are also
+  uncompressed. Inferred cause: the importer turns mips off for non-power-of-two
+  images, and nobody chose it. A test on duplicates is queued (settings only, sources
+  untouched). **Rolling it out to P01+P02 will come to you for your eye**, since only
+  you can judge whether the smudge is cured.
+- **Wing materiality, also yours:** P05 at full relief, flat clouds (HeightRatio 0,
+  POM steps 1), or not yet; **which wings burn**; and **installing an upscaler**,
+  which is a download, so your call.
 - **Scene 3's four issues.** The lattice clip is now located precisely: Scene time
   **8.43–10.03 s**. Lights calibrated at the wrong EV; the ghost light lands among
   the cast; enclosure changes the open-sky lighting.

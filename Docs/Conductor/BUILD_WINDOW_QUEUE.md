@@ -1,5 +1,18 @@
 # Next build window — what is in it, and in what order
 
+> **1 Oct ~11:20: WINDOW RUN.** Built and committed `35094de`: C v2 and S v2. Suite
+> **102/0/102**. **U (82e36b7) was reverted:** its own test `KindsUseCachedPivotsAndAxes`
+> failed ("Topple Top instance exists" is null). It's back with Rig. **Nothing else is held.**
+> A second try (8559f2c) failed at :1444, the mirrored θ=0 comparison. **U is now 8046114**, held: the test
+> compares matrices, since a mirrored FTransform round-trips via FMatrix with a different decomposition
+> (Rig). Run `InfinityStage.Mechanism.KindsUseCachedPivotsAndAxes` FIRST, then the suite.
+>
+> **30 Sep ~19:45: WINDOW RUN.** Built and committed `cc1331e`: K, L v2, MR (replaces
+> M and R), N v2, O v2, P v2, Q v2, T. Suite **99/0/99**. **Still held for the NEXT
+> window:** C (didn't compile: `TNumericLimits<float>::QuietNaN` is absent in 5.8) and S
+> (Codex P1: resettle after the camera reclaim). The table below is history, except for
+> those two.
+
 The build gate is **machine-wide**: any open UE editor in any project blocks any
 build. The editor is currently held by the landscape block, so this waits.
 
@@ -49,6 +62,8 @@ wrong reason looks identical to a test red for the right one. A stage-1 red
 proves the test *runs and sees something*; a stage-2 green proves the fix is what
 changed it.
 
+**LINE ENDINGS (Rig, 30 Sep ~18:30, measured):** patch Q is CRLF and its target file's working copy is LF, so a plain `git apply --check` FAILS; with `--ignore-whitespace` it applies cleanly. **Before the window, run `git apply --check` on EVERY held patch (cat body, C, K, L, M, N, O, P, Q, R) together, in the same mode used to apply.** A check done in a different mode proves nothing. See the `puss-held-cpp-edits-as-patches` memory.
+
 ## Order
 
 1. **Close the editor** (`Saved/CodexConductor/quit_editor_clean.py` — it refuses
@@ -78,6 +93,14 @@ changed it.
 | **A retained exit leaves no gap** — patch **L**, `Scripts/patches/2026-09-30_L_retained_exit_leaves_no_gap.patch` | Look & camera | **Held, tree at HEAD.** The handoff builder starts a retained exit at `max(sceneEnd − hold, lastInteriorEnd)`, so whenever the last interior shot ends before the hold it **opens a gap** — 48 frames at Scene 3, against the 23 it was being run to fix. Scoped to the **retained** path only; the normal Passage exit is unchanged, with a comment saying its stretch is a look decision. Carries one stated refinement: the Exit now copies the cut that **ends last** (the transport's own overlap rule) rather than the one that starts latest, since only the camera **on screen at the seam** makes the join seamless. Identical for every current Scene. |
 
 | **The gait bob's roll is centred on a running mean** — patch **M**, `Scripts/patches/2026-09-30_M_gait_roll_running_mean.patch` (8dfd463) | Look & camera | **Held, not applied, not compiled; tree at HEAD.** **Gary's ruling, 30 Sep: *“no need to permanently tilt and the camera is at an ok height as it is”*.** Roll stops deriving from the lift's ABSOLUTE value and derives from its deviation from an exponential running mean (`ShadowCatCameraBobRollMeanSeconds = 1.0`, editable). **Height is untouched — the whole lift stays.** Re-primes on the first sample, a backwards step, or a gap over 0.5 s, so a jump or a resumed Passage never kicks the roll; a zero step leaves the mean alone, so several evaluations in one frame agree. **Also corrects the code comment claiming the lift “is zero-centred… needs no running average”** — that comment was the root of the fault and would have misled the next reader. |
+
+| **Look resets at every cut** — patch **O**, `Scripts/patches/2026-09-30_O_look_resets_at_every_cut.patch` | Look & camera | **Gary, 30 Sep ~17:45: "reset at every cut for now"**. `bResetLookAtCut` (default on), which includes the Passage → Scene entry cut. Test `InfinityStage.Go1.LookResetsAtEveryCut`. Held, applied whole in stage 2. |
+| **Binding-resolution check** — patch **N**, `Scripts/patches/2026-09-30_N_scene_cut_bindings_resolve.patch` | Look & camera | `CheckSceneCutBindings` / `CheckSequenceCutBindings`, root and nested, failing closed. The import gate for Klara's sequences (Python's `get_bound_objects` crashes the editor). Conductor approved as tooling. Test `InfinityStage.Editor.SceneCutBindingsResolve`. Held, applied whole in stage 2. |
+
+| **The Arrival drives the lights and exposure before the cut** — patch **P**, `Scripts/patches/2026-09-30_P_arrival_predrive.patch` (857ace1; `--ignore-whitespace`) | Rig | **Gary, 30 Sep ~17:58: "Re-key, and dim from the curtain too".** Today the Arrival evaluates only the root rotation and the backcloth before Scene 0 (`InfinityStageArrival.cpp:246–275`). P also evaluates the light and exposure tracks, so they begin at the cloth release (−3.874). The ramps need re-keying after the build. Held, with a test. |
+
+| **A/B switch for the per-frame wing render reset** — patch **Q** (file name pending) | Rig | `InfinityStagePassageActor.cpp:1461` `MarkRenderStateDirty` behind a console variable, so it can be A/B'd live. A suspect for Gary's blur, which is "only while moving", in P02 and other passages (30 Sep ~18:05). |
+| **The bob fades in with walking speed** — patch **R**, `Scripts/patches/2026-09-30_R_bob_walk_weight.patch` (held; applies with C K L M N O; stage 2 whole) | Look & camera | A walk-weighted bob. Needed for the walk-in trial (Gary: "Trial one transition first", Interaction 1 → P02, "Slow zoom 15→35 during the walk"), and it's the same change the settle needs. The trial's keys go in after this is built. |
 
 **C, K, L and M apply together on HEAD — the queue is file-disjoint**, and the
 new tests are new files, so nothing contends.

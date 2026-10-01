@@ -305,7 +305,10 @@ and `dirty_content` both empty, Sequencer closed, 0 temps, 0 capture actors, PIE
 
 **THE QUEUE:**
 
-1. **Look & camera — RUNNING.** The settle pictures, by a **camera-only** method:
+1. **Look & camera — CORRECTION ~17:35: v1 NEVER RAN** (aborted at step 1 on
+   Sequencer dirt, nothing captured, nothing to Gary; that dirt is what the 17:20
+   Don't-Save relaunch discarded). **v2 (5e0df68) given the slot ~17:35**, census of
+   both packages first and after. The settle pictures, by a **camera-only** method:
    `GetPassageCameraPose` computes a view without touching Sequencer, so there is no
    scrub and nothing to dirty. Wings and lights stay in their editor state, which is
    fine for judging a deceleration and is labelled. Per-step dirty abort retained.
