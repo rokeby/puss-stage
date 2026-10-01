@@ -34,7 +34,10 @@ marked **[conductor approved]** and named as mine, not yours.
   foggy Atlantic coastline with one island, barely visible. Later maybe a shack, firewood, rocks or a boat.
 - Velvet texture parked; the curtain stays plain oxblood B.
 
-## GARY'S NOTES, 1 Oct evening (his words, condensed; conductor session) — NOT YET ACTIONED
+## GARY'S NOTES, 1 Oct evening
+
+**Production order (Gary):** wings (new high-quality feel, placed in order) -> lighting ->
+lighting FX -> other props -> other FX. (his words, condensed; conductor session) — NOT YET ACTIONED
 
 - **Music.** P01 currently carries the opening-curtain music, which is wrong. The opening
   curtain is crucial and needs real timing and music decisions, not a flat lit curtain that

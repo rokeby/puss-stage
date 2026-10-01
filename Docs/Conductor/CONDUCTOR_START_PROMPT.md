@@ -97,6 +97,11 @@ This overrides "use SendMessage to reach the streams" above.
 - Keep this session's context SHORT. Restart fresh from this prompt rather than running for
   days.
 
+PRODUCTION ORDER (Gary, 1 Oct evening; sequence the work by this):
+  1. WINGS: new high-quality feel, placed in order correctly (Flat V3).
+  2. LIGHTING.   3. LIGHTING FX.   4. OTHER PROPS.   5. OTHER FX.
+  Work later in this list waits unless Gary pulls it forward (e.g. S3's lights he is editing himself).
+
 CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
 - BUILT and committed: cc1331e (K, L v2, MR, N v2, O v2, P v2, Q v2, T), 35094de (C v2,
   S v2), 7af58f3 (U mechanism kinds; suite 103/0/103). NOTHING is held for a build window.
