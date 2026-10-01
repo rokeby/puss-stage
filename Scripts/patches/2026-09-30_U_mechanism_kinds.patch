@@ -254,10 +254,10 @@ index e96fb8d..7378fb8 100644
      FRuntimeFloatCurve LeftNormalizedCurve;
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-index 0ee2fa0..a6b41b3 100644
+index 0ee2fa0..3aa13db 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-@@ -1198,6 +1198,422 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
+@@ -1198,6 +1198,423 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
      return true;
  }
  
@@ -278,6 +278,7 @@ index 0ee2fa0..a6b41b3 100644
 +    Cue.WingPair.Left.Mesh = Cube;
 +    Cue.WingPair.Right.Mesh = Cube;
 +    Cue.WingPair.Right.FacingPolicy = EInfinityPanelFacingPolicy::Rotate180AroundUp;
++    Cue.WingPair.bHasTop = true;   // the Top panel is only materialized when bHasTop (Types.h bHasTop = false)
 +    Cue.WingPair.Top.Mesh = Cube;
 +    // Scale the 100 cm Engine Cube to production-card proportions: 10 cm thick
 +    // on X, 400 cm wide on Y and 1000 cm tall on Z, with its base on z=0.
