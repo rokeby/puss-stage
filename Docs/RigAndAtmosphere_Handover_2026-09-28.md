@@ -915,3 +915,71 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
     - (b) Remove Celadon L/L3, the PointLight and the sheet-sway from S3?
     - (c) Do the waves ride the box or appear at the strike?
     - (d) The S3 pit-hole.
+
+## 1 October, midday: Scene 3 slot (steps 1–2a done by me; 2b and 3 handed to Conductor 3). Rig & atmosphere is PARKED.
+
+Gary's decisions, all given in THIS session via AskUserQuestion:
+- S1/S2/S3/S6 take S4's 10 s rise.
+- The cast appear at landing in the dark, then the strike.
+- The waves appear with the cast at the strike.
+- Removed from S3: Celadon L, L2 and L3, and the old clam PointLight.
+- A pit-hole plus an oak deck in the S3 box: "Yes, pit + deck", after I explained what the pit is for.
+- The backdrop register (to W&T): "Dutch tonal (van Goyen)".
+
+### Slot result: markers, backups, reverts
+- **Step 1, re-time: DONE.**
+  - Marker: `HANGAR_RETIME_DRY_RUN_OK run=120519`, then `HANGAR_RETIME_DONE|run=120540|applied`, census empty.
+  - Backup: `Backups/PreHangarRetime-20261001-1205`.
+  - Revert: `hangar_retime_revert_run_request.json`.
+  - Tool: 5ae5254, plus f7b4988. The nest guard now checks only the rise nest; the first dry run (run 120317) wrongly flagged `LS_Animals_1` and `LS_Clams`.
+  - Live keys are frame-rounded: S4 and all four hangars rise at −5.867 → +4.133 s (frames −176 → 124). Cameron has 10 s.
+- **Step 2a, cast reveal and removals: DONE.**
+  - Marker: `S3_CAST_REVEAL_DRY_RUN_OK run=120733`; the apply (run 120752) wrote everything but stopped in its read-back; then `S3_CAST_REVEAL_DONE|run=121100|finished`, census empty.
+  - Record: `s3_cast_reveal_record.json`, written 12:07. Backup: `Backups/PreS3CastReveal-20261001-1207` (inferred from the record time; not listed).
+  - Revert: `s3_cast_reveal_revert_run_request.json`. NOT exercised; it uses the same class-based track match as FINISH.
+  - Fixes on the way:
+    - acd2529: the PointLight identity guard is 100 cm. My estimate used the survey's base_z; it read 51.988 cm.
+    - 8c16003: the visibility track is matched by CLASS, because `set_display_name` does not stick on a visibility track. Also a FINISH mode, which verifies an unsaved apply against the record, then saves.
+    - 4951ef7: the visibility sections take the hangar ROOT's completion mode, not KEEP_STATE. Otherwise a transport rewind to P03 would leave the cast visible over the pit.
+  - What it did:
+    - Nine actors are saved Hidden-in-Game: Shore01–06, `Clam_with_Pearl…_0`, `source_Anim`, and `tg0pfjxda_tier_0` (the pedestal).
+    - Each is keyed visible at W1+0.5 (4.6261 planned, frame 139 = 4.633 live) in `LS_S3_HangarRise`.
+    - Celadon L, L2 and L3 and the PointLight are hidden, collision off, tagged `RigAtmos.RemovedFromS3`, in folder `RigAtmos/RemovedFromS3`. The PointLight component is also invisible. Delete them later if Gary wants.
+- **Step 2b, pit + liner + deck: NOT DONE; handed to Conductor 3.**
+  - Its dry run (run 121126) stopped on a FALSE ALARM: dock-frame bounds compared with a world-x record, off by exactly the dock x of 10921.97. Fixed in 69816a1.
+  - Tool d762721 plus 69816a1. Harness 4+/4−. Deck at root-relative z 105 (top −5), liner floor −6420.
+- **Step 3, strike: NOT DONE; handed to Conductor 3.** Tool dacb5ab; harness 1+/3−.
+  - Key, two fills and a 3-light cyc, plus the S3 pinned-exposure PPV.
+  - Strike at S3's first uplight, about W1+2.0. The intensities are module constants: starting values to tune.
+
+### Incident: an orphaned Codex
+`TaskStop` on my bash wrapper did NOT stop the `codex.exe` child.
+- My 2b/3 Codex run (PID 16536, started 12:12:30) kept running after Conductor 3 took the slot. I killed it, with its children, by PID tree.
+- Measured: it had hit a sandbox exec error, and no new S3_PIT_DECK/S3_STRIKE marker appeared before my last read.
+- Not verified: the minute before the kill. Conductor 3 was told to check the log and that `s3_pit_deck_record.json` is absent.
+- **Rule:** to stop a Codex run, kill the `codex.exe` tree. Find it with `Get-CimInstance Win32_Process` by its prompt text.
+- A stale 30 Sep `codex.exe exec … --worktree` (PID 37152, "Edit exactly ONE file: hangar_build.py") is still alive. It's harmless (worktree), but nobody has claimed it.
+
+### What Gary still has to judge in PIE (play Scene 3)
+1. **The drapes at the reveal.** The Chaos head-drapes were hidden through the rise and might settle or pop when revealed. The ~1.5 s dark beat is meant to cover it.
+2. **Visibility key sense.** The headers leave it UNCLEAR whether `true` means visible; the tool assumes it does (inferred). If it's wrong, the cast are visible during the rise and VANISH at 4.633. Fix: revert, then flip one value.
+3. **The strike**, once Conductor 3 runs step 3: brightness, colour, and the one shadowed key. Tune with the constants in `s3_strike_apply.py` (revert, edit, apply).
+4. **After 31 s.** The S3 scene runs at least 60.58 s (`LS_Clams`), but the rise nest is 31 s. The 2a dry run found no RESTORE_STATE blocker, so the box and cast should hold (inferred). Watch past 31 s.
+
+### Steps 4–5, waiting on Wings & Textures' art (contract: `Docs/FlatV3Spec_2026-09-30.md`, "Other flats", Scene 3)
+- **Waves:** keyed actors attached to `S3 Hangar Root`, NOT Passage occurrences (mechanisms freeze outside their Passage segment, PassageActor.cpp:1166).
+  - 3 rows at about 35/45/55 m from the stop; heights about 1.2/1.8/2.6 m; two halves of at least 12 m each, origin bottom-centre.
+  - Alternating, row-delayed ±1.5 m Y slides.
+  - Saved hidden, revealed with the cast (Gary: "appear with the cast at the strike").
+  - If Celadon L3 returns, move row 3 to about 52 m.
+- **Backdrop:** an engine Plane, 20×30 m, attached to the S3 Far Wall hinge, about 3 cm proud of the inner face. W&T's child MI of `MI_Billboard_Front` goes on it (Dutch tonal, van Goyen), with SkinColor swapped per hangar. The same recipe works for every hangar.
+- S3 geometry: back wall inner face 20×30 m at 65 m from the stop (5 m apron + 60 m box); cast at 23–27 m; clam at about 17 m.
+
+### Still open
+- S5's rise timing: Gary's own decision, later.
+- S2, S5 and S6 are not nested: their scenes are 15 s against 31 s rises.
+- P02's mouth floor is a retained fault.
+- Gary's notes (a)–(c) are uncosted.
+- The stutter attribution run is deferred.
+- Pole instancing comes after the V3 assets.
+- Patch U is built (7af58f3, suite 103/0/103, per the conductor).
