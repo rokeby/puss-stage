@@ -118,3 +118,7 @@ conductor's reading of what it implies — marked as such, not decided.
   **Shot list:** Codex drafts one static camera per beat as ROOT cuts at the markers; Gary adjusts in the viewport.
   **Huddle:** ~12 (6 + 6 duplicates, offset animation starts, varied skin; measure frame cost first).
   **Hand prints:** Wings and Textures paint the art (offline); applied to the S3 inner side walls.
+- **Hand prints, W&T plan:** DBuffer DECALS from one atlas + a seeded placement table (≈150–250 per wall,
+  shipped as JSON data; spawner reads it). **Gary to choose the art source (morning):** Fuser job
+  `FuserQueue/24_S03_hand_prints_atlas` (old dried grime, not blood), or — W&T's preference — Gary's own hands
+  pressed in thinned umber/dirt on paper, photographed.
