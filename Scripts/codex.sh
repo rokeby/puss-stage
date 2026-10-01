@@ -9,6 +9,7 @@
 #   Scripts/codex.sh --write "your prompt"      # may edit the working tree
 #   Scripts/codex.sh --worktree "your prompt"   # writes, but in its own git worktree
 #   Scripts/codex.sh --unreal "your prompt"     # may reach the Unreal MCP at 8010
+#   Scripts/codex.sh --build "your prompt"      # FULL ACCESS, for build windows only
 #   Scripts/codex.sh --review                   # code review of the current diff
 #   Scripts/codex.sh --raw <anything>           # pass straight through to codex
 #
@@ -59,12 +60,20 @@ case "${1:-}" in
     SANDBOX=""; LABEL="unreal"
     EXTRA+=(--approve-for-me -c sandbox_workspace_write.network_access=true)
     shift ;;
+  --build)
+    # BUILD WINDOWS ONLY (Gary, 1 Oct 2026: "#2 is fine"). Full machine access:
+    # the workspace-write sandbox denies `tasklist` ("Access denied"), so Codex
+    # cannot verify the machine-wide build gate (no UnrealEditor.exe anywhere),
+    # and UBT writes outside the repo. This mode can do anything the user can,
+    # so use it only with a build-window prompt that names every step, the
+    # revert-on-red rule and "never the PussStage test filter".
+    SANDBOX="danger-full-access"; LABEL="build"; shift ;;
   --review)   shift; exec "$EXE" exec review -C "$REPO" "$@" < /dev/null ;;
   --raw)      shift; exec "$EXE" "$@" < /dev/null ;;
 esac
 
 if [ $# -eq 0 ]; then
-  echo "usage: Scripts/codex.sh [--write|--worktree|--unreal|--review|--raw] \"prompt\"" >&2
+  echo "usage: Scripts/codex.sh [--write|--worktree|--unreal|--build|--review|--raw] \"prompt\"" >&2
   exit 2
 fi
 
