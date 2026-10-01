@@ -83,27 +83,27 @@ def create_backdrop() -> bpy.types.Object:
     mesh.from_pydata(vertices, [], [(0, 1, 2, 3)])
     mesh.update()
 
-    # UV0 follows the eventual Unreal view.  FBX import negates Blender Y, so
-    # u must decrease as Blender Y increases: u=0 at +Y_B and u=1 at -Y_B.
-    # V is deliberately top-origin for the Unreal texture convention.
+    # UV0 follows the legacy raw-FBX convention.  U decreases along Blender
+    # +Y so it increases along Unreal +Y after axis conversion.  Raw FBX V
+    # increases bottom-to-top; Interchange converts that to Unreal's V-down.
     uv0 = mesh.uv_layers.new(name="UV0")
     uv0_by_vertex = {
-        0: (0.0, 1.0),
-        1: (1.0, 1.0),
-        2: (1.0, 0.0),
-        3: (0.0, 0.0),
+        0: (0.0, 0.0),
+        1: (1.0, 0.0),
+        2: (1.0, 1.0),
+        3: (0.0, 1.0),
     }
     for loop in mesh.loops:
         uv0.data[loop.index].uv = uv0_by_vertex[loop.vertex_index]
 
-    # UV1 is in physical metres: U runs 0..20 m toward Unreal +Y after the
-    # import conversion, and V runs 0..30 m bottom-to-top.
+    # Raw FBX UV1 is pre-compensated for Interchange: U runs 0..20 m toward
+    # eventual Unreal +Y, while raw V=1-Z metres becomes Unreal V=Z metres.
     uv1 = mesh.uv_layers.new(name="UV1")
     uv1_by_vertex = {
-        0: (0.0, 0.0),
-        1: (WIDTH_M, 0.0),
-        2: (WIDTH_M, HEIGHT_M),
-        3: (0.0, HEIGHT_M),
+        0: (0.0, 1.0),
+        1: (WIDTH_M, 1.0),
+        2: (WIDTH_M, 1.0 - HEIGHT_M),
+        3: (0.0, 1.0 - HEIGHT_M),
     }
     for loop in mesh.loops:
         uv1.data[loop.index].uv = uv1_by_vertex[loop.vertex_index]
@@ -197,21 +197,15 @@ def make_preview_material(texture_path: Path) -> bpy.types.Material:
     emission = nodes.new("ShaderNodeEmission")
     uv = nodes.new("ShaderNodeUVMap")
     uv.uv_map = "UV0"
-    separate = nodes.new("ShaderNodeSeparateXYZ")
-    invert_v = nodes.new("ShaderNodeMath")
-    invert_v.operation = "SUBTRACT"
-    invert_v.inputs[0].default_value = 1.0
-    combine = nodes.new("ShaderNodeCombineXYZ")
     image = nodes.new("ShaderNodeTexImage")
     image.image = bpy.data.images.load(str(texture_path), check_existing=False)
     image.image.colorspace_settings.name = "sRGB"
     image.interpolation = "Linear"
 
-    links.new(uv.outputs["UV"], separate.inputs["Vector"])
-    links.new(separate.outputs["X"], combine.inputs["X"])
-    links.new(separate.outputs["Y"], invert_v.inputs[1])
-    links.new(invert_v.outputs[0], combine.inputs["Y"])
-    links.new(combine.outputs["Vector"], image.inputs["Vector"])
+    # Direct raw-FBX UV0 sampling is deliberate.  Blender's bottom-origin
+    # image sampler plus Interchange's V conversion are the equivalent pair;
+    # inserting 1-v here previously hid an upside-down production mapping.
+    links.new(uv.outputs["UV"], image.inputs["Vector"])
     links.new(image.outputs["Color"], emission.inputs["Color"])
     links.new(emission.outputs["Emission"], output.inputs["Surface"])
     return material
@@ -287,7 +281,8 @@ def render_unreal_view(
     u0, v0, u1, v1 = COTTAGES_UV0_BOX
     points = []
     for u, v in ((u0, v0), (u1, v0), (u1, v1), (u0, v1)):
-        # Simulated Unreal position: Y_U=-10+20u; UV0 v=0 is physical top.
+        # COTTAGES_UV0_BOX uses source-image top-origin coordinates.  Raw FBX
+        # V is bottom-origin, so physical Z is H*(1-source_v).
         point = Vector((0.0, -WIDTH_M / 2.0 + WIDTH_M * u, HEIGHT_M * (1.0 - v)))
         projected = world_to_camera_view(scene, camera, point)
         points.append((float(projected.x), float(projected.y)))
@@ -307,6 +302,7 @@ def render_unreal_view(
             "camera_looks": "+X",
             "camera_local_x_scale": float(camera.scale.x),
             "camera_mirror_reason": "Blender +Y is screen-left looking +X; Unreal +Y is screen-right",
+            "uv_sampling": "direct raw-FBX UV0; Blender bottom-origin sampling is equivalent to Interchange V conversion plus Unreal top-origin sampling",
         },
         "cottages": {
             "source_uv0_box_top_origin": list(COTTAGES_UV0_BOX),
@@ -346,8 +342,8 @@ def build(fbx_path: Path, report_path: Path) -> None:
         "fbx": str(fbx_path.resolve()),
         "authored_dimensions_m": [0.0, WIDTH_M, HEIGHT_M],
         "material_slots": MATERIAL_SLOTS,
-        "uv0": "u=0 at Blender +Y and u=1 at Blender -Y; v=0 at top",
-        "uv1": "metres: u=0..20 toward eventual Unreal +Y; v=0..30 bottom-to-top",
+        "uv0": "raw FBX: u=0 at Blender +Y and u=1 at Blender -Y; v=0 at bottom and v=1 at top",
+        "uv1": "raw FBX pre-compensation: u=0..20 toward eventual Unreal +Y; v=1-Z_m so Unreal reads V=Z_m bottom-to-top",
         "exporter": {
             "apply_scale_options": "FBX_SCALE_UNITS",
             "axis_forward": "-X",
@@ -385,12 +381,12 @@ def validate(
     uv0_error, uv0_samples = maximum_uv_error(
         obj,
         "UV0",
-        lambda co: ((WIDTH_M / 2.0 - float(co.y)) / WIDTH_M, (HEIGHT_M - float(co.z)) / HEIGHT_M),
+        lambda co: ((WIDTH_M / 2.0 - float(co.y)) / WIDTH_M, float(co.z) / HEIGHT_M),
     )
     uv1_error, uv1_samples = maximum_uv_error(
         obj,
         "UV1",
-        lambda co: (WIDTH_M / 2.0 - float(co.y), float(co.z)),
+        lambda co: (WIDTH_M / 2.0 - float(co.y), 1.0 - float(co.z)),
     )
 
     front_normals = []
@@ -414,6 +410,13 @@ def validate(
     low = min(handedness_samples, key=lambda sample: sample["unreal_y_m"])
     high = max(handedness_samples, key=lambda sample: sample["unreal_y_m"])
     du_d_unreal_y = (high["u"] - low["u"]) / (high["unreal_y_m"] - low["unreal_y_m"])
+    vertical_samples = []
+    for vertex_index, values in uv0_by_vertex_map.items():
+        co = obj.data.vertices[vertex_index].co
+        vertical_samples.append({"z_m": float(co.z), "v": values[0][1]})
+    bottom = min(vertical_samples, key=lambda sample: sample["z_m"])
+    top = max(vertical_samples, key=lambda sample: sample["z_m"])
+    raw_dv_dz = (top["v"] - bottom["v"]) / (top["z_m"] - bottom["z_m"])
 
     render_report = render_unreal_view(obj, texture_path.resolve(), render_path.resolve(), render_report_path.resolve())
     checks = {
@@ -426,7 +429,7 @@ def validate(
         },
         "material_slots_exact": {"pass": slots == MATERIAL_SLOTS, "value": slots, "expected": MATERIAL_SLOTS},
         "uv_layers_exact": {"pass": uv_names == ["UV0", "UV1"], "value": uv_names},
-        "uv0_full_face_top_origin": {"pass": uv0_error <= 1.0e-5, "maximum_error": uv0_error, "samples": uv0_samples},
+        "uv0_full_face_legacy_raw_fbx": {"pass": uv0_error <= 1.0e-5, "maximum_error": uv0_error, "samples": uv0_samples},
         "uv1_metres": {"pass": uv1_error <= 1.0e-4, "maximum_error_m": uv1_error, "samples": uv1_samples},
         "bottom_centre_origin": {
             "pass": obj.location.length <= 0.001 and abs(float(lower.y + upper.y)) <= 0.001 and abs(float(lower.z)) <= 0.001,
@@ -443,6 +446,13 @@ def validate(
             "samples": handedness_samples,
             "du_d_unreal_y_per_m": du_d_unreal_y,
             "conclusion": "u must decrease along Blender +Y so it increases along Unreal +Y",
+        },
+        "raw_fbx_vertical_uv": {
+            "pass": raw_dv_dz > 0.0,
+            "samples": vertical_samples,
+            "dv_dz_per_m": raw_dv_dz,
+            "dv_dz_per_cm": raw_dv_dz / 100.0,
+            "legacy_contract": "raw FBX V rises bottom-to-top; Interchange converts it to Unreal V-down",
         },
         "simulated_unreal_normal": {
             "pass": unreal_normal.x < -0.999,
@@ -465,6 +475,8 @@ def validate(
         "expected_unreal_readback": {
             "bounds_cm": {"Y": [-1000.0, 1000.0], "Z": [0.0, 3000.0]},
             "front_normal": [-1.0, 0.0, 0.0],
+            "du_dY": "> 0",
+            "dv_dZ": "< 0",
         },
     }
     validation_path.parent.mkdir(parents=True, exist_ok=True)

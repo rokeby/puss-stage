@@ -26,6 +26,7 @@ FRAME_BACK_X = -0.040
 BLOCK_BACK_X = -0.032
 MEMBER_FACE_M = 0.050
 EDGE_INSET_M = 0.140
+MIN_FRAME_EDGE_CLEARANCE_M = 0.080
 POLE_DIAMETER_M = 0.060
 POLE_UNIT_BOTTOM_M = -1.0 / 11.2
 POLE_UNIT_TOP_M = 10.2 / 11.2
@@ -235,18 +236,18 @@ class Silhouette:
         u = points[:, 0]
         v = points[:, 1]
         if self.side == "L":
-            y = (u - self.u_min) * self.scale_m_per_px
+            y = (self.u_min - u) * self.scale_m_per_px
         else:
-            y = (u - self.u_max) * self.scale_m_per_px
+            y = (self.u_max - u) * self.scale_m_per_px
         z = (v - self.v_min) * self.scale_m_per_px
         return np.column_stack((y, z))
 
     def physical_to_pixel(self, points: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         y, z = points[:, 0], points[:, 1]
         if self.side == "L":
-            u = self.u_min + y / self.scale_m_per_px
+            u = self.u_min - y / self.scale_m_per_px
         else:
-            u = self.u_max + y / self.scale_m_per_px
+            u = self.u_max - y / self.scale_m_per_px
         v = self.v_min + z / self.scale_m_per_px
         return u, v
 
@@ -279,6 +280,11 @@ class Silhouette:
         point = np.asarray([[y, z]], dtype=np.float64)
         u, v = self.physical_to_pixel(point)
         return float(u[0] / self.image_w), float(v[0] / self.image_h)
+
+    def uv0_to_physical(self, u: float, v: float) -> tuple[float, float]:
+        point = np.asarray([[u * self.image_w, v * self.image_h]], dtype=np.float64)
+        y, z = self.pixel_to_physical(point)[0]
+        return float(y), float(z)
 
 
 def make_image_material(name: str, color_path: Path, rough_path: Path | None = None,
@@ -329,6 +335,9 @@ def make_image_material(name: str, color_path: Path, rough_path: Path | None = N
         normal.image = bpy.data.images.load(str(normal_dx_path), check_existing=True)
         normal.image.colorspace_settings.name = "Non-Color"
         links.new(uv.outputs["UV"], normal.inputs["Vector"])
+        # Production PNG stays DirectX (+V/down after Interchange) and Unreal's
+        # Flip Green remains off.  Only the Blender preview converts its green
+        # channel because Blender's tangent-space normal convention is OpenGL.
         separate = nodes.new("ShaderNodeSeparateColor")
         invert_green = nodes.new("ShaderNodeMath")
         invert_green.operation = "SUBTRACT"
@@ -473,13 +482,13 @@ def assign_metric_uvs(obj: bpy.types.Object, silhouette: Silhouette | None = Non
             else:
                 uv0.data[loop_index].uv = (co.y, co.z)
             if slot_name in ("Front", "Flap"):
-                metric_uv = (co.y, co.z)
+                metric_uv = (-co.y, 1.0 - co.z)
             elif abs(normal.x) >= abs(normal.y) and abs(normal.x) >= abs(normal.z):
-                metric_uv = (co.y, co.z)
+                metric_uv = (-co.y, 1.0 - co.z)
             elif abs(normal.y) >= abs(normal.z):
-                metric_uv = (co.x, co.z)
+                metric_uv = (co.x, 1.0 - co.z)
             else:
-                metric_uv = (co.x, co.y)
+                metric_uv = (co.x, 1.0 + co.y)
             uv1.data[loop_index].uv = metric_uv
 
 
@@ -511,13 +520,13 @@ def rebuild_metric_uv1(obj: bpy.types.Object) -> None:
         for loop_index in polygon.loop_indices:
             co = obj.data.vertices[obj.data.loops[loop_index].vertex_index].co
             if slot_name in ("Front", "Flap"):
-                metric_uv = (co.y, co.z)
+                metric_uv = (-co.y, 1.0 - co.z)
             elif abs(normal.x) >= abs(normal.y) and abs(normal.x) >= abs(normal.z):
-                metric_uv = (co.y, co.z)
+                metric_uv = (-co.y, 1.0 - co.z)
             elif abs(normal.y) >= abs(normal.z):
-                metric_uv = (co.x, co.z)
+                metric_uv = (co.x, 1.0 - co.z)
             else:
-                metric_uv = (co.x, co.y)
+                metric_uv = (co.x, 1.0 + co.y)
             uv1.data[loop_index].uv = metric_uv
 
 
@@ -661,7 +670,9 @@ def member_random(name: str) -> float:
 def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], shallow: bool = False) -> tuple[list[bpy.types.Object], list[dict], list[float], dict]:
     objects: list[bpy.types.Object] = []
     members: list[dict] = []
-    sign = 1.0 if silhouette.side == "L" else -1.0
+    # FBX/Interchange reflects Blender Y. Author L on -Y and R on +Y so the
+    # imported Unreal mesh satisfies L +Y / R -Y with zero actor rotation.
+    sign = -1.0 if silhouette.side == "L" else 1.0
     inward = np.linspace(0.10, max(0.11, silhouette.width_m * 0.34), 22) * sign
     stile1 = longest_vertical(silhouette, inward, EDGE_INSET_M + MEMBER_FACE_M * 0.5)
     pole_stiles = [stile1]
@@ -685,8 +696,8 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
         members.append({"kind": "stile", "name": obj.name, "p0": [y, z0], "p1": [y, z1], "width_m": MEMBER_FACE_M})
 
     rail_records = []
-    y_min = -silhouette.width_m if silhouette.side == "R" else 0.0
-    y_max = 0.0 if silhouette.side == "R" else silhouette.width_m
+    y_min = -silhouette.width_m if silhouette.side == "L" else 0.0
+    y_max = 0.0 if silhouette.side == "L" else silhouette.width_m
     y_values = np.arange(y_min, y_max + 0.0001, 0.02)
     for rail_z in np.arange(1.5, silhouette.height_m, 1.5):
         points = np.column_stack((y_values, np.full_like(y_values, rail_z)))
@@ -800,8 +811,8 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
         "tested_projection_samples": int(len(tested)),
         "outside_outline_samples": int((~inside).sum()),
         "minimum_edge_clearance_cm": round(float(distances.min()) * 100.0, 4),
-        "required_edge_clearance_cm": 8.0,
-        "pass": bool(inside.all() and distances.min() >= EDGE_INSET_M - 0.0005),
+        "required_edge_clearance_cm": MIN_FRAME_EDGE_CLEARANCE_M * 100.0,
+        "pass": bool(inside.all() and distances.min() >= MIN_FRAME_EDGE_CLEARANCE_M - 0.0005),
     }
     if not visibility["pass"]:
         raise RuntimeError(f"Head-on frame containment failed: {visibility}")
@@ -827,8 +838,10 @@ def create_flaps(path: Path, silhouette: Silhouette,
                 - uv_values[(index + 1) % len(uv_values)][0] * uv_values[index][1]
                 for index in range(len(uv_values))
             )
-            # In the Y/Z plane a clockwise outline faces the review camera (-X).
-            if signed > 0.0:
+            # UV0 U now decreases along Blender +Y.  That reflection means a
+            # counter-clockwise UV outline becomes clockwise in physical Y/Z
+            # and therefore faces the review camera (-X).
+            if signed < 0.0:
                 uv_values.reverse()
             weights = []
             vertices = []
@@ -841,8 +854,7 @@ def create_flaps(path: Path, silhouette: Silhouette,
                 # 0.0 hinge and 1.0 free weights after re-import.
                 weight = (raw_weight - 0.18) / 0.52
                 weight = float(np.clip(weight, 0.0, 1.0))
-                y = u * silhouette.width_m if silhouette.side == "L" else (u - 1.0) * silhouette.width_m
-                z = v * silhouette.height_m
+                y, z = silhouette.uv0_to_physical(u, v)
                 x = BOARD_FRONT_X - 0.001 - math.sin(weight * math.pi * 0.5) * curl_m
                 vertices.append((x, y, z))
                 weights.append(weight)
@@ -869,8 +881,7 @@ def create_flaps(path: Path, silhouette: Silhouette,
                         v = v0 + (v1 - v0) * (left_inset + t * (1.0 - left_inset - right_inset))
                         free_rag = (0.14 * math.sin((t * 5.0 + len(objects)) * 2.1)) * (s ** 4)
                         u = u0 + (u1 - u0) * np.clip(s + free_rag, 0.0, 1.0)
-                    y = u * silhouette.width_m if silhouette.side == "L" else (u - 1.0) * silhouette.width_m
-                    z = v * silhouette.height_m
+                    y, z = silhouette.uv0_to_physical(u, v)
                     x = BOARD_FRONT_X - 0.001 - math.sin(s * math.pi * 0.5) * curl_m
                     vertices.append((x, y, z))
                     uv_values.append((u, v))
@@ -881,7 +892,7 @@ def create_flaps(path: Path, silhouette: Silhouette,
                 for across in range(across_steps):
                     a = along * row + across
                     b, c, d = a + 1, a + row + 1, a + row
-                    faces.append((a, d, c, b))
+                    faces.append((a, b, c, d))
         mesh = bpy.data.meshes.new(descriptor["name"] + "_Mesh")
         mesh.from_pydata(vertices, [], faces)
         mesh.update()
@@ -971,7 +982,7 @@ def create_sockets(side: str, silhouette: Silhouette, pole_y: list[float]) -> li
     hinge_rotation = Matrix.Rotation(math.pi * 0.5, 3, "Z")
     pivot_rotation = Matrix.Rotation(-math.pi * 0.5, 3, "Y")
     sockets.append(create_socket("SOCKET_Hinge", (0.0, 0.0, 0.0), hinge_rotation))
-    sockets.append(create_socket("SOCKET_Pivot", (0.0, (silhouette.width_m * 0.5) * (1 if side == "L" else -1), silhouette.height_m * 0.5), pivot_rotation))
+    sockets.append(create_socket("SOCKET_Pivot", (0.0, (silhouette.width_m * 0.5) * (-1 if side == "L" else 1), silhouette.height_m * 0.5), pivot_rotation))
     return sockets
 
 
@@ -987,7 +998,7 @@ def create_stencil(side: str, silhouette: Silhouette, material: bpy.types.Materi
     text.data.materials.append(material)
     basis = Matrix(((0.0, 0.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)))
     text.rotation_euler = basis.to_euler()
-    text.location = (BOARD_BACK_X + 0.001, (silhouette.width_m * 0.35) * (1 if side == "L" else -1), min(2.2, silhouette.height_m * 0.28))
+    text.location = (BOARD_BACK_X + 0.001, (silhouette.width_m * 0.35) * (-1 if side == "L" else 1), min(2.2, silhouette.height_m * 0.28))
     bpy.ops.object.convert(target="MESH")
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     text = bpy.context.object
@@ -1036,7 +1047,7 @@ def create_floor_and_groove(width_m: float, side: str, materials: list[bpy.types
     groove_mat = bpy.data.materials.new("RenderGroove")
     groove_mat.diffuse_color = (0.015, 0.018, 0.020, 1.0)
     objs = []
-    y_center = width_m * 0.5 * (1 if side == "L" else -1)
+    y_center = width_m * 0.5 * (-1 if side == "L" else 1)
     for name, x_center in (("Floor_Front", -2.04), ("Floor_Back", 2.04)):
         bpy.ops.mesh.primitive_cube_add(size=1.0, location=(x_center, y_center, -0.04))
         obj = bpy.context.object
@@ -1155,9 +1166,9 @@ def render_views(output_dir: Path, base_name: str, side: str, silhouette: Silhou
                  flap_records: list[dict], samples: int,
                  expected_objects: list[bpy.types.Object]) -> dict:
     gpu = configure_cycles(samples)
-    center_y = silhouette.width_m * 0.5 * (1 if side == "L" else -1)
+    center_y = silhouette.width_m * 0.5 * (-1 if side == "L" else 1)
     center = (BOARD_FRONT_X, center_y, silhouette.height_m * 0.5)
-    sign = 1.0 if side == "L" else -1.0
+    sign = -1.0 if side == "L" else 1.0
     add_area_light(
         "Warm_Raking_Key",
         (-2.35, center_y - sign * (silhouette.width_m * 0.72 + 1.0), 7.2),
@@ -1177,18 +1188,17 @@ def render_views(output_dir: Path, base_name: str, side: str, silhouette: Silhou
     camera = bpy.data.objects.new("Camera", camera_data)
     bpy.context.collection.objects.link(camera)
     bpy.context.scene.camera = camera
-    inward = silhouette.width_m * (1 if side == "L" else -1)
     flap_bounds = flap_records[0]["uv_bounds_bottom_left"]
     flap_u = (flap_bounds[0] + flap_bounds[2]) * 0.5
     flap_v = (flap_bounds[1] + flap_bounds[3]) * 0.5
-    flap_y = flap_u * silhouette.width_m if side == "L" else (flap_u - 1.0) * silhouette.width_m
-    flap_target = (BOARD_FRONT_X - 0.02, flap_y, flap_v * silhouette.height_m)
-    grazing_y = center_y + (5.196 if side == "L" else -5.196)
+    flap_y, flap_z = silhouette.uv0_to_physical(flap_u, flap_v)
+    flap_target = (BOARD_FRONT_X - 0.02, flap_y, flap_z)
+    grazing_y = center_y + (-5.196 if side == "L" else 5.196)
     views = {
         "head_on_6m": {"loc": (BOARD_FRONT_X - 6.0, center_y, silhouette.height_m * 0.5), "target": center, "lens": 15.0},
-        "peel_closeup_1m": {"loc": (flap_target[0] - 0.96, flap_target[1] + (0.28 if side == "L" else -0.28), flap_target[2] + 0.06), "target": flap_target, "lens": 48.0},
+        "peel_closeup_1m": {"loc": (flap_target[0] - 0.96, flap_target[1] + (-0.28 if side == "L" else 0.28), flap_target[2] + 0.06), "target": flap_target, "lens": 48.0},
         "grazing_30deg": {"loc": (BOARD_FRONT_X - 3.0, grazing_y, silhouette.height_m * 0.53), "target": center, "lens": 30.0},
-        "back_three_quarter_2m": {"loc": (BOARD_BACK_X + 1.65, center_y - (1.1 if side == "L" else -1.1), 2.0), "target": (BOARD_BACK_X, center_y, 2.0), "lens": 28.0},
+        "back_three_quarter_2m": {"loc": (BOARD_BACK_X + 1.65, center_y - (-1.1 if side == "L" else 1.1), 2.0), "target": (BOARD_BACK_X, center_y, 2.0), "lens": 28.0},
         "back_head_on": {"loc": (BOARD_BACK_X + 6.0, center_y, silhouette.height_m * 0.5), "target": (BOARD_BACK_X, center_y, silhouette.height_m * 0.5), "lens": 15.0},
     }
     outputs = {}
@@ -1243,7 +1253,8 @@ def build(args: argparse.Namespace) -> None:
     flat["Mount"] = args.mount
     flat["LODContract"] = "LOD0 board flaps frame hardware"
     lod1["LODContract"] = "LOD1 board only; no frame hardware flaps"
-    centre_offset_m = silhouette.width_m * 0.5 if is_wave_row else 0.0
+    centre_offset_m = ((-silhouette.width_m * 0.5 if args.side == "L" else silhouette.width_m * 0.5)
+                       if is_wave_row else 0.0)
     if is_wave_row:
         for mesh in (flat, lod1):
             for vertex in mesh.data.vertices:
@@ -1291,16 +1302,34 @@ def build(args: argparse.Namespace) -> None:
     export_selection(flat_fbx, [lod_group, flat, lod1] + sockets)
     lod1.hide_render = True
 
+    # Preserve the authored scene as the reusable source.  Review renders below
+    # use a fresh import of the just-written FBX, so an export-time UV change is
+    # visible instead of being hidden by the in-memory authoring mesh.
+    blend_path = output_dir / f"{args.name}_{args.side}.blend"
+    bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
+
     render_result = None
     if args.render:
-        expected_render_objects = [flat, *pole_instances, *floor]
+        flat.name = flat.name + "_AuthoringSource"
+        flat.hide_render = True
+        before_import = set(bpy.context.scene.objects)
+        bpy.ops.import_scene.fbx(filepath=str(flat_fbx), use_custom_normals=True)
+        imported = [obj for obj in bpy.context.scene.objects if obj not in before_import]
+        imported_meshes = [obj for obj in imported if obj.type == "MESH"]
+        imported_lod0 = [obj for obj in imported_meshes if obj.name.startswith(flat_name + "_LOD0")]
+        imported_lod1 = [obj for obj in imported_meshes if obj.name.startswith(flat_name + "_LOD1")]
+        if len(imported_lod0) != 1:
+            raise RuntimeError(f"Preview re-import expected one LOD0; got {[obj.name for obj in imported_meshes]}")
+        preview_flat = imported_lod0[0]
+        for imported_mesh in imported_lod1:
+            imported_mesh.hide_render = True
+        expected_render_objects = [preview_flat, *pole_instances, *floor]
         render_result = render_views(
             output_dir, f"{args.name}_{args.side}", args.side, silhouette,
             flap_records, args.samples, expected_render_objects,
         )
-
-    blend_path = output_dir / f"{args.name}_{args.side}.blend"
-    bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
+        render_result["mesh_source"] = str(flat_fbx)
+        render_result["mesh_source_contract"] = "fresh Blender FBX re-import; direct UV0 sampling with no 1-v"
     manifest = {
         "schema_version": 2,
         "blender": bpy.app.version_string,
@@ -1351,7 +1380,7 @@ def vertex_color_layer(obj: bpy.types.Object):
     return layers.get(VERTEX_COLOR_NAME) or (layers[0] if len(layers) else None)
 
 
-def validate_metric_uv1(obj: bpy.types.Object, slots: list[str]) -> dict:
+def validate_metric_uv1(obj: bpy.types.Object, slots: list[str], *, interchange_precompensated: bool = True) -> dict:
     uv = obj.data.uv_layers.get("UV1")
     if uv is None:
         return {"pass": False, "reason": "UV1 missing"}
@@ -1363,10 +1392,12 @@ def validate_metric_uv1(obj: bpy.types.Object, slots: list[str]) -> dict:
         for loop_index in polygon.loop_indices:
             co = obj.data.vertices[obj.data.loops[loop_index].vertex_index].co
             actual = np.asarray(uv.data[loop_index].uv, dtype=np.float64)
-            if slot in ("Front", "Flap"):
-                options = [np.asarray((co.y, co.z), dtype=np.float64)]
-            else:
+            if not interchange_precompensated:
                 options = [np.asarray((co.y, co.z)), np.asarray((co.x, co.z)), np.asarray((co.x, co.y))]
+            elif slot in ("Front", "Flap"):
+                options = [np.asarray((-co.y, 1.0 - co.z), dtype=np.float64)]
+            else:
+                options = [np.asarray((-co.y, 1.0 - co.z)), np.asarray((co.x, 1.0 - co.z)), np.asarray((co.x, 1.0 + co.y))]
             error = min(float(np.linalg.norm(actual - option)) for option in options)
             if error > maximum_error:
                 maximum_error = error
@@ -1400,8 +1431,8 @@ def validate_front_uv0(obj: bpy.types.Object, slots: list[str]) -> dict:
             continue
         for loop_index in polygon.loop_indices:
             co = obj.data.vertices[obj.data.loops[loop_index].vertex_index].co
-            source_u = ((u_min + (co.y + centre_offset_m) / metres_per_pixel) if side == "L" else
-                        (u_max + (co.y - centre_offset_m) / metres_per_pixel))
+            source_u = ((u_min - (co.y + centre_offset_m) / metres_per_pixel) if side == "L" else
+                        (u_max - (co.y + centre_offset_m) / metres_per_pixel))
             source_v = v_min + co.z / metres_per_pixel
             expected = np.asarray((source_u / image_w, source_v / image_h))
             actual = np.asarray(uv.data[loop_index].uv)
@@ -1414,6 +1445,59 @@ def validate_front_uv0(obj: bpy.types.Object, slots: list[str]) -> dict:
         "samples": samples,
         "flap_samples": flap_samples,
         "mapping": "source mask pixel registration",
+    }
+
+
+def linear_uv_slope(obj: bpy.types.Object, slots: list[str], slot_name: str, uv_component: int,
+                    coordinate_component: int) -> dict:
+    """Fit one UV component against one imported mesh coordinate."""
+    uv = obj.data.uv_layers.get("UV0")
+    if uv is None or slot_name not in slots:
+        return {"pass": False, "reason": f"UV0 or {slot_name} slot missing"}
+    slot_index = slots.index(slot_name)
+    unique = set()
+    for polygon in obj.data.polygons:
+        if polygon.material_index != slot_index:
+            continue
+        for loop_index in polygon.loop_indices:
+            vertex_index = obj.data.loops[loop_index].vertex_index
+            co = obj.data.vertices[vertex_index].co
+            value = uv.data[loop_index].uv[uv_component]
+            unique.add((vertex_index, round(float(co[coordinate_component]), 9), round(float(value), 9)))
+    samples = sorted(unique)
+    if len(samples) < 2:
+        return {"pass": False, "reason": "insufficient distinct vertex/UV samples", "samples": len(samples)}
+    values = np.asarray([(sample[1], sample[2]) for sample in samples], dtype=np.float64)
+    design = np.column_stack((values[:, 0], np.ones(len(values))))
+    slope, intercept = np.linalg.lstsq(design, values[:, 1], rcond=None)[0]
+    predicted = design @ np.asarray((slope, intercept))
+    residual = float(np.sum((values[:, 1] - predicted) ** 2))
+    total = float(np.sum((values[:, 1] - values[:, 1].mean()) ** 2))
+    r_squared = 1.0 if total <= 1.0e-24 and residual <= 1.0e-24 else (1.0 - residual / total if total > 0.0 else 0.0)
+    return {
+        "pass": bool(slope < 0.0 if coordinate_component == 1 else slope > 0.0),
+        "samples": len(samples),
+        "slope_per_m": float(slope),
+        "slope_per_cm": float(slope) / 100.0,
+        "intercept": float(intercept),
+        "r_squared": float(r_squared),
+        "raw_fbx_contract": "du/dY < 0" if coordinate_component == 1 else "dv/dZ > 0",
+    }
+
+
+def validate_uv0_axis_contract(obj: bpy.types.Object, slots: list[str]) -> dict:
+    sections = {}
+    for slot_name in ("Front", "Flap"):
+        sections[slot_name] = {
+            "du_dY": linear_uv_slope(obj, slots, slot_name, 0, 1),
+            "dv_dZ": linear_uv_slope(obj, slots, slot_name, 1, 2),
+        }
+        sections[slot_name]["pass"] = all(check["pass"] for check in sections[slot_name].values())
+    return {
+        "pass": all(section["pass"] for section in sections.values()),
+        "sections": sections,
+        "raw_fbx_export_contract": "Flat V3 U decreases along Blender +Y to precompensate Interchange Y reflection; legacy-matching V increases bottom-to-top along +Z",
+        "expected_unreal_interchange": "du/dY > 0 and dv/dZ < 0 after Interchange axis/UV conversion",
     }
 
 
@@ -1643,7 +1727,10 @@ def validate(args: argparse.Namespace) -> None:
             "origin": {"pass": pole.location.length <= 0.001, "location_m": list(map(float, pole.location))},
             "uv0_uv1": {"pass": [uv.name for uv in pole.data.uv_layers] == ["UV0", "UV1"], "value": [uv.name for uv in pole.data.uv_layers]},
             "material_slots_exact": {"pass": slots == MATERIAL_SLOTS, "value": slots, "expected": MATERIAL_SLOTS},
-            "uv1_metres_box_mapped": validate_metric_uv1(pole, slots),
+            # The shared pole has Timber only and carries no UV0 artwork.  It is
+            # intentionally not part of the photographic-flat Interchange
+            # precompensation; retain and validate its established box map.
+            "uv1_metres_box_mapped": validate_metric_uv1(pole, slots, interchange_precompensated=False),
             "vertex_colours": validate_vertex_contract(pole, slots, False),
         }
         result["triangle_counts"] = {"pole": len(pole.data.loop_triangles)}
@@ -1675,8 +1762,8 @@ def validate(args: argparse.Namespace) -> None:
         side = str(flat.get("Side", "L" if "_L_LOD0" in flat.name else "R"))
         direction_pass = ((abs(float(lower[1] + upper[1])) <= 0.01 and abs(float(lower[2])) <= 0.01)
                           if is_wave_row else
-                          ((side == "L" and lower[1] >= -0.01 and upper[1] > 0.1) or
-                           (side == "R" and upper[1] <= 0.01 and lower[1] < -0.1)))
+                           ((side == "L" and upper[1] <= 0.01 and lower[1] < -0.1) or
+                            (side == "R" and lower[1] >= -0.01 and upper[1] > 0.1)))
         front_index = slots.index("Front") if "Front" in slots else -1
         normal_matrix = flat.matrix_world.to_3x3().inverted().transposed()
         front_normals = [normal_matrix @ polygon.normal for polygon in flat.data.polygons if polygon.material_index == front_index]
@@ -1722,6 +1809,7 @@ def validate(args: argparse.Namespace) -> None:
             "uv0_uv1": {"pass": uv_names == ["UV0", "UV1"], "value": uv_names},
             "uv1_metres_all_slots": validate_metric_uv1(flat, slots),
             "front_flap_uv0_registration": validate_front_uv0(flat, slots),
+            "front_flap_uv0_axis_contract": validate_uv0_axis_contract(flat, slots),
             "front_skincolor_background_coverage": validate_front_texture_coverage(flat, slots, Path(args.skin_color).resolve()),
             "vertex_colour_contract": validate_vertex_contract(flat, slots, True),
             "lod1_present": {"pass": lod1 is not None, "value": lod1.name if lod1 else None},

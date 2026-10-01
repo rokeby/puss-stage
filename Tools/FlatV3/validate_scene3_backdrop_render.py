@@ -46,7 +46,9 @@ def main() -> None:
     panel_grey = standardized_grey(panel)
     reference_grey = standardized_grey(reference)
     correct_correlation = float(np.mean(panel_grey * reference_grey))
-    flipped_correlation = float(np.mean(panel_grey * np.fliplr(reference_grey)))
+    horizontal_correlation = float(np.mean(panel_grey * np.fliplr(reference_grey)))
+    vertical_correlation = float(np.mean(panel_grey * np.flipud(reference_grey)))
+    both_correlation = float(np.mean(panel_grey * np.flip(reference_grey, axis=(0, 1))))
 
     u0, v0, u1, v1 = COTTAGES_UV0_BOX
     x0, x1 = round(u0 * panel.shape[1]), round(u1 * panel.shape[1])
@@ -61,9 +63,11 @@ def main() -> None:
 
     checks = {
         "render_matches_unflipped_texture": {
-            "pass": correct_correlation > flipped_correlation + 0.10,
+            "pass": correct_correlation > max(horizontal_correlation, vertical_correlation, both_correlation) + 0.10,
             "correct_correlation": correct_correlation,
-            "horizontally_flipped_correlation": flipped_correlation,
+            "horizontally_flipped_correlation": horizontal_correlation,
+            "vertically_flipped_correlation": vertical_correlation,
+            "both_axes_flipped_correlation": both_correlation,
             "required_margin": 0.10,
         },
         "cottages_pixels_are_on_screen_right": {
@@ -90,7 +94,7 @@ def main() -> None:
         raise RuntimeError(f"Backdrop render pixel validation failed: {args.output}")
     print(
         "SCENE3_BACKDROP_PIXEL_VALIDATION_PASS"
-        f"|whole={correct_correlation:.6f}>{flipped_correlation:.6f}"
+        f"|whole={correct_correlation:.6f}>max_flipped={max(horizontal_correlation, vertical_correlation, both_correlation):.6f}"
         f"|cottages_right={right_correlation:.6f}>{left_correlation:.6f}",
         flush=True,
     )

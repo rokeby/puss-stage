@@ -65,16 +65,15 @@ def make_material(color_path: Path, mask_path: Path, normal_path: Path) -> bpy.t
     return material
 
 
-def make_panel(material: bpy.types.Material) -> bpy.types.Object:
-    mesh = bpy.data.meshes.new("SM_S3_Backdrop_Preview_20x30m")
-    vertices = [(-10.0, 0.0, 0.0), (10.0, 0.0, 0.0), (10.0, 0.0, 30.0), (-10.0, 0.0, 30.0)]
-    mesh.from_pydata(vertices, [], [(0, 1, 2, 3)])
-    mesh.update()
-    uv_layer = mesh.uv_layers.new(name="UVMap")
-    for loop, uv in zip(mesh.loops, ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0))):
-        uv_layer.data[loop.index].uv = uv
-    panel = bpy.data.objects.new("S3_Backdrop_20x30m", mesh)
-    bpy.context.collection.objects.link(panel)
+def make_panel(material: bpy.types.Material, fbx_path: Path) -> bpy.types.Object:
+    """Import the production FBX and preview its raw UV0 without compensation."""
+    bpy.ops.import_scene.fbx(filepath=str(fbx_path), use_custom_normals=True)
+    meshes = [obj for obj in bpy.context.scene.objects if obj.type == "MESH"]
+    matches = [obj for obj in meshes if obj.name.startswith("SM_FlatV3_S3_Backdrop")]
+    if len(matches) != 1:
+        raise RuntimeError(f"Expected one production backdrop mesh; got {[obj.name for obj in meshes]}")
+    panel = matches[0]
+    panel.data.materials.clear()
     panel.data.materials.append(material)
     return panel
 
@@ -160,7 +159,7 @@ def main() -> None:
         texture_dir / "T_S3_OpalBeach_Backdrop_SkinMask.png",
         texture_dir / "T_S3_OpalBeach_Backdrop_SkinNormal.png",
     )
-    make_panel(material)
+    make_panel(material, root / "SM_FlatV3_S3_Backdrop.fbx")
     make_floor()
     add_sun()
     add_area("Cool_Key", (-14.0, -18.0, 34.0), 2400.0, 18.0)
@@ -170,10 +169,10 @@ def main() -> None:
     renders = []
     for distance in (65.0, 20.0):
         if distance == 20.0:
-            camera.location = (0.0, -distance, 8.0)
+            camera.location = (-distance, 0.0, 8.0)
             look_at(camera, (0.0, 0.0, 7.5))
         else:
-            camera.location = (0.0, -distance, 15.0)
+            camera.location = (-distance, 0.0, 15.0)
             look_at(camera, (0.0, 0.0, 15.0))
         filename = f"S3_Backdrop_preview_{int(distance)}m_50deg.png"
         scene.render.filepath = str(preview_dir / filename)
@@ -196,6 +195,8 @@ def main() -> None:
             "SkinMask": "Non-Color; B to Roughness",
             "SkinNormal": "Non-Color; DirectX green inverted for Blender tangent normal",
         },
+        "mesh_source": str((root / "SM_FlatV3_S3_Backdrop.fbx").resolve()),
+        "uv_preview_contract": "fresh Blender FBX import; direct UV0 sampling; no 1-v node",
         "renders": renders,
         "proof": {
             "measured": ["The offline preview renders completed and the camera/panel dimensions are recorded here."],
