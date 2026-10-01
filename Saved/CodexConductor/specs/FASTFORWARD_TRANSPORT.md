@@ -32,3 +32,8 @@ Scene 3 refuses anyway: DeclaredUnpausable). It must not call PauseTransport (th
 State what audio does at the loop seam (Scene 3 has no Master music; the singer is live). Test (new file):
 InfinityStage.Transport.VampLoopsUntilRelease — fixture with a vamp pair: loops N times, RIGHT releases,
 scrub doesn't arm, rewind re-arms. Same patch file, same rules, every inference tagged.
+- Revision 2 also: during fast-forward, MUTE non-external Master audio (restore at 1×) instead of letting it pitch
+  up — the less surprising behaviour for a rehearsal tool (conductor, after the FF draft chose unmuted).
+- Build on the held FF patch: `git apply --ignore-whitespace Scripts/patches/2026-10-01_FF_hold_right_fast_forward.patch`
+  in a fresh worktree, then add the vamp; write ONE combined patch
+  `Scripts/patches/2026-10-01_FFV_fast_forward_and_vamp.patch` (supersedes FF), check it applies on HEAD.
