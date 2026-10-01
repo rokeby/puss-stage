@@ -224,7 +224,7 @@ def main():
             slot_count = int(component.get_num_materials())
             if slot_count < 1:
                 return finish("refused: bench component exposes no material slots")
-            mid = unreal.KismetMaterialLibrary.create_dynamic_material_instance(world, parent)
+            mid = unreal.MaterialLibrary.create_dynamic_material_instance(world, parent)
             if mid is None:
                 return finish("refused: transient MID creation returned None")
             for parameter_name, value in scalars.items():
