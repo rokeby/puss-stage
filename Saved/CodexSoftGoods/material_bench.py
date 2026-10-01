@@ -207,15 +207,28 @@ def main():
             variant = variants[name]
             scalars = variant.get("scalars", {})
             vectors = variant.get("vectors", {})
-            if not isinstance(scalars, dict) or not isinstance(vectors, dict):
-                return finish(f"refused: variant {name!r} scalars and vectors must be dictionaries")
+            textures = variant.get("textures", {})
+            if not isinstance(scalars, dict) or not isinstance(vectors, dict) or not isinstance(textures, dict):
+                return finish(
+                    f"refused: variant {name!r} scalars, vectors, and textures must be dictionaries"
+                )
             params = read_json(params_path)
             unknown_scalars = sorted(set(scalars) - set(params.get("scalars", {})))
             unknown_vectors = sorted(set(vectors) - set(params.get("vectors", {})))
-            if unknown_scalars or unknown_vectors:
+            unknown_textures = sorted(set(textures) - set(params.get("textures", {})))
+            if unknown_scalars or unknown_vectors or unknown_textures:
                 return finish(
-                    f"refused: unknown parameters scalars={unknown_scalars} vectors={unknown_vectors}"
+                    f"refused: unknown parameters scalars={unknown_scalars} vectors={unknown_vectors} "
+                    f"textures={unknown_textures}"
                 )
+            loaded_textures = {}
+            for parameter_name, texture_path in textures.items():
+                texture = unreal.load_asset(str(texture_path))
+                if texture is None:
+                    return finish(
+                        f"refused: texture {parameter_name!r} could not load asset {texture_path!r}"
+                    )
+                loaded_textures[parameter_name] = texture
             parent = unreal.load_asset(parent_path)
             if parent is None:
                 return finish(f"refused: could not load {parent_path}")
@@ -233,6 +246,8 @@ def main():
                 if not isinstance(value, (list, tuple)) or len(value) != 4:
                     return finish(f"refused: vector {parameter_name!r} must contain four values")
                 mid.set_vector_parameter_value(parameter_name, unreal.LinearColor(*[float(x) for x in value]))
+            for parameter_name, texture in loaded_textures.items():
+                mid.set_texture_parameter_value(parameter_name, texture)
             for slot_index in range(slot_count):
                 component.set_material(slot_index, mid)
             state = read_json(state_path)
