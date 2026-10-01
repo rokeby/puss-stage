@@ -1,0 +1,8 @@
+"""Run hangar_retime_apply.py in its default read-only dry-run mode."""
+import os
+import runpy
+
+import unreal
+
+HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexStructure")
+runpy.run_path(os.path.join(HERE, "hangar_retime_apply.py"))
