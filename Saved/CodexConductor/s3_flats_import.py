@@ -896,7 +896,36 @@ def verify_existing_assets(run, inventory, emit_marker=True):
     return passed, failures, expected_paths
 
 
+def assign_slot_materials(inventory):
+    # Same assignment as apply_import's final loop (run 190045 stopped after the first mesh,
+    # leaving six on WorldGridMaterial). Only meshes, slots and Nanite; nothing else changes.
+    destination_by = {(row["owner"], row.get("texture_kind", row.get("slot", row["kind"]))): row["path"]
+                      for row in inventory["destinations"]}
+    for owner in WAVE_NAMES:
+        mesh = unreal.EditorAssetLibrary.load_asset(destination_by[(owner, "mesh")])
+        mesh.modify()
+        nanite = mesh.get_editor_property("nanite_settings")
+        nanite.set_editor_property("enabled", False)
+        mesh.set_editor_property("nanite_settings", nanite)
+        for index, slot in enumerate(MI_SLOTS):
+            path = destination_by[(owner, slot)] if slot in ("Front", "Flap") else PARENTS[slot]
+            material = unreal.EditorAssetLibrary.load_asset(path)
+            if material is None:
+                raise RuntimeError("SLOT_MATERIAL_MISSING|path=" + path)
+            mesh.set_material(index, material)
+    backdrop_mesh = unreal.EditorAssetLibrary.load_asset(BACKDROP_MESH)
+    backdrop_mesh.modify()
+    nanite = backdrop_mesh.get_editor_property("nanite_settings")
+    nanite.set_editor_property("enabled", False)
+    backdrop_mesh.set_editor_property("nanite_settings", nanite)
+    backdrop_mi = unreal.EditorAssetLibrary.load_asset(BACKDROP_MI)
+    if backdrop_mi is None:
+        raise RuntimeError("SLOT_MATERIAL_MISSING|path=" + BACKDROP_MI)
+    backdrop_mesh.set_material(0, backdrop_mi)
+
+
 def finish_import(run, inventory):
+    assign_slot_materials(inventory)
     passed, failures, expected_paths = verify_existing_assets(run, inventory, emit_marker=True)
     if not passed:
         unreal.log_error("S3_FLATS_IMPORT_FINISH_STOPPED|run=%s|reason=VERIFY_FAILED|failures=%s" %
