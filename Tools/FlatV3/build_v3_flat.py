@@ -992,6 +992,47 @@ def create_sockets(side: str, silhouette: Silhouette, pole_y: list[float]) -> li
     return sockets
 
 
+def unreal_socket_sidecar(asset_name: str, side: str, silhouette: Silhouette,
+                          pole_y: list[float]) -> dict:
+    """Return the UE-local sockets that correspond to the exported FBX empties.
+
+    UE Interchange reflects FBX Y on import.  Locations therefore negate the
+    Blender Y value.  The hinge's +90 degree Blender Z rotation becomes -90
+    degrees of UE yaw; the pivot's -90 degree Blender Y rotation becomes +90
+    degrees of UE pitch.  Pole sockets have identity rotation.
+    """
+    records = [
+        {
+            "name": "SOCKET_Hinge",
+            "relative_location_cm": [0.0, 0.0, 0.0],
+            "relative_rotation_deg": {"roll": 0.0, "pitch": 0.0, "yaw": -90.0},
+        },
+        {
+            "name": "SOCKET_Pivot",
+            "relative_location_cm": [
+                0.0,
+                silhouette.width_m * 50.0 * (1.0 if side == "L" else -1.0),
+                silhouette.height_m * 50.0,
+            ],
+            "relative_rotation_deg": {"roll": 0.0, "pitch": 90.0, "yaw": 0.0},
+        },
+    ]
+    records.extend({
+        "name": f"SOCKET_Pole_{index}",
+        "relative_location_cm": [0.0, -float(y) * 100.0, 0.0],
+        "relative_rotation_deg": {"roll": 0.0, "pitch": 0.0, "yaw": 0.0},
+    } for index, y in enumerate(pole_y, start=1))
+    return {
+        "schema_version": 1,
+        "asset": asset_name,
+        "coordinate_space": "Unreal static-mesh local",
+        "location_units": "cm",
+        "rotation_units": "degrees",
+        "fbx_interchange_conversion": "X=X, Y=-Y, Z=Z",
+        "sockets": records,
+    }
+
+
 def create_stencil(side: str, silhouette: Silhouette, material: bpy.types.Material) -> bpy.types.Object:
     bpy.ops.object.text_add()
     text = bpy.context.object
@@ -1365,6 +1406,18 @@ def build(args: argparse.Namespace) -> None:
     floor = [] if is_wave_row else create_floor_and_groove(silhouette.width_m, args.side, materials)
     flat_fbx = output_dir / f"{flat_name}.fbx"
     export_selection(flat_fbx, [lod_group, flat, lod1] + sockets)
+    socket_sidecar = output_dir / f"sockets_{flat_name}.json"
+    socket_payload = (unreal_socket_sidecar(flat_name, args.side, silhouette, pole_y)
+                      if not is_wave_row else {
+                          "schema_version": 1,
+                          "asset": flat_name,
+                          "coordinate_space": "Unreal static-mesh local",
+                          "location_units": "cm",
+                          "rotation_units": "degrees",
+                          "fbx_interchange_conversion": "X=X, Y=-Y, Z=Z",
+                          "sockets": [],
+                      })
+    socket_sidecar.write_text(json.dumps(socket_payload, indent=2) + "\n", encoding="utf-8")
     lod1.hide_render = True
 
     # Preserve the authored scene as the reusable source.  Review renders below
@@ -1435,6 +1488,7 @@ def build(args: argparse.Namespace) -> None:
         },
         "outputs": {
             "flat_fbx": str(flat_fbx),
+            "socket_json": str(socket_sidecar),
             "pole_fbx": str(pole_fbx) if pole_fbx else None,
             "pole_exported_this_run": bool(pole_fbx and not args.skip_pole_export),
             "blend": str(blend_path),
