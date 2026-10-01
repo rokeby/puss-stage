@@ -113,3 +113,8 @@ conductor's reading of what it implies — marked as such, not decided.
    extra attention — the song's length is live, so the timeline can't simply run on fixed seconds through beats 5–9.
 8. **Side walls: stained hand prints**, as if people have quietly, horrifically been trying to get out. (Also
    answers the walls-flooding problem through art rather than black velvet — it's daylight.)
+- **Gary's answers (1 Oct evening):** the song is a **live HOLD**: the timeline holds at beat 5 (clam opens) until
+  an operator cue starts the song section, holds again at the song's end, and the operator releases beats 8–12.
+  **Shot list:** Codex drafts one static camera per beat as ROOT cuts at the markers; Gary adjusts in the viewport.
+  **Huddle:** ~12 (6 + 6 duplicates, offset animation starts, varied skin; measure frame cost first).
+  **Hand prints:** Wings and Textures paint the art (offline); applied to the S3 inner side walls.
