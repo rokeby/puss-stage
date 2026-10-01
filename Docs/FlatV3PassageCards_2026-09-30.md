@@ -136,5 +136,30 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
   Scaffolding is thin members, so it should be **real instanced geometry with a
   netting layer**, not a painted cutout. Best combined with a painted wing
   half-sheathed in scaffold and net: the building under construction, veiled.
-- **Mood / arrives at:** *to be filled in by Gary.*
+- **Mood / arrives at (Gary, 1 Oct):** the METAFICTIONAL passage. The robot
+  dog / picaresque cat is about to enter the void. Not a jaunty passage but "a
+  deterioration of what we got used to before". Arrives at S06: the void, the bees
+  and the old woman.
+- **The arc, stepped (each stage a ratio step, not a blend):**
+  1. **Cute, exotic, grand and extravagant:** "orientalist perhaps". Chinoiserie
+     is itself a European Baroque stage fantasy of the East, which suits a
+     passage about the illusion breaking. Sources to try: Pillement's
+     chinoiserie, Boucher and Huet's singeries and chinoiseries, pagoda and
+     pavilion designs, garden follies. Check the existing
+     `GeneratedWingsV2_Chinoiserie` set on disk first.
+  2. **Scaffolding appears** among the grand flats (the scaffold bay, netting).
+  3. **Crumble and peel:** the billboard peel amount STEPS UP along the run, then
+     flats lose pieces and frames show. This needs a per-instance peel value (a
+     new custom-data slot; Wing materiality's call).
+  4. **Fire and strange drapes:** BurnProgress on chosen flats (Effects sources)
+     and drapes (Soft goods).
+  5. **Monochrome or infrared-type vision** by the end of the path: a camera post
+     process, Look & camera's.
+  6. **The curtain smokes and burns; Puss walks through into total darkness.**
+     The big hangar is heard coming in, but nothing is seen, then almost nothing,
+     then bees.
+- **For Gary with Cameron:** the timing of the walk and its pauses, and the
+  background sound across the darkness. The stage lengths should follow that.
+- **Owners beyond this pipeline:** fire (Effects sources), drapes and the burning
+  curtain (Soft goods), the vision change (Look & camera), sound (Cameron).
 - **Work:** a V3 rebuild on the approved art.
