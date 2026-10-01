@@ -1,0 +1,395 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+index dcb7ce2..cd57f88 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+@@ -15,7 +15,9 @@
+ #include "Engine/RectLight.h"
+ #include "Engine/Scene.h"
+ #include "Engine/SpotLight.h"
++#include "Engine/StaticMesh.h"
+ #include "Engine/StaticMeshActor.h"
++#include "Engine/StaticMeshSocket.h"
+ #include "Engine/Texture.h"
+ #include "Engine/TextureLightProfile.h"
+ #include "HAL/IConsoleManager.h"
+@@ -146,6 +148,57 @@ FVector GetPairLocalInwardDirection(const EInfinityPanelSide Side)
+     return FVector(0.0, 1.0, 0.0);
+ }
+ 
++FTransform ResolveMechanismPivotLocal(
++    const UStaticMesh& Mesh,
++    const EInfinityMechanismKind Kind,
++    const FTransform& BaseWorldTransform,
++    const FVector& InwardWorldDirection)
++{
++    if (Kind != EInfinityMechanismKind::Topple && Kind != EInfinityMechanismKind::Turn)
++    {
++        return FTransform::Identity;
++    }
++
++    const bool bTopple = Kind == EInfinityMechanismKind::Topple;
++    const FName SocketName = bTopple ? TEXT("Hinge") : TEXT("Pivot");
++    FVector PivotLocation = FVector::ZeroVector;
++    FVector AxisLocal = FVector::XAxisVector;
++    if (const UStaticMeshSocket* Socket = Mesh.FindSocket(SocketName))
++    {
++        PivotLocation = Socket->RelativeLocation;
++        AxisLocal = Socket->RelativeRotation.Quaternion().GetAxisX().GetSafeNormal();
++    }
++    else
++    {
++        const FBox Bounds = Mesh.GetBoundingBox();
++        PivotLocation = Bounds.GetCenter();
++        if (bTopple)
++        {
++            PivotLocation.Z = Bounds.Min.Z;
++            const FVector Extent = Bounds.GetExtent();
++            AxisLocal = Extent.X >= Extent.Y ? FVector::XAxisVector : FVector::YAxisVector;
++        }
++        else
++        {
++            AxisLocal = FVector::ZAxisVector;
++        }
++    }
++
++    // A positive Topple angle always falls toward the route. Socket +X defines
++    // the hinge line, but the asset contract intentionally does not require a
++    // particular direction along that line, so cache the sign once here.
++    if (bTopple)
++    {
++        const FVector AxisWorld = BaseWorldTransform.TransformVectorNoScale(AxisLocal).GetSafeNormal();
++        const FVector UpWorld = BaseWorldTransform.GetRotation().GetUpVector();
++        if (FVector::DotProduct(FVector::CrossProduct(AxisWorld, UpWorld), InwardWorldDirection) < 0.0)
++        {
++            AxisLocal *= -1.0;
++        }
++    }
++    return FTransform(AxisLocal.ToOrientationQuat(), PivotLocation);
++}
++
+ double InterpolateFrame(
+     const double FrameA,
+     const double ValueA,
+@@ -1051,6 +1104,12 @@ bool AInfinityStagePassageActor::AddPanelInstance(
+     Ref.InwardWorldDirection = PairWorldTransform.GetRotation()
+         .RotateVector(GetPairLocalInwardDirection(Side))
+         .GetSafeNormal();
++    const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
++    Ref.MechanismPivotLocal = ResolveMechanismPivotLocal(
++        *Mesh,
++        Cue ? Cue->WingPair.Mechanism.Kind : EInfinityMechanismKind::Slide,
++        WorldTransform,
++        Ref.InwardWorldDirection);
+     return true;
+ }
+ 
+@@ -1366,13 +1425,36 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+                     .GetSafeNormal();
+             }
+         }
+-        // Travel scale applies to every playback mode, including Camera Gust,
+-        // because it modulates the resolved distance rather than the phase.
+-        const double InwardTravelCm = Motion.InwardTravelCm
+-            * (bHasWingModulation ? WingModulation.InwardTravelScale : 1.0);
++        // The same authored modulation channel scales linear travel for Slide /
++        // Trap and angular travel for Topple / Turn in every playback mode.
++        const double TravelScale = bHasWingModulation ? WingModulation.InwardTravelScale : 1.0;
+         FTransform NewWorldTransform = Ref.BaseWorldTransform;
+-        NewWorldTransform.AddToTranslation(
+-            InwardWorldDirection * NormalizedTravel * InwardTravelCm);
++        if (Motion.Kind == EInfinityMechanismKind::Trap)
++        {
++            const FVector UpWorld = Ref.BaseWorldTransform.GetRotation().GetUpVector();
++            NewWorldTransform.AddToTranslation(
++                UpWorld * NormalizedTravel * Motion.InwardTravelCm * TravelScale);
++        }
++        else if (Motion.Kind == EInfinityMechanismKind::Topple
++            || Motion.Kind == EInfinityMechanismKind::Turn)
++        {
++            const FVector PivotLocal = Ref.MechanismPivotLocal.GetLocation();
++            const FVector AxisLocal = Ref.MechanismPivotLocal.GetRotation().GetAxisX().GetSafeNormal();
++            const double AngleRadians = FMath::DegreesToRadians(
++                NormalizedTravel * Motion.MaxAngleDeg * TravelScale);
++            // FTransform A * B applies A then B: move the pivot to the origin,
++            // rotate, restore it, and only then apply the cached base transform.
++            const FTransform LocalRotationAboutPivot =
++                FTransform(FQuat::Identity, -PivotLocal)
++                * FTransform(FQuat(AxisLocal, AngleRadians))
++                * FTransform(FQuat::Identity, PivotLocal);
++            NewWorldTransform = LocalRotationAboutPivot * Ref.BaseWorldTransform;
++        }
++        else
++        {
++            NewWorldTransform.AddToTranslation(
++                InwardWorldDirection * NormalizedTravel * Motion.InwardTravelCm * TravelScale);
++        }
+ 
+         FTransform PreviousWorldTransform;
+         if (!Ref.Component->GetInstanceTransform(Ref.InstanceIndex, PreviousWorldTransform, true))
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+index eb3813d..ffe6027 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+@@ -46,6 +46,12 @@ struct INFINITYSTAGE_API FInfinityMaterializedPanelRef
+      */
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+     FVector InwardWorldDirection = FVector::ZeroVector;
++
++    /** Mesh-local pivot location and +X rotation axis cached at materialization.
++     * Topple uses Hinge (or the bounds bottom centre); Turn uses Pivot (or the
++     * bounds centre and local +Z). */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
++    FTransform MechanismPivotLocal = FTransform::Identity;
+ };
+ 
+ UCLASS(BlueprintType)
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index e96fb8d..9c7a6b1 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -554,6 +554,15 @@ enum class EInfinityPanelFacingPolicy : uint8
+     Rotate180AroundUp
+ };
+ 
++UENUM(BlueprintType)
++enum class EInfinityMechanismKind : uint8
++{
++    Slide,
++    Topple,
++    Turn,
++    Trap
++};
++
+ UENUM(BlueprintType)
+ enum class EInfinityPassageFitMode : uint8
+ {
+@@ -614,6 +623,11 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
+ {
+     GENERATED_BODY()
+ 
++    /** How the normalized motion curve moves each panel. Slide preserves the legacy behaviour. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
++        meta = (ToolTip = "How the normalized motion curve moves each panel. Slide preserves the legacy behaviour."))
++    EInfinityMechanismKind Kind = EInfinityMechanismKind::Slide;
++
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
+     EInfinityMotionPlaybackMode PlaybackMode = EInfinityMotionPlaybackMode::ContinuousLoop;
+ 
+@@ -629,9 +643,16 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
+     double PhaseOffsetCycles = 0.0;
+ 
+-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism", meta = (ClampMin = "0.0", Units = "cm"))
++    /** Slide distance along the inward axis. Trap distance along the panel's
++     * base-rotation world up axis; positive rises and negative sinks. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism", meta = (Units = "cm"))
+     double InwardTravelCm = 100.0;
+ 
++    /** Topple or Turn angle at normalized progress 1. Its sign reverses the direction. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
++        meta = (Units = "deg", ToolTip = "Topple or Turn angle at normalized progress 1. Its sign reverses the direction."))
++    double MaxAngleDeg = 90.0;
++
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
+     FRuntimeFloatCurve LeftNormalizedCurve;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
+index 0ee2fa0..306b756 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
+@@ -1198,6 +1198,195 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageMechanismKindsEvaluationTest,
++    "InfinityStage.Mechanism.KindsUseCachedPivotsAndAxes",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageMechanismKindsEvaluationTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++    Cue.Type = EInfinityCueType::WingPair;
++    Cue.CueGuid = FGuid::NewGuid();
++    Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++    Cue.WingPair.Left.Mesh = Cube;
++    // Engine Cube is 100 cm high and centred on its origin: put its base on z=0.
++    Cue.WingPair.Left.LocalTransform.SetTranslation(FVector(0.0, -600.0, 50.0));
++    TestEqual(
++        TEXT("Existing mechanisms default to Slide"),
++        static_cast<uint8>(Cue.WingPair.Mechanism.Kind),
++        static_cast<uint8>(EInfinityMechanismKind::Slide));
++    Show->ReconcilePassageSettings();
++    Show->PassageSettings[0].TailFrames = 240000;
++    Show->PassageSettings[0].TailDistanceCm = 1.0;
++
++    FInfinityMechanismMotion& Motion = Cue.WingPair.Mechanism;
++    Motion.PlaybackMode = EInfinityMotionPlaybackMode::Static;
++    const auto SetLinearCurve = [&Motion](const float StartValue, const float EndValue)
++    {
++        FRichCurve* Curve = Motion.LeftNormalizedCurve.GetRichCurve();
++        Curve->Reset();
++        const FKeyHandle Start = Curve->AddKey(0.0f, StartValue);
++        const FKeyHandle End = Curve->AddKey(1.0f, EndValue);
++        Curve->SetKeyInterpMode(Start, RCIM_Linear);
++        Curve->SetKeyInterpMode(End, RCIM_Linear);
++    };
++    SetLinearCurve(0.0f, 1.0f);
++
++    const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
++    if (!TestTrue(TEXT("Mechanism-kind fixture compiles"), Compiled.Passages.Num() == 1))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    UMovieSceneInfinityPassageSection* Section =
++        AttachManagedPassageSection(*Show, Compiled.Passages[0].PassageGuid);
++    Section->GetCameraChannel(EInfinityPassageCameraChannel::WingInwardTravelScale)->SetDefault(1.0);
++
++    AInfinityStagePassageActor* Actor = World->SpawnActor<AInfinityStagePassageActor>();
++    Actor->ShowAsset = Show;
++    const auto FindLeft = [Actor]() -> FInfinityMaterializedPanelRef*
++    {
++        return Actor->MaterializedPanels.FindByPredicate(
++            [](const FInfinityMaterializedPanelRef& Ref) { return Ref.Side == EInfinityPanelSide::Left; });
++    };
++    const auto ReadTransform = [](const FInfinityMaterializedPanelRef& Ref)
++    {
++        FTransform Transform;
++        Ref.Component->GetInstanceTransform(Ref.InstanceIndex, Transform, true);
++        return Transform;
++    };
++
++    Motion.Kind = EInfinityMechanismKind::Topple;
++    Motion.MaxAngleDeg = 90.0;
++    Motion.PhaseOffsetCycles = 0.0;
++    if (!TestTrue(TEXT("Topple fixture materializes"), Actor->MaterializePassage()))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    FInfinityMaterializedPanelRef* Left = FindLeft();
++    if (!TestNotNull(TEXT("Topple Left instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(
++        TEXT("Topple without a Hinge socket caches the bounds bottom centre"),
++        Left->MechanismPivotLocal.GetLocation().Equals(FVector(0.0, 0.0, -50.0), 0.1));
++    TestTrue(TEXT("Topple progress zero evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FTransform ToppleRest = ReadTransform(*Left);
++    TestTrue(TEXT("Topple progress zero equals the base transform"),
++        ToppleRest.Equals(Left->BaseWorldTransform, 0.001));
++
++    const FVector LocalTop(0.0, 0.0, 50.0);
++    const FVector RestTop = Left->BaseWorldTransform.TransformPosition(LocalTop);
++    Motion.PhaseOffsetCycles = 1.0;
++    TestTrue(TEXT("Positive Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FTransform PositiveTopple = ReadTransform(*Left);
++    const FVector PositiveTop = PositiveTopple.TransformPosition(LocalTop);
++    TestTrue(TEXT("A 90 degree Topple brings the card top to hinge height"),
++        FMath::IsNearlyEqual(PositiveTop.Z, 0.0, 0.1));
++    TestTrue(TEXT("A positive Topple falls one card height inward"),
++        FMath::IsNearlyEqual(
++            FVector::DotProduct(PositiveTop - RestTop, Left->InwardWorldDirection),
++            100.0,
++            0.1));
++
++    Motion.MaxAngleDeg = -90.0;
++    TestTrue(TEXT("Negative Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FVector NegativeTop = ReadTransform(*Left).TransformPosition(LocalTop);
++    TestTrue(TEXT("A negative Topple falls the other way"),
++        FMath::IsNearlyEqual(
++            FVector::DotProduct(NegativeTop - RestTop, Left->InwardWorldDirection),
++            -100.0,
++            0.1));
++
++    Motion.Kind = EInfinityMechanismKind::Turn;
++    Motion.MaxAngleDeg = 180.0;
++    Motion.PhaseOffsetCycles = 1.0;
++    TestTrue(TEXT("Turn fixture materializes"), Actor->MaterializePassage());
++    Left = FindLeft();
++    if (!TestNotNull(TEXT("Turn Left instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(TEXT("Turn without a Pivot socket caches the bounds centre"),
++        Left->MechanismPivotLocal.GetLocation().Equals(FVector::ZeroVector, 0.1));
++    TestTrue(TEXT("Turn bounds fallback uses local up as its axis"),
++        Left->MechanismPivotLocal.GetRotation().GetAxisX().Equals(FVector::ZAxisVector, 0.001));
++
++    // A transient mesh with an authored socket is impractical in this fixture.
++    // Substitute a socket-equivalent cached local pivot to exercise the exact
++    // pivot math independently of the bounds fallback above.
++    const FVector ExplicitPivotLocal(10.0, 20.0, 0.0);
++    Left->MechanismPivotLocal = FTransform(
++        FVector::ZAxisVector.ToOrientationQuat(), ExplicitPivotLocal);
++    const FVector BasePivotWorld = Left->BaseWorldTransform.TransformPosition(ExplicitPivotLocal);
++    const FVector BaseFrontNormal =
++        Left->BaseWorldTransform.TransformVectorNoScale(FVector::XAxisVector).GetSafeNormal();
++    TestTrue(TEXT("Turn evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FTransform Turned = ReadTransform(*Left);
++    TestTrue(TEXT("Turn keeps the explicit cached pivot invariant"),
++        Turned.TransformPosition(ExplicitPivotLocal).Equals(BasePivotWorld, 0.01));
++    TestTrue(TEXT("A 180 degree Turn reverses the front-face normal"),
++        Turned.TransformVectorNoScale(FVector::XAxisVector).GetSafeNormal().Equals(
++            -BaseFrontNormal, 0.001));
++
++    Section->GetCameraChannel(EInfinityPassageCameraChannel::WingInwardTravelScale)->SetDefault(0.5);
++    TestTrue(TEXT("Turn angle modulation evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    const FVector HalfTurnNormal = ReadTransform(*Left)
++        .TransformVectorNoScale(FVector::XAxisVector).GetSafeNormal();
++    TestTrue(TEXT("Wing travel scale modulates Turn angle"),
++        FMath::IsNearlyZero(FVector::DotProduct(HalfTurnNormal, BaseFrontNormal), 0.001));
++    Section->GetCameraChannel(EInfinityPassageCameraChannel::WingInwardTravelScale)->SetDefault(1.0);
++
++    Motion.Kind = EInfinityMechanismKind::Trap;
++    Motion.InwardTravelCm = 100.0;
++    Motion.PhaseOffsetCycles = 0.5;
++    SetLinearCurve(0.0f, 1.0f);
++    TestTrue(TEXT("Trap fixture materializes"), Actor->MaterializePassage());
++    Left = FindLeft();
++    if (!TestNotNull(TEXT("Trap Left instance exists"), Left))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(TEXT("Positive Trap evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    TestTrue(TEXT("Trap progress 0.5 rises 50 cm along base up"),
++        FMath::IsNearlyEqual(
++            ReadTransform(*Left).GetLocation().Z - Left->BaseWorldTransform.GetLocation().Z,
++            50.0,
++            0.01));
++    SetLinearCurve(0.0f, -1.0f);
++    TestTrue(TEXT("Negative Trap evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
++    TestTrue(TEXT("Trap progress -0.5 sinks 50 cm along base up"),
++        FMath::IsNearlyEqual(
++            ReadTransform(*Left).GetLocation().Z - Left->BaseWorldTransform.GetLocation().Z,
++            -50.0,
++            0.01));
++
++    SetLinearCurve(0.0f, 1.0f);
++    Motion.PlaybackMode = EInfinityMotionPlaybackMode::OneShot;
++    Motion.CycleRateHz = 1.0;
++    Motion.PhaseOffsetCycles = 0.0;
++    TestTrue(TEXT("Continuity frame A evaluates"), Actor->EvaluateMechanismsAtMasterFrame(12000));
++    const FTransform FrameA = ReadTransform(*Left);
++    TestTrue(TEXT("Continuity frame B evaluates"), Actor->EvaluateMechanismsAtMasterFrame(24000));
++    FTransform FrameBPrevious;
++    TestTrue(TEXT("Continuity frame B exposes a previous transform"),
++        Left->Component->GetInstancePrevTransform(Left->InstanceIndex, FrameBPrevious, true));
++    TestTrue(TEXT("Continuity frame B records frame A as its previous transform"),
++        FrameBPrevious.Equals(FrameA, 0.01));
++
++    World->DestroyWorld(false);
++    return true;
++}
++
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+     FInfinityStageWingTravelModulationEvaluationTest,
+     "InfinityStage.Mechanism.WingTravelScaleModulatesMaterializedPanels",
