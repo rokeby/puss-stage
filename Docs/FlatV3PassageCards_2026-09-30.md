@@ -29,6 +29,11 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
 
 ---
 
+**Medium by passage (Gary, 1 Oct):** not everything painterly. P03 is
+**folk-horror pseudo-realism** (photographic, stiff, bright). REJECTED: a
+painted-to-photographic transition in P06 ("cheesy"); P06 keeps one medium and
+deteriorates by other means (scaffold, peel, fire, monochrome).
+
 ## P01 — the first entry into the fairytale
 
 - **Mood:** "fairly warm, mysterious, not too dark or cold as the first entry
@@ -58,6 +63,9 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
 
 ## P03 — the Protestant convent to the shore cult
 
+- **Stones revised (Gary, 1 Oct): more ROUNDED stones and ABSTRACT rocks**,
+  not angular trilithon geometry: boulders, eroded and holed menhirs, smooth
+  lumpen forms, in folk-horror pseudo-realism.
 - **Agreed 30 Sep: P03 carries the stones and the pyres.** A henge that grows
   (small, sparse standing stones, then heavier and closer, then trilithons) with
   pyres among them that burn bigger along the run: burning as forgetting, toward
@@ -147,6 +155,9 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
      chinoiserie, Boucher and Huet's singeries and chinoiseries, pagoda and
      pavilion designs, garden follies. Check the existing
      `GeneratedWingsV2_Chinoiserie` set on disk first.
+     **Bronze tree scale (Gary, 1 Oct):** the fine branches may read too small on a
+     10 m wing, so go for a LARGER tree: a massive trunk, few thick branches, big
+     birds and masks.
      **Add a hint of the alien (Gary, 1 Oct): Sanxingdui.** The bronze masks
      with protruding stalk eyes and the bronze sacred trees. The bronze tree is
      a ready-made wing form, structural and organic at once. Rights: the objects
