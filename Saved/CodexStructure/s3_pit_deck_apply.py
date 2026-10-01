@@ -817,11 +817,21 @@ def _make_plan(world, actors, index, frame, hangar_plan, hangar_record, mouth_re
     mouth_x = mouth_record.get("plan", {}).get("floor_after_x")
     if not isinstance(mouth_x, list) or len(mouth_x) != 2:
         fail(run, "p03_mouth_floor_record.json has no plan.floor_after_x pair")
-    if max(abs(floor_bounds["x"][i] - float(mouth_x[i])) for i in range(2)) > 1.0:
+    # The mouth record's frame x is WORLD x (P03's portal frame sits at world x 0, yaw 0): prove it from the
+    # record itself (before-plane centre - half size == recorded before-frame x), then compare in WORLD x.
+    # Run 121126 compared dock-frame bounds with this world-x record and was off by exactly the dock x.
+    before = mouth_record.get("floor_before", {})
+    before_frame_x = mouth_record.get("plan", {}).get("floor_before_frame", {}).get("x")
+    if not before or not before_frame_x or abs(
+        float(before["loc"][0]) - 50.0 * float(before["scale"][0]) - float(before_frame_x[0])
+    ) > 1.0:
+        fail(run, "p03_mouth_floor_record.json frame is not provably world x; refusing to compare")
+    world_bounds = mesh_frame_bounds(floor_component, unreal.Transform())
+    if max(abs(world_bounds["x"][i] - float(mouth_x[i])) for i in range(2)) > 1.0:
         fail(
             run,
             f"{FLOOR_LABEL} no longer matches the saved mouth trim: "
-            f"bounds={floor_bounds['x']}, record={mouth_x}",
+            f"world_bounds={world_bounds['x']}, record={mouth_x}",
         )
     readings, floor_top = _floor_readings(floor_component, floor_bounds, frame, index, run)
     hinge_x = float(h["apron"])
