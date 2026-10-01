@@ -1,5 +1,5 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
-index dcb7ce2..b34027d 100644
+index dcb7ce2..0dbd026 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
 @@ -15,7 +15,9 @@
@@ -12,15 +12,27 @@ index dcb7ce2..b34027d 100644
  #include "Engine/Texture.h"
  #include "Engine/TextureLightProfile.h"
  #include "HAL/IConsoleManager.h"
-@@ -146,6 +148,61 @@ FVector GetPairLocalInwardDirection(const EInfinityPanelSide Side)
+@@ -146,6 +148,96 @@ FVector GetPairLocalInwardDirection(const EInfinityPanelSide Side)
      return FVector(0.0, 1.0, 0.0);
  }
  
++EInfinityMechanismKind ResolveMechanismKindForSide(
++    const EInfinityMechanismKind Kind,
++    const EInfinityPanelSide Side)
++{
++    if (Side == EInfinityPanelSide::Top
++        && (Kind == EInfinityMechanismKind::Topple || Kind == EInfinityMechanismKind::Turn))
++    {
++        return EInfinityMechanismKind::Slide;
++    }
++    return Kind;
++}
++
 +FTransform ResolveMechanismPivotLocal(
 +    const UStaticMesh& Mesh,
 +    const EInfinityMechanismKind Kind,
 +    const FTransform& BaseWorldTransform,
-+    const FVector& InwardWorldDirection)
++    const FVector& PairForwardWorld)
 +{
 +    if (Kind != EInfinityMechanismKind::Topple && Kind != EInfinityMechanismKind::Turn)
 +    {
@@ -44,7 +56,10 @@ index dcb7ce2..b34027d 100644
 +        {
 +            PivotLocation.Z = Bounds.Min.Z;
 +            const FVector Extent = Bounds.GetExtent();
-+            AxisLocal = Extent.X >= Extent.Y ? FVector::XAxisVector : FVector::YAxisVector;
++            const FVector BaseScale = BaseWorldTransform.GetScale3D().GetAbs();
++            AxisLocal = Extent.X * BaseScale.X >= Extent.Y * BaseScale.Y
++                ? FVector::XAxisVector
++                : FVector::YAxisVector;
 +        }
 +        else
 +        {
@@ -52,9 +67,10 @@ index dcb7ce2..b34027d 100644
 +        }
 +    }
 +
-+    // A positive Topple angle always falls toward the route. Socket +X defines
-+    // the hinge line, but the asset contract intentionally does not require a
-+    // particular direction along that line, so cache the sign once here.
++    // A positive Topple angle falls toward the camera (downstage), opposite the
++    // pair frame's forward direction. Socket +X defines the hinge line, but the
++    // asset contract intentionally does not require a direction along that line,
++    // so cache the sign once here using the scaled axis.
 +    if (bTopple)
 +    {
 +        const FTransform RigidBase(
@@ -63,7 +79,26 @@ index dcb7ce2..b34027d 100644
 +        const FVector AxisScaled = (AxisLocal * BaseWorldTransform.GetScale3D()).GetSafeNormal();
 +        const FVector AxisWorld = RigidBase.GetRotation().RotateVector(AxisScaled);
 +        const FVector UpWorld = RigidBase.GetRotation().GetUpVector();
-+        if (FVector::DotProduct(FVector::CrossProduct(AxisWorld, UpWorld), InwardWorldDirection) < 0.0)
++        const double DownstageSign = FVector::DotProduct(
++            FVector::CrossProduct(AxisWorld, UpWorld),
++            -PairForwardWorld);
++        if (FMath::Abs(DownstageSign) < 0.1)
++        {
++            // The reference cannot orient a hinge parallel to the route. Keep
++            // the socket/fallback axis sign rather than choosing arbitrarily.
++            static bool bWarnedDegenerateToppleAxis = false;
++            if (!bWarnedDegenerateToppleAxis)
++            {
++                bWarnedDegenerateToppleAxis = true;
++                UE_LOG(
++                    LogInfinityStageMaterialization,
++                    Warning,
++                    TEXT("INFINITY_STAGE_TOPPLE_AXIS_SIGN_DEGENERATE mesh='%s' dot=%.3f; keeping hinge axis sign"),
++                    *Mesh.GetPathName(),
++                    DownstageSign);
++            }
++        }
++        else if (DownstageSign < 0.0)
 +        {
 +            AxisLocal *= -1.0;
 +        }
@@ -74,20 +109,23 @@ index dcb7ce2..b34027d 100644
  double InterpolateFrame(
      const double FrameA,
      const double ValueA,
-@@ -1051,6 +1108,12 @@ bool AInfinityStagePassageActor::AddPanelInstance(
+@@ -1051,6 +1143,15 @@ bool AInfinityStagePassageActor::AddPanelInstance(
      Ref.InwardWorldDirection = PairWorldTransform.GetRotation()
          .RotateVector(GetPairLocalInwardDirection(Side))
          .GetSafeNormal();
 +    const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
++    const EInfinityMechanismKind MechanismKind = ResolveMechanismKindForSide(
++        Cue ? Cue->WingPair.Mechanism.Kind : EInfinityMechanismKind::Slide,
++        Side);
 +    Ref.MechanismPivotLocal = ResolveMechanismPivotLocal(
 +        *Mesh,
-+        Cue ? Cue->WingPair.Mechanism.Kind : EInfinityMechanismKind::Slide,
++        MechanismKind,
 +        WorldTransform,
-+        Ref.InwardWorldDirection);
++        PairWorldTransform.GetRotation().GetForwardVector().GetSafeNormal());
      return true;
  }
  
-@@ -1366,13 +1429,48 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+@@ -1366,13 +1467,49 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                      .GetSafeNormal();
              }
          }
@@ -98,17 +136,18 @@ index dcb7ce2..b34027d 100644
 +        // The same authored modulation channel scales linear travel for Slide /
 +        // Trap and angular travel for Topple / Turn in every playback mode.
 +        const double TravelScale = bHasWingModulation ? WingModulation.InwardTravelScale : 1.0;
++        const EInfinityMechanismKind MechanismKind = ResolveMechanismKindForSide(Motion.Kind, Ref.Side);
          FTransform NewWorldTransform = Ref.BaseWorldTransform;
 -        NewWorldTransform.AddToTranslation(
 -            InwardWorldDirection * NormalizedTravel * InwardTravelCm);
-+        if (Motion.Kind == EInfinityMechanismKind::Trap)
++        if (MechanismKind == EInfinityMechanismKind::Trap)
 +        {
 +            const FVector UpWorld = Ref.BaseWorldTransform.GetRotation().GetUpVector();
 +            NewWorldTransform.AddToTranslation(
 +                UpWorld * NormalizedTravel * Motion.InwardTravelCm * TravelScale);
 +        }
-+        else if (Motion.Kind == EInfinityMechanismKind::Topple
-+            || Motion.Kind == EInfinityMechanismKind::Turn)
++        else if (MechanismKind == EInfinityMechanismKind::Topple
++            || MechanismKind == EInfinityMechanismKind::Turn)
 +        {
 +            const FVector PivotLocal = Ref.MechanismPivotLocal.GetLocation();
 +            const FVector AxisLocal = Ref.MechanismPivotLocal.GetRotation().GetAxisX().GetSafeNormal();
@@ -160,10 +199,10 @@ index eb3813d..ffe6027 100644
  
  UCLASS(BlueprintType)
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
-index e96fb8d..9c7a6b1 100644
+index e96fb8d..7378fb8 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
-@@ -554,6 +554,15 @@ enum class EInfinityPanelFacingPolicy : uint8
+@@ -554,6 +554,18 @@ enum class EInfinityPanelFacingPolicy : uint8
      Rotate180AroundUp
  };
  
@@ -171,27 +210,31 @@ index e96fb8d..9c7a6b1 100644
 +enum class EInfinityMechanismKind : uint8
 +{
 +    Slide,
++    /** Applies to side panels; Top panels retain Slide behaviour. */
 +    Topple,
++    /** Applies to side panels; Top panels retain Slide behaviour. */
 +    Turn,
++    /** Applies to side and Top panels. */
 +    Trap
 +};
 +
  UENUM(BlueprintType)
  enum class EInfinityPassageFitMode : uint8
  {
-@@ -614,6 +623,11 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
+@@ -614,6 +626,12 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
  {
      GENERATED_BODY()
  
-+    /** How the normalized motion curve moves each panel. Slide preserves the legacy behaviour. */
++    /** How the normalized motion curve moves each panel. Slide preserves the legacy behaviour.
++     * Top panels treat Topple and Turn as Slide; Trap still applies. */
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
-+        meta = (ToolTip = "How the normalized motion curve moves each panel. Slide preserves the legacy behaviour."))
++        meta = (ToolTip = "How the normalized motion curve moves each panel. Top panels treat Topple and Turn as Slide; Trap still applies."))
 +    EInfinityMechanismKind Kind = EInfinityMechanismKind::Slide;
 +
      UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
      EInfinityMotionPlaybackMode PlaybackMode = EInfinityMotionPlaybackMode::ContinuousLoop;
  
-@@ -629,9 +643,16 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
+@@ -629,9 +647,17 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
      UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
      double PhaseOffsetCycles = 0.0;
  
@@ -201,19 +244,20 @@ index e96fb8d..9c7a6b1 100644
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism", meta = (Units = "cm"))
      double InwardTravelCm = 100.0;
  
-+    /** Topple or Turn angle at normalized progress 1. Its sign reverses the direction. */
++    /** Topple or Turn angle at normalized progress 1. For Topple, positive =
++     * toward the camera (downstage); negative = away from the camera. */
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
-+        meta = (Units = "deg", ToolTip = "Topple or Turn angle at normalized progress 1. Its sign reverses the direction."))
++        meta = (Units = "deg", ToolTip = "Topple or Turn angle at normalized progress 1. For Topple, positive = toward the camera (downstage); negative = away from the camera."))
 +    double MaxAngleDeg = 90.0;
 +
      UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
      FRuntimeFloatCurve LeftNormalizedCurve;
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-index 0ee2fa0..14ac237 100644
+index 0ee2fa0..a6b41b3 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-@@ -1198,6 +1198,307 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
+@@ -1198,6 +1198,422 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
      return true;
  }
  
@@ -232,8 +276,18 @@ index 0ee2fa0..14ac237 100644
 +    Cue.CueGuid = FGuid::NewGuid();
 +    Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
 +    Cue.WingPair.Left.Mesh = Cube;
-+    // Engine Cube is 100 cm high and centred on its origin: put its base on z=0.
-+    Cue.WingPair.Left.LocalTransform.SetTranslation(FVector(0.0, -600.0, 50.0));
++    Cue.WingPair.Right.Mesh = Cube;
++    Cue.WingPair.Right.FacingPolicy = EInfinityPanelFacingPolicy::Rotate180AroundUp;
++    Cue.WingPair.Top.Mesh = Cube;
++    // Scale the 100 cm Engine Cube to production-card proportions: 10 cm thick
++    // on X, 400 cm wide on Y and 1000 cm tall on Z, with its base on z=0.
++    const FVector ProductionCardScale(0.1, 4.0, 10.0);
++    Cue.WingPair.Left.LocalTransform.SetScale3D(ProductionCardScale);
++    Cue.WingPair.Left.LocalTransform.SetTranslation(FVector(0.0, -600.0, 500.0));
++    Cue.WingPair.Right.LocalTransform.SetScale3D(ProductionCardScale);
++    Cue.WingPair.Right.LocalTransform.SetTranslation(FVector(0.0, 600.0, 500.0));
++    Cue.WingPair.Top.LocalTransform.SetScale3D(ProductionCardScale);
++    Cue.WingPair.Top.LocalTransform.SetTranslation(FVector(0.0, 0.0, 1500.0));
 +    TestEqual(
 +        TEXT("Existing mechanisms default to Slide"),
 +        static_cast<uint8>(Cue.WingPair.Mechanism.Kind),
@@ -244,14 +298,21 @@ index 0ee2fa0..14ac237 100644
 +
 +    FInfinityMechanismMotion& Motion = Cue.WingPair.Mechanism;
 +    Motion.PlaybackMode = EInfinityMotionPlaybackMode::Static;
++    Motion.bTopFollowsMechanism = true;
 +    const auto SetLinearCurve = [&Motion](const float StartValue, const float EndValue)
 +    {
-+        FRichCurve* Curve = Motion.LeftNormalizedCurve.GetRichCurve();
-+        Curve->Reset();
-+        const FKeyHandle Start = Curve->AddKey(0.0f, StartValue);
-+        const FKeyHandle End = Curve->AddKey(1.0f, EndValue);
-+        Curve->SetKeyInterpMode(Start, RCIM_Linear);
-+        Curve->SetKeyInterpMode(End, RCIM_Linear);
++        const auto SetCurve = [StartValue, EndValue](FRuntimeFloatCurve& RuntimeCurve)
++        {
++            FRichCurve* Curve = RuntimeCurve.GetRichCurve();
++            Curve->Reset();
++            const FKeyHandle Start = Curve->AddKey(0.0f, StartValue);
++            const FKeyHandle End = Curve->AddKey(1.0f, EndValue);
++            Curve->SetKeyInterpMode(Start, RCIM_Linear);
++            Curve->SetKeyInterpMode(End, RCIM_Linear);
++        };
++        SetCurve(Motion.LeftNormalizedCurve);
++        SetCurve(Motion.RightNormalizedCurve);
++        SetCurve(Motion.TopNormalizedCurve);
 +    };
 +    SetLinearCurve(0.0f, 1.0f);
 +
@@ -272,6 +333,16 @@ index 0ee2fa0..14ac237 100644
 +        return Actor->MaterializedPanels.FindByPredicate(
 +            [](const FInfinityMaterializedPanelRef& Ref) { return Ref.Side == EInfinityPanelSide::Left; });
 +    };
++    const auto FindRight = [Actor]() -> FInfinityMaterializedPanelRef*
++    {
++        return Actor->MaterializedPanels.FindByPredicate(
++            [](const FInfinityMaterializedPanelRef& Ref) { return Ref.Side == EInfinityPanelSide::Right; });
++    };
++    const auto FindTop = [Actor]() -> FInfinityMaterializedPanelRef*
++    {
++        return Actor->MaterializedPanels.FindByPredicate(
++            [](const FInfinityMaterializedPanelRef& Ref) { return Ref.Side == EInfinityPanelSide::Top; });
++    };
 +    const auto ReadTransform = [](const FInfinityMaterializedPanelRef& Ref)
 +    {
 +        FTransform Transform;
@@ -288,46 +359,122 @@ index 0ee2fa0..14ac237 100644
 +        return false;
 +    }
 +    FInfinityMaterializedPanelRef* Left = FindLeft();
-+    if (!TestNotNull(TEXT("Topple Left instance exists"), Left))
++    FInfinityMaterializedPanelRef* Right = FindRight();
++    FInfinityMaterializedPanelRef* Top = FindTop();
++    if (!TestNotNull(TEXT("Topple Left instance exists"), Left)
++        || !TestNotNull(TEXT("Topple Right instance exists"), Right)
++        || !TestNotNull(TEXT("Topple Top instance exists"), Top))
 +    {
 +        World->DestroyWorld(false);
 +        return false;
 +    }
-+    TestTrue(
-+        TEXT("Topple without a Hinge socket caches the bounds bottom centre"),
++    TestTrue(TEXT("Left Topple without a Hinge socket caches the bounds bottom centre"),
 +        Left->MechanismPivotLocal.GetLocation().Equals(FVector(0.0, 0.0, -50.0), 0.1));
++    TestTrue(TEXT("Right Topple without a Hinge socket caches the bounds bottom centre"),
++        Right->MechanismPivotLocal.GetLocation().Equals(FVector(0.0, 0.0, -50.0), 0.1));
++    TestTrue(TEXT("Left socketless Topple chooses the card width as its hinge axis"),
++        FMath::IsNearlyEqual(
++            FMath::Abs(FVector::DotProduct(
++                Left->MechanismPivotLocal.GetRotation().GetAxisX(),
++                FVector::YAxisVector)),
++            1.0,
++            0.001));
++    TestTrue(TEXT("Right socketless Topple chooses the card width as its hinge axis"),
++        FMath::IsNearlyEqual(
++            FMath::Abs(FVector::DotProduct(
++                Right->MechanismPivotLocal.GetRotation().GetAxisX(),
++                FVector::YAxisVector)),
++            1.0,
++            0.001));
++
++    FTransform StationWorld;
++    FTransform PairWorld;
++    if (!TestTrue(
++        TEXT("Topple fixture resolves the pair frame"),
++        Actor->GetCuePlacementTransforms(Cue.CueGuid, StationWorld, PairWorld)))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    const FVector DownstageWorld = -PairWorld.GetRotation().GetForwardVector().GetSafeNormal();
++    TestTrue(TEXT("Right Topple fixture carries the 180 degree facing"),
++        FVector::DotProduct(
++            Right->BaseWorldTransform.GetRotation().GetForwardVector(),
++            PairWorld.GetRotation().GetForwardVector()) < -0.999);
++    const auto OldInwardSignDot = [](const FInfinityMaterializedPanelRef& Ref)
++    {
++        const FVector AxisScaled = (
++            Ref.MechanismPivotLocal.GetRotation().GetAxisX()
++            * Ref.BaseWorldTransform.GetScale3D()).GetSafeNormal();
++        const FVector AxisWorld = Ref.BaseWorldTransform.GetRotation().RotateVector(AxisScaled);
++        const FVector UpWorld = Ref.BaseWorldTransform.GetRotation().GetUpVector();
++        return FVector::DotProduct(
++            FVector::CrossProduct(AxisWorld, UpWorld),
++            Ref.InwardWorldDirection);
++    };
++    TestTrue(TEXT("Old inward-based Left Topple sign reference is degenerate"),
++        FMath::Abs(OldInwardSignDot(*Left)) < 1.e-3);
++    TestTrue(TEXT("Old inward-based Right Topple sign reference is degenerate"),
++        FMath::Abs(OldInwardSignDot(*Right)) < 1.e-3);
++
 +    TestTrue(TEXT("Topple progress zero evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
-+    const FTransform ToppleRest = ReadTransform(*Left);
-+    TestTrue(TEXT("Topple progress zero equals the base transform"),
-+        ToppleRest.Equals(Left->BaseWorldTransform, 0.001));
++    TestTrue(TEXT("Left Topple progress zero equals the base transform"),
++        ReadTransform(*Left).Equals(Left->BaseWorldTransform, 0.001));
++    TestTrue(TEXT("Right Topple progress zero equals the base transform"),
++        ReadTransform(*Right).Equals(Right->BaseWorldTransform, 0.001));
 +
 +    const FVector LocalTop(0.0, 0.0, 50.0);
-+    const FVector RestTop = Left->BaseWorldTransform.TransformPosition(LocalTop);
++    const FVector LeftRestTop = Left->BaseWorldTransform.TransformPosition(LocalTop);
++    const FVector RightRestTop = Right->BaseWorldTransform.TransformPosition(LocalTop);
 +    Motion.PhaseOffsetCycles = 1.0;
 +    TestTrue(TEXT("Positive Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
-+    const FTransform PositiveTopple = ReadTransform(*Left);
-+    const FVector PositiveTop = PositiveTopple.TransformPosition(LocalTop);
-+    TestTrue(TEXT("A 90 degree Topple brings the card top to hinge height"),
-+        FMath::IsNearlyEqual(PositiveTop.Z, 0.0, 0.1));
-+    TestTrue(TEXT("A positive Topple falls one card height inward"),
++    const FVector LeftPositiveTop = ReadTransform(*Left).TransformPosition(LocalTop);
++    const FVector RightPositiveTop = ReadTransform(*Right).TransformPosition(LocalTop);
++    TestTrue(TEXT("A positive Left Topple brings the card top to hinge height"),
 +        FMath::IsNearlyEqual(
-+            FVector::DotProduct(PositiveTop - RestTop, Left->InwardWorldDirection),
-+            100.0,
++            LeftPositiveTop.Z,
++            Left->BaseWorldTransform.TransformPosition(Left->MechanismPivotLocal.GetLocation()).Z,
 +            0.1));
++    TestTrue(TEXT("A positive Right Topple brings the card top to hinge height"),
++        FMath::IsNearlyEqual(
++            RightPositiveTop.Z,
++            Right->BaseWorldTransform.TransformPosition(Right->MechanismPivotLocal.GetLocation()).Z,
++            0.1));
++    TestTrue(TEXT("Positive Left Topple falls one card height toward the camera"),
++        FMath::IsNearlyEqual(
++            FVector::DotProduct(LeftPositiveTop - LeftRestTop, DownstageWorld),
++            1000.0,
++            1.0));
++    TestTrue(TEXT("Positive Right Topple falls one card height toward the camera"),
++        FMath::IsNearlyEqual(
++            FVector::DotProduct(RightPositiveTop - RightRestTop, DownstageWorld),
++            1000.0,
++            1.0));
++
++    FTransform ExpectedTopSlide = Top->BaseWorldTransform;
++    ExpectedTopSlide.AddToTranslation(Top->InwardWorldDirection * Motion.InwardTravelCm);
++    TestTrue(TEXT("Top panel with Kind Topple retains Slide behaviour"),
++        ReadTransform(*Top).Equals(ExpectedTopSlide, 0.001));
 +
 +    Motion.MaxAngleDeg = -90.0;
 +    TestTrue(TEXT("Negative Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
-+    const FVector NegativeTop = ReadTransform(*Left).TransformPosition(LocalTop);
-+    TestTrue(TEXT("A negative Topple falls the other way"),
++    const FVector LeftNegativeTop = ReadTransform(*Left).TransformPosition(LocalTop);
++    const FVector RightNegativeTop = ReadTransform(*Right).TransformPosition(LocalTop);
++    TestTrue(TEXT("Negative Left Topple falls one card height away from the camera"),
 +        FMath::IsNearlyEqual(
-+            FVector::DotProduct(NegativeTop - RestTop, Left->InwardWorldDirection),
-+            -100.0,
-+            0.1));
++            FVector::DotProduct(LeftNegativeTop - LeftRestTop, DownstageWorld),
++            -1000.0,
++            1.0));
++    TestTrue(TEXT("Negative Right Topple falls one card height away from the camera"),
++        FMath::IsNearlyEqual(
++            FVector::DotProduct(RightNegativeTop - RightRestTop, DownstageWorld),
++            -1000.0,
++            1.0));
 +
 +    Motion.MaxAngleDeg = 90.0;
 +    Motion.PhaseOffsetCycles = 0.0;
 +    Cue.WingPair.Left.bFlipImageHorizontally = false;
-+    Cue.WingPair.Left.LocalTransform.SetScale3D(FVector::OneVector);
++    Cue.WingPair.Left.LocalTransform.SetScale3D(ProductionCardScale);
 +    TestTrue(TEXT("Unmirrored Topple comparison fixture materializes"), Actor->MaterializePassage());
 +    Left = FindLeft();
 +    if (!TestNotNull(TEXT("Unmirrored Topple comparison instance exists"), Left))
@@ -350,8 +497,8 @@ index 0ee2fa0..14ac237 100644
 +        World->DestroyWorld(false);
 +        return false;
 +    }
-+    TestTrue(TEXT("Mirrored Topple base carries scale (1,-1,1)"),
-+        Left->BaseWorldTransform.GetScale3D().Equals(FVector(1.0, -1.0, 1.0), 0.0001));
++    TestTrue(TEXT("Mirrored Topple base carries scale (0.1,-4,10)"),
++        Left->BaseWorldTransform.GetScale3D().Equals(FVector(0.1, -4.0, 10.0), 0.0001));
 +    TestTrue(TEXT("Mirrored Topple progress zero evaluates"),
 +        Actor->EvaluateMechanismsAtMasterFrame(0));
 +    TestTrue(TEXT("Mirrored Topple progress zero equals the base transform"),
@@ -361,12 +508,12 @@ index 0ee2fa0..14ac237 100644
 +    TestTrue(TEXT("Mirrored positive Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
 +    const FVector MirroredTop = ReadTransform(*Left).TransformPosition(LocalTop);
 +    const FVector MirroredTopDisplacement = MirroredTop - MirroredRestTop;
-+    TestTrue(TEXT("Mirrored positive Topple still falls toward the route"),
-+        FVector::DotProduct(MirroredTopDisplacement, Left->InwardWorldDirection) > 0.0);
++    TestTrue(TEXT("Mirrored positive Topple still falls toward the camera"),
++        FVector::DotProduct(MirroredTopDisplacement, DownstageWorld) > 0.0);
 +    TestTrue(TEXT("Mirrored and unmirrored positive Topple fall in the same world direction"),
 +        MirroredTopDisplacement.Equals(UnmirroredTopDisplacement, 0.01));
 +
-+    const FVector NonUniformScale(2.0, 1.0, 0.5);
++    const FVector NonUniformScale(0.2, 3.0, 0.5);
 +    const FVector RigidityPointA(-20.0, 10.0, -35.0);
 +    const FVector RigidityPointB(30.0, -25.0, 40.0);
 +    const double ScaledPointDistance = ((RigidityPointB - RigidityPointA) * NonUniformScale).Size();
@@ -382,7 +529,7 @@ index 0ee2fa0..14ac237 100644
 +        World->DestroyWorld(false);
 +        return false;
 +    }
-+    TestTrue(TEXT("Non-uniform Topple base carries scale (2,1,0.5)"),
++    TestTrue(TEXT("Non-uniform Topple base carries scale (0.2,3,0.5)"),
 +        Left->BaseWorldTransform.GetScale3D().Equals(NonUniformScale, 0.0001));
 +    TestTrue(TEXT("Non-uniform Topple progress zero evaluates"),
 +        Actor->EvaluateMechanismsAtMasterFrame(0));
@@ -482,7 +629,9 @@ index 0ee2fa0..14ac237 100644
 +    SetLinearCurve(0.0f, 1.0f);
 +    TestTrue(TEXT("Trap fixture materializes"), Actor->MaterializePassage());
 +    Left = FindLeft();
-+    if (!TestNotNull(TEXT("Trap Left instance exists"), Left))
++    Top = FindTop();
++    if (!TestNotNull(TEXT("Trap Left instance exists"), Left)
++        || !TestNotNull(TEXT("Trap Top instance exists"), Top))
 +    {
 +        World->DestroyWorld(false);
 +        return false;
@@ -493,11 +642,21 @@ index 0ee2fa0..14ac237 100644
 +            ReadTransform(*Left).GetLocation().Z - Left->BaseWorldTransform.GetLocation().Z,
 +            50.0,
 +            0.01));
++    TestTrue(TEXT("Trap still applies to a Top panel"),
++        FMath::IsNearlyEqual(
++            ReadTransform(*Top).GetLocation().Z - Top->BaseWorldTransform.GetLocation().Z,
++            50.0,
++            0.01));
 +    SetLinearCurve(0.0f, -1.0f);
 +    TestTrue(TEXT("Negative Trap evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
 +    TestTrue(TEXT("Trap progress -0.5 sinks 50 cm along base up"),
 +        FMath::IsNearlyEqual(
 +            ReadTransform(*Left).GetLocation().Z - Left->BaseWorldTransform.GetLocation().Z,
++            -50.0,
++            0.01));
++    TestTrue(TEXT("Negative Trap still applies to a Top panel"),
++        FMath::IsNearlyEqual(
++            ReadTransform(*Top).GetLocation().Z - Top->BaseWorldTransform.GetLocation().Z,
 +            -50.0,
 +            0.01));
 +
