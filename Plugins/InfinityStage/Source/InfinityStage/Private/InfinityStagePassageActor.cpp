@@ -15,7 +15,9 @@
 #include "Engine/RectLight.h"
 #include "Engine/Scene.h"
 #include "Engine/SpotLight.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/StaticMeshSocket.h"
 #include "Engine/Texture.h"
 #include "Engine/TextureLightProfile.h"
 #include "HAL/IConsoleManager.h"
@@ -144,6 +146,96 @@ FVector GetPairLocalInwardDirection(const EInfinityPanelSide Side)
         return FVector(0.0, 0.0, -1.0);
     }
     return FVector(0.0, 1.0, 0.0);
+}
+
+EInfinityMechanismKind ResolveMechanismKindForSide(
+    const EInfinityMechanismKind Kind,
+    const EInfinityPanelSide Side)
+{
+    if (Side == EInfinityPanelSide::Top
+        && (Kind == EInfinityMechanismKind::Topple || Kind == EInfinityMechanismKind::Turn))
+    {
+        return EInfinityMechanismKind::Slide;
+    }
+    return Kind;
+}
+
+FTransform ResolveMechanismPivotLocal(
+    const UStaticMesh& Mesh,
+    const EInfinityMechanismKind Kind,
+    const FTransform& BaseWorldTransform,
+    const FVector& PairForwardWorld)
+{
+    if (Kind != EInfinityMechanismKind::Topple && Kind != EInfinityMechanismKind::Turn)
+    {
+        return FTransform::Identity;
+    }
+
+    const bool bTopple = Kind == EInfinityMechanismKind::Topple;
+    const FName SocketName = bTopple ? TEXT("Hinge") : TEXT("Pivot");
+    FVector PivotLocation = FVector::ZeroVector;
+    FVector AxisLocal = FVector::XAxisVector;
+    if (const UStaticMeshSocket* Socket = Mesh.FindSocket(SocketName))
+    {
+        PivotLocation = Socket->RelativeLocation;
+        AxisLocal = Socket->RelativeRotation.Quaternion().GetAxisX().GetSafeNormal();
+    }
+    else
+    {
+        const FBox Bounds = Mesh.GetBoundingBox();
+        PivotLocation = Bounds.GetCenter();
+        if (bTopple)
+        {
+            PivotLocation.Z = Bounds.Min.Z;
+            const FVector Extent = Bounds.GetExtent();
+            const FVector BaseScale = BaseWorldTransform.GetScale3D().GetAbs();
+            AxisLocal = Extent.X * BaseScale.X >= Extent.Y * BaseScale.Y
+                ? FVector::XAxisVector
+                : FVector::YAxisVector;
+        }
+        else
+        {
+            AxisLocal = FVector::ZAxisVector;
+        }
+    }
+
+    // A positive Topple angle falls toward the camera (downstage), opposite the
+    // pair frame's forward direction. Socket +X defines the hinge line, but the
+    // asset contract intentionally does not require a direction along that line,
+    // so cache the sign once here using the scaled axis.
+    if (bTopple)
+    {
+        const FTransform RigidBase(
+            BaseWorldTransform.GetRotation(),
+            BaseWorldTransform.GetTranslation());
+        const FVector AxisScaled = (AxisLocal * BaseWorldTransform.GetScale3D()).GetSafeNormal();
+        const FVector AxisWorld = RigidBase.GetRotation().RotateVector(AxisScaled);
+        const FVector UpWorld = RigidBase.GetRotation().GetUpVector();
+        const double DownstageSign = FVector::DotProduct(
+            FVector::CrossProduct(AxisWorld, UpWorld),
+            -PairForwardWorld);
+        if (FMath::Abs(DownstageSign) < 0.1)
+        {
+            // The reference cannot orient a hinge parallel to the route. Keep
+            // the socket/fallback axis sign rather than choosing arbitrarily.
+            static bool bWarnedDegenerateToppleAxis = false;
+            if (!bWarnedDegenerateToppleAxis)
+            {
+                bWarnedDegenerateToppleAxis = true;
+                UE_LOG(
+                    LogInfinityStageMaterialization,
+                    Warning,
+                    TEXT("INFINITY_STAGE_TOPPLE_AXIS_SIGN_DEGENERATE mesh='%s' dot=%.3f; keeping hinge axis sign"),
+                    *Mesh.GetPathName(),
+                    DownstageSign);
+            }
+        }
+        else if (DownstageSign < 0.0)
+        {
+            AxisLocal *= -1.0;
+        }
+    }
+    return FTransform(AxisLocal.ToOrientationQuat(), PivotLocation);
 }
 
 double InterpolateFrame(
@@ -1051,6 +1143,15 @@ bool AInfinityStagePassageActor::AddPanelInstance(
     Ref.InwardWorldDirection = PairWorldTransform.GetRotation()
         .RotateVector(GetPairLocalInwardDirection(Side))
         .GetSafeNormal();
+    const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
+    const EInfinityMechanismKind MechanismKind = ResolveMechanismKindForSide(
+        Cue ? Cue->WingPair.Mechanism.Kind : EInfinityMechanismKind::Slide,
+        Side);
+    Ref.MechanismPivotLocal = ResolveMechanismPivotLocal(
+        *Mesh,
+        MechanismKind,
+        WorldTransform,
+        PairWorldTransform.GetRotation().GetForwardVector().GetSafeNormal());
     return true;
 }
 
@@ -1366,13 +1467,49 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                     .GetSafeNormal();
             }
         }
-        // Travel scale applies to every playback mode, including Camera Gust,
-        // because it modulates the resolved distance rather than the phase.
-        const double InwardTravelCm = Motion.InwardTravelCm
-            * (bHasWingModulation ? WingModulation.InwardTravelScale : 1.0);
+        // The same authored modulation channel scales linear travel for Slide /
+        // Trap and angular travel for Topple / Turn in every playback mode.
+        const double TravelScale = bHasWingModulation ? WingModulation.InwardTravelScale : 1.0;
+        const EInfinityMechanismKind MechanismKind = ResolveMechanismKindForSide(Motion.Kind, Ref.Side);
         FTransform NewWorldTransform = Ref.BaseWorldTransform;
-        NewWorldTransform.AddToTranslation(
-            InwardWorldDirection * NormalizedTravel * InwardTravelCm);
+        if (MechanismKind == EInfinityMechanismKind::Trap)
+        {
+            const FVector UpWorld = Ref.BaseWorldTransform.GetRotation().GetUpVector();
+            NewWorldTransform.AddToTranslation(
+                UpWorld * NormalizedTravel * Motion.InwardTravelCm * TravelScale);
+        }
+        else if (MechanismKind == EInfinityMechanismKind::Topple
+            || MechanismKind == EInfinityMechanismKind::Turn)
+        {
+            const FVector PivotLocal = Ref.MechanismPivotLocal.GetLocation();
+            const FVector AxisLocal = Ref.MechanismPivotLocal.GetRotation().GetAxisX().GetSafeNormal();
+            const FVector BaseScale = Ref.BaseWorldTransform.GetScale3D();
+            const FVector PivotScaled = PivotLocal * BaseScale;
+            const FVector AxisScaled = (AxisLocal * BaseScale).GetSafeNormal();
+            const FTransform RigidBase(
+                Ref.BaseWorldTransform.GetRotation(),
+                Ref.BaseWorldTransform.GetTranslation());
+            const double AngleRadians = FMath::DegreesToRadians(
+                NormalizedTravel * Motion.MaxAngleDeg * TravelScale);
+            // FTransform A * B applies A then B. Apply the authored scale first,
+            // then rotate rigidly about the correspondingly scaled pivot/axis.
+            // Every factor after BaseScaleTransform has unit scale, avoiding the
+            // shear produced by rotating before a non-uniform scale.
+            const FTransform BaseScaleTransform(
+                FQuat::Identity,
+                FVector::ZeroVector,
+                BaseScale);
+            NewWorldTransform = BaseScaleTransform
+                * FTransform(FQuat::Identity, -PivotScaled)
+                * FTransform(FQuat(AxisScaled, AngleRadians))
+                * FTransform(FQuat::Identity, PivotScaled)
+                * RigidBase;
+        }
+        else
+        {
+            NewWorldTransform.AddToTranslation(
+                InwardWorldDirection * NormalizedTravel * Motion.InwardTravelCm * TravelScale);
+        }
 
         FTransform PreviousWorldTransform;
         if (!Ref.Component->GetInstanceTransform(Ref.InstanceIndex, PreviousWorldTransform, true))

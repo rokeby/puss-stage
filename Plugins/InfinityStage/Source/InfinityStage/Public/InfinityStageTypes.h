@@ -555,6 +555,18 @@ enum class EInfinityPanelFacingPolicy : uint8
 };
 
 UENUM(BlueprintType)
+enum class EInfinityMechanismKind : uint8
+{
+    Slide,
+    /** Applies to side panels; Top panels retain Slide behaviour. */
+    Topple,
+    /** Applies to side panels; Top panels retain Slide behaviour. */
+    Turn,
+    /** Applies to side and Top panels. */
+    Trap
+};
+
+UENUM(BlueprintType)
 enum class EInfinityPassageFitMode : uint8
 {
     MusicLockedDeriveCount,
@@ -614,6 +626,12 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
 {
     GENERATED_BODY()
 
+    /** How the normalized motion curve moves each panel. Slide preserves the legacy behaviour.
+     * Top panels treat Topple and Turn as Slide; Trap still applies. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
+        meta = (ToolTip = "How the normalized motion curve moves each panel. Top panels treat Topple and Turn as Slide; Trap still applies."))
+    EInfinityMechanismKind Kind = EInfinityMechanismKind::Slide;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
     EInfinityMotionPlaybackMode PlaybackMode = EInfinityMotionPlaybackMode::ContinuousLoop;
 
@@ -629,8 +647,16 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
     double PhaseOffsetCycles = 0.0;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism", meta = (ClampMin = "0.0", Units = "cm"))
+    /** Slide distance along the inward axis. Trap distance along the panel's
+     * base-rotation world up axis; positive rises and negative sinks. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism", meta = (Units = "cm"))
     double InwardTravelCm = 100.0;
+
+    /** Topple or Turn angle at normalized progress 1. For Topple, positive =
+     * toward the camera (downstage); negative = away from the camera. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
+        meta = (Units = "deg", ToolTip = "Topple or Turn angle at normalized progress 1. For Topple, positive = toward the camera (downstage); negative = away from the camera."))
+    double MaxAngleDeg = 90.0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism")
     FRuntimeFloatCurve LeftNormalizedCurve;

@@ -46,6 +46,12 @@ struct INFINITYSTAGE_API FInfinityMaterializedPanelRef
      */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     FVector InwardWorldDirection = FVector::ZeroVector;
+
+    /** Mesh-local pivot location and +X rotation axis cached at materialization.
+     * Topple uses Hinge (or the bounds bottom centre); Turn uses Pivot (or the
+     * bounds centre and local +Z). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    FTransform MechanismPivotLocal = FTransform::Identity;
 };
 
 UCLASS(BlueprintType)
