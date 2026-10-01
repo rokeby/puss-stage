@@ -253,14 +253,23 @@ def binding_fingerprint(sequence):
     return sorted(rows, key=lambda item: item["guid"])
 
 
-def other_cut_fingerprint(cut_track, excluded_section=None):
+def other_cut_fingerprint(cut_track, excluded_guid=None):
+    # Exclude by camera binding GUID, never by wrapper equality: get_sections() returns fresh
+    # wrappers each call, so `section == excluded_section` left the ClamCam1 row in "before"
+    # and tripped OTHER_CUTS_CHANGED after a correct removal (run 154306). Sorted, so section
+    # order cannot matter either.
     rows = []
     for section in cut_track.get_sections():
-        if section == excluded_section:
-            continue
         identity = guid_text(section.get_camera_binding_id().get_editor_property("guid"))
+        if excluded_guid is not None and identity == excluded_guid:
+            continue
         rows.append(section_row(section, identity))
-    return rows
+    return strip_guid(rows, excluded_guid)
+
+
+def strip_guid(rows, excluded_guid):
+    rows = [row for row in (rows or []) if excluded_guid is None or row.get("camera_guid") != excluded_guid]
+    return sorted(rows, key=lambda row: json.dumps(row, sort_keys=True))
 
 
 def _context(run, do_revert, apply):
@@ -346,7 +355,7 @@ def exact_save(run):
 def verify_removed(sequence, cut_track, other_cuts, bindings, binding_guid, run):
     if target_candidates(sequence, cut_track):
         stop(run, "reason=CLAM_CUT_STILL_PRESENT")
-    if other_cut_fingerprint(cut_track) != other_cuts:
+    if other_cut_fingerprint(cut_track, binding_guid) != strip_guid(other_cuts, binding_guid):
         stop(run, "reason=OTHER_CUTS_CHANGED")
     if binding_fingerprint(sequence) != bindings:
         stop(run, "reason=BINDINGS_CHANGED")
@@ -362,7 +371,7 @@ def apply_plan(sequence, cut_track, plan, run):
             bool(section.is_active()) != plan["active"]:
         stop(run, "reason=TARGET_CHANGED_AFTER_PLAN")
 
-    other_cuts = other_cut_fingerprint(cut_track, excluded_section=section)
+    other_cuts = other_cut_fingerprint(cut_track, excluded_guid=identity)
     bindings = binding_fingerprint(sequence)
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
     stamp = datetime.datetime.now()
@@ -392,7 +401,7 @@ def apply_plan(sequence, cut_track, plan, run):
     census = exact_save(run)
     verify_removed(sequence, cut_track, other_cuts, bindings, identity, run)
     record["after"] = {
-        "other_cut_sections": other_cut_fingerprint(cut_track),
+        "other_cut_sections": other_cut_fingerprint(cut_track, excluded_guid=identity),
         "bindings": binding_fingerprint(sequence),
         "dirty_before_save": dirty,
         "post_save_census": census,
@@ -431,7 +440,7 @@ def revert(sequence, cut_track, run):
     if read_identity != identity or read_binding is None or \
             section_range(read_section) != EXPECTED_RANGE or read_section.is_active():
         stop(run, "reason=REVERT_TARGET_READBACK")
-    if other_cut_fingerprint(cut_track, excluded_section=read_section) != other_cuts:
+    if other_cut_fingerprint(cut_track, excluded_guid=identity) != strip_guid(other_cuts, identity):
         stop(run, "reason=REVERT_OTHER_CUTS_CHANGED")
     if binding_fingerprint(sequence) != bindings:
         stop(run, "reason=REVERT_BINDINGS_CHANGED")
@@ -445,12 +454,51 @@ def revert(sequence, cut_track, run):
                 json.dumps(census, separators=(",", ":"), sort_keys=True)))
 
 
+def finish_unsaved(sequence, cut_track, run):
+    # FINISH: an apply removed the section, then a guard fault stopped it before the save
+    # (run 154306). Verify the UNSAVED state against the record with the fixed guards; save
+    # only if every one passes. Nothing is changed here except the save.
+    record = read_record(run)
+    if record.get("world") != EXPECTED_WORLD or record.get("asset") != ROOT_PATH or "after" in record:
+        stop(run, "reason=FINISH_RECORD_MISMATCH")
+    target = record.get("target", {})
+    identity = str(target.get("binding_guid") or "")
+    if list(target.get("range", [])) != EXPECTED_RANGE or bool(target.get("active")):
+        stop(run, "reason=FINISH_RECORD_TARGET_MISMATCH")
+    before = record.get("before", {})
+    verify_removed(sequence, cut_track, before.get("other_cut_sections"), before.get("bindings"), identity, run)
+    dirty = exact_dirty(run)
+    census = exact_save(run)
+    verify_removed(sequence, cut_track, before.get("other_cut_sections"), before.get("bindings"), identity, run)
+    record["after"] = {
+        "other_cut_sections": other_cut_fingerprint(cut_track, excluded_guid=identity),
+        "bindings": binding_fingerprint(sequence),
+        "dirty_before_save": dirty,
+        "post_save_census": census,
+        "finished_by_run": run,
+    }
+    update_record(record, run)
+    unreal.log("S3_CLAMCUT_DONE|run=%s|finished|apply_run=%s|backup=%s|census=%s" %
+               (run, record.get("run"), record.get("backup"),
+                json.dumps(census, separators=(",", ":"), sort_keys=True)))
+
+
 def main():
     run = datetime.datetime.now().strftime("%H%M%S")
     apply = bool(globals().get("S3_CLAMCUT_APPLY"))
     do_revert = bool(globals().get("S3_CLAMCUT_REVERT"))
-    if apply and do_revert:
-        stop(run, "reason=APPLY_AND_REVERT_BOTH_SET")
+    finish = bool(globals().get("S3_CLAMCUT_FINISH"))
+    if sum((apply, do_revert, finish)) > 1:
+        stop(run, "reason=MORE_THAN_ONE_MODE_SET")
+    if finish:
+        editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+        if editor.get_game_world() is not None:
+            stop(run, "reason=PIE_OR_SIE_ACTIVE")
+        sequence = unreal.load_asset(ROOT_PATH)
+        if sequence is None:
+            stop(run, "reason=SEQUENCE_LOAD_FAILED")
+        finish_unsaved(sequence, one_cut_track(sequence, run), run)
+        return
     _context(run, do_revert, apply)
     sequence = unreal.load_asset(ROOT_PATH)
     if sequence is None:
