@@ -220,6 +220,15 @@ struct INFINITYSTAGE_API FInfinityTransportSegment
     bool bReady = true;
 };
 
+/** Pending one-shot re-evaluation of a frame after an operator jump. */
+struct INFINITYSTAGE_API FInfinityJumpResettle
+{
+    bool bPending = false;
+    FFrameNumber Frame = 0;
+    float Elapsed = 0.0f;
+    int32 Ticks = 0;
+};
+
 UCLASS(ClassGroup = "Infinity Stage", BlueprintType, meta = (BlueprintSpawnableComponent))
 class INFINITYSTAGE_API UInfinityStageTransportController : public UActorComponent
 {
@@ -247,6 +256,20 @@ public:
      * The Scene still holds at its end; this never starts the next Passage. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
     bool bAutoPlaySceneAfterPassage = false;
+
+    /**
+     * Delay before one same-frame re-evaluation after a paused jump or scrub.
+     * Geometry Caches decode asynchronously and otherwise keep drawing their
+     * previous sample while held (Gary, 30 Sep: "takes ages to load up a slot").
+     * Zero disables the re-evaluation.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport",
+        meta = (ClampMin = "0.0", Units = "s"))
+    float JumpResettleSeconds = 0.1f;
+
+    /** Number of delayed same-frame jump re-evaluations fired by this instance. */
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Transport")
+    int32 JumpResettleCount = 0;
 
     /**
      * How the view arrives at a Passage's travelling camera - a Scene or a
@@ -346,6 +369,28 @@ public:
     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
     FFrameNumber GetCurrentMasterFrame() const;
 
+    /** Advances a pending same-frame resettle without requiring a world or player. */
+    static bool StepJumpResettle(
+        FInfinityJumpResettle& State,
+        FFrameNumber CurrentFrame,
+        bool bPlaying,
+        float DeltaSeconds,
+        float SettleSeconds,
+        int32 MinTicks);
+
+    /**
+     * TEST SEAM: runs immediately after the resettle evaluation and before the
+     * Passage camera reassert. Automation uses it to emulate Sequencer restoring
+     * its pre-animated view target during SetPlaybackPosition.
+     */
+    TFunction<void()> JumpResettlePostEvaluationTestSeam;
+
+    /** TEST ONLY: exercises the ordered tick tail without boundary detection. */
+    void RunTickTailForTests(FFrameNumber CurrentFrame, float DeltaTime)
+    {
+        RunTickTail(CurrentFrame, DeltaTime);
+    }
+
     /** True while the Master player is running, so a toggle can tell play from pause. */
     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
     bool IsTransportPlaying() const;
@@ -398,6 +443,8 @@ private:
 
     bool bCoveredHandoffActive = false;
 
+    FInfinityJumpResettle JumpResettleState;
+
     /** What ClaimViewTarget last asked for, and when, so a running blend is not
      * restarted every frame by a repeat of the same request. */
     TWeakObjectPtr<AActor> ClaimedViewTarget;
@@ -422,6 +469,9 @@ private:
 
     /** Restores a Passage claim that Sequencer's Camera Cut restore took away. */
     void ReassertPassageClaimIfLost();
+
+    /** Resettles the held frame before repairing any Passage view-target steal. */
+    void RunTickTail(FFrameNumber CurrentFrame, float DeltaTime);
 
     bool IsUnsafeExternalMove(FFrameNumber TargetFrame) const;
     /** True when holding or rate-changing would disturb a segment whose sound a live

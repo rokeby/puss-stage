@@ -217,6 +217,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Celestial")
     void ResolveEnvironmentBindings();
 
+#if WITH_DEV_AUTOMATION_TESTS
+    int32 GetStarsMaterialParameterWriteCountForTests() const
+    {
+        return StarsMaterialParameterWriteCountForTests;
+    }
+#endif
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -229,11 +236,28 @@ private:
     bool SuppressIfForeign(AActor* Actor);
     /** The safety net: re-hide the actors already silenced, never walking the world. */
     int32 ReapplyForeignSuppression();
+    void InvalidateStarsMaterialParameterCache();
     FDelegateHandle LevelAddedHandle;
     FDelegateHandle ActorSpawnedHandle;
     TSet<TWeakObjectPtr<AActor>> SuppressedForeignActors;
     double LastForeignLightingWalkSeconds = -1.0;
     double LastForeignLightingCheckSeconds = -1.0;
+
+    UPROPERTY(Transient)
+    float LastStarsBrightnessWritten = TNumericLimits<float>::Max();
+
+    UPROPERTY(Transient)
+    float LastSunBrightnessWritten = TNumericLimits<float>::Max();
+
+    UPROPERTY(Transient)
+    float LastCloudOpacityWritten = TNumericLimits<float>::Max();
+
+    UPROPERTY(Transient)
+    float LastSunHeightWritten = TNumericLimits<float>::Max();
+
+#if WITH_DEV_AUTOMATION_TESTS
+    int32 StarsMaterialParameterWriteCountForTests = 0;
+#endif
 
 protected:
 #if WITH_EDITOR

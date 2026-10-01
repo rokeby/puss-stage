@@ -22,6 +22,7 @@ DEFINE_LOG_CATEGORY(LogInfinityStageTransport);
 namespace
 {
 constexpr TCHAR HiddenChangeoverMarker[] = TEXT("InfinityStage.HiddenChangeover");
+constexpr int32 JumpResettleMinTicks = 2;
 
 /**
  * One transport per world, so sequence evaluation can find the single camera
@@ -151,6 +152,35 @@ UInfinityStageTransportController::UInfinityStageTransportController()
     PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
 }
 
+bool UInfinityStageTransportController::StepJumpResettle(
+    FInfinityJumpResettle& State,
+    const FFrameNumber CurrentFrame,
+    const bool bPlaying,
+    const float DeltaSeconds,
+    const float SettleSeconds,
+    const int32 MinTicks)
+{
+    if (!State.bPending)
+    {
+        return false;
+    }
+    if (SettleSeconds <= 0.0f || bPlaying || CurrentFrame != State.Frame)
+    {
+        State.bPending = false;
+        return false;
+    }
+
+    State.Elapsed += FMath::Max(0.0f, DeltaSeconds);
+    ++State.Ticks;
+    if (State.Elapsed < SettleSeconds || State.Ticks < MinTicks)
+    {
+        return false;
+    }
+
+    State.bPending = false;
+    return true;
+}
+
 void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     UnregisterForWorld();
@@ -191,6 +221,47 @@ void UInfinityStageTransportController::TickComponent(
         ClaimSegmentCamera(FrameSegment, CurrentFrame);
         return;
     }
+    RunTickTail(CurrentFrame, DeltaTime);
+}
+
+void UInfinityStageTransportController::RunTickTail(
+    const FFrameNumber CurrentFrame,
+    const float DeltaTime)
+{
+    if (StepJumpResettle(
+        JumpResettleState,
+        CurrentFrame,
+        Player && Player->IsPlaying(),
+        DeltaTime,
+        JumpResettleSeconds,
+        JumpResettleMinTicks))
+    {
+        // StepJumpResettle fires only while the playhead is still on this exact
+        // frame. Keep the external-clock safety gate explicit even though that
+        // makes this a same-frame evaluation rather than a move.
+        const FFrameNumber TargetFrame = JumpResettleState.Frame;
+        if (Player && !IsUnsafeExternalMove(TargetFrame))
+        {
+            const FFrameTime DisplayFrame = ShowAsset
+                ? FFrameRate::TransformTime(FFrameTime(TargetFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
+                : FFrameTime(TargetFrame);
+            Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+            ++JumpResettleCount;
+            UE_LOG(LogInfinityStageTransport, Verbose,
+                TEXT("INFINITY_JUMP_RESETTLE frame=%d"), TargetFrame.Value);
+
+            // TEST SEAM: Sequencer may restore the pre-animated view target as
+            // part of the evaluation above. The test performs that steal here.
+            if (JumpResettlePostEvaluationTestSeam)
+            {
+                JumpResettlePostEvaluationTestSeam();
+            }
+        }
+    }
+
+    // This must remain after the same-frame evaluation. A Passage's Camera Cut
+    // can restore its pre-animated target during SetPlaybackPosition, and the
+    // transport must reclaim the Passage before this tick's camera update.
     ReassertPassageClaimIfLost();
 }
 
@@ -303,6 +374,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
 bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer* InPlayer, UInfinityStageShowAsset* InShowAsset)
 {
     Player = InPlayer;
+    JumpResettleState.bPending = false;
     LastResult = EInfinityTransportResult::NoPlayer;
     if (!InPlayer || !InShowAsset)
     {
@@ -473,6 +545,7 @@ EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
     }
+    JumpResettleState.bPending = false;
     Player->SetPlayRate(FMath::Max(0.001f, FMath::Abs(Player->GetPlayRate())));
     Player->Play();
     return LastResult = EInfinityTransportResult::Succeeded;
@@ -484,6 +557,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float 
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
     }
+    JumpResettleState.bPending = false;
     if (FMath::IsNearlyZero(Rate))
     {
         return PauseTransport();
@@ -529,6 +603,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
         : FFrameTime(TargetFrame);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+    JumpResettleState = {true, TargetFrame, 0.0f, 0};
     SelectedSegmentIndex = TargetIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
     ClaimSegmentCamera(TargetIndex, TargetFrame);
@@ -618,6 +693,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const 
         : FFrameTime(Target);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+    JumpResettleState = {true, Target, 0.0f, 0};
     SelectedSegmentIndex = SegmentIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, Target);
     ClaimSegmentCamera(SegmentIndex, Target);
@@ -1118,6 +1194,7 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
     {
         return LastResult = EInfinityTransportResult::NoPlayer;
     }
+    JumpResettleState.bPending = false;
     // An externally clocked Scene may continue normally at 1x toward its next
     // boundary. Only reverse/seek/hold/rate-changing operations are unsafe.
     if (IsUnsafeExternalMove(TargetFrame) && TargetFrame < GetCurrentMasterFrame())

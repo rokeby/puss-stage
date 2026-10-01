@@ -88,6 +88,29 @@ bool FInfinityStageCelestialPhaseDoesNotWalkTest::RunTest(const FString& Paramet
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageCelestialRepeatedPhaseSkipsMaterialWritesTest,
+    "InfinityStage.Celestial.RepeatedPhaseSkipsMaterialParameterWrites",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageCelestialRepeatedPhaseSkipsMaterialWritesTest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStageCelestialRig* Rig = SpawnBegunCelestialRig(*World);
+    const int32 WritesBeforeFirstApply = Rig->GetStarsMaterialParameterWriteCountForTests();
+
+    Rig->ApplyCyclePhase(0.0);
+    const int32 WritesAfterFirstApply = Rig->GetStarsMaterialParameterWriteCountForTests();
+    Rig->ApplyCyclePhase(0.0);
+
+    TestTrue(TEXT("The first new phase writes star material parameters"), WritesAfterFirstApply > WritesBeforeFirstApply);
+    TestEqual(TEXT("Applying the same phase twice performs no second material parameter write"),
+        Rig->GetStarsMaterialParameterWriteCountForTests(), WritesAfterFirstApply);
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FInfinityStageCelestialLogsOnceTest,
     "InfinityStage.Celestial.EachForeignSkyIsLoggedOnce",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
