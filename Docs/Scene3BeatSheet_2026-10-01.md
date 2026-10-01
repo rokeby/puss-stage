@@ -39,3 +39,14 @@ conductor's reading of what it implies — marked as such, not decided.
 | 5–7 clam opens slowly, close-up, pearl glows | `LS_Clams` clam animation (Gary: stays) | Timing to the ~2 min mark; pearl glow; the song (Cameron) |
 | 10 defocus with narration | — | Focus key on the static camera |
 | 11–12 pearl rises to dangle at camera centre; float out with it; it drops away; go to curtain | — | A pearl move keyed to the camera; the "float out" is a camera move — **check against the rule that camera moves are a score the live GO1 must be able to follow**; the exit to the curtain / boy-cat interaction |
+
+## Blocking rulings (Gary, 1 Oct ~12:50)
+
+- Crowd: a **loose ring around the clam, thinner on the camera side** so the wide sees the
+  clam between the figures.
+- Pedestal: the existing one. Gary **renamed `Clam_with_Pearl_Clam_with_Pearl_0` to
+  `Clam_Pedastal`** (the pedestal; the clam sits on it) and saved the level 12:54:14.
+  **TRAP:** `s3_cast_reveal_apply.py:44` and `s3_pit_deck_apply.py:46` still list the old
+  label, and the cast-reveal record is keyed by it. A revert of either will fail its
+  label lookup (it fails closed, it does not mis-target). Left as is on purpose: editing
+  the label would desync the record. Map the label explicitly if a revert is ever needed.
