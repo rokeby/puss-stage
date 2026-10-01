@@ -58,6 +58,12 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
 
 ## P03 — the Protestant convent to the shore cult
 
+- **Agreed 30 Sep: P03 carries the stones and the pyres.** A henge that grows
+  (small, sparse standing stones, then heavier and closer, then trilithons) with
+  pyres among them that burn bigger along the run: burning as forgetting, toward
+  the shore cult. The convent's rectilinear planes can open the passage before
+  the stones take over (a stepped ratio). Fire is Effects sources'.
+
 - **Mood:** "a cool, protestant style and something quite architectural", a
   "sinister stiff bright rural feel with a touch of the Wicker Man"; arrives at
   "the shoreside cult and their singing clam and their song of forgetting".
@@ -111,6 +117,9 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
   up. Some darker clouds held up by big flat zigzag lightning — "not threatening
   but fun". Drifting feathers, butterflies, cute mice on the ground.
 - **Avoid:** more greenery ("we've had a lot already"). Keep the clouds more abstract.
+- **Ending (agreed 30 Sep):** as the mountains crush the village, the wings
+  **topple flat**, hinged at the base, with the poles left standing. This needs
+  the proposed topple mechanism.
 - **Sources to try:** emblem-book and allegorical thunderbolts (stylised zigzag
   bolts); Maria Sibylla Merian's butterflies; Baroque animal painting for mice
   and birds; bamboo in public-domain East Asian prints; the existing cloud flats.
