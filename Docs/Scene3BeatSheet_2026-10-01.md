@@ -48,5 +48,6 @@ conductor's reading of what it implies — marked as such, not decided.
   `Clam_Pedastal`** (the pedestal; the clam sits on it) and saved the level 12:54:14.
   **TRAP:** `s3_cast_reveal_apply.py:44` and `s3_pit_deck_apply.py:46` still list the old
   label, and the cast-reveal record is keyed by it. A revert of either will fail its
-  label lookup (it fails closed, it does not mis-target). Left as is on purpose: editing
+  label lookup (INFERRED, not tested: both tools resolve targets by exact label and fail on
+  a missing one, so it should fail closed rather than mis-target). Left as is on purpose: editing
   the label would desync the record. Map the label explicitly if a revert is ever needed.
