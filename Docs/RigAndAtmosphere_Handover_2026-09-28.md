@@ -956,7 +956,7 @@ Gary's decisions, all given in THIS session via AskUserQuestion:
 `TaskStop` on my bash wrapper did NOT stop the `codex.exe` child.
 - My 2b/3 Codex run (PID 16536, started 12:12:30) kept running after Conductor 3 took the slot. I killed it, with its children, by PID tree.
 - Measured: it had hit a sandbox exec error, and no new S3_PIT_DECK/S3_STRIKE marker appeared before my last read.
-- Not verified: the minute before the kill. Conductor 3 was told to check the log and that `s3_pit_deck_record.json` is absent.
+- The minute before the kill was VERIFIED by Conductor 3 (measured): no S3_PIT_DECK/S3_STRIKE marker after STOPPED 121126, no record files, and the run started after the editor had closed (the log rotated at 12:12:11).
 - **Rule:** to stop a Codex run, kill the `codex.exe` tree. Find it with `Get-CimInstance Win32_Process` by its prompt text.
 - A stale 30 Sep `codex.exe exec … --worktree` (PID 37152, "Edit exactly ONE file: hangar_build.py") is still alive. It's harmless (worktree), but nobody has claimed it.
 
