@@ -1,5 +1,10 @@
 # Next build window — what is in it, and in what order
 
+> **1 Oct: EDITOR (import, no build) requested by Flat V3 ("Puss - Wings and
+> Textures").** Pilot pair import under `/Game/Scenes/Wings/FlatV3/Pilot/`, new
+> names only, plus later the S3 backdrop MI and wave rows. Not ready until the
+> FBX passes clean re-import. Status: `Docs/FlatV3Status.md`.
+>
 > **1 Oct ~11:20: WINDOW RUN.** Built and committed `35094de`: C v2 and S v2. Suite
 > **102/0/102**. **U (82e36b7) was reverted:** its own test `KindsUseCachedPivotsAndAxes`
 > failed ("Topple Top instance exists" is null). It's back with Rig. **Nothing else is held.**
