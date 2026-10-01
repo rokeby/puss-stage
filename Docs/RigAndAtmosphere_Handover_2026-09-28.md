@@ -881,3 +881,9 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
   - (b) Scene 1's content starts at the cut, not at the landing. That's an offset question, plus who owns S1's content
     sub-sequence.
   - (c) The upper wings flicker uniformly and should vary.
+- **Held patch U (Topple/Turn/Trap), 1 Oct.** U (82e36b7) was reverted from the 1 Oct window because its own test
+  KindsUseCachedPivotsAndAxes failed at "Topple Top instance exists".
+  - Cause (declaration-proven): the fixture never set `WingPair.bHasTop` (default false, InfinityStageTypes.h:678),
+    and PassageActor.cpp:750 materializes the Top only when bHasTop. It was not the Top-keeps-Slide guard.
+  - Fixed with one line in the fixture (8559f2c). It applies at 35094de with `--ignore-whitespace`.
+  - Every assertion after the early return has NEVER RUN. Run that single test first in the next window.
