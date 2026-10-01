@@ -100,3 +100,16 @@ conductor's reading of what it implies — marked as such, not decided.
   v down, normal -X (V-flip fixed by W&T's re-export). Revert: s3_flats_place revert mode.
 - NOT YET: Gary's visual check in PIE (sky up, cottages right); the wave slides (keys);
   Gary's lighting (the white strike floods the side walls; NOT velvet — it's daylight).
+
+## Scene 3 production priorities (Gary, 1 Oct evening — "wings is only one moment")
+1. **Execute the shot list for the shore people** (the 12 beats).
+2. **Skin tone** a bit more Mediterranean. (The cast are MetaHumans, `Content/Metahuman/ShoreCast_20260910`: a skin setting per figure.)
+3. **Duplicate some figures** for a bigger huddle. (Each extra MetaHuman costs frame time — consider cheaper background figures.)
+4. **Light the scene effectively** (Gary, with the landed preview).
+5. **Make the clam beats happen** (opening at ~2:00, close-up, glow).
+6. **The pearl**: the clam is Fab "Clam with Pearl V2" (skeletal `source_Anim` + static). Whether its pearl can rise
+   separately (a bone, or a separate mesh) is UNCLEAR — find or make a pearl for beats 11–12.
+7. **LIVE PERFORMER: when the clam opens, it is a live performer who sings the song.** Cueing this scene needs
+   extra attention — the song's length is live, so the timeline can't simply run on fixed seconds through beats 5–9.
+8. **Side walls: stained hand prints**, as if people have quietly, horrifically been trying to get out. (Also
+   answers the walls-flooding problem through art rather than black velvet — it's daylight.)
