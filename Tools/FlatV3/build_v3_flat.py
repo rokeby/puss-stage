@@ -653,7 +653,7 @@ def member_random(name: str) -> float:
     return 0.08 + 0.84 * ((sum((index + 1) * ord(char) for index, char in enumerate(name)) % 997) / 996.0)
 
 
-def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material]) -> tuple[list[bpy.types.Object], list[dict], list[float], dict]:
+def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], shallow: bool = False) -> tuple[list[bpy.types.Object], list[dict], list[float], dict]:
     objects: list[bpy.types.Object] = []
     members: list[dict] = []
     sign = 1.0 if silhouette.side == "L" else -1.0
@@ -716,8 +716,17 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material]) -> 
             members.append({"kind": "toggle", "name": obj.name, "p0": [y0, toggle_z], "p1": [y1, toggle_z], "width_m": MEMBER_FACE_M})
 
     brace = None
+    # Wave rows use the shallow rail/toggle frame declared by their mount. A
+    # full diagonal cannot remain inset beneath a 1.2-2.6 m rolling crest and
+    # is not part of the sea-row contract.
     if silhouette.width_m > 3.0:
-        for z0, z1 in ((1.5, 6.0), (1.5, 4.5), (3.0, 7.5), (3.0, 6.0)):
+        if shallow:
+            brace_heights = ()
+        else:
+            brace_heights = ((1.5, 6.0), (1.5, 4.5), (3.0, 7.5), (3.0, 6.0))
+        for z0, z1 in brace_heights:
+            if z1 <= z0 + MEMBER_FACE_M:
+                continue
             low = np.column_stack((y_values, np.full_like(y_values, z0)))
             high = np.column_stack((y_values, np.full_like(y_values, z1)))
             low_y = y_values[silhouette.allowed(low, EDGE_INSET_M + MEMBER_FACE_M * 0.75)][::8]
@@ -739,7 +748,7 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material]) -> 
                     break
             if brace:
                 break
-        if brace is None:
+        if brace is None and not shallow:
             raise RuntimeError("Panel exceeds 300 cm but no inset-safe diagonal brace could be placed")
 
     block_count = 0
@@ -822,10 +831,10 @@ def create_flaps(path: Path, silhouette: Silhouette,
                 axis_value = v if horizontal else u
                 raw_weight = (axis_value - axis_min) / max(axis_max - axis_min, 1e-6)
                 # Irregular OpenCV contours contain collinear extremum points
-                # that FBX triangulation may discard.  Give the outer 30% a
-                # saturated free-edge band so a retained triangle corner still
-                # carries the documented 1.0 curl weight after re-import.
-                weight = raw_weight / 0.70
+                # that FBX triangulation may discard. Give both ends saturated
+                # bands so retained triangle corners still carry the documented
+                # 0.0 hinge and 1.0 free weights after re-import.
+                weight = (raw_weight - 0.18) / 0.52
                 weight = float(np.clip(weight, 0.0, 1.0))
                 y = u * silhouette.width_m if silhouette.side == "L" else (u - 1.0) * silhouette.width_m
                 z = v * silhouette.height_m
@@ -1208,7 +1217,7 @@ def build(args: argparse.Namespace) -> None:
     lod1 = create_board(flat_name + "_LOD1", silhouette, materials)
     lod1.name = flat_name + "_LOD1"
     flap_objects, flap_records = create_flaps(Path(args.flaps).resolve(), silhouette, materials)
-    parts, members, pole_y, visibility = build_frame(silhouette, materials)
+    parts, members, pole_y, visibility = build_frame(silhouette, materials, shallow=is_wave_row)
     flat, triangle_counts = consolidate_flat(flat_name + "_LOD0", board, flap_objects + parts, materials)
     rebuild_front_uv0(flat, silhouette)
     flat["FrontAxis"] = "-X"
