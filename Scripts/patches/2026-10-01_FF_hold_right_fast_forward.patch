@@ -1,0 +1,375 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index ebaa3a9c08f493f460f0ea662ba7c99461c1a5e4..674080caed76370447740de6019b26938936521d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -41,11 +41,60 @@ AInfinityStageShowPlayerController::AInfinityStageShowPlayerController()
+ void AInfinityStageShowPlayerController::SetupInputComponent()
+ {
+     Super::SetupInputComponent();
+-    InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &AInfinityStageShowPlayerController::AdvanceShowSegment);
++    InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &AInfinityStageShowPlayerController::BeginRightInput);
++    InputComponent->BindKey(EKeys::Right, IE_Released, this, &AInfinityStageShowPlayerController::EndRightInput);
+     InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousShowSegment);
+     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
+ }
+ 
++void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
++{
++    Super::PlayerTick(DeltaTime);
++    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
++    const float Threshold = Transport ? Transport->HoldThresholdSeconds : 0.30f;
++    ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold));
++}
++
++void AInfinityStageShowPlayerController::BeginRightInput()
++{
++    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
++    HoldRightState.Press(Transport && Transport->IsTransportPlaying());
++}
++
++void AInfinityStageShowPlayerController::EndRightInput()
++{
++    ApplyHoldRightAction(HoldRightState.Release());
++}
++
++void AInfinityStageShowPlayerController::ApplyHoldRightAction(const EInfinityHoldRightAction Action)
++{
++    if (Action == EInfinityHoldRightAction::None)
++    {
++        return;
++    }
++    if (Action == EInfinityHoldRightAction::Advance)
++    {
++        AdvanceShowSegment();
++        return;
++    }
++
++    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
++    if (Action == EInfinityHoldRightAction::BeginFastForward)
++    {
++        const EInfinityTransportResult Result = Transport
++            ? Transport->BeginFastForward()
++            : EInfinityTransportResult::NoPlayer;
++        HoldRightState.ResolveFastForwardStart(Result);
++        ReportTransportResult(this, Result);
++        return;
++    }
++
++    const bool bWasPlaying = Action == EInfinityHoldRightAction::EndFastForwardPlaying;
++    ReportTransportResult(this, Transport
++        ? Transport->EndFastForward(bWasPlaying)
++        : EInfinityTransportResult::NoPlayer);
++}
++
+ void AInfinityStageShowPlayerController::AdvanceShowSegment()
+ {
+     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index 7fa71c31a621f95259abe886d6c7ef5b6bc4e5b9..e590d93ee5f49b0e4c343a6108749a4276d584b7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -141,6 +141,73 @@ FFrameNumber ResolveCoveredHandoffOffset(
+ }
+ }
+ 
++void FInfinityHoldRightState::Press(const bool bInWasPlaying)
++{
++    if (bPressed)
++    {
++        return;
++    }
++    Reset();
++    bPressed = true;
++    bWasPlaying = bInWasPlaying;
++}
++
++EInfinityHoldRightAction FInfinityHoldRightState::Tick(
++    const float DeltaSeconds,
++    const float HoldThresholdSeconds)
++{
++    if (!bPressed || bThresholdReached)
++    {
++        return EInfinityHoldRightAction::None;
++    }
++    HeldSeconds += FMath::Max(0.0f, DeltaSeconds);
++    if (HeldSeconds < FMath::Max(0.0f, HoldThresholdSeconds))
++    {
++        return EInfinityHoldRightAction::None;
++    }
++    bThresholdReached = true;
++    return EInfinityHoldRightAction::BeginFastForward;
++}
++
++void FInfinityHoldRightState::ResolveFastForwardStart(const EInfinityTransportResult Result)
++{
++    bFastForwardActive = bPressed
++        && bThresholdReached
++        && Result == EInfinityTransportResult::Succeeded;
++}
++
++EInfinityHoldRightAction FInfinityHoldRightState::Release()
++{
++    if (!bPressed)
++    {
++        return EInfinityHoldRightAction::None;
++    }
++
++    EInfinityHoldRightAction Action = EInfinityHoldRightAction::None;
++    if (bFastForwardActive)
++    {
++        Action = bWasPlaying
++            ? EInfinityHoldRightAction::EndFastForwardPlaying
++            : EInfinityHoldRightAction::EndFastForwardHeld;
++    }
++    else if (!bThresholdReached)
++    {
++        Action = EInfinityHoldRightAction::Advance;
++    }
++
++    Reset();
++    return Action;
++}
++
++void FInfinityHoldRightState::Reset()
++{
++    bPressed = false;
++    bThresholdReached = false;
++    bFastForwardActive = false;
++    bWasPlaying = false;
++    HeldSeconds = 0.0f;
++}
++
+ UInfinityStageTransportController::UInfinityStageTransportController()
+ {
+     // The camera claim used to happen only on init, scrub and jump, so playing
+@@ -515,6 +582,49 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
+     return LastResult = EInfinityTransportResult::Succeeded;
+ }
+ 
++EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
++{
++    if (!Player)
++    {
++        return LastResult = EInfinityTransportResult::NoPlayer;
++    }
++    RefreshSelectedSegment();
++    if (Segments.IsEmpty())
++    {
++        return LastResult = EInfinityTransportResult::NoSegment;
++    }
++
++    const float Rate = FMath::Max(1.0f, FastForwardRate);
++    if (!FMath::IsNearlyEqual(Rate, 1.0f) && IsUnsafeExternalHold())
++    {
++        return LastResult = EInfinityTransportResult::UnsafeExternalClock;
++    }
++
++    JumpResettleState.bPending = false;
++    Player->SetPlayRate(Rate);
++    // PlayTo the Master's final frame: unlike Advance, this never jumps across
++    // authored time, and TickComponent still claims every camera at every seam.
++    return PlayForwardThroughBoundaries();
++}
++
++EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const bool bWasPlaying)
++{
++    if (!Player)
++    {
++        return LastResult = EInfinityTransportResult::NoPlayer;
++    }
++
++    // Deliberately no separate audio mute: audio remains under Sequencer's
++    // normal playback-rate behaviour and returns with the transport to 1x.
++    Player->SetPlayRate(1.0f);
++    if (bWasPlaying)
++    {
++        Player->Play();
++        return LastResult = EInfinityTransportResult::Succeeded;
++    }
++    return PauseTransport();
++}
++
+ EInfinityTransportResult UInfinityStageTransportController::JumpToPreviousSegment()
+ {
+     RefreshSelectedSegment();
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+index 2471e73cce458148cea8723d58c226c34c3af21d..d4d5493ced46967109abcd049e0089b8ad0373bc 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+@@ -3,6 +3,7 @@
+ #include "CoreMinimal.h"
+ #include "GameFramework/GameModeBase.h"
+ #include "GameFramework/PlayerController.h"
++#include "InfinityStageTransportController.h"
+ #include "InfinityStageShowGameMode.generated.h"
+ 
+ /** Keyboard transport for the focused game viewport, using the one Show player. */
+@@ -13,6 +14,8 @@ class INFINITYSTAGE_API AInfinityStageShowPlayerController : public APlayerContr
+ public:
+     AInfinityStageShowPlayerController();
+ 
++    virtual void PlayerTick(float DeltaTime) override;
++
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     void AdvanceShowSegment();
+ 
+@@ -24,6 +27,13 @@ public:
+ 
+ protected:
+     virtual void SetupInputComponent() override;
++
++private:
++    FInfinityHoldRightState HoldRightState;
++
++    void BeginRightInput();
++    void EndRightInput();
++    void ApplyHoldRightAction(EInfinityHoldRightAction Action);
+ };
+ 
+ /**
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+index 406cbacbb079653f283e16b670a390b78dbcec9a..645e04f9ce177f3d6cf3ef1e58f00a75f8676245 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+@@ -29,6 +29,36 @@ enum class EInfinityTransportResult : uint8
+     UnsafeExternalClock
+ };
+ 
++/** Pure input decisions for the viewport's tap-or-hold Right Arrow binding. */
++enum class EInfinityHoldRightAction : uint8
++{
++    None,
++    Advance,
++    BeginFastForward,
++    EndFastForwardPlaying,
++    EndFastForwardHeld
++};
++
++/**
++ * Converts key timing into transport intentions without requiring a world or
++ * sequence player. The attempted hold is consumed even when the transport
++ * refuses it, so an interlock refusal can never turn into a jump on release.
++ */
++struct INFINITYSTAGE_API FInfinityHoldRightState
++{
++    bool bPressed = false;
++    bool bThresholdReached = false;
++    bool bFastForwardActive = false;
++    bool bWasPlaying = false;
++    float HeldSeconds = 0.0f;
++
++    void Press(bool bInWasPlaying);
++    EInfinityHoldRightAction Tick(float DeltaSeconds, float HoldThresholdSeconds);
++    void ResolveFastForwardStart(EInfinityTransportResult Result);
++    EInfinityHoldRightAction Release();
++    void Reset();
++};
++
+ /** Mirrors the engine's view-target blend shapes, without the internal ones. */
+ UENUM(BlueprintType)
+ enum class EInfinityHandoverBlendFunction : uint8
+@@ -257,6 +287,16 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
+     bool bAutoPlaySceneAfterPassage = false;
+ 
++    /** A shorter Right Arrow press keeps the existing advance-to-next-cue action. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
++        meta = (ClampMin = "0.0", Units = "s"))
++    float HoldThresholdSeconds = 0.30f;
++
++    /** Continuous Master playback rate while Right Arrow is held past the threshold. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
++        meta = (ClampMin = "1.0", UIMax = "8.0"))
++    float FastForwardRate = 4.0f;
++
+     /**
+      * Delay before one same-frame re-evaluation after a paused jump or scrub.
+      * Geometry Caches decode asynchronously and otherwise keep drawing their
+@@ -349,6 +389,14 @@ public:
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     EInfinityTransportResult AdvanceToNextSegment();
+ 
++    /** Plays continuously to the end of the Master at FastForwardRate. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    EInfinityTransportResult BeginFastForward();
++
++    /** Restores 1x and either resumes or holds according to the pre-hold state. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    EInfinityTransportResult EndFastForward(bool bWasPlaying);
++
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     EInfinityTransportResult JumpToPreviousSegment();
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHoldRightFastForwardTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHoldRightFastForwardTests.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..67695aac99c85027034af32825eec5ba642acf50
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHoldRightFastForwardTests.cpp
+@@ -0,0 +1,67 @@
++#include "InfinityStageTransportController.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHoldRightFastForwardsTest,
++    "InfinityStage.Transport.HoldRightFastForwards",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHoldRightFastForwardsTest::RunTest(const FString& Parameters)
++{
++    constexpr float Threshold = 0.30f;
++    const UInfinityStageTransportController* Defaults =
++        GetDefault<UInfinityStageTransportController>();
++    TestEqual(TEXT("The editable hold threshold defaults to 0.30 seconds"),
++        Defaults->HoldThresholdSeconds, Threshold);
++    TestEqual(TEXT("The editable fast-forward rate defaults to 4x"),
++        Defaults->FastForwardRate, 4.0f);
++
++    {
++        FInfinityHoldRightState State;
++        State.Press(false);
++        TestEqual(TEXT("A tap does nothing before release"),
++            State.Tick(0.29f, Threshold), EInfinityHoldRightAction::None);
++        TestEqual(TEXT("A tap keeps the old advance path"),
++            State.Release(), EInfinityHoldRightAction::Advance);
++    }
++
++    {
++        FInfinityHoldRightState State;
++        State.Press(false);
++        TestEqual(TEXT("Crossing the threshold begins fast-forward"),
++            State.Tick(Threshold, Threshold), EInfinityHoldRightAction::BeginFastForward);
++        State.ResolveFastForwardStart(EInfinityTransportResult::Succeeded);
++        TestTrue(TEXT("The rate-changing hold is active after the transport accepts it"),
++            State.bFastForwardActive);
++        TestEqual(TEXT("Release restores 1x and holds when playback began held"),
++            State.Release(), EInfinityHoldRightAction::EndFastForwardHeld);
++    }
++
++    {
++        FInfinityHoldRightState State;
++        State.Press(true);
++        TestEqual(TEXT("A playing transport also enters fast-forward at the threshold"),
++            State.Tick(Threshold, Threshold), EInfinityHoldRightAction::BeginFastForward);
++        State.ResolveFastForwardStart(EInfinityTransportResult::Succeeded);
++        TestEqual(TEXT("Release restores 1x and keeps prior playback playing"),
++            State.Release(), EInfinityHoldRightAction::EndFastForwardPlaying);
++    }
++
++    {
++        FInfinityHoldRightState State;
++        State.Press(false);
++        TestEqual(TEXT("The held gesture reaches the transport once"),
++            State.Tick(Threshold, Threshold), EInfinityHoldRightAction::BeginFastForward);
++        State.ResolveFastForwardStart(EInfinityTransportResult::UnsafeExternalClock);
++        TestFalse(TEXT("The performance interlock refusal never activates fast-forward"),
++            State.bFastForwardActive);
++        TestEqual(TEXT("The refused hold is consumed and cannot become a tap advance"),
++            State.Release(), EInfinityHoldRightAction::None);
++    }
++
++    return true;
++}
++
++#endif
