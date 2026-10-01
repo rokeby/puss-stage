@@ -5,6 +5,26 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Flat V3 billboard master: BUILT (1 Oct)
+
+`/Game/Scenes/Wings/PaintedSurface/Billboard/M_Wing_Billboard_Master` (66 nodes, compile
+clean, ISM and Nanite set, opaque, MaxWPODisplacement 6 cm), with `MI_Billboard_Front` (no
+WPO) and `MI_Billboard_Flap` (Flutter on, two-sided override), and 64² placeholder textures.
+Contract agreed with Wings and Textures (`Docs/FlatV3Spec_2026-09-30.md` "Texture rules"):
+- four slots: Front, Flap, Timber, Edge;
+- UV0 photographic, UV1 metres;
+- mask R peel amount / G height / B roughness / A paste-soak, imported as **TC_Masks**;
+- the under-layer picked per sheet from a UV1 hash;
+- procedural halftone and fibre, faded by footprint;
+- flap WPO from VC.R;
+- burn verbatim from the painted master.
+
+The builder `build_billboard_master.py` was drafted by Codex from
+`Tools/WingMateriality/specs/BillboardMaster_spec.md`. The review replaced
+screen-space ddx/ddy (peel edge, fibre normal) with texture-space and analytic forms,
+because derivative-based shading flickers under TSR. Not yet seen rendered. Next: Timber
+and Edge masters once `DerivedAssets/TextureLibrary/library.json` lands.
+
 ## Upcoming (FYI, 30 Sep): Flat V3 flutter-flap material is ours
 
 Flat V3 flats will carry flutter flaps: small separate parts with a vertex-colour
