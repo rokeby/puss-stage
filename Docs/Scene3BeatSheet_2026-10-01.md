@@ -73,3 +73,19 @@ conductor's reading of what it implies — marked as such, not decided.
   [95, end−hold) + deactivate both ClamCam1 cuts → `rematch_only`. Hole: scrubs landing on
   frames 81–94 may claim the retired root ClamCam1 (IsActive unchecked, declaration-proven) —
   2-line patch for the next build window.
+
+## BUILT, 1 Oct ~15:50 (all measured, markers read back from the log, census clean)
+
+- Diorama: `S3_DIORAMA_DONE run=133043` (pedestal at dock (3500,0), ring r 260/320 cm, gap to camera).
+- Scene 3 length 6240 frames = 260 s (extend 13:46; SavedMasterMatchesShow Success).
+- Beats: `S3_BEATS_DONE run=150947` — 12 root markers `S3 B01..B12`, spawnable `S3 Wide`
+  (copied from the Entry Handoff camera) cut [95,6216], nested LS_Clams ClamCam1 cut DEACTIVATED.
+- Root ClamCam1 cut REMOVED (binding kept): `S3_CLAMCUT_DONE run=154705 finished` — deactivating
+  was not enough, the builder ignores IsActive and the rematch refused with gap [81,95].
+- Rematch: Entry [0,95], Exit [6216,6240] copied from S3 Wide; SavedMasterMatchesShow and
+  SceneCutBindingsResolve both Success.
+- Backups: PreS3Beats-20261001-1509, PreS3RemoveClamCut-20261001-1543,
+  PreSceneExtend-LS_DevScene_03-20261001-154745.
+- INFERRED, not measured: Sequencer playback honours the nested ClamCam1 cut being inactive
+  (FindSceneCameraCut reads root cuts only, so the transport never sees it). Check in PIE.
+- Next for Gary: author the static cameras as ROOT cuts in LS_DevScene_03 (never nested).

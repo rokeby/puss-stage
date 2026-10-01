@@ -107,6 +107,9 @@ CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
   way: 69816a1 (pit guard frame), fd0990a (STEEL object path). Briefs' "stop on any
   BLOCKERS line" is too broad: those lines are inventories; stop only on unknown != [].
   Gary still to judge in PIE: the pit + deck, and the strike brightness.
+- SCENE 3 BEATS BUILT (1 Oct ~15:50): diorama at the box centre (35 m), Scene 3 = 260 s,
+  12 beat markers, S3 Wide placeholder, old ClamCam cuts retired. State and runs in
+  Docs/Scene3BeatSheet_2026-10-01.md 'BUILT'. Next: Gary authors static ROOT cuts; waves/backdrop.
 - NEXT for Scene 3: Wings and Textures' van Goyen backdrop + 3 wooden-wave rows (art via
   their Codex pipeline). Then Rig's step 4-5 placement (waves keyed as actors, appearing at
   the strike; backdrop plane ~20x30 m on the back wall, child MI of MI_Billboard_Front).
