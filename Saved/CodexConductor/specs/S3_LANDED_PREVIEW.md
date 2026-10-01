@@ -26,3 +26,21 @@ Crash rules: no Sequencer UI/evaluation/scrub/PIE; read the rise sequence's chan
 asset only; no unreal objects in module globals; no reload; never Save All; no deletes.
 THIS PASS: write tool, wrappers, request jsons, harness; run the harness. Do NOT touch the editor.
 Final message: files, harness result, tagged measured/inferred.
+
+## Revision 2 — ALL hangars (Gary, 1 Oct: "I will need the possibility of such previews for every
+## hangar scene, so the default mode in editor might as well be fully setup rig")
+- Generalise to every hangar: discover each `LS_S{N}_HangarRise` (or whatever the hangar tools
+  name them: read Saved/CodexStructure/hangar_build.py and hangar_retime_apply.py) and its moving
+  bindings; per-hangar record; modes STATUS / UP <ids|all> / DOWN <ids|all>. Same maths, same
+  rest-pose composition check per hangar (0 cm), same never-save rule and the save-check script
+  covering ALL hangars.
+- Report per hangar which actors move and their landed values; refuse a hangar whose rise does not
+  fit the root/hinge/lattice pattern (S6 roofless, S4 roof — name what differs) rather than guess.
+- Separately, DRAFT (do not build) a held C++ patch for the next build window:
+  `Scripts/patches/2026-10-01_HL_hangars_landed_in_editor.patch`. Goal: the level is SAVED with
+  hangars LANDED; in GAME worlds only, every hangar's moving actors are set to their rise
+  sequence's FIRST key at BeginPlay (before the first rendered frame), so play is unchanged.
+  Find where hangars are owned in C++ (if they are not, propose the smallest owner), state the
+  tick/BeginPlay ordering relative to the transport and the Arrival pre-drives, and add an
+  automation test (new file) that a game world starts sunk and an editor world is untouched.
+  Every inference tagged (engine .cpp is not shipped).
