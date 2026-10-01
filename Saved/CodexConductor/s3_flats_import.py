@@ -272,12 +272,30 @@ def front_direction(mesh):
             points.append(desc.get_vertex_position(vertex))
         a = points[1] - points[0]
         b = points[2] - points[0]
-        normal = a.cross(b).get_safe_normal()
+        cross = a.cross(b)
+        length = (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z) ** 0.5
+        if length <= 1e-9:
+            continue
+        normal = unreal.Vector(cross.x / length, cross.y / length, cross.z / length)
         normals.append(normal)
     if not normals:
         raise RuntimeError("FRONT_POLYGONS_MISSING|mesh=" + mesh.get_path_name())
-    mean = unreal.Vector(sum(n.x for n in normals), sum(n.y for n in normals), sum(n.z for n in normals)).get_safe_normal()
+    mean = unreal.Vector(sum(n.x for n in normals),
+                         sum(n.y for n in normals),
+                         sum(n.z for n in normals))
+    length = (mean.x * mean.x + mean.y * mean.y + mean.z * mean.z) ** 0.5
+    if length <= 1e-9:
+        raise RuntimeError("FRONT_NORMAL_MEAN_DEGENERATE|mesh=" + mesh.get_path_name())
+    mean = unreal.Vector(mean.x / length, mean.y / length, mean.z / length)
     return [float(mean.x), float(mean.y), float(mean.z)]
+
+
+def static_mesh_socket_names(mesh):
+    # The Sockets property is protected in UE 5.8 Python. FBX-imported sockets
+    # have the default empty tag, so the public BlueprintPure query is the
+    # read-only enumeration route for these newly imported meshes.
+    return sorted(str(socket.get_editor_property("socket_name"))
+                  for socket in mesh.get_sockets_by_tag(""))
 
 
 def least_squares_slope(independent, dependent, label):
@@ -293,7 +311,27 @@ def least_squares_slope(independent, dependent, label):
                for x, y in zip(independent, dependent)) / denominator
 
 
-def backdrop_handedness(mesh):
+def wave_front_orientation(mesh):
+    # Front section (slot 0) UV0 must run u -> +Y (screen-right from -X) and v DOWN (dv/dZ < 0),
+    # like every upright wing in Unreal (Docs/WingMateriality.md:407). Run 181644 found the
+    # backdrop V-up; W&T re-exported all flats (1 Oct). Both LODs.
+    report = {}
+    for lod in (0, 1):
+        section = unreal.ProceduralMeshLibrary.get_section_from_static_mesh(mesh, lod, 0)
+        vertices, uvs = section[0], section[3]
+        if len(vertices) < 3 or len(vertices) != len(uvs):
+            raise RuntimeError("WAVE_FRONT_READBACK_INVALID|mesh=%s|lod=%d" % (mesh.get_path_name(), lod))
+        du_dy = least_squares_slope([float(p.y) for p in vertices], [float(uv.x) for uv in uvs], "du_dY")
+        dv_dz = least_squares_slope([float(p.z) for p in vertices], [float(uv.y) for uv in uvs], "dv_dZ")
+        report[lod] = {"du_dY": du_dy, "dv_dZ": dv_dz}
+        if du_dy <= 0.0 or dv_dz >= 0.0:
+            raise RuntimeError("WAVE_FRONT_UV_ORIENTATION_MISMATCH|mesh=%s|lod=%d|report=%s"
+                               % (mesh.get_path_name(), lod, json.dumps(report[lod], sort_keys=True)))
+    unreal.log("S3_WAVE_FRONT_UV|mesh=%s|%s" % (mesh.get_path_name(), json.dumps(report, sort_keys=True)))
+    return report
+
+
+def backdrop_handedness(mesh, validate=True):
     section = unreal.ProceduralMeshLibrary.get_section_from_static_mesh(mesh, 0, 0)
     if not isinstance(section, tuple) or len(section) < 5:
         raise RuntimeError("BACKDROP_SECTION_READBACK_INVALID|mesh=" + mesh.get_path_name())
@@ -321,18 +359,19 @@ def backdrop_handedness(mesh):
         "vertices": len(vertices),
         "triangles": len(triangles) // 3,
     }
-    if (abs(report["bounds_y_cm"][0] + 1000.0) > 1.0 or
-            abs(report["bounds_y_cm"][1] - 1000.0) > 1.0 or
-            abs(report["bounds_z_cm"][0]) > 1.0 or
-            abs(report["bounds_z_cm"][1] - 3000.0) > 1.0):
-        raise RuntimeError("BACKDROP_BOUNDS_MISMATCH|report=" +
-                           json.dumps(report, sort_keys=True))
-    if report["du_dY"] <= 0.0 or report["dv_dZ"] >= 0.0:
-        raise RuntimeError("BACKDROP_UV_HANDEDNESS_MISMATCH|report=" +
-                           json.dumps(report, sort_keys=True))
-    if normal[0] > -0.99 or abs(normal[1]) > 0.02 or abs(normal[2]) > 0.02:
-        raise RuntimeError("BACKDROP_NORMAL_MISMATCH|report=" +
-                           json.dumps(report, sort_keys=True))
+    if validate:
+        if (abs(report["bounds_y_cm"][0] + 1000.0) > 1.0 or
+                abs(report["bounds_y_cm"][1] - 1000.0) > 1.0 or
+                abs(report["bounds_z_cm"][0]) > 1.0 or
+                abs(report["bounds_z_cm"][1] - 3000.0) > 1.0):
+            raise RuntimeError("BACKDROP_BOUNDS_MISMATCH|report=" +
+                               json.dumps(report, sort_keys=True))
+        if report["du_dY"] <= 0.0 or report["dv_dZ"] >= 0.0:
+            raise RuntimeError("BACKDROP_UV_HANDEDNESS_MISMATCH|report=" +
+                               json.dumps(report, sort_keys=True))
+        if normal[0] > -0.99 or abs(normal[1]) > 0.02 or abs(normal[2]) > 0.02:
+            raise RuntimeError("BACKDROP_NORMAL_MISMATCH|report=" +
+                               json.dumps(report, sort_keys=True))
     return report
 
 
@@ -418,8 +457,9 @@ def verify_mesh(mesh, expected_dimensions_m):
     # |dUV1| <= |dPos| + 0.5 cm. Catches 0-1-normalised or mis-scaled UV1.
     for lod in (0, 1):
         verify_uv1_metres(mesh, lod)
+    wave_front_orientation(mesh)
     try:
-        sockets = list(mesh.get_editor_property("sockets"))
+        sockets = static_mesh_socket_names(mesh)
     except Exception as exc:
         raise RuntimeError("SOCKET_READBACK_UNAVAILABLE|mesh=%s|detail=%s" % (mesh.get_path_name(), exc))
     if sockets:
@@ -453,7 +493,7 @@ def verify_backdrop_mesh(mesh):
             abs((ranges[1]["u"][1] - ranges[1]["u"][0]) - 20.0) > 0.02 or
             abs((ranges[1]["v"][1] - ranges[1]["v"][0]) - 30.0) > 0.02):
         raise RuntimeError("BACKDROP_UV_RANGE_MISMATCH|ranges=" + json.dumps(ranges))
-    if list(mesh.get_editor_property("sockets")):
+    if static_mesh_socket_names(mesh):
         raise RuntimeError("BACKDROP_SOCKETS_PRESENT")
     settings = mesh.get_editor_property("nanite_settings")
     if bool(settings.get_editor_property("enabled")):
@@ -509,6 +549,396 @@ def gate_imported_mesh_lods(run, destination_by):
     return True
 
 
+def asset_package(value):
+    if value is None:
+        return None
+    return str(value.get_path_name()).split(".", 1)[0]
+
+
+def serialized_texture_parameters(instance):
+    return {
+        str(value.get_editor_property("parameter_info").get_editor_property("name")):
+        asset_package(value.get_editor_property("parameter_value"))
+        for value in instance.get_editor_property("texture_parameter_values")
+    }
+
+
+def serialized_scalar_parameters(instance):
+    return {
+        str(value.get_editor_property("parameter_info").get_editor_property("name")):
+        float(value.get_editor_property("parameter_value"))
+        for value in instance.get_editor_property("scalar_parameter_values")
+    }
+
+
+def add_failure(failures, gate, asset, **details):
+    row = {"gate": gate, "asset": asset}
+    row.update(details)
+    failures.append(row)
+
+
+def paths_match(actual, expected):
+    return actual == expected
+
+
+def verify_existing_assets(run, inventory, emit_marker=True):
+    """Read back every imported value without setters or saves; collect all failures."""
+    failures = []
+    before = package_census()
+    editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    world = editor.get_editor_world()
+    world_path = world.get_outermost().get_name() if world else None
+    if world_path != EXPECTED_WORLD:
+        add_failure(failures, "WORLD", EXPECTED_WORLD, actual=world_path)
+    if editor.get_game_world() is not None:
+        add_failure(failures, "PIE_OR_SIE", EXPECTED_WORLD, actual="ACTIVE")
+
+    destination_by = {
+        (row["owner"], row.get("texture_kind", row.get("slot", row["kind"]))): row["path"]
+        for row in inventory["destinations"]
+    }
+    source_by = {(row["owner"], row["kind"]): row["path"] for row in inventory["sources"]}
+    expected_paths = sorted(row["path"] for row in inventory["destinations"])
+    validation = load_json(project_file(
+        "DerivedAssets", "FlatV3", "Scene3", "waves", "validation_summary.json"))
+
+    loaded_meshes = {}
+    expected_lods = {owner: 2 for owner in WAVE_NAMES}
+    expected_lods[BACKDROP_NAME] = 1
+    for owner in WAVE_NAMES + (BACKDROP_NAME,):
+        path = destination_by[(owner, "mesh")]
+        asset = unreal.EditorAssetLibrary.load_asset(path)
+        if not isinstance(asset, unreal.StaticMesh):
+            add_failure(failures, "LOD_GATE", path, expected="StaticMesh", actual=type(asset).__name__)
+            continue
+        loaded_meshes[owner] = asset
+        try:
+            actual_lods = int(asset.get_num_lods())
+            if actual_lods != expected_lods[owner]:
+                add_failure(failures, "LOD_GATE", path,
+                            expected=expected_lods[owner], actual=actual_lods)
+        except Exception as exc:
+            add_failure(failures, "LOD_GATE", path, exception=str(exc))
+
+    try:
+        stray_lod_assets = []
+        for path in unreal.EditorAssetLibrary.list_assets(
+                MESH_ROOT, recursive=True, include_folder=False):
+            name = str(path).rsplit("/", 1)[-1].split(".", 1)[0]
+            if name.endswith(("_LOD0", "_LOD1")):
+                stray_lod_assets.append(str(path))
+        if stray_lod_assets:
+            add_failure(failures, "LOD_GATE_STRAY_ASSETS", MESH_ROOT,
+                        actual=sorted(stray_lod_assets), expected=[])
+    except Exception as exc:
+        add_failure(failures, "LOD_GATE_STRAY_ASSETS", MESH_ROOT, exception=str(exc))
+
+    for owner in WAVE_NAMES:
+        mesh = loaded_meshes.get(owner)
+        if mesh is None:
+            continue
+        path = destination_by[(owner, "mesh")]
+        expected_dimensions = [
+            float(value) * 100.0
+            for value in validation["assets"][owner]["fbx_validation"]["dimensions_m"]
+        ]
+        try:
+            box = mesh.get_bounding_box()
+            actual_dimensions = [float(box.max.x - box.min.x),
+                                 float(box.max.y - box.min.y),
+                                 float(box.max.z - box.min.z)]
+            if any(abs(actual - expected) > 1.0
+                   for actual, expected in zip(actual_dimensions, expected_dimensions)):
+                add_failure(failures, "DIMENSIONS", path,
+                            expected=expected_dimensions, actual=actual_dimensions)
+            origin_error = {
+                "y_centre_cm": float(box.min.y + box.max.y),
+                "z_min_cm": float(box.min.z),
+            }
+            if (abs(origin_error["y_centre_cm"]) > 2.0 or
+                    abs(origin_error["z_min_cm"]) > 1.0):
+                add_failure(failures, "ORIGIN", path,
+                            expected={"y_centre_cm": 0.0, "z_min_cm": 0.0},
+                            actual=origin_error)
+        except Exception as exc:
+            add_failure(failures, "DIMENSIONS_OR_ORIGIN", path, exception=str(exc))
+
+        try:
+            static_materials = list(mesh.get_editor_property("static_materials"))
+            slots = [str(row.get_editor_property("material_slot_name"))
+                     for row in static_materials]
+            if slots != list(MI_SLOTS):
+                add_failure(failures, "SLOTS", path, expected=list(MI_SLOTS), actual=slots)
+            expected_materials = [
+                destination_by[(owner, "Front")],
+                destination_by[(owner, "Flap")],
+                PARENTS["Timber"],
+                PARENTS["Edge"],
+            ]
+            actual_materials = [asset_package(row.get_editor_property("material_interface"))
+                                for row in static_materials]
+            if actual_materials != expected_materials:
+                add_failure(failures, "SLOT_MATERIALS", path,
+                            expected=expected_materials, actual=actual_materials)
+        except Exception as exc:
+            add_failure(failures, "SLOTS", path, exception=str(exc))
+
+        for lod in (0, 1):
+            try:
+                verify_uv1_metres(mesh, lod)
+            except Exception as exc:
+                add_failure(failures, "UV1", path, lod=lod, exception=str(exc))
+        try:
+            wave_front_orientation(mesh)
+        except Exception as exc:
+            add_failure(failures, "WAVE_FRONT_UV_ORIENTATION", path, exception=str(exc))
+
+        try:
+            sockets = static_mesh_socket_names(mesh)
+            if sockets:
+                add_failure(failures, "SOCKETS", path, expected=0, actual=len(sockets))
+        except Exception as exc:
+            add_failure(failures, "SOCKETS", path, exception=str(exc))
+
+        try:
+            expected_triangles = int(
+                validation["assets"][owner]["fbx_validation"]["checks"]
+                ["lod1_without_frame_hardware"]["lod1_triangles"])
+            lod1 = mesh.get_static_mesh_description(1)
+            if lod1 is None:
+                raise RuntimeError("LOD1_MESH_DESCRIPTION_MISSING")
+            actual_triangles = int(lod1.get_triangle_count())
+            if actual_triangles != expected_triangles:
+                add_failure(failures, "LOD1_BOARD_ONLY", path,
+                            expected_triangles=expected_triangles,
+                            actual_triangles=actual_triangles)
+        except Exception as exc:
+            add_failure(failures, "LOD1_BOARD_ONLY", path, exception=str(exc))
+
+        try:
+            direction = front_direction(mesh)
+            if direction[0] > -0.99 or abs(direction[1]) > 0.02 or abs(direction[2]) > 0.02:
+                add_failure(failures, "FRONT_DIRECTION", path,
+                            expected=[-1.0, 0.0, 0.0], actual=direction)
+        except Exception as exc:
+            add_failure(failures, "FRONT_DIRECTION", path, exception=str(exc))
+
+        try:
+            if bool(mesh.get_editor_property("nanite_settings").get_editor_property("enabled")):
+                add_failure(failures, "NANITE", path, expected=False, actual=True)
+        except Exception as exc:
+            add_failure(failures, "NANITE", path, exception=str(exc))
+
+    backdrop_mesh = loaded_meshes.get(BACKDROP_NAME)
+    if backdrop_mesh is not None:
+        try:
+            box = backdrop_mesh.get_bounding_box()
+            actual = {
+                "x_centre_cm": float(box.min.x + box.max.x),
+                "y_min_cm": float(box.min.y),
+                "y_max_cm": float(box.max.y),
+                "z_min_cm": float(box.min.z),
+                "z_max_cm": float(box.max.z),
+            }
+            if (abs(actual["x_centre_cm"]) > 1.0 or
+                    abs(actual["y_min_cm"] + 1000.0) > 1.0 or
+                    abs(actual["y_max_cm"] - 1000.0) > 1.0 or
+                    abs(actual["z_min_cm"]) > 1.0 or
+                    abs(actual["z_max_cm"] - 3000.0) > 1.0):
+                add_failure(failures, "BACKDROP_DIMENSIONS_OR_ORIGIN", BACKDROP_MESH,
+                            expected={"x_centre_cm": 0.0, "y_min_cm": -1000.0,
+                                      "y_max_cm": 1000.0, "z_min_cm": 0.0,
+                                      "z_max_cm": 3000.0}, actual=actual)
+        except Exception as exc:
+            add_failure(failures, "BACKDROP_DIMENSIONS_OR_ORIGIN", BACKDROP_MESH,
+                        exception=str(exc))
+        try:
+            static_materials = list(backdrop_mesh.get_editor_property("static_materials"))
+            slots = [str(row.get_editor_property("material_slot_name"))
+                     for row in static_materials]
+            if slots != ["Front"]:
+                add_failure(failures, "SLOTS", BACKDROP_MESH,
+                            expected=["Front"], actual=slots)
+            actual_materials = [asset_package(row.get_editor_property("material_interface"))
+                                for row in static_materials]
+            if actual_materials != [BACKDROP_MI]:
+                add_failure(failures, "SLOT_MATERIALS", BACKDROP_MESH,
+                            expected=[BACKDROP_MI], actual=actual_materials)
+        except Exception as exc:
+            add_failure(failures, "SLOTS", BACKDROP_MESH, exception=str(exc))
+        try:
+            ranges = uv_ranges(backdrop_mesh, 0)
+            if (abs(ranges[0]["u"][0]) > 0.001 or
+                    abs(ranges[0]["u"][1] - 1.0) > 0.001 or
+                    abs(ranges[0]["v"][0]) > 0.001 or
+                    abs(ranges[0]["v"][1] - 1.0) > 0.001 or
+                    abs((ranges[1]["u"][1] - ranges[1]["u"][0]) - 20.0) > 0.02 or
+                    abs((ranges[1]["v"][1] - ranges[1]["v"][0]) - 30.0) > 0.02):
+                add_failure(failures, "BACKDROP_UV", BACKDROP_MESH,
+                            expected={"uv0": [[0.0, 1.0], [0.0, 1.0]],
+                                      "uv1_span": [20.0, 30.0]}, actual=ranges)
+        except Exception as exc:
+            add_failure(failures, "BACKDROP_UV", BACKDROP_MESH, exception=str(exc))
+        try:
+            sockets = static_mesh_socket_names(backdrop_mesh)
+            if sockets:
+                add_failure(failures, "SOCKETS", BACKDROP_MESH,
+                            expected=0, actual=len(sockets))
+        except Exception as exc:
+            add_failure(failures, "SOCKETS", BACKDROP_MESH, exception=str(exc))
+        try:
+            if bool(backdrop_mesh.get_editor_property("nanite_settings").get_editor_property("enabled")):
+                add_failure(failures, "NANITE", BACKDROP_MESH,
+                            expected=False, actual=True)
+        except Exception as exc:
+            add_failure(failures, "NANITE", BACKDROP_MESH, exception=str(exc))
+        try:
+            hand = backdrop_handedness(backdrop_mesh, validate=False)
+            unreal.log("S3_BACKDROP_HANDEDNESS|run=%s|du_dY=%.9g|dv_dZ=%.9g|normal=%s" %
+                       (run, hand["du_dY"], hand["dv_dZ"],
+                        ",".join("%.6f" % value for value in hand["normal"])))
+            if (abs(hand["bounds_y_cm"][0] + 1000.0) > 1.0 or
+                    abs(hand["bounds_y_cm"][1] - 1000.0) > 1.0 or
+                    abs(hand["bounds_z_cm"][0]) > 1.0 or
+                    abs(hand["bounds_z_cm"][1] - 3000.0) > 1.0):
+                add_failure(failures, "BACKDROP_SECTION_BOUNDS", BACKDROP_MESH,
+                            expected={"bounds_y_cm": [-1000.0, 1000.0],
+                                      "bounds_z_cm": [0.0, 3000.0]},
+                            actual={"bounds_y_cm": hand["bounds_y_cm"],
+                                    "bounds_z_cm": hand["bounds_z_cm"]})
+            if hand["du_dY"] <= 0.0 or hand["dv_dZ"] >= 0.0:
+                add_failure(failures, "BACKDROP_HANDEDNESS", BACKDROP_MESH,
+                            expected={"du_dY": ">0", "dv_dZ": "<0"},
+                            actual={"du_dY": hand["du_dY"], "dv_dZ": hand["dv_dZ"]})
+            normal = hand["normal"]
+            if normal[0] > -0.99 or abs(normal[1]) > 0.02 or abs(normal[2]) > 0.02:
+                add_failure(failures, "FRONT_DIRECTION", BACKDROP_MESH,
+                            expected=[-1.0, 0.0, 0.0], actual=normal)
+        except Exception as exc:
+            add_failure(failures, "BACKDROP_HANDEDNESS", BACKDROP_MESH, exception=str(exc))
+
+    textures = {}
+    for owner in WAVE_NAMES + (BACKDROP_NAME,):
+        textures[owner] = {}
+        for kind in TEXTURE_KINDS:
+            path = destination_by[(owner, kind)]
+            texture = unreal.EditorAssetLibrary.load_asset(path)
+            if not isinstance(texture, unreal.Texture2D):
+                add_failure(failures, "TEXTURE_CLASS", path,
+                            expected="Texture2D", actual=type(texture).__name__)
+                continue
+            textures[owner][kind] = texture
+            try:
+                mip_setting = texture.get_editor_property("mip_gen_settings")
+                if mip_setting == unreal.TextureMipGenSettings.TMGS_NO_MIPMAPS:
+                    add_failure(failures, "TEXTURE_MIPS", path,
+                                expected="FULL", actual="NO_MIPMAPS")
+                expected_srgb = kind == "SkinColor"
+                actual_srgb = bool(texture.get_editor_property("srgb"))
+                if actual_srgb != expected_srgb:
+                    add_failure(failures, "TEXTURE_SRGB", path,
+                                expected=expected_srgb, actual=actual_srgb)
+                expected_compression = {
+                    "SkinColor": unreal.TextureCompressionSettings.TC_BC7,
+                    "SkinMask": unreal.TextureCompressionSettings.TC_MASKS,
+                    "SkinNormal": unreal.TextureCompressionSettings.TC_NORMALMAP,
+                }[kind]
+                actual_compression = texture.get_editor_property("compression_settings")
+                if actual_compression != expected_compression:
+                    add_failure(failures, "TEXTURE_COMPRESSION", path,
+                                expected=str(expected_compression), actual=str(actual_compression))
+                if kind == "SkinNormal":
+                    actual_flip = bool(texture.get_editor_property("flip_green_channel"))
+                    if actual_flip:
+                        add_failure(failures, "TEXTURE_NORMAL_GREEN", path,
+                                    expected=False, actual=True)
+            except Exception as exc:
+                add_failure(failures, "TEXTURE_SETTINGS", path, exception=str(exc))
+
+    for owner in WAVE_NAMES + (BACKDROP_NAME,):
+        slots = ("Front", "Flap") if owner != BACKDROP_NAME else ("Front",)
+        params = load_json(source_by[(owner, "mi_params")])
+        expected_scalars = dict(params["scalar_parameters"])
+        if owner == BACKDROP_NAME:
+            expected_scalars.update({"PBacking": 0.55, "POlder": 0.0})
+        expected_textures = {
+            kind: destination_by[(owner, kind)] for kind in TEXTURE_KINDS
+        }
+        for slot in slots:
+            path = destination_by[(owner, slot)] if owner != BACKDROP_NAME else BACKDROP_MI
+            instance = unreal.EditorAssetLibrary.load_asset(path)
+            if not isinstance(instance, unreal.MaterialInstanceConstant):
+                add_failure(failures, "MI_CLASS", path,
+                            expected="MaterialInstanceConstant", actual=type(instance).__name__)
+                continue
+            try:
+                actual_parent = asset_package(instance.get_editor_property("parent"))
+                expected_parent = PARENTS[slot]
+                if not paths_match(actual_parent, expected_parent):
+                    add_failure(failures, "MI_PARENT", path,
+                                expected=expected_parent, actual=actual_parent)
+            except Exception as exc:
+                add_failure(failures, "MI_PARENT", path, exception=str(exc))
+            try:
+                actual_textures = serialized_texture_parameters(instance)
+                if actual_textures != expected_textures:
+                    add_failure(failures, "MI_TEXTURE_PARAMETERS", path,
+                                expected=expected_textures, actual=actual_textures)
+            except Exception as exc:
+                add_failure(failures, "MI_TEXTURE_PARAMETERS", path, exception=str(exc))
+            try:
+                actual_scalars = serialized_scalar_parameters(instance)
+                scalar_mismatches = {}
+                if set(actual_scalars) != set(expected_scalars):
+                    scalar_mismatches["keys"] = {
+                        "expected": sorted(expected_scalars),
+                        "actual": sorted(actual_scalars),
+                    }
+                for parameter, expected in expected_scalars.items():
+                    actual = actual_scalars.get(parameter)
+                    if actual is None or abs(float(actual) - float(expected)) > 0.0001:
+                        scalar_mismatches[parameter] = {"expected": float(expected), "actual": actual}
+                if scalar_mismatches:
+                    add_failure(failures, "MI_SCALAR_PARAMETERS", path,
+                                mismatches=scalar_mismatches)
+            except Exception as exc:
+                add_failure(failures, "MI_SCALAR_PARAMETERS", path, exception=str(exc))
+
+    after = package_census()
+    if after != before:
+        add_failure(failures, "READ_ONLY_CENSUS_CHANGED", TARGET_ROOT,
+                    expected=before, actual=after)
+    passed = not failures
+    if emit_marker:
+        unreal.log("S3_FLATS_IMPORT_VERIFY|run=%s|pass=%s|failures=%s" %
+                   (run, str(passed).lower(),
+                    json.dumps(failures, separators=(",", ":"), sort_keys=True)))
+    return passed, failures, expected_paths
+
+
+def finish_import(run, inventory):
+    passed, failures, expected_paths = verify_existing_assets(run, inventory, emit_marker=True)
+    if not passed:
+        unreal.log_error("S3_FLATS_IMPORT_FINISH_STOPPED|run=%s|reason=VERIFY_FAILED|failures=%s" %
+                         (run, json.dumps(failures, separators=(",", ":"), sort_keys=True)))
+        return
+    before = package_census()
+    if before["maps"] or before["content"] != expected_paths:
+        unreal.log_error("S3_FLATS_IMPORT_FINISH_STOPPED|run=%s|reason=CENSUS_BEFORE|expected=%s|actual=%s" %
+                         (run, json.dumps({"maps": [], "content": expected_paths},
+                                          separators=(",", ":"), sort_keys=True),
+                          json.dumps(before, separators=(",", ":"), sort_keys=True)))
+        return
+    for path in expected_paths:
+        if not unreal.EditorAssetLibrary.save_asset(path, only_if_is_dirty=False):
+            raise RuntimeError("SAVE_FAILED|path=" + path)
+    after = package_census()
+    if after["maps"] or after["content"]:
+        raise RuntimeError("POST_FINISH_DIRTY|census=" + json.dumps(after, sort_keys=True))
+    unreal.log("S3_FLATS_IMPORT_DONE|run=%s|finished|census=%s" %
+               (run, json.dumps(after, separators=(",", ":"), sort_keys=True)))
+
+
 def apply_import(run, inventory):
     asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
     source_by = {(row["owner"], row["kind"]): row["path"] for row in inventory["sources"]}
@@ -527,6 +957,16 @@ def apply_import(run, inventory):
     asset_tools.import_asset_tasks(mesh_tasks)
     if not gate_imported_mesh_lods(run, destination_by):
         return
+
+    # Mesh-level geometry gates BEFORE any texture or MI exists, so a failure leaves only the
+    # seven meshes in memory (runs 180401 and 181644 left 41 packages behind).
+    for owner in WAVE_NAMES:
+        mesh = unreal.load_asset(destination_by[(owner, "mesh")])
+        for lod in (0, 1):
+            verify_uv1_metres(mesh, lod)
+        wave_front_orientation(mesh)
+    backdrop_handedness(unreal.load_asset(destination_by[(BACKDROP_NAME, "mesh")]))
+    unreal.log("S3_FLATS_IMPORT_GEOMETRY_GATE|run=%s|pass=1" % run)
 
     texture_tasks = []
     for owner in WAVE_NAMES + (BACKDROP_NAME,):
@@ -629,9 +1069,21 @@ def apply_import(run, inventory):
 def main():
     run = datetime.datetime.now().strftime("%H%M%S")
     apply = bool(globals().get("S3_FLATS_IMPORT_APPLY"))
+    verify = bool(globals().get("S3_FLATS_IMPORT_VERIFY"))
+    finish = bool(globals().get("S3_FLATS_IMPORT_FINISH"))
     try:
-        if globals().get("S3_FLATS_REVISION") != 2:
-            raise RuntimeError("REVISION_2_WRAPPER_REQUIRED")
+        if sum(int(value) for value in (apply, verify, finish)) > 1:
+            raise RuntimeError("IMPORT_MODE_FLAGS_MUTUALLY_EXCLUSIVE")
+        expected_revision = 3 if (verify or finish) else 2
+        if globals().get("S3_FLATS_REVISION") != expected_revision:
+            raise RuntimeError("REVISION_%d_WRAPPER_REQUIRED" % expected_revision)
+        if verify or finish:
+            inventory = build_inventory()
+            if verify:
+                verify_existing_assets(run, inventory, emit_marker=True)
+            else:
+                finish_import(run, inventory)
+            return
         assert_context(run)
         fbx_options()  # pure object construction; proves every FBX option name in the dry run too
         inventory = build_inventory()
