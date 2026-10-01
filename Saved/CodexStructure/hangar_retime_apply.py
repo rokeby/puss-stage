@@ -759,7 +759,7 @@ if unreal is not None:
             if scene_sequence is None:
                 fail(run, f"S{scene}: scene sequence missing")
             nest = nest_rows(scene_sequence, path)
-            too_long = [row for row in nest if row["end_s"] - row["start_s"] > 31.0 + 1.0 / FPS]
+            too_long = [row for row in nest if row["is_rise"] and row["end_s"] - row["start_s"] > 31.0 + 1.0 / FPS]  # only the rise nest; scene content (LS_Clams etc.) is longer by design
             if too_long:
                 precondition_bad.append(f"S{scene}:nest section outlives 31 s rise:{too_long}")
             arrival = one_actor(actors, f"S{scene} Arrival", run)
