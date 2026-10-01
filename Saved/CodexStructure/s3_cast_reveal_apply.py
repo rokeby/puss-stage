@@ -417,13 +417,11 @@ def bool_keys_match(got, wanted, fps):
 
 
 def named_visibility_track(binding, run):
-    tracks = [
-        track
-        for track in visibility_tracks(binding)
-        if str(track.get_display_name()) == TRACK_NAME
-    ]
+    # By class, not display name: set_display_name does not stick on a visibility track (run 120752).
+    # Apply refuses a binding that already has a visibility track, so exactly one is ours.
+    tracks = visibility_tracks(binding)
     if len(tracks) != 1:
-        fail(run, f"binding {guid_text(binding.get_id())} has {len(tracks)} named visibility tracks")
+        fail(run, f"binding {guid_text(binding.get_id())} has {len(tracks)} visibility tracks")
     return tracks[0]
 
 
@@ -587,7 +585,7 @@ def verify_removed_visibility(sequence, rows, run):
         else:
             if binding is None:
                 fail(run, f"{row['label']}: reused binding was removed during revert")
-            remaining = [track for track in binding.get_tracks() if str(track.get_display_name()) == TRACK_NAME]
+            remaining = visibility_tracks(binding)
             if remaining:
                 fail(run, f"{row['label']}: added visibility track remains after revert")
 
@@ -609,6 +607,39 @@ def save_targets(run):
     return census
 
 
+def finish(world, run):
+    """Complete an apply whose writes all landed but whose read-back stopped (run 120752): verify the UNSAVED
+    applied state against the record (actor states, bindings, keys, completion mode, playback, coverage), then
+    save only the level and the rise. Refuses unless the dirty set is exactly those two."""
+    if not os.path.exists(RECORD):
+        fail(run, "finish refused: no apply record")
+    if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence():
+        fail(run, "Sequencer is open")
+    require_target_dirty_set(run)
+    with open(RECORD, encoding="utf-8") as handle:
+        record = json.load(handle)
+    if record.get("world") != EXPECTED_WORLD or record.get("rise") != RISE or len(record.get("bindings", [])) != len(CAST_LABELS):
+        fail(run, f"finish refused: record incomplete ({len(record.get('bindings', []))} bindings)")
+    targets = exact_actors(all_level_actors(), run)
+    point_component = one_light_component(targets["PointLight"], run)
+    rise = unreal.load_asset(RISE)
+    scene = unreal.load_asset(SCENE)
+    if capture_states(targets, point_component) != record["after_states"]:
+        fail(run, "finish refused: actor states are not the recorded applied states")
+    readback = verify_binding_rows(rise, world, record["bindings"], record["plan"]["apply_keys"], run)
+    if [float(rise.get_playback_start_seconds()), float(rise.get_playback_end_seconds())] != record["rise_playback_before"]:
+        fail(run, "finish refused: rise playback range drifted")
+    if section_coverage(scene, rise, run) != record["section_coverage"]:
+        fail(run, "finish refused: nest coverage drifted")
+    require_target_dirty_set(run)
+    census = save_targets(run)
+    unreal.log(
+        f"S3_CAST_REVEAL_DONE|run={run}|finished|apply_run={record.get('run')}|reveals={len(CAST_LABELS)}|"
+        f"removals={len(REMOVE_LABELS)}|bindings={len(readback)}|visibility_semantics={VISIBILITY_HEADER_FINDING}|"
+        f"apply_assumption={APPLY_KEY_SEMANTICS}|census={json.dumps(census, sort_keys=True)}"
+    )
+
+
 def main():
     run = datetime.datetime.now().strftime("%H%M%S")
     applying = bool(globals().get("S3_CAST_REVEAL_APPLY"))
@@ -620,6 +651,9 @@ def main():
     world = editor.get_editor_world()
     if not world or world.get_path_name().split(".", 1)[0] != EXPECTED_WORLD or editor.get_game_world() is not None:
         fail(run, "wrong world, or PIE")
+    if globals().get("S3_CAST_REVEAL_FINISH"):
+        finish(world, run)
+        return
     actors = all_level_actors()
     assert_guards(editor, actors, run, applying, reverting)
     targets = exact_actors(actors, run)
