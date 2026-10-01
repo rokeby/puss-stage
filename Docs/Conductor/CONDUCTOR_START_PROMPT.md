@@ -118,6 +118,8 @@ CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
   Show write needs a backup, revert and passage/position first); the scene-specific light
   strikes for S1, S2 and S4 wait on Klara.
 - Curtain colour: plain oxblood B (the velvet texture is parked). Free dog look in all Scenes.
+- Runnable now that L is built, and NOT yet run: the Scene 1 and Scene 3 handoff
+  rematch_only (Soft goods; procedure at the top of Docs/ChaosClothCurtain.md, 09ee77c).
 
 STATE AS OF 1 October 2026 ~02:00 (history).
 - BUILT cc1331e, suite 99/0/99: K, L v2, MR, N v2, O v2, P v2, Q v2, T. HELD for the next
