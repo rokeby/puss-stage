@@ -10,7 +10,8 @@ from pathlib import Path
 import cv2
 
 
-VIEWS = ("head_on_6m", "peel_closeup_1m", "grazing_30deg", "back_three_quarter_2m", "back_head_on")
+VIEWS = ("head_on_6m", "front_head_on_poles", "front_three_quarter_poles", "peel_closeup_1m",
+         "grazing_30deg", "back_three_quarter_2m", "back_head_on")
 
 
 def image_record(path: Path, expected_size: tuple[int, int] | None, channels: tuple[int, ...]) -> dict:
@@ -43,7 +44,10 @@ def main() -> None:
         textures[f"{side}_SkinMask"] = image_record(root / f"T_{base}_SkinMask.png", (1024, 2048), (4,))
         textures[f"{side}_SkinNormal"] = image_record(root / f"T_{base}_SkinNormal.png", (1024, 2048), (3, 4))
         manifest = json.loads((root / f"{base}_build.json").read_text(encoding="utf-8"))
-        expected = sorted(("Dummy_8cm_Groove", "Floor_Back", "Floor_Front", f"Pole_{side}_1", f"Pole_{side}_2", f"SM_FlatV3_{base}_LOD0"))
+        expected = ["Dummy_8cm_Groove", "Floor_Back", "Floor_Front", f"SM_FlatV3_{base}_LOD0"]
+        if not manifest.get("baked_poles", {}).get("enabled", False):
+            expected.extend((f"Pole_{side}_1", f"Pole_{side}_2"))
+        expected = sorted(expected)
         for view in VIEWS:
             key = f"{side}_{view}"
             renders[key] = image_record(root / f"{base}_{view}.png", (1400, 1000), (4,))

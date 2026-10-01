@@ -62,6 +62,12 @@ def blender_args() -> argparse.Namespace:
         action="store_true",
         help="Build the flat normally without replacing the shared no-LOD pole FBX",
     )
+    parser.add_argument(
+        "--bake-poles",
+        action="store_true",
+        help=("Bake a full-height copy of the shared pole profile into both card LODs at every "
+              "Pole_n socket. For non-toppling interim use only; sockets remain exported."),
+    )
     return parser.parse_args(raw)
 
 
@@ -1041,6 +1047,45 @@ def create_pole(materials: list[bpy.types.Material]) -> bpy.types.Object:
     return pole
 
 
+def create_baked_poles(pole_y: list[float], height_m: float,
+                       materials: list[bpy.types.Material], lod_label: str) -> tuple[list[bpy.types.Object], list[dict]]:
+    """Create deterministic, joined-card copies of the shared pole profile.
+
+    The shared pole is authored as a one-metre module whose normalized bounds
+    retain the 10 m pilot proportions. Scaling and translating that exact mesh
+    gives every baked pole an exact -1.0 m foot and a top 0.2 m above the card.
+    """
+    bottom_m = -1.0
+    top_m = height_m + 0.2
+    span_m = top_m - bottom_m
+    translation_z = bottom_m - POLE_UNIT_BOTTOM_M * span_m
+    poles = []
+    records = []
+    for index, y in enumerate(pole_y, start=1):
+        pole = create_pole(materials)
+        pole.name = f"BakedPole_{lod_label}_{index}"
+        pole.location = (0.0, y, translation_z)
+        pole.scale.z = span_m
+        bpy.ops.object.select_all(action="DESELECT")
+        pole.select_set(True)
+        bpy.context.view_layer.objects.active = pole
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+        pole.data.calc_loop_triangles()
+        poles.append(pole)
+        records.append({
+            "name": pole.name,
+            "socket": f"SOCKET_Pole_{index}",
+            "axis_m": [0.0, float(y)],
+            "bottom_z_m": bottom_m,
+            "top_z_m": top_m,
+            "shaft_diameter_m": POLE_DIAMETER_M,
+            "material_slot": "Timber",
+            "vertex_colour_red": 1.0,
+            "triangles": len(pole.data.loop_triangles),
+        })
+    return poles, records
+
+
 def create_floor_and_groove(width_m: float, side: str, materials: list[bpy.types.Material]) -> list[bpy.types.Object]:
     floor_mat = bpy.data.materials.new("RenderFloor")
     floor_mat.diffuse_color = (0.055, 0.035, 0.020, 1.0)
@@ -1196,6 +1241,8 @@ def render_views(output_dir: Path, base_name: str, side: str, silhouette: Silhou
     grazing_y = center_y + (-5.196 if side == "L" else 5.196)
     views = {
         "head_on_6m": {"loc": (BOARD_FRONT_X - 6.0, center_y, silhouette.height_m * 0.5), "target": center, "lens": 15.0},
+        "front_head_on_poles": {"loc": (BOARD_FRONT_X - 9.0, center_y, 4.6), "target": (BOARD_FRONT_X, center_y, 4.6), "lens": 20.0},
+        "front_three_quarter_poles": {"loc": (BOARD_FRONT_X - 8.0, center_y - sign * 5.0, 4.6), "target": (BOARD_FRONT_X, center_y, 4.6), "lens": 20.0},
         "peel_closeup_1m": {"loc": (flap_target[0] - 0.96, flap_target[1] + (-0.28 if side == "L" else 0.28), flap_target[2] + 0.06), "target": flap_target, "lens": 48.0},
         "grazing_30deg": {"loc": (BOARD_FRONT_X - 3.0, grazing_y, silhouette.height_m * 0.53), "target": center, "lens": 30.0},
         "back_three_quarter_2m": {"loc": (BOARD_BACK_X + 1.65, center_y - (-1.1 if side == "L" else 1.1), 2.0), "target": (BOARD_BACK_X, center_y, 2.0), "lens": 28.0},
@@ -1244,15 +1291,33 @@ def build(args: argparse.Namespace) -> None:
     lod1.name = flat_name + "_LOD1"
     flap_objects, flap_records = create_flaps(Path(args.flaps).resolve(), silhouette, materials)
     parts, members, pole_y, visibility = build_frame(silhouette, materials, shallow=is_wave_row)
-    flat, triangle_counts = consolidate_flat(flat_name + "_LOD0", board, flap_objects + parts, materials)
+    if args.bake_poles and is_wave_row:
+        raise RuntimeError("--bake-poles is valid only for wing-mounted flats")
+    baked_lod0, baked_pole_records = (create_baked_poles(pole_y, silhouette.height_m, materials, "LOD0")
+                                      if args.bake_poles else ([], []))
+    baked_lod1, _ = (create_baked_poles(pole_y, silhouette.height_m, materials, "LOD1")
+                     if args.bake_poles else ([], []))
+    flat, triangle_counts = consolidate_flat(flat_name + "_LOD0", board, flap_objects + parts + baked_lod0, materials)
+    if baked_lod1:
+        lod1, lod1_counts = consolidate_flat(flat_name + "_LOD1", lod1, baked_lod1, materials)
+    else:
+        lod1_counts = {"flat_total": object_triangles(lod1)}
     rebuild_front_uv0(flat, silhouette)
     flat["FrontAxis"] = "-X"
     flat["PlacementContract"] = ("Origin=BottomCentre; Scale=1" if is_wave_row else
                                  "Origin=PoleLineX_BackboneY_FloorZ; Scale=1")
     flat["Side"] = args.side
     flat["Mount"] = args.mount
-    flat["LODContract"] = "LOD0 board flaps frame hardware"
-    lod1["LODContract"] = "LOD1 board only; no frame hardware flaps"
+    flat["BakedPoles"] = bool(args.bake_poles)
+    flat["PoleFootZM"] = -1.0 if args.bake_poles else 0.0
+    flat["PoleTopZM"] = silhouette.height_m + 0.2 if args.bake_poles else 0.0
+    lod1["BakedPoles"] = bool(args.bake_poles)
+    lod1["PoleFootZM"] = -1.0 if args.bake_poles else 0.0
+    lod1["PoleTopZM"] = silhouette.height_m + 0.2 if args.bake_poles else 0.0
+    flat["LODContract"] = ("LOD0 board flaps frame hardware baked poles" if args.bake_poles else
+                           "LOD0 board flaps frame hardware")
+    lod1["LODContract"] = ("LOD1 board plus baked poles; no frame hardware flaps" if args.bake_poles else
+                           "LOD1 board only; no frame hardware flaps")
     centre_offset_m = ((-silhouette.width_m * 0.5 if args.side == "L" else silhouette.width_m * 0.5)
                        if is_wave_row else 0.0)
     if is_wave_row:
@@ -1289,7 +1354,7 @@ def build(args: argparse.Namespace) -> None:
         pole.hide_set(True)
 
     pole_instances = []
-    if pole is not None:
+    if pole is not None and not args.bake_poles:
         for index, y in enumerate(pole_y, start=1):
             instance = bpy.data.objects.new(f"Pole_{args.side}_{index}", pole.data)
             bpy.context.collection.objects.link(instance)
@@ -1342,11 +1407,20 @@ def build(args: argparse.Namespace) -> None:
         "placement": {"origin_m": [0.0, 0.0, 0.0], "origin_contract": "bottom-centre" if is_wave_row else "pole-line/backbone/floor", "front_axis": "-X", "backbone_y_m": None if is_wave_row else 0.0, "floor_z_m": 0.0, "front_face_x_m": BOARD_FRONT_X},
         "mask": {"pixel_size": [silhouette.image_w, silhouette.image_h], "outer_vertices": len(silhouette.pixel_loops[0]), "hole_count": len(silhouette.pixel_loops) - 1, "metres_per_pixel": silhouette.scale_m_per_px},
         "pole_positions_y_m": pole_y,
+        "baked_poles": {
+            "enabled": bool(args.bake_poles),
+            "interim_non_toppling_only": bool(args.bake_poles),
+            "lods": ["LOD0", "LOD1"] if args.bake_poles else [],
+            "records": baked_pole_records,
+            "shared_pole_fbx_unchanged_when_skip_pole_export": bool(args.skip_pole_export),
+        },
         "sockets": [socket.name for socket in sockets],
         "frame_members": members,
         "flaps": flap_records,
         "head_on_frame_visibility": visibility,
-        "triangle_counts": {**triangle_counts, "lod1_board_only": lod1_triangles, "shared_pole": pole_triangles},
+        "triangle_counts": {**triangle_counts, "lod1_total": lod1_triangles,
+                            "lod1_board_without_baked_poles": lod1_counts.get("profile_board", lod1_counts.get("flat_total")),
+                            "shared_pole": pole_triangles},
         "material_slots": MATERIAL_SLOTS,
         "uv_layers": [layer.name for layer in flat.data.uv_layers],
         "vertex_colour_contract": {"layer": VERTEX_COLOR_NAME, "Flap.R": "flutter weight; 0 hinge to 1 free", "Timber.R": "0 softwood; 0.5 ply; 1 steel", "Timber.G": "deterministic per-member variation"},
@@ -1357,6 +1431,7 @@ def build(args: argparse.Namespace) -> None:
             "LOD0": flat.name,
             "LOD1": lod1.name,
             "LOD1_excludes": ["frame", "hardware", "flaps"],
+            "LOD1_keeps": ["board", "baked_poles"] if args.bake_poles else ["board"],
         },
         "outputs": {
             "flat_fbx": str(flat_fbx),
@@ -1378,6 +1453,71 @@ def transformed_bounds(obj: bpy.types.Object) -> tuple[np.ndarray, np.ndarray]:
 def vertex_color_layer(obj: bpy.types.Object):
     layers = obj.data.color_attributes
     return layers.get(VERTEX_COLOR_NAME) or (layers[0] if len(layers) else None)
+
+
+def material_bounds(obj: bpy.types.Object, slots: list[str], slot_name: str) -> tuple[np.ndarray, np.ndarray] | None:
+    points = []
+    for polygon in obj.data.polygons:
+        if not (0 <= polygon.material_index < len(slots)) or slots[polygon.material_index] != slot_name:
+            continue
+        for vertex_index in polygon.vertices:
+            points.append(tuple(obj.matrix_world @ obj.data.vertices[vertex_index].co))
+    if not points:
+        return None
+    values = np.asarray(points, dtype=np.float64)
+    return values.min(axis=0), values.max(axis=0)
+
+
+def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects: dict[str, bpy.types.Object],
+                         expected_height_m: float) -> dict:
+    layer = vertex_color_layer(obj)
+    timber_index = slots.index("Timber") if "Timber" in slots else -1
+    pole_sockets = sorted(name for name in socket_objects if name.startswith("SOCKET_Pole_"))
+    details = {}
+    passed = bool(layer is not None and timber_index >= 0 and pole_sockets)
+    for socket_name in pole_sockets:
+        socket = socket_objects[socket_name]
+        socket_location = socket.matrix_world.translation
+        samples = []
+        red_values = []
+        for polygon in obj.data.polygons:
+            if polygon.material_index != timber_index:
+                continue
+            for loop_index in polygon.loop_indices:
+                co = obj.matrix_world @ obj.data.vertices[obj.data.loops[loop_index].vertex_index].co
+                red = float(layer.data[loop_index].color[0]) if layer is not None else -1.0
+                if red >= 0.97 and abs(float(co.x)) <= 0.05 and abs(float(co.y - socket_location.y)) <= 0.05:
+                    samples.append((float(co.x), float(co.y), float(co.z)))
+                    red_values.append(red)
+        if samples:
+            unique = np.unique(np.asarray(samples, dtype=np.float64), axis=0)
+            lower = unique.min(axis=0)
+            upper = unique.max(axis=0)
+            axis_x = float((lower[0] + upper[0]) * 0.5)
+            axis_y = float((lower[1] + upper[1]) * 0.5)
+            detail_pass = bool(
+                abs(float(lower[2]) + 1.0) <= 0.002
+                and float(upper[2]) >= expected_height_m + 0.19
+                and abs(axis_x - float(socket_location.x)) <= 0.002
+                and abs(axis_y - float(socket_location.y)) <= 0.002
+                and min(red_values) >= 0.97
+            )
+            details[socket_name] = {
+                "pass": detail_pass,
+                "socket_location_m": list(map(float, socket_location)),
+                "pole_axis_m": [axis_x, axis_y],
+                "bounds_min_z_m": float(lower[2]),
+                "bounds_max_z_m": float(upper[2]),
+                "required_min_z_m": -1.0,
+                "required_top_above_m": expected_height_m,
+                "timber_vc_red_range": [min(red_values), max(red_values)],
+                "sample_count": len(unique),
+            }
+        else:
+            detail_pass = False
+            details[socket_name] = {"pass": False, "reason": "no Timber VC.R=1 pole geometry on socket axis"}
+        passed = passed and detail_pass
+    return {"pass": bool(passed), "details": details, "lod": obj.name}
 
 
 def validate_metric_uv1(obj: bpy.types.Object, slots: list[str], *, interchange_precompensated: bool = True) -> dict:
@@ -1756,6 +1896,7 @@ def validate(args: argparse.Namespace) -> None:
         socket_objects = {obj.name: obj for obj in empties if obj.name.startswith("SOCKET_")}
         socket_names = sorted(socket_objects)
         is_wave_row = args.kind == "wave"
+        baked_poles = bool(flat.get("BakedPoles", False))
         required_sockets = set() if is_wave_row else {"SOCKET_Pole_1", "SOCKET_Hinge", "SOCKET_Pivot"}
         if not is_wave_row and float(dims[1]) > 4.0:
             required_sockets.add("SOCKET_Pole_2")
@@ -1796,6 +1937,12 @@ def validate(args: argparse.Namespace) -> None:
         flat.data.calc_loop_triangles()
         if lod1:
             lod1.data.calc_loop_triangles()
+        front_bounds = material_bounds(flat, slots, "Front")
+        card_height = float(front_bounds[1][2] - front_bounds[0][2]) if front_bounds else 0.0
+        baked_lod0_check = (validate_baked_poles(flat, slots, socket_objects, expected_h)
+                            if baked_poles else {"pass": True, "enabled": False})
+        baked_lod1_check = (validate_baked_poles(lod1, lod1_slots, socket_objects, expected_h)
+                            if baked_poles and lod1 else {"pass": not baked_poles, "enabled": False})
         triangles_by_slot = {name: 0 for name in MATERIAL_SLOTS}
         for triangle in flat.data.loop_triangles:
             index = flat.data.polygons[triangle.polygon_index].material_index
@@ -1803,8 +1950,13 @@ def validate(args: argparse.Namespace) -> None:
                 triangles_by_slot[slots[index]] += 1
         result["checks"] = {
             "fbx_lod_group": raw_lod_group,
-            "height": {"pass": abs(float(dims[2]) - expected_h) <= 0.01, "measured_m": float(dims[2]), "expected_m": expected_h},
-            "depth_about_12cm": {"pass": 0.115 <= float(dims[0]) <= 0.130, "measured_m": float(dims[0])},
+            "height": {"pass": abs(card_height - expected_h) <= 0.01, "measured_card_m": card_height, "expected_m": expected_h},
+            "depth_about_12cm": ({"pass": 0.190 <= float(dims[0]) <= 0.210, "measured_m": float(dims[0]), "contract": "card plus baked pole collar"}
+                                 if baked_poles else
+                                 {"pass": 0.115 <= float(dims[0]) <= 0.130, "measured_m": float(dims[0]), "contract": "card only"}),
+            "bounds_min_z": ({"pass": abs(float(lower[2]) + 1.0) <= 0.002, "measured_m": float(lower[2]), "expected_m": -1.0}
+                             if baked_poles else
+                             {"pass": abs(float(lower[2])) <= 0.01, "measured_m": float(lower[2]), "expected_m": 0.0}),
             "material_slots_exact": {"pass": slots == MATERIAL_SLOTS, "value": slots, "expected": MATERIAL_SLOTS},
             "uv0_uv1": {"pass": uv_names == ["UV0", "UV1"], "value": uv_names},
             "uv1_metres_all_slots": validate_metric_uv1(flat, slots),
@@ -1817,7 +1969,9 @@ def validate(args: argparse.Namespace) -> None:
             "lod1_uv0_uv1": {"pass": lod1 is not None and lod1_uv_names == ["UV0", "UV1"], "value": lod1_uv_names},
             "lod1_uv1_metres_all_slots": validate_metric_uv1(lod1, lod1_slots) if lod1 else {"pass": False, "reason": "missing"},
             "lod1_vertex_colours": validate_vertex_contract(lod1, lod1_slots, False) if lod1 else {"pass": False, "reason": "missing"},
-            "lod1_without_frame_hardware": {"pass": lod1 is not None and len(lod1.data.loop_triangles) < len(flat.data.loop_triangles) and "board only" in str(lod1.get("LODContract", "")), "lod0_triangles": len(flat.data.loop_triangles), "lod1_triangles": len(lod1.data.loop_triangles) if lod1 else None, "contract": str(lod1.get("LODContract", "")) if lod1 else None},
+            "lod1_without_frame_hardware": {"pass": lod1 is not None and len(lod1.data.loop_triangles) < len(flat.data.loop_triangles) and ((baked_poles and "board plus baked poles" in str(lod1.get("LODContract", ""))) or (not baked_poles and "board only" in str(lod1.get("LODContract", "")))), "lod0_triangles": len(flat.data.loop_triangles), "lod1_triangles": len(lod1.data.loop_triangles) if lod1 else None, "contract": str(lod1.get("LODContract", "")) if lod1 else None},
+            "baked_poles_lod0": baked_lod0_check,
+            "baked_poles_lod1": baked_lod1_check,
             "socket_contract": ({"pass": not socket_names, "value": socket_names, "required": [], "contract": "no Pole/Hinge/Pivot sockets"}
                                 if is_wave_row else
                                 {"pass": bool(socket_contract_pass), "details": socket_contract_details}),
