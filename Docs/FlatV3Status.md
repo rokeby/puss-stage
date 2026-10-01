@@ -53,7 +53,6 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 
 ## Open decisions for Gary
 
-- P06 mood and destination (card blank).
 - Mixed stage (V3 flats with poles beside legacy cards without), judged at the pilot.
 - Topple, turn and trap mechanism C++ (with Rig; nothing built without his go).
 - Celadon L3 in S3 (row 3 moves to about 52 m if it stays).
