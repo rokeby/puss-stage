@@ -5,6 +5,17 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## Upcoming (FYI, 30 Sep): Flat V3 flutter-flap material is ours
+
+Flat V3 flats will carry flutter flaps: small separate parts with a vertex-colour
+freedom weight, swayed by **WPO in the material** with no cloth sim. The material
+side is this stream's. Gary's in-motion smudge was **TSR history** (FXAA cured
+it), and WPO without correct velocity smears under TSR. So when designing it:
+enable the material's **output-velocity** for WPO. `r.Velocity.EnableVertexDeformation`
+reads 2 on this project (probe, 30 Sep). Test **under motion**, not paused.
+Engine-default motion blur (0.5) is on everywhere, with no PPV or camera
+overrides.
+
 ## Finding (30 Sep): wing textures have NO MIPMAPS (read from disk; nothing changed)
 
 Routed from Flat V3 via the conductor (21 Sep audit), and re-checked against
