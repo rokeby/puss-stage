@@ -981,10 +981,9 @@ Gary's decisions, all given in THIS session via AskUserQuestion:
 - P02's mouth floor is a retained fault.
 - Gary's notes (a)–(c) are uncosted.
 - The stutter attribution run is deferred.
-- Pole instancing comes after the V3 assets.
-  - INTERIM (W&T, 1 Oct): the P04 pilot V3 pair carries its poles BAKED into the card (Timber slot, VC.R=1), with the
-    foot −100 cm into the groove and the Pole_n sockets kept. That's fine for Slide (same ISM instance) and can't Topple
-    (topple flats stay unbaked).
-  - When instancing lands, the flats go back to the shared pole with a W&T re-export. See Docs/FlatV3Spec_2026-09-30.md,
-    "Built for movement" > Poles.
+- Pole instancing is NOT needed by default. Gary (via W&T, 1 Oct): "poles built in sounds ok".
+  - Non-toppling V3 flats bake their poles into the card (Timber slot, VC.R=1, foot −100 cm into the groove, Pole_n
+    sockets kept). That moves correctly with Slide, as the same ISM instance.
+  - Separate pole instancing (C++) is needed only for TOPPLE flats, and only if Gary green-lights topple.
+  - See Docs/FlatV3Spec_2026-09-30.md, "Built for movement" > Poles.
 - Patch U is built (7af58f3, suite 103/0/103, per the conductor).
