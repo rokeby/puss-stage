@@ -34,6 +34,26 @@ marked **[conductor approved]** and named as mine, not yours.
   foggy Atlantic coastline with one island, barely visible. Later maybe a shack, firewood, rocks or a boat.
 - Velvet texture parked; the curtain stays plain oxblood B.
 
+## GARY'S NOTES, 1 Oct evening (his words, condensed; conductor session) — NOT YET ACTIONED
+
+- **Music.** P01 currently carries the opening-curtain music, which is wrong. The opening
+  curtain is crucial and needs real timing and music decisions, not a flat lit curtain that
+  falls. Soon. (Cameron.)
+- **Drift onto the stage.** P02 drifts from the curtain onto the stage nicely (the I1->P02
+  walk-in trial); P01 and the others still do not.
+- **Transport.** Wants RIGHT held down to FAST-FORWARD through movement (to see transitions),
+  rather than skip to the next part. (InfinityStageTransportController: C++, unowned.)
+- **S03.** Shifting from AI-driven design to designing the camera angles himself. The white
+  strike floods the L and R black walls and looks bad: needs a solution. S03 "looks rough
+  still"; better with backdrop and curtains. Needs to edit the lights by hand, but the
+  hangar is only "up" mid-play.
+- **P03 wings** to be replaced: stones, pyres, folk horror (consistent with the P03 card).
+  Some white staircases faintly echoing the windowed forms. Two L/R clean 19th-century
+  white walls with lab coats / doctors' coats hanging, sinister, many shoes piled at the base.
+- **P02 wings** due a replacement (he couldn't recall which): per
+  Docs/FlatV3PassageCards_2026-09-30.md:48 — Rousseau plants enlarged, alternating with a
+  red thorny bramble/briar mass and brown biomechanical piping increasing toward the shrine.
+
 ## A. THE FOUR THAT UNBLOCK PEOPLE
 
 ### A1. Exposure on the approach — ANSWERED, and the premise was wrong
