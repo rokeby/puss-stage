@@ -20,11 +20,18 @@ HERE = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.proj
 
 
 def main():
-    fit = json.load(open(os.path.join(HERE, "fit_transition_drapes.json"), encoding="utf-8"))
-    mouths = {r["interaction"]: r["mouth"] for r in fit["rows"]}
+    # A fit run may cover only some Interactions (30 Sep: I1 alone for the walk-in). Each Interaction takes its row from the
+    # LATEST run that fitted it: the latest report first, then the last full run (the final13 placement at 16:23).
+    rows_by_n = {}
+    for name in ("fit_transition_drapes_final13.json", "fit_transition_drapes.json"):
+        path = os.path.join(HERE, name)
+        if os.path.isfile(path):
+            for r in json.load(open(path, encoding="utf-8"))["rows"]:
+                rows_by_n[r["interaction"]] = r
+    mouths = {n: r["mouth"] for n, r in rows_by_n.items()}
     # The fit records the sections it planned (HOLD at the first sample or one frame before the release); older runs
     # without that record are checked against the legacy layout.
-    planned = {r["interaction"]: r.get("sections_planned") for r in fit["rows"]}
+    planned = {n: r.get("sections_planned") for n, r in rows_by_n.items()}
     world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world().get_outermost().get_name()
     if world != "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice":
         unreal.log(f"PUSS_SOFTGOODS_FIT_VERIFY|ok=False|refusing: open world is {world}")
