@@ -18,6 +18,15 @@ else is a proposal for him to cut.
   and blur. Change the *ratio* of the two families along the run (ABAB → ABBABB
   → BBB), so each step is legible.
 
+**Single-family passages (Gary, 30 Sep, an option, not yet assigned):** not
+every passage needs contrast. A passage could be *only* curtains, *only*
+henge-like stones, or *only* slowly burning pyres that grow bigger as you go.
+Such a passage lives by a **progression in one parameter** (size, spacing,
+opening, burn) stepped along the run, since there is no contrast of form to
+carry it. It also needs few unique assets, so each can be a hero. Owners if
+chosen: curtains → Soft goods; fire → Effects sources (with the wing
+material's existing per-instance `BurnProgress`); stones → this pipeline.
+
 ---
 
 ## P01 — the first entry into the fairytale
