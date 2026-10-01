@@ -184,7 +184,7 @@ def main():
             not values["srgb"]
             and (
                 not values["normal"]
-                or values["compression_settings"].endswith("TC_NORMALMAP")
+                or "TC_NORMALMAP" in values["compression_settings"]
             )
             for values in readback.values()
         )
