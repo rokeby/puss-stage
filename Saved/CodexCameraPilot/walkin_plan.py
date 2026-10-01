@@ -64,6 +64,8 @@ def plan_walk(seat, target, v_end_cm_s, ease_s, end_s, fps,
         raise ValueError("fps must be positive")
     if f0 <= 0.0 or f1 <= 0.0:
         raise ValueError("focal lengths must be positive for log-linear zoom")
+    if focus_start <= 0.0 or focus_end <= 0.0:
+        raise ValueError("focus distances must be positive for diopter interpolation")
     if landed < 0.0:
         raise ValueError("landed_s must be non-negative")
     if pile_edge < 0.0:
@@ -120,7 +122,10 @@ def plan_walk(seat, target, v_end_cm_s, ease_s, end_s, fps,
         yaw = seat_values["yaw"] + yaw_delta * smooth
         roll = seat_values["roll"] + roll_delta * smooth
         focal = f0 * (focal_ratio ** u)
-        focus = focus_start + (focus_end - focus_start) * u
+        # Focus moves linearly in diopters (1/distance), so it follows a subject
+        # the camera walks toward; linear in distance sits at infinity until the
+        # last moment when it racks from far to near (measured 30 Sep: 100000 -> 600 cm).
+        focus = 1.0 / (1.0 / focus_start + (1.0 / focus_end - 1.0 / focus_start) * u)
         keys.append((t, x, y, z, pitch, yaw, roll, focal, focus))
 
     # Assign the boundary values directly so binary floating-point cannot turn

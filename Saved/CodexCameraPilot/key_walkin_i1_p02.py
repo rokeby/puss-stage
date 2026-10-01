@@ -2,9 +2,9 @@
 add_track, set_property_name_and_path, add_key); those run for the first time on apply. If apply fails
 mid-write it raises before saving, so Interaction 1 is left dirty and unsaved. Cure: run
 revert_walkin_i1_p02.py (it removes the named tracks) and discard with a Don't-Save restart. Never save it half
-written. Look knob: focus is linear in DISTANCE (1400 -> 100000 cm), so it racks far within about 0.6 s; switch to
-reciprocal (diopters) in walkin_plan.py if Gary finds the drape goes soft too early. Drafted by Codex from Look &
-camera's spec; reviewed.
+written. Focus (changed 30 Sep after the first dry run measured 100000 -> 600 cm, far to near): it moves
+linearly in DIOPTERS, so mid-walk it sits near the stage (~1190 cm against ~1360 cm). Linear in distance would hold
+it at infinity and rack in only in the last ~0.4 s. Drafted by Codex from Look & camera's spec; reviewed.
 """
 """Key the Interaction 1 -> Passage 2 walk-in without touching the Master.
 

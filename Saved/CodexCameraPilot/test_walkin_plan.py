@@ -96,6 +96,31 @@ def main():
         "failures=%r" % pile_failures,
     ))
 
+    # Measured 30 Sep: the stalls camera holds 100000 cm and Passage 2 starts at
+    # 600 cm, so focus racks far -> near during the walk. Mid-walk it must stay
+    # near the stage (600 cm past the target plus the distance still to walk).
+    # The old linear-in-time focus gave ~50300 cm here, about 37x the subject.
+    rack_keys, rack_report = plan_walk(
+        SEAT, TARGET, V_END, EASE_S, END_S, FPS,
+        FOCAL0, FOCAL1, 100000.0, 600.0, LANDED_S, PILE_EDGE_CM,
+    )
+    mid_t = rack_report["start_s"] + 0.5 * rack_report["duration_s"]
+    mid = min(rack_keys, key=lambda key: abs(key[0] - mid_t))
+    remaining = math.sqrt(sum((TARGET[axis] - mid[1 + index]) ** 2 for index, axis in enumerate(("x", "y", "z"))))
+    subject_cm = 600.0 + remaining
+    focuses = [key[8] for key in rack_keys]
+    rack_ok = (
+        0.5 <= mid[8] / subject_cm <= 2.0
+        and abs(focuses[0] - 100000.0) <= 1.0e-6 and abs(focuses[-1] - 600.0) <= 1.0e-9
+        and all(b <= a + 1.0e-9 for a, b in zip(focuses, focuses[1:]))
+    )
+    results.append(run_case(
+        "focus_tracks_subject",
+        rack_ok,
+        "mid t=%.3f focus=%.1fcm subject=%.1fcm first=%.1f last=%.1f"
+        % (mid[0], mid[8], subject_cm, focuses[0], focuses[-1]),
+    ))
+
     if not all(results):
         return 1
     return 0
