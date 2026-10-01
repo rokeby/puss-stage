@@ -887,3 +887,31 @@ delegation. **Step 3, nesting each hangar into its Scene, is Gary's and has not 
     and PassageActor.cpp:750 materializes the Top only when bHasTop. It was not the Top-keeps-Slide guard.
   - Fixed with one line in the fixture (8559f2c). It applies at 35094de with `--ignore-whitespace`.
   - Every assertion after the early return has NEVER RUN. Run that single test first in the next window.
+  - **Second failure, 1 Oct (UOnly-20261001):** only "Mirrored Topple progress zero equals the base transform"
+    (:1444). Every other assertion ran and passed: TestTrue doesn't return early, and the log has one error.
+    - Cause (declaration-proven, one inferred step): the ISM stores an FMatrix (InstancedStaticMeshComponent.h:45),
+      and the readback's SetFromMatrix puts the mirror on X (TransformVectorized.h:1282). So (0.1,−4,10) comes back
+      as (−0.1,4,10): the same matrix, but component-wise Equals fails.
+    - Fix (8046114): that assertion compares ToMatrixWithScale and logs both transforms if it fails.
+- **Scene 3 brief (Gary via the conductor, 1 Oct): plan sent, nothing built.** I'm the lead; Wings & Textures do the art.
+  - Rise times per hangar: S4 runs −5.874 → +4.126 (frame 124 = 4.133 at 30 fps). S1/S2/S3/S6 are still on the old
+    −3.567 → +16.0, and S5 on −3.567 → +25.3.
+  - Waves are keyed actors on the S3 root, NOT Passage occurrences: mechanisms only evaluate inside their Passage
+    segment (PassageActor.cpp:1166), so they would freeze at the cut.
+  - Agreed with W&T:
+    - Waves: 3 rows at about 35/45/55 m from the stop, heights 1.2/1.8/2.6 m, two halves of at least 12 m each,
+      ±1.5 m Y slides.
+    - Backdrop: an engine Plane, 20×30 m, on the far-wall hinge, about 3 cm proud, carrying their child MI of
+      MI_Billboard_Front.
+    - S3 geometry: back wall inner face 20×30 m at 65 m from the stop (5 m apron + 60 m box); cast at 23–27 m;
+      clam at about 17 m.
+  - Order:
+    1. Re-time and dim-rise.
+    2. Cast reveal (saved hidden + keyed visible at landing +0.5 s) and the pit-hole.
+    3. Strike state.
+    4. Waves and backdrop.
+  - Gary's calls, pending in this session:
+    - (a) Do S1/S2/S3/S6 adopt S4's 10 s rise?
+    - (b) Remove Celadon L/L3, the PointLight and the sheet-sway from S3?
+    - (c) Do the waves ride the box or appear at the strike?
+    - (d) The S3 pit-hole.
