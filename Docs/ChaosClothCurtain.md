@@ -979,6 +979,31 @@ nap turning away, the cue that reads as weight under raking beams. Flat deep-red
 seams darkened along a 2.4 cm line. **Nothing is painted into the colour**: TextileV5 is a picture of a
 whole curtain with crumples painted in and must not be used on simulated cloth.
 
+**30 Sep – 1 Oct: material work. DECIDED: plain oxblood B, velvet texture PARKED (Gary).**
+- **Exposed parameters** (measured, `material_bench_params.json`):
+  - scalars: ClothAmount, FacingDarken 0.7, NapExponent 2.5, Roughness 0.85, Specular 0.3, SeamDarken 0.55,
+    SeamHalfWidthM, SeamWidthM, PatternWidthM, DropM, WeaveColorAmount 0.2, WeaveNormalStrength 0.35, WeaveTileM 0.12;
+  - vectors: VelvetColor, SheenColor;
+  - textures: Weave, WeaveNormal.
+- **Bench** (`material_bench.py`: transient MIDs on a ZZ_ GeometryCache stand-in, stalls seats, no save path). Centre
+  luminance at the Opening: A 55, B 44, C 71, D 57, E/F/G 55/54/55. So at 14 m only colour, sheen and falloff read;
+  weave and seams (12 cm) are invisible.
+- **B APPLIED** to `MI_CurtainVelvet_DeepRed_Drop`: VelvetColor 0.07/0.004/0.012, SheenColor 0.32/0.03/0.07. Backup
+  `PreDrapeMaterialB-20260930-200516`. The border MI keeps its own 0.01 overrides (read back).
+- **Procedural crushed velvet** (`Scripts/make_crushed_velvet_textures.py`, imported as T_CurtainVelvetCrush(_N)):
+  - v1 looked synthetic (hatching, veins, repetition). v2 reads from the stalls as a mottle (B→V1 mean diff 0.97/255).
+  - Close up it falls into a semi-regular, damask-like lattice that the pleats stretch.
+- **CC0 scan**: Poly Haven `velour_velvet` 4K colour and DX normal, prepared by `Scripts/prepare_velour_scan.py`,
+  imported as T_CurtainVelourScan, T_CurtainVelourScanX3 and T_CurtainVelourScan_N.
+  - It is INDISTINGUISHABLE from B: 0.08–0.14/255 against capture noise of about 0.06; amplified, 0.42.
+  - Why: its albedo spread is 3.9 levels and its normal tilts 3.8° on average. The velour's "patchy highlights" live in
+    its anisotropy maps, which Cloth shading cannot use.
+- **The anisotropy route** (a NEW master material with anisotropic sheen, using the scan's anisotropy maps) was NOTED,
+  not chosen.
+- All five texture assets stay imported and UNUSED.
+- Bench limit: `tick_at_this_time` does not move a stand-in's cache pose, so mid-fall bench shots cannot be taken this
+  way.
+
 ## Engine traps (UE 5.8), each hit once
 
 1. **MaxDistance defaults to 0 when no weight map is painted**, which freezes the whole cloth.
