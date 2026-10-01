@@ -35,6 +35,11 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
    the edited regions into the full-resolution scan and builds the 20x30 m backdrop
    (a child MI of `MI_Billboard_Front` on Rig's plane). Picks and mockups:
    `DerivedAssets/FlatV3/Sourcing/SCENE3_COAST/picks/`.
+   **BUILT 1 Oct (offline):** `DerivedAssets/FlatV3/Scene3/backdrop/`
+   (`IMPORT_PLAN.md`, `mi_params.json`). SkinColor 4096x8192 (4.9 x 3.7 mm/px
+   on the wall), peel 2.6% in the bottom 5 m, outlines softened only in the added
+   figures, bones and cottages. Needs an editor slot to import (new names only)
+   and Rig's plane.
 3. **Scene 3 wave rows:** 3 rows x 2 halves (>= 12 m), heights about
    1.2 / 1.8 / 2.6 m at about 35 / 45 / 55 m. Sources: Bakhuysen *Rough Sea*,
    Porcellis, Hollar (on D:). Starts when the GPU is free. Keyed by Rig, no sockets.
