@@ -166,6 +166,13 @@ deteriorates by other means (scaffold, peel, fire, monochrome).
      photos as REFERENCE only and MODEL the forms in Blender (masks and tree as
      painted/bronze flats), or use photos Gary takes himself.
   2. **Scaffolding appears** among the grand flats (the scaffold bay, netting).
+     **Fence and shutter family (Gary, 1 Oct, his photos in
+     `DerivedAssets/FlatV3/GaryPhotos/FenceShutter_2026-10-01/`):** chain-link
+     construction hoarding with or without a sagging green tarp, barbed wire on
+     top, and corrugated industrial roller shutters (which can ROLL UP as a
+     reveal). Proposed home: P06 stage 2 (the site hoarding arrives with the
+     scaffolding), and possibly P02's industrial creep. Built in Blender
+     (`DerivedAssets/FlatV3/BlenderTest/FenceShutter/`).
   3. **Crumble and peel:** the billboard peel amount STEPS UP along the run, then
      flats lose pieces and frames show. This needs a per-instance peel value (a
      new custom-data slot; Wing materiality's call).
