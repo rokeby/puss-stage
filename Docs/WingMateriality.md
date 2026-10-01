@@ -5,6 +5,64 @@ The brief is `Docs/Conductor/BRIEF_WING_MATERIALITY_2026-09-25.md`. This is the
 stream's living record: what exists, what is proven and at which tier, and what
 is next. Scope is `/Game/Scenes/Wings` materials only.
 
+## PARKED, 1 Oct 2026: current state and what's open (read this first)
+
+Stream parked: Gary is moving stream work to Codex under a fresh conductor. Every item
+below is saved, read back and committed. Nothing is in flight, nothing is unsaved, and
+nothing has been visually accepted except where stated.
+
+**Wing materials, live**
+- P01, P02, P03, P04 (all 45) and P06 are on `M_Wing_PaintedSurface_Master`; edges on
+  `M_Wing_CanvasEdge_Master`. **P05 is held for Gary**: (a) full relief, (b) lean flat clouds
+  (`HeightRatio` 0 plus `POMMinSteps`/`POMMaxSteps` 1), or (c) not yet. Plan ready, zero lead time.
+- `M_StageOpeningV2_Edge` rebuilt in place, delete-free (canvas edge on the 75 V2 meshes, and the
+  fire-safety curtain, which is visible at every transition).
+- Undo files (`Saved/CodexWingMateriality/`): `rollout_rollback_20260928-205959.json` (P01/P02/P06),
+  `rollout_rollback_20260928-232414.json` (P03), `rollout_rollback_20260929-132520.json` (P04),
+  `restore_v2_edge_original.py` (V2 edge), `trial_revert.py` (the original P01 trial).
+  File backups are in `Backups/PreWing*`.
+
+**Mipmaps (30 Sep)**
+- ON for 207 textures: everything P01/P02 use, including 18 shared with P04's 6
+  panels and P06's Ceiling_bw and salt formation. Option (a): native size, mip 0 unchanged;
+  ListTextures read back 11 or 12 mips each. About +273 MB, all resident (non-power-of-two
+  textures don't stream).
+- **Revert:** run `mips_p01p02.py` with `mips_request.json = {"phase": "revert"}` (uses
+  `mips_rollback.json`). Backup: `Backups/PreWingMipsP01P02-20260930-1749`.
+- **Open for Gary:** mips for P03–P06, ideally together with (c), compressing the 182
+  uncompressed BGRA8 wing textures. About 1,990 MB of wing textures are loaded now.
+- The in-motion smudge was TSR history; FXAA cured it, per the conductor. Separately,
+  engine-default motion blur (0.5) is on everywhere with no overrides; keeping or killing
+  it is Gary's look call, not this stream's.
+
+**Kit floor (structure boards and grooves)**
+- `M_Kit_Surface_Master` + `MI_Kit_WalnutPlank` (planks, **rejected by Gary**) +
+  `MI_Kit_SteelGroove` (waits for Rig's build, which has the groove geometry).
+- **Open for Gary:** A (continuous walnut herringbone like his slab, recommended) or
+  C (dark lacquer). Both need Rig to close the board gaps. Optionally, slots further
+  inboard so they show more. If A: add a world-aligned mode to the kit master using the slab's
+  `T_Walnut_Hrrngbn_02` at the slab's texel density.
+- Mockups: `Tools/WingMateriality/floor_mockups.py` → `DerivedAssets/WingMateriality/FloorMockups/`.
+
+**Flat V3 (new flats; contract with Wings and Textures in `Docs/FlatV3Spec_2026-09-30.md`)**
+- `M_Wing_Billboard_Master` + `MI_Billboard_Front`/`MI_Billboard_Flap` are BUILT with
+  placeholder textures. Per-flat MIs are children of those two. The mask is imported as **TC_Masks**.
+- **Next:** Timber and Edge masters once `DerivedAssets/TextureLibrary/library.json` lands.
+  Board edge: half-thickness 0.9 cm, ply laminations plus a paper lip. Timber: UV1 metres,
+  VC.R ID (0 softwood / 0.5 ply / 1 steel), VC.G per-member random. Steel can reuse the kit
+  master's procedural steel.
+
+**Also open for Gary**
+- Which wings burn (`UseBurn` is on only for the two P01 trial MIs).
+- Installing an upscaler (a download). The upscale spec and the alpha proof are below.
+
+**Rules that hold for whoever picks this up**
+- Census before and after every editor write. Never Save All. Save only your own packages.
+- **Never delete material expressions on an asset this stream didn't create.** It crashes
+  the editor (`!IsRooted()`). The builders refuse outside `PaintedSurface`.
+- Avoid screen-space ddx/ddy shading on surfaces seen in motion; it flickers under TSR.
+- Script writing and editor runs go to Codex (`Scripts/codex.sh`); review before any run.
+
 ## Flat V3 billboard master: BUILT (1 Oct)
 
 `/Game/Scenes/Wings/PaintedSurface/Billboard/M_Wing_Billboard_Master` (66 nodes, compile
@@ -260,51 +318,6 @@ Prepared read-only from disk, for Gary's go. Nothing has been applied.
   Fix the check to read the real size before any P03/P05 run.
 - Still waiting on Gary: P03/P04/P05 (Group A plus the rest of P04), V2 edges,
   upscale install, which wings burn.
-
-## Resume here (stood down 2026-09-28 for a studio visit)
-
-Working tree clean; last stream commit is the one that added this section.
-Everything below waits on **Gary**, not on another stream:
-
-1. **Rollout** of P01/P02/P06 (80 meshes, 92 MIs, P04 collateral through shared
-   meshes). Planned and dry-run, not executed. Gary judges the P01 trial first
-   (rococo R new beside rococo L legacy, plus the cloud ceiling). Re-run
-   `rollout_plan.py` before applying: the plan is a snapshot of live MIs, and
-   other streams have changed P01 and P03 since.
-2. **Upscale.** Upscaling was chosen over regeneration; the spec is below. No
-   tiled upscaler is installed, and installing one (tool plus models) needs
-   Gary's OK. Don't run it during heavy disk work on D:.
-3. **Which wings burn.** This gates the per-MI `UseBurn` switch, which is on only
-   for the two P01 trial MIs.
-4. ~~CaptureManager check~~ **Done 2026-09-28, nothing for the wings.**
-   `C:\Users\Administrator\AppData\Local\CaptureManager\Media\PussStage` holds
-   4.9 GB of facial-capture video ingest (8 takes: child1/2, shoreguy1–6; 28,406
-   JPEG frames, WAVs, .cparch). It contains no wing imagery. Only
-   `Saved/CodexMocap` references it, so the C:/D: split is the mocap stream's
-   concern.
-
-To judge the trial in your own viewport, paste these into the editor console
-(`trial_viewpoints_readonly.py`; eye height 1.7 m, 30° off the face, both from
-the corridor side):
-
-```
-BugItGo 3763 -450 170 0.0 -30.0 0   (rococo L, legacy, 1 m)
-BugItGo 3677 -400 170 0.0 -30.0 0   (rococo L, legacy, 2 m)
-BugItGo 3763 450 170 0.0 30.0 0     (rococo R, new master, 1 m)
-BugItGo 3677 400 170 0.0 30.0 0     (rococo R, new master, 2 m)
-```
-
-Facts that landed while stood down:
-
-- Per-instance custom data **verified live on 2026-09-28** (read-back): P01
-  (9 components) and P03 (18) carry 4 floats, with distinct seeds in [0, 1) in
-  slot 3. **P02, P04, P05 and P06 still carry 0 floats** and fall back to
-  PerInstanceRandom until their next re-materialize, so any variation judged
-  there now is **not** the variation the show will have.
-- P01 station spacing is deliberately irregular: ±750 on station 1 and 21 other
-  pairs, 15 at ±500, 3 at ±400, 7 asymmetric at −400/+750. Nothing in this stream
-  depends on spacing. The rollout reparents MIs per mesh, and the burn front and
-  detail coordinates are computed per panel in mesh-local centimetres.
 
 ## State at 2026-09-25, end of the first session
 
