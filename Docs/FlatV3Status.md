@@ -5,6 +5,21 @@ Passage cards: [FlatV3PassageCards_2026-09-30.md](FlatV3PassageCards_2026-09-30.
 Updated 1 Oct 2026. As of then the conductor (v2) is retired, so editor needs go
 in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 
+## Overnight 1-2 Oct (Gary away until 10:00; Claude supervising)
+
+1. **Batch 1 (new wings):** P04 cathedral and gallery (8), P05 clouds at 800 cm
+   (5, Gary confirmed), S3 Fuser waves (3 rows; they replace the procedural rows
+   under the same names). Driver `Tools/FlatV3/batch_build.py`; output
+   `DerivedAssets/FlatV3/Overnight/` (CONTACT_SHEET, FAILURES).
+2. **If batch 1 passes review, batch 2 (kept wings rebuilt in V3, offline):**
+   P01, P02 plants, the existing P05 clouds, P06 scaffold and draped forms.
+   Upscale 2x from the existing source PNGs; reuse their cut alpha.
+3. **The pilot pair import** when Conductor 3 messages "editor free": Codex
+   --unreal from `Saved/CodexRuns/flatv3_pilot_import_prompt.md`. Import only,
+   with all gates.
+NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
+(asked, not answered), gobo masks (on hold), any paid generation.
+
 ## Done (offline, verified)
 
 | What | Where | Proof tier |
@@ -18,6 +33,7 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 | Frame/pole v1 + CC0 timber, ply, steel and paper library | `DerivedAssets/FlatV3/FrameTest/`, `DerivedAssets/TextureLibrary/` | measured (re-import PASS, head-on containment PASS) |
 | Billboard skin v1 | `DerivedAssets/FlatV3/SkinTest/` | measured; look: paper good, peels wrong (fixed in the fix-up) |
 | Billboard master (built by Wing materiality) | `/Game/Scenes/Wings/PaintedSurface/Billboard` | their read-back; not rendered |
+| Manual Fuser queue: 20 prioritised jobs, 9 prepared inputs, 8 type Recipes and checked ingest/provenance tool | `DerivedAssets/FlatV3/FuserQueue/` | measured offline (`ingest.py --validate-queue`: 20 todo, 9 inputs, priorities 1-20); no generation run |
 
 ## Running / next
 
@@ -30,8 +46,9 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 2. **Scene 3 backdrop: Gary chose option 5, Whistler *Opal Beach*** (Smithsonian
    CC0), NOT van Goyen. Gary's edits: 20-30 huddled figures in white head-cloths
    in three huddles; a few dotted distant cottages; a sketchy trail of bones.
-   Edit route: Nano Banana in Fuser, run by Gary manually (pack:
-   `DerivedAssets/FlatV3/Scene3/fuser_pack/FUSER_EDIT.md`). Then Codex composites
+   Edit route: Nano Banana in Fuser, run by Gary manually (queue job:
+   `DerivedAssets/FlatV3/FuserQueue/NN_S03_hangar_backdrop/`; original pack is
+   retained at `DerivedAssets/FlatV3/Scene3/fuser_pack/FUSER_EDIT.md`). Then Codex composites
    the edited regions into the full-resolution scan and builds the 20x30 m backdrop
    (a child MI of `MI_Billboard_Front` on Rig's plane). Picks and mockups:
    `DerivedAssets/FlatV3/Sourcing/SCENE3_COAST/picks/`.
@@ -43,9 +60,12 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 3. **Scene 3 wave rows:** 3 rows x 2 halves (>= 12 m), heights about
    1.2 / 1.8 / 2.6 m at about 35 / 45 / 55 m. Sources: Bakhuysen *Rough Sea*,
    Porcellis, Hollar (on D:). Starts when the GPU is free. Keyed by Rig, no sockets.
-4. **Torelli colour test:** Gary's Fuser run (pack:
+4. **Torelli colour test:** Gary's Fuser run (original pack:
    `DerivedAssets/FlatV3/CutoutTest/C/nano_banana_pack/FUSER_PIPELINE.md`).
-5. Gary picks per passage from the contact sheets, starting with P04.
+5. **Fuser queue:** Gary runs `DerivedAssets/FlatV3/FuserQueue/queue.json` in
+   priority order, P04 first. The queue is art/colour only; Fuser production-use
+   terms remain unconfirmed and must be checked before staging an accepted result.
+6. Gary picks per passage from the contact sheets, starting with P04.
 
 ## Later / bonus (Gary, 1 Oct)
 
