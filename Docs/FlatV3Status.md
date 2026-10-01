@@ -42,6 +42,15 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
    `DerivedAssets/FlatV3/CutoutTest/C/nano_banana_pack/FUSER_PIPELINE.md`).
 5. Gary picks per passage from the contact sheets, starting with P04.
 
+## Later / bonus (Gary, 1 Oct)
+
+- Flats hanging from the rig, such as clouds (P05's good cloud flats are the
+  obvious first family). Hung on Rig's gridiron; the hanging hardware is Rig's.
+- S3 backdrop: Gary's Fuser run produced a PORTRAIT version with lots of sky.
+  It may replace the fog-gradient extension. Evaluate it against the plan: does
+  the lower painting stay faithful to Whistler, and at what resolution? If it
+  drifts, use only its sky over the full-resolution scan.
+
 ## Open decisions for Gary
 
 - P06 mood and destination (card blank).
