@@ -122,3 +122,15 @@ conductor's reading of what it implies — marked as such, not decided.
   shipped as JSON data; spawner reads it). **Gary to choose the art source (morning):** Fuser job
   `FuserQueue/24_S03_hand_prints_atlas` (old dried grime, not blood), or — W&T's preference — Gary's own hands
   pressed in thinned umber/dirt on paper, photographed.
+- **THE SONG VAMP (Gary, 1 Oct evening):** while waiting on the live singer, "camera has only focus sharp on
+  clam, everything else out and soft, lighting dims around, camera keeps rotating around clam until next."
+  → A VAMP, not a freeze (a transport hold stops the whole Master: figures/waves would freeze — declaration-
+  proven, one root player). Design: `InfinityStage.VampStart` / `InfinityStage.VampEnd` markers; playback loops
+  that region until RIGHT, then continues at the next seam. Content keyed to loop seamlessly: orbit = exactly
+  360° per loop, shallow DOF focused on the clam, lights dimmed and constant inside the loop. Figures' sway
+  restarts per loop (soft, out of focus — check). **Camera = cat:** an orbit is a score the GO1 must walk —
+  radius/speed must be performable (memory: puss-camera-is-the-cat).
+- **Transport facts (Codex investigation, 1 Oct, file:line in Saved/CodexRuns/live_hold_investigation.log):**
+  no mid-Scene hold exists; only `InfinityStage.HiddenChangeover` is read; Scene 3 is DeclaredUnpausable
+  (12 Sep export) so manual pause AND fast-forward are refused there in performance mode; the C++ patch goes
+  in the same held transport patch as hold-RIGHT fast-forward (next build window).

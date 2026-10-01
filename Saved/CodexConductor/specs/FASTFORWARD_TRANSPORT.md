@@ -20,3 +20,15 @@ Behaviour:
   worktree vs HEAD), plus a short note of every inference (engine .cpp not shipped).
 Do NOT build. Do NOT touch the editor. Final message: the diff summary, the test, every
 inference tagged.
+
+## Revision 2 — add the Scene 3 VAMP to the same patch (after the fast-forward draft)
+Read Saved/CodexRuns/live_hold_investigation.log (its design, file:line) and the "SONG VAMP" entry in
+Docs/Scene3BeatSheet_2026-10-01.md. Implement marker pairs `InfinityStage.VampStart` / `InfinityStage.VampEnd`
+collected in BuildSegments like HiddenChangeover (child→Show ticks, + segment start). Playing forward at 1×,
+reaching VampEnd jumps back to VampStart seamlessly (same frame cadence, no hitch, no camera re-claim) until
+the operator presses RIGHT; RIGHT inside a vamp = "release": play on through VampEnd at 1× (don't skip a
+segment). Scrubs/jumps never arm a vamp; rewinding re-arms. A vamp outranks hold-RIGHT fast-forward (which
+Scene 3 refuses anyway: DeclaredUnpausable). It must not call PauseTransport (the interlock stays intact).
+State what audio does at the loop seam (Scene 3 has no Master music; the singer is live). Test (new file):
+InfinityStage.Transport.VampLoopsUntilRelease — fixture with a vamp pair: loops N times, RIGHT releases,
+scrub doesn't arm, rewind re-arms. Same patch file, same rules, every inference tagged.
