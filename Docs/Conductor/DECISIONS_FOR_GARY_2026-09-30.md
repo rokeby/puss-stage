@@ -50,6 +50,11 @@ marked **[conductor approved]** and named as mine, not yours.
 - **P03 wings** to be replaced: stones, pyres, folk horror (consistent with the P03 card).
   Some white staircases faintly echoing the windowed forms. Two L/R clean 19th-century
   white walls with lab coats / doctors' coats hanging, sinister, many shoes piled at the base.
+- **Queued for Rig (nothing built):** (1) hanging birds on cables under clouds, real cable
+  physics + cue-released drop, first use P05 — Docs/Conductor/PROPOSAL_HANGING_PROPS_CABLE_2026-10-01.md;
+  (2) P04 rose-window GOBOS: Fuser tracery (FuserQueue/03_P04_gothic_tracery_colour) as light
+  functions on P04 lamps ("rose windows for lamps is a great idea!" — Gary, via W&T); W&T supply
+  greyscale masks under DerivedAssets/FlatV3/Gobos/, Rig the lamp/light-function side.
 - **P02 wings** due a replacement (he couldn't recall which): per
   Docs/FlatV3PassageCards_2026-09-30.md:48 — Rousseau plants enlarged, alternating with a
   red thorny bramble/briar mass and brown biomechanical piping increasing toward the shrine.
