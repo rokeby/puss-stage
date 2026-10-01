@@ -1,5 +1,74 @@
 # Chaos Cloth curtain — pipeline and traps
 
+## CURRENT STATE: Soft goods stream PARKED, 1 Oct 2026 (read this first)
+
+**In the show** (each item read back from Unreal):
+- `GC_CurtainDrop_Opening` = **final13** (18.8 m track, drop 10.0, pleated_switch 0.6, guide 0.7). One asset feeds the
+  Opening and Interactions 1–5 (at the mouths of P02–P06).
+- Acceptance verdict (`DropBake/acceptance.json`): ALL six gates pass — still 0.9 mm, hang, coverage, top_masked,
+  stage_clear, and the pile by RECORDED OVERRIDE.
+  - Gary instructed placement BEFORE viewing the pile, and his pile look is still outstanding.
+  - The verdict is bound to the bake bytes AND the stage bytes (v4 with the border).
+- The Opening (`LS_Opening_Curtain_Baked`) holds sample 479 for frames 0–49, then falls.
+- Interaction 1 (`LS_Interaction_01_WashingTheBoy`) ends at **638** (lengthened for Look & camera's walk-in, Master
+  rebuilt). Its drape is fitted with `lead_s 9.52`, so it holds until frame 400 (16.0 s) and falls 400→638.
+- Interactions 2–5 end at 500 with `lead_s 4.0`, the same release at 16.0 s. `verify_transition_fit.py`: ok for I1–I5.
+- Material: **plain oxblood B** on `MI_CurtainVelvet_DeepRed_Drop`. Velvet texture PARKED (section "Velvet").
+- Rig's upstage portal border (v4) masks the top edge's comb. It is not a collider in final13's bake; the clearance is
+  measured (section "WHAT THE SHARED CACHE ASSUMES").
+- P04 backcloth: final11, placed by Rig. Its lead field (`BackclothLeadS`) is Rig's.
+
+**Open items** (none blocked on this stream):
+1. **Gary's pile look on final13.** If rejected, revert from `Backups/PreBakeImport-GC_CurtainDrop_Opening-20260930-162139`
+   and re-bake with `run_final16_auto.ps1` (adaptive release).
+2. **Scene 1 and Scene 3 `rematch_only`: NOT YET RUN.** Patch L (the retained exit starts at the last interior cut's
+   end, and ranges are set by SetRange) is now built.
+   - Scene 3 should then close its 23-frame gap: inferred cuts [0,81][81,1501][1501,1573].
+   - Scene 1 should get back its 1 s Exit hold: inferred [0,5245][5245,5270].
+   - Dry run, then apply, one scene at a time (see below).
+3. P02's house floor is still at −5 (Gary: "Leave P02 for now"), so I1's pile spill clips there.
+4. Known site differences: P03 has 2 fixtures inside the pile footprint (the pile passes through them); P04 has open
+   chariot slots (the pile bridges them).
+5. A P03 END curtain waits on Rig's P03 hangar and site.
+6. A UE drape-coverage test (SavedFixturePIE `if` branch; criterion agreed 30 Sep) is NOT written. The offline
+   `mask_raycast_stalls.py` and `stage_clearance_cache.py` cover the same ground.
+
+**Lengthening Scenes 2/5/6** (Gary approved 30 Sep: "no limits on length"). Tool: `Saved/CodexSoftGoods/extend_scene_playback.py`.
+1. Mode file `extend_scene_playback_mode.json`:
+   `{"cue_label": "Scene 2 — External Sound", "new_end_frame": <display frame>, "dry_run": true}`.
+   `new_end_s` also works. Scene sequences are 25 fps except Scene 3 at 24.
+2. Request `extend_scene_playback_request.json`, via `python Saved/CodexMocap/mcp_request.py --timeout 600 tools/call
+   --params-file ...`. Check the marker `PUSS_SOFTGOODS_SCENE_EXTENDED|` or `_STOPPED|` in Saved/Logs/PussStage.log.
+3. DRY RUN first, and read the report `extend_scene_playback.json`:
+   - `next_segment.match_would_refuse` must be false;
+   - `coverage_before`;
+   - `key_gate` must be [] (it refuses on downstream Passages with VARYING channels; patch K now carries keys through
+     rebuilds anyway);
+   - `delta_s`.
+4. APPLY (`dry_run: false`). The steps: backups → set the end → `match_named_scene_handoffs` → coverage gate (no gaps,
+   or nothing is saved) → `rebuild_managed_master` → exact saves (the scene, the level, the Master, the Show if dirtied).
+   Then read back:
+   - `camera_deltas` (the Exit camera is copied from the last interior shot);
+   - `segment_errors` must be [] (earlier segments unmoved, later ones moved by exactly delta);
+   - `show_master` match.
+5. Then run `run_master_match_test.py` (queues the single test `InfinityStage.Editor.SavedMasterMatchesShow`; read its
+   result in the log), and take a census (`dirty_probe.py`).
+6. One scene at a time. A refusal is a STOP: report it, don't work round it.
+7. `"rematch_only": true` (Scenes only) fixes cut coverage without changing the length. That is item 2 above.
+- Sequence cues (Interactions) use the same tool, which extends only the tail cut. A lengthened Interaction needs
+  `fit_transition_drapes.py` re-run for it with `lead_s = new_end − 16.0`, then `verify_transition_fit.py`.
+
+**Tools** (all in git):
+- `Scripts/bake_curtain_drop.py`: `RELEASE_AUTO` adaptive release; records `colliders_sha256`.
+- `Scripts/report_overnight_bakes.py`: the six fail-closed gates.
+- `Scripts/mask_raycast_stalls.py` and `Scripts/stage_clearance_cache.py`.
+- `Saved/CodexSoftGoods/import_passing_bake.py`: stage-bound.
+- `fit_transition_drapes.py` and `verify_transition_fit.py`.
+- `rendered_check_drape.py` and `material_bench.py`.
+- `probe_mouth_surfaces.py`: read-only, per-mouth route frame.
+- Delegation rule: scripts and editor steps go to Codex (`Scripts/codex.sh`, `--unreal`); a person verifies the markers.
+
+
 > **26 Sep: the curtain FALLS, it does not fly** (Gary; `Docs/Conductor/BRIEF_TRANSITIONS_AND_SCALE_2026-09-26.md`).
 > It is already down and lit; at the cue it drops to the floor and stays as a pile. It is the
 > Kabuki *furi-otoshi*. **Chaos cannot un-pin at runtime**: the kinematic set
