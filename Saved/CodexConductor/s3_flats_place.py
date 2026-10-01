@@ -539,7 +539,9 @@ def backup_level_and_parents(runtime_rows, prefix):
         raise PlanError("BACKUP_EXISTS|path=" + backup)
     packages = {EXPECTED_WORLD: True}
     for row in runtime_rows:
-        packages[str(row["parent"].get_outermost().get_name()).split(".", 1)[0]] = False
+        # setdefault: the hangar parents live IN the level package; plain assignment overwrote the
+        # map flag and looked for a .uasset (run 190916 LEVEL_BACKUP_SOURCE_MISSING, mutated=0).
+        packages.setdefault(str(row["parent"].get_outermost().get_name()).split(".", 1)[0], False)
     sources = []
     for package, is_map in packages.items():
         filename = package_filename(package, is_map)
