@@ -81,7 +81,7 @@ This overrides "use SendMessage to reach the streams" above.
 - The Claude streams (Rig & atmosphere, Look & camera, Soft goods, Wing materiality,
   Wings and Textures) are PARKED. Each one's state is in its own doc: Rig's handover
   section, Docs/ChaosClothCurtain.md, Docs/WingMateriality.md, Docs/FlatV3Spec_*.md and
-  Docs/FlatV3PassageCards_*.md, Docs/SceneImportCameras_2026-09-30.md, plus their committed
+  Docs/FlatV3PassageCards_*.md, Docs/SceneImportCameras_2026-09-30.md, Docs/Conductor/STREAM_STATE_LOOK_AND_CAMERA_2026-10-01.md, plus their committed
   specs under Saved/*/specs. Wake a stream only for a judgement call that needs its depth.
 - YOU are the one Claude session. You put decisions to Gary, arbitrate the editor, review
   results, and LAUNCH CODEX to do the work:
