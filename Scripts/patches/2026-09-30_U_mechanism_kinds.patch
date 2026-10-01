@@ -254,10 +254,10 @@ index e96fb8d..7378fb8 100644
      FRuntimeFloatCurve LeftNormalizedCurve;
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-index 0ee2fa0..3aa13db 100644
+index 0ee2fa0..28463bf 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCompilerTests.cpp
-@@ -1198,6 +1198,423 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
+@@ -1198,6 +1198,432 @@ bool FInfinityStageUndulationEvaluationTest::RunTest(const FString& Parameters)
      return true;
  }
  
@@ -502,8 +502,17 @@ index 0ee2fa0..3aa13db 100644
 +        Left->BaseWorldTransform.GetScale3D().Equals(FVector(0.1, -4.0, 10.0), 0.0001));
 +    TestTrue(TEXT("Mirrored Topple progress zero evaluates"),
 +        Actor->EvaluateMechanismsAtMasterFrame(0));
-+    TestTrue(TEXT("Mirrored Topple progress zero equals the base transform"),
-+        ReadTransform(*Left).Equals(Left->BaseWorldTransform, 0.0001));
++    // Compare matrices, not FTransform components: the ISM stores an FMatrix,
++    // and reading a mirrored instance back decomposes the mirror onto X
++    // (TTransform::SetFromMatrix), so (0.1,-4,10) returns as (-0.1,4,10) with
++    // a different rotation. Same matrix, so component-wise Equals is false.
++    const FTransform MirroredZero = ReadTransform(*Left);
++    if (!TestTrue(TEXT("Mirrored Topple progress zero equals the base transform"),
++        MirroredZero.ToMatrixWithScale().Equals(Left->BaseWorldTransform.ToMatrixWithScale(), 0.0001)))
++    {
++        AddInfo(FString::Printf(TEXT("Mirrored zero read back %s; base %s"),
++            *MirroredZero.ToString(), *Left->BaseWorldTransform.ToString()));
++    }
 +    const FVector MirroredRestTop = Left->BaseWorldTransform.TransformPosition(LocalTop);
 +    Motion.PhaseOffsetCycles = 1.0;
 +    TestTrue(TEXT("Mirrored positive Topple evaluates"), Actor->EvaluateMechanismsAtMasterFrame(0));
