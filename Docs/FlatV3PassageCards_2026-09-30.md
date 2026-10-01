@@ -147,6 +147,13 @@ material's existing per-instance `BurnProgress`); stones → this pipeline.
      chinoiserie, Boucher and Huet's singeries and chinoiseries, pagoda and
      pavilion designs, garden follies. Check the existing
      `GeneratedWingsV2_Chinoiserie` set on disk first.
+     **Add a hint of the alien (Gary, 1 Oct): Sanxingdui.** The bronze masks
+     with protruding stalk eyes and the bronze sacred trees. The bronze tree is
+     a ready-made wing form, structural and organic at once. Rights: the objects
+     are ancient, but PHOTOGRAPHS of them are not public domain (Wikimedia
+     copies are mostly CC BY-SA, whose share-alike is risky for the show). Use
+     photos as REFERENCE only and MODEL the forms in Blender (masks and tree as
+     painted/bronze flats), or use photos Gary takes himself.
   2. **Scaffolding appears** among the grand flats (the scaffold bay, netting).
   3. **Crumble and peel:** the billboard peel amount STEPS UP along the run, then
      flats lose pieces and frames show. This needs a per-instance peel value (a
