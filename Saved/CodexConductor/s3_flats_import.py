@@ -263,7 +263,7 @@ def front_direction(mesh):
         group = desc.get_polygon_polygon_group(polygon)
         if int(group.id_value) != 0:
             continue
-        perimeter = list(desc.get_polygon_perimeter_vertex_instances(polygon))
+        perimeter = list(_polygon_instances(desc, polygon))
         if len(perimeter) < 3:
             continue
         points = []
@@ -353,6 +353,49 @@ def verify_texture(texture, kind):
         raise RuntimeError("NORMAL_GREEN_FLIPPED|texture=" + texture.get_path_name())
 
 
+def _polygon_instances(desc, polygon):
+    # UE 5.8 StaticMeshDescription has no get_polygon_perimeter_vertex_instances (probe 22:07).
+    for name in ("get_polygon_vertex_instances", "get_polygon_perimeter_vertex_instances"):
+        method = getattr(desc, name, None)
+        if method is not None:
+            return list(method(polygon))
+    raise RuntimeError("NO_POLYGON_VERTEX_INSTANCE_API")
+
+
+def verify_uv1_metres(mesh, lod):
+    desc = mesh.get_static_mesh_description(lod)
+    if desc is None:
+        raise RuntimeError("MESH_DESCRIPTION_MISSING|mesh=%s|lod=%d" % (mesh.get_path_name(), lod))
+    front_edges = 0
+    worst = None
+    for index in range(desc.get_polygon_count()):
+        polygon = unreal.PolygonID(index)
+        group = int(desc.get_polygon_polygon_group(polygon).id_value)
+        perimeter = list(_polygon_instances(desc, polygon))
+        for a, b in zip(perimeter, perimeter[1:] + perimeter[:1]):
+            pa = desc.get_vertex_position(desc.get_vertex_instance_vertex(a))
+            pb = desc.get_vertex_position(desc.get_vertex_instance_vertex(b))
+            ua = desc.get_vertex_instance_uv(a, 1)
+            ub = desc.get_vertex_instance_uv(b, 1)
+            d_pos = ((pa.x - pb.x) ** 2 + (pa.y - pb.y) ** 2 + (pa.z - pb.z) ** 2) ** 0.5 / 100.0
+            d_uv = ((ua.x - ub.x) ** 2 + (ua.y - ub.y) ** 2) ** 0.5
+            excess = d_uv - d_pos
+            if group == 0:
+                front_edges += 1
+                error = abs(excess)
+            else:
+                error = max(0.0, excess)
+            if worst is None or error > worst[0]:
+                worst = (error, group, index, d_pos, d_uv)
+    if front_edges == 0:
+        raise RuntimeError("UV1_NO_FRONT_EDGES|mesh=%s|lod=%d" % (mesh.get_path_name(), lod))
+    if worst is not None and worst[0] > 0.005:
+        raise RuntimeError("UV1_METRE_SCALE_MISMATCH|mesh=%s|lod=%d|worst_error_m=%.4f|slot_group=%d|polygon=%d|d_pos_m=%.4f|d_uv=%.4f"
+                           % (mesh.get_path_name(), lod, worst[0], worst[1], worst[2], worst[3], worst[4]))
+    unreal.log("S3_FLATS_UV1|mesh=%s|lod=%d|front_edges=%d|worst_error_m=%.5f"
+               % (mesh.get_path_name(), lod, front_edges, worst[0] if worst else 0.0))
+
+
 def verify_mesh(mesh, expected_dimensions_m):
     box = mesh.get_bounding_box()
     dimensions = [float(box.max.x - box.min.x), float(box.max.y - box.min.y), float(box.max.z - box.min.z)]
@@ -368,15 +411,13 @@ def verify_mesh(mesh, expected_dimensions_m):
         raise RuntimeError("SLOT_MISMATCH|mesh=%s|slots=%s" % (mesh.get_path_name(), slots))
     if unreal.EditorStaticMeshLibrary.get_lod_count(mesh) != 2:
         raise RuntimeError("LOD_COUNT_MISMATCH|mesh=" + mesh.get_path_name())
-    ranges = [uv_ranges(mesh, lod) for lod in (0, 1)]
-    width_m = expected_dimensions_m[1]
-    height_m = expected_dimensions_m[2]
-    for lod, channels in enumerate(ranges):
-        uv1 = channels[1]
-        if abs((uv1["u"][1] - uv1["u"][0]) - width_m) > 0.02 or \
-                abs((uv1["v"][1] - uv1["v"][0]) - height_m) > 0.02:
-            raise RuntimeError("UV1_METRE_SCALE_MISMATCH|mesh=%s|lod=%d|uv1=%s" %
-                               (mesh.get_path_name(), lod, uv1))
+    # UV1 is a metre-space projection of position on every slot (W&T validation
+    # "uv1_metres_all_slots", max error 0 m). A whole-mesh span check is wrong for a four-slot
+    # board (run 180401: the edge faces lay their metre UVs along the width, v span 14.3 m).
+    # Per edge instead: Front-slot (group 0, planar) |dUV1| == |dPos| within 0.5 cm; every slot
+    # |dUV1| <= |dPos| + 0.5 cm. Catches 0-1-normalised or mis-scaled UV1.
+    for lod in (0, 1):
+        verify_uv1_metres(mesh, lod)
     try:
         sockets = list(mesh.get_editor_property("sockets"))
     except Exception as exc:
@@ -420,6 +461,54 @@ def verify_backdrop_mesh(mesh):
     return {"uv_ranges": ranges, "handedness": backdrop_handedness(mesh)}
 
 
+def gate_imported_mesh_lods(run, destination_by):
+    """Revision 3's immediate, pre-texture Interchange result gate."""
+    expected_lods = {owner: 2 for owner in WAVE_NAMES}
+    expected_lods[BACKDROP_NAME] = 1
+    report = {}
+    failures = []
+    for owner in WAVE_NAMES + (BACKDROP_NAME,):
+        path = destination_by[(owner, "mesh")]
+        mesh = unreal.EditorAssetLibrary.load_asset(path)
+        if not isinstance(mesh, unreal.StaticMesh):
+            failures.append({"owner": owner, "path": path, "reason": "NOT_STATIC_MESH"})
+            continue
+        lods = int(mesh.get_num_lods())
+        report[owner] = {"path": path, "lods": lods}
+        if lods != expected_lods[owner]:
+            failures.append({
+                "owner": owner,
+                "path": path,
+                "reason": "LOD_COUNT_MISMATCH",
+                "actual": lods,
+                "expected": expected_lods[owner],
+            })
+
+    stray_lod_assets = []
+    for asset_path in unreal.EditorAssetLibrary.list_assets(
+            MESH_ROOT, recursive=True, include_folder=False):
+        asset_name = str(asset_path).rsplit("/", 1)[-1].split(".", 1)[0]
+        if asset_name.endswith(("_LOD0", "_LOD1")):
+            stray_lod_assets.append(str(asset_path))
+    stray_lod_assets.sort()
+    if stray_lod_assets:
+        failures.append({"reason": "STRAY_LOD_ASSETS", "values": stray_lod_assets})
+
+    details = {
+        "meshes": report,
+        "stray_lod_assets": stray_lod_assets,
+    }
+    if failures:
+        details["failures"] = failures
+        unreal.log_error(
+            "S3_FLATS_IMPORT_STOPPED|run=%s|reason=LOD_GATE|details=%s|census=%s" %
+            (run, json.dumps(details, separators=(",", ":"), sort_keys=True),
+             json.dumps(package_census(), separators=(",", ":"), sort_keys=True)))
+        return False
+    unreal.log("S3_FLATS_IMPORT_LOD_GATE|run=%s|meshes=7|wave_lods=2|backdrop_lods=1|stray_lod_assets=0" % run)
+    return True
+
+
 def apply_import(run, inventory):
     asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
     source_by = {(row["owner"], row["kind"]): row["path"] for row in inventory["sources"]}
@@ -428,6 +517,17 @@ def apply_import(run, inventory):
     # Build every mesh option BEFORE importing anything: run 172901 imported 21 textures, then
     # failed on an FBX option and left them unsaved in memory.
     fbx_options()
+    # Revision 3: import all seven meshes first, then gate the exact Interchange
+    # result before creating any texture or material-instance asset.
+    mesh_tasks = []
+    for owner in WAVE_NAMES + (BACKDROP_NAME,):
+        destination = destination_by[(owner, "mesh")]
+        folder, name = destination.rsplit("/", 1)
+        mesh_tasks.append(import_task(source_by[(owner, "mesh")], folder, name, fbx_options()))
+    asset_tools.import_asset_tasks(mesh_tasks)
+    if not gate_imported_mesh_lods(run, destination_by):
+        return
+
     texture_tasks = []
     for owner in WAVE_NAMES + (BACKDROP_NAME,):
         for kind in TEXTURE_KINDS:
@@ -435,13 +535,6 @@ def apply_import(run, inventory):
             folder, name = destination.rsplit("/", 1)
             texture_tasks.append(import_task(source_by[(owner, kind)], folder, name))
     asset_tools.import_asset_tasks(texture_tasks)
-
-    mesh_tasks = []
-    for owner in WAVE_NAMES + (BACKDROP_NAME,):
-        destination = destination_by[(owner, "mesh")]
-        folder, name = destination.rsplit("/", 1)
-        mesh_tasks.append(import_task(source_by[(owner, "mesh")], folder, name, fbx_options()))
-    asset_tools.import_asset_tasks(mesh_tasks)
 
     textures = {}
     for owner in WAVE_NAMES + (BACKDROP_NAME,):
