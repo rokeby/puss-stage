@@ -56,6 +56,11 @@ def blender_args() -> argparse.Namespace:
     parser.add_argument("--validation-out")
     parser.add_argument("--expected-height-cm", type=float)
     parser.add_argument("--minimum-width-m", type=float, default=0.0)
+    parser.add_argument(
+        "--skip-pole-export",
+        action="store_true",
+        help="Build the flat normally without replacing the shared no-LOD pole FBX",
+    )
     return parser.parse_args(raw)
 
 
@@ -1064,6 +1069,17 @@ def export_selection(path: Path, objects: list[bpy.types.Object]) -> None:
     )
 
 
+def create_lod_group(flat_name: str, lod0: bpy.types.Object, lod1: bpy.types.Object) -> bpy.types.Object:
+    """Create the FBX LodGroup hierarchy consumed by Unreal Interchange."""
+    group = bpy.data.objects.new(flat_name + "_LODGroup", None)
+    bpy.context.collection.objects.link(group)
+    group["fbx_type"] = "LodGroup"
+    group["LODOrder"] = "LOD0,LOD1"
+    for child in (lod0, lod1):
+        child.parent = group
+    return group
+
+
 def look_at(obj: bpy.types.Object, target: tuple[float, float, float]) -> None:
     direction = Vector(target) - obj.location
     obj.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
@@ -1243,6 +1259,7 @@ def build(args: argparse.Namespace) -> None:
         mesh["UV0MetresPerPixel"] = silhouette.scale_m_per_px
         mesh["UV0Side"] = args.side
         mesh["UV0CentreOffsetM"] = centre_offset_m
+    lod_group = create_lod_group(flat_name, flat, lod1)
     sockets = [] if is_wave_row else create_sockets(args.side, silhouette, pole_y)
     lod1_triangles = object_triangles(lod1)
 
@@ -1253,7 +1270,10 @@ def build(args: argparse.Namespace) -> None:
         pole = create_pole(materials)
         pole_triangles = object_triangles(pole)
         pole_fbx = output_dir / "SM_FlatV3_Pole.fbx"
-        export_selection(pole_fbx, [pole])
+        if args.skip_pole_export and not pole_fbx.is_file():
+            raise RuntimeError(f"Cannot skip missing shared pole FBX: {pole_fbx}")
+        if not args.skip_pole_export:
+            export_selection(pole_fbx, [pole])
         pole.hide_render = True
         pole.hide_set(True)
 
@@ -1268,7 +1288,7 @@ def build(args: argparse.Namespace) -> None:
 
     floor = [] if is_wave_row else create_floor_and_groove(silhouette.width_m, args.side, materials)
     flat_fbx = output_dir / f"{flat_name}.fbx"
-    export_selection(flat_fbx, [flat, lod1] + sockets)
+    export_selection(flat_fbx, [lod_group, flat, lod1] + sockets)
     lod1.hide_render = True
 
     render_result = None
@@ -1301,8 +1321,20 @@ def build(args: argparse.Namespace) -> None:
         "material_slots": MATERIAL_SLOTS,
         "uv_layers": [layer.name for layer in flat.data.uv_layers],
         "vertex_colour_contract": {"layer": VERTEX_COLOR_NAME, "Flap.R": "flutter weight; 0 hinge to 1 free", "Timber.R": "0 softwood; 0.5 ply; 1 steel", "Timber.G": "deterministic per-member variation"},
-        "lods": {"LOD0": flat.name, "LOD1": lod1.name, "LOD1_excludes": ["frame", "hardware", "flaps"]},
-        "outputs": {"flat_fbx": str(flat_fbx), "pole_fbx": str(pole_fbx) if pole_fbx else None, "blend": str(blend_path)},
+        "lods": {
+            "mechanism": "FBX LodGroup NodeAttribute",
+            "group": lod_group.name,
+            "children_in_order": [flat.name, lod1.name],
+            "LOD0": flat.name,
+            "LOD1": lod1.name,
+            "LOD1_excludes": ["frame", "hardware", "flaps"],
+        },
+        "outputs": {
+            "flat_fbx": str(flat_fbx),
+            "pole_fbx": str(pole_fbx) if pole_fbx else None,
+            "pole_exported_this_run": bool(pole_fbx and not args.skip_pole_export),
+            "blend": str(blend_path),
+        },
         "render": render_result,
     }
     (output_dir / f"{args.name}_{args.side}_build.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
@@ -1515,6 +1547,72 @@ def validate_vertex_contract(obj: bpy.types.Object, slots: list[str], require_al
     return checks
 
 
+def fbx_node_name(value) -> str:
+    if not isinstance(value, bytes):
+        return str(value)
+    return value.split(b"\x00\x01", 1)[0].decode("utf-8", errors="replace")
+
+
+def inspect_fbx_lod_group(path: Path, flat_name: str) -> dict:
+    """Inspect the binary FBX hierarchy without relying on Blender's scene import."""
+    from io_scene_fbx import parse_fbx
+
+    root, version = parse_fbx.parse(str(path))
+    objects = next((elem for elem in root.elems if elem.id == b"Objects"), None)
+    connections = next((elem for elem in root.elems if elem.id == b"Connections"), None)
+    if objects is None or connections is None:
+        return {"pass": False, "reason": "FBX is missing Objects or Connections", "fbx_version": version}
+
+    models = {
+        int(elem.props[0]): {
+            "name": fbx_node_name(elem.props[1]),
+            "type": fbx_node_name(elem.props[2]),
+        }
+        for elem in objects.elems
+        if elem.id == b"Model" and len(elem.props) >= 3
+    }
+    lod_attributes = {
+        int(elem.props[0]): {
+            "name": fbx_node_name(elem.props[1]),
+            "type": fbx_node_name(elem.props[2]),
+        }
+        for elem in objects.elems
+        if elem.id == b"NodeAttribute" and len(elem.props) >= 3 and elem.props[2] == b"LodGroup"
+    }
+    oo_connections = [
+        (int(elem.props[1]), int(elem.props[2]))
+        for elem in connections.elems
+        if elem.id == b"C" and len(elem.props) >= 3 and elem.props[0] == b"OO"
+    ]
+    group_model_ids = [dst for src, dst in oo_connections if src in lod_attributes and dst in models]
+    expected_group = flat_name + "_LODGroup"
+    expected_children = [flat_name + "_LOD0", flat_name + "_LOD1"]
+    matching_group_ids = [group_id for group_id in group_model_ids if models[group_id]["name"] == expected_group]
+    group_id = matching_group_ids[0] if len(matching_group_ids) == 1 else None
+    child_ids = [src for src, dst in oo_connections if group_id is not None and dst == group_id and src in models]
+    children = [models[child_id] for child_id in child_ids]
+    child_names = [child["name"] for child in children]
+    child_types = [child["type"] for child in children]
+    passed = bool(
+        len(lod_attributes) == 1
+        and len(matching_group_ids) == 1
+        and child_names == expected_children
+        and child_types == ["Mesh", "Mesh"]
+    )
+    return {
+        "pass": passed,
+        "offline_tier": "MEASURED",
+        "unreal_tier": "INFERRED until UE 5.8 Interchange read-back",
+        "fbx_version": version,
+        "mechanism": "FBX LodGroup NodeAttribute",
+        "expected_group": expected_group,
+        "lod_group_attributes": list(lod_attributes.values()),
+        "group_model": models.get(group_id) if group_id is not None else None,
+        "children_in_connection_order": children,
+        "expected_children_in_order": expected_children,
+    }
+
+
 def validate(args: argparse.Namespace) -> None:
     clear_scene()
     path = Path(args.validate_fbx).resolve()
@@ -1553,6 +1651,7 @@ def validate(args: argparse.Namespace) -> None:
     else:
         if not args.skin_color:
             raise RuntimeError("Flat validation requires --skin-color for Front coverage")
+        raw_lod_group = inspect_fbx_lod_group(path, path.stem)
         candidates = [obj for obj in meshes if obj.name.startswith("SM_FlatV3_") and not obj.name.startswith("SM_FlatV3_Pole")]
         lod0_candidates = [obj for obj in candidates if "_LOD0" in obj.name]
         lod1_candidates = [obj for obj in candidates if "_LOD1" in obj.name]
@@ -1616,6 +1715,7 @@ def validate(args: argparse.Namespace) -> None:
             if 0 <= index < len(slots) and slots[index] in triangles_by_slot:
                 triangles_by_slot[slots[index]] += 1
         result["checks"] = {
+            "fbx_lod_group": raw_lod_group,
             "height": {"pass": abs(float(dims[2]) - expected_h) <= 0.01, "measured_m": float(dims[2]), "expected_m": expected_h},
             "depth_about_12cm": {"pass": 0.115 <= float(dims[0]) <= 0.130, "measured_m": float(dims[0])},
             "material_slots_exact": {"pass": slots == MATERIAL_SLOTS, "value": slots, "expected": MATERIAL_SLOTS},
