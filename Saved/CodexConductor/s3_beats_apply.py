@@ -9,6 +9,7 @@ map.  Apply/revert save exactly LS_DevScene_03 and LS_Clams.
 """
 import datetime
 import json
+import re
 import os
 import shutil
 
@@ -246,6 +247,9 @@ def channel_row(channel):
         name = str(channel.get_name())
     except Exception:
         name = str(channel.get_editor_property("channel_name"))
+    # Scripting channel proxies are renumbered on every read (Location.X_0 -> Location.X_6,
+    # MovieSceneScriptingFloatChannel_0 -> _12; diff run 145950). Compare without the suffix.
+    name = re.sub(r"_\d+$", "", name)
     keys = []
     for key in channel.get_keys():
         time = key.get_time()
