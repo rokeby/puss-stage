@@ -60,6 +60,10 @@ deteriorates by other means (scaffold, peel, fire, monochrome).
   small family set across the passage. Roughly: 3-4 plant pairs, 3-4
   fence/industrial pairs (fence, tarp, shutter, pipes, vent bulk), 2-3 mystical
   pairs near the shrine (e.g. a ruined arch or shrine fragment, a bronze-tree echo).
+- **Picked (Gary, 2 Oct):** plant sets 1, 4, 6, 7, 16, 18, 19 and 20 (as they are,
+  upscaled; Fuser "lurid" passes later), COMBINED with tonight's urban/industrial
+  Blender families: chain-link fence (with and without tarp, barbed wire), roller
+  shutter, ducts and vent bulk, girders.
 
 - **Mood:** darker, continuing "the uncanny animals story at the pond, next to
   the train wreck"; a "magic realist anthropocene feel of these mundane
