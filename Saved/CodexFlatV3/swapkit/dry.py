@@ -12,6 +12,13 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import common as c
 c = importlib.reload(c)
+import shift_common as shift
+shift = importlib.reload(shift)
+
+
+GAP_TOLERANCE_CM = 2.0
+INNER_EDGE_EPSILON_CM = 0.01
+OUTER_REPORT_LIMIT_CM = 1500.0
 
 
 def run(config_path=None):
@@ -41,7 +48,11 @@ def run(config_path=None):
     kept_old_sides = []
     excluded_hits = []
     planned_meshes = set()
+    narrower_sides = []
+    outer_edge_rows = []
+    gap_rows = []
     tolerance_cm = float(config["overreach_tolerance_cm"])
+    lateral_mode = config["lateral_mode"]
     keep_by_key = c.keep_old_by_key(config)
     for ordinal, original in enumerate(preflight["rows"]):
         cue = cues[original["cue_index"]]
@@ -74,27 +85,56 @@ def run(config_path=None):
                 continue
             old_bounds = c.side_bounds(original[side], library_by_mesh)
             outer = old_bounds["min_y_cm"] if side == "left" else old_bounds["max_y_cm"]
-            planned = c.planned_panel(desired[side], outer)
-            new_bounds = c.side_bounds(planned, library_by_mesh)
             old_inner = old_bounds["max_y_cm"] if side == "left" else old_bounds["min_y_cm"]
+            if lateral_mode == "inner_edge":
+                zero_panel = c.planned_panel(desired[side], 0.0)
+                zero_bounds = c.side_bounds(zero_panel, library_by_mesh)
+                zero_inner = (zero_bounds["max_y_cm"] if side == "left" else
+                              zero_bounds["min_y_cm"])
+                new_y = old_inner - zero_inner
+            else:
+                new_y = outer
+            planned = c.planned_panel(desired[side], new_y)
+            new_bounds = c.side_bounds(planned, library_by_mesh)
+            new_outer = new_bounds["min_y_cm"] if side == "left" else new_bounds["max_y_cm"]
             new_inner = new_bounds["max_y_cm"] if side == "left" else new_bounds["min_y_cm"]
             overreach_cm = max(0.0, (new_inner - old_inner) if side == "left"
                                else (old_inner - new_inner))
+            if lateral_mode == "inner_edge" and overreach_cm <= INNER_EDGE_EPSILON_CM:
+                overreach_cm = 0.0
+            if lateral_mode == "inner_edge" and overreach_cm > INNER_EDGE_EPSILON_CM:
+                raise RuntimeError(
+                    "INNER_EDGE_ONSTAGE_FAIL|label=%s|side=%s|old=%.6f|new=%.6f" %
+                    (label, side, old_inner, new_inner))
+            backbone_onstage_cm = max(0.0, (new_outer - outer) if side == "left"
+                                      else (outer - new_outer))
+            narrower = lateral_mode == "inner_edge" and backbone_onstage_cm > INNER_EDGE_EPSILON_CM
             flagged = overreach_cm > tolerance_cm
             adjudication = ("kept_old" if keep_entry is not None else
                             "within_tolerance" if 0.0 < overreach_cm <= tolerance_cm else
                             "unexplained" if flagged else "none")
             row["placement"][side] = {
                 "old_y_cm": float(original[side]["local_transform"]["location"][1]),
-                "old_outer_edge_cm": outer, "new_y_cm": outer,
+                "old_outer_edge_cm": outer, "new_outer_edge_cm": new_outer,
+                "new_y_cm": new_y,
                 "old_inner_edge_cm": old_inner, "new_inner_edge_cm": new_inner,
                 "overreach_cm": overreach_cm, "overreach_flag": flagged,
                 "overreach_adjudication": adjudication,
+                "backbone_onstage_cm": backbone_onstage_cm,
+                "narrower_than_old": narrower,
             }
-            unreal.log("%s run=%s label=%s side=%s old_y=%.6f old_outer_edge=%.6f new_y=%.6f new_inner_edge=%.6f old_inner_edge=%.6f overreach_cm=%.6f overreach_flag=%s adjudication=%s" %
-                       (c.marker(config, "LATERAL_DRY_RUN"), config["run_id"], label, side,
-                        row["placement"][side]["old_y_cm"], outer, outer, new_inner,
-                        old_inner, overreach_cm, str(flagged).lower(), adjudication))
+            unreal.log("%s run=%s mode=%s label=%s side=%s old_y=%.6f old_outer_edge=%.6f new_y=%.6f new_outer_edge=%.6f new_inner_edge=%.6f old_inner_edge=%.6f backbone_onstage_cm=%.6f narrower=%s overreach_cm=%.6f overreach_flag=%s adjudication=%s" %
+                       (c.marker(config, "LATERAL_DRY_RUN"), config["run_id"], lateral_mode,
+                        label, side, row["placement"][side]["old_y_cm"], outer, new_y,
+                        new_outer, new_inner, old_inner, backbone_onstage_cm,
+                        str(narrower).lower(), overreach_cm, str(flagged).lower(), adjudication))
+            if narrower and keep_entry is None:
+                narrower_sides.append({"cue_guid": original["cue_guid"],
+                                       "cue_index": original["cue_index"],
+                                       "cue_label": label, "side": side,
+                                       "old_outer_edge_cm": outer,
+                                       "new_outer_edge_cm": new_outer,
+                                       "backbone_onstage_cm": backbone_onstage_cm})
             flag = {"cue_guid": original["cue_guid"],
                     "cue_index": original["cue_index"],
                     "cue_label": label, "side": side,
@@ -149,6 +189,39 @@ def run(config_path=None):
         else:
             row["top"] = original["top"]
         if row["changed_sides"] or row["kept_old_sides"]:
+            edge_sides = {}
+            for side in ("left", "right"):
+                old_side_bounds = c.side_bounds(original[side], library_by_mesh)
+                new_side_bounds = c.side_bounds(row[side], library_by_mesh)
+                edge_sides[side] = {
+                    "old_inner_edge_cm": (old_side_bounds["max_y_cm"] if side == "left"
+                                          else old_side_bounds["min_y_cm"]),
+                    "new_inner_edge_cm": (new_side_bounds["max_y_cm"] if side == "left"
+                                          else new_side_bounds["min_y_cm"]),
+                    "new_outer_edge_cm": (new_side_bounds["min_y_cm"] if side == "left"
+                                          else new_side_bounds["max_y_cm"]),
+                }
+            gap_old = shift.centre_gap_cm(edge_sides["left"]["old_inner_edge_cm"],
+                                          edge_sides["right"]["old_inner_edge_cm"])
+            gap_new = shift.centre_gap_cm(edge_sides["left"]["new_inner_edge_cm"],
+                                          edge_sides["right"]["new_inner_edge_cm"])
+            lateral_changed = [side for side in row["changed_sides"]
+                               if side in ("left", "right")]
+            row["centre_gap"] = {"gap_old_cm": gap_old, "gap_new_cm": gap_new,
+                                 "tolerance_cm": GAP_TOLERANCE_CM}
+            gap_rows.append({"cue_guid": original["cue_guid"],
+                             "cue_index": original["cue_index"], "cue_label": label,
+                             "shifted_sides": lateral_changed,
+                             "gap_old_cm": gap_old, "gap_new_cm": gap_new})
+            max_outer = max(abs(edge_sides[side]["new_outer_edge_cm"])
+                            for side in ("left", "right"))
+            outer_row = {"cue_guid": original["cue_guid"],
+                         "cue_index": original["cue_index"], "cue_label": label,
+                         "max_abs_outer_edge_cm": max_outer,
+                         "beyond_1500_cm": max_outer > OUTER_REPORT_LIMIT_CM,
+                         "sides": edge_sides}
+            row["outer_edge_report"] = outer_row
+            outer_edge_rows.append(outer_row)
             plan.append(row)
 
     required_hits = int(config.get("required_exclusion_hits", 0))
@@ -163,6 +236,7 @@ def run(config_path=None):
     if unexplained_overreach:
         raise RuntimeError("UNEXPLAINED_OVERREACH_FLAGS|count=%d" %
                            len(unexplained_overreach))
+    gap_gate = shift.minimum_gap_gate(gap_rows, GAP_TOLERANCE_CM, config["passage"])
     mesh_gates = {}
     for path in sorted(planned_meshes):
         mesh = unreal.EditorAssetLibrary.load_asset(path)
@@ -186,14 +260,25 @@ def run(config_path=None):
         "within_tolerance_overreach_flags": within_tolerance,
         "unexplained_overreach_flags": unexplained_overreach,
         "kept_old_sides": kept_old_sides,
-        "lateral_derivation": "each side independently: new backbone Y equals the old transformed offstage edge Y; never symmetrise; print and flag overreach",
+        "lateral_mode": lateral_mode,
+        "lateral_derivation": ("each changed side independently: new inner edge equals the old inner edge"
+                               if lateral_mode == "inner_edge" else
+                               "each side independently: new backbone Y equals the old transformed offstage edge Y; never symmetrise; print and flag overreach"),
+        "narrower_sides": narrower_sides,
+        "centre_gap_gate": gap_gate,
+        "outer_edge_rows": outer_edge_rows,
+        "outer_report_limit_cm": OUTER_REPORT_LIMIT_CM,
+        "outer_beyond_limit": [row for row in outer_edge_rows if row["beyond_1500_cm"]],
         "materialize_calls": [config["passage"]], "dirty_after": c.census(),
     }
     path = c.write_json(config, "dry_run", doc)
-    unreal.log("%s run=%s rows=%d materialize=[%s] overreach_flags=%d within_tolerance=%d unexplained=%d kept_old_sides=%d excluded_kept=%d plan=%s" %
-               (c.marker(config, "DRY_RUN"), config["run_id"], len(plan), config["passage"],
-                len(overreach_flags), len(within_tolerance), len(unexplained_overreach),
-                len(kept_old_sides), len(excluded_hits), path))
+    unreal.log("%s run=%s mode=%s rows=%d materialize=[%s] overreach_flags=%d within_tolerance=%d unexplained=%d kept_old_sides=%d excluded_kept=%d gap_old=%.6f gap_new=%.6f narrower_sides=%d beyond_1500cm=%d plan=%s" %
+               (c.marker(config, "DRY_RUN"), config["run_id"], lateral_mode,
+                len(plan), config["passage"],
+                 len(overreach_flags), len(within_tolerance), len(unexplained_overreach),
+                len(kept_old_sides), len(excluded_hits), gap_gate["min_gap_old_cm"],
+                gap_gate["min_gap_new_cm"], len(narrower_sides),
+                len(doc["outer_beyond_limit"]), path))
     return doc
 
 

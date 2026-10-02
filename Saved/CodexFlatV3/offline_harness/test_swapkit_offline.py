@@ -20,6 +20,25 @@ P05_MEASURED_ROWS = {
     row["cue_guid"]: row
     for row in P05_MEASURED_DOC["rows"] if row["cue_guid"] in P05_FLAGGED_GUIDS
 }
+# Blender 4.4 clean-import bounds from the exact legacy P06 source FBXs, in cm.
+# All are symmetric around the V2 bottom-centre pivot; the value is max local Y.
+P06_LEGACY_YMAX_CM = {
+    "SM_BambooScaffold_01_L": 329.333329201,
+    "SM_BambooScaffold_01_R": 321.815729141,
+    "SM_CeramicTotem_01_L": 283.124113083,
+    "SM_CeramicTotem_01_R": 239.069104195,
+    "SM_CoveredBiomechCeramic_01_L_exposed_rococo_painterly": 360.236215591,
+    "SM_CoveredBiomechCeramic_01_L_rococo_painterly": 361.842107773,
+    "SM_CoveredPillar_01_L": 319.148921967,
+    "SM_CoveredPillar_01_R": 337.047362328,
+    "SM_GauzeLattice_01_L": 244.966459274,
+    "SM_GauzeLattice_01_R": 213.783407211,
+    "SM_MutatedPeltFlora_01_L_v2": 252.005338669,
+    "SM_SaltFormation_01_L_v2": 352.008461952,
+    "SM_SaltFormation_01_R": 324.512529373,
+    "SM_SteelScaffold_01_L": 394.890522957,
+    "SM_SteelScaffold_01_R": 265.710377693,
+}
 ROWS_DUMP = REPO / "Saved" / "CodexWingHandedness2" / "rows_dump.json"
 sys.path.insert(0, str(HERE))
 import fake_unreal
@@ -27,6 +46,7 @@ sys.modules["unreal"] = fake_unreal
 
 RESULTS = []
 GAP_TABLE = []
+P06_OUTER_TABLE = []
 FORBIDDEN = ("save_asset", "save_current_level", "materialize_passage", "set_editor_property")
 
 
@@ -128,14 +148,32 @@ def register_mapping_meshes(config, doc):
                         config["destination_root"])
                 register_mesh(root + "/StaticMeshes/" + proposal["asset"], side)
     elif kind == "p06_layout":
+        industrial_doc = json.loads((REPO / "DerivedAssets" / "FlatV3" / "Overnight" /
+                                     "P02Industrial" / "validation.json").read_text(
+                                         encoding="utf-8"))
+        industrial_by_name = {row["asset"]: row for row in industrial_doc["assets"]}
         for family in doc["family_catalog"].values():
             if family.get("pair_status") != "true_pair":
                 continue
             root = ("/Game/Scenes/Wings/FlatV3/Passage02" if
                     family.get("kind") == "p02_industrial" else
                     config["destination_root"])
-            register_mesh(root + "/StaticMeshes/" + family["left_asset"], "left")
-            register_mesh(root + "/StaticMeshes/" + family["right_asset"], "right")
+            for side in ("left", "right"):
+                asset = family[side + "_asset"]
+                path = root + "/StaticMeshes/" + asset
+                register_mesh(path, side)
+                if family.get("kind") == "p06_flat":
+                    validation = json.loads((REPO / family[side + "_source"]).parent.joinpath(
+                        "validation.json").read_text(encoding="utf-8"))
+                    width_cm = float(validation["dimensions_m"][1]) * 100.0
+                else:
+                    bounds = industrial_by_name[asset]["bounds_m"]
+                    width_cm = (float(bounds["y_max"]) - float(bounds["y_min"])) * 100.0
+                minimum_y, maximum_y = ((0.0, width_cm) if side == "left" else
+                                        (-width_cm, 0.0))
+                fake_unreal.STATE.assets[path] = fake_unreal.StaticMesh(
+                    path, fake_unreal.Vector(-5, minimum_y, 0),
+                    fake_unreal.Vector(5, maximum_y, 1200))
 
 
 def apply_measured_p05_old_edges(guid, records):
@@ -211,13 +249,20 @@ def reset_for_config(config):
             top = "/Game/Legacy/P06/Top_%02d" % (ordinal + 1)
         else:
             right = left[:-2] + "_R" if left.endswith("_L") else left + "_R"
-        records = {"left": panel_record(left, -500),
-                   "right": panel_record(right, 500),
+        lateral = 750 if passage == "P06" else 500
+        records = {"left": panel_record(left, -lateral),
+                   "right": panel_record(right, lateral),
                    "top": panel_record(top, 0, True)}
         if passage == "P05":
             apply_measured_p05_old_edges(guid, records)
         for side in ("left", "right", "top"):
             register_mesh(records[side]["mesh"], side)
+            if passage == "P06" and side in ("left", "right"):
+                asset_name = records[side]["mesh"].rsplit("/", 1)[-1]
+                half_width = P06_LEGACY_YMAX_CM[asset_name]
+                fake_unreal.STATE.assets[records[side]["mesh"]] = fake_unreal.StaticMesh(
+                    records[side]["mesh"], fake_unreal.Vector(-5, -half_width, 0),
+                    fake_unreal.Vector(5, half_width, 1000))
         pair = fake_unreal.Obj(
             left=fake_unreal.panel_from(records["left"]),
             right=fake_unreal.panel_from(records["right"]),
@@ -290,7 +335,8 @@ def stage_config(source, folder):
 
 def modules(folder, config=None):
     for name in list(sys.modules):
-        if name in {"common", "preflight", "dry", "apply", "revert", "verify", "verify_saved"}:
+        if name in {"common", "preflight", "dry", "apply", "revert", "verify", "verify_saved",
+                    "shift_common"}:
             del sys.modules[name]
     common = load("common", KIT / "common.py")
     preflight = load("preflight", KIT / "preflight.py")
@@ -567,6 +613,22 @@ def run_positive(config_path, config, folder):
     verify_saved.verifier.c.log_has = verify.c.log_has
     saved = verify_saved.main(str(config_path))
     if config["passage"] == "P06":
+        if plan.get("lateral_mode") != "inner_edge":
+            raise AssertionError("P06 positive did not use inner_edge mode")
+        gaps = [row["centre_gap"] for row in plan["rows"]]
+        if len(gaps) != 32 or any(abs(float(row["gap_new_cm"]) -
+                                      float(row["gap_old_cm"])) > 2.0 for row in gaps):
+            raise AssertionError("P06 inner-edge gap drifted beyond 2 cm")
+        if plan["centre_gap_gate"]["row_count"] != 32:
+            raise AssertionError("P06 gap gate did not cover every swapped row")
+        P06_OUTER_TABLE[:] = [{"label": row["cue_label"],
+                               "max_abs_outer_edge_cm": row["max_abs_outer_edge_cm"],
+                               "beyond_1500_cm": row["beyond_1500_cm"]}
+                              for row in plan["outer_edge_rows"]]
+        record("P06 inner-edge every-row gap", "+", "32 rows; new == old +/-2 cm",
+               True, "max_abs_delta=%.6f gate_rows=%d" %
+               (max(abs(float(row["gap_new_cm"]) - float(row["gap_old_cm"]))
+                    for row in gaps), plan["centre_gap_gate"]["row_count"]))
         originals_doc = common.read_json(config, "preflight")
         show = fake_unreal.STATE.assets[common.SHOW]
         cues = list(show.get_editor_property("cues"))
@@ -1024,6 +1086,54 @@ def case_p06_import_sources():
            (len(selected), len(missing), len(invalid), l_only_used))
 
 
+def case_p06_backbone_overreach(config, folder):
+    """The old lateral rule must reject at least one genuinely wider P06 asset."""
+    backbone = dict(config)
+    backbone["lateral_mode"] = "backbone"
+    path = Path(folder) / "run_p06_backbone_negative.json"
+    path.write_text(json.dumps(backbone, indent=2), encoding="utf-8")
+    common, preflight, dry, *_ = modules(folder, backbone)
+    reset_for_config(backbone)
+    preflight.c.BASE = dry.c.BASE = str(folder)
+    preflight.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
+    preflight.run(str(path))
+    try:
+        dry.run(str(path))
+    except RuntimeError as exc:
+        record("P06 backbone wide-asset control", "-", "FAIL with overreach",
+               "UNEXPLAINED_OVERREACH_FLAGS" in str(exc), exc)
+    else:
+        record("P06 backbone wide-asset control", "-", "FAIL with overreach", False,
+               "unexpectedly accepted")
+
+
+def case_p06_narrower_report(config, folder):
+    """Inner-edge placement permits a narrow replacement and reports its onstage backbone."""
+    common, preflight, dry, *_ = modules(folder, config)
+    reset_for_config(config)
+    mapping = json.loads(Path(config["mapping_file"]).read_text(encoding="utf-8"))
+    family = mapping["family_catalog"]["bronze_tree"]
+    for side in ("left", "right"):
+        path = config["destination_root"] + "/StaticMeshes/" + family[side + "_asset"]
+        minimum_y, maximum_y = ((0.0, 200.0) if side == "left" else (-200.0, 0.0))
+        fake_unreal.STATE.assets[path] = fake_unreal.StaticMesh(
+            path, fake_unreal.Vector(-5, minimum_y, 0),
+            fake_unreal.Vector(5, maximum_y, 1200))
+    preflight.c.BASE = dry.c.BASE = str(folder)
+    preflight.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
+    preflight.run(str(config["_staged_path"]))
+    plan = dry.run(str(config["_staged_path"]))
+    reported = [row for row in plan["narrower_sides"]
+                if row["cue_label"] in ("P06 Wing 004", "P06 Wing 008",
+                                        "P06 Wing 019", "P06 Wing 027")]
+    inner_equal = all(abs(float(row["placement"][side]["new_inner_edge_cm"]) -
+                          float(row["placement"][side]["old_inner_edge_cm"])) <= 0.01
+                      for row in plan["rows"] for side in ("left", "right"))
+    record("P06 narrower inner-edge report", "+", "allowed; backbone shift reported",
+           len(reported) == 8 and inner_equal,
+           "reported_sides=%d inner_equal=%s" % (len(reported), inner_equal))
+
+
 def case_inner_shift_controls(folder):
     """Measured and planted controls for Gary's 2 Oct offstage-only rule."""
     modules(folder)
@@ -1241,13 +1351,30 @@ def print_gap_table():
             print("-+-".join("-" * width for width in widths))
 
 
+def print_p06_outer_table():
+    headers = ("P06 row", "Max |outer edge| (cm)", ">1500 cm")
+    rows = [headers] + [(row["label"], "%.3f" % row["max_abs_outer_edge_cm"],
+                        "YES" if row["beyond_1500_cm"] else "no")
+                       for row in P06_OUTER_TABLE]
+    widths = [max(len(str(row[index])) for row in rows) for index in range(len(headers))]
+    print("\nP06 OUTER-EDGE TABLE (offline source-width fixture)")
+    for number, row in enumerate(rows):
+        print(" | ".join(str(value).ljust(widths[index]) for index, value in enumerate(row)))
+        if number == 0:
+            print("-+-".join("-" * width for width in widths))
+    beyond = [row["label"] for row in P06_OUTER_TABLE if row["beyond_1500_cm"]]
+    print("Beyond 1500 cm: %s" % (", ".join(beyond) if beyond else "none"))
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="flatv3_swapkit_offline_") as folder_name:
         folder = Path(folder_name)
         configs = []
         for name in ("run_c_p05.json", "run_d_p01.json", "run_p03.json", "run_p02.json",
-                     "run_p06.json"):
-            configs.append(stage_config(KIT / name, folder))
+                      "run_p06.json"):
+            staged_path, staged_config = stage_config(KIT / name, folder)
+            staged_config["_staged_path"] = str(staged_path)
+            configs.append((staged_path, staged_config))
         for path, config in configs:
             case_positive("swapkit " + config["passage"], path, config, folder)
         case_pair_frame_controls(folder)
@@ -1268,9 +1395,12 @@ def main():
         case_p02_industrial_socket_admission()
         case_p06_contract(configs[4][1], folder)
         case_p06_import_sources()
+        case_p06_backbone_overreach(configs[4][1], folder)
+        case_p06_narrower_report(configs[4][1], folder)
         case_inner_shift_controls(folder)
     print_table()
     print_gap_table()
+    print_p06_outer_table()
     failed = [row for row in RESULTS if not row["passed"]]
     print("\nOVERALL: %s (%d/%d harness assertions passed)" %
           ("PASS" if not failed else "FAIL", len(RESULTS) - len(failed), len(RESULTS)))

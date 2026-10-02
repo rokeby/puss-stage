@@ -65,6 +65,9 @@ def load_config(explicit=None):
                            repr(config.get("overreach_tolerance_cm")))
     if not math.isfinite(tolerance) or tolerance < 0.0:
         raise RuntimeError("CONFIG_OVERREACH_TOLERANCE_FAIL|actual=" + repr(tolerance))
+    lateral_mode = str(config.get("lateral_mode", "backbone")).strip().lower()
+    if lateral_mode not in ("backbone", "inner_edge"):
+        raise RuntimeError("CONFIG_LATERAL_MODE_FAIL|actual=" + repr(lateral_mode))
     raw_keep = config.get("keep_old_sides", [])
     if not isinstance(raw_keep, list):
         raise RuntimeError("CONFIG_KEEP_OLD_SIDES_FAIL|expected=list")
@@ -89,6 +92,7 @@ def load_config(explicit=None):
         seen_keep.add(key)
         keep_old.append({"cue_guid": cue_guid_value, "side": side, "reason": reason})
     config["overreach_tolerance_cm"] = tolerance
+    config["lateral_mode"] = lateral_mode
     config["keep_old_sides"] = keep_old
     config["_path"] = path
     config["mapping_file"] = _project_path(config["mapping_file"])

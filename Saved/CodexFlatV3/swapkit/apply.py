@@ -25,6 +25,10 @@ def run(config_path=None):
         c.assert_context(config, clean=True)
         originals = c.read_json(config, "preflight")
         plan = c.read_json(config, "dry_run")
+        if plan.get("lateral_mode", "backbone") != config["lateral_mode"]:
+            raise RuntimeError("PLAN_LATERAL_MODE_MISMATCH|config=%s|plan=%s" %
+                               (config["lateral_mode"],
+                                plan.get("lateral_mode", "backbone")))
         configured_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
                                  for entry in config["keep_old_sides"])
         planned_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
@@ -114,6 +118,8 @@ def run(config_path=None):
                              "kept_old_sides": row.get("kept_old_sides", []),
                              "panels": actual})
         report.update({"status": "PASS", "backup": config["backup_path"],
+                       "lateral_mode": config["lateral_mode"],
+                       "centre_gap_gate": plan.get("centre_gap_gate"),
                        "rows": len(readback), "materialize_calls": [config["passage"]],
                        "kept_old_sides": plan.get("kept_old_sides", []),
                        "dirty_before_save": before_save, "dirty_after_save": c.census(),

@@ -4,6 +4,7 @@
   "run_id": "FV3P06-20261002-01",
   "saved_verify_run_id": "FV3P06V-20261002-01",
   "passage": "P06",
+  "lateral_mode": "inner_edge",
   "passage_label_prefix": "P06 Wing ",
   "passage_actor_label_prefix": "Passage 06",
   "mapping_file": "Saved/CodexFlatV3/swapkit/p06_layout.json",

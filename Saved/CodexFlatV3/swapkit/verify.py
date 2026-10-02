@@ -13,6 +13,12 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import common as c
 c = importlib.reload(c)
+import shift_common as shift
+
+
+GAP_TOLERANCE_CM = 2.0
+INNER_EDGE_EPSILON_CM = 0.01
+OUTER_REPORT_LIMIT_CM = 1500.0
 
 SAMPLE_PHASES = (0.25, 0.5, 0.75)
 
@@ -292,6 +298,10 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
     assert_clean("start")
     originals = c.read_json(config, "preflight", run=swap_run)
     plan = c.read_json(config, "dry_run", run=swap_run)
+    if plan.get("lateral_mode", "backbone") != config["lateral_mode"]:
+        raise RuntimeError("VERIFY_LATERAL_MODE_MISMATCH|config=%s|plan=%s" %
+                           (config["lateral_mode"],
+                            plan.get("lateral_mode", "backbone")))
     configured_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
                              for entry in config["keep_old_sides"])
     planned_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
@@ -328,6 +338,8 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
                                                "max": vector_plain(box.max)}}
 
     placed = []
+    gap_rows = []
+    outer_edge_rows = []
     pair_frames = {}
     pair_frame_sources = {}
     for row in plan["rows"]:
@@ -356,9 +368,8 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
         pair_frames[row["cue_guid"]] = frame
         pair_frame_sources[row["cue_guid"]] = frame_source
         pair_minus_x = frame.rotation.rotate_vector(unreal.Vector(-1.0, 0.0, 0.0))
+        world_edges = {}
         for side in ("left", "right"):
-            if side not in row["changed_sides"]:
-                continue
             ref = refs[side]
             component = ref.get_editor_property("component")
             mesh = component.get_editor_property("static_mesh")
@@ -367,6 +378,12 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
             base_transform = ref.get_editor_property("base_world_transform")
             bounds = bounds_in_frame(mesh, base_transform, frame)
             centre_y = (bounds["min"][1] + bounds["max"][1]) * 0.5
+            actual_outer = bounds["min"][1] if side == "left" else bounds["max"][1]
+            actual_inner = bounds["max"][1] if side == "left" else bounds["min"][1]
+            world_edges[side] = {"outer_edge_cm": actual_outer,
+                                 "inner_edge_cm": actual_inner}
+            if side not in row["changed_sides"]:
+                continue
             # Side test on the BACKBONE (outer) edge, not the centre: P05 clouds are
             # authored overlapping the centreline (old right at cue 125 spans y -205..205),
             # so a centre test fails faithful swaps. Exact plan edges are checked below.
@@ -375,12 +392,19 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
                 raise RuntimeError("PLACED_SIDE_BOUNDS_FAIL|label=%s|side=%s|bounds=%s" %
                                    (row["cue_label"], side, json.dumps(bounds)))
             placement = row["placement"][side]
-            actual_outer = bounds["min"][1] if side == "left" else bounds["max"][1]
-            actual_inner = bounds["max"][1] if side == "left" else bounds["min"][1]
-            if (abs(actual_outer - float(placement["old_outer_edge_cm"])) > 1.0 or
+            expected_outer = float(placement.get(
+                "new_outer_edge_cm", placement["old_outer_edge_cm"]))
+            if (abs(actual_outer - expected_outer) > 1.0 or
                     abs(actual_inner - float(placement["new_inner_edge_cm"])) > 1.0):
                 raise RuntimeError("PLACED_EDGE_READBACK_FAIL|label=%s|side=%s|outer=%g|inner=%g" %
                                    (row["cue_label"], side, actual_outer, actual_inner))
+            old_inner = float(placement["old_inner_edge_cm"])
+            onstage = max(0.0, (actual_inner - old_inner) if side == "left"
+                          else (old_inner - actual_inner))
+            if config["lateral_mode"] == "inner_edge" and onstage > INNER_EDGE_EPSILON_CM:
+                raise RuntimeError(
+                    "VERIFY_INNER_EDGE_ONSTAGE_FAIL|label=%s|side=%s|old=%g|actual=%g" %
+                    (row["cue_label"], side, old_inner, actual_inner))
             front = base_transform.rotation.rotate_vector(unreal.Vector(-1.0, 0.0, 0.0))
             front_dot = float(front.dot(pair_minus_x))
             if front_dot < 0.99:
@@ -390,6 +414,27 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
                            "mesh": c.asset_path(mesh), "bounds_pair_cm": bounds,
                            "centre_y_cm": centre_y, "outer_edge_cm": actual_outer,
                            "inner_edge_cm": actual_inner, "front_dot_minus_x": front_dot})
+        old_gap = float(row.get("centre_gap", {}).get(
+            "gap_old_cm", shift.centre_gap_cm(
+                c.side_bounds(original["left"], library_by_mesh)["max_y_cm"],
+                c.side_bounds(original["right"], library_by_mesh)["min_y_cm"])))
+        new_gap = shift.centre_gap_cm(world_edges["left"]["inner_edge_cm"],
+                                      world_edges["right"]["inner_edge_cm"])
+        lateral_changed = [side for side in row["changed_sides"]
+                           if side in ("left", "right")]
+        gap_rows.append({"cue_guid": row["cue_guid"], "cue_index": row["cue_index"],
+                         "cue_label": row["cue_label"], "shifted_sides": lateral_changed,
+                         "gap_old_cm": old_gap, "gap_new_cm": new_gap})
+        max_outer = max(abs(world_edges[side]["outer_edge_cm"])
+                        for side in ("left", "right"))
+        outer_edge_rows.append({"cue_guid": row["cue_guid"],
+                                "cue_index": row["cue_index"],
+                                "cue_label": row["cue_label"],
+                                "max_abs_outer_edge_cm": max_outer,
+                                "beyond_1500_cm": max_outer > OUTER_REPORT_LIMIT_CM,
+                                "sides": world_edges})
+
+    gap_gate = shift.minimum_gap_gate(gap_rows, GAP_TOLERANCE_CM, config["passage"])
 
     passage_range = unwrap(unreal.InfinityStageCameraPilotLibrary.get_passage_frame_range(
         show, actor.get_editor_property("passage_guid")), 2)
@@ -479,7 +524,13 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
         raise RuntimeError("VERIFY_TOKEN_NOT_FOUND|" + config["verify_token"])
     end_census = assert_clean("end")
     report = {"run": verification_run, "source_swap_run": swap_run, "mode": "verify",
-              "status": "PASS", "rows": len(plan["rows"]), "placed_panels": placed,
+              "status": "PASS", "rows": len(plan["rows"]),
+              "lateral_mode": config["lateral_mode"], "placed_panels": placed,
+              "centre_gap_gate": gap_gate,
+              "outer_edge_rows": outer_edge_rows,
+              "outer_report_limit_cm": OUTER_REPORT_LIMIT_CM,
+              "outer_beyond_limit": [row for row in outer_edge_rows
+                                     if row["beyond_1500_cm"]],
               "kept_old_sides": plan.get("kept_old_sides", []),
               "mesh_gates": mesh_gates, "movement": movement,
               "pair_frame_sources": pair_frame_sources,
