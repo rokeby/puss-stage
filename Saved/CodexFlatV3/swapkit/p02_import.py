@@ -50,6 +50,9 @@ def plant_inventory(config, slot_a):
     if tools_dir not in sys.path:
         sys.path.insert(0, tools_dir)
     import socket_contract
+    import importlib as _importlib
+    # The editor's Python keeps modules across scripts; reload so on-disk contract edits apply.
+    socket_contract = _importlib.reload(socket_contract)
 
     root = c._project_path(config["import_plant_source_root"])
     rows = []
@@ -132,6 +135,9 @@ def industrial_inventory(config, slot_a):
     if tools_dir not in sys.path:
         sys.path.insert(0, tools_dir)
     import socket_contract
+    import importlib as _importlib
+    # The editor's Python keeps modules across scripts; reload so on-disk contract edits apply.
+    socket_contract = _importlib.reload(socket_contract)
 
     root = c._project_path(config["import_industrial_source_root"])
     validation = slot_a.load_json(os.path.join(root, "validation.json"))

@@ -42,6 +42,8 @@ def p03_inventory(config, slot_a):
     if tools_dir not in sys.path:
         sys.path.insert(0, tools_dir)
     import socket_contract
+    import importlib as _importlib
+    socket_contract = _importlib.reload(socket_contract)
 
     root = c._project_path(config["import_source_root"])
     rows = []

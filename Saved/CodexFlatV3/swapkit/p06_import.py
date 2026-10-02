@@ -53,6 +53,8 @@ def flat_inventory(config, slot_a, used_families):
     if tools_dir not in sys.path:
         sys.path.insert(0, tools_dir)
     import socket_contract
+    import importlib as _importlib
+    socket_contract = _importlib.reload(socket_contract)
 
     wanted = {family[side] for family in used_families.values()
               if family["kind"] == "p06_flat"
