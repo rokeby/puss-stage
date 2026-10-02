@@ -121,6 +121,18 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   and quitting the editor. Vamp NOT applied: Revision 2 in the spec (continuous yaw; atan2 wrapped +180->-180 at
   frame 3840/3841, a subframe whip, inferred). Pass 2 is write-only (log Saved/CodexRuns/s3_vamp_pass2.log), then
   a dry run and the apply once W&T release the editor.
+- CONDUCTOR 4 STATE, 2 Oct ~08:45 (measured unless marked):
+  APPLIED: S3 vamp (S3_VAMP_DONE run=021102, backup PreS3Vamp-20261002-0211; both tests Success). LEVEL SAVED LANDED
+  (CONDUCTOR_LEVEL_LANDED_SAVED run=021649, backup PreLevelLanded-20261002-0215); save-check INVERTED (refuses while DOWN).
+  BUT W&T slot B saved Show+level again at 02:44:10/11 (P04 swap, UNVERIFIED; its verify mutated the world, its revert
+  crashed; Gary closed the editor WITHOUT saving -> on-disk = the 02:44 save). Hangars-UP in that save: UNVERIFIED.
+  NEXT EDITOR SLOT: W&T read-only verify of P04 (slot_b_verify_saved.py) + landed-preview STATUS. If P04 fails: restore
+  Backups/PreFlatV3SwapP04-20261002-0242 with the editor closed. W&T C/D/E/W HELD until their fixes are reviewed.
+  READY, not applied: S3 wave slides (b0a5e04, e1fcee0; gate expects strike 147 -> must follow the new +10 s strike).
+  Roof tool (0fe0dd2) stopped on an AABB clearance (-25 cm, S1 left wall at landing; same hinge path as today, so likely
+  false, INFERRED) -> SUPERSEDED by the Arrival Details timing patch AT (Gary: Details panel; roof +4.13->+8.63, lattice
+  +8.63->+12.63, lights strike +10 s keeping stagger; spec specs/HANGAR_TIMING_DETAILS.md, Codex drafting).
+  HELD patches for the next build: SS (scene shot stepping, d410198) + AT when reviewed. Editor CLOSED by Gary at 08:38.
 - HANGAR GATE FAILED (Gary, 2 Oct ~01:50): S1 and S3 rise; S2 does NOT; S4/S5/S6 "possibly" not (S5/S6 run cut
   short by the PIE stops). The log shows S2/S5/S6 Arrivals WAITING reason=NotNested ("inert until LS_DevScene_0N
   plays LS_SN_HangarRise") -> the queued "lengthen Scenes 2/5/6 so their hangars play" (INFERRED cause). DO NOT
