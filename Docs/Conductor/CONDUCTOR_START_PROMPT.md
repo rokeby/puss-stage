@@ -133,6 +133,12 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   false, INFERRED) -> SUPERSEDED by the Arrival Details timing patch AT (Gary: Details panel; roof +4.13->+8.63, lattice
   +8.63->+12.63, lights strike +10 s keeping stagger; spec specs/HANGAR_TIMING_DETAILS.md, Codex drafting).
   HELD patches for the next build: SS (scene shot stepping, d410198) + AT when reviewed. Editor CLOSED by Gary at 08:38.
+- OPEN PUZZLE, S3 wave mesh swap (W2, parked 2 Oct ~18:00): the 6 extended wave meshes are imported and saved as
+  /Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow{1,2,3}_{A,B}_v2 (unreferenced; mapping in W&T's
+  run_w2.json). Setting them on the 6 `S3 Wave Row` StaticMeshActors takes effect in memory but does NOT dirty the level
+  (census stays empty) with: set_static_mesh; owner.modify()+component.modify()+set_static_mesh; component.modify()+
+  set_editor_property("static_mesh") (measured, 3 runs, all restored clean). Actors' outermost = the level package (not OFPA).
+  Transform edits on the same level DO dirty it (landed preview UP). Investigate before retrying; S3 keeps the old waves.
 - FOR WING MATERIALITY (2 Oct ~17:00, measured FLATV3_PROBE_VC_OK on 3 landed flats; decode INFERRED): every imported V3 flat stores the Timber IDs as softwood 0.0 / steel 0.9961 / ply
   vertex R ~0.733 (the FBX's sRGB-encoded 0.5), not 0.5 (spec WingMateriality.md:52 says 0 softwood / 0.5 ply / 1 steel).
   No shipped material decodes VC.R yet (the Timber master isn't built; Timber slots use M_Wing_CanvasEdge_Master). When the
