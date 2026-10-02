@@ -13,6 +13,22 @@ import w2_common as c
 
 def main(config_path=None):
     config = c.load_config(config_path)
+    applied_roots = []
+    try:
+        report = _verify(config)
+    except Exception as exc:
+        try:
+            applied_roots = c.read_report(config, "apply").get("saved_roots", [])
+        except Exception:
+            applied_roots = []
+        # Read-only: logging only. The apply's saves are reported, not undone.
+        c.log_release(config, "FAIL", applied_roots, reason="verify:" + str(exc))
+        raise
+    c.log_release(config, "OK", report["saved_roots"])
+    return report
+
+
+def _verify(config):
     c.assert_context(config, clean=False)
     applied = c.read_report(config, "apply")
     if applied.get("status") != "PASS" or len(applied.get("rows", [])) != 6:
