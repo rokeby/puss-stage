@@ -1,3 +1,10 @@
+> **1 Oct ~22:40: WINDOW RUN, BUILT 467d2c8 (FFV + HL), suite 106/0/106** — HoldRightFastForwards,
+> VampLoopsUntilRelease, Arrival.GameWorldStartsAtFirstHangarKeys passed; markers UTF-8 test names + UTF-16
+> runtime literals with +/- controls (first attempt 222729 rolled back on a UTF-16 test-name search — wrong
+> encoding, see memory puss-dll-marker-encoding). Warning lines 36 (baseline ~29; not failures). NOTHING HELD.
+> **Still to do (Gary present):** PIE: every hangar starts sunk and rises as before (level still saved sunk);
+> then raise all + save the level LANDED; PIE again; retire/invert the landed-preview save-check.
+
 > **1 Oct ~21:15 (Conductor 3): TWO HELD PATCHES, checked to apply on HEAD TOGETHER (--ignore-whitespace):**
 > 1. **FFV** `Scripts/patches/2026-10-01_FFV_fast_forward_and_vamp.patch` (supersedes FF): hold RIGHT = 4x
 >    fast-forward (tap unchanged, interlock kept, Master audio muted at 4x); `InfinityStage.VampStart/VampEnd`

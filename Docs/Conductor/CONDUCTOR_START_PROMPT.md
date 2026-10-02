@@ -119,7 +119,8 @@ CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
   hold-Right fast-forward held patch, walk-in generalised to I2-I5 (specs in Saved/CodexConductor/specs).
   NIGHT 1 Oct ~21:00: W&T pilot pair imported + ONE P04 test placement ("P04 Wing 011", backup
   PreFlatV3TestPlacement-20261001-2014; SavedMasterMatchesShow Success). Editor IDLE and clean.
-  Held for the next build window: FFV (fast-forward + Scene 3 vamp), HL draft in flight (hangars saved landed).
+  BUILT 467d2c8 (suite 106/0/106): FFV (hold RIGHT 4x fast-forward; VampStart/VampEnd loops) + HL (hangars
+  sunk at BeginPlay in game worlds). Post-build steps in BUILD_WINDOW_QUEUE.md (PIE, then save level LANDED).
   Gary at 10:00: PIE look at S3 (sky up, cottages right) and P04 Wing 011; hand-print Fuser job; REVIEW_02 picks.
   Next editor work: S3 shot-list draft cameras (ROOT cuts at the markers, then rematch_only), pearl mesh,
   skin-tone route (MetaHuman Creator re-bake?), huddle cost measurement.
