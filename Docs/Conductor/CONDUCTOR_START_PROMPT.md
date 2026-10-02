@@ -115,6 +115,11 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   UPDATE 01:42: vamp DRY RUN CLEAN (S3_VAMP_DRY_RUN_OK run=014200, 721 keys, seam 0.0 cm/0.0 deg; report
   Saved/CodexRuns/last-message-20261002-013025-95843.txt). Ready to APPLY. Codex closed the editor unasked
   after it (clean); Conductor 3 relaunched it.
+- EDITOR GRANTED to Wings and Textures (2 Oct ~01:50) for their sequence: A import all built V3 flats (P04/P05/P01/P02
+  sets, import only) -> B P04 swap -> C P05 swap -> D P01 swap (Gary approved the swaps in THEIR session; P02 NOT
+  swapped) -> E mip stopgap on existing wing textures (Conductor 3 signed off: Gary chose mipmaps for P01/P02 on
+  30 Sep; originals JSON + revert, save only touched textures). Each slot releases with a census. The S3 vamp apply
+  waits until W&T release the editor.
 - GO1 is NOT engaged in Scenes (Gary 2 Oct): Scene cameras need not be walkable.
 - W&T: pilot pair imported + ONE test placement "P04 Wing 011"; P02 is a full redo (chain-link + lurid plants);
   S3 hand prints via Fuser job 24 -> decal atlas + JSON placement table for Rig.
