@@ -1,6 +1,8 @@
 """Offline controls for walkin_plan.py. Run with the system Python."""
 
 import math
+import json
+import os
 import sys
 
 from walkin_plan import check_plan, plan_walk
@@ -22,6 +24,7 @@ FOCAL0, FOCAL1 = 15.0, 35.0
 FOCUS0, FOCUS1 = 1400.0, 100000.0
 LANDED_S = 20.3
 PILE_EDGE_CM = 190.0
+TRANSITIONS_PATH = os.path.join(os.path.dirname(__file__), "walkin_transitions.json")
 
 
 def run_case(name, condition, detail):
@@ -38,6 +41,46 @@ def has_failure(failures, name):
 
 def main():
     results = []
+    with open(TRANSITIONS_PATH, "r", encoding="utf-8") as handle:
+        transitions = json.load(handle)
+
+    expected_identity = {
+        "I1": ("LS_Interaction_01_WashingTheBoy", "Interaction 1 — Stalls Camera", "Passage 2", "InfinityStage.Mouth.P02"),
+        "I2": ("LS_Interaction_02_Turnips", "Interaction 2 — Stalls Camera", "Passage 3", "InfinityStage.Mouth.P03"),
+        "I3": ("LS_Interaction_03_ForgetsHisName", "Interaction 3 — Stalls Camera", "Passage 4", "InfinityStage.Mouth.P04"),
+        "I4": ("LS_Interaction_04_GetsAName", "Interaction 4 — Stalls Camera", "Passage 5", "InfinityStage.Mouth.P05"),
+        "I5": ("LS_Interaction_05_BecomesKing", "Interaction 5 — Stalls Camera", "Passage 6", "InfinityStage.Mouth.P06"),
+    }
+    registry_problems = []
+    if set(transitions) != set(expected_identity):
+        registry_problems.append("ids=%r" % sorted(transitions))
+    for transition_id, expected in expected_identity.items():
+        row = transitions.get(transition_id, {})
+        actual = (
+            str(row.get("sequence_path", "")).rsplit("/", 1)[-1],
+            row.get("camera_label"), row.get("next_passage_label"),
+            row.get("camera_tags", [None, None])[-1] if row.get("camera_tags") else None,
+        )
+        if actual != expected:
+            registry_problems.append("%s identity=%r" % (transition_id, actual))
+        if row.get("camera_tags", [None])[0] != "InfinityStage.TransitionStalls":
+            registry_problems.append("%s missing stalls tag" % transition_id)
+    if transitions.get("I1", {}).get("minimum_end_frame") != 638:
+        registry_problems.append("I1 minimum_end_frame")
+    if transitions.get("I1", {}).get("landed_s") != LANDED_S:
+        registry_problems.append("I1 landed_s")
+    for transition_id in ("I2", "I3", "I4", "I5"):
+        row = transitions.get(transition_id, {})
+        if row.get("minimum_end_frame") is not None or row.get("landed_s") is not None:
+            registry_problems.append("%s must remain gated by nulls" % transition_id)
+        if len(row.get("soft_goods_steps", [])) != 3:
+            registry_problems.append("%s Soft goods steps" % transition_id)
+    results.append(run_case(
+        "transition_registry",
+        not registry_problems,
+        "problems=%r" % registry_problems,
+    ))
+
     keys, report = plan_walk(
         SEAT, TARGET, V_END, EASE_S, END_S, FPS,
         FOCAL0, FOCAL1, FOCUS0, FOCUS1, LANDED_S, PILE_EDGE_CM,
@@ -53,6 +96,33 @@ def main():
         positive_ok,
         "failures=%r start_s=%.6f distance_cm=%.6f"
         % (positive_failures, report["start_s"], report["distance_cm"]),
+    ))
+
+    i1 = transitions["I1"]
+    configured_end_s = i1["minimum_end_frame"] / FPS
+    configured_keys, configured_report = plan_walk(
+        SEAT, TARGET, V_END, EASE_S, configured_end_s, FPS,
+        FOCAL0, FOCAL1, FOCUS0, FOCUS1,
+        i1["landed_s"], i1["pile_edge_cm"],
+    )
+    first_key_diff = next(
+        (
+            (index, current, configured)
+            for index, (current, configured) in enumerate(zip(keys, configured_keys))
+            if current != configured
+        ),
+        None,
+    )
+    exact_i1 = (
+        len(configured_keys) == len(keys)
+        and first_key_diff is None
+        and configured_report == report
+    )
+    results.append(run_case(
+        "i1_registry_reproduces_current_keys",
+        exact_i1,
+        "current=%d configured=%d first_diff=%r report_equal=%s"
+        % (len(keys), len(configured_keys), first_key_diff, configured_report == report),
     ))
 
     shifted = list(keys)
@@ -128,4 +198,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

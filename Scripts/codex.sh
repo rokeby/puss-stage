@@ -81,7 +81,7 @@ fi
 # stdin when it is a pipe, so a backgrounded run with an inherited pipe hangs on
 # "Reading additional input from stdin..." forever -- holding its worktree and
 # producing nothing, while looking exactly like a slow run from outside.
-STAMP="$(date +%Y%m%d-%H%M%S)"
+STAMP="$(date +%Y%m%d-%H%M%S)-$$"  # PID: parallel launches in one second overwrote each other's final message (1 Oct)
 OUTDIR="Saved/CodexRuns"
 LEDGER="$OUTDIR/ledger.tsv"
 mkdir -p "$OUTDIR"

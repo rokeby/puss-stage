@@ -1,23 +1,25 @@
 """NOTE (review, 30 Sep): the dry run exercises every LOOKUP but not the write-path calls (add_possessable,
 add_track, set_property_name_and_path, add_key); those run for the first time on apply. If apply fails
-mid-write it raises before saving, so Interaction 1 is left dirty and unsaved. Cure: run
-revert_walkin_i1_p02.py (it removes the named tracks) and discard with a Don't-Save restart. Never save it half
+mid-write it raises before saving, so the selected Interaction is left dirty and unsaved. Cure: run
+revert_walkin_i1_p02.py for the same transition (it removes the named tracks) and discard with a Don't-Save restart. Never save it half
 written. Focus (changed 30 Sep after the first dry run measured 100000 -> 600 cm, far to near): it moves
 linearly in DIOPTERS, so mid-walk it sits near the stage (~1190 cm against ~1360 cm). Linear in distance would hold
 it at infinity and rack in only in the last ~0.4 s. Drafted by Codex from Look & camera's spec; reviewed.
 """
-"""Key the Interaction 1 -> Passage 2 walk-in without touching the Master.
+"""Key a configured Interaction -> Passage walk-in without touching the Master.
 
 DRY_RUN is deliberately True. The dry run resolves every Unreal dependency,
 plans and checks all keys, and logs every fifth frame while writing nothing.
 Set DRY_RUN to False only after Soft goods has extended/refit the drape and the
-Interaction sequence playback end is at least frame 638.
+selected transition has non-null minimum_end_frame and landed_s values in
+walkin_transitions.json.
 """
 
 DRY_RUN = True
+TRANSITION_ID = "I1"
 
 
-def main():
+def main(transition_id):
     import datetime
     import json
     import math
@@ -27,17 +29,11 @@ def main():
     import unreal
 
     show_path = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
-    sequence_path = "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy"
     expected_world = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
     expected_project = os.path.normcase(os.path.normpath("E:/PussStage"))
     track_name = "WalkIn (Look & camera)"
-    camera_label = "Interaction 1 — Stalls Camera"
-    camera_tags = ("InfinityStage.TransitionStalls", "InfinityStage.Mouth.P02")
     ticks_per_frame = 960
-    minimum_end_frame = 638
     ease_s = 1.0
-    landed_s = 20.3
-    pile_edge_cm = 190.0
 
     def fail(message):
         full = "PUSS_WALKIN_FAILED|" + str(message)
@@ -84,6 +80,39 @@ def main():
         if project_dir != expected_project.rstrip("\\/"):
             fail("wrong project directory %s (expected E:/PussStage)" % project_dir)
 
+        transition_id = str(transition_id).strip().upper()
+        config_path = os.path.join(
+            unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
+            "CodexCameraPilot", "walkin_transitions.json",
+        )
+        if not os.path.isfile(config_path):
+            fail("transition registry is missing at %s" % config_path)
+        with open(config_path, "r", encoding="utf-8") as config_handle:
+            transitions = json.load(config_handle)
+        if transition_id not in transitions:
+            fail("unknown transition id %r (expected one of %r)" % (transition_id, sorted(transitions)))
+        transition = transitions[transition_id]
+        required_fields = (
+            "sequence_path", "camera_label", "camera_tags", "next_passage_label",
+            "minimum_end_frame", "landed_s", "pile_edge_cm",
+        )
+        missing_fields = [name for name in required_fields if name not in transition]
+        if missing_fields:
+            fail("%s registry entry is missing %r" % (transition_id, missing_fields))
+        null_fields = [name for name in required_fields if transition[name] is None]
+        if null_fields:
+            fail(
+                "%s is not ready: registry fields %r are null. %s"
+                % (transition_id, null_fields, transition.get("readiness_note", ""))
+            )
+        sequence_path = str(transition["sequence_path"])
+        camera_label = str(transition["camera_label"])
+        camera_tags = tuple(str(tag) for tag in transition["camera_tags"])
+        next_passage_label = str(transition["next_passage_label"])
+        minimum_end_frame = int(transition["minimum_end_frame"])
+        landed_s = float(transition["landed_s"])
+        pile_edge_cm = float(transition["pile_edge_cm"])
+
         editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         world = editor.get_editor_world()
         if world is None or asset_id(world) != expected_world:
@@ -96,26 +125,26 @@ def main():
             fail("Show asset did not load")
         passages = [
             passage for passage in show.get_editor_property("passage_settings")
-            if str(passage.get_editor_property("label")) == "Passage 2"
+            if str(passage.get_editor_property("label")) == next_passage_label
         ]
         if len(passages) != 1:
-            fail("expected exactly one Passage 2 row, found %d" % len(passages))
+            fail("expected exactly one %s row, found %d" % (next_passage_label, len(passages)))
         passage_guid = passages[0].get_editor_property("passage_guid")
 
         library = unreal.InfinityStageCameraPilotLibrary
         start_tick, passage_end_tick = unwrap(
             library.get_passage_frame_range(show, passage_guid), 2,
-            "get_passage_frame_range(Passage 2)",
+            "get_passage_frame_range(%s)" % next_passage_label,
         )
         start_tick = int(start_tick)
         passage_end_tick = int(passage_end_tick)
         target_view, focal1, focus1 = unwrap(
             library.get_passage_camera_pose(show, passage_guid, start_tick), 3,
-            "get_passage_camera_pose(Passage 2 start)",
+            "get_passage_camera_pose(%s start)" % next_passage_label,
         )
         next_view, next_focal, next_focus = unwrap(
             library.get_passage_camera_pose(show, passage_guid, start_tick + ticks_per_frame), 3,
-            "get_passage_camera_pose(Passage 2 start + 960)",
+            "get_passage_camera_pose(%s start + 960)" % next_passage_label,
         )
 
         show_tick = show.get_editor_property("tick_resolution")
@@ -127,23 +156,23 @@ def main():
         next_location = next_view.translation
         v_end = (next_location - target_location).length() / (ticks_per_frame / show_ticks_per_s)
         if not math.isfinite(v_end) or v_end <= 0.0:
-            fail("measured Passage 2 arrival speed is invalid: %r" % v_end)
+            fail("measured %s arrival speed is invalid: %r" % (next_passage_label, v_end))
 
         sequence = unreal.load_asset(sequence_path)
         if sequence is None:
-            fail("Interaction 1 sequence did not load")
+            fail("%s sequence did not load" % transition_id)
         display_rate = sequence.get_display_rate()
         fps = display_rate.numerator / float(display_rate.denominator)
         if abs(fps - 25.0) > 1.0e-6:
-            fail("Interaction 1 display rate is %.6f fps, expected 25" % fps)
+            fail("%s display rate is %.6f fps, expected 25" % (transition_id, fps))
         playback_start = int(sequence.get_playback_start())
         playback_end = int(sequence.get_playback_end())
         if playback_start != 0:
-            fail("Interaction 1 playback start is %d, expected 0" % playback_start)
+            fail("%s playback start is %d, expected 0" % (transition_id, playback_start))
         if playback_end < minimum_end_frame:
             fail(
-                "Interaction 1 playback end is frame %d; Soft goods must refit the drape to >= %d first"
-                % (playback_end, minimum_end_frame)
+                "%s playback end is frame %d; Soft goods must refit the drape to >= %d first"
+                % (transition_id, playback_end, minimum_end_frame)
             )
         end_s = playback_end / fps
 
@@ -156,7 +185,7 @@ def main():
             if section_start <= playback_start and section_end >= playback_end:
                 covering.append(section)
         if len(covering) != 1:
-            fail("expected one active camera-cut section covering Interaction 1, found %d" % len(covering))
+            fail("expected one active camera-cut section covering %s, found %d" % (transition_id, len(covering)))
         cut_guid = covering[0].get_camera_binding_id().get_editor_property("guid")
         actor_bindings = [
             binding for binding in sequence.get_bindings()
@@ -227,6 +256,8 @@ def main():
 
         dirty_before = census()
         report = {
+            "transition_id": transition_id,
+            "transition_registry": config_path,
             "sequence": sequence_path,
             "playback": {"start": playback_start, "end": playback_end, "fps": fps, "end_s": end_s},
             "passage": {"start_tick": start_tick, "end_tick": passage_end_tick, "ticks_per_s": show_ticks_per_s},
@@ -267,7 +298,7 @@ def main():
         if not os.path.isfile(sequence_file):
             fail("sequence file is missing: %s" % sequence_file)
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        backup_dir = os.path.join(project_dir, "Backups", "PreWalkInI1-" + stamp)
+        backup_dir = os.path.join(project_dir, "Backups", "PreWalkIn%s-" % transition_id + stamp)
         os.makedirs(backup_dir, exist_ok=False)
         backup_file = os.path.join(backup_dir, os.path.basename(sequence_file))
         copied_path = shutil.copy2(sequence_file, backup_file)
@@ -349,7 +380,7 @@ def main():
 
         saved = unreal.EditorAssetLibrary.save_loaded_asset(sequence, False)
         if not saved:
-            fail("save_loaded_asset returned False for Interaction 1")
+            fail("save_loaded_asset returned False for %s" % transition_id)
 
         named_after = all_named_tracks(sequence)
         if len(named_after) != 3:
@@ -395,8 +426,8 @@ def main():
         if dirty_after["maps"] or dirty_after["content"]:
             fail("packages remain dirty after the targeted sequence save: %r" % dirty_after)
         unreal.log(
-            "PUSS_WALKIN_KEYED|keys=%d|end_frame=%d|v_end_cm_s=%.3f|backup=%s|readback=%s|dirty_after=%s"
-            % (frame_count, playback_end, v_end, backup_dir, json.dumps(readback, sort_keys=True), json.dumps(dirty_after))
+            "PUSS_WALKIN_KEYED|transition=%s|keys=%d|end_frame=%d|v_end_cm_s=%.3f|backup=%s|readback=%s|dirty_after=%s"
+            % (transition_id, frame_count, playback_end, v_end, backup_dir, json.dumps(readback, sort_keys=True), json.dumps(dirty_after))
         )
     except Exception as error:
         if "PUSS_WALKIN_FAILED|" not in str(error):
@@ -404,4 +435,4 @@ def main():
         raise
 
 
-main()
+main(TRANSITION_ID)

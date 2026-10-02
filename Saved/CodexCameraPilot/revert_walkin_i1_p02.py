@@ -1,13 +1,15 @@
-"""Remove exactly the Interaction 1 WalkIn tracks and save only that sequence."""
+"""Remove exactly one configured transition's WalkIn tracks and save only that sequence."""
 
 
-def main():
+TRANSITION_ID = "I1"
+
+
+def main(transition_id):
     import json
     import os
 
     import unreal
 
-    sequence_path = "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy"
     expected_world = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
     expected_project = os.path.normcase(os.path.normpath("E:/PussStage"))
     track_name = "WalkIn (Look & camera)"
@@ -42,6 +44,22 @@ def main():
         )).rstrip("\\/")
         if project_dir != expected_project.rstrip("\\/"):
             fail("wrong project directory %s (expected E:/PussStage)" % project_dir)
+
+        transition_id = str(transition_id).strip().upper()
+        config_path = os.path.join(
+            unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
+            "CodexCameraPilot", "walkin_transitions.json",
+        )
+        if not os.path.isfile(config_path):
+            fail("transition registry is missing at %s" % config_path)
+        with open(config_path, "r", encoding="utf-8") as config_handle:
+            transitions = json.load(config_handle)
+        if transition_id not in transitions:
+            fail("unknown transition id %r (expected one of %r)" % (transition_id, sorted(transitions)))
+        sequence_path = transitions[transition_id].get("sequence_path")
+        if not sequence_path:
+            fail("%s registry entry has no sequence_path" % transition_id)
+
         editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         world = editor.get_editor_world()
         if world is None or asset_id(world) != expected_world:
@@ -54,15 +72,15 @@ def main():
             fail("revert requires zero dirty map and content packages: %r" % dirty_before)
         sequence = unreal.load_asset(sequence_path)
         if sequence is None:
-            fail("Interaction 1 sequence did not load")
+            fail("%s sequence did not load" % transition_id)
         found = find_tracks(sequence)
         if not found:
             dirty_after = census()
             if dirty_after != dirty_before:
                 fail("NOOP lookup changed dirty-package state: before=%r after=%r" % (dirty_before, dirty_after))
             unreal.log(
-                "PUSS_WALKIN_REVERT_NOOP|tracks=0|dirty_before=%s|dirty_after=%s"
-                % (json.dumps(dirty_before), json.dumps(dirty_after))
+                "PUSS_WALKIN_REVERT_NOOP|transition=%s|tracks=0|dirty_before=%s|dirty_after=%s"
+                % (transition_id, json.dumps(dirty_before), json.dumps(dirty_after))
             )
             return
 
@@ -78,7 +96,7 @@ def main():
 
         saved = unreal.EditorAssetLibrary.save_loaded_asset(sequence, False)
         if not saved:
-            fail("save_loaded_asset returned False for Interaction 1")
+            fail("save_loaded_asset returned False for %s" % transition_id)
         remaining_after_save = find_tracks(sequence)
         if remaining_after_save:
             fail("named tracks remain after save on %r" % [name for _, name, _ in remaining_after_save])
@@ -86,9 +104,9 @@ def main():
         if dirty_after["maps"] or dirty_after["content"]:
             fail("packages remain dirty after revert save: %r" % dirty_after)
         unreal.log(
-            "PUSS_WALKIN_REVERTED|removed=%d|hosts=%s|saved=1|dirty_before=%s|dirty_after=%s"
+            "PUSS_WALKIN_REVERTED|transition=%s|removed=%d|hosts=%s|saved=1|dirty_before=%s|dirty_after=%s"
             % (
-                len(found), json.dumps(removed_hosts),
+                transition_id, len(found), json.dumps(removed_hosts),
                 json.dumps(dirty_before), json.dumps(dirty_after),
             )
         )
@@ -98,4 +116,4 @@ def main():
         raise
 
 
-main()
+main(TRANSITION_ID)
