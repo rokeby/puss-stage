@@ -134,3 +134,16 @@ conductor's reading of what it implies — marked as such, not decided.
   no mid-Scene hold exists; only `InfinityStage.HiddenChangeover` is read; Scene 3 is DeclaredUnpausable
   (12 Sep export) so manual pause AND fast-forward are refused there in performance mode; the C++ patch goes
   in the same held transport patch as hold-RIGHT fast-forward (next build window).
+
+## Probe findings, 1 Oct ~20:55 (S3_CAST_PEARL_PROBE run=205414, read-only, census clean)
+- **Pearl:** the Fab clam is ONE section / ONE material slot (static and skeletal); skeleton has two branches
+  (`Clam_with_Pearl`, `Clam_with_Pearl_002`, likely the shell halves); skin weights unreadable in 5.8 Python.
+  → Make a SEPARATE pearl (sphere + pearlescent material) for beats 11–12. Gary: size/look.
+- **Skin tone:** baked MetaHuman skin (`MI_Body_Baked_VT`, `MI_Face_Skin_Baked_*_VT`); only micro-skin params
+  exposed (cavity spec 0.6, normal 0.7, tiling 70/44) — no tone/melanin control. → Re-bake in MetaHuman Creator
+  (Gary's tool), or a tint layer in a COPY of the skin material. Never edit the shared master.
+- **Frame cost:** per figure 3 skeletal meshes + 6 grooms + head cloth; triangle totals unreadable. Inferred:
+  grooms dominate; duplicates could drop grooms (head cloth covers hair). Measure before adding 6.
+- **Landed preview tested in the editor** (runs 204110–204131): UP exact (0.000 cm), save-check refuses while
+  up, DOWN exact; the identical level was re-saved after (CONDUCTOR_LEVEL_RESAVED 204517, backup
+  PreLevelResave-20261001-2042). Use: UP → light → DOWN → save-check → save level.

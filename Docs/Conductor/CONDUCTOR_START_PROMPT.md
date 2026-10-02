@@ -117,7 +117,12 @@ CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
   Docs/Scene3BeatSheet_2026-10-01.md 'BUILT'. Waves + Opal Beach backdrop PLACED 19:11 (run 191151).
   Next: Gary's PIE look, static ROOT cuts, lighting; wave slides. In flight: S3 landed-preview tool,
   hold-Right fast-forward held patch, walk-in generalised to I2-I5 (specs in Saved/CodexConductor/specs).
-  Editor handed to Wings and Textures 19:12 for the pilot import + ONE P04 test placement (Gary's OK in their session).
+  NIGHT 1 Oct ~21:00: W&T pilot pair imported + ONE P04 test placement ("P04 Wing 011", backup
+  PreFlatV3TestPlacement-20261001-2014; SavedMasterMatchesShow Success). Editor IDLE and clean.
+  Held for the next build window: FFV (fast-forward + Scene 3 vamp), HL draft in flight (hangars saved landed).
+  Gary at 10:00: PIE look at S3 (sky up, cottages right) and P04 Wing 011; hand-print Fuser job; REVIEW_02 picks.
+  Next editor work: S3 shot-list draft cameras (ROOT cuts at the markers, then rematch_only), pearl mesh,
+  skin-tone route (MetaHuman Creator re-bake?), huddle cost measurement.
 - NEXT for Scene 3: Wings and Textures' van Goyen backdrop + 3 wooden-wave rows (art via
   their Codex pipeline). Then Rig's step 4-5 placement (waves keyed as actors, appearing at
   the strike; backdrop plane ~20x30 m on the back wall, child MI of MI_Billboard_Front).
