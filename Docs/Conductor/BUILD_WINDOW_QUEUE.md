@@ -1,3 +1,13 @@
+> **2 Oct ~13:00 (Conductor 4): SS BUILT 301c8ae (suite 109/0/109). NEXT WINDOW (tonight, after Wings and Textures'
+> "all done"): TWO HELD PATCHES, both UNREVIEWED drafts, each `git apply --check` clean on HEAD alone (check together first):**
+> 1. **AT** `Scripts/patches/2026-10-02_AT_hangar_timing_details.draft.patch`: hangar timing on each Arrival's Details panel
+>    (spec specs/HANGAR_TIMING_DETAILS.md). Review traps: it edits InfinityStage.Build.cs (editor deps in a runtime module?);
+>    S6 must DIM, not strike (Docs/Scene6BeatSheet_2026-10-02.md); S5 refused (non-standard keys); "S3 Strike" lights not moved.
+> 2. **PR** `Scripts/patches/2026-10-02_PR_passage_resize.patch`: InfinityStagePassageResizeLibrary (editor module),
+>    ResizePassageToDuration for route A (spec specs/PASSAGE_RESIZE_A.md; offline harness test_passage_resize_plan.py 5/5).
+>    It has NO C++ automation test yet: add one (transient Show: 23 pairs/47.4 s -> 90/180 s; refusals) before building.
+> Apply PR only after the wing chain + P05 float are done (it re-indexes cues once USED, not when built; building is safe).
+
 > **2 Oct ~02:20 (Conductor 4): HELD `Scripts/patches/2026-10-02_SS_scene_shot_step.patch`** (Codex draft, reviewed,
 > `git apply --check` clean on 52ac17b, UNBUILT). Gary's rulings: in a Scene, tap RIGHT/LEFT step root camera-cut
 > starts (LEFT restarts the shot within 12 display frames' grace, else previous); past the ends they fall through to
