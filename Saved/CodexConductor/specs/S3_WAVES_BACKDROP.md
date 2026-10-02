@@ -72,3 +72,33 @@ pre-existing assets or actors; NEVER delete material nodes.
   rotation.
 - The six wave halves may later be rebuilt under the SAME names and dimensions (Gary's Fuser
   job 21); the placement tool must therefore key on actor labels/tags, not on mesh hashes.
+
+## Revision 2 (after dry runs 165902 / 165908; Wings and Textures answered, 1 Oct)
+- Timber and Edge slots: TEMPORARY direct assignment of
+  `/Game/Scenes/Wings/PaintedSurface/M_Wing_CanvasEdge_Master` to both, with the read-back gates
+  now written in `DerivedAssets/FlatV3/Scene3/waves/IMPORT_PLAN.md`. Re-read that plan.
+- Backdrop: NO engine Plane. Import W&T's `DerivedAssets/FlatV3/Scene3/backdrop/SM_FlatV3_S3_Backdrop.fbx`
+  per the updated `backdrop/IMPORT_PLAN.md` (new name, one Front slot, UV0 0-1 + UV1 metres,
+  bottom-centre origin, Front −X), MI `MI_S3_OpalBeach_Backdrop` on it.
+- REMOVE the arbitrary UV-basis solver from s3_flats_place.py. The backdrop is placed exactly
+  like a wave: rotation (0,0,0) relative to the landed dock frame, scale 1, bottom-centre at
+  landed dock (6497, 0, −5), attached to `S3 Hangar Far Wall` by the landed-pose composition.
+- Handedness gate in Unreal, read-only, after import and before placement: read the mesh's LOD0
+  section with `unreal.ProceduralMeshLibrary.get_section_from_static_mesh` and assert bounds
+  Y −1000..+1000, Z 0..3000, face normals ≈ −X, and du/dY > 0 and dv/dZ < 0 (least squares over
+  the vertices). Fail = STOP, never flip. Log `S3_BACKDROP_HANDEDNESS|run=..|du_dY=..|dv_dZ=..|normal=..`.
+- Harness: replace the flipped-plane − case with "du/dY < 0 → refuse".
+
+THIS PASS (revision 2): update both tools, wrappers and harness; run the harness; run BOTH dry
+runs once. Apply nothing, commit nothing. Final message: harness, both dry-run markers, the
+landed transforms table (from the live dry run), each tagged measured/inferred.
+
+## Revision 3 (after import run 174053: Interchange split each wave into _LOD0/_LOD1 meshes)
+W&T re-exported the six halves with an FBX LodGroup (same file names). In s3_flats_import.py:
+- Import the 7 MESHES FIRST, before any texture or MI. Immediately gate: each expected mesh path
+  exists, is a StaticMesh, `get_num_lods() == 2` for the six waves (1 for the backdrop), and NO
+  asset named `*_LOD0` / `*_LOD1` exists under the StaticMeshes folder. Fail = STOP right there
+  (`S3_FLATS_IMPORT_STOPPED|run=..|reason=LOD_GATE|..`) so nothing else is created.
+- Then textures, then MIs, then the remaining read-back gates, as before.
+- UE 5.8 imports FBX through Interchange: FbxImportUI options are IGNORED (run 174053 log).
+  Do not rely on them for anything a gate does not read back.
