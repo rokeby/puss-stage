@@ -17,6 +17,11 @@ import bpy
 import numpy as np
 from mathutils import Matrix, Vector
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+from socket_contract import make_socket_payload
+
 
 MATERIAL_SLOTS = ["Front", "Flap", "Timber", "Edge"]
 VERTEX_COLOR_NAME = "Color"
@@ -46,7 +51,7 @@ def blender_args() -> argparse.Namespace:
     parser.add_argument("--side", choices=("L", "R"))
     parser.add_argument("--name")
     parser.add_argument("--asset-name", help="Exact suffix after SM_FlatV3_; defaults to <name>_<side>")
-    parser.add_argument("--mount", choices=("wing", "wave-row"), default="wing")
+    parser.add_argument("--mount", choices=("wing", "wave-row", "top-border"), default="wing")
     parser.add_argument("--output-dir")
     parser.add_argument("--texture-root")
     parser.add_argument("--render", action="store_true")
@@ -644,9 +649,19 @@ def longest_vertical(silhouette: Silhouette, y_values: np.ndarray,
                      margin: float) -> tuple[float, float, float]:
     z_values = np.arange(0.0, silhouette.height_m + 0.0001, 0.025)
     best = None
+    half_width = MEMBER_FACE_M * 0.5
+    edge_margin = max(0.0, margin - half_width)
     for y in y_values:
-        points = np.column_stack((np.full_like(z_values, y), z_values))
-        allowed = silhouette.allowed(points, margin)
+        # Validate the full member strip, not only a centreline with an
+        # approximate distance allowance. Pixel-mask membership can differ on
+        # the two stile edges around small internal cutouts even when the
+        # centreline has ample distance from the simplified vector boundary.
+        points = np.vstack([
+            np.column_stack((np.full_like(z_values, y), z_values)),
+            np.column_stack((np.full_like(z_values, y - half_width), z_values)),
+            np.column_stack((np.full_like(z_values, y + half_width), z_values)),
+        ])
+        allowed = silhouette.allowed(points, edge_margin).reshape(3, len(z_values)).all(axis=0)
         for start, end in boolean_runs(allowed):
             length = z_values[end] - z_values[start]
             candidate = (length, float(y), float(z_values[start]), float(z_values[end]))
@@ -673,16 +688,31 @@ def member_random(name: str) -> float:
     return 0.08 + 0.84 * ((sum((index + 1) * ord(char) for index, char in enumerate(name)) % 997) / 996.0)
 
 
-def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], shallow: bool = False) -> tuple[list[bpy.types.Object], list[dict], list[float], dict]:
+def build_frame(
+    silhouette: Silhouette,
+    materials: list[bpy.types.Material],
+    shallow: bool = False,
+    top_border: bool = False,
+) -> tuple[list[bpy.types.Object], list[dict], list[float], dict]:
     objects: list[bpy.types.Object] = []
     members: list[dict] = []
     # FBX/Interchange reflects Blender Y. Author L on -Y and R on +Y so the
     # imported Unreal mesh satisfies L +Y / R -Y with zero actor rotation.
     sign = -1.0 if silhouette.side == "L" else 1.0
     inward = np.linspace(0.10, max(0.11, silhouette.width_m * 0.34), 22) * sign
-    stile1 = longest_vertical(silhouette, inward, EDGE_INSET_M + MEMBER_FACE_M * 0.5)
-    pole_stiles = [stile1]
-    pole_count = 2 if silhouette.width_m > 4.0 else 1
+    try:
+        pole_stiles = [longest_vertical(
+            silhouette, inward, EDGE_INSET_M + MEMBER_FACE_M * 0.5
+        )]
+    except RuntimeError:
+        if not shallow:
+            raise
+        # A 1.2 m rolling crest can contain no 30 cm vertical run with the full
+        # 8 cm reveal. Wave rows are explicitly rail/toggle frames with no pole
+        # or socket contract, so keep their valid horizontal subframe instead
+        # of inventing an out-of-silhouette stile.
+        pole_stiles = []
+    pole_count = 2 if pole_stiles and silhouette.width_m > 4.0 else len(pole_stiles)
     if pole_count == 2:
         second_band = np.linspace(silhouette.width_m * 0.48, silhouette.width_m * 0.82, 24) * sign
         pole_stiles.append(longest_vertical(silhouette, second_band, EDGE_INSET_M + MEMBER_FACE_M * 0.5))
@@ -702,20 +732,43 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
         members.append({"kind": "stile", "name": obj.name, "p0": [y, z0], "p1": [y, z1], "width_m": MEMBER_FACE_M})
 
     rail_records = []
+    rail_scan_best = {"length_m": 0.0, "height_m": None}
     y_min = -silhouette.width_m if silhouette.side == "L" else 0.0
     y_max = 0.0 if silhouette.side == "L" else silhouette.width_m
     y_values = np.arange(y_min, y_max + 0.0001, 0.02)
-    for rail_z in np.arange(1.5, silhouette.height_m, 1.5):
+    shallow_rail_start = EDGE_INSET_M + MEMBER_FACE_M * 0.5
+    rail_heights = (
+        np.arange(1.5, silhouette.height_m, 1.5)
+        if top_border else
+        np.arange(
+            shallow_rail_start,
+            max(shallow_rail_start + 0.001, silhouette.height_m - shallow_rail_start),
+            0.05,
+        ) if shallow else
+        np.arange(1.5, silhouette.height_m, 1.5)
+    )
+    for rail_z in rail_heights:
         points = np.column_stack((y_values, np.full_like(y_values, rail_z)))
         allowed = silhouette.allowed(points, EDGE_INSET_M + MEMBER_FACE_M * 0.5)
         for run_index, (start, end) in enumerate(boolean_runs(allowed), start=1):
             y0, y1 = float(y_values[start]), float(y_values[end])
-            if abs(y1 - y0) < 0.30:
+            if abs(y1 - y0) > rail_scan_best["length_m"]:
+                rail_scan_best = {"length_m": abs(y1 - y0), "height_m": float(rail_z)}
+            minimum_rail_length_m = 0.18 if shallow else 0.30
+            if abs(y1 - y0) < minimum_rail_length_m:
                 continue
+            # A shallow, pole-free wave has neither a pole nor a full-height
+            # stile to carry the hardware ID.  Put that required ID on its
+            # first valid rail while retaining the usual timber ID on all
+            # remaining rails.  The high green value also preserves the
+            # required per-asset variation range on these very small frames.
+            is_shallow_hardware_id = shallow and not rail_records
+            vc_red = 1.0 if is_shallow_hardware_id else 0.0
+            vc_green = 0.8 if is_shallow_hardware_id else member_random(f"Rail_{rail_z}_{run_index}")
             obj = create_box_member(f"Frame_Rail_{int(round(rail_z * 100)):04d}_{run_index}",
                                     (y0, rail_z), (y1, rail_z), MEMBER_FACE_M,
                                     BOARD_BACK_X, FRAME_BACK_X, materials, 2,
-                                    0.0, member_random(f"Rail_{rail_z}_{run_index}"))
+                                    vc_red, vc_green)
             objects.append(obj)
             record = {"kind": "rail", "name": obj.name, "p0": [y0, rail_z], "p1": [y1, rail_z], "width_m": MEMBER_FACE_M}
             members.append(record)
@@ -723,7 +776,14 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
 
     # Half-bay toggles give the back a readable rhythm at 6-10 m while each
     # member remains the specified 5 x 10 cm section.
-    for toggle_z in np.arange(0.75, silhouette.height_m, 1.5):
+    toggle_heights = (
+        np.arange(0.75, silhouette.height_m, 1.5)
+        if top_border else
+        np.arange(0.375, max(0.376, silhouette.height_m - 0.19), 0.35)
+        if shallow else
+        np.arange(0.75, silhouette.height_m, 1.5)
+    )
+    for toggle_z in toggle_heights:
         points = np.column_stack((y_values, np.full_like(y_values, toggle_z)))
         allowed = silhouette.allowed(points, EDGE_INSET_M + MEMBER_FACE_M * 0.5)
         for run_index, (start, end) in enumerate(boolean_runs(allowed), start=1):
@@ -745,7 +805,19 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
         if shallow:
             brace_heights = ()
         else:
-            brace_heights = ((1.5, 6.0), (1.5, 4.5), (3.0, 7.5), (3.0, 6.0))
+            # Try the established show-scale braces first, then search the
+            # actual silhouette at half-metre intervals. Irregular 8 m clouds
+            # can have no valid path at the four legacy endpoint heights even
+            # though a fully inset diagonal exists elsewhere.
+            legacy_heights = ((1.5, 6.0), (1.5, 4.5), (3.0, 7.5), (3.0, 6.0))
+            levels = np.arange(0.5, max(0.51, silhouette.height_m - 0.25), 0.5)
+            searched_heights = [
+                (float(z0), float(z1))
+                for z0 in levels
+                for z1 in levels
+                if z1 - z0 >= 1.5
+            ]
+            brace_heights = tuple(dict.fromkeys(legacy_heights + tuple(searched_heights)))
         for z0, z1 in brace_heights:
             if z1 <= z0 + MEMBER_FACE_M:
                 continue
@@ -795,7 +867,16 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
             break
 
     for index, (y, z0, z1) in enumerate(pole_stiles, start=1):
-        plate_z = min(max(z0 + 0.35, 0.35), z1 - 0.20)
+        preferred_z = min(max(z0 + 0.35, 0.35), z1 - 0.20)
+        candidates = [preferred_z]
+        candidates.extend(float(value) for value in np.arange(z0 + 0.20, z1 - 0.19, 0.10))
+        plate_z = next((value for value in candidates
+                        if silhouette.allowed(
+                            member_samples((y, value - 0.10), (y, value + 0.10), 0.12),
+                            MIN_FRAME_EDGE_CLEARANCE_M,
+                        ).all()), None)
+        if plate_z is None:
+            raise RuntimeError(f"No inset-safe clamp plate position for pole stile {index}")
         plate = create_box_member(f"Hardware_ClampPlate_{index}", (y, plate_z - 0.10), (y, plate_z + 0.10),
                                   0.12, BOARD_BACK_X, BOARD_BACK_X + 0.006, materials, 2,
                                   1.0, member_random(f"Clamp_{index}"))
@@ -803,21 +884,39 @@ def build_frame(silhouette: Silhouette, materials: list[bpy.types.Material], sha
         members.append({"kind": "hardware_plate", "name": plate.name, "p0": [y, plate_z - 0.10], "p1": [y, plate_z + 0.10], "width_m": 0.12})
 
     sample_sets = []
+    member_sample_sets = []
     for member in members:
         if "p0" in member:
-            sample_sets.append(member_samples(tuple(member["p0"]), tuple(member["p1"]), float(member["width_m"])))
+            samples = member_samples(tuple(member["p0"]), tuple(member["p1"]), float(member["width_m"]))
         elif member["kind"] == "corner_block":
             y, z = member["center"]
             s = member["size_m"] * 0.5
-            sample_sets.append(np.asarray([[y - s, z - s], [y + s, z - s], [y - s, z + s], [y, z]]))
+            samples = np.asarray([[y - s, z - s], [y + s, z - s], [y - s, z + s], [y, z]])
+        else:
+            continue
+        sample_sets.append(samples)
+        member_sample_sets.append((member["name"], samples))
+    if not sample_sets:
+        raise RuntimeError(f"No inset-safe frame members could be placed; best rail: {rail_scan_best}")
     tested = np.vstack(sample_sets)
     inside = silhouette.inside(tested)
     distances = silhouette.boundary_distance(tested)
+    offending_members = []
+    for name, samples in member_sample_sets:
+        member_inside = silhouette.inside(samples)
+        member_distances = silhouette.boundary_distance(samples)
+        if not member_inside.all() or member_distances.min() < MIN_FRAME_EDGE_CLEARANCE_M - 0.0005:
+            offending_members.append({
+                "name": name,
+                "outside_outline_samples": int((~member_inside).sum()),
+                "minimum_edge_clearance_cm": round(float(member_distances.min()) * 100.0, 4),
+            })
     visibility = {
         "tested_projection_samples": int(len(tested)),
         "outside_outline_samples": int((~inside).sum()),
         "minimum_edge_clearance_cm": round(float(distances.min()) * 100.0, 4),
         "required_edge_clearance_cm": MIN_FRAME_EDGE_CLEARANCE_M * 100.0,
+        "offending_members": offending_members,
         "pass": bool(inside.all() and distances.min() >= MIN_FRAME_EDGE_CLEARANCE_M - 0.0005),
     }
     if not visibility["pass"]:
@@ -1001,36 +1100,14 @@ def unreal_socket_sidecar(asset_name: str, side: str, silhouette: Silhouette,
     degrees of UE yaw; the pivot's -90 degree Blender Y rotation becomes +90
     degrees of UE pitch.  Pole sockets have identity rotation.
     """
-    records = [
-        {
-            "name": "SOCKET_Hinge",
-            "relative_location_cm": [0.0, 0.0, 0.0],
-            "relative_rotation_deg": {"roll": 0.0, "pitch": 0.0, "yaw": -90.0},
-        },
-        {
-            "name": "SOCKET_Pivot",
-            "relative_location_cm": [
-                0.0,
-                silhouette.width_m * 50.0 * (1.0 if side == "L" else -1.0),
-                silhouette.height_m * 50.0,
-            ],
-            "relative_rotation_deg": {"roll": 0.0, "pitch": 90.0, "yaw": 0.0},
-        },
-    ]
-    records.extend({
-        "name": f"SOCKET_Pole_{index}",
-        "relative_location_cm": [0.0, -float(y) * 100.0, 0.0],
-        "relative_rotation_deg": {"roll": 0.0, "pitch": 0.0, "yaw": 0.0},
-    } for index, y in enumerate(pole_y, start=1))
-    return {
-        "schema_version": 1,
-        "asset": asset_name,
-        "coordinate_space": "Unreal static-mesh local",
-        "location_units": "cm",
-        "rotation_units": "degrees",
-        "fbx_interchange_conversion": "X=X, Y=-Y, Z=Z",
-        "sockets": records,
-    }
+    return make_socket_payload(
+        asset=asset_name,
+        side=side,
+        mount="wing",
+        height_cm=silhouette.height_m * 100.0,
+        width_m=silhouette.width_m,
+        pole_positions_y_m=pole_y,
+    )
 
 
 def create_stencil(side: str, silhouette: Silhouette, material: bpy.types.Material) -> bpy.types.Object:
@@ -1322,6 +1399,8 @@ def build(args: argparse.Namespace) -> None:
     mask = load_mask(Path(args.mask).resolve())
     silhouette = Silhouette(mask, args.height_cm / 100.0, args.side)
     is_wave_row = args.mount == "wave-row"
+    is_top_border = args.mount == "top-border"
+    is_pole_free_mount = is_wave_row or is_top_border
     materials = make_materials(
         Path(args.art).resolve(), Path(args.skin_mask).resolve(),
         Path(args.skin_normal).resolve(), Path(args.aged_texture_dir).resolve(), silhouette)
@@ -1331,8 +1410,10 @@ def build(args: argparse.Namespace) -> None:
     lod1 = create_board(flat_name + "_LOD1", silhouette, materials)
     lod1.name = flat_name + "_LOD1"
     flap_objects, flap_records = create_flaps(Path(args.flaps).resolve(), silhouette, materials)
-    parts, members, pole_y, visibility = build_frame(silhouette, materials, shallow=is_wave_row)
-    if args.bake_poles and is_wave_row:
+    parts, members, pole_y, visibility = build_frame(
+        silhouette, materials, shallow=is_pole_free_mount, top_border=is_top_border
+    )
+    if args.bake_poles and is_pole_free_mount:
         raise RuntimeError("--bake-poles is valid only for wing-mounted flats")
     baked_lod0, baked_pole_records = (create_baked_poles(pole_y, silhouette.height_m, materials, "LOD0")
                                       if args.bake_poles else ([], []))
@@ -1345,7 +1426,7 @@ def build(args: argparse.Namespace) -> None:
         lod1_counts = {"flat_total": object_triangles(lod1)}
     rebuild_front_uv0(flat, silhouette)
     flat["FrontAxis"] = "-X"
-    flat["PlacementContract"] = ("Origin=BottomCentre; Scale=1" if is_wave_row else
+    flat["PlacementContract"] = ("Origin=BottomCentre; Scale=1" if is_pole_free_mount else
                                  "Origin=PoleLineX_BackboneY_FloorZ; Scale=1")
     flat["Side"] = args.side
     flat["Mount"] = args.mount
@@ -1360,8 +1441,8 @@ def build(args: argparse.Namespace) -> None:
     lod1["LODContract"] = ("LOD1 board plus baked poles; no frame hardware flaps" if args.bake_poles else
                            "LOD1 board only; no frame hardware flaps")
     centre_offset_m = ((-silhouette.width_m * 0.5 if args.side == "L" else silhouette.width_m * 0.5)
-                       if is_wave_row else 0.0)
-    if is_wave_row:
+                       if is_pole_free_mount else 0.0)
+    if is_pole_free_mount:
         for mesh in (flat, lod1):
             for vertex in mesh.data.vertices:
                 vertex.co.y -= centre_offset_m
@@ -1377,13 +1458,13 @@ def build(args: argparse.Namespace) -> None:
         mesh["UV0Side"] = args.side
         mesh["UV0CentreOffsetM"] = centre_offset_m
     lod_group = create_lod_group(flat_name, flat, lod1)
-    sockets = [] if is_wave_row else create_sockets(args.side, silhouette, pole_y)
+    sockets = [] if is_pole_free_mount else create_sockets(args.side, silhouette, pole_y)
     lod1_triangles = object_triangles(lod1)
 
     pole = None
     pole_triangles = 0
     pole_fbx = None
-    if not is_wave_row:
+    if not is_pole_free_mount:
         pole = create_pole(materials)
         pole_triangles = object_triangles(pole)
         pole_fbx = output_dir / "SM_FlatV3_Pole.fbx"
@@ -1403,20 +1484,18 @@ def build(args: argparse.Namespace) -> None:
             instance.scale.z = POLE_SCALE_FOR_10M if abs(args.height_cm - 1000.0) < 0.01 else (args.height_cm / 100.0 + 1.2)
             pole_instances.append(instance)
 
-    floor = [] if is_wave_row else create_floor_and_groove(silhouette.width_m, args.side, materials)
+    floor = [] if is_pole_free_mount else create_floor_and_groove(silhouette.width_m, args.side, materials)
     flat_fbx = output_dir / f"{flat_name}.fbx"
     export_selection(flat_fbx, [lod_group, flat, lod1] + sockets)
     socket_sidecar = output_dir / f"sockets_{flat_name}.json"
-    socket_payload = (unreal_socket_sidecar(flat_name, args.side, silhouette, pole_y)
-                      if not is_wave_row else {
-                          "schema_version": 1,
-                          "asset": flat_name,
-                          "coordinate_space": "Unreal static-mesh local",
-                          "location_units": "cm",
-                          "rotation_units": "degrees",
-                          "fbx_interchange_conversion": "X=X, Y=-Y, Z=Z",
-                          "sockets": [],
-                      })
+    socket_payload = make_socket_payload(
+        asset=flat_name,
+        side=args.side,
+        mount=args.mount,
+        height_cm=silhouette.height_m * 100.0,
+        width_m=silhouette.width_m,
+        pole_positions_y_m=pole_y,
+    )
     socket_sidecar.write_text(json.dumps(socket_payload, indent=2) + "\n", encoding="utf-8")
     lod1.hide_render = True
 
@@ -1457,7 +1536,7 @@ def build(args: argparse.Namespace) -> None:
         "mount": args.mount,
         "inputs": {"mask": str(Path(args.mask).resolve()), "art": str(Path(args.art).resolve()), "skin_mask": str(Path(args.skin_mask).resolve()), "skin_normal": str(Path(args.skin_normal).resolve()), "flaps": str(Path(args.flaps).resolve()), "height_cm": args.height_cm},
         "dimensions_m": {"height": silhouette.height_m, "width": silhouette.width_m, "flat_depth": BLOCK_BACK_X - BOARD_FRONT_X},
-        "placement": {"origin_m": [0.0, 0.0, 0.0], "origin_contract": "bottom-centre" if is_wave_row else "pole-line/backbone/floor", "front_axis": "-X", "backbone_y_m": None if is_wave_row else 0.0, "floor_z_m": 0.0, "front_face_x_m": BOARD_FRONT_X},
+        "placement": {"origin_m": [0.0, 0.0, 0.0], "origin_contract": "bottom-centre" if is_pole_free_mount else "pole-line/backbone/floor", "front_axis": "-X", "backbone_y_m": None if is_pole_free_mount else 0.0, "floor_z_m": 0.0, "front_face_x_m": BOARD_FRONT_X},
         "mask": {"pixel_size": [silhouette.image_w, silhouette.image_h], "outer_vertices": len(silhouette.pixel_loops[0]), "hole_count": len(silhouette.pixel_loops) - 1, "metres_per_pixel": silhouette.scale_m_per_px},
         "pole_positions_y_m": pole_y,
         "baked_poles": {
@@ -1921,10 +2000,11 @@ def validate(args: argparse.Namespace) -> None:
             "origin": {"pass": pole.location.length <= 0.001, "location_m": list(map(float, pole.location))},
             "uv0_uv1": {"pass": [uv.name for uv in pole.data.uv_layers] == ["UV0", "UV1"], "value": [uv.name for uv in pole.data.uv_layers]},
             "material_slots_exact": {"pass": slots == MATERIAL_SLOTS, "value": slots, "expected": MATERIAL_SLOTS},
-            # The shared pole has Timber only and carries no UV0 artwork.  It is
-            # intentionally not part of the photographic-flat Interchange
-            # precompensation; retain and validate its established box map.
-            "uv1_metres_box_mapped": validate_metric_uv1(pole, slots, interchange_precompensated=False),
+            # Pole UV1 is authored by assign_metric_uvs(), the same
+            # Interchange-precompensated metre mapping used when copies are
+            # baked and joined into a flat. Validate the schema that is
+            # actually authored instead of the obsolete unreflected box map.
+            "uv1_metres_box_mapped": validate_metric_uv1(pole, slots, interchange_precompensated=True),
             "vertex_colours": validate_vertex_contract(pole, slots, False),
         }
         result["triangle_counts"] = {"pole": len(pole.data.loop_triangles)}

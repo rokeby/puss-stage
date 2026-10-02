@@ -49,6 +49,14 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
   matches the spec ("Pivot +X up"), so the dropped check was probably the faulty one.
   Accepted PROVISIONALLY by Conductor 4. Sockets are metadata only (no Show use);
   if the diagnosis finds the JSON wrong, re-set the sockets in place in a granted slot.
+- **Caveat RESOLVED (offline diagnosis, 2 Oct):** the -01 gate was wrong, not the
+  data. It assumed every flat was the 10 m pilot (Pivot at Z=500; the P05 4 m
+  flats correctly have Z=200), required two poles (the spec allows one up to ~4 m
+  wide), and had no tolerance for a measured ±1 triangle importer variance. The
+  builder's socket rotations and reflections were correct (measured offline:
+  35/35 pass the shared contract `Tools/FlatV3/socket_contract.py`, with an
+  old-sidecar negative control). So the sockets -02 created match the spec;
+  the Unreal read-back is still to be repeated in a granted slot (inferred until then).
 - **Rules added for every slot** (`Saved/CodexRuns/slots/COMMON.md`): one run per
   slot, no self-retry; never weaken a gate; the release marker lists the saved packages.
 
