@@ -20,6 +20,18 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
 (asked, not answered), gobo masks (on hold), any paid generation.
 
+## Gary's approvals, 2 Oct (away until the afternoon)
+
+- SHOW SWAPS approved for **P04, P05 and P01** (per passage: backup, originals JSON
+  plus a revert script, dry run, materialize that passage only, a narrow save,
+  read-back, SavedMasterMatchesShow, captures, auto-revert). **P02: NOT swapped**
+  (the draft layout awaits Gary).
+- The MIP STOPGAP on the existing wing textures is approved (backed up and
+  reversible); it needs Conductor 3's sign-off, as Wing materiality is parked.
+- The P02 MYSTICAL pairs reuse P04 ruin/gallery art as placeholders.
+- The 18 uncertain kept wings are NOT rebuilt: Gary points to the new Fuser clouds
+  (job 15) and the P06 Fuser work as their replacements.
+
 ## Overnight results so far
 
 - **The pilot import and the P04 TEST PLACEMENT: DONE (02 Oct ~00:30).** Run
