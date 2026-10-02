@@ -186,3 +186,24 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
   - The ruin sets 16, 18, 19 and 20 are grouped next, followed by 3 shrine pairs reusing P04 ruin art (coventry_ruin L_v1/R_v1, ruined_gallery L_v1/R_v1, coventry_ruin L_v2/R_v1).
   - Files: `DerivedAssets/FlatV3/Overnight/P02_LAYOUT_DRAFT_v2.json` and `.md`.
   - Import and swap go in an editor slot after P03, using the swapkit. Rows whose top border is still in repair (SET06_C, SET07_C, SET16_C) keep their old top until it passes.
+
+## Gary's PIE check list (2 Oct afternoon)
+
+What went in, and what to judge (all reversible from `Backups/PreFlatV3Swap*` or with the swapkit revert):
+
+- **P04:** all rows on V3 (Coventry ruins plus gallery).
+- **P05:** 93 rows; clouds now float in a stable scatter, bottoms 1.5-4.5 m, tops under 11 m.
+  - 12 rows keep the OLD left cloud: CloudRef02_L failed its triangle gate.
+  - Cue 124 (P05 Wing 003) keeps its OLD right cloud: the new one would jut 339 cm onstage. You can choose to widen it.
+- **P01:** 48 rows; 16 keep the OLD right Pillar2 (its V3 build failed overnight).
+  - Only one P01 occurrence actually moves inside the passage (consistent with the known early wing score).
+- **P03:** 18 of 21 rows swapped (coat walls, pyres, staircases, stones); 3 kept by the layout (Sun-Washed Administration, Yellow-Curtain Threshold, Glass-Block Classroom/Sanatorium).
+- **Mip stopgap:** 363 existing wing textures now have mips; check whether the motion blur on the old wings is gone.
+- **Pending:**
+  - P02 (layout v2) and P06 beats 1-3: industrial rebuild in progress.
+  - S3 waves: extended to 14.3 m with no stretch; reimport running.
+- **Look notes:**
+  - Industrial flats have thin edges, with token Edge/Flap faces only (no authored edge thickness).
+  - P06 "needs R" families (scaffold, girder) are not placed.
+  - P06 positions 33-55 keep their current wings until the fire/drape work exists.
+- **Timing:** P01-P04 go to ~3:00 by appending copied pairs, done by the conductor after Flat V3 finishes. This re-indexes cues, so the copies repeat the V3 pairs; I will look at the copy pattern for P02 and P04.
