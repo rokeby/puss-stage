@@ -2,7 +2,7 @@
   "schema_version": 1,
   "slot": "P06",
   "run_id": "FV3P06-20261002-01",
-  "saved_verify_run_id": "FV3P06V-20261002-01",
+  "saved_verify_run_id": "FV3P06V-20261002-02",
   "passage": "P06",
   "lateral_mode": "inner_edge",
   "passage_label_prefix": "P06 Wing ",
@@ -32,5 +32,7 @@
   "import_industrial_source_root": "DerivedAssets/FlatV3/Overnight/P02Industrial",
   "import_industrial_expected_count": 6,
   "industrial_reuse_root": "/Game/Scenes/Wings/FlatV3/Passage02",
-  "industrial_fallback_rule": "reuse_complete_passage02_set_else_import_complete_set_under_passage06_reject_partial"
+  "industrial_fallback_rule": "reuse_complete_passage02_set_else_import_complete_set_under_passage06_reject_partial",
+  "min_movement_samples": 1,
+  "min_movement_samples_reason": "measured 2 Oct: only 1 P06 occurrence has rate>0 with all sample frames inside the passage (FV3P06V-20261002-01 read-only verify; placement and gap gates passed first)"
 }
