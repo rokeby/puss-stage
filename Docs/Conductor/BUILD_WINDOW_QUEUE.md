@@ -1,3 +1,17 @@
+> **1 Oct ~21:15 (Conductor 3): TWO HELD PATCHES, checked to apply on HEAD TOGETHER (--ignore-whitespace):**
+> 1. **FFV** `Scripts/patches/2026-10-01_FFV_fast_forward_and_vamp.patch` (supersedes FF): hold RIGHT = 4x
+>    fast-forward (tap unchanged, interlock kept, Master audio muted at 4x); `InfinityStage.VampStart/VampEnd`
+>    marker pairs loop until RIGHT (Scene 3 song vamp, Docs/Scene3BeatSheet_2026-10-01.md). Tests
+>    `InfinityStage.Transport.HoldRightFastForwards`, `...VampLoopsUntilRelease`. Codex draft, unbuilt.
+> 2. **HL** `Scripts/patches/2026-10-01_HL_hangars_landed_in_editor.patch`: AInfinityStageArrival sets each
+>    hangar's root/roof/lattice to their rise FIRST keys at BeginPlay in GAME worlds only; editor untouched.
+>    Test `InfinityStageHangarInitialPoseTests`. Six Arrivals S1-S6 exist (binary-proven, level strings).
+>    **ORDER AFTER THE BUILD (do not skip):** suite green -> PIE check that every hangar starts SUNK with the
+>    level still saved sunk -> ONLY THEN raise all (s3_landed_preview UP all) and save the level LANDED ->
+>    PIE again: every hangar must still start sunk and rise as before -> retire/invert the save-check
+>    (it refuses saves while up, which becomes the desired state).
+>    BeginPlay ordering vs ShowRoot is INFERRED safe (initial transport evaluation re-asserts the root).
+
 # Next build window — what is in it, and in what order
 
 > **1 Oct: EDITOR (import, no build) requested by Flat V3 ("Puss - Wings and

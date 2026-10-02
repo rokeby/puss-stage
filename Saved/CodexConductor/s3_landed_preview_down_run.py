@@ -1,4 +1,4 @@
-"""Run the S3 landed-preview tool in DOWN mode; this never saves."""
+"""Put every hangar DOWN from landed-preview mode; this never saves."""
 import os
 import runpy
 
@@ -10,5 +10,8 @@ HERE = os.path.join(
 )
 runpy.run_path(
     os.path.join(HERE, "s3_landed_preview.py"),
-    init_globals={"S3_LANDED_PREVIEW_MODE": "DOWN"},
+    init_globals={
+        "HANGAR_LANDED_PREVIEW_MODE": "DOWN",
+        "HANGAR_LANDED_PREVIEW_IDS": "all",
+    },
 )

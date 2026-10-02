@@ -1,4 +1,4 @@
-"""Read-only save guard for the S3 landed-preview pose."""
+"""Read-only save guard covering every hangar landed-preview pose."""
 import os
 import runpy
 
@@ -11,7 +11,8 @@ HERE = os.path.join(
 runpy.run_path(
     os.path.join(HERE, "s3_landed_preview.py"),
     init_globals={
-        "S3_LANDED_PREVIEW_MODE": "STATUS",
-        "S3_LANDED_PREVIEW_SAVE_CHECK": True,
+        "HANGAR_LANDED_PREVIEW_MODE": "STATUS",
+        "HANGAR_LANDED_PREVIEW_IDS": "all",
+        "HANGAR_LANDED_PREVIEW_SAVE_CHECK": True,
     },
 )

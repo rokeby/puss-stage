@@ -1,0 +1,299 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+@@ -39,6 +39,19 @@ struct INFINITYSTAGE_API FInfinityArrivalFloatDrive
+     FName PropertyName;
+ };
+ 
++/** One additional hangar mover restored from its transform binding's first keys at game start. */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityArrivalInitialTransformDrive
++{
++    GENERATED_BODY()
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    TObjectPtr<AActor> Target;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    FGuid BindingGuid;
++};
++
+ /**
+  * Starts a Scene's opening motion before the Scene does: while the Master is still in
+  * the Passage that arrives there (Scene 4's hangar rises as the camera walks through
+@@ -81,6 +94,18 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+     TObjectPtr<AActor> DrivenActor;
+ 
++    /** Roof hinge and lattice-fly bindings initialized alongside DrivenActor. The root stays
++     * the existing DrivenActor/MotionBindingGuid pair so no second owner can diverge from the
++     * pre-Scene drive. Author only the sequence's actual transform movers (S6 has no roof). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
++    TArray<FInfinityArrivalInitialTransformDrive> AdditionalInitialTransformDrives;
++
++    /** In game worlds only, restore every configured mover from its transform channels' first
++     * authored keys/defaults. Editor worlds are deliberately untouched so the level can remain
++     * saved landed. Returns false without changing any target if any configured drive is invalid. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Arrival")
++    bool ApplyInitialTransformPose();
++
+     /** Sets DrivenActor's relative rotation for a Master time before the Scene starts.
+      * Returns false, touching nothing, at or after the Scene's first frame (Sequencer
+      * owns it there) or when any link is missing. */
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+@@ -6,6 +6,7 @@
+ #include "Components/LightComponent.h"
+ #include "Components/SceneComponent.h"
+ #include "Engine/PostProcessVolume.h"
++#include "Engine/World.h"
+ #include "GeometryCacheComponent.h"
+ #include "InfinityStageCompiler.h"
+ #include "InfinityStageShowAsset.h"
+@@ -67,6 +68,48 @@ const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid
+     return nullptr;
+ }
+ 
++bool ResolveFirstTransform(const UMovieScene& MovieScene, const FGuid& BindingGuid, FTransform& OutTransform)
++{
++    const UMovieScene3DTransformSection* Section =
++        FindBindingSection<UMovieScene3DTransformSection, UMovieScene3DTransformTrack>(MovieScene, BindingGuid);
++    if (!Section)
++    {
++        return false;
++    }
++    // Translation XYZ, rotation XYZ (roll, pitch, yaw), scale XYZ.
++    const TArrayView<FMovieSceneDoubleChannel*> Channels =
++        Section->GetChannelProxy().GetChannels<FMovieSceneDoubleChannel>();
++    if (Channels.Num() != 9)
++    {
++        return false;
++    }
++    double Values[9];
++    for (int32 Index = 0; Index < 9; ++Index)
++    {
++        if (!Channels[Index])
++        {
++            return false;
++        }
++        const TArrayView<const FMovieSceneDoubleValue> Keys = Channels[Index]->GetData().GetValues();
++        if (!Keys.IsEmpty())
++        {
++            Values[Index] = Keys[0].Value;
++            continue;
++        }
++        const TOptional<double> Default = Channels[Index]->GetDefault();
++        if (!Default.IsSet())
++        {
++            return false;
++        }
++        Values[Index] = Default.GetValue();
++    }
++    OutTransform = FTransform(
++        FRotator(Values[4], Values[5], Values[3]),
++        FVector(Values[0], Values[1], Values[2]),
++        FVector(Values[6], Values[7], Values[8]));
++    return true;
++}
++
+ /** The float section on the named property track that owns MotionTime, or the earliest section. */
+ const UMovieSceneFloatSection* FindFloatBindingSection(
+     const UMovieScene& MovieScene,
+@@ -124,6 +167,7 @@ AInfinityStageArrival::AInfinityStageArrival()
+ void AInfinityStageArrival::BeginPlay()
+ {
+     Super::BeginPlay();
++    ApplyInitialTransformPose();
+     // A GeometryCache that is running auto-plays whenever nothing holds it in manual tick, so a
+     // Show started far from this Arrival would drop the cloth on its own clock. Hold the still
+     // hang (sample 0) until the Master says otherwise.
+@@ -137,6 +181,64 @@ void AInfinityStageArrival::BeginPlay()
+     }
+ }
+ 
++bool AInfinityStageArrival::ApplyInitialTransformPose()
++{
++    UWorld* World = GetWorld();
++    if (!World || !World->IsGameWorld())
++    {
++        return false;
++    }
++    ULevelSequence* Motion = MotionSequence.LoadSynchronous();
++    UMovieScene* MovieScene = Motion ? Motion->GetMovieScene() : nullptr;
++    if (!MovieScene || !DrivenActor || !MotionBindingGuid.IsValid())
++    {
++        WarnOnce(TEXT("InitialPoseMissingRoot"), GetNameSafe(Motion));
++        return false;
++    }
++
++    struct FResolvedInitialTransform
++    {
++        AActor* Target = nullptr;
++        FGuid BindingGuid;
++        FTransform Transform;
++    };
++    TArray<FResolvedInitialTransform> Resolved;
++    Resolved.Reserve(1 + AdditionalInitialTransformDrives.Num());
++    FResolvedInitialTransform& Root = Resolved.AddDefaulted_GetRef();
++    Root.Target = DrivenActor;
++    Root.BindingGuid = MotionBindingGuid;
++    for (const FInfinityArrivalInitialTransformDrive& Drive : AdditionalInitialTransformDrives)
++    {
++        FResolvedInitialTransform& Row = Resolved.AddDefaulted_GetRef();
++        Row.Target = Drive.Target;
++        Row.BindingGuid = Drive.BindingGuid;
++    }
++
++    // Resolve every row before changing the first actor: a bad/missing roof or lattice binding
++    // must not leave a partly initialized hangar.
++    for (FResolvedInitialTransform& Row : Resolved)
++    {
++        if (!Row.Target || Row.Target->GetWorld() != World || !Row.BindingGuid.IsValid()
++            || !ResolveFirstTransform(*MovieScene, Row.BindingGuid, Row.Transform))
++        {
++            WarnOnce(TEXT("InitialPoseDriveInvalid"),
++                FString::Printf(TEXT("target=%s binding=%s"),
++                    *GetNameSafe(Row.Target), *Row.BindingGuid.ToString()));
++            return false;
++        }
++    }
++    for (const FResolvedInitialTransform& Row : Resolved)
++    {
++        // Transient runtime initialization: no Modify(), no package dirtied.
++        Row.Target->SetActorRelativeTransform(
++            Row.Transform, false, nullptr, ETeleportType::TeleportPhysics);
++    }
++    UE_LOG(LogInfinityStageArrival, Display,
++        TEXT("INFINITY_HANGAR_INITIAL_POSE actor='%s' motion='%s' movers=%d world=game"),
++        *GetActorNameOrLabel(), *Motion->GetName(), Resolved.Num());
++    return true;
++}
++
+ bool AInfinityStageArrival::MapOuterToInnerTime(
+     const UMovieSceneSubSection& Section,
+     const FFrameRate OuterTickResolution,
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarInitialPoseTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarInitialPoseTests.cpp
+new file mode 100644
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarInitialPoseTests.cpp
+@@ -0,0 +1,119 @@
++#include "InfinityStageArrival.h"
++#include "Channels/MovieSceneChannelProxy.h"
++#include "Channels/MovieSceneDoubleChannel.h"
++#include "Components/StaticMeshComponent.h"
++#include "Engine/Engine.h"
++#include "Engine/StaticMeshActor.h"
++#include "Engine/World.h"
++#include "LevelSequence.h"
++#include "Misc/AutomationTest.h"
++#include "MovieScene.h"
++#include "Sections/MovieScene3DTransformSection.h"
++#include "Tracks/MovieScene3DTransformTrack.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++FGuid AddMover(
++    UMovieScene& MovieScene,
++    const TCHAR* Name,
++    const FVector& LandedLocation,
++    const int32 MovingChannel,
++    const double FirstValue,
++    const double LastValue)
++{
++    const FGuid Binding = MovieScene.AddPossessable(Name, AStaticMeshActor::StaticClass());
++    UMovieScene3DTransformTrack* Track = MovieScene.AddTrack<UMovieScene3DTransformTrack>(Binding);
++    UMovieScene3DTransformSection* Section =
++        CastChecked<UMovieScene3DTransformSection>(Track->CreateNewSection());
++    Section->SetRange(TRange<FFrameNumber>::All());
++    Track->AddSection(*Section);
++    const TArrayView<FMovieSceneDoubleChannel*> Channels =
++        Section->GetChannelProxy().GetChannels<FMovieSceneDoubleChannel>();
++    const double Defaults[9] = {
++        LandedLocation.X, LandedLocation.Y, LandedLocation.Z,
++        0.0, 0.0, 0.0,
++        1.0, 1.0, 1.0
++    };
++    for (int32 Index = 0; Index < 9; ++Index)
++    {
++        Channels[Index]->SetDefault(Defaults[Index]);
++    }
++    Channels[MovingChannel]->AddCubicKey(FFrameNumber(-30), FirstValue);
++    Channels[MovingChannel]->AddCubicKey(FFrameNumber(60), LastValue);
++    return Binding;
++}
++
++AStaticMeshActor* SpawnMovable(UWorld& World)
++{
++    AStaticMeshActor* Actor = World.SpawnActor<AStaticMeshActor>();
++    Actor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
++    return Actor;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHangarInitialPoseTest,
++    "InfinityStage.Arrival.GameWorldStartsAtFirstHangarKeys",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHangarInitialPoseTest::RunTest(const FString& Parameters)
++{
++    ULevelSequence* Motion = NewObject<ULevelSequence>(GetTransientPackage());
++    Motion->Initialize();
++    UMovieScene* MovieScene = Motion->GetMovieScene();
++    const FGuid RootBinding = AddMover(*MovieScene, TEXT("Root"), FVector(100.0, 200.0, 300.0), 4, -90.0, 0.0);
++    const FGuid RoofBinding = AddMover(*MovieScene, TEXT("Roof"), FVector(6000.0, 0.0, 3000.0), 4, -90.0, 0.0);
++    const FGuid LatticeBinding = AddMover(*MovieScene, TEXT("Lattice"), FVector(3000.0, 0.0, 1200.0), 2, 2800.0, 1200.0);
++
++    UWorld* GameWorld = UWorld::CreateWorld(EWorldType::Game, false);
++    FWorldContext& GameContext = GEngine->CreateNewWorldContext(EWorldType::Game);
++    GameContext.SetCurrentWorld(GameWorld);
++    AStaticMeshActor* Root = SpawnMovable(*GameWorld);
++    AStaticMeshActor* Roof = SpawnMovable(*GameWorld);
++    AStaticMeshActor* Lattice = SpawnMovable(*GameWorld);
++    Root->SetActorRelativeTransform(FTransform(FRotator::ZeroRotator, FVector(100.0, 200.0, 300.0)));
++    Roof->SetActorRelativeTransform(FTransform(FRotator::ZeroRotator, FVector(6000.0, 0.0, 3000.0)));
++    Lattice->SetActorRelativeTransform(FTransform(FRotator::ZeroRotator, FVector(3000.0, 0.0, 1200.0)));
++    AInfinityStageArrival* GameArrival = GameWorld->SpawnActor<AInfinityStageArrival>();
++    GameArrival->MotionSequence = Motion;
++    GameArrival->DrivenActor = Root;
++    GameArrival->MotionBindingGuid = RootBinding;
++    FInfinityArrivalInitialTransformDrive& RoofDrive =
++        GameArrival->AdditionalInitialTransformDrives.AddDefaulted_GetRef();
++    RoofDrive.Target = Roof;
++    RoofDrive.BindingGuid = RoofBinding;
++    FInfinityArrivalInitialTransformDrive& LatticeDrive =
++        GameArrival->AdditionalInitialTransformDrives.AddDefaulted_GetRef();
++    LatticeDrive.Target = Lattice;
++    LatticeDrive.BindingGuid = LatticeBinding;
++
++    GameArrival->DispatchBeginPlay();
++    TestTrue(TEXT("Game world is recognized as game"), GameWorld->IsGameWorld());
++    TestTrue(TEXT("Root starts at the sequence's first pitch key"),
++        FMath::IsNearlyEqual(Root->GetRootComponent()->GetRelativeRotation().Pitch, -90.0, 1.0e-3));
++    TestTrue(TEXT("Roof starts at the sequence's first pitch key"),
++        FMath::IsNearlyEqual(Roof->GetRootComponent()->GetRelativeRotation().Pitch, -90.0, 1.0e-3));
++    TestTrue(TEXT("Lattice starts at the sequence's first Z key"),
++        FMath::IsNearlyEqual(Lattice->GetRootComponent()->GetRelativeLocation().Z, 2800.0, 1.0e-3));
++
++    UWorld* EditorWorld = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AStaticMeshActor* EditorRoot = SpawnMovable(*EditorWorld);
++    EditorRoot->SetActorRelativeRotation(FRotator::ZeroRotator);
++    AInfinityStageArrival* EditorArrival = EditorWorld->SpawnActor<AInfinityStageArrival>();
++    EditorArrival->MotionSequence = Motion;
++    EditorArrival->DrivenActor = EditorRoot;
++    EditorArrival->MotionBindingGuid = RootBinding;
++    EditorArrival->DispatchBeginPlay();
++    TestFalse(TEXT("Editor preview is not a game world"), EditorWorld->IsGameWorld());
++    TestTrue(TEXT("Editor world keeps its saved landed pose"),
++        EditorRoot->GetRootComponent()->GetRelativeRotation().IsNearlyZero(1.0e-6));
++
++    EditorWorld->DestroyWorld(false);
++    GEngine->DestroyWorldContext(GameWorld);
++    GameWorld->DestroyWorld(false);
++    return true;
++}
++
++#endif

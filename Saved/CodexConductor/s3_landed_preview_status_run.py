@@ -1,4 +1,4 @@
-"""Run the S3 landed-preview tool in read-only STATUS mode."""
+"""Report read-only landed-preview status for every hangar."""
 import os
 import runpy
 
@@ -10,5 +10,8 @@ HERE = os.path.join(
 )
 runpy.run_path(
     os.path.join(HERE, "s3_landed_preview.py"),
-    init_globals={"S3_LANDED_PREVIEW_MODE": "STATUS"},
+    init_globals={
+        "HANGAR_LANDED_PREVIEW_MODE": "STATUS",
+        "HANGAR_LANDED_PREVIEW_IDS": "all",
+    },
 )
