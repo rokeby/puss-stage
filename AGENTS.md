@@ -57,4 +57,5 @@ Key project rules:
   claims to have found** — an unmarked report costs more to verify than to redo.
   — adopted 30 Sep 2026, after six delegated runs in which this property alone
   separated the usable results from the unusable ones.
+- **Exception, Flat V3 (Gary, 30 Sep):** new Flat V3 flats follow `Docs/FlatV3Spec_2026-09-30.md`, which supersedes the V2 profile below for them (four slots Front/Flap/Timber/Edge, LOD1 beyond ~15 m). V2 still governs non-V3 wings.
 - All newly generated production Wing FBXs must use the V2 profile in `Docs/WingGenerationConventions.md`: final source handedness before derived maps, explicit 10 cm thickness, Base/alpha plus `_H` height and `_N` normal textures with a relief preview, Front/Back/Edge slots, and a clean FBX re-import validation. The pipeline's 5 cm default is legacy and must not be used implicitly for new production Wings.
