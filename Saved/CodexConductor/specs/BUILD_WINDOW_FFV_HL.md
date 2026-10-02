@@ -21,3 +21,17 @@ Steps, stop at the first failure:
    Do NOT change the level or the Show. Do NOT run the landed-save step (that waits for Gary's PIE check).
 8. Leave the editor RUNNING at the end (relaunch it) with nothing dirty; report the census.
 Final message: review findings, DLL markers, suite N/F/T with the new test results by name, commit hash, census.
+
+## Revision 2 (after run 222729 rolled back on a FALSE marker check)
+MEASURED by the conductor after the rollback: an existing test name (`KindsUseCachedPivotsAndAxes`) is present in
+`UnrealEditor-InfinityStageTests.dll` as UTF-8 ONLY (UTF-16: False in all three plugin DLLs). Automation test
+names are narrow strings. Step 4's markers therefore become, BOTH required:
+ (a) each new test name, UTF-8, in UnrealEditor-InfinityStageTests.dll (HoldRightFastForwards,
+     VampLoopsUntilRelease, GameWorldStartsAtFirstHangarKeys — read the exact names from the patches);
+ (b) for each patch, one UTF-16 `TEXT("...")` literal unique to its RUNTIME code (pick from the patch: a log
+     marker, cvar or marker label such as `InfinityStage.VampStart`), in UnrealEditor-InfinityStage.dll.
+     Prove the method first: a literal already in the baseline must be FOUND by the same search (positive
+     control), and a made-up string must NOT be (negative control).
+The test files preserved in Backups/FailedBuildWindowFFVHL-20261001-223255 are not needed; re-apply the patches.
+Everything else in this spec stands (review, suite filter exactly `InfinityStage`, revert on red, no level/Show
+changes, leave the editor running clean).
