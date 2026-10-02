@@ -1,4 +1,5 @@
 """Read-only census and applied-plan identity gate for one inner-edge shift."""
+import copy
 import importlib
 import json
 import os
@@ -23,6 +24,7 @@ def run(config_path=None):
     s.validate_source_exclusions(config)
     source = s.read_source_plan(config)
     source_hash = s.sha256_file(config["source_plan"])
+    override_sources = s.override_source_evidence(config)
     show = unreal.EditorAssetLibrary.load_asset(s.SHOW)
     if show is None:
         raise RuntimeError("SHIFT_SHOW_LOAD_FAIL")
@@ -30,10 +32,17 @@ def run(config_path=None):
     live = s.rows_by_identity(rows)
     cues = list(show.get_editor_property("cues"))
     targets = []
+    matched_overrides = set()
     for source_row in source["rows"]:
         sides = s.candidate_sides(config, source_row)
         if not sides:
             continue
+        override = s.row_override(config, source_row)
+        if override is not None:
+            if set(sides) != set(s.SIDES):
+                raise RuntimeError("SHIFT_ROW_OVERRIDE_CANDIDATE_SIDES_FAIL|label=%s|sides=%s" %
+                                   (source_row["cue_label"], json.dumps(sides)))
+            matched_overrides.add((int(source_row["cue_index"]), str(source_row["cue_guid"])))
         key = (int(source_row["cue_index"]), str(source_row["cue_guid"]))
         current = live.get(key)
         if current is None:
@@ -46,7 +55,14 @@ def run(config_path=None):
                 raise RuntimeError("SHIFT_APPLIED_PLAN_DRIFT|label=%s|index=%d|guid=%s|side=%s" %
                                    (current["cue_label"], key[0], key[1], side))
         targets.append({"cue_index": key[0], "cue_guid": key[1],
-                        "cue_label": current["cue_label"], "candidate_sides": sides})
+                        "cue_label": current["cue_label"], "candidate_sides": sides,
+                        "row_override": copy.deepcopy(override) if override else None})
+    configured_overrides = {(int(row["cue_index"]), str(row["cue_guid"]))
+                            for row in config["row_overrides"]}
+    if matched_overrides != configured_overrides:
+        raise RuntimeError("SHIFT_ROW_OVERRIDE_UNMATCHED|configured=%s|matched=%s" %
+                           (json.dumps(sorted(configured_overrides)),
+                            json.dumps(sorted(matched_overrides))))
     if len(targets) != int(config["expected_target_row_count"]):
         raise RuntimeError("SHIFT_TARGET_ROW_COUNT_FAIL|expected=%d|actual=%d" %
                            (int(config["expected_target_row_count"]), len(targets)))
@@ -64,6 +80,8 @@ def run(config_path=None):
         "source_plan_sha256": source_hash, "rows": rows, "targets": targets,
         "occurrence_count": len(rows), "target_row_count": len(targets),
         "candidate_side_count": candidate_count,
+        "row_overrides": config["row_overrides"],
+        "override_source_evidence": override_sources,
         "keep_old_sides": config["keep_old_sides"],
         "excluded_new_meshes": config["excluded_new_meshes"],
         "dirty_after": s.census(),

@@ -9,15 +9,35 @@
   "expected_occurrence_count": 21,
   "expected_target_row_count": 21,
   "expected_candidate_side_count": 42,
-  "expected_nonzero_delta_count": 27,
+  "expected_nonzero_delta_count": 29,
   "source_kind": "slot_b",
   "source_plan": "Saved/CodexFlatV3/slot_b_dry_run_FV3B-20261002-03.json",
   "source_run_id": "FV3B-20261002-03",
   "required_previous_markers_any": [
-    "FLATV3_HOLD_BY_CONDUCTOR_4_MINGAP_INVESTIGATION"
+    "FLATV3_B_OK run=FV3B-20261002-03",
+    "FLATV3_B_VERIFY_SAVED_OK run=FV3BV-20261002-01 source_run=FV3B-20261002-03"
   ],
   "keep_old_sides": [],
   "excluded_new_meshes": [],
+  "row_overrides": [
+    {
+      "cue_index": 109,
+      "cue_guid": "84958F43DA441BCC978C7BBE1E154DF6",
+      "cue_label": "P04 Wing 011",
+      "reason": "restore_pre_pilot_noncreative_placement",
+      "movement_policy": "offstage_only_exact_target",
+      "target_inner_edges_cm": {
+        "left": -349.0,
+        "right": 289.5
+      },
+      "gap_baseline_cm": 638.5,
+      "source_files": [
+        "Saved/CodexFlatV3/phase2_originals_FV3PILOT-20261001-02.json",
+        "Saved/CodexFlatV3/probe_wing011_prepilot_out.json",
+        "Saved/CodexWingHandedness2/rows_dump.json"
+      ]
+    }
+  ],
   "backup_path": "Backups/PreFlatV3InnerShiftP04-FV3S4-20261002-01",
   "backup_files": [
     "DA_InfinityStage_V1Show.uasset",
@@ -31,9 +51,5 @@
   "verify_queue_marker": "FLATV3_V_TEST_QUEUED run=FV3S4-20261002-01",
   "success_marker": "FLATV3_S4_OK",
   "inner_tolerance_cm": 2.0,
-  "outer_report_limit_cm": 1500.0,
-  "_held_previous_markers_any": [
-    "FLATV3_B_OK run=FV3B-20261002-03",
-    "FLATV3_B_VERIFY_SAVED_OK run=FV3BV-20261002-01 source_run=FV3B-20261002-03"
-  ]
+  "outer_report_limit_cm": 1500.0
 }

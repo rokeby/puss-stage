@@ -57,9 +57,11 @@ def run(config_path=None):
         live = next(row for row in live_rows
                     if (row["cue_index"], row["cue_guid"]) == key)
         s.assert_occurrence(cues[key[0]], live, config)
+        override = s.row_override(config, source_row)
         plan = {"cue_index": key[0], "cue_guid": key[1],
                 "cue_label": live["cue_label"], "candidate_sides": target["candidate_sides"],
-                "shifted_sides": [], "placement": {}}
+                "shifted_sides": [], "placement": {},
+                "row_override": override}
         for side in target["candidate_sides"]:
             current = live["pair"][side]
             bounds = s.shared.side_bounds(s.panel_basic(current), library_by_mesh)
@@ -69,15 +71,21 @@ def run(config_path=None):
                 raise RuntimeError("SHIFT_SOURCE_PLACEMENT_MISSING|label=%s|side=%s" %
                                    (live["cue_label"], side))
             source_current_inner = float(placement["new_inner_edge_cm"])
-            old_inner = float(placement["old_inner_edge_cm"])
+            source_old_inner = float(placement["old_inner_edge_cm"])
+            old_inner, target_source = s.target_inner_edge(
+                config, source_row, side, source_old_inner)
             if abs(current_inner - source_current_inner) > 0.1:
                 raise RuntimeError("SHIFT_CURRENT_INNER_DRIFT|label=%s|side=%s|source=%g|actual=%g" %
                                    (live["cue_label"], side, source_current_inner, current_inner))
-            delta = s.offstage_delta(side, current_inner, old_inner)
+            delta = s.target_delta(
+                side, current_inner, old_inner, exact_offstage=override is not None)
             after = s.shifted_panel(current, side, delta)
             after_bounds = s.shared.side_bounds(s.panel_basic(after), library_by_mesh)
             after_outer, after_inner = edge_values(side, after_bounds)
             moved = abs(delta) > 0.000001
+            if override is not None and not moved:
+                raise RuntimeError("SHIFT_ROW_OVERRIDE_NOT_OFFSTAGE_MOVE|label=%s|side=%s" %
+                                   (live["cue_label"], side))
             if moved and abs(after_inner - old_inner) > config["inner_tolerance_cm"]:
                 raise RuntimeError(
                     "SHIFT_PLANNED_OLD_INNER_FAIL|label=%s|side=%s|old=%g|actual=%g|"
@@ -87,7 +95,8 @@ def run(config_path=None):
             if moved:
                 plan["shifted_sides"].append(side)
                 nonzero_count += 1
-            rule = "equals_old_inner" if moved else "already_offstage_unchanged"
+            rule = ("equals_row_override_target_inner" if override is not None else
+                    ("equals_old_inner" if moved else "already_offstage_unchanged"))
             plan[side] = after
             plan["placement"][side] = {
                 "current_y_cm": float(current["local_transform"]["location"][1]),
@@ -95,6 +104,8 @@ def run(config_path=None):
                 "new_y_cm": float(after["local_transform"]["location"][1]),
                 "current_inner_edge_cm": current_inner,
                 "old_inner_edge_cm": old_inner,
+                "source_plan_old_inner_edge_cm": source_old_inner,
+                "inner_target_source": target_source,
                 "new_inner_edge_cm": after_inner,
                 "current_outer_edge_cm": current_outer,
                 "new_outer_edge_cm": after_outer,
@@ -125,6 +136,7 @@ def run(config_path=None):
                      "shifted_sides": list(planned["shifted_sides"]) if planned else [],
                      "sides": {}}
         source_row = source_by_key.get(key)
+        override = s.row_override(config, source_row) if source_row is not None else None
         for side in s.SIDES:
             before_panel = live["pair"][side]
             after_panel = planned.get(side, before_panel) if planned else before_panel
@@ -133,10 +145,15 @@ def run(config_path=None):
             after_outer, after_inner = edge_values(
                 side, s.shared.side_bounds(s.panel_basic(after_panel), library_by_mesh))
             source_placement = ((source_row or {}).get("placement") or {}).get(side)
-            old_inner = (float(source_placement["old_inner_edge_cm"])
-                         if source_placement is not None else before_inner)
+            source_old_inner = (float(source_placement["old_inner_edge_cm"])
+                                if source_placement is not None else before_inner)
+            old_inner, target_source = s.target_inner_edge(
+                config, source_row, side, source_old_inner) if source_row is not None else \
+                (source_old_inner, "live_before")
             row_edges["sides"][side] = {
                 "old_inner_edge_cm": old_inner,
+                "source_plan_old_inner_edge_cm": source_old_inner,
+                "inner_target_source": target_source,
                 "before_inner_edge_cm": before_inner, "after_inner_edge_cm": after_inner,
                 "before_outer_edge_cm": before_outer, "after_outer_edge_cm": after_outer,
             }
@@ -156,6 +173,9 @@ def run(config_path=None):
             row_edges["sides"]["left"]["after_inner_edge_cm"],
             row_edges["sides"]["right"]["after_inner_edge_cm"])
         row_edges["gap_new_cm"] = row_edges["gap_after_cm"]
+        row_edges["gap_baseline_source"] = \
+            "row_override" if override is not None else "source_plan_old_inner"
+        row_edges["row_override"] = override
         edge_rows.append(row_edges)
     gap_gate = s.minimum_gap_gate(
         edge_rows, config["inner_tolerance_cm"], config["passage"])
@@ -168,6 +188,8 @@ def run(config_path=None):
         "rows": plan_rows, "row_count": len(plan_rows),
         "candidate_side_count": sum(len(row["candidate_sides"]) for row in plan_rows),
         "nonzero_delta_count": nonzero_count,
+        "row_overrides": config["row_overrides"],
+        "override_source_evidence": preflight.get("override_source_evidence", []),
         "edge_rows": edge_rows,
         "max_abs_outer_before_cm": max_before,
         "max_abs_outer_after_cm": max_after,

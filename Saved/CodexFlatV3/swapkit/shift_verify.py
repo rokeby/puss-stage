@@ -104,7 +104,8 @@ def run_verify(config_path=None, source_run=None, verification_run=None,
             if abs(inner - expected_inner) > tolerance:
                 raise RuntimeError("SHIFT_INNER_EDGE_READBACK_FAIL|label=%s|side=%s|expected=%g|actual=%g" %
                                    (plan["cue_label"], side, expected_inner, inner))
-            if placement["verification_rule"] == "equals_old_inner":
+            if placement["verification_rule"] in (
+                    "equals_old_inner", "equals_row_override_target_inner"):
                 if abs(inner - old_inner) > tolerance:
                     raise RuntimeError("SHIFT_OLD_INNER_NOT_RESTORED|label=%s|side=%s|old=%g|actual=%g" %
                                        (plan["cue_label"], side, old_inner, inner))

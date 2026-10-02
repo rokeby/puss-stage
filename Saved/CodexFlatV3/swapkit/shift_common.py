@@ -65,6 +65,38 @@ def load_config(explicit=None):
     if not isinstance(config["keep_old_sides"], list) or \
             not isinstance(config["excluded_new_meshes"], list):
         raise RuntimeError("SHIFT_EXCLUSIONS_FAIL")
+    overrides = config.get("row_overrides", [])
+    if not isinstance(overrides, list):
+        raise RuntimeError("SHIFT_ROW_OVERRIDES_FAIL")
+    override_keys = set()
+    for override in overrides:
+        required_override = {
+            "cue_index", "cue_guid", "cue_label", "reason", "movement_policy",
+            "target_inner_edges_cm", "gap_baseline_cm", "source_files",
+        }
+        if not isinstance(override, dict) or required_override - set(override):
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_KEYS_FAIL")
+        key = (int(override["cue_index"]), str(override["cue_guid"]))
+        if key in override_keys:
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_DUPLICATE|index=%d|guid=%s" % key)
+        override_keys.add(key)
+        if not str(override["cue_label"]).startswith(config["passage_label_prefix"]):
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_LABEL_FAIL|index=%d|guid=%s" % key)
+        if override["movement_policy"] != "offstage_only_exact_target":
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_POLICY_FAIL|index=%d|guid=%s" % key)
+        targets = override["target_inner_edges_cm"]
+        if not isinstance(targets, dict) or set(targets) != set(SIDES):
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_TARGETS_FAIL|index=%d|guid=%s" % key)
+        left = float(targets["left"])
+        right = float(targets["right"])
+        baseline = float(override["gap_baseline_cm"])
+        if not all(math.isfinite(value) for value in (left, right, baseline)):
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_NOT_FINITE|index=%d|guid=%s" % key)
+        if abs(centre_gap_cm(left, right) - baseline) > 0.001:
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_GAP_FAIL|index=%d|guid=%s" % key)
+        if not isinstance(override["source_files"], list) or not override["source_files"] or \
+                any(not isinstance(value, str) or not value for value in override["source_files"]):
+            raise RuntimeError("SHIFT_ROW_OVERRIDE_SOURCES_FAIL|index=%d|guid=%s" % key)
     if config["backup_files"] != [
             "DA_InfinityStage_V1Show.uasset", "L_InfinityStage_V1VerticalSlice.umap"]:
         raise RuntimeError("SHIFT_BACKUP_FILES_FAIL")
@@ -76,7 +108,7 @@ def load_config(explicit=None):
         raise RuntimeError("SHIFT_INNER_TOLERANCE_FAIL")
     if not math.isfinite(report_limit) or report_limit <= 0.0:
         raise RuntimeError("SHIFT_OUTER_REPORT_LIMIT_FAIL")
-    config = dict(config)
+    config = copy.deepcopy(config)
     config["_path"] = path
     config["source_plan"] = project_path(config["source_plan"])
     source_config = config.get("source_config")
@@ -84,6 +116,14 @@ def load_config(explicit=None):
     config["backup_path"] = project_path(config["backup_path"])
     config["backup_sources"] = {
         name: project_path(value) for name, value in config["backup_sources"].items()}
+    config["row_overrides"] = overrides
+    for override in config["row_overrides"]:
+        override["cue_index"] = int(override["cue_index"])
+        override["cue_guid"] = str(override["cue_guid"])
+        override["target_inner_edges_cm"] = {
+            side: float(override["target_inner_edges_cm"][side]) for side in SIDES}
+        override["gap_baseline_cm"] = float(override["gap_baseline_cm"])
+        override["source_files"] = [project_path(value) for value in override["source_files"]]
     config["inner_tolerance_cm"] = tolerance
     config["outer_report_limit_cm"] = report_limit
     return config
@@ -196,6 +236,50 @@ def candidate_sides(config, source_row):
     return [side for side in SIDES if side in requested and
             (str(source_row["cue_guid"]), side) not in kept and
             not excluded_mesh(config, source_row[side]["mesh"])]
+
+
+def row_override(config, row):
+    key = (int(row["cue_index"]), str(row["cue_guid"]))
+    matches = [override for override in config.get("row_overrides", [])
+               if (int(override["cue_index"]), str(override["cue_guid"])) == key]
+    if len(matches) > 1:
+        raise RuntimeError("SHIFT_ROW_OVERRIDE_DUPLICATE|index=%d|guid=%s" % key)
+    if not matches:
+        return None
+    override = matches[0]
+    if str(row.get("cue_label")) != str(override["cue_label"]):
+        raise RuntimeError("SHIFT_ROW_OVERRIDE_IDENTITY_FAIL|index=%d|guid=%s|expected=%s|actual=%s" %
+                           (key[0], key[1], override["cue_label"], row.get("cue_label")))
+    return override
+
+
+def target_inner_edge(config, source_row, side, source_old_inner_cm):
+    override = row_override(config, source_row)
+    if override is None:
+        return float(source_old_inner_cm), "source_plan_old_inner"
+    return float(override["target_inner_edges_cm"][side]), "row_override"
+
+
+def target_delta(side, current_inner_cm, target_inner_cm, exact_offstage=False):
+    if exact_offstage:
+        return validate_offstage_delta(
+            side, float(target_inner_cm) - float(current_inner_cm))
+    return offstage_delta(side, current_inner_cm, target_inner_cm)
+
+
+def override_source_evidence(config):
+    evidence = []
+    for override in config.get("row_overrides", []):
+        for path in override["source_files"]:
+            if not os.path.isfile(path):
+                raise RuntimeError("SHIFT_ROW_OVERRIDE_SOURCE_MISSING|" + path)
+            evidence.append({
+                "cue_index": int(override["cue_index"]),
+                "cue_guid": str(override["cue_guid"]),
+                "path": path,
+                "sha256": sha256_file(path),
+            })
+    return evidence
 
 
 def old_centreline_flag(side, new_inner_cm, old_inner_cm):

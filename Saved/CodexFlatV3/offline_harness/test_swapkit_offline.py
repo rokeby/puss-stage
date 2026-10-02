@@ -1068,13 +1068,81 @@ def case_inner_shift_controls(folder):
            "old_flag=%s new_flag=%s overreach_cm=%.6f" %
            (old_flag, new_flag, shift.overreach_cm("left", new_inner, old_inner)))
 
+    dump = json.loads(ROWS_DUMP.read_text(encoding="utf-8"))
+    probe = json.loads((SLOT / "probe_wing011_prepilot_out.json").read_text(encoding="utf-8"))
+    legacy_paths = {
+        "left": "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar1_gold_copy",
+        "right": "/Game/Scenes/Wings/StaticMeshes/SM_R_Pillar3_bw",
+    }
+    entries = dump["library"]["entries"]
+    identity = {"loc": [0.0, 0.0, 0.0], "rot": [0.0, 0.0, 0.0],
+                "scale": [1.0, 1.0, 1.0]}
+    adjustments_identity = all(
+        entries[path]["placement_adjustment"] == identity for path in legacy_paths.values())
+    axes_match = ("POSITIVE_X" in entries[legacy_paths["left"]]["front_axis"] and
+                  "NEGATIVE_X" in entries[legacy_paths["right"]]["front_axis"])
+    left_extent = float(probe["sides"]["left"]["mesh_max"][1])
+    right_extent = abs(float(probe["sides"]["right"]["mesh_min"][1]))
+    evidence_edges = {"left": -600.0 + left_extent, "right": 600.0 - right_extent}
+    evidence_gap = shift.centre_gap_cm(evidence_edges["left"], evidence_edges["right"])
+    record("P04 Wing 011 library placement adjustment", "+", "identity; gap 638.5 +/- 2 cm",
+           adjustments_identity and axes_match and abs(evidence_gap - 638.5) <= 2.0,
+           "left=%.6f right=%.6f gap=%.6f identity=%s axes_match=%s" %
+           (evidence_edges["left"], evidence_edges["right"], evidence_gap,
+            adjustments_identity, axes_match))
+
+    p04_source = json.loads((KIT / "../slot_b_dry_run_FV3B-20261002-03.json")
+                            .resolve().read_text(encoding="utf-8"))
+    p04_config = shift.load_config(str(KIT / "run_shift_p04.json"))
+    source_evidence = shift.override_source_evidence(p04_config)
+    record("P04 Wing 011 override identity/source closure", "+", "109 + GUID + 3 sources",
+           (p04_config["expected_nonzero_delta_count"] == 29 and
+            len(p04_config["row_overrides"]) == 1 and len(source_evidence) == 3),
+           "index=%d guid=%s source_count=%d nonzero=%d" %
+           (p04_config["row_overrides"][0]["cue_index"],
+            p04_config["row_overrides"][0]["cue_guid"], len(source_evidence),
+            p04_config["expected_nonzero_delta_count"]))
+    wing011 = next(row for row in p04_source["rows"] if row["cue_label"] == "P04 Wing 011")
+    override = shift.row_override(p04_config, wing011)
+    restored = {}
+    without_override = {}
+    for side in ("left", "right"):
+        placement = wing011["placement"][side]
+        current = float(placement["new_inner_edge_cm"])
+        target, _ = shift.target_inner_edge(
+            p04_config, wing011, side, placement["old_inner_edge_cm"])
+        restored[side] = current + shift.target_delta(
+            side, current, target, exact_offstage=True)
+        source_old = float(placement["old_inner_edge_cm"])
+        without_override[side] = current + shift.target_delta(
+            side, current, source_old, exact_offstage=False)
+    restored_gap = shift.centre_gap_cm(restored["left"], restored["right"])
+    unoverridden_gap = shift.centre_gap_cm(
+        without_override["left"], without_override["right"])
+    record("P04 Wing 011 pre-pilot restore override", "+", "gap 638.5 +/- 2 cm",
+           override is not None and abs(restored_gap - 638.5) <= 2.0,
+           "left=%.6f right=%.6f gap=%.6f" %
+           (restored["left"], restored["right"], restored_gap))
+    record("P04 Wing 011 without override", "-", "pilot overlap remains",
+           unoverridden_gap < 0.0 and abs(unoverridden_gap - (-302.729614)) < 0.001,
+           "gap_cm=%.6f" % unoverridden_gap)
+
+    try:
+        shift.target_delta("left", -400.0, -349.0, exact_offstage=True)
+    except RuntimeError as exc:
+        override_onstage_failed = "SHIFT_ONSTAGE_DELTA_FAIL" in str(exc)
+    else:
+        override_onstage_failed = False
+    record("P04 override requiring onstage move", "-", "FAIL",
+           override_onstage_failed, "caught=%s" % override_onstage_failed)
+
     for passage, plan_name, config_name, expected_current, expected_old in (
             ("P02", "swapkit_dry_run_FV3P02-20261002-02.json",
              "run_shift_p02.json", 48.6671752929684, 662.332885742188),
             ("P03", "swapkit_dry_run_FV3P03-20261002-01.json",
              "run_shift_p03.json", None, None),
             ("P04", "../slot_b_dry_run_FV3B-20261002-03.json",
-             "run_shift_p04.json", 114.908966064453, 736.425018310547)):
+             "run_shift_p04.json", -302.729613964554, 638.5)):
         source = json.loads((KIT / plan_name).resolve().read_text(encoding="utf-8"))
         config = json.loads((KIT / config_name).read_text(encoding="utf-8"))
         current_rows = []
@@ -1088,7 +1156,8 @@ def case_inner_shift_controls(folder):
             for side in ("left", "right"):
                 placement = source_row.get("placement", {}).get(side)
                 if placement is not None:
-                    old_inner[side] = float(placement["old_inner_edge_cm"])
+                    old_inner[side], _ = shift.target_inner_edge(
+                        config, source_row, side, placement["old_inner_edge_cm"])
                     current_inner[side] = float(placement["new_inner_edge_cm"])
             # P03 has one changed-side occurrence. Its untouched legacy pair mate
             # is symmetric in this offline fixture and remains at the old edge.
@@ -1106,8 +1175,9 @@ def case_inner_shift_controls(folder):
                 continue
             after_inner = dict(current_inner)
             for side in shifted_sides:
-                after_inner[side] += shift.offstage_delta(
-                    side, current_inner[side], old_inner[side])
+                after_inner[side] += shift.target_delta(
+                    side, current_inner[side], old_inner[side],
+                    exact_offstage=shift.row_override(config, source_row) is not None)
             base = {"cue_index": int(source_row["cue_index"]),
                     "cue_guid": str(source_row["cue_guid"]),
                     "cue_label": source_row["cue_label"],
