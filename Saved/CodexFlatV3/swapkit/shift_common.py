@@ -234,6 +234,16 @@ def minimum_gap_gate(rows, tolerance_cm, passage):
             if not math.isfinite(float(row[key])):
                 raise RuntimeError("SHIFT_GAP_NOT_FINITE|passage=%s|label=%s|field=%s" %
                                    (passage, row.get("cue_label"), key))
+    # Every shifted row must keep its own old gap (Gary: "the old gap restored");
+    # checking only the narrowest new row let a mislabelled table through review.
+    narrowed = [row for row in eligible
+                if float(row["gap_new_cm"]) < float(row["gap_old_cm"]) - tolerance]
+    if narrowed:
+        worst = min(narrowed, key=lambda row: float(row["gap_new_cm"]) - float(row["gap_old_cm"]))
+        raise RuntimeError(
+            "SHIFT_ROW_GAP_FAIL|passage=%s|rows=%d|worst_label=%s|old=%.6f|new=%.6f" %
+            (passage, len(narrowed), worst.get("cue_label"),
+             float(worst["gap_old_cm"]), float(worst["gap_new_cm"])))
     minimum = min(eligible, key=lambda row: float(row["gap_new_cm"]))
     old_gap = float(minimum["gap_old_cm"])
     new_gap = float(minimum["gap_new_cm"])
@@ -251,6 +261,8 @@ def minimum_gap_gate(rows, tolerance_cm, passage):
         "minimum_cue_guid": str(minimum["cue_guid"]),
         "minimum_cue_label": str(minimum["cue_label"]),
         "row_count": len(eligible),
+        "passage_min_gap_old_cm": min(float(row["gap_old_cm"]) for row in eligible),
+        "passage_min_gap_new_cm": min(float(row["gap_new_cm"]) for row in eligible),
         "tolerance_cm": tolerance,
     }
 

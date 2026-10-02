@@ -14,8 +14,7 @@
   "source_plan": "Saved/CodexFlatV3/slot_b_dry_run_FV3B-20261002-03.json",
   "source_run_id": "FV3B-20261002-03",
   "required_previous_markers_any": [
-    "FLATV3_B_OK run=FV3B-20261002-03",
-    "FLATV3_B_VERIFY_SAVED_OK run=FV3BV-20261002-01 source_run=FV3B-20261002-03"
+    "FLATV3_HOLD_BY_CONDUCTOR_4_MINGAP_INVESTIGATION"
   ],
   "keep_old_sides": [],
   "excluded_new_meshes": [],
@@ -32,5 +31,9 @@
   "verify_queue_marker": "FLATV3_V_TEST_QUEUED run=FV3S4-20261002-01",
   "success_marker": "FLATV3_S4_OK",
   "inner_tolerance_cm": 2.0,
-  "outer_report_limit_cm": 1500.0
+  "outer_report_limit_cm": 1500.0,
+  "_held_previous_markers_any": [
+    "FLATV3_B_OK run=FV3B-20261002-03",
+    "FLATV3_B_VERIFY_SAVED_OK run=FV3BV-20261002-01 source_run=FV3B-20261002-03"
+  ]
 }

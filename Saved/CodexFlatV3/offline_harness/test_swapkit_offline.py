@@ -1129,7 +1129,7 @@ def case_inner_shift_controls(folder):
             try:
                 shift.minimum_gap_gate(current_rows, 2.0, passage)
             except RuntimeError as exc:
-                failed_as_expected = "SHIFT_MIN_GAP_FAIL" in str(exc)
+                failed_as_expected = ("SHIFT_MIN_GAP_FAIL" in str(exc) or "SHIFT_ROW_GAP_FAIL" in str(exc))
             else:
                 failed_as_expected = False
             record("%s current minimum-gap gate" % passage, "-", "FAIL",

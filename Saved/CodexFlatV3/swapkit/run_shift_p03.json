@@ -15,7 +15,7 @@
   "source_config": "Saved/CodexFlatV3/swapkit/run_p03.json",
   "source_run_id": "FV3P03-20261002-01",
   "required_previous_markers_any": [
-    "FLATV3_P03_OK run=FV3P03-20261002-01"
+    "FLATV3_HOLD_BY_CONDUCTOR_4_MINGAP_INVESTIGATION"
   ],
   "keep_old_sides": [],
   "excluded_new_meshes": [],
@@ -32,5 +32,8 @@
   "verify_queue_marker": "FLATV3_V_TEST_QUEUED run=FV3S3-20261002-01",
   "success_marker": "FLATV3_S3_OK",
   "inner_tolerance_cm": 2.0,
-  "outer_report_limit_cm": 1500.0
+  "outer_report_limit_cm": 1500.0,
+  "_held_previous_markers_any": [
+    "FLATV3_P03_OK run=FV3P03-20261002-01"
+  ]
 }
