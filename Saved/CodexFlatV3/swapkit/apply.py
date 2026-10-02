@@ -25,6 +25,12 @@ def run(config_path=None):
         c.assert_context(config, clean=True)
         originals = c.read_json(config, "preflight")
         plan = c.read_json(config, "dry_run")
+        configured_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
+                                 for entry in config["keep_old_sides"])
+        planned_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
+                              for entry in plan.get("kept_old_sides", []))
+        if planned_keep != configured_keep:
+            raise RuntimeError("PLAN_KEEP_OLD_SIDES_MISMATCH")
         for name in config.get("backup_files", [
                 "DA_InfinityStage_V1Show.uasset", "L_InfinityStage_V1VerticalSlice.umap"]):
             if not os.path.isfile(os.path.join(config["backup_path"], name)):
@@ -81,12 +87,18 @@ def run(config_path=None):
             pair = readback_cue.get_editor_property("wing_pair")
             actual = {side: c.panel_plain(pair.get_editor_property(side))
                       for side in ("left", "right", "top")}
+            kept_sides = {entry["side"] for entry in row.get("kept_old_sides", [])}
             for side in row["changed_sides"]:
                 if not c.panel_matches(actual[side], row[side]):
                     raise RuntimeError("PANEL_READBACK_FAIL|label=%s|side=%s|actual=%s" %
                                        (row["cue_label"], side,
                                         json.dumps(actual[side], sort_keys=True)))
-            for side in set(("left", "right", "top")) - set(row["changed_sides"]):
+            for side in kept_sides:
+                if not c.panel_matches(actual[side], original[side]):
+                    raise RuntimeError("APPLY_KEPT_OLD_SIDE_CHANGED|label=%s|side=%s" %
+                                       (row["cue_label"], side))
+            for side in (set(("left", "right", "top")) - set(row["changed_sides"]) -
+                         kept_sides):
                 if not c.panel_matches(actual[side], original[side]):
                     raise RuntimeError("UNTOUCHED_PANEL_CHANGED|label=%s|side=%s" %
                                        (row["cue_label"], side))
@@ -99,9 +111,11 @@ def run(config_path=None):
                              "cue_index": row["cue_index"],
                              "cue_label": row["cue_label"],
                              "changed_sides": row["changed_sides"],
+                             "kept_old_sides": row.get("kept_old_sides", []),
                              "panels": actual})
         report.update({"status": "PASS", "backup": config["backup_path"],
                        "rows": len(readback), "materialize_calls": [config["passage"]],
+                       "kept_old_sides": plan.get("kept_old_sides", []),
                        "dirty_before_save": before_save, "dirty_after_save": c.census(),
                        "readback": readback, "saved_roots": sorted(set(saved_roots))})
         path = c.write_json(config, "apply", report)

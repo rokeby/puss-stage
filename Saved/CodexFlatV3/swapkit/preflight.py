@@ -40,6 +40,10 @@ def run(config_path=None):
     guids = [c.cue_guid(cue) for _, cue in targets]
     if any(not guid for guid in guids) or len(guids) != len(set(guids)):
         raise RuntimeError("DUPLICATE_PASSAGE_GUID")
+    unknown_keep_guids = sorted({entry["cue_guid"] for entry in config["keep_old_sides"]} -
+                                set(guids))
+    if unknown_keep_guids:
+        raise RuntimeError("UNKNOWN_KEEP_OLD_GUID|" + json.dumps(unknown_keep_guids))
 
     rows = []
     for index, cue in targets:
@@ -60,6 +64,8 @@ def run(config_path=None):
     report.update({"status": "PASS", "world": c.WORLD, "show": c.SHOW,
                    "config_path": config["_path"], "mapping_file": config["mapping_file"],
                    "mapping_kind": mapping["kind"], "rows": rows,
+                   "overreach_tolerance_cm": config["overreach_tolerance_cm"],
+                   "keep_old_sides": config["keep_old_sides"],
                    "row_count": len(rows), "dirty_at_start": c.CLEAN, "dirty_after": end})
     path = c.write_json(config, "preflight", report)
     unreal.log("%s run=%s rows=%d census=%s report=%s" %

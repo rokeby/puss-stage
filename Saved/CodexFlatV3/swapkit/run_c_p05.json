@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "slot": "C",
-  "run_id": "FV3C-20261002-02",
-  "saved_verify_run_id": "FV3CV-20261002-02",
+  "run_id": "FV3C-20261002-03",
+  "saved_verify_run_id": "FV3CV-20261002-03",
   "passage": "P05",
   "passage_label_prefix": "P05 Wing ",
   "passage_actor_label_prefix": "Passage 05",
   "mapping_file": "DerivedAssets/FlatV3/Overnight/Kept/KEPT_MAP.json",
   "mapping_kind": "kept_map",
   "destination_root": "/Game/Scenes/Wings/FlatV3/Passage05",
-  "backup_path": "Backups/PreFlatV3SwapP05-FV3C-20261002-02",
+  "backup_path": "Backups/PreFlatV3SwapP05-FV3C-20261002-03",
   "backup_files": [
     "DA_InfinityStage_V1Show.uasset",
     "L_InfinityStage_V1VerticalSlice.umap"
@@ -19,6 +19,14 @@
   "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
   "capture_label": "P05 Wing 001",
   "expected_occurrence_count": 93,
+  "overreach_tolerance_cm": 2.0,
+  "keep_old_sides": [
+    {
+      "cue_guid": "1ED83B530F4AEEB89EB6DE8F21BD20F9",
+      "side": "right",
+      "reason": "339 cm onstage overreach; old panel narrower at this occurrence"
+    }
+  ],
   "excluded_new_meshes": [
     "SM_FlatV3_P05_CloudRef02_L_L"
   ],

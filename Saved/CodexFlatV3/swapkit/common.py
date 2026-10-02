@@ -58,10 +58,47 @@ def load_config(explicit=None):
     if included_failures:
         raise RuntimeError("KNOWN_FAILED_ASSET_INCLUDED|" + json.dumps(included_failures))
     config = dict(config)
+    try:
+        tolerance = float(config.get("overreach_tolerance_cm", 0.0))
+    except (TypeError, ValueError):
+        raise RuntimeError("CONFIG_OVERREACH_TOLERANCE_FAIL|actual=" +
+                           repr(config.get("overreach_tolerance_cm")))
+    if not math.isfinite(tolerance) or tolerance < 0.0:
+        raise RuntimeError("CONFIG_OVERREACH_TOLERANCE_FAIL|actual=" + repr(tolerance))
+    raw_keep = config.get("keep_old_sides", [])
+    if not isinstance(raw_keep, list):
+        raise RuntimeError("CONFIG_KEEP_OLD_SIDES_FAIL|expected=list")
+    keep_old = []
+    seen_keep = set()
+    for index, entry in enumerate(raw_keep):
+        if not isinstance(entry, dict):
+            raise RuntimeError("CONFIG_KEEP_OLD_SIDE_FAIL|index=%d|expected=object" % index)
+        missing_keep = sorted({"cue_guid", "side", "reason"} - set(entry))
+        if missing_keep:
+            raise RuntimeError("CONFIG_KEEP_OLD_SIDE_KEYS_MISSING|index=%d|keys=%s" %
+                               (index, json.dumps(missing_keep)))
+        cue_guid_value = str(entry["cue_guid"]).strip()
+        side = str(entry["side"]).strip().lower()
+        reason = str(entry["reason"]).strip()
+        if not cue_guid_value or side not in ("left", "right", "top") or not reason:
+            raise RuntimeError("CONFIG_KEEP_OLD_SIDE_FAIL|index=%d|guid=%s|side=%s|reason=%s" %
+                               (index, cue_guid_value, side, reason))
+        key = (cue_guid_value, side)
+        if key in seen_keep:
+            raise RuntimeError("DUPLICATE_KEEP_OLD_SIDE|guid=%s|side=%s" % key)
+        seen_keep.add(key)
+        keep_old.append({"cue_guid": cue_guid_value, "side": side, "reason": reason})
+    config["overreach_tolerance_cm"] = tolerance
+    config["keep_old_sides"] = keep_old
     config["_path"] = path
     config["mapping_file"] = _project_path(config["mapping_file"])
     config["backup_path"] = _project_path(config["backup_path"])
     return config
+
+
+def keep_old_by_key(config):
+    return {(entry["cue_guid"], entry["side"]): entry
+            for entry in config.get("keep_old_sides", [])}
 
 
 def marker(config, suffix):

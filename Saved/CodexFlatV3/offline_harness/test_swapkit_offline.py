@@ -13,6 +13,14 @@ SLOT = HERE.parent
 KIT = SLOT / "swapkit"
 REPO = SLOT.parents[1]
 PROBE = SLOT / "probe_p05_labels_out.json"
+P05_MEASURED_DRY = KIT / "swapkit_dry_run_FV3C-20261002-02.json"
+P05_MEASURED_DOC = json.loads(P05_MEASURED_DRY.read_text(encoding="utf-8"))
+P05_FLAGGED_GUIDS = {row["cue_guid"] for row in P05_MEASURED_DOC["overreach_flags"]}
+P05_MEASURED_ROWS = {
+    row["cue_guid"]: row
+    for row in P05_MEASURED_DOC["rows"] if row["cue_guid"] in P05_FLAGGED_GUIDS
+}
+ROWS_DUMP = REPO / "Saved" / "CodexWingHandedness2" / "rows_dump.json"
 sys.path.insert(0, str(HERE))
 import fake_unreal
 sys.modules["unreal"] = fake_unreal
@@ -69,6 +77,12 @@ def mapping_rows(config):
 
 
 def probe_rows(config):
+    if config["passage"] == "P06":
+        dump = json.loads(ROWS_DUMP.read_text(encoding="utf-8"))
+        rows = [row for row in dump["rows"] if row.get("passage") == 6]
+        return [[int(row["index"]), str(row["label"]),
+                 "P06-OFFLINE-GUID-%03d" % int(row["ordinal"]),
+                 str(row["left"]["mesh"])] for row in rows]
     probe = json.loads(PROBE.read_text(encoding="utf-8"))
     return probe[config["passage"] + " Wing"]["rows"]
 
@@ -112,8 +126,58 @@ def register_mapping_meshes(config, doc):
                         str(proposal.get("family_class", "")).upper() == "MYSTICAL" else
                         config["destination_root"])
                 register_mesh(root + "/StaticMeshes/" + proposal["asset"], side)
+    elif kind == "p06_layout":
+        for family in doc["family_catalog"].values():
+            if family.get("pair_status") != "true_pair":
+                continue
+            root = ("/Game/Scenes/Wings/FlatV3/Passage02" if
+                    family.get("kind") == "p02_industrial" else
+                    config["destination_root"])
+            register_mesh(root + "/StaticMeshes/" + family["left_asset"], "left")
+            register_mesh(root + "/StaticMeshes/" + family["right_asset"], "right")
 
 
+def apply_measured_p05_old_edges(guid, records):
+    """Make the fake old panels reproduce the released -02 dry-run edges."""
+    measured = P05_MEASURED_ROWS.get(guid)
+    if measured is None:
+        return
+    for side in ("left", "right"):
+        if side not in measured.get("placement", {}):
+            continue
+        placement = measured["placement"][side]
+        outer = float(placement["old_outer_edge_cm"])
+        inner = float(placement["old_inner_edge_cm"])
+        width = abs(inner - outer)
+        record = records[side]
+        record["local_transform"]["location"][1] = outer
+        record["local_transform"]["scale"][1] = width
+        record["facing_policy"] = "PRESERVE_ASSET"
+        record["flip_image_horizontally"] = False
+        minimum_y, maximum_y = ((0.0, 1.0) if side == "left" else (-1.0, 0.0))
+        fake_unreal.STATE.assets[record["mesh"]] = fake_unreal.StaticMesh(
+            record["mesh"], fake_unreal.Vector(-5, minimum_y, 0),
+            fake_unreal.Vector(5, maximum_y, 1000))
+
+
+def install_measured_p05_new_edges():
+    widths = {}
+    for measured in P05_MEASURED_ROWS.values():
+        for side in ("left", "right"):
+            if side not in measured.get("placement", {}):
+                continue
+            placement = measured["placement"][side]
+            outer = float(placement["old_outer_edge_cm"])
+            inner = float(placement["new_inner_edge_cm"])
+            path = measured[side]["mesh"]
+            width = abs(inner - outer)
+            if path in widths and abs(widths[path] - width) > 0.000001:
+                raise AssertionError("measured width drift for " + path)
+            widths[path] = width
+            minimum_y, maximum_y = ((0.0, width) if side == "left" else (-width, 0.0))
+            fake_unreal.STATE.assets[path] = fake_unreal.StaticMesh(
+                path, fake_unreal.Vector(-5, minimum_y, 0),
+                fake_unreal.Vector(5, maximum_y, 1000))
 def reset_for_config(config):
     fake_unreal.STATE = fake_unreal.State()
     passage = config["passage"]
@@ -139,11 +203,18 @@ def reset_for_config(config):
             top = "/Game/Legacy/P02/Top_%02d" % (ordinal + 1)
         elif passage == "P01":
             right = p01_right(left)
+        elif passage == "P06":
+            layout = mapping["occurrences"][ordinal]
+            right = "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/" + \
+                    layout["existing"]["R"]
+            top = "/Game/Legacy/P06/Top_%02d" % (ordinal + 1)
         else:
             right = left[:-2] + "_R" if left.endswith("_L") else left + "_R"
         records = {"left": panel_record(left, -500),
                    "right": panel_record(right, 500),
                    "top": panel_record(top, 0, True)}
+        if passage == "P05":
+            apply_measured_p05_old_edges(guid, records)
         for side in ("left", "right", "top"):
             register_mesh(records[side]["mesh"], side)
         pair = fake_unreal.Obj(
@@ -157,6 +228,8 @@ def reset_for_config(config):
         cues[int(index)] = fake_unreal.Obj(label=label, wing_pair=pair,
                                            cue_guid=fake_unreal.Guid(guid))
     register_mapping_meshes(config, mapping)
+    if passage == "P05":
+        install_measured_p05_new_edges()
     library_path = "/Game/Test/WingLibrary"
     fake_unreal.STATE.assets[library_path] = fake_unreal.Obj(entries=[])
     settings = fake_unreal.Obj(passage_guid=passage_guid, lead_in_frames=fake_unreal.FrameNumber(0))
@@ -214,7 +287,7 @@ def stage_config(source, folder):
     return path, config
 
 
-def modules(folder):
+def modules(folder, config=None):
     for name in list(sys.modules):
         if name in {"common", "preflight", "dry", "apply", "revert", "verify", "verify_saved"}:
             del sys.modules[name]
@@ -234,6 +307,13 @@ def modules(folder):
     verify_saved.verifier.c.BASE = str(folder)
     verify_saved.verifier.c.log_has = lambda token: any(
         token in line for line in fake_unreal.STATE.logs)
+    if config is not None and config.get("mapping_kind") == "p06_layout":
+        support = load("p06_support_harness", KIT / "p06_support.py")
+        for module in all_modules:
+            if hasattr(module, "c"):
+                support.install(module.c)
+        support.install(apply.revert_module.c)
+        support.install(verify_saved.verifier.c)
     return all_modules
 
 
@@ -243,12 +323,27 @@ def record(name, polarity, expected, passed, detail):
 
 
 def run_positive(config_path, config, folder):
-    common, preflight, dry, revert, apply, verify, verify_saved = modules(folder)
+    common, preflight, dry, revert, apply, verify, verify_saved = modules(folder, config)
     reset_for_config(config)
     preflight.c.BASE = dry.c.BASE = apply.c.BASE = revert.c.BASE = verify.c.BASE = str(folder)
     preflight.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
     preflight.run(str(config_path))
     plan = dry.run(str(config_path))
+    if config["passage"] == "P05":
+        expected_edges = {
+            (entry["cue_guid"], entry["side"]):
+            (round(float(entry["old_inner_edge_cm"]), 6),
+             round(float(entry["new_inner_edge_cm"]), 6))
+            for entry in P05_MEASURED_DOC["overreach_flags"]
+        }
+        actual_edges = {
+            (entry["cue_guid"], entry["side"]):
+            (round(float(entry["old_inner_edge_cm"]), 6),
+             round(float(entry["new_inner_edge_cm"]), 6))
+            for entry in plan["overreach_flags"]
+        }
+        if actual_edges != expected_edges:
+            raise AssertionError("P05 measured overreach edges drifted")
     applied = apply.run(str(config_path))
     fake_unreal.STATE.logs.append(config["verify_token"])
     verify.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
@@ -266,14 +361,38 @@ def run_positive(config_path, config, folder):
     verify_saved.c.BASE = verify_saved.verifier.c.BASE = str(folder)
     verify_saved.verifier.c.log_has = verify.c.log_has
     saved = verify_saved.main(str(config_path))
+    if config["passage"] == "P06":
+        originals_doc = common.read_json(config, "preflight")
+        show = fake_unreal.STATE.assets[common.SHOW]
+        cues = list(show.get_editor_property("cues"))
+        untouched = originals_doc["rows"][32:]
+        if len(untouched) != 23:
+            raise AssertionError("P06 untouched source slice was not 23 rows")
+        for original in untouched:
+            pair = cues[original["cue_index"]].get_editor_property("wing_pair")
+            for side in ("left", "right", "top"):
+                if common.panel_plain(pair.get_editor_property(side)) != original[side]:
+                    raise AssertionError("P06 untouched panel changed: %s %s" %
+                                         (original["cue_label"], side))
     roots = revert.revert("offline_control", str(config_path))
     if roots != sorted([common.SHOW, common.WORLD]):
         raise AssertionError("wrong revert roots: " + repr(roots))
     if common.census() != common.CLEAN:
         raise AssertionError("revert left dirty packages")
-    return "rows=%d excluded_kept=%d applied=%d movement=%d saved_verify=%d" % (
+    if config["passage"] == "P06":
+        if len(common.read_json(config, "preflight")["rows"]) != 55:
+            raise AssertionError("P06 preflight did not retain 55 occurrences")
+        if len(plan["rows"]) != 32:
+            raise AssertionError("P06 did not plan exactly 32 swaps")
+        if 55 - len(plan["rows"]) != 23:
+            raise AssertionError("P06 did not leave exactly 23 untouched")
+    return ("rows=%d excluded_kept=%d applied=%d movement=%d saved_verify=%d "
+            "unexplained=%d within_tolerance=%d kept_old_sides=%d") % (
         len(plan["rows"]), len(plan["excluded_rows_kept_old"]), applied["rows"],
-        checked["movement_sample_count"], saved["rows"])
+        checked["movement_sample_count"], saved["rows"],
+        len(plan.get("unexplained_overreach_flags", [])),
+        len(plan.get("within_tolerance_overreach_flags", [])),
+        len(plan.get("kept_old_sides", [])))
 
 
 def case_positive(name, config_path, config, folder):
@@ -296,6 +415,73 @@ def case_cloud_exclusion(config_path, config, folder):
         record("CloudRef02 included", "-", "FAIL", "KNOWN_FAILED_ASSET_INCLUDED" in str(exc), exc)
         return
     record("CloudRef02 included", "-", "FAIL", False, "unexpectedly accepted")
+
+
+def case_zero_overreach_tolerance(config, folder):
+    bad = json.loads(json.dumps(config))
+    bad["run_id"] += "-ZERO-TOLERANCE"
+    bad["saved_verify_run_id"] += "-ZERO-TOLERANCE"
+    bad["overreach_tolerance_cm"] = 0
+    bad["keep_old_sides"] = []
+    path = Path(folder) / "p05_zero_tolerance.json"
+    path.write_text(json.dumps(bad), encoding="utf-8")
+    _, preflight, dry, *_ = modules(folder)
+    reset_for_config(bad)
+    preflight.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
+    preflight.run(str(path))
+    try:
+        dry.run(str(path))
+    except RuntimeError as exc:
+        record("P05 zero overreach tolerance", "-", "FAIL with 13",
+               "UNEXPLAINED_OVERREACH_FLAGS|count=13" in str(exc), exc)
+        return
+    record("P05 zero overreach tolerance", "-", "FAIL with 13", False,
+           "unexpectedly accepted")
+
+
+def case_unknown_keep_old_guid(config, folder):
+    bad = json.loads(json.dumps(config))
+    bad["run_id"] += "-UNKNOWN-KEEP"
+    bad["saved_verify_run_id"] += "-UNKNOWN-KEEP"
+    bad["keep_old_sides"] = [{"cue_guid": "00000000000000000000000000000000",
+                              "side": "right", "reason": "offline negative control"}]
+    path = Path(folder) / "p05_unknown_keep.json"
+    path.write_text(json.dumps(bad), encoding="utf-8")
+    _, preflight, *_ = modules(folder)
+    reset_for_config(bad)
+    preflight.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
+    try:
+        preflight.run(str(path))
+    except RuntimeError as exc:
+        record("unknown keep-old GUID", "-", "FAIL",
+               "UNKNOWN_KEEP_OLD_GUID" in str(exc), exc)
+        return
+    record("unknown keep-old GUID", "-", "FAIL", False, "unexpectedly accepted")
+
+
+def case_verify_kept_old_mutation(config_path, config, folder):
+    common, preflight, dry, _, apply, verify, _ = modules(folder)
+    reset_for_config(config)
+    for module in (preflight, dry, apply, verify):
+        module.c.BASE = str(folder)
+    preflight.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
+    preflight.run(str(config_path))
+    plan = dry.run(str(config_path))
+    apply.run(str(config_path))
+    kept = plan["kept_old_sides"][0]
+    cue = fake_unreal.STATE.assets[common.SHOW].get_editor_property("cues")[kept["cue_index"]]
+    panel = cue.get_editor_property("wing_pair").get_editor_property(kept["side"])
+    panel.props["flip_image_horizontally"] = not panel.props["flip_image_horizontally"]
+    fake_unreal.STATE.logs.append(config["verify_token"])
+    verify.c.log_has = lambda token: any(token in line for line in fake_unreal.STATE.logs)
+    try:
+        verify.run_verify(str(config_path), require_token=True)
+    except RuntimeError as exc:
+        record("verify kept-old mutation detector", "+", "DETECT FAIL", 
+               "VERIFY_KEPT_OLD_SIDE_CHANGED" in str(exc), exc)
+        return
+    record("verify kept-old mutation detector", "+", "DETECT FAIL", False,
+           "altered kept-old side unexpectedly accepted")
 
 
 def case_verify_token(config_path, config, folder):
@@ -502,6 +688,106 @@ def case_p02_import_sources():
            (len(passing), len(rejected), len(industrial_fbx), len(sequence), len(mystical)))
 
 
+def case_p06_contract(config, folder):
+    support = load("p06_support_contract", KIT / "p06_support.py")
+    common, *_ = modules(folder)
+    support.install(common)
+    mapping = common.load_mapping(config)
+    dump = json.loads(ROWS_DUMP.read_text(encoding="utf-8"))
+    readback = [row for row in dump["rows"] if row.get("passage") == 6]
+    indices = [int(row["index"]) for row in readback]
+    ordinals = [int(row["ordinal"]) for row in readback]
+    labels = [str(row["label"]) for row in readback]
+    unique = (indices == list(range(217, 272)) and
+              ordinals == list(range(1, 56)) and
+              labels == ["P06 Wing %03d" % value for value in range(1, 56)] and
+              len(indices) == len(set(indices)) and len(labels) == len(set(labels)))
+    counts = (len(readback) == 55 and mapping["swap_count"] == 32 and
+              mapping["keep_count"] == 23 and unique)
+    record("P06 55 / 32 / 23 + identity", "+", "55 total; 32 swap; 23 keep",
+           counts, "indices=217..271 labels_unique=%s duplicates=%d" %
+           (unique, len(labels) - len(set(labels))))
+
+    swapped = [row for row in mapping["occurrences"] if row["action"] == "swap"]
+    matched = all(row["left_family"] == row["right_family"] and
+                  mapping["families"][row["left_family"]]["pair_status"] == "true_pair"
+                  for row in swapped)
+    record("P06 matched L/R family", "+", "all 32 matched", matched,
+           "matched=%d" % sum(row["left_family"] == row["right_family"]
+                               for row in swapped))
+
+    source = json.loads(Path(config["mapping_file"]).read_text(encoding="utf-8"))
+    mixed = json.loads(json.dumps(source))
+    mixed["occurrences"][0]["right_family"] = "chinoiserie_garden"
+    bad_mixed = dict(config)
+    bad_mixed_path = Path(folder) / "p06_mixed_family.json"
+    bad_mixed_path.write_text(json.dumps(mixed), encoding="utf-8")
+    bad_mixed["mapping_file"] = str(bad_mixed_path)
+    try:
+        common.load_mapping(bad_mixed)
+    except RuntimeError as exc:
+        record("P06 mixed-family position", "-", "FAIL",
+               "P06_MIXED_FAMILY_POSITION" in str(exc), exc)
+    else:
+        record("P06 mixed-family position", "-", "FAIL", False, "unexpectedly accepted")
+
+    l_only = json.loads(json.dumps(source))
+    l_only["occurrences"][0]["left_family"] = "girder_broken"
+    l_only["occurrences"][0]["right_family"] = "girder_broken"
+    bad_l_only = dict(config)
+    bad_l_only_path = Path(folder) / "p06_l_only_family.json"
+    bad_l_only_path.write_text(json.dumps(l_only), encoding="utf-8")
+    bad_l_only["mapping_file"] = str(bad_l_only_path)
+    try:
+        common.load_mapping(bad_l_only)
+    except RuntimeError as exc:
+        record("P06 L-only family placement", "-", "FAIL",
+               "P06_FAMILY_NOT_TRUE_PAIR" in str(exc), exc)
+    else:
+        record("P06 L-only family placement", "-", "FAIL", False,
+               "unexpectedly accepted")
+
+
+def case_p06_import_sources():
+    layout = json.loads((KIT / "p06_layout.json").read_text(encoding="utf-8"))
+    used_names = {row["left_family"] for row in layout["occurrences"]
+                  if row.get("action") == "swap"}
+    used = {name: layout["family_catalog"][name] for name in used_names}
+    missing = []
+    invalid = []
+    selected = set()
+    for name, family in used.items():
+        if family.get("pair_status") != "true_pair":
+            invalid.append(name + ":not_true_pair")
+        for side in ("left", "right"):
+            selected.add(family[side + "_asset"])
+            source = REPO / family[side + "_source"]
+            if not source.is_file():
+                missing.append(str(source))
+            if family["kind"] == "p06_flat":
+                status = json.loads((source.parent / "status.json").read_text(encoding="utf-8"))
+                validation = json.loads((source.parent / "validation.json").read_text(
+                    encoding="utf-8"))
+                if (status.get("status") != "built" or not status.get("validation_pass") or
+                        not validation.get("pass")):
+                    invalid.append(family[side + "_asset"] + ":flat_gate")
+    industrial_validation = json.loads((REPO / "DerivedAssets" / "FlatV3" /
+        "Overnight" / "P02Industrial" / "validation.json").read_text(encoding="utf-8"))
+    industrial_by_name = {row["asset"]: row for row in industrial_validation["assets"]}
+    for family in used.values():
+        if family["kind"] != "p02_industrial":
+            continue
+        for side in ("left_asset", "right_asset"):
+            if not industrial_by_name.get(family[side], {}).get("pass"):
+                invalid.append(family[side] + ":industrial_gate")
+    l_only_used = sorted(name for name in used_names
+                         if layout["family_catalog"][name]["pair_status"] != "true_pair")
+    passed = len(selected) == 12 and not missing and not invalid and not l_only_used
+    record("P06 import source closure", "+", "6 P06 + 6 industrial only", passed,
+           "selected=%d missing=%d invalid=%d l_only_used=%s" %
+           (len(selected), len(missing), len(invalid), l_only_used))
+
+
 def print_table():
     headers = ("Test", "+/-", "Expected", "Harness", "Detail")
     rows = [headers] + [(row["name"], row["polarity"], row["expected"],
@@ -518,10 +804,14 @@ def main():
     with tempfile.TemporaryDirectory(prefix="flatv3_swapkit_offline_") as folder_name:
         folder = Path(folder_name)
         configs = []
-        for name in ("run_c_p05.json", "run_d_p01.json", "run_p03.json", "run_p02.json"):
+        for name in ("run_c_p05.json", "run_d_p01.json", "run_p03.json", "run_p02.json",
+                     "run_p06.json"):
             configs.append(stage_config(KIT / name, folder))
         for path, config in configs:
             case_positive("swapkit " + config["passage"], path, config, folder)
+        case_zero_overreach_tolerance(configs[0][1], folder)
+        case_unknown_keep_old_guid(configs[0][1], folder)
+        case_verify_kept_old_mutation(*configs[0], folder)
         case_cloud_exclusion(*configs[0], folder)
         case_verify_token(*configs[1], folder)
         case_none_top(*configs[0], folder)
@@ -532,6 +822,8 @@ def main():
         case_static_tokens()
         case_p03_import_sources()
         case_p02_import_sources()
+        case_p06_contract(configs[4][1], folder)
+        case_p06_import_sources()
     print_table()
     failed = [row for row in RESULTS if not row["passed"]]
     print("\nOVERALL: %s (%d/%d harness assertions passed)" %

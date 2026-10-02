@@ -130,6 +130,12 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
     assert_clean("start")
     originals = c.read_json(config, "preflight", run=swap_run)
     plan = c.read_json(config, "dry_run", run=swap_run)
+    configured_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
+                             for entry in config["keep_old_sides"])
+    planned_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
+                          for entry in plan.get("kept_old_sides", []))
+    if planned_keep != configured_keep:
+        raise RuntimeError("VERIFY_KEEP_OLD_SIDES_MISMATCH")
     originals_by_guid = {row["cue_guid"]: row for row in originals["rows"]}
     plan_by_guid = {row["cue_guid"]: row for row in plan["rows"]}
     show = unreal.EditorAssetLibrary.load_asset(c.SHOW)
@@ -157,12 +163,15 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
         c.assert_occurrence(cue, row["cue_index"], row,
                             config["passage_label_prefix"], "VERIFY_CUE_IDENTITY_FAIL")
         pair = cue.get_editor_property("wing_pair")
+        kept_sides = {entry["side"] for entry in row.get("kept_old_sides", [])}
         for side in ("left", "right", "top"):
             actual_panel = c.panel_plain(pair.get_editor_property(side))
             expected_panel = row[side] if side in row["changed_sides"] else original[side]
             if not c.panel_matches(actual_panel, expected_panel):
-                raise RuntimeError("VERIFY_PANEL_FAIL|label=%s|side=%s|actual=%s" %
-                                   (row["cue_label"], side,
+                error = ("VERIFY_KEPT_OLD_SIDE_CHANGED" if side in kept_sides
+                         else "VERIFY_PANEL_FAIL")
+                raise RuntimeError("%s|label=%s|side=%s|actual=%s" %
+                                   (error, row["cue_label"], side,
                                     json.dumps(actual_panel, sort_keys=True)))
         if c.mechanism_plain(pair.get_editor_property("mechanism")) != original["mechanism"]:
             raise RuntimeError("VERIFY_MECHANISM_CHANGED|" + row["cue_label"])
@@ -289,6 +298,7 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
     end_census = assert_clean("end")
     report = {"run": verification_run, "source_swap_run": swap_run, "mode": "verify",
               "status": "PASS", "rows": len(plan["rows"]), "placed_panels": placed,
+              "kept_old_sides": plan.get("kept_old_sides", []),
               "mesh_gates": mesh_gates, "movement": movement,
               "movement_sample_count": len(movement),
               "movement_phases_each": list(SAMPLE_PHASES),

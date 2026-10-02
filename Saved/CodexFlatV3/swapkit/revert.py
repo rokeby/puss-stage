@@ -18,6 +18,12 @@ def revert(reason, config_path=None):
     c.assert_context(config, clean=False)
     originals = c.read_json(config, "preflight")
     plan = c.read_json(config, "dry_run")
+    configured_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
+                             for entry in config["keep_old_sides"])
+    planned_keep = sorted((entry["cue_guid"], entry["side"], entry["reason"])
+                          for entry in plan.get("kept_old_sides", []))
+    if planned_keep != configured_keep:
+        raise RuntimeError("REVERT_KEEP_OLD_SIDES_MISMATCH")
     original_by_guid = {row["cue_guid"]: row for row in originals["rows"]}
     show = unreal.EditorAssetLibrary.load_asset(c.SHOW)
     cues = list(show.get_editor_property("cues"))
@@ -29,6 +35,11 @@ def revert(reason, config_path=None):
         c.assert_occurrence(cue, row["cue_index"], original,
                             config["passage_label_prefix"], "REVERT_CUE_IDENTITY_FAIL")
         pair = cue.get_editor_property("wing_pair")
+        kept_sides = {entry["side"] for entry in row.get("kept_old_sides", [])}
+        for side in kept_sides:
+            if not c.panel_matches(c.panel_plain(pair.get_editor_property(side)), original[side]):
+                raise RuntimeError("REVERT_KEPT_OLD_SIDE_DRIFT|label=%s|side=%s" %
+                                   (original["cue_label"], side))
         untouched[row["cue_guid"]] = {
             side: c.panel_plain(pair.get_editor_property(side))
             for side in ("left", "right", "top") if side not in row["changed_sides"]}
@@ -66,6 +77,7 @@ def revert(reason, config_path=None):
         c.assert_occurrence(readback_cue, row["cue_index"], original,
                             config["passage_label_prefix"], "REVERT_READBACK_IDENTITY_FAIL")
         pair = readback_cue.get_editor_property("wing_pair")
+        kept_sides = {entry["side"] for entry in row.get("kept_old_sides", [])}
         for side in row["changed_sides"]:
             if not c.panel_matches(c.panel_plain(pair.get_editor_property(side)), original[side]):
                 raise RuntimeError("REVERT_READBACK_FAIL|label=%s|side=%s" %
@@ -77,14 +89,17 @@ def revert(reason, config_path=None):
             if side == "mechanism":
                 continue
             if not c.panel_matches(c.panel_plain(pair.get_editor_property(side)), expected_panel):
-                raise RuntimeError("REVERT_UNTOUCHED_FIELD_CHANGED|label=%s|side=%s" %
-                                   (original["cue_label"], side))
+                error = ("REVERT_KEPT_OLD_SIDE_CHANGED" if side in kept_sides
+                         else "REVERT_UNTOUCHED_FIELD_CHANGED")
+                raise RuntimeError("%s|label=%s|side=%s" %
+                                   (error, original["cue_label"], side))
         if c.mechanism_plain(pair.get_editor_property("mechanism")) != \
                 untouched[row["cue_guid"]]["mechanism"]:
             raise RuntimeError("REVERT_UNTOUCHED_MECHANISM_CHANGED|" + original["cue_label"])
     saved_roots = sorted(set(saved_roots))
     report = {"run": config["run_id"], "mode": "revert", "status": "PASS",
               "reason": str(reason), "rows": len(plan["rows"]),
+              "kept_old_sides": plan.get("kept_old_sides", []),
               "restored_fields": sorted(restored), "saved_roots": saved_roots,
               "census": c.census()}
     c.write_json(config, "revert", report)

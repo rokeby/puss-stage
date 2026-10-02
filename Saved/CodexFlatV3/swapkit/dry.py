@@ -36,8 +36,13 @@ def run(config_path=None):
 
     plan = []
     overreach_flags = []
+    within_tolerance = []
+    unexplained_overreach = []
+    kept_old_sides = []
     excluded_hits = []
     planned_meshes = set()
+    tolerance_cm = float(config["overreach_tolerance_cm"])
+    keep_by_key = c.keep_old_by_key(config)
     for ordinal, original in enumerate(preflight["rows"]):
         cue = cues[original["cue_index"]]
         _, label = c.assert_occurrence(
@@ -51,12 +56,21 @@ def run(config_path=None):
         excluded_hits.extend(row_excluded)
         row = {"cue_index": original["cue_index"], "cue_label": label,
                "cue_guid": original["cue_guid"], "changed_sides": [],
-               "placement": {}, "top_unchanged": original["top"],
+               "kept_old_sides": [], "placement": {},
+               "top_unchanged": original["top"],
                "occurrence_offset_unchanged": original["occurrence_offset"],
                "mechanism_unchanged": original["mechanism"]}
         for side in ("left", "right"):
+            keep_entry = keep_by_key.get((original["cue_guid"], side))
             if side not in requested:
                 row[side] = original[side]
+                if keep_entry is not None:
+                    kept = {"cue_guid": original["cue_guid"],
+                            "cue_index": original["cue_index"], "cue_label": label,
+                            "side": side, "reason": keep_entry["reason"],
+                            "old_panel": original[side], "proposal_present": False}
+                    row["kept_old_sides"].append(kept)
+                    kept_old_sides.append(kept)
                 continue
             old_bounds = c.side_bounds(original[side], library_by_mesh)
             outer = old_bounds["min_y_cm"] if side == "left" else old_bounds["max_y_cm"]
@@ -66,26 +80,65 @@ def run(config_path=None):
             new_inner = new_bounds["max_y_cm"] if side == "left" else new_bounds["min_y_cm"]
             flagged = (max(0.0, new_inner) > max(0.0, old_inner) + 0.01 if side == "left"
                        else max(0.0, -new_inner) > max(0.0, -old_inner) + 0.01)
-            row[side] = planned
-            row["changed_sides"].append(side)
+            overreach_cm = max(0.0, (new_inner - old_inner) if side == "left"
+                               else (old_inner - new_inner))
+            adjudication = ("kept_old" if keep_entry is not None else
+                            "within_tolerance" if flagged and overreach_cm <= tolerance_cm else
+                            "unexplained" if flagged else "none")
             row["placement"][side] = {
                 "old_y_cm": float(original[side]["local_transform"]["location"][1]),
                 "old_outer_edge_cm": outer, "new_y_cm": outer,
                 "old_inner_edge_cm": old_inner, "new_inner_edge_cm": new_inner,
-                "overreach_flag": flagged,
+                "overreach_cm": overreach_cm, "overreach_flag": flagged,
+                "overreach_adjudication": adjudication,
             }
-            unreal.log("%s run=%s label=%s side=%s old_y=%.6f old_outer_edge=%.6f new_y=%.6f new_inner_edge=%.6f old_inner_edge=%.6f overreach_flag=%s" %
+            unreal.log("%s run=%s label=%s side=%s old_y=%.6f old_outer_edge=%.6f new_y=%.6f new_inner_edge=%.6f old_inner_edge=%.6f overreach_cm=%.6f overreach_flag=%s adjudication=%s" %
                        (c.marker(config, "LATERAL_DRY_RUN"), config["run_id"], label, side,
                         row["placement"][side]["old_y_cm"], outer, outer, new_inner,
-                        old_inner, str(flagged).lower()))
+                        old_inner, overreach_cm, str(flagged).lower(), adjudication))
+            flag = {"cue_guid": original["cue_guid"],
+                    "cue_index": original["cue_index"],
+                    "cue_label": label, "side": side,
+                    "old_inner_edge_cm": old_inner,
+                    "new_inner_edge_cm": new_inner,
+                    "overreach_cm": overreach_cm,
+                    "adjudication": adjudication}
+            if keep_entry is not None:
+                row[side] = original[side]
+                kept = {"cue_guid": original["cue_guid"],
+                        "cue_index": original["cue_index"], "cue_label": label,
+                        "side": side, "reason": keep_entry["reason"],
+                        "old_panel": original[side], "proposal_present": True,
+                        "proposed_mesh": desired[side],
+                        "proposed_old_outer_edge_cm": outer,
+                        "proposed_old_inner_edge_cm": old_inner,
+                        "proposed_new_inner_edge_cm": new_inner,
+                        "proposed_overreach_cm": overreach_cm,
+                        "proposed_overreach_flag": flagged}
+                row["kept_old_sides"].append(kept)
+                kept_old_sides.append(kept)
+                if flagged:
+                    overreach_flags.append(flag)
+                continue
+            row[side] = planned
+            row["changed_sides"].append(side)
             if flagged:
-                overreach_flags.append({"cue_guid": original["cue_guid"],
-                                        "cue_index": original["cue_index"],
-                                        "cue_label": label, "side": side,
-                                        "old_inner_edge_cm": old_inner,
-                                        "new_inner_edge_cm": new_inner})
+                overreach_flags.append(flag)
+                (within_tolerance if adjudication == "within_tolerance"
+                 else unexplained_overreach).append(flag)
             planned_meshes.add(desired[side])
-        if "top" in requested:
+        top_keep = keep_by_key.get((original["cue_guid"], "top"))
+        if top_keep is not None:
+            row["top"] = original["top"]
+            kept = {"cue_guid": original["cue_guid"],
+                    "cue_index": original["cue_index"], "cue_label": label,
+                    "side": "top", "reason": top_keep["reason"],
+                    "old_panel": original["top"],
+                    "proposal_present": "top" in requested,
+                    "proposed_mesh": desired["top"] if "top" in requested else original["top"]["mesh"]}
+            row["kept_old_sides"].append(kept)
+            kept_old_sides.append(kept)
+        elif "top" in requested:
             top = dict(original["top"])
             top["mesh"] = desired["top"]
             top["material_overrides"] = []
@@ -95,7 +148,7 @@ def run(config_path=None):
                 planned_meshes.add(desired["top"])
         else:
             row["top"] = original["top"]
-        if row["changed_sides"]:
+        if row["changed_sides"] or row["kept_old_sides"]:
             plan.append(row)
 
     required_hits = int(config.get("required_exclusion_hits", 0))
@@ -107,6 +160,9 @@ def run(config_path=None):
     leaked = sorted(planned_meshes & forbidden_paths)
     if leaked:
         raise RuntimeError("EXCLUDED_ASSET_PLANNED|" + json.dumps(leaked))
+    if unexplained_overreach:
+        raise RuntimeError("UNEXPLAINED_OVERREACH_FLAGS|count=%d" %
+                           len(unexplained_overreach))
     mesh_gates = {}
     for path in sorted(planned_meshes):
         mesh = unreal.EditorAssetLibrary.load_asset(path)
@@ -126,13 +182,18 @@ def run(config_path=None):
         "row_count": len(plan), "mesh_gates": mesh_gates,
         "excluded_rows_kept_old": excluded_hits,
         "overreach_flags": overreach_flags,
+        "overreach_tolerance_cm": tolerance_cm,
+        "within_tolerance_overreach_flags": within_tolerance,
+        "unexplained_overreach_flags": unexplained_overreach,
+        "kept_old_sides": kept_old_sides,
         "lateral_derivation": "each side independently: new backbone Y equals the old transformed offstage edge Y; never symmetrise; print and flag overreach",
         "materialize_calls": [config["passage"]], "dirty_after": c.census(),
     }
     path = c.write_json(config, "dry_run", doc)
-    unreal.log("%s run=%s rows=%d materialize=[%s] overreach_flags=%d excluded_kept=%d plan=%s" %
+    unreal.log("%s run=%s rows=%d materialize=[%s] overreach_flags=%d within_tolerance=%d unexplained=%d kept_old_sides=%d excluded_kept=%d plan=%s" %
                (c.marker(config, "DRY_RUN"), config["run_id"], len(plan), config["passage"],
-                len(overreach_flags), len(excluded_hits), path))
+                len(overreach_flags), len(within_tolerance), len(unexplained_overreach),
+                len(kept_old_sides), len(excluded_hits), path))
     return doc
 
 
