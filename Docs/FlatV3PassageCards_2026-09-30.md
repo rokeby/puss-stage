@@ -52,6 +52,14 @@ deteriorates by other means (scaffold, peel, fire, monochrome).
   rebuilt. New family: chain-link fence sections (tarp, barbed wire; Blender,
   `BlenderTest/FenceShutter`) OVERGROWN with lurid plants, alternating with free
   lurid plant masses; the brown piping can still increase toward the shrine.
+- **Structure of the redo (Gary, 2 Oct):** a CONTRAST ALTERNATION between a FEW
+  good plant wing sets and a FEW good chain-link fence or other industrial/urban
+  sets, with a smattering of more MYSTICAL wings leading up to the shrine
+  (something structural, or a bit of a ruin). The ~60 positions do NOT need to be
+  unique or a graded progression ("that didn't work too well before"): reuse a
+  small family set across the passage. Roughly: 3-4 plant pairs, 3-4
+  fence/industrial pairs (fence, tarp, shutter, pipes, vent bulk), 2-3 mystical
+  pairs near the shrine (e.g. a ruined arch or shrine fragment, a bronze-tree echo).
 
 - **Mood:** darker, continuing "the uncanny animals story at the pond, next to
   the train wreck"; a "magic realist anthropocene feel of these mundane
