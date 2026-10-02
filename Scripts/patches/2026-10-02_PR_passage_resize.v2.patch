@@ -1,0 +1,1045 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStagePassageResizeLibrary.h b/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStagePassageResizeLibrary.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..216846e0b0a3af97f7506c30273ee7c16d78d6c1
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Public/InfinityStagePassageResizeLibrary.h
+@@ -0,0 +1,172 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Kismet/BlueprintFunctionLibrary.h"
++#include "InfinityStagePassageResizeLibrary.generated.h"
++
++class UInfinityStageShowAsset;
++class ULevelSequence;
++class UWorld;
++
++UENUM(BlueprintType)
++enum class EInfinityPassageResizePolicy : uint8
++{
++    PreserveSpeedAndSpacing
++};
++
++USTRUCT(BlueprintType)
++struct INFINITYSTAGEEDITOR_API FInfinityPassageCueIndexShift
++{
++    GENERATED_BODY()
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FGuid CueGuid;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    int32 OldIndex = INDEX_NONE;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    int32 NewIndex = INDEX_NONE;
++};
++
++USTRUCT(BlueprintType)
++struct INFINITYSTAGEEDITOR_API FInfinityPassageManagedSectionMove
++{
++    GENERATED_BODY()
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FString Kind;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FGuid BlockGuid;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FFrameNumber OldStartFrame = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FFrameNumber NewStartFrame = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FFrameNumber OldEndFrame = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FFrameNumber NewEndFrame = 0;
++};
++
++USTRUCT(BlueprintType)
++struct INFINITYSTAGEEDITOR_API FInfinityPassageResizePlan
++{
++    GENERATED_BODY()
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    bool bCanApply = false;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    bool bApplied = false;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FGuid PassageGuid;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double TargetSeconds = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    int32 OldWingPairCount = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    int32 NewWingPairCount = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    int32 PairsAppended = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double OldDurationSeconds = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double NewDurationSeconds = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double OldRouteLengthCm = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double NewRouteLengthCm = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double RouteSplineLengthCm = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    bool bRouteIsShaped = false;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double ResidualDistanceAbsorbedCm = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FFrameNumber NewTailFrames = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    double NewTailDistanceCm = 0.0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FVector OldWorldExtentMin = FVector::ZeroVector;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FVector OldWorldExtentMax = FVector::ZeroVector;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FVector NewWorldExtentMin = FVector::ZeroVector;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FVector NewWorldExtentMax = FVector::ZeroVector;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FFrameNumber MasterPlaybackRangeDelta = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FGuid> LocalOverrideCueGuids;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FString> LocalOverrideRows;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FInfinityPassageCueIndexShift> LaterCueIndexShifts;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FInfinityPassageManagedSectionMove> ManagedSectionsMoving;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FString> ArtistOwnedMasterContentNotRippled;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FString> OverlapActors;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FString> RefusalReasons;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    TArray<FString> Warnings;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Passage Resize")
++    FString Report;
++};
++
++/** Narrow editor-only data operation. It never saves, materializes, rebuilds the
++ * Master, rematches a handoff, or edits the route. Those remain explicit guarded
++ * orchestration steps after a successful APPLY and backup. */
++UCLASS()
++class INFINITYSTAGEEDITOR_API UInfinityStagePassageResizeLibrary : public UBlueprintFunctionLibrary
++{
++    GENERATED_BODY()
++
++public:
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Passage Resize",
++        meta = (AdvancedDisplay = "bAcceptOverrideLoss"))
++    static FInfinityPassageResizePlan ResizePassageToDuration(
++        UInfinityStageShowAsset* Show,
++        UWorld* BindingWorld,
++        ULevelSequence* MasterSequence,
++        FGuid PassageGuid,
++        double TargetSeconds,
++        EInfinityPassageResizePolicy Policy = EInfinityPassageResizePolicy::PreserveSpeedAndSpacing,
++        bool bDryRun = true,
++        bool bAcceptOverrideLoss = false);
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..b7893ad7f89dd93bf049d8d9da074d034c372a0b
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp
+@@ -0,0 +1,630 @@
++#include "InfinityStagePassageResizeLibrary.h"
++
++#include "Channels/MovieSceneChannel.h"
++#include "Channels/MovieSceneChannelProxy.h"
++#include "Components/SplineComponent.h"
++#include "EngineUtils.h"
++#include "InfinityStageCompiler.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageWingSequenceInterchange.h"
++#include "LevelSequence.h"
++#include "MovieScene.h"
++#include "MovieSceneInfinityAudioTrack.h"
++#include "MovieSceneInfinityPassageTrack.h"
++#include "MovieSceneInfinitySceneTrack.h"
++#include "MovieSceneSection.h"
++#include "MovieSceneTrack.h"
++#include "ScopedTransaction.h"
++
++namespace
++{
++constexpr double DurationToleranceSeconds = 0.0005;
++constexpr double DistanceToleranceCm = 0.01;
++
++const FInfinityCompiledPassage* FindCompiledPassage(
++    const FInfinityCompileResult& Compiled,
++    const FGuid PassageGuid)
++{
++    return Compiled.Passages.FindByPredicate([PassageGuid](const FInfinityCompiledPassage& Candidate)
++    {
++        return Candidate.PassageGuid == PassageGuid;
++    });
++}
++
++FInfinityPassageSettings* FindSettings(UInfinityStageShowAsset& Show, const FGuid PassageGuid)
++{
++    return Show.PassageSettings.FindByPredicate([PassageGuid](const FInfinityPassageSettings& Candidate)
++    {
++        return Candidate.PassageGuid == PassageGuid;
++    });
++}
++
++const FInfinityPassageSettings* FindSettings(const UInfinityStageShowAsset& Show, const FGuid PassageGuid)
++{
++    return Show.PassageSettings.FindByPredicate([PassageGuid](const FInfinityPassageSettings& Candidate)
++    {
++        return Candidate.PassageGuid == PassageGuid;
++    });
++}
++
++AInfinityStagePassageActor* FindPassageActor(
++    UWorld* World,
++    const UInfinityStageShowAsset* Show,
++    const FGuid PassageGuid)
++{
++    if (!World)
++    {
++        return nullptr;
++    }
++    for (TActorIterator<AInfinityStagePassageActor> It(World); It; ++It)
++    {
++        if (It->ShowAsset == Show && It->PassageGuid == PassageGuid)
++        {
++            return *It;
++        }
++    }
++    return nullptr;
++}
++
++bool IsShapedRoute(const USplineComponent& Route)
++{
++    const int32 PointCount = Route.GetNumberOfSplinePoints();
++    if (PointCount > 2)
++    {
++        return true;
++    }
++    for (int32 PointIndex = 0; PointIndex < PointCount; ++PointIndex)
++    {
++        const FVector Location = Route.GetLocationAtSplinePoint(PointIndex, ESplineCoordinateSpace::Local);
++        if (FMath::Abs(Location.Y) > 1.0 || FMath::Abs(Location.Z) > 1.0)
++        {
++            return true;
++        }
++    }
++    return false;
++}
++
++FBox RouteWorldExtent(const AInfinityStagePassageActor& Actor, const double RequiredDistanceCm)
++{
++    FBox Bounds(EForceInit::ForceInit);
++    if (!Actor.Route)
++    {
++        return Bounds;
++    }
++    const double SplineLengthCm = Actor.Route->GetSplineLength();
++    const double SampledDistanceCm = FMath::Min(RequiredDistanceCm, SplineLengthCm);
++    constexpr int32 SampleCount = 32;
++    for (int32 Index = 0; Index <= SampleCount; ++Index)
++    {
++        const double DistanceCm = SampledDistanceCm * static_cast<double>(Index) / SampleCount;
++        Bounds += Actor.Route->GetLocationAtDistanceAlongSpline(DistanceCm, ESplineCoordinateSpace::World);
++    }
++    if (RequiredDistanceCm > SplineLengthCm && !IsShapedRoute(*Actor.Route))
++    {
++        const FVector End = Actor.Route->GetLocationAtDistanceAlongSpline(
++            SplineLengthCm,
++            ESplineCoordinateSpace::World);
++        const FVector Direction = Actor.Route->GetDirectionAtDistanceAlongSpline(
++            SplineLengthCm,
++            ESplineCoordinateSpace::World).GetSafeNormal();
++        Bounds += End + Direction * (RequiredDistanceCm - SplineLengthCm);
++    }
++    return Bounds.ExpandBy(1.0);
++}
++
++bool IsManagedTrackForShow(const UMovieSceneTrack& Track, const FGuid ShowGuid)
++{
++    if (const UMovieSceneInfinityPassageTrack* Passage = Cast<UMovieSceneInfinityPassageTrack>(&Track))
++    {
++        return Passage->OwnerGuid == ShowGuid;
++    }
++    if (const UMovieSceneInfinitySceneTrack* Scene = Cast<UMovieSceneInfinitySceneTrack>(&Track))
++    {
++        return Scene->OwnerGuid == ShowGuid;
++    }
++    if (const UMovieSceneInfinityAudioTrack* Audio = Cast<UMovieSceneInfinityAudioTrack>(&Track))
++    {
++        return Audio->OwnerGuid == ShowGuid;
++    }
++    return false;
++}
++
++void RecordArtistOwnedContent(
++    const UInfinityStageShowAsset& Show,
++    const ULevelSequence* MasterSequence,
++    TArray<FString>& OutItems)
++{
++    OutItems.Reset();
++    const UMovieScene* MovieScene = MasterSequence ? MasterSequence->GetMovieScene() : nullptr;
++    if (!MovieScene)
++    {
++        OutItems.Add(TEXT("UNCLEAR: no Master Movie Scene was supplied; artist content was not inspected."));
++        return;
++    }
++    for (const FMovieSceneMarkedFrame& Marker : MovieScene->GetMarkedFrames())
++    {
++        OutItems.Add(FString::Printf(
++            TEXT("marker label='%s' frame=%d"),
++            *Marker.Label,
++            Marker.FrameNumber.Value));
++    }
++    auto RecordTrack = [&Show, &OutItems](const UMovieSceneTrack* Track, const FString& Owner)
++    {
++        if (!Track || IsManagedTrackForShow(*Track, Show.ShowGuid))
++        {
++            return;
++        }
++        int32 KeyCount = 0;
++        for (const UMovieSceneSection* Section : Track->GetAllSections())
++        {
++            if (!Section)
++            {
++                continue;
++            }
++            for (const FMovieSceneChannelEntry& Entry : Section->GetChannelProxy().GetAllEntries())
++            {
++                for (const FMovieSceneChannel* Channel : Entry.GetChannels())
++                {
++                    KeyCount += Channel ? Channel->GetNumKeys() : 0;
++                }
++            }
++        }
++        OutItems.Add(FString::Printf(
++            TEXT("owner=%s track='%s' class=%s sections=%d keys=%d"),
++            *Owner,
++            *Track->GetDisplayName().ToString(),
++            *Track->GetClass()->GetName(),
++            Track->GetAllSections().Num(),
++            KeyCount));
++    };
++    for (const UMovieSceneTrack* Track : MovieScene->GetTracks())
++    {
++        RecordTrack(Track, TEXT("root"));
++    }
++    for (const FMovieSceneBinding& Binding : MovieScene->GetBindings())
++    {
++        const FString Owner = FString::Printf(
++            TEXT("binding:%s:%s"),
++            *Binding.GetObjectGuid().ToString(EGuidFormats::DigitsWithHyphens),
++            *Binding.GetName());
++        for (const UMovieSceneTrack* Track : Binding.GetTracks())
++        {
++            RecordTrack(Track, Owner);
++        }
++    }
++}
++
++void AddManagedMoves(
++    const FInfinityCompileResult& Before,
++    const FInfinityCompileResult& After,
++    TArray<FInfinityPassageManagedSectionMove>& OutMoves)
++{
++    OutMoves.Reset();
++    for (const FInfinityCompiledPassage& OldPassage : Before.Passages)
++    {
++        const FInfinityCompiledPassage* NewPassage = FindCompiledPassage(After, OldPassage.PassageGuid);
++        if (!NewPassage || (OldPassage.SegmentStartFrame == NewPassage->SegmentStartFrame
++            && OldPassage.SegmentEndFrame == NewPassage->SegmentEndFrame))
++        {
++            continue;
++        }
++        FInfinityPassageManagedSectionMove& Move = OutMoves.AddDefaulted_GetRef();
++        Move.Kind = TEXT("Passage");
++        Move.BlockGuid = OldPassage.PassageGuid;
++        Move.OldStartFrame = OldPassage.SegmentStartFrame;
++        Move.NewStartFrame = NewPassage->SegmentStartFrame;
++        Move.OldEndFrame = OldPassage.SegmentEndFrame;
++        Move.NewEndFrame = NewPassage->SegmentEndFrame;
++    }
++    for (const FInfinityCompiledSegment& OldSegment : Before.Segments)
++    {
++        const FInfinityCompiledSegment* NewSegment = After.Segments.FindByPredicate(
++            [&OldSegment](const FInfinityCompiledSegment& Candidate)
++            {
++                return Candidate.SegmentGuid == OldSegment.SegmentGuid;
++            });
++        if (!NewSegment || (OldSegment.StartFrame == NewSegment->StartFrame
++            && OldSegment.EndFrame == NewSegment->EndFrame))
++        {
++            continue;
++        }
++        FInfinityPassageManagedSectionMove& Move = OutMoves.AddDefaulted_GetRef();
++        Move.Kind = TEXT("SceneOrSequence");
++        Move.BlockGuid = OldSegment.SegmentGuid;
++        Move.OldStartFrame = OldSegment.StartFrame;
++        Move.NewStartFrame = NewSegment->StartFrame;
++        Move.OldEndFrame = OldSegment.EndFrame;
++        Move.NewEndFrame = NewSegment->EndFrame;
++    }
++}
++
++bool ApplyResizeData(
++    UInfinityStageShowAsset& Show,
++    const FGuid PassageGuid,
++    const int32 DesiredCount,
++    const FFrameNumber IntervalFrames,
++    const FFrameNumber LeadFrames,
++    const FFrameNumber TailFrames,
++    const double SpacingCm,
++    const double TailDistanceCm,
++    FString& OutError)
++{
++    TArray<int32> AffectedIndices;
++    if (!FInfinityStageWingSequenceInterchange::ResizePassageToCountPreservingPattern(
++        Show,
++        PassageGuid,
++        DesiredCount,
++        IntervalFrames,
++        SpacingCm,
++        AffectedIndices,
++        OutError))
++    {
++        return false;
++    }
++    FInfinityPassageSettings* Settings = FindSettings(Show, PassageGuid);
++    if (!Settings)
++    {
++        OutError = TEXT("The resized Passage settings could not be recovered.");
++        return false;
++    }
++    Settings->FitMode = EInfinityPassageFitMode::ManualPassage;
++    Settings->LeadInFrames = LeadFrames;
++    Settings->TailFrames = TailFrames;
++    Settings->PreferredSpacingCm = SpacingCm;
++    Settings->TailDistanceCm = TailDistanceCm;
++    return true;
++}
++}
++
++FInfinityPassageResizePlan UInfinityStagePassageResizeLibrary::ResizePassageToDuration(
++    UInfinityStageShowAsset* Show,
++    UWorld* BindingWorld,
++    ULevelSequence* MasterSequence,
++    const FGuid PassageGuid,
++    const double TargetSeconds,
++    const EInfinityPassageResizePolicy Policy,
++    const bool bDryRun,
++    const bool bAcceptOverrideLoss)
++{
++    FInfinityPassageResizePlan Plan;
++    Plan.PassageGuid = PassageGuid;
++    Plan.TargetSeconds = TargetSeconds;
++    if (!Show)
++    {
++        Plan.RefusalReasons.Add(TEXT("Show is null."));
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: Show is null.");
++        return Plan;
++    }
++    if (Policy != EInfinityPassageResizePolicy::PreserveSpeedAndSpacing)
++    {
++        Plan.RefusalReasons.Add(TEXT("Only PreserveSpeedAndSpacing is implemented."));
++    }
++    if (TargetSeconds <= 0.0 || Show->TickResolution.AsDecimal() <= 0.0)
++    {
++        Plan.RefusalReasons.Add(TEXT("Target duration and Show tick resolution must be positive."));
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: target duration or tick resolution is non-positive.");
++        return Plan;
++    }
++
++    const FInfinityPassageSettings* Settings = FindSettings(*Show, PassageGuid);
++    const FInfinityCompileResult Before = FInfinityStageCompiler::Compile(*Show);
++    const FInfinityCompiledPassage* OldPassage = FindCompiledPassage(Before, PassageGuid);
++    if (!Settings || !OldPassage)
++    {
++        Plan.RefusalReasons.Add(TEXT("PassageGuid does not resolve to compiled Passage settings."));
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: PassageGuid did not resolve.");
++        return Plan;
++    }
++    if (Before.HasErrors())
++    {
++        Plan.RefusalReasons.Add(TEXT("The source Show has compile errors."));
++    }
++
++    const int32 OldFirstIndex = OldPassage->FirstCueIndex;
++    const int32 OldLastIndex = OldPassage->LastCueIndex;
++    TArray<FGuid> ExistingCueGuids;
++    TArray<FGuid> ExistingOccurrenceGuids;
++    for (int32 Index = OldFirstIndex; Index <= OldLastIndex; ++Index)
++    {
++        ExistingCueGuids.Add(Show->Cues[Index].CueGuid);
++        ExistingOccurrenceGuids.Add(Show->Cues[Index].WingPair.OccurrenceGuid);
++    }
++    Plan.OldWingPairCount = OldPassage->Wings.Num();
++    const double TickRate = Show->TickResolution.AsDecimal();
++    Plan.OldDurationSeconds =
++        (OldPassage->SegmentEndFrame - OldPassage->SegmentStartFrame).Value / TickRate;
++    Plan.OldRouteLengthCm = OldPassage->TotalDistanceCm;
++
++    const int32 OverrideMask = static_cast<int32>(EInfinityLocalOverride::IntervalToNext)
++        | static_cast<int32>(EInfinityLocalOverride::GapToNext);
++    for (int32 Index = OldFirstIndex; Index <= OldLastIndex; ++Index)
++    {
++        if (Show->Cues.IsValidIndex(Index)
++            && (Show->Cues[Index].WingPair.LocalOverrideMask & OverrideMask) != 0)
++        {
++            Plan.LocalOverrideCueGuids.Add(Show->Cues[Index].CueGuid);
++            Plan.LocalOverrideRows.Add(FString::Printf(
++                TEXT("label='%s' guid=%s bits=%d"),
++                *Show->Cues[Index].Label.ToString(),
++                *Show->Cues[Index].CueGuid.ToString(EGuidFormats::DigitsWithHyphens),
++                Show->Cues[Index].WingPair.LocalOverrideMask));
++        }
++    }
++    if (!Plan.LocalOverrideCueGuids.IsEmpty() && !bAcceptOverrideLoss)
++    {
++        Plan.RefusalReasons.Add(FString::Printf(
++            TEXT("%d Wing Pair row(s) have local interval/gap overrides; pass bAcceptOverrideLoss=true to erase them."),
++            Plan.LocalOverrideCueGuids.Num()));
++    }
++
++    const int64 TargetFrame64 = FMath::RoundToInt64(TargetSeconds * TickRate);
++    if (TargetFrame64 < 1 || TargetFrame64 > MAX_int32)
++    {
++        Plan.RefusalReasons.Add(TEXT("Target duration is outside the supported frame range."));
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: invalid target frame.");
++        return Plan;
++    }
++    const FFrameNumber TargetFrames(static_cast<int32>(TargetFrame64));
++    const double RepresentedTargetSeconds = TargetFrames.Value / TickRate;
++    if (!FMath::IsNearlyEqual(RepresentedTargetSeconds, TargetSeconds, DurationToleranceSeconds))
++    {
++        Plan.RefusalReasons.Add(TEXT("Target duration is not exactly representable to three decimals at this tick resolution."));
++    }
++
++    const FInfinityPassageFitResult Fit = FInfinityStageCompiler::FitPassage({
++        TargetSeconds,
++        Settings->PreferredCameraSpeedCmPerSecond,
++        Settings->PreferredSpacingCm,
++        Settings->LeadInDistanceCm,
++        Settings->TailDistanceCm});
++    if (!Fit.bValid)
++    {
++        Plan.RefusalReasons.Add(Fit.Error);
++        Plan.Report = FString::Printf(TEXT("PASSAGE_RESIZE_REFUSED: %s"), *Fit.Error);
++        return Plan;
++    }
++    Plan.NewWingPairCount = Fit.WingPairCount;
++    Plan.PairsAppended = FMath::Max(0, Plan.NewWingPairCount - Plan.OldWingPairCount);
++
++    const FFrameNumber IntervalFrames(FMath::Max(1, FMath::RoundToInt(
++        (Settings->PreferredSpacingCm / Settings->PreferredCameraSpeedCmPerSecond) * TickRate)));
++    const FFrameNumber LeadFrames(FMath::Max(0, FMath::RoundToInt(
++        (Settings->LeadInDistanceCm / Settings->PreferredCameraSpeedCmPerSecond) * TickRate)));
++    const int64 TailFrame64 = TargetFrames.Value - LeadFrames.Value
++        - static_cast<int64>(Plan.NewWingPairCount - 1) * IntervalFrames.Value;
++    if (TailFrame64 < 0 || TailFrame64 > MAX_int32)
++    {
++        Plan.RefusalReasons.Add(TEXT("The frame residual cannot close in a non-negative TailFrames value."));
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: frame residual did not close.");
++        return Plan;
++    }
++    Plan.NewTailFrames = FFrameNumber(static_cast<int32>(TailFrame64));
++    Plan.NewTailDistanceCm = Plan.NewTailFrames.Value / TickRate
++        * Settings->PreferredCameraSpeedCmPerSecond;
++    Plan.ResidualDistanceAbsorbedCm = Plan.NewTailDistanceCm - Settings->TailDistanceCm;
++
++    UInfinityStageShowAsset* PlannedShow = DuplicateObject<UInfinityStageShowAsset>(Show, GetTransientPackage());
++    FString ResizeReport;
++    if (!PlannedShow || !ApplyResizeData(
++        *PlannedShow,
++        PassageGuid,
++        Plan.NewWingPairCount,
++        IntervalFrames,
++        LeadFrames,
++        Plan.NewTailFrames,
++        Settings->PreferredSpacingCm,
++        Plan.NewTailDistanceCm,
++        ResizeReport))
++    {
++        Plan.RefusalReasons.Add(ResizeReport.IsEmpty()
++            ? TEXT("The side-effect-free resize simulation failed.")
++            : ResizeReport);
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: resize simulation failed.");
++        return Plan;
++    }
++
++    const FInfinityCompileResult After = FInfinityStageCompiler::Compile(*PlannedShow);
++    const FInfinityCompiledPassage* NewPassage = FindCompiledPassage(After, PassageGuid);
++    if (After.HasErrors() || !NewPassage)
++    {
++        Plan.RefusalReasons.Add(TEXT("The resized Show does not compile cleanly."));
++        Plan.Report = TEXT("PASSAGE_RESIZE_REFUSED: resized Show did not compile.");
++        return Plan;
++    }
++    const int32 PreservedCount = FMath::Min(Plan.OldWingPairCount, Plan.NewWingPairCount);
++    TSet<FGuid> SeenCueGuids;
++    TSet<FGuid> SeenOccurrenceGuids;
++    for (int32 Ordinal = 0; Ordinal < Plan.NewWingPairCount; ++Ordinal)
++    {
++        const int32 CueIndex = NewPassage->FirstCueIndex + Ordinal;
++        if (!PlannedShow->Cues.IsValidIndex(CueIndex))
++        {
++            Plan.RefusalReasons.Add(TEXT("The resize simulation produced a truncated Passage range."));
++            break;
++        }
++        const FInfinityShowCue& Cue = PlannedShow->Cues[CueIndex];
++        if (!Cue.CueGuid.IsValid() || SeenCueGuids.Contains(Cue.CueGuid)
++            || !Cue.WingPair.OccurrenceGuid.IsValid()
++            || SeenOccurrenceGuids.Contains(Cue.WingPair.OccurrenceGuid))
++        {
++            Plan.RefusalReasons.Add(TEXT("The resize simulation produced an invalid or duplicate cue/occurrence GUID."));
++            break;
++        }
++        SeenCueGuids.Add(Cue.CueGuid);
++        SeenOccurrenceGuids.Add(Cue.WingPair.OccurrenceGuid);
++        if (Ordinal < PreservedCount
++            && (Cue.CueGuid != ExistingCueGuids[Ordinal]
++                || Cue.WingPair.OccurrenceGuid != ExistingOccurrenceGuids[Ordinal]))
++        {
++            Plan.RefusalReasons.Add(FString::Printf(
++                TEXT("Existing Wing Pair identity/order changed at ordinal %d."),
++                Ordinal));
++            break;
++        }
++        if (Ordinal >= Plan.OldWingPairCount
++            && (ExistingCueGuids.Contains(Cue.CueGuid)
++                || ExistingOccurrenceGuids.Contains(Cue.WingPair.OccurrenceGuid)))
++        {
++            Plan.RefusalReasons.Add(FString::Printf(
++                TEXT("Appended Wing Pair at ordinal %d reused an existing GUID."),
++                Ordinal));
++            break;
++        }
++    }
++    Plan.NewDurationSeconds =
++        (NewPassage->SegmentEndFrame - NewPassage->SegmentStartFrame).Value / TickRate;
++    Plan.NewRouteLengthCm = NewPassage->TotalDistanceCm;
++    if (!FMath::IsNearlyEqual(Plan.NewDurationSeconds, TargetSeconds, DurationToleranceSeconds))
++    {
++        Plan.RefusalReasons.Add(FString::Printf(
++            TEXT("Residual did not close: compiled %.9f s, requested %.9f s."),
++            Plan.NewDurationSeconds,
++            TargetSeconds));
++    }
++
++    for (int32 OldIndex = OldLastIndex + 1; OldIndex < Show->Cues.Num(); ++OldIndex)
++    {
++        const FGuid CueGuid = Show->Cues[OldIndex].CueGuid;
++        const int32 NewIndex = PlannedShow->FindCueIndex(CueGuid);
++        FInfinityPassageCueIndexShift& Shift = Plan.LaterCueIndexShifts.AddDefaulted_GetRef();
++        Shift.CueGuid = CueGuid;
++        Shift.OldIndex = OldIndex;
++        Shift.NewIndex = NewIndex;
++        if (NewIndex == INDEX_NONE)
++        {
++            Plan.RefusalReasons.Add(FString::Printf(
++                TEXT("Later cue %s disappeared during the resize simulation."),
++                *CueGuid.ToString(EGuidFormats::DigitsWithHyphens)));
++        }
++    }
++    if (!Plan.LaterCueIndexShifts.IsEmpty())
++    {
++        Plan.Warnings.Add(TEXT("Regenerate all external index+GUID swap plans, including Wings and Textures, after APPLY."));
++    }
++    Plan.MasterPlaybackRangeDelta = After.ShowEndFrame - Before.ShowEndFrame;
++    AddManagedMoves(Before, After, Plan.ManagedSectionsMoving);
++    RecordArtistOwnedContent(*Show, MasterSequence, Plan.ArtistOwnedMasterContentNotRippled);
++
++    AInfinityStagePassageActor* PassageActor = FindPassageActor(BindingWorld, Show, PassageGuid);
++    if (!PassageActor || !PassageActor->Route)
++    {
++        Plan.RefusalReasons.Add(TEXT("No matching Passage actor/route exists in BindingWorld; physical extent is unverified."));
++    }
++    else
++    {
++        Plan.RouteSplineLengthCm = PassageActor->Route->GetSplineLength();
++        Plan.bRouteIsShaped = IsShapedRoute(*PassageActor->Route);
++        const FBox OldExtent = RouteWorldExtent(*PassageActor, Plan.OldRouteLengthCm);
++        const FBox NewExtent = RouteWorldExtent(*PassageActor, Plan.NewRouteLengthCm);
++        if (OldExtent.IsValid)
++        {
++            Plan.OldWorldExtentMin = OldExtent.Min;
++            Plan.OldWorldExtentMax = OldExtent.Max;
++        }
++        if (NewExtent.IsValid)
++        {
++            Plan.NewWorldExtentMin = NewExtent.Min;
++            Plan.NewWorldExtentMax = NewExtent.Max;
++        }
++        const bool bRouteShort =
++            Plan.RouteSplineLengthCm + DistanceToleranceCm < Plan.NewRouteLengthCm;
++        if (bRouteShort && Plan.bRouteIsShaped)
++        {
++            Plan.RefusalReasons.Add(FString::Printf(
++                TEXT("Shaped route is %.3f cm; %.3f cm is required and Auto Fit would overwrite it."),
++                Plan.RouteSplineLengthCm,
++                Plan.NewRouteLengthCm));
++        }
++        else if (bRouteShort && !PassageActor->bAutoFitStraightRoute)
++        {
++            Plan.RefusalReasons.Add(FString::Printf(
++                TEXT("Route is %.3f cm; %.3f cm is required and Auto Fit is disabled."),
++                Plan.RouteSplineLengthCm,
++                Plan.NewRouteLengthCm));
++        }
++
++        if (NewExtent.IsValid)
++        {
++            for (TActorIterator<AActor> It(BindingWorld); It; ++It)
++            {
++                AActor* Other = *It;
++                if (!Other || Other == PassageActor)
++                {
++                    continue;
++                }
++                const bool bNeighbourPassage = Other->IsA<AInfinityStagePassageActor>();
++                const bool bHangar = Other->ActorHasTag(FName(TEXT("RigAtmos.Hangar")));
++                if (!bNeighbourPassage && !bHangar)
++                {
++                    continue;
++                }
++                const FBox OtherBounds = Other->GetComponentsBoundingBox(true);
++                if (OtherBounds.IsValid && NewExtent.Intersect(OtherBounds)
++                    && (!OldExtent.IsValid || !OldExtent.Intersect(OtherBounds)))
++                {
++                    Plan.OverlapActors.AddUnique(Other->GetActorLabel());
++                }
++            }
++        }
++        if (!Plan.OverlapActors.IsEmpty())
++        {
++            Plan.RefusalReasons.Add(FString::Printf(
++                TEXT("The added world extent overlaps %d neighbouring Passage/hangar actor(s)."),
++                Plan.OverlapActors.Num()));
++        }
++    }
++
++    Plan.bCanApply = Plan.RefusalReasons.IsEmpty();
++    if (!bDryRun && Plan.bCanApply)
++    {
++        FScopedTransaction Transaction(NSLOCTEXT(
++            "InfinityStage",
++            "ResizePassageToDurationTransaction",
++            "Resize Passage To Duration"));
++        const TArray<FInfinityShowCue> CuesBefore = Show->Cues;
++        const TArray<FInfinityPassageSettings> PassageSettingsBefore = Show->PassageSettings;
++        Show->Modify();
++        FString ApplyReport;
++        if (!ApplyResizeData(
++            *Show,
++            PassageGuid,
++            Plan.NewWingPairCount,
++            IntervalFrames,
++            LeadFrames,
++            Plan.NewTailFrames,
++            Settings->PreferredSpacingCm,
++            Plan.NewTailDistanceCm,
++            ApplyReport))
++        {
++            Show->Cues = CuesBefore;
++            Show->PassageSettings = PassageSettingsBefore;
++            Transaction.Cancel();
++            Plan.bCanApply = false;
++            Plan.RefusalReasons.Add(ApplyReport);
++        }
++        else
++        {
++            Show->MarkPackageDirty();
++            Plan.bApplied = true;
++            Plan.Warnings.Add(TEXT(
++                "Show data changed only: materialize this Passage, rebuild the Master, rematch the following Scene, then targeted-save and read back."));
++        }
++    }
++
++    Plan.Report = FString::Printf(
++        TEXT("PASSAGE_RESIZE_%s passage=%s old_count=%d new_count=%d appended=%d old_s=%.3f new_s=%.3f old_cm=%.3f new_cm=%.3f master_delta=%d refusals=%d artist_items=%d"),
++        Plan.bApplied ? TEXT("APPLIED") : (Plan.bCanApply ? TEXT("DRY_OK") : TEXT("REFUSED")),
++        *PassageGuid.ToString(EGuidFormats::DigitsWithHyphens),
++        Plan.OldWingPairCount,
++        Plan.NewWingPairCount,
++        Plan.PairsAppended,
++        Plan.OldDurationSeconds,
++        Plan.NewDurationSeconds,
++        Plan.OldRouteLengthCm,
++        Plan.NewRouteLengthCm,
++        Plan.MasterPlaybackRangeDelta.Value,
++        Plan.RefusalReasons.Num(),
++        Plan.ArtistOwnedMasterContentNotRippled.Num());
++    return Plan;
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/InfinityStageTests.Build.cs b/Plugins/InfinityStage/Source/InfinityStageTests/InfinityStageTests.Build.cs
+index d59bf1d954b99da102607e7307a9cc7bbe97cf1e..3b6b09c32c20498bae44049034ccf41f3fd32ca7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/InfinityStageTests.Build.cs
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/InfinityStageTests.Build.cs
+@@ -16,7 +16,8 @@ public class InfinityStageTests : ModuleRules
+             "GeometryCache",
+             "GeometryCacheTracks",
+             "LevelSequence",
+-            "InfinityStage"
++            "InfinityStage",
++            "InfinityStageEditor"
+         });
+     }
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStagePassageResizeTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStagePassageResizeTests.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..b7841c686bbd5d5937f3f9c3ba852c69b0fcc29b
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStagePassageResizeTests.cpp
+@@ -0,0 +1,211 @@
++#include "InfinityStagePassageResizeLibrary.h"
++
++#include "Components/SplineComponent.h"
++#include "Engine/World.h"
++#include "InfinityStageCompiler.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
++
++namespace
++{
++struct FPassageResizeFixture
++{
++    UInfinityStageShowAsset* Show = nullptr;
++    UWorld* World = nullptr;
++    AInfinityStagePassageActor* PassageActor = nullptr;
++    FGuid PassageGuid;
++    TArray<FGuid> OriginalCueGuids;
++    TArray<FGuid> OriginalOccurrenceGuids;
++
++    FPassageResizeFixture()
++    {
++        Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++        for (int32 Index = 0; Index < 23; ++Index)
++        {
++            FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++            Cue.Type = EInfinityCueType::WingPair;
++            Cue.CueGuid = FGuid::NewGuid();
++            Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++            Cue.WingPair.IntervalToNext = FFrameNumber(48000); // two seconds at 24 kHz
++            Cue.WingPair.GapToNextCm = 500.0;
++            Cue.Label = FText::Format(
++                NSLOCTEXT("InfinityStageTests", "ResizeWingLabel", "Test Wing {0}"),
++                FText::AsNumber(Index + 1));
++            OriginalCueGuids.Add(Cue.CueGuid);
++            OriginalOccurrenceGuids.Add(Cue.WingPair.OccurrenceGuid);
++        }
++        Show->EnsureStableIds();
++        Show->ReconcilePassageSettings();
++        check(Show->PassageSettings.Num() == 1);
++        FInfinityPassageSettings& Settings = Show->PassageSettings[0];
++        PassageGuid = Settings.PassageGuid;
++        Settings.Label = FText::FromString(TEXT("Test Passage"));
++        Settings.FitMode = EInfinityPassageFitMode::ManualPassage;
++        Settings.PreferredCameraSpeedCmPerSecond = 250.0;
++        Settings.PreferredSpacingCm = 500.0;
++        Settings.LeadInFrames = FFrameNumber(0);
++        Settings.TailFrames = FFrameNumber(81600); // 44.0 + 3.4 = 47.4 seconds
++        Settings.LeadInDistanceCm = 0.0;
++        // A 350 cm physical tail makes the 180 s fit select 90 pairs; the exact
++        // frame residual is then explicitly absorbed as a 500 cm / 2 s tail.
++        Settings.TailDistanceCm = 350.0;
++
++        World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        PassageActor = World->SpawnActor<AInfinityStagePassageActor>();
++        PassageActor->ShowAsset = Show;
++        PassageActor->PassageGuid = PassageGuid;
++        SetStraightRoute(50000.0);
++    }
++
++    ~FPassageResizeFixture()
++    {
++        World->DestroyWorld(false);
++    }
++
++    void SetStraightRoute(const double LengthCm)
++    {
++        PassageActor->Route->SetSplinePoints(
++            {FVector::ZeroVector, FVector(LengthCm, 0.0, 0.0)},
++            ESplineCoordinateSpace::Local,
++            true);
++    }
++
++    void SetShortShapedRoute()
++    {
++        PassageActor->Route->SetSplinePoints(
++            {FVector::ZeroVector, FVector(1000.0, 500.0, 0.0), FVector(2000.0, 0.0, 0.0)},
++            ESplineCoordinateSpace::Local,
++            true);
++    }
++};
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageEditorPassageResizeAppendsToDurationTest,
++    "InfinityStage.Editor.PassageResizeAppendsToDuration",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageEditorPassageResizeAppendsToDurationTest::RunTest(const FString& Parameters)
++{
++    FPassageResizeFixture Fixture;
++    const FInfinityCompileResult Before = FInfinityStageCompiler::Compile(*Fixture.Show);
++    TestEqual(TEXT("The source fixture has one Passage"), Before.Passages.Num(), 1);
++    if (Before.Passages.Num() != 1)
++    {
++        return false;
++    }
++    const double OldDuration =
++        (Before.Passages[0].SegmentEndFrame - Before.Passages[0].SegmentStartFrame).Value
++        / Fixture.Show->TickResolution.AsDecimal();
++    TestEqual(TEXT("The source fixture has 23 pairs"), Before.Passages[0].Wings.Num(), 23);
++    TestTrue(TEXT("The source fixture is exactly 47.4 seconds"),
++        FMath::IsNearlyEqual(OldDuration, 47.4, 1.0e-9));
++
++    const FInfinityPassageResizePlan Applied =
++        UInfinityStagePassageResizeLibrary::ResizePassageToDuration(
++            Fixture.Show,
++            Fixture.World,
++            nullptr,
++            Fixture.PassageGuid,
++            180.0,
++            EInfinityPassageResizePolicy::PreserveSpeedAndSpacing,
++            false,
++            false);
++    TestTrue(TEXT("The exact 180-second resize can apply"), Applied.bCanApply);
++    TestTrue(TEXT("The exact 180-second resize applies"), Applied.bApplied);
++    TestEqual(TEXT("The resize derives 90 pairs"), Applied.NewWingPairCount, 90);
++    TestEqual(TEXT("The resize appends 67 pairs"), Applied.PairsAppended, 67);
++    TestTrue(TEXT("The plan reports exactly 180.000 seconds"),
++        FMath::IsNearlyEqual(Applied.NewDurationSeconds, 180.0, 1.0e-9));
++    TestEqual(TEXT("The mutated Show has 90 rows"), Fixture.Show->Cues.Num(), 90);
++
++    TSet<FGuid> AllCueGuids;
++    TSet<FGuid> AllOccurrenceGuids;
++    for (int32 Index = 0; Index < Fixture.Show->Cues.Num(); ++Index)
++    {
++        const FInfinityShowCue& Cue = Fixture.Show->Cues[Index];
++        TestTrue(*FString::Printf(TEXT("Cue GUID %d is valid"), Index), Cue.CueGuid.IsValid());
++        TestTrue(*FString::Printf(TEXT("Occurrence GUID %d is valid"), Index),
++            Cue.WingPair.OccurrenceGuid.IsValid());
++        TestFalse(*FString::Printf(TEXT("Cue GUID %d is unique"), Index),
++            AllCueGuids.Contains(Cue.CueGuid));
++        TestFalse(*FString::Printf(TEXT("Occurrence GUID %d is unique"), Index),
++            AllOccurrenceGuids.Contains(Cue.WingPair.OccurrenceGuid));
++        AllCueGuids.Add(Cue.CueGuid);
++        AllOccurrenceGuids.Add(Cue.WingPair.OccurrenceGuid);
++        if (Index < 23)
++        {
++            TestEqual(*FString::Printf(TEXT("Existing cue GUID %d stays in order"), Index),
++                Cue.CueGuid, Fixture.OriginalCueGuids[Index]);
++            TestEqual(*FString::Printf(TEXT("Existing occurrence GUID %d stays in order"), Index),
++                Cue.WingPair.OccurrenceGuid, Fixture.OriginalOccurrenceGuids[Index]);
++        }
++        else
++        {
++            TestFalse(*FString::Printf(TEXT("Appended cue GUID %d is new"), Index),
++                Fixture.OriginalCueGuids.Contains(Cue.CueGuid));
++            TestFalse(*FString::Printf(TEXT("Appended occurrence GUID %d is new"), Index),
++                Fixture.OriginalOccurrenceGuids.Contains(Cue.WingPair.OccurrenceGuid));
++        }
++    }
++    const FInfinityCompileResult After = FInfinityStageCompiler::Compile(*Fixture.Show);
++    const double NewDuration =
++        (After.Passages[0].SegmentEndFrame - After.Passages[0].SegmentStartFrame).Value
++        / Fixture.Show->TickResolution.AsDecimal();
++    TestTrue(TEXT("The applied Show compiles to exactly 180.000 seconds"),
++        FMath::IsNearlyEqual(NewDuration, 180.0, 1.0e-9));
++
++    FPassageResizeFixture ResidualFixture;
++    ResidualFixture.Show->TickResolution = FFrameRate(25, 1);
++    const FInfinityPassageResizePlan ResidualRefusal =
++        UInfinityStagePassageResizeLibrary::ResizePassageToDuration(
++            ResidualFixture.Show,
++            ResidualFixture.World,
++            nullptr,
++            ResidualFixture.PassageGuid,
++            180.02,
++            EInfinityPassageResizePolicy::PreserveSpeedAndSpacing,
++            true,
++            false);
++    TestFalse(TEXT("A target whose frame residual cannot close is refused"),
++        ResidualRefusal.bCanApply);
++    TestTrue(TEXT("The residual refusal explains exact representation or closure"),
++        ResidualRefusal.RefusalReasons.ContainsByPredicate([](const FString& Reason)
++        {
++            return Reason.Contains(TEXT("representable")) || Reason.Contains(TEXT("Residual did not close"));
++        }));
++    TestEqual(TEXT("A residual refusal leaves all source rows untouched"),
++        ResidualFixture.Show->Cues.Num(), 23);
++
++    FPassageResizeFixture ShapedFixture;
++    ShapedFixture.SetShortShapedRoute();
++    const FInfinityPassageResizePlan ShapedRefusal =
++        UInfinityStagePassageResizeLibrary::ResizePassageToDuration(
++            ShapedFixture.Show,
++            ShapedFixture.World,
++            nullptr,
++            ShapedFixture.PassageGuid,
++            180.0,
++            EInfinityPassageResizePolicy::PreserveSpeedAndSpacing,
++            true,
++            false);
++    TestFalse(TEXT("A shaped route shorter than the derived extent is refused"),
++        ShapedRefusal.bCanApply);
++    TestTrue(TEXT("The shaped-route refusal names the Auto Fit risk"),
++        ShapedRefusal.RefusalReasons.ContainsByPredicate([](const FString& Reason)
++        {
++            return Reason.Contains(TEXT("Shaped route")) && Reason.Contains(TEXT("Auto Fit"));
++        }));
++    TestEqual(TEXT("A shaped-route refusal leaves all source rows untouched"),
++        ShapedFixture.Show->Cues.Num(), 23);
++
++    // Negative control: with ResizePassageToDuration stubbed, the apply remains at
++    // 23 rows/47.4 s and fails the 90/67/180/GUID sentinels; if either refusal is
++    // removed, its explicit bCanApply and unchanged-row sentinels fail.
++    return true;
++}
++
++#endif
