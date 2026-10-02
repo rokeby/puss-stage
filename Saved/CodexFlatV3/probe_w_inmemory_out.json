@@ -1,0 +1,158 @@
+{
+ "census_start": {
+  "content": [],
+  "maps": []
+ },
+ "meshes": {
+  "SM_FlatV3_S3_WaveRow1_A": {
+   "package_dirty": false,
+   "disk_mtime_utc": 1790896125.2533097,
+   "disk_bytes": 125772,
+   "num_lods": 2,
+   "verts_per_lod": [
+    803,
+    537
+   ],
+   "tris_lod0": 624,
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "bounds_extent": [
+    12.05,
+    1431.69,
+    120.0
+   ],
+   "import_source": [
+    "E:/PussStage/DerivedAssets/FlatV3/Scene3/waves/S3_WaveRow1_A/SM_FlatV3_S3_WaveRow1_A.fbx"
+   ]
+  },
+  "SM_FlatV3_S3_WaveRow1_B": {
+   "package_dirty": false,
+   "disk_mtime_utc": 1790896125.353269,
+   "disk_bytes": 128022,
+   "num_lods": 2,
+   "verts_per_lod": [
+    827,
+    600
+   ],
+   "tris_lod0": 657,
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "bounds_extent": [
+    12.05,
+    1627.55,
+    120.0
+   ],
+   "import_source": [
+    "E:/PussStage/DerivedAssets/FlatV3/Scene3/waves/S3_WaveRow1_B/SM_FlatV3_S3_WaveRow1_B.fbx"
+   ]
+  },
+  "SM_FlatV3_S3_WaveRow2_A": {
+   "package_dirty": false,
+   "disk_mtime_utc": 1790896125.453219,
+   "disk_bytes": 134443,
+   "num_lods": 2,
+   "verts_per_lod": [
+    903,
+    724
+   ],
+   "tris_lod0": 713,
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "bounds_extent": [
+    12.05,
+    1531.91,
+    180.0
+   ],
+   "import_source": [
+    "E:/PussStage/DerivedAssets/FlatV3/Scene3/waves/S3_WaveRow2_A/SM_FlatV3_S3_WaveRow2_A.fbx"
+   ]
+  },
+  "SM_FlatV3_S3_WaveRow2_B": {
+   "package_dirty": false,
+   "disk_mtime_utc": 1790896125.552544,
+   "disk_bytes": 127551,
+   "num_lods": 2,
+   "verts_per_lod": [
+    851,
+    642
+   ],
+   "tris_lod0": 659,
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "bounds_extent": [
+    12.05,
+    1460.79,
+    180.0
+   ],
+   "import_source": [
+    "E:/PussStage/DerivedAssets/FlatV3/Scene3/waves/S3_WaveRow2_B/SM_FlatV3_S3_WaveRow2_B.fbx"
+   ]
+  },
+  "SM_FlatV3_S3_WaveRow3_A": {
+   "package_dirty": false,
+   "disk_mtime_utc": 1790896125.654287,
+   "disk_bytes": 159253,
+   "num_lods": 2,
+   "verts_per_lod": [
+    1497,
+    970
+   ],
+   "tris_lod0": 1117,
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "bounds_extent": [
+    12.85,
+    1833.45,
+    260.0
+   ],
+   "import_source": [
+    "E:/PussStage/DerivedAssets/FlatV3/Scene3/waves/S3_WaveRow3_A/SM_FlatV3_S3_WaveRow3_A.fbx"
+   ]
+  },
+  "SM_FlatV3_S3_WaveRow3_B": {
+   "package_dirty": false,
+   "disk_mtime_utc": 1790896125.7529576,
+   "disk_bytes": 141501,
+   "num_lods": 2,
+   "verts_per_lod": [
+    1178,
+    735
+   ],
+   "tris_lod0": 876,
+   "slots": [
+    "Front",
+    "Flap",
+    "Timber",
+    "Edge"
+   ],
+   "bounds_extent": [
+    12.85,
+    1439.22,
+    260.0
+   ],
+   "import_source": [
+    "E:/PussStage/DerivedAssets/FlatV3/Scene3/waves/S3_WaveRow3_B/SM_FlatV3_S3_WaveRow3_B.fbx"
+   ]
+  }
+ }
+}
