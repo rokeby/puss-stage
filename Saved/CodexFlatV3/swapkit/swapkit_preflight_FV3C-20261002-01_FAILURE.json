@@ -1,0 +1,11 @@
+{
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "mode": "preflight",
+  "reason": "DUPLICATE_PASSAGE_LABEL",
+  "run": "FV3C-20261002-01",
+  "status": "FAIL",
+  "traceback": "Traceback (most recent call last):\n  File \"E:\\PussStage\\Saved\\CodexFlatV3\\swapkit\\preflight.py\", line 75, in main\n    return run(config[\"_path\"])\n           ^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\PussStage\\Saved\\CodexFlatV3\\swapkit\\preflight.py\", line 42, in run\n    raise RuntimeError(\"DUPLICATE_PASSAGE_LABEL\")\nRuntimeError: DUPLICATE_PASSAGE_LABEL\n"
+}

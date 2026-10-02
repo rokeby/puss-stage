@@ -344,13 +344,13 @@ def reset(originals, plan, mode):
     global STATE
     STATE = State()
     _register_record_assets(originals, plan)
-    plan_by_index = {row["cue_index"]: row for row in plan["rows"]}
+    plan_by_guid = {row["cue_guid"]: row for row in plan["rows"]}
     max_index = max(record["cue_index"] for record in originals["rows"])
     cues = [Obj(label="unused", wing_pair=Obj()) for _ in range(max_index + 1)]
     refs = []
     passage_guid = Guid("P04-PASSAGE-GUID")
     for record in originals["rows"]:
-        target = plan_by_index[record["cue_index"]]
+        target = plan_by_guid[record["cue_guid"]]
         if mode == "verify":
             left_record, right_record = target["left"], target["right"]
             offset = record["occurrence_offset"]

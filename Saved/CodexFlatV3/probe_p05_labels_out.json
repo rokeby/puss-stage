@@ -1,0 +1,1246 @@
+{
+ "P05 Wing": {
+  "count": 93,
+  "dupes": {
+   "P05 Wing 001": [
+    122,
+    130,
+    138,
+    146,
+    154,
+    162,
+    170,
+    178,
+    186,
+    194,
+    202,
+    210
+   ],
+   "P05 Wing 002": [
+    123,
+    131,
+    139,
+    147,
+    155,
+    163,
+    171,
+    179,
+    187,
+    195,
+    203,
+    211
+   ],
+   "P05 Wing 003": [
+    124,
+    132,
+    140,
+    148,
+    156,
+    164,
+    172,
+    180,
+    188,
+    196,
+    204,
+    212
+   ],
+   "P05 Wing 004": [
+    125,
+    133,
+    141,
+    149,
+    157,
+    165,
+    173,
+    181,
+    189,
+    197,
+    205,
+    213
+   ],
+   "P05 Wing 005": [
+    126,
+    134,
+    142,
+    150,
+    158,
+    166,
+    174,
+    182,
+    190,
+    198,
+    206,
+    214
+   ],
+   "P05 Wing 006": [
+    127,
+    135,
+    143,
+    151,
+    159,
+    167,
+    175,
+    183,
+    191,
+    199,
+    207
+   ],
+   "P05 Wing 007": [
+    128,
+    136,
+    144,
+    152,
+    160,
+    168,
+    176,
+    184,
+    192,
+    200,
+    208
+   ],
+   "P05 Wing 008": [
+    129,
+    137,
+    145,
+    153,
+    161,
+    169,
+    177,
+    185,
+    193,
+    201,
+    209
+   ]
+  },
+  "rows": [
+   [
+    122,
+    "P05 Wing 001",
+    "D9985461DE475468200B6AAF36E80C4B",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    123,
+    "P05 Wing 002",
+    "D9809927C9409586DAE008839DE18EF5",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    124,
+    "P05 Wing 003",
+    "1ED83B530F4AEEB89EB6DE8F21BD20F9",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    125,
+    "P05 Wing 004",
+    "97B98034D9465319779ADC883A2A78D3",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    126,
+    "P05 Wing 005",
+    "C873998DE4473EF84067179A178B6521",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    127,
+    "P05 Wing 006",
+    "C5DD1FB139437963E2AC49B6DF541BB4",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    128,
+    "P05 Wing 007",
+    "72172822A7495C6163E63F8EF5F6A5BF",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    129,
+    "P05 Wing 008",
+    "06512733AF4970032E275481044E7CC4",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    130,
+    "P05 Wing 001",
+    "3E48AAB7FD48289C367FF18847954617",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    131,
+    "P05 Wing 002",
+    "4E851095B14BBBBDA8E8D7806BC780A0",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    132,
+    "P05 Wing 003",
+    "3DB1A8ECDF4DE72876CB07B422101D26",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    133,
+    "P05 Wing 004",
+    "9809A946DC43A296AB9240A4719EC666",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    134,
+    "P05 Wing 005",
+    "5112EB577D495CD4494554B3BD80596F",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    135,
+    "P05 Wing 006",
+    "C5C5CDEA074E22107B3BCEA03B8DF9A0",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    136,
+    "P05 Wing 007",
+    "4F552059C945B87FDF70C7B9BEC6B81A",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    137,
+    "P05 Wing 008",
+    "83484EEEE644D80B97EDBE8B63A4585A",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    138,
+    "P05 Wing 001",
+    "77F0489C0940F5D1ABA5EBA8EF9F1661",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    139,
+    "P05 Wing 002",
+    "7BBF71539845A6B439DCE39A4A6B3469",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    140,
+    "P05 Wing 003",
+    "1C8D73333F4D9E7B15E2318DBE00BCB7",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    141,
+    "P05 Wing 004",
+    "EAD333E68046C1AA5940A68DF73DE138",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    142,
+    "P05 Wing 005",
+    "AFBCA1A5324B00DC3896E4B7970BCAE0",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    143,
+    "P05 Wing 006",
+    "E1E04669CD4DD450A1AA74B379A1F911",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    144,
+    "P05 Wing 007",
+    "244F4ABBCB4896B5C2D92995B37BFFB7",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    145,
+    "P05 Wing 008",
+    "F4C2A56D2D484542F14DBEB0312C452C",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    146,
+    "P05 Wing 001",
+    "CB8B41A6244C683E5BD9FDA4CE9A2E0D",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    147,
+    "P05 Wing 002",
+    "EEFBA34EDE4A812B91AE86999CAACE7A",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    148,
+    "P05 Wing 003",
+    "7EADC8902B48E730FCA149A65E220A02",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    149,
+    "P05 Wing 004",
+    "222F0A6ABF44AC3622C539B38A97D344",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    150,
+    "P05 Wing 005",
+    "477E40CD85476660AA665AA058ADE8EA",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    151,
+    "P05 Wing 006",
+    "F351AC58AE456B1AC2FB548266BE4778",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    152,
+    "P05 Wing 007",
+    "60FFBDF4DB45D791A0856E81AAC654BE",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    153,
+    "P05 Wing 008",
+    "40B3376B3148FA03E84D85BE00BA5B54",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    154,
+    "P05 Wing 001",
+    "19F4BEFAF34ABF245732699863EDEFBD",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    155,
+    "P05 Wing 002",
+    "D1DDB60F8048773AE1DF67AF54794323",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    156,
+    "P05 Wing 003",
+    "F34EC84F144EE9E61FC17EAFC55AD1E3",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    157,
+    "P05 Wing 004",
+    "C168AB6B1D4D7D1AA3AD049879320BBF",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    158,
+    "P05 Wing 005",
+    "197F0FB09244CCEE73835A8D3A3C2245",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    159,
+    "P05 Wing 006",
+    "C03EE31ED34B109C4BC70A9D2E0768AC",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    160,
+    "P05 Wing 007",
+    "A2A1596EE048DBE5E4ACE68698D3D16F",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    161,
+    "P05 Wing 008",
+    "0134AD95424F61E9C2D3BA861B19BADE",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    162,
+    "P05 Wing 001",
+    "DB8981CC7F44C928EC638AA8A20A4C06",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    163,
+    "P05 Wing 002",
+    "244DCEF12444922757C64081D56C8C50",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    164,
+    "P05 Wing 003",
+    "E9E34C69704B24112EAF9098666124A8",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    165,
+    "P05 Wing 004",
+    "33BA07E93B426E82858DDFB8EAE914E3",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    166,
+    "P05 Wing 005",
+    "A3180B71E04B060259D11085D23056DB",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    167,
+    "P05 Wing 006",
+    "DDF0DD9C484D532AAC0F9C9F90294EFA",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    168,
+    "P05 Wing 007",
+    "C60E251BBD4DC049A8D4AA8477A23873",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    169,
+    "P05 Wing 008",
+    "8A6B18B9F447ACE90AA35CBB3811A89B",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    170,
+    "P05 Wing 001",
+    "4401AF835C4FECA87769B7B84521B047",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    171,
+    "P05 Wing 002",
+    "F2DBDC51A549729F383E2D8ACED57A2C",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    172,
+    "P05 Wing 003",
+    "4D7846EA5C47727267B246A3E1A0FB92",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    173,
+    "P05 Wing 004",
+    "ACCD537CCB4D2B00FB70609DF68E4FD4",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    174,
+    "P05 Wing 005",
+    "357CC6CD174699DC6E8C7EBDF1C54D67",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    175,
+    "P05 Wing 006",
+    "0A5DE961894C38283C12669921967BBA",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    176,
+    "P05 Wing 007",
+    "E9F7D180E14BD098E7E0339F39BAF4E4",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    177,
+    "P05 Wing 008",
+    "20AF22A37641A50818DBEC8247DBBAB1",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    178,
+    "P05 Wing 001",
+    "A90D8E5E4D468C04F591A9A777F4A4D2",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    179,
+    "P05 Wing 002",
+    "CB9B63EDB44EC4D7B04B009973031A52",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    180,
+    "P05 Wing 003",
+    "B7EA7727D1411D567305CC8934BF05A9",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    181,
+    "P05 Wing 004",
+    "71FD4A006C4C2E7D103DE4B14444BDC1",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    182,
+    "P05 Wing 005",
+    "FCE502A45D4AB83409A6DD91AC55511F",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    183,
+    "P05 Wing 006",
+    "12C8030BB144DEEE66F696BDFB8FFF6A",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    184,
+    "P05 Wing 007",
+    "F232650BA4473ECE48E344AB00B40739",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    185,
+    "P05 Wing 008",
+    "FE5A14D47746BE92635EF3BE4AA91804",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    186,
+    "P05 Wing 001",
+    "3127169B454DE0A302895B885780E796",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    187,
+    "P05 Wing 002",
+    "B6620EF3024F8A02B5BD318F4E45B366",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    188,
+    "P05 Wing 003",
+    "46572F66E8422D3AECB723ACE26C3FDA",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    189,
+    "P05 Wing 004",
+    "1A4470F73044B15BDB53738B9E3D8181",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    190,
+    "P05 Wing 005",
+    "76737389D3423A86F7E1EFBBEEACC38F",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    191,
+    "P05 Wing 006",
+    "37E0E597F24C14FAC5435499789D95B5",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    192,
+    "P05 Wing 007",
+    "354E970BCF4A5E4DCBB96D8BC016E371",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    193,
+    "P05 Wing 008",
+    "57001FE87649B160EAAE0D9A9F680BDF",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    194,
+    "P05 Wing 001",
+    "FB6CC1B03C4F0D4D351A0C93567CD7BD",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    195,
+    "P05 Wing 002",
+    "CD389F0CF34723F470E779AABA48F431",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    196,
+    "P05 Wing 003",
+    "67AEC0434B41B2569ECBEF8FFA8FB87C",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    197,
+    "P05 Wing 004",
+    "CFA43CE713421A06341AE88679207E7E",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    198,
+    "P05 Wing 005",
+    "C0760AFCE64898D1C70C9CBEE14D60E7",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    199,
+    "P05 Wing 006",
+    "9606FE374D4FC0B9B8175A92C7591F7C",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    200,
+    "P05 Wing 007",
+    "C799ECFCC34B52DAF9467A91125EE844",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    201,
+    "P05 Wing 008",
+    "39F41E91174C05524711DA83E1624FE2",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    202,
+    "P05 Wing 001",
+    "FBAB291C39443596327620A85FB64E6D",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    203,
+    "P05 Wing 002",
+    "831CC5D2D446AFD31ABB6FA08C24863A",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    204,
+    "P05 Wing 003",
+    "A41BB8EEA444D60840D5F881B1229F20",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    205,
+    "P05 Wing 004",
+    "2A242A464643AB7DA8599FADFA4F8ED8",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    206,
+    "P05 Wing 005",
+    "74C5666F194AD638AB11D6A88FF3E9BE",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ],
+   [
+    207,
+    "P05 Wing 006",
+    "708B2444314F045FCEBE62AF5863E573",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef06_L.SM_CloudRef06_L"
+   ],
+   [
+    208,
+    "P05 Wing 007",
+    "CD0A4273A942A504EE88C7886B40992D",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef07_L.SM_CloudRef07_L"
+   ],
+   [
+    209,
+    "P05 Wing 008",
+    "C1A57FF35D493E0E90F047961E9DE031",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef08_L.SM_CloudRef08_L"
+   ],
+   [
+    210,
+    "P05 Wing 001",
+    "C7581633394A9458BE940C99F1848FA5",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef01_L.SM_CloudRef01_L"
+   ],
+   [
+    211,
+    "P05 Wing 002",
+    "58252A9ECD4A4ECD71532E9545BAC6CE",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L.SM_CloudRef02_L"
+   ],
+   [
+    212,
+    "P05 Wing 003",
+    "498BB0EDEE468AB36871C39552CBFBA1",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef03_L.SM_CloudRef03_L"
+   ],
+   [
+    213,
+    "P05 Wing 004",
+    "45A9A1B3A245DF9E7A4C9F895E95AB23",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef04_L.SM_CloudRef04_L"
+   ],
+   [
+    214,
+    "P05 Wing 005",
+    "AC3C5538054D77751BF83480B64FFEA5",
+    "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef05_L.SM_CloudRef05_L"
+   ]
+  ]
+ },
+ "P01 Wing": {
+  "count": 48,
+  "dupes": {},
+  "rows": [
+   [
+    1,
+    "P01 Wing 001",
+    "3DD6B12A2F4F82BFEE2B478E31CF2B03",
+    "/Game/Scenes/Wings/StageOpeningV2/StaticMeshes/SM_SaltFormation_01_L_v2.SM_SaltFormation_01_L_v2"
+   ],
+   [
+    2,
+    "P01 Wing 002",
+    "689197196949E5685EBA6BB13F0145AE",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    3,
+    "P01 Wing 003",
+    "54FB44427F44F3E243866688A94369DB",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    4,
+    "P01 Wing 004",
+    "6D96AB33644C548B767464A73983D524",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    5,
+    "P01 Wing 005",
+    "B20613548749509CA9D74A8443F13DE6",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    6,
+    "P01 Wing 006",
+    "E69F45D12E4A9143EF42408EFCADF107",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    7,
+    "P01 Wing 007",
+    "A2822E388642760A944E499E4EBA687A",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    8,
+    "P01 Wing 008",
+    "33B1C2599447449716FC4CA38D0D4B05",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    9,
+    "P01 Wing 009",
+    "8ED7907CA54D333F0D7BFDA27C421316",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    10,
+    "P01 Wing 011",
+    "38E3726FE14AF0607B3D20A6733F3F57",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    11,
+    "P01 Wing 012",
+    "D0093A664D457A71EDF769BE515F3A1E",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    12,
+    "P01 Wing 010",
+    "A66EAF93DC422FC8D33EE19F7FEB4E7F",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    13,
+    "P01 Wing 013",
+    "F6B4352A6242A6286F52E8A9525AF5B3",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    14,
+    "P01 Wing 014",
+    "7474F6B50244055AF3E0D48173E39097",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    15,
+    "P01 Wing 015",
+    "CD63F5BDCF4E77B960EB4ABBFDFC82C4",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    16,
+    "P01 Wing 016",
+    "71B887E5D64976281B24F7990D8507BF",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    17,
+    "P01 Wing 017",
+    "BB27302F854E5070E22BEC950A486D2B",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    18,
+    "P01 Wing 018",
+    "BFB3F908C146F1FB49F4088444680629",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    19,
+    "P01 Wing 019",
+    "AD39123A1E4B49E8B29987A70813B586",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    20,
+    "P01 Wing 020",
+    "31E7560084433A1C0E35B69B4E9444D8",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    21,
+    "P01 Wing 021",
+    "0932A130154A8407A4534DB6E9CC0504",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    22,
+    "P01 Wing 022",
+    "B8C2A159F442D6A93CE1E18BAF12C8FD",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    23,
+    "P01 Wing 023",
+    "565DCF4F884E815087FC55BCFD22C370",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    24,
+    "P01 Wing 024",
+    "9C970C03AF4A6446DA728BA6BFE2C30A",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    25,
+    "P01 Wing 025",
+    "1D653482314A6193547A83BA8A763F74",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    26,
+    "P01 Wing 026",
+    "B210AB51B148F45A9816748404B7CC50",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    27,
+    "P01 Wing 027",
+    "4ED8461CD14B497F9480A58E6299A0A6",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    28,
+    "P01 Wing 028",
+    "2881DEA59244E693AFBD5981DEA07830",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    29,
+    "P01 Wing 029",
+    "E69116F6D74A3A42F2C8DB8FE2146075",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    30,
+    "P01 Wing 030",
+    "E9195D76B94ECE66549343BBE2FFE971",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    31,
+    "P01 Wing 031",
+    "6E00D93ED04413882BF20AAA6352E457",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    32,
+    "P01 Wing 032",
+    "97E66368154AF5FDA18E048AD9020173",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    33,
+    "P01 Wing 033",
+    "5FE158D80843228E2051BD82F89F3257",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    34,
+    "P01 Wing 034",
+    "CAE56F082A4A5C31D23E8AACDC3525CF",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    35,
+    "P01 Wing 035",
+    "0671E1DC6F4A3EC342EBA09CF88DBDA4",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    36,
+    "P01 Wing 036",
+    "71678173E94A56C20625E4A07EA1D424",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    37,
+    "P01 Wing 037",
+    "0E14D4BCD14FD612186849A3527A9806",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    38,
+    "P01 Wing 038",
+    "AF102D868A45CDCEA2E50D950AB3AEE7",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    39,
+    "P01 Wing 039",
+    "DEB9AB9941473AAB1F43D592ADAFD766",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    40,
+    "P01 Wing 040",
+    "728582A0834161546564F088F0EAD1A2",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    41,
+    "P01 Wing 041",
+    "BEEB9F25C24E6BE2E5F59480F0F03755",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    42,
+    "P01 Wing 042",
+    "B198C7F004497AB3F87E92BDD9780FD6",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    43,
+    "P01 Wing 043",
+    "C870A0FB9F47DDBDCA253CB9896E6815",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    44,
+    "P01 Wing 044",
+    "B653804F99489807C42ED7A3320DF7C7",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    45,
+    "P01 Wing 045",
+    "C94E3D2CAC43C601212DDBAB0C1468D1",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ],
+   [
+    46,
+    "P01 Wing 046",
+    "5ECBBB37B5484EB0CDFB49B2B76295CB",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_1_roccoco.SM_L_1_roccoco"
+   ],
+   [
+    47,
+    "P01 Wing 047",
+    "455D184CDE4E4DDD2ABC96935F35CF85",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_pillar1_bw.SM_L_pillar1_bw"
+   ],
+   [
+    48,
+    "P01 Wing 048",
+    "10D28FD6C64C2D8B7D6CE586A94C8402",
+    "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar2_bw.SM_L_Pillar2_bw"
+   ]
+  ]
+ },
+ "P03 Wing": {
+  "count": 21,
+  "dupes": {},
+  "rows": [
+   [
+    76,
+    "P03 Wing 001",
+    "B8AE7B1FDF410C9B9F2A83BDA94DA489",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L.SM_P03_SunWashedAdministration_01_L"
+   ],
+   [
+    77,
+    "P03 Wing 003",
+    "0ED8CD9770436E3F130C8D85C3637BE2",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L.SM_P03_YellowCurtainThreshold_01_L"
+   ],
+   [
+    78,
+    "P03 Wing 002",
+    "C82F2CC5BD4EF34E9C3BDFACB10C35CB",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L.SM_P03_GlassBlockClassroom_01_L"
+   ],
+   [
+    79,
+    "P03 Wing 004",
+    "8D58B97EDF4136FDBE50549E3625C0DF",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L.SM_P03_RepeatingSanatoriumArches_01_L"
+   ],
+   [
+    80,
+    "P03 Wing 005",
+    "3DC9D2BC0445FD5D87E5428D6C467C86",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_PlasterSalonTransition_01_L.SM_P03_PlasterSalonTransition_01_L"
+   ],
+   [
+    81,
+    "P03 Wing 006",
+    "FC0C59529D4588FCEFC84F9FD09C68A3",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_CeladonPalatialAntechamber_01_L.SM_P03_CeladonPalatialAntechamber_01_L"
+   ],
+   [
+    82,
+    "P03 Wing 007",
+    "7230D0A9AD4491A8CBFB788DC5A7D95C",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L.SM_P03_SunWashedAdministration_01_L"
+   ],
+   [
+    83,
+    "P03 Wing 008",
+    "7742F44B2A42B6A7203114874CAD3E5B",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L.SM_P03_GlassBlockClassroom_01_L"
+   ],
+   [
+    84,
+    "P03 Wing 009",
+    "84C1E90ADF41D6E38AB76EADD2179FE6",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L.SM_P03_YellowCurtainThreshold_01_L"
+   ],
+   [
+    85,
+    "P03 Wing 010",
+    "0C81EB2D824B7C77E674BBA604B985A7",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L.SM_P03_RepeatingSanatoriumArches_01_L"
+   ],
+   [
+    86,
+    "P03 Wing 011",
+    "5606A2F1DC449E7E3FAC5E866173DD7F",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_PlasterSalonTransition_01_L.SM_P03_PlasterSalonTransition_01_L"
+   ],
+   [
+    87,
+    "P03 Wing 012",
+    "0780796E60484341D039F5B00A6008FB",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_CeladonPalatialAntechamber_01_L.SM_P03_CeladonPalatialAntechamber_01_L"
+   ],
+   [
+    88,
+    "P03 Wing 013",
+    "622946E51046353D4D27EF8B20389CE3",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L.SM_P03_SunWashedAdministration_01_L"
+   ],
+   [
+    89,
+    "P03 Wing 014",
+    "300EDBEC62425BC6687C5E86503FC8E1",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L.SM_P03_GlassBlockClassroom_01_L"
+   ],
+   [
+    90,
+    "P03 Wing 015",
+    "65711AE75E4F1BB66477C1A75052C245",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L.SM_P03_YellowCurtainThreshold_01_L"
+   ],
+   [
+    91,
+    "P03 Wing 016",
+    "686F7D11CA4DC4681D962CBAF664FAD8",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_RepeatingSanatoriumArches_01_L.SM_P03_RepeatingSanatoriumArches_01_L"
+   ],
+   [
+    92,
+    "P03 Wing 017",
+    "53675A61CE474C46CE0F42890F785DE0",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_PlasterSalonTransition_01_L.SM_P03_PlasterSalonTransition_01_L"
+   ],
+   [
+    93,
+    "P03 Wing 018",
+    "B668CE90914EC39B4A510A9EE1A02F51",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_CeladonPalatialAntechamber_01_L.SM_P03_CeladonPalatialAntechamber_01_L"
+   ],
+   [
+    94,
+    "P03 Wing 019",
+    "1D832ADD2745EC4745DA81B968DAC5A8",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_SunWashedAdministration_01_L.SM_P03_SunWashedAdministration_01_L"
+   ],
+   [
+    95,
+    "P03 Wing 020",
+    "37A6207F3244F31A88BAEC943AAF31C6",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_GlassBlockClassroom_01_L.SM_P03_GlassBlockClassroom_01_L"
+   ],
+   [
+    96,
+    "P03 Wing 021",
+    "F98DD3DCF845CF8E62CC9B835FC7F8B0",
+    "/Game/Scenes/Wings/Passage03_ShrineToForgetting/StaticMeshes/SM_P03_YellowCurtainThreshold_01_L.SM_P03_YellowCurtainThreshold_01_L"
+   ]
+  ]
+ },
+ "P02 Wing": {
+  "count": 23,
+  "dupes": {},
+  "rows": [
+   [
+    51,
+    "P02 Wing 001",
+    "2796DA1CE44CBA0E7E495AB35D6E5B85",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET01_L.SM_P02_SET01_L"
+   ],
+   [
+    52,
+    "P02 Wing 002",
+    "973A6AE0454E4045F75F6E824218157D",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET02_L.SM_P02_SET02_L"
+   ],
+   [
+    53,
+    "P02 Wing 004",
+    "34E33BCD364FAB686BC453A3BC754B26",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET04_L.SM_P02_SET04_L"
+   ],
+   [
+    54,
+    "P02 Wing 005",
+    "F2A13CF80B447B1AA10EA4881F10C821",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET05_L.SM_P02_SET05_L"
+   ],
+   [
+    55,
+    "P02 Wing 006",
+    "6408185AE84BF6527CC2189329A5AEE7",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET06_L.SM_P02_SET06_L"
+   ],
+   [
+    56,
+    "P02 Wing 007",
+    "A54E14DCA44F897C45C0119A262D7C25",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET07_L.SM_P02_SET07_L"
+   ],
+   [
+    57,
+    "P02 Wing 008",
+    "1E888ABDB94B07483942B9940A58A9F3",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET08_L.SM_P02_SET08_L"
+   ],
+   [
+    58,
+    "P02 Wing 009",
+    "3C63FFF5804AE7B1625AF08713E09CF9",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET09_L.SM_P02_SET09_L"
+   ],
+   [
+    59,
+    "P02 Wing 010",
+    "BE5E3873F44ACC7A85BA089503191E1C",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET10_L.SM_P02_SET10_L"
+   ],
+   [
+    60,
+    "P02 Wing 011",
+    "0B80F8886249E85D99B0C691DC6466D5",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET11_L.SM_P02_SET11_L"
+   ],
+   [
+    61,
+    "P02 Wing 012",
+    "C7C77C36F04E62E5764E5BA7BE04060C",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET12_L.SM_P02_SET12_L"
+   ],
+   [
+    62,
+    "P02 Wing 013",
+    "FD2F56C90948D06111C1859046612353",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET01_L.SM_P02_SET01_L"
+   ],
+   [
+    63,
+    "P02 Wing 014",
+    "75C71EC74F44A8D5F4668384501E418C",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET02_L.SM_P02_SET02_L"
+   ],
+   [
+    64,
+    "P02 Wing 003",
+    "B33756C20D448A5615012AABA066A78A",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET03_L.SM_P02_SET03_L"
+   ],
+   [
+    65,
+    "P02 Wing 015",
+    "C8406F55D14E2B9D12D75CB414E57524",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET13_L.SM_P02_SET13_L"
+   ],
+   [
+    66,
+    "P02 Wing 016",
+    "1C61F7124C4E4CDB9D572CBF37EA2AB2",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET14_L.SM_P02_SET14_L"
+   ],
+   [
+    67,
+    "P02 Wing 017",
+    "3A2A4913A048011774400A8BC6A2F500",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET15_L.SM_P02_SET15_L"
+   ],
+   [
+    68,
+    "P02 Wing 018",
+    "C01B9F971440183FDC7BEAB4535ED9A4",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET16_L.SM_P02_SET16_L"
+   ],
+   [
+    69,
+    "P02 Wing 019",
+    "A27BB54D3745D5C95040249F8CD3A765",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET13_L.SM_P02_SET13_L"
+   ],
+   [
+    70,
+    "P02 Wing 020",
+    "0CEEA95DF14599EAFCEEF8BAB535CF74",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET17_L.SM_P02_SET17_L"
+   ],
+   [
+    71,
+    "P02 Wing 021",
+    "E96AA1F72244B2D52C5E02AF95372F63",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET18_L.SM_P02_SET18_L"
+   ],
+   [
+    72,
+    "P02 Wing 022",
+    "E75FE3E4AA44C0D53E3FB6A99D63F91C",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET19_L.SM_P02_SET19_L"
+   ],
+   [
+    73,
+    "P02 Wing 023",
+    "2867A7E95E4A5EA329A6CAAC9BD8B0C3",
+    "/Game/Scenes/Wings/Passage02_AnimalsToShrineV2/StaticMeshes/SM_P02_SET20_L.SM_P02_SET20_L"
+   ]
+  ]
+ }
+}

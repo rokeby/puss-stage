@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"returnValue\":{\"bSuccess\":false,\"relativeSavedPath\":\"CodexFlatV3/swapkit/c_p05_preflight.py\",\"commandResult\":\"Traceback (most recent call last):\\n\\n  File \\\"E:/PussStage/Saved/CodexFlatV3/swapkit/c_p05_preflight.py\\\", line 6, in <module>\\n    runpy.run_path(str(HERE / \\\"preflight.py\\\"), run_name=\\\"__main__\\\",\\n\\n  File \\\"<frozen runpy>\\\", line 291, in run_path\\n\\n  File \\\"<frozen runpy>\\\", line 98, in _run_module_code\\n\\n  File \\\"<frozen runpy>\\\", line 88, in _run_code\\n\\n  File \\\"E:\\\\PussStage\\\\Saved\\\\CodexFlatV3\\\\swapkit\\\\preflight.py\\\", line 87, in <module>\\n    main(globals().get(\\\"FLATV3_CONFIG\\\"))\\n\\n  File \\\"E:\\\\PussStage\\\\Saved\\\\CodexFlatV3\\\\swapkit\\\\preflight.py\\\", line 75, in main\\n    return run(config[\\\"_path\\\"])\\n           ^^^^^^^^^^^^^^^^^^^^\\n\\n  File \\\"E:\\\\PussStage\\\\Saved\\\\CodexFlatV3\\\\swapkit\\\\preflight.py\\\", line 42, in run\\n    raise RuntimeError(\\\"DUPLICATE_PASSAGE_LABEL\\\")\\n\\nRuntimeError: DUPLICATE_PASSAGE_LABEL\\n\",\"logOutput\":[\"Error|FLATV3_C_FAIL run=FV3C-20261002-01 reason=preflight:DUPLICATE_PASSAGE_LABEL census={\\\"content\\\":[],\\\"maps\\\":[]}\",\"Info|FLATV3_SLOT_RELEASED run=FV3C-20261002-01 status=FAIL saved_count=0 saved_roots=[] census={\\\"content\\\":[],\\\"maps\\\":[]}\",\"Error|Traceback (most recent call last):\",\"Error|  File \\\"E:/PussStage/Saved/CodexFlatV3/swapkit/c_p05_preflight.py\\\", line 6, in <module>\",\"Error|    runpy.run_path(str(HERE / \\\"preflight.py\\\"), run_name=\\\"__main__\\\",\",\"Error|  File \\\"<frozen runpy>\\\", line 291, in run_path\",\"Error|  File \\\"<frozen runpy>\\\", line 98, in _run_module_code\",\"Error|  File \\\"<frozen runpy>\\\", line 88, in _run_code\",\"Error|  File \\\"E:\\\\PussStage\\\\Saved\\\\CodexFlatV3\\\\swapkit\\\\preflight.py\\\", line 87, in <module>\",\"Error|    main(globals().get(\\\"FLATV3_CONFIG\\\"))\",\"Error|  File \\\"E:\\\\PussStage\\\\Saved\\\\CodexFlatV3\\\\swapkit\\\\preflight.py\\\", line 75, in main\",\"Error|    return run(config[\\\"_path\\\"])\",\"Error|           ^^^^^^^^^^^^^^^^^^^^\",\"Error|  File \\\"E:\\\\PussStage\\\\Saved\\\\CodexFlatV3\\\\swapkit\\\\preflight.py\\\", line 42, in run\",\"Error|    raise RuntimeError(\\\"DUPLICATE_PASSAGE_LABEL\\\")\",\"Error|RuntimeError: DUPLICATE_PASSAGE_LABEL\"]}}"
+      }
+    ]
+  }
+}

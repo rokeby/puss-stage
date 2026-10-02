@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "slot": "D",
+  "run_id": "FV3D-20261002-01",
+  "saved_verify_run_id": "FV3DV-20261002-01",
+  "passage": "P01",
+  "passage_label_prefix": "P01 Wing ",
+  "passage_actor_label_prefix": "Passage 01",
+  "mapping_file": "DerivedAssets/FlatV3/Overnight/Kept/KEPT_MAP.json",
+  "mapping_kind": "kept_map",
+  "destination_root": "/Game/Scenes/Wings/FlatV3/Passage01",
+  "backup_path": "Backups/PreFlatV3SwapP01-FV3D-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "required_previous_marker": "FLATV3_C_OK",
+  "success_marker": "FLATV3_D_OK",
+  "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
+  "expected_occurrence_count": 48,
+  "excluded_new_meshes": [],
+  "known_failed_assets": {}
+}

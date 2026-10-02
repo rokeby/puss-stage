@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "- ToolsetRegistry.AgentSkillToolset: Provides tools for listing, reading, and creating/updating skills.\n- MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset: Live Blueprint inspection and guarded generation tools for Unreal MCP clients.\nThe tools run entirely inside Unreal Editor and never call an AI or billing API.\n"
+      }
+    ]
+  }
+}

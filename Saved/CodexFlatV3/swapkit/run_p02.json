@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "slot": "P02",
+  "run_id": "FV3P02-20261002-01",
+  "saved_verify_run_id": "FV3P02V-20261002-01",
+  "passage": "P02",
+  "passage_label_prefix": "P02 Wing ",
+  "passage_actor_label_prefix": "Passage 02",
+  "mapping_file": "DerivedAssets/FlatV3/Overnight/P02_LAYOUT_DRAFT_v2.json",
+  "mapping_kind": "p02_layout",
+  "destination_root": "/Game/Scenes/Wings/FlatV3/Passage02",
+  "backup_path": "Backups/PreP02FlatV3Swap-FV3P02-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "required_previous_marker": "FLATV3_P02_IMPORT_OK",
+  "success_marker": "FLATV3_P02_OK",
+  "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
+  "capture_label": "P02 Wing 011",
+  "expected_occurrence_count": 23,
+  "excluded_new_meshes": [],
+  "known_failed_assets": {},
+  "import_run_id": "FV3P02I-20261002-01",
+  "import_plant_source_root": "DerivedAssets/FlatV3/Overnight/P02Sets/flats",
+  "import_industrial_source_root": "DerivedAssets/FlatV3/Overnight/P02Industrial",
+  "import_industrial_expected_count": 8
+}

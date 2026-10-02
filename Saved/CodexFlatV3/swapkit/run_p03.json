@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "slot": "P03",
+  "run_id": "FV3P03-20261002-01",
+  "saved_verify_run_id": "FV3P03V-20261002-01",
+  "passage": "P03",
+  "passage_label_prefix": "P03 Wing ",
+  "passage_actor_label_prefix": "Passage 03",
+  "mapping_file": "DerivedAssets/FlatV3/Overnight/P03_LAYOUT_DRAFT.json",
+  "mapping_kind": "p03_layout",
+  "destination_root": "/Game/Scenes/Wings/FlatV3/Passage03",
+  "backup_path": "Backups/PreP03FlatV3Swap-FV3P03-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "required_previous_marker": "FLATV3_P03_IMPORT_OK",
+  "success_marker": "FLATV3_P03_OK",
+  "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
+  "capture_label": "P03 Wing 011",
+  "expected_occurrence_count": 21,
+  "excluded_new_meshes": [],
+  "known_failed_assets": {},
+  "import_run_id": "FV3P03I-20261002-01",
+  "import_source_root": "DerivedAssets/FlatV3/Overnight/P03/flats",
+  "import_expected_count": 11
+}

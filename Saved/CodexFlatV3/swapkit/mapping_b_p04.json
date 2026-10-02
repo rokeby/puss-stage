@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "slot_b_pools",
+  "source": "Saved/CodexFlatV3/slot_b_common.py at commit 344fdc3",
+  "passage": "P04",
+  "left_pool": [
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_coventry_ruin_L_v1",
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_coventry_ruin_L_v2",
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_coventry_interior_L_v1",
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_ruined_gallery_L_v1"
+  ],
+  "right_pool": [
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_coventry_ruin_R_v1",
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_ruined_gallery_R_v1",
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_ruined_gallery_R_v2",
+    "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_ruined_gallery_R_v3"
+  ]
+}
