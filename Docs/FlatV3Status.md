@@ -148,3 +148,14 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
 - Mixed stage (V3 flats with poles beside legacy cards without), judged at the pilot.
 - Topple, turn and trap mechanism C++ (with Rig; nothing built without his go).
 - Celadon L3 in S3 (row 3 moves to about 52 m if it stays).
+
+## P02 plant sets (Gary's sets 1, 4, 6, 7, 16, 18, 19 and 20), 2 Oct
+
+- **measured:** 20 of 24 built with every gate passing (2x Real-ESRGAN upscale, poles baked into the L/R wings, top borders hung from their top edge). See `DerivedAssets/FlatV3/Overnight/P02Sets/CONTACT_SHEET.jpg` and `MESH_SWAP_MAP.json`.
+- **measured:** these failed validation:
+  - SET06_C: front faces;
+  - SET07_C: height and background coverage;
+  - SET16_C: front faces and background coverage.
+- **measured:** SET07_L now passes, but the batch reports have not been updated to say so.
+- **Repair:** run offline by Codex (`Saved/CodexRuns/flatv3_p02repair_prompt.md`), with no gate weakened. It waits its turn for the GPU.
+- **Not done:** no Unreal import and no Show swap. The P02 layout is waiting for Gary.
