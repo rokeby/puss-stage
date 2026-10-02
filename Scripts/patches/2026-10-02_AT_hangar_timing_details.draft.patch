@@ -1,0 +1,963 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+index f2abb66..ce9f90a 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
++++ b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+@@ -26,5 +26,15 @@ public class InfinityStage : ModuleRules
+             "GeometryCache",
+             "GeometryCacheTracks"
+         });
++
++        if (Target.bBuildEditor)
++        {
++            PrivateDependencyModuleNames.AddRange(new[]
++            {
++                "UnrealEd",
++                "Slate",
++                "SlateCore"
++            });
++        }
+     }
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+index 9a9bde3..669f76e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+@@ -14,6 +14,8 @@
+ #include "MovieScene.h"
+ #include "MovieSceneGeometryCacheSection.h"
+ #include "MovieSceneGeometryCacheTrack.h"
++#include "MovieScenePossessable.h"
++#include "MovieSceneSpawnable.h"
+ #include "Sections/MovieScene3DTransformSection.h"
+ #include "Sections/MovieSceneFloatSection.h"
+ #include "Sections/MovieSceneSubSection.h"
+@@ -21,6 +23,13 @@
+ #include "Tracks/MovieSceneFloatTrack.h"
+ #include "Tracks/MovieSceneSubTrack.h"
+ 
++#if WITH_EDITOR
++#include "Framework/Application/SlateApplication.h"
++#include "Framework/Notifications/NotificationManager.h"
++#include "ScopedTransaction.h"
++#include "Widgets/Notifications/SNotificationList.h"
++#endif
++
+ DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageArrival, Log, All);
+ 
+ namespace
+@@ -154,6 +163,364 @@ const UMovieSceneFloatSection* FindFloatBindingSection(
+     // read the earliest section's channel outside its range on purpose, exactly as the root does.
+     return EarliestSection;
+ }
++
++#if WITH_EDITOR
++constexpr double HangarValueTolerance = 1.0e-3;
++
++struct FHangarLightChannel
++{
++    FString Label;
++    UMovieSceneFloatSection* Section = nullptr;
++    FMovieSceneFloatChannel* Channel = nullptr;
++    int32 StrikeKeyIndex = INDEX_NONE;
++};
++
++struct FHangarTimingDiscovery
++{
++    int32 SceneNumber = INDEX_NONE;
++    ULevelSequence* Sequence = nullptr;
++    UMovieScene* MovieScene = nullptr;
++    UMovieScene3DTransformSection* RootSection = nullptr;
++    UMovieScene3DTransformSection* RoofSection = nullptr;
++    UMovieScene3DTransformSection* LatticeSection = nullptr;
++    FMovieSceneDoubleChannel* RootPitch = nullptr;
++    FMovieSceneDoubleChannel* RoofPitch = nullptr;
++    FMovieSceneDoubleChannel* LatticeFlyZ = nullptr;
++    TArray<FHangarLightChannel> Lights;
++};
++
++FString BindingName(UMovieScene& MovieScene, const FGuid& Guid)
++{
++    if (const FMovieScenePossessable* Possessable = MovieScene.FindPossessable(Guid))
++    {
++        return Possessable->GetName();
++    }
++    if (const FMovieSceneSpawnable* Spawnable = MovieScene.FindSpawnable(Guid))
++    {
++        return Spawnable->GetName();
++    }
++    return FString();
++}
++
++FString ParentBindingName(UMovieScene& MovieScene, const FGuid& Guid)
++{
++    const FMovieScenePossessable* Possessable = MovieScene.FindPossessable(Guid);
++    return Possessable && Possessable->GetParent().IsValid()
++        ? BindingName(MovieScene, Possessable->GetParent())
++        : FString();
++}
++
++bool ParseArrivalSceneNumber(const AInfinityStageArrival& Arrival, int32& OutSceneNumber, FString& OutReason)
++{
++    const FString Label = Arrival.GetActorLabel();
++    FString Prefix;
++    FString Suffix;
++    if (!Label.Split(TEXT(" "), &Prefix, &Suffix) || Suffix != TEXT("Arrival")
++        || !Prefix.StartsWith(TEXT("S")) || Prefix.Len() < 2 || !Prefix.Mid(1).IsNumeric())
++    {
++        OutReason = FString::Printf(TEXT("actor label '%s' is not S<N> Arrival"), *Label);
++        return false;
++    }
++    OutSceneNumber = FCString::Atoi(*Prefix.Mid(1));
++    if (OutSceneNumber <= 0)
++    {
++        OutReason = FString::Printf(TEXT("actor label '%s' has an invalid scene number"), *Label);
++        return false;
++    }
++    return true;
++}
++
++bool FindUniqueBinding(UMovieScene& MovieScene, const FString& WantedName, FGuid& OutGuid, FString& OutReason)
++{
++    TArray<FGuid> Matches;
++    for (const FMovieSceneBinding& Binding : MovieScene.GetBindings())
++    {
++        if (BindingName(MovieScene, Binding.GetObjectGuid()) == WantedName)
++        {
++            Matches.Add(Binding.GetObjectGuid());
++        }
++    }
++    if (Matches.Num() != 1)
++    {
++        OutReason = FString::Printf(TEXT("expected one binding '%s', found %d"), *WantedName, Matches.Num());
++        return false;
++    }
++    OutGuid = Matches[0];
++    return true;
++}
++
++FMovieSceneDoubleChannel* TransformChannel(
++    UMovieScene& MovieScene,
++    const FGuid& BindingGuid,
++    const int32 ChannelIndex,
++    UMovieScene3DTransformSection*& OutSection)
++{
++    OutSection = const_cast<UMovieScene3DTransformSection*>(
++        FindBindingSection<UMovieScene3DTransformSection, UMovieScene3DTransformTrack>(MovieScene, BindingGuid));
++    if (!OutSection)
++    {
++        return nullptr;
++    }
++    const TArrayView<FMovieSceneDoubleChannel*> Channels =
++        OutSection->GetChannelProxy().GetChannels<FMovieSceneDoubleChannel>();
++    return Channels.IsValidIndex(ChannelIndex) ? Channels[ChannelIndex] : nullptr;
++}
++
++bool IsHangarLightLabel(const FString& Label, const int32 SceneNumber)
++{
++    const FString ScenePrefix = FString::Printf(TEXT("S%d "), SceneNumber);
++    return Label.StartsWith(ScenePrefix + TEXT("Uplight "))
++        || Label.StartsWith(ScenePrefix + TEXT("Practical "))
++        || Label.StartsWith(ScenePrefix + TEXT("Lattice Glow "));
++}
++
++bool FindStrikeKey(FHangarLightChannel& Light, FString& OutReason)
++{
++    const TMovieSceneChannelData<const FMovieSceneFloatValue> Data = Light.Channel->GetData();
++    const TArrayView<const FMovieSceneFloatValue> Values = Data.GetValues();
++    TArray<int32> Candidates;
++    for (int32 Index = 0; Index + 1 < Values.Num(); ++Index)
++    {
++        if (FMath::Abs(Values[Index].Value) <= HangarValueTolerance
++            && Values[Index + 1].Value > HangarValueTolerance)
++        {
++            Candidates.Add(Index);
++        }
++    }
++    if (Candidates.Num() != 1)
++    {
++        OutReason = FString::Printf(TEXT("%s has %d zero-to-positive strike ramps"),
++            *Light.Label, Candidates.Num());
++        return false;
++    }
++    Light.StrikeKeyIndex = Candidates[0];
++    return true;
++}
++
++bool DiscoverHangarTiming(AInfinityStageArrival& Arrival, FHangarTimingDiscovery& Out, FString& OutReason)
++{
++    if (!ParseArrivalSceneNumber(Arrival, Out.SceneNumber, OutReason))
++    {
++        return false;
++    }
++    Out.Sequence = Arrival.MotionSequence.LoadSynchronous();
++    Out.MovieScene = Out.Sequence ? Out.Sequence->GetMovieScene() : nullptr;
++    if (!Out.MovieScene)
++    {
++        OutReason = TEXT("MotionSequence is missing or has no MovieScene");
++        return false;
++    }
++
++    const FString RootLabel = FString::Printf(TEXT("S%d Hangar Root"), Out.SceneNumber);
++    if (!Arrival.MotionBindingGuid.IsValid()
++        || BindingName(*Out.MovieScene, Arrival.MotionBindingGuid) != RootLabel)
++    {
++        OutReason = FString::Printf(TEXT("MotionBindingGuid is not '%s'"), *RootLabel);
++        return false;
++    }
++    Out.RootPitch = TransformChannel(
++        *Out.MovieScene, Arrival.MotionBindingGuid, 4, Out.RootSection);
++    if (!Out.RootPitch)
++    {
++        OutReason = TEXT("root_pitch channel is missing");
++        return false;
++    }
++
++    FGuid RoofGuid;
++    const FString RoofLabel = FString::Printf(TEXT("S%d Hangar Roof Hinge"), Out.SceneNumber);
++    TArray<FGuid> RoofMatches;
++    for (const FMovieSceneBinding& Binding : Out.MovieScene->GetBindings())
++    {
++        if (BindingName(*Out.MovieScene, Binding.GetObjectGuid()) == RoofLabel)
++        {
++            RoofMatches.Add(Binding.GetObjectGuid());
++        }
++    }
++    if (RoofMatches.Num() > 1)
++    {
++        OutReason = FString::Printf(TEXT("expected zero or one binding '%s', found %d"),
++            *RoofLabel, RoofMatches.Num());
++        return false;
++    }
++    if (RoofMatches.Num() == 1)
++    {
++        RoofGuid = RoofMatches[0];
++        Out.RoofPitch = TransformChannel(*Out.MovieScene, RoofGuid, 4, Out.RoofSection);
++        if (!Out.RoofPitch)
++        {
++            OutReason = TEXT("roof_pitch channel is missing");
++            return false;
++        }
++    }
++
++    FGuid LatticeGuid;
++    if (!FindUniqueBinding(*Out.MovieScene,
++        FString::Printf(TEXT("S%d Hangar Lattice Fly"), Out.SceneNumber), LatticeGuid, OutReason))
++    {
++        return false;
++    }
++    Out.LatticeFlyZ = TransformChannel(*Out.MovieScene, LatticeGuid, 2, Out.LatticeSection);
++    if (!Out.LatticeFlyZ)
++    {
++        OutReason = TEXT("lattice_fly_z channel is missing");
++        return false;
++    }
++
++    TSet<FString> LightLabels;
++    for (const FMovieSceneBinding& Binding : Out.MovieScene->GetBindings())
++    {
++        const FString OwnName = BindingName(*Out.MovieScene, Binding.GetObjectGuid());
++        const FString ParentName = ParentBindingName(*Out.MovieScene, Binding.GetObjectGuid());
++        const FString Label = IsHangarLightLabel(ParentName, Out.SceneNumber)
++            ? ParentName
++            : (IsHangarLightLabel(OwnName, Out.SceneNumber) ? OwnName : FString());
++        if (Label.IsEmpty())
++        {
++            continue;
++        }
++
++        TArray<TPair<UMovieSceneFloatSection*, FMovieSceneFloatChannel*>> Channels;
++        for (UMovieSceneTrack* Track : Binding.GetTracks())
++        {
++            UMovieSceneFloatTrack* FloatTrack = Cast<UMovieSceneFloatTrack>(Track);
++            if (!FloatTrack || FloatTrack->GetPropertyName() != TEXT("Intensity"))
++            {
++                continue;
++            }
++            for (UMovieSceneSection* BaseSection : FloatTrack->GetAllSections())
++            {
++                if (UMovieSceneFloatSection* Section = Cast<UMovieSceneFloatSection>(BaseSection))
++                {
++                    Channels.Emplace(Section, &Section->GetChannel());
++                }
++            }
++        }
++        if (Channels.IsEmpty())
++        {
++            continue;
++        }
++        if (Channels.Num() != 1 || LightLabels.Contains(Label))
++        {
++            OutReason = FString::Printf(TEXT("%s does not have exactly one unique Intensity channel"), *Label);
++            return false;
++        }
++        LightLabels.Add(Label);
++        FHangarLightChannel& Light = Out.Lights.AddDefaulted_GetRef();
++        Light.Label = Label;
++        Light.Section = Channels[0].Key;
++        Light.Channel = Channels[0].Value;
++        if (!FindStrikeKey(Light, OutReason))
++        {
++            return false;
++        }
++    }
++    if (Out.Lights.IsEmpty())
++    {
++        OutReason = TEXT("no uplight, practical or lattice-glow Intensity channels were found");
++        return false;
++    }
++    return true;
++}
++
++double FrameSeconds(const UMovieScene& MovieScene, const FFrameNumber Frame)
++{
++    return MovieScene.GetTickResolution().AsSeconds(FFrameTime(Frame));
++}
++
++FFrameNumber SecondsFrame(const UMovieScene& MovieScene, const double Seconds)
++{
++    return MovieScene.GetTickResolution().AsFrameTime(Seconds).RoundToFrame();
++}
++
++bool CubicShape(
++    const FMovieSceneDoubleChannel& Channel,
++    const TArray<double>& ExpectedValues,
++    const bool bFirstKeyAtZero)
++{
++    const TMovieSceneChannelData<const FMovieSceneDoubleValue> Data = Channel.GetData();
++    const TArrayView<const FFrameNumber> Times = Data.GetTimes();
++    const TArrayView<const FMovieSceneDoubleValue> Values = Data.GetValues();
++    if (Values.Num() != ExpectedValues.Num() || Times.Num() != ExpectedValues.Num())
++    {
++        return false;
++    }
++    if (bFirstKeyAtZero && Times[0] != FFrameNumber(0))
++    {
++        return false;
++    }
++    for (int32 Index = 0; Index < Values.Num(); ++Index)
++    {
++        if (!FMath::IsNearlyEqual(Values[Index].Value, ExpectedValues[Index], HangarValueTolerance)
++            || Values[Index].InterpMode != RCIM_Cubic)
++        {
++            return false;
++        }
++    }
++    return true;
++}
++
++bool ValidateStandardShape(FHangarTimingDiscovery& Discovery, FString& OutReason)
++{
++    if (!CubicShape(*Discovery.RootPitch, {-90.0, 0.0}, false))
++    {
++        OutReason = TEXT("root_pitch does not match the two-key -90 to 0 cubic shape");
++        return false;
++    }
++    if (Discovery.SceneNumber == 5)
++    {
++        OutReason = TEXT("S5 has the known non-standard 29.27/38.73/45.07 mechanism timing; normalize it separately");
++        return false;
++    }
++    if (Discovery.RoofPitch && !CubicShape(*Discovery.RoofPitch, {-90.0, -90.0, 0.0}, true))
++    {
++        OutReason = TEXT("roof_pitch does not match the standard three-key cubic shape");
++        return false;
++    }
++    if (!CubicShape(*Discovery.LatticeFlyZ, {2800.0, 2800.0, 1200.0}, true))
++    {
++        OutReason = TEXT("lattice_fly_z does not match the standard three-key cubic shape");
++        return false;
++    }
++    for (const FHangarLightChannel& Light : Discovery.Lights)
++    {
++        const TArrayView<const FMovieSceneFloatValue> Values = Light.Channel->GetData().GetValues();
++        for (const FMovieSceneFloatValue& Value : Values)
++        {
++            if (Value.InterpMode != RCIM_Linear)
++            {
++                OutReason = FString::Printf(TEXT("%s Intensity keys are not linear"), *Light.Label);
++                return false;
++            }
++        }
++    }
++    return true;
++}
++
++void NotifyHangarTiming(const FString& Message, const bool bSuccess)
++{
++    if (!FSlateApplication::IsInitialized())
++    {
++        return;
++    }
++    FNotificationInfo Info(FText::FromString(Message));
++    Info.ExpireDuration = bSuccess ? 3.0f : 6.0f;
++    if (TSharedPtr<SNotificationItem> Item = FSlateNotificationManager::Get().AddNotification(Info))
++    {
++        Item->SetCompletionState(bSuccess
++            ? SNotificationItem::CS_Success
++            : SNotificationItem::CS_Fail);
++    }
++}
++
++bool RefuseHangarTiming(AInfinityStageArrival& Arrival, const FString& Reason)
++{
++    UE_LOG(LogInfinityStageArrival, Warning,
++        TEXT("INFINITY_HANGAR_TIMING_REFUSED|actor=%s|reason=%s"),
++        *Arrival.GetActorNameOrLabel(), *Reason);
++    NotifyHangarTiming(FString::Printf(TEXT("Hangar timing refused: %s"), *Reason), false);
++    return false;
++}
++#endif
+ }
+ 
+ AInfinityStageArrival::AInfinityStageArrival()
+@@ -164,6 +531,201 @@ AInfinityStageArrival::AInfinityStageArrival()
+     SetRootComponent(SceneRoot);
+ }
+ 
++bool AInfinityStageArrival::ReadHangarTiming()
++{
++#if WITH_EDITOR
++    FHangarTimingDiscovery Discovery;
++    FString Reason;
++    if (!DiscoverHangarTiming(*this, Discovery, Reason))
++    {
++        return RefuseHangarTiming(*this, FString::Printf(TEXT("read: %s"), *Reason));
++    }
++
++    const TArrayView<const FFrameNumber> RootTimes = Discovery.RootPitch->GetData().GetTimes();
++    const TArrayView<const FFrameNumber> LatticeTimes = Discovery.LatticeFlyZ->GetData().GetTimes();
++    if (RootTimes.Num() != 2 || LatticeTimes.Num() != 3)
++    {
++        return RefuseHangarTiming(*this, TEXT("read: root or lattice key count is non-standard"));
++    }
++
++    HangarTiming.bHasRoofHinge = Discovery.RoofPitch != nullptr;
++    HangarTiming.LandSeconds = FrameSeconds(*Discovery.MovieScene, RootTimes.Last());
++    if (Discovery.RoofPitch)
++    {
++        const TArrayView<const FFrameNumber> RoofTimes = Discovery.RoofPitch->GetData().GetTimes();
++        if (RoofTimes.Num() != 3)
++        {
++            return RefuseHangarTiming(*this, TEXT("read: roof key count is non-standard"));
++        }
++        HangarTiming.RoofCloseStartSeconds = FrameSeconds(*Discovery.MovieScene, RoofTimes[1]);
++        HangarTiming.RoofCloseEndSeconds = FrameSeconds(*Discovery.MovieScene, RoofTimes[2]);
++    }
++    HangarTiming.LatticeStartSeconds = FrameSeconds(*Discovery.MovieScene, LatticeTimes[1]);
++    HangarTiming.LatticeEndSeconds = FrameSeconds(*Discovery.MovieScene, LatticeTimes[2]);
++
++    double EarliestStrike = TNumericLimits<double>::Max();
++    for (const FHangarLightChannel& Light : Discovery.Lights)
++    {
++        const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
++        EarliestStrike = FMath::Min(
++            EarliestStrike,
++            FrameSeconds(*Discovery.MovieScene, Times[Light.StrikeKeyIndex]));
++    }
++    HangarTiming.LightStrikeSeconds = EarliestStrike;
++
++    UE_LOG(LogInfinityStageArrival, Display,
++        TEXT("INFINITY_HANGAR_TIMING_READ|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|strike=%.4f|lights=%d"),
++        *GetActorNameOrLabel(),
++        HangarTiming.RoofCloseStartSeconds,
++        HangarTiming.RoofCloseEndSeconds,
++        HangarTiming.LatticeStartSeconds,
++        HangarTiming.LatticeEndSeconds,
++        HangarTiming.LightStrikeSeconds,
++        Discovery.Lights.Num());
++    NotifyHangarTiming(TEXT("Hangar timing read from the rise sequence."), true);
++    return true;
++#else
++    return false;
++#endif
++}
++
++bool AInfinityStageArrival::ApplyHangarTiming()
++{
++#if WITH_EDITOR
++    FHangarTimingDiscovery Discovery;
++    FString Reason;
++    if (!DiscoverHangarTiming(*this, Discovery, Reason))
++    {
++        return RefuseHangarTiming(*this, Reason);
++    }
++    if (!ValidateStandardShape(Discovery, Reason))
++    {
++        return RefuseHangarTiming(*this, Reason);
++    }
++
++    const TArrayView<const FFrameNumber> RootTimes = Discovery.RootPitch->GetData().GetTimes();
++    const double LandSeconds = FrameSeconds(*Discovery.MovieScene, RootTimes.Last());
++    const bool bHasRoof = Discovery.RoofPitch != nullptr;
++    const FFrameNumber RoofStart = SecondsFrame(*Discovery.MovieScene, HangarTiming.RoofCloseStartSeconds);
++    const FFrameNumber RoofEnd = SecondsFrame(*Discovery.MovieScene, HangarTiming.RoofCloseEndSeconds);
++    const FFrameNumber LatticeStart = SecondsFrame(*Discovery.MovieScene, HangarTiming.LatticeStartSeconds);
++    const FFrameNumber LatticeEnd = SecondsFrame(*Discovery.MovieScene, HangarTiming.LatticeEndSeconds);
++    const FFrameNumber StrikeTarget = SecondsFrame(*Discovery.MovieScene, HangarTiming.LightStrikeSeconds);
++    if (bHasRoof && RoofStart < RootTimes.Last())
++    {
++        return RefuseHangarTiming(*this, FString::Printf(
++            TEXT("roof start %.4f is before landing %.4f"),
++            HangarTiming.RoofCloseStartSeconds, LandSeconds));
++    }
++    if (bHasRoof && RoofEnd <= RoofStart)
++    {
++        return RefuseHangarTiming(*this, TEXT("roof end must be after roof start"));
++    }
++    if (bHasRoof && LatticeStart < RoofEnd)
++    {
++        return RefuseHangarTiming(*this, TEXT("lattice start must not overlap the roof close"));
++    }
++    if (!bHasRoof && LatticeStart < RootTimes.Last())
++    {
++        return RefuseHangarTiming(*this, TEXT("roofless lattice start must not be before landing"));
++    }
++    if (LatticeEnd <= LatticeStart)
++    {
++        return RefuseHangarTiming(*this, TEXT("lattice end must be after lattice start"));
++    }
++
++    const TRange<FFrameNumber> PlaybackRange = Discovery.MovieScene->GetPlaybackRange();
++    if (!PlaybackRange.HasLowerBound() || !PlaybackRange.HasUpperBound())
++    {
++        return RefuseHangarTiming(*this, TEXT("sequence playback range is unbounded"));
++    }
++    const FFrameNumber PlaybackStart = PlaybackRange.GetLowerBoundValue();
++    const FFrameNumber PlaybackEnd = PlaybackRange.GetUpperBoundValue();
++    if ((bHasRoof && (RoofStart < PlaybackStart || RoofEnd >= PlaybackEnd))
++        || LatticeStart < PlaybackStart || LatticeEnd >= PlaybackEnd)
++    {
++        return RefuseHangarTiming(*this, TEXT("requested mechanism timing is outside the playback range"));
++    }
++    if (HangarTiming.LightStrikeSeconds < 0.0
++        || StrikeTarget < PlaybackStart || StrikeTarget >= PlaybackEnd)
++    {
++        return RefuseHangarTiming(*this, TEXT("light strike is negative or beyond the playback range"));
++    }
++
++    FFrameNumber EarliestStrike = FFrameNumber(TNumericLimits<int32>::Max());
++    for (const FHangarLightChannel& Light : Discovery.Lights)
++    {
++        const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
++        EarliestStrike = FMath::Min(EarliestStrike, Times[Light.StrikeKeyIndex]);
++    }
++    const FFrameNumber LightShift = StrikeTarget - EarliestStrike;
++    for (const FHangarLightChannel& Light : Discovery.Lights)
++    {
++        const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
++        for (int32 Index = Light.StrikeKeyIndex; Index < Times.Num(); ++Index)
++        {
++            const FFrameNumber Shifted = Times[Index] + LightShift;
++            const FFrameNumber Previous = Index > Light.StrikeKeyIndex
++                ? Times[Index - 1] + LightShift
++                : (Index > 0 ? Times[Index - 1] : FFrameNumber(TNumericLimits<int32>::Min()));
++            if (Shifted < PlaybackStart || Shifted >= PlaybackEnd
++                || Shifted <= Previous)
++            {
++                return RefuseHangarTiming(*this, FString::Printf(
++                    TEXT("shifting %s would move or reorder keys outside the playback range"),
++                    *Light.Label));
++            }
++        }
++    }
++
++    const FScopedTransaction Transaction(
++        TEXT("InfinityStageHangarTiming"),
++        NSLOCTEXT("InfinityStage", "ApplyHangarTiming", "Apply Hangar Timing"),
++        Discovery.Sequence);
++    Discovery.Sequence->Modify();
++    Discovery.MovieScene->Modify();
++    if (bHasRoof)
++    {
++        Discovery.RoofSection->Modify();
++        TArrayView<FFrameNumber> Times = Discovery.RoofPitch->GetData().GetTimes();
++        Times[1] = RoofStart;
++        Times[2] = RoofEnd;
++        Discovery.RoofPitch->AutoSetTangents();
++    }
++    Discovery.LatticeSection->Modify();
++    {
++        TArrayView<FFrameNumber> Times = Discovery.LatticeFlyZ->GetData().GetTimes();
++        Times[1] = LatticeStart;
++        Times[2] = LatticeEnd;
++        Discovery.LatticeFlyZ->AutoSetTangents();
++    }
++    for (FHangarLightChannel& Light : Discovery.Lights)
++    {
++        Light.Section->Modify();
++        TArrayView<FFrameNumber> Times = Light.Channel->GetData().GetTimes();
++        for (int32 Index = Light.StrikeKeyIndex; Index < Times.Num(); ++Index)
++        {
++            Times[Index] += LightShift;
++        }
++    }
++    Discovery.Sequence->MarkPackageDirty();
++
++    UE_LOG(LogInfinityStageArrival, Display,
++        TEXT("INFINITY_HANGAR_TIMING_APPLIED|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|strike=%.4f|lights=%d"),
++        *GetActorNameOrLabel(),
++        HangarTiming.RoofCloseStartSeconds,
++        HangarTiming.RoofCloseEndSeconds,
++        HangarTiming.LatticeStartSeconds,
++        HangarTiming.LatticeEndSeconds,
++        HangarTiming.LightStrikeSeconds,
++        Discovery.Lights.Num());
++    NotifyHangarTiming(TEXT("Hangar timing applied. Save the rise sequence when ready."), true);
++    return true;
++#else
++    return false;
++#endif
++}
++
+ void AInfinityStageArrival::BeginPlay()
+ {
+     Super::BeginPlay();
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+index 2963f6f..fbc4b7d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+@@ -12,6 +12,38 @@ class UMovieScene;
+ class UMovieSceneSubSection;
+ class USceneComponent;
+ 
++/** Editable, cut-relative timing for one Arrival's hangar rise sequence. */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityHangarTiming
++{
++    GENERATED_BODY()
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
++        meta = (EditCondition = "bHasRoofHinge", EditConditionHides, Units = "s"))
++    double RoofCloseStartSeconds = 4.1261;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
++        meta = (EditCondition = "bHasRoofHinge", EditConditionHides, Units = "s"))
++    double RoofCloseEndSeconds = 8.6261;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
++    double LatticeStartSeconds = 8.6261;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
++    double LatticeEndSeconds = 12.6261;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
++    double LightStrikeSeconds = 10.0;
++
++    /** Landing time read from the root pitch channel's last key. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Hangar Timing", meta = (Units = "s"))
++    double LandSeconds = 4.1261;
++
++    /** Read from the rise sequence; drives visibility of the two roof fields. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Hangar Timing")
++    bool bHasRoofHinge = true;
++};
++
+ /**
+  * One float channel the Arrival reads before its Scene starts. The target is either a
+  * light component (Intensity) or a post-process volume (BlendWeight).
+@@ -94,6 +126,18 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+     TObjectPtr<AActor> DrivenActor;
+ 
++    /** Cut-relative controls for the rise asset. Read first, edit, then Apply; Apply never saves. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (ShowOnlyInnerProperties))
++    FInfinityHangarTiming HangarTiming;
++
++    /** Populate HangarTiming from MotionSequence without changing the sequence. */
++    UFUNCTION(CallInEditor, BlueprintCallable, Category = "Hangar Timing")
++    bool ReadHangarTiming();
++
++    /** Validate and retime only roof, lattice and light-strike keys in one undo transaction. */
++    UFUNCTION(CallInEditor, BlueprintCallable, Category = "Hangar Timing")
++    bool ApplyHangarTiming();
++
+     /** Roof hinge and lattice-fly bindings initialized alongside DrivenActor. The root stays
+      * the existing DrivenActor/MotionBindingGuid pair so no second owner can diverge from the
+      * pre-Scene drive. Author only the sequence's actual transform movers (S6 has no roof). */
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp
+new file mode 100644
+index 0000000..e9f75e6
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp
+@@ -0,0 +1,267 @@
++#include "InfinityStageArrival.h"
++
++#include "Channels/MovieSceneChannelProxy.h"
++#include "Channels/MovieSceneDoubleChannel.h"
++#include "Channels/MovieSceneFloatChannel.h"
++#include "Components/PointLightComponent.h"
++#include "Engine/World.h"
++#include "LevelSequence.h"
++#include "Misc/AutomationTest.h"
++#include "MovieScene.h"
++#include "Sections/MovieScene3DTransformSection.h"
++#include "Sections/MovieSceneFloatSection.h"
++#include "Serialization/MemoryWriter.h"
++#include "Tracks/MovieScene3DTransformTrack.h"
++#include "Tracks/MovieSceneFloatTrack.h"
++
++#if WITH_DEV_AUTOMATION_TESTS && WITH_EDITOR
++
++namespace
++{
++constexpr int32 TimingFps = 30;
++
++FFrameNumber Frame(const double Seconds)
++{
++    return FFrameRate(TimingFps, 1).AsFrameTime(Seconds).RoundToFrame();
++}
++
++FGuid AddTransform(
++    UMovieScene& MovieScene,
++    const TCHAR* Name,
++    const int32 ChannelIndex,
++    const TArray<FFrameNumber>& Times,
++    const TArray<double>& Values,
++    FMovieSceneDoubleChannel*& OutChannel)
++{
++    const FGuid Binding = MovieScene.AddPossessable(Name, AActor::StaticClass());
++    UMovieScene3DTransformTrack* Track = MovieScene.AddTrack<UMovieScene3DTransformTrack>(Binding);
++    UMovieScene3DTransformSection* Section =
++        CastChecked<UMovieScene3DTransformSection>(Track->CreateNewSection());
++    Section->SetRange(TRange<FFrameNumber>::All());
++    Track->AddSection(*Section);
++    const TArrayView<FMovieSceneDoubleChannel*> Channels =
++        Section->GetChannelProxy().GetChannels<FMovieSceneDoubleChannel>();
++    for (int32 Index = 0; Index < Channels.Num(); ++Index)
++    {
++        Channels[Index]->SetDefault(Index >= 6 ? 1.0 : 0.0);
++    }
++    OutChannel = Channels[ChannelIndex];
++    for (int32 Index = 0; Index < Times.Num(); ++Index)
++    {
++        OutChannel->AddCubicKey(Times[Index], Values[Index]);
++    }
++    return Binding;
++}
++
++FMovieSceneFloatChannel* AddLight(
++    UMovieScene& MovieScene,
++    const TCHAR* Name,
++    const TArray<FFrameNumber>& Times,
++    const TArray<float>& Values)
++{
++    const FGuid Binding = MovieScene.AddPossessable(Name, UPointLightComponent::StaticClass());
++    UMovieSceneFloatTrack* Track = MovieScene.AddTrack<UMovieSceneFloatTrack>(Binding);
++    Track->SetPropertyNameAndPath(TEXT("Intensity"), TEXT("Intensity"));
++    UMovieSceneFloatSection* Section = CastChecked<UMovieSceneFloatSection>(Track->CreateNewSection());
++    Section->SetRange(TRange<FFrameNumber>::All());
++    Track->AddSection(*Section);
++    FMovieSceneFloatChannel& Channel = Section->GetChannel();
++    for (int32 Index = 0; Index < Times.Num(); ++Index)
++    {
++        Channel.AddLinearKey(Times[Index], Values[Index]);
++    }
++    return &Channel;
++}
++
++template <typename ChannelType>
++TArray<uint8> ChannelBytes(ChannelType& Channel)
++{
++    TArray<uint8> Bytes;
++    FMemoryWriter Writer(Bytes, true);
++    Writer << Channel;
++    return Bytes;
++}
++
++struct FHangarTimingFixture
++{
++    UWorld* World = nullptr;
++    ULevelSequence* Sequence = nullptr;
++    UMovieScene* MovieScene = nullptr;
++    AInfinityStageArrival* Arrival = nullptr;
++    FMovieSceneDoubleChannel* Root = nullptr;
++    FMovieSceneDoubleChannel* Roof = nullptr;
++    FMovieSceneDoubleChannel* Lattice = nullptr;
++    TArray<FMovieSceneFloatChannel*> Lights;
++
++    explicit FHangarTimingFixture(const TArray<TPair<double, double>>& StrikeAndRampSeconds)
++    {
++        Sequence = NewObject<ULevelSequence>(GetTransientPackage());
++        Sequence->Initialize();
++        MovieScene = Sequence->GetMovieScene();
++        MovieScene->SetTickResolutionDirectly(FFrameRate(TimingFps, 1));
++        MovieScene->SetDisplayRate(FFrameRate(TimingFps, 1));
++        MovieScene->SetPlaybackRange(FFrameNumber(0), TimingFps * 30, false);
++
++        const FGuid RootBinding = AddTransform(
++            *MovieScene,
++            TEXT("S1 Hangar Root"),
++            4,
++            {Frame(-5.8739), Frame(4.1261)},
++            {-90.0, 0.0},
++            Root);
++        AddTransform(
++            *MovieScene,
++            TEXT("S1 Hangar Roof Hinge"),
++            4,
++            {Frame(0.0), Frame(6.6333), Frame(12.6333)},
++            {-90.0, -90.0, 0.0},
++            Roof);
++        AddTransform(
++            *MovieScene,
++            TEXT("S1 Hangar Lattice Fly"),
++            2,
++            {Frame(0.0), Frame(12.6333), Frame(16.6333)},
++            {2800.0, 2800.0, 1200.0},
++            Lattice);
++
++        for (int32 Index = 0; Index < StrikeAndRampSeconds.Num(); ++Index)
++        {
++            const double Strike = StrikeAndRampSeconds[Index].Key;
++            const double Ramp = StrikeAndRampSeconds[Index].Value;
++            Lights.Add(AddLight(
++                *MovieScene,
++                *FString::Printf(TEXT("S1 Practical L%d"), Index + 1),
++                {Frame(0.0), Frame(Strike), Frame(Strike + Ramp)},
++                {0.0f, 0.0f, 400.0f + Index * 100.0f}));
++        }
++
++        World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        Arrival = World->SpawnActor<AInfinityStageArrival>();
++        Arrival->SetActorLabel(TEXT("S1 Arrival"), false);
++        Arrival->MotionSequence = Sequence;
++        Arrival->MotionBindingGuid = RootBinding;
++    }
++
++    ~FHangarTimingFixture()
++    {
++        World->DestroyWorld(false);
++    }
++};
++
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHangarTimingAppliesTest,
++    "InfinityStage.Hangar.TimingAppliesToTransientRise",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHangarTimingAppliesTest::RunTest(const FString& Parameters)
++{
++    FHangarTimingFixture Fixture({{6.6333, 0.2}, {7.1333, 0.3}});
++    const TArray<uint8> RootBefore = ChannelBytes(*Fixture.Root);
++
++    TestTrue(TEXT("The default timing applies to a standard transient rise"),
++        Fixture.Arrival->ApplyHangarTiming());
++    const TArrayView<const FFrameNumber> RoofTimes = Fixture.Roof->GetData().GetTimes();
++    const TArrayView<const FFrameNumber> LatticeTimes = Fixture.Lattice->GetData().GetTimes();
++    TestEqual(TEXT("Roof close starts at landing"), RoofTimes[1].Value, Frame(4.1261).Value);
++    TestEqual(TEXT("Roof close ends at the exposed default"), RoofTimes[2].Value, Frame(8.6261).Value);
++    TestEqual(TEXT("Lattice starts after the roof"), LatticeTimes[1].Value, Frame(8.6261).Value);
++    TestEqual(TEXT("Lattice ends at the exposed default"), LatticeTimes[2].Value, Frame(12.6261).Value);
++    TestEqual(TEXT("The earliest light strike moves to ten seconds"),
++        Fixture.Lights[0]->GetData().GetTimes()[1].Value, Frame(10.0).Value);
++    TestTrue(TEXT("Root keys are byte-identical"), ChannelBytes(*Fixture.Root) == RootBefore);
++
++    // Negative control: an ApplyHangarTiming stub returns false and leaves every asserted old time in place.
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHangarTimingRefusesBadOrderTest,
++    "InfinityStage.Hangar.TimingRefusesBadOrder",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHangarTimingRefusesBadOrderTest::RunTest(const FString& Parameters)
++{
++    FHangarTimingFixture Fixture({{6.6333, 0.2}});
++    const TArray<uint8> RoofBefore = ChannelBytes(*Fixture.Roof);
++    const TArray<uint8> LatticeBefore = ChannelBytes(*Fixture.Lattice);
++    const TArray<uint8> LightBefore = ChannelBytes(*Fixture.Lights[0]);
++
++    Fixture.Arrival->HangarTiming.RoofCloseStartSeconds = 4.0;
++    AddExpectedMessagePlain(
++        TEXT("INFINITY_HANGAR_TIMING_REFUSED"),
++        ELogVerbosity::Warning,
++        EAutomationExpectedMessageFlags::Contains,
++        1);
++    TestFalse(TEXT("Roof motion before landing is refused"), Fixture.Arrival->ApplyHangarTiming());
++    TestTrue(TEXT("Bad roof order changes no roof keys"), ChannelBytes(*Fixture.Roof) == RoofBefore);
++    TestTrue(TEXT("Bad roof order changes no lattice keys"), ChannelBytes(*Fixture.Lattice) == LatticeBefore);
++    TestTrue(TEXT("Bad roof order changes no light keys"), ChannelBytes(*Fixture.Lights[0]) == LightBefore);
++
++    Fixture.Arrival->HangarTiming.RoofCloseStartSeconds = 4.1261;
++    Fixture.Arrival->HangarTiming.LatticeStartSeconds = 8.0;
++    AddExpectedMessagePlain(
++        TEXT("INFINITY_HANGAR_TIMING_REFUSED"),
++        ELogVerbosity::Warning,
++        EAutomationExpectedMessageFlags::Contains,
++        1);
++    TestFalse(TEXT("Lattice motion overlapping the roof is refused"),
++        Fixture.Arrival->ApplyHangarTiming());
++    TestTrue(TEXT("Overlapping lattice changes no roof keys"), ChannelBytes(*Fixture.Roof) == RoofBefore);
++    TestTrue(TEXT("Overlapping lattice changes no lattice keys"), ChannelBytes(*Fixture.Lattice) == LatticeBefore);
++    TestTrue(TEXT("Overlapping lattice changes no light keys"), ChannelBytes(*Fixture.Lights[0]) == LightBefore);
++
++    Fixture.Arrival->HangarTiming.LatticeStartSeconds = 8.6261;
++    TestTrue(TEXT("The same fixture applies after its order is corrected"),
++        Fixture.Arrival->ApplyHangarTiming());
++    TestFalse(TEXT("The corrected apply moves the roof keys"), ChannelBytes(*Fixture.Roof) == RoofBefore);
++
++    // Negative control: the two refusal assertions need the refusal log, and the corrected sentinel fails with a stub.
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHangarTimingPreservesLightStaggerTest,
++    "InfinityStage.Hangar.TimingPreservesLightStagger",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHangarTimingPreservesLightStaggerTest::RunTest(const FString& Parameters)
++{
++    FHangarTimingFixture Fixture({{6.6333, 0.2}, {7.1333, 0.3}, {8.0667, 0.4}});
++    TArray<TArray<FMovieSceneFloatValue>> ValuesBefore;
++    TArray<int32> StrikeOffsets;
++    TArray<int32> RampDurations;
++    const int32 FirstStrikeBefore = Fixture.Lights[0]->GetData().GetTimes()[1].Value;
++    for (const FMovieSceneFloatChannel* Light : Fixture.Lights)
++    {
++        const TMovieSceneChannelData<const FMovieSceneFloatValue> Data = Light->GetData();
++        ValuesBefore.Emplace(Data.GetValues());
++        StrikeOffsets.Add(Data.GetTimes()[1].Value - FirstStrikeBefore);
++        RampDurations.Add(Data.GetTimes()[2].Value - Data.GetTimes()[1].Value);
++    }
++
++    TestTrue(TEXT("The stagger fixture applies"), Fixture.Arrival->ApplyHangarTiming());
++    const int32 FirstStrikeAfter = Fixture.Lights[0]->GetData().GetTimes()[1].Value;
++    TestEqual(TEXT("The first strike lands at ten seconds"), FirstStrikeAfter, Frame(10.0).Value);
++    for (int32 Index = 0; Index < Fixture.Lights.Num(); ++Index)
++    {
++        const TMovieSceneChannelData<const FMovieSceneFloatValue> Data = Fixture.Lights[Index]->GetData();
++        TestEqual(
++            *FString::Printf(TEXT("Light %d keeps its strike offset"), Index),
++            Data.GetTimes()[1].Value - FirstStrikeAfter,
++            StrikeOffsets[Index]);
++        TestEqual(
++            *FString::Printf(TEXT("Light %d keeps its ramp duration"), Index),
++            Data.GetTimes()[2].Value - Data.GetTimes()[1].Value,
++            RampDurations[Index]);
++        TestTrue(
++            *FString::Printf(TEXT("Light %d keeps values and interpolation"), Index),
++            TArray<FMovieSceneFloatValue>(Data.GetValues()) == ValuesBefore[Index]);
++    }
++
++    // Negative control: a stub returns false, leaves the first strike at 6.6333 s, and fails both sentinels.
++    return true;
++}
++
++#endif
+
+
+- [declaration-proven] `Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs`
+- [declaration-proven] `Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp`
+- [declaration-proven] `Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h`
+- [declaration-proven] `Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp`
+
+
+- [declaration-proven] The Details-panel timing struct, read/apply buttons, validation, transaction, notifications, logging, S5 refusal, S6 roofless path, and three requested transient tests are present in the diff.
+- [declaration-proven] Apply changes only roof, lattice, and selected light-channel key times; it does not write root, PPV/exposure, playback-range, or save code.
+- [declaration-proven] `git diff --check` passed for tracked changes and the new test file.
+- [declaration-proven] No Unreal, editor, UBT, build, or automation-test command was run.
+- [inferred] Compilation and automation-test success remain unverified because the requested acceptance boundary forbids a build.
+
