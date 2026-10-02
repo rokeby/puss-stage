@@ -140,16 +140,25 @@ def assert_destinations_absent(planned):
 
 
 def lod1_timber_gate(slot_a, mesh, path):
-    """Gate imported (post-sRGB-conversion) LOD1 plywood IDs against P04's 0.5."""
+    """CONSISTENCY gate (Conductor 4, 2 Oct): LOD1 Timber R must equal, within 0.01,
+    the value the already-landed V3 flats store (measured read-only by
+    Saved/CodexFlatV3/probe_v3_timber_vc.py). The old fixed 0.5 rule was invented
+    in the W scripts on a false premise (no landed flat stores 0.5) and is removed."""
+    probe_path = os.path.join(os.path.dirname(HERE), "probe_v3_timber_vc_out.json")
+    probe = json.load(open(probe_path, encoding="utf-8"))
+    landed = sorted({round(float(v), 4) for rec in probe["meshes"].values()
+                     for v in rec["lod1"]["timber_r"]})
+    if len(landed) != 1:
+        raise RuntimeError("W2_LANDED_TIMBER_REFERENCE_NOT_UNIQUE|values=" + json.dumps(landed))
+    expected = landed[0]
     dynamic = slot_a.pilot.dynamic_lod(mesh, 1)
     timber = dynamic.get("materials", {}).get("2", {})
     values = timber.get("r_range")
     if (not isinstance(values, (list, tuple)) or len(values) != 2 or
-            any(float(value) < 0.49 or float(value) > 0.51 for value in values)):
-        raise RuntimeError("W2_LOD1_TIMBER_R_FAIL|mesh=%s|r=%s|required=[0.49,0.51]" %
-                           (path, json.dumps(values)))
+            any(abs(float(value) - expected) > 0.01 for value in values)):
+        raise RuntimeError("W2_LOD1_TIMBER_R_FAIL|mesh=%s|r=%s|expected=%.4f+-0.01(landed V3)" %
+                           (path, json.dumps(values), expected))
     return [float(values[0]), float(values[1])]
-
 
 def assert_slot_a_geometry_report(result, path):
     """Make the reused Slot A live gates explicit at the W2 run boundary."""

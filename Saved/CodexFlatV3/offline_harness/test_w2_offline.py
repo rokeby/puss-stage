@@ -1,9 +1,9 @@
 """Offline fake-Unreal coverage for the W2 fresh-import/swap/verify/revert kit."""
 import importlib
 import json
-import math
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 
@@ -31,6 +31,15 @@ CONFIG = str(SWAPKIT / "run_w2.json")
 class W2OfflineTests(unittest.TestCase):
     def setUp(self):
         fake.reset()
+        self.probe_temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.probe_temp.cleanup)
+        original_import_here = w2_import.HERE
+        self.addCleanup(setattr, w2_import, "HERE", original_import_here)
+        fake_swapkit = Path(self.probe_temp.name) / "swapkit"
+        fake_swapkit.mkdir()
+        w2_import.HERE = str(fake_swapkit)
+        self.probe_path = fake_swapkit.parent / "probe_v3_timber_vc_out.json"
+        self._write_probe([fake.MEASURED_LOD1_TIMBER_R])
         self.reports = {}
         c.write_report = self._write_report
         c.read_report = self._read_report
@@ -39,6 +48,16 @@ class W2OfflineTests(unittest.TestCase):
         c.assert_run_unused = self._assert_run_unused
         ifc.package_exists_on_disk = lambda path: path in fake.STATE.disk_packages
         w2_import.load_slot_a_library = lambda: fake.FakeSlotA
+
+    def _write_probe(self, values):
+        meshes = {
+            "SM_FlatV3_Landed_%d" % index: {
+                "lod1": {"timber_r": [float(value), float(value)]}
+            }
+            for index, value in enumerate(values, start=1)
+        }
+        self.probe_path.write_text(
+            json.dumps({"meshes": meshes}), encoding="utf-8")
 
     def _write_report(self, _config, phase, payload, failure=False):
         self.reports[(phase, failure)] = payload
@@ -63,6 +82,8 @@ class W2OfflineTests(unittest.TestCase):
         imported = w2_import.main(CONFIG)
         self.assertEqual(imported["status"], "PASS")
         self.assertEqual(len(imported["saved_roots"]), 42)
+        self.assertEqual(imported["imported"]["1_A"]["lod1_timber_r"],
+                         [fake.MEASURED_LOD1_TIMBER_R] * 2)
         preflight = w2_preflight.main(CONFIG)
         self.assertEqual(preflight["actor_count"], 6)
         applied = w2_apply.main(CONFIG)
@@ -119,27 +140,29 @@ class W2OfflineTests(unittest.TestCase):
         self.assertEqual(set(cleanup["deleted"]), expected_created)
         self.assertEqual(cleanup["status"], "CLEAN")
 
-    def test_ext3_variant_fails_lod1_timber_gate_after_srgb_conversion(self):
-        # Basis: the approved design records the P04 fresh-import measurement as
-        # linear Timber R=0.5. ext2 stores the matching sRGB-encoded byte value;
-        # ext3 stores 0.5 as if it were linear, so Interchange conversion yields
-        # about 0.214 and must fail the [0.49, 0.51] imported read-back gate.
-        ext2_linear = fake.srgb_to_linear(0.7353569830524495)
-        ext3_linear = fake.srgb_to_linear(0.5)
-        self.assertAlmostEqual(ext2_linear, 0.5, places=6)
-        self.assertAlmostEqual(ext3_linear, 0.21404114048223255, places=6)
-        config = c.load_config(CONFIG)
-        source_row = w2_import.inventory(config, fake.FakeSlotA)[0][0]
-        ext3_row = dict(source_row)
-        ext3_row["folder"] = source_row["folder"].replace("flats_ext2", "flats_ext3")
-        ext3_row["destinations"] = {
-            name: path.replace(config["destination_root"], "/Game/FakeExt3")
-            for name, path in source_row["destinations"].items()
-        }
-        fake.FakeSlotA.import_asset(ext3_row)
-        ext3_mesh = fake.EditorAssetLibrary.load_asset(ext3_row["destinations"]["mesh"])
+    def test_ext2_measured_lod1_timber_value_passes_consistency_gate(self):
+        mesh = fake.StaticMesh("/Game/Fake/SM_Ext2Wave")
+        self.assertEqual(
+            w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path),
+            [fake.MEASURED_LOD1_TIMBER_R] * 2)
+
+    def test_old_fixed_half_value_fails_consistency_gate(self):
+        mesh = fake.StaticMesh("/Game/Fake/SM_OldRule", lod1_timber_r=0.5)
         with self.assertRaisesRegex(RuntimeError, "W2_LOD1_TIMBER_R_FAIL"):
-            w2_import.lod1_timber_gate(fake.FakeSlotA, ext3_mesh, ext3_mesh.path)
+            w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path)
+
+    def test_two_landed_probe_values_fail_reference_uniqueness(self):
+        self._write_probe([fake.MEASURED_LOD1_TIMBER_R, 0.5])
+        mesh = fake.StaticMesh("/Game/Fake/SM_Ext2Wave")
+        with self.assertRaisesRegex(
+                RuntimeError, "W2_LANDED_TIMBER_REFERENCE_NOT_UNIQUE"):
+            w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path)
+
+    def test_missing_landed_probe_file_fails(self):
+        self.probe_path.unlink()
+        mesh = fake.StaticMesh("/Game/Fake/SM_Ext2Wave")
+        with self.assertRaises(FileNotFoundError):
+            w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 """Purpose-built fake Unreal surface for the W2 wave swap offline harness."""
-import math
 import os
 
 
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 LS = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+MEASURED_LOD1_TIMBER_R = 0.7333
 
 
 class State:
@@ -73,10 +73,11 @@ class Asset:
 
 
 class StaticMesh(Asset):
-    def __init__(self, path, width_cm=1000.0, source_encoded_r=0.7353569830524495):
+    def __init__(self, path, width_cm=1000.0,
+                 lod1_timber_r=MEASURED_LOD1_TIMBER_R):
         super().__init__(path)
         self.width_cm = float(width_cm)
-        self.source_encoded_r = float(source_encoded_r)
+        self.lod1_timber_r = float(lod1_timber_r)
 
 
 class Texture2D(Asset):
@@ -234,17 +235,12 @@ def log_error(message):
     STATE.logs.append("Error|" + str(message))
 
 
-def srgb_to_linear(value):
-    value = float(value)
-    return value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4
-
-
 class FakePilot:
     @staticmethod
     def dynamic_lod(mesh, lod):
         assert lod == 1
-        converted = srgb_to_linear(mesh.source_encoded_r)
-        return {"materials": {"2": {"r_range": [converted, converted]}}}
+        value = mesh.lod1_timber_r
+        return {"materials": {"2": {"r_range": [value, value]}}}
 
     @staticmethod
     def reload_new_packages(_paths):
@@ -281,8 +277,8 @@ class FakeSlotA:
         for index, path in enumerate(paths):
             if path == row["destinations"]["mesh"]:
                 width = float(row["validation"]["dimensions_m"][1]) * 100.0
-                encoded = 0.7353569830524495 if "flats_ext2" in row["folder"] else 0.5
-                asset = StaticMesh(path, width_cm=width, source_encoded_r=encoded)
+                asset = StaticMesh(path, width_cm=width,
+                                   lod1_timber_r=MEASURED_LOD1_TIMBER_R)
             elif "/Textures/" in path:
                 asset = Texture2D(path)
             else:
