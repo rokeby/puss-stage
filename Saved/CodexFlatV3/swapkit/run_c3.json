@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "slot": "C3",
+  "run_id": "FV3C3-20261002-01",
+  "import_run_id": "FV3C3I-20261002-01",
+  "passage": "P05",
+  "passage_label_prefix": "P05 Wing ",
+  "passage_actor_label_prefix": "Passage 05",
+  "expected_occurrence_count": 93,
+  "expected_row_index_start": 122,
+  "expected_row_index_end": 214,
+  "target_count": 12,
+  "source_c_dry_plan": "Saved/CodexFlatV3/swapkit/swapkit_dry_run_FV3C-20261002-03.json",
+  "source_root": "DerivedAssets/FlatV3/Overnight/Kept/flats/P05_CloudRef02_L_L",
+  "destination_root": "/Game/Scenes/Wings/FlatV3/Passage05",
+  "asset_name": "SM_FlatV3_P05_CloudRef02_L_L",
+  "asset_owner": "P05_CloudRef02_L_L",
+  "old_left_mesh": "/Game/Scenes/Wings/Passage5_BirdToMountainV2/StaticMeshes/SM_CloudRef02_L",
+  "new_left_mesh": "/Game/Scenes/Wings/FlatV3/Passage05/StaticMeshes/SM_FlatV3_P05_CloudRef02_L_L",
+  "required_previous_markers": [
+    "FLATV3_F_OK run=FV3F-20261002-01",
+    "FLATV3_C3_IMPORT_OK run=FV3C3I-20261002-01"
+  ],
+  "import_success_marker": "FLATV3_C3_IMPORT_OK",
+  "success_marker": "FLATV3_C3_OK",
+  "target_bottom_min_cm": 150.0,
+  "target_bottom_span_cm": 300.0,
+  "bottom_tolerance_cm": 1.0,
+  "inner_edge_tolerance_cm": 1.0,
+  "gap_tolerance_cm": 2.0,
+  "expected_lod0_triangles": 1688,
+  "expected_lod1_triangles": 1546,
+  "backup_path": "Backups/PreFlatV3C3-FV3C3-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "backup_sources": {
+    "DA_InfinityStage_V1Show.uasset": "Content/InfinityStage/Dev/DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap": "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
+  },
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
+  "donor": {
+    "cue_index": 122,
+    "cue_guid": "D9985461DE475468200B6AAF36E80C4B",
+    "cue_label": "P05 Wing 001",
+    "mesh": "/Game/Scenes/Wings/FlatV3/Passage05/StaticMeshes/SM_FlatV3_P05_CloudRef01_L_L",
+    "facing_policy": "PRESERVE_ASSET",
+    "flip_image_horizontally": false
+  },
+  "targets": [
+    {"cue_index": 123, "cue_guid": "D9809927C9409586DAE008839DE18EF5", "cue_label": "P05 Wing 002"},
+    {"cue_index": 131, "cue_guid": "4E851095B14BBBBDA8E8D7806BC780A0", "cue_label": "P05 Wing 002"},
+    {"cue_index": 139, "cue_guid": "7BBF71539845A6B439DCE39A4A6B3469", "cue_label": "P05 Wing 002"},
+    {"cue_index": 147, "cue_guid": "EEFBA34EDE4A812B91AE86999CAACE7A", "cue_label": "P05 Wing 002"},
+    {"cue_index": 155, "cue_guid": "D1DDB60F8048773AE1DF67AF54794323", "cue_label": "P05 Wing 002"},
+    {"cue_index": 163, "cue_guid": "244DCEF12444922757C64081D56C8C50", "cue_label": "P05 Wing 002"},
+    {"cue_index": 171, "cue_guid": "F2DBDC51A549729F383E2D8ACED57A2C", "cue_label": "P05 Wing 002"},
+    {"cue_index": 179, "cue_guid": "CB9B63EDB44EC4D7B04B009973031A52", "cue_label": "P05 Wing 002"},
+    {"cue_index": 187, "cue_guid": "B6620EF3024F8A02B5BD318F4E45B366", "cue_label": "P05 Wing 002"},
+    {"cue_index": 195, "cue_guid": "CD389F0CF34723F470E779AABA48F431", "cue_label": "P05 Wing 002"},
+    {"cue_index": 203, "cue_guid": "831CC5D2D446AFD31ABB6FA08C24863A", "cue_label": "P05 Wing 002"},
+    {"cue_index": 211, "cue_guid": "58252A9ECD4A4ECD71532E9545BAC6CE", "cue_label": "P05 Wing 002"}
+  ]
+}
