@@ -32,6 +32,20 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
 - The 18 uncertain kept wings are NOT rebuilt: Gary points to the new Fuser clouds
   (job 15) and the P06 Fuser work as their replacements.
 
+## SLOT B (the P04 swap), 2 Oct ~06:44 UTC: APPLIED and SAVED, but UNVERIFIED (needs a decision)
+
+- Measured: apply PASS (21 rows; materialize P04 only); the Show asset and the level
+  were saved at 06:44:10/11 UTC. Backup BEFORE the apply:
+  `Backups/PreFlatV3SwapP04-20261002-0242` (Show + level).
+- Measured: the verify phase then dirtied the level and failed; its auto-revert failed
+  (script bug: LoadAsset got None). The release line under-reported saves (0).
+- The chain stopped: the P05 and P01 swaps, the mip stopgap and the wave reimport did
+  NOT run. Conductor 4 decides: a Don't-Save restart, then a read-only verify (keep)
+  or a restore from the backup.
+- Earlier attempts -01 and -02 failed in preflight (asymmetric laterals; a reused run
+  id) and changed nothing. A watchdog bug (it reacted to any release line) was caught
+  before it fired.
+
 ## Slot A import, 2 Oct, and the socket-gate caveat
 
 - **Run FV3A-20261002-01: FAIL, safe** (measured, log): 25 of 35 assets failed, mostly
