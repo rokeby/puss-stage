@@ -273,10 +273,20 @@ def assert_occurrence(cue, cue_index, record, prefix, error="CUE_IDENTITY_FAIL")
 
 
 def log_has(marker_text):
-    path = os.path.join(unreal.Paths.convert_relative_path_to_full(
-        unreal.Paths.project_log_dir()), "PussStage.log")
-    with open(path, encoding="utf-8", errors="replace") as handle:
-        return marker_text in handle.read()
+    # Search the live log AND the rotated PussStage-backup-*.log files: an editor
+    # restart rotates the log, and precondition / run-already-released gates must
+    # still see earlier markers (2 Oct: the restart blinded them). Run ids are dated.
+    import glob
+    log_dir = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_log_dir())
+    paths = [os.path.join(log_dir, "PussStage.log")] + sorted(
+        glob.glob(os.path.join(log_dir, "PussStage-backup-*.log")))
+    for path in paths:
+        if not os.path.isfile(path):
+            continue
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            if marker_text in handle.read():
+                return True
+    return False
 
 
 def load_mapping(config):
