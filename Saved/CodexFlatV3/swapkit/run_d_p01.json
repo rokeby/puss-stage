@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "slot": "D",
-  "run_id": "FV3D-20261002-01",
-  "saved_verify_run_id": "FV3DV-20261002-01",
+  "run_id": "FV3D-20261002-03",
+  "saved_verify_run_id": "FV3DV-20261002-03",
   "passage": "P01",
   "passage_label_prefix": "P01 Wing ",
   "passage_actor_label_prefix": "Passage 01",
   "mapping_file": "DerivedAssets/FlatV3/Overnight/Kept/KEPT_MAP.json",
   "mapping_kind": "kept_map",
   "destination_root": "/Game/Scenes/Wings/FlatV3/Passage01",
-  "backup_path": "Backups/PreFlatV3SwapP01-FV3D-20261002-01",
+  "backup_path": "Backups/PreFlatV3SwapP01-FV3D-20261002-03",
   "backup_files": [
     "DA_InfinityStage_V1Show.uasset",
     "L_InfinityStage_V1VerticalSlice.umap"
@@ -18,6 +18,11 @@
   "success_marker": "FLATV3_D_OK",
   "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
   "expected_occurrence_count": 48,
-  "excluded_new_meshes": [],
-  "known_failed_assets": {}
+  "excluded_new_meshes": [
+    "SM_FlatV3_P01_R_Pillar2_bw_R"
+  ],
+  "known_failed_assets": {
+    "SM_FlatV3_P01_R_Pillar2_bw_R": "Kept batch build failed (DerivedAssets/FlatV3/Overnight/Kept/FAILURES.md); never imported"
+  },
+  "required_exclusion_hits": 1
 }
