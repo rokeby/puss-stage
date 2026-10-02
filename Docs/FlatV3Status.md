@@ -20,6 +20,19 @@ in `Docs/Conductor/BUILD_WINDOW_QUEUE.md` or to Gary.
 NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
 (asked, not answered), gobo masks (on hold), any paid generation.
 
+## Overnight results so far
+
+- **The pilot import and the P04 TEST PLACEMENT: DONE (02 Oct ~00:30).** Run
+  FV3PILOT-20261001-02 (log markers checked). 21 packages under
+  /Game/Scenes/Wings/FlatV3/Pilot/. "P04 Wing 011" now uses the Ruisdael pilot
+  pair (baked poles), with zero adjustment; movement is ±Y only across 4 phases;
+  SavedMasterMatchesShow passes; census clean. Backup
+  `Backups/PreFlatV3TestPlacement-20261001-2014`; revert
+  `Saved/CodexFlatV3/phase2_revert.py`. The captures were too dark to judge by
+  eye: Gary to check in PIE.
+- UE 5.8 lessons now in the tools: an FBX LodGroup for LODs; raw dv/dZ > 0 (Interchange
+  flips V); sockets created from JSON after import (FBX socket empties are dropped).
+
 ## Done (offline, verified)
 
 | What | Where | Proof tier |
