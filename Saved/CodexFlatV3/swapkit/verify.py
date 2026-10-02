@@ -417,10 +417,15 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
                 candidates.append((index, cue, origin, frames))
         pass_frame += c.frame_value(
             cue.get_editor_property("wing_pair").get_editor_property("interval_to_next"))
-    if len(candidates) < 3:
-        raise RuntimeError("TOO_FEW_MOVEMENT_SAMPLE_CANDIDATES|actual=%d" % len(candidates))
-    selected = [candidates[0], candidates[len(candidates) // 2], candidates[-1]]
-    if len({index for index, _, _, _ in selected}) != 3:
+    min_samples = int(config.get("min_movement_samples", 3))
+    if len(candidates) < min_samples:
+        raise RuntimeError("TOO_FEW_MOVEMENT_SAMPLE_CANDIDATES|actual=%d|required=%d" %
+                           (len(candidates), min_samples))
+    # Explicit per-passage minimum (config "min_movement_samples", default 3); P01 has
+    # only one in-range moving occurrence. Distinct picks; never more than available.
+    picks = sorted({0, len(candidates) // 2, len(candidates) - 1})
+    selected = [candidates[i] for i in picks]
+    if len({index for index, _, _, _ in selected}) != len(picks):
         raise RuntimeError("MOVEMENT_SAMPLE_NOT_DISTINCT")
     movement = []
     for index, cue, origin, frames in selected:
