@@ -119,7 +119,9 @@ def plant_inventory(config, slot_a):
         side = str(status["build_side"])
         rows.append({"passage": "P02", "folder": folder, "owner": owner,
                      "mesh_name": mesh_name, "side": side,
-                     "mount": str(status["mount"]), "baked_poles": side in ("L", "R"),
+                     "mount": str(status["mount"]),
+                     # C top borders report build_side "L"; poles come from status, never from side.
+                     "baked_poles": bool(status.get("baked_poles")) and str(status["mount"]) != "top-border",
                      "sources": sources, "destinations": destinations,
                      "validation": validation})
         contracts[owner] = {"sidecar": socket_path, "failures": socket_failures,
