@@ -1,0 +1,88 @@
+{
+  "I1": {
+    "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+    "camera_label": "Interaction 1 — Stalls Camera",
+    "camera_tags": [
+      "InfinityStage.TransitionStalls",
+      "InfinityStage.Mouth.P02"
+    ],
+    "next_passage_label": "Passage 2",
+    "minimum_end_frame": 638,
+    "landed_s": 20.3,
+    "pile_edge_cm": 190.0,
+    "readiness_note": "Ready: Soft goods already lengthened and re-fitted I1, and its bake-derived landed_s is recorded.",
+    "soft_goods_steps": []
+  },
+  "I2": {
+    "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+    "camera_label": "Interaction 2 — Stalls Camera",
+    "camera_tags": [
+      "InfinityStage.TransitionStalls",
+      "InfinityStage.Mouth.P03"
+    ],
+    "next_passage_label": "Passage 3",
+    "minimum_end_frame": null,
+    "landed_s": null,
+    "pile_edge_cm": 190.0,
+    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
+    "soft_goods_steps": [
+      "Run extend_scene_playback.py for Interaction 2.",
+      "Run fit_transition_drapes.py for Interaction 2 with lead_s = new_end - 16.0.",
+      "Run verify_transition_fit.py."
+    ]
+  },
+  "I3": {
+    "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+    "camera_label": "Interaction 3 — Stalls Camera",
+    "camera_tags": [
+      "InfinityStage.TransitionStalls",
+      "InfinityStage.Mouth.P04"
+    ],
+    "next_passage_label": "Passage 4",
+    "minimum_end_frame": null,
+    "landed_s": null,
+    "pile_edge_cm": 190.0,
+    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
+    "soft_goods_steps": [
+      "Run extend_scene_playback.py for Interaction 3.",
+      "Run fit_transition_drapes.py for Interaction 3 with lead_s = new_end - 16.0.",
+      "Run verify_transition_fit.py."
+    ]
+  },
+  "I4": {
+    "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
+    "camera_label": "Interaction 4 — Stalls Camera",
+    "camera_tags": [
+      "InfinityStage.TransitionStalls",
+      "InfinityStage.Mouth.P05"
+    ],
+    "next_passage_label": "Passage 5",
+    "minimum_end_frame": null,
+    "landed_s": null,
+    "pile_edge_cm": 190.0,
+    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
+    "soft_goods_steps": [
+      "Run extend_scene_playback.py for Interaction 4.",
+      "Run fit_transition_drapes.py for Interaction 4 with lead_s = new_end - 16.0.",
+      "Run verify_transition_fit.py."
+    ]
+  },
+  "I5": {
+    "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+    "camera_label": "Interaction 5 — Stalls Camera",
+    "camera_tags": [
+      "InfinityStage.TransitionStalls",
+      "InfinityStage.Mouth.P06"
+    ],
+    "next_passage_label": "Passage 6",
+    "minimum_end_frame": null,
+    "landed_s": null,
+    "pile_edge_cm": 190.0,
+    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
+    "soft_goods_steps": [
+      "Run extend_scene_playback.py for Interaction 5.",
+      "Run fit_transition_drapes.py for Interaction 5 with lead_s = new_end - 16.0.",
+      "Run verify_transition_fit.py."
+    ]
+  }
+}
