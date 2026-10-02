@@ -158,3 +158,6 @@ conductor's reading of what it implies — marked as such, not decided.
   move is still to design; B12 is the GO1-performable exit).
 - Still to place: `InfinityStage.VampStart/VampEnd` markers + the orbit/dim/focus vamp content (design with Gary:
   orbit radius/speed must be walkable by the GO1).
+
+- **Correction (Gary, 2 Oct):** the GO1 is NOT engaged during Scenes, so Scene cameras need not be walkable
+  (the walkability notes above are void for Scenes). Vamp orbit: radius ~2 m, close-up, soft shot, clam sharp.
