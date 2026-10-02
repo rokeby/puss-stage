@@ -16,7 +16,8 @@ public class InfinityStageTests : ModuleRules
             "GeometryCache",
             "GeometryCacheTracks",
             "LevelSequence",
-            "InfinityStage"
+            "InfinityStage",
+            "InfinityStageEditor"
         });
     }
 }

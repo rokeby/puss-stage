@@ -117,7 +117,7 @@ UInfinityStageShowAsset* MakeSceneShow(ULevelSequence* SceneSequence)
     return Show;
 }
 
-void AddPassage(UInfinityStageShowAsset& Show)
+void AddShotStepPassage(UInfinityStageShowAsset& Show)
 {
     const int32 FirstCueIndex = Show.Cues.Num();
     for (int32 Index = 0; Index < 2; ++Index)
@@ -142,7 +142,7 @@ UInfinityStageShowAsset* MakePassageThenSceneShow()
     UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
     Show->DisplayRate = FFrameRate(24, 1);
     Show->TickResolution = Show->DisplayRate;
-    AddPassage(*Show);
+    AddShotStepPassage(*Show);
     FInfinityShowCue& Scene = Show->Cues.AddDefaulted_GetRef();
     Scene.Type = EInfinityCueType::Scene;
     Scene.CueGuid = FGuid::NewGuid();

@@ -14,12 +14,21 @@
 #include "MovieScene.h"
 #include "MovieSceneGeometryCacheSection.h"
 #include "MovieSceneGeometryCacheTrack.h"
+#include "MovieScenePossessable.h"
+#include "MovieSceneSpawnable.h"
 #include "Sections/MovieScene3DTransformSection.h"
 #include "Sections/MovieSceneFloatSection.h"
 #include "Sections/MovieSceneSubSection.h"
 #include "Tracks/MovieScene3DTransformTrack.h"
 #include "Tracks/MovieSceneFloatTrack.h"
 #include "Tracks/MovieSceneSubTrack.h"
+
+#if WITH_EDITOR
+#include "Framework/Application/SlateApplication.h"
+#include "Framework/Notifications/NotificationManager.h"
+#include "ScopedTransaction.h"
+#include "Widgets/Notifications/SNotificationList.h"
+#endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageArrival, Log, All);
 
@@ -154,6 +163,430 @@ const UMovieSceneFloatSection* FindFloatBindingSection(
     // read the earliest section's channel outside its range on purpose, exactly as the root does.
     return EarliestSection;
 }
+
+#if WITH_EDITOR
+constexpr double HangarValueTolerance = 1.0e-3;
+
+struct FHangarLightChannel
+{
+    FString Label;
+    UMovieSceneFloatSection* Section = nullptr;
+    FMovieSceneFloatChannel* Channel = nullptr;
+    int32 StrikeKeyIndex = INDEX_NONE;
+};
+
+struct FHangarTimingDiscovery
+{
+    int32 SceneNumber = INDEX_NONE;
+    ULevelSequence* Sequence = nullptr;
+    UMovieScene* MovieScene = nullptr;
+    UMovieScene3DTransformSection* RootSection = nullptr;
+    UMovieScene3DTransformSection* RoofSection = nullptr;
+    UMovieScene3DTransformSection* LatticeSection = nullptr;
+    FMovieSceneDoubleChannel* RootPitch = nullptr;
+    FMovieSceneDoubleChannel* RoofPitch = nullptr;
+    FMovieSceneDoubleChannel* LatticeFlyZ = nullptr;
+    TArray<FHangarLightChannel> Lights;
+};
+
+FString BindingName(UMovieScene& MovieScene, const FGuid& Guid)
+{
+    if (const FMovieScenePossessable* Possessable = MovieScene.FindPossessable(Guid))
+    {
+        return Possessable->GetName();
+    }
+    if (const FMovieSceneSpawnable* Spawnable = MovieScene.FindSpawnable(Guid))
+    {
+        return Spawnable->GetName();
+    }
+    return FString();
+}
+
+FString ParentBindingName(UMovieScene& MovieScene, const FGuid& Guid)
+{
+    const FMovieScenePossessable* Possessable = MovieScene.FindPossessable(Guid);
+    return Possessable && Possessable->GetParent().IsValid()
+        ? BindingName(MovieScene, Possessable->GetParent())
+        : FString();
+}
+
+bool ParseArrivalSceneNumber(const AInfinityStageArrival& Arrival, int32& OutSceneNumber, FString& OutReason)
+{
+    const FString Label = Arrival.GetActorLabel();
+    FString Prefix;
+    FString Suffix;
+    if (!Label.Split(TEXT(" "), &Prefix, &Suffix) || Suffix != TEXT("Arrival")
+        || !Prefix.StartsWith(TEXT("S")) || Prefix.Len() < 2 || !Prefix.Mid(1).IsNumeric())
+    {
+        OutReason = FString::Printf(TEXT("actor label '%s' is not S<N> Arrival"), *Label);
+        return false;
+    }
+    OutSceneNumber = FCString::Atoi(*Prefix.Mid(1));
+    if (OutSceneNumber <= 0)
+    {
+        OutReason = FString::Printf(TEXT("actor label '%s' has an invalid scene number"), *Label);
+        return false;
+    }
+    return true;
+}
+
+bool FindUniqueBinding(UMovieScene& MovieScene, const FString& WantedName, FGuid& OutGuid, FString& OutReason)
+{
+    TArray<FGuid> Matches;
+    for (const FMovieSceneBinding& Binding : MovieScene.GetBindings())
+    {
+        if (BindingName(MovieScene, Binding.GetObjectGuid()) == WantedName)
+        {
+            Matches.Add(Binding.GetObjectGuid());
+        }
+    }
+    if (Matches.Num() != 1)
+    {
+        OutReason = FString::Printf(TEXT("expected one binding '%s', found %d"), *WantedName, Matches.Num());
+        return false;
+    }
+    OutGuid = Matches[0];
+    return true;
+}
+
+FMovieSceneDoubleChannel* TransformChannel(
+    UMovieScene& MovieScene,
+    const FGuid& BindingGuid,
+    const int32 ChannelIndex,
+    UMovieScene3DTransformSection*& OutSection)
+{
+    OutSection = const_cast<UMovieScene3DTransformSection*>(
+        FindBindingSection<UMovieScene3DTransformSection, UMovieScene3DTransformTrack>(MovieScene, BindingGuid));
+    if (!OutSection)
+    {
+        return nullptr;
+    }
+    const TArrayView<FMovieSceneDoubleChannel*> Channels =
+        OutSection->GetChannelProxy().GetChannels<FMovieSceneDoubleChannel>();
+    return Channels.IsValidIndex(ChannelIndex) ? Channels[ChannelIndex] : nullptr;
+}
+
+bool IsHangarLightLabel(const FString& Label, const int32 SceneNumber)
+{
+    if (SceneNumber == 3)
+    {
+        static const TSet<FString> S3StrikeLabels = {
+            TEXT("S3 Strike Key"),
+            TEXT("S3 Strike Fill L"),
+            TEXT("S3 Strike Fill R"),
+            TEXT("S3 Strike Cyc 1"),
+            TEXT("S3 Strike Cyc 2"),
+            TEXT("S3 Strike Cyc 3")
+        };
+        return S3StrikeLabels.Contains(Label);
+    }
+    const FString ScenePrefix = FString::Printf(TEXT("S%d "), SceneNumber);
+    return Label.StartsWith(ScenePrefix + TEXT("Uplight "))
+        || Label.StartsWith(ScenePrefix + TEXT("Practical "))
+        || Label.StartsWith(ScenePrefix + TEXT("Lattice Glow "));
+}
+
+bool FindStrikeKey(FHangarLightChannel& Light, FString& OutReason)
+{
+    const TMovieSceneChannelData<const FMovieSceneFloatValue> Data = Light.Channel->GetData();
+    const TArrayView<const FMovieSceneFloatValue> Values = Data.GetValues();
+    TArray<int32> Candidates;
+    for (int32 Index = 0; Index + 1 < Values.Num(); ++Index)
+    {
+        if (FMath::Abs(Values[Index].Value) <= HangarValueTolerance
+            && Values[Index + 1].Value > HangarValueTolerance)
+        {
+            Candidates.Add(Index);
+        }
+    }
+    if (Candidates.Num() != 1)
+    {
+        OutReason = FString::Printf(TEXT("%s has %d zero-to-positive strike ramps"),
+            *Light.Label, Candidates.Num());
+        return false;
+    }
+    Light.StrikeKeyIndex = Candidates[0];
+    return true;
+}
+
+bool DiscoverHangarTiming(AInfinityStageArrival& Arrival, FHangarTimingDiscovery& Out, FString& OutReason)
+{
+    if (!ParseArrivalSceneNumber(Arrival, Out.SceneNumber, OutReason))
+    {
+        return false;
+    }
+    Out.Sequence = Arrival.MotionSequence.LoadSynchronous();
+    Out.MovieScene = Out.Sequence ? Out.Sequence->GetMovieScene() : nullptr;
+    if (!Out.MovieScene)
+    {
+        OutReason = TEXT("MotionSequence is missing or has no MovieScene");
+        return false;
+    }
+
+    const FString RootLabel = FString::Printf(TEXT("S%d Hangar Root"), Out.SceneNumber);
+    if (!Arrival.MotionBindingGuid.IsValid()
+        || BindingName(*Out.MovieScene, Arrival.MotionBindingGuid) != RootLabel)
+    {
+        OutReason = FString::Printf(TEXT("MotionBindingGuid is not '%s'"), *RootLabel);
+        return false;
+    }
+    Out.RootPitch = TransformChannel(
+        *Out.MovieScene, Arrival.MotionBindingGuid, 4, Out.RootSection);
+    if (!Out.RootPitch)
+    {
+        OutReason = TEXT("root_pitch channel is missing");
+        return false;
+    }
+
+    FGuid RoofGuid;
+    const FString RoofLabel = FString::Printf(TEXT("S%d Hangar Roof Hinge"), Out.SceneNumber);
+    TArray<FGuid> RoofMatches;
+    for (const FMovieSceneBinding& Binding : Out.MovieScene->GetBindings())
+    {
+        if (BindingName(*Out.MovieScene, Binding.GetObjectGuid()) == RoofLabel)
+        {
+            RoofMatches.Add(Binding.GetObjectGuid());
+        }
+    }
+    if (RoofMatches.Num() > 1)
+    {
+        OutReason = FString::Printf(TEXT("expected zero or one binding '%s', found %d"),
+            *RoofLabel, RoofMatches.Num());
+        return false;
+    }
+    if (RoofMatches.Num() == 1)
+    {
+        RoofGuid = RoofMatches[0];
+        Out.RoofPitch = TransformChannel(*Out.MovieScene, RoofGuid, 4, Out.RoofSection);
+        if (!Out.RoofPitch)
+        {
+            OutReason = TEXT("roof_pitch channel is missing");
+            return false;
+        }
+    }
+
+    FGuid LatticeGuid;
+    if (!FindUniqueBinding(*Out.MovieScene,
+        FString::Printf(TEXT("S%d Hangar Lattice Fly"), Out.SceneNumber), LatticeGuid, OutReason))
+    {
+        return false;
+    }
+    Out.LatticeFlyZ = TransformChannel(*Out.MovieScene, LatticeGuid, 2, Out.LatticeSection);
+    if (!Out.LatticeFlyZ)
+    {
+        OutReason = TEXT("lattice_fly_z channel is missing");
+        return false;
+    }
+
+    TSet<FString> LightLabels;
+    for (const FMovieSceneBinding& Binding : Out.MovieScene->GetBindings())
+    {
+        const FString OwnName = BindingName(*Out.MovieScene, Binding.GetObjectGuid());
+        const FString ParentName = ParentBindingName(*Out.MovieScene, Binding.GetObjectGuid());
+        const FString Label = IsHangarLightLabel(ParentName, Out.SceneNumber)
+            ? ParentName
+            : (IsHangarLightLabel(OwnName, Out.SceneNumber) ? OwnName : FString());
+        if (Label.IsEmpty())
+        {
+            continue;
+        }
+
+        TArray<TPair<UMovieSceneFloatSection*, FMovieSceneFloatChannel*>> Channels;
+        for (UMovieSceneTrack* Track : Binding.GetTracks())
+        {
+            UMovieSceneFloatTrack* FloatTrack = Cast<UMovieSceneFloatTrack>(Track);
+            if (!FloatTrack || FloatTrack->GetPropertyName() != TEXT("Intensity"))
+            {
+                continue;
+            }
+            for (UMovieSceneSection* BaseSection : FloatTrack->GetAllSections())
+            {
+                if (UMovieSceneFloatSection* Section = Cast<UMovieSceneFloatSection>(BaseSection))
+                {
+                    Channels.Emplace(Section, &Section->GetChannel());
+                }
+            }
+        }
+        if (Channels.IsEmpty())
+        {
+            continue;
+        }
+        if (Channels.Num() != 1 || LightLabels.Contains(Label))
+        {
+            OutReason = FString::Printf(TEXT("%s does not have exactly one unique Intensity channel"), *Label);
+            return false;
+        }
+        LightLabels.Add(Label);
+        FHangarLightChannel& Light = Out.Lights.AddDefaulted_GetRef();
+        Light.Label = Label;
+        Light.Section = Channels[0].Key;
+        Light.Channel = Channels[0].Value;
+        if (Out.SceneNumber != 6 && !FindStrikeKey(Light, OutReason))
+        {
+            return false;
+        }
+    }
+    if (Out.Lights.IsEmpty())
+    {
+        OutReason = TEXT("no uplight, practical or lattice-glow Intensity channels were found");
+        return false;
+    }
+    if (Out.SceneNumber == 3 && Out.Lights.Num() != 6)
+    {
+        OutReason = FString::Printf(
+            TEXT("expected all six named S3 Strike light Intensity channels, found %d"),
+            Out.Lights.Num());
+        return false;
+    }
+    return true;
+}
+
+double FrameSeconds(const UMovieScene& MovieScene, const FFrameNumber Frame)
+{
+    return MovieScene.GetTickResolution().AsSeconds(FFrameTime(Frame));
+}
+
+FString FormatDoubleKeys(
+    const UMovieScene& MovieScene,
+    const FMovieSceneDoubleChannel& Channel)
+{
+    FString Result;
+    const TMovieSceneChannelData<const FMovieSceneDoubleValue> Data = Channel.GetData();
+    const TArrayView<const FFrameNumber> Times = Data.GetTimes();
+    const TArrayView<const FMovieSceneDoubleValue> Values = Data.GetValues();
+    for (int32 Index = 0; Index < Times.Num(); ++Index)
+    {
+        if (!Result.IsEmpty())
+        {
+            Result += TEXT(",");
+        }
+        Result += FString::Printf(
+            TEXT("%.4f:%.4f"),
+            FrameSeconds(MovieScene, Times[Index]),
+            Values[Index].Value);
+    }
+    return Result;
+}
+
+FFrameNumber SecondsFrame(const UMovieScene& MovieScene, const double Seconds)
+{
+    return MovieScene.GetTickResolution().AsFrameTime(Seconds).RoundToFrame();
+}
+
+bool CubicShape(
+    const FMovieSceneDoubleChannel& Channel,
+    const TArray<double>& ExpectedValues,
+    const bool bFirstKeyAtZero)
+{
+    const TMovieSceneChannelData<const FMovieSceneDoubleValue> Data = Channel.GetData();
+    const TArrayView<const FFrameNumber> Times = Data.GetTimes();
+    const TArrayView<const FMovieSceneDoubleValue> Values = Data.GetValues();
+    if (Values.Num() != ExpectedValues.Num() || Times.Num() != ExpectedValues.Num())
+    {
+        return false;
+    }
+    if (bFirstKeyAtZero && Times[0] != FFrameNumber(0))
+    {
+        return false;
+    }
+    for (int32 Index = 0; Index < Values.Num(); ++Index)
+    {
+        if (!FMath::IsNearlyEqual(Values[Index].Value, ExpectedValues[Index], HangarValueTolerance)
+            || Values[Index].InterpMode != RCIM_Cubic)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ThreeKeyCubicShapeAtZero(const FMovieSceneDoubleChannel& Channel)
+{
+    const TMovieSceneChannelData<const FMovieSceneDoubleValue> Data = Channel.GetData();
+    const TArrayView<const FFrameNumber> Times = Data.GetTimes();
+    const TArrayView<const FMovieSceneDoubleValue> Values = Data.GetValues();
+    if (Times.Num() != 3 || Values.Num() != 3 || Times[0] != FFrameNumber(0))
+    {
+        return false;
+    }
+    for (const FMovieSceneDoubleValue& Value : Values)
+    {
+        if (Value.InterpMode != RCIM_Cubic)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool ValidateStandardShape(FHangarTimingDiscovery& Discovery, FString& OutReason)
+{
+    if (!CubicShape(*Discovery.RootPitch, {-90.0, 0.0}, false))
+    {
+        OutReason = TEXT("root_pitch does not match the two-key -90 to 0 cubic shape");
+        return false;
+    }
+    const bool bS5 = Discovery.SceneNumber == 5;
+    if (bS5 && !Discovery.RoofPitch)
+    {
+        OutReason = TEXT("S5 is missing its roof hinge channel");
+        return false;
+    }
+    if (Discovery.RoofPitch
+        && !(bS5
+            ? ThreeKeyCubicShapeAtZero(*Discovery.RoofPitch)
+            : CubicShape(*Discovery.RoofPitch, {-90.0, -90.0, 0.0}, true)))
+    {
+        OutReason = TEXT("roof_pitch does not match the standard three-key cubic shape");
+        return false;
+    }
+    if (!(bS5
+        ? ThreeKeyCubicShapeAtZero(*Discovery.LatticeFlyZ)
+        : CubicShape(*Discovery.LatticeFlyZ, {2800.0, 2800.0, 1200.0}, true)))
+    {
+        OutReason = TEXT("lattice_fly_z does not match the standard three-key cubic shape");
+        return false;
+    }
+    for (const FHangarLightChannel& Light : Discovery.Lights)
+    {
+        const TArrayView<const FMovieSceneFloatValue> Values = Light.Channel->GetData().GetValues();
+        for (const FMovieSceneFloatValue& Value : Values)
+        {
+            if (Value.InterpMode != RCIM_Linear)
+            {
+                OutReason = FString::Printf(TEXT("%s Intensity keys are not linear"), *Light.Label);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void NotifyHangarTiming(const FString& Message, const bool bSuccess)
+{
+    if (!FSlateApplication::IsInitialized())
+    {
+        return;
+    }
+    FNotificationInfo Info(FText::FromString(Message));
+    Info.ExpireDuration = bSuccess ? 3.0f : 6.0f;
+    if (TSharedPtr<SNotificationItem> Item = FSlateNotificationManager::Get().AddNotification(Info))
+    {
+        Item->SetCompletionState(bSuccess
+            ? SNotificationItem::CS_Success
+            : SNotificationItem::CS_Fail);
+    }
+}
+
+bool RefuseHangarTiming(AInfinityStageArrival& Arrival, const FString& Reason)
+{
+    UE_LOG(LogInfinityStageArrival, Warning,
+        TEXT("INFINITY_HANGAR_TIMING_REFUSED|actor=%s|reason=%s"),
+        *Arrival.GetActorNameOrLabel(), *Reason);
+    NotifyHangarTiming(FString::Printf(TEXT("Hangar timing refused: %s"), *Reason), false);
+    return false;
+}
+#endif
 }
 
 AInfinityStageArrival::AInfinityStageArrival()
@@ -162,6 +595,276 @@ AInfinityStageArrival::AInfinityStageArrival()
     PrimaryActorTick.bCanEverTick = false;
     SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
     SetRootComponent(SceneRoot);
+}
+
+bool AInfinityStageArrival::ReadHangarTiming()
+{
+#if WITH_EDITOR
+    FHangarTimingDiscovery Discovery;
+    FString Reason;
+    if (!DiscoverHangarTiming(*this, Discovery, Reason))
+    {
+        return RefuseHangarTiming(*this, FString::Printf(TEXT("read: %s"), *Reason));
+    }
+
+    const TArrayView<const FFrameNumber> RootTimes = Discovery.RootPitch->GetData().GetTimes();
+    const TArrayView<const FFrameNumber> LatticeTimes = Discovery.LatticeFlyZ->GetData().GetTimes();
+    if (RootTimes.Num() != 2 || LatticeTimes.Num() != 3)
+    {
+        return RefuseHangarTiming(*this, TEXT("read: root or lattice key count is non-standard"));
+    }
+
+    HangarTiming.bHasRoofHinge = Discovery.RoofPitch != nullptr;
+    HangarTiming.LandSeconds = FrameSeconds(*Discovery.MovieScene, RootTimes.Last());
+    if (Discovery.RoofPitch)
+    {
+        const TArrayView<const FFrameNumber> RoofTimes = Discovery.RoofPitch->GetData().GetTimes();
+        if (RoofTimes.Num() != 3)
+        {
+            return RefuseHangarTiming(*this, TEXT("read: roof key count is non-standard"));
+        }
+        HangarTiming.RoofCloseStartSeconds = FrameSeconds(*Discovery.MovieScene, RoofTimes[1]);
+        HangarTiming.RoofCloseEndSeconds = FrameSeconds(*Discovery.MovieScene, RoofTimes[2]);
+    }
+    HangarTiming.LatticeStartSeconds = FrameSeconds(*Discovery.MovieScene, LatticeTimes[1]);
+    HangarTiming.LatticeEndSeconds = FrameSeconds(*Discovery.MovieScene, LatticeTimes[2]);
+
+    HangarTiming.bDimInsteadOfStrike = Discovery.SceneNumber == 6;
+    if (!HangarTiming.bDimInsteadOfStrike)
+    {
+        double EarliestStrike = TNumericLimits<double>::Max();
+        for (const FHangarLightChannel& Light : Discovery.Lights)
+        {
+            const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+            EarliestStrike = FMath::Min(
+                EarliestStrike,
+                FrameSeconds(*Discovery.MovieScene, Times[Light.StrikeKeyIndex]));
+        }
+        HangarTiming.LightStrikeSeconds = EarliestStrike;
+    }
+
+    UE_LOG(LogInfinityStageArrival, Display,
+        TEXT("INFINITY_HANGAR_TIMING_READ|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|mode=%s|strike=%.4f|dim=%.4f|lights=%d"),
+        *GetActorNameOrLabel(),
+        HangarTiming.RoofCloseStartSeconds,
+        HangarTiming.RoofCloseEndSeconds,
+        HangarTiming.LatticeStartSeconds,
+        HangarTiming.LatticeEndSeconds,
+        HangarTiming.bDimInsteadOfStrike ? TEXT("dim") : TEXT("strike"),
+        HangarTiming.LightStrikeSeconds,
+        HangarTiming.DimSeconds,
+        Discovery.Lights.Num());
+    NotifyHangarTiming(TEXT("Hangar timing read from the rise sequence."), true);
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool AInfinityStageArrival::ApplyHangarTiming()
+{
+#if WITH_EDITOR
+    FHangarTimingDiscovery Discovery;
+    FString Reason;
+    if (!DiscoverHangarTiming(*this, Discovery, Reason))
+    {
+        return RefuseHangarTiming(*this, Reason);
+    }
+    if (!ValidateStandardShape(Discovery, Reason))
+    {
+        return RefuseHangarTiming(*this, Reason);
+    }
+
+    const TArrayView<const FFrameNumber> RootTimes = Discovery.RootPitch->GetData().GetTimes();
+    const double LandSeconds = FrameSeconds(*Discovery.MovieScene, RootTimes.Last());
+    const bool bHasRoof = Discovery.RoofPitch != nullptr;
+    const bool bDimInsteadOfStrike = HangarTiming.bDimInsteadOfStrike || Discovery.SceneNumber == 6;
+    const FFrameNumber RoofStart = SecondsFrame(*Discovery.MovieScene, HangarTiming.RoofCloseStartSeconds);
+    const FFrameNumber RoofEnd = SecondsFrame(*Discovery.MovieScene, HangarTiming.RoofCloseEndSeconds);
+    const FFrameNumber LatticeStart = SecondsFrame(*Discovery.MovieScene, HangarTiming.LatticeStartSeconds);
+    const FFrameNumber LatticeEnd = SecondsFrame(*Discovery.MovieScene, HangarTiming.LatticeEndSeconds);
+    const FFrameNumber StrikeTarget = SecondsFrame(*Discovery.MovieScene, HangarTiming.LightStrikeSeconds);
+    const FFrameNumber DimStart = RootTimes.Last();
+    const FFrameNumber DimEnd = SecondsFrame(
+        *Discovery.MovieScene,
+        LandSeconds + HangarTiming.DimSeconds);
+    if (bHasRoof && RoofStart < RootTimes.Last())
+    {
+        return RefuseHangarTiming(*this, FString::Printf(
+            TEXT("roof start %.4f is before landing %.4f"),
+            HangarTiming.RoofCloseStartSeconds, LandSeconds));
+    }
+    if (bHasRoof && RoofEnd <= RoofStart)
+    {
+        return RefuseHangarTiming(*this, TEXT("roof end must be after roof start"));
+    }
+    if (bHasRoof && LatticeStart < RoofEnd)
+    {
+        return RefuseHangarTiming(*this, TEXT("lattice start must not overlap the roof close"));
+    }
+    if (!bHasRoof && LatticeStart < RootTimes.Last())
+    {
+        return RefuseHangarTiming(*this, TEXT("roofless lattice start must not be before landing"));
+    }
+    if (LatticeEnd <= LatticeStart)
+    {
+        return RefuseHangarTiming(*this, TEXT("lattice end must be after lattice start"));
+    }
+
+    const TRange<FFrameNumber> PlaybackRange = Discovery.MovieScene->GetPlaybackRange();
+    if (!PlaybackRange.HasLowerBound() || !PlaybackRange.HasUpperBound())
+    {
+        return RefuseHangarTiming(*this, TEXT("sequence playback range is unbounded"));
+    }
+    const FFrameNumber PlaybackStart = PlaybackRange.GetLowerBoundValue();
+    const FFrameNumber PlaybackEnd = PlaybackRange.GetUpperBoundValue();
+    if ((bHasRoof && (RoofStart < PlaybackStart || RoofEnd >= PlaybackEnd))
+        || LatticeStart < PlaybackStart || LatticeEnd >= PlaybackEnd)
+    {
+        return RefuseHangarTiming(*this, TEXT("requested mechanism timing is outside the playback range"));
+    }
+    if (!bDimInsteadOfStrike && (HangarTiming.LightStrikeSeconds < 0.0
+        || StrikeTarget < PlaybackStart || StrikeTarget >= PlaybackEnd))
+    {
+        return RefuseHangarTiming(*this, TEXT("light strike is negative or beyond the playback range"));
+    }
+    if (bDimInsteadOfStrike && (HangarTiming.DimSeconds <= 0.0
+        || DimStart < PlaybackStart || DimEnd <= DimStart || DimEnd >= PlaybackEnd))
+    {
+        return RefuseHangarTiming(*this, TEXT("light dim duration is non-positive or beyond the playback range"));
+    }
+
+    FFrameNumber EarliestStrike = FFrameNumber(TNumericLimits<int32>::Max());
+    FFrameNumber LightShift(0);
+    TArray<float> DimStartValues;
+    if (bDimInsteadOfStrike)
+    {
+        DimStartValues.Reserve(Discovery.Lights.Num());
+        for (const FHangarLightChannel& Light : Discovery.Lights)
+        {
+            float StartValue = 0.0f;
+            if (!Light.Channel->Evaluate(FFrameTime(DimStart), StartValue)
+                || !FMath::IsFinite(StartValue) || StartValue < 0.0f)
+            {
+                return RefuseHangarTiming(*this, FString::Printf(
+                    TEXT("%s has no finite non-negative Intensity value at landing"),
+                    *Light.Label));
+            }
+            DimStartValues.Add(StartValue);
+        }
+    }
+    else
+    {
+        for (const FHangarLightChannel& Light : Discovery.Lights)
+        {
+            const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+            EarliestStrike = FMath::Min(EarliestStrike, Times[Light.StrikeKeyIndex]);
+        }
+        LightShift = StrikeTarget - EarliestStrike;
+        for (const FHangarLightChannel& Light : Discovery.Lights)
+        {
+            const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+            for (int32 Index = Light.StrikeKeyIndex; Index < Times.Num(); ++Index)
+            {
+                const FFrameNumber Shifted = Times[Index] + LightShift;
+                const FFrameNumber Previous = Index > Light.StrikeKeyIndex
+                    ? Times[Index - 1] + LightShift
+                    : (Index > 0 ? Times[Index - 1] : FFrameNumber(TNumericLimits<int32>::Min()));
+                if (Shifted < PlaybackStart || Shifted >= PlaybackEnd
+                    || Shifted <= Previous)
+                {
+                    return RefuseHangarTiming(*this, FString::Printf(
+                        TEXT("shifting %s would move or reorder keys outside the playback range"),
+                        *Light.Label));
+                }
+            }
+        }
+    }
+
+    FString S5RoofBefore;
+    FString S5LatticeBefore;
+    if (Discovery.SceneNumber == 5)
+    {
+        S5RoofBefore = FormatDoubleKeys(*Discovery.MovieScene, *Discovery.RoofPitch);
+        S5LatticeBefore = FormatDoubleKeys(*Discovery.MovieScene, *Discovery.LatticeFlyZ);
+    }
+
+    const FScopedTransaction Transaction(
+        TEXT("InfinityStageHangarTiming"),
+        NSLOCTEXT("InfinityStage", "ApplyHangarTiming", "Apply Hangar Timing"),
+        Discovery.Sequence);
+    Discovery.Sequence->Modify();
+    Discovery.MovieScene->Modify();
+    if (bHasRoof)
+    {
+        Discovery.RoofSection->Modify();
+        TArrayView<FFrameNumber> Times = Discovery.RoofPitch->GetData().GetTimes();
+        Times[1] = RoofStart;
+        Times[2] = RoofEnd;
+        Discovery.RoofPitch->AutoSetTangents();
+    }
+    Discovery.LatticeSection->Modify();
+    {
+        TArrayView<FFrameNumber> Times = Discovery.LatticeFlyZ->GetData().GetTimes();
+        Times[1] = LatticeStart;
+        Times[2] = LatticeEnd;
+        Discovery.LatticeFlyZ->AutoSetTangents();
+    }
+    for (int32 LightIndex = 0; LightIndex < Discovery.Lights.Num(); ++LightIndex)
+    {
+        FHangarLightChannel& Light = Discovery.Lights[LightIndex];
+        Light.Section->Modify();
+        if (bDimInsteadOfStrike)
+        {
+            TMovieSceneChannelData<FMovieSceneFloatValue> Data = Light.Channel->GetData();
+            for (int32 KeyIndex = Data.GetTimes().Num() - 1; KeyIndex >= 0; --KeyIndex)
+            {
+                if (Data.GetTimes()[KeyIndex] >= DimStart)
+                {
+                    Data.RemoveKey(KeyIndex);
+                }
+            }
+            Light.Channel->AddLinearKey(DimStart, DimStartValues[LightIndex]);
+            Light.Channel->AddLinearKey(DimEnd, DimStartValues[LightIndex] * 0.02f);
+        }
+        else
+        {
+            TArrayView<FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+            for (int32 Index = Light.StrikeKeyIndex; Index < Times.Num(); ++Index)
+            {
+                Times[Index] += LightShift;
+            }
+        }
+    }
+    Discovery.Sequence->MarkPackageDirty();
+
+    if (Discovery.SceneNumber == 5)
+    {
+        UE_LOG(LogInfinityStageArrival, Display,
+            TEXT("INFINITY_HANGAR_TIMING_S5_KEYS|actor=%s|roof_before=%s|roof_after=%s|lattice_before=%s|lattice_after=%s"),
+            *GetActorNameOrLabel(),
+            *S5RoofBefore,
+            *FormatDoubleKeys(*Discovery.MovieScene, *Discovery.RoofPitch),
+            *S5LatticeBefore,
+            *FormatDoubleKeys(*Discovery.MovieScene, *Discovery.LatticeFlyZ));
+    }
+
+    UE_LOG(LogInfinityStageArrival, Display,
+        TEXT("INFINITY_HANGAR_TIMING_APPLIED|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|mode=%s|strike=%.4f|dim=%.4f|lights=%d"),
+        *GetActorNameOrLabel(),
+        HangarTiming.RoofCloseStartSeconds,
+        HangarTiming.RoofCloseEndSeconds,
+        HangarTiming.LatticeStartSeconds,
+        HangarTiming.LatticeEndSeconds,
+        bDimInsteadOfStrike ? TEXT("dim") : TEXT("strike"),
+        HangarTiming.LightStrikeSeconds,
+        HangarTiming.DimSeconds,
+        Discovery.Lights.Num());
+    NotifyHangarTiming(TEXT("Hangar timing applied. Save the rise sequence when ready."), true);
+    return true;
+#else
+    return false;
+#endif
 }
 
 void AInfinityStageArrival::BeginPlay()

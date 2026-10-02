@@ -26,5 +26,15 @@ public class InfinityStage : ModuleRules
             "GeometryCache",
             "GeometryCacheTracks"
         });
+
+        if (Target.bBuildEditor)
+        {
+            PrivateDependencyModuleNames.AddRange(new[]
+            {
+                "UnrealEd",
+                "Slate",
+                "SlateCore"
+            });
+        }
     }
 }

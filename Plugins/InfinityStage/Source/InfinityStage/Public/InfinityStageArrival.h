@@ -12,6 +12,49 @@ class UMovieScene;
 class UMovieSceneSubSection;
 class USceneComponent;
 
+/** Editable, cut-relative timing for one Arrival's hangar rise sequence. */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityHangarTiming
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
+        meta = (EditCondition = "bHasRoofHinge", EditConditionHides, Units = "s"))
+    double RoofCloseStartSeconds = 4.1261;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
+        meta = (EditCondition = "bHasRoofHinge", EditConditionHides, Units = "s"))
+    double RoofCloseEndSeconds = 8.6261;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
+    double LatticeStartSeconds = 8.6261;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
+    double LatticeEndSeconds = 12.6261;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
+    double LightStrikeSeconds = 10.0;
+
+    /** S6 is roofless and fades its existing light state instead of striking on.
+     * Apply derives true for an actor labelled S6 Arrival even if this field has
+     * not first been populated by ReadHangarTiming. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing")
+    bool bDimInsteadOfStrike = false;
+
+    /** Duration of the S6 fade from the value at LandSeconds to two percent. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
+        meta = (EditCondition = "bDimInsteadOfStrike", EditConditionHides, ClampMin = "0.001", Units = "s"))
+    double DimSeconds = 10.0;
+
+    /** Landing time read from the root pitch channel's last key. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Hangar Timing", meta = (Units = "s"))
+    double LandSeconds = 4.1261;
+
+    /** Read from the rise sequence; drives visibility of the two roof fields. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Hangar Timing")
+    bool bHasRoofHinge = true;
+};
+
 /**
  * One float channel the Arrival reads before its Scene starts. The target is either a
  * light component (Intensity) or a post-process volume (BlendWeight).
@@ -93,6 +136,18 @@ public:
     /** The actor whose relative rotation is set before the Scene starts. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
     TObjectPtr<AActor> DrivenActor;
+
+    /** Cut-relative controls for the rise asset. Read first, edit, then Apply; Apply never saves. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (ShowOnlyInnerProperties))
+    FInfinityHangarTiming HangarTiming;
+
+    /** Populate HangarTiming from MotionSequence without changing the sequence. */
+    UFUNCTION(CallInEditor, BlueprintCallable, Category = "Hangar Timing")
+    bool ReadHangarTiming();
+
+    /** Validate and retime only roof, lattice and light timing keys in one undo transaction. */
+    UFUNCTION(CallInEditor, BlueprintCallable, Category = "Hangar Timing")
+    bool ApplyHangarTiming();
 
     /** Roof hinge and lattice-fly bindings initialized alongside DrivenActor. The root stays
      * the existing DrivenActor/MotionBindingGuid pair so no second owner can diverge from the
