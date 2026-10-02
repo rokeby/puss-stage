@@ -36,6 +36,11 @@ marked **[conductor approved]** and named as mine, not yours.
 
 ## GARY'S NOTES, 1 Oct evening
 
+**Decided (Gary, via Wings and Textures' session, 1-2 Oct):** S3 hand prints come from FUSER (job
+FuserQueue/24_S03_hand_prints_atlas); W&T then build the decal atlas + JSON placement table for Rig.
+P02 is a FULL REDO: a chain-link fence overgrown with lurid plants; the ~60 existing P02 plant wings are
+NOT rebuilt in V3 (card updated, add0a14). This supersedes the P02 card brief sent 1 Oct evening.
+
 **Production order (Gary):** wings (new high-quality feel, placed in order) -> lighting ->
 lighting FX -> other props -> other FX. (his words, condensed; conductor session) — NOT YET ACTIONED
 
