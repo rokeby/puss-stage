@@ -133,6 +133,11 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   false, INFERRED) -> SUPERSEDED by the Arrival Details timing patch AT (Gary: Details panel; roof +4.13->+8.63, lattice
   +8.63->+12.63, lights strike +10 s keeping stagger; spec specs/HANGAR_TIMING_DETAILS.md, Codex drafting).
   HELD patches for the next build: SS (scene shot stepping, d410198) + AT when reviewed. Editor CLOSED by Gary at 08:38.
+- FOR WING MATERIALITY (2 Oct ~17:00, W&T measured; decode INFERRED): every imported V3 flat stores the Timber ply ID as
+  vertex R ~0.733 (the FBX's sRGB-encoded 0.5), not 0.5 (spec WingMateriality.md:52 says 0 softwood / 0.5 ply / 1 steel).
+  No shipped material decodes VC.R yet (the Timber master isn't built; Timber slots use M_Wing_CanvasEdge_Master). When the
+  Timber master is built, decode the STORED value (or fix the builder's encoding globally and reimport). Today's waves use
+  a consistency gate (match the existing V3 value), not the 0.5 rule.
 - HANGAR GATE FAILED (Gary, 2 Oct ~01:50): S1 and S3 rise; S2 does NOT; S4/S5/S6 "possibly" not (S5/S6 run cut
   short by the PIE stops). The log shows S2/S5/S6 Arrivals WAITING reason=NotNested ("inert until LS_DevScene_0N
   plays LS_SN_HangarRise") -> the queued "lengthen Scenes 2/5/6 so their hangars play" (INFERRED cause). DO NOT
