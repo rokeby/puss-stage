@@ -180,3 +180,9 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
     - The duct/vent pair is still the weakest: blocky, and the backs read as plank.
   - **Options for Gary:** drop DuctVent from the P02 layout, or re-skin it from his `industrial_unit.jpg` photo as a billboard flat. No further automated look rounds.
   - **measured (per Codex):** the 50 P06-named files the earlier pass touched were P02-local review copies; no P06 sources changed.
+- **P02 layout v2: APPROVED by Gary (2 Oct, in this session).**
+  - Each position is one matched L/R family; the contrast comes between successive pairs ("more effective when they remain paired").
+  - Plant sets 1, 4, 6 and 7 alternate with the FenceTarp, FenceOpen and RollerShutter pairs. DuctVent is dropped.
+  - The ruin sets 16, 18, 19 and 20 are grouped next, followed by 3 shrine pairs reusing P04 ruin art (coventry_ruin L_v1/R_v1, ruined_gallery L_v1/R_v1, coventry_ruin L_v2/R_v1).
+  - Files: `DerivedAssets/FlatV3/Overnight/P02_LAYOUT_DRAFT_v2.json` and `.md`.
+  - Import and swap go in an editor slot after P03, using the swapkit. Rows whose top border is still in repair (SET06_C, SET07_C, SET16_C) keep their old top until it passes.
