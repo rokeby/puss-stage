@@ -497,23 +497,32 @@ def _status_for_plan(run, plan):
          str(os.path.exists(record)).lower(), rest_worst["location_cm"],
          landed_worst["location_cm"]))
     return {"scene": scene, "record_exists": os.path.exists(record), "at_rest": at_rest,
-            "rest_worst": rest_worst}
+            "at_landed": at_landed, "rest_worst": rest_worst,
+            "landed_worst": landed_worst}
+
+
+def landed_save_check(states):
+    """The level is safe to save only while every preview is recorded and LANDED."""
+    if not states:
+        raise PreviewError("save check has no hangar states")
+    safe = all(state["record_exists"] and state["at_landed"] for state in states)
+    max_err = max(float(state["landed_worst"]["location_cm"]) for state in states)
+    blocked = ["S%d(record=%s,at_landed=%s)" %
+               (state["scene"], str(state["record_exists"]).lower(),
+                str(state["at_landed"]).lower())
+               for state in states if not state["record_exists"] or not state["at_landed"]]
+    return safe, max_err, blocked
 
 
 def _run_status(run, plans, save_check):
     states = [_status_for_plan(run, plan) for plan in plans]
     if not save_check:
         return
-    safe = all(not state["record_exists"] and state["at_rest"] for state in states)
-    max_err = max(state["rest_worst"]["location_cm"] for state in states)
+    safe, max_err, blocked = landed_save_check(states)
     if safe:
         unreal.log("HANGAR_PREVIEW_SAFE_TO_SAVE|run=%s|hangars=%s|max_err_cm=%.9f" %
                    (run, ",".join("S%d" % state["scene"] for state in states), max_err))
     else:
-        blocked = ["S%d(record=%s,at_rest=%s)" %
-                   (state["scene"], str(state["record_exists"]).lower(),
-                    str(state["at_rest"]).lower())
-                   for state in states if state["record_exists"] or not state["at_rest"]]
         unreal.log_warning("HANGAR_PREVIEW_UP_DO_NOT_SAVE|run=%s|blocked=%s|max_err_cm=%.9f" %
                            (run, ",".join(blocked), max_err))
 

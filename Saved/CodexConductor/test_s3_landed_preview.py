@@ -6,6 +6,7 @@ from s3_landed_preview import (
     HANGAR_IDS,
     PreviewError,
     expected_mover_labels,
+    landed_save_check,
     parse_hangar_ids,
     record_filename,
     transform_errors,
@@ -54,13 +55,20 @@ def main():
     subset = parse_hangar_ids("S1, 3 S6")
     roofed = validate_mover_pattern(4, expected_mover_labels(4))
     roofless = validate_mover_pattern(6, expected_mover_labels(6))
+    safe, save_error, blocked = landed_save_check([{
+        "scene": scene,
+        "record_exists": True,
+        "at_landed": True,
+        "landed_worst": {"location_cm": 0.0},
+    } for scene in HANGAR_IDS])
     if (landed["rotation"][1] == 0.0 and pose["location_cm"] == 0.0 and
             rest["max_location_error_cm"] == 0.0 and far_error == 0.0 and
             all_ids == HANGAR_IDS and subset == (1, 3, 6) and
             "S4 Hangar Roof Hinge" in roofed and
             "S6 Hangar Roof Hinge" not in roofless and
-            record_filename(5) == "s5_landed_preview_record.json"):
-        print("PASS positive: maths, all/subset parsing, records, and S4/S6 patterns are valid")
+            record_filename(5) == "s5_landed_preview_record.json" and
+            safe and save_error == 0.0 and blocked == []):
+        print("PASS positive: maths, parsing, records, patterns, and LANDED save gate are valid")
     else:
         print("FAIL positive: unexpected maths or discovery result")
         failures += 1
@@ -118,8 +126,30 @@ def main():
             "S3 Mystery Mover",
         )),
     )
+    down_safe, _down_error, down_blocked = landed_save_check([{
+        "scene": 1,
+        "record_exists": False,
+        "at_landed": False,
+        "landed_worst": {"location_cm": 1600.0},
+    }])
+    if down_safe or down_blocked != ["S1(record=false,at_landed=false)"]:
+        print("FAIL negative DOWN save gate: sunk hangar was accepted")
+        failures += 1
+    else:
+        print("PASS negative DOWN save gate: sunk hangar refused as required")
+    mismatch_safe, _mismatch_error, mismatch_blocked = landed_save_check([{
+        "scene": 2,
+        "record_exists": True,
+        "at_landed": False,
+        "landed_worst": {"location_cm": 1.0},
+    }])
+    if mismatch_safe or mismatch_blocked != ["S2(record=true,at_landed=false)"]:
+        print("FAIL negative mismatched UP save gate: non-landed pose was accepted")
+        failures += 1
+    else:
+        print("PASS negative mismatched UP save gate: non-landed pose refused as required")
     if failures == 0:
-        print("HANGAR_LANDED_PREVIEW_HARNESS_OK|positive=1|negative=9|hangars=6")
+        print("HANGAR_LANDED_PREVIEW_HARNESS_OK|positive=1|negative=11|hangars=6")
     return failures
 
 

@@ -45,6 +45,7 @@ def main():
         transitions = json.load(handle)
 
     expected_identity = {
+        "OPENING": ("LS_Opening_Curtain_Baked", "Opening — Stalls Camera", "Passage 1", None),
         "I1": ("LS_Interaction_01_WashingTheBoy", "Interaction 1 — Stalls Camera", "Passage 2", "InfinityStage.Mouth.P02"),
         "I2": ("LS_Interaction_02_Turnips", "Interaction 2 — Stalls Camera", "Passage 3", "InfinityStage.Mouth.P03"),
         "I3": ("LS_Interaction_03_ForgetsHisName", "Interaction 3 — Stalls Camera", "Passage 4", "InfinityStage.Mouth.P04"),
@@ -56,14 +57,15 @@ def main():
         registry_problems.append("ids=%r" % sorted(transitions))
     for transition_id, expected in expected_identity.items():
         row = transitions.get(transition_id, {})
+        tags = row.get("camera_tags", [])
         actual = (
             str(row.get("sequence_path", "")).rsplit("/", 1)[-1],
             row.get("camera_label"), row.get("next_passage_label"),
-            row.get("camera_tags", [None, None])[-1] if row.get("camera_tags") else None,
+            tags[-1] if tags else None,
         )
         if actual != expected:
             registry_problems.append("%s identity=%r" % (transition_id, actual))
-        if row.get("camera_tags", [None])[0] != "InfinityStage.TransitionStalls":
+        if transition_id != "OPENING" and row.get("camera_tags", [None])[0] != "InfinityStage.TransitionStalls":
             registry_problems.append("%s missing stalls tag" % transition_id)
     if transitions.get("I1", {}).get("minimum_end_frame") != 638:
         registry_problems.append("I1 minimum_end_frame")
@@ -75,6 +77,18 @@ def main():
             registry_problems.append("%s must remain gated by nulls" % transition_id)
         if len(row.get("soft_goods_steps", [])) != 3:
             registry_problems.append("%s Soft goods steps" % transition_id)
+    opening = transitions.get("OPENING", {})
+    opening_evidence = opening.get("file_evidence", {})
+    opening_gated = (
+        opening.get("minimum_end_frame") is None
+        and opening.get("landed_s") == 6.3
+        and opening.get("pile_edge_cm") == 190.0
+        and opening_evidence.get("opening_playback_frames") == [0, 375]
+        and opening_evidence.get("p01_start_pose") is None
+        and opening_evidence.get("p01_arrival_speed_cm_s") is None
+    )
+    if not opening_gated:
+        registry_problems.append("OPENING must remain probe-gated with file evidence")
     results.append(run_case(
         "transition_registry",
         not registry_problems,
