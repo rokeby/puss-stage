@@ -197,7 +197,11 @@ def set_component_mesh(component, mesh):
     if owner is not None:
         owner.modify()
     component.modify()
-    result = component.set_static_mesh(mesh)
+    # set_editor_property goes through the editor property-change path (PreEdit/
+    # PostEditChange), which dirties the outer package; set_static_mesh did not
+    # (FV3W2-20261002-01/-02 measured the level clean after it).
+    component.set_editor_property("static_mesh", mesh)
+    result = component.get_editor_property("static_mesh") == mesh
     if result is False:
         raise RuntimeError("W2_SET_STATIC_MESH_FAIL|mesh=" + asset_path(mesh))
 

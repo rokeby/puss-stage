@@ -97,14 +97,20 @@ class StaticMeshComponent:
         return self.owner
 
     def modify(self):
-        # Measured live 2 Oct (FV3W2-20261002-01): only modify() dirties the level.
-        STATE.map_dirty.add(WORLD)
+        # Measured live 2 Oct (FV3W2-20261002-02): modify() + set_static_mesh did NOT
+        # dirty the level either; modify() alone is not modelled as dirtying.
         return True
 
     def get_editor_property(self, name):
         if name != "static_mesh":
             raise KeyError(name)
         return self.mesh
+
+    def set_editor_property(self, name, value):
+        if name != "static_mesh":
+            raise KeyError(name)
+        self.mesh = value
+        STATE.map_dirty.add(WORLD)   # property-change path dirties the package
 
     def get_static_mesh(self):
         return self.mesh
@@ -123,7 +129,6 @@ class Actor:
         self.transform = transform or Transform()
 
     def modify(self):
-        STATE.map_dirty.add(WORLD)
         return True
 
     def get_actor_label(self):

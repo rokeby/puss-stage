@@ -96,7 +96,7 @@ class W2OfflineTests(unittest.TestCase):
         self.assertEqual(fake.STATE.map_dirty, set())
         self.assertTrue(any("FLATV3_W2_IMPORT_OK" in line for line in fake.STATE.logs))
         self.assertTrue(any("FLATV3_W2_OK" in line for line in fake.STATE.logs))
-        self.assertTrue(any("FLATV3_SLOT_RELEASED run=FV3W2-20261002-01 status=REVERTED"
+        self.assertTrue(any("FLATV3_SLOT_RELEASED run=FV3W2-20261002-03 status=REVERTED"
                             in line for line in fake.STATE.logs))
         for actor in fake.STATE.actors:
             self.assertTrue(actor.component.mesh.path.startswith("/Game/Legacy/"))
