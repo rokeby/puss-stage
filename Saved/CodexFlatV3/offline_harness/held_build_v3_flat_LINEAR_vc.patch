@@ -1,0 +1,49 @@
+diff --git a/Tools/FlatV3/build_v3_flat.py b/Tools/FlatV3/build_v3_flat.py
+index 3cde436..9abff4e 100644
+--- a/Tools/FlatV3/build_v3_flat.py
++++ b/Tools/FlatV3/build_v3_flat.py
+@@ -1563,6 +1563,11 @@ def export_selection(path: Path, objects: list[bpy.types.Object]) -> None:
+         apply_scale_options="FBX_SCALE_UNITS", axis_forward="-X", axis_up="Z",
+         bake_space_transform=False, add_leaf_bones=False, path_mode="AUTO",
+         use_custom_props=True,
++        # Vertex colours are numeric control data, not display colours.  Blender
++        # 4.4 defaults FBX export to SRGB, which turns a linear material ID 0.5
++        # into 0.735337 in the file; UE Interchange then preserves that encoded
++        # value.  LINEAR keeps the declared 0/0.5/1 contract byte-for-byte.
++        colors_type="LINEAR",
+     )
+ 
+ 
+@@ -1901,7 +1906,7 @@ def build(args: argparse.Namespace) -> None:
+                             "shared_pole": pole_triangles},
+         "material_slots": MATERIAL_SLOTS,
+         "uv_layers": [layer.name for layer in flat.data.uv_layers],
+-        "vertex_colour_contract": {"layer": VERTEX_COLOR_NAME, "Flap.R": "flutter weight; 0 hinge to 1 free", "Timber.R": "0 softwood; 0.5 ply; 1 steel", "Timber.G": "deterministic per-member variation"},
++        "vertex_colour_contract": {"layer": VERTEX_COLOR_NAME, "source_type": "FLOAT_COLOR", "domain": "CORNER", "fbx_export_colors_type": "LINEAR", "Flap.R": "flutter weight; 0 hinge to 1 free", "Timber.R": "0 softwood; 0.5 ply; 1 steel", "Timber.G": "deterministic per-member variation"},
+         "lods": {
+             "mechanism": "FBX LodGroup NodeAttribute",
+             "group": lod_group.name,
+@@ -2239,7 +2244,12 @@ def validate_vertex_contract(obj: bpy.types.Object, slots: list[str], require_al
+         if slot not in values:
+             continue
+         for loop_index in polygon.loop_indices:
+-            values[slot].append(tuple(float(v) for v in layer.data[loop_index].color))
++            item = layer.data[loop_index]
++            # FBX import exposes colour layers as BYTE_COLOR.  `.color` is the
++            # scene-linear decode; `.color_srgb` is the normalized stored byte
++            # value that UE Interchange consumes as numeric vertex data.
++            source = item.color_srgb if layer.data_type == "BYTE_COLOR" else item.color
++            values[slot].append(tuple(float(v) for v in source))
+     flap_red = [value[0] for value in values["Flap"]]
+     timber_red = [value[0] for value in values["Timber"]]
+     timber_green = [value[1] for value in values["Timber"]]
+@@ -2248,6 +2258,9 @@ def validate_vertex_contract(obj: bpy.types.Object, slots: list[str], require_al
+         has_ids = all(any(abs(value - target) <= 0.03 for value in timber_red) for target in (0.0, 0.5, 1.0))
+     checks = {
+         "layer": layer.name,
++        "data_type": layer.data_type,
++        "domain": layer.domain,
++        "values_read_as": "color_srgb (normalized stored bytes)" if layer.data_type == "BYTE_COLOR" else "color",
+         "flap_range": [min(flap_red), max(flap_red)] if flap_red else None,
+         "timber_red_range": [min(timber_red), max(timber_red)] if timber_red else None,
+         "timber_green_range": [min(timber_green), max(timber_green)] if timber_green else None,
