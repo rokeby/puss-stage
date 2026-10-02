@@ -367,7 +367,11 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
             base_transform = ref.get_editor_property("base_world_transform")
             bounds = bounds_in_frame(mesh, base_transform, frame)
             centre_y = (bounds["min"][1] + bounds["max"][1]) * 0.5
-            if (side == "left" and centre_y >= -1.0) or (side == "right" and centre_y <= 1.0):
+            # Side test on the BACKBONE (outer) edge, not the centre: P05 clouds are
+            # authored overlapping the centreline (old right at cue 125 spans y -205..205),
+            # so a centre test fails faithful swaps. Exact plan edges are checked below.
+            backbone_y = bounds["min"][1] if side == "left" else bounds["max"][1]
+            if (side == "left" and backbone_y >= -1.0) or (side == "right" and backbone_y <= 1.0):
                 raise RuntimeError("PLACED_SIDE_BOUNDS_FAIL|label=%s|side=%s|bounds=%s" %
                                    (row["cue_label"], side, json.dumps(bounds)))
             placement = row["placement"][side]
