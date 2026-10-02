@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerController.h"
+#include "InfinityStageTransportController.h"
 #include "InfinityStageShowGameMode.generated.h"
 
 /** Keyboard transport for the focused game viewport, using the one Show player. */
@@ -12,6 +13,8 @@ class INFINITYSTAGE_API AInfinityStageShowPlayerController : public APlayerContr
     GENERATED_BODY()
 public:
     AInfinityStageShowPlayerController();
+
+    virtual void PlayerTick(float DeltaTime) override;
 
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     void AdvanceShowSegment();
@@ -24,6 +27,13 @@ public:
 
 protected:
     virtual void SetupInputComponent() override;
+
+private:
+    FInfinityHoldRightState HoldRightState;
+
+    void BeginRightInput();
+    void EndRightInput();
+    void ApplyHoldRightAction(EInfinityHoldRightAction Action);
 };
 
 /**

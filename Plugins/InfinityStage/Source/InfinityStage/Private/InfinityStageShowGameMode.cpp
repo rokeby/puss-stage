@@ -41,9 +41,65 @@ AInfinityStageShowPlayerController::AInfinityStageShowPlayerController()
 void AInfinityStageShowPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
-    InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &AInfinityStageShowPlayerController::AdvanceShowSegment);
+    InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &AInfinityStageShowPlayerController::BeginRightInput);
+    InputComponent->BindKey(EKeys::Right, IE_Released, this, &AInfinityStageShowPlayerController::EndRightInput);
     InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousShowSegment);
     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
+}
+
+void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
+{
+    Super::PlayerTick(DeltaTime);
+    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    const float Threshold = Transport ? Transport->HoldThresholdSeconds : 0.30f;
+    ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold));
+}
+
+void AInfinityStageShowPlayerController::BeginRightInput()
+{
+    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    if (Transport && Transport->ReleaseActiveVamp())
+    {
+        // A vamp release is the whole RIGHT gesture. Its key-up must not also
+        // become a tap advance or a fast-forward end.
+        HoldRightState.Reset();
+        return;
+    }
+    HoldRightState.Press(Transport && Transport->IsTransportPlaying());
+}
+
+void AInfinityStageShowPlayerController::EndRightInput()
+{
+    ApplyHoldRightAction(HoldRightState.Release());
+}
+
+void AInfinityStageShowPlayerController::ApplyHoldRightAction(const EInfinityHoldRightAction Action)
+{
+    if (Action == EInfinityHoldRightAction::None)
+    {
+        return;
+    }
+    if (Action == EInfinityHoldRightAction::Advance)
+    {
+        AdvanceShowSegment();
+        return;
+    }
+
+    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    if (Action == EInfinityHoldRightAction::BeginFastForward)
+    {
+        const EInfinityTransportResult Result = Transport
+            ? Transport->BeginFastForward()
+            : EInfinityTransportResult::NoPlayer;
+        HoldRightState.ResolveFastForwardStart(Result);
+        ReportTransportResult(this, Result);
+        return;
+    }
+
+    const bool bWasPlaying = Action == EInfinityHoldRightAction::EndFastForwardPlaying;
+    ReportTransportResult(this, Transport
+        ? Transport->EndFastForward(bWasPlaying)
+        : EInfinityTransportResult::NoPlayer);
 }
 
 void AInfinityStageShowPlayerController::AdvanceShowSegment()

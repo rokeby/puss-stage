@@ -39,6 +39,19 @@ struct INFINITYSTAGE_API FInfinityArrivalFloatDrive
     FName PropertyName;
 };
 
+/** One additional hangar mover restored from its transform binding's first keys at game start. */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityArrivalInitialTransformDrive
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+    TObjectPtr<AActor> Target;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+    FGuid BindingGuid;
+};
+
 /**
  * Starts a Scene's opening motion before the Scene does: while the Master is still in
  * the Passage that arrives there (Scene 4's hangar rises as the camera walks through
@@ -80,6 +93,18 @@ public:
     /** The actor whose relative rotation is set before the Scene starts. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
     TObjectPtr<AActor> DrivenActor;
+
+    /** Roof hinge and lattice-fly bindings initialized alongside DrivenActor. The root stays
+     * the existing DrivenActor/MotionBindingGuid pair so no second owner can diverge from the
+     * pre-Scene drive. Author only the sequence's actual transform movers (S6 has no roof). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Arrival")
+    TArray<FInfinityArrivalInitialTransformDrive> AdditionalInitialTransformDrives;
+
+    /** In game worlds only, restore every configured mover from its transform channels' first
+     * authored keys/defaults. Editor worlds are deliberately untouched so the level can remain
+     * saved landed. Returns false without changing any target if any configured drive is invalid. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Arrival")
+    bool ApplyInitialTransformPose();
 
     /** Sets DrivenActor's relative rotation for a Master time before the Scene starts.
      * Returns false, touching nothing, at or after the Scene's first frame (Sequencer

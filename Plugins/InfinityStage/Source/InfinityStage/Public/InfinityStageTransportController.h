@@ -29,6 +29,36 @@ enum class EInfinityTransportResult : uint8
     UnsafeExternalClock
 };
 
+/** Pure input decisions for the viewport's tap-or-hold Right Arrow binding. */
+enum class EInfinityHoldRightAction : uint8
+{
+    None,
+    Advance,
+    BeginFastForward,
+    EndFastForwardPlaying,
+    EndFastForwardHeld
+};
+
+/**
+ * Converts key timing into transport intentions without requiring a world or
+ * sequence player. The attempted hold is consumed even when the transport
+ * refuses it, so an interlock refusal can never turn into a jump on release.
+ */
+struct INFINITYSTAGE_API FInfinityHoldRightState
+{
+    bool bPressed = false;
+    bool bThresholdReached = false;
+    bool bFastForwardActive = false;
+    bool bWasPlaying = false;
+    float HeldSeconds = 0.0f;
+
+    void Press(bool bInWasPlaying);
+    EInfinityHoldRightAction Tick(float DeltaSeconds, float HoldThresholdSeconds);
+    void ResolveFastForwardStart(EInfinityTransportResult Result);
+    EInfinityHoldRightAction Release();
+    void Reset();
+};
+
 /** Mirrors the engine's view-target blend shapes, without the internal ones. */
 UENUM(BlueprintType)
 enum class EInfinityHandoverBlendFunction : uint8
@@ -220,6 +250,59 @@ struct INFINITYSTAGE_API FInfinityTransportSegment
     bool bReady = true;
 };
 
+/** One authored, absolute-Master interval that repeats until the operator releases it. */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityVampRange
+{
+    GENERATED_BODY()
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Vamp")
+    FFrameNumber StartFrame = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Vamp")
+    FFrameNumber EndFrame = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Vamp")
+    int32 SegmentIndex = INDEX_NONE;
+
+    bool IsValid() const { return SegmentIndex != INDEX_NONE && EndFrame > StartFrame; }
+};
+
+enum class EInfinityVampPlaybackAction : uint8
+{
+    None,
+    NormalizeToOne,
+    LoopToStart
+};
+
+/**
+ * Pure vamp arming/release decisions. Navigation resets observation without
+ * arming; only 1x forward playback through VampStart arms a loop. Reverse
+ * playback into a released range re-arms it.
+ */
+struct INFINITYSTAGE_API FInfinityVampPlaybackState
+{
+    int32 ActiveVampIndex = INDEX_NONE;
+    int32 LoopCount = 0;
+
+    void Reset();
+    void OnNavigation(FFrameNumber TargetFrame);
+    EInfinityVampPlaybackAction Tick(
+        FFrameNumber CurrentFrame,
+        bool bPlaying,
+        bool bReversed,
+        float PlayRate,
+        const TArray<FInfinityVampRange>& Ranges,
+        FFrameNumber& OutLoopFrame);
+    bool Release(FFrameNumber CurrentFrame, const TArray<FInfinityVampRange>& Ranges);
+    bool IsActive() const { return ActiveVampIndex != INDEX_NONE; }
+
+private:
+    TSet<int32> ReleasedVamps;
+    FFrameNumber PreviousFrame = 0;
+    bool bHasPreviousFrame = false;
+};
+
 /** Pending one-shot re-evaluation of a frame after an operator jump. */
 struct INFINITYSTAGE_API FInfinityJumpResettle
 {
@@ -249,6 +332,10 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport")
     TArray<FInfinityTransportSegment> Segments;
 
+    /** Marker pairs compiled from cue sequences into absolute Master frames. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Vamp")
+    TArray<FInfinityVampRange> VampRanges;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
     bool bPerformanceMode = true;
 
@@ -256,6 +343,16 @@ public:
      * The Scene still holds at its end; this never starts the next Passage. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
     bool bAutoPlaySceneAfterPassage = false;
+
+    /** A shorter Right Arrow press keeps the existing advance-to-next-cue action. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+        meta = (ClampMin = "0.0", Units = "s"))
+    float HoldThresholdSeconds = 0.30f;
+
+    /** Continuous Master playback rate while Right Arrow is held past the threshold. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+        meta = (ClampMin = "1.0", UIMax = "8.0"))
+    float FastForwardRate = 4.0f;
 
     /**
      * Delay before one same-frame re-evaluation after a paused jump or scrub.
@@ -348,6 +445,17 @@ public:
      * Scene playback is enabled. A new Passage remains held at its first frame. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult AdvanceToNextSegment();
+
+    /** Plays continuously to the end of the Master at FastForwardRate. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    EInfinityTransportResult BeginFastForward();
+
+    /** Restores 1x and either resumes or holds according to the pre-hold state. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    EInfinityTransportResult EndFastForward(bool bWasPlaying);
+
+    /** RIGHT inside an armed vamp consumes that vamp and continues to this segment's end at 1x. */
+    bool ReleaseActiveVamp();
 
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult JumpToPreviousSegment();
@@ -445,6 +553,12 @@ private:
 
     FInfinityJumpResettle JumpResettleState;
 
+    FInfinityVampPlaybackState VampPlaybackState;
+
+    bool bFastForwardActive = false;
+    bool bMasterAudioMutedForFastForward = false;
+    bool bMasterAudioWasEvalDisabled = false;
+
     /** What ClaimViewTarget last asked for, and when, so a running blend is not
      * restarted every frame by a repeat of the same request. */
     TWeakObjectPtr<AActor> ClaimedViewTarget;
@@ -472,6 +586,11 @@ private:
 
     /** Resettles the held frame before repairing any Passage view-target steal. */
     void RunTickTail(FFrameNumber CurrentFrame, float DeltaTime);
+
+    /** Returns true when this tick looped and no camera boundary work should run. */
+    bool HandleVampPlayback(FFrameNumber CurrentFrame);
+    void SetManagedMasterAudioMuted(bool bMuted);
+    void StopFastForwardPlayback();
 
     bool IsUnsafeExternalMove(FFrameNumber TargetFrame) const;
     /** True when holding or rate-changing would disturb a segment whose sound a live

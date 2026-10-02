@@ -6,6 +6,7 @@
 #include "Components/LightComponent.h"
 #include "Components/SceneComponent.h"
 #include "Engine/PostProcessVolume.h"
+#include "Engine/World.h"
 #include "GeometryCacheComponent.h"
 #include "InfinityStageCompiler.h"
 #include "InfinityStageShowAsset.h"
@@ -67,6 +68,48 @@ const SectionType* FindBindingSection(const UMovieScene& MovieScene, const FGuid
     return nullptr;
 }
 
+bool ResolveFirstTransform(const UMovieScene& MovieScene, const FGuid& BindingGuid, FTransform& OutTransform)
+{
+    const UMovieScene3DTransformSection* Section =
+        FindBindingSection<UMovieScene3DTransformSection, UMovieScene3DTransformTrack>(MovieScene, BindingGuid);
+    if (!Section)
+    {
+        return false;
+    }
+    // Translation XYZ, rotation XYZ (roll, pitch, yaw), scale XYZ.
+    const TArrayView<FMovieSceneDoubleChannel*> Channels =
+        Section->GetChannelProxy().GetChannels<FMovieSceneDoubleChannel>();
+    if (Channels.Num() != 9)
+    {
+        return false;
+    }
+    double Values[9];
+    for (int32 Index = 0; Index < 9; ++Index)
+    {
+        if (!Channels[Index])
+        {
+            return false;
+        }
+        const TArrayView<const FMovieSceneDoubleValue> Keys = Channels[Index]->GetData().GetValues();
+        if (!Keys.IsEmpty())
+        {
+            Values[Index] = Keys[0].Value;
+            continue;
+        }
+        const TOptional<double> Default = Channels[Index]->GetDefault();
+        if (!Default.IsSet())
+        {
+            return false;
+        }
+        Values[Index] = Default.GetValue();
+    }
+    OutTransform = FTransform(
+        FRotator(Values[4], Values[5], Values[3]),
+        FVector(Values[0], Values[1], Values[2]),
+        FVector(Values[6], Values[7], Values[8]));
+    return true;
+}
+
 /** The float section on the named property track that owns MotionTime, or the earliest section. */
 const UMovieSceneFloatSection* FindFloatBindingSection(
     const UMovieScene& MovieScene,
@@ -124,6 +167,7 @@ AInfinityStageArrival::AInfinityStageArrival()
 void AInfinityStageArrival::BeginPlay()
 {
     Super::BeginPlay();
+    ApplyInitialTransformPose();
     // A GeometryCache that is running auto-plays whenever nothing holds it in manual tick, so a
     // Show started far from this Arrival would drop the cloth on its own clock. Hold the still
     // hang (sample 0) until the Master says otherwise.
@@ -135,6 +179,64 @@ void AInfinityStageArrival::BeginPlay()
             Cache->TickAtThisTime(0.0f, true, false, false);
         }
     }
+}
+
+bool AInfinityStageArrival::ApplyInitialTransformPose()
+{
+    UWorld* World = GetWorld();
+    if (!World || !World->IsGameWorld())
+    {
+        return false;
+    }
+    ULevelSequence* Motion = MotionSequence.LoadSynchronous();
+    UMovieScene* MovieScene = Motion ? Motion->GetMovieScene() : nullptr;
+    if (!MovieScene || !DrivenActor || !MotionBindingGuid.IsValid())
+    {
+        WarnOnce(TEXT("InitialPoseMissingRoot"), GetNameSafe(Motion));
+        return false;
+    }
+
+    struct FResolvedInitialTransform
+    {
+        AActor* Target = nullptr;
+        FGuid BindingGuid;
+        FTransform Transform;
+    };
+    TArray<FResolvedInitialTransform> Resolved;
+    Resolved.Reserve(1 + AdditionalInitialTransformDrives.Num());
+    FResolvedInitialTransform& Root = Resolved.AddDefaulted_GetRef();
+    Root.Target = DrivenActor;
+    Root.BindingGuid = MotionBindingGuid;
+    for (const FInfinityArrivalInitialTransformDrive& Drive : AdditionalInitialTransformDrives)
+    {
+        FResolvedInitialTransform& Row = Resolved.AddDefaulted_GetRef();
+        Row.Target = Drive.Target;
+        Row.BindingGuid = Drive.BindingGuid;
+    }
+
+    // Resolve every row before changing the first actor: a bad/missing roof or lattice binding
+    // must not leave a partly initialized hangar.
+    for (FResolvedInitialTransform& Row : Resolved)
+    {
+        if (!Row.Target || Row.Target->GetWorld() != World || !Row.BindingGuid.IsValid()
+            || !ResolveFirstTransform(*MovieScene, Row.BindingGuid, Row.Transform))
+        {
+            WarnOnce(TEXT("InitialPoseDriveInvalid"),
+                FString::Printf(TEXT("target=%s binding=%s"),
+                    *GetNameSafe(Row.Target), *Row.BindingGuid.ToString()));
+            return false;
+        }
+    }
+    for (const FResolvedInitialTransform& Row : Resolved)
+    {
+        // Transient runtime initialization: no Modify(), no package dirtied.
+        Row.Target->SetActorRelativeTransform(
+            Row.Transform, false, nullptr, ETeleportType::TeleportPhysics);
+    }
+    UE_LOG(LogInfinityStageArrival, Display,
+        TEXT("INFINITY_HANGAR_INITIAL_POSE actor='%s' motion='%s' movers=%d world=game"),
+        *GetActorNameOrLabel(), *Motion->GetName(), Resolved.Num());
+    return true;
 }
 
 bool AInfinityStageArrival::MapOuterToInnerTime(

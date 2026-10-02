@@ -11,6 +11,7 @@
 #include "LevelSequence.h"
 #include "LevelSequencePlayer.h"
 #include "MovieScene.h"
+#include "MovieSceneInfinityAudioTrack.h"
 #include "MovieSceneSequencePlayer.h"
 #include "Sections/MovieSceneCameraCutSection.h"
 #include "Tracks/MovieSceneCameraCutTrack.h"
@@ -22,6 +23,8 @@ DEFINE_LOG_CATEGORY(LogInfinityStageTransport);
 namespace
 {
 constexpr TCHAR HiddenChangeoverMarker[] = TEXT("InfinityStage.HiddenChangeover");
+constexpr TCHAR VampStartMarker[] = TEXT("InfinityStage.VampStart");
+constexpr TCHAR VampEndMarker[] = TEXT("InfinityStage.VampEnd");
 constexpr int32 JumpResettleMinTicks = 2;
 
 /**
@@ -139,6 +142,301 @@ FFrameNumber ResolveCoveredHandoffOffset(
     OutSource = EInfinityCoveredHandoffSource::FallbackNoMarker;
     return Fallback;
 }
+
+struct FVampMarker
+{
+    FFrameNumber Offset = 0;
+    bool bStart = false;
+};
+
+void CollectVampRanges(
+    const UInfinityStageShowAsset& Show,
+    const FInfinityShowCue& Cue,
+    const int32 SegmentIndex,
+    const FFrameNumber SegmentStart,
+    const FFrameNumber SegmentEnd,
+    TArray<FInfinityVampRange>& OutRanges)
+{
+    const ULevelSequence* Sequence = Cue.Scene.Sequence.LoadSynchronous();
+    const UMovieScene* MovieScene = Sequence ? Sequence->GetMovieScene() : nullptr;
+    if (!MovieScene || !MovieScene->GetTickResolution().IsValid() || !Show.TickResolution.IsValid())
+    {
+        return;
+    }
+
+    const FFrameNumber PlaybackStart = MovieScene->GetPlaybackRange().GetLowerBoundValue();
+    TArray<FVampMarker> Markers;
+    for (const FMovieSceneMarkedFrame& MarkedFrame : MovieScene->GetMarkedFrames())
+    {
+        const bool bStart = MarkedFrame.Label.Equals(VampStartMarker, ESearchCase::IgnoreCase);
+        const bool bEnd = MarkedFrame.Label.Equals(VampEndMarker, ESearchCase::IgnoreCase);
+        if (!bStart && !bEnd)
+        {
+            continue;
+        }
+        FVampMarker& Marker = Markers.AddDefaulted_GetRef();
+        Marker.Offset = FFrameRate::TransformTime(
+            FFrameTime(MarkedFrame.FrameNumber - PlaybackStart),
+            MovieScene->GetTickResolution(),
+            Show.TickResolution).RoundToFrame();
+        Marker.bStart = bStart;
+    }
+    Markers.Sort([](const FVampMarker& A, const FVampMarker& B)
+    {
+        if (A.Offset == B.Offset)
+        {
+            return A.bStart && !B.bStart;
+        }
+        return A.Offset < B.Offset;
+    });
+
+    TOptional<FFrameNumber> PendingStart;
+    const int32 SegmentLength = FMath::Max(0, (SegmentEnd - SegmentStart).Value);
+    for (const FVampMarker& Marker : Markers)
+    {
+        const FFrameNumber ClampedOffset(FMath::Clamp(Marker.Offset.Value, 0, SegmentLength));
+        if (Marker.bStart)
+        {
+            if (PendingStart.IsSet())
+            {
+                UE_LOG(LogInfinityStageTransport, Warning,
+                    TEXT("INFINITY_VAMP_UNPAIRED cue='%s' marker=%s offset=%d"),
+                    *Cue.Label.ToString(), VampStartMarker, PendingStart.GetValue().Value);
+            }
+            PendingStart = ClampedOffset;
+            continue;
+        }
+        if (!PendingStart.IsSet() || ClampedOffset <= PendingStart.GetValue())
+        {
+            UE_LOG(LogInfinityStageTransport, Warning,
+                TEXT("INFINITY_VAMP_UNPAIRED cue='%s' marker=%s offset=%d"),
+                *Cue.Label.ToString(), VampEndMarker, ClampedOffset.Value);
+            continue;
+        }
+
+        FInfinityVampRange& Range = OutRanges.AddDefaulted_GetRef();
+        Range.StartFrame = SegmentStart + PendingStart.GetValue();
+        Range.EndFrame = SegmentStart + ClampedOffset;
+        Range.SegmentIndex = SegmentIndex;
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_VAMP_RANGE segment=%d cue='%s' start=%d end=%d"),
+            SegmentIndex, *Cue.Label.ToString(), Range.StartFrame.Value, Range.EndFrame.Value);
+        PendingStart.Reset();
+    }
+    if (PendingStart.IsSet())
+    {
+        UE_LOG(LogInfinityStageTransport, Warning,
+            TEXT("INFINITY_VAMP_UNPAIRED cue='%s' marker=%s offset=%d"),
+            *Cue.Label.ToString(), VampStartMarker, PendingStart.GetValue().Value);
+    }
+}
+}
+
+void FInfinityVampPlaybackState::Reset()
+{
+    ActiveVampIndex = INDEX_NONE;
+    LoopCount = 0;
+    ReleasedVamps.Reset();
+    PreviousFrame = 0;
+    bHasPreviousFrame = false;
+}
+
+void FInfinityVampPlaybackState::OnNavigation(const FFrameNumber TargetFrame)
+{
+    // A seek establishes a new observation point but cannot arm a vamp.
+    ActiveVampIndex = INDEX_NONE;
+    PreviousFrame = TargetFrame;
+    bHasPreviousFrame = true;
+}
+
+EInfinityVampPlaybackAction FInfinityVampPlaybackState::Tick(
+    const FFrameNumber CurrentFrame,
+    const bool bPlaying,
+    const bool bReversed,
+    const float PlayRate,
+    const TArray<FInfinityVampRange>& Ranges,
+    FFrameNumber& OutLoopFrame)
+{
+    OutLoopFrame = CurrentFrame;
+    if (!bHasPreviousFrame)
+    {
+        PreviousFrame = CurrentFrame;
+        bHasPreviousFrame = true;
+        return EInfinityVampPlaybackAction::None;
+    }
+    if (!bPlaying)
+    {
+        PreviousFrame = CurrentFrame;
+        return EInfinityVampPlaybackAction::None;
+    }
+
+    if (bReversed)
+    {
+        if (CurrentFrame < PreviousFrame)
+        {
+            for (int32 Index = 0; Index < Ranges.Num(); ++Index)
+            {
+                const FInfinityVampRange& Range = Ranges[Index];
+                if (Range.IsValid() && ReleasedVamps.Contains(Index) && CurrentFrame < Range.EndFrame)
+                {
+                    ReleasedVamps.Remove(Index);
+                    ActiveVampIndex = CurrentFrame >= Range.StartFrame ? Index : INDEX_NONE;
+                }
+            }
+        }
+        if (Ranges.IsValidIndex(ActiveVampIndex)
+            && CurrentFrame < Ranges[ActiveVampIndex].StartFrame)
+        {
+            ActiveVampIndex = INDEX_NONE;
+        }
+        PreviousFrame = CurrentFrame;
+        return EInfinityVampPlaybackAction::None;
+    }
+
+    if (CurrentFrame < PreviousFrame)
+    {
+        PreviousFrame = CurrentFrame;
+        return EInfinityVampPlaybackAction::None;
+    }
+
+    if (ActiveVampIndex == INDEX_NONE)
+    {
+        for (int32 Index = 0; Index < Ranges.Num(); ++Index)
+        {
+            const FInfinityVampRange& Range = Ranges[Index];
+            if (Range.IsValid()
+                && !ReleasedVamps.Contains(Index)
+                && PreviousFrame <= Range.StartFrame
+                && CurrentFrame >= Range.StartFrame)
+            {
+                ActiveVampIndex = Index;
+                break;
+            }
+        }
+    }
+
+    if (!FMath::IsNearlyEqual(PlayRate, 1.0f))
+    {
+        if (Ranges.IsValidIndex(ActiveVampIndex))
+        {
+            const FInfinityVampRange& Range = Ranges[ActiveVampIndex];
+            if (CurrentFrame >= Range.EndFrame)
+            {
+                const int32 Duration = (Range.EndFrame - Range.StartFrame).Value;
+                const int32 Overshoot = FMath::Max(0, (CurrentFrame - Range.EndFrame).Value);
+                OutLoopFrame = Range.StartFrame + FFrameNumber(Overshoot % Duration);
+                PreviousFrame = OutLoopFrame;
+                ++LoopCount;
+                return EInfinityVampPlaybackAction::LoopToStart;
+            }
+            PreviousFrame = CurrentFrame;
+            return EInfinityVampPlaybackAction::NormalizeToOne;
+        }
+        PreviousFrame = CurrentFrame;
+        return EInfinityVampPlaybackAction::None;
+    }
+
+    if (!Ranges.IsValidIndex(ActiveVampIndex)
+        || CurrentFrame < Ranges[ActiveVampIndex].EndFrame)
+    {
+        PreviousFrame = CurrentFrame;
+        return EInfinityVampPlaybackAction::None;
+    }
+
+    const FInfinityVampRange& Range = Ranges[ActiveVampIndex];
+    const int32 Duration = (Range.EndFrame - Range.StartFrame).Value;
+    const int32 Overshoot = FMath::Max(0, (CurrentFrame - Range.EndFrame).Value);
+    OutLoopFrame = Range.StartFrame + FFrameNumber(Overshoot % Duration);
+    PreviousFrame = OutLoopFrame;
+    ++LoopCount;
+    return EInfinityVampPlaybackAction::LoopToStart;
+}
+
+bool FInfinityVampPlaybackState::Release(
+    const FFrameNumber CurrentFrame,
+    const TArray<FInfinityVampRange>& Ranges)
+{
+    if (!Ranges.IsValidIndex(ActiveVampIndex))
+    {
+        return false;
+    }
+    const FInfinityVampRange& Range = Ranges[ActiveVampIndex];
+    if (CurrentFrame < Range.StartFrame || CurrentFrame > Range.EndFrame)
+    {
+        return false;
+    }
+    ReleasedVamps.Add(ActiveVampIndex);
+    ActiveVampIndex = INDEX_NONE;
+    PreviousFrame = CurrentFrame;
+    bHasPreviousFrame = true;
+    return true;
+}
+
+void FInfinityHoldRightState::Press(const bool bInWasPlaying)
+{
+    if (bPressed)
+    {
+        return;
+    }
+    Reset();
+    bPressed = true;
+    bWasPlaying = bInWasPlaying;
+}
+
+EInfinityHoldRightAction FInfinityHoldRightState::Tick(
+    const float DeltaSeconds,
+    const float HoldThresholdSeconds)
+{
+    if (!bPressed || bThresholdReached)
+    {
+        return EInfinityHoldRightAction::None;
+    }
+    HeldSeconds += FMath::Max(0.0f, DeltaSeconds);
+    if (HeldSeconds < FMath::Max(0.0f, HoldThresholdSeconds))
+    {
+        return EInfinityHoldRightAction::None;
+    }
+    bThresholdReached = true;
+    return EInfinityHoldRightAction::BeginFastForward;
+}
+
+void FInfinityHoldRightState::ResolveFastForwardStart(const EInfinityTransportResult Result)
+{
+    bFastForwardActive = bPressed
+        && bThresholdReached
+        && Result == EInfinityTransportResult::Succeeded;
+}
+
+EInfinityHoldRightAction FInfinityHoldRightState::Release()
+{
+    if (!bPressed)
+    {
+        return EInfinityHoldRightAction::None;
+    }
+
+    EInfinityHoldRightAction Action = EInfinityHoldRightAction::None;
+    if (bFastForwardActive)
+    {
+        Action = bWasPlaying
+            ? EInfinityHoldRightAction::EndFastForwardPlaying
+            : EInfinityHoldRightAction::EndFastForwardHeld;
+    }
+    else if (!bThresholdReached)
+    {
+        Action = EInfinityHoldRightAction::Advance;
+    }
+
+    Reset();
+    return Action;
+}
+
+void FInfinityHoldRightState::Reset()
+{
+    bPressed = false;
+    bThresholdReached = false;
+    bFastForwardActive = false;
+    bWasPlaying = false;
+    HeldSeconds = 0.0f;
 }
 
 UInfinityStageTransportController::UInfinityStageTransportController()
@@ -183,6 +481,7 @@ bool UInfinityStageTransportController::StepJumpResettle(
 
 void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    SetManagedMasterAudioMuted(false);
     UnregisterForWorld();
     CameraRigCache.Reset();
     ClaimedViewTarget.Reset();
@@ -193,6 +492,7 @@ void UInfinityStageTransportController::EndPlay(const EEndPlayReason::Type EndPl
 
 void UInfinityStageTransportController::BeginDestroy()
 {
+    SetManagedMasterAudioMuted(false);
     UnregisterForWorld();
     Super::BeginDestroy();
 }
@@ -210,6 +510,21 @@ void UInfinityStageTransportController::TickComponent(
     }
     const FFrameNumber CurrentFrame = GetCurrentMasterFrame();
     const int32 FrameSegment = FindSegmentAtFrame(CurrentFrame);
+    if (bFastForwardActive
+        && Segments.IsValidIndex(FrameSegment)
+        && Segments[FrameSegment].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable)
+    {
+        // A hold begun in an earlier segment must not carry a rate change into
+        // a live-performer clock. Continue through the segment, but at 1x.
+        StopFastForwardPlayback();
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_FAST_FORWARD_INTERLOCK frame=%d segment=%d"),
+            CurrentFrame.Value, FrameSegment);
+    }
+    if (HandleVampPlayback(CurrentFrame))
+    {
+        return;
+    }
     const bool bCoveredHandoff = IsCoveredHandoffActive(FrameSegment, CurrentFrame);
     if (FrameSegment != INDEX_NONE
         && (FrameSegment != SelectedSegmentIndex || bCoveredHandoff != bCoveredHandoffActive))
@@ -269,6 +584,8 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
 {
     ShowAsset = InShowAsset;
     Segments.Reset();
+    VampRanges.Reset();
+    VampPlaybackState.Reset();
     CameraRigCache.Reset();
     SelectedSegmentIndex = INDEX_NONE;
     bCoveredHandoffActive = false;
@@ -329,6 +646,14 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
             Cue.Scene.CurtainMode == EInfinityCurtainCueMode::PostSceneInterstitial
             && Cue.Scene.bRevealNextPassageWhenCovered;
 
+        CollectVampRanges(
+            *ShowAsset,
+            Cue,
+            SegmentIndex,
+            Segment.StartFrame,
+            Segment.EndFrame,
+            VampRanges);
+
         EInfinityCoveredHandoffSource HandoffSource = EInfinityCoveredHandoffSource::NotApplicable;
         const FFrameNumber HandoffOffset = ResolveCoveredHandoffOffset(*ShowAsset, Cue, HandoffSource);
         const int32 SegmentLength =
@@ -373,7 +698,10 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
 
 bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer* InPlayer, UInfinityStageShowAsset* InShowAsset)
 {
+    SetManagedMasterAudioMuted(false);
     Player = InPlayer;
+    bFastForwardActive = false;
+    bMasterAudioMutedForFastForward = false;
     JumpResettleState.bPending = false;
     LastResult = EInfinityTransportResult::NoPlayer;
     if (!InPlayer || !InShowAsset)
@@ -406,6 +734,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
         // held-at-frame-zero rehearsal begin through the Passage camera.
         ClaimSegmentCamera(SelectedSegmentIndex, GetCurrentMasterFrame());
     }
+    VampPlaybackState.OnNavigation(GetCurrentMasterFrame());
     return true;
 }
 
@@ -515,6 +844,79 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
     return LastResult = EInfinityTransportResult::Succeeded;
 }
 
+EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
+{
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    RefreshSelectedSegment();
+    if (Segments.IsEmpty())
+    {
+        return LastResult = EInfinityTransportResult::NoSegment;
+    }
+
+    const float Rate = FMath::Max(1.0f, FastForwardRate);
+    if (!FMath::IsNearlyEqual(Rate, 1.0f) && IsUnsafeExternalHold())
+    {
+        return LastResult = EInfinityTransportResult::UnsafeExternalClock;
+    }
+
+    JumpResettleState.bPending = false;
+    bFastForwardActive = true;
+    SetManagedMasterAudioMuted(!FMath::IsNearlyEqual(Rate, 1.0f));
+    Player->SetPlayRate(Rate);
+    // PlayTo the Master's final frame: unlike Advance, this never jumps across
+    // authored time, and TickComponent still claims every camera at every seam.
+    return PlayForwardThroughBoundaries();
+}
+
+EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const bool bWasPlaying)
+{
+    StopFastForwardPlayback();
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+
+    if (bWasPlaying || VampPlaybackState.IsActive())
+    {
+        Player->Play();
+        return LastResult = EInfinityTransportResult::Succeeded;
+    }
+    return PauseTransport();
+}
+
+bool UInfinityStageTransportController::ReleaseActiveVamp()
+{
+    if (!Player)
+    {
+        return false;
+    }
+    const FFrameNumber CurrentFrame = GetCurrentMasterFrame();
+    const int32 VampIndex = VampPlaybackState.ActiveVampIndex;
+    if (!VampPlaybackState.Release(CurrentFrame, VampRanges)
+        || !VampRanges.IsValidIndex(VampIndex)
+        || !Segments.IsValidIndex(VampRanges[VampIndex].SegmentIndex))
+    {
+        return false;
+    }
+
+    StopFastForwardPlayback();
+    JumpResettleState.bPending = false;
+    const FFrameNumber SegmentEnd = Segments[VampRanges[VampIndex].SegmentIndex].EndFrame;
+    const FFrameTime DisplayFrame = ShowAsset
+        ? FFrameRate::TransformTime(FFrameTime(SegmentEnd), ShowAsset->TickResolution, ShowAsset->DisplayRate)
+        : FFrameTime(SegmentEnd);
+    FMovieSceneSequencePlayToParams PlayToParams;
+    PlayToParams.bExclusive = false;
+    Player->PlayTo(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Play), PlayToParams);
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_VAMP_RELEASE index=%d frame=%d segment_end=%d"),
+        VampIndex, CurrentFrame.Value, SegmentEnd.Value);
+    return true;
+}
+
 EInfinityTransportResult UInfinityStageTransportController::JumpToPreviousSegment()
 {
     RefreshSelectedSegment();
@@ -603,6 +1005,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
         : FFrameTime(TargetFrame);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+    VampPlaybackState.OnNavigation(TargetFrame);
     JumpResettleState = {true, TargetFrame, 0.0f, 0};
     SelectedSegmentIndex = TargetIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
@@ -693,6 +1096,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const 
         : FFrameTime(Target);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+    VampPlaybackState.OnNavigation(Target);
     JumpResettleState = {true, Target, 0.0f, 0};
     SelectedSegmentIndex = SegmentIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, Target);
@@ -1253,4 +1657,119 @@ void UInfinityStageTransportController::RefreshSelectedSegment()
 {
     SelectedSegmentIndex = FindSegmentAtFrame(GetCurrentMasterFrame());
     bCoveredHandoffActive = IsCoveredHandoffActive(SelectedSegmentIndex, GetCurrentMasterFrame());
+}
+
+bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber CurrentFrame)
+{
+    FFrameNumber LoopFrame = CurrentFrame;
+    const EInfinityVampPlaybackAction Action = VampPlaybackState.Tick(
+        CurrentFrame,
+        Player && Player->IsPlaying(),
+        Player && Player->IsReversed(),
+        Player ? Player->GetPlayRate() : 1.0f,
+        VampRanges,
+        LoopFrame);
+    if (Action == EInfinityVampPlaybackAction::NormalizeToOne)
+    {
+        StopFastForwardPlayback();
+        const FInfinityVampRange& Range = VampRanges[VampPlaybackState.ActiveVampIndex];
+        const FFrameTime EndDisplayFrame = ShowAsset
+            ? FFrameRate::TransformTime(FFrameTime(Range.EndFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
+            : FFrameTime(Range.EndFrame);
+        FMovieSceneSequencePlayToParams PlayToParams;
+        PlayToParams.bExclusive = false;
+        Player->PlayTo(
+            FMovieSceneSequencePlaybackParams(EndDisplayFrame, EUpdatePositionMethod::Play),
+            PlayToParams);
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_VAMP_NORMALIZE index=%d frame=%d"),
+            VampPlaybackState.ActiveVampIndex, CurrentFrame.Value);
+        return false;
+    }
+    if (Action != EInfinityVampPlaybackAction::LoopToStart
+        || !VampRanges.IsValidIndex(VampPlaybackState.ActiveVampIndex))
+    {
+        return false;
+    }
+
+    const FInfinityVampRange& Range = VampRanges[VampPlaybackState.ActiveVampIndex];
+    StopFastForwardPlayback();
+    JumpResettleState.bPending = false;
+
+    const FFrameTime LoopDisplayFrame = ShowAsset
+        ? FFrameRate::TransformTime(FFrameTime(LoopFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
+        : FFrameTime(LoopFrame);
+    Player->SetPlaybackPosition(
+        FMovieSceneSequencePlaybackParams(LoopDisplayFrame, EUpdatePositionMethod::Jump));
+
+    const FFrameTime EndDisplayFrame = ShowAsset
+        ? FFrameRate::TransformTime(FFrameTime(Range.EndFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
+        : FFrameTime(Range.EndFrame);
+    FMovieSceneSequencePlayToParams PlayToParams;
+    PlayToParams.bExclusive = false;
+    Player->PlayTo(
+        FMovieSceneSequencePlaybackParams(EndDisplayFrame, EUpdatePositionMethod::Play),
+        PlayToParams);
+    UE_LOG(LogInfinityStageTransport, Verbose,
+        TEXT("INFINITY_VAMP_LOOP index=%d count=%d from=%d to=%d"),
+        VampPlaybackState.ActiveVampIndex,
+        VampPlaybackState.LoopCount,
+        CurrentFrame.Value,
+        LoopFrame.Value);
+    // Deliberately no ClaimSegmentCamera: the same Scene shot remains authoritative
+    // across the seam, avoiding a camera cut/re-claim hitch.
+    return true;
+}
+
+void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bMuted)
+{
+    if (bMasterAudioMutedForFastForward == bMuted || !Player || !Player->GetSequence())
+    {
+        return;
+    }
+    UMovieScene* MovieScene = Player->GetSequence()->GetMovieScene();
+    UMovieSceneInfinityAudioTrack* MusicTrack = MovieScene
+        ? MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>()
+        : nullptr;
+    if (!MusicTrack)
+    {
+        bMasterAudioMutedForFastForward = bMuted;
+        return;
+    }
+
+    if (bMuted)
+    {
+#if WITH_EDITOR
+        bMasterAudioWasEvalDisabled = MusicTrack->IsLocalEvalDisabled();
+        MusicTrack->SetLocalEvalDisabled(true);
+#else
+        bMasterAudioWasEvalDisabled = MusicTrack->IsEvalDisabled(false);
+        MusicTrack->SetEvalDisabled(true);
+#endif
+    }
+    else
+    {
+#if WITH_EDITOR
+        MusicTrack->SetLocalEvalDisabled(bMasterAudioWasEvalDisabled);
+#else
+        MusicTrack->SetEvalDisabled(bMasterAudioWasEvalDisabled);
+#endif
+    }
+    // The editor path uses its explicitly transient local mute. Packaged games
+    // have no save path, so their runtime-only eval flag cannot alter the asset
+    // on disk. Invalidate compiled evaluation so an already-playing managed
+    // section stops or resumes on the next evaluation.
+    MusicTrack->MarkAsChanged();
+    MovieScene->MarkAsChanged();
+    bMasterAudioMutedForFastForward = bMuted;
+}
+
+void UInfinityStageTransportController::StopFastForwardPlayback()
+{
+    bFastForwardActive = false;
+    SetManagedMasterAudioMuted(false);
+    if (Player)
+    {
+        Player->SetPlayRate(1.0f);
+    }
 }
