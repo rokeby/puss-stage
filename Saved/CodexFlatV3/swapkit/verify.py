@@ -164,9 +164,19 @@ def invert_panel_frame(ref, panel_record, library_by_mesh):
     rotated_prefix = quat_rotate(pair_rotation, scaled_prefix)
     pair_location = tuple(world["location"][axis] - rotated_prefix[axis]
                           for axis in range(3))
-    return unreal.Transform(location=unreal.Vector(*pair_location),
-                            rotation=unreal.Quat(*pair_rotation),
-                            scale=unreal.Vector(*pair_scale))
+    # UE 5.8: Transform(rotation=...) only accepts a Rotator (Quat raises in
+    # KismetMathLibrary.MakeTransform). Build with identity, then assign the Quat
+    # attribute directly so no Quat->Rotator precision loss enters the frame.
+    frame = unreal.Transform(location=unreal.Vector(*pair_location),
+                             rotation=unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0),
+                             scale=unreal.Vector(*pair_scale))
+    quat = unreal.Quat(*pair_rotation)
+    try:
+        frame.rotation = quat
+    except Exception:
+        frame = unreal.Transform(location=unreal.Vector(*pair_location),
+                                 rotation=quat.rotator(), scale=unreal.Vector(*pair_scale))
+    return frame
 
 
 def frames_close(left, right, location_tolerance=0.05, scale_tolerance=0.0001,

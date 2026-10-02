@@ -95,7 +95,10 @@ class Quat(Rotation):
 class Transform:
     def __init__(self, location=None, rotation=None, scale=None):
         self.translation = location or Vector()
-        self.rotation = rotation if isinstance(rotation, Rotation) else Rotation(rotation)
+        if isinstance(rotation, Rotation):
+            # Mirrors UE 5.8: the Transform constructor only nativizes a Rotator.
+            raise TypeError("Transform: Cannot nativize 'Quat' as 'Rotator'")
+        self.rotation = Rotation(rotation)
         self.scale3d = scale or Vector(1.0, 1.0, 1.0)
 
     def transform_location(self, point):
