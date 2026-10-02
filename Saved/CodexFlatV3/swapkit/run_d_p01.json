@@ -16,7 +16,7 @@
   ],
   "required_previous_marker": "FLATV3_C2_OK",
   "success_marker": "FLATV3_D_OK",
-  "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
   "expected_occurrence_count": 48,
   "excluded_new_meshes": [],
   "known_failed_assets": {}

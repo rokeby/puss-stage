@@ -16,7 +16,7 @@
   ],
   "required_previous_marker": "FLATV3_P03_IMPORT_OK",
   "success_marker": "FLATV3_P03_OK",
-  "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
   "capture_label": "P03 Wing 011",
   "expected_occurrence_count": 21,
   "excluded_new_meshes": [],

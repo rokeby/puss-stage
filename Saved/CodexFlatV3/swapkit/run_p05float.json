@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "slot": "F",
+  "run_id": "FV3F-20261002-01",
+  "saved_verify_run_id": "FV3FV-20261002-01",
+  "passage": "P05",
+  "passage_label_prefix": "P05 Wing ",
+  "passage_actor_label_prefix": "Passage 05",
+  "expected_occurrence_count": 93,
+  "expected_row_index_start": 122,
+  "expected_row_index_end": 214,
+  "required_previous_markers": [
+    "FLATV3_C_OK",
+    "FLATV3_C2_OK"
+  ],
+  "target_bottom_min_cm": 150.0,
+  "target_bottom_span_cm": 300.0,
+  "max_world_top_cm": 1100.0,
+  "bottom_tolerance_cm": 1.0,
+  "backup_path": "Backups/PreFlatV3P05Float-FV3F-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "backup_sources": {
+    "DA_InfinityStage_V1Show.uasset": "Content/InfinityStage/Dev/DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap": "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
+  },
+  "success_marker": "FLATV3_F_OK",
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}"
+}

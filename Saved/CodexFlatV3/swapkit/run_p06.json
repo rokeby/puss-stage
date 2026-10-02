@@ -16,7 +16,7 @@
   ],
   "required_previous_marker": "FLATV3_P06_IMPORT_OK",
   "success_marker": "FLATV3_P06_OK",
-  "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
   "capture_label": "P06 Wing 016",
   "expected_occurrence_count": 55,
   "expected_swap_count": 32,
