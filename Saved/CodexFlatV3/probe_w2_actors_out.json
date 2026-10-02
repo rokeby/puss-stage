@@ -1,0 +1,86 @@
+{
+ "census": {
+  "content": [],
+  "maps": []
+ },
+ "actors": [
+  {
+   "label": "S3 Wave Row1 A",
+   "class": "StaticMeshActor",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_244",
+   "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "components": [
+    {
+     "name": "StaticMeshComponent0",
+     "mesh": "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow1_A.SM_FlatV3_S3_WaveRow1_A",
+     "mobility": "<ComponentMobility.MOVABLE: 2>"
+    }
+   ]
+  },
+  {
+   "label": "S3 Wave Row1 B",
+   "class": "StaticMeshActor",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_329",
+   "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "components": [
+    {
+     "name": "StaticMeshComponent0",
+     "mesh": "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow1_B.SM_FlatV3_S3_WaveRow1_B",
+     "mobility": "<ComponentMobility.MOVABLE: 2>"
+    }
+   ]
+  },
+  {
+   "label": "S3 Wave Row2 A",
+   "class": "StaticMeshActor",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_330",
+   "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "components": [
+    {
+     "name": "StaticMeshComponent0",
+     "mesh": "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow2_A.SM_FlatV3_S3_WaveRow2_A",
+     "mobility": "<ComponentMobility.MOVABLE: 2>"
+    }
+   ]
+  },
+  {
+   "label": "S3 Wave Row2 B",
+   "class": "StaticMeshActor",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_331",
+   "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "components": [
+    {
+     "name": "StaticMeshComponent0",
+     "mesh": "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow2_B.SM_FlatV3_S3_WaveRow2_B",
+     "mobility": "<ComponentMobility.MOVABLE: 2>"
+    }
+   ]
+  },
+  {
+   "label": "S3 Wave Row3 A",
+   "class": "StaticMeshActor",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_332",
+   "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "components": [
+    {
+     "name": "StaticMeshComponent0",
+     "mesh": "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow3_A.SM_FlatV3_S3_WaveRow3_A",
+     "mobility": "<ComponentMobility.MOVABLE: 2>"
+    }
+   ]
+  },
+  {
+   "label": "S3 Wave Row3 B",
+   "class": "StaticMeshActor",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_333",
+   "level": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "components": [
+    {
+     "name": "StaticMeshComponent0",
+     "mesh": "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow3_B.SM_FlatV3_S3_WaveRow3_B",
+     "mobility": "<ComponentMobility.MOVABLE: 2>"
+    }
+   ]
+  }
+ ]
+}

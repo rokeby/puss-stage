@@ -89,8 +89,17 @@ class MaterialInstanceConstant(Asset):
 
 
 class StaticMeshComponent:
-    def __init__(self, mesh):
+    def __init__(self, mesh, owner=None):
         self.mesh = mesh
+        self.owner = owner
+
+    def get_owner(self):
+        return self.owner
+
+    def modify(self):
+        # Measured live 2 Oct (FV3W2-20261002-01): only modify() dirties the level.
+        STATE.map_dirty.add(WORLD)
+        return True
 
     def get_editor_property(self, name):
         if name != "static_mesh":
@@ -101,8 +110,8 @@ class StaticMeshComponent:
         return self.mesh
 
     def set_static_mesh(self, mesh):
+        # Measured live: set_static_mesh alone does NOT dirty the level package.
         self.mesh = mesh
-        STATE.map_dirty.add(WORLD)
         return True
 
 
@@ -110,8 +119,12 @@ class Actor:
     def __init__(self, label, path, mesh, transform=None):
         self.label = label
         self.path = path
-        self.component = StaticMeshComponent(mesh)
+        self.component = StaticMeshComponent(mesh, owner=self)
         self.transform = transform or Transform()
+
+    def modify(self):
+        STATE.map_dirty.add(WORLD)
+        return True
 
     def get_actor_label(self):
         return self.label

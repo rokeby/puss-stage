@@ -81,10 +81,14 @@ def main(config_path=None):
         original = traceback.format_exc()
         if changed:
             _restore_in_memory(changed, rows_by_path)
-            # Restoring the property does not clear the map's dirty flag; persist the
-            # exact old-mesh state so a failed apply never leaves an authored swap.
-            save = c.save_current_level(config)
-            saved_roots = save["saved_roots"]
+            # Persist the restored old-mesh state ONLY if the map is actually dirty;
+            # a clean map means nothing reached the package (and saving would raise).
+            if c.census()["maps"]:
+                try:
+                    save = c.save_current_level(config)
+                    saved_roots = save["saved_roots"]
+                except Exception as save_exc:
+                    original += " | RESTORE_SAVE_FAIL: " + str(save_exc)
         c.write_report(config, "apply", {
             "run": config["run_id"], "mode": "w2_apply", "status": "FAIL",
             "reason": str(exc), "traceback": original, "saved_roots": saved_roots,

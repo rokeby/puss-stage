@@ -191,6 +191,12 @@ def component_mesh(component):
 
 
 def set_component_mesh(component, mesh):
+    # modify() first: set_static_mesh alone does not dirty the level package, so the
+    # level-only save gate refused (W2 FV3W2-20261002-01, measured 2 Oct).
+    owner = component.get_owner()
+    if owner is not None:
+        owner.modify()
+    component.modify()
     result = component.set_static_mesh(mesh)
     if result is False:
         raise RuntimeError("W2_SET_STATIC_MESH_FAIL|mesh=" + asset_path(mesh))
