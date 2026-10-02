@@ -102,6 +102,23 @@ PRODUCTION ORDER (Gary, 1 Oct evening; sequence the work by this):
   2. LIGHTING.   3. LIGHTING FX.   4. OTHER PROPS.   5. OTHER FX.
   Work later in this list waits unless Gary pulls it forward (e.g. S3's lights he is editing himself).
 
+LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the lines below where they differ):
+- BUILT 467d2c8, suite 106/0/106: FFV (hold RIGHT = 4x fast-forward, audio muted; VampStart/VampEnd loop until
+  RIGHT) + HL (each hangar sunk at BeginPlay in GAME worlds via its Arrival, S1-S6 binary-proven). NOTHING HELD.
+- NOT YET (needs Gary in PIE): every hangar still starts sunk and rises -> then landed-preview UP all + save the
+  level LANDED -> PIE again -> retire/invert the save-check. Steps in BUILD_WINDOW_QUEUE.md.
+- Scene 3 (all in Docs/Scene3BeatSheet_2026-10-01.md): diorama at 35 m; 260 s; 12 beat markers; shot-list DRAFT
+  applied (S3 Shot B02-B12, run 225732, Exit copies B12); waves + Opal Beach backdrop placed (191151). IN FLIGHT:
+  the song VAMP tool dry pass (spec Saved/CodexConductor/specs/S3_VAMP_ORBIT.md; log
+  Saved/CodexRuns/s3_vamp_pass1.log): markers 3480/4200 + a 30 s, 2 m orbit on S3 Shot B07. Review, then apply +
+  SavedMasterMatchesShow + SceneCutBindingsResolve. Light dimming in the vamp = Gary's lighting pass.
+- GO1 is NOT engaged in Scenes (Gary 2 Oct): Scene cameras need not be walkable.
+- W&T: pilot pair imported + ONE test placement "P04 Wing 011"; P02 is a full redo (chain-link + lurid plants);
+  S3 hand prints via Fuser job 24 -> decal atlas + JSON placement table for Rig.
+- Gary's open calls: PIE look (S3 sky up/cottages right; P04 Wing 011; hangars sunk), skin tone route
+  (MetaHuman Creator re-bake vs tinted copy), pearl (separate mesh: size/look), huddle cost (grooms dominate).
+- Editor: idle and clean unless the vamp pass is mid-run (it only dry-runs).
+
 CURRENT LIVE STATE, 1 October 2026 ~12:30 (supersedes the blocks below it).
 - BUILT and committed: cc1331e (K, L v2, MR, N v2, O v2, P v2, Q v2, T), 35094de (C v2,
   S v2), 7af58f3 (U mechanism kinds; suite 103/0/103). NOTHING is held for a build window.
