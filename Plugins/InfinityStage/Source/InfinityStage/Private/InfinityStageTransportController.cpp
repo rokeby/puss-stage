@@ -230,6 +230,62 @@ void CollectVampRanges(
             *Cue.Label.ToString(), VampStartMarker, PendingStart.GetValue().Value);
     }
 }
+
+void CollectSceneShotStarts(
+    const UInfinityStageShowAsset& Show,
+    const FInfinityShowCue& Cue,
+    FInfinityTransportSegment& Segment)
+{
+    Segment.ShotStartFrames.Reset();
+    if (Segment.Type != EInfinityCueType::Scene)
+    {
+        return;
+    }
+
+    const ULevelSequence* Sequence = Cue.Scene.Sequence.LoadSynchronous();
+    const UMovieScene* MovieScene = Sequence ? Sequence->GetMovieScene() : nullptr;
+    const UMovieSceneCameraCutTrack* CutTrack = MovieScene
+        ? Cast<UMovieSceneCameraCutTrack>(MovieScene->GetCameraCutTrack())
+        : nullptr;
+    if (!CutTrack || !MovieScene->GetTickResolution().IsValid() || !Show.TickResolution.IsValid())
+    {
+        return;
+    }
+
+    const FFrameNumber PlaybackStart = MovieScene->GetPlaybackRange().GetLowerBoundValue();
+    const FFrameNumber PlaybackEnd = MovieScene->GetPlaybackRange().GetUpperBoundValue();
+    TArray<FFrameNumber> Starts;
+    for (const UMovieSceneSection* BaseSection : CutTrack->GetAllSections())
+    {
+        const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(BaseSection);
+        if (!Cut || !Cut->IsActive() || !Cut->GetRange().HasLowerBound())
+        {
+            continue;
+        }
+        const FFrameNumber LocalStart = Cut->GetInclusiveStartFrame();
+        if (LocalStart < PlaybackStart || LocalStart >= PlaybackEnd)
+        {
+            continue;
+        }
+        const FFrameNumber MasterStart = Segment.StartFrame + FFrameRate::TransformTime(
+            FFrameTime(LocalStart - PlaybackStart),
+            MovieScene->GetTickResolution(),
+            Show.TickResolution).RoundToFrame();
+        if (MasterStart >= Segment.StartFrame && MasterStart < Segment.EndFrame)
+        {
+            Starts.Add(MasterStart);
+        }
+    }
+
+    Starts.Sort();
+    for (const FFrameNumber Start : Starts)
+    {
+        if (Segment.ShotStartFrames.IsEmpty() || Segment.ShotStartFrames.Last() != Start)
+        {
+            Segment.ShotStartFrames.Add(Start);
+        }
+    }
+}
 }
 
 void FInfinityVampPlaybackState::Reset()
@@ -646,6 +702,8 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
             Cue.Scene.CurtainMode == EInfinityCurtainCueMode::PostSceneInterstitial
             && Cue.Scene.bRevealNextPassageWhenCovered;
 
+        CollectSceneShotStarts(*ShowAsset, Cue, Segment);
+
         CollectVampRanges(
             *ShowAsset,
             Cue,
@@ -703,6 +761,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
     bFastForwardActive = false;
     bMasterAudioMutedForFastForward = false;
     JumpResettleState.bPending = false;
+    LastPlayToTargetForTests.Reset();
     LastResult = EInfinityTransportResult::NoPlayer;
     if (!InPlayer || !InShowAsset)
     {
@@ -844,6 +903,41 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
     return LastResult = EInfinityTransportResult::Succeeded;
 }
 
+EInfinityTransportResult UInfinityStageTransportController::StepShotForward()
+{
+    RefreshSelectedSegment();
+    if (!Segments.IsValidIndex(SelectedSegmentIndex)
+        || Segments[SelectedSegmentIndex].Type != EInfinityCueType::Scene)
+    {
+        return AdvanceToNextSegment();
+    }
+
+    const int32 SegmentIndex = SelectedSegmentIndex;
+    const FFrameNumber Current = GetCurrentMasterFrame();
+    const TArray<FFrameNumber>& Starts = Segments[SegmentIndex].ShotStartFrames;
+    for (int32 ShotIndex = 0; ShotIndex < Starts.Num(); ++ShotIndex)
+    {
+        if (Starts[ShotIndex] <= Current)
+        {
+            continue;
+        }
+        const bool bWasPlaying = IsTransportPlaying();
+        const EInfinityTransportResult Result = JumpToMasterFrame(
+            SegmentIndex, Starts[ShotIndex], bWasPlaying);
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_SHOT_STEP dir=next segment=%d from=%d to=%d shot=%d/%d playing=%d result=%d"),
+            SegmentIndex,
+            Current.Value,
+            Starts[ShotIndex].Value,
+            ShotIndex + 1,
+            Starts.Num(),
+            bWasPlaying ? 1 : 0,
+            static_cast<int32>(Result));
+        return Result;
+    }
+    return AdvanceToNextSegment();
+}
+
 EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
 {
     if (!Player)
@@ -925,6 +1019,57 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToPreviousSegmen
         ? SelectedSegmentIndex
         : SelectedSegmentIndex - 1;
     return JumpToSegment(TargetIndex, false);
+}
+
+EInfinityTransportResult UInfinityStageTransportController::StepShotBack()
+{
+    RefreshSelectedSegment();
+    if (!Segments.IsValidIndex(SelectedSegmentIndex)
+        || Segments[SelectedSegmentIndex].Type != EInfinityCueType::Scene)
+    {
+        return JumpToPreviousSegment();
+    }
+
+    const int32 SegmentIndex = SelectedSegmentIndex;
+    const FFrameNumber Current = GetCurrentMasterFrame();
+    const TArray<FFrameNumber>& Starts = Segments[SegmentIndex].ShotStartFrames;
+    int32 CurrentShotIndex = INDEX_NONE;
+    for (int32 ShotIndex = 0; ShotIndex < Starts.Num() && Starts[ShotIndex] <= Current; ++ShotIndex)
+    {
+        CurrentShotIndex = ShotIndex;
+    }
+    if (CurrentShotIndex == INDEX_NONE)
+    {
+        return JumpToPreviousSegment();
+    }
+
+    const FFrameNumber GraceFrames = ShowAsset
+        ? FFrameRate::TransformTime(
+            FFrameTime(FFrameNumber(FMath::Max(0, ShotRestartGraceDisplayFrames))),
+            ShowAsset->DisplayRate,
+            ShowAsset->TickResolution).RoundToFrame()
+        : FFrameNumber(FMath::Max(0, ShotRestartGraceDisplayFrames));
+    const int32 TargetShotIndex = Current > Starts[CurrentShotIndex] + GraceFrames
+        ? CurrentShotIndex
+        : CurrentShotIndex - 1;
+    if (!Starts.IsValidIndex(TargetShotIndex))
+    {
+        return JumpToPreviousSegment();
+    }
+
+    const bool bWasPlaying = IsTransportPlaying();
+    const EInfinityTransportResult Result = JumpToMasterFrame(
+        SegmentIndex, Starts[TargetShotIndex], bWasPlaying);
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_SHOT_STEP dir=prev segment=%d from=%d to=%d shot=%d/%d playing=%d result=%d"),
+        SegmentIndex,
+        Current.Value,
+        Starts[TargetShotIndex].Value,
+        TargetShotIndex + 1,
+        Starts.Num(),
+        bWasPlaying ? 1 : 0,
+        static_cast<int32>(Result));
+    return Result;
 }
 
 EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
@@ -1081,26 +1226,52 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const 
     {
         return LastResult = EInfinityTransportResult::NoSegment;
     }
+    const FFrameNumber Target = bToEnd ? Segments[SegmentIndex].EndFrame : Segments[SegmentIndex].StartFrame;
+    return JumpToMasterFrame(SegmentIndex, Target, false);
+}
+
+EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
+    const int32 SegmentIndex,
+    const FFrameNumber TargetFrame,
+    const bool bKeepPlaying)
+{
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    if (!Segments.IsValidIndex(SegmentIndex))
+    {
+        return LastResult = EInfinityTransportResult::NoSegment;
+    }
     if (!Segments[SegmentIndex].bReady)
     {
         return LastResult = EInfinityTransportResult::NotReady;
     }
-    const FFrameNumber Target = bToEnd ? Segments[SegmentIndex].EndFrame : Segments[SegmentIndex].StartFrame;
-    if (IsUnsafeExternalMove(Target))
+    if (IsUnsafeExternalMove(TargetFrame))
     {
         return LastResult = EInfinityTransportResult::UnsafeExternalClock;
     }
 
     const FFrameTime DisplayFrame = ShowAsset
-        ? FFrameRate::TransformTime(FFrameTime(Target), ShowAsset->TickResolution, ShowAsset->DisplayRate)
-        : FFrameTime(Target);
+        ? FFrameRate::TransformTime(FFrameTime(TargetFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
+        : FFrameTime(TargetFrame);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
-    VampPlaybackState.OnNavigation(Target);
-    JumpResettleState = {true, Target, 0.0f, 0};
+    VampPlaybackState.OnNavigation(TargetFrame);
     SelectedSegmentIndex = SegmentIndex;
-    bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, Target);
-    ClaimSegmentCamera(SegmentIndex, Target);
+    bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, TargetFrame);
+    if (bKeepPlaying)
+    {
+        const EInfinityTransportResult PlayResult = PlayForwardToBoundary();
+        if (PlayResult != EInfinityTransportResult::Succeeded)
+        {
+            return PlayResult;
+        }
+    }
+    // PlayToFrame clears any older pending re-pose. Arm this jump's re-pose
+    // after restoring bounded playback so Geometry Caches still resettle.
+    JumpResettleState = {true, TargetFrame, 0.0f, 0};
+    ClaimSegmentCamera(SegmentIndex, TargetFrame);
     return LastResult = EInfinityTransportResult::Succeeded;
 }
 
@@ -1326,7 +1497,7 @@ const UMovieSceneCameraCutSection* UInfinityStageTransportController::FindSceneC
     for (UMovieSceneSection* BaseSection : Sections)
     {
         const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(BaseSection);
-        if (Cut && Cut->GetRange().Contains(LocalFrame))
+        if (Cut && Cut->IsActive() && Cut->GetRange().Contains(LocalFrame))
         {
             if (!ActiveCut || Cut->GetInclusiveStartFrame() > ActiveCut->GetInclusiveStartFrame())
             {
@@ -1341,7 +1512,8 @@ const UMovieSceneCameraCutSection* UInfinityStageTransportController::FindSceneC
         for (UMovieSceneSection* BaseSection : Sections)
         {
             const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(BaseSection);
-            if (Cut && (!ActiveCut || Cut->GetExclusiveEndFrame() > ActiveCut->GetExclusiveEndFrame()))
+            if (Cut && Cut->IsActive()
+                && (!ActiveCut || Cut->GetExclusiveEndFrame() > ActiveCut->GetExclusiveEndFrame()))
             {
                 ActiveCut = Cut;
             }
@@ -1611,6 +1783,7 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
         : FFrameTime(TargetFrame);
     FMovieSceneSequencePlayToParams PlayToParams;
     PlayToParams.bExclusive = false;
+    LastPlayToTargetForTests = TargetFrame;
     Player->PlayTo(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Play), PlayToParams);
     // Starting playback can restore Sequencer's pre-animated view target. Claim
     // the current shot after PlayTo as well, so a seek/Next followed by Play

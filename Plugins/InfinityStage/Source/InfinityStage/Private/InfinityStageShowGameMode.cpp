@@ -105,13 +105,13 @@ void AInfinityStageShowPlayerController::ApplyHoldRightAction(const EInfinityHol
 void AInfinityStageShowPlayerController::AdvanceShowSegment()
 {
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
-    ReportTransportResult(this, Transport ? Transport->AdvanceToNextSegment() : EInfinityTransportResult::NoPlayer);
+    ReportTransportResult(this, Transport ? Transport->StepShotForward() : EInfinityTransportResult::NoPlayer);
 }
 
 void AInfinityStageShowPlayerController::PreviousShowSegment()
 {
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
-    ReportTransportResult(this, Transport ? Transport->JumpToPreviousSegment() : EInfinityTransportResult::NoPlayer);
+    ReportTransportResult(this, Transport ? Transport->StepShotBack() : EInfinityTransportResult::NoPlayer);
 }
 
 void AInfinityStageShowPlayerController::ToggleShowPlayback()

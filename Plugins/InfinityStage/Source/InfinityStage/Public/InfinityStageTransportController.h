@@ -221,6 +221,10 @@ struct INFINITYSTAGE_API FInfinityTransportSegment
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport")
     FFrameNumber EndFrame = 0;
 
+    /** Active root Camera Cut starts, transformed once into absolute Master frames. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Shots")
+    TArray<FFrameNumber> ShotStartFrames;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport")
     EInfinityExternalSoundAuthority ExternalSound = EInfinityExternalSoundAuthority::None;
 
@@ -354,6 +358,12 @@ public:
         meta = (ClampMin = "1.0", UIMax = "8.0"))
     float FastForwardRate = 4.0f;
 
+    /** LEFT restarts the current shot after this many display frames; before
+     * that it steps to the preceding shot. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+        meta = (ClampMin = "0"))
+    int32 ShotRestartGraceDisplayFrames = 12;
+
     /**
      * Delay before one same-frame re-evaluation after a paused jump or scrub.
      * Geometry Caches decode asynchronously and otherwise keep drawing their
@@ -446,6 +456,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult AdvanceToNextSegment();
 
+    /** Steps to the next root Camera Cut in a Scene, then falls through to Advance. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    EInfinityTransportResult StepShotForward();
+
     /** Plays continuously to the end of the Master at FastForwardRate. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult BeginFastForward();
@@ -459,6 +473,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult JumpToPreviousSegment();
+
+    /** Restarts/steps root Camera Cuts in a Scene, then falls through to Previous. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    EInfinityTransportResult StepShotBack();
 
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult PauseTransport();
@@ -497,6 +515,12 @@ public:
     void RunTickTailForTests(FFrameNumber CurrentFrame, float DeltaTime)
     {
         RunTickTail(CurrentFrame, DeltaTime);
+    }
+
+    /** TEST ONLY: the last absolute Master frame supplied to PlayToFrame. */
+    TOptional<FFrameNumber> GetLastPlayToTargetForTests() const
+    {
+        return LastPlayToTargetForTests;
     }
 
     /** True while the Master player is running, so a toggle can tell play from pause. */
@@ -559,6 +583,8 @@ private:
     bool bMasterAudioMutedForFastForward = false;
     bool bMasterAudioWasEvalDisabled = false;
 
+    TOptional<FFrameNumber> LastPlayToTargetForTests;
+
     /** What ClaimViewTarget last asked for, and when, so a running blend is not
      * restarted every frame by a repeat of the same request. */
     TWeakObjectPtr<AActor> ClaimedViewTarget;
@@ -568,6 +594,7 @@ private:
     TMap<FGuid, TWeakObjectPtr<AInfinityStageCameraRig>> CameraRigCache;
 
     EInfinityTransportResult JumpToSegment(int32 SegmentIndex, bool bToEnd);
+    EInfinityTransportResult JumpToMasterFrame(int32 SegmentIndex, FFrameNumber TargetFrame, bool bKeepPlaying);
     EInfinityTransportResult PlayToFrame(FFrameNumber TargetFrame);
 
     /** Resolves the handover for a segment and applies it to the view. */

@@ -19,7 +19,7 @@ index 86282e7..3a9fbf9 100644
  
  void AInfinityStageShowPlayerController::ToggleShowPlayback()
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
-index 4b54635..2da8655 100644
+index 4b54635..e0d5096 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 @@ -230,6 +230,62 @@ void CollectVampRanges(
@@ -94,7 +94,15 @@ index 4b54635..2da8655 100644
          CollectVampRanges(
              *ShowAsset,
              Cue,
-@@ -844,6 +902,41 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
+@@ -703,6 +761,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
+     bFastForwardActive = false;
+     bMasterAudioMutedForFastForward = false;
+     JumpResettleState.bPending = false;
++    LastPlayToTargetForTests.Reset();
+     LastResult = EInfinityTransportResult::NoPlayer;
+     if (!InPlayer || !InShowAsset)
+     {
+@@ -844,6 +903,41 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
      return LastResult = EInfinityTransportResult::Succeeded;
  }
  
@@ -136,7 +144,7 @@ index 4b54635..2da8655 100644
  EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
  {
      if (!Player)
-@@ -927,6 +1020,57 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToPreviousSegmen
+@@ -927,6 +1021,57 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToPreviousSegmen
      return JumpToSegment(TargetIndex, false);
  }
  
@@ -194,7 +202,7 @@ index 4b54635..2da8655 100644
  EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
  {
      if (!Player)
-@@ -1072,6 +1216,23 @@ bool UInfinityStageTransportController::IsCoveredHandoffActive(
+@@ -1072,6 +1217,23 @@ bool UInfinityStageTransportController::IsCoveredHandoffActive(
  }
  
  EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const int32 SegmentIndex, const bool bToEnd)
@@ -218,7 +226,7 @@ index 4b54635..2da8655 100644
  {
      if (!Player)
      {
-@@ -1085,22 +1246,25 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const
+@@ -1085,22 +1247,31 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToSegment(const
      {
          return LastResult = EInfinityTransportResult::NotReady;
      }
@@ -239,20 +247,26 @@ index 4b54635..2da8655 100644
 -    VampPlaybackState.OnNavigation(Target);
 -    JumpResettleState = {true, Target, 0.0f, 0};
 +    VampPlaybackState.OnNavigation(TargetFrame);
-+    JumpResettleState = {true, TargetFrame, 0.0f, 0};
      SelectedSegmentIndex = SegmentIndex;
 -    bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, Target);
 -    ClaimSegmentCamera(SegmentIndex, Target);
 +    bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, TargetFrame);
 +    if (bKeepPlaying)
 +    {
-+        Player->Play();
++        const EInfinityTransportResult PlayResult = PlayForwardToBoundary();
++        if (PlayResult != EInfinityTransportResult::Succeeded)
++        {
++            return PlayResult;
++        }
 +    }
++    // PlayToFrame clears any older pending re-pose. Arm this jump's re-pose
++    // after restoring bounded playback so Geometry Caches still resettle.
++    JumpResettleState = {true, TargetFrame, 0.0f, 0};
 +    ClaimSegmentCamera(SegmentIndex, TargetFrame);
      return LastResult = EInfinityTransportResult::Succeeded;
  }
  
-@@ -1326,7 +1490,7 @@ const UMovieSceneCameraCutSection* UInfinityStageTransportController::FindSceneC
+@@ -1326,7 +1497,7 @@ const UMovieSceneCameraCutSection* UInfinityStageTransportController::FindSceneC
      for (UMovieSceneSection* BaseSection : Sections)
      {
          const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(BaseSection);
@@ -261,7 +275,7 @@ index 4b54635..2da8655 100644
          {
              if (!ActiveCut || Cut->GetInclusiveStartFrame() > ActiveCut->GetInclusiveStartFrame())
              {
-@@ -1341,7 +1505,8 @@ const UMovieSceneCameraCutSection* UInfinityStageTransportController::FindSceneC
+@@ -1341,7 +1512,8 @@ const UMovieSceneCameraCutSection* UInfinityStageTransportController::FindSceneC
          for (UMovieSceneSection* BaseSection : Sections)
          {
              const UMovieSceneCameraCutSection* Cut = Cast<UMovieSceneCameraCutSection>(BaseSection);
@@ -271,8 +285,16 @@ index 4b54635..2da8655 100644
              {
                  ActiveCut = Cut;
              }
+@@ -1611,6 +1783,7 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
+         : FFrameTime(TargetFrame);
+     FMovieSceneSequencePlayToParams PlayToParams;
+     PlayToParams.bExclusive = false;
++    LastPlayToTargetForTests = TargetFrame;
+     Player->PlayTo(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Play), PlayToParams);
+     // Starting playback can restore Sequencer's pre-animated view target. Claim
+     // the current shot after PlayTo as well, so a seek/Next followed by Play
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
-index c124b1b..c5d8997 100644
+index c124b1b..b98d965 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 @@ -221,6 +221,10 @@ struct INFINITYSTAGE_API FInfinityTransportSegment
@@ -293,7 +315,7 @@ index c124b1b..c5d8997 100644
 +    /** LEFT restarts the current shot after this many display frames; before
 +     * that it steps to the preceding shot. */
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
-+        meta = (ClampMin = "0", Units = "Frames"))
++        meta = (ClampMin = "0"))
 +    int32 ShotRestartGraceDisplayFrames = 12;
 +
      /**
@@ -321,7 +343,29 @@ index c124b1b..c5d8997 100644
      UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
      EInfinityTransportResult PauseTransport();
  
-@@ -568,6 +586,7 @@ private:
+@@ -499,6 +517,12 @@ public:
+         RunTickTail(CurrentFrame, DeltaTime);
+     }
+ 
++    /** TEST ONLY: the last absolute Master frame supplied to PlayToFrame. */
++    TOptional<FFrameNumber> GetLastPlayToTargetForTests() const
++    {
++        return LastPlayToTargetForTests;
++    }
++
+     /** True while the Master player is running, so a toggle can tell play from pause. */
+     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
+     bool IsTransportPlaying() const;
+@@ -559,6 +583,8 @@ private:
+     bool bMasterAudioMutedForFastForward = false;
+     bool bMasterAudioWasEvalDisabled = false;
+ 
++    TOptional<FFrameNumber> LastPlayToTargetForTests;
++
+     /** What ClaimViewTarget last asked for, and when, so a running blend is not
+      * restarted every frame by a repeat of the same request. */
+     TWeakObjectPtr<AActor> ClaimedViewTarget;
+@@ -568,6 +594,7 @@ private:
      TMap<FGuid, TWeakObjectPtr<AInfinityStageCameraRig>> CameraRigCache;
  
      EInfinityTransportResult JumpToSegment(int32 SegmentIndex, bool bToEnd);
@@ -331,10 +375,10 @@ index c124b1b..c5d8997 100644
      /** Resolves the handover for a segment and applies it to the view. */
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShotStepTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShotStepTests.cpp
 new file mode 100644
-index 0000000..5714e42
+index 0000000..bfc853c
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShotStepTests.cpp
-@@ -0,0 +1,369 @@
+@@ -0,0 +1,377 @@
 +#include "InfinityStageShowAsset.h"
 +#include "InfinityStageTransportController.h"
 +
@@ -581,6 +625,13 @@ index 0000000..5714e42
 +        Fixture.Transport->StepShotForward(), EInfinityTransportResult::Succeeded);
 +    TestEqual(TEXT("First RIGHT lands on shot 2"), Fixture.Transport->GetCurrentMasterFrame(), FFrameNumber(100));
 +    TestTrue(TEXT("A playing forward step keeps playing"), Fixture.Transport->IsTransportPlaying());
++    const TOptional<FFrameNumber> FirstStepStop = Fixture.Transport->GetLastPlayToTargetForTests();
++    TestTrue(TEXT("A playing shot step retains a bounded PlayTo stop"), FirstStepStop.IsSet());
++    if (FirstStepStop.IsSet())
++    {
++        TestEqual(TEXT("The bounded stop remains the Scene end"),
++            FirstStepStop.GetValue(), Fixture.Transport->Segments[0].EndFrame);
++    }
 +    TestEqual(TEXT("RIGHT steps 100 to 250"),
 +        Fixture.Transport->StepShotForward(), EInfinityTransportResult::Succeeded);
 +    TestEqual(TEXT("Second RIGHT lands on shot 3"), Fixture.Transport->GetCurrentMasterFrame(), FFrameNumber(250));
@@ -607,8 +658,9 @@ index 0000000..5714e42
 +        Fixture.Transport->StepShotForward(), EInfinityTransportResult::Succeeded);
 +    TestFalse(TEXT("A paused forward step stays paused"), Fixture.Transport->IsTransportPlaying());
 +
-+    // Negative control: old Advance from frame 10 lands on segment 1 at frame 400,
-+    // so stubbing StepShotForward to Advance makes the frame-100 assertion fail.
++    // Negative controls: old Advance from frame 10 lands on segment 1 at frame 400,
++    // while replacing bounded PlayForwardToBoundary with bare Play leaves the
++    // PlayTo-target seam unset. Either regression makes this test fail.
 +    return true;
 +}
 +
