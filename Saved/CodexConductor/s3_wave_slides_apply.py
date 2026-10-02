@@ -2,7 +2,7 @@
 
 Dry run is the default when Unreal executes this file.  Apply/revert are selected
 only through S3_WAVE_SLIDES_APPLY / S3_WAVE_SLIDES_REVERT globals.  The planner
-and strike-record reader remain importable by test_s3_wave_slides_plan.py in
+and strike-frame gate remain importable by test_s3_wave_slides_plan.py in
 plain Python; importing the module offline never contacts Unreal.
 
 The authored transform tracks live on the six wave actors in
@@ -31,6 +31,9 @@ ROOT_LABEL = "S3 Hangar Root"
 TRACK_NAME = "S3.WaveSlide"
 EXPECTED_FPS = 24.0
 EXPECTED_PLAYBACK = (0, 6240)
+EXPECTED_STRIKE_FRAME = 147
+STRIKE_FRAME_TOLERANCE = 1
+UPLIGHT_LABEL = "S3 Uplight 1"
 AMPLITUDE_CM = 100.0
 PERIOD_FRAMES = 360
 KEY_STEP_FRAMES = 3
@@ -70,76 +73,59 @@ class PlanError(ValueError):
     pass
 
 
-def project_root():
-    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+def compute_strike_frame_gate(parent_fps, child_fps, section_start_frame,
+                              child_start_frame_offset, child_strike_frame,
+                              time_scale=1.0):
+    """Map one child asset key into the parent display rate and enforce Revision 2.
 
-
-def strike_record_candidates():
-    """Return the declared location first, then the measured current location."""
-    return (
-        os.path.join(HERE, "s3_strike_record.json"),
-        os.path.join(os.path.dirname(HERE), "CodexStructure", "s3_strike_record.json"),
-    )
-
-
-def read_strike_frame(target_fps=EXPECTED_FPS, candidates=None):
-    """Read the applied strike record and convert its seconds to a target frame.
-
-    The strike was authored before Scene 3's 24 fps timeline pass, so its record
-    carries seconds plus its then-current 30 fps display rate.  Seconds are the
-    stable authority.  At 24 fps 6.133333... s is frame 147.2; the nearest
-    display frame is 147 (8.333 ms early).  Refuse a half-frame ambiguity.
+    FMovieSceneSectionParameters.StartFrameOffset is in the child display rate.
+    For a fixed play rate, child time is ``(parent - section_start) * time_scale``
+    plus that offset.  This is pure arithmetic so the offline harness can exercise
+    exactly the same stop gate as DRY/APPLY.
     """
-    paths = tuple(candidates or strike_record_candidates())
-    path = next((value for value in paths if os.path.isfile(value)), None)
-    if path is None:
-        raise PlanError("strike record not found: " + ", ".join(paths))
-    try:
-        with open(path, encoding="utf-8") as handle:
-            record = json.load(handle)
-        strike_s = float(record["STRIKE_S"])
-        source_fps = float(record["fps"])
-    except Exception as exc:
-        raise PlanError("strike record unreadable: %s: %s" % (path, exc))
-    if not math.isfinite(strike_s) or strike_s < 0.0 or source_fps <= 0.0:
-        raise PlanError("strike record timing is invalid: " + path)
+    parent_fps = float(parent_fps)
+    child_fps = float(child_fps)
+    section_start_frame = int(section_start_frame)
+    child_start_frame_offset = int(child_start_frame_offset)
+    child_strike_frame = int(child_strike_frame)
+    time_scale = float(time_scale)
+    if (not all(math.isfinite(value) for value in (parent_fps, child_fps, time_scale)) or
+            parent_fps <= 0.0 or child_fps <= 0.0 or time_scale <= 0.0):
+        raise PlanError("strike gate has invalid rates")
 
-    uplights = record.get("uplight_keys")
-    if not isinstance(uplights, dict) or not uplights:
-        raise PlanError("strike record has no uplight key evidence: " + path)
-    starts = []
-    for label, keys in uplights.items():
-        if not isinstance(keys, list) or len(keys) < 3:
-            raise PlanError("strike uplight keys are incomplete: " + str(label))
-        ramp_starts = [float(keys[index][0]) for index in range(len(keys) - 1)
-                       if float(keys[index][1]) == 0.0 and float(keys[index + 1][1]) > 0.0]
-        if len(ramp_starts) != 1:
-            raise PlanError("strike uplight ramp is ambiguous: " + str(label))
-        starts.append(ramp_starts[0])
-    if abs(min(starts) - strike_s) > 1.0e-6:
-        raise PlanError("STRIKE_S disagrees with earliest uplight ramp")
-
-    raw_frame = strike_s * float(target_fps)
-    frame = int(round(raw_frame))
-    rounding_error = abs(raw_frame - frame)
-    if rounding_error >= 0.5 - 1.0e-9:
-        raise PlanError("strike time is ambiguous at target display rate")
-    try:
-        source = os.path.relpath(path, project_root()).replace("\\", "/")
-    except ValueError:
-        source = path.replace("\\", "/")
-    return {
-        "frame": frame,
-        "seconds": strike_s,
-        "target_fps": float(target_fps),
-        "raw_target_frame": raw_frame,
-        "rounding_error_frames": rounding_error,
-        "rounding_error_ms": 1000.0 * rounding_error / float(target_fps),
-        "source_fps": source_fps,
-        "source": source,
-        "source_run": str(record.get("run", "")),
-        "source_written": str(record.get("written", "")),
+    child_delta_frames = child_strike_frame - child_start_frame_offset
+    sequence_to_parent_offset_frames = (
+        float(section_start_frame) -
+        float(child_start_frame_offset) * parent_fps / child_fps / time_scale
+    )
+    raw_parent_frame = (
+        float(section_start_frame) +
+        float(child_delta_frames) * parent_fps / child_fps / time_scale
+    )
+    parent_frame = int(round(raw_parent_frame))
+    evidence = {
+        "frame": parent_frame,
+        "raw_parent_frame": raw_parent_frame,
+        "expected_frame": EXPECTED_STRIKE_FRAME,
+        "tolerance_frames": STRIKE_FRAME_TOLERANCE,
+        "delta_from_expected_frames": parent_frame - EXPECTED_STRIKE_FRAME,
+        "parent_fps": parent_fps,
+        "child_fps": child_fps,
+        "section_start_frame": section_start_frame,
+        "child_start_frame_offset": child_start_frame_offset,
+        "sequence_to_parent_offset_frames": sequence_to_parent_offset_frames,
+        "child_strike_frame": child_strike_frame,
+        "child_strike_seconds": float(child_strike_frame) / child_fps,
+        "time_scale": time_scale,
+        "source": "%s subsection + %s Intensity key" % (RISE_PATH, UPLIGHT_LABEL),
     }
+    if abs(parent_frame - EXPECTED_STRIKE_FRAME) > STRIKE_FRAME_TOLERANCE:
+        raise PlanError(
+            "asset strike gate computed strike %d outside %d +/- %d: %s" %
+            (parent_frame, EXPECTED_STRIKE_FRAME, STRIKE_FRAME_TOLERANCE,
+             json.dumps(evidence, sort_keys=True))
+        )
+    return evidence
 
 
 def wave_offset(frame, strike_frame, row, period=PERIOD_FRAMES,
@@ -440,6 +426,88 @@ def _make_transform(values):
     )
 
 
+def read_asset_strike_gate(sequence, rise, run):
+    """Read only sequence/track/section/channel asset data; never evaluate Sequencer."""
+    matches = []
+    for track in sequence.get_tracks():
+        if not isinstance(track, unreal.MovieSceneSubTrack):
+            continue
+        for section in track.get_sections():
+            nested = section.get_sequence()
+            nested_path = (str(nested.get_path_name()).split(".", 1)[0]
+                           if nested is not None else "")
+            if nested_path == RISE_PATH:
+                matches.append((track, section))
+    if len(matches) != 1:
+        raise PlanError("expected one %s subsection, found %d" %
+                        (RISE_PATH, len(matches)))
+    track, section = matches[0]
+    if not section.is_active():
+        raise PlanError(RISE_PATH + " subsection is inactive")
+    parameters = section.get_editor_property("parameters")
+    child_offset = frame_value(parameters.get_editor_property("start_frame_offset"))
+    try:
+        time_scale = float(
+            unreal.MovieSceneTimeWarpExtensions.conv_time_warp_variant_to_play_rate(
+                parameters.get_editor_property("time_scale")))
+    except Exception as exc:
+        raise PlanError("subsection time scale is not a fixed play rate: " + str(exc))
+    try:
+        can_loop = bool(parameters.get_editor_property("can_loop"))
+    except Exception:
+        can_loop = bool(parameters.get_editor_property("b_can_loop"))
+    if can_loop:
+        raise PlanError(RISE_PATH + " subsection loops; strike mapping is ambiguous")
+
+    channels = []
+    for binding in rise.get_bindings():
+        parent = binding.get_parent()
+        parent_label = (str(parent.get_display_name())
+                        if parent is not None and parent.is_valid() else None)
+        label = parent_label or str(binding.get_display_name())
+        if label != UPLIGHT_LABEL:
+            continue
+        for candidate_track in binding.get_tracks():
+            if (isinstance(candidate_track, unreal.MovieSceneFloatTrack) and
+                    str(candidate_track.get_property_name()) == "Intensity"):
+                for candidate_section in candidate_track.get_sections():
+                    channels.extend(candidate_section.get_all_channels())
+    if len(channels) != 1:
+        raise PlanError("expected one %s Intensity channel, found %d" %
+                        (UPLIGHT_LABEL, len(channels)))
+    keys = sorted(channels[0].get_keys(), key=lambda key: frame_value(key.get_time()))
+    key_rows = [[frame_value(key.get_time()), float(key.get_value())] for key in keys]
+    strike_candidates = [
+        key_rows[index][0]
+        for index in range(len(key_rows) - 1)
+        if abs(key_rows[index][1]) <= 1.0e-6 and key_rows[index + 1][1] > 1.0e-6
+    ]
+    if len(strike_candidates) != 1:
+        raise PlanError("%s strike ramp is ambiguous: %s" %
+                        (UPLIGHT_LABEL, json.dumps(key_rows)))
+
+    parent_rate = sequence.get_display_rate()
+    child_rate = rise.get_display_rate()
+    evidence = compute_strike_frame_gate(
+        float(parent_rate.numerator) / float(parent_rate.denominator),
+        float(child_rate.numerator) / float(child_rate.denominator),
+        frame_value(section.get_start_frame()), child_offset,
+        strike_candidates[0], time_scale,
+    )
+    evidence.update({
+        "parent_asset": ROOT_PATH,
+        "child_asset": RISE_PATH,
+        "subsection_track": str(track.get_display_name()),
+        "subsection_end_frame": frame_value(section.get_end_frame()),
+        "uplight_label": UPLIGHT_LABEL,
+        "uplight_keys": key_rows,
+        "read_method": "asset_data_only",
+    })
+    unreal.log("S3_WAVE_SLIDES_STRIKE_GATE_OK|run=%s|%s" %
+               (run, json.dumps(evidence, separators=(",", ":"), sort_keys=True)))
+    return evidence
+
+
 def root_rest_landed(rise, root, run):
     bindings = [binding for binding in rise.get_bindings()
                 if str(binding.get_display_name()) == ROOT_LABEL and
@@ -488,10 +556,9 @@ def landed_dock_y_bounds(actor, relative, root_landed, dock, run):
     return [min(ys), max(ys)]
 
 
-def live_state(sequence, rise, world, run):
+def live_state(sequence, rise, world, strike, run):
     rate = sequence.get_display_rate()
     fps = float(rate.numerator) / float(rate.denominator)
-    strike = read_strike_frame(fps)
     index = _actor_index(world)
     root = _one_actor(index, ROOT_LABEL, run)
     _, landed = root_rest_landed(rise, root, run)
@@ -857,7 +924,11 @@ def main():
     if do_revert:
         revert(sequence, world, run)
         return
-    state, runtime, root_landed, dock = live_state(sequence, rise, world, run)
+    try:
+        strike = read_asset_strike_gate(sequence, rise, run)
+    except PlanError as exc:
+        stop(run, "reason=STRIKE_GATE_REFUSED|detail=" + str(exc))
+    state, runtime, root_landed, dock = live_state(sequence, rise, world, strike, run)
     try:
         plan = plan_wave_slides(state)
     except PlanError as exc:

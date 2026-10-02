@@ -9,13 +9,20 @@ from s3_wave_slides_apply import (
     ROW_DIRECTIONS,
     TARGET_LABELS,
     VAMP_RANGE,
+    compute_strike_frame_gate,
     plan_wave_slides,
-    read_strike_frame,
 )
 
 
 def fixture_state():
-    strike = read_strike_frame(24.0)
+    strike = compute_strike_frame_gate(
+        parent_fps=24.0,
+        child_fps=30.0,
+        section_start_frame=0,
+        child_start_frame_offset=0,
+        child_strike_frame=184,
+        time_scale=1.0,
+    )
     actors = []
     placed_bounds = {
         "S3 Wave Row1 A": [-884.2, -284.2],
@@ -104,6 +111,19 @@ def main():
                                lambda: plan_wave_slides(existing_track),
                                "already has a transform track")
 
+    failures += expect_failure(
+        "computed strike 140 stops",
+        lambda: compute_strike_frame_gate(
+            parent_fps=24.0,
+            child_fps=30.0,
+            section_start_frame=0,
+            child_start_frame_offset=0,
+            child_strike_frame=175,
+            time_scale=1.0,
+        ),
+        "computed strike 140",
+    )
+
     if failures == 0:
         table = ";".join(
             "row%d:dir=%+d,delay=%d,first=%d,last=%d,seam=%.9f" %
@@ -111,7 +131,7 @@ def main():
              row["last_key"], row["seam"]["error_cm"])
             for row in rows
         )
-        print("S3_WAVE_SLIDES_HARNESS_OK|positive=1|negative=4|strike=%d|source=%s|%s" %
+        print("S3_WAVE_SLIDES_HARNESS_OK|positive=1|negative=5|strike=%d|source=%s|%s" %
               (plan["strike"]["frame"], plan["strike"]["source"], table))
     return failures
 
