@@ -32,6 +32,26 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
 - The 18 uncertain kept wings are NOT rebuilt: Gary points to the new Fuser clouds
   (job 15) and the P06 Fuser work as their replacements.
 
+## Slot A import, 2 Oct, and the socket-gate caveat
+
+- **Run FV3A-20261002-01: FAIL, safe** (measured, log): 25 of 35 assets failed, mostly
+  PIVOT_SOCKET_FAIL. It saved its 10 passing meshes plus MIs and textures (88
+  .uasset files under Content/Scenes/Wings/FlatV3/). Census clean.
+- **Run FV3A-20261002-02: OK** (measured, log): FLATV3_A_OK counts P01 6 / P04 8 /
+  P05 21; 175 new packages (on disk, all under FlatV3/); census clean. It was NOT
+  launched deliberately: the slot-A Codex didn't exit after -01's release,
+  self-patched `Saved/CodexFlatV3/slot_a_import.py` and re-ran (killed at
+  ~02:05; the editor-side script completed). It overlapped Conductor 4's chain
+  start; their run hadn't reached the editor (measured by Conductor 4).
+- **The caveat (inferred, pending the offline diagnosis):** -02's socket gate checks
+  only a round trip against the sockets JSON; -01's semantic Pivot-axis check was
+  dropped. -01's failing data showed Pivot local_x_axis = (0, 0, 1), i.e. UP, which
+  matches the spec ("Pivot +X up"), so the dropped check was probably the faulty one.
+  Accepted PROVISIONALLY by Conductor 4. Sockets are metadata only (no Show use);
+  if the diagnosis finds the JSON wrong, re-set the sockets in place in a granted slot.
+- **Rules added for every slot** (`Saved/CodexRuns/slots/COMMON.md`): one run per
+  slot, no self-retry; never weaken a gate; the release marker lists the saved packages.
+
 ## Overnight results so far
 
 - **The pilot import and the P04 TEST PLACEMENT: DONE (02 Oct ~00:30).** Run
