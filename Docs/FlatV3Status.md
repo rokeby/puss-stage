@@ -163,3 +163,12 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
   - **measured:** 4 L/R pairs (FenceTarp, FenceOpen, RollerShutter, DuctVent), and Blender re-import passes 8/8.
   - **Conductor review:** the surfaces still read as clean CG; the weathering is flat orange rectangles. Codex is re-surfacing them offline with CC0 Poly Haven/ambientCG scans and rendering every asset (`Saved/CodexRuns/flatv3_p02ind2_prompt.md`).
 - **P02 layout draft:** `DerivedAssets/FlatV3/Overnight/P02_LAYOUT_DRAFT.md`. 20 positions alternate plant and industrial across L/R, followed by 3 mystical pairs. TODO: the mystical pairs must name P04 ruin art (Gary's decision), not new placeholders. Gary decides the layout.
+- **P03 (2 Oct):**
+  - **measured:** 11 flats built and every gate passes:
+    - coat wall L/R;
+    - pyres: unlit, small burning and large roaring;
+    - staircases L/R;
+    - 4 stones.
+  - Codex adds a 21-row layout draft, with all pyres marked for Effects (`DerivedAssets/FlatV3/Overnight/P03_LAYOUT_DRAFT.md`); it is unreviewed.
+  - Contact sheet: `DerivedAssets/FlatV3/Overnight/P03/CONTACT_SHEET.jpg`.
+  - The swap is approved, but it needs an editor slot after Conductor 4's P04 decision.
