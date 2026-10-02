@@ -1,0 +1,74 @@
+{
+ "census_start": {
+  "content": [],
+  "maps": []
+ },
+ "meshes": {
+  "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_coventry_ruin_L_v1": {
+   "lod0": {
+    "timber_r": [
+     0.0,
+     0.9960784316062927
+    ],
+    "timber_g": [
+     0.43921566009521484,
+     0.9372548460960388
+    ]
+   },
+   "lod1": {
+    "timber_r": [
+     0.7333332300186157,
+     0.9960784316062927
+    ],
+    "timber_g": [
+     0.6392156481742859,
+     0.9176470041275024
+    ]
+   }
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage04/StaticMeshes/SM_FlatV3_P04_coventry_ruin_R_v1": {
+   "lod0": {
+    "timber_r": [
+     0.0,
+     0.9960784316062927
+    ],
+    "timber_g": [
+     0.43921566009521484,
+     0.9411764144897461
+    ]
+   },
+   "lod1": {
+    "timber_r": [
+     0.7333332300186157,
+     0.9960784316062927
+    ],
+    "timber_g": [
+     0.6392156481742859,
+     0.9176470041275024
+    ]
+   }
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage05/StaticMeshes/SM_FlatV3_P05_CloudRef01_L_L": {
+   "lod0": {
+    "timber_r": [
+     0.0,
+     0.9960784316062927
+    ],
+    "timber_g": [
+     0.4941176176071167,
+     0.9215685725212097
+    ]
+   },
+   "lod1": {
+    "timber_r": [
+     0.7333332300186157,
+     0.9960784316062927
+    ],
+    "timber_g": [
+     0.6392156481742859,
+     0.9176470041275024
+    ]
+   }
+  }
+ }
+}

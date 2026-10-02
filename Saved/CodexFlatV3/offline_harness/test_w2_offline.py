@@ -151,11 +151,19 @@ class W2OfflineTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "W2_LOD1_TIMBER_R_FAIL"):
             w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path)
 
-    def test_two_landed_probe_values_fail_reference_uniqueness(self):
-        self._write_probe([fake.MEASURED_LOD1_TIMBER_R, 0.5])
+    def test_measured_landed_id_set_accepts_ply_wave(self):
+        # Measured 2 Oct (probe_v3_timber_vc_out.json): landed LOD1 Timber R spans
+        # ply 0.7333 and steel 0.9961; a pole-less ply wave must pass.
+        self._write_probe([fake.MEASURED_LOD1_TIMBER_R, 0.9961])
         mesh = fake.StaticMesh("/Game/Fake/SM_Ext2Wave")
-        with self.assertRaisesRegex(
-                RuntimeError, "W2_LANDED_TIMBER_REFERENCE_NOT_UNIQUE"):
+        self.assertEqual(
+            w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path),
+            [fake.MEASURED_LOD1_TIMBER_R] * 2)
+
+    def test_value_outside_landed_id_set_fails(self):
+        self._write_probe([fake.MEASURED_LOD1_TIMBER_R, 0.9961])
+        mesh = fake.StaticMesh("/Game/Fake/SM_OldRule", lod1_timber_r=0.5)
+        with self.assertRaisesRegex(RuntimeError, "W2_LOD1_TIMBER_R_FAIL"):
             w2_import.lod1_timber_gate(fake.FakeSlotA, mesh, mesh.path)
 
     def test_missing_landed_probe_file_fails(self):

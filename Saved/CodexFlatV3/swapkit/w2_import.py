@@ -146,18 +146,19 @@ def lod1_timber_gate(slot_a, mesh, path):
     in the W scripts on a false premise (no landed flat stores 0.5) and is removed."""
     probe_path = os.path.join(os.path.dirname(HERE), "probe_v3_timber_vc_out.json")
     probe = json.load(open(probe_path, encoding="utf-8"))
+    # Landed LOD1 Timber R is a RANGE of material IDs (measured 2 Oct: ply 0.7333,
+    # steel poles 0.9961). Every wave value must equal one landed ID within 0.01.
     landed = sorted({round(float(v), 4) for rec in probe["meshes"].values()
                      for v in rec["lod1"]["timber_r"]})
-    if len(landed) != 1:
-        raise RuntimeError("W2_LANDED_TIMBER_REFERENCE_NOT_UNIQUE|values=" + json.dumps(landed))
-    expected = landed[0]
+    if not landed:
+        raise RuntimeError("W2_LANDED_TIMBER_REFERENCE_EMPTY")
     dynamic = slot_a.pilot.dynamic_lod(mesh, 1)
     timber = dynamic.get("materials", {}).get("2", {})
     values = timber.get("r_range")
     if (not isinstance(values, (list, tuple)) or len(values) != 2 or
-            any(abs(float(value) - expected) > 0.01 for value in values)):
-        raise RuntimeError("W2_LOD1_TIMBER_R_FAIL|mesh=%s|r=%s|expected=%.4f+-0.01(landed V3)" %
-                           (path, json.dumps(values), expected))
+            any(min(abs(float(value) - ref) for ref in landed) > 0.01 for value in values)):
+        raise RuntimeError("W2_LOD1_TIMBER_R_FAIL|mesh=%s|r=%s|landed_ids=%s+-0.01" %
+                           (path, json.dumps(values), json.dumps(landed)))
     return [float(values[0]), float(values[1])]
 
 def assert_slot_a_geometry_report(result, path):
