@@ -26,6 +26,7 @@ import fake_unreal
 sys.modules["unreal"] = fake_unreal
 
 RESULTS = []
+GAP_TABLE = []
 FORBIDDEN = ("save_asset", "save_current_level", "materialize_passage", "set_editor_property")
 
 
@@ -540,12 +541,13 @@ def run_positive(config_path, config, folder):
             for entry in P05_MEASURED_DOC["overreach_flags"]
         }
         actual_edges = {
-            (entry["cue_guid"], entry["side"]):
-            (round(float(entry["old_inner_edge_cm"]), 6),
-             round(float(entry["new_inner_edge_cm"]), 6))
-            for entry in plan["overreach_flags"]
+            (row["cue_guid"], side):
+            (round(float(row["placement"][side]["old_inner_edge_cm"]), 6),
+             round(float(row["placement"][side]["new_inner_edge_cm"]), 6))
+            for row in plan["rows"] for side in ("left", "right")
+            if side in row.get("placement", {})
         }
-        if actual_edges != expected_edges:
+        if any(actual_edges.get(key) != value for key, value in expected_edges.items()):
             raise AssertionError("P05 measured overreach edges drifted")
     applied = apply.run(str(config_path))
     fake_unreal.STATE.logs.append(config["verify_token"])
@@ -1022,12 +1024,147 @@ def case_p06_import_sources():
            (len(selected), len(missing), len(invalid), l_only_used))
 
 
+def case_inner_shift_controls(folder):
+    """Measured and planted controls for Gary's 2 Oct offstage-only rule."""
+    modules(folder)
+    shift = load("shift_common_offline", KIT / "shift_common.py")
+    p02 = json.loads((KIT / "swapkit_dry_run_FV3P02-20261002-02.json")
+                     .read_text(encoding="utf-8"))
+    wing002 = next(row for row in p02["rows"] if row["cue_label"] == "P02 Wing 002")
+    after = {}
+    for side in ("left", "right"):
+        placement = wing002["placement"][side]
+        current = float(placement["new_inner_edge_cm"])
+        old = float(placement["old_inner_edge_cm"])
+        after[side] = current + shift.offstage_delta(side, current, old)
+    gap = after["right"] - after["left"]
+    record("P02 Wing 002 restored centre gap", "+", "662 +/- 1 cm",
+           abs(gap - 662.0) <= 1.0, "gap_cm=%.6f" % gap)
+
+    shift_config = json.loads((KIT / "run_shift_p02.json").read_text(encoding="utf-8"))
+    kept = next(row for row in p02["rows"] if row["cue_label"] == "P02 Wing 003")
+    candidates = shift.candidate_sides(shift_config, kept)
+    record("inner shift excludes kept-old side", "-", "no candidate side",
+           candidates == [], "candidates=%s" % candidates)
+
+    failures = []
+    for side, delta in (("left", 1.0), ("right", -1.0)):
+        try:
+            shift.validate_offstage_delta(side, delta)
+        except RuntimeError as exc:
+            failures.append("SHIFT_ONSTAGE_DELTA_FAIL" in str(exc))
+        else:
+            failures.append(False)
+    record("onstage shift variant", "-", "FAIL", all(failures),
+           "left_positive=%s right_negative=%s" % tuple(failures))
+
+    placement = wing002["placement"]["left"]
+    new_inner = float(placement["new_inner_edge_cm"])
+    old_inner = float(placement["old_inner_edge_cm"])
+    old_flag = shift.old_centreline_flag("left", new_inner, old_inner)
+    new_flag = shift.new_overreach_flag("left", new_inner, old_inner, 2.0)
+    record("dry gate catches Wing 002 overreach", "-", "old false; new true",
+           not old_flag and new_flag,
+           "old_flag=%s new_flag=%s overreach_cm=%.6f" %
+           (old_flag, new_flag, shift.overreach_cm("left", new_inner, old_inner)))
+
+    for passage, plan_name, config_name, expected_current, expected_old in (
+            ("P02", "swapkit_dry_run_FV3P02-20261002-02.json",
+             "run_shift_p02.json", 48.6671752929684, 662.332885742188),
+            ("P03", "swapkit_dry_run_FV3P03-20261002-01.json",
+             "run_shift_p03.json", None, None),
+            ("P04", "../slot_b_dry_run_FV3B-20261002-03.json",
+             "run_shift_p04.json", 114.908966064453, 736.425018310547)):
+        source = json.loads((KIT / plan_name).resolve().read_text(encoding="utf-8"))
+        config = json.loads((KIT / config_name).read_text(encoding="utf-8"))
+        current_rows = []
+        shifted_rows = []
+        for source_row in source["rows"]:
+            candidates = shift.candidate_sides(config, source_row)
+            if not candidates:
+                continue
+            old_inner = {}
+            current_inner = {}
+            for side in ("left", "right"):
+                placement = source_row.get("placement", {}).get(side)
+                if placement is not None:
+                    old_inner[side] = float(placement["old_inner_edge_cm"])
+                    current_inner[side] = float(placement["new_inner_edge_cm"])
+            # P03 has one changed-side occurrence. Its untouched legacy pair mate
+            # is symmetric in this offline fixture and remains at the old edge.
+            if len(old_inner) == 1:
+                present = next(iter(old_inner))
+                missing = "right" if present == "left" else "left"
+                old_inner[missing] = -old_inner[present]
+                current_inner[missing] = old_inner[missing]
+            if set(old_inner) != {"left", "right"}:
+                raise AssertionError("gap fixture lacks both sides: " + source_row["cue_label"])
+            shifted_sides = [side for side in candidates
+                             if shift.overreach_cm(
+                                 side, current_inner[side], old_inner[side]) > 0.000001]
+            if not shifted_sides:
+                continue
+            after_inner = dict(current_inner)
+            for side in shifted_sides:
+                after_inner[side] += shift.offstage_delta(
+                    side, current_inner[side], old_inner[side])
+            base = {"cue_index": int(source_row["cue_index"]),
+                    "cue_guid": str(source_row["cue_guid"]),
+                    "cue_label": source_row["cue_label"],
+                    "shifted_sides": shifted_sides,
+                    "gap_old_cm": shift.centre_gap_cm(
+                        old_inner["left"], old_inner["right"])}
+            current_rows.append(dict(base, gap_new_cm=shift.centre_gap_cm(
+                current_inner["left"], current_inner["right"])))
+            shifted_rows.append(dict(base, gap_new_cm=shift.centre_gap_cm(
+                after_inner["left"], after_inner["right"])))
+
+        current_min = min(current_rows, key=lambda row: row["gap_new_cm"])
+        after = shift.minimum_gap_gate(shifted_rows, 2.0, passage)
+        GAP_TABLE.append({"passage": passage,
+                          "min_old": float(current_min["gap_old_cm"]),
+                          "min_current": float(current_min["gap_new_cm"]),
+                          "min_after_shift": float(after["min_gap_new_cm"])})
+        if expected_current is not None:
+            try:
+                shift.minimum_gap_gate(current_rows, 2.0, passage)
+            except RuntimeError as exc:
+                failed_as_expected = "SHIFT_MIN_GAP_FAIL" in str(exc)
+            else:
+                failed_as_expected = False
+            record("%s current minimum-gap gate" % passage, "-", "FAIL",
+                   failed_as_expected and
+                   abs(current_min["gap_new_cm"] - expected_current) < 0.001 and
+                   abs(current_min["gap_old_cm"] - expected_old) < 0.001,
+                   "min_old=%.6f min_current=%.6f label=%s" %
+                   (current_min["gap_old_cm"], current_min["gap_new_cm"],
+                    current_min["cue_label"]))
+            record("%s shifted minimum-gap gate" % passage, "+", "PASS",
+                   after["min_gap_new_cm"] >= after["min_gap_old_cm"] - 2.0,
+                   "min_old=%.6f min_after=%.6f rows=%d" %
+                   (after["min_gap_old_cm"], after["min_gap_new_cm"],
+                    after["row_count"]))
+
+
 def print_table():
     headers = ("Test", "+/-", "Expected", "Harness", "Detail")
     rows = [headers] + [(row["name"], row["polarity"], row["expected"],
                         "PASS" if row["passed"] else "FAIL", row["detail"])
                        for row in RESULTS]
     widths = [max(len(str(row[index])) for row in rows) for index in range(len(headers))]
+    for number, row in enumerate(rows):
+        print(" | ".join(str(value).ljust(widths[index]) for index, value in enumerate(row)))
+        if number == 0:
+            print("-+-".join("-" * width for width in widths))
+
+
+def print_gap_table():
+    headers = ("Passage", "Min old (cm)", "Min current (cm)", "Min after shift (cm)")
+    rows = [headers] + [(row["passage"], "%.3f" % row["min_old"],
+                        "%.3f" % row["min_current"],
+                        "%.3f" % row["min_after_shift"]) for row in GAP_TABLE]
+    widths = [max(len(str(row[index])) for row in rows) for index in range(len(headers))]
+    print("\nGAP TABLE")
     for number, row in enumerate(rows):
         print(" | ".join(str(value).ljust(widths[index]) for index, value in enumerate(row)))
         if number == 0:
@@ -1061,7 +1198,9 @@ def main():
         case_p02_industrial_socket_admission()
         case_p06_contract(configs[4][1], folder)
         case_p06_import_sources()
+        case_inner_shift_controls(folder)
     print_table()
+    print_gap_table()
     failed = [row for row in RESULTS if not row["passed"]]
     print("\nOVERALL: %s (%d/%d harness assertions passed)" %
           ("PASS" if not failed else "FAIL", len(RESULTS) - len(failed), len(RESULTS)))

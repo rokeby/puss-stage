@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "slot": "S2",
+  "run_id": "FV3S2-20261002-01",
+  "saved_verify_run_id": "FV3S2V-20261002-01",
+  "passage": "P02",
+  "passage_label_prefix": "P02 Wing ",
+  "passage_actor_label_prefix": "Passage 02",
+  "expected_occurrence_count": 23,
+  "expected_target_row_count": 22,
+  "expected_candidate_side_count": 44,
+  "expected_nonzero_delta_count": 40,
+  "source_kind": "swapkit",
+  "source_plan": "Saved/CodexFlatV3/swapkit/swapkit_dry_run_FV3P02-20261002-02.json",
+  "source_config": "Saved/CodexFlatV3/swapkit/run_p02.json",
+  "source_run_id": "FV3P02-20261002-02",
+  "required_previous_markers_any": [
+    "FLATV3_P02_OK run=FV3P02-20261002-02",
+    "FLATV3_P02_APPLY_SAVED run=FV3P02-20261002-02"
+  ],
+  "keep_old_sides": [
+    {
+      "cue_guid": "B33756C20D448A5615012AABA066A78A",
+      "side": "right",
+      "reason": "359 cm onstage overreach (new right reaches the centreline); matched-pair rule so the whole position keeps old"
+    },
+    {
+      "cue_guid": "B33756C20D448A5615012AABA066A78A",
+      "side": "left",
+      "reason": "matched-pair rule (Gary, 2 Oct): right kept old, so left keeps old too"
+    }
+  ],
+  "excluded_new_meshes": [],
+  "backup_path": "Backups/PreFlatV3InnerShiftP02-FV3S2-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "backup_sources": {
+    "DA_InfinityStage_V1Show.uasset": "Content/InfinityStage/Dev/DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap": "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
+  },
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
+  "verify_queue_marker": "FLATV3_V_TEST_QUEUED run=FV3S2-20261002-01",
+  "success_marker": "FLATV3_S2_OK",
+  "inner_tolerance_cm": 2.0,
+  "outer_report_limit_cm": 1500.0
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "slot": "S3",
+  "run_id": "FV3S3-20261002-01",
+  "saved_verify_run_id": "FV3S3V-20261002-01",
+  "passage": "P03",
+  "passage_label_prefix": "P03 Wing ",
+  "passage_actor_label_prefix": "Passage 03",
+  "expected_occurrence_count": 21,
+  "expected_target_row_count": 18,
+  "expected_candidate_side_count": 35,
+  "expected_nonzero_delta_count": 24,
+  "source_kind": "swapkit",
+  "source_plan": "Saved/CodexFlatV3/swapkit/swapkit_dry_run_FV3P03-20261002-01.json",
+  "source_config": "Saved/CodexFlatV3/swapkit/run_p03.json",
+  "source_run_id": "FV3P03-20261002-01",
+  "required_previous_markers_any": [
+    "FLATV3_P03_OK run=FV3P03-20261002-01"
+  ],
+  "keep_old_sides": [],
+  "excluded_new_meshes": [],
+  "backup_path": "Backups/PreFlatV3InnerShiftP03-FV3S3-20261002-01",
+  "backup_files": [
+    "DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap"
+  ],
+  "backup_sources": {
+    "DA_InfinityStage_V1Show.uasset": "Content/InfinityStage/Dev/DA_InfinityStage_V1Show.uasset",
+    "L_InfinityStage_V1VerticalSlice.umap": "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
+  },
+  "verify_token": "Test Completed. Result={Success} Name={SavedMasterMatchesShow} Path={InfinityStage.Editor.SavedMasterMatchesShow}",
+  "verify_queue_marker": "FLATV3_V_TEST_QUEUED run=FV3S3-20261002-01",
+  "success_marker": "FLATV3_S3_OK",
+  "inner_tolerance_cm": 2.0,
+  "outer_report_limit_cm": 1500.0
+}

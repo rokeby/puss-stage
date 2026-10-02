@@ -78,12 +78,11 @@ def run(config_path=None):
             new_bounds = c.side_bounds(planned, library_by_mesh)
             old_inner = old_bounds["max_y_cm"] if side == "left" else old_bounds["min_y_cm"]
             new_inner = new_bounds["max_y_cm"] if side == "left" else new_bounds["min_y_cm"]
-            flagged = (max(0.0, new_inner) > max(0.0, old_inner) + 0.01 if side == "left"
-                       else max(0.0, -new_inner) > max(0.0, -old_inner) + 0.01)
             overreach_cm = max(0.0, (new_inner - old_inner) if side == "left"
                                else (old_inner - new_inner))
+            flagged = overreach_cm > tolerance_cm
             adjudication = ("kept_old" if keep_entry is not None else
-                            "within_tolerance" if flagged and overreach_cm <= tolerance_cm else
+                            "within_tolerance" if 0.0 < overreach_cm <= tolerance_cm else
                             "unexplained" if flagged else "none")
             row["placement"][side] = {
                 "old_y_cm": float(original[side]["local_transform"]["location"][1]),
@@ -124,8 +123,9 @@ def run(config_path=None):
             row["changed_sides"].append(side)
             if flagged:
                 overreach_flags.append(flag)
-                (within_tolerance if adjudication == "within_tolerance"
-                 else unexplained_overreach).append(flag)
+                unexplained_overreach.append(flag)
+            elif adjudication == "within_tolerance":
+                within_tolerance.append(flag)
             planned_meshes.add(desired[side])
         top_keep = keep_by_key.get((original["cue_guid"], "top"))
         if top_keep is not None:
