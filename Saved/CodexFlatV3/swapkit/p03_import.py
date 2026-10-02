@@ -15,6 +15,7 @@ PROJECT = os.path.normpath(unreal.Paths.convert_relative_path_to_full(unreal.Pat
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 import common as c
+import import_failure_cleanup as ifc
 
 
 def load_slot_a_library():
@@ -134,6 +135,8 @@ def main(config_path=None):
     report = {"run": run, "mode": "p03_import", "status": "RUNNING"}
     final_status = "FAIL"
     saved_roots = []
+    tracker = None
+    cleanup_result = {"status": "NOT_NEEDED", "created": [], "deleted": []}
     try:
         c.assert_context(config, clean=True)
         slot_a = load_slot_a_library()
@@ -143,12 +146,16 @@ def main(config_path=None):
         common, common_hashes = slot_a.common_inventory(assets)
         planned = slot_a.all_planned_paths(assets, common)
         existing_assets, existing_common = slot_a.destination_state(assets, common)
+        tracker = ifc.ImportRunTracker("P03", planned, c.census(), c.census)
+        tracker.install_deferred_cleanup(slot_a)
         report.update({"source_count": len(assets), "socket_contracts": contracts,
                        "common_hashes": common_hashes, "planned_packages": planned,
                        "existing_assets_at_resume": sorted(existing_assets),
-                       "existing_common_at_resume": sorted(existing_common)})
+                       "existing_common_at_resume": sorted(existing_common),
+                       "cleanup_tracking": tracker.start_report()})
         common_reports, common_paths, failures = slot_a.import_common_textures(
             common, existing_common)
+        tracker.observe_created()
         if failures:
             raise RuntimeError("P03_COMMON_IMPORT_FAIL|" + json.dumps(failures))
         passing_rows = []
@@ -163,21 +170,24 @@ def main(config_path=None):
                                             "readback": slot_a.verify_asset_fresh(row)}
                 else:
                     asset_reports[owner] = slot_a.import_asset(row)
+                    tracker.observe_created()
                     asset_reports[owner]["strategy"] = "imported_new"
                     new_rows.append(row)
                 passing_rows.append(row)
                 unreal.log("FLATV3_P03_IMPORT_ASSET_GATE_PASS run=%s asset=%s" % (run, owner))
             except Exception as exc:
-                cleanup = (slot_a.delete_unsaved_created(slot_a.asset_paths(row))
-                           if imported_new else [])
+                tracker.observe_created()
                 failures.append({"owner": owner, "gate": "ASSET", "error": str(exc),
-                                 "traceback": traceback.format_exc(),
-                                 "cleanup_failures": cleanup})
+                                  "traceback": traceback.format_exc(),
+                                  "cleanup_deferred_to_run_boundary": imported_new})
                 unreal.log_error("FLATV3_P03_IMPORT_ASSET_GATE_FAIL run=%s asset=%s reason=%s" %
                                  (run, owner, str(exc).replace("\n", "\\n")))
+                raise RuntimeError("P03_ASSET_GATE_FAIL|asset=%s|reason=%s" %
+                                   (owner, str(exc))) from exc
         save_paths = sorted(common_paths + [path for row in new_rows
                                             for path in slot_a.asset_paths(row)])
         if save_paths:
+            tracker.observe_created()
             slot_a.save_narrow(save_paths)
             saved_roots.extend(save_paths)
             slot_a.pilot.reload_new_packages(save_paths)
@@ -201,19 +211,29 @@ def main(config_path=None):
         final_status = "OK"
         return report
     except Exception as exc:
+        original_traceback = traceback.format_exc()
+        cleanup_result, cleanup_error = ifc.cleanup_after_failure(
+            "P03", run, tracker, c.census)
+        if cleanup_error is not None:
+            final_status = "CLEANUP_FAIL"
+            raise cleanup_error from exc
+        final_status = "FAIL_CLEANED"
         report.update({"status": "FAIL", "reason": str(exc),
-                       "traceback": traceback.format_exc(), "census": c.census(),
-                       "saved_roots": sorted(set(saved_roots))})
+                       "traceback": original_traceback, "census": c.census(),
+                       "saved_roots": sorted(set(saved_roots)),
+                       "cleanup": cleanup_result})
         c.write_json(config, "p03_import", report, run=run, failure=True)
         unreal.log_error("FLATV3_P03_IMPORT_FAIL run=%s reason=%s census=%s" %
                          (run, str(exc).replace("\n", "\\n"),
                           json.dumps(c.census(), separators=(",", ":"), sort_keys=True)))
         raise
     finally:
-        unreal.log("FLATV3_SLOT_RELEASED run=%s status=%s saved_count=%d saved_roots=%s census=%s" %
+        unreal.log("FLATV3_SLOT_RELEASED run=%s status=%s saved_count=%d saved_roots=%s "
+                   "cleanup=%s census=%s" %
                    (run, final_status, len(set(saved_roots)),
-                    json.dumps(sorted(set(saved_roots)), separators=(",", ":")),
-                    json.dumps(c.census(), separators=(",", ":"), sort_keys=True)))
+                     json.dumps(sorted(set(saved_roots)), separators=(",", ":")),
+                     json.dumps(cleanup_result, separators=(",", ":"), sort_keys=True),
+                     json.dumps(c.census(), separators=(",", ":"), sort_keys=True)))
 
 
 if __name__ == "__main__":

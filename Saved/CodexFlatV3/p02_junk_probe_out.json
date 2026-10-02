@@ -1,0 +1,61 @@
+{
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "pie": false,
+ "census": {
+  "content": [
+   "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_SET01_C",
+   "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedPlywood_NormalDX",
+   "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedPlywood_Roughness",
+   "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSoftwood_Color",
+   "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSoftwood_NormalDX",
+   "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSoftwood_Roughness",
+   "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSteel_Color"
+  ],
+  "maps": []
+ },
+ "assets": {
+  "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_SET01_C": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "StaticMesh"
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedPlywood_NormalDX": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "Texture2D"
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedPlywood_Roughness": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "Texture2D"
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSoftwood_Color": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "Texture2D"
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSoftwood_NormalDX": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "Texture2D"
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSoftwood_Roughness": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "Texture2D"
+  },
+  "/Game/Scenes/Wings/FlatV3/Passage02/Textures/Aged/Common/T_FlatV3_AgedSteel_Color": {
+   "on_disk": false,
+   "referencers": [],
+   "in_registry": true,
+   "class": "Texture2D"
+  }
+ },
+ "safe_to_discard": true
+}

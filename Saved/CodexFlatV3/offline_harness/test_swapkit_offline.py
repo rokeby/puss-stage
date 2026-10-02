@@ -322,6 +322,106 @@ def record(name, polarity, expected, passed, detail):
                     "passed": bool(passed), "detail": str(detail)})
 
 
+def cleanup_census():
+    return {
+        "content": sorted(fake_unreal.STATE.content_dirty),
+        "maps": sorted(fake_unreal.STATE.map_dirty),
+    }
+
+
+def cleanup_fixture_state(paths):
+    fake_unreal.STATE = fake_unreal.State()
+    for path in paths:
+        fake_unreal.STATE.assets[path] = fake_unreal.Asset(path)
+        fake_unreal.STATE.content_dirty.add(path)
+
+
+def case_import_failure_cleanup_controls():
+    helper = load("flatv3_import_failure_cleanup_harness", KIT / "import_failure_cleanup.py")
+    helper.package_exists_on_disk = lambda path: path in fake_unreal.STATE.disk_packages
+    paths = [
+        "/Game/Test/StaticMeshes/SM_RunCreated",
+        "/Game/Test/Materials/Instances/MI_RunCreated",
+        "/Game/Test/Textures/T_RunCreated",
+    ]
+
+    fake_unreal.STATE = fake_unreal.State()
+    tracker = helper.ImportRunTracker("P02", paths, cleanup_census(), cleanup_census)
+    cleanup_fixture_state(paths)
+    fake_unreal.STATE.referencers[paths[1]] = {paths[0]}
+    fake_unreal.STATE.referencers[paths[2]] = {paths[1]}
+    try:
+        raise RuntimeError("PLANTED_AFTER_THREE_PACKAGES")
+    except RuntimeError:
+        result, cleanup_error = helper.cleanup_after_failure(
+            "P02", "HARNESS-CLEAN", tracker, cleanup_census)
+    expected_order = [paths[0], paths[1], paths[2]]
+    passed = (cleanup_error is None and result["status"] == "CLEAN" and
+              result["delete_order"] == expected_order and
+              fake_unreal.STATE.deleted_assets == expected_order and
+              cleanup_census() == {"content": [], "maps": []})
+    record("import failure discards exact run set", "+", "clean census", passed,
+           "status=%s deleted=%s census=%s" %
+           (result["status"], result.get("deleted"), cleanup_census()))
+
+    fake_unreal.STATE = fake_unreal.State()
+    tracker = helper.ImportRunTracker("P02", paths, cleanup_census(), cleanup_census)
+    cleanup_fixture_state(paths)
+    tracker.observe_created()
+    fake_unreal.STATE.disk_packages.add(paths[2])
+    result, cleanup_error = helper.cleanup_after_failure(
+        "P02", "HARNESS-ON-DISK", tracker, cleanup_census)
+    passed = (cleanup_error is not None and "CLEANUP_ON_DISK" in str(cleanup_error) and
+              paths[2] in fake_unreal.STATE.assets and not fake_unreal.STATE.deleted_assets and
+              any("FLATV3_P02_IMPORT_CLEANUP_FAIL" in line and
+                  "CLEANUP_ON_DISK" in line for line in fake_unreal.STATE.logs))
+    record("cleanup preserves on-disk package", "-", "CLEANUP_ON_DISK", passed,
+           "reason=%s deleted=%s remaining=%s" %
+           (result.get("reason"), fake_unreal.STATE.deleted_assets, cleanup_census()))
+
+    fake_unreal.STATE = fake_unreal.State()
+    tracker = helper.ImportRunTracker("P02", paths, cleanup_census(), cleanup_census)
+    cleanup_fixture_state(paths)
+    tracker.observe_created()
+    outside = "/Game/Existing/OutsideReferencer"
+    fake_unreal.STATE.referencers[paths[2]] = {outside}
+    result, cleanup_error = helper.cleanup_after_failure(
+        "P02", "HARNESS-EXTERNAL-REF", tracker, cleanup_census)
+    passed = (cleanup_error is not None and
+              "CLEANUP_EXTERNAL_REFERENCER" in str(cleanup_error) and
+              outside in str(cleanup_error) and not fake_unreal.STATE.deleted_assets and
+              cleanup_census()["content"] == sorted(paths))
+    record("cleanup blocks external referencer", "-", "CLEANUP_EXTERNAL_REFERENCER",
+           passed, "reason=%s deleted=%s" %
+           (result.get("reason"), fake_unreal.STATE.deleted_assets))
+
+    old = load("flatv3_old_import_failure_boundary", HERE / "old_import_failure_boundary.py")
+    fake_unreal.STATE = fake_unreal.State()
+
+    def planted_old_import():
+        cleanup_fixture_state(paths)
+        raise RuntimeError("PLANTED_AFTER_THREE_PACKAGES")
+
+    try:
+        old.run(planted_old_import)
+    except RuntimeError:
+        pass
+    old_dirty = cleanup_census()
+    record("OLD importer planted failure", "-", "dirty census", old_dirty["content"] == sorted(paths),
+           "dirty=%s" % old_dirty)
+
+    required = ("ImportRunTracker", "install_deferred_cleanup", "cleanup_after_failure",
+                "cleanup=%s")
+    integration = {}
+    for name in ("p02_import.py", "p03_import.py", "p06_import.py"):
+        source = (KIT / name).read_text(encoding="utf-8")
+        integration[name] = [token for token in required if token not in source]
+        if name == "p03_import.py" and "P03_ASSET_GATE_FAIL" not in source:
+            integration[name].append("P03_ASSET_GATE_FAIL")
+    record("all Flat V3 importers use run cleanup", "+", "3 integrated", not any(integration.values()),
+           integration)
+
+
 def placed_side_gate(verifier, label, side, mesh, base, frame):
     bounds = verifier.bounds_in_frame(mesh, base, frame)
     centre_y = (bounds["min"][1] + bounds["max"][1]) * 0.5
@@ -955,6 +1055,7 @@ def main():
         case_duplicate_guid(*configs[0], folder)
         case_missing_capture_label(*configs[0], folder)
         case_static_tokens()
+        case_import_failure_cleanup_controls()
         case_p03_import_sources()
         case_p02_import_sources()
         case_p02_industrial_socket_admission()

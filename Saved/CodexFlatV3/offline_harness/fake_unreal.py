@@ -10,6 +10,10 @@ REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")
 class State:
     def __init__(self):
         self.assets = {}
+        self.disk_packages = set()
+        self.referencers = {}
+        self.deleted_assets = []
+        self.delete_failures = set()
         self.content_dirty = set()
         self.map_dirty = set()
         self.logs = []
@@ -125,6 +129,9 @@ class Asset:
     def get_path_name(self):
         return self.path
 
+    def get_outermost(self):
+        return Package(self.path)
+
 
 class StaticMesh(Asset):
     def __init__(self, path, minimum=None, maximum=None):
@@ -229,6 +236,10 @@ class Paths:
     def project_log_dir():
         return os.path.join(REPO, "Saved", "Logs")
 
+    @staticmethod
+    def project_content_dir():
+        return os.path.join(REPO, "Content")
+
 
 class EditorAssetLibrary:
     @staticmethod
@@ -236,6 +247,25 @@ class EditorAssetLibrary:
         if path is None:
             raise TypeError("Cannot nativize NoneType as AssetPath")
         return STATE.assets.get(path)
+
+    @staticmethod
+    def does_asset_exist(path):
+        return path in STATE.assets or path in STATE.disk_packages
+
+    @staticmethod
+    def find_package_referencers_for_asset(path, load_assets_to_confirm=False):
+        del load_assets_to_confirm
+        return sorted(STATE.referencers.get(path, set()))
+
+    @staticmethod
+    def delete_loaded_asset(asset):
+        path = str(asset.get_outermost().get_name()).split(".", 1)[0]
+        if path in STATE.delete_failures or path not in STATE.assets:
+            return False
+        del STATE.assets[path]
+        STATE.content_dirty.discard(path)
+        STATE.deleted_assets.append(path)
+        return True
 
     @staticmethod
     def save_asset(path, only_if_is_dirty=False):
@@ -286,6 +316,12 @@ def get_editor_subsystem(kind):
     if kind is LevelEditorSubsystem:
         return _LEVEL
     raise KeyError(kind)
+
+
+def find_object(outer, name, type=None):
+    del outer, type
+    package = str(name).split(".", 1)[0]
+    return STATE.assets.get(package)
 
 
 class EnumValue:
