@@ -47,6 +47,12 @@ deteriorates by other means (scaffold, peel, fire, monochrome).
 
 ## P02 — forest path to the shrine
 
+- **REDO (Gary, 2 Oct):** "P02 needs a redo and rethink, maybe using the chainlink
+  fence and some more lurid plants". The existing ~60 plant wings are NOT
+  rebuilt. New family: chain-link fence sections (tarp, barbed wire; Blender,
+  `BlenderTest/FenceShutter`) OVERGROWN with lurid plants, alternating with free
+  lurid plant masses; the brown piping can still increase toward the shrine.
+
 - **Mood:** darker, continuing "the uncanny animals story at the pond, next to
   the train wreck"; a "magic realist anthropocene feel of these mundane
   judgement forest creatures."
