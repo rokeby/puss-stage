@@ -172,3 +172,11 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
   - Codex adds a 21-row layout draft, with all pyres marked for Effects (`DerivedAssets/FlatV3/Overnight/P03_LAYOUT_DRAFT.md`); it is unreviewed.
   - Contact sheet: `DerivedAssets/FlatV3/Overnight/P03/CONTACT_SHEET.jpg`.
   - The swap is approved, but it needs an editor slot after Conductor 4's P04 decision.
+- **P02 industrial, final automated pass (v2 sheets in `P02Industrial/ReviewSheets/*_v2.png`):**
+  - **measured:** validation still passes 8/8.
+  - **Conductor's read:**
+    - The tarp is now grimy khaki; good.
+    - The shutter slats are good, but the header box reads as wood.
+    - The duct/vent pair is still the weakest: blocky, and the backs read as plank.
+  - **Options for Gary:** drop DuctVent from the P02 layout, or re-skin it from his `industrial_unit.jpg` photo as a billboard flat. No further automated look rounds.
+  - **measured (per Codex):** the 50 P06-named files the earlier pass touched were P02-local review copies; no P06 sources changed.
