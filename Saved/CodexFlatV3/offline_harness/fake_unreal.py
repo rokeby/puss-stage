@@ -50,18 +50,46 @@ class Rotator:
 class Rotation:
     def __init__(self, rotator=None):
         self._rotator = rotator or Rotator()
-        self.x = self.y = self.z = 0.0
-        self.w = 1.0
+        half_roll = math.radians(self._rotator.roll) * 0.5
+        half_pitch = math.radians(self._rotator.pitch) * 0.5
+        half_yaw = math.radians(self._rotator.yaw) * 0.5
+        cr, sr = math.cos(half_roll), math.sin(half_roll)
+        cp, sp = math.cos(half_pitch), math.sin(half_pitch)
+        cy, sy = math.cos(half_yaw), math.sin(half_yaw)
+        self.x = sr * cp * cy - cr * sp * sy
+        self.y = cr * sp * cy + sr * cp * sy
+        self.z = cr * cp * sy - sr * sp * cy
+        self.w = cr * cp * cy + sr * sp * sy
 
     def rotator(self):
         return self._rotator
 
     def rotate_vector(self, value):
-        if any(abs(value) > 0.000001 for value in
-               (self._rotator.roll, self._rotator.pitch, self._rotator.yaw)):
-            # The harness only performs spatial gates on identity-rotation placed refs.
-            return value
-        return value
+        tx = 2.0 * (self.y * value.z - self.z * value.y)
+        ty = 2.0 * (self.z * value.x - self.x * value.z)
+        tz = 2.0 * (self.x * value.y - self.y * value.x)
+        return Vector(value.x + self.w * tx + (self.y * tz - self.z * ty),
+                      value.y + self.w * ty + (self.z * tx - self.x * tz),
+                      value.z + self.w * tz + (self.x * ty - self.y * tx))
+
+    def inverse_rotate_vector(self, value):
+        inverse = Rotation()
+        inverse.x, inverse.y, inverse.z, inverse.w = -self.x, -self.y, -self.z, self.w
+        return inverse.rotate_vector(value)
+
+
+class Quat(Rotation):
+    def __init__(self, x=0.0, y=0.0, z=0.0, w=1.0):
+        self.x, self.y, self.z, self.w = float(x), float(y), float(z), float(w)
+        sin_roll_cos_pitch = 2.0 * (self.w * self.x + self.y * self.z)
+        cos_roll_cos_pitch = 1.0 - 2.0 * (self.x * self.x + self.y * self.y)
+        sin_pitch = max(-1.0, min(1.0, 2.0 * (self.w * self.y - self.z * self.x)))
+        sin_yaw_cos_pitch = 2.0 * (self.w * self.z + self.x * self.y)
+        cos_yaw_cos_pitch = 1.0 - 2.0 * (self.y * self.y + self.z * self.z)
+        self._rotator = Rotator(
+            roll=math.degrees(math.atan2(sin_roll_cos_pitch, cos_roll_cos_pitch)),
+            pitch=math.degrees(math.asin(sin_pitch)),
+            yaw=math.degrees(math.atan2(sin_yaw_cos_pitch, cos_yaw_cos_pitch)))
 
 
 class Transform:
@@ -77,8 +105,9 @@ class Transform:
 
     def inverse_transform_location(self, point):
         delta = point - self.translation
-        return Vector(delta.x / self.scale3d.x, delta.y / self.scale3d.y,
-                      delta.z / self.scale3d.z)
+        unrotated = self.rotation.inverse_rotate_vector(delta)
+        return Vector(unrotated.x / self.scale3d.x, unrotated.y / self.scale3d.y,
+                      unrotated.z / self.scale3d.z)
 
 
 class Box:

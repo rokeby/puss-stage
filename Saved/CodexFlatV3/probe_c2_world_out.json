@@ -1,0 +1,527 @@
+{
+ "122": {
+  "sides": {
+   "<INFINITYPANELSIDE.LEFT: 0>": {
+    "mesh": "SM_FlatV3_P05_CloudRef01_L_L",
+    "world_min": [
+     234.0,
+     319629.1,
+     -100.0
+    ],
+    "world_max": [
+     253.8,
+     319870.5,
+     420.0
+    ],
+    "centre": [
+     243.9,
+     319749.8,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "instance_loc": [
+     250.0,
+     319629.13,
+     0.0
+    ],
+    "base_loc": [
+     250.0,
+     319629.13,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.RIGHT: 1>": {
+    "mesh": "SM_FlatV3_P05_CloudRef01_R_R",
+    "world_min": [
+     233.9,
+     320107.4,
+     -100.0
+    ],
+    "world_max": [
+     253.8,
+     320392.6,
+     420.0
+    ],
+    "centre": [
+     243.9,
+     320250.0,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "instance_loc": [
+     250.0,
+     320392.6,
+     0.0
+    ],
+    "base_loc": [
+     250.0,
+     320392.6,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.TOP: 2>": {
+    "mesh": "SM_CloudCeilingLarge_01_C",
+    "world_min": [
+     305.0,
+     319629.4,
+     600.0
+    ],
+    "world_max": [
+     315.0,
+     320370.6,
+     800.0
+    ],
+    "centre": [
+     310.0,
+     320000.0,
+     700.0
+    ],
+    "inward": [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    "instance_loc": [
+     310.0,
+     320000.0,
+     600.0
+    ],
+    "base_loc": [
+     310.0,
+     320000.0,
+     600.0
+    ]
+   }
+  },
+  "right_minus_left_dot_left_inward": 500.2,
+  "left_minus_right_dot_right_inward": 500.2
+ },
+ "123": {
+  "sides": {
+   "<INFINITYPANELSIDE.LEFT: 0>": {
+    "mesh": "SM_CloudRef02_L",
+    "world_min": [
+     645.0,
+     319600.4,
+     200.0
+    ],
+    "world_max": [
+     655.0,
+     319899.6,
+     600.0
+    ],
+    "centre": [
+     650.0,
+     319750.0,
+     400.0
+    ],
+    "inward": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "instance_loc": [
+     650.0,
+     319750.0,
+     200.0
+    ],
+    "base_loc": [
+     650.0,
+     319750.0,
+     200.0
+    ]
+   },
+   "<INFINITYPANELSIDE.RIGHT: 1>": {
+    "mesh": "SM_FlatV3_P05_CloudRef02_R_R",
+    "world_min": [
+     733.9,
+     320117.1,
+     -100.0
+    ],
+    "world_max": [
+     753.8,
+     320382.6,
+     420.0
+    ],
+    "centre": [
+     743.9,
+     320249.9,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "instance_loc": [
+     750.0,
+     320382.61,
+     0.0
+    ],
+    "base_loc": [
+     750.0,
+     320382.61,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.TOP: 2>": {
+    "mesh": "SM_CloudCeilingLarge_02_C",
+    "world_min": [
+     805.0,
+     319706.5,
+     600.0
+    ],
+    "world_max": [
+     815.0,
+     320293.5,
+     800.0
+    ],
+    "centre": [
+     810.0,
+     320000.0,
+     700.0
+    ],
+    "inward": [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    "instance_loc": [
+     810.0,
+     320000.0,
+     600.0
+    ],
+    "base_loc": [
+     810.0,
+     320000.0,
+     600.0
+    ]
+   }
+  },
+  "right_minus_left_dot_left_inward": 499.9,
+  "left_minus_right_dot_right_inward": 499.9
+ },
+ "124": {
+  "sides": {
+   "<INFINITYPANELSIDE.LEFT: 0>": {
+    "mesh": "SM_FlatV3_P05_CloudRef03_L_L",
+    "world_min": [
+     1234.0,
+     319359.7,
+     -100.0
+    ],
+    "world_max": [
+     1253.8,
+     320141.1,
+     420.0
+    ],
+    "centre": [
+     1243.9,
+     319750.4,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "instance_loc": [
+     1250.0,
+     319359.66,
+     0.0
+    ],
+    "base_loc": [
+     1250.0,
+     319359.66,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.RIGHT: 1>": {
+    "mesh": "SM_CloudRef03_R",
+    "world_min": [
+     1245.0,
+     320080.0,
+     100.0
+    ],
+    "world_max": [
+     1255.0,
+     320420.0,
+     300.0
+    ],
+    "centre": [
+     1250.0,
+     320250.0,
+     200.0
+    ],
+    "inward": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "instance_loc": [
+     1250.0,
+     320250.0,
+     100.0
+    ],
+    "base_loc": [
+     1250.0,
+     320250.0,
+     100.0
+    ]
+   },
+   "<INFINITYPANELSIDE.TOP: 2>": {
+    "mesh": "SM_CloudCeilingLarge_03_C",
+    "world_min": [
+     1305.0,
+     319729.3,
+     600.0
+    ],
+    "world_max": [
+     1315.0,
+     320270.7,
+     800.0
+    ],
+    "centre": [
+     1310.0,
+     320000.0,
+     700.0
+    ],
+    "inward": [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    "instance_loc": [
+     1310.0,
+     320000.0,
+     600.0
+    ],
+    "base_loc": [
+     1310.0,
+     320000.0,
+     600.0
+    ]
+   }
+  },
+  "right_minus_left_dot_left_inward": 499.6,
+  "left_minus_right_dot_right_inward": 499.6
+ },
+ "131": {
+  "sides": {
+   "<INFINITYPANELSIDE.LEFT: 0>": {
+    "mesh": "SM_CloudRef02_L",
+    "world_min": [
+     4645.0,
+     319600.4,
+     200.0
+    ],
+    "world_max": [
+     4655.0,
+     319899.6,
+     600.0
+    ],
+    "centre": [
+     4650.0,
+     319750.0,
+     400.0
+    ],
+    "inward": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "instance_loc": [
+     4650.0,
+     319750.0,
+     200.0
+    ],
+    "base_loc": [
+     4650.0,
+     319750.0,
+     200.0
+    ]
+   },
+   "<INFINITYPANELSIDE.RIGHT: 1>": {
+    "mesh": "SM_FlatV3_P05_CloudRef02_R_R",
+    "world_min": [
+     4733.9,
+     320117.1,
+     -100.0
+    ],
+    "world_max": [
+     4753.8,
+     320382.6,
+     420.0
+    ],
+    "centre": [
+     4743.9,
+     320249.9,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "instance_loc": [
+     4750.0,
+     320382.61,
+     0.0
+    ],
+    "base_loc": [
+     4750.0,
+     320382.61,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.TOP: 2>": {
+    "mesh": "SM_CloudCeilingLarge_02_C",
+    "world_min": [
+     4805.0,
+     319706.5,
+     600.0
+    ],
+    "world_max": [
+     4815.0,
+     320293.5,
+     800.0
+    ],
+    "centre": [
+     4810.0,
+     320000.0,
+     700.0
+    ],
+    "inward": [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    "instance_loc": [
+     4810.0,
+     320000.0,
+     600.0
+    ],
+    "base_loc": [
+     4810.0,
+     320000.0,
+     600.0
+    ]
+   }
+  },
+  "right_minus_left_dot_left_inward": 499.9,
+  "left_minus_right_dot_right_inward": 499.9
+ },
+ "132": {
+  "sides": {
+   "<INFINITYPANELSIDE.LEFT: 0>": {
+    "mesh": "SM_FlatV3_P05_CloudRef03_L_L",
+    "world_min": [
+     5233.9,
+     319359.7,
+     -100.0
+    ],
+    "world_max": [
+     5253.8,
+     320141.1,
+     420.0
+    ],
+    "centre": [
+     5243.9,
+     319750.4,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "instance_loc": [
+     5250.0,
+     319359.66,
+     0.0
+    ],
+    "base_loc": [
+     5250.0,
+     319359.66,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.RIGHT: 1>": {
+    "mesh": "SM_FlatV3_P05_CloudRef03_R_R",
+    "world_min": [
+     5233.9,
+     319910.9,
+     -100.0
+    ],
+    "world_max": [
+     5253.8,
+     320589.9,
+     420.0
+    ],
+    "centre": [
+     5243.9,
+     320250.4,
+     160.0
+    ],
+    "inward": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "instance_loc": [
+     5250.0,
+     320589.92,
+     0.0
+    ],
+    "base_loc": [
+     5250.0,
+     320589.92,
+     0.0
+    ]
+   },
+   "<INFINITYPANELSIDE.TOP: 2>": {
+    "mesh": "SM_CloudCeilingLarge_03_C",
+    "world_min": [
+     5305.0,
+     319729.3,
+     600.0
+    ],
+    "world_max": [
+     5315.0,
+     320270.7,
+     800.0
+    ],
+    "centre": [
+     5310.0,
+     320000.0,
+     700.0
+    ],
+    "inward": [
+     0.0,
+     0.0,
+     -1.0
+    ],
+    "instance_loc": [
+     5310.0,
+     320000.0,
+     600.0
+    ],
+    "base_loc": [
+     5310.0,
+     320000.0,
+     600.0
+    ]
+   }
+  },
+  "right_minus_left_dot_left_inward": 500.0,
+  "left_minus_right_dot_right_inward": 500.0
+ }
+}

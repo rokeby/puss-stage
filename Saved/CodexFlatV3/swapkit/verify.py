@@ -65,13 +65,165 @@ def refs_for(actor, cue_guid):
     return {key: values[0] for key, values in result.items()}
 
 
-def pair_frame(ref, left_local):
-    base = ref.get_editor_property("base_world_transform")
-    local = unreal.Vector(*left_local)
-    scaled = unreal.Vector(local.x * base.scale3d.x, local.y * base.scale3d.y,
-                           local.z * base.scale3d.z)
-    location = base.translation - base.rotation.rotate_vector(scaled)
-    return unreal.Transform(location=location, rotation=base.rotation.rotator(), scale=base.scale3d)
+def quat_tuple(rotation):
+    return (float(rotation.x), float(rotation.y), float(rotation.z), float(rotation.w))
+
+
+def quat_normalized(value):
+    length = math.sqrt(sum(component * component for component in value))
+    if length <= 0.0000001:
+        raise RuntimeError("PAIR_FRAME_ZERO_QUATERNION")
+    return tuple(component / length for component in value)
+
+
+def quat_multiply(left, right):
+    lx, ly, lz, lw = left
+    rx, ry, rz, rw = right
+    return quat_normalized((
+        lw * rx + lx * rw + ly * rz - lz * ry,
+        lw * ry - lx * rz + ly * rw + lz * rx,
+        lw * rz + lx * ry - ly * rx + lz * rw,
+        lw * rw - lx * rx - ly * ry - lz * rz,
+    ))
+
+
+def quat_inverse(value):
+    x, y, z, w = quat_normalized(value)
+    return (-x, -y, -z, w)
+
+
+def quat_rotate(value, vector):
+    x, y, z, w = quat_normalized(value)
+    vx, vy, vz = vector
+    tx = 2.0 * (y * vz - z * vy)
+    ty = 2.0 * (z * vx - x * vz)
+    tz = 2.0 * (x * vy - y * vx)
+    return (vx + w * tx + (y * tz - z * ty),
+            vy + w * ty + (z * tx - x * tz),
+            vz + w * tz + (x * ty - y * tx))
+
+
+def transform_parts(value):
+    return {"location": (float(value.translation.x), float(value.translation.y),
+                         float(value.translation.z)),
+            "rotation": quat_tuple(value.rotation),
+            "scale": (float(value.scale3d.x), float(value.scale3d.y),
+                      float(value.scale3d.z))}
+
+
+def compose_parts(left, right):
+    """Match UE's Left * Right FTransform composition (Left is applied first)."""
+    scaled_left = tuple(left["location"][axis] * right["scale"][axis]
+                        for axis in range(3))
+    rotated_left = quat_rotate(right["rotation"], scaled_left)
+    return {
+        "location": tuple(right["location"][axis] + rotated_left[axis]
+                          for axis in range(3)),
+        "rotation": quat_multiply(right["rotation"], left["rotation"]),
+        "scale": tuple(left["scale"][axis] * right["scale"][axis]
+                       for axis in range(3)),
+    }
+
+
+def identity_parts(scale=(1.0, 1.0, 1.0)):
+    return {"location": (0.0, 0.0, 0.0), "rotation": (0.0, 0.0, 0.0, 1.0),
+            "scale": tuple(float(value) for value in scale)}
+
+
+def resolved_panel_prefix(panel_record, library_by_mesh):
+    """Rebuild Image * Facing * Local exactly as materialization declares it."""
+    image = identity_parts((1.0, -1.0, 1.0) if panel_record["flip_image_horizontally"]
+                           else (1.0, 1.0, 1.0))
+    entry = library_by_mesh.get(panel_record["mesh"])
+    rotate = "ROTATE180_AROUND_UP" in panel_record["facing_policy"].upper()
+    if "AUTO_BY_ROLE" in panel_record["facing_policy"].upper() and entry is not None:
+        rotate = "NEGATIVE_X" in str(entry.get_editor_property("front_axis")).upper()
+    facing = transform_parts(unreal.Transform(
+        rotation=unreal.Rotator(roll=0.0, pitch=0.0, yaw=180.0 if rotate else 0.0)))
+    if entry is not None:
+        placement = entry.get_editor_property("placement_adjustment")
+        placement_scale = placement.scale3d
+        mirrored = float(placement_scale.x * placement_scale.y * placement_scale.z) < 0.0
+        if not mirrored or bool(entry.get_editor_property("photographic_mirror_approved")):
+            facing = compose_parts(transform_parts(placement), facing)
+    local = transform_parts(c.transform_from_plain(panel_record["local_transform"]))
+    return compose_parts(compose_parts(image, facing), local)
+
+
+def invert_panel_frame(ref, panel_record, library_by_mesh):
+    """Recover PairWorld from BaseWorld = Image * Facing * Local * PairWorld."""
+    world = transform_parts(ref.get_editor_property("base_world_transform"))
+    prefix = resolved_panel_prefix(panel_record, library_by_mesh)
+    if any(abs(value) <= 0.0000001 for value in prefix["scale"]):
+        raise RuntimeError("PAIR_FRAME_ZERO_PANEL_SCALE")
+    pair_scale = tuple(world["scale"][axis] / prefix["scale"][axis]
+                       for axis in range(3))
+    pair_rotation = quat_multiply(world["rotation"], quat_inverse(prefix["rotation"]))
+    scaled_prefix = tuple(prefix["location"][axis] * pair_scale[axis]
+                          for axis in range(3))
+    rotated_prefix = quat_rotate(pair_rotation, scaled_prefix)
+    pair_location = tuple(world["location"][axis] - rotated_prefix[axis]
+                          for axis in range(3))
+    return unreal.Transform(location=unreal.Vector(*pair_location),
+                            rotation=unreal.Quat(*pair_rotation),
+                            scale=unreal.Vector(*pair_scale))
+
+
+def frames_close(left, right, location_tolerance=0.05, scale_tolerance=0.0001,
+                 quaternion_tolerance=0.000001):
+    left_parts, right_parts = transform_parts(left), transform_parts(right)
+    if any(abs(left_parts["location"][axis] - right_parts["location"][axis]) >
+           location_tolerance for axis in range(3)):
+        return False
+    if any(abs(left_parts["scale"][axis] - right_parts["scale"][axis]) >
+           scale_tolerance for axis in range(3)):
+        return False
+    dot = abs(sum(left_parts["rotation"][axis] * right_parts["rotation"][axis]
+                  for axis in range(4)))
+    return abs(1.0 - dot) <= quaternion_tolerance
+
+
+def identity_rotation(rotation):
+    return all(abs(((float(value) + 180.0) % 360.0) - 180.0) <= 0.001
+               for value in rotation)
+
+
+def pair_frame(actor, cue, refs, pair, row, library_by_mesh):
+    """Use an exposed PairWorld when available, otherwise invert complete panel prefixes."""
+    derived = {side: invert_panel_frame(
+        refs[side], c.panel_plain(pair.get_editor_property(side)), library_by_mesh)
+        for side in ("left", "right")}
+
+    direct = None
+    resolver = getattr(actor, "get_cue_placement_transforms", None)
+    if callable(resolver):
+        resolved = unwrap(resolver(cue.get_editor_property("cue_guid")), 2)
+        if resolved is not None and len(resolved) == 2:
+            direct = resolved[1]
+
+    source = None
+    if direct is not None:
+        frame = direct
+        source = "actor_pair_transform"
+    else:
+        frame = None
+        for side in ("left", "right"):
+            panel_record = c.panel_plain(pair.get_editor_property(side))
+            if (side in row["changed_sides"] and
+                    "PRESERVE_ASSET" in panel_record["facing_policy"].upper() and
+                    identity_rotation(panel_record["local_transform"]["rotation"])):
+                frame = derived[side]
+                source = "changed_%s_preserve_identity_local_rotation" % side
+                break
+        if frame is None:
+            frame = derived["left"]
+            source = "left_full_panel_inversion"
+
+    for side, side_frame in derived.items():
+        if not frames_close(frame, side_frame):
+            raise RuntimeError("PAIR_FRAME_REF_DISAGREEMENT|label=%s|source=%s|side=%s" %
+                               (row["cue_label"], source, side))
+    return frame, source
 
 
 def tick_resolution(show):
@@ -143,6 +295,16 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
         raise RuntimeError("SHOW_LOAD_FAIL")
     cues = list(show.get_editor_property("cues"))
     actor = c.passage_actor(config, show)
+    library_ref = show.get_editor_property("wing_library")
+    library_path = c.asset_path(library_ref)
+    library = unreal.EditorAssetLibrary.load_asset(library_path) if library_path else None
+    if library is None:
+        raise RuntimeError("WING_LIBRARY_LOAD_FAIL|path=" + str(library_path))
+    library_by_mesh = {}
+    for entry in library.get_editor_property("entries"):
+        entry_mesh = c.asset_path(entry.get_editor_property("mesh"))
+        if entry_mesh:
+            library_by_mesh[entry_mesh] = entry
 
     mesh_gates = {}
     for mesh_path in sorted({row[side]["mesh"] for row in plan["rows"]
@@ -157,6 +319,7 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
 
     placed = []
     pair_frames = {}
+    pair_frame_sources = {}
     for row in plan["rows"]:
         cue = cues[row["cue_index"]]
         original = originals_by_guid[row["cue_guid"]]
@@ -179,9 +342,9 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
                                  original["occurrence_offset"]):
             raise RuntimeError("VERIFY_OCCURRENCE_OFFSET_CHANGED|" + row["cue_label"])
         refs = refs_for(actor, row["cue_guid"])
-        frame = pair_frame(refs["left"], c.panel_plain(pair.get_editor_property("left"))
-                           ["local_transform"]["location"])
+        frame, frame_source = pair_frame(actor, cue, refs, pair, row, library_by_mesh)
         pair_frames[row["cue_guid"]] = frame
+        pair_frame_sources[row["cue_guid"]] = frame_source
         pair_minus_x = frame.rotation.rotate_vector(unreal.Vector(-1.0, 0.0, 0.0))
         for side in ("left", "right"):
             if side not in row["changed_sides"]:
@@ -300,6 +463,7 @@ def run_verify(config_path=None, swap_run=None, verification_run=None,
               "status": "PASS", "rows": len(plan["rows"]), "placed_panels": placed,
               "kept_old_sides": plan.get("kept_old_sides", []),
               "mesh_gates": mesh_gates, "movement": movement,
+              "pair_frame_sources": pair_frame_sources,
               "movement_sample_count": len(movement),
               "movement_phases_each": list(SAMPLE_PHASES),
               "passage_range": [start_frame, end_frame], "capture_plan": capture_plan,

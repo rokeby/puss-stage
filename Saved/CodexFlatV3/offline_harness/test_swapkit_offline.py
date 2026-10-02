@@ -322,6 +322,109 @@ def record(name, polarity, expected, passed, detail):
                     "passed": bool(passed), "detail": str(detail)})
 
 
+def placed_side_gate(verifier, label, side, mesh, base, frame):
+    bounds = verifier.bounds_in_frame(mesh, base, frame)
+    centre_y = (bounds["min"][1] + bounds["max"][1]) * 0.5
+    if (side == "left" and centre_y >= -1.0) or (side == "right" and centre_y <= 1.0):
+        raise RuntimeError("PLACED_SIDE_BOUNDS_FAIL|label=%s|side=%s|bounds=%s" %
+                           (label, side, json.dumps(bounds)))
+    return bounds
+
+
+def old_pair_frame(ref, left_local):
+    """The pre-fix derivation, retained only as an explicit negative control."""
+    base = ref.get_editor_property("base_world_transform")
+    local = fake_unreal.Vector(*left_local)
+    scaled = fake_unreal.Vector(local.x * base.scale3d.x, local.y * base.scale3d.y,
+                                local.z * base.scale3d.z)
+    location = base.translation - base.rotation.rotate_vector(scaled)
+    return fake_unreal.Transform(location=location, rotation=base.rotation.rotator(),
+                                 scale=base.scale3d)
+
+
+def pair_frame_fixture():
+    fake_unreal.STATE = fake_unreal.State()
+    left_path = "/Game/Legacy/P05/SM_CloudRef02_L"
+    right_path = "/Game/Scenes/Wings/FlatV3/Passage05/StaticMeshes/SM_FlatV3_P05_CloudRef02_R_R"
+    left_mesh = fake_unreal.StaticMesh(
+        left_path, fake_unreal.Vector(-50.0, 0.0, -1875.0),
+        fake_unreal.Vector(50.0, 1658.75, 1375.0))
+    right_mesh = fake_unreal.StaticMesh(
+        right_path, fake_unreal.Vector(-5.0, -265.46112060546875, 0.0),
+        fake_unreal.Vector(5.0, 0.0, 1000.0))
+    fake_unreal.STATE.assets[left_path] = left_mesh
+    fake_unreal.STATE.assets[right_path] = right_mesh
+    left_record = {
+        "mesh": left_path, "material_overrides": [],
+        "local_transform": {"location": [-100.0, -250.0, 200.0],
+                            "rotation": [0.0, 0.0, 0.0],
+                            "scale": [1.0, 0.4, 0.4]},
+        "facing_policy": "ROTATE180_AROUND_UP", "flip_image_horizontally": False,
+    }
+    right_record = {
+        "mesh": right_path, "material_overrides": [],
+        "local_transform": {"location": [0.0, 382.61065673828114, 0.0],
+                            "rotation": [0.0, 0.0, 0.0],
+                            "scale": [1.0, 1.0, 1.0]},
+        "facing_policy": "PRESERVE_ASSET", "flip_image_horizontally": False,
+    }
+    pair = fake_unreal.Obj(left=fake_unreal.panel_from(left_record),
+                           right=fake_unreal.panel_from(right_record))
+    cue = fake_unreal.Obj(cue_guid=fake_unreal.Guid("D9809927C9409586DAE008839DE18EF5"))
+    left_ref = fake_unreal.Obj(
+        base_world_transform=fake_unreal.Transform(
+            location=fake_unreal.Vector(-100.0, -250.0, 200.0),
+            rotation=fake_unreal.Rotator(yaw=180.0),
+            scale=fake_unreal.Vector(1.0, 0.4, 0.4)))
+    right_ref = fake_unreal.Obj(
+        base_world_transform=fake_unreal.Transform(
+            location=fake_unreal.Vector(0.0, 382.61065673828114, 0.0)))
+    row = {"cue_index": 123, "cue_label": "P05 Wing 002",
+           "cue_guid": "D9809927C9409586DAE008839DE18EF5",
+           "changed_sides": ["right"], "left": left_record, "right": right_record}
+    return cue, pair, row, {"left": left_ref, "right": right_ref}, right_mesh
+
+
+def case_pair_frame_controls(folder):
+    *_, verifier, _ = modules(folder)
+    cue, pair, row, refs, right_mesh = pair_frame_fixture()
+    frame, source = verifier.pair_frame(None, cue, refs, pair, row, {})
+    try:
+        bounds = placed_side_gate(verifier, row["cue_label"], "right", right_mesh,
+                                  refs["right"].get_editor_property("base_world_transform"), frame)
+        passed = (source == "changed_right_preserve_identity_local_rotation" and
+                  bounds["min"][1] > 1.0)
+        record("P05 cue 123 pair frame", "+", "SUCCEED", passed,
+               "source=%s bounds=%s" % (source, json.dumps(bounds)))
+    except Exception as exc:
+        record("P05 cue 123 pair frame", "+", "SUCCEED", False, exc)
+
+    old_frame = old_pair_frame(
+        refs["left"], row["left"]["local_transform"]["location"])
+    try:
+        placed_side_gate(verifier, row["cue_label"], "right", right_mesh,
+                         refs["right"].get_editor_property("base_world_transform"), old_frame)
+    except RuntimeError as exc:
+        record("old P05 pair frame", "-", "PLACED_SIDE_BOUNDS_FAIL",
+               "PLACED_SIDE_BOUNDS_FAIL" in str(exc), exc)
+    else:
+        record("old P05 pair frame", "-", "PLACED_SIDE_BOUNDS_FAIL", False,
+               "old derivation unexpectedly accepted")
+
+    bad_refs = dict(refs)
+    bad_refs["right"] = fake_unreal.Obj(
+        base_world_transform=fake_unreal.Transform(
+            location=fake_unreal.Vector(0.0, -382.61065673828114, 0.0)))
+    try:
+        verifier.pair_frame(None, cue, bad_refs, pair, row, {})
+    except RuntimeError as exc:
+        record("genuine negative-Y right panel", "-", "FAIL",
+               "PAIR_FRAME_REF_DISAGREEMENT" in str(exc), exc)
+    else:
+        record("genuine negative-Y right panel", "-", "FAIL", False,
+               "misplaced right panel unexpectedly accepted")
+
+
 def run_positive(config_path, config, folder):
     common, preflight, dry, revert, apply, verify, verify_saved = modules(folder, config)
     reset_for_config(config)
@@ -809,6 +912,7 @@ def main():
             configs.append(stage_config(KIT / name, folder))
         for path, config in configs:
             case_positive("swapkit " + config["passage"], path, config, folder)
+        case_pair_frame_controls(folder)
         case_zero_overreach_tolerance(configs[0][1], folder)
         case_unknown_keep_old_guid(configs[0][1], folder)
         case_verify_kept_old_mutation(*configs[0], folder)

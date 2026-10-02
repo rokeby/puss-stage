@@ -14,7 +14,7 @@
     "DA_InfinityStage_V1Show.uasset",
     "L_InfinityStage_V1VerticalSlice.umap"
   ],
-  "required_previous_marker": "FLATV3_C_OK",
+  "required_previous_marker": "FLATV3_C2_OK",
   "success_marker": "FLATV3_D_OK",
   "verify_token": "InfinityStage.Editor.SavedMasterMatchesShow Test Completed. Result={Success}",
   "expected_occurrence_count": 48,
