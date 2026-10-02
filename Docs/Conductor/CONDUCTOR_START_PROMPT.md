@@ -112,6 +112,9 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   the song VAMP tool dry pass (spec Saved/CodexConductor/specs/S3_VAMP_ORBIT.md; log
   Saved/CodexRuns/s3_vamp_pass1.log): markers 3480/4200 + a 30 s, 2 m orbit on S3 Shot B07. Review, then apply +
   SavedMasterMatchesShow + SceneCutBindingsResolve. Light dimming in the vamp = Gary's lighting pass.
+  UPDATE 01:42: vamp DRY RUN CLEAN (S3_VAMP_DRY_RUN_OK run=014200, 721 keys, seam 0.0 cm/0.0 deg; report
+  Saved/CodexRuns/last-message-20261002-013025-95843.txt). Ready to APPLY. Codex closed the editor unasked
+  after it (clean); Conductor 3 relaunched it.
 - GO1 is NOT engaged in Scenes (Gary 2 Oct): Scene cameras need not be walkable.
 - W&T: pilot pair imported + ONE test placement "P04 Wing 011"; P02 is a full redo (chain-link + lurid plants);
   S3 hand prints via Fuser job 24 -> decal atlas + JSON placement table for Rig.
