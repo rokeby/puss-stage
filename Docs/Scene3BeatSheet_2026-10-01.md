@@ -147,3 +147,14 @@ conductor's reading of what it implies — marked as such, not decided.
 - **Landed preview tested in the editor** (runs 204110–204131): UP exact (0.000 cm), save-check refuses while
   up, DOWN exact; the identical level was re-saved after (CONDUCTOR_LEVEL_RESAVED 204517, backup
   PreLevelResave-20261001-2042). Use: UP → light → DOWN → save-check → save level.
+
+## Shot-list DRAFT applied, 1 Oct ~23:00 (measured; Gary: "draft from beats, you adjust")
+- `S3_SHOTLIST_DONE run=225732 applied`, 11 spawnable cameras `S3 Shot B02`..`B12` as ROOT cuts at the markers
+  (table + rotations: Saved/CodexRuns, spec Saved/CodexConductor/specs/S3_SHOTLIST_DRAFT.md); backup
+  PreS3ShotDraft-20261001-2257. Rematch: Exit [6216,6240] copies `S3 Shot B12`. SavedMasterMatchesShow and
+  SceneCutBindingsResolve Success; census empty. Revert: s3_shotlist_apply revert mode (removes only its own).
+- Known: B04 looks across the ring from the side (yaw 75°), so the waves sit to frame side, not behind the
+  figures — swing it. B10 = B09 pose with focus pulled to 300 cm (the defocus). B11/B12 identical (the float-out
+  move is still to design; B12 is the GO1-performable exit).
+- Still to place: `InfinityStage.VampStart/VampEnd` markers + the orbit/dim/focus vamp content (design with Gary:
+  orbit radius/speed must be walkable by the GO1).
