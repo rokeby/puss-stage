@@ -55,6 +55,12 @@ def blender_args() -> argparse.Namespace:
     parser.add_argument("--asset-name", help="Exact suffix after SM_FlatV3_; defaults to <name>_<side>")
     parser.add_argument("--mount", choices=("wing", "wave-row", "top-border"), default="wing")
     parser.add_argument("--deterministic-triangulation", action="store_true")
+    parser.add_argument(
+        "--triangulate-export",
+        action="store_true",
+        help=("Opt in to fixed final-mesh triangulation and degenerate-face removal "
+              "immediately before FBX export"),
+    )
     parser.add_argument("--output-dir")
     parser.add_argument("--texture-root")
     parser.add_argument("--render", action="store_true")
@@ -739,6 +745,64 @@ def remove_degenerate_board_cap_faces(obj: bpy.types.Object) -> int:
         obj.data.update()
     mesh.free()
     return removed
+
+
+def triangulate_export_mesh(obj: bpy.types.Object) -> dict:
+    """Make final FBX topology importer-independent without changing legacy builds.
+
+    This runs after all card parts have been consolidated.  FIXED prevents the
+    quad diagonal from depending on a beauty heuristic, and EAR_CLIP gives
+    n-gons a fixed local tessellation rule.  Only zero/near-zero area output
+    triangles are deleted; no vertex welding is performed because coincident
+    positions can carry distinct UV, normal, material, or colour seams.
+    """
+    mesh = bmesh.new()
+    mesh.from_mesh(obj.data)
+    mesh.faces.ensure_lookup_table()
+    before = {
+        "faces": len(mesh.faces),
+        "triangles": sum(max(0, len(face.verts) - 2) for face in mesh.faces),
+        "quads": sum(len(face.verts) == 4 for face in mesh.faces),
+        "ngons": sum(len(face.verts) > 4 for face in mesh.faces),
+    }
+    bmesh.ops.triangulate(
+        mesh,
+        faces=list(mesh.faces),
+        quad_method="FIXED",
+        ngon_method="EAR_CLIP",
+    )
+    mesh.faces.ensure_lookup_table()
+    # FBX stores float32 positions.  Sub-pixel slivers below 1e-8 m2 can
+    # collapse to exactly collinear vertices on re-import even when Blender's
+    # in-memory double-precision area is non-zero.
+    degenerate = [face for face in mesh.faces if face.calc_area() <= 1.0e-8]
+    removed = len(degenerate)
+    if degenerate:
+        bmesh.ops.delete(mesh, geom=degenerate, context="FACES")
+    mesh.faces.ensure_lookup_table()
+    if any(len(face.verts) != 3 for face in mesh.faces):
+        raise RuntimeError(f"Triangulated export contract left a non-triangle in {obj.name}")
+    minimum_area = min((float(face.calc_area()) for face in mesh.faces), default=0.0)
+    mesh.to_mesh(obj.data)
+    mesh.free()
+    obj.data.update()
+    obj.data.calc_loop_triangles()
+    after = {
+        "faces": len(obj.data.polygons),
+        "triangles": len(obj.data.loop_triangles),
+        "quads": sum(len(polygon.vertices) == 4 for polygon in obj.data.polygons),
+        "ngons": sum(len(polygon.vertices) > 4 for polygon in obj.data.polygons),
+        "minimum_area_m2": minimum_area,
+    }
+    return {
+        "enabled": True,
+        "quad_method": "FIXED",
+        "ngon_method": "EAR_CLIP",
+        "degenerate_area_threshold_m2": 1.0e-8,
+        "removed_degenerate_faces": removed,
+        "before": before,
+        "after": after,
+    }
 
 
 def create_board(
@@ -1766,11 +1830,21 @@ def build(args: argparse.Namespace) -> None:
     enforce_board_cap_contract(flat)
     enforce_board_cap_contract(lod1)
     rebuild_front_uv0(flat, silhouette)
+    export_topology = None
+    if args.triangulate_export:
+        export_topology = {
+            "lod0": triangulate_export_mesh(flat),
+            "lod1": triangulate_export_mesh(lod1),
+        }
+        triangle_counts["flat_total"] = object_triangles(flat)
+        lod1_counts["flat_total"] = object_triangles(lod1)
     flat["FrontAxis"] = "-X"
     flat["PlacementContract"] = ("Origin=BottomCentre; Scale=1" if is_pole_free_mount else
                                  "Origin=PoleLineX_BackboneY_FloorZ; Scale=1")
     flat["Side"] = args.side
     flat["Mount"] = args.mount
+    flat["TriangulatedExport"] = bool(args.triangulate_export)
+    lod1["TriangulatedExport"] = bool(args.triangulate_export)
     flat["BakedPoles"] = bool(args.bake_poles)
     flat["PoleCount"] = len(pole_y)
     flat["FrameStileSearchMode"] = visibility["stile_search_mode"]
@@ -1896,6 +1970,7 @@ def build(args: argparse.Namespace) -> None:
         "flaps": flap_records,
         "head_on_frame_visibility": visibility,
         "removed_degenerate_board_cap_faces": removed_degenerate_caps,
+        "triangulated_export": export_topology or {"enabled": False},
         "triangle_counts": {**triangle_counts, "lod1_total": lod1_triangles,
                             "lod1_board_without_baked_poles": lod1_counts.get("profile_board", lod1_counts.get("flat_total")),
                             "shared_pole": pole_triangles},
@@ -2259,6 +2334,46 @@ def validate_vertex_contract(obj: bpy.types.Object, slots: list[str], require_al
     return checks
 
 
+def validate_triangulated_export(*objects: bpy.types.Object | None) -> dict:
+    present = [obj for obj in objects if obj is not None]
+    enabled = bool(present) and all(bool(obj.get("TriangulatedExport", False)) for obj in present)
+    if not enabled:
+        return {"pass": True, "enabled": False, "contract": "legacy export; triangle-only gate not requested"}
+    lods = {}
+    passed = len(present) == len(objects)
+    for obj in present:
+        obj.data.calc_loop_triangles()
+        arities: dict[str, int] = {}
+        degenerate = []
+        for polygon in obj.data.polygons:
+            key = str(len(polygon.vertices))
+            arities[key] = arities.get(key, 0) + 1
+            if polygon.area <= 1.0e-12:
+                degenerate.append(polygon.index)
+        row_pass = bool(
+            obj.data.polygons
+            and all(len(polygon.vertices) == 3 for polygon in obj.data.polygons)
+            and not degenerate
+            and len(obj.data.polygons) == len(obj.data.loop_triangles)
+        )
+        passed = passed and row_pass
+        lods[obj.name] = {
+            "pass": row_pass,
+            "polygon_arity": arities,
+            "polygons": len(obj.data.polygons),
+            "loop_triangles": len(obj.data.loop_triangles),
+            "degenerate_polygon_indices": degenerate,
+            "degenerate_area_threshold_m2": 1.0e-12,
+        }
+    return {
+        "pass": bool(passed),
+        "enabled": True,
+        "quad_method": "FIXED",
+        "ngon_method": "EAR_CLIP",
+        "lods": lods,
+    }
+
+
 def fbx_node_name(value) -> str:
     if not isinstance(value, bytes):
         return str(value)
@@ -2454,6 +2569,7 @@ def validate(args: argparse.Namespace) -> None:
             "front_flap_uv0_axis_contract": validate_uv0_axis_contract(flat, slots),
             "front_skincolor_background_coverage": validate_front_texture_coverage(flat, slots, Path(args.skin_color).resolve()),
             "vertex_colour_contract": validate_vertex_contract(flat, slots, True),
+            "triangulated_export": validate_triangulated_export(flat, lod1),
             "lod1_present": {"pass": lod1 is not None, "value": lod1.name if lod1 else None},
             "lod1_slots_exact": {"pass": lod1 is not None and lod1_slots == MATERIAL_SLOTS, "value": lod1_slots, "expected": MATERIAL_SLOTS},
             "lod1_uv0_uv1": {"pass": lod1 is not None and lod1_uv_names == ["UV0", "UV1"], "value": lod1_uv_names},

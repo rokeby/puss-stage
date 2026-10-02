@@ -1246,6 +1246,8 @@ def build_one(
                 build_cmd.append("--bake-poles")
             if item.pick.get("deterministic_triangulation"):
                 build_cmd.append("--deterministic-triangulation")
+            if item.pick.get("triangulate_export"):
+                build_cmd.append("--triangulate-export")
             run_command(build_cmd, log)
 
             fbx = item.folder / f"{item.asset_name}.fbx"
@@ -1386,6 +1388,8 @@ def repair_one_from_stage4(item: WorkItem, contact_device: str = "GPU") -> dict[
                 build_cmd.append("--bake-poles")
             if item.pick.get("deterministic_triangulation"):
                 build_cmd.append("--deterministic-triangulation")
+            if item.pick.get("triangulate_export"):
+                build_cmd.append("--triangulate-export")
             run_command(build_cmd, log)
 
             fbx = item.folder / f"{item.asset_name}.fbx"
