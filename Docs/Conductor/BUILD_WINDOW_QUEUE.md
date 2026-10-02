@@ -1,3 +1,14 @@
+> **2 Oct ~02:20 (Conductor 4): HELD `Scripts/patches/2026-10-02_SS_scene_shot_step.patch`** (Codex draft, reviewed,
+> `git apply --check` clean on 52ac17b, UNBUILT). Gary's rulings: in a Scene, tap RIGHT/LEFT step root camera-cut
+> starts (LEFT restarts the shot within 12 display frames' grace, else previous); past the ends they fall through to
+> today's cue Advance/Previous; play state kept; hold RIGHT unchanged; vamp release stays first. Also adds IsActive to
+> FindSceneCameraCut (the planned "retired ClamCam1 hole" 2-line fix). Tests: ShotStepNextAndPrevious,
+> ShotStepEngagesVampAtStart, ShotStepOutsideSceneUnchanged (names UTF-8; run each alone first, then the suite).
+> **LANDED SAVE: Gary 2 Oct ~02:15, his words: "proceed ... including letting the hangars be available fully up in
+> editor mode so I can arrange the lighting and scenes".** So the save goes ahead although the PIE gate found S2 (and
+> possibly S4/S5/S6) not rising: HL sinks every hangar at BeginPlay regardless (all six INFINITY_HANGAR_INITIAL_POSE
+> lines, 2 Oct 05:38:52 UTC), so PIE is unchanged by the save (inferred). Those rises still need their Scenes lengthened.
+
 > **1 Oct ~22:40: WINDOW RUN, BUILT 467d2c8 (FFV + HL), suite 106/0/106** — HoldRightFastForwards,
 > VampLoopsUntilRelease, Arrival.GameWorldStartsAtFirstHangarKeys passed; markers UTF-8 test names + UTF-16
 > runtime literals with +/- controls (first attempt 222729 rolled back on a UTF-16 test-name search — wrong
