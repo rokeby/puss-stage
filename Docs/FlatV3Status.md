@@ -207,3 +207,36 @@ What went in, and what to judge (all reversible from `Backups/PreFlatV3Swap*` or
   - P06 "needs R" families (scaffold, girder) are not placed.
   - P06 positions 33-55 keep their current wings until the fire/drape work exists.
 - **Timing:** P01-P04 go to ~3:00 by appending copied pairs, done by the conductor after Flat V3 finishes. This re-indexes cues, so the copies repeat the V3 pairs; I will look at the copy pattern for P02 and P04.
+
+## FINAL STATE, 2 Oct evening: Flat V3 in the show
+
+All rows below are verified by read-back from the level (world bounds) and have a clean census. Every change is reversible from `Backups/PreFlatV3*` or the swapkit revert.
+
+| Passage | On V3 | Kept OLD (why) | Gaps | Markers |
+|---|---|---|---|---|
+| P01 | 48 rows | 16 rows keep the old right Pillar2 (its V3 build failed overnight) | unchanged | D(apply) + D2_OK |
+| P02 | 22 of 23 positions (layout v2: matched pairs) | Wing 003, both sides (the new fence would reach the centreline; matched-pair rule) | min 528.7 cm (old 525.1), after the shift | P02 apply + S2_OK |
+| P03 | 18 of 21 | 3 retained by the layout | min 638.5 (old 621.9), after the shift | P03_OK + S3_OK |
+| P04 | all 21 | none; Wing 011's pilot-made overlap is restored to its pre-pilot gap of 638.5 | min 603.3 (old 603.3), after the shift | B + V_OK + S4_OK |
+| P05 | 93 rows, now including CloudRef02_L (12 rows, C3) | cue 124 right (the new cloud would jut 339 cm onstage); you may widen it | unchanged | C + C2_OK + C3_OK |
+| P06 | positions 1-32 (beats 1-3), placed by inner edge | 33-55 keep their current wings until the fire/drape work exists | every row equals its old gap | P06 apply + P06R_OK |
+
+Also landed:
+- the mip stopgap on 363 old wing textures (E_OK);
+- P05 clouds float in a stable scatter, bottoms 1.5-4.5 m (F_OK).
+
+Not landed:
+- **S3 waves:** PARKED. The extended `_v2` meshes are imported but unreferenced. Setting the mesh on the six "S3 Wave Row" actors never dirtied the level (3 methods). That may be a stale-module artefact; Conductor 4 owns the follow-up.
+
+Look items for your play-mode check:
+- industrial flats have thin edges (token Edge/Flap faces only);
+- P05 clouds now float;
+- P06 "needs R" families (scaffold, girder) are not placed;
+- V3 timber IDs are stored as softwood 0 / ply 0.7333 / steel 0.9961; the Timber master must decode them accordingly (handover note to Wing materiality).
+
+Tooling lessons, all fixed and in git:
+- verify is read-only; failed imports clean up after themselves; reimport reverts never reload;
+- `log_has` reads the rotated logs;
+- entry scripts purge this folder's cached modules;
+- every-row centre-gap gate; inner-edge lateral mode;
+- opt-in `--triangulate-export`.
