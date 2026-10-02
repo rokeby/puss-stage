@@ -166,8 +166,12 @@ def industrial_inventory(config, slot_a, used_families):
         if missing:
             raise RuntimeError("P06_INDUSTRIAL_FILES_MISSING|asset=%s|missing=%s" %
                                (asset, json.dumps(missing)))
+        # socket_count is required by the reused P02 verifier (p02_import.py:255);
+        # take it from the same contract sidecar P02 used (FV3P06I-...-03 KeyError).
+        socket_payload = slot_a.load_json(sources["socket"])
         rows.append({"owner": asset, "mesh_name": asset, "side": str(item["side"]),
-                     "baked_poles": True, "sources": sources, "validation": gate})
+                     "baked_poles": True, "sources": sources, "validation": gate,
+                     "socket_count": len(socket_payload["sockets"])})
     expected = int(config["import_industrial_expected_count"])
     found = {row["mesh_name"] for row in rows}
     if len(rows) != expected or found != wanted:
