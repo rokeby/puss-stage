@@ -41,6 +41,7 @@ DOCK_YAW_DEG = 0.0
 FOCAL_MM = 85.0
 APERTURE = 1.4
 FOCUS_CM = 200.0
+MAX_ADJACENT_ROTATION_DEG = 1.0
 CHANNEL_AXES = (
     "Location.X", "Location.Y", "Location.Z",
     "Rotation.X", "Rotation.Y", "Rotation.Z",
@@ -62,16 +63,32 @@ class PlanError(ValueError):
     pass
 
 
-def normalize_degrees(value):
-    return (float(value) + 180.0) % 360.0 - 180.0
-
-
 def distance(left, right):
     return math.sqrt(sum((float(left[i]) - float(right[i])) ** 2 for i in range(3)))
 
 
 def rotation_error(left, right):
-    return max(abs(normalize_degrees(float(left[i]) - float(right[i]))) for i in range(3))
+    def quaternion(rotation):
+        roll, pitch, yaw = (math.radians(float(value)) * 0.5 for value in rotation)
+        sr, cr = math.sin(roll), math.cos(roll)
+        sp, cp = math.sin(pitch), math.cos(pitch)
+        sy, cy = math.sin(yaw), math.cos(yaw)
+        return (
+            cr * cp * cy + sr * sp * sy,
+            sr * cp * cy - cr * sp * sy,
+            cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy,
+        )
+
+    left_quat = quaternion(left)
+    right_quat = quaternion(right)
+    dot = abs(sum(left_quat[i] * right_quat[i] for i in range(4)))
+    return math.degrees(2.0 * math.acos(max(-1.0, min(1.0, dot))))
+
+
+def unwind_degrees(value, reference):
+    value = float(value)
+    return value + 360.0 * round((float(reference) - value) / 360.0)
 
 
 def _dock_to_world(point):
@@ -104,12 +121,14 @@ def orbit_pose(frame):
     ]
     target_world = _dock_to_world(CLAM_CENTRE_DOCK)
     world = _dock_to_world(dock)
+    rotation = _look_rotation(world, target_world)
+    rotation[2] = DOCK_YAW_DEG + 360.0 * (frame - START_FRAME) / float(END_FRAME - START_FRAME)
     return {
         "frame": frame,
         "angle_deg": 180.0 + 360.0 * (frame - START_FRAME) / float(END_FRAME - START_FRAME),
         "dock_location_cm": dock,
         "world_location_cm": world,
-        "world_rotation_rpy_deg": _look_rotation(world, target_world),
+        "world_rotation_rpy_deg": rotation,
     }
 
 
@@ -161,6 +180,13 @@ def plan_vamp(state):
         )
         if abs(radius - RADIUS_CM) > 0.5:
             raise PlanError("orbit radius drift at frame %d" % row["frame"])
+    for previous, current in zip(keys, keys[1:]):
+        for axis, (left, right) in enumerate(zip(
+                previous["world_rotation_rpy_deg"], current["world_rotation_rpy_deg"])):
+            if abs(float(right) - float(left)) > MAX_ADJACENT_ROTATION_DEG:
+                raise PlanError(
+                    "rotation channel jump at frames %d..%d axis %d" %
+                    (previous["frame"], current["frame"], axis))
     seam_location = distance(keys[0]["world_location_cm"], keys[-1]["world_location_cm"])
     seam_rotation = rotation_error(
         keys[0]["world_rotation_rpy_deg"], keys[-1]["world_rotation_rpy_deg"])
@@ -490,6 +516,11 @@ def track_space_rows(plan, parent_world, source, run):
         composed = (local if source == "world"
                     else unreal.MathLibrary.compose_transforms(local, parent_world))
         plain = _plain_transform(local)
+        if rows:
+            plain["rotation_rpy"] = [
+                unwind_degrees(value, rows[-1]["rotation_rpy"][axis])
+                for axis, value in enumerate(plain["rotation_rpy"])
+            ]
         round_trip = _plain_transform(composed)
         if (distance(round_trip["location"], row["world_location_cm"]) > 0.01 or
                 rotation_error(round_trip["rotation_rpy"], row["world_rotation_rpy_deg"]) > 0.01):
@@ -501,6 +532,12 @@ def track_space_rows(plan, parent_world, source, run):
             "world_location_cm": round_trip["location"],
             "world_rotation_rpy_deg": round_trip["rotation_rpy"],
         })
+    for previous, current in zip(rows, rows[1:]):
+        for axis, (left, right) in enumerate(zip(
+                previous["rotation_rpy"], current["rotation_rpy"])):
+            if abs(float(right) - float(left)) > MAX_ADJACENT_ROTATION_DEG:
+                stop(run, "reason=TRACK_SPACE_ROTATION_JUMP|frames=%d..%d|axis=%d" %
+                     (previous["frame"], current["frame"], axis))
     return rows
 
 

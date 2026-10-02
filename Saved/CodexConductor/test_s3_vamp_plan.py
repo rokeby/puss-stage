@@ -43,6 +43,9 @@ def main():
     if (plan["key_count"] == 721 and plan["keys"][0]["frame"] == 3480 and
             plan["keys"][-1]["frame"] == 4200 and
             max(abs(radius - RADIUS_CM) for radius in radii) <= 0.5 and
+            plan["keys"][0]["world_rotation_rpy_deg"][2] == 0.0 and
+            plan["keys"][360]["world_rotation_rpy_deg"][2] == 180.0 and
+            plan["keys"][-1]["world_rotation_rpy_deg"][2] == 360.0 and
             plan["seam"]["location_cm"] <= 0.01 and plan["seam"]["rotation_deg"] <= 0.01):
         print("PASS positive: seam equal, radius 200+/-0.5 cm, 721 keys")
     else:
@@ -65,9 +68,16 @@ def main():
     span["requested_span"] = [3480, 4199]
     failures += expect_failure("wrong frame span", lambda: plan_vamp(span))
 
+    yaw_wrap = copy.deepcopy(fixture_state())
+    yaw_wrap["pose_overrides"] = {
+        3840: {"world_rotation_rpy_deg": [0.0, -4.289153, 180.0]},
+        3841: {"world_rotation_rpy_deg": [0.0, -4.289153, -179.5]},
+    }
+    failures += expect_failure("yaw wrap", lambda: plan_vamp(yaw_wrap))
+
     if failures == 0:
         poses = plan["poses"]
-        print("S3_VAMP_HARNESS_OK|positive=1|negative=4|first=%r|mid=%r|last=%r" %
+        print("S3_VAMP_HARNESS_OK|positive=1|negative=5|first=%r|mid=%r|last=%r" %
               (poses["first"], poses["mid"], poses["last"]))
     return failures
 
