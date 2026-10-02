@@ -1,0 +1,72 @@
+{
+ "census_start": {
+  "content": [],
+  "maps": []
+ },
+ "cue_index": 109,
+ "cue_label": "P04 Wing 011",
+ "sides": {
+  "left": {
+   "mesh": "/Game/Scenes/Wings/StaticMeshes/SM_L_Pillar1_gold_copy",
+   "facing_policy": "<InfinityPanelFacingPolicy.AUTO_BY_ROLE: 0>",
+   "local_transform": {
+    "location": [
+     0.0,
+     -600.0,
+     0.0
+    ],
+    "rotation": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "mesh_min": [
+    -2.5000269412994385,
+    -250.9765625,
+    -5.463923571369378e-07
+   ],
+   "mesh_max": [
+    2.500035047531128,
+    250.9765625,
+    1000.0
+   ]
+  },
+  "right": {
+   "mesh": "/Game/Scenes/Wings/StaticMeshes/SM_R_Pillar3_bw",
+   "facing_policy": "<InfinityPanelFacingPolicy.AUTO_BY_ROLE: 0>",
+   "local_transform": {
+    "location": [
+     0.0,
+     600.0,
+     0.0
+    ],
+    "rotation": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "mesh_min": [
+    -2.5,
+    -310.546875,
+    0.0
+   ],
+   "mesh_max": [
+    2.5,
+    310.546875,
+    1000.0
+   ]
+  }
+ }
+}
