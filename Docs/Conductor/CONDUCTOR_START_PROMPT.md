@@ -115,6 +115,17 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   UPDATE 01:42: vamp DRY RUN CLEAN (S3_VAMP_DRY_RUN_OK run=014200, 721 keys, seam 0.0 cm/0.0 deg; report
   Saved/CodexRuns/last-message-20261002-013025-95843.txt). Ready to APPLY. Codex closed the editor unasked
   after it (clean); Conductor 3 relaunched it.
+  CORRECTION (Conductor 4, ~02:00, measured from PussStage-backup-2026.10.02-05.42.36.log): that run ENDED GARY'S
+  PIE three times (stop_scene_probe.py -> editor_request_end_play, 05:40:58/05:41:59/05:42:29 UTC) and then QUIT
+  the editor -- his "escaped PIE ... UE crashed". No crash dump exists. Every --unreal spec now forbids stopping PIE
+  and quitting the editor. Vamp NOT applied: Revision 2 in the spec (continuous yaw; atan2 wrapped +180->-180 at
+  frame 3840/3841, a subframe whip, inferred). Pass 2 is write-only (log Saved/CodexRuns/s3_vamp_pass2.log), then
+  a dry run and the apply once W&T release the editor.
+- HANGAR GATE FAILED (Gary, 2 Oct ~01:50): S1 and S3 rise; S2 does NOT; S4/S5/S6 "possibly" not (S5/S6 run cut
+  short by the PIE stops). The log shows S2/S5/S6 Arrivals WAITING reason=NotNested ("inert until LS_DevScene_0N
+  plays LS_SN_HangarRise") -> the queued "lengthen Scenes 2/5/6 so their hangars play" (INFERRED cause). DO NOT
+  save the level LANDED. Gary: no retest needed tonight. S3 backdrop: Gary "looked good". S3 draft cameras: OK
+  for timing/shot list, "shots mostly off, need adjusting". P04 Wing 011: Gary didn't know it; re-ask with a pointer.
 - EDITOR GRANTED to Wings and Textures (2 Oct ~01:50) for their sequence: A import all built V3 flats (P04/P05/P01/P02
   sets, import only) -> B P04 swap -> C P05 swap -> D P01 swap (Gary approved the swaps in THEIR session; P02 NOT
   swapped) -> E mip stopgap on existing wing textures (Conductor 3 signed off: Gary chose mipmaps for P01/P02 on

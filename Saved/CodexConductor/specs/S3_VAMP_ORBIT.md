@@ -24,3 +24,17 @@ existing request jsons only). Apply nothing, commit nothing. Final message tagge
 first/last/mid key poses.
 Crash rules as always: no Sequencer UI/eval/scrub, no SequencerTools, no open-range get_bound_objects, no unreal
 objects in module globals, no reload, no PIE, never Save All, no deletes of pre-existing things.
+
+## Revision 2 (Conductor 4, 2 Oct ~02:00) — WRITE-ONLY pass, no editor
+Dry run 014200 was clean, but s3_vamp_apply.py:93 takes yaw from atan2, so yaw wraps +180 -> -180 between frames
+3840 and 3841. Sequencer interpolates Euler channels linearly; at subframe evaluation (PIE ticks are not on whole frames)
+the camera would swing through 0 deg for a frame mid-orbit (INFERRED: engine .cpp unavailable).
+FIX: key a CONTINUOUS (unwound) yaw: yaw(f) = 360*(f-3480)/720 (0 at 3480, 360 at 4200), pitch/roll unchanged. No
+adjacent pair of keys may differ by more than 1 deg in any channel (assert). Seam check compares ROTATIONS (quaternion
+angle <= 0.01 deg), not raw yaw; location seam unchanged. Loop semantics are proven at
+InfinityStageTransportController.cpp:322-327 (End jumps to Start + overshoot), so pose(4200) == pose(3480) is correct.
+Harness: add a negative case "yaw wrap" (a +/-180 jump between adjacent keys must fail) and keep the four existing ones.
+THIS PASS: edit s3_vamp_apply.py + test_s3_vamp_plan.py, run the harness only. DO NOT contact Unreal at all.
+STANDING RULES FOR EVERY VAMP PASS: NEVER stop PIE/SIE (no stop_scene_probe.py, no editor_request_end_play), NEVER
+quit or restart the editor. If PIE is active or the editor is busy/absent, STOP and report. Gary was in PIE at 01:40
+and pass 1 ended his PIE three times and then quit the editor. Commit nothing.
