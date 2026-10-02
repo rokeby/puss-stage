@@ -18,6 +18,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from scipy import ndimage
 
 
 SHEET_WIDTH_M = 1.0
@@ -61,6 +62,7 @@ def registered_resize(
     native_mask: np.ndarray,
     width: int,
     height: int,
+    panel_h_cm: float,
 ) -> tuple[np.ndarray, np.ndarray, dict]:
     """Resample art and geometry over one shared, uncropped source extent.
 
@@ -80,12 +82,63 @@ def registered_resize(
         )
     interpolation = cv2.INTER_AREA if image_w >= width and image_h >= height else cv2.INTER_LANCZOS4
     art = cv2.resize(image, (width, height), interpolation=interpolation)
-    mask = cv2.resize(native_mask, (width, height), interpolation=cv2.INTER_AREA) >= 127
+    geometry_mask = (native_mask > 0).astype(np.uint8)
+    rows = np.flatnonzero(geometry_mask.any(axis=1))
+    subject_h_px = int(rows[-1] - rows[0] + 1)
+    scale_m_per_px = (panel_h_cm / 100.0) / subject_h_px
+    minimum_hole_area_px = (0.03 / scale_m_per_px) ** 2
+    contours, hierarchy = cv2.findContours(
+        geometry_mask.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE
+    )
+    filled_holes = 0
+    if hierarchy is not None:
+        for index, contour in enumerate(contours):
+            if hierarchy[0, index, 3] >= 0 and abs(cv2.contourArea(contour)) < minimum_hole_area_px:
+                cv2.drawContours(geometry_mask, [contour], -1, 1, thickness=cv2.FILLED)
+                filled_holes += 1
+    # The mesh contour is simplified by 0.55 cm and then independently
+    # rasterised by the FBX coverage validator. Pad the SkinColor coverage well
+    # inside the already-authored 5 cm colour bleed so wide/short rows cannot
+    # expose a black texel at that simplified edge.
+    coverage_padding_cm = 2.0
+    padding_px = max(1, int(math.ceil(coverage_padding_cm / 100.0 / scale_m_per_px)))
+    coverage_kernel = cv2.getStructuringElement(
+        cv2.MORPH_ELLIPSE, (padding_px * 2 + 1, padding_px * 2 + 1)
+    )
+    geometry_mask = cv2.dilate(geometry_mask, coverage_kernel)
+    # Keep every output texel touched by the authoritative source silhouette.
+    # The mesh boundary is traced on the native pixel grid, so a half-coverage
+    # threshold can shrink the downsampled validation alpha by one texel and
+    # expose transparent/black texels beneath otherwise valid Front faces.
+    base_mask = cv2.resize(
+        (native_mask > 0).astype(np.float32),
+        (width, height),
+        interpolation=cv2.INTER_AREA,
+    ) > 0.0
+    mask = cv2.resize(
+        geometry_mask.astype(np.float32),
+        (width, height),
+        interpolation=cv2.INTER_AREA,
+    ) > 0.0
+    padded_near_black = mask & ~base_mask & (np.max(art, axis=2) <= 6)
+    repaired_texels = int(np.count_nonzero(padded_near_black))
+    if repaired_texels:
+        valid_colour = base_mask & (np.max(art, axis=2) > 6)
+        if not valid_colour.any():
+            raise RuntimeError("SkinColor source contains no non-black silhouette texels")
+        nearest = ndimage.distance_transform_edt(
+            ~valid_colour, return_distances=False, return_indices=True
+        )
+        art[padded_near_black] = art[nearest[0][padded_near_black], nearest[1][padded_near_black]]
     return art, mask, {
         "method": "shared full-extent resample; no cover crop, scale, or offset between art and cut mask",
         "art_to_mask_scale": round(scale_x, 9),
         "source_extent_px": [mask_w, mask_h],
         "output_extent_px": [width, height],
+        "geometry_holes_filled_below_cm": 3.0,
+        "geometry_holes_filled": filled_holes,
+        "coverage_padding_cm": coverage_padding_cm,
+        "padded_near_black_texels_repaired": repaired_texels,
     }
 
 
@@ -225,18 +278,21 @@ def build_torn_peels(
     torn_fibre = smooth_noise(rng, height, width, (230, 180), 1.0)
     score = np.zeros((height, width), np.float32)
 
-    def choose_centres(candidate: np.ndarray, wanted: int, minimum_distance_cm: float) -> list[tuple[float, float]]:
+    def choose_centres(candidate: np.ndarray, wanted: int, minimum_distance_cm: float,
+                       occupied: list[tuple[float, float]] | None = None) -> list[tuple[float, float]]:
         positions = np.argwhere(candidate)
         if len(positions) == 0:
             return []
         chosen: list[tuple[float, float]] = []
+        occupied = occupied or []
         for _ in range(wanted):
             order = rng.permutation(len(positions))
             picked = None
             for position_index in order[: min(len(order), 4000)]:
                 row, col = positions[position_index]
                 point = (float(x_cm[row, col]), float(y_cm[row, col]))
-                if all(math.hypot(point[0] - other[0], point[1] - other[1]) >= minimum_distance_cm for other in chosen):
+                if all(math.hypot(point[0] - other[0], point[1] - other[1]) >= minimum_distance_cm
+                       for other in occupied + chosen):
                     picked = point
                     break
             if picked is None:
@@ -244,7 +300,20 @@ def build_torn_peels(
             chosen.append(picked)
         return chosen
 
-    seam_candidate = mask & (fields["seam_distance_cm"] < 1.4) & (edge_distance > 18.0) & (y_cm > 110.0) & (y_cm < panel_h_cm - 80.0)
+    # The original fixed 110/80 cm exclusions overlap on the 180 cm wave rows,
+    # making seam_candidate empty and guaranteeing only three of the required
+    # five centres. Preserve those maxima on tall flats but scale them down for
+    # short scenery.
+    if panel_h_cm < 300.0:
+        seam_bottom_margin_cm = panel_h_cm * 0.05
+        seam_top_margin_cm = panel_h_cm * 0.10
+    else:
+        seam_bottom_margin_cm = 110.0
+        seam_top_margin_cm = 80.0
+    seam_candidate = (mask & (fields["seam_distance_cm"] < 1.4)
+                      & (edge_distance > 18.0)
+                      & (y_cm > seam_bottom_margin_cm)
+                      & (y_cm < panel_h_cm - seam_top_margin_cm))
     corner_candidate = mask & (fields["seam_distance_cm"] < 5.0) & (edge_distance < 24.0) & (y_cm > 80.0)
     base_candidate = mask & (y_cm < 70.0)
     if profile == "bottom-heavy":
@@ -261,6 +330,33 @@ def build_torn_peels(
     centres = [(x, y, "seam") for x, y in seam_centres]
     centres += [(x, y, "corner") for x, y in corner_centres]
     centres += [(x, y, "base") for x, y in base_centres]
+    if len(centres) < 5:
+        # Short wave rows may expose only two widely separated sheet-seam
+        # islands. Backfill deterministically from the same approved damage
+        # zones, relaxing spacing to the panel's physical height while still
+        # requiring five distinct clusters.
+        fallback_candidate = mask & (
+            (fields["seam_distance_cm"] < 5.0)
+            | (edge_distance < 24.0)
+            | (y_cm < 70.0)
+        )
+        for minimum_distance_cm in (max(30.0, panel_h_cm * 0.5), 30.0, 10.0):
+            occupied = [(x, y) for x, y, _ in centres]
+            additions = choose_centres(
+                fallback_candidate, 5 - len(centres), minimum_distance_cm, occupied
+            )
+            for x, y in additions:
+                row = int(np.clip(round((panel_h_cm - y) / panel_h_cm * (height - 1)), 0, height - 1))
+                col = int(np.clip(round(x / panel_w_cm * (width - 1)), 0, width - 1))
+                if fields["seam_distance_cm"][row, col] < 5.0:
+                    kind = "seam"
+                elif edge_distance[row, col] < 24.0:
+                    kind = "corner"
+                else:
+                    kind = "base"
+                centres.append((x, y, kind))
+            if len(centres) >= 5:
+                break
     if len(centres) < 5:
         raise RuntimeError(f"Could not place five clustered peel centres; got {len(centres)}")
 
@@ -560,7 +656,7 @@ def build(args: argparse.Namespace) -> dict:
     if art_source is None or older_source is None:
         raise FileNotFoundError("Front artwork or full-resolution older poster is missing")
     art, color_mask, registration = registered_resize(
-        art_source, native_mask, color_w, color_h
+        art_source, native_mask, color_w, color_h, panel_h_cm
     )
     older = native_density_fill(older_source, color_w, color_h)
     older_gray = cv2.cvtColor(older, cv2.COLOR_BGR2GRAY).astype(np.float32)
@@ -622,8 +718,15 @@ def build(args: argparse.Namespace) -> dict:
     modulated_art = np.clip(registered_art.astype(np.float32) * paper_modulation[:, :, None], 0.0, 255.0)
     paper_off_color = registered_art.astype(np.float32) * (1.0 - peel_color) + substrate * peel_color
     skin_color = modulated_art * (1.0 - peel_color) + substrate * peel_color
-    skin_color[~color_mask] = 0.0
     skin_color = np.clip(skin_color, 0.0, 255.0).astype(np.uint8)
+    # Validation reserves linear <=0.002 (approximately sRGB <=6/255) as its
+    # uncovered-background sentinel. Keep truly covered black paint visually
+    # black while moving it just above that sentinel instead of weakening the
+    # coverage gate.
+    near_black_covered = color_mask & (np.max(skin_color, axis=2) <= 6)
+    near_black_sentinel_texels_lifted = int(np.count_nonzero(near_black_covered))
+    skin_color[near_black_covered] = np.maximum(skin_color[near_black_covered], 8)
+    skin_color[~color_mask] = 0
 
     aged_manifest = None if args.skip_aged_textures else build_aged_textures(args, registered_art, rng)
 
@@ -682,7 +785,7 @@ def build(args: argparse.Namespace) -> dict:
             "SkinNormal": {"file": normal_name, "size_px": [data_w, data_h], "srgb": False, "import_compression": "Normalmap/BC5-ready", "convention": "DirectX"},
         },
         "peel": {"target_percent": args.peel_percent, "measured_percent": round(peel_percent, 6), "in_damage_zone_percent": round(zone_percent, 6), "form": ("irregular torn clusters confined to the base; intact seams remain faint height ridges" if args.peel_profile == "bottom-heavy" else "irregular torn clusters at a few seams, corners and the base; intact seams remain faint height ridges"), **peel_layout, "longest_seam_run_cm": round(seam_run_cm, 6), "maximum_seam_run_cm": 40.0, "flap_count": len(flaps)},
-        "front_colour": {"source_rule": "registered art over the exact shared mask extent, plus zero-mean paper modulation and peel substrate only; no colour grade or darkening", "substrate_profile": args.substrate_profile, "paper_modulation_range": [round(float(paper_modulation[color_mask].min()), 6), round(float(paper_modulation[color_mask].max()), 6)], "paper_modulation_mean": round(float(np.mean(paper_modulation[color_mask])), 6), "dirty_grey_cream_backing_bgr_range": [round(float(backing.min()), 3), round(float(backing.max()), 3)], "diagnostic_paper_off": str((args.diagnostics_output.resolve() / diagnostic_paper_off)) if diagnostic_paper_off else None},
+        "front_colour": {"source_rule": "registered art over the exact shared mask extent, plus zero-mean paper modulation and peel substrate only; no colour grade or darkening", "substrate_profile": args.substrate_profile, "paper_modulation_range": [round(float(paper_modulation[color_mask].min()), 6), round(float(paper_modulation[color_mask].max()), 6)], "paper_modulation_mean": round(float(np.mean(paper_modulation[color_mask])), 6), "dirty_grey_cream_backing_bgr_range": [round(float(backing.min()), 3), round(float(backing.max()), 3)], "near_black_background_sentinel_srgb_max": 6, "covered_texel_floor_srgb": 8, "near_black_sentinel_texels_lifted": near_black_sentinel_texels_lifted, "diagnostic_paper_off": str((args.diagnostics_output.resolve() / diagnostic_paper_off)) if diagnostic_paper_off else None},
         "roughness": {"intact_target": 0.50, "measured_min": round(float(roughness[mask].min()), 6), "measured_max": round(float(roughness[mask].max()), 6)},
         "height": {"maximum_cm": round(float(height_cm.max()), 6), "source_rule": "paper displacement, overlaps, wrinkles, bubbles and peel curl lips only; never artwork luminance"},
         "sheet_grid": {"file": sheet_name, "SheetWidthM": SHEET_WIDTH_M, "SheetHeightM": SHEET_HEIGHT_M, "SheetOverlapM": SHEET_OVERLAP_M, "RowOffset": ROW_OFFSET},

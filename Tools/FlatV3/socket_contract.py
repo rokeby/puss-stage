@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -21,6 +22,7 @@ SOCKET_CONTRACT = {
     "pivot_local_x_axis": "+Z",
     "fbx_interchange_y_reflected": True,
 }
+WING_POLE_RE = re.compile(r"^SOCKET_Pole_(\d+)$")
 
 
 def as_float_list(values: Iterable[float]) -> list[float]:
@@ -94,6 +96,49 @@ def make_socket_payload(
     }
 
 
+def make_wing_payload_from_fbx_records(
+    *, asset: str, side: str, height_cm: float, records: Iterable[dict[str, Any]]
+) -> dict[str, Any]:
+    """Emit the import-facing wing contract from factory-clean FBX empties.
+
+    ``records`` are Blender/FBX-space socket records with metre locations.  The
+    pole locations are source authority for the base line.  Hinge and Pivot are
+    deliberately re-emitted from that line and the declared top edge so a
+    legacy builder empty cannot silently weaken the Unreal-side wing contract.
+    Non-wing attachment empties are not admitted to the wing sidecar.
+    """
+    if side not in {"L", "R"}:
+        raise ValueError(f"Unsupported side: {side!r}")
+    source = {str(record["name"]): record for record in records}
+    poles: list[tuple[int, dict[str, Any]]] = []
+    for name, record in source.items():
+        match = WING_POLE_RE.fullmatch(name)
+        if match:
+            poles.append((int(match.group(1)), record))
+    poles.sort(key=lambda item: item[0])
+    if [index for index, _ in poles] != list(range(1, len(poles) + 1)) or not poles:
+        raise ValueError(f"Non-contiguous or absent pole sockets for {asset}")
+    if "SOCKET_Hinge" not in source or "SOCKET_Pivot" not in source:
+        raise ValueError(f"Missing Hinge/Pivot source sockets for {asset}")
+
+    # FBX round-trips carry harmless binary32 noise.  Six decimal places is
+    # sub-millimetre precision here and keeps deterministic JSON stable.
+    pole_y_m = [round(float(record["location_m"][1]), 6) for _, record in poles]
+    width_m = round(max(pole_y_m) - min(pole_y_m), 6)
+    if width_m <= 0.0:
+        raise ValueError(f"Degenerate pole span for {asset}: {pole_y_m}")
+    payload = make_socket_payload(
+        asset=asset,
+        side=side,
+        mount="wing",
+        height_cm=height_cm,
+        width_m=width_m,
+        pole_positions_y_m=pole_y_m,
+    )
+    payload["side"] = side
+    return payload
+
+
 def ue_forward_vector(rotation: dict[str, float]) -> list[float]:
     """Simulate Unreal MathLibrary.get_forward_vector(FRotator).
 
@@ -131,8 +176,11 @@ def validate_socket_payload(
     expected_rows = expected.get("sockets")
     if not isinstance(actual_rows, list):
         return failures + ["SOCKET_ROWS_FAIL"]
-    actual_by_name = {str(row.get("name")): row for row in actual_rows}
+    actual_names = [str(row.get("name")) for row in actual_rows]
+    actual_by_name = {name: row for name, row in zip(actual_names, actual_rows)}
     expected_by_name = {str(row.get("name")): row for row in expected_rows}
+    if len(actual_by_name) != len(actual_names):
+        failures.append("SOCKET_DUPLICATE_NAMES_FAIL")
     if sorted(actual_by_name) != sorted(expected_by_name):
         failures.append("SOCKET_JSON_NAMES_FAIL")
         return failures
@@ -163,6 +211,65 @@ def validate_socket_payload(
         if name == "SOCKET_Pivot" and axis[2] < 0.999999:
             failures.append("PIVOT_SOCKET_AXIS_FAIL")
 
+    return failures
+
+
+def validate_wing_geometry(
+    payload: dict[str, Any], *, side: str, height_cm: float,
+    bounds_cm: dict[str, float], tolerance_cm: float = 0.2,
+    pole_bounds_tolerance_cm: float = 30.0,
+) -> list[str]:
+    """Validate wing sockets against the pole line, base edge and top edge."""
+    failures: list[str] = []
+    rows = payload.get("sockets")
+    if not isinstance(rows, list):
+        return ["SOCKET_ROWS_FAIL"]
+    names = [str(row.get("name")) for row in rows]
+    allowed = {"SOCKET_Hinge", "SOCKET_Pivot"}
+    pole_names = []
+    for name in names:
+        match = WING_POLE_RE.fullmatch(name)
+        if match:
+            pole_names.append((int(match.group(1)), name))
+        elif name not in allowed:
+            failures.append(f"WING_SOCKET_UNEXPECTED_NAME:{name}")
+    pole_names.sort()
+    if "SOCKET_Hinge" not in names or "SOCKET_Pivot" not in names or not pole_names:
+        failures.append("WING_SOCKET_REQUIRED_NAMES_FAIL")
+        return failures
+    if [index for index, _ in pole_names] != list(range(1, len(pole_names) + 1)):
+        failures.append("WING_SOCKET_POLE_SEQUENCE_FAIL")
+
+    by_name = {str(row.get("name")): row for row in rows}
+    hinge = by_name["SOCKET_Hinge"]["relative_location_cm"]
+    if not _close(hinge, [0.0, 0.0, 0.0], tolerance_cm):
+        failures.append("HINGE_BASE_EDGE_FAIL")
+
+    pole_y: list[float] = []
+    for _, name in pole_names:
+        location = by_name[name]["relative_location_cm"]
+        if abs(float(location[0])) > tolerance_cm or abs(float(location[2])) > tolerance_cm:
+            failures.append(f"{name}:POLE_LINE_FAIL")
+        y = float(location[1])
+        pole_y.append(y)
+        # Baked poles may sit just outside the decorative skin (the DuctVent L
+        # support line is 25 cm beyond its duct body), but must remain adjacent.
+        if (y < float(bounds_cm["y_min"]) - pole_bounds_tolerance_cm or
+                y > float(bounds_cm["y_max"]) + pole_bounds_tolerance_cm):
+            failures.append(f"{name}:GEOMETRY_Y_FAIL")
+        if (side == "L" and y < -tolerance_cm) or (side == "R" and y > tolerance_cm):
+            failures.append(f"{name}:SIDE_FAIL")
+
+    pivot = by_name["SOCKET_Pivot"]["relative_location_cm"]
+    expected_pivot = [0.0, (min(pole_y) + max(pole_y)) * 0.5, float(height_cm) * 0.5]
+    if not _close(pivot, expected_pivot, tolerance_cm):
+        failures.append("PIVOT_GEOMETRY_MIDPOINT_FAIL")
+    if not (float(bounds_cm["z_min"]) - tolerance_cm <= 0.0 <=
+            float(bounds_cm["z_max"]) + tolerance_cm):
+        failures.append("BASE_EDGE_OUTSIDE_GEOMETRY_FAIL")
+    if not (float(bounds_cm["z_min"]) - tolerance_cm <= float(height_cm) <=
+            float(bounds_cm["z_max"]) + 25.0):
+        failures.append("TOP_EDGE_OUTSIDE_GEOMETRY_FAIL")
     return failures
 
 

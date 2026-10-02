@@ -128,6 +128,11 @@ def plant_inventory(config, slot_a):
 
 
 def industrial_inventory(config, slot_a):
+    tools_dir = os.path.join(PROJECT, "Tools", "FlatV3")
+    if tools_dir not in sys.path:
+        sys.path.insert(0, tools_dir)
+    import socket_contract
+
     root = c._project_path(config["import_industrial_source_root"])
     validation = slot_a.load_json(os.path.join(root, "validation.json"))
     manifest = slot_a.load_json(os.path.join(root, "manifest.json"))
@@ -147,9 +152,44 @@ def industrial_inventory(config, slot_a):
         if missing:
             raise RuntimeError("P02_INDUSTRIAL_FILES_MISSING|asset=%s|missing=%s" %
                                (asset, json.dumps(missing)))
+        socket_payload = socket_contract.load_json(Path(sources["socket"]))
+        source_records = [{
+            "name": str(record["name"]),
+            "location_m": [
+                float(record["relative_location_cm"][0]) / 100.0,
+                -float(record["relative_location_cm"][1]) / 100.0,
+                float(record["relative_location_cm"][2]) / 100.0,
+            ],
+        } for record in socket_payload.get("sockets", [])]
+        height_cm = float(manifest["target_height_cm"])
+        expected_socket = socket_contract.make_wing_payload_from_fbx_records(
+            asset=asset, side=str(item["side"]), height_cm=height_cm,
+            records=source_records)
+        bounds = gate["bounds_m"]
+        bounds_cm = {
+            "y_min": -float(bounds["y_max"]) * 100.0,
+            "y_max": -float(bounds["y_min"]) * 100.0,
+            "z_min": float(bounds["z_min"]) * 100.0,
+            "z_max": float(bounds["z_max"]) * 100.0,
+        }
+        socket_failures = socket_contract.validate_socket_payload(
+            socket_payload, expected_socket, require_metadata=True)
+        socket_failures.extend(socket_contract.validate_wing_geometry(
+            socket_payload, side=str(item["side"]), height_cm=height_cm,
+            bounds_cm=bounds_cm))
+        pole_rows = [record for record in socket_payload["sockets"]
+                     if str(record["name"]).startswith("SOCKET_Pole_")]
+        pole_y = [float(record["relative_location_cm"][1]) for record in pole_rows]
+        expected_width_cm = float(item["dimensions_m"]["width"]) * 100.0
+        if not pole_y or abs((max(pole_y) - min(pole_y)) - expected_width_cm) > 0.2:
+            socket_failures.append("SOURCE_POLE_SPAN_VS_MANIFEST_FAIL")
+        if socket_failures:
+            raise RuntimeError("P02_INDUSTRIAL_SOCKET_CONTRACT_FAIL|asset=%s|failures=%s" %
+                               (asset, json.dumps(socket_failures)))
         rows.append({"owner": asset, "mesh_name": asset, "side": str(item["side"]),
-                     "baked_poles": True, "sources": sources, "validation": gate,
-                     "destination": config["destination_root"] + "/StaticMeshes/" + asset})
+                      "baked_poles": True, "sources": sources, "validation": gate,
+                      "socket_count": len(socket_payload["sockets"]),
+                      "destination": config["destination_root"] + "/StaticMeshes/" + asset})
     expected = int(config["import_industrial_expected_count"])
     if len(rows) != expected or len({row["mesh_name"] for row in rows}) != expected:
         raise RuntimeError("P02_INDUSTRIAL_SOURCE_COUNT_FAIL|expected=%d|actual=%d" %
@@ -203,7 +243,7 @@ def verify_industrial(mesh, row, slot_a):
                            (row["mesh_name"], slots, mesh.get_num_lods()))
     socket_rows = slot_a.socket_payload(row["sources"]["socket"], row["mesh_name"])
     sockets = slot_a.verify_socket_rows(mesh, socket_rows)
-    if len(sockets) != int(validation["socket_count"]):
+    if len(sockets) != int(row["socket_count"]):
         raise RuntimeError("P02_INDUSTRIAL_SOCKET_COUNT_FAIL|asset=" + row["mesh_name"])
     box = mesh.get_bounding_box()
     bounds = validation["bounds_m"]

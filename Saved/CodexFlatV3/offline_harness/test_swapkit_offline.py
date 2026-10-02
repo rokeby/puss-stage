@@ -791,6 +791,37 @@ def case_p02_import_sources():
            (len(passing), len(rejected), len(industrial_fbx), len(sequence), len(mystical)))
 
 
+def case_p02_industrial_socket_admission():
+    """Exercise the real P02 industrial admission gate without Unreal."""
+    try:
+        module = load("p02_import_socket_admission", KIT / "p02_import.py")
+        module.PROJECT = str(REPO)
+        module.c._project_path = lambda value: str(REPO / value)
+
+        class SlotA:
+            @staticmethod
+            def load_json(path):
+                return json.loads(Path(path).read_text(encoding="utf-8"))
+
+        config = json.loads((KIT / "run_p02.json").read_text(encoding="utf-8"))
+        rows = module.industrial_inventory(config, SlotA)
+        counts = {row["mesh_name"]: row["socket_count"] for row in rows}
+        expected = {
+            "SM_FlatV3_P02_IND_FenceTarp_L": 6,
+            "SM_FlatV3_P02_IND_FenceTarp_R": 6,
+            "SM_FlatV3_P02_IND_FenceOpen_L": 6,
+            "SM_FlatV3_P02_IND_FenceOpen_R": 6,
+            "SM_FlatV3_P02_IND_RollerShutter_L": 4,
+            "SM_FlatV3_P02_IND_RollerShutter_R": 4,
+            "SM_FlatV3_P02_IND_DuctVent_L": 4,
+            "SM_FlatV3_P02_IND_DuctVent_R": 4,
+        }
+        record("P02 industrial socket admission", "+", "8 contract sidecars", counts == expected,
+               json.dumps(counts, sort_keys=True))
+    except Exception as exc:
+        record("P02 industrial socket admission", "+", "8 contract sidecars", False, exc)
+
+
 def case_p06_contract(config, folder):
     support = load("p06_support_contract", KIT / "p06_support.py")
     common, *_ = modules(folder)
@@ -926,6 +957,7 @@ def main():
         case_static_tokens()
         case_p03_import_sources()
         case_p02_import_sources()
+        case_p02_industrial_socket_admission()
         case_p06_contract(configs[4][1], folder)
         case_p06_import_sources()
     print_table()

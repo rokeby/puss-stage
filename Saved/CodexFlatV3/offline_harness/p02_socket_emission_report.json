@@ -1,0 +1,740 @@
+{
+  "schema_version": 1,
+  "mode": "write",
+  "unreal_used": false,
+  "mesh_files_touched": 0,
+  "set01": {
+    "asset": "SM_FlatV3_P02_SET01_C",
+    "path": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET01_C\\sockets_SM_FlatV3_P02_SET01_C.json",
+    "changed": true,
+    "before_sha256": "aa1ac74f7b11f557865082f48c9adec07ec927296c53c5289f3b09dc5962721c",
+    "after_sha256": "a38ff004f8726cbe9968bfe7a0b088d2a8dcf8573df2b3b128e98e51ab1b8f9e",
+    "socket_count": 0,
+    "contract_failures": [],
+    "matches_set04_structure": true
+  },
+  "industrial_count": 8,
+  "industrial_changed": 8,
+  "source_contract_failure_assets": [
+    "SM_FlatV3_P02_IND_FenceOpen_L",
+    "SM_FlatV3_P02_IND_FenceOpen_R",
+    "SM_FlatV3_P02_IND_FenceTarp_L",
+    "SM_FlatV3_P02_IND_FenceTarp_R",
+    "SM_FlatV3_P02_IND_RollerShutter_L",
+    "SM_FlatV3_P02_IND_RollerShutter_R"
+  ],
+  "source_extra_socket_assets": [
+    "SM_FlatV3_P02_IND_DuctVent_L",
+    "SM_FlatV3_P02_IND_DuctVent_R"
+  ],
+  "industrial": [
+    {
+      "asset": "SM_FlatV3_P02_IND_DuctVent_L",
+      "side": "L",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_DuctVent_L.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_DuctVent_L.json",
+      "changed": true,
+      "before_sha256": "6b405ccbd5e583b39bf4337c2c6dd5a76961369120ea5c78a5ff8644dd4eb908",
+      "after_sha256": "d6db0a70a23b42a918b3547913eff4961685523aa3bf61f530c41211bb57de11",
+      "source_records": [
+        {
+          "name": "SOCKET_DuctInlet",
+          "location_m": [
+            0.0,
+            -8.55,
+            3.65
+          ]
+        },
+        {
+          "name": "SOCKET_DuctOutlet",
+          "location_m": [
+            0.0,
+            -1.95,
+            12.0
+          ]
+        },
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            -4.4,
+            6.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            -8.8,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_SecondaryOutlet",
+          "location_m": [
+            -0.08,
+            -3.72,
+            12.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -18.000005185604095,
+        "y_max": 855.0000190734863,
+        "z_min": -100.0,
+        "z_max": 1214.9999618530273
+      },
+      "source_findings": {
+        "failures": [],
+        "excluded_non_wing_sockets": [
+          "SOCKET_DuctInlet",
+          "SOCKET_DuctOutlet",
+          "SOCKET_SecondaryOutlet"
+        ],
+        "source_pivot_m": [
+          0.0,
+          -4.4,
+          6.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          -4.4,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_DuctVent_R",
+      "side": "R",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_DuctVent_R.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_DuctVent_R.json",
+      "changed": true,
+      "before_sha256": "2770566b499885e53ab31703660be284754e7c76b95c63a34f8151136f47b859",
+      "after_sha256": "76feea72c8df628645511fcea35106b83636ae087cd680f619816dc2423201f4",
+      "source_records": [
+        {
+          "name": "SOCKET_Conduit",
+          "location_m": [
+            -0.77,
+            1.35,
+            5.75
+          ]
+        },
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            4.6,
+            6.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            9.2,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Service",
+          "location_m": [
+            -0.78,
+            5.1,
+            4.35
+          ]
+        },
+        {
+          "name": "SOCKET_UpperVent",
+          "location_m": [
+            -0.72,
+            4.175,
+            9.73
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -936.9999885559082,
+        "y_max": 17.000004649162292,
+        "z_min": -100.0,
+        "z_max": 1200.0
+      },
+      "source_findings": {
+        "failures": [],
+        "excluded_non_wing_sockets": [
+          "SOCKET_Conduit",
+          "SOCKET_Service",
+          "SOCKET_UpperVent"
+        ],
+        "source_pivot_m": [
+          0.0,
+          4.6,
+          6.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          4.6,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_FenceOpen_L",
+      "side": "L",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_FenceOpen_L.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceOpen_L.json",
+      "changed": true,
+      "before_sha256": "7cd9322da845aa9d4d40ff03935343915dd6be79fa5ee6463f29dd8227c06410",
+      "after_sha256": "8f94ea6ba203ec34c7e6dcdc3f0cae3399183d08133fc0f916afecb47c58a325",
+      "source_records": [
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            -4.2,
+            5.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            -2.8,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_3",
+          "location_m": [
+            0.0,
+            -5.6,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_4",
+          "location_m": [
+            0.0,
+            -8.4,
+            0.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -4.9500007182359695,
+        "y_max": 844.950008392334,
+        "z_min": -100.0,
+        "z_max": 1200.3396034240723
+      },
+      "source_findings": {
+        "failures": [
+          "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+        ],
+        "excluded_non_wing_sockets": [],
+        "source_pivot_m": [
+          0.0,
+          -4.2,
+          5.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          -4.2,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2",
+        "SOCKET_Pole_3",
+        "SOCKET_Pole_4"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_FenceOpen_R",
+      "side": "R",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_FenceOpen_R.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceOpen_R.json",
+      "changed": true,
+      "before_sha256": "89c10e1f4ca9b05bf8c0e52acaa5928e58562efcd5d8f74e74f1135af631372e",
+      "after_sha256": "d6341f91a523593e124b66838cbc6b17a0756a82d71f9cbf423ef5b91c1a72f8",
+      "source_records": [
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            4.2,
+            5.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            2.8,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_3",
+          "location_m": [
+            0.0,
+            5.6,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_4",
+          "location_m": [
+            0.0,
+            8.4,
+            0.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -844.950008392334,
+        "y_max": 4.94999922811985,
+        "z_min": -100.0,
+        "z_max": 1200.3396034240723
+      },
+      "source_findings": {
+        "failures": [
+          "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+        ],
+        "excluded_non_wing_sockets": [],
+        "source_pivot_m": [
+          0.0,
+          4.2,
+          5.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          4.2,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2",
+        "SOCKET_Pole_3",
+        "SOCKET_Pole_4"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_FenceTarp_L",
+      "side": "L",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_FenceTarp_L.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceTarp_L.json",
+      "changed": true,
+      "before_sha256": "b17809cf1d63422ee83cb7cabb308057b5dd7287f95370d099029ced17719b0b",
+      "after_sha256": "88b254376255d7368af2db2c6712ba92c1ccdf0d135f8d37db2a933d953895c7",
+      "source_records": [
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            -4.2,
+            5.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            -2.8,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_3",
+          "location_m": [
+            0.0,
+            -5.6,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_4",
+          "location_m": [
+            0.0,
+            -8.4,
+            0.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -4.9500007182359695,
+        "y_max": 844.950008392334,
+        "z_min": -100.0,
+        "z_max": 1200.3396034240723
+      },
+      "source_findings": {
+        "failures": [
+          "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+        ],
+        "excluded_non_wing_sockets": [],
+        "source_pivot_m": [
+          0.0,
+          -4.2,
+          5.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          -4.2,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2",
+        "SOCKET_Pole_3",
+        "SOCKET_Pole_4"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_FenceTarp_R",
+      "side": "R",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_FenceTarp_R.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceTarp_R.json",
+      "changed": true,
+      "before_sha256": "47dfe2074f32d2dcfc5c7ade7170caec2e2ad981355b3b7652fcc0583da8cda6",
+      "after_sha256": "1cf5eda557590939d3c0cbb2b4f7e6a984a1730d658525a9f4d302450917cbc8",
+      "source_records": [
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            4.2,
+            5.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            2.8,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_3",
+          "location_m": [
+            0.0,
+            5.6,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_4",
+          "location_m": [
+            0.0,
+            8.4,
+            0.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -844.950008392334,
+        "y_max": 4.94999922811985,
+        "z_min": -100.0,
+        "z_max": 1200.3396034240723
+      },
+      "source_findings": {
+        "failures": [
+          "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+        ],
+        "excluded_non_wing_sockets": [],
+        "source_pivot_m": [
+          0.0,
+          4.2,
+          5.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          4.2,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2",
+        "SOCKET_Pole_3",
+        "SOCKET_Pole_4"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_RollerShutter_L",
+      "side": "L",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_RollerShutter_L.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_RollerShutter_L.json",
+      "changed": true,
+      "before_sha256": "cc2e930a5004ad4caea2603ee6ae879faab8e8db681bb29cda95b726f3ab1d80",
+      "after_sha256": "8869fe2ee2996a100908cf33e146e8cad1d737c58278701d165b1545283f57bc",
+      "source_records": [
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            -4.0,
+            5.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            -8.0,
+            0.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -334.99999046325684,
+        "y_max": 806.0000419616699,
+        "z_min": -120.00000476837158,
+        "z_max": 1221.60005569458
+      },
+      "source_findings": {
+        "failures": [
+          "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+        ],
+        "excluded_non_wing_sockets": [],
+        "source_pivot_m": [
+          0.0,
+          -4.0,
+          5.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          -4.0,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    },
+    {
+      "asset": "SM_FlatV3_P02_IND_RollerShutter_R",
+      "side": "R",
+      "fbx": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\SM_FlatV3_P02_IND_RollerShutter_R.fbx",
+      "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_RollerShutter_R.json",
+      "changed": true,
+      "before_sha256": "d73f65f00d27c4d7723d7a8e4f23543e24dbfe83e88e72596dba381a3ed53775",
+      "after_sha256": "bb60fd390cb895f05b4423f1a04dec309f484f45c7279adbec5f9b3a67a8b8e1",
+      "source_records": [
+        {
+          "name": "SOCKET_Hinge",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pivot",
+          "location_m": [
+            0.0,
+            4.0,
+            5.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_1",
+          "location_m": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "SOCKET_Pole_2",
+          "location_m": [
+            0.0,
+            8.0,
+            0.0
+          ]
+        }
+      ],
+      "geometry_bounds_cm": {
+        "y_min": -806.0000419616699,
+        "y_max": 334.99999046325684,
+        "z_min": -120.00000476837158,
+        "z_max": 1221.60005569458
+      },
+      "source_findings": {
+        "failures": [
+          "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+        ],
+        "excluded_non_wing_sockets": [],
+        "source_pivot_m": [
+          0.0,
+          4.0,
+          5.0
+        ],
+        "contract_pivot_m": [
+          0.0,
+          4.0,
+          6.0
+        ]
+      },
+      "emitted_socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "contract_failures": [],
+      "geometry_failures": []
+    }
+  ]
+}

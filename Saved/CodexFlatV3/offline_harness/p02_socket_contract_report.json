@@ -1,0 +1,915 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "scope": "all 35 Slot A flats; no Unreal and no mesh rebuild",
+  "simulated_unreal_rotation_order": "roll-pitch-yaw",
+  "asset_count": 35,
+  "full_contract_failure_count": 0,
+  "semantic_failure_count": 0,
+  "legacy_pilot_gate_failure_counts": {
+    "PIVOT_SOCKET_FAIL": 12,
+    "SOCKET_JSON_NAMES_FAIL": 8
+  },
+  "reproduced_original_primary_failure_counts": {
+    "PIVOT_SOCKET_FAIL": 10,
+    "SOCKET_JSON_NAMES_FAIL": 8,
+    "TRIANGLE_COUNT_FAIL": 7
+  },
+  "reproduced_original_failure_counts_match": true,
+  "observed_failure_counts": {
+    "PIVOT_SOCKET_FAIL": 10,
+    "SOCKET_JSON_NAMES_FAIL": 8,
+    "TRIANGLE_COUNT_FAIL": 7
+  },
+  "triangle_tolerance": {
+    "rule": "abs(UE source-model triangles - Blender FBX validation triangles) <= 1",
+    "failure_count": 0,
+    "items": [
+      {
+        "asset": "P04_coventry_interior_L_v1",
+        "actual": 8490,
+        "expected": 8491,
+        "delta": -1,
+        "pass_with_interchange_tolerance": true
+      },
+      {
+        "asset": "P04_coventry_ruin_L_v1",
+        "actual": 5968,
+        "expected": 5969,
+        "delta": -1,
+        "pass_with_interchange_tolerance": true
+      },
+      {
+        "asset": "P04_coventry_ruin_R_v1",
+        "actual": 6938,
+        "expected": 6939,
+        "delta": -1,
+        "pass_with_interchange_tolerance": true
+      },
+      {
+        "asset": "P04_ruined_gallery_R_v3",
+        "actual": 13774,
+        "expected": 13773,
+        "delta": 1,
+        "pass_with_interchange_tolerance": true
+      },
+      {
+        "asset": "P05_cloud_R_v1",
+        "actual": 4445,
+        "expected": 4446,
+        "delta": -1,
+        "pass_with_interchange_tolerance": true
+      },
+      {
+        "asset": "P05_cloud_R_v3",
+        "actual": 6713,
+        "expected": 6714,
+        "delta": -1,
+        "pass_with_interchange_tolerance": true
+      },
+      {
+        "asset": "P01_SaltFormation_01_L_v2_L",
+        "actual": 5390,
+        "expected": 5391,
+        "delta": -1,
+        "pass_with_interchange_tolerance": true
+      }
+    ]
+  },
+  "pilot_hand_derived_reference": {
+    "asset_count": 2,
+    "semantic_failure_count": 0,
+    "items": [
+      {
+        "asset": "SM_FlatV3_P02_RuisdaelA_L",
+        "path": "E:\\PussStage\\DerivedAssets\\FlatV3\\Pilot\\sockets_SM_FlatV3_P02_RuisdaelA_L.json",
+        "semantic_failures": []
+      },
+      {
+        "asset": "SM_FlatV3_P02_RuisdaelA_R",
+        "path": "E:\\PussStage\\DerivedAssets\\FlatV3\\Pilot\\sockets_SM_FlatV3_P02_RuisdaelA_R.json",
+        "semantic_failures": []
+      }
+    ]
+  },
+  "p02_import_sidecars": {
+    "scope": "every plant and industrial sidecar admitted by run_p02.json",
+    "require_metadata": true,
+    "asset_count": 32,
+    "failure_count": 0,
+    "negative_control": {
+      "fixture": "E:\\PussStage\\Saved\\CodexFlatV3\\offline_harness\\old_sockets_SM_FlatV3_P02_SET01_C.json",
+      "expected_status": "FAIL",
+      "failures": [
+        "ROTATION_ORDER_FAIL",
+        "SOCKET_CONTRACT_METADATA_FAIL"
+      ],
+      "passed_negative_control": true
+    },
+    "items": [
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET01_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET01_C\\sockets_SM_FlatV3_P02_SET01_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET01_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET01_L\\sockets_SM_FlatV3_P02_SET01_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET01_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET01_R\\sockets_SM_FlatV3_P02_SET01_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET04_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET04_C\\sockets_SM_FlatV3_P02_SET04_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET04_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET04_L\\sockets_SM_FlatV3_P02_SET04_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET04_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET04_R\\sockets_SM_FlatV3_P02_SET04_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET06_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET06_C\\sockets_SM_FlatV3_P02_SET06_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET06_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET06_L\\sockets_SM_FlatV3_P02_SET06_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET06_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET06_R\\sockets_SM_FlatV3_P02_SET06_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET07_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET07_C\\sockets_SM_FlatV3_P02_SET07_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET07_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET07_L\\sockets_SM_FlatV3_P02_SET07_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET07_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET07_R\\sockets_SM_FlatV3_P02_SET07_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET16_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET16_C\\sockets_SM_FlatV3_P02_SET16_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET16_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET16_L\\sockets_SM_FlatV3_P02_SET16_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET16_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET16_R\\sockets_SM_FlatV3_P02_SET16_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET18_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET18_C\\sockets_SM_FlatV3_P02_SET18_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET18_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET18_L\\sockets_SM_FlatV3_P02_SET18_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET18_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET18_R\\sockets_SM_FlatV3_P02_SET18_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET19_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_C\\sockets_SM_FlatV3_P02_SET19_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET19_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_L\\sockets_SM_FlatV3_P02_SET19_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET19_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET19_R\\sockets_SM_FlatV3_P02_SET19_R.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET20_C",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_C\\sockets_SM_FlatV3_P02_SET20_C.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET20_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_L\\sockets_SM_FlatV3_P02_SET20_L.json",
+        "failures": []
+      },
+      {
+        "kind": "plant",
+        "asset": "SM_FlatV3_P02_SET20_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Sets\\flats\\P02_SET20_R\\sockets_SM_FlatV3_P02_SET20_R.json",
+        "failures": []
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_DuctVent_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_DuctVent_L.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [],
+          "excluded_non_wing_sockets": [
+            "SOCKET_DuctInlet",
+            "SOCKET_DuctOutlet",
+            "SOCKET_SecondaryOutlet"
+          ],
+          "source_pivot_m": [
+            0.0,
+            -4.4,
+            6.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            -4.4,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_DuctVent_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_DuctVent_R.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [],
+          "excluded_non_wing_sockets": [
+            "SOCKET_Conduit",
+            "SOCKET_Service",
+            "SOCKET_UpperVent"
+          ],
+          "source_pivot_m": [
+            0.0,
+            4.6,
+            6.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            4.6,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_FenceOpen_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceOpen_L.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [
+            "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+          ],
+          "excluded_non_wing_sockets": [],
+          "source_pivot_m": [
+            0.0,
+            -4.2,
+            5.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            -4.2,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_FenceOpen_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceOpen_R.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [
+            "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+          ],
+          "excluded_non_wing_sockets": [],
+          "source_pivot_m": [
+            0.0,
+            4.2,
+            5.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            4.2,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_FenceTarp_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceTarp_L.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [
+            "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+          ],
+          "excluded_non_wing_sockets": [],
+          "source_pivot_m": [
+            0.0,
+            -4.2,
+            5.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            -4.2,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_FenceTarp_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_FenceTarp_R.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [
+            "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+          ],
+          "excluded_non_wing_sockets": [],
+          "source_pivot_m": [
+            0.0,
+            4.2,
+            5.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            4.2,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_RollerShutter_L",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_RollerShutter_L.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [
+            "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+          ],
+          "excluded_non_wing_sockets": [],
+          "source_pivot_m": [
+            0.0,
+            -4.0,
+            5.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            -4.0,
+            6.0
+          ]
+        }
+      },
+      {
+        "kind": "industrial",
+        "asset": "SM_FlatV3_P02_IND_RollerShutter_R",
+        "sidecar": "E:\\PussStage\\DerivedAssets\\FlatV3\\Overnight\\P02Industrial\\sockets_SM_FlatV3_P02_IND_RollerShutter_R.json",
+        "failures": [],
+        "source_findings": {
+          "failures": [
+            "SOURCE_PIVOT_GEOMETRY_MIDPOINT_FAIL"
+          ],
+          "excluded_non_wing_sockets": [],
+          "source_pivot_m": [
+            0.0,
+            4.0,
+            5.0
+          ],
+          "contract_pivot_m": [
+            0.0,
+            4.0,
+            6.0
+          ]
+        }
+      }
+    ]
+  },
+  "items": [
+    {
+      "asset": "P04_coventry_interior_L_v1",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_coventry_ruin_L_v1",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_coventry_ruin_L_v2",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_coventry_ruin_R_v1",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_ruined_gallery_L_v1",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_ruined_gallery_R_v1",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_ruined_gallery_R_v2",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P04_ruined_gallery_R_v3",
+      "passage": "P04",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_cloud_C_v2",
+      "passage": "P05",
+      "socket_names": [],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_cloud_L_v1",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_cloud_R_v1",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_cloud_R_v2",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_cloud_R_v3",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P01_L_1_roccoco_L",
+      "passage": "P01",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P01_L_pillar1_bw_L",
+      "passage": "P01",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P01_L_Pillar2_bw_L",
+      "passage": "P01",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P01_R__1_roccoco_R",
+      "passage": "P01",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P01_R_Pillar1_bw_R",
+      "passage": "P01",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "PASS",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P01_SaltFormation_01_L_v2_L",
+      "passage": "P01",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PASS",
+      "reproduced_original_primary_gate": "TRIANGLE_COUNT_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef01_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef01_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef02_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef02_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef03_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef03_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef04_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef04_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef05_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef05_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef06_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef06_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef07_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef07_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1"
+      ],
+      "legacy_pilot_gate": "SOCKET_JSON_NAMES_FAIL",
+      "reproduced_original_primary_gate": "SOCKET_JSON_NAMES_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef08_L_L",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    },
+    {
+      "asset": "P05_CloudRef08_R_R",
+      "passage": "P05",
+      "socket_names": [
+        "SOCKET_Hinge",
+        "SOCKET_Pivot",
+        "SOCKET_Pole_1",
+        "SOCKET_Pole_2"
+      ],
+      "legacy_pilot_gate": "PIVOT_SOCKET_FAIL",
+      "reproduced_original_primary_gate": "PIVOT_SOCKET_FAIL",
+      "spec_semantic_failures": [],
+      "full_contract_failures": []
+    }
+  ]
+}

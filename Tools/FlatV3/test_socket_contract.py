@@ -13,12 +13,16 @@ from socket_contract import (
     discover_slot_a_rows,
     load_json,
     make_socket_payload,
+    make_wing_payload_from_fbx_records,
     validate_socket_payload,
+    validate_wing_geometry,
 )
 
 
 PROJECT = Path(__file__).resolve().parents[2]
 FAILURE_JSON = PROJECT / "Saved/CodexFlatV3/slot_a_import_FV3A-20261002-01_FAILURE.json"
+P02_EMISSION_REPORT = PROJECT / "Saved/CodexFlatV3/offline_harness/p02_socket_emission_report.json"
+OLD_SET01 = PROJECT / "Saved/CodexFlatV3/offline_harness/old_sockets_SM_FlatV3_P02_SET01_C.json"
 
 
 def legacy_pilot_gate(payload: dict) -> str | None:
@@ -93,6 +97,87 @@ def pilot_reference_results() -> list[dict]:
     return results
 
 
+def _manifest(folder: Path, status: dict) -> dict:
+    path = Path(str(status.get("build_manifest", "")))
+    if not path.is_file():
+        matches = sorted(folder.glob("*_build.json"))
+        if len(matches) != 1:
+            raise RuntimeError(f"Cannot resolve build manifest for {folder}")
+        path = matches[0]
+    return load_json(path)
+
+
+def p02_import_results() -> tuple[list[dict], dict]:
+    """Validate every sidecar admitted by the current P02 import inventory."""
+    root = PROJECT / "DerivedAssets/FlatV3/Overnight"
+    results = []
+    flats = root / "P02Sets/flats"
+    for folder in sorted(path for path in flats.iterdir() if path.is_dir()):
+        status_path = folder / "status.json"
+        validation_path = folder / "validation.json"
+        if not status_path.is_file() or not validation_path.is_file():
+            continue
+        status = load_json(status_path)
+        validation = load_json(validation_path)
+        if status.get("passage") != "P02" or not validation.get("pass"):
+            continue
+        manifest = _manifest(folder, status)
+        expected = make_socket_payload(
+            asset=str(status["asset_name"]),
+            side=str(status["build_side"]),
+            mount=str(status["mount"]),
+            height_cm=float(status["height_cm"]),
+            width_m=float(manifest["dimensions_m"]["width"]),
+            pole_positions_y_m=as_pole_list(manifest.get("pole_positions_y_m")),
+        )
+        sidecar = folder / ("sockets_" + str(status["asset_name"]) + ".json")
+        failures = validate_socket_payload(
+            load_json(sidecar), expected, require_metadata=True)
+        results.append({
+            "kind": "plant", "asset": status["asset_name"],
+            "sidecar": str(sidecar), "failures": failures,
+        })
+
+    emission = load_json(P02_EMISSION_REPORT)
+    for item in emission["industrial"]:
+        expected = make_wing_payload_from_fbx_records(
+            asset=str(item["asset"]), side=str(item["side"]),
+            height_cm=1200.0, records=item["source_records"])
+        sidecar = Path(item["sidecar"])
+        actual = load_json(sidecar)
+        failures = validate_socket_payload(actual, expected, require_metadata=True)
+        failures.extend(validate_wing_geometry(
+            actual, side=str(item["side"]), height_cm=1200.0,
+            bounds_cm=item["geometry_bounds_cm"],
+        ))
+        results.append({
+            "kind": "industrial", "asset": item["asset"],
+            "sidecar": str(sidecar), "failures": failures,
+            "source_findings": item["source_findings"],
+        })
+
+    set01_status = load_json(flats / "P02_SET01_C/status.json")
+    set01_manifest = _manifest(flats / "P02_SET01_C", set01_status)
+    set01_expected = make_socket_payload(
+        asset=str(set01_status["asset_name"]),
+        side=str(set01_status["build_side"]),
+        mount=str(set01_status["mount"]),
+        height_cm=float(set01_status["height_cm"]),
+        width_m=float(set01_manifest["dimensions_m"]["width"]),
+        pole_positions_y_m=as_pole_list(set01_manifest.get("pole_positions_y_m")),
+    )
+    negative_failures = validate_socket_payload(
+        load_json(OLD_SET01), set01_expected, require_metadata=True)
+    negative = {
+        "fixture": str(OLD_SET01),
+        "expected_status": "FAIL",
+        "failures": negative_failures,
+        "passed_negative_control": negative_failures == [
+            "ROTATION_ORDER_FAIL", "SOCKET_CONTRACT_METADATA_FAIL"],
+    }
+    return results, negative
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path)
@@ -139,8 +224,11 @@ def main() -> int:
     observed = observed_failure_counts()
     legacy_match = dict(sorted(reproduced_primary_counts.items())) == observed
     triangle_failures = sum(not row["pass_with_interchange_tolerance"] for row in triangles)
+    p02_results, p02_negative = p02_import_results()
+    p02_failures = sum(bool(row["failures"]) for row in p02_results)
     passed = (not metadata_failures and not semantic_failures and not triangle_failures and
-              not pilot_failures and legacy_match)
+              not pilot_failures and legacy_match and not p02_failures and
+              p02_negative["passed_negative_control"])
     report = {
         "schema_version": 1,
         "status": "PASS" if passed else "FAIL",
@@ -163,6 +251,14 @@ def main() -> int:
             "semantic_failure_count": pilot_failures,
             "items": pilot_results,
         },
+        "p02_import_sidecars": {
+            "scope": "every plant and industrial sidecar admitted by run_p02.json",
+            "require_metadata": True,
+            "asset_count": len(p02_results),
+            "failure_count": p02_failures,
+            "negative_control": p02_negative,
+            "items": p02_results,
+        },
         "items": results,
     }
     if args.report:
@@ -176,6 +272,9 @@ def main() -> int:
         "legacy_pilot_gate_failures": dict(sorted(legacy_counts.items())),
         "triangle_tolerance_failures": triangle_failures,
         "pilot_reference_failures": pilot_failures,
+        "p02_import_sidecars": len(p02_results),
+        "p02_import_failures": p02_failures,
+        "p02_old_set01_negative_control": p02_negative["passed_negative_control"],
     }, sort_keys=True))
     return 0 if passed else 1
 

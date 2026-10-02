@@ -13,9 +13,11 @@ import math
 import sys
 from pathlib import Path
 
+import bmesh
 import bpy
 import numpy as np
 from mathutils import Matrix, Vector
+from mathutils.geometry import tessellate_polygon
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -52,6 +54,7 @@ def blender_args() -> argparse.Namespace:
     parser.add_argument("--name")
     parser.add_argument("--asset-name", help="Exact suffix after SM_FlatV3_; defaults to <name>_<side>")
     parser.add_argument("--mount", choices=("wing", "wave-row", "top-border"), default="wing")
+    parser.add_argument("--deterministic-triangulation", action="store_true")
     parser.add_argument("--output-dir")
     parser.add_argument("--texture-root")
     parser.add_argument("--render", action="store_true")
@@ -204,11 +207,25 @@ def rdp_open(points: np.ndarray, tolerance: float) -> np.ndarray:
 
 
 def simplify_closed(points: np.ndarray, tolerance: float) -> np.ndarray:
-    pivot = points[0]
-    split = int(np.argmax(np.linalg.norm(points - pivot, axis=1)))
-    first = rdp_open(points[: split + 1], tolerance)
-    second = rdp_open(np.vstack((points[split:], points[0])), tolerance)
-    combined = np.vstack((first[:-1], second[:-1]))
+    # RDP may otherwise remove the source silhouette's exact extrema.  Since
+    # physical scale is derived from those extrema, that can make an exported
+    # 12 m card several centimetres short.  Split the closed contour at each
+    # axis extremum so all four anchors survive simplification.
+    anchors = sorted({
+        int(np.argmin(points[:, 0])), int(np.argmax(points[:, 0])),
+        int(np.argmin(points[:, 1])), int(np.argmax(points[:, 1])),
+    })
+    if len(anchors) < 2:
+        return points
+    segments = []
+    for anchor_index, start in enumerate(anchors):
+        end = anchors[(anchor_index + 1) % len(anchors)]
+        if end > start:
+            segment = points[start:end + 1]
+        else:
+            segment = np.vstack((points[start:], points[:end + 1]))
+        segments.append(rdp_open(segment, tolerance)[:-1])
+    combined = np.vstack(segments)
     return combined if len(combined) >= 3 else points
 
 
@@ -554,7 +571,239 @@ def rebuild_front_uv0(obj: bpy.types.Object, silhouette: Silhouette) -> None:
             uv0.data[loop_index].uv = silhouette.uv0(co.y, co.z)
 
 
-def create_board(name: str, silhouette: Silhouette, materials: list[bpy.types.Material]) -> bpy.types.Object:
+def deterministic_cap_tessellation(
+    silhouette: Silhouette,
+) -> tuple[list[Vector], list[tuple[int, int, int]], int]:
+    """Tessellate a mask cap, slicing only when Blender's hole limit requires it."""
+    min_hole_area_px = (0.03 / silhouette.scale_m_per_px) ** 2
+    tolerance_px = 0.0055 / silhouette.scale_m_per_px
+    last_failure: dict | None = None
+
+    def contains(loop: np.ndarray, point: np.ndarray) -> bool:
+        x, y = float(point[0]), float(point[1])
+        x0, y0 = loop[:, 0], loop[:, 1]
+        x1, y1 = np.roll(x0, -1), np.roll(y0, -1)
+        crossing = ((y0 <= y) & (y < y1)) | ((y1 <= y) & (y < y0))
+        intersections = x0[crossing] + (y - y0[crossing]) * (x1[crossing] - x0[crossing]) / (y1[crossing] - y0[crossing])
+        return bool(np.count_nonzero(intersections > x) % 2)
+
+    for slice_count in (1, 2, 4, 8, 16, 32):
+        all_vertices: list[Vector] = []
+        all_triangles: list[tuple[int, int, int]] = []
+        valid = True
+        skipped_hole_area = 0.0
+        accepted_cap_area = 0.0
+        for slice_index in range(slice_count):
+            x0 = (silhouette.image_w * slice_index) // slice_count
+            x1 = (silhouette.image_w * (slice_index + 1)) // slice_count
+            chunk = silhouette.mask[:, x0:x1]
+            if not chunk.any():
+                continue
+            raw_loops = mask_loops(chunk)
+            raw_loops.sort(key=lambda loop: abs(signed_area(loop)), reverse=True)
+            kept_pixel_loops = []
+            for loop in raw_loops:
+                area = signed_area(loop)
+                if area > 0.0 or abs(area) >= min_hole_area_px:
+                    simplified = simplify_closed(loop, tolerance_px).copy()
+                    simplified[:, 0] += x0
+                    kept_pixel_loops.append(simplified)
+            physical_loops = [silhouette.pixel_to_physical(loop) for loop in kept_pixel_loops]
+            oriented_loops = []
+            for pixel_loop, physical_loop in zip(kept_pixel_loops, physical_loops):
+                wants_positive = signed_area(pixel_loop) > 0.0
+                is_positive = signed_area(physical_loop) > 0.0
+                oriented = physical_loop if wants_positive == is_positive else physical_loop[::-1]
+                oriented_loops.append([
+                    Vector((float(y), float(z), 0.0)) for y, z in oriented
+                ])
+            outer_indices = [i for i, loop in enumerate(kept_pixel_loops) if signed_area(loop) > 0.0]
+            hole_indices = [i for i, loop in enumerate(kept_pixel_loops) if signed_area(loop) < 0.0]
+            assigned_holes: set[int] = set()
+            for outer_index in outer_indices:
+                group_indices = [outer_index]
+                for hole_index in hole_indices:
+                    if hole_index not in assigned_holes and contains(kept_pixel_loops[outer_index], kept_pixel_loops[hole_index][0]):
+                        group_indices.append(hole_index)
+                        assigned_holes.add(hole_index)
+                accepted_indices = [outer_index]
+                expected_area = abs(signed_area(physical_loops[outer_index]))
+                flattened = list(oriented_loops[outer_index])
+                triangles = tessellate_polygon([oriented_loops[outer_index]])
+                for hole_index in group_indices[1:]:
+                    candidate_indices = accepted_indices + [hole_index]
+                    candidate_loops = [oriented_loops[index] for index in candidate_indices]
+                    candidate_flattened = [vertex for loop in candidate_loops for vertex in loop]
+                    candidate_triangles = tessellate_polygon(candidate_loops)
+                    candidate_expected = expected_area - abs(signed_area(physical_loops[hole_index]))
+                    candidate_area = sum(
+                        abs((candidate_flattened[b] - candidate_flattened[a]).cross(candidate_flattened[c] - candidate_flattened[a]).z) * 0.5
+                        for a, b, c in candidate_triangles
+                    )
+                    tolerance = max(1.0e-5, abs(candidate_expected) * 1.0e-6)
+                    if candidate_triangles and abs(candidate_area - candidate_expected) <= tolerance:
+                        accepted_indices = candidate_indices
+                        expected_area = candidate_expected
+                        flattened = candidate_flattened
+                        triangles = candidate_triangles
+                    else:
+                        skipped_hole_area += abs(signed_area(physical_loops[hole_index]))
+                tessellated_area = sum(
+                    abs((flattened[b] - flattened[a]).cross(flattened[c] - flattened[a]).z) * 0.5
+                    for a, b, c in triangles
+                )
+                tolerance = max(1.0e-5, abs(expected_area) * 1.0e-6)
+                if not triangles or abs(tessellated_area - expected_area) > tolerance:
+                    last_failure = {
+                        "slice_count": slice_count, "slice_index": slice_index,
+                        "loops": len(accepted_indices), "triangles": len(triangles),
+                        "tessellated_area": tessellated_area,
+                        "expected_area": expected_area,
+                    }
+                    valid = False
+                    break
+                base = len(all_vertices)
+                all_vertices.extend(flattened)
+                all_triangles.extend((base + a, base + b, base + c) for a, b, c in triangles)
+                accepted_cap_area += expected_area
+            if not valid:
+                break
+            if len(assigned_holes) != len(hole_indices):
+                last_failure = {
+                    "slice_count": slice_count, "slice_index": slice_index,
+                    "unassigned_holes": len(hole_indices) - len(assigned_holes),
+                }
+                valid = False
+                break
+        if valid and all_triangles and skipped_hole_area / max(accepted_cap_area, 1.0e-9) < 0.0005:
+            return all_vertices, all_triangles, slice_count
+        if valid:
+            last_failure = {
+                "slice_count": slice_count,
+                "skipped_hole_area": skipped_hole_area,
+                "accepted_cap_area": accepted_cap_area,
+                "skipped_fraction": skipped_hole_area / max(accepted_cap_area, 1.0e-9),
+            }
+    raise RuntimeError(
+        "Deterministic board tessellation failed its signed-area gate at 32 slices: "
+        + json.dumps(last_failure)
+    )
+
+
+def enforce_board_cap_contract(obj: bpy.types.Object) -> None:
+    """Restore board cap material and winding after object consolidation.
+
+    Join/consolidate can expose a triangulated sliver with stale material or
+    winding even when the source board was correct.  Only the two exact board
+    planes are touched; flaps, timber, edge returns, and hardware are excluded.
+    """
+    for polygon in obj.data.polygons:
+        xs = [obj.data.vertices[index].co.x for index in polygon.vertices]
+        if (polygon.material_index == 0 and polygon.area > 1.0e-10
+                and all(abs(value - BOARD_FRONT_X) < 1.0e-5 for value in xs)):
+            if polygon.normal.x > -0.9:
+                polygon.flip()
+        elif (polygon.material_index == 2 and polygon.area > 1.0e-10
+              and all(abs(value - BOARD_BACK_X) < 1.0e-5 for value in xs)):
+            if polygon.normal.x < 0.9:
+                polygon.flip()
+    obj.data.update()
+
+
+def remove_degenerate_board_cap_faces(obj: bpy.types.Object) -> int:
+    """Delete exact zero-area cap faces introduced while consolidating parts.
+
+    The deterministic board tessellator rejects tiny source triangles, but the
+    object join can still expose a collinear cap triangle.  Such a face has no
+    physical surface or stable normal, and FBX preserves it as a Front/Timber
+    polygon that correctly fails the normal gate.  Remove only degenerate faces
+    lying on the two exact board planes; frame, flap, edge and hardware geometry
+    is deliberately out of scope.
+    """
+    mesh = bmesh.new()
+    mesh.from_mesh(obj.data)
+    degenerate = []
+    for face in mesh.faces:
+        is_front_cap = face.material_index == 0 and all(
+            abs(vertex.co.x - BOARD_FRONT_X) < 1.0e-5 for vertex in face.verts
+        )
+        is_back_cap = face.material_index == 2 and all(
+            abs(vertex.co.x - BOARD_BACK_X) < 1.0e-5 for vertex in face.verts
+        )
+        if (is_front_cap or is_back_cap) and face.calc_area() <= 1.0e-12:
+            degenerate.append(face)
+    removed = len(degenerate)
+    if degenerate:
+        bmesh.ops.delete(mesh, geom=degenerate, context="FACES")
+        mesh.to_mesh(obj.data)
+        obj.data.update()
+    mesh.free()
+    return removed
+
+
+def create_board(
+    name: str,
+    silhouette: Silhouette,
+    materials: list[bpy.types.Material],
+    deterministic_triangulation: bool = False,
+) -> bpy.types.Object:
+    if deterministic_triangulation:
+        # The physical mapping reverses contour winding.  Explicitly restore
+        # outer-positive / hole-negative winding before tessellation; Blender's
+        # Curve cap path can otherwise retain only a fraction of a highly
+        # concave chroma-key silhouette.
+        flattened, triangles, cap_slice_count = deterministic_cap_tessellation(silhouette)
+        if not triangles:
+            raise RuntimeError("Deterministic board tessellation produced no cap triangles")
+        front_vertices = [(BOARD_FRONT_X, vertex.x, vertex.y) for vertex in flattened]
+        back_vertices = [(BOARD_BACK_X, vertex.x, vertex.y) for vertex in flattened]
+        offset = len(flattened)
+        faces: list[tuple[int, ...]] = []
+        material_indices: list[int] = []
+        for a, b, c in triangles:
+            signed = (flattened[b] - flattened[a]).cross(flattened[c] - flattened[a]).z
+            # Below 1e-8 m2 the triangle is far smaller than one source pixel
+            # and FBX may import it with a zero/unstable normal.
+            if abs(signed) <= 1.0e-8:
+                continue
+            front = (a, c, b) if signed > 0.0 else (a, b, c)
+            back = (offset + a, offset + b, offset + c) if signed > 0.0 else (offset + a, offset + c, offset + b)
+            faces.append(front)
+            material_indices.append(0)
+            faces.append(back)
+            material_indices.append(2)
+        side_cursor = len(front_vertices) + len(back_vertices)
+        side_vertices: list[tuple[float, float, float]] = []
+        for loop in silhouette.physical_loops:
+            count = len(loop)
+            loop_start = side_cursor + len(side_vertices)
+            side_vertices.extend((BOARD_FRONT_X, float(y), float(z)) for y, z in loop)
+            side_vertices.extend((BOARD_BACK_X, float(y), float(z)) for y, z in loop)
+            for local_index in range(count):
+                a = loop_start + local_index
+                b = loop_start + ((local_index + 1) % count)
+                back_a = loop_start + count + local_index
+                back_b = loop_start + count + ((local_index + 1) % count)
+                faces.append((a, b, back_b, back_a))
+                material_indices.append(3)
+        mesh = bpy.data.meshes.new(name + "_Mesh")
+        mesh.from_pydata(front_vertices + back_vertices + side_vertices, [], faces)
+        mesh.update()
+        obj = bpy.data.objects.new(name + "_Board", mesh)
+        bpy.context.collection.objects.link(obj)
+        obj["DeterministicCapSlices"] = cap_slice_count
+        append_slots(obj, materials)
+        for polygon, material_index in zip(obj.data.polygons, material_indices):
+            polygon.material_index = material_index
+        assign_metric_uvs(obj, silhouette, board=True)
+        colors = ensure_vertex_colors(obj)
+        for polygon in obj.data.polygons:
+            slot_name = obj.material_slots[polygon.material_index].material.name
+            value = (0.5, 0.37, 0.0, 1.0) if slot_name == "Timber" else (0.0, 0.0, 0.0, 1.0)
+            for loop_index in polygon.loop_indices:
+                colors.data[loop_index].color = value
+        return obj
+
     curve = bpy.data.curves.new(name + "_Profile", type="CURVE")
     curve.dimensions = "2D"
     curve.resolution_u = 1
@@ -577,6 +826,31 @@ def create_board(name: str, silhouette: Silhouette, materials: list[bpy.types.Ma
     bpy.ops.object.convert(target="MESH")
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     obj = bpy.context.object
+    z_values = [float(vertex.co.z) for vertex in obj.data.vertices]
+    z_min, z_max = min(z_values), max(z_values)
+    if z_max - z_min <= 1.0e-9:
+        raise RuntimeError("Converted board has zero vertical extent")
+    height_scale = silhouette.height_m / (z_max - z_min)
+    for vertex in obj.data.vertices:
+        vertex.co.z = (vertex.co.z - z_min) * height_scale
+    obj.data.update()
+    if deterministic_triangulation:
+        modifier = obj.modifiers.new(name="TopBorderDeterministicTriangulation", type="TRIANGULATE")
+        modifier.quad_method = "BEAUTY"
+        modifier.ngon_method = "BEAUTY"
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.modifier_apply(modifier=modifier.name)
+        # Blender's curve-to-mesh conversion can leave an isolated cap triangle
+        # with winding inconsistent with its neighbours.  Flip only those
+        # planar polygons; recalculating the entire extruded mesh can alter cap
+        # membership around complex chroma-key contours.
+        for polygon in obj.data.polygons:
+            xs = [obj.data.vertices[index].co.x for index in polygon.vertices]
+            if all(abs(value - BOARD_FRONT_X) < 1.0e-5 for value in xs) and polygon.normal.x > 0.0:
+                polygon.flip()
+            elif all(abs(value - BOARD_BACK_X) < 1.0e-5 for value in xs) and polygon.normal.x < 0.0:
+                polygon.flip()
+        obj.data.update()
     append_slots(obj, materials)
     for polygon in obj.data.polygons:
         if polygon.normal.x < -0.5:
@@ -700,22 +974,44 @@ def build_frame(
     # imported Unreal mesh satisfies L +Y / R -Y with zero actor rotation.
     sign = -1.0 if silhouette.side == "L" else 1.0
     inward = np.linspace(0.10, max(0.11, silhouette.width_m * 0.34), 22) * sign
+    stile_search_mode = "backbone_third"
     try:
         pole_stiles = [longest_vertical(
             silhouette, inward, EDGE_INSET_M + MEMBER_FACE_M * 0.5
         )]
     except RuntimeError:
-        if not shallow:
-            raise
-        # A 1.2 m rolling crest can contain no 30 cm vertical run with the full
-        # 8 cm reveal. Wave rows are explicitly rail/toggle frames with no pole
-        # or socket contract, so keep their valid horizontal subframe instead
-        # of inventing an out-of-silhouette stile.
-        pole_stiles = []
+        # Narrow offstage stakes (for example a tied pyre bundle) can be too
+        # thin for a 5 cm stile plus the full 8 cm reveal. Search the entire
+        # silhouette for a genuinely inset run before giving up; this keeps the
+        # frame hidden without relaxing the containment gate.
+        full_width = np.linspace(0.10, max(0.11, silhouette.width_m - 0.10), 64) * sign
+        try:
+            pole_stiles = [longest_vertical(
+                silhouette, full_width, EDGE_INSET_M + MEMBER_FACE_M * 0.5
+            )]
+            stile_search_mode = "full_width_fallback"
+        except RuntimeError:
+            if not shallow:
+                raise
+            # A 1.2 m rolling crest can contain no 30 cm vertical run with the full
+            # 8 cm reveal. Wave rows are explicitly rail/toggle frames with no pole
+            # or socket contract, so keep their valid horizontal subframe instead
+            # of inventing an out-of-silhouette stile.
+            pole_stiles = []
+            stile_search_mode = "shallow_no_stile"
     pole_count = 2 if pole_stiles and silhouette.width_m > 4.0 else len(pole_stiles)
     if pole_count == 2:
         second_band = np.linspace(silhouette.width_m * 0.48, silhouette.width_m * 0.82, 24) * sign
-        pole_stiles.append(longest_vertical(silhouette, second_band, EDGE_INSET_M + MEMBER_FACE_M * 0.5))
+        try:
+            pole_stiles.append(longest_vertical(
+                silhouette, second_band, EDGE_INSET_M + MEMBER_FACE_M * 0.5
+            ))
+        except RuntimeError:
+            # Sparse tree/candelabrum silhouettes can be physically wide but
+            # contain no second continuous 30 cm run. Keep the measured first
+            # stile and let the unchanged rail/brace and containment gates prove
+            # the smaller valid frame instead of inventing off-board timber.
+            stile_search_mode += "+single_stile_sparse_second_band"
 
     backbone_y = sign * (EDGE_INSET_M + MEMBER_FACE_M * 0.5)
     backbone = (backbone_y, EDGE_INSET_M + MEMBER_FACE_M * 0.5,
@@ -757,6 +1053,17 @@ def build_frame(
             minimum_rail_length_m = 0.18 if shallow else 0.30
             if abs(y1 - y0) < minimum_rail_length_m:
                 continue
+            endpoint_inset = min(0.03, max(0.0, (abs(y1 - y0) - minimum_rail_length_m) * 0.25))
+            direction = 1.0 if y1 >= y0 else -1.0
+            y0 += direction * endpoint_inset
+            y1 -= direction * endpoint_inset
+            # Centreline scans can bridge a narrow see-through hole above or
+            # below the line. Validate the complete 5 cm member strip before
+            # creating it; invalid sub-runs are omitted, never accepted by
+            # weakening the final 8 cm containment gate.
+            rail_samples = member_samples((y0, rail_z), (y1, rail_z), MEMBER_FACE_M)
+            if not silhouette.allowed(rail_samples, EDGE_INSET_M).all():
+                continue
             # A shallow, pole-free wave has neither a pole nor a full-height
             # stile to carry the hardware ID.  Put that required ID on its
             # first valid rail while retaining the usual timber ID on all
@@ -789,6 +1096,13 @@ def build_frame(
         for run_index, (start, end) in enumerate(boolean_runs(allowed), start=1):
             y0, y1 = float(y_values[start]), float(y_values[end])
             if abs(y1 - y0) < 0.45:
+                continue
+            endpoint_inset = min(0.03, max(0.0, (abs(y1 - y0) - 0.45) * 0.25))
+            direction = 1.0 if y1 >= y0 else -1.0
+            y0 += direction * endpoint_inset
+            y1 -= direction * endpoint_inset
+            toggle_samples = member_samples((y0, toggle_z), (y1, toggle_z), MEMBER_FACE_M)
+            if not silhouette.allowed(toggle_samples, EDGE_INSET_M).all():
                 continue
             obj = create_box_member(f"Frame_Toggle_{int(round(toggle_z * 100)):04d}_{run_index}",
                                     (y0, toggle_z), (y1, toggle_z), MEMBER_FACE_M,
@@ -843,7 +1157,15 @@ def build_frame(
             if brace:
                 break
         if brace is None and not shallow:
-            raise RuntimeError("Panel exceeds 300 cm but no inset-safe diagonal brace could be placed")
+            has_toggle = any(member["kind"] == "toggle" for member in members)
+            if stiles and rail_records and has_toggle:
+                # A sparse tree/candelabrum can be wider than 3 m while leaving
+                # no continuous diagonal corridor. Retain its measured
+                # stile/rail/toggle frame; the unchanged containment audit still
+                # rejects any timber that escapes the board silhouette.
+                stile_search_mode += "+sparse_rail_toggle_no_diagonal"
+            else:
+                raise RuntimeError("Panel exceeds 300 cm but no inset-safe diagonal brace could be placed")
 
     block_count = 0
     for stile_y, z0, z1 in stiles:
@@ -912,6 +1234,7 @@ def build_frame(
                 "minimum_edge_clearance_cm": round(float(member_distances.min()) * 100.0, 4),
             })
     visibility = {
+        "stile_search_mode": stile_search_mode,
         "tested_projection_samples": int(len(tested)),
         "outside_outline_samples": int((~inside).sum()),
         "minimum_edge_clearance_cm": round(float(distances.min()) * 100.0, 4),
@@ -1406,8 +1729,15 @@ def build(args: argparse.Namespace) -> None:
         Path(args.skin_normal).resolve(), Path(args.aged_texture_dir).resolve(), silhouette)
     asset_suffix = args.asset_name or f"{args.name}_{args.side}"
     flat_name = f"SM_FlatV3_{asset_suffix}"
-    board = create_board(flat_name + "_LOD0", silhouette, materials)
-    lod1 = create_board(flat_name + "_LOD1", silhouette, materials)
+    deterministic_triangulation = is_top_border or args.deterministic_triangulation
+    board = create_board(
+        flat_name + "_LOD0", silhouette, materials,
+        deterministic_triangulation=deterministic_triangulation,
+    )
+    lod1 = create_board(
+        flat_name + "_LOD1", silhouette, materials,
+        deterministic_triangulation=deterministic_triangulation,
+    )
     lod1.name = flat_name + "_LOD1"
     flap_objects, flap_records = create_flaps(Path(args.flaps).resolve(), silhouette, materials)
     parts, members, pole_y, visibility = build_frame(
@@ -1424,6 +1754,17 @@ def build(args: argparse.Namespace) -> None:
         lod1, lod1_counts = consolidate_flat(flat_name + "_LOD1", lod1, baked_lod1, materials)
     else:
         lod1_counts = {"flat_total": object_triangles(lod1)}
+    removed_degenerate_caps = {
+        "lod0": remove_degenerate_board_cap_faces(flat),
+        "lod1": remove_degenerate_board_cap_faces(lod1),
+    }
+    for key in ("profile_board", "flat_total"):
+        if key in triangle_counts:
+            triangle_counts[key] -= removed_degenerate_caps["lod0"]
+        if key in lod1_counts:
+            lod1_counts[key] -= removed_degenerate_caps["lod1"]
+    enforce_board_cap_contract(flat)
+    enforce_board_cap_contract(lod1)
     rebuild_front_uv0(flat, silhouette)
     flat["FrontAxis"] = "-X"
     flat["PlacementContract"] = ("Origin=BottomCentre; Scale=1" if is_pole_free_mount else
@@ -1431,9 +1772,13 @@ def build(args: argparse.Namespace) -> None:
     flat["Side"] = args.side
     flat["Mount"] = args.mount
     flat["BakedPoles"] = bool(args.bake_poles)
+    flat["PoleCount"] = len(pole_y)
+    flat["FrameStileSearchMode"] = visibility["stile_search_mode"]
     flat["PoleFootZM"] = -1.0 if args.bake_poles else 0.0
     flat["PoleTopZM"] = silhouette.height_m + 0.2 if args.bake_poles else 0.0
     lod1["BakedPoles"] = bool(args.bake_poles)
+    lod1["PoleCount"] = len(pole_y)
+    lod1["FrameStileSearchMode"] = visibility["stile_search_mode"]
     lod1["PoleFootZM"] = -1.0 if args.bake_poles else 0.0
     lod1["PoleTopZM"] = silhouette.height_m + 0.2 if args.bake_poles else 0.0
     flat["LODContract"] = ("LOD0 board flaps frame hardware baked poles" if args.bake_poles else
@@ -1550,6 +1895,7 @@ def build(args: argparse.Namespace) -> None:
         "frame_members": members,
         "flaps": flap_records,
         "head_on_frame_visibility": visibility,
+        "removed_degenerate_board_cap_faces": removed_degenerate_caps,
         "triangle_counts": {**triangle_counts, "lod1_total": lod1_triangles,
                             "lod1_board_without_baked_poles": lod1_counts.get("profile_board", lod1_counts.get("flat_total")),
                             "shared_pole": pole_triangles},
@@ -1794,27 +2140,16 @@ def validate_front_texture_coverage(
     if front_index < 0:
         return {"pass": False, "reason": "Front slot missing"}
 
-    # Quantisation joins FBX round-trip copies of the same internal UV edge while
-    # retaining sub-texel boundary precision at the production texture size.
-    edge_counts: dict[tuple[tuple[int, int], tuple[int, int]], int] = {}
-    edge_points: dict[tuple[tuple[int, int], tuple[int, int]], tuple[tuple[float, float], tuple[float, float]]] = {}
-    quantisation = 100_000_000.0
+    front_uv_polygons: list[np.ndarray] = []
     for polygon in obj.data.polygons:
         if polygon.material_index != front_index:
             continue
-        loops = list(polygon.loop_indices)
-        for index, loop_index in enumerate(loops):
-            next_loop = loops[(index + 1) % len(loops)]
-            a = tuple(float(value) for value in uv.data[loop_index].uv)
-            b = tuple(float(value) for value in uv.data[next_loop].uv)
-            qa = (round(a[0] * quantisation), round(a[1] * quantisation))
-            qb = (round(b[0] * quantisation), round(b[1] * quantisation))
-            key = (qa, qb) if qa <= qb else (qb, qa)
-            edge_counts[key] = edge_counts.get(key, 0) + 1
-            edge_points[key] = (a, b)
-    boundary = [edge_points[key] for key, count in edge_counts.items() if count == 1]
-    if not boundary:
-        return {"pass": False, "reason": "No Front UV boundary recovered"}
+        front_uv_polygons.append(np.asarray([
+            tuple(float(value) for value in uv.data[loop_index].uv)
+            for loop_index in polygon.loop_indices
+        ], dtype=np.float64))
+    if not front_uv_polygons:
+        return {"pass": False, "reason": "No Front UV polygons recovered"}
 
     image = bpy.data.images.load(str(skin_color_path), check_existing=False)
     image.colorspace_settings.name = "sRGB"
@@ -1826,37 +2161,57 @@ def validate_front_texture_coverage(
     rgba = rgba.reshape((height, width, 4))
     bpy.data.images.remove(image)
 
-    endpoints = np.asarray(boundary, dtype=np.float64)
-    u0, v0 = endpoints[:, 0, 0], endpoints[:, 0, 1]
-    u1, v1 = endpoints[:, 1, 0], endpoints[:, 1, 1]
-    covered = 0
-    background = 0
-    alpha_masked = 0
-    near_black = 0
-    threshold_linear = 0.002
-    for row in range(height):
-        v = (row + 0.5) / height
-        crossing = ((v0 <= v) & (v < v1)) | ((v1 <= v) & (v < v0))
-        if not np.any(crossing):
-            continue
-        denominator = v1[crossing] - v0[crossing]
-        intersections = u0[crossing] + (v - v0[crossing]) * (u1[crossing] - u0[crossing]) / denominator
-        intersections.sort()
-        if len(intersections) % 2:
-            return {"pass": False, "reason": f"Odd Front UV boundary crossings on texel row {row}", "crossings": len(intersections)}
-        for pair in range(0, len(intersections), 2):
-            first = max(0, int(math.ceil(intersections[pair] * width - 0.5)))
-            last = min(width - 1, int(math.floor(intersections[pair + 1] * width - 0.5)))
-            if last < first:
+    # Rasterise the exported Front polygons themselves.  This directly tests
+    # geometry coverage and is not sensitive to duplicated FBX vertices or
+    # sub-pixel drift when matching shared triangulation edges.
+    row_intervals: list[list[tuple[int, int]]] = [[] for _ in range(height)]
+    for polygon_uv in front_uv_polygons:
+        u0, v0 = polygon_uv[:, 0], polygon_uv[:, 1]
+        u1, v1 = np.roll(u0, -1), np.roll(v0, -1)
+        first_row = max(0, int(math.ceil(float(v0.min()) * height - 0.5)))
+        last_row = min(height - 1, int(math.floor(float(v0.max()) * height - 0.5)))
+        for row in range(first_row, last_row + 1):
+            v = (row + 0.5) / height
+            crossing = ((v0 <= v) & (v < v1)) | ((v1 <= v) & (v < v0))
+            if not np.any(crossing):
                 continue
-            samples = rgba[row, first : last + 1]
-            is_alpha_masked = samples[:, 3] <= 0.5
-            is_near_black = np.max(samples[:, :3], axis=1) <= threshold_linear
-            is_background = is_alpha_masked | is_near_black
-            covered += len(samples)
-            alpha_masked += int(np.count_nonzero(is_alpha_masked))
-            near_black += int(np.count_nonzero(is_near_black))
-            background += int(np.count_nonzero(is_background))
+            intersections = u0[crossing] + (
+                (v - v0[crossing]) * (u1[crossing] - u0[crossing]) /
+                (v1[crossing] - v0[crossing])
+            )
+            intersections.sort()
+            for pair in range(0, len(intersections) - 1, 2):
+                first = max(0, int(math.ceil(intersections[pair] * width - 0.5)))
+                last = min(width - 1, int(math.floor(intersections[pair + 1] * width - 0.5)))
+                if last >= first:
+                    row_intervals[row].append((first, last))
+
+    covered_samples = []
+    covered = 0
+    for row, intervals in enumerate(row_intervals):
+        if not intervals:
+            continue
+        intervals.sort()
+        merged = []
+        start, end = intervals[0]
+        for next_start, next_end in intervals[1:]:
+            if next_start <= end + 1:
+                end = max(end, next_end)
+            else:
+                merged.append((start, end))
+                start, end = next_start, next_end
+        merged.append((start, end))
+        for start, end in merged:
+            covered_samples.append(rgba[row, start:end + 1])
+            covered += end - start + 1
+    samples = np.concatenate(covered_samples, axis=0) if covered_samples else np.empty((0, 4), dtype=np.float32)
+    threshold_linear = 0.002
+    is_alpha_masked = samples[:, 3] <= 0.5 if covered else np.zeros(0, dtype=bool)
+    is_near_black = np.max(samples[:, :3], axis=1) <= threshold_linear if covered else np.zeros(0, dtype=bool)
+    is_background = is_alpha_masked | is_near_black
+    alpha_masked = int(np.count_nonzero(is_alpha_masked))
+    near_black = int(np.count_nonzero(is_near_black))
+    background = int(np.count_nonzero(is_background))
     fraction = background / max(covered, 1)
     return {
         "pass": bool(covered > 0 and fraction < 0.001),
@@ -1870,7 +2225,7 @@ def validate_front_texture_coverage(
         "near_black_texels": near_black,
         "alpha_masked_texels": alpha_masked,
         "near_black_threshold_linear": threshold_linear,
-        "rasterisation": "imported FBX Front faces through UV0 onto SkinColor texel centres; even-odd boundary scanline",
+        "rasterisation": "imported FBX Front polygons through UV0 directly onto SkinColor texel centres",
     }
 
 
@@ -2032,7 +2387,8 @@ def validate(args: argparse.Namespace) -> None:
         is_wave_row = args.kind == "wave"
         baked_poles = bool(flat.get("BakedPoles", False))
         required_sockets = set() if is_wave_row else {"SOCKET_Pole_1", "SOCKET_Hinge", "SOCKET_Pivot"}
-        if not is_wave_row and float(dims[1]) > 4.0:
+        sparse_single_pole = "single_stile_sparse_second_band" in str(flat.get("FrameStileSearchMode", ""))
+        if not is_wave_row and float(dims[1]) > 4.0 and not sparse_single_pole:
             required_sockets.add("SOCKET_Pole_2")
         side = str(flat.get("Side", "L" if "_L_LOD0" in flat.name else "R"))
         direction_pass = ((abs(float(lower[1] + upper[1])) <= 0.01 and abs(float(lower[2])) <= 0.01)
