@@ -22,7 +22,7 @@ NOT tonight: Show changes (placement), the mipmap stopgap on existing wings
 
 ## Gary's approvals, 2 Oct (away until the afternoon)
 
-- SHOW SWAPS approved for **P04, P05 and P01** (per passage: backup, originals JSON
+- SHOW SWAPS approved for **P04, P05 and P01**, and later the same night **P03 and P06** (Gary: "Swap P03 and P06 too") (per passage: backup, originals JSON
   plus a revert script, dry run, materialize that passage only, a narrow save,
   read-back, SavedMasterMatchesShow, captures, auto-revert). **P02: NOT swapped**
   (the draft layout awaits Gary).
