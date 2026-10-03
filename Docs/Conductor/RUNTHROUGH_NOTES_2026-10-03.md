@@ -66,3 +66,13 @@ Docs/LegibleMachineSpec_2026-09-29.md.
 - 12 S3: a BEACH for the figures (Megascans rocks already in Content + some plants) and the S3 side walls MARBLE like the
   plinth (before the hand stains). Draft placement for Gary to adjust (like the shot-list draft).
 - 13 S6: blackouts coming and going = S6's new dim-instead-of-strike + being built (as expected).
+
+## Later 3 Oct (Gary; some via Wings and Textures, marked)
+- Lighting looks (P04 prototype video): "moody should have more partial lighting ... variation in what is visible and how
+  visible as we move gives some mystery while blackness gets dissolved into muddiness"; "5-6 are nice but could be less warm
+  or more varied between warm and cool, could also bring in more colour spaces" -> tune 1 (specs/LIGHTING_LOOKS_P04_TUNE1.md).
+- "occasional detail on the type of reflection you get of light on slightly glossy paper" -> W&T (Billboard master, add nodes only).
+- "practicals was a nice idea" -> tune 2.
+- White feathered edge on some wings under dark light -> edge contact sheets (DerivedAssets/FlatV3/Review_2026-10-03/edges/).
+- Via W&T: P05 "lighting doesn't need to be so warm in this passage as the cloud colours are strong"; "might look at bringing
+  in more on-the-ground objects" in P05 (future); P05 clouds lower/more spread, no flat bottoms, sources too low-res (W&T).
