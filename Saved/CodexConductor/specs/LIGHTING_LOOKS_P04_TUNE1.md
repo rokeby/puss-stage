@@ -61,3 +61,8 @@ first, recorded for Gary.
 - THE BLACK PASSAGE (candidate P04, Gary's call): base look ~black (only a floor-edge glimmer), revealed by TRICKLING SEQUENCES
   of flashes: bursts of 2-5 flashes at irregular intervals, some from the camera, some from fixtures deeper in the bays (so
   architecture and texture show from different angles), with long dark gaps. Prototype on P04 bays 1-6 after tune 3/4 for Gary.
+
+## TUNE 3b (Gary 3 Oct, his answer: "Moody good; restore theatrical colour"): keep MOODY and INDUSTRIAL exactly as tune 3. THEATRICAL
+## keeps tune 3's gaps and grazing wing light, but brings back tune 2's saturated accents (magenta/cyan/lavender/amber, one per
+## bay, on PART of the wing surface) and makes the two floor shafts clearly visible (brighter, narrower, through haze; check the
+## haze/volumetric scattering on those lights). Revert-then-apply, verify, both tests, re-record.
