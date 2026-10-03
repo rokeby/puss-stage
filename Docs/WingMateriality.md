@@ -52,6 +52,17 @@ nothing has been visually accepted except where stated.
   VC.R ID (0 softwood / 0.5 ply / 1 steel), VC.G per-member random. Steel can reuse the kit
   master's procedural steel.
 
+- **Changed by Wings and Textures on Gary's call (3 Oct):** on `MI_Billboard_Front` and `MI_Billboard_Flap`,
+  `BackingColor` → dark oxide red (0.20, 0.06, 0.04) and `PrimerColor` → dark warm grey
+  (0.16, 0.13, 0.11), to kill white hatching through the peels. Originals:
+  `Saved/CodexFlatV3/bb_backing_originals.json`. Revert: `Saved/CodexFlatV3/bb_backing_revert.py`.
+  Backup: `Backups/PreBillboardBacking-20261003-0857`.
+- **For the Timber master:** the landed V3 flats' vertex-colour IDs are **sRGB-encoded** as
+  measured: softwood 0.0, ply **0.7333** (authored 0.5), steel **0.9961**. Threshold on the
+  measured values (e.g. < 0.35 softwood, < 0.86 ply, else steel); don't test for 0.5.
+- Halftone (4.5 mm, 15°, strength 0.12) may read too regular (Wings and Textures). A candidate
+  fix is a per-sheet angle and phase jitter from the sheet hash. Look item, untested.
+
 **Also open for Gary**
 - Which wings burn (`UseBurn` is on only for the two P01 trial MIs).
 - Installing an upscaler (a download). The upscale spec and the alpha proof are below.
