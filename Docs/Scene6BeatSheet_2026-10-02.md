@@ -73,4 +73,5 @@
 - **Light:** a CANDLE (not a bulb): realistic flame and candlelight if possible (Gary, 2 Oct night). Fog halo per the sketch.
 - **Old lady:** a mocapped MetaHuman (Gary's capture route, as for the shore cast and children: Docs/MetaHumanMocapWorkflow-20260910.md).
 - **Coda:** a shore person switches the mains off, for now (a shore-cast MetaHuman reused).
-- Still open: the old lady's voice (recorded vs live); swarm/counting length is a live vamp (above).
+- **Old lady's voice:** RECORDED (Gary, 2 Oct night). The counting section still loops as a live vamp (above), so her recording must loop or be cut into restartable counting phrases (she fumbles and restarts by design).
+- Nothing open on the sketch; next is breaking it into work (candle, swarm, old-lady mocap, coda).
