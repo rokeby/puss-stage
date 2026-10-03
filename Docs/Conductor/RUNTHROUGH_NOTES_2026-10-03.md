@@ -79,3 +79,6 @@ Docs/LegibleMachineSpec_2026-09-29.md.
 - Gary: V3 wing boards to 5 cm thick ("5cm is ok"; today ~1.8 cm board, ~12 cm with frame), frame occasionally reaching the cut
   edge; with W&T (mesh-only rebuild of all V3 flats, after defringe + the P04 architectural recut, which builds at 5 cm).
 - Gary: two P04 bay 3-4 right flats "very straight vertical flats ... recutting with a more architectural profile" -> W&T AR recut.
+- Gary on the wing sheets ("Looking pretty good!"): (1) P06: bring the OLD pieces back (scaffolding, tarp/draped, sand forms)
+  mixed in alongside the new V3 wings; (2) P01: swap the sand form in the first wing set for its baroque foliage L wing;
+  (3) P05 clouds: remove the stains on ~80% of cloud wings, lightest first ("read poorly as glitches"). All with W&T.
