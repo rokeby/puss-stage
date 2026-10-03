@@ -150,6 +150,21 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   S3 wave slides re-timed to strike frame 240. Both tests Success. Rendered look: Gary's PIE.
   OPENING PROBE: curtain lands 6.33 s; stalls camera (-1400,0,150) 15 mm; P01 starts 15.0 s at (0,0,150), 25 mm, 2.5 m/s.
   Walk-in keying waits for Gary.
+- OVERNIGHT 3 Oct (Conductor 4), measured unless marked. Notes: Docs/Conductor/RUNTHROUGH_NOTES_2026-10-03.md.
+  DONE: PIE transitions recording (Saved/CodexConductor/PieRecording/20261003_042428, phone copy sent; method in
+  specs/PIE_TRANSITIONS_RECORDING.md: floating PIE window + ddagrab, needs the window on top). S2/S5/S6 rises NESTED (Scenes
+  2/6 = 31 s, 5 = 49 s; S2/S5 seen active in PIE, S6 inferred). S3 beach (9 actors) + marble inner liners placed at floor
+  level (first attempt went 35 m underground: tools composed via the REST pose; memory puss-level-saved-landed-frame-trap).
+  Hidden exit doors CLOSED in S1/S2/S4/S5/S6 (S3 skipped: backdrop UV crop unresolved). Exit cameras sit ~60 m from the far
+  wall (S5 150 m) with cast/props between: the exit move is a design question.
+  HATCHING: cause = W&T's pilot peel breakup (sine + anisotropic grids + 2:1 cluster ellipses; build_skin.py). Round 2 passes
+  FFT + orientation gates; W&T's slot (before-stills -> _o2 textures + MI repoint -> P05 poles -> after-stills) pending.
+  CANDLE: assets built + saved (/Game/Scenes/Effects/BP_Effect_Candle, M_FX_CandleFlame, wax M/MI); PLACEMENT FAILS at
+  attachment GUID minting (GUID_SCRATCH_NOT_RESTORED_EXACTLY); the editor was no-save restarted (Show disk == backup).
+  PARKED for daylight. WingBurn test not run (P06-032 uses SHARED MIs: per-flat child MI route planned).
+  Swarm: design + held UNREVIEWED C++ draft (Docs/BeeSwarmDesign_2026-10-02.md, Scripts/patches/2026-10-03_BS_bee_swarm_sim.draft.patch).
+  TODAY'S TALK (Gary): lighting/per-wing rig + fence-wall lighting trees; P01 hallway ping-on; exit doorways + exit move;
+  W&T's fence taper / step-stone scale sheets; hatching round-2 look ("a bit blotchy").
 - OPEN PUZZLE, S3 wave mesh swap (W2, parked 2 Oct ~18:00): the 6 extended wave meshes are imported and saved as
   /Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow{1,2,3}_{A,B}_v2 (unreferenced; mapping in W&T's
   run_w2.json). Setting them on the 6 `S3 Wave Row` StaticMeshActors takes effect in memory but does NOT dirty the level
