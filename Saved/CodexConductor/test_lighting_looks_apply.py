@@ -160,9 +160,18 @@ def main():
 
     failures += check(
         "fixture_counts",
-        plan["fixture_count"] == 34
-        and [row["fixture_count"] for row in plan["targets"]] == [6, 6, 6, 6, 5, 5],
+        plan["fixture_count"] == 52
+        and plan["light_fixture_count"] == 40
+        and plan["practical_prop_count"] == 12
+        and [row["fixture_count"] for row in plan["targets"]] == [8, 8, 9, 9, 9, 9],
         repr([row["fixture_count"] for row in plan["targets"]]),
+    )
+    failures += check(
+        "visible_practicals",
+        all(row["practical_prop_count"] == 2 for row in plan["targets"])
+        and all(fixture_row["mesh"].startswith(("/Game/", "/Engine/"))
+                for target in plan["targets"] for fixture_row in target["fixtures"]
+                if fixture_row["authored_kind"] == "PROP"),
     )
     failures += check(
         "look_assignment",
@@ -207,8 +216,36 @@ def main():
                     if row["slot"] == "LOW_SIDE_L_KEY")
     failures += check(
         "bay_level_scale",
-        bay1_key["intensity"] == 160.0 and bay2_key["intensity"] == 56.0,
-        "%s %s" % (bay1_key["intensity"], bay2_key["intensity"]),
+        bay1_key["intensity"] == 720.0
+        and bay2_key["intensity"] == 720.0
+        and bay1_key["transform"]["location_cm"][1] == 1450.0
+        and bay2_key["transform"]["location_cm"][1] == 1450.0,
+        "%s %s %s %s" % (
+            bay1_key["intensity"], bay2_key["intensity"],
+            bay1_key["transform"]["location_cm"][1],
+            bay2_key["transform"]["location_cm"][1],
+        ),
+    )
+    bay5_accent = next(row for row in plan["targets"][4]["fixtures"]
+                       if row["slot"] == "BEAM_R")
+    bay6_accent = next(row for row in plan["targets"][5]["fixtures"]
+                       if row["slot"] == "BEAM_R")
+    failures += check(
+        "theatrical_per_bay_accents",
+        bay5_accent["color_rgb_linear"] == [1.0, 0.45, 0.04]
+        and bay6_accent["color_rgb_linear"] == [0.04, 0.75, 1.0]
+        and bay5_accent["temperature_kelvin"] == 2400.0
+        and bay6_accent["temperature_kelvin"] == 7000.0
+        and bay5_accent["transform"]["location_cm"][1] == -1250.0
+        and bay6_accent["transform"]["location_cm"][1] == 1250.0,
+    )
+    failures += check(
+        "tune3_bay_levels_and_dead_practical",
+        plan["targets"][2]["fixtures"][0]["intensity"] == 27.0
+        and next(row for row in plan["targets"][0]["fixtures"]
+                 if row["slot"] == "PRACTICAL_L")["intensity"] == 0.0
+        and next(row for row in plan["targets"][0]["fixtures"]
+                 if row["slot"] == "PRACTICAL_R")["intensity"] == 1720.0,
     )
     failures += check(
         "outside_bays_untouched",
@@ -308,9 +345,16 @@ def main():
         lambda: validate_config(bad_ramp),
         "RAMP_NOT_150_CM",
     )
+    bad_strike = copy.deepcopy(config)
+    bad_strike["distance_keying"]["strike_distance_cm"] = 150.0
+    failures += negative(
+        "strike_not_one_bay_ahead",
+        lambda: validate_config(bad_strike),
+        "STRIKE_NOT_650_CM",
+    )
 
     if failures == 0:
-        print("LIGHTING_LOOKS_HARNESS_OK|positive=12|negative=6|fixtures=34|shadow=16->16|revert_exact=1|wrapper_regression=1|real_diff_guard=1")
+        print("LIGHTING_LOOKS_HARNESS_OK|positive=15|negative=7|tune=3|attachments=52|lights=40|practical_props=12|shadow=16->16|revert_exact=1|wrapper_regression=1|real_diff_guard=1")
     return failures
 
 

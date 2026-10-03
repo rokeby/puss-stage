@@ -134,8 +134,8 @@ def validate_config(data):
             "DISTANCE_MECHANISM_WRONG")
     require(abs(_finite(keying.get("ramp_distance_cm"), "RAMP_DISTANCE") - 150.0) < 1.0e-9,
             "RAMP_NOT_150_CM")
-    require(_finite(keying.get("strike_distance_cm"), "STRIKE_DISTANCE") >= 0.0,
-            "NEGATIVE_STRIKE_DISTANCE")
+    require(abs(_finite(keying.get("strike_distance_cm"), "STRIKE_DISTANCE") - 650.0) < 1.0e-9,
+            "STRIKE_NOT_650_CM")
     require(keying.get("after_pass") == "HOLD", "AFTER_PASS_NOT_HOLD")
     require(data.get("shadow_budget", {}).get("rule") == "after_lte_before",
             "SHADOW_BUDGET_RULE_WRONG")
@@ -184,6 +184,28 @@ def validate_config(data):
         for role, (minimum, maximum) in ROLE_LIMITS.items():
             require(minimum <= counts[role] <= maximum,
                     "ROLE_COUNT|look=%s|role=%s|count=%d" % (look_name, role, counts[role]))
+        practicals = [row for row in instruments if row["role"] == "PRACTICAL"]
+        require(len(practicals) == 2,
+                "PRACTICAL_COUNT_NOT_2|look=%s|count=%d" % (look_name, len(practicals)))
+        require(sum(float(row["intensity"]) == 0.0 for row in practicals) == 1,
+                "PRACTICAL_DEAD_COUNT_NOT_1|look=" + look_name)
+        for practical in practicals:
+            visible = practical.get("visible_mesh", {})
+            require(str(visible.get("mesh", "")).startswith(("/Game/", "/Engine/")),
+                    "PRACTICAL_MESH_MISSING|look=%s|slot=%s" %
+                    (look_name, practical["slot"]))
+            require(bool(visible.get("style")),
+                    "PRACTICAL_STYLE_MISSING|look=%s|slot=%s" %
+                    (look_name, practical["slot"]))
+            require(isinstance(visible.get("emissive"), bool),
+                    "PRACTICAL_EMISSIVE_UNDECLARED|look=%s|slot=%s" %
+                    (look_name, practical["slot"]))
+            require(len(visible.get("rotation_rpy_deg", [])) == 3
+                    and len(visible.get("scale", [])) == 3
+                    and all(_finite(value, "PRACTICAL_SCALE") > 0.0
+                            for value in visible.get("scale", [])),
+                    "PRACTICAL_MESH_TRANSFORM_BAD|look=%s|slot=%s" %
+                    (look_name, practical["slot"]))
         require(sum(1 for row in instruments if row.get("cast_shadows")) == 2,
                 "LOOK_SHADOW_CASTERS_NOT_2|look=" + look_name)
         all_slots[look_name] = slots
@@ -212,6 +234,34 @@ def validate_config(data):
         require(_finite(row.get("level_scale"), "LEVEL_SCALE") > 0.0,
                 "BAD_LEVEL_SCALE|bay=%s" % row.get("bay_index"))
         require(row["look"] in all_slots, "UNKNOWN_BAY_LOOK|bay=%s" % row["bay_index"])
+        mirror_roles = row.get("mirror_roles", [])
+        require(isinstance(mirror_roles, list)
+                and len(mirror_roles) == len(set(mirror_roles))
+                and set(mirror_roles).issubset(VALID_ROLES),
+                "BAD_MIRROR_ROLES|bay=%s" % row["bay_index"])
+        overrides = row.get("instrument_overrides", {})
+        require(isinstance(overrides, dict)
+                and set(overrides).issubset(set(all_slots[row["look"]])),
+                "BAD_OVERRIDE_SLOTS|bay=%s" % row["bay_index"])
+        allowed = {"intensity", "color_rgb_linear", "temperature_kelvin",
+                   "volumetric_scattering"}
+        for slot, values in overrides.items():
+            require(isinstance(values, dict) and set(values).issubset(allowed),
+                    "BAD_OVERRIDE_FIELDS|bay=%s|slot=%s" % (row["bay_index"], slot))
+            if "intensity" in values:
+                require(_finite(values["intensity"], "OVERRIDE_INTENSITY") >= 0.0,
+                        "BAD_OVERRIDE_INTENSITY|bay=%s|slot=%s" % (row["bay_index"], slot))
+            if "color_rgb_linear" in values:
+                rgb = values["color_rgb_linear"]
+                require(len(rgb) == 3 and all(_finite(v, "OVERRIDE_RGB") >= 0.0 for v in rgb),
+                        "BAD_OVERRIDE_RGB|bay=%s|slot=%s" % (row["bay_index"], slot))
+            if "temperature_kelvin" in values:
+                temperature = _finite(values["temperature_kelvin"], "OVERRIDE_TEMPERATURE")
+                require(1000.0 <= temperature <= 15000.0,
+                        "BAD_OVERRIDE_TEMPERATURE|bay=%s|slot=%s" % (row["bay_index"], slot))
+            if "volumetric_scattering" in values:
+                require(_finite(values["volumetric_scattering"], "OVERRIDE_VOLUMETRIC") >= 0.0,
+                        "BAD_OVERRIDE_VOLUMETRIC|bay=%s|slot=%s" % (row["bay_index"], slot))
 
 
 def fixture_label(config, bay_index, look_name, slot):
@@ -222,15 +272,43 @@ def fixture_label(config, bay_index, look_name, slot):
 def expand_bay(config, bay_row):
     look_name = bay_row["look"]
     scale = float(bay_row["level_scale"])
+    mirror_roles = set(bay_row.get("mirror_roles", []))
+    overrides = bay_row.get("instrument_overrides", {})
     expanded = []
     for source in config["looks"][look_name]["instruments"]:
         row = copy.deepcopy(source)
+        if row["role"] in mirror_roles:
+            row["transform"]["location_cm"][1] *= -1.0
+            row["transform"]["rotation_rpy_deg"][2] *= -1.0
+        row.update(copy.deepcopy(overrides.get(row["slot"], {})))
         row["intensity"] = float(row["intensity"]) * scale
         row["label"] = fixture_label(config, bay_row["bay_index"], look_name, row["slot"])
         row["bay_index"] = int(bay_row["bay_index"])
         row["look"] = look_name
+        row["authored_kind"] = "LIGHT"
         row["distance_keying"] = copy.deepcopy(config["distance_keying"])
         expanded.append(row)
+        if row["role"] == "PRACTICAL":
+            visible = row["visible_mesh"]
+            expanded.append({
+                "slot": row["slot"] + "_BODY",
+                "paired_slot": row["slot"],
+                "role": "PRACTICAL_BODY",
+                "authored_kind": "PROP",
+                "label": fixture_label(
+                    config, bay_row["bay_index"], look_name, row["slot"] + "_BODY"),
+                "bay_index": int(bay_row["bay_index"]),
+                "look": look_name,
+                "mesh": visible["mesh"],
+                "style": visible["style"],
+                "emissive": bool(visible["emissive"]),
+                "transform": {
+                    "location_cm": list(row["transform"]["location_cm"]),
+                    "rotation_rpy_deg": list(visible["rotation_rpy_deg"]),
+                    "scale": list(visible["scale"]),
+                },
+                "cast_shadows": False,
+            })
     return expanded
 
 
@@ -284,7 +362,10 @@ def build_plain_plan(config, cues):
             "existing_shadow_casters": sum(_plain_casts(att) for att in current_lights),
             "fixtures": fixtures,
             "fixture_count": len(fixtures),
-            "new_shadow_casters": sum(bool(row["cast_shadows"]) for row in fixtures),
+            "new_shadow_casters": sum(bool(row["cast_shadows"])
+                                      for row in fixtures if row["authored_kind"] == "LIGHT"),
+            "light_fixture_count": sum(row["authored_kind"] == "LIGHT" for row in fixtures),
+            "practical_prop_count": sum(row["authored_kind"] == "PROP" for row in fixtures),
         })
     require(len(target_guid_set) == 6, "TARGET_GUIDS_NOT_UNIQUE")
     require(len(new_labels) == len(set(new_labels)), "NEW_LABELS_DUPLICATE")
@@ -305,6 +386,8 @@ def build_plain_plan(config, cues):
         "targets": target_rows,
         "target_cue_guids": sorted(target_guid_set),
         "fixture_count": sum(row["fixture_count"] for row in target_rows),
+        "light_fixture_count": sum(row["light_fixture_count"] for row in target_rows),
+        "practical_prop_count": sum(row["practical_prop_count"] for row in target_rows),
         "existing_lights_disabled": sum(row["existing_lights"] for row in target_rows),
         "shadow": {
             "p04_before": before,
@@ -332,11 +415,11 @@ def apply_plain_state(config, cues):
             cue["attachments"].append({
                 "guid": "NEW-%02d-%s" % (target["bay_index"], fixture["slot"]),
                 "label": fixture["label"],
-                "kind": "Light",
+                "kind": "Light" if fixture["authored_kind"] == "LIGHT" else "Prop",
                 "enabled": True,
                 "lighting": {
-                    "cast_shadows": bool(fixture["cast_shadows"]),
-                    "intensity": float(fixture["intensity"]),
+                    "cast_shadows": bool(fixture.get("cast_shadows", False)),
+                    "intensity": float(fixture.get("intensity", 0.0)),
                     "role": fixture["role"],
                 },
             })
@@ -501,10 +584,11 @@ def _show_index_by_guid(show, cue_guid):
 def _make_transform(row):
     location = row["transform"]["location_cm"]
     roll, pitch, yaw = row["transform"]["rotation_rpy_deg"]
+    scale = row["transform"].get("scale", [1.0, 1.0, 1.0])
     return unreal.Transform(
         location=unreal.Vector(*location),
         rotation=unreal.Rotator(roll=roll, pitch=pitch, yaw=yaw),
-        scale=unreal.Vector(1.0, 1.0, 1.0),
+        scale=unreal.Vector(*scale),
     )
 
 
@@ -636,6 +720,17 @@ def _make_light(row, materials):
     return attachment
 
 
+def _make_prop(row, practical_meshes):
+    attachment = unreal.InfinityCueAttachment()
+    attachment.set_editor_property("label", unreal.Text(row["label"]))
+    attachment.set_editor_property("kind", _enum_member(unreal.InfinityAttachmentKind, "PROP"))
+    attachment.set_editor_property("enabled", True)
+    attachment.set_editor_property("anchor", _enum_member(unreal.InfinityAttachmentAnchor, "STATION"))
+    attachment.set_editor_property("relative_transform", _make_transform(row))
+    attachment.set_editor_property("mesh", practical_meshes[row["mesh"]])
+    return attachment
+
+
 def _overwrite_vessel(vessel, template):
     minted = _guid_text(vessel.get_editor_property("attachment_guid"))
     require(_valid_guid_text(minted), "MINTED_GUID_INVALID|guid=" + minted)
@@ -655,6 +750,19 @@ def _materials(config):
     for path in paths:
         asset = unreal.load_asset(path)
         require(asset is not None, "FLICKER_MATERIAL_MISSING|asset=" + path)
+        loaded[path] = asset
+    return loaded
+
+
+def _practical_meshes(config):
+    paths = sorted({row["visible_mesh"]["mesh"]
+                    for look in config["looks"].values()
+                    for row in look["instruments"] if row["role"] == "PRACTICAL"})
+    loaded = {}
+    for path in paths:
+        asset = unreal.load_asset(path)
+        require(asset is not None and asset.get_class().get_name() == "StaticMesh",
+                "PRACTICAL_STATIC_MESH_MISSING|asset=" + path)
         loaded[path] = asset
     return loaded
 
@@ -756,7 +864,7 @@ def _runtime_plan(show, config):
     return plan
 
 
-def _mutate_apply(show, plan, materials):
+def _mutate_apply(show, plan, materials, practical_meshes):
     cues = list(show.get_editor_property("cues"))
     target_guids = set(plan["target_cue_guids"])
     scratch_candidates = []
@@ -824,7 +932,9 @@ def _mutate_apply(show, plan, materials):
                 minted = _guid_text(vessel.get_editor_property("attachment_guid"))
                 require(minted not in preexisting_guids and minted not in added_guids,
                         "MINTED_GUID_NOT_FRESH|guid=" + minted)
-                template = _make_light(fixture, materials)
+                template = (_make_light(fixture, materials)
+                            if fixture["authored_kind"] == "LIGHT"
+                            else _make_prop(fixture, practical_meshes))
                 authored.append(_overwrite_vessel(vessel, template))
                 added_guids.add(minted)
             _set_pair_attachments(show, index, modified_original + authored)
@@ -961,6 +1071,7 @@ def _run(mode):
         report["config_sha256"] = _sha256_file(CONFIG_PATH)
         world = _require_context()
         materials = _materials(config)
+        practical_meshes = _practical_meshes(config)
         show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
         require(show is not None, "SHOW_ASSET_MISSING")
 
@@ -971,15 +1082,19 @@ def _run(mode):
                 "ok": True,
                 "plan": plan,
                 "fixture_count": plan["fixture_count"],
+                "light_fixture_count": plan["light_fixture_count"],
+                "practical_prop_count": plan["practical_prop_count"],
                 "existing_lights_disabled": plan["existing_lights_disabled"],
                 "shadow": plan["shadow"],
                 "mutated": False,
                 "census": _dirty_census(),
                 "materials": sorted(materials),
+                "practical_meshes": sorted(practical_meshes),
             })
             _write_json(REPORT_PATH, report)
-            unreal.log("LIGHTING_LOOKS_DRY_OK|run=%s|fixtures=%d|disabled=%d|p04_shadow=%d->%d|mutated=0" %
-                       (run, plan["fixture_count"], plan["existing_lights_disabled"],
+            unreal.log("LIGHTING_LOOKS_DRY_OK|run=%s|attachments=%d|lights=%d|practical_props=%d|disabled=%d|p04_shadow=%d->%d|mutated=0" %
+                       (run, plan["fixture_count"], plan["light_fixture_count"],
+                        plan["practical_prop_count"], plan["existing_lights_disabled"],
                         plan["shadow"]["p04_before"], plan["shadow"]["p04_after"]))
             return report
 
@@ -1000,7 +1115,7 @@ def _run(mode):
             }
             _write_json(RECORD_PATH, record, exclusive=True)
             try:
-                _mutate_apply(show, plan, materials)
+                _mutate_apply(show, plan, materials, practical_meshes)
             except Exception:
                 record["status"] = "failed_rolled_back_in_memory"
                 failed_record = RECORD_PATH + ".failed-" + run
@@ -1023,6 +1138,8 @@ def _run(mode):
             report.update({
                 "ok": True,
                 "fixture_count": plan["fixture_count"],
+                "light_fixture_count": plan["light_fixture_count"],
+                "practical_prop_count": plan["practical_prop_count"],
                 "existing_lights_disabled": plan["existing_lights_disabled"],
                 "shadow": plan["shadow"],
                 "prototype_labels": verified["prototype_labels"],
@@ -1033,8 +1150,9 @@ def _run(mode):
                 "census": _dirty_census(),
             })
             _write_json(REPORT_PATH, report)
-            unreal.log("LIGHTING_LOOKS_APPLY_OK|run=%s|fixtures=%d|disabled=%d|p04_shadow=%d->%d|show_saved=1|level_saved=1|readback=1|saved_master=queued" %
-                       (run, plan["fixture_count"], plan["existing_lights_disabled"],
+            unreal.log("LIGHTING_LOOKS_APPLY_OK|run=%s|attachments=%d|lights=%d|practical_props=%d|disabled=%d|p04_shadow=%d->%d|show_saved=1|level_saved=1|readback=1|saved_master=queued" %
+                       (run, plan["fixture_count"], plan["light_fixture_count"],
+                        plan["practical_prop_count"], plan["existing_lights_disabled"],
                         plan["shadow"]["p04_before"], plan["shadow"]["p04_after"]))
             return report
 
