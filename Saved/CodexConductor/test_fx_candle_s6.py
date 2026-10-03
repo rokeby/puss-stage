@@ -8,6 +8,7 @@ from fx_candle_s6 import (
     CANDLE_LABEL,
     LIGHT_LABEL,
     SCENE6_SEQUENCE,
+    _set_attachment_property,
     candle_plan,
 )
 from _fx_authoring_common import FxToolError
@@ -60,9 +61,12 @@ def main():
     failures += negative("no preceding wing", lambda: candle_plan(
         [{"kind": "Scene", "label": "Scene 6", "sequence": SCENE6_SEQUENCE}],
         True, ()))
+    failures += negative("direct attachment_guid assignment", lambda:
+                         _set_attachment_property(
+                             object(), "attachment_guid", "forbidden"))
 
     if failures == 0:
-        print("FX_CANDLE_S6_HARNESS_OK|positive=1|negative=5")
+        print("FX_CANDLE_S6_HARNESS_OK|positive=1|negative=6")
     return failures
 
 
