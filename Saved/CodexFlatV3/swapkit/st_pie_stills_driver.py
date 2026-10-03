@@ -31,8 +31,8 @@ HANDLE_NAME = "PUSS_FLATV3_ST_PIE_HANDLE"
 STATE_NAME = "PUSS_FLATV3_ST_PIE_STATE"
 MODES = ("first_still_check", "full")
 RUN_IDS = {
-    "before": "FV3STB-20261003-01",
-    "after": "FV3STA-20261003-01",
+    "before": "FV3STB-20261003-02",
+    "after": "FV3STA-20261003-02",
 }
 OK_MARKERS = {"before": "FLATV3_STB_OK", "after": "FLATV3_STA_OK"}
 RESOLUTION = (3840, 2160)
@@ -165,7 +165,7 @@ def passage_number(label):
 
 
 def runtime_plan(world, root, cfg):
-    show = unreal.EditorAssetLibrary.load_asset(SHOW)
+    show = unreal.load_asset(SHOW)  # EditorAssetLibrary refuses during PIE ("Editor is currently in a play mode", 3 Oct)
     if show is None:
         raise RuntimeError("ST_PIE_SHOW_LOAD_FAIL")
     cues = list(show.get_editor_property("cues"))
@@ -264,7 +264,7 @@ def assert_game_camera(camera, game_world, editor_world):
 
 
 def target_pair_pose(world, job):
-    show = unreal.EditorAssetLibrary.load_asset(SHOW)
+    show = unreal.load_asset(SHOW)  # EditorAssetLibrary refuses during PIE ("Editor is currently in a play mode", 3 Oct)
     cues = list(show.get_editor_property("cues"))
     cue = cues[job["target_cue_index"]]
     if (cue.get_editor_property("cue_guid").to_string() != job["target_cue_guid"] or
