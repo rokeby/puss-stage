@@ -44,7 +44,17 @@ def config(path=None):
         raise RuntimeError("SK_WORKFLOW_FAIL")
     rows = value.get("rows", [])
     textures = {path for row in rows for path in row["new_textures"].values()}
-    if len(rows) != 136 or len(textures) != 204:
+    names = [row["mi"].rsplit("/", 1)[-1] for row in rows]
+    if len(set(names)) != len(names):
+        raise RuntimeError("SK_CONFIG_DUPLICATE_MI_NAME|" + ",".join(sorted({n for n in names if names.count(n) > 1})))
+    for row in rows:
+        # MI_FlatV3_P04_... must live under .../Passage04/... (3 Oct: P04 MIs reused by
+        # P02 were mis-attributed to Passage02).
+        name = row["mi"].rsplit("/", 1)[-1]
+        passage = name.split("_")[2] if name.startswith("MI_FlatV3_P") else None
+        if passage and ("/Passage" + passage[1:3] + "/") not in row["mi"]:
+            raise RuntimeError("SK_CONFIG_MI_PASSAGE_MISMATCH|" + row["mi"])
+    if len(rows) != int(value.get("mi_count", -1)) or len(textures) != int(value.get("new_texture_count", -1)):
         raise RuntimeError(
             "SK_CONFIG_COUNT_FAIL|mis=%d|textures=%d" % (len(rows), len(textures))
         )
