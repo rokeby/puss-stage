@@ -97,20 +97,22 @@ struct FHangarTimingFixture
         const TArray<TPair<double, double>>& StrikeAndRampSeconds,
         const int32 SceneNumber = 1,
         const bool bHasRoof = true,
-        const TArray<FString>& LightLabels = {})
+        const TArray<FString>& LightLabels = {},
+        const double LandingSeconds = 4.1261,
+        const double PlaybackDurationSeconds = 30.0)
     {
         Sequence = NewObject<ULevelSequence>(GetTransientPackage());
         Sequence->Initialize();
         MovieScene = Sequence->GetMovieScene();
         MovieScene->SetTickResolutionDirectly(FFrameRate(TimingFps, 1));
         MovieScene->SetDisplayRate(FFrameRate(TimingFps, 1));
-        MovieScene->SetPlaybackRange(FFrameNumber(0), TimingFps * 30, false);
+        MovieScene->SetPlaybackRange(FFrameNumber(0), Frame(PlaybackDurationSeconds).Value, false);
 
         const FGuid RootBinding = AddTransform(
             *MovieScene,
             *FString::Printf(TEXT("S%d Hangar Root"), SceneNumber),
             4,
-            {Frame(-5.8739), Frame(4.1261)},
+            {Frame(LandingSeconds - 10.0), Frame(LandingSeconds)},
             {-90.0, 0.0},
             Root);
         if (bHasRoof)
@@ -182,6 +184,39 @@ bool FInfinityStageHangarTimingAppliesTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Root keys are byte-identical"), ChannelBytes(*Fixture.Root) == RootBefore);
 
     // Negative control: an ApplyHangarTiming stub returns false and leaves every asserted old time in place.
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageHangarTimingKeepsDuringRiseGlowTest,
+    "InfinityStage.Hangar.TimingKeepsDuringRiseGlow",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageHangarTimingKeepsDuringRiseGlowTest::RunTest(const FString& Parameters)
+{
+    FHangarTimingFixture Fixture(
+        {{6.1333, 0.3}},
+        1,
+        true,
+        {TEXT("S1 Uplight 1")});
+    FMovieSceneFloatChannel* DuringRiseGlow = AddLight(
+        *Fixture.MovieScene,
+        TEXT("S1 Lattice Glow During Rise"),
+        {Frame(-5.8667), Frame(4.1261)},
+        {0.0f, 500.0f});
+    const TArray<uint8> GlowBefore = ChannelBytes(*DuringRiseGlow);
+
+    TestTrue(TEXT("A rise glow and post-landing uplight fixture applies"),
+        Fixture.Arrival->ApplyHangarTiming());
+    TestTrue(TEXT("The during-rise glow is byte-identical"),
+        ChannelBytes(*DuringRiseGlow) == GlowBefore);
+    TestEqual(TEXT("Only the post-landing uplight moves to the target"),
+        Fixture.Lights[0]->GetData().GetTimes()[1].Value,
+        Frame(10.0).Value);
+
+    // Real negative control for the former rule: it chose the glow's -5.8667 s ramp as
+    // EarliestStrike, shifted every discovered light by +15.8667 s, changed GlowBefore,
+    // and put this uplight near +22.0 s. Both assertions above therefore fail on the old code.
     return true;
 }
 
@@ -294,12 +329,29 @@ bool FInfinityStageHangarTimingMovesS3StrikeLightsTest::RunTest(const FString& P
         3,
         true,
         Labels);
-    FMovieSceneFloatChannel* Decoy = AddLight(
+    TArray<FMovieSceneFloatChannel*> StandardLights = {
+        AddLight(
+            *Fixture.MovieScene,
+            TEXT("S3 Uplight 1"),
+            {Frame(0.0), Frame(7.1333), Frame(7.4333)},
+            {0.0f, 0.0f, 700.0f}),
+        AddLight(
+            *Fixture.MovieScene,
+            TEXT("S3 Practical 1"),
+            {Frame(0.0), Frame(7.6333), Frame(7.9333)},
+            {0.0f, 0.0f, 800.0f}),
+        AddLight(
+            *Fixture.MovieScene,
+            TEXT("S3 Lattice Glow 1"),
+            {Frame(0.0), Frame(8.1333), Frame(8.4333)},
+            {0.0f, 0.0f, 900.0f})
+    };
+    FMovieSceneFloatChannel* DuringRisePractical = AddLight(
         *Fixture.MovieScene,
-        TEXT("S3 Practical Decoy"),
-        {Frame(0.0), Frame(5.0), Frame(5.5)},
-        {0.0f, 0.0f, 999.0f});
-    const TArray<uint8> DecoyBefore = ChannelBytes(*Decoy);
+        TEXT("S3 Practical During Rise"),
+        {Frame(-5.8667), Frame(4.1261)},
+        {0.0f, 999.0f});
+    const TArray<uint8> DuringRiseBefore = ChannelBytes(*DuringRisePractical);
 
     TArray<int32> StrikeOffsets;
     TArray<int32> RampDurations;
@@ -310,8 +362,14 @@ bool FInfinityStageHangarTimingMovesS3StrikeLightsTest::RunTest(const FString& P
         StrikeOffsets.Add(Times[1].Value - FirstStrikeBefore);
         RampDurations.Add(Times[2].Value - Times[1].Value);
     }
+    TArray<int32> StandardStrikeFramesBefore;
+    for (const FMovieSceneFloatChannel* Light : StandardLights)
+    {
+        StandardStrikeFramesBefore.Add(Light->GetData().GetTimes()[1].Value);
+    }
 
-    TestTrue(TEXT("S3 applies to the six named Strike lights"), Fixture.Arrival->ApplyHangarTiming());
+    TestTrue(TEXT("S3 applies to six named Strike lights and its standard light families"),
+        Fixture.Arrival->ApplyHangarTiming());
     const int32 FirstStrikeAfter = Fixture.Lights[0]->GetData().GetTimes()[1].Value;
     TestEqual(TEXT("S3 earliest strike lands on the data-driven target"),
         FirstStrikeAfter, Frame(Fixture.Arrival->HangarTiming.LightStrikeSeconds).Value);
@@ -323,10 +381,18 @@ bool FInfinityStageHangarTimingMovesS3StrikeLightsTest::RunTest(const FString& P
         TestEqual(*FString::Printf(TEXT("S3 light %d preserves its ramp"), Index),
             Times[2].Value - Times[1].Value, RampDurations[Index]);
     }
-    TestTrue(TEXT("A non-Strike S3 light is byte-identical"), ChannelBytes(*Decoy) == DecoyBefore);
+    const int32 StrikeShift = FirstStrikeAfter - FirstStrikeBefore;
+    for (int32 Index = 0; Index < StandardLights.Num(); ++Index)
+    {
+        TestEqual(*FString::Printf(TEXT("S3 standard-family light %d moves with the strike"), Index),
+            StandardLights[Index]->GetData().GetTimes()[1].Value,
+            StandardStrikeFramesBefore[Index] + StrikeShift);
+    }
+    TestTrue(TEXT("An S3 during-rise practical is byte-identical"),
+        ChannelBytes(*DuringRisePractical) == DuringRiseBefore);
 
-    // Negative control: with Apply stubbed, the first named light stays at 6.1333 s,
-    // the ten-second sentinel fails, and the per-light assertions cannot mask that failure.
+    // Negative controls: the old S3 replacement rule ignores all three standard-family lights,
+    // while the old earliest-ramp rule moves DuringRisePractical once those families are additive.
     return true;
 }
 
@@ -448,6 +514,44 @@ bool FInfinityStageHangarTimingStandardisesS5ShapeTest::RunTest(const FString& P
 
     // Negative control: with Apply stubbed, the 29.27/38.73/45.07 timing remains,
     // making all four standard-time sentinels fail while value-preservation alone still passes.
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageHangarTimingStrikeIsRelativeToLandingTest,
+    "InfinityStage.Hangar.TimingStrikeIsRelativeToLanding",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageHangarTimingStrikeIsRelativeToLandingTest::RunTest(const FString& Parameters)
+{
+    FHangarTimingFixture Fixture({{27.0, 0.2}}, 5, true, {}, 25.3, 60.0);
+    TestTrue(TEXT("The default strike offset is 5.8667 seconds after landing"),
+        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.StrikeAfterLandSeconds, 5.8667));
+    TestTrue(TEXT("Read derives the strike offset from the landing and absolute ramp"),
+        Fixture.Arrival->ReadHangarTiming());
+    TestTrue(TEXT("Read reports the 27.0-second absolute strike"),
+        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.LightStrikeSeconds, 27.0, 1.0e-4));
+    TestTrue(TEXT("Read stores 27.0 minus 25.3 as the relative strike"),
+        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.StrikeAfterLandSeconds, 1.7, 1.0e-4));
+
+    Fixture.Arrival->HangarTiming.RoofCloseStartSeconds = 25.3;
+    Fixture.Arrival->HangarTiming.RoofCloseEndSeconds = 29.8;
+    Fixture.Arrival->HangarTiming.LatticeStartSeconds = 29.8;
+    Fixture.Arrival->HangarTiming.LatticeEndSeconds = 33.8;
+    Fixture.Arrival->HangarTiming.StrikeAfterLandSeconds = 5.8667;
+    const TArray<uint8> RootBefore = ChannelBytes(*Fixture.Root);
+
+    TestTrue(TEXT("An S5-like 25.3 second landing applies"), Fixture.Arrival->ApplyHangarTiming());
+    TestEqual(TEXT("The absolute strike is 31.17 seconds"),
+        Fixture.Lights[0]->GetData().GetTimes()[1].Value,
+        Frame(31.1667).Value);
+    TestTrue(TEXT("The read-only absolute strike is derived from landing plus offset"),
+        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.LightStrikeSeconds, 31.1667, 1.0e-4));
+    TestTrue(TEXT("The S5-like retime leaves root keys byte-identical"),
+        ChannelBytes(*Fixture.Root) == RootBefore);
+
+    // Negative control: absolute 10.0-second storage either targets the past or leaves the
+    // 27.0-second source strike unchanged; neither can satisfy the 31.17-second sentinel.
     return true;
 }
 

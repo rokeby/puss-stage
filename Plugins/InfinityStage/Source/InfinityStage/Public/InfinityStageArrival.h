@@ -32,7 +32,13 @@ struct INFINITYSTAGE_API FInfinityHangarTiming
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
     double LatticeEndSeconds = 12.6261;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
+    /** Delay from the root landing key to the first post-landing light strike. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
+        meta = (ClampMin = "0.0", Units = "s"))
+    double StrikeAfterLandSeconds = 5.8667;
+
+    /** Absolute strike time derived from LandSeconds + StrikeAfterLandSeconds. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Hangar Timing", meta = (Units = "s"))
     double LightStrikeSeconds = 10.0;
 
     /** S6 is roofless and fades its existing light state instead of striking on.
@@ -223,6 +229,10 @@ public:
 
 protected:
     virtual void BeginPlay() override;
+
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 
 private:
     /** Master time -> the motion sequence's own time (negative before the Scene). False at or
