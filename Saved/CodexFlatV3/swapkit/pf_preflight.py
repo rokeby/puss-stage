@@ -8,7 +8,5 @@ if __name__ == "__main__":
         if (_fv3_name != "__main__" and _fv3_file and
                 _fv3_os.path.dirname(_fv3_os.path.abspath(_fv3_file)) == _fv3_here):
             del _fv3_sys.modules[_fv3_name]
-import importlib
 import pf_workflow
-pf_workflow = importlib.reload(pf_workflow)
 pf_workflow.preflight(globals().get("FLATV3_CONFIG"))

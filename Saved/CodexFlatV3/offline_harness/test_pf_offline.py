@@ -1,7 +1,11 @@
-"""PF offline contract harness. No Unreal, MCP, sockets, or port 8010."""
+"""PF offline contract harness. No Unreal, MCP, network sockets, or port 8010."""
+import ast
+import hashlib
 import json
 from pathlib import Path
 import sys
+import tempfile
+import types
 import unittest
 
 
@@ -74,6 +78,67 @@ class PFContract(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "PF_REIMPORT_REFUSED"):
             pf.ensure_fresh_import(["/Game/Scenes/Wings/FlatV3/Passage05/StaticMeshes/Existing_poles"])
 
+    def test_pf_scopes_slot_a_common_inventory_to_p05(self):
+        workflow = (KIT / "pf_workflow.py").read_text(encoding="utf-8")
+        self.assertIn('module.TARGETS = {"P05": config["destination_root"]}', workflow)
+        self.assertIn('module.EXPECTED_COUNTS = {"P05": config["expected_asset_count"]}', workflow)
+
+    def test_real_p05_aged_hash_mismatch_still_fails(self):
+        source_path = ROOT / "Saved" / "CodexFlatV3" / "slot_a_import.py"
+        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        wanted = {"sha256_file", "common_inventory"}
+        body = [node for node in tree.body
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in wanted]
+        module = types.ModuleType("pf_offline_slot_a_hash_gate")
+        module.__dict__.update({"hashlib": hashlib, "json": json,
+                                "COMMON_AGED": ("T_P05_Aged_Test",),
+                                "TARGETS": {"P05": "/Game/P05"}})
+        exec(compile(ast.Module(body=body, type_ignores=[]), str(source_path), "exec"),
+             module.__dict__)
+        with tempfile.TemporaryDirectory() as folder:
+            first = Path(folder) / "first.png"
+            second = Path(folder) / "second.png"
+            first.write_bytes(b"P05-aged-source-A")
+            second.write_bytes(b"P05-aged-source-B")
+            rows = [
+                {"passage": "P05", "sources": {"T_P05_Aged_Test": str(first)}},
+                {"passage": "P05", "sources": {"T_P05_Aged_Test": str(second)}},
+            ]
+            with self.assertRaisesRegex(RuntimeError,
+                                        "COMMON_AGED_HASH_MISMATCH\\|passage=P05"):
+                module.common_inventory(rows)
+
+    def test_preferred_material_path_reuses_source_mis_and_o2(self):
+        contract = pf.source_material_contract(
+            self.config["destination_root"], "P05_CloudRef01_L_L",
+            self.config["required_texture_suffix"])
+        self.assertEqual(
+            contract["slot_materials"]["Front"],
+            self.config["destination_root"] +
+            "/Materials/Instances/MI_FlatV3_P05_CloudRef01_L_L_Front")
+        self.assertTrue(all(value.endswith("_o2")
+                            for value in contract["texture_parameters"].values()))
+        self.assertEqual(
+            pf.validate_o2_material_parameters(
+                dict(contract["texture_parameters"]), contract["texture_parameters"], "positive"),
+            contract["texture_parameters"])
+        workflow = (KIT / "pf_workflow.py").read_text(encoding="utf-8")
+        inventory_source = workflow[workflow.index("def import_inventory("):
+                                    workflow.index("def verify_material_binding(")]
+        self.assertNotIn('original, "skin"', inventory_source)
+        self.assertIn("def import_mesh_only(", workflow)
+        self.assertIn('"new_texture_count": 0, "new_mi_count": 0', workflow)
+
+    def test_non_o2_skincolor_fails_material_verify(self):
+        expected = pf.source_material_contract(
+            self.config["destination_root"], "P05_CloudRef01_L_L",
+            self.config["required_texture_suffix"])["texture_parameters"]
+        bad = dict(expected)
+        bad["SkinColor"] = bad["SkinColor"].removesuffix("_o2")
+        with self.assertRaisesRegex(RuntimeError, "PF_POLES_NON_O2_SKINCOLOR"):
+            pf.validate_o2_material_parameters(
+                bad, expected, "negative:old-hatched-skin", self.config["required_texture_suffix"])
+
     def test_kept_old_side_is_skipped_and_unchanged(self):
         old = {"mesh": "/Game/Scenes/Wings/Legacy/SM_CloudRef03_R"}
         skipped = pf.source_policy(old, {}, self.config["destination_root"])
@@ -113,15 +178,29 @@ class PFContract(unittest.TestCase):
 
     def test_all_entry_scripts_purge_stale_modules(self):
         names = ["pf_preflight.py", "pf_import.py", "pf_dry.py", "pf_backup.py",
-                 "pf_apply.py", "pf_saved_master_queue_FV3PF_20261003_02.py",
+                 "pf_apply.py", "pf_saved_master_queue_FV3PF_20261003_03.py",
                  "pf_verify.py"]
         for name in names:
-            self.assertIn("purge this folder", (KIT / name).read_text(encoding="utf-8"), name)
+            source = (KIT / name).read_text(encoding="utf-8")
+            self.assertIn("purge this folder", source, name)
+            self.assertNotIn("importlib.reload", source, name)
+
+    def test_fresh_ids_are_configured_and_absent_from_every_log(self):
+        self.assertEqual(self.config["run_id"], "FV3PF-20261003-03")
+        self.assertEqual(self.config["import_run_id"], "FV3PFI-20261003-03")
+        logs = sorted((ROOT / "Saved" / "Logs").glob("PussStage*.log"))
+        self.assertTrue(logs)
+        for path in logs:
+            text = path.read_text(encoding="utf-8", errors="replace")
+            self.assertNotIn(self.config["run_id"], text, str(path))
+            self.assertNotIn(self.config["import_run_id"], text, str(path))
 
     def test_brief_ends_at_verify(self):
         brief = (ROOT / "Saved" / "CodexRuns" / "slots" / "PF_P05poles.md").read_text(
             encoding="utf-8")
         self.assertIn("first write; imports NEW `_poles` packages only", brief)
+        self.assertIn("reuses the existing source-flat Front/Flap MIs", brief)
+        self.assertIn("non-`_o2` `SkinColor`", brief)
         self.assertIn("this is not the end", brief)
         self.assertIn("**END here.**", brief)
 

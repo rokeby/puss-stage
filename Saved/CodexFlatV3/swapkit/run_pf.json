@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "slot": "PF",
-  "run_id": "FV3PF-20261003-02",
-  "import_run_id": "FV3PFI-20261003-02",
+  "run_id": "FV3PF-20261003-03",
+  "import_run_id": "FV3PFI-20261003-03",
   "passage": "P05",
   "passage_label_prefix": "P05 Wing ",
   "passage_actor_label_prefix": "Passage 05",
@@ -14,13 +14,15 @@
   "required_previous_marker": "FLATV3_F_OK run=FV3F-20261002-01",
   "import_success_marker": "FLATV3_PF_IMPORT_OK",
   "success_marker": "FLATV3_PF_OK",
+  "material_strategy": "reuse_source_flat_live_mis",
+  "required_texture_suffix": "_o2",
   "pole_extension_cm": 460.0,
   "floor_z_cm": 0.0,
   "panel_bottom_tolerance_cm": 1.0,
   "pole_floor_tolerance_cm": 1.0,
   "inner_edge_tolerance_cm": 1.0,
   "gap_tolerance_cm": 1.0,
-  "backup_path": "Backups/PreFlatV3P05Poles-FV3PF-20261003-02",
+  "backup_path": "Backups/PreFlatV3P05Poles-FV3PF-20261003-03",
   "backup_files": [
     "DA_InfinityStage_V1Show.uasset",
     "L_InfinityStage_V1VerticalSlice.umap"

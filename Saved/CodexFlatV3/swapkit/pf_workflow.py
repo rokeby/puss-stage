@@ -36,7 +36,7 @@ def load_pilot():
 PILOT = load_pilot()
 
 
-def load_slot_a_library():
+def load_slot_a_library(config):
     path = os.path.join(os.path.dirname(HERE), "slot_a_import.py")
     source = Path(path).read_text(encoding="utf-8")
     tree = ast.parse(source, filename=path)
@@ -47,6 +47,11 @@ def load_slot_a_library():
     module.__file__ = path
     exec(compile(tree, path, "exec"), module.__dict__)
     module.RUN = "PF_LIBRARY_ONLY"
+    # slot_a.common_inventory iterates TARGETS, so PF must narrow this before
+    # asking it to gate shared aged sources.  Otherwise empty P01/P04 rows fail.
+    module.TARGETS = {"P05": config["destination_root"]}
+    module.EXPECTED_COUNTS = {"P05": config["expected_asset_count"]}
+    module.SOURCE_ROOTS = (config["source_root"],)
     module.SAVED = os.path.dirname(HERE)
     return module
 
@@ -295,11 +300,6 @@ def import_inventory(config, slot_a):
         original_owner = owner.removesuffix("_poles")
         sources = {
             "mesh": status["fbx"], "socket": socket_path, "validation": status["validation"],
-            "mi_params": os.path.join(original, "skin", original_owner + "_mi_params.json"),
-            "SkinColor": os.path.join(original, "skin", "T_%s_SkinColor.png" % original_owner),
-            "SkinMask": os.path.join(original, "skin", "T_%s_SkinMask.png" % original_owner),
-            "SkinNormal": os.path.join(original, "skin", "T_%s_SkinNormal.png" % original_owner),
-            "AgedStencil": os.path.join(original, "aged", "T_FlatV3_AgedPlywood_Stencil_Color.png"),
         }
         for name in slot_a.COMMON_AGED:
             sources[name] = os.path.join(original, "aged", name + ".png")
@@ -308,23 +308,88 @@ def import_inventory(config, slot_a):
             raise RuntimeError("PF_SOURCE_FILES_MISSING|asset=%s|missing=%s" %
                                (mesh_name, json.dumps(missing)))
         target = config["destination_root"]
-        destinations = {
-            "mesh": target + "/StaticMeshes/" + mesh_name,
-            "SkinColor": target + "/Textures/%s/T_%s_SkinColor" % (owner, owner),
-            "SkinMask": target + "/Textures/%s/T_%s_SkinMask" % (owner, owner),
-            "SkinNormal": target + "/Textures/%s/T_%s_SkinNormal" % (owner, owner),
-            "AgedStencil": target + "/Textures/Aged/%s/T_%s_AgedPlywood_Stencil_Color" %
-                            (owner, owner),
-            "Front": target + "/Materials/Instances/MI_FlatV3_%s_Front" % owner,
-            "Flap": target + "/Materials/Instances/MI_FlatV3_%s_Flap" % owner,
-        }
+        destinations = {"mesh": target + "/StaticMeshes/" + mesh_name}
         rows.append({"passage": "P05", "folder": folder, "owner": owner,
+                     "source_owner": original_owner,
+                     "source_mesh": target + "/StaticMeshes/" + str(item["source_asset"]),
                      "mesh_name": mesh_name, "side": status["build_side"], "mount": "wing",
                      "baked_poles": True, "sources": sources, "destinations": destinations,
                      "validation": validation})
     if len(rows) != config["expected_asset_count"]:
         raise RuntimeError("PF_IMPORT_SOURCE_COUNT_FAIL|actual=%d" % len(rows))
     return rows
+
+
+def verify_material_binding(config, slot_a, mesh, row, label):
+    """Read back the four slots and the reused source MIs' live _o2 parameters."""
+    contract = s.source_material_contract(
+        config["destination_root"], row["source_owner"], config["required_texture_suffix"])
+    static_materials = list(mesh.get_editor_property("static_materials"))
+    slot_names = [str(value.get_editor_property("material_slot_name"))
+                  for value in static_materials]
+    actual_paths = [slot_a.pilot.asset_package(
+        value.get_editor_property("material_interface")) for value in static_materials]
+    expected_paths = [contract["slot_materials"]["Front"],
+                      contract["slot_materials"]["Flap"],
+                      slot_a.PARENTS["Timber"], slot_a.PARENTS["Edge"]]
+    if slot_names != list(slot_a.SLOTS) or actual_paths != expected_paths:
+        raise RuntimeError("PF_POLES_SLOT_MI_READBACK_FAIL|label=%s|slots=%s|actual=%s|expected=%s" %
+                           (label, json.dumps(slot_names), json.dumps(actual_paths),
+                            json.dumps(expected_paths)))
+    texture_readback = {}
+    for index, material_slot in enumerate(("Front", "Flap")):
+        instance = static_materials[index].get_editor_property("material_interface")
+        if not isinstance(instance, unreal.MaterialInstanceConstant):
+            raise RuntimeError("PF_SOURCE_MI_CLASS_FAIL|label=%s|slot=%s" %
+                               (label, material_slot))
+        actual = slot_a.pilot.serialized_texture_parameters(instance)
+        texture_readback[material_slot] = s.validate_o2_material_parameters(
+            actual, contract["texture_parameters"], "%s:%s" % (label, material_slot),
+            config["required_texture_suffix"])
+    return {"slots": slot_names, "slot_materials": actual_paths,
+            "mi_texture_parameters": texture_readback}
+
+
+def import_mesh_only(config, slot_a, row):
+    """Import only the _poles mesh and bind the source flat's existing live materials."""
+    destination = row["destinations"]["mesh"]
+    mesh = slot_a.import_one(row["sources"]["mesh"], destination,
+                             slot_a.pilot.fbx_options(True))
+    if not isinstance(mesh, unreal.StaticMesh):
+        raise RuntimeError("PF_MESH_CLASS_FAIL|path=" + destination)
+    mesh.modify()
+    nanite = mesh.get_editor_property("nanite_settings")
+    nanite.set_editor_property("enabled", False)
+    mesh.set_editor_property("nanite_settings", nanite)
+    socket_report, socket_rows = slot_a.apply_sockets(mesh, row)
+
+    source_mesh = unreal.EditorAssetLibrary.load_asset(row["source_mesh"])
+    if not isinstance(source_mesh, unreal.StaticMesh):
+        raise RuntimeError("PF_SOURCE_MESH_LOAD_FAIL|path=" + row["source_mesh"])
+    source_materials = list(source_mesh.get_editor_property("static_materials"))
+    source_readback = verify_material_binding(
+        config, slot_a, source_mesh, row, row["source_mesh"] + ":source")
+    for index, material in enumerate(source_materials):
+        mesh.set_material(index, material.get_editor_property("material_interface"))
+
+    geometry = slot_a.verify_geometry(mesh, row, socket_rows)
+    target_readback = verify_material_binding(config, slot_a, mesh, row, destination + ":import")
+    return {"created": [destination], "geometry": geometry,
+            "slot_materials": target_readback["slot_materials"],
+            "source_material_readback": source_readback,
+            "target_material_readback": target_readback,
+            "socket_writeback": socket_report}
+
+
+def verify_mesh_fresh(config, slot_a, row):
+    destination = row["destinations"]["mesh"]
+    mesh = unreal.EditorAssetLibrary.load_asset(destination)
+    if not isinstance(mesh, unreal.StaticMesh):
+        raise RuntimeError("PF_FRESH_MESH_LOAD_FAIL|path=" + destination)
+    socket_rows = slot_a.socket_payload(row["sources"]["socket"], row["mesh_name"])
+    return {"geometry": slot_a.verify_geometry(mesh, row, socket_rows),
+            "material_readback": verify_material_binding(
+                config, slot_a, mesh, row, destination + ":fresh")}
 
 
 def import_assets(config_path=None):
@@ -338,39 +403,40 @@ def import_assets(config_path=None):
         preflight_report = s.read_json(config, "preflight")
         if preflight_report.get("status") != "PASS":
             raise RuntimeError("PF_IMPORT_PREFLIGHT_NOT_PASS")
-        slot_a = load_slot_a_library()
+        slot_a = load_slot_a_library(config)
         slot_a.RUN = run
         assets = import_inventory(config, slot_a)
-        common, _ = slot_a.common_inventory(assets)
+        # This remains a real hash gate for P05 aged inputs, even though the
+        # preferred mesh-only path imports no textures or material instances.
+        _, common_hashes = slot_a.common_inventory(assets)
         per_asset_paths = sorted({path for row in assets for path in slot_a.asset_paths(row)})
         existing = [path for path in per_asset_paths if unreal.EditorAssetLibrary.does_asset_exist(path)]
         s.ensure_fresh_import(existing)
-        planned = slot_a.all_planned_paths(assets, common)
-        _, existing_common = slot_a.destination_state(assets, common)
+        planned = per_asset_paths
         import import_failure_cleanup as ifc
         tracker = ifc.ImportRunTracker("PF", planned, s.census(), s.census)
         tracker.install_deferred_cleanup(slot_a)
-        common_reports, common_paths, failures = slot_a.import_common_textures(common, existing_common)
-        tracker.observe_created()
-        if failures:
-            raise RuntimeError("PF_COMMON_IMPORT_FAIL|" + json.dumps(failures))
         asset_reports = {}
         for row in assets:
-            asset_reports[row["owner"]] = slot_a.import_asset(row)
+            asset_reports[row["owner"]] = import_mesh_only(config, slot_a, row)
             tracker.observe_created()
             unreal.log("FLATV3_PF_IMPORT_ASSET_GATE_PASS run=%s asset=%s" %
                        (run, row["mesh_name"]))
-        save_paths = sorted(common_paths + per_asset_paths)
+        save_paths = per_asset_paths
         slot_a.save_narrow(save_paths)
         saved_roots.extend(save_paths)
         slot_a.pilot.reload_new_packages(save_paths)
-        fresh_assets = {row["owner"]: slot_a.verify_asset_fresh(row) for row in assets}
+        fresh_assets = {row["owner"]: verify_mesh_fresh(config, slot_a, row)
+                        for row in assets}
         if s.census() != s.CLEAN:
             raise RuntimeError("PF_IMPORT_DIRTY_AFTER_READBACK|" + json.dumps(s.census()))
         skipped = preflight_report.get("skipped_sides", [])
         report = {"run": run, "mode": "import", "status": "PASS", "assets": len(assets),
                    "asset_reports": asset_reports, "fresh_assets": fresh_assets,
-                   "common_reports": common_reports, "saved_roots": sorted(set(saved_roots)),
+                   "common_aged_hashes": common_hashes,
+                   "material_strategy": config["material_strategy"],
+                   "new_texture_count": 0, "new_mi_count": 0,
+                   "saved_roots": sorted(set(saved_roots)),
                    "skipped_side_count": len(skipped), "skipped_sides": skipped,
                    "reimport_policy": "all PF target packages must be absent"}
         path = s.write_json(config, "import", report, run=run)
@@ -626,6 +692,16 @@ def verify(config_path=None):
         show = unreal.EditorAssetLibrary.load_asset(s.SHOW)
         cues = assert_live_rows(config, pre, show, expected_after=True)
         actor = f.passage_actor(config, show)
+        slot_a = load_slot_a_library(config)
+        import_rows = import_inventory(config, slot_a)
+        material_readback = {}
+        for row in import_rows:
+            target = row["destinations"]["mesh"]
+            mesh = unreal.EditorAssetLibrary.load_asset(target)
+            if not isinstance(mesh, unreal.StaticMesh):
+                raise RuntimeError("PF_VERIFY_TARGET_MISSING|path=" + target)
+            material_readback[target] = verify_material_binding(
+                config, slot_a, mesh, row, target + ":final_verify")
         plan_by_index = {int(row["cue_index"]): row for row in plan["rows"]}
         verified = []
         for record in pre["rows"]:
@@ -670,9 +746,12 @@ def verify(config_path=None):
                     "assertions": ["world panel bottom unchanged within 1 cm",
                         "world pole bottom <= floor z + 1 cm", "inner edges unchanged",
                         "centre gaps unchanged where both sides are V3",
+                        "each _poles mesh reuses its source flat Front/Flap MIs",
+                        "all reused Front/Flap MIs read back SkinColor/Mask/Normal _o2",
                         "kept-old non-V3 mesh, transforms, and world bounds unchanged",
                         "all non-mesh Show fields unchanged"],
-                   "rows_verified": verified, "saved_roots": sorted(s.SAVED_ROOTS),
+                   "rows_verified": verified, "material_readback": material_readback,
+                   "saved_roots": sorted(s.SAVED_ROOTS),
                    "census": s.census()}
         path = s.write_json(config, "verify", payload)
         unreal.log("%s run=%s rows=%d panels=%d changed_panels=%d skipped=%s saved_count=2 saved_roots=%s census=%s report=%s" %

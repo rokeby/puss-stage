@@ -46,6 +46,7 @@ def load_config(explicit=None):
         "pole_extension_cm", "floor_z_cm", "panel_bottom_tolerance_cm",
         "pole_floor_tolerance_cm", "inner_edge_tolerance_cm", "gap_tolerance_cm",
         "backup_path", "backup_files", "backup_sources", "verify_token",
+        "material_strategy", "required_texture_suffix",
     }
     missing = sorted(required - set(config))
     if missing:
@@ -54,7 +55,9 @@ def load_config(explicit=None):
             config["passage"] != "P05" or config["passage_label_prefix"] != "P05 Wing " or
             int(config["expected_occurrence_count"]) != 93 or
             int(config["expected_asset_count"]) != 16 or
-            config["success_marker"] != "FLATV3_PF_OK"):
+            config["success_marker"] != "FLATV3_PF_OK" or
+            config["material_strategy"] != "reuse_source_flat_live_mis" or
+            config["required_texture_suffix"] != "_o2"):
         raise RuntimeError("PF_CONFIG_SCOPE_FAIL")
     for name in ("pole_extension_cm", "floor_z_cm", "panel_bottom_tolerance_cm",
                  "pole_floor_tolerance_cm", "inner_edge_tolerance_cm", "gap_tolerance_cm"):
@@ -179,6 +182,40 @@ def ensure_fresh_import(existing_paths):
     if existing:
         raise RuntimeError("PF_REIMPORT_REFUSED|existing=" + json.dumps(existing))
     return True
+
+
+def source_material_contract(destination_root, source_owner, texture_suffix="_o2"):
+    """Expected existing source-flat MIs and their live SK texture parameters."""
+    root = str(destination_root).rstrip("/")
+    owner = str(source_owner)
+    suffix = str(texture_suffix)
+    texture_root = "%s/Textures/%s/T_%s_" % (root, owner, owner)
+    return {
+        "slot_materials": {
+            "Front": "%s/Materials/Instances/MI_FlatV3_%s_Front" % (root, owner),
+            "Flap": "%s/Materials/Instances/MI_FlatV3_%s_Flap" % (root, owner),
+        },
+        "texture_parameters": {
+            "SkinColor": texture_root + "SkinColor" + suffix,
+            "SkinMask": texture_root + "SkinMask" + suffix,
+            "SkinNormal": texture_root + "SkinNormal" + suffix,
+        },
+    }
+
+
+def validate_o2_material_parameters(actual, expected, label="", required_suffix="_o2"):
+    """Read-back gate for the reused Front/Flap MI skin parameters."""
+    names = ("SkinColor", "SkinMask", "SkinNormal")
+    relevant = {name: actual.get(name) for name in names}
+    if relevant.get("SkinColor") is None or not str(relevant["SkinColor"]).endswith(
+            str(required_suffix)):
+        raise RuntimeError("PF_POLES_NON_O2_SKINCOLOR|label=%s|actual=%s" %
+                           (label, json.dumps(relevant, sort_keys=True)))
+    if relevant != expected:
+        raise RuntimeError("PF_POLES_MI_TEXTURE_READBACK_FAIL|label=%s|expected=%s|actual=%s" %
+                           (label, json.dumps(expected, sort_keys=True),
+                            json.dumps(relevant, sort_keys=True)))
+    return relevant
 
 
 def validate_measurement(before, after, config, identity=""):
