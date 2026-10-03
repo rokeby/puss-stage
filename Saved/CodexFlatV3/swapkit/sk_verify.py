@@ -1,4 +1,4 @@
-"""SK verify END: read back all 204 textures and 136 MIs, with no writes."""
+"""SK verify END: read back all 189 texture pairs and 126 MIs, with no writes."""
 import sys as _fv3_sys, os as _fv3_os
 if __name__ == "__main__":
     _fv3_here = _fv3_os.path.dirname(_fv3_os.path.abspath(__file__))
@@ -26,10 +26,16 @@ def main(config_path=None):
         log_checks = {
             "import_complete": c.require_marker("FLATV3_SK_IMPORT_OK", cfg["import_run_id"]),
             "apply_complete": c.require_marker("FLATV3_SK_APPLY_OK", run),
+            "apply_batches": {
+                passage: c.require_batch_marker(run, passage) for passage in c.PASSAGES
+            },
         }
+        unreal.SystemLibrary.collect_garbage()
         textures = {
-            destination: c.verify_texture(c.load_asset(destination, unreal.Texture2D), kind)
-            for destination, (_source, kind) in sorted(c.planned_textures(cfg).items())
+            replacement: c.verify_texture_pair(original, replacement, kind)
+            for replacement, (original, kind) in sorted(
+                c.planned_texture_pairs(cfg["rows"]).items()
+            )
         }
         instances = {}
         for row in cfg["rows"]:

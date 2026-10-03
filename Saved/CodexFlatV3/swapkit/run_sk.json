@@ -1,18 +1,38 @@
 {
   "schema_version": 1,
   "slot": "SK",
-  "status": "AS_IS_OFFLINE_ONLY_NOT_RUN",
+  "status": "AS_IS_IMPORT_DONE_APPLY_PENDING",
   "source_skin_directory": "skin_v3",
   "texture_name_suffix": "_o2",
   "import_run_id": "FV3SKI-20261003-01",
-  "apply_run_id": "FV3SK-20261003-01",
-  "revert_run_id": "FV3SKR-20261003-01",
+  "apply_run_id": "FV3SK-20261003-02",
+  "revert_run_id": "FV3SKR-20261003-02",
+  "import_status": "DONE",
+  "import_success_marker": "FLATV3_SK_IMPORT_OK run=FV3SKI-20261003-01",
   "workflow": [
-    "import",
-    "apply",
+    "apply_batches",
     "verify"
   ],
   "terminal_stage": "verify",
+  "settings_fix_required": false,
+  "settings_audit_result": "MATCH_189_OF_189_SAVED_PACKAGES",
+  "texture_match_properties": [
+    "size",
+    "lod_group",
+    "never_stream",
+    "compression_settings",
+    "srgb",
+    "mip_gen_settings",
+    "virtual_texture_streaming"
+  ],
+  "apply_batches": [
+    {"passage": "P01", "mi_count": 12, "texture_count": 18},
+    {"passage": "P02", "mi_count": 32, "texture_count": 48},
+    {"passage": "P03", "mi_count": 22, "texture_count": 33},
+    {"passage": "P04", "mi_count": 16, "texture_count": 24},
+    {"passage": "P05", "mi_count": 32, "texture_count": 48},
+    {"passage": "P06", "mi_count": 12, "texture_count": 18}
+  ],
   "mi_count": 126,
   "new_texture_count": 189,
   "rows": [

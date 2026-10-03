@@ -1,4 +1,4 @@
-"""SK revert: repoint the 136 MIs to old textures; retain all _o2 textures."""
+"""SK revert: repoint the 126 MIs to old textures; retain all _o2 textures."""
 import sys as _fv3_sys, os as _fv3_os
 if __name__ == "__main__":
     _fv3_here = _fv3_os.path.dirname(_fv3_os.path.abspath(__file__))
@@ -19,10 +19,13 @@ import sk_common as c
 
 def main(config_path=None):
     cfg = c.config(config_path)
-    run = cfg.get("revert_run_id", "FV3SKR-20261003-01")
+    run = cfg["revert_run_id"]
     c.assert_context(clean=True)
     c.require_marker("FLATV3_SK_APPLY_OK", cfg["apply_run_id"])
+    for passage in c.PASSAGES:
+        c.require_batch_marker(cfg["apply_run_id"], passage)
     c.require_run_unused(run)
+    unreal.SystemLibrary.collect_garbage()
     changed = []
     for row in cfg["rows"]:
         instance = c.load_asset(row["mi"], unreal.MaterialInstanceConstant)

@@ -1,4 +1,4 @@
-"""SK import: fresh-import and save only the 204 skin_v3 _o2 textures."""
+"""Archived SK import entrypoint; the 189 _o2 packages are already saved."""
 import sys as _fv3_sys, os as _fv3_os
 if __name__ == "__main__":
     _fv3_here = _fv3_os.path.dirname(_fv3_os.path.abspath(__file__))
@@ -21,6 +21,11 @@ import sk_common as c
 
 def main(config_path=None):
     cfg = c.config(config_path)
+    if cfg.get("import_status") == "DONE":
+        raise RuntimeError(
+            "SK_IMPORT_ALREADY_COMPLETE|run=%s|marker=%s"
+            % (cfg["import_run_id"], cfg.get("import_success_marker"))
+        )
     run = cfg["import_run_id"]
     saved = []
     tracker = None
@@ -106,4 +111,3 @@ def main(config_path=None):
 
 if __name__ == "__main__":
     main(globals().get("FLATV3_CONFIG"))
-

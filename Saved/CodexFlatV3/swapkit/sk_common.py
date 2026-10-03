@@ -6,6 +6,7 @@ import glob
 import importlib.util
 import json
 import os
+import re
 
 import unreal
 
@@ -16,6 +17,16 @@ SAVED_FLAT = os.path.dirname(HERE)
 CONFIG_PATH = os.path.join(HERE, "run_sk.json")
 CLEAN = {"content": [], "maps": []}
 KINDS = ("SkinColor", "SkinMask", "SkinNormal")
+PASSAGES = ("P01", "P02", "P03", "P04", "P05", "P06")
+TEXTURE_MATCH_PROPERTIES = (
+    "size",
+    "lod_group",
+    "never_stream",
+    "compression_settings",
+    "srgb",
+    "mip_gen_settings",
+    "virtual_texture_streaming",
+)
 
 
 def load_module(name, path):
@@ -38,10 +49,24 @@ def config(path=None):
         raise RuntimeError("SK_CONFIG_SLOT_FAIL")
     if value.get("import_run_id") != "FV3SKI-20261003-01":
         raise RuntimeError("SK_IMPORT_RUN_ID_FAIL")
-    if value.get("apply_run_id") != "FV3SK-20261003-01":
+    if value.get("apply_run_id") != "FV3SK-20261003-02":
         raise RuntimeError("SK_APPLY_RUN_ID_FAIL")
-    if value.get("workflow") != ["import", "apply", "verify"]:
+    if value.get("revert_run_id") != "FV3SKR-20261003-02":
+        raise RuntimeError("SK_REVERT_RUN_ID_FAIL")
+    if value.get("import_status") != "DONE":
+        raise RuntimeError("SK_IMPORT_STATUS_FAIL")
+    if value.get("import_success_marker") != (
+            "FLATV3_SK_IMPORT_OK run=" + value["import_run_id"]):
+        raise RuntimeError("SK_IMPORT_MARKER_CONFIG_FAIL")
+    if value.get("workflow") != ["apply_batches", "verify"]:
         raise RuntimeError("SK_WORKFLOW_FAIL")
+    if value.get("texture_match_properties") != list(TEXTURE_MATCH_PROPERTIES):
+        raise RuntimeError("SK_TEXTURE_MATCH_PROPERTIES_FAIL")
+    if value.get("settings_fix_required") is not False:
+        raise RuntimeError("SK_SETTINGS_FIX_STATE_FAIL")
+    batches = value.get("apply_batches", [])
+    if [batch.get("passage") for batch in batches] != list(PASSAGES):
+        raise RuntimeError("SK_BATCH_ORDER_FAIL")
     rows = value.get("rows", [])
     textures = {path for row in rows for path in row["new_textures"].values()}
     names = [row["mi"].rsplit("/", 1)[-1] for row in rows]
@@ -58,7 +83,38 @@ def config(path=None):
         raise RuntimeError(
             "SK_CONFIG_COUNT_FAIL|mis=%d|textures=%d" % (len(rows), len(textures))
         )
+    for batch in batches:
+        passage_rows = [row for row in rows if row.get("passage") == batch["passage"]]
+        passage_textures = {
+            row["new_textures"][kind] for row in passage_rows for kind in KINDS
+        }
+        if (len(passage_rows) != int(batch.get("mi_count", -1)) or
+                len(passage_textures) != int(batch.get("texture_count", -1))):
+            raise RuntimeError(
+                "SK_BATCH_COUNT_FAIL|passage=%s|mis=%d|textures=%d"
+                % (batch["passage"], len(passage_rows), len(passage_textures))
+            )
     return value
+
+
+def batch(cfg, passage):
+    for ordinal, value in enumerate(cfg["apply_batches"], 1):
+        if value["passage"] == passage:
+            return ordinal, value
+    raise RuntimeError("SK_UNKNOWN_PASSAGE|passage=" + str(passage))
+
+
+def rows_for_passage(cfg, passage):
+    batch(cfg, passage)
+    rows = [row for row in cfg["rows"] if row.get("passage") == passage]
+    if not rows:
+        raise RuntimeError("SK_EMPTY_BATCH|passage=" + passage)
+    return rows
+
+
+def completed_passages_before(cfg, passage):
+    ordinal, _value = batch(cfg, passage)
+    return [value["passage"] for value in cfg["apply_batches"][:ordinal - 1]]
 
 
 def planned_textures(cfg):
@@ -76,6 +132,22 @@ def planned_textures(cfg):
             result[destination] = value
     if len(result) != int(cfg["new_texture_count"]):
         raise RuntimeError("SK_PLANNED_TEXTURE_COUNT_FAIL")
+    return result
+
+
+def planned_texture_pairs(rows):
+    result = {}
+    for row in rows:
+        for kind in KINDS:
+            destination = row["new_textures"][kind]
+            value = (row["old_textures"][kind], kind)
+            previous = result.get(destination)
+            if previous is not None and previous != value:
+                raise RuntimeError(
+                    "SK_TEXTURE_PAIR_CONFLICT|path=%s|first=%s|second=%s"
+                    % (destination, previous, value)
+                )
+            result[destination] = value
     return result
 
 
@@ -141,6 +213,33 @@ def require_marker(marker, run):
     return result
 
 
+def require_run_open(run):
+    token = "FLATV3_SLOT_RELEASED run=%s" % run
+    result = scan_logs(token)
+    if result["hits"]:
+        raise RuntimeError("SK_RUN_ALREADY_RELEASED|" + json.dumps(result, sort_keys=True))
+    return result
+
+
+def require_token_unused(token):
+    result = scan_logs(token)
+    if result["hits"]:
+        raise RuntimeError("SK_TOKEN_ALREADY_IN_LOGS|" + json.dumps(result, sort_keys=True))
+    return result
+
+
+def batch_success_token(run, passage):
+    return "FLATV3_SK_APPLY_BATCH_OK passage=%s run=%s" % (passage, run)
+
+
+def require_batch_marker(run, passage):
+    token = batch_success_token(run, passage)
+    result = scan_logs(token)
+    if not result["hits"]:
+        raise RuntimeError("SK_REQUIRED_BATCH_MARKER_MISSING|token=" + token)
+    return result
+
+
 def load_asset(path, expected_type=None):
     value = unreal.EditorAssetLibrary.load_asset(path)
     if value is None or (expected_type is not None and not isinstance(value, expected_type)):
@@ -155,6 +254,80 @@ def texture_settings(texture, kind):
 
 def verify_texture(texture, kind):
     return pilot.verify_texture(texture, kind)
+
+
+def saved_texture_profile(asset_path):
+    if not asset_path.startswith("/Game/"):
+        raise RuntimeError("SK_TEXTURE_NOT_GAME_ASSET|path=" + asset_path)
+    package_file = os.path.join(
+        unreal.Paths.project_content_dir(),
+        asset_path[len("/Game/"):].replace("/", os.sep) + ".uasset",
+    )
+    if not os.path.isfile(package_file):
+        raise RuntimeError("SK_TEXTURE_PACKAGE_MISSING|path=" + package_file)
+    with open(package_file, "rb") as stream:
+        text = stream.read().decode("latin-1")
+    specs = {
+        "size": ("Dimensions", r"[0-9]+x[0-9]+"),
+        "lod_group": ("LODGroup", r"TEXTUREGROUP_[A-Za-z0-9_]+"),
+        "never_stream": ("NeverStream", r"True|False"),
+        "compression_settings": ("CompressionSettings", r"TC_[A-Za-z0-9_]+"),
+        "srgb": ("SRGB", r"True|False"),
+        "mip_gen_settings": ("MipGenSettings", r"TMGS_[A-Za-z0-9_]+"),
+        "virtual_texture_streaming": (
+            "VirtualTextureStreaming", r"True|False"
+        ),
+    }
+    result = {}
+    for key, (label, pattern) in specs.items():
+        parsed = []
+        for match in re.finditer(re.escape(label), text):
+            segment = re.sub(
+                r"[^\x20-\x7e]", ".", text[match.start():match.start() + 240]
+            )
+            value = re.search(
+                re.escape(label) + r"\.+(" + pattern + r")", segment
+            )
+            if value:
+                parsed.append(value.group(1))
+        if not parsed:
+            raise RuntimeError(
+                "SK_TEXTURE_PACKAGE_TAG_FAIL|asset=%s|tag=%s" % (asset_path, label)
+            )
+        result[key] = parsed[-1]
+    return result
+
+
+def verify_texture_pair(original_path, replacement_path, kind):
+    original = load_asset(original_path, unreal.Texture2D)
+    replacement = load_asset(replacement_path, unreal.Texture2D)
+    verify_texture(original, kind)
+    verify_texture(replacement, kind)
+    # Saved package metadata is stable while runtime size getters can report a
+    # temporary 32x32 placeholder during async texture compilation/streaming.
+    original_profile = saved_texture_profile(original_path)
+    replacement_profile = saved_texture_profile(replacement_path)
+    if original_profile != replacement_profile:
+        raise RuntimeError(
+            "SK_TEXTURE_PROFILE_MISMATCH|old=%s|new=%s|old_profile=%s|new_profile=%s"
+            % (original_path, replacement_path,
+               json.dumps(original_profile, sort_keys=True),
+               json.dumps(replacement_profile, sort_keys=True))
+        )
+    return {"old": original_path, "new": replacement_path,
+            "kind": kind, "profile": replacement_profile}
+
+
+def gpu_memory_guard():
+    # UE 5.8 exposes texture-memory data to native RHI code, but no supported
+    # unreal.SystemLibrary/Python getter returns current D3D12 budget or usage.
+    # Do not substitute a console command: its text is not a synchronous,
+    # machine-readable guard.  Passage batching plus GC is the available guard.
+    return {
+        "available": False,
+        "action": "PASSAGE_BATCH_PLUS_COLLECT_GARBAGE",
+        "reason": "NO_SUPPORTED_PYTHON_GPU_MEMORY_BUDGET_GETTER",
+    }
 
 
 def mi_textures(instance):
