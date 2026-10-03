@@ -1,4 +1,7 @@
-"""Read-only Flat V3 SK before/after stills; no save, spawn, or exposure override."""
+"""RETIRED 3 Oct: editor HighResShot captures the live viewport; use st_pie_*
+
+Read-only Flat V3 SK before/after stills; no save, spawn, or exposure override.
+"""
 import sys as _fv3_sys, os as _fv3_os
 if __name__ == "__main__":
     _fv3_here = _fv3_os.path.dirname(_fv3_os.path.abspath(__file__))
@@ -219,4 +222,3 @@ def main(config_path=None):
 
 if __name__ == "__main__":
     main(globals().get("FLATV3_CONFIG"))
-
