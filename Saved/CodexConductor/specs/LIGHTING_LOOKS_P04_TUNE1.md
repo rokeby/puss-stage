@@ -89,3 +89,8 @@ Revert-then-apply, verify, both tests, landed STATUS, re-record P04 bays 1-6 vid
   and pull it below clipping.
 - Measure, don't eyeball: report per-bay luminance stats of the wing pixels (mean / p99) in the stills before/after.
 Revert-then-apply, verify, both tests, landed STATUS, re-record (engine-frame fallback is fine).
+
+## TUNE 4 add-on (READ-ONLY, for W&T): during the tune 4 PIE run, at the P04 bay-3 frame (LightingLooks 20261003_213320, Master
+## frame 25,433,910), line-trace from the player camera through screen pixels (900,300) and (1100,300) of a 1280x720 view (deproject
+## screen to world; visibility channel; first hit). Log per trace: hit actor label, component, static mesh path, material slot 0, the
+## hit's Show cue (index+GUID) if resolvable. Write Saved/CodexConductor/p04_bay3_trace.json and send it to W&T. No writes.
