@@ -41,3 +41,11 @@ flickering, some dead (off) for rhythm. In MOODY they are the main sources; in T
   modelled, not flat (light from one side and a grazing angle, gradients top-to-bottom, a cutter/barn-door edge across part of a wing,
   the accent gel only on part of the surface).
 Keep shadow casters <= 43. Revert-then-apply, read-back, both tests, landed STATUS, re-record the same video + 6 stills.
+
+## TUNE 4 (queued; Gary 3 Oct: "Occasional lights that move towards the camera and cause glare and lens flare could be nice too")
+An EVENT, not a look: occasionally (about 1 per 4-6 bays, varied) a light SWEEPS toward the lens: a moving-head spot or a
+follow spot panning across the corridor and briefly into camera, or a work lamp swung on a cord. Keyed by camera distance like the
+looks (rotation/pan keys on the fixture), with a short peak of glare: check the passage camera's post-process (Bloom, Lens Flares
+intensity/threshold/bokeh) actually produces lens flare from an in-frame bright source (read the PPV/camera settings; enable
+modestly if off; report the values), and haze so the beam reads. Rare and brief, never a wash. One instance in P04 bays 1-6
+first, recorded for Gary.
