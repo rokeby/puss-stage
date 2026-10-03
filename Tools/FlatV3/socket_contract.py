@@ -45,6 +45,7 @@ def make_socket_payload(
     height_cm: float,
     width_m: float,
     pole_positions_y_m: Iterable[float],
+    pole_extension_cm: float | None = None,
 ) -> dict[str, Any]:
     """Build the Unreal-local sidecar from builder-manifest declarations.
 
@@ -83,7 +84,7 @@ def make_socket_payload(
             for index, y_m in enumerate(pole_positions_y_m, start=1)
         )
 
-    return {
+    payload = {
         "schema_version": SOCKET_SCHEMA_VERSION,
         "asset": asset,
         "coordinate_space": "Unreal static-mesh local",
@@ -94,6 +95,15 @@ def make_socket_payload(
         "contract": dict(SOCKET_CONTRACT),
         "sockets": records,
     }
+    if pole_extension_cm is not None:
+        if mount != "wing" or float(pole_extension_cm) <= 0.0:
+            raise ValueError("pole_extension_cm is valid only for wing mounts and must be positive")
+        payload["baked_pole_geometry"] = {
+            "extension_below_panel_cm": float(pole_extension_cm),
+            "bottom_z_cm": -float(pole_extension_cm),
+            "top_above_panel_cm": 20.0,
+        }
+    return payload
 
 
 def make_wing_payload_from_fbx_records(

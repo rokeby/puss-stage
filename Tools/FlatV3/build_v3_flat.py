@@ -8,6 +8,7 @@ imports exactly one FBX into a clean factory-startup process and writes JSON.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
@@ -81,6 +82,13 @@ def blender_args() -> argparse.Namespace:
         action="store_true",
         help=("Bake a full-height copy of the shared pole profile into both card LODs at every "
               "Pole_n socket. For non-toppling interim use only; sockets remain exported."),
+    )
+    parser.add_argument(
+        "--pole-extension-cm",
+        type=float,
+        default=100.0,
+        help=("Opt-in baked-pole reach below the panel base in centimetres. "
+              "The Flat V3 default remains 100; requires --bake-poles."),
     )
     return parser.parse_args(raw)
 
@@ -1553,14 +1561,15 @@ def create_pole(materials: list[bpy.types.Material]) -> bpy.types.Object:
 
 
 def create_baked_poles(pole_y: list[float], height_m: float,
-                       materials: list[bpy.types.Material], lod_label: str) -> tuple[list[bpy.types.Object], list[dict]]:
+                       materials: list[bpy.types.Material], lod_label: str,
+                       extension_cm: float = 100.0) -> tuple[list[bpy.types.Object], list[dict]]:
     """Create deterministic, joined-card copies of the shared pole profile.
 
     The shared pole is authored as a one-metre module whose normalized bounds
     retain the 10 m pilot proportions. Scaling and translating that exact mesh
-    gives every baked pole an exact -1.0 m foot and a top 0.2 m above the card.
+    gives every baked pole the requested foot and a top 0.2 m above the card.
     """
-    bottom_m = -1.0
+    bottom_m = -float(extension_cm) / 100.0
     top_m = height_m + 0.2
     span_m = top_m - bottom_m
     translation_z = bottom_m - POLE_UNIT_BOTTOM_M * span_m
@@ -1775,6 +1784,65 @@ def object_triangles(obj: bpy.types.Object) -> int:
     return len(obj.data.loop_triangles)
 
 
+def panel_geometry_contract(objects: list[bpy.types.Object]) -> dict:
+    """Fingerprint card art/frame geometry before baked poles are joined.
+
+    The contract deliberately excludes baked poles.  It records the triangulated
+    surface, UV0 and UV1 independently so a pole-only variant can prove that its
+    panel triangles and both UV channels are byte-for-byte deterministic.
+    """
+    triangle_rows = []
+    uv0_rows = []
+    uv1_rows = []
+    for obj in objects:
+        if obj.type != "MESH":
+            continue
+        mesh = obj.data
+        mesh.calc_loop_triangles()
+        uv0 = mesh.uv_layers.get("UV0")
+        uv1 = mesh.uv_layers.get("UV1")
+        for triangle in mesh.loop_triangles:
+            polygon = mesh.polygons[triangle.polygon_index]
+            slot = (obj.material_slots[polygon.material_index].material.name
+                    if 0 <= polygon.material_index < len(obj.material_slots)
+                    and obj.material_slots[polygon.material_index].material else "")
+            positions = []
+            tex0 = []
+            tex1 = []
+            for loop_index in triangle.loops:
+                vertex_index = mesh.loops[loop_index].vertex_index
+                co = obj.matrix_world @ mesh.vertices[vertex_index].co
+                positions.append([round(float(value), 8) for value in co])
+                tex0.append([round(float(value), 8) for value in uv0.data[loop_index].uv]
+                            if uv0 is not None else None)
+                tex1.append([round(float(value), 8) for value in uv1.data[loop_index].uv]
+                            if uv1 is not None else None)
+            # Preserve winding but remove the arbitrary choice of first corner.
+            rotations = [positions[index:] + positions[:index] for index in range(3)]
+            first = min(range(3), key=lambda index: rotations[index])
+            positions = rotations[first]
+            tex0 = tex0[first:] + tex0[:first]
+            tex1 = tex1[first:] + tex1[:first]
+            triangle_rows.append([slot, positions])
+            uv0_rows.append([slot, positions, tex0])
+            uv1_rows.append([slot, positions, tex1])
+    triangle_rows.sort()
+    uv0_rows.sort()
+    uv1_rows.sort()
+
+    def digest(rows: list) -> str:
+        payload = json.dumps(rows, sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    return {
+        "triangle_count": len(triangle_rows),
+        "triangles_sha256": digest(triangle_rows),
+        "uv0_sha256": digest(uv0_rows),
+        "uv1_sha256": digest(uv1_rows),
+        "scope": "profile board, flaps, frame and hardware; baked poles excluded",
+    }
+
+
 def build(args: argparse.Namespace) -> None:
     if not all((args.mask, args.art, args.skin_mask, args.skin_normal, args.flaps,
                 args.height_cm, args.side, args.name, args.output_dir,
@@ -1788,6 +1856,10 @@ def build(args: argparse.Namespace) -> None:
     is_wave_row = args.mount == "wave-row"
     is_top_border = args.mount == "top-border"
     is_pole_free_mount = is_wave_row or is_top_border
+    if args.pole_extension_cm <= 0.0:
+        raise RuntimeError("--pole-extension-cm must be positive")
+    if abs(args.pole_extension_cm - 100.0) > 1.0e-6 and not args.bake_poles:
+        raise RuntimeError("--pole-extension-cm requires --bake-poles")
     materials = make_materials(
         Path(args.art).resolve(), Path(args.skin_mask).resolve(),
         Path(args.skin_normal).resolve(), Path(args.aged_texture_dir).resolve(), silhouette)
@@ -1807,11 +1879,15 @@ def build(args: argparse.Namespace) -> None:
     parts, members, pole_y, visibility = build_frame(
         silhouette, materials, shallow=is_pole_free_mount, top_border=is_top_border
     )
+    panel_contract = panel_geometry_contract([board, *flap_objects, *parts])
+    lod1_panel_contract = panel_geometry_contract([lod1])
     if args.bake_poles and is_pole_free_mount:
         raise RuntimeError("--bake-poles is valid only for wing-mounted flats")
-    baked_lod0, baked_pole_records = (create_baked_poles(pole_y, silhouette.height_m, materials, "LOD0")
+    baked_lod0, baked_pole_records = (create_baked_poles(
+        pole_y, silhouette.height_m, materials, "LOD0", args.pole_extension_cm)
                                       if args.bake_poles else ([], []))
-    baked_lod1, _ = (create_baked_poles(pole_y, silhouette.height_m, materials, "LOD1")
+    baked_lod1, _ = (create_baked_poles(
+        pole_y, silhouette.height_m, materials, "LOD1", args.pole_extension_cm)
                      if args.bake_poles else ([], []))
     flat, triangle_counts = consolidate_flat(flat_name + "_LOD0", board, flap_objects + parts + baked_lod0, materials)
     if baked_lod1:
@@ -1848,12 +1924,13 @@ def build(args: argparse.Namespace) -> None:
     flat["BakedPoles"] = bool(args.bake_poles)
     flat["PoleCount"] = len(pole_y)
     flat["FrameStileSearchMode"] = visibility["stile_search_mode"]
-    flat["PoleFootZM"] = -1.0 if args.bake_poles else 0.0
+    pole_foot_z_m = -float(args.pole_extension_cm) / 100.0
+    flat["PoleFootZM"] = pole_foot_z_m if args.bake_poles else 0.0
     flat["PoleTopZM"] = silhouette.height_m + 0.2 if args.bake_poles else 0.0
     lod1["BakedPoles"] = bool(args.bake_poles)
     lod1["PoleCount"] = len(pole_y)
     lod1["FrameStileSearchMode"] = visibility["stile_search_mode"]
-    lod1["PoleFootZM"] = -1.0 if args.bake_poles else 0.0
+    lod1["PoleFootZM"] = pole_foot_z_m if args.bake_poles else 0.0
     lod1["PoleTopZM"] = silhouette.height_m + 0.2 if args.bake_poles else 0.0
     flat["LODContract"] = ("LOD0 board flaps frame hardware baked poles" if args.bake_poles else
                            "LOD0 board flaps frame hardware")
@@ -1914,6 +1991,7 @@ def build(args: argparse.Namespace) -> None:
         height_cm=silhouette.height_m * 100.0,
         width_m=silhouette.width_m,
         pole_positions_y_m=pole_y,
+        pole_extension_cm=args.pole_extension_cm if args.bake_poles else None,
     )
     socket_sidecar.write_text(json.dumps(socket_payload, indent=2) + "\n", encoding="utf-8")
     lod1.hide_render = True
@@ -1960,6 +2038,9 @@ def build(args: argparse.Namespace) -> None:
         "pole_positions_y_m": pole_y,
         "baked_poles": {
             "enabled": bool(args.bake_poles),
+            "extension_below_panel_cm": float(args.pole_extension_cm) if args.bake_poles else 0.0,
+            "bottom_z_m": pole_foot_z_m if args.bake_poles else 0.0,
+            "top_z_m": silhouette.height_m + 0.2 if args.bake_poles else 0.0,
             "interim_non_toppling_only": bool(args.bake_poles),
             "lods": ["LOD0", "LOD1"] if args.bake_poles else [],
             "records": baked_pole_records,
@@ -1970,6 +2051,10 @@ def build(args: argparse.Namespace) -> None:
         "flaps": flap_records,
         "head_on_frame_visibility": visibility,
         "removed_degenerate_board_cap_faces": removed_degenerate_caps,
+        "art_panel_geometry_contract": {
+            "lod0": panel_contract,
+            "lod1": lod1_panel_contract,
+        },
         "triangulated_export": export_topology or {"enabled": False},
         "triangle_counts": {**triangle_counts, "lod1_total": lod1_triangles,
                             "lod1_board_without_baked_poles": lod1_counts.get("profile_board", lod1_counts.get("flat_total")),
@@ -2023,7 +2108,7 @@ def material_bounds(obj: bpy.types.Object, slots: list[str], slot_name: str) -> 
 
 
 def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects: dict[str, bpy.types.Object],
-                         expected_height_m: float) -> dict:
+                         expected_height_m: float, expected_bottom_m: float) -> dict:
     layer = vertex_color_layer(obj)
     timber_index = slots.index("Timber") if "Timber" in slots else -1
     pole_sockets = sorted(name for name in socket_objects if name.startswith("SOCKET_Pole_"))
@@ -2050,7 +2135,7 @@ def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects
             axis_x = float((lower[0] + upper[0]) * 0.5)
             axis_y = float((lower[1] + upper[1]) * 0.5)
             detail_pass = bool(
-                abs(float(lower[2]) + 1.0) <= 0.002
+                abs(float(lower[2]) - expected_bottom_m) <= 0.002
                 and float(upper[2]) >= expected_height_m + 0.19
                 and abs(axis_x - float(socket_location.x)) <= 0.002
                 and abs(axis_y - float(socket_location.y)) <= 0.002
@@ -2062,7 +2147,7 @@ def validate_baked_poles(obj: bpy.types.Object, slots: list[str], socket_objects
                 "pole_axis_m": [axis_x, axis_y],
                 "bounds_min_z_m": float(lower[2]),
                 "bounds_max_z_m": float(upper[2]),
-                "required_min_z_m": -1.0,
+                "required_min_z_m": expected_bottom_m,
                 "required_top_above_m": expected_height_m,
                 "timber_vc_red_range": [min(red_values), max(red_values)],
                 "sample_count": len(unique),
@@ -2501,6 +2586,7 @@ def validate(args: argparse.Namespace) -> None:
         socket_names = sorted(socket_objects)
         is_wave_row = args.kind == "wave"
         baked_poles = bool(flat.get("BakedPoles", False))
+        expected_pole_bottom_m = float(flat.get("PoleFootZM", -1.0 if baked_poles else 0.0))
         required_sockets = set() if is_wave_row else {"SOCKET_Pole_1", "SOCKET_Hinge", "SOCKET_Pivot"}
         sparse_single_pole = "single_stile_sparse_second_band" in str(flat.get("FrameStileSearchMode", ""))
         if not is_wave_row and float(dims[1]) > 4.0 and not sparse_single_pole:
@@ -2544,9 +2630,11 @@ def validate(args: argparse.Namespace) -> None:
             lod1.data.calc_loop_triangles()
         front_bounds = material_bounds(flat, slots, "Front")
         card_height = float(front_bounds[1][2] - front_bounds[0][2]) if front_bounds else 0.0
-        baked_lod0_check = (validate_baked_poles(flat, slots, socket_objects, expected_h)
+        baked_lod0_check = (validate_baked_poles(
+            flat, slots, socket_objects, expected_h, expected_pole_bottom_m)
                             if baked_poles else {"pass": True, "enabled": False})
-        baked_lod1_check = (validate_baked_poles(lod1, lod1_slots, socket_objects, expected_h)
+        baked_lod1_check = (validate_baked_poles(
+            lod1, lod1_slots, socket_objects, expected_h, expected_pole_bottom_m)
                             if baked_poles and lod1 else {"pass": not baked_poles, "enabled": False})
         triangles_by_slot = {name: 0 for name in MATERIAL_SLOTS}
         for triangle in flat.data.loop_triangles:
@@ -2559,7 +2647,7 @@ def validate(args: argparse.Namespace) -> None:
             "depth_about_12cm": ({"pass": 0.190 <= float(dims[0]) <= 0.210, "measured_m": float(dims[0]), "contract": "card plus baked pole collar"}
                                  if baked_poles else
                                  {"pass": 0.115 <= float(dims[0]) <= 0.130, "measured_m": float(dims[0]), "contract": "card only"}),
-            "bounds_min_z": ({"pass": abs(float(lower[2]) + 1.0) <= 0.002, "measured_m": float(lower[2]), "expected_m": -1.0}
+            "bounds_min_z": ({"pass": abs(float(lower[2]) - expected_pole_bottom_m) <= 0.002, "measured_m": float(lower[2]), "expected_m": expected_pole_bottom_m}
                              if baked_poles else
                              {"pass": abs(float(lower[2])) <= 0.01, "measured_m": float(lower[2]), "expected_m": 0.0}),
             "material_slots_exact": {"pass": slots == MATERIAL_SLOTS, "value": slots, "expected": MATERIAL_SLOTS},
