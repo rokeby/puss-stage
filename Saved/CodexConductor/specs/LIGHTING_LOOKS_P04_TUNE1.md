@@ -20,3 +20,12 @@ PIE, never quit, never Save All, purge modules, backups, stop on first failure; 
 More PRACTICALS in every look: visible motivated sources on the lighting trees and fence: bare bulbs on cords, cage work
 lamps, an old tube, a desk/clamp lamp; 1-3 per bay, small, each with its own light (shadowless, short attenuation), some
 flickering, some dead (off) for rhythm. In MOODY they are the main sources; in THEATRICAL accents.
+
+## TUNE 2 (Gary 3 Oct, his answer: "Fix moody + add practicals"). Tune 1 left MOODY almost unchanged (stills
+## LightingLooks/20261003_172218: bays 1-2 still mostly black): find out WHY first (read back the moody fixtures' live intensity,
+## attenuation, aim vs the wing positions; are the blades/rim actually hitting a wing? units: candela vs lumens?), then fix so that
+## in each moody bay a PART of a wing is clearly lit (a blade on one edge, alternating sides), a cool rim reads, and darks are
+## blue-black, not mud. Then PRACTICALS in all looks (1-3 per bay: bare bulbs on cords, caged work lamps, a tube, a clamp lamp; each
+## a small visible emissive mesh (engine basic shapes + an emissive MI is fine) with its own shadowless short light; some flicker,
+## one dead per look). Shadow casters <= 43. Revert-then-apply, read-back, both tests, landed STATUS, re-record the same video + 6
+## stills.
