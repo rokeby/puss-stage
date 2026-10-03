@@ -10,7 +10,8 @@ import unreal
 
 
 BASE = pathlib.Path("E:/PussStage/Saved/CodexConductor")
-OUT_ROOT = BASE / "S3BeachStills" / "PIE"
+PROFILE = str(globals().get("S3_CAPTURE_PROFILE", "legacy"))
+OUT_ROOT = (BASE / "S3Daylight") if PROFILE in ("daylight", "waves") else (BASE / "S3BeachStills" / "PIE")
 CURRENT = BASE / "pie_recording_current_run.json"
 OWNER = BASE / "pie_recording_owner.json"
 SEQUENCE = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
@@ -120,11 +121,42 @@ def begin_job(world, root, state, index):
     job["actual_frame_after_scrub"] = root.transport.get_current_master_frame().value
     job["phase"] = "settle"
     job["settle_ticks"] = 0
+    job["close_positioned"] = False
     job["started_wall"] = time.monotonic()
     state["status"] = "capturing"
     unreal.log("S3_BEACH_PIE_STILL_JUMP|run=%s|label=%s|master_frame=%d|actual=%d" %
                (state["run_id"], job["label"], job["master_frame"], job["actual_frame_after_scrub"]))
     persist(state)
+
+
+def position_marble_close(world, job):
+    walls = [actor for actor in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor)
+             if str(actor.get_actor_label()) == "S3 Marble Inner Wall Left"]
+    if len(walls) != 1:
+        raise RuntimeError("expected one runtime left marble liner, found %d" % len(walls))
+    controller = unreal.GameplayStatics.get_player_controller(world, 0)
+    if controller is None:
+        raise RuntimeError("runtime player controller is absent")
+    camera = controller.get_view_target()
+    if camera is None:
+        raise RuntimeError("runtime view target is absent")
+    bounds = walls[0].get_actor_bounds(False, True)
+    target = bounds[0]
+    camera_location = camera.get_actor_location()
+    away = camera_location - target
+    distance = float(away.length())
+    if distance < 1.0:
+        raise RuntimeError("camera and marble liner centre coincide")
+    close_location = target + away * (425.0 / distance)
+    close_rotation = unreal.MathLibrary.find_look_at_rotation(close_location, target)
+    camera.set_actor_location(close_location, False, False)
+    camera.set_actor_rotation(close_rotation, False)
+    job["camera_mode"] = "runtime_view_target_marble_close"
+    job["camera_actor"] = str(camera.get_path_name())
+    job["marble_actor"] = str(walls[0].get_path_name())
+    job["marble_target"] = [float(target.x), float(target.y), float(target.z)]
+    job["camera_location"] = [float(close_location.x), float(close_location.y), float(close_location.z)]
+    job["camera_rotation"] = [float(close_rotation.roll), float(close_rotation.pitch), float(close_rotation.yaw)]
 
 
 def tick(_delta):
@@ -173,19 +205,34 @@ def tick(_delta):
             }
             if wanted != {"B02": 360, "B03": 960}:
                 raise RuntimeError("S3 marker drift: " + json.dumps(wanted, sort_keys=True))
-            seconds = [
-                ("S3_B02_plus_2s", wanted["B02"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
-                 "B02 marker +2 s"),
-                ("S3_B03_plus_2s", wanted["B03"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
-                 "B03 marker +2 s"),
-                ("S3_plus_40s_B04_area", 40.0, "Scene 3 +40 s (requested B04 area)"),
-            ]
+            if PROFILE == "daylight":
+                seconds = [
+                    ("S3_B02_plus_2s", wanted["B02"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
+                     "B02 marker +2 s", "sequence"),
+                    ("S3_B03_plus_2s", wanted["B03"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
+                     "B03 marker +2 s", "sequence"),
+                    ("S3_Marble_Wall_Close", wanted["B03"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
+                     "runtime close view of left marble liner at B03 +2 s", "marble_close"),
+                ]
+            elif PROFILE == "waves":
+                seconds = [
+                    ("S3_plus_40s_B04_area_waves", 40.0,
+                     "Scene 3 +40 s in the requested B04 area showing split waves", "sequence"),
+                ]
+            else:
+                seconds = [
+                    ("S3_B02_plus_2s", wanted["B02"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
+                     "B02 marker +2 s", "sequence"),
+                    ("S3_B03_plus_2s", wanted["B03"] / DISPLAY_FRAMES_PER_SECOND + 2.0,
+                     "B03 marker +2 s", "sequence"),
+                    ("S3_plus_40s_B04_area", 40.0, "Scene 3 +40 s (requested B04 area)", "sequence"),
+                ]
             state["scene_segment"] = {
                 "label": str(scene.label), "start": scene.start_frame.value, "end": scene.end_frame.value,
             }
             state["markers_display_rate"] = wanted
             state["jobs"] = []
-            for label, offset, note in seconds:
+            for label, offset, note, camera_mode in seconds:
                 path = pathlib.Path(state["run_dir"], label + ".png")
                 state["jobs"].append({
                     "label": label,
@@ -193,6 +240,7 @@ def tick(_delta):
                     "scene_seconds": offset,
                     "master_frame": scene.start_frame.value + int(round(offset * MASTER_TICKS_PER_SECOND)),
                     "path": path.as_posix(),
+                    "camera_mode": camera_mode,
                     "phase": "pending",
                 })
             unreal.SystemLibrary.execute_console_command(world, "DisableAllScreenMessages")
@@ -214,6 +262,13 @@ def tick(_delta):
         job = state["jobs"][state["job_index"]]
         if job["phase"] == "settle":
             job["settle_ticks"] += 1
+            if (job.get("camera_mode") == "marble_close" and not job.get("close_positioned")
+                    and job["settle_ticks"] >= 6):
+                position_marble_close(world, job)
+                job["close_positioned"] = True
+                job["settle_ticks"] = 0
+                persist(state)
+                return
             if job["settle_ticks"] < 12:
                 return
             command = 'HighResShot 1600x900 filename="%s"' % job["path"]
@@ -274,7 +329,7 @@ if OWNER.exists() and json.loads(OWNER.read_text(encoding="utf-8")).get("active"
     raise RuntimeError("another PIE ownership flag is active")
 
 stamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d_%H%M%S")
-run_id = "S3-BEACH-PIE-" + stamp
+run_id = "S3-%s-PIE-%s" % (PROFILE.upper(), stamp)
 run_dir = OUT_ROOT / stamp
 run_dir.mkdir(parents=True, exist_ok=False)
 CURRENT.write_text(json.dumps({
@@ -287,6 +342,7 @@ state = {
     "run_id": run_id,
     "run_dir": run_dir.as_posix(),
     "status": "waiting_for_owned_pie",
+    "capture_profile": PROFILE,
     "final_status": None,
     "started_utc": datetime.datetime.now(datetime.UTC).isoformat(),
     "started_monotonic": time.monotonic(),
@@ -308,5 +364,5 @@ setattr(builtins, STATE_NAME, state)
 write_owner(state, True, "owner flag written before starting this S3 beach PIE")
 persist(state)
 setattr(builtins, HANDLE_NAME, unreal.register_slate_post_tick_callback(tick))
-unreal.log("S3_BEACH_PIE_STILLS_ARMED|run=%s|mode=PlayMode_InEditorFloating|resolution=1600x900|run_dir=%s" %
-           (run_id, run_dir.as_posix()))
+unreal.log("S3_PIE_STILLS_ARMED|run=%s|profile=%s|mode=PlayMode_InEditorFloating|resolution=1600x900|run_dir=%s" %
+           (run_id, PROFILE, run_dir.as_posix()))

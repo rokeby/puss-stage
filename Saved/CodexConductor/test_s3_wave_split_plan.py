@@ -1,5 +1,6 @@
 """Offline positive and required negative controls for s3_wave_split_apply.py."""
 import copy
+import pathlib
 import sys
 
 from s3_wave_split_apply import (PIECE_WIDTH_CM, PlanError, TARGET_LABELS,
@@ -71,8 +72,14 @@ def main():
     failures += reject("bad mapped strike",
                        lambda: compute_strike_frame(24.0, 30.0, 0, 0, 270, 1.0),
                        "not the mapped +10 s")
+    source = pathlib.Path(__file__).with_name("s3_wave_split_apply.py").read_text(encoding="utf-8")
+    if "actor.is_hidden()" in source or 'get_editor_property("hidden")' not in source:
+        print("FAIL UE 5.8 visibility contract: unsupported actor read remains")
+        failures += 1
+    else:
+        print("PASS UE 5.8 visibility contract: Actor.hidden + component visibility read-back")
     if failures == 0:
-        print("S3_WAVE_SPLIT_HARNESS_OK|positive=1|negative=8|pieces=9|period_frames=360|seam=3480/4200|worst_gap_cm=0")
+        print("S3_WAVE_SPLIT_HARNESS_OK|positive=2|negative=8|pieces=9|period_frames=360|seam=3480/4200|worst_gap_cm=0|ue58_visibility=1")
     return failures
 
 

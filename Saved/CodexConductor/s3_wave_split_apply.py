@@ -514,6 +514,16 @@ def _save(run):
     return census
 
 
+def _actor_hidden_in_game(actor):
+    """UE 5.8 exposes Actor.bHidden as the ``hidden`` editor property.
+
+    StaticMeshActor.is_hidden() is not part of the 5.8 Python API.  Keep this
+    read path paired with set_actor_hidden_in_game() and retain component
+    visibility as a second, independently verified guard.
+    """
+    return bool(actor.get_editor_property("hidden"))
+
+
 def _apply(sequence, runtime, root, landed, dock, plan, run):
     stamp = datetime.datetime.now()
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
@@ -526,11 +536,13 @@ def _apply(sequence, runtime, root, landed, dock, plan, run):
         source = runtime[label]
         actor, component = source["actor"], source["component"]
         record["originals"].append({"label": label, "actor_path": str(actor.get_path_name()),
-                                    "hidden_in_game": bool(actor.is_hidden()),
+                                    "hidden_in_game": _actor_hidden_in_game(actor),
                                     "component_visible": bool(component.is_visible())})
+        actor.modify()
+        component.modify()
         actor.set_actor_hidden_in_game(True)
         component.set_visibility(False, True)
-        if not actor.is_hidden() or component.is_visible():
+        if not _actor_hidden_in_game(actor) or component.is_visible():
             stop(run, "reason=ORIGINAL_HIDE_READBACK|label=" + label)
     for piece in plan["pieces"]:
         source = runtime[piece["source_label"]]
@@ -603,10 +615,13 @@ def _revert(sequence, run):
         actor = _one(index, row["label"], run)
         if str(actor.get_path_name()) != row["actor_path"]:
             stop(run, "reason=REVERT_ORIGINAL_CHANGED|label=" + row["label"])
-        actor.set_actor_hidden_in_game(bool(row["hidden_in_game"]))
-        actor.get_component_by_class(unreal.StaticMeshComponent).set_visibility(bool(row["component_visible"]), True)
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
-        if bool(actor.is_hidden()) != bool(row["hidden_in_game"]) or bool(component.is_visible()) != bool(row["component_visible"]):
+        actor.modify()
+        component.modify()
+        actor.set_actor_hidden_in_game(bool(row["hidden_in_game"]))
+        component.set_visibility(bool(row["component_visible"]), True)
+        if (_actor_hidden_in_game(actor) != bool(row["hidden_in_game"]) or
+                bool(component.is_visible()) != bool(row["component_visible"])):
             stop(run, "reason=REVERT_VISIBILITY_READBACK|label=" + row["label"])
     census = _save(run)
     archived = _record_path() + ".reverted-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")

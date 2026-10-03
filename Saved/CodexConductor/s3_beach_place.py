@@ -1,4 +1,4 @@
-"""Draft, apply, or revert the Scene 3 beach dressing.
+"""Legacy v1 helpers plus the public Scene 3 beach-v2 entry point.
 
 Dry run is the default. Dedicated runpy wrappers opt into APPLY or REVERT.
 The pure guards are importable by test_s3_beach_place_plan.py without Unreal.
@@ -8,6 +8,7 @@ import datetime
 import json
 import math
 import os
+import runpy
 import shutil
 import traceback
 
@@ -520,4 +521,10 @@ def main():
 
 
 if unreal is not None:
-    main()
+    # Revision 3 Oct: the public tool path now runs the v2 replacement.  Keep
+    # this module's v1 implementation above as provenance and for exact legacy
+    # plan/record interpretation; all live execution delegates to v2.
+    _v2 = runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      "s3_beach_v2.py"))
+    _v2["main"](bool(globals().get("S3_BEACH_APPLY")),
+                bool(globals().get("S3_BEACH_REVERT")))
