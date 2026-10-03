@@ -1,0 +1,30 @@
+{
+ "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front": {
+  "BackingColor": [
+   0.800000011920929,
+   0.7799999713897705,
+   0.7200000286102295,
+   1.0
+  ],
+  "PrimerColor": [
+   0.41999998688697815,
+   0.41999998688697815,
+   0.4000000059604645,
+   1.0
+  ]
+ },
+ "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap": {
+  "BackingColor": [
+   0.800000011920929,
+   0.7799999713897705,
+   0.7200000286102295,
+   1.0
+  ],
+  "PrimerColor": [
+   0.41999998688697815,
+   0.41999998688697815,
+   0.4000000059604645,
+   1.0
+  ]
+ }
+}

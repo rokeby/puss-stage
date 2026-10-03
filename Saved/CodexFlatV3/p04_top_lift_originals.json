@@ -1,0 +1,32 @@
+{
+ "75FD539B104815DC315DBB85D6E69939": {
+  "index": 99,
+  "label": "P04 Wing 001",
+  "mesh": "/Game/Scenes/Wings/MiscOriginal/StaticMeshes/SM_Ceiling_rose.SM_Ceiling_rose",
+  "loc": [
+   0.0,
+   0.0,
+   650.0
+  ]
+ },
+ "D84BDBAEDF4EE4A952894D82ECD2841F": {
+  "index": 107,
+  "label": "P04 Wing 009",
+  "mesh": "/Game/Scenes/Wings/MiscOriginal/StaticMeshes/SM_Ceiling_turqoise.SM_Ceiling_turqoise",
+  "loc": [
+   0.0,
+   0.0,
+   650.0
+  ]
+ },
+ "51127A0ADA4FEED69D4CE693D1A650C0": {
+  "index": 115,
+  "label": "P04 Wing 017",
+  "mesh": "/Game/Scenes/Wings/MiscOriginal/StaticMeshes/SM_Ceiling_rose.SM_Ceiling_rose",
+  "loc": [
+   0.0,
+   0.0,
+   650.0
+  ]
+ }
+}
