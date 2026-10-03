@@ -24,3 +24,12 @@ Our failure: Docs/CodexUnrealMCPRunbook.md:236-252 (docked viewport doesn't pres
 ## THIS PASS = TEST ONLY: run just the Opening window (0 -> P01 start + 10 s) and the P02 -> Scene 2 window. Report: did
   ddagrab produce MOVING frames (measure: fraction of identical consecutive frames); did shots land at the right times;
   the API used for the floating PIE window. Then end our PIE, census, stop. FINAL MESSAGE tagged per AGENTS.md.
+
+## From MHFat's conductor (2 Oct night; their measured/code facts)
+- Start PIE over MCP with EditorAppToolset.StartPIE {playMode: "PlayMode_InEditorFloating"}; the window title contains
+  "Preview [NetMode: Standalone 0]".
+- ddagrab is a SCREEN-REGION grab: the PIE window must be ON TOP and unoccluded (bring it to the foreground with
+  SetForegroundWindow / SetWindowPos HWND_TOPMOST for the take, then restore). A window over it gets recorded instead.
+- Filter chain that worked: ddagrab=output_idx=0:framerate=N:offset_x=x:offset_y=y:video_size=WxH:draw_mouse=0,hwdownload,
+  format=bgra,scale=960:-2,format=yuv420p -> h264_nvenc p5 VBR 1M (max 1.5M). Reference: E:/MHFat/Scripts/Conductor/record_clip.py.
+- In-engine HighResShot works regardless of focus but is slow in the background (1-3 fps).
