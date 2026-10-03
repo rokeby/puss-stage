@@ -66,3 +66,7 @@ first, recorded for Gary.
 ## keeps tune 3's gaps and grazing wing light, but brings back tune 2's saturated accents (magenta/cyan/lavender/amber, one per
 ## bay, on PART of the wing surface) and makes the two floor shafts clearly visible (brighter, narrower, through haze; check the
 ## haze/volumetric scattering on those lights). Revert-then-apply, verify, both tests, re-record.
+
+## TUNE 3c (Gary 3 Oct: theatrical "much stronger gels"): accent lights 3-4x brighter and fully saturated (magenta / cyan /
+## lavender), each hitting a clearly bounded PART of a wing (cutters/narrow cones); floor shafts brighter through haze; moody and
+## industrial unchanged. Revert-then-apply, verify, both tests, re-record.
