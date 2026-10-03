@@ -33,3 +33,12 @@ Our failure: Docs/CodexUnrealMCPRunbook.md:236-252 (docked viewport doesn't pres
 - Filter chain that worked: ddagrab=output_idx=0:framerate=N:offset_x=x:offset_y=y:video_size=WxH:draw_mouse=0,hwdownload,
   format=bgra,scale=960:-2,format=yuv420p -> h264_nvenc p5 VBR 1M (max 1.5M). Reference: E:/MHFat/Scripts/Conductor/record_clip.py.
 - In-engine HighResShot works regardless of focus but is slow in the background (1-3 fps).
+
+## FULL RUN (after test 20261003_040515 passed: 0% frozen frames, 36/36 shots on time)
+Same mechanics as the test (New Editor Window PIE command, the ownership flag, transport-driven windows, ddagrab of the
+"PussStage Preview [NetMode" window brought to the front, plus a shot every 2.0 s), ALL windows in the schedule: Opening ->
+P01 +10 s; for each Passage P01..P06: last 15 s -> following Scene first 30 s; for each Scene S1..S5 (and S6 if an
+Interaction/coda follows): last 5 s -> through the Interaction -> next Passage first 10 s. Before recording: console
+`DisableAllScreenMessages` (restore with `EnableAllScreenMessages` after). Burn a small label per window into the video
+(drawtext: the window label + Master time), or write a chapters file. Also stitch the shots into a 0.5 fps contact video and a
+contact-sheet PNG per window. End only our PIE; census clean after.
