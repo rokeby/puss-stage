@@ -23,6 +23,7 @@ SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 CLEAN = {"content": [], "maps": []}
 SAVED_ROOTS = [SHOW, WORLD]
 SIDES = ("left", "right")
+SKIP_REASON = "kept_old_non_v3"
 
 
 def project_path(value):
@@ -105,6 +106,72 @@ def target_mesh_path(source_mesh, destination_root):
     if not name.startswith("SM_FlatV3_P05_CloudRef") or name.endswith("_poles"):
         raise RuntimeError("PF_SOURCE_MESH_NAME_FAIL|mesh=" + source_mesh)
     return prefix + name + "_poles"
+
+
+def mesh_name(mesh_path):
+    return str(mesh_path).split(".", 1)[0].rsplit("/", 1)[-1]
+
+
+def is_flat_v3_mesh(mesh_path):
+    return mesh_name(mesh_path).startswith("SM_FlatV3_")
+
+
+def source_policy(panel, by_source, destination_root):
+    """Classify one current side; only kept-old non-V3 sides may bypass the build gate."""
+    mesh = str(panel["mesh"])
+    if not is_flat_v3_mesh(mesh):
+        return {"action": "skip", "reason": SKIP_REASON, "mesh": mesh}
+    source = mesh_name(mesh)
+    if source not in by_source:
+        raise RuntimeError("PF_SOURCE_NOT_BUILT|mesh=" + mesh)
+    return {"action": "replace", "source": source,
+            "target_mesh": target_mesh_path(mesh, destination_root)}
+
+
+def side_is_skipped(record, side):
+    return record[side].get("pf_action") == "skip"
+
+
+def skipped_entry(record, side):
+    return {"cue_index": int(record["cue_index"]), "cue_guid": record["cue_guid"],
+            "cue_label": record["cue_label"], "side": side,
+            "mesh": record[side]["mesh"], "reason": record[side]["skip_reason"]}
+
+
+def skipped_entries(rows):
+    return [skipped_entry(record, side) for record in rows for side in SIDES
+            if side_is_skipped(record, side)]
+
+
+def _numbers_close(left, right, tolerance=0.001):
+    return (len(left) == len(right) and
+            all(abs(float(a) - float(b)) <= float(tolerance)
+                for a, b in zip(left, right)))
+
+
+def _transforms_close(left, right, tolerance=0.001):
+    return all(_numbers_close(left[name], right[name], tolerance)
+               for name in ("location", "rotation", "scale"))
+
+
+def validate_skipped_unchanged(before, after, identity="", tolerance=0.001):
+    """Prove a kept-old side retained its mesh, transforms, and placed world bounds."""
+    failures = []
+    if before.get("mesh") != after.get("mesh"):
+        failures.append("MESH_CHANGED")
+    for name in ("panel_local_transform", "base_world_transform", "instance_world_transform"):
+        if not _transforms_close(before[name], after[name], tolerance):
+            failures.append(name.upper() + "_CHANGED")
+    for name in ("world_min", "world_max"):
+        if not _numbers_close(before["world_bounds"][name], after["world_bounds"][name], tolerance):
+            failures.append(name.upper() + "_CHANGED")
+    if failures:
+        raise RuntimeError("PF_SKIPPED_SIDE_CHANGED|identity=%s|failures=%s|before=%s|after=%s" %
+                           (identity, json.dumps(failures), json.dumps(before, sort_keys=True),
+                            json.dumps(after, sort_keys=True)))
+    return {"status": "UNCHANGED", "reason": SKIP_REASON,
+            "assertions": ["mesh", "panel_local_transform", "base_world_transform",
+                           "instance_world_transform", "world_bounds"]}
 
 
 def ensure_fresh_import(existing_paths):
@@ -195,17 +262,23 @@ def saved_roots(config, current=None):
     return sorted(roots)
 
 
-def log_release(config, status, roots=None, reason=None, run=None):
+def log_release(config, status, roots=None, reason=None, run=None, skipped=None):
     unreal = _unreal()
     release_run = str(run or config["run_id"])
+    if skipped is None and release_run == str(config["run_id"]):
+        preflight_path = artifact(config, "preflight")
+        if os.path.isfile(preflight_path):
+            with open(preflight_path, encoding="utf-8") as handle:
+                skipped = json.load(handle).get("skipped_sides", [])
     roots = sorted(set(roots or ([] if release_run == config["import_run_id"]
                                   else saved_roots(config))))
     if reason:
         unreal.log_error("%s run=%s reason=%s census=%s" %
                          (marker("FAIL"), release_run, str(reason).replace("\n", "\\n"),
                           json.dumps(census(), separators=(",", ":"), sort_keys=True)))
-    unreal.log("FLATV3_SLOT_RELEASED run=%s status=%s saved_count=%d saved_roots=%s census=%s" %
-               (release_run, status, len(roots),
-                json.dumps(roots, separators=(",", ":")),
-                json.dumps(census(), separators=(",", ":"), sort_keys=True)))
+    unreal.log("FLATV3_SLOT_RELEASED run=%s status=%s saved_count=%d saved_roots=%s skipped=%s census=%s" %
+                (release_run, status, len(roots),
+                 json.dumps(roots, separators=(",", ":")),
+                 json.dumps(skipped or [], separators=(",", ":"), sort_keys=True),
+                 json.dumps(census(), separators=(",", ":"), sort_keys=True)))
     return roots

@@ -106,6 +106,8 @@ def assert_live_rows(config, preflight, show, expected_after=False):
         wanted = copy.deepcopy(expected[index])
         if expected_after:
             for side in s.SIDES:
+                if s.side_is_skipped(wanted, side):
+                    continue
                 wanted[side]["mesh"] = s.target_mesh_path(
                     wanted[side]["mesh"], config["destination_root"])
         if not compare.occurrence_matches(actual, wanted):
@@ -161,6 +163,23 @@ def measure_occurrence(config, actor, cue, record, mesh_overrides=None):
     )
     result = {}
     for side in s.SIDES:
+        if s.side_is_skipped(record, side):
+            panel = f.panel_plain(pair.get_editor_property(side))
+            ref = refs[side]
+            component = ref.get_editor_property("component")
+            instance_index = int(ref.get_editor_property("instance_index"))
+            bounds = f.world_bounds(ref)
+            result[side] = {
+                "status": "SKIPPED", "reason": s.SKIP_REASON, "mesh": panel["mesh"],
+                "panel_local_transform": panel["local_transform"],
+                "base_world_transform": f.transform_plain(
+                    ref.get_editor_property("base_world_transform")),
+                "instance_world_transform": f.transform_plain(
+                    f.instance_transform(component, instance_index)),
+                "world_bounds": {"world_min": bounds["world_min"],
+                                 "world_max": bounds["world_max"]},
+            }
+            continue
         if mesh_overrides and side in mesh_overrides:
             mesh = mesh_overrides[side]
         else:
@@ -170,8 +189,12 @@ def measure_occurrence(config, actor, cue, record, mesh_overrides=None):
                                (row_identity(record), side))
         result[side] = measure_mesh(
             mesh, refs[side].get_editor_property("base_world_transform"), frame, side)
-    result["gap_cm"] = float(result["right"]["inner_edge_cm"] -
-                             result["left"]["inner_edge_cm"])
+    if all(not s.side_is_skipped(record, side) for side in s.SIDES):
+        result["gap_cm"] = float(result["right"]["inner_edge_cm"] -
+                                 result["left"]["inner_edge_cm"])
+    else:
+        result["gap_cm"] = None
+        result["gap_status"] = {"status": "SKIPPED", "reason": s.SKIP_REASON}
     result["pair_frame_source"] = source
     return result
 
@@ -196,12 +219,13 @@ def preflight(config_path=None):
         for index, cue in occurrences:
             record = f.occurrence_row(index, cue)
             for side in s.SIDES:
-                source_mesh = record[side]["mesh"].rsplit("/", 1)[-1]
-                if source_mesh not in by_source:
-                    raise RuntimeError("PF_SOURCE_NOT_BUILT|mesh=" + record[side]["mesh"])
-                target = s.target_mesh_path(record[side]["mesh"], config["destination_root"])
-                source_meshes.add(source_mesh)
-                target_meshes.add(target)
+                policy = s.source_policy(record[side], by_source, config["destination_root"])
+                record[side]["pf_action"] = policy["action"]
+                if policy["action"] == "skip":
+                    record[side]["skip_reason"] = policy["reason"]
+                    continue
+                source_meshes.add(policy["source"])
+                target_meshes.add(policy["target_mesh"])
             record["measurements"] = measure_occurrence(config, actor, cue, record)
             rows.append(record)
         if len(source_meshes) != config["expected_asset_count"]:
@@ -211,6 +235,7 @@ def preflight(config_path=None):
         s.ensure_fresh_import(existing)
         if s.census() != s.CLEAN:
             raise RuntimeError("PF_PREFLIGHT_DIRTIED_EDITOR")
+        skipped = s.skipped_entries(rows)
         payload = {
             "run": config["run_id"], "mode": "preflight", "status": "PASS",
             "world": s.WORLD, "show": s.SHOW, "row_count": len(rows),
@@ -219,13 +244,15 @@ def preflight(config_path=None):
             "identity_source": "fresh read-only Show enumeration by P05 label prefix",
             "rows": rows, "source_meshes": sorted(source_meshes),
             "target_meshes": sorted(target_meshes), "build_report": config["build_report"],
-            "build_assets": len(report["assets"]), "dirty_after": s.census(),
+            "build_assets": len(report["assets"]), "skipped_sides": skipped,
+            "skipped_side_count": len(skipped), "dirty_after": s.census(),
         }
         path = s.write_json(config, "preflight", payload)
-        unreal.log("%s run=%s rows=%d fresh_indices=%s assets=%d census=%s report=%s" %
+        unreal.log("%s run=%s rows=%d fresh_indices=%s assets=%d skipped=%s census=%s report=%s" %
                    (s.marker("PREFLIGHT_OK"), config["run_id"], len(rows),
-                    payload["fresh_index_range"], len(source_meshes),
-                    json.dumps(s.census(), separators=(",", ":"), sort_keys=True), path))
+                     payload["fresh_index_range"], len(source_meshes),
+                     json.dumps(skipped, separators=(",", ":"), sort_keys=True),
+                     json.dumps(s.census(), separators=(",", ":"), sort_keys=True), path))
         return payload
     except Exception as exc:
         s.write_json(config, "preflight", {"run": config["run_id"], "mode": "preflight",
@@ -340,15 +367,18 @@ def import_assets(config_path=None):
         fresh_assets = {row["owner"]: slot_a.verify_asset_fresh(row) for row in assets}
         if s.census() != s.CLEAN:
             raise RuntimeError("PF_IMPORT_DIRTY_AFTER_READBACK|" + json.dumps(s.census()))
+        skipped = preflight_report.get("skipped_sides", [])
         report = {"run": run, "mode": "import", "status": "PASS", "assets": len(assets),
-                  "asset_reports": asset_reports, "fresh_assets": fresh_assets,
-                  "common_reports": common_reports, "saved_roots": sorted(set(saved_roots)),
-                  "reimport_policy": "all PF target packages must be absent"}
+                   "asset_reports": asset_reports, "fresh_assets": fresh_assets,
+                   "common_reports": common_reports, "saved_roots": sorted(set(saved_roots)),
+                   "skipped_side_count": len(skipped), "skipped_sides": skipped,
+                   "reimport_policy": "all PF target packages must be absent"}
         path = s.write_json(config, "import", report, run=run)
         unreal.log("%s run=%s assets=%d saved_count=%d saved_roots=%s report=%s" %
                    (config["import_success_marker"], run, len(assets), len(set(saved_roots)),
                     json.dumps(sorted(set(saved_roots)), separators=(",", ":")), path))
-        s.log_release(config, "OK_IMPORT_ONLY_CONTINUE_PF", sorted(set(saved_roots)), run=run)
+        s.log_release(config, "OK_IMPORT_ONLY_CONTINUE_PF", sorted(set(saved_roots)),
+                      run=run, skipped=skipped)
         return report
     except Exception as exc:
         original = traceback.format_exc()
@@ -381,6 +411,9 @@ def dry(config_path=None):
             overrides = {}
             new_panels = {}
             for side in s.SIDES:
+                if s.side_is_skipped(record, side):
+                    new_panels[side] = copy.deepcopy(record[side])
+                    continue
                 target_path = s.target_mesh_path(record[side]["mesh"], config["destination_root"])
                 mesh = unreal.EditorAssetLibrary.load_asset(target_path)
                 if not isinstance(mesh, unreal.StaticMesh):
@@ -390,24 +423,44 @@ def dry(config_path=None):
                 panel["mesh"] = target_path
                 new_panels[side] = panel
             predicted = measure_occurrence(config, actor, cues[index], record, overrides)
-            gates = {side: s.validate_measurement(
-                record["measurements"][side], predicted[side], config,
-                row_identity(record) + ":" + side) for side in s.SIDES}
-            gap_delta = s.validate_gap(record["measurements"]["gap_cm"], predicted["gap_cm"],
-                                       config, row_identity(record))
+            gates = {}
+            for side in s.SIDES:
+                if s.side_is_skipped(record, side):
+                    gates[side] = s.validate_skipped_unchanged(
+                        record["measurements"][side], predicted[side],
+                        row_identity(record) + ":" + side)
+                    continue
+                gates[side] = s.validate_measurement(
+                    record["measurements"][side], predicted[side], config,
+                    row_identity(record) + ":" + side)
+            if any(s.side_is_skipped(record, side) for side in s.SIDES):
+                gap_delta = None
+                gap_gate = {"status": "SKIPPED", "reason": s.SKIP_REASON}
+            else:
+                gap_delta = s.validate_gap(record["measurements"]["gap_cm"], predicted["gap_cm"],
+                                           config, row_identity(record))
+                gap_gate = {"status": "PASS", "delta_cm": gap_delta}
             plan.append({"cue_index": index, "cue_guid": record["cue_guid"],
                          "cue_label": record["cue_label"], "left": new_panels["left"],
                          "right": new_panels["right"], "before": record["measurements"],
-                         "predicted": predicted, "gates": gates, "gap_delta_cm": gap_delta})
+                         "predicted": predicted, "gates": gates, "gap_delta_cm": gap_delta,
+                         "gap_gate": gap_gate})
+        skipped = s.skipped_entries(pre["rows"])
+        changed_panels = sum(not s.side_is_skipped(record, side)
+                             for record in pre["rows"] for side in s.SIDES)
         payload = {"run": config["run_id"], "mode": "dry_run", "status": "PASS",
                    "row_count": len(plan), "panel_count": len(plan) * 2,
-                   "changed_field": "left.mesh and right.mesh only", "rows": plan,
+                   "changed_panel_count": changed_panels,
+                   "skipped_side_count": len(skipped), "skipped_sides": skipped,
+                   "changed_field": "non-skipped left.mesh and right.mesh only", "rows": plan,
                    "dirty_after": s.census()}
         path = s.write_json(config, "dry_run", payload)
-        unreal.log("%s run=%s rows=%d panels=%d pole_max_cm=%.3f census=%s report=%s" %
+        unreal.log("%s run=%s rows=%d panels=%d skipped=%s pole_max_cm=%.3f census=%s report=%s" %
                    (s.marker("DRY_OK"), config["run_id"], len(plan), len(plan) * 2,
-                    max(row["predicted"][side]["pole_world_bottom_cm"]
-                        for row in plan for side in s.SIDES),
+                     json.dumps(skipped, separators=(",", ":"), sort_keys=True),
+                     max(row["predicted"][side]["pole_world_bottom_cm"]
+                         for row in plan for side in s.SIDES
+                         if not s.side_is_skipped(row, side)),
                     json.dumps(s.census(), separators=(",", ":"), sort_keys=True), path))
         return payload
     except Exception as exc:
@@ -480,6 +533,8 @@ def expected_after_rows(pre, plan):
     rows = {int(row["cue_index"]): copy.deepcopy(row) for row in pre["rows"]}
     for planned in plan["rows"]:
         for side in s.SIDES:
+            if s.side_is_skipped(planned, side):
+                continue
             rows[int(planned["cue_index"])][side] = copy.deepcopy(planned[side])
     return rows
 
@@ -501,6 +556,8 @@ def apply(config_path=None):
             cue = cues[index]
             pair = cue.get_editor_property("wing_pair")
             for side in s.SIDES:
+                if s.side_is_skipped(row, side):
+                    continue
                 panel = pair.get_editor_property(side)
                 target = unreal.EditorAssetLibrary.load_asset(row[side]["mesh"])
                 if not isinstance(target, unreal.StaticMesh):
@@ -530,16 +587,22 @@ def apply(config_path=None):
         if s.census() != s.CLEAN:
             raise RuntimeError("PF_POST_SAVE_DIRTY|" + json.dumps(s.census()))
         assert_live_rows(config, pre, unreal.EditorAssetLibrary.load_asset(s.SHOW), expected_after=True)
+        skipped = s.skipped_entries(plan["rows"])
+        changed_panels = sum(not s.side_is_skipped(row, side)
+                             for row in plan["rows"] for side in s.SIDES)
         payload = {"run": config["run_id"], "mode": "apply", "status": "PASS",
                    "rows": len(plan["rows"]), "panels": len(plan["rows"]) * 2,
-                   "changed_field": "mesh only", "materialize_calls": ["P05"],
+                   "changed_panel_count": changed_panels,
+                   "skipped_side_count": len(skipped), "skipped_sides": skipped,
+                   "changed_field": "non-skipped mesh only", "materialize_calls": ["P05"],
                    "dirty_before_save": before_save, "dirty_after_save": s.census(),
                    "saved_roots": sorted(set(saved))}
         path = s.write_json(config, "apply", payload)
-        unreal.log("%s run=%s rows=%d panels=%d saved_count=2 saved_roots=%s report=%s" %
+        unreal.log("%s run=%s rows=%d panels=%d changed_panels=%d skipped=%s saved_count=2 saved_roots=%s report=%s" %
                    (s.marker("APPLY_SAVED"), config["run_id"], len(plan["rows"]),
-                    len(plan["rows"]) * 2,
-                    json.dumps(sorted(set(saved)), separators=(",", ":")), path))
+                     len(plan["rows"]) * 2, changed_panels,
+                     json.dumps(skipped, separators=(",", ":"), sort_keys=True),
+                     json.dumps(sorted(set(saved)), separators=(",", ":")), path))
         return payload
     except Exception as exc:
         s.write_json(config, "apply", {"run": config["run_id"], "mode": "apply",
@@ -568,33 +631,57 @@ def verify(config_path=None):
         for record in pre["rows"]:
             index = int(record["cue_index"])
             measured = measure_occurrence(config, actor, cues[index], record)
-            gates = {side: s.validate_measurement(
-                record["measurements"][side], measured[side], config,
-                row_identity(record) + ":" + side) for side in s.SIDES}
-            gap_delta = s.validate_gap(record["measurements"]["gap_cm"], measured["gap_cm"],
-                                       config, row_identity(record))
+            gates = {}
             for side in s.SIDES:
-                if measured[side]["mesh"] != plan_by_index[index][side]["mesh"]:
+                if s.side_is_skipped(record, side):
+                    gates[side] = s.validate_skipped_unchanged(
+                        record["measurements"][side], measured[side],
+                        row_identity(record) + ":" + side)
+                    continue
+                gates[side] = s.validate_measurement(
+                    record["measurements"][side], measured[side], config,
+                    row_identity(record) + ":" + side)
+            if any(s.side_is_skipped(record, side) for side in s.SIDES):
+                gap_delta = None
+                gap_gate = {"status": "SKIPPED", "reason": s.SKIP_REASON}
+            else:
+                gap_delta = s.validate_gap(record["measurements"]["gap_cm"], measured["gap_cm"],
+                                           config, row_identity(record))
+                gap_gate = {"status": "PASS", "delta_cm": gap_delta}
+            for side in s.SIDES:
+                expected_mesh = (record[side]["mesh"] if s.side_is_skipped(record, side)
+                                 else plan_by_index[index][side]["mesh"])
+                if measured[side]["mesh"] != expected_mesh:
                     raise RuntimeError("PF_VERIFY_MESH_FAIL|identity=%s|side=%s" %
                                        (row_identity(record), side))
             verified.append({"cue_index": index, "cue_guid": record["cue_guid"],
                              "cue_label": record["cue_label"], "measurements": measured,
-                             "gates": gates, "gap_delta_cm": gap_delta})
+                             "gates": gates, "gap_delta_cm": gap_delta,
+                             "gap_gate": gap_gate})
         if s.census() != s.CLEAN:
             raise RuntimeError("PF_VERIFY_DIRTIED_EDITOR")
+        skipped = s.skipped_entries(pre["rows"])
+        changed_panels = sum(not s.side_is_skipped(record, side)
+                             for record in pre["rows"] for side in s.SIDES)
         payload = {"run": config["run_id"], "mode": "verify_read_only", "status": "PASS",
-                   "rows": len(verified), "panels": len(verified) * 2,
-                   "assertions": ["world panel bottom unchanged within 1 cm",
-                       "world pole bottom <= floor z + 1 cm", "inner edges unchanged",
-                       "centre gaps unchanged", "all non-mesh Show fields unchanged"],
+                    "rows": len(verified), "panels": len(verified) * 2,
+                    "changed_panel_count": changed_panels,
+                    "skipped_side_count": len(skipped), "skipped_sides": skipped,
+                    "assertions": ["world panel bottom unchanged within 1 cm",
+                        "world pole bottom <= floor z + 1 cm", "inner edges unchanged",
+                        "centre gaps unchanged where both sides are V3",
+                        "kept-old non-V3 mesh, transforms, and world bounds unchanged",
+                        "all non-mesh Show fields unchanged"],
                    "rows_verified": verified, "saved_roots": sorted(s.SAVED_ROOTS),
                    "census": s.census()}
         path = s.write_json(config, "verify", payload)
-        unreal.log("%s run=%s rows=%d panels=%d saved_count=2 saved_roots=%s census=%s report=%s" %
+        unreal.log("%s run=%s rows=%d panels=%d changed_panels=%d skipped=%s saved_count=2 saved_roots=%s census=%s report=%s" %
                    (config["success_marker"], config["run_id"], len(verified), len(verified) * 2,
-                    json.dumps(sorted(s.SAVED_ROOTS), separators=(",", ":")),
+                     changed_panels,
+                     json.dumps(skipped, separators=(",", ":"), sort_keys=True),
+                     json.dumps(sorted(s.SAVED_ROOTS), separators=(",", ":")),
                     json.dumps(s.census(), separators=(",", ":"), sort_keys=True), path))
-        s.log_release(config, "OK", s.SAVED_ROOTS)
+        s.log_release(config, "OK", s.SAVED_ROOTS, skipped=skipped)
         return payload
     except Exception as exc:
         s.write_json(config, "verify", {"run": config["run_id"], "mode": "verify_read_only",
