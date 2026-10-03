@@ -1,21 +1,26 @@
 """Remove exactly one configured transition's WalkIn tracks and save only that sequence."""
 
 
-TRANSITION_ID = "I1"
+TRANSITION_ID = str(globals().get("WALKIN_TRANSITION_ID", "I1"))
 
 
 def main(transition_id):
+    import datetime
     import json
     import os
+    import shutil
 
     import unreal
 
     expected_world = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
     expected_project = os.path.normcase(os.path.normpath("E:/PussStage"))
     track_name = "WalkIn (Look & camera)"
+    run_id = str(globals().get(
+        "WALKIN_RUN_ID", datetime.datetime.now().strftime("WALKIN-REVERT-%Y%m%d-%H%M%S")
+    ))
 
     def fail(message):
-        full = "PUSS_WALKIN_REVERT_FAILED|" + str(message)
+        full = "PUSS_WALKIN_REVERT_FAILED|run=%s|" % run_id + str(message)
         unreal.log_error(full)
         raise RuntimeError(full)
 
@@ -79,10 +84,31 @@ def main(transition_id):
             if dirty_after != dirty_before:
                 fail("NOOP lookup changed dirty-package state: before=%r after=%r" % (dirty_before, dirty_after))
             unreal.log(
-                "PUSS_WALKIN_REVERT_NOOP|transition=%s|tracks=0|dirty_before=%s|dirty_after=%s"
-                % (transition_id, json.dumps(dirty_before), json.dumps(dirty_after))
+                "PUSS_WALKIN_REVERT_NOOP|run=%s|transition=%s|tracks=0|dirty_before=%s|dirty_after=%s"
+                % (run_id, transition_id, json.dumps(dirty_before), json.dumps(dirty_after))
             )
             return
+
+        saved_dir = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir())
+        record_path = os.path.join(saved_dir, "CodexCameraPilot", "walkin_%s_record.json" % transition_id)
+        if not os.path.isfile(record_path):
+            fail("revert record is missing: %s" % record_path)
+        with open(record_path, "r", encoding="utf-8") as record_handle:
+            record = json.load(record_handle)
+        if record.get("transition_id") != transition_id or record.get("sequence") != sequence_path:
+            fail("revert record does not match %s" % transition_id)
+        sequence_file = os.path.join(
+            project_dir, "Content", *sequence_path[len("/Game/"):].split("/"),
+        ) + ".uasset"
+        if not os.path.isfile(sequence_file):
+            fail("sequence file is missing: %s" % sequence_file)
+        stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        backup_dir = os.path.join(project_dir, "Backups", "PreWalkInRevert%s-%s" % (transition_id, stamp))
+        os.makedirs(backup_dir, exist_ok=False)
+        backup_file = os.path.join(backup_dir, os.path.basename(sequence_file))
+        shutil.copy2(sequence_file, backup_file)
+        if not os.path.isfile(backup_file) or os.path.getsize(backup_file) != os.path.getsize(sequence_file):
+            fail("revert backup verification failed")
 
         removed_hosts = []
         for host, host_name, track in found:
@@ -104,15 +130,15 @@ def main(transition_id):
         if dirty_after["maps"] or dirty_after["content"]:
             fail("packages remain dirty after revert save: %r" % dirty_after)
         unreal.log(
-            "PUSS_WALKIN_REVERTED|transition=%s|removed=%d|hosts=%s|saved=1|dirty_before=%s|dirty_after=%s"
+            "PUSS_WALKIN_REVERTED|run=%s|transition=%s|removed=%d|hosts=%s|saved=1|backup=%s|record=%s|dirty_before=%s|dirty_after=%s"
             % (
-                transition_id, len(found), json.dumps(removed_hosts),
+                run_id, transition_id, len(found), json.dumps(removed_hosts), backup_dir, record_path,
                 json.dumps(dirty_before), json.dumps(dirty_after),
             )
         )
     except Exception as error:
         if "PUSS_WALKIN_REVERT_FAILED|" not in str(error):
-            unreal.log_error("PUSS_WALKIN_REVERT_FAILED|" + str(error))
+            unreal.log_error("PUSS_WALKIN_REVERT_FAILED|run=%s|" % run_id + str(error))
         raise
 
 

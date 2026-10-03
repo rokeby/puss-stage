@@ -15,8 +15,8 @@ selected transition has non-null minimum_end_frame and landed_s values in
 walkin_transitions.json.
 """
 
-DRY_RUN = True
-TRANSITION_ID = "I1"
+DRY_RUN = bool(globals().get("WALKIN_DRY_RUN", True))
+TRANSITION_ID = str(globals().get("WALKIN_TRANSITION_ID", "I1"))
 
 
 def main(transition_id):
@@ -34,9 +34,12 @@ def main(transition_id):
     track_name = "WalkIn (Look & camera)"
     ticks_per_frame = 960
     ease_s = 1.0
+    run_id = str(globals().get(
+        "WALKIN_RUN_ID", datetime.datetime.now().strftime("WALKIN-%Y%m%d-%H%M%S")
+    ))
 
     def fail(message):
-        full = "PUSS_WALKIN_FAILED|" + str(message)
+        full = "PUSS_WALKIN_FAILED|run=%s|" % run_id + str(message)
         unreal.log_error(full)
         raise RuntimeError(full)
 
@@ -256,6 +259,7 @@ def main(transition_id):
 
         dirty_before = census()
         report = {
+            "run": run_id,
             "transition_id": transition_id,
             "transition_registry": config_path,
             "sequence": sequence_path,
@@ -281,9 +285,9 @@ def main(transition_id):
                     )
             unreal.log("PUSS_WALKIN_REPORT|" + json.dumps(report, sort_keys=True, default=str))
             unreal.log(
-                "PUSS_WALKIN_DRYRUN|keys=%d|start_s=%.6f|end_s=%.6f|distance_cm=%.3f|v_end_cm_s=%.3f|component_binding=%s"
+                "PUSS_WALKIN_DRYRUN|run=%s|transition=%s|keys=%d|start_s=%.6f|end_s=%.6f|distance_cm=%.3f|v_end_cm_s=%.3f|component_binding=%s"
                 % (
-                    len(keys), plan_report["start_s"], end_s, plan_report["distance_cm"], v_end,
+                    run_id, transition_id, len(keys), plan_report["start_s"], end_s, plan_report["distance_cm"], v_end,
                     "present" if component_binding is not None else "absent",
                 )
             )
@@ -425,13 +429,29 @@ def main(transition_id):
         dirty_after = census()
         if dirty_after["maps"] or dirty_after["content"]:
             fail("packages remain dirty after the targeted sequence save: %r" % dirty_after)
+        record_path = os.path.join(saved_dir, "CodexCameraPilot", "walkin_%s_record.json" % transition_id)
+        record = {
+            "version": 1,
+            "run": run_id,
+            "transition_id": transition_id,
+            "sequence": sequence_path,
+            "backup": backup_dir,
+            "track_name": track_name,
+            "keys": keys,
+            "report": report,
+            "readback": readback,
+            "dirty_after": dirty_after,
+        }
+        with open(record_path, "w", encoding="utf-8") as record_handle:
+            json.dump(record, record_handle, indent=2, sort_keys=True, default=str)
         unreal.log(
-            "PUSS_WALKIN_KEYED|transition=%s|keys=%d|end_frame=%d|v_end_cm_s=%.3f|backup=%s|readback=%s|dirty_after=%s"
-            % (transition_id, frame_count, playback_end, v_end, backup_dir, json.dumps(readback, sort_keys=True), json.dumps(dirty_after))
+            "PUSS_WALKIN_KEYED|run=%s|transition=%s|keys=%d|end_frame=%d|v_end_cm_s=%.3f|backup=%s|record=%s|readback=%s|dirty_after=%s"
+            % (run_id, transition_id, frame_count, playback_end, v_end, backup_dir, record_path,
+               json.dumps(readback, sort_keys=True), json.dumps(dirty_after))
         )
     except Exception as error:
         if "PUSS_WALKIN_FAILED|" not in str(error):
-            unreal.log_error("PUSS_WALKIN_FAILED|" + str(error))
+            unreal.log_error("PUSS_WALKIN_FAILED|run=%s|" % run_id + str(error))
         raise
 
 

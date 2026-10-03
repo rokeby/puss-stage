@@ -4,13 +4,13 @@
     "camera_label": "Opening — Stalls Camera",
     "camera_tags": [],
     "next_passage_label": "Passage 1",
-    "minimum_end_frame": null,
-    "landed_s": 6.3,
-    "pile_edge_cm": 190.0,
-    "readiness_note": "Plan only. File evidence says playback 0-375 at 25 fps and derives landed_s=6.3, but minimum_end_frame remains null until opening_walkin_probe.py confirms the current cut, P01 start pose/lens/focus, arrival speed, and that the current playback window validates. The key script therefore refuses OPENING.",
+    "minimum_end_frame": 375,
+    "landed_s": 6.326666666666666,
+    "pile_edge_cm": 203.0,
+    "readiness_note": "Ready from opening_walkin_probe.json: current cut/playback is 0-375 at 25 fps, curtain landed_s is 6.326666666666666, the approach-side pile route extent is 203 cm, and P01 starts at 15.0 s with measured pose/lens/focus and 250 cm/s arrival speed.",
     "soft_goods_steps": [],
     "file_evidence": {
-      "tier": "measured from saved reports/artifact chain; current editor state not re-measured in this offline pass",
+      "tier": "measured by Saved/CodexConductor/opening_walkin_probe.py with clean before/after census",
       "opening_playback_frames": [
         0,
         375
@@ -29,19 +29,56 @@
           0.0
         ],
         "focal_mm": 15.0,
-        "focus_cm": null
+        "focus_cm": 100000.0
       },
       "curtain_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
       "bake_id": "final13_opening_a06_w188",
       "release_frame": 480,
       "cache_show_start_frame": 450,
       "release_display_frame": 50,
-      "landed_derivation": "2.0 s sequence release + 4.333 s from bake release frame 480 to first top_z <= 1.0 m at frame 610 = 6.333 s, recorded to the registry's 0.1 s convention as 6.3",
-      "pile_edge_derivation": "final13 measured spill reaches within 1.9 m of the curtain line",
-      "p01_start_pose": null,
-      "p01_start_focal_mm": null,
-      "p01_start_focus_cm": null,
-      "p01_arrival_speed_cm_s": null
+      "landed_bake_frame": 610,
+      "landed_s": 6.326666666666666,
+      "landed_derivation": "Probe: release_sequence_s 1.9933333333333332 plus bake frames 480 to 610 at 30 fps = 6.326666666666666 s.",
+      "pile_route_extent_cm": [
+        -203.0,
+        467.0
+      ],
+      "pile_edge_derivation": "The walk approaches P01 from negative X, so the measured approach-side extent -203 cm gives pile_edge_cm 203.0.",
+      "p01_start_pose": {
+        "location_cm": [
+          0.0,
+          0.0,
+          150.0
+        ],
+        "rotation_deg": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "p01_next_frame_pose": {
+        "location_cm": [
+          10.000000140127042,
+          0.0,
+          150.0
+        ],
+        "rotation_deg": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "p01_start_focal_mm": 25.0,
+      "p01_start_focus_cm": 600.0,
+      "p01_arrival_speed_cm_s": 250.00000350317606,
+      "probe_dirty_before": {
+        "content": [],
+        "maps": []
+      },
+      "probe_dirty_after": {
+        "content": [],
+        "maps": []
+      }
     }
   },
   "I1": {

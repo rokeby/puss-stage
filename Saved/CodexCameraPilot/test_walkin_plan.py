@@ -79,20 +79,47 @@ def main():
             registry_problems.append("%s Soft goods steps" % transition_id)
     opening = transitions.get("OPENING", {})
     opening_evidence = opening.get("file_evidence", {})
-    opening_gated = (
-        opening.get("minimum_end_frame") is None
-        and opening.get("landed_s") == 6.3
-        and opening.get("pile_edge_cm") == 190.0
+    opening_ready = (
+        opening.get("minimum_end_frame") == 375
+        and abs(opening.get("landed_s") - 6.326666666666666) <= 1.0e-12
+        and opening.get("pile_edge_cm") == 203.0
         and opening_evidence.get("opening_playback_frames") == [0, 375]
-        and opening_evidence.get("p01_start_pose") is None
-        and opening_evidence.get("p01_arrival_speed_cm_s") is None
+        and opening_evidence.get("opening_camera_pose", {}).get("focus_cm") == 100000.0
+        and opening_evidence.get("p01_start_pose", {}).get("location_cm") == [0.0, 0.0, 150.0]
+        and opening_evidence.get("p01_start_focal_mm") == 25.0
+        and opening_evidence.get("p01_start_focus_cm") == 600.0
+        and abs(opening_evidence.get("p01_arrival_speed_cm_s") - 250.00000350317606) <= 1.0e-9
     )
-    if not opening_gated:
-        registry_problems.append("OPENING must remain probe-gated with file evidence")
+    if not opening_ready:
+        registry_problems.append("OPENING must be ready from the measured probe")
     results.append(run_case(
         "transition_registry",
         not registry_problems,
         "problems=%r" % registry_problems,
+    ))
+
+    opening_seat = {
+        "x": -1400.0, "y": 0.0, "z": 150.0,
+        "pitch": 14.0, "yaw": 0.0, "roll": 0.0,
+    }
+    opening_target = {
+        "x": 0.0, "y": 0.0, "z": 150.0,
+        "pitch": 0.0, "yaw": 0.0, "roll": 0.0,
+    }
+    opening_keys, opening_report = plan_walk(
+        opening_seat, opening_target, 250.00000350317606, EASE_S, 15.0, FPS,
+        15.0, 25.0, 100000.0, 600.0,
+        opening["landed_s"], opening["pile_edge_cm"],
+    )
+    opening_failures = check_plan(
+        opening_keys, opening_report, opening_target, 250.00000350317606,
+        opening["landed_s"], opening["pile_edge_cm"],
+    )
+    results.append(run_case(
+        "opening_probe_values_plan",
+        not opening_failures and opening_report["final_frame"] == 375,
+        "failures=%r final_frame=%r start_s=%.6f keys=%d"
+        % (opening_failures, opening_report["final_frame"], opening_report["start_s"], len(opening_keys)),
     ))
 
     keys, report = plan_walk(
