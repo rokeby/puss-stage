@@ -133,6 +133,18 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   false, INFERRED) -> SUPERSEDED by the Arrival Details timing patch AT (Gary: Details panel; roof +4.13->+8.63, lattice
   +8.63->+12.63, lights strike +10 s keeping stagger; spec specs/HANGAR_TIMING_DETAILS.md, Codex drafting).
   HELD patches for the next build: SS (scene shot stepping, d410198) + AT when reviewed. Editor CLOSED by Gary at 08:38.
+- NIGHT 2 Oct (Conductor 4), all measured unless marked:
+  BUILT 3d923f5 (AT hangar timing + PR passage resize; suite 116/0/116). APPLIED: P01 wing score +15 s (PreP01ScoreShift-
+  20261002-191825); Scenes 2/5/6 15->25 s (rematched; both tests Success); whether their hangars now RISE is INFERRED -> Gary PIE.
+  HANGAR TIMING applied then RESTORED: the strike rule took the earliest ramp (the during-rise glow at -5.87 s), moving every
+  light +15.87 s (uplights to +22 s). All six rise assets + LS_DevScene_03 restored from PreHangarTimingApply-20261002-195101 /
+  PreS3WaveSlides-20261002-195148 (bad state kept in PreRestoreHangarTiming-20261002-2013); re-probed: uplights 6.13 again;
+  both tests Success; hangars UP. Fix specced: specs/AT_FIX_STRIKE_RULE.md (next build). S3 wave slides are back (strike 147).
+  RESIZE DRY RUNS (passage_resize_dry_P0{2,3,4}.json): 3:00 at 2.5 m/s = 450 m routes (from ~110 m); P02 and P03 OVERLAP their
+  hangars (refused); P04 "can_apply" but its end would leave the S4 hangar ~340 m behind (docking not checked: INFERRED).
+  Route A therefore needs hangar relocation or folded routes: GARY'S CALL. Nothing applied.
+  OPENING PROBE: curtain lands 6.33 s; stalls camera (-1400,0,150) 15 mm; P01 starts 15.0 s at (0,0,150), 25 mm, 2.5 m/s.
+  Walk-in keying waits for Gary.
 - OPEN PUZZLE, S3 wave mesh swap (W2, parked 2 Oct ~18:00): the 6 extended wave meshes are imported and saved as
   /Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow{1,2,3}_{A,B}_v2 (unreferenced; mapping in W&T's
   run_w2.json). Setting them on the 6 `S3 Wave Row` StaticMeshActors takes effect in memory but does NOT dirty the level
