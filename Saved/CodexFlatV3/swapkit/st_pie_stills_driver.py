@@ -29,12 +29,31 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 HANDLE_NAME = "PUSS_FLATV3_ST_PIE_HANDLE"
 STATE_NAME = "PUSS_FLATV3_ST_PIE_STATE"
-MODES = ("first_still_check", "full")
+GLOSS_MODE = "gloss_p04_bay4"
+MODES = ("first_still_check", "full", GLOSS_MODE)
 RUN_IDS = {
     "before": "FV3STB-20261003-04",
     "after": "FV3STA-20261003-05",
 }
 OK_MARKERS = {"before": "FLATV3_STB_OK", "after": "FLATV3_STA_OK"}
+GLOSS_CAPTURE_ROOT = pathlib.Path("E:/PussStage/Saved/CodexFlatV3/gloss/stills")
+GLOSS_RUN_IDS = {
+    "before": "GLGB-20261003-01",
+    "after": "GLGA-20261003-01",
+}
+GLOSS_TARGET_CUE = "P04 Wing 004"
+GLOSS_TARGET_FRONT_MI = (
+    "/Game/Scenes/Wings/FlatV3/Passage04/Materials/Instances/"
+    "MI_FlatV3_P04_ruined_gallery_R_v3_Front"
+)
+GLOSS_TARGET_FLAP_MI = (
+    "/Game/Scenes/Wings/FlatV3/Passage04/Materials/Instances/"
+    "MI_FlatV3_P04_ruined_gallery_R_v3_Flap"
+)
+GLOSS_V1_PARENT = "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front"
+GLOSS_V2_PARENT = "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Front_v2"
+GLOSS_V1_FLAP_PARENT = "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap"
+GLOSS_V2_FLAP_PARENT = "/Game/Scenes/Wings/PaintedSurface/Billboard/MI_Billboard_Flap_v2"
 RESOLUTION = (3840, 2160)
 SHOT_MIN_BYTES = 1000
 MAX_SHOT_ERROR_FRAMES = 624  # 26 ms at the Master's 24,000 tick/s resolution.
@@ -104,6 +123,21 @@ def classify(cfg):
     return next(iter(per_passage.values())), per_passage
 
 
+def gloss_capture_state():
+    """Infer BEFORE/AFTER only when both target MIs agree."""
+    front = c.load_asset(GLOSS_TARGET_FRONT_MI, unreal.MaterialInstanceConstant)
+    flap = c.load_asset(GLOSS_TARGET_FLAP_MI, unreal.MaterialInstanceConstant)
+    parents = (
+        asset_path(front.get_editor_property("parent")),
+        asset_path(flap.get_editor_property("parent")),
+    )
+    if parents == (GLOSS_V1_PARENT, GLOSS_V1_FLAP_PARENT):
+        return "before"
+    if parents == (GLOSS_V2_PARENT, GLOSS_V2_FLAP_PARENT):
+        return "after"
+    raise RuntimeError("ST_PIE_GLOSS_PARENT_SET_UNEXPECTED|" + json.dumps(parents))
+
+
 def derive_passage_jobs(passage, start_frame, end_frame, lead_in_frames, cue_rows):
     """Choose the swapped cue pass nearest the Passage midpoint; return walk/front."""
     if end_frame <= start_frame:
@@ -143,6 +177,42 @@ def derive_passage_jobs(passage, start_frame, end_frame, lead_in_frames, cue_row
     return [dict(common, view="walk", master_frame=approach), dict(common, view="near")]
 
 
+def derive_gloss_jobs(start_frame, end_frame, lead_in_frames, cue_rows):
+    """Target the conductor's side-lit P04 bay 4 cue, before and at its pass."""
+    pass_frame = start_frame + lead_in_frames
+    target = None
+    cue_pass_frames = []
+    for row in cue_rows:
+        recorded = dict(row)
+        recorded["pass_frame"] = pass_frame
+        cue_pass_frames.append(recorded)
+        if row["cue_label"] == GLOSS_TARGET_CUE:
+            target = recorded
+        pass_frame += int(row["interval_to_next"])
+    if target is None:
+        raise RuntimeError("ST_PIE_GLOSS_TARGET_CUE_MISSING|" + GLOSS_TARGET_CUE)
+    if not (start_frame <= target["pass_frame"] <= end_frame):
+        raise RuntimeError("ST_PIE_GLOSS_TARGET_OUT_OF_RANGE|" + GLOSS_TARGET_CUE)
+    common = {
+        "passage": "P04",
+        "master_frame": target["pass_frame"],
+        "passage_range": [start_frame, end_frame],
+        "target_cue_index": target["cue_index"],
+        "target_cue_guid": target["cue_guid"],
+        "target_cue_label": target["cue_label"],
+        "target_side": "right",
+        "target_mesh": "SM_FlatV3_P04_ruined_gallery_R_v3",
+        "lighting_look": "INDUSTRIAL",
+        "cue_pass_frames": [
+            {key: row[key] for key in ("cue_index", "cue_guid", "cue_label", "pass_frame", "swapped")}
+            for row in cue_pass_frames
+        ],
+        "frame_source": "PIE transport P04 range + Show lead_in_frames/interval_to_next",
+    }
+    approach = max(start_frame, target["pass_frame"] - 2 * 24000)
+    return [dict(common, view="walk", master_frame=approach), dict(common, view="near")]
+
+
 def panel_mi_paths(cue):
     pair = cue.get_editor_property("wing_pair")
     paths = set()
@@ -168,7 +238,7 @@ def passage_number(label):
     return int(match.group(1))
 
 
-def runtime_plan(world, root, cfg):
+def runtime_plan(world, root, cfg, mode):
     show = unreal.load_asset(SHOW)  # EditorAssetLibrary refuses during PIE ("Editor is currently in a play mode", 3 Oct)
     if show is None:
         raise RuntimeError("ST_PIE_SHOW_LOAD_FAIL")
@@ -229,9 +299,14 @@ def runtime_plan(world, root, cfg):
             })
         if not cue_rows:
             raise RuntimeError("ST_PIE_CUE_ROWS_MISSING|passage=" + passage)
-        passage_jobs = derive_passage_jobs(
-            passage, start_frame, end_frame, lead_in, cue_rows
-        )
+        if mode == GLOSS_MODE:
+            if passage != "P04":
+                continue
+            passage_jobs = derive_gloss_jobs(start_frame, end_frame, lead_in, cue_rows)
+        else:
+            passage_jobs = derive_passage_jobs(
+                passage, start_frame, end_frame, lead_in, cue_rows
+            )
         jobs.extend(passage_jobs)
         sources.append({
             "passage": passage,
@@ -241,8 +316,9 @@ def runtime_plan(world, root, cfg):
             "chosen_cue": passage_jobs[0]["target_cue_label"],
             "chosen_pass_frame": passage_jobs[0]["master_frame"],
         })
-    if len(jobs) != 12:
-        raise RuntimeError("ST_PIE_JOB_COUNT|actual=%d" % len(jobs))
+    expected_jobs = 2 if mode == GLOSS_MODE else 12
+    if len(jobs) != expected_jobs:
+        raise RuntimeError("ST_PIE_JOB_COUNT|expected=%d|actual=%d" % (expected_jobs, len(jobs)))
     return jobs, sources
 
 
@@ -375,8 +451,12 @@ def write_owner(state, active, note):
 
 
 def persist(state):
-    name = "st_pie_first_check_runtime.json" if state["mode"] == "first_still_check" \
-        else "st_pie_full_runtime.json"
+    if state["mode"] == "first_still_check":
+        name = "st_pie_first_check_runtime.json"
+    elif state["mode"] == GLOSS_MODE:
+        name = "gloss_p04_bay4_runtime.json"
+    else:
+        name = "st_pie_full_runtime.json"
     pathlib.Path(state["run_dir"], name).write_text(
         json.dumps(state, indent=2), encoding="utf-8"
     )
@@ -404,6 +484,12 @@ def prepare_output(state, jobs):
         job["path"] = (run_dir / (job["passage"] + "_" + job["view"] + ".png")).as_posix()
         job["phase"] = "pending"
     existing = [path for path in run_dir.glob("P??_*.png") if path.is_file()]
+    if state["mode"] == GLOSS_MODE:
+        for job in jobs:
+            job["path"] = (run_dir / ("P04_Wing_004_" + job["view"] + ".png")).as_posix()
+        if existing or any(pathlib.Path(job["path"]).exists() for job in jobs):
+            raise RuntimeError("ST_PIE_GLOSS_OUTPUT_EXISTS|run_dir=" + run_dir.as_posix())
+        return jobs
     if state["mode"] == "first_still_check":
         selected = [job for job in jobs if job["passage"] == "P04" and job["view"] == "near"]
         if len(selected) != 1:
@@ -439,8 +525,15 @@ def arm(mode):
     if editor_world is None or str(editor_world.get_outermost().get_name()) != EXPECTED_WORLD:
         raise RuntimeError("ST_PIE_WRONG_EDITOR_WORLD")
     cfg = c.config()
-    capture_state, passage_states = classify(cfg)
-    run_id = RUN_IDS[capture_state]
+    if mode == GLOSS_MODE:
+        capture_state = gloss_capture_state()
+        passage_states = {"P04": capture_state}
+        run_id = GLOSS_RUN_IDS[capture_state]
+        run_dir = GLOSS_CAPTURE_ROOT / capture_state / run_id
+    else:
+        capture_state, passage_states = classify(cfg)
+        run_id = RUN_IDS[capture_state]
+        run_dir = CAPTURE_ROOT / capture_state / run_id
     try:
         assert_no_preexisting_pie(editor)
     except RuntimeError:
@@ -456,7 +549,7 @@ def arm(mode):
     state = {
         "schema_version": 1,
         "run_id": run_id,
-        "run_dir": (CAPTURE_ROOT / capture_state / run_id).as_posix(),
+        "run_dir": run_dir.as_posix(),
         "mode": mode,
         "capture_state": capture_state,
         "passage_states": passage_states,
@@ -519,7 +612,9 @@ def arm(mode):
             state["errors"].append("ST_PIE_EDITOR_ACTOR_CENSUS_CHANGED")
         if not state.get("screen_messages_restored"):
             state["errors"].append("ST_PIE_SCREEN_MESSAGES_NOT_RESTORED")
-        expected_jobs = 1 if state["mode"] == "first_still_check" else 12
+        expected_jobs = 1 if state["mode"] == "first_still_check" else (
+            2 if state["mode"] == GLOSS_MODE else 12
+        )
         complete_jobs = [job for job in state["jobs"]
                          if job.get("phase") == "complete" and job.get("bytes", 0) > SHOT_MIN_BYTES]
         if len(state["jobs"]) != expected_jobs or len(complete_jobs) != expected_jobs:
@@ -549,6 +644,12 @@ def arm(mode):
             )
             unreal.log("FLATV3_ST_FIRST_STILL_CHECK_OK run=%s path=%s human_review=pending"
                        % (state["run_id"], job["path"]))
+        elif status == "passed" and state["mode"] == GLOSS_MODE:
+            unreal.log(
+                "PUSS_BILLBOARD_GLOSS_STILLS_SUCCESS|state=%s|run=%s|cue=P04_Wing_004|"
+                "side=right|shots=2|saved_count=0|game_view=true"
+                % (state["capture_state"], state["run_id"])
+            )
         elif status == "passed":
             unreal.log(
                 "%s run=%s shots=12 saved_count=0 exposure_override=false game_view=true"
@@ -639,7 +740,7 @@ def arm(mode):
                 root.transport.set_editor_property("performance_mode", False)
                 if root.transport.get_editor_property("performance_mode"):
                     raise RuntimeError("ST_PIE_PERFORMANCE_MODE_ON")
-                jobs, sources = runtime_plan(world, root, cfg)
+                jobs, sources = runtime_plan(world, root, cfg, mode)
                 state["frame_sources"] = sources
                 state["jobs"] = prepare_output(state, jobs)
                 state["game_actors_baseline"] = actor_census(world)

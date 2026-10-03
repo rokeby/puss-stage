@@ -57,6 +57,7 @@ nothing has been visually accepted except where stated.
   (0.16, 0.13, 0.11), to kill white hatching through the peels. Originals:
   `Saved/CodexFlatV3/bb_backing_originals.json`. Revert: `Saved/CodexFlatV3/bb_backing_revert.py`.
   Backup: `Backups/PreBillboardBacking-20261003-0857`.
+- **3 Oct: billboard gloss (v2 master) reassigned to Wings & Textures by the conductor; v1 untouched.**
 - **For the Timber master:** the landed V3 flats' vertex-colour IDs are **sRGB-encoded** as
   measured: softwood 0.0, ply **0.7333** (authored 0.5), steel **0.9961**. Threshold on the
   measured values (e.g. < 0.35 softwood, < 0.86 ply, else steel); don't test for 0.5.
