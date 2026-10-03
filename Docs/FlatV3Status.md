@@ -240,3 +240,14 @@ Tooling lessons, all fixed and in git:
 - entry scripts purge this folder's cached modules;
 - every-row centre-gap gate; inner-edge lateral mode;
 - opt-in `--triangulate-export`.
+
+## 3 Oct: run-through notes 3-6 (Gary)
+- **Hatching (note 3): FIXED in the show.**
+  - Cause: the pilot peel breakup was a diagonal sine on anisotropic fields; the white came from the material's cream BackingColor.
+  - Fix: isotropic organic peel skins (`skin_v3`, `_o2` textures; SK FV3SK-20261003-02, 126 MIs, applied per passage after a GPU OOM on a single-call apply). BackingColor is now dark oxide red and PrimerColor dark warm grey on the two billboard parent MIs (Gary's choice).
+  - Before/after show-camera stills: `Saved/CodexFlatV3/swapkit/stills/{before/FV3STB-20261003-04, after/FV3STA-20261003-05}`.
+- **Ground (note 4):** only the P05 clouds floated (measured). Poles are now 556 cm (`_poles2`, PF FV3PF-20261003-04) and reach the floor; cloud heights are unchanged. Cue 124 right is old and was skipped.
+- **P04 tops:** the three old ceiling borders were lifted to 7.00-11.26 m (they hung down to 2.24 m).
+- **Fence taper (note 5) and steps/stones (note 6):** render options were sent to Gary; awaiting his pick.
+- **Outer wall:** assessment in `Docs/Conductor/OUTER_WALL_FENCE_FITNESS_2026-10-03.md`.
+- **S3 waves:** still parked (the mesh set on the wave actors didn't dirty the level; possibly a stale-module artefact).

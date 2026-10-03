@@ -32,7 +32,7 @@ STATE_NAME = "PUSS_FLATV3_ST_PIE_STATE"
 MODES = ("first_still_check", "full")
 RUN_IDS = {
     "before": "FV3STB-20261003-04",
-    "after": "FV3STA-20261003-04",
+    "after": "FV3STA-20261003-05",
 }
 OK_MARKERS = {"before": "FLATV3_STB_OK", "after": "FLATV3_STA_OK"}
 RESOLUTION = (3840, 2160)
