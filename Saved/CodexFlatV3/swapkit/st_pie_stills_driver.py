@@ -31,8 +31,8 @@ HANDLE_NAME = "PUSS_FLATV3_ST_PIE_HANDLE"
 STATE_NAME = "PUSS_FLATV3_ST_PIE_STATE"
 MODES = ("first_still_check", "full")
 RUN_IDS = {
-    "before": "FV3STB-20261003-02",
-    "after": "FV3STA-20261003-02",
+    "before": "FV3STB-20261003-03",
+    "after": "FV3STA-20261003-03",
 }
 OK_MARKERS = {"before": "FLATV3_STB_OK", "after": "FLATV3_STA_OK"}
 RESOLUTION = (3840, 2160)
@@ -136,7 +136,11 @@ def derive_passage_jobs(passage, start_frame, end_frame, lead_in_frames, cue_row
         ],
         "frame_source": "PIE transport Passage range + Show lead_in_frames/interval_to_next",
     }
-    return [dict(common, view="walk"), dict(common, view="front")]
+    # UE 5.8 Python exposes no runtime actor spawn (measured 3 Oct: GameplayStatics has
+    # no spawn-actor API), so the front-on CineCamera is replaced by the SHOW camera at
+    # the pair's own pass frame ("near"); "walk" is the approach 2 s earlier.
+    approach = max(start_frame, target["pass_frame"] - 2 * 24000)
+    return [dict(common, view="walk", master_frame=approach), dict(common, view="near")]
 
 
 def panel_mi_paths(cue):
@@ -401,7 +405,7 @@ def prepare_output(state, jobs):
         job["phase"] = "pending"
     existing = [path for path in run_dir.glob("P??_*.png") if path.is_file()]
     if state["mode"] == "first_still_check":
-        selected = [job for job in jobs if job["passage"] == "P04" and job["view"] == "front"]
+        selected = [job for job in jobs if job["passage"] == "P04" and job["view"] == "near"]
         if len(selected) != 1:
             raise RuntimeError("ST_PIE_FIRST_CHECK_PLAN_FAIL")
         check_dir = run_dir / "first_still_check"

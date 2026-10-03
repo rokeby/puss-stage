@@ -122,7 +122,7 @@ def main():
             for i in range(6)
         ]
         jobs.extend(driver.derive_passage_jobs(passage, start, end, 60_000, cue_rows))
-    if len(jobs) != 12 or {job["view"] for job in jobs} != {"walk", "front"}:
+    if len(jobs) != 12 or {job["view"] for job in jobs} != {"walk", "near"}:
         raise RuntimeError("ST_PIE_POSITIVE_12_SHOTS_FAIL")
     if any(not (job["passage_range"][0] <= job["master_frame"] <= job["passage_range"][1])
            for job in jobs):
