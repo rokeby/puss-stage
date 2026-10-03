@@ -40,3 +40,29 @@ Current rig (declaration-proven, docs): P01's tuned per-wing rig was copied to P
 place", shadow casters 1643 -> 612; RigAndAtmosphere_Handover_2026-09-28.md:170-173) plus six blinking gobo spots across
 P02-P06 (InfinityStageSessionHandover.md:136). A related earlier proposal with "side frame, floating lamps":
 Docs/LegibleMachineSpec_2026-09-29.md.
+
+## Gary, second message (verbatim)
+> In the video, opening to p01 played well as to current designs, rig opened, but after 20s or so camera cuts to looking up at
+> rig ceiling, before cutting to next curtain, so we don't currently have an effective exit curtain cut for the shadow cat bot
+> interaction or a clean passage to next passage.
+> Then second wing set plays for barely 10s between walk start and cutting out, to the rig open shot but there's only a pit and
+> maybe the camera moves in right but it's evidentalt out of sync with any rig rising up
+> Same p03 cuts from wings early, goes to rising rig and show though there's much to tune with the sequence. Also the figures
+> need a beach to stand on, so perhaps megascan rocks that're already in content and some plants and actually lets make the
+> side walls marble like the plinth before the bloody hand stains.
+> P04 cuts to rig transition curtain early (it's the only one that shows up). Rig shows up we cut to next passage curtain no
+> exit curtain, again. That exit curtain doorway might just need building at the back of the rig hangar? P05 jumps most of the
+> wing passage and the screen blacks out as we approach the rig pit. Next thing we know we're in passage 6, which moves to end
+> of passage and there's some movement happening but it's not quite the rig more like a black out that comes and goes but i
+> guess that's just s06 being built
+
+## Triage (conductor)
+- RECORDING ARTEFACT (not the show): each window started 15 s before a passage's end and jumped from Scene +30 s to the Scene's
+  last 5 s, so passages look cut short and Scenes jump to their ends. Passages are full length (P02-P04 3:00).
+- 10 SCENE EXITS: no exit curtain / clean handover from a Scene to its Interaction (S1: a cut to looking up at the rig ceiling,
+  then the next curtain; S4 the same). Gary's idea: an exit-curtain DOORWAY built at the back of each rig hangar. Design item
+  for tomorrow (structure + camera + soft goods): which hangars, the door, the camera's exit move.
+- 11 S2 (and S5) don't rise: confirmed again; read-only probe running (NotNested). S5's black-out approaching the pit fits.
+- 12 S3: a BEACH for the figures (Megascans rocks already in Content + some plants) and the S3 side walls MARBLE like the
+  plinth (before the hand stains). Draft placement for Gary to adjust (like the shot-list draft).
+- 13 S6: blackouts coming and going = S6's new dim-instead-of-strike + being built (as expected).
