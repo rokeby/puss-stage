@@ -70,3 +70,14 @@ first, recorded for Gary.
 ## TUNE 3c (Gary 3 Oct: theatrical "much stronger gels"): accent lights 3-4x brighter and fully saturated (magenta / cyan /
 ## lavender), each hitting a clearly bounded PART of a wing (cutters/narrow cones); floor shafts brighter through haze; moody and
 ## industrial unchanged. Revert-then-apply, verify, both tests, re-record.
+
+## TUNE 4 (after W&T place the P04 fence, FV3FB-20261003-02). Gary (his words to W&T, on fence pass 2): "Considering they're seldom
+## visible they look pretty good! Maybe what'll be important is light beams coming through gaps now and again".
+1. BEAMS THROUGH GAPS (priority): narrow spots on SOCKET_Back_01 (outer side of the tree posts, behind the tarp) aimed through the
+   torn/half tarp bays (tarp_torn / tarp_half) across the corridor, haze/volumetric scattering ON, shadow-casting where a beam
+   must be shaped by the tarp holes (counts against the 43 budget: swap, don't add); INTERMITTENT: not every bay, some flickering
+   on/off on a slow irregular seeded rhythm, "now and again". Read sockets from Saved/CodexFlatV3/fence/run_fence_p04_plan.json.
+2. MOVE the LOW SIDE lights to SOCKET_Low_01/02 and the practicals to SOCKET_Lamp_01..04 of the nearest tree post (exact positions
+   from the plan), so every light has a visible physical source.
+3. The FLARE SWEEP (see TUNE 4 above): one instance in bays 1-6.
+Revert-then-apply, verify, both tests, landed STATUS, re-record P04 bays 1-6 video + stills.
