@@ -15,3 +15,8 @@ Change lighting_looks.json recipes (tool: Saved/CodexConductor/lighting_looks_ap
 Keep shadow casters <= 43 in P04. DRY/APPLY (it reverts the current looks first), read-back, both tests, landed STATUS, then
 re-record the same P04 bays 1-6 video + 6 stills (same method) for Gary. Rules as before (PIE off first, never end anyone's
 PIE, never quit, never Save All, purge modules, backups, stop on first failure; no restarts). Commit nothing.
+
+## Next (tune 2, after tune 1's recording; Gary 3 Oct: "practicals was a nice idea")
+More PRACTICALS in every look: visible motivated sources on the lighting trees and fence: bare bulbs on cords, cage work
+lamps, an old tube, a desk/clamp lamp; 1-3 per bay, small, each with its own light (shadowless, short attenuation), some
+flickering, some dead (off) for rhythm. In MOODY they are the main sources; in THEATRICAL accents.
