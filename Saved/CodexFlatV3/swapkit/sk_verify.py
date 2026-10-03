@@ -61,7 +61,18 @@ def main(config_path=None):
         c.write_report("sk_verify_%s_FAILURE.json" % run, report)
         raise
     finally:
-        c.release(run, status, [], "verify", None if status == "OK" else report)
+        # Run-wide saved roots: union of the six batch reports' saved_roots (read-only:
+        # reading JSON only). The verifier itself saves nothing.
+        run_roots = []
+        try:
+            import glob as _glob, json as _json
+            for _f in sorted(_glob.glob(_fv3_os.path.join(c.HERE, "sk_apply_%s_P0*.json" % run))):
+                if _f.endswith("_FAILURE.json"):
+                    continue
+                run_roots.extend(_json.load(open(_f, encoding="utf-8")).get("saved_roots", []))
+        except Exception:
+            run_roots = []
+        c.release(run, status, sorted(set(run_roots)), "verify", None if status == "OK" else report)
 
 
 if __name__ == "__main__":

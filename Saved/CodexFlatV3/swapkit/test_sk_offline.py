@@ -429,7 +429,7 @@ def main() -> int:
     apply_source = (HERE / "sk_apply.py").read_text(encoding="utf-8")
     verify_source = (HERE / "sk_verify.py").read_text(encoding="utf-8")
     if 'if final_status != "OK":' not in apply_source or \
-            'c.release(run, status, [], "verify"' not in verify_source:
+            'c.release(run, status, sorted(set(run_roots)), "verify"' not in verify_source:
         raise RuntimeError("OFFLINE_TERMINAL_RELEASE_CONTRACT_FAIL")
     results["verify_is_terminal_release"] = {
         "status": "PASS", "apply_success_releases": False,
