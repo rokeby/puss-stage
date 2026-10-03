@@ -29,3 +29,15 @@ flickering, some dead (off) for rhythm. In MOODY they are the main sources; in T
 ## a small visible emissive mesh (engine basic shapes + an emissive MI is fine) with its own shadowless short light; some flicker,
 ## one dead per look). Shadow casters <= 43. Revert-then-apply, read-back, both tests, landed STATUS, re-record the same video + 6
 ## stills.
+
+## TUNE 3 (Gary 3 Oct, his answers in the Conductor 4 session, on tune 2's video LightingLooks/20261003_210954):
+- MOODY: "Like bay 2, is good, darker recesses could be darker but lit floor is good". Bay 1 to match bay 2's balance (partial,
+  legible, lit floor pool); recesses darker in both (reduce spill/ambient in the depths; keep the floor pool and the edge blade).
+- INDUSTRIAL: "Pull bay 3 down, fix bay 4 hue". Bay 3 about -40% (no wash), bay 4 sodium yellow-orange WITHOUT pink (check gel/temp
+  mixing with the theatrical accents bleeding over), the tube stays as the cold contrast.
+- THEATRICAL: "could have more light beams cast across floor and more shadow between bays, where I will also later place objects,
+  currently theatrical's wings are quite flat and unvaried in lighting". So: hard-edged beams/shafts raking ACROSS the floor
+  (low-angle spots or gobo slashes, haze-visible); DARK GAPS between bays (light pools stop short of the bay boundary); wings
+  modelled, not flat (light from one side and a grazing angle, gradients top-to-bottom, a cutter/barn-door edge across part of a wing,
+  the accent gel only on part of the surface).
+Keep shadow casters <= 43. Revert-then-apply, read-back, both tests, landed STATUS, re-record the same video + 6 stills.
