@@ -106,9 +106,13 @@ def require_clean(unreal, label):
 
 def package_file(unreal, package_path):
     require(package_path.startswith("/Game/"), "NON_GAME_PACKAGE|" + package_path)
-    relative = package_path[len("/Game/"):].replace("/", os.sep) + ".uasset"
-    return os.path.normpath(os.path.join(
-        unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_content_dir()), relative))
+    base = os.path.normpath(os.path.join(
+        unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_content_dir()),
+        package_path[len("/Game/"):].replace("/", os.sep)))
+    for extension in (".uasset", ".umap"):
+        if os.path.isfile(base + extension):
+            return base + extension
+    return base + ".uasset"
 
 
 def backup_packages(unreal, prefix, run, package_paths):
@@ -120,7 +124,7 @@ def backup_packages(unreal, prefix, run, package_paths):
     for package_path in package_paths:
         source = package_file(unreal, package_path)
         require(os.path.isfile(source), "BACKUP_SOURCE_MISSING|" + source)
-        relative = package_path[len("/Game/"):].replace("/", os.sep) + ".uasset"
+        relative = package_path[len("/Game/"):].replace("/", os.sep) + os.path.splitext(source)[1]
         destination = os.path.join(backup_root, relative)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         shutil.copy2(source, destination)
