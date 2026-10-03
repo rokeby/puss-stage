@@ -22,3 +22,21 @@ art). Preserve: the 15 s period, the vamp-loop seam (frames 3480/4200 equal), th
 landed root with an inside-box guard (memory puss-level-saved-landed-frame-trap). Revert = remove the added actors and restore the
 6 originals + their tracks exactly. Backups, census, narrow saves, read-back, both tests.
 THIS PASS: write both tools + harnesses offline (no Unreal). Commit nothing. Final message SHORT; tags per AGENTS.md.
+
+## Revision (Gary 3 Oct, his answers): "Real beach + marble fix"; wave split "Yes"
+Stills S3Daylight/20261003_221136: B02 reads as daylight; B03 is a dark brown frame (camera inside/behind something: find out);
+the marble close-up is blown cream; the beach reads as dark flat discs on the herringbone parquet.
+C. BEACH v2 (s3_beach_place.py v2: revert the 9 draft actors, then place): a SAND FLOOR LAYER covering the diorama area over the
+   parquet: a shaped, gently undulating mesh (a few cm up to ~20 cm high, soft edges feathering to the parquet at the area edge;
+   a subdivided plane deformed by noise is fine) with a sand/shingle surface material from the Megascans surfaces already in Content
+   (inventory s3_beach_asset_inventory.json); Megascans rocks EMBEDDED (sunk 20-40% into the sand, scaled varied), a few seaweed
+   clumps; the ring of figures standing ON the sand (their feet at the sand surface: report any feet buried or floating);
+   nothing within 1.5 m of a shot camera; inside-box guard; live landed root.
+D. MARBLE: the liners must read as heavy marble under the daylight: reduce their exposure by material (albedo/roughness: marble
+   roughness ~0.25-0.4 with veining visible), or the key's intensity on the walls, so the brightest wall pixel is below clipping
+   in PIE; a COPY MI only. Report the before/after wall luminance from a PIE still.
+E. B03: diagnose the dark frame (camera inside geometry? wrong camera? a black stand-in?) and report; fix only if it's a placement
+   artefact of the beach/daylight work, else report for Gary.
+B. WAVE SPLIT: the APPLY failed on unsupported StaticMeshActor.is_hidden(): use the supported visibility API (e.g.
+   get_editor_property('hidden') / is_hidden_ed() / root component visibility; check the 5.8 Python API) and re-run.
+THIS PASS: offline code + harness only for B, C, D (no Unreal). Commit nothing.
