@@ -161,3 +161,9 @@ conductor's reading of what it implies — marked as such, not decided.
 
 - **Correction (Gary, 2 Oct):** the GO1 is NOT engaged during Scenes, so Scene cameras need not be walkable
   (the walkability notes above are void for Scenes). Vamp orbit: radius ~2 m, close-up, soft shot, clam sharp.
+
+## Gary, 3 Oct (Conductor 4 session)
+- Lighting "much too strong and white, it should feel like daylight but the marble walls should feel physical and materially real
+  and heavy and visible" -> daylight pass (specs/S3_DAYLIGHT_AND_WAVES.md A).
+- Waves: narrower overlapping pieces covering the horizontal, not full-width rows -> wave split (same spec, B).
+- S3 FX LIST (later): "a fish or two that occasionally rotates out of the waves at a radius like a flying fish".
