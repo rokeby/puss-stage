@@ -70,4 +70,7 @@
 - Q1: **the GO1 is LIVE in S6**: the one Scene where the dog drives the camera ("running forward still"). Exception to the
   2 Oct ruling that the GO1 is not engaged in Scenes; S6 cameras must therefore be walkable (memory: puss-camera-is-the-cat).
 - Q5: the swarm/counting section is a **live hold / vamp** (like S3's song): it loops until RIGHT.
-- Still open: bulb vs candle; the old lady (capture/keyed; voice recorded/live); who switches the mains off.
+- **Light:** a CANDLE (not a bulb): realistic flame and candlelight if possible (Gary, 2 Oct night). Fog halo per the sketch.
+- **Old lady:** a mocapped MetaHuman (Gary's capture route, as for the shore cast and children: Docs/MetaHumanMocapWorkflow-20260910.md).
+- **Coda:** a shore person switches the mains off, for now (a shore-cast MetaHuman reused).
+- Still open: the old lady's voice (recorded vs live); swarm/counting length is a live vamp (above).
