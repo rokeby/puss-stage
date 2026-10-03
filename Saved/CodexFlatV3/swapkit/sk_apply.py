@@ -49,7 +49,9 @@ def main(config_path=None):
         saved = c.save_exact(expected_dirty)
         if c.census() != c.CLEAN:
             raise RuntimeError("SK_APPLY_DIRTY_AFTER_SAVE|" + json.dumps(c.census()))
-        c.reload_exact(saved)
+        # NO reload here: these MIs are referenced by every placed V3 mesh in the open
+        # level, and reloading referenced packages is the W-04 failure class
+        # (TARGET_RELOAD_FAIL, 2 Oct). Read back the saved in-memory MIs instead.
         fresh = {}
         for row in cfg["rows"]:
             instance = c.load_asset(row["mi"], unreal.MaterialInstanceConstant)

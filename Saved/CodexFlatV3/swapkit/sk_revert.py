@@ -34,7 +34,7 @@ def main(config_path=None):
     if c.census() != {"content": expected, "maps": []}:
         raise RuntimeError("SK_REVERT_DIRTY_SET_FAIL|" + json.dumps(c.census()))
     saved = c.save_exact(expected)
-    c.reload_exact(saved)
+    # NO reload: the MIs are referenced by placed meshes in the open level (W-04 failure class).
     for row in cfg["rows"]:
         c.assert_mi(c.load_asset(row["mi"], unreal.MaterialInstanceConstant),
                     row["old_textures"], row["mi"] + ":revert_fresh")
