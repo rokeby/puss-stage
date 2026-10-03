@@ -31,7 +31,7 @@ ROOT_LABEL = "S3 Hangar Root"
 TRACK_NAME = "S3.WaveSlide"
 EXPECTED_FPS = 24.0
 EXPECTED_PLAYBACK = (0, 6240)
-EXPECTED_STRIKE_FRAME = 147
+EXPECTED_STRIKE_SECONDS = 10.0
 STRIKE_FRAME_TOLERANCE = 1
 UPLIGHT_LABEL = "S3 Uplight 1"
 AMPLITUDE_CM = 100.0
@@ -94,6 +94,8 @@ def compute_strike_frame_gate(parent_fps, child_fps, section_start_frame,
         raise PlanError("strike gate has invalid rates")
 
     child_delta_frames = child_strike_frame - child_start_frame_offset
+    expected_child_strike_frame = int(round(EXPECTED_STRIKE_SECONDS * child_fps))
+    expected_child_delta_frames = expected_child_strike_frame - child_start_frame_offset
     sequence_to_parent_offset_frames = (
         float(section_start_frame) -
         float(child_start_frame_offset) * parent_fps / child_fps / time_scale
@@ -103,12 +105,20 @@ def compute_strike_frame_gate(parent_fps, child_fps, section_start_frame,
         float(child_delta_frames) * parent_fps / child_fps / time_scale
     )
     parent_frame = int(round(raw_parent_frame))
+    expected_raw_parent_frame = (
+        float(section_start_frame) +
+        float(expected_child_delta_frames) * parent_fps / child_fps / time_scale
+    )
+    expected_parent_frame = int(round(expected_raw_parent_frame))
     evidence = {
         "frame": parent_frame,
         "raw_parent_frame": raw_parent_frame,
-        "expected_frame": EXPECTED_STRIKE_FRAME,
+        "expected_frame": expected_parent_frame,
+        "expected_raw_parent_frame": expected_raw_parent_frame,
+        "expected_strike_seconds": EXPECTED_STRIKE_SECONDS,
+        "expected_frame_source": "10s target mapped through live subsection rates and offsets",
         "tolerance_frames": STRIKE_FRAME_TOLERANCE,
-        "delta_from_expected_frames": parent_frame - EXPECTED_STRIKE_FRAME,
+        "delta_from_expected_frames": parent_frame - expected_parent_frame,
         "parent_fps": parent_fps,
         "child_fps": child_fps,
         "section_start_frame": section_start_frame,
@@ -119,10 +129,10 @@ def compute_strike_frame_gate(parent_fps, child_fps, section_start_frame,
         "time_scale": time_scale,
         "source": "%s subsection + %s Intensity key" % (RISE_PATH, UPLIGHT_LABEL),
     }
-    if abs(parent_frame - EXPECTED_STRIKE_FRAME) > STRIKE_FRAME_TOLERANCE:
+    if abs(parent_frame - expected_parent_frame) > STRIKE_FRAME_TOLERANCE:
         raise PlanError(
             "asset strike gate computed strike %d outside %d +/- %d: %s" %
-            (parent_frame, EXPECTED_STRIKE_FRAME, STRIKE_FRAME_TOLERANCE,
+            (parent_frame, expected_parent_frame, STRIKE_FRAME_TOLERANCE,
              json.dumps(evidence, sort_keys=True))
         )
     return evidence

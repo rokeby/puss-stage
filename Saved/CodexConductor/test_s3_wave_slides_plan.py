@@ -20,7 +20,7 @@ def fixture_state():
         child_fps=30.0,
         section_start_frame=0,
         child_start_frame_offset=0,
-        child_strike_frame=184,
+        child_strike_frame=300,
         time_scale=1.0,
     )
     actors = []
@@ -82,7 +82,7 @@ def main():
         plan["linear_interpolation_error_bound_cm"] <= INTERPOLATION_TOLERANCE_CM and
         all(actor_rows[row] == ["S3 Wave Row%d A" % row, "S3 Wave Row%d B" % row]
             for row in (1, 2, 3)) and
-        plan["strike"]["frame"] == 147
+        plan["strike"]["frame"] == 240
     )
     if positive:
         print("PASS positive: period=360 delays=0/24/48 directions=+/-/+ seam equal pre-strike hold")
@@ -112,16 +112,16 @@ def main():
                                "already has a transform track")
 
     failures += expect_failure(
-        "computed strike 140 stops",
+        "computed strike 216 stops",
         lambda: compute_strike_frame_gate(
             parent_fps=24.0,
             child_fps=30.0,
             section_start_frame=0,
             child_start_frame_offset=0,
-            child_strike_frame=175,
+            child_strike_frame=270,
             time_scale=1.0,
         ),
-        "computed strike 140",
+        "computed strike 216",
     )
 
     if failures == 0:
