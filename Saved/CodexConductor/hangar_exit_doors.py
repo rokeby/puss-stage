@@ -27,7 +27,7 @@ PROBE_NAME = "hangar_exit_doorways_probe.json"
 OVERRIDES_NAME = "hangar_exit_doors_overrides.json"
 RECORD_NAME = "hangar_exit_doors_record.json"
 CUBE_PATH = "/Engine/BasicShapes/Cube.Cube"
-BLACK_PATH = "/Engine/EngineMaterials/BlackUnlitMaterial.BlackUnlitMaterial"
+BLACK_PATH = "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_01/Materials/M_Metal_Black_01_Mat"
 STATIC_MESH_LOCAL_BOUNDS_CM = {
     CUBE_PATH: {"min": [-50.0, -50.0, -50.0], "max": [50.0, 50.0, 50.0]},
 }
@@ -98,6 +98,62 @@ def _matrix_vector(matrix, vector):
 def _inverse_rotate(matrix, vector):
     return [sum(matrix[axis][column] * vector[axis] for axis in range(3))
             for column in range(3)]
+
+
+def _transform_point(transform_row, point, description):
+    location, rotation, scale = _transform_row({"transform": transform_row}, description)
+    matrix = _rotation_matrix(rotation)
+    offset = _matrix_vector(matrix, [float(point[axis]) * scale[axis] for axis in range(3)])
+    return [location[axis] + offset[axis] for axis in range(3)]
+
+
+def _inverse_transform_point(transform_row, point, description):
+    location, rotation, scale = _transform_row({"transform": transform_row}, description)
+    if any(abs(value) <= 1.0e-9 for value in scale):
+        raise PlanError(description + " has zero scale")
+    matrix = _rotation_matrix(rotation)
+    local = _inverse_rotate(matrix, [float(point[axis]) - location[axis] for axis in range(3)])
+    return [local[axis] / scale[axis] for axis in range(3)]
+
+
+def piece_bounds_in_landed_root(piece, current_root, landed_root):
+    half = [float(value) * 0.5 for value in piece["size_cm"]]
+    center = [float(value) for value in piece["location_cm"]]
+    points = []
+    for x in (center[0] - half[0], center[0] + half[0]):
+        for y in (center[1] - half[1], center[1] + half[1]):
+            for z in (center[2] - half[2], center[2] + half[2]):
+                world = _transform_point(current_root, [x, y, z], "current hangar root")
+                points.append(_inverse_transform_point(landed_root, world, "landed hangar root"))
+    return {"min": [min(point[axis] for point in points) for axis in range(3)],
+            "max": [max(point[axis] for point in points) for axis in range(3)]}
+
+
+def validate_landed_piece_bounds(scene, current_root):
+    """Require every planned door piece to remain in its live landed hangar."""
+    hangar = scene["hangar_dimensions"]
+    landed_root = scene["landed_root_transform"]
+    outer = ((500.0, float(hangar["depth"]) + 500.0),
+             (-float(hangar["half_w"]) - float(hangar["wall_t"]),
+              float(hangar["half_w"]) + float(hangar["wall_t"])),
+             (float(hangar["hinge_z"]) - 5.0, float(hangar["height"])))
+    failures = []
+    for piece in scene["pieces"]:
+        bounds = piece_bounds_in_landed_root(piece, current_root, landed_root)
+        piece["planned_aabb_landed_root_cm"] = bounds
+        limits = list(outer)
+        if piece["role"] in ("leaf", "black"):
+            limits[1] = (-float(hangar["half_w"]), float(hangar["half_w"]))
+            limits[2] = (float(hangar["hinge_z"]) - 5.0,
+                         float(hangar["hinge_z"]) + 600.0)
+        for axis, interval in enumerate(limits):
+            if (bounds["min"][axis] < interval[0] - 0.01 or
+                    bounds["max"][axis] > interval[1] + 0.01):
+                failures.append("%s leaves landed S%d box on axis %d" %
+                                (piece["label"], int(scene["scene"]), axis))
+    if failures:
+        raise PlanError("; ".join(failures))
+    return scene
 
 
 def _transform_row(row, description):
@@ -273,6 +329,8 @@ def plan_doors(probe, overrides=None):
             "camera_to_door_distance_cm": scene.get("camera_to_door_distance_cm"),
             "straight_walk": scene.get("straight_walk"),
             "roof": bool(hangar["roof"]),
+            "hangar_dimensions": {key: hangar[key] for key in required},
+            "landed_root_transform": scene["root"]["transform"],
             "backdrop_crossings": crossing,
             "surface_strategy": "far_wall_material" if not crossing else "UNRESOLVED_BACKDROP_UV",
             "pieces": pieces,
@@ -428,6 +486,43 @@ def _write_record(record, mode="w"):
         json.dump(record, handle, indent=2, sort_keys=True)
 
 
+def select_job_a_plan(plan):
+    """Apply S1/S2/S4/S5/S6, adding S3 only when its backdrop gate is clear."""
+    unresolved = {int(row["scene"]) for row in plan.get("open_questions", [])}
+    unexpected = sorted(unresolved - {3})
+    if unexpected:
+        raise PlanError("unresolved backdrop UV outside S3: %r" % unexpected)
+    selected = {1, 2, 4, 5, 6}
+    if 3 not in unresolved:
+        selected.add(3)
+    result = dict(plan)
+    result["all_scenes_apply_ready"] = bool(plan["apply_ready"])
+    result["scenes"] = [row for row in plan["scenes"] if int(row["scene"]) in selected]
+    result["applied_scenes"] = sorted(selected)
+    result["skipped_scenes"] = sorted(set(range(1, 7)) - selected)
+    result["apply_ready"] = sorted(selected) in ([1, 2, 4, 5, 6], [1, 2, 3, 4, 5, 6])
+    return result
+
+
+def validate_live_plan_bounds(plan, run):
+    index = actor_index()
+    for scene in plan["scenes"]:
+        root = one_actor(index, scene["root_label"], run)
+        current_root = {
+            "world_location_cm": list(root.get_actor_location().to_tuple()),
+            "world_rotation_rpy": [float(root.get_actor_rotation().roll),
+                                   float(root.get_actor_rotation().pitch),
+                                   float(root.get_actor_rotation().yaw)],
+            "world_scale": list(root.get_actor_scale3d().to_tuple()),
+        }
+        try:
+            validate_landed_piece_bounds(scene, current_root)
+        except PlanError as exc:
+            stop(run, "reason=LANDED_BOUNDS_REFUSED|scene=%d|detail=%s" %
+                 (scene["scene"], str(exc)))
+    return plan
+
+
 def apply_plan(plan, run):
     if not plan["apply_ready"]:
         stop(run, "reason=UNRESOLVED_BACKDROP_UV|questions=" +
@@ -445,6 +540,18 @@ def apply_plan(plan, run):
     for scene in plan["scenes"]:
         root = one_actor(index, scene["root_label"], run)
         wall = one_actor(index, scene["source_wall_label"], run)
+        current_root = {
+            "world_location_cm": list(root.get_actor_location().to_tuple()),
+            "world_rotation_rpy": [float(root.get_actor_rotation().roll),
+                                   float(root.get_actor_rotation().pitch),
+                                   float(root.get_actor_rotation().yaw)],
+            "world_scale": list(root.get_actor_scale3d().to_tuple()),
+        }
+        try:
+            validate_landed_piece_bounds(scene, current_root)
+        except PlanError as exc:
+            stop(run, "reason=LANDED_BOUNDS_REFUSED|scene=%d|detail=%s" %
+                 (scene["scene"], str(exc)))
         root_before[str(scene["scene"])] = _plain_pose(root)
         wall_before = _plain_actor(wall)
         if (wall_before["mesh"] != scene["wall_mesh"] or
@@ -505,8 +612,12 @@ def apply_plan(plan, run):
     record["post_save_census"] = final
     record["landed_preview_roots_unchanged"] = True
     _write_record(record)
-    unreal.log("HANGAR_EXIT_DOORS_APPLY_OK|run=%s|scenes=6|state=closed|backup=%s|census=%s|tests_required_singly=%s" %
-               (run, backup, json.dumps(final, separators=(",", ":")), ",".join(REQUIRED_TESTS)))
+    applied = ",".join(str(value) for value in plan.get(
+        "applied_scenes", [int(row["scene"]) for row in plan["scenes"]]))
+    skipped = ",".join(str(value) for value in plan.get("skipped_scenes", [])) or "none"
+    unreal.log("HANGAR_EXIT_DOORS_APPLY_OK|run=%s|scenes=%s|skipped=%s|state=closed|backup=%s|census=%s|tests_required_singly=%s" %
+               (run, applied, skipped, backup, json.dumps(final, separators=(",", ":")),
+                ",".join(REQUIRED_TESTS)))
 
 
 def _restore_actor(actor, row, index, run):
@@ -550,15 +661,16 @@ def revert_plan(run):
         index = actor_index()
     final = _save_level_only(run)
     index = actor_index()
-    for n in range(1, 7):
+    for n in sorted(originals):
         one_actor(index, "S%d Hangar Far Wall" % n, run)
         for suffix in ("Above Exit", "Left of Exit", "Right of Exit"):
             if "S%d Hangar Far Wall %s" % (n, suffix) in index:
                 stop(run, "reason=REVERT_LABEL_REMAINS|scene=%d" % n)
     archived = RECORD_PATH + ".reverted-" + run
     os.rename(RECORD_PATH, archived)
-    unreal.log("HANGAR_EXIT_DOORS_REVERT_OK|run=%s|scenes=6|backup=%s|record=%s|census=%s|tests_required_singly=%s" %
-               (run, backup, os.path.basename(archived),
+    reverted = ",".join(str(value) for value in sorted(originals))
+    unreal.log("HANGAR_EXIT_DOORS_REVERT_OK|run=%s|scenes=%s|backup=%s|record=%s|census=%s|tests_required_singly=%s" %
+               (run, reverted, backup, os.path.basename(archived),
                 json.dumps(final, separators=(",", ":")), ",".join(REQUIRED_TESTS)))
 
 
@@ -576,6 +688,9 @@ def main():
         probe = _load_json(PROBE_PATH)
         overrides = _load_json(OVERRIDES_PATH, required=False)
         plan = plan_doors(probe, overrides)
+        if bool(globals().get("HANGAR_EXIT_DOORS_JOB_A")):
+            plan = select_job_a_plan(plan)
+        validate_live_plan_bounds(plan, run)
     except PlanError as exc:
         stop(run, "reason=PLAN_REFUSED|detail=" + str(exc))
     if not apply:

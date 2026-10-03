@@ -4,7 +4,7 @@ import json
 import os
 import sys
 
-from s3_beach_place import PlanError, validate_plan
+from s3_beach_place import DOCK_ORIGIN, PlanError, validate_plan, validate_world_bounds
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -30,6 +30,19 @@ def main():
     failures = 0
     rows, cameras = fixture()
     validate_plan(rows, cameras)
+    world_rows = []
+    for row in rows:
+        bounds = row["estimated_aabb"]
+        world_rows.append({
+            "label": row["label"],
+            "world_aabb": {
+                "min": [bounds["min"][0] + DOCK_ORIGIN[0],
+                        bounds["min"][1] + DOCK_ORIGIN[1], bounds["min"][2]],
+                "max": [bounds["max"][0] + DOCK_ORIGIN[0],
+                        bounds["max"][1] + DOCK_ORIGIN[1], bounds["max"][2]],
+            },
+        })
+    validate_world_bounds(world_rows)
     if min(row["nearest_camera_clearance_cm"] for row in rows) >= 150.0:
         print("PASS positive: draft clears cameras, gap, wave bands, box, and labels")
     else:
@@ -60,8 +73,19 @@ def main():
     failures += expect_failure("no live shot cameras",
                                lambda: validate_plan(no_camera_rows, []))
 
+    failures += expect_failure(
+        "2 Oct rest-pose composition",
+        lambda: validate_world_bounds([{
+            "label": "S3 Beach Mound Rear",
+            "world_aabb": {
+                "min": [11491.47275, 159760.00002, -3620.00025],
+                "max": [11536.47275, 160240.00002, -3260.00025],
+            },
+        }]),
+    )
+
     if failures == 0:
-        print("S3_BEACH_PLACE_HARNESS_OK|positive=1|negative=5")
+        print("S3_BEACH_PLACE_HARNESS_OK|positive=1|negative=6|rest_pose_refused=1")
     return failures
 
 

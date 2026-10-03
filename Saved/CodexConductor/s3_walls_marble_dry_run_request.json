@@ -1,0 +1,1 @@
+{"name":"call_tool","arguments":{"toolset_name":"MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset","tool_name":"ExecuteProjectPythonFile","arguments":{"relativeSavedPath":"CodexConductor/s3_walls_marble_dry_run.py"}}}

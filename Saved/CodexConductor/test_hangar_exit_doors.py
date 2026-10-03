@@ -4,10 +4,12 @@ import math
 import sys
 
 from hangar_exit_doors import (
+    BLACK_PATH,
     DOOR_HEIGHT_CM,
     DOOR_WIDTH_CM,
     PlanError,
     plan_doors,
+    validate_landed_piece_bounds,
 )
 
 
@@ -115,6 +117,8 @@ def expect_failure(name, callback, text):
 def main():
     failures = 0
     plan = plan_doors(fixture_probe())
+    for row in plan["scenes"]:
+        validate_landed_piece_bounds(row, row["landed_root_transform"])
     leaves = [next(piece for piece in row["pieces"] if piece["role"] == "leaf")
               for row in plan["scenes"]]
     positive = (
@@ -124,7 +128,8 @@ def main():
         all(abs(piece["size_cm"][2] - (DOOR_HEIGHT_CM - 1.0)) < 1.0e-9 for piece in leaves) and
         next(row for row in plan["scenes"] if row["scene"] == 5)["pieces"][0]["size_cm"][1] == 20100.0 and
         not next(row for row in plan["scenes"] if row["scene"] == 6)["roof"] and
-        next(row for row in plan["scenes"] if row["scene"] == 3)["straight_walk"]["clear"] is False
+        next(row for row in plan["scenes"] if row["scene"] == 3)["straight_walk"]["clear"] is False and
+        BLACK_PATH != "/Engine/EngineMaterials/BlackUnlitMaterial.BlackUnlitMaterial"
     )
     if positive:
         print("PASS positive: six closed 3m x 4.5m doorway plans; S5 scale and roofless S6 retained")
@@ -182,8 +187,18 @@ def main():
         "far-wall size disagrees with the builder",
     )
 
+    rest_plan = plan_doors(fixture_probe())
+    rest_scene = rest_plan["scenes"][0]
+    rest_root = copy.deepcopy(rest_scene["landed_root_transform"])
+    rest_root["world_rotation_rpy"] = [0.0, -90.0, 0.0]
+    failures += expect_failure(
+        "2 Oct rest-pose composition",
+        lambda: validate_landed_piece_bounds(rest_scene, rest_root),
+        "leaves landed",
+    )
+
     if failures == 0:
-        print("HANGAR_EXIT_DOORS_HARNESS_OK|positive=2|negative=6|scenes=6|state=closed")
+        print("HANGAR_EXIT_DOORS_HARNESS_OK|positive=2|negative=7|scenes=6|state=closed|rest_pose_refused=1")
     return failures
 
 

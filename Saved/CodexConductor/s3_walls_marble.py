@@ -18,6 +18,12 @@ except ModuleNotFoundError:  # Offline harness.
 
 
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+ROOT_LABEL = "S3 Hangar Root"
+DOCK_ORIGIN = (10921.973, 160000.0, 0.0)
+DOCK_YAW = 0.0
+BOX_X = (500.0, 6500.0)
+BOX_Y = (-1000.0, 1000.0)
+BOX_Z = (-5.0, 600.0)
 SOURCE_LABEL = "Clam_Pedastal"
 TARGETS = (
     {"wall_label": "S3 Hangar Left Wall", "liner_label": "S3 Marble Inner Wall Left", "interior_sign": 1.0},
@@ -29,6 +35,8 @@ EXPECTED_STEEL = "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_01/Materials/M_Meta
 DISK_PLINTH_MI = "/Game/Fab/Megascans/3D/Roman_Marble_Plinth_tg0pfjxda/Raw/tg0pfjxda_tier_0/Materials/MI_tg0pfjxda"
 WALL_THICKNESS_CM = 50.0
 LINER_THICKNESS_CM = 1.0
+LINER_HEIGHT_CM = BOX_Z[1] - BOX_Z[0]
+LINER_CENTER_Z_CM = (BOX_Z[0] + BOX_Z[1]) * 0.5
 TAG = "RigAtmos.S3MarbleLiner"
 FOLDER = "RigAtmos/S3Marble"
 
@@ -149,6 +157,51 @@ def point_distance(left, right):
     return math.sqrt((left.x - right.x) ** 2 + (left.y - right.y) ** 2 + (left.z - right.z) ** 2)
 
 
+def rotation_error(left, right):
+    delta = unreal.MathLibrary.normalized_delta_rotator(left, right)
+    return max(abs(float(delta.pitch)), abs(float(delta.yaw)), abs(float(delta.roll)))
+
+
+def world_box():
+    return {
+        "min": [DOCK_ORIGIN[0] + BOX_X[0], DOCK_ORIGIN[1] + BOX_Y[0], BOX_Z[0]],
+        "max": [DOCK_ORIGIN[0] + BOX_X[1], DOCK_ORIGIN[1] + BOX_Y[1], BOX_Z[1]],
+    }
+
+
+def validate_world_bounds(rows, bounds_key="world_aabb"):
+    limits = world_box()
+    failures = []
+    for row in rows:
+        bounds = row.get(bounds_key)
+        if not bounds:
+            failures.append("%s has no %s" % (row["liner_label"], bounds_key))
+            continue
+        for axis in range(3):
+            if (float(bounds["min"][axis]) < float(limits["min"][axis]) - 0.001 or
+                    float(bounds["max"][axis]) > float(limits["max"][axis]) + 0.001):
+                failures.append("%s %s leaves landed S3 world box on axis %d" %
+                                (row["liner_label"], bounds_key, axis))
+    if failures:
+        raise PlanError("; ".join(failures))
+    return rows
+
+
+def unreal_box_points(minimum, maximum):
+    return [unreal.Vector(x, y, z) for x in (minimum.x, maximum.x)
+            for y in (minimum.y, maximum.y) for z in (minimum.z, maximum.z)]
+
+
+def transformed_mesh_bounds(mesh, transform):
+    box = mesh.get_bounding_box()
+    points = [vector(unreal.MathLibrary.transform_location(transform, point))
+              for point in unreal_box_points(box.min, box.max)]
+    return {
+        "min": [min(point[axis] for point in points) for axis in range(3)],
+        "max": [max(point[axis] for point in points) for axis in range(3)],
+    }
+
+
 def right_axis(transform):
     origin = transform.translation
     point = unreal.MathLibrary.transform_location(transform, unreal.Vector(0.0, 1.0, 0.0))
@@ -198,6 +251,12 @@ def assert_context(apply, revert):
 def live_plan():
     actors = list(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors())
     index = actor_index(actors)
+    root = one_actor(index, ROOT_LABEL)
+    root_current = root.get_actor_transform()
+    dock = unreal.Transform(location=unreal.Vector(*DOCK_ORIGIN),
+                            rotation=unreal.Rotator(roll=0.0, pitch=0.0, yaw=DOCK_YAW))
+    if rotation_error(root_current.rotation.rotator(), dock.rotation.rotator()) > 0.01:
+        raise PlanError("S3 Hangar Root current world rotation is not landed")
     pedestal = one_actor(index, SOURCE_LABEL)
     source_materials = sorted(set(material_paths(pedestal)))
     if len(source_materials) != 1:
@@ -215,25 +274,33 @@ def live_plan():
         wall = one_actor(index, spec["wall_label"])
         before = wall_snapshot(wall)
         wall_materials[spec["wall_label"]] = before["materials"]
-        transform = wall.get_actor_transform()
-        axis = right_axis(transform)
+        wall_world = wall.get_actor_transform()
+        axis = right_axis(wall_world)
         offset = spec["interior_sign"] * (WALL_THICKNESS_CM + LINER_THICKNESS_CM) * 0.5
-        location = unreal.Vector(transform.translation.x + axis.x * offset,
-                                 transform.translation.y + axis.y * offset,
-                                 transform.translation.z + axis.z * offset)
-        scale = unreal.Vector(transform.scale3d.x, LINER_THICKNESS_CM / 100.0, transform.scale3d.z)
-        liner_transform = unreal.Transform(location=location, rotation=transform.rotation.rotator(), scale=scale)
+        world_location = unreal.Vector(wall_world.translation.x + axis.x * offset,
+                                       wall_world.translation.y + axis.y * offset,
+                                       LINER_CENTER_Z_CM)
+        scale = unreal.Vector(wall_world.scale3d.x, LINER_THICKNESS_CM / 100.0,
+                              LINER_HEIGHT_CM / 100.0)
+        desired_world = unreal.Transform(location=world_location,
+                                         rotation=wall_world.rotation.rotator(), scale=scale)
+        liner_relative = unreal.MathLibrary.make_relative_transform(desired_world, root_current)
+        liner_transform = unreal.MathLibrary.compose_transforms(liner_relative, root_current)
         row = {
             "wall_label": spec["wall_label"], "liner_label": spec["liner_label"],
             "interior_sign": spec["interior_sign"], "strategy": "inner_face_liner",
             "liner_thickness_cm": LINER_THICKNESS_CM, "mutates_wall_slots": False,
-            "wall_before": before, "liner_world_transform": transform_plain(liner_transform),
+            "wall_before": before,
+            "liner_root_transform": transform_plain(liner_relative),
+            "liner_world_transform": transform_plain(liner_transform),
+            "world_aabb": transformed_mesh_bounds(cube, liner_transform),
             "source_material": source_material,
         }
         rows.append(row)
         runtime.append({"row": row, "wall": wall, "transform": liner_transform})
     existing = {spec["liner_label"]: len(index.get(spec["liner_label"], [])) for spec in TARGETS}
     validate_strategy(rows, source_material, wall_materials, existing)
+    validate_world_bounds(rows)
     return {
         "source_actor": SOURCE_LABEL,
         "source_material": source_material,
@@ -242,6 +309,8 @@ def live_plan():
         "rows": rows,
         "far_wall_touched": False,
         "wall_slots_mutated": False,
+        "root_current_world_transform": transform_plain(root_current),
+        "landed_world_box": world_box(),
     }, runtime, material, cube
 
 
@@ -315,8 +384,14 @@ def apply_plan(run, report, runtime, material, cube):
             raise PlanError("MATERIAL_READBACK_MISMATCH|label=" + row["liner_label"])
         if material_paths(wall) != row["wall_before"]["materials"]:
             raise PlanError("WALL_SLOT_CHANGED|label=" + row["wall_label"])
+        origin, extent = actor.get_actor_bounds(False, True)
+        actual_bounds = {"min": [origin.x - extent.x, origin.y - extent.y, origin.z - extent.z],
+                         "max": [origin.x + extent.x, origin.y + extent.y, origin.z + extent.z]}
+        validate_world_bounds([{"liner_label": row["liner_label"], "world_aabb": actual_bounds}])
         record["spawned"].append({"label": row["liner_label"], "object_path": actor.get_path_name(),
-                                  "wall_label": row["wall_label"], "material": report["source_material"]})
+                                  "wall_label": row["wall_label"], "material": report["source_material"],
+                                  "world_location_cm": vector(actor.get_actor_location()),
+                                  "world_aabb": actual_bounds})
         write_record(record)
     if len(record["spawned"]) != 2:
         raise PlanError("SPAWN_COUNT_MISMATCH")

@@ -27,6 +27,7 @@ DOCK_ORIGIN = (10921.973, 160000.0, 0.0)
 DOCK_YAW = 0.0
 BOX_X = (500.0, 6500.0)
 BOX_Y = (-1000.0, 1000.0)
+BOX_Z = (-5.0, 600.0)
 CAMERA_CLEARANCE_CM = 150.0
 WAVE_BANDS_X = ((4100.0, 4300.0), (4900.0, 5100.0), (5700.0, 5900.0))
 CAMERA_GAP = {"x": (500.0, 3550.0), "y": (-180.0, 180.0)}
@@ -67,6 +68,50 @@ def overlaps_interval(bounds, axis, interval):
     return float(bounds["max"][axis]) >= float(interval[0]) and float(bounds["min"][axis]) <= float(interval[1])
 
 
+def validate_box_bounds(rows, bounds_key, label="landed S3 interior"):
+    """Require every AABB to be wholly inside the declared landed box."""
+    failures = []
+    limits = (BOX_X, BOX_Y, BOX_Z)
+    for row in rows:
+        bounds = row.get(bounds_key)
+        if not bounds:
+            failures.append("%s has no %s" % (row["label"], bounds_key))
+            continue
+        for axis, interval in enumerate(limits):
+            if (float(bounds["min"][axis]) < float(interval[0]) - 0.001 or
+                    float(bounds["max"][axis]) > float(interval[1]) + 0.001):
+                failures.append("%s %s leaves %s on axis %d" %
+                                (row["label"], bounds_key, label, axis))
+    if failures:
+        raise PlanError("; ".join(failures))
+    return rows
+
+
+def world_box():
+    return {
+        "min": [DOCK_ORIGIN[0] + BOX_X[0], DOCK_ORIGIN[1] + BOX_Y[0], BOX_Z[0]],
+        "max": [DOCK_ORIGIN[0] + BOX_X[1], DOCK_ORIGIN[1] + BOX_Y[1], BOX_Z[1]],
+    }
+
+
+def validate_world_bounds(rows, bounds_key="world_aabb"):
+    limits = world_box()
+    failures = []
+    for row in rows:
+        bounds = row.get(bounds_key)
+        if not bounds:
+            failures.append("%s has no %s" % (row["label"], bounds_key))
+            continue
+        for axis in range(3):
+            if (float(bounds["min"][axis]) < float(limits["min"][axis]) - 0.001 or
+                    float(bounds["max"][axis]) > float(limits["max"][axis]) + 0.001):
+                failures.append("%s %s leaves landed S3 world box on axis %d" %
+                                (row["label"], bounds_key, axis))
+    if failures:
+        raise PlanError("; ".join(failures))
+    return rows
+
+
 def validate_plan(rows, cameras, existing_labels=None, bounds_key="estimated_aabb"):
     existing_labels = existing_labels or {}
     failures = []
@@ -83,9 +128,6 @@ def validate_plan(rows, cameras, existing_labels=None, bounds_key="estimated_aab
         if not bounds:
             failures.append("%s has no %s" % (row["label"], bounds_key))
             continue
-        if (bounds["min"][0] < BOX_X[0] or bounds["max"][0] > BOX_X[1] or
-                bounds["min"][1] < BOX_Y[0] or bounds["max"][1] > BOX_Y[1]):
-            failures.append("%s leaves landed box" % row["label"])
         for band in WAVE_BANDS_X:
             if overlaps_interval(bounds, 0, band):
                 failures.append("%s enters wave band %.0f..%.0f" % (row["label"], band[0], band[1]))
@@ -101,6 +143,7 @@ def validate_plan(rows, cameras, existing_labels=None, bounds_key="estimated_aab
         row["nearest_camera_clearance_cm"] = None if nearest is None else round(nearest, 3)
     if failures:
         raise PlanError("; ".join(failures))
+    validate_box_bounds(rows, bounds_key)
     return rows
 
 
@@ -276,20 +319,14 @@ def live_plan():
     actors = list(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors())
     index = actor_index(actors)
     root = one_actor(index, ROOT_LABEL)
-    rise = unreal.load_asset(RISE_PATH)
     sequence = unreal.load_asset(ROOT_SEQUENCE)
-    if not isinstance(rise, unreal.LevelSequence) or not isinstance(sequence, unreal.LevelSequence):
-        raise PlanError("S3 rise or root sequence missing")
-    bindings = [binding for binding in rise.get_bindings()
-                if str(binding.get_display_name()) == ROOT_LABEL and
-                binding.find_tracks_by_type(unreal.MovieScene3DTransformTrack)]
-    if len(bindings) != 1:
-        raise PlanError("expected one S3 Hangar Root transform binding")
-    root_rest, root_landed = sequence_rest_landed(bindings[0], root)
-    if distance(root.get_actor_transform().translation, root_rest.translation) > 1.0:
-        raise PlanError("S3 Hangar Root is not at rest pose")
+    if not isinstance(sequence, unreal.LevelSequence):
+        raise PlanError("S3 root sequence missing")
     dock = unreal.Transform(location=unreal.Vector(*DOCK_ORIGIN),
                             rotation=unreal.Rotator(roll=0.0, pitch=0.0, yaw=DOCK_YAW))
+    root_current = root.get_actor_transform()
+    if rotation_error(root_current.rotation.rotator(), dock.rotation.rotator()) > 0.01:
+        raise PlanError("S3 Hangar Root current world rotation is not landed")
     cameras = shot_cameras_dock(sequence, dock)
     rows = load_plan_rows()
     runtime = []
@@ -304,19 +341,24 @@ def live_plan():
             raise PlanError("material missing: " + row["material_path"])
         dock_transform = transform_from_plain(row["transform"])
         row["aabb"] = transformed_mesh_bounds(mesh, dock_transform)
-        wanted_world_landed = unreal.MathLibrary.compose_transforms(dock_transform, dock)
-        relative = unreal.MathLibrary.make_relative_transform(wanted_world_landed, root_landed)
-        wanted_world_rest = unreal.MathLibrary.compose_transforms(relative, root_rest)
+        wanted_world_dock = unreal.MathLibrary.compose_transforms(dock_transform, dock)
+        relative_current = unreal.MathLibrary.make_relative_transform(wanted_world_dock, root_current)
+        wanted_world_current = unreal.MathLibrary.compose_transforms(relative_current, root_current)
+        row["world_transform"] = transform_plain(wanted_world_current)
+        row["world_aabb"] = transformed_mesh_bounds(mesh, wanted_world_current)
         report_rows.append(row)
         runtime.append({"row": row, "mesh": mesh, "material": material,
-                        "relative": relative, "rest_world": wanted_world_rest})
+                        "relative_current": relative_current, "world": wanted_world_current})
     existing = {row["label"]: len(index.get(row["label"], [])) for row in report_rows}
     validate_plan(report_rows, cameras, existing, bounds_key="aabb")
+    validate_world_bounds(report_rows)
     return {
         "cameras": cameras,
         "rows": report_rows,
         "source_plan": os.path.basename(plan_path()),
         "exact_bounds_from_unreal": True,
+        "root_current_world_transform": transform_plain(root_current),
+        "landed_world_box": world_box(),
     }, runtime, root
 
 
@@ -367,7 +409,7 @@ def apply_plan(run, report, runtime, root):
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     for item in runtime:
         row = item["row"]
-        transform = item["rest_world"]
+        transform = item["world"]
         actor = subsystem.spawn_actor_from_class(unreal.StaticMeshActor, transform.translation,
                                                  transform.rotation.rotator())
         if actor is None:
@@ -394,8 +436,14 @@ def apply_plan(run, report, runtime, root):
         actual_mesh = component.get_editor_property("static_mesh")
         if actual_mesh is None or str(actual_mesh.get_path_name()).split(".", 1)[0] != row["mesh_path"]:
             raise PlanError("MESH_READBACK_MISMATCH|label=" + row["label"])
+        origin, extent = actor.get_actor_bounds(False, True)
+        actual_bounds = {"min": [origin.x - extent.x, origin.y - extent.y, origin.z - extent.z],
+                         "max": [origin.x + extent.x, origin.y + extent.y, origin.z + extent.z]}
+        validate_world_bounds([{"label": row["label"], "world_aabb": actual_bounds}])
         record["spawned"].append({"label": row["label"], "object_path": actor.get_path_name(),
-                                  "mesh_path": row["mesh_path"], "kind": row["kind"]})
+                                  "mesh_path": row["mesh_path"], "kind": row["kind"],
+                                  "world_location_cm": vector(actor.get_actor_location()),
+                                  "world_aabb": actual_bounds})
         write_record(record)
     if len(record["spawned"]) != len(runtime):
         raise PlanError("SPAWN_COUNT_MISMATCH")
