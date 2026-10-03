@@ -1,6 +1,17 @@
 # Infinity Stage — session handover
 
-**Current as of 30 September 2026, 17:15.** Supersedes the 25 September version.
+**Body last substantively revised 1 October 2026, 12:05** (`be53e82`, the Codex-first
+operating model: streams parked, one fresh Claude conductor launching Codex).
+Supersedes the 25 September version. **Sections written on 30 September still carry
+30 September state** and were not all re-dated.
+
+> **FOR LIVE STATE, READ
+> [`Docs/Conductor/CONDUCTOR_START_PROMPT.md`](Conductor/CONDUCTOR_START_PROMPT.md)
+> INSTEAD** — it is maintained and was current at 3 October 03:53. **Roughly 300
+> commits landed between 30 September evening and 3 October morning** (Flat V3, the
+> bee swarm, exit doors, candle FX, S3 beach and marble, isotropic skins), so any
+> operational detail below that is not dated 1 October or later should be verified
+> before it is relied on.
 Written by the conductor across an overnight run and a full day with three streams
 (Rig & atmosphere, Soft goods, Look & camera) plus Wing materiality.
 
