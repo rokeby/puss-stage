@@ -5,12 +5,12 @@ through the HANGAR_EXIT_DOORS_APPLY / HANGAR_EXIT_DOORS_REVERT globals used by
 the small runner files beside this module.  Importing this module in ordinary
 Python never contacts Unreal.
 
-PASS 1 deliberately stops APPLY when a proposed opening intersects a separate
-backdrop.  A reviewed Y offset can be supplied in
-hangar_exit_doors_overrides.json; the offset must move the entire opening clear
-of that backdrop.  Exact UV cropping is not guessed.
+Backdrop intersections stop APPLY unless they match the measured Scene 3 Opal
+Beach contract.  That one case uses a generated, immutable crop plus a child MI
+and the backdrop plane mesh, so the closed leaf reproduces the art it covers.
 """
 import datetime
+import hashlib
 import json
 import math
 import os
@@ -28,6 +28,16 @@ OVERRIDES_NAME = "hangar_exit_doors_overrides.json"
 RECORD_NAME = "hangar_exit_doors_record.json"
 CUBE_PATH = "/Engine/BasicShapes/Cube.Cube"
 BLACK_PATH = "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_01/Materials/M_Metal_Black_01_Mat"
+S3_BACKDROP_MESH = "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_Backdrop"
+S3_EXIT_MESH = "/Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_S3_OpalBeach_ExitDoor"
+S3_BACKDROP_MI = "/Game/Scenes/Wings/FlatV3/Scene3/Materials/MI_S3_OpalBeach_Backdrop"
+S3_EXIT_MI = "/Game/Scenes/Wings/FlatV3/Scene3/Materials/MI_S3_OpalBeach_ExitDoor"
+S3_EXIT_TEXTURE_ROOT = "/Game/Scenes/Wings/FlatV3/Scene3/Textures"
+S3_EXIT_TEXTURE_NAMES = {
+    "SkinColor": "T_S3_OpalBeach_ExitDoor_SkinColor",
+    "SkinMask": "T_S3_OpalBeach_ExitDoor_SkinMask",
+    "SkinNormal": "T_S3_OpalBeach_ExitDoor_SkinNormal",
+}
 STATIC_MESH_LOCAL_BOUNDS_CM = {
     CUBE_PATH: {"min": [-50.0, -50.0, -50.0], "max": [50.0, 50.0, 50.0]},
 }
@@ -51,6 +61,10 @@ else:
 PROBE_PATH = os.path.join(HERE, PROBE_NAME)
 OVERRIDES_PATH = os.path.join(HERE, OVERRIDES_NAME)
 RECORD_PATH = os.path.join(HERE, RECORD_NAME)
+PROJECT_DIR = os.path.dirname(os.path.dirname(HERE))
+S3_CROP_DIR = os.path.join(PROJECT_DIR, "DerivedAssets", "FlatV3", "Scene3",
+                           "backdrop", "exit_door_crop")
+S3_CROP_MANIFEST_PATH = os.path.join(S3_CROP_DIR, "s3_exit_door_crop_manifest.json")
 
 
 class PlanError(ValueError):
@@ -116,6 +130,131 @@ def _inverse_transform_point(transform_row, point, description):
     return [local[axis] / scale[axis] for axis in range(3)]
 
 
+def _canonical_asset_path(path):
+    value = str(path or "")
+    return value.split(".", 1)[0]
+
+
+def _sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _load_s3_crop_manifest():
+    if not os.path.isfile(S3_CROP_MANIFEST_PATH):
+        raise PlanError("S3 crop manifest is absent: " + S3_CROP_MANIFEST_PATH)
+    with open(S3_CROP_MANIFEST_PATH, encoding="utf-8") as handle:
+        manifest = json.load(handle)
+    if int(manifest.get("schema_version", 0)) != 1:
+        raise PlanError("S3 crop manifest schema_version is not 1")
+    backdrop = manifest.get("backdrop", {})
+    material = manifest.get("output_material", {})
+    output_mesh = manifest.get("output_mesh", {})
+    if (_canonical_asset_path(backdrop.get("mesh")) != S3_BACKDROP_MESH or
+            _canonical_asset_path(backdrop.get("material")) != S3_BACKDROP_MI or
+            _canonical_asset_path(output_mesh.get("asset")) != S3_EXIT_MESH or
+            _canonical_asset_path(material.get("asset")) != S3_EXIT_MI or
+            _canonical_asset_path(material.get("parent")) != S3_BACKDROP_MI):
+        raise PlanError("S3 crop manifest asset contract changed")
+    for kind in sorted(S3_EXIT_TEXTURE_NAMES):
+        row = manifest.get("textures", {}).get(kind, {})
+        output = os.path.join(S3_CROP_DIR, os.path.basename(str(row.get("output", ""))))
+        if not os.path.isfile(output):
+            raise PlanError("S3 crop texture is absent: " + output)
+        if _sha256(output) != row.get("output_sha256"):
+            raise PlanError("S3 crop texture hash mismatch: " + output)
+        row["resolved_output"] = output
+    mesh_source = os.path.join(S3_CROP_DIR, os.path.basename(str(output_mesh.get("source", ""))))
+    if not os.path.isfile(mesh_source) or _sha256(mesh_source) != output_mesh.get("source_sha256"):
+        raise PlanError("S3 crop leaf mesh source/hash mismatch: " + mesh_source)
+    build_report = os.path.join(
+        S3_CROP_DIR, os.path.basename(str(output_mesh.get("build_report", ""))))
+    if (not os.path.isfile(build_report) or
+            _sha256(build_report) != output_mesh.get("build_report_sha256")):
+        raise PlanError("S3 crop leaf mesh build report/hash mismatch: " + build_report)
+    output_mesh["resolved_source"] = mesh_source
+    return manifest
+
+
+def _s3_leaf_uv_rect(root_transform, backdrop_transform, leaf_location_root_cm,
+                     leaf_size_yz_cm):
+    """Map the visible leaf footprint through the placed backdrop transform."""
+    half_y = float(leaf_size_yz_cm[0]) * 0.5
+    half_z = float(leaf_size_yz_cm[1]) * 0.5
+    samples = []
+    for y in (float(leaf_location_root_cm[1]) - half_y,
+              float(leaf_location_root_cm[1]) + half_y):
+        for z in (float(leaf_location_root_cm[2]) - half_z,
+                  float(leaf_location_root_cm[2]) + half_z):
+            world = _transform_point(root_transform,
+                                     [float(leaf_location_root_cm[0]), y, z],
+                                     "S3 hangar root")
+            local = _inverse_transform_point(backdrop_transform, world,
+                                             "S3 backdrop")
+            u = (local[1] + 1000.0) / 2000.0
+            v = 1.0 - local[2] / 3000.0
+            samples.append((u, v))
+    return [min(row[0] for row in samples), min(row[1] for row in samples),
+            max(row[0] for row in samples), max(row[1] for row in samples)]
+
+
+def _resolve_s3_surface(scene, leaf_location_root_cm, leaf_size_yz_cm):
+    backdrops = scene.get("backdrops", [])
+    if len(backdrops) != 1 or str(backdrops[0].get("label")) != "S3 Backdrop":
+        raise PlanError("S3 crop requires exactly the S3 Backdrop actor")
+    backdrop = backdrops[0]
+    components = [row for row in backdrop.get("components", []) if row.get("static_mesh")]
+    if len(components) != 1:
+        raise PlanError("S3 Backdrop does not have exactly one mesh component")
+    slots = components[0].get("materials", [])
+    slot0 = [row.get("material") for row in slots if int(row.get("slot", -1)) == 0]
+    if (_canonical_asset_path(components[0].get("static_mesh")) != S3_BACKDROP_MESH or
+            len(slot0) != 1 or _canonical_asset_path(slot0[0]) != S3_BACKDROP_MI):
+        raise PlanError("S3 Backdrop mesh/material no longer matches the crop source")
+    manifest = _load_s3_crop_manifest()
+    calculated = _s3_leaf_uv_rect(
+        scene["root"]["transform"], backdrop["transform"],
+        leaf_location_root_cm, leaf_size_yz_cm)
+    expected = [float(value) for value in
+                manifest["leaf"]["uv_rect_left_top_right_bottom"]]
+    worst = max(abs(calculated[index] - expected[index]) for index in range(4))
+    if worst > 1.0e-9:
+        raise PlanError(
+            "S3 leaf/crop registration mismatch: calculated=%r expected=%r worst_uv=%g" %
+            (calculated, expected, worst))
+    backdrop_origin_world = [float(value) for value in
+                             backdrop["transform"]["world_location_cm"]]
+    backdrop_origin_root = _inverse_transform_point(
+        scene["root"]["transform"], backdrop_origin_world, "S3 backdrop in root")
+    return {
+        "strategy": "cropped_texture_child_mi",
+        "source_backdrop": "S3 Backdrop",
+        "source_mesh": S3_BACKDROP_MESH,
+        "source_material": S3_BACKDROP_MI,
+        "leaf_mesh": S3_EXIT_MESH,
+        "leaf_material": S3_EXIT_MI,
+        "leaf_plane_x_root_cm": float(backdrop_origin_root[0]) - 0.05,
+        "uv_rect_left_top_right_bottom": calculated,
+        "uv_scale": [calculated[2] - calculated[0], calculated[3] - calculated[1]],
+        "uv_offset": calculated[:2],
+        "manifest": os.path.relpath(S3_CROP_MANIFEST_PATH, PROJECT_DIR).replace("\\", "/"),
+        "texture_sources": {
+            kind: manifest["textures"][kind]["resolved_output"]
+            for kind in sorted(S3_EXIT_TEXTURE_NAMES)
+        },
+        "texture_assets": {
+            kind: S3_EXIT_TEXTURE_ROOT + "/" + S3_EXIT_TEXTURE_NAMES[kind]
+            for kind in sorted(S3_EXIT_TEXTURE_NAMES)
+        },
+        "mesh_source": manifest["output_mesh"]["resolved_source"],
+        "mesh_asset": S3_EXIT_MESH,
+        "import_verify_run": str(manifest["backdrop"]["import_verify_run"]),
+    }
+
+
 def piece_bounds_in_landed_root(piece, current_root, landed_root):
     half = [float(value) * 0.5 for value in piece["size_cm"]]
     center = [float(value) for value in piece["location_cm"]]
@@ -133,10 +272,14 @@ def validate_landed_piece_bounds(scene, current_root):
     """Require every planned door piece to remain in its live landed hangar."""
     hangar = scene["hangar_dimensions"]
     landed_root = scene["landed_root_transform"]
+    wall_bounds = scene.get("wall_bounds_root_cm") or {}
+    wall_z0 = float((wall_bounds.get("min") or [0.0, 0.0, 0.0])[2])
+    wall_z1 = float((wall_bounds.get("max") or [0.0, 0.0, hangar["height"]])[2])
+    door_floor_z = float(scene.get("door_floor_root_z_cm", -float(hangar["hinge_z"])))
     outer = ((500.0, float(hangar["depth"]) + 500.0),
              (-float(hangar["half_w"]) - float(hangar["wall_t"]),
               float(hangar["half_w"]) + float(hangar["wall_t"])),
-             (float(hangar["hinge_z"]) - 5.0, float(hangar["height"])))
+             (wall_z0 - 5.0, wall_z1))
     failures = []
     for piece in scene["pieces"]:
         bounds = piece_bounds_in_landed_root(piece, current_root, landed_root)
@@ -144,8 +287,7 @@ def validate_landed_piece_bounds(scene, current_root):
         limits = list(outer)
         if piece["role"] in ("leaf", "black"):
             limits[1] = (-float(hangar["half_w"]), float(hangar["half_w"]))
-            limits[2] = (float(hangar["hinge_z"]) - 5.0,
-                         float(hangar["hinge_z"]) + 600.0)
+            limits[2] = (door_floor_z - 5.0, door_floor_z + 600.0)
         for axis, interval in enumerate(limits):
             if (bounds["min"][axis] < interval[0] - 0.01 or
                     bounds["max"][axis] > interval[1] + 0.01):
@@ -229,7 +371,7 @@ def _override_offsets(overrides):
     return result
 
 
-def plan_doors(probe, overrides=None):
+def plan_doors(probe, overrides=None, include_scenes=None):
     """Build the deterministic, Unreal-free doorway plan."""
     if int(probe.get("schema_version", 0)) != 1:
         raise PlanError("probe schema_version is not 1")
@@ -240,11 +382,17 @@ def plan_doors(probe, overrides=None):
     scenes = list(probe.get("scenes", []))
     if sorted(int(row.get("scene", -1)) for row in scenes) != list(range(1, 7)):
         raise PlanError("probe must contain exactly scenes 1..6")
+    requested = (set(range(1, 7)) if include_scenes is None
+                 else {int(value) for value in include_scenes})
+    if not requested or any(value not in range(1, 7) for value in requested):
+        raise PlanError("include_scenes must be a non-empty subset of 1..6")
     offsets = _override_offsets(overrides)
     plans = []
     questions = []
     for scene in sorted(scenes, key=lambda row: int(row["scene"])):
         n = int(scene["scene"])
+        if n not in requested:
+            continue
         if int(scene.get("root_count", 0)) != 1:
             raise PlanError("S%d root count is not 1" % n)
         if scene.get("landed_preview_root_up") is not True:
@@ -260,7 +408,11 @@ def plan_doors(probe, overrides=None):
         half_w = float(hangar["half_w"])
         height = float(hangar["height"])
         wall_t = float(hangar["wall_t"])
-        floor_z = float(hangar["hinge_z"])
+        hinge_z = float(hangar["hinge_z"])
+        # hinge_z places the hangar root in the landed dock frame.  Door
+        # heights are root-relative, so the stage-floor plane is -hinge_z.
+        # S3 is the non-zero proof case: hinge_z=-120 and floor local Z=120.
+        floor_z = -hinge_z
         if min(depth, half_w, height, wall_t) <= 0.0 or height <= DOOR_HEIGHT_CM:
             raise PlanError("S%d hangar dimensions cannot contain the door" % n)
         wall_bounds = _wall_bounds_in_root(scene, wall, wall_component, wall_mesh)
@@ -285,7 +437,17 @@ def plan_doors(probe, overrides=None):
             if bounds and _bounds_overlap_yz(bounds, opening_y0, opening_y1,
                                              opening_z0, opening_z1):
                 crossing.append(str(backdrop.get("label")))
-        if crossing:
+        resolved_surface = None
+        if n == 3 and crossing == ["S3 Backdrop"]:
+            provisional_leaf = [
+                (float(wall_bounds["min"][0]) + float(wall_bounds["max"][0])) / 2.0,
+                offset,
+                floor_z + DOOR_HEIGHT_CM / 2.0,
+            ]
+            resolved_surface = _resolve_s3_surface(
+                scene, provisional_leaf,
+                [DOOR_WIDTH_CM - SEAM_CM, DOOR_HEIGHT_CM - SEAM_CM])
+        elif crossing:
             questions.append({
                 "scene": n,
                 "reason": "backdrop_uv_match_required",
@@ -296,26 +458,49 @@ def plan_doors(probe, overrides=None):
         x = (float(wall_bounds["min"][0]) + float(wall_bounds["max"][0])) / 2.0
         left_width = opening_y0 - wall_y0
         right_width = wall_y1 - opening_y1
-        header_height = height - DOOR_HEIGHT_CM
+        wall_z0, wall_z1 = float(wall_bounds["min"][2]), float(wall_bounds["max"][2])
+        header_height = wall_z1 - opening_z1
+        side_height = opening_z1 - wall_z0
+        if min(header_height, side_height) <= 0.0:
+            raise PlanError("S%d door does not fit the measured far-wall Z bounds" % n)
+        leaf_x = (resolved_surface["leaf_plane_x_root_cm"]
+                  if resolved_surface is not None else x - 0.05)
+        leaf_mesh = (resolved_surface["leaf_mesh"]
+                     if resolved_surface is not None else CUBE_PATH)
+        leaf_material = (resolved_surface["leaf_material"]
+                         if resolved_surface is not None else wall_material)
         pieces = [
             {"role": "above", "label": "S%d Hangar Far Wall Above Exit" % n,
-             "location_cm": [x, 0.0, floor_z + DOOR_HEIGHT_CM + header_height / 2.0],
+             "location_cm": [x, 0.0, opening_z1 + header_height / 2.0],
              "size_cm": [wall_t, wall_y1 - wall_y0, header_height], "material": wall_material},
             {"role": "left", "label": "S%d Hangar Far Wall Left of Exit" % n,
-             "location_cm": [x, wall_y0 + left_width / 2.0, floor_z + DOOR_HEIGHT_CM / 2.0],
-             "size_cm": [wall_t, left_width, DOOR_HEIGHT_CM], "material": wall_material},
+             "location_cm": [x, wall_y0 + left_width / 2.0, wall_z0 + side_height / 2.0],
+             "size_cm": [wall_t, left_width, side_height], "material": wall_material},
             {"role": "right", "label": "S%d Hangar Far Wall Right of Exit" % n,
-             "location_cm": [x, opening_y1 + right_width / 2.0, floor_z + DOOR_HEIGHT_CM / 2.0],
-             "size_cm": [wall_t, right_width, DOOR_HEIGHT_CM], "material": wall_material},
+             "location_cm": [x, opening_y1 + right_width / 2.0, wall_z0 + side_height / 2.0],
+             "size_cm": [wall_t, right_width, side_height], "material": wall_material},
             {"role": "leaf", "label": "S%d Hangar Exit Door Leaf" % n,
-             "location_cm": [x - 0.05, offset, floor_z + DOOR_HEIGHT_CM / 2.0],
-             "size_cm": [wall_t, DOOR_WIDTH_CM - SEAM_CM, DOOR_HEIGHT_CM - SEAM_CM],
-             "material": wall_material, "state": "closed"},
+             "location_cm": [leaf_x, offset, floor_z + DOOR_HEIGHT_CM / 2.0],
+             "size_cm": ([0.1, DOOR_WIDTH_CM - SEAM_CM, DOOR_HEIGHT_CM - SEAM_CM]
+                         if resolved_surface is not None else
+                         [wall_t, DOOR_WIDTH_CM - SEAM_CM, DOOR_HEIGHT_CM - SEAM_CM]),
+             "material": leaf_material, "mesh": leaf_mesh,
+             "mesh_size_cm": ([0.0, DOOR_WIDTH_CM - SEAM_CM,
+                                DOOR_HEIGHT_CM - SEAM_CM]
+                              if resolved_surface is not None else [100.0, 100.0, 100.0]),
+             "state": "closed"},
             {"role": "black", "label": "S%d Hangar Exit Black" % n,
              "location_cm": [float(wall_bounds["max"][0]) + 2.0, offset,
-                             floor_z + DOOR_HEIGHT_CM / 2.0],
+                              floor_z + DOOR_HEIGHT_CM / 2.0],
              "size_cm": [2.0, DOOR_WIDTH_CM, DOOR_HEIGHT_CM], "material": BLACK_PATH},
         ]
+        if opening_z0 > wall_z0 + 0.01:
+            pieces.insert(3, {
+                "role": "below", "label": "S%d Hangar Far Wall Below Exit" % n,
+                "location_cm": [x, offset, wall_z0 + (opening_z0 - wall_z0) / 2.0],
+                "size_cm": [wall_t, DOOR_WIDTH_CM, opening_z0 - wall_z0],
+                "material": wall_material,
+            })
         plans.append({
             "scene": n,
             "root_label": "S%d Hangar Root" % n,
@@ -325,14 +510,19 @@ def plan_doors(probe, overrides=None):
             "wall_bounds_root_cm": wall_bounds,
             "piece_coordinate_frame": "hangar_root",
             "door_offset_y_cm": offset,
-            "door_center_dock_cm": [depth, offset, floor_z + DOOR_HEIGHT_CM / 2.0],
+            "door_floor_root_z_cm": floor_z,
+            "door_center_dock_cm": [depth, offset,
+                                    hinge_z + floor_z + DOOR_HEIGHT_CM / 2.0],
             "camera_to_door_distance_cm": scene.get("camera_to_door_distance_cm"),
             "straight_walk": scene.get("straight_walk"),
             "roof": bool(hangar["roof"]),
             "hangar_dimensions": {key: hangar[key] for key in required},
             "landed_root_transform": scene["root"]["transform"],
             "backdrop_crossings": crossing,
-            "surface_strategy": "far_wall_material" if not crossing else "UNRESOLVED_BACKDROP_UV",
+            "surface_strategy": (resolved_surface["strategy"] if resolved_surface is not None
+                                 else "far_wall_material" if not crossing
+                                 else "UNRESOLVED_BACKDROP_UV"),
+            "surface": resolved_surface,
             "pieces": pieces,
         })
     return {
@@ -412,12 +602,15 @@ def _same_vector(left, right, tolerance=READBACK_TOLERANCE_CM):
     return max(abs(float(left[index]) - float(right[index])) for index in range(3)) <= tolerance
 
 
-def _set_root_local(actor, root, location, size):
+def _set_root_local(actor, root, location, size, mesh_size=None):
     actor.attach_to_actor(root, unreal.Name("None"), unreal.AttachmentRule.KEEP_WORLD,
                           unreal.AttachmentRule.KEEP_WORLD, unreal.AttachmentRule.KEEP_WORLD, False)
     actor.set_actor_relative_location(unreal.Vector(*location), False, True)
     actor.set_actor_relative_rotation(unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0), False, True)
-    actor.set_actor_relative_scale3d(unreal.Vector(size[0] / 100.0, size[1] / 100.0, size[2] / 100.0))
+    source = mesh_size or [100.0, 100.0, 100.0]
+    scale = [1.0 if abs(float(source[index])) <= 1.0e-9
+             else float(size[index]) / float(source[index]) for index in range(3)]
+    actor.set_actor_relative_scale3d(unreal.Vector(*scale))
 
 
 def _spawn_piece(subsystem, root, piece, cube, material):
@@ -426,10 +619,16 @@ def _spawn_piece(subsystem, root, piece, cube, material):
     actor.set_actor_label(piece["label"])
     component = actor.get_editor_property("static_mesh_component")
     component.set_mobility(unreal.ComponentMobility.MOVABLE)
-    component.set_static_mesh(cube)
+    mesh = cube
+    if _canonical_asset_path(piece.get("mesh")) not in ("", _canonical_asset_path(CUBE_PATH)):
+        mesh = unreal.load_asset(piece["mesh"])
+        if mesh is None:
+            raise PlanError("piece mesh failed to load: " + str(piece["mesh"]))
+    component.set_static_mesh(mesh)
     component.set_material(0, material)
     component.set_cast_shadow(piece["role"] != "black")
-    _set_root_local(actor, root, piece["location_cm"], piece["size_cm"])
+    _set_root_local(actor, root, piece["location_cm"], piece["size_cm"],
+                    piece.get("mesh_size_cm"))
     actor.tags = [unreal.Name("HangarExitDoor"), unreal.Name("HangarExit.%s" % piece["role"])]
     return actor
 
@@ -486,6 +685,146 @@ def _write_record(record, mode="w"):
         json.dump(record, handle, indent=2, sort_keys=True)
 
 
+def _configure_crop_texture(texture, kind):
+    texture.modify()
+    texture.set_editor_property("mip_gen_settings",
+                                unreal.TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP)
+    texture.set_editor_property("address_x", unreal.TextureAddress.TA_CLAMP)
+    texture.set_editor_property("address_y", unreal.TextureAddress.TA_CLAMP)
+    if kind == "SkinColor":
+        texture.set_editor_property("srgb", True)
+        texture.set_editor_property("compression_settings",
+                                    unreal.TextureCompressionSettings.TC_BC7)
+    elif kind == "SkinMask":
+        texture.set_editor_property("srgb", False)
+        texture.set_editor_property("compression_settings",
+                                    unreal.TextureCompressionSettings.TC_MASKS)
+    elif kind == "SkinNormal":
+        texture.set_editor_property("srgb", False)
+        texture.set_editor_property("compression_settings",
+                                    unreal.TextureCompressionSettings.TC_NORMALMAP)
+        texture.set_editor_property("flip_green_channel", False)
+    else:
+        raise PlanError("unknown S3 crop texture kind: " + str(kind))
+
+
+def _s3_leaf_fbx_options():
+    options = unreal.FbxImportUI()
+    options.set_editor_property("import_mesh", True)
+    options.set_editor_property("import_as_skeletal", False)
+    options.set_editor_property("import_materials", False)
+    options.set_editor_property("import_textures", False)
+    options.set_editor_property("mesh_type_to_import", unreal.FBXImportType.FBXIT_STATIC_MESH)
+    data = options.get_editor_property("static_mesh_import_data")
+    data.set_editor_property("import_translation", unreal.Vector(0.0, 0.0, 0.0))
+    data.set_editor_property("import_rotation", unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0))
+    data.set_editor_property("import_uniform_scale", 1.0)
+    data.set_editor_property("combine_meshes", False)
+    data.set_editor_property("generate_lightmap_u_vs", False)
+    data.set_editor_property("auto_generate_collision", False)
+    data.set_editor_property("convert_scene", True)
+    data.set_editor_property("force_front_x_axis", False)
+    data.set_editor_property("bake_pivot_in_vertex", False)
+    data.set_editor_property("normal_import_method",
+                             unreal.FBXNormalImportMethod.FBXNIM_IMPORT_NORMALS_AND_TANGENTS)
+    return options
+
+
+def _ensure_s3_surface_assets(plan, run):
+    surfaces = [row.get("surface") for row in plan["scenes"]
+                if int(row["scene"]) == 3 and row.get("surface")]
+    if not surfaces:
+        return []
+    if len(surfaces) != 1:
+        stop(run, "reason=S3_SURFACE_COUNT|count=%d" % len(surfaces))
+    surface = surfaces[0]
+    paths = (list(surface["texture_assets"].values()) +
+             [surface["mesh_asset"], surface["leaf_material"]])
+    exists = [bool(unreal.EditorAssetLibrary.does_asset_exist(path)) for path in paths]
+    if any(exists) and not all(exists):
+        stop(run, "reason=S3_SURFACE_PARTIAL_ASSETS|paths=" + json.dumps(paths))
+    created = []
+    textures = {}
+    if not any(exists):
+        mesh_task = unreal.AssetImportTask()
+        mesh_task.set_editor_property("filename", surface["mesh_source"])
+        mesh_task.set_editor_property("destination_path", surface["mesh_asset"].rsplit("/", 1)[0])
+        mesh_task.set_editor_property("destination_name", surface["mesh_asset"].rsplit("/", 1)[1])
+        mesh_task.set_editor_property("automated", True)
+        mesh_task.set_editor_property("replace_existing", False)
+        mesh_task.set_editor_property("save", False)
+        mesh_task.set_editor_property("options", _s3_leaf_fbx_options())
+        tasks = [mesh_task]
+        for kind in sorted(S3_EXIT_TEXTURE_NAMES):
+            source = surface["texture_sources"][kind]
+            task = unreal.AssetImportTask()
+            task.set_editor_property("filename", source)
+            task.set_editor_property("destination_path", S3_EXIT_TEXTURE_ROOT)
+            task.set_editor_property("destination_name", S3_EXIT_TEXTURE_NAMES[kind])
+            task.set_editor_property("automated", True)
+            task.set_editor_property("replace_existing", False)
+            task.set_editor_property("save", False)
+            tasks.append(task)
+        unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
+        mesh = unreal.EditorAssetLibrary.load_asset(surface["mesh_asset"])
+        if not isinstance(mesh, unreal.StaticMesh):
+            stop(run, "reason=S3_LEAF_MESH_IMPORT_FAILED")
+        created.append(surface["mesh_asset"])
+        for kind, path in surface["texture_assets"].items():
+            texture = unreal.EditorAssetLibrary.load_asset(path)
+            if not isinstance(texture, unreal.Texture2D):
+                stop(run, "reason=S3_TEXTURE_IMPORT_FAILED|kind=%s|path=%s" % (kind, path))
+            _configure_crop_texture(texture, kind)
+            textures[kind] = texture
+            created.append(path)
+        parent = unreal.EditorAssetLibrary.load_asset(surface["source_material"])
+        if not isinstance(parent, unreal.MaterialInstanceConstant):
+            stop(run, "reason=S3_PARENT_MI_MISSING")
+        folder, name = surface["leaf_material"].rsplit("/", 1)
+        instance = unreal.AssetToolsHelpers.get_asset_tools().create_asset(
+            name, folder, unreal.MaterialInstanceConstant,
+            unreal.MaterialInstanceConstantFactoryNew())
+        if not isinstance(instance, unreal.MaterialInstanceConstant):
+            stop(run, "reason=S3_CHILD_MI_CREATE_FAILED")
+        instance.modify()
+        unreal.MaterialEditingLibrary.set_material_instance_parent(instance, parent)
+        for kind, texture in textures.items():
+            unreal.MaterialEditingLibrary.set_material_instance_texture_parameter_value(
+                instance, kind, texture)
+        unreal.MaterialEditingLibrary.update_material_instance(instance)
+        created.append(surface["leaf_material"])
+        for path in created:
+            if not unreal.EditorAssetLibrary.save_asset(path, only_if_is_dirty=False):
+                stop(run, "reason=S3_SURFACE_SAVE_FAILED|path=" + path)
+    instance = unreal.EditorAssetLibrary.load_asset(surface["leaf_material"])
+    if not isinstance(instance, unreal.MaterialInstanceConstant):
+        stop(run, "reason=S3_CHILD_MI_READBACK_FAILED")
+    parent = instance.get_editor_property("parent")
+    if _canonical_asset_path(parent.get_path_name() if parent else None) != S3_BACKDROP_MI:
+        stop(run, "reason=S3_CHILD_MI_PARENT_MISMATCH")
+    mesh = unreal.EditorAssetLibrary.load_asset(surface["mesh_asset"])
+    if not isinstance(mesh, unreal.StaticMesh):
+        stop(run, "reason=S3_LEAF_MESH_READBACK_FAILED")
+    box = mesh.get_bounding_box()
+    dimensions = [float(box.max.x - box.min.x), float(box.max.y - box.min.y),
+                  float(box.max.z - box.min.z)]
+    slots = [str(row.get_editor_property("material_slot_name"))
+             for row in mesh.get_editor_property("static_materials")]
+    if (dimensions[0] > 0.1 or abs(dimensions[1] - 299.0) > 0.1 or
+            abs(dimensions[2] - 449.0) > 0.1 or slots != ["Front"]):
+        stop(run, "reason=S3_LEAF_MESH_CONTRACT|dimensions=%s|slots=%s" %
+             (dimensions, slots))
+    for kind, path in surface["texture_assets"].items():
+        texture = unreal.MaterialEditingLibrary.get_material_instance_texture_parameter_value(
+            instance, kind)
+        if _canonical_asset_path(texture.get_path_name() if texture else None) != path:
+            stop(run, "reason=S3_CHILD_MI_TEXTURE_MISMATCH|kind=" + kind)
+    if package_census() != {"content": [], "maps": []}:
+        stop(run, "reason=S3_SURFACE_ASSETS_DIRTY_AFTER_SAVE|census=" +
+             json.dumps(package_census(), sort_keys=True))
+    return created
+
+
 def select_job_a_plan(plan):
     """Apply S1/S2/S4/S5/S6, adding S3 only when its backdrop gate is clear."""
     unresolved = {int(row["scene"]) for row in plan.get("open_questions", [])}
@@ -501,6 +840,22 @@ def select_job_a_plan(plan):
     result["applied_scenes"] = sorted(selected)
     result["skipped_scenes"] = sorted(set(range(1, 7)) - selected)
     result["apply_ready"] = sorted(selected) in ([1, 2, 4, 5, 6], [1, 2, 3, 4, 5, 6])
+    return result
+
+
+def select_s3_completion_plan(plan):
+    """Select only the crop-resolved S3 work for extending the applied Job A record."""
+    questions = [row for row in plan.get("open_questions", [])
+                 if int(row.get("scene", -1)) == 3]
+    rows = [row for row in plan["scenes"] if int(row["scene"]) == 3]
+    if questions or len(rows) != 1 or rows[0].get("surface_strategy") != "cropped_texture_child_mi":
+        raise PlanError("S3 completion selected before the backdrop crop resolved")
+    result = dict(plan)
+    result["scenes"] = rows
+    result["applied_scenes"] = [3]
+    result["skipped_scenes"] = [1, 2, 4, 5, 6]
+    result["apply_ready"] = True
+    result["extension_mode"] = "s3_after_job_a"
     return result
 
 
@@ -527,8 +882,20 @@ def apply_plan(plan, run):
     if not plan["apply_ready"]:
         stop(run, "reason=UNRESOLVED_BACKDROP_UV|questions=" +
              json.dumps(plan["open_questions"], separators=(",", ":"), sort_keys=True))
+    extension = plan.get("extension_mode") == "s3_after_job_a"
+    prior_record = None
     if os.path.exists(RECORD_PATH):
-        stop(run, "reason=APPLY_RECORD_ALREADY_EXISTS")
+        if not extension:
+            stop(run, "reason=APPLY_RECORD_ALREADY_EXISTS")
+        prior_record = _load_json(RECORD_PATH)
+        prior_scenes = sorted(int(value) for value in
+                              prior_record.get("plan", {}).get("applied_scenes", []))
+        if (prior_record.get("applied") is not True or prior_scenes != [1, 2, 4, 5, 6] or
+                sorted(int(value) for value in
+                       prior_record.get("plan", {}).get("skipped_scenes", [])) != [3]):
+            stop(run, "reason=S3_EXTENSION_RECORD_CONTEXT")
+    elif extension:
+        stop(run, "reason=S3_EXTENSION_RECORD_MISSING")
     cube = unreal.load_asset(CUBE_PATH)
     black = unreal.load_asset(BLACK_PATH)
     if cube is None or black is None:
@@ -563,12 +930,35 @@ def apply_plan(plan, run):
     if conflicts:
         stop(run, "reason=TARGET_LABELS_ALREADY_EXIST|labels=" + json.dumps(conflicts))
 
-    backup = _backup(run, "PreHangarExitDoors")
-    record = {"schema_version": 1, "run": run, "world": EXPECTED_WORLD,
-              "backup": backup, "probe_run": plan["probe_run"], "plan": plan,
-              "root_before": root_before, "originals": originals, "created": [],
-              "applied": False, "required_tests": list(REQUIRED_TESTS)}
-    _write_record(record, "x")
+    backup = _backup(run, "PreHangarExitDoorsS3" if extension else "PreHangarExitDoors")
+    if extension:
+        shutil.copy2(RECORD_PATH, os.path.join(backup, os.path.basename(RECORD_PATH)))
+        record = prior_record
+        record["applied"] = False
+        record.setdefault("extensions", []).append({
+            "mode": "s3_after_job_a", "run": run, "backup": backup,
+            "probe_run": plan["probe_run"],
+        })
+        record["root_before"].update(root_before)
+        record["originals"].extend(originals)
+        record["plan"]["scenes"].extend(plan["scenes"])
+        record["plan"]["applied_scenes"] = [1, 2, 3, 4, 5, 6]
+        record["plan"]["skipped_scenes"] = []
+        record["plan"]["open_questions"] = [
+            row for row in record["plan"].get("open_questions", [])
+            if int(row.get("scene", -1)) != 3]
+        record["plan"]["apply_ready"] = True
+        record["plan"]["all_scenes_apply_ready"] = True
+        _write_record(record)
+    else:
+        record = {"schema_version": 1, "run": run, "world": EXPECTED_WORLD,
+                  "backup": backup, "probe_run": plan["probe_run"], "plan": plan,
+                  "root_before": root_before, "originals": originals, "created": [],
+                  "applied": False, "required_tests": list(REQUIRED_TESTS)}
+        _write_record(record, "x")
+    record.setdefault("surface_assets_created", []).extend(
+        _ensure_s3_surface_assets(plan, run))
+    _write_record(record)
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     for scene in plan["scenes"]:
         index = actor_index()
@@ -588,7 +978,10 @@ def apply_plan(plan, run):
         for piece in scene["pieces"]:
             if piece["role"] == "above":
                 continue
-            material = black if piece["role"] == "black" else source_material
+            material = (black if piece["role"] == "black"
+                        else unreal.load_asset(piece["material"]))
+            if material is None:
+                stop(run, "reason=PIECE_MATERIAL_LOAD_FAILED|label=" + piece["label"])
             _spawn_piece(subsystem, root, piece, cube, material)
             record["created"].append({"scene": scene["scene"], "label": piece["label"],
                                       "reused_original": False})
@@ -608,7 +1001,15 @@ def apply_plan(plan, run):
             location = list(actor.root_component.get_editor_property("relative_location").to_tuple())
             if not _same_vector(location, piece["location_cm"]):
                 stop(run, "reason=PIECE_READBACK|label=" + piece["label"])
+            if piece.get("mesh") or piece["role"] == "leaf":
+                actual = _plain_actor(actor)
+                expected_mesh = _canonical_asset_path(piece.get("mesh") or CUBE_PATH)
+                if (_canonical_asset_path(actual["mesh"]) != expected_mesh or
+                        _canonical_asset_path(actual["material"]) !=
+                        _canonical_asset_path(piece["material"])):
+                    stop(run, "reason=PIECE_SURFACE_READBACK|label=" + piece["label"])
     record["applied"] = True
+    record["last_apply_run"] = run
     record["post_save_census"] = final
     record["landed_preview_roots_unchanged"] = True
     _write_record(record)
@@ -663,7 +1064,7 @@ def revert_plan(run):
     index = actor_index()
     for n in sorted(originals):
         one_actor(index, "S%d Hangar Far Wall" % n, run)
-        for suffix in ("Above Exit", "Left of Exit", "Right of Exit"):
+        for suffix in ("Above Exit", "Below Exit", "Left of Exit", "Right of Exit"):
             if "S%d Hangar Far Wall %s" % (n, suffix) in index:
                 stop(run, "reason=REVERT_LABEL_REMAINS|scene=%d" % n)
     archived = RECORD_PATH + ".reverted-" + run
@@ -687,9 +1088,15 @@ def main():
     try:
         probe = _load_json(PROBE_PATH)
         overrides = _load_json(OVERRIDES_PATH, required=False)
-        plan = plan_doors(probe, overrides)
-        if bool(globals().get("HANGAR_EXIT_DOORS_JOB_A")):
+        job_a = bool(globals().get("HANGAR_EXIT_DOORS_JOB_A"))
+        job_s3 = bool(globals().get("HANGAR_EXIT_DOORS_S3_ONLY"))
+        if job_a and job_s3:
+            raise PlanError("JOB_A and S3_ONLY are mutually exclusive")
+        plan = plan_doors(probe, overrides, include_scenes={3} if job_s3 else None)
+        if job_a:
             plan = select_job_a_plan(plan)
+        elif job_s3:
+            plan = select_s3_completion_plan(plan)
         validate_live_plan_bounds(plan, run)
     except PlanError as exc:
         stop(run, "reason=PLAN_REFUSED|detail=" + str(exc))

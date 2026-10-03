@@ -8,7 +8,11 @@ from hangar_exit_doors import (
     DOOR_HEIGHT_CM,
     DOOR_WIDTH_CM,
     PlanError,
+    S3_BACKDROP_MESH,
+    S3_EXIT_MI,
+    S3_EXIT_MESH,
     plan_doors,
+    select_s3_completion_plan,
     validate_landed_piece_bounds,
 )
 
@@ -21,22 +25,37 @@ def fixture_probe(with_s3_backdrop=False):
         height = 5000.0 if n == 5 else 3000.0
         wall_t = 50.0
         root_yaw = -43.57 if n == 2 else 0.0
-        root_location = [10000.0 * n, 20000.0 * n, 0.0]
+        hinge_z = -120.0 if n == 3 else 0.0
+        root_location = [10000.0 * n, 20000.0 * n, hinge_z]
         radians = math.radians(root_yaw)
         wall_root_location = [depth + wall_t / 2.0, 0.0, height / 2.0]
         wall_world_location = [
             root_location[0] + math.cos(radians) * wall_root_location[0],
             root_location[1] + math.sin(radians) * wall_root_location[0],
-            wall_root_location[2],
+            root_location[2] + wall_root_location[2],
         ]
         backdrops = []
         if n == 3 and with_s3_backdrop:
             backdrops = [{
                 "label": "S3 Backdrop",
                 "bounds_dock_cm": {
-                    "min": [depth - 5.0, -900.0, 0.0],
-                    "max": [depth + 5.0, 900.0, 1200.0],
+                    "min": [depth - 3.01, -1000.0, -5.0],
+                    "max": [depth - 2.99, 1000.0, 2995.0],
                 },
+                "transform": {
+                    "world_location_cm": [root_location[0] + depth - 3.0,
+                                           root_location[1], -5.0],
+                    "world_rotation_rpy": [0.0, 0.0, root_yaw],
+                    "world_scale": [1.0, 1.0, 1.0],
+                },
+                "components": [{
+                    "static_mesh": S3_BACKDROP_MESH + ".SM_FlatV3_S3_Backdrop",
+                    "materials": [{
+                        "slot": 0,
+                        "material": ("/Game/Scenes/Wings/FlatV3/Scene3/Materials/"
+                                     "MI_S3_OpalBeach_Backdrop.MI_S3_OpalBeach_Backdrop"),
+                    }],
+                }],
             }]
         scenes.append({
             "scene": n,
@@ -74,7 +93,7 @@ def fixture_probe(with_s3_backdrop=False):
             ]},
             "hangar": {
                 "depth": depth, "half_w": half_w, "height": height,
-                "wall_t": wall_t, "roof": n != 6, "hinge_z": 0.0,
+                "wall_t": wall_t, "roof": n != 6, "hinge_z": hinge_z,
             },
             "root": {
                 "transform": {
@@ -148,14 +167,37 @@ def main():
         print("FAIL positive rotated hangar: %r" % rotated)
         failures += 1
 
-    blocked = plan_doors(fixture_probe(with_s3_backdrop=True))
-    if (not blocked["apply_ready"] and blocked["open_questions"] == [{
-            "scene": 3, "reason": "backdrop_uv_match_required",
-            "backdrops": ["S3 Backdrop"], "draft_offset_y_cm": 0.0}]):
-        print("PASS negative backdrop gate: S3 UV/offset remains an explicit open question")
+    cropped = plan_doors(fixture_probe(with_s3_backdrop=True))
+    s3 = next(row for row in cropped["scenes"] if row["scene"] == 3)
+    s3_leaf = next(piece for piece in s3["pieces"] if piece["role"] == "leaf")
+    expected_uv = [0.42525, 0.8485, 0.57475, 0.9981666666666666]
+    if (cropped["apply_ready"] and not cropped["open_questions"] and
+            s3["surface_strategy"] == "cropped_texture_child_mi" and
+            max(abs(s3["surface"]["uv_rect_left_top_right_bottom"][index] - expected_uv[index])
+                for index in range(4)) < 1.0e-12 and
+            s3_leaf["mesh"] == S3_EXIT_MESH and s3_leaf["material"] == S3_EXIT_MI and
+            abs(s3_leaf["location_cm"][2] - 345.0) < 1.0e-9 and
+            s3["door_center_dock_cm"] == [6000.0, 0.0, 225.0] and
+            any(piece["role"] == "below" and abs(piece["size_cm"][2] - 120.0) < 1.0e-9
+                for piece in s3["pieces"])):
+        print("PASS positive S3 crop: UV rect, -X plane leaf, +120 cm local floor and below-wall fill agree")
     else:
-        print("FAIL negative backdrop gate: %r" % blocked["open_questions"])
+        print("FAIL positive S3 crop: %r" % s3)
         failures += 1
+
+    s3_only = select_s3_completion_plan(cropped)
+    if [row["scene"] for row in s3_only["scenes"]] != [3]:
+        print("FAIL positive S3 completion selection: %r" % s3_only)
+        failures += 1
+
+    failures += expect_failure(
+        "S3 leaf shifted 1 cm",
+        lambda: plan_doors(
+            fixture_probe(with_s3_backdrop=True),
+            {"scenes": {"3": {"door_offset_y_cm": 1.0}}},
+        ),
+        "registration mismatch",
+    )
 
     missing = fixture_probe()
     missing["scenes"].pop()
@@ -198,7 +240,7 @@ def main():
     )
 
     if failures == 0:
-        print("HANGAR_EXIT_DOORS_HARNESS_OK|positive=2|negative=7|scenes=6|state=closed|rest_pose_refused=1")
+        print("HANGAR_EXIT_DOORS_HARNESS_OK|positive=3|negative=7|s3_crop=PASS|offset_1cm=DETECTED|scenes=6|state=closed|rest_pose_refused=1")
     return failures
 
 

@@ -68,6 +68,49 @@ LIGHT_ATTENUATION_CM = 700.0
 LIGHT_VOLUMETRIC_SCATTERING = 1.0
 FLICKER_AMOUNT = 0.12
 
+# Keep these lists exhaustive.  The scratch restore guard must compare every
+# serialized field, but Unreal struct ``str()`` values are not data: they carry
+# the identity of the transient Python wrapper.  A get/set round-trip therefore
+# produced different ``lighting`` and ``effect`` strings even though the failed
+# run's post-restore autosave payload matched its pre-apply backup byte-for-byte.
+LIGHT_FIELDS = (
+    "type", "intensity_units", "intensity", "color", "use_temperature",
+    "temperature_kelvin", "attenuation_radius_cm", "indirect_lighting_intensity",
+    "volumetric_scattering_intensity", "diffuse_scale", "specular_scale",
+    "affect_translucent_lighting", "transmission", "cast_shadows",
+    "cast_volumetric_shadow", "affect_reflection", "affect_global_illumination",
+    "shadow_bias", "shadow_slope_bias", "force_cached_shadows_for_movable_primitives",
+    "use_ray_traced_distance_field_shadows", "lighting_channel0", "lighting_channel1",
+    "lighting_channel2", "max_draw_distance_cm", "max_distance_fade_range_cm",
+    "use_inverse_squared_falloff", "light_falloff_exponent", "inverse_exposure_blend",
+    "source_radius_cm", "soft_source_radius_cm", "source_length_cm",
+    "inner_cone_angle_degrees", "outer_cone_angle_degrees", "rect_source_width_cm",
+    "rect_source_height_cm", "rect_barn_door_angle_degrees", "rect_barn_door_length_cm",
+    "rect_source_texture", "ies_texture", "use_ies_brightness", "ies_brightness_scale",
+    "light_function_material", "light_function_scale", "light_function_fade_distance_cm",
+    "light_function_disabled_brightness",
+)
+LIGHT_OBJECT_FIELDS = {
+    "rect_source_texture", "ies_texture", "light_function_material",
+}
+DRAMA_FIELDS = (
+    "strike_on_approach", "strike_distance_cm", "strike_ramp_cm", "ignition_stutter",
+    "unstruck_intensity_scale", "after_pass", "after_pass_distance_cm",
+    "decay_distance_cm", "slow_move", "pan_amplitude_degrees", "tilt_amplitude_degrees",
+    "period_seconds", "phase_from_identity", "phase_cycles",
+)
+EFFECT_FIELDS = (
+    "type", "output", "tint", "active_radius_cm", "pulse_period_seconds", "pulse_duty",
+    "feeds_local_medium", "medium_offset_cm", "medium_radius_cm", "medium_density",
+    "medium_height_falloff", "linked_light_attachment_guid", "flicker_amount",
+    "burn_start_ahead_cm", "burn_span_cm", "ignition_uv", "burn_u_axis", "burn_v_axis",
+    "burn_uv_measured_mesh", "motes_extent_cm", "replicated_from_attachment_guid",
+)
+EFFECT_GUID_FIELDS = {
+    "linked_light_attachment_guid", "replicated_from_attachment_guid",
+}
+EFFECT_OBJECT_FIELDS = {"burn_uv_measured_mesh"}
+
 
 def cue_kind_token(value):
     text = str(value).upper()
@@ -196,23 +239,138 @@ def _is_light(attachment):
         unreal.InfinityAttachmentKind, "LIGHT")
 
 
-def _attachment_fingerprint(attachment):
-    """Stable, full top-level attachment state for exact touched-pair diffs."""
-    return json.dumps({
+def _plain_struct_value(value):
+    """JSON-safe exact value for the scalar/vector/color fields used here."""
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if all(hasattr(value, name) for name in ("x", "y", "z", "w")):
+        return [float(value.x), float(value.y), float(value.z), float(value.w)]
+    if all(hasattr(value, name) for name in ("x", "y", "z")):
+        return [float(value.x), float(value.y), float(value.z)]
+    if all(hasattr(value, name) for name in ("x", "y")):
+        return [float(value.x), float(value.y)]
+    if all(hasattr(value, name) for name in ("r", "g", "b", "a")):
+        return [float(value.r), float(value.g), float(value.b), float(value.a)]
+    return str(value)
+
+
+def _object_path(value):
+    """Full object/class path; do not collapse distinct exports in one package."""
+    if value is None:
+        return None
+    get_path_name = getattr(value, "get_path_name", None)
+    if callable(get_path_name):
+        return str(get_path_name())
+    to_string = getattr(value, "to_string", None)
+    if callable(to_string):
+        return str(to_string())
+    return str(value)
+
+
+def _transform_state(transform):
+    """Exact transform semantics; q and -q are the same rotation."""
+    location = transform.translation
+    scale = transform.scale3d
+    rotation = transform.rotation
+    quaternion = [float(rotation.x), float(rotation.y),
+                  float(rotation.z), float(rotation.w)]
+    for component in quaternion:
+        if component == 0.0:
+            continue
+        if component < 0.0:
+            quaternion = [-value for value in quaternion]
+        break
+    return {
+        "location": [float(location.x), float(location.y), float(location.z)],
+        "rotation_xyzw": quaternion,
+        "scale": [float(scale.x), float(scale.y), float(scale.z)],
+    }
+
+
+def _struct_state(value, fields, guid_fields=(), object_fields=()):
+    out = {}
+    for name in fields:
+        field = value.get_editor_property(name)
+        if name in guid_fields:
+            out[name] = C.guid_text(field)
+        elif name in object_fields:
+            out[name] = _object_path(field)
+        else:
+            out[name] = _plain_struct_value(field)
+    return out
+
+
+def _lighting_state(lighting):
+    state = _struct_state(lighting, LIGHT_FIELDS, object_fields=LIGHT_OBJECT_FIELDS)
+    state["drama"] = _struct_state(
+        lighting.get_editor_property("drama"), DRAMA_FIELDS)
+    return state
+
+
+def _effect_state(effect):
+    return _struct_state(
+        effect, EFFECT_FIELDS,
+        guid_fields=EFFECT_GUID_FIELDS,
+        object_fields=EFFECT_OBJECT_FIELDS)
+
+
+def _attachment_state(attachment):
+    """Stable, exhaustive serialized attachment state for restore checks."""
+    return {
         "guid": C.guid_text(attachment.get_editor_property("attachment_guid")),
         "label": str(attachment.get_editor_property("label")),
         "kind": str(attachment.get_editor_property("kind")),
         "enabled": bool(attachment.get_editor_property("enabled")),
-        "actor_class": str(attachment.get_editor_property("actor_class")),
-        "mesh": str(attachment.get_editor_property("mesh")),
+        "actor_class": _object_path(attachment.get_editor_property("actor_class")),
+        "mesh": _object_path(attachment.get_editor_property("mesh")),
         "anchor": str(attachment.get_editor_property("anchor")),
-        "relative_transform": C.transform_plain(
+        "relative_transform": _transform_state(
             attachment.get_editor_property("relative_transform")),
-        "lighting": str(attachment.get_editor_property("lighting")),
-        "effect": str(attachment.get_editor_property("effect")),
+        "lighting": _lighting_state(attachment.get_editor_property("lighting")),
+        "effect": _effect_state(attachment.get_editor_property("effect")),
         "trigger_distance_cm": float(
             attachment.get_editor_property("trigger_distance_cm")),
-    }, sort_keys=True, separators=(",", ":"))
+    }
+
+
+def _attachment_fingerprint(attachment):
+    return json.dumps(_attachment_state(attachment), sort_keys=True, separators=(",", ":"))
+
+
+def _state_differences(before, after, path=""):
+    """Return exact property paths that differ; useful in fail-closed reports."""
+    if isinstance(before, dict) and isinstance(after, dict):
+        differences = []
+        for key in sorted(set(before) | set(after)):
+            child = "%s.%s" % (path, key) if path else str(key)
+            if key not in before or key not in after:
+                differences.append({"path": child, "before": before.get(key),
+                                    "after": after.get(key)})
+            else:
+                differences.extend(_state_differences(before[key], after[key], child))
+        return differences
+    if isinstance(before, list) and isinstance(after, list):
+        differences = []
+        for index in range(max(len(before), len(after))):
+            child = "%s[%d]" % (path, index)
+            if index >= len(before) or index >= len(after):
+                differences.append({"path": child,
+                                    "before": before[index] if index < len(before) else None,
+                                    "after": after[index] if index < len(after) else None})
+            else:
+                differences.extend(_state_differences(before[index], after[index], child))
+        return differences
+    return [] if before == after else [{"path": path, "before": before, "after": after}]
+
+
+class ScratchRestoreError(C.FxToolError):
+    def __init__(self, differences, before, after):
+        super().__init__("GUID_SCRATCH_NOT_RESTORED_EXACTLY")
+        self.failure_diff = {
+            "paths": differences,
+            "before": before,
+            "after": after,
+        }
 
 
 def _pair_fingerprint(show, cue_index):
@@ -332,7 +490,7 @@ def _append_light(show, cue_index, relative_transform, candle_class):
     scratch_cue = cues[scratch_index]
     unused_pair, scratch_original = _attachments(scratch_cue)
     del unused_pair
-    scratch_before = [_attachment_fingerprint(item) for item in scratch_original]
+    scratch_before = [_attachment_state(item) for item in scratch_original]
     scratch_light_count = sum(1 for item in scratch_original if _is_light(item))
     padding = max(0, target_light_count + 2 - scratch_light_count)
 
@@ -367,12 +525,15 @@ def _append_light(show, cue_index, relative_transform, candle_class):
         target_after_attachments = target_original + [light, fire]
         _set_pair_attachments(show, cue_index, target_after_attachments)
 
-        scratch_after = _pair_fingerprint(show, scratch_index)
+        scratch_after = [_attachment_state(item) for item in
+                         _attachments(list(show.get_editor_property("cues"))[scratch_index])[1]]
         target_after = _pair_fingerprint(show, cue_index)
         expected_target_after = target_before + [
             _attachment_fingerprint(light), _attachment_fingerprint(fire)]
-        C.require(scratch_after == scratch_before,
-                  "GUID_SCRATCH_NOT_RESTORED_EXACTLY")
+        scratch_differences = _state_differences(scratch_before, scratch_after)
+        if scratch_differences:
+            raise ScratchRestoreError(
+                scratch_differences, scratch_before, scratch_after)
         C.require(target_after == expected_target_after,
                   "GUID_TARGET_DIFF_NOT_EXACT")
         light_guid = light.get_editor_property("attachment_guid")
@@ -520,6 +681,9 @@ def main(mode=None):
 
     def fail(error):
         report["error"] = str(error)
+        failure_diff = getattr(error, "failure_diff", None)
+        if failure_diff is not None:
+            report["failure_diff"] = failure_diff
         report["census_at_stop"] = C.dirty_census(unreal)
         C.write_json(report_path, report)
         unreal.log_error("FX_CANDLE_S6_STOPPED|run=%s|mode=%s|%s" %
