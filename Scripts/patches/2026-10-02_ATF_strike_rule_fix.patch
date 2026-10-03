@@ -1,0 +1,532 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+index 2b0257c..7a326cd 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageArrival.cpp
+@@ -172,7 +172,7 @@ struct FHangarLightChannel
+     FString Label;
+     UMovieSceneFloatSection* Section = nullptr;
+     FMovieSceneFloatChannel* Channel = nullptr;
+-    int32 StrikeKeyIndex = INDEX_NONE;
++    int32 PostLandingStrikeKeyIndex = INDEX_NONE;
+ };
+ 
+ struct FHangarTimingDiscovery
+@@ -266,46 +266,53 @@ FMovieSceneDoubleChannel* TransformChannel(
+     return Channels.IsValidIndex(ChannelIndex) ? Channels[ChannelIndex] : nullptr;
+ }
+ 
++bool IsS3StrikeLightLabel(const FString& Label)
++{
++    static const TSet<FString> S3StrikeLabels = {
++        TEXT("S3 Strike Key"),
++        TEXT("S3 Strike Fill L"),
++        TEXT("S3 Strike Fill R"),
++        TEXT("S3 Strike Cyc 1"),
++        TEXT("S3 Strike Cyc 2"),
++        TEXT("S3 Strike Cyc 3")
++    };
++    return S3StrikeLabels.Contains(Label);
++}
++
+ bool IsHangarLightLabel(const FString& Label, const int32 SceneNumber)
+ {
+-    if (SceneNumber == 3)
+-    {
+-        static const TSet<FString> S3StrikeLabels = {
+-            TEXT("S3 Strike Key"),
+-            TEXT("S3 Strike Fill L"),
+-            TEXT("S3 Strike Fill R"),
+-            TEXT("S3 Strike Cyc 1"),
+-            TEXT("S3 Strike Cyc 2"),
+-            TEXT("S3 Strike Cyc 3")
+-        };
+-        return S3StrikeLabels.Contains(Label);
+-    }
+     const FString ScenePrefix = FString::Printf(TEXT("S%d "), SceneNumber);
+     return Label.StartsWith(ScenePrefix + TEXT("Uplight "))
+         || Label.StartsWith(ScenePrefix + TEXT("Practical "))
+-        || Label.StartsWith(ScenePrefix + TEXT("Lattice Glow "));
++        || Label.StartsWith(ScenePrefix + TEXT("Lattice Glow "))
++        || (SceneNumber == 3 && IsS3StrikeLightLabel(Label));
+ }
+ 
+-bool FindStrikeKey(FHangarLightChannel& Light, FString& OutReason)
++bool FindPostLandingStrikeKey(
++    FHangarLightChannel& Light,
++    const FFrameNumber LandFrame,
++    FString& OutReason)
+ {
+     const TMovieSceneChannelData<const FMovieSceneFloatValue> Data = Light.Channel->GetData();
++    const TArrayView<const FFrameNumber> Times = Data.GetTimes();
+     const TArrayView<const FMovieSceneFloatValue> Values = Data.GetValues();
+     TArray<int32> Candidates;
+     for (int32 Index = 0; Index + 1 < Values.Num(); ++Index)
+     {
+         if (FMath::Abs(Values[Index].Value) <= HangarValueTolerance
+-            && Values[Index + 1].Value > HangarValueTolerance)
++            && Values[Index + 1].Value > HangarValueTolerance
++            && Times[Index] >= LandFrame)
+         {
+             Candidates.Add(Index);
+         }
+     }
+-    if (Candidates.Num() != 1)
++    if (Candidates.Num() > 1)
+     {
+-        OutReason = FString::Printf(TEXT("%s has %d zero-to-positive strike ramps"),
++        OutReason = FString::Printf(TEXT("%s has %d post-landing zero-to-positive strike ramps"),
+             *Light.Label, Candidates.Num());
+         return false;
+     }
+-    Light.StrikeKeyIndex = Candidates[0];
++    Light.PostLandingStrikeKeyIndex = Candidates.IsEmpty() ? INDEX_NONE : Candidates[0];
+     return true;
+ }
+ 
+@@ -337,6 +344,13 @@ bool DiscoverHangarTiming(AInfinityStageArrival& Arrival, FHangarTimingDiscovery
+         OutReason = TEXT("root_pitch channel is missing");
+         return false;
+     }
++    const TArrayView<const FFrameNumber> RootTimes = Out.RootPitch->GetData().GetTimes();
++    if (RootTimes.Num() == 0)
++    {
++        OutReason = TEXT("root_pitch channel has no landing key");
++        return false;
++    }
++    const FFrameNumber LandFrame = RootTimes.Last();
+ 
+     FGuid RoofGuid;
+     const FString RoofLabel = FString::Printf(TEXT("S%d Hangar Roof Hinge"), Out.SceneNumber);
+@@ -421,7 +435,7 @@ bool DiscoverHangarTiming(AInfinityStageArrival& Arrival, FHangarTimingDiscovery
+         Light.Label = Label;
+         Light.Section = Channels[0].Key;
+         Light.Channel = Channels[0].Value;
+-        if (Out.SceneNumber != 6 && !FindStrikeKey(Light, OutReason))
++        if (Out.SceneNumber != 6 && !FindPostLandingStrikeKey(Light, LandFrame, OutReason))
+         {
+             return false;
+         }
+@@ -431,12 +445,33 @@ bool DiscoverHangarTiming(AInfinityStageArrival& Arrival, FHangarTimingDiscovery
+         OutReason = TEXT("no uplight, practical or lattice-glow Intensity channels were found");
+         return false;
+     }
+-    if (Out.SceneNumber == 3 && Out.Lights.Num() != 6)
++    if (Out.SceneNumber == 3)
+     {
+-        OutReason = FString::Printf(
+-            TEXT("expected all six named S3 Strike light Intensity channels, found %d"),
+-            Out.Lights.Num());
+-        return false;
++        int32 S3StrikeCount = 0;
++        for (const FHangarLightChannel& Light : Out.Lights)
++        {
++            S3StrikeCount += IsS3StrikeLightLabel(Light.Label) ? 1 : 0;
++        }
++        if (S3StrikeCount != 6)
++        {
++            OutReason = FString::Printf(
++                TEXT("expected all six named S3 Strike light Intensity channels, found %d"),
++                S3StrikeCount);
++            return false;
++        }
++    }
++    if (Out.SceneNumber != 6)
++    {
++        const bool bHasPostLandingStrike = Out.Lights.ContainsByPredicate(
++            [](const FHangarLightChannel& Light)
++            {
++                return Light.PostLandingStrikeKeyIndex != INDEX_NONE;
++            });
++        if (!bHasPostLandingStrike)
++        {
++            OutReason = TEXT("no post-landing zero-to-positive light ramp was found");
++            return false;
++        }
+     }
+     return true;
+ }
+@@ -597,6 +632,15 @@ AInfinityStageArrival::AInfinityStageArrival()
+     SetRootComponent(SceneRoot);
+ }
+ 
++#if WITH_EDITOR
++void AInfinityStageArrival::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
++{
++    Super::PostEditChangeProperty(PropertyChangedEvent);
++    HangarTiming.LightStrikeSeconds =
++        HangarTiming.LandSeconds + HangarTiming.StrikeAfterLandSeconds;
++}
++#endif
++
+ bool AInfinityStageArrival::ReadHangarTiming()
+ {
+ #if WITH_EDITOR
+@@ -635,22 +679,28 @@ bool AInfinityStageArrival::ReadHangarTiming()
+         double EarliestStrike = TNumericLimits<double>::Max();
+         for (const FHangarLightChannel& Light : Discovery.Lights)
+         {
++            if (Light.PostLandingStrikeKeyIndex == INDEX_NONE)
++            {
++                continue;
++            }
+             const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+             EarliestStrike = FMath::Min(
+                 EarliestStrike,
+-                FrameSeconds(*Discovery.MovieScene, Times[Light.StrikeKeyIndex]));
++                FrameSeconds(*Discovery.MovieScene, Times[Light.PostLandingStrikeKeyIndex]));
+         }
+         HangarTiming.LightStrikeSeconds = EarliestStrike;
++        HangarTiming.StrikeAfterLandSeconds = EarliestStrike - HangarTiming.LandSeconds;
+     }
+ 
+     UE_LOG(LogInfinityStageArrival, Display,
+-        TEXT("INFINITY_HANGAR_TIMING_READ|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|mode=%s|strike=%.4f|dim=%.4f|lights=%d"),
++        TEXT("INFINITY_HANGAR_TIMING_READ|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|mode=%s|strike_after_land=%.4f|strike=%.4f|dim=%.4f|lights=%d"),
+         *GetActorNameOrLabel(),
+         HangarTiming.RoofCloseStartSeconds,
+         HangarTiming.RoofCloseEndSeconds,
+         HangarTiming.LatticeStartSeconds,
+         HangarTiming.LatticeEndSeconds,
+         HangarTiming.bDimInsteadOfStrike ? TEXT("dim") : TEXT("strike"),
++        HangarTiming.StrikeAfterLandSeconds,
+         HangarTiming.LightStrikeSeconds,
+         HangarTiming.DimSeconds,
+         Discovery.Lights.Num());
+@@ -683,7 +733,8 @@ bool AInfinityStageArrival::ApplyHangarTiming()
+     const FFrameNumber RoofEnd = SecondsFrame(*Discovery.MovieScene, HangarTiming.RoofCloseEndSeconds);
+     const FFrameNumber LatticeStart = SecondsFrame(*Discovery.MovieScene, HangarTiming.LatticeStartSeconds);
+     const FFrameNumber LatticeEnd = SecondsFrame(*Discovery.MovieScene, HangarTiming.LatticeEndSeconds);
+-    const FFrameNumber StrikeTarget = SecondsFrame(*Discovery.MovieScene, HangarTiming.LightStrikeSeconds);
++    const double LightStrikeSeconds = LandSeconds + HangarTiming.StrikeAfterLandSeconds;
++    const FFrameNumber StrikeTarget = SecondsFrame(*Discovery.MovieScene, LightStrikeSeconds);
+     const FFrameNumber DimStart = RootTimes.Last();
+     const FFrameNumber DimEnd = SecondsFrame(
+         *Discovery.MovieScene,
+@@ -723,10 +774,11 @@ bool AInfinityStageArrival::ApplyHangarTiming()
+     {
+         return RefuseHangarTiming(*this, TEXT("requested mechanism timing is outside the playback range"));
+     }
+-    if (!bDimInsteadOfStrike && (HangarTiming.LightStrikeSeconds < 0.0
+-        || StrikeTarget < PlaybackStart || StrikeTarget >= PlaybackEnd))
++    if (!bDimInsteadOfStrike && (HangarTiming.StrikeAfterLandSeconds < 0.0
++        || StrikeTarget < RootTimes.Last() || StrikeTarget < PlaybackStart || StrikeTarget >= PlaybackEnd))
+     {
+-        return RefuseHangarTiming(*this, TEXT("light strike is negative or beyond the playback range"));
++        return RefuseHangarTiming(*this,
++            TEXT("light strike offset is negative or its absolute time is beyond the playback range"));
+     }
+     if (bDimInsteadOfStrike && (HangarTiming.DimSeconds <= 0.0
+         || DimStart < PlaybackStart || DimEnd <= DimStart || DimEnd >= PlaybackEnd))
+@@ -757,17 +809,25 @@ bool AInfinityStageArrival::ApplyHangarTiming()
+     {
+         for (const FHangarLightChannel& Light : Discovery.Lights)
+         {
++            if (Light.PostLandingStrikeKeyIndex == INDEX_NONE)
++            {
++                continue;
++            }
+             const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+-            EarliestStrike = FMath::Min(EarliestStrike, Times[Light.StrikeKeyIndex]);
++            EarliestStrike = FMath::Min(EarliestStrike, Times[Light.PostLandingStrikeKeyIndex]);
+         }
+         LightShift = StrikeTarget - EarliestStrike;
+         for (const FHangarLightChannel& Light : Discovery.Lights)
+         {
++            if (Light.PostLandingStrikeKeyIndex == INDEX_NONE)
++            {
++                continue;
++            }
+             const TArrayView<const FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+-            for (int32 Index = Light.StrikeKeyIndex; Index < Times.Num(); ++Index)
++            for (int32 Index = Light.PostLandingStrikeKeyIndex; Index < Times.Num(); ++Index)
+             {
+                 const FFrameNumber Shifted = Times[Index] + LightShift;
+-                const FFrameNumber Previous = Index > Light.StrikeKeyIndex
++                const FFrameNumber Previous = Index > Light.PostLandingStrikeKeyIndex
+                     ? Times[Index - 1] + LightShift
+                     : (Index > 0 ? Times[Index - 1] : FFrameNumber(TNumericLimits<int32>::Min()));
+                 if (Shifted < PlaybackStart || Shifted >= PlaybackEnd
+@@ -813,9 +873,9 @@ bool AInfinityStageArrival::ApplyHangarTiming()
+     for (int32 LightIndex = 0; LightIndex < Discovery.Lights.Num(); ++LightIndex)
+     {
+         FHangarLightChannel& Light = Discovery.Lights[LightIndex];
+-        Light.Section->Modify();
+         if (bDimInsteadOfStrike)
+         {
++            Light.Section->Modify();
+             TMovieSceneChannelData<FMovieSceneFloatValue> Data = Light.Channel->GetData();
+             for (int32 KeyIndex = Data.GetTimes().Num() - 1; KeyIndex >= 0; --KeyIndex)
+             {
+@@ -827,15 +887,38 @@ bool AInfinityStageArrival::ApplyHangarTiming()
+             Light.Channel->AddLinearKey(DimStart, DimStartValues[LightIndex]);
+             Light.Channel->AddLinearKey(DimEnd, DimStartValues[LightIndex] * 0.02f);
+         }
+-        else
++        else if (Light.PostLandingStrikeKeyIndex != INDEX_NONE && LightShift.Value != 0)
+         {
++            Light.Section->Modify();
+             TArrayView<FFrameNumber> Times = Light.Channel->GetData().GetTimes();
+-            for (int32 Index = Light.StrikeKeyIndex; Index < Times.Num(); ++Index)
++            const FFrameNumber StrikeBefore = Times[Light.PostLandingStrikeKeyIndex];
++            for (int32 Index = Light.PostLandingStrikeKeyIndex; Index < Times.Num(); ++Index)
+             {
+                 Times[Index] += LightShift;
+             }
++            UE_LOG(LogInfinityStageArrival, Display,
++                TEXT("INFINITY_HANGAR_TIMING_LIGHT|actor=%s|light=%s|action=moved|strike_before=%.4f|strike_after=%.4f|shift=%.4f"),
++                *GetActorNameOrLabel(),
++                *Light.Label,
++                FrameSeconds(*Discovery.MovieScene, StrikeBefore),
++                FrameSeconds(*Discovery.MovieScene, Times[Light.PostLandingStrikeKeyIndex]),
++                FrameSeconds(*Discovery.MovieScene, LightShift));
++        }
++        else if (Light.PostLandingStrikeKeyIndex != INDEX_NONE)
++        {
++            UE_LOG(LogInfinityStageArrival, Display,
++                TEXT("INFINITY_HANGAR_TIMING_LIGHT|actor=%s|light=%s|action=kept|reason=already_at_target"),
++                *GetActorNameOrLabel(), *Light.Label);
++        }
++        else
++        {
++            UE_LOG(LogInfinityStageArrival, Display,
++                TEXT("INFINITY_HANGAR_TIMING_LIGHT|actor=%s|light=%s|action=kept|reason=no_post_landing_ramp"),
++                *GetActorNameOrLabel(), *Light.Label);
+         }
+     }
++    HangarTiming.LandSeconds = LandSeconds;
++    HangarTiming.LightStrikeSeconds = LightStrikeSeconds;
+     Discovery.Sequence->MarkPackageDirty();
+ 
+     if (Discovery.SceneNumber == 5)
+@@ -850,13 +933,14 @@ bool AInfinityStageArrival::ApplyHangarTiming()
+     }
+ 
+     UE_LOG(LogInfinityStageArrival, Display,
+-        TEXT("INFINITY_HANGAR_TIMING_APPLIED|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|mode=%s|strike=%.4f|dim=%.4f|lights=%d"),
++        TEXT("INFINITY_HANGAR_TIMING_APPLIED|actor=%s|roof=%.4f..%.4f|lattice=%.4f..%.4f|mode=%s|strike_after_land=%.4f|strike=%.4f|dim=%.4f|lights=%d"),
+         *GetActorNameOrLabel(),
+         HangarTiming.RoofCloseStartSeconds,
+         HangarTiming.RoofCloseEndSeconds,
+         HangarTiming.LatticeStartSeconds,
+         HangarTiming.LatticeEndSeconds,
+         bDimInsteadOfStrike ? TEXT("dim") : TEXT("strike"),
++        HangarTiming.StrikeAfterLandSeconds,
+         HangarTiming.LightStrikeSeconds,
+         HangarTiming.DimSeconds,
+         Discovery.Lights.Num());
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+index 99546f9..eeee262 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageArrival.h
+@@ -32,7 +32,13 @@ struct INFINITYSTAGE_API FInfinityHangarTiming
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
+     double LatticeEndSeconds = 12.6261;
+ 
+-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing", meta = (Units = "s"))
++    /** Delay from the root landing key to the first post-landing light strike. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hangar Timing",
++        meta = (ClampMin = "0.0", Units = "s"))
++    double StrikeAfterLandSeconds = 5.8667;
++
++    /** Absolute strike time derived from LandSeconds + StrikeAfterLandSeconds. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Transient, Category = "Hangar Timing", meta = (Units = "s"))
+     double LightStrikeSeconds = 10.0;
+ 
+     /** S6 is roofless and fades its existing light state instead of striking on.
+@@ -224,6 +230,10 @@ public:
+ protected:
+     virtual void BeginPlay() override;
+ 
++#if WITH_EDITOR
++    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
++#endif
++
+ private:
+     /** Master time -> the motion sequence's own time (negative before the Scene). False at or
+      * after the Scene's first frame, or when any link is missing. */
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp
+index 5034c37..eab19b0 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHangarTimingTests.cpp
+@@ -97,20 +97,22 @@ struct FHangarTimingFixture
+         const TArray<TPair<double, double>>& StrikeAndRampSeconds,
+         const int32 SceneNumber = 1,
+         const bool bHasRoof = true,
+-        const TArray<FString>& LightLabels = {})
++        const TArray<FString>& LightLabels = {},
++        const double LandingSeconds = 4.1261,
++        const double PlaybackDurationSeconds = 30.0)
+     {
+         Sequence = NewObject<ULevelSequence>(GetTransientPackage());
+         Sequence->Initialize();
+         MovieScene = Sequence->GetMovieScene();
+         MovieScene->SetTickResolutionDirectly(FFrameRate(TimingFps, 1));
+         MovieScene->SetDisplayRate(FFrameRate(TimingFps, 1));
+-        MovieScene->SetPlaybackRange(FFrameNumber(0), TimingFps * 30, false);
++        MovieScene->SetPlaybackRange(FFrameNumber(0), Frame(PlaybackDurationSeconds).Value, false);
+ 
+         const FGuid RootBinding = AddTransform(
+             *MovieScene,
+             *FString::Printf(TEXT("S%d Hangar Root"), SceneNumber),
+             4,
+-            {Frame(-5.8739), Frame(4.1261)},
++            {Frame(LandingSeconds - 10.0), Frame(LandingSeconds)},
+             {-90.0, 0.0},
+             Root);
+         if (bHasRoof)
+@@ -185,6 +187,39 @@ bool FInfinityStageHangarTimingAppliesTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHangarTimingKeepsDuringRiseGlowTest,
++    "InfinityStage.Hangar.TimingKeepsDuringRiseGlow",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHangarTimingKeepsDuringRiseGlowTest::RunTest(const FString& Parameters)
++{
++    FHangarTimingFixture Fixture(
++        {{6.1333, 0.3}},
++        1,
++        true,
++        {TEXT("S1 Uplight 1")});
++    FMovieSceneFloatChannel* DuringRiseGlow = AddLight(
++        *Fixture.MovieScene,
++        TEXT("S1 Lattice Glow During Rise"),
++        {Frame(-5.8667), Frame(4.1261)},
++        {0.0f, 500.0f});
++    const TArray<uint8> GlowBefore = ChannelBytes(*DuringRiseGlow);
++
++    TestTrue(TEXT("A rise glow and post-landing uplight fixture applies"),
++        Fixture.Arrival->ApplyHangarTiming());
++    TestTrue(TEXT("The during-rise glow is byte-identical"),
++        ChannelBytes(*DuringRiseGlow) == GlowBefore);
++    TestEqual(TEXT("Only the post-landing uplight moves to the target"),
++        Fixture.Lights[0]->GetData().GetTimes()[1].Value,
++        Frame(10.0).Value);
++
++    // Real negative control for the former rule: it chose the glow's -5.8667 s ramp as
++    // EarliestStrike, shifted every discovered light by +15.8667 s, changed GlowBefore,
++    // and put this uplight near +22.0 s. Both assertions above therefore fail on the old code.
++    return true;
++}
++
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+     FInfinityStageHangarTimingRefusesBadOrderTest,
+     "InfinityStage.Hangar.TimingRefusesBadOrder",
+@@ -294,12 +329,29 @@ bool FInfinityStageHangarTimingMovesS3StrikeLightsTest::RunTest(const FString& P
+         3,
+         true,
+         Labels);
+-    FMovieSceneFloatChannel* Decoy = AddLight(
++    TArray<FMovieSceneFloatChannel*> StandardLights = {
++        AddLight(
++            *Fixture.MovieScene,
++            TEXT("S3 Uplight 1"),
++            {Frame(0.0), Frame(7.1333), Frame(7.4333)},
++            {0.0f, 0.0f, 700.0f}),
++        AddLight(
++            *Fixture.MovieScene,
++            TEXT("S3 Practical 1"),
++            {Frame(0.0), Frame(7.6333), Frame(7.9333)},
++            {0.0f, 0.0f, 800.0f}),
++        AddLight(
++            *Fixture.MovieScene,
++            TEXT("S3 Lattice Glow 1"),
++            {Frame(0.0), Frame(8.1333), Frame(8.4333)},
++            {0.0f, 0.0f, 900.0f})
++    };
++    FMovieSceneFloatChannel* DuringRisePractical = AddLight(
+         *Fixture.MovieScene,
+-        TEXT("S3 Practical Decoy"),
+-        {Frame(0.0), Frame(5.0), Frame(5.5)},
+-        {0.0f, 0.0f, 999.0f});
+-    const TArray<uint8> DecoyBefore = ChannelBytes(*Decoy);
++        TEXT("S3 Practical During Rise"),
++        {Frame(-5.8667), Frame(4.1261)},
++        {0.0f, 999.0f});
++    const TArray<uint8> DuringRiseBefore = ChannelBytes(*DuringRisePractical);
+ 
+     TArray<int32> StrikeOffsets;
+     TArray<int32> RampDurations;
+@@ -310,8 +362,14 @@ bool FInfinityStageHangarTimingMovesS3StrikeLightsTest::RunTest(const FString& P
+         StrikeOffsets.Add(Times[1].Value - FirstStrikeBefore);
+         RampDurations.Add(Times[2].Value - Times[1].Value);
+     }
++    TArray<int32> StandardStrikeFramesBefore;
++    for (const FMovieSceneFloatChannel* Light : StandardLights)
++    {
++        StandardStrikeFramesBefore.Add(Light->GetData().GetTimes()[1].Value);
++    }
+ 
+-    TestTrue(TEXT("S3 applies to the six named Strike lights"), Fixture.Arrival->ApplyHangarTiming());
++    TestTrue(TEXT("S3 applies to six named Strike lights and its standard light families"),
++        Fixture.Arrival->ApplyHangarTiming());
+     const int32 FirstStrikeAfter = Fixture.Lights[0]->GetData().GetTimes()[1].Value;
+     TestEqual(TEXT("S3 earliest strike lands on the data-driven target"),
+         FirstStrikeAfter, Frame(Fixture.Arrival->HangarTiming.LightStrikeSeconds).Value);
+@@ -323,10 +381,18 @@ bool FInfinityStageHangarTimingMovesS3StrikeLightsTest::RunTest(const FString& P
+         TestEqual(*FString::Printf(TEXT("S3 light %d preserves its ramp"), Index),
+             Times[2].Value - Times[1].Value, RampDurations[Index]);
+     }
+-    TestTrue(TEXT("A non-Strike S3 light is byte-identical"), ChannelBytes(*Decoy) == DecoyBefore);
++    const int32 StrikeShift = FirstStrikeAfter - FirstStrikeBefore;
++    for (int32 Index = 0; Index < StandardLights.Num(); ++Index)
++    {
++        TestEqual(*FString::Printf(TEXT("S3 standard-family light %d moves with the strike"), Index),
++            StandardLights[Index]->GetData().GetTimes()[1].Value,
++            StandardStrikeFramesBefore[Index] + StrikeShift);
++    }
++    TestTrue(TEXT("An S3 during-rise practical is byte-identical"),
++        ChannelBytes(*DuringRisePractical) == DuringRiseBefore);
+ 
+-    // Negative control: with Apply stubbed, the first named light stays at 6.1333 s,
+-    // the ten-second sentinel fails, and the per-light assertions cannot mask that failure.
++    // Negative controls: the old S3 replacement rule ignores all three standard-family lights,
++    // while the old earliest-ramp rule moves DuringRisePractical once those families are additive.
+     return true;
+ }
+ 
+@@ -451,4 +517,42 @@ bool FInfinityStageHangarTimingStandardisesS5ShapeTest::RunTest(const FString& P
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageHangarTimingStrikeIsRelativeToLandingTest,
++    "InfinityStage.Hangar.TimingStrikeIsRelativeToLanding",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageHangarTimingStrikeIsRelativeToLandingTest::RunTest(const FString& Parameters)
++{
++    FHangarTimingFixture Fixture({{27.0, 0.2}}, 5, true, {}, 25.3, 60.0);
++    TestTrue(TEXT("The default strike offset is 5.8667 seconds after landing"),
++        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.StrikeAfterLandSeconds, 5.8667));
++    TestTrue(TEXT("Read derives the strike offset from the landing and absolute ramp"),
++        Fixture.Arrival->ReadHangarTiming());
++    TestTrue(TEXT("Read reports the 27.0-second absolute strike"),
++        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.LightStrikeSeconds, 27.0, 1.0e-4));
++    TestTrue(TEXT("Read stores 27.0 minus 25.3 as the relative strike"),
++        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.StrikeAfterLandSeconds, 1.7, 1.0e-4));
++
++    Fixture.Arrival->HangarTiming.RoofCloseStartSeconds = 25.3;
++    Fixture.Arrival->HangarTiming.RoofCloseEndSeconds = 29.8;
++    Fixture.Arrival->HangarTiming.LatticeStartSeconds = 29.8;
++    Fixture.Arrival->HangarTiming.LatticeEndSeconds = 33.8;
++    Fixture.Arrival->HangarTiming.StrikeAfterLandSeconds = 5.8667;
++    const TArray<uint8> RootBefore = ChannelBytes(*Fixture.Root);
++
++    TestTrue(TEXT("An S5-like 25.3 second landing applies"), Fixture.Arrival->ApplyHangarTiming());
++    TestEqual(TEXT("The absolute strike is 31.17 seconds"),
++        Fixture.Lights[0]->GetData().GetTimes()[1].Value,
++        Frame(31.1667).Value);
++    TestTrue(TEXT("The read-only absolute strike is derived from landing plus offset"),
++        FMath::IsNearlyEqual(Fixture.Arrival->HangarTiming.LightStrikeSeconds, 31.1667, 1.0e-4));
++    TestTrue(TEXT("The S5-like retime leaves root keys byte-identical"),
++        ChannelBytes(*Fixture.Root) == RootBefore);
++
++    // Negative control: absolute 10.0-second storage either targets the past or leaves the
++    // 27.0-second source strike unchanged; neither can satisfy the 31.17-second sentinel.
++    return true;
++}
++
+ #endif
