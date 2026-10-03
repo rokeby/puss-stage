@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "execution": {
+    "offline": true,
+    "unreal": false,
+    "fake_unreal": true,
+    "mcp": false,
+    "port_8010": false
+  },
+  "config": {
+    "import_run_id": "FV3SKI-20261003-01",
+    "apply_run_id": "FV3SK-20261003-01",
+    "mi_count": 136,
+    "texture_count": 204,
+    "all_sources_exist": true,
+    "all_sources_skin_v3": true
+  },
+  "controls": {
+    "positive_texture_settings": {
+      "status": "PASS",
+      "readback": {
+        "SkinColor": {
+          "size": [
+            1024,
+            2048
+          ],
+          "pot": true,
+          "mips": "FULL_POLICY",
+          "mip_setting": "TMGS_FROM_TEXTURE_GROUP",
+          "srgb": true,
+          "compression": "TC_DEFAULT",
+          "flip_green": false
+        },
+        "SkinMask": {
+          "size": [
+            1024,
+            2048
+          ],
+          "pot": true,
+          "mips": "FULL_POLICY",
+          "mip_setting": "TMGS_FROM_TEXTURE_GROUP",
+          "srgb": false,
+          "compression": "TC_MASKS",
+          "flip_green": false
+        },
+        "SkinNormal": {
+          "size": [
+            1024,
+            2048
+          ],
+          "pot": true,
+          "mips": "FULL_POLICY",
+          "mip_setting": "TMGS_FROM_TEXTURE_GROUP",
+          "srgb": false,
+          "compression": "TC_NORMALMAP",
+          "flip_green": false
+        }
+      }
+    },
+    "negative_mask_srgb": {
+      "status": "PASS",
+      "failure": "TEXTURE_SETTINGS_FAIL|asset=/Game/Fake/T_SkinMask.T_SkinMask|data={\"compression\": \"TC_MASKS\", \"flip_green\": false, \"mip_setting\": \"TMGS_FROM_TEXTURE_GROUP\", \"mips\": \"FULL_POLICY\", \"pot\": true, \"size\": [1024, 2048], \"srgb\": true}"
+    },
+    "negative_old_mi_readback": {
+      "status": "PASS",
+      "failure": "MI_TEXTURE_READBACK_FAIL|label=offline_old_after_apply|expected={\"SkinColor\": \"/Game/Scenes/Wings/FlatV3/Passage01/Textures/P01_L_1_roccoco_L/T_P01_L_1_roccoco_L_SkinColor_o2\", \"SkinMask\": \"/Game/Scenes/Wings/FlatV3/Passage01/Textures/P01_L_1_roccoco_L/T_P01_L_1_roccoco_L_SkinMask_o2\", \"SkinNormal\": \"/Game/Scenes/Wings/FlatV3/Passage01/Textures/P01_L_1_roccoco_L/T_P01_L_1_roccoco_L_SkinNormal_o2\"}|actual={\"SkinColor\": \"/Game/Scenes/Wings/FlatV3/Passage01/Textures/P01_L_1_roccoco_L/T_P01_L_1_roccoco_L_SkinColor\", \"SkinMask\": \"/Game/Scenes/Wings/FlatV3/Passage01/Textures/P01_L_1_roccoco_L/T_P01_L_1_roccoco_L_SkinMask\", \"SkinNormal\": \"/Game/Scenes/Wings/FlatV3/Passage01/Textures/P01_L_1_roccoco_L/T_P01_L_1_roccoco_L_SkinNormal\"}"
+    },
+    "negative_import_failure_after_two": {
+      "status": "PASS",
+      "injected_failure": "after_two",
+      "created": [
+        "/Game/Fake/Import/A",
+        "/Game/Fake/Import/B"
+      ],
+      "deleted": [
+        "/Game/Fake/Import/A",
+        "/Game/Fake/Import/B"
+      ]
+    },
+    "entry_stale_module_purge": {
+      "status": "PASS",
+      "scripts": [
+        "sk_import.py",
+        "sk_apply.py",
+        "sk_verify.py",
+        "sk_revert.py"
+      ]
+    },
+    "verify_is_terminal_release": {
+      "status": "PASS",
+      "apply_success_releases": false,
+      "verify_success_releases": true
+    }
+  }
+}

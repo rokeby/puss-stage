@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "execution": {
+    "offline": true,
+    "unreal": false,
+    "fake_unreal": true,
+    "mcp": false,
+    "port_8010": false
+  },
+  "controls": {
+    "before_classification": "PASS",
+    "after_classification": "PASS",
+    "mixed_state_fails": "ST_MI_STATE_MIXED|passage=P01|states=[\"mixed\"]",
+    "jobs_12": true,
+    "p04_measured_pose": true,
+    "read_only_ast": true,
+    "no_exposure_override_tokens": true,
+    "messages_off_and_restore": true,
+    "actor_census_uses_gameplay_statics": true,
+    "stale_module_purge": true
+  }
+}

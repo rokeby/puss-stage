@@ -174,6 +174,62 @@ def smooth_noise(
     return (field - low) / max(high - low, 1e-7)
 
 
+def fbm_value_noise(
+    rng: np.random.Generator,
+    height: int,
+    width: int,
+    octaves: tuple[tuple[int, int, float, float], ...],
+) -> np.ndarray:
+    """Build non-periodic multi-octave value noise with normalized amplitude."""
+    field = np.zeros((height, width), np.float32)
+    amplitude_sum = 0.0
+    for coarse_x, coarse_y, sigma, amplitude in octaves:
+        field += smooth_noise(rng, height, width, (coarse_x, coarse_y), sigma) * amplitude
+        amplitude_sum += amplitude
+    field /= max(amplitude_sum, 1e-7)
+    low, high = float(field.min()), float(field.max())
+    return ((field - low) / max(high - low, 1e-7)).astype(np.float32)
+
+
+def isotropic_fbm_noise(
+    rng: np.random.Generator,
+    height: int,
+    width: int,
+    panel_w_cm: float,
+    panel_h_cm: float,
+    octaves: tuple[tuple[float, float, float], ...],
+) -> np.ndarray:
+    """Physical-space FBM whose correlation length is equal in X and Y.
+
+    ``smooth_noise`` takes a pixel-space coarse grid and an equal pixel blur.
+    That is only isotropic when both texture axes have the same pixels/cm.  The
+    peel breakup needs the stronger contract: every octave is sampled on square
+    centimetre cells and blurred by the same number of centimetres on both axes.
+    """
+    px_per_cm_x = width / panel_w_cm
+    px_per_cm_y = height / panel_h_cm
+    field = np.zeros((height, width), np.float32)
+    amplitude_sum = 0.0
+    for cell_cm, blur_cm, amplitude in octaves:
+        coarse_x = max(3, int(math.ceil(panel_w_cm / cell_cm)) + 1)
+        coarse_y = max(3, int(math.ceil(panel_h_cm / cell_cm)) + 1)
+        small = rng.random((coarse_y, coarse_x), dtype=np.float32)
+        octave = cv2.resize(small, (width, height), interpolation=cv2.INTER_CUBIC)
+        octave = cv2.GaussianBlur(
+            octave,
+            (0, 0),
+            sigmaX=max(0.01, blur_cm * px_per_cm_x),
+            sigmaY=max(0.01, blur_cm * px_per_cm_y),
+        )
+        low, high = float(octave.min()), float(octave.max())
+        octave = (octave - low) / max(high - low, 1e-7)
+        field += octave * amplitude
+        amplitude_sum += amplitude
+    field /= max(amplitude_sum, 1e-7)
+    low, high = float(field.min()), float(field.max())
+    return ((field - low) / max(high - low, 1e-7)).astype(np.float32)
+
+
 def metric_distance(binary: np.ndarray, panel_w_cm: float, panel_h_cm: float) -> np.ndarray:
     """Distance inside a binary region in centimetres with square metric samples."""
     height, width = binary.shape
@@ -269,6 +325,7 @@ def build_torn_peels(
     panel_h_cm: float,
     target_percent: float,
     profile: str = "pilot",
+    diagnostic_fields: dict[str, np.ndarray] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, dict]:
     height, width = mask.shape
     x_cm = fields["x_cm"]
@@ -277,6 +334,9 @@ def build_torn_peels(
     ragged = smooth_noise(rng, height, width, (92, 118), 3.0)
     torn_fibre = smooth_noise(rng, height, width, (230, 180), 1.0)
     score = np.zeros((height, width), np.float32)
+    if diagnostic_fields is not None:
+        diagnostic_fields["ragged"] = ragged
+        diagnostic_fields["torn_fibre"] = torn_fibre
 
     def choose_centres(candidate: np.ndarray, wanted: int, minimum_distance_cm: float,
                        occupied: list[tuple[float, float]] | None = None) -> list[tuple[float, float]]:
@@ -360,10 +420,99 @@ def build_torn_peels(
     if len(centres) < 5:
         raise RuntimeError(f"Could not place five clustered peel centres; got {len(centres)}")
 
+    organic_breakup = None
+    isotropic_breakup = None
+    isotropic_fibre = None
+    isotropic_cluster_radii = None
+    if profile == "pilot-organic":
+        # Use a side stream so adding organic breakup does not advance the
+        # production RNG. Cluster placement and all later paper/substrate
+        # fields therefore remain identical to the reproducible pilot.
+        saved_rng_state = rng.bit_generator.state
+        organic_fbm = fbm_value_noise(
+            rng,
+            height,
+            width,
+            (
+                (19, 27, 18.0, 0.48),
+                (43, 61, 8.0, 0.29),
+                (101, 137, 3.0, 0.16),
+                (211, 283, 1.0, 0.07),
+            ),
+        )
+        rng.bit_generator.state = saved_rng_state
+        # Ridged FBM breaks the boundary into torn-paper islands; the existing
+        # torn_fibre and ragged fields keep the edge fibrous.
+        ridged = 1.0 - np.abs(organic_fbm * 2.0 - 1.0)
+        organic_breakup = np.clip(
+            0.46 * organic_fbm
+            + 0.24 * ridged
+            + 0.20 * torn_fibre
+            + 0.10 * ragged,
+            0.0,
+            1.0,
+        )
+        if diagnostic_fields is not None:
+            diagnostic_fields["organic_fbm"] = organic_fbm
+            diagnostic_fields["organic_breakup"] = organic_breakup
+    elif profile == "pilot-isotropic":
+        # A side stream preserves the approved cluster placement and all later
+        # paper/substrate RNG draws.  Every breakup octave is physically
+        # isotropic; no oriented carrier, directional blur, or ellipse remains.
+        saved_rng_state = rng.bit_generator.state
+        isotropic_breakup = isotropic_fbm_noise(
+            rng,
+            height,
+            width,
+            panel_w_cm,
+            panel_h_cm,
+            (
+                (62.0, 24.0, 0.38),
+                (31.0, 11.0, 0.30),
+                (15.0, 4.8, 0.20),
+                (6.5, 1.8, 0.12),
+            ),
+        )
+        isotropic_fibre = isotropic_fbm_noise(
+            rng,
+            height,
+            width,
+            panel_w_cm,
+            panel_h_cm,
+            (
+                (18.0, 5.5, 0.48),
+                (8.0, 2.4, 0.32),
+                (3.5, 0.9, 0.20),
+            ),
+        )
+        isotropic_cluster_radii = [
+            float(base * rng.uniform(0.78, 1.24))
+            for base in (72.0, 80.0, 68.0, 76.0, 88.0, 82.0, 74.0, 90.0, 78.0)
+        ]
+        if panel_w_cm < 220.0:
+            # A small P03 stone is narrower than the standard island diameter.
+            # Cap the support to a physical fraction of that panel; otherwise
+            # the silhouette clips every circle into the same vertical lozenge.
+            narrow_cap_cm = max(16.0, panel_w_cm * 0.18)
+            isotropic_cluster_radii = [
+                min(value, narrow_cap_cm) for value in isotropic_cluster_radii
+            ]
+        rng.bit_generator.state = saved_rng_state
+        if diagnostic_fields is not None:
+            diagnostic_fields["isotropic_breakup"] = isotropic_breakup
+            diagnostic_fields["isotropic_fibre"] = isotropic_fibre
+
     selected_seam_support = np.zeros((height, width), dtype=bool)
+    cluster_envelope_max = np.zeros((height, width), np.float32)
     for index, (cx, cy, kind) in enumerate(centres):
         selected_seam_support |= np.square(x_cm - cx) + np.square(y_cm - cy) <= 18.0 ** 2
-        if kind == "seam":
+        if profile == "pilot-isotropic":
+            radius_cm = isotropic_cluster_radii[index % len(isotropic_cluster_radii)]
+            radius_x = radius_y = radius_cm
+            # Placement remains seam/corner/base driven, but shape does not:
+            # the seam only anchors the circular island at its approved centre.
+            seam_pull = np.ones((height, width), np.float32)
+        elif kind == "seam":
             row = int(np.clip(round((panel_h_cm - cy) / panel_h_cm * (height - 1)), 0, height - 1))
             col = int(np.clip(round(cx / panel_w_cm * (width - 1)), 0, width - 1))
             horizontal = fields["horizontal_seam_distance_cm"][row, col] <= fields["vertical_seam_distance_cm"][row, col]
@@ -382,14 +531,43 @@ def build_torn_peels(
         dy = (y_cm - cy) / radius_y
         radius = np.sqrt(dx * dx + dy * dy)
         envelope = np.clip(1.45 - radius, 0.0, 1.0)
-        broken_edge = np.power(envelope, 1.35) * (0.22 + 0.78 * np.power(ragged, 1.7))
-        if profile == "bottom-heavy":
+        cluster_envelope_max = np.maximum(cluster_envelope_max, envelope.astype(np.float32))
+        if profile == "pilot-isotropic":
+            # Thresholding this radial envelope modulated by two independent,
+            # physical-space isotropic fields yields separate, varied torn-paper
+            # islands.  The fine field supplies fibres without a preferred axis.
+            island_field = np.clip(
+                0.62 * isotropic_breakup + 0.38 * isotropic_fibre,
+                0.0,
+                1.0,
+            )
+            broken_edge = np.power(envelope, 1.18) * (
+                0.08 + 0.92 * np.power(island_field, 1.75)
+            )
+            split = 0.16 + 0.84 * np.power(isotropic_fibre, 1.35)
+        else:
+            broken_edge = np.power(envelope, 1.35) * (0.22 + 0.78 * np.power(ragged, 1.7))
+        if profile == "pilot-isotropic":
+            pass
+        elif profile == "bottom-heavy":
             # Do not reuse the pilot's diagonal sinusoid here: on a pale,
             # rectilinear backdrop its breakup reads as printed hatching.
             split = 0.58 + 0.42 * torn_fibre
+        elif profile == "pilot-organic":
+            # Multiplication, rather than an offset blend, produces genuine
+            # gaps between fibre islands and prevents a torn seam from joining
+            # into one long strip. There is still no periodic carrier.
+            split = (
+                0.12
+                + 0.88
+                * np.power(organic_breakup, 2.15)
+                * (0.28 + 0.72 * torn_fibre)
+                * (0.42 + 0.58 * ragged)
+            )
         else:
             split = 0.70 + 0.30 * np.sin((dx * 8.0 + dy * 5.0 + index * 1.9) * math.pi)
-        cluster = broken_edge * split * (0.42 + 0.58 * seam_pull) * (0.72 + 0.28 * torn_fibre)
+        edge_fibre = isotropic_fibre if profile == "pilot-isotropic" else torn_fibre
+        cluster = broken_edge * split * (0.42 + 0.58 * seam_pull) * (0.72 + 0.28 * edge_fibre)
         score = np.maximum(score, cluster.astype(np.float32))
 
     score[(fields["seam_distance_cm"] < 2.0) & ~selected_seam_support] = 0.0
@@ -402,11 +580,26 @@ def build_torn_peels(
     peel_amount = np.clip(inside_distance / 1.7, 0.0, 1.0)
     peel_amount[peeled] = np.maximum(peel_amount[peeled], 0.12)
     peel_amount[~mask] = 0.0
+    if diagnostic_fields is not None:
+        diagnostic_fields["cluster_envelope"] = cluster_envelope_max
+        diagnostic_fields["peel_score"] = score
+        diagnostic_fields["peeled_binary"] = peeled.astype(np.float32)
+        diagnostic_fields["peel_amount"] = peel_amount
     return peeled, peel_amount.astype(np.float32), {
         "profile": profile,
         "selected_cluster_count": len(centres),
         "cluster_kinds": [kind for _, _, kind in centres],
         "cluster_centres_cm": [[round(x, 3), round(y, 3), kind] for x, y, kind in centres],
+        "cluster_shape": (
+            "varied circular physical-space islands"
+            if profile == "pilot-isotropic"
+            else "axis-aligned ellipse"
+        ),
+        "cluster_radii_cm": (
+            [round(value, 3) for value in isotropic_cluster_radii[:len(centres)]]
+            if isotropic_cluster_radii is not None
+            else None
+        ),
     }
 
 
@@ -596,8 +789,12 @@ def build(args: argparse.Namespace) -> dict:
     data_w, data_h = 1024, 2048
     mask = cv2.resize(native_mask, (data_w, data_h), interpolation=cv2.INTER_AREA) >= 127
     fields = sheet_fields(data_w, data_h, panel_w_cm, panel_h_cm)
+    diagnostic_fields = getattr(args, "diagnostic_fields", None)
+    if diagnostic_fields is not None:
+        diagnostic_fields["panel_mask"] = mask.astype(np.float32)
     peeled, peel_amount, peel_layout = build_torn_peels(
-        rng, mask, fields, panel_w_cm, panel_h_cm, args.peel_percent, args.peel_profile
+        rng, mask, fields, panel_w_cm, panel_h_cm, args.peel_percent,
+        args.peel_profile, diagnostic_fields
     )
     edge_distance = metric_distance(mask, panel_w_cm, panel_h_cm)
     damage_zone = (fields["seam_distance_cm"] < 8.0) | (edge_distance < 12.0) | (fields["y_cm"] < 80.0)
@@ -640,6 +837,12 @@ def build(args: argparse.Namespace) -> dict:
     normal_rgb = np.stack((nx / length, ny / length, nz / length), axis=2)
     normal_rgb = np.round((normal_rgb * 0.5 + 0.5) * 255.0).astype(np.uint8)
     normal_rgb[~mask] = (128, 128, 255)
+    if diagnostic_fields is not None:
+        diagnostic_fields["paper_fine"] = fine
+        diagnostic_fields["curl_lip"] = curl_lip.astype(np.float32)
+        diagnostic_fields["skin_height"] = height_cm.astype(np.float32)
+        diagnostic_fields["skin_normal_x"] = (normal_rgb[:, :, 0].astype(np.float32) - 127.5) / 127.5
+        diagnostic_fields["skin_normal_y"] = (normal_rgb[:, :, 1].astype(np.float32) - 127.5) / 127.5
 
     rough_fine = cv2.remap(paper_rough, map_x, map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_WRAP).astype(np.float32) / 255.0
     weather = smooth_noise(rng, data_h, data_w, (54, 42), 13.0)
@@ -715,6 +918,8 @@ def build(args: argparse.Namespace) -> dict:
     # applying another grade or darkening the A2 4x pixels.
     paper_modulation = 1.0 + cv2.resize(fine, (color_w, color_h), interpolation=cv2.INTER_CUBIC) * 0.45
     paper_modulation /= max(float(np.mean(paper_modulation[color_mask])), 1e-6)
+    if diagnostic_fields is not None:
+        diagnostic_fields["paper_modulation"] = paper_modulation.astype(np.float32)
     modulated_art = np.clip(registered_art.astype(np.float32) * paper_modulation[:, :, None], 0.0, 255.0)
     paper_off_color = registered_art.astype(np.float32) * (1.0 - peel_color) + substrate * peel_color
     skin_color = modulated_art * (1.0 - peel_color) + substrate * peel_color
@@ -736,9 +941,9 @@ def build(args: argparse.Namespace) -> dict:
     soak_u8 = np.round(paste_gloss_ao * 255.0).astype(np.uint8)
     skin_mask_bgra = cv2.merge((rough_u8, height_u8, peel_u8, soak_u8))
 
-    color_name = f"T_{args.asset_name}_SkinColor.png"
-    mask_name = f"T_{args.asset_name}_SkinMask.png"
-    normal_name = f"T_{args.asset_name}_SkinNormal.png"
+    color_name = f"T_{args.asset_name}_SkinColor{args.texture_suffix}.png"
+    mask_name = f"T_{args.asset_name}_SkinMask{args.texture_suffix}.png"
+    normal_name = f"T_{args.asset_name}_SkinNormal{args.texture_suffix}.png"
     # Carry the one authoritative silhouette in alpha even though the production
     # Front material is opaque.  It is validation metadata: FBX UV coverage can
     # now distinguish valid dark painting from masked-out canvas.
@@ -826,11 +1031,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--diagnostics-output", type=Path)
     parser.add_argument("--seed", type=int, default=20261001)
     parser.add_argument("--peel-percent", type=float, default=5.0)
-    parser.add_argument("--peel-profile", choices=("pilot", "bottom-heavy"), default="pilot")
+    parser.add_argument("--peel-profile", choices=("pilot", "pilot-organic", "pilot-isotropic", "bottom-heavy"), default="pilot")
     parser.add_argument("--substrate-profile", choices=("pilot", "pale-backdrop"), default="pilot")
+    parser.add_argument("--texture-suffix", default="", help="Suffix before .png for fresh-import texture names, for example _o2")
     parser.add_argument("--skip-aged-textures", action="store_true")
     args = parser.parse_args()
-    if args.peel_profile == "pilot" and not (4.0 <= args.peel_percent <= 6.0):
+    if args.peel_profile in ("pilot", "pilot-organic", "pilot-isotropic") and not (4.0 <= args.peel_percent <= 6.0):
         parser.error("--peel-percent must be 4..6 for the approved pilot look")
     if args.peel_profile == "bottom-heavy" and not (2.0 <= args.peel_percent <= 3.0):
         parser.error("--peel-percent must be 2..3 for the bottom-heavy backdrop look")
@@ -838,6 +1044,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--color-width and --color-height must be positive")
     if args.width_cm is not None and args.width_cm <= 0:
         parser.error("--width-cm must be positive")
+    if args.texture_suffix and not args.texture_suffix.startswith("_"):
+        parser.error("--texture-suffix must be empty or start with an underscore")
     return args
 
 
