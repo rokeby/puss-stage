@@ -143,6 +143,11 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   RESIZE DRY RUNS (passage_resize_dry_P0{2,3,4}.json): 3:00 at 2.5 m/s = 450 m routes (from ~110 m); P02 and P03 OVERLAP their
   hangars (refused); P04 "can_apply" but its end would leave the S4 hangar ~340 m behind (docking not checked: INFERRED).
   Route A therefore needs hangar relocation or folded routes: GARY'S CALL. Nothing applied.
+  LATER THAT NIGHT: ATF strike-rule fix BUILT 98be9ad (suite 118/0/118, verified in the log) and the hangar timing RE-APPLIED
+  (backup PreHangarTimingApply2-20261002-204640): roof from landing (+4.5 s), lattice after (+4.0 s), strike 5.8667 s after
+  landing -> S1-S4 uplights 10.00/10.13/10.30, glow/practicals UNCHANGED at -5.87 (during-rise glow kept), S3 + its six
+  Strike lights at 10.0, S5 earliest post-landing strike 31.17 (practicals; uplights 33.53), S6 dim mode. Hangars UP.
+  S3 wave slides re-timed to strike frame 240. Both tests Success. Rendered look: Gary's PIE.
   OPENING PROBE: curtain lands 6.33 s; stalls camera (-1400,0,150) 15 mm; P01 starts 15.0 s at (0,0,150), 25 mm, 2.5 m/s.
   Walk-in keying waits for Gary.
 - OPEN PUZZLE, S3 wave mesh swap (W2, parked 2 Oct ~18:00): the 6 extended wave meshes are imported and saved as
