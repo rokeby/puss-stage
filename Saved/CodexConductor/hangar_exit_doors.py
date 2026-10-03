@@ -28,6 +28,9 @@ OVERRIDES_NAME = "hangar_exit_doors_overrides.json"
 RECORD_NAME = "hangar_exit_doors_record.json"
 CUBE_PATH = "/Engine/BasicShapes/Cube.Cube"
 BLACK_PATH = "/Engine/EngineMaterials/BlackUnlitMaterial.BlackUnlitMaterial"
+STATIC_MESH_LOCAL_BOUNDS_CM = {
+    CUBE_PATH: {"min": [-50.0, -50.0, -50.0], "max": [50.0, 50.0, 50.0]},
+}
 DOOR_WIDTH_CM = 300.0
 DOOR_HEIGHT_CM = 450.0
 SEAM_CM = 1.0
@@ -72,7 +75,88 @@ def _one_wall_material(scene):
     slot0 = [row.get("material") for row in slots if int(row.get("slot", -1)) == 0]
     if len(slot0) != 1 or not slot0[0]:
         raise PlanError("S%d far wall has no unique material slot 0" % scene["scene"])
-    return slot0[0], components[0].get("static_mesh")
+    return slot0[0], components[0].get("static_mesh"), walls[0], components[0]
+
+
+def _rotation_matrix(rotation_rpy):
+    roll, pitch, yaw = [math.radians(float(value)) for value in rotation_rpy]
+    sr, cr = math.sin(roll), math.cos(roll)
+    sp, cp = math.sin(pitch), math.cos(pitch)
+    sy, cy = math.sin(yaw), math.cos(yaw)
+    return (
+        (cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr),
+        (sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr),
+        (-sp, cp * sr, cp * cr),
+    )
+
+
+def _matrix_vector(matrix, vector):
+    return [sum(matrix[row][axis] * vector[axis] for axis in range(3))
+            for row in range(3)]
+
+
+def _inverse_rotate(matrix, vector):
+    return [sum(matrix[axis][column] * vector[axis] for axis in range(3))
+            for column in range(3)]
+
+
+def _transform_row(row, description):
+    transform = row.get("transform") or {}
+    try:
+        return (
+            [float(value) for value in transform["world_location_cm"]],
+            [float(value) for value in transform["world_rotation_rpy"]],
+            [float(value) for value in transform["world_scale"]],
+        )
+    except (KeyError, TypeError, ValueError):
+        raise PlanError("%s has no usable world transform" % description)
+
+
+def _mesh_local_bounds(component, mesh, scene_number):
+    bounds = (component.get("static_mesh_local_bounds_cm") or
+              component.get("mesh_local_bounds_cm") or
+              STATIC_MESH_LOCAL_BOUNDS_CM.get(mesh))
+    try:
+        minimum = [float(value) for value in bounds["min"]]
+        maximum = [float(value) for value in bounds["max"]]
+    except (KeyError, TypeError, ValueError):
+        raise PlanError("S%d far wall has no usable static-mesh local bounds" % scene_number)
+    if len(minimum) != 3 or len(maximum) != 3 or any(
+            maximum[axis] <= minimum[axis] for axis in range(3)):
+        raise PlanError("S%d far wall static-mesh local bounds are invalid" % scene_number)
+    return minimum, maximum
+
+
+def _wall_bounds_in_root(scene, wall, component, mesh):
+    """Return the wall OBB expressed as an AABB in its hangar-root frame."""
+    n = int(scene["scene"])
+    root = scene.get("root") or {}
+    root_location, root_rotation, root_scale = _transform_row(root, "S%d hangar root" % n)
+    # The probed far wall is a StaticMeshActor, so its StaticMeshComponent is
+    # the actor root.  Prefer a future component transform if the probe records
+    # one, and otherwise use that root-component actor transform.
+    component_frame = component if component.get("transform") else wall
+    wall_location, wall_rotation, wall_scale = _transform_row(
+        component_frame, "S%d far-wall mesh component" % n)
+    if any(abs(value) <= 1.0e-9 for value in root_scale + wall_scale):
+        raise PlanError("S%d far wall or hangar root has zero scale" % n)
+    local_min, local_max = _mesh_local_bounds(component, mesh, n)
+    wall_matrix = _rotation_matrix(wall_rotation)
+    root_matrix = _rotation_matrix(root_rotation)
+    points = []
+    for x in (local_min[0], local_max[0]):
+        for y in (local_min[1], local_max[1]):
+            for z in (local_min[2], local_max[2]):
+                scaled = [x * wall_scale[0], y * wall_scale[1], z * wall_scale[2]]
+                world_offset = _matrix_vector(wall_matrix, scaled)
+                world = [wall_location[axis] + world_offset[axis] for axis in range(3)]
+                relative_world = [world[axis] - root_location[axis] for axis in range(3)]
+                unrotated = _inverse_rotate(root_matrix, relative_world)
+                points.append([unrotated[axis] / root_scale[axis] for axis in range(3)])
+    return {
+        "min": [min(point[axis] for point in points) for axis in range(3)],
+        "max": [max(point[axis] for point in points) for axis in range(3)],
+    }
 
 
 def _override_offsets(overrides):
@@ -111,7 +195,7 @@ def plan_doors(probe, overrides=None):
             raise PlanError("S%d landed preview root is not UP" % n)
         if int(scene.get("exit_camera_count", 0)) != 1:
             raise PlanError("S%d Exit camera count is not 1" % n)
-        wall_material, wall_mesh = _one_wall_material(scene)
+        wall_material, wall_mesh, wall, wall_component = _one_wall_material(scene)
         hangar = scene.get("hangar", {})
         required = ("depth", "half_w", "height", "wall_t", "roof", "hinge_z")
         if any(key not in hangar for key in required):
@@ -123,23 +207,19 @@ def plan_doors(probe, overrides=None):
         floor_z = float(hangar["hinge_z"])
         if min(depth, half_w, height, wall_t) <= 0.0 or height <= DOOR_HEIGHT_CM:
             raise PlanError("S%d hangar dimensions cannot contain the door" % n)
-        wall_bounds = scene.get("far_wall_union_bounds_dock_cm")
-        if wall_bounds is None:
-            raise PlanError("S%d has no measured far-wall bounds" % n)
+        wall_bounds = _wall_bounds_in_root(scene, wall, wall_component, wall_mesh)
         measured_size = [float(wall_bounds["max"][axis]) - float(wall_bounds["min"][axis])
                          for axis in range(3)]
         expected_size = [wall_t, 2.0 * (half_w + wall_t), height]
-        # The root-frame probe may be taken while the whole hangar is folded; its
-        # axes can permute X/Z.  Require the same three extents, not one pose.
         if any(abs(left - right) > 2.0 for left, right in
-               zip(sorted(measured_size), sorted(expected_size))):
+               zip(measured_size, expected_size)):
             raise PlanError("S%d far-wall size disagrees with the builder: measured=%r expected=%r" %
                             (n, measured_size, expected_size))
 
         offset = offsets.get(n, 0.0)
         opening_y0 = offset - DOOR_WIDTH_CM / 2.0
         opening_y1 = offset + DOOR_WIDTH_CM / 2.0
-        wall_y0, wall_y1 = -(half_w + wall_t), half_w + wall_t
+        wall_y0, wall_y1 = float(wall_bounds["min"][1]), float(wall_bounds["max"][1])
         if opening_y0 <= wall_y0 + SEAM_CM or opening_y1 >= wall_y1 - SEAM_CM:
             raise PlanError("S%d door offset leaves no side-wall margin" % n)
         opening_z0, opening_z1 = floor_z, floor_z + DOOR_HEIGHT_CM
@@ -157,7 +237,7 @@ def plan_doors(probe, overrides=None):
                 "draft_offset_y_cm": offset,
             })
 
-        x = depth + wall_t / 2.0
+        x = (float(wall_bounds["min"][0]) + float(wall_bounds["max"][0])) / 2.0
         left_width = opening_y0 - wall_y0
         right_width = wall_y1 - opening_y1
         header_height = height - DOOR_HEIGHT_CM
@@ -176,7 +256,8 @@ def plan_doors(probe, overrides=None):
              "size_cm": [wall_t, DOOR_WIDTH_CM - SEAM_CM, DOOR_HEIGHT_CM - SEAM_CM],
              "material": wall_material, "state": "closed"},
             {"role": "black", "label": "S%d Hangar Exit Black" % n,
-             "location_cm": [depth + wall_t + 2.0, offset, floor_z + DOOR_HEIGHT_CM / 2.0],
+             "location_cm": [float(wall_bounds["max"][0]) + 2.0, offset,
+                             floor_z + DOOR_HEIGHT_CM / 2.0],
              "size_cm": [2.0, DOOR_WIDTH_CM, DOOR_HEIGHT_CM], "material": BLACK_PATH},
         ]
         plans.append({
@@ -185,6 +266,8 @@ def plan_doors(probe, overrides=None):
             "source_wall_label": "S%d Hangar Far Wall" % n,
             "wall_material": wall_material,
             "wall_mesh": wall_mesh,
+            "wall_bounds_root_cm": wall_bounds,
+            "piece_coordinate_frame": "hangar_root",
             "door_offset_y_cm": offset,
             "door_center_dock_cm": [depth, offset, floor_z + DOOR_HEIGHT_CM / 2.0],
             "camera_to_door_distance_cm": scene.get("camera_to_door_distance_cm"),

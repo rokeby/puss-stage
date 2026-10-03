@@ -1,5 +1,6 @@
 """Offline positive and required negative controls for hangar_exit_doors.py."""
 import copy
+import math
 import sys
 
 from hangar_exit_doors import (
@@ -17,6 +18,15 @@ def fixture_probe(with_s3_backdrop=False):
         half_w = 10000.0 if n == 5 else 1000.0
         height = 5000.0 if n == 5 else 3000.0
         wall_t = 50.0
+        root_yaw = -43.57 if n == 2 else 0.0
+        root_location = [10000.0 * n, 20000.0 * n, 0.0]
+        radians = math.radians(root_yaw)
+        wall_root_location = [depth + wall_t / 2.0, 0.0, height / 2.0]
+        wall_world_location = [
+            root_location[0] + math.cos(radians) * wall_root_location[0],
+            root_location[1] + math.sin(radians) * wall_root_location[0],
+            wall_root_location[2],
+        ]
         backdrops = []
         if n == 3 and with_s3_backdrop:
             backdrops = [{
@@ -33,8 +43,18 @@ def fixture_probe(with_s3_backdrop=False):
             "far_wall_count": 1,
             "far_walls": [{
                 "label": "S%d Hangar Far Wall" % n,
+                "transform": {
+                    "world_location_cm": wall_world_location,
+                    "world_rotation_rpy": [0.0, 0.0, root_yaw],
+                    "world_scale": [wall_t / 100.0, 2.0 * (half_w + wall_t) / 100.0,
+                                    height / 100.0],
+                },
                 "components": [{
                     "static_mesh": "/Engine/BasicShapes/Cube.Cube",
+                    "static_mesh_local_bounds_cm": {
+                        "min": [-50.0, -50.0, -50.0],
+                        "max": [50.0, 50.0, 50.0],
+                    },
                     "materials": [{"slot": 0, "material": "/Game/Test/M_Wall"}],
                 }],
             }],
@@ -54,7 +74,21 @@ def fixture_probe(with_s3_backdrop=False):
                 "depth": depth, "half_w": half_w, "height": height,
                 "wall_t": wall_t, "roof": n != 6, "hinge_z": 0.0,
             },
+            "root": {
+                "transform": {
+                    "world_location_cm": root_location,
+                    "world_rotation_rpy": [0.0, 0.0, root_yaw],
+                    "world_scale": [1.0, 1.0, 1.0],
+                },
+            },
         })
+        if n == 2:
+            # Deliberately emulate the inflated world AABB from the real
+            # yaw=-43.57 probe.  The oriented root-frame mesh bounds must win.
+            scenes[-1]["far_wall_union_bounds_dock_cm"] = {
+                "min": [4951.303, -1074.969, 0.0],
+                "max": [7098.697, 1074.969, 3000.0],
+            }
     return {
         "schema_version": 1,
         "run": "fixture",
@@ -98,6 +132,17 @@ def main():
         print("FAIL positive: unexpected plan %r" % plan)
         failures += 1
 
+    rotated = next(row for row in plan["scenes"] if row["scene"] == 2)
+    rotated_bounds = rotated["wall_bounds_root_cm"]
+    if (rotated["piece_coordinate_frame"] == "hangar_root" and
+            all(abs(value - expected) < 0.01 for value, expected in zip(
+                [rotated_bounds["max"][axis] - rotated_bounds["min"][axis]
+                 for axis in range(3)], [50.0, 2100.0, 3000.0]))):
+        print("PASS positive rotated hangar: S2 yaw -43.57 uses 50 x 2100 x 3000 root-frame bounds")
+    else:
+        print("FAIL positive rotated hangar: %r" % rotated)
+        failures += 1
+
     blocked = plan_doors(fixture_probe(with_s3_backdrop=True))
     if (not blocked["apply_ready"] and blocked["open_questions"] == [{
             "scene": 3, "reason": "backdrop_uv_match_required",
@@ -129,8 +174,16 @@ def main():
         "no side-wall margin",
     )
 
+    wrong_size = fixture_probe()
+    wrong_size["scenes"][3]["far_walls"][0]["transform"]["world_scale"][1] = 22.0
+    failures += expect_failure(
+        "genuinely wrong-sized wall",
+        lambda: plan_doors(wrong_size),
+        "far-wall size disagrees with the builder",
+    )
+
     if failures == 0:
-        print("HANGAR_EXIT_DOORS_HARNESS_OK|positive=1|negative=5|scenes=6|state=closed")
+        print("HANGAR_EXIT_DOORS_HARNESS_OK|positive=2|negative=6|scenes=6|state=closed")
     return failures
 
 
