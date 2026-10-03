@@ -48,8 +48,8 @@ class PFContract(unittest.TestCase):
         build = json.loads(Path(self.config["build_report"]).read_text(encoding="utf-8"))
         self.assertTrue(build["all_pass"])
         self.assertEqual(build["asset_count"], 16)
-        self.assertEqual(build["pole_extension_cm"], 460.0)
-        self.assertTrue(all(row["pass"] and row["asset"].endswith("_poles")
+        self.assertEqual(build["pole_extension_cm"], float(self.config["pole_extension_cm"]))
+        self.assertTrue(all(row["pass"] and row["asset"].endswith(self.config["target_suffix"])
                             for row in build["assets"]))
         for row in build["assets"]:
             output = Path(row["fbx"]).parent
@@ -62,7 +62,7 @@ class PFContract(unittest.TestCase):
             self.assertEqual(new["triangle_counts"], baseline["triangle_counts"])
             self.assertTrue(row["source_png_sha256"])
             socket = json.loads(Path(status["socket_sidecar"]).read_text(encoding="utf-8"))
-            self.assertEqual(socket["baked_pole_geometry"]["bottom_z_cm"], -460.0)
+            self.assertEqual(socket["baked_pole_geometry"]["bottom_z_cm"], -float(self.config["pole_extension_cm"]))
 
     def test_pole_above_floor_fails(self):
         bad = dict(self.after(), pole_world_bottom_cm=1.01)
@@ -141,16 +141,16 @@ class PFContract(unittest.TestCase):
 
     def test_kept_old_side_is_skipped_and_unchanged(self):
         old = {"mesh": "/Game/Scenes/Wings/Legacy/SM_CloudRef03_R"}
-        skipped = pf.source_policy(old, {}, self.config["destination_root"])
+        skipped = pf.source_policy(old, {}, self.config["destination_root"], self.config["target_suffix"])
         self.assertEqual(skipped, {"action": "skip", "reason": "kept_old_non_v3",
                                    "mesh": old["mesh"]})
         built_name = "SM_FlatV3_P05_CloudRef03_L_L"
         built = {"mesh": (self.config["destination_root"] +
                           "/StaticMeshes/" + built_name)}
         replacement = pf.source_policy(
-            built, {built_name: {"pass": True}}, self.config["destination_root"])
+            built, {built_name: {"pass": True}}, self.config["destination_root"], self.config["target_suffix"])
         self.assertEqual(replacement["action"], "replace")
-        self.assertEqual(replacement["target_mesh"], built["mesh"] + "_poles")
+        self.assertEqual(replacement["target_mesh"], built["mesh"] + self.config["target_suffix"])
         gate = pf.validate_skipped_unchanged(
             self.skipped_snapshot(), self.skipped_snapshot(), "positive:kept-old")
         self.assertEqual(gate["status"], "UNCHANGED")
@@ -159,7 +159,7 @@ class PFContract(unittest.TestCase):
         panel = {"mesh": (self.config["destination_root"] +
                           "/StaticMeshes/SM_FlatV3_P05_Unbuilt_L")}
         with self.assertRaisesRegex(RuntimeError, "PF_SOURCE_NOT_BUILT"):
-            pf.source_policy(panel, {}, self.config["destination_root"])
+            pf.source_policy(panel, {}, self.config["destination_root"], self.config["target_suffix"])
 
     def test_apply_touching_skipped_side_fails_verify(self):
         before = self.skipped_snapshot()
@@ -186,8 +186,8 @@ class PFContract(unittest.TestCase):
             self.assertNotIn("importlib.reload", source, name)
 
     def test_fresh_ids_are_configured_and_absent_from_every_log(self):
-        self.assertEqual(self.config["run_id"], "FV3PF-20261003-03")
-        self.assertEqual(self.config["import_run_id"], "FV3PFI-20261003-03")
+        self.assertEqual(self.config["run_id"], "FV3PF-20261003-04")
+        self.assertEqual(self.config["import_run_id"], "FV3PFI-20261003-04")
         logs = sorted((ROOT / "Saved" / "Logs").glob("PussStage*.log"))
         self.assertTrue(logs)
         for path in logs:

@@ -61,6 +61,7 @@ def load_build_report(config):
         report = json.load(handle)
     assets = report.get("assets", [])
     if (not report.get("all_pass") or len(assets) != config["expected_asset_count"] or
+            report.get("target_suffix") != config["target_suffix"] or
             abs(float(report.get("pole_extension_cm", -1)) - config["pole_extension_cm"]) > 0.001 or
             any(not row.get("pass") for row in assets)):
         raise RuntimeError("PF_BUILD_REPORT_FAIL|path=" + config["build_report"])
@@ -114,7 +115,7 @@ def assert_live_rows(config, preflight, show, expected_after=False):
                 if s.side_is_skipped(wanted, side):
                     continue
                 wanted[side]["mesh"] = s.target_mesh_path(
-                    wanted[side]["mesh"], config["destination_root"])
+                    wanted[side]["mesh"], config["destination_root"], config["target_suffix"])
         if not compare.occurrence_matches(actual, wanted):
             raise RuntimeError("PF_LIVE_ROW_DRIFT|after=%s|index=%d|guid=%s" %
                                (expected_after, index, wanted["cue_guid"]))
@@ -224,7 +225,8 @@ def preflight(config_path=None):
         for index, cue in occurrences:
             record = f.occurrence_row(index, cue)
             for side in s.SIDES:
-                policy = s.source_policy(record[side], by_source, config["destination_root"])
+                policy = s.source_policy(
+                    record[side], by_source, config["destination_root"], config["target_suffix"])
                 record[side]["pf_action"] = policy["action"]
                 if policy["action"] == "skip":
                     record[side]["skip_reason"] = policy["reason"]
@@ -297,7 +299,9 @@ def import_inventory(config, slot_a):
             raise RuntimeError("PF_SOCKET_CONTRACT_FAIL|asset=%s|failures=%s" %
                                (mesh_name, json.dumps(failures)))
         original = status["source_folder"]
-        original_owner = owner.removesuffix("_poles")
+        if not owner.endswith(config["target_suffix"]) or not mesh_name.endswith(config["target_suffix"]):
+            raise RuntimeError("PF_TARGET_SUFFIX_SOURCE_FAIL|asset=" + mesh_name)
+        original_owner = owner.removesuffix(config["target_suffix"])
         sources = {
             "mesh": status["fbx"], "socket": socket_path, "validation": status["validation"],
         }
@@ -351,7 +355,7 @@ def verify_material_binding(config, slot_a, mesh, row, label):
 
 
 def import_mesh_only(config, slot_a, row):
-    """Import only the _poles mesh and bind the source flat's existing live materials."""
+    """Import only the _poles2 mesh and bind the source flat's existing live materials."""
     destination = row["destinations"]["mesh"]
     mesh = slot_a.import_one(row["sources"]["mesh"], destination,
                              slot_a.pilot.fbx_options(True))
@@ -480,7 +484,8 @@ def dry(config_path=None):
                 if s.side_is_skipped(record, side):
                     new_panels[side] = copy.deepcopy(record[side])
                     continue
-                target_path = s.target_mesh_path(record[side]["mesh"], config["destination_root"])
+                target_path = s.target_mesh_path(
+                    record[side]["mesh"], config["destination_root"], config["target_suffix"])
                 mesh = unreal.EditorAssetLibrary.load_asset(target_path)
                 if not isinstance(mesh, unreal.StaticMesh):
                     raise RuntimeError("PF_IMPORTED_TARGET_MISSING|path=" + target_path)
@@ -746,7 +751,7 @@ def verify(config_path=None):
                     "assertions": ["world panel bottom unchanged within 1 cm",
                         "world pole bottom <= floor z + 1 cm", "inner edges unchanged",
                         "centre gaps unchanged where both sides are V3",
-                        "each _poles mesh reuses its source flat Front/Flap MIs",
+                        "each _poles2 mesh reuses its source flat Front/Flap MIs",
                         "all reused Front/Flap MIs read back SkinColor/Mask/Normal _o2",
                         "kept-old non-V3 mesh, transforms, and world bounds unchanged",
                         "all non-mesh Show fields unchanged"],

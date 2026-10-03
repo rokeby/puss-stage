@@ -1,4 +1,4 @@
-"""Pure gates and shared helpers for PF, the P05 long-pole mesh-only swap."""
+"""Pure gates and shared helpers for PF, the P05 measured-pole mesh-only swap."""
 import sys as _fv3_sys, os as _fv3_os
 if __name__ == "__main__":
     # purge this folder's cached modules: the editor's Python keeps modules across
@@ -46,7 +46,7 @@ def load_config(explicit=None):
         "pole_extension_cm", "floor_z_cm", "panel_bottom_tolerance_cm",
         "pole_floor_tolerance_cm", "inner_edge_tolerance_cm", "gap_tolerance_cm",
         "backup_path", "backup_files", "backup_sources", "verify_token",
-        "material_strategy", "required_texture_suffix",
+        "material_strategy", "required_texture_suffix", "target_suffix",
     }
     missing = sorted(required - set(config))
     if missing:
@@ -57,14 +57,15 @@ def load_config(explicit=None):
             int(config["expected_asset_count"]) != 16 or
             config["success_marker"] != "FLATV3_PF_OK" or
             config["material_strategy"] != "reuse_source_flat_live_mis" or
-            config["required_texture_suffix"] != "_o2"):
+            config["required_texture_suffix"] != "_o2" or
+            config["target_suffix"] != "_poles2"):
         raise RuntimeError("PF_CONFIG_SCOPE_FAIL")
     for name in ("pole_extension_cm", "floor_z_cm", "panel_bottom_tolerance_cm",
                  "pole_floor_tolerance_cm", "inner_edge_tolerance_cm", "gap_tolerance_cm"):
         config[name] = float(config[name])
         if not math.isfinite(config[name]):
             raise RuntimeError("PF_CONFIG_NONFINITE|field=" + name)
-    if (config["pole_extension_cm"] != 460.0 or config["floor_z_cm"] != 0.0 or
+    if (config["pole_extension_cm"] != 556.0 or config["floor_z_cm"] != 0.0 or
             config["panel_bottom_tolerance_cm"] != 1.0 or
             config["pole_floor_tolerance_cm"] != 1.0):
         raise RuntimeError("PF_CONFIG_GEOMETRY_GATE_FAIL")
@@ -100,15 +101,18 @@ def read_json(config, phase, run=None):
         return json.load(handle)
 
 
-def target_mesh_path(source_mesh, destination_root):
+def target_mesh_path(source_mesh, destination_root, target_suffix):
     source_mesh = str(source_mesh)
     prefix = str(destination_root).rstrip("/") + "/StaticMeshes/"
     if not source_mesh.startswith(prefix):
         raise RuntimeError("PF_SOURCE_MESH_ROOT_FAIL|mesh=" + source_mesh)
     name = source_mesh.rsplit("/", 1)[-1]
-    if not name.startswith("SM_FlatV3_P05_CloudRef") or name.endswith("_poles"):
+    if (not name.startswith("SM_FlatV3_P05_CloudRef") or
+            name.endswith("_poles") or name.endswith("_poles2")):
         raise RuntimeError("PF_SOURCE_MESH_NAME_FAIL|mesh=" + source_mesh)
-    return prefix + name + "_poles"
+    if target_suffix != "_poles2":
+        raise RuntimeError("PF_TARGET_SUFFIX_FAIL|suffix=" + str(target_suffix))
+    return prefix + name + target_suffix
 
 
 def mesh_name(mesh_path):
@@ -119,7 +123,7 @@ def is_flat_v3_mesh(mesh_path):
     return mesh_name(mesh_path).startswith("SM_FlatV3_")
 
 
-def source_policy(panel, by_source, destination_root):
+def source_policy(panel, by_source, destination_root, target_suffix):
     """Classify one current side; only kept-old non-V3 sides may bypass the build gate."""
     mesh = str(panel["mesh"])
     if not is_flat_v3_mesh(mesh):
@@ -128,7 +132,7 @@ def source_policy(panel, by_source, destination_root):
     if source not in by_source:
         raise RuntimeError("PF_SOURCE_NOT_BUILT|mesh=" + mesh)
     return {"action": "replace", "source": source,
-            "target_mesh": target_mesh_path(mesh, destination_root)}
+            "target_mesh": target_mesh_path(mesh, destination_root, target_suffix)}
 
 
 def side_is_skipped(record, side):
