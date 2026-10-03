@@ -6,7 +6,16 @@ import os
 import sys
 
 from lighting_looks_apply import (
+    DRAMA_FIELDS,
+    EFFECT_FIELDS,
+    EFFECT_GUID_FIELDS,
+    EFFECT_OBJECT_FIELDS,
+    LIGHT_FIELDS,
+    LIGHT_OBJECT_FIELDS,
     LightingLooksError,
+    _attachment_row,
+    _require_attachment_rows_equal,
+    _state_differences,
     apply_plain_state,
     build_plain_plan,
     load_config,
@@ -16,6 +25,72 @@ from lighting_looks_apply import (
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+class FakeVector:
+    def __init__(self, x=0.0, y=0.0, z=0.0):
+        self.x, self.y, self.z = x, y, z
+
+
+class FakeQuat(FakeVector):
+    def __init__(self, x=0.0, y=0.0, z=0.0, w=1.0):
+        super().__init__(x, y, z)
+        self.w = w
+
+
+class FakeTransform:
+    def __init__(self):
+        self.translation = FakeVector()
+        self.rotation = FakeQuat()
+        self.scale3d = FakeVector(1.0, 1.0, 1.0)
+
+
+class FakeStruct:
+    """Same properties, deliberately different unstable wrapper text."""
+    def __init__(self, properties, wrapper_id):
+        self.properties = properties
+        self.wrapper_id = wrapper_id
+
+    def get_editor_property(self, name):
+        return self.properties[name]
+
+    def __str__(self):
+        return "<FakeStruct wrapper=0x%s>" % self.wrapper_id
+
+
+def fake_nested(fields, wrapper_id, guid_fields=(), object_fields=()):
+    properties = {}
+    for name in fields:
+        if name in guid_fields:
+            properties[name] = "00000000000000000000000000000000"
+        elif name in object_fields:
+            properties[name] = None
+        else:
+            properties[name] = 0.0
+    return FakeStruct(properties, wrapper_id)
+
+
+def fake_attachment(wrapper_id):
+    drama = fake_nested(DRAMA_FIELDS, wrapper_id + "-drama")
+    lighting = fake_nested(
+        LIGHT_FIELDS, wrapper_id + "-lighting", object_fields=LIGHT_OBJECT_FIELDS)
+    lighting.properties["drama"] = drama
+    effect = fake_nested(
+        EFFECT_FIELDS, wrapper_id + "-effect",
+        guid_fields=EFFECT_GUID_FIELDS, object_fields=EFFECT_OBJECT_FIELDS)
+    return FakeStruct({
+        "attachment_guid": "11111111111111111111111111111111",
+        "label": "Existing scratch lamp",
+        "kind": "LIGHT",
+        "enabled": True,
+        "actor_class": None,
+        "mesh": None,
+        "anchor": "STATION",
+        "relative_transform": FakeTransform(),
+        "lighting": lighting,
+        "effect": effect,
+        "trigger_distance_cm": 800.0,
+    }, wrapper_id)
 
 
 def fixture():
@@ -142,6 +217,41 @@ def main():
     restored = revert_plain_state(after, record)
     failures += check("revert_exact", restored == before)
 
+    # Regression for APPLY 20261003-120646: semantically identical nested
+    # wrappers have unstable str() values. The actual restore guard must accept
+    # that round-trip but continue rejecting any real field change.
+    scratch_before = fake_attachment("before")
+    scratch_after = fake_attachment("after")
+    before_rows = [_attachment_row(scratch_before)]
+    after_rows = [_attachment_row(scratch_after)]
+    try:
+        _require_attachment_rows_equal(
+            after_rows, before_rows, "HARNESS_WRAPPER_FALSE_DIFFERENCE")
+        wrapper_case_ok = (
+            str(scratch_before.get_editor_property("lighting")) !=
+            str(scratch_after.get_editor_property("lighting"))
+            and str(scratch_before.get_editor_property("effect")) !=
+            str(scratch_after.get_editor_property("effect"))
+        )
+    except LightingLooksError:
+        wrapper_case_ok = False
+    failures += check("unstable_wrapper_repr_ignored", wrapper_case_ok)
+
+    scratch_after.get_editor_property("effect").properties["flicker_amount"] = 1.0
+    changed_rows = [_attachment_row(scratch_after)]
+    differences = _state_differences(before_rows, changed_rows)
+    try:
+        _require_attachment_rows_equal(
+            changed_rows, before_rows, "HARNESS_REAL_FIELD_CHANGE")
+        real_change_rejected = False
+    except LightingLooksError as error:
+        real_change_rejected = (
+            [row["path"] for row in differences] == ["[0].effect.flicker_amount"]
+            and "HARNESS_REAL_FIELD_CHANGE" in str(error)
+            and "[0].effect.flicker_amount" in str(error)
+        )
+    failures += check("real_field_change_rejected", real_change_rejected)
+
     insufficient = fixture()
     for cue in insufficient[:6]:
         for attachment in cue["attachments"]:
@@ -200,7 +310,7 @@ def main():
     )
 
     if failures == 0:
-        print("LIGHTING_LOOKS_HARNESS_OK|positive=10|negative=6|fixtures=34|shadow=16->16|revert_exact=1")
+        print("LIGHTING_LOOKS_HARNESS_OK|positive=12|negative=6|fixtures=34|shadow=16->16|revert_exact=1|wrapper_regression=1|real_diff_guard=1")
     return failures
 
 

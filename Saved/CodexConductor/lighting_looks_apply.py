@@ -21,6 +21,7 @@ from __future__ import annotations
 import copy
 import datetime
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -33,6 +34,22 @@ except ModuleNotFoundError:  # Offline harness import.
     unreal = None
 
 
+def _load_attachment_state():
+    try:
+        import _infinity_attachment_state as module
+        return module
+    except ModuleNotFoundError:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "_infinity_attachment_state.py")
+        spec = importlib.util.spec_from_file_location("_infinity_attachment_state", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+
+S = _load_attachment_state()
+
+
 EXPECTED_PROJECT = os.path.normcase(os.path.normpath("E:/PussStage"))
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
@@ -43,29 +60,12 @@ VALID_MODES = ("DRY", "APPLY", "REVERT")
 VALID_ROLES = ("TOP", "LOW_SIDE", "BEAM", "PRACTICAL")
 ROLE_LIMITS = {"TOP": (2, 2), "LOW_SIDE": (2, 2), "BEAM": (0, 1), "PRACTICAL": (0, 2)}
 REQUIRED_LOOKS = {"MOODY", "INDUSTRIAL", "THEATRICAL", "SPOT", "WASH"}
-LIGHT_FIELDS = (
-    "type", "intensity_units", "intensity", "color", "use_temperature",
-    "temperature_kelvin", "attenuation_radius_cm", "indirect_lighting_intensity",
-    "volumetric_scattering_intensity", "diffuse_scale", "specular_scale",
-    "affect_translucent_lighting", "transmission", "cast_shadows",
-    "cast_volumetric_shadow", "affect_reflection", "affect_global_illumination",
-    "shadow_bias", "shadow_slope_bias", "force_cached_shadows_for_movable_primitives",
-    "use_ray_traced_distance_field_shadows", "lighting_channel0", "lighting_channel1",
-    "lighting_channel2", "max_draw_distance_cm", "max_distance_fade_range_cm",
-    "use_inverse_squared_falloff", "light_falloff_exponent", "inverse_exposure_blend",
-    "source_radius_cm", "soft_source_radius_cm", "source_length_cm",
-    "inner_cone_angle_degrees", "outer_cone_angle_degrees", "rect_source_width_cm",
-    "rect_source_height_cm", "rect_barn_door_angle_degrees", "rect_barn_door_length_cm",
-    "rect_source_texture", "ies_texture", "use_ies_brightness", "ies_brightness_scale",
-    "light_function_material", "light_function_scale", "light_function_fade_distance_cm",
-    "light_function_disabled_brightness",
-)
-DRAMA_FIELDS = (
-    "strike_on_approach", "strike_distance_cm", "strike_ramp_cm", "ignition_stutter",
-    "unstruck_intensity_scale", "after_pass", "after_pass_distance_cm",
-    "decay_distance_cm", "slow_move", "pan_amplitude_degrees", "tilt_amplitude_degrees",
-    "period_seconds", "phase_from_identity", "phase_cycles",
-)
+LIGHT_FIELDS = S.LIGHT_FIELDS
+LIGHT_OBJECT_FIELDS = S.LIGHT_OBJECT_FIELDS
+DRAMA_FIELDS = S.DRAMA_FIELDS
+EFFECT_FIELDS = S.EFFECT_FIELDS
+EFFECT_GUID_FIELDS = S.EFFECT_GUID_FIELDS
+EFFECT_OBJECT_FIELDS = S.EFFECT_OBJECT_FIELDS
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lighting_looks.json")
 REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lighting_looks_report.json")
 RECORD_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lighting_looks_revert_record.json")
@@ -421,61 +421,22 @@ def _is_light(attachment):
         unreal.InfinityAttachmentKind, "LIGHT")
 
 
-def _transform_plain(transform):
-    rotation = transform.rotation.rotator()
-    return {
-        "location": [float(transform.translation.x), float(transform.translation.y),
-                     float(transform.translation.z)],
-        "rotation_rpy": [float(rotation.roll), float(rotation.pitch), float(rotation.yaw)],
-        "scale": [float(transform.scale3d.x), float(transform.scale3d.y),
-                  float(transform.scale3d.z)],
-    }
-
-
-def _value_plain(value):
-    if value is None or isinstance(value, (bool, int, str)):
-        return value
-    if isinstance(value, float):
-        return float(value)
-    if all(hasattr(value, name) for name in ("r", "g", "b", "a")):
-        return [float(value.r), float(value.g), float(value.b), float(value.a)]
-    if all(hasattr(value, name) for name in ("x", "y", "z")):
-        return [float(value.x), float(value.y), float(value.z)]
-    if hasattr(value, "get_path_name"):
-        return str(value.get_path_name())
-    return str(value)
-
-
-def _lighting_row(lighting):
-    result = {name: _value_plain(lighting.get_editor_property(name))
-              for name in LIGHT_FIELDS}
-    drama = lighting.get_editor_property("drama")
-    result["drama"] = {name: _value_plain(drama.get_editor_property(name))
-                       for name in DRAMA_FIELDS}
-    return result
-
-
 def _attachment_row(attachment):
-    lighting = attachment.get_editor_property("lighting")
-    return {
-        "guid": _guid_text(attachment.get_editor_property("attachment_guid")),
-        "label": str(attachment.get_editor_property("label")),
-        "kind": str(attachment.get_editor_property("kind")),
-        "enabled": bool(attachment.get_editor_property("enabled")),
-        "actor_class": str(attachment.get_editor_property("actor_class")),
-        "mesh": str(attachment.get_editor_property("mesh")),
-        "anchor": str(attachment.get_editor_property("anchor")),
-        "relative_transform": _transform_plain(
-            attachment.get_editor_property("relative_transform")),
-        "lighting": _lighting_row(lighting),
-        "effect": str(attachment.get_editor_property("effect")),
-        "trigger_distance_cm": float(
-            attachment.get_editor_property("trigger_distance_cm")),
-    }
+    return S.attachment_state(attachment, _guid_text)
 
 
 def _attachment_rows(attachments):
     return [_attachment_row(attachment) for attachment in attachments]
+
+
+def _state_differences(before, after, path=""):
+    return S.state_differences(before, after, path)
+
+
+def _require_attachment_rows_equal(actual, expected, message):
+    differences = _state_differences(expected, actual)
+    require(not differences, "%s|differences=%s" %
+            (message, _canonical(differences)))
 
 
 def _rows_hash(rows):
@@ -545,6 +506,69 @@ def _make_transform(row):
         rotation=unreal.Rotator(roll=roll, pitch=pitch, yaw=yaw),
         scale=unreal.Vector(1.0, 1.0, 1.0),
     )
+
+
+def _look_at_rpy(source, target, label):
+    """Return an Unreal X-forward look-at rotation in pair-local space."""
+    dx = float(target[0]) - float(source[0])
+    dy = float(target[1]) - float(source[1])
+    dz = float(target[2]) - float(source[2])
+    horizontal = math.hypot(dx, dy)
+    require(horizontal > 1.0e-6 or abs(dz) > 1.0e-6,
+            "TOP_AIM_ZERO_VECTOR|fixture=" + str(label))
+    pitch = math.degrees(math.atan2(dz, horizontal))
+    yaw = math.degrees(math.atan2(dy, dx))
+    return [0.0, pitch, yaw]
+
+
+def _apply_live_top_aims(show, plan):
+    """Aim TOP_L/TOP_R at the live left/right panel origins for each bay.
+
+    Both the lights and these panel locations are authored in pair-local space,
+    so the resulting look-at rotation remains exact after the pair is placed on
+    the P04 route. This deliberately replaces the JSON prototype's stale fixed
+    rotations; the Show is read fresh immediately before DRY/APPLY.
+    """
+    cues = list(show.get_editor_property("cues"))
+    for target in plan["targets"]:
+        cue = cues[target["show_index"]]
+        pair = cue.get_editor_property("wing_pair")
+        panels = {
+            "L": pair.get_editor_property("left"),
+            "R": pair.get_editor_property("right"),
+        }
+        target["top_aims"] = []
+        for fixture in target["fixtures"]:
+            if fixture["role"] != "TOP":
+                continue
+            side = fixture["slot"].rsplit("_", 1)[-1]
+            require(side in panels,
+                    "TOP_SLOT_SIDE_UNKNOWN|fixture=" + fixture["label"])
+            panel_transform = panels[side].get_editor_property("local_transform")
+            panel_location = panel_transform.translation
+            target_location = [
+                float(panel_location.x),
+                float(panel_location.y),
+                float(panel_location.z),
+            ]
+            source_location = [float(value)
+                               for value in fixture["transform"]["location_cm"]]
+            rotation = _look_at_rpy(source_location, target_location, fixture["label"])
+            fixture["transform"]["rotation_rpy_deg"] = rotation
+            aim = {
+                "fixture": fixture["label"],
+                "panel": "LEFT" if side == "L" else "RIGHT",
+                "source": "live Show panel local_transform",
+                "source_relative_cm": source_location,
+                "target_relative_cm": target_location,
+                "rotation_rpy_deg": rotation,
+            }
+            fixture["live_top_aim"] = copy.deepcopy(aim)
+            target["top_aims"].append(aim)
+        require(len(target["top_aims"]) == 2,
+                "TOP_AIM_COUNT|cue=%s|actual=%d" %
+                (target["cue_label"], len(target["top_aims"])))
+    return plan
 
 
 def _make_blank_light():
@@ -723,6 +747,7 @@ def _outside_hash(all_rows, target_guids):
 def _runtime_plan(show, config):
     plain = _plain_cues(show)
     plan = build_plain_plan(config, plain)
+    _apply_live_top_aims(show, plan)
     for target in plan["targets"]:
         cue = list(show.get_editor_property("cues"))[target["show_index"]]
         target["before_rows"] = _attachment_rows(_pair_attachments(cue))
@@ -772,9 +797,10 @@ def _mutate_apply(show, plan, materials):
         require(int(changed) == 6, "REPLICATION_TARGET_COUNT|count=%s" % changed)
         _set_pair_attachments(show, scratch_index, scratch_original)
 
-        require(_attachment_rows(_pair_attachments(
-            list(show.get_editor_property("cues"))[scratch_index])) == scratch_before,
-            "SCRATCH_NOT_RESTORED_EXACTLY")
+        _require_attachment_rows_equal(
+            _attachment_rows(_pair_attachments(
+                list(show.get_editor_property("cues"))[scratch_index])),
+            scratch_before, "SCRATCH_NOT_RESTORED_EXACTLY")
 
         added_guids = set()
         for target in plan["targets"]:
@@ -826,14 +852,16 @@ def _mutate_apply(show, plan, materials):
                             attachment.get_editor_property("attachment_guid"))],
                     )
             _set_pair_attachments(show, target_index, attachments)
-        require(_attachment_rows(_pair_attachments(
-            list(show.get_editor_property("cues"))[scratch_index])) == scratch_before,
-            "APPLY_ROLLBACK_SCRATCH_FAILED")
+        _require_attachment_rows_equal(
+            _attachment_rows(_pair_attachments(
+                list(show.get_editor_property("cues"))[scratch_index])),
+            scratch_before, "APPLY_ROLLBACK_SCRATCH_FAILED")
         for target in plan["targets"]:
             restored = _attachment_rows(_pair_attachments(
                 list(show.get_editor_property("cues"))[target["show_index"]]))
-            require(restored == target["before_rows"],
-                    "APPLY_ROLLBACK_TARGET_FAILED|cue=" + target["cue_label"])
+            _require_attachment_rows_equal(
+                restored, target["before_rows"],
+                "APPLY_ROLLBACK_TARGET_FAILED|cue=" + target["cue_label"])
         raise
 
 
@@ -845,8 +873,9 @@ def _verify_applied(show, plan, outside_before):
         unused_index, unused_cue, attachments = _target_current(show, target)
         del unused_index, unused_cue
         rows = _attachment_rows(attachments)
-        require(rows == target["after_rows"],
-                "APPLY_READBACK_MISMATCH|cue=" + target["cue_label"])
+        _require_attachment_rows_equal(
+            rows, target["after_rows"],
+            "APPLY_READBACK_MISMATCH|cue=" + target["cue_label"])
         original_count = len(target["before_rows"])
         original = attachments[:original_count]
         require(all(not bool(item.get_editor_property("enabled"))
@@ -884,8 +913,9 @@ def _mutate_revert(show, record):
                         attachment.get_editor_property("attachment_guid"))] = bool(
                             attachment.get_editor_property("enabled"))
             current_rows = _attachment_rows(attachments)
-            require(current_rows == target["after_rows"],
-                    "REVERT_CURRENT_STATE_DRIFT|cue=" + target["cue_label"])
+            _require_attachment_rows_equal(
+                current_rows, target["after_rows"],
+                "REVERT_CURRENT_STATE_DRIFT|cue=" + target["cue_label"])
             added_guids = {row["guid"] for row in target["added"]}
             restored = []
             before_enabled = {row["guid"]: row["enabled"] for row in target["before_rows"]}
@@ -904,8 +934,9 @@ def _mutate_revert(show, record):
                     "REVERT_REMOVE_COUNT|cue=%s|expected=%d|actual=%d" %
                     (target["cue_label"], len(added_guids), removed))
             _set_pair_attachments(show, index, restored)
-            require(_attachment_rows(restored) == target["before_rows"],
-                    "REVERT_NOT_EXACT|cue=" + target["cue_label"])
+            _require_attachment_rows_equal(
+                _attachment_rows(restored), target["before_rows"],
+                "REVERT_NOT_EXACT|cue=" + target["cue_label"])
         require(_outside_hash(_all_pair_rows(show), target_guids) == outside_before,
                 "REVERT_OUTSIDE_TARGET_SCOPE_CHANGED")
         return outside_before
@@ -1029,8 +1060,9 @@ def _run(mode):
         for target in plan["targets"]:
             unused_index, unused_cue, attachments = _target_current(readback_show, target)
             del unused_index, unused_cue
-            require(_attachment_rows(attachments) == target["before_rows"],
-                    "REVERT_READBACK_NOT_EXACT|cue=" + target["cue_label"])
+            _require_attachment_rows_equal(
+                _attachment_rows(attachments), target["before_rows"],
+                "REVERT_READBACK_NOT_EXACT|cue=" + target["cue_label"])
         archived = RECORD_PATH + ".reverted-" + run
         os.rename(RECORD_PATH, archived)
         _queue_master_test(world, "LIGHTING_LOOKS_REVERT", run)
