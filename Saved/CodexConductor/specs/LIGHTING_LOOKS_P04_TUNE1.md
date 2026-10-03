@@ -49,3 +49,15 @@ looks (rotation/pan keys on the fixture), with a short peak of glare: check the 
 intensity/threshold/bokeh) actually produces lens flare from an in-frame bright source (read the PPV/camera settings; enable
 modestly if off; report the values), and haze so the beam reads. Rare and brief, never a wash. One instance in P04 bays 1-6
 first, recorded for Gary.
+
+## FLASH EVENTS + A BLACK PASSAGE (Gary 3 Oct, noted for tune 4+): "total almost blackened darkness works really well if we can do
+## flash, like a polaroid flash effect, and maybe we can use infrequent bright blinking lights in a fairly dark part of a passage,
+## in moody at least, and also think about making one passage basically black, perhaps p04, while introducing trickling sequences
+## of bright flashes to show architecture and texture"
+- POLAROID FLASH: a near-instant, very bright, cool-white burst from AT/near the camera (a point/spot light parented to the
+  camera, ~1-2 frame attack, ~0.2-0.4 s decay), so everything in front is suddenly revealed with hard frontal light and black
+  shadows, then gone; optional short exposure lag (no auto-exposure pumping: fixed exposure). Event, keyed by camera distance.
+- INFREQUENT BLINKERS: in moody bays, single bright practicals that blink rarely and irregularly (seeded, never periodic).
+- THE BLACK PASSAGE (candidate P04, Gary's call): base look ~black (only a floor-edge glimmer), revealed by TRICKLING SEQUENCES
+  of flashes: bursts of 2-5 flashes at irregular intervals, some from the camera, some from fixtures deeper in the bays (so
+  architecture and texture show from different angles), with long dark gaps. Prototype on P04 bays 1-6 after tune 3/4 for Gary.
