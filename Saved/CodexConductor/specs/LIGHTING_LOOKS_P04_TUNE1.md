@@ -81,3 +81,11 @@ first, recorded for Gary.
    from the plan), so every light has a visible physical source.
 3. The FLARE SWEEP (see TUNE 4 above): one instance in bays 1-6.
 Revert-then-apply, verify, both tests, landed STATUS, re-record P04 bays 1-6 video + stills.
+
+## TUNE 3d (Gary 3 Oct, his answer on tune 3c (LightingLooks/20261003_224750): "Colour onto the wings, fix bay 2"):
+- THEATRICAL: aim the coloured accents AT WING SURFACES (bounded, partial: one gel per wing face, narrow cone/cutter so it paints part
+  of the wing), keep only a little floor colour; bay 6 gets its own distinct accent (it read plain brown).
+- MOODY bay 2: one right-hand wing blown to white in the still: find the cause (a practical too close/hot, or a side blade too strong)
+  and pull it below clipping.
+- Measure, don't eyeball: report per-bay luminance stats of the wing pixels (mean / p99) in the stills before/after.
+Revert-then-apply, verify, both tests, landed STATUS, re-record (engine-frame fallback is fine).
