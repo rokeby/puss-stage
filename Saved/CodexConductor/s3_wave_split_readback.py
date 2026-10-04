@@ -9,7 +9,7 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SEQUENCE_PATH = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
 RECORD_PATH = "E:/PussStage/Saved/CodexConductor/s3_wave_split_record.json"
 REPORT_PATH = "E:/PussStage/Saved/CodexConductor/s3_wave_split_readback.json"
-TAG = "RigAtmos.S3WaveSplit"
+TAG = "S3.WaveSplit.ToolOwned"  # must equal s3_wave_split_apply.py:46
 ORIGINALS = tuple("S3 Wave Row%d %s" % (row, side) for row in (1, 2, 3) for side in ("A", "B"))
 CHANNELS = ("Location.X", "Location.Y", "Location.Z",
             "Rotation.X", "Rotation.Y", "Rotation.Z", "Scale.X", "Scale.Y", "Scale.Z")
@@ -79,7 +79,7 @@ for row in record["originals"]:
     require(len(actors) == 1 and str(actors[0].get_path_name()) == row["actor_path"],
             "ORIGINAL_IDENTITY|label=" + row["label"])
     component = actors[0].get_component_by_class(unreal.StaticMeshComponent)
-    require(bool(actors[0].is_hidden()) and component is not None and not bool(component.is_visible()),
+    require(bool(actors[0].get_editor_property("hidden")) and component is not None and not bool(component.is_visible()),
             "ORIGINAL_VISIBILITY|label=" + row["label"])
 require({row["label"] for row in record["originals"]} == set(ORIGINALS), "ORIGINAL_SET")
 

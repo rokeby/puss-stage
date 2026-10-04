@@ -1,0 +1,302 @@
+{
+  "backup": "E:/PussStage/Backups\\PreS3WaveSplit-20261004-124722",
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "coverage": {
+    "inside_box_guard": true,
+    "piece_width_fraction": 0.6,
+    "worst_gap_cm": 0.0
+  },
+  "original_count": 6,
+  "period_seconds": 15.0,
+  "piece_count": 9,
+  "pieces": [
+    {
+      "binding_guid": "82366CFA4B7C80306B1FC1B59EFC9D1F",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row1 Piece1",
+      "seam_values": {
+        "Location.X": [
+          3665.000244140625,
+          3665.000244140625
+        ],
+        "Location.Y": [
+          -500.0,
+          -500.0
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "CBE0F814473981B0F39908B8A7504E04",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row1 Piece2",
+      "seam_values": {
+        "Location.X": [
+          3700.000244140625,
+          3700.000244140625
+        ],
+        "Location.Y": [
+          -64.27876281738281,
+          -64.27876281738281
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "A27A4CE649629AB8AECB878C37EE265A",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row1 Piece3",
+      "seam_values": {
+        "Location.X": [
+          3735.000244140625,
+          3735.000244140625
+        ],
+        "Location.Y": [
+          401.51922607421875,
+          401.51922607421875
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "504AE63D41B736211AF1999B13FA266D",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row2 Piece1",
+      "seam_values": {
+        "Location.X": [
+          4465.00048828125,
+          4465.00048828125
+        ],
+        "Location.Y": [
+          -459.3263244628906,
+          -459.3263244628906
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "19225B674BFAE744F84F94B917B43E38",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row2 Piece2",
+      "seam_values": {
+        "Location.X": [
+          4500.00048828125,
+          4500.00048828125
+        ],
+        "Location.Y": [
+          89.87940216064453,
+          89.87940216064453
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "4B190620436CB23F2C3BB9ABD624AC11",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row2 Piece3",
+      "seam_values": {
+        "Location.X": [
+          4535.00048828125,
+          4535.00048828125
+        ],
+        "Location.Y": [
+          597.0296020507812,
+          597.0296020507812
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "5F7601D04E57DDF6E591F6849FD21312",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row3 Piece1",
+      "seam_values": {
+        "Location.X": [
+          5265.00048828125,
+          5265.00048828125
+        ],
+        "Location.Y": [
+          -574.314453125,
+          -574.314453125
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "4B97375E4F66D9FEEBD51081880A5B1E",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row3 Piece2",
+      "seam_values": {
+        "Location.X": [
+          5300.00048828125,
+          5300.00048828125
+        ],
+        "Location.Y": [
+          -99.93907928466797,
+          -99.93907928466797
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "binding_guid": "99592D644841F50FDC1A499DF4375CA4",
+      "key_count": 2002,
+      "label": "S3 Wave Split Row3 Piece3",
+      "seam_values": {
+        "Location.X": [
+          5335.00048828125,
+          5335.00048828125
+        ],
+        "Location.Y": [
+          421.19891357421875,
+          421.19891357421875
+        ],
+        "Location.Z": [
+          115.0,
+          115.0
+        ],
+        "Rotation.X": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Y": [
+          0.0,
+          0.0
+        ],
+        "Rotation.Z": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "status": "saved_live_readback_verified",
+  "vamp_seam_equal_live_channels": true,
+  "vamp_seam_frames": [
+    3480,
+    4200
+  ]
+}
