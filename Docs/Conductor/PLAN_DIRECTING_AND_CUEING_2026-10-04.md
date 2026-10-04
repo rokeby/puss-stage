@@ -31,7 +31,7 @@
 1. **`LS_<Passage>_Choreo`**, one per Passage.
    - A tool creates them. A new Show field, `PassageSettings.Choreography` (a soft reference), points at each one.
    - The Master rebuild nests each one as a managed sub-section on the existing Scene track. The rebuild already writes managed sub-sections at `ISE/Private/InfinityStageSequenceBuilderLibrary.cpp:312-315` [decl].
-   - The sub-section starts **at the music section's start**, and its inner time is **song time**. One second in the Choreo is one second of the song.
+   - The sub-section spans the **Passage segment** (start to end), so pre-song moments fit; the song's grid sits inside at its offset (Gary Q2).
    - It follows retime, rematch and Passage resize because the rebuild moves it [inf; the same mechanism Scenes rely on, which the audit records as surviving rebuilds].
 2. **A beat and section grid.** The tool copies the song's analysis markers (`UInfinityStageMusicMapAsset` markers, `IS/Public/InfinityStageMusicMapAsset.h:40-52`) [decl] into the Choreo as marked frames, so keys can snap to musical moments.
    - Whether every rail has a map is not yet checked [inf].
@@ -76,7 +76,7 @@ These are already sequences nested in the Master, and **level lights are keyed i
 - **current and next** cues in large type, with notes and the time elapsed in the current cue;
 - **GO**, **Back**, **Jump to cue**, and **Re-run cue** (jump to the cue's frame, then play; this is the rehearsal loop for "repeat that moment");
 - a hold indicator;
-- in PIE, the GO key (question Q1).
+- in PIE, GO on both → and Space (Gary Q1); play/pause only from the Cue Desk.
 
 **Later, out of the 24 h scope:** sending OSC or MIDI to a real lighting or sound desk when a cue fires. The Cue Sheet gains an "external" column for this.
 
@@ -93,7 +93,7 @@ These are already sequences nested in the Master, and **level lights are keyed i
 - How "binds the actor" is detected is [inf] until it is written.
 
 **Restore state.** Sections that touch Show lamps are set to **Restore State**. The lamp then returns to its authored Show value when the section ends, and scrubbing backwards behaves the same way.
-- This is how the warmers work: they are keyed to 0 inside the Opening and restore to the authored 1740 cd at P01.
+- The warmers: keyed to 0 inside the Opening (Restore State). How they come on is Gary's to key (Q4).
 
 ## Build plan (24 h, about 24 % of Claude usage)
 
@@ -119,7 +119,7 @@ These are already sequences nested in the Master, and **level lights are keyed i
 After APPLY, run `SavedMasterMatchesShow` and `SceneCutBindingsResolve` singly.
 
 **PIE proof.**
-1. The warmers are keyed to 0 in the Opening and restore at P01.
+1. The warmers are OFF throughout the Opening and back at authored once its section ends.
 2. A test cue `GO 1` holds the Opening until →.
 3. One P01 Choreo key, a lamp flash on a beat, lands on the beat after a ±N-second retime dry run.
 
@@ -129,10 +129,11 @@ The probe is read-only and never ends PIE.
 
 ## Questions for Gary (sent as a questionnaire)
 
-- **Q1.** Which key is GO?
-- **Q2.** Choreo time base: song time, or Passage start?
-- **Q3.** Do wing motions need to be keyable in the Choreo tomorrow?
-- **Q4.** How do the warmers come on at the Opening→P01 seam?
+**Answered by Gary, 4 Oct evening (his own words, questionnaire):**
+- **Q1.** GO is **both → and Space**; play/pause moves to the Cue Desk.
+- **Q2.** Choreo 0:00 = **Passage start**: "we move INTO a passage often and lights and effects might happen BEFORE song starts". The song's beat/section markers sit inside the Choreo at the music section's offset (`RailOffsetFrames`); the tool re-syncs them if the offset changes and warns that keys did not move. **Passage spatial sound stays separate from the music**, on the Choreo's own audio tracks.
+- **Q3.** Wing motions later; arrangement via the Cue Desk now.
+- **Q4.** Warmers: just OFF in the Opening; Gary keys how they come on.
 
 ## UNCLEAR, and what would settle it
 
