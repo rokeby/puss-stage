@@ -25,7 +25,6 @@ import importlib.util
 import json
 import math
 import os
-import re
 import shutil
 
 try:
@@ -55,7 +54,6 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER_TEST = "InfinityStage.Editor.SavedMasterMatchesShow"
 PASSAGE_NUMBER = 4
-P04_LABEL = re.compile(r"^P04 Wing (\d{3})$")
 VALID_MODES = ("DRY", "APPLY", "REVERT")
 VALID_ROLES = ("TOP", "LOW_SIDE", "BEAM", "PRACTICAL")
 ROLE_LIMITS = {"TOP": (2, 2), "LOW_SIDE": (2, 2), "BEAM": (0, 1), "PRACTICAL": (0, 2)}
@@ -139,6 +137,9 @@ def validate_config(data):
     require(keying.get("after_pass") == "HOLD", "AFTER_PASS_NOT_HOLD")
     require(data.get("shadow_budget", {}).get("rule") == "after_lte_before",
             "SHADOW_BUDGET_RULE_WRONG")
+    cap = data.get("shadow_budget", {}).get("cap")
+    require(isinstance(cap, int) and cap > 0, "SHADOW_CAP_UNDECLARED")
+    _hex_guid(data.get("p04_scope", {}).get("passage_first_cue_guid"), "P04_SCOPE_FIRST_CUE")
 
     looks = data.get("looks", {})
     require(set(looks) == REQUIRED_LOOKS,
@@ -210,6 +211,10 @@ def validate_config(data):
                 "LOOK_SHADOW_CASTERS_NOT_2|look=" + look_name)
         all_slots[look_name] = slots
 
+    _require_unique_bay_guids(data)
+    if "tune4" in data:
+        validate_tune4(data["tune4"])
+
     for look_name, expected_ratio in (("MOODY", 16.0), ("THEATRICAL", 4.0)):
         sides = [float(row["intensity"]) for row in looks[look_name]["instruments"]
                  if row["role"] == "LOW_SIDE"]
@@ -229,8 +234,10 @@ def validate_config(data):
         expected = "P04 Wing %03d" % row["bay_index"]
         require(row.get("expected_label") == expected,
                 "BAY_LABEL_WRONG|bay=%s" % row.get("bay_index"))
-        require(row.get("resolve_identity") == "read fresh Show index and CueGuid",
-                "BAY_IDENTITY_NOT_FRESH|bay=%s" % row.get("bay_index"))
+        require(row.get("resolve_identity") == "CueGuid; label is a post-resolve drift check only",
+                "BAY_IDENTITY_NOT_GUID|bay=%s" % row.get("bay_index"))
+        require("cue_guid" in row, "BAY_CUE_GUID_MISSING|bay=%s" % row.get("bay_index"))
+        _hex_guid(row["cue_guid"], "BAY_CUE")
         require(_finite(row.get("level_scale"), "LEVEL_SCALE") > 0.0,
                 "BAD_LEVEL_SCALE|bay=%s" % row.get("bay_index"))
         require(row["look"] in all_slots, "UNKNOWN_BAY_LOOK|bay=%s" % row["bay_index"])
@@ -244,10 +251,14 @@ def validate_config(data):
                 and set(overrides).issubset(set(all_slots[row["look"]])),
                 "BAD_OVERRIDE_SLOTS|bay=%s" % row["bay_index"])
         allowed = {"intensity", "color_rgb_linear", "temperature_kelvin",
-                   "volumetric_scattering"}
+                   "volumetric_scattering", "inner_cone_deg", "outer_cone_deg",
+                   "attenuation_cm", "location_cm", "aim_wing_side",
+                   "aim_offset_pair_cm"}
         for slot, values in overrides.items():
             require(isinstance(values, dict) and set(values).issubset(allowed),
                     "BAD_OVERRIDE_FIELDS|bay=%s|slot=%s" % (row["bay_index"], slot))
+            source = next(item for item in looks[row["look"]]["instruments"]
+                          if item["slot"] == slot)
             if "intensity" in values:
                 require(_finite(values["intensity"], "OVERRIDE_INTENSITY") >= 0.0,
                         "BAD_OVERRIDE_INTENSITY|bay=%s|slot=%s" % (row["bay_index"], slot))
@@ -262,6 +273,45 @@ def validate_config(data):
             if "volumetric_scattering" in values:
                 require(_finite(values["volumetric_scattering"], "OVERRIDE_VOLUMETRIC") >= 0.0,
                         "BAD_OVERRIDE_VOLUMETRIC|bay=%s|slot=%s" % (row["bay_index"], slot))
+            if "attenuation_cm" in values:
+                require(_finite(values["attenuation_cm"], "OVERRIDE_ATTENUATION") > 0.0,
+                        "BAD_OVERRIDE_ATTENUATION|bay=%s|slot=%s" %
+                        (row["bay_index"], slot))
+            if "location_cm" in values:
+                location = values["location_cm"]
+                require(isinstance(location, list) and len(location) == 3
+                        and all(math.isfinite(float(value)) for value in location),
+                        "OVERRIDE_LOCATION_BAD|bay=%s|slot=%s" %
+                        (row["bay_index"], slot))
+            if "inner_cone_deg" in values or "outer_cone_deg" in values:
+                require(source["type"] == "SPOT",
+                        "CONE_OVERRIDE_NOT_SPOT|bay=%s|slot=%s" %
+                        (row["bay_index"], slot))
+                inner = _finite(values.get("inner_cone_deg", source["inner_cone_deg"]),
+                                "OVERRIDE_INNER_CONE")
+                outer = _finite(values.get("outer_cone_deg", source["outer_cone_deg"]),
+                                "OVERRIDE_OUTER_CONE")
+                require(0.0 <= inner <= outer <= 89.0,
+                        "BAD_OVERRIDE_CONE|bay=%s|slot=%s" % (row["bay_index"], slot))
+            if "aim_wing_side" in values or "aim_offset_pair_cm" in values:
+                require(source["type"] == "SPOT",
+                        "WING_AIM_NOT_SPOT|bay=%s|slot=%s" %
+                        (row["bay_index"], slot))
+                require(values.get("aim_wing_side") in ("LEFT", "RIGHT"),
+                        "WING_AIM_SIDE_BAD|bay=%s|slot=%s" %
+                        (row["bay_index"], slot))
+                offset = values.get("aim_offset_pair_cm")
+                require(isinstance(offset, list) and len(offset) == 3
+                        and all(math.isfinite(float(value)) for value in offset),
+                        "WING_AIM_OFFSET_BAD|bay=%s|slot=%s" %
+                        (row["bay_index"], slot))
+
+
+def _require_unique_bay_guids(data):
+    guids = [row.get("cue_guid") for row in data.get("bay_plan", [])]
+    require(all(guids), "BAY_CUE_GUID_MISSING|bays=%s" %
+            [row.get("bay_index") for row in data.get("bay_plan", []) if not row.get("cue_guid")])
+    require(len(guids) == len(set(guids)), "BAY_CUE_GUID_DUPLICATE")
 
 
 def fixture_label(config, bay_index, look_name, slot):
@@ -280,7 +330,11 @@ def expand_bay(config, bay_row):
         if row["role"] in mirror_roles:
             row["transform"]["location_cm"][1] *= -1.0
             row["transform"]["rotation_rpy_deg"][2] *= -1.0
-        row.update(copy.deepcopy(overrides.get(row["slot"], {})))
+        fixture_override = copy.deepcopy(overrides.get(row["slot"], {}))
+        override_location = fixture_override.pop("location_cm", None)
+        if override_location is not None:
+            row["transform"]["location_cm"] = [float(value) for value in override_location]
+        row.update(fixture_override)
         row["intensity"] = float(row["intensity"]) * scale
         row["label"] = fixture_label(config, bay_row["bay_index"], look_name, row["slot"])
         row["bay_index"] = int(bay_row["bay_index"])
@@ -312,6 +366,658 @@ def expand_bay(config, bay_row):
     return expanded
 
 
+# --------------------------------------------------------------------------
+# TUNE 4 (specs/LIGHTING_LOOKS_P04_TUNE1.md, "TUNE 4" sections): fence-socket
+# hosting, beams through torn/half tarp bays, one flare sweep, PPV report.
+#
+# Identity rule: every cue is resolved by CueGuid. Labels are only compared
+# after a GUID resolve, as a drift guard; no code path finds a cue by label.
+#
+# Frame rule (declaration-proven): a Station-anchored attachment is placed at
+# RelativeTransform * WingPair.OccurrenceOffset * route(Wing.DistanceCm)
+# (InfinityStagePassageActor.cpp:1646-1649). Lights here and FV3FB fence props
+# are both Station-anchored (this file _make_light; fb_workflow.py:695), so a
+# socket on a post anchored to cue A lands in cue B's frame by adding the
+# station-x difference read from the fence plan's own anchors. The runtime
+# refuses if either cue's OccurrenceOffset is not identity.
+#
+# Intermittency/brevity use the existing keyed-intensity route the looks use:
+# FInfinityStageLightDrama strike-on-approach with AfterPass=Extinguish and a
+# GUID-seeded ignition stutter (InfinityStageLightDrama.h:38-76,
+# InfinityStageLightDrama.cpp:24-59), evaluated against camera route distance
+# at Wing.DistanceCm + RelativeTransform.X (InfinityStagePassageActor.cpp:1650-1660).
+# The flare pan is the same struct's SlowMove, which follows the Show master
+# clock, not distance (InfinityStageLightDrama.h:78-104).
+# --------------------------------------------------------------------------
+SOCKET_HOSTED_ROLES = ("LOW_SIDE", "PRACTICAL", "FENCE_BEAM", "FLARE_SWEEP")
+TUNE4_ADDED_ROLES = ("FENCE_BEAM", "FLARE_SWEEP")
+BEAM_SOCKET = "SOCKET_Back_01"
+BEAM_VARIANTS = ("tarp_torn", "tarp_half")
+DRAMA_OVERRIDE_FIELDS = (
+    "strike_distance_cm", "strike_ramp_cm", "ignition_stutter", "after_pass",
+    "after_pass_distance_cm", "decay_distance_cm", "slow_move",
+    "pan_amplitude_degrees", "tilt_amplitude_degrees", "period_seconds",
+    "phase_from_identity", "phase_cycles",
+)
+PPV_FIELDS = (
+    "bloom_intensity", "bloom_threshold", "lens_flare_intensity",
+    "lens_flare_threshold", "lens_flare_bokeh_size", "lens_flare_tint",
+    "auto_exposure_method", "auto_exposure_bias",
+)
+PPV_CHANGE_FIELDS = ("bloom_intensity", "lens_flare_intensity", "lens_flare_threshold")
+
+
+def _hex_guid(value, label):
+    text = str(value or "")
+    require(len(text) == 32 and all(c in "0123456789ABCDEF" for c in text)
+            and any(c != "0" for c in text),
+            "%s_GUID_INVALID|value=%r" % (label, value))
+    return text
+
+
+def _range_pair(value, label, lo_min=None):
+    require(isinstance(value, list) and len(value) == 2, "%s_RANGE_BAD" % label)
+    lo = _finite(value[0], label)
+    hi = _finite(value[1], label)
+    require(lo <= hi and (lo_min is None or lo >= lo_min), "%s_RANGE_BAD" % label)
+    return lo, hi
+
+
+def _validate_tune4_fixture(row, label):
+    require(row.get("type") == "SPOT", "%s_NOT_SPOT" % label)
+    require(row.get("intensity_units") in ("CANDELAS", "LUMENS"), "%s_UNITS" % label)
+    require(_finite(row.get("intensity"), label) > 0.0, "%s_INTENSITY" % label)
+    require(_finite(row.get("attenuation_cm"), label) > 0.0, "%s_ATTENUATION" % label)
+    rgb = row.get("color_rgb_linear", [])
+    require(len(rgb) == 3 and all(_finite(v, label) >= 0.0 for v in rgb), "%s_RGB" % label)
+    require(1000.0 <= _finite(row.get("temperature_kelvin"), label) <= 15000.0,
+            "%s_TEMPERATURE" % label)
+    inner = _finite(row.get("inner_cone_deg"), label)
+    outer = _finite(row.get("outer_cone_deg"), label)
+    require(0.0 <= inner <= outer <= 89.0, "%s_CONE" % label)
+    require(_finite(row.get("volumetric_scattering"), label) > 0.0,
+            "%s_HAZE_OFF" % label)
+
+
+def validate_tune4(t):
+    require(isinstance(t.get("enabled"), bool), "TUNE4_ENABLED_UNDECLARED")
+    for key in ("fence_plan", "fence_socket_sidecar", "tarp_holes"):
+        require(isinstance(t.get(key), str) and t[key], "TUNE4_PATH_MISSING|key=" + key)
+    require(str(t.get("tree_post_mesh", "")).startswith("/Game/"), "TUNE4_TREE_POST_MESH")
+    require(_finite(t.get("live_position_tolerance_cm"), "TOL") > 0.0, "TUNE4_TOLERANCE")
+    require(_finite(t.get("live_yaw_tolerance_deg"), "TOL") > 0.0, "TUNE4_TOLERANCE")
+    hosted = t.get("socket_hosted_roles", {})
+    require(set(hosted) == {"LOW_SIDE", "PRACTICAL"}, "TUNE4_HOSTED_ROLES")
+    require(hosted["LOW_SIDE"] == ["SOCKET_Low_01", "SOCKET_Low_02"],
+            "TUNE4_LOW_SOCKETS")
+    require(hosted["PRACTICAL"] == ["SOCKET_Lamp_01", "SOCKET_Lamp_02",
+                                    "SOCKET_Lamp_03", "SOCKET_Lamp_04"],
+            "TUNE4_LAMP_SOCKETS")
+    structure = t.get("structure_hosted_roles", [])
+    require(set(structure) <= {"TOP", "BEAM"} and not set(structure) & set(hosted),
+            "TUNE4_STRUCTURE_ROLES")
+    beams = t.get("beams", {})
+    require(beams.get("socket") == BEAM_SOCKET,
+            "BEAM_SOCKET_NOT_BACK|socket=%s" % beams.get("socket"))
+    variants = beams.get("eligible_variants", [])
+    require(variants and set(variants) <= set(BEAM_VARIANTS),
+            "BEAM_VARIANT_NOT_TORN_OR_HALF|variants=%s" % variants)
+    require(isinstance(beams.get("seed"), int), "BEAM_SEED")
+    require(isinstance(beams.get("count"), int) and beams["count"] >= 1, "BEAM_COUNT")
+    require(isinstance(beams.get("max_per_host_cue"), int)
+            and beams["max_per_host_cue"] >= 1, "BEAM_MAX_PER_CUE")
+    _range_pair(beams.get("tear_height_window_m"), "BEAM_TEAR_WINDOW", 0.0)
+    pitch = _range_pair(beams.get("pitch_window_deg"), "BEAM_PITCH_WINDOW")
+    require(-45.0 <= pitch[0] and pitch[1] <= 15.0, "BEAM_PITCH_WINDOW_NOT_SHALLOW")
+    _validate_tune4_fixture(beams.get("fixture", {}), "BEAM_FIXTURE")
+    require(beams["fixture"].get("cast_shadows") is True,
+            "BEAM_MUST_CAST_TO_BE_SHAPED_BY_TARP")
+    inter = beams.get("intermittency", {})
+    _range_pair(inter.get("strike_distance_cm"), "BEAM_STRIKE", 0.0)
+    _range_pair(inter.get("strike_ramp_cm"), "BEAM_RAMP", 1.0)
+    stutter = _range_pair(inter.get("ignition_stutter"), "BEAM_STUTTER", 0.0)
+    require(stutter[1] <= 1.0, "BEAM_STUTTER_RANGE_BAD")
+    _range_pair(inter.get("after_pass_distance_cm"), "BEAM_AFTER_PASS", 0.0)
+    require(inter.get("after_pass") == "EXTINGUISH", "BEAM_AFTER_PASS_NOT_EXTINGUISH")
+    require(isinstance(inter.get("flicker_materials"), list)
+            and inter["flicker_materials"], "BEAM_FLICKER_SET")
+    flare = t.get("flare_sweep", {})
+    require(isinstance(flare.get("seed"), int), "FLARE_SEED")
+    require(flare.get("socket") == "SOCKET_Top", "FLARE_SOCKET_NOT_TOP")
+    require(flare.get("host_bays") and set(flare["host_bays"]) <= set(range(1, 7)),
+            "FLARE_HOST_BAYS")
+    _validate_tune4_fixture(flare.get("fixture", {}), "FLARE_FIXTURE")
+    require(flare["fixture"].get("cast_shadows") is False, "FLARE_MUST_NOT_CAST")
+    require(_finite(flare.get("camera_height_cm"), "FLARE") > 0.0, "FLARE_CAMERA_HEIGHT")
+    require(_finite(flare.get("aim_lead_cm"), "FLARE") > 0.0, "FLARE_AIM_LEAD")
+    drama = flare.get("drama", {})
+    require(set(drama) <= set(DRAMA_OVERRIDE_FIELDS), "FLARE_DRAMA_FIELDS")
+    require(drama.get("after_pass") == "EXTINGUISH" and drama.get("slow_move") is True,
+            "FLARE_NOT_BRIEF_SWEEP")
+    require(0.0 < _finite(drama.get("pan_amplitude_degrees"), "FLARE") <= 45.0,
+            "FLARE_PAN_RANGE")
+    ppv = t.get("ppv", {})
+    require(ppv.get("change_flag") == "LIGHTING_LOOKS_ALLOW_PPV_CHANGE", "PPV_FLAG_NAME")
+    require(set(ppv.get("requested_change", {})) <= set(PPV_CHANGE_FIELDS),
+            "PPV_CHANGE_FIELDS")
+
+
+def _config_relative(path, config_dir=None):
+    base = config_dir or os.path.dirname(CONFIG_PATH)
+    return os.path.normpath(os.path.join(base, path))
+
+
+def _rotate_z(vector, yaw_deg):
+    radians = math.radians(float(yaw_deg))
+    c, s = math.cos(radians), math.sin(radians)
+    x, y, z = (float(v) for v in vector)
+    return [c * x - s * y, s * x + c * y, z]
+
+
+def fence_model(config, plan, sidecar):
+    """Validate the fence plan read at run time; return GUID-keyed geometry."""
+    t = config["tune4"]
+    require(plan.get("passage") == "P04", "FENCE_PLAN_NOT_P04")
+    require(plan.get("authority", {}).get("kind") == "Show Prop attachments",
+            "FENCE_PLAN_AUTHORITY_NOT_SHOW_PROPS")
+    sockets = {}
+    for row in sidecar.get("sockets", []):
+        rotation = row.get("relative_rotation_deg", {})
+        sockets[row["name"]] = {
+            "location_cm": [float(v) for v in row["relative_location_cm"]],
+            "rotation_rpy_deg": [float(rotation.get("roll", 0.0)),
+                                 float(rotation.get("pitch", 0.0)),
+                                 float(rotation.get("yaw", 0.0))],
+        }
+    required = list(plan.get("guards", {}).get("required_lighting_sockets", []))
+    require(required and set(required) <= set(sockets),
+            "FENCE_SOCKET_SIDECAR_MISSING|missing=%s" %
+            ",".join(sorted(set(required) - set(sockets))))
+    station_x = {}
+
+    def note_station(anchor, passage_location):
+        guid = _hex_guid(anchor.get("cue_guid"), "FENCE_ANCHOR")
+        relative = [float(v) for v in anchor["relative_location_cm"]]
+        require(abs(float(passage_location[1]) - relative[1]) < 1.0e-6
+                and abs(float(passage_location[2]) - relative[2]) < 1.0e-6,
+                "FENCE_ANCHOR_NOT_X_ONLY|cue=" + guid)
+        value = float(passage_location[0]) - relative[0]
+        previous = station_x.setdefault(guid, value)
+        require(abs(previous - value) < 1.0e-6,
+                "FENCE_STATION_INCONSISTENT|cue=%s|a=%s|b=%s" % (guid, previous, value))
+        return guid, relative
+
+    posts = []
+    for post in plan.get("posts", []):
+        guid, relative = note_station(post["anchor"], post["passage_local_transform_cm"]["location"])
+        if not post.get("lighting_tree"):
+            continue
+        require(post.get("mesh") == t["tree_post_mesh"],
+                "FENCE_TREE_POST_MESH|post=%s%s" % (post["side"], post["post_index"]))
+        require(set(required) <= set(post.get("socket_names", [])),
+                "FENCE_TREE_POST_SOCKETS|post=%s%s" % (post["side"], post["post_index"]))
+        posts.append({
+            "side": post["side"],
+            "post_index": int(post["post_index"]),
+            "anchor_cue_guid": guid,
+            "relative_location_cm": relative,
+            "yaw_deg": float(post["passage_local_transform_cm"]["rotation_deg"][2]),
+            "passage_location_cm": [float(v) for v in
+                                    post["passage_local_transform_cm"]["location"]],
+            "mesh": post["mesh"],
+        })
+    bays = []
+    for bay in plan.get("bays", []):
+        guid, relative = note_station(bay["anchor"], bay["passage_local_transform_cm"]["location"])
+        bays.append({
+            "side": bay["side"],
+            "bay": int(bay["bay"]),
+            "variant": bay["variant"],
+            "anchor_cue_guid": guid,
+            "relative_location_cm": relative,
+            "yaw_deg": float(bay["passage_local_transform_cm"]["rotation_deg"][2]),
+            "passage_location_cm": [float(v) for v in
+                                    bay["passage_local_transform_cm"]["location"]],
+            "meshes": [row["mesh"] for row in bay.get("attachments", [])],
+        })
+    require({row["side"] for row in posts} == {"left", "right"},
+            "FENCE_TREE_POSTS_NOT_BOTH_SIDES")
+    return {
+        "plan_run_id": plan.get("run_id"),
+        "plan_status": plan.get("status"),
+        "station_x": station_x,
+        "tree_posts": posts,
+        "bays": bays,
+        "sockets": sockets,
+        "required_sockets": required,
+    }
+
+
+def load_fence_model(config, config_dir=None):
+    t = config["tune4"]
+    plan_path = _config_relative(t["fence_plan"], config_dir)
+    sidecar_path = _config_relative(t["fence_socket_sidecar"], config_dir)
+    require(os.path.isfile(plan_path), "FENCE_PLAN_ABSENT|path=" + plan_path)
+    require(os.path.isfile(sidecar_path), "FENCE_SOCKET_SIDECAR_ABSENT|path=" + sidecar_path)
+    model = fence_model(config, _read_json(plan_path), _read_json(sidecar_path))
+    model["plan_path"] = plan_path
+    model["plan_sha256"] = _sha256_file(plan_path)
+    model["sidecar_path"] = sidecar_path
+    model["sidecar_sha256"] = _sha256_file(sidecar_path)
+    holes_path = _config_relative(t["tarp_holes"], config_dir)
+    require(os.path.isfile(holes_path), "TARP_HOLES_ABSENT|path=" + holes_path)
+    holes = _read_json(holes_path)
+    model["tear_rows"] = {variant: holes["rows"][variant]["tears_m"]
+                          for variant in BEAM_VARIANTS}
+    model["tarp_holes_sha256"] = _sha256_file(holes_path)
+    return model
+
+
+def _live_prop_match(cue, mesh, relative_location, yaw_deg, t):
+    tolerance = float(t["live_position_tolerance_cm"])
+    yaw_tolerance = float(t["live_yaw_tolerance_deg"])
+    hits = []
+    for attachment in cue.get("attachments", []):
+        if str(attachment.get("kind", "")).upper() != "PROP":
+            continue
+        if str(attachment.get("mesh") or "").split(".", 1)[0] != mesh:
+            continue
+        location = attachment.get("relative_location_cm") or [math.inf] * 3
+        if max(abs(float(a) - float(b)) for a, b in zip(location, relative_location)) > tolerance:
+            continue
+        delta = (float(attachment.get("relative_yaw_deg", 0.0)) - float(yaw_deg)) % 360.0
+        if min(delta, 360.0 - delta) > yaw_tolerance:
+            continue
+        hits.append(attachment)
+    return hits
+
+
+def require_fence_live(config, model, cues):
+    """Refuse unless every tree post and every beam bay's props are in the live Show.
+
+    Matched by anchor CueGuid + Prop kind + mesh + relative pose (never label).
+    """
+    t = config["tune4"]
+    by_guid = {str(cue["guid"]): cue for cue in cues}
+    missing = []
+    for post in model["tree_posts"]:
+        cue = by_guid.get(post["anchor_cue_guid"])
+        hits = [] if cue is None else _live_prop_match(
+            cue, post["mesh"], post["relative_location_cm"], post["yaw_deg"], t)
+        if len(hits) != 1:
+            missing.append("post:%s%02d:%d" % (post["side"][0].upper(), post["post_index"], len(hits)))
+            continue
+        post["live_attachment_guid"] = str(hits[0]["guid"])
+        if not bool(hits[0].get("enabled", True)):
+            missing.append("post_disabled:%s%02d" % (post["side"][0].upper(), post["post_index"]))
+    for bay in model["bays"]:
+        if bay["variant"] not in config["tune4"]["beams"]["eligible_variants"]:
+            continue
+        cue = by_guid.get(bay["anchor_cue_guid"])
+        bay["live_attachment_guids"] = []
+        for mesh in bay["meshes"]:
+            hits = [] if cue is None else _live_prop_match(
+                cue, mesh, bay["relative_location_cm"], bay["yaw_deg"], t)
+            if len(hits) != 1:
+                missing.append("bay:%s%02d:%s:%d" % (
+                    bay["side"][0].upper(), bay["bay"], mesh.rsplit("/", 1)[-1], len(hits)))
+            else:
+                bay["live_attachment_guids"].append(str(hits[0]["guid"]))
+    require(not missing, "FENCE_PROPS_MISSING|count=%d|first=%s" %
+            (len(missing), ",".join(missing[:8])))
+    for guid in {post["anchor_cue_guid"] for post in model["tree_posts"]}:
+        require(bool(by_guid[guid].get("occurrence_offset_identity", True)),
+                "FENCE_ANCHOR_OCCURRENCE_OFFSET_NOT_IDENTITY|cue=" + guid)
+    return model
+
+
+def _socket_world(model, post, socket_name):
+    socket = model["sockets"][socket_name]
+    offset = _rotate_z(socket["location_cm"], post["yaw_deg"])
+    location = [p + o for p, o in zip(post["passage_location_cm"], offset)]
+    forward_yaw = (post["yaw_deg"] + socket["rotation_rpy_deg"][2]) % 360.0
+    return location, forward_yaw
+
+
+def _to_cue_frame(model, passage_location, cue_guid):
+    require(cue_guid in model["station_x"], "FENCE_STATION_UNKNOWN|cue=" + cue_guid)
+    return [passage_location[0] - model["station_x"][cue_guid],
+            passage_location[1], passage_location[2]]
+
+
+def _forward_from_rpy(rpy):
+    pitch, yaw = math.radians(float(rpy[1])), math.radians(float(rpy[2]))
+    return [math.cos(pitch) * math.cos(yaw), math.cos(pitch) * math.sin(yaw), math.sin(pitch)]
+
+
+def _centre_plane_aim(location, rpy):
+    """The authored ray's crossing of y=0 (corridor centre plane), else 10 m out."""
+    forward = _forward_from_rpy(rpy)
+    if abs(forward[1]) > 1.0e-6 and forward[1] * float(location[1]) < 0.0:
+        distance = -float(location[1]) / forward[1]
+    else:
+        distance = 1000.0
+    return [float(location[i]) + distance * forward[i] for i in range(3)]
+
+
+def _host_record(post, socket_name, cue_guid, socket_location_cue):
+    return {
+        "post": "%s%02d" % (post["side"][0].upper(), post["post_index"]),
+        "post_anchor_cue_guid": post["anchor_cue_guid"],
+        "post_attachment_guid": post.get("live_attachment_guid"),
+        "socket": socket_name,
+        "host_cue_guid": cue_guid,
+        "socket_location_in_host_cue_cm": list(socket_location_cue),
+    }
+
+
+def _allocate_socket(model, used, side, passage_x, socket_names, label):
+    posts = sorted((post for post in model["tree_posts"] if post["side"] == side),
+                   key=lambda post: (abs(post["passage_location_cm"][0] - passage_x),
+                                     post["passage_location_cm"][0]))
+    for rank, post in enumerate(posts):
+        for name in socket_names:
+            key = (post["side"], post["post_index"], name)
+            if key not in used:
+                used[key] = label
+                return post, name, rank
+    raise LightingLooksError("SOCKET_HOST_EXHAUSTED|fixture=%s|side=%s" % (label, side))
+
+
+def _tear_points(bay, tear_rows, window, inset=0.3):
+    """Candidate aim points inside each tear, in passage-local cm.
+
+    tarp_holes.json gives each tear as a polygon in metres, u along the bay
+    from its start (bay-local x = u*100 - 200 cm, build_fence_bay.py:800) and
+    z up. Candidates are the polygon's vertices and edge midpoints pulled
+    ``inset`` of the way toward the centroid, so the aim lies inside the hole.
+    """
+    points = []
+    for tear_index, polygon in enumerate(tear_rows):
+        xs = [float(p[0]) for p in polygon]
+        zs = [float(p[1]) for p in polygon]
+        cx, cz = sum(xs) / len(xs), sum(zs) / len(zs)
+        raw = [(float(p[0]), float(p[1])) for p in polygon]
+        raw += [((float(a[0]) + float(b[0])) / 2.0, (float(a[1]) + float(b[1])) / 2.0)
+                for a, b in zip(polygon, list(polygon[1:]) + [polygon[0]])]
+        raw.append((cx, cz))
+        for u, z in raw:
+            u = u + (cx - u) * inset
+            z = z + (cz - z) * inset
+            if not window[0] <= z <= window[1]:
+                continue
+            local = _rotate_z([u * 100.0 - 200.0, 0.0, z * 100.0], bay["yaw_deg"])
+            points.append({"tear": tear_index, "u_m": u, "z_m": z,
+                           "passage_location_cm": [b + l for b, l in
+                                                   zip(bay["passage_location_cm"], local)]})
+    return points
+
+
+def _beam_through(source_passage, inward_yaw_deg, tears, pitch_window, label):
+    """Most-across shallow path: least yaw off the socket's inward normal within the pitch window."""
+    best = None
+    for tear in tears:
+        rotation = _look_at_rpy(source_passage, tear["passage_location_cm"], label)
+        off = abs(((rotation[2] - inward_yaw_deg) + 180.0) % 360.0 - 180.0)
+        if not pitch_window[0] <= rotation[1] <= pitch_window[1] or off >= 89.0:
+            continue
+        key = (round(off, 6), abs(rotation[1]))
+        if best is None or key < best[0]:
+            best = (key, tear, rotation, off)
+    require(best is not None, "BEAM_NO_SHALLOW_PATH|fixture=" + label)
+    unused_key, tear, rotation, off = best
+    del unused_key
+    return tear, rotation, off
+
+
+def _seeded(rng, pair):
+    lo, hi = pair
+    value = rng.random()
+    return lo + (hi - lo) * value
+
+
+def tune4_fixtures(config, model, target_rows, tear_rows_by_variant):
+    """Relocate LOW_SIDE/PRACTICAL to sockets, add beams + one flare sweep.
+
+    Mutates each target's fixtures in place; deterministic for a given config,
+    fence plan and tear table (single draw per statement, fixed order).
+    """
+    import random
+
+    t = config["tune4"]
+    hosted = t["socket_hosted_roles"]
+    used = {}
+    moves = []
+    for target in target_rows:
+        guid = target["cue_guid"]
+        station = model["station_x"].get(guid)
+        require(station is not None, "TARGET_NOT_IN_FENCE_PLAN|cue=" + guid)
+        lights = {row["slot"]: row for row in target["fixtures"]
+                  if row["authored_kind"] == "LIGHT"}
+        for row in target["fixtures"]:
+            if row["authored_kind"] != "LIGHT" or row["role"] not in hosted:
+                continue
+            old = list(row["transform"]["location_cm"])
+            side = "left" if old[1] < 0.0 else "right"
+            post, socket_name, rank = _allocate_socket(
+                model, used, side, station + old[0], hosted[row["role"]], row["label"])
+            socket_passage, forward_yaw = _socket_world(model, post, socket_name)
+            new = _to_cue_frame(model, socket_passage, guid)
+            if row["role"] == "LOW_SIDE":
+                aim = _centre_plane_aim(old, row["transform"]["rotation_rpy_deg"])
+                row["transform"]["rotation_rpy_deg"] = _look_at_rpy(new, aim, row["label"])
+                row["reaim_point_cm"] = aim
+            elif row["type"] == "RECT":
+                rpy = list(row["transform"]["rotation_rpy_deg"])
+                row["transform"]["rotation_rpy_deg"] = [rpy[0], rpy[1], forward_yaw]
+            row["transform"]["location_cm"] = new
+            row["socket_host"] = _host_record(post, socket_name, guid, new)
+            row["socket_host"]["nearest_rank"] = rank
+            moves.append({"fixture": row["label"], "from_cm": old, "to_cm": new,
+                          "moved_cm": math.dist(old, new), "socket_host": row["socket_host"]})
+        for row in target["fixtures"]:
+            if row.get("authored_kind") == "PROP" and row.get("paired_slot") in lights:
+                light = lights[row["paired_slot"]]
+                row["transform"]["location_cm"] = list(light["transform"]["location_cm"])
+                row["socket_host"] = copy.deepcopy(light.get("socket_host"))
+
+    beams_cfg = t["beams"]
+    by_target = {row["cue_guid"]: row for row in target_rows}
+    eligible = [bay for bay in model["bays"]
+                if bay["variant"] in beams_cfg["eligible_variants"]
+                and bay["anchor_cue_guid"] in by_target]
+    def adjacent_tree_post(bay):
+        posts = [post for post in model["tree_posts"] if post["side"] == bay["side"]
+                 and abs(abs(post["passage_location_cm"][0] - bay["passage_location_cm"][0])
+                         - 200.0) < 1.0e-3]
+        require(len(posts) == 1, "BEAM_BAY_TREE_POST_COUNT|bay=%s%02d|count=%d" %
+                (bay["side"][0].upper(), bay["bay"], len(posts)))
+        return posts[0]
+
+    rng = random.Random(int(beams_cfg["seed"]))
+    hosts = sorted({bay["anchor_cue_guid"] for bay in eligible},
+                   key=lambda guid: by_target[guid]["bay_index"])
+    rng.shuffle(hosts)
+    chosen = []
+    per_host = {}
+    for guid in hosts:
+        options = sorted((bay for bay in eligible if bay["anchor_cue_guid"] == guid),
+                         key=lambda bay: (bay["side"], bay["bay"]))
+        rng.shuffle(options)
+        for bay in options:
+            if len(chosen) >= beams_cfg["count"]:
+                break
+            if per_host.get(guid, 0) >= beams_cfg["max_per_host_cue"]:
+                break
+            post = adjacent_tree_post(bay)
+            if (post["side"], post["post_index"], BEAM_SOCKET) in used:
+                continue  # one Back socket per tree post
+            used[(post["side"], post["post_index"], BEAM_SOCKET)] = "reserved"
+            chosen.append((bay, post))
+            per_host[guid] = per_host.get(guid, 0) + 1
+    require(len(chosen) == beams_cfg["count"],
+            "BEAM_COUNT_UNREACHABLE|wanted=%d|eligible_hosts=%d" %
+            (beams_cfg["count"], len(hosts)))
+    chosen.sort(key=lambda pair: (by_target[pair[0]["anchor_cue_guid"]]["bay_index"],
+                                  pair[0]["side"], pair[0]["bay"]))
+    beams = []
+    inter = beams_cfg["intermittency"]
+    for bay, post in chosen:
+        target = by_target[bay["anchor_cue_guid"]]
+        key = (post["side"], post["post_index"], BEAM_SOCKET)
+        slot = "FENCE_BEAM_%s%02d" % (bay["side"][0].upper(), bay["bay"])
+        label = fixture_label(config, target["bay_index"], target["look"], slot)
+        used[key] = label
+        source_passage, inward_yaw = _socket_world(model, post, BEAM_SOCKET)
+        tears = _tear_points(bay, tear_rows_by_variant[bay["variant"]],
+                             beams_cfg["tear_height_window_m"])
+        require(tears, "BEAM_NO_TEAR_IN_WINDOW|bay=%s%02d" % (bay["side"][0].upper(), bay["bay"]))
+        tear, unused_rotation, yaw_off_normal = _beam_through(
+            source_passage, inward_yaw, tears, beams_cfg["pitch_window_deg"], label)
+        del unused_rotation
+        source = _to_cue_frame(model, source_passage, target["cue_guid"])
+        through = _to_cue_frame(model, tear["passage_location_cm"], target["cue_guid"])
+        rotation = _look_at_rpy(source, through, label)
+        fixture = copy.deepcopy(beams_cfg["fixture"])
+        strike = _seeded(rng, inter["strike_distance_cm"])
+        ramp = _seeded(rng, inter["strike_ramp_cm"])
+        stutter = _seeded(rng, inter["ignition_stutter"])
+        after = _seeded(rng, inter["after_pass_distance_cm"])
+        flicker_index = rng.randrange(len(inter["flicker_materials"]))
+        flicker_material = inter["flicker_materials"][flicker_index]
+        fixture.update({
+            "slot": slot,
+            "role": "FENCE_BEAM",
+            "authored_kind": "LIGHT",
+            "label": label,
+            "bay_index": target["bay_index"],
+            "look": target["look"],
+            "transform": {"location_cm": source, "rotation_rpy_deg": rotation},
+            "flicker": {"mode": "SEEDED" if flicker_material else "STEADY",
+                        "material": flicker_material},
+            "distance_keying": copy.deepcopy(config["distance_keying"]),
+            "drama": {"strike_distance_cm": round(strike, 3),
+                      "strike_ramp_cm": round(ramp, 3),
+                      "ignition_stutter": round(stutter, 4),
+                      "after_pass": inter["after_pass"],
+                      "after_pass_distance_cm": round(after, 3)},
+            "fence_bay": {"side": bay["side"], "bay": bay["bay"], "variant": bay["variant"],
+                          "live_attachment_guids": bay.get("live_attachment_guids", [])},
+            "through_tear": {"tear": tear["tear"], "u_m": tear["u_m"], "z_m": tear["z_m"],
+                             "in_host_cue_cm": through,
+                             "yaw_off_fence_normal_deg": round(yaw_off_normal, 3),
+                             "pitch_deg": round(rotation[1], 3)},
+            "socket_host": _host_record(post, BEAM_SOCKET, target["cue_guid"], source),
+        })
+        casters = sorted((row for row in target["fixtures"]
+                          if row["authored_kind"] == "LIGHT" and row.get("cast_shadows")
+                          and row["role"] == "LOW_SIDE"),
+                         key=lambda row: (float(row["intensity"]), row["slot"]))
+        require(casters, "BEAM_SHADOW_SWAP_MISSING|cue=" + target["cue_guid"])
+        casters[0]["cast_shadows"] = False
+        casters[0]["shadow_swapped_to"] = slot
+        fixture["shadow_swapped_from"] = casters[0]["slot"]
+        target["fixtures"].append(fixture)
+        beams.append(fixture)
+
+    flare_cfg = t["flare_sweep"]
+    flare_rng = random.Random(int(flare_cfg["seed"]))
+    host_bays = sorted(flare_cfg["host_bays"])
+    host_bay = host_bays[flare_rng.randrange(len(host_bays))]
+    target = next(row for row in target_rows if row["bay_index"] == host_bay)
+    station = model["station_x"][target["cue_guid"]]
+    side = ("left", "right")[flare_rng.randrange(2)]
+    slot = "FLARE_SWEEP"
+    label = fixture_label(config, target["bay_index"], target["look"], slot)
+    post, socket_name, rank = _allocate_socket(
+        model, used, side, station, [flare_cfg["socket"]], label)
+    socket_passage, unused_yaw = _socket_world(model, post, socket_name)
+    del unused_yaw
+    source = _to_cue_frame(model, socket_passage, target["cue_guid"])
+    aim = [source[0] - float(flare_cfg["aim_lead_cm"]), 0.0, float(flare_cfg["camera_height_cm"])]
+    flare = copy.deepcopy(flare_cfg["fixture"])
+    flare.update({
+        "slot": slot, "role": "FLARE_SWEEP", "authored_kind": "LIGHT", "label": label,
+        "bay_index": target["bay_index"], "look": target["look"],
+        "transform": {"location_cm": source,
+                      "rotation_rpy_deg": _look_at_rpy(source, aim, label)},
+        "flicker": {"mode": "STEADY", "material": None},
+        "distance_keying": copy.deepcopy(config["distance_keying"]),
+        "drama": copy.deepcopy(flare_cfg["drama"]),
+        "aim_point_cm": aim,
+        "socket_host": _host_record(post, socket_name, target["cue_guid"], source),
+    })
+    flare["socket_host"]["nearest_rank"] = rank
+    target["fixtures"].append(flare)
+    for target in target_rows:
+        target["fixture_count"] = len(target["fixtures"])
+        target["new_shadow_casters"] = sum(bool(row.get("cast_shadows"))
+                                           for row in target["fixtures"]
+                                           if row["authored_kind"] == "LIGHT")
+        target["light_fixture_count"] = sum(row["authored_kind"] == "LIGHT"
+                                            for row in target["fixtures"])
+    return {"moves": moves, "beams": [row["label"] for row in beams],
+            "flare_sweep": flare["label"], "socket_use": len(used)}
+
+
+def require_socket_hosts(config, target_rows):
+    """No light in a socket-hosted role may lack a socket host; beams only Back+torn/half."""
+    structure = set(config["tune4"]["structure_hosted_roles"])
+    for target in target_rows:
+        for row in target["fixtures"]:
+            if row["authored_kind"] != "LIGHT":
+                continue
+            if row["role"] in structure:
+                continue
+            host = row.get("socket_host")
+            require(host and host.get("socket") and host.get("post"),
+                    "LIGHT_WITHOUT_SOCKET_HOST|fixture=%s|role=%s" % (row["label"], row["role"]))
+            require(host["host_cue_guid"] == target["cue_guid"],
+                    "SOCKET_HOST_WRONG_CUE|fixture=" + row["label"])
+            require(row["transform"]["location_cm"] == host["socket_location_in_host_cue_cm"],
+                    "LIGHT_NOT_AT_SOCKET|fixture=" + row["label"])
+            if row["role"] == "FENCE_BEAM":
+                require(host["socket"] == BEAM_SOCKET,
+                        "BEAM_NOT_FROM_BACK_SOCKET|fixture=%s|socket=%s" %
+                        (row["label"], host["socket"]))
+                require(row["fence_bay"]["variant"] in BEAM_VARIANTS,
+                        "BEAM_NOT_IN_TORN_OR_HALF_BAY|fixture=%s|variant=%s" %
+                        (row["label"], row["fence_bay"]["variant"]))
+            elif host["socket"] == BEAM_SOCKET:
+                raise LightingLooksError("NON_BEAM_ON_BACK_SOCKET|fixture=" + row["label"])
+
+
+def ppv_change_gate(allow_flag, requested):
+    """PPV is report-only unless the explicit flag is set."""
+    if requested and not allow_flag:
+        raise LightingLooksError(
+            "PPV_CHANGE_NOT_ALLOWED|set LIGHTING_LOOKS_ALLOW_PPV_CHANGE=True|fields=" +
+            ",".join(sorted(requested)))
+    return bool(requested) and bool(allow_flag)
+
+
+def resolve_p04_span(config, cues, passage_rows):
+    """P04 cue GUIDs in Show order, via the PassageSettings row whose FirstCueGuid matches."""
+    first_guid = config["p04_scope"]["passage_first_cue_guid"]
+    rows = [row for row in passage_rows if str(row.get("first")) == first_guid]
+    require(len(rows) == 1, "P04_PASSAGE_ROW_COUNT|count=%d" % len(rows))
+    index = {str(cue["guid"]): position for position, cue in enumerate(cues)}
+    require(first_guid in index and str(rows[0].get("last")) in index,
+            "P04_SPAN_GUID_UNRESOLVED")
+    first, last = index[first_guid], index[str(rows[0]["last"])]
+    require(first <= last, "P04_SPAN_REVERSED")
+    return [str(cue["guid"]) for cue in cues[first:last + 1]]
+
+
+def require_outside_unchanged(before_rows_by_guid, after_rows_by_guid, target_guids):
+    """The outside-target hash guard (same as _verify_applied) on plain or full rows."""
+    before = _outside_hash(before_rows_by_guid, target_guids)
+    after = _outside_hash(after_rows_by_guid, target_guids)
+    require(before == after, "OUTSIDE_TARGET_SCOPE_CHANGED|before=%s|after=%s" %
+            (before[:12], after[:12]))
+    return before
+
+
 def _plain_is_light(attachment):
     return str(attachment.get("kind", "")).upper() == "LIGHT"
 
@@ -321,12 +1027,13 @@ def _plain_casts(attachment):
             and bool(attachment.get("lighting", {}).get("cast_shadows", False)))
 
 
-def _plain_p04(cue):
-    return bool(P04_LABEL.match(str(cue.get("label", ""))))
+def build_plain_plan(config, cues, passage_rows, fence=None):
+    """Resolve targets by CueGuid only, prove scope/budget, and apply tune 4.
 
-
-def build_plain_plan(config, cues):
-    """Resolve current cue index+GUID and prove the proposed scope/budget."""
+    ``passage_rows`` are the Show's PassageSettings as {"first","last"} GUIDs;
+    the P04 shadow scope is the GUID span, never a label pattern. ``fence`` is
+    the live-checked fence model (required when tune 4 is enabled).
+    """
     validate_config(config)
     cue_guids = [str(cue.get("guid", "")) for cue in cues]
     require(all(cue_guids) and len(cue_guids) == len(set(cue_guids)),
@@ -335,20 +1042,23 @@ def build_plain_plan(config, cues):
                         for att in cue.get("attachments", [])]
     require(all(attachment_guids) and len(attachment_guids) == len(set(attachment_guids)),
             "ATTACHMENT_GUIDS_INVALID_OR_DUPLICATE")
+    span = resolve_p04_span(config, cues, passage_rows)
+    span_set = set(span)
+    index_by_guid = {str(cue["guid"]): position for position, cue in enumerate(cues)}
 
     target_rows = []
     target_guid_set = set()
-    new_labels = []
     for bay in config["bay_plan"]:
-        matches = [(index, cue) for index, cue in enumerate(cues)
-                   if cue.get("label") == bay["expected_label"]]
-        require(len(matches) == 1,
-                "TARGET_CUE_COUNT|label=%s|count=%d" % (bay["expected_label"], len(matches)))
-        show_index, cue = matches[0]
-        cue_guid = str(cue["guid"])
+        cue_guid = bay["cue_guid"]
+        require(cue_guid in index_by_guid, "TARGET_CUE_GUID_ABSENT|guid=" + cue_guid)
+        require(cue_guid in span_set, "TARGET_CUE_OUTSIDE_P04|guid=" + cue_guid)
+        show_index = index_by_guid[cue_guid]
+        cue = cues[show_index]
+        require(str(cue.get("label")) == bay["expected_label"],
+                "TARGET_LABEL_MISMATCH|guid=%s|expected=%s|actual=%s" %
+                (cue_guid, bay["expected_label"], cue.get("label")))
         target_guid_set.add(cue_guid)
         fixtures = expand_bay(config, bay)
-        new_labels.extend(row["label"] for row in fixtures)
         current_lights = [att for att in cue.get("attachments", []) if _plain_is_light(att)]
         target_rows.append({
             "bay_index": bay["bay_index"],
@@ -368,20 +1078,31 @@ def build_plain_plan(config, cues):
             "practical_prop_count": sum(row["authored_kind"] == "PROP" for row in fixtures),
         })
     require(len(target_guid_set) == 6, "TARGET_GUIDS_NOT_UNIQUE")
+
+    tune4 = None
+    if config.get("tune4", {}).get("enabled"):
+        require(fence is not None, "FENCE_INPUTS_REQUIRED")
+        require_fence_live(config, fence, cues)
+        tune4 = tune4_fixtures(config, fence, target_rows, fence["tear_rows"])
+        require_socket_hosts(config, target_rows)
+
+    new_labels = [row["label"] for target in target_rows for row in target["fixtures"]]
     require(len(new_labels) == len(set(new_labels)), "NEW_LABELS_DUPLICATE")
     current_labels = {str(att.get("label", "")) for cue in cues
                       for att in cue.get("attachments", [])}
     clashes = sorted(current_labels.intersection(new_labels))
     require(not clashes, "PROTOTYPE_ALREADY_PRESENT|labels=" + ",".join(clashes))
 
-    before = sum(_plain_casts(att) for cue in cues if _plain_p04(cue)
+    before = sum(_plain_casts(att) for cue in cues if str(cue["guid"]) in span_set
                  for att in cue.get("attachments", []))
     removed = sum(row["existing_shadow_casters"] for row in target_rows)
     added = sum(row["new_shadow_casters"] for row in target_rows)
     after = before - removed + added
+    cap = int(config["shadow_budget"]["cap"])
     require(after <= before,
             "SHADOW_BUDGET_EXCEEDED|before=%d|after=%d|removed=%d|added=%d"
             % (before, after, removed, added))
+    require(after <= cap, "SHADOW_CAP_EXCEEDED|after=%d|cap=%d" % (after, cap))
     return {
         "targets": target_rows,
         "target_cue_guids": sorted(target_guid_set),
@@ -394,14 +1115,25 @@ def build_plain_plan(config, cues):
             "p04_after": after,
             "target_before": removed,
             "target_after": added,
-            "budget_ok": after <= before,
+            "cap": cap,
+            "budget_ok": after <= before and after <= cap,
+        },
+        "p04_span_guids": span,
+        "tune4": tune4,
+        "fence": None if fence is None else {
+            "plan_path": fence.get("plan_path"), "plan_sha256": fence.get("plan_sha256"),
+            "plan_run_id": fence.get("plan_run_id"), "plan_status": fence.get("plan_status"),
+            "sidecar_sha256": fence.get("sidecar_sha256"),
+            "fence_prop_guids": sorted(
+                [post["live_attachment_guid"] for post in fence["tree_posts"]]
+                + [guid for bay in fence["bays"] for guid in bay.get("live_attachment_guids", [])]),
         },
     }
 
 
-def apply_plain_state(config, cues):
+def apply_plain_state(config, cues, passage_rows, fence=None):
     """Offline model of the narrowly scoped mutation; used by the harness."""
-    plan = build_plain_plan(config, cues)
+    plan = build_plain_plan(config, cues, passage_rows, fence)
     result = copy.deepcopy(cues)
     record = {"targets": {}}
     by_guid = {str(cue["guid"]): cue for cue in result}
@@ -548,20 +1280,70 @@ def _plain_cues(show):
         attachments = []
         for attachment in _pair_attachments(cue):
             settings = attachment.get_editor_property("lighting")
+            transform = S._transform_state(attachment.get_editor_property("relative_transform"))
+            is_prop = attachment.get_editor_property("kind") == _enum_member(
+                unreal.InfinityAttachmentKind, "PROP")
             attachments.append({
                 "guid": _guid_text(attachment.get_editor_property("attachment_guid")),
                 "label": str(attachment.get_editor_property("label")),
-                "kind": "Light" if _is_light(attachment) else str(
-                    attachment.get_editor_property("kind")),
+                "kind": "Light" if _is_light(attachment) else ("Prop" if is_prop else str(
+                    attachment.get_editor_property("kind"))),
                 "enabled": bool(attachment.get_editor_property("enabled")),
+                "mesh": _asset_id(S._object_path(attachment.get_editor_property("mesh"))),
+                "relative_location_cm": transform["location"],
+                "relative_yaw_deg": _quat_yaw_deg(transform["rotation_xyzw"]),
                 "lighting": {"cast_shadows": bool(settings.get_editor_property("cast_shadows"))},
             })
+        occurrence = S._transform_state(
+            cue.get_editor_property("wing_pair").get_editor_property("occurrence_offset"))
         rows.append({
             "show_index": index,
             "guid": _guid_text(cue.get_editor_property("cue_guid")),
             "label": str(cue.get_editor_property("label")),
             "attachments": attachments,
+            "occurrence_offset_identity": _transform_is_identity(occurrence),
         })
+    return rows
+
+
+def _quat_yaw_deg(xyzw):
+    """Yaw of a quaternion (fence props carry pure yaw)."""
+    x, y, z, w = (float(v) for v in xyzw)
+    return math.degrees(math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z)))
+
+
+def _transform_is_identity(state, tolerance=1.0e-4):
+    return (all(abs(v) <= tolerance for v in state["location"])
+            and all(abs(a - b) <= tolerance
+                    for a, b in zip(state["rotation_xyzw"], [0.0, 0.0, 0.0, 1.0]))
+            and all(abs(v - 1.0) <= tolerance for v in state["scale"]))
+
+
+def _plain_passages(show):
+    return [{"first": _guid_text(row.get_editor_property("first_cue_guid")),
+             "last": _guid_text(row.get_editor_property("last_cue_guid")),
+             "label": str(row.get_editor_property("label"))}
+            for row in show.get_editor_property("passage_settings")]
+
+
+def _live_fence_sockets(config, fence):
+    """Read the imported tree-post mesh's sockets; require they match the sidecar."""
+    mesh = unreal.load_asset(config["tune4"]["tree_post_mesh"])
+    require(mesh is not None, "FENCE_TREE_POST_MESH_NOT_LOADED")
+    rows = {}
+    for name in fence["required_sockets"]:
+        socket = mesh.find_socket(name)
+        require(socket is not None, "FENCE_SOCKET_LIVE_MISSING|socket=" + name)
+        location = socket.get_editor_property("relative_location")
+        rotation = socket.get_editor_property("relative_rotation")
+        live = [float(location.x), float(location.y), float(location.z)]
+        live_yaw = float(rotation.yaw)
+        want = fence["sockets"][name]
+        yaw_error = ((live_yaw - want["rotation_rpy_deg"][2]) + 180.0) % 360.0 - 180.0
+        require(max(abs(a - b) for a, b in zip(live, want["location_cm"])) <= 0.01
+                and abs(yaw_error) <= 0.01,
+                "FENCE_SOCKET_LIVE_MISMATCH|socket=%s|live=%s|yaw=%s" % (name, live, live_yaw))
+        rows[name] = {"location_cm": live, "yaw_deg": live_yaw}
     return rows
 
 
@@ -606,7 +1388,7 @@ def _look_at_rpy(source, target, label):
 
 
 def _apply_live_top_aims(show, plan):
-    """Aim TOP_L/TOP_R at the live left/right panel origins for each bay.
+    """Aim tops and explicitly targeted accents at live wing panel positions.
 
     Both the lights and these panel locations are authored in pair-local space,
     so the resulting look-at rotation remains exact after the pair is placed on
@@ -622,18 +1404,29 @@ def _apply_live_top_aims(show, plan):
             "R": pair.get_editor_property("right"),
         }
         target["top_aims"] = []
+        target["accent_aims"] = []
         for fixture in target["fixtures"]:
-            if fixture["role"] != "TOP":
+            explicit_side = fixture.get("aim_wing_side")
+            if fixture["role"] != "TOP" and explicit_side is None:
                 continue
-            side = fixture["slot"].rsplit("_", 1)[-1]
+            if explicit_side is None:
+                side = fixture["slot"].rsplit("_", 1)[-1]
+                offset = [0.0, 0.0, 0.0]
+                destination = target["top_aims"]
+                source_name = "live Show panel local_transform"
+            else:
+                side = "L" if explicit_side == "LEFT" else "R"
+                offset = [float(value) for value in fixture["aim_offset_pair_cm"]]
+                destination = target["accent_aims"]
+                source_name = "live Show panel local_transform plus pair-space accent offset"
             require(side in panels,
-                    "TOP_SLOT_SIDE_UNKNOWN|fixture=" + fixture["label"])
+                    "WING_AIM_SIDE_UNKNOWN|fixture=" + fixture["label"])
             panel_transform = panels[side].get_editor_property("local_transform")
             panel_location = panel_transform.translation
             target_location = [
-                float(panel_location.x),
-                float(panel_location.y),
-                float(panel_location.z),
+                float(panel_location.x) + offset[0],
+                float(panel_location.y) + offset[1],
+                float(panel_location.z) + offset[2],
             ]
             source_location = [float(value)
                                for value in fixture["transform"]["location_cm"]]
@@ -642,13 +1435,17 @@ def _apply_live_top_aims(show, plan):
             aim = {
                 "fixture": fixture["label"],
                 "panel": "LEFT" if side == "L" else "RIGHT",
-                "source": "live Show panel local_transform",
+                "source": source_name,
                 "source_relative_cm": source_location,
                 "target_relative_cm": target_location,
+                "target_offset_pair_cm": offset,
                 "rotation_rpy_deg": rotation,
             }
-            fixture["live_top_aim"] = copy.deepcopy(aim)
-            target["top_aims"].append(aim)
+            if explicit_side is None:
+                fixture["live_top_aim"] = copy.deepcopy(aim)
+            else:
+                fixture["live_accent_aim"] = copy.deepcopy(aim)
+            destination.append(aim)
         require(len(target["top_aims"]) == 2,
                 "TOP_AIM_COUNT|cue=%s|actual=%d" %
                 (target["cue_label"], len(target["top_aims"])))
@@ -690,7 +1487,8 @@ def _make_light(row, materials):
     settings.set_editor_property("temperature_kelvin", float(row["temperature_kelvin"]))
     settings.set_editor_property("attenuation_radius_cm", float(row["attenuation_cm"]))
     settings.set_editor_property("cast_shadows", bool(row["cast_shadows"]))
-    settings.set_editor_property("cast_volumetric_shadow", False)
+    settings.set_editor_property("cast_volumetric_shadow",
+                                 bool(row.get("cast_volumetric_shadow", False)))
     settings.set_editor_property("volumetric_scattering_intensity",
                                  float(row["volumetric_scattering"]))
     settings.set_editor_property("source_radius_cm", 2.0 if row["role"] != "PRACTICAL" else 4.0)
@@ -715,6 +1513,15 @@ def _make_light(row, materials):
     drama.set_editor_property("after_pass", _enum_member(
         unreal.InfinityLightAfterPass, keying["after_pass"]))
     drama.set_editor_property("slow_move", False)
+    for name, value in sorted(row.get("drama", {}).items()):
+        require(name in DRAMA_OVERRIDE_FIELDS, "DRAMA_FIELD_UNKNOWN|field=" + name)
+        if name == "after_pass":
+            value = _enum_member(unreal.InfinityLightAfterPass, value)
+        elif isinstance(value, bool):
+            value = bool(value)
+        else:
+            value = float(value)
+        drama.set_editor_property(name, value)
     settings.set_editor_property("drama", drama)
     attachment.set_editor_property("lighting", settings)
     return attachment
@@ -743,9 +1550,13 @@ def _overwrite_vessel(vessel, template):
 
 
 def _materials(config):
-    paths = sorted({row["flicker"]["material"]
-                    for look in config["looks"].values()
-                    for row in look["instruments"] if row["flicker"]["material"]})
+    paths = {row["flicker"]["material"]
+             for look in config["looks"].values()
+             for row in look["instruments"] if row["flicker"]["material"]}
+    if config.get("tune4", {}).get("enabled"):
+        paths.update(path for path in
+                     config["tune4"]["beams"]["intermittency"]["flicker_materials"] if path)
+    paths = sorted(paths)
     loaded = {}
     for path in paths:
         asset = unreal.load_asset(path)
@@ -854,7 +1665,17 @@ def _outside_hash(all_rows, target_guids):
 
 def _runtime_plan(show, config):
     plain = _plain_cues(show)
-    plan = build_plain_plan(config, plain)
+    fence = None
+    live_sockets = None
+    if config.get("tune4", {}).get("enabled"):
+        # Read at run time: the fence plan may change in the rework.
+        fence = load_fence_model(config)
+        live_sockets = _live_fence_sockets(config, fence)
+    plan = build_plain_plan(config, plain, _plain_passages(show), fence)
+    plan["live_fence_sockets"] = live_sockets
+    for target in plan["targets"]:
+        require(plain[target["show_index"]]["occurrence_offset_identity"],
+                "TARGET_OCCURRENCE_OFFSET_NOT_IDENTITY|cue=" + target["cue_guid"])
     _apply_live_top_aims(show, plan)
     for target in plan["targets"]:
         cue = list(show.get_editor_property("cues"))[target["show_index"]]
@@ -867,11 +1688,11 @@ def _runtime_plan(show, config):
 def _mutate_apply(show, plan, materials, practical_meshes):
     cues = list(show.get_editor_property("cues"))
     target_guids = set(plan["target_cue_guids"])
+    span = set(plan["p04_span_guids"])
     scratch_candidates = []
     for index, cue in enumerate(cues):
         guid = _guid_text(cue.get_editor_property("cue_guid"))
-        label = str(cue.get_editor_property("label"))
-        if guid not in target_guids and P04_LABEL.match(label):
+        if guid not in target_guids and guid in span:
             scratch_candidates.append((index, cue))
     require(scratch_candidates, "P04_SCRATCH_CUE_MISSING")
     scratch_index, scratch_cue = scratch_candidates[-1]
@@ -979,6 +1800,17 @@ def _verify_applied(show, plan, outside_before):
     all_rows = _all_pair_rows(show)
     require(_outside_hash(all_rows, plan["target_cue_guids"]) == outside_before,
             "OUTSIDE_TARGET_SCOPE_CHANGED")
+    fence_guids = set((plan.get("fence") or {}).get("fence_prop_guids", []))
+    if fence_guids:
+        before_by_guid = {row["guid"]: row for target in plan["targets"]
+                          for row in target["before_rows"]}
+        after_by_guid = {row["guid"]: row for rows in all_rows.values() for row in rows}
+        for guid in sorted(fence_guids):
+            require(guid in after_by_guid, "FENCE_PROP_LOST|guid=" + guid)
+            if guid in before_by_guid:
+                _require_attachment_rows_equal(
+                    [after_by_guid[guid]], [before_by_guid[guid]],
+                    "FENCE_PROP_CHANGED|guid=" + guid)
     for target in plan["targets"]:
         unused_index, unused_cue, attachments = _target_current(show, target)
         del unused_index, unused_cue
@@ -998,9 +1830,10 @@ def _verify_applied(show, plan, outside_before):
     return current_plan
 
 
-def build_plain_plan_for_applied(show, plan):
+def build_plain_plan_for_applied(show, plan, span=None):
     plain = _plain_cues(show)
-    shadow_after = sum(_plain_casts(att) for cue in plain if _plain_p04(cue)
+    span = set(span or plan["p04_span_guids"])
+    shadow_after = sum(_plain_casts(att) for cue in plain if cue["guid"] in span
                        for att in cue["attachments"])
     labels = [att["label"] for cue in plain for att in cue["attachments"]
               if att["label"].startswith("P04 LOOK ")]
@@ -1063,6 +1896,140 @@ def _mutate_revert(show, record):
         raise
 
 
+def _p04_passage_actor(show):
+    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    passages = [actor for actor in subsystem.get_all_level_actors()
+                if actor.get_class().get_name() == "InfinityStagePassageActor"
+                and actor.get_actor_label().startswith("Passage 04")
+                and actor.get_editor_property("show_asset") == show]
+    require(len(passages) == 1, "P04_ACTOR_COUNT|count=%d" % len(passages))
+    return passages[0]
+
+
+def _p04_camera_rig(show):
+    """The rig whose PassageActor is the P04 Passage (InfinityStageCameraRig.h:74)."""
+    passage = _p04_passage_actor(show)
+    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    rigs = [actor for actor in subsystem.get_all_level_actors()
+            if actor.get_class().get_name() == "InfinityStageCameraRig"
+            and actor.get_editor_property("passage_actor") == passage]
+    require(len(rigs) == 1, "P04_CAMERA_RIG_COUNT|count=%d" % len(rigs))
+    return rigs[0]
+
+
+def _pp_fields(settings):
+    out = {}
+    for name in PPV_FIELDS:
+        try:
+            override = bool(settings.get_editor_property("override_" + name))
+        except Exception as error:  # noqa: BLE001 - report, never guess.
+            override = "ERR %s" % type(error).__name__
+        try:
+            value = S._plain_struct_value(settings.get_editor_property(name))
+        except Exception as error:  # noqa: BLE001
+            value = "ERR %s" % type(error).__name__
+        out[name] = {"override": override, "value": value}
+    return out
+
+
+def _ppv_report(show):
+    """Read-only: P04 camera PP, every PostProcessVolume, height-fog volumetrics, cvars."""
+    rig = _p04_camera_rig(show)
+    camera = rig.get_editor_property("camera")
+    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    volumes = []
+    fogs = []
+    for actor in subsystem.get_all_level_actors():
+        name = actor.get_class().get_name()
+        if name == "PostProcessVolume":
+            volumes.append({
+                "label": actor.get_actor_label(),
+                "unbound": bool(actor.get_editor_property("unbound")),
+                "enabled": bool(actor.get_editor_property("enabled")),
+                "priority": float(actor.get_editor_property("priority")),
+                "blend_weight": float(actor.get_editor_property("blend_weight")),
+                "pp": _pp_fields(actor.get_editor_property("settings")),
+            })
+        elif name == "ExponentialHeightFog":
+            component = actor.get_component_by_class(unreal.ExponentialHeightFogComponent)
+            fogs.append({
+                "label": actor.get_actor_label(),
+                "volumetric_fog": bool(component.get_editor_property("volumetric_fog")),
+                "volumetric_fog_extinction_scale": float(
+                    component.get_editor_property("volumetric_fog_extinction_scale")),
+                "volumetric_fog_scattering_distribution": float(
+                    component.get_editor_property("volumetric_fog_scattering_distribution")),
+            })
+    cvars = {}
+    for name in ("r.DefaultFeature.Bloom", "r.DefaultFeature.LensFlare",
+                 "r.LensFlareQuality", "r.BloomQuality", "r.VolumetricFog"):
+        try:
+            cvars[name] = unreal.SystemLibrary.get_console_variable_int_value(name)
+        except Exception as error:  # noqa: BLE001
+            cvars[name] = "ERR %s" % type(error).__name__
+    return {
+        "camera_rig": rig.get_actor_label(),
+        "camera_pp_blend_weight": float(camera.get_editor_property("post_process_blend_weight")),
+        "camera_pp": _pp_fields(camera.get_editor_property("post_process_settings")),
+        "post_process_volumes": volumes,
+        "height_fogs": fogs,
+        "cvars": cvars,
+        "haze_ok": any(row["volumetric_fog"] for row in fogs),
+    }
+
+
+def _apply_ppv_change(show, requested, allow_flag):
+    """Only with LIGHTING_LOOKS_ALLOW_PPV_CHANGE: override the P04 camera's own PP fields."""
+    if not ppv_change_gate(allow_flag, requested):
+        return None
+    rig = _p04_camera_rig(show)
+    camera = rig.get_editor_property("camera")
+    settings = camera.get_editor_property("post_process_settings")
+    before = _pp_fields(settings)
+    for name, value in sorted(requested.items()):
+        require(name in PPV_CHANGE_FIELDS, "PPV_FIELD_NOT_ALLOWED|field=" + name)
+        settings.set_editor_property("override_" + name, True)
+        settings.set_editor_property(name, float(value))
+    rig.modify()
+    camera.modify()
+    camera.set_editor_property("post_process_settings", settings)
+    after = _pp_fields(camera.get_editor_property("post_process_settings"))
+    for name, value in requested.items():
+        require(after[name]["override"] is True
+                and abs(float(after[name]["value"]) - float(value)) < 1.0e-6,
+                "PPV_CHANGE_READBACK|field=" + name)
+    return {"camera_rig": rig.get_actor_label(), "before": before,
+            "requested": dict(requested), "after": after}
+
+
+def _revert_ppv_change(show, change):
+    rig = _p04_camera_rig(show)
+    require(rig.get_actor_label() == change["camera_rig"], "PPV_REVERT_RIG_DRIFT")
+    camera = rig.get_editor_property("camera")
+    settings = camera.get_editor_property("post_process_settings")
+    for name in sorted(change["requested"]):
+        before = change["before"][name]
+        settings.set_editor_property("override_" + name, bool(before["override"]))
+        settings.set_editor_property(name, float(before["value"]))
+    rig.modify()
+    camera.modify()
+    camera.set_editor_property("post_process_settings", settings)
+    after = _pp_fields(camera.get_editor_property("post_process_settings"))
+    for name in change["requested"]:
+        require(after[name] == change["before"][name], "PPV_REVERT_READBACK|field=" + name)
+
+
+def _ppv_report_safe(show):
+    try:
+        return _ppv_report(show)
+    except Exception as error:  # noqa: BLE001 - a report must not block the look.
+        return {"error": "%s: %s" % (type(error).__name__, error)}
+
+
+def _allow_ppv_change():
+    return bool(globals().get("LIGHTING_LOOKS_ALLOW_PPV_CHANGE", False))
+
+
 def _run(mode):
     run = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     report = {"ok": False, "mode": mode, "run": run, "config": CONFIG_PATH}
@@ -1074,6 +2041,7 @@ def _run(mode):
         practical_meshes = _practical_meshes(config)
         show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
         require(show is not None, "SHOW_ASSET_MISSING")
+        requested_ppv = dict(config.get("tune4", {}).get("ppv", {}).get("requested_change", {}))
 
         if mode == "DRY":
             require(not os.path.exists(RECORD_PATH), "ACTIVE_REVERT_RECORD_EXISTS")
@@ -1090,6 +2058,10 @@ def _run(mode):
                 "census": _dirty_census(),
                 "materials": sorted(materials),
                 "practical_meshes": sorted(practical_meshes),
+                "ppv_live": _ppv_report_safe(show),
+                "ppv_change": {"requested": requested_ppv,
+                               "allowed": _allow_ppv_change(),
+                               "would_apply": bool(requested_ppv) and _allow_ppv_change()},
             })
             _write_json(REPORT_PATH, report)
             unreal.log("LIGHTING_LOOKS_DRY_OK|run=%s|attachments=%d|lights=%d|practical_props=%d|disabled=%d|p04_shadow=%d->%d|mutated=0" %
@@ -1126,6 +2098,9 @@ def _run(mode):
             record["plan"] = plan
             _write_json(RECORD_PATH, record)
             verified = _verify_applied(show, plan, outside_before)
+            record["ppv_live_before"] = _ppv_report_safe(show)
+            record["ppv_change"] = _apply_ppv_change(show, requested_ppv, _allow_ppv_change())
+            _write_json(RECORD_PATH, record)
             materialized = _materialize_p04(show)
             _save_narrow()
             readback_show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
@@ -1143,6 +2118,10 @@ def _run(mode):
                 "existing_lights_disabled": plan["existing_lights_disabled"],
                 "shadow": plan["shadow"],
                 "prototype_labels": verified["prototype_labels"],
+                "tune4": plan.get("tune4"),
+                "ppv_live_before": record["ppv_live_before"],
+                "ppv_change": record["ppv_change"],
+                "ppv_live_after": _ppv_report_safe(readback_show),
                 "backup": backup,
                 "record": RECORD_PATH,
                 "materialized": materialized,
@@ -1161,14 +2140,18 @@ def _run(mode):
         require(record.get("status") == "saved_readback_verified",
                 "REVERT_RECORD_STATUS|status=" + str(record.get("status")))
         plan = record["plan"]
-        current = build_plain_plan_for_applied(show, plan)
+        span = resolve_p04_span(config, _plain_cues(show), _plain_passages(show))
+        current = build_plain_plan_for_applied(show, plan, span)
         before_revert_shadow = current["shadow_after"]
         backup = _backup("PreLightingLooksP04Revert-", run)
         _mutate_revert(show, record)
+        if record.get("ppv_change"):
+            _revert_ppv_change(show, record["ppv_change"])
         expected_after = (before_revert_shadow - plan["shadow"]["target_after"]
                           + plan["shadow"]["target_before"])
-        after_mutation = sum(_plain_casts(att) for cue in _plain_cues(show) if _plain_p04(cue)
-                             for att in cue["attachments"])
+        span_set = set(span)
+        after_mutation = sum(_plain_casts(att) for cue in _plain_cues(show)
+                             if cue["guid"] in span_set for att in cue["attachments"])
         require(after_mutation == expected_after,
                 "REVERT_SHADOW_MISMATCH|expected=%d|actual=%d" %
                 (expected_after, after_mutation))
