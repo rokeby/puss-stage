@@ -47,6 +47,24 @@ SAND_BASE_Z = -5.0
 SAND_GRID_X = 31
 SAND_GRID_Y = 35
 SAND_MAX_Z = 20.0
+# Fix 3 Oct (review risk 1, orientation).  The sand mesh's local origin is put
+# deliberately OFF its centre so the expected local bounding box is asymmetric
+# in X and Y: then a bounding-box readback distinguishes every axis swap AND
+# every mirror (all 48 signed permutations; asserted offline in the harness).
+# The actor is spawned at this dock point instead of (SAND_CENTER_X, 0, 0).
+SAND_PIVOT_DOCK = (SAND_CENTER_X - 100.0, 50.0, 0.0)
+# OBJ axis convention.  UE 5.8's Interchange OBJ translator exposes no axis
+# setting (it has no translator-settings class; only FBX has
+# EInterchangeCoordinateSystemPolicy) and its .cpp is not in the install, so its
+# OBJ->UE mapping is UNKNOWN.  We therefore write the OBJ under one ASSUMED
+# mapping, named here as the UE axis each OBJ component lands on, and APPLY
+# REFUSES (before anything destructive) unless the imported mesh's bounding box
+# matches that assumption.  "+x,-z,+y" = the usual Y-up right-handed OBJ to
+# Z-up UE convention: UE = (objX, -objZ, objY).  If APPLY refuses with
+# SAND_BOUNDS_MISMATCH, its message names the mapping the editor actually used
+# (matches=[...]); set this constant to that name and re-run.
+OBJ_WRITE_CONVENTION = "+x,-z,+y"
+SAND_BOUNDS_TOLERANCE_CM = 1.0
 FIGURE_LABELS = (
     "Shore01_M56 Clam", "Shore02_F52 Clam", "Shore03_M59 Clam",
     "Shore04_F55 Clam", "Shore05_M53 Clam", "Shore06_F25 Clam",
@@ -289,6 +307,151 @@ def validate_v2_plan(mesh, props, figures, cameras, existing_labels):
     return True
 
 
+def parse_convention(name):
+    """'+x,-z,+y' -> ((0, 1.0), (2, -1.0), (1, 1.0)): UE axis i = sign * obj[index]."""
+    parts = [part.strip() for part in str(name).split(",")]
+    if len(parts) != 3:
+        raise PlanError("BAD_OBJ_CONVENTION|" + str(name))
+    rows = []
+    for part in parts:
+        if len(part) != 2 or part[0] not in "+-" or part[1] not in "xyz":
+            raise PlanError("BAD_OBJ_CONVENTION|" + str(name))
+        rows.append(("xyz".index(part[1]), -1.0 if part[0] == "-" else 1.0))
+    if sorted(row[0] for row in rows) != [0, 1, 2]:
+        raise PlanError("BAD_OBJ_CONVENTION|" + str(name))
+    return tuple(rows)
+
+
+def all_conventions():
+    """Every signed axis permutation (48), as convention names."""
+    names = []
+    for perm in ((0, 1, 2), (0, 2, 1), (1, 0, 2), (1, 2, 0), (2, 0, 1), (2, 1, 0)):
+        for signs in [(a, b, c) for a in "+-" for b in "+-" for c in "+-"]:
+            names.append(",".join(signs[i] + "xyz"[perm[i]] for i in range(3)))
+    return names
+
+
+def obj_to_ue(point, convention):
+    return tuple(sign * float(point[index]) for index, sign in parse_convention(convention))
+
+
+def ue_to_obj(point, convention):
+    result = [0.0, 0.0, 0.0]
+    for axis, (index, sign) in enumerate(parse_convention(convention)):
+        result[index] = sign * float(point[axis])
+    return tuple(result)
+
+
+def sand_local_vertices(mesh):
+    """Plan vertices (relative to SAND_CENTER_X, 0, 0) in the asset's local UE frame."""
+    shift = (SAND_PIVOT_DOCK[0] - SAND_CENTER_X, SAND_PIVOT_DOCK[1], SAND_PIVOT_DOCK[2])
+    return [(x - shift[0], y - shift[1], z - shift[2]) for x, y, z in mesh["vertices"]]
+
+
+def sand_obj_vertices(mesh, convention=None):
+    convention = convention or OBJ_WRITE_CONVENTION
+    return [ue_to_obj(point, convention) for point in sand_local_vertices(mesh)]
+
+
+def _bounds_of(points):
+    return {"min": [min(point[axis] for point in points) for axis in range(3)],
+            "max": [max(point[axis] for point in points) for axis in range(3)]}
+
+
+def expected_sand_bounds(mesh):
+    return _bounds_of(sand_local_vertices(mesh))
+
+
+def _bounds_match(a, b, tolerance=SAND_BOUNDS_TOLERANCE_CM):
+    return all(abs(float(a[key][axis]) - float(b[key][axis])) <= tolerance
+               for key in ("min", "max") for axis in range(3))
+
+
+def classify_sand_bounds(mesh, observed, written_convention=None):
+    """Names of every OBJ->UE mapping that would produce the observed bounds."""
+    obj_points = sand_obj_vertices(mesh, written_convention)
+    return [name for name in all_conventions()
+            if _bounds_match(_bounds_of([obj_to_ue(point, name) for point in obj_points]), observed)]
+
+
+def validate_imported_sand_bounds(mesh, observed, written_convention=None):
+    """REFUSE unless the imported StaticMesh bounding box is the planned flat layer."""
+    written_convention = written_convention or OBJ_WRITE_CONVENTION
+    expected = expected_sand_bounds(mesh)
+    failures = []
+    if not _bounds_match(expected, observed):
+        failures.append("bbox differs from plan")
+    thickness = float(observed["max"][2]) - float(observed["min"][2])
+    if (thickness > (SAND_MAX_Z - SAND_BASE_Z) + SAND_BOUNDS_TOLERANCE_CM or
+            float(observed["min"][2]) < SAND_BASE_Z - SAND_BOUNDS_TOLERANCE_CM or
+            float(observed["max"][2]) > SAND_MAX_Z + SAND_BOUNDS_TOLERANCE_CM):
+        failures.append("z range is not a %.0f..%.0f cm layer" % (SAND_BASE_Z, SAND_MAX_Z))
+    for axis, radius in ((0, SAND_RX), (1, SAND_RY)):
+        span = float(observed["max"][axis]) - float(observed["min"][axis])
+        if span < 1.5 * radius or span > 2.0 * radius + SAND_BOUNDS_TOLERANCE_CM:
+            failures.append("%s extent %.1f cm is not the planned footprint" % ("xy"[axis], span))
+    if failures:
+        matches = classify_sand_bounds(mesh, observed, written_convention)
+        raise PlanError("SAND_BOUNDS_MISMATCH|%s|written=%s|matches=%s|observed=%s|expected=%s" %
+                        ("; ".join(failures), written_convention, json.dumps(matches),
+                         json.dumps(observed, sort_keys=True), json.dumps(expected, sort_keys=True)))
+    return True
+
+
+def import_scope_problems(census, expected_content):
+    """Exact dirty-scope check after the sand import: names every deviation."""
+    problems = []
+    content = sorted(census.get("content", []))
+    expected = sorted(expected_content)
+    unexpected = [name for name in content if name not in expected]
+    missing = [name for name in expected if name not in content]
+    if census.get("maps"):
+        problems.append("unexpected_maps=" + ",".join(sorted(census["maps"])))
+    if unexpected:
+        problems.append("unexpected_content=" + ",".join(unexpected))
+    if missing:
+        problems.append("missing_content=" + ",".join(missing))
+    return problems
+
+
+CLEAN_CENSUS = {"maps": [], "content": []}
+
+
+def apply_sequence(ops, mesh_plan):
+    """APPLY orchestration.  Every risky, non-destructive step comes first.
+
+    Phase A (level untouched): preflight, level backup, sand import, bounds gate,
+    exact dirty-scope gate, save of the new sand asset, clean-census gate.  Any
+    failure in phase A deletes only never-saved new packages and STOPS.
+    Phase B (destructive): pending record, destroy v1, spawn v2, raise figures,
+    save level, commit record.  ``ops`` is injected so the order is testable
+    offline.
+    """
+    ops.preflight()
+    ops.backup()
+    try:
+        ops.import_sand(mesh_plan)
+        validate_imported_sand_bounds(mesh_plan, ops.sand_bounds())
+        problems = import_scope_problems(ops.census(), [SAND_ASSET])
+        if problems:
+            raise PlanError("IMPORT_DIRTY_SCOPE|" + "|".join(problems))
+        ops.save_sand()
+        after = ops.census()
+        if after != CLEAN_CENSUS:
+            raise PlanError("POST_SAND_SAVE_DIRTY|census=" + json.dumps(after, sort_keys=True))
+    except Exception as exc:  # any phase-A failure, not only PlanError
+        reason = str(exc) if isinstance(exc, PlanError) else "%s:%s" % (type(exc).__name__, exc)
+        cleanup = ops.cleanup_unsaved_new()
+        raise PlanError("PRE_DESTRUCTIVE_STOP|level_untouched|%s|cleanup=%s" %
+                        (reason, json.dumps(cleanup, sort_keys=True)))
+    ops.write_pending()
+    ops.destroy_legacy()
+    ops.spawn_v2()
+    ops.raise_figures()
+    ops.save_level()
+    ops.commit()
+
+
 def _vector(value):
     return [float(value.x), float(value.y), float(value.z)]
 
@@ -419,7 +582,10 @@ def _live_plan():
                        "triangle_count": len(mesh_plan["faces"]),
                        "min_camera_clearance_cm": mesh_plan["min_camera_clearance_cm"],
                        "z_range_cm": [min(row[2] for row in mesh_plan["vertices"]),
-                                      max(row[2] for row in mesh_plan["vertices"])]},
+                                      max(row[2] for row in mesh_plan["vertices"])],
+                       "obj_write_convention": OBJ_WRITE_CONVENTION,
+                       "pivot_dock": list(SAND_PIVOT_DOCK),
+                       "expected_local_bounds": expected_sand_bounds(mesh_plan)},
               "props": props, "figures": figures, "cameras": cameras,
               "legacy_actor_count": len(legacy_actors), "inside_box_guard": True,
               "required_tests": list(REQUIRED_TESTS)}
@@ -472,25 +638,72 @@ def _write_json(path, value, exclusive=False):
         os.fsync(handle.fileno())
 
 
-def _write_obj(mesh):
-    lines = ["# deterministic Scene 3 beach-v2 sand layer", "o SM_S3_BeachV2_SandFloor"]
-    for x, y, z in mesh["vertices"]:
+def obj_text(mesh, convention=None):
+    convention = convention or OBJ_WRITE_CONVENTION
+    # No mtllib and no usemtl: the OBJ carries no material reference at all, so
+    # the translator has no material to create (review risk 2a).
+    lines = ["# deterministic Scene 3 beach-v2 sand layer",
+             "# axes written for OBJ->UE mapping %s; local origin = dock %s" %
+             (convention, json.dumps(list(SAND_PIVOT_DOCK))),
+             "o SM_S3_BeachV2_SandFloor"]
+    for x, y, z in sand_obj_vertices(mesh, convention):
         lines.append("v %.6f %.6f %.6f" % (x, y, z))
     for x, y, _ in mesh["vertices"]:
         lines.append("vt %.6f %.6f" % ((x + SAND_RX) / 250.0, (y + SAND_RY) / 250.0))
-    lines.append("usemtl Sand")
     for face in mesh["faces"]:
         values = [index + 1 for index in face]
         lines.append("f %d/%d %d/%d %d/%d" % (values[0], values[0], values[1], values[1], values[2], values[2]))
+    return "\n".join(lines) + "\n"
+
+
+def _write_obj(mesh):
     with open(obj_path(), "w", encoding="ascii", newline="\n") as handle:
-        handle.write("\n".join(lines) + "\n")
+        handle.write(obj_text(mesh))
         handle.flush()
         os.fsync(handle.fileno())
 
 
+def _sand_pipeline_override():
+    """Explicit Interchange pipeline: static mesh only, no materials, no textures.
+
+    UInterchangePipelineStackOverride is the documented carrier for pipelines in
+    an AssetImportTask's Options (InterchangeManager.h:385-403).  Every setter is
+    read back because UE setters have been seen to accept and ignore values.
+    """
+    pipeline = unreal.InterchangeGenericAssetsPipeline()
+    mesh_pipeline = pipeline.get_editor_property("mesh_pipeline")
+    material_pipeline = pipeline.get_editor_property("material_pipeline")
+    if mesh_pipeline is None or material_pipeline is None:
+        raise PlanError("INTERCHANGE_PIPELINE_SUBOBJECTS_MISSING")
+    pipeline.set_editor_property("asset_name", SAND_ASSET.rsplit("/", 1)[1])
+    mesh_pipeline.set_editor_property("import_static_meshes", True)
+    material_pipeline.set_editor_property("import_materials", False)
+    texture_pipeline = material_pipeline.get_editor_property("texture_pipeline")
+    if texture_pipeline is not None:
+        texture_pipeline.set_editor_property("import_textures", False)
+    rotation = pipeline.get_editor_property("import_offset_rotation")
+    translation = pipeline.get_editor_property("import_offset_translation")
+    settings = {"import_materials": bool(material_pipeline.get_editor_property("import_materials")),
+                "import_textures": (None if texture_pipeline is None else
+                                    bool(texture_pipeline.get_editor_property("import_textures"))),
+                "import_static_meshes": bool(mesh_pipeline.get_editor_property("import_static_meshes")),
+                "offset_rotation": [float(rotation.roll), float(rotation.pitch), float(rotation.yaw)],
+                "offset_translation": _vector(translation),
+                "offset_uniform_scale": float(pipeline.get_editor_property("import_offset_uniform_scale"))}
+    if (settings["import_materials"] or settings["import_textures"] or
+            not settings["import_static_meshes"] or any(settings["offset_rotation"]) or
+            any(settings["offset_translation"]) or abs(settings["offset_uniform_scale"] - 1.0) > 1.0e-6):
+        raise PlanError("INTERCHANGE_PIPELINE_READBACK|" + json.dumps(settings, sort_keys=True))
+    override = unreal.InterchangePipelineStackOverride()
+    override.add_pipeline(pipeline)
+    return override, settings
+
+
 def _import_sand(mesh_plan):
+    """Write the OBJ and import it UNSAVED.  Saving is a separate, later gate."""
     if unreal.EditorAssetLibrary.does_asset_exist(SAND_ASSET):
         raise PlanError("SAND_ASSET_ALREADY_EXISTS")
+    options, settings = _sand_pipeline_override()
     _write_obj(mesh_plan)
     task = unreal.AssetImportTask()
     task.set_editor_property("filename", obj_path())
@@ -499,13 +712,69 @@ def _import_sand(mesh_plan):
     task.set_editor_property("automated", True)
     task.set_editor_property("replace_existing", False)
     task.set_editor_property("save", False)
+    task.set_editor_property("options", options)
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
     mesh = unreal.load_asset(SAND_ASSET)
     if not isinstance(mesh, unreal.StaticMesh):
         raise PlanError("SAND_IMPORT_FAILED|objects=" + json.dumps([str(value) for value in task.imported_object_paths]))
-    if not unreal.EditorAssetLibrary.save_asset(SAND_ASSET, only_if_is_dirty=False):
-        raise PlanError("SAND_ASSET_SAVE_FAILED")
-    return mesh
+    return mesh, settings
+
+
+def _package_file(package):
+    if not package.startswith("/Game/"):
+        return None
+    base = project_file("Content", *package[len("/Game/"):].split("/"))
+    for extension in (".uasset", ".umap"):
+        if os.path.exists(base + extension):
+            return base + extension
+    return None
+
+
+def _cleanup_unsaved_new():
+    """Delete ONLY dirty content packages that were never saved and nothing else uses.
+
+    Never touches a package with a file on disk, a /Game-external package, or a
+    package referenced from outside the never-saved set.  Returns a report.
+    """
+    report = {"deleted": [], "kept": {}}
+    census = _package_census()
+    for package in census["maps"]:
+        report["kept"][package] = "map_package_never_deleted"
+    remaining = []
+    for package in census["content"]:
+        if not package.startswith("/Game/"):
+            report["kept"][package] = "not_under_game"
+        elif _package_file(package):
+            report["kept"][package] = "exists_on_disk"
+        else:
+            remaining.append(package)
+    for _ in range(len(remaining) + 1):
+        progressed = False
+        for package in list(remaining):
+            referencers = sorted(set(str(value) for value in
+                                     unreal.EditorAssetLibrary.find_package_referencers_for_asset(package, False))
+                                 - {package})
+            outside = [value for value in referencers if value not in remaining]
+            if outside:
+                report["kept"][package] = "referenced_by=" + ",".join(outside)
+                remaining.remove(package)
+                progressed = True
+                continue
+            if referencers:
+                continue  # delete the never-saved referencer first
+            asset = unreal.EditorAssetLibrary.load_asset(package)
+            if asset is None or not unreal.EditorAssetLibrary.delete_loaded_asset(asset):
+                report["kept"][package] = "delete_failed"
+            else:
+                report["deleted"].append(package)
+            remaining.remove(package)
+            progressed = True
+        if not remaining or not progressed:
+            break
+    for package in remaining:
+        report["kept"][package] = "reference_cycle"
+    report["census_after"] = _package_census()
+    return report
 
 
 def _spawn_actor(subsystem, root, dock, row, mesh, material, tag):
@@ -545,57 +814,123 @@ def _save_level():
     return after
 
 
+class _UnrealApplyOps(object):
+    """Live implementation of the steps ordered by apply_sequence()."""
+
+    def __init__(self, run, report, runtime):
+        self.run, self.report, self.runtime = run, report, runtime
+        self.record = None
+        self.backup_folder = None
+        self.sand_mesh = None
+        self.sand_material = None
+        self.created = []
+        self.subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+
+    def preflight(self):
+        self.sand_material = unreal.load_asset(SAND_MATERIAL)
+        if self.sand_material is None:
+            raise PlanError("SAND_MATERIAL_MISSING")
+        if unreal.EditorAssetLibrary.does_asset_exist(SAND_ASSET) or _package_file(SAND_ASSET):
+            raise PlanError("SAND_ASSET_ALREADY_EXISTS")
+        index = _actor_index()
+        for row in self.runtime["figures"]:
+            if str(_one(index, row["label"]).get_path_name()) != row["actor_path"]:
+                raise PlanError("FIGURE_PATH_CHANGED|label=" + row["label"])
+        if _package_census() != CLEAN_CENSUS:
+            raise PlanError("DIRTY_BEFORE_IMPORT|census=" + json.dumps(_package_census(), sort_keys=True))
+
+    def backup(self):
+        self.backup_folder = _backup("PreS3BeachV2-")
+
+    def import_sand(self, mesh_plan):
+        self.sand_mesh, settings = _import_sand(mesh_plan)
+        self.report["sand"]["import_pipeline"] = settings
+
+    def sand_bounds(self):
+        bounds = _local_bounds(self.sand_mesh)
+        self.report["sand"]["imported_local_bounds"] = bounds
+        return bounds
+
+    def census(self):
+        return _package_census()
+
+    def save_sand(self):
+        if not unreal.EditorAssetLibrary.save_asset(SAND_ASSET, only_if_is_dirty=False):
+            raise PlanError("SAND_ASSET_SAVE_FAILED")
+        if not _package_file(SAND_ASSET):
+            raise PlanError("SAND_ASSET_NOT_ON_DISK_AFTER_SAVE")
+
+    def cleanup_unsaved_new(self):
+        return _cleanup_unsaved_new()
+
+    def write_pending(self):
+        self.record = {"version": 2, "tag": TAG, "world": EXPECTED_WORLD, "run": self.run,
+                       "backup": self.backup_folder, "plan": self.report,
+                       "legacy": self.runtime["legacy"], "spawned": [],
+                       "figures": self.runtime["figures"], "sand_asset": SAND_ASSET,
+                       "sand_asset_saved": True, "applied": False}
+        _write_json(pending_path(), self.record, exclusive=True)
+
+    def destroy_legacy(self):
+        for actor in self.runtime["legacy_actors"]:
+            actor.modify()
+            if not self.subsystem.destroy_actor(actor):
+                raise PlanError("LEGACY_DESTROY_FAILED|label=" + actor.get_actor_label())
+
+    def spawn_v2(self):
+        runtime = self.runtime
+        sand_row = {"label": SAND_LABEL, "kind": "sand_floor",
+                    "dock_location": list(SAND_PIVOT_DOCK), "yaw": 0.0, "scale": 1.0}
+        self.created = [_spawn_actor(self.subsystem, runtime["root"], runtime["dock"], sand_row,
+                                     self.sand_mesh, self.sand_material, TAG)]
+        for item in runtime["props"]:
+            row = item["row"]
+            spawn_row = dict(row)
+            spawn_row["dock_location"] = [row["xy"][0], row["xy"][1], row["location_z_cm"]]
+            self.created.append(_spawn_actor(self.subsystem, runtime["root"], runtime["dock"],
+                                             spawn_row, item["mesh"], None, TAG))
+        if len(self.created) != 9:
+            raise PlanError("V2_SPAWN_COUNT")
+        sand_world = _world_bounds_dock(self.created[0], runtime["dock"])
+        expected = expected_sand_bounds(runtime["mesh_plan"])
+        expected_dock = {key: [expected[key][axis] + SAND_PIVOT_DOCK[axis] for axis in range(3)]
+                         for key in ("min", "max")}
+        if not _bounds_match(sand_world, expected_dock):
+            raise PlanError("SAND_ACTOR_BOUNDS_READBACK|observed=%s|expected=%s" %
+                            (json.dumps(sand_world), json.dumps(expected_dock)))
+
+    def raise_figures(self):
+        index = _actor_index()
+        for row in self.runtime["figures"]:
+            actor = _one(index, row["label"])
+            if str(actor.get_path_name()) != row["actor_path"]:
+                raise PlanError("FIGURE_PATH_CHANGED|label=" + row["label"])
+            actor.modify()
+            location = actor.get_actor_location()
+            actor.set_actor_location(unreal.Vector(location.x, location.y, location.z + row["raise_cm"]), False, True)
+            dock_bounds = _world_bounds_dock(actor, self.runtime["dock"])
+            if abs(dock_bounds["min"][2] - row["surface_z_cm"]) > 0.5:
+                raise PlanError("FIGURE_FOOT_READBACK|label=" + row["label"])
+            row["after_transform"] = _plain_transform(actor.get_actor_transform())
+            row["after_foot_z_cm"] = dock_bounds["min"][2]
+
+    def save_level(self):
+        for actor in self.created:
+            self.record["spawned"].append({"label": str(actor.get_actor_label()),
+                                           "object_path": str(actor.get_path_name())})
+        self.record["figures"] = self.runtime["figures"]
+        self.record["post_save_census"] = _save_level()
+
+    def commit(self):
+        self.record["applied"] = True
+        _write_json(pending_path(), self.record)
+        os.replace(pending_path(), record_path())
+        unreal.log("S3_BEACH_V2_DONE|run=%s|applied|actors=9|figures_on_sand=6|sand_axes=%s|backup=%s|tests_required_singly=%s" %
+                   (self.run, OBJ_WRITE_CONVENTION, self.backup_folder, ",".join(REQUIRED_TESTS)))
+
+
 def _apply(run, report, runtime):
-    backup = _backup("PreS3BeachV2-")
-    record = {"version": 2, "tag": TAG, "world": EXPECTED_WORLD, "run": run,
-              "backup": backup, "plan": report, "legacy": runtime["legacy"],
-              "spawned": [], "figures": runtime["figures"], "sand_asset": SAND_ASSET,
-              "applied": False}
-    _write_json(pending_path(), record, exclusive=True)
-    sand_mesh = _import_sand(runtime["mesh_plan"])
-    sand_material = unreal.load_asset(SAND_MATERIAL)
-    if sand_material is None:
-        raise PlanError("SAND_MATERIAL_MISSING")
-    subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    for actor in runtime["legacy_actors"]:
-        actor.modify()
-        if not subsystem.destroy_actor(actor):
-            raise PlanError("LEGACY_DESTROY_FAILED|label=" + actor.get_actor_label())
-    sand_row = {"label": SAND_LABEL, "kind": "sand_floor",
-                "dock_location": [SAND_CENTER_X, 0.0, 0.0], "yaw": 0.0, "scale": 1.0}
-    created = [_spawn_actor(subsystem, runtime["root"], runtime["dock"], sand_row,
-                            sand_mesh, sand_material, TAG)]
-    for item in runtime["props"]:
-        row = item["row"]
-        spawn_row = dict(row)
-        spawn_row["dock_location"] = [row["xy"][0], row["xy"][1], row["location_z_cm"]]
-        created.append(_spawn_actor(subsystem, runtime["root"], runtime["dock"], spawn_row,
-                                    item["mesh"], None, TAG))
-    if len(created) != 9:
-        raise PlanError("V2_SPAWN_COUNT")
-    index = _actor_index()
-    for row in runtime["figures"]:
-        actor = _one(index, row["label"])
-        if str(actor.get_path_name()) != row["actor_path"]:
-            raise PlanError("FIGURE_PATH_CHANGED|label=" + row["label"])
-        actor.modify()
-        location = actor.get_actor_location()
-        actor.set_actor_location(unreal.Vector(location.x, location.y, location.z + row["raise_cm"]), False, True)
-        dock_bounds = _world_bounds_dock(actor, runtime["dock"])
-        if abs(dock_bounds["min"][2] - row["surface_z_cm"]) > 0.5:
-            raise PlanError("FIGURE_FOOT_READBACK|label=" + row["label"])
-        row["after_transform"] = _plain_transform(actor.get_actor_transform())
-        row["after_foot_z_cm"] = dock_bounds["min"][2]
-    for actor in created:
-        record["spawned"].append({"label": str(actor.get_actor_label()),
-                                  "object_path": str(actor.get_path_name())})
-    record["figures"] = runtime["figures"]
-    record["post_save_census"] = _save_level()
-    record["applied"] = True
-    _write_json(pending_path(), record)
-    os.replace(pending_path(), record_path())
-    unreal.log("S3_BEACH_V2_DONE|run=%s|applied|actors=9|figures_on_sand=6|backup=%s|tests_required_singly=%s" %
-               (run, backup, ",".join(REQUIRED_TESTS)))
+    apply_sequence(_UnrealApplyOps(run, report, runtime), runtime["mesh_plan"])
 
 
 def _restore_legacy(subsystem, root, dock, legacy):
