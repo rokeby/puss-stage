@@ -1,0 +1,150 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightDrama.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightDrama.cpp
+index 14e315a..008fca1 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightDrama.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightDrama.cpp
+@@ -59,6 +59,29 @@ float EvaluateStrike(const FInfinityStageLightDrama& Drama, const FGuid& Identit
+     return Level;
+ }
+ 
++float EvaluateFlash(const FInfinityStageLightDrama& Drama, const double CameraPastLampCm)
++{
++    float Level = FMath::Clamp(Drama.FlashRestScale, 0.0f, 1.0f);
++    const double Attack = FMath::Max(0.1, static_cast<double>(Drama.FlashAttackCm));
++    const double Decay = FMath::Max(0.1, static_cast<double>(Drama.FlashDecayCm));
++    for (const float Offset : Drama.FlashCameraOffsetsCm)
++    {
++        const double D = CameraPastLampCm - static_cast<double>(Offset);
++        double Pulse = 0.0;
++        if (D >= -Attack && D < 0.0)
++        {
++            Pulse = (D + Attack) / Attack;
++        }
++        else if (D >= 0.0 && D <= Decay)
++        {
++            const double Remaining = 1.0 - D / Decay;
++            Pulse = Remaining * Remaining * Remaining;
++        }
++        Level = FMath::Max(Level, static_cast<float>(Pulse));
++    }
++    return Level;
++}
++
+ FRotator EvaluateSlowMove(const FInfinityStageLightDrama& Drama, const FGuid& Identity, const double ShowSeconds)
+ {
+     const double Phase = Drama.PhaseCycles + (Drama.bPhaseFromIdentity ? Noise01(Identity, PhaseSalt, 0) : 0.0);
+@@ -75,7 +98,7 @@ namespace InfinityStageLightDrama
+ {
+ bool IsActive(const FInfinityStageLightDrama& Drama)
+ {
+-    return Drama.bStrikeOnApproach || Drama.bSlowMove;
++    return Drama.bStrikeOnApproach || Drama.bSlowMove || Drama.bFlash;
+ }
+ 
+ FInfinityLightDramaPose Evaluate(
+@@ -90,6 +113,11 @@ FInfinityLightDramaPose Evaluate(
+     {
+         Pose.IntensityScale = EvaluateStrike(Drama, Identity, LampRouteDistanceCm - CameraRouteDistanceCm);
+     }
++    if (Drama.bFlash)
++    {
++        // Gated by any strike: an unstruck lamp stays dark through its flashes.
++        Pose.IntensityScale *= EvaluateFlash(Drama, CameraRouteDistanceCm - LampRouteDistanceCm);
++    }
+     if (Drama.bSlowMove)
+     {
+         Pose.AimOffset = EvaluateSlowMove(Drama, Identity, ShowSeconds);
+@@ -109,7 +137,7 @@ void ApplyToLamp(
+ {
+     const FInfinityLightDramaPose Pose =
+         Evaluate(Drama, Identity, LampRouteDistanceCm, CameraRouteDistanceCm, ShowSeconds);
+-    if (Drama.bStrikeOnApproach)
++    if (Drama.bStrikeOnApproach || Drama.bFlash)
+     {
+         if (ULightComponent* Light = Lamp.FindComponentByClass<ULightComponent>())
+         {
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightDrama.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightDrama.h
+index 31f7622..59b47ca 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightDrama.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightDrama.h
+@@ -102,6 +102,34 @@ struct INFINITYSTAGE_API FInfinityStageLightDrama
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Slow Move",
+         meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bSlowMove"))
+     float PhaseCycles = 0.0f;
++
++    /** Brief bursts keyed to camera distance, like a strike, so a scrub replays them
++     * exactly. Each entry fires once; between them the lamp rests at Flash Rest Scale
++     * (zero switches it off, costing no shadow map). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash")
++    bool bFlash = false;
++
++    /** Where the camera is, relative to this lamp along the route, at each flash's
++     * peak. Negative fires while the camera is still approaching, so a lamp deep in
++     * a bay can flash for a camera two bays away, and one lamp can blink many times. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
++        meta = (Units = "cm", EditCondition = "bFlash"))
++    TArray<float> FlashCameraOffsetsCm;
++
++    /** Camera travel from dark to peak. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
++        meta = (ClampMin = "0.1", Units = "cm", EditCondition = "bFlash"))
++    float FlashAttackCm = 3.0f;
++
++    /** Camera travel from peak to dark. The fall is cubic, so most of the light is
++     * gone in the first fifth of it, as a flash tube's is. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
++        meta = (ClampMin = "0.1", Units = "cm", EditCondition = "bFlash"))
++    float FlashDecayCm = 18.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
++        meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bFlash"))
++    float FlashRestScale = 0.0f;
+ };
+ 
+ /** What drama does to a lamp at one moment: a brightness scale on the authored
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightDramaTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightDramaTests.cpp
+index 66bf497..9628141 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightDramaTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightDramaTests.cpp
+@@ -169,4 +169,42 @@ bool FInfinityStageLightDramaApplyTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightDramaFlashTest,
++    "InfinityStage.LightDrama.FlashIsBriefAndKeyedToDistance",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightDramaFlashTest::RunTest(const FString& Parameters)
++{
++    const FGuid Lamp = FGuid::NewGuid();
++    FInfinityStageLightDrama Drama;
++    Drama.bFlash = true;
++    Drama.FlashCameraOffsetsCm = { -400.0f, -100.0f };
++    Drama.FlashAttackCm = 3.0f;
++    Drama.FlashDecayCm = 18.0f;
++    TestTrue(TEXT("Flash makes drama active"), InfinityStageLightDrama::IsActive(Drama));
++
++    const auto At = [&](const double CameraPastLampCm)
++    {
++        return InfinityStageLightDrama::Evaluate(Drama, Lamp, DramaLampCm, DramaLampCm + CameraPastLampCm, 0.0).IntensityScale;
++    };
++    TestEqual(TEXT("Dark before the first flash"), At(-500.0), 0.0f);
++    TestEqual(TEXT("Dark just before the attack"), At(-403.5), 0.0f);
++    TestTrue(TEXT("Peak while the camera is still 4 m short of the lamp"), FMath::IsNearlyEqual(At(-400.0), 1.0f, 1.0e-4f));
++    TestTrue(TEXT("Cubic fall: under an eighth by half the decay"), At(-391.0) < 0.126f);
++    TestEqual(TEXT("Dark again after the decay"), At(-381.0), 0.0f);
++    TestTrue(TEXT("The second flash fires"), FMath::IsNearlyEqual(At(-100.0), 1.0f, 1.0e-4f));
++    TestEqual(TEXT("Dark once both have passed"), At(0.0), 0.0f);
++
++    Drama.FlashRestScale = 0.02f;
++    TestTrue(TEXT("Rest scale is the floor between flashes"), FMath::IsNearlyEqual(At(-250.0), 0.02f, 1.0e-6f));
++
++    Drama.bStrikeOnApproach = true;
++    Drama.StrikeDistanceCm = 50.0;
++    Drama.StrikeRampCm = 10.0;
++    Drama.IgnitionStutter = 0.0f;
++    TestTrue(TEXT("An unstruck lamp stays dark through its flashes"), At(-400.0) < 1.0e-6f);
++    return true;
++}
++
+ #endif
