@@ -44,12 +44,18 @@ def run():
             continue
         current = cue.get_editor_property("scene").get_editor_property("external_sound")
         target = none if name in UNLOCK else locked
-        plan.append((index, name, current, target))
+        guid = unreal.GuidLibrary.conv_guid_to_string(cue.get_editor_property("cue_guid"))
+        plan.append((index, name, current, target, guid))
     found = sorted(p[1] for p in plan)
     if found != sorted(UNLOCK + KEEP_LOCKED):
         raise RuntimeError("expected Scenes 1-6 exactly once each, found %s" % found)
     changes = [p for p in plan if p[2] != p[3]]
     summary = ";".join("%s:%s->%s" % (p[1], p[2], p[3]) for p in changes)
+    for index, name, current, target, guid in sorted(plan, key=lambda p: p[1]):
+        unreal.log("SCENE_EXTSOUND_ROW|run=%s|cue=%s|label=%s|before=%s|after=%s|change=%d"
+                   % (run_id, guid, name, current, target, int(current != target)))
+    if any(p[1] in KEEP_LOCKED for p in changes):
+        raise RuntimeError("Scene 3 would change; it must stay DeclaredUnpausable")
     if mode == "DRY":
         unreal.log("SCENE_EXTSOUND_DRY_OK|run=%s|changes=%d|%s" % (run_id, len(changes), summary))
         return
@@ -68,7 +74,7 @@ def run():
     os.makedirs(backup)
     shutil.copy2(source, os.path.join(backup, os.path.basename(source)))
     show.modify()
-    for index, name, current, target in changes:
+    for index, name, current, target, guid in changes:
         cue = cues[index]
         scene = cue.get_editor_property("scene")
         scene.set_editor_property("external_sound", target)
@@ -76,7 +82,7 @@ def run():
         cues[index] = cue
     show.set_editor_property("cues", cues)
     readback = show.get_editor_property("cues")
-    for index, name, current, target in plan:
+    for index, name, current, target, guid in plan:
         got = readback[index].get_editor_property("scene").get_editor_property("external_sound")
         if got != target:
             raise RuntimeError("in-memory read-back: %s is %s, expected %s (nothing saved)" % (name, got, target))
