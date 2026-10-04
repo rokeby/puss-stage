@@ -85,3 +85,23 @@
 
 ## Editor session 4 Oct ~10:25 (Gary restarted UE)
 - Light-GUID audit (read-only, run 20261004-102539): 274 cues, 2,717 lights, all UNCHANGED against the baselines, and all 20 outside-target hashes match (measured). The FB force-close left no spill. The editor slot went to W&T: CR+CS → FB.
+
+## Afternoon 4 Oct (editor live)
+- W&T, done and verified:
+  - CS: P05 skins stain-free.
+  - P05 ComponentBudget 64→128 (conductor approval; 82 components measured).
+  - CR -04: P05 clouds.
+  - FB: P04 fence, 47 props.
+  - P1: P01 SaltFormation → rococo L.
+  - TK: 406 sides, 5 cm boards + inset + S1 gallery + P06 lattice closed.
+  - P6: 64 cues; length and duration held; pair every ~1.71 s.
+- Tune 4 APPLIED:
+  - The tune 3d revert kept the fence props (Gary: quick route).
+  - The APPLY stopped on a late PPV gate, then FINISH saved it (Gary: finish with flare). Lens flare is 0.35 on the P04 camera; the engine default is 1.0.
+  - Both tests passed.
+  - Re-recorded run 20261004_161445: video + 6 stills sent to Gary.
+- Light-GUID audits:
+  - 10:25: 274/274 unchanged.
+  - 12:13 vs 10:25, by cue GUID: 268 identical, 6 changed (P04 tune 4, expected), 9 new (P06 restored). All 2,878 attachment GUIDs unique (measured).
+- Bay-3 traces: inconclusive, because the wings are NO_COLLISION (measured). The rays went to W&T for an offline intersect.
+- Cueing: audit Docs/Conductor/LIGHT_SOUND_CUEING_AUDIT_2026-10-04.md. New stream brief Docs/Conductor/BRIEF_CUEING_STREAM_2026-10-04.md (Gary opening the session).
