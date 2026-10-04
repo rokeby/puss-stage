@@ -134,3 +134,7 @@
     - SavedFixturePIE: the fixture expects 261 wing pairs; today's 9 restored P06 cues make 270. Fixture update owed.
   - After relaunch: SavedMasterMatchesShow and SceneCutBindingsResolve both passed.
   - Pending: cueing INSPECT/DRY, the M4 recipe, and the PIE checks with Gary.
+- **Cueing builds 2 and 3** (Gary asked me to close UE each time):
+  - Build 2 (5935992): SavedFixturePIE green via the FX fixture fix. FollowsRetime measured as a real A2 bug (passage 72000→312000, section stuck at 72000).
+  - Build 3 (2684fb7): A2c makes MoveSection then SetRange. **Full InfinityStage suite 131/0.** Both single tests passed after relaunch.
+- Choreo APPLY was handed to the cueing stream; M4 and the PIE checks with Gary follow.
