@@ -1,0 +1,57 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+index 82a672b..55fb063 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+@@ -58,6 +58,7 @@
+ namespace
+ {
+ int32 GInfinityStageFixtureComponentsBeforePIE = INDEX_NONE;
++int32 GInfinityStageFixtureWingPairsExpected = INDEX_NONE;
+ }
+ 
+ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+@@ -757,6 +758,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+ {
+     GInfinityStageFixtureComponentsBeforePIE = INDEX_NONE;
++    GInfinityStageFixtureWingPairsExpected = INDEX_NONE;
+     AddCommand(new FEditorLoadMap(TEXT("/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice")));
+     AddCommand(new FFunctionLatentCommand([this]()
+     {
+@@ -777,6 +779,17 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+         {
+             ++PassageActors;
+             FixedWingPairs += It->MaterializedWingPairCount;
++            if (GInfinityStageFixtureWingPairsExpected == INDEX_NONE && It->ShowAsset)
++            {
++                // Expected = the saved Show's authored Wing Pair cues (was a literal 261, which went
++                // stale when 9 P06 cues were restored on 4 Oct 2026).
++                int32 Authored = 0;
++                for (const FInfinityShowCue& Cue : It->ShowAsset->Cues)
++                {
++                    Authored += Cue.Type == EInfinityCueType::WingPair ? 1 : 0;
++                }
++                GInfinityStageFixtureWingPairsExpected = Authored;
++            }
+             ManagedComponents += It->ManagedComponents.Num();
+             ComponentBudget += It->ComponentBudget;
+             bEveryPassageWithinBudget &= It->ManagedComponents.Num() <= It->ComponentBudget;
+@@ -786,7 +799,8 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+             ++ShowRoots;
+         }
+         TestEqual(TEXT("Six fixed Passage actors reopen"), PassageActors, 6);
+-        TestEqual(TEXT("All fixed Wing Pairs exist before PIE"), FixedWingPairs, 261);
++        TestTrue(TEXT("The saved Show authors Wing Pairs"), GInfinityStageFixtureWingPairsExpected > 0);
++        TestEqual(TEXT("All fixed Wing Pairs exist before PIE"), FixedWingPairs, GInfinityStageFixtureWingPairsExpected);
+         TestTrue(TEXT("Every authored Passage stays within its explicit component budget"), bEveryPassageWithinBudget);
+         TestTrue(TEXT("The saved fixture has visible render components"), ManagedComponents > 0);
+         TestTrue(TEXT("The aggregate component count stays within the aggregate budget"), ManagedComponents <= ComponentBudget);
+@@ -1214,7 +1228,7 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+             FixedWingPairsInPIE += It->MaterializedWingPairCount;
+             ManagedComponentsInPIE += It->ManagedComponents.Num();
+         }
+-        TestEqual(TEXT("BeginPlay did not spawn fixed Wing Pairs"), FixedWingPairsInPIE, 261);
++        TestEqual(TEXT("BeginPlay did not spawn fixed Wing Pairs"), FixedWingPairsInPIE, GInfinityStageFixtureWingPairsExpected);
+         TestEqual(
+             TEXT("BeginPlay preserved the exact editor-authored render component count"),
+             ManagedComponentsInPIE,
