@@ -25,3 +25,10 @@
   - The P04 bays are now found by GUID, never by label.
   - **For you:** the beams come out as DIAGONAL shafts (62–65° off the fence). Practicals move up to 8 m (the B03 cage lamp).
   - Editor order: revert tune 3d → W&T place the fence → DRY → APPLY + tests → bay-3 trace in PIE.
+- **Lighting scores P01–P06:** one tool plus one data file; plan in Docs/Conductor/LIGHTING_SCORES_PLAN_2026-10-04.md. The harness passes 54/54 (measured by me, against the final tune 4 code).
+  - **The scores are proposals for you.** Judge P05 first (cool, clouds up-lit, shadowless), then P06 failing bay by bay, then the P01 ping-on cascade.
+  - **Your calls:**
+    - Should the P01 dark walk-in disable the house warmers?
+    - P03 has no gobo asset: are the Rig Slash spots enough?
+    - Should p01_hallway_pingon.py be retired (the scores do the ping-on)?
+  - Every count is from the 29 Sep survey; the first DRY stops if one has drifted.
