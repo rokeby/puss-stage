@@ -1,0 +1,330 @@
+{
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreLightingEventsP06-20261004-123343\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "77e73ed517f71936f221976311eeb87b681e3bc5b0bc0a6e2b8122ede603afa5"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreLightingEventsP06-20261004-123343\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "f6fff22416cd0ff2e1f7b5edcc73f4460be0d0ce363ced697dd510fb904d4c31"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreLightingEventsP06-20261004-123343"
+  },
+  "black_bays": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "capabilities": {
+    "drama_flash": false
+  },
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "config": "E:\\PussStage\\Saved\\CodexConductor\\lighting_events.json",
+  "config_sha256": "1e61260727db2f4423924f887978b830d6151e068592ece984b954f9f0f177be",
+  "deferred": [],
+  "exposure": {
+    "pinned": true,
+    "volumes": [
+      {
+        "enabled": true,
+        "label": "PostProcessVolume",
+        "max": -3.0,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": -3.0,
+        "override_max": true,
+        "override_min": true,
+        "unbound": true
+      },
+      {
+        "enabled": true,
+        "label": "S4 Hangar Pinned Exposure",
+        "max": 0.5,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": 0.5,
+        "override_max": true,
+        "override_min": true,
+        "unbound": false
+      },
+      {
+        "enabled": true,
+        "label": "S1 Hangar Pinned Exposure",
+        "max": 0.5,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": 0.5,
+        "override_max": true,
+        "override_min": true,
+        "unbound": false
+      },
+      {
+        "enabled": true,
+        "label": "S6 Hangar Pinned Exposure",
+        "max": 0.5,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": 0.5,
+        "override_max": true,
+        "override_min": true,
+        "unbound": false
+      },
+      {
+        "enabled": true,
+        "label": "S5 Hangar Pinned Exposure",
+        "max": 0.5,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": 0.5,
+        "override_max": true,
+        "override_min": true,
+        "unbound": false
+      },
+      {
+        "enabled": true,
+        "label": "S2 Hangar Pinned Exposure",
+        "max": 0.5,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": 0.5,
+        "override_max": true,
+        "override_min": true,
+        "unbound": false
+      },
+      {
+        "enabled": true,
+        "label": "S3 Hangar Pinned Exposure",
+        "max": 2.0,
+        "method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+        "min": 2.0,
+        "override_max": true,
+        "override_min": true,
+        "unbound": false
+      }
+    ]
+  },
+  "fixture_count": 15,
+  "materialized": {
+    "passage": "Passage 06 \u2014 Fixed Wings",
+    "structure": "Infinity Stage - Structure 06"
+  },
+  "mode": "APPLY",
+  "ok": true,
+  "ownership": {
+    "record_overlap": [],
+    "record_status": null,
+    "scored": true,
+    "scores_passage": "P06",
+    "yield": {
+      "bays": [
+        2,
+        10
+      ],
+      "decided_by": "Gary 4 Oct questionnaire: P06 bays 2-10",
+      "layout_bay_count": 64,
+      "owner": "lighting_events_apply.py black_mode",
+      "why": "Black passage mode owns P06 bays 2-10 of W&T's 64-cue interleave layout (Saved/CodexFlatV3/p06/run_p6.json result_count 64). DORMANT while P06 resolves to any other count (55 today: this score is unchanged); ACTIVE once the score is rescored to 64 bays, when those bays are skipped (no fixtures, existing lights untouched). lighting_events_apply.py refuses unless this block covers exactly its black bays at its expected cue count."
+    }
+  },
+  "passage": {
+    "bay_count": 64,
+    "bay_guids_sha256": "8b160c16c8246485168693ee1f33eda5b0deff67df6eea81fe67db68552c5c78",
+    "guid": "9BFC29C45D47911FF7836BB8537230D2",
+    "key": "P06",
+    "label": "Passage 6"
+  },
+  "phase": "A",
+  "record": "E:\\PussStage\\Saved\\CodexConductor\\lighting_events_revert_record.json",
+  "resolved_black_bays": [
+    {
+      "cue_guid": "C1CDC6C8BB4116B5D3BB67B4103FF047",
+      "cue_label": "P06 Wing 037",
+      "ordinal": 2,
+      "show_index": 218
+    },
+    {
+      "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+      "cue_label": "P06 Wing 002",
+      "ordinal": 3,
+      "show_index": 219
+    },
+    {
+      "cue_guid": "ABFFBA7B47F22FE2F67C52A63EE441F7",
+      "cue_label": "P06 OLD 02 - covered_biomech_plus_covered_pillar",
+      "ordinal": 4,
+      "show_index": 220
+    },
+    {
+      "cue_guid": "B2FC9042424C7D641731A3B689A710D2",
+      "cue_label": "P06 Wing 003",
+      "ordinal": 5,
+      "show_index": 221
+    },
+    {
+      "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+      "cue_label": "P06 Wing 038",
+      "ordinal": 6,
+      "show_index": 222
+    },
+    {
+      "cue_guid": "0C51D6BAF747CFFA8E12ADA9D3FD83F1",
+      "cue_label": "P06 Wing 004",
+      "ordinal": 7,
+      "show_index": 223
+    },
+    {
+      "cue_guid": "8BF2AF7F824A6CA03EE18D9C4AAE4397",
+      "cue_label": "P06 Wing 036",
+      "ordinal": 8,
+      "show_index": 224
+    },
+    {
+      "cue_guid": "97946A25174493CA6D23E39FA6BDCE81",
+      "cue_label": "P06 Wing 005",
+      "ordinal": 9,
+      "show_index": 225
+    },
+    {
+      "cue_guid": "D91F56E8454AED2CB9594D868F53ADFD",
+      "cue_label": "P06 Wing 039",
+      "ordinal": 10,
+      "show_index": 226
+    }
+  ],
+  "run": "20261004-123343",
+  "saved_master_test": "queued",
+  "schedule": [
+    {
+      "bay_index": 2,
+      "burst": 0,
+      "camera_cm": 112.58204106086589,
+      "index": 0,
+      "intensity_scale": 0.8415873560998928,
+      "peak_camera_x_cm": 112.58204106086589,
+      "source": "CAMERA"
+    },
+    {
+      "bay_index": 3,
+      "burst": 0,
+      "camera_cm": 293.6419686922487,
+      "index": 1,
+      "intensity_scale": 0.8242966399168498,
+      "peak_camera_x_cm": -134.9290313077513,
+      "source": "BACK_L"
+    },
+    {
+      "bay_index": 6,
+      "burst": 1,
+      "camera_cm": 1888.2350012253219,
+      "index": 2,
+      "intensity_scale": 0.7058176528199049,
+      "peak_camera_x_cm": 173.95100122532176,
+      "source": "BACK_R"
+    },
+    {
+      "bay_index": 7,
+      "burst": 1,
+      "camera_cm": 1999.1285557322612,
+      "index": 3,
+      "intensity_scale": 0.9865353180323103,
+      "peak_camera_x_cm": -143.72644426773877,
+      "source": "HIGH_L"
+    },
+    {
+      "bay_index": 7,
+      "burst": 1,
+      "camera_cm": 2071.5532709155827,
+      "index": 4,
+      "intensity_scale": 0.6687214977380656,
+      "peak_camera_x_cm": -71.30172908441727,
+      "source": "CAMERA"
+    },
+    {
+      "bay_index": 7,
+      "burst": 1,
+      "camera_cm": 2254.640806073064,
+      "index": 5,
+      "intensity_scale": 0.8373141023238743,
+      "peak_camera_x_cm": 111.78580607306412,
+      "source": "CAMERA"
+    }
+  ],
+  "scratch_cue": {
+    "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+    "cue_label": "P06 Wing 055",
+    "ordinal": 64,
+    "show_index": 280
+  },
+  "shadow": {
+    "added": 5,
+    "passage_after": 117,
+    "passage_before": 130,
+    "removed": 18
+  },
+  "spacing": {
+    "per_bay_gap_cm": [
+      428.5714256663664,
+      428.5713741823265,
+      428.5715801184865,
+      428.5714771504065,
+      428.5712712142463,
+      428.5714771504063,
+      428.57168308656674,
+      428.5712712142463
+    ],
+    "stations": {
+      "2": [
+        678.5714368427568,
+        400000.0,
+        0.0
+      ],
+      "3": [
+        1107.1428625091232,
+        400000.0,
+        0.0
+      ],
+      "4": [
+        1535.7142366914497,
+        400000.0,
+        0.0
+      ],
+      "5": [
+        1964.2858168099363,
+        400000.0,
+        0.0
+      ],
+      "6": [
+        2392.8572939603428,
+        400000.0,
+        0.0
+      ],
+      "7": [
+        2821.428565174589,
+        400000.0,
+        0.0
+      ],
+      "8": [
+        3250.0000423249953,
+        400000.0,
+        0.0
+      ],
+      "9": [
+        3678.571725411562,
+        400000.0,
+        0.0
+      ],
+      "10": [
+        4107.142996625808,
+        400000.0,
+        0.0
+      ]
+    }
+  }
+}

@@ -105,3 +105,10 @@
   - 12:13 vs 10:25, by cue GUID: 268 identical, 6 changed (P04 tune 4, expected), 9 new (P06 restored). All 2,878 attachment GUIDs unique (measured).
 - Bay-3 traces: inconclusive, because the wings are NO_COLLISION (measured). The rays went to W&T for an offline intersect.
 - Cueing: audit Docs/Conductor/LIGHT_SOUND_CUEING_AUDIT_2026-10-04.md. New stream brief Docs/Conductor/BRIEF_CUEING_STREAM_2026-10-04.md (Gary opening the session).
+- **Scene cameras:** all six Scenes are now TIMELINE (run 20261004-122821; backup PreSceneCameraOwner-20261004-1228; outside hash same). Both tests passed. Dog free-look is an operator option: Cue Desk → View → Live Camera Owner → Force Dog, re-selected after each PIE restart.
+- **P06 black mode APPLIED** on bays 2–10 (run 20261004-123343): 15 lights added, 81 existing lights disabled, shadow casters 130→117. Bursts were made denser on Gary's choice: 6 flashes in 2 bursts (offline schedule). Both tests passed.
+- **Cueing stream:** Gary widened the brief to Sequencer as the directing surface:
+  - A1: lamp binding + capture guard.
+  - A2: Choreo nest per Passage.
+  - A3: GO markers + fast-forward mute.
+  - I approved it for review with conditions. The build window needs reviewed patches, a clear editor queue and Gary closing UE.

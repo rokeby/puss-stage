@@ -1,0 +1,107 @@
+{
+  "after": {
+    "cue_count": 283,
+    "full_hash": "5d396f6f18c7407f297bbadcc70316c1e23dd1e13ce866492d0ad5f245799fa7",
+    "outside_hash": "174fb72ba8b21bd2909d3c67ff12d79c96247bbc58928b11fed81f6b269265fb"
+  },
+  "backup": {
+    "backup": "E:/PussStage/Backups\\PreSceneCameraOwner-20261004-1228\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+    "bytes": 12470505,
+    "root": "E:/PussStage/Backups\\PreSceneCameraOwner-20261004-1228",
+    "sha256": "25514ae2621d33862e589b6f1485b34f465eb65132b41f1ea8186b89dee9cd8d",
+    "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+  },
+  "before": {
+    "cue_count": 283,
+    "full_hash": "5484076c9da6ae8432b381a089258769fbc6b7f2d5aaef41d5490e7e76ee2629",
+    "outside_hash": "174fb72ba8b21bd2909d3c67ff12d79c96247bbc58928b11fed81f6b269265fb"
+  },
+  "census": {
+    "content": [],
+    "maps": []
+  },
+  "changed": [
+    "42D2F59416487AF7018DAEB62639C9BB",
+    "5C960C0C7A462BFEA4C86F93ADF5558D",
+    "673B3535884DEBAE99723B8CC6BE877B",
+    "730D67269F425DDC45C72A867BA04217",
+    "91030A272145EBEF25D33BA016458739",
+    "D8F61D9DF94F1E6080CC8D9028EE49D3"
+  ],
+  "decided_by": "Gary, 4 Oct 2026: 'Keep all camera locked and let dog freelook be optional.' (Docs/Conductor/MORNING_SUMMARY_2026-10-04.md:82)",
+  "found": {
+    "cue_count": 283,
+    "enum_members": {
+      "DOG_FREE_LOOK": "<InfinityCameraOwner.DOG_FREE_LOOK: 1>",
+      "DOG_GAZE_ONLY": "<InfinityCameraOwner.DOG_GAZE_ONLY: 2>",
+      "TIMELINE": "<InfinityCameraOwner.TIMELINE: 0>"
+    },
+    "export_text": "available",
+    "scene_cue_count": 6,
+    "show_properties_hashed": [
+      "show_guid",
+      "display_rate",
+      "tick_resolution",
+      "cues",
+      "passage_settings",
+      "music_rails",
+      "schema_version"
+    ],
+    "targets": [
+      {
+        "export_token": "DogFreeLook",
+        "guid": "91030A272145EBEF25D33BA016458739",
+        "index": 49,
+        "label": "Scene 1 \u2014 External Sound",
+        "owner_before": "DOG_FREE_LOOK",
+        "recorded_index": 49
+      },
+      {
+        "export_token": "DogFreeLook",
+        "guid": "42D2F59416487AF7018DAEB62639C9BB",
+        "index": 74,
+        "label": "Scene 2 \u2014 External Sound",
+        "owner_before": "DOG_FREE_LOOK",
+        "recorded_index": 74
+      },
+      {
+        "export_token": "DogFreeLook",
+        "guid": "D8F61D9DF94F1E6080CC8D9028EE49D3",
+        "index": 97,
+        "label": "Scene 3 \u2014 External Sound",
+        "owner_before": "DOG_FREE_LOOK",
+        "recorded_index": 97
+      },
+      {
+        "export_token": "DogFreeLook",
+        "guid": "5C960C0C7A462BFEA4C86F93ADF5558D",
+        "index": 120,
+        "label": "Scene 4 \u2014 External Sound",
+        "owner_before": "DOG_FREE_LOOK",
+        "recorded_index": 120
+      },
+      {
+        "export_token": "DogFreeLook",
+        "guid": "730D67269F425DDC45C72A867BA04217",
+        "index": 215,
+        "label": "Scene 5 \u2014 External Sound",
+        "owner_before": "DOG_FREE_LOOK",
+        "recorded_index": 215
+      },
+      {
+        "export_token": "DogFreeLook",
+        "guid": "673B3535884DEBAE99723B8CC6BE877B",
+        "index": 281,
+        "label": "Scene 6 \u2014 External Sound",
+        "owner_before": "DOG_FREE_LOOK",
+        "recorded_index": 272
+      }
+    ]
+  },
+  "mode": "APPLY",
+  "mutated": true,
+  "ok": true,
+  "readback": "in_memory_after_save+disk_sha_changed",
+  "record": "E:\\PussStage\\Saved\\CodexConductor\\scene_camera_owner_revert_record.json",
+  "run": "20261004-122821-9edc81"
+}
