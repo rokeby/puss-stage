@@ -138,3 +138,9 @@
   - Build 2 (5935992): SavedFixturePIE green via the FX fixture fix. FollowsRetime measured as a real A2 bug (passage 72000→312000, section stuck at 72000).
   - Build 3 (2684fb7): A2c makes MoveSection then SetRange. **Full InfinityStage suite 131/0.** Both single tests passed after relaunch.
 - Choreo APPLY was handed to the cueing stream; M4 and the PIE checks with Gary follow.
+- **Choreo crash caught and fixed:**
+  - Build 4 (0506a2f) crashed Sequencer in MasterSequenceOpens. The cause was the saved Master holding Choreo tracks with no track editor. I reverted the Choreos on disk (PreChoreo-20261004-163459) and the restored suite ran 131/0.
+  - Build 5 (e3999f1): A2e makes the track editor claim the Choreo track, plus the test MasterWithChoreoOpensInSequencer. Suite 132/0.
+  - Choreos re-applied (choreo-apply-3, backup PreChoreo-20261004-173416).
+  - **Headless full suite WITH Choreos: 132/0, no crash.** MasterSequenceOpens and SavedMasterMatchesShow are green.
+  - Next: M4 (one lamp, Show backup, then revert), then the PIE checks with Gary.
