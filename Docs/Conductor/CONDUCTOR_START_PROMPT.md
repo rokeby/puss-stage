@@ -165,6 +165,26 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   Swarm: design + held UNREVIEWED C++ draft (Docs/BeeSwarmDesign_2026-10-02.md, Scripts/patches/2026-10-03_BS_bee_swarm_sim.draft.patch).
   TODAY'S TALK (Gary): lighting/per-wing rig + fence-wall lighting trees; P01 hallway ping-on; exit doorways + exit move;
   W&T's fence taper / step-stone scale sheets; hatching round-2 look ("a bit blotchy").
+- 3 OCT DAY/EVENING + 4 OCT NIGHT (Conductor 4). TOOLING: from ~00:20 4 Oct Gary: "switch to claude coding rather than codex"
+  (memory claude-coding-from-3-oct): conductor + Claude subagents write code and run editor steps; no new Codex runs.
+  EDITOR STATE (4 Oct ~01:00): force-closed by W&T on Gary's word after W&T's fence apply (FB) failed mid-way with the Show dirty
+  in memory (6 stray scratch lights on P04 Wing 005, never saved); the relaunch is STUCK on the "Restore packages" dialog. Gary:
+  "Leave it, offline only tonight". First thing next session: SKIP restore, then run Saved/CodexConductor/light_guid_audit.py
+  (read-only; key by cue GUID) and its comparer.
+  APPLIED + VERIFIED today: hatching fix (W&T SK, 126 MIs, _o2 skins); P05 poles to the floor (PF); S6 candle (BP_Effect_Candle);
+  S3 exit door (backdrop crop); P04 lighting looks prototype bays 1-6, tunes 1-3d (latest LightingLooks/20261004_001334; Gary:
+  moody good; theatrical colour onto wings; specs/LIGHTING_LOOKS_P04_TUNE1.md holds every tune + queued TUNE 4 (beams through the
+  fence gaps, lights onto tree sockets, flare sweep) + FLASH/BLACK-PASSAGE notes); S3 daylight pass (B02 reads as daylight;
+  marble close-up still blown; B03 dark: undiagnosed); hidden exit doors S1/S2/S4/S5/S6 + S3.
+  READY OFFLINE, not applied: S3 beach v2 (f9c94fe; sand layer, risk-fixed), marble tune, wave split (is_hidden fixed); tune 4
+  (being built); light GUID audit (3977842). Swarm C++ v2 (b638e70, unbuilt).
+  W&T QUEUE (theirs, editor slots via the conductor): FB fence rework (GUID-keyed, outside-hash guard) -> CR+CS P05 clouds r4
+  (stain-free 83%, defringed) -> P1 (P01 SaltFormation -> rococo L, Gary "Yes, swap it") -> AR (P04 ruined_gallery simplified cut,
+  Gary to pick; coventry recut waits for the bay-3 trace) -> TK _t5i (all V3 meshes 5 cm boards + outline inset 1 cm = the
+  white-edge fix; DF texture swap retired) -> P6 (Gary: old pieces back ALTERNATING with V3, P06 ~doubles: impact report to the
+  conductor before the slot).
+  GARY'S RECENT LOOK NOTES: Docs/Conductor/RUNTHROUGH_NOTES_2026-10-03.md (verbatim) and Docs/Scene3BeatSheet_2026-10-01.md /
+  Docs/Scene6BeatSheet_2026-10-02.md tails.
 - OPEN PUZZLE, S3 wave mesh swap (W2, parked 2 Oct ~18:00): the 6 extended wave meshes are imported and saved as
   /Game/Scenes/Wings/FlatV3/Scene3/StaticMeshes/SM_FlatV3_S3_WaveRow{1,2,3}_{A,B}_v2 (unreferenced; mapping in W&T's
   run_w2.json). Setting them on the 6 `S3 Wave Row` StaticMeshActors takes effect in memory but does NOT dirty the level
