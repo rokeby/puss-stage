@@ -19,3 +19,9 @@
   - Today's engine can only fire flashes AT the camera's current position. Deep-bay flashes and far blinkers need held patch LD (unbuilt, apply-check clean).
   - **For you:** black mode on P04 turns the approved looks off in bays 1–6, so it is gated `gary_approved=false`.
   - The intensities (6000–9000 cd) are first guesses.
+- **Lighting tune 4 (2a2b72c, offline):** the harness passes 17 positive / 23 negative checks (measured by me).
+  - Low lights and practicals move onto the fence tree-post sockets.
+  - 4 shadowed beams through the tarp tears, plus one flare sweep.
+  - The P04 bays are now found by GUID, never by label.
+  - **For you:** the beams come out as DIAGONAL shafts (62–65° off the fence). Practicals move up to 8 m (the B03 cage lamp).
+  - Editor order: revert tune 3d → W&T place the fence → DRY → APPLY + tests → bay-3 trace in PIE.
