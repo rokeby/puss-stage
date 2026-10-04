@@ -112,3 +112,18 @@
   - A2: Choreo nest per Passage.
   - A3: GO markers + fast-forward mute.
   - I approved it for review with conditions. The build window needs reviewed patches, a clear editor queue and Gary closing UE.
+- **S3 chain APPLIED, each followed by both tests passing:**
+  - Beach v2: OBJ axes measured as +x,-y,+z after a safe pre-destructive stop. FINISH saved one Megascans MI the level save had dirtied, and read back 9 actors + 6 figure feet.
+  - Marble: the material setter "lied"; the tool now gates on read-back.
+  - Wave split: the stale 3 Oct record was proven unapplied by hash; read-back OK.
+- **Long Opening APPLIED** (run OPENING-APPLY-20261004-131449). The Opening is now 96.4 s; everything after it moved +81.4 s. Both tests passed.
+  - The first try stopped mid-apply: BindingProxy.remove_track returns None. The tool now checks by re-listing. A Don't-Save restart (Gary's OK) cleared the in-memory partial; nothing was lost.
+  - The house warmers still burn through the Opening until cueing build A lands (Gary keys them himself).
+- **Cueing build A review:** NOT ready.
+  - BLOCKER: a missing UMovieSceneTrack forward declaration.
+  - MUST-FIX:
+    - M1: hold-Right fast-forward overruns a hold.
+    - M2: a stale hold eats Right.
+    - M3: a hold bypasses the performance interlock.
+    - Editor-only overrides break non-editor targets.
+  - A1 also needs proof for possessable-bound lamps and handler-level tests. Findings were sent to the cueing stream.

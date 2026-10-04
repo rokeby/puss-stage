@@ -504,9 +504,13 @@ def main(mode):
         for host_name, host, t in named_tracks(name):
             if host_name in keep_hosts:
                 continue
-            if not host.remove_track(t):
-                fail("remove_track failed on %s" % host_name)
+            # MovieSceneBindingProxy.remove_track returns None in UE 5.8 Python (measured 4 Oct,
+            # run OPENING-APPLY-20261004-124953); judge success by re-listing, never by the return.
+            host.remove_track(t)
             removed.append(host_name)
+        left = [h for h, _, _ in named_tracks(name) if h not in keep_hosts]
+        if left:
+            fail("remove_track left %s on %s" % (name, ",".join(left)))
         return removed
 
     def add_float_track(binding, prop, path, keys, end_frame, display, interp_of=None):
