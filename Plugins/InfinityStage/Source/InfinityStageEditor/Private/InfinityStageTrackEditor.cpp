@@ -6,6 +6,7 @@
 #include "MovieSceneInfinityAudioTrack.h"
 #include "MovieSceneInfinityPassageTrack.h"
 #include "MovieSceneInfinitySceneTrack.h"
+#include "MovieSceneInfinityChoreoTrack.h"
 #include "Subsystems/AssetEditorSubsystem.h"
 #include "TrackEditors/SubTrackEditorBase.h"
 
@@ -21,7 +22,7 @@ class FInfinityStageManagedSceneSection final : public TSubSectionMixin<>
 public:
     FInfinityStageManagedSceneSection(
         const TSharedPtr<ISequencer>& InSequencer,
-        UMovieSceneInfinitySceneSection& InSection)
+        UMovieSceneSubSection& InSection)
         : TSubSectionMixin(InSequencer, InSection)
     {
     }
@@ -38,8 +39,8 @@ public:
         ISequencerSection::BuildSectionContextMenu(MenuBuilder, ObjectBinding);
 
         TWeakPtr<ISequencer> WeakSequencer = GetSequencer();
-        TWeakObjectPtr<UMovieSceneInfinitySceneSection> WeakSection(
-            &GetSectionObjectAs<UMovieSceneInfinitySceneSection>());
+        // Scene sections and Passage Choreography sections share this interface.
+        TWeakObjectPtr<UMovieSceneSubSection> WeakSection(&GetSubSectionObject());
         TWeakObjectPtr<UMovieSceneSequence> WeakSequence(GetSubSectionObject().GetSequence());
 
         MenuBuilder.BeginSection(
@@ -100,6 +101,9 @@ bool FInfinityStageTrackEditor::SupportsType(const TSubclassOf<UMovieSceneTrack>
 {
     return TrackClass == UMovieSceneInfinityPassageTrack::StaticClass()
         || TrackClass == UMovieSceneInfinitySceneTrack::StaticClass()
+        // Without an editor claiming it, opening a Master holding Choreography
+        // sections crashed Sequencer (null SharedPtr, CueingB4 log, 4 Oct).
+        || TrackClass == UMovieSceneInfinityChoreoTrack::StaticClass()
         || TrackClass == UMovieSceneInfinityAudioTrack::StaticClass();
 }
 
@@ -111,6 +115,10 @@ TSharedRef<ISequencerSection> FInfinityStageTrackEditor::MakeSectionInterface(
     if (UMovieSceneInfinitySceneSection* SceneSection = Cast<UMovieSceneInfinitySceneSection>(&SectionObject))
     {
         return MakeShared<FInfinityStageManagedSceneSection>(GetSequencer(), *SceneSection);
+    }
+    if (UMovieSceneInfinityChoreoSection* ChoreoSection = Cast<UMovieSceneInfinityChoreoSection>(&SectionObject))
+    {
+        return MakeShared<FInfinityStageManagedSceneSection>(GetSequencer(), *ChoreoSection);
     }
     return FMovieSceneTrackEditor::MakeSectionInterface(SectionObject, Track, ObjectBinding);
 }

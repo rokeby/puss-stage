@@ -3,6 +3,8 @@
 #include "InfinityStageShowAsset.h"
 #include "LevelSequence.h"
 #include "Misc/AutomationTest.h"
+#include "Editor.h"
+#include "Subsystems/AssetEditorSubsystem.h"
 #include "MovieScene.h"
 #include "MovieSceneInfinityChoreoTrack.h"
 #include "Sections/MovieSceneSubSection.h"
@@ -175,6 +177,45 @@ bool FInfinityStageChoreoAbsentIsUnchangedTest::RunTest(const FString& Parameter
     {
         TestFalse(TEXT("No track of the Choreography class"), Track && Track->IsA<UMovieSceneInfinityChoreoTrack>());
     }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageChoreoMasterOpensTest,
+    "InfinityStage.Cueing.Choreo.MasterWithChoreoOpensInSequencer",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// 4 Oct (CueingB4): a saved Master holding Choreography sections crashed Sequencer on
+// open (IsValid() assert, SharedPointer.h:1133). A crash here kills the run: that is
+// the red. Control first: a Master with only a plain sub track opens.
+bool FInfinityStageChoreoMasterOpensTest::RunTest(const FString& Parameters)
+{
+    UAssetEditorSubsystem* AssetEditors = GEditor ? GEditor->GetEditorSubsystem<UAssetEditorSubsystem>() : nullptr;
+    TestNotNull(TEXT("Asset Editor Subsystem exists"), AssetEditors);
+    if (!AssetEditors)
+    {
+        return false;
+    }
+    ULevelSequence* Choreo = NewObject<ULevelSequence>(GetTransientPackage(), TEXT("LS_ChoreoOpenFixture"));
+    Choreo->Initialize();
+    Choreo->GetMovieScene()->SetPlaybackRange(0, 48000);
+
+    ULevelSequence* Plain = NewObject<ULevelSequence>(GetTransientPackage(), TEXT("LS_PlainMasterFixture"));
+    Plain->Initialize();
+    Plain->GetMovieScene()->AddTrack<UMovieSceneSubTrack>()->AddSequence(Choreo, 0, 48000);
+    TestTrue(TEXT("Control: a Master with a plain sub track opens"), AssetEditors->OpenEditorForAsset(Plain));
+    AssetEditors->CloseAllEditorsForAsset(Plain);
+
+    ULevelSequence* Master = NewObject<ULevelSequence>(GetTransientPackage(), TEXT("LS_ChoreoMasterFixture"));
+    Master->Initialize();
+    UMovieSceneInfinityChoreoTrack* Track = Master->GetMovieScene()->AddTrack<UMovieSceneInfinityChoreoTrack>();
+    UMovieSceneInfinityChoreoSection* Section = CastChecked<UMovieSceneInfinityChoreoSection>(Track->CreateNewSection());
+    Track->AddSection(*Section);
+    Section->BlockGuid = FGuid::NewGuid();
+    Section->SetSequence(Choreo);
+    Section->SetRange(TRange<FFrameNumber>(FFrameNumber(24000), FFrameNumber(72000)));
+    TestTrue(TEXT("A Master holding a Choreography section opens in Sequencer"), AssetEditors->OpenEditorForAsset(Master));
+    AssetEditors->CloseAllEditorsForAsset(Master);
     return true;
 }
 
