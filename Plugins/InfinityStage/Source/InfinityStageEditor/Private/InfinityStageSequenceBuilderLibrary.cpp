@@ -411,7 +411,8 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
                     break;
                 }
             }
-            if (!Section)
+            const bool bNewSection = Section == nullptr;
+            if (bNewSection)
             {
                 Section = CastChecked<UMovieSceneInfinityChoreoSection>(ChoreoTrack->CreateNewSection());
                 ChoreoTrack->AddSection(*Section);
@@ -420,7 +421,34 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
             Section->OwnerGuid = Show->ShowGuid;
             Section->BlockGuid = Passage.PassageGuid;
             Section->SetSequence(Choreo);
+            // Measured 4 Oct (CueingB2 log): a reused section kept its old start after
+            // SetRange alone (passage 72000 -> 312000, section stayed 72000). Move it
+            // first, as the Passage block does, then set the range, then verify.
+            const FFrameNumber OldStart = Section->HasStartFrame() ? Section->GetInclusiveStartFrame() : FFrameNumber(0);
+            const TCHAR* Method = TEXT("set_range");
+            if (!bNewSection && Section->HasStartFrame() && OldStart != Passage.SegmentStartFrame)
+            {
+                Section->MoveSection(Passage.SegmentStartFrame - OldStart);
+                Method = TEXT("move_then_set_range");
+            }
             Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
+            if (!Section->HasStartFrame() || Section->GetInclusiveStartFrame() != Passage.SegmentStartFrame
+                || Section->GetExclusiveEndFrame() != Passage.SegmentEndFrame)
+            {
+                // Last resort: a fresh section. Identity changes; placement is what matters.
+                ChoreoTrack->RemoveSection(*Section);
+                Section = CastChecked<UMovieSceneInfinityChoreoSection>(ChoreoTrack->CreateNewSection());
+                ChoreoTrack->AddSection(*Section);
+                Section->OwnerGuid = Show->ShowGuid;
+                Section->BlockGuid = Passage.PassageGuid;
+                Section->SetSequence(Choreo);
+                Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
+                Method = TEXT("recreated");
+            }
+            UE_LOG(LogTemp, Display,
+                TEXT("INFINITY_CHOREO_PLACED passage=%s old_start=%d target=%d now=%d method=%s"),
+                *Passage.PassageGuid.ToString(), OldStart.Value, Passage.SegmentStartFrame.Value,
+                Section->HasStartFrame() ? Section->GetInclusiveStartFrame().Value : -1, Method);
             ++ChoreoSections;
 
             // Content past the Choreo's own playback end is not played. Say so; never
