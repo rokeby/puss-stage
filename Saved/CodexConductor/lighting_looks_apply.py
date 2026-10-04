@@ -67,6 +67,31 @@ EFFECT_OBJECT_FIELDS = S.EFFECT_OBJECT_FIELDS
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lighting_looks.json")
 REPORT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lighting_looks_report.json")
 RECORD_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lighting_looks_revert_record.json")
+# Gary 4 Oct ("go the quick route"): W&T placed the P04 fence (FB run FV3FB-20261004-01) on the
+# tune 3d target cues before this revert. REVERT leaves exactly those fence props in place and
+# excludes them from its exactness checks. Only PROP (non-light) attachments named in a PASS
+# verify record qualify, and none may collide with this record's own GUIDs.
+FOREIGN_PROP_RECORDS = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                     "CodexFlatV3", "fence", "fb_verify_FV3FB-20261004-01.json")]
+
+
+def _foreign_prop_guids(record=None):
+    guids = set()
+    for path in FOREIGN_PROP_RECORDS:
+        require(os.path.isfile(path), "FOREIGN_RECORD_MISSING|path=" + path)
+        with open(path, encoding="utf-8") as handle:
+            foreign_record = json.load(handle)
+        require(foreign_record.get("status") == "PASS", "FOREIGN_RECORD_STATUS|path=" + path)
+        for name, row in foreign_record.get("found", {}).items():
+            require("PROP" in str(row.get("kind")), "FOREIGN_NOT_PROP|" + name)
+            guids.add(str(row["guid"]).upper())
+    if record is not None:
+        own = set()
+        for target in record["plan"]["targets"]:
+            own |= {str(row["guid"]).upper() for row in target["added"]}
+            own |= {str(row["guid"]).upper() for row in target["before_rows"]}
+        require(not (own & guids), "FOREIGN_GUID_COLLISION|count=%d" % len(own & guids))
+    return guids
 
 
 class LightingLooksError(RuntimeError):
@@ -1843,6 +1868,16 @@ def build_plain_plan_for_applied(show, plan, span=None):
 def _mutate_revert(show, record):
     target_guids = record["plan"]["target_cue_guids"]
     outside_before = _outside_hash(_all_pair_rows(show), target_guids)
+    foreign = _foreign_prop_guids(record)
+
+    def own(attachments):
+        kept = []
+        for attachment in attachments:
+            if _guid_text(attachment.get_editor_property("attachment_guid")).upper() in foreign:
+                require(not _is_light(attachment), "FOREIGN_IS_LIGHT")
+                continue
+            kept.append(attachment)
+        return kept
     current_by_index = {}
     current_enabled = {}
     try:
@@ -1855,7 +1890,7 @@ def _mutate_revert(show, record):
                     current_enabled[_guid_text(
                         attachment.get_editor_property("attachment_guid"))] = bool(
                             attachment.get_editor_property("enabled"))
-            current_rows = _attachment_rows(attachments)
+            current_rows = _attachment_rows(own(attachments))
             _require_attachment_rows_equal(
                 current_rows, target["after_rows"],
                 "REVERT_CURRENT_STATE_DRIFT|cue=" + target["cue_label"])
@@ -1865,6 +1900,9 @@ def _mutate_revert(show, record):
             removed = 0
             for attachment in attachments:
                 guid = _guid_text(attachment.get_editor_property("attachment_guid"))
+                if guid.upper() in foreign:
+                    restored.append(attachment)  # W&T fence prop: kept as-is
+                    continue
                 if guid in added_guids:
                     removed += 1
                     continue
@@ -1878,7 +1916,7 @@ def _mutate_revert(show, record):
                     (target["cue_label"], len(added_guids), removed))
             _set_pair_attachments(show, index, restored)
             _require_attachment_rows_equal(
-                _attachment_rows(restored), target["before_rows"],
+                _attachment_rows(own(restored)), target["before_rows"],
                 "REVERT_NOT_EXACT|cue=" + target["cue_label"])
         require(_outside_hash(_all_pair_rows(show), target_guids) == outside_before,
                 "REVERT_OUTSIDE_TARGET_SCOPE_CHANGED")
@@ -2161,8 +2199,11 @@ def _run(mode):
         for target in plan["targets"]:
             unused_index, unused_cue, attachments = _target_current(readback_show, target)
             del unused_index, unused_cue
+            foreign_ids = _foreign_prop_guids(record)
             _require_attachment_rows_equal(
-                _attachment_rows(attachments), target["before_rows"],
+                _attachment_rows([a for a in attachments if _guid_text(
+                    a.get_editor_property("attachment_guid")).upper() not in foreign_ids]),
+                target["before_rows"],
                 "REVERT_READBACK_NOT_EXACT|cue=" + target["cue_label"])
         archived = RECORD_PATH + ".reverted-" + run
         os.rename(RECORD_PATH, archived)
