@@ -1,0 +1,1827 @@
+{
+  "applied": true,
+  "backup": "E:\\PussStage\\Backups\\PreS3BeachV2-20261004-1242",
+  "figures": [
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0",
+      "before_foot_z_cm": -26.10759011691158,
+      "before_transform": {
+        "location": [
+          14571.102873451273,
+          159787.02046848487,
+          -27.44070053100586
+        ],
+        "rotation": [
+          -0.0,
+          0.0,
+          35.210491180419936
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dock_xy": [
+        3649.129873451273,
+        -212.97953151512775
+      ],
+      "label": "Shore01_M56 Clam",
+      "planned_foot_z_cm": 9.575756802120068,
+      "raise_cm": 35.68334691903165,
+      "surface_z_cm": 9.57575680212007
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0",
+      "before_foot_z_cm": -35.688280704893714,
+      "before_transform": {
+        "location": [
+          14121.27136134851,
+          160109.44644586422,
+          -35.688280704893714
+        ],
+        "rotation": [
+          2.2066451720341103e-14,
+          1.4854692928739476e-14,
+          27.80367660522462
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dock_xy": [
+        3199.2983613485103,
+        109.44644586421782
+      ],
+      "label": "Shore02_F52 Clam",
+      "planned_foot_z_cm": 8.49068321329797,
+      "raise_cm": 44.178963918191684,
+      "surface_z_cm": 8.490683213297972
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0",
+      "before_foot_z_cm": -25.91290281025985,
+      "before_transform": {
+        "location": [
+          14312.526554135786,
+          160300.7016386515,
+          -27.44070053100586
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -153.43951416015625
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dock_xy": [
+        3390.553554135786,
+        300.7016386514879
+      ],
+      "label": "Shore03_M59 Clam",
+      "planned_foot_z_cm": 12.027405211366137,
+      "raise_cm": 37.94030802162599,
+      "surface_z_cm": 12.027405211366137
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0",
+      "before_foot_z_cm": -27.44070053100586,
+      "before_transform": {
+        "location": [
+          14605.517459632334,
+          160262.12865417247,
+          -27.44070053100586
+        ],
+        "rotation": [
+          -0.0,
+          0.0,
+          153.31193542480472
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dock_xy": [
+        3683.544459632334,
+        262.1286541724694
+      ],
+      "label": "Shore04_F55 Clam",
+      "planned_foot_z_cm": 7.342448698451129,
+      "raise_cm": 34.78314922945699,
+      "surface_z_cm": 7.342448698451129
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0",
+      "before_foot_z_cm": -29.216648847812706,
+      "before_transform": {
+        "location": [
+          14333.047762735327,
+          159755.67991859568,
+          -27.44070053100586
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -30.268861770629893
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dock_xy": [
+        3411.0747627353267,
+        -244.320081404323
+      ],
+      "label": "Shore05_M53 Clam",
+      "planned_foot_z_cm": 8.741696500868116,
+      "raise_cm": 37.95834534868082,
+      "surface_z_cm": 8.741696500868112
+    },
+    {
+      "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0",
+      "before_foot_z_cm": -27.44070053100586,
+      "before_transform": {
+        "location": [
+          14681.973,
+          160000.0,
+          -27.44070053100586
+        ],
+        "rotation": [
+          -0.0,
+          0.0,
+          128.72592163085935
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "dock_xy": [
+        3760.0,
+        0.0
+      ],
+      "label": "Shore06_F25 Clam",
+      "planned_foot_z_cm": 8.697494204732358,
+      "raise_cm": 36.13819473573822,
+      "surface_z_cm": 8.697494204732356
+    }
+  ],
+  "legacy": {
+    "applied": true,
+    "backup": "E:\\PussStage\\Backups\\PreS3Beach-20261003-0300",
+    "backup_file": "InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap",
+    "plan": {
+      "cameras": [
+        {
+          "label": "S3 Shot B02",
+          "location": [
+            2700.0,
+            -250.0,
+            170.0
+          ]
+        },
+        {
+          "label": "S3 Shot B10",
+          "location": [
+            2600.0,
+            0.0,
+            170.0
+          ]
+        },
+        {
+          "label": "S3 Shot B09",
+          "location": [
+            2600.0,
+            0.0,
+            170.0
+          ]
+        },
+        {
+          "label": "S3 Shot B07",
+          "location": [
+            3300.0,
+            60.0,
+            120.0
+          ]
+        },
+        {
+          "label": "S3 Shot B08",
+          "location": [
+            3360.0,
+            -40.0,
+            110.0
+          ]
+        },
+        {
+          "label": "S3 Shot B04",
+          "location": [
+            3500.0,
+            -750.0,
+            120.0
+          ]
+        },
+        {
+          "label": "S3 Shot B03",
+          "location": [
+            3050.0,
+            40.0,
+            160.0
+          ]
+        },
+        {
+          "label": "S3 Shot B05",
+          "location": [
+            3200.0,
+            0.0,
+            140.0
+          ]
+        },
+        {
+          "label": "S3 Shot B11",
+          "location": [
+            3420.0,
+            0.0,
+            105.0
+          ]
+        },
+        {
+          "label": "S3 Shot B06",
+          "location": [
+            3380.0,
+            0.0,
+            115.0
+          ]
+        },
+        {
+          "label": "S3 Shot B12",
+          "location": [
+            3420.0,
+            0.0,
+            105.0
+          ]
+        }
+      ],
+      "exact_bounds_from_unreal": true,
+      "landed_world_box": {
+        "max": [
+          17421.972999999998,
+          161000.0,
+          600.0
+        ],
+        "min": [
+          11421.973,
+          159000.0,
+          -5.0
+        ]
+      },
+      "root_current_world_transform": {
+        "location": [
+          11421.97275,
+          160000.0,
+          -120.0
+        ],
+        "rotation": [
+          -0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "rows": [
+        {
+          "aabb": {
+            "max": [
+              4000.0,
+              240.00001831054686,
+              40.0
+            ],
+            "min": [
+              3640.0,
+              -239.9999816894531,
+              -5.0
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              4000.0,
+              240.0,
+              40.0
+            ],
+            "min": [
+              3640.0,
+              -240.0,
+              -5.0
+            ]
+          },
+          "kind": "mound",
+          "label": "S3 Beach Mound Rear",
+          "material_path": "/Game/EnvironmentPacks/Megascans_2K/Surface/01_Soil_Sand_pjuuz0/01_Soil_Sand_pjuuz0_2K_inst",
+          "mesh_path": "/Engine/BasicShapes/Sphere",
+          "nearest_camera_clearance_cm": 229.401,
+          "transform": {
+            "location": [
+              3820.0,
+              0.0,
+              17.5
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              3.6,
+              4.8,
+              0.45
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14921.973,
+              160240.00001831056,
+              40.0
+            ],
+            "min": [
+              14561.973,
+              159760.00001831056,
+              -5.0
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14741.973,
+              160000.0,
+              17.5
+            ],
+            "rotation": [
+              -0.0,
+              0.0,
+              0.0
+            ],
+            "scale": [
+              3.6,
+              4.8,
+              0.45
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3867.513310778087,
+              -300.99847884128155,
+              35.0
+            ],
+            "min": [
+              3532.4866923943937,
+              -559.0015062333705,
+              -5.0
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3850.0,
+              -330.0,
+              35.0
+            ],
+            "min": [
+              3550.0,
+              -530.0,
+              -5.0
+            ]
+          },
+          "kind": "mound",
+          "label": "S3 Beach Mound Left",
+          "material_path": "/Game/EnvironmentPacks/Megascans_2K/Surface/01_Soil_Sand_pjuuz0/01_Soil_Sand_pjuuz0_2K_inst",
+          "mesh_path": "/Engine/BasicShapes/Sphere",
+          "nearest_camera_clearance_cm": 211.568,
+          "transform": {
+            "location": [
+              3700.0,
+              -430.0,
+              15.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              -12.0
+            ],
+            "scale": [
+              3.0,
+              2.0,
+              0.4
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14789.486310778087,
+              159699.00152115873,
+              35.0
+            ],
+            "min": [
+              14454.459692394394,
+              159440.99849376662,
+              -5.0
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14621.973,
+              159570.0,
+              15.0
+            ],
+            "rotation": [
+              -0.0,
+              -0.0,
+              -12.0
+            ],
+            "scale": [
+              3.0,
+              2.0,
+              0.4
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3870.7707764789798,
+              565.4154467637142,
+              35.0
+            ],
+            "min": [
+              3529.229219571755,
+              294.5845679751443,
+              -5.0
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3850.0,
+              530.0,
+              35.0
+            ],
+            "min": [
+              3550.0,
+              330.0,
+              -5.0
+            ]
+          },
+          "kind": "mound",
+          "label": "S3 Beach Mound Right",
+          "material_path": "/Game/EnvironmentPacks/Megascans_2K/Surface/01_Soil_Sand_pjuuz0/01_Soil_Sand_pjuuz0_2K_inst",
+          "mesh_path": "/Engine/BasicShapes/Sphere",
+          "nearest_camera_clearance_cm": 321.887,
+          "transform": {
+            "location": [
+              3700.0,
+              430.0,
+              15.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              15.0
+            ],
+            "scale": [
+              3.0,
+              2.0,
+              0.4
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14792.74377647898,
+              160565.4154467637,
+              35.0
+            ],
+            "min": [
+              14451.202219571755,
+              160294.58456797514,
+              -5.0
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14621.973,
+              160430.0,
+              15.0
+            ],
+            "rotation": [
+              -0.0,
+              0.0,
+              14.999999999999996
+            ],
+            "scale": [
+              3.0,
+              2.0,
+              0.4
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3962.8270386326694,
+              -441.30829025880934,
+              20.905511627197267
+            ],
+            "min": [
+              3857.0068186358885,
+              -559.6572954270322,
+              -4.994104614257813
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3985.0,
+              -425.0,
+              70.0
+            ],
+            "min": [
+              3835.0,
+              -575.0,
+              -5.0
+            ]
+          },
+          "kind": "rock",
+          "label": "S3 Beach Rock Back L",
+          "material_path": null,
+          "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/03_Flat_Rock_ohCwN/Aset_rock_granite_M_ohCwN_LOD0",
+          "nearest_camera_clearance_cm": 416.538,
+          "transform": {
+            "location": [
+              3910.0,
+              -500.0,
+              -0.99
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              27.0
+            ],
+            "scale": [
+              0.75,
+              0.75,
+              0.75
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14884.80003863267,
+              159558.6917097412,
+              20.90551162719727
+            ],
+            "min": [
+              14778.979818635888,
+              159440.34270457298,
+              -4.994104614257807
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14831.973,
+              159500.0,
+              -0.9899999999999949
+            ],
+            "rotation": [
+              -0.0,
+              0.0,
+              27.00000000000001
+            ],
+            "scale": [
+              0.75,
+              0.75,
+              0.75
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3946.9540592394383,
+              517.9903863301229,
+              32.92053989410401
+            ],
+            "min": [
+              3852.484406666395,
+              425.6812352867968,
+              -4.995091972351075
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3965.0,
+              535.0,
+              60.0
+            ],
+            "min": [
+              3835.0,
+              405.0,
+              -5.0
+            ]
+          },
+          "kind": "rock",
+          "label": "S3 Beach Rock Back R",
+          "material_path": null,
+          "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/05_Rock_Granite_pkjsG/Aset_rock_granite_M_pkjsG_LOD0",
+          "nearest_camera_clearance_cm": 611.1,
+          "transform": {
+            "location": [
+              3900.0,
+              470.0,
+              0.59
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              -38.0
+            ],
+            "scale": [
+              0.65,
+              0.65,
+              0.65
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14868.927059239439,
+              160517.99038633012,
+              32.92053989410401
+            ],
+            "min": [
+              14774.457406666395,
+              160425.6812352868,
+              -4.995091972351071
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14821.973,
+              160470.0,
+              0.5900000000000034
+            ],
+            "rotation": [
+              -0.0,
+              -0.0,
+              -38.00000000000001
+            ],
+            "scale": [
+              0.65,
+              0.65,
+              0.65
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3784.4085780263886,
+              -246.03003067510178,
+              -1.486945629119873
+            ],
+            "min": [
+              3775.5914219736114,
+              -253.96996932489822,
+              -5.0
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3830.0,
+              -200.0,
+              35.0
+            ],
+            "min": [
+              3730.0,
+              -300.0,
+              -5.0
+            ]
+          },
+          "kind": "shingle",
+          "label": "S3 Beach Shingle L",
+          "material_path": null,
+          "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/Scatter_3D/010_Scatter_Rock_Granite_pdpg7/Sctr_rock_granite_T_pdpg7_LOD0_Aset_scatter_rock_T_pdpg7_00_LOD0",
+          "nearest_camera_clearance_cm": 445.326,
+          "transform": {
+            "location": [
+              3780.0,
+              -250.0,
+              -5.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              73.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14706.381578026389,
+              159753.96996932488,
+              -1.486945629119873
+            ],
+            "min": [
+              14697.564421973611,
+              159746.03003067512,
+              -5.0
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14701.973,
+              159750.0,
+              -5.0
+            ],
+            "rotation": [
+              -0.0,
+              0.0,
+              72.99999999999997
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3763.3019497126033,
+              268.29330900098233,
+              -0.774500846862793
+            ],
+            "min": [
+              3756.6980500032337,
+              261.70668795902225,
+              -5.0
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3810.0,
+              315.0,
+              35.0
+            ],
+            "min": [
+              3710.0,
+              215.0,
+              -5.0
+            ]
+          },
+          "kind": "shingle",
+          "label": "S3 Beach Shingle R",
+          "material_path": null,
+          "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/Scatter_3D/010_Scatter_Rock_Granite_pdpg7/Sctr_rock_granite_T_pdpg7_LOD0_Aset_scatter_rock_T_pdpg7_03_LOD0",
+          "nearest_camera_clearance_cm": 439.368,
+          "transform": {
+            "location": [
+              3760.0,
+              265.0,
+              -5.0
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              -44.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14685.274949712602,
+              160268.293309001,
+              -0.774500846862793
+            ],
+            "min": [
+              14678.671050003233,
+              160261.70668795903,
+              -5.0
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14681.973,
+              160265.0,
+              -5.0
+            ],
+            "rotation": [
+              -0.0,
+              -0.0,
+              -43.99999999999999
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3953.4430742548743,
+              -643.43330829435,
+              94.10398132324218
+            ],
+            "min": [
+              3830.7150015062325,
+              -739.0854078071466,
+              -4.994746093749999
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3940.0,
+              -650.0,
+              95.0
+            ],
+            "min": [
+              3860.0,
+              -730.0,
+              -5.0
+            ]
+          },
+          "kind": "plant_fallback",
+          "label": "S3 Beach Seaweed L",
+          "material_path": null,
+          "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedA",
+          "nearest_camera_clearance_cm": 331.907,
+          "selection_status": "open_question_non_quixel",
+          "transform": {
+            "location": [
+              3900.0,
+              -690.0,
+              -0.98
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              18.0
+            ],
+            "scale": [
+              0.7,
+              0.7,
+              0.7
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14875.416074254874,
+              159356.56669170564,
+              94.10398132324218
+            ],
+            "min": [
+              14752.688001506232,
+              159260.91459219286,
+              -4.9947460937500034
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14821.973,
+              159310.0,
+              -0.980000000000004
+            ],
+            "rotation": [
+              -0.0,
+              0.0,
+              18.0
+            ],
+            "scale": [
+              0.7,
+              0.7,
+              0.7
+            ]
+          }
+        },
+        {
+          "aabb": {
+            "max": [
+              3968.1158440116633,
+              785.328059277408,
+              67.16106971740723
+            ],
+            "min": [
+              3790.5638664703833,
+              605.1797284428392,
+              -4.99720703125
+            ]
+          },
+          "estimated_aabb": {
+            "max": [
+              3920.0,
+              740.0,
+              95.0
+            ],
+            "min": [
+              3840.0,
+              660.0,
+              -5.0
+            ]
+          },
+          "kind": "plant_fallback",
+          "label": "S3 Beach Seaweed R",
+          "material_path": null,
+          "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedB",
+          "nearest_camera_clearance_cm": 710.628,
+          "selection_status": "open_question_non_quixel",
+          "transform": {
+            "location": [
+              3880.0,
+              700.0,
+              -0.71
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              -21.0
+            ],
+            "scale": [
+              0.65,
+              0.65,
+              0.65
+            ]
+          },
+          "world_aabb": {
+            "max": [
+              14890.088844011663,
+              160785.3280592774,
+              67.16106971740723
+            ],
+            "min": [
+              14712.536866470384,
+              160605.17972844283,
+              -4.997207031249994
+            ]
+          },
+          "world_transform": {
+            "location": [
+              14801.973,
+              160700.0,
+              -0.7099999999999937
+            ],
+            "rotation": [
+              -0.0,
+              -0.0,
+              -21.000000000000004
+            ],
+            "scale": [
+              0.65,
+              0.65,
+              0.65
+            ]
+          }
+        }
+      ],
+      "source_plan": "s3_beach_plan.json"
+    },
+    "run": "030026",
+    "spawned": [
+      {
+        "kind": "mound",
+        "label": "S3 Beach Mound Rear",
+        "mesh_path": "/Engine/BasicShapes/Sphere",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_351",
+        "world_aabb": {
+          "max": [
+            14921.973,
+            160240.00001831056,
+            40.0
+          ],
+          "min": [
+            14561.973,
+            159760.00001831056,
+            -5.0
+          ]
+        },
+        "world_location_cm": [
+          14741.973,
+          160000.0,
+          17.5
+        ]
+      },
+      {
+        "kind": "mound",
+        "label": "S3 Beach Mound Left",
+        "mesh_path": "/Engine/BasicShapes/Sphere",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_352",
+        "world_aabb": {
+          "max": [
+            14789.486310778087,
+            159699.00152115873,
+            35.0
+          ],
+          "min": [
+            14454.459692394394,
+            159440.99849376664,
+            -5.0
+          ]
+        },
+        "world_location_cm": [
+          14621.973,
+          159570.0,
+          15.0
+        ]
+      },
+      {
+        "kind": "mound",
+        "label": "S3 Beach Mound Right",
+        "mesh_path": "/Engine/BasicShapes/Sphere",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_353",
+        "world_aabb": {
+          "max": [
+            14792.74377647898,
+            160565.4154467637,
+            35.0
+          ],
+          "min": [
+            14451.202219571755,
+            160294.58456797517,
+            -5.0
+          ]
+        },
+        "world_location_cm": [
+          14621.973,
+          160430.0,
+          15.0
+        ]
+      },
+      {
+        "kind": "rock",
+        "label": "S3 Beach Rock Back L",
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/03_Flat_Rock_ohCwN/Aset_rock_granite_M_ohCwN_LOD0",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_354",
+        "world_aabb": {
+          "max": [
+            14884.80003863267,
+            159558.6917097412,
+            20.90551162719727
+          ],
+          "min": [
+            14778.979818635888,
+            159440.34270457295,
+            -4.994104614257807
+          ]
+        },
+        "world_location_cm": [
+          14831.973,
+          159500.0,
+          -0.9899999999999949
+        ]
+      },
+      {
+        "kind": "rock",
+        "label": "S3 Beach Rock Back R",
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/05_Rock_Granite_pkjsG/Aset_rock_granite_M_pkjsG_LOD0",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_355",
+        "world_aabb": {
+          "max": [
+            14868.927059239439,
+            160517.99038633012,
+            32.92053989410401
+          ],
+          "min": [
+            14774.457406666395,
+            160425.68123528681,
+            -4.995091972351071
+          ]
+        },
+        "world_location_cm": [
+          14821.973,
+          160470.0,
+          0.5900000000000034
+        ]
+      },
+      {
+        "kind": "shingle",
+        "label": "S3 Beach Shingle L",
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/Scatter_3D/010_Scatter_Rock_Granite_pdpg7/Sctr_rock_granite_T_pdpg7_LOD0_Aset_scatter_rock_T_pdpg7_00_LOD0",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_356",
+        "world_aabb": {
+          "max": [
+            14706.381578026389,
+            159753.96996932488,
+            -1.486945629119873
+          ],
+          "min": [
+            14697.564421973611,
+            159746.03003067512,
+            -5.0
+          ]
+        },
+        "world_location_cm": [
+          14701.973,
+          159750.0,
+          -5.0
+        ]
+      },
+      {
+        "kind": "shingle",
+        "label": "S3 Beach Shingle R",
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/Scatter_3D/010_Scatter_Rock_Granite_pdpg7/Sctr_rock_granite_T_pdpg7_LOD0_Aset_scatter_rock_T_pdpg7_03_LOD0",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_357",
+        "world_aabb": {
+          "max": [
+            14685.274949712604,
+            160268.29330900096,
+            -0.774500846862793
+          ],
+          "min": [
+            14678.671050003233,
+            160261.70668795903,
+            -5.0
+          ]
+        },
+        "world_location_cm": [
+          14681.973,
+          160265.0,
+          -5.0
+        ]
+      },
+      {
+        "kind": "plant_fallback",
+        "label": "S3 Beach Seaweed L",
+        "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedA",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_358",
+        "world_aabb": {
+          "max": [
+            14875.416074254876,
+            159356.56669170567,
+            94.10398132324218
+          ],
+          "min": [
+            14752.688001506232,
+            159260.91459219286,
+            -4.994746093750003
+          ]
+        },
+        "world_location_cm": [
+          14821.973,
+          159310.0,
+          -0.980000000000004
+        ]
+      },
+      {
+        "kind": "plant_fallback",
+        "label": "S3 Beach Seaweed R",
+        "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedB",
+        "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_365",
+        "world_aabb": {
+          "max": [
+            14890.088844011663,
+            160785.3280592774,
+            67.16106971740723
+          ],
+          "min": [
+            14712.536866470384,
+            160605.17972844283,
+            -4.997207031249992
+          ]
+        },
+        "world_location_cm": [
+          14801.973,
+          160700.0,
+          -0.7099999999999937
+        ]
+      }
+    ],
+    "tag": "RigAtmos.S3Beach",
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  },
+  "plan": {
+    "cameras": [
+      {
+        "label": "S3 Shot B02",
+        "location": [
+          2700.0,
+          -250.0,
+          170.0
+        ]
+      },
+      {
+        "label": "S3 Shot B10",
+        "location": [
+          2600.0,
+          0.0,
+          170.0
+        ]
+      },
+      {
+        "label": "S3 Shot B09",
+        "location": [
+          2600.0,
+          0.0,
+          170.0
+        ]
+      },
+      {
+        "label": "S3 Shot B07",
+        "location": [
+          3300.0,
+          60.0,
+          120.0
+        ]
+      },
+      {
+        "label": "S3 Shot B08",
+        "location": [
+          3360.0,
+          -40.0,
+          110.0
+        ]
+      },
+      {
+        "label": "S3 Shot B04",
+        "location": [
+          3500.0,
+          -750.0,
+          120.0
+        ]
+      },
+      {
+        "label": "S3 Shot B03",
+        "location": [
+          3050.0,
+          40.0,
+          160.0
+        ]
+      },
+      {
+        "label": "S3 Shot B05",
+        "location": [
+          3200.0,
+          0.0,
+          140.0
+        ]
+      },
+      {
+        "label": "S3 Shot B11",
+        "location": [
+          3420.0,
+          0.0,
+          105.0
+        ]
+      },
+      {
+        "label": "S3 Shot B06",
+        "location": [
+          3380.0,
+          0.0,
+          115.0
+        ]
+      },
+      {
+        "label": "S3 Shot B12",
+        "location": [
+          3420.0,
+          0.0,
+          105.0
+        ]
+      }
+    ],
+    "figures": [
+      {
+        "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0",
+        "before_foot_z_cm": -26.10759011691158,
+        "before_transform": {
+          "location": [
+            14571.102873451273,
+            159787.02046848487,
+            -27.44070053100586
+          ],
+          "rotation": [
+            -0.0,
+            0.0,
+            35.210491180419936
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "dock_xy": [
+          3649.129873451273,
+          -212.97953151512775
+        ],
+        "label": "Shore01_M56 Clam",
+        "planned_foot_z_cm": 9.575756802120068,
+        "raise_cm": 35.68334691903165,
+        "surface_z_cm": 9.57575680212007
+      },
+      {
+        "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0",
+        "before_foot_z_cm": -35.688280704893714,
+        "before_transform": {
+          "location": [
+            14121.27136134851,
+            160109.44644586422,
+            -35.688280704893714
+          ],
+          "rotation": [
+            2.2066451720341103e-14,
+            1.4854692928739476e-14,
+            27.80367660522462
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "dock_xy": [
+          3199.2983613485103,
+          109.44644586421782
+        ],
+        "label": "Shore02_F52 Clam",
+        "planned_foot_z_cm": 8.49068321329797,
+        "raise_cm": 44.178963918191684,
+        "surface_z_cm": 8.490683213297972
+      },
+      {
+        "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0",
+        "before_foot_z_cm": -25.91290281025985,
+        "before_transform": {
+          "location": [
+            14312.526554135786,
+            160300.7016386515,
+            -27.44070053100586
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -153.43951416015625
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "dock_xy": [
+          3390.553554135786,
+          300.7016386514879
+        ],
+        "label": "Shore03_M59 Clam",
+        "planned_foot_z_cm": 12.027405211366137,
+        "raise_cm": 37.94030802162599,
+        "surface_z_cm": 12.027405211366137
+      },
+      {
+        "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0",
+        "before_foot_z_cm": -27.44070053100586,
+        "before_transform": {
+          "location": [
+            14605.517459632334,
+            160262.12865417247,
+            -27.44070053100586
+          ],
+          "rotation": [
+            -0.0,
+            0.0,
+            153.31193542480472
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "dock_xy": [
+          3683.544459632334,
+          262.1286541724694
+        ],
+        "label": "Shore04_F55 Clam",
+        "planned_foot_z_cm": 7.342448698451129,
+        "raise_cm": 34.78314922945699,
+        "surface_z_cm": 7.342448698451129
+      },
+      {
+        "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0",
+        "before_foot_z_cm": -29.216648847812706,
+        "before_transform": {
+          "location": [
+            14333.047762735327,
+            159755.67991859568,
+            -27.44070053100586
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            -30.268861770629893
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "dock_xy": [
+          3411.0747627353267,
+          -244.320081404323
+        ],
+        "label": "Shore05_M53 Clam",
+        "planned_foot_z_cm": 8.741696500868116,
+        "raise_cm": 37.95834534868082,
+        "surface_z_cm": 8.741696500868112
+      },
+      {
+        "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0",
+        "before_foot_z_cm": -27.44070053100586,
+        "before_transform": {
+          "location": [
+            14681.973,
+            160000.0,
+            -27.44070053100586
+          ],
+          "rotation": [
+            -0.0,
+            0.0,
+            128.72592163085935
+          ],
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "dock_xy": [
+          3760.0,
+          0.0
+        ],
+        "label": "Shore06_F25 Clam",
+        "planned_foot_z_cm": 8.697494204732358,
+        "raise_cm": 36.13819473573822,
+        "surface_z_cm": 8.697494204732356
+      }
+    ],
+    "inside_box_guard": true,
+    "legacy_actor_count": 9,
+    "props": [
+      {
+        "aabb": {
+          "max": [
+            3872.8270386326694,
+            -321.30829025880934,
+            27.0365767061142
+          ],
+          "min": [
+            3767.0068186358885,
+            -439.6572954270322,
+            1.1369604646591212
+          ]
+        },
+        "embed": 0.3,
+        "embedded_fraction": 0.3,
+        "kind": "rock",
+        "label": "S3 Beach V2 Rock 01",
+        "location_z_cm": 5.141065078916934,
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/03_Flat_Rock_ohCwN/Aset_rock_granite_M_ohCwN_LOD0",
+        "nearest_camera_clearance_cm": 419.81833398535707,
+        "scale": 0.75,
+        "surface_z_cm": 8.906845337095644,
+        "xy": [
+          3820.0,
+          -380.0
+        ],
+        "yaw": 27.0
+      },
+      {
+        "aabb": {
+          "max": [
+            3866.9540592394383,
+            377.9903863301229,
+            33.08533411857425
+          ],
+          "min": [
+            3772.484406666395,
+            285.6812352867968,
+            -4.830297747880829
+          ]
+        },
+        "embed": 0.34,
+        "embedded_fraction": 0.34,
+        "kind": "rock",
+        "label": "S3 Beach V2 Rock 02",
+        "location_z_cm": 0.7547942244702455,
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/05_Rock_Granite_pkjsG/Aset_rock_granite_M_pkjsG_LOD0",
+        "nearest_camera_clearance_cm": 459.3808270996818,
+        "scale": 0.65,
+        "surface_z_cm": 8.0610170867139,
+        "xy": [
+          3820.0,
+          330.0
+        ],
+        "yaw": -38.0
+      },
+      {
+        "aabb": {
+          "max": [
+            3774.846844919076,
+            -272.29140716141666,
+            38.09529984971225
+          ],
+          "min": [
+            3703.259283434933,
+            -344.89260981110465,
+            -0.8584980628854106
+          ]
+        },
+        "embed": 0.25,
+        "embedded_fraction": 0.25,
+        "kind": "rock",
+        "label": "S3 Beach V2 Rock 03",
+        "location_z_cm": 5.1816924430960345,
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/13_Granite_Rock_ohFsZ/Aset_rock_granite_M_ohFsZ_LOD0",
+        "nearest_camera_clearance_cm": 398.5657674314441,
+        "scale": 0.9,
+        "surface_z_cm": 8.879951415264005,
+        "xy": [
+          3740.0,
+          -310.0
+        ],
+        "yaw": 73.0
+      },
+      {
+        "aabb": {
+          "max": [
+            3902.192806027107,
+            277.7103266052873,
+            28.378145777903573
+          ],
+          "min": [
+            3819.1968750947176,
+            195.2320703143631,
+            3.7949148056135344
+          ]
+        },
+        "embed": 0.3,
+        "embedded_fraction": 0.3,
+        "kind": "rock",
+        "label": "S3 Beach V2 Rock 04",
+        "location_z_cm": 6.384470307551401,
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/20_Mossy_Flat_Stone_oidxM/Aset_rock_granite_L_oidxM_LOD0",
+        "nearest_camera_clearance_cm": 450.9374844798913,
+        "scale": 0.75,
+        "surface_z_cm": 11.169884097300546,
+        "xy": [
+          3860.0,
+          235.0
+        ],
+        "yaw": -44.0
+      },
+      {
+        "aabb": {
+          "max": [
+            4016.73876698594,
+            -70.77169007537775,
+            19.022213609183417
+          ],
+          "min": [
+            3962.259721907422,
+            -110.51043908626521,
+            -4.351999609505553
+          ]
+        },
+        "embed": 0.4,
+        "embedded_fraction": 0.4,
+        "kind": "rock",
+        "label": "S3 Beach V2 Rock 05",
+        "location_z_cm": -3.28196653608026,
+        "mesh_path": "/Game/EnvironmentPacks/Megascans_2K/3D_Asset/09_Rock_Granite_okowW/Aset_rock_granite_M_okowW_LOD0",
+        "nearest_camera_clearance_cm": 553.5760271831726,
+        "scale": 1.1,
+        "surface_z_cm": 4.9976856779700345,
+        "xy": [
+          3990.0,
+          -90.0
+        ],
+        "yaw": 11.0
+      },
+      {
+        "aabb": {
+          "max": [
+            3882.0658445529243,
+            -372.05998497661,
+            56.36026455438876
+          ],
+          "min": [
+            3808.4290009037395,
+            -429.45124468428793,
+            -3.0989718958065495
+          ]
+        },
+        "embed": 0.12,
+        "embedded_fraction": 0.12,
+        "kind": "seaweed",
+        "label": "S3 Beach V2 Seaweed 01",
+        "location_z_cm": -0.6901242395565497,
+        "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedA",
+        "nearest_camera_clearance_cm": 449.3661859336087,
+        "scale": 0.42,
+        "surface_z_cm": 4.036136478216887,
+        "xy": [
+          3850.0,
+          -400.0
+        ],
+        "yaw": 18.0
+      },
+      {
+        "aabb": {
+          "max": [
+            3846.0913645599467,
+            494.6331386989519,
+            43.967010859503105
+          ],
+          "min": [
+            3753.2180224614312,
+            400.401704108562,
+            6.2226814832824004
+          ]
+        },
+        "embed": 0.12,
+        "embedded_fraction": 0.12,
+        "kind": "seaweed",
+        "label": "S3 Beach V2 Seaweed 02",
+        "location_z_cm": 8.465220545782401,
+        "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedB",
+        "nearest_camera_clearance_cm": 524.4814590713111,
+        "scale": 0.34,
+        "surface_z_cm": 10.752001008428884,
+        "xy": [
+          3800.0,
+          450.0
+        ],
+        "yaw": -21.0
+      },
+      {
+        "aabb": {
+          "max": [
+            3726.8246301543004,
+            500.6969867313945,
+            55.032327792202814
+          ],
+          "min": [
+            3667.9389267448664,
+            432.34546406085093,
+            1.2358757658356248
+          ]
+        },
+        "embed": 0.12,
+        "embedded_fraction": 0.12,
+        "kind": "seaweed",
+        "label": "S3 Beach V2 Seaweed 03",
+        "location_z_cm": 3.415309359585625,
+        "mesh_path": "/Game/EnvironmentPacks/OceanFloor/Meshes/SM_SeaweedA",
+        "nearest_camera_clearance_cm": 500.89228378490185,
+        "scale": 0.38,
+        "surface_z_cm": 7.691450008999688,
+        "xy": [
+          3700.0,
+          470.0
+        ],
+        "yaw": 62.0
+      }
+    ],
+    "required_tests": [
+      "InfinityStage.Editor.SavedMasterMatchesShow",
+      "InfinityStage.Editor.SceneCutBindingsResolve"
+    ],
+    "sand": {
+      "asset": "/Game/InfinityStage/Dev/Generated/S3Beach/SM_S3_BeachV2_SandFloor",
+      "expected_local_bounds": {
+        "max": [
+          600.0,
+          650.0,
+          13.619565719068092
+        ],
+        "min": [
+          -400.0,
+          -750.0,
+          -5.0
+        ]
+      },
+      "import_pipeline": {
+        "import_materials": false,
+        "import_static_meshes": true,
+        "import_textures": false,
+        "offset_rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "offset_translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "offset_uniform_scale": 1.0
+      },
+      "imported_local_bounds": {
+        "max": [
+          600.0,
+          650.0,
+          13.619565963745117
+        ],
+        "min": [
+          -400.0,
+          -750.0,
+          -5.0
+        ]
+      },
+      "label": "S3 Beach V2 Sand Floor",
+      "material": "/Game/EnvironmentPacks/Megascans_2K/Surface/01_Soil_Sand_pjuuz0/01_Soil_Sand_pjuuz0_2K_inst",
+      "min_camera_clearance_cm": 152.0389737460159,
+      "obj_write_convention": "+x,-y,+z",
+      "pivot_dock": [
+        3450.0,
+        50.0,
+        0.0
+      ],
+      "triangle_count": 1352,
+      "vertex_count": 749,
+      "z_range_cm": [
+        -5.0,
+        13.619565719068092
+      ]
+    },
+    "strategy": "subdivided_noise_plane_with_camera_cutouts",
+    "version": 2
+  },
+  "run": "124209",
+  "sand_asset": "/Game/InfinityStage/Dev/Generated/S3Beach/SM_S3_BeachV2_SandFloor",
+  "sand_asset_saved": true,
+  "spawned": [
+    {
+      "label": "S3 Beach V2 Sand Floor",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1461"
+    },
+    {
+      "label": "S3 Beach V2 Rock 01",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1462"
+    },
+    {
+      "label": "S3 Beach V2 Rock 02",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1463"
+    },
+    {
+      "label": "S3 Beach V2 Rock 03",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1464"
+    },
+    {
+      "label": "S3 Beach V2 Rock 04",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1465"
+    },
+    {
+      "label": "S3 Beach V2 Rock 05",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1466"
+    },
+    {
+      "label": "S3 Beach V2 Seaweed 01",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1467"
+    },
+    {
+      "label": "S3 Beach V2 Seaweed 02",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1468"
+    },
+    {
+      "label": "S3 Beach V2 Seaweed 03",
+      "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1469"
+    }
+  ],
+  "tag": "RigAtmos.S3BeachV2",
+  "version": 2,
+  "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+  "finished_by": {
+    "run": "20261004-124338",
+    "mi_saved": "/Game/EnvironmentPacks/Megascans_2K/Surface/01_Soil_Sand_pjuuz0/01_Soil_Sand_pjuuz0_2K_inst",
+    "mi_backup": "E:/PussStage/Backups/PreS3BeachMISave-20261004-124338",
+    "reason": "POST_SAVE_DIRTY engine side effect on level save"
+  }
+}

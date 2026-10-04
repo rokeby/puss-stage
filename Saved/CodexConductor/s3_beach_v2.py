@@ -63,7 +63,7 @@ SAND_PIVOT_DOCK = (SAND_CENTER_X - 100.0, 50.0, 0.0)
 # Z-up UE convention: UE = (objX, -objZ, objY).  If APPLY refuses with
 # SAND_BOUNDS_MISMATCH, its message names the mapping the editor actually used
 # (matches=[...]); set this constant to that name and re-run.
-OBJ_WRITE_CONVENTION = "+x,-z,+y"
+OBJ_WRITE_CONVENTION = "+x,-y,+z"  # measured 4 Oct run 124139: Interchange OBJ maps UE=(objX,-objY,objZ)
 SAND_BOUNDS_TOLERANCE_CM = 1.0
 FIGURE_LABELS = (
     "Shore01_M56 Clam", "Shore02_F52 Clam", "Shore03_M59 Clam",
