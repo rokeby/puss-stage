@@ -1,0 +1,48 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp
+index 0d90ce7..491f906 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp
+@@ -49,9 +49,20 @@ bool FInfinityStageChoreoFollowsRetimeTest::RunTest(const FString& Parameters)
+     }
+ 
+     // The Choreo goes on the Passage AFTER the Scene, so growing the Scene retimes it.
++    // Pick the Passage AFTER the Scene by segment order. "Starts after frame 0" is
++    // not enough: a lead-in can put the first Passage, the one BEFORE the Scene,
++    // past frame 0 too, and that one rightly never moves when the Scene grows.
+     const FInfinityCompileResult Before = FInfinityStageCompiler::Compile(*Show);
++    const FInfinityCompiledSegment* SceneSegment = Before.Segments.FindByPredicate(
++        [](const FInfinityCompiledSegment& Segment) { return Segment.Type == EInfinityCueType::Scene; });
++    TestNotNull(TEXT("Fixture compiles a Scene segment"), SceneSegment);
++    if (!SceneSegment)
++    {
++        return false;
++    }
++    const FFrameNumber SceneEnd = SceneSegment->EndFrame;
+     const FInfinityCompiledPassage* LaterBefore = Before.Passages.FindByPredicate(
+-        [](const FInfinityCompiledPassage& P) { return P.SegmentStartFrame > 0; });
++        [SceneEnd](const FInfinityCompiledPassage& P) { return P.SegmentStartFrame >= SceneEnd; });
+     TestNotNull(TEXT("Fixture has a Passage after the Scene"), LaterBefore);
+     if (!LaterBefore)
+     {
+@@ -98,8 +109,19 @@ bool FInfinityStageChoreoFollowsRetimeTest::RunTest(const FString& Parameters)
+     TestTrue(TEXT("Second build succeeds"), UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(Show, Master, Report));
+     TestEqual(TEXT("Still one section"), Track->GetAllSections().Num(), 1);
+     TestTrue(TEXT("Same section object (identity is stable)"), Track->GetAllSections()[0] == Section);
+-    TestTrue(TEXT("The Choreo moved with its Passage"),
+-        Section->GetInclusiveStartFrame() == StartBefore + Grow);
++    const FInfinityCompileResult After = FInfinityStageCompiler::Compile(*Show);
++    const FInfinityCompiledPassage* LaterAfter = After.Passages.FindByPredicate(
++        [LaterGuid](const FInfinityCompiledPassage& P) { return P.PassageGuid == LaterGuid; });
++    TestNotNull(TEXT("The Passage still compiles"), LaterAfter);
++    if (!LaterAfter)
++    {
++        return false;
++    }
++    AddInfo(FString::Printf(TEXT("CHOREO_RETIME passage_before=%d passage_after=%d grow=%d section_after=%d"),
++        StartBefore.Value, LaterAfter->SegmentStartFrame.Value, Grow.Value, Section->GetInclusiveStartFrame().Value));
++    TestTrue(TEXT("Fixture: growing the Scene really moved the Passage"), LaterAfter->SegmentStartFrame > StartBefore);
++    TestEqual(TEXT("The Choreo moved with its Passage (section start == recompiled Passage start)"),
++        Section->GetInclusiveStartFrame(), LaterAfter->SegmentStartFrame);
+     TestTrue(TEXT("Control: the absolute section did not move"), Absolute->GetInclusiveStartFrame() == StartBefore);
+ 
+     // Clearing the field removes the nesting on the next build.
