@@ -143,3 +143,16 @@ The probe is read-only and never ends PIE.
 | What completion mode do sub-sections default to? | not searched past the audit | Set it explicitly instead |
 | Does the music play while a focused Choreo is open? | not checked | First editor open |
 | Does every rail have a music map? | not checked | Tool INSPECT |
+
+## Stream suggestions (Gary invited amendments, 4 Oct evening)
+
+- **Looks (mood states) as one-click crossfades. Tool only, no build (T2).** "Moving from mood X to mood Y" is many lamps changing at once, and keying each lamp by hand is slow.
+  - Proposal: capture a named **Look**, meaning the intensity and colour of a chosen set of lamps and level lights, saved as JSON under `Saved/CodexCueing/looks/`.
+  - "Crossfade to Look at the playhead, over N s" then writes the keys into the open Choreo or Scene sequence.
+  - The result is ordinary keys, so everything can still be tuned by hand.
+  - This answers "lighting changes as a cue" without a second lighting system.
+- **Make Effect-source flicker deterministic.** Today it runs on world game time (`IS/Private/InfinityStageEffectSource.cpp:691`, `:710`) [decl]. So a flicker you tune does **not** replay the same way when you scrub or repeat it.
+  - Proposal: drive it from the Master clock, the way drama slow-move is driven. This is a small patch to Rig & atmosphere's file.
+  - It can join the second build.
+- **Rehearsal loop.** Add an A–B loop in the Cue List (play GO n to GO n+1 on repeat) for drilling one moment with live performers. It costs almost nothing beyond Re-run.
+- **Standby.** The Cue List shows the *next* cue's notes a few seconds early ("Standby GO 15"), the way a stage manager calls a show.
