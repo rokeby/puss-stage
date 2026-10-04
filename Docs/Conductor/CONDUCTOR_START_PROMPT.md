@@ -133,6 +133,7 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   false, INFERRED) -> SUPERSEDED by the Arrival Details timing patch AT (Gary: Details panel; roof +4.13->+8.63, lattice
   +8.63->+12.63, lights strike +10 s keeping stagger; spec specs/HANGAR_TIMING_DETAILS.md, Codex drafting).
   HELD patches for the next build: SS (scene shot stepping, d410198) + AT when reviewed. Editor CLOSED by Gary at 08:38.
+- 4 OCT NIGHT (later): all seven offline Claude builds landed and verified by me (harnesses re-run). Index + editor queue + Gary decisions: Docs/Conductor/MORNING_SUMMARY_2026-10-04.md. P06 docking: option A chosen (end held), see P06_DOCKING_CLEARANCE_2026-10-04.md; compiler beat is per-wing IntervalToNext (source-proven).
 - NIGHT 2 Oct (Conductor 4), all measured unless marked:
   BUILT 3d923f5 (AT hangar timing + PR passage resize; suite 116/0/116). APPLIED: P01 wing score +15 s (PreP01ScoreShift-
   20261002-191825); Scenes 2/5/6 15->25 s (rematched; both tests Success); whether their hangars now RISE is INFERRED -> Gary PIE.

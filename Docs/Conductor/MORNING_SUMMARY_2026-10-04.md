@@ -54,3 +54,22 @@
   - Mirror numbers for 200 bees: median 133 cm from the target; a bee within 60 cm of the camera in 54% of frames.
   - Python can't build Niagara emitters in 5.8, so the runbook has click steps: Docs/BeeSwarmBuildRunbook_2026-10-04.md.
   - The sandbox map script opens a new map, so it must be announced first. The S6 write waits for your yes.
+
+## Next editor session (start with "skip restore"; one run at a time)
+1. Run the read-only light_guid_audit.py and its comparer, to check the FB force-close spill.
+2. W&T: CR+CS (clouds) → FB (fence).
+3. My tune 4: revert tune 3d → DRY → APPLY → both tests → bay-3 trace in PIE.
+4. W&T: P1 → TK (_t5j + S1 gallery) → P6 (option A; once you pick (a) or (b)).
+5. My S3 chain: beach v2 → marble → wave split → B03 → stills.
+6. Long Opening: DRY → APPLY → both tests → PIE. It must land before any P01 ping-on.
+7. Lighting scores: DRY per passage, P05 first. APPLY only after you've judged them.
+8. A build window for held patches BS v3, GL and LD, if you want them.
+
+## Everything waiting on you
+- P06: (a) 2 s beat, +18 s; or (b) keep speed, ~1.7 s pairs (W&T asked you).
+- Scene camera owners: S1–S5 to Timeline? Should the S6 look carry across cuts (GL)?
+- Scene exit: A / B (recommended) / C.
+- Black passage on P04 (it turns your approved looks off while on).
+- Opening: P01 music, house warmers off, which swell, dark or lit move-in.
+- Lighting scores: P01 house warmers, P03 gobos, retire the P01 ping-on draft.
+- Tune 4 beams are diagonal shafts: OK?
