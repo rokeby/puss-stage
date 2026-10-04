@@ -1,1 +1,1 @@
-{"mode": "INSPECT", "run": "choreo-inspect-1", "passages": ["all"]}
+{"mode": "DRY", "run": "choreo-dry-1", "passages": ["all"]}

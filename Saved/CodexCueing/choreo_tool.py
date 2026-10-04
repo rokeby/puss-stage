@@ -61,12 +61,27 @@ def _safe_name(label):
     return cleaned or "Passage"
 
 
+def _gs(unreal, guid):
+    """GUID -> stable string. str() on a UE Guid struct is its repr, not its value."""
+    for convert in (lambda g: unreal.GuidLibrary.conv_guid_to_string(g),
+                    lambda g: g.to_string(),
+                    lambda g: "%08X%08X%08X%08X" % (g.get_editor_property("a") & 0xffffffff, g.get_editor_property("b") & 0xffffffff,
+                                                    g.get_editor_property("c") & 0xffffffff, g.get_editor_property("d") & 0xffffffff)):
+        try:
+            text = str(convert(guid))
+            if text and "Struct" not in text:
+                return text.upper().replace("-", "")
+        except Exception:
+            continue
+    raise RuntimeError("cannot stringify Guid %r" % (guid,))
+
+
 def _passage_sections(unreal, master):
     """PassageGuid -> (start_s, end_s) from the Master's managed Passage track."""
     out = {}
     for track in master.find_tracks_by_exact_type(unreal.MovieSceneInfinityPassageTrack):
         for section in track.get_sections():
-            guid = str(section.get_editor_property("block_guid"))
+            guid = _gs(unreal, section.get_editor_property("block_guid"))
             out[guid] = (section.get_start_frame_seconds(), section.get_end_frame_seconds())
     return out
 
@@ -74,15 +89,18 @@ def _passage_sections(unreal, master):
 def _song_markers(unreal, show, settings, tick_rate):
     """Bars and section changes of this Passage's song, as (choreo_seconds, label)."""
     music = settings.get_editor_property("music")
-    rail_guid = str(music.get_editor_property("primary_rail_guid"))
+    rail_guid = _gs(unreal, music.get_editor_property("primary_rail_guid"))
     rail = None
     for candidate in show.get_editor_property("music_rails"):
-        if str(candidate.get_editor_property("rail_guid")) == rail_guid:
+        if _gs(unreal, candidate.get_editor_property("rail_guid")) == rail_guid:
             rail = candidate
             break
     if rail is None:
         return [], "no_rail"
-    analysis = rail.get_editor_property("analysis_map").load_synchronous() if rail.get_editor_property("analysis_map") else None
+    analysis = rail.get_editor_property("analysis_map")
+    # UE Python hands a soft pointer back as the loaded object (or None).
+    if analysis is not None and hasattr(analysis, "load_synchronous"):
+        analysis = analysis.load_synchronous()
     if analysis is None:
         return [], "no_music_map"
     source_in = rail.get_editor_property("source_in_frame").value
@@ -113,7 +131,7 @@ def _plan(unreal, show, master, wanted):
     sections = _passage_sections(unreal, master)
     rows = []
     for settings in show.get_editor_property("passage_settings"):
-        guid = str(settings.get_editor_property("passage_guid"))
+        guid = _gs(unreal, settings.get_editor_property("passage_guid"))
         label = str(settings.get_editor_property("label"))
         if wanted != ["all"] and label not in wanted:
             continue
@@ -217,7 +235,7 @@ def run():
         show.modify()
         settings_list = show.get_editor_property("passage_settings")
         for settings in settings_list:
-            guid = str(settings.get_editor_property("passage_guid"))
+            guid = _gs(unreal, settings.get_editor_property("passage_guid"))
             if guid in created:
                 settings.set_editor_property("choreography", created[guid])
         show.set_editor_property("passage_settings", settings_list)
@@ -240,7 +258,7 @@ def run():
         nested = {}
         for track in master.find_tracks_by_exact_type(unreal.MovieSceneInfinityChoreoTrack):
             for section in track.get_sections():
-                nested[str(section.get_editor_property("block_guid"))] = (
+                nested[_gs(unreal, section.get_editor_property("block_guid"))] = (
                     section.get_sequence().get_path_name() if section.get_sequence() else None,
                     section.get_start_frame_seconds())
         for row in todo:
@@ -252,7 +270,7 @@ def run():
             if abs(got[1] - row["start_s"]) > 1.0 / 60.0:
                 raise RuntimeError("read-back: %s Choreo starts at %.3f s, Passage at %.3f s" % (row["label"], got[1], row["start_s"]))
         for settings in show.get_editor_property("passage_settings"):
-            guid = str(settings.get_editor_property("passage_guid"))
+            guid = _gs(unreal, settings.get_editor_property("passage_guid"))
             if guid in created and not settings.get_editor_property("choreography"):
                 raise RuntimeError("read-back: Show lost the Choreography field for %s" % guid)
         report["census_after"] = _census(unreal)
