@@ -127,3 +127,10 @@
     - M3: a hold bypasses the performance interlock.
     - Editor-only overrides break non-editor targets.
   - A1 also needs proof for possessable-bound lamps and handler-level tests. Findings were sent to the cueing stream.
+- **P05 lighting score APPLIED** (run 20261004-132338): 724 attachments, 837 old lights disabled, shadows 2→2; blink-spot record acknowledged. Both tests passed. Gary: P05 warmth to be adjusted when directing (a note for the cue system).
+- **Cueing build A BUILT** (20613f0, Gary asked me to close UE). Build fixes: a const-overload name-hiding fix in the tests, and the UniversalObjectLocator dependency.
+  - Full InfinityStage suite: 129 pass, 2 fail.
+    - Choreo.FollowsRetime is a real A2 bug (the section doesn't move on retime). Choreo APPLY is blocked until it's fixed.
+    - SavedFixturePIE: the fixture expects 261 wing pairs; today's 9 restored P06 cues make 270. Fixture update owed.
+  - After relaunch: SavedMasterMatchesShow and SceneCutBindingsResolve both passed.
+  - Pending: cueing INSPECT/DRY, the M4 recipe, and the PIE checks with Gary.
