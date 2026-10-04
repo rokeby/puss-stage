@@ -1,5 +1,7 @@
 # Spec: Lamp-intensity cues (Cueing stream, slice 1). 4 Oct 2026
 
+> **Superseded in part (4 Oct evening) by `PLAN_DIRECTING_AND_CUEING_2026-10-04.md`:** lamp levels move to Sequencer via an attachment binding; this evaluator is not built.
+
 **Status:** spec only. Nothing has been built, patched or run. No editor or MCP was used.
 **For:** Puss · Conductor 4. **Source:** `Docs/Conductor/LIGHT_SOUND_CUEING_AUDIT_2026-10-04.md`.
 
