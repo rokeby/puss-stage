@@ -32,3 +32,20 @@
     - P03 has no gobo asset: are the Rig Slash spots enough?
     - Should p01_hallway_pingon.py be retired (the scores do the ping-on)?
   - Every count is from the 29 Sep survey; the first DRY stops if one has drifted.
+- **Long Opening (the full 96.4 s P01 track before P01):** plan in Docs/Conductor/OPENING_SEQUENCE_PLAN_2026-10-04.md; tool opening_sequence_apply.py; harness 55/55 (measured by me). No C++ change was needed.
+  - **Phases** (defaults derived from the track):
+    1. Unlit curtain to 1.5 s.
+    2. Lights flicker on, 1.5–4 s.
+    3. FOH swivel, 5.5–12 s.
+    4. Light follows the music, 12–86 s.
+    5. Curtain released at 74.9 s, after the last swell (67.5 s) and the start of the final quarter (72.3 s).
+    6. Dark walk-in, 86–96.4 s.
+  - **Tuning:** edit opening_timing.json, or drag an "OPN …" marker in Sequencer and re-run. Hand-keyed lights are protected.
+  - **Your calls:**
+    - P01 goes silent: what music should it get?
+    - Disable the two house warmers? Until then the opening isn't dark.
+    - Is "last swell" the one at 67.5 s or the one at 84.8 s?
+    - Dark or lit move-in?
+    - Look levels and footlights.
+    - Silence before the music needs a builder change.
+  - Run it BEFORE the P01 ping-on; everything after the Opening moves +81.4 s.
