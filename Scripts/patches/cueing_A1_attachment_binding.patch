@@ -1,9 +1,9 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageAttachmentBinding.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageAttachmentBinding.cpp
 new file mode 100644
-index 0000000..bec0419
+index 0000000..11c8345
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageAttachmentBinding.cpp
-@@ -0,0 +1,360 @@
+@@ -0,0 +1,374 @@
 +#include "InfinityStageAttachmentBinding.h"
 +
 +#include "EngineUtils.h"
@@ -187,6 +187,46 @@ index 0000000..bec0419
 +    return false;
 +}
 +
++void CollectAnimatedForBinding(
++    UMovieSceneSequence* Sequence, const FGuid& BindingId, TSet<FName>& OutProperties, bool& bOutTransform)
++{
++    UMovieScene* MovieScene = Sequence ? Sequence->GetMovieScene() : nullptr;
++    if (!MovieScene || !BindingId.IsValid())
++    {
++        return;
++    }
++    // Component tracks (Intensity, LightColor...) sit on child bindings whose parent is the actor's.
++    TSet<FGuid> Owners;
++    Owners.Add(BindingId);
++    for (int32 Index = 0; Index < MovieScene->GetPossessableCount(); ++Index)
++    {
++        const FMovieScenePossessable& Possessable = MovieScene->GetPossessable(Index);
++        if (Possessable.GetParent() == BindingId)
++        {
++            Owners.Add(Possessable.GetGuid());
++        }
++    }
++    for (const FGuid& Owner : Owners)
++    {
++        const FMovieSceneBinding* SceneBinding = MovieScene->FindBinding(Owner);
++        if (!SceneBinding)
++        {
++            continue;
++        }
++        for (const UMovieSceneTrack* Track : SceneBinding->GetTracks())
++        {
++            if (Cast<UMovieScene3DTransformTrack>(Track))
++            {
++                bOutTransform = true;
++            }
++            else if (const UMovieScenePropertyTrack* Property = Cast<UMovieScenePropertyTrack>(Track))
++            {
++                OutProperties.Add(Property->GetPropertyName());
++            }
++        }
++    }
++}
++
 +bool CollectAnimatedProperties(
 +    UMovieSceneSequence* Root, const FName Tag, TSet<FName>& OutProperties, bool& bOutTransform, const int32 MaxDepth)
 +{
@@ -208,38 +248,10 @@ index 0000000..bec0419
 +                Bound.Add(Reference.ID);
 +            }
 +        }
-+        if (!Bound.IsEmpty())
++        for (const FGuid& Id : Bound)
 +        {
 +            bBound = true;
-+            // Component tracks (Intensity, LightColor...) sit on child bindings whose parent is the actor's.
-+            TSet<FGuid> Owners = Bound;
-+            for (int32 Index = 0; Index < MovieScene->GetPossessableCount(); ++Index)
-+            {
-+                const FMovieScenePossessable& Possessable = MovieScene->GetPossessable(Index);
-+                if (Bound.Contains(Possessable.GetParent()))
-+                {
-+                    Owners.Add(Possessable.GetGuid());
-+                }
-+            }
-+            for (const FGuid& Owner : Owners)
-+            {
-+                const FMovieSceneBinding* SceneBinding = MovieScene->FindBinding(Owner);
-+                if (!SceneBinding)
-+                {
-+                    continue;
-+                }
-+                for (const UMovieSceneTrack* Track : SceneBinding->GetTracks())
-+                {
-+                    if (Cast<UMovieScene3DTransformTrack>(Track))
-+                    {
-+                        bOutTransform = true;
-+                    }
-+                    else if (const UMovieScenePropertyTrack* Property = Cast<UMovieScenePropertyTrack>(Track))
-+                    {
-+                        OutProperties.Add(Property->GetPropertyName());
-+                    }
-+                }
-+            }
++            CollectAnimatedForBinding(Root, Id, OutProperties, bOutTransform);
 +        }
 +    }
 +    if (MovieScene)
@@ -343,6 +355,7 @@ index 0000000..bec0419
 +    return AActor::StaticClass();
 +}
 +
++#if WITH_EDITOR
 +bool UInfinityStageAttachmentBinding::SupportsConversionFromBinding(
 +    const FMovieSceneBindingReference& BindingReference,
 +    const UObject* SourceObject) const
@@ -362,14 +375,15 @@ index 0000000..bec0419
 +{
 +    return LOCTEXT("PrettyName", "Stage Attachment (by tag)");
 +}
++#endif
 +
 +#undef LOCTEXT_NAMESPACE
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageAttachmentBinding.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageAttachmentBinding.h
 new file mode 100644
-index 0000000..005e7bd
+index 0000000..68c2ebd
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageAttachmentBinding.h
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,107 @@
 +#pragma once
 +
 +#include "CoreMinimal.h"
@@ -418,9 +432,12 @@ index 0000000..005e7bd
 +    virtual UMovieSceneCustomBinding* CreateNewCustomBinding(UObject* SourceObject, UMovieScene& OwnerMovieScene) override;
 +    virtual FString GetDesiredBindingName() const override { return DisplayLabel; }
 +    virtual UClass* GetBoundObjectClass() const override;
++#if WITH_EDITOR
++    // Editor-only in the base class (MovieSceneCustomBinding.h:129-172).
 +    virtual bool SupportsConversionFromBinding(const FMovieSceneBindingReference& BindingReference, const UObject* SourceObject) const override;
 +    virtual UMovieSceneCustomBinding* CreateCustomBindingFromBinding(const FMovieSceneBindingReference& BindingReference, UObject* SourceObject, UMovieScene& OwnerMovieScene) override;
 +    virtual FText GetBindingTypePrettyName() const override;
++#endif
 +};
 +
 +namespace InfinityStageAttachmentBinding
@@ -454,6 +471,9 @@ index 0000000..005e7bd
 + * binding's child component bindings, and whether any transform track moves it.
 + * Returns true when any sequence binds the tag at all. Data only, no evaluation.
 + */
++INFINITYSTAGE_API void CollectAnimatedForBinding(
++    UMovieSceneSequence* Sequence, const FGuid& BindingId, TSet<FName>& OutProperties, bool& bOutTransform);
++
 +INFINITYSTAGE_API bool CollectAnimatedProperties(
 +    UMovieSceneSequence* Root, FName Tag, TSet<FName>& OutProperties, bool& bOutTransform, int32 MaxDepth = 8);
 +
@@ -472,7 +492,7 @@ index 0000000..005e7bd
 +    FString& OutUnmapped);
 +}
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
-index 47fad09..553a3bd 100644
+index 47fad09..e7c1422 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
 @@ -19,6 +19,7 @@
@@ -492,7 +512,7 @@ index 47fad09..553a3bd 100644
 +                TSet<FName> AnimatedProperties;
 +                bool bTransformAnimated = false;
 +                FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
-+                    InfinityStageAttachmentBinding::GetAttachmentTag(Moved), AnimatedProperties, bTransformAnimated);
++                    Moved, InfinityStageAttachmentBinding::GetAttachmentTag(Moved), AnimatedProperties, bTransformAnimated);
 +                if (bTransformAnimated)
 +                {
 +                    UE_LOG(LogTemp, Display,
@@ -504,7 +524,7 @@ index 47fad09..553a3bd 100644
              FTransform AnchorWorld;
              if (!Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld))
              {
-@@ -330,13 +345,33 @@ private:
+@@ -330,13 +345,48 @@ private:
              return;
          }
  
@@ -514,7 +534,7 @@ index 47fad09..553a3bd 100644
 +        TSet<FName> AnimatedProperties;
 +        bool bTransformAnimated = false;
 +        const bool bSequencerBound = FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
-+            InfinityStageAttachmentBinding::GetAttachmentTag(Actor), AnimatedProperties, bTransformAnimated);
++            Actor, InfinityStageAttachmentBinding::GetAttachmentTag(Actor), AnimatedProperties, bTransformAnimated);
 +
          FInfinityStageLightSettings Captured = Attachment->Lighting;
          if (!AInfinityStagePassageActor::CaptureAttachmentLightSettings(*Actor, Captured))
@@ -531,6 +551,21 @@ index 47fad09..553a3bd 100644
 +                    *Actor->GetName(), *Unmapped);
 +                return;
 +            }
++            if (!AnimatedProperties.IsEmpty() || bTransformAnimated)
++            {
++                TArray<FString> Withheld;
++                for (const FName& Name : AnimatedProperties)
++                {
++                    Withheld.Add(Name.ToString());
++                }
++                if (bTransformAnimated)
++                {
++                    Withheld.Add(TEXT("Transform"));
++                }
++                UE_LOG(LogTemp, Display,
++                    TEXT("INFINITY_CAPTURE_WITHHELD actor=%s fields=%s: keyed by an open sequence, these keep their authored Show values; everything else below is written."),
++                    *Actor->GetName(), *FString::Join(Withheld, TEXT(",")));
++            }
 +        }
          FTransform AnchorWorld;
 -        const bool bHaveAnchor = Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld);
@@ -540,10 +575,10 @@ index 47fad09..553a3bd 100644
          Owner->ShowAsset->Modify();
          Attachment->Lighting = Captured;
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp
-index 6b65568..9916029 100644
+index 6b65568..1f86a94 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp
-@@ -1,6 +1,7 @@
+@@ -1,9 +1,13 @@
  #include "InfinityStageSequencerBridge.h"
  
  #include "ISequencer.h"
@@ -551,37 +586,82 @@ index 6b65568..9916029 100644
  #include "ISequencerModule.h"
  #include "Modules/ModuleManager.h"
  #include "MovieSceneSequence.h"
-@@ -70,3 +71,25 @@ int32 FInfinityStageSequencerBridge::PushRootFrame(
++#include "Evaluation/MovieSceneEvaluationTemplateInstance.h"
++#include "Evaluation/MovieSceneSequenceHierarchy.h"
++#include "GameFramework/Actor.h"
+ 
+ TArray<TWeakPtr<ISequencer>> FInfinityStageSequencerBridge::TrackedSequencers;
+ FDelegateHandle FInfinityStageSequencerBridge::CreatedHandle;
+@@ -70,3 +74,56 @@ int32 FInfinityStageSequencerBridge::PushRootFrame(
      }
      return Moved;
  }
 +
 +bool FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
++    AActor* Actor,
 +    const FName AttachmentTag,
 +    TSet<FName>& OutProperties,
 +    bool& bOutTransform)
 +{
 +    bool bBound = false;
-+    if (AttachmentTag.IsNone())
++    if (!Actor || AttachmentTag.IsNone())
 +    {
 +        return false;
 +    }
 +    for (const TWeakPtr<ISequencer>& Entry : TrackedSequencers)
 +    {
 +        const TSharedPtr<ISequencer> Sequencer = Entry.Pin();
-+        if (Sequencer.IsValid())
++        if (!Sequencer.IsValid())
 +        {
-+            bBound |= InfinityStageAttachmentBinding::CollectAnimatedProperties(
-+                Sequencer->GetRootMovieSceneSequence(), AttachmentTag, OutProperties, bOutTransform);
++            continue;
++        }
++        // Tag bindings, by data.
++        bBound |= InfinityStageAttachmentBinding::CollectAnimatedProperties(
++            Sequencer->GetRootMovieSceneSequence(), AttachmentTag, OutProperties, bOutTransform);
++
++        // Ordinary possessables too (a drag-in may not choose the tag binding):
++        // ask Sequencer's object cache, never a fresh resolve, in the root and
++        // every nested sequence.
++        // AllSubSequenceIDs resets its output (TMap::GetKeys), so the root goes in after.
++        TArray<FMovieSceneSequenceID> Ids;
++        const FMovieSceneSequenceHierarchy* Hierarchy = Sequencer->GetEvaluationTemplate().GetHierarchy();
++        if (Hierarchy)
++        {
++            Hierarchy->AllSubSequenceIDs(Ids);
++        }
++        Ids.AddUnique(Sequencer->GetRootTemplateID());
++        for (const FMovieSceneSequenceID Id : Ids)
++        {
++            const FGuid BindingId = Sequencer->FindCachedObjectId(*Actor, Id);
++            if (!BindingId.IsValid())
++            {
++                continue;
++            }
++            UMovieSceneSequence* Sequence = Id == Sequencer->GetRootTemplateID()
++                ? Sequencer->GetRootMovieSceneSequence()
++                : (Hierarchy ? Hierarchy->FindSubSequence(Id) : nullptr);
++            if (Sequence)
++            {
++                bBound = true;
++                InfinityStageAttachmentBinding::CollectAnimatedForBinding(Sequence, BindingId, OutProperties, bOutTransform);
++            }
 +        }
 +    }
 +    return bBound;
 +}
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h
-index 3e52315..2b26935 100644
+index 3e52315..92353a0 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h
-@@ -27,6 +27,14 @@ public:
+@@ -2,6 +2,7 @@
+ 
+ #include "CoreMinimal.h"
+ 
++class AActor;
+ class ISequencer;
+ class UMovieSceneSequence;
+ 
+@@ -27,6 +28,15 @@ public:
       */
      static int32 PushRootFrame(const UMovieSceneSequence* ExpectedRoot, FFrameTime RootTime);
  
@@ -591,7 +671,8 @@ index 3e52315..2b26935 100644
 +     * light capture uses this so a keyed value is never written into the Show as
 +     * authored, while hand edits of un-keyed settings still are.
 +     */
-+    static bool CollectAnimatedInOpenSequencers(FName AttachmentTag, TSet<FName>& OutProperties, bool& bOutTransform);
++    static bool CollectAnimatedInOpenSequencers(
++        AActor* Actor, FName AttachmentTag, TSet<FName>& OutProperties, bool& bOutTransform);
 +
  private:
      static void HandleSequencerCreated(TSharedRef<ISequencer> InSequencer);

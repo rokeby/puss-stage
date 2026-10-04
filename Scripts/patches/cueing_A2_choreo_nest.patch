@@ -267,7 +267,7 @@ index 4221b5c..ff090c3 100644
      {
          return Audio->OwnerGuid == ShowGuid;
 diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
-index 88638a8..16a5b2c 100644
+index 88638a8..28622b5 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
 @@ -13,6 +13,7 @@
@@ -278,7 +278,7 @@ index 88638a8..16a5b2c 100644
  #include "MovieSceneInfinityAudioTrack.h"
  #include "Channels/MovieSceneFloatChannel.h"
  #include "Channels/MovieSceneChannelProxy.h"
-@@ -363,6 +364,81 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
+@@ -363,6 +364,90 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
      }
      RemoveStaleSections<UMovieSceneInfinitySceneSection>(*SceneTrack, LiveSceneBlocks);
  
@@ -301,6 +301,15 @@ index 88638a8..16a5b2c 100644
 +            ULevelSequence* Choreo = Settings ? Settings->Choreography.LoadSynchronous() : nullptr;
 +            if (!Choreo)
 +            {
++                continue;
++            }
++            // Nested Camera Cuts outrank the root's, so a cut track in a Choreo would
++            // take the Passage camera (the cat's score) away. Refuse to nest it.
++            if (Choreo->GetMovieScene() && Choreo->GetMovieScene()->GetCameraCutTrack())
++            {
++                UE_LOG(LogTemp, Warning,
++                    TEXT("INFINITY_CHOREO_REFUSED_CAMERA_CUTS passage=%s choreo=%s: remove its Camera Cut track; not nested."),
++                    *Passage.PassageGuid.ToString(), *Choreo->GetName());
 +                continue;
 +            }
 +            if (!ChoreoTrack)

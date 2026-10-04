@@ -136,3 +136,46 @@ git apply Scripts/patches/cueing_A1_attachment_binding.patch Scripts/patches/cue
 **Tests:**
 - `InfinityStage.Cueing.GO.MarkerLabelParses`, with controls: a vamp marker, `GOAT`, and a bare `GO`.
 - `InfinityStage.Cueing.GO.HoldArmsReleasesAndReruns`, with controls: paused, a jump over holds, and no markers at all.
+
+## Round 2: conductor's review findings (4 Oct, night)
+
+**Patch check.** `git apply --check` was re-run at a9fc55e and passed for each patch alone and for all three together. Each fix is tagged with how it is known.
+
+### Blocker
+- **B1. Fixed.** Added the forward declaration `class UMovieSceneTrack;` to `InfinityStageTransportController.h`.
+
+### Must-fix
+- **Packaging. Fixed.** `SupportsConversionFromBinding`, `CreateCustomBindingFromBinding` and `GetBindingTypePrettyName` are now wrapped in `#if WITH_EDITOR`, in both the header and the .cpp. [decl: reviewer's citation, `MovieSceneCustomBinding.h:129-172`]
+- **M1. Fixed.** `EndFastForward` returns Succeeded without playing while a hold is active. The rule lives in the pure function `ResumesAfterFastForward`.
+  - Test: `GO.FastForwardKeyUpNeverPlaysThroughAHold`. Its controls are the old behaviour, with no hold, in three cases.
+- **M2. Fixed.** A hold that is active while playing forward, with the playhead off its settle frame, counts as spent. It then neither disarms later holds nor eats the next RIGHT.
+  - Test: `GO.ResumeWithoutGoSpendsTheHold`. The control: playing while still on the settle frame keeps the hold.
+- **M3. Fixed, two ways.**
+  - `BuildSegments` demotes GOs in DeclaredUnpausable Scenes to PASS and logs `INFINITY_GO_HOLD_DEMOTED`.
+  - As a second guard, `HandleGoHold` checks `IsUnsafeExternalHold()`; if it is set, the GO is consumed without pausing.
+  - Test: `GO.CollectedAndInterlockDemotes`. The control: the same marker in an ordinary Scene still holds.
+
+### Before A1 is trusted
+- **M4. Code fixed; behaviour measured in the build window.** The guard now also checks ordinary possessables through Sequencer's **object cache**: `ISequencer` inherits `IMovieScenePlayer::FindCachedObjectId` [decl, `IMovieScenePlayer.h:307`; `ISequencer.h:218-219`].
+  - It walks the root and every nested ID. The IDs come from `GetEvaluationTemplate().GetHierarchy()->AllSubSequenceIDs` [decl, `MovieSceneEvaluationTemplateInstance.h:94`, `MovieSceneSequenceHierarchy.h:377`]. `GetKeys` resets the array, so the root ID is added afterwards.
+  - It never resolves anything fresh, which avoids the GetBoundObjects crash class.
+  - [inf] A lamp that Sequencer has not evaluated yet is not in the cache. Measure it in the window: drag a Show lamp into a Choreo, key its Intensity, edit its Color in Details, then read the log for `INFINITY_CAPTURE_WITHHELD fields=Intensity` and check that the Show holds the new Color and the old Intensity.
+- **M5. Partly covered.** Transport-level tests for M1–M3 exist as pure-decision tests, each with a control that fails if the fix is removed (above).
+  - Driving `HandleGoHold` with a real player, and the EditorModule handlers with a live Sequencer, cannot be done offline. Both are part of the PIE and editor proof in the window.
+
+### Should-fix
+- **S1. Done.** The hold jump arms `JumpResettleState` at the settle frame.
+- **S2. Done.** A hold now settles **one display frame before** its GO frame (`SettleOffset` = ticks per display frame), so the held picture is the pre-cue state.
+  - Rule for Gary: a cue's content starts when GO plays through its marker.
+  - Re-arming uses the settle frame, so releasing never re-holds the same GO.
+  - Remaining risk [inf]: under fast-forward, a one-shot keyed in the overshoot ticks after the marker may already have fired before the hold. Put a cue's first key at least a frame after its GO.
+- **S3. Done.** The hold is consumed only when `PlayForwardToBoundary` succeeds. On failure it logs `INFINITY_GO_REFUSED` and the hold stays. The key is still consumed, because RIGHT must never advance past a hold.
+- **S4. Done.** GO must be upper case, the number must be digits and dots, and the modes are upper-case `HOLD`/`PASS` only. "go on", "GO on" and "go 3" are refused, each by a test.
+- **S5. Done.** A Choreo with a Camera Cut track is **not nested**, and the rebuild logs `INFINITY_CHOREO_REFUSED_CAMERA_CUTS`. [decl: `UMovieScene::GetCameraCutTrack`, `MovieScene.h:758`]
+- **S6. Done.** `INFINITY_CAPTURE_WITHHELD fields=…` is logged before the existing "written" line.
+- **S7. Done.** Nested mutes are restored at the top of `SetManagedMasterAudioMuted(false)`, before its early return. EndPlay with no Player therefore still restores them.
+- **S8. Open; to measure in the window.** Hold → fast-forward across a Scene that has audio: confirm silence, confirm the audio is back at 1x, and confirm the dirty-package census is unchanged.
+
+### Documented for Gary (nits)
+- **A hold at offset 0 of a segment never fires on navigation entry.** Navigation never arms a hold. Put the first GO at least a frame into the Scene, or rely on the segment boundary stop.
+- **A hold inside a Vamp re-holds on every loop.** The loop jumps back before it, which re-arms it. Don't put a HOLD inside a Vamp region.
