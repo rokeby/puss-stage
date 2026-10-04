@@ -1,0 +1,4579 @@
+{
+ "chain": {
+  "failed_1206_vs_first_saved_before": {
+   "P04 Wing 001": true,
+   "P04 Wing 002": true,
+   "P04 Wing 003": true,
+   "P04 Wing 004": true,
+   "P04 Wing 005": true,
+   "P04 Wing 006": true
+  },
+  "outside_before_hash_by_run": {
+   "20261003-123003": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-131420": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-132042": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-165507": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-170854": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-172632": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-173246": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-180019": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-183839": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-190253": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-191021": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-191756": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-192321": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-192902": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-193402": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-194904": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-195623": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-195844": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-200524": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "20261003-201156": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d"
+  },
+  "outside_before_hash_constant": true,
+  "target_before_rows_equal_first": {
+   "20261003-123003": true,
+   "20261003-131420": true,
+   "20261003-132042": true,
+   "20261003-165507": true,
+   "20261003-170854": true,
+   "20261003-172632": true,
+   "20261003-173246": true,
+   "20261003-180019": true,
+   "20261003-183839": true,
+   "20261003-190253": true,
+   "20261003-191021": true,
+   "20261003-191756": true,
+   "20261003-192321": true,
+   "20261003-192902": true,
+   "20261003-193402": true,
+   "20261003-194904": true,
+   "20261003-195623": true,
+   "20261003-195844": true,
+   "20261003-200524": true,
+   "20261003-201156": true
+  }
+ },
+ "dump_run": "20261004-102539",
+ "dump_saved_state": true,
+ "dump_show_dirty_at_start": false,
+ "duplicate_cue_guids": [],
+ "ll_hash": [
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json",
+   "run": "20261003-201156"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-131338",
+   "run": "20261003-123003"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-132010",
+   "run": "20261003-131420"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-165110",
+   "run": "20261003-132042"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-170842",
+   "run": "20261003-165507"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-172552",
+   "run": "20261003-170854"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-173207",
+   "run": "20261003-172632"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-175934",
+   "run": "20261003-173246"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-183749",
+   "run": "20261003-180019"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-190153",
+   "run": "20261003-183839"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-190912",
+   "run": "20261003-190253"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-191606",
+   "run": "20261003-191021"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-192207",
+   "run": "20261003-191756"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-192741",
+   "run": "20261003-192321"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-193326",
+   "run": "20261003-192902"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-194719",
+   "run": "20261003-193402"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-195546",
+   "run": "20261003-194904"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-195802",
+   "run": "20261003-195623"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-200419",
+   "run": "20261003-195844"
+  },
+  {
+   "excluded_targets": [
+    "558DB23EDF4A7397BB76A0AC085D42C3",
+    "5B6B2CD70E47E805ED75C790D2B07967",
+    "7047FD13244F1332C1188693318733B7",
+    "75FD539B104815DC315DBB85D6E69939",
+    "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "A6F398A47249E3A73AF4EAA286F6886C"
+   ],
+   "expected": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "match": true,
+   "recomputed": "3cb9c9e567abfebed5896e5c5fb5ef3e8f0dba9675e7db1881d93aeea0be8c8d",
+   "record": "lighting_looks_revert_record.json.reverted-20261003-201100",
+   "run": "20261003-200524"
+  }
+ ],
+ "ll_hash_all_match": true,
+ "per_cue": [
+  {
+   "cue_guid": "5674D1134EC0FFE62815588E1E88F9FF",
+   "index": 0,
+   "label": "Opening \u2014 Curtain",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "3DD6B12A2F4F82BFEE2B478E31CF2B03",
+   "index": 1,
+   "label": "P01 Wing 001",
+   "light_count": 15,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "689197196949E5685EBA6BB13F0145AE",
+   "index": 2,
+   "label": "P01 Wing 002",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "54FB44427F44F3E243866688A94369DB",
+   "index": 3,
+   "label": "P01 Wing 003",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6D96AB33644C548B767464A73983D524",
+   "index": 4,
+   "label": "P01 Wing 004",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B20613548749509CA9D74A8443F13DE6",
+   "index": 5,
+   "label": "P01 Wing 005",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E69F45D12E4A9143EF42408EFCADF107",
+   "index": 6,
+   "label": "P01 Wing 006",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A2822E388642760A944E499E4EBA687A",
+   "index": 7,
+   "label": "P01 Wing 007",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "33B1C2599447449716FC4CA38D0D4B05",
+   "index": 8,
+   "label": "P01 Wing 008",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "8ED7907CA54D333F0D7BFDA27C421316",
+   "index": 9,
+   "label": "P01 Wing 009",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "38E3726FE14AF0607B3D20A6733F3F57",
+   "index": 10,
+   "label": "P01 Wing 011",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "D0093A664D457A71EDF769BE515F3A1E",
+   "index": 11,
+   "label": "P01 Wing 012",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A66EAF93DC422FC8D33EE19F7FEB4E7F",
+   "index": 12,
+   "label": "P01 Wing 010",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "F6B4352A6242A6286F52E8A9525AF5B3",
+   "index": 13,
+   "label": "P01 Wing 013",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7474F6B50244055AF3E0D48173E39097",
+   "index": 14,
+   "label": "P01 Wing 014",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "CD63F5BDCF4E77B960EB4ABBFDFC82C4",
+   "index": 15,
+   "label": "P01 Wing 015",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "71B887E5D64976281B24F7990D8507BF",
+   "index": 16,
+   "label": "P01 Wing 016",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "BB27302F854E5070E22BEC950A486D2B",
+   "index": 17,
+   "label": "P01 Wing 017",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "BFB3F908C146F1FB49F4088444680629",
+   "index": 18,
+   "label": "P01 Wing 018",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "AD39123A1E4B49E8B29987A70813B586",
+   "index": 19,
+   "label": "P01 Wing 019",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "31E7560084433A1C0E35B69B4E9444D8",
+   "index": 20,
+   "label": "P01 Wing 020",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0932A130154A8407A4534DB6E9CC0504",
+   "index": 21,
+   "label": "P01 Wing 021",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B8C2A159F442D6A93CE1E18BAF12C8FD",
+   "index": 22,
+   "label": "P01 Wing 022",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "565DCF4F884E815087FC55BCFD22C370",
+   "index": 23,
+   "label": "P01 Wing 023",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "9C970C03AF4A6446DA728BA6BFE2C30A",
+   "index": 24,
+   "label": "P01 Wing 024",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "1D653482314A6193547A83BA8A763F74",
+   "index": 25,
+   "label": "P01 Wing 025",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B210AB51B148F45A9816748404B7CC50",
+   "index": 26,
+   "label": "P01 Wing 026",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "4ED8461CD14B497F9480A58E6299A0A6",
+   "index": 27,
+   "label": "P01 Wing 027",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "2881DEA59244E693AFBD5981DEA07830",
+   "index": 28,
+   "label": "P01 Wing 028",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E69116F6D74A3A42F2C8DB8FE2146075",
+   "index": 29,
+   "label": "P01 Wing 029",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E9195D76B94ECE66549343BBE2FFE971",
+   "index": 30,
+   "label": "P01 Wing 030",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6E00D93ED04413882BF20AAA6352E457",
+   "index": 31,
+   "label": "P01 Wing 031",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "97E66368154AF5FDA18E048AD9020173",
+   "index": 32,
+   "label": "P01 Wing 032",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5FE158D80843228E2051BD82F89F3257",
+   "index": 33,
+   "label": "P01 Wing 033",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "CAE56F082A4A5C31D23E8AACDC3525CF",
+   "index": 34,
+   "label": "P01 Wing 034",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0671E1DC6F4A3EC342EBA09CF88DBDA4",
+   "index": 35,
+   "label": "P01 Wing 035",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "71678173E94A56C20625E4A07EA1D424",
+   "index": 36,
+   "label": "P01 Wing 036",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0E14D4BCD14FD612186849A3527A9806",
+   "index": 37,
+   "label": "P01 Wing 037",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "AF102D868A45CDCEA2E50D950AB3AEE7",
+   "index": 38,
+   "label": "P01 Wing 038",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "DEB9AB9941473AAB1F43D592ADAFD766",
+   "index": 39,
+   "label": "P01 Wing 039",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "728582A0834161546564F088F0EAD1A2",
+   "index": 40,
+   "label": "P01 Wing 040",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "BEEB9F25C24E6BE2E5F59480F0F03755",
+   "index": 41,
+   "label": "P01 Wing 041",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B198C7F004497AB3F87E92BDD9780FD6",
+   "index": 42,
+   "label": "P01 Wing 042",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C870A0FB9F47DDBDCA253CB9896E6815",
+   "index": 43,
+   "label": "P01 Wing 043",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B653804F99489807C42ED7A3320DF7C7",
+   "index": 44,
+   "label": "P01 Wing 044",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C94E3D2CAC43C601212DDBAB0C1468D1",
+   "index": 45,
+   "label": "P01 Wing 045",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5ECBBB37B5484EB0CDFB49B2B76295CB",
+   "index": 46,
+   "label": "P01 Wing 046",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "455D184CDE4E4DDD2ABC96935F35CF85",
+   "index": 47,
+   "label": "P01 Wing 047",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "10D28FD6C64C2D8B7D6CE586A94C8402",
+   "index": 48,
+   "label": "P01 Wing 048",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "91030A272145EBEF25D33BA016458739",
+   "index": 49,
+   "label": "Scene 1 \u2014 External Sound",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E49499EB417AC22745470BA7C85FB609",
+   "index": 50,
+   "label": "Interaction 1 \u2014 Washing the Boy",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+   "index": 51,
+   "label": "P02 Wing 001",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "973A6AE0454E4045F75F6E824218157D",
+   "index": 52,
+   "label": "P02 Wing 002",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "34E33BCD364FAB686BC453A3BC754B26",
+   "index": 53,
+   "label": "P02 Wing 004",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "F2A13CF80B447B1AA10EA4881F10C821",
+   "index": 54,
+   "label": "P02 Wing 005",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6408185AE84BF6527CC2189329A5AEE7",
+   "index": 55,
+   "label": "P02 Wing 006",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A54E14DCA44F897C45C0119A262D7C25",
+   "index": 56,
+   "label": "P02 Wing 007",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "1E888ABDB94B07483942B9940A58A9F3",
+   "index": 57,
+   "label": "P02 Wing 008",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "3C63FFF5804AE7B1625AF08713E09CF9",
+   "index": 58,
+   "label": "P02 Wing 009",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "BE5E3873F44ACC7A85BA089503191E1C",
+   "index": 59,
+   "label": "P02 Wing 010",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0B80F8886249E85D99B0C691DC6466D5",
+   "index": 60,
+   "label": "P02 Wing 011",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C7C77C36F04E62E5764E5BA7BE04060C",
+   "index": 61,
+   "label": "P02 Wing 012",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "FD2F56C90948D06111C1859046612353",
+   "index": 62,
+   "label": "P02 Wing 013",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "75C71EC74F44A8D5F4668384501E418C",
+   "index": 63,
+   "label": "P02 Wing 014",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B33756C20D448A5615012AABA066A78A",
+   "index": 64,
+   "label": "P02 Wing 003",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C8406F55D14E2B9D12D75CB414E57524",
+   "index": 65,
+   "label": "P02 Wing 015",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "1C61F7124C4E4CDB9D572CBF37EA2AB2",
+   "index": 66,
+   "label": "P02 Wing 016",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "3A2A4913A048011774400A8BC6A2F500",
+   "index": 67,
+   "label": "P02 Wing 017",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C01B9F971440183FDC7BEAB4535ED9A4",
+   "index": 68,
+   "label": "P02 Wing 018",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A27BB54D3745D5C95040249F8CD3A765",
+   "index": 69,
+   "label": "P02 Wing 019",
+   "light_count": 7,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0CEEA95DF14599EAFCEEF8BAB535CF74",
+   "index": 70,
+   "label": "P02 Wing 020",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E96AA1F72244B2D52C5E02AF95372F63",
+   "index": 71,
+   "label": "P02 Wing 021",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E75FE3E4AA44C0D53E3FB6A99D63F91C",
+   "index": 72,
+   "label": "P02 Wing 022",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "2867A7E95E4A5EA329A6CAAC9BD8B0C3",
+   "index": 73,
+   "label": "P02 Wing 023",
+   "light_count": 6,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "42D2F59416487AF7018DAEB62639C9BB",
+   "index": 74,
+   "label": "Scene 2 \u2014 External Sound",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E082311A4165CFA7949986829B0833E5",
+   "index": 75,
+   "label": "Interaction 2 \u2014 Turnips",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B8AE7B1FDF410C9B9F2A83BDA94DA489",
+   "index": 76,
+   "label": "P03 Wing 001",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0ED8CD9770436E3F130C8D85C3637BE2",
+   "index": 77,
+   "label": "P03 Wing 003",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C82F2CC5BD4EF34E9C3BDFACB10C35CB",
+   "index": 78,
+   "label": "P03 Wing 002",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "8D58B97EDF4136FDBE50549E3625C0DF",
+   "index": 79,
+   "label": "P03 Wing 004",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "3DC9D2BC0445FD5D87E5428D6C467C86",
+   "index": 80,
+   "label": "P03 Wing 005",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "FC0C59529D4588FCEFC84F9FD09C68A3",
+   "index": 81,
+   "label": "P03 Wing 006",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7230D0A9AD4491A8CBFB788DC5A7D95C",
+   "index": 82,
+   "label": "P03 Wing 007",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+   "index": 83,
+   "label": "P03 Wing 008",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "84C1E90ADF41D6E38AB76EADD2179FE6",
+   "index": 84,
+   "label": "P03 Wing 009",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0C81EB2D824B7C77E674BBA604B985A7",
+   "index": 85,
+   "label": "P03 Wing 010",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5606A2F1DC449E7E3FAC5E866173DD7F",
+   "index": 86,
+   "label": "P03 Wing 011",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0780796E60484341D039F5B00A6008FB",
+   "index": 87,
+   "label": "P03 Wing 012",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "622946E51046353D4D27EF8B20389CE3",
+   "index": 88,
+   "label": "P03 Wing 013",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "300EDBEC62425BC6687C5E86503FC8E1",
+   "index": 89,
+   "label": "P03 Wing 014",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "65711AE75E4F1BB66477C1A75052C245",
+   "index": 90,
+   "label": "P03 Wing 015",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "686F7D11CA4DC4681D962CBAF664FAD8",
+   "index": 91,
+   "label": "P03 Wing 016",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "53675A61CE474C46CE0F42890F785DE0",
+   "index": 92,
+   "label": "P03 Wing 017",
+   "light_count": 14,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B668CE90914EC39B4A510A9EE1A02F51",
+   "index": 93,
+   "label": "P03 Wing 018",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "1D832ADD2745EC4745DA81B968DAC5A8",
+   "index": 94,
+   "label": "P03 Wing 019",
+   "light_count": 12,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "37A6207F3244F31A88BAEC943AAF31C6",
+   "index": 95,
+   "label": "P03 Wing 020",
+   "light_count": 13,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "F98DD3DCF845CF8E62CC9B835FC7F8B0",
+   "index": 96,
+   "label": "P03 Wing 021",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "D8F61D9DF94F1E6080CC8D9028EE49D3",
+   "index": 97,
+   "label": "Scene 3 \u2014 External Sound",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7A03F85B4E7FAE6807F9748D6802822D",
+   "index": 98,
+   "label": "Interaction 3 \u2014 Forgets His Name",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "75FD539B104815DC315DBB85D6E69939",
+   "index": 99,
+   "label": "P04 Wing 001",
+   "light_count": 16,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_TARGETS": {
+     "baseline": "LL_TARGETS run=20261003-201156",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "7A3E5D03574B6BB3D630EF8619EA80FD",
+   "index": 100,
+   "label": "P04 Wing 002",
+   "light_count": 16,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_TARGETS": {
+     "baseline": "LL_TARGETS run=20261003-201156",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "A6F398A47249E3A73AF4EAA286F6886C",
+   "index": 101,
+   "label": "P04 Wing 003",
+   "light_count": 17,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_TARGETS": {
+     "baseline": "LL_TARGETS run=20261003-201156",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "5B6B2CD70E47E805ED75C790D2B07967",
+   "index": 102,
+   "label": "P04 Wing 004",
+   "light_count": 17,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_TARGETS": {
+     "baseline": "LL_TARGETS run=20261003-201156",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "558DB23EDF4A7397BB76A0AC085D42C3",
+   "index": 103,
+   "label": "P04 Wing 005",
+   "light_count": 17,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_TARGETS": {
+     "baseline": "LL_TARGETS run=20261003-201156",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "7047FD13244F1332C1188693318733B7",
+   "index": 104,
+   "label": "P04 Wing 006",
+   "light_count": 17,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_TARGETS": {
+     "baseline": "LL_TARGETS run=20261003-201156",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "8EB9785B5A4911719CF9A0A0EF3A2379",
+   "index": 105,
+   "label": "P04 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "60F88644FE4C5E6BB5B57395AA2516EC",
+   "index": 106,
+   "label": "P04 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "D84BDBAEDF4EE4A952894D82ECD2841F",
+   "index": 107,
+   "label": "P04 Wing 009",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A0D78885A34FEF7A5AF08C9E7B2BBBC1",
+   "index": 108,
+   "label": "P04 Wing 010",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "84958F43DA441BCC978C7BBE1E154DF6",
+   "index": 109,
+   "label": "P04 Wing 011",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+   "index": 110,
+   "label": "P04 Wing 012",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "9D804A48624083D26A5686843F704E51",
+   "index": 111,
+   "label": "P04 Wing 013",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "BDE7FD771240B4DAA44D92A37719D450",
+   "index": 112,
+   "label": "P04 Wing 014",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "32BA67E93346CDC7558A6DA92615B584",
+   "index": 113,
+   "label": "P04 Wing 015",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "4B9A3DDEF84C3119562E01AB624237AA",
+   "index": 114,
+   "label": "P04 Wing 016",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "51127A0ADA4FEED69D4CE693D1A650C0",
+   "index": 115,
+   "label": "P04 Wing 017",
+   "light_count": 11,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "CDF8F937C64C300A9B8F3A99112AEAE0",
+   "index": 116,
+   "label": "P04 Wing 018",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "2848FDB97F4179561CEC1FB5EE69BF34",
+   "index": 117,
+   "label": "P04 Wing 019",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A6729B4EEE401372716AEFAC08AD9D4A",
+   "index": 118,
+   "label": "P04 Wing 020",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7245B7F6604BD9C95E74BF9DFD673085",
+   "index": 119,
+   "label": "P04 Wing 021",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5C960C0C7A462BFEA4C86F93ADF5558D",
+   "index": 120,
+   "label": "Scene 4 \u2014 External Sound",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "1196A03E4E16AE74EA811A8566C84E9B",
+   "index": 121,
+   "label": "Interaction 4 \u2014 Gets a Name",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "D9985461DE475468200B6AAF36E80C4B",
+   "index": 122,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "D9809927C9409586DAE008839DE18EF5",
+   "index": 123,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "1ED83B530F4AEEB89EB6DE8F21BD20F9",
+   "index": 124,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "97B98034D9465319779ADC883A2A78D3",
+   "index": 125,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C873998DE4473EF84067179A178B6521",
+   "index": 126,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C5DD1FB139437963E2AC49B6DF541BB4",
+   "index": 127,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "72172822A7495C6163E63F8EF5F6A5BF",
+   "index": 128,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "06512733AF4970032E275481044E7CC4",
+   "index": 129,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "3E48AAB7FD48289C367FF18847954617",
+   "index": 130,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "4E851095B14BBBBDA8E8D7806BC780A0",
+   "index": 131,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "3DB1A8ECDF4DE72876CB07B422101D26",
+   "index": 132,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "9809A946DC43A296AB9240A4719EC666",
+   "index": 133,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "5112EB577D495CD4494554B3BD80596F",
+   "index": 134,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C5C5CDEA074E22107B3BCEA03B8DF9A0",
+   "index": 135,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "4F552059C945B87FDF70C7B9BEC6B81A",
+   "index": 136,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "83484EEEE644D80B97EDBE8B63A4585A",
+   "index": 137,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "77F0489C0940F5D1ABA5EBA8EF9F1661",
+   "index": 138,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "7BBF71539845A6B439DCE39A4A6B3469",
+   "index": 139,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "1C8D73333F4D9E7B15E2318DBE00BCB7",
+   "index": 140,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "EAD333E68046C1AA5940A68DF73DE138",
+   "index": 141,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "AFBCA1A5324B00DC3896E4B7970BCAE0",
+   "index": 142,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "E1E04669CD4DD450A1AA74B379A1F911",
+   "index": 143,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "244F4ABBCB4896B5C2D92995B37BFFB7",
+   "index": 144,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "F4C2A56D2D484542F14DBEB0312C452C",
+   "index": 145,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "CB8B41A6244C683E5BD9FDA4CE9A2E0D",
+   "index": 146,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "EEFBA34EDE4A812B91AE86999CAACE7A",
+   "index": 147,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "7EADC8902B48E730FCA149A65E220A02",
+   "index": 148,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "222F0A6ABF44AC3622C539B38A97D344",
+   "index": 149,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "477E40CD85476660AA665AA058ADE8EA",
+   "index": 150,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "F351AC58AE456B1AC2FB548266BE4778",
+   "index": 151,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "60FFBDF4DB45D791A0856E81AAC654BE",
+   "index": 152,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "40B3376B3148FA03E84D85BE00BA5B54",
+   "index": 153,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "19F4BEFAF34ABF245732699863EDEFBD",
+   "index": 154,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "D1DDB60F8048773AE1DF67AF54794323",
+   "index": 155,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "F34EC84F144EE9E61FC17EAFC55AD1E3",
+   "index": 156,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C168AB6B1D4D7D1AA3AD049879320BBF",
+   "index": 157,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "197F0FB09244CCEE73835A8D3A3C2245",
+   "index": 158,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C03EE31ED34B109C4BC70A9D2E0768AC",
+   "index": 159,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "A2A1596EE048DBE5E4ACE68698D3D16F",
+   "index": 160,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "0134AD95424F61E9C2D3BA861B19BADE",
+   "index": 161,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "DB8981CC7F44C928EC638AA8A20A4C06",
+   "index": 162,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "244DCEF12444922757C64081D56C8C50",
+   "index": 163,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "E9E34C69704B24112EAF9098666124A8",
+   "index": 164,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "33BA07E93B426E82858DDFB8EAE914E3",
+   "index": 165,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "A3180B71E04B060259D11085D23056DB",
+   "index": 166,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "DDF0DD9C484D532AAC0F9C9F90294EFA",
+   "index": 167,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C60E251BBD4DC049A8D4AA8477A23873",
+   "index": 168,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "8A6B18B9F447ACE90AA35CBB3811A89B",
+   "index": 169,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "4401AF835C4FECA87769B7B84521B047",
+   "index": 170,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "F2DBDC51A549729F383E2D8ACED57A2C",
+   "index": 171,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "4D7846EA5C47727267B246A3E1A0FB92",
+   "index": 172,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "ACCD537CCB4D2B00FB70609DF68E4FD4",
+   "index": 173,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "357CC6CD174699DC6E8C7EBDF1C54D67",
+   "index": 174,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "0A5DE961894C38283C12669921967BBA",
+   "index": 175,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "E9F7D180E14BD098E7E0339F39BAF4E4",
+   "index": 176,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "20AF22A37641A50818DBEC8247DBBAB1",
+   "index": 177,
+   "label": "P05 Wing 008",
+   "light_count": 11,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "A90D8E5E4D468C04F591A9A777F4A4D2",
+   "index": 178,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "CB9B63EDB44EC4D7B04B009973031A52",
+   "index": 179,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "B7EA7727D1411D567305CC8934BF05A9",
+   "index": 180,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "71FD4A006C4C2E7D103DE4B14444BDC1",
+   "index": 181,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "FCE502A45D4AB83409A6DD91AC55511F",
+   "index": 182,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "12C8030BB144DEEE66F696BDFB8FFF6A",
+   "index": 183,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "F232650BA4473ECE48E344AB00B40739",
+   "index": 184,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "FE5A14D47746BE92635EF3BE4AA91804",
+   "index": 185,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "3127169B454DE0A302895B885780E796",
+   "index": 186,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "B6620EF3024F8A02B5BD318F4E45B366",
+   "index": 187,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "46572F66E8422D3AECB723ACE26C3FDA",
+   "index": 188,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "1A4470F73044B15BDB53738B9E3D8181",
+   "index": 189,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "76737389D3423A86F7E1EFBBEEACC38F",
+   "index": 190,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "37E0E597F24C14FAC5435499789D95B5",
+   "index": 191,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "354E970BCF4A5E4DCBB96D8BC016E371",
+   "index": 192,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "57001FE87649B160EAAE0D9A9F680BDF",
+   "index": 193,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "FB6CC1B03C4F0D4D351A0C93567CD7BD",
+   "index": 194,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "CD389F0CF34723F470E779AABA48F431",
+   "index": 195,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "67AEC0434B41B2569ECBEF8FFA8FB87C",
+   "index": 196,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "CFA43CE713421A06341AE88679207E7E",
+   "index": 197,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C0760AFCE64898D1C70C9CBEE14D60E7",
+   "index": 198,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "9606FE374D4FC0B9B8175A92C7591F7C",
+   "index": 199,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C799ECFCC34B52DAF9467A91125EE844",
+   "index": 200,
+   "label": "P05 Wing 007",
+   "light_count": 11,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "39F41E91174C05524711DA83E1624FE2",
+   "index": 201,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "FBAB291C39443596327620A85FB64E6D",
+   "index": 202,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "831CC5D2D446AFD31ABB6FA08C24863A",
+   "index": 203,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "A41BB8EEA444D60840D5F881B1229F20",
+   "index": 204,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "2A242A464643AB7DA8599FADFA4F8ED8",
+   "index": 205,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "74C5666F194AD638AB11D6A88FF3E9BE",
+   "index": 206,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "708B2444314F045FCEBE62AF5863E573",
+   "index": 207,
+   "label": "P05 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "CD0A4273A942A504EE88C7886B40992D",
+   "index": 208,
+   "label": "P05 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C1A57FF35D493E0E90F047961E9DE031",
+   "index": 209,
+   "label": "P05 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "C7581633394A9458BE940C99F1848FA5",
+   "index": 210,
+   "label": "P05 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "58252A9ECD4A4ECD71532E9545BAC6CE",
+   "index": 211,
+   "label": "P05 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "498BB0EDEE468AB36871C39552CBFBA1",
+   "index": 212,
+   "label": "P05 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "45A9A1B3A245DF9E7A4C9F895E95AB23",
+   "index": 213,
+   "label": "P05 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "AC3C5538054D77751BF83480B64FFEA5",
+   "index": 214,
+   "label": "P05 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056",
+     "verdict": "AMBIGUOUS_LABEL"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)",
+    "PF_P05_1131": {
+     "baseline": "PF_P05_1131",
+     "verdict": "unchanged"
+    }
+   }
+  },
+  {
+   "cue_guid": "730D67269F425DDC45C72A867BA04217",
+   "index": 215,
+   "label": "Scene 5 \u2014 External Sound",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "FB09B25844709C21708A77A3FB2E9B96",
+   "index": 216,
+   "label": "Interaction 5 \u2014 Becomes King",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "DFD138DA78440386500FEC8E57AE3BA9",
+   "index": 217,
+   "label": "P06 Wing 001",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "7B0D67932249C38B1F010C93D74A38F2",
+   "index": 218,
+   "label": "P06 Wing 002",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B2FC9042424C7D641731A3B689A710D2",
+   "index": 219,
+   "label": "P06 Wing 003",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0C51D6BAF747CFFA8E12ADA9D3FD83F1",
+   "index": 220,
+   "label": "P06 Wing 004",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "97946A25174493CA6D23E39FA6BDCE81",
+   "index": 221,
+   "label": "P06 Wing 005",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A209A617494F70ADCE550E9313D75BDF",
+   "index": 222,
+   "label": "P06 Wing 006",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+   "index": 223,
+   "label": "P06 Wing 007",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "10B44993A14BC573BF46F798F81446BA",
+   "index": 224,
+   "label": "P06 Wing 008",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "CDAAF6956541BC4D6DB96CA3F6B1E642",
+   "index": 225,
+   "label": "P06 Wing 009",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5B41C0FB3E4C9AC222DEE59261CAEF8F",
+   "index": 226,
+   "label": "P06 Wing 010",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C4B5270CD0443E523ED803A0A81EAFFF",
+   "index": 227,
+   "label": "P06 Wing 011",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "1D2D86BCE74A910A13CC588B0D451795",
+   "index": 228,
+   "label": "P06 Wing 012",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "3119DC428E496FD0DA1AB98693C2805E",
+   "index": 229,
+   "label": "P06 Wing 013",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E9850E1D8D4473A298BEA0A87E7AC60A",
+   "index": 230,
+   "label": "P06 Wing 014",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "E1003C888E4519BEDE5F5B9ECC222345",
+   "index": 231,
+   "label": "P06 Wing 015",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "88A3B6EF6F43524F0A057A84271187B7",
+   "index": 232,
+   "label": "P06 Wing 016",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "90164D3E95408753DDFC94A1803A4A1D",
+   "index": 233,
+   "label": "P06 Wing 017",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "2E61E4EFB44E91322594CBB220A9ECAE",
+   "index": 234,
+   "label": "P06 Wing 018",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "52B14342BC4BB350B0D04EB5BD9E01CC",
+   "index": 235,
+   "label": "P06 Wing 019",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6B1127A3FF4E37BDC6C305A0046F0079",
+   "index": 236,
+   "label": "P06 Wing 020",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "BE2D60C103428B378B3B3E9AF5E65068",
+   "index": 237,
+   "label": "P06 Wing 021",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "4AA16A12224559F4375C89AF372F0857",
+   "index": 238,
+   "label": "P06 Wing 022",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "9659E889E6430907286165AFF40F8783",
+   "index": 239,
+   "label": "P06 Wing 023",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5E04659B6B44E1921B1E819E21742E1B",
+   "index": 240,
+   "label": "P06 Wing 024",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+   "index": 241,
+   "label": "P06 Wing 025",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "13573EEB014C3B1D81278EB2DC5C0193",
+   "index": 242,
+   "label": "P06 Wing 026",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "8A031613E5403585466CB590FF23399E",
+   "index": 243,
+   "label": "P06 Wing 027",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "78637673714BEC7DDCEB73A3EF2407EF",
+   "index": 244,
+   "label": "P06 Wing 028",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C246AD5EDE47F562A24B8298810B3BC1",
+   "index": 245,
+   "label": "P06 Wing 029",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "5402B53F574D697047770BADEF9DEB68",
+   "index": 246,
+   "label": "P06 Wing 030",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "2942C431AE4CD0359827E3B7F76825D1",
+   "index": 247,
+   "label": "P06 Wing 031",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "B1691382624D3538595DA68FDEB2FFB7",
+   "index": 248,
+   "label": "P06 Wing 032",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+   "index": 249,
+   "label": "P06 Wing 033",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "A61B03738649090E65DB85A69BB234FF",
+   "index": 250,
+   "label": "P06 Wing 034",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "395419D3704C85D2103E78A2C1906E9D",
+   "index": 251,
+   "label": "P06 Wing 035",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "8BF2AF7F824A6CA03EE18D9C4AAE4397",
+   "index": 252,
+   "label": "P06 Wing 036",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "C1CDC6C8BB4116B5D3BB67B4103FF047",
+   "index": 253,
+   "label": "P06 Wing 037",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "84D6E0B0E64D490C8BAEC7955AED56C2",
+   "index": 254,
+   "label": "P06 Wing 038",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "D91F56E8454AED2CB9594D868F53ADFD",
+   "index": 255,
+   "label": "P06 Wing 039",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "735A7090BC4094A56E9818B65CD531B7",
+   "index": 256,
+   "label": "P06 Wing 040",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+   "index": 257,
+   "label": "P06 Wing 041",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6CC8A7516C4A865FFE302CB5F30AE295",
+   "index": 258,
+   "label": "P06 Wing 042",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "78635468B24CDF406695CF839F3897AD",
+   "index": 259,
+   "label": "P06 Wing 043",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "AF6EB4EB57431F88F4BFC0957DA0E395",
+   "index": 260,
+   "label": "P06 Wing 044",
+   "light_count": 11,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "3F1CEC91DE4164DCF2F0698A885CBD14",
+   "index": 261,
+   "label": "P06 Wing 045",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "4927CDF2454CE3EC567E4C8BBB58AFB0",
+   "index": 262,
+   "label": "P06 Wing 046",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "008D989B20485276BC8D0493439D39EA",
+   "index": 263,
+   "label": "P06 Wing 047",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "821E817A714533C8BFDB38B63581F33F",
+   "index": 264,
+   "label": "P06 Wing 048",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "30450225EE4DB0B28CEF8FA67FD430D4",
+   "index": 265,
+   "label": "P06 Wing 049",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+   "index": 266,
+   "label": "P06 Wing 050",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "F179007A6A49C7557B5BCAAE9C1F6633",
+   "index": 267,
+   "label": "P06 Wing 051",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "11F403689E45D226B3298AAF16790170",
+   "index": 268,
+   "label": "P06 Wing 052",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "6C060F41144F94D9214DF3BF039C7E99",
+   "index": 269,
+   "label": "P06 Wing 053",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "99989C90A9496E4ED6A87983B249CBD7",
+   "index": 270,
+   "label": "P06 Wing 054",
+   "light_count": 10,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "CANDLE_1138": {
+     "baseline": "CANDLE_1138 scratch-before",
+     "field_count": 0,
+     "fields": [],
+     "verdict": "unchanged"
+    },
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+   "index": 271,
+   "label": "P06 Wing 055",
+   "light_count": 11,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "CANDLE_1138": {
+     "baseline": "CANDLE_1138 target-before+2",
+     "changed_pre_candle_ordinals": [],
+     "count": [
+      12,
+      12
+     ],
+     "expected_tail": [
+      "33B58DB3451B333680B3C9B9D22A3DD2",
+      "13EFC57B4FCE1C81FD50B98C6C8B8CDD"
+     ],
+     "pre_candle_rows_identical": true,
+     "tail_guids": [
+      "33B58DB3451B333680B3C9B9D22A3DD2",
+      "13EFC57B4FCE1C81FD50B98C6C8B8CDD"
+     ],
+     "verdict": "unchanged"
+    },
+    "FB_DRY_2056": {
+     "baseline": "FB_DRY_2056 (GUID lists only)",
+     "verdict": "unchanged"
+    },
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "673B3535884DEBAE99723B8CC6BE877B",
+   "index": 272,
+   "label": "Scene 6 \u2014 External Sound",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  },
+  {
+   "cue_guid": "86CEBAF64E3A9FF279651AB0D2E279B4",
+   "index": 273,
+   "label": "Closing \u2014 Sweeping Up",
+   "light_count": 0,
+   "overall": "UNCHANGED",
+   "verdicts": {
+    "LL_HASH": "unchanged (whole-scope hash matched)"
+   }
+  }
+ ],
+ "summary": {
+  "UNCHANGED": 274
+ }
+}

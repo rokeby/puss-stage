@@ -82,3 +82,6 @@
 - **Scene cameras:** "Keep all camera locked and let dog freelook be optional." All six Scenes go to Timeline (including S6). Dog free-look is an operator option (Force Dog is already allowed in Scenes, declaration-proven). GL patch PARKED.
 - **Black passage:** P06 bays 2–10 (not P04). It must be re-keyed after W&T's P6 interleave lands.
 - **Lighting:** tune 4 diagonal beams OK; P03 rig spots stand in for gobos ("There will be more gobos but for now can place placeholder or nothing"); the old P01 ping-on draft is retired; judge the scores on P05 first.
+
+## Editor session 4 Oct ~10:25 (Gary restarted UE)
+- Light-GUID audit (read-only, run 20261004-102539): 274 cues, 2,717 lights, all UNCHANGED against the baselines, and all 20 outside-target hashes match (measured). The FB force-close left no spill. The editor slot went to W&T: CR+CS → FB.
