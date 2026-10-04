@@ -169,7 +169,13 @@ def _backup(project_dir, stamp):
 def _create_choreo(unreal, row, master):
     folder, name = row["asset"].rsplit("/", 1)
     if unreal.EditorAssetLibrary.does_asset_exist(row["asset"]):
-        raise RuntimeError("asset already exists, refusing to overwrite: %s" % row["asset"])
+        # Adopt only an EMPTY Choreo (e.g. left by a run that stopped after creating
+        # it); never touch one that has any track or binding in it.
+        existing = unreal.load_asset(row["asset"])
+        if existing is None or len(existing.get_tracks()) or len(existing.get_bindings()):
+            raise RuntimeError("asset exists and is not an empty Choreo, refusing: %s" % row["asset"])
+        unreal.log("CHOREO_ADOPT|asset=%s" % row["asset"])
+        return existing, None
     tools = unreal.AssetToolsHelpers.get_asset_tools()
     sequence = tools.create_asset(name, folder, unreal.LevelSequence, unreal.LevelSequenceFactoryNew())
     if sequence is None:
@@ -233,12 +239,23 @@ def run():
             created[row["passage_guid"]] = sequence
 
         show.modify()
+        # Array elements come back as COPIES: write each modified struct back by index.
         settings_list = show.get_editor_property("passage_settings")
-        for settings in settings_list:
+        written = 0
+        for index in range(len(settings_list)):
+            settings = settings_list[index]
             guid = _gs(unreal, settings.get_editor_property("passage_guid"))
             if guid in created:
                 settings.set_editor_property("choreography", created[guid])
+                settings_list[index] = settings
+                written += 1
         show.set_editor_property("passage_settings", settings_list)
+        check = 0
+        for settings in show.get_editor_property("passage_settings"):
+            if _gs(unreal, settings.get_editor_property("passage_guid")) in created and settings.get_editor_property("choreography"):
+                check += 1
+        if written != len(created) or check != len(created):
+            raise RuntimeError("in-memory write of Choreography failed: written=%d readback=%d expected=%d (nothing saved)" % (written, check, len(created)))
 
         rebuild = unreal.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master)
         ok = rebuild[0] if isinstance(rebuild, tuple) else bool(rebuild)

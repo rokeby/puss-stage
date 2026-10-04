@@ -1,0 +1,41 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+index 55fb063..8e41350 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+@@ -2,6 +2,7 @@
+ #include "SInfinityStageWingAudit.h"
+ 
+ #include "InfinityStageSequenceBuilderLibrary.h"
++#include "MovieSceneInfinityChoreoTrack.h"
+ #include "InfinityStageSceneHandoffBuilder.h"
+ #include "InfinityStageDevFixtureBuilder.h"
+ #include "InfinityStageMusicAnalysisImporter.h"
+@@ -1520,7 +1521,10 @@ bool FInfinityStageSavedMasterMatchesShowTest::RunTest(const FString& Parameters
+     TArray<FLaidSection> Laid;
+     for (const UMovieSceneTrack* Track : MasterScene->GetTracks())
+     {
+-        if (!Track)
++        // Passage Choreographies are not Scene or Sequence cues: they span their
++        // Passage and may run past it (a tail), so this cue-for-cue check skips them.
++        // InfinityStage.Cueing.Choreo.* covers their placement.
++        if (!Track || Track->IsA<UMovieSceneInfinityChoreoTrack>())
+         {
+             continue;
+         }
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
+index 49c9397..0932520 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
+@@ -444,6 +444,12 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
+                 Section->SetSequence(Choreo);
+                 Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
+                 Method = TEXT("recreated");
++                if (!Section->HasStartFrame() || Section->GetInclusiveStartFrame() != Passage.SegmentStartFrame)
++                {
++                    UE_LOG(LogTemp, Error,
++                        TEXT("INFINITY_CHOREO_MISPLACED passage=%s target=%d: even a fresh section did not take its range."),
++                        *Passage.PassageGuid.ToString(), Passage.SegmentStartFrame.Value);
++                }
+             }
+             UE_LOG(LogTemp, Display,
+                 TEXT("INFINITY_CHOREO_PLACED passage=%s old_start=%d target=%d now=%d method=%s"),
