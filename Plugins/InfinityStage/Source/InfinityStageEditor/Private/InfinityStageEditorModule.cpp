@@ -19,6 +19,7 @@
 #include "InfinityStagePassageActorDetails.h"
 #include "InfinityStageMusicBindingCustomization.h"
 #include "InfinityStageSequencerBridge.h"
+#include "InfinityStageAttachmentBinding.h"
 #include "InfinityStageShadowCatComponent.h"
 #include "InfinityStageShowAsset.h"
 #include "InfinityStageTrackEditor.h"
@@ -250,6 +251,20 @@ private:
             {
                 continue;
             }
+            // A transform keyed by an open sequence is a performance, not authoring.
+            {
+                TSet<FName> AnimatedProperties;
+                bool bTransformAnimated = false;
+                FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
+                    Moved, InfinityStageAttachmentBinding::GetAttachmentTag(Moved), AnimatedProperties, bTransformAnimated);
+                if (bTransformAnimated)
+                {
+                    UE_LOG(LogTemp, Display,
+                        TEXT("INFINITY_CAPTURE_SKIPPED_SEQUENCER actor=%s field=Transform: an open sequence keys its transform; the move is not written to the Show."),
+                        *Moved->GetName());
+                    continue;
+                }
+            }
             FTransform AnchorWorld;
             if (!Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld))
             {
@@ -330,13 +345,48 @@ private:
             return;
         }
 
+        // Cueing plan, Part 4: a lamp keyed by an open sequence shows KEYED values.
+        // Hand edits must still author the Show, but a keyed value must never be
+        // written as authored, so each animated setting keeps its authored value.
+        TSet<FName> AnimatedProperties;
+        bool bTransformAnimated = false;
+        const bool bSequencerBound = FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
+            Actor, InfinityStageAttachmentBinding::GetAttachmentTag(Actor), AnimatedProperties, bTransformAnimated);
+
         FInfinityStageLightSettings Captured = Attachment->Lighting;
         if (!AInfinityStagePassageActor::CaptureAttachmentLightSettings(*Actor, Captured))
         {
             return;
         }
+        if (bSequencerBound)
+        {
+            FString Unmapped;
+            if (!InfinityStageAttachmentBinding::RestoreAnimatedLightFields(Captured, Attachment->Lighting, AnimatedProperties, Unmapped))
+            {
+                UE_LOG(LogTemp, Display,
+                    TEXT("INFINITY_CAPTURE_SKIPPED_SEQUENCER actor=%s unmapped=%s: an open sequence keys a setting the capture cannot separate; nothing written. Close that sequence to author this lamp."),
+                    *Actor->GetName(), *Unmapped);
+                return;
+            }
+            if (!AnimatedProperties.IsEmpty() || bTransformAnimated)
+            {
+                TArray<FString> Withheld;
+                for (const FName& Name : AnimatedProperties)
+                {
+                    Withheld.Add(Name.ToString());
+                }
+                if (bTransformAnimated)
+                {
+                    Withheld.Add(TEXT("Transform"));
+                }
+                UE_LOG(LogTemp, Display,
+                    TEXT("INFINITY_CAPTURE_WITHHELD actor=%s fields=%s: keyed by an open sequence, these keep their authored Show values; everything else below is written."),
+                    *Actor->GetName(), *FString::Join(Withheld, TEXT(",")));
+            }
+        }
         FTransform AnchorWorld;
-        const bool bHaveAnchor = Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld);
+        const bool bHaveAnchor = !bTransformAnimated
+            && Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld);
 
         Owner->ShowAsset->Modify();
         Attachment->Lighting = Captured;

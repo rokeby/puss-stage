@@ -13,6 +13,7 @@
 #include "MovieSceneInfinityAudioTrack.h"
 #include "MovieSceneInfinityPassageTrack.h"
 #include "MovieSceneInfinitySceneTrack.h"
+#include "MovieSceneInfinityChoreoTrack.h"
 #include "MovieSceneSection.h"
 #include "MovieSceneTrack.h"
 #include "ScopedTransaction.h"
@@ -122,6 +123,10 @@ bool IsManagedTrackForShow(const UMovieSceneTrack& Track, const FGuid ShowGuid)
     if (const UMovieSceneInfinitySceneTrack* Scene = Cast<UMovieSceneInfinitySceneTrack>(&Track))
     {
         return Scene->OwnerGuid == ShowGuid;
+    }
+    if (const UMovieSceneInfinityChoreoTrack* Choreo = Cast<UMovieSceneInfinityChoreoTrack>(&Track))
+    {
+        return Choreo->OwnerGuid == ShowGuid;
     }
     if (const UMovieSceneInfinityAudioTrack* Audio = Cast<UMovieSceneInfinityAudioTrack>(&Track))
     {

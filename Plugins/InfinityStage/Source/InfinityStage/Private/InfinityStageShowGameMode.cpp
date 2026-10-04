@@ -58,9 +58,9 @@ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
 void AInfinityStageShowPlayerController::BeginRightInput()
 {
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
-    if (Transport && Transport->ReleaseActiveVamp())
+    if (Transport && (Transport->ReleaseActiveHold() || Transport->ReleaseActiveVamp()))
     {
-        // A vamp release is the whole RIGHT gesture. Its key-up must not also
+        // A GO at a hold, or a vamp release, is the whole RIGHT gesture. Its key-up must not also
         // become a tap advance or a fast-forward end.
         HoldRightState.Reset();
         return;
@@ -117,6 +117,16 @@ void AInfinityStageShowPlayerController::PreviousShowSegment()
 void AInfinityStageShowPlayerController::ToggleShowPlayback()
 {
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    // Space is GO too (Gary, 4 Oct): at a hold it fires the cue and nothing else.
+    if (Transport && Transport->ReleaseActiveHold())
+    {
+        return;
+    }
+    if (Transport && Transport->bSpaceNeverPauses && Transport->IsTransportPlaying())
+    {
+        UE_LOG(LogTemp, Display, TEXT("INFINITY_GO_SPACE_IGNORED playing, no hold: pause from the Cue Desk."));
+        return;
+    }
     ReportTransportResult(this, Transport
         ? (Transport->IsTransportPlaying() ? Transport->PauseTransport() : Transport->PlayForwardToBoundary())
         : EInfinityTransportResult::NoPlayer);

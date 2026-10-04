@@ -8,6 +8,7 @@
 class AActor;
 class AInfinityStageCameraRig;
 class UInfinityStageShowAsset;
+class UMovieSceneTrack;
 class ULevelSequence;
 class ULevelSequencePlayer;
 class UMovieSceneCameraCutSection;
@@ -307,6 +308,83 @@ private:
     bool bHasPreviousFrame = false;
 };
 
+/**
+ * One GO point: a marked frame labelled "GO <number> [HOLD|PASS] <label>" in a
+ * Scene/Sequence cue's sequence or a Passage's Choreography, resolved to an
+ * absolute Master frame. A HOLD stops playback on its frame until GO; a PASS is
+ * listed for the operator but never stops the music. Unmarked: HOLD in Scenes,
+ * PASS in Passages.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityGoCue
+{
+    GENERATED_BODY()
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    FFrameNumber Frame = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    FString Number;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    FString Label;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    bool bHold = true;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    int32 SegmentIndex = INDEX_NONE;
+
+    /** Its segment's first frame: a hold never settles before it (review N1). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    FFrameNumber SegmentStartFrame = 0;
+};
+
+namespace InfinityStageGoCues
+{
+/** Parses "GO <number> [HOLD|PASS] <label>". OutMode: -1 unmarked, 0 PASS, 1 HOLD. */
+INFINITYSTAGE_API bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel, int32& OutMode);
+}
+
+/**
+ * Pure hold arming/release. A HOLD arms only when forward playback crosses its
+ * frame; navigation never arms one. A released hold re-arms once the playhead is
+ * back before it, so "re-run this cue" stops at the same GO again.
+ */
+struct INFINITYSTAGE_API FInfinityGoHoldState
+{
+    int32 ActiveIndex = INDEX_NONE;
+
+    /** A hold settles this many ticks BEFORE its GO frame (one display frame), so
+     * the held picture is the state before the cue, and the cue's content starts
+     * when GO plays through the marker. */
+    FFrameNumber SettleOffset = 0;
+
+    /** One display frame before the GO, but never before the GO's own segment:
+     * settling in the previous segment would show its last frame and camera, and
+     * GO would then only play to that segment's end. */
+    FFrameNumber SettleFrame(const FInfinityGoCue& Cue) const
+    {
+        const FFrameNumber Before = Cue.Frame - SettleOffset;
+        const FFrameNumber Floor = Cue.SegmentStartFrame < Cue.Frame ? Cue.SegmentStartFrame : Cue.Frame;
+        return Before < Floor ? Floor : Before;
+    }
+
+    void Reset();
+    void OnNavigation(FFrameNumber TargetFrame);
+    /** Returns the index of a hold to stop on now, or INDEX_NONE. */
+    int32 Tick(FFrameNumber CurrentFrame, bool bPlayingForward, const TArray<FInfinityGoCue>& Cues);
+    bool Release();
+    /** Marks a cue spent whether or not it is the active hold (a navigation may already have cleared it). */
+    void Consume(int32 Index);
+    bool IsActive() const { return ActiveIndex != INDEX_NONE; }
+
+private:
+    TSet<int32> Released;
+    FFrameNumber PreviousFrame = 0;
+    bool bHasPreviousFrame = false;
+};
+
 /** Pending one-shot re-evaluation of a frame after an operator jump. */
 struct INFINITYSTAGE_API FInfinityJumpResettle
 {
@@ -471,6 +549,32 @@ public:
     /** RIGHT inside an armed vamp consumes that vamp and continues to this segment's end at 1x. */
     bool ReleaseActiveVamp();
 
+    /** Every GO point in show order (absolute Master frames). Rebuilt with the segments. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
+    TArray<FInfinityGoCue> GoCues;
+
+    /** Performance safety: Space never pauses, it only fires GO or resumes;
+     * pause from the Cue Desk. Off by default so rehearsal keeps Space = pause. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Cues")
+    bool bSpaceNeverPauses = false;
+
+    /** GO at a HOLD: plays on and consumes it. False when no hold is active. */
+    bool ReleaseActiveHold();
+
+    /** Ending a fast-forward resumes only if it was playing or vamping, and never
+     * while a GO hold has stopped the show (a hold reached under fast-forward stays held). */
+    static bool ResumesAfterFastForward(bool bWasPlaying, bool bVampActive, bool bHoldActive)
+    {
+        return !bHoldActive && (bWasPlaying || bVampActive);
+    }
+
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    bool IsHoldActive() const { return GoHoldState.IsActive(); }
+
+    /** Index into GoCues of the hold the show is waiting on, or -1. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    int32 GetActiveHoldIndex() const { return GoHoldState.ActiveIndex; }
+
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult JumpToPreviousSegment();
 
@@ -579,6 +683,11 @@ private:
 
     FInfinityVampPlaybackState VampPlaybackState;
 
+    FInfinityGoHoldState GoHoldState;
+
+    /** Nested audio tracks muted for fast-forward, with their prior local mute. */
+    TArray<TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>> NestedAudioMutedForFastForward;
+
     bool bFastForwardActive = false;
     bool bMasterAudioMutedForFastForward = false;
     bool bMasterAudioWasEvalDisabled = false;
@@ -616,6 +725,7 @@ private:
 
     /** Returns true when this tick looped and no camera boundary work should run. */
     bool HandleVampPlayback(FFrameNumber CurrentFrame);
+    bool HandleGoHold(FFrameNumber CurrentFrame);
     void SetManagedMasterAudioMuted(bool bMuted);
     void StopFastForwardPlayback();
 

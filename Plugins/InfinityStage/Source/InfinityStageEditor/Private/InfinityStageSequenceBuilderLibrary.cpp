@@ -13,6 +13,7 @@
 #include "MovieSceneSpawnable.h"
 #include "MovieSceneInfinityPassageTrack.h"
 #include "MovieSceneInfinitySceneTrack.h"
+#include "MovieSceneInfinityChoreoTrack.h"
 #include "MovieSceneInfinityAudioTrack.h"
 #include "Channels/MovieSceneFloatChannel.h"
 #include "Channels/MovieSceneChannelProxy.h"
@@ -362,6 +363,90 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
         Section->SetRange(MakeSectionRange(Segment.StartFrame, Segment.EndFrame));
     }
     RemoveStaleSections<UMovieSceneInfinitySceneSection>(*SceneTrack, LiveSceneBlocks);
+
+    // Choreography (Cueing plan, Part 1): each Passage that names a Choreo gets it
+    // nested over its segment, 0:00 at the Passage start. Keys inside are relative,
+    // so a retime moves them with the Passage. Passages without one get nothing.
+    int32 ChoreoSections = 0;
+    {
+        TSet<FGuid> LiveChoreoBlocks;
+        UMovieSceneInfinityChoreoTrack* ChoreoTrack = MovieScene->FindTrack<UMovieSceneInfinityChoreoTrack>();
+        if (ChoreoTrack && ChoreoTrack->OwnerGuid.IsValid() && ChoreoTrack->OwnerGuid != Show->ShowGuid)
+        {
+            OutReport = TEXT("Existing Infinity Choreography track belongs to another Show.");
+            return false;
+        }
+        for (const FInfinityCompiledPassage& Passage : Compiled.Passages)
+        {
+            const FInfinityPassageSettings* Settings = Show->PassageSettings.FindByPredicate(
+                [&Passage](const FInfinityPassageSettings& Candidate) { return Candidate.PassageGuid == Passage.PassageGuid; });
+            ULevelSequence* Choreo = Settings ? Settings->Choreography.LoadSynchronous() : nullptr;
+            if (!Choreo)
+            {
+                continue;
+            }
+            // Nested Camera Cuts outrank the root's, so a cut track in a Choreo would
+            // take the Passage camera (the cat's score) away. Refuse to nest it.
+            if (Choreo->GetMovieScene() && Choreo->GetMovieScene()->GetCameraCutTrack())
+            {
+                UE_LOG(LogTemp, Warning,
+                    TEXT("INFINITY_CHOREO_REFUSED_CAMERA_CUTS passage=%s choreo=%s: remove its Camera Cut track; not nested."),
+                    *Passage.PassageGuid.ToString(), *Choreo->GetName());
+                continue;
+            }
+            if (!ChoreoTrack)
+            {
+                ChoreoTrack = MovieScene->AddTrack<UMovieSceneInfinityChoreoTrack>();
+            }
+            ChoreoTrack->Modify();
+            ChoreoTrack->OwnerGuid = Show->ShowGuid;
+            LiveChoreoBlocks.Add(Passage.PassageGuid);
+            UMovieSceneInfinityChoreoSection* Section = nullptr;
+            for (UMovieSceneSection* Existing : ChoreoTrack->GetAllSections())
+            {
+                UMovieSceneInfinityChoreoSection* Candidate = Cast<UMovieSceneInfinityChoreoSection>(Existing);
+                if (Candidate && Candidate->BlockGuid == Passage.PassageGuid)
+                {
+                    Section = Candidate;
+                    break;
+                }
+            }
+            if (!Section)
+            {
+                Section = CastChecked<UMovieSceneInfinityChoreoSection>(ChoreoTrack->CreateNewSection());
+                ChoreoTrack->AddSection(*Section);
+            }
+            Section->Modify();
+            Section->OwnerGuid = Show->ShowGuid;
+            Section->BlockGuid = Passage.PassageGuid;
+            Section->SetSequence(Choreo);
+            Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
+            ++ChoreoSections;
+
+            // Content past the Choreo's own playback end is not played. Say so; never
+            // edit the Choreo asset from a rebuild.
+            const UMovieScene* ChoreoScene = Choreo->GetMovieScene();
+            if (ChoreoScene)
+            {
+                const double PassageSeconds = Show->TickResolution.AsSeconds(
+                    FFrameTime(Passage.SegmentEndFrame - Passage.SegmentStartFrame));
+                const double ChoreoSeconds = ChoreoScene->GetTickResolution().AsSeconds(FFrameTime(
+                    ChoreoScene->GetPlaybackRange().GetUpperBoundValue() - ChoreoScene->GetPlaybackRange().GetLowerBoundValue()));
+                if (ChoreoSeconds + 1.0e-3 < PassageSeconds)
+                {
+                    UE_LOG(LogTemp, Warning,
+                        TEXT("INFINITY_CHOREO_SHORT passage=%s choreo=%s length=%.2fs passage=%.2fs: extend the Choreo's playback end or its last %.2f s are silent."),
+                        *Passage.PassageGuid.ToString(), *Choreo->GetName(), ChoreoSeconds, PassageSeconds, PassageSeconds - ChoreoSeconds);
+                }
+            }
+        }
+        if (ChoreoTrack)
+        {
+            ChoreoTrack->Modify();
+            RemoveStaleSections<UMovieSceneInfinityChoreoSection>(*ChoreoTrack, LiveChoreoBlocks);
+        }
+        UE_LOG(LogTemp, Display, TEXT("INFINITY_CHOREO_NESTED sections=%d"), ChoreoSections);
+    }
 
     UMovieSceneInfinityAudioTrack* MusicTrack = MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>();
     if (!MusicTrack)

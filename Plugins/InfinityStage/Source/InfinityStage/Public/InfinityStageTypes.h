@@ -969,6 +969,12 @@ struct INFINITYSTAGE_API FInfinityPassageSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (ClampMin = "0.01", Units = "cm/s"))
     double PreferredCameraSpeedCmPerSecond = 250.0;
 
+    /** Hand-directed lights, sound and effects for this Passage. The Master rebuild
+     * nests it over the Passage segment with 0:00 at the Passage start, so its keys
+     * travel with the Passage on retime. Empty: nothing is nested. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choreography")
+    TSoftObjectPtr<ULevelSequence> Choreography;
+
     /** When enabled, Continuous Loop rows derive their phase from their current
      * order in this Passage. Reordering rows therefore immediately preserves the
      * travelling wave without reapplying a preset. A row can opt out with its

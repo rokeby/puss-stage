@@ -1,9 +1,13 @@
 #include "InfinityStageSequencerBridge.h"
 
 #include "ISequencer.h"
+#include "InfinityStageAttachmentBinding.h"
 #include "ISequencerModule.h"
 #include "Modules/ModuleManager.h"
 #include "MovieSceneSequence.h"
+#include "Evaluation/MovieSceneEvaluationTemplateInstance.h"
+#include "Evaluation/MovieSceneSequenceHierarchy.h"
+#include "GameFramework/Actor.h"
 
 TArray<TWeakPtr<ISequencer>> FInfinityStageSequencerBridge::TrackedSequencers;
 FDelegateHandle FInfinityStageSequencerBridge::CreatedHandle;
@@ -69,4 +73,57 @@ int32 FInfinityStageSequencerBridge::PushRootFrame(
         ++Moved;
     }
     return Moved;
+}
+
+bool FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
+    AActor* Actor,
+    const FName AttachmentTag,
+    TSet<FName>& OutProperties,
+    bool& bOutTransform)
+{
+    bool bBound = false;
+    if (!Actor || AttachmentTag.IsNone())
+    {
+        return false;
+    }
+    for (const TWeakPtr<ISequencer>& Entry : TrackedSequencers)
+    {
+        const TSharedPtr<ISequencer> Sequencer = Entry.Pin();
+        if (!Sequencer.IsValid())
+        {
+            continue;
+        }
+        // Tag bindings, by data.
+        bBound |= InfinityStageAttachmentBinding::CollectAnimatedProperties(
+            Sequencer->GetRootMovieSceneSequence(), AttachmentTag, OutProperties, bOutTransform);
+
+        // Ordinary possessables too (a drag-in may not choose the tag binding):
+        // ask Sequencer's object cache, never a fresh resolve, in the root and
+        // every nested sequence.
+        // AllSubSequenceIDs resets its output (TMap::GetKeys), so the root goes in after.
+        TArray<FMovieSceneSequenceID> Ids;
+        const FMovieSceneSequenceHierarchy* Hierarchy = Sequencer->GetEvaluationTemplate().GetHierarchy();
+        if (Hierarchy)
+        {
+            Hierarchy->AllSubSequenceIDs(Ids);
+        }
+        Ids.AddUnique(Sequencer->GetRootTemplateID());
+        for (const FMovieSceneSequenceID Id : Ids)
+        {
+            const FGuid BindingId = Sequencer->FindCachedObjectId(*Actor, Id);
+            if (!BindingId.IsValid())
+            {
+                continue;
+            }
+            UMovieSceneSequence* Sequence = Id == Sequencer->GetRootTemplateID()
+                ? Sequencer->GetRootMovieSceneSequence()
+                : (Hierarchy ? Hierarchy->FindSubSequence(Id) : nullptr);
+            if (Sequence)
+            {
+                bBound = true;
+                InfinityStageAttachmentBinding::CollectAnimatedForBinding(Sequence, BindingId, OutProperties, bOutTransform);
+            }
+        }
+    }
+    return bBound;
 }

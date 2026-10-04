@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 
+class AActor;
 class ISequencer;
 class UMovieSceneSequence;
 
@@ -26,6 +27,15 @@ public:
      * given root-time frame. Returns how many were moved.
      */
     static int32 PushRootFrame(const UMovieSceneSequence* ExpectedRoot, FFrameTime RootTime);
+
+    /**
+     * What the open Sequencers animate on this Show attachment (by tag), through
+     * any root or nested sequence. Returns true when any of them binds it. The
+     * light capture uses this so a keyed value is never written into the Show as
+     * authored, while hand edits of un-keyed settings still are.
+     */
+    static bool CollectAnimatedInOpenSequencers(
+        AActor* Actor, FName AttachmentTag, TSet<FName>& OutProperties, bool& bOutTransform);
 
 private:
     static void HandleSequencerCreated(TSharedRef<ISequencer> InSequencer);
