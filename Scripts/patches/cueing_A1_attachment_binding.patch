@@ -1,0 +1,857 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageAttachmentBinding.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageAttachmentBinding.cpp
+new file mode 100644
+index 0000000..bec0419
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageAttachmentBinding.cpp
+@@ -0,0 +1,360 @@
++#include "InfinityStageAttachmentBinding.h"
++
++#include "EngineUtils.h"
++#include "GameFramework/Actor.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageTypes.h"
++#include "MovieSceneBinding.h"
++#include "MovieScenePossessable.h"
++#include "Tracks/MovieScene3DTransformTrack.h"
++#include "Tracks/MovieScenePropertyTrack.h"
++#include "MovieScene.h"
++#include "MovieSceneBindingReferences.h"
++#include "MovieSceneSequence.h"
++#include "Sections/MovieSceneSubSection.h"
++#include "Tracks/MovieSceneSubTrack.h"
++#include "UObject/ObjectKey.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageAttachmentBinding, Log, All);
++
++#define LOCTEXT_NAMESPACE "InfinityStageAttachmentBinding"
++
++namespace
++{
++const TCHAR AttachmentTagPrefix[] = TEXT("InfinityStage.Attachment.");
++
++struct FWorldTagCache
++{
++    TMap<FName, TWeakObjectPtr<AActor>> Actors;
++    /** Engine frame of the last failed scan per tag, so a missing lamp costs one scan a frame at most. */
++    TMap<FName, uint64> MissFrames;
++    TSet<FName> WarnedMissing;
++};
++
++TMap<FObjectKey, FWorldTagCache>& Caches()
++{
++    static TMap<FObjectKey, FWorldTagCache> Map;
++    return Map;
++}
++
++int64 GScanCount = 0;
++
++bool ActorCarriesTag(const AActor* Actor, const FName Tag)
++{
++    return IsValid(Actor) && Actor->Tags.Contains(Tag);
++}
++
++AActor* ScanPassages(UWorld& World, const FName Tag)
++{
++    ++GScanCount;
++    for (TActorIterator<AInfinityStagePassageActor> It(&World); It; ++It)
++    {
++        for (AActor* Candidate : It->ManagedAttachmentActors)
++        {
++            if (ActorCarriesTag(Candidate, Tag))
++            {
++                return Candidate;
++            }
++        }
++    }
++    return nullptr;
++}
++}
++
++namespace InfinityStageAttachmentBinding
++{
++FName GetAttachmentTag(const AActor* Actor)
++{
++    if (!IsValid(Actor))
++    {
++        return NAME_None;
++    }
++    for (const FName& Tag : Actor->Tags)
++    {
++        if (Tag.ToString().StartsWith(AttachmentTagPrefix, ESearchCase::CaseSensitive))
++        {
++            return Tag;
++        }
++    }
++    return NAME_None;
++}
++
++AActor* FindAttachmentActor(UWorld* World, const FName Tag)
++{
++    if (!World || Tag.IsNone())
++    {
++        return nullptr;
++    }
++    if (Caches().Num() > 8)
++    {
++        // Every PIE session makes a new world; drop the ones that have gone.
++        for (auto It = Caches().CreateIterator(); It; ++It)
++        {
++            if (!It.Key().ResolveObjectPtr())
++            {
++                It.RemoveCurrent();
++            }
++        }
++    }
++    FWorldTagCache& Cache = Caches().FindOrAdd(FObjectKey(World));
++    if (const TWeakObjectPtr<AActor>* Cached = Cache.Actors.Find(Tag))
++    {
++        AActor* Actor = Cached->Get();
++        if (ActorCarriesTag(Actor, Tag))
++        {
++            return Actor;
++        }
++    }
++    if (const uint64* MissFrame = Cache.MissFrames.Find(Tag); MissFrame && *MissFrame == GFrameCounter)
++    {
++        return nullptr;
++    }
++
++    AActor* Found = ScanPassages(*World, Tag);
++    if (Found)
++    {
++        Cache.Actors.Add(Tag, Found);
++        Cache.MissFrames.Remove(Tag);
++        return Found;
++    }
++    Cache.Actors.Remove(Tag);
++    Cache.MissFrames.Add(Tag, GFrameCounter);
++    if (!Cache.WarnedMissing.Contains(Tag))
++    {
++        Cache.WarnedMissing.Add(Tag);
++        UE_LOG(LogInfinityStageAttachmentBinding, Warning,
++            TEXT("INFINITY_ATTACHMENT_BINDING_MISSING tag=%s world=%s: no materialized Passage owns this attachment; its keys do nothing until it is materialized again."),
++            *Tag.ToString(), *World->GetName());
++    }
++    return nullptr;
++}
++
++int64 GetScanCount()
++{
++    return GScanCount;
++}
++
++void ResetCacheForTests()
++{
++    Caches().Reset();
++}
++
++bool SequenceBindsTag(const UMovieSceneSequence* Root, const FName Tag, const int32 MaxDepth)
++{
++    if (!Root || Tag.IsNone() || MaxDepth < 0)
++    {
++        return false;
++    }
++    if (const FMovieSceneBindingReferences* References = Root->GetBindingReferences())
++    {
++        for (const FMovieSceneBindingReference& Reference : References->GetAllReferences())
++        {
++            const UInfinityStageAttachmentBinding* Binding = Cast<UInfinityStageAttachmentBinding>(Reference.CustomBinding);
++            if (Binding && Binding->AttachmentTag == Tag)
++            {
++                return true;
++            }
++        }
++    }
++    const UMovieScene* MovieScene = Root->GetMovieScene();
++    if (!MovieScene)
++    {
++        return false;
++    }
++    for (const UMovieSceneTrack* Track : MovieScene->GetTracks())
++    {
++        const UMovieSceneSubTrack* SubTrack = Cast<UMovieSceneSubTrack>(Track);
++        if (!SubTrack)
++        {
++            continue;
++        }
++        for (const UMovieSceneSection* Section : SubTrack->GetAllSections())
++        {
++            const UMovieSceneSubSection* SubSection = Cast<UMovieSceneSubSection>(Section);
++            if (SubSection && SubSection->GetSequence() != Root
++                && SequenceBindsTag(SubSection->GetSequence(), Tag, MaxDepth - 1))
++            {
++                return true;
++            }
++        }
++    }
++    return false;
++}
++
++bool CollectAnimatedProperties(
++    UMovieSceneSequence* Root, const FName Tag, TSet<FName>& OutProperties, bool& bOutTransform, const int32 MaxDepth)
++{
++    if (!Root || Tag.IsNone() || MaxDepth < 0)
++    {
++        return false;
++    }
++    bool bBound = false;
++    UMovieScene* MovieScene = Root->GetMovieScene();
++    const FMovieSceneBindingReferences* References = Root->GetBindingReferences();
++    if (MovieScene && References)
++    {
++        TSet<FGuid> Bound;
++        for (const FMovieSceneBindingReference& Reference : References->GetAllReferences())
++        {
++            const UInfinityStageAttachmentBinding* Binding = Cast<UInfinityStageAttachmentBinding>(Reference.CustomBinding);
++            if (Binding && Binding->AttachmentTag == Tag)
++            {
++                Bound.Add(Reference.ID);
++            }
++        }
++        if (!Bound.IsEmpty())
++        {
++            bBound = true;
++            // Component tracks (Intensity, LightColor...) sit on child bindings whose parent is the actor's.
++            TSet<FGuid> Owners = Bound;
++            for (int32 Index = 0; Index < MovieScene->GetPossessableCount(); ++Index)
++            {
++                const FMovieScenePossessable& Possessable = MovieScene->GetPossessable(Index);
++                if (Bound.Contains(Possessable.GetParent()))
++                {
++                    Owners.Add(Possessable.GetGuid());
++                }
++            }
++            for (const FGuid& Owner : Owners)
++            {
++                const FMovieSceneBinding* SceneBinding = MovieScene->FindBinding(Owner);
++                if (!SceneBinding)
++                {
++                    continue;
++                }
++                for (const UMovieSceneTrack* Track : SceneBinding->GetTracks())
++                {
++                    if (Cast<UMovieScene3DTransformTrack>(Track))
++                    {
++                        bOutTransform = true;
++                    }
++                    else if (const UMovieScenePropertyTrack* Property = Cast<UMovieScenePropertyTrack>(Track))
++                    {
++                        OutProperties.Add(Property->GetPropertyName());
++                    }
++                }
++            }
++        }
++    }
++    if (MovieScene)
++    {
++        for (UMovieSceneTrack* Track : MovieScene->GetTracks())
++        {
++            UMovieSceneSubTrack* SubTrack = Cast<UMovieSceneSubTrack>(Track);
++            if (!SubTrack)
++            {
++                continue;
++            }
++            for (UMovieSceneSection* Section : SubTrack->GetAllSections())
++            {
++                UMovieSceneSubSection* SubSection = Cast<UMovieSceneSubSection>(Section);
++                UMovieSceneSequence* Child = SubSection ? SubSection->GetSequence() : nullptr;
++                if (Child && Child != Root)
++                {
++                    bBound |= CollectAnimatedProperties(Child, Tag, OutProperties, bOutTransform, MaxDepth - 1);
++                }
++            }
++        }
++    }
++    return bBound;
++}
++
++bool RestoreAnimatedLightFields(
++    FInfinityStageLightSettings& Captured,
++    const FInfinityStageLightSettings& Authored,
++    const TSet<FName>& AnimatedProperties,
++    FString& OutUnmapped)
++{
++    OutUnmapped.Reset();
++    for (const FName& Property : AnimatedProperties)
++    {
++        const FString Name = Property.ToString();
++        if (Name == TEXT("Intensity")) { Captured.Intensity = Authored.Intensity; }
++        else if (Name == TEXT("LightColor")) { Captured.Color = Authored.Color; }
++        else if (Name == TEXT("Temperature")) { Captured.TemperatureKelvin = Authored.TemperatureKelvin; }
++        else if (Name == TEXT("bUseTemperature")) { Captured.bUseTemperature = Authored.bUseTemperature; }
++        else if (Name == TEXT("IndirectLightingIntensity")) { Captured.IndirectLightingIntensity = Authored.IndirectLightingIntensity; }
++        else if (Name == TEXT("VolumetricScatteringIntensity")) { Captured.VolumetricScatteringIntensity = Authored.VolumetricScatteringIntensity; }
++        else if (Name == TEXT("DiffuseScale")) { Captured.DiffuseScale = Authored.DiffuseScale; }
++        else if (Name == TEXT("SpecularScale")) { Captured.SpecularScale = Authored.SpecularScale; }
++        else if (Name == TEXT("AttenuationRadius")) { Captured.AttenuationRadiusCm = Authored.AttenuationRadiusCm; }
++        else if (Name == TEXT("InnerConeAngle")) { Captured.InnerConeAngleDegrees = Authored.InnerConeAngleDegrees; }
++        else if (Name == TEXT("OuterConeAngle")) { Captured.OuterConeAngleDegrees = Authored.OuterConeAngleDegrees; }
++        else if (Name == TEXT("SourceRadius")) { Captured.SourceRadiusCm = Authored.SourceRadiusCm; }
++        else if (Name == TEXT("LightFunctionScale")) { Captured.LightFunctionScale = Authored.LightFunctionScale; }
++        // Visibility is not a captured setting, so keying it can never leak into the Show.
++        else if (Name == TEXT("bVisible") || Name == TEXT("bHiddenInGame")) {}
++        else
++        {
++            OutUnmapped += OutUnmapped.IsEmpty() ? Name : FString(TEXT(",")) + Name;
++        }
++    }
++    return OutUnmapped.IsEmpty();
++}
++}
++
++FMovieSceneBindingResolveResult UInfinityStageAttachmentBinding::ResolveBinding(
++    const FMovieSceneBindingResolveParams& ResolveParams,
++    int32 BindingIndex,
++    TSharedRef<const UE::MovieScene::FSharedPlaybackState> SharedPlaybackState) const
++{
++    FMovieSceneBindingResolveResult Result;
++    UObject* Context = ResolveParams.Context;
++    UWorld* World = Context ? Context->GetWorld() : nullptr;
++    if (AActor* Actor = InfinityStageAttachmentBinding::FindAttachmentActor(World, AttachmentTag))
++    {
++        Result.Objects.Add(Actor);
++    }
++    return Result;
++}
++
++bool UInfinityStageAttachmentBinding::SupportsBindingCreationFromObject(const UObject* SourceObject) const
++{
++    return !InfinityStageAttachmentBinding::GetAttachmentTag(Cast<AActor>(SourceObject)).IsNone();
++}
++
++UMovieSceneCustomBinding* UInfinityStageAttachmentBinding::CreateNewCustomBinding(UObject* SourceObject, UMovieScene& OwnerMovieScene)
++{
++    const AActor* Actor = Cast<AActor>(SourceObject);
++    const FName Tag = InfinityStageAttachmentBinding::GetAttachmentTag(Actor);
++    if (Tag.IsNone())
++    {
++        return nullptr;
++    }
++    UInfinityStageAttachmentBinding* Binding =
++        NewObject<UInfinityStageAttachmentBinding>(&OwnerMovieScene, NAME_None, RF_Transactional);
++    Binding->AttachmentTag = Tag;
++#if WITH_EDITOR
++    Binding->DisplayLabel = Actor->GetActorLabel();
++#else
++    Binding->DisplayLabel = Actor->GetName();
++#endif
++    return Binding;
++}
++
++UClass* UInfinityStageAttachmentBinding::GetBoundObjectClass() const
++{
++    return AActor::StaticClass();
++}
++
++bool UInfinityStageAttachmentBinding::SupportsConversionFromBinding(
++    const FMovieSceneBindingReference& BindingReference,
++    const UObject* SourceObject) const
++{
++    return SupportsBindingCreationFromObject(SourceObject);
++}
++
++UMovieSceneCustomBinding* UInfinityStageAttachmentBinding::CreateCustomBindingFromBinding(
++    const FMovieSceneBindingReference& BindingReference,
++    UObject* SourceObject,
++    UMovieScene& OwnerMovieScene)
++{
++    return CreateNewCustomBinding(SourceObject, OwnerMovieScene);
++}
++
++FText UInfinityStageAttachmentBinding::GetBindingTypePrettyName() const
++{
++    return LOCTEXT("PrettyName", "Stage Attachment (by tag)");
++}
++
++#undef LOCTEXT_NAMESPACE
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageAttachmentBinding.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageAttachmentBinding.h
+new file mode 100644
+index 0000000..005e7bd
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageAttachmentBinding.h
+@@ -0,0 +1,101 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Bindings/MovieSceneCustomBinding.h"
++#include "InfinityStageAttachmentBinding.generated.h"
++
++class AActor;
++class UMovieSceneSequence;
++class UWorld;
++struct FInfinityStageLightSettings;
++
++/**
++ * Binds a Sequencer track to a Show attachment (a stage lamp, prop or effect)
++ * by its identity tag, not by actor reference.
++ *
++ * Materializing a Passage destroys and re-spawns every attachment actor, so an
++ * ordinary possessable binding goes dead the moment the Passage is re-fitted.
++ * The identity tag survives: it is minted from the cue and attachment GUIDs at
++ * spawn time (InfinityStagePassageActor.cpp, "InfinityStage.Attachment.%s|%s").
++ * Keys made through this binding therefore keep driving the lamp across
++ * materialize, rebuild and PIE duplication.
++ *
++ * Lookups are cached per world. A stale entry costs one scan of the Passage
++ * actors' managed attachments (a handful of actors), never a world iteration.
++ */
++UCLASS(EditInlineNew, DefaultToInstanced, meta = (DisplayName = "Stage Attachment (by tag)"))
++class INFINITYSTAGE_API UInfinityStageAttachmentBinding : public UMovieSceneCustomBinding
++{
++    GENERATED_BODY()
++
++public:
++    /** "InfinityStage.Attachment.<cue>|<attachment>", copied from the actor when bound. */
++    UPROPERTY(VisibleAnywhere, Category = "Binding")
++    FName AttachmentTag;
++
++    /** The actor label at bind time, for the track name only. */
++    UPROPERTY(VisibleAnywhere, Category = "Binding")
++    FString DisplayLabel;
++
++    virtual FMovieSceneBindingResolveResult ResolveBinding(
++        const FMovieSceneBindingResolveParams& ResolveParams,
++        int32 BindingIndex,
++        TSharedRef<const UE::MovieScene::FSharedPlaybackState> SharedPlaybackState) const override;
++    virtual int32 GetCustomBindingPriority() const override { return BaseCustomPriority; }
++    virtual bool SupportsBindingCreationFromObject(const UObject* SourceObject) const override;
++    virtual UMovieSceneCustomBinding* CreateNewCustomBinding(UObject* SourceObject, UMovieScene& OwnerMovieScene) override;
++    virtual FString GetDesiredBindingName() const override { return DisplayLabel; }
++    virtual UClass* GetBoundObjectClass() const override;
++    virtual bool SupportsConversionFromBinding(const FMovieSceneBindingReference& BindingReference, const UObject* SourceObject) const override;
++    virtual UMovieSceneCustomBinding* CreateCustomBindingFromBinding(const FMovieSceneBindingReference& BindingReference, UObject* SourceObject, UMovieScene& OwnerMovieScene) override;
++    virtual FText GetBindingTypePrettyName() const override;
++};
++
++namespace InfinityStageAttachmentBinding
++{
++/** The actor's attachment identity tag, or NAME_None if it is not a Show attachment. */
++INFINITYSTAGE_API FName GetAttachmentTag(const AActor* Actor);
++
++/**
++ * The live attachment actor carrying Tag in World, or null. Cached per world;
++ * a stale or missing entry re-scans the Passage actors' managed attachments at
++ * most once per engine frame per tag. A tag that cannot be found warns once
++ * per world ("INFINITY_ATTACHMENT_BINDING_MISSING").
++ */
++INFINITYSTAGE_API AActor* FindAttachmentActor(UWorld* World, FName Tag);
++
++/** How many scans FindAttachmentActor has run since start-up. Tests and the PIE probe read it. */
++INFINITYSTAGE_API int64 GetScanCount();
++
++/** Drops every cached entry and warning latch. Tests only. */
++INFINITYSTAGE_API void ResetCacheForTests();
++
++/**
++ * True when Root, or any sequence nested beneath it through sub tracks, holds a
++ * tag binding for Tag. Walks data only: nothing is evaluated or resolved.
++ */
++INFINITYSTAGE_API bool SequenceBindsTag(const UMovieSceneSequence* Root, FName Tag, int32 MaxDepth = 8);
++
++/**
++ * What Root (and every sequence nested in it) animates on the attachment with
++ * Tag: the property names of property tracks on its tag binding and on that
++ * binding's child component bindings, and whether any transform track moves it.
++ * Returns true when any sequence binds the tag at all. Data only, no evaluation.
++ */
++INFINITYSTAGE_API bool CollectAnimatedProperties(
++    UMovieSceneSequence* Root, FName Tag, TSet<FName>& OutProperties, bool& bOutTransform, int32 MaxDepth = 8);
++
++/**
++ * The capture guard's core. Captured holds every live light setting, including
++ * values Sequencer is currently driving. For each animated property this puts
++ * the Show's authored value back, so a hand edit of an un-keyed setting is still
++ * written but a keyed value never becomes authored. Returns false, naming it,
++ * when an animated property has no known mapping: the caller must then write
++ * nothing rather than risk capturing a keyed value.
++ */
++INFINITYSTAGE_API bool RestoreAnimatedLightFields(
++    FInfinityStageLightSettings& Captured,
++    const FInfinityStageLightSettings& Authored,
++    const TSet<FName>& AnimatedProperties,
++    FString& OutUnmapped);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
+index 47fad09..553a3bd 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorModule.cpp
+@@ -19,6 +19,7 @@
+ #include "InfinityStagePassageActorDetails.h"
+ #include "InfinityStageMusicBindingCustomization.h"
+ #include "InfinityStageSequencerBridge.h"
++#include "InfinityStageAttachmentBinding.h"
+ #include "InfinityStageShadowCatComponent.h"
+ #include "InfinityStageShowAsset.h"
+ #include "InfinityStageTrackEditor.h"
+@@ -250,6 +251,20 @@ private:
+             {
+                 continue;
+             }
++            // A transform keyed by an open sequence is a performance, not authoring.
++            {
++                TSet<FName> AnimatedProperties;
++                bool bTransformAnimated = false;
++                FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
++                    InfinityStageAttachmentBinding::GetAttachmentTag(Moved), AnimatedProperties, bTransformAnimated);
++                if (bTransformAnimated)
++                {
++                    UE_LOG(LogTemp, Display,
++                        TEXT("INFINITY_CAPTURE_SKIPPED_SEQUENCER actor=%s field=Transform: an open sequence keys its transform; the move is not written to the Show."),
++                        *Moved->GetName());
++                    continue;
++                }
++            }
+             FTransform AnchorWorld;
+             if (!Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld))
+             {
+@@ -330,13 +345,33 @@ private:
+             return;
+         }
+ 
++        // Cueing plan, Part 4: a lamp keyed by an open sequence shows KEYED values.
++        // Hand edits must still author the Show, but a keyed value must never be
++        // written as authored, so each animated setting keeps its authored value.
++        TSet<FName> AnimatedProperties;
++        bool bTransformAnimated = false;
++        const bool bSequencerBound = FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
++            InfinityStageAttachmentBinding::GetAttachmentTag(Actor), AnimatedProperties, bTransformAnimated);
++
+         FInfinityStageLightSettings Captured = Attachment->Lighting;
+         if (!AInfinityStagePassageActor::CaptureAttachmentLightSettings(*Actor, Captured))
+         {
+             return;
+         }
++        if (bSequencerBound)
++        {
++            FString Unmapped;
++            if (!InfinityStageAttachmentBinding::RestoreAnimatedLightFields(Captured, Attachment->Lighting, AnimatedProperties, Unmapped))
++            {
++                UE_LOG(LogTemp, Display,
++                    TEXT("INFINITY_CAPTURE_SKIPPED_SEQUENCER actor=%s unmapped=%s: an open sequence keys a setting the capture cannot separate; nothing written. Close that sequence to author this lamp."),
++                    *Actor->GetName(), *Unmapped);
++                return;
++            }
++        }
+         FTransform AnchorWorld;
+-        const bool bHaveAnchor = Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld);
++        const bool bHaveAnchor = !bTransformAnimated
++            && Owner->GetAttachmentAnchorWorldTransform(CueGuid, AttachmentGuid, AnchorWorld);
+ 
+         Owner->ShowAsset->Modify();
+         Attachment->Lighting = Captured;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp
+index 6b65568..9916029 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.cpp
+@@ -1,6 +1,7 @@
+ #include "InfinityStageSequencerBridge.h"
+ 
+ #include "ISequencer.h"
++#include "InfinityStageAttachmentBinding.h"
+ #include "ISequencerModule.h"
+ #include "Modules/ModuleManager.h"
+ #include "MovieSceneSequence.h"
+@@ -70,3 +71,25 @@ int32 FInfinityStageSequencerBridge::PushRootFrame(
+     }
+     return Moved;
+ }
++
++bool FInfinityStageSequencerBridge::CollectAnimatedInOpenSequencers(
++    const FName AttachmentTag,
++    TSet<FName>& OutProperties,
++    bool& bOutTransform)
++{
++    bool bBound = false;
++    if (AttachmentTag.IsNone())
++    {
++        return false;
++    }
++    for (const TWeakPtr<ISequencer>& Entry : TrackedSequencers)
++    {
++        const TSharedPtr<ISequencer> Sequencer = Entry.Pin();
++        if (Sequencer.IsValid())
++        {
++            bBound |= InfinityStageAttachmentBinding::CollectAnimatedProperties(
++                Sequencer->GetRootMovieSceneSequence(), AttachmentTag, OutProperties, bOutTransform);
++        }
++    }
++    return bBound;
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h
+index 3e52315..2b26935 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequencerBridge.h
+@@ -27,6 +27,14 @@ public:
+      */
+     static int32 PushRootFrame(const UMovieSceneSequence* ExpectedRoot, FFrameTime RootTime);
+ 
++    /**
++     * What the open Sequencers animate on this Show attachment (by tag), through
++     * any root or nested sequence. Returns true when any of them binds it. The
++     * light capture uses this so a keyed value is never written into the Show as
++     * authored, while hand edits of un-keyed settings still are.
++     */
++    static bool CollectAnimatedInOpenSequencers(FName AttachmentTag, TSet<FName>& OutProperties, bool& bOutTransform);
++
+ private:
+     static void HandleSequencerCreated(TSharedRef<ISequencer> InSequencer);
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageAttachmentBindingTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageAttachmentBindingTests.cpp
+new file mode 100644
+index 0000000..ac63c66
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageAttachmentBindingTests.cpp
+@@ -0,0 +1,253 @@
++#include "InfinityStageAttachmentBinding.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "Engine/Engine.h"
++#include "Engine/World.h"
++#include "GameFramework/Actor.h"
++#include "LevelSequence.h"
++#include "MovieScene.h"
++#include "MovieSceneBindingReferences.h"
++#include "Misc/AutomationTest.h"
++#include "Tracks/MovieSceneSubTrack.h"
++#include "Tracks/MovieSceneFloatTrack.h"
++#include "Tracks/MovieScene3DTransformTrack.h"
++#include "MovieScenePossessable.h"
++#include "InfinityStageTypes.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++const FName LampTag(TEXT("InfinityStage.Attachment.AAAA|BBBB"));
++const FName OtherTag(TEXT("InfinityStage.Attachment.CCCC|DDDD"));
++
++AActor* SpawnTagged(UWorld& World, AInfinityStagePassageActor& Passage, const FName Tag)
++{
++    AActor* Actor = World.SpawnActor<AActor>();
++    if (!Tag.IsNone())
++    {
++        Actor->Tags.Add(Tag);
++    }
++    Passage.ManagedAttachmentActors.Add(Actor);
++    return Actor;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageAttachmentBindingRespawnTest,
++    "InfinityStage.Cueing.Binding.ResolvesByTagAcrossRespawn",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageAttachmentBindingRespawnTest::RunTest(const FString& Parameters)
++{
++    InfinityStageAttachmentBinding::ResetCacheForTests();
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
++    SpawnTagged(*World, *Passage, NAME_None);                 // control: an untagged neighbour
++    AActor* First = SpawnTagged(*World, *Passage, LampTag);
++
++    const int64 Scans0 = InfinityStageAttachmentBinding::GetScanCount();
++    TestTrue(TEXT("Resolves the tagged lamp"), InfinityStageAttachmentBinding::FindAttachmentActor(World, LampTag) == First);
++    TestEqual(TEXT("First resolve costs one scan"), InfinityStageAttachmentBinding::GetScanCount(), Scans0 + 1);
++    TestTrue(TEXT("Cached resolve returns the same lamp"), InfinityStageAttachmentBinding::FindAttachmentActor(World, LampTag) == First);
++    TestEqual(TEXT("Cached resolve costs no scan"), InfinityStageAttachmentBinding::GetScanCount(), Scans0 + 1);
++
++    // Materialize: the lamp is destroyed and a new actor carries the same identity.
++    Passage->ManagedAttachmentActors.Remove(First);
++    World->DestroyActor(First);
++    AActor* Second = SpawnTagged(*World, *Passage, LampTag);
++    TestTrue(TEXT("After respawn the binding finds the new lamp"), InfinityStageAttachmentBinding::FindAttachmentActor(World, LampTag) == Second);
++    TestEqual(TEXT("A stale entry costs exactly one scan"), InfinityStageAttachmentBinding::GetScanCount(), Scans0 + 2);
++
++    // A tag with no lamp: null, one warning, at most one scan this frame.
++    AddExpectedMessagePlain(TEXT("INFINITY_ATTACHMENT_BINDING_MISSING"), ELogVerbosity::Warning, EAutomationExpectedMessageFlags::Contains, 1);
++    TestNull(TEXT("A missing tag resolves to nothing"), InfinityStageAttachmentBinding::FindAttachmentActor(World, OtherTag));
++    TestNull(TEXT("Asked again the same frame, still nothing"), InfinityStageAttachmentBinding::FindAttachmentActor(World, OtherTag));
++    TestEqual(TEXT("A missing tag scans once per frame, not per call"), InfinityStageAttachmentBinding::GetScanCount(), Scans0 + 3);
++
++    World->DestroyWorld(false);
++    InfinityStageAttachmentBinding::ResetCacheForTests();
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageAttachmentBindingMaterializeTest,
++    "InfinityStage.Cueing.Binding.SurvivesRealMaterialize",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageAttachmentBindingMaterializeTest::RunTest(const FString& Parameters)
++{
++    InfinityStageAttachmentBinding::ResetCacheForTests();
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    FGuid LampCue;
++    FGuid LampAttachment;
++    for (int32 Index = 0; Index < 2; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.Left.Mesh = Cube;
++        Cue.WingPair.Right.Mesh = Cube;
++        Cue.WingPair.GapToNextCm = 500.0;
++        Cue.WingPair.IntervalToNext = 48000;
++        if (Index == 0)
++        {
++            FInfinityCueAttachment& Lamp = Cue.WingPair.Attachments.AddDefaulted_GetRef();
++            Lamp.AttachmentGuid = FGuid::NewGuid();
++            Lamp.Kind = EInfinityAttachmentKind::Light;
++            Lamp.Anchor = EInfinityAttachmentAnchor::Station;
++            LampCue = Cue.CueGuid;
++            LampAttachment = Lamp.AttachmentGuid;
++        }
++    }
++    Show->ReconcilePassageSettings();
++    const FName Tag(*FString::Printf(TEXT("InfinityStage.Attachment.%s|%s"),
++        *LampCue.ToString(EGuidFormats::Digits), *LampAttachment.ToString(EGuidFormats::Digits)));
++
++    AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
++    Passage->ShowAsset = Show;
++    TestTrue(TEXT("First materialize succeeds"), Passage->MaterializePassage());
++    AActor* Before = InfinityStageAttachmentBinding::FindAttachmentActor(World, Tag);
++    TestNotNull(TEXT("The spawned lamp carries the identity tag the binding uses"), Before);
++    const FName Minted = InfinityStageAttachmentBinding::GetAttachmentTag(Before);
++    TestEqual(TEXT("GetAttachmentTag reads the minted tag back"), Minted, Tag);
++
++    TestTrue(TEXT("Re-materialize succeeds"), Passage->MaterializePassage());
++    AActor* After = InfinityStageAttachmentBinding::FindAttachmentActor(World, Tag);
++    TestNotNull(TEXT("After re-materialize the binding still resolves"), After);
++    TestTrue(TEXT("...to the re-spawned actor, not the destroyed one"), After != nullptr && After != Before);
++
++    World->DestroyWorld(false);
++    InfinityStageAttachmentBinding::ResetCacheForTests();
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageAttachmentBindingCreationTest,
++    "InfinityStage.Cueing.Binding.CreatedOnlyForAttachments",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageAttachmentBindingCreationTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AActor* Tagged = World->SpawnActor<AActor>();
++    Tagged->Tags.Add(LampTag);
++    AActor* Plain = World->SpawnActor<AActor>();
++    Plain->Tags.Add(TEXT("SomethingElse"));
++
++    const UInfinityStageAttachmentBinding* Default = GetDefault<UInfinityStageAttachmentBinding>();
++    TestTrue(TEXT("A Show attachment can be bound by tag"), Default->SupportsBindingCreationFromObject(Tagged));
++    TestFalse(TEXT("Control: an ordinary actor is left to the engine's bindings"), Default->SupportsBindingCreationFromObject(Plain));
++
++    ULevelSequence* Sequence = NewObject<ULevelSequence>(GetTransientPackage());
++    Sequence->Initialize();
++    UInfinityStageAttachmentBinding* Made = Cast<UInfinityStageAttachmentBinding>(
++        GetMutableDefault<UInfinityStageAttachmentBinding>()->CreateNewCustomBinding(Tagged, *Sequence->GetMovieScene()));
++    TestTrue(TEXT("The new binding stores the actor's tag"), Made && Made->AttachmentTag == LampTag);
++    TestNull(TEXT("Control: no binding is made for an ordinary actor"),
++        GetMutableDefault<UInfinityStageAttachmentBinding>()->CreateNewCustomBinding(Plain, *Sequence->GetMovieScene()));
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageAttachmentBindingHierarchyTest,
++    "InfinityStage.Cueing.Binding.SequenceBindsTagFindsNested",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageAttachmentBindingHierarchyTest::RunTest(const FString& Parameters)
++{
++    ULevelSequence* Root = NewObject<ULevelSequence>(GetTransientPackage());
++    Root->Initialize();
++    ULevelSequence* Child = NewObject<ULevelSequence>(GetTransientPackage());
++    Child->Initialize();
++
++    UInfinityStageAttachmentBinding* Binding =
++        NewObject<UInfinityStageAttachmentBinding>(Child->GetMovieScene(), NAME_None, RF_Transactional);
++    Binding->AttachmentTag = LampTag;
++    Child->GetBindingReferences()->AddBinding(FGuid::NewGuid(), Binding);
++
++    TestTrue(TEXT("The child itself binds the tag"), InfinityStageAttachmentBinding::SequenceBindsTag(Child, LampTag));
++    TestFalse(TEXT("Control: before nesting, the root does not"), InfinityStageAttachmentBinding::SequenceBindsTag(Root, LampTag));
++    Root->GetMovieScene()->AddTrack<UMovieSceneSubTrack>()->AddSequence(Child, 0, 1000);
++    TestTrue(TEXT("Once nested, the root finds it"), InfinityStageAttachmentBinding::SequenceBindsTag(Root, LampTag));
++    TestFalse(TEXT("Control: a different tag is not found"), InfinityStageAttachmentBinding::SequenceBindsTag(Root, OtherTag));
++    TestFalse(TEXT("Control: depth 0 does not descend"), InfinityStageAttachmentBinding::SequenceBindsTag(Root, LampTag, 0));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCaptureGuardTest,
++    "InfinityStage.Cueing.Capture.KeyedValueKeptOutOfShow",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// The capture guard's data path: a sequence keys a stage lamp's Intensity (on its
++// light component, the way Sequencer adds it) and moves its transform. A hand
++// edit of Color must still reach the Show; the keyed Intensity must not.
++bool FInfinityStageCaptureGuardTest::RunTest(const FString& Parameters)
++{
++    ULevelSequence* Root = NewObject<ULevelSequence>(GetTransientPackage());
++    Root->Initialize();
++    ULevelSequence* Child = NewObject<ULevelSequence>(GetTransientPackage());
++    Child->Initialize();
++    UMovieScene* Scene = Child->GetMovieScene();
++
++    const FGuid LampGuid = Scene->AddPossessable(TEXT("House L"), AActor::StaticClass());
++    UInfinityStageAttachmentBinding* Binding = NewObject<UInfinityStageAttachmentBinding>(Scene, NAME_None, RF_Transactional);
++    Binding->AttachmentTag = LampTag;
++    Child->GetBindingReferences()->AddBinding(LampGuid, Binding);
++    const FGuid ComponentGuid = Scene->AddPossessable(TEXT("LightComponent0"), UObject::StaticClass());
++    Scene->FindPossessable(ComponentGuid)->SetParent(LampGuid, Scene);
++    Scene->AddTrack<UMovieSceneFloatTrack>(ComponentGuid)->SetPropertyNameAndPath(TEXT("Intensity"), TEXT("Intensity"));
++    Root->GetMovieScene()->AddTrack<UMovieSceneSubTrack>()->AddSequence(Child, 0, 1000);
++
++    TSet<FName> Animated;
++    bool bTransform = false;
++    TestTrue(TEXT("The nested sequence binds the lamp"),
++        InfinityStageAttachmentBinding::CollectAnimatedProperties(Root, LampTag, Animated, bTransform));
++    TestTrue(TEXT("Intensity on the child component binding is found"), Animated.Contains(TEXT("Intensity")));
++    TestFalse(TEXT("No transform track yet"), bTransform);
++
++    TSet<FName> OtherAnimated;
++    bool bOtherTransform = false;
++    TestFalse(TEXT("Control: another lamp is not bound"),
++        InfinityStageAttachmentBinding::CollectAnimatedProperties(Root, OtherTag, OtherAnimated, bOtherTransform));
++    TestEqual(TEXT("Control: nothing is animated on it"), OtherAnimated.Num(), 0);
++
++    Scene->AddTrack<UMovieScene3DTransformTrack>(LampGuid);
++    Animated.Reset();
++    InfinityStageAttachmentBinding::CollectAnimatedProperties(Root, LampTag, Animated, bTransform);
++    TestTrue(TEXT("A transform track is reported"), bTransform);
++
++    FInfinityStageLightSettings Authored;
++    Authored.Intensity = 1740.0f;
++    Authored.Color = FLinearColor::White;
++    FInfinityStageLightSettings Captured = Authored;
++    Captured.Intensity = 0.0f;                        // the keyed value on screen
++    Captured.Color = FLinearColor(1.0f, 0.5f, 0.2f);  // Gary's hand edit
++    FString Unmapped;
++    TestTrue(TEXT("Every animated setting is mapped"),
++        InfinityStageAttachmentBinding::RestoreAnimatedLightFields(Captured, Authored, Animated, Unmapped));
++    TestEqual(TEXT("The keyed Intensity is NOT written as authored"), Captured.Intensity, 1740.0f);
++    TestTrue(TEXT("The hand edit of Color IS written"), Captured.Color.Equals(FLinearColor(1.0f, 0.5f, 0.2f)));
++
++    FInfinityStageLightSettings Untouched = Authored;
++    Untouched.Intensity = 900.0f;
++    TestTrue(TEXT("Control: with nothing animated, a hand edit of Intensity is written"),
++        InfinityStageAttachmentBinding::RestoreAnimatedLightFields(Untouched, Authored, TSet<FName>(), Unmapped)
++        && Untouched.Intensity == 900.0f);
++
++    TSet<FName> Strange;
++    Strange.Add(TEXT("SomeUnmappedProperty"));
++    FInfinityStageLightSettings Refused = Authored;
++    TestFalse(TEXT("An unmapped animated setting refuses the whole capture"),
++        InfinityStageAttachmentBinding::RestoreAnimatedLightFields(Refused, Authored, Strange, Unmapped));
++    TestEqual(TEXT("...and names it"), Unmapped, FString(TEXT("SomeUnmappedProperty")));
++    return true;
++}
++
++#endif

@@ -1,0 +1,362 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/MovieSceneInfinityChoreoTrack.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/MovieSceneInfinityChoreoTrack.cpp
+new file mode 100644
+index 0000000..7dd2d2e
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/MovieSceneInfinityChoreoTrack.cpp
+@@ -0,0 +1,13 @@
++#include "MovieSceneInfinityChoreoTrack.h"
++
++UMovieSceneSection* UMovieSceneInfinityChoreoTrack::CreateNewSection()
++{
++    return NewObject<UMovieSceneInfinityChoreoSection>(this, NAME_None, RF_Transactional);
++}
++
++#if WITH_EDITORONLY_DATA
++FText UMovieSceneInfinityChoreoTrack::GetDisplayName() const
++{
++    return NSLOCTEXT("InfinityStage", "ChoreoTrackName", "Infinity Stage Choreography");
++}
++#endif
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index 7378fb8..4bddfe7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -969,6 +969,12 @@ struct INFINITYSTAGE_API FInfinityPassageSettings
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (ClampMin = "0.01", Units = "cm/s"))
+     double PreferredCameraSpeedCmPerSecond = 250.0;
+ 
++    /** Hand-directed lights, sound and effects for this Passage. The Master rebuild
++     * nests it over the Passage segment with 0:00 at the Passage start, so its keys
++     * travel with the Passage on retime. Empty: nothing is nested. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choreography")
++    TSoftObjectPtr<ULevelSequence> Choreography;
++
+     /** When enabled, Continuous Loop rows derive their phase from their current
+      * order in this Passage. Reordering rows therefore immediately preserves the
+      * travelling wave without reapplying a preset. A row can opt out with its
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/MovieSceneInfinityChoreoTrack.h b/Plugins/InfinityStage/Source/InfinityStage/Public/MovieSceneInfinityChoreoTrack.h
+new file mode 100644
+index 0000000..111a95a
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/MovieSceneInfinityChoreoTrack.h
+@@ -0,0 +1,45 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Sections/MovieSceneSubSection.h"
++#include "Tracks/MovieSceneSubTrack.h"
++#include "MovieSceneInfinityChoreoTrack.generated.h"
++
++/**
++ * One Passage's Choreography sequence, nested by the Master rebuild over the
++ * Passage segment. Inner 0:00 is the Passage start (Gary, 4 Oct: things happen
++ * before the song does), so hand-placed keys inside stay relative to the
++ * Passage and travel with it when the Show is retimed.
++ *
++ * Kept apart from the Scene track on purpose: Scene sections mean "a Scene cue"
++ * to the handoff, cut-binding and fit checks, and a Choreo is not one.
++ */
++UCLASS(BlueprintType)
++class INFINITYSTAGE_API UMovieSceneInfinityChoreoSection : public UMovieSceneSubSection
++{
++    GENERATED_BODY()
++
++public:
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Managed Ownership")
++    FGuid OwnerGuid;
++
++    /** The Passage GUID this section belongs to. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Managed Ownership")
++    FGuid BlockGuid;
++};
++
++UCLASS(BlueprintType)
++class INFINITYSTAGE_API UMovieSceneInfinityChoreoTrack : public UMovieSceneSubTrack
++{
++    GENERATED_BODY()
++
++public:
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Managed Ownership")
++    FGuid OwnerGuid;
++
++    virtual UMovieSceneSection* CreateNewSection() override;
++
++#if WITH_EDITORONLY_DATA
++    virtual FText GetDisplayName() const override;
++#endif
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp
+new file mode 100644
+index 0000000..0d90ce7
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageChoreoTests.cpp
+@@ -0,0 +1,152 @@
++#include "InfinityStageCompiler.h"
++#include "InfinityStageSequenceBuilderLibrary.h"
++#include "InfinityStageShowAsset.h"
++#include "LevelSequence.h"
++#include "Misc/AutomationTest.h"
++#include "MovieScene.h"
++#include "MovieSceneInfinityChoreoTrack.h"
++#include "Sections/MovieSceneSubSection.h"
++#include "Tracks/MovieSceneSubTrack.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageChoreoFollowsRetimeTest,
++    "InfinityStage.Cueing.Choreo.FollowsRetime",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// A Passage's Choreography is nested over its segment, 0:00 at the Passage start,
++// and moves with it when an earlier Scene grows. An absolute section placed by
++// hand at the same frame is the control: it stays behind.
++bool FInfinityStageChoreoFollowsRetimeTest::RunTest(const FString& Parameters)
++{
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    for (int32 Index = 0; Index < 2; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.IntervalToNext = 24000;
++        Cue.WingPair.GapToNextCm = 500.0;
++    }
++    ULevelSequence* SceneSequence = NewObject<ULevelSequence>(GetTransientPackage());
++    SceneSequence->Initialize();
++    FInfinityShowCue& Scene = Show->Cues.AddDefaulted_GetRef();
++    Scene.Type = EInfinityCueType::Scene;
++    Scene.CueGuid = FGuid::NewGuid();
++    Scene.Scene.DurationFrames = 48000;
++    Scene.Scene.Sequence = SceneSequence;
++    FInfinityShowCue& FinalWing = Show->Cues.AddDefaulted_GetRef();
++    FinalWing.Type = EInfinityCueType::WingPair;
++    FinalWing.CueGuid = FGuid::NewGuid();
++    FinalWing.WingPair.OccurrenceGuid = FGuid::NewGuid();
++    Show->ReconcilePassageSettings();
++    TestEqual(TEXT("Fixture has two Passages"), Show->PassageSettings.Num(), 2);
++    if (Show->PassageSettings.Num() != 2)
++    {
++        return false;
++    }
++
++    // The Choreo goes on the Passage AFTER the Scene, so growing the Scene retimes it.
++    const FInfinityCompileResult Before = FInfinityStageCompiler::Compile(*Show);
++    const FInfinityCompiledPassage* LaterBefore = Before.Passages.FindByPredicate(
++        [](const FInfinityCompiledPassage& P) { return P.SegmentStartFrame > 0; });
++    TestNotNull(TEXT("Fixture has a Passage after the Scene"), LaterBefore);
++    if (!LaterBefore)
++    {
++        return false;
++    }
++    const FGuid LaterGuid = LaterBefore->PassageGuid;
++    const FFrameNumber StartBefore = LaterBefore->SegmentStartFrame;
++
++    ULevelSequence* Choreo = NewObject<ULevelSequence>(GetTransientPackage());
++    Choreo->Initialize();
++    Choreo->GetMovieScene()->SetPlaybackRange(0, Show->TickResolution.AsFrameNumber(600.0).Value);
++    for (FInfinityPassageSettings& Settings : Show->PassageSettings)
++    {
++        if (Settings.PassageGuid == LaterGuid)
++        {
++            Settings.Choreography = Choreo;
++        }
++    }
++
++    ULevelSequence* Master = NewObject<ULevelSequence>(GetTransientPackage());
++    Master->Initialize();
++    // Control: the same Choreo placed by hand at an absolute frame.
++    UMovieSceneSubSection* Absolute = Master->GetMovieScene()->AddTrack<UMovieSceneSubTrack>()
++        ->AddSequence(Choreo, StartBefore, 1000);
++
++    FString Report;
++    TestTrue(TEXT("First build succeeds"), UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(Show, Master, Report));
++    UMovieSceneInfinityChoreoTrack* Track = Master->GetMovieScene()->FindTrack<UMovieSceneInfinityChoreoTrack>();
++    TestNotNull(TEXT("A Choreography track is made"), Track);
++    if (!Track)
++    {
++        return false;
++    }
++    TestEqual(TEXT("Only the Passage with a Choreo gets a section"), Track->GetAllSections().Num(), 1);
++    UMovieSceneInfinityChoreoSection* Section = Cast<UMovieSceneInfinityChoreoSection>(Track->GetAllSections()[0]);
++    TestTrue(TEXT("Section plays the Choreo"), Section && Section->GetSequence() == Choreo);
++    TestTrue(TEXT("Section is keyed by the Passage"), Section && Section->BlockGuid == LaterGuid);
++    TestTrue(TEXT("Section starts at the Passage start (0:00 = Passage start)"),
++        Section && Section->GetInclusiveStartFrame() == StartBefore);
++
++    // Retime: the Scene grows by 10 s.
++    const FFrameNumber Grow = Show->TickResolution.AsFrameNumber(10.0);
++    Show->Cues[2].Scene.DurationFrames += Grow.Value;
++    TestTrue(TEXT("Second build succeeds"), UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(Show, Master, Report));
++    TestEqual(TEXT("Still one section"), Track->GetAllSections().Num(), 1);
++    TestTrue(TEXT("Same section object (identity is stable)"), Track->GetAllSections()[0] == Section);
++    TestTrue(TEXT("The Choreo moved with its Passage"),
++        Section->GetInclusiveStartFrame() == StartBefore + Grow);
++    TestTrue(TEXT("Control: the absolute section did not move"), Absolute->GetInclusiveStartFrame() == StartBefore);
++
++    // Clearing the field removes the nesting on the next build.
++    for (FInfinityPassageSettings& Settings : Show->PassageSettings)
++    {
++        Settings.Choreography.Reset();
++    }
++    TestTrue(TEXT("Third build succeeds"), UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(Show, Master, Report));
++    TestEqual(TEXT("No Choreo, no section"), Track->GetAllSections().Num(), 0);
++    TestTrue(TEXT("The artist's own sub track is untouched"), Absolute->GetSequence() == Choreo);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageChoreoAbsentIsUnchangedTest,
++    "InfinityStage.Cueing.Choreo.AbsentLeavesMasterUnchanged",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// A Show with no Choreography must build exactly the Master it built before the
++// Choreo patch: no Choreography track, and the same track list on every rebuild.
++bool FInfinityStageChoreoAbsentIsUnchangedTest::RunTest(const FString& Parameters)
++{
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    for (int32 Index = 0; Index < 2; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.IntervalToNext = 24000;
++        Cue.WingPair.GapToNextCm = 500.0;
++    }
++    Show->ReconcilePassageSettings();
++    ULevelSequence* Master = NewObject<ULevelSequence>(GetTransientPackage());
++    Master->Initialize();
++    FString Report;
++    TestTrue(TEXT("Build succeeds"), UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(Show, Master, Report));
++    TestNull(TEXT("No Choreography track without a Choreo"),
++        Master->GetMovieScene()->FindTrack<UMovieSceneInfinityChoreoTrack>());
++    const TArray<UMovieSceneTrack*> First = Master->GetMovieScene()->GetTracks();
++    TestTrue(TEXT("Rebuild succeeds"), UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(Show, Master, Report));
++    TestTrue(TEXT("Same tracks, same objects, same order"), Master->GetMovieScene()->GetTracks() == First);
++    for (const UMovieSceneTrack* Track : First)
++    {
++        TestFalse(TEXT("No track of the Choreography class"), Track && Track->IsA<UMovieSceneInfinityChoreoTrack>());
++    }
++    return true;
++}
++
++#endif
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp
+index 4221b5c..ff090c3 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStagePassageResizeLibrary.cpp
+@@ -13,6 +13,7 @@
+ #include "MovieSceneInfinityAudioTrack.h"
+ #include "MovieSceneInfinityPassageTrack.h"
+ #include "MovieSceneInfinitySceneTrack.h"
++#include "MovieSceneInfinityChoreoTrack.h"
+ #include "MovieSceneSection.h"
+ #include "MovieSceneTrack.h"
+ #include "ScopedTransaction.h"
+@@ -123,6 +124,10 @@ bool IsManagedTrackForShow(const UMovieSceneTrack& Track, const FGuid ShowGuid)
+     {
+         return Scene->OwnerGuid == ShowGuid;
+     }
++    if (const UMovieSceneInfinityChoreoTrack* Choreo = Cast<UMovieSceneInfinityChoreoTrack>(&Track))
++    {
++        return Choreo->OwnerGuid == ShowGuid;
++    }
+     if (const UMovieSceneInfinityAudioTrack* Audio = Cast<UMovieSceneInfinityAudioTrack>(&Track))
+     {
+         return Audio->OwnerGuid == ShowGuid;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
+index 88638a8..16a5b2c 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageSequenceBuilderLibrary.cpp
+@@ -13,6 +13,7 @@
+ #include "MovieSceneSpawnable.h"
+ #include "MovieSceneInfinityPassageTrack.h"
+ #include "MovieSceneInfinitySceneTrack.h"
++#include "MovieSceneInfinityChoreoTrack.h"
+ #include "MovieSceneInfinityAudioTrack.h"
+ #include "Channels/MovieSceneFloatChannel.h"
+ #include "Channels/MovieSceneChannelProxy.h"
+@@ -363,6 +364,81 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
+     }
+     RemoveStaleSections<UMovieSceneInfinitySceneSection>(*SceneTrack, LiveSceneBlocks);
+ 
++    // Choreography (Cueing plan, Part 1): each Passage that names a Choreo gets it
++    // nested over its segment, 0:00 at the Passage start. Keys inside are relative,
++    // so a retime moves them with the Passage. Passages without one get nothing.
++    int32 ChoreoSections = 0;
++    {
++        TSet<FGuid> LiveChoreoBlocks;
++        UMovieSceneInfinityChoreoTrack* ChoreoTrack = MovieScene->FindTrack<UMovieSceneInfinityChoreoTrack>();
++        if (ChoreoTrack && ChoreoTrack->OwnerGuid.IsValid() && ChoreoTrack->OwnerGuid != Show->ShowGuid)
++        {
++            OutReport = TEXT("Existing Infinity Choreography track belongs to another Show.");
++            return false;
++        }
++        for (const FInfinityCompiledPassage& Passage : Compiled.Passages)
++        {
++            const FInfinityPassageSettings* Settings = Show->PassageSettings.FindByPredicate(
++                [&Passage](const FInfinityPassageSettings& Candidate) { return Candidate.PassageGuid == Passage.PassageGuid; });
++            ULevelSequence* Choreo = Settings ? Settings->Choreography.LoadSynchronous() : nullptr;
++            if (!Choreo)
++            {
++                continue;
++            }
++            if (!ChoreoTrack)
++            {
++                ChoreoTrack = MovieScene->AddTrack<UMovieSceneInfinityChoreoTrack>();
++            }
++            ChoreoTrack->Modify();
++            ChoreoTrack->OwnerGuid = Show->ShowGuid;
++            LiveChoreoBlocks.Add(Passage.PassageGuid);
++            UMovieSceneInfinityChoreoSection* Section = nullptr;
++            for (UMovieSceneSection* Existing : ChoreoTrack->GetAllSections())
++            {
++                UMovieSceneInfinityChoreoSection* Candidate = Cast<UMovieSceneInfinityChoreoSection>(Existing);
++                if (Candidate && Candidate->BlockGuid == Passage.PassageGuid)
++                {
++                    Section = Candidate;
++                    break;
++                }
++            }
++            if (!Section)
++            {
++                Section = CastChecked<UMovieSceneInfinityChoreoSection>(ChoreoTrack->CreateNewSection());
++                ChoreoTrack->AddSection(*Section);
++            }
++            Section->Modify();
++            Section->OwnerGuid = Show->ShowGuid;
++            Section->BlockGuid = Passage.PassageGuid;
++            Section->SetSequence(Choreo);
++            Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
++            ++ChoreoSections;
++
++            // Content past the Choreo's own playback end is not played. Say so; never
++            // edit the Choreo asset from a rebuild.
++            const UMovieScene* ChoreoScene = Choreo->GetMovieScene();
++            if (ChoreoScene)
++            {
++                const double PassageSeconds = Show->TickResolution.AsSeconds(
++                    FFrameTime(Passage.SegmentEndFrame - Passage.SegmentStartFrame));
++                const double ChoreoSeconds = ChoreoScene->GetTickResolution().AsSeconds(FFrameTime(
++                    ChoreoScene->GetPlaybackRange().GetUpperBoundValue() - ChoreoScene->GetPlaybackRange().GetLowerBoundValue()));
++                if (ChoreoSeconds + 1.0e-3 < PassageSeconds)
++                {
++                    UE_LOG(LogTemp, Warning,
++                        TEXT("INFINITY_CHOREO_SHORT passage=%s choreo=%s length=%.2fs passage=%.2fs: extend the Choreo's playback end or its last %.2f s are silent."),
++                        *Passage.PassageGuid.ToString(), *Choreo->GetName(), ChoreoSeconds, PassageSeconds, PassageSeconds - ChoreoSeconds);
++                }
++            }
++        }
++        if (ChoreoTrack)
++        {
++            ChoreoTrack->Modify();
++            RemoveStaleSections<UMovieSceneInfinityChoreoSection>(*ChoreoTrack, LiveChoreoBlocks);
++        }
++        UE_LOG(LogTemp, Display, TEXT("INFINITY_CHOREO_NESTED sections=%d"), ChoreoSections);
++    }
++
+     UMovieSceneInfinityAudioTrack* MusicTrack = MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>();
+     if (!MusicTrack)
+     {

@@ -1,0 +1,624 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index 3a9fbf9..4d62dfa 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -58,9 +58,9 @@ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
+ void AInfinityStageShowPlayerController::BeginRightInput()
+ {
+     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+-    if (Transport && Transport->ReleaseActiveVamp())
++    if (Transport && (Transport->ReleaseActiveHold() || Transport->ReleaseActiveVamp()))
+     {
+-        // A vamp release is the whole RIGHT gesture. Its key-up must not also
++        // A GO at a hold, or a vamp release, is the whole RIGHT gesture. Its key-up must not also
+         // become a tap advance or a fast-forward end.
+         HoldRightState.Reset();
+         return;
+@@ -117,6 +117,16 @@ void AInfinityStageShowPlayerController::PreviousShowSegment()
+ void AInfinityStageShowPlayerController::ToggleShowPlayback()
+ {
+     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
++    // Space is GO too (Gary, 4 Oct): at a hold it fires the cue and nothing else.
++    if (Transport && Transport->ReleaseActiveHold())
++    {
++        return;
++    }
++    if (Transport && Transport->bSpaceNeverPauses && Transport->IsTransportPlaying())
++    {
++        UE_LOG(LogTemp, Display, TEXT("INFINITY_GO_SPACE_IGNORED playing, no hold: pause from the Cue Desk."));
++        return;
++    }
+     ReportTransportResult(this, Transport
+         ? (Transport->IsTransportPlaying() ? Transport->PauseTransport() : Transport->PlayForwardToBoundary())
+         : EInfinityTransportResult::NoPlayer);
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index e0d5096..0221b86 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -15,6 +15,9 @@
+ #include "MovieSceneSequencePlayer.h"
+ #include "Sections/MovieSceneCameraCutSection.h"
+ #include "Tracks/MovieSceneCameraCutTrack.h"
++#include "Tracks/MovieSceneAudioTrack.h"
++#include "Tracks/MovieSceneSubTrack.h"
++#include "Sections/MovieSceneSubSection.h"
+ #include "UObject/ObjectKey.h"
+ #include "UniversalObjectLocatorResolveParams.h"
+ 
+@@ -231,6 +234,92 @@ void CollectVampRanges(
+     }
+ }
+ 
++void CollectGoCues(
++    const UMovieSceneSequence* Sequence,
++    const FFrameRate ShowTickResolution,
++    const int32 SegmentIndex,
++    const FFrameNumber SegmentStart,
++    const FFrameNumber SegmentEnd,
++    const bool bDefaultHold,
++    TArray<FInfinityGoCue>& OutCues)
++{
++    const UMovieScene* MovieScene = Sequence ? Sequence->GetMovieScene() : nullptr;
++    if (!MovieScene || !MovieScene->GetTickResolution().IsValid() || !ShowTickResolution.IsValid())
++    {
++        return;
++    }
++    // Measured from the playback start, as the vamp and handoff markers are: the
++    // sub-section puts the playback start on the segment's first frame.
++    const FFrameNumber PlaybackStart = MovieScene->GetPlaybackRange().GetLowerBoundValue();
++    const int32 SegmentLength = FMath::Max(0, (SegmentEnd - SegmentStart).Value);
++    for (const FMovieSceneMarkedFrame& MarkedFrame : MovieScene->GetMarkedFrames())
++    {
++        FString Number;
++        FString Label;
++        int32 Mode = -1;
++        if (!InfinityStageGoCues::ParseMarkerLabel(MarkedFrame.Label, Number, Label, Mode))
++        {
++            continue;
++        }
++        const FFrameNumber Offset = FFrameRate::TransformTime(
++            FFrameTime(MarkedFrame.FrameNumber - PlaybackStart),
++            MovieScene->GetTickResolution(),
++            ShowTickResolution).RoundToFrame();
++        if (Offset.Value < 0 || Offset.Value > SegmentLength)
++        {
++            UE_LOG(LogInfinityStageTransport, Warning,
++                TEXT("INFINITY_GO_OUTSIDE_SEGMENT sequence=%s go=%s offset=%d length=%d: never reached, ignored."),
++                *Sequence->GetName(), *Number, Offset.Value, SegmentLength);
++            continue;
++        }
++        FInfinityGoCue& Cue = OutCues.AddDefaulted_GetRef();
++        Cue.Frame = SegmentStart + Offset;
++        Cue.Number = Number;
++        Cue.Label = Label;
++        Cue.bHold = Mode < 0 ? bDefaultHold : Mode == 1;
++        Cue.SegmentIndex = SegmentIndex;
++        UE_LOG(LogInfinityStageTransport, Log,
++            TEXT("INFINITY_GO_CUE number=%s mode=%s frame=%d segment=%d label='%s'"),
++            *Cue.Number, Cue.bHold ? TEXT("HOLD") : TEXT("PASS"), Cue.Frame.Value, SegmentIndex, *Cue.Label);
++    }
++}
++
++void CollectAudioTracks(
++    UMovieSceneSequence* Sequence,
++    TSet<const UMovieSceneSequence*>& Visited,
++    TArray<UMovieSceneTrack*>& OutTracks,
++    const int32 Depth)
++{
++    if (!Sequence || Depth > 8 || Visited.Contains(Sequence))
++    {
++        return;
++    }
++    Visited.Add(Sequence);
++    UMovieScene* MovieScene = Sequence->GetMovieScene();
++    if (!MovieScene)
++    {
++        return;
++    }
++    for (UMovieSceneTrack* Track : MovieScene->GetTracks())
++    {
++        if (Track && Track->IsA<UMovieSceneAudioTrack>())
++        {
++            OutTracks.Add(Track);
++            continue;
++        }
++        if (UMovieSceneSubTrack* SubTrack = Cast<UMovieSceneSubTrack>(Track))
++        {
++            for (UMovieSceneSection* Section : SubTrack->GetAllSections())
++            {
++                if (UMovieSceneSubSection* Sub = Cast<UMovieSceneSubSection>(Section))
++                {
++                    CollectAudioTracks(Sub->GetSequence(), Visited, OutTracks, Depth + 1);
++                }
++            }
++        }
++    }
++}
++
+ void CollectSceneShotStarts(
+     const UInfinityStageShowAsset& Show,
+     const FInfinityShowCue& Cue,
+@@ -506,6 +595,101 @@ UInfinityStageTransportController::UInfinityStageTransportController()
+     PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
+ }
+ 
++namespace InfinityStageGoCues
++{
++bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel, int32& OutMode)
++{
++    OutNumber.Reset();
++    OutLabel.Reset();
++    OutMode = -1;
++    TArray<FString> Words;
++    Text.TrimStartAndEnd().ParseIntoArrayWS(Words);
++    if (Words.Num() < 2 || !Words[0].Equals(TEXT("GO"), ESearchCase::IgnoreCase))
++    {
++        return false;
++    }
++    OutNumber = Words[1];
++    int32 LabelStart = 2;
++    if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("HOLD"), ESearchCase::IgnoreCase))
++    {
++        OutMode = 1;
++        LabelStart = 3;
++    }
++    else if (Words.IsValidIndex(2) && Words[2].Equals(TEXT("PASS"), ESearchCase::IgnoreCase))
++    {
++        OutMode = 0;
++        LabelStart = 3;
++    }
++    for (int32 Index = LabelStart; Index < Words.Num(); ++Index)
++    {
++        OutLabel += (OutLabel.IsEmpty() ? TEXT("") : TEXT(" ")) + Words[Index];
++    }
++    return true;
++}
++}
++
++void FInfinityGoHoldState::Reset()
++{
++    ActiveIndex = INDEX_NONE;
++    Released.Reset();
++    bHasPreviousFrame = false;
++}
++
++void FInfinityGoHoldState::OnNavigation(const FFrameNumber TargetFrame)
++{
++    ActiveIndex = INDEX_NONE;
++    PreviousFrame = TargetFrame;
++    bHasPreviousFrame = true;
++}
++
++int32 FInfinityGoHoldState::Tick(
++    const FFrameNumber CurrentFrame,
++    const bool bPlayingForward,
++    const TArray<FInfinityGoCue>& Cues)
++{
++    // Back before a released hold: it stops the show again next time through.
++    for (auto It = Released.CreateIterator(); It; ++It)
++    {
++        if (!Cues.IsValidIndex(*It) || CurrentFrame < Cues[*It].Frame)
++        {
++            It.RemoveCurrent();
++        }
++    }
++    if (ActiveIndex != INDEX_NONE || !bHasPreviousFrame)
++    {
++        PreviousFrame = CurrentFrame;
++        bHasPreviousFrame = true;
++        return INDEX_NONE;
++    }
++    int32 Hit = INDEX_NONE;
++    if (bPlayingForward && CurrentFrame > PreviousFrame)
++    {
++        for (int32 Index = 0; Index < Cues.Num(); ++Index)
++        {
++            const FInfinityGoCue& Cue = Cues[Index];
++            if (Cue.bHold && Cue.Frame > PreviousFrame && Cue.Frame <= CurrentFrame && !Released.Contains(Index))
++            {
++                Hit = Index;
++                break;
++            }
++        }
++    }
++    PreviousFrame = CurrentFrame;
++    ActiveIndex = Hit;
++    return Hit;
++}
++
++bool FInfinityGoHoldState::Release()
++{
++    if (ActiveIndex == INDEX_NONE)
++    {
++        return false;
++    }
++    Released.Add(ActiveIndex);
++    ActiveIndex = INDEX_NONE;
++    return true;
++}
++
+ bool UInfinityStageTransportController::StepJumpResettle(
+     FInfinityJumpResettle& State,
+     const FFrameNumber CurrentFrame,
+@@ -577,6 +761,10 @@ void UInfinityStageTransportController::TickComponent(
+             TEXT("INFINITY_FAST_FORWARD_INTERLOCK frame=%d segment=%d"),
+             CurrentFrame.Value, FrameSegment);
+     }
++    if (HandleGoHold(CurrentFrame))
++    {
++        return;
++    }
+     if (HandleVampPlayback(CurrentFrame))
+     {
+         return;
+@@ -642,6 +830,8 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+     Segments.Reset();
+     VampRanges.Reset();
+     VampPlaybackState.Reset();
++    GoCues.Reset();
++    GoHoldState.Reset();
+     CameraRigCache.Reset();
+     SelectedSegmentIndex = INDEX_NONE;
+     bCoveredHandoffActive = false;
+@@ -687,6 +877,11 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+                 return Candidate.PassageGuid == CompiledSegment.SegmentGuid;
+             });
+             Segment.Label = Settings ? Settings->Label : NSLOCTEXT("InfinityStage", "PassageTransportLabel", "Passage");
++            if (Settings && !Settings->Choreography.IsNull())
++            {
++                CollectGoCues(Settings->Choreography.LoadSynchronous(), ShowAsset->TickResolution, SegmentIndex,
++                    Segment.StartFrame, Segment.EndFrame, false, GoCues);
++            }
+             continue;
+         }
+         if (!ShowAsset->Cues.IsValidIndex(CompiledSegment.FirstCueIndex))
+@@ -712,6 +907,9 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+             Segment.EndFrame,
+             VampRanges);
+ 
++        CollectGoCues(Cue.Scene.Sequence.LoadSynchronous(), ShowAsset->TickResolution, SegmentIndex,
++            Segment.StartFrame, Segment.EndFrame, true, GoCues);
++
+         EInfinityCoveredHandoffSource HandoffSource = EInfinityCoveredHandoffSource::NotApplicable;
+         const FFrameNumber HandoffOffset = ResolveCoveredHandoffOffset(*ShowAsset, Cue, HandoffSource);
+         const int32 SegmentLength =
+@@ -751,6 +949,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+         }
+     }
+ 
++    GoCues.StableSort([](const FInfinityGoCue& A, const FInfinityGoCue& B) { return A.Frame < B.Frame; });
+     return !Segments.IsEmpty();
+ }
+ 
+@@ -794,6 +993,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
+         ClaimSegmentCamera(SelectedSegmentIndex, GetCurrentMasterFrame());
+     }
+     VampPlaybackState.OnNavigation(GetCurrentMasterFrame());
++    GoHoldState.OnNavigation(GetCurrentMasterFrame());
+     return true;
+ }
+ 
+@@ -1151,6 +1351,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
+     Player->Pause();
+     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+     VampPlaybackState.OnNavigation(TargetFrame);
++    GoHoldState.OnNavigation(TargetFrame);
+     JumpResettleState = {true, TargetFrame, 0.0f, 0};
+     SelectedSegmentIndex = TargetIndex;
+     bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
+@@ -1258,6 +1459,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
+     Player->Pause();
+     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+     VampPlaybackState.OnNavigation(TargetFrame);
++    GoHoldState.OnNavigation(TargetFrame);
+     SelectedSegmentIndex = SegmentIndex;
+     bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, TargetFrame);
+     if (bKeepPlaying)
+@@ -1894,6 +2096,49 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
+     return true;
+ }
+ 
++bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentFrame)
++{
++    if (GoCues.IsEmpty() || !Player)
++    {
++        return false;
++    }
++    const int32 Hit = GoHoldState.Tick(
++        CurrentFrame,
++        Player->IsPlaying() && !Player->IsReversed(),
++        GoCues);
++    if (!GoCues.IsValidIndex(Hit))
++    {
++        return false;
++    }
++    const FInfinityGoCue& Cue = GoCues[Hit];
++    StopFastForwardPlayback();
++    JumpResettleState.bPending = false;
++    Player->Pause();
++    // Playback overshoots by up to a tick; settle exactly on the GO frame.
++    const FFrameTime HoldDisplayFrame = ShowAsset
++        ? FFrameRate::TransformTime(FFrameTime(Cue.Frame), ShowAsset->TickResolution, ShowAsset->DisplayRate)
++        : FFrameTime(Cue.Frame);
++    Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(HoldDisplayFrame, EUpdatePositionMethod::Jump));
++    UE_LOG(LogInfinityStageTransport, Log,
++        TEXT("INFINITY_GO_HOLD number=%s frame=%d crossed_at=%d label='%s'"),
++        *Cue.Number, Cue.Frame.Value, CurrentFrame.Value, *Cue.Label);
++    return true;
++}
++
++bool UInfinityStageTransportController::ReleaseActiveHold()
++{
++    const int32 Index = GoHoldState.ActiveIndex;
++    if (!Player || !GoHoldState.Release() || !GoCues.IsValidIndex(Index))
++    {
++        return false;
++    }
++    const EInfinityTransportResult Result = PlayForwardToBoundary();
++    UE_LOG(LogInfinityStageTransport, Log,
++        TEXT("INFINITY_GO number=%s frame=%d result=%d label='%s'"),
++        *GoCues[Index].Number, GoCues[Index].Frame.Value, static_cast<int32>(Result), *GoCues[Index].Label);
++    return true;
++}
++
+ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bMuted)
+ {
+     if (bMasterAudioMutedForFastForward == bMuted || !Player || !Player->GetSequence())
+@@ -1901,6 +2146,50 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bM
+         return;
+     }
+     UMovieScene* MovieScene = Player->GetSequence()->GetMovieScene();
++
++    // Every other audio track in the Master and its nested sequences (Scene and
++    // Choreography sound) is muted with it, through the same transient local flag,
++    // and each is restored to exactly its own prior state when 1x resumes.
++    if (bMuted)
++    {
++        NestedAudioMutedForFastForward.Reset();
++        TSet<const UMovieSceneSequence*> Visited;
++        TArray<UMovieSceneTrack*> AudioTracks;
++        CollectAudioTracks(Player->GetSequence(), Visited, AudioTracks, 0);
++        const UMovieSceneTrack* ManagedMusic = MovieScene ? MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>() : nullptr;
++        for (UMovieSceneTrack* Track : AudioTracks)
++        {
++            if (Track == ManagedMusic)
++            {
++                continue;
++            }
++#if WITH_EDITOR
++            NestedAudioMutedForFastForward.Emplace(Track, Track->IsLocalEvalDisabled());
++            Track->SetLocalEvalDisabled(true);
++#else
++            NestedAudioMutedForFastForward.Emplace(Track, Track->IsEvalDisabled(false));
++            Track->SetEvalDisabled(true);
++#endif
++            Track->MarkAsChanged();
++        }
++    }
++    else
++    {
++        for (const TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>& Entry : NestedAudioMutedForFastForward)
++        {
++            if (UMovieSceneTrack* Track = Entry.Key.Get())
++            {
++#if WITH_EDITOR
++                Track->SetLocalEvalDisabled(Entry.Value);
++#else
++                Track->SetEvalDisabled(Entry.Value);
++#endif
++                Track->MarkAsChanged();
++            }
++        }
++        NestedAudioMutedForFastForward.Reset();
++    }
++
+     UMovieSceneInfinityAudioTrack* MusicTrack = MovieScene
+         ? MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>()
+         : nullptr;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+index b98d965..a75c041 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+@@ -307,6 +307,62 @@ private:
+     bool bHasPreviousFrame = false;
+ };
+ 
++/**
++ * One GO point: a marked frame labelled "GO <number> [HOLD|PASS] <label>" in a
++ * Scene/Sequence cue's sequence or a Passage's Choreography, resolved to an
++ * absolute Master frame. A HOLD stops playback on its frame until GO; a PASS is
++ * listed for the operator but never stops the music. Unmarked: HOLD in Scenes,
++ * PASS in Passages.
++ */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityGoCue
++{
++    GENERATED_BODY()
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    FFrameNumber Frame = 0;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    FString Number;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    FString Label;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    bool bHold = true;
++
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    int32 SegmentIndex = INDEX_NONE;
++};
++
++namespace InfinityStageGoCues
++{
++/** Parses "GO <number> [HOLD|PASS] <label>". OutMode: -1 unmarked, 0 PASS, 1 HOLD. */
++INFINITYSTAGE_API bool ParseMarkerLabel(const FString& Text, FString& OutNumber, FString& OutLabel, int32& OutMode);
++}
++
++/**
++ * Pure hold arming/release. A HOLD arms only when forward playback crosses its
++ * frame; navigation never arms one. A released hold re-arms once the playhead is
++ * back before it, so "re-run this cue" stops at the same GO again.
++ */
++struct INFINITYSTAGE_API FInfinityGoHoldState
++{
++    int32 ActiveIndex = INDEX_NONE;
++
++    void Reset();
++    void OnNavigation(FFrameNumber TargetFrame);
++    /** Returns the index of a hold to stop on now, or INDEX_NONE. */
++    int32 Tick(FFrameNumber CurrentFrame, bool bPlayingForward, const TArray<FInfinityGoCue>& Cues);
++    bool Release();
++    bool IsActive() const { return ActiveIndex != INDEX_NONE; }
++
++private:
++    TSet<int32> Released;
++    FFrameNumber PreviousFrame = 0;
++    bool bHasPreviousFrame = false;
++};
++
+ /** Pending one-shot re-evaluation of a frame after an operator jump. */
+ struct INFINITYSTAGE_API FInfinityJumpResettle
+ {
+@@ -471,6 +527,25 @@ public:
+     /** RIGHT inside an armed vamp consumes that vamp and continues to this segment's end at 1x. */
+     bool ReleaseActiveVamp();
+ 
++    /** Every GO point in show order (absolute Master frames). Rebuilt with the segments. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    TArray<FInfinityGoCue> GoCues;
++
++    /** Performance safety: Space never pauses, it only fires GO or resumes;
++     * pause from the Cue Desk. Off by default so rehearsal keeps Space = pause. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Cues")
++    bool bSpaceNeverPauses = false;
++
++    /** GO at a HOLD: consumes it and plays on. False when no hold is active. */
++    bool ReleaseActiveHold();
++
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    bool IsHoldActive() const { return GoHoldState.IsActive(); }
++
++    /** Index into GoCues of the hold the show is waiting on, or -1. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    int32 GetActiveHoldIndex() const { return GoHoldState.ActiveIndex; }
++
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     EInfinityTransportResult JumpToPreviousSegment();
+ 
+@@ -579,6 +654,11 @@ private:
+ 
+     FInfinityVampPlaybackState VampPlaybackState;
+ 
++    FInfinityGoHoldState GoHoldState;
++
++    /** Nested audio tracks muted for fast-forward, with their prior local mute. */
++    TArray<TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>> NestedAudioMutedForFastForward;
++
+     bool bFastForwardActive = false;
+     bool bMasterAudioMutedForFastForward = false;
+     bool bMasterAudioWasEvalDisabled = false;
+@@ -616,6 +696,7 @@ private:
+ 
+     /** Returns true when this tick looped and no camera boundary work should run. */
+     bool HandleVampPlayback(FFrameNumber CurrentFrame);
++    bool HandleGoHold(FFrameNumber CurrentFrame);
+     void SetManagedMasterAudioMuted(bool bMuted);
+     void StopFastForwardPlayback();
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
+new file mode 100644
+index 0000000..177e90c
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
+@@ -0,0 +1,88 @@
++#include "InfinityStageTransportController.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageGoMarkerParseTest,
++    "InfinityStage.Cueing.GO.MarkerLabelParses",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageGoMarkerParseTest::RunTest(const FString& Parameters)
++{
++    FString Number;
++    FString Label;
++    int32 Mode = 7;
++    TestTrue(TEXT("Plain GO parses"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GO 12 Warmers out, Puss enters"), Number, Label, Mode));
++    TestEqual(TEXT("Number"), Number, FString(TEXT("12")));
++    TestEqual(TEXT("Label"), Label, FString(TEXT("Warmers out, Puss enters")));
++    TestEqual(TEXT("Unmarked mode"), Mode, -1);
++
++    TestTrue(TEXT("Lower case, PASS"), InfinityStageGoCues::ParseMarkerLabel(TEXT("  go 3.5 pass distant fire "), Number, Label, Mode));
++    TestEqual(TEXT("Decimal cue numbers survive"), Number, FString(TEXT("3.5")));
++    TestEqual(TEXT("PASS mode"), Mode, 0);
++    TestEqual(TEXT("Label after the mode"), Label, FString(TEXT("distant fire")));
++
++    TestTrue(TEXT("HOLD with no label"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GO 4 HOLD"), Number, Label, Mode));
++    TestEqual(TEXT("HOLD mode"), Mode, 1);
++    TestTrue(TEXT("Empty label"), Label.IsEmpty());
++
++    TestFalse(TEXT("Control: a vamp marker is not a GO"), InfinityStageGoCues::ParseMarkerLabel(TEXT("InfinityStage.VampStart"), Number, Label, Mode));
++    TestFalse(TEXT("Control: GOAT is not GO"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GOAT 1"), Number, Label, Mode));
++    TestFalse(TEXT("Control: GO needs a number"), InfinityStageGoCues::ParseMarkerLabel(TEXT("GO"), Number, Label, Mode));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageGoHoldStateTest,
++    "InfinityStage.Cueing.GO.HoldArmsReleasesAndReruns",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageGoHoldStateTest::RunTest(const FString& Parameters)
++{
++    TArray<FInfinityGoCue> Cues;
++    auto Add = [&Cues](const int32 Frame, const bool bHold)
++    {
++        FInfinityGoCue& Cue = Cues.AddDefaulted_GetRef();
++        Cue.Frame = Frame;
++        Cue.bHold = bHold;
++        Cue.Number = FString::FromInt(Cues.Num());
++    };
++    Add(100, true);
++    Add(150, false);
++    Add(200, true);
++
++    FInfinityGoHoldState State;
++    TestEqual(TEXT("First tick only observes"), State.Tick(90, true, Cues), INDEX_NONE);
++    TestEqual(TEXT("Playing forward across 100 holds on GO 1"), State.Tick(105, true, Cues), 0);
++    TestTrue(TEXT("Hold is active"), State.IsActive());
++    TestEqual(TEXT("While held, nothing else arms"), State.Tick(105, false, Cues), INDEX_NONE);
++    TestTrue(TEXT("GO releases"), State.Release());
++    TestFalse(TEXT("A second GO has nothing to release"), State.Release());
++    TestEqual(TEXT("A PASS cue never holds"), State.Tick(160, true, Cues), INDEX_NONE);
++    TestEqual(TEXT("Next HOLD stops the show"), State.Tick(210, true, Cues), 2);
++    State.Release();
++    TestEqual(TEXT("Released holds do not re-fire going on"), State.Tick(260, true, Cues), INDEX_NONE);
++
++    // Re-run: the operator jumps back before GO 1 and plays again.
++    State.OnNavigation(50);
++    TestEqual(TEXT("Jump back observes only"), State.Tick(50, false, Cues), INDEX_NONE);
++    TestEqual(TEXT("Re-run stops at GO 1 again"), State.Tick(101, true, Cues), 0);
++    State.Release();
++
++    // Controls: crossing while paused, reversed, or by navigation never arms.
++    TestEqual(TEXT("Control: not playing forward never arms"), State.Tick(205, false, Cues), INDEX_NONE);
++    State.OnNavigation(90);
++    State.Tick(90, false, Cues);
++    State.OnNavigation(300);
++    TestEqual(TEXT("Control: a jump over holds never arms"), State.Tick(300, true, Cues), INDEX_NONE);
++
++    FInfinityGoHoldState Empty;
++    TArray<FInfinityGoCue> None;
++    Empty.Tick(0, true, None);
++    TestEqual(TEXT("Control: no GO markers, no hold ever"), Empty.Tick(100000, true, None), INDEX_NONE);
++    TestFalse(TEXT("Control: no GO markers, nothing to release"), Empty.Release());
++    return true;
++}
++
++#endif
