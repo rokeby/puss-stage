@@ -179,3 +179,17 @@ git apply Scripts/patches/cueing_A1_attachment_binding.patch Scripts/patches/cue
 ### Documented for Gary (nits)
 - **A hold at offset 0 of a segment never fires on navigation entry.** Navigation never arms a hold. Put the first GO at least a frame into the Scene, or rely on the segment boundary stop.
 - **A hold inside a Vamp re-holds on every loop.** The loop jumps back before it, which re-arms it. Don't put a HOLD inside a Vamp region.
+
+## Round 3 (4 Oct, night)
+
+`git apply --check` at the HEAD printed below passes for each patch alone and for all three together. Only A3 changed in this round.
+
+- **N1 (must-fix). Fixed.**
+  - `FInfinityGoCue` now carries `SegmentStartFrame`.
+  - `SettleFrame` clamps to it, never earlier than the segment start or later than the GO itself. A GO at 0:00, or within a frame of the start, settles inside its own segment, so GO plays on from there.
+  - Test: `GO.SettleNeverLeavesItsSegment` covers a GO at the start, one 0.4 frame in, and a control one second in that keeps the one-frame-early settle. It also checks that the clamped hold arms on crossing and does not re-hold after GO.
+- **S5. Partly fixed.** BuildSegments no longer collects GO markers from a Choreo that the rebuild refuses (one with a root Camera Cut track). Still unchecked [inf]: a cut track inside a sequence nested *within* a Choreo. Gary's Choreos are flat, so this is documented rather than coded.
+- **N2. Fixed.** BuildSegments demotes any HOLD inside a vamp range to PASS and logs `INFINITY_GO_HOLD_IN_VAMP`.
+- **N3. Documented.** Re-arming needs the playhead strictly *before* the settle frame. A jump that lands exactly on the settle frame, then plays, will not stop at that GO again.
+- **M1 test depth. Not changed.** `EndFastForward` returns NoPlayer before it reaches the hold check, and the hold state is private, so an offline test of the function itself would need a test seam. It is verified in the window instead: hold RIGHT into a GO, release, and the show must still be held.
+- **M4, M5, S8.** Measured in the window, as stated in round 2. The cache-only claim is downgraded to **UNCLEAR**: the header only says the call does not clear the cache. Prove it with a nested Choreo binding before trusting the guard.

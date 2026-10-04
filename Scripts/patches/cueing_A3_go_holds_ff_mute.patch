@@ -32,7 +32,7 @@ index 3a9fbf9..4d62dfa 100644
          ? (Transport->IsTransportPlaying() ? Transport->PauseTransport() : Transport->PlayForwardToBoundary())
          : EInfinityTransportResult::NoPlayer);
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
-index e0d5096..8886658 100644
+index e0d5096..22efd96 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
 @@ -15,6 +15,9 @@
@@ -45,7 +45,7 @@ index e0d5096..8886658 100644
  #include "UObject/ObjectKey.h"
  #include "UniversalObjectLocatorResolveParams.h"
  
-@@ -231,6 +234,92 @@ void CollectVampRanges(
+@@ -231,6 +234,93 @@ void CollectVampRanges(
      }
  }
  
@@ -93,6 +93,7 @@ index e0d5096..8886658 100644
 +        Cue.Label = Label;
 +        Cue.bHold = Mode < 0 ? bDefaultHold : Mode == 1;
 +        Cue.SegmentIndex = SegmentIndex;
++        Cue.SegmentStartFrame = SegmentStart;
 +        UE_LOG(LogInfinityStageTransport, Log,
 +            TEXT("INFINITY_GO_CUE number=%s mode=%s frame=%d segment=%d label='%s'"),
 +            *Cue.Number, Cue.bHold ? TEXT("HOLD") : TEXT("PASS"), Cue.Frame.Value, SegmentIndex, *Cue.Label);
@@ -138,7 +139,7 @@ index e0d5096..8886658 100644
  void CollectSceneShotStarts(
      const UInfinityStageShowAsset& Show,
      const FInfinityShowCue& Cue,
-@@ -506,6 +595,145 @@ UInfinityStageTransportController::UInfinityStageTransportController()
+@@ -506,6 +596,145 @@ UInfinityStageTransportController::UInfinityStageTransportController()
      PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
  }
  
@@ -284,7 +285,7 @@ index e0d5096..8886658 100644
  bool UInfinityStageTransportController::StepJumpResettle(
      FInfinityJumpResettle& State,
      const FFrameNumber CurrentFrame,
-@@ -577,6 +805,10 @@ void UInfinityStageTransportController::TickComponent(
+@@ -577,6 +806,10 @@ void UInfinityStageTransportController::TickComponent(
              TEXT("INFINITY_FAST_FORWARD_INTERLOCK frame=%d segment=%d"),
              CurrentFrame.Value, FrameSegment);
      }
@@ -295,7 +296,7 @@ index e0d5096..8886658 100644
      if (HandleVampPlayback(CurrentFrame))
      {
          return;
-@@ -642,6 +874,13 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -642,6 +875,13 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
      Segments.Reset();
      VampRanges.Reset();
      VampPlaybackState.Reset();
@@ -309,19 +310,24 @@ index e0d5096..8886658 100644
      CameraRigCache.Reset();
      SelectedSegmentIndex = INDEX_NONE;
      bCoveredHandoffActive = false;
-@@ -687,6 +926,11 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -687,6 +927,16 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
                  return Candidate.PassageGuid == CompiledSegment.SegmentGuid;
              });
              Segment.Label = Settings ? Settings->Label : NSLOCTEXT("InfinityStage", "PassageTransportLabel", "Passage");
-+            if (Settings && !Settings->Choreography.IsNull())
++            const ULevelSequence* Choreo = Settings && !Settings->Choreography.IsNull()
++                ? Settings->Choreography.LoadSynchronous()
++                : nullptr;
++            // The rebuild refuses to nest a Choreo with a Camera Cut track, so its
++            // GO markers would hold over content that is not playing: skip them too.
++            if (Choreo && !(Choreo->GetMovieScene() && Choreo->GetMovieScene()->GetCameraCutTrack()))
 +            {
-+                CollectGoCues(Settings->Choreography.LoadSynchronous(), ShowAsset->TickResolution, SegmentIndex,
++                CollectGoCues(Choreo, ShowAsset->TickResolution, SegmentIndex,
 +                    Segment.StartFrame, Segment.EndFrame, false, GoCues);
 +            }
              continue;
          }
          if (!ShowAsset->Cues.IsValidIndex(CompiledSegment.FirstCueIndex))
-@@ -712,6 +956,24 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -712,6 +962,24 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
              Segment.EndFrame,
              VampRanges);
  
@@ -346,15 +352,35 @@ index e0d5096..8886658 100644
          EInfinityCoveredHandoffSource HandoffSource = EInfinityCoveredHandoffSource::NotApplicable;
          const FFrameNumber HandoffOffset = ResolveCoveredHandoffOffset(*ShowAsset, Cue, HandoffSource);
          const int32 SegmentLength =
-@@ -751,6 +1013,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
+@@ -751,6 +1019,27 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
          }
      }
  
 +    GoCues.StableSort([](const FInfinityGoCue& A, const FInfinityGoCue& B) { return A.Frame < B.Frame; });
++    // A HOLD inside a vamp would re-hold every loop and take every RIGHT as GO,
++    // so the vamp could hardly be released (review N2): list it as PASS.
++    for (FInfinityGoCue& Cue : GoCues)
++    {
++        if (!Cue.bHold)
++        {
++            continue;
++        }
++        for (const FInfinityVampRange& Range : VampRanges)
++        {
++            if (Cue.Frame >= Range.StartFrame && Cue.Frame <= Range.EndFrame)
++            {
++                Cue.bHold = false;
++                UE_LOG(LogInfinityStageTransport, Warning,
++                    TEXT("INFINITY_GO_HOLD_IN_VAMP number=%s frame=%d vamp=%d-%d: listed as PASS."),
++                    *Cue.Number, Cue.Frame.Value, Range.StartFrame.Value, Range.EndFrame.Value);
++                break;
++            }
++        }
++    }
      return !Segments.IsEmpty();
  }
  
-@@ -794,6 +1057,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
+@@ -794,6 +1083,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
          ClaimSegmentCamera(SelectedSegmentIndex, GetCurrentMasterFrame());
      }
      VampPlaybackState.OnNavigation(GetCurrentMasterFrame());
@@ -362,7 +388,7 @@ index e0d5096..8886658 100644
      return true;
  }
  
-@@ -973,7 +1237,12 @@ EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const
+@@ -973,7 +1263,12 @@ EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const
          return LastResult = EInfinityTransportResult::NoPlayer;
      }
  
@@ -376,7 +402,7 @@ index e0d5096..8886658 100644
      {
          Player->Play();
          return LastResult = EInfinityTransportResult::Succeeded;
-@@ -1151,6 +1420,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
+@@ -1151,6 +1446,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
      Player->Pause();
      Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
      VampPlaybackState.OnNavigation(TargetFrame);
@@ -384,7 +410,7 @@ index e0d5096..8886658 100644
      JumpResettleState = {true, TargetFrame, 0.0f, 0};
      SelectedSegmentIndex = TargetIndex;
      bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
-@@ -1258,6 +1528,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
+@@ -1258,6 +1554,7 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
      Player->Pause();
      Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
      VampPlaybackState.OnNavigation(TargetFrame);
@@ -392,7 +418,7 @@ index e0d5096..8886658 100644
      SelectedSegmentIndex = SegmentIndex;
      bCoveredHandoffActive = IsCoveredHandoffActive(SegmentIndex, TargetFrame);
      if (bKeepPlaying)
-@@ -1894,13 +2165,122 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
+@@ -1894,13 +2191,122 @@ bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber Cu
      return true;
  }
  
@@ -516,7 +542,7 @@ index e0d5096..8886658 100644
          ? MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>()
          : nullptr;
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
-index b98d965..e3088a7 100644
+index b98d965..13e1a0e 100644
 --- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
 @@ -8,6 +8,7 @@
@@ -527,7 +553,7 @@ index b98d965..e3088a7 100644
  class ULevelSequence;
  class ULevelSequencePlayer;
  class UMovieSceneCameraCutSection;
-@@ -307,6 +308,71 @@ private:
+@@ -307,6 +308,83 @@ private:
      bool bHasPreviousFrame = false;
  };
  
@@ -557,6 +583,10 @@ index b98d965..e3088a7 100644
 +
 +    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
 +    int32 SegmentIndex = INDEX_NONE;
++
++    /** Its segment's first frame: a hold never settles before it (review N1). */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transport|Cues")
++    FFrameNumber SegmentStartFrame = 0;
 +};
 +
 +namespace InfinityStageGoCues
@@ -579,7 +609,15 @@ index b98d965..e3088a7 100644
 +     * when GO plays through the marker. */
 +    FFrameNumber SettleOffset = 0;
 +
-+    FFrameNumber SettleFrame(const FInfinityGoCue& Cue) const { return Cue.Frame - SettleOffset; }
++    /** One display frame before the GO, but never before the GO's own segment:
++     * settling in the previous segment would show its last frame and camera, and
++     * GO would then only play to that segment's end. */
++    FFrameNumber SettleFrame(const FInfinityGoCue& Cue) const
++    {
++        const FFrameNumber Before = Cue.Frame - SettleOffset;
++        const FFrameNumber Floor = Cue.SegmentStartFrame < Cue.Frame ? Cue.SegmentStartFrame : Cue.Frame;
++        return Before < Floor ? Floor : Before;
++    }
 +
 +    void Reset();
 +    void OnNavigation(FFrameNumber TargetFrame);
@@ -599,7 +637,7 @@ index b98d965..e3088a7 100644
  /** Pending one-shot re-evaluation of a frame after an operator jump. */
  struct INFINITYSTAGE_API FInfinityJumpResettle
  {
-@@ -471,6 +537,32 @@ public:
+@@ -471,6 +549,32 @@ public:
      /** RIGHT inside an armed vamp consumes that vamp and continues to this segment's end at 1x. */
      bool ReleaseActiveVamp();
  
@@ -632,7 +670,7 @@ index b98d965..e3088a7 100644
      UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
      EInfinityTransportResult JumpToPreviousSegment();
  
-@@ -579,6 +671,11 @@ private:
+@@ -579,6 +683,11 @@ private:
  
      FInfinityVampPlaybackState VampPlaybackState;
  
@@ -644,7 +682,7 @@ index b98d965..e3088a7 100644
      bool bFastForwardActive = false;
      bool bMasterAudioMutedForFastForward = false;
      bool bMasterAudioWasEvalDisabled = false;
-@@ -616,6 +713,7 @@ private:
+@@ -616,6 +725,7 @@ private:
  
      /** Returns true when this tick looped and no camera boundary work should run. */
      bool HandleVampPlayback(FFrameNumber CurrentFrame);
@@ -654,10 +692,10 @@ index b98d965..e3088a7 100644
  
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
 new file mode 100644
-index 0000000..62cb8ed
+index 0000000..cdc469c
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageGoCueTests.cpp
-@@ -0,0 +1,206 @@
+@@ -0,0 +1,245 @@
 +#include "InfinityStageShowAsset.h"
 +#include "InfinityStageTransportController.h"
 +#include "LevelSequence.h"
@@ -789,6 +827,45 @@ index 0000000..62cb8ed
 +    TestFalse(TEXT("The stale hold is spent, so the next RIGHT is not eaten as GO"), State.IsActive());
 +    TestFalse(TEXT("...and Release has nothing to consume"), State.Release());
 +    TestEqual(TEXT("A later HOLD still stops the show"), State.Tick(205, true, Cues), 2);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageGoSettleClampTest,
++    "InfinityStage.Cueing.GO.SettleNeverLeavesItsSegment",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// Review N1: a GO at (or within a display frame of) its segment's start must settle
++// inside that segment, never on the previous segment's last frame.
++bool FInfinityStageGoSettleClampTest::RunTest(const FString& Parameters)
++{
++    FInfinityGoHoldState State;
++    State.SettleOffset = 1000;          // one display frame, in ticks
++
++    FInfinityGoCue AtStart;
++    AtStart.SegmentStartFrame = 48000;
++    AtStart.Frame = 48000;
++    TestEqual(TEXT("A GO at 0:00 of its Scene settles ON its frame"), State.SettleFrame(AtStart), FFrameNumber(48000));
++
++    FInfinityGoCue JustIn;
++    JustIn.SegmentStartFrame = 48000;
++    JustIn.Frame = 48400;
++    TestEqual(TEXT("A GO under one frame in settles at the segment start"), State.SettleFrame(JustIn), FFrameNumber(48000));
++
++    FInfinityGoCue SecondIn;
++    SecondIn.SegmentStartFrame = 48000;
++    SecondIn.Frame = 72000;
++    TestEqual(TEXT("Control: a GO a second in settles one display frame early"), State.SettleFrame(SecondIn), FFrameNumber(71000));
++
++    // The clamped hold still arms on crossing and does not re-hold after GO.
++    TArray<FInfinityGoCue> Cues;
++    FInfinityGoCue& Hold = Cues.Add_GetRef(AtStart);
++    Hold.bHold = true;
++    State.Tick(47000, true, Cues);
++    TestEqual(TEXT("Crossing the segment start holds"), State.Tick(48600, true, Cues), 0);
++    TestEqual(TEXT("Held on its own frame"), State.Tick(48000, false, Cues), INDEX_NONE);
++    State.Release();
++    TestEqual(TEXT("Playing on from the settle frame does not re-hold"), State.Tick(49000, true, Cues), INDEX_NONE);
 +    return true;
 +}
 +
