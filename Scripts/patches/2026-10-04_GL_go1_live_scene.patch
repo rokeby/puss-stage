@@ -1,0 +1,510 @@
+diff --git a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
+index 08a5ca5..0aeb1a1 100644
+--- a/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
++++ b/Plugins/Go1Input/Source/Go1Input/Private/Go1RemoteReceiverComponent.cpp
+@@ -373,9 +373,12 @@ void UGo1RemoteReceiverComponent::UpdateLook(
+ 	const bool bTimelineOwnsCamera,
+ 	const bool bFresh,
+ 	const FVector2D& MouseDelta,
+-	const float DeltaSeconds)
++	const float DeltaSeconds,
++	const bool bCarryLookAcrossCut)
+ {
+ 	const bool bGaze = RotationMode == EGo1RotationMode::Absolute;
++	// A GO1-live Scene keeps the look across its own cuts; a Timeline shot never does.
++	const bool bResetAtThisCut = bTimelineOwnsCamera || (bResetLookAtCut && !bCarryLookAcrossCut);
+ 	const float PitchDir = bInvertPitch ? -1.0f : 1.0f;
+ 
+ 	SettleLeftBehindLook(false);
+@@ -392,12 +395,12 @@ void UGo1RemoteReceiverComponent::UpdateLook(
+ 			if (!bBlendInFlight)
+ 			{
+ 				SecondsSinceHardCut = 0.0f;
+-				if (bTimelineOwnsCamera || bResetLookAtCut)
++				if (bResetAtThisCut)
+ 				{
+ 					SettleLookAtOnce();
+ 				}
+ 			}
+-			else if (bTimelineOwnsCamera || bResetLookAtCut)
++			else if (bResetAtThisCut)
+ 			{
+ 				AccumulatedLook = FRotator::ZeroRotator;
+ 				BeginLookHandover();
+@@ -716,11 +719,12 @@ void UGo1RemoteReceiverComponent::TickComponent(
+ 	// --- Camera ownership: the Show is authoritative when one exists ---------
+ 	bool bOwnershipGoverning = false;
+ 	bool bTimelineOwnsCamera = false;
++	bool bGo1LiveScene = false;
+ 	if (bUseShowCameraOwnership)
+ 	{
+ 		if (AInfinityStageShowRoot* Root = ResolveShowRoot())
+ 		{
+-			const EInfinityCameraOwner Owner = Root->GetCurrentCameraOwner();
++			const EInfinityCameraOwner Owner = Root->ResolveCurrentCameraOwner(bGo1LiveScene);
+ 			bOwnershipGoverning = true;
+ 
+ 			switch (Owner)
+@@ -749,6 +753,13 @@ void UGo1RemoteReceiverComponent::TickComponent(
+ 					                                              : TEXT("DogFreeLook (Velocity)")));
+ 				LastCameraOwner = OwnerValue;
+ 			}
++			if (static_cast<int32>(bGo1LiveScene) != LastGo1LiveScene)
++			{
++				UE_LOG(LogGo1Input, Log, TEXT("GO1 live Scene -> %s"),
++					bGo1LiveScene ? TEXT("on (look carries across the Scene's cuts)")
++					              : TEXT("off (Reset Look At Cut governs)"));
++				LastGo1LiveScene = static_cast<int32>(bGo1LiveScene);
++			}
+ 		}
+ 	}
+ 
+@@ -797,7 +808,8 @@ void UGo1RemoteReceiverComponent::TickComponent(
+ 				MouseDelta = FVector2D(MouseDeltaX, MouseDeltaY);
+ 			}
+ 		}
+-		UpdateLook(TargetActor, bTimelineOwnsCamera, bFresh, MouseDelta, DeltaTime);
++		UpdateLook(TargetActor, bTimelineOwnsCamera, bFresh, MouseDelta, DeltaTime,
++			bGo1LiveScene && !bTimelineOwnsCamera);
+ 	}
+ 	else
+ 	{
+diff --git a/Plugins/Go1Input/Source/Go1Input/Private/InfinityStageGo1LiveSceneTests.cpp b/Plugins/Go1Input/Source/Go1Input/Private/InfinityStageGo1LiveSceneTests.cpp
+new file mode 100644
+index 0000000..519ab3d
+--- /dev/null
++++ b/Plugins/Go1Input/Source/Go1Input/Private/InfinityStageGo1LiveSceneTests.cpp
+@@ -0,0 +1,285 @@
++#include "Go1RemoteReceiverComponent.h"
++
++#include "Camera/CameraActor.h"
++#include "Camera/CameraComponent.h"
++#include "Engine/World.h"
++#include "InfinityStageCompiler.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "LevelSequence.h"
++#include "Misc/AutomationTest.h"
++#include "MovieScene.h"
++#include "MovieSceneMarkedFrame.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/**
++ * GO1 Drives Camera: the one Scene the live dog drives (Gary, 2 Oct, Scene 6,
++ * "running forward still"), with the swarm section a live vamp like S3's song.
++ *
++ * Proves, on one fixture:
++ *  - flag off = today's behaviour: the Scene's authored owner stands and the
++ *    look resets at every cut (Reset Look At Cut, Gary 30 Sep);
++ *  - flag on = the dog owns the camera at every sampled frame of the Scene,
++ *    including the vamp's seam, and the look carries across the Scene's cuts;
++ *  - the flag is ignored on a Sequence cue, and Force Timeline still wins;
++ *  - VampStart/VampEnd in the flagged Scene still loop until released.
++ *
++ * Negative controls: the flag-off assertions run on the SAME cue and the SAME
++ * receiver, so a fixture that cannot tell the two apart fails here. Mutation
++ * controls (run once by hand when the patch is first built): remove
++ * "&& !bCarryLookAcrossCut" in UpdateLook and "Look carries across a cut inside
++ * the live Scene" goes red (yaw 0, not -8); remove the Timeline -> Gaze
++ * promotion in ResolveCameraOwnerAtFrame and "Live Scene: dog owns ..." goes red.
++ */
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++	FInfinityStageGo1LiveSceneOwnershipTest,
++	"InfinityStage.Go1.LiveSceneKeepsDogOnCamera",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageGo1LiveSceneOwnershipTest::RunTest(const FString& Parameters)
++{
++	// Opening (Sequence) -> S5-like Scene (Timeline) -> Scene (Free Look, flag
++	// off) -> S6-like live Scene (Timeline authored, flag on, vamp) -> Closing
++	// (Sequence, flag on: must be ignored). No Passage: Passage ownership is
++	// untouched by this change and covered by DogOverrideLockedOutOfSequences,
++	// and BuildSegments refuses a Show that does not compile.
++	UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++	UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++	const auto AddCue = [Show](const EInfinityCueType Type, const EInfinityCameraOwner Owner, const bool bLive)
++	{
++		FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++		Cue.Type = Type;
++		Cue.CueGuid = FGuid::NewGuid();
++		Cue.Scene.DurationFrames = 2000;
++		Cue.Scene.CameraOwner = Owner;
++		Cue.Scene.bGo1DrivesCamera = bLive;
++		return Show->Cues.Num() - 1;
++	};
++	AddCue(EInfinityCueType::Sequence, EInfinityCameraOwner::Timeline, false);
++	AddCue(EInfinityCueType::Scene, EInfinityCameraOwner::Timeline, false);
++	AddCue(EInfinityCueType::Scene, EInfinityCameraOwner::DogFreeLook, false);
++	const int32 LiveCueIndex = AddCue(EInfinityCueType::Scene, EInfinityCameraOwner::Timeline, true);
++	AddCue(EInfinityCueType::Sequence, EInfinityCameraOwner::Timeline, true);
++
++	// The live Scene carries the swarm vamp, as in InfinityStage.Transport.VampLoopsUntilRelease.
++	Show->Cues[LiveCueIndex].Scene.DurationFrames = 500;
++	ULevelSequence* Sequence = NewObject<ULevelSequence>(GetTransientPackage());
++	Sequence->Initialize();
++	Sequence->GetMovieScene()->SetTickResolutionDirectly(Show->TickResolution);
++	Sequence->GetMovieScene()->SetPlaybackRange(FFrameNumber(1000), 500);
++	FMovieSceneMarkedFrame StartMarker;
++	StartMarker.FrameNumber = FFrameNumber(1100);
++	StartMarker.Label = TEXT("InfinityStage.VampStart");
++	Sequence->GetMovieScene()->AddMarkedFrame(StartMarker);
++	FMovieSceneMarkedFrame EndMarker;
++	EndMarker.FrameNumber = FFrameNumber(1110);
++	EndMarker.Label = TEXT("InfinityStage.VampEnd");
++	Sequence->GetMovieScene()->AddMarkedFrame(EndMarker);
++	Show->Cues[LiveCueIndex].Scene.Sequence = Sequence;
++
++	AInfinityStageShowRoot* Root = World->SpawnActor<AInfinityStageShowRoot>();
++	const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
++	TestNotNull(TEXT("Fixture: Show Root"), Root);
++	TestFalse(TEXT("Fixture compiles without errors"), Compiled.HasErrors());
++	TestEqual(TEXT("Fixture compiles to five segments"), Compiled.Segments.Num(), 5);
++	if (!Root || Compiled.Segments.Num() != 5)
++	{
++		World->DestroyWorld(false);
++		return false;
++	}
++	Root->ShowAsset = Show;
++
++	const auto Middle = [&Compiled](const int32 Index)
++	{
++		return FFrameNumber((Compiled.Segments[Index].StartFrame.Value + Compiled.Segments[Index].EndFrame.Value) / 2);
++	};
++	const FInfinityCompiledSegment& LiveSegment = Compiled.Segments[3];
++	TestTrue(TEXT("Fixture: segment 3 is the live Scene"),
++		LiveSegment.SegmentGuid == Show->Cues[LiveCueIndex].CueGuid);
++
++	const auto Resolve = [Root](const FFrameNumber Frame, bool& bOutLive)
++	{
++		return Root->ResolveCameraOwnerAtFrame(Frame, bOutLive);
++	};
++	bool bLive = true;
++
++	// --- Flag off = today's behaviour ----------------------------------------
++	TestEqual(TEXT("Flag off, Timeline Scene: Timeline, as today"),
++		Resolve(Middle(1), bLive), EInfinityCameraOwner::Timeline);
++	TestFalse(TEXT("...and not a live Scene"), bLive);
++	TestEqual(TEXT("Flag off, Free Look Scene: Free Look, as today"),
++		Resolve(Middle(2), bLive), EInfinityCameraOwner::DogFreeLook);
++	TestFalse(TEXT("...but not a live Scene, so cuts still reset the look"), bLive);
++
++	// Same cue, flag off: the negative control for everything below.
++	Show->Cues[LiveCueIndex].Scene.bGo1DrivesCamera = false;
++	TestEqual(TEXT("Control: the S6 cue with the flag off is Timeline"),
++		Resolve(Middle(3), bLive), EInfinityCameraOwner::Timeline);
++	TestFalse(TEXT("Control: ...and not live"), bLive);
++	TestFalse(TEXT("Control: IsGo1LiveSceneAtFrame agrees"), Root->IsGo1LiveSceneAtFrame(Middle(3)));
++	Show->Cues[LiveCueIndex].Scene.bGo1DrivesCamera = true;
++
++	// --- Flag on: the dog owns the camera through the whole Scene -------------
++	UInfinityStageTransportController* Transport =
++		NewObject<UInfinityStageTransportController>(GetTransientPackage());
++	TestTrue(TEXT("Fixture: the transport builds the Show"), Transport->BuildSegments(Show));
++	TestEqual(TEXT("The live Scene's marker pair becomes one vamp range"), Transport->VampRanges.Num(), 1);
++	if (Transport->VampRanges.Num() != 1)
++	{
++		World->DestroyWorld(false);
++		return false;
++	}
++	const TArray<FInfinityVampRange> Ranges = Transport->VampRanges;
++	TestEqual(TEXT("The vamp belongs to the live Scene"), Ranges[0].SegmentIndex, 3);
++	TestEqual(TEXT("VampStart sits 100 frames into the live Scene"),
++		Ranges[0].StartFrame, LiveSegment.StartFrame + FFrameNumber(100));
++
++	const TArray<FFrameNumber> Samples = {
++		LiveSegment.StartFrame,
++		LiveSegment.StartFrame + FFrameNumber(1),
++		Ranges[0].StartFrame,
++		Ranges[0].EndFrame - FFrameNumber(1),
++		Middle(3),
++		LiveSegment.EndFrame - FFrameNumber(1) };
++	bool bDogThroughout = true;
++	bool bLiveThroughout = true;
++	for (const FFrameNumber Frame : Samples)
++	{
++		bDogThroughout &= Resolve(Frame, bLive) == EInfinityCameraOwner::DogGazeOnly;
++		bLiveThroughout &= bLive;
++		bDogThroughout &= Root->GetCameraOwnerAtFrame(Frame) == EInfinityCameraOwner::DogGazeOnly;
++		bLiveThroughout &= Root->IsGo1LiveSceneAtFrame(Frame);
++	}
++	TestTrue(TEXT("Live Scene: dog owns the camera at every sampled frame (authored Timeline read as Gaze)"), bDogThroughout);
++	TestTrue(TEXT("Live Scene: reported live at every sampled frame"), bLiveThroughout);
++	TestFalse(TEXT("The frame after the live Scene is not live"), Root->IsGo1LiveSceneAtFrame(LiveSegment.EndFrame));
++
++	Show->Cues[LiveCueIndex].Scene.CameraOwner = EInfinityCameraOwner::DogFreeLook;
++	TestEqual(TEXT("Live Scene authored Free Look stays Free Look"),
++		Resolve(Middle(3), bLive), EInfinityCameraOwner::DogFreeLook);
++	TestTrue(TEXT("...and live"), bLive);
++	Show->Cues[LiveCueIndex].Scene.CameraOwner = EInfinityCameraOwner::Timeline;
++
++	TestEqual(TEXT("The flag on a Sequence cue is ignored"),
++		Resolve(Middle(4), bLive), EInfinityCameraOwner::Timeline);
++	TestFalse(TEXT("...and it is not live"), bLive);
++
++	// --- Live overrides -------------------------------------------------------
++	Root->bOverrideCameraOwner = true;
++	Root->CameraOwnerOverride = EInfinityCameraOwner::Timeline;
++	TestEqual(TEXT("Force Timeline (dog-failure drill) still takes the live Scene"),
++		Resolve(Middle(3), bLive), EInfinityCameraOwner::Timeline);
++	TestFalse(TEXT("...and the Scene stops being live"), bLive);
++	Root->CameraOwnerOverride = EInfinityCameraOwner::DogFreeLook;
++	TestEqual(TEXT("Force Dog Free Look applies in the live Scene"),
++		Resolve(Middle(3), bLive), EInfinityCameraOwner::DogFreeLook);
++	TestTrue(TEXT("...which stays live"), bLive);
++	Root->bOverrideCameraOwner = false;
++
++	// --- The vamp still loops, and its seam never hands the camera back -------
++	FInfinityVampPlaybackState State;
++	State.OnNavigation(Ranges[0].StartFrame - FFrameNumber(10));
++	FFrameNumber LoopFrame = 0;
++	TestEqual(TEXT("Crossing VampStart arms without jumping"),
++		State.Tick(Ranges[0].StartFrame, true, false, 1.0f, Ranges, LoopFrame),
++		EInfinityVampPlaybackAction::None);
++	bool bSeamsStayDog = true;
++	for (int32 Loop = 1; Loop <= 3; ++Loop)
++	{
++		TestEqual(TEXT("VampEnd loops to VampStart in the live Scene"),
++			State.Tick(Ranges[0].EndFrame, true, false, 1.0f, Ranges, LoopFrame),
++			EInfinityVampPlaybackAction::LoopToStart);
++		TestEqual(TEXT("The loop lands on VampStart"), LoopFrame, Ranges[0].StartFrame);
++		bSeamsStayDog &= Resolve(LoopFrame, bLive) == EInfinityCameraOwner::DogGazeOnly && bLive;
++	}
++	TestEqual(TEXT("Three seams, three loops"), State.LoopCount, 3);
++	TestTrue(TEXT("Every loop seam keeps the dog on the camera"), bSeamsStayDog);
++	TestTrue(TEXT("RIGHT releases the vamp"), State.Release(Ranges[0].StartFrame, Ranges));
++	TestEqual(TEXT("A released vamp plays through its end"),
++		State.Tick(Ranges[0].EndFrame, true, false, 1.0f, Ranges, LoopFrame),
++		EInfinityVampPlaybackAction::None);
++
++	World->DestroyWorld(false);
++	return true;
++}
++
++/**
++ * Inside a GO1-live Scene the dog's look carries across the Scene's own cuts
++ * (and the vamp seam, which is one more cut); elsewhere Reset Look At Cut still
++ * drops it. A cut into a Timeline shot drops it even in the live Scene.
++ */
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++	FInfinityStageGo1LiveSceneCutTest,
++	"InfinityStage.Go1.LiveSceneLookCarriesAcrossCuts",
++	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageGo1LiveSceneCutTest::RunTest(const FString& Parameters)
++{
++	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++	ACameraActor* ShotA = World->SpawnActor<ACameraActor>(FVector(0.0, 0.0, 200.0), FRotator(0.0, 30.0, 0.0));
++	ACameraActor* ShotB = World->SpawnActor<ACameraActor>(FVector(0.0, 1000.0, 200.0), FRotator(0.0, -90.0, 0.0));
++	for (ACameraActor* Camera : { ShotA, ShotB })
++	{
++		// A bare world never runs InitializeComponents; the look goes on the active camera.
++		if (Camera && Camera->GetCameraComponent() && !Camera->GetCameraComponent()->IsActive())
++		{
++			Camera->GetCameraComponent()->Activate(true);
++		}
++	}
++	AActor* Host = World->SpawnActor<AActor>();
++	// Never registered: registering would open the telemetry socket. No player
++	// controller, so no blend is ever in flight: every change is a hard cut.
++	UGo1RemoteReceiverComponent* Receiver = Host ? NewObject<UGo1RemoteReceiverComponent>(Host) : nullptr;
++	if (!TestTrue(TEXT("Fixture: two active cameras and a receiver"), ShotA && ShotB && Receiver))
++	{
++		World->DestroyWorld(false);
++		return true;
++	}
++	const auto ViewOf = [](const ACameraActor* Camera) { return Camera->GetCameraComponent()->GetComponentRotation(); };
++	constexpr float Frame = 1.0f / 60.0f;
++	Receiver->RotationMode = EGo1RotationMode::Velocity;   // Scene 6 is authored Free Look today
++	Receiver->LookHandoverSeconds = 0.6f;
++	TestTrue(TEXT("Fixture: Reset Look At Cut is on, as shipped"), Receiver->bResetLookAtCut);
++
++	// The dog's stand-in (the mouse; no telemetry) looks 20 degrees off shot A.
++	Receiver->UpdateLook(ShotA, false, false, FVector2D(5.0, 0.0), Frame);
++	for (int32 Tick = 0; Tick < 60; ++Tick)
++	{
++		Receiver->UpdateLook(ShotA, false, false, FVector2D::ZeroVector, Frame);
++	}
++	TestTrue(TEXT("Fixture: looking 20 degrees off shot A"), FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, 20.0, 0.01));
++
++	// Control (flag off, today): a cut in an ordinary Scene drops the look.
++	Receiver->UpdateLook(ShotB, false, false, FVector2D::ZeroVector, Frame, false);
++	TestTrue(TEXT("Control: outside a live Scene a cut drops the look"), Receiver->GetLookOffset().IsNearlyZero(0.001));
++
++	// The dog looks 8 degrees off shot B.
++	Receiver->UpdateLook(ShotB, false, false, FVector2D(-2.0, 0.0), Frame, true);
++	TestTrue(TEXT("Fixture: looking -8 degrees off shot B"), FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, -8.0, 0.01));
++
++	// Live Scene: the Scene's own cut back to shot A keeps the dog's look.
++	Receiver->UpdateLook(ShotA, false, false, FVector2D::ZeroVector, Frame, true);
++	TestTrue(TEXT("Look carries across a cut inside the live Scene"),
++		FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, -8.0, 0.01)
++		&& ViewOf(ShotA).Equals(FRotator(0.0, 22.0, 0.0), 0.01));
++	TestTrue(TEXT("...and shot B is put back as driven"),
++		ShotB->GetCameraComponent()->GetRelativeRotation().IsNearlyZero(0.001));
++
++	// A vamp seam that re-cuts to shot B is the same kind of cut.
++	Receiver->UpdateLook(ShotB, false, false, FVector2D::ZeroVector, Frame, true);
++	TestTrue(TEXT("Look carries across a vamp seam re-cut"),
++		FMath::IsNearlyEqual(Receiver->GetLookOffset().Yaw, -8.0, 0.01)
++		&& ViewOf(ShotB).Equals(FRotator(0.0, -98.0, 0.0), 0.01));
++
++	// A cut into a Timeline shot drops the look even with the carry asked for.
++	Receiver->UpdateLook(ShotA, true, false, FVector2D::ZeroVector, Frame, true);
++	TestTrue(TEXT("A cut into a Timeline shot still drops the look"), Receiver->GetLookOffset().IsNearlyZero(0.001));
++
++	Receiver->ReleaseLook();
++	World->DestroyWorld(false);
++	return true;
++}
++
++#endif
+diff --git a/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h b/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
+index 868c0b0..477bf0d 100644
+--- a/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
++++ b/Plugins/Go1Input/Source/Go1Input/Public/Go1RemoteReceiverComponent.h
+@@ -324,9 +324,14 @@ public:
+ 	 * for the current mode, ease, and layer the result on TargetActor. Under
+ 	 * Timeline ownership the look eases to zero and is then released. Called by
+ 	 * TickComponent; public so the behaviour can be tested without a dog.
++	 *
++	 * bCarryLookAcrossCut: the Show says this is a GO1-live Scene (GO1 Drives
++	 * Camera, Gary 2 Oct: Scene 6), so a cut between its dog-owned shots keeps
++	 * the look, as between Passage cameras, whatever bResetLookAtCut says. A
++	 * cut into a Timeline shot still drops the look.
+ 	 */
+ 	void UpdateLook(AActor* TargetActor, bool bTimelineOwnsCamera, bool bFresh,
+-		const FVector2D& MouseDelta, float DeltaSeconds);
++		const FVector2D& MouseDelta, float DeltaSeconds, bool bCarryLookAcrossCut = false);
+ 
+ 	/** A new camera owner (or mode): ease from the look as it stands. */
+ 	void OnLookOwnerChanged(bool bTimelineOwnsCamera);
+@@ -475,6 +480,9 @@ private:
+ 	// this header need not depend on the InfinityStage module.
+ 	int32 LastCameraOwner = -1;
+ 
++	// -1 until seen; whether the Show last reported a GO1-live Scene (logged on change).
++	int32 LastGo1LiveScene = -1;
++
+ 	FSocket* Socket = nullptr;
+ 	FUdpSocketReceiver* Receiver = nullptr;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp
+index b9aa823..e47b7f6 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowRoot.cpp
+@@ -232,6 +232,22 @@ void AInfinityStageShowRoot::UpdateCurtainForCurrentFrame()
+ 
+ EInfinityCameraOwner AInfinityStageShowRoot::GetCameraOwnerAtFrame(const FFrameNumber MasterFrame) const
+ {
++    bool bGo1LiveScene = false;
++    return ResolveCameraOwnerAtFrame(MasterFrame, bGo1LiveScene);
++}
++
++bool AInfinityStageShowRoot::IsGo1LiveSceneAtFrame(const FFrameNumber MasterFrame) const
++{
++    bool bGo1LiveScene = false;
++    ResolveCameraOwnerAtFrame(MasterFrame, bGo1LiveScene);
++    return bGo1LiveScene;
++}
++
++EInfinityCameraOwner AInfinityStageShowRoot::ResolveCameraOwnerAtFrame(
++    const FFrameNumber MasterFrame,
++    bool& bOutGo1LiveScene) const
++{
++    bOutGo1LiveScene = false;
+     // Forcing Timeline is the dog-failure drill (F.4): it wins everywhere.
+     if (bOverrideCameraOwner && CameraOwnerOverride == EInfinityCameraOwner::Timeline)
+     {
+@@ -267,7 +283,17 @@ EInfinityCameraOwner AInfinityStageShowRoot::GetCameraOwnerAtFrame(const FFrameN
+         const FInfinityShowCue* Cue = ShowAsset->Cues.FindByPredicate(
+             [&Segment](const FInfinityShowCue& Candidate)
+             { return Candidate.CueGuid == Segment.SegmentGuid; });
+-        const EInfinityCameraOwner Authored = Cue ? Cue->Scene.CameraOwner : EInfinityCameraOwner::Timeline;
++        EInfinityCameraOwner Authored = Cue ? Cue->Scene.CameraOwner : EInfinityCameraOwner::Timeline;
++        // GO1 Drives Camera (Gary, 2 Oct: Scene 6, "running forward still"):
++        // the one kind of Scene the live dog drives. Only a Scene cue honours
++        // it, and an authored Timeline owner is read as Gaze so the flag can
++        // never be silently inert.
++        const bool bGo1LiveScene = Cue && Segment.Type == EInfinityCueType::Scene && Cue->Scene.bGo1DrivesCamera;
++        if (bGo1LiveScene && Authored == EInfinityCameraOwner::Timeline)
++        {
++            Authored = EInfinityCameraOwner::DogGazeOnly;
++        }
++        bOutGo1LiveScene = bGo1LiveScene;
+         // Sequence cues (the Opening, the Interactions, the Closing) are locked
+         // against a live Dog override, so the camera cannot swing behind the
+         // curtain while the dog is being walked (A.5, Gary 2026-09-26). Only the
+@@ -286,3 +312,10 @@ EInfinityCameraOwner AInfinityStageShowRoot::GetCurrentCameraOwner() const
+ {
+     return GetCameraOwnerAtFrame(Transport ? Transport->GetCurrentMasterFrame() : FFrameNumber(0));
+ }
++
++EInfinityCameraOwner AInfinityStageShowRoot::ResolveCurrentCameraOwner(bool& bOutGo1LiveScene) const
++{
++    return ResolveCameraOwnerAtFrame(
++        Transport ? Transport->GetCurrentMasterFrame() : FFrameNumber(0),
++        bOutGo1LiveScene);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h
+index b8bed15..dbed92f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowRoot.h
+@@ -65,6 +65,24 @@ public:
+     UFUNCTION(BlueprintPure, Category = "Infinity Stage|Camera")
+     EInfinityCameraOwner GetCurrentCameraOwner() const;
+ 
++    /**
++     * True when the segment containing MasterFrame is a Scene authored with GO1
++     * Drives Camera and the dog actually owns the camera there (so false while
++     * Timeline is forced). Inside such a Scene the dog's look carries across the
++     * Scene's own cuts instead of resetting.
++     */
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Camera")
++    bool IsGo1LiveSceneAtFrame(FFrameNumber MasterFrame) const;
++
++    /**
++     * GetCameraOwnerAtFrame and IsGo1LiveSceneAtFrame in one pass, so a caller
++     * that needs both every tick compiles the Show once, not twice.
++     */
++    EInfinityCameraOwner ResolveCameraOwnerAtFrame(FFrameNumber MasterFrame, bool& bOutGo1LiveScene) const;
++
++    /** ResolveCameraOwnerAtFrame for wherever the transport currently is. */
++    EInfinityCameraOwner ResolveCurrentCameraOwner(bool& bOutGo1LiveScene) const;
++
+     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = "Infinity Stage")
+     TObjectPtr<ULevelSequencePlayer> SequencePlayer;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index 7378fb8..a55a557 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -813,6 +813,27 @@ struct INFINITYSTAGE_API FInfinitySceneCueData
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+     EInfinityCameraOwner CameraOwner = EInfinityCameraOwner::Timeline;
+ 
++    /**
++     * The live GO1 drives the camera through this Scene, as it does in a Passage.
++     *
++     * Gary, 2 Oct: Scene 6 is "the one Scene where the dog drives the camera"
++     * ("running forward still"), the exception to the GO1 not being engaged in
++     * Scenes. Only honoured on Scene cues. When on:
++     *  - the dog owns the camera for the whole Scene: an authored Timeline owner
++     *    is read as Dog Gaze Only, so the flag can never be silently inert, and
++     *    a Dog Free Look owner stays Free Look;
++     *  - the Scene's own camera cuts still play (Sequencer still picks the shot
++     *    and where the cat stands), but the dog's look CARRIES across them, as it
++     *    does between dog-owned Passage cameras, instead of resetting at every
++     *    cut (the receiver's Reset Look At Cut, Gary 30 Sep, still governs every
++     *    other Scene). A vamp loop's jump back to VampStart is one more such cut.
++     * Forcing Timeline live (the dog-failure drill) still wins. Default off, so
++     * every existing Scene behaves exactly as before.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera",
++        meta = (DisplayName = "GO1 Drives Camera"))
++    bool bGo1DrivesCamera = false;
++
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scene")
+     FInfinitySectionMusicBinding Music;
+ 
