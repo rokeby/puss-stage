@@ -1,3 +1,4 @@
+# RETIRED 4 Oct (Gary): superseded by lighting_scores P01 strike-on-approach ping-on. Do not run.
 """Draft P01 office-hallway ping-on authoring tool (DRY/APPLY/REVERT).
 
 DO NOT treat this file's presence as approval to apply it.  Default mode is DRY.

@@ -73,3 +73,12 @@
 - Opening: P01 music, house warmers off, which swell, dark or lit move-in.
 - Lighting scores: P01 house warmers, P03 gobos, retire the P01 ping-on draft.
 - Tune 4 beams are diagonal shafts: OK?
+
+## Gary's answers (4 Oct, Conductor 4 questionnaire; his own words where quoted)
+- **P06 pace:** "Timing not final, whatever is cheaper" (relayed by W&T). W&T took (b): the end and duration are held, and a pair passes every ~1.71 s. Nothing downstream moves.
+- **Opening:** the curtain falls after the 67.5 s swell, then a DARK move-in (the defaults). P01 is silent for now.
+- **House warmers:** OFF for the opening ONLY. (They are P01 Wing 001 Show lamps, so "only" needs a distance strike-on rather than a disable; being built.)
+- **Scene exits:** "It's a door but the curtain hangs over it and we have a 1min cat boy shadowpuppet scene on it first, just block for now." So each exit = a curtain over the door, a ~60 s shadow-puppet scene played on it, then through. Blocking only. Options A/B/C are superseded.
+- **Scene cameras:** "Keep all camera locked and let dog freelook be optional." All six Scenes go to Timeline (including S6). Dog free-look is an operator option (Force Dog is already allowed in Scenes, declaration-proven). GL patch PARKED.
+- **Black passage:** P06 bays 2–10 (not P04). It must be re-keyed after W&T's P6 interleave lands.
+- **Lighting:** tune 4 diagonal beams OK; P03 rig spots stand in for gobos ("There will be more gobos but for now can place placeholder or nothing"); the old P01 ping-on draft is retired; judge the scores on P05 first.
