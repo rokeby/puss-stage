@@ -369,6 +369,91 @@ strikes = [p01_rows[i]["fixtures"][0]["distance_keying"]["strike_distance_cm"] f
 check("+ P01 ping cascade: strike distance grows 650 -> 4700 cm across bays 3-12 (runs ahead of camera)",
       strikes == [650.0 + 450.0 * i for i in range(10)], "%s" % strikes[:3])
 
+print("\n== 11. P06 bays 2-10 yield to lighting_events black mode (Gary 4 Oct), keyed to the 64-cue layout")
+p06_55 = plan_for("P06")
+check("+ at today's 55 cues the yield is DORMANT and the P06 score is unchanged (55 targets, 0 skipped)",
+      p06_55["yield_to_events"]["state"] == "DORMANT" and len(p06_55["targets"]) == 55 and not p06_55["skipped"])
+rescored = copy.deepcopy(SCORES)
+p6cfg = rescored["passages"]["P06"]
+p6cfg["expected_bay_count"] = 64
+p6cfg["segments"][1]["bays"] = [13, 63]
+p6cfg["segments"][2]["bays"] = [64, 64]
+p6cfg["max_consecutive_lit_exempt"] = [[13, 64]]
+p6cfg["monotone_dark_segment"] = [13, 64]
+saved_pairs = dict(PAIRS)
+PAIRS["P06"] = 64
+try:
+    cues64, passages64, record64 = build_show(rescored)
+    p06_64 = plan_for("P06", scores=rescored, cues=cues64, passages=passages64)
+    yielded_guids = [guid("P06", o) for o in range(2, 11)]
+    check("+ at 64 cues the yield is ACTIVE: bays 2-10 skipped (owner events), 55 targets",
+          p06_64["yield_to_events"]["state"] == "ACTIVE"
+          and [s["bay"] for s in p06_64["skipped"]] == list(range(2, 11))
+          and all(s["owner"] == "lighting_events_apply.py black_mode" for s in p06_64["skipped"])
+          and len(p06_64["targets"]) == 55 and not set(yielded_guids) & set(p06_64["target_cue_guids"]))
+    after64, unused = L.apply_plain_state(p06_64, cues64)
+    by_before = {c["guid"]: c for c in cues64}
+    check("+ yielded cues are byte-identical after the P06 score apply (their lights stay as found)",
+          all(L._canonical(c) == L._canonical(by_before[c["guid"]]) for c in after64 if c["guid"] in yielded_guids))
+    s = p06_64["shadow"]
+    check("+ P06 (64) budget still holds with the yield", s["passage_after"] <= s["passage_before"],
+          "before=%d after=%d" % (s["passage_before"], s["passage_after"]))
+    no_yield = copy.deepcopy(rescored)
+    del no_yield["passages"]["P06"]["yield_to_events"]
+    plain64 = plan_for("P06", scores=no_yield, cues=cues64, passages=passages64)
+    check("- control: without the yield block the same 64-cue plan DOES target bays 2-10",
+          set(yielded_guids) <= set(plain64["target_cue_guids"]) and not plain64["skipped"])
+    bad = copy.deepcopy(rescored)
+    bad["passages"]["P06"]["retain"].append({"scope": "bay", "bay": 5, "label_suffix": " Entry Top", "expected_count": 1})
+    expect_error("- control: a per-bay retain on a yielded bay is refused (scores cannot reach events' bays)",
+                 lambda: plan_for("P06", scores=bad, cues=cues64, passages=passages64), "RETAIN_BAY_NOT_TARGET")
+finally:
+    PAIRS.clear()
+    PAIRS.update(saved_pairs)
+bad = copy.deepcopy(SCORES)
+bad["passages"]["P06"]["yield_to_events"]["bays"] = [2, 70]
+expect_error("- control: a yield range beyond its layout is refused", lambda: L.validate_scores(bad, LOOKS, TOOL),
+             "BAD_YIELD")
+
+print("\n== 12. P01 house warmers are owned by the Opening tool (Gary 4 Oct: off for the Opening ONLY, on in P01)")
+p01h = plan_for("P01")
+after_h, unused = L.apply_plain_state(p01h, cues)
+w01 = next(c for c in after_h if c["label"] == "P01 Wing 001")
+house = {a["label"]: a["enabled"] for a in w01["attachments"] if a["label"].endswith((" House L", " House R"))}
+siblings = [a for a in w01["attachments"] if a["kind"] == "Light" and not a["label"].startswith("P01 SCORE")
+            and a["label"] not in house]
+check("+ P01 Wing 001 House L/R stay enabled after the P01 score apply; their VOID-bay siblings are disabled",
+      house == {"P01 Wing 001 House L": True, "P01 Wing 001 House R": True} and bool(siblings)
+      and not any(a["enabled"] for a in siblings), str(house))
+check("+ the plan reports both as foreign-owned by opening_sequence_apply.py",
+      sorted(r["label"] for r in p01h["foreign_owned"]) == ["P01 Wing 001 House L", "P01 Wing 001 House R"]
+      and all(r["owner"] == "opening_sequence_apply.py" for r in p01h["foreign_owned"]))
+before_h = next(c for c in cues if c["label"] == "P01 Wing 001")
+house_before = [a for a in before_h["attachments"] if a["label"] in house]
+house_after = [a for a in w01["attachments"] if a["label"] in house]
+check("+ the warmers' attachment rows are byte-identical after apply (never edited, not just left enabled)",
+      len(house_before) == 2 and L._canonical(house_after) == L._canonical(house_before))
+old = copy.deepcopy(SCORES)
+old.pop("foreign_owned_lights")
+old["passages"]["P01"]["retain"] = [r for r in old["passages"]["P01"]["retain"] if r.get("bay") != 1]
+old_after, unused = L.apply_plain_state(plan_for("P01", scores=old), cues)
+old_w01 = next(c for c in old_after if c["label"] == "P01 Wing 001")
+check("- control: the pre-4-Oct data (no retain, no foreign_owned) DOES disable both warmers (hazard is real)",
+      not any(a["enabled"] for a in old_w01["attachments"] if a["label"].endswith((" House L", " House R"))))
+bad = copy.deepcopy(SCORES)
+bad["passages"]["P01"]["retain"] = [r for r in bad["passages"]["P01"]["retain"] if r.get("label_suffix") != " House L"]
+expect_error("- control: dropping the House L retain rule is refused", lambda: L.validate_scores(bad, LOOKS, TOOL),
+             "FOREIGN_OWNED_NOT_RETAINED")
+bad = copy.deepcopy(SCORES)
+next(r for r in bad["passages"]["P01"]["retain"] if r.get("label_suffix") == " House R")["owner"] = "lighting_scores_apply.py"
+expect_error("- control: a retain rule naming a different owner is refused",
+             lambda: L.validate_scores(bad, LOOKS, TOOL), "FOREIGN_OWNED_NOT_RETAINED")
+gone = copy.deepcopy(cues)
+w = next(c for c in gone if c["label"] == "P01 Wing 001")
+w["attachments"] = [a for a in w["attachments"] if not a["label"].endswith(" House R")]
+expect_error("- control: a Show missing House R stops the plan (RETAIN_COUNT)", lambda: plan_for("P01", cues=gone),
+             "RETAIN_COUNT")
+
 print("\n== summary (MODEL census, inferred; DRY on the live Show is the measurement)")
 print("passage bays targets skipped fixtures lights props disabled retained casters_before->after")
 for key, plan in sorted(SUMMARY.items()):

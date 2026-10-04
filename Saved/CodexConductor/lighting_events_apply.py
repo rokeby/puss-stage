@@ -18,12 +18,26 @@ Mechanism (read from source, 4 Oct; see Docs/Conductor/LIGHTING_EVENTS_2026-10-0
   lamp's X, so deep fixtures and far-visible BLINKERS become possible. The tool
   probes for the field and only emits Phase-B rows when the engine has it.
 
-Identity: target cues are resolved ONCE by label to (index, CueGuid) from a fresh
-Show read, then every check and write is keyed by GUID; added attachments are
-recorded by their minted GUID. The looks tool is NOT imported in Unreal because
-importing it runs its main() (lighting_looks_apply.py:1276-1277); attachment
-state and differences come from _infinity_attachment_state.py (loaded fresh by
-path, so a stale editor module cache cannot be used).
+Target (Gary, 4 Oct questionnaire): BLACK mode on P06 bays 2-10 of the 64-cue
+layout W&T's P06 interleave produces (Saved/CodexFlatV3/p06/run_p6.json). Bays
+are WingPair ORDINALS inside the passage's PassageSettings range, resolved live
+to CueGuids by a first..last walk AND by the Show's own
+GetWingPairCueGuidsInPassage (the two must agree), never by label. The tool
+refuses unless the passage resolves to ``passage.expected_cue_count`` (64), i.e.
+it applies only after W&T's P6 has landed.
+
+Ownership vs lighting_scores_apply.py: lighting_scores.json must declare
+``passages.P06.yield_to_events`` covering exactly the black bays at the same
+layout count, and no active P06 scores record may target a black bay.
+
+Identity: target cues are resolved ONCE to (index, CueGuid) from a fresh Show
+read, then every check and write is keyed by GUID; added attachments are
+recorded by their minted GUID. Neither the looks tool nor the scores tool is
+imported (each runs its main() on import inside Unreal); attachment state and
+differences come from _infinity_attachment_state.py (loaded fresh by path, so a
+stale editor module cache cannot be used). The revert record names ONLY the
+black bays' GUIDs, so the scores tool's foreign-record scan does not trip on
+the rest of P06.
 """
 from __future__ import annotations
 
@@ -64,8 +78,9 @@ VALID_MODES = ("DRY", "APPLY", "REVERT")
 CONFIG_PATH = os.path.join(HERE, "lighting_events.json")
 REPORT_PATH = os.path.join(HERE, "lighting_events_report.json")
 RECORD_PATH = os.path.join(HERE, "lighting_events_revert_record.json")
-LOOKS_RECORD_PATH = os.path.join(HERE, "lighting_looks_revert_record.json")
-LOOKS_LABEL_PREFIX = "P04 LOOK "
+# Label prefixes owned by other lighting tools; ours may not start with them.
+FOREIGN_LABEL_PREFIXES = ("P04 LOOK", "P0%d SCORE")
+TERMINAL_STATUSES = {"reverted", "failed_rolled_back_in_memory", "stale", "superseded"}
 SOURCE_KINDS = ("CAMERA", "HIGH_L", "HIGH_R", "FLOOR_L", "FLOOR_R", "BACK_L", "BACK_R")
 PHASE_B_FIELDS = ("flash", "flash_camera_offsets_cm", "flash_attack_cm",
                   "flash_decay_cm", "flash_rest_scale")
@@ -222,10 +237,19 @@ def _vec3(value, label):
 
 def validate_config(data):
     require(data.get("schema_version") == 1, "CONFIG_SCHEMA_NOT_1")
-    require(str(data.get("label_prefix", "")).startswith("P04 EVT"), "LABEL_PREFIX_WRONG")
-    require(not str(data["label_prefix"]).startswith(LOOKS_LABEL_PREFIX.strip()),
-            "LABEL_PREFIX_CLASHES_WITH_LOOKS")
-    re.compile(data["passage"]["cue_label_regex"])
+    passage = data["passage"]
+    key = str(passage.get("key", ""))
+    require(re.match(r"^P0[1-6]$", key), "PASSAGE_KEY_BAD|key=" + key)
+    require(str(data.get("label_prefix", "")) == key + " EVT", "LABEL_PREFIX_WRONG")
+    number = int(key[1:])
+    for foreign in FOREIGN_LABEL_PREFIXES:
+        foreign = foreign % number if "%" in foreign else foreign
+        require(not str(data["label_prefix"]).startswith(foreign), "LABEL_PREFIX_CLASHES|with=" + foreign)
+    require(str(passage.get("passage_label", "")).strip(), "PASSAGE_LABEL_MISSING")
+    require(str(passage.get("actor_label_prefix", "")).strip(), "ACTOR_PREFIX_MISSING")
+    expected = int(passage["expected_cue_count"])
+    require(expected > 0, "EXPECTED_CUE_COUNT_BAD")
+    re.compile(passage["cue_label_drift_guard"])
     int(data["seed"])
     camera = data["camera"]
     require(_finite(camera["nominal_speed_cm_s"], "SPEED") > _finite(camera["min_speed_cm_s"], "MIN_SPEED") > 0.0,
@@ -248,6 +272,12 @@ def validate_config(data):
         require(_finite(source["attenuation_cm"], "ATTEN") > 0.0, "SOURCE_ATTEN_BAD|" + name)
     black = data["black_mode"]
     require(isinstance(black["gary_approved"], bool), "BLACK_APPROVAL_UNDECLARED")
+    require(not black["gary_approved"] or str(black.get("decided_by", "")).strip(),
+            "BLACK_APPROVAL_WITHOUT_DECIDED_BY")
+    bays = [int(b) for b in black["bays"]]
+    require(bays, "BLACK_BAYS_EMPTY")
+    require(bays == list(range(bays[0], bays[0] + len(bays))), "BLACK_BAYS_NOT_CONTIGUOUS_ASCENDING")
+    require(1 <= bays[0] and bays[-1] <= expected, "BLACK_BAYS_OUTSIDE_LAYOUT|expected_cue_count=%d" % expected)
     glimmer = black["glimmer"]
     require(0.0 < _finite(glimmer["intensity_cd"], "GLIMMER") <= _finite(glimmer["max_intensity_cd"], "GLIMMER_MAX") <= 25.0,
             "GLIMMER_ABOVE_CAP")
@@ -265,8 +295,11 @@ def validate_config(data):
     require(_finite(blink["mean_gap_s"], "BLINK_MEAN_GAP") >= 2.0 * float(blink["min_gap_s"]),
             "BLINK_MEAN_GAP_TOO_REGULAR")
     require(0.0 <= _finite(blink["rest_scale"], "BLINK_REST") <= 0.05, "BLINK_REST_TOO_BRIGHT")
+    require(all(1 <= int(b) <= expected for b in blink["bays"]), "BLINKER_BAYS_OUTSIDE_LAYOUT")
     require(data["shadow_budget"]["rule"] == "after_lte_before", "SHADOW_RULE_WRONG")
-    require(isinstance(data["conflicts"]["allow_over_looks_prototype"], bool), "CONFLICT_POLICY_UNDECLARED")
+    ownership = data["ownership"]
+    require(str(ownership.get("scores_config", "")).endswith(".json")
+            and str(ownership.get("scores_record", "")).endswith(".json"), "OWNERSHIP_UNDECLARED")
 
 
 def cm_per_s(config):
@@ -408,8 +441,10 @@ def _bay_and_x(camera_cm, bays, spacing):
     return bays[slot], camera_cm - slot * spacing
 
 
-def build_fixtures(config, capabilities, looks_dead_practicals=None):
-    """All event fixtures, grouped per bay index, plus the schedule."""
+def build_fixtures(config, capabilities, blinker_anchors=None):
+    """All event fixtures, grouped per bay ORDINAL, plus the schedule.
+    ``blinker_anchors``: optional bay -> station-relative location for a blinker
+    (none are resolved live since the P06 retarget; the fallback offset is used)."""
     phase_b = bool(capabilities.get("drama_flash"))
     prefix = config["label_prefix"]
     spacing = float(config["nominal_bay_spacing_cm"])
@@ -477,8 +512,8 @@ def build_fixtures(config, capabilities, looks_dead_practicals=None):
     if blink["enabled"]:
         for bay in [int(b) for b in blink["bays"]]:
             offsets = blink_schedule(config, bay)
-            location = list((looks_dead_practicals or {}).get(bay) or blink["fallback_offset_cm"])
-            anchor = "looks_dead_practical" if (looks_dead_practicals or {}).get(bay) else "fallback_offset_cm"
+            location = list((blinker_anchors or {}).get(bay) or blink["fallback_offset_cm"])
+            anchor = "resolved_anchor" if (blinker_anchors or {}).get(bay) else "fallback_offset_cm"
             source = {"type": "POINT", "color_rgb_linear": blink["color_rgb_linear"],
                       "temperature_kelvin": blink["temperature_kelvin"],
                       "attenuation_cm": blink["attenuation_cm"], "source_radius_cm": 3.0,
@@ -501,46 +536,116 @@ def build_fixtures(config, capabilities, looks_dead_practicals=None):
     return by_bay, schedule, deferred
 
 
-def build_plain_plan(config, cues, capabilities, looks_record=None, looks_dead_practicals=None):
-    """Resolve target cues (label -> index + GUID, once) and prove scope/budget."""
+def _is_wing_pair(cue):
+    return "WING_PAIR" in str(cue.get("type", "")).upper().replace(" ", "_")
+
+
+def resolve_passage_bays(passages, cues, passage_label):
+    """Ordinal -> cue rows for the WingPair cues in one PassageSettings range.
+
+    Mirrors UInfinityStageShowAsset::GetWingPairCueGuidsInPassage
+    (InfinityStageShowAsset.cpp:496-521, as cited by lighting_scores_apply.py):
+    first..last by Show index, WingPair cues only. In Unreal the Show's own
+    query is called as well and must agree (_require_show_resolution)."""
+    matches = [row for row in passages if row["label"] == passage_label]
+    require(len(matches) == 1, "PASSAGE_ROW_COUNT|label=%s|count=%d" % (passage_label, len(matches)))
+    passage = matches[0]
+    index = {str(cue["guid"]): position for position, cue in enumerate(cues)}
+    require(passage["first_cue_guid"] in index and passage["last_cue_guid"] in index,
+            "PASSAGE_RANGE_UNRESOLVED|label=" + passage_label)
+    first, last = index[passage["first_cue_guid"]], index[passage["last_cue_guid"]]
+    require(first <= last, "PASSAGE_RANGE_INVERTED|label=" + passage_label)
+    rows = []
+    for position in range(first, last + 1):
+        cue = cues[position]
+        if _is_wing_pair(cue):
+            rows.append({"ordinal": len(rows) + 1, "show_index": position,
+                         "cue_guid": str(cue["guid"]), "cue_label": str(cue["label"])})
+    return passage, rows
+
+
+def scores_interlock(config, scores_cfg, black_rows, scores_record=None):
+    """Ownership of the black bays vs lighting_scores_apply.py (pure).
+
+    1. The scores config must YIELD exactly the black bays, at exactly this
+       tool's expected layout (cue count): passages.<key>.yield_to_events.
+       A passage the scores config does not score at all needs no yield.
+    2. An active (non-terminal) scores record for this passage may not target
+       any black bay GUID (it would have been applied before the yield, or by
+       hand): revert that score first."""
+    key = config["passage"]["key"]
+    black = [int(b) for b in config["black_mode"]["bays"]]
+    report = {"scores_passage": key, "scored": False, "yield": None, "record_status": None,
+              "record_overlap": []}
+    passage = (scores_cfg or {}).get("passages", {}).get(key)
+    if black_rows and passage is not None:
+        report["scored"] = True
+        cfg = passage.get("yield_to_events")
+        report["yield"] = cfg
+        require(cfg is not None, "SCORES_DO_NOT_YIELD_BLACK_BAYS|passage=%s|missing yield_to_events" % key)
+        first, last = [int(v) for v in cfg["bays"]]
+        require(list(range(first, last + 1)) == black,
+                "SCORES_DO_NOT_YIELD_BLACK_BAYS|passage=%s|yield=%d-%d|black=%d-%d"
+                % (key, first, last, black[0], black[-1]))
+        require(int(cfg["layout_bay_count"]) == int(config["passage"]["expected_cue_count"]),
+                "SCORES_YIELD_LAYOUT_MISMATCH|yield_layout=%s|events_layout=%s"
+                % (cfg["layout_bay_count"], config["passage"]["expected_cue_count"]))
+        require("lighting_events_apply.py" in str(cfg.get("owner", "")), "SCORES_YIELD_OWNER_WRONG")
+    if scores_record is not None:
+        status = str(scores_record.get("status", "")).lower()
+        report["record_status"] = status or None
+        if status not in TERMINAL_STATUSES:
+            targets = {str(g).upper() for g in scores_record.get("plan", {}).get("target_cue_guids", [])}
+            overlap = sorted(row["cue_guid"] for row in black_rows if row["cue_guid"].upper() in targets)
+            report["record_overlap"] = overlap
+            require(not overlap, "BLACK_BAYS_CARRY_ACTIVE_SCORE|status=%s|cues=%s|revert_the_score_first"
+                    % (status, ",".join(overlap[:5])))
+    return report
+
+
+def build_plain_plan(config, cues, passages, capabilities, scores_cfg=None, scores_record=None,
+                     blinker_anchors=None):
+    """Resolve target bays (ordinal -> index + GUID, once) and prove layout,
+    ownership, scope and the passage shadow budget."""
     validate_config(config)
     cue_guids = [str(c.get("guid", "")) for c in cues]
     require(all(cue_guids) and len(cue_guids) == len(set(cue_guids)), "CUE_GUIDS_INVALID_OR_DUPLICATE")
     att_guids = [str(a.get("guid", "")) for c in cues for a in c.get("attachments", [])]
     require(all(att_guids) and len(att_guids) == len(set(att_guids)), "ATTACHMENT_GUIDS_INVALID_OR_DUPLICATE")
-    pattern = re.compile(config["passage"]["cue_label_regex"])
-    passage_cues = {}
-    for index, cue in enumerate(cues):
-        match = pattern.match(str(cue.get("label", "")))
-        if match:
-            bay = int(match.group(1))
-            require(bay not in passage_cues, "BAY_LABEL_DUPLICATE|bay=%d" % bay)
-            passage_cues[bay] = (index, cue)
+    passage_cfg = config["passage"]
+    passage_row, bay_rows = resolve_passage_bays(passages, cues, passage_cfg["passage_label"])
+    expected = int(passage_cfg["expected_cue_count"])
+    require(len(bay_rows) == expected,
+            "CUE_COUNT_NOT_POST_INTERLEAVE|passage=%s|expected=%d|actual=%d|apply_after_WT_P6_lands"
+            % (passage_cfg["key"], expected, len(bay_rows)))
+    guard = re.compile(passage_cfg["cue_label_drift_guard"])
+    drift = [row["cue_label"] for row in bay_rows if not guard.match(row["cue_label"])]
+    require(not drift, "CUE_LABEL_DRIFT|passage=%s|labels=%s" % (passage_cfg["key"], drift[:5]))
+    by_ordinal = {row["ordinal"]: row for row in bay_rows}
+    cues_by_guid = {str(c["guid"]): c for c in cues}
 
-    by_bay, schedule, deferred = build_fixtures(config, capabilities, looks_dead_practicals)
+    by_bay, schedule, deferred = build_fixtures(config, capabilities, blinker_anchors)
     black_bays = set(int(b) for b in config["black_mode"]["bays"]) if config["black_mode"]["enabled"] else set()
-    looks_targets = set()
-    if looks_record and looks_record.get("status") == "saved_readback_verified":
-        looks_targets = set(looks_record["plan"]["target_cue_guids"])
+    black_rows = [by_ordinal[b] for b in sorted(black_bays)]
+    ownership = scores_interlock(config, scores_cfg, black_rows, scores_record)
 
     targets = []
     new_labels = []
     for bay in sorted(by_bay):
-        require(bay in passage_cues, "TARGET_BAY_MISSING|bay=%d" % bay)
-        show_index, cue = passage_cues[bay]
+        require(bay in by_ordinal, "TARGET_BAY_MISSING|bay=%d" % bay)
+        row = by_ordinal[bay]
+        cue = cues_by_guid[row["cue_guid"]]
         lights = [a for a in cue.get("attachments", []) if _plain_is_light(a)]
         disable = [a["guid"] for a in lights if bay in black_bays and a.get("enabled", True)]
         fixtures = by_bay[bay]
-        new_labels.extend(row["label"] for row in fixtures)
+        new_labels.extend(f["label"] for f in fixtures)
         targets.append({
-            "bay_index": bay, "show_index": show_index, "cue_label": cue["label"],
-            "cue_guid": str(cue["guid"]), "black": bay in black_bays,
+            "bay_index": bay, "ordinal": bay, "show_index": row["show_index"], "cue_label": row["cue_label"],
+            "cue_guid": row["cue_guid"], "black": bay in black_bays,
             "existing_lights": len(lights), "disable_guids": disable,
             "disabled_shadow_casters": sum(_plain_casts(a) for a in lights if a["guid"] in set(disable)),
             "fixtures": fixtures, "fixture_count": len(fixtures),
             "new_shadow_casters": sum(bool(r["cast_shadows"]) for r in fixtures),
-            "carries_looks_prototype": str(cue["guid"]) in looks_targets or any(
-                str(a.get("label", "")).startswith(LOOKS_LABEL_PREFIX) for a in cue.get("attachments", [])),
             "enabled_props_left": [a["guid"] for a in cue.get("attachments", [])
                                    if not _plain_is_light(a) and a.get("enabled", True)
                                    and str(a.get("kind", "")).upper().endswith("PROP")],
@@ -554,30 +659,35 @@ def build_plain_plan(config, cues, capabilities, looks_record=None, looks_dead_p
             require(row["phase"] == "A" or capabilities.get("drama_flash"),
                     "PHASE_B_ROW_WITHOUT_ENGINE|label=" + row["label"])
 
-    p04 = [c for _, c in passage_cues.values()]
-    before = sum(_plain_casts(a) for c in p04 for a in c.get("attachments", []))
+    passage_cues = [cues_by_guid[row["cue_guid"]] for row in bay_rows]
+    before = sum(_plain_casts(a) for c in passage_cues for a in c.get("attachments", []))
     removed = sum(t["disabled_shadow_casters"] for t in targets)
     added = sum(t["new_shadow_casters"] for t in targets)
     after = before - removed + added
-    require(after <= before, "SHADOW_BUDGET_EXCEEDED|before=%d|after=%d|removed=%d|added=%d"
-            % (before, after, removed, added))
-    conflicts = [t["cue_label"] for t in targets if t["carries_looks_prototype"]]
+    require(after <= before, "SHADOW_BUDGET_EXCEEDED|passage=%s|before=%d|after=%d|removed=%d|added=%d"
+            % (passage_cfg["key"], before, after, removed, added))
     return {
+        "passage": {"key": passage_cfg["key"], "label": passage_row["label"], "guid": passage_row["guid"],
+                    "bay_count": len(bay_rows),
+                    # A hash, not the list: the record must name only the black
+                    # bays, or lighting_scores' foreign-record scan would trip on
+                    # every P06 cue.
+                    "bay_guids_sha256": _state_hash([row["cue_guid"] for row in bay_rows])},
         "targets": targets,
         "target_cue_guids": sorted(t["cue_guid"] for t in targets),
         "fixture_count": sum(t["fixture_count"] for t in targets),
         "schedule": schedule,
         "deferred": deferred,
         "phase": "B" if capabilities.get("drama_flash") else "A",
-        "looks_conflict_cues": conflicts,
         "black_bays": sorted(black_bays),
-        "shadow": {"p04_before": before, "p04_after": after, "removed": removed, "added": added},
+        "ownership": ownership,
+        "shadow": {"passage_before": before, "passage_after": after, "removed": removed, "added": added},
     }
 
 
-def apply_plain_state(config, cues, capabilities, looks_record=None):
+def apply_plain_state(config, cues, passages, capabilities, scores_cfg=None, scores_record=None):
     """Offline model of the mutation (GUID-keyed); used by the harness."""
-    plan = build_plain_plan(config, cues, capabilities, looks_record)
+    plan = build_plain_plan(config, cues, passages, capabilities, scores_cfg, scores_record)
     result = copy.deepcopy(cues)
     by_guid = {str(c["guid"]): c for c in result}
     record = {"targets": {}}
@@ -766,8 +876,29 @@ def _plain_cues(show):
                              "intensity": float(settings.get_editor_property("intensity"))},
             })
         rows.append({"show_index": index, "guid": _guid_text(cue.get_editor_property("cue_guid")),
-                     "label": str(cue.get_editor_property("label")), "attachments": attachments})
+                     "label": str(cue.get_editor_property("label")),
+                     "type": str(cue.get_editor_property("type")).upper(), "attachments": attachments})
     return rows
+
+
+def _plain_passages(show):
+    return [{"label": str(s.get_editor_property("label")),
+             "guid": _guid_text(s.get_editor_property("passage_guid")),
+             "first_cue_guid": _guid_text(s.get_editor_property("first_cue_guid")),
+             "last_cue_guid": _guid_text(s.get_editor_property("last_cue_guid"))}
+            for s in show.get_editor_property("passage_settings")]
+
+
+def _require_show_resolution(show, passage_guid, bay_guids):
+    """Second, independent resolve (same route as lighting_scores_apply.py
+    _require_show_resolution): the Show's own passage query must agree."""
+    matches = [s for s in show.get_editor_property("passage_settings")
+               if _guid_text(s.get_editor_property("passage_guid")) == passage_guid]
+    require(len(matches) == 1, "PASSAGE_GUID_RESOLVE_COUNT|%d" % len(matches))
+    guids = [_guid_text(g) for g in show.get_wing_pair_cue_guids_in_passage(
+        matches[0].get_editor_property("passage_guid"))]
+    require(guids == list(bay_guids), "SHOW_PASSAGE_QUERY_DISAGREES|show=%d|plan=%d"
+            % (len(guids), len(bay_guids)))
 
 
 def _all_pair_rows(show):
@@ -780,27 +911,13 @@ def _outside_hash_live(all_rows, target_guids):
     return _state_hash({g: r for g, r in all_rows.items() if g not in keep})
 
 
-def _looks_record():
-    if not os.path.isfile(LOOKS_RECORD_PATH):
-        return None
-    return _read_json(LOOKS_RECORD_PATH)
-
-
-def _looks_dead_practicals(plain, looks_record):
-    """Bay -> relative location of the looks' DEAD practical, resolved by the
-    GUIDs the looks record minted (role from that record's label)."""
-    if not looks_record or looks_record.get("status") != "saved_readback_verified":
-        return {}
-    by_guid = {a["guid"]: a for c in plain for a in c["attachments"]}
-    result = {}
-    for target in looks_record["plan"]["targets"]:
-        for added in target.get("added", []):
-            if not re.search(r" PRACTICAL_[LR]$", added["label"]):
-                continue
-            live = by_guid.get(added["guid"])
-            if live and live["kind"] == "Light" and live["enabled"] and live["lighting"]["intensity"] == 0.0:
-                result[int(target["bay_index"])] = live["location"]
-    return result
+def _scores_inputs(config):
+    """Read-only: the scores config (JSON, never the tool) and its record."""
+    ownership = config["ownership"]
+    scores_cfg = _read_json(os.path.join(HERE, ownership["scores_config"]))
+    record_path = os.path.join(HERE, ownership["scores_record"])
+    scores_record = _read_json(record_path) if os.path.isfile(record_path) else None
+    return scores_cfg, scores_record
 
 
 def _make_transform(row):
@@ -812,7 +929,7 @@ def _make_transform(row):
 
 def _make_blank_light():
     att = unreal.InfinityCueAttachment()
-    att.set_editor_property("label", unreal.Text("P04 EVT GUID SCRATCH"))
+    att.set_editor_property("label", unreal.Text("EVENTS GUID SCRATCH"))
     att.set_editor_property("kind", _enum_member(unreal.InfinityAttachmentKind, "LIGHT"))
     att.set_editor_property("enabled", False)
     att.set_editor_property("anchor", _enum_member(unreal.InfinityAttachmentAnchor, "STATION"))
@@ -987,29 +1104,39 @@ def _target_current(show, target):
 
 
 def _runtime_plan(show, config, capabilities):
+    """Fresh read -> plan, plus the scratch candidates (kept OUT of the plan so
+    the revert record names only the black bays)."""
     plain = _plain_cues(show)
-    looks = _looks_record()
-    plan = build_plain_plan(config, plain, capabilities, looks, _looks_dead_practicals(plain, looks))
+    passages = _plain_passages(show)
+    scores_cfg, scores_record = _scores_inputs(config)
+    plan = build_plain_plan(config, plain, passages, capabilities, scores_cfg, scores_record)
+    passage_row, bay_rows = resolve_passage_bays(passages, plain, config["passage"]["passage_label"])
+    _require_show_resolution(show, passage_row["guid"], [row["cue_guid"] for row in bay_rows])
+    require(_state_hash([row["cue_guid"] for row in bay_rows]) == plan["passage"]["bay_guids_sha256"],
+            "BAY_RESOLUTION_CHANGED")
     for target in plan["targets"]:
         unused, attachments = _target_current(show, target)
         del unused
         target["before_rows"] = _rows(attachments)
-    return plan
+    avoid = set(plan["target_cue_guids"])
+    if scores_record is not None and str(scores_record.get("status", "")).lower() not in TERMINAL_STATUSES:
+        avoid |= {str(g).upper() for g in scores_record.get("plan", {}).get("target_cue_guids", [])}
+    scratch_rows = [row for row in bay_rows if row["cue_guid"] not in avoid]
+    return plan, scratch_rows
 
 
-def _mutate_apply(show, plan, config):
+def _mutate_apply(show, plan, scratch_rows):
     """Port of the looks tool's proven GUID-minting route
-    (lighting_looks_apply.py:922-1030): pad a NON-target cue of this passage with
-    blank lights, replicate to the targets to mint fresh GUIDs, restore the
-    scratch cue exactly, then rebuild each target as original + authored."""
+    (lighting_looks_apply.py:922-1030): pad a NON-target WingPair cue of this
+    passage (not owned by an active score either) with blank lights, replicate
+    to the targets to mint fresh GUIDs, restore the scratch cue exactly, then
+    rebuild each target as original + authored."""
     cues = list(show.get_editor_property("cues"))
-    target_guids = set(plan["target_cue_guids"])
-    pattern = re.compile(config["passage"]["cue_label_regex"])
-    scratch = [(i, c) for i, c in enumerate(cues)
-               if _guid_text(c.get_editor_property("cue_guid")) not in target_guids
-               and pattern.match(str(c.get_editor_property("label")))]
-    require(scratch, "SCRATCH_CUE_MISSING")
-    scratch_index, scratch_cue = scratch[-1]
+    require(scratch_rows, "SCRATCH_CUE_MISSING")
+    scratch_row = scratch_rows[-1]
+    scratch_index = _show_index_by_guid(show, scratch_row["cue_guid"])
+    require(scratch_index == scratch_row["show_index"], "SCRATCH_INDEX_DRIFT")
+    scratch_cue = cues[scratch_index]
     scratch_original = _pair_attachments(scratch_cue)
     scratch_before = _rows(scratch_original)
     scratch_lights = sum(_is_light(a) for a in scratch_original)
@@ -1127,37 +1254,39 @@ def _run(mode):
             require(not os.path.exists(RECORD_PATH), "ACTIVE_REVERT_RECORD_EXISTS")
             exposure = _exposure_state(world)
             report["exposure"] = exposure
-            plan = _runtime_plan(show, config, capabilities)
+            plan, scratch_rows = _runtime_plan(show, config, capabilities)
             report["spacing"] = _station_spacing(show, config, plan)
-            summary = {k: plan[k] for k in ("fixture_count", "phase", "looks_conflict_cues", "black_bays", "shadow")}
+            summary = {k: plan[k] for k in ("passage", "fixture_count", "phase", "black_bays", "ownership", "shadow")}
             report.update(summary)
+            report["resolved_black_bays"] = [{"ordinal": t["ordinal"], "cue_label": t["cue_label"],
+                                              "cue_guid": t["cue_guid"], "show_index": t["show_index"]}
+                                             for t in plan["targets"] if t["black"]]
+            report["scratch_cue"] = scratch_rows[-1] if scratch_rows else None
             report["deferred"] = plan["deferred"]
             report["schedule"] = plan["schedule"]
             if mode == "DRY":
                 report.update({"ok": True, "plan": plan, "mutated": False, "census": _dirty_census()})
                 _write_json(REPORT_PATH, report)
-                unreal.log("LIGHTING_EVENTS_DRY_OK|run=%s|phase=%s|attachments=%d|deferred=%d|looks_conflicts=%d|exposure_pinned=%d|p04_shadow=%d->%d|mutated=0"
-                           % (run, plan["phase"], plan["fixture_count"], len(plan["deferred"]),
-                              len(plan["looks_conflict_cues"]), int(exposure["pinned"]),
-                              plan["shadow"]["p04_before"], plan["shadow"]["p04_after"]))
+                unreal.log("LIGHTING_EVENTS_DRY_OK|run=%s|passage=%s|cues=%d|phase=%s|attachments=%d|deferred=%d|black_bays=%d-%d|scores_yield=ok|exposure_pinned=%d|passage_shadow=%d->%d|mutated=0"
+                           % (run, plan["passage"]["key"], plan["passage"]["bay_count"], plan["phase"],
+                              plan["fixture_count"], len(plan["deferred"]),
+                              min(plan["black_bays"] or [0]), max(plan["black_bays"] or [0]),
+                              int(exposure["pinned"]),
+                              plan["shadow"]["passage_before"], plan["shadow"]["passage_after"]))
                 return report
             if config["exposure"]["require_pinned"]:
                 require(exposure["pinned"], "EXPOSURE_NOT_PINNED")
             if plan["black_bays"]:
                 require(config["black_mode"]["gary_approved"], "BLACK_MODE_NEEDS_GARY")
-            if plan["looks_conflict_cues"]:
-                require(config["conflicts"]["allow_over_looks_prototype"],
-                        "TARGETS_CARRY_LOOKS_PROTOTYPE|cues=" + ",".join(plan["looks_conflict_cues"]))
             outside_before = _outside_hash_live(_all_pair_rows(show), plan["target_cue_guids"])
-            backup = _backup("PreLightingEventsP04-", run)
-            looks_sha = _sha256_file(LOOKS_RECORD_PATH) if os.path.isfile(LOOKS_RECORD_PATH) else None
-            record = {"schema_version": 1, "status": "prepared", "run": run, "config_sha256": report["config_sha256"],
+            backup = _backup("PreLightingEvents%s-" % plan["passage"]["key"], run)
+            record = {"schema_version": 2, "status": "prepared", "run": run, "config_sha256": report["config_sha256"],
                       "backup": backup, "outside_before_hash": outside_before, "plan": plan,
-                      "looks_record_sha256_at_apply": looks_sha,
-                      "ordering_rule": "REVERT this record BEFORE any lighting_looks REVERT/APPLY on the same cues"}
+                      "ordering_rule": "REVERT this record BEFORE any re-split of this passage (W&T interleave "
+                                       "revert/redo) or any scores APPLY that would target these bays"}
             _write_json(RECORD_PATH, record, exclusive=True)
             try:
-                _mutate_apply(show, plan, config)
+                _mutate_apply(show, plan, scratch_rows)
             except Exception:
                 record["status"] = "failed_rolled_back_in_memory"
                 _write_json(RECORD_PATH, record)
@@ -1176,16 +1305,18 @@ def _run(mode):
             report.update({"ok": True, "backup": backup, "record": RECORD_PATH, "materialized": materialized,
                            "saved_master_test": "queued", "census": _dirty_census()})
             _write_json(REPORT_PATH, report)
-            unreal.log("LIGHTING_EVENTS_APPLY_OK|run=%s|phase=%s|attachments=%d|disabled=%d|p04_shadow=%d->%d|show_saved=1|level_saved=1|readback=1|saved_master=queued"
-                       % (run, plan["phase"], plan["fixture_count"],
+            unreal.log("LIGHTING_EVENTS_APPLY_OK|run=%s|passage=%s|phase=%s|attachments=%d|disabled=%d|passage_shadow=%d->%d|show_saved=1|level_saved=1|readback=1|saved_master=queued"
+                       % (run, plan["passage"]["key"], plan["phase"], plan["fixture_count"],
                           sum(len(t["disable_guids"]) for t in plan["targets"]),
-                          plan["shadow"]["p04_before"], plan["shadow"]["p04_after"]))
+                          plan["shadow"]["passage_before"], plan["shadow"]["passage_after"]))
             return report
 
         require(os.path.isfile(RECORD_PATH), "REVERT_RECORD_ABSENT")
         record = _read_json(RECORD_PATH)
         require(record.get("status") == "saved_readback_verified", "REVERT_RECORD_STATUS|status=" + str(record.get("status")))
-        backup = _backup("PreLightingEventsP04Revert-", run)
+        require(record["plan"].get("passage", {}).get("key") == config["passage"]["key"],
+                "REVERT_RECORD_PASSAGE_NOT_CONFIG_PASSAGE")
+        backup = _backup("PreLightingEvents%sRevert-" % record["plan"]["passage"]["key"], run)
         _mutate_revert(show, record)
         materialized = _materialize(show, config)
         _save_narrow()

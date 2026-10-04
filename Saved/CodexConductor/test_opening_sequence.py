@@ -226,6 +226,50 @@ short, _ = plan_with(lambda c: [c["moments"].__setitem__(k, {"value": v}) for k,
                                 (("opening_end", 92.0), ("walkin_start", 84.0))])
 case("NEG: opening_end 92 s (track 96.34 s) fails music-fits", has(short["failures"], "music-fits"), short["failures"])
 
+# ---- 8. house warmers: off for the Opening ONLY (Gary 4 Oct) -> this tool never disables them
+case("house warmers: default config passes, write is False, and the 'not dark' warning is raised",
+     not has(base["failures"], "house-warmers") and base["house_warmers"]["write"] is False
+     and any("NOT dark" in w for w in base["house_warmers"]["warnings"]), base["house_warmers"])
+hw, _ = plan_with(lambda c: c["house_warmers"].__setitem__("disable", True))
+case("NEG: house_warmers.disable true is refused (would kill them in P01 too)",
+     has(hw["failures"], "house-warmers-disable"), hw["failures"])
+hw, _ = plan_with(lambda c: c["house_warmers"].__setitem__("rule", "off"))
+case("NEG: a rule other than off_for_opening_only is refused", has(hw["failures"], "house-warmers-rule"), hw["failures"])
+hw, _ = plan_with(lambda c: c["house_warmers"].__setitem__("owner", "lighting_scores_apply.py"))
+case("NEG: a second owner (lighting_scores) is refused", has(hw["failures"], "house-warmers-owner"), hw["failures"])
+hw, _ = plan_with(lambda c: c["house_warmers"].__setitem__("mechanism", "light_drama_strike"))
+case("NEG: a Light Drama mechanism is refused (drama cannot run before P01's segment)",
+     has(hw["failures"], "house-warmers-mechanism"), hw["failures"])
+# Source anchors (declaration-proven): the facts the refusal rests on. If the C++ changes, these fail and the
+# mechanism refusal must be revisited.
+PASSAGE_CPP = os.path.join(os.path.dirname(SAVED), "Plugins", "InfinityStage", "Source", "InfinityStage", "Private",
+                           "InfinityStagePassageActor.cpp")
+
+
+def drama_gated_by_segment(src):
+    gate = src.find("MasterFrame < Passage->SegmentStartFrame || MasterFrame > Passage->SegmentEndFrame")
+    drama = src.find("InfinityStageLightDrama::ApplyToLamp(")
+    body = src.find("bool AInfinityStagePassageActor::EvaluateMechanismsInternal(")
+    return 0 <= body < gate < drama and src.find("return false;", gate) < drama
+
+
+cpp = open(PASSAGE_CPP, encoding="utf-8", errors="replace").read()
+case("SOURCE: drama is applied only after the Passage segment gate (EvaluateMechanismsInternal)",
+     drama_gated_by_segment(cpp))
+case("NEG: the same check on a copy with the gate removed reports False",
+     not drama_gated_by_segment(cpp.replace("MasterFrame < Passage->SegmentStartFrame", "false")))
+apply_src = open(os.path.join(HERE, "opening_sequence_apply.py"), encoding="utf-8").read()
+
+
+def writes_warmer_enabled(src):
+    return 'set_editor_property("enabled"' in src or "def set_warmers(" in src
+
+
+case("SOURCE: opening_sequence_apply.py has no Enabled write and no set_warmers helper",
+     not writes_warmer_enabled(apply_src))
+case("NEG: a copy with the old write restored is caught",
+     writes_warmer_enabled(apply_src + '\n    a.set_editor_property("enabled", False)\n'))
+
 passed = sum(1 for _, ok in RESULTS if ok)
 print("\nRESULT %d/%d passed" % (passed, len(RESULTS)))
 sys.exit(0 if passed == len(RESULTS) else 1)

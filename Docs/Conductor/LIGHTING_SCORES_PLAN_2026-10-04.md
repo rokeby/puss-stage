@@ -121,8 +121,13 @@ so they are off until they strike.
 
 ## Open questions (for Gary or the conductor)
 
-1. **P01 mouth lights.** The P01 house warmers (`House L`/`R`, shadow casters) are disabled to make the walk-in
-   dark. Is that his call to make? **inferred**
+1. **P01 mouth lights: ANSWERED (Gary, 4 Oct).** The house warmers (`House L`/`R`) are off for the Opening
+   **only** and on in P01. This tool no longer disables them: P01 `retain` holds both, and
+   `foreign_owned_lights` names `opening_sequence_apply.py` as their owner. The validator refuses
+   `FOREIGN_OWNED_NOT_RETAINED` if either rule goes. The harness checks this (section 12). In the model P01 now
+   disables 527 lights (was 529) and casters run 99 -> 83 (was 81), still within budget. These numbers are
+   **inferred** from the model census. Light Drama cannot dark them during the Opening (see
+   `OPENING_SEQUENCE_PLAN_2026-10-04.md` section 4b). **declaration-proven**
 2. **P01 ping-on.** Using Light Drama makes the Master-track draft in `p01_hallway_pingon.py` redundant for P01.
    Retire it? **inferred**
 3. **P03 gobos.** No gobo light-function asset exists (**measured**: `Content/` has only `MI_LF_Flicker_*`). The

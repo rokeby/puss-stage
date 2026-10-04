@@ -40,6 +40,44 @@ INPUT_MOMENTS = (
 )
 DERIVED_MOMENTS = ("final_quarter", "curtain_landed")
 
+# The two Show house warmers (cue "P01 Wing 001", Saved/CodexStructure/p01_warmer_plan.json).
+# Gary, 4 Oct: OFF FOR THE OPENING ONLY, ON in P01. This tool OWNS that decision; lighting_scores_apply.py
+# retains (never touches) them (lighting_scores.json foreign_owned_lights). Two facts make it unbuildable
+# today without a new mechanism (Docs/Conductor/OPENING_SEQUENCE_PLAN_2026-10-04.md section 4b):
+#   - the attachment's Enabled flag is not time-varying: disabling it removes the lamp from P01 too
+#     (InfinityStagePassageActor.cpp:905, a disabled attachment is not spawned) - so this tool must never
+#     write it;
+#   - Light Drama cannot dark them before P01: drama runs only inside the Passage's own segment
+#     (InfinityStagePassageActor.cpp:1267-1270 returns before the drama block at :1620-1662;
+#     InfinityStageCameraRig.cpp:775-779), so during the Opening the lamp keeps its level state (authored, lit).
+HOUSE_WARMER_LABELS = ("P01 Wing 001 House L", "P01 Wing 001 House R")
+HOUSE_WARMER_RULE = "off_for_opening_only"
+HOUSE_WARMER_OWNER = "opening_sequence_apply.py"
+HOUSE_WARMER_MECHANISMS = (None,)   # none implemented yet; see the plan section 4b for the proposals
+
+
+def house_warmer_check(cfg):
+    """(failures, warnings) for the house_warmers block. Failures refuse the plan; nothing here writes."""
+    ws = cfg.get("house_warmers") or {}
+    fails, warns = [], []
+    if ws.get("disable"):
+        fails.append("house-warmers-disable: disabling the Show attachments kills them in P01 too "
+                     "(Gary 4 Oct: off for the Opening ONLY); this tool never writes their Enabled flag")
+    if ws.get("rule") != HOUSE_WARMER_RULE:
+        fails.append("house-warmers-rule: %r != %r (Gary 4 Oct)" % (ws.get("rule"), HOUSE_WARMER_RULE))
+    if ws.get("owner") != HOUSE_WARMER_OWNER:
+        fails.append("house-warmers-owner: %r != %r" % (ws.get("owner"), HOUSE_WARMER_OWNER))
+    if tuple(ws.get("labels") or ()) != HOUSE_WARMER_LABELS:
+        fails.append("house-warmers-labels: %r != %r" % (ws.get("labels"), list(HOUSE_WARMER_LABELS)))
+    mech = ws.get("mechanism")
+    if mech not in HOUSE_WARMER_MECHANISMS:
+        fails.append("house-warmers-mechanism: %r is not implemented (Light Drama cannot dark a lamp before its "
+                     "Passage segment; plan section 4b)" % (mech,))
+    elif mech is None:
+        warns.append("house warmers stay ON through the Opening (Gary's 'off for the Opening only' has no "
+                     "mechanism yet; plan section 4b): phase 0 is NOT dark")
+    return fails, warns
+
 
 # --------------------------------------------------------------------------------------------- small utils
 def frame_of(seconds, fps):
@@ -500,6 +538,10 @@ def build_plan(cfg, analysis, walk_planner_path, marker_frames=None, last_applie
         "master_delta_s": seconds_of(end, fps) - float(cfg["baseline"]["opening_end_s"]),
         "envelope": {"rate": env_rate, "series": env},
     }
+    hw_fails, hw_warns = house_warmer_check(cfg)
+    plan["house_warmers"] = {"write": False, "rule": (cfg.get("house_warmers") or {}).get("rule"),
+                             "mechanism": (cfg.get("house_warmers") or {}).get("mechanism"),
+                             "warnings": hw_warns}
     plan["failures"] = validate(plan, cfg)
     return plan
 
@@ -552,6 +594,7 @@ def validate(plan, cfg):
                 fail.append("flicker-before-swivel: %s swivels before its flicker ends" % name)
     if plan["conflicts"]:
         fail.extend("marker-conflict: " + c for c in plan["conflicts"])
+    fail.extend(house_warmer_check(cfg)[0])
     return fail
 
 

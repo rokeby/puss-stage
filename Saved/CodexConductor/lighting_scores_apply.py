@@ -592,6 +592,7 @@ def validate_scores(scores, looks, tool):
                  "default")
     require(scores["distance_keying_default"].get("mechanism")
             == "FInfinityStageLightDrama strike-on-approach", "DISTANCE_MECHANISM_WRONG")
+    check_foreign_owned_rules(scores)
     forbidden = set(scores.get("forbidden_looks", []))
     out = {}
     for passage_key, passage in sorted(scores["passages"].items()):
@@ -635,6 +636,11 @@ def validate_scores(scores, looks, tool):
         for key, guid in passage.get("pinned_cue_guids", {}).items():
             require(1 <= int(key) <= int(passage["expected_bay_count"])
                     and re.match(r"^[0-9A-F]{32}$", guid), "BAD_PIN|passage=%s|bay=%s" % (passage_key, key))
+        yield_cfg = passage.get("yield_to_events")
+        if yield_cfg is not None:
+            first, last = [int(v) for v in yield_cfg["bays"]]
+            require(1 <= first <= last <= int(yield_cfg["layout_bay_count"])
+                    and str(yield_cfg.get("owner", "")).strip(), "BAD_YIELD|passage=" + passage_key)
         out[passage_key] = {"specs": specs, "rows": rows}
     return out
 
@@ -702,6 +708,35 @@ def prototype_state(passage_cfg, bay_rows, cues_by_guid, record):
             "owned_guids": sorted(declared) if state == "APPLIED" else []}
 
 
+def check_foreign_owned_rules(scores):
+    """Lamps another tool owns (scores["foreign_owned_lights"]) must each be a retain rule with the same
+    bay, suffix and owner in their passage, so this tool never disables or edits them. Added 4 Oct for the
+    P01 house warmers (Gary: off for the Opening ONLY, on in P01; owner opening_sequence_apply.py)."""
+    for rule in scores.get("foreign_owned_lights", []):
+        key = rule.get("passage")
+        require(key in scores["passages"] and isinstance(rule.get("bay"), int)
+                and str(rule.get("label_suffix", "")).startswith(" ") and str(rule.get("owner", "")).strip(),
+                "BAD_FOREIGN_OWNED|" + _canonical(rule))
+        match = [r for r in scores["passages"][key].get("retain", [])
+                 if r.get("bay") == rule["bay"] and r.get("label_suffix") == rule["label_suffix"]
+                 and r.get("owner") == rule["owner"]]
+        require(len(match) == 1, "FOREIGN_OWNED_NOT_RETAINED|passage=%s|bay=%s|suffix=%r|owner=%s|matches=%d"
+                % (key, rule["bay"], rule["label_suffix"], rule["owner"], len(match)))
+
+
+def check_foreign_owned_retained(scores, passage_key, retain_report):
+    """Run-time half: every foreign-owned lamp in this passage resolved to a retained attachment."""
+    report = []
+    for rule in scores.get("foreign_owned_lights", []):
+        if rule.get("passage") != passage_key:
+            continue
+        hits = [r for r in retain_report if r["bay"] == rule["bay"] and r["label"].endswith(rule["label_suffix"])]
+        require(len(hits) >= 1, "FOREIGN_OWNED_NOT_RETAINED_LIVE|passage=%s|bay=%s|suffix=%r"
+                % (passage_key, rule["bay"], rule["label_suffix"]))
+        report.extend(dict(hit, owner=rule["owner"]) for hit in hits)
+    return report
+
+
 def match_retains(passage_key, passage_cfg, target_rows, cues_by_guid):
     retained = {}
     report = []
@@ -725,6 +760,26 @@ def match_retains(passage_key, passage_cfg, target_rows, cues_by_guid):
             retained.setdefault(cue_guid, {})[att_guid] = label
             report.append({"bay": ordinal, "cue_guid": cue_guid, "guid": att_guid, "label": label})
     return retained, report
+
+
+def yield_state(passage_cfg, bay_rows):
+    """Bays this score YIELDS to lighting_events_apply.py (black mode; Gary 4 Oct).
+
+    The yield is keyed to a bay LAYOUT: ordinals mean something only for the
+    cue count they were decided on (P06 bays 2-10 of the 64-cue post-interleave
+    layout). On any other count the yield is DORMANT and the score keeps those
+    bays (today P06 has 55 cues, so the score is unchanged until it is rescored
+    to 64, when the yield becomes ACTIVE)."""
+    cfg = passage_cfg.get("yield_to_events")
+    if not cfg:
+        return {"state": "NONE", "ordinals": [], "cue_guids": []}
+    first, last = [int(v) for v in cfg["bays"]]
+    if int(cfg["layout_bay_count"]) != len(bay_rows):
+        return {"state": "DORMANT", "layout_bay_count": int(cfg["layout_bay_count"]),
+                "actual_bay_count": len(bay_rows), "ordinals": [], "cue_guids": []}
+    ordinals = list(range(first, last + 1))
+    return {"state": "ACTIVE", "owner": cfg["owner"], "ordinals": ordinals,
+            "cue_guids": [bay_rows[o - 1]["cue_guid"] for o in ordinals]}
 
 
 def _apply_shadow_policy(policy, targets):
@@ -774,6 +829,8 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
                     " run after the prototype is applied, or pass"
                     " LIGHTING_SCORES_PROTOTYPE_ABSENT='AUTHOR_FALLBACK'" % passage_cfg["prototype"]["bays"])
     owned = set(proto["owned_guids"])
+    yielded = yield_state(passage_cfg, bay_rows)
+    yielded_ordinals = set(yielded["ordinals"])
 
     prefix = scores["fixture_label_prefix_format"] % int(passage_key[1:])
     present = sorted({cue["guid"] for cue in cues for att in cue["attachments"]
@@ -784,6 +841,10 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
     skipped = []
     for spec, row in zip(static["specs"], bay_rows):
         require(spec["ordinal"] == row["ordinal"], "ORDINAL_MISMATCH")
+        if row["ordinal"] in yielded_ordinals:
+            skipped.append({"bay": row["ordinal"], "cue_guid": row["cue_guid"],
+                            "cue_label": row["cue_label"], "owner": yielded["owner"]})
+            continue
         if spec["look"] == "PROTOTYPE":
             if row["cue_guid"] in owned:
                 skipped.append({"bay": row["ordinal"], "cue_guid": row["cue_guid"],
@@ -816,6 +877,7 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
     require(len({t["cue_guid"] for t in targets}) == len(targets), "TARGET_GUIDS_NOT_UNIQUE")
 
     retained, retain_report = match_retains(passage_key, passage_cfg, targets, cues_by_guid)
+    foreign_report = check_foreign_owned_retained(scores, passage_key, retain_report)
     _apply_shadow_policy(passage_cfg["shadow_policy"], targets)
     for target in targets:
         cue = cues_by_guid[target["cue_guid"]]
@@ -852,8 +914,10 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
         "bay_count": len(bay_rows),
         "bay_guids": [row["cue_guid"] for row in bay_rows],
         "prototype": proto,
+        "yield_to_events": yielded,
         "skipped": skipped,
         "retained": retain_report,
+        "foreign_owned": foreign_report,
         "targets": targets,
         "target_cue_guids": sorted(t["cue_guid"] for t in targets),
         "fixture_count": sum(t["fixture_count"] for t in targets),
@@ -1068,7 +1132,8 @@ def _current_target(tool, show, target):
 def _choose_scratch(tool, show, plan, avoid):
     """A WingPair cue outside this passage's targets and the prototype; nearest first."""
     cues = list(show.get_editor_property("cues"))
-    targets = set(plan["target_cue_guids"]) | set(plan["prototype"].get("owned_guids", [])) | set(avoid)
+    targets = (set(plan["target_cue_guids"]) | set(plan["prototype"].get("owned_guids", []))
+               | set(plan.get("yield_to_events", {}).get("cue_guids", [])) | set(avoid))
     anchor = min(t["show_index"] for t in plan["targets"])
     candidates = []
     for index, cue in enumerate(cues):
@@ -1306,7 +1371,8 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 "retained": plan["retained"], "fixtures": plan["fixture_count"],
                 "lights": plan["light_fixture_count"], "practical_props": plan["practical_prop_count"],
                 "disabled": plan["existing_lights_disabled"], "shadow": plan["shadow"],
-                "prototype": plan["prototype"], "foreign_records": foreign,
+                "prototype": plan["prototype"], "yield_to_events": plan["yield_to_events"],
+                "foreign_records": foreign,
                 "unacknowledged_foreign_records": unacknowledged, "templates_built": templates}})
             if mode == "DRY":
                 report.update({"ok": True, "mutated": False, "plan": plan, "census": tool._dirty_census()})

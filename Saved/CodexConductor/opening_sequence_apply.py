@@ -19,7 +19,10 @@ What APPLY writes (and REVERT undoes, from the first apply's snapshot in opening
     - marked frames 'OPN <moment>' for every moment (the manual-tuning handles).
   The level: the rig actors (created once; level default intensity 0, parked aim), then save_map.
   The Show: the Opening cue's Scene.Music takes P01's rail; P01's Music becomes Silence (flag in the JSON);
-    the two House warmers disabled ONLY when house_warmers.disable is true AND decided_by is set.
+    NEVER the two House warmers (Gary 4 Oct: off for the Opening ONLY, on in P01). Their Enabled flag is not
+    time-varying, so disabling would kill them in P01 too: the planner refuses house_warmers.disable, APPLY/REVERT
+    asserts their Enabled state is unchanged before saving, and lighting_scores_apply.py retains them.
+    No mechanism exists yet to dark them for the Opening alone (plan section 4b).
   The Master: rebuilt with the library call. Patch K (built; PassageKeysFollowSection Success,
     Saved/Logs/SS-FullInfinityStage-20261002.log:2776) carries Passage keys; this tool MEASURES that the
     carry happened for this Show (every Passage section's keys, section-relative, identical before/after)
@@ -454,12 +457,8 @@ def main(mode):
         new_end = plan["frames"]["opening_end"]
         tails = tail_sections(old_end)
         report["tail_sections_to_extend"] = [{k: v for k, v in r.items() if k != "section"} for r in tails]
-        ws = cfg["house_warmers"]
-        warmers_write = bool(ws.get("disable")) and bool(ws.get("decided_by"))
-        report["house_warmers_write"] = warmers_write
-        if not warmers_write:
-            report.setdefault("warnings", []).append(
-                "house warmers stay ON (not decided): phase 0 is not dark until Gary decides house_warmers.disable")
+        report["house_warmers"] = plan["house_warmers"]   # write is always False (planner refuses disable)
+        report.setdefault("warnings", []).extend(plan["house_warmers"]["warnings"])
         if mode == "DRY":
             report["ok"] = True
             write_report()
@@ -642,40 +641,6 @@ def main(mode):
                     out[str(a.get_editor_property("label"))] = bool(a.get_editor_property("enabled"))
         return out
 
-    def set_warmers(enabled):
-        labels = set(cfg["house_warmers"]["labels"])
-        show.modify()
-        cues_ = list(show.get_editor_property("cues"))
-        hits = 0
-        for i, c in enumerate(cues_):
-            pair = c.get_editor_property("wing_pair")
-            atts = list(pair.get_editor_property("attachments"))
-            changed = False
-            for j, a in enumerate(atts):
-                label = str(a.get_editor_property("label"))
-                if label in labels:
-                    a.set_editor_property("enabled", bool(enabled[label]))
-                    atts[j] = a
-                    changed = True
-                    hits += 1
-            if changed:
-                pair.set_editor_property("attachments", atts)
-                c.set_editor_property("wing_pair", pair)
-                cues_[i] = c
-        if hits != len(labels):
-            fail("found %d of %d house warmers" % (hits, len(labels)))
-        show.set_editor_property("cues", cues_)
-        passage = [a for a in actors.get_all_level_actors()
-                   if isinstance(a, unreal.InfinityStagePassageActor) and a.get_actor_label().startswith("Passage 01")]
-        if len(passage) != 1 or not passage[0].materialize_passage():
-            fail("Passage 01 did not materialize")
-        for a in actors.get_all_level_actors():
-            if isinstance(a, unreal.InfinityStageStructureActor) and a.get_editor_property("passage") == passage[0]:
-                if not a.materialize_structure():
-                    fail("Structure 01 did not re-fit")
-        if warmers_state() != {l: bool(v) for l, v in enabled.items()}:
-            fail("house warmers did not land: %r" % warmers_state())
-
     def setp(obj, name, value):
         """Set only when different, so a re-run does not dirty the level for nothing."""
         cur = obj.get_editor_property(name)
@@ -738,6 +703,14 @@ def main(mode):
         return b, kb
 
     # ------------------------------------------------------------------ MUTATE
+    # House warmers: never written by this tool (Gary 4 Oct, off for the Opening ONLY; Enabled is not time-varying).
+    # Snapshot before any mutation; APPLY and REVERT assert it unchanged before any save.
+    warmers_before = warmers_state()
+    if sorted(warmers_before) != sorted(cfg["house_warmers"]["labels"]):
+        fail("house warmers not found: %r (expected %r)" % (warmers_before, cfg["house_warmers"]["labels"]))
+    if record.get("warmers_original"):
+        fail("record carries warmers_original %r: this tool no longer writes the house warmers (Gary 4 Oct); "
+             "restore them by hand in the Show, then delete that key" % record["warmers_original"])
     if mode == "APPLY":
         end = plan["frames"]["opening_end"]
         seq.modify()
@@ -789,10 +762,6 @@ def main(mode):
                               "offset": music_now["p01"]["offset"]}}
             set_music(target)
             step("music_moved", target=target)
-        if warmers_write:
-            if "warmers_original" not in record:
-                record["warmers_original"] = warmers_state()
-            set_warmers({l: False for l in cfg["house_warmers"]["labels"]})
     else:  # REVERT
         orig = record["original"]
         end = int(orig["playback"][1])
@@ -825,8 +794,6 @@ def main(mode):
         write_markers([m for m in orig["markers"] if m[0].startswith(planner["MARKER_PREFIX"])])
         if music_now != orig["music"]:
             set_music(orig["music"])
-        if record.get("warmers_original"):
-            set_warmers(record["warmers_original"])
 
     # ------------------------------------------------------------------ rebuild + pre-save assertions
     result = unreal.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master)
@@ -862,6 +829,8 @@ def main(mode):
     report["coverage"] = cov
     if cov["gaps"]:
         fail("camera cut gaps %r; NOTHING saved" % cov["gaps"])
+    if warmers_state() != warmers_before:
+        fail("house warmers changed during %s %r -> %r; NOTHING saved" % (mode, warmers_before, warmers_state()))
     if any(a.get_actor_label().startswith("ZZ_") for a in actors.get_all_level_actors()):
         fail("ZZ_ bench actors in the level; refusing to save it")
     now = census()

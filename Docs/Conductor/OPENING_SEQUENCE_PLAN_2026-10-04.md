@@ -1,7 +1,7 @@
 # The long Opening — plan and build (4 Oct 2026, offline)
 
 **Status: planned and built offline. NOTHING has run in Unreal.** Tool, timing table and harness are
-in `Saved/CodexConductor/`. The harness passes 55/55 (`test_opening_sequence_output.txt`). Every
+in `Saved/CodexConductor/`. The harness passes 64/64 (55 + 9 house-warmer checks, 4 Oct) (`test_opening_sequence_output.txt`). Every
 live step is listed in §9.
 
 Tiers (AGENTS.md): **[decl]** = declaration-proven (a header, source, config or file we can read);
@@ -98,11 +98,71 @@ the actor binding carries the swivel transform track, and a component child bind
    everywhere else **[inf]**: this rests on the default restore-state completion and has not been
    checked in PIE.
 
-**Phase 0 is not dark until the Show warmers are dealt with.** The two House spots burn steadily
-through the Opening today **[decl]**. The tool disables them (Show write + P01 materialize + level
-save) **only** when `house_warmers.disable` is true and `decided_by` is set. Until then the rig adds
-to the warmers. The rig fades to dark during the walk-in (`walkin.end_light_level` 0.0), which
-matches "move in with the lights dark" and P01's ping-on **[decl note; creative default]**.
+**Phase 0 is still not dark: see §4b.** The two House spots burn steadily through the Opening today
+**[decl]**. The rig fades to dark during the walk-in (`walkin.end_light_level` 0.0), which matches
+"move in with the lights dark" **[decl note; creative default]**.
+
+## 4b. House warmers: off for the Opening ONLY (Gary, 4 Oct). Not buildable with Light Drama
+
+Gary's decision: `P01 Wing 001 House L/R` are **off for the Opening only** and **on in P01**. This tool
+owns that decision. `lighting_scores_apply.py` retains them and never touches them
+(`lighting_scores.json` `foreign_owned_lights` + P01 `retain`).
+
+**Why the old `house_warmers.disable` path was removed.** An attachment's `bEnabled` is not
+time-varying. A disabled attachment is not spawned at all (`InfinityStagePassageActor.cpp:905-908`)
+**[decl]**, so disabling the warmers would kill them in P01 too. The planner now refuses
+`disable: true` (`house-warmers-disable`). APPLY and REVERT snapshot the warmers' Enabled state before
+any mutation and refuse to save if it changed. The `set_warmers` helper is deleted.
+
+**Why Light Drama (strike-on-approach) cannot do it** **[decl]**:
+- Drama runs only in `EvaluateMechanismsInternal`. That function returns `false` for any Master frame
+  outside the Passage's own segment (`InfinityStagePassageActor.cpp:1267-1270`), before the drama
+  block (`:1620-1662`).
+- Its only runtime caller, `AInfinityStageCameraRig::EvaluateAtMasterFrame`
+  (`InfinityStageCameraRig.cpp:432`), is gated the same way (`:775-779`). It is reached only from the
+  Passage track's own section evaluation (`MovieSceneInfinityPassageTrack.cpp:144`) or a PassageRig
+  handover (`InfinityStageTransportController.cpp:1449`).
+- The Opening is a separate Sequence segment *before* P01's segment, so no drama is evaluated for P01
+  lamps during the Opening. Each lamp keeps its level state, which is authored and lit, because the
+  editor never modulates (`InfinityStagePassageActor.cpp:1620-1623`, `InfinityStageLightDrama.h:140-142`).
+  Nothing else hides Passage lamps by segment: a search for
+  `SetVisibility|SetHiddenInGame|SetActorHiddenInGame` in `InfinityStage/Private` found none for
+  attachments.
+- Even inside P01, the warmers sit **behind** the camera. Wing 001 is at route 250 and the lamps at
+  offset X −2350, so they are at route distance −2100 (`p01_warmer_plan.json:20,34-35`). That is behind
+  P01's start (camera route ≈ 0). `StrikeDistanceCm` is clamped ≥ 0 (`InfinityStageLightDrama.cpp:27`),
+  so a lamp the camera has already passed is either full (Hold) or unstruck (Extinguish/Decay), never
+  "strikes later".
+- A reverse scrub from P01 back into the Opening would leave the lamp in its last P01 state. That is
+  not a deterministic dark **[inf from the gate above]**.
+
+**Proposals, cheapest first** (none built; each needs a decision):
+1. **Rig takeover, no C++** **[inf, needs one PIE measurement]**. The FOH L/R rig spots already sit at
+   the warmers' exact pose and settings (`opening_timing.json` fixtures).
+   - Save them in the level *at* the warmer state: 1740 cd at `final_aim`, not 0/parked.
+   - Disable the Show House L/R. The rig replaces them everywhere, and the Opening sequence animates
+     them only inside the Opening.
+   - The rest depends on Sequencer **restoring pre-animated state** when the Opening segment ends,
+     so P01 sees the saved warmer state. That is **unverified**: the plan's own §4 reason 3 is [inf].
+     The only completion mode in plugin source is `KeepState` on the Passage track
+     (`MovieSceneInfinityPassageTrack.cpp:208`). How Sequence cues complete is UNCLEAR (not searched
+     beyond that grep).
+   - Measure in PIE: the rig intensity at P01 frame 0 must be 1740.
+   - Cost: the P01 warmers become level actors, not Show lamps (an authority change: conductor/Gary).
+     They would snap on at the Opening→P01 seam (creative).
+2. **Possessable keys on the Show lamps** (Opening sequence or Master artist track): **rejected**.
+   Materialize destroys and respawns every attachment actor (`InfinityStagePassageActor.cpp:864-892`),
+   and a P01 lighting_scores APPLY materializes P01, so the bindings would break silently. The retired
+   `p01_hallway_pingon.py:31-37` records the same limitation.
+3. **C++ (Rig & atmosphere's file; needs a build)**. Two parts:
+   - a drama flag such as `bDarkBeforeSegment`;
+   - a per-frame hook that applies the unstruck pose to a Passage's drama lamps while the Master is
+     *before* that Passage's segment, and the authored pose after it.
+   The Passage track cannot host the hook, because it does not evaluate outside its section. The
+   transport would need to do it. This is the clean answer, and the heaviest.
+
+Until one lands, `house_warmers.mechanism` is `null`. The planner warns that phase 0 is NOT dark, and
+refuses any mechanism value it does not implement.
 
 ## 5. Manual tuning: both ways, and which wins
 

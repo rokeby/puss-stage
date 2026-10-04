@@ -1,22 +1,28 @@
 {
   "schema_version": 1,
-  "label_prefix": "P04 EVT",
+  "label_prefix": "P06 EVT",
   "passage": {
-    "cue_label_regex": "^P04 Wing (\\d{3})$",
-    "actor_label_prefix": "Passage 04",
-    "resolve_identity": "read fresh Show index and CueGuid; key every write by GUID"
+    "key": "P06",
+    "passage_label": "Passage 6",
+    "actor_label_prefix": "Passage 06",
+    "expected_cue_count": 64,
+    "expected_cue_count_basis": "W&T P06 interleave: Saved/CodexFlatV3/p06/run_p6.json result_count 64 / expected_compiled_wings 64 (32 V3 + 32 old; end distance and duration held). Today P06 resolves to 55 WingPair cues (measured, light_guid_audit_20261004-102539.json), so the tool refuses until W&T's P6 lands.",
+    "cue_label_drift_guard": "^P06 (Wing \\d{3}|OLD \\d{2} - .+)$",
+    "cue_label_drift_basis": "moved/kept cues keep 'P06 Wing NNN'; the 9 restored cues are labelled 'P06 OLD %02d - <family>' (Saved/CodexFlatV3/p06/p6_workflow.py:387)",
+    "resolve_identity": "bays are WingPair ORDINALS inside the PassageSettings range, resolved live to CueGuid twice (first..last walk and Show.GetWingPairCueGuidsInPassage, which must agree); every write is GUID-keyed; labels are a drift guard only"
   },
   "seed": 20261004,
   "camera": {
-    "nominal_speed_cm_s": 59.3,
-    "speed_basis": "INFERRED: LightingLooks/20261004_001334 runtime_result plan.pass_frames step 202466 ticks at tick_rate 24000 = 8.436 s per bay, over 500 cm nominal bay spacing (live LOW_SIDE light X 290 vs 790). DRY in Unreal re-measures spacing; speed itself is not re-measured offline.",
+    "nominal_speed_cm_s": 250.0,
+    "speed_basis": "INFERRED: W&T P06 interleave holds distance AND duration: 63 intervals re-split from today's 54 x 48000-frame intervals (2,592,000 frames = 108 s) over 54 x 500 cm = 27,000 cm -> 250 cm/s, pairs every ~1.71 s (Saved/CodexRuns/slots/P6_additive.md '4 Oct (later)'). Assumes a constant walk; P06's camera score was not read. DRY re-measures spacing; speed is not re-measured.",
     "fps": 30.0,
     "height_cm": 150.0,
-    "height_basis": "INFERRED: P01 start (0,0,150) in Saved/CodexConductor/opening_walkin_probe.json; P04 not measured",
+    "height_basis": "INFERRED: P01 start (0,0,150) in Saved/CodexConductor/opening_walkin_probe.json; P06 not measured",
     "lateral_cm": 0.0,
     "min_speed_cm_s": 20.0
   },
-  "nominal_bay_spacing_cm": 500.0,
+  "nominal_bay_spacing_cm": 428.571,
+  "nominal_bay_spacing_basis": "INFERRED from W&T's fixed-length respacing: (27,640.28 - lead - tail) / 63 with lead + tail = 640.28 cm (today 54 x 500 cm gaps) = 27,000 / 63 = 428.571 cm (p6_core.py:101-108 uniform_gap_cm). DRY re-measures from station transforms (tolerance below).",
   "bay_spacing_tolerance": 0.15,
   "exposure": {
     "require_pinned": true,
@@ -137,9 +143,10 @@
   },
   "black_mode": {
     "enabled": true,
-    "bays": [1, 2, 3, 4, 5, 6],
-    "gary_approved": false,
-    "approval_note": "Gary's call: P04 is the candidate; bays 1-6 currently carry the looks prototype (see Docs/Conductor/LIGHTING_EVENTS_2026-10-04.md)",
+    "bays": [2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "gary_approved": true,
+    "decided_by": "Gary 4 Oct questionnaire: P06 bays 2-10",
+    "approval_note": "Bays are ordinals of the 64-cue post-interleave P06 layout. Black mode disables every enabled light in these bays and adds the event fixtures; lighting_scores.json passages.P06.yield_to_events hands these bays to this tool.",
     "glimmer": {
       "offset_cm": [0.0, -350.0, 6.0],
       "aim_cm": [250.0, -350.0, 0.0],
@@ -162,10 +169,11 @@
     }
   },
   "blinkers": {
-    "enabled": true,
+    "enabled": false,
+    "disabled_note": "The blinkers were designed for P04's moody looks bays (the looks' dead practical). This config now targets P06; re-homing blinkers is a separate creative call. They also need the unbuilt held patch.",
     "requires": "drama_flash",
     "bays": [1, 2],
-    "anchor": "looks_dead_practical",
+    "anchor": "fallback_offset_cm",
     "fallback_offset_cm": [120.0, 340.0, 210.0],
     "window_cm": [-2500.0, 200.0],
     "mean_gap_s": 9.0,
@@ -181,9 +189,11 @@
   "standalone_polaroids": [],
   "shadow_budget": {
     "rule": "after_lte_before",
-    "scope": "all enabled P04 Show light attachments"
+    "scope": "all enabled, shadow-casting light attachments on the WingPair cues of the passage's PassageSettings range"
   },
-  "conflicts": {
-    "allow_over_looks_prototype": false
+  "ownership": {
+    "scores_config": "lighting_scores.json",
+    "scores_record": "lighting_scores_record_P06.json",
+    "rule": "lighting_scores.json passages.P06.yield_to_events must cover EXACTLY the black bays with layout_bay_count == passage.expected_cue_count, else SCORES_DO_NOT_YIELD_BLACK_BAYS; an active (non-terminal) scores record whose targets include a black bay GUID refuses with BLACK_BAYS_CARRY_ACTIVE_SCORE (revert that score first)"
   }
 }

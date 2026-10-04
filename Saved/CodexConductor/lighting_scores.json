@@ -9,6 +9,13 @@
   "forbidden_looks": ["WASH", "SPOT"],
   "forbidden_looks_note": "Gary: rarely washed out. WASH and SPOT are defined vocabulary but unassigned; the validator refuses them in any score.",
   "existing_light_policy": "disable_all_in_target_bay_except_retained",
+  "foreign_owned_lights": [
+    {"passage": "P01", "bay": 1, "label_suffix": " House L", "owner": "opening_sequence_apply.py",
+     "decision": "Gary 4 Oct: house warmers OFF FOR THE OPENING ONLY, ON in P01 (opening_timing.json house_warmers)"},
+    {"passage": "P01", "bay": 1, "label_suffix": " House R", "owner": "opening_sequence_apply.py",
+     "decision": "as House L"}
+  ],
+  "foreign_owned_note": "Lamps another tool owns. Each must be a retain rule (same bay + suffix + owner) in its passage, so this tool never disables or edits it; the validator and the planner refuse otherwise.",
   "distance_keying_default": {
     "mechanism": "FInfinityStageLightDrama strike-on-approach",
     "strike_distance_cm": 650.0,
@@ -218,10 +225,14 @@
       "intent": "dark walk-in, then the office-hallway ping-on (a strike cascade that runs ahead of the camera, ~4x its speed) into warm theatrical pools alternating with candle-moody bays, gaps every ~6 bays, building to Scene 1",
       "retain": [
         {"bay": 41, "label_suffix": " Entry High -Y", "expected_count": 1,
-         "why": "Wing 041's blinking shadow Spot Gary praised (LIGHTING_TALK_PREP_2026-10-03.md census table)"}
+         "why": "Wing 041's blinking shadow Spot Gary praised (LIGHTING_TALK_PREP_2026-10-03.md census table)"},
+        {"bay": 1, "label_suffix": " House L", "expected_count": 1, "owner": "opening_sequence_apply.py",
+         "why": "house warmer: Gary 4 Oct, OFF FOR THE OPENING ONLY and ON in P01; owned by the Opening tool (foreign_owned_lights), never disabled here"},
+        {"bay": 1, "label_suffix": " House R", "expected_count": 1, "owner": "opening_sequence_apply.py",
+         "why": "as House L"}
       ],
       "segments": [
-        {"bays": [1, 1], "cycle": [{"look": "VOID", "level": 1.0, "note": "walk-in dark"}]},
+        {"bays": [1, 1], "cycle": [{"look": "VOID", "level": 1.0, "note": "VOID, but House L/R are retained (on in P01; Gary 4 Oct: off for the Opening only, owned by opening_sequence_apply.py)"}]},
         {"bays": [2, 2], "cycle": [{"look": "GAP", "level": 0.6, "note": "one faint glimmer before the ping"}]},
         {"bays": [3, 12],
          "strike_cascade": {"base_strike_cm": 650.0, "extra_per_bay_cm": 450.0, "ramp_distance_cm": 40.0, "ignition_stutter": 0.45},
@@ -440,6 +451,13 @@
       "retain": [
         {"scope": "passage", "label_suffix": " Blink Spot", "expected_count": 1, "why": "P06 Wing 044 timber-gobo blink: the rare cold flicker inside the failure (talk prep P06 item 3)"}
       ],
+      "yield_to_events": {
+        "bays": [2, 10],
+        "layout_bay_count": 64,
+        "owner": "lighting_events_apply.py black_mode",
+        "decided_by": "Gary 4 Oct questionnaire: P06 bays 2-10",
+        "why": "Black passage mode owns P06 bays 2-10 of W&T's 64-cue interleave layout (Saved/CodexFlatV3/p06/run_p6.json result_count 64). DORMANT while P06 resolves to any other count (55 today: this score is unchanged); ACTIVE once the score is rescored to 64 bays, when those bays are skipped (no fixtures, existing lights untouched). lighting_events_apply.py refuses unless this block covers exactly its black bays at its expected cue count."
+      },
       "segments": [
         {"bays": [1, 12], "cycle": [
            {"look": "P06_GRAND_GOLD", "level": 1.0},

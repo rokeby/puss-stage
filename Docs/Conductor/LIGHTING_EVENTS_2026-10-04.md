@@ -2,32 +2,39 @@
 
 Gary's notes (3 Oct, verbatim in `Saved/CodexConductor/specs/LIGHTING_LOOKS_P04_TUNE1.md:53-63`)
 ask for three things: a polaroid flash, rare bright blinkers in moody bays, and one passage
-(P04 is the candidate) kept almost black and shown in trickles of flashes. The flare sweep
-is being built by another agent and is not covered here.
+kept almost black and shown in trickles of flashes. The flare sweep is being built by
+another agent and is not covered here.
+
+**Decision (Gary, 4 Oct questionnaire): black mode goes on P06 bays 2-10, not P04.** The
+tool and config were retargeted the same day (section "P06 retarget" below). The P04
+looks-prototype conflict that the first draft gated on no longer applies.
 
 Nothing here has run in Unreal. Every claim is tagged: **declaration-proven** (read in
-source or config), **measured** (an offline run of the harness), or **inferred**.
+source or config), **measured** (an offline run of the harness, or a read of a saved live
+dump), or **inferred**.
 
 ## What Gary will see
 
 - **Polaroid flash.** A cool-white (6500 K) hard burst from just above the lens. It
   reaches full brightness in about 1.5 frames and is gone in 0.3 s. Everything in front
   of the camera shows up flat and frontal for an instant, then goes black again.
-  - *measured* (harness, Python port of the C++): built engine gives 1.49-frame attack,
-    half-level at 0.15 s, off by 0.29 s.
+  - *measured* (harness, Python port of the C++, at the P06 speed of 250 cm/s): built
+    engine gives 1.49-frame attack, half-level at 0.15 s, off by 0.29 s.
   - *measured*: with the held patch the fall is cubic: half-level at 0.06 s, off by 0.22 s.
-- **Black passage (P04 bays 1-6).** The only steady light is a faint warm glimmer along
-  the left floor edge of each bay, 8 cd, capped at 15. On top of that come bursts of 2-5
-  flashes, with 6-18 s of darkness between bursts. About 40% of flashes come from the
-  camera. The rest come from fixtures: high side raking the opposite wing, floor grazers,
-  and back-lights behind the wings that shaft through the gaps.
-  - *measured*: seed 20261004 gives 4 bursts and 14 flashes across the ~50 s of the
-    six bays.
-- **Blinkers (moody bays 1-2).** The *dead* practical of each bay (the one the looks
-  author at 0 cd) blinks bright and warm a few times on the approach. Blinks are spaced
-  irregularly: at least 2.5 s apart, 9 s apart on average.
-  - **Not buildable on the current engine**: they need the held patch (below). The tool
-    lists them as `deferred` until the patch is built.
+- **Black passage (P06 bays 2-10 of the 64-cue layout).** The only steady light is a
+  faint warm glimmer along the left floor edge of each bay, 8 cd, capped at 15. On top of
+  that come bursts of 2-5 flashes, with 6-18 s of darkness between bursts. About 40% of
+  flashes come from the camera; the rest from high side, floor grazers and back-lights.
+  - *measured* (`black_schedule`, seed 20261004): the nine bays last **15.4 s** at
+    250 cm/s, and the train is **one burst of 2 flashes** (camera at ~2.0 s, BACK_L at
+    ~2.7 s), then ~12.7 s of glimmer only. Across seeds 20261001-10: 2-7 flashes in 1-2
+    bursts.
+  - **For Gary:** the sequence values (6-18 s dark gaps) were sized for P04's ~50 s at
+    59 cm/s. On P06's 15 s window they give a single trickle. If that is too sparse,
+    shorten `black_mode.sequence.dark_gap_s` or change the seed; both are creative calls
+    and were not changed.
+- **Blinkers.** Disabled in the config since the retarget: they were anchored to P04's
+  looks practicals, and re-homing them is a separate call. They also need the held patch.
 
 ## Mechanism and what can be keyed
 
@@ -40,8 +47,8 @@ source or config), **measured** (an offline run of the harness), or **inferred**
   - An unlit lamp is switched off, so it costs no shadow map (`:112-128`).
 - *declaration-proven*: the lamp's route position is `Wing.DistanceCm + RelativeTransform.X`
   (`InfinityStagePassageActor.cpp:1648-1660`). Drama runs in game worlds only (`:1620-1624`).
-  **Consequence:** with today's fields, a flash (strike over `attack` cm, then Decay
-  starting at 0 cm) always peaks when the camera reaches the lamp's own X.
+  **Consequence:** with today's fields, a flash always peaks when the camera reaches the
+  lamp's own X.
   - **Phase A (built engine):** every flash fires from the camera's current X. Lateral,
     high, floor and behind-wing sources work. Fixtures *deeper in the bay* do not, and
     neither do blinkers seen from a distance. The decay is linear in camera travel.
@@ -51,110 +58,129 @@ source or config), **measured** (an offline run of the harness), or **inferred**
     (`InfinityStageCameraRig.h:50-71`, `.cpp:117-148`).
   - So the "camera" flash is a Station lamp placed on the camera path (Y 0, Z 150 + 25)
     at the trigger X.
-  - *inferred*: camera height 150 cm is taken from P01's start; P04 has not been
-    measured. The camera may wander sideways; an error of a few cm is irrelevant to
-    a 60° flash.
-- *declaration-proven*: the effect-source linked light cannot blink rarely.
-  - Its flicker is a sum of three sines, so it is continuous and quasi-periodic
-    (`InfinityStageEffectSource.cpp:218-224`).
-  - Its pump is strictly periodic (`:193-216`).
-- **Held patch** `Scripts/patches/2026-10-04_LD_flash_events.draft.patch` (150 lines, unapplied):
-  - Adds `bFlash`, `FlashCameraOffsetsCm[]`, `FlashAttackCm`, `FlashDecayCm` and
-    `FlashRestScale` to `FInfinityStageLightDrama`.
-  - Adds a pure `EvaluateFlash` with a cubic fall, ORs it into `IsActive`, and adds it
-    to the visibility switch in `ApplyToLamp`.
-  - Adds one automation test, `InfinityStage.LightDrama.FlashIsBriefAndKeyedToDistance`.
-  - Defaults are off, so every existing lamp is unchanged.
-  - Status: *measured* that `git apply --check` is clean. **Not compiled.** Applying it
-    is `git show`/`git apply` in a build window, per the held-patch convention.
-  - The negative offsets decouple the trigger from the lamp's X. That makes deep
-    fixtures and many-blink lamps possible.
-  - The tool probes for the field (`_probe_capabilities`) and only emits Phase-B rows
-    when the field exists.
-  - After the build, `_infinity_attachment_state.DRAMA_FIELDS` must gain the five new
-    fields. Until then, read-back does not see them. *inferred* risk: low, because
-    labels and GUIDs still cover add and remove.
-- **Speed coupling.** *inferred*: P04 camera speed is about 59 cm/s. That comes from
-  the looks run `LightingLooks/20261004_001334` (8.44 s per bay) against a 500 cm bay
-  spacing, which is itself inferred from two live light X values.
-  - Flash length in seconds therefore depends on camera speed. **If the camera stops
-    inside a flash window, the light holds** until it moves again.
-  - DRY re-measures the bay spacing from station transforms. It does *not* re-measure
-    speed.
-  - Before APPLY, check that P04 has no stop or vamp inside bays 1-6.
+  - *inferred*: camera height 150 cm is taken from P01's start; P06 has not been measured.
+- *declaration-proven*: the effect-source linked light cannot blink rarely
+  (`InfinityStageEffectSource.cpp:218-224` three sines; `:193-216` periodic pump).
+- **Held patch** `Scripts/patches/2026-10-04_LD_flash_events.draft.patch` (unapplied,
+  not compiled; `git apply --check` clean, *measured* 4 Oct). Adds `bFlash`,
+  `FlashCameraOffsetsCm[]`, `FlashAttackCm`, `FlashDecayCm`, `FlashRestScale`; the tool
+  probes for them and emits Phase-B rows only when they exist. After the build,
+  `_infinity_attachment_state.DRAMA_FIELDS` must gain the five fields.
+- **Speed coupling.** *inferred*: P06 camera speed is 250 cm/s. Basis: W&T's interleave
+  holds P06's distance AND duration (63 intervals re-split from today's 54 x 48000 frames
+  = 108 s over 27,000 cm; `Saved/CodexRuns/slots/P6_additive.md`, "4 Oct (later)"). It
+  assumes a constant walk; P06's camera score was not read.
+  - Flash length in seconds depends on camera speed. **If the camera stops inside a flash
+    window, the light holds** until it moves again. Before APPLY, check that P06 has no
+    stop or vamp inside bays 2-10.
+  - *inferred*: bay spacing 428.571 cm = 27,000 / 63 (`p6_core.py:101-108`). DRY
+    re-measures it from station transforms (tolerance 15%); it does not re-measure speed.
+
+## P06 retarget (4 Oct)
+
+### Layout gate: applies only after W&T's P6 lands
+
+- *declaration-proven*: W&T's interleave re-splits P06 into **64** WingPair cues
+  (`Saved/CodexFlatV3/p06/run_p6.json` `result_count` 64, `expected_compiled_wings` 64).
+  The 9 restored cues are labelled `P06 OLD NN - family` (`p6_workflow.py:387`).
+- *measured* (saved-state dump `Saved/CodexConductor/light_guid_audit_20261004-102539.json`):
+  P06 has **55** WingPair cues today.
+- The tool resolves bays as **WingPair ordinals** inside the `Passage 6` PassageSettings
+  range: a first..last walk (`resolve_passage_bays`), then in Unreal the Show's own
+  `GetWingPairCueGuidsInPassage`, which must agree (`_require_show_resolution`, same route
+  as `lighting_scores_apply.py`). It never finds a cue by label; labels are a drift guard
+  (`^P06 (Wing \d{3}|OLD \d{2} - .+)$`).
+- It refuses with `CUE_COUNT_NOT_POST_INTERLEAVE|expected=64|actual=55` until the
+  interleave lands. The count is `passage.expected_cue_count` in the config.
+- *inferred* from W&T's plan (`p06_interleave_plan_v3.json` `order_rows`), not live: bays
+  2-10 will be Wing 037, 002, OLD 02 (restored, lights cloned from Wing 008), 003, 038,
+  004, 036, 005, 039. DRY prints the live resolution (`resolved_black_bays`).
+
+### Ownership vs the lighting scores tool
+
+The simplest safe interlock is a declared hand-over, checked from both sides:
+
+- **Scores side (edited):** `lighting_scores.json` `passages.P06.yield_to_events` declares
+  bays 2-10, `layout_bay_count` 64, owner `lighting_events_apply.py black_mode`.
+  `lighting_scores_apply.py` `yield_state` skips those ordinals (no fixtures, existing
+  lights untouched, reported in `skipped` with the owner) **only when P06 resolves to 64
+  bays**. At today's 55 the yield is DORMANT and the P06 score is unchanged (*measured*,
+  scores harness section 11). The scores tool also avoids yielded cues as its scratch cue.
+- **Events side:** `scores_interlock` refuses unless the yield covers exactly the black
+  bays at the same layout count (`SCORES_DO_NOT_YIELD_BLACK_BAYS`,
+  `SCORES_YIELD_LAYOUT_MISMATCH`). It also refuses if an active (non-terminal)
+  `lighting_scores_record_P06.json` targets any black bay (`BLACK_BAYS_CARRY_ACTIVE_SCORE`:
+  revert that score first).
+- The events revert record names **only** the nine black bays' GUIDs (the full bay list
+  is stored as a hash). The scores tool's foreign-record scan therefore does not trip on
+  the rest of P06.
+- **Still needed on the scores side when P06 is rescored to 64 bays:** the P06
+  `cue_label_drift_guard` `^P06 Wing \d{3}$` refuses W&T's restored labels
+  (`CUE_LABEL_DRIFT`, *measured* in the cross-tool harness test). The rescore must widen it,
+  e.g. to the events tool's guard. Its `expected_bay_count`/segments must move to 64 anyway.
+
+### Shadow budget (P06's own; no reliance on the looks)
+
+- *measured* (saved dump, 4 Oct): every P06 cue has 10 lights, 9 enabled, with 2 enabled
+  casters (Entry Top, Entry Fwd +Y). Wing 044 adds a casting Blink Spot. Wing 055 adds a
+  casting `FX TEST - S6 Candle Light`. That is 112 enabled casters across today's 55 cues.
+- Black mode disables every enabled light in bays 2-10. On the 64-cue model that frees 18
+  casters, and the seed-20261004 train adds 2 (camera + BACK_L). P06 goes from 130 to 114
+  (*measured* on the model; *inferred* for the live 64-cue Show, where restored cues'
+  lights are cloned from current cues per `p6_workflow.py:369-379,415`).
+- The rule stays `after <= before` over all WingPair cues of the P06 range. The P04 looks'
+  casters are not counted (harness control).
 
 ## Exposure
 
 - *declaration-proven via memory* (`puss-capture-exposure-convention`, measured by Rig
   30 Sep): the show renders through one unbound PPV with Histogram min = max = EV100 -3.
   With exposure pinned, a flash cannot make it pump.
-- The tool's DRY reads every PPV read-only, and APPLY refuses with `EXPOSURE_NOT_PINNED`
-  if exposure is not pinned. *inferred*: the UE 5.8 Python property names
-  (`auto_exposure_min_brightness` and related) are unverified. A wrong name stops the
-  run. It does not pass silently.
-- Captures must use no exposure override. Never use Manual plus bias.
-
-## Conflict: P04 black vs the looks prototype
-
-*declaration-proven*: `lighting_looks_revert_record.json` is `saved_readback_verified`
-(run 20261003-201156) on P04 Wing 001-006, the same six bays.
-
-- **Any events write on bays 1-6 breaks the looks REVERT.** That includes the moody
-  blinkers. The looks revert requires those cues to equal its `after_rows` exactly
-  (`lighting_looks_apply.py:1081-1083`), so it would refuse with
-  `REVERT_CURRENT_STATE_DRIFT`.
-- **Rule:** revert the events tool *before* any looks REVERT, re-APPLY or tune. The
-  events REVERT restores the cues exactly to their state before the events APPLY.
-  That state is the looks' `after_rows`, so the looks tool can then proceed.
-- **Black mode turns off the looks lights in bays 1-6.** The tunes 1-3d that Gary
-  approved go dark there while black is on. They come back on revert. Gary chooses one:
-  - (a) black over bays 1-6 and the looks move elsewhere;
-  - (b) black on other P04 bays (needs a bay list edit and the budget re-proved);
-  - (c) blinkers and polaroids only, layered on the looks.
-- **Gates in the config.** APPLY refuses unless `black_mode.gary_approved` is true and
-  `conflicts.allow_over_looks_prototype` is true. Both ship false.
-- **Shadow budget.** *measured* on the fixture: the black mode adds 10 casting flashes
-  (camera and back-lights). That fits only because it frees the looks' 2 casters per
-  bay. On bays without the looks it exceeds the P04 budget and the tool refuses.
-- **Emissive bodies.** The looks' practical BODY props stay enabled in black mode. If
-  they are emissive they will glow. DRY lists them under `enabled_props_left`.
-- **Spill from neighbours.** Light from bay 7 and from neighbouring passages can spill
-  into the black bays. That cannot be modelled offline.
+- DRY reads every PPV read-only; APPLY refuses with `EXPOSURE_NOT_PINNED` if it is not
+  pinned. *inferred*: the UE 5.8 Python property names are unverified; a wrong name stops
+  the run.
+- **Spill.** Bay 1 (grand gold) and bay 11 stay lit and can spill into the black bays.
+  That cannot be modelled offline.
 
 ## Tool and harness
 
-- `Saved/CodexConductor/lighting_events.json` holds the seed, the sources, the black
-  sequence, the blinkers and the gates.
-- `Saved/CodexConductor/lighting_events_apply.py` has three modes, DRY, APPLY and
-  REVERT; DRY is the default. Run it as `LIGHTING_EVENTS_MODE` through the guarded
-  ExecuteProjectPythonFile route.
-  - Cue labels are resolved once to an index and a CueGuid. After that every write is
-    GUID-keyed, and new attachments are recorded by their minted GUIDs.
-  - GUID minting follows the looks tool's proven scratch-replicate route.
-  - APPLY backs up to `Backups/PreLightingEventsP04-<run>`.
-  - Every run has a census check, an outside-target hash guard, a narrow Show and level
-    save, a read-back, and a SavedMasterMatchesShow test queued on its own.
-  - Log markers are `LIGHTING_EVENTS_{DRY,APPLY,REVERT}_OK|run=...` and
-    `LIGHTING_EVENTS_STOPPED`.
-  - The tool does **not import** `lighting_looks_apply.py`, because importing it runs
-    that tool's `main()` (`:1276-1277`). It loads `_infinity_attachment_state.py`
-    fresh by path.
-- `Saved/CodexConductor/test_lighting_events_apply.py` has 27 tests, all passing
-  (*measured* 4 Oct). Negative controls cover:
-  - periodicity: an exact period and a ±5%-jittered period are both rejected; seeded
-    blinkers pass for 10 seeds (CV about 0.84, autocorrelation peak about 0.15);
-  - flash shape: the looks keying and a slow ramp are rejected;
-  - black mode: a looks light left on, and a flash set to HOLD, both produce violations;
-  - determinism: a different seed differs, and a blinker change does not re-roll the
-    black train;
-  - single draw per expression: an AST check, which flags a deliberate two-draw line;
-  - outside-hash change, shadow budget overflow, and Phase-B rows without the engine
-    are each detected or refused.
-  - The C++ port matches the existing C++ test's values.
-- **Unverified until an editor run:**
-  - the Python names on the PPV and `get_attachment_anchor_world_transform` (out-param
-    form);
-  - whether `replicate_light_attachments` mints enough vessels when a black bay
-    carries 6 events plus 10 existing lights;
-  - how a flash actually looks. Intensities (6000-9000 cd) are *inferred* first values
-    for Gary to tune against the pinned EV -3.
+- `Saved/CodexConductor/lighting_events.json`: passage P06, expected cue count 64, black
+  bays 2-10, `gary_approved` true, `decided_by` "Gary 4 Oct questionnaire: P06 bays 2-10",
+  `ownership` block, blinkers disabled.
+- `Saved/CodexConductor/lighting_events_apply.py`: DRY (default), APPLY, REVERT through the
+  guarded ExecuteProjectPythonFile route with `LIGHTING_EVENTS_MODE`.
+  - Every write is GUID-keyed; new attachments are recorded by their minted GUIDs (the
+    looks tool's scratch-replicate route). The scratch cue is a non-target P06 WingPair
+    that is also not owned by an active score.
+  - APPLY backs up to `Backups/PreLightingEventsP06-<run>`, and checks census, the
+    outside-target hash, a narrow Show + level save and a read-back. It then queues
+    SavedMasterMatchesShow on its own.
+  - Markers: `LIGHTING_EVENTS_{DRY,APPLY,REVERT}_OK|run=...|passage=P06...`,
+    `LIGHTING_EVENTS_STOPPED`. REVERT refuses a record from another passage.
+  - **Ordering:** revert this tool before any W&T re-split of P06 (interleave revert or
+    redo), and before any scores APPLY that would target these bays.
+  - It imports neither the looks tool nor the scores tool. It reads `lighting_scores.json`
+    as JSON only.
+- `Saved/CodexConductor/test_lighting_events_apply.py`: **41 tests, all passing**
+  (*measured* 4 Oct). New controls since the retarget:
+  - layout gate: 55 cues refused, 64 resolved by ordinal (restored slot included, a
+    label-reusing decoy outside the range untouched), the count is configurable, a
+    SEQUENCE row in range is not a bay but the same row as a WingPair trips the gate,
+    label drift refused;
+  - interlock: the real scores config passes; no yield, a short yield, a yield for another
+    layout, and an active score on a black bay each refuse; reverted or disjoint score
+    records pass. A cross-tool test runs the REAL scores tool rescored to 64: disjoint
+    targets, budget held, both reverts exact. Without the yield the scores tool does
+    target the black bays;
+  - budget: P06 130 -> 114 on the census model; no casters to free, and an all-casting
+    dense train, each refused; P04 looks casters excluded;
+  - the record names only black-bay GUIDs (control: the full list would name all).
+- `test_lighting_scores_apply.py`: **68/68** (*measured* 4 Oct). That is the 54 from
+  before, 7 yield controls (section 11), and 7 checks a parallel session added the same
+  day for `foreign_owned_lights`.
+- **Unverified until an editor run:** the post-interleave Show itself (count, order,
+  labels, restored cues' lights); the PPV Python names and
+  `get_attachment_anchor_world_transform` out-param form; whether
+  `replicate_light_attachments` mints enough vessels (10 existing lights + up to ~3 events
+  per bay); P06 camera speed and stops; how a flash looks against EV -3 (intensities
+  6000-9000 cd are first values).

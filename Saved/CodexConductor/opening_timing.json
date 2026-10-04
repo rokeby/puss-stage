@@ -182,10 +182,13 @@
     "notes": "The Opening cue's Scene.Music takes P01's rail (mode Start, same offset); P01's Music becomes Silence until Gary picks P01 music."
   },
   "house_warmers": {
+    "rule": "off_for_opening_only",
+    "decided_by": "Gary, 4 Oct 2026",
+    "owner": "opening_sequence_apply.py",
+    "mechanism": null,
     "disable": false,
-    "decided_by": null,
     "labels": ["P01 Wing 001 House L", "P01 Wing 001 House R"],
-    "notes": "The two Show house spots burn steadily through the Opening today, so phase 0 is NOT dark until they are disabled. Disabling them is a Show write + P01 materialize + level save; it needs Gary's yes (decided_by)."
+    "notes": "Gary 4 Oct: the two Show house spots are OFF FOR THE OPENING ONLY and ON in P01. This tool owns that; lighting_scores_apply.py retains them (lighting_scores.json foreign_owned_lights). 'disable' must stay false: the attachment's Enabled flag is not time-varying, so disabling would kill them in P01 too (the planner refuses it). 'mechanism' is null because none exists yet: Light Drama cannot dark a lamp before its Passage segment (plan section 4b). Until a mechanism lands they burn through the Opening and phase 0 is NOT dark."
   },
   "hand_tuned_tracks": []
 }

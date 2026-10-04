@@ -5,6 +5,8 @@ exit doorway at the back of each rig hangar ... like a backstage hidden doorway.
 This page asks you to choose how the camera leaves through them. Proof tags: **[decl]** read in source or config,
 **[meas]** read back from the editor, **[arith]** arithmetic on measured numbers, **[inf]** inferred, with the reason.
 
+> **Superseded 4 Oct.** Gary: *"It's a door but the curtain hangs over it and we have a 1min cat boy shadowpuppet scene on it first, just block for now."* The exit is now a curtain over the door, a ~60 s puppet minute on it, then option B's door move. Plan and tool: [`SCENE_EXIT_BLOCK_PLAN_2026-10-04.md`](SCENE_EXIT_BLOCK_PLAN_2026-10-04.md) (`Saved/CodexConductor/scene_exit_block.py`, which reuses B's planner). Options A and C are retired; their text was removed here (it is in git history).
+
 ## What happens today
 - A Scene ends on its **Exit Handoff camera**, which is a *retained hold*: it copies the last interior shot and runs
   from that shot's end to the Scene's end (`InfinityStageSceneHandoffBuilder.cpp:186-210, 419, 440, 447`) **[decl]**.
@@ -21,19 +23,7 @@ This page asks you to choose how the camera leaves through them. Proof tags: **[
 
 ## The three options (each ends black, then the existing Interaction cut to the drape)
 
-**A. "The cat walks out"** is one continuous take from the dock view. The camera walks the length of the hangar at
-250 cm/s, and the door swings toward us when we are about 10 m out. We walk through into black, then cut to the curtain.
-```
- dock ●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━▶ ▌door▐ █black█
-      |<------------------------- 65 m (S5: 155 m) ------------------------->|
-```
-- **Length** **[arith]**: 26 s of walking plus about 2 s, so about 28 s; S5 alone is about 64 s.
-- **Needs:** a waypoint path per Scene, because the straight line is blocked in all six. The cast and props stand in
-  the way: in S3 the clams, waves and the shadow cat **[meas]** (conservative AABB survey, not collision). It also
-  needs leaf keys, camera keys and a light on the door.
-- **Risks:** this is the longest option, and it walks through the cast. It reads as the Passage grammar, but the GO1
-  is not engaged in Scenes. S5 is too long unless the walk speeds up.
-- **Suits:** S1, S2, S4 and S6, if a path is clear.
+**A. "The cat walks out"**: retired 4 Oct (see the banner above).
 
 **B. "Cut to the hidden door"** (recommended; the draft tool keys this one). We hard-cut to a camera 9 m in front of the
 closed door and hold for 1.5 s, so you can just read the door. The leaf swings **in, toward us**, on its left jamb (3 s,
@@ -55,21 +45,7 @@ eased). The camera walks through at 250 cm/s into the black, then cut to the cur
   3. A cut breaks "we are always the cat". Scenes are not dog-led **[decl, your 2 Oct note]**.
 - **Suits:** all six once the blockers below are cleared.
 
-**C. "The room lets us go"** keeps the final view: no cut, no walk. The hangar's practicals dim in sequence toward the
-door (the hallway ping in reverse), the door swings in, and the lens pushes slowly from 35 to about 100 mm over 6 s.
-Then cut to the curtain on the black doorway.
-```
- dock ● (lens 35→100 mm)                        practicals out ← ← ←   ▌door swings in▐ █black█
-```
-- **Length:** about 9–10 s.
-- **Needs:** light keys on the hangar practicals, leaf keys, and focal keys on the Exit camera's component (never its
-  actor).
-- **Risks:**
-  1. At 65 m the door is small: about 7% of the frame width at 35 mm and about 20% at 100 mm **[arith, Super 35]**.
-     Filling the frame would take about 515 mm.
-  2. The dimming touches the hangar lighting, which is yours to judge.
-  3. The Exit hold is shared with the builder's copy.
-- **Suits:** S4 and S5, where the room is the event. It is the weakest in S3, where the backdrop is the door.
+**C. "The room lets us go"**: retired 4 Oct (see the banner above).
 
 ## Blockers for any option (the draft tool refuses on each)
 1. **S3: the leaf sits 0.05 cm in front of the S3 Backdrop, which was never cut** **[decl]**
@@ -80,14 +56,8 @@ Then cut to the curtain on the black doorway.
 3. **The rise must be over** before the exit starts (LS_S*_HangarRise).
 4. **The exit black should become velvet**, and be measured in the actual light.
 
-## Questions (recommendation first)
-1. **Which exit?** Recommended: **B**. Alternatives are A, C, or a mix (for example B everywhere and C for S5).
-2. **Where do the ~8.6 s come from?** Recommended: **the end of each Scene** (no timing change). The alternative is to
-   lengthen the Scenes (key gate, Passage keys move).
-3. **Hinge side and swing.** Recommended: **left jamb, swinging in toward us, 100°**. The alternatives are the right
-   jamb, or swinging away into the black, which needs the black plate moved back.
-4. **S3's backdrop:** **cut a door-shaped hole**, or do S3 differently (for example C)?
-5. **S1/S3 nested cuts:** may Look & camera **trim them** to end before the exit?
+## Questions
+Superseded by §6 of [`SCENE_EXIT_BLOCK_PLAN_2026-10-04.md`](SCENE_EXIT_BLOCK_PLAN_2026-10-04.md). Still open from this page: hinge side and swing (B's defaults are kept), S3's backdrop, and the S1/S3 nested cuts (the block avoids them by starting after the Scene's content).
 
 Draft tool (not run, apply-locked until `scene_exit_move_overrides.json` names who decided and `option: "B"`):
 `Saved/CodexConductor/scene_exit_move.py`. The harness is `test_scene_exit_move.py` (57 pass, 0 fail, offline, real
