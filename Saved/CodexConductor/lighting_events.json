@@ -37,12 +37,24 @@
   "sources": {
     "CAMERA": {
       "type": "SPOT",
-      "offset_cm": [0.0, 12.0, 25.0],
-      "aim_cm": [1000.0, 12.0, 120.0],
+      "offset_cm": [
+        0.0,
+        12.0,
+        25.0
+      ],
+      "aim_cm": [
+        1000.0,
+        12.0,
+        120.0
+      ],
       "phase_b_behind_lens_cm": 30.0,
       "intensity_cd": 6000.0,
       "temperature_kelvin": 6500.0,
-      "color_rgb_linear": [0.92, 0.96, 1.0],
+      "color_rgb_linear": [
+        0.92,
+        0.96,
+        1.0
+      ],
       "inner_cone_deg": 38.0,
       "outer_cone_deg": 60.0,
       "attenuation_cm": 2600.0,
@@ -52,12 +64,27 @@
     },
     "HIGH_L": {
       "type": "SPOT",
-      "offset_cm": [0.0, -300.0, 1050.0],
-      "aim_cm": [450.0, 360.0, 250.0],
-      "phase_b_depth_cm": [150.0, 420.0],
+      "offset_cm": [
+        0.0,
+        -300.0,
+        1050.0
+      ],
+      "aim_cm": [
+        450.0,
+        360.0,
+        250.0
+      ],
+      "phase_b_depth_cm": [
+        150.0,
+        420.0
+      ],
       "intensity_cd": 9000.0,
       "temperature_kelvin": 5200.0,
-      "color_rgb_linear": [1.0, 1.0, 1.0],
+      "color_rgb_linear": [
+        1.0,
+        1.0,
+        1.0
+      ],
       "inner_cone_deg": 14.0,
       "outer_cone_deg": 26.0,
       "attenuation_cm": 2200.0,
@@ -67,12 +94,27 @@
     },
     "HIGH_R": {
       "type": "SPOT",
-      "offset_cm": [0.0, 300.0, 1050.0],
-      "aim_cm": [450.0, -360.0, 250.0],
-      "phase_b_depth_cm": [150.0, 420.0],
+      "offset_cm": [
+        0.0,
+        300.0,
+        1050.0
+      ],
+      "aim_cm": [
+        450.0,
+        -360.0,
+        250.0
+      ],
+      "phase_b_depth_cm": [
+        150.0,
+        420.0
+      ],
       "intensity_cd": 9000.0,
       "temperature_kelvin": 5200.0,
-      "color_rgb_linear": [1.0, 1.0, 1.0],
+      "color_rgb_linear": [
+        1.0,
+        1.0,
+        1.0
+      ],
       "inner_cone_deg": 14.0,
       "outer_cone_deg": 26.0,
       "attenuation_cm": 2200.0,
@@ -82,12 +124,27 @@
     },
     "FLOOR_L": {
       "type": "SPOT",
-      "offset_cm": [0.0, -330.0, 10.0],
-      "aim_cm": [800.0, -150.0, 0.0],
-      "phase_b_depth_cm": [100.0, 300.0],
+      "offset_cm": [
+        0.0,
+        -330.0,
+        10.0
+      ],
+      "aim_cm": [
+        800.0,
+        -150.0,
+        0.0
+      ],
+      "phase_b_depth_cm": [
+        100.0,
+        300.0
+      ],
       "intensity_cd": 3500.0,
       "temperature_kelvin": 4800.0,
-      "color_rgb_linear": [1.0, 0.97, 0.92],
+      "color_rgb_linear": [
+        1.0,
+        0.97,
+        0.92
+      ],
       "inner_cone_deg": 10.0,
       "outer_cone_deg": 30.0,
       "attenuation_cm": 1600.0,
@@ -97,12 +154,27 @@
     },
     "FLOOR_R": {
       "type": "SPOT",
-      "offset_cm": [0.0, 330.0, 10.0],
-      "aim_cm": [800.0, 150.0, 0.0],
-      "phase_b_depth_cm": [100.0, 300.0],
+      "offset_cm": [
+        0.0,
+        330.0,
+        10.0
+      ],
+      "aim_cm": [
+        800.0,
+        150.0,
+        0.0
+      ],
+      "phase_b_depth_cm": [
+        100.0,
+        300.0
+      ],
       "intensity_cd": 3500.0,
       "temperature_kelvin": 4800.0,
-      "color_rgb_linear": [1.0, 0.97, 0.92],
+      "color_rgb_linear": [
+        1.0,
+        0.97,
+        0.92
+      ],
       "inner_cone_deg": 10.0,
       "outer_cone_deg": 30.0,
       "attenuation_cm": 1600.0,
@@ -112,12 +184,27 @@
     },
     "BACK_L": {
       "type": "SPOT",
-      "offset_cm": [0.0, -1300.0, 320.0],
-      "aim_cm": [300.0, 0.0, 150.0],
-      "phase_b_depth_cm": [200.0, 450.0],
+      "offset_cm": [
+        0.0,
+        -1300.0,
+        320.0
+      ],
+      "aim_cm": [
+        300.0,
+        0.0,
+        150.0
+      ],
+      "phase_b_depth_cm": [
+        200.0,
+        450.0
+      ],
       "intensity_cd": 7000.0,
       "temperature_kelvin": 4300.0,
-      "color_rgb_linear": [1.0, 0.95, 0.88],
+      "color_rgb_linear": [
+        1.0,
+        0.95,
+        0.88
+      ],
       "inner_cone_deg": 8.0,
       "outer_cone_deg": 20.0,
       "attenuation_cm": 2400.0,
@@ -127,12 +214,27 @@
     },
     "BACK_R": {
       "type": "SPOT",
-      "offset_cm": [0.0, 1300.0, 320.0],
-      "aim_cm": [300.0, 0.0, 150.0],
-      "phase_b_depth_cm": [200.0, 450.0],
+      "offset_cm": [
+        0.0,
+        1300.0,
+        320.0
+      ],
+      "aim_cm": [
+        300.0,
+        0.0,
+        150.0
+      ],
+      "phase_b_depth_cm": [
+        200.0,
+        450.0
+      ],
       "intensity_cd": 7000.0,
       "temperature_kelvin": 4300.0,
-      "color_rgb_linear": [1.0, 0.95, 0.88],
+      "color_rgb_linear": [
+        1.0,
+        0.95,
+        0.88
+      ],
       "inner_cone_deg": 8.0,
       "outer_cone_deg": 20.0,
       "attenuation_cm": 2400.0,
@@ -143,39 +245,94 @@
   },
   "black_mode": {
     "enabled": true,
-    "bays": [2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "bays": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
     "gary_approved": true,
     "decided_by": "Gary 4 Oct questionnaire: P06 bays 2-10",
     "approval_note": "Bays are ordinals of the 64-cue post-interleave P06 layout. Black mode disables every enabled light in these bays and adds the event fixtures; lighting_scores.json passages.P06.yield_to_events hands these bays to this tool.",
     "glimmer": {
-      "offset_cm": [0.0, -350.0, 6.0],
-      "aim_cm": [250.0, -350.0, 0.0],
+      "offset_cm": [
+        0.0,
+        -350.0,
+        6.0
+      ],
+      "aim_cm": [
+        250.0,
+        -350.0,
+        0.0
+      ],
       "intensity_cd": 8.0,
       "max_intensity_cd": 15.0,
       "temperature_kelvin": 3000.0,
-      "color_rgb_linear": [1.0, 0.8, 0.6],
+      "color_rgb_linear": [
+        1.0,
+        0.8,
+        0.6
+      ],
       "inner_cone_deg": 20.0,
       "outer_cone_deg": 45.0,
       "attenuation_cm": 500.0
     },
     "sequence": {
-      "first_gap_s": [1.5, 4.0],
-      "dark_gap_s": [6.0, 18.0],
-      "flashes_per_burst": [2, 5],
-      "intra_gap_s": [0.12, 0.9],
+      "first_gap_s": [
+        1.0,
+        2.5
+      ],
+      "dark_gap_s": [
+        3.0,
+        7.5
+      ],
+      "flashes_per_burst": [
+        2,
+        4
+      ],
+      "intra_gap_s": [
+        0.12,
+        0.9
+      ],
       "camera_share": 0.4,
-      "intensity_scale": [0.6, 1.0],
-      "fixture_sources": ["HIGH_L", "HIGH_R", "FLOOR_L", "FLOOR_R", "BACK_L", "BACK_R"]
+      "intensity_scale": [
+        0.6,
+        1.0
+      ],
+      "fixture_sources": [
+        "HIGH_L",
+        "HIGH_R",
+        "FLOOR_L",
+        "FLOOR_R",
+        "BACK_L",
+        "BACK_R"
+      ],
+      "tuned_by": "Gary 4 Oct: more flashes, 2-3 bursts over the ~15 s P06 black bays"
     }
   },
   "blinkers": {
     "enabled": false,
     "disabled_note": "The blinkers were designed for P04's moody looks bays (the looks' dead practical). This config now targets P06; re-homing blinkers is a separate creative call. They also need the unbuilt held patch.",
     "requires": "drama_flash",
-    "bays": [1, 2],
+    "bays": [
+      1,
+      2
+    ],
     "anchor": "fallback_offset_cm",
-    "fallback_offset_cm": [120.0, 340.0, 210.0],
-    "window_cm": [-2500.0, 200.0],
+    "fallback_offset_cm": [
+      120.0,
+      340.0,
+      210.0
+    ],
+    "window_cm": [
+      -2500.0,
+      200.0
+    ],
     "mean_gap_s": 9.0,
     "min_gap_s": 2.5,
     "blink_attack_frames": 1.0,
@@ -183,7 +340,11 @@
     "rest_scale": 0.0,
     "intensity_cd": 2600.0,
     "temperature_kelvin": 2900.0,
-    "color_rgb_linear": [1.0, 0.78, 0.55],
+    "color_rgb_linear": [
+      1.0,
+      0.78,
+      0.55
+    ],
     "attenuation_cm": 900.0
   },
   "standalone_polaroids": [],

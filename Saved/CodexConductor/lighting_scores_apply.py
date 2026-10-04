@@ -101,7 +101,7 @@ REQUIRED_P04_FUNCTIONS = {
     "_guid_text": ("value",),
     "_enum_member": ("enum_type", "name"),
     "_dirty_census": (),
-    "_require_context": (),
+    "_require_context": ("allow_dirty_show",),
     "_is_light": ("attachment",),
     "_attachment_rows": ("attachments",),
     "_require_attachment_rows_equal": ("actual", "expected", "message"),

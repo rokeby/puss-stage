@@ -625,6 +625,7 @@ class ShadowBudgetTests(unittest.TestCase):
         cfg["black_mode"]["sequence"]["dark_gap_s"] = [3.0, 3.0]
         cfg["black_mode"]["sequence"]["intra_gap_s"] = [0.08, 0.1]
         cfg["black_mode"]["sequence"]["first_gap_s"] = [0.1, 0.1]
+        cfg["black_mode"]["sequence"]["flashes_per_burst"] = [5, 5]  # fixture forces the excess
         with self.assertRaisesRegex(E.LightingEventsError, "SHADOW_BUDGET_EXCEEDED"):
             plan(cfg)
 
