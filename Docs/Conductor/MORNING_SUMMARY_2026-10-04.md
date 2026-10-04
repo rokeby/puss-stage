@@ -144,3 +144,6 @@
   - Choreos re-applied (choreo-apply-3, backup PreChoreo-20261004-173416).
   - **Headless full suite WITH Choreos: 132/0, no crash.** MasterSequenceOpens and SavedMasterMatchesShow are green.
   - Next: M4 (one lamp, Show backup, then revert), then the PIE checks with Gary.
+- **M4 measured** (P01 House L, via a possessable): the keyed Intensity was withheld from the Show and the hand-edited Color was written. Caveat: the key never evaluated, so "would leak otherwise" is inferred. The probe's cleanup left 3 throwaway dirty packages; a Don't-Save restart (Gary's OK) discarded them. The disk Show was verified equal to its backup. After restart both tests passed.
+  - Open: why setting the colour back did not capture, and why delete_asset on the temp sequence returned False.
+- **Next:** Gary's PIE checks (M1 hold+FF, GO hold, S8 audio), set up by the cueing stream.
