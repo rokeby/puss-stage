@@ -1,0 +1,1454 @@
+diff --git a/Plugins/InfinityStage/InfinityStage.uplugin b/Plugins/InfinityStage/InfinityStage.uplugin
+index 6548846..33b48ac 100644
+--- a/Plugins/InfinityStage/InfinityStage.uplugin
++++ b/Plugins/InfinityStage/InfinityStage.uplugin
+@@ -18,6 +18,10 @@
+ 		{
+ 			"Name": "GeometryCache",
+ 			"Enabled": true
++		},
++		{
++			"Name": "Niagara",
++			"Enabled": true
+ 		}
+ 	],
+ 	"Modules": [
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+index ce9f90a..8b5e143 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
++++ b/Plugins/InfinityStage/Source/InfinityStage/InfinityStage.Build.cs
+@@ -22,6 +22,7 @@ public class InfinityStage : ModuleRules
+         PrivateDependencyModuleNames.AddRange(new[]
+         {
+             "UMG",
++            "Niagara",
+             // Scene arrivals play a backcloth's GeometryCache before the Scene (AInfinityStageArrival).
+             "GeometryCache",
+             "GeometryCacheTracks"
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmActor.cpp
+new file mode 100644
+index 0000000..2d01569
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmActor.cpp
+@@ -0,0 +1,64 @@
++#include "InfinityStageBeeSwarmActor.h"
++
++#include "Components/SceneComponent.h"
++#include "InfinityStageBeeSwarmComponent.h"
++#include "NiagaraComponent.h"
++#include "NiagaraSystem.h"
++
++AInfinityStageBeeSwarmActor::AInfinityStageBeeSwarmActor()
++{
++    PrimaryActorTick.bCanEverTick = false;
++
++    Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
++    SetRootComponent(Root);
++
++    NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
++    NiagaraComponent->SetupAttachment(Root);
++    NiagaraComponent->SetAutoActivate(true);
++
++    SwarmComponent = CreateDefaultSubobject<UInfinityStageBeeSwarmComponent>(TEXT("Swarm"));
++
++    // A soft path, not a hard reference: the class loads without the asset, and
++    // the editor-run asset script creates the system at exactly this path.
++    SwarmSystem = TSoftObjectPtr<UNiagaraSystem>(
++        FSoftObjectPath(TEXT("/Game/Scenes/Effects/Swarm/NS_BeeSwarm.NS_BeeSwarm")));
++}
++
++void AInfinityStageBeeSwarmActor::OnConstruction(const FTransform& Transform)
++{
++    Super::OnConstruction(Transform);
++    ApplySettings();
++}
++
++void AInfinityStageBeeSwarmActor::PostInitializeComponents()
++{
++    Super::PostInitializeComponents();
++    ApplySettings();
++}
++
++void AInfinityStageBeeSwarmActor::SetSwarmBrightness(const float Brightness)
++{
++    SwarmBrightness = FMath::Max(0.0f, Brightness);
++    if (NiagaraComponent)
++    {
++        NiagaraComponent->SetVariableFloat(TEXT("User.SwarmBrightness"), SwarmBrightness);
++    }
++}
++
++void AInfinityStageBeeSwarmActor::ApplySettings()
++{
++    if (NiagaraComponent)
++    {
++        UNiagaraSystem* System = SwarmSystem.LoadSynchronous();
++        if (System && NiagaraComponent->GetAsset() != System)
++        {
++            NiagaraComponent->SetAsset(System);
++        }
++        NiagaraComponent->SetVariableFloat(TEXT("User.SwarmBrightness"), SwarmBrightness);
++    }
++    if (SwarmComponent)
++    {
++        SwarmComponent->SetNiagaraComponent(NiagaraComponent);
++        SwarmComponent->SetParameters(Parameters);
++    }
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmComponent.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmComponent.cpp
+new file mode 100644
+index 0000000..4036f1b
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmComponent.cpp
+@@ -0,0 +1,200 @@
++#include "InfinityStageBeeSwarmComponent.h"
++
++#include "Camera/PlayerCameraManager.h"
++#include "DrawDebugHelpers.h"
++#include "Engine/World.h"
++#include "GameFramework/Actor.h"
++#include "Kismet/GameplayStatics.h"
++#include "NiagaraComponent.h"
++#include "NiagaraDataInterfaceArrayFunctionLibrary.h"
++#include "NiagaraTickBehaviorEnum.h"
++
++#if WITH_EDITOR
++#include "Editor.h"
++#include "LevelEditorViewport.h"
++#endif
++
++UInfinityStageBeeSwarmComponent::UInfinityStageBeeSwarmComponent()
++{
++    PrimaryComponentTick.bCanEverTick = true;
++    PrimaryComponentTick.bStartWithTickEnabled = true;
++    PrimaryComponentTick.bTickEvenWhenPaused = true;
++    PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
++    PrimaryComponentTick.EndTickGroup = TG_PostUpdateWork;
++    // v3: without this the editor-viewport camera branch below never runs, and a
++    // level-placed swarm is frozen outside PIE (sandbox preview, S6 authoring).
++    bTickInEditor = true;
++}
++
++void UInfinityStageBeeSwarmComponent::OnRegister()
++{
++    Super::OnRegister();
++
++    if (!NiagaraComponent)
++    {
++        if (const AActor* Owner = GetOwner())
++        {
++            NiagaraComponent = Owner->FindComponentByClass<UNiagaraComponent>();
++        }
++    }
++    ConfigureNiagaraOrdering();
++}
++
++void UInfinityStageBeeSwarmComponent::BeginPlay()
++{
++    Super::BeginPlay();
++
++    FVector CameraPosition = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
++    bool bCameraCut = false;
++    ResolveCameraPosition(CameraPosition, bCameraCut);
++    ResetSimulation(CameraPosition);
++    UploadToNiagara();
++}
++
++void UInfinityStageBeeSwarmComponent::TickComponent(
++    const float DeltaTime,
++    const ELevelTick TickType,
++    FActorComponentTickFunction* ThisTickFunction)
++{
++    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
++
++    // v3: a paused world still ticks this component (bTickEvenWhenPaused, so the
++    // camera bubble keeps holding) but must not advance the swarm: Niagara pauses
++    // with the world, and advancing here would pop every bee on unpause.
++    const UWorld* World = GetWorld();
++    const float SimulationDelta = (World && World->IsPaused()) ? 0.0f : DeltaTime;
++
++    FVector CameraPosition = LastValidCameraPosition;
++    bool bGameCameraCut = false;
++    ResolveCameraPosition(CameraPosition, bGameCameraCut);
++    LastValidCameraPosition = CameraPosition;
++    if (!bSimulationInitialized)
++    {
++        ResetSimulation(CameraPosition);
++    }
++    else
++    {
++        Simulation.Advance(
++            SimulationDelta,
++            CameraPosition,
++            bCameraCutPending || bGameCameraCut);
++    }
++    bCameraCutPending = false;
++    UploadToNiagara();
++
++    if (bDrawDebugTarget && World)
++    {
++        DrawDebugSphere(World, Simulation.GetTargetPosition(), 8.0f, 8, FColor::Orange);
++    }
++}
++
++void UInfinityStageBeeSwarmComponent::SetParameters(
++    const FInfinityStageBeeSwarmParameters& InParameters)
++{
++    Parameters = InParameters;
++    bSimulationInitialized = false;
++}
++
++#if WITH_EDITOR
++void UInfinityStageBeeSwarmComponent::PostEditChangeProperty(
++    FPropertyChangedEvent& PropertyChangedEvent)
++{
++    Super::PostEditChangeProperty(PropertyChangedEvent);
++    bSimulationInitialized = false;
++}
++#endif
++
++void UInfinityStageBeeSwarmComponent::SetNiagaraComponent(
++    UNiagaraComponent* InNiagaraComponent)
++{
++    if (NiagaraComponent && NiagaraComponent != InNiagaraComponent)
++    {
++        NiagaraComponent->RemoveTickPrerequisiteComponent(this);
++    }
++    NiagaraComponent = InNiagaraComponent;
++    ConfigureNiagaraOrdering();
++    UploadToNiagara();
++}
++
++void UInfinityStageBeeSwarmComponent::NotifyCameraCut()
++{
++    bCameraCutPending = true;
++}
++
++void UInfinityStageBeeSwarmComponent::ConfigureNiagaraOrdering()
++{
++    if (!NiagaraComponent)
++    {
++        return;
++    }
++
++    NiagaraComponent->SetTickBehavior(ENiagaraTickBehavior::UsePrereqs);
++    NiagaraComponent->AddTickPrerequisiteComponent(this);
++}
++
++void UInfinityStageBeeSwarmComponent::ResetSimulation(const FVector& CameraPosition)
++{
++    const FVector Origin = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
++    Simulation.Reset(Parameters, Origin, CameraPosition);
++    const int32 BeeCount = Simulation.GetBees().Num();
++    PositionUploadBuffer.SetNumUninitialized(BeeCount);
++    VelocityUploadBuffer.SetNumUninitialized(BeeCount);
++    LastValidCameraPosition = CameraPosition;
++    bSimulationInitialized = true;
++}
++
++bool UInfinityStageBeeSwarmComponent::ResolveCameraPosition(
++    FVector& OutCameraPosition,
++    bool& bOutCameraCut) const
++{
++    bOutCameraCut = false;
++    const UWorld* World = GetWorld();
++    if (World && World->IsGameWorld())
++    {
++        if (APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(this, 0))
++        {
++            OutCameraPosition = CameraManager->GetCameraLocation();
++            bOutCameraCut = CameraManager->bGameCameraCutThisFrame;
++            return true;
++        }
++    }
++
++#if WITH_EDITOR
++    if (GCurrentLevelEditingViewportClient)
++    {
++        OutCameraPosition = GCurrentLevelEditingViewportClient->GetViewLocation();
++        return true;
++    }
++#endif
++
++    return bSimulationInitialized;
++}
++
++void UInfinityStageBeeSwarmComponent::UploadToNiagara()
++{
++    if (!NiagaraComponent || !bSimulationInitialized)
++    {
++        return;
++    }
++
++    const TConstArrayView<FInfinityStageBeeKinematics> Bees = Simulation.GetBees();
++    if (PositionUploadBuffer.Num() != Bees.Num())
++    {
++        PositionUploadBuffer.SetNumUninitialized(Bees.Num());
++        VelocityUploadBuffer.SetNumUninitialized(Bees.Num());
++    }
++    for (int32 BeeIndex = 0; BeeIndex < Bees.Num(); ++BeeIndex)
++    {
++        PositionUploadBuffer[BeeIndex] = Bees[BeeIndex].Position;
++        VelocityUploadBuffer[BeeIndex] = Bees[BeeIndex].Velocity;
++    }
++
++    UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayPosition(
++        NiagaraComponent,
++        PositionArrayParameter,
++        PositionUploadBuffer);
++    UNiagaraDataInterfaceArrayFunctionLibrary::SetNiagaraArrayVector(
++        NiagaraComponent,
++        VelocityArrayParameter,
++        VelocityUploadBuffer);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmSimulation.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmSimulation.cpp
+new file mode 100644
+index 0000000..f20f604
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBeeSwarmSimulation.cpp
+@@ -0,0 +1,419 @@
++#include "InfinityStageBeeSwarmSimulation.h"
++
++namespace
++{
++constexpr float MinimumFixedStepSeconds = 1.0f / 1000.0f;
++
++void ConstrainAxis(double& Position, double& Velocity, const double Minimum, const double Maximum)
++{
++    if (Position < Minimum)
++    {
++        Position = Minimum;
++        Velocity = FMath::Abs(Velocity);
++    }
++    else if (Position > Maximum)
++    {
++        Position = Maximum;
++        Velocity = -FMath::Abs(Velocity);
++    }
++}
++}
++
++void FInfinityStageBeeSwarmSimulation::Reset(
++    const FInfinityStageBeeSwarmParameters& InParameters,
++    const FVector& InSwarmOrigin,
++    const FVector& InCameraPosition)
++{
++    Parameters = InParameters;
++    Parameters.BeeCount = FMath::Max(1, Parameters.BeeCount);
++    Parameters.FixedStepSeconds = FMath::Max(MinimumFixedStepSeconds, Parameters.FixedStepSeconds);
++    Parameters.MaxSpeedCmPerSecond = FMath::Max(1.0f, Parameters.MaxSpeedCmPerSecond);
++    Parameters.BoundsExtentCm.X = FMath::Max(1.0, FMath::Abs(Parameters.BoundsExtentCm.X));
++    Parameters.BoundsExtentCm.Y = FMath::Max(1.0, FMath::Abs(Parameters.BoundsExtentCm.Y));
++    Parameters.BoundsExtentCm.Z = FMath::Max(1.0, FMath::Abs(Parameters.BoundsExtentCm.Z));
++
++    // A sphere no larger than the box half-diagonal always leaves at least one
++    // feasible point in the box, even when its centre is inside the box.
++    Parameters.CameraRepulsionRadiusCm = FMath::Clamp(
++        Parameters.CameraRepulsionRadiusCm,
++        0.0f,
++        static_cast<float>(Parameters.BoundsExtentCm.Size()));
++    Parameters.TargetDragPerSecond = FMath::Max(0.0f, Parameters.TargetDragPerSecond);
++    Parameters.TargetJumpIntervalSeconds.X = FMath::Max(0.01, Parameters.TargetJumpIntervalSeconds.X);
++    Parameters.TargetJumpIntervalSeconds.Y = FMath::Max(
++        Parameters.TargetJumpIntervalSeconds.X,
++        Parameters.TargetJumpIntervalSeconds.Y);
++    Parameters.OrbitRadiusRangeCm.X = FMath::Max(
++        Parameters.CameraRepulsionRadiusCm + 1.0f,
++        Parameters.OrbitRadiusRangeCm.X);
++    Parameters.OrbitRadiusRangeCm.Y = FMath::Max(
++        Parameters.OrbitRadiusRangeCm.X,
++        Parameters.OrbitRadiusRangeCm.Y);
++
++    SwarmOrigin = InSwarmOrigin;
++    TargetPosition = SwarmOrigin;
++    TargetRandomStream.Initialize(Parameters.Seed);
++    const FVector InitialTargetDirection = RandomUnitVector(TargetRandomStream);
++    TargetVelocity = InitialTargetDirection * Parameters.TargetWanderSpeedCmPerSecond;
++    SimulationSeconds = 0.0;
++    AccumulatorSeconds = 0.0;
++    NextTargetJumpSeconds = RandomRange(
++        TargetRandomStream,
++        Parameters.TargetJumpIntervalSeconds.X,
++        Parameters.TargetJumpIntervalSeconds.Y);
++    NextFlyBySeconds = SchedulePoisson(0.0, Parameters.FlyByRatePerSecond, TargetRandomStream);
++    LastCameraPosition = InCameraPosition;
++    bHasCameraPosition = true;
++
++    Bees.SetNum(Parameters.BeeCount);
++    BeeRuntime.SetNum(Parameters.BeeCount);
++    for (int32 BeeIndex = 0; BeeIndex < Parameters.BeeCount; ++BeeIndex)
++    {
++        FBeeRuntime& Runtime = BeeRuntime[BeeIndex];
++        const uint32 MixedSeed = static_cast<uint32>(Parameters.Seed)
++            ^ (0x9E3779B9u * static_cast<uint32>(BeeIndex + 1));
++        Runtime.RandomStream.Initialize(static_cast<int32>(MixedSeed));
++        Runtime.OrbitAxis = RandomUnitVector(Runtime.RandomStream);
++        Runtime.OrbitRadiusCm = RandomRange(
++            Runtime.RandomStream,
++            Parameters.OrbitRadiusRangeCm.X,
++            Parameters.OrbitRadiusRangeCm.Y);
++        Runtime.NextDartSeconds = SchedulePoisson(
++            0.0,
++            Parameters.DartRatePerSecond,
++            Runtime.RandomStream);
++
++        const float InitialRadius = RandomRange(
++            Runtime.RandomStream,
++            Parameters.CameraRepulsionRadiusCm + 5.0f,
++            Parameters.OrbitRadiusRangeCm.Y);
++        const FVector InitialDirection = RandomUnitVector(Runtime.RandomStream);
++        const FVector InitialVelocityDirection = RandomUnitVector(Runtime.RandomStream);
++        const float InitialSpeedFraction = RandomRange(Runtime.RandomStream, 0.1f, 0.35f);
++
++        FInfinityStageBeeKinematics& Bee = Bees[BeeIndex];
++        Bee.Position = SwarmOrigin + InitialDirection * InitialRadius;
++        Bee.Velocity = InitialVelocityDirection
++            * InitialSpeedFraction
++            * Parameters.MaxSpeedCmPerSecond;
++        ResolveConstraints(
++            Bee.Position,
++            Bee.Velocity,
++            InCameraPosition,
++            Runtime.OrbitAxis,
++            1.0f);
++    }
++}
++
++void FInfinityStageBeeSwarmSimulation::Advance(
++    const float DeltaSeconds,
++    const FVector& CameraPosition,
++    const bool bCameraCut)
++{
++    if (!bHasCameraPosition)
++    {
++        LastCameraPosition = CameraPosition;
++        bHasCameraPosition = true;
++    }
++
++    const float ClampedDeltaSeconds = FMath::Max(0.0f, DeltaSeconds);
++    const double AccumulatorAtFrameStart = AccumulatorSeconds;
++    AccumulatorSeconds += ClampedDeltaSeconds;
++    double StepTimeFromFrameStart = Parameters.FixedStepSeconds - AccumulatorAtFrameStart;
++
++    while (AccumulatorSeconds + UE_DOUBLE_SMALL_NUMBER >= Parameters.FixedStepSeconds)
++    {
++        const double Alpha = bCameraCut || ClampedDeltaSeconds <= UE_SMALL_NUMBER
++            ? 1.0
++            : FMath::Clamp(StepTimeFromFrameStart / ClampedDeltaSeconds, 0.0, 1.0);
++        const FVector StepCameraPosition = FMath::Lerp(
++            bCameraCut ? CameraPosition : LastCameraPosition,
++            CameraPosition,
++            Alpha);
++        StepFixed(Parameters.FixedStepSeconds, StepCameraPosition);
++        AccumulatorSeconds -= Parameters.FixedStepSeconds;
++        StepTimeFromFrameStart += Parameters.FixedStepSeconds;
++    }
++
++    AccumulatorSeconds = FMath::Max(0.0, AccumulatorSeconds);
++    LastCameraPosition = CameraPosition;
++
++    // Deliberately outside the loop: cuts, pause ticks and short frames still
++    // cannot put a bee inside the camera bubble.
++    ResolveAllConstraints(CameraPosition);
++}
++
++void FInfinityStageBeeSwarmSimulation::StepFixed(
++    const float StepSeconds,
++    const FVector& CameraPosition)
++{
++    SimulationSeconds += StepSeconds;
++    UpdateTarget(StepSeconds);
++
++    if (SimulationSeconds >= NextFlyBySeconds)
++    {
++        InjectFlyBy(CameraPosition);
++        NextFlyBySeconds = SchedulePoisson(
++            SimulationSeconds,
++            Parameters.FlyByRatePerSecond,
++            TargetRandomStream);
++    }
++
++    const float DragMultiplier = FMath::Exp(-Parameters.DragPerSecond * StepSeconds);
++    for (int32 BeeIndex = 0; BeeIndex < Bees.Num(); ++BeeIndex)
++    {
++        FInfinityStageBeeKinematics& Bee = Bees[BeeIndex];
++        FBeeRuntime& Runtime = BeeRuntime[BeeIndex];
++
++        const FVector ToTarget = TargetPosition - Bee.Position;
++        const double TargetDistance = FMath::Max(1.0, ToTarget.Size());
++        const FVector TargetDirection = ToTarget / TargetDistance;
++        FVector Tangent = FVector::CrossProduct(Runtime.OrbitAxis, TargetDirection).GetSafeNormal();
++        if (Tangent.IsNearlyZero())
++        {
++            Runtime.OrbitAxis = RandomUnitVector(Runtime.RandomStream);
++            Tangent = FVector::CrossProduct(Runtime.OrbitAxis, TargetDirection).GetSafeNormal(
++                UE_DOUBLE_SMALL_NUMBER,
++                FVector::RightVector);
++        }
++
++        FVector Acceleration = TargetDirection
++            * ((TargetDistance - Runtime.OrbitRadiusCm) * Parameters.OrbitSpringPerSecondSquared);
++        Acceleration += Tangent * Parameters.OrbitTangentialAccelerationCmPerSecondSquared;
++        Acceleration += CurlNoise(
++            Bee.Position,
++            SimulationSeconds,
++            Parameters.LargeNoiseScalePerCm,
++            0.37f) * Parameters.LargeNoiseAccelerationCmPerSecondSquared;
++        Acceleration += CurlNoise(
++            Bee.Position,
++            SimulationSeconds,
++            Parameters.SmallNoiseScalePerCm,
++            1.31f) * Parameters.SmallNoiseAccelerationCmPerSecondSquared;
++
++        const FVector ToCamera = CameraPosition - Bee.Position;
++        const double CameraDistance = ToCamera.Size();
++        if (CameraDistance > UE_DOUBLE_SMALL_NUMBER)
++        {
++            Acceleration += (ToCamera / CameraDistance)
++                * (Parameters.CameraAttractWeight * 300.0f);
++            const double RepulsionRange = Parameters.CameraRepulsionRadiusCm * 2.0;
++            if (CameraDistance < RepulsionRange)
++            {
++                Acceleration -= (ToCamera / CameraDistance)
++                    * ((1.0 - CameraDistance / FMath::Max(1.0, RepulsionRange))
++                        * Parameters.DartStrengthCmPerSecond);
++            }
++        }
++
++        if (SimulationSeconds >= Runtime.NextDartSeconds)
++        {
++            const FVector DartDirection = RandomUnitVector(Runtime.RandomStream);
++            Bee.Velocity += DartDirection * Parameters.DartStrengthCmPerSecond;
++            Runtime.NextDartSeconds = SchedulePoisson(
++                SimulationSeconds,
++                Parameters.DartRatePerSecond,
++                Runtime.RandomStream);
++        }
++
++        Bee.Velocity = (Bee.Velocity + Acceleration * StepSeconds) * DragMultiplier;
++        Bee.Velocity = Bee.Velocity.GetClampedToMaxSize(Parameters.MaxSpeedCmPerSecond);
++        Bee.Position += Bee.Velocity * StepSeconds;
++        ResolveConstraints(
++            Bee.Position,
++            Bee.Velocity,
++            CameraPosition,
++            Runtime.OrbitAxis,
++            1.0f);
++    }
++}
++
++void FInfinityStageBeeSwarmSimulation::UpdateTarget(const float StepSeconds)
++{
++    TargetVelocity += CurlNoise(
++        TargetPosition,
++        SimulationSeconds,
++        Parameters.LargeNoiseScalePerCm * 0.35f,
++        0.21f) * Parameters.TargetWanderSpeedCmPerSecond * StepSeconds;
++
++    if (SimulationSeconds >= NextTargetJumpSeconds)
++    {
++        const FVector JumpDirection = RandomUnitVector(TargetRandomStream);
++        TargetVelocity += JumpDirection * Parameters.TargetWanderSpeedCmPerSecond * 2.5f;
++        const float JumpInterval = RandomRange(
++            TargetRandomStream,
++            Parameters.TargetJumpIntervalSeconds.X,
++            Parameters.TargetJumpIntervalSeconds.Y);
++        NextTargetJumpSeconds = SimulationSeconds + JumpInterval;
++    }
++
++    TargetVelocity *= FMath::Exp(-Parameters.TargetDragPerSecond * StepSeconds);
++
++    TargetVelocity = TargetVelocity.GetClampedToMaxSize(
++        Parameters.TargetWanderSpeedCmPerSecond * 3.0f);
++    TargetPosition += TargetVelocity * StepSeconds;
++    ConstrainToBounds(TargetPosition, TargetVelocity, 0.45f);
++}
++
++void FInfinityStageBeeSwarmSimulation::InjectFlyBy(const FVector& CameraPosition)
++{
++    if (Bees.IsEmpty())
++    {
++        return;
++    }
++
++    const int32 BeeIndex = TargetRandomStream.RandRange(0, Bees.Num() - 1);
++    FInfinityStageBeeKinematics& Bee = Bees[BeeIndex];
++    FBeeRuntime& Runtime = BeeRuntime[BeeIndex];
++    const FVector Radial = RandomUnitVector(Runtime.RandomStream);
++    const FVector TangentSeed = RandomUnitVector(Runtime.RandomStream);
++    FVector Tangent = FVector::CrossProduct(Radial, TangentSeed).GetSafeNormal();
++    if (Tangent.IsNearlyZero())
++    {
++        Tangent = FVector::CrossProduct(Radial, FVector::UpVector).GetSafeNormal(
++            UE_DOUBLE_SMALL_NUMBER,
++            FVector::RightVector);
++    }
++    Bee.Position = CameraPosition + Radial * (Parameters.CameraRepulsionRadiusCm + 20.0f);
++    Bee.Velocity = (Tangent * 0.9f + Radial * 0.1f).GetSafeNormal()
++        * (Parameters.MaxSpeedCmPerSecond * 0.9f);
++    ResolveConstraints(
++        Bee.Position,
++        Bee.Velocity,
++        CameraPosition,
++        Runtime.OrbitAxis,
++        1.0f);
++}
++
++void FInfinityStageBeeSwarmSimulation::ResolveAllConstraints(const FVector& CameraPosition)
++{
++    for (int32 BeeIndex = 0; BeeIndex < Bees.Num(); ++BeeIndex)
++    {
++        ResolveConstraints(
++            Bees[BeeIndex].Position,
++            Bees[BeeIndex].Velocity,
++            CameraPosition,
++            BeeRuntime[BeeIndex].OrbitAxis,
++            1.0f);
++    }
++}
++
++void FInfinityStageBeeSwarmSimulation::ResolveConstraints(
++    FVector& Position,
++    FVector& Velocity,
++    const FVector& CameraPosition,
++    const FVector& FallbackDirection,
++    const float ExtentScale) const
++{
++    // One order everywhere: box first, then camera sphere. If the radial
++    // projection clips back into the sphere, use the farthest box corner,
++    // guaranteed feasible by Reset's radius clamp.
++    ConstrainToBounds(Position, Velocity, ExtentScale);
++
++    const double Radius = Parameters.CameraRepulsionRadiusCm;
++    if (Radius <= 0.0)
++    {
++        return;
++    }
++
++    const FVector FromCamera = Position - CameraPosition;
++    if (FromCamera.SizeSquared() + UE_DOUBLE_SMALL_NUMBER >= FMath::Square(Radius))
++    {
++        return;
++    }
++
++    const FVector Extent = Parameters.BoundsExtentCm * ExtentScale;
++    const FVector Minimum = SwarmOrigin - Extent;
++    const FVector Maximum = SwarmOrigin + Extent;
++    const FVector Outward = FromCamera.GetSafeNormal(
++        UE_DOUBLE_SMALL_NUMBER,
++        FallbackDirection.GetSafeNormal(UE_DOUBLE_SMALL_NUMBER, FVector::UpVector));
++    FVector Candidate = CameraPosition + Outward * Radius;
++    Candidate.X = FMath::Clamp(Candidate.X, Minimum.X, Maximum.X);
++    Candidate.Y = FMath::Clamp(Candidate.Y, Minimum.Y, Maximum.Y);
++    Candidate.Z = FMath::Clamp(Candidate.Z, Minimum.Z, Maximum.Z);
++
++    if (FVector::DistSquared(Candidate, CameraPosition) + UE_DOUBLE_SMALL_NUMBER
++        < FMath::Square(Radius))
++    {
++        Candidate.X = FMath::Abs(Minimum.X - CameraPosition.X)
++                > FMath::Abs(Maximum.X - CameraPosition.X)
++            ? Minimum.X
++            : Maximum.X;
++        Candidate.Y = FMath::Abs(Minimum.Y - CameraPosition.Y)
++                > FMath::Abs(Maximum.Y - CameraPosition.Y)
++            ? Minimum.Y
++            : Maximum.Y;
++        Candidate.Z = FMath::Abs(Minimum.Z - CameraPosition.Z)
++                > FMath::Abs(Maximum.Z - CameraPosition.Z)
++            ? Minimum.Z
++            : Maximum.Z;
++    }
++
++    Position = Candidate;
++    const FVector FinalOutward = (Position - CameraPosition).GetSafeNormal(
++        UE_DOUBLE_SMALL_NUMBER,
++        Outward);
++    const double InwardSpeed = FVector::DotProduct(Velocity, FinalOutward);
++    if (InwardSpeed < 0.0)
++    {
++        Velocity -= FinalOutward * InwardSpeed;
++    }
++}
++
++void FInfinityStageBeeSwarmSimulation::ConstrainToBounds(
++    FVector& Position,
++    FVector& Velocity,
++    const float ExtentScale) const
++{
++    const FVector Extent = Parameters.BoundsExtentCm * ExtentScale;
++    ConstrainAxis(Position.X, Velocity.X, SwarmOrigin.X - Extent.X, SwarmOrigin.X + Extent.X);
++    ConstrainAxis(Position.Y, Velocity.Y, SwarmOrigin.Y - Extent.Y, SwarmOrigin.Y + Extent.Y);
++    ConstrainAxis(Position.Z, Velocity.Z, SwarmOrigin.Z - Extent.Z, SwarmOrigin.Z + Extent.Z);
++}
++
++float FInfinityStageBeeSwarmSimulation::RandomRange(
++    FRandomStream& Stream,
++    const float Minimum,
++    const float Maximum)
++{
++    return Stream.FRandRange(Minimum, Maximum);
++}
++
++FVector FInfinityStageBeeSwarmSimulation::RandomUnitVector(FRandomStream& Stream)
++{
++    const double Z = RandomRange(Stream, -1.0f, 1.0f);
++    const double Angle = RandomRange(Stream, 0.0f, 2.0f * PI);
++    const double Radius = FMath::Sqrt(FMath::Max(0.0, 1.0 - Z * Z));
++    return FVector(Radius * FMath::Cos(Angle), Radius * FMath::Sin(Angle), Z);
++}
++
++FVector FInfinityStageBeeSwarmSimulation::CurlNoise(
++    const FVector& Position,
++    const double TimeSeconds,
++    const float Scale,
++    const float TimeScale)
++{
++    const FVector P = Position * Scale;
++    const double T = TimeSeconds * TimeScale;
++    // Analytic curl of A=(sin(y+mz+t0), sin(z+mx+t1), sin(x+my+t2)).
++    constexpr double Mix = 0.73;
++    const double C0 = FMath::Cos(P.Y + Mix * P.Z + T * 1.11);
++    const double C1 = FMath::Cos(P.Z + Mix * P.X + T * 0.89);
++    const double C2 = FMath::Cos(P.X + Mix * P.Y + T * 1.23);
++    return FVector(Mix * C2 - C1, Mix * C0 - C2, Mix * C1 - C0).GetSafeNormal();
++}
++
++double FInfinityStageBeeSwarmSimulation::SchedulePoisson(
++    const double NowSeconds,
++    const float RatePerSecond,
++    FRandomStream& Stream)
++{
++    if (RatePerSecond <= UE_SMALL_NUMBER)
++    {
++        return TNumericLimits<double>::Max();
++    }
++    const double Draw = Stream.FRand();
++    const double U = FMath::Clamp(Draw, 0.0, 1.0 - UE_DOUBLE_SMALL_NUMBER);
++    return NowSeconds - FMath::Loge(1.0 - U) / RatePerSecond;
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmActor.h
+new file mode 100644
+index 0000000..2affb4d
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmActor.h
+@@ -0,0 +1,64 @@
++#pragma once
++
++#include "GameFramework/Actor.h"
++#include "InfinityStageBeeSwarmSimulation.h"
++
++#include "InfinityStageBeeSwarmActor.generated.h"
++
++class UInfinityStageBeeSwarmComponent;
++class UNiagaraComponent;
++class UNiagaraSystem;
++
++/**
++ * Placeable S6 bee/firefly swarm: deterministic simulation component + the thin
++ * Niagara renderer it feeds. Usable as a Show Prop attachment's ActorClass
++ * (/Script/InfinityStage.InfinityStageBeeSwarmActor) with no Blueprint, because
++ * every tunable lives on the actor and defaults to the S6 values.
++ *
++ * The actor's location is the behaviour-box centre. For S6 it sits 150 cm above
++ * the floor so the default 140 cm Z half-extent keeps bees 10 cm off the floor.
++ */
++UCLASS(ClassGroup = (InfinityStage), meta = (DisplayName = "Infinity Stage Bee Swarm"))
++class INFINITYSTAGE_API AInfinityStageBeeSwarmActor : public AActor
++{
++    GENERATED_BODY()
++
++public:
++    AInfinityStageBeeSwarmActor();
++
++    virtual void OnConstruction(const FTransform& Transform) override;
++    virtual void PostInitializeComponents() override;
++
++    /** Scales User.SwarmBrightness (glint, wing rim, body) for the S6 release dim. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Bee Swarm")
++    void SetSwarmBrightness(float Brightness);
++
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Bee Swarm")
++    UInfinityStageBeeSwarmComponent* GetSwarmComponent() const { return SwarmComponent; }
++
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Bee Swarm")
++    UNiagaraComponent* GetNiagaraComponent() const { return NiagaraComponent; }
++
++    /** Behaviour. Pushed to the swarm component on construction and on edit. */
++    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bee Swarm")
++    FInfinityStageBeeSwarmParameters Parameters;
++
++    /** The render-only Niagara system (array-indexed mesh particles). */
++    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bee Swarm")
++    TSoftObjectPtr<UNiagaraSystem> SwarmSystem;
++
++    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Bee Swarm", meta = (ClampMin = "0.0", UIMax = "4.0"))
++    float SwarmBrightness = 1.0f;
++
++private:
++    void ApplySettings();
++
++    UPROPERTY(VisibleAnywhere, Category = "Bee Swarm")
++    TObjectPtr<USceneComponent> Root;
++
++    UPROPERTY(VisibleAnywhere, Category = "Bee Swarm")
++    TObjectPtr<UNiagaraComponent> NiagaraComponent;
++
++    UPROPERTY(VisibleAnywhere, Category = "Bee Swarm")
++    TObjectPtr<UInfinityStageBeeSwarmComponent> SwarmComponent;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmComponent.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmComponent.h
+new file mode 100644
+index 0000000..3fce3ea
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmComponent.h
+@@ -0,0 +1,81 @@
++#pragma once
++
++#include "Components/ActorComponent.h"
++#include "InfinityStageBeeSwarmSimulation.h"
++
++#include "InfinityStageBeeSwarmComponent.generated.h"
++
++class UNiagaraComponent;
++
++/**
++ * Route-(c) bridge: deterministic CPU simulation feeds a thin Niagara renderer.
++ * The component ticks after camera updates and is a prerequisite of Niagara.
++ */
++UCLASS(ClassGroup = (InfinityStage), meta = (BlueprintSpawnableComponent))
++class INFINITYSTAGE_API UInfinityStageBeeSwarmComponent : public UActorComponent
++{
++    GENERATED_BODY()
++
++public:
++    UInfinityStageBeeSwarmComponent();
++
++    virtual void OnRegister() override;
++    virtual void BeginPlay() override;
++    virtual void TickComponent(
++        float DeltaTime,
++        ELevelTick TickType,
++        FActorComponentTickFunction* ThisTickFunction) override;
++
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Bee Swarm")
++    void SetNiagaraComponent(UNiagaraComponent* InNiagaraComponent);
++
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Bee Swarm")
++    void NotifyCameraCut();
++
++    /** Replaces the behaviour parameters and restarts the simulation next tick. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Bee Swarm")
++    void SetParameters(const FInfinityStageBeeSwarmParameters& InParameters);
++
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Bee Swarm")
++    FInfinityStageBeeSwarmParameters GetParameters() const { return Parameters; }
++
++    /** The simulated attractor the swarm orbits (world space). */
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Bee Swarm")
++    FVector GetSwarmTargetPosition() const { return Simulation.GetTargetPosition(); }
++
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Bee Swarm")
++    int32 GetSimulatedBeeCount() const { return Simulation.GetBees().Num(); }
++
++#if WITH_EDITOR
++    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
++#endif
++
++private:
++    void ConfigureNiagaraOrdering();
++    void ResetSimulation(const FVector& CameraPosition);
++    bool ResolveCameraPosition(FVector& OutCameraPosition, bool& bOutCameraCut) const;
++    void UploadToNiagara();
++
++    UPROPERTY(EditAnywhere, Category = "Bee Swarm")
++    FInfinityStageBeeSwarmParameters Parameters;
++
++    UPROPERTY(EditAnywhere, Category = "Bee Swarm|Niagara")
++    TObjectPtr<UNiagaraComponent> NiagaraComponent;
++
++    UPROPERTY(EditAnywhere, Category = "Bee Swarm|Niagara")
++    FName PositionArrayParameter = TEXT("User.BeePositions");
++
++    UPROPERTY(EditAnywhere, Category = "Bee Swarm|Niagara")
++    FName VelocityArrayParameter = TEXT("User.BeeVelocities");
++
++    /** Sandbox aid: draws the swarm target as a debug sphere every tick. */
++    UPROPERTY(EditAnywhere, Category = "Bee Swarm|Debug")
++    bool bDrawDebugTarget = false;
++
++    FInfinityStageBeeSwarmSimulation Simulation;
++    TArray<FVector> PositionUploadBuffer;
++    TArray<FVector> VelocityUploadBuffer;
++    FVector LastValidCameraPosition = FVector::ZeroVector;
++    bool bSimulationInitialized = false;
++    bool bCameraCutPending = false;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmSimulation.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmSimulation.h
+new file mode 100644
+index 0000000..a30e51f
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBeeSwarmSimulation.h
+@@ -0,0 +1,158 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Math/RandomStream.h"
++
++#include "InfinityStageBeeSwarmSimulation.generated.h"
++
++/**
++ * Deterministic behaviour parameters for the S6 bee/firefly swarm.
++ * v3 defaults were tuned offline with Tools/BeeSwarm/bee_swarm_harness.py (the
++ * Python mirror of this simulation) against pre-registered look gates; the box
++ * assumes the actor sits 150 cm above the floor (Z half-extent 140 cm).
++ */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityStageBeeSwarmParameters
++{
++    GENERATED_BODY()
++
++    /** NS_BeeSwarm spawns 512 particles and hides any index past the array length. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm", meta = (ClampMin = "1", ClampMax = "512"))
++    int32 BeeCount = 200;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    int32 Seed = static_cast<int32>(0xBEE62026u);
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float FixedStepSeconds = 1.0f / 120.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    FVector BoundsExtentCm = FVector(600.0, 450.0, 140.0);
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float TargetWanderSpeedCmPerSecond = 150.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    FVector2D TargetJumpIntervalSeconds = FVector2D(0.8, 2.6);
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    FVector2D OrbitRadiusRangeCm = FVector2D(30.0, 140.0);
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float LargeNoiseScalePerCm = 0.003f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float SmallNoiseScalePerCm = 0.09f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float LargeNoiseAccelerationCmPerSecondSquared = 220.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float SmallNoiseAccelerationCmPerSecondSquared = 1200.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float DartRatePerSecond = 0.45f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float DartStrengthCmPerSecond = 320.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float DragPerSecond = 1.6f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float MaxSpeedCmPerSecond = 650.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float CameraAttractWeight = 0.9f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float CameraRepulsionRadiusCm = 25.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float FlyByRatePerSecond = 0.8f;
++
++    /** v3: exponential damping of the target between jumps (dart, then hover).
++     * Zero reproduces v2, where the target ran pinned at its 3x speed cap. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float TargetDragPerSecond = 1.5f;
++
++    /** v3: radial spring towards each bee's orbit radius (v2 literal: 4). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float OrbitSpringPerSecondSquared = 12.0f;
++
++    /** v3: constant tangential push round the target (v2 literal: 240). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bee Swarm")
++    float OrbitTangentialAccelerationCmPerSecondSquared = 240.0f;
++};
++
++struct INFINITYSTAGE_API FInfinityStageBeeKinematics
++{
++    FVector Position = FVector::ZeroVector;
++    FVector Velocity = FVector::ZeroVector;
++};
++
++/**
++ * Fixed-step swarm core. Niagara owns rendering only. Replay is deterministic
++ * for the same UE build/platform; floating transcendentals do not promise
++ * bit-identical state across platforms.
++ */
++class INFINITYSTAGE_API FInfinityStageBeeSwarmSimulation
++{
++public:
++    void Reset(
++        const FInfinityStageBeeSwarmParameters& InParameters,
++        const FVector& InSwarmOrigin,
++        const FVector& InCameraPosition);
++
++    /**
++     * Advances by real time. Camera motion is interpolated at every fixed
++     * substep. A cut disables interpolation and constrains against the new
++     * camera immediately. The hard camera bubble is also enforced if no step
++     * runs (zero delta, pause, or a sub-step-sized frame).
++     */
++    void Advance(float DeltaSeconds, const FVector& CameraPosition, bool bCameraCut = false);
++
++    TConstArrayView<FInfinityStageBeeKinematics> GetBees() const { return Bees; }
++    const FVector& GetTargetPosition() const { return TargetPosition; }
++    double GetSimulationSeconds() const { return SimulationSeconds; }
++
++private:
++    struct FBeeRuntime
++    {
++        FVector OrbitAxis = FVector::UpVector;
++        float OrbitRadiusCm = 100.0f;
++        double NextDartSeconds = 0.0;
++        FRandomStream RandomStream;
++    };
++
++    void StepFixed(float StepSeconds, const FVector& CameraPosition);
++    void UpdateTarget(float StepSeconds);
++    void InjectFlyBy(const FVector& CameraPosition);
++    void ResolveAllConstraints(const FVector& CameraPosition);
++    void ResolveConstraints(
++        FVector& Position,
++        FVector& Velocity,
++        const FVector& CameraPosition,
++        const FVector& FallbackDirection,
++        float ExtentScale) const;
++    void ConstrainToBounds(FVector& Position, FVector& Velocity, float ExtentScale) const;
++
++    static float RandomRange(FRandomStream& Stream, float Minimum, float Maximum);
++    static FVector RandomUnitVector(FRandomStream& Stream);
++    static FVector CurlNoise(const FVector& Position, double TimeSeconds, float Scale, float TimeScale);
++    static double SchedulePoisson(double NowSeconds, float RatePerSecond, FRandomStream& Stream);
++
++    FInfinityStageBeeSwarmParameters Parameters;
++    FVector SwarmOrigin = FVector::ZeroVector;
++    FVector TargetPosition = FVector::ZeroVector;
++    FVector TargetVelocity = FVector::ZeroVector;
++    FVector LastCameraPosition = FVector::ZeroVector;
++    TArray<FInfinityStageBeeKinematics> Bees;
++    TArray<FBeeRuntime> BeeRuntime;
++    FRandomStream TargetRandomStream;
++    double SimulationSeconds = 0.0;
++    double AccumulatorSeconds = 0.0;
++    double NextTargetJumpSeconds = 0.0;
++    double NextFlyBySeconds = 0.0;
++    bool bHasCameraPosition = false;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBeeSwarmTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBeeSwarmTests.cpp
+new file mode 100644
+index 0000000..1edd259
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBeeSwarmTests.cpp
+@@ -0,0 +1,399 @@
++#include "InfinityStageBeeSwarmSimulation.h"
++
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++constexpr int32 TestBeeCount = 24;
++constexpr double PositionToleranceCm = 1.0e-4;
++constexpr double VelocityToleranceCmPerSecond = 1.0e-4;
++
++FInfinityStageBeeSwarmParameters MakeTestParameters()
++{
++    FInfinityStageBeeSwarmParameters Parameters;
++    Parameters.BeeCount = TestBeeCount;
++    Parameters.Seed = static_cast<int32>(0xBEE62026u);
++    Parameters.BoundsExtentCm = FVector(600.0, 450.0, 300.0);
++    return Parameters;
++}
++
++bool StatesMatch(
++    const FInfinityStageBeeSwarmSimulation& A,
++    const FInfinityStageBeeSwarmSimulation& B,
++    const double PositionTolerance = PositionToleranceCm,
++    const double VelocityTolerance = VelocityToleranceCmPerSecond)
++{
++    const TConstArrayView<FInfinityStageBeeKinematics> ABees = A.GetBees();
++    const TConstArrayView<FInfinityStageBeeKinematics> BBees = B.GetBees();
++    if (ABees.Num() != BBees.Num())
++    {
++        return false;
++    }
++    for (int32 BeeIndex = 0; BeeIndex < ABees.Num(); ++BeeIndex)
++    {
++        if (!ABees[BeeIndex].Position.Equals(BBees[BeeIndex].Position, PositionTolerance)
++            || !ABees[BeeIndex].Velocity.Equals(BBees[BeeIndex].Velocity, VelocityTolerance))
++        {
++            return false;
++        }
++    }
++    return A.GetTargetPosition().Equals(B.GetTargetPosition(), PositionTolerance)
++        && FMath::IsNearlyEqual(A.GetSimulationSeconds(), B.GetSimulationSeconds(), UE_DOUBLE_SMALL_NUMBER);
++}
++
++bool SatisfiesBoundsAndBubble(
++    const FInfinityStageBeeSwarmSimulation& Simulation,
++    const FInfinityStageBeeSwarmParameters& Parameters,
++    const FVector& Origin,
++    const FVector& CameraPosition)
++{
++    for (const FInfinityStageBeeKinematics& Bee : Simulation.GetBees())
++    {
++        const FVector Relative = Bee.Position - Origin;
++        if (FMath::Abs(Relative.X) > Parameters.BoundsExtentCm.X + 0.01
++            || FMath::Abs(Relative.Y) > Parameters.BoundsExtentCm.Y + 0.01
++            || FMath::Abs(Relative.Z) > Parameters.BoundsExtentCm.Z + 0.01
++            || FVector::Distance(Bee.Position, CameraPosition) + 0.01
++                < Parameters.CameraRepulsionRadiusCm)
++        {
++            return false;
++        }
++    }
++    return true;
++}
++
++double MinimumReturnMapRecurrence(
++    const TArray<TArray<FVector>>& Frames,
++    const int32 MinimumLag,
++    const int32 MaximumLag,
++    const double NormalizationDistance)
++{
++    double MinimumNormalizedRms = TNumericLimits<double>::Max();
++    for (int32 Lag = MinimumLag; Lag <= MaximumLag; ++Lag)
++    {
++        double SquaredDistance = 0.0;
++        int64 ValueCount = 0;
++        for (int32 Frame = 0; Frame + Lag + 1 < Frames.Num(); ++Frame)
++        {
++            const int32 BeeCount = FMath::Min(Frames[Frame].Num(), Frames[Frame + Lag].Num());
++            for (int32 BeeIndex = 0; BeeIndex < BeeCount; ++BeeIndex)
++            {
++                const FVector PositionReturn = Frames[Frame][BeeIndex]
++                    - Frames[Frame + Lag][BeeIndex];
++                const FVector FirstStep = Frames[Frame + 1][BeeIndex]
++                    - Frames[Frame][BeeIndex];
++                const FVector ReturnedStep = Frames[Frame + Lag + 1][BeeIndex]
++                    - Frames[Frame + Lag][BeeIndex];
++                const FVector StepReturn = FirstStep - ReturnedStep;
++                SquaredDistance += PositionReturn.SizeSquared() + StepReturn.SizeSquared();
++                ValueCount += 2;
++            }
++        }
++        if (ValueCount > 0)
++        {
++            const double NormalizedRms = FMath::Sqrt(SquaredDistance / ValueCount)
++                / FMath::Max(1.0, NormalizationDistance);
++            MinimumNormalizedRms = FMath::Min(MinimumNormalizedRms, NormalizedRms);
++        }
++    }
++    return MinimumNormalizedRms;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmSeedRepeatTest,
++    "InfinityStage.Effects.BeeSwarm.SeedRepeat",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmSeedRepeatTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    const FVector Camera(0.0, 0.0, 0.0);
++    FInfinityStageBeeSwarmSimulation First;
++    FInfinityStageBeeSwarmSimulation Second;
++    First.Reset(SwarmParameters, FVector::ZeroVector, Camera);
++    Second.Reset(SwarmParameters, FVector::ZeroVector, Camera);
++
++    for (int32 Frame = 0; Frame < 600; ++Frame)
++    {
++        First.Advance(1.0f / 60.0f, Camera);
++        Second.Advance(1.0f / 60.0f, Camera);
++    }
++    TestTrue(TEXT("Identical seeds and inputs produce identical states"), StatesMatch(First, Second, 0.0, 0.0));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmVariableFrameRateTest,
++    "InfinityStage.Effects.BeeSwarm.VariableFrameRate",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmVariableFrameRateTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    const FVector Camera(0.0, 0.0, 0.0);
++    FInfinityStageBeeSwarmSimulation AtThirtyFps;
++    FInfinityStageBeeSwarmSimulation AtSixtyFps;
++    FInfinityStageBeeSwarmSimulation Jittered;
++    AtThirtyFps.Reset(SwarmParameters, FVector::ZeroVector, Camera);
++    AtSixtyFps.Reset(SwarmParameters, FVector::ZeroVector, Camera);
++    Jittered.Reset(SwarmParameters, FVector::ZeroVector, Camera);
++
++    constexpr int32 FixedSteps = 1200;
++    for (int32 Frame = 0; Frame < FixedSteps / 4; ++Frame)
++    {
++        AtThirtyFps.Advance(SwarmParameters.FixedStepSeconds * 4.0f, Camera);
++    }
++    for (int32 Frame = 0; Frame < FixedSteps / 2; ++Frame)
++    {
++        AtSixtyFps.Advance(SwarmParameters.FixedStepSeconds * 2.0f, Camera);
++    }
++    constexpr int32 JitterPattern[] = {1, 7, 2, 5, 3, 6};
++    int32 StepsSubmitted = 0;
++    int32 PatternIndex = 0;
++    while (StepsSubmitted < FixedSteps)
++    {
++        const int32 StepCount = FMath::Min(
++            JitterPattern[PatternIndex % UE_ARRAY_COUNT(JitterPattern)],
++            FixedSteps - StepsSubmitted);
++        Jittered.Advance(SwarmParameters.FixedStepSeconds * StepCount, Camera);
++        StepsSubmitted += StepCount;
++        ++PatternIndex;
++    }
++
++    TestTrue(TEXT("30 and 60 fps schedules converge to the same fixed-step state"), StatesMatch(AtThirtyFps, AtSixtyFps));
++    TestTrue(TEXT("A jittered schedule converges to the same fixed-step state"), StatesMatch(AtThirtyFps, Jittered));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmMovingCameraInterpolationTest,
++    "InfinityStage.Effects.BeeSwarm.MovingCameraInterpolation",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmMovingCameraInterpolationTest::RunTest(const FString& Parameters)
++{
++    FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    SwarmParameters.CameraRepulsionRadiusCm = 0.0f;
++    SwarmParameters.FlyByRatePerSecond = 0.0f;
++    const FVector StartCamera(-1000.0, -200.0, 100.0);
++    const FVector EndCamera(1000.0, 200.0, 100.0);
++    FInfinityStageBeeSwarmSimulation AtThirtyFps;
++    FInfinityStageBeeSwarmSimulation AtSixtyFps;
++    AtThirtyFps.Reset(SwarmParameters, FVector::ZeroVector, StartCamera);
++    AtSixtyFps.Reset(SwarmParameters, FVector::ZeroVector, StartCamera);
++
++    constexpr int32 DurationSeconds = 4;
++    for (int32 Frame = 1; Frame <= DurationSeconds * 30; ++Frame)
++    {
++        const double Alpha = static_cast<double>(Frame) / (DurationSeconds * 30);
++        AtThirtyFps.Advance(1.0f / 30.0f, FMath::Lerp(StartCamera, EndCamera, Alpha));
++    }
++    for (int32 Frame = 1; Frame <= DurationSeconds * 60; ++Frame)
++    {
++        const double Alpha = static_cast<double>(Frame) / (DurationSeconds * 60);
++        AtSixtyFps.Advance(1.0f / 60.0f, FMath::Lerp(StartCamera, EndCamera, Alpha));
++    }
++
++    TestTrue(
++        TEXT("Moving-camera substeps are frame-rate independent"),
++        StatesMatch(AtThirtyFps, AtSixtyFps, 0.01, 0.01));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmCameraCutTest,
++    "InfinityStage.Effects.BeeSwarm.CameraCutBubble",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmCameraCutTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    FInfinityStageBeeSwarmSimulation Simulation;
++    Simulation.Reset(SwarmParameters, FVector::ZeroVector, FVector(1000.0, 0.0, 0.0));
++    const FVector CutCamera = Simulation.GetBees()[0].Position;
++    const double TimeBeforeCut = Simulation.GetSimulationSeconds();
++    Simulation.Advance(0.0f, CutCamera, true);
++
++    TestEqual(TEXT("A zero-delta camera cut does not advance simulation time"), Simulation.GetSimulationSeconds(), TimeBeforeCut);
++    TestTrue(TEXT("A cut enforces both box and bubble immediately"), SatisfiesBoundsAndBubble(Simulation, SwarmParameters, FVector::ZeroVector, CutCamera));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmPauseTest,
++    "InfinityStage.Effects.BeeSwarm.PauseBubble",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmPauseTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    FInfinityStageBeeSwarmSimulation Simulation;
++    Simulation.Reset(SwarmParameters, FVector::ZeroVector, FVector(1000.0, 0.0, 0.0));
++    Simulation.Advance(1.0f / 60.0f, FVector(1000.0, 0.0, 0.0));
++    const FVector PausedCamera = Simulation.GetBees()[1].Position;
++    const double TimeBeforePauseTick = Simulation.GetSimulationSeconds();
++    Simulation.Advance(0.0f, PausedCamera);
++
++    TestEqual(TEXT("A pause tick does not advance simulation time"), Simulation.GetSimulationSeconds(), TimeBeforePauseTick);
++    TestTrue(TEXT("A pause tick enforces the moved camera bubble"), SatisfiesBoundsAndBubble(Simulation, SwarmParameters, FVector::ZeroVector, PausedCamera));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmBoundaryConstraintTest,
++    "InfinityStage.Effects.BeeSwarm.BoundaryConstraints",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmBoundaryConstraintTest::RunTest(const FString& Parameters)
++{
++    FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    SwarmParameters.BoundsExtentCm = FVector(40.0, 30.0, 20.0);
++    SwarmParameters.CameraRepulsionRadiusCm = 25.0f;
++    const FVector Origin(50.0, -25.0, 10.0);
++    const FVector Cameras[] =
++    {
++        Origin + FVector(40.0, 0.0, 0.0),
++        Origin + FVector(-40.0, -30.0, -20.0),
++        Origin + FVector(40.0, 30.0, 20.0)
++    };
++
++    FInfinityStageBeeSwarmSimulation Simulation;
++    Simulation.Reset(SwarmParameters, Origin, Cameras[0]);
++    TestTrue(TEXT("Reset resolves a camera sphere intersecting a box face"), SatisfiesBoundsAndBubble(Simulation, SwarmParameters, Origin, Cameras[0]));
++    for (const FVector& Camera : Cameras)
++    {
++        Simulation.Advance(0.0f, Camera, true);
++        TestTrue(TEXT("Corner and face cuts preserve both constraints"), SatisfiesBoundsAndBubble(Simulation, SwarmParameters, Origin, Camera));
++        for (int32 Step = 0; Step < 120; ++Step)
++        {
++            Simulation.Advance(SwarmParameters.FixedStepSeconds, Camera);
++        }
++        TestTrue(TEXT("Every integrated boundary step preserves both constraints"), SatisfiesBoundsAndBubble(Simulation, SwarmParameters, Origin, Camera));
++    }
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmNonRepetitionTest,
++    "InfinityStage.Effects.BeeSwarm.NonRepetitionReturnMap",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBeeSwarmNonRepetitionTest::RunTest(const FString& Parameters)
++{
++    constexpr int32 SamplesPerSecond = 10;
++    constexpr int32 DurationSeconds = 60;
++    constexpr int32 TwelveSecondPeriodSamples = 12 * SamplesPerSecond;
++    constexpr double MinimumAcceptedRecurrence = 0.01;
++
++    TArray<TArray<FVector>> PerfectLoop;
++    PerfectLoop.SetNum(DurationSeconds * SamplesPerSecond);
++    for (int32 Sample = 0; Sample < PerfectLoop.Num(); ++Sample)
++    {
++        const double Phase = 2.0 * PI
++            * static_cast<double>(Sample % TwelveSecondPeriodSamples)
++            / TwelveSecondPeriodSamples;
++        PerfectLoop[Sample].Add(FVector(100.0 * FMath::Cos(Phase), 100.0 * FMath::Sin(Phase), 0.0));
++        PerfectLoop[Sample].Add(FVector(50.0 * FMath::Cos(Phase + 0.7), 50.0 * FMath::Sin(Phase + 0.7), 20.0));
++    }
++    const double LoopRecurrence = MinimumReturnMapRecurrence(
++        PerfectLoop,
++        2 * SamplesPerSecond,
++        30 * SamplesPerSecond,
++        100.0);
++    const bool bPerfectLoopPassesGate = LoopRecurrence >= MinimumAcceptedRecurrence;
++    TestFalse(
++        *FString::Printf(TEXT("A perfect 12 s loop fails the return-map gate (%.9f < %.3f)"), LoopRecurrence, MinimumAcceptedRecurrence),
++        bPerfectLoopPassesGate);
++
++    const FInfinityStageBeeSwarmParameters SwarmParameters = MakeTestParameters();
++    FInfinityStageBeeSwarmSimulation Simulation;
++    Simulation.Reset(SwarmParameters, FVector::ZeroVector, FVector::ZeroVector);
++    TArray<TArray<FVector>> SwarmFrames;
++    SwarmFrames.Reserve(DurationSeconds * SamplesPerSecond);
++    for (int32 Sample = 0; Sample < DurationSeconds * SamplesPerSecond; ++Sample)
++    {
++        Simulation.Advance(1.0f / SamplesPerSecond, FVector::ZeroVector);
++        TArray<FVector>& Frame = SwarmFrames.Emplace_GetRef();
++        constexpr int32 BeesInReturnMap = 4;
++        Frame.Reserve(BeesInReturnMap);
++        for (int32 BeeIndex = 0; BeeIndex < BeesInReturnMap; ++BeeIndex)
++        {
++            Frame.Add(Simulation.GetBees()[BeeIndex].Position);
++        }
++    }
++    const double SwarmRecurrence = MinimumReturnMapRecurrence(
++        SwarmFrames,
++        2 * SamplesPerSecond,
++        30 * SamplesPerSecond,
++        SwarmParameters.BoundsExtentCm.Size());
++    TestTrue(
++        *FString::Printf(TEXT("Four-bee return map remains above %.3f (actual %.6f)"), MinimumAcceptedRecurrence, SwarmRecurrence),
++        SwarmRecurrence >= MinimumAcceptedRecurrence);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBeeSwarmPythonMirrorGoldenTest,
++    "InfinityStage.Effects.BeeSwarm.PythonMirrorGolden",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++/**
++ * v3: the offline tuning harness (Tools/BeeSwarm/bee_swarm_mirror.py) must predict
++ * this simulation, or the tuned defaults mean nothing. Values are the mirror's
++ * output (python Tools/BeeSwarm/bee_swarm_harness.py --golden) for the header
++ * defaults with 24 bees. 1 s: strict (no jump or fly-by has fired yet). 3 s: one
++ * jump and one fly-by have fired; chaos amplifies CRT-level exp/cos differences,
++ * so the tolerance is loose and a miss there alone is diagnostic. If the 1 s check
++ * fails, re-tune only after fixing the mirror. Re-generate if any default changes.
++ */
++bool FInfinityStageBeeSwarmPythonMirrorGoldenTest::RunTest(const FString& Parameters)
++{
++    struct FGolden
++    {
++        int32 Frames;
++        FVector Target;
++        FVector Bees[4];
++        int32 Jumps;
++        int32 FlyBys;
++    };
++    const FGolden Goldens[] =
++    {
++        {60, FVector(-95.542060, -65.115590, -27.170772), {FVector(31.880307, -65.775054, -103.292955), FVector(-274.788225, -121.600288, -23.981981), FVector(-106.100343, -88.405933, 93.608277), FVector(-181.766003, -15.201736, -66.731934)}, 0, 0},
++        {180, FVector(-223.533736, -34.821448, 0.077398), {FVector(-366.547897, 2.146363, -4.904196), FVector(-337.728099, -104.397014, 65.737197), FVector(-353.603326, -41.587562, 41.480011), FVector(-209.347499, -169.055507, 116.622096)}, 1, 1},
++    };
++    const double Tolerances[] = {0.01, 1.0};
++
++    FInfinityStageBeeSwarmParameters SwarmParameters;
++    SwarmParameters.BeeCount = 24;
++    const FVector StartCamera(-300.0, 40.0, -60.0);
++    const FVector EndCamera(-240.0, 10.0, -50.0);
++    FInfinityStageBeeSwarmSimulation Simulation;
++    Simulation.Reset(SwarmParameters, FVector::ZeroVector, StartCamera);
++
++    int32 Frame = 0;
++    for (int32 GoldenIndex = 0; GoldenIndex < static_cast<int32>(UE_ARRAY_COUNT(Goldens)); ++GoldenIndex)
++    {
++        const FGolden& Golden = Goldens[GoldenIndex];
++        while (Frame < Golden.Frames)
++        {
++            ++Frame;
++            const double Alpha = FMath::Min(1.0, static_cast<double>(Frame) / 60.0);
++            Simulation.Advance(1.0f / 60.0f, FMath::Lerp(StartCamera, EndCamera, Alpha));
++        }
++        const double Tolerance = Tolerances[GoldenIndex];
++        double WorstCm = FVector::Distance(Simulation.GetTargetPosition(), Golden.Target);
++        for (int32 BeeIndex = 0; BeeIndex < 4; ++BeeIndex)
++        {
++            WorstCm = FMath::Max(WorstCm, FVector::Distance(Simulation.GetBees()[BeeIndex].Position, Golden.Bees[BeeIndex]));
++        }
++        TestTrue(
++            *FString::Printf(TEXT("Mirror golden at frame %d within %.3f cm (worst %.6f cm)"), Golden.Frames, Tolerance, WorstCm),
++            WorstCm <= Tolerance);
++    }
++    return true;
++}
++
++#endif

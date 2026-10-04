@@ -1,0 +1,8 @@
+import os
+import runpy
+import unreal
+
+here = os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()),
+                    "CodexBeeSwarm")
+runpy.run_path(os.path.join(here, "bee_swarm_assets.py"),
+               init_globals={"BEE_SWARM_ASSETS_MODE": "REBUILD_MATERIALS"}, run_name="__main__")

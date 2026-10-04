@@ -49,3 +49,8 @@
     - Look levels and footlights.
     - Silence before the music needs a builder change.
   - Run it BEFORE the P01 ping-on; everything after the Opening moves +81.4 s.
+- **S6 bee swarm:** the review found 3 faults in v2 (bees never moved in the editor viewport, the sim ran on while paused, Niagara missing from the plugin's dependencies). These are fixed in held patch **v3** (apply-check clean, never compiled). v3 adds a no-Blueprint swarm actor, a brightness control for the release dim, and an 8th test.
+  - A Python mirror of the sim passes all its gates and controls (measured by me).
+  - Mirror numbers for 200 bees: median 133 cm from the target; a bee within 60 cm of the camera in 54% of frames.
+  - Python can't build Niagara emitters in 5.8, so the runbook has click steps: Docs/BeeSwarmBuildRunbook_2026-10-04.md.
+  - The sandbox map script opens a new map, so it must be announced first. The S6 write waits for your yes.
