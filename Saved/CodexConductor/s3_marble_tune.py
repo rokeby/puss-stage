@@ -232,8 +232,8 @@ def _apply(run, plan, index, source):
     library = unreal.MaterialEditingLibrary
     for name, value in plan["parameters"].items():
         record["parameter_before"][name] = float(library.get_material_instance_scalar_parameter_value(copied, name))
-        if not library.set_material_instance_scalar_parameter_value(copied, name, float(value)):
-            raise PlanError("PARAMETER_SET_FAILED|name=" + name)
+        # UE 5.8: the setter can return False after a successful set; the read-back below is the gate.
+        library.set_material_instance_scalar_parameter_value(copied, name, float(value))
         actual = float(library.get_material_instance_scalar_parameter_value(copied, name))
         if abs(actual - float(value)) > 1.0e-4:
             raise PlanError("PARAMETER_READBACK_MISMATCH|name=" + name)
