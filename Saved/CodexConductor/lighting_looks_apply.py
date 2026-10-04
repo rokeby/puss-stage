@@ -54,7 +54,7 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 MASTER_TEST = "InfinityStage.Editor.SavedMasterMatchesShow"
 PASSAGE_NUMBER = 4
-VALID_MODES = ("DRY", "APPLY", "REVERT")
+VALID_MODES = ("DRY", "APPLY", "REVERT", "FINISH")
 VALID_ROLES = ("TOP", "LOW_SIDE", "BEAM", "PRACTICAL")
 ROLE_LIMITS = {"TOP": (2, 2), "LOW_SIDE": (2, 2), "BEAM": (0, 1), "PRACTICAL": (0, 2)}
 REQUIRED_LOOKS = {"MOODY", "INDUSTRIAL", "THEATRICAL", "SPOT", "WASH"}
@@ -1232,7 +1232,7 @@ def _dirty_census():
     }
 
 
-def _require_context():
+def _require_context(allow_dirty_show=False):
     project = os.path.normcase(os.path.normpath(
         unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())))
     require(project.rstrip("\\/") == EXPECTED_PROJECT.rstrip("\\/"),
@@ -1245,7 +1245,8 @@ def _require_context():
     sequence_library = getattr(unreal, "LevelSequenceEditorBlueprintLibrary", None)
     if sequence_library is not None:
         require(sequence_library.get_current_level_sequence() is None, "SEQUENCER_IS_OPEN")
-    require(_dirty_census() == {"content": [], "maps": []},
+    expected_census = {"content": [SHOW_PATH] if allow_dirty_show else [], "maps": []}
+    require(_dirty_census() == expected_census,
             "DIRTY_BEFORE|census=" + _canonical(_dirty_census()))
     actor_class = getattr(unreal, "Actor", None)
     if actor_class is not None:
@@ -2074,7 +2075,7 @@ def _run(mode):
     try:
         config = load_config()
         report["config_sha256"] = _sha256_file(CONFIG_PATH)
-        world = _require_context()
+        world = _require_context(allow_dirty_show=(mode == "FINISH"))
         materials = _materials(config)
         practical_meshes = _practical_meshes(config)
         show = unreal.EditorAssetLibrary.load_asset(SHOW_PATH)
@@ -2108,8 +2109,27 @@ def _run(mode):
                         plan["shadow"]["p04_before"], plan["shadow"]["p04_after"]))
             return report
 
+        if mode == "FINISH":
+            # Completes an APPLY that mutated + verified in memory but stopped before saving
+            # (4 Oct: the PPV gate used to fire after the mutation). Re-verifies the in-memory
+            # Show against the record's plan and outside hash before anything is saved.
+            require(os.path.isfile(RECORD_PATH), "FINISH_RECORD_ABSENT")
+            record = _read_json(RECORD_PATH)
+            require(record.get("status") == "mutated_verified",
+                    "FINISH_RECORD_STATUS|status=" + str(record.get("status")))
+            require(record.get("config_sha256") == report["config_sha256"],
+                    "FINISH_CONFIG_CHANGED")
+            ppv_change_gate(_allow_ppv_change(), requested_ppv)
+            plan = record["plan"]
+            outside_before = record["outside_before_hash"]
+            backup = record["backup"]
+            require(all(os.path.isfile(row["backup"]) for row in backup["packages"]),
+                    "FINISH_BACKUP_MISSING")
+            _verify_applied(show, plan, outside_before)
+            record["finished_by_run"] = run
         if mode == "APPLY":
             require(not os.path.exists(RECORD_PATH), "ACTIVE_REVERT_RECORD_EXISTS")
+            ppv_change_gate(_allow_ppv_change(), requested_ppv)  # refuse BEFORE any mutation
             plan = _runtime_plan(show, config)
             all_before = _all_pair_rows(show)
             outside_before = _outside_hash(all_before, plan["target_cue_guids"])
@@ -2135,6 +2155,7 @@ def _run(mode):
             record["status"] = "mutated_verified"
             record["plan"] = plan
             _write_json(RECORD_PATH, record)
+        if mode in ("APPLY", "FINISH"):
             verified = _verify_applied(show, plan, outside_before)
             record["ppv_live_before"] = _ppv_report_safe(show)
             record["ppv_change"] = _apply_ppv_change(show, requested_ppv, _allow_ppv_change())
