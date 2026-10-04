@@ -2,6 +2,7 @@
 #include "SInfinityStageWingAudit.h"
 
 #include "InfinityStageSequenceBuilderLibrary.h"
+#include "MovieSceneInfinityChoreoTrack.h"
 #include "InfinityStageSceneHandoffBuilder.h"
 #include "InfinityStageDevFixtureBuilder.h"
 #include "InfinityStageMusicAnalysisImporter.h"
@@ -1520,7 +1521,10 @@ bool FInfinityStageSavedMasterMatchesShowTest::RunTest(const FString& Parameters
     TArray<FLaidSection> Laid;
     for (const UMovieSceneTrack* Track : MasterScene->GetTracks())
     {
-        if (!Track)
+        // Passage Choreographies are not Scene or Sequence cues: they span their
+        // Passage and may run past it (a tail), so this cue-for-cue check skips them.
+        // InfinityStage.Cueing.Choreo.* covers their placement.
+        if (!Track || Track->IsA<UMovieSceneInfinityChoreoTrack>())
         {
             continue;
         }

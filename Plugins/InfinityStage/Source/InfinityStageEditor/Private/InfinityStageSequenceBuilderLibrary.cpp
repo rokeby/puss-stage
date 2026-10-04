@@ -444,6 +444,12 @@ bool UInfinityStageSequenceBuilderLibrary::RebuildManagedMaster(
                 Section->SetSequence(Choreo);
                 Section->SetRange(MakeSectionRange(Passage.SegmentStartFrame, Passage.SegmentEndFrame));
                 Method = TEXT("recreated");
+                if (!Section->HasStartFrame() || Section->GetInclusiveStartFrame() != Passage.SegmentStartFrame)
+                {
+                    UE_LOG(LogTemp, Error,
+                        TEXT("INFINITY_CHOREO_MISPLACED passage=%s target=%d: even a fresh section did not take its range."),
+                        *Passage.PassageGuid.ToString(), Passage.SegmentStartFrame.Value);
+                }
             }
             UE_LOG(LogTemp, Display,
                 TEXT("INFINITY_CHOREO_PLACED passage=%s old_start=%d target=%d now=%d method=%s"),
