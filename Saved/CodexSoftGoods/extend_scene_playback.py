@@ -214,6 +214,42 @@ def downstream_keyed_passages(master, after_s):
     return found
 
 
+def passage_keys_section_relative(master):
+    """Every Passage section's keys as (tick offset from its own section start, value), by passage GUID.
+    Patch K (InfinityStageSequenceBuilderLibrary.cpp, PassageKeysFollowSection) moves a Passage's keys with its
+    section, so these must be identical before and after any retime. Conductor 4 Oct: replaces the pre-K key gate."""
+    unit = unreal.MovieSceneTimeUnit
+    out = {}
+    for track in master.get_tracks():
+        if "InfinityPassage" not in track.get_class().get_name():
+            continue
+        for sec in track.get_sections():
+            start_tick = int(round(sec.get_start_frame_seconds() * 24000.0))
+            rows = {}
+            for ch in sec.get_all_channels():
+                keys = [[int(k.get_time(time_unit=unit.TICK_RESOLUTION).frame_number.value) - start_tick,
+                         round(float(k.get_value()), 6)] for k in ch.get_keys()]
+                if keys:
+                    rows[str(ch.get_editor_property("channel_name"))] = keys
+            out[str(sec.get_editor_property("passage_guid"))] = rows
+    return out
+
+
+def key_carry_failures(before, after):
+    bad = []
+    for guid, chans in before.items():
+        now = after.get(guid)
+        if now is None:
+            bad.append("%s vanished" % guid)
+            continue
+        for ch, kb in chans.items():
+            ka = now.get(ch)
+            if ka is None or len(ka) != len(kb) or any(abs(x[0] - y[0]) > 1 or abs(x[1] - y[1]) > 1e-5
+                                                       for x, y in zip(ka, kb)):
+                bad.append("%s %s: %r -> %r" % (guid, ch, kb[:3], (ka or [])[:3]))
+    return bad
+
+
 def segment_deltas(before, after, scene_label, delta_s):
     """Every segment's shift; the scene itself may only grow at its end, earlier ones stay, later ones move by delta_s."""
     rows, bad = [], []
@@ -305,10 +341,10 @@ def main():
     cue_seg = next((s for s in report["segments_before"] if s["label"] == cue_label), None)
     report["delta_s"] = round((new_end - old_end) / fps, 3)
     if not rematch_only:
-        report["key_gate"] = downstream_keyed_passages(master, cue_seg["end"] if cue_seg else 0.0)
-        if report["key_gate"]:
-            return finish(f"REFUSING (key gate): later Passages carry multi-key channels that the rebuild would leave "
-                          f"{report['delta_s']} s behind their sections: {report['key_gate']}. Nothing changed.")
+        # Pre-patch-K this refused; patch K now carries Passage keys with their sections, so record what is
+        # downstream (informational) and VERIFY the carry after the rebuild instead (see key_carry_failures).
+        report["key_gate_info"] = downstream_keyed_passages(master, cue_seg["end"] if cue_seg else 0.0)
+        report["passage_keys_before"] = passage_keys_section_relative(master)
     if dry:
         report["ok"] = True
         return finish(f"DRY RUN|{seq_path}|{report['playback_before']} -> end {new_end}|gaps before "
@@ -347,6 +383,12 @@ def main():
         result = unreal.InfinityStageSequenceBuilderLibrary.rebuild_managed_master(show, master)
         expected = {seq_path, MASTER, SHOW} | ({EXPECTED_WORLD} if is_scene else set())
     report["rebuild_result"] = result
+    if not rematch_only:
+        report["key_carry_failures"] = key_carry_failures(report["passage_keys_before"],
+                                                          passage_keys_section_relative(master))
+        if report["key_carry_failures"]:
+            return finish(f"STOPPED: Passage keys did not travel with their sections (patch K): "
+                          f"{report['key_carry_failures'][:5]}; NOTHING saved (relaunch to discard; backup {backup})")
     now = dirty()
     report["dirty_before_save"] = now
     if not result or [p for p in now if p not in expected]:
