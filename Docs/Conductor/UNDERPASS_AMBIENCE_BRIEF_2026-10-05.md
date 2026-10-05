@@ -65,4 +65,5 @@ Design notes (inferred):
 
 Conductor's reading (inferred):
 - **The rig** is a modular kit authored in Blender. Only its length varies. It goes across ALL Passages, as a replacement for or adaptation of the current Structure rig, and is visible from the Opening.
-- **The strobe** is a placeable, regular strobe, with Gary setting it per area. Its character is a sharp flash, then about 1/3 s of afterglow fading on the (wet) ground. "Sense of safety" probably means a hazard/warning-beacon feel; this is inferred from a voice transcription.
+- **The strobe** is a placeable, regular strobe, with Gary setting it per area.
+  - CORRECTION from Gary: "sense of safety" was a mistranscription. He meant **"the ghosting that happens for about a third of a second after a strobe light takes place"**: a ~1/3 s afterimage/ghost after each flash.
