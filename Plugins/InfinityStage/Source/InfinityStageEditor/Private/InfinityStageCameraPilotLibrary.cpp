@@ -187,7 +187,10 @@ bool UInfinityStageCameraPilotLibrary::ResolveAnchor(
 
     FInfinityPassageCameraEvaluation Evaluation;
     Evaluation.DistanceMasterFrame = FFrameTime(MasterFrame);
-    if (!Section->EvaluateCamera(*Passage, FFrameTime(MasterFrame), Evaluation))
+    // The anchor must place the route exactly where the rig will: the rig's
+    // crossing settle renormalizes the last span, so an unsettled anchor would
+    // solve against a route point up to half a settle away from the read-back.
+    if (!Section->EvaluateCamera(*Passage, FFrameTime(MasterFrame), Evaluation, Rig->GetCrossingSettleFrames()))
     {
         OutError = FString::Printf(TEXT("Passage '%s' camera does not evaluate at frame %d."), *PassageName, MasterFrame.Value);
         return false;

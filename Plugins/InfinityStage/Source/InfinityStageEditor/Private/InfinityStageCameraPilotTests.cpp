@@ -288,4 +288,68 @@ bool FInfinityStageCameraPilotLensAndRefusalTest::RunTest(const FString& Paramet
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageCameraPilotCrossingSettleTest,
+    "InfinityStage.Editor.CameraPilot.KeysInsideCrossingSettle",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageCameraPilotCrossingSettleTest::RunTest(const FString& Parameters)
+{
+    // CS (5 Oct): the rig's crossing settle renormalizes the last span, so the
+    // Pilot's anchor must evaluate the route with the rig's settle or its
+    // read-back misses (the v1 regression: 35-104 cm misses mid-Passage).
+    FCameraPilotFixture Fixture;
+    if (!Fixture.Build(*this))
+    {
+        Fixture.Destroy();
+        return false;
+    }
+    TestTrue(TEXT("Fixture: the rig settles (default 1 s)"), Fixture.Rig->GetCrossingSettleFrames() > 0.0);
+
+    // Halfway through the final second: inside the settle window.
+    const FFrameNumber Frame = FFrameNumber(Fixture.EndFrame.Value - 12000);
+    const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Fixture.Show);
+    const FInfinityCompiledPassage* Passage = Compiled.Passages.FindByPredicate(
+        [&Fixture](const FInfinityCompiledPassage& Candidate) { return Candidate.PassageGuid == Fixture.PassageGuid; });
+    TestNotNull(TEXT("Fixture: Passage compiles"), Passage);
+    if (!Passage)
+    {
+        Fixture.Destroy();
+        return false;
+    }
+    FInfinityPassageCameraEvaluation Unsettled;
+    FInfinityPassageCameraEvaluation Settled;
+    Fixture.Section->EvaluateCamera(*Passage, FFrameTime(Frame), Unsettled);
+    Fixture.Section->EvaluateCamera(*Passage, FFrameTime(Frame), Settled, Fixture.Rig->GetCrossingSettleFrames());
+    const double UnsettledCm = FInfinityStageCompiler::EvaluateDistanceAtFrame(*Passage, Unsettled.DistanceMasterFrame);
+    const double SettledCm = FInfinityStageCompiler::EvaluateDistanceAtFrame(*Passage, Settled.DistanceMasterFrame);
+
+    FInfinityCameraPilotAnchor Anchor;
+    FString Error;
+    TestTrue(TEXT("Anchor resolves inside the settle"), UInfinityStageCameraPilotLibrary::ResolveAnchor(
+        *Fixture.World, *Fixture.Show, Fixture.PassageGuid, Frame, Anchor, Error));
+    // Control: this frame really is moved by the settle, so the next check can fail.
+    TestTrue(FString::Printf(TEXT("Control: the settle moves this frame's route point (%.2f cm > 1)"),
+            FMath::Abs(SettledCm - UnsettledCm)),
+        FMath::Abs(SettledCm - UnsettledCm) > 1.0);
+    TestTrue(FString::Printf(TEXT("The anchor uses the rig's settled route point (%.4f vs %.4f cm)"),
+            Anchor.RouteDistanceCm, SettledCm),
+        FMath::IsNearlyEqual(Anchor.RouteDistanceCm, SettledCm, 1.0e-6));
+
+    FTransform Authored;
+    float Focal = 0.0f;
+    float Focus = 0.0f;
+    TestTrue(TEXT("Authored view evaluates inside the settle"), Fixture.GetView(Frame, Authored, Focal, Focus));
+    const FTransform Piloted = Reframe(Authored, FVector(-20.0, 60.0, 15.0), FRotator(3.0, -8.0, 0.0));
+    FString Report;
+    TestTrue(TEXT("A pose keyed inside the settle is accepted"), UInfinityStageCameraPilotLibrary::KeyPose(
+        *Fixture.World, *Fixture.Show, Fixture.PassageGuid, Frame, Piloted, nullptr, Report));
+    FTransform ReadBack;
+    TestTrue(TEXT("Keyed view evaluates"), Fixture.GetView(Frame, ReadBack, Focal, Focus));
+    TestTrue(TEXT("The rig reads back the piloted view inside the settle"), ViewsMatch(ReadBack, Piloted));
+
+    Fixture.Destroy();
+    return true;
+}
+
 #endif

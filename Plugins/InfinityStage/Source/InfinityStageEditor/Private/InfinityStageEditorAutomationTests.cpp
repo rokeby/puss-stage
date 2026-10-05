@@ -1179,7 +1179,8 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
             }
             return Actor->GetActorLabel().Contains(Cut == 0 ? TEXT("Hangar") : TEXT("Mouth"));
         };
-        // Control: an Interaction the sleight has not touched keeps the single stalls cut. Read from data only.
+        // Control (5 Oct: the sleight is now applied to I2-I5 too): every later interstitial has EITHER the untouched
+        // single stalls cut OR exactly the sleight's cut structure as I1 - never a stray partial set. Read from data only.
         for (int32 Index = 4; Index < ShowRoot->Transport->Segments.Num(); ++Index)
         {
             const ULevelSequence* Other = nullptr;
@@ -1189,8 +1190,9 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
                 const int32 OtherCuts = CutSectionsOf(Index, Other).Num();
                 AddInfo(FString::Printf(TEXT("ControlInteraction=%s Cuts=%d"),
                     *ShowRoot->Transport->Segments[Index].Label.ToString(), OtherCuts));
-                TestTrue(FString::Printf(TEXT("Control: %s (no sleight) still has at most one cut"),
-                    *ShowRoot->Transport->Segments[Index].Label.ToString()), OtherCuts <= 1);
+                TestTrue(FString::Printf(TEXT("Control: %s has either one cut or I1's sleight cut structure (%d)"),
+                    *ShowRoot->Transport->Segments[Index].Label.ToString(), InteractionOneCutCount),
+                    OtherCuts <= 1 || OtherCuts == InteractionOneCutCount);
                 break;
             }
         }

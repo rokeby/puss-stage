@@ -186,6 +186,41 @@ public:
         double RollDegPerCm,
         double MaxGapSeconds = 0.5);
 
+    /**
+     * Fades a gait bob by the crossing settle weight. Height and roll scale
+     * together, so a weight of 0 returns exactly no bob and 1 returns the bob
+     * unchanged. Pure: the weight is a function of Master time alone.
+     */
+    static FInfinityGaitBob SettleGaitBob(const FInfinityGaitBob& Bob, double SettleWeight);
+
+    /**
+     * Crossing settle (Gary, 30 Sep: "in that moment between passages, we don't
+     * need the cat's bob at all"). Over the last CrossingSettleSeconds of the
+     * Passage the route speed eases to a stop exactly at the route-end pose the
+     * Scene's Entry Handoff camera is matched to, and the gait bob and its roll
+     * fade with that speed to exactly 0 there. The last span is renormalized the
+     * way SpeedMultiplier already is: same arrival frame and place, slightly
+     * faster earlier in the span; pins and keys stay at their absolute frames.
+     * A Master-time function, so play, pause, scrub and reverse agree.
+     * 0 disables it exactly.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Camera|Crossing Settle",
+        meta = (ClampMin = "0.0", UIMax = "3.0", Units = "s"))
+    double CrossingSettleSeconds = 1.0;
+
+    /** This master frame's settle share: 1 outside the window, 0 at the Passage end. */
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Camera|Crossing Settle")
+    double CurrentCrossingSettleWeight = 1.0;
+
+    /**
+     * CrossingSettleSeconds in Master ticks; 0 when disabled or unresolvable.
+     * Every caller of UMovieSceneInfinityPassageSection::EvaluateCamera that
+     * must agree with this rig's pose (Camera Pilot anchors, the Cue Desk
+     * speed readout) passes this, because the settle renormalizes the whole
+     * last span, not only its final second.
+     */
+    double GetCrossingSettleFrames() const;
+
     /** Bone whose height carries the gait. AnimX cats have no pelvis; Spine sits over the hips. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Cat|Camera Bob",
         meta = (EditCondition = "bShadowCatCameraBob"))

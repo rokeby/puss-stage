@@ -392,15 +392,21 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
         ? static_cast<double>(MasterFrame.Value) / TickRate
         : 0.0;
     const double RawLiftCm = SampleShadowCatGaitLiftCm();
-    const FInfinityGaitBob GaitBob = StepGaitBob(
-        ShadowCatGaitBobState,
-        MasterSeconds,
-        RawLiftCm,
-        CurrentShadowCatCameraSpeedCmPerSecond,
-        ShadowCatReferenceWalkSpeedCmPerSecond,
-        ShadowCatCameraBobRollMeanSeconds,
-        ShadowCatBobFadeSeconds,
-        ShadowCatCameraBobRollDegreesPerCm);
+    // The walk weight already follows speed; the crossing settle weight is the
+    // settle's own share of that speed, a pure function of Master time, so the
+    // bob and its roll are exactly 0 at the Passage end whatever the history.
+    CurrentCrossingSettleWeight = CameraEvaluation.SettleWeight;
+    const FInfinityGaitBob GaitBob = SettleGaitBob(
+        StepGaitBob(
+            ShadowCatGaitBobState,
+            MasterSeconds,
+            RawLiftCm,
+            CurrentShadowCatCameraSpeedCmPerSecond,
+            ShadowCatReferenceWalkSpeedCmPerSecond,
+            ShadowCatCameraBobRollMeanSeconds,
+            ShadowCatBobFadeSeconds,
+            ShadowCatCameraBobRollDegreesPerCm),
+        CurrentCrossingSettleWeight);
     CurrentShadowCatBobWalkWeight = ShadowCatGaitBobState.WalkWeight;
     CurrentShadowCatCameraBobCm = GaitBob.HeightCm;
     if (!FMath::IsNearlyZero(CurrentShadowCatCameraBobCm))
@@ -627,6 +633,22 @@ FInfinityGaitBob AInfinityStageCameraRig::StepGaitBob(
         State.WalkWeight * (RawLiftCm - State.LiftMeanCm) * RollDegPerCm};
 }
 
+FInfinityGaitBob AInfinityStageCameraRig::SettleGaitBob(const FInfinityGaitBob& Bob, const double SettleWeight)
+{
+    const double Weight = FMath::Clamp(SettleWeight, 0.0, 1.0);
+    return {Bob.HeightCm * Weight, Bob.RollDeg * Weight};
+}
+
+double AInfinityStageCameraRig::GetCrossingSettleFrames() const
+{
+    if (!(CrossingSettleSeconds > 0.0) || !PassageActor || !PassageActor->ShowAsset
+        || !PassageActor->ShowAsset->TickResolution.IsValid())
+    {
+        return 0.0;
+    }
+    return CrossingSettleSeconds * PassageActor->ShowAsset->TickResolution.AsDecimal();
+}
+
 double AInfinityStageCameraRig::SampleShadowCatGaitLiftCm() const
 {
     if (!bShadowCatCameraBob || !bEnableShadowCat || ShadowCatCameraBobGain <= 0.0 || !ShadowCat)
@@ -794,7 +816,8 @@ bool AInfinityStageCameraRig::GetCameraStateForCompiledPassage(
                     const UMovieSceneInfinityPassageSection* Section = Cast<UMovieSceneInfinityPassageSection>(RawSection);
                     if (Section && Section->PassageGuid == PassageActor->PassageGuid)
                     {
-                        Section->EvaluateCamera(*Passage, FFrameTime(MasterFrame), OutEvaluation);
+                        Section->EvaluateCamera(
+                            *Passage, FFrameTime(MasterFrame), OutEvaluation, GetCrossingSettleFrames());
                         break;
                     }
                 }

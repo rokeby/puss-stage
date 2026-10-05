@@ -88,6 +88,51 @@ double IntegrateRate(
     return IntegrateNonNegative(Channel, SpanStart, SpanEnd, Until, 1.0);
 }
 
+/**
+ * Integral of the route rate times the crossing settle envelope over
+ * [WindowStart, Until]. Its own fixed grid is anchored at WindowStart, so this
+ * stays history-independent exactly like IntegrateNonNegative. bUseChannel=false
+ * integrates the envelope alone, for the invalid-speed fallback.
+ */
+double IntegrateSettledRate(
+    const FMovieSceneDoubleChannel& Channel,
+    const double WindowStart,
+    const double WindowEnd,
+    const double Until,
+    const bool bUseChannel)
+{
+    const double ClampedUntil = FMath::Clamp(Until, WindowStart, WindowEnd);
+    const double WindowLength = WindowEnd - WindowStart;
+    if (WindowLength <= UE_DOUBLE_SMALL_NUMBER || ClampedUntil <= WindowStart)
+    {
+        return 0.0;
+    }
+    const auto Sample = [&Channel, WindowStart, WindowEnd, bUseChannel](const double Frame)
+    {
+        const double Rate = bUseChannel ? EvaluateRate(Channel, Frame) : 1.0;
+        return Rate * UMovieSceneInfinityPassageSection::CrossingSettleEnvelope(Frame, WindowStart, WindowEnd);
+    };
+
+    constexpr int32 BucketCount = 64;
+    const double BucketWidth = WindowLength / BucketCount;
+    const double BucketPosition = (ClampedUntil - WindowStart) / BucketWidth;
+    const int32 FullBuckets = FMath::Clamp(FMath::FloorToInt(BucketPosition), 0, BucketCount);
+    double Integral = 0.0;
+    for (int32 Bucket = 0; Bucket < FullBuckets; ++Bucket)
+    {
+        const double A = WindowStart + Bucket * BucketWidth;
+        const double B = A + BucketWidth;
+        Integral += 0.5 * (Sample(A) + Sample(B)) * BucketWidth;
+    }
+    if (FullBuckets < BucketCount)
+    {
+        const double A = WindowStart + FullBuckets * BucketWidth;
+        const double B = ClampedUntil;
+        Integral += 0.5 * (Sample(A) + Sample(B)) * (B - A);
+    }
+    return Integral;
+}
+
 struct FInfinityPassageExecutionToken final : IMovieSceneExecutionToken
 {
     FGuid PassageGuid;
@@ -302,10 +347,27 @@ bool UMovieSceneInfinityPassageSection::EvaluateWingModulation(
     return true;
 }
 
+double UMovieSceneInfinityPassageSection::CrossingSettleEnvelope(
+    const double Frame,
+    const double WindowStart,
+    const double WindowEnd)
+{
+    const double WindowLength = WindowEnd - WindowStart;
+    if (!(WindowLength > UE_DOUBLE_SMALL_NUMBER))
+    {
+        return 1.0;
+    }
+    // U runs 1 -> 0 across the window. Smoothstep has zero slope at both ends:
+    // no velocity step where the settle begins, and a soft stop at the end.
+    const double U = FMath::Clamp((WindowEnd - Frame) / WindowLength, 0.0, 1.0);
+    return U * U * (3.0 - 2.0 * U);
+}
+
 bool UMovieSceneInfinityPassageSection::EvaluateCamera(
     const FInfinityCompiledPassage& Passage,
     const FFrameTime MasterTime,
-    FInfinityPassageCameraEvaluation& OutEvaluation) const
+    FInfinityPassageCameraEvaluation& OutEvaluation,
+    const double SettleFrames) const
 {
     const double MasterFrame = MasterTime.AsDecimal();
     const double PassageStart = Passage.SegmentStartFrame.Value;
@@ -314,6 +376,7 @@ bool UMovieSceneInfinityPassageSection::EvaluateCamera(
     {
         return false;
     }
+    OutEvaluation.SettleWeight = 1.0;
 
     TArray<double, TInlineAllocator<32>> PinnedFrames;
     PinnedFrames.Add(PassageStart);
@@ -354,16 +417,55 @@ bool UMovieSceneInfinityPassageSection::EvaluateCamera(
         }
     }
 
-    const double FullIntegral = IntegrateRate(SpeedMultiplier, SpanStart, SpanEnd, SpanEnd);
+    // The crossing settle only ever touches the span that ends at the Passage
+    // end, and is never longer than that span, so the envelope is still 1 at the
+    // span's opening pin. Both span ends stay pinned: the rate is renormalized
+    // over the span exactly as SpeedMultiplier is, which is what keeps every pin
+    // (and the Passage end) at its absolute frame.
+    const bool bSettle = SettleFrames > 0.0
+        && SpanEnd > SpanStart
+        && FMath::IsNearlyEqual(SpanEnd, PassageEnd, 0.5);
     double SpanAlpha = 0.0;
-    if (FullIntegral > UE_DOUBLE_SMALL_NUMBER)
+    if (!bSettle)
     {
-        SpanAlpha = IntegrateRate(SpeedMultiplier, SpanStart, SpanEnd, MasterFrame) / FullIntegral;
+        const double FullIntegral = IntegrateRate(SpeedMultiplier, SpanStart, SpanEnd, SpanEnd);
+        if (FullIntegral > UE_DOUBLE_SMALL_NUMBER)
+        {
+            SpanAlpha = IntegrateRate(SpeedMultiplier, SpanStart, SpanEnd, MasterFrame) / FullIntegral;
+        }
+        else
+        {
+            OutEvaluation.bUsedInvalidSpeedFallback = true;
+            SpanAlpha = (SpanEnd > SpanStart) ? (MasterFrame - SpanStart) / (SpanEnd - SpanStart) : 0.0;
+        }
     }
     else
     {
-        OutEvaluation.bUsedInvalidSpeedFallback = true;
-        SpanAlpha = (SpanEnd > SpanStart) ? (MasterFrame - SpanStart) / (SpanEnd - SpanStart) : 0.0;
+        const double SettleStart = FMath::Max(SpanStart, SpanEnd - SettleFrames);
+        // Before the window the existing span grid is used unchanged, so the
+        // walk's own shape there is untouched; only the normalization differs.
+        const auto SettledIntegral = [this, SpanStart, SpanEnd, SettleStart](const double Until, const bool bUseChannel)
+        {
+            const double PreUntil = FMath::Min(Until, SettleStart);
+            const double Before = bUseChannel
+                ? IntegrateRate(SpeedMultiplier, SpanStart, SpanEnd, PreUntil)
+                : FMath::Max(0.0, PreUntil - SpanStart);
+            return Before + IntegrateSettledRate(SpeedMultiplier, SettleStart, SpanEnd, Until, bUseChannel);
+        };
+        const double FullIntegral = SettledIntegral(SpanEnd, true);
+        if (FullIntegral > UE_DOUBLE_SMALL_NUMBER)
+        {
+            SpanAlpha = SettledIntegral(MasterFrame, true) / FullIntegral;
+        }
+        else
+        {
+            OutEvaluation.bUsedInvalidSpeedFallback = true;
+            const double FullFallback = SettledIntegral(SpanEnd, false);
+            SpanAlpha = FullFallback > UE_DOUBLE_SMALL_NUMBER
+                ? SettledIntegral(MasterFrame, false) / FullFallback
+                : 0.0;
+        }
+        OutEvaluation.SettleWeight = CrossingSettleEnvelope(MasterFrame, SettleStart, SpanEnd);
     }
 
     OutEvaluation.DistanceMasterFrame = FFrameTime::FromDecimal(FMath::Lerp(SpanStart, SpanEnd, SpanAlpha));

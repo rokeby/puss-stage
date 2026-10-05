@@ -4797,7 +4797,22 @@ FText SInfinityStageCueDesk::GetCameraCurveStatusText() const
         ? Passage->TotalDistanceCm / DurationSeconds / 100.0
         : 0.0;
     const double DeltaFrames = FMath::Max(1.0, TickRate * 0.05);
-    auto SpeedAt = [Section, Passage, TickRate, DeltaFrames](const double Frame, bool& bFallback)
+    // Read the speed the Passage camera actually travels, including its
+    // crossing settle, from the rig that drives this Passage in the editor world.
+    double SettleFrames = 0.0;
+    if (UWorld* EditorWorld = GEditor ? GEditor->GetEditorWorldContext().World() : nullptr)
+    {
+        for (TActorIterator<AInfinityStageCameraRig> It(EditorWorld); It; ++It)
+        {
+            if (It->PassageActor && It->PassageActor->ShowAsset == ShowAsset.Get()
+                && It->PassageActor->PassageGuid == Passage->PassageGuid)
+            {
+                SettleFrames = It->GetCrossingSettleFrames();
+                break;
+            }
+        }
+    }
+    auto SpeedAt = [Section, Passage, TickRate, DeltaFrames, SettleFrames](const double Frame, bool& bFallback)
     {
         const double AFrame = FMath::Max(static_cast<double>(Passage->SegmentStartFrame.Value), Frame - DeltaFrames);
         const double BFrame = FMath::Min(static_cast<double>(Passage->SegmentEndFrame.Value), Frame + DeltaFrames);
@@ -4807,8 +4822,8 @@ FText SInfinityStageCueDesk::GetCameraCurveStatusText() const
         }
         FInfinityPassageCameraEvaluation A;
         FInfinityPassageCameraEvaluation B;
-        if (!Section->EvaluateCamera(*Passage, FFrameTime::FromDecimal(AFrame), A)
-            || !Section->EvaluateCamera(*Passage, FFrameTime::FromDecimal(BFrame), B))
+        if (!Section->EvaluateCamera(*Passage, FFrameTime::FromDecimal(AFrame), A, SettleFrames)
+            || !Section->EvaluateCamera(*Passage, FFrameTime::FromDecimal(BFrame), B, SettleFrames))
         {
             return 0.0;
         }

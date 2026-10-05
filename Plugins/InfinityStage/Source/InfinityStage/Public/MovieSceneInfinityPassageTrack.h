@@ -68,6 +68,13 @@ struct INFINITYSTAGE_API FInfinityPassageCameraEvaluation
     double FocalLengthMm = 35.0;
     double FocusDistanceCm = 100000.0;
     bool bUsedInvalidSpeedFallback = false;
+    /**
+     * Crossing settle share at this frame: 1 outside the settle window, easing
+     * by smoothstep to exactly 0 at the Passage end. The same envelope scales
+     * the route rate inside the window, so it is also the settled speed's share
+     * of the walk there. 1 whenever no settle was requested.
+     */
+    double SettleWeight = 1.0;
 };
 
 UCLASS(BlueprintType)
@@ -81,11 +88,31 @@ public:
     FMovieSceneDoubleChannel* GetCameraChannel(EInfinityPassageCameraChannel Channel);
     const FMovieSceneDoubleChannel* GetCameraChannel(EInfinityPassageCameraChannel Channel) const;
 
-    /** Evaluates all channels and the pinned-anchor speed integral at absolute Master time. */
+    /**
+     * Evaluates all channels and the pinned-anchor speed integral at absolute Master time.
+     *
+     * SettleFrames > 0 adds the crossing settle: inside the last
+     * min(SettleFrames, last span) frames of the Passage the route rate is
+     * multiplied by a smoothstep envelope that reaches 0 at the Passage end, and
+     * the last span's integral is renormalized exactly as SpeedMultiplier already
+     * is. The camera arrives at the same route-end distance at the same frame,
+     * with zero speed, and walks slightly faster earlier in that span. Every pin
+     * keeps its exact frame and no key moves; every channel other than the route
+     * rate is evaluated at true Master time. SettleFrames <= 0 is the previous
+     * evaluation, exactly.
+     */
     bool EvaluateCamera(
         const FInfinityCompiledPassage& Passage,
         FFrameTime MasterTime,
-        FInfinityPassageCameraEvaluation& OutEvaluation) const;
+        FInfinityPassageCameraEvaluation& OutEvaluation,
+        double SettleFrames = 0.0) const;
+
+    /**
+     * The crossing settle envelope: 1 at or before WindowStart, smoothstep down
+     * to exactly 0 at WindowEnd, with zero slope at both ends. A window of zero
+     * or negative length returns 1.
+     */
+    static double CrossingSettleEnvelope(double Frame, double WindowStart, double WindowEnd);
 
     /**
      * True when any Wing channel carries a key or a non-neutral default. A
