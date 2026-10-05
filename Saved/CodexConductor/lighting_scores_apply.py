@@ -74,7 +74,13 @@ VARIANT_FIELDS = {
     "intensity", "color_rgb_linear", "temperature_kelvin", "volumetric_scattering",
     "inner_cone_deg", "outer_cone_deg", "attenuation_cm", "location_cm",
     "rotation_rpy_deg", "flicker", "aim_wing_side", "aim_offset_pair_cm", "cast_shadows",
+    # 5 Oct (P02 relight): a revived practical needs a lit body, not the dead-bulb sphere.
+    # Replaced whole; validate_instrument re-checks mesh/style/emissive/transform.
+    "visible_mesh",
 }
+# NO-CROSS-SHOT rule (Gary 5 Oct, P02: "those lights should not shoot through from
+# L to R"). Enabled per passage by passages.<P>.no_cross_shots (true or a dict).
+NO_CROSS_DEFAULTS = {"centre_tolerance_cm": 100.0, "nominal_panel_abs_y_cm": 900.0}
 # The per-bay set is the P04 tool's own override set (lighting_looks_apply.py
 # validate_config "allowed") plus flicker, which expand_bay's row.update carries.
 BAY_OVERRIDE_FIELDS = {
@@ -527,10 +533,111 @@ def bay_fixtures(tool, scores, looks, passage_key, spec):
         "instrument_overrides": copy.deepcopy(spec["overrides"]),
     }
     fixtures = tool.expand_bay(config, bay_row)
+    _mirror_explicit_aims(fixtures, spec)
     for row in fixtures:
         if row["authored_kind"] == "LIGHT":
             validate_instrument(row, "%s|look=%s|slot=%s" % (where, look_name, row["slot"]))
     return fixtures
+
+
+def _mirror_explicit_aims(fixtures, spec):
+    """Aim-aware mirroring (5 Oct). The P04 expand_bay mirrors a role by negating
+    location y and yaw only; a LOOK-level aim_wing_side / aim_offset_pair_cm is left
+    pointing at the original side, so a mirrored, wing-aimed lamp would shoot across
+    the stage. Flip the side and negate the offset's y for mirrored rows, unless the
+    BAY override set that field (bay overrides are absolute, like location_cm)."""
+    mirrored = set(spec["mirror"])
+    for row in fixtures:
+        if row.get("authored_kind") != "LIGHT" or row["role"] not in mirrored or "aim_wing_side" not in row:
+            continue
+        bay_override = spec["overrides"].get(row["slot"], {})
+        if "aim_wing_side" not in bay_override:
+            row["aim_wing_side"] = {"LEFT": "RIGHT", "RIGHT": "LEFT"}.get(row["aim_wing_side"], row["aim_wing_side"])
+        if "aim_offset_pair_cm" not in bay_override and isinstance(row.get("aim_offset_pair_cm"), list):
+            offset = [float(v) for v in row["aim_offset_pair_cm"]]
+            row["aim_offset_pair_cm"] = [offset[0], -offset[1], offset[2]]
+        row["aim_mirrored"] = True
+
+
+def no_cross_config(passage):
+    """None when the passage does not enable the rule; else the merged settings."""
+    raw = passage.get("no_cross_shots")
+    if raw in (None, False):
+        return None
+    cfg = dict(NO_CROSS_DEFAULTS)
+    if raw is not True:
+        require(isinstance(raw, dict) and raw.get("enabled", True) is True
+                and set(raw).issubset(set(NO_CROSS_DEFAULTS) | {"enabled", "note"}),
+                "BAD_NO_CROSS_CONFIG|" + _canonical(raw))
+        cfg.update({k: float(v) for k, v in raw.items() if k in NO_CROSS_DEFAULTS})
+    require(0.0 <= cfg["centre_tolerance_cm"] < cfg["nominal_panel_abs_y_cm"], "BAD_NO_CROSS_TOLERANCE")
+    return cfg
+
+
+def _spot_aim_target(row, cfg, live_goal=None):
+    """Where a SPOT's beam goes, in pair space: (target_cm, basis).
+
+    Wing-aimed rows (explicit aim_wing_side, or a TOP auto-aimed at its slot's
+    side by _apply_live_aims) go to the panel + offset: the LIVE panel when given,
+    else a nominal panel at +-nominal_panel_abs_y_cm (LEFT = -y, measured from the
+    live P02 record: L panels y<0, R panels y>0). Fixed-rotation rows follow
+    their rotation (UE X-forward, [roll, pitch, yaw]) to the floor or to their
+    attenuation radius, whichever comes first."""
+    source = [float(v) for v in row["transform"]["location_cm"]]
+    explicit = row.get("aim_wing_side")
+    if explicit is not None or row["role"] == "TOP":
+        if live_goal is not None:
+            return [float(v) for v in live_goal], "LIVE_PANEL"
+        if explicit is None:
+            sign, offset = (-1.0 if row["slot"].rsplit("_", 1)[-1] == "L" else 1.0), [0.0, 0.0, 0.0]
+            basis = "TOP_AUTO_AIM_NOMINAL"
+        else:
+            sign, offset = (-1.0 if explicit == "LEFT" else 1.0), [float(v) for v in row["aim_offset_pair_cm"]]
+            basis = "WING_AIM_NOMINAL"
+        return [offset[0], sign * cfg["nominal_panel_abs_y_cm"] + offset[1], offset[2]], basis
+    pitch, yaw = [math.radians(float(v)) for v in row["transform"]["rotation_rpy_deg"][1:]]
+    forward = [math.cos(pitch) * math.cos(yaw), math.cos(pitch) * math.sin(yaw), math.sin(pitch)]
+    reach = float(row["attenuation_cm"])
+    if forward[2] < -1.0e-9 and source[2] > 0.0:
+        reach = min(reach, source[2] / -forward[2])
+    return [source[i] + reach * forward[i] for i in range(3)], "FIXED_ROTATION"
+
+
+def no_cross_rows(passage_key, ordinal, fixtures, cfg, live_goals=None):
+    """One row per SPOT: source y, target y, verdict. A beam may not travel past the
+    stage centre line (y = 0) to the other side: the target y must share the source
+    y's sign, or (TOP only) lie within centre_tolerance_cm of the centre. A source
+    within the tolerance of the centre is a centre lamp and cannot cross. With
+    live_goals, a wing-aimed non-TOP lamp must also stand on the stage side of the
+    live panel it lights (|source y| < |panel y|), or it would shoot through it."""
+    rows = []
+    tol = cfg["centre_tolerance_cm"]
+    for row in fixtures:
+        if row.get("authored_kind") != "LIGHT" or row.get("type") != "SPOT":
+            continue
+        goal = (live_goals or {}).get(row["label"])
+        target, basis = _spot_aim_target(row, cfg, goal)
+        source_y, target_y = float(row["transform"]["location_cm"][1]), float(target[1])
+        if abs(source_y) <= tol:
+            verdict = "OK_CENTRE_SOURCE"
+        elif source_y * target_y > 0.0:
+            verdict = "OK_SAME_SIDE"
+        elif row["role"] == "TOP" and abs(target_y) <= tol:
+            verdict = "OK_TOP_CENTRE_TOLERANCE"
+        else:
+            verdict = "CROSS"
+        if (verdict == "OK_SAME_SIDE" and goal is not None and row["role"] != "TOP"
+                and row.get("aim_wing_side") is not None and abs(source_y) >= abs(target_y)):
+            verdict = "BEHIND_PANEL"
+        rows.append({"bay": int(ordinal), "slot": row["slot"], "label": row.get("label", ""),
+                     "role": row["role"], "source_y": round(source_y, 1), "target_y": round(target_y, 1),
+                     "target_cm": [round(v, 1) for v in target], "basis": basis,
+                     "mirrored_aim": bool(row.get("aim_mirrored", False)), "verdict": verdict})
+    bad = [r for r in rows if not r["verdict"].startswith("OK")]
+    require(not bad, "NO_CROSS_SHOT|passage=%s|bay=%d|%s" % (passage_key, int(ordinal), ";".join(
+        "slot=%s,role=%s,source_y=%.0f,target_y=%.0f,basis=%s,verdict=%s"
+        % (r["slot"], r["role"], r["source_y"], r["target_y"], r["basis"], r["verdict"]) for r in bad)))
+    return rows
 
 
 def bay_output(fixtures):
@@ -599,6 +706,8 @@ def validate_scores(scores, looks, tool):
         require(PASSAGE_KEY.match(passage_key), "BAD_PASSAGE_KEY|" + passage_key)
         require(passage.get("shadow_policy") in SHADOW_POLICIES, "BAD_SHADOW_POLICY|" + passage_key)
         specs = expand_score(passage_key, passage)
+        cross_cfg = no_cross_config(passage)
+        cross_rows = []
         rows = []
         prototype_range = set()
         if passage.get("prototype"):
@@ -623,6 +732,8 @@ def validate_scores(scores, looks, tool):
             require(look in looks, "UNKNOWN_LOOK|passage=%s|bay=%d|look=%s"
                     % (passage_key, spec["ordinal"], look))
             fixtures = bay_fixtures(tool, scores, looks, passage_key, spec)
+            if cross_cfg is not None:
+                cross_rows.extend(no_cross_rows(passage_key, spec["ordinal"], fixtures, cross_cfg))
             output = bay_output(fixtures)
             rows.append({"ordinal": spec["ordinal"], "look": look, "lit": _is_pool(fixtures),
                          "output": output,
@@ -641,7 +752,8 @@ def validate_scores(scores, looks, tool):
             first, last = [int(v) for v in yield_cfg["bays"]]
             require(1 <= first <= last <= int(yield_cfg["layout_bay_count"])
                     and str(yield_cfg.get("owner", "")).strip(), "BAD_YIELD|passage=" + passage_key)
-        out[passage_key] = {"specs": specs, "rows": rows}
+        out[passage_key] = {"specs": specs, "rows": rows,
+                            "no_cross": None if cross_cfg is None else {"config": cross_cfg, "rows": cross_rows}}
     return out
 
 
@@ -875,6 +987,12 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
             "practical_prop_count": sum(f["authored_kind"] == "PROP" for f in fixtures),
         })
     require(len({t["cue_guid"] for t in targets}) == len(targets), "TARGET_GUIDS_NOT_UNIQUE")
+    cross_cfg = no_cross_config(passage_cfg)
+    cross = None
+    if cross_cfg is not None:
+        cross = {"config": cross_cfg, "static": [row for t in targets for row in
+                                                  no_cross_rows(passage_key, t["ordinal"], t["fixtures"], cross_cfg)],
+                 "live": None}
 
     retained, retain_report = match_retains(passage_key, passage_cfg, targets, cues_by_guid)
     foreign_report = check_foreign_owned_retained(scores, passage_key, retain_report)
@@ -930,6 +1048,7 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
                                            for t in targets),
                    "budget_ok": after <= before},
         "label_prefix": prefix,
+        "no_cross": cross,
     }
 
 
@@ -1088,6 +1207,21 @@ def _apply_live_aims(tool, show, plan):
             fixture["transform"]["rotation_rpy_deg"] = tool._look_at_rpy(source, goal, fixture["label"])
             target["aims"].append({"fixture": fixture["label"], "panel": side, "target_cm": goal,
                                    "rotation_rpy_deg": fixture["transform"]["rotation_rpy_deg"]})
+
+
+def require_no_cross_live(plan):
+    """Re-run the no-cross rule on the LIVE panel goals _apply_live_aims wrote
+    (plan.targets[].aims). Static validation used nominal panels; this is the
+    run-time half, and it refuses DRY and APPLY alike."""
+    if not plan.get("no_cross"):
+        return None
+    live = []
+    for target in plan["targets"]:
+        goals = {aim["fixture"]: aim["target_cm"] for aim in target.get("aims", [])}
+        live.extend(no_cross_rows(plan["passage"], target["ordinal"], target["fixtures"],
+                                  plan["no_cross"]["config"], goals))
+    plan["no_cross"]["live"] = live
+    return live
 
 
 def _make_score_light(tool, row, materials):
@@ -1348,6 +1482,7 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                                     p04_record, prototype_absent)
             _require_show_resolution(tool, show, plan)
             _apply_live_aims(tool, show, plan)
+            require_no_cross_live(plan)
             cues = list(show.get_editor_property("cues"))
             for target in plan["targets"]:
                 target["before_rows"] = tool._attachment_rows(tool._pair_attachments(cues[target["show_index"]]))
@@ -1373,16 +1508,19 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 "disabled": plan["existing_lights_disabled"], "shadow": plan["shadow"],
                 "prototype": plan["prototype"], "yield_to_events": plan["yield_to_events"],
                 "foreign_records": foreign,
-                "unacknowledged_foreign_records": unacknowledged, "templates_built": templates}})
+                "unacknowledged_foreign_records": unacknowledged, "templates_built": templates,
+                "no_cross_live": None if not plan.get("no_cross") else
+                {"spots": len(plan["no_cross"]["live"]), "verdict": "PASS"}}})
             if mode == "DRY":
                 report.update({"ok": True, "mutated": False, "plan": plan, "census": tool._dirty_census()})
                 tool._write_json(report_path, report)
                 unreal.log("LIGHTING_SCORES_DRY_OK|run=%s|passage=%s|targets=%d|skipped=%d|attachments=%d|lights=%d|"
-                           "practical_props=%d|disabled=%d|retained=%d|shadow=%d->%d|foreign=%d|mutated=0"
+                           "practical_props=%d|disabled=%d|retained=%d|shadow=%d->%d|foreign=%d|no_cross=%s|mutated=0"
                            % (run, passage_key, len(plan["targets"]), len(plan["skipped"]), plan["fixture_count"],
                               plan["light_fixture_count"], plan["practical_prop_count"],
                               plan["existing_lights_disabled"], len(plan["retained"]),
-                              plan["shadow"]["passage_before"], plan["shadow"]["passage_after"], len(foreign)))
+                              plan["shadow"]["passage_before"], plan["shadow"]["passage_after"], len(foreign),
+                              "OFF" if not plan.get("no_cross") else "PASS_%d_SPOTS" % len(plan["no_cross"]["live"])))
                 return report
             require(not unacknowledged, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacknowledged))
             outside_before = tool._outside_hash(tool._all_pair_rows(show), plan["target_cue_guids"])

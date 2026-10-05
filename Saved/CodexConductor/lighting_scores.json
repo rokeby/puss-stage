@@ -290,7 +290,12 @@
   },
   "P02_LURID_POP": {
    "base": "THEATRICAL",
-   "intent": "P02 industrial night: sodium top and key, acid-green low fill, one saturated colour pop painted on PART of a lurid plant wing (bounded accent aimed at the wing face)",
+   "intent": "P02 relight (Gary 5 Oct ~15:10, questionnaire 'Top wash + practicals + some uplights'): no L/R cross beams; BEAM_R dropped; tops wash their OWN side's wing face from above; lurid sodium (L, HUM) / magenta (R) top wash, sodium clamp on BUZZ, revived acid-green bulb; replaces the 5 Oct a.m. beam-pop variant",
+   "drop_slots": [
+    "BEAM_R",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL"
+   ],
    "instrument_overrides": {
     "TOP_L": {
      "color_rgb_linear": [
@@ -299,7 +304,16 @@
       0.66
      ],
      "temperature_kelvin": 2050.0,
-     "intensity": 60.0,
+     "intensity": 240.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
      "flicker": {
       "mode": "HUM",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
@@ -308,47 +322,24 @@
     "TOP_R": {
      "color_rgb_linear": [
       1.0,
-      0.9,
-      0.66
-     ],
-     "temperature_kelvin": 2000.0,
-     "intensity": 40.0
-    },
-    "LOW_SIDE_L_KEY": {
-     "color_rgb_linear": [
-      1.0,
-      0.9,
-      0.62
-     ],
-     "temperature_kelvin": 2000.0,
-     "intensity": 480.0
-    },
-    "LOW_SIDE_R_FILL": {
-     "color_rgb_linear": [
-      0.1,
-      1.0,
-      0.35
-     ],
-     "temperature_kelvin": 6500.0,
-     "intensity": 120.0
-    },
-    "BEAM_R": {
-     "color_rgb_linear": [
-      1.0,
       0.0,
       0.6
      ],
      "temperature_kelvin": 6500.0,
-     "intensity": 9000.0,
-     "inner_cone_deg": 4.0,
-     "outer_cone_deg": 14.0,
-     "volumetric_scattering": 2.5,
+     "intensity": 300.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
      "aim_wing_side": "RIGHT",
      "aim_offset_pair_cm": [
       0.0,
-      -100.0,
-      600.0
-     ]
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
     },
     "PRACTICAL_CLAMP": {
      "color_rgb_linear": [
@@ -361,28 +352,123 @@
       "mode": "BUZZ",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
      }
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "color_rgb_linear": [
+      0.35,
+      1.0,
+      0.05
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 650.0,
+     "attenuation_cm": 650.0,
+     "volumetric_scattering": 0.15,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on cord (revived 5 Oct)",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
     }
    }
   },
   "P02_MYSTIC": {
    "base": "MOODY",
-   "intent": "the last bays before the shrine: a steadier pale mystical pool, jade rim, blue-black darks",
+   "intent": "the last bays before the shrine: a steadier pale mystical pool. 5 Oct relight: MOODY's cross-aimed low sides replaced by ONE jade uplight on its own wing (mirror LOW_SIDE flips it), faint pale tops on their own side, pale bulb + revived violet bulb",
+   "drop_slots": [
+    "LOW_SIDE_R_FILL"
+   ],
    "instrument_overrides": {
-    "LOW_SIDE_L_KEY": {
+    "TOP_L": {
      "color_rgb_linear": [
       0.6,
       0.95,
       0.85
      ],
-     "temperature_kelvin": 7000.0
+     "temperature_kelvin": 7000.0,
+     "intensity": 90.0,
+     "inner_cone_deg": 10.0,
+     "outer_cone_deg": 24.0,
+     "volumetric_scattering": 0.08,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
     },
-    "LOW_SIDE_R_FILL": {
+    "TOP_R": {
+     "color_rgb_linear": [
+      0.55,
+      0.75,
+      1.0
+     ],
+     "temperature_kelvin": 7600.0,
+     "intensity": 70.0,
+     "inner_cone_deg": 10.0,
+     "outer_cone_deg": 24.0,
+     "volumetric_scattering": 0.08,
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "LOW_SIDE_L_KEY": {
+     "location_cm": [
+      60.0,
+      -790.0,
+      25.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      65.0,
+      -90.0
+     ],
      "color_rgb_linear": [
       0.3,
-      0.5,
-      0.6
+      1.0,
+      0.75
      ],
-     "temperature_kelvin": 7600.0
+     "temperature_kelvin": 6500.0,
+     "intensity": 140.0,
+     "inner_cone_deg": 8.0,
+     "outer_cone_deg": 22.0,
+     "volumetric_scattering": 0.08,
+     "attenuation_cm": 1200.0,
+     "cast_shadows": true,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      650.0
+     ],
+     "flicker": {
+      "mode": "BREATH",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Breath"
+     }
     },
     "PRACTICAL_L": {
      "color_rgb_linear": [
@@ -392,12 +478,37 @@
      ],
      "temperature_kelvin": 6000.0,
      "intensity": 1200.0
+    },
+    "PRACTICAL_R": {
+     "color_rgb_linear": [
+      0.55,
+      0.3,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 450.0,
+     "volumetric_scattering": 0.15,
+     "visible_mesh": {
+      "style": "bare bulb on cord (revived 5 Oct)",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
     }
    }
   },
   "P03_STIFF_BRIGHT": {
    "base": "THEATRICAL",
-   "intent": "P03 card: cool, architectural, sinister stiff bright rural light; hard cool white tops, straw key with narrow hard cones, pale-sky fill, a white back-lit floor shaft through haze",
+   "intent": "P03 card: cool, architectural, sinister stiff bright rural light; hard cool white tops, straw key with narrow hard cones, pale-sky fill, a white back-lit floor shaft through haze. 5 Oct: NO side lights (key, fill, across shaft dropped; Gary 'too much fog'); tops, practicals and the retained Rig Slash / Blink carry the bay",
    "instrument_overrides": {
     "TOP_L": {
      "color_rgb_linear": [
@@ -419,46 +530,6 @@
      "temperature_kelvin": 7000.0,
      "intensity": 120.0
     },
-    "LOW_SIDE_L_KEY": {
-     "color_rgb_linear": [
-      1.0,
-      0.93,
-      0.65
-     ],
-     "temperature_kelvin": 4300.0,
-     "intensity": 800.0,
-     "inner_cone_deg": 5.0,
-     "outer_cone_deg": 12.0
-    },
-    "LOW_SIDE_R_FILL": {
-     "color_rgb_linear": [
-      0.78,
-      0.86,
-      1.0
-     ],
-     "temperature_kelvin": 7500.0,
-     "intensity": 200.0
-    },
-    "BEAM_R": {
-     "color_rgb_linear": [
-      1.0,
-      0.97,
-      0.88
-     ],
-     "temperature_kelvin": 5600.0,
-     "intensity": 9000.0,
-     "location_cm": [
-      900.0,
-      -1000.0,
-      450.0
-     ],
-     "rotation_rpy_deg": [
-      0.0,
-      -16.0,
-      140.0
-     ],
-     "volumetric_scattering": 4.0
-    },
     "PRACTICAL_CLAMP": {
      "color_rgb_linear": [
       1.0,
@@ -467,11 +538,16 @@
      ],
      "temperature_kelvin": 4000.0
     }
-   }
+   },
+   "drop_slots": [
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL",
+    "BEAM_R"
+   ]
   },
   "P03_PYRE": {
    "base": "THEATRICAL",
-   "intent": "pyre bays among the stones: fire-coloured low key flickering, an ember shaft, the clamp practical as the pyre glow; the sky residual stays cool. Levels step UP along the run (burning bigger)",
+   "intent": "pyre bays among the stones: fire-coloured low key flickering, an ember shaft, the clamp practical as the pyre glow; the sky residual stays cool. Levels step UP along the run (burning bigger). 5 Oct: NO side lights (key, fill, across shaft dropped; Gary 'too much fog'); tops, practicals and the retained Rig Slash / Blink carry the bay; the fire stays in the clamp practical (pyre glow, FAULT)",
    "instrument_overrides": {
     "TOP_L": {
      "color_rgb_linear": [
@@ -484,41 +560,6 @@
     },
     "TOP_R": {
      "intensity": 0.0
-    },
-    "LOW_SIDE_L_KEY": {
-     "color_rgb_linear": [
-      1.0,
-      0.55,
-      0.2
-     ],
-     "temperature_kelvin": 1900.0,
-     "intensity": 600.0,
-     "flicker": {
-      "mode": "SLOW",
-      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Slow"
-     }
-    },
-    "LOW_SIDE_R_FILL": {
-     "color_rgb_linear": [
-      0.45,
-      0.55,
-      0.9
-     ],
-     "temperature_kelvin": 7500.0,
-     "intensity": 150.0
-    },
-    "BEAM_R": {
-     "color_rgb_linear": [
-      1.0,
-      0.45,
-      0.1
-     ],
-     "temperature_kelvin": 1900.0,
-     "intensity": 4000.0,
-     "flicker": {
-      "mode": "BREATH",
-      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Breath"
-     }
     },
     "PRACTICAL_CLAMP": {
      "color_rgb_linear": [
@@ -533,7 +574,12 @@
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
      }
     }
-   }
+   },
+   "drop_slots": [
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL",
+    "BEAM_R"
+   ]
   },
   "P04_COLD_BREAK": {
    "base": "THEATRICAL",
@@ -878,7 +924,11 @@
   },
   "P02_FAILING_STAGE": {
    "base": "THEATRICAL",
-   "intent": "Gary 5 Oct: P02's stage lights on a dirty supply - the lurid-pop rig with tops and key on the FAULT flicker; the FAILING generator then dims it bay by bay, drops circuits, raises the stutter and turns lamps off behind the camera. What is left is the theatre's cold working light (the rig's fluorescent tubes, a structure layer, not this score)",
+   "intent": "P02 relight (Gary 5 Oct ~15:10, questionnaire 'Top wash + practicals + some uplights'): no L/R cross beams; BEAM_R dropped; tops wash their OWN side's wing face from above; the lurid-up rig on a dirty supply (top L and uplight on FAULT); the FAILING generator kills it lamp by lamp: uplight, TOP_R, bulb, TOP_L, then the clamp decays alone; cold creep from bay 15",
+   "drop_slots": [
+    "BEAM_R",
+    "LOW_SIDE_R_FILL"
+   ],
    "instrument_overrides": {
     "TOP_L": {
      "color_rgb_linear": [
@@ -887,7 +937,16 @@
       0.66
      ],
      "temperature_kelvin": 2050.0,
-     "intensity": 60.0,
+     "intensity": 240.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
      "flicker": {
       "mode": "FAULT",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
@@ -896,51 +955,58 @@
     "TOP_R": {
      "color_rgb_linear": [
       1.0,
-      0.9,
-      0.66
-     ],
-     "temperature_kelvin": 2000.0,
-     "intensity": 40.0
-    },
-    "LOW_SIDE_L_KEY": {
-     "color_rgb_linear": [
-      1.0,
-      0.9,
-      0.62
-     ],
-     "temperature_kelvin": 2000.0,
-     "intensity": 480.0,
-     "flicker": {
-      "mode": "FAULT",
-      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
-     }
-    },
-    "LOW_SIDE_R_FILL": {
-     "color_rgb_linear": [
-      0.1,
-      1.0,
-      0.35
-     ],
-     "temperature_kelvin": 6500.0,
-     "intensity": 120.0
-    },
-    "BEAM_R": {
-     "color_rgb_linear": [
-      1.0,
       0.0,
       0.6
      ],
      "temperature_kelvin": 6500.0,
-     "intensity": 9000.0,
-     "inner_cone_deg": 4.0,
-     "outer_cone_deg": 14.0,
-     "volumetric_scattering": 2.5,
+     "intensity": 300.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
      "aim_wing_side": "RIGHT",
      "aim_offset_pair_cm": [
       0.0,
-      -100.0,
-      600.0
-     ]
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "LOW_SIDE_L_KEY": {
+     "location_cm": [
+      60.0,
+      -800.0,
+      25.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      65.0,
+      -90.0
+     ],
+     "color_rgb_linear": [
+      0.35,
+      1.0,
+      0.05
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 180.0,
+     "inner_cone_deg": 8.0,
+     "outer_cone_deg": 22.0,
+     "volumetric_scattering": 0.08,
+     "attenuation_cm": 1200.0,
+     "cast_shadows": true,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      700.0
+     ],
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+     }
     },
     "PRACTICAL_CLAMP": {
      "color_rgb_linear": [
@@ -952,6 +1018,595 @@
      "flicker": {
       "mode": "BUZZ",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     }
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "color_rgb_linear": [
+      0.35,
+      1.0,
+      0.05
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 650.0,
+     "attenuation_cm": 650.0,
+     "volumetric_scattering": 0.15,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on cord (revived 5 Oct)",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
+    }
+   }
+  },
+  "P02_THEATRICAL_TOP": {
+   "base": "THEATRICAL",
+   "intent": "P02 relight (Gary 5 Oct ~15:10, questionnaire 'Top wash + practicals + some uplights'): no L/R cross beams; BEAM_R dropped; tops wash their OWN side's wing face from above; theatrical amber (L) / steel (R) top wash, live clamp lamp and a revived rose bulb; no low sides",
+   "drop_slots": [
+    "BEAM_R",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL"
+   ],
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.38
+     ],
+     "temperature_kelvin": 3200.0,
+     "intensity": 220.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      0.55,
+      0.7,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 200.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "color_rgb_linear": [
+      1.0,
+      0.3,
+      0.55
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 600.0,
+     "attenuation_cm": 650.0,
+     "volumetric_scattering": 0.15,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on cord (revived 5 Oct)",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
+    }
+   }
+  },
+  "P02_THEATRICAL_UP": {
+   "base": "THEATRICAL",
+   "intent": "P02 relight (Gary 5 Oct ~15:10, questionnaire 'Top wash + practicals + some uplights'): no L/R cross beams; BEAM_R dropped; tops wash their OWN side's wing face from above; theatrical top wash plus ONE rose uplight at the foot of the LEFT wing aimed up its face (mirror LOW_SIDE = right wing)",
+   "drop_slots": [
+    "BEAM_R",
+    "LOW_SIDE_R_FILL"
+   ],
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.38
+     ],
+     "temperature_kelvin": 3200.0,
+     "intensity": 220.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      0.55,
+      0.7,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 200.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "LOW_SIDE_L_KEY": {
+     "location_cm": [
+      60.0,
+      -800.0,
+      25.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      65.0,
+      -90.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.1,
+      0.45
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 200.0,
+     "inner_cone_deg": 8.0,
+     "outer_cone_deg": 22.0,
+     "volumetric_scattering": 0.08,
+     "attenuation_cm": 1200.0,
+     "cast_shadows": true,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      700.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "color_rgb_linear": [
+      1.0,
+      0.3,
+      0.55
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 600.0,
+     "attenuation_cm": 650.0,
+     "volumetric_scattering": 0.15,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on cord (revived 5 Oct)",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
+    }
+   }
+  },
+  "P02_LURID_UP": {
+   "base": "THEATRICAL",
+   "intent": "P02 relight (Gary 5 Oct ~15:10, questionnaire 'Top wash + practicals + some uplights'): no L/R cross beams; BEAM_R dropped; tops wash their OWN side's wing face from above; lurid top wash plus ONE acid-green uplight at the foot of the LEFT wing (mirror LOW_SIDE = right wing)",
+   "drop_slots": [
+    "BEAM_R",
+    "LOW_SIDE_R_FILL"
+   ],
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.66
+     ],
+     "temperature_kelvin": 2050.0,
+     "intensity": 240.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     }
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.0,
+      0.6
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 300.0,
+     "inner_cone_deg": 9.0,
+     "outer_cone_deg": 20.0,
+     "volumetric_scattering": 0.1,
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      300.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "LOW_SIDE_L_KEY": {
+     "location_cm": [
+      60.0,
+      -800.0,
+      25.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      65.0,
+      -90.0
+     ],
+     "color_rgb_linear": [
+      0.35,
+      1.0,
+      0.05
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 180.0,
+     "inner_cone_deg": 8.0,
+     "outer_cone_deg": 22.0,
+     "volumetric_scattering": 0.08,
+     "attenuation_cm": 1200.0,
+     "cast_shadows": true,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      700.0
+     ],
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     }
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.85,
+      0.55
+     ],
+     "temperature_kelvin": 2100.0,
+     "flicker": {
+      "mode": "BUZZ",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     }
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "color_rgb_linear": [
+      1.0,
+      0.3,
+      0.55
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 600.0,
+     "attenuation_cm": 650.0,
+     "volumetric_scattering": 0.15,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on cord (revived 5 Oct)",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.5,
+       0.5,
+       0.5
+      ]
+     }
+    }
+   }
+  },
+  "P03_STIFF_BRIGHT_SIDES": {
+   "base": "THEATRICAL",
+   "intent": "P03 card: cool, architectural, sinister stiff bright rural light; hard cool white tops, straw key with narrow hard cones, pale-sky fill, a white back-lit floor shaft through haze. 5 Oct SIDES version (Gary ~15:35 'keep only 20% of L R side lighting'; ~1 bay in 5): key, fill and shaft kept but moved inside their own wing line (|y| 400) and aimed at their OWN wing, intensity scaled by inverse square to keep the old illuminance on the wing (keys/fills x0.064, shaft x0.65) (old cd: BEAM_R 9000, LOW_SIDE_L_KEY 800, LOW_SIDE_R_FILL 200)",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      0.97,
+      0.98,
+      1.0
+     ],
+     "temperature_kelvin": 5600.0,
+     "intensity": 160.0,
+     "inner_cone_deg": 6.0,
+     "outer_cone_deg": 16.0
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      0.8,
+      0.88,
+      1.0
+     ],
+     "temperature_kelvin": 7000.0,
+     "intensity": 120.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.93,
+      0.65
+     ],
+     "temperature_kelvin": 4300.0,
+     "intensity": 51.2,
+     "inner_cone_deg": 5.0,
+     "outer_cone_deg": 12.0,
+     "location_cm": [
+      -350.0,
+      -400.0,
+      120.0
+     ],
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      250.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.78,
+      0.86,
+      1.0
+     ],
+     "temperature_kelvin": 7500.0,
+     "intensity": 12.8,
+     "location_cm": [
+      -350.0,
+      400.0,
+      140.0
+     ],
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      250.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.97,
+      0.88
+     ],
+     "temperature_kelvin": 5600.0,
+     "intensity": 5850.0,
+     "location_cm": [
+      900.0,
+      -400.0,
+      450.0
+     ],
+     "volumetric_scattering": 4.0,
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      -300.0,
+      0.0,
+      0.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.95,
+      0.85
+     ],
+     "temperature_kelvin": 4000.0
+    }
+   }
+  },
+  "P03_PYRE_SIDES": {
+   "base": "THEATRICAL",
+   "intent": "pyre bays among the stones: fire-coloured low key flickering, an ember shaft, the clamp practical as the pyre glow; the sky residual stays cool. Levels step UP along the run (burning bigger). 5 Oct SIDES version (Gary ~15:35 'keep only 20% of L R side lighting'; ~1 bay in 5): key, fill and shaft kept but moved inside their own wing line (|y| 400) and aimed at their OWN wing, intensity scaled by inverse square to keep the old illuminance on the wing (keys/fills x0.064, shaft x0.39) (old cd: BEAM_R 4000, LOW_SIDE_L_KEY 600, LOW_SIDE_R_FILL 150)",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      0.85,
+      0.9,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 40.0
+    },
+    "TOP_R": {
+     "intensity": 0.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.55,
+      0.2
+     ],
+     "temperature_kelvin": 1900.0,
+     "intensity": 38.4,
+     "flicker": {
+      "mode": "SLOW",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Slow"
+     },
+     "location_cm": [
+      -350.0,
+      -400.0,
+      120.0
+     ],
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      250.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.45,
+      0.55,
+      0.9
+     ],
+     "temperature_kelvin": 7500.0,
+     "intensity": 9.6,
+     "location_cm": [
+      -350.0,
+      400.0,
+      140.0
+     ],
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      0.0,
+      250.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.45,
+      0.1
+     ],
+     "temperature_kelvin": 1900.0,
+     "intensity": 1560.0,
+     "flicker": {
+      "mode": "BREATH",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Breath"
+     },
+     "location_cm": [
+      900.0,
+      -400.0,
+      450.0
+     ],
+     "aim_wing_side": "LEFT",
+     "aim_offset_pair_cm": [
+      -300.0,
+      0.0,
+      0.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.5,
+      0.18
+     ],
+     "temperature_kelvin": 1800.0,
+     "intensity": 1600.0,
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
      }
     }
    }
@@ -1216,7 +1871,7 @@
      19
     ]
    ],
-   "intent": "Gary 5 Oct: 'already more broken'. Bays 1-11 the stage rig still works (theatrical + lurid pops on the organic wings); from ~bay 12 the stage lights blink and go out (FAILING); what remains is the theatre's cold fluorescent working light on the lurid wings (rig tube layer, occasional, dingy office feel) and the window car light trial; bays 20-23 the mystic shrine run (kept; open question). Previous 'industrial night' score: lighting_scores.json.bak-20261005-preP02rescore",
+   "intent": "Gary 5 Oct ~15:10: the L/R beams gave a foggy blur across the whole screen and flattened the wings; light the wings from ABOVE in lurid/theatrical colours, live practicals, some uplights, nothing shooting from L to R (questionnaire: 'Top wash + practicals + some uplights', all of P02). Bays 1-11 stage rig working (uplights on bays 3, 7, 10, alternating side); 12-19 FAILING kills the new rig lamp by lamp; 20-23 mystic run, own-side only. Earlier: 'already more broken' rescore (bak-20261005-preP02relight), 'industrial night' (bak-20261005-preP02rescore)",
    "retain": [
     {
      "scope": "passage",
@@ -1233,7 +1888,7 @@
      ],
      "cycle": [
       {
-       "look": "THEATRICAL",
+       "look": "P02_THEATRICAL_TOP",
        "level": 0.9
       },
       {
@@ -1241,43 +1896,63 @@
        "level": 0.9
       },
       {
-       "look": "THEATRICAL",
+       "look": "P02_LURID_UP",
        "level": 0.85,
        "mirror": [
         "LOW_SIDE",
-        "BEAM"
+        "PRACTICAL"
+       ],
+       "note": "uplight on the RIGHT wing"
+      },
+      {
+       "look": "P02_THEATRICAL_TOP",
+       "level": 0.85,
+       "mirror": [
+        "PRACTICAL"
        ]
       },
       {
        "look": "P02_LURID_POP",
-       "level": 0.85,
+       "level": 0.8,
        "mirror": [
-        "LOW_SIDE",
-        "BEAM"
-       ],
-       "overrides": {
-        "BEAM_R": {
-         "color_rgb_linear": [
-          0.3,
-          1.0,
-          0.0
-         ],
-         "aim_wing_side": "LEFT",
-         "aim_offset_pair_cm": [
-          0.0,
-          100.0,
-          600.0
-         ]
-        }
-       }
-      },
-      {
-       "look": "THEATRICAL",
-       "level": 0.8
+        "PRACTICAL"
+       ]
       },
       {
        "look": "GAP",
        "level": 1.0
+      },
+      {
+       "look": "P02_THEATRICAL_UP",
+       "level": 0.9,
+       "note": "uplight on the LEFT wing"
+      },
+      {
+       "look": "P02_LURID_POP",
+       "level": 0.9,
+       "mirror": [
+        "PRACTICAL"
+       ]
+      },
+      {
+       "look": "P02_THEATRICAL_TOP",
+       "level": 0.85
+      },
+      {
+       "look": "P02_LURID_UP",
+       "level": 0.85,
+       "mirror": [
+        "LOW_SIDE",
+        "PRACTICAL"
+       ],
+       "note": "uplight on the RIGHT wing"
+      },
+      {
+       "look": "P02_THEATRICAL_TOP",
+       "level": 0.8,
+       "mirror": [
+        "PRACTICAL"
+       ]
       }
      ]
     },
@@ -1298,28 +1973,32 @@
      ],
      "slot_failures": [
       {
-       "at_fraction": 0.15,
+       "at_fraction": 0.14,
        "slots": [
-        "BEAM_R"
-       ]
+        "LOW_SIDE_L_KEY"
+       ],
+       "note": "the uplight dies first (bay 13)"
       },
       {
-       "at_fraction": 0.35,
+       "at_fraction": 0.28,
        "slots": [
         "TOP_R"
-       ]
+       ],
+       "note": "bay 14"
       },
       {
-       "at_fraction": 0.55,
+       "at_fraction": 0.42,
+       "slots": [
+        "PRACTICAL_BULB_DEAD"
+       ],
+       "note": "bay 15"
+      },
+      {
+       "at_fraction": 0.56,
        "slots": [
         "TOP_L"
-       ]
-      },
-      {
-       "at_fraction": 0.75,
-       "slots": [
-        "LOW_SIDE_R_FILL"
-       ]
+       ],
+       "note": "bay 16: only the clamp lamp is left, decaying"
       }
      ],
      "after_pass_steps": [
@@ -1341,9 +2020,9 @@
      ],
      "colour_steps": [
       {
-       "at_fraction": 0.5,
+       "at_fraction": 0.4,
        "overrides": {
-        "LOW_SIDE_L_KEY": {
+        "TOP_L": {
          "color_rgb_linear": [
           0.85,
           0.95,
@@ -1360,6 +2039,17 @@
          "temperature_kelvin": 4300.0
         }
        }
+      },
+      {
+       "at_fraction": 0.7,
+       "overrides": {
+        "PRACTICAL_CLAMP": {
+         "flicker": {
+          "mode": "FAULT",
+          "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+         }
+        }
+       }
       }
      ]
     },
@@ -1371,14 +2061,16 @@
      "cycle": [
       {
        "look": "P02_MYSTIC",
-       "level": 0.8
+       "level": 0.8,
+       "note": "jade uplight LEFT"
       },
       {
        "look": "P02_MYSTIC",
        "level": 0.9,
        "mirror": [
         "LOW_SIDE"
-       ]
+       ],
+       "note": "jade uplight RIGHT"
       },
       {
        "look": "GAP",
@@ -1386,11 +2078,19 @@
       },
       {
        "look": "P02_MYSTIC",
-       "level": 1.0
+       "level": 1.0,
+       "note": "jade uplight LEFT"
       }
      ]
     }
-   ]
+   ],
+   "score_revision": "2026-10-05b P02 relight: top wash + practicals + uplights, no cross shots (previous: lighting_scores.json.bak-20261005-preP02relight)",
+   "no_cross_shots": {
+    "enabled": true,
+    "centre_tolerance_cm": 100.0,
+    "nominal_panel_abs_y_cm": 900.0,
+    "note": "Gary 5 Oct: 'those lights should not shoot through from L to R'. Static check on nominal panels at +-900 cm (live P02 record 20261005-090808: |panel y| 600-1196, L<0, R>0); DRY/APPLY re-check every SPOT against the live panels."
+   }
   },
   "P03": {
    "passage_label": "Passage 3",
@@ -1401,7 +2101,7 @@
    "shadow_policy": "ALL",
    "max_consecutive_lit": 6,
    "max_consecutive_lit_exempt": [],
-   "intent": "theatrical, stiff and bright: convent planes (STIFF_BRIGHT) then the stones-and-pyres ratio steps (ABAB -> ABBABB) with pyres growing; gobo breakups = the retained 14 'Rig Slash' spots (no gobo light-function asset exists) plus the timber blink gobo",
+   "intent": "theatrical, stiff and bright: convent planes (STIFF_BRIGHT) then the stones-and-pyres ratio steps (ABAB -> ABBABB) with pyres growing; gobo breakups = the retained 14 'Rig Slash' spots (no gobo light-function asset exists) plus the timber blink gobo | 5 Oct ~15:35 Gary: 'the lighting across creates too much fog. keep only 20% of L R side lighting on P03' (questionnaire: side lights in ~1 bay in 5). Side lights (key/fill/shaft) only in bays 4, 8, 13, 18 (_SIDES looks; 3 of the 4 are pyre bays), re-aimed at their own wing; elsewhere dropped. Previous: lighting_scores.json.bak-20261005-preP02relight",
    "retain": [
     {
      "scope": "passage",
@@ -1439,8 +2139,9 @@
        "level": 1.0
       },
       {
-       "look": "P03_STIFF_BRIGHT",
-       "level": 0.9
+       "look": "P03_STIFF_BRIGHT_SIDES",
+       "level": 0.9,
+       "note": "side lights kept (1 in 5): key L"
       },
       {
        "look": "P03_STIFF_BRIGHT",
@@ -1467,8 +2168,13 @@
        "level": 0.8
       },
       {
-       "look": "P03_PYRE",
-       "level": 0.5
+       "look": "P03_PYRE_SIDES",
+       "level": 0.5,
+       "note": "side lights kept (1 in 5): key R (mirrored)",
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
       },
       {
        "look": "P03_STIFF_BRIGHT",
@@ -1494,8 +2200,9 @@
        "level": 0.8
       },
       {
-       "look": "P03_PYRE",
-       "level": 0.7
+       "look": "P03_PYRE_SIDES",
+       "level": 0.7,
+       "note": "side lights kept (1 in 5): key L"
       },
       {
        "look": "P03_PYRE",
@@ -1518,12 +2225,13 @@
        "level": 0.85
       },
       {
-       "look": "P03_PYRE",
+       "look": "P03_PYRE_SIDES",
        "level": 0.9,
        "mirror": [
         "LOW_SIDE",
         "BEAM"
-       ]
+       ],
+       "note": "side lights kept (1 in 5): key R (mirrored)"
       },
       {
        "look": "GAP",
@@ -1543,7 +2251,14 @@
       }
      ]
     }
-   ]
+   ],
+   "score_revision": "2026-10-05b P03: side lights in 4 of 21 bays (4, 8, 13, 18), re-aimed own-side; no-cross rule on",
+   "no_cross_shots": {
+    "enabled": true,
+    "centre_tolerance_cm": 100.0,
+    "nominal_panel_abs_y_cm": 500.0,
+    "note": "P03 panels are narrow: live P03 record 20261005-025146 |panel y| 500-908. Kept side lights stand at |y| 400."
+   }
   },
   "P04": {
    "passage_label": "Passage 4",

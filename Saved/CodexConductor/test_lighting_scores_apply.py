@@ -261,9 +261,10 @@ for name in ("P05_COOL_THEATRICAL", "P05_SOFT_POOL"):
         slot.pop("cast_shadows", None)
 expect_error("- control: P05 with kit casters ON exceeds its 2-caster budget",
              lambda: plan_for("P05", scores=over), "SHADOW_BUDGET_EXCEEDED")
-over = copy.deepcopy(SCORES)
+# 5 Oct: P03 now keeps side lights in 4 bays only (23 casters), so the control runs on the pre-5-Oct P03 score
+over = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261005-preP02relight"), encoding="utf-8"))
 over["passages"]["P03"]["retain"].append({"scope": "passage", "label_suffix": " Rig Back", "expected_count": 6})
-expect_error("- control: P03 also retaining the 6 Rig Back casters exceeds 54",
+expect_error("- control: pre-5-Oct P03 score also retaining the 6 Rig Back casters exceeds 54",
              lambda: plan_for("P03", scores=over), "SHADOW_BUDGET_EXCEEDED")
 
 print("\n== 5. revert is exact")
@@ -463,6 +464,141 @@ w = next(c for c in gone if c["label"] == "P01 Wing 001")
 w["attachments"] = [a for a in w["attachments"] if not a["label"].endswith(" House R")]
 expect_error("- control: a Show missing House R stops the plan (RETAIN_COUNT)", lambda: plan_for("P01", cues=gone),
              "RETAIN_COUNT")
+
+print("\n== 13. P02 relight (Gary 5 Oct ~15:10): top wash + practicals + uplights, NO cross shots")
+p02_static = L.validate_scores(SCORES, LOOKS, TOOL)["P02"]
+nc = p02_static["no_cross"]
+check("+ P02 enables no_cross_shots; every SPOT in bays 1-23 stays on its own side (static, nominal panels)",
+      nc is not None and nc["rows"] and all(r["verdict"].startswith("OK") for r in nc["rows"]),
+      "spots=%d verdicts=%s" % (len(nc["rows"]), sorted({r["verdict"] for r in nc["rows"]})))
+check("+ the rule is opt-in: only P02 and P03 enable it",
+      all(L.validate_scores(SCORES, LOOKS, TOOL)[k]["no_cross"] is None for k in PAIRS if k not in ("P02", "P03")))
+p02_plan = plan_for("P02")
+p02_bays = {t["ordinal"]: t for t in p02_plan["targets"]}
+p02_lights = [(t["ordinal"], f) for t in p02_plan["targets"] for f in t["fixtures"] if f["authored_kind"] == "LIGHT"]
+check("+ BEAM_R is gone from every P02 bay", not any(f["slot"] == "BEAM_R" for unused, f in p02_lights))
+check("+ every P02 SPOT has volumetric scattering <= 0.15",
+      all(float(f["volumetric_scattering"]) <= 0.15 for unused, f in p02_lights if f["type"] == "SPOT"),
+      "max=%.2f" % max(float(f["volumetric_scattering"]) for unused, f in p02_lights if f["type"] == "SPOT"))
+ups = {o: f for o, f in p02_lights if f["role"] == "LOW_SIDE"}
+check("+ uplights only on bays 3, 7, 10, 12, 20, 21, 23, each wing-aimed at its OWN side (aim-aware mirror)",
+      sorted(ups) == [3, 7, 10, 12, 20, 21, 23]
+      and all((f["transform"]["location_cm"][1] < 0) == (f["aim_wing_side"] == "LEFT") for f in ups.values())
+      and [o for o, f in sorted(ups.items()) if f.get("aim_mirrored")] == [3, 10, 21],
+      " ".join("B%d:%s@%+.0f" % (o, f["aim_wing_side"][0], f["transform"]["location_cm"][1]) for o, f in sorted(ups.items())))
+revived = [f for o, f in p02_lights if f["slot"] in ("PRACTICAL_BULB_DEAD", "PRACTICAL_R")]
+check("+ the dead practicals are revived (intensity > 0, lit lamp body) wherever their look is used",
+      revived and all(float(f["intensity"]) > 0.0 for f in revived)
+      and all(f["visible_mesh"]["mesh"].endswith("SM_Lamp_Ceiling") and f["visible_mesh"]["emissive"] for f in revived),
+      "%d lamps" % len(revived))
+failing = [p02_bays[o] for o in range(12, 20)]
+counts = [t["light_fixture_count"] for t in failing]
+check("+ FAILING 12-19 kills the new rig lamp by lamp (light count strictly falls 12->16, then the clamp decays alone)",
+      counts[:5] == [5, 4, 3, 2, 1] and counts[4:] == [1, 1, 1, 1]
+      and all(t["output"]["LUMENS"] > u["output"]["LUMENS"] for t, u in zip(failing, failing[1:])), str(counts))
+check("+ P02 shadow casters fall (uplights only); budget holds",
+      p02_plan["shadow"]["budget_ok"] and sum(t["new_shadow_casters"] for t in p02_plan["targets"]) == 7,
+      "before=%d after=%d" % (p02_plan["shadow"]["passage_before"], p02_plan["shadow"]["passage_after"]))
+
+
+def live_goals(plan, panel_abs=1000.0, overrides=None):
+    """Fake _apply_live_aims: panels at +-panel_abs, goal = panel + offset."""
+    plan = copy.deepcopy(plan)
+    for target in plan["targets"]:
+        target["aims"] = []
+        for fixture in target["fixtures"]:
+            if fixture["authored_kind"] != "LIGHT" or (fixture["role"] != "TOP" and "aim_wing_side" not in fixture):
+                continue
+            side = fixture.get("aim_wing_side") or ("LEFT" if fixture["slot"].endswith("_L") else "RIGHT")
+            offset = fixture.get("aim_offset_pair_cm", [0.0, 0.0, 0.0])
+            goal = [offset[0], (-panel_abs if side == "LEFT" else panel_abs) + offset[1], offset[2]]
+            goal = (overrides or {}).get((target["ordinal"], fixture["slot"]), goal)
+            target["aims"].append({"fixture": fixture["label"], "panel": side[0], "target_cm": goal})
+    return plan
+
+
+live = L.require_no_cross_live(live_goals(p02_plan))
+check("+ live re-check passes on panels at +-1000 cm (every SPOT, LIVE_PANEL basis)",
+      live and all(r["basis"] == "LIVE_PANEL" and r["verdict"] == "OK_SAME_SIDE" for r in live), "spots=%d" % len(live))
+expect_error("- control: a live goal past the centre line (TOP_L bay 1 -> y=+900) is refused",
+             lambda: L.require_no_cross_live(live_goals(p02_plan, overrides={(1, "TOP_L"): [0.0, 900.0, 300.0]})),
+             "NO_CROSS_SHOT|passage=P02|bay=1|slot=TOP_L")
+check("+ a TOP goal inside the centre tolerance is allowed (OK_TOP_CENTRE_TOLERANCE)",
+      any(r["verdict"] == "OK_TOP_CENTRE_TOLERANCE" for r in L.require_no_cross_live(
+          live_goals(p02_plan, overrides={(1, "TOP_L"): [0.0, 60.0, 300.0]}))))
+expect_error("- control: an uplight goal inside the tolerance is NOT (tolerance is TOP-only)",
+             lambda: L.require_no_cross_live(live_goals(p02_plan, overrides={(7, "LOW_SIDE_L_KEY"): [0.0, 60.0, 700.0]})),
+             "verdict=CROSS")
+expect_error("- control: a narrow bay (panels +-600) puts the y=-800 uplight BEHIND its wing",
+             lambda: L.require_no_cross_live(live_goals(p02_plan, panel_abs=600.0)), "verdict=BEHIND_PANEL")
+old = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261005-preP02relight"), encoding="utf-8"))
+old["passages"]["P02"]["no_cross_shots"] = True
+expect_error("- control: the pre-relight P02 score (BEAM_R across, LOW_SIDE yaw 72) fails the rule",
+             lambda: L.validate_scores(old, L.resolve_looks(old, BASE), TOOL), "NO_CROSS_SHOT|passage=P02|bay=1")
+bad = copy.deepcopy(SCORES)
+bad["variants"]["P02_THEATRICAL_TOP"]["drop_slots"] = ["BEAM_R", "LOW_SIDE_R_FILL"]
+expect_error("- control: keeping the base cross-aimed LOW_SIDE_L_KEY (fixed rotation) fails",
+             lambda: L.validate_scores(bad, L.resolve_looks(bad, BASE), TOOL), "slot=LOW_SIDE_L_KEY,role=LOW_SIDE")
+bad = copy.deepcopy(SCORES)
+bad["passages"]["P02"]["segments"][0]["cycle"][0]["overrides"] = {"TOP_L": {"aim_wing_side": "RIGHT"}}
+expect_error("- control: a bay override aiming TOP_L at the RIGHT wing fails",
+             lambda: L.validate_scores(bad, LOOKS, TOOL), "slot=TOP_L,role=TOP")
+saved_mirror = L._mirror_explicit_aims
+L._mirror_explicit_aims = lambda fixtures, spec: None
+try:
+    expect_error("- control: legacy mirror (position flipped, aim not) makes bay 3's uplight a cross shot",
+                 lambda: L.validate_scores(SCORES, LOOKS, TOOL), "NO_CROSS_SHOT|passage=P02|bay=3|slot=LOW_SIDE_L_KEY")
+    legacy = {k: v["specs"] for k, v in L.validate_scores(
+        {**SCORES, "passages": {k: p for k, p in SCORES["passages"].items() if k not in ("P02", "P03")}},
+        LOOKS, TOOL).items()}
+    legacy_fx = {k: [L.bay_fixtures(TOOL, SCORES, LOOKS, k, s) for s in specs if s["look"] != "PROTOTYPE"]
+                 for k, specs in legacy.items()}
+finally:
+    L._mirror_explicit_aims = saved_mirror
+now_fx = {k: [L.bay_fixtures(TOOL, SCORES, LOOKS, k, s) for s in specs if s["look"] != "PROTOTYPE"]
+          for k, specs in legacy.items()}
+check("+ aim-aware mirroring changes no fixture outside P02/P03 (P01, P04-P06 byte-identical)",
+      L._canonical(now_fx) == L._canonical(legacy_fx), "passages=%s" % ",".join(sorted(now_fx)))
+bad = copy.deepcopy(SCORES)
+bad["passages"]["P02"]["no_cross_shots"] = {"enabled": True, "centre_tolerance": 50}
+expect_error("- control: a misspelt no_cross_shots key is refused", lambda: L.validate_scores(bad, LOOKS, TOOL),
+             "BAD_NO_CROSS_CONFIG")
+bad = copy.deepcopy(SCORES)
+bad["variants"]["P02_LURID_POP"]["instrument_overrides"]["PRACTICAL_BULB_DEAD"]["visible_mesh"]["mesh"] = "SM_Lamp_Ceiling"
+expect_error("- control: a revived-body mesh outside /Game or /Engine is refused",
+             lambda: L.resolve_looks(bad, BASE), "PRACTICAL_MESH_MISSING")
+
+print("\n== 14. P03 side lights in ~1 bay in 5 (Gary 5 Oct ~15:35: 'keep only 20% of L R side lighting')")
+p03_static = L.validate_scores(SCORES, LOOKS, TOOL)["P03"]
+check("+ P03 no-cross rule passes in all 21 bays (static, nominal panels +-500)",
+      p03_static["no_cross"] and all(r["verdict"].startswith("OK") for r in p03_static["no_cross"]["rows"]),
+      "spots=%d" % len(p03_static["no_cross"]["rows"]))
+p03_plan = plan_for("P03")
+side_slots = ("LOW_SIDE_L_KEY", "LOW_SIDE_R_FILL", "BEAM_R")
+side_bays = {t["ordinal"]: [f for f in t["fixtures"] if f["authored_kind"] == "LIGHT" and f["slot"] in side_slots]
+             for t in p03_plan["targets"]}
+kept = sorted(o for o, rows in side_bays.items() if rows)
+check("+ side lights (key, fill, shaft) only in bays 4, 8, 13, 18 = 4/21 (19%)", kept == [4, 8, 13, 18]
+      and all(len(side_bays[o]) == 3 for o in kept), str(kept))
+keys = {o: next(f for f in side_bays[o] if f["slot"] == "LOW_SIDE_L_KEY") for o in kept}
+check("+ the kept key alternates L/R/L/R and every kept side lamp is aimed at its own side",
+      [("L" if keys[o]["transform"]["location_cm"][1] < 0 else "R") for o in kept] == ["L", "R", "L", "R"]
+      and all((f["transform"]["location_cm"][1] < 0) == (f["aim_wing_side"] == "LEFT") for o in kept for f in side_bays[o]))
+check("+ pyre bays without side lights keep the fire clamp (1600 lm x level, FAULT)",
+      all(any(f["slot"] == "PRACTICAL_CLAMP" and f["flicker"]["mode"] == "FAULT" and f["color_rgb_linear"] == [1.0, 0.5, 0.18]
+              for f in t["fixtures"]) for t in p03_plan["targets"] if t["look"] == "P03_PYRE"),
+      "pyre-no-side bays=%s" % [t["ordinal"] for t in p03_plan["targets"] if t["look"] == "P03_PYRE"])
+check("+ the 14 Rig Slash + Blink Spot are still retained, budget holds",
+      len(p03_plan["retained"]) == 15 and p03_plan["shadow"]["budget_ok"],
+      "casters before=%d after=%d" % (p03_plan["shadow"]["passage_before"], p03_plan["shadow"]["passage_after"]))
+check("+ P03 live re-check passes on panels at +-500 cm (the narrowest measured)",
+      all(r["verdict"].startswith("OK") for r in L.require_no_cross_live(live_goals(p03_plan, panel_abs=500.0))))
+expect_error("- control: P03 panels at +-380 put the |y| 400 side lamps BEHIND their wing",
+             lambda: L.require_no_cross_live(live_goals(p03_plan, panel_abs=380.0)), "verdict=BEHIND_PANEL")
+old3 = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261005-preP02relight"), encoding="utf-8"))
+old3["passages"]["P03"]["no_cross_shots"] = True
+expect_error("- control: the pre-5-Oct P03 score fails the rule (side lights across)",
+             lambda: L.validate_scores(old3, L.resolve_looks(old3, BASE), TOOL), "NO_CROSS_SHOT|passage=P03|bay=1")
 
 print("\n== summary (MODEL census, inferred; DRY on the live Show is the measurement)")
 print("passage bays targets skipped fixtures lights props disabled retained casters_before->after")
