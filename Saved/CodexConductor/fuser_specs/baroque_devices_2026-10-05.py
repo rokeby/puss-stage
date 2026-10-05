@@ -84,16 +84,18 @@ write_job("47_ALL_perspective_edits", "47 · Perspective edit pass on existing a
   "approved. The P04 gallery joins after its curved recut.",
   [("%s (Image node: %s)" % (n, p), persp_edit(n)) for n, p in EDITS])
 
-CURT = ("a painted theatre act-drop curtain, Baroque scenic painting on heavy cloth: painted swags and a painted frame round a "
-        "central scene; the CENTRAL two-thirds kept calm and light-toned so shadow puppets projected on it read clearly")
+# Gary 5 Oct: never name the object the image will be printed on ("curtain", "cloth", "drop") -- the generator then
+# paints a curtain INTO the picture. Describe only the picture itself, full-bleed.
+CURT = ("Baroque scenic painting in the manner of an eighteenth-century theatre scene painter: broad confident brushwork, "
+        "luminous depth, rich and complete across the whole picture")
 
 
 def curtain(theme, palette):
-    return one_line("no input image; a painted front-cloth curtain for the end of a passage is required",
-        "paint the whole curtain: " + theme, CURT + "; palette: " + palette + "; no outlines",
-        "the full rectangle of cloth edge to edge, a visible hem and soft vertical fold lines, symmetric frame",
-        "people in the central field; text; logos; cartoon; CGI sheen",
-        "the whole curtain filling the frame edge to edge (no background, no cut-out); landscape 16:9")
+    return one_line("no input image; a full-bleed landscape painting is required",
+        "paint the scene: " + theme, CURT + "; palette: " + palette + "; no outlines",
+        "one continuous scene filling the frame edge to edge, a clear deep composition",
+        "frames; borders; architecture of a theatre; people; text; logos; cartoon; CGI sheen",
+        "the painting fills the whole frame edge to edge (no background, no cut-out, no border); landscape 16:9")
 
 
 write_job("48_ALL_passage_end_curtains", "48 · Painted curtains at the end of each passage (Gary 5 Oct)",
