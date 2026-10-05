@@ -327,8 +327,10 @@ strobe_on = "peak_max" in FL
 case("strobe style is active in opening_timing.json (flicker.peak_max present)", strobe_on, sorted(FL))
 case("flicker_start = 36.18 s -> frame 904 (the entry 36.1767 s); music_start (frame %d) <= flicker_start" % fr["music_start"],
      fr["flicker_start"] == 904 and fr["music_start"] <= fr["flicker_start"], (fr["flicker_start"], fr["music_start"]))
-case("auto swivel follows the flicker: swivel_start = next major change 43.84 s (1096), swivel_end 59.52 s (1488)",
-     fr["swivel_start"] == 1096 and fr["swivel_end"] == 1488, (fr["swivel_start"], fr["swivel_end"]))
+case("swivel: start = auto next major change 43.84 s (1096); end = JSON 50.0 s (1250, Gary 5 Oct ~15:45 'shorter')",
+     fr["swivel_start"] == 1096 and fr["swivel_end"] == 1250 and base["sources"]["swivel_end"] == "json (first apply)"
+     and "auto" in base["reasons"]["swivel_start"] and base["reasons"]["swivel_end"] == "json",
+     (fr["swivel_start"], fr["swivel_end"], base["reasons"]["swivel_start"], base["reasons"]["swivel_end"]))
 case("every lamp's staggered flicker ends before the swivel starts",
      all(l["flicker_end"] <= fr["swivel_start"] for l in base["lamps"].values()),
      {n: l["flicker_end"] for n, l in base["lamps"].items()})
@@ -351,8 +353,8 @@ for nm in base["lamps"]:
     lp = base["lamps"][nm]
     nxt = [(f, v) for f, v, _ in lp["intensity"] if f > lp["flicker_end"]]
     land = [v for f, v, _ in lp["intensity"] if f == lp["flicker_end"]]
-    case("LANDING: %s lands ON at idle x nominal at its flicker_end, the same level the next key (swivel_end) holds"
-         % nm, land == [FL["idle_level"] * NOM[nm]] and nxt and nxt[0][0] == fr["swivel_end"]
+    case("LANDING: %s lands ON at idle x nominal at its flicker_end, the same level the next key holds (no step)"
+         % nm, land == [FL["idle_level"] * NOM[nm]] and nxt and nxt[0][0] <= fr["swivel_end"]
          and abs(nxt[0][1] - land[0]) < 1e-9, (land, nxt[:1]))
     case("UNLIT: %s is 0 before its own flicker_start" % nm,
          all(v == 0.0 for f, v, _ in lp["intensity"] if f < lp["flicker_start"]))
@@ -455,6 +457,62 @@ case("RECORD: had the last APPLY left flicker_start at 208 with the marker at 20
 pdr, _ = plan_with(markers=dict(mk_rec, flicker_start=last_rec["flicker_start"] + 30), last=last_rec)
 case("NEG: if Gary dragged OPN flicker_start since the last APPLY, the JSON change is a CONFLICT (refused)",
      has(pdr["failures"], "marker-conflict"), pdr["failures"])
+
+# ---- 10. land dim, rise slowly with the swivel (Gary 5 Oct ~15:45); swivel 43.84-50 s
+ENV = CFG["envelope"]
+
+
+def per_frame(keys, f0, f1):
+    """Evaluate [(frame, value, interp)] per frame on [f0, f1] the way Sequencer does: a key's interp governs the
+    segment AFTER it (constant holds, linear blends to the next key)."""
+    out = []
+    for f in range(f0, f1 + 1):
+        v = 0.0
+        for j, (kf, kv, ki) in enumerate(keys):
+            if kf > f:
+                break
+            v = kv
+            if ki == "linear" and j + 1 < len(keys) and keys[j + 1][0] > f:
+                nf, nv = keys[j + 1][0], keys[j + 1][1]
+                v = kv + (nv - kv) * (f - kf) / float(nf - kf)
+        out.append(v)
+    return out
+
+
+RISE_CAP = 0.01        # x nominal per frame (= 0.25x per second at 25 fps): 'rise slowly', no step
+
+
+def max_rise(plan, nm):
+    lp = plan["lamps"][nm]
+    vals = per_frame(lp["intensity"], lp["flicker_end"], plan["frames"]["opening_end"])
+    return max(b - a for a, b in zip(vals, vals[1:])) / lp["nominal_cd"]
+
+
+for nm in base["lamps"]:
+    mr = max_rise(base, nm)
+    case("RISE: %s max per-frame rise after its flicker_end = %.4fx nominal <= %.3fx (no step)" % (nm, mr, RISE_CAP),
+         mr <= RISE_CAP, mr)
+lp = base["lamps"]["FOH L"]
+vals = per_frame(lp["intensity"], lp["flicker_end"], fr["swivel_end"])
+idle_cd = FL["idle_level"] * 1740.0
+case("RISE: FOH L holds the dim landing until swivel_start, then rises monotonically to swivel_end",
+     all(abs(v - idle_cd) < 1e-9 for v in vals[:fr["swivel_start"] - lp["flicker_end"] + 1])
+     and all(b >= a - 1e-9 for a, b in zip(vals, vals[1:])) and vals[-1] > idle_cd * 2.0, (vals[0], vals[-1]))
+env_lvl = 1740.0 * P.envelope_scale(P.env_at(fr["swivel_end"] / 25.0, rate, env), ENV)
+case("RISE: FOH L arrives at the envelope's own level at swivel_end (%.1f cd)" % env_lvl,
+     abs(vals[-1] - env_lvl) < 1e-6, (vals[-1], env_lvl))
+old_rise, _ = plan_with(lambda c: c["envelope"].pop("rise_from"))
+mr_old = max_rise(old_rise, "FOH L")
+case("NEG: without rise_from (old: idle held to swivel_end, then a 10-frame ramp) the rise check FAILS (%.4fx/frame)"
+     % mr_old, mr_old > RISE_CAP, mr_old)
+case("OLD rise: without rise_from FOH L still holds idle exactly to swivel_end (backward compatible)",
+     [v for f, v, i in old_rise["lamps"]["FOH L"]["intensity"] if f == fr["swivel_end"]] == [idle_cd])
+# record: the explicit swivel_end must win cleanly over the last APPLY (1096) with its marker unmoved
+case("RECORD: swivel_end JSON 1250 wins over last APPLY %d (marker unmoved), no conflict" % last_rec["swivel_end"],
+     pr["frames"]["swivel_end"] == 1250 and pr["sources"]["swivel_end"] == "json" and not pr["conflicts"])
+pse, _ = plan_with(markers=dict(mk_rec, swivel_end=last_rec["swivel_end"] + 25), last=last_rec)
+case("NEG: a swivel_end marker dragged since the last APPLY + the JSON change -> CONFLICT (refused)",
+     has(pse["failures"], "marker-conflict"), pse["failures"])
 
 passed = sum(1 for _, ok in RESULTS if ok)
 print("\nRESULT %d/%d passed" % (passed, len(RESULTS)))

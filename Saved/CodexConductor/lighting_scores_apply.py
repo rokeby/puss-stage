@@ -77,6 +77,10 @@ VARIANT_FIELDS = {
     # 5 Oct (P02 relight): a revived practical needs a lit body, not the dead-bulb sphere.
     # Replaced whole; validate_instrument re-checks mesh/style/emissive/transform.
     "visible_mesh",
+    # 5 Oct (P04 ceiling strike): a fixed look-at POINT in pair space, for a spot aimed at
+    # something that is not a side wing panel (the P04 ceiling border). The rotation is
+    # computed offline from it (bay_fixtures) and _apply_live_aims leaves it alone.
+    "aim_target_pair_cm",
 }
 # NO-CROSS-SHOT rule (Gary 5 Oct, P02: "those lights should not shoot through from
 # L to R"). Enabled per passage by passages.<P>.no_cross_shots (true or a dict).
@@ -376,6 +380,11 @@ def validate_instrument(row, where):
             "FLICKER_MATERIAL_UNKNOWN|" + where)
     if role == "TOP":
         require(row["slot"].rsplit("_", 1)[-1] in ("L", "R"), "TOP_SLOT_SIDE_UNKNOWN|" + where)
+    if "aim_target_pair_cm" in row:
+        point = row.get("aim_target_pair_cm")
+        require(row["type"] == "SPOT" and "aim_wing_side" not in row and "aim_offset_pair_cm" not in row
+                and isinstance(point, list) and len(point) == 3 and all(math.isfinite(float(v)) for v in point),
+                "AIM_TARGET_BAD|" + where)
     if "aim_wing_side" in row or "aim_offset_pair_cm" in row:
         require(row["type"] == "SPOT" and row.get("aim_wing_side") in ("LEFT", "RIGHT"),
                 "WING_AIM_BAD|" + where)
@@ -534,6 +543,7 @@ def bay_fixtures(tool, scores, looks, passage_key, spec):
     }
     fixtures = tool.expand_bay(config, bay_row)
     _mirror_explicit_aims(fixtures, spec)
+    _apply_fixed_aim_points(tool, fixtures, spec)
     for row in fixtures:
         if row["authored_kind"] == "LIGHT":
             validate_instrument(row, "%s|look=%s|slot=%s" % (where, look_name, row["slot"]))
@@ -559,6 +569,22 @@ def _mirror_explicit_aims(fixtures, spec):
         row["aim_mirrored"] = True
 
 
+def _apply_fixed_aim_points(tool, fixtures, spec):
+    """aim_target_pair_cm rows: mirror the point with the row (negate y, unless the
+    bay override set it) and point the spot at it with the P04 tool's own look-at."""
+    mirrored = set(spec["mirror"])
+    for row in fixtures:
+        if row.get("authored_kind") != "LIGHT" or row.get("aim_target_pair_cm") is None:
+            continue
+        point = [float(v) for v in row["aim_target_pair_cm"]]
+        if row["role"] in mirrored and "aim_target_pair_cm" not in spec["overrides"].get(row["slot"], {}):
+            point[1] = -point[1]
+            row["aim_mirrored"] = True
+        row["aim_target_pair_cm"] = point
+        row["transform"]["rotation_rpy_deg"] = list(tool._look_at_rpy(
+            row["transform"]["location_cm"], point, row.get("label", row["slot"])))
+
+
 def no_cross_config(passage):
     """None when the passage does not enable the rule; else the merged settings."""
     raw = passage.get("no_cross_shots")
@@ -567,9 +593,13 @@ def no_cross_config(passage):
     cfg = dict(NO_CROSS_DEFAULTS)
     if raw is not True:
         require(isinstance(raw, dict) and raw.get("enabled", True) is True
-                and set(raw).issubset(set(NO_CROSS_DEFAULTS) | {"enabled", "note"}),
+                and set(raw).issubset(set(NO_CROSS_DEFAULTS) | {"enabled", "note", "bays"}),
                 "BAD_NO_CROSS_CONFIG|" + _canonical(raw))
         cfg.update({k: float(v) for k, v in raw.items() if k in NO_CROSS_DEFAULTS})
+        if "bays" in raw:  # check only these ordinals (bays where the rule can pass)
+            first, last = [int(v) for v in raw["bays"]]
+            require(1 <= first <= last <= int(passage["expected_bay_count"]), "BAD_NO_CROSS_BAYS|" + _canonical(raw))
+            cfg["bays"] = [first, last]
     require(0.0 <= cfg["centre_tolerance_cm"] < cfg["nominal_panel_abs_y_cm"], "BAD_NO_CROSS_TOLERANCE")
     return cfg
 
@@ -584,6 +614,8 @@ def _spot_aim_target(row, cfg, live_goal=None):
     their rotation (UE X-forward, [roll, pitch, yaw]) to the floor or to their
     attenuation radius, whichever comes first."""
     source = [float(v) for v in row["transform"]["location_cm"]]
+    if row.get("aim_target_pair_cm") is not None:
+        return [float(v) for v in row["aim_target_pair_cm"]], "AIM_POINT"
     explicit = row.get("aim_wing_side")
     if explicit is not None or row["role"] == "TOP":
         if live_goal is not None:
@@ -612,6 +644,8 @@ def no_cross_rows(passage_key, ordinal, fixtures, cfg, live_goals=None):
     live panel it lights (|source y| < |panel y|), or it would shoot through it."""
     rows = []
     tol = cfg["centre_tolerance_cm"]
+    if "bays" in cfg and not cfg["bays"][0] <= int(ordinal) <= cfg["bays"][1]:
+        return rows
     for row in fixtures:
         if row.get("authored_kind") != "LIGHT" or row.get("type") != "SPOT":
             continue
@@ -626,6 +660,14 @@ def no_cross_rows(passage_key, ordinal, fixtures, cfg, live_goals=None):
             verdict = "OK_TOP_CENTRE_TOLERANCE"
         else:
             verdict = "CROSS"
+        if basis == "AIM_POINT" and verdict.startswith("OK") and abs(source_y) > tol:
+            # A fixed aim point is not a wing that stops the beam: follow the beam on to
+            # its attenuation radius; its far end may not cross either.
+            delta = [target[i] - float(row["transform"]["location_cm"][i]) for i in range(3)]
+            length = math.sqrt(sum(v * v for v in delta))
+            end_y = source_y + delta[1] / length * float(row["attenuation_cm"])
+            if not (source_y * end_y > 0.0 or (row["role"] == "TOP" and abs(end_y) <= tol)):
+                verdict = "CROSS_BEYOND_TARGET|end_y=%.0f" % end_y
         if (verdict == "OK_SAME_SIDE" and goal is not None and row["role"] != "TOP"
                 and row.get("aim_wing_side") is not None and abs(source_y) >= abs(target_y)):
             verdict = "BEHIND_PANEL"
@@ -1192,6 +1234,8 @@ def _apply_live_aims(tool, show, plan):
             if fixture["authored_kind"] != "LIGHT":
                 continue
             explicit = fixture.get("aim_wing_side")
+            if fixture.get("aim_target_pair_cm") is not None:
+                continue  # fixed look-at point, aimed offline in bay_fixtures
             if fixture["role"] != "TOP" and explicit is None:
                 continue
             if explicit is None:

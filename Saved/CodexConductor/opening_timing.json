@@ -14,7 +14,7 @@
   "moments": {
     "music_start": {
       "value": 4.0,
-      "source": "5 Oct conductor: aligned to Gary's flicker on the gentle early swell (auto RMS threshold gave 7.04 s; sketch 2 rises from ~3-4 s)"
+      "source": "5 Oct conductor: where sketch 2 rises out of silence (~3-4 s; auto RMS threshold gave 7.04 s). Since Gary 5 Oct ~15:15 the flicker starts on the entry (36.18 s), so this marks the music only: it drives no light (planner: only the order check, the 'unactivated' check and the auto flicker_start, which is now explicit)"
     },
     "flicker_start": {
       "value": 36.18,
@@ -30,8 +30,8 @@
       "source": "auto"
     },
     "swivel_end": {
-      "value": "auto",
-      "source": "auto"
+      "value": 50.0,
+      "source": "Gary 5 Oct ~15:45: 'Shorter, ~43.8-50 s' (swivel starts at the auto change 43.84 s, ends 50.0 s = frame 1250; the auto rule gave 59.52 s)"
     },
     "last_swell": {
       "value": "auto",
@@ -76,6 +76,9 @@
     "headroom": 0.15,
     "gain": 1.0,
     "key_step_frames": 10,
+    "rise_from": "swivel_start",
+    "rise_key_step_frames": 5,
+    "rise_note": "Gary 5 Oct ~15:45: 'Land dim, rise slowly with the swivel'. After the strobe each lamp holds idle_level until rise_from, then eases (smoothstep) to the envelope's level at swivel_end; remove rise_from for the old behaviour (idle held to swivel_end, then a 10-frame ramp into the envelope).",
     "notes": "scale = floor + (peak - floor) * min(1, gain * (1 - headroom) * env), env = normalized blend of the smoothed analysis 'intensity' curve and smoothed waveform RMS; scale multiplies each fixture's nominal_cd (1.0 = the approved warmer level)."
   },
   "flicker": {

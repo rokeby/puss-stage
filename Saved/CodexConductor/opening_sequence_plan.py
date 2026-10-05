@@ -542,7 +542,24 @@ def fixture_keys(fixture, frames, cfg, env_rate, env, fps):
         s = envelope_scale(env_at(frame / fps, env_rate, env), env_cfg)
         return nominal * (idle + (s - idle) * weight)       # weight 1 = the full envelope, 0 = idle hold
 
-    keys.append((env_start, idle * nominal, "linear"))
+    rise_from = env_cfg.get("rise_from")
+    if rise_from:
+        # Gary 5 Oct ~15:45: 'land dim, rise slowly with the swivel'. The lamp holds its landing level (idle) from
+        # flicker_end until rise_from (e.g. swivel_start), then eases (smoothstep, zero slope at both ends) up to
+        # the envelope's own level AT swivel_end, so the envelope continues from there with no step.
+        r0 = max(frames[rise_from], f_end)
+        lo, hi = idle * nominal, level(env_start)
+        keys.append((r0, lo, "linear"))
+        span = max(1, env_start - r0)
+        rstep = max(1, int(env_cfg.get("rise_key_step_frames", step)))
+        f = r0 + rstep
+        while f < env_start:
+            u = (f - r0) / float(span)
+            keys.append((f, lo + (hi - lo) * u * u * (3.0 - 2.0 * u), "linear"))
+            f += rstep
+        keys.append((env_start, hi, "linear"))
+    else:
+        keys.append((env_start, idle * nominal, "linear"))
     f = env_start + step
     stop = walk if out_frame is None else min(walk, out_frame)
     while f < stop:

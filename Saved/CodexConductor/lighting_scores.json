@@ -1610,6 +1610,284 @@
      }
     }
    }
+  },
+  "P04_GROUND_BULBS": {
+   "base": "MOODY",
+   "intent": "Gary 5 Oct ~16:00, P04 last third: 'bulbs on the ground by wings ... fairly dark overall with only striking lights from upper right on ceiling wing'. dark bay: no tops, no low sides; a PAIR of warm bare bulbs on the floor just inside each wing",
+   "drop_slots": [
+    "TOP_L",
+    "TOP_R",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL"
+   ],
+   "instrument_overrides": {
+    "PRACTICAL_L": {
+     "location_cm": [
+      60.0,
+      -820.0,
+      15.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.62,
+      0.3
+     ],
+     "temperature_kelvin": 2400.0,
+     "intensity": 220.0,
+     "attenuation_cm": 320.0,
+     "volumetric_scattering": 0.05,
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     },
+     "visible_mesh": {
+      "style": "bare bulb on the floor (5 Oct)",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.1,
+       0.1,
+       0.13
+      ]
+     }
+    },
+    "PRACTICAL_R": {
+     "location_cm": [
+      -40.0,
+      820.0,
+      15.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.4
+     ],
+     "temperature_kelvin": 2700.0,
+     "intensity": 180.0,
+     "attenuation_cm": 320.0,
+     "volumetric_scattering": 0.05,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on the floor (5 Oct)",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.1,
+       0.1,
+       0.13
+      ]
+     }
+    }
+   }
+  },
+  "P04_GROUND_BULB_ONE_DEAD": {
+   "base": "MOODY",
+   "intent": "Gary 5 Oct ~16:00, P04 last third: 'bulbs on the ground by wings ... fairly dark overall with only striking lights from upper right on ceiling wing'. dark bay: one buzzing warm floor bulb by the LEFT wing, its partner by the right wing dead",
+   "drop_slots": [
+    "TOP_L",
+    "TOP_R",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL"
+   ],
+   "instrument_overrides": {
+    "PRACTICAL_L": {
+     "location_cm": [
+      -30.0,
+      -820.0,
+      15.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.62,
+      0.3
+     ],
+     "temperature_kelvin": 2300.0,
+     "intensity": 200.0,
+     "attenuation_cm": 320.0,
+     "volumetric_scattering": 0.05,
+     "flicker": {
+      "mode": "BUZZ",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on the floor (5 Oct)",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.1,
+       0.1,
+       0.13
+      ]
+     }
+    },
+    "PRACTICAL_R": {
+     "location_cm": [
+      50.0,
+      820.0,
+      15.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.4
+     ],
+     "temperature_kelvin": 2700.0,
+     "intensity": 0.0,
+     "attenuation_cm": 320.0,
+     "volumetric_scattering": 0.05,
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     },
+     "visible_mesh": {
+      "style": "dead bare bulb on the floor (5 Oct)",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": false,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.1,
+       0.1,
+       0.13
+      ]
+     }
+    }
+   }
+  },
+  "P04_CEILING_STRIKE": {
+   "base": "MOODY",
+   "intent": "Gary 5 Oct ~16:00, P04 last third: 'bulbs on the ground by wings ... fairly dark overall with only striking lights from upper right on ceiling wing'. dark bay under the ceiling border: ONE hard narrow cold spot from high on the RIGHT strikes the border's face (right half, raking leftward, attenuation stops it short of centre); one humming floor bulb by the left wing, the right one dead so the floor under the strike stays dark",
+   "drop_slots": [
+    "TOP_L",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL"
+   ],
+   "instrument_overrides": {
+    "TOP_R": {
+     "location_cm": [
+      -350.0,
+      750.0,
+      1167.6
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "aim_target_pair_cm": [
+      250.0,
+      150.0,
+      1077.6
+     ],
+     "color_rgb_linear": [
+      0.85,
+      0.92,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 600.0,
+     "inner_cone_deg": 3.0,
+     "outer_cone_deg": 8.0,
+     "attenuation_cm": 1000.0,
+     "volumetric_scattering": 0.1,
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     },
+     "cast_shadows": false
+    },
+    "PRACTICAL_L": {
+     "location_cm": [
+      40.0,
+      -820.0,
+      15.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.62,
+      0.3
+     ],
+     "temperature_kelvin": 2200.0,
+     "intensity": 160.0,
+     "attenuation_cm": 320.0,
+     "volumetric_scattering": 0.05,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "visible_mesh": {
+      "style": "bare bulb on the floor (5 Oct)",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.1,
+       0.1,
+       0.13
+      ]
+     }
+    },
+    "PRACTICAL_R": {
+     "location_cm": [
+      -20.0,
+      820.0,
+      15.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.4
+     ],
+     "temperature_kelvin": 2700.0,
+     "intensity": 0.0,
+     "attenuation_cm": 320.0,
+     "volumetric_scattering": 0.05,
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     },
+     "visible_mesh": {
+      "style": "dead bare bulb on the floor (5 Oct)",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": false,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.1,
+       0.1,
+       0.13
+      ]
+     }
+    }
+   }
   }
  },
  "passages": {
@@ -2286,7 +2564,7 @@
     "record": "lighting_looks_revert_record.json",
     "policy": "APPLIED -> skip (owned by lighting_looks_apply.py); ABSENT -> refuse unless LIGHTING_SCORES_PROTOTYPE_ABSENT='AUTHOR_FALLBACK'; MIXED -> refuse"
    },
-   "intent": "the prototype score (moody -> industrial -> theatrical, bays 1-6, owned by the P04 tool) continued as a cold ruin: gaps, moody pools, two complete dark bays before a hard cold breakage beam",
+   "intent": "the prototype score (moody -> industrial -> theatrical, bays 1-6, owned by the P04 tool) continued as a cold ruin: gaps, moody pools, two complete dark bays before a hard cold breakage beam | 5 Oct ~16:00 Gary: last third (bays 15-21) 'fairly dark overall with only striking lights from upper right on ceiling wing' + 'bulbs on the ground by wings': no tops/low sides/beams there, warm floor bulbs (pairs, singles, dead ones, HUM/BUZZ), one cold strike from high right on the Wing 017 ceiling border. Previous: lighting_scores.json.bak-20261005-preP04bulbs",
    "retain": [
     {
      "scope": "passage",
@@ -2356,7 +2634,7 @@
     {
      "bays": [
       7,
-      21
+      14
      ],
      "cycle": [
       {
@@ -2394,47 +2672,176 @@
        "look": "VOID",
        "level": 1.0,
        "note": "second complete dark bay before the breakage"
-      },
+      }
+     ]
+    },
+    {
+     "bays": [
+      15,
+      21
+     ],
+     "note": "Gary 5 Oct ~16:00, P04 last third: 'bulbs on the ground by wings ... fairly dark overall with only striking lights from upper right on ceiling wing'. Replaces (bays 15-21): P04_COLD_BREAK, MOODY, MOODY, THEATRICAL, GAP, P04_COLD_BREAK, MOODY - the two COLD_BREAK breakage beams (15, 20) go with the rest of the side/beam light.",
+     "cycle": [
       {
-       "look": "P04_COLD_BREAK",
+       "look": "P04_GROUND_BULBS",
        "level": 1.0,
-       "mirror": [
-        "BEAM"
-       ]
+       "overrides": {
+        "PRACTICAL_L": {
+         "location_cm": [
+          60.0,
+          -880.0,
+          15.0
+         ]
+        },
+        "PRACTICAL_R": {
+         "location_cm": [
+          -40.0,
+          1080.0,
+          15.0
+         ]
+        }
+       },
+       "note": "pair, R hums"
       },
       {
-       "look": "MOODY",
-       "level": 0.8
+       "look": "P04_GROUND_BULB_ONE_DEAD",
+       "level": 1.0,
+       "overrides": {
+        "PRACTICAL_L": {
+         "location_cm": [
+          -30.0,
+          -970.0,
+          15.0
+         ]
+        },
+        "PRACTICAL_R": {
+         "location_cm": [
+          50.0,
+          1110.0,
+          15.0
+         ]
+        }
+       },
+       "note": "L buzzes, R dead"
       },
       {
-       "look": "MOODY",
-       "level": 0.7,
-       "mirror": [
-        "LOW_SIDE"
-       ]
+       "look": "P04_CEILING_STRIKE",
+       "level": 1.0,
+       "overrides": {
+        "PRACTICAL_L": {
+         "location_cm": [
+          40.0,
+          -1270.0,
+          15.0
+         ]
+        },
+        "PRACTICAL_R": {
+         "location_cm": [
+          -20.0,
+          840.0,
+          15.0
+         ]
+        }
+       },
+       "note": "the strike on the ceiling border (Wing 017); Blink Spot retained here"
       },
       {
-       "look": "THEATRICAL",
-       "level": 0.9
+       "look": "P04_GROUND_BULBS",
+       "level": 0.85,
+       "overrides": {
+        "PRACTICAL_L": {
+         "location_cm": [
+          -60.0,
+          -950.0,
+          15.0
+         ],
+         "flicker": {
+          "mode": "HUM",
+          "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+         }
+        },
+        "PRACTICAL_R": {
+         "location_cm": [
+          30.0,
+          1040.0,
+          15.0
+         ],
+         "flicker": {
+          "mode": "STEADY",
+          "material": null
+         }
+        }
+       },
+       "note": "pair, L hums"
       },
       {
-       "look": "GAP",
-       "level": 1.0
-      },
-      {
-       "look": "P04_COLD_BREAK",
-       "level": 0.9
-      },
-      {
-       "look": "MOODY",
+       "look": "P04_GROUND_BULB_ONE_DEAD",
        "level": 0.8,
        "mirror": [
-        "LOW_SIDE"
-       ]
+        "PRACTICAL"
+       ],
+       "note": "mirrored: R buzzes, L dead (no panel read: +-820)"
+      },
+      {
+       "look": "P04_GROUND_BULBS",
+       "level": 0.9,
+       "overrides": {
+        "PRACTICAL_L": {
+         "location_cm": [
+          20.0,
+          -1035.0,
+          15.0
+         ]
+        },
+        "PRACTICAL_R": {
+         "location_cm": [
+          -50.0,
+          1010.0,
+          15.0
+         ],
+         "flicker": {
+          "mode": "BUZZ",
+          "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+         }
+        }
+       },
+       "note": "pair, R buzzes"
+      },
+      {
+       "look": "P04_GROUND_BULB_ONE_DEAD",
+       "level": 0.7,
+       "overrides": {
+        "PRACTICAL_L": {
+         "location_cm": [
+          10.0,
+          -825.0,
+          15.0
+         ]
+        },
+        "PRACTICAL_R": {
+         "location_cm": [
+          0.0,
+          825.0,
+          15.0
+         ]
+        }
+       },
+       "note": "last bay: one dim bulb"
       }
      ]
     }
-   ]
+   ],
+   "score_revision": "2026-10-05c P04 last third (15-21): dark, ground bulbs, ceiling strike on bay 17; no-cross on 15-21",
+   "no_cross_shots": {
+    "enabled": true,
+    "bays": [
+     15,
+     21
+    ],
+    "centre_tolerance_cm": 100.0,
+    "nominal_panel_abs_y_cm": 900.0,
+    "note": "only the last third: bays 7-14 keep MOODY/COLD_BREAK/INDUSTRIAL cross-aimed low sides and beams (they fail the rule), 1-6 are the P04 prototype (lighting_looks_apply.py)."
+   }
   },
   "P05": {
    "passage_label": "Passage 5",

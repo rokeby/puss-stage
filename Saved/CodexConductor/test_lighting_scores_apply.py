@@ -471,8 +471,8 @@ nc = p02_static["no_cross"]
 check("+ P02 enables no_cross_shots; every SPOT in bays 1-23 stays on its own side (static, nominal panels)",
       nc is not None and nc["rows"] and all(r["verdict"].startswith("OK") for r in nc["rows"]),
       "spots=%d verdicts=%s" % (len(nc["rows"]), sorted({r["verdict"] for r in nc["rows"]})))
-check("+ the rule is opt-in: only P02 and P03 enable it",
-      all(L.validate_scores(SCORES, LOOKS, TOOL)[k]["no_cross"] is None for k in PAIRS if k not in ("P02", "P03")))
+check("+ the rule is opt-in: only P02, P03 and P04 (bays 15-21) enable it",
+      all(L.validate_scores(SCORES, LOOKS, TOOL)[k]["no_cross"] is None for k in PAIRS if k not in ("P02", "P03", "P04")))
 p02_plan = plan_for("P02")
 p02_bays = {t["ordinal"]: t for t in p02_plan["targets"]}
 p02_lights = [(t["ordinal"], f) for t in p02_plan["targets"] for f in t["fixtures"] if f["authored_kind"] == "LIGHT"]
@@ -599,6 +599,156 @@ old3 = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261005-preP
 old3["passages"]["P03"]["no_cross_shots"] = True
 expect_error("- control: the pre-5-Oct P03 score fails the rule (side lights across)",
              lambda: L.validate_scores(old3, L.resolve_looks(old3, BASE), TOOL), "NO_CROSS_SHOT|passage=P03|bay=1")
+
+print("\n== 15. P04 last third (Gary 5 Oct ~16:00): dark, bulbs on the ground by the wings, a strike on the ceiling wing")
+LAST = range(15, 22)
+RIG_DROP = 127.6  # rig_lamp_drop_record_P04.json plan.drop_cm (score TOPs are authored pre-drop)
+# Ceiling border of P04 Wing 017 after the 3 Oct lift: pair x ~0..500, y +-600, z 700..1126 (p04_top_lift.py:8,31-32,53;
+# probe_p04_tops_out.json x_center 250, y span 1200). In the pre-drop frame the score is authored in, z is + RIG_DROP.
+CEILING = {"x": (0.0, 500.0), "y": (-600.0, 600.0), "z": (700.0 + RIG_DROP, 1126.0 + RIG_DROP)}
+
+
+def bulb_faults(fixtures):
+    """Every practical: on the floor (z 10-20), near a wing (|y| 700-1300), warm (2200-2700 K), small pool (<= 400 cm),
+    a bulb body (Sphere). Returns the failures (empty = OK)."""
+    bad = []
+    for f in fixtures:
+        if f["authored_kind"] != "LIGHT" or f["role"] != "PRACTICAL":
+            continue
+        x, y, z = f["transform"]["location_cm"]
+        if not (10.0 <= z <= 20.0 and 700.0 <= abs(y) <= 1300.0 and 2200.0 <= f["temperature_kelvin"] <= 2700.0
+                and f["attenuation_cm"] <= 400.0 and f["visible_mesh"]["mesh"] == "/Engine/BasicShapes/Sphere"):
+            bad.append("%s B%02d (%.0f,%.0f,%.0f) %.0fK att%.0f" % (f["slot"], f["bay_index"], x, y, z,
+                                                                   f["temperature_kelvin"], f["attenuation_cm"]))
+    return bad
+
+
+def strike_faults(fixtures):
+    """The ONE non-practical lamp of a strike bay: a SPOT from high (z >= 1100 pre-drop) on the RIGHT (y > 300), aimed by a
+    fixed point inside the ceiling border, its rotation = look-at of that point, volumetric <= 0.15."""
+    lamps = [f for f in fixtures if f["authored_kind"] == "LIGHT" and f["role"] != "PRACTICAL"]
+    if len(lamps) != 1:
+        return ["lamps=%s" % [f["slot"] for f in lamps]]
+    f = lamps[0]
+    src, tgt = f["transform"]["location_cm"], f.get("aim_target_pair_cm")
+    bad = []
+    if f["type"] != "SPOT" or src[2] < 1100.0 or src[1] <= 300.0:
+        bad.append("not from upper right: %s" % src)
+    if tgt is None or not all(CEILING[k][0] <= v <= CEILING[k][1] for k, v in zip("xyz", tgt)):
+        bad.append("not aimed at the ceiling border: %s" % tgt)
+    elif [round(v, 6) for v in f["transform"]["rotation_rpy_deg"]] != [round(v, 6) for v in TOOL._look_at_rpy(src, tgt, "t")]:
+        bad.append("rotation is not the look-at of the target")
+    if float(f["volumetric_scattering"]) > 0.15:
+        bad.append("volumetric %.2f" % f["volumetric_scattering"])
+    return bad
+
+
+p04_plan = plan_for("P04")
+p04_bays = {t["ordinal"]: t for t in p04_plan["targets"]}
+last_lights = [f for o in LAST for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT"]
+check("+ bays 15-21 are dark: no LOW_SIDE, no BEAM, and the only TOP is the bay-17 strike",
+      not [f for f in last_lights if f["role"] in ("LOW_SIDE", "BEAM")]
+      and [(f["bay_index"], f["slot"]) for f in last_lights if f["role"] == "TOP"] == [(17, "TOP_R")],
+      " ".join("B%d:%s" % (o, p04_bays[o]["look"]) for o in LAST))
+bad = copy.deepcopy(SCORES)
+bad["variants"]["P04_GROUND_BULBS"]["drop_slots"] = ["TOP_L", "TOP_R", "LOW_SIDE_R_FILL"]
+expect_error("- control: keeping MOODY's cross-aimed LOW_SIDE_L_KEY in the bulb look is refused by the tool",
+             lambda: plan_for("P04", scores=bad), "NO_CROSS_SHOT|passage=P04|bay=15|slot=LOW_SIDE_L_KEY")
+faults = [x for o in LAST for x in bulb_faults(p04_bays[o]["fixtures"])]
+bulbs = [f for f in last_lights if f["role"] == "PRACTICAL"]
+check("+ every bulb in 15-21 is on the floor by a wing, warm, small pool, bulb body",
+      bulbs and not faults, "%d bulbs, %d dead, %d flickering" % (
+          len(bulbs), sum(f["intensity"] == 0.0 for f in bulbs), sum(f["flicker"]["mode"] != "STEADY" for f in bulbs)))
+check("+ each bulb sits on its own side, inside the wing the live P04 record read (bay-level positions)",
+      all((f["transform"]["location_cm"][1] < 0) == (f["slot"].endswith("_L") != bool(o == 19))
+          for o in LAST for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT" and f["role"] == "PRACTICAL"))
+check("+ variety: pairs, singles (one dead) and HUM/BUZZ flicker all occur",
+      {sum(f["intensity"] > 0 for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT" and f["role"] == "PRACTICAL")
+       for o in LAST} == {1, 2} and {"HUM", "BUZZ"} <= {f["flicker"]["mode"] for f in bulbs})
+raised = copy.deepcopy(p04_bays[15]["fixtures"])
+next(f for f in raised if f["slot"] == "PRACTICAL_L")["transform"]["location_cm"][2] = 140.0
+check("- control: a bulb lifted to z 140 (the old practical height) fails the floor predicate", bulb_faults(raised))
+crossed = copy.deepcopy(p04_bays[15]["fixtures"])
+next(f for f in crossed if f["slot"] == "PRACTICAL_L")["temperature_kelvin"] = 6500.0
+check("- control: a cold 6500 K bulb fails the warm predicate", bulb_faults(crossed))
+check("+ bay 17: one hard spot from the upper RIGHT aimed at the ceiling border (Wing 017), low volumetric",
+      not strike_faults(p04_bays[17]["fixtures"]) and p04_bays[17]["cue_label"] == "P04 Wing 017",
+      str(next(f["aim_target_pair_cm"] for f in p04_bays[17]["fixtures"] if f["slot"] == "TOP_R")))
+moved = copy.deepcopy(SCORES)
+moved["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["location_cm"] = [-350.0, -750.0, 1167.6]
+expect_error("- control: the same spot moved to the upper LEFT (aimed at the border's right half) is refused by the tool",
+             lambda: plan_for("P04", scores=moved), "NO_CROSS_SHOT|passage=P04|bay=17|slot=TOP_R")
+lowered = copy.deepcopy(p04_bays[17]["fixtures"])
+next(f for f in lowered if f["slot"] == "TOP_R")["transform"]["location_cm"] = [-350.0, 750.0, 300.0]
+check("- control: the same spot from LOW on the right fails the strike predicate", strike_faults(lowered))
+low = copy.deepcopy(SCORES)
+low["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["aim_target_pair_cm"] = [250.0, 150.0, 300.0]
+check("- control: aimed at the wing foot instead of the ceiling fails the strike predicate",
+      strike_faults(plan_for("P04", scores=low)["targets"][17 - 7]["fixtures"]))
+p04_nc = L.validate_scores(SCORES, LOOKS, TOOL)["P04"]["no_cross"]
+check("+ P04 no-cross passes on bays 15-21 (strike = AIM_POINT, beam end stays right of centre)",
+      p04_nc["rows"] and {r["bay"] for r in p04_nc["rows"]} == {17}
+      and all(r["verdict"] == "OK_SAME_SIDE" and r["basis"] == "AIM_POINT" for r in p04_nc["rows"]), str(p04_nc["rows"]))
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["aim_target_pair_cm"] = [250.0, -300.0, 1077.6]
+expect_error("- control: strike aimed at the LEFT half of the border is a cross shot",
+             lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL), "NO_CROSS_SHOT|passage=P04|bay=17|slot=TOP_R")
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["attenuation_cm"] = 2000.0
+expect_error("- control: the same strike with a 20 m reach carries on past centre (CROSS_BEYOND_TARGET)",
+             lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL), "verdict=CROSS_BEYOND_TARGET")
+x = copy.deepcopy(SCORES)
+x["passages"]["P04"]["no_cross_shots"].pop("bays")
+expect_error("- control: the rule over ALL P04 bays fails on 7-14 (MOODY low sides across), hence bays 15-21",
+             lambda: L.validate_scores(x, LOOKS, TOOL), "NO_CROSS_SHOT|passage=P04|bay=8")
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["cast_shadows"] = True
+expect_error("- control: shadows on the strike are refused (only LOW_SIDE may cast; rule NOT relaxed)",
+             lambda: L.resolve_looks(x, BASE), "NON_SIDE_SHADOW_CASTER|look=P04_CEILING_STRIKE|slot=TOP_R")
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["aim_wing_side"] = "RIGHT"
+expect_error("- control: an aim point plus a wing aim on one lamp is refused",
+             lambda: L.resolve_looks(x, BASE), "AIM_TARGET_BAD")
+
+
+class _V:
+    def __init__(self, x, y, z):
+        self.x, self.y, self.z = x, y, z
+
+
+class _Obj:
+    def __init__(self, **props):
+        self.props = props
+
+    def get_editor_property(self, name):
+        return self.props[name]
+
+
+def fake_show(plan, panel_abs=1000.0):
+    def panel(y):
+        return _Obj(local_transform=types.SimpleNamespace(translation=_V(0.0, y, 0.0)))
+    pair = _Obj(left=panel(-panel_abs), right=panel(panel_abs))
+    size = max(t["show_index"] for t in plan["targets"]) + 1
+    return _Obj(cues=[_Obj(wing_pair=pair) for unused in range(size)])
+
+
+live04 = copy.deepcopy(p04_plan)
+before = copy.deepcopy(next(f for f in live04["targets"][17 - 7]["fixtures"] if f["slot"] == "TOP_R"))
+L._apply_live_aims(TOOL, fake_show(live04), live04)
+after = next(f for f in live04["targets"][17 - 7]["fixtures"] if f["slot"] == "TOP_R")
+check("+ _apply_live_aims leaves the fixed-point strike alone (it would otherwise re-aim TOP_R at the right wing)",
+      after["transform"]["rotation_rpy_deg"] == before["transform"]["rotation_rpy_deg"]
+      and not [a for a in live04["targets"][17 - 7]["aims"] if a["fixture"].endswith("TOP_R")])
+legacy04 = copy.deepcopy(p04_plan)
+for f in legacy04["targets"][17 - 7]["fixtures"]:
+    f.pop("aim_target_pair_cm", None)
+L._apply_live_aims(TOOL, fake_show(legacy04), legacy04)
+check("- control: without the aim point the live-aim pass DOES re-aim TOP_R at the right wing panel",
+      any(a["fixture"].endswith("TOP_R") and a["panel"] == "R" for a in legacy04["targets"][17 - 7]["aims"]))
+check("+ P04 live re-check passes; P04 retains its Blink Spot; prototype bays 1-6 still skipped; budget holds",
+      L.require_no_cross_live(live04) is not None and len(p04_plan["retained"]) == 1
+      and [sk["bay"] for sk in p04_plan["skipped"]] == [1, 2, 3, 4, 5, 6] and p04_plan["shadow"]["budget_ok"],
+      "casters %d -> %d" % (p04_plan["shadow"]["passage_before"], p04_plan["shadow"]["passage_after"]))
 
 print("\n== summary (MODEL census, inferred; DRY on the live Show is the measurement)")
 print("passage bays targets skipped fixtures lights props disabled retained casters_before->after")
