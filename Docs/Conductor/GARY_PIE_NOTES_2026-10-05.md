@@ -42,5 +42,5 @@
     already counts as the NEXT segment, so Advance/Next (+1, :1167/:1173) skip it. Also, Sequences auto-play on Advance
     (:1184-1189). **Fix:** held patch TB being written: "held at end of K" → Right lands on K+1; transitions hold at
     their first frame (new `bAutoPlaySequenceOnAdvance`, default false). Needs a build window (editor closed).
-    Workaround now: from the end of S01 press ← (back to the Interaction's start? no: back goes to S01) — use the Cue Desk
-    jump list or scrub the Master to Interaction 1's start.
+    Workaround until the build: put the Master playhead at Interaction 1's start in Sequencer and use PIE Starts At
+    Playhead (inferred to work; not tested).
