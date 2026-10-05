@@ -43,3 +43,37 @@
 - The default rate: once per second, or faster?
 - Is a point light right, or does he want a spot aimed at the floor?
 - Does he want the 2a look preset by the stream (as a starting point), or will he set it himself?
+
+## Built (2497c96, suite 145/0) and Gary's defaults (5 Oct)
+
+**Build fix, measured by the conductor.** `CreateDefaultSubobject(..., bTransient=true)` did **not** leave `RF_Transient` on the spawned instance. The build sets it in `PostRegisterAllComponents()` instead, and `Strobe.EditorPreviewNeverPersists` is green.
+
+**Gary's defaults:** period **1 s**, a **point light**, and a **preset subtle ghost**.
+
+### Preset ghost volume ("PPV_StrobeGhost_Subtle")
+
+All values are starting points, inferred and not yet seen on screen; Gary tunes them.
+
+**Volume:**
+- `bUnbound = false`. A box around the strobe's area, so the ghost happens only when the camera is in that area.
+- `BlendRadius = 300 cm`, so it doesn't snap at the edge.
+- `Priority = 10`, above the show's other volumes.
+- `BlendWeight = 0` as saved. The strobe drives it in PIE only.
+- Strobe settings: `GhostSeconds 0.33` and `GhostMaxWeight 1.0`. The ghost's strength is in the overrides below, not in the weight.
+
+**Overrides.** Only these are enabled (`bOverride_…`); everything else inherits the show's look.
+
+| Setting | Value | Why |
+|---|---|---|
+| `BloomIntensity` | **2.0** (UE default 0.675) | The flash leaves a glow that fades over 1/3 s. |
+| `BloomThreshold` | **0.5** | Only the brightest areas (the wet floor, the lamp) bloom, not the whole frame. |
+| `AutoExposureBias` | **+0.4 EV** | A slight "eyes still dazzled" lift. Kept small because the show's exposure convention differs from captures [memory: capture exposure convention]. |
+| `SceneColorTint` | **(1.00, 1.00, 1.04)** | A barely cool afterimage. Set to (1,1,1) for neutral. |
+| `MotionBlurAmount` | **0.9** (default 0.5) | If the camera is moving, the 1/3 s smears slightly: a cheap ghost trail. |
+| `MotionBlurMax` | **8 %** | Caps the smear. |
+
+**Because BlendWeight interpolates each override from the show's value to these** [inf: standard PPV blending], the peak only occurs right at the flash.
+
+**If it's too strong:** lower `GhostMaxWeight`. That keeps the look's shape and scales the whole ghost.
+
+**If it doesn't read as ghosting:** build route 2b, the true retained-frame afterimage (above).
