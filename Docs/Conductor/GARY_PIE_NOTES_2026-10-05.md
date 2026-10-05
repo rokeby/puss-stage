@@ -36,3 +36,11 @@
   written (Underpass Fence part, FenceBay meshes, seeded variants), next build window.
 - End curtain: **stand-in drape falls** at the end of P01–P05 as the hangar starts rising (P06 excluded) → tool being
   written offline (passage_end_drape.py).
+10. **S01 → P02: Right arrow at the end of S01 jumps straight to P02**, skipping Interaction 1. "I need the transitions to
+    be their own cue moment that I can move to with transport and examine." **Cause [declaration-proven]:** playback stops
+    on the segment's exclusive EndFrame (`InfinityStageTransportController.cpp:1104`), which `FindSegmentAtFrame` (:1478)
+    already counts as the NEXT segment, so Advance/Next (+1, :1167/:1173) skip it. Also, Sequences auto-play on Advance
+    (:1184-1189). **Fix:** held patch TB being written: "held at end of K" → Right lands on K+1; transitions hold at
+    their first frame (new `bAutoPlaySequenceOnAdvance`, default false). Needs a build window (editor closed).
+    Workaround now: from the end of S01 press ← (back to the Interaction's start? no: back goes to S01) — use the Cue Desk
+    jump list or scrub the Master to Interaction 1's start.
