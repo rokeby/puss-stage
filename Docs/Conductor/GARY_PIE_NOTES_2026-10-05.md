@@ -209,3 +209,8 @@
     Flicker at 4.0 s on the gentle early swell (Gary); FOH swivel 36–44 s; curtain release 77.39 s; walk-in 85.8–96.36 s; end 96.36 s.
     Gary's 14:02 FOH edits were overwritten as agreed (backed up). **Walking music P01–P05 IN.** P06 waits for the tail-extend tool.
     Tests green. Editor handed back to Gary for PIE.
+48. **Opening: the tuning section lasts ~20 s or more; the lights must not flicker until after it** (Gary, ~15:05). The 4.0 s
+    "gentle early swell" is part of the tuning, so note 47's flicker is wrong. Sketch 2 analysis [measured, offline]:
+    intensity is ~0 from 0–34 s apart from a small bump at 8–10 s (peak 0.22); the first real entry is at **36.18 s**
+    (major change, strength 1.0; first onset 35.0 s). Not re-run yet (Gary: "don't run this now"). Music analyses
+    imported (MAI-20261005-145425, b8cea61). Choreo song-marker refresh DRY refused on a dirty level (not ours).
