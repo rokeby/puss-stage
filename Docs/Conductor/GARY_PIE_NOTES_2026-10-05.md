@@ -234,3 +234,6 @@
     run copied P01's *DarkWet* (not walnut) — walnut now set explicitly.
 54. **P04 last third** (Gary ~16:00): "place some practicals ('bulbs on the ground by wings') in the last third of P04 which can be
     fairly dark overall with only striking lights from upper right on ceiling wing". Being designed in the scores tool.
+55. **Correction to note 17:** P03's slab did NOT keep its matte oak — floor_dark_wet's 01:55 APPLY had already raised it and set
+    MI_Floor_DarkWet (P02FL DRY 14:34 UTC read top 0.5, DarkWet); P03 walnut was never applied. p03_floor.py (harness 40/40) sets walnut
+    explicitly; Ground off would remove P03's stage front, under the curtain pile at the S2→P03 lip — Gary's call pending.
