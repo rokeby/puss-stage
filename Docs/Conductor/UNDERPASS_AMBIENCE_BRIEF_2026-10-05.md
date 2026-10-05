@@ -27,3 +27,29 @@
 - Reference: Gary's photos/video from the underpass.
 - A look-bench toggle for a wet-floor plane with a puddle mask and a ~1 Hz strobe.
 - An underpass rig-kit plan (beam/pipe meshes + materials swapped into the Structure actor, overhead deck): Rig & atmosphere scope.
+
+## Gary's reference photos (5 Oct, Cypress Hills): Docs/Reference/Underpass_CypressHills_2026-10-05/
+What they show (conductor's read):
+- **ref_01, the intersection:**
+  - Deep plate girders crossing over the street, with graffiti tags on the green paint.
+  - Layered decks receding into the distance.
+  - A hanging traffic signal (cyan/green).
+  - Wet asphalt with long red tail-light streaks.
+  - Haze halos round the lights.
+- **ref_02, looking down the corridor:** a rhythm of columns and repeating cross-beams under the deck.
+  - The open tie/grate deck lets sky glow through in strips, so a light from above would give slatted shafts.
+  - Streetlights recede in a row: a strong perspective cue, the same as our wing bays.
+  - Wet road sheen.
+- **ref_03 / ref_04, the columns:**
+  - Built-up columns of two channels with X lacing, heavily riveted.
+  - Bolted splice plates, a cast downpipe, and knee brackets into the girders.
+  - Paint: green above a black lower band at about 1.5 m. Chipped, peeling and rusty.
+  - Concrete pier bases, battered, spalled and graffitied.
+  - The catwalk with a cable railing overhead.
+- **ref_05:** a corrugated-metal fence panel with a printed vinyl banner and layered graffiti. A flat, painted, sheet-metal object: kin to the wings and to the P04 fence/tarp bays.
+
+Design notes (inferred):
+- **The bay rhythm.** The column/cross-beam rhythm maps one-to-one onto the Passage wing bays: rig columns at bay spacing, with cross-girders over each bay.
+- **The deck.** The open deck gives beams for free: a light above shining down through the tie gaps makes slatted shafts in haze.
+- **Materials.** Two cover nearly everything: green-painted riveted steel (rivet normals, paint chips, rust and a black lower band), and grimy concrete for the piers. Low-res is fine.
+- **Floor.** Wet black asphalt or stage-floor sheen with puddles, and long specular streaks from warm and red sources.
