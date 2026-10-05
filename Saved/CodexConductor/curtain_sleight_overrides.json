@@ -2,7 +2,11 @@
  "decided_by": "Gary 5 Oct (relayed by the conductor): option B, the Interaction owns the curtain moment; same red velvet drop; fixed ~60 s shadow play then a GO HOLD; S1-S5 -> I1-I5, prove on I1 first",
  "decision": "Docs/Conductor/CURTAIN_SLEIGHT_TRANSITION_PLAN_2026-10-05.md (option B); commit b66636a 'Record Gary's curtain sleight answers'",
  "interactions": [
-  1
+  1,
+  2,
+  3,
+  4,
+  5
  ],
  "params": {},
  "interaction_params": {
@@ -10,5 +14,6 @@
    "extra_tail_frames": 270
   }
  },
- "tail_note": "5 Oct conductor: I1 walk from the sleight seat needs ~19 s; DRY measured walk start 1431 < GO 1675, so +270 frames (244 + 1 s margin)"
+ "tail_note": "5 Oct conductor: I1 walk from the sleight seat needs ~19 s; DRY measured walk start 1431 < GO 1675, so +270 frames (244 + 1 s margin)",
+ "rollout_note": "Gary 5 Oct PIE: 'no evidence of Scene-to-passage transitions at scene ends. Need to be able to cue into this, have the curtain moment, the sleight of hand transition, the boy cat shadow slot' -> roll out to I2-I5 (DRY each first; walk-start vs GO margins per Interaction decide extra_tail_frames)"
 }
