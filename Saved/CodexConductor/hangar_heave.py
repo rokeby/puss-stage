@@ -47,6 +47,17 @@ CONSEQUENCES (warnings in every DRY):
   * The visual thud (THUD_FRAME) lands land_time of the way through the window, BEFORE the last (land) key; lights strike
     StrikeAfterLand after the LAST key [decl InfinityStageArrival.h:35-42], i.e. after the bounce settles.
 
+SHAKE (Gary, 5 Oct, second note): a seeded, deterministic tremor while wrenched up and a decaying burst from the THUD,
+  added to the dense keys (params.shake, per channel; amp 0 = off). Bounds |tremor| <= tremor_amp, |burst| <= thud_amp,
+  burst exactly 0 on and before the THUD key, partials under fps/2.5 are refused in DRY (check_shake).
+  CAMERA SHAKE: NOT AUTHORED. At the THUD the live view is decided per Scene by its camera cuts, where nested shot cuts
+  outrank root cuts [decl InfinityStageCameraPilotLibrary.h:125-129], or by the transport's Entry claim
+  [decl InfinityStageTransportController.h:807-818]. Which camera is live at each Scene's THUD is unknown [inf]. Keying
+  the Entry camera inside the rise would add a possessable whose transform keys are ABSOLUTE, so it would fight its
+  owners. An offset needs an Additive transform section, and that is unverified in 5.8 Python [inf]. Route, if wanted: a
+  read-only probe per Scene (CheckSceneCutBindings + the cut live at THUD_FRAME), then an Additive 3D-transform
+  section on THAT camera in the Scene sequence, decided by Gary.
+
 Modes (globals set by hangar_heave_run.py from hangar_heave_args.json):
   HANGAR_HEAVE_SCENE 1..6, HANGAR_HEAVE_MODE DRY|APPLY|REVERT, HANGAR_HEAVE_CONFIRM "<MODE> S<n>",
   HANGAR_HEAVE_PARAMS dict, HANGAR_HEAVE_DECIDED_BY (APPLY needs it), HANGAR_HEAVE_RUN_ID optional.
@@ -109,6 +120,24 @@ DROP = {            # the lattice: the brake lifts it a touch, it slips and catc
     "heave_duty": 0.45, "hitch_creep": 0.03, "tip_time": 0.46, "tip_progress": 0.30, "fall_power": 2.4,
     "land_time": 0.80, "overshoot": 0.035, "bounces": 2, "bounce_ratio": 0.40,
 }
+# STRUCTURAL SHAKE (Gary, 5 Oct: "a little bit of shake, coming up and on landing thud"; and on the ceiling-rig drop).
+# Added to the dense keys in the channel's own units (deg for pitch, cm for the lattice Z), so it is Master-time
+# deterministic: keys, not runtime noise. Seeded sum of three sines (partials x1, ~x1.37, ~x1.91 of *_hz), normalised so
+# |noise| <= 1. Tremor: full during each wrench, decaying through each stall (stall_decay_s), strain_level x during the
+# dip and the strained climb, zero in the fall. Burst: starts at 0 ON the thud key (so the THUD key stays exactly the end
+# value), thud_amp * exp(-3 dt / thud_decay_s). Both tapered to 0 over taper_s at the window ends. amp 0 = off.
+SHAKE = {
+    "root_pitch": {"seed": 5101, "tremor_amp": 0.10, "tremor_hz": 5.5, "stall_decay_s": 0.25, "strain_level": 0.4,
+                   "thud_amp": 0.30, "thud_hz": 5.0, "thud_decay_s": 0.40, "taper_s": 0.10},
+    "lattice_fly_z": {"seed": 5102, "tremor_amp": 1.5, "tremor_hz": 5.5, "stall_decay_s": 0.20, "strain_level": 0.3,
+                      "thud_amp": 8.0, "thud_hz": 4.5, "thud_decay_s": 0.50, "taper_s": 0.10},
+    "roof_pitch": {"seed": 5103, "tremor_amp": 0.05, "tremor_hz": 5.5, "stall_decay_s": 0.20, "strain_level": 0.3,
+                   "thud_amp": 0.30, "thud_hz": 5.0, "thud_decay_s": 0.40, "taper_s": 0.10},
+}
+SHAKE_PARTIALS = ((1.0, 1.0), (1.37, 0.6), (1.91, 0.35))   # (frequency multiple, weight)
+SHAKE_JITTER = 0.05                                       # seeded +- on each partial's multiple
+SHAKE_MAX_FRACTION_OF_FPS = 1.0 / 2.5                     # highest partial must stay under fps/2.5 (no aliasing)
+
 DEFAULTS = {
     "channels": ["root_pitch", "lattice_fly_z"],
     "profiles": {"root_pitch": "heave", "lattice_fly_z": "drop", "roof_pitch": "drop"},
@@ -117,6 +146,7 @@ DEFAULTS = {
     "thud_marker": False,           # optional "THUD hangar" marked frame in the rise at the root THUD_FRAME
     "marker_label": "THUD hangar",
     "map_dirty_policy": "stop",     # a dirty map after key edits = restore in memory and stop (nothing saved)
+    "shake": SHAKE,
 }
 SHAPE_LIMITS = {"dip_min": 0.005, "dip_max": 0.02, "overshoot_max": 0.06, "hitch_ratio": 0.2, "tip_window": (0.4, 0.7)}
 
@@ -134,6 +164,15 @@ def merged_params(params):
     for key, value in (params or {}).items():
         if key not in DEFAULTS:
             raise PlanError("UNKNOWN_PARAM: %s" % key)
+        if key == "shake" and isinstance(value, dict):
+            for chan, row in value.items():
+                if chan not in SHAKE or not isinstance(row, dict):
+                    raise PlanError("UNKNOWN_PARAM: shake.%s" % chan)
+                for sub, v in row.items():
+                    if sub not in SHAKE[chan]:
+                        raise PlanError("UNKNOWN_PARAM: shake.%s.%s" % (chan, sub))
+                    out["shake"][chan][sub] = v
+            continue
         if isinstance(DEFAULTS[key], dict) and isinstance(value, dict):
             for sub, v in value.items():
                 if sub not in DEFAULTS[key] and key not in ("profiles",):
@@ -203,6 +242,98 @@ def smoothstep(u):
     """The current motion: two cubic AUTO keys with flat end tangents (ghost_geom.py:24 'AUTO = smoothstep' [prec])."""
     u = min(1.0, max(0.0, u))
     return u * u * (3.0 - 2.0 * u)
+
+
+def _partials(sh, base_hz, salt):
+    """Deterministic (frequency Hz, weight, phase) triples from the seed. Pure; never touches global random state."""
+    import random
+    rng = random.Random("%s|%s" % (int(sh["seed"]), salt))
+    out = []
+    for mult, weight in SHAKE_PARTIALS:
+        jitter = 1.0 + rng.uniform(-SHAKE_JITTER, SHAKE_JITTER) if mult != 1.0 else 1.0
+        out.append((base_hz * mult * jitter, weight, rng.uniform(0.0, 2.0 * math.pi)))
+    return out
+
+
+def _noise(t, partials, zero_phase=False):
+    """Normalised so |noise| <= 1."""
+    total = sum(w for _f, w, _p in partials)
+    return sum(w * math.sin(2.0 * math.pi * f * t + (0.0 if zero_phase else ph)) for f, w, ph in partials) / total
+
+
+def tremor_envelope(u, p, window_s, sh):
+    """0..1. Full during each wrench, exp decay through each stall, strain_level in the dip and the climb, 0 after."""
+    if u <= 0.0 or u >= p["tip_time"]:
+        return 0.0
+    if u < p["dip_end"] or u >= p["heave_end"]:
+        return float(sh["strain_level"])
+    n = int(p["heaves"])
+    cycle = (p["heave_end"] - p["dip_end"]) / n
+    k = min(int((u - p["dip_end"]) / cycle), n - 1)
+    x = (u - p["dip_end"] - k * cycle) / cycle
+    if x < p["heave_duty"]:
+        return 1.0
+    stall_s = (x - p["heave_duty"]) * cycle * window_s
+    return math.exp(-3.0 * stall_s / max(float(sh["stall_decay_s"]), 1e-6))
+
+
+def shake_at(u, p, window_s, sh):
+    """(tremor, burst) in channel units at normalised time u of a window lasting window_s seconds. Pure."""
+    if not sh or u <= 0.0 or u >= 1.0:
+        return 0.0, 0.0
+    t = u * window_s
+    taper = max(0.0, min(1.0, t / max(sh["taper_s"], 1e-6), (window_s - t) / max(sh["taper_s"], 1e-6)))
+    tremor = 0.0
+    if sh["tremor_amp"]:
+        tremor = (sh["tremor_amp"] * taper * tremor_envelope(u, p, window_s, sh)
+                  * _noise(t, _partials(sh, sh["tremor_hz"], "tremor")))
+    burst = 0.0
+    if sh["thud_amp"] and u > p["land_time"]:
+        dt = (u - p["land_time"]) * window_s
+        burst = (sh["thud_amp"] * taper * math.exp(-3.0 * dt / max(sh["thud_decay_s"], 1e-6))
+                 * _noise(dt, _partials(sh, sh["thud_hz"], "thud"), zero_phase=True))
+    return tremor, burst
+
+
+def check_shake(plan, sh):
+    """Failures of a planned channel's shake layer: bounds, the zero at the THUD key, presence, aliasing, decay."""
+    out = []
+    if not sh:
+        return out
+    fps = float(plan["fps"])
+    for label, hz in (("tremor", sh["tremor_hz"]), ("thud", sh["thud_hz"])):
+        top = max(f for f, _w, _p in _partials(sh, hz, label))
+        if top > fps * SHAKE_MAX_FRACTION_OF_FPS:
+            out.append("SHAKE_ALIASING: %s partial %.2f Hz > %.2f Hz at %g fps"
+                       % (label, top, fps * SHAKE_MAX_FRACTION_OF_FPS, fps))
+    for amp in ("tremor_amp", "thud_amp"):
+        if float(sh[amp]) < 0.0:
+            out.append("SHAKE_NEGATIVE_AMP: %s" % amp)
+    tr = [abs(d.get("tremor", 0.0)) for d in plan["dense"]]
+    bu = [abs(d.get("burst", 0.0)) for d in plan["dense"]]
+    if tr and max(tr) > abs(sh["tremor_amp"]) + 1e-12:
+        out.append("SHAKE_TREMOR_BOUND: %.6f > %.6f" % (max(tr), sh["tremor_amp"]))
+    if bu and max(bu) > abs(sh["thud_amp"]) + 1e-12:
+        out.append("SHAKE_THUD_BOUND: %.6f > %.6f" % (max(bu), sh["thud_amp"]))
+    for d in plan["dense"]:
+        if abs(d.get("tremor", 0.0) + d.get("burst", 0.0) - d.get("shake", 0.0)) > 1e-12 or \
+                abs(d.get("base", d["value"]) + d.get("shake", 0.0) - d["value"]) > 1e-9:
+            out.append("SHAKE_SUM@%d" % d["tick"])
+            break
+        if d["tick"] <= plan["thud_tick"] and d.get("burst", 0.0) != 0.0:
+            out.append("SHAKE_BURST_BEFORE_THUD@%d" % d["tick"])
+            break
+        if d["tick"] == plan["thud_tick"] and d.get("shake", 0.0) != 0.0:
+            out.append("SHAKE_AT_THUD_KEY: %.6f (the THUD key must be exactly the end value)" % d["shake"])
+    if sh["thud_amp"] and max(bu or [0.0]) < 0.25 * sh["thud_amp"]:
+        out.append("SHAKE_THUD_ABSENT: peak %.6f" % max(bu or [0.0]))
+    if sh["tremor_amp"] and max(tr or [0.0]) < 0.25 * sh["tremor_amp"]:
+        out.append("SHAKE_TREMOR_ABSENT: peak %.6f" % max(tr or [0.0]))
+    late = [abs(d.get("burst", 0.0)) for d in plan["dense"]
+            if d["tick"] > plan["thud_tick"] + 2.0 * sh["thud_decay_s"] * plan["tick_rate"]]
+    if late and max(late) > 0.01 * abs(sh["thud_amp"]) + 1e-12:
+        out.append("SHAKE_NOT_DECAYED: %.6f two decay times after the thud" % max(late))
+    return out
 
 
 def check_shape(fn, p, samples=4001):
@@ -293,7 +424,7 @@ def frame_tick(frame, tick_rate, fps):
     return int(round(frame * float(tick_rate) / float(fps)))
 
 
-def plan_channel(name, keys, prof, tick_rate, fps):
+def plan_channel(name, keys, prof, tick_rate, fps, shake=None):
     """The dense-linear rewrite of one channel's motion window. Pure."""
     keys = sorted(keys, key=lambda k: k["tick"])
     i0, i1 = window_of(keys)
@@ -313,16 +444,20 @@ def plan_channel(name, keys, prof, tick_rate, fps):
     p["land_time"] = (frame_tick(f_thud, tick_rate, fps) - t0) / float(t1 - t0)
     if not p["tip_time"] < p["land_time"] < 1.0:
         raise PlanError("THUD_OUTSIDE_FALL: %s" % name)
+    window_s = (t1 - t0) / float(tick_rate)
     dense = []
     for f in frames:
         tick = frame_tick(f, tick_rate, fps)
         u = (tick - t0) / float(t1 - t0)
-        dense.append({"tick": tick, "value": v0 + profile(u, p) * (v1 - v0), "frame": f})
+        tremor, burst = shake_at(u, p, window_s, shake)
+        base = v0 + profile(u, p) * (v1 - v0)
+        dense.append({"tick": tick, "value": base + tremor + burst, "frame": f, "base": base,
+                      "tremor": tremor, "burst": burst, "shake": tremor + burst})
     return {"channel": name, "i0": i0, "i1": i1, "t0": t0, "t1": t1, "v0": v0, "v1": v1,
             "interior": [copy.deepcopy(k) for k in keys[i0 + 1:i1]], "dense": dense,
             "thud_tick": frame_tick(f_thud, tick_rate, fps), "thud_frame": f_thud,
             "thud_s": frame_tick(f_thud, tick_rate, fps) / float(tick_rate), "land_time_eff": p["land_time"],
-            "profile": p, "fps": fps, "tick_rate": tick_rate}
+            "profile": p, "shake": copy.deepcopy(shake) if shake else None, "fps": fps, "tick_rate": tick_rate}
 
 
 def _relevant(keys, i):
@@ -469,12 +604,13 @@ def plan_scene(channels, params, tick_rate, fps):
             continue
         prof = params[params["profiles"][name]]
         try:
-            plan = plan_channel(name, channels[name], prof, tick_rate, fps)
+            plan = plan_channel(name, channels[name], prof, tick_rate, fps, (params.get("shake") or {}).get(name))
         except PlanError as exc:
             refusals.append("PLAN_%s: %s" % (name, exc))
             continue
         for f in check_shape(lambda u, p=plan["profile"]: profile(u, p), plan["profile"]):
             refusals.append("SHAPE_%s: %s" % (name, f))
+        refusals.extend("SHAKE_%s: %s" % (name, f) for f in check_shake(plan, plan["shake"]))
         bad = endpoint_gate(channels[name], expected_after(channels[name], plan), plan)
         refusals.extend("MODEL_%s: %s" % (name, f) for f in bad)
         plans[name] = plan
@@ -784,6 +920,8 @@ def _report(n, run, params, channels, rise_info, problems, warnings, plans, refu
                                 "interior_removed": len(plans[name]["interior"]) if name in plans else None,
                                 "thud_frame": plans[name]["thud_frame"] if name in plans else None,
                                 "thud_s": plans[name]["thud_s"] if name in plans else None,
+                                "shake_peak": [max(abs(d["tremor"]) for d in plans[name]["dense"]),
+                                               max(abs(d["burst"]) for d in plans[name]["dense"])] if name in plans else None,
                                 "samples": [[d["frame"], round(d["value"], 4)] for d in plans[name]["dense"]][::5]
                                 if name in plans else None}
                          for name in params["channels"]}}

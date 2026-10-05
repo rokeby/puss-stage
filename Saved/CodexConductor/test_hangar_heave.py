@@ -106,8 +106,9 @@ ROOT_S5 = settled([key(-3.5667, -90.0), key(25.3, 0.0)])
 P = hh.merged_params({})
 
 
-def plan(name, keys, prof=None):
-    return hh.plan_channel(name, keys, prof or P[P["profiles"][name]], TICK, FPS)
+def plan(name, keys, prof=None, shake="default"):
+    sh = P["shake"][name] if shake == "default" else shake
+    return hh.plan_channel(name, keys, prof or P[P["profiles"][name]], TICK, FPS, sh)
 
 
 # ------------------------------------------------------------------------------------------------------ profile shape
@@ -352,11 +353,93 @@ def t_params_and_scene_plan():
     check(has(ref, "SHAPE_root_pitch: OVERSHOOT_BOUND"), "out-of-bound params must refuse at plan time")
 
 
+# ------------------------------------------------------------------------------------------------------ shake
+
+@test
+def t_shake_defaults_and_bounds():
+    for name, keys in (("root_pitch", ROOT_S1), ("lattice_fly_z", LATTICE_S1), ("roof_pitch", ROOF_S1),
+                       ("root_pitch", ROOT_S5)):
+        pl = plan(name, keys)
+        sh = P["shake"][name]
+        f = hh.check_shake(pl, sh)
+        check(f == [], "%s default shake fails: %r" % (name, f))
+        tr = max(abs(d["tremor"]) for d in pl["dense"])
+        bu = max(abs(d["burst"]) for d in pl["dense"])
+        check(0.0 < tr <= sh["tremor_amp"] and 0.0 < bu <= sh["thud_amp"], "%s shake peaks %r %r" % (name, tr, bu))
+        thud = [d for d in pl["dense"] if d["tick"] == pl["thud_tick"]][0]
+        check(thud["shake"] == 0.0 and thud["value"] == pl["v1"], "%s THUD key not exact with shake on" % name)
+        check(all(d["burst"] == 0.0 for d in pl["dense"] if d["tick"] <= pl["thud_tick"]),
+              "%s burst before the thud" % name)
+        late = [abs(d["tremor"]) for d in pl["dense"]
+                if (d["tick"] - pl["t0"]) / float(pl["t1"] - pl["t0"]) >= pl["profile"]["tip_time"]]
+        check(all(x == 0.0 for x in late), "%s tremor in the fall" % name)
+    # controls: amplitude exceeded (tremor and burst scaled x1.5 after planning) must fail the bound
+    pl = plan("root_pitch", ROOT_S1)
+    sh = P["shake"]["root_pitch"]
+    for part, want in (("tremor", "SHAKE_TREMOR_BOUND"), ("burst", "SHAKE_THUD_BOUND")):
+        bad = copy.deepcopy(pl)
+        for d in bad["dense"]:
+            d[part] *= 1.5
+            d["shake"] = d["tremor"] + d["burst"]
+            d["value"] = d["base"] + d["shake"]
+        check(has(hh.check_shake(bad, sh), want), "x1.5 %s not refused" % part)
+    bad = copy.deepcopy(pl)                                   # control: a burst injected before the thud
+    bad["dense"][3]["burst"] = 0.01
+    bad["dense"][3]["shake"] += 0.01
+    bad["dense"][3]["value"] += 0.01
+    check(has(hh.check_shake(bad, sh), "SHAKE_BURST_BEFORE_THUD"), "pre-thud burst not refused")
+    bad = copy.deepcopy(pl)                                   # control: shake on the THUD key
+    for d in bad["dense"]:
+        if d["tick"] == bad["thud_tick"]:
+            d["burst"] = d["shake"] = 0.05
+            d["value"] += 0.05
+    check(has(hh.check_shake(bad, sh), "SHAKE_AT_THUD_KEY") or has(hh.check_shake(bad, sh), "SHAKE_BURST_BEFORE_THUD"),
+          "shake on the THUD key not refused")
+    bad = copy.deepcopy(pl)                                   # control: value not equal base + shake
+    bad["dense"][40]["value"] += 0.001
+    check(has(hh.check_shake(bad, sh), "SHAKE_SUM"), "value/shake mismatch not refused")
+    check(has(hh.check_shake(pl, dict(sh, thud_decay_s=0.05)), "SHAKE_NOT_DECAYED"), "slow decay not refused")
+    check(has(hh.check_shake(plan("root_pitch", ROOT_S1, shake=dict(sh, tremor_hz=9.0)), dict(sh, tremor_hz=9.0)),
+              "SHAKE_ALIASING"), "9 Hz tremor at 30 fps not refused")
+    check(has(hh.check_shake(pl, dict(sh, tremor_amp=-0.1)), "SHAKE_NEGATIVE_AMP"), "negative amp not refused")
+
+
+@test
+def t_shake_off_and_deterministic():
+    sh0 = dict(P["shake"]["root_pitch"], tremor_amp=0.0, thud_amp=0.0)
+    off = plan("root_pitch", ROOT_S1, shake=sh0)
+    none = plan("root_pitch", ROOT_S1, shake=None)
+    check(all(d["shake"] == 0.0 for d in off["dense"]), "amp 0 still shakes")
+    check([d["value"] for d in off["dense"]] == [d["value"] for d in none["dense"]], "amp 0 differs from no shake")
+    check(hh.check_shake(off, sh0) == [], "amp 0 refused: %r" % hh.check_shake(off, sh0))
+    on = plan("root_pitch", ROOT_S1)
+    check(any(abs(a["value"] - b["value"]) > 1e-6 for a, b in zip(on["dense"], off["dense"])), "control: shake on == off")
+    again = plan("root_pitch", ROOT_S1)
+    check([d["value"] for d in on["dense"]] == [d["value"] for d in again["dense"]], "same seed not deterministic")
+    other = plan("root_pitch", ROOT_S1, shake=dict(P["shake"]["root_pitch"], seed=7))
+    check([d["value"] for d in on["dense"]] != [d["value"] for d in other["dense"]], "control: seed has no effect")
+    p = on["profile"]
+    T = (on["t1"] - on["t0"]) / TICK
+    cyc = (p["heave_end"] - p["dip_end"]) / p["heaves"]
+    sh = P["shake"]["root_pitch"]
+    check(hh.tremor_envelope(p["dip_end"] + 0.2 * cyc, p, T, sh) == 1.0, "tremor not full during the wrench")
+    check(hh.tremor_envelope(p["dip_end"] + 0.99 * cyc, p, T, sh) < 0.05, "tremor not decayed by the stall end")
+    check(hh.tremor_envelope(0.5 * (p["tip_time"] + p["land_time"]), p, T, sh) == 0.0, "tremor during the fall")
+    try:
+        hh.merged_params({"shake": {"root_pitch": {"wobble": 1}}})
+        check(False, "unknown shake param must refuse")
+    except hh.PlanError as exc:
+        check("UNKNOWN_PARAM" in str(exc), "wrong refusal %s" % exc)
+    m = hh.merged_params({"shake": {"root_pitch": {"thud_amp": 0.0}}})
+    check(m["shake"]["root_pitch"]["thud_amp"] == 0.0 and m["shake"]["root_pitch"]["tremor_amp"] == 0.10
+          and m["shake"]["lattice_fly_z"]["thud_amp"] == 8.0, "shake params do not merge per field")
+
+
 # ------------------------------------------------------------------------------------------------------ preview
 
 def write_preview(path):
     from PIL import Image, ImageDraw, ImageFont
-    W, H, S = 1400, 900, 1
+    W, H = 1400, 1290
     img = Image.new("RGB", (W, H), "#fcfcfb")
     d = ImageDraw.Draw(img)
     try:
@@ -367,30 +450,21 @@ def write_preview(path):
         font = small = big = ImageFont.load_default()
     ink, ink2, grid = "#0b0b0b", "#52514e", "#e4e3df"
     old_c, new_c = "#2a78d6", "#eb6834"
-    d.text((40, 18), "Hangar heave: current smooth curve vs heave (S1, defaults)", fill=ink, font=big)
-    d.text((40, 50), "Blue = current (two AUTO cubic keys, drawn as smoothstep [inferred]).  Orange = heave, one linear key "
-                     "per frame.  Start and end keys are unchanged.", fill=ink2, font=small)
-    panels = [("Hangar rise: S1 Hangar Root pitch (deg)", ROOT_S1, "root_pitch", 95),
-              ("Ceiling rig drop: S1 Hangar Lattice Fly Z (cm)", LATTICE_S1, "lattice_fly_z", 505)]
-    for title, keys, name, top in panels:
-        pl = plan(name, keys)
-        t0, t1 = pl["t0"] / TICK, pl["t1"] / TICK
-        pad = 0.6
-        xa, xb = t0 - pad, t1 + pad
-        vals = [pl["v0"], pl["v1"]] + [dd["value"] for dd in pl["dense"]]
-        lo, hi = min(vals), max(vals)
-        m = 0.06 * (hi - lo)
-        lo, hi = lo - m, hi + m
-        L, R, T, B = 110, W - 60, top + 40, top + 340
+    d.text((40, 18), "Hangar heave: current smooth curve vs heave with shake (S1, defaults)", fill=ink, font=big)
+    d.text((40, 50), "Blue = current (two AUTO cubic keys, drawn as smoothstep [inferred]).  Orange = heave + shake, one "
+                     "linear key per frame.  Start and end keys are unchanged.  Lower plot of each pair = the shake "
+                     "layer alone,", fill=ink2, font=small)
+    d.text((40, 68), "with its amplitude bounds (dashed): tremor while it is wrenched up, a burst from the THUD.",
+           fill=ink2, font=small)
+
+    def axes(L, R, T, B, xa, xb, lo, hi, step, label_fmt="%g"):
         X = lambda t: L + (t - xa) / (xb - xa) * (R - L)
         Y = lambda v: B - (v - lo) / (hi - lo) * (B - T)
-        d.text((L, top + 8), title, fill=ink, font=font)
-        step = 10.0 if hi - lo < 200 else 400.0
-        v = step * int(lo / step)
+        v = step * int(lo / step) - step
         while v <= hi:
-            if v >= lo:
+            if v >= lo - 1e-9:
                 d.line([(L, Y(v)), (R, Y(v))], fill=grid, width=1)
-                d.text((L - 60, Y(v) - 8), "%g" % v, fill=ink2, font=small)
+                d.text((L - 62, Y(v) - 8), label_fmt % v, fill=ink2, font=small)
             v += step
         t = float(int(xa))
         while t <= xb:
@@ -398,24 +472,58 @@ def write_preview(path):
                 d.line([(X(t), B), (X(t), B + 5)], fill=ink2, width=1)
                 d.text((X(t) - 8, B + 8), "%g" % t, fill=ink2, font=small)
             t += 1.0
-        d.text((R - 210, B + 28), "rise-sequence time (s)", fill=ink2, font=small)
+        return X, Y
+
+    def dashed(X, Y, xa, xb, v):
+        t = xa
+        while t < xb:
+            d.line([(X(t), Y(v)), (X(min(t + 0.08, xb)), Y(v))], fill=ink2, width=1)
+            t += 0.16
+
+    panels = [("Hangar rise: S1 Hangar Root pitch (deg)", ROOT_S1, "root_pitch", 100, 10.0, "deg"),
+              ("Ceiling rig drop: S1 Hangar Lattice Fly Z (cm)", LATTICE_S1, "lattice_fly_z", 700, 400.0, "cm")]
+    for title, keys, name, top, step, unit in panels:
+        pl = plan(name, keys)
+        sh = P["shake"][name]
+        t0, t1 = pl["t0"] / TICK, pl["t1"] / TICK
+        xa, xb = t0 - 0.6, t1 + 0.6
+        vals = [pl["v0"], pl["v1"]] + [dd["value"] for dd in pl["dense"]]
+        lo, hi = min(vals), max(vals)
+        m = 0.06 * (hi - lo)
+        L, R = 110, W - 60
+        X, Y = axes(L, R, top + 40, top + 320, xa, xb, lo - m, hi + m, step)
+        d.text((L, top + 8), title, fill=ink, font=font)
         old = [(xa, pl["v0"])] + [(t0 + (t1 - t0) * i / 400.0, pl["v0"] + (pl["v1"] - pl["v0"]) * hh.smoothstep(i / 400.0))
                                   for i in range(401)] + [(xb, pl["v1"])]
         new = [(xa, pl["v0"]), (t0, pl["v0"])] + [(dd["tick"] / TICK, dd["value"]) for dd in pl["dense"]] + \
               [(t1, pl["v1"]), (xb, pl["v1"])]
         d.line([(X(a), Y(b)) for a, b in old], fill=old_c, width=3)
-        d.line([(X(a), Y(b)) for a, b in new], fill=new_c, width=3)
+        d.line([(X(a), Y(b)) for a, b in new], fill=new_c, width=2)
         for kk in keys:
             if xa <= kk["tick"] / TICK <= xb:
                 x, y = X(kk["tick"] / TICK), Y(kk["value"])
                 d.ellipse([x - 5, y - 5, x + 5, y + 5], outline=ink, width=2)
         tx = X(pl["thud_s"])
-        d.line([(tx, T), (tx, B)], fill=ink2, width=1)
-        d.text((tx + 6, T + 2), "THUD  frame %d  (%.2f s)" % (pl["thud_frame"], pl["thud_s"]), fill=ink, font=small)
-        d.line([(R - 300, top + 18), (R - 270, top + 18)], fill=old_c, width=3)
-        d.text((R - 262, top + 9), "current", fill=ink, font=small)
-        d.line([(R - 190, top + 18), (R - 160, top + 18)], fill=new_c, width=3)
-        d.text((R - 152, top + 9), "heave", fill=ink, font=small)
+        d.line([(tx, top + 40), (tx, top + 320)], fill=ink2, width=1)
+        d.text((tx + 6, top + 42), "THUD  frame %d  (%.2f s)" % (pl["thud_frame"], pl["thud_s"]), fill=ink, font=small)
+        d.line([(R - 330, top + 18), (R - 300, top + 18)], fill=old_c, width=3)
+        d.text((R - 292, top + 9), "current", fill=ink, font=small)
+        d.line([(R - 220, top + 18), (R - 190, top + 18)], fill=new_c, width=3)
+        d.text((R - 182, top + 9), "heave + shake", fill=ink, font=small)
+        # shake layer
+        amp = max(sh["tremor_amp"], sh["thud_amp"])
+        st = 0.1 if unit == "deg" else 2.0
+        X2, Y2 = axes(L, R, top + 380, top + 520, xa, xb, -amp * 1.15, amp * 1.15, st, "%.1f" if unit == "deg" else "%g")
+        d.text((L, top + 352), "shake layer (%s): tremor bound +-%g, thud bound +-%g, seed %d"
+               % (unit, sh["tremor_amp"], sh["thud_amp"], sh["seed"]), fill=ink, font=small)
+        for v in (sh["tremor_amp"], -sh["tremor_amp"]):
+            dashed(X2, Y2, t0, pl["thud_s"], v)
+        for v in (sh["thud_amp"], -sh["thud_amp"]):
+            dashed(X2, Y2, pl["thud_s"], t1, v)
+        lay = [(t0, 0.0)] + [(dd["tick"] / TICK, dd["shake"]) for dd in pl["dense"]] + [(t1, 0.0)]
+        d.line([(X2(a), Y2(b)) for a, b in lay], fill=new_c, width=2)
+        d.line([(X2(pl["thud_s"]), top + 380), (X2(pl["thud_s"]), top + 520)], fill=ink2, width=1)
+        d.text((R - 210, top + 548), "rise-sequence time (s)", fill=ink2, font=small)
     img.save(path)
     return path
 
