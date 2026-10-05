@@ -1,501 +1,1922 @@
 {
-  "schema_version": 1,
-  "about": "Per-passage lighting SCORES over the one P04 kit (looks are presets; a passage is a score of looks per bay over distance, with pools and gaps). Bays are WingPair ORDINALS inside the passage's PassageSettings range; the tool resolves ordinal -> CueGuid at run time from that range (never by label: P05 reuses labels). Tool: lighting_scores_apply.py. Plan: Docs/Conductor/LIGHTING_SCORES_PLAN_2026-10-04.md.",
-  "base_looks_source": "lighting_looks.json",
-  "base_looks_used": ["MOODY", "INDUSTRIAL", "THEATRICAL"],
-  "base_looks_sha256_pin": null,
-  "base_looks_pin_note": "null = inherit whatever lighting_looks.json holds at run time (tune 4 is editing the P04 prototype tonight). Pin the sha256 the DRY report prints once tune 4 lands and Gary has seen the P01-P06 dry-runs.",
-  "fixture_label_prefix_format": "P%02d SCORE",
-  "forbidden_looks": ["WASH", "SPOT"],
-  "forbidden_looks_note": "Gary: rarely washed out. WASH and SPOT are defined vocabulary but unassigned; the validator refuses them in any score.",
-  "existing_light_policy": "disable_all_in_target_bay_except_retained",
-  "foreign_owned_lights": [
-    {"passage": "P01", "bay": 1, "label_suffix": " House L", "owner": "opening_sequence_apply.py",
-     "decision": "Gary 4 Oct: house warmers OFF FOR THE OPENING ONLY, ON in P01 (opening_timing.json house_warmers)"},
-    {"passage": "P01", "bay": 1, "label_suffix": " House R", "owner": "opening_sequence_apply.py",
-     "decision": "as House L"}
-  ],
-  "foreign_owned_note": "Lamps another tool owns. Each must be a retain rule (same bay + suffix + owner) in its passage, so this tool never disables or edits it; the validator and the planner refuse otherwise.",
-  "distance_keying_default": {
-    "mechanism": "FInfinityStageLightDrama strike-on-approach",
-    "strike_distance_cm": 650.0,
-    "ramp_distance_cm": 150.0,
-    "unstruck_intensity_scale": 0.0,
-    "after_pass": "HOLD",
-    "ignition_stutter": 0.0
+ "schema_version": 1,
+ "about": "Per-passage lighting SCORES over the one P04 kit (looks are presets; a passage is a score of looks per bay over distance, with pools and gaps). Bays are WingPair ORDINALS inside the passage's PassageSettings range; the tool resolves ordinal -> CueGuid at run time from that range (never by label: P05 reuses labels). Tool: lighting_scores_apply.py. Plan: Docs/Conductor/LIGHTING_SCORES_PLAN_2026-10-04.md.",
+ "base_looks_source": "lighting_looks.json",
+ "base_looks_used": [
+  "MOODY",
+  "INDUSTRIAL",
+  "THEATRICAL"
+ ],
+ "base_looks_sha256_pin": null,
+ "base_looks_pin_note": "null = inherit whatever lighting_looks.json holds at run time (tune 4 is editing the P04 prototype tonight). Pin the sha256 the DRY report prints once tune 4 lands and Gary has seen the P01-P06 dry-runs.",
+ "fixture_label_prefix_format": "P%02d SCORE",
+ "forbidden_looks": [
+  "WASH",
+  "SPOT"
+ ],
+ "forbidden_looks_note": "Gary: rarely washed out. WASH and SPOT are defined vocabulary but unassigned; the validator refuses them in any score.",
+ "existing_light_policy": "disable_all_in_target_bay_except_retained",
+ "foreign_owned_lights": [
+  {
+   "passage": "P01",
+   "bay": 1,
+   "label_suffix": " House L",
+   "owner": "opening_sequence_apply.py",
+   "decision": "Gary 4 Oct: house warmers OFF FOR THE OPENING ONLY, ON in P01 (opening_timing.json house_warmers)"
   },
-  "local_looks": {
-    "GAP": {
-      "intent": "a dark bay between pools: every existing lamp off, one faint warm glimmer practical and one dead lamp body, so the gap is legible as a place, not a void",
-      "instruments": [
-        {"slot": "PRACTICAL_GLIMMER", "role": "PRACTICAL", "type": "POINT",
-         "transform": {"location_cm": [-20.0, -700.0, 140.0], "rotation_rpy_deg": [0.0, 0.0, 0.0]},
-         "intensity_units": "LUMENS", "intensity": 160.0, "color_rgb_linear": [1.0, 0.7, 0.4],
-         "temperature_kelvin": 2500.0, "attenuation_cm": 300.0, "inner_cone_deg": null, "outer_cone_deg": null,
-         "flicker": {"mode": "SLOW", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Slow"},
-         "cast_shadows": false, "volumetric_scattering": 0.2,
-         "visible_mesh": {"style": "bare bulb on cord", "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
-                          "emissive": true, "rotation_rpy_deg": [0.0, 0.0, 0.0], "scale": [0.4, 0.4, 0.4]}},
-        {"slot": "PRACTICAL_DEAD", "role": "PRACTICAL", "type": "POINT",
-         "transform": {"location_cm": [-10.0, 700.0, 115.0], "rotation_rpy_deg": [0.0, 0.0, 0.0]},
-         "intensity_units": "LUMENS", "intensity": 0.0, "color_rgb_linear": [1.0, 0.72, 0.4],
-         "temperature_kelvin": 2700.0, "attenuation_cm": 400.0, "inner_cone_deg": null, "outer_cone_deg": null,
-         "flicker": {"mode": "HUM", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"},
-         "cast_shadows": false, "volumetric_scattering": 0.2,
-         "visible_mesh": {"style": "dead cage work lamp", "mesh": "/Engine/BasicShapes/Sphere",
-                          "emissive": false, "rotation_rpy_deg": [0.0, 0.0, 0.0], "scale": [0.2, 0.2, 0.24]}}
-      ]
-    },
-    "VOID": {
-      "intent": "complete dark: every existing lamp off; only a dead lamp body remains so the rig still exists physically",
-      "instruments": [
-        {"slot": "PRACTICAL_DEAD", "role": "PRACTICAL", "type": "POINT",
-         "transform": {"location_cm": [-10.0, 700.0, 115.0], "rotation_rpy_deg": [0.0, 0.0, 0.0]},
-         "intensity_units": "LUMENS", "intensity": 0.0, "color_rgb_linear": [1.0, 0.72, 0.4],
-         "temperature_kelvin": 2700.0, "attenuation_cm": 400.0, "inner_cone_deg": null, "outer_cone_deg": null,
-         "flicker": {"mode": "STEADY", "material": null},
-         "cast_shadows": false, "volumetric_scattering": 0.0,
-         "visible_mesh": {"style": "dead bare bulb", "mesh": "/Engine/BasicShapes/Sphere",
-                          "emissive": false, "rotation_rpy_deg": [0.0, 0.0, 0.0], "scale": [0.18, 0.18, 0.22]}}
-      ]
-    }
-  },
-  "variants": {
-    "P01_WARM_THEATRICAL": {
-      "base": "THEATRICAL",
-      "intent": "P01 card: fairly warm, mysterious, not too dark or cold; warm golden low contrast. Theatrical modelling (grazing key, dark gaps) but the accent gel is amber and the cool fill turns rose",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [1.0, 0.82, 0.6], "temperature_kelvin": 3000.0},
-        "TOP_R": {"color_rgb_linear": [1.0, 0.9, 0.75], "temperature_kelvin": 3600.0, "intensity": 70.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.75, 0.5], "temperature_kelvin": 2900.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [1.0, 0.6, 0.55], "temperature_kelvin": 3400.0},
-        "BEAM_R": {"color_rgb_linear": [1.0, 0.55, 0.15], "temperature_kelvin": 3000.0, "intensity": 5000.0},
-        "PRACTICAL_CLAMP": {"temperature_kelvin": 2700.0, "intensity": 1300.0},
-        "PRACTICAL_BULB_DEAD": {"color_rgb_linear": [1.0, 0.7, 0.4], "temperature_kelvin": 2700.0}
-      }
-    },
-    "P01_CANDLE_MOODY": {
-      "base": "MOODY",
-      "intent": "P01's moody: the partial blade and the floor pool stay, but the blade is candle-warm and the low fill is dusk violet so darks stay blue-black, not cold",
-      "instrument_overrides": {
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.72, 0.45], "temperature_kelvin": 3000.0, "intensity": 700.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.55, 0.5, 0.75], "temperature_kelvin": 5200.0},
-        "PRACTICAL_L": {"intensity": 1800.0, "temperature_kelvin": 2500.0}
-      }
-    },
-    "P02_LURID_POP": {
-      "base": "THEATRICAL",
-      "intent": "P02 industrial night: sodium top and key, acid-green low fill, one saturated colour pop painted on PART of a lurid plant wing (bounded accent aimed at the wing face)",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [1.0, 0.9, 0.66], "temperature_kelvin": 2050.0, "intensity": 60.0,
-                  "flicker": {"mode": "HUM", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"}},
-        "TOP_R": {"color_rgb_linear": [1.0, 0.9, 0.66], "temperature_kelvin": 2000.0, "intensity": 40.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.9, 0.62], "temperature_kelvin": 2000.0, "intensity": 480.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.1, 1.0, 0.35], "temperature_kelvin": 6500.0, "intensity": 120.0},
-        "BEAM_R": {"color_rgb_linear": [1.0, 0.0, 0.6], "temperature_kelvin": 6500.0, "intensity": 9000.0,
-                   "inner_cone_deg": 4.0, "outer_cone_deg": 14.0, "volumetric_scattering": 2.5,
-                   "aim_wing_side": "RIGHT", "aim_offset_pair_cm": [0.0, -100.0, 600.0]},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [1.0, 0.85, 0.55], "temperature_kelvin": 2100.0,
-                            "flicker": {"mode": "BUZZ", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"}}
-      }
-    },
-    "P02_MYSTIC": {
-      "base": "MOODY",
-      "intent": "the last bays before the shrine: a steadier pale mystical pool, jade rim, blue-black darks",
-      "instrument_overrides": {
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [0.6, 0.95, 0.85], "temperature_kelvin": 7000.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.3, 0.5, 0.6], "temperature_kelvin": 7600.0},
-        "PRACTICAL_L": {"color_rgb_linear": [0.8, 0.95, 1.0], "temperature_kelvin": 6000.0, "intensity": 1200.0}
-      }
-    },
-    "P03_STIFF_BRIGHT": {
-      "base": "THEATRICAL",
-      "intent": "P03 card: cool, architectural, sinister stiff bright rural light; hard cool white tops, straw key with narrow hard cones, pale-sky fill, a white back-lit floor shaft through haze",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [0.97, 0.98, 1.0], "temperature_kelvin": 5600.0, "intensity": 160.0,
-                  "inner_cone_deg": 6.0, "outer_cone_deg": 16.0},
-        "TOP_R": {"color_rgb_linear": [0.8, 0.88, 1.0], "temperature_kelvin": 7000.0, "intensity": 120.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.93, 0.65], "temperature_kelvin": 4300.0, "intensity": 800.0,
-                           "inner_cone_deg": 5.0, "outer_cone_deg": 12.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.78, 0.86, 1.0], "temperature_kelvin": 7500.0, "intensity": 200.0},
-        "BEAM_R": {"color_rgb_linear": [1.0, 0.97, 0.88], "temperature_kelvin": 5600.0, "intensity": 9000.0,
-                   "location_cm": [900.0, -1000.0, 450.0], "rotation_rpy_deg": [0.0, -16.0, 140.0],
-                   "volumetric_scattering": 4.0},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [1.0, 0.95, 0.85], "temperature_kelvin": 4000.0}
-      }
-    },
-    "P03_PYRE": {
-      "base": "THEATRICAL",
-      "intent": "pyre bays among the stones: fire-coloured low key flickering, an ember shaft, the clamp practical as the pyre glow; the sky residual stays cool. Levels step UP along the run (burning bigger)",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [0.85, 0.9, 1.0], "temperature_kelvin": 6500.0, "intensity": 40.0},
-        "TOP_R": {"intensity": 0.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.55, 0.2], "temperature_kelvin": 1900.0, "intensity": 600.0,
-                           "flicker": {"mode": "SLOW", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Slow"}},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.45, 0.55, 0.9], "temperature_kelvin": 7500.0, "intensity": 150.0},
-        "BEAM_R": {"color_rgb_linear": [1.0, 0.45, 0.1], "temperature_kelvin": 1900.0, "intensity": 4000.0,
-                   "flicker": {"mode": "BREATH", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Breath"}},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [1.0, 0.5, 0.18], "temperature_kelvin": 1800.0, "intensity": 1600.0,
-                            "flicker": {"mode": "FAULT", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"}}
-      }
-    },
-    "P04_COLD_BREAK": {
-      "base": "THEATRICAL",
-      "intent": "P04 card: very cool English light; cold daylight through a breakage as a hard back-lit shaft; heavy piers underlit (TOP_R off); one slightly green-cold school practical",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [0.82, 0.9, 1.0], "temperature_kelvin": 6500.0, "intensity": 90.0},
-        "TOP_R": {"intensity": 0.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [0.75, 0.82, 0.95], "temperature_kelvin": 6000.0, "intensity": 520.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.35, 0.42, 0.6], "temperature_kelvin": 8000.0, "intensity": 130.0},
-        "BEAM_R": {"color_rgb_linear": [0.9, 0.95, 1.0], "temperature_kelvin": 6500.0, "intensity": 12000.0,
-                   "location_cm": [900.0, -1000.0, 900.0], "rotation_rpy_deg": [0.0, -32.0, 140.0],
-                   "volumetric_scattering": 4.0},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [0.75, 1.0, 0.8], "temperature_kelvin": 5200.0, "intensity": 700.0,
-                            "flicker": {"mode": "HUM", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"}}
-      }
-    },
-    "P05_COOL_THEATRICAL": {
-      "base": "THEATRICAL",
-      "intent": "P05 (Gary via W&T: not so warm, the cloud colours are strong): neutral/cool theatrical; clouds lit FROM BELOW by up-tilted low sides (cream key, pastel lilac fill); the sky BACK-LIT by a high beam from beyond the bay toward the camera; shadowless (P05 budget is its 2 blink casters)",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [0.92, 0.95, 1.0], "temperature_kelvin": 5600.0, "intensity": 90.0},
-        "TOP_R": {"color_rgb_linear": [0.75, 0.85, 1.0], "temperature_kelvin": 7200.0, "intensity": 70.0},
-        "LOW_SIDE_L_KEY": {"location_cm": [80.0, -1100.0, 30.0], "rotation_rpy_deg": [0.0, 22.0, 72.0],
-                           "color_rgb_linear": [1.0, 0.95, 0.88], "temperature_kelvin": 5200.0, "intensity": 560.0,
-                           "cast_shadows": false},
-        "LOW_SIDE_R_FILL": {"location_cm": [80.0, 1100.0, 30.0], "rotation_rpy_deg": [0.0, 20.0, -72.0],
-                            "color_rgb_linear": [0.85, 0.75, 1.0], "temperature_kelvin": 6500.0, "intensity": 140.0,
-                            "cast_shadows": false},
-        "BEAM_R": {"location_cm": [1200.0, 0.0, 1300.0], "rotation_rpy_deg": [0.0, -12.0, 180.0],
-                   "color_rgb_linear": [0.65, 0.8, 1.0], "temperature_kelvin": 8000.0, "intensity": 2500.0,
-                   "inner_cone_deg": 20.0, "outer_cone_deg": 45.0, "volumetric_scattering": 1.5},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [1.0, 0.92, 0.8], "temperature_kelvin": 4000.0, "intensity": 900.0},
-        "PRACTICAL_BULB_DEAD": {"temperature_kelvin": 5000.0}
-      }
-    },
-    "P05_SOFT_POOL": {
-      "base": "MOODY",
-      "intent": "a softer P05 bay: practical-led neutral pool, cool partial blade, shadowless",
-      "instrument_overrides": {
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [0.85, 0.9, 1.0], "temperature_kelvin": 6000.0, "intensity": 700.0,
-                           "flicker": {"mode": "STEADY", "material": null}, "cast_shadows": false},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.9, 0.8, 1.0], "temperature_kelvin": 6500.0, "cast_shadows": false},
-        "PRACTICAL_L": {"color_rgb_linear": [1.0, 0.95, 0.85], "temperature_kelvin": 4200.0, "intensity": 1300.0}
-      }
-    },
-    "P06_GRAND_GOLD": {
-      "base": "THEATRICAL",
-      "intent": "P06 stage 1: cute, exotic, grand, extravagant (chinoiserie as Baroque stage fantasy): gold tops and key, crimson-lacquer fill, a gold beam",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [1.0, 0.8, 0.45], "temperature_kelvin": 2900.0, "intensity": 140.0},
-        "TOP_R": {"color_rgb_linear": [1.0, 0.85, 0.6], "temperature_kelvin": 3200.0, "intensity": 110.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.72, 0.35], "temperature_kelvin": 2700.0, "intensity": 700.0},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.85, 0.15, 0.2], "temperature_kelvin": 3000.0, "intensity": 175.0},
-        "BEAM_R": {"color_rgb_linear": [1.0, 0.7, 0.2], "temperature_kelvin": 3000.0, "intensity": 8000.0},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [1.0, 0.7, 0.35], "temperature_kelvin": 2600.0, "intensity": 1400.0}
-      }
-    },
-    "P06_FAILING_GOLD": {
-      "base": "THEATRICAL",
-      "intent": "the same gold rig on a dirty supply: tops and key on the FAULT flicker; the FAILING generator then scales it down bay by bay, drops circuits, raises the ignition stutter and turns lamps off behind the camera",
-      "instrument_overrides": {
-        "TOP_L": {"color_rgb_linear": [1.0, 0.8, 0.45], "temperature_kelvin": 2900.0, "intensity": 140.0,
-                  "flicker": {"mode": "FAULT", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"}},
-        "TOP_R": {"color_rgb_linear": [1.0, 0.85, 0.6], "temperature_kelvin": 3200.0, "intensity": 110.0},
-        "LOW_SIDE_L_KEY": {"color_rgb_linear": [1.0, 0.72, 0.35], "temperature_kelvin": 2700.0, "intensity": 700.0,
-                           "flicker": {"mode": "FAULT", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"}},
-        "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.85, 0.15, 0.2], "temperature_kelvin": 3000.0, "intensity": 175.0},
-        "BEAM_R": {"color_rgb_linear": [1.0, 0.7, 0.2], "temperature_kelvin": 3000.0, "intensity": 8000.0,
-                   "flicker": {"mode": "BUZZ", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"}},
-        "PRACTICAL_CLAMP": {"color_rgb_linear": [1.0, 0.7, 0.35], "temperature_kelvin": 2600.0, "intensity": 1400.0,
-                            "flicker": {"mode": "BUZZ", "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"}}
-      }
-    }
-  },
-  "passages": {
-    "P01": {
-      "passage_label": "Passage 1",
-      "passage_actor_label_prefix": "Passage 01",
-      "cue_label_drift_guard": "^P01 Wing \\d{3}$",
-      "expected_bay_count": 48,
-      "pinned_cue_guids": {},
-      "shadow_policy": "ALL",
-      "max_consecutive_lit": 6,
-      "max_consecutive_lit_exempt": [[3, 12]],
-      "intent": "dark walk-in, then the office-hallway ping-on (a strike cascade that runs ahead of the camera, ~4x its speed) into warm theatrical pools alternating with candle-moody bays, gaps every ~6 bays, building to Scene 1",
-      "retain": [
-        {"bay": 41, "label_suffix": " Entry High -Y", "expected_count": 1,
-         "why": "Wing 041's blinking shadow Spot Gary praised (LIGHTING_TALK_PREP_2026-10-03.md census table)"},
-        {"bay": 1, "label_suffix": " House L", "expected_count": 1, "owner": "opening_sequence_apply.py",
-         "why": "house warmer: Gary 4 Oct, OFF FOR THE OPENING ONLY and ON in P01; owned by the Opening tool (foreign_owned_lights), never disabled here"},
-        {"bay": 1, "label_suffix": " House R", "expected_count": 1, "owner": "opening_sequence_apply.py",
-         "why": "as House L"}
-      ],
-      "segments": [
-        {"bays": [1, 1], "cycle": [{"look": "VOID", "level": 1.0, "note": "VOID, but House L/R are retained (on in P01; Gary 4 Oct: off for the Opening only, owned by opening_sequence_apply.py)"}]},
-        {"bays": [2, 2], "cycle": [{"look": "GAP", "level": 0.6, "note": "one faint glimmer before the ping"}]},
-        {"bays": [3, 12],
-         "strike_cascade": {"base_strike_cm": 650.0, "extra_per_bay_cm": 450.0, "ramp_distance_cm": 40.0, "ignition_stutter": 0.45},
-         "cycle": [
-           {"look": "P01_WARM_THEATRICAL", "level": 0.7},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.4, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.55},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.7, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.45},
-           {"look": "GAP", "level": 1.0, "note": "one dead fitting in the hallway"},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.7, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.55},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.4, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.7}
-         ]},
-        {"bays": [13, 40], "cycle": [
-           {"look": "P01_WARM_THEATRICAL", "level": 0.7},
-           {"look": "P01_CANDLE_MOODY", "level": 0.8, "mirror": ["LOW_SIDE"]},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.55, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P01_CANDLE_MOODY", "level": 0.8},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.6},
-           {"look": "P01_CANDLE_MOODY", "level": 0.7, "mirror": ["LOW_SIDE"]}
-         ]},
-        {"bays": [41, 41], "cycle": [{"look": "P01_WARM_THEATRICAL", "level": 0.5, "note": "the retained Wing 041 blink plays over a low pool"}]},
-        {"bays": [42, 48], "cycle": [
-           {"look": "P01_WARM_THEATRICAL", "level": 0.75},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.85, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.85},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.7, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.9},
-           {"look": "P01_WARM_THEATRICAL", "level": 0.8, "mirror": ["LOW_SIDE", "BEAM"]}
-         ]}
-      ]
-    },
-    "P02": {
-      "passage_label": "Passage 2",
-      "passage_actor_label_prefix": "Passage 02",
-      "cue_label_drift_guard": "^P02 Wing \\d{3}$",
-      "expected_bay_count": 23,
-      "pinned_cue_guids": {},
-      "shadow_policy": "ALL",
-      "max_consecutive_lit": 6,
-      "max_consecutive_lit_exempt": [],
-      "intent": "industrial night: sodium INDUSTRIAL bays (fence/industrial sets) against LURID_POP bays (one saturated gel on part of a plant wing: magenta / acid green / oxblood), dark gaps, then a pale MYSTIC run to the shrine. Ordinals are NOT yet matched to the P02 redo's plant/fence order (W&T) - re-cycle once that order exists",
-      "retain": [
-        {"scope": "passage", "label_suffix": " Blink Spot", "expected_count": 1, "why": "P02 Wing 019 timber-gobo blink (verify_blink_spots.json)"}
-      ],
-      "segments": [
-        {"bays": [1, 19], "cycle": [
-           {"look": "INDUSTRIAL", "level": 0.6},
-           {"look": "P02_LURID_POP", "level": 0.9},
-           {"look": "GAP", "level": 1.0},
-           {"look": "INDUSTRIAL", "level": 0.8, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P02_LURID_POP", "level": 0.9, "mirror": ["LOW_SIDE", "BEAM"],
-            "overrides": {"BEAM_R": {"color_rgb_linear": [0.3, 1.0, 0.0], "aim_wing_side": "LEFT", "aim_offset_pair_cm": [0.0, 100.0, 600.0]}}},
-           {"look": "INDUSTRIAL", "level": 0.5},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P02_LURID_POP", "level": 0.85,
-            "overrides": {"BEAM_R": {"color_rgb_linear": [0.7, 0.02, 0.05], "temperature_kelvin": 3000.0}}},
-           {"look": "INDUSTRIAL", "level": 0.7, "mirror": ["LOW_SIDE", "BEAM"]}
-         ]},
-        {"bays": [20, 23], "cycle": [
-           {"look": "P02_MYSTIC", "level": 0.8},
-           {"look": "P02_MYSTIC", "level": 0.9, "mirror": ["LOW_SIDE"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P02_MYSTIC", "level": 1.0}
-         ]}
-      ]
-    },
-    "P03": {
-      "passage_label": "Passage 3",
-      "passage_actor_label_prefix": "Passage 03",
-      "cue_label_drift_guard": "^P03 Wing \\d{3}$",
-      "expected_bay_count": 21,
-      "pinned_cue_guids": {},
-      "shadow_policy": "ALL",
-      "max_consecutive_lit": 6,
-      "max_consecutive_lit_exempt": [],
-      "intent": "theatrical, stiff and bright: convent planes (STIFF_BRIGHT) then the stones-and-pyres ratio steps (ABAB -> ABBABB) with pyres growing; gobo breakups = the retained 14 'Rig Slash' spots (no gobo light-function asset exists) plus the timber blink gobo",
-      "retain": [
-        {"scope": "passage", "label_suffix": " Rig Slash", "expected_count": 14, "why": "P03 upper-rig slashes through holes = the gobo breakups (verify_p03_rig.json)"},
-        {"scope": "passage", "label_suffix": " Blink Spot", "expected_count": 1, "why": "P03 Wing 017 timber-gobo blink"}
-      ],
-      "segments": [
-        {"bays": [1, 6], "cycle": [
-           {"look": "P03_STIFF_BRIGHT", "level": 1.0},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.7, "mirror": ["LOW_SIDE"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.9},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.6, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.85}
-         ]},
-        {"bays": [7, 21], "cycle": [
-           {"look": "P03_STIFF_BRIGHT", "level": 0.8},
-           {"look": "P03_PYRE", "level": 0.5},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.7, "mirror": ["LOW_SIDE"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P03_PYRE", "level": 0.6, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.8},
-           {"look": "P03_PYRE", "level": 0.7},
-           {"look": "P03_PYRE", "level": 0.75, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P03_STIFF_BRIGHT", "level": 0.7},
-           {"look": "P03_PYRE", "level": 0.85},
-           {"look": "P03_PYRE", "level": 0.9, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P03_PYRE", "level": 0.95},
-           {"look": "P03_PYRE", "level": 1.0, "mirror": ["LOW_SIDE", "BEAM"]}
-         ]}
-      ]
-    },
-    "P04": {
-      "passage_label": "Passage 4",
-      "passage_actor_label_prefix": "Passage 04",
-      "cue_label_drift_guard": "^P04 Wing \\d{3}$",
-      "expected_bay_count": 21,
-      "pinned_cue_guids": {
-        "1": "75FD539B104815DC315DBB85D6E69939",
-        "2": "7A3E5D03574B6BB3D630EF8619EA80FD",
-        "3": "A6F398A47249E3A73AF4EAA286F6886C",
-        "4": "5B6B2CD70E47E805ED75C790D2B07967",
-        "5": "558DB23EDF4A7397BB76A0AC085D42C3",
-        "6": "7047FD13244F1332C1188693318733B7"
-      },
-      "pinned_cue_guids_source": "lighting_looks_revert_record.json plan.targets (run 20261003-201156), measured offline 4 Oct",
-      "shadow_policy": "ALL",
-      "max_consecutive_lit": 6,
-      "max_consecutive_lit_exempt": [],
-      "prototype": {
-        "bays": [1, 6],
-        "label_prefix": "P04 LOOK ",
-        "record": "lighting_looks_revert_record.json",
-        "policy": "APPLIED -> skip (owned by lighting_looks_apply.py); ABSENT -> refuse unless LIGHTING_SCORES_PROTOTYPE_ABSENT='AUTHOR_FALLBACK'; MIXED -> refuse"
-      },
-      "intent": "the prototype score (moody -> industrial -> theatrical, bays 1-6, owned by the P04 tool) continued as a cold ruin: gaps, moody pools, two complete dark bays before a hard cold breakage beam",
-      "retain": [
-        {"scope": "passage", "label_suffix": " Blink Spot", "expected_count": 1, "why": "P04 Wing 017 timber-gobo blink"}
-      ],
-      "segments": [
-        {"bays": [1, 6], "cycle": [
-           {"look": "PROTOTYPE", "if_absent": {"look": "MOODY", "level": 0.8}},
-           {"look": "PROTOTYPE", "if_absent": {"look": "MOODY", "level": 0.8, "mirror": ["LOW_SIDE"]}},
-           {"look": "PROTOTYPE", "if_absent": {"look": "INDUSTRIAL", "level": 0.6}},
-           {"look": "PROTOTYPE", "if_absent": {"look": "INDUSTRIAL", "level": 0.8}},
-           {"look": "PROTOTYPE", "if_absent": {"look": "THEATRICAL", "level": 1.0}},
-           {"look": "PROTOTYPE", "if_absent": {"look": "THEATRICAL", "level": 0.9, "mirror": ["LOW_SIDE", "BEAM"]}}
-         ]},
-        {"bays": [7, 21], "cycle": [
-           {"look": "GAP", "level": 1.0},
-           {"look": "MOODY", "level": 0.8},
-           {"look": "MOODY", "level": 0.8, "mirror": ["LOW_SIDE"]},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P04_COLD_BREAK", "level": 1.0},
-           {"look": "INDUSTRIAL", "level": 0.6},
-           {"look": "GAP", "level": 1.0},
-           {"look": "VOID", "level": 1.0, "note": "second complete dark bay before the breakage"},
-           {"look": "P04_COLD_BREAK", "level": 1.0, "mirror": ["BEAM"]},
-           {"look": "MOODY", "level": 0.8},
-           {"look": "MOODY", "level": 0.7, "mirror": ["LOW_SIDE"]},
-           {"look": "THEATRICAL", "level": 0.9},
-           {"look": "GAP", "level": 1.0},
-           {"look": "P04_COLD_BREAK", "level": 0.9},
-           {"look": "MOODY", "level": 0.8, "mirror": ["LOW_SIDE"]}
-         ]}
-      ]
-    },
-    "P05": {
-      "passage_label": "Passage 5",
-      "passage_actor_label_prefix": "Passage 05",
-      "cue_label_drift_guard": "^P05 Wing \\d{3}$",
-      "expected_bay_count": 93,
-      "pinned_cue_guids": {},
-      "shadow_policy": "NONE",
-      "max_consecutive_lit": 6,
-      "max_consecutive_lit_exempt": [],
-      "intent": "cool/neutral theatrical, clouds lit from below, sky back-lit; unequal levels (0.85/0.6/0.45) in a 7-bay phrase with one gap; the village-crush end darkens. Shadowless: P05's whole caster budget is its 2 retained blink spots. LABELS REPEAT in P05 - every bay is resolved by ordinal->GUID",
-      "retain": [
-        {"scope": "passage", "label_suffix": " Blink Spot", "expected_count": 2, "why": "P05 Wings 007/008 timber-gobo blinks (the 2 measured P05 casters)"}
-      ],
-      "segments": [
-        {"bays": [1, 84], "cycle": [
-           {"look": "P05_COOL_THEATRICAL", "level": 0.85},
-           {"look": "P05_COOL_THEATRICAL", "level": 0.6, "mirror": ["LOW_SIDE"]},
-           {"look": "P05_SOFT_POOL", "level": 0.8},
-           {"look": "P05_COOL_THEATRICAL", "level": 0.45},
-           {"look": "GAP", "level": 0.8},
-           {"look": "P05_COOL_THEATRICAL", "level": 0.85, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P05_SOFT_POOL", "level": 0.6, "mirror": ["LOW_SIDE"]}
-         ]},
-        {"bays": [85, 93], "cycle": [
-           {"look": "P05_COOL_THEATRICAL", "level": 0.45},
-           {"look": "GAP", "level": 0.8},
-           {"look": "P05_SOFT_POOL", "level": 0.5},
-           {"look": "GAP", "level": 0.6},
-           {"look": "P05_COOL_THEATRICAL", "level": 0.4, "mirror": ["LOW_SIDE"]},
-           {"look": "GAP", "level": 0.5},
-           {"look": "P05_SOFT_POOL", "level": 0.4},
-           {"look": "GAP", "level": 0.4},
-           {"look": "VOID", "level": 1.0}
-         ]}
-      ]
-    },
-    "P06": {
-      "passage_label": "Passage 6",
-      "passage_actor_label_prefix": "Passage 06",
-      "cue_label_drift_guard": "^P06 Wing \\d{3}$",
-      "expected_bay_count": 55,
-      "pinned_cue_guids": {},
-      "shadow_policy": "ALL",
-      "max_consecutive_lit": 6,
-      "max_consecutive_lit_exempt": [[13, 55]],
-      "monotone_dark_segment": [13, 55],
-      "intent": "grand gold that FAILS bay by bay into darkness toward S6's void: 12 grand bays with gaps, then 42 failing bays (level 0.9 -> 0.04, circuits drop out in a fixed order, ignition stutter 0.1 -> 0.95, lamps decay then snuff behind the camera, colour creeps to monochrome then sick green), then VOID",
-      "retain": [
-        {"scope": "passage", "label_suffix": " Blink Spot", "expected_count": 1, "why": "P06 Wing 044 timber-gobo blink: the rare cold flicker inside the failure (talk prep P06 item 3)"}
-      ],
-      "yield_to_events": {
-        "bays": [2, 10],
-        "layout_bay_count": 64,
-        "owner": "lighting_events_apply.py black_mode",
-        "decided_by": "Gary 4 Oct questionnaire: P06 bays 2-10",
-        "why": "Black passage mode owns P06 bays 2-10 of W&T's 64-cue interleave layout (Saved/CodexFlatV3/p06/run_p6.json result_count 64). DORMANT while P06 resolves to any other count (55 today: this score is unchanged); ACTIVE once the score is rescored to 64 bays, when those bays are skipped (no fixtures, existing lights untouched). lighting_events_apply.py refuses unless this block covers exactly its black bays at its expected cue count."
-      },
-      "segments": [
-        {"bays": [1, 12], "cycle": [
-           {"look": "P06_GRAND_GOLD", "level": 1.0},
-           {"look": "P06_GRAND_GOLD", "level": 0.85, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P06_GRAND_GOLD", "level": 0.95},
-           {"look": "P06_GRAND_GOLD", "level": 0.8, "mirror": ["LOW_SIDE", "BEAM"]},
-           {"look": "P06_GRAND_GOLD", "level": 1.0},
-           {"look": "GAP", "level": 1.0}
-         ]},
-        {"bays": [13, 54], "generator": "FAILING",
-         "look": "P06_FAILING_GOLD",
-         "level_from": 0.9, "level_to": 0.04,
-         "stutter_from": 0.1, "stutter_to": 0.95,
-         "mirror_alternate": ["LOW_SIDE", "PRACTICAL"],
-         "slot_failures": [
-           {"at_fraction": 0.15, "slots": ["TOP_R"]},
-           {"at_fraction": 0.3, "slots": ["BEAM_R"]},
-           {"at_fraction": 0.45, "slots": ["TOP_L"]},
-           {"at_fraction": 0.6, "slots": ["LOW_SIDE_R_FILL"]},
-           {"at_fraction": 0.75, "slots": ["LOW_SIDE_L_KEY"]},
-           {"at_fraction": 0.9, "slots": ["PRACTICAL_CLAMP"]}
-         ],
-         "after_pass_steps": [
-           {"at_fraction": 0.0, "after_pass": "HOLD"},
-           {"at_fraction": 0.4, "after_pass": "DECAY", "after_pass_distance_cm": 300.0, "decay_distance_cm": 900.0},
-           {"at_fraction": 0.7, "after_pass": "EXTINGUISH", "after_pass_distance_cm": 150.0}
-         ],
-         "colour_steps": [
-           {"at_fraction": 0.5, "overrides": {
-             "LOW_SIDE_L_KEY": {"color_rgb_linear": [0.85, 0.9, 0.85], "temperature_kelvin": 5200.0},
-             "LOW_SIDE_R_FILL": {"color_rgb_linear": [0.6, 0.62, 0.65], "temperature_kelvin": 6000.0},
-             "PRACTICAL_CLAMP": {"color_rgb_linear": [0.9, 0.9, 0.85], "temperature_kelvin": 4500.0}}},
-           {"at_fraction": 0.7, "overrides": {
-             "LOW_SIDE_L_KEY": {"color_rgb_linear": [0.6, 1.0, 0.6], "temperature_kelvin": 6000.0},
-             "PRACTICAL_CLAMP": {"color_rgb_linear": [0.7, 1.0, 0.7], "temperature_kelvin": 6000.0}}}
-         ]},
-        {"bays": [55, 55], "cycle": [{"look": "VOID", "level": 1.0, "note": "into S6's void"}]}
-      ]
-    }
+  {
+   "passage": "P01",
+   "bay": 1,
+   "label_suffix": " House R",
+   "owner": "opening_sequence_apply.py",
+   "decision": "as House L"
   }
+ ],
+ "foreign_owned_note": "Lamps another tool owns. Each must be a retain rule (same bay + suffix + owner) in its passage, so this tool never disables or edits it; the validator and the planner refuse otherwise.",
+ "distance_keying_default": {
+  "mechanism": "FInfinityStageLightDrama strike-on-approach",
+  "strike_distance_cm": 650.0,
+  "ramp_distance_cm": 150.0,
+  "unstruck_intensity_scale": 0.0,
+  "after_pass": "HOLD",
+  "ignition_stutter": 0.0
+ },
+ "local_looks": {
+  "GAP": {
+   "intent": "a dark bay between pools: every existing lamp off, one faint warm glimmer practical and one dead lamp body, so the gap is legible as a place, not a void",
+   "instruments": [
+    {
+     "slot": "PRACTICAL_GLIMMER",
+     "role": "PRACTICAL",
+     "type": "POINT",
+     "transform": {
+      "location_cm": [
+       -20.0,
+       -700.0,
+       140.0
+      ],
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "intensity_units": "LUMENS",
+     "intensity": 160.0,
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.4
+     ],
+     "temperature_kelvin": 2500.0,
+     "attenuation_cm": 300.0,
+     "inner_cone_deg": null,
+     "outer_cone_deg": null,
+     "flicker": {
+      "mode": "SLOW",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Slow"
+     },
+     "cast_shadows": false,
+     "volumetric_scattering": 0.2,
+     "visible_mesh": {
+      "style": "bare bulb on cord",
+      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "emissive": true,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.4,
+       0.4,
+       0.4
+      ]
+     }
+    },
+    {
+     "slot": "PRACTICAL_DEAD",
+     "role": "PRACTICAL",
+     "type": "POINT",
+     "transform": {
+      "location_cm": [
+       -10.0,
+       700.0,
+       115.0
+      ],
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "intensity_units": "LUMENS",
+     "intensity": 0.0,
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.4
+     ],
+     "temperature_kelvin": 2700.0,
+     "attenuation_cm": 400.0,
+     "inner_cone_deg": null,
+     "outer_cone_deg": null,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     },
+     "cast_shadows": false,
+     "volumetric_scattering": 0.2,
+     "visible_mesh": {
+      "style": "dead cage work lamp",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": false,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.2,
+       0.2,
+       0.24
+      ]
+     }
+    }
+   ]
+  },
+  "VOID": {
+   "intent": "complete dark: every existing lamp off; only a dead lamp body remains so the rig still exists physically",
+   "instruments": [
+    {
+     "slot": "PRACTICAL_DEAD",
+     "role": "PRACTICAL",
+     "type": "POINT",
+     "transform": {
+      "location_cm": [
+       -10.0,
+       700.0,
+       115.0
+      ],
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ]
+     },
+     "intensity_units": "LUMENS",
+     "intensity": 0.0,
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.4
+     ],
+     "temperature_kelvin": 2700.0,
+     "attenuation_cm": 400.0,
+     "inner_cone_deg": null,
+     "outer_cone_deg": null,
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     },
+     "cast_shadows": false,
+     "volumetric_scattering": 0.0,
+     "visible_mesh": {
+      "style": "dead bare bulb",
+      "mesh": "/Engine/BasicShapes/Sphere",
+      "emissive": false,
+      "rotation_rpy_deg": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       0.18,
+       0.18,
+       0.22
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "variants": {
+  "P01_WARM_THEATRICAL": {
+   "base": "THEATRICAL",
+   "intent": "P01 card: fairly warm, mysterious, not too dark or cold; warm golden low contrast. Theatrical modelling (grazing key, dark gaps) but the accent gel is amber and the cool fill turns rose",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.82,
+      0.6
+     ],
+     "temperature_kelvin": 3000.0
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.75
+     ],
+     "temperature_kelvin": 3600.0,
+     "intensity": 70.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.75,
+      0.5
+     ],
+     "temperature_kelvin": 2900.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      1.0,
+      0.6,
+      0.55
+     ],
+     "temperature_kelvin": 3400.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.55,
+      0.15
+     ],
+     "temperature_kelvin": 3000.0,
+     "intensity": 5000.0
+    },
+    "PRACTICAL_CLAMP": {
+     "temperature_kelvin": 2700.0,
+     "intensity": 1300.0
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.4
+     ],
+     "temperature_kelvin": 2700.0
+    }
+   }
+  },
+  "P01_CANDLE_MOODY": {
+   "base": "MOODY",
+   "intent": "P01's moody: the partial blade and the floor pool stay, but the blade is candle-warm and the low fill is dusk violet so darks stay blue-black, not cold",
+   "instrument_overrides": {
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.45
+     ],
+     "temperature_kelvin": 3000.0,
+     "intensity": 700.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.55,
+      0.5,
+      0.75
+     ],
+     "temperature_kelvin": 5200.0
+    },
+    "PRACTICAL_L": {
+     "intensity": 1800.0,
+     "temperature_kelvin": 2500.0
+    }
+   }
+  },
+  "P02_LURID_POP": {
+   "base": "THEATRICAL",
+   "intent": "P02 industrial night: sodium top and key, acid-green low fill, one saturated colour pop painted on PART of a lurid plant wing (bounded accent aimed at the wing face)",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.66
+     ],
+     "temperature_kelvin": 2050.0,
+     "intensity": 60.0,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     }
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.66
+     ],
+     "temperature_kelvin": 2000.0,
+     "intensity": 40.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.62
+     ],
+     "temperature_kelvin": 2000.0,
+     "intensity": 480.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.1,
+      1.0,
+      0.35
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 120.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.0,
+      0.6
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 9000.0,
+     "inner_cone_deg": 4.0,
+     "outer_cone_deg": 14.0,
+     "volumetric_scattering": 2.5,
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      -100.0,
+      600.0
+     ]
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.85,
+      0.55
+     ],
+     "temperature_kelvin": 2100.0,
+     "flicker": {
+      "mode": "BUZZ",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     }
+    }
+   }
+  },
+  "P02_MYSTIC": {
+   "base": "MOODY",
+   "intent": "the last bays before the shrine: a steadier pale mystical pool, jade rim, blue-black darks",
+   "instrument_overrides": {
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      0.6,
+      0.95,
+      0.85
+     ],
+     "temperature_kelvin": 7000.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.3,
+      0.5,
+      0.6
+     ],
+     "temperature_kelvin": 7600.0
+    },
+    "PRACTICAL_L": {
+     "color_rgb_linear": [
+      0.8,
+      0.95,
+      1.0
+     ],
+     "temperature_kelvin": 6000.0,
+     "intensity": 1200.0
+    }
+   }
+  },
+  "P03_STIFF_BRIGHT": {
+   "base": "THEATRICAL",
+   "intent": "P03 card: cool, architectural, sinister stiff bright rural light; hard cool white tops, straw key with narrow hard cones, pale-sky fill, a white back-lit floor shaft through haze",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      0.97,
+      0.98,
+      1.0
+     ],
+     "temperature_kelvin": 5600.0,
+     "intensity": 160.0,
+     "inner_cone_deg": 6.0,
+     "outer_cone_deg": 16.0
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      0.8,
+      0.88,
+      1.0
+     ],
+     "temperature_kelvin": 7000.0,
+     "intensity": 120.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.93,
+      0.65
+     ],
+     "temperature_kelvin": 4300.0,
+     "intensity": 800.0,
+     "inner_cone_deg": 5.0,
+     "outer_cone_deg": 12.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.78,
+      0.86,
+      1.0
+     ],
+     "temperature_kelvin": 7500.0,
+     "intensity": 200.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.97,
+      0.88
+     ],
+     "temperature_kelvin": 5600.0,
+     "intensity": 9000.0,
+     "location_cm": [
+      900.0,
+      -1000.0,
+      450.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      -16.0,
+      140.0
+     ],
+     "volumetric_scattering": 4.0
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.95,
+      0.85
+     ],
+     "temperature_kelvin": 4000.0
+    }
+   }
+  },
+  "P03_PYRE": {
+   "base": "THEATRICAL",
+   "intent": "pyre bays among the stones: fire-coloured low key flickering, an ember shaft, the clamp practical as the pyre glow; the sky residual stays cool. Levels step UP along the run (burning bigger)",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      0.85,
+      0.9,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 40.0
+    },
+    "TOP_R": {
+     "intensity": 0.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.55,
+      0.2
+     ],
+     "temperature_kelvin": 1900.0,
+     "intensity": 600.0,
+     "flicker": {
+      "mode": "SLOW",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Slow"
+     }
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.45,
+      0.55,
+      0.9
+     ],
+     "temperature_kelvin": 7500.0,
+     "intensity": 150.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.45,
+      0.1
+     ],
+     "temperature_kelvin": 1900.0,
+     "intensity": 4000.0,
+     "flicker": {
+      "mode": "BREATH",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Breath"
+     }
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.5,
+      0.18
+     ],
+     "temperature_kelvin": 1800.0,
+     "intensity": 1600.0,
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+     }
+    }
+   }
+  },
+  "P04_COLD_BREAK": {
+   "base": "THEATRICAL",
+   "intent": "P04 card: very cool English light; cold daylight through a breakage as a hard back-lit shaft; heavy piers underlit (TOP_R off); one slightly green-cold school practical",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      0.82,
+      0.9,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 90.0
+    },
+    "TOP_R": {
+     "intensity": 0.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      0.75,
+      0.82,
+      0.95
+     ],
+     "temperature_kelvin": 6000.0,
+     "intensity": 520.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.35,
+      0.42,
+      0.6
+     ],
+     "temperature_kelvin": 8000.0,
+     "intensity": 130.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      0.9,
+      0.95,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 12000.0,
+     "location_cm": [
+      900.0,
+      -1000.0,
+      900.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      -32.0,
+      140.0
+     ],
+     "volumetric_scattering": 4.0
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      0.75,
+      1.0,
+      0.8
+     ],
+     "temperature_kelvin": 5200.0,
+     "intensity": 700.0,
+     "flicker": {
+      "mode": "HUM",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+     }
+    }
+   }
+  },
+  "P05_COOL_THEATRICAL": {
+   "base": "THEATRICAL",
+   "intent": "P05 (Gary via W&T: not so warm, the cloud colours are strong): neutral/cool theatrical; clouds lit FROM BELOW by up-tilted low sides (cream key, pastel lilac fill); the sky BACK-LIT by a high beam from beyond the bay toward the camera; shadowless (P05 budget is its 2 blink casters)",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      0.92,
+      0.95,
+      1.0
+     ],
+     "temperature_kelvin": 5600.0,
+     "intensity": 90.0
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      0.75,
+      0.85,
+      1.0
+     ],
+     "temperature_kelvin": 7200.0,
+     "intensity": 70.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "location_cm": [
+      80.0,
+      -1100.0,
+      30.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      22.0,
+      72.0
+     ],
+     "color_rgb_linear": [
+      1.0,
+      0.95,
+      0.88
+     ],
+     "temperature_kelvin": 5200.0,
+     "intensity": 560.0,
+     "cast_shadows": false
+    },
+    "LOW_SIDE_R_FILL": {
+     "location_cm": [
+      80.0,
+      1100.0,
+      30.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      20.0,
+      -72.0
+     ],
+     "color_rgb_linear": [
+      0.85,
+      0.75,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 140.0,
+     "cast_shadows": false
+    },
+    "BEAM_R": {
+     "location_cm": [
+      1200.0,
+      0.0,
+      1300.0
+     ],
+     "rotation_rpy_deg": [
+      0.0,
+      -12.0,
+      180.0
+     ],
+     "color_rgb_linear": [
+      0.65,
+      0.8,
+      1.0
+     ],
+     "temperature_kelvin": 8000.0,
+     "intensity": 2500.0,
+     "inner_cone_deg": 20.0,
+     "outer_cone_deg": 45.0,
+     "volumetric_scattering": 1.5
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.92,
+      0.8
+     ],
+     "temperature_kelvin": 4000.0,
+     "intensity": 900.0
+    },
+    "PRACTICAL_BULB_DEAD": {
+     "temperature_kelvin": 5000.0
+    }
+   }
+  },
+  "P05_SOFT_POOL": {
+   "base": "MOODY",
+   "intent": "a softer P05 bay: practical-led neutral pool, cool partial blade, shadowless",
+   "instrument_overrides": {
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      0.85,
+      0.9,
+      1.0
+     ],
+     "temperature_kelvin": 6000.0,
+     "intensity": 700.0,
+     "flicker": {
+      "mode": "STEADY",
+      "material": null
+     },
+     "cast_shadows": false
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.9,
+      0.8,
+      1.0
+     ],
+     "temperature_kelvin": 6500.0,
+     "cast_shadows": false
+    },
+    "PRACTICAL_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.95,
+      0.85
+     ],
+     "temperature_kelvin": 4200.0,
+     "intensity": 1300.0
+    }
+   }
+  },
+  "P06_GRAND_GOLD": {
+   "base": "THEATRICAL",
+   "intent": "P06 stage 1: cute, exotic, grand, extravagant (chinoiserie as Baroque stage fantasy): gold tops and key, crimson-lacquer fill, a gold beam",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.8,
+      0.45
+     ],
+     "temperature_kelvin": 2900.0,
+     "intensity": 140.0
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.85,
+      0.6
+     ],
+     "temperature_kelvin": 3200.0,
+     "intensity": 110.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.35
+     ],
+     "temperature_kelvin": 2700.0,
+     "intensity": 700.0
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.85,
+      0.15,
+      0.2
+     ],
+     "temperature_kelvin": 3000.0,
+     "intensity": 175.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.2
+     ],
+     "temperature_kelvin": 3000.0,
+     "intensity": 8000.0
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.35
+     ],
+     "temperature_kelvin": 2600.0,
+     "intensity": 1400.0
+    }
+   }
+  },
+  "P06_FAILING_GOLD": {
+   "base": "THEATRICAL",
+   "intent": "the same gold rig on a dirty supply: tops and key on the FAULT flicker; the FAILING generator then scales it down bay by bay, drops circuits, raises the ignition stutter and turns lamps off behind the camera",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.8,
+      0.45
+     ],
+     "temperature_kelvin": 2900.0,
+     "intensity": 140.0,
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+     }
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.85,
+      0.6
+     ],
+     "temperature_kelvin": 3200.0,
+     "intensity": 110.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.72,
+      0.35
+     ],
+     "temperature_kelvin": 2700.0,
+     "intensity": 700.0,
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+     }
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.85,
+      0.15,
+      0.2
+     ],
+     "temperature_kelvin": 3000.0,
+     "intensity": 175.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.2
+     ],
+     "temperature_kelvin": 3000.0,
+     "intensity": 8000.0,
+     "flicker": {
+      "mode": "BUZZ",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     }
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.7,
+      0.35
+     ],
+     "temperature_kelvin": 2600.0,
+     "intensity": 1400.0,
+     "flicker": {
+      "mode": "BUZZ",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     }
+    }
+   }
+  }
+ },
+ "passages": {
+  "P01": {
+   "passage_label": "Passage 1",
+   "passage_actor_label_prefix": "Passage 01",
+   "cue_label_drift_guard": "^P01 Wing \\d{3}$",
+   "expected_bay_count": 48,
+   "pinned_cue_guids": {},
+   "shadow_policy": "ALL",
+   "max_consecutive_lit": 6,
+   "max_consecutive_lit_exempt": [
+    [
+     3,
+     12
+    ]
+   ],
+   "intent": "dark walk-in, then the office-hallway ping-on (a strike cascade that runs ahead of the camera, ~4x its speed) into warm theatrical pools alternating with candle-moody bays, gaps every ~6 bays, building to Scene 1",
+   "retain": [
+    {
+     "bay": 41,
+     "label_suffix": " Entry High -Y",
+     "expected_count": 1,
+     "why": "Wing 041's blinking shadow Spot Gary praised (LIGHTING_TALK_PREP_2026-10-03.md census table)"
+    },
+    {
+     "bay": 1,
+     "label_suffix": " House L",
+     "expected_count": 1,
+     "owner": "opening_sequence_apply.py",
+     "why": "house warmer: Gary 4 Oct, OFF FOR THE OPENING ONLY and ON in P01; owned by the Opening tool (foreign_owned_lights), never disabled here"
+    },
+    {
+     "bay": 1,
+     "label_suffix": " House R",
+     "expected_count": 1,
+     "owner": "opening_sequence_apply.py",
+     "why": "as House L"
+    }
+   ],
+   "segments": [
+    {
+     "bays": [
+      1,
+      1
+     ],
+     "cycle": [
+      {
+       "look": "VOID",
+       "level": 1.0,
+       "note": "VOID, but House L/R are retained (on in P01; Gary 4 Oct: off for the Opening only, owned by opening_sequence_apply.py)"
+      }
+     ]
+    },
+    {
+     "bays": [
+      2,
+      2
+     ],
+     "cycle": [
+      {
+       "look": "GAP",
+       "level": 0.6,
+       "note": "one faint glimmer before the ping"
+      }
+     ]
+    },
+    {
+     "bays": [
+      3,
+      12
+     ],
+     "strike_cascade": {
+      "base_strike_cm": 650.0,
+      "extra_per_bay_cm": 450.0,
+      "ramp_distance_cm": 40.0,
+      "ignition_stutter": 0.45
+     },
+     "cycle": [
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.7
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.4,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.55
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.45
+      },
+      {
+       "look": "GAP",
+       "level": 1.0,
+       "note": "one dead fitting in the hallway"
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.55
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.4,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.7
+      }
+     ]
+    },
+    {
+     "bays": [
+      13,
+      40
+     ],
+     "cycle": [
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.7
+      },
+      {
+       "look": "P01_CANDLE_MOODY",
+       "level": 0.8,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.55,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P01_CANDLE_MOODY",
+       "level": 0.8
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.6
+      },
+      {
+       "look": "P01_CANDLE_MOODY",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      }
+     ]
+    },
+    {
+     "bays": [
+      41,
+      41
+     ],
+     "cycle": [
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.5,
+       "note": "the retained Wing 041 blink plays over a low pool"
+      }
+     ]
+    },
+    {
+     "bays": [
+      42,
+      48
+     ],
+     "cycle": [
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.75
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.85,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.85
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.9
+      },
+      {
+       "look": "P01_WARM_THEATRICAL",
+       "level": 0.8,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "P02": {
+   "passage_label": "Passage 2",
+   "passage_actor_label_prefix": "Passage 02",
+   "cue_label_drift_guard": "^P02 Wing \\d{3}$",
+   "expected_bay_count": 23,
+   "pinned_cue_guids": {},
+   "shadow_policy": "ALL",
+   "max_consecutive_lit": 6,
+   "max_consecutive_lit_exempt": [],
+   "intent": "industrial night: sodium INDUSTRIAL bays (fence/industrial sets) against LURID_POP bays (one saturated gel on part of a plant wing: magenta / acid green / oxblood), dark gaps, then a pale MYSTIC run to the shrine. Ordinals are NOT yet matched to the P02 redo's plant/fence order (W&T) - re-cycle once that order exists",
+   "retain": [
+    {
+     "scope": "passage",
+     "label_suffix": " Blink Spot",
+     "expected_count": 1,
+     "why": "P02 Wing 019 timber-gobo blink (verify_blink_spots.json)"
+    }
+   ],
+   "segments": [
+    {
+     "bays": [
+      1,
+      19
+     ],
+     "cycle": [
+      {
+       "look": "INDUSTRIAL",
+       "level": 0.6
+      },
+      {
+       "look": "P02_LURID_POP",
+       "level": 0.9
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "INDUSTRIAL",
+       "level": 0.8,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P02_LURID_POP",
+       "level": 0.9,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ],
+       "overrides": {
+        "BEAM_R": {
+         "color_rgb_linear": [
+          0.3,
+          1.0,
+          0.0
+         ],
+         "aim_wing_side": "LEFT",
+         "aim_offset_pair_cm": [
+          0.0,
+          100.0,
+          600.0
+         ]
+        }
+       }
+      },
+      {
+       "look": "INDUSTRIAL",
+       "level": 0.5
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P02_LURID_POP",
+       "level": 0.85,
+       "overrides": {
+        "BEAM_R": {
+         "color_rgb_linear": [
+          0.7,
+          0.02,
+          0.05
+         ],
+         "temperature_kelvin": 3000.0
+        }
+       }
+      },
+      {
+       "look": "INDUSTRIAL",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      }
+     ]
+    },
+    {
+     "bays": [
+      20,
+      23
+     ],
+     "cycle": [
+      {
+       "look": "P02_MYSTIC",
+       "level": 0.8
+      },
+      {
+       "look": "P02_MYSTIC",
+       "level": 0.9,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P02_MYSTIC",
+       "level": 1.0
+      }
+     ]
+    }
+   ]
+  },
+  "P03": {
+   "passage_label": "Passage 3",
+   "passage_actor_label_prefix": "Passage 03",
+   "cue_label_drift_guard": "^P03 Wing \\d{3}$",
+   "expected_bay_count": 21,
+   "pinned_cue_guids": {},
+   "shadow_policy": "ALL",
+   "max_consecutive_lit": 6,
+   "max_consecutive_lit_exempt": [],
+   "intent": "theatrical, stiff and bright: convent planes (STIFF_BRIGHT) then the stones-and-pyres ratio steps (ABAB -> ABBABB) with pyres growing; gobo breakups = the retained 14 'Rig Slash' spots (no gobo light-function asset exists) plus the timber blink gobo",
+   "retain": [
+    {
+     "scope": "passage",
+     "label_suffix": " Rig Slash",
+     "expected_count": 14,
+     "why": "P03 upper-rig slashes through holes = the gobo breakups (verify_p03_rig.json)"
+    },
+    {
+     "scope": "passage",
+     "label_suffix": " Blink Spot",
+     "expected_count": 1,
+     "why": "P03 Wing 017 timber-gobo blink"
+    }
+   ],
+   "segments": [
+    {
+     "bays": [
+      1,
+      6
+     ],
+     "cycle": [
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 1.0
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.9
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.6,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.85
+      }
+     ]
+    },
+    {
+     "bays": [
+      7,
+      21
+     ],
+     "cycle": [
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.8
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.5
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.6,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.8
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.7
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.75,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P03_STIFF_BRIGHT",
+       "level": 0.7
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.85
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.9,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 0.95
+      },
+      {
+       "look": "P03_PYRE",
+       "level": 1.0,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "P04": {
+   "passage_label": "Passage 4",
+   "passage_actor_label_prefix": "Passage 04",
+   "cue_label_drift_guard": "^P04 Wing \\d{3}$",
+   "expected_bay_count": 21,
+   "pinned_cue_guids": {
+    "1": "75FD539B104815DC315DBB85D6E69939",
+    "2": "7A3E5D03574B6BB3D630EF8619EA80FD",
+    "3": "A6F398A47249E3A73AF4EAA286F6886C",
+    "4": "5B6B2CD70E47E805ED75C790D2B07967",
+    "5": "558DB23EDF4A7397BB76A0AC085D42C3",
+    "6": "7047FD13244F1332C1188693318733B7"
+   },
+   "pinned_cue_guids_source": "lighting_looks_revert_record.json plan.targets (run 20261003-201156), measured offline 4 Oct",
+   "shadow_policy": "ALL",
+   "max_consecutive_lit": 6,
+   "max_consecutive_lit_exempt": [],
+   "prototype": {
+    "bays": [
+     1,
+     6
+    ],
+    "label_prefix": "P04 LOOK ",
+    "record": "lighting_looks_revert_record.json",
+    "policy": "APPLIED -> skip (owned by lighting_looks_apply.py); ABSENT -> refuse unless LIGHTING_SCORES_PROTOTYPE_ABSENT='AUTHOR_FALLBACK'; MIXED -> refuse"
+   },
+   "intent": "the prototype score (moody -> industrial -> theatrical, bays 1-6, owned by the P04 tool) continued as a cold ruin: gaps, moody pools, two complete dark bays before a hard cold breakage beam",
+   "retain": [
+    {
+     "scope": "passage",
+     "label_suffix": " Blink Spot",
+     "expected_count": 1,
+     "why": "P04 Wing 017 timber-gobo blink"
+    }
+   ],
+   "segments": [
+    {
+     "bays": [
+      1,
+      6
+     ],
+     "cycle": [
+      {
+       "look": "PROTOTYPE",
+       "if_absent": {
+        "look": "MOODY",
+        "level": 0.8
+       }
+      },
+      {
+       "look": "PROTOTYPE",
+       "if_absent": {
+        "look": "MOODY",
+        "level": 0.8,
+        "mirror": [
+         "LOW_SIDE"
+        ]
+       }
+      },
+      {
+       "look": "PROTOTYPE",
+       "if_absent": {
+        "look": "INDUSTRIAL",
+        "level": 0.6
+       }
+      },
+      {
+       "look": "PROTOTYPE",
+       "if_absent": {
+        "look": "INDUSTRIAL",
+        "level": 0.8
+       }
+      },
+      {
+       "look": "PROTOTYPE",
+       "if_absent": {
+        "look": "THEATRICAL",
+        "level": 1.0
+       }
+      },
+      {
+       "look": "PROTOTYPE",
+       "if_absent": {
+        "look": "THEATRICAL",
+        "level": 0.9,
+        "mirror": [
+         "LOW_SIDE",
+         "BEAM"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "bays": [
+      7,
+      21
+     ],
+     "cycle": [
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "MOODY",
+       "level": 0.8
+      },
+      {
+       "look": "MOODY",
+       "level": 0.8,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P04_COLD_BREAK",
+       "level": 1.0
+      },
+      {
+       "look": "INDUSTRIAL",
+       "level": 0.6
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "VOID",
+       "level": 1.0,
+       "note": "second complete dark bay before the breakage"
+      },
+      {
+       "look": "P04_COLD_BREAK",
+       "level": 1.0,
+       "mirror": [
+        "BEAM"
+       ]
+      },
+      {
+       "look": "MOODY",
+       "level": 0.8
+      },
+      {
+       "look": "MOODY",
+       "level": 0.7,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "THEATRICAL",
+       "level": 0.9
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      },
+      {
+       "look": "P04_COLD_BREAK",
+       "level": 0.9
+      },
+      {
+       "look": "MOODY",
+       "level": 0.8,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "P05": {
+   "passage_label": "Passage 5",
+   "passage_actor_label_prefix": "Passage 05",
+   "cue_label_drift_guard": "^P05 Wing \\d{3}$",
+   "expected_bay_count": 93,
+   "pinned_cue_guids": {},
+   "shadow_policy": "NONE",
+   "max_consecutive_lit": 6,
+   "max_consecutive_lit_exempt": [],
+   "intent": "cool/neutral theatrical, clouds lit from below, sky back-lit; unequal levels (0.85/0.6/0.45) in a 7-bay phrase with one gap; the village-crush end darkens. Shadowless: P05's whole caster budget is its 2 retained blink spots. LABELS REPEAT in P05 - every bay is resolved by ordinal->GUID",
+   "retain": [
+    {
+     "scope": "passage",
+     "label_suffix": " Blink Spot",
+     "expected_count": 2,
+     "why": "P05 Wings 007/008 timber-gobo blinks (the 2 measured P05 casters)"
+    }
+   ],
+   "segments": [
+    {
+     "bays": [
+      1,
+      84
+     ],
+     "cycle": [
+      {
+       "look": "P05_COOL_THEATRICAL",
+       "level": 0.85
+      },
+      {
+       "look": "P05_COOL_THEATRICAL",
+       "level": 0.6,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "P05_SOFT_POOL",
+       "level": 0.8
+      },
+      {
+       "look": "P05_COOL_THEATRICAL",
+       "level": 0.45
+      },
+      {
+       "look": "GAP",
+       "level": 0.8
+      },
+      {
+       "look": "P05_COOL_THEATRICAL",
+       "level": 0.85,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P05_SOFT_POOL",
+       "level": 0.6,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      }
+     ]
+    },
+    {
+     "bays": [
+      85,
+      93
+     ],
+     "cycle": [
+      {
+       "look": "P05_COOL_THEATRICAL",
+       "level": 0.45
+      },
+      {
+       "look": "GAP",
+       "level": 0.8
+      },
+      {
+       "look": "P05_SOFT_POOL",
+       "level": 0.5
+      },
+      {
+       "look": "GAP",
+       "level": 0.6
+      },
+      {
+       "look": "P05_COOL_THEATRICAL",
+       "level": 0.4,
+       "mirror": [
+        "LOW_SIDE"
+       ]
+      },
+      {
+       "look": "GAP",
+       "level": 0.5
+      },
+      {
+       "look": "P05_SOFT_POOL",
+       "level": 0.4
+      },
+      {
+       "look": "GAP",
+       "level": 0.4
+      },
+      {
+       "look": "VOID",
+       "level": 1.0
+      }
+     ]
+    }
+   ]
+  },
+  "P06": {
+   "passage_label": "Passage 6",
+   "passage_actor_label_prefix": "Passage 06",
+   "cue_label_drift_guard": "^P06 (Wing \\d{3}|OLD \\d{2} - .+)$",
+   "expected_bay_count": 64,
+   "pinned_cue_guids": {},
+   "shadow_policy": "ALL",
+   "max_consecutive_lit": 6,
+   "max_consecutive_lit_exempt": [
+    [
+     13,
+     64
+    ]
+   ],
+   "monotone_dark_segment": [
+    13,
+    64
+   ],
+   "intent": "grand gold that FAILS bay by bay into darkness toward S6's void: 12 grand bays with gaps, then 42 failing bays (level 0.9 -> 0.04, circuits drop out in a fixed order, ignition stutter 0.1 -> 0.95, lamps decay then snuff behind the camera, colour creeps to monochrome then sick green), then VOID",
+   "retain": [
+    {
+     "scope": "passage",
+     "label_suffix": " Blink Spot",
+     "expected_count": 1,
+     "why": "P06 Wing 044 timber-gobo blink: the rare cold flicker inside the failure (talk prep P06 item 3)"
+    },
+    {
+     "bay": 64,
+     "label_suffix": " Candle Light",
+     "expected_count": 1,
+     "owner": "fx_candle_s6 (FX TEST - S6 Candle, 3 Oct; fx_candle_s6_record.json)",
+     "why": "5 Oct conductor: the void bay's candle effect drives this linked light; the score must not snuff Gary's candle test. Its fate is Gary's call (P06: 'only darkness but the curtain's already on the ground on fire')"
+    }
+   ],
+   "yield_to_events": {
+    "bays": [
+     2,
+     10
+    ],
+    "layout_bay_count": 64,
+    "owner": "lighting_events_apply.py black_mode",
+    "decided_by": "Gary 4 Oct questionnaire: P06 bays 2-10",
+    "why": "Black passage mode owns P06 bays 2-10 of W&T's 64-cue interleave layout (Saved/CodexFlatV3/p06/run_p6.json result_count 64). DORMANT while P06 resolves to any other count (55 today: this score is unchanged); ACTIVE once the score is rescored to 64 bays, when those bays are skipped (no fixtures, existing lights untouched). lighting_events_apply.py refuses unless this block covers exactly its black bays at its expected cue count."
+   },
+   "segments": [
+    {
+     "bays": [
+      1,
+      12
+     ],
+     "cycle": [
+      {
+       "look": "P06_GRAND_GOLD",
+       "level": 1.0
+      },
+      {
+       "look": "P06_GRAND_GOLD",
+       "level": 0.85,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P06_GRAND_GOLD",
+       "level": 0.95
+      },
+      {
+       "look": "P06_GRAND_GOLD",
+       "level": 0.8,
+       "mirror": [
+        "LOW_SIDE",
+        "BEAM"
+       ]
+      },
+      {
+       "look": "P06_GRAND_GOLD",
+       "level": 1.0
+      },
+      {
+       "look": "GAP",
+       "level": 1.0
+      }
+     ]
+    },
+    {
+     "bays": [
+      13,
+      63
+     ],
+     "generator": "FAILING",
+     "look": "P06_FAILING_GOLD",
+     "level_from": 0.9,
+     "level_to": 0.04,
+     "stutter_from": 0.1,
+     "stutter_to": 0.95,
+     "mirror_alternate": [
+      "LOW_SIDE",
+      "PRACTICAL"
+     ],
+     "slot_failures": [
+      {
+       "at_fraction": 0.15,
+       "slots": [
+        "TOP_R"
+       ]
+      },
+      {
+       "at_fraction": 0.3,
+       "slots": [
+        "BEAM_R"
+       ]
+      },
+      {
+       "at_fraction": 0.45,
+       "slots": [
+        "TOP_L"
+       ]
+      },
+      {
+       "at_fraction": 0.6,
+       "slots": [
+        "LOW_SIDE_R_FILL"
+       ]
+      },
+      {
+       "at_fraction": 0.75,
+       "slots": [
+        "LOW_SIDE_L_KEY"
+       ]
+      },
+      {
+       "at_fraction": 0.9,
+       "slots": [
+        "PRACTICAL_CLAMP"
+       ]
+      }
+     ],
+     "after_pass_steps": [
+      {
+       "at_fraction": 0.0,
+       "after_pass": "HOLD"
+      },
+      {
+       "at_fraction": 0.4,
+       "after_pass": "DECAY",
+       "after_pass_distance_cm": 300.0,
+       "decay_distance_cm": 900.0
+      },
+      {
+       "at_fraction": 0.7,
+       "after_pass": "EXTINGUISH",
+       "after_pass_distance_cm": 150.0
+      }
+     ],
+     "colour_steps": [
+      {
+       "at_fraction": 0.5,
+       "overrides": {
+        "LOW_SIDE_L_KEY": {
+         "color_rgb_linear": [
+          0.85,
+          0.9,
+          0.85
+         ],
+         "temperature_kelvin": 5200.0
+        },
+        "LOW_SIDE_R_FILL": {
+         "color_rgb_linear": [
+          0.6,
+          0.62,
+          0.65
+         ],
+         "temperature_kelvin": 6000.0
+        },
+        "PRACTICAL_CLAMP": {
+         "color_rgb_linear": [
+          0.9,
+          0.9,
+          0.85
+         ],
+         "temperature_kelvin": 4500.0
+        }
+       }
+      },
+      {
+       "at_fraction": 0.7,
+       "overrides": {
+        "LOW_SIDE_L_KEY": {
+         "color_rgb_linear": [
+          0.6,
+          1.0,
+          0.6
+         ],
+         "temperature_kelvin": 6000.0
+        },
+        "PRACTICAL_CLAMP": {
+         "color_rgb_linear": [
+          0.7,
+          1.0,
+          0.7
+         ],
+         "temperature_kelvin": 6000.0
+        }
+       }
+      }
+     ]
+    },
+    {
+     "bays": [
+      64,
+      64
+     ],
+     "cycle": [
+      {
+       "look": "VOID",
+       "level": 1.0,
+       "note": "into S6's void"
+      }
+     ]
+    }
+   ],
+   "rescore_note": "5 Oct conductor (overnight, Gary's 'apply lighting all' + recorded P06 rescore item): 55 -> 64 bays for W&T's interleave; same shape - grand 1-12 (2-10 yield to black mode), FAILING generator stretched 13-63 (fractions unchanged), VOID 64; label guard admits the 'P06 OLD nn - ...' cues. Backup lighting_scores.json.bak-20261005-preP06rescore"
+  }
+ }
 }

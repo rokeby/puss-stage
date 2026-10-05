@@ -46,7 +46,7 @@ def guid(*parts):
 
 
 # ---------------------------------------------------------------- synthetic Show
-PAIRS = {"P01": 48, "P02": 23, "P03": 21, "P04": 21, "P05": 93, "P06": 55}
+PAIRS = {"P01": 48, "P02": 23, "P03": 21, "P04": 21, "P05": 93, "P06": 64}
 STANDARD = ["Cross +Y", "Cross -Y", "Entry Fwd +Y", "Entry Fwd -Y", "Entry High +Y",
             "Entry High -Y", "Entry Top", "Low +Y", "Low -Y"]
 P02_STANDARD = ["Cross +Y", "Cross -Y", "Entry Top", "Low +Y", "Low -Y"]
@@ -93,6 +93,9 @@ def bay_attachments(passage, ordinal, cue_label, cue_guid):
             rows.append(light(cue_label, "Rig Slash", True, cue_guid=cue_guid))
         if ordinal in (3, 6, 9, 12, 15, 21):
             rows.append(light(cue_label, "Rig Back", True, cue_guid=cue_guid))
+    if passage == "P06" and ordinal == PAIRS["P06"]:  # the void bay carries the S6 candle FX test's linked light
+        rows.append({"guid": guid(cue_guid, "candle"), "label": "FX TEST - S6 Candle Light", "kind": "Light",
+                     "enabled": True, "lighting": {"cast_shadows": False}})
     blink = {"P02": [19], "P03": [17], "P04": [17], "P05": [7, 8], "P06": [44]}.get(passage, [])
     if ordinal in blink:
         rows.append(light(cue_label, "Blink Spot", True, cue_guid=cue_guid))
@@ -284,11 +287,11 @@ expect_error("- control: re-planning on the applied Show refuses (score already 
 
 print("\n== 6. P06 failing gold decays monotonically to dark")
 rows = L.validate_scores(SCORES, LOOKS, TOOL)["P06"]["rows"]
-seg = [r for r in rows if 13 <= r["ordinal"] <= 55]
+seg = [r for r in rows if 13 <= r["ordinal"] <= 64]
 mono = all(b["output"][u] <= a["output"][u] for a, b in zip(seg, seg[1:]) for u in L.UNITS)
-check("+ P06 bays 13-55: per-bay output non-increasing (cd and lm), ends at zero",
+check("+ P06 bays 13-64: per-bay output non-increasing (cd and lm), ends at zero",
       mono and not L._is_lit(seg[-1]["output"]),
-      "bay13=%.0fcd/%.0flm  bay33=%.0fcd/%.0flm  bay55=0" % (seg[0]["output"]["CANDELAS"], seg[0]["output"]["LUMENS"],
+      "bay13=%.0fcd/%.0flm  bay33=%.0fcd/%.0flm  bay64=0" % (seg[0]["output"]["CANDELAS"], seg[0]["output"]["LUMENS"],
                                                              seg[20]["output"]["CANDELAS"], seg[20]["output"]["LUMENS"]))
 lit = [r for r in seg if L._is_lit(r["output"])]
 check("+ P06 ignition stutter rises while lamps still emit",
@@ -370,16 +373,27 @@ check("+ P01 ping cascade: strike distance grows 650 -> 4700 cm across bays 3-12
       strikes == [650.0 + 450.0 * i for i in range(10)], "%s" % strikes[:3])
 
 print("\n== 11. P06 bays 2-10 yield to lighting_events black mode (Gary 4 Oct), keyed to the 64-cue layout")
-p06_55 = plan_for("P06")
-check("+ at today's 55 cues the yield is DORMANT and the P06 score is unchanged (55 targets, 0 skipped)",
+# 5 Oct: the live score is rescored to 64 (W&T interleave). Control: the legacy 55-bay score on a 55-cue Show
+# keeps the yield DORMANT and plans all 55 bays.
+legacy = copy.deepcopy(SCORES)
+l6 = legacy["passages"]["P06"]
+l6["expected_bay_count"] = 55
+l6["segments"][1]["bays"] = [13, 54]
+l6["segments"][2]["bays"] = [55, 55]
+l6["max_consecutive_lit_exempt"] = [[13, 55]]
+l6["monotone_dark_segment"] = [13, 55]
+l6["retain"] = [r for r in l6["retain"] if r.get("label_suffix") != " Candle Light"]
+saved_pairs = dict(PAIRS)
+PAIRS["P06"] = 55
+try:
+    cues55, passages55, unused55 = build_show(legacy)
+    p06_55 = plan_for("P06", scores=legacy, cues=cues55, passages=passages55)
+finally:
+    PAIRS.clear()
+    PAIRS.update(saved_pairs)
+check("+ control: at 55 cues (legacy score) the yield is DORMANT (55 targets, 0 skipped)",
       p06_55["yield_to_events"]["state"] == "DORMANT" and len(p06_55["targets"]) == 55 and not p06_55["skipped"])
 rescored = copy.deepcopy(SCORES)
-p6cfg = rescored["passages"]["P06"]
-p6cfg["expected_bay_count"] = 64
-p6cfg["segments"][1]["bays"] = [13, 63]
-p6cfg["segments"][2]["bays"] = [64, 64]
-p6cfg["max_consecutive_lit_exempt"] = [[13, 64]]
-p6cfg["monotone_dark_segment"] = [13, 64]
 saved_pairs = dict(PAIRS)
 PAIRS["P06"] = 64
 try:
