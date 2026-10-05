@@ -191,3 +191,11 @@
   - It was texture streaming not yet resident at capture: the same cloud is sharp in later stills (measured; cause inferred).
   - Gary chose "keep them loaded": never_stream on the 18 _CR02 cloud textures (about 100 MB VRAM, inferred). Revert: p05_nostream_revert.py.
   - Lesson for captures: stills right after a jump can be under-streamed, as well as under-exposed and unsettled.
+- **Rig (Gary 5 Oct):** "All iron, but don't worry about the opening stage portal, that is not the infrastructural hulk, it's got to be changed from simple cuboid beam to a proper baroque stage front (using wings)".
+  - All six Passages' rigs become underpass iron.
+  - The P01/opening PORTAL is EXCLUDED. The portal shares the girder mesh slot (StructureActor.cpp:470-476), so the swap must decouple it.
+  - New design item: a baroque stage front built from wings.
+  - Plan: Docs/Conductor/UNDERPASS_RIG_KIT_PLAN_2026-10-05.md.
+- **Editor time tomorrow (Gary):** AI editor runs go FIRST THING, ~60–90 min. After that the editor is Gary's, and I stay out unless he calls.
+  - Morning AI queue: build window (F1, RT, S1 strobe rev2 b31073f), exit-block revert S1, shorten S1, curtain sleight I1 DRY/APPLY, look bench (incl. the glint light Gary approved via W&T), rig P05 prototype if time.
+- **Wet paper test (W&T):** M_Wing_Billboard_Master_v3 is on Wing 008 R. The approach frames show darker, richer patches but NO glints, because no light sits at a mirror angle. Gary: "Add a test light", so a glint light goes in the morning look bench and W&T retake 7 frames.
