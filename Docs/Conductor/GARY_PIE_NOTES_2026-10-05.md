@@ -191,3 +191,8 @@
 43. **Opening FOH flicker/envelope stays PROGRAMMATIC from the music** (Gary gave up hand-keying it; the music will change).
     Re-run opening_sequence_plan/apply when Cameron's new music arrives. If Gary saved hand edits to LS_Opening_Curtain_Baked,
     reconcile the hash drift first.
+44. **Opening music sketch 2** (Cameron, 95.5 s): analysed offline (swells 39.0/46.3/53.6/64.9/76.4 s; music starts at 7.0 s).
+    Gary: curtain after the LAST swell (release ≈77.4 s, walk-in ≈84.9 s) and the FOH swivel follows the music (36–44 s).
+    opening_timing.json is repointed (all moments still auto). Refit folds into the Opening reconcile when the editor is free.
+45. **Walking music:** Cameron's 6 tracks converted (P01 73.5, P02 45.5, P03 40.2, P04 38.4 → padded to 48.4 s with 10 s of silence
+    per Gary, P05 42.0, P06 125.0 s, which overruns P06's ~111 s). Passage lengths are KEPT. The swap tool is being written.

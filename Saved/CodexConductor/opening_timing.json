@@ -1,10 +1,10 @@
 {
   "version": 1,
   "about": "Timing table for the long Opening (Gary 4 Oct). Edit a moment's value (seconds, or \"auto\") and re-run opening_sequence_apply.py (DRY first), OR drag the matching 'OPN <name>' marked frame on LS_Opening_Curtain_Baked in Sequencer and re-run: a moved marker wins over an unchanged JSON value and is written back here with source 'sequencer'; if BOTH changed the tool refuses (see Docs/Conductor/OPENING_SEQUENCE_PLAN_2026-10-04.md section 5).",
-  "analysis": "InfinityStage/MusicAnalysis/P01_Intro_WalkingMusic_1.analysis.json",
+  "analysis": "InfinityStage/MusicAnalysis/OpeningSketch2/P01_Opening_Tuning_sketch2.analysis.json",
   "fps": 25.0,
   "sequence": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
-  "cue_label": "Opening — Curtain",
+  "cue_label": "Opening \u2014 Curtain",
   "next_passage_label": "Passage 1",
   "baseline": {
     "opening_end_s": 15.0,
@@ -12,31 +12,61 @@
     "evidence": "Saved/CodexConductor/opening_walkin_probe.json: playback [0,375] @25 fps, P01 master section [15.0, 111.336]"
   },
   "moments": {
-    "music_start": {"value": "auto", "source": "auto"},
-    "flicker_start": {"value": "auto", "source": "auto"},
-    "flicker_end": {"value": "auto", "source": "auto"},
-    "swivel_start": {"value": "auto", "source": "auto"},
-    "swivel_end": {"value": "auto", "source": "auto"},
-    "last_swell": {"value": "auto", "source": "auto"},
-    "curtain_release": {"value": "auto", "source": "auto"},
-    "walkin_start": {"value": "auto", "source": "auto"},
-    "opening_end": {"value": "auto", "source": "auto"}
+    "music_start": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "flicker_start": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "flicker_end": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "swivel_start": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "swivel_end": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "last_swell": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "curtain_release": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "walkin_start": {
+      "value": "auto",
+      "source": "auto"
+    },
+    "opening_end": {
+      "value": "auto",
+      "source": "auto"
+    }
   },
   "rules": {
-    "music_start_rms_fraction": 0.10,
+    "music_start_rms_fraction": 0.1,
     "flicker_s": 2.5,
     "swivel_min_s": 3.0,
     "swell_smoothing_s": 3.0,
     "swell_prominence_window_s": 6.0,
     "swell_min_prominence": 0.12,
     "swell_min_separation_s": 5.0,
-    "swell_min_level": 0.40,
+    "swell_min_level": 0.4,
     "final_quarter_fraction": 0.75,
     "release_after_swell_min_s": 1.0,
     "release_snap_max_s": 4.0
   },
   "envelope": {
-    "weights": {"intensity": 0.5, "rms": 0.5},
+    "weights": {
+      "intensity": 0.5,
+      "rms": 0.5
+    },
     "smoothing_s": 2.5,
     "smoothing_passes": 2,
     "floor": 0.55,
@@ -58,9 +88,20 @@
       "kind": "spot",
       "mover": true,
       "enabled": true,
-      "location": [-2100.0, -650.0, 1265.0],
-      "final_aim": {"pitch": -19.801, "yaw": 21.919, "roll": 0.0},
-      "park_offset": {"pitch": 12.0, "yaw": -18.0},
+      "location": [
+        -2100.0,
+        -650.0,
+        1265.0
+      ],
+      "final_aim": {
+        "pitch": -19.801,
+        "yaw": 21.919,
+        "roll": 0.0
+      },
+      "park_offset": {
+        "pitch": 12.0,
+        "yaw": -18.0
+      },
       "outer_cone_deg": 33.0,
       "inner_cone_deg": 20.0,
       "nominal_cd": 1740.0,
@@ -77,9 +118,20 @@
       "kind": "spot",
       "mover": true,
       "enabled": true,
-      "location": [-2100.0, 650.0, 1265.0],
-      "final_aim": {"pitch": -19.801, "yaw": -21.919, "roll": 0.0},
-      "park_offset": {"pitch": 12.0, "yaw": 18.0},
+      "location": [
+        -2100.0,
+        650.0,
+        1265.0
+      ],
+      "final_aim": {
+        "pitch": -19.801,
+        "yaw": -21.919,
+        "roll": 0.0
+      },
+      "park_offset": {
+        "pitch": 12.0,
+        "yaw": 18.0
+      },
       "outer_cone_deg": 33.0,
       "inner_cone_deg": 20.0,
       "nominal_cd": 1740.0,
@@ -96,8 +148,16 @@
       "kind": "spot",
       "mover": false,
       "enabled": true,
-      "location": [-2600.0, 0.0, 900.0],
-      "final_aim": {"pitch": -9.83, "yaw": 0.0, "roll": 0.0},
+      "location": [
+        -2600.0,
+        0.0,
+        900.0
+      ],
+      "final_aim": {
+        "pitch": -9.83,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
       "outer_cone_deg": 30.0,
       "inner_cone_deg": 10.0,
       "nominal_cd": 900.0,
@@ -114,8 +174,16 @@
       "kind": "spot",
       "mover": false,
       "enabled": false,
-      "location": [-170.0, -600.0, 15.0],
-      "final_aim": {"pitch": 35.0, "yaw": 0.0, "roll": 0.0},
+      "location": [
+        -170.0,
+        -600.0,
+        15.0
+      ],
+      "final_aim": {
+        "pitch": 35.0,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
       "outer_cone_deg": 50.0,
       "inner_cone_deg": 20.0,
       "nominal_cd": 40.0,
@@ -134,8 +202,16 @@
       "kind": "spot",
       "mover": false,
       "enabled": false,
-      "location": [-170.0, 600.0, 15.0],
-      "final_aim": {"pitch": 35.0, "yaw": 0.0, "roll": 0.0},
+      "location": [
+        -170.0,
+        600.0,
+        15.0
+      ],
+      "final_aim": {
+        "pitch": 35.0,
+        "yaw": 0.0,
+        "roll": 0.0
+      },
       "outer_cone_deg": 50.0,
       "inner_cone_deg": 20.0,
       "nominal_cd": 40.0,
@@ -164,8 +240,22 @@
   },
   "walkin": {
     "ease_s": 10.0,
-    "seat": {"x": -1400.0, "y": 0.0, "z": 150.0, "pitch": 14.000000000000004, "yaw": 0.0, "roll": 0.0},
-    "target": {"x": 0.0, "y": 0.0, "z": 150.0, "pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+    "seat": {
+      "x": -1400.0,
+      "y": 0.0,
+      "z": 150.0,
+      "pitch": 14.000000000000004,
+      "yaw": 0.0,
+      "roll": 0.0
+    },
+    "target": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 150.0,
+      "pitch": 0.0,
+      "yaw": 0.0,
+      "roll": 0.0
+    },
     "v_end_cm_s": 250.00000350317606,
     "focal0_mm": 15.0,
     "focal1_mm": 25.0,
@@ -187,8 +277,12 @@
     "owner": "opening_sequence_apply.py",
     "mechanism": null,
     "disable": false,
-    "labels": ["P01 Wing 001 House L", "P01 Wing 001 House R"],
+    "labels": [
+      "P01 Wing 001 House L",
+      "P01 Wing 001 House R"
+    ],
     "notes": "Gary 4 Oct: the two Show house spots are OFF FOR THE OPENING ONLY and ON in P01. This tool owns that; lighting_scores_apply.py retains them (lighting_scores.json foreign_owned_lights). 'disable' must stay false: the attachment's Enabled flag is not time-varying, so disabling would kill them in P01 too (the planner refuses it). 'mechanism' is null because none exists yet: Light Drama cannot dark a lamp before its Passage segment (plan section 4b). Until a mechanism lands they burn through the Opening and phase 0 is NOT dark."
   },
-  "hand_tuned_tracks": []
+  "hand_tuned_tracks": [],
+  "sketch2_note": "5 Oct: refit to Cameron's 'Tuning-Opening-sketch2' (95.5 s; DerivedAssets/Audio/Opening_Sketch2). Gary: curtain after the LAST swell (auto 76.4 s -> release ~77.4 s); FOH swivel follows the music (auto 36-44 s). All moments stay 'auto' so re-running on sketch 3 is cheap. Old analysis backup: opening_timing.json.bak-20261005-presketch2"
 }
