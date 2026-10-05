@@ -147,3 +147,20 @@
 - **M4 measured** (P01 House L, via a possessable): the keyed Intensity was withheld from the Show and the hand-edited Color was written. Caveat: the key never evaluated, so "would leak otherwise" is inferred. The probe's cleanup left 3 throwaway dirty packages; a Don't-Save restart (Gary's OK) discarded them. The disk Show was verified equal to its backup. After restart both tests passed.
   - Open: why setting the colour back did not capture, and why delete_asset on the temp sequence returned False.
 - **Next:** Gary's PIE checks (M1 hold+FF, GO hold, S8 audio), set up by the cueing stream.
+
+## Late night 4 Oct
+- **Scene ExternalSound** (cueing; Gary: only S3 has the cellist): S1, S2, S4, S5 and S6 are now pausable and can hold GO; S3 is still DeclaredUnpausable. Both tests passed.
+- **Exit block APPLIED** on S1, S2, S4, S5 and S6: each Scene is +71.64 s, with a curtain over the door, a puppet card, a 60 s hold, then the door move. Both tests passed.
+  - extend_scene_playback's pre-K key gate was replaced by a measured key-carry check (tolerance: half a frame).
+  - The occupancy check now skips pure light actors.
+  - The live inside-box guard now uses oriented bounds (S2 is rotated).
+  - Two Don't-Save restarts (Gary's OK) discarded the stopped attempts.
+- **Bee swarm v3 BUILT** (3321216): all 8 BeeSwarm tests pass.
+  - The suite ran 139/1. SavedFixturePIE is red only because its fixture assumed S1 is unpausable. The fix is held as cueing F1 (85166df) for the next window.
+  - The swarm is NOT placed in S6 yet.
+- **Retime audit:** Docs/Conductor/RETIME_ROBUSTNESS_AUDIT_2026-10-04.md.
+  - Scene/Opening length changes are safe.
+  - **Passage length changes are NOT**: keys stay authored while the wings move, pins past the end drop silently, and handoffs aren't rematched.
+  - Tools with stale absolute frames: p04_bay3_trace, run_p6.json, the S3 family's (0,6240) guards.
+  - Proposed: a RetimeEverythingFollows test, and a GUID-plus-offset rule for tools.
+- W&T: P05 stills under the new score were sent to Gary. The P05 "boxes" are Structure 05 rig cubes (inferred). W&T is probing the P06 soft piece read-only tonight.
