@@ -97,3 +97,13 @@
     in S4's Arrival backcloth slot, which has had an open render fault. Plan, within Gary's "stand-in drape falls at the end
     of P01–P05": revert the P04 backcloth (its own revert script ran once already on 30 Sep), then passage_end_drape S4 like
     the others. Add a check to the drape tool: the hem must touch the floor in the hanging pose (bottom ≤ floor top + 5 cm).
+25. **Rig detail (P05 screenshot): "the X bars on the girder rig currently float off of it … should be connected and heavy.
+    The lighting objects can sit on the rig and even overlap a bit to close the gap rather than floating."**
+    - Cause, lacing [declaration-proven, Tools/UnderpassKit/build_underpass_kit.py:276-291]: the X bars are 6 × 1.5 cm,
+      centred at z = ±19.25, so they only TOUCH the flange face (18.5) with zero overlap. The 500 cm column module is
+      also stretched ~3.8× to ~19 m, so they read as a thin separate lattice. Fix: SM_UP_LacedColumn_v2 (a NEW asset, no
+      in-place reimport): bars ~10 × 3 cm sunk ~1 cm into the flanges, batten plates at the ends, maybe 2 modules per
+      height so the lacing isn't stretched; then set column_mesh per Structure.
+    - Lamp bodies: the floor "cubes" are the scores' PRACTICAL bodies on the floor. Gary wants the rig lamps mounted ON the
+      rig (on columns, piers, girders), overlapping slightly rather than floating. → A score/fixture placement change:
+      snap the practical and TOP lamp bodies to the nearest rig member. Design needed; not today's priority.
