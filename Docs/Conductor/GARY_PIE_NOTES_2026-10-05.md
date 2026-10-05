@@ -117,3 +117,9 @@
     Also before S4: the old "P04 Backcloth (baked)" ACTOR stays in the level after its revert (the revert only clears the slot
     and binding, with no backup and no read-back, and it overwrites the 30 Sep .reverted archive), so it needs a backed-up
     removal first.
+28. **Passage width: "for the cloud sequence they are basically all bunched in the middle rather than flanking the stage …
+    maintaining the structural visual of a stage. Should be easy enough to adjust by hand in the params."** By hand: select
+    the wing cue → Details, top: **Rest Opening Width (Pivot-to-Pivot)** (+ Opening Centre Offset), per pair (guide §3.1d).
+    P05 has 93 pairs, so a bulk tool is offered: set or scale the opening width for every pair in a Passage (or a range),
+    with a record and revert, then re-materialize the Passage AND re-fit its Structure (the rig half-width and the lamps
+    follow the pairs). Check the TOP-lamp and girder clearance after.
