@@ -123,3 +123,8 @@
     P05 has 93 pairs, so a bulk tool is offered: set or scale the opening width for every pair in a Passage (or a range),
     with a record and revert, then re-materialize the Passage AND re-fit its Structure (the rig half-width and the lamps
     follow the pairs). Check the TOP-lamp and girder clearance after.
+29. **Hangar rise and ceiling-rig drop are "nice but far too smooth".** He wants "the movement curve of something hugely heavy
+    being wrenched up in a heave, its momentum shifting halfway through, falling forwards with a crunking thud". → A tool is
+    being written offline (hangar_heave.py): a strain dip, 2–3 wrenched heaves with winch-catch stalls, a strained climb,
+    then momentum tipping forward, a hard landing with a damped bounce, and a THUD marker. Start and end keys are kept
+    exactly, so timing doesn't change. A preview plot (old vs heave) goes to Gary before any apply.
