@@ -373,7 +373,8 @@ def validate_instrument(row, where):
         _finite(row.get("rect_source_width_cm"), "RECT_W")
         _finite(row.get("rect_source_height_cm"), "RECT_H")
     require(isinstance(row.get("cast_shadows"), bool), "CAST_SHADOWS_UNDECLARED|" + where)
-    require(not row["cast_shadows"] or role == "LOW_SIDE", "NON_SIDE_SHADOW_CASTER|" + where)
+    # 5 Oct ~16:25 Gary: "all lights should be allowed to cast shadows". The LOW_SIDE-only rule
+    # (NON_SIDE_SHADOW_CASTER) is gone; the per-passage shadow BUDGET (build_score_plan) still governs.
     flicker = row.get("flicker", {})
     require("mode" in flicker and "material" in flicker, "FLICKER_UNDECLARED|" + where)
     require(flicker["material"] is None or str(flicker["material"]).startswith(FLICKER_ROOT),
@@ -401,6 +402,7 @@ def validate_instrument(row, where):
                 and len(visible.get("scale", [])) == 3
                 and all(_finite(v, "BODY_SCALE") > 0.0 for v in visible["scale"]),
                 "PRACTICAL_BODY_TRANSFORM_BAD|" + where)
+        validate_body_material(row, where)
 
 
 def _fraction(position, count):
@@ -544,6 +546,7 @@ def bay_fixtures(tool, scores, looks, passage_key, spec):
     fixtures = tool.expand_bay(config, bay_row)
     _mirror_explicit_aims(fixtures, spec)
     _apply_fixed_aim_points(tool, fixtures, spec)
+    _resolve_lamp_bodies(fixtures, where)
     for row in fixtures:
         if row["authored_kind"] == "LIGHT":
             validate_instrument(row, "%s|look=%s|slot=%s" % (where, look_name, row["slot"]))
@@ -680,6 +683,232 @@ def no_cross_rows(passage_key, ordinal, fixtures, cfg, live_goals=None):
         "slot=%s,role=%s,source_y=%.0f,target_y=%.0f,basis=%s,verdict=%s"
         % (r["slot"], r["role"], r["source_y"], r["target_y"], r["basis"], r["verdict"]) for r in bad)))
     return rows
+
+
+# --------------------------------------------------------------------------
+# Lamp bodies with a material (5 Oct). FInfinityCueAttachment has NO material
+# field (InfinityStageTypes.h:427-478) and a mesh-only prop is an
+# AStaticMeshActor that only gets SetStaticMesh (InfinityStagePassageActor.cpp:
+# 951-956), so a body's look comes from its MESH ASSET's own slot material. A
+# visible_mesh.material spec therefore resolves to two derived, content-named
+# assets under BODY_ASSET_DIR: an MI of an existing emissive parent, and a
+# duplicate of the source mesh whose slot 0 is that MI. They are CREATE-ONLY:
+# an existing asset is reused only if it already holds exactly the planned
+# values, never edited; REVERT deletes only what its own record created and
+# nothing that any attachment in the Show still references. Rows without
+# visible_mesh.material are untouched (every pre-5-Oct look).
+# --------------------------------------------------------------------------
+BODY_ASSET_DIR = "/Game/InfinityStage/Lighting/Bulbs"
+BODY_PARENTS = {
+    # M_UP_TubeEmissive: unlit, emissive = Colour * Intensity * PerInstanceCustomData[3] (const default 1.0 off ISMs)
+    # (underpass_tubes_apply.py:8, 58-79); on disk under Content/InfinityStage/RigAtmos/Underpass/Materials.
+    "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive": ("Colour", "Intensity"),
+}
+BODY_MODES = ("MATCH_LIGHT", "DEAD")
+BODY_DEAD_COLOUR = [0.2, 0.19, 0.18]
+BODY_DEAD_INTENSITY = 0.15
+
+
+def kelvin_rgb_linear(kelvin):
+    """Blackbody tint, linear RGB normalised to max 1 (Tanner Helland fit, sRGB-decoded). Inferred match to UE's
+    use_temperature tint: both are blackbody, the exact UE curve is in private engine source we do not have."""
+    t = max(1000.0, min(40000.0, float(kelvin))) / 100.0
+    if t <= 66.0:
+        r, g = 255.0, 99.4708025861 * math.log(t) - 161.1195681661
+        b = 0.0 if t <= 19.0 else 138.5177312231 * math.log(t - 10.0) - 305.0447927307
+    else:
+        r = 329.698727446 * ((t - 60.0) ** -0.1332047592)
+        g = 288.1221695283 * ((t - 60.0) ** -0.0755148492)
+        b = 255.0
+    srgb = [max(0.0, min(255.0, v)) / 255.0 for v in (r, g, b)]
+    lin = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in srgb]
+    peak = max(lin)
+    return [v / peak for v in lin]
+
+
+def body_emission(light_row, mode):
+    """(colour, intensity) for a body: the light's colour x its Kelvin tint, brightness from its output."""
+    if mode == "DEAD":
+        return list(BODY_DEAD_COLOUR), BODY_DEAD_INTENSITY
+    tint = kelvin_rgb_linear(light_row["temperature_kelvin"])
+    raw = [float(c) * k for c, k in zip(light_row["color_rgb_linear"], tint)]
+    peak = max(raw)
+    require(peak > 0.0, "BODY_COLOUR_BLACK|slot=" + light_row["slot"])
+    lumens = float(light_row["intensity"]) * (1.0 if light_row["intensity_units"] == "LUMENS" else 4.0 * math.pi)
+    intensity = max(2.0, min(10.0, 4.0 * math.sqrt(lumens / 200.0)))
+    return [round(v / peak, 3) for v in raw], round(intensity * 2.0) / 2.0
+
+
+def _body_names(source_mesh, parent, colour, intensity):
+    mi_key = _canonical({"parent": parent, "colour": colour, "intensity": intensity})
+    mi = "%s/MI_PB_Bulb_%s" % (BODY_ASSET_DIR, hashlib.sha1(mi_key.encode()).hexdigest()[:8])
+    mesh_key = _canonical({"source": source_mesh, "material": mi})
+    return mi, "%s/SM_PB_Bulb_%s" % (BODY_ASSET_DIR, hashlib.sha1(mesh_key.encode()).hexdigest()[:8])
+
+
+def validate_body_material(row, where):
+    spec = row.get("visible_mesh", {}).get("material")
+    if spec is None:
+        return
+    require(isinstance(spec, dict) and set(spec) == {"parent", "mode"} and spec["parent"] in BODY_PARENTS
+            and spec["mode"] in BODY_MODES, "BAD_BODY_MATERIAL|" + where)
+    require(row["role"] == "PRACTICAL" and str(row["visible_mesh"]["mesh"]).startswith(("/Engine/BasicShapes/", "/Game/")),
+            "BAD_BODY_MATERIAL_HOST|" + where)
+    require(bool(row["visible_mesh"]["emissive"]) == (spec["mode"] == "MATCH_LIGHT"),
+            "BODY_EMISSIVE_FLAG_DISAGREES|" + where)
+
+
+def _resolve_lamp_bodies(fixtures, where):
+    """Give each PRACTICAL_BODY prop of a light with visible_mesh.material its derived mesh, after every
+    per-bay override, so a lamp switched off in a bay can never keep a glowing body (and vice versa)."""
+    lights = {row["slot"]: row for row in fixtures if row.get("authored_kind") == "LIGHT"}
+    for prop in fixtures:
+        if prop.get("role") != "PRACTICAL_BODY":
+            continue
+        light = lights[prop["paired_slot"]]
+        spec = light.get("visible_mesh", {}).get("material")
+        if spec is None:
+            continue
+        here = "%s|slot=%s" % (where, light["slot"])
+        validate_body_material(light, here)
+        lit = float(light["intensity"]) > 0.0
+        require(not (lit and spec["mode"] == "DEAD"), "BODY_DEAD_ON_LIT_LAMP|" + here)
+        require(not (not lit and spec["mode"] == "MATCH_LIGHT"), "BODY_GLOWS_ON_DEAD_LAMP|" + here)
+        colour, intensity = body_emission(light, spec["mode"])
+        mi, mesh = _body_names(prop["mesh"], spec["parent"], colour, intensity)
+        prop["body"] = {"source_mesh": prop["mesh"], "parent": spec["parent"], "mode": spec["mode"],
+                        "colour": colour, "intensity": intensity, "mi": mi, "mesh": mesh,
+                        "flicker_follows_light": False}
+        prop["mesh"] = mesh
+
+
+def body_asset_plan(fixture_rows):
+    """Unique derived assets a set of fixtures needs: {"mis": {path: spec}, "meshes": {path: spec}}."""
+    mis, meshes = {}, {}
+    for row in fixture_rows:
+        body = row.get("body")
+        if not body:
+            continue
+        mi = {"parent": body["parent"], "colour": body["colour"], "intensity": body["intensity"]}
+        require(mis.setdefault(body["mi"], mi) == mi, "BODY_MI_NAME_COLLISION|" + body["mi"])
+        mesh = {"source": body["source_mesh"], "material": body["mi"]}
+        require(meshes.setdefault(body["mesh"], mesh) == mesh, "BODY_MESH_NAME_COLLISION|" + body["mesh"])
+    for path in list(mis) + list(meshes):
+        require(path.startswith(BODY_ASSET_DIR + "/"), "BODY_ASSET_OUTSIDE_DIR|" + path)
+    return {"mis": mis, "meshes": meshes}
+
+
+def _close_list(a, b, tol=1.0e-3):
+    return len(a) == len(b) and all(abs(float(x) - float(y)) <= tol for x, y in zip(a, b))
+
+
+def ensure_body_assets(api, assets):
+    """CREATE-ONLY. api: exists/read_mi/create_mi/read_mesh/create_mesh/save. Returns the created paths.
+    An existing asset must already hold the planned values (read back), or the run stops: never edit it."""
+    created = []
+    for path, spec in sorted(assets["mis"].items()):
+        if api.exists(path):
+            got = api.read_mi(path)
+            require(got["parent"] == spec["parent"] and _close_list(got["colour"][:3], spec["colour"])
+                    and abs(float(got["intensity"]) - spec["intensity"]) <= 1.0e-3,
+                    "BODY_ASSET_EXISTS_DIFFERENT|%s|have=%s|want=%s" % (path, _canonical(got), _canonical(spec)))
+            continue
+        api.create_mi(path, spec["parent"], spec["colour"], spec["intensity"])
+        created.append(path)
+        got = api.read_mi(path)
+        require(got["parent"] == spec["parent"] and _close_list(got["colour"][:3], spec["colour"])
+                and abs(float(got["intensity"]) - spec["intensity"]) <= 1.0e-3,
+                "BODY_MI_READBACK|%s|%s" % (path, _canonical(got)))
+    for path, spec in sorted(assets["meshes"].items()):
+        if api.exists(path):
+            got = api.read_mesh(path)
+            require(got == spec, "BODY_ASSET_EXISTS_DIFFERENT|%s|have=%s|want=%s" % (path, _canonical(got), _canonical(spec)))
+            continue
+        api.create_mesh(path, spec["source"], spec["material"])
+        created.append(path)
+        require(api.read_mesh(path) == spec, "BODY_MESH_READBACK|" + path)
+    for path in created:
+        require(api.save(path), "BODY_ASSET_SAVE_FAILED|" + path)
+    return created
+
+
+def revert_body_assets(api, created, referenced):
+    """Delete only assets this record created and nothing still references (another passage may share one:
+    names are content hashes). Meshes before MIs. Returns {"deleted": [...], "kept_referenced": [...]}."""
+    deleted, kept = [], []
+    referenced = set(referenced)
+    meshes = [p for p in created if "/SM_PB_Bulb_" in p]
+    mis = [p for p in created if "/MI_PB_Bulb_" in p]
+    require(len(meshes) + len(mis) == len(created) and all(p.startswith(BODY_ASSET_DIR + "/") for p in created),
+            "BODY_REVERT_UNKNOWN_ASSET|" + _canonical(created))
+    for path in meshes:
+        if path in referenced or not api.exists(path):
+            kept.append(path)
+            continue
+        require(api.delete(path), "BODY_ASSET_DELETE_FAILED|" + path)
+        deleted.append(path)
+    used_mis = {api.read_mesh(p)["material"] for p in api.list_meshes(BODY_ASSET_DIR) if api.exists(p)}
+    for path in mis:
+        if path in referenced or path in used_mis or not api.exists(path):
+            kept.append(path)
+            continue
+        require(api.delete(path), "BODY_ASSET_DELETE_FAILED|" + path)
+        deleted.append(path)
+    return {"deleted": deleted, "kept_referenced": kept}
+
+
+class UnrealBodyAssets:
+    """The Unreal side of ensure/revert_body_assets (runs only in the editor; first exercised by a live APPLY,
+    so every call below is INFERRED until then: MaterialEditingLibrary MI setters/getters and
+    EditorAssetLibrary duplicate/save/delete are the same calls underpass_tubes_apply.py:85-99 uses live;
+    StaticMesh.set_material/get_material are UE5 Python API, not yet run in this project)."""
+
+    def __init__(self):
+        self.eal = unreal.EditorAssetLibrary
+        self.mel = unreal.MaterialEditingLibrary
+        self.tools = unreal.AssetToolsHelpers.get_asset_tools()
+
+    def exists(self, path):
+        return bool(self.eal.does_asset_exist(path))
+
+    def read_mi(self, path):
+        mi = unreal.load_asset(path)
+        names = BODY_PARENTS.get(mi.get_editor_property("parent").get_path_name().split(".")[0], ("Colour", "Intensity"))
+        colour = self.mel.get_material_instance_vector_parameter_value(mi, names[0])
+        return {"parent": mi.get_editor_property("parent").get_path_name().split(".")[0],
+                "colour": [colour.r, colour.g, colour.b],
+                "intensity": self.mel.get_material_instance_scalar_parameter_value(mi, names[1])}
+
+    def create_mi(self, path, parent, colour, intensity):
+        folder, name = path.rsplit("/", 1)
+        mi = self.tools.create_asset(name, folder, unreal.MaterialInstanceConstant,
+                                     unreal.MaterialInstanceConstantFactoryNew())
+        require(mi is not None, "BODY_MI_CREATE_FAILED|" + path)
+        names = BODY_PARENTS[parent]
+        self.mel.set_material_instance_parent(mi, unreal.load_asset(parent))
+        self.mel.set_material_instance_vector_parameter_value(mi, names[0], unreal.LinearColor(*(list(colour) + [1.0])))
+        self.mel.set_material_instance_scalar_parameter_value(mi, names[1], float(intensity))
+
+    def read_mesh(self, path):
+        mesh = unreal.load_asset(path)
+        material = mesh.get_material(0)
+        return {"source": str(self.eal.get_metadata_tag(mesh, "PussBodySource")),
+                "material": material.get_path_name().split(".")[0] if material else None}
+
+    def create_mesh(self, path, source, material):
+        mesh = self.eal.duplicate_asset(source, path)
+        require(mesh is not None, "BODY_MESH_DUPLICATE_FAILED|" + path)
+        mesh.set_material(0, unreal.load_asset(material))
+        self.eal.set_metadata_tag(mesh, "PussBodySource", source)
+
+    def save(self, path):
+        return bool(self.eal.save_asset(path, only_if_is_dirty=False))
+
+    def delete(self, path):
+        return bool(self.eal.delete_asset(path))
+
+    def list_meshes(self, folder):
+        return [p.split(".")[0] for p in self.eal.list_assets(folder, recursive=False) if "/SM_PB_Bulb_" in p]
 
 
 def bay_output(fixtures):
@@ -1542,8 +1771,19 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             actors = _count_passage_actors(show, passage_cfg["passage_actor_label_prefix"])
             require(actors == 1, "PASSAGE_ACTOR_COUNT|prefix=%s|count=%d"
                     % (passage_cfg["passage_actor_label_prefix"], actors))
+            plan["body_assets"] = body_asset_plan([f for t in plan["targets"] for f in t["fixtures"]])
+            body_api = UnrealBodyAssets()
+            body_state = {path: ("REUSE" if body_api.exists(path) else "CREATE")
+                          for kind in ("mis", "meshes") for path in plan["body_assets"][kind]}
+            for parent in {spec["parent"] for spec in plan["body_assets"]["mis"].values()}:
+                require(body_api.exists(parent), "BODY_PARENT_MISSING|" + parent)
+            # DRY: a body mesh that does not exist yet is template-checked with its source mesh.
+            template_meshes = dict(meshes)
+            for path, spec in plan["body_assets"]["meshes"].items():
+                template_meshes[path] = (unreal.load_asset(path) if body_state[path] == "REUSE"
+                                         else meshes[spec["source"]])
             templates = sum(1 for t in plan["targets"] for f in t["fixtures"]
-                            if _template(tool, f, materials, meshes) is not None)
+                            if _template(tool, f, materials, template_meshes) is not None)
             require(templates == plan["fixture_count"], "TEMPLATE_BUILD_COUNT")
             report.update({"plan_summary": {
                 "bays": plan["bay_count"], "targets": len(plan["targets"]), "skipped": plan["skipped"],
@@ -1553,6 +1793,7 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 "prototype": plan["prototype"], "yield_to_events": plan["yield_to_events"],
                 "foreign_records": foreign,
                 "unacknowledged_foreign_records": unacknowledged, "templates_built": templates,
+                "body_assets": body_state,
                 "no_cross_live": None if not plan.get("no_cross") else
                 {"spots": len(plan["no_cross"]["live"]), "verdict": "PASS"}}})
             if mode == "DRY":
@@ -1574,6 +1815,16 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                       "p04_tool_sha256": report["p04_tool_sha256"], "backup": backup,
                       "outside_before_hash": outside_before, "plan": plan}
             tool._write_json(record_path, record, exclusive=True)
+            if plan["body_assets"]["mis"] or plan["body_assets"]["meshes"]:
+                # Created and saved BEFORE the Show mutation, so _save_narrow still sees only Show + level dirty.
+                try:
+                    record["body_assets_created"] = ensure_body_assets(body_api, plan["body_assets"])
+                finally:
+                    tool._write_json(record_path, record)
+                require(tool._dirty_census() == {"content": [], "maps": []},
+                        "DIRTY_AFTER_BODY_ASSETS|" + _canonical(tool._dirty_census()))
+                for path in plan["body_assets"]["meshes"]:
+                    meshes[path] = unreal.load_asset(path)
             try:
                 _mutate_apply(tool, show, plan, materials, meshes, _other_score_targets(passage_key))
             except Exception:
@@ -1621,6 +1872,14 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             unused_index, attachments = _current_target(tool, readback, target)
             tool._require_attachment_rows_equal(tool._attachment_rows(attachments), target["before_rows"],
                                                 "REVERT_READBACK_NOT_EXACT|cue=" + target["cue_label"])
+        body_revert = None
+        if record.get("body_assets_created"):
+            plain, unused = _runtime_plain(tool, readback)
+            referenced = {str(att.get("mesh", "")).split(".")[0] for cue in plain for att in cue["attachments"]}
+            body_revert = revert_body_assets(UnrealBodyAssets(), record["body_assets_created"], referenced)
+            require(tool._dirty_census() == {"content": [], "maps": []},
+                    "DIRTY_AFTER_BODY_REVERT|" + _canonical(tool._dirty_census()))
+        report["body_assets_revert"] = body_revert
         archived = record_path + ".reverted-" + run
         os.rename(record_path, archived)
         tool._queue_master_test(world, "LIGHTING_SCORES_REVERT", run)

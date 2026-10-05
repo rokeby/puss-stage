@@ -489,15 +489,15 @@ check("+ uplights only on bays 3, 7, 10, 12, 20, 21, 23, each wing-aimed at its 
 revived = [f for o, f in p02_lights if f["slot"] in ("PRACTICAL_BULB_DEAD", "PRACTICAL_R")]
 check("+ the dead practicals are revived (intensity > 0, lit lamp body) wherever their look is used",
       revived and all(float(f["intensity"]) > 0.0 for f in revived)
-      and all(f["visible_mesh"]["mesh"].endswith("SM_Lamp_Ceiling") and f["visible_mesh"]["emissive"] for f in revived),
+      and all(f["visible_mesh"]["material"]["mode"] == "MATCH_LIGHT" and f["visible_mesh"]["emissive"] for f in revived),
       "%d lamps" % len(revived))
 failing = [p02_bays[o] for o in range(12, 20)]
 counts = [t["light_fixture_count"] for t in failing]
 check("+ FAILING 12-19 kills the new rig lamp by lamp (light count strictly falls 12->16, then the clamp decays alone)",
       counts[:5] == [5, 4, 3, 2, 1] and counts[4:] == [1, 1, 1, 1]
       and all(t["output"]["LUMENS"] > u["output"]["LUMENS"] for t, u in zip(failing, failing[1:])), str(counts))
-check("+ P02 shadow casters fall (uplights only); budget holds",
-      p02_plan["shadow"]["budget_ok"] and sum(t["new_shadow_casters"] for t in p02_plan["targets"]) == 7,
+check("+ P02 shadow casters (5 Oct ~16:25: 7 uplights + 32 TOP washes) stay within budget",
+      p02_plan["shadow"]["budget_ok"] and sum(t["new_shadow_casters"] for t in p02_plan["targets"]) == 39,
       "before=%d after=%d" % (p02_plan["shadow"]["passage_before"], p02_plan["shadow"]["passage_after"]))
 
 
@@ -701,10 +701,8 @@ x = copy.deepcopy(SCORES)
 x["passages"]["P04"]["no_cross_shots"].pop("bays")
 expect_error("- control: the rule over ALL P04 bays fails on 7-14 (MOODY low sides across), hence bays 15-21",
              lambda: L.validate_scores(x, LOOKS, TOOL), "NO_CROSS_SHOT|passage=P04|bay=8")
-x = copy.deepcopy(SCORES)
-x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["cast_shadows"] = True
-expect_error("- control: shadows on the strike are refused (only LOW_SIDE may cast; rule NOT relaxed)",
-             lambda: L.resolve_looks(x, BASE), "NON_SIDE_SHADOW_CASTER|look=P04_CEILING_STRIKE|slot=TOP_R")
+check("+ the bay-17 strike casts shadows (Gary 5 Oct ~16:25; the LOW_SIDE-only rule is gone)",
+      next(f for f in p04_bays[17]["fixtures"] if f["slot"] == "TOP_R")["cast_shadows"] is True)
 x = copy.deepcopy(SCORES)
 x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["aim_wing_side"] = "RIGHT"
 expect_error("- control: an aim point plus a wing aim on one lamp is refused",
@@ -749,6 +747,168 @@ check("+ P04 live re-check passes; P04 retains its Blink Spot; prototype bays 1-
       L.require_no_cross_live(live04) is not None and len(p04_plan["retained"]) == 1
       and [sk["bay"] for sk in p04_plan["skipped"]] == [1, 2, 3, 4, 5, 6] and p04_plan["shadow"]["budget_ok"],
       "casters %d -> %d" % (p04_plan["shadow"]["passage_before"], p04_plan["shadow"]["passage_after"]))
+
+print("\n== 16. lamp bodies get a material (lit = emissive matched to the lamp, dead = dull); all lights may cast")
+import importlib.util  # noqa: E402
+
+
+def load_backup_tool(path, name):
+    import importlib.machinery
+    spec = importlib.util.spec_from_loader(name, importlib.machinery.SourceFileLoader(name, path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+OLD_TOOL = load_backup_tool(os.path.join(HERE, "lighting_scores_apply.py.bak-20261005-preBulbBodies"), "_scores_pre_bodies")
+OLD_SCORES = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261005-preBulbBodies"), encoding="utf-8"))
+OLD_P04 = OLD_TOOL.load_p04_tool()
+OLD_LOOKS = OLD_TOOL.resolve_looks(OLD_SCORES, OLD_TOOL.load_base_looks(OLD_SCORES)[0])
+
+
+def fixtures_of(module, tool, scores, looks, key, keep=lambda o: True):
+    specs = module.validate_scores(scores, looks, tool)[key]["specs"]
+    return [module.bay_fixtures(tool, scores, looks, key, s) for s in specs if s["look"] != "PROTOTYPE" and keep(s["ordinal"])]
+
+
+same = {}
+for key, keep in (("P01", lambda o: True), ("P05", lambda o: True), ("P06", lambda o: True), ("P04", lambda o: o <= 14)):
+    same[key] = L._canonical(fixtures_of(L, TOOL, SCORES, LOOKS, key, keep)) == L._canonical(
+        fixtures_of(OLD_TOOL, OLD_P04, OLD_SCORES, OLD_LOOKS, key, keep))
+check("+ P01, P05, P06 and P04 bays 7-14: every fixture byte-identical to the pre-change tool + data", all(same.values()),
+      str(same))
+old_plans = {}
+for key in ("P01", "P05", "P06"):
+    built_cues, built_passages, built_record = build_show(SCORES)
+    new = L.build_score_plan(TOOL, SCORES, LOOKS, key, built_passages, built_cues, built_record)
+    old = OLD_TOOL.build_score_plan(OLD_P04, OLD_SCORES, OLD_LOOKS, key, built_passages, built_cues, built_record)
+    old.pop("no_cross", None)
+    new.pop("no_cross", None)
+    new.pop("body_assets", None)
+    old_plans[key] = L._canonical(new) == L._canonical(old)
+check("+ P01, P05, P06 whole plans byte-identical (shadow rule removal + body code are no-ops there)",
+      all(old_plans.values()), str(old_plans))
+p04_bodies = [f for o in LAST for f in p04_bays[o]["fixtures"] if f.get("role") == "PRACTICAL_BODY"]
+p02_bodies = [f for t in p02_plan["targets"] for f in t["fixtures"] if f.get("body")]
+lights04 = {(f["bay_index"], f["slot"]): f for o in LAST for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT"}
+check("+ every P04 floor bulb body is a derived Bulbs/ mesh: lit -> emissive matched, dead -> dull",
+      p04_bodies and all(f["mesh"].startswith(L.BODY_ASSET_DIR + "/SM_PB_Bulb_") for f in p04_bodies)
+      and all((f["body"]["mode"] == "MATCH_LIGHT") == (lights04[(f["bay_index"], f["paired_slot"])]["intensity"] > 0)
+              for f in p04_bodies), "%d bodies, %d dead" % (len(p04_bodies), sum(f["body"]["mode"] == "DEAD" for f in p04_bodies)))
+warm = [f["body"]["colour"] for f in p04_bodies if f["body"]["mode"] == "MATCH_LIGHT"]
+check("+ live warm bodies are warm (r >= g >= b, b <= 0.25) and brighter than dead ones",
+      all(c[0] >= c[1] >= c[2] and c[2] <= 0.25 for c in warm)
+      and min(f["body"]["intensity"] for f in p04_bodies if f["body"]["mode"] == "MATCH_LIGHT") > L.BODY_DEAD_INTENSITY,
+      str(sorted({tuple(c) for c in warm})))
+k22, k27 = L.kelvin_rgb_linear(2200), L.kelvin_rgb_linear(2700)
+check("+ Kelvin tint: 2200 K is redder than 2700 K, 6500 K is near white",
+      k22[2] < k27[2] and k22[1] < k27[1] and min(L.kelvin_rgb_linear(6500)) > 0.85, "%s %s" % (k22, k27))
+check("+ P02 revived bulbs carry matched emissive bodies (rose / acid / violet keep their hue)",
+      len(p02_bodies) == 16 and all(f["body"]["mode"] == "MATCH_LIGHT" for f in p02_bodies)
+      and len({tuple(f["body"]["colour"]) for f in p02_bodies}) == 3
+      and all(max(range(3), key=lambda i: f["body"]["colour"][i])
+              == max(range(3), key=lambda i: next(l for l in p02_lights if l[1]["label"] == f["label"].rsplit("_BODY", 1)[0])[1]
+                     ["color_rgb_linear"][i]) for f in p02_bodies),
+      str(sorted({tuple(f["body"]["colour"]) for f in p02_bodies})))
+assets = L.body_asset_plan([f for t in p04_plan["targets"] + p02_plan["targets"] for f in t["fixtures"]])
+check("+ the derived asset plan is small and all under /Game/InfinityStage/Lighting/Bulbs",
+      0 < len(assets["mis"]) <= 20 and len(assets["meshes"]) == len(assets["mis"])
+      and all(p.startswith(L.BODY_ASSET_DIR + "/") for p in list(assets["mis"]) + list(assets["meshes"])),
+      "MIs=%d meshes=%d" % (len(assets["mis"]), len(assets["meshes"])))
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["material"]["mode"] = "DEAD"
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["emissive"] = False
+expect_error("- control: a dead body on a lit lamp is refused", lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL),
+             "BODY_DEAD_ON_LIT_LAMP")
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_GROUND_BULB_ONE_DEAD"]["instrument_overrides"]["PRACTICAL_R"]["visible_mesh"]["material"]["mode"] = "MATCH_LIGHT"
+x["variants"]["P04_GROUND_BULB_ONE_DEAD"]["instrument_overrides"]["PRACTICAL_R"]["visible_mesh"]["emissive"] = True
+expect_error("- control: a glowing body on a dead lamp is refused", lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL),
+             "BODY_GLOWS_ON_DEAD_LAMP")
+x = copy.deepcopy(SCORES)
+x["passages"]["P04"]["segments"][2]["cycle"][0]["overrides"]["PRACTICAL_L"]["intensity"] = 0.0
+expect_error("- control: a bay override that kills a lamp but keeps its glowing body is refused",
+             lambda: L.validate_scores(x, LOOKS, TOOL), "BODY_GLOWS_ON_DEAD_LAMP|passage=P04|bay=15")
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["material"]["parent"] = "/Game/Foo/M_Bar"
+expect_error("- control: an unknown parent material is refused", lambda: L.resolve_looks(x, BASE), "BAD_BODY_MATERIAL")
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["emissive"] = False
+expect_error("- control: emissive flag disagreeing with the body mode is refused", lambda: L.resolve_looks(x, BASE),
+             "BODY_EMISSIVE_FLAG_DISAGREES")
+
+
+class FakeAssets:
+    def __init__(self, existing=None):
+        self.assets = copy.deepcopy(existing or {})
+        self.calls = []
+
+    def exists(self, path):
+        return path in self.assets
+
+    def read_mi(self, path):
+        return dict(self.assets[path])
+
+    def create_mi(self, path, parent, colour, intensity):
+        self.calls.append(("create_mi", path))
+        self.assets[path] = {"parent": parent, "colour": list(colour), "intensity": intensity}
+
+    def read_mesh(self, path):
+        return dict(self.assets[path])
+
+    def create_mesh(self, path, source, material):
+        self.calls.append(("create_mesh", path))
+        self.assets[path] = {"source": source, "material": material}
+
+    def save(self, path):
+        self.calls.append(("save", path))
+        return True
+
+    def delete(self, path):
+        self.calls.append(("delete", path))
+        return self.assets.pop(path, None) is not None
+
+    def list_meshes(self, folder):
+        return [p for p in self.assets if p.startswith(folder + "/SM_PB_Bulb_")]
+
+
+api = FakeAssets()
+created = L.ensure_body_assets(api, assets)
+check("+ ensure creates every planned MI + mesh once and saves them", sorted(created) == sorted(list(assets["mis"]) + list(assets["meshes"]))
+      and sum(c[0] == "save" for c in api.calls) == len(created))
+again = FakeAssets(api.assets)
+check("+ a second run reuses identical assets (creates nothing)", L.ensure_body_assets(again, assets) == [] and not again.calls)
+tampered = copy.deepcopy(api.assets)
+first_mi = sorted(assets["mis"])[0]
+tampered[first_mi]["intensity"] = 99.0
+bad_api = FakeAssets(tampered)
+expect_error("- control: an existing asset with different values stops the run (never edited)",
+             lambda: L.ensure_body_assets(bad_api, assets), "BODY_ASSET_EXISTS_DIFFERENT|" + first_mi)
+check("  ... and nothing was created or written on that stop", not bad_api.calls and bad_api.assets == tampered)
+p04_only = L.body_asset_plan([f for t in p04_plan["targets"] for f in t["fixtures"]])
+shared = FakeAssets()
+created04 = L.ensure_body_assets(shared, p04_only)
+created02 = L.ensure_body_assets(shared, L.body_asset_plan([f for t in p02_plan["targets"] for f in t["fixtures"]]))
+foreign = "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
+shared.assets[foreign] = {"parent": "x", "colour": [0, 0, 0], "intensity": 0}
+still_used = sorted(p04_only["meshes"])[0]
+result = L.revert_body_assets(shared, created04, referenced={still_used})
+check("+ revert deletes only its own created, unreferenced assets; a referenced mesh and its MI stay",
+      still_used in result["kept_referenced"] and p04_only["meshes"][still_used]["material"] in result["kept_referenced"]
+      and still_used in shared.assets and foreign in shared.assets
+      and all(p not in shared.assets for p in result["deleted"]) and len(result["deleted"]) == len(created04) - 2,
+      "deleted=%d kept=%d" % (len(result["deleted"]), len(result["kept_referenced"])))
+check("+ revert of P04 never touches P02's assets", all(p in shared.assets for p in created02))
+expect_error("- control: a record naming an asset outside Bulbs/ is refused (no deleting foreign assets)",
+             lambda: L.revert_body_assets(shared, [foreign], referenced=set()), "BODY_REVERT_UNKNOWN_ASSET")
+x = copy.deepcopy(SCORES)
+for name in ("P03_PYRE", "P03_PYRE_SIDES"):
+    x["variants"][name]["instrument_overrides"]["TOP_R"]["cast_shadows"] = True
+expect_error("- control: the shadow BUDGET still refuses: P03 with the 0 cd pyre TOP_R also casting exceeds 54",
+             lambda: plan_for("P03", scores=x), "SHADOW_BUDGET_EXCEEDED|passage=P03|before=54|after=57")
+casters = {k: (plan_for(k)["shadow"]["passage_before"], plan_for(k)["shadow"]["passage_after"]) for k in ("P02", "P03", "P04")}
+check("+ shadow counts within budget (model census): P02 70->40, P03 54->49, P04 43->22",
+      casters == {"P02": (70, 40), "P03": (54, 49), "P04": (43, 22)}, str(casters))
 
 print("\n== summary (MODEL census, inferred; DRY on the live Show is the measurement)")
 print("passage bays targets skipped fixtures lights props disabled retained casters_before->after")

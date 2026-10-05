@@ -317,7 +317,8 @@
      "flicker": {
       "mode": "HUM",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
-     }
+     },
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -339,7 +340,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "PRACTICAL_CLAMP": {
      "color_rgb_linear": [
@@ -368,8 +370,8 @@
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
      },
      "visible_mesh": {
-      "style": "bare bulb on cord (revived 5 Oct)",
-      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "style": "bare bulb, revived 5 Oct (emissive body matched to the lamp)",
+      "mesh": "/Engine/BasicShapes/Sphere",
       "emissive": true,
       "rotation_rpy_deg": [
        0.0,
@@ -377,10 +379,14 @@
        0.0
       ],
       "scale": [
-       0.5,
-       0.5,
-       0.5
-      ]
+       0.12,
+       0.12,
+       0.15
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -412,7 +418,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -434,7 +441,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "LOW_SIDE_L_KEY": {
      "location_cm": [
@@ -489,8 +497,8 @@
      "intensity": 450.0,
      "volumetric_scattering": 0.15,
      "visible_mesh": {
-      "style": "bare bulb on cord (revived 5 Oct)",
-      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "style": "bare bulb, revived 5 Oct (emissive body matched to the lamp)",
+      "mesh": "/Engine/BasicShapes/Sphere",
       "emissive": true,
       "rotation_rpy_deg": [
        0.0,
@@ -498,10 +506,14 @@
        0.0
       ],
       "scale": [
-       0.5,
-       0.5,
-       0.5
-      ]
+       0.12,
+       0.12,
+       0.15
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -519,7 +531,8 @@
      "temperature_kelvin": 5600.0,
      "intensity": 160.0,
      "inner_cone_deg": 6.0,
-     "outer_cone_deg": 16.0
+     "outer_cone_deg": 16.0,
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -528,7 +541,8 @@
       1.0
      ],
      "temperature_kelvin": 7000.0,
-     "intensity": 120.0
+     "intensity": 120.0,
+     "cast_shadows": true
     },
     "PRACTICAL_CLAMP": {
      "color_rgb_linear": [
@@ -556,7 +570,8 @@
       1.0
      ],
      "temperature_kelvin": 6500.0,
-     "intensity": 40.0
+     "intensity": 40.0,
+     "cast_shadows": true
     },
     "TOP_R": {
      "intensity": 0.0
@@ -950,7 +965,8 @@
      "flicker": {
       "mode": "FAULT",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
-     }
+     },
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -972,7 +988,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "LOW_SIDE_L_KEY": {
      "location_cm": [
@@ -1035,8 +1052,8 @@
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
      },
      "visible_mesh": {
-      "style": "bare bulb on cord (revived 5 Oct)",
-      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "style": "bare bulb, revived 5 Oct (emissive body matched to the lamp)",
+      "mesh": "/Engine/BasicShapes/Sphere",
       "emissive": true,
       "rotation_rpy_deg": [
        0.0,
@@ -1044,10 +1061,14 @@
        0.0
       ],
       "scale": [
-       0.5,
-       0.5,
-       0.5
-      ]
+       0.12,
+       0.12,
+       0.15
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -1081,7 +1102,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -1103,7 +1125,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "PRACTICAL_BULB_DEAD": {
      "color_rgb_linear": [
@@ -1120,8 +1143,8 @@
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
      },
      "visible_mesh": {
-      "style": "bare bulb on cord (revived 5 Oct)",
-      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "style": "bare bulb, revived 5 Oct (emissive body matched to the lamp)",
+      "mesh": "/Engine/BasicShapes/Sphere",
       "emissive": true,
       "rotation_rpy_deg": [
        0.0,
@@ -1129,10 +1152,14 @@
        0.0
       ],
       "scale": [
-       0.5,
-       0.5,
-       0.5
-      ]
+       0.12,
+       0.12,
+       0.15
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -1165,7 +1192,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -1187,7 +1215,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "LOW_SIDE_L_KEY": {
      "location_cm": [
@@ -1238,8 +1267,8 @@
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
      },
      "visible_mesh": {
-      "style": "bare bulb on cord (revived 5 Oct)",
-      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "style": "bare bulb, revived 5 Oct (emissive body matched to the lamp)",
+      "mesh": "/Engine/BasicShapes/Sphere",
       "emissive": true,
       "rotation_rpy_deg": [
        0.0,
@@ -1247,10 +1276,14 @@
        0.0
       ],
       "scale": [
-       0.5,
-       0.5,
-       0.5
-      ]
+       0.12,
+       0.12,
+       0.15
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -1283,7 +1316,8 @@
      "flicker": {
       "mode": "HUM",
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
-     }
+     },
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -1305,7 +1339,8 @@
      "flicker": {
       "mode": "STEADY",
       "material": null
-     }
+     },
+     "cast_shadows": true
     },
     "LOW_SIDE_L_KEY": {
      "location_cm": [
@@ -1368,8 +1403,8 @@
       "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Hum"
      },
      "visible_mesh": {
-      "style": "bare bulb on cord (revived 5 Oct)",
-      "mesh": "/Game/KK_S2_Shrine/StarterContent/Props/SM_Lamp_Ceiling",
+      "style": "bare bulb, revived 5 Oct (emissive body matched to the lamp)",
+      "mesh": "/Engine/BasicShapes/Sphere",
       "emissive": true,
       "rotation_rpy_deg": [
        0.0,
@@ -1377,10 +1412,14 @@
        0.0
       ],
       "scale": [
-       0.5,
-       0.5,
-       0.5
-      ]
+       0.12,
+       0.12,
+       0.15
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -1398,7 +1437,8 @@
      "temperature_kelvin": 5600.0,
      "intensity": 160.0,
      "inner_cone_deg": 6.0,
-     "outer_cone_deg": 16.0
+     "outer_cone_deg": 16.0,
+     "cast_shadows": true
     },
     "TOP_R": {
      "color_rgb_linear": [
@@ -1407,7 +1447,8 @@
       1.0
      ],
      "temperature_kelvin": 7000.0,
-     "intensity": 120.0
+     "intensity": 120.0,
+     "cast_shadows": true
     },
     "LOW_SIDE_L_KEY": {
      "color_rgb_linear": [
@@ -1508,7 +1549,8 @@
       1.0
      ],
      "temperature_kelvin": 6500.0,
-     "intensity": 40.0
+     "intensity": 40.0,
+     "cast_shadows": true
     },
     "TOP_R": {
      "intensity": 0.0
@@ -1653,7 +1695,11 @@
        0.1,
        0.1,
        0.13
-      ]
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     },
     "PRACTICAL_R": {
@@ -1688,7 +1734,11 @@
        0.1,
        0.1,
        0.13
-      ]
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     }
    }
@@ -1735,7 +1785,11 @@
        0.1,
        0.1,
        0.13
-      ]
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     },
     "PRACTICAL_R": {
@@ -1770,7 +1824,11 @@
        0.1,
        0.1,
        0.13
-      ]
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "DEAD"
+      }
      }
     }
    }
@@ -1815,7 +1873,7 @@
       "mode": "STEADY",
       "material": null
      },
-     "cast_shadows": false
+     "cast_shadows": true
     },
     "PRACTICAL_L": {
      "location_cm": [
@@ -1849,7 +1907,11 @@
        0.1,
        0.1,
        0.13
-      ]
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "MATCH_LIGHT"
+      }
      }
     },
     "PRACTICAL_R": {
@@ -1884,7 +1946,11 @@
        0.1,
        0.1,
        0.13
-      ]
+      ],
+      "material": {
+       "parent": "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive",
+       "mode": "DEAD"
+      }
      }
     }
    }
@@ -2368,7 +2434,8 @@
     "centre_tolerance_cm": 100.0,
     "nominal_panel_abs_y_cm": 900.0,
     "note": "Gary 5 Oct: 'those lights should not shoot through from L to R'. Static check on nominal panels at +-900 cm (live P02 record 20261005-090808: |panel y| 600-1196, L<0, R>0); DRY/APPLY re-check every SPOT against the live panels."
-   }
+   },
+   "shadow_note": "5 Oct ~16:25 Gary 'all lights should be allowed to cast shadows': TOP washes cast (wings read 3D); practical point lights stay shadowless (cube shadows, and none sits within ~2 m of a wing face)"
   },
   "P03": {
    "passage_label": "Passage 3",
@@ -2536,7 +2603,8 @@
     "centre_tolerance_cm": 100.0,
     "nominal_panel_abs_y_cm": 500.0,
     "note": "P03 panels are narrow: live P03 record 20261005-025146 |panel y| 500-908. Kept side lights stand at |y| 400."
-   }
+   },
+   "shadow_note": "5 Oct ~16:25 Gary 'all lights should be allowed to cast shadows': TOP washes cast (wings read 3D); practical point lights stay shadowless (cube shadows, and none sits within ~2 m of a wing face)"
   },
   "P04": {
    "passage_label": "Passage 4",
@@ -2841,7 +2909,8 @@
     "centre_tolerance_cm": 100.0,
     "nominal_panel_abs_y_cm": 900.0,
     "note": "only the last third: bays 7-14 keep MOODY/COLD_BREAK/INDUSTRIAL cross-aimed low sides and beams (they fail the rule), 1-6 are the P04 prototype (lighting_looks_apply.py)."
-   }
+   },
+   "shadow_note": "5 Oct ~16:25 Gary: 'yes shadows on the strike' (bay 17 TOP_R casts)"
   },
   "P05": {
    "passage_label": "Passage 5",
