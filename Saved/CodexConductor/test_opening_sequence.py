@@ -255,7 +255,7 @@ case("NEG: opening_end 92 s (track 96.34 s) fails music-fits", has(short["failur
 case("house warmers: default config passes, writes only enabled+inner cone, and the 'not dark' warning is raised",
      not has(base["failures"], "house-warmers") and base["house_warmers"]["write"] is True
      and base["house_warmers"]["write_paths"] == ["enabled", "lighting.inner_cone_angle_degrees"]
-     and any("NOT dark" in w for w in base["house_warmers"]["warnings"]), base["house_warmers"])
+     and any("DISABLED in the Show" in w for w in base["house_warmers"]["warnings"]), base["house_warmers"])  # live JSON: Gary's 16:40 takeover
 hw, _ = plan_with(lambda c: c["house_warmers"].__setitem__("disable", True))
 case("NEG: house_warmers.disable true is refused (would kill them in P01 too)",
      has(hw["failures"], "house-warmers-disable"), hw["failures"])
@@ -551,7 +551,11 @@ def warmer_state(label):
 W0 = {lab: warmer_state(lab) for lab in CFG["house_warmers"]["labels"]}
 live0 = {lab: {"enabled": st["enabled"], "inner": st["lighting"]["inner_cone_angle_degrees"],
                "outer": st["lighting"]["outer_cone_angle_degrees"]} for lab, st in W0.items()}
-tg, tf = P.warmer_targets(CFG, live0)
+# The live JSON now carries Gary's takeover (16:40); the "default" cases model the unset state explicitly.
+CFG0 = json.loads(json.dumps(CFG))
+CFG0["house_warmers"]["mechanism"] = None
+CFG0["house_warmers"]["p01_without_warmers_confirmed_by"] = None
+tg, tf = P.warmer_targets(CFG0, live0)
 case("WARMER CONE: targets inner = outer - 3 = 30 on both warmers, Enabled untouched (mechanism null)",
      tf == [] and all(t == {"enabled": True, "inner_cone_angle_degrees": 30.0} for t in tg.values()) and len(tg) == 2,
      (tg, tf))
@@ -567,12 +571,14 @@ W1x[CFG["house_warmers"]["labels"][0]]["lighting"]["intensity"] = 0.0
 allowed = {"%s:%s" % (lab, ".".join(p)) for lab in W0 for p in P.WARMER_WRITE_PATHS}
 case("NEG: a write that also touched intensity falls outside WARMER_WRITE_PATHS (apply refuses it)",
      bool(set(P.warmers_changed_paths(W0, W1x)) - allowed))
-_, tf35 = P.warmer_targets(CFG, {lab: dict(v, outer=35.0) for lab, v in live0.items()})
+_, tf35 = P.warmer_targets(CFG0, {lab: dict(v, outer=35.0) for lab, v in live0.items()})
 case("NEG: a live outer cone of 35 (not the expected 33) refuses the cone write",
      any("warmers-outer" in f for f in tf35), tf35)
 case("WARMERS (default): mechanism null -> warmers stay ENABLED and the planner warns the Opening is NOT dark",
-     all(t["enabled"] for t in tg.values()) and any("NOT dark" in w for w in base["house_warmers"]["warnings"]))
-nc, _ = plan_with(lambda c: c["house_warmers"].__setitem__("mechanism", "disable_show_attachment"))
+     all(t["enabled"] for t in tg.values()) and any("NOT dark" in w for w in plan_with(
+         lambda c: c["house_warmers"].update({"mechanism": None, "p01_without_warmers_confirmed_by": None}))[0]["house_warmers"]["warnings"]))
+nc, _ = plan_with(lambda c: c["house_warmers"].update({"mechanism": "disable_show_attachment",
+                                                       "p01_without_warmers_confirmed_by": None}))
 case("NEG: rig takeover (disable_show_attachment) WITHOUT p01_without_warmers_confirmed_by is refused",
      has(nc["failures"], "house-warmers-p01"), nc["failures"])
 

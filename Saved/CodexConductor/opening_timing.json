@@ -300,8 +300,8 @@
     "rule": "off_for_opening_only",
     "decided_by": "Gary, 4 Oct 2026",
     "owner": "opening_sequence_apply.py",
-    "mechanism": null,
-    "p01_without_warmers_confirmed_by": null,
+    "mechanism": "disable_show_attachment",
+    "p01_without_warmers_confirmed_by": "Gary 5 Oct ~16:40 questionnaire: 'Gone from P01 too' (warmers off in the Show; Opening black until the flicker; P01 floor loses the raking beam)",
     "cone": {
       "inner_equals_outer_minus_deg": 3.0,
       "expect_outer_deg": 33.0,
