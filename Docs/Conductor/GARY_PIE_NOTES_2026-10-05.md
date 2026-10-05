@@ -225,3 +225,6 @@
     prev placeholder length made it very slow". Measured: P02/P03/P04 Passages 180 s, P05 186.4 s vs songs 45.5/40.2/48.4/42.0 s
     (~4x slow). Questionnaire: **retime P02–P05 in one run, P02 after straightening; song + short tail for the crossing**
     (P04 keeps its +10 s pad). Tool being written (passage_retime_to_music.py); runs after P02 straighten, before P06 tail extend args are re-read.
+52. **P02 floor** (Gary ~15:30): "P02 also needs waxed floor to be in shot and the slatted stage floor removed". The slats are the
+    structure's Ground boards (InfinityStageStructureActor.h:113-160); the 10:35 walnut fix raised four slabs placed around the
+    old bend, which will not fit a straight P02. Folded into the P02 straighten tool: boards off, walnut re-laid over the straight route.
