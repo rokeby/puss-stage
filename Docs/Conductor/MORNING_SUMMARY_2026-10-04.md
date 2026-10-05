@@ -187,3 +187,7 @@
   - Exit doors stay on stage, unused. The back-door exit block is to be REVERTED (doors kept; leaf-closed check).
   - Plan: Docs/Conductor/CURTAIN_SLEIGHT_TRANSITION_PLAN_2026-10-05.md.
   - Open: whether the Scenes keep the +71.64 s, which option B doesn't need.
+- **P05 soft cloud (W&T):** NOT parallax. No P05 material has POM (34 checked, measured).
+  - It was texture streaming not yet resident at capture: the same cloud is sharp in later stills (measured; cause inferred).
+  - Gary chose "keep them loaded": never_stream on the 18 _CR02 cloud textures (about 100 MB VRAM, inferred). Revert: p05_nostream_revert.py.
+  - Lesson for captures: stills right after a jump can be under-streamed, as well as under-exposed and unsettled.
