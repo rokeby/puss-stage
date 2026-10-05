@@ -24,3 +24,7 @@
 8. **"In the spaces between the girders the rig should still be lined with fencing?"** The FenceBay kit exists (W&T: open,
    tarp half/full/torn, door gap; placed in P04). The height question (ground to ~3 m / full height / options first)
    was put to Gary; he dismissed it for now. **Waiting.**
+9. **Hangar top lights (detail):** "the lights at the top of the hangar — which are not going to be mostly very visible
+   when scene lights come in — could be rectangular with two bars of light, similar to floodlight type." Proposal when
+   picked up: swap the hangar top lamp bodies for a rectangular twin-tube floodlight body (emissive bars) and, if
+   they are lights, rect lights with a twin-bar mask; low priority since the Scene lights dominate. **Not actioned.**
