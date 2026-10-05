@@ -1,0 +1,940 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageSweepLight.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageSweepLight.cpp
+new file mode 100644
+index 0000000..0f3e3ed
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageSweepLight.cpp
+@@ -0,0 +1,379 @@
++#include "InfinityStageSweepLight.h"
++
++#include "Components/RectLightComponent.h"
++#include "Components/SpotLightComponent.h"
++#include "EngineUtils.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "Materials/MaterialInterface.h"
++#include "Math/RandomStream.h"
++
++namespace InfinityStageSweep
++{
++FVector PathPoint(const FVector& Start, const FVector& End, const bool bCurved, const FVector& Control, const float U)
++{
++    const double T = FMath::Clamp(static_cast<double>(U), 0.0, 1.0);
++    if (!bCurved)
++    {
++        return Start + (End - Start) * T;
++    }
++    // Quadratic Bezier: (1-T)^2 Start + 2(1-T)T Control + T^2 End.
++    const double S = 1.0 - T;
++    return Start * (S * S) + Control * (2.0 * S * T) + End * (T * T);
++}
++
++float Envelope(const double LocalSeconds, const float TravelSeconds, const float FadeInSeconds, const float FadeOutSeconds)
++{
++    if (TravelSeconds <= 0.0f || LocalSeconds < 0.0 || LocalSeconds > TravelSeconds)
++    {
++        return 0.0f;
++    }
++    const double In = FadeInSeconds > 0.0f ? FMath::Clamp(LocalSeconds / FadeInSeconds, 0.0, 1.0) : 1.0;
++    const double Out = FadeOutSeconds > 0.0f ? FMath::Clamp((TravelSeconds - LocalSeconds) / FadeOutSeconds, 0.0, 1.0) : 1.0;
++    return static_cast<float>(FMath::Min(In, Out));
++}
++
++static double PeriodOf(const FParams& Params)
++{
++    // Never sooner than one travel: passes do not overlap, so one lamp is always enough.
++    return FMath::Max(static_cast<double>(Params.RepeatEverySeconds), static_cast<double>(FMath::Max(Params.TravelSeconds, 0.0f)));
++}
++
++double PassStartSeconds(const FParams& Params, const int32 PassIndex)
++{
++    if (PassIndex < 0 || PassIndex >= MaxPasses)
++    {
++        return TNumericLimits<double>::Max();
++    }
++    if (Params.RepeatEverySeconds <= 0.0f && PassIndex > 0)
++    {
++        return TNumericLimits<double>::Max();   // single pass
++    }
++    const double Period = PeriodOf(Params);
++    const double Jitter = FMath::Max(0.0f, Params.RepeatJitterSeconds);
++    FRandomStream Stream(Params.Seed);
++    double Start = Params.StartDelaySeconds;
++    for (int32 Index = 0; Index < PassIndex; ++Index)
++    {
++        // ONE draw per statement: two draws in one expression have an unspecified order.
++        const double U = Stream.FRand();
++        Start += Period + Jitter * U;
++    }
++    return Start;
++}
++
++FSample Evaluate(const FParams& Params, const double Seconds)
++{
++    FSample Sample;
++    Sample.Position = Params.Start;
++    double PassStart = Params.StartDelaySeconds;
++    int32 Pass = INDEX_NONE;
++    if (Seconds >= PassStart && Params.TravelSeconds > 0.0f)
++    {
++        if (Params.RepeatEverySeconds <= 0.0f)
++        {
++            Pass = 0;
++        }
++        else
++        {
++            // Same stream, same order as PassStartSeconds: pass k starts after k draws.
++            const double Period = PeriodOf(Params);
++            const double Jitter = FMath::Max(0.0f, Params.RepeatJitterSeconds);
++            FRandomStream Stream(Params.Seed);
++            for (int32 Index = 0; Index < MaxPasses; ++Index)
++            {
++                const double U = Stream.FRand();
++                const double NextStart = PassStart + Period + Jitter * U;
++                if (Seconds < NextStart)
++                {
++                    Pass = Index;
++                    break;
++                }
++                PassStart = NextStart;
++            }
++        }
++    }
++    if (Pass == INDEX_NONE)
++    {
++        return Sample;
++    }
++
++    const double Local = Seconds - PassStart;
++    float U = static_cast<float>(FMath::Clamp(Local / Params.TravelSeconds, 0.0, 1.0));
++    if (Params.bPingPong && (Pass % 2) == 1)
++    {
++        U = 1.0f - U;
++    }
++    Sample.PathParam = U;
++    Sample.Position = PathPoint(Params.Start, Params.End, Params.bCurved, Params.Control, U);
++    if (Params.bAimAtTarget)
++    {
++        const FVector Direction = Params.AimTarget - Sample.Position;
++        if (!Direction.IsNearlyZero())
++        {
++            Sample.Rotation = Direction.Rotation();
++        }
++    }
++    Sample.Alpha = Envelope(Local, Params.TravelSeconds, Params.FadeInSeconds, Params.FadeOutSeconds);
++    Sample.Intensity = Params.PeakIntensity * Sample.Alpha;
++    Sample.PassIndex = Local <= Params.TravelSeconds ? Pass : INDEX_NONE;
++    return Sample;
++}
++
++bool IsActiveInSegment(const TArray<FGuid>& Filter, const FGuid& SegmentGuid)
++{
++    return Filter.IsEmpty() || Filter.Contains(SegmentGuid);
++}
++}
++
++AInfinityStageSweepLight::AInfinityStageSweepLight()
++{
++    PrimaryActorTick.bCanEverTick = true;
++    // After Sequencer has evaluated the frame, so keyed settings and the Master clock are this frame's.
++    PrimaryActorTick.TickGroup = TG_PostUpdateWork;
++    // A plain, saved root carries the placement. The lights are TRANSIENT children:
++    // their per-frame driven values can never be written by a level save.
++    USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
++    Root->SetMobility(EComponentMobility::Movable);
++    RootComponent = Root;
++
++    SpotLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLight"), /*bTransient*/ true);
++    SpotLight->SetupAttachment(Root);
++    RectLight = CreateDefaultSubobject<URectLightComponent>(TEXT("RectLight"), /*bTransient*/ true);
++    RectLight->SetupAttachment(Root);
++    for (ULocalLightComponent* Light : { static_cast<ULocalLightComponent*>(SpotLight.Get()), static_cast<ULocalLightComponent*>(RectLight.Get()) })
++    {
++        Light->SetMobility(EComponentMobility::Movable);
++        Light->SetIntensityUnits(ELightUnits::Candelas);
++        Light->SetCastShadows(bCastShadows);   // the whole effect is the shadow of the wing edges
++        Light->SetCastVolumetricShadow(bCastVolumetricShadow);
++        Light->SetAttenuationRadius(AttenuationRadiusCm);
++        Light->SetVisibility(false);
++    }
++    SpotLight->SetInnerConeAngle(InnerConeDegrees);
++    SpotLight->SetOuterConeAngle(OuterConeDegrees);
++    RectLight->SetSourceWidth(RectWidthCm);
++    RectLight->SetSourceHeight(RectHeightCm);
++}
++
++void AInfinityStageSweepLight::PostRegisterAllComponents()
++{
++    Super::PostRegisterAllComponents();
++    // As the Strobe (measured 5 Oct, Strobe.EditorPreviewNeverPersists): CreateDefaultSubobject's
++    // bTransient does not carry RF_Transient onto spawned instances, so flag the instances here.
++    if (SpotLight)
++    {
++        SpotLight->SetFlags(RF_Transient);
++    }
++    if (RectLight)
++    {
++        RectLight->SetFlags(RF_Transient);
++    }
++}
++
++ULocalLightComponent* AInfinityStageSweepLight::GetActiveLight() const
++{
++    return Shape == EInfinityStageSweepShape::Rect
++        ? static_cast<ULocalLightComponent*>(RectLight.Get())
++        : static_cast<ULocalLightComponent*>(SpotLight.Get());
++}
++
++void AInfinityStageSweepLight::Tick(const float DeltaSeconds)
++{
++    Super::Tick(DeltaSeconds);
++    UWorld* World = GetWorld();
++    if (!World)
++    {
++        return;
++    }
++
++    double Seconds = 0.0;
++    bool bActive = bSweepEnabled;
++    if (World->IsGameWorld())
++    {
++        AInfinityStageShowRoot* Root = CachedShowRoot.Get();
++        if (!Root)
++        {
++            for (TActorIterator<AInfinityStageShowRoot> It(World); It; ++It)
++            {
++                Root = *It;
++                CachedShowRoot = Root;
++                break;
++            }
++        }
++        if (Root && Root->Transport && Root->ShowAsset && Root->ShowAsset->TickResolution.IsValid())
++        {
++            // Master time: a paused transport holds the frame, so the car holds; a scrub moves it.
++            const FFrameNumber Frame = Root->Transport->GetCurrentMasterFrame();
++            const double Rate = Root->ShowAsset->TickResolution.AsDecimal();
++            Seconds = Frame.Value / Rate;
++            const int32 Index = Root->Transport->FindSegmentAtFrame(Frame);
++            const bool bHasSegment = Root->Transport->Segments.IsValidIndex(Index);
++            if (bHasSegment && bTimeFromSegmentStart)
++            {
++                Seconds = (Frame.Value - Root->Transport->Segments[Index].StartFrame.Value) / Rate;
++            }
++            if (!ActiveSegmentGuids.IsEmpty())
++            {
++                bActive &= bHasSegment
++                    && InfinityStageSweep::IsActiveInSegment(ActiveSegmentGuids, Root->Transport->Segments[Index].SegmentGuid);
++            }
++        }
++        else
++        {
++            // No Show in this world: run on world time rather than not at all.
++            Seconds = World->GetTimeSeconds();
++        }
++    }
++    else
++    {
++        // Editor preview only: wall-clock from the first preview tick, looped so it keeps showing passes.
++        const double Now = FPlatformTime::Seconds();
++        if (PreviewOriginSeconds < 0.0)
++        {
++            PreviewOriginSeconds = Now;
++        }
++        const double Loop = RepeatEverySeconds > 0.0f
++            ? 300.0
++            : StartDelaySeconds + TravelSeconds + 1.0;
++        Seconds = FMath::Fmod(Now - PreviewOriginSeconds, FMath::Max(Loop, 0.1));
++    }
++
++    if (bActive)
++    {
++        ApplyAtSeconds(Seconds);
++    }
++    else
++    {
++        CurrentAlpha = 0.0f;
++        CurrentPass = INDEX_NONE;
++        for (ULocalLightComponent* Light : { static_cast<ULocalLightComponent*>(SpotLight.Get()), static_cast<ULocalLightComponent*>(RectLight.Get()) })
++        {
++            if (Light && Light->IsVisible())
++            {
++                Light->SetVisibility(false);
++            }
++        }
++    }
++}
++
++void AInfinityStageSweepLight::ApplyComponentSettings(ULocalLightComponent* Light) const
++{
++    // Runtime setters only, each only on change (no Modify / PostEditChange): the preview never
++    // dirties the level and a steady frame sends nothing to the render thread but the move.
++    if (!FMath::IsNearlyEqual(Light->AttenuationRadius, AttenuationRadiusCm))
++    {
++        Light->SetAttenuationRadius(AttenuationRadiusCm);
++    }
++    if (static_cast<bool>(Light->CastShadows) != bCastShadows)
++    {
++        Light->SetCastShadows(bCastShadows);
++    }
++    if (static_cast<bool>(Light->bCastVolumetricShadow) != bCastVolumetricShadow)
++    {
++        Light->SetCastVolumetricShadow(bCastVolumetricShadow);
++    }
++    if (!Light->GetLightColor().Equals(Color))
++    {
++        Light->SetLightColor(Color);
++    }
++    if (static_cast<bool>(Light->bUseTemperature) != bUseTemperature)
++    {
++        Light->SetUseTemperature(bUseTemperature);
++    }
++    if (!FMath::IsNearlyEqual(Light->Temperature, TemperatureKelvin))
++    {
++        Light->SetTemperature(TemperatureKelvin);
++    }
++    if (Light->LightFunctionMaterial != LightFunctionMaterial)
++    {
++        Light->SetLightFunctionMaterial(LightFunctionMaterial);
++    }
++    if (USpotLightComponent* Spot = Cast<USpotLightComponent>(Light))
++    {
++        if (!FMath::IsNearlyEqual(Spot->InnerConeAngle, InnerConeDegrees))
++        {
++            Spot->SetInnerConeAngle(InnerConeDegrees);
++        }
++        if (!FMath::IsNearlyEqual(Spot->OuterConeAngle, OuterConeDegrees))
++        {
++            Spot->SetOuterConeAngle(OuterConeDegrees);
++        }
++    }
++    else if (URectLightComponent* Rect = Cast<URectLightComponent>(Light))
++    {
++        if (!FMath::IsNearlyEqual(Rect->SourceWidth, RectWidthCm))
++        {
++            Rect->SetSourceWidth(RectWidthCm);
++        }
++        if (!FMath::IsNearlyEqual(Rect->SourceHeight, RectHeightCm))
++        {
++            Rect->SetSourceHeight(RectHeightCm);
++        }
++    }
++}
++
++void AInfinityStageSweepLight::ApplyAtSeconds(const double Seconds)
++{
++    InfinityStageSweep::FParams Params;
++    Params.Start = StartOffset;
++    Params.End = EndOffset;
++    Params.bCurved = bCurvedPath;
++    Params.Control = ArcControlOffset;
++    Params.bAimAtTarget = bAimAtTarget;
++    Params.AimTarget = AimTargetLocal;
++    Params.StartDelaySeconds = StartDelaySeconds;
++    Params.TravelSeconds = TravelSeconds;
++    Params.RepeatEverySeconds = RepeatEverySeconds;
++    Params.RepeatJitterSeconds = RepeatJitterSeconds;
++    Params.Seed = RandomSeed;
++    Params.bPingPong = bPingPong;
++    Params.FadeInSeconds = FadeInSeconds;
++    Params.FadeOutSeconds = FadeOutSeconds;
++    Params.PeakIntensity = PeakIntensity;
++    const InfinityStageSweep::FSample Sample = InfinityStageSweep::Evaluate(Params, Seconds);
++    CurrentAlpha = Sample.Alpha;
++    CurrentPass = Sample.PassIndex;
++
++    ULocalLightComponent* Active = GetActiveLight();
++    for (ULocalLightComponent* Light : { static_cast<ULocalLightComponent*>(SpotLight.Get()), static_cast<ULocalLightComponent*>(RectLight.Get()) })
++    {
++        if (!Light)
++        {
++            continue;
++        }
++        // Switched off rather than set to zero between passes, as the Strobe does.
++        const bool bLit = Light == Active && Sample.Alpha > UE_KINDA_SMALL_NUMBER;
++        if (Light->IsVisible() != bLit)
++        {
++            Light->SetVisibility(bLit);
++        }
++        if (!bLit)
++        {
++            continue;
++        }
++        ApplyComponentSettings(Light);
++        Light->SetRelativeLocationAndRotation(Sample.Position, Sample.Rotation);
++        Light->SetIntensity(Sample.Intensity);
++    }
++}
++
++#if WITH_EDITOR
++void AInfinityStageSweepLight::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
++{
++    Super::PostEditChangeProperty(PropertyChangedEvent);
++    // Tick stops when the preview is switched off; do not leave a lit car parked mid-pass.
++    PreviewOriginSeconds = -1.0;
++    if (!bPreviewInEditor && GetWorld() && !GetWorld()->IsGameWorld())
++    {
++        for (ULocalLightComponent* Light : { static_cast<ULocalLightComponent*>(SpotLight.Get()), static_cast<ULocalLightComponent*>(RectLight.Get()) })
++        {
++            if (Light && Light->IsVisible())
++            {
++                Light->SetVisibility(false);
++            }
++        }
++    }
++}
++#endif
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageSweepLight.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageSweepLight.h
+new file mode 100644
+index 0000000..477d9ce
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageSweepLight.h
+@@ -0,0 +1,248 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "GameFramework/Actor.h"
++#include "InfinityStageSweepLight.generated.h"
++
++class AInfinityStageShowRoot;
++class ULocalLightComponent;
++class UMaterialInterface;
++class URectLightComponent;
++class USpotLightComponent;
++
++UENUM(BlueprintType)
++enum class EInfinityStageSweepShape : uint8
++{
++    Spot,
++    Rect
++};
++
++/**
++ * "Window car light" (Gary, 5 Oct): a shadow-casting lamp outside the wing line that
++ * travels along a path, so the light through the wing gaps slides, stretches, skews and
++ * is cut by wing edges. All of that comes from the lamp's movement; nothing else moves.
++ *
++ * Copies the Strobe's model: in game worlds the time comes from the Show's Master clock
++ * (so a pause or a scrub holds or moves the car exactly), and in the editor viewport it
++ * free-runs on wall-clock time as a preview only. The light components are TRANSIENT and
++ * driven with runtime setters, so a level save never stores a mid-pass light and the
++ * preview never dirties the level.
++ *
++ * The path is in actor-local space: place and rotate the actor, then tune Start/End.
++ */
++UCLASS(Blueprintable, ClassGroup = "Infinity Stage", meta = (DisplayName = "Infinity Stage Sweep Light"))
++class INFINITYSTAGE_API AInfinityStageSweepLight : public AActor
++{
++    GENERATED_BODY()
++
++public:
++    AInfinityStageSweepLight();
++
++    /** Driven every frame (also in the editor preview), so TRANSIENT: never saved. */
++    UPROPERTY(VisibleAnywhere, Transient, BlueprintReadOnly, Category = "Sweep")
++    TObjectPtr<USpotLightComponent> SpotLight;
++
++    /** Used instead of the spot when Shape is Rect. Also TRANSIENT. */
++    UPROPERTY(VisibleAnywhere, Transient, BlueprintReadOnly, Category = "Sweep")
++    TObjectPtr<URectLightComponent> RectLight;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep")
++    bool bSweepEnabled = true;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep")
++    EInfinityStageSweepShape Shape = EInfinityStageSweepShape::Spot;
++
++    // ---- Path (actor-local) ------------------------------------------------------
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Path", meta = (MakeEditWidget = true))
++    FVector StartOffset = FVector(0.0, -800.0, 0.0);
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Path", meta = (MakeEditWidget = true))
++    FVector EndOffset = FVector(0.0, 800.0, 0.0);
++
++    /** Off: a straight line. On: a quadratic Bezier through ArcControlOffset's pull ("curving off"). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Path")
++    bool bCurvedPath = false;
++
++    /** Bezier control point. The curve does not pass through it: at mid-pass the lamp is at
++     * 0.25 Start + 0.5 Control + 0.25 End. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Path", meta = (MakeEditWidget = true, EditCondition = "bCurvedPath"))
++    FVector ArcControlOffset = FVector(400.0, 0.0, 0.0);
++
++    /** Off: the lamp keeps the actor's rotation (aims along actor +X). On: it looks at AimTargetLocal. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Path")
++    bool bAimAtTarget = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Path", meta = (MakeEditWidget = true, EditCondition = "bAimAtTarget"))
++    FVector AimTargetLocal = FVector(1000.0, 0.0, 0.0);
++
++    // ---- Timing --------------------------------------------------------------------
++
++    /** Time from the time origin to the first pass. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing", meta = (ClampMin = "0.0", Units = "s"))
++    float StartDelaySeconds = 0.0f;
++
++    /** One pass, Start to End. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing", meta = (ClampMin = "0.05", Units = "s"))
++    float TravelSeconds = 4.0f;
++
++    /** A new pass starts this long after the last one started (never sooner than TravelSeconds,
++     * so passes never overlap). Zero or less: a single pass. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing", meta = (Units = "s"))
++    float RepeatEverySeconds = 9.0f;
++
++    /** Each gap gets an extra 0..Jitter seconds, from a stream seeded by RandomSeed. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing", meta = (ClampMin = "0.0", Units = "s"))
++    float RepeatJitterSeconds = 3.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing")
++    int32 RandomSeed = 1;
++
++    /** On: every other pass runs End to Start (traffic both ways). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing")
++    bool bPingPong = false;
++
++    /** On (default): time counts from the start of the current Show segment, so StartDelay is
++     * "seconds into this Passage". Off: absolute Master seconds. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing")
++    bool bTimeFromSegmentStart = true;
++
++    /** Run only inside these segments (Passage or Scene/Sequence cue GUIDs). Empty: everywhere. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Timing")
++    TArray<FGuid> ActiveSegmentGuids;
++
++    // ---- Envelope and look -----------------------------------------------------------
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light", meta = (ClampMin = "0.0", Units = "s"))
++    float FadeInSeconds = 0.8f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light", meta = (ClampMin = "0.0", Units = "s"))
++    float FadeOutSeconds = 0.8f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Light", meta = (ClampMin = "0.0", Units = "cd"))
++    float PeakIntensity = 8000.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Light")
++    FLinearColor Color = FLinearColor::White;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light")
++    bool bUseTemperature = true;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Light", meta = (ClampMin = "1700.0", ClampMax = "12000.0", Units = "K", EditCondition = "bUseTemperature"))
++    float TemperatureKelvin = 4200.0f;
++
++    /** Short by default: just reaching the wall keeps each moving shadow cheap. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Sweep|Light", meta = (ClampMin = "1.0", Units = "cm"))
++    float AttenuationRadiusCm = 1200.0f;
++
++    /** Must stay on for the effect: the wing edges cut the beam only through its shadow. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light")
++    bool bCastShadows = true;
++
++    /** Haze-beam shadows: expensive on a moving light, so off by default. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light")
++    bool bCastVolumetricShadow = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light|Spot", meta = (ClampMin = "0.0", ClampMax = "80.0", Units = "deg"))
++    float InnerConeDegrees = 12.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light|Spot", meta = (ClampMin = "1.0", ClampMax = "80.0", Units = "deg"))
++    float OuterConeDegrees = 28.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light|Rect", meta = (ClampMin = "1.0", Units = "cm"))
++    float RectWidthCm = 60.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light|Rect", meta = (ClampMin = "1.0", Units = "cm"))
++    float RectHeightCm = 20.0f;
++
++    /** Optional mask, e.g. a soft headlight pair (light-pattern series 72-75 style). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep|Light")
++    TObjectPtr<UMaterialInterface> LightFunctionMaterial;
++
++    /** Free-running preview in the editor viewport (not tied to the Sequencer playhead). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sweep")
++    bool bPreviewInEditor = true;
++
++    UPROPERTY(VisibleInstanceOnly, Transient, Category = "Sweep|Debug")
++    float CurrentAlpha = 0.0f;
++
++    UPROPERTY(VisibleInstanceOnly, Transient, Category = "Sweep|Debug")
++    int32 CurrentPass = INDEX_NONE;
++
++    /** Poses the light as it is at this many seconds after the time origin (stills, tests).
++     * Runtime setters only: never dirties the level. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Sweep")
++    void ApplyAtSeconds(double Seconds);
++
++    virtual void Tick(float DeltaSeconds) override;
++    virtual void PostRegisterAllComponents() override;
++    virtual bool ShouldTickIfViewportsOnly() const override { return bPreviewInEditor; }
++#if WITH_EDITOR
++    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
++#endif
++
++    ULocalLightComponent* GetActiveLight() const;
++
++private:
++    TWeakObjectPtr<AInfinityStageShowRoot> CachedShowRoot;
++    double PreviewOriginSeconds = -1.0;
++    void ApplyComponentSettings(ULocalLightComponent* Light) const;
++};
++
++namespace InfinityStageSweep
++{
++/** Plain inputs of the pure evaluator (built from the actor's properties). */
++struct FParams
++{
++    FVector Start = FVector::ZeroVector;
++    FVector End = FVector::ZeroVector;
++    bool bCurved = false;
++    FVector Control = FVector::ZeroVector;
++    bool bAimAtTarget = false;
++    FVector AimTarget = FVector::ZeroVector;
++    float StartDelaySeconds = 0.0f;
++    float TravelSeconds = 1.0f;
++    float RepeatEverySeconds = 0.0f;
++    float RepeatJitterSeconds = 0.0f;
++    int32 Seed = 0;
++    bool bPingPong = false;
++    float FadeInSeconds = 0.0f;
++    float FadeOutSeconds = 0.0f;
++    float PeakIntensity = 1.0f;
++};
++
++struct FSample
++{
++    /** Actor-local lamp position. */
++    FVector Position = FVector::ZeroVector;
++    /** Actor-local lamp rotation (zero unless aiming at the target). */
++    FRotator Rotation = FRotator::ZeroRotator;
++    /** Envelope 0..1. */
++    float Alpha = 0.0f;
++    /** PeakIntensity * Alpha (candela). */
++    float Intensity = 0.0f;
++    /** Which pass is running, or INDEX_NONE between passes. */
++    int32 PassIndex = INDEX_NONE;
++    /** 0..1 along the path (already reversed on ping-pong return passes). */
++    float PathParam = 0.0f;
++};
++
++/** Upper bound on passes walked per evaluation; later times are dark. */
++constexpr int32 MaxPasses = 100000;
++
++/** Point on the path at U in 0..1: a line, or the quadratic Bezier Start-Control-End. */
++INFINITYSTAGE_API FVector PathPoint(const FVector& Start, const FVector& End, bool bCurved, const FVector& Control, float U);
++
++/** Fade envelope 0..1 at LocalSeconds into a pass of TravelSeconds; 0 outside the pass. */
++INFINITYSTAGE_API float Envelope(double LocalSeconds, float TravelSeconds, float FadeInSeconds, float FadeOutSeconds);
++
++/** Start time of pass PassIndex (0-based). Deterministic per Seed: gaps are
++ * max(RepeatEvery, Travel) + Jitter * U, one stream draw per pass, in pass order. */
++INFINITYSTAGE_API double PassStartSeconds(const FParams& Params, int32 PassIndex);
++
++/** Pure and deterministic: the lamp at Seconds after the time origin. No world needed. */
++INFINITYSTAGE_API FSample Evaluate(const FParams& Params, double Seconds);
++
++/** Empty filter: active everywhere. Otherwise only in the listed segments. */
++INFINITYSTAGE_API bool IsActiveInSegment(const TArray<FGuid>& Filter, const FGuid& SegmentGuid);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageSweepLightTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageSweepLightTests.cpp
+new file mode 100644
+index 0000000..bac3870
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageSweepLightTests.cpp
+@@ -0,0 +1,295 @@
++#include "InfinityStageSweepLight.h"
++#include "InfinityStageStrobeLight.h"
++#include "Misc/AutomationTest.h"
++#include "Components/PointLightComponent.h"
++#include "Components/RectLightComponent.h"
++#include "Components/SpotLightComponent.h"
++#include "Engine/World.h"
++#include "UObject/Package.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++InfinityStageSweep::FParams MakeSweepTestParams()
++{
++    InfinityStageSweep::FParams Params;
++    Params.Start = FVector(0.0, -1000.0, 0.0);
++    Params.End = FVector(0.0, 1000.0, 0.0);
++    Params.Control = FVector(800.0, 0.0, 0.0);
++    Params.StartDelaySeconds = 2.0f;
++    Params.TravelSeconds = 4.0f;
++    Params.RepeatEverySeconds = 10.0f;
++    Params.RepeatJitterSeconds = 3.0f;
++    Params.Seed = 7;
++    Params.FadeInSeconds = 1.0f;
++    Params.FadeOutSeconds = 1.0f;
++    Params.PeakIntensity = 5000.0f;
++    return Params;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSweepPathTest,
++    "InfinityStage.SweepLight.PathMaths",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSweepPathTest::RunTest(const FString& Parameters)
++{
++    using InfinityStageSweep::PathPoint;
++    const FVector Start(0.0, -1000.0, 0.0);
++    const FVector End(0.0, 1000.0, 200.0);
++    const FVector Control(800.0, 0.0, 0.0);
++    TestTrue(TEXT("Straight: U=0 is Start"), PathPoint(Start, End, false, Control, 0.0f).Equals(Start, 1.0e-3));
++    TestTrue(TEXT("Straight: U=1 is End"), PathPoint(Start, End, false, Control, 1.0f).Equals(End, 1.0e-3));
++    TestTrue(TEXT("Straight (mid unset): U=0.5 is the chord midpoint, the control is ignored"),
++        PathPoint(Start, End, false, Control, 0.5f).Equals((Start + End) * 0.5, 1.0e-3));
++    TestTrue(TEXT("Arc: U=0 is Start"), PathPoint(Start, End, true, Control, 0.0f).Equals(Start, 1.0e-3));
++    TestTrue(TEXT("Arc: U=1 is End"), PathPoint(Start, End, true, Control, 1.0f).Equals(End, 1.0e-3));
++    const FVector ArcMid = PathPoint(Start, End, true, Control, 0.5f);
++    TestTrue(TEXT("Arc: U=0.5 is 0.25 Start + 0.5 Control + 0.25 End"),
++        ArcMid.Equals(Start * 0.25 + Control * 0.5 + End * 0.25, 1.0e-3));
++    TestFalse(TEXT("Control: the arc midpoint is NOT the chord midpoint"),
++        ArcMid.Equals((Start + End) * 0.5, 1.0));
++    TestTrue(TEXT("U is clamped: beyond 1 stays at End"), PathPoint(Start, End, true, Control, 1.7f).Equals(End, 1.0e-3));
++
++    // Through the evaluator: position follows time along the path, and ping-pong reverses odd passes.
++    InfinityStageSweep::FParams Params = MakeSweepTestParams();
++    Params.RepeatJitterSeconds = 0.0f;
++    const double Pass0Mid = Params.StartDelaySeconds + 0.5 * Params.TravelSeconds;
++    TestTrue(TEXT("Evaluate at mid-pass is the straight midpoint"),
++        InfinityStageSweep::Evaluate(Params, Pass0Mid).Position.Equals((Params.Start + Params.End) * 0.5, 1.0e-2));
++    const double Pass1Early = Params.StartDelaySeconds + Params.RepeatEverySeconds + 0.25 * Params.TravelSeconds;
++    const FVector Forward = InfinityStageSweep::Evaluate(Params, Pass1Early).Position;
++    Params.bPingPong = true;
++    const FVector Backward = InfinityStageSweep::Evaluate(Params, Pass1Early).Position;
++    TestTrue(TEXT("Without ping-pong pass 1 is a quarter of the way from Start"),
++        Forward.Equals(FMath::Lerp(Params.Start, Params.End, 0.25), 1.0e-2));
++    TestTrue(TEXT("With ping-pong pass 1 runs back: a quarter of the way from End"),
++        Backward.Equals(FMath::Lerp(Params.End, Params.Start, 0.25), 1.0e-2));
++
++    // Aim: off keeps the actor's rotation; on looks at the target.
++    Params.bPingPong = false;
++    TestTrue(TEXT("Aim off: zero local rotation"), InfinityStageSweep::Evaluate(Params, Pass0Mid).Rotation.IsNearlyZero(1.0e-3));
++    Params.bAimAtTarget = true;
++    Params.AimTarget = FVector(0.0, 0.0, 0.0) + FVector(0.0, 1000.0, 0.0);   // straight along +Y from the midpoint
++    TestTrue(TEXT("Aim on: looks at the target (yaw 90)"),
++        FMath::IsNearlyEqual(InfinityStageSweep::Evaluate(Params, Pass0Mid).Rotation.Yaw, 90.0, 1.0e-2));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSweepEnvelopeTest,
++    "InfinityStage.SweepLight.Envelope",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSweepEnvelopeTest::RunTest(const FString& Parameters)
++{
++    using InfinityStageSweep::Envelope;
++    TestEqual(TEXT("Zero before the pass"), Envelope(-0.01, 4.0f, 1.0f, 1.0f), 0.0f);
++    TestEqual(TEXT("Zero after the pass"), Envelope(4.01, 4.0f, 1.0f, 1.0f), 0.0f);
++    TestEqual(TEXT("Peak in the middle"), Envelope(2.0, 4.0f, 1.0f, 1.0f), 1.0f);
++    TestTrue(TEXT("Control: partway into the fade-in is NOT peak"), Envelope(0.5, 4.0f, 1.0f, 1.0f) < 0.99f);
++    TestEqual(TEXT("Control: with no fades the start is already full"), Envelope(0.0, 4.0f, 0.0f, 0.0f), 1.0f);
++    TestEqual(TEXT("A non-positive travel never lights"), Envelope(0.5, 0.0f, 0.0f, 0.0f), 0.0f);
++
++    bool bRises = true;
++    bool bFalls = true;
++    float Last = -1.0f;
++    for (int32 Step = 0; Step <= 20; ++Step)
++    {
++        const float Value = Envelope(Step * 0.05, 4.0f, 1.0f, 1.0f);   // 0..1 s
++        bRises &= Value >= Last;
++        Last = Value;
++    }
++    Last = 2.0f;
++    for (int32 Step = 0; Step <= 20; ++Step)
++    {
++        const float Value = Envelope(3.0 + Step * 0.05, 4.0f, 1.0f, 1.0f);   // 3..4 s
++        bFalls &= Value <= Last;
++        Last = Value;
++    }
++    TestTrue(TEXT("Fade-in is monotone non-decreasing"), bRises);
++    TestTrue(TEXT("Fade-out is monotone non-increasing"), bFalls);
++    TestTrue(TEXT("Control: the fade-in actually rises (not flat)"), Envelope(0.9, 4.0f, 1.0f, 1.0f) > Envelope(0.1, 4.0f, 1.0f, 1.0f));
++
++    // Through the evaluator: dark between passes and before the start delay; intensity = peak * alpha.
++    const InfinityStageSweep::FParams Params = MakeSweepTestParams();
++    TestEqual(TEXT("Dark before the start delay"), InfinityStageSweep::Evaluate(Params, 1.9).Alpha, 0.0f);
++    TestEqual(TEXT("No pass before the start delay"), InfinityStageSweep::Evaluate(Params, 1.9).PassIndex, static_cast<int32>(INDEX_NONE));
++    const InfinityStageSweep::FSample Mid = InfinityStageSweep::Evaluate(Params, 4.0);
++    TestEqual(TEXT("Mid-pass alpha is 1"), Mid.Alpha, 1.0f);
++    TestEqual(TEXT("Mid-pass intensity is the peak"), Mid.Intensity, 5000.0f);
++    TestEqual(TEXT("Mid-pass is pass 0"), Mid.PassIndex, 0);
++    TestEqual(TEXT("Dark in the gap after pass 0"), InfinityStageSweep::Evaluate(Params, 7.0).Alpha, 0.0f);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSweepRepeatTest,
++    "InfinityStage.SweepLight.RepeatJitterDeterministic",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageSweepRepeatTest::RunTest(const FString& Parameters)
++{
++    InfinityStageSweep::FParams Params = MakeSweepTestParams();
++    TArray<double> SeedA;
++    TArray<double> SeedAAgain;
++    for (int32 Pass = 0; Pass < 12; ++Pass)
++    {
++        SeedA.Add(InfinityStageSweep::PassStartSeconds(Params, Pass));
++    }
++    for (int32 Pass = 11; Pass >= 0; --Pass)   // reverse order: nothing depends on visit order
++    {
++        SeedAAgain.Insert(InfinityStageSweep::PassStartSeconds(Params, Pass), 0);
++    }
++    TestTrue(TEXT("Same seed, same pass starts (any visit order)"), SeedA == SeedAAgain);
++
++    bool bGapsInRange = true;
++    for (int32 Pass = 1; Pass < SeedA.Num(); ++Pass)
++    {
++        const double Gap = SeedA[Pass] - SeedA[Pass - 1];
++        bGapsInRange &= Gap >= 10.0 - 1.0e-6 && Gap <= 13.0 + 1.0e-6;
++    }
++    TestTrue(TEXT("Every gap is RepeatEvery + 0..Jitter"), bGapsInRange);
++    TestEqual(TEXT("Pass 0 starts at the start delay"), SeedA[0], 2.0);
++
++    Params.Seed = 8;
++    bool bAnyDiffers = false;
++    for (int32 Pass = 1; Pass < 12; ++Pass)
++    {
++        bAnyDiffers |= !FMath::IsNearlyEqual(InfinityStageSweep::PassStartSeconds(Params, Pass), SeedA[Pass], 1.0e-6);
++    }
++    TestTrue(TEXT("A different seed gives different pass starts"), bAnyDiffers);
++
++    Params.RepeatJitterSeconds = 0.0f;
++    const double NoJitter8 = InfinityStageSweep::PassStartSeconds(Params, 5);
++    Params.Seed = 7;
++    const double NoJitter7 = InfinityStageSweep::PassStartSeconds(Params, 5);
++    TestEqual(TEXT("Control: with zero jitter the seed does not matter"), NoJitter8, NoJitter7);
++    TestEqual(TEXT("Control: zero jitter is exactly RepeatEvery apart"), NoJitter7, 2.0 + 5 * 10.0);
++
++    // The evaluator agrees with PassStartSeconds, and is order-independent.
++    Params = MakeSweepTestParams();
++    const double Pass5 = InfinityStageSweep::PassStartSeconds(Params, 5);
++    TestEqual(TEXT("Mid pass 5 the evaluator reports pass 5"),
++        InfinityStageSweep::Evaluate(Params, Pass5 + 2.0).PassIndex, 5);
++    TestEqual(TEXT("Control: just before pass 5 is dark"),
++        InfinityStageSweep::Evaluate(Params, Pass5 - 0.01).Alpha, 0.0f);
++    TArray<float> Forward;
++    for (int32 Step = 0; Step < 300; ++Step)
++    {
++        Forward.Add(InfinityStageSweep::Evaluate(Params, Step * 0.37).Alpha);
++    }
++    bool bSame = true;
++    for (int32 Step = 299; Step >= 0; --Step)
++    {
++        bSame &= InfinityStageSweep::Evaluate(Params, Step * 0.37).Alpha == Forward[Step];
++    }
++    TestTrue(TEXT("Reverse visiting gives identical alphas (scrub-safe)"), bSame);
++
++    // RepeatEvery <= 0: one pass only. RepeatEvery < Travel: clamped so passes never overlap.
++    Params.RepeatEverySeconds = 0.0f;
++    TestEqual(TEXT("Single pass: lit in pass 0"), InfinityStageSweep::Evaluate(Params, 4.0).Alpha, 1.0f);
++    TestEqual(TEXT("Single pass: dark long after"), InfinityStageSweep::Evaluate(Params, 104.0).Alpha, 0.0f);
++    Params.RepeatEverySeconds = 1.0f;
++    Params.RepeatJitterSeconds = 0.0f;
++    TestEqual(TEXT("A repeat shorter than travel is clamped to travel"),
++        InfinityStageSweep::PassStartSeconds(Params, 1), 2.0 + 4.0);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSweepEditorPreviewTest,
++    "InfinityStage.SweepLight.EditorPreviewNeverPersists",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// As Strobe.EditorPreviewNeverPersists: the preview moves and drives the lights every frame,
++// so a level save must never persist a mid-pass light, and the preview must not dirty the level.
++bool FInfinityStageSweepEditorPreviewTest::RunTest(const FString& Parameters)
++{
++    for (const TCHAR* Name : { TEXT("SpotLight"), TEXT("RectLight") })
++    {
++        const FProperty* Property = AInfinityStageSweepLight::StaticClass()->FindPropertyByName(Name);
++        TestTrue(FString::Printf(TEXT("%s property is Transient (never saved)"), Name),
++            Property && Property->HasAnyPropertyFlags(CPF_Transient));
++    }
++    const FProperty* PeakProperty = AInfinityStageSweepLight::StaticClass()->FindPropertyByName(TEXT("PeakIntensity"));
++    const FProperty* StartProperty = AInfinityStageSweepLight::StaticClass()->FindPropertyByName(TEXT("StartOffset"));
++    TestTrue(TEXT("Control: the authored peak IS saved"), PeakProperty && !PeakProperty->HasAnyPropertyFlags(CPF_Transient));
++    TestTrue(TEXT("Control: the authored path IS saved"), StartProperty && !StartProperty->HasAnyPropertyFlags(CPF_Transient));
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStageSweepLight* Sweep = World->SpawnActor<AInfinityStageSweepLight>();
++    TestTrue(TEXT("The spot object itself is RF_Transient"), Sweep->SpotLight && Sweep->SpotLight->HasAnyFlags(RF_Transient));
++    TestTrue(TEXT("The rect object itself is RF_Transient"), Sweep->RectLight && Sweep->RectLight->HasAnyFlags(RF_Transient));
++    TestFalse(TEXT("Control: the root, which carries the placement, is saved"),
++        Sweep->GetRootComponent() && Sweep->GetRootComponent()->HasAnyFlags(RF_Transient));
++
++    Sweep->PeakIntensity = 12345.0f;
++    Sweep->StartDelaySeconds = 0.0f;
++    Sweep->TravelSeconds = 4.0f;
++    Sweep->RepeatEverySeconds = 0.0f;
++    Sweep->FadeInSeconds = 0.5f;
++    Sweep->FadeOutSeconds = 0.5f;
++    UPackage* Package = World->GetOutermost();
++    Package->SetDirtyFlag(false);
++    const FTransform RootBefore = Sweep->GetActorTransform();
++
++    Sweep->ApplyAtSeconds(1.0);
++    const FVector Early = Sweep->SpotLight->GetRelativeLocation();
++    TestTrue(TEXT("Mid-pass the spot is lit"), Sweep->SpotLight->IsVisible());
++    TestEqual(TEXT("Mid-pass intensity is the peak"), Sweep->SpotLight->Intensity, 12345.0f);
++    TestFalse(TEXT("Control: the unused rect stays dark"), Sweep->RectLight->IsVisible());
++    Sweep->ApplyAtSeconds(3.0);
++    const FVector Late = Sweep->SpotLight->GetRelativeLocation();
++    TestTrue(TEXT("The lamp moves along the path"), !Early.Equals(Late, 1.0));
++    Sweep->ApplyAtSeconds(10.0);
++    TestFalse(TEXT("After the single pass the lamp is off"), Sweep->SpotLight->IsVisible());
++    for (int32 Tick = 0; Tick < 20; ++Tick)
++    {
++        Sweep->Tick(0.016f);   // the wall-clock preview path
++    }
++    TestEqual(TEXT("Preview leaves the authored peak unchanged"), Sweep->PeakIntensity, 12345.0f);
++    TestTrue(TEXT("Preview leaves the actor's placement unchanged"), Sweep->GetActorTransform().Equals(RootBefore));
++    TestFalse(TEXT("Preview does not dirty the level package"), Package->IsDirty());
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageSweepShadowDefaultsTest,
++    "InfinityStage.SweepLight.ShadowsOnVolumetricOff",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// The effect IS the shadow of the wing edges, so shadows must be on; volumetric shadows on a
++// moving light are expensive, so they are off unless asked for.
++bool FInfinityStageSweepShadowDefaultsTest::RunTest(const FString& Parameters)
++{
++    const AInfinityStageSweepLight* Defaults = GetDefault<AInfinityStageSweepLight>();
++    TestTrue(TEXT("Default: bCastShadows"), Defaults->bCastShadows);
++    TestFalse(TEXT("Default: no volumetric shadow"), Defaults->bCastVolumetricShadow);
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStageSweepLight* Sweep = World->SpawnActor<AInfinityStageSweepLight>();
++    TestTrue(TEXT("Spot casts shadows"), Sweep->SpotLight && Sweep->SpotLight->CastShadows);
++    TestFalse(TEXT("Spot has no volumetric shadow"), Sweep->SpotLight && Sweep->SpotLight->bCastVolumetricShadow);
++    TestTrue(TEXT("Rect casts shadows"), Sweep->RectLight && Sweep->RectLight->CastShadows);
++    TestFalse(TEXT("Rect has no volumetric shadow"), Sweep->RectLight && Sweep->RectLight->bCastVolumetricShadow);
++
++    // Controls: the check can fail. The Strobe's light does NOT cast shadows, and switching the
++    // sweep's flags reaches its live component.
++    AInfinityStageStrobeLight* Strobe = World->SpawnActor<AInfinityStageStrobeLight>();
++    TestFalse(TEXT("Control: the Strobe's light reads as shadowless"), Strobe->Light && Strobe->Light->CastShadows);
++    Sweep->bCastShadows = false;
++    Sweep->bCastVolumetricShadow = true;
++    Sweep->StartDelaySeconds = 0.0f;
++    Sweep->FadeInSeconds = 0.0f;
++    Sweep->ApplyAtSeconds(1.0);   // lit, so settings are pushed
++    TestFalse(TEXT("Control: bCastShadows=false reaches the spot"), Sweep->SpotLight->CastShadows);
++    TestTrue(TEXT("Control: bCastVolumetricShadow=true reaches the spot"), Sweep->SpotLight->bCastVolumetricShadow);
++    World->DestroyWorld(false);
++    return true;
++}
++
++#endif
