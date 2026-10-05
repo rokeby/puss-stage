@@ -12105,46 +12105,53 @@
    "mode": "APPLY",
    "backup": "E:/PussStage/Backups\\PreOpeningSequence-20261004-1314",
    "at": "20261004-1314"
+  },
+  {
+   "run": "OPENING-APPLY-20261005-144820",
+   "mode": "APPLY",
+   "backup": "E:/PussStage/Backups\\PreOpeningSequence-20261005-1448",
+   "at": "20261005-1448"
   }
  ],
  "last_applied_frames": {
-  "music_start": 38,
-  "flicker_start": 38,
-  "flicker_end": 100,
-  "swivel_start": 137,
-  "swivel_end": 304,
-  "last_swell": 1688,
-  "curtain_release": 1872,
-  "walkin_start": 2144,
+  "music_start": 100,
+  "flicker_start": 100,
+  "flicker_end": 162,
+  "swivel_start": 904,
+  "swivel_end": 1096,
+  "last_swell": 1910,
+  "curtain_release": 1935,
+  "walkin_start": 2145,
   "opening_end": 2409
  },
  "track_hashes": {
   "walk": {
-   "Opening — Stalls Camera/MovieScene3DTransformTrack/Location.X": "7b5292b2da073395",
-   "Opening — Stalls Camera/MovieScene3DTransformTrack/Location.Y": "475b2f4fbb918955",
-   "Opening — Stalls Camera/MovieScene3DTransformTrack/Location.Z": "d66c82f97dda9d86",
-   "Opening — Stalls Camera/MovieScene3DTransformTrack/Rotation.X": "475b2f4fbb918955",
-   "Opening — Stalls Camera/MovieScene3DTransformTrack/Rotation.Y": "1e803371278c4f0b",
-   "Opening — Stalls Camera/MovieScene3DTransformTrack/Rotation.Z": "475b2f4fbb918955",
-   "CameraComponent/MovieSceneFloatTrack/CurrentFocalLength": "ff15eda81cdfc236",
-   "CameraComponent/MovieSceneFloatTrack/ManualFocusDistance": "86f618160cef57c2"
+   "Opening — Stalls Camera/MovieScene3DTransformTrack/Location.X": "1c044b828e93b249",
+   "Opening — Stalls Camera/MovieScene3DTransformTrack/Location.Y": "814b511ddb4342c2",
+   "Opening — Stalls Camera/MovieScene3DTransformTrack/Location.Z": "b7fa0e162c9b7f5a",
+   "Opening — Stalls Camera/MovieScene3DTransformTrack/Rotation.X": "814b511ddb4342c2",
+   "Opening — Stalls Camera/MovieScene3DTransformTrack/Rotation.Y": "794cf199e6a87f9b",
+   "Opening — Stalls Camera/MovieScene3DTransformTrack/Rotation.Z": "814b511ddb4342c2",
+   "CameraComponent/MovieSceneFloatTrack/CurrentFocalLength": "c3dfc7037845131c",
+   "CameraComponent/MovieSceneFloatTrack/ManualFocusDistance": "2c2b2057cc5cb517"
   },
   "rig": {
-   "Opening Rig - FOH L/MovieSceneFloatTrack/Intensity": "1ef50068237909c5",
+   "Opening Rig - FOH L/MovieSceneFloatTrack/Intensity": "a0a188d4ce797250",
    "Opening Rig - FOH R/MovieScene3DTransformTrack/Location.X": "5828017681f9fafb",
    "Opening Rig - FOH R/MovieScene3DTransformTrack/Location.Y": "6ac9b73c2a795227",
    "Opening Rig - FOH R/MovieScene3DTransformTrack/Location.Z": "b5ac96c9945455ab",
-   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.X": "3cff21848e6257da",
-   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Y": "69dd7c6f848fe96c",
-   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Z": "37473332620d721e",
-   "Opening Rig - FOH R/MovieSceneFloatTrack/Intensity": "1b1cd5a457a3ddc8",
-   "Opening Rig - Wash C/MovieSceneFloatTrack/Intensity": "89edc97314b1a2b5",
+   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.X": "51443e28245ef442",
+   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Y": "3d73059191f05a47",
+   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Z": "b945421947300b78",
+   "Opening Rig - FOH R/MovieSceneFloatTrack/Intensity": "702018727aa042b6",
+   "Opening Rig - Wash C/MovieSceneFloatTrack/Intensity": "481cdf57eed7729a",
    "Opening Rig - FOH L/MovieScene3DTransformTrack/Location.X": "5828017681f9fafb",
    "Opening Rig - FOH L/MovieScene3DTransformTrack/Location.Y": "33873fc01d9a66ab",
    "Opening Rig - FOH L/MovieScene3DTransformTrack/Location.Z": "b5ac96c9945455ab",
-   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.X": "3cff21848e6257da",
-   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Y": "69dd7c6f848fe96c",
-   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Z": "77d1e9e2db5468ff"
+   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.X": "51443e28245ef442",
+   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Y": "3d73059191f05a47",
+   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Z": "6702c52b03df19f9"
   }
- }
+ },
+ "flicker_note": "5 Oct conductor: Gary's 14:02 marker drag (38->208) acknowledged; superseded by his answer 'flicker should come with first rising of a swell' -> gentle early swell, json flicker_start 4.0 s"
 }

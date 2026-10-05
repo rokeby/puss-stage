@@ -13,12 +13,12 @@
   },
   "moments": {
     "music_start": {
-      "value": "auto",
-      "source": "auto"
+      "value": 4.0,
+      "source": "5 Oct conductor: aligned to Gary's flicker on the gentle early swell (auto RMS threshold gave 7.04 s; sketch 2 rises from ~3-4 s)"
     },
     "flicker_start": {
-      "value": "auto",
-      "source": "auto"
+      "value": 4.0,
+      "source": "Gary 5 Oct: 'flicker should come with first rising of a swell' -> the gentle early swell rising ~4 s (peak ~9.5 s) in sketch 2"
     },
     "flicker_end": {
       "value": "auto",
@@ -45,8 +45,8 @@
       "source": "auto"
     },
     "opening_end": {
-      "value": "auto",
-      "source": "auto"
+      "value": 96.36,
+      "source": "Gary 5 Oct: keep his extended Opening (saved 14:02, 2409 frames)"
     }
   },
   "rules": {
@@ -256,7 +256,7 @@
       "yaw": 0.0,
       "roll": 0.0
     },
-    "v_end_cm_s": 250.00000350317606,
+    "v_end_cm_s": 251.30432046098213,
     "focal0_mm": 15.0,
     "focal1_mm": 25.0,
     "focus0_cm": 100000.0,
@@ -264,7 +264,8 @@
     "pile_edge_cm": 203.0,
     "end_light_level": 0.0,
     "evidence": "Saved/CodexCameraPilot/walkin_OPENING_record.json report.plan (measured 2 Oct). The live tool re-measures seat, P01 start pose and arrival speed the way key_walkin_i1_p02.py does.",
-    "notes": "end_light_level 0.0 = the rig fades to dark during the move-in (run-through 3 Oct: 'the opening should move in with the lights dark'); Gary's call."
+    "notes": "end_light_level 0.0 = the rig fades to dark during the move-in (run-through 3 Oct: 'the opening should move in with the lights dark'); Gary's call.",
+    "v_end_note": "5 Oct: re-measured live after the crossing settle (CS v2 walks the passage slightly faster); was 250.0"
   },
   "music": {
     "move_p01_track_to_opening": true,
@@ -284,5 +285,7 @@
     "notes": "Gary 4 Oct: the two Show house spots are OFF FOR THE OPENING ONLY and ON in P01. This tool owns that; lighting_scores_apply.py retains them (lighting_scores.json foreign_owned_lights). 'disable' must stay false: the attachment's Enabled flag is not time-varying, so disabling would kill them in P01 too (the planner refuses it). 'mechanism' is null because none exists yet: Light Drama cannot dark a lamp before its Passage segment (plan section 4b). Until a mechanism lands they burn through the Opening and phase 0 is NOT dark."
   },
   "hand_tuned_tracks": [],
-  "sketch2_note": "5 Oct: refit to Cameron's 'Tuning-Opening-sketch2' (95.5 s; DerivedAssets/Audio/Opening_Sketch2). Gary: curtain after the LAST swell (auto 76.4 s -> release ~77.4 s); FOH swivel follows the music (auto 36-44 s). All moments stay 'auto' so re-running on sketch 3 is cheap. Old analysis backup: opening_timing.json.bak-20261005-presketch2"
+  "sketch2_note": "5 Oct: refit to Cameron's 'Tuning-Opening-sketch2' (95.5 s; DerivedAssets/Audio/Opening_Sketch2). Gary: curtain after the LAST swell (auto 76.4 s -> release ~77.4 s); FOH swivel follows the music (auto 36-44 s). All moments stay 'auto' so re-running on sketch 3 is cheap. Old analysis backup: opening_timing.json.bak-20261005-presketch2",
+  "overwrite_hand_edits": true,
+  "overwrite_hand_edits_by": "Gary 5 Oct (conductor questionnaire): 'yes, refit' - programmatic FOH from sketch 2 overwrites his 14:02 FOH L/R edits (backed up: Backups/PreOpeningReconcile-20261005-1419)"
 }
