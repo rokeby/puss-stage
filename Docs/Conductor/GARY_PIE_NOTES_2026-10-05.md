@@ -111,3 +111,9 @@
     incoming wing should be fixed too, whereas the forefront wing has a nice rounded edge even though still quite
     detailed."** → Added to W&T's show-wide hole audit: an outline-roughness pass (flag crinkly cuts; propose a smooth +
     round at a radius that keeps the big shapes, like cv12's blunt curves), with before/after crops for Gary.
+27. **Pending decision (asked, dismissed for now): drape hem.** The final13 bake's hanging hem is 20 cm above the
+    floor. Lowering it puts the fallen pile 20 cm into the floor, so no single height passes both gates. Options:
+    lower while hanging and lift during the fall (recommended); lower and accept a sunk pile; re-bake longer; leave the gap.
+    Also before S4: the old "P04 Backcloth (baked)" ACTOR stays in the level after its revert (the revert only clears the slot
+    and binding, with no backup and no read-back, and it overwrites the 30 Sep .reverted archive), so it needs a backed-up
+    removal first.
