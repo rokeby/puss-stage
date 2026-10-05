@@ -81,7 +81,7 @@ def main():
     zs = [route.get_location_at_distance_along_spline(route.get_spline_length() * i / 20.0, W).z for i in range(21)]
     if max(zs) - min(zs) > 0.5:
         stop("ROUTE_NOT_LEVEL|%.2f..%.2f" % (min(zs), max(zs)))
-    board_top = zs[0] + float(st[0].get_editor_property("floor_height_cm"))
+    board_top = zs[0] + float(st[0].get_editor_property("ground").get_editor_property("floor_height_cm"))
     target_top = board_top + 0.5
     walnut = mats(by[P01_SLAB][0].get_component_by_class(unreal.StaticMeshComponent))
     rows = []
