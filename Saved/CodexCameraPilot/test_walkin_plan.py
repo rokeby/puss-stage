@@ -73,10 +73,12 @@ def main():
         registry_problems.append("I1 landed_s")
     for transition_id in ("I2", "I3", "I4", "I5"):
         row = transitions.get(transition_id, {})
-        if row.get("minimum_end_frame") is not None or row.get("landed_s") is not None:
-            registry_problems.append("%s must remain gated by nulls" % transition_id)
-        if len(row.get("soft_goods_steps", [])) != 3:
-            registry_problems.append("%s Soft goods steps" % transition_id)
+        # 5 Oct: I2-I5 made ready for curtain_sleight.py from live DRY WR-20261005-104423 (end 500, landed 20.3,
+        # pile edge 203); the Soft goods steps are superseded by the sleight's own lengthening.
+        if row.get("minimum_end_frame") != 500 or row.get("landed_s") != 20.3 or row.get("pile_edge_cm") != 203.0:
+            registry_problems.append("%s readiness values" % transition_id)
+        if row.get("soft_goods_steps") != [] or len(row.get("soft_goods_steps_superseded", [])) != 3:
+            registry_problems.append("%s Soft goods steps superseded" % transition_id)
     opening = transitions.get("OPENING", {})
     opening_evidence = opening.get("file_evidence", {})
     opening_ready = (

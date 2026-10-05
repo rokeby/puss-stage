@@ -103,15 +103,55 @@
       "InfinityStage.Mouth.P03"
     ],
     "next_passage_label": "Passage 3",
-    "minimum_end_frame": null,
-    "landed_s": null,
-    "pile_edge_cm": 190.0,
-    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
-    "soft_goods_steps": [
+    "minimum_end_frame": 500,
+    "landed_s": 20.3,
+    "pile_edge_cm": 203.0,
+    "readiness_note": "Ready for curtain_sleight.py (option B) from live DRY run=WR-20261005-104423: live end 500 = the drape FALL end (curtain_sleight.py:345); landed_s 20.3 = FALL start 16.0 s + bake final13_opening_a06_w188 frames 480->610 (top_z <= 1.0 m) 4.333 s, rounded to 0.1 as I1's registry (exact 20.3667 s); pile_edge_cm 203.0 = |bake rig_limits X_min| (approach side). The sleight lengthens and re-times this Interaction itself, so Soft goods' extend/fit steps are not needed. NOT ready for the stalls-seat key_walkin_i1_p02.py (landed 20.3 s > end 20.0 s); that path is superseded by the sleight's walk. Sleight caveat: FALL + extra_tail_frames must stay <= 250 frames or the cache wraps (max extra 150) until curtain_sleight.py adds a PILE hold section. Site: P03 mouth is FRAME ONLY (no stage front; Wet Ground landscape): the pile baked onto P01's stage front may float or clip here (fit_transition_drapes.py:32-34); 2 P03 fixtures sit inside the pile footprint (Docs/ChaosClothCurtain.md:46).",
+    "soft_goods_steps": [],
+    "soft_goods_steps_superseded": [
       "Run extend_scene_playback.py for Interaction 2.",
       "Run fit_transition_drapes.py for Interaction 2 with lead_s = new_end - 16.0.",
       "Run verify_transition_fit.py."
-    ]
+    ],
+    "file_evidence": {
+      "tier": "measured (live read of playback, drape sections, cache import chain) + declaration (DropBake record)",
+      "source": "live DRY run=WR-20261005-104423",
+      "playback_frames": [
+        0,
+        500
+      ],
+      "fps": 25.0,
+      "drape_hold": [
+        0,
+        400,
+        23200,
+        240799
+      ],
+      "drape_fall": [
+        400,
+        500,
+        23200,
+        0
+      ],
+      "curtain_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+      "bake_id": "final13_opening_a06_w188",
+      "release_frame": 480,
+      "cache_show_start_frame": 450,
+      "hold_offset_ticks": 23200,
+      "landed_bake_frame": 610,
+      "landed_top_z_m": 1.0,
+      "landed_after_release_s": 4.333333333333333,
+      "landed_s_exact": 20.366666666666667,
+      "landed_rounding": "round_0p1",
+      "pile_route_extent_cm": [
+        -203.0,
+        467.0
+      ],
+      "cache_duration_ticks": 264000,
+      "fall_cache_budget_frames": 250,
+      "max_extra_tail_frames_without_wrap": 150,
+      "minimum_end_frame_meaning": "the live end the sleight lengthens from (FALL ends here); not a stalls-walk end"
+    }
   },
   "I3": {
     "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
@@ -121,15 +161,55 @@
       "InfinityStage.Mouth.P04"
     ],
     "next_passage_label": "Passage 4",
-    "minimum_end_frame": null,
-    "landed_s": null,
-    "pile_edge_cm": 190.0,
-    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
-    "soft_goods_steps": [
+    "minimum_end_frame": 500,
+    "landed_s": 20.3,
+    "pile_edge_cm": 203.0,
+    "readiness_note": "Ready for curtain_sleight.py (option B) from live DRY run=WR-20261005-104423: live end 500 = the drape FALL end (curtain_sleight.py:345); landed_s 20.3 = FALL start 16.0 s + bake final13_opening_a06_w188 frames 480->610 (top_z <= 1.0 m) 4.333 s, rounded to 0.1 as I1's registry (exact 20.3667 s); pile_edge_cm 203.0 = |bake rig_limits X_min| (approach side). The sleight lengthens and re-times this Interaction itself, so Soft goods' extend/fit steps are not needed. NOT ready for the stalls-seat key_walkin_i1_p02.py (landed 20.3 s > end 20.0 s); that path is superseded by the sleight's walk. Sleight caveat: FALL + extra_tail_frames must stay <= 250 frames or the cache wraps (max extra 150) until curtain_sleight.py adds a PILE hold section. Site: P04 has open chariot slots under the pile; the pile bridges them (Docs/ChaosClothCurtain.md:46).",
+    "soft_goods_steps": [],
+    "soft_goods_steps_superseded": [
       "Run extend_scene_playback.py for Interaction 3.",
       "Run fit_transition_drapes.py for Interaction 3 with lead_s = new_end - 16.0.",
       "Run verify_transition_fit.py."
-    ]
+    ],
+    "file_evidence": {
+      "tier": "measured (live read of playback, drape sections, cache import chain) + declaration (DropBake record)",
+      "source": "live DRY run=WR-20261005-104423",
+      "playback_frames": [
+        0,
+        500
+      ],
+      "fps": 25.0,
+      "drape_hold": [
+        0,
+        400,
+        23200,
+        240799
+      ],
+      "drape_fall": [
+        400,
+        500,
+        23200,
+        0
+      ],
+      "curtain_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+      "bake_id": "final13_opening_a06_w188",
+      "release_frame": 480,
+      "cache_show_start_frame": 450,
+      "hold_offset_ticks": 23200,
+      "landed_bake_frame": 610,
+      "landed_top_z_m": 1.0,
+      "landed_after_release_s": 4.333333333333333,
+      "landed_s_exact": 20.366666666666667,
+      "landed_rounding": "round_0p1",
+      "pile_route_extent_cm": [
+        -203.0,
+        467.0
+      ],
+      "cache_duration_ticks": 264000,
+      "fall_cache_budget_frames": 250,
+      "max_extra_tail_frames_without_wrap": 150,
+      "minimum_end_frame_meaning": "the live end the sleight lengthens from (FALL ends here); not a stalls-walk end"
+    }
   },
   "I4": {
     "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
@@ -139,15 +219,55 @@
       "InfinityStage.Mouth.P05"
     ],
     "next_passage_label": "Passage 5",
-    "minimum_end_frame": null,
-    "landed_s": null,
-    "pile_edge_cm": 190.0,
-    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
-    "soft_goods_steps": [
+    "minimum_end_frame": 500,
+    "landed_s": 20.3,
+    "pile_edge_cm": 203.0,
+    "readiness_note": "Ready for curtain_sleight.py (option B) from live DRY run=WR-20261005-104423: live end 500 = the drape FALL end (curtain_sleight.py:345); landed_s 20.3 = FALL start 16.0 s + bake final13_opening_a06_w188 frames 480->610 (top_z <= 1.0 m) 4.333 s, rounded to 0.1 as I1's registry (exact 20.3667 s); pile_edge_cm 203.0 = |bake rig_limits X_min| (approach side). The sleight lengthens and re-times this Interaction itself, so Soft goods' extend/fit steps are not needed. NOT ready for the stalls-seat key_walkin_i1_p02.py (landed 20.3 s > end 20.0 s); that path is superseded by the sleight's walk. Sleight caveat: FALL + extra_tail_frames must stay <= 250 frames or the cache wraps (max extra 150) until curtain_sleight.py adds a PILE hold section.",
+    "soft_goods_steps": [],
+    "soft_goods_steps_superseded": [
       "Run extend_scene_playback.py for Interaction 4.",
       "Run fit_transition_drapes.py for Interaction 4 with lead_s = new_end - 16.0.",
       "Run verify_transition_fit.py."
-    ]
+    ],
+    "file_evidence": {
+      "tier": "measured (live read of playback, drape sections, cache import chain) + declaration (DropBake record)",
+      "source": "live DRY run=WR-20261005-104423",
+      "playback_frames": [
+        0,
+        500
+      ],
+      "fps": 25.0,
+      "drape_hold": [
+        0,
+        400,
+        23200,
+        240799
+      ],
+      "drape_fall": [
+        400,
+        500,
+        23200,
+        0
+      ],
+      "curtain_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+      "bake_id": "final13_opening_a06_w188",
+      "release_frame": 480,
+      "cache_show_start_frame": 450,
+      "hold_offset_ticks": 23200,
+      "landed_bake_frame": 610,
+      "landed_top_z_m": 1.0,
+      "landed_after_release_s": 4.333333333333333,
+      "landed_s_exact": 20.366666666666667,
+      "landed_rounding": "round_0p1",
+      "pile_route_extent_cm": [
+        -203.0,
+        467.0
+      ],
+      "cache_duration_ticks": 264000,
+      "fall_cache_budget_frames": 250,
+      "max_extra_tail_frames_without_wrap": 150,
+      "minimum_end_frame_meaning": "the live end the sleight lengthens from (FALL ends here); not a stalls-walk end"
+    }
   },
   "I5": {
     "sequence_path": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
@@ -157,14 +277,54 @@
       "InfinityStage.Mouth.P06"
     ],
     "next_passage_label": "Passage 6",
-    "minimum_end_frame": null,
-    "landed_s": null,
-    "pile_edge_cm": 190.0,
-    "readiness_note": "Not ready: minimum_end_frame and landed_s come from Soft goods' lengthening, drape re-fit, and the immutable DropBake/<bake_id>.json record.",
-    "soft_goods_steps": [
+    "minimum_end_frame": 500,
+    "landed_s": 20.3,
+    "pile_edge_cm": 203.0,
+    "readiness_note": "Ready for curtain_sleight.py (option B) from live DRY run=WR-20261005-104423: live end 500 = the drape FALL end (curtain_sleight.py:345); landed_s 20.3 = FALL start 16.0 s + bake final13_opening_a06_w188 frames 480->610 (top_z <= 1.0 m) 4.333 s, rounded to 0.1 as I1's registry (exact 20.3667 s); pile_edge_cm 203.0 = |bake rig_limits X_min| (approach side). The sleight lengthens and re-times this Interaction itself, so Soft goods' extend/fit steps are not needed. NOT ready for the stalls-seat key_walkin_i1_p02.py (landed 20.3 s > end 20.0 s); that path is superseded by the sleight's walk. Sleight caveat: FALL + extra_tail_frames must stay <= 250 frames or the cache wraps (max extra 150) until curtain_sleight.py adds a PILE hold section.",
+    "soft_goods_steps": [],
+    "soft_goods_steps_superseded": [
       "Run extend_scene_playback.py for Interaction 5.",
       "Run fit_transition_drapes.py for Interaction 5 with lead_s = new_end - 16.0.",
       "Run verify_transition_fit.py."
-    ]
+    ],
+    "file_evidence": {
+      "tier": "measured (live read of playback, drape sections, cache import chain) + declaration (DropBake record)",
+      "source": "live DRY run=WR-20261005-104423",
+      "playback_frames": [
+        0,
+        500
+      ],
+      "fps": 25.0,
+      "drape_hold": [
+        0,
+        400,
+        23200,
+        240799
+      ],
+      "drape_fall": [
+        400,
+        500,
+        23200,
+        0
+      ],
+      "curtain_cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+      "bake_id": "final13_opening_a06_w188",
+      "release_frame": 480,
+      "cache_show_start_frame": 450,
+      "hold_offset_ticks": 23200,
+      "landed_bake_frame": 610,
+      "landed_top_z_m": 1.0,
+      "landed_after_release_s": 4.333333333333333,
+      "landed_s_exact": 20.366666666666667,
+      "landed_rounding": "round_0p1",
+      "pile_route_extent_cm": [
+        -203.0,
+        467.0
+      ],
+      "cache_duration_ticks": 264000,
+      "fall_cache_budget_frames": 250,
+      "max_extra_tail_frames_without_wrap": 150,
+      "minimum_end_frame_meaning": "the live end the sleight lengthens from (FALL ends here); not a stalls-walk end"
+    }
   }
 }
