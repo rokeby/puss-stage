@@ -199,3 +199,13 @@
 - **Editor time tomorrow (Gary):** AI editor runs go FIRST THING, ~60–90 min. After that the editor is Gary's, and I stay out unless he calls.
   - Morning AI queue: build window (F1, RT, S1 strobe rev2 b31073f), exit-block revert S1, shorten S1, curtain sleight I1 DRY/APPLY, look bench (incl. the glint light Gary approved via W&T), rig P05 prototype if time.
 - **Wet paper test (W&T):** M_Wing_Billboard_Master_v3 is on Wing 008 R. The approach frames show darker, richer patches but NO glints, because no light sits at a mirror angle. Gary: "Add a test light", so a glint light goes in the morning look bench and W&T retake 7 frames.
+- **P04 gallery wings (Gary via W&T):** "remove the gallery ones for now, they've been nothing but trouble". Every ruined_gallery_* side in P04 gets its mesh cleared, leaving gaps (cues, lights and fence kept). Kit: swapkit/p04_gallery_off.py, runs in the morning window.
+  - The wet test moves to P04 Wing 009 R (coventry_ruin_R_v1). The glint light now targets bay 9: look_bench_capture_bay9_run.py.
+- **Morning AI window order:**
+  1. Build (F1, RT, strobe).
+  2. W&T gallery-off, then wet_test_revert.
+  3. Exit-block revert S1, then shorten S1.
+  4. Curtain sleight I1.
+  5. Look bench in PIE (bay 4 states, then bay 9 glint). W&T WETB → wet_cov_apply → WETA.
+  6. Rig P05 if time.
+  Then the editor is Gary's.
