@@ -223,3 +223,11 @@
 - **Ceilings → vertical BORDERS:** a P04 arch-rib test bay in the look bench. W&T confirm a cue's top slot can hang a vertical L↔R panel with no kit change; it needs a wide border mesh per passage width, and bTopFollowsMechanism=false keeps it static.
 - **Note for Gary:** the queue README says "P06 jobs are strictly text-only: no photos, and no copying a known Sanxingdui object". Job 43 feeds our OWN generated StageOpening concept images, not photos, so I read it as within the rule's intent (inferred). Gary to confirm.
 - The Fuser production-use terms still need Gary's confirmation before any Fuser art is staged.
+- **Baroque devices (Gary's refs, 5 Oct):** Fuser jobs 44–48 are registered; ingest validates (43 jobs, measured). Total new prompts tonight: 87 (FuserQueue/NEW_PROMPTS_2026-10-05.csv).
+  - 44 arch rings
+  - 45 swag valances
+  - 46 cut-throughs
+  - 47 perspective edit pass on 10 architectural wings
+  - 48 passage-end curtains
+  - The perspective clause was added to jobs 35, 38 and 39.
+  - **Open:** job 48's no_cut flag must be honoured by the V3 flat build. Nothing reads it yet.
