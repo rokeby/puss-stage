@@ -64,6 +64,7 @@ def main():
         rel = a.get_editor_property("root_component").get_relative_transform()
         land = unreal.MathLibrary.transform_location(rx, rel.translation)
         plan.append({"label": str(a.get_actor_label()), "parent": par.get_actor_label() if par else None,
+                     "mobility": str(a.get_editor_property("root_component").get_editor_property("mobility")),
                      "relative": v3(rel.translation), "world": v3(a.get_actor_location()), "would_land": v3(land),
                      "lands_on_beach": box[0] <= land.x <= box[1] and box[2] <= land.y <= box[3]})
     rep = {"run": RUN, "root_world": v3(rx.translation), "root_rot": str(rx.rotation.rotator()),
@@ -91,11 +92,17 @@ def main():
     for a in pieces:
         rel = a.get_editor_property("root_component").get_relative_transform()
         a.modify()
+        # 5 Oct: first APPLY failed ATTACH_READBACK: a Static child cannot attach under a Movable parent (and the pieces
+        # are Sequencer-driven, so they must be Movable anyway). Record and set Movable first.
+        a.get_editor_property("root_component").set_mobility(unreal.ComponentMobility.MOVABLE)
         a.attach_to_actor(root, "", unreal.AttachmentRule.KEEP_RELATIVE, unreal.AttachmentRule.KEEP_RELATIVE,
                           unreal.AttachmentRule.KEEP_RELATIVE, False)
         after = a.get_editor_property("root_component").get_relative_transform().translation
-        if a.get_attach_parent_actor() != root or v3(after) != v3(rel.translation):
-            stop("ATTACH_READBACK|%s|NOTHING SAVED; Don't-Save restart" % a.get_actor_label())
+        par = a.get_attach_parent_actor()
+        if par is None or par.get_actor_label() != root.get_actor_label() or v3(after) != v3(rel.translation):
+            stop("ATTACH_READBACK|%s|parent=%s|rel_before=%s|rel_after=%s|mobility=%s|NOTHING SAVED; Don't-Save restart"
+                 % (a.get_actor_label(), par.get_actor_label() if par else None, v3(rel.translation), v3(after),
+                    a.get_editor_property("root_component").get_editor_property("mobility")))
         w = a.get_actor_location()
         if not (box[0] <= w.x <= box[1] and box[2] <= w.y <= box[3]):
             stop("NOT_ON_BEACH_AFTER|%s|%s|NOTHING SAVED; Don't-Save restart" % (a.get_actor_label(), v3(w)))
