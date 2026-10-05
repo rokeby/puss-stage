@@ -246,3 +246,8 @@
 57. **Retime conflict resolved:** Gary's 14:20 "keep lengths" (directing session note 48) vs his 15:25 retime (here). He re-confirmed
     "Cut to song + 2 s" for **P02–P05** in the directing session (~17:00). Queue after the retime: Choreo/GO and Light Drama distance
     check, plus stills of P02–P05 at the new pace (camera ~4x faster past the same wings — Gary to judge).
+58. **S3 beats** (Gary ~19:20, he keys S3 himself): 1 arrival to shore · 2 swaying shore people · 3 they whimper (narration) ·
+    4 cello soothes them as the clam opens · 5 chorus singing (narration while Puss takes the song) · 6 anguished crying of the
+    shore people · 7 finish / out of scene. Facts: S3 = 260 s; the Shore stand-in narration is ONE 34.3 s clip at 4.17 s
+    (lands 4.13 s) with a clear pause 17–22 s into the clip [measured RMS] -> splits naturally into beat 3 / beat 5 halves.
+    No cello/chorus audio exists in Saved/InfinityStage/MusicAnalysis/Scenes (Mountain/School/Shrine/Void only).
