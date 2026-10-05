@@ -17,8 +17,9 @@
       "source": "5 Oct conductor: aligned to Gary's flicker on the gentle early swell (auto RMS threshold gave 7.04 s; sketch 2 rises from ~3-4 s)"
     },
     "flicker_start": {
-      "value": 4.0,
-      "source": "Gary 5 Oct: 'flicker should come with first rising of a swell' -> the gentle early swell rising ~4 s (peak ~9.5 s) in sketch 2"
+      "value": 36.18,
+      "source": "Gary 5 Oct ~15:15: start on the entry, after the tuning",
+      "previous": "4.0 s (Gary 5 Oct earlier: 'first rising of a swell'); superseded ~15:15. 36.18 s = the first major change 36.1767 s in OpeningSketch2; rounds to frame 904"
     },
     "flicker_end": {
       "value": "auto",
@@ -51,7 +52,8 @@
   },
   "rules": {
     "music_start_rms_fraction": 0.1,
-    "flicker_s": 2.5,
+    "flicker_s": 3.5,
+    "flicker_s_note": "5 Oct ~15:30: 2.5 -> 3.5 s for the strobe flicker (Gary: 3-4 s ok). flicker_end auto = frame_of(36.16 + 3.5) = frame 991 (39.64 s); staggered lamps end by frame 1009 = 40.36 s (Wash C +0.72 s), before the auto swivel at the next major change 43.84 s. Anything up to ~6.9 s still ends before the swivel.",
     "swivel_min_s": 3.0,
     "swell_smoothing_s": 3.0,
     "swell_prominence_window_s": 6.0,
@@ -80,7 +82,19 @@
     "seed": "OPENING-FLICKER-1",
     "idle_level": 0.35,
     "on_level_min": 0.55,
-    "max_step_frames": 5
+    "max_step_frames": 5,
+    "peak_min": 2.0,
+    "peak_max": 3.0,
+    "falloff": [0.34, 0.11, 0.035],
+    "falloff_frames_min": 2,
+    "falloff_frames_max": 3,
+    "falloff_jitter": 0.15,
+    "double_pop_chance": 0.1,
+    "gap_early_frames": [12, 24],
+    "gap_late_frames": [1, 2],
+    "gap_curve": 1.0,
+    "first_flash_at_start": true,
+    "notes": "Gary 5 Oct ~15:15: 'Brutal with a bit of that strobe falloff'. peak_max present => strobe style (opening_sequence_plan.strobe_flicker_steps); remove peak_max..first_flash_at_start to get the old stutter back exactly (on_level_min/max_step_frames are then used; the strobe ignores them). Scales are x nominal_cd: each flash pops at peak_min..peak_max for ONE frame (double_pop_chance holds a 2nd frame), falls off over falloff_frames_min..max frames at peak x falloff[k] (+/- falloff_jitter), e.g. 3x -> 1x -> 0.33x (-> 0.1x), then is fully BLACK for a gap drawn in gap_early_frames at the start shrinking to gap_late_frames at the end (>= 1 black frame always). Lands ON at idle_level at flicker_end, the level the post-flicker hold/envelope starts from. Peaks above 4.0x are refused (validate 'flicker-peak-cap')."
   },
   "fixtures": [
     {

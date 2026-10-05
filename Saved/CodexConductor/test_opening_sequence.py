@@ -61,16 +61,23 @@ lamp = base["lamps"]["FOH L"]["intensity"]
 env_keys = [(f, v) for f, v, i in lamp if fr["swivel_end"] < f < fr["walkin_start"]]
 env_vals = [P.envelope_scale(P.env_at(f / 25.0, rate, env), CFG["envelope"]) for f, _ in env_keys]
 r_lamp = P.pearson([v for _, v in env_keys], env_vals)
-case("FOH L keys follow the envelope in phase 3 (r >= 0.999)", r_lamp >= 0.999 and len(env_keys) > 100, (r_lamp, len(env_keys)))
+# 5 Oct: key floor 100 -> 50. The flicker moved to the entry (36.18 s) pushes the auto swivel_end to 59.52 s, so
+# phase 3 (swivel_end..walkin_start) is ~26 s = ~65 keys at 10-frame steps; the r test itself is unchanged.
+case("FOH L keys follow the envelope in phase 3 (r >= 0.999)", r_lamp >= 0.999 and len(env_keys) > 50, (r_lamp, len(env_keys)))
 flat, _ = plan_with(lambda c: c["envelope"].__setitem__("gain", 0.0))
 flat_keys = [v for f, v, i in flat["lamps"]["FOH L"]["intensity"] if fr["swivel_end"] < f < fr["walkin_start"]]
 r_flat = P.pearson(flat_keys, env_vals[:len(flat_keys)])
 case("NEG: gain 0 gives a flat lamp that does NOT follow the music (r < 0.5)", r_flat < 0.5, r_flat)
-mx = max(v for f, v, i in lamp) / 1740.0
+# 5 Oct: the headroom/clip rules are ENVELOPE caps, so they are measured after FOH L's flicker window. The strobe
+# flicker (Gary 5 Oct ~15:15) pops up to peak_max x nominal INSIDE that window by design; the planner's own
+# 'intensity-cap' rule bounds both (tested in section 9). With the old stutter the window never exceeded idle,
+# so this restriction did not change what the test measured before.
+fe_L = base["lamps"]["FOH L"]["flicker_end"]
+mx = max(v for f, v, i in lamp if f >= fe_L) / 1740.0
 cap = CFG["envelope"]["floor"] + (CFG["envelope"]["peak"] - CFG["envelope"]["floor"]) * (1 - CFG["envelope"]["headroom"])
 case("headroom: FOH L peak scale <= floor+(peak-floor)*(1-headroom) = %.3f" % cap, mx <= cap + 1e-9, mx)
 hot, _ = plan_with(lambda c: c["envelope"].__setitem__("gain", 5.0))
-mx_hot = max(v for f, v, i in hot["lamps"]["FOH L"]["intensity"]) / 1740.0
+mx_hot = max(v for f, v, i in hot["lamps"]["FOH L"]["intensity"] if f >= fe_L) / 1740.0
 case("gain 5 clips at peak scale (<= %.2f), never above" % CFG["envelope"]["peak"], mx_hot <= CFG["envelope"]["peak"] + 1e-9, mx_hot)
 
 # ---- 2. unlit before the music, flicker before swivel
@@ -269,6 +276,185 @@ case("SOURCE: opening_sequence_apply.py has no Enabled write and no set_warmers 
      not writes_warmer_enabled(apply_src))
 case("NEG: a copy with the old write restored is caught",
      writes_warmer_enabled(apply_src + '\n    a.set_editor_property("enabled", False)\n'))
+
+# ---- 9. strobe flicker (Gary 5 Oct ~15:15: start on the entry; 'brutal with a bit of that strobe falloff')
+FL = CFG["flicker"]
+NOM = {fx["name"]: float(fx["nominal_cd"]) for fx in CFG["fixtures"]}
+
+
+def window_keys(plan, name):
+    """[(frame, scale x nominal)] of one lamp's keys inside its own flicker window [start, end] (end = landing)."""
+    lp = plan["lamps"][name]
+    return [(f, v / NOM[name]) for f, v, _ in lp["intensity"] if lp["flicker_start"] <= f <= lp["flicker_end"]]
+
+
+def pops_of(wk, floor):
+    """Indices of flash pops: a key >= floor that rises from the previous key."""
+    return [j for j, (f, v) in enumerate(wk) if v >= floor and (j == 0 or v > wk[j - 1][1])]
+
+
+def black_between(wk, floor):
+    """True if every pair of consecutive pops has a key at exactly 0.0 between them."""
+    p = pops_of(wk, floor)
+    return len(p) >= 2 and all(any(wk[k][1] == 0.0 for k in range(a + 1, b)) for a, b in zip(p, p[1:]))
+
+
+def decay_ok(wk, fl):
+    """Each pop: held 1 (or 2) frames (CONSTANT keys: a 2-frame hold is ONE key, the next key 2 frames later), then
+    2..3 CONSECUTIVE frames each at peak x falloff[k] (+/- jitter), then 0.0 or the landing. Returns (ok, why)."""
+    fall, jit = fl["falloff"], fl["falloff_jitter"]
+    for j in pops_of(wk, fl["peak_min"] - 1e-9):
+        f0, peak = wk[j]
+        k = j + 1
+        if k < len(wk) and wk[k][0] - f0 not in (1, 2):
+            return False, "pop at %d held %d frames (want 1 or 2)" % (f0, wk[k][0] - f0)
+        n = 0
+        while k < len(wk) - 1 and 0.0 < wk[k][1] < peak and (n == 0 or wk[k][0] == wk[k - 1][0] + 1) and n < len(fall):
+            lo, hi = peak * fall[n] * (1 - jit) - 1e-9, peak * fall[n] * (1 + jit) + 1e-9
+            if not lo <= wk[k][1] <= hi:
+                return False, ("frame %d: %.3f not in falloff[%d] band [%.3f, %.3f]" % (wk[k][0], wk[k][1], n, lo, hi))
+            n += 1
+            k += 1
+        clipped = k == len(wk) - 1 and wk[k][0] == wk[-1][0]   # tail cut by the landing
+        if n < fl["falloff_frames_min"] and not clipped:
+            return False, "pop at %d decays over %d frames < %d" % (f0, n, fl["falloff_frames_min"])
+        if k < len(wk) and wk[k][1] != 0.0 and k != len(wk) - 1:
+            return False, "pop at %d is not followed by black (next %.3f)" % (f0, wk[k][1])
+    return True, ""
+
+
+strobe_on = "peak_max" in FL
+case("strobe style is active in opening_timing.json (flicker.peak_max present)", strobe_on, sorted(FL))
+case("flicker_start = 36.18 s -> frame 904 (the entry 36.1767 s); music_start (frame %d) <= flicker_start" % fr["music_start"],
+     fr["flicker_start"] == 904 and fr["music_start"] <= fr["flicker_start"], (fr["flicker_start"], fr["music_start"]))
+case("auto swivel follows the flicker: swivel_start = next major change 43.84 s (1096), swivel_end 59.52 s (1488)",
+     fr["swivel_start"] == 1096 and fr["swivel_end"] == 1488, (fr["swivel_start"], fr["swivel_end"]))
+case("every lamp's staggered flicker ends before the swivel starts",
+     all(l["flicker_end"] <= fr["swivel_start"] for l in base["lamps"].values()),
+     {n: l["flicker_end"] for n, l in base["lamps"].items()})
+for nm in base["lamps"]:
+    wk = window_keys(base, nm)
+    case("PEAK: %s reaches > 2x nominal in its flicker (max %.2fx)" % (nm, max(v for _, v in wk)), max(v for _, v in wk) > 2.0)
+    case("BLACK: %s is fully 0 between every pair of flashes (%d pops)" % (nm, len(pops_of(wk, FL["peak_min"] - 1e-9))),
+         black_between(wk, FL["peak_min"] - 1e-9), wk[:12])
+    ok, why = decay_ok(wk, FL)
+    case("DECAY: %s every flash falls off peak -> ~1/3 -> ~1/10 (-> ~1/30) on consecutive frames, then black" % nm, ok, why)
+    single = [j for j in pops_of(wk, FL["peak_min"] - 1e-9) if j + 1 < len(wk) and wk[j + 1][0] == wk[j][0] + 1]
+    case("POPS: %s mostly single-frame (%d of %d)" % (nm, len(single), len(pops_of(wk, FL["peak_min"] - 1e-9))),
+         len(single) >= 0.7 * len(pops_of(wk, FL["peak_min"] - 1e-9)))
+    pf = [wk[j][0] for j in pops_of(wk, FL["peak_min"] - 1e-9)]
+    iv = [b - a for a, b in zip(pf, pf[1:])]
+    h_ = len(iv) // 2
+    case("DENSER: %s pop intervals shrink (first half mean %.1f > second half mean %.1f frames)"
+         % (nm, sum(iv[:h_]) / max(1, h_), sum(iv[h_:]) / max(1, len(iv) - h_)),
+         len(iv) >= 4 and sum(iv[:h_]) / h_ > sum(iv[h_:]) / (len(iv) - h_), iv)
+    lp = base["lamps"][nm]
+    nxt = [(f, v) for f, v, _ in lp["intensity"] if f > lp["flicker_end"]]
+    land = [v for f, v, _ in lp["intensity"] if f == lp["flicker_end"]]
+    case("LANDING: %s lands ON at idle x nominal at its flicker_end, the same level the next key (swivel_end) holds"
+         % nm, land == [FL["idle_level"] * NOM[nm]] and nxt and nxt[0][0] == fr["swivel_end"]
+         and abs(nxt[0][1] - land[0]) < 1e-9, (land, nxt[:1]))
+    case("UNLIT: %s is 0 before its own flicker_start" % nm,
+         all(v == 0.0 for f, v, _ in lp["intensity"] if f < lp["flicker_start"]))
+# negative controls: each check above must be able to fail
+def landing_ok(plan, nm):
+    lp = plan["lamps"][nm]
+    land = [v for f, v, _ in lp["intensity"] if f == lp["flicker_end"]]
+    nxt = [(f, v) for f, v, _ in lp["intensity"] if f > lp["flicker_end"]]
+    return land == [FL["idle_level"] * NOM[nm]] and bool(nxt) and abs(nxt[0][1] - land[0]) < 1e-9
+
+
+tl = copy.deepcopy(base)
+tl["lamps"]["FOH L"]["intensity"] = [(f, (0.0 if f == tl["lamps"]["FOH L"]["flicker_end"] else v), i)
+                                     for f, v, i in tl["lamps"]["FOH L"]["intensity"]]
+case("NEG: a lamp landing at 0 (not idle) at flicker_end fails LANDING", landing_ok(base, "FOH L") and not landing_ok(tl, "FOH L"))
+soft = window_keys(plan_with(lambda c: c["flicker"].update(peak_min=0.9, peak_max=1.5))[0], "FOH L")
+case("NEG: peak_max 1.5 does NOT reach > 2x", max(v for _, v in soft) <= 1.5 + 1e-9, max(v for _, v in soft))
+wk_l = window_keys(base, "FOH L")
+no_black = [(f, v if v != 0.0 else 0.05) for f, v in wk_l]
+case("NEG: the same keys with every 0.0 lifted to 0.05 fail BLACK", not black_between(no_black, FL["peak_min"] - 1e-9))
+slow = window_keys(plan_with(lambda c: c["flicker"].update(falloff=[0.9, 0.8, 0.7]))[0], "FOH L")
+case("NEG: a slow falloff [0.9, 0.8, 0.7] fails DECAY against the configured shape", not decay_ok(slow, FL)[0],
+     decay_ok(slow, FL))
+held = window_keys(plan_with(lambda c: c["flicker"].update(double_pop_chance=1.0))[0], "FOH L")
+hp = pops_of(held, FL["peak_min"] - 1e-9)
+case("NEG: double_pop_chance 1.0 makes every pop 2 frames (the POPS check would fail)",
+     all(j + 1 < len(held) and held[j + 1][0] == held[j][0] + 2 for j in hp[:-1]) and len(hp) >= 4, held[:10])
+rev = window_keys(plan_with(lambda c: c["flicker"].update(gap_early_frames=[1, 2], gap_late_frames=[12, 24]))[0], "FOH L")
+rp = [rev[j][0] for j in pops_of(rev, FL["peak_min"] - 1e-9)]
+riv = [b - a for a, b in zip(rp, rp[1:])]
+rh = len(riv) // 2
+case("NEG: reversed gaps (dense early, sparse late) fail DENSER", not (sum(riv[:rh]) / max(1, rh) > sum(riv[rh:]) / max(1, len(riv) - rh)), riv)
+# OLD CONFIG UNCHANGED: without the new keys flicker_steps must reproduce the pre-5-Oct planner exactly. Hashes were
+# MEASURED from the pre-change planner (git HEAD a9e33d6 copy, opening_sequence_plan.py.bak-20261005-1530-preflicker).
+OLD_KEYS = ("seed", "idle_level", "on_level_min", "max_step_frames")
+old_cfg = copy.deepcopy(CFG)
+old_cfg["flicker"] = {k: CFG["flicker"][k] for k in OLD_KEYS}
+OLD_HASHES = {("FOH L", 100, 162): "6cd1ceaacaf2005b", ("FOH R", 909, 1000): "f30b13bf1bb7bba4",
+              ("Wash C", 922, 1009): "007fb4c0fb4291da"}
+
+
+def steps_hash(cfg, fx, a, b):
+    import hashlib
+    return hashlib.sha256(json.dumps(P.flicker_steps(fx, a, b, cfg, cfg["flicker"]["seed"])).encode()).hexdigest()[:16]
+
+
+case("OLD CONFIG: without the new keys flicker_steps == the pre-change planner (3 measured hashes)",
+     all(steps_hash(old_cfg, *k) == v for k, v in OLD_HASHES.items()),
+     {k: steps_hash(old_cfg, *k) for k in OLD_HASHES})
+case("NEG: the strobe config gives different steps for the same windows",
+     all(steps_hash(CFG, *k) != v for k, v in OLD_HASHES.items()))
+tweak = copy.deepcopy(old_cfg)
+tweak["flicker"]["on_level_min"] = 0.56
+case("NEG: an old-config change (on_level_min 0.56) breaks the hash (the check can fail)",
+     steps_hash(tweak, "FOH L", 100, 162) != OLD_HASHES[("FOH L", 100, 162)])
+old_plan = P.build_plan(old_cfg, AN, WALK)
+case("OLD CONFIG: the old stutter never exceeds idle in the window and passes validate",
+     old_plan["failures"] == [] and max(v for _, v in window_keys(old_plan, "FOH L")) <= FL["idle_level"] + 1e-9,
+     old_plan["failures"])
+case("deterministic strobe: a rebuild gives identical lamp keys",
+     json.dumps(plan_with()[0]["lamps"], sort_keys=True) == json.dumps(base["lamps"], sort_keys=True))
+# caps: raised ONLY inside the flicker window
+cap_hi, _ = plan_with(lambda c: c["flicker"].update(peak_max=5.0))
+case("NEG: peak_max 5.0 is refused (flicker-peak-cap, hard cap %.1fx)" % P.FLICKER_PEAK_HARD_CAP,
+     has(cap_hi["failures"], "flicker-peak-cap"), cap_hi["failures"])
+tam = copy.deepcopy(base)
+lk = tam["lamps"]["FOH L"]["intensity"]
+jx = next(j for j, k in enumerate(lk) if k[0] > fr["swivel_end"])
+lk[jx] = (lk[jx][0], 3.0 * 1740.0, lk[jx][2])
+case("NEG: a 3x key OUTSIDE the flicker window is refused (intensity-cap)", has(P.validate(tam, CFG), "intensity-cap"))
+tam2 = copy.deepcopy(old_plan)
+lk2 = tam2["lamps"]["FOH L"]["intensity"]
+jy = next(j for j, k in enumerate(lk2) if tam2["lamps"]["FOH L"]["flicker_start"] < k[0] < tam2["lamps"]["FOH L"]["flicker_end"])
+lk2[jy] = (lk2[jy][0], 3.0 * 1740.0, lk2[jy][2])
+case("NEG: with the OLD stutter a 3x key inside the window is still refused (cap raised only for the strobe)",
+     has(P.validate(tam2, old_cfg), "intensity-cap"))
+late, _ = plan_with(lambda c: c["fixtures"][2].__setitem__("flicker_stagger_s", 25.0))
+case("NEG: a Wash C stagger of 25 s (flicker past swivel_end) is refused (flicker-before-envelope)",
+     has(late["failures"], "flicker-before-envelope"), late["failures"])
+long_, _ = plan_with(lambda c: c["rules"].__setitem__("flicker_s", 8.0))
+case("NEG: flicker_s 8 s pushes the auto swivel to 59.5 s; a JSON swivel_start 43.84 s with it is refused",
+     has(plan_with(lambda c: c["rules"].__setitem__("flicker_s", 8.0) or
+                   c["moments"].__setitem__("swivel_start", {"value": 43.84}))[0]["failures"], "flicker-before-swivel")
+     and long_["frames"]["swivel_start"] > 1096)
+# record/marker: the JSON change must win cleanly over the last APPLY (record on disk) and its markers
+REC = P.load_json(os.path.join(HERE, "opening_sequence_record.json"))
+last_rec = REC["last_applied_frames"]
+mk_rec = dict(last_rec)                                   # markers exactly where the last APPLY wrote them
+pr, _ = plan_with(markers=mk_rec, last=last_rec)
+case("RECORD: last APPLY (flicker_start %d) + markers unmoved -> JSON wins, no conflict, flicker_start 904"
+     % last_rec["flicker_start"], pr["failures"] == [] and pr["frames"]["flicker_start"] == 904
+     and pr["sources"]["flicker_start"] == "json" and pr["writeback"] == {}, (pr["sources"], pr["failures"]))
+case("RECORD: flicker_end / swivel_start / swivel_end also move by JSON (auto), music_start unchanged",
+     all(pr["sources"][n] == "json" for n in ("flicker_end", "swivel_start", "swivel_end"))
+     and pr["sources"]["music_start"] == "unchanged", pr["sources"])
+l208 = dict(last_rec, flicker_start=208)
+p208, _ = plan_with(markers=dict(mk_rec, flicker_start=208), last=l208)
+case("RECORD: had the last APPLY left flicker_start at 208 with the marker at 208, the JSON still wins",
+     p208["frames"]["flicker_start"] == 904 and p208["sources"]["flicker_start"] == "json" and not p208["conflicts"])
+pdr, _ = plan_with(markers=dict(mk_rec, flicker_start=last_rec["flicker_start"] + 30), last=last_rec)
+case("NEG: if Gary dragged OPN flicker_start since the last APPLY, the JSON change is a CONFLICT (refused)",
+     has(pdr["failures"], "marker-conflict"), pdr["failures"])
 
 passed = sum(1 for _, ok in RESULTS if ok)
 print("\nRESULT %d/%d passed" % (passed, len(RESULTS)))

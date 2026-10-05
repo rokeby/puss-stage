@@ -395,9 +395,15 @@ def reconcile_moments(json_frames, marker_frames, last_applied):
 
 # --------------------------------------------------------------------------------------------- lamp keys
 def flicker_steps(fixture, start_frame, end_frame, cfg, seed):
-    """Deterministic stutter: on/off steps of 1..max_step frames whose ON probability ramps 0.2 -> 1.0.
-    Returns [(frame, scale)] for CONSTANT interpolation, ending ON at the idle level at end_frame."""
+    """Deterministic stutter, [(frame, scale)] for CONSTANT interpolation, ending ON at the idle level at
+    end_frame. Two styles, chosen by the keys present in cfg["flicker"]:
+      - "peak_max" present -> strobe_flicker_steps (Gary 5 Oct ~15:15, 'brutal with a bit of strobe falloff');
+      - absent -> the original stutter below, byte-for-byte unchanged (backward compatible)."""
     fl = cfg["flicker"]
+    if "peak_max" in fl:
+        return strobe_flicker_steps(fixture, start_frame, end_frame, fl, seed)
+    # ---- original stutter: on/off steps of 1..max_step frames whose ON probability ramps 0.2 -> 1.0
+
     idle = float(fl["idle_level"])
     lo_on = float(fl.get("on_level_min", 0.55))
     max_step = int(fl["max_step_frames"])
@@ -417,6 +423,75 @@ def flicker_steps(fixture, start_frame, end_frame, cfg, seed):
         i += 1
     keys.append((end_frame, idle))
     return keys
+
+
+# Safety ceiling for the strobe peaks (x nominal). Gary 5 Oct asked for ~3x; anything above this is refused
+# by validate() as 'flicker-peak-cap' rather than keyed. Applies ONLY inside each lamp's flicker window;
+# outside it the envelope cap (envelope.peak) still holds (validate 'intensity-cap').
+FLICKER_PEAK_HARD_CAP = 4.0
+
+
+def strobe_flicker_steps(fixture, start_frame, end_frame, fl, seed):
+    """Strobe stutter (Gary 5 Oct ~15:15: 'brutal with a bit of that strobe falloff'). Scales are x nominal.
+    Each flash: a pop at peak in [peak_min, peak_max] (mostly ONE frame; double_pop_chance holds it a second
+    frame), then a falloff of falloff_frames_min..max frames at peak x falloff[k] (each x (1 +/- falloff_jitter)),
+    then BLACK (0.0) for a gap. Gaps are drawn in [gap_early_frames] at the start and shrink towards
+    [gap_late_frames] at the end (progress ** gap_curve), always >= 1 frame, so every flash is separated by
+    at least one fully black frame. No flash starts unless its pop + falloff_frames_min fit before end_frame; a
+    longer falloff (or a double pop) that would cross end_frame is clipped by the landing. The last key is
+    (end_frame, idle_level): the lamp LANDS ON at the level the post-flicker hold/envelope starts from.
+    Deterministic: every draw is unit_hash(seed, fixture, tag, index) - no draw-order dependence."""
+    idle = float(fl["idle_level"])
+    pmin, pmax = float(fl["peak_min"]), float(fl["peak_max"])
+    falloff = [float(x) for x in fl.get("falloff", [0.34, 0.11, 0.035])]
+    fmax = max(0, min(len(falloff), int(fl.get("falloff_frames_max", len(falloff)))))
+    fmin = max(0, min(fmax, int(fl.get("falloff_frames_min", fmax))))
+    jitter = float(fl.get("falloff_jitter", 0.0))
+    hold2 = float(fl.get("double_pop_chance", 0.0))
+    g_early = [float(x) for x in fl.get("gap_early_frames", [10, 20])]
+    g_late = [float(x) for x in fl.get("gap_late_frames", [1, 3])]
+    curve = float(fl.get("gap_curve", 1.0))
+    span = max(1, end_frame - start_frame)
+
+    def h(*tag):
+        return unit_hash(seed, fixture, "strobe", *tag)
+
+    def gap(i, at):
+        t = min(1.0, max(0.0, (at - start_frame) / float(span))) ** curve
+        lo = g_early[0] + (g_late[0] - g_early[0]) * t
+        hi = g_early[1] + (g_late[1] - g_early[1]) * t
+        return max(1, int(round(lo + (hi - lo) * h("gap", i))))
+
+    raw = [(start_frame, 0.0)]
+    f, i = start_frame, 0
+    if not fl.get("first_flash_at_start", True):
+        f += gap(-1, start_frame)
+    while f + 1 + fmin <= end_frame:                   # a flash starts only if its pop + minimum falloff fit
+        peak = pmin + (pmax - pmin) * h("peak", i)
+        seq = [peak]
+        if h("hold", i) < hold2:
+            seq.append(peak)
+        n = fmin + int(h("tail", i) * (fmax - fmin + 1))
+        for k in range(min(n, fmax)):
+            seq.append(peak * falloff[k] * (1.0 + jitter * (2.0 * h("fall", i, k) - 1.0)))
+        for j, v in enumerate(seq):
+            if f + j >= end_frame:
+                break
+            raw.append((f + j, v))
+        f += len(seq)
+        if f < end_frame:
+            raw.append((f, 0.0))                       # fully black between flashes
+        f += gap(i, f)
+        i += 1
+    raw.append((end_frame, idle))
+    keys = {}
+    for fr_, v in raw:                                 # a later key at the same frame wins
+        keys[fr_] = v
+    out = []
+    for fr_ in sorted(keys):
+        if not out or out[-1][1] != keys[fr_]:
+            out.append((fr_, keys[fr_]))
+    return out
 
 
 def envelope_scale(env_value, env_cfg):
@@ -519,8 +594,10 @@ def build_plan(cfg, analysis, walk_planner_path, marker_frames=None, last_applie
         if not fx.get("enabled", True):
             continue
         ik, rk = fixture_keys(fx, frames, cfg, env_rate, env, fps)
-        lamps[fx["name"]] = {"intensity": ik, "rotation": rk,
-                             "flicker_end": frames["flicker_end"] + int(round(float(fx.get("flicker_stagger_s", 0.0)) * fps))}
+        stagger = int(round(float(fx.get("flicker_stagger_s", 0.0)) * fps))
+        lamps[fx["name"]] = {"intensity": ik, "rotation": rk, "nominal_cd": float(fx["nominal_cd"]),
+                             "flicker_start": frames["flicker_start"] + stagger,
+                             "flicker_end": frames["flicker_end"] + stagger}
     plan = {
         "fps": fps,
         "frames": frames,
@@ -551,6 +628,7 @@ def validate(plan, cfg):
     fr, fps = plan["frames"], plan["fps"]
     s = plan["seconds"]
     fail = []
+    fl_cfg = cfg["flicker"]
     order = ["music_start", "flicker_start", "flicker_end", "swivel_start", "swivel_end"]
     for a, b in zip(order, order[1:]):
         if fr[b] < fr[a] or (a == "flicker_start" and fr[b] <= fr[a]) or (a == "swivel_start" and fr[b] <= fr[a]):
@@ -592,6 +670,28 @@ def validate(plan, cfg):
         if rot:
             if rot[1][0] < lamp.get("flicker_end", fr["flicker_end"]):
                 fail.append("flicker-before-swivel: %s swivels before its flicker ends" % name)
+        lf_start = lamp.get("flicker_start", fr["flicker_start"])
+        lf_end = lamp.get("flicker_end", fr["flicker_end"])
+        if lf_end >= fr["swivel_end"]:
+            fail.append("flicker-before-envelope: %s flicker_end %d >= swivel_end %d (flicker keys would interleave "
+                        "with the envelope keys)" % (name, lf_end, fr["swivel_end"]))
+        # Intensity cap (5 Oct). Outside the flicker window nothing may exceed the envelope peak (x nominal).
+        # INSIDE the flicker window the cap is raised ONLY for the strobe style (flicker.peak_max present):
+        # Gary 5 Oct ~15:15 asked for ~3x nominal pops there. The old stutter never exceeds idle_level.
+        nominal = lamp.get("nominal_cd")
+        if nominal:
+            env_cap = max(float(cfg["envelope"]["peak"]), float(fl_cfg["idle_level"]))
+            win_cap = float(fl_cfg["peak_max"]) if "peak_max" in fl_cfg else float(fl_cfg["idle_level"])
+            for f, v, _ in ik:
+                cap = win_cap if lf_start <= f < lf_end else env_cap
+                if v > cap * nominal + 1e-6:
+                    fail.append("intensity-cap: %s %.1f cd at frame %d > %.2f x nominal (%s)"
+                                % (name, v, f, cap, "flicker window" if lf_start <= f < lf_end else "outside flicker"))
+                    break
+    if "peak_max" in fl_cfg and float(fl_cfg["peak_max"]) > FLICKER_PEAK_HARD_CAP:
+        fail.append("flicker-peak-cap: peak_max %.2f > hard cap %.2f x nominal" % (float(fl_cfg["peak_max"]), FLICKER_PEAK_HARD_CAP))
+    if "peak_max" in fl_cfg and float(fl_cfg["peak_min"]) > float(fl_cfg["peak_max"]):
+        fail.append("flicker-peak-order: peak_min %.2f > peak_max %.2f" % (float(fl_cfg["peak_min"]), float(fl_cfg["peak_max"])))
     if plan["conflicts"]:
         fail.extend("marker-conflict: " + c for c in plan["conflicts"])
     fail.extend(house_warmer_check(cfg)[0])
