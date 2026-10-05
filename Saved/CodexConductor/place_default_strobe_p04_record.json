@@ -1,0 +1,19 @@
+{
+ "run": "STROBE-20261005-004420",
+ "backup": "E:/PussStage/Backups/PreDefaultStrobe-STROBE-20261005-004420",
+ "strobe": "P04 Strobe (default, Gary to place)",
+ "ppv": "P04 Strobe Ghost Volume (PPV_StrobeGhost_Subtle)",
+ "location": [
+  2000.0,
+  240650.0,
+  60.0
+ ],
+ "applied": {
+  "period_seconds": 1.0,
+  "flash_seconds": 0.03999999910593033,
+  "decay_seconds": 0.33000001311302185,
+  "ghost_seconds": 0.33000001311302185,
+  "ghost_max_weight": 1.0,
+  "ghost_volume": "P04 Strobe Ghost Volume (PPV_StrobeGhost_Subtle)"
+ }
+}

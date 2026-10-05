@@ -241,3 +241,17 @@
 - Fuser: production-use terms OK for the show; job 43 image-to-image from our own concepts is OK for P06.
 - Scene 3: no door (backdrop stays whole).
 - P04 lens flare back to the engine default 1.0.
+
+## Overnight run, 5 Oct ~00:30–00:45 local (Gary's standing authority)
+- **Build** (2497c96): F1, RT and the strobe, plus a strobe RF_Transient fix. Full InfinityStage suite 145/0; both single tests green.
+- **W&T:** wet_test_revert done (gallery MIs back on v1).
+- **Exit blocks REVERTED** on S1, S2, S4, S5 and S6; all five door leaves verified CLOSED. Scenes trimmed back to their original lengths (5270/775/775/1225/775). Both tests green (e8a7405).
+- **Interaction 1 curtain sleight APPLIED** (275eea7): Interaction 1 is 638→2183 frames, sleight cut at 1250, "GO 10 curtain" HOLD at 1675. Both tests green. Fixes on the way:
+  - the old I1 walk-in (no apply record) was stripped by a backed-up copy of the revert;
+  - +270 tail frames so the new walk starts after the GO;
+  - the spawn track is reused, not duplicated (one Don't-Save restart).
+  - **SavedFixturePIE will now go RED:** it asserts the old I1 stalls view. Its fixture needs an update; held for cueing.
+- **P04 lens flare** back to the engine default (override cleared, b990eb9).
+- **Default strobe placed in P04:** "P04 Strobe (default, Gary to place)" plus its ghost PPV, at world (2000, 240650, 60). Period 1 s, flash 0.04 s, decay 0.33 s, ghost 0.33 s.
+- **Look bench:** FAILED on its first spawn. UE 5.8 Python cannot spawn actors into a PIE world (measured: only the editor-world spawn APIs exist). Its property toggles worked and were restored. It is being reworked to pre-place hidden temps in the editor world, then toggle in PIE.
+- **Underpass rig kit:** Blender modules, materials and import/Phase A tools are being built offline.
