@@ -53,3 +53,16 @@ Design notes (inferred):
 - **The deck.** The open deck gives beams for free: a light above shining down through the tie gaps makes slatted shafts in haze.
 - **Materials.** Two cover nearly everything: green-painted riveted steel (rivet normals, paint chips, rust and a black lower band), and grimy concrete for the piers. Low-res is fine.
 - **Floor.** Wet black asphalt or stage-floor sheen with puddles, and long specular streaks from warm and red sources.
+
+## Gary, 5 Oct (later), verbatim
+> The rigging is kind of a piece of the wider structure that only, as far as I know, changes in length and does not need
+> to be immensely detailed. It would be great to build that in Blender and in the most efficient way. implement that across
+> all passages as a replacement or, if more effectively, an adaptation of the current thinner stage rig system. We actually
+> don't see it very often, although we might glimpse it even from the beginning. opening stage moment. And don't worry too
+> much about the strobe for now. Please build a strobe and make it possible so that I can set a regular strobe light in an
+> area if I need. As far as I can tell, what's distinctive about the strobe is not only its flash, but the sense of safety.
+> It's like maybe a third of a second that takes it in the ground.
+
+Conductor's reading (inferred):
+- **The rig** is a modular kit authored in Blender. Only its length varies. It goes across ALL Passages, as a replacement for or adaptation of the current Structure rig, and is visible from the Opening.
+- **The strobe** is a placeable, regular strobe, with Gary setting it per area. Its character is a sharp flash, then about 1/3 s of afterglow fading on the (wet) ground. "Sense of safety" probably means a hazard/warning-beacon feel; this is inferred from a voice transcription.
