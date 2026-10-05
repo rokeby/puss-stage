@@ -12,8 +12,21 @@
  "interaction_params": {
   "1": {
    "extra_tail_frames": 270
+  },
+  "2": {
+   "extra_tail_frames": 451
+  },
+  "3": {
+   "extra_tail_frames": 463
+  },
+  "4": {
+   "extra_tail_frames": 62
+  },
+  "5": {
+   "extra_tail_frames": 62
   }
  },
  "tail_note": "5 Oct conductor: I1 walk from the sleight seat needs ~19 s; DRY measured walk start 1431 < GO 1675, so +270 frames (244 + 1 s margin)",
- "rollout_note": "Gary 5 Oct PIE: 'no evidence of Scene-to-passage transitions at scene ends. Need to be able to cue into this, have the curtain moment, the sleight of hand transition, the boy cat shadow slot' -> roll out to I2-I5 (DRY each first; walk-start vs GO margins per Interaction decide extra_tail_frames)"
+ "rollout_note": "Gary 5 Oct PIE: 'no evidence of Scene-to-passage transitions at scene ends. Need to be able to cue into this, have the curtain moment, the sleight of hand transition, the boy cat shadow slot' -> roll out to I2-I5 (DRY each first; walk-start vs GO margins per Interaction decide extra_tail_frames)",
+ "tail_note_I2_I5": "5 Oct conductor: tails from the PILE agent's offline re-plan on each live DRY (walk start >= GO+25); I2 451, I3 463 need the PILE hold; I4/I5 62"
 }
