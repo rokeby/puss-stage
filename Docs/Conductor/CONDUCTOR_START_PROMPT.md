@@ -133,6 +133,7 @@ LATEST (Conductor 3 handover, 2 Oct ~00:30; read this first, it supersedes the l
   false, INFERRED) -> SUPERSEDED by the Arrival Details timing patch AT (Gary: Details panel; roof +4.13->+8.63, lattice
   +8.63->+12.63, lights strike +10 s keeping stagger; spec specs/HANGAR_TIMING_DETAILS.md, Codex drafting).
   HELD patches for the next build: SS (scene shot stepping, d410198) + AT when reviewed. Editor CLOSED by Gary at 08:38.
+- 5 OCT 02:10 (end of 4 Oct session): all applied work + open items in Docs/Conductor/MORNING_SUMMARY_2026-10-04.md. NEXT BUILD WINDOW (Gary closes UE or OKs me): held cueing_F1 (85166df, SavedFixturePIE reads ExternalSound) + RT (f52bf87, RetimeEverythingFollows; music-moves-on-retime may be its first real measurement). Then: cue_list_tool read-only, Gary PIE checklist Docs/Conductor/CUEING_MORNING_CHECKLIST_2026-10-05.md, P05 verdict -> lighting scores P01-P04/P06, swarm placement in S6, retire stale absolute-frame tools (audit). Avoid Passage length changes until Gary decides stretch vs keep.
 - 4 OCT NIGHT (later): all seven offline Claude builds landed and verified by me (harnesses re-run). Index + editor queue + Gary decisions: Docs/Conductor/MORNING_SUMMARY_2026-10-04.md. P06 docking: option A chosen (end held), see P06_DOCKING_CLEARANCE_2026-10-04.md; compiler beat is per-wing IntervalToNext (source-proven).
 - NIGHT 2 Oct (Conductor 4), all measured unless marked:
   BUILT 3d923f5 (AT hangar timing + PR passage resize; suite 116/0/116). APPLIED: P01 wing score +15 s (PreP01ScoreShift-
