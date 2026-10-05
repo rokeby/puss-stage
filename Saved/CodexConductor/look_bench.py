@@ -23,7 +23,14 @@ on existing PIE actors DO work (the base and shadows states ran and restored). S
            Finds the PIE copies by tag + label, refuses if any pool actor a state
            needs is missing or if any is already lit, and per state only MOVES,
            SHOWS, HIDES and SETS PROPERTIES on them. No spawn call exists on the
-           PIE side. Same settle / streaming / clip logic as before.
+           PIE side. Rerun fixes (5 Oct, after the 050217 white frames; see
+           LookBench/20261005-050217/state_luma.json): show strobes OFF for the run
+           (recorded + restored); the clip-start camera pose is read first and the
+           underpass / arch proxies are placed AHEAD of it; per state a base return
+           (luma must come back to the first base's), then a luma settle gate
+           (CaptureMachine) before every clip, a frustum check
+           (LOOK_BENCH_IN_VIEW|state|n_visible) and a route check after it. Gate
+           failures do not stop the run; they turn LOOK_BENCH_OK into LOOK_BENCH_FAILED.
   HOLD     in PIE: apply BENCH_TOGGLES, hold HOLD_SECONDS, restore + verify.
   RESTORE  in PIE: re-apply every original in this prepare's capture records
            (newest first, so the oldest originals win) and hide the whole pool.
@@ -74,8 +81,10 @@ import math
 import os
 import pathlib
 import re
+import struct
 import time
 import traceback
+import zlib
 
 BASE = pathlib.Path("E:/PussStage/Saved/CodexConductor")
 BENCH_DIR = BASE / "LookBench"
@@ -102,14 +111,25 @@ DEFAULTS = {
     "passage": "P04",
     "bay": 4,
     "half_width_cm": 1450.0,        # P04 LOW_SIDE lamps stand at lane y +-1450 (PIE live_lights, 4 Oct)
+    # Route direction. MEASURED 5 Oct (prepare 20261005-050217): in all 17 clips the PIE camera travelled +X at
+    # y = 240000.0 exactly, while the neighbour-centroid frame for bay 4 came out yaw -25.35 deg (uneven lamp
+    # counts per bay skew the centroids). None = the old neighbour-centroid direction.
+    "route_yaw_deg": 0.0,
+    "route_tol_deg": 10.0,           # clip camera travel vs frame fwd; more = LOOK_BENCH_ROUTE gate failure
     "shadow_keys_max": 4,
-    "haze_densities": (0.10, 0.25, 0.55),   # near -> far: varied, thin where the camera is
+    # [inf] 5 Oct rerun values. Engine range is 0..2, default 1.0 (LocalFogVolumeComponent.h:20-25); the old
+    # 0.10/0.25/0.55 were not the measured cause of the white frames (the P04 show strobe was), but haze is meant
+    # to be subtle, so thinner and still varied near -> far.
+    "haze_densities": (0.04, 0.10, 0.22),
     "haze_radius_cm": 700.0,
     "haze_height_falloff": 600.0,
     "haze_phase_g": 0.55,
-    "haze_vsi": 2.5,                 # volumetric scattering on bay lights while hazed
-    "beam_cd": 6000.0,
-    "rake_cd": 2500.0,
+    "haze_vsi": 1.0,                 # volumetric scattering on bay lights while hazed (was 2.5)
+    # Bench light levels [inf]: rescaled toward the bay's own levels (P04 bay 4 LOW_SIDE 104/152, BEAM_L 440,
+    # PRACTICAL_TUBE 1760; their intensity UNITS were not read - this version records them as light_meta.units).
+    # The old values (beam 6000, rake 2500, strobe 12000, glint 1500, shaft 8000 cd) were 4-80x those levels.
+    "beam_cd": 900.0,
+    "rake_cd": 350.0,
     "rake_height_cm": 140.0,
     "rake_x_offset_cm": -80.0,       # toward the approaching camera from the bay centre
     "floor_scalars": {"Roughness_Low": 0.08, "Roughness_High": 0.22},
@@ -119,14 +139,38 @@ DEFAULTS = {
                 (-520.0, 600.0, 180.0), (650.0, 700.0, 240.0)),   # (dx, dy, diameter) in bay frame
     "strobe_hz": 1.0,
     "strobe_duty": 0.12,
-    "strobe_cd": 12000.0,
+    "strobe_cd": 3000.0,
     "edge_color": (0.62, 0.50, 0.36, 1.0),   # raw softwood / paper core
     "edge_max_components": 64,
     "lead_seconds": 4.0,
     "clip_seconds": 5.0,
     "clip_fps": 6.0,
-    "settle_seconds": 4.0,
+    # Settle gate (CAPTURE). The show uses AUTO exposure and the bench never overrides it (memory: capture
+    # exposure convention), so before every clip the bench waits until the PICTURE has stopped changing:
+    # small HighResShot probes every probe_interval_s, mean Rec.709 luma (0-255 sRGB values, the same measure as
+    # LookBench/<prepare>/state_luma.json); stable = the last settle_window probes within
+    # max(settle_tol_abs, settle_tol_rel * mean). Not stable by settle_max_seconds = LOOK_BENCH_SETTLE_FAILED
+    # (gate failure; the clip is still recorded, flagged). settle_min_seconds counts from the first scrub.
+    "repose_seconds": 1.0,           # re-scrub after this (a jump's first frame is stale), probes start after it
+    "settle_min_seconds": 4.0,
+    "settle_max_seconds": 20.0,
     "settle_ticks": 45,
+    "probe_interval_s": 0.5,
+    "probe_timeout_s": 4.0,
+    "probe_resolution": (256, 144),
+    "settle_window": 4,
+    "settle_tol_abs": 2.0,
+    "settle_tol_rel": 0.03,
+    # Between states: back to base, settle, and the settled base luma must come back to the first base's.
+    "base_return": True,
+    "base_return_tol_abs": 4.0,
+    "base_return_tol_rel": 0.10,
+    # Show strobes (AInfinityStageStrobeLight): "off" = strobe_enabled False for the whole CAPTURE (recorded,
+    # restored). MEASURED 5 Oct: the P04 default strobe (placed 00:44, 20000 cd peak, ghost PPV exposure bias +0.4,
+    # bloom 2.0) put a 1.0 s white sawtooth into EVERY bay-4 state, base included. "keep" leaves them running.
+    "show_strobes": "off",
+    "pose_seconds": 1.5,             # CAPTURE first reads the PIE camera pose at the clip start (anchor + frustum)
+    "fov_fallback_deg": 90.0,        # [inf] used only if the camera manager returns no FOV
     "hold_seconds": 120.0,
     "resolution": (1280, 720),
     # glint: a practical placed at the MIRROR position of one wing face for the camera route
@@ -135,7 +179,7 @@ DEFAULTS = {
     "glint_cam_distances": (1000.0, 800.0, 1200.0, 600.0, 1500.0, 1800.0, 400.0, 2200.0),
     "glint_light_dist_cm": 700.0,
     "glint_z_range": (40.0, 1100.0),
-    "glint_cd": 1500.0,
+    "glint_cd": 400.0,               # was 1500: bay 9 glint lifted whole-frame mean luma 26 -> 70 (measured 5 Oct)
     "glint_source_radius_cm": 2.0,   # small source = tight specular highlight
     # underpass: the Phase B mock bay of UNDERPASS_RIG_KIT_PLAN_2026-10-05.md section 4, as box
     # proxies (SM_UP_* are not imported yet)
@@ -144,15 +188,28 @@ DEFAULTS = {
     "underpass_tie_every_cm": 45.0,
     "underpass_steel": (0.035, 0.045, 0.04, 1.0),
     "underpass_concrete": (0.18, 0.17, 0.16, 1.0),
-    "underpass_shaft_cd": 8000.0,
-    # arch_ring_border: pointed arch-rib borders. [inf] starting values for a look test, not a
-    # measured fit: springing low enough to sit in frame from the cat-eye camera.
+    "underpass_shaft_cd": 1500.0,
+    # Underpass and arches are placed AHEAD OF THE CAMERA (anchor "camera": along-route distance from the PIE
+    # camera pose read at the clip start), not at the bay centre. MEASURED 5 Oct: the bay-4 clip camera starts
+    # 120 cm before the bay centre and travels only ~290 cm, so a deck at 20 m straight overhead and arches at
+    # dx 0/500/1000 on a -25 deg axis were outside the view. "bay" = the old bay-centre placement.
+    "underpass_anchor": "camera",
+    "underpass_ahead_cm": None,      # None = auto from the live pose: deck at underpass_deck_frame_frac of the
+    "underpass_deck_frame_frac": 0.8,  # half frame height above centre (90 deg h-FOV 16:9 -> ~40 m ahead of camera)
+    "anchor_ahead_clamp_cm": (1500.0, 8000.0),
+    # arch_ring_border: pointed arch-rib borders. [inf] look-test values chosen so the band crosses the upper
+    # part of the frame from the cat-eye camera; every state is frustum-checked live (LOOK_BENCH_IN_VIEW).
+    "arch_anchor": "camera",
+    "arch_first_ahead_cm": None,     # camera anchor: None = auto, the FIRST arch's apex at arch_apex_frame_frac
+    "arch_apex_frame_frac": 1.2,     # of the half frame height above centre: >1 = the first arch's apex just out of
+                                     # frame, its band crossing the upper third; the next two recede whole
+    "arch_min_visible_frac": 0.25,   # gate: at least this share of arch segments inside the clip-start frustum
     "arch_count": 3,
     "arch_spacing_cm": 500.0,
-    "arch_first_dx_cm": 0.0,
+    "arch_first_dx_cm": 0.0,         # bay anchor only
     "arch_half_span_cm": None,       # None = the corridor half width
-    "arch_spring_z_cm": 550.0,
-    "arch_radius_factor": 0.6,       # R = factor * span; > 0.5 gives a pointed (two-centred) arch
+    "arch_spring_z_cm": 250.0,       # was 550 (apex 2266, out of view); now apex ~1840
+    "arch_radius_factor": 0.55,      # R = factor * span; > 0.5 gives a pointed (two-centred) arch (was 0.6)
     "arch_segments_per_side": 6,
     "arch_band_cm": 150.0,           # radial depth of the rib band
     "arch_thick_cm": 12.0,           # along the route
@@ -286,27 +343,34 @@ def centroid(points):
     return tuple(sum(p[i] for p in points) / n for i in range(3))
 
 
-def bay_frame(here, before, after, half_width):
-    """Origin at the bay centroid on the floor, fwd along the route (from the
-    neighbours' centroids), right across it. Falls back to +X (P04 is straight)."""
+def bay_frame(here, before, after, half_width, route_yaw=None):
+    """Origin at the bay centroid on the floor, fwd along the route, right across it.
+    route_yaw (deg) given: fwd is that direction and the pitch is the neighbours' spacing
+    PROJECTED on it. None: fwd from the neighbours' centroids (skews when bays carry
+    uneven lamp counts: P04 bay 4 came out -25.35 deg on a straight +X route, 5 Oct).
+    Falls back to +X (P04 is straight)."""
     if here is None:
         raise RuntimeError("LOOK_BENCH_BAY_NOT_FOUND")
     a = before or here
     b = after or here
     dx, dy = b[0] - a[0], b[1] - a[1]
     length = math.hypot(dx, dy)
-    if length < 1.0:
+    span = 2.0 if (before and after) else 1.0
+    if route_yaw is not None:
+        fwd = (math.cos(math.radians(route_yaw)), math.sin(math.radians(route_yaw)))
+        pitch = abs(dx * fwd[0] + dy * fwd[1]) / span
+    elif length < 1.0:
         fwd = (1.0, 0.0)
         pitch = 0.0
     else:
         fwd = (dx / length, dy / length)
-        pitch = length / (2.0 if (before and after) else 1.0)
+        pitch = length / span
     return {"origin": (here[0], here[1], 0.0), "fwd": fwd, "right": (-fwd[1], fwd[0]),
             "yaw_deg": math.degrees(math.atan2(fwd[1], fwd[0])),
             "pitch_cm": pitch, "half_width_cm": float(half_width)}
 
 
-def resolve_bay(adapter, passage, bay, half_width):
+def resolve_bay(adapter, passage, bay, half_width, route_yaw=None):
     """Bay lights -> (ids, light rows, frame). Shared by PREPARE (editor) and CAPTURE (PIE)."""
     ids = adapter.find_lights(bay_prefixes(passage, bay))
     if not ids:
@@ -317,7 +381,7 @@ def resolve_bay(adapter, passage, bay, half_width):
                        for l in adapter.find_lights(bay_prefixes(passage, bay - 1))]) if bay > 1 else None
     after = centroid([adapter.read_light(l)["location"]
                       for l in adapter.find_lights(bay_prefixes(passage, bay + 1))])
-    return ids, lights, bay_frame(here, before, after, half_width)
+    return ids, lights, bay_frame(here, before, after, half_width, route_yaw)
 
 
 def to_world(frame, dx, dy, z):
@@ -350,7 +414,45 @@ def pointed_arch_profile(half_span, spring_z, radius, n):
             "apex_z": spring_z + r * math.sin(t_apex), "radius": r}
 
 
-def arch_specs(frame, p):
+def anchor_dx(frame, p, anchor, key_anchor, key_ahead, key_bay):
+    """Along-route dx (bay frame) for a proxy group: camera anchor = the clip-start camera's
+    along-route position + key_ahead; otherwise (or with no anchor read yet) p[key_bay]."""
+    if p.get(key_anchor) == "camera" and anchor is not None:
+        ahead = p.get(key_ahead)
+        if ahead is None:
+            ahead = anchor["auto"][key_ahead]
+        return float(anchor["along_cm"]) + float(ahead)
+    return float(p[key_bay]) if key_bay else 0.0
+
+
+def auto_ahead(p, cam_z, fov_deg, aspect):
+    """Distances ahead of the camera at which a feature of height H appears at frac x the half
+    frame height above centre, for a LEVEL camera: d = (H - cam_z) / (frac * tan(vfov / 2)).
+    Arch: H = the apex of a pointed arch of the configured profile. Clamped."""
+    tan_v = math.tan(math.radians(float(fov_deg)) / 2.0) / float(aspect)
+    lo, hi = p["anchor_ahead_clamp_cm"]
+    clamp = lambda d: max(float(lo), min(float(hi), d))
+    hw = float(p.get("arch_half_span_cm") or p["half_width_cm"])
+    apex = pointed_arch_profile(hw, float(p["arch_spring_z_cm"]), float(p["arch_radius_factor"]) * 2.0 * hw,
+                                int(p["arch_segments_per_side"]))["apex_z"]
+    return {"arch_first_ahead_cm": clamp((apex - cam_z) / (float(p["arch_apex_frame_frac"]) * tan_v)),
+            "underpass_ahead_cm": clamp((float(p["underpass_deck_z_cm"]) - cam_z)
+                                        / (float(p["underpass_deck_frame_frac"]) * tan_v))}
+
+
+def camera_anchor(frame, cam_loc, p=None, fov_deg=None, aspect=None):
+    """The camera's along-route / lateral position in the bay frame (+ auto distances when p given)."""
+    ox, oy, _ = frame["origin"]
+    dx, dy = cam_loc[0] - ox, cam_loc[1] - oy
+    out = {"along_cm": dx * frame["fwd"][0] + dy * frame["fwd"][1],
+           "lateral_cm": dx * frame["right"][0] + dy * frame["right"][1], "camera": list(cam_loc)}
+    if p is not None:
+        out["auto"] = auto_ahead(p, cam_loc[2], fov_deg or p["fov_fallback_deg"],
+                                 aspect or float(p["resolution"][0]) / float(p["resolution"][1]))
+    return out
+
+
+def arch_specs(frame, p, anchor=None):
     """Box-segment proxies of arch_count pointed arch-rib borders, each a band whose
     INNER edge (intrados) follows the profile, thin along the route so its face
     looks at the approaching camera, receding at arch_spacing_cm."""
@@ -361,7 +463,7 @@ def arch_specs(frame, p):
     yaw = frame["yaw_deg"]
     specs = []
     for i in range(int(p["arch_count"])):
-        dx = float(p["arch_first_dx_cm"]) + i * float(p["arch_spacing_cm"])
+        dx = anchor_dx(frame, p, anchor, "arch_anchor", "arch_first_ahead_cm", "arch_first_dx_cm")             + i * float(p["arch_spacing_cm"])
         for side in ("L", "R"):
             pts, cen = prof[side], prof["centres"][side]
             for k in range(n):
@@ -380,9 +482,10 @@ def arch_specs(frame, p):
     return specs
 
 
-def plan_spawns(frame, toggles, p, glint=None):
+def plan_spawns(frame, toggles, p, glint=None, anchor=None):
     """Plain pool specs (label, kind, transform, properties). Labels all start with
-    SPAWN_PREFIX. PREPARE spawns one actor per label; CAPTURE places and shows them."""
+    SPAWN_PREFIX. PREPARE spawns one actor per label; CAPTURE places and shows them.
+    anchor: camera_anchor() of the clip-start camera (positions only; labels never depend on it)."""
     specs = []
     yaw = frame["yaw_deg"]
     pitch_cm = max(frame["pitch_cm"], 600.0)
@@ -441,31 +544,32 @@ def plan_spawns(frame, toggles, p, glint=None):
         steel, concrete = p["underpass_steel"], p["underpass_concrete"]
         deck_z = float(p["underpass_deck_z_cm"])
         col_y = hw + float(p["underpass_column_outset_cm"])
+        u0 = anchor_dx(frame, p, anchor, "underpass_anchor", "underpass_ahead_cm", None)
         for side, sign in (("L", -1.0), ("R", 1.0)):
-            specs.append(_box(SPAWN_PREFIX + "UP_PIER_" + side, to_world(frame, 0.0, sign * col_y, 60.0), yaw,
+            specs.append(_box(SPAWN_PREFIX + "UP_PIER_" + side, to_world(frame, u0, sign * col_y, 60.0), yaw,
                               (140.0, 140.0, 120.0), concrete))
             specs.append(_box(SPAWN_PREFIX + "UP_COLUMN_" + side,
-                              to_world(frame, 0.0, sign * col_y, 120.0 + (deck_z - 120.0) / 2.0), yaw,
+                              to_world(frame, u0, sign * col_y, 120.0 + (deck_z - 120.0) / 2.0), yaw,
                               (40.0, 60.0, deck_z - 120.0), steel))
             for k, dx in (("A", -70.0), ("B", 70.0)):
                 specs.append(_box(SPAWN_PREFIX + "UP_KNEE_%s_%s" % (side, k),
-                                  to_world(frame, dx, sign * (col_y - 60.0), deck_z - 80.0), yaw,
+                                  to_world(frame, u0 + dx, sign * (col_y - 60.0), deck_z - 80.0), yaw,
                                   (120.0, 2.0, 120.0), steel))
         length = max(frame["pitch_cm"], 500.0)
         for side, sign in (("L", -1.0), ("R", 1.0)):
-            specs.append(_box(SPAWN_PREFIX + "UP_STRINGER_" + side, to_world(frame, 0.0, sign * 250.0, deck_z),
+            specs.append(_box(SPAWN_PREFIX + "UP_STRINGER_" + side, to_world(frame, u0, sign * 250.0, deck_z),
                               yaw, (length, 30.0, 30.0), steel))
         ties = int(length // float(p["underpass_tie_every_cm"]))
         for i in range(ties):
             dx = -length / 2.0 + (i + 0.5) * float(p["underpass_tie_every_cm"])
-            specs.append(_box(SPAWN_PREFIX + "UP_TIE_%02d" % i, to_world(frame, dx, 0.0, deck_z + 21.0), yaw,
+            specs.append(_box(SPAWN_PREFIX + "UP_TIE_%02d" % i, to_world(frame, u0 + dx, 0.0, deck_z + 21.0), yaw,
                               (20.0, 2.0 * col_y, 12.0), steel))
         specs.append({"label": SPAWN_PREFIX + "UP_SHAFT", "kind": "spot",
-                      "loc": to_world(frame, 0.0, 0.0, deck_z + 400.0), "rot": {"yaw": yaw, "pitch": -90.0},
+                      "loc": to_world(frame, u0, 0.0, deck_z + 400.0), "rot": {"yaw": yaw, "pitch": -90.0},
                       "cd": p["underpass_shaft_cd"], "color": (0.85, 0.9, 1.0), "inner": 18.0, "outer": 34.0,
                       "radius": deck_z + 800.0, "shadows": True, "vsi": 3.0})
     if "arch_ring_border" in toggles:
-        specs.extend(arch_specs(frame, p))
+        specs.extend(arch_specs(frame, p, anchor))
     return specs
 
 
@@ -564,6 +668,9 @@ class LookBench:
         self.strobe_start = 0.0
         self.applied = ()
         self.mid_readback = {}
+        self.anchor = None            # camera_anchor() of the clip-start camera (CAPTURE pose phase)
+        self.current_specs = []
+        self.strobe_hold = False      # bench strobe dark while the settle gate measures
 
     # ---- read originals, check the pool, write, announce. Nothing changes here. ----
     def read_originals(self, states=None, require_pool=True, prepare_record=None):
@@ -573,7 +680,7 @@ class LookBench:
             raise RuntimeError("LOOK_BENCH_WRONG_WORLD|prepared %s, PIE %s" % (prepare_record.get("world"),
                                                                                self.a.world_name()))
         passage, bay = self.p["passage"], int(self.p["bay"])
-        ids, lights, frame = resolve_bay(self.a, passage, bay, self.p["half_width_cm"])
+        ids, lights, frame = resolve_bay(self.a, passage, bay, self.p["half_width_cm"], self.p.get("route_yaw_deg"))
         box = {"frame": frame, "half_len_cm": max(frame["pitch_cm"], 600.0), "half_width_cm": frame["half_width_cm"]}
         edges = self.a.edge_slots(box)
         face = self.a.wing_face(self.p["glint_mesh_contains"], frame) if hasattr(self.a, "wing_face") else None
@@ -598,13 +705,16 @@ class LookBench:
             if lit:
                 raise RuntimeError("LOOK_BENCH_POOL_NOT_BASE|%d|%s|run RESTORE first" % (len(lit), ",".join(lit[:6])))
         census = self.a.census()
+        strobes = self.a.show_strobes() if hasattr(self.a, "show_strobes") else []
         self.record = {
             "run": self.run_id, "written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "world": self.a.world_name(), "passage": passage, "bay": bay,
             "params": _plain(self.p), "frame": _plain(frame),
             "lights": {lid: {k: lights[lid][k] for k in ("label",) + LIGHT_FIELDS} for lid in ids},
             "light_meta": {lid: {"type": lights[lid]["type"], "intensity": lights[lid]["intensity"],
-                                 "visible": lights[lid]["visible"]} for lid in ids},
+                                 "visible": lights[lid]["visible"], "units": lights[lid].get("units")}
+                           for lid in ids},
+            "show_strobes": strobes,
             "edge_slots": edges,
             "cvars": {STREAM_CVAR: self.a.get_cvar(STREAM_CVAR)},
             "census_before": census,
@@ -652,11 +762,32 @@ class LookBench:
                 self.a.set_slot_material(slot["id"], slot["slot"], {"path": slot["material"]})
         self.applied = ()
 
-    def apply(self, toggles, now=0.0):
+    def set_anchor(self, cam_loc, fov_deg=None, aspect=None):
+        self.anchor = camera_anchor(self._frame(), cam_loc, self.p, fov_deg, aspect)
+        return self.anchor
+
+    # ---- show strobes (AInfinityStageStrobeLight): off for a CAPTURE, restored after ----
+    def neutralise_show_strobes(self):
+        if self.record is None or not self.record_path.is_file():
+            raise RuntimeError("LOOK_BENCH_NO_RECORD|originals must be on disk before any change")
+        n = 0
+        for row in self.record.get("show_strobes", []):
+            if row["enabled"]:
+                self.a.set_show_strobe(row["id"], False)
+                if self.a.show_strobe_enabled(row["id"]):
+                    raise RuntimeError("LOOK_BENCH_STROBE_OFF_FAILED|" + row["label"])
+                n += 1
+        self.a.log("LOOK_BENCH_SHOW_STROBES_OFF|run=%s|disabled=%d|%s" % (
+            self.run_id, n, ",".join(r["label"] for r in self.record.get("show_strobes", [])) or "none"))
+        return n
+
+    def apply(self, toggles, now=0.0, hold_strobe=False):
         if self.record is None or not self.record_path.is_file():
             raise RuntimeError("LOOK_BENCH_NO_RECORD|originals must be on disk before any change")
         toggles = normalise_toggles(toggles)
-        specs = plan_spawns(self._frame(), toggles, self.p, self.record.get("glint"))
+        specs = plan_spawns(self._frame(), toggles, self.p, self.record.get("glint"), self.anchor)
+        self.current_specs = specs
+        self.strobe_hold = bool(hold_strobe)
         pool = set(self.a.pool_labels())
         missing = [s["label"] for s in specs if s["label"] not in pool]
         if missing:
@@ -686,15 +817,22 @@ class LookBench:
         self.a.log("LOOK_BENCH_STATE|run=%s|toggles=%s|shown=%d|edge_slots=%d|edge_effective=%s" % (
             self.run_id, ",".join(toggles) or "base", shown, n_edges, bool("edge" in toggles and n_edges)))
 
+    def release_strobe(self, now):
+        self.strobe_hold = False
+        self.strobe_start = now
+
     def tick(self, now):
         if self.strobe:
             label, cd = self.strobe
-            self.a.set_pool_intensity(label, cd if strobe_on(now, self.strobe_start, self.p["strobe_hz"],
-                                                             self.p["strobe_duty"]) else 0.0)
+            lit = (not self.strobe_hold) and strobe_on(now, self.strobe_start, self.p["strobe_hz"], self.p["strobe_duty"])
+            self.a.set_pool_intensity(label, cd if lit else 0.0)
 
     # ---- restore + exact verification ----
     def restore(self):
         self.to_base()
+        for row in self.record.get("show_strobes", []) if self.record else []:
+            if self.a.show_strobe_enabled(row["id"]) != row["enabled"]:
+                self.a.set_show_strobe(row["id"], row["enabled"])
         problems = self.verify()
         if self.record:
             want = self.record["cvars"][STREAM_CVAR]
@@ -718,6 +856,9 @@ class LookBench:
         lit = [l for l in self.a.pool_labels() if self.a.pool_state(l)["on"]]
         if lit:
             problems.append("pool actors still shown %s" % ",".join(sorted(lit)))
+        for row in self.record.get("show_strobes", []):
+            if self.a.show_strobe_enabled(row["id"]) != row["enabled"]:
+                problems.append("show strobe %s enabled != %r" % (row["label"], row["enabled"]))
         return problems
 
 
@@ -763,7 +904,7 @@ class PrepareBench:
         for bay_params in self.bays:
             p = dict(self.p)
             p.update(bay_params)
-            ids, _lights, frame = resolve_bay(self.a, p["passage"], int(p["bay"]), p["half_width_cm"])
+            ids, _lights, frame = resolve_bay(self.a, p["passage"], int(p["bay"]), p["half_width_cm"], p.get("route_yaw_deg"))
             dummy_glint = {"light": list(to_world(frame, 0.0, 0.0, 500.0))}   # placed for real in PIE
             for spec in plan_spawns(frame, ALL_TOGGLES, p, dummy_glint):
                 specs.setdefault(spec["label"], spec)
@@ -880,6 +1021,178 @@ def clip_plan(pass_frame, p):
             "frames_expected": int(math.ceil((end - start) / float(step)))}
 
 
+# ---- luma settle gate (pure: no PIL / numpy inside the editor) ----
+
+def png_luma(path):
+    """Mean Rec.709 luma of an 8-bit non-interlaced PNG (grey, grey+alpha, RGB, RGBA), on the
+    stored sRGB values 0-255. Raises on anything else or on a truncated / half-written file
+    (HighResShot writes asynchronously: the caller retries)."""
+    data = pathlib.Path(path).read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("LOOK_BENCH_PNG|not a PNG")
+    pos, idat, head, ended = 8, [], None, False
+    while pos + 8 <= len(data):
+        n = struct.unpack(">I", data[pos:pos + 4])[0]
+        typ = data[pos + 4:pos + 8]
+        body = data[pos + 8:pos + 8 + n]
+        if len(body) != n:
+            raise ValueError("LOOK_BENCH_PNG|truncated chunk")
+        pos += 12 + n
+        if typ == b"IHDR":
+            head = struct.unpack(">IIBBBBB", body)
+        elif typ == b"IDAT":
+            idat.append(body)
+        elif typ == b"IEND":
+            ended = True
+            break
+    if head is None or not ended:
+        raise ValueError("LOOK_BENCH_PNG|incomplete")
+    w, h, depth, ctype, _comp, _filt, interlace = head
+    if depth != 8 or interlace != 0 or ctype not in (0, 2, 4, 6):
+        raise ValueError("LOOK_BENCH_PNG|unsupported depth=%d type=%d interlace=%d" % (depth, ctype, interlace))
+    bpp = {0: 1, 2: 3, 4: 2, 6: 4}[ctype]
+    raw = zlib.decompress(b"".join(idat))
+    stride = w * bpp
+    if len(raw) != h * (stride + 1):
+        raise ValueError("LOOK_BENCH_PNG|size mismatch")
+    prev = bytearray(stride)
+    sr = sg = sb = 0
+    for y in range(h):
+        base = y * (stride + 1)
+        ftype = raw[base]
+        line = bytearray(raw[base + 1:base + 1 + stride])
+        if ftype == 1:
+            for i in range(bpp, stride):
+                line[i] = (line[i] + line[i - bpp]) & 255
+        elif ftype == 2:
+            line = bytearray((a + b) & 255 for a, b in zip(line, prev))
+        elif ftype == 3:
+            for i in range(stride):
+                left = line[i - bpp] if i >= bpp else 0
+                line[i] = (line[i] + ((left + prev[i]) >> 1)) & 255
+        elif ftype == 4:
+            for i in range(stride):
+                a = line[i - bpp] if i >= bpp else 0
+                b = prev[i]
+                c = prev[i - bpp] if i >= bpp else 0
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                pred = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[i] = (line[i] + pred) & 255
+        elif ftype != 0:
+            raise ValueError("LOOK_BENCH_PNG|bad filter %d" % ftype)
+        if ctype in (0, 4):
+            v = sum(line[0::bpp])
+            sr, sg, sb = sr + v, sg + v, sb + v
+        else:
+            sr += sum(line[0::bpp])
+            sg += sum(line[1::bpp])
+            sb += sum(line[2::bpp])
+        prev = line
+    n = float(w * h)
+    return (0.2126 * sr + 0.7152 * sg + 0.0722 * sb) / n
+
+
+def settle_decision(samples, elapsed, p):
+    """samples: [[t, luma], ...] in probe order. 'stable' when the last settle_window samples
+    lie within max(settle_tol_abs, settle_tol_rel * mean) and elapsed >= settle_min_seconds;
+    'timeout' once elapsed > settle_max_seconds without that; else 'wait'."""
+    k = int(p["settle_window"])
+    if len(samples) >= k and elapsed >= float(p["settle_min_seconds"]):
+        last = [float(s[1]) for s in samples[-k:]]
+        mean = sum(last) / k
+        if max(last) - min(last) <= max(float(p["settle_tol_abs"]), float(p["settle_tol_rel"]) * mean):
+            return "stable"
+    if elapsed > float(p["settle_max_seconds"]):
+        return "timeout"
+    return "wait"
+
+
+def base_return_ok(luma, ref, p):
+    return abs(float(luma) - float(ref)) <= max(float(p["base_return_tol_abs"]),
+                                                float(p["base_return_tol_rel"]) * float(ref))
+
+
+# ---- frustum check (pure) ----
+
+def project(cam, point):
+    """Camera {loc, rot{yaw,pitch,roll}, fov_deg (horizontal), aspect} -> (ndc_x, ndc_y, depth),
+    ndc in [-1, 1] inside the view; None behind the near plane (10 cm). UE camera: X fwd, Y right, Z up."""
+    fx, ry, uz = rotator_axes(cam["rot"]["yaw"], cam["rot"]["pitch"], cam["rot"]["roll"])
+    d = _sub(point, cam["loc"])
+    depth = _dot(d, fx)
+    if depth < 10.0:
+        return None
+    th = math.tan(math.radians(float(cam["fov_deg"])) / 2.0)
+    tv = th / float(cam["aspect"])
+    return (_dot(d, ry) / depth / th, _dot(d, uz) / depth / tv, depth)
+
+
+def in_view(cam, point):
+    got = project(cam, point)
+    return got is not None and abs(got[0]) <= 1.0 and abs(got[1]) <= 1.0
+
+
+def spec_points(spec):
+    """Centre plus, for boxes / cylinders, the 8 corners (scale x 100 cm base, Rotator(roll, 0, yaw))."""
+    c = tuple(spec["loc"])
+    if spec["kind"] != "mesh":
+        return [c]
+    ax, ay, az = rotator_axes(spec.get("yaw", 0.0), 0.0, spec.get("roll", 0.0))
+    hx, hy, hz = (50.0 * float(v) for v in spec["scale"])
+    pts = [c]
+    for sx in (-1.0, 1.0):
+        for sy in (-1.0, 1.0):
+            for sz in (-1.0, 1.0):
+                pts.append(_add(c, _add(_mul(ax, sx * hx), _add(_mul(ay, sy * hy), _mul(az, sz * hz)))))
+    return pts
+
+
+def view_count(specs, cams):
+    """Mesh + fog specs with any point inside ANY of the camera poses. Lights are not counted."""
+    checkable = [s for s in specs if s["kind"] in ("mesh", "fog")]
+    seen = sorted(s["label"] for s in checkable if any(in_view(c, pt) for c in cams for pt in spec_points(s)))
+    return {"n_visible": len(seen), "n_checkable": len(checkable), "visible": seen}
+
+
+def view_gate(toggles, specs, cams, p):
+    """Per-state frustum gate. arch_ring_border needs >= arch_min_visible_frac of its segments in
+    view; underpass needs a column AND a deck member (stringer or tie). Other toggles: logged only.
+    Frustum only: occlusion by wings / ceiling tops is NOT checked (no ray casts here)."""
+    got = view_count(specs, cams)
+    vis = set(got["visible"])
+    fails = []
+    if "arch_ring_border" in toggles:
+        arch = [s["label"] for s in specs if s["label"].startswith(SPAWN_PREFIX + "ARCH_")]
+        n_arch = sum(1 for l in arch if l in vis)
+        need = int(math.ceil(float(p["arch_min_visible_frac"]) * len(arch)))
+        got["arch_visible"] = n_arch
+        got["arch_needed"] = need
+        if n_arch < need:
+            fails.append("arch %d/%d < %d" % (n_arch, len(arch), need))
+    if "underpass" in toggles:
+        cols = sum(1 for l in vis if l.startswith(SPAWN_PREFIX + "UP_COLUMN_"))
+        deck = sum(1 for l in vis if l.startswith((SPAWN_PREFIX + "UP_STRINGER_", SPAWN_PREFIX + "UP_TIE_")))
+        got["underpass_columns"] = cols
+        got["underpass_deck"] = deck
+        if not cols or not deck:
+            fails.append("underpass columns=%d deck=%d" % (cols, deck))
+    got["fails"] = fails
+    got["ok"] = not fails
+    return got
+
+
+def route_deviation_deg(frame, cam_locs):
+    """Angle between the clip camera's travel (first -> last location) and the frame's fwd.
+    None when the camera moved < 50 cm (nothing to compare)."""
+    if len(cam_locs) < 2:
+        return None
+    dx, dy = cam_locs[-1][0] - cam_locs[0][0], cam_locs[-1][1] - cam_locs[0][1]
+    if math.hypot(dx, dy) < 50.0:
+        return None
+    a = math.degrees(math.atan2(dy, dx) - math.atan2(frame["fwd"][1], frame["fwd"][0]))
+    return abs((a + 180.0) % 360.0 - 180.0)
+
+
 # --------------------------------------------------------------------------
 # Unreal side. Everything below runs only inside the editor.
 # --------------------------------------------------------------------------
@@ -962,12 +1275,16 @@ def _world_common(unreal, world, handles, events):
             actor = get(lid)
             comp = comp_of(actor)
             loc = actor.get_actor_location()
+            try:
+                units = str(comp.get_editor_property("intensity_units"))
+            except Exception:                 # not a local light (no IntensityUnits)
+                units = None
             kind = ("spot" if isinstance(comp, unreal.SpotLightComponent) else
                     "rect" if isinstance(comp, unreal.RectLightComponent) else
                     "point" if isinstance(comp, unreal.PointLightComponent) else "other")
             return {"label": actor.get_actor_label(), "type": kind,
                     "location": (float(loc.x), float(loc.y), float(loc.z)),
-                    "intensity": float(comp.get_editor_property("intensity")),
+                    "intensity": float(comp.get_editor_property("intensity")), "units": units,
                     "visible": bool(comp.is_visible()),
                     "cast_shadows": bool(comp.get_editor_property("cast_shadows")),
                     "cast_volumetric_shadow": bool(comp.get_editor_property("cast_volumetric_shadow")),
@@ -1163,6 +1480,40 @@ def make_pie_adapter(unreal):
             loc = cam.get_camera_location() if cam else None
             return [float(loc.x), float(loc.y), float(loc.z)] if loc else None
 
+        def camera_pose(self, aspect, fov_fallback):
+            """APlayerCameraManager GetCameraLocation / GetCameraRotation / GetFOVAngle
+            (UFUNCTION BlueprintCallable, PlayerCameraManager.h:663,701,705)."""
+            cam = unreal.GameplayStatics.get_player_camera_manager(world, 0)
+            if cam is None:
+                return None
+            loc, rot = cam.get_camera_location(), cam.get_camera_rotation()
+            fov = float(cam.get_fov_angle() or 0.0)
+            return {"loc": [float(loc.x), float(loc.y), float(loc.z)],
+                    "rot": {"yaw": float(rot.yaw), "pitch": float(rot.pitch), "roll": float(rot.roll)},
+                    "fov_deg": fov if fov > 1.0 else float(fov_fallback), "fov_read": fov, "aspect": float(aspect)}
+
+        def show_strobes(self):
+            cls = getattr(unreal, "InfinityStageStrobeLight", None)
+            if cls is None:
+                return []
+            rows = []
+            for actor in unreal.GameplayStatics.get_all_actors_of_class(world, cls):
+                sid = actor.get_path_name()
+                handles[sid] = actor
+                rows.append({"id": sid, "label": actor.get_actor_label(),
+                             "enabled": bool(actor.get_editor_property("strobe_enabled"))})
+            return sorted(rows, key=lambda r: r["id"])
+
+        def show_strobe_enabled(self, sid):
+            return bool(get(sid).get_editor_property("strobe_enabled"))
+
+        def set_show_strobe(self, sid, enabled):
+            """bStrobeEnabled has no UFUNCTION setter; NEVER notify = no Modify / PostEditChange
+            (EPropertyAccessChangeNotifyMode, PropertyAccessUtil.h:51-57). Tick reads it every frame."""
+            events.append(("set_strobe", sid))
+            get(sid).set_editor_property("strobe_enabled", bool(enabled),
+                                         notify_mode=unreal.PropertyAccessChangeNotifyMode.NEVER)
+
         def slot_material(self, cid, slot):
             mat = get(cid).get_material(slot)
             return mat.get_path_name() if mat else None
@@ -1306,6 +1657,207 @@ def make_pie_adapter(unreal):
 # ---- PIE ADAPTER END ----
 
 
+class CaptureMachine:
+    """CAPTURE sequencing, engine-free (driven by arm()'s Slate tick; the harness drives it with
+    a fake clock). Per run: POSE (read the clip-start camera -> anchor). Per state:
+      [BASE_RETURN: to_base, settle, settled luma vs the first base's]  (after a non-base state)
+      apply (bench strobe held dark) -> SETTLE until the luma gate says stable (or times out)
+      -> frustum gate at the settled pose (LOOK_BENCH_IN_VIEW) -> release strobe -> CLIP.
+    Gate failures never stop the run (restore always runs); they make it LOOK_BENCH_FAILED."""
+
+    def __init__(self, bench, adapter, states, clip, run_dir, luma_reader=None, on_persist=None):
+        self.b, self.a, self.p = bench, adapter, bench.p
+        self.states = [(n, tuple(t)) for n, t in states]
+        self.clip = clip
+        self.run_dir = pathlib.Path(run_dir)
+        self.read_luma = luma_reader or png_luma
+        self.on_persist = on_persist or (lambda: None)
+        self.st = {"phase": "pose", "index": 0, "clips": [], "settles": [], "base_returns": [],
+                   "gate_failures": [], "base_ref": None, "anchor": None, "pose": None, "probe_n": 0,
+                   "probe_timeouts": 0}
+
+    @property
+    def done(self):
+        return self.st["phase"] == "done"
+
+    def _aspect(self):
+        w, h = self.p["resolution"]
+        return float(w) / float(h)
+
+    def _pose(self):
+        if hasattr(self.a, "camera_pose"):
+            return self.a.camera_pose(self._aspect(), self.p["fov_fallback_deg"])
+        return None
+
+    def _fail(self, why):
+        self.st["gate_failures"].append(why)
+
+    def _begin_settle(self, kind, now):
+        self.a.transport_scrub(self.clip["start"])
+        self.st.update(phase="settle", settle_kind=kind, t0=now, settle_ticks=0, reposed=False, samples=[],
+                       pending=None, last_issue=None, deltas=[])
+
+    def _probe(self, now, name):
+        st = self.st
+        pend = st["pending"]
+        if pend:
+            try:
+                y = float(self.read_luma(pend["path"]))
+            except Exception:                    # not written yet / half written: retry next tick
+                if now - pend["t"] > float(self.p["probe_timeout_s"]):
+                    st["probe_timeouts"] += 1
+                    st["pending"] = None
+                return
+            st["samples"].append([round(now - st["t0"], 3), round(y, 3)])
+            st["pending"] = None
+            return
+        if st["last_issue"] is None or now - st["last_issue"] >= float(self.p["probe_interval_s"]):
+            path = self.run_dir / "_probes" / ("%02d_%s_%s_%03d.png" % (st["index"], name, st["settle_kind"],
+                                                                        st["probe_n"]))
+            path.parent.mkdir(parents=True, exist_ok=True)
+            st["probe_n"] += 1
+            w, h = self.p["probe_resolution"]
+            self.a.console('HighResShot %dx%d filename="%s"' % (w, h, path.as_posix()))
+            st["pending"] = {"path": path.as_posix(), "t": now}
+            st["last_issue"] = now
+
+    def step(self, now, delta=0.0):
+        st, p, a, b = self.st, self.p, self.a, self.b
+        b.tick(now)
+        if st["phase"] == "done":
+            return
+        if st["phase"] == "pose":
+            a.transport_scrub(self.clip["start"])
+            st.update(phase="pose_wait", t0=now, reposed=False)
+            return
+        if st["phase"] == "pose_wait":
+            el = now - st["t0"]
+            if not st["reposed"] and el >= float(p["pose_seconds"]) / 2.0:
+                a.transport_scrub(self.clip["start"])
+                st["reposed"] = True
+            if el < float(p["pose_seconds"]):
+                return
+            pose = self._pose()
+            if pose is None:
+                raise RuntimeError("LOOK_BENCH_NO_CAMERA|no player camera manager in PIE")
+            st["pose"] = pose
+            st["anchor"] = b.set_anchor(pose["loc"], pose["fov_deg"], pose["aspect"])
+            a.log("LOOK_BENCH_ANCHOR|run=%s|along_cm=%.0f|lateral_cm=%.0f|cam=%.0f,%.0f,%.0f|yaw=%.1f|pitch=%.1f"
+                  "|fov=%.1f" % (b.run_id, st["anchor"]["along_cm"], st["anchor"]["lateral_cm"], pose["loc"][0],
+                                 pose["loc"][1], pose["loc"][2], pose["rot"]["yaw"], pose["rot"]["pitch"],
+                                 pose["fov_deg"]))
+            st["phase"] = "start"
+            return
+        if st["phase"] == "start":
+            if st["index"] >= len(self.states):
+                st["phase"] = "done"
+                return
+            name, tset = self.states[st["index"]]
+            a.set_cvar(STREAM_CVAR, 1)
+            prev = self.states[st["index"] - 1][1] if st["index"] > 0 else ()
+            if p["base_return"] and prev and tset:
+                b.to_base()
+                self._begin_settle("base_return", now)
+            else:
+                b.apply(tset, now, hold_strobe=True)
+                self._begin_settle("state", now)
+            return
+        if st["phase"] == "settle":
+            name, tset = self.states[st["index"]]
+            st["settle_ticks"] += 1
+            el = now - st["t0"]
+            if not st["reposed"]:
+                if el >= float(p["repose_seconds"]):
+                    a.transport_scrub(self.clip["start"])     # re-pose: a jump's first frame is stale
+                    st["reposed"] = True
+                return
+            st["deltas"].append(float(delta))
+            self._probe(now, name)
+            verdict = settle_decision(st["samples"], el, p)
+            if verdict == "wait" or (verdict == "stable" and st["settle_ticks"] < int(p["settle_ticks"])):
+                return
+            kind = st["settle_kind"]
+            luma = st["samples"][-1][1] if st["samples"] else None
+            rec = {"state": name, "kind": kind, "verdict": verdict, "seconds": round(el, 3), "luma": luma,
+                   "samples": st["samples"]}
+            st["settles"].append(rec)
+            a.log("LOOK_BENCH_SETTLE|run=%s|state=%s|kind=%s|verdict=%s|luma=%s|seconds=%.1f|probes=%d" % (
+                b.run_id, name, kind, verdict, "%.1f" % luma if luma is not None else "none", el,
+                len(st["samples"])))
+            if verdict != "stable":
+                a.log("LOOK_BENCH_SETTLE_FAILED|run=%s|state=%s|kind=%s|picture still changing after %.1f s" % (
+                    b.run_id, name, kind, el))
+                self._fail("settle %s/%s" % (name, kind))
+            is_base = kind == "base_return" or not tset
+            if is_base and luma is not None and verdict == "stable":
+                ref = st["base_ref"]
+                if ref is None:
+                    st["base_ref"] = luma
+                    a.log("LOOK_BENCH_BASE_REF|run=%s|luma=%.1f" % (b.run_id, luma))
+                else:
+                    ok = base_return_ok(luma, ref, p)
+                    st["base_returns"].append({"before": name, "luma": luma, "ref": ref, "ok": ok})
+                    a.log("LOOK_BENCH_BASE_RETURN|run=%s|before=%s|luma=%.1f|ref=%.1f|ok=%s" % (
+                        b.run_id, name, luma, ref, ok))
+                    if not ok:
+                        self._fail("base_return before %s %.1f vs %.1f" % (name, luma, ref))
+            if kind == "base_return":
+                b.apply(tset, now, hold_strobe=True)
+                self._begin_settle("state", now)
+                return
+            pose = self._pose()
+            gate = view_gate(tset, b.current_specs, [pose] if pose else [], p)
+            a.log("LOOK_BENCH_IN_VIEW|%s|%d|of=%d|run=%s|ok=%s%s" % (
+                name, gate["n_visible"], gate["n_checkable"], b.run_id, gate["ok"],
+                ("|" + ";".join(gate["fails"])) if gate["fails"] else ""))
+            if not gate["ok"]:
+                a.log("LOOK_BENCH_NOT_IN_VIEW|run=%s|state=%s|%s" % (b.run_id, name, ";".join(gate["fails"])))
+                self._fail("view %s: %s" % (name, ";".join(gate["fails"])))
+            b.release_strobe(now)
+            st["current"] = {"state": name, "frames": [], "dir": (self.run_dir / name).as_posix(),
+                             "frame_ms": frame_stats(st.pop("deltas", [])), "settle": rec,
+                             "view_at_start": {k: v for k, v in gate.items() if k != "visible"},
+                             "pose_at_start": pose, "edge_slots": len(b.record["edge_slots"]),
+                             "edge_effective": bool("edge" in tset and b.record["edge_slots"])}
+            pathlib.Path(st["current"]["dir"]).mkdir(parents=True, exist_ok=True)
+            st["next"] = self.clip["start"]
+            a.transport_play()
+            st["phase"] = "clip"
+            return
+        if st["phase"] == "clip":
+            name, tset = self.states[st["index"]]
+            frame = a.transport_frame()
+            cur = st["current"]
+            if frame >= self.clip["end"]:
+                a.transport_pause()
+                poses = [f["pose"] for f in cur["frames"] if f.get("pose")]
+                dev = route_deviation_deg(b._frame(), [f["camera"] for f in cur["frames"] if f.get("camera")])
+                cur["route_deviation_deg"] = dev
+                a.log("LOOK_BENCH_ROUTE|run=%s|state=%s|deviation_deg=%s" % (
+                    b.run_id, name, "%.1f" % dev if dev is not None else "none"))
+                if dev is not None and dev > float(p["route_tol_deg"]):
+                    self._fail("route %s %.1f deg" % (name, dev))
+                vc = view_count(b.current_specs, poses)
+                cur["view_over_clip"] = {k: v for k, v in vc.items() if k != "visible"}
+                a.log("LOOK_BENCH_IN_VIEW_CLIP|%s|%d|of=%d|run=%s" % (name, vc["n_visible"], vc["n_checkable"],
+                                                                     b.run_id))
+                st["clips"].append(st.pop("current"))
+                st["index"] += 1
+                st["phase"] = "start"
+                self.on_persist()
+                return
+            if frame >= st["next"]:
+                path = pathlib.Path(cur["dir"]) / ("frame_%04d.png" % len(cur["frames"]))
+                w, h = p["resolution"]
+                a.console('HighResShot %dx%d filename="%s"' % (w, h, path.as_posix()))
+                pose = self._pose()
+                cur["frames"].append({"master_frame": frame, "path": path.as_posix(),
+                                      "camera": pose["loc"] if pose else None, "pose": pose,
+                                      "strobe_on": bool(b.strobe and not b.strobe_hold and strobe_on(
+                                          now, b.strobe_start, p["strobe_hz"], p["strobe_duty"]))})
+                st["next"] = frame + self.clip["step"]
+
+
 def arm(unreal, mode, toggles, states, params, prepare_path):
     if hasattr(builtins, HANDLE_NAME):
         raise RuntimeError("LOOK_BENCH_ALREADY_ARMED")
@@ -1323,16 +1875,15 @@ def arm(unreal, mode, toggles, states, params, prepare_path):
     p = bench.p
     states = [(n, tuple(t)) for n, t in bench.record["states"]]
     st = {"run": run_id, "mode": mode, "run_dir": run_dir.as_posix(), "phase": "start", "index": 0,
-          "states": [[n, list(t)] for n, t in states], "clips": [], "errors": [], "ticks": 0,
+          "states": [[n, list(t)] for n, t in states], "errors": [], "ticks": 0,
           "edge_slots": len(bench.record["edge_slots"]), "prepare_record": pathlib.Path(prepare_path).as_posix()}
     setattr(builtins, STATE_NAME, st)
-    if mode == "CAPTURE":
-        pass_frame, seg_start, seg_end = adapter.bay_pass_frame(p["passage"], int(p["bay"]))
-        st["clip"] = clip_plan(pass_frame, p)
-        if st["clip"]["start"] < seg_start or st["clip"]["end"] > seg_end:
-            raise RuntimeError("LOOK_BENCH_CLIP_OUTSIDE_PASSAGE")
+    holder = {"machine": None}
 
     def persist():
+        if holder["machine"] is not None:
+            st["capture"] = holder["machine"].st
+            st["clips"] = holder["machine"].st["clips"]
         (run_dir / "look_bench_result.json").write_text(json.dumps(st, indent=1), encoding="utf-8")
 
     def finish():
@@ -1347,8 +1898,10 @@ def arm(unreal, mode, toggles, states, params, prepare_path):
         if census != bench.record["census_before"]:
             problems.append("editor census changed %r -> %r" % (bench.record["census_before"], census))
         st["mid_readback"] = bench.mid_readback
+        gates = list(holder["machine"].st["gate_failures"]) if holder["machine"] is not None else []
+        st["gate_failures"] = gates
         st["phase"] = "done"
-        st["ok"] = not problems and not st["errors"]
+        st["ok"] = not problems and not st["errors"] and not gates
         persist()
         unreal.unregister_slate_post_tick_callback(getattr(builtins, HANDLE_NAME))
         delattr(builtins, HANDLE_NAME)
@@ -1356,10 +1909,25 @@ def arm(unreal, mode, toggles, states, params, prepare_path):
             unreal.log("LOOK_BENCH_OK|run=%s|mode=%s|states=%d|edge_slots=%d|run_dir=%s" % (
                 run_id, mode, len(states), st["edge_slots"], run_dir.as_posix()))
         else:
-            unreal.log_error("LOOK_BENCH_FAILED|run=%s|problems=%r|errors=%d" % (run_id, problems,
-                                                                             len(st["errors"])))
+            unreal.log_error("LOOK_BENCH_FAILED|run=%s|problems=%r|gate_failures=%r|errors=%d" % (
+                run_id, problems, gates, len(st["errors"])))
         unreal.log("%s|run=%s|pool + dirty map remain in the editor world until a Don't-Save restart" % (
             RESTART_MARKER, run_id))
+
+    if mode == "CAPTURE":
+        pass_frame, seg_start, seg_end = adapter.bay_pass_frame(p["passage"], int(p["bay"]))
+        st["clip"] = clip_plan(pass_frame, p)
+        if st["clip"]["start"] < seg_start or st["clip"]["end"] > seg_end:
+            raise RuntimeError("LOOK_BENCH_CLIP_OUTSIDE_PASSAGE")
+        holder["machine"] = CaptureMachine(bench, adapter, states, st["clip"], run_dir, on_persist=persist)
+        if p["show_strobes"] == "off":
+            try:
+                bench.neutralise_show_strobes()  # after the record (with the strobes' originals) is on disk
+            except Exception:
+                problems = bench.restore()
+                unreal.log_error("LOOK_BENCH_FAILED|run=%s|show strobe disable failed, restored: problems=%r|%s" % (
+                    run_id, problems, traceback.format_exc()))
+                raise
 
     def tick(_delta):
         if st.get("inside") or st["phase"] in ("done", "finishing"):
@@ -1369,67 +1937,18 @@ def arm(unreal, mode, toggles, states, params, prepare_path):
             now = time.monotonic()
             if adapter.world_kind() != "game":
                 raise RuntimeError("LOOK_BENCH_PIE_ENDED")
-            bench.tick(now)
             st["ticks"] += 1
             if mode == "HOLD":
+                bench.tick(now)
                 if st["phase"] == "start":
                     bench.apply(toggles, now)
                     st["phase"], st["until"] = "hold", now + float(p["hold_seconds"])
                 elif now >= st["until"]:
                     finish()
                 return
-            # CAPTURE
-            clip = st["clip"]
-            if st["phase"] == "start":
-                if st["index"] >= len(states):
-                    finish()
-                    return
-                name, tset = states[st["index"]]
-                adapter.set_cvar(STREAM_CVAR, 1)
-                bench.apply(tset, now)
-                adapter.transport_scrub(clip["start"])
-                st.update(phase="settle", t0=now, settle_ticks=0, reposed=False)
-                return
-            if st["phase"] == "settle":
-                st["settle_ticks"] += 1
-                half = float(p["settle_seconds"]) / 2.0
-                if not st["reposed"] and now - st["t0"] >= half:
-                    adapter.transport_scrub(clip["start"])     # re-pose: a jump's first frame is stale
-                    st["reposed"] = True
-                    st["deltas"] = []
-                elif st["reposed"]:
-                    st["deltas"].append(float(_delta))        # static-pose frame time with this state on
-                if now - st["t0"] < float(p["settle_seconds"]) or st["settle_ticks"] < int(p["settle_ticks"]):
-                    return
-                name, tset = states[st["index"]]
-                st["current"] = {"state": name, "frames": [], "dir": (run_dir / name).as_posix(),
-                                 "frame_ms": frame_stats(st.pop("deltas", [])),
-                                 "edge_slots": st["edge_slots"],
-                                 "edge_effective": bool("edge" in tset and st["edge_slots"])}
-                pathlib.Path(st["current"]["dir"]).mkdir(parents=True, exist_ok=True)
-                st["next"] = clip["start"]
-                adapter.transport_play()
-                st["phase"] = "clip"
-                return
-            if st["phase"] == "clip":
-                frame = adapter.transport_frame()
-                if frame >= clip["end"]:
-                    adapter.transport_pause()
-                    st["clips"].append(st.pop("current"))
-                    st["index"] += 1
-                    st["phase"] = "start"
-                    persist()
-                    return
-                if frame >= st["next"]:
-                    cur = st["current"]
-                    path = pathlib.Path(cur["dir"]) / ("frame_%04d.png" % len(cur["frames"]))
-                    w, h = p["resolution"]
-                    adapter.console('HighResShot %dx%d filename="%s"' % (w, h, path.as_posix()))
-                    cur["frames"].append({"master_frame": frame, "path": path.as_posix(),
-                                          "camera": adapter.camera_location(),
-                                          "strobe_on": bool(bench.strobe and strobe_on(
-                                              now, bench.strobe_start, p["strobe_hz"], p["strobe_duty"]))})
-                    st["next"] = frame + clip["step"]
+            holder["machine"].step(now, float(_delta))
+            if holder["machine"].done:
+                finish()
         except Exception:
             st["errors"].append(traceback.format_exc())
             try:

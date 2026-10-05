@@ -107,6 +107,16 @@ class PieFake(World):
             self.dirty = copy.deepcopy(editor.dirty)
         self.slots = {("/PIE/Flat_A.ISM0", 3): EDGE_MAT, ("/PIE/Flat_B.ISM0", 3): EDGE_MAT}
         self.cvars = {lb.STREAM_CVAR: 0}
+        self.strobes = {"/PIE/P04_Strobe": True, "/PIE/S1_Strobe_Off": False}
+
+    def show_strobes(self):
+        return [{"id": k, "label": k.rsplit("/", 1)[-1], "enabled": v} for k, v in sorted(self.strobes.items())]
+
+    def show_strobe_enabled(self, sid): return self.strobes[sid]
+
+    def set_show_strobe(self, sid, enabled):
+        self.events.append(("set_strobe", sid))
+        self.strobes[sid] = bool(enabled)
 
     def world_kind(self): return self.kind
     def world_name(self): return "/Game/InfinityStage/Dev/Maps/UEDPIE_0_%s.%s" % (MAP, MAP)
@@ -149,7 +159,7 @@ def first_index(events, pred):
 
 
 def is_change(e):
-    return isinstance(e, tuple) and e[0] in ("set_light", "set_slot", "spawn", "show", "hide", "destroy")
+    return isinstance(e, tuple) and e[0] in ("set_light", "set_slot", "spawn", "show", "hide", "destroy", "set_strobe")
 
 
 def shown(fake): return sorted(l for l, a in fake.actors.items() if a["on"])
@@ -252,7 +262,8 @@ SPAWNISH = re.compile(r"spawn_actor|begin_deferred|finish_spawning|SpawnActor|\.
                       r"EditorLevelLibrary", re.I)
 src = (HERE / "look_bench.py").read_text(encoding="utf-8")
 pie_region = src.split("# ---- PIE ADAPTER BEGIN", 1)[1].split("# ---- PIE ADAPTER END", 1)[0]
-bench_src = inspect.getsource(lb.LookBench) + inspect.getsource(lb.restore_from_record) + inspect.getsource(lb.restore_all)
+bench_src = (inspect.getsource(lb.LookBench) + inspect.getsource(lb.restore_from_record) + inspect.getsource(lb.restore_all)
+             + inspect.getsource(lb.CaptureMachine))
 check("+ source: PIE adapter region and LookBench/restore code contain no spawn/destroy/editor-actor API",
       len(pie_region) > 2000 and not SPAWNISH.search(pie_region.split("\n", 1)[1]) and not SPAWNISH.search(bench_src))
 check("- control: the spawn scanner flags an injected PIE spawn",
@@ -519,6 +530,230 @@ arch_labels = sorted(s["label"] for s in lb.arch_specs(ba._frame(), ba.p))
 check("+ arch_ring_border state shows exactly the 36 prepared arch proxies, nothing else, lights untouched",
       len(arch_labels) == 36 and shown(fa) == arch_labels and fa.lights == before_a)
 check("+ arch restore exact", ba.restore() == [] and not shown(fa))
+
+# ---------------- 5 Oct rerun fixes: route frame, show strobes, PNG luma, settle gate, base return, frustum ----------------
+# route frame: skewed neighbour centroids (uneven lamp counts) vs the measured +X route
+skew_before, skew_here, skew_after = (1000.0, 240300.0, 0.0), (1634.0, 239991.0, 0.0), (2200.0, 239740.0, 0.0)
+fr_route = lb.bay_frame(skew_here, skew_before, skew_after, 1450.0, 0.0)
+fr_skew = lb.bay_frame(skew_here, skew_before, skew_after, 1450.0, None)
+check("+ route frame: route_yaw 0 gives fwd +X and the along-route pitch, whatever the centroids",
+      fr_route["fwd"] == (1.0, 0.0) and abs(fr_route["pitch_cm"] - 600.0) < 1e-6)
+check("- control: without route_yaw the same centroids skew the frame (> 10 deg)", abs(fr_skew["yaw_deg"]) > 10.0)
+cams_x = [[1514.0 + 60.0 * i, 240000.0, 180.0] for i in range(10)]
+check("+ route check: camera travelling +X deviates 0 deg from the route frame",
+      lb.route_deviation_deg(fr_route, cams_x) < 1e-6)
+check("- control: the skewed frame is caught (> route_tol_deg)", lb.route_deviation_deg(fr_skew, cams_x) > lb.DEFAULTS["route_tol_deg"])
+
+# show strobes: recorded, disabled, restored (also from the record alone)
+fss = PieFake(ed)
+bss = lb.LookBench(fss, tmp / "recss.json", {"bay": 4}, "TSS")
+bss.read_originals([("base", ())], prepare_record=prep)
+iw = first_index(fss.events, lambda e: e == "record_written")
+bss.neutralise_show_strobes()
+ic = first_index(fss.events, is_change)
+check("+ show strobes: originals recorded before the disable; enabled ones go off, disabled stay off",
+      iw is not None and ic is not None and iw < ic and fss.strobes == {"/PIE/P04_Strobe": False, "/PIE/S1_Strobe_Off": False}
+      and json.loads((tmp / "recss.json").read_text(encoding="utf-8"))["show_strobes"][0]["enabled"] is True)
+check("+ show strobes: restore puts each back exactly", bss.restore() == []
+      and fss.strobes == {"/PIE/P04_Strobe": True, "/PIE/S1_Strobe_Off": False})
+bss.neutralise_show_strobes()
+check("+ show strobes: RESTORE from the record alone re-enables them",
+      lb.restore_all(fss, [tmp / "recss.json"], fss.log) == [] and fss.strobes["/PIE/P04_Strobe"] is True)
+bss.neutralise_show_strobes()
+orig_ss = fss.set_show_strobe
+fss.set_show_strobe = lambda sid, en: None
+check("- control: a lost strobe re-enable is reported by verify()", any("show strobe" in x for x in bss.restore()))
+fss.set_show_strobe = orig_ss
+bss.restore()
+
+# PNG luma decoder (pure Python, runs inside the editor)
+import struct as _struct
+import zlib as _zlib
+
+
+def write_png(path, w, h, pixels, ctype=2, filters=(0, 1, 2, 3, 4)):
+    bpp = {0: 1, 2: 3, 6: 4}[ctype]
+    rows, prev = [], bytes(w * bpp)
+    for y in range(h):
+        raw = bytes(v for px in pixels[y] for v in px)
+        f = filters[y % len(filters)]
+        out = bytearray()
+        for i in range(len(raw)):
+            a = raw[i - bpp] if i >= bpp else 0
+            b_ = prev[i]
+            c = prev[i - bpp] if i >= bpp else 0
+            pred = {0: 0, 1: a, 2: b_, 3: (a + b_) >> 1}.get(f)
+            if f == 4:
+                pa, pb, pc = abs(b_ - c), abs(a - c), abs(a + b_ - 2 * c)
+                pred = a if (pa <= pb and pa <= pc) else (b_ if pb <= pc else c)
+            out.append((raw[i] - pred) & 255)
+        rows.append(bytes([f]) + bytes(out))
+        prev = raw
+
+    def chunk(t, body):
+        return _struct.pack(">I", len(body)) + t + body + _struct.pack(">I", _zlib.crc32(t + body) & 0xffffffff)
+    data = (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", _struct.pack(">IIBBBBB", w, h, 8, ctype, 0, 0, 0))
+            + chunk(b"IDAT", _zlib.compress(b"".join(rows))) + chunk(b"IEND", b""))
+    pathlib.Path(path).write_bytes(data)
+    return data
+
+
+W_, H_ = 17, 10
+px = [[((x * 37 + y * 11) % 256, (x * 5 + y * 29) % 256, (x * y * 7) % 256, 255) for x in range(W_)] for y in range(H_)]
+want = sum(0.2126 * r + 0.7152 * g + 0.0722 * b_ for row in px for r, g, b_, _a in row) / (W_ * H_)
+write_png(tmp / "rgba.png", W_, H_, px, ctype=6)
+write_png(tmp / "rgb.png", W_, H_, [[p_[:3] for p_ in row] for row in px], ctype=2)
+check("+ png_luma: RGBA and RGB, all five filter types, equal the direct Rec.709 mean",
+      abs(lb.png_luma(tmp / "rgba.png") - want) < 1e-9 and abs(lb.png_luma(tmp / "rgb.png") - want) < 1e-9)
+full = (tmp / "rgba.png").read_bytes()
+(tmp / "half.png").write_bytes(full[:len(full) // 2])
+check("- control: a half-written PNG raises (the gate retries, never reads a fake value)",
+      raises(lambda: lb.png_luma(tmp / "half.png"), "LOOK_BENCH_PNG"))
+check("- control: png_luma is not trivially constant (a darker image reads darker)",
+      (write_png(tmp / "dark.png", 4, 4, [[(10, 10, 10)] * 4] * 4) and lb.png_luma(tmp / "dark.png") < 11.0))
+
+# settle decision
+P_ = dict(lb.DEFAULTS)
+flat = [[0.5 * i, 100.0] for i in range(6)]
+check("+ settle_decision: 4 flat probes after the minimum time = stable", lb.settle_decision(flat, 5.0, P_) == "stable")
+check("- control: the same flat probes before settle_min_seconds = wait", lb.settle_decision(flat, 3.0, P_) == "wait")
+moving = [[0.5 * i, 100.0 + 8.0 * i] for i in range(8)]
+check("- control: a still-changing picture = wait, then timeout past settle_max_seconds",
+      lb.settle_decision(moving, 6.0, P_) == "wait" and lb.settle_decision(moving, 21.0, P_) == "timeout")
+
+
+class CapFake(PieFake):
+    """PieFake + transport + camera + an auto-exposure-like picture: the luma of the probe
+    approaches the shown state's target with time constant tau after every change."""
+
+    def __init__(self, editor, clock, tau=1.2, residual=0.0, wobble=0.0):
+        super().__init__(editor)
+        self.clock, self.tau, self.residual, self.wobble = clock, tau, residual, wobble
+        self.frame, self.playing, self.start = 0, False, None
+        self.lum, self.files, self.play_gap, self.haze_seen = 100.0, {}, [], False
+
+    def target(self):
+        on = shown(self)
+        t = 100.0 + (self.residual if self.haze_seen else 0.0)
+        if any(l.startswith("ZZ_LOOKBENCH_HAZE") for l in on):
+            self.haze_seen = True
+            t += 30.0
+        if "ZZ_LOOKBENCH_RAKE_L" in on:
+            t += 15.0
+        return t + self.wobble * math.sin(self.clock[0] * 2.0)
+
+    def advance(self, dt):
+        self.lum += (self.target() - self.lum) * (1.0 - math.exp(-dt / self.tau))
+        if self.playing:
+            self.frame += int(dt * lb.TICKS_PER_SECOND)
+
+    def transport_scrub(self, f): self.frame, self.playing, self.start = int(f), False, int(f)
+    def transport_pause(self): self.playing = False
+    def transport_frame(self): return self.frame
+
+    def transport_play(self):
+        self.play_gap.append(abs(self.lum - self.target()))
+        self.playing = True
+
+    def console(self, cmd):
+        m = re.search(r'filename="([^"]+)"', cmd)
+        if m and "_probes" in m.group(1):
+            self.files[m.group(1)] = {"luma": self.lum, "reads": 0}
+
+    def read_luma(self, path):
+        f = self.files[path]
+        f["reads"] += 1
+        if f["reads"] < 2:
+            raise IOError("not written yet")          # HighResShot is asynchronous
+        return f["luma"]
+
+    def camera_pose(self, aspect, fov):
+        x = 1514.0 + 58.0 * (self.frame - (self.start or 0)) / lb.TICKS_PER_SECOND
+        return {"loc": [x, 240000.0, 180.0], "rot": {"yaw": 0.0, "pitch": 0.0, "roll": 0.0}, "fov_deg": 90.0,
+                "aspect": aspect}
+
+
+CAP_STATES = [("base", ()), ("haze", ("haze",)), ("rake", ("rake",)), ("arch_ring_border", ("arch_ring_border",)),
+              ("underpass", ("underpass",))]
+
+
+def run_machine(params=None, **fake_kw):
+    clock = [0.0]
+    f = CapFake(ed, clock, **fake_kw)
+    pr = {"bay": 4}
+    pr.update(params or {})
+    bb = lb.LookBench(f, tmp / ("cm_%d.json" % len(RESULTS)), pr, "CM%d" % len(RESULTS))
+    bb.read_originals(CAP_STATES, prepare_record=prep)
+    m = lb.CaptureMachine(bb, f, CAP_STATES, lb.clip_plan(1_000_000, bb.p), tmp / ("cm_run_%d" % len(RESULTS)),
+                          luma_reader=f.read_luma)
+    dt = 1.0 / 30.0
+    while not m.done and clock[0] < 900.0:
+        clock[0] += dt
+        f.advance(dt)
+        m.step(clock[0], dt)
+    return m, f, bb
+
+
+m1, f1, b1 = run_machine()
+tol = lambda t: max(lb.DEFAULTS["settle_tol_abs"], lb.DEFAULTS["settle_tol_rel"] * t)
+check("+ settle gate: every clip starts only once the picture has settled (|luma - steady| within tolerance)",
+      m1.done and len(f1.play_gap) == len(CAP_STATES) and max(f1.play_gap) <= tol(100.0))
+check("+ settle gate: every settle is 'stable', no gate failures, and probes were read after async retries",
+      all(r["verdict"] == "stable" for r in m1.st["settles"]) and not m1.st["gate_failures"]
+      and all(v["reads"] >= 2 for v in f1.files.values() if v["reads"]))
+m0, f0, _ = run_machine({"settle_window": 1, "settle_min_seconds": 0.0, "repose_seconds": 0.0, "settle_ticks": 0,
+                         "settle_tol_abs": 1e9})
+check("- control: with the gate effectively off, a clip starts while the picture is still adapting",
+      max(f0.play_gap) > tol(100.0))
+mt, ft, _ = run_machine({"settle_max_seconds": 8.0}, wobble=20.0)
+check("- control: a picture that never settles times out, logs LOOK_BENCH_SETTLE_FAILED and is a gate failure",
+      any(r["verdict"] == "timeout" for r in mt.st["settles"]) and bool(ft.logs("LOOK_BENCH_SETTLE_FAILED"))
+      and any(g.startswith("settle") for g in mt.st["gate_failures"]))
+check("+ base return: after every non-base state the bench goes back to base and the settled luma matches the first base",
+      len(m1.st["base_returns"]) == len(CAP_STATES) - 2 and all(r["ok"] for r in m1.st["base_returns"])
+      and len(f1.logs("LOOK_BENCH_BASE_RETURN|")) == len(CAP_STATES) - 2)
+mr, fr_, _ = run_machine(residual=25.0)
+check("- control: a state that leaves the picture brighter after base is caught (BASE_RETURN ok=False, gate failure)",
+      any(not r["ok"] for r in mr.st["base_returns"]) and any(g.startswith("base_return") for g in mr.st["gate_failures"]))
+fh = PieFake(ed)
+bh = lb.LookBench(fh, tmp / "hold2.json", {"bay": 4}, "TH2")
+bh.read_originals([("strobe", ("strobe",))], prepare_record=prep)
+bh.apply(("strobe",), 0.0, hold_strobe=True)
+bh.tick(0.05)
+held = fh.actors["ZZ_LOOKBENCH_STROBE"]["intensity"]
+bh.release_strobe(1.0)
+bh.tick(1.05)
+check("+ bench strobe: dark while held (settling), flashing after release; - control: same tick time unheld is lit",
+      held == 0.0 and fh.actors["ZZ_LOOKBENCH_STROBE"]["intensity"] == lb.DEFAULTS["strobe_cd"])
+bh.restore()
+
+# frustum gate
+inview = {l.split("|")[1]: int(l.split("|")[2]) for l in f1.logs("LOOK_BENCH_IN_VIEW|")}
+check("+ LOOK_BENCH_IN_VIEW|state|n_visible logged for every state; arches and underpass in view at the clip-start pose",
+      set(inview) == {n for n, _ in CAP_STATES} and inview["arch_ring_border"] >= 9 and inview["underpass"] >= 3
+      and not f1.logs("LOOK_BENCH_NOT_IN_VIEW"))
+FR_SKEW = dict(FRA, origin=(1633.75, 239990.9, 0.0))
+old_p = dict(lb.DEFAULTS, arch_anchor="bay", underpass_anchor="bay", arch_spring_z_cm=550.0, arch_radius_factor=0.6)
+cam0 = {"loc": (1514.0, 240000.0, 180.0), "rot": {"yaw": 0.0, "pitch": 0.0, "roll": 0.0}, "fov_deg": 90.0, "aspect": 16 / 9.0}
+old_specs = lb.plan_spawns(FR_SKEW, ("arch_ring_border", "underpass"), old_p, None, None)
+g_old = lb.view_gate(("arch_ring_border", "underpass"), old_specs, [cam0], old_p)
+check("- control: the 5 Oct placement (bay-centred, springing 550, -25 deg frame) FAILS the same gate",
+      not g_old["ok"] and g_old["arch_visible"] < g_old["arch_needed"] and g_old["underpass_columns"] == 0)
+fr4 = lb.bay_frame((1633.75, 239990.9, 0.0), None, None, 1450.0, 0.0)
+new_specs = lb.plan_spawns(fr4, ("arch_ring_border", "underpass"), lb.DEFAULTS, None,
+                           lb.camera_anchor(fr4, cam0["loc"], lb.DEFAULTS, 90.0, 16 / 9.0))
+check("+ frustum gate passes the camera-anchored placement at the measured clip-start camera",
+      lb.view_gate(("arch_ring_border", "underpass"), new_specs, [cam0], lb.DEFAULTS)["ok"])
+check("- control: the same placement seen by a camera looking BACK is 0 visible and fails",
+      (lambda g: g["n_visible"] == 0 and not g["ok"])(lb.view_gate(("arch_ring_border", "underpass"), new_specs,
+                                                                   [dict(cam0, rot={"yaw": 180.0, "pitch": 0.0, "roll": 0.0})],
+                                                                   lb.DEFAULTS)))
+check("+ projection sanity: a point dead ahead is centre-frame, one 46 deg off-axis is outside a 90 deg h-FOV",
+      lb.in_view(cam0, (2514.0, 240000.0, 180.0)) and not lb.in_view(cam0, (2514.0, 240000.0 + 1035.5, 180.0))
+      and lb.in_view(cam0, (2514.0, 240000.0 + 965.7, 180.0)))
+check("+ bench light levels lowered toward the bay's own (rake/beam/strobe/glint/shaft <= 3000 cd, haze <= 0.22)",
+      max(lb.DEFAULTS[k] for k in ("rake_cd", "beam_cd", "strobe_cd", "glint_cd", "underpass_shaft_cd")) <= 3000.0
+      and max(lb.DEFAULTS["haze_densities"]) <= 0.22 and len(set(lb.DEFAULTS["haze_densities"])) == 3)
 
 failed = [n for n, ok in RESULTS if not ok]
 print("\nLOOK_BENCH_HARNESS %d/%d %s" % (len(RESULTS) - len(failed), len(RESULTS), "OK" if not failed else "FAILED"))
