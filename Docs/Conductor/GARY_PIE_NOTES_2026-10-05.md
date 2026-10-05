@@ -107,3 +107,7 @@
     - Lamp bodies: the floor "cubes" are the scores' PRACTICAL bodies on the floor. Gary wants the rig lamps mounted ON the
       rig (on columns, piers, girders), overlapping slightly rather than floating. → A score/fixture placement change:
       snap the practical and TOP lamp bodies to the nearest rig member. Design needed; not today's priority.
+26. **P05 clouds: "across the show, these kinds of small holes can be filled … ideally the crinkly edge of the second
+    incoming wing should be fixed too, whereas the forefront wing has a nice rounded edge even though still quite
+    detailed."** → Added to W&T's show-wide hole audit: an outline-roughness pass (flag crinkly cuts; propose a smooth +
+    round at a radius that keeps the big shapes, like cv12's blunt curves), with before/after crops for Gary.
