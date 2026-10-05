@@ -1,0 +1,65 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+index 8e41350..1478f78 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+@@ -1015,7 +1015,59 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+             static_cast<int32>(UnsafeJump),
+             ShowRoot->Transport->GetCurrentMasterFrame().Value,
+             ShowRoot->Transport->SelectedSegmentIndex));
+-        TestEqual(TEXT("External unpausable Scene rejects an unsafe next jump"), UnsafeJump, EInfinityTransportResult::UnsafeExternalClock);
++        // Which Scenes are unpausable is Gary's data (4 Oct: only Scene 3, the cellist), so the
++        // expectation is read from the saved Show, never assumed from the segment index.
++        const bool bSceneOneUnpausable =
++            ShowRoot->Transport->Segments[2].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable;
++        AddInfo(FString::Printf(TEXT("SceneOneUnpausable=%d"), bSceneOneUnpausable ? 1 : 0));
++        if (bSceneOneUnpausable)
++        {
++            TestEqual(TEXT("External unpausable Scene rejects an unsafe next jump"), UnsafeJump, EInfinityTransportResult::UnsafeExternalClock);
++        }
++        else
++        {
++            // Control: a pausable Scene's next jump is allowed in performance mode.
++            TestEqual(TEXT("A pausable Scene's next jump succeeds in performance mode"), UnsafeJump, EInfinityTransportResult::Succeeded);
++            TestEqual(TEXT("...and lands on Interaction 1"), ShowRoot->Transport->GetCurrentMasterFrame(), ShowRoot->Transport->Segments[3].StartFrame);
++        }
++        // The refusal itself, on whichever Scene the saved Show declares unpausable (keyed by cue GUID).
++        int32 UnpausableIndex = INDEX_NONE;
++        for (int32 Index = 0; Index + 1 < ShowRoot->Transport->Segments.Num(); ++Index)
++        {
++            if (ShowRoot->Transport->Segments[Index].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable)
++            {
++                UnpausableIndex = Index;
++                break;
++            }
++        }
++        if (UnpausableIndex == INDEX_NONE)
++        {
++            AddInfo(TEXT("No DeclaredUnpausable Scene in the saved Show: the refusal is not exercised by this fixture"));
++        }
++        else if (UnpausableIndex != 2)
++        {
++            const FInfinityTransportSegment& Unpausable = ShowRoot->Transport->Segments[UnpausableIndex];
++            const FGuid UnpausableCue = ShowRoot->ShowAsset && ShowRoot->ShowAsset->Cues.IsValidIndex(Unpausable.CueIndex)
++                ? ShowRoot->ShowAsset->Cues[Unpausable.CueIndex].CueGuid
++                : FGuid();
++            ShowRoot->Transport->bPerformanceMode = false;
++            TestEqual(TEXT("Rehearsal can scrub to the unpausable Scene"),
++                ShowRoot->Transport->ScrubToMasterFrame(Unpausable.StartFrame), EInfinityTransportResult::Succeeded);
++            ShowRoot->Transport->bPerformanceMode = true;
++            const EInfinityTransportResult Refused = ShowRoot->Transport->JumpToNextSegment();
++            AddInfo(FString::Printf(TEXT("UnpausableScene=%s cue=%s Refused=%d"),
++                *Unpausable.Label.ToString(), *UnpausableCue.ToString(), static_cast<int32>(Refused)));
++            TestEqual(FString::Printf(TEXT("External unpausable Scene (%s) rejects an unsafe next jump"), *Unpausable.Label.ToString()),
++                Refused, EInfinityTransportResult::UnsafeExternalClock);
++        }
++        // Back to Scene 1, so the steps below start exactly where they always have.
++        if (!bSceneOneUnpausable || UnpausableIndex != 2)
++        {
++            ShowRoot->Transport->bPerformanceMode = false;
++            TestEqual(TEXT("Rehearsal returns to Scene 1 for the steps below"),
++                ShowRoot->Transport->ScrubToMasterFrame(ShowRoot->Transport->Segments[2].StartFrame),
++                EInfinityTransportResult::Succeeded);
++        }
+ 
+         ShowRoot->Transport->bPerformanceMode = false;
+         const EInfinityTransportResult RehearsalJump = ShowRoot->Transport->AdvanceToNextSegment();
