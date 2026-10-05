@@ -96,6 +96,7 @@ POSE_CHANNELS = {"Location.X": 1, "Location.Y": 2, "Location.Z": 3,           # 
                  "Rotation.X": 6, "Rotation.Y": 4, "Rotation.Z": 5}             # key = (f, x, y, z, pitch, yaw, roll)
 
 DEFAULTS = {
+    "extra_tail_frames": 0,         # frames added after the drape fall so the walk-in can start after the GO
     "wide_local_cm": None,          # None = the Scene's dock seat from hangar_s<N>_plan.json, in the root frame
     "wide_focal_mm": 28.0,
     "wide_pitch_deg": 0.0,
@@ -357,7 +358,7 @@ def plan_sleight(inputs, params, walk_ns):
     f["fold1"] = frames(p["fold_end_s"], fps)
     f["strike"] = f["sleight"] + frames(p["strike_after_s"], fps)
     f["release"] = f["play1"]                       # GO frame; the HOLD section ends here
-    new_end = f["release"] + fall_len
+    new_end = f["release"] + fall_len + int(p.get("extra_tail_frames", 0))
     f["end"] = new_end
     delta = new_end - old_end
     if delta <= 0:
@@ -534,8 +535,9 @@ def check_sleight(plan, inputs):
                     % (f["push1"], ready, f["sleight"]))
     if f["strike"] < f["sleight"] + ready:
         fail.append("READY: the hangar side strikes at %d, within %d frames after the cut" % (f["strike"], ready))
-    if plan["new_end"] != f["release"] + (inputs["drape"]["fall"][1] - inputs["drape"]["fall"][0]):
-        fail.append("TIMELINE: new end is not release + the FALL length")
+    if plan["new_end"] != (f["release"] + (inputs["drape"]["fall"][1] - inputs["drape"]["fall"][0])
+                           + int(plan.get("params", {}).get("extra_tail_frames", 0))):
+        fail.append("TIMELINE: new end is not release + the FALL length + extra_tail_frames")
 
     # 2. the cut track: exactly one camera change, on one frame, no gap, no overlap
     cuts = sorted(plan["cuts"], key=lambda c: c["range"][0])
@@ -1560,7 +1562,14 @@ def _key_float(binding, prop, path, keys, end, run, label):
 
 
 def _spawn_track(binding, spawn_keys, end):
-    st = binding.add_track(unreal.MovieSceneSpawnTrack)
+    # UE creates a spawn track itself when a spawnable is added (measured 5 Oct: a second, tool-added track made
+    # PRESAVE_SNAPSHOT_MISMATCH). Reuse that one, with exactly one section, instead of adding another.
+    existing = [t for t in binding.get_tracks() if t.get_class().get_name() == "MovieSceneSpawnTrack"]
+    st = existing[0] if existing else binding.add_track(unreal.MovieSceneSpawnTrack)
+    for extra in existing[1:]:
+        binding.remove_track(extra)
+    for old in list(st.get_sections()):
+        st.remove_section(old)
     ss = st.add_section()
     ss.set_range(0, end + 1)
     ch = ss.get_all_channels()[0]
