@@ -137,3 +137,16 @@
     - (b) later: true 3D: each picket a crimped zig-zag wire tube interlocked with its neighbours, knuckled selvage and a top
       rail. Probably Nanite (high tri count per bay) [inf]; real shadows and reflections.
     Routed to W&T as a backlog item.
+31. **Seams are the priority** ("fixing the cues so that all the transitional moments are themselves visible"). Status:
+    - **Scene → transition via the transport: FIXED and BUILT** (82035bd, suite 179/0). Right from a played-to-end segment now
+      lands on the next segment (the transition) and holds it armed; the next Right plays it.
+    - **Passage → Scene snap: MEASURED** (PIE, P01 → S1, scene1_crossing_pop_20261005.json). Last rig frame x 28750.7,
+      z 133.0; first Entry camera x 28784.0, z 150.0 → **+33 cm forward, +17 cm up, a slight roll to 0, and a ~400 ms frame
+      gap**. Fix: held patch CS ("crossing settle", 1 s: bob fades out, the pose converges to the route end at the boundary)
+      being written; the gap is to be measured separately.
+    - **Interactions 2–5:** the sleight refuses WALKIN_NOT_READY (no landed_s / minimum_end_frame; they were never prepared
+      like I1). A readiness tool is being written.
+32. **Beginning / end:** the end "is not yet implemented and needs to start tomorrow or Weds". Beginning: extend the stage
+    forward so we start ON the shiny floor, not in the "audience"; forget the slatted wood, P01's waxed floor is better.
+    Also make puddles and pools of slick, thick water or oil on the floor.
+33. **Heave shake:** the heavy heave needs "a little bit of shake, coming up and on landing thud".
