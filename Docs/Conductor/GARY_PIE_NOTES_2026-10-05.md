@@ -55,3 +55,12 @@
     already set to cast shadows (default true), and its panels sit on the column line, between the car (2400 cm out) and the
     wings. To check at build: the FenceBay material's masked shadow, plus the cost of a masked shadow from a moving light
     (VSM re-render each frame) [inferred].
+14. **P03 "looks better than P02 (maybe the straight line is actually more effective than P02's curved path for
+    depthiness)".** Noted against his earlier "keep the curve": a possible future P02 straightening (structural, needs a plan).
+15. **P03 foliage props "look good but are in the wrong place"; Gary will move them.** How: in the EDITOR (not PIE), the
+    move gizmo writes back to the Show for props too (guide §3.3); then save the Show and the level only. PIE edits are lost.
+16. **Small holes in many wings, show-wide** → routed to W&T: a read-only hole audit, then a fill proposal (alpha close
+    with a max area; patch in place, band-only, so the peel doesn't re-roll), with before/after crops for Gary.
+17. **P03 floor "needs raising/replacing with the shiny one".** P03's slab WAS raised to +0.5 at 01:55 [measured], but
+    it kept its matte oak herringbone. → the floor tool now takes "passage": P03 too and copies P01's waxed walnut.
+18. **P03 also very flat; "the lighting here is pretty much just fog".** → the fog bench should run on P03 as well as P02.

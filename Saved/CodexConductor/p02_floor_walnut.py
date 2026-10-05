@@ -1,4 +1,5 @@
-"""Gary 5 Oct: P02's floor "should be the wooden waxed shiny floor not the slats"; he chose P01's walnut herringbone.
+"""(5 Oct, extended to P03 via args "passage": Gary "[P03] also needs floor raising/replacing with the shiny one".)
+Gary 5 Oct: P02's floor "should be the wooden waxed shiny floor not the slats"; he chose P01's walnut herringbone.
 P02's four slabs (Near/Left/Right/Far around the bend; floor_dark_wet_apply.py left them untouched) sit under the rig's
 boards, so the boards (slats) show. This raises each slab so its top is +0.5 cm above the board top (board top =
 route z + FloorHeightCm, read live, as floor_dark_wet_apply.py did) and sets every material slot to the material P01's
@@ -18,9 +19,11 @@ import unreal
 HERE = "E:/PussStage/Saved/CodexConductor/"
 WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 UMAP = "E:/PussStage/Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap"
-LABELS = ("Passage 02 - Floor Near", "Passage 02 - Floor Left", "Passage 02 - Floor Right", "Passage 02 - Floor Far")
+SLAB_LABELS = {"P02": ("Passage 02 - Floor Near", "Passage 02 - Floor Left", "Passage 02 - Floor Right", "Passage 02 - Floor Far"),
+               "P03": ("Passage 03 - Floor",)}
+LABELS = ()
 P01_SLAB = "Passage 01 - Opening Floor"
-REC = HERE + "p02_floor_walnut_record.json"
+REC = ""
 RUN = datetime.datetime.now().strftime("P02FL-%Y%m%d-%H%M%S")
 MAX_RAISE = 12.0
 
@@ -46,9 +49,15 @@ def top(actor):
 
 
 def main():
+    global LABELS, REC
     a = json.load(open(HERE + "p02_floor_walnut_args.json", encoding="utf-8"))
     mode = str(a.get("mode", "DRY")).upper()
-    if mode != "DRY" and a.get("confirm") != "%s P02FLOOR" % mode:
+    pk = str(a.get("passage", "P02")).upper()
+    if pk not in SLAB_LABELS:
+        stop("PASSAGE_UNSUPPORTED|" + pk)
+    LABELS = SLAB_LABELS[pk]
+    REC = HERE + ("p02_floor_walnut_record.json" if pk == "P02" else "floor_walnut_record_%s.json" % pk)
+    if mode != "DRY" and a.get("confirm") != "%s %sFLOOR" % (mode, pk):
         stop("CONFIRM_MISSING")
     ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if ed.get_game_world() is not None:
@@ -62,11 +71,11 @@ def main():
     if any(len(by.get(l, [])) != 1 for l in LABELS + (P01_SLAB,)):
         stop("LABEL_COUNTS|%s" % {l: len(by.get(l, [])) for l in LABELS + (P01_SLAB,)})
     st = [x for x in acts if x.get_class().get_name() == "InfinityStageStructureActor"
-          and str(x.get_actor_label()) == "Infinity Stage - Structure 02"]
+          and str(x.get_actor_label()) == "Infinity Stage - Structure 0" + pk[-1]]
     if len(st) != 1:
         stop("STRUCTURE_COUNT")
     p02 = [x for x in acts if x.get_class().get_name() == "InfinityStagePassageActor"
-           and str(x.get_actor_label()).startswith("Passage 02")][0]
+           and str(x.get_actor_label()).startswith("Passage 0" + pk[-1])][0]
     route = p02.get_editor_property("route")
     W = unreal.SplineCoordinateSpace.WORLD
     zs = [route.get_location_at_distance_along_spline(route.get_spline_length() * i / 20.0, W).z for i in range(21)]
@@ -95,7 +104,7 @@ def main():
         bad = [r for r in rows if not (0.0 <= r["raise_cm"] <= MAX_RAISE)]
         if bad:
             stop("RAISE_OUT_OF_RANGE|%s" % json.dumps(bad))
-        backup = "E:/PussStage/Backups/PreP02FloorWalnut-" + RUN
+        backup = "E:/PussStage/Backups/Pre%sFloorWalnut-%s" % (pk, RUN)
         os.makedirs(backup)
         with open(REC, "w", encoding="utf-8") as h:
             json.dump({"run": RUN, "rows": rows, "walnut": walnut, "target_top": target_top, "backup": backup}, h, indent=1)
@@ -127,7 +136,7 @@ def main():
         stop("POST_SAVE_DIRTY|" + json.dumps(census()))
     if mode == "REVERT":
         os.replace(REC, REC + ".reverted-" + RUN)
-    unreal.log("P02_FLOOR_%s_OK|run=%s|slabs=4|level_saved=1|dirty_after=0+0" % (mode, RUN))
+    unreal.log("P02_FLOOR_%s_OK|run=%s|passage=%s|slabs=%d|level_saved=1|dirty_after=0+0" % (mode, RUN, pk, len(LABELS)))
 
 
 main()
