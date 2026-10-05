@@ -1191,4 +1191,453 @@ bool FInfinityStageStructurePortalKeepsTimberTest::RunTest(const FString& Parame
     return true;
 }
 
+namespace
+{
+/** The underpass layers, in the order of the parts below: columns, piers, knees, deck, catwalk. */
+const TCHAR* const UnderpassTags[] = {
+    TEXT("InfinityStage.Structure.Underpass.Columns"),
+    TEXT("InfinityStage.Structure.Underpass.Piers"),
+    TEXT("InfinityStage.Structure.Underpass.Knees"),
+    TEXT("InfinityStage.Structure.Underpass.Deck"),
+    TEXT("InfinityStage.Structure.Underpass.Catwalk"),
+};
+constexpr int32 UnderpassPartCount = 5;
+static_assert(sizeof(UnderpassTags) / sizeof(UnderpassTags[0]) == UnderpassPartCount, "one tag per underpass part");
+
+/** Every underpass part on the engine cube (100 cm, centred), catwalk included, and switched on. */
+void ArmUnderpass(AInfinityStageStructureActor& Structure)
+{
+    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
+    FInfinityStageUnderpassSettings& Underpass = Structure.Underpass;
+    Underpass.ColumnMesh = Cube;
+    Underpass.PierMesh = Cube;
+    Underpass.KneeMesh = Cube;
+    Underpass.DeckMesh = Cube;
+    Underpass.CatwalkMesh = Cube;
+    Underpass.bCatwalk = true;
+    Underpass.bEnabled = true;
+}
+
+TArray<FBuiltLayer> WithoutUnderpass(const TArray<FBuiltLayer>& Layers)
+{
+    TArray<FBuiltLayer> Kept;
+    for (const FBuiltLayer& Layer : Layers)
+    {
+        bool bUnderpass = false;
+        for (const TCHAR* Tag : UnderpassTags)
+        {
+            bUnderpass |= Layer.Tags.Contains(FName(Tag));
+        }
+        if (!bUnderpass)
+        {
+            Kept.Add(Layer);
+        }
+    }
+    return Kept;
+}
+
+/** Every count the structure reported before the underpass existed. */
+TArray<int32> ExistingCounts(const AInfinityStageStructureActor& Structure)
+{
+    return {
+        Structure.StationCount, Structure.CrossBeamCount, Structure.RailSegmentCount, Structure.BoardCount,
+        Structure.SlotCount, Structure.GroovePieceCount, Structure.ClothCount, Structure.PortalPieceCount,
+        Structure.FixtureBodyCount, Structure.HangingLineCount, Structure.MovingLightsWithoutHousing,
+        Structure.StationSignature, static_cast<int32>(FMath::RoundToInt64(Structure.GridHalfWidthCm * 10.0)) };
+}
+
+TArray<int32> UnderpassCounts(const AInfinityStageStructureActor& Structure)
+{
+    return {
+        Structure.UnderpassColumnCount, Structure.UnderpassPierCount, Structure.UnderpassKneeCount,
+        Structure.UnderpassDeckCount, Structure.UnderpassCatwalkCount };
+}
+
+/** Column stations: every Nth from the first, and the last. Closed form, independent of the build's loop. */
+int32 ExpectedColumnStations(const int32 Stations, const int32 Every)
+{
+    return (Stations + Every - 1) / Every + ((Stations - 1) % Every != 0 ? 1 : 0);
+}
+
+TArray<FBox> InstanceBoxes(const UInstancedStaticMeshComponent& Component)
+{
+    TArray<FBox> Boxes;
+    const FBox MeshBounds = Component.GetStaticMesh()->GetBoundingBox();
+    for (const FTransform& Instance : ReadInstances(Component))
+    {
+        Boxes.Add(MeshBounds.TransformBy(Instance));
+    }
+    return Boxes;
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageUnderpassOffByDefaultTest,
+    "InfinityStage.Structure.UnderpassOffByDefaultChangesNothing",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageUnderpassOffByDefaultTest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 5);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    // Floor, grooves, understage, portal and stage front too, so every existing layer is compared.
+    Structure->Ground.bEnabled = true;
+    Structure->Portal.bEnabled = true;
+
+    const FInfinityStageUnderpassSettings& Defaults = Structure->Underpass;
+    TestFalse(TEXT("The underpass is off by default"), Defaults.bEnabled);
+    TestTrue(TEXT("No underpass part has a mesh by default"),
+        Defaults.ColumnMesh.IsNull() && Defaults.PierMesh.IsNull() && Defaults.KneeMesh.IsNull()
+        && Defaults.DeckMesh.IsNull() && Defaults.CatwalkMesh.IsNull());
+    TestEqual(TEXT("A column pair every second station by default"), Defaults.ColumnEvery, 2);
+    TestTrue(TEXT("Columns 60 cm outside the grid and the deck at 2000 cm by default"),
+        FMath::IsNearlyEqual(Defaults.ColumnOutsetCm, 60.0) && FMath::IsNearlyEqual(Defaults.DeckHeightCm, 2000.0));
+
+    TestTrue(TEXT("The default structure builds"), Structure->MaterializeStructure());
+    const TArray<FBuiltLayer> Baseline = SnapshotBuild(*Structure);
+    const TArray<int32> BaselineCounts = ExistingCounts(*Structure);
+
+    // The whole kit set, but the layer off: nothing may change.
+    ArmUnderpass(*Structure);
+    Structure->Underpass.bEnabled = false;
+    TestTrue(TEXT("Builds with the kit set but the layer off"), Structure->MaterializeStructure());
+    FString Why;
+    const bool bSameOff = SameBuild(Baseline, SnapshotBuild(*Structure), Why);
+    TestTrue(FString::Printf(TEXT("Off, every component, mesh, material, instance and custom float is unchanged (%s)"), *Why), bSameOff);
+    TestTrue(TEXT("Off, every existing count is unchanged"), ExistingCounts(*Structure) == BaselineCounts);
+    TestTrue(TEXT("Off, every underpass count is zero"), UnderpassCounts(*Structure) == TArray<int32>({ 0, 0, 0, 0, 0 }));
+
+    // Control: on, the same kit adds its five layers, so the comparison above can
+    // fail. Even on, it leaves every other layer exactly as it was.
+    Structure->Underpass.bEnabled = true;
+    TestTrue(TEXT("Builds with the layer on"), Structure->MaterializeStructure());
+    const TArray<FBuiltLayer> WithUnderpass = SnapshotBuild(*Structure);
+    TestEqual(TEXT("Control: on, the underpass adds one component per part"), WithUnderpass.Num(), Baseline.Num() + 5);
+    const bool bSameOthers = SameBuild(Baseline, WithoutUnderpass(WithUnderpass), Why);
+    TestTrue(FString::Printf(TEXT("On, every other layer is unchanged (%s)"), *Why), bSameOthers);
+    TestTrue(TEXT("On, every existing count is unchanged"), ExistingCounts(*Structure) == BaselineCounts);
+    TestTrue(TEXT("A structure with an underpass is current"), Structure->IsStructureCurrent());
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageUnderpassCountsTest,
+    "InfinityStage.Structure.UnderpassCountsFollowTheStations",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageUnderpassCountsTest::RunTest(const FString& Parameters)
+{
+    struct FCase
+    {
+        int32 Stations;
+        int32 Every;
+    };
+    // 5/2 ends on a column station; 4/2 and 6/3 add the last; 5/1 stands one everywhere.
+    for (const FCase Case : { FCase{ 5, 2 }, FCase{ 4, 2 }, FCase{ 6, 3 }, FCase{ 5, 1 } })
+    {
+        const FString Label = FString::Printf(TEXT("%d stations, columns every %d"), Case.Stations, Case.Every);
+        UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+        AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, Case.Stations);
+        AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+        ArmUnderpass(*Structure);
+        Structure->Underpass.ColumnEvery = Case.Every;
+        if (Case.Stations == 5 && Case.Every == 2)
+        {
+            // The census the conductor's tools parse: the new keys, appended.
+            AddExpectedMessagePlain(
+                TEXT("half_width_cm=620 underpass_columns=6 underpass_piers=6 underpass_knees=8 underpass_decks=4 underpass_catwalks=8"),
+                ELogVerbosity::Display,
+                EAutomationExpectedMessageFlags::Contains,
+                1);
+        }
+        TestTrue(Label + TEXT(": builds"), Structure->MaterializeStructure());
+        TestEqual(*(Label + TEXT(": stations")), Structure->StationCount, Case.Stations);
+
+        const int32 ColumnStations = ExpectedColumnStations(Case.Stations, Case.Every);
+        TestEqual(*(Label + TEXT(": two columns per column station")), Structure->UnderpassColumnCount, 2 * ColumnStations);
+        TestEqual(*(Label + TEXT(": a pier under every column")), Structure->UnderpassPierCount, 2 * ColumnStations);
+        TestEqual(*(Label + TEXT(": two knees per column, one at each end column")),
+            Structure->UnderpassKneeCount, 2 * (2 * ColumnStations - 2));
+        TestEqual(*(Label + TEXT(": a deck bay per station gap")), Structure->UnderpassDeckCount, Case.Stations - 1);
+        TestEqual(*(Label + TEXT(": two catwalk rails per bay")), Structure->UnderpassCatwalkCount, 2 * (Case.Stations - 1));
+        if (Case.Stations == 5 && Case.Every == 2)
+        {
+            // Pins the formula itself: stations 0, 2 and 4.
+            TestTrue(Label + TEXT(": the counts are 6, 6, 8, 4, 8"),
+                UnderpassCounts(*Structure) == TArray<int32>({ 6, 6, 8, 4, 8 }));
+        }
+        const TArray<int32> Reported = UnderpassCounts(*Structure);
+        for (int32 Part = 0; Part < UnderpassPartCount; ++Part)
+        {
+            const UInstancedStaticMeshComponent* Layer = FindLayer(*Structure, UnderpassTags[Part]);
+            TestEqual(*(Label + TEXT(": the count is the layer's instances, ") + UnderpassTags[Part]),
+                Layer ? Layer->GetInstanceCount() : 0, Reported[Part]);
+        }
+        TestTrue(Label + TEXT(": a structure with an underpass is current"), Structure->IsStructureCurrent());
+
+        // Where the plan puts it: piers on the floor, columns from the pier top to
+        // the deck's underside on the column line, knees under the deck.
+        const FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
+        const double FloorCm = Structure->Ground.FloorHeightCm;
+        const double ColumnLineCm = Structure->GridHalfWidthCm + Underpass.ColumnOutsetCm;
+        const UInstancedStaticMeshComponent* Columns = FindLayer(*Structure, UnderpassTags[0]);
+        const UInstancedStaticMeshComponent* Piers = FindLayer(*Structure, UnderpassTags[1]);
+        const UInstancedStaticMeshComponent* Knees = FindLayer(*Structure, UnderpassTags[2]);
+        const UInstancedStaticMeshComponent* Decks = FindLayer(*Structure, UnderpassTags[3]);
+        if (!Columns || !Piers || !Knees || !Decks)
+        {
+            AddError(Label + TEXT(": expected column, pier, knee and deck layers."));
+            World->DestroyWorld(false);
+            return false;
+        }
+        bool bColumnsPlaced = true;
+        for (const FBox& Box : InstanceBoxes(*Columns))
+        {
+            bColumnsPlaced &= FMath::IsNearlyEqual(Box.Min.Z, FloorCm + Underpass.PierHeightCm, 0.1)
+                && FMath::IsNearlyEqual(Box.Max.Z, Underpass.DeckHeightCm, 0.1)
+                && FMath::IsNearlyEqual(FMath::Abs(Box.GetCenter().Y), ColumnLineCm, 0.1)
+                && FMath::IsNearlyEqual(Box.GetSize().Y, Underpass.ColumnWidthCm, 0.1)
+                && FMath::IsNearlyEqual(Box.GetSize().X, Underpass.ColumnDepthCm, 0.1);
+        }
+        TestTrue(Label + TEXT(": columns stand on the piers, up to the deck, on the column line"), bColumnsPlaced);
+        bool bPiersPlaced = true;
+        for (const FBox& Box : InstanceBoxes(*Piers))
+        {
+            bPiersPlaced &= FMath::IsNearlyEqual(Box.Min.Z, FloorCm, 0.1)
+                && FMath::IsNearlyEqual(Box.Max.Z, FloorCm + Underpass.PierHeightCm, 0.1)
+                && FMath::IsNearlyEqual(FMath::Abs(Box.GetCenter().Y), ColumnLineCm, 0.1);
+        }
+        TestTrue(Label + TEXT(": piers stand on the floor under the columns"), bPiersPlaced);
+        bool bKneesPlaced = true;
+        for (const FBox& Box : InstanceBoxes(*Knees))
+        {
+            bKneesPlaced &= FMath::IsNearlyEqual(Box.Max.Z, Underpass.DeckHeightCm, 0.1)
+                && FMath::IsNearlyEqual(Box.GetSize().X, Underpass.KneeSizeCm, 0.1);
+        }
+        TestTrue(Label + TEXT(": knees sit under the deck"), bKneesPlaced);
+        bool bDeckPlaced = true;
+        for (const FBox& Box : InstanceBoxes(*Decks))
+        {
+            bDeckPlaced &= FMath::IsNearlyEqual(Box.Min.Z, Underpass.DeckHeightCm, 0.1)
+                && FMath::IsNearlyEqual(Box.GetSize().Y, (ColumnLineCm + Underpass.ColumnWidthCm * 0.5) * 2.0, 0.1);
+        }
+        TestTrue(Label + TEXT(": the deck rests on the column heads and spans them"), bDeckPlaced);
+
+        World->DestroyWorld(false);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageUnderpassCleanEndsTest,
+    "InfinityStage.Structure.UnderpassKeepsThePassageEndsClean",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageUnderpassCleanEndsTest::RunTest(const FString& Parameters)
+{
+    // 5 stations end on a column station by the rhythm; 4 get one added at the end.
+    for (const int32 StationTotal : { 5, 4 })
+    {
+        const FString Label = FString::Printf(TEXT("%d stations"), StationTotal);
+        UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+        AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, StationTotal);
+        AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+        ArmUnderpass(*Structure);
+        TestTrue(Label + TEXT(": builds"), Structure->MaterializeStructure());
+        TArray<FInfinityStructureStation> Stations;
+        FString Error;
+        Structure->GatherStations(Stations, Error);
+        if (Stations.Num() != StationTotal)
+        {
+            AddError(Label + TEXT(": stations did not gather."));
+            World->DestroyWorld(false);
+            return false;
+        }
+        // The fixture's route runs along world +X.
+        const double FirstX = Stations[0].StationWorld.GetLocation().X;
+        const double LastX = Stations.Last().StationWorld.GetLocation().X;
+        double MinX = TNumericLimits<double>::Max();
+        double MaxX = TNumericLimits<double>::Lowest();
+        int32 Pieces = 0;
+        for (const TCHAR* Tag : UnderpassTags)
+        {
+            const UInstancedStaticMeshComponent* Layer = FindLayer(*Structure, Tag);
+            if (!Layer)
+            {
+                AddError(Label + TEXT(": missing underpass layer ") + Tag);
+                continue;
+            }
+            bool bInside = true;
+            for (const FBox& Box : InstanceBoxes(*Layer))
+            {
+                bInside &= Box.Min.X >= FirstX - 0.5 && Box.Max.X <= LastX + 0.5;
+                MinX = FMath::Min(MinX, Box.Min.X);
+                MaxX = FMath::Max(MaxX, Box.Max.X);
+                ++Pieces;
+            }
+            TestTrue(Label + TEXT(": nothing passes the first or last station, ") + Tag, bInside);
+        }
+        // Controls, so the bound above measures a real edge: the rig reaches both
+        // ends exactly, and a column foot stands at the last station.
+        TestTrue(Label + TEXT(": the underpass was built"), Pieces > 0);
+        TestTrue(Label + TEXT(": the rig reaches the last station"), FMath::IsNearlyEqual(MaxX, LastX, 0.5));
+        TestTrue(Label + TEXT(": the rig reaches the first station"), FMath::IsNearlyEqual(MinX, FirstX, 0.5));
+        bool bEndColumn = false;
+        if (const UInstancedStaticMeshComponent* Piers = FindLayer(*Structure, UnderpassTags[1]))
+        {
+            for (const FBox& Box : InstanceBoxes(*Piers))
+            {
+                bEndColumn |= FMath::IsNearlyEqual(Box.Max.X, LastX, 0.1);
+            }
+        }
+        TestTrue(Label + TEXT(": a pier's face is flush with the last station"), bEndColumn);
+
+        World->DestroyWorld(false);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageUnderpassMaterialsTest,
+    "InfinityStage.Structure.UnderpassPartsWearTheirOwnMaterials",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageUnderpassMaterialsTest::RunTest(const FString& Parameters)
+{
+    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
+    // Five distinct surface materials, none the cube's own (WorldGridMaterial here).
+    const TSoftObjectPtr<UMaterialInterface> Paints[] = {
+        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial"))),
+        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/M_SimpleOpaque.M_SimpleOpaque"))),
+        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/DebugMeshMaterial.DebugMeshMaterial"))),
+        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/TangentColorMaterial.TangentColorMaterial"))),
+        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/LevelColorationLitMaterial.LevelColorationLitMaterial"))),
+    };
+    if (!Cube.LoadSynchronous())
+    {
+        AddError(TEXT("Fixture: the engine cube does not load."));
+        return false;
+    }
+    for (int32 Index = 0; Index < UnderpassPartCount; ++Index)
+    {
+        if (!Paints[Index].LoadSynchronous())
+        {
+            AddError(FString::Printf(TEXT("Fixture: material %s does not load."), *Paints[Index].ToSoftObjectPath().ToString()));
+            return false;
+        }
+        TestTrue(TEXT("Fixture: no test material is the cube's own"),
+            Cube.LoadSynchronous()->GetMaterial(0) != Paints[Index].LoadSynchronous());
+        for (int32 Other = Index + 1; Other < UnderpassPartCount; ++Other)
+        {
+            TestTrue(TEXT("Fixture: the test materials are distinct"),
+                Paints[Index].LoadSynchronous() != Paints[Other].LoadSynchronous());
+        }
+    }
+
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 5);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    ArmUnderpass(*Structure);
+    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
+    // Plan section 5: only the deck casts by default.
+    TestTrue(TEXT("Only the deck casts shadow by default"),
+        Underpass.bDeckCastShadow && !Underpass.bColumnCastShadow && !Underpass.bPierCastShadow
+        && !Underpass.bKneeCastShadow && !Underpass.bCatwalkCastShadow);
+    Underpass.ColumnMaterial = Paints[0];
+    Underpass.PierMaterial = Paints[1];
+    Underpass.KneeMaterial = Paints[2];
+    Underpass.DeckMaterial = Paints[3];
+    Underpass.CatwalkMaterial = Paints[4];
+    // Flipped from the defaults, so each flag is shown to come from its own setting.
+    const bool Shadows[] = { true, true, false, false, true };
+    Underpass.bColumnCastShadow = Shadows[0];
+    Underpass.bPierCastShadow = Shadows[1];
+    Underpass.bKneeCastShadow = Shadows[2];
+    Underpass.bDeckCastShadow = Shadows[3];
+    Underpass.bCatwalkCastShadow = Shadows[4];
+    TestTrue(TEXT("The painted underpass builds"), Structure->MaterializeStructure());
+
+    for (int32 Part = 0; Part < UnderpassPartCount; ++Part)
+    {
+        const UInstancedStaticMeshComponent* Layer = FindLayer(*Structure, UnderpassTags[Part]);
+        if (!Layer)
+        {
+            AddError(FString::Printf(TEXT("Missing underpass layer %s."), UnderpassTags[Part]));
+            continue;
+        }
+        TestTrue(FString::Printf(TEXT("%s wears its own material"), UnderpassTags[Part]),
+            Layer->GetMaterial(0) == Paints[Part].LoadSynchronous());
+        TestTrue(FString::Printf(TEXT("%s casts shadow per its own flag"), UnderpassTags[Part]),
+            static_cast<bool>(Layer->CastShadow) == Shadows[Part]);
+        TestTrue(FString::Printf(TEXT("%s is built from its own mesh"), UnderpassTags[Part]),
+            Layer->GetStaticMesh() == Cube.LoadSynchronous());
+    }
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageUnderpassNullMeshTest,
+    "InfinityStage.Structure.UnderpassNullMeshSkipsOnlyThatPart",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageUnderpassNullMeshTest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 5);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    ArmUnderpass(*Structure);
+    TestTrue(TEXT("The full underpass builds"), Structure->MaterializeStructure());
+    TArray<FBuiltLayer> Full;
+    for (const TCHAR* Tag : UnderpassTags)
+    {
+        const UInstancedStaticMeshComponent* Layer = FindLayer(*Structure, Tag);
+        if (!Layer || Layer->GetInstanceCount() == 0)
+        {
+            // Control: every part must be there to be missed.
+            AddError(FString::Printf(TEXT("Control: the full build has no %s."), Tag));
+            World->DestroyWorld(false);
+            return false;
+        }
+        Full.Add(SnapshotLayer(*Layer));
+    }
+    const TArray<FBuiltLayer> FullOthers = WithoutUnderpass(SnapshotBuild(*Structure));
+
+    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
+    TSoftObjectPtr<UStaticMesh>* const Slots[] = {
+        &Underpass.ColumnMesh, &Underpass.PierMesh, &Underpass.KneeMesh, &Underpass.DeckMesh, &Underpass.CatwalkMesh };
+    for (int32 Skipped = 0; Skipped < UnderpassPartCount; ++Skipped)
+    {
+        ArmUnderpass(*Structure);
+        *Slots[Skipped] = nullptr;
+        const FString Label = FString::Printf(TEXT("No mesh for %s"), UnderpassTags[Skipped]);
+        // A null part is skipped quietly: any error logged here fails the test.
+        TestTrue(Label + TEXT(": builds"), Structure->MaterializeStructure());
+        TestNull(*(Label + TEXT(": that part has no layer")), FindLayer(*Structure, UnderpassTags[Skipped]));
+        TestEqual(*(Label + TEXT(": that part counts zero")), UnderpassCounts(*Structure)[Skipped], 0);
+        for (int32 Kept = 0; Kept < UnderpassPartCount; ++Kept)
+        {
+            if (Kept == Skipped)
+            {
+                continue;
+            }
+            const UInstancedStaticMeshComponent* Layer = FindLayer(*Structure, UnderpassTags[Kept]);
+            FString Why = TEXT("layer missing");
+            const bool bSame = Layer && SameLayer(Full[Kept], SnapshotLayer(*Layer), Why);
+            TestTrue(FString::Printf(TEXT("%s: %s is unchanged (%s)"), *Label, UnderpassTags[Kept], *Why), bSame);
+        }
+        FString Why;
+        const bool bSameOthers = SameBuild(FullOthers, WithoutUnderpass(SnapshotBuild(*Structure)), Why);
+        TestTrue(FString::Printf(TEXT("%s: every other layer is unchanged (%s)"), *Label, *Why), bSameOthers);
+        TestTrue(Label + TEXT(": the structure is current"), Structure->IsStructureCurrent());
+    }
+
+    World->DestroyWorld(false);
+    return true;
+}
+
 #endif

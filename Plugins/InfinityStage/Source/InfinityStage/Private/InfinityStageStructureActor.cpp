@@ -24,6 +24,11 @@ const FName PortalLayerTag(TEXT("InfinityStage.Structure.Portal"));
 const FName FixtureLayerTag(TEXT("InfinityStage.Structure.Fixtures"));
 const FName LineLayerTag(TEXT("InfinityStage.Structure.Lines"));
 const FName GrooveLayerTag(TEXT("InfinityStage.Structure.Grooves"));
+const FName UnderpassColumnLayerTag(TEXT("InfinityStage.Structure.Underpass.Columns"));
+const FName UnderpassPierLayerTag(TEXT("InfinityStage.Structure.Underpass.Piers"));
+const FName UnderpassKneeLayerTag(TEXT("InfinityStage.Structure.Underpass.Knees"));
+const FName UnderpassDeckLayerTag(TEXT("InfinityStage.Structure.Underpass.Deck"));
+const FName UnderpassCatwalkLayerTag(TEXT("InfinityStage.Structure.Underpass.Catwalk"));
 
 /** Per-instance custom data: variation 0..1, then length, width, depth in cm. */
 constexpr int32 TimberCustomDataFloats = 4;
@@ -40,7 +45,12 @@ enum class ETimberPart : uint32
     BoardLane = 4,
     Cloth = 5,
     Portal = 6,
-    Groove = 7
+    Groove = 7,
+    UnderpassColumn = 8,
+    UnderpassPier = 9,
+    UnderpassKnee = 10,
+    UnderpassDeck = 11,
+    UnderpassCatwalk = 12
 };
 
 FRandomStream MakeTimberStream(const FGuid& Identity, const ETimberPart Part)
@@ -352,6 +362,11 @@ void AInfinityStageStructureActor::ClearStructure()
     FixtureBodyCount = 0;
     HangingLineCount = 0;
     MovingLightsWithoutHousing = 0;
+    UnderpassColumnCount = 0;
+    UnderpassPierCount = 0;
+    UnderpassKneeCount = 0;
+    UnderpassDeckCount = 0;
+    UnderpassCatwalkCount = 0;
     StationSignature = 0;
     MarkPackageDirty();
 }
@@ -436,6 +451,18 @@ bool AInfinityStageStructureActor::MaterializeStructure()
     UStaticMesh* LineMesh = bFixtureLines || bPortalLines
         ? LoadMesh(Fixtures.LineMesh, TEXT("Hanging line"))
         : nullptr;
+    // The underpass is set a part at a time from Python, so a part with no mesh is
+    // skipped rather than failed; a mesh that is set but will not load still fails.
+    const auto LoadUnderpassMesh = [&LoadMesh](const bool bPartOn, const TSoftObjectPtr<UStaticMesh>& Mesh, const TCHAR* MeshRole) -> UStaticMesh*
+    {
+        return bPartOn && !Mesh.IsNull() ? LoadMesh(Mesh, MeshRole) : nullptr;
+    };
+    const bool bUnderpassColumns = Underpass.bEnabled && Underpass.bColumns;
+    UStaticMesh* UnderpassColumnMesh = LoadUnderpassMesh(bUnderpassColumns, Underpass.ColumnMesh, TEXT("Underpass column"));
+    UStaticMesh* UnderpassPierMesh = LoadUnderpassMesh(bUnderpassColumns, Underpass.PierMesh, TEXT("Underpass pier"));
+    UStaticMesh* UnderpassKneeMesh = LoadUnderpassMesh(bUnderpassColumns && Underpass.bKnees, Underpass.KneeMesh, TEXT("Underpass knee"));
+    UStaticMesh* UnderpassDeckMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bDeck, Underpass.DeckMesh, TEXT("Underpass deck"));
+    UStaticMesh* UnderpassCatwalkMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bCatwalk, Underpass.CatwalkMesh, TEXT("Underpass catwalk"));
     if (!bMeshesLoaded)
     {
         return false;
@@ -491,6 +518,25 @@ bool AInfinityStageStructureActor::MaterializeStructure()
             bFixtureLines ? LineMesh : nullptr,
             LoadMaterial(Fixtures.LineMaterial, TEXT("Hanging line")));
     }
+    if (Underpass.bEnabled)
+    {
+        // A material is loaded only for a part that will be built, so a skipped
+        // part never warns about its material.
+        const auto UnderpassPart = [&LoadMaterial](UStaticMesh* Mesh, const TSoftObjectPtr<UMaterialInterface>& Material, const TCHAR* MaterialRole)
+        {
+            FInfinityUnderpassPart Part;
+            Part.Mesh = Mesh;
+            Part.Material = Mesh ? LoadMaterial(Material, MaterialRole) : nullptr;
+            return Part;
+        };
+        BuildUnderpass(
+            Stations,
+            UnderpassPart(UnderpassColumnMesh, Underpass.ColumnMaterial, TEXT("Underpass column")),
+            UnderpassPart(UnderpassPierMesh, Underpass.PierMaterial, TEXT("Underpass pier")),
+            UnderpassPart(UnderpassKneeMesh, Underpass.KneeMaterial, TEXT("Underpass knee")),
+            UnderpassPart(UnderpassDeckMesh, Underpass.DeckMaterial, TEXT("Underpass deck")),
+            UnderpassPart(UnderpassCatwalkMesh, Underpass.CatwalkMaterial, TEXT("Underpass catwalk")));
+    }
     int32 MovingLights = 0;
     StationSignature = ComputeStructureSignature(
         Stations,
@@ -506,7 +552,8 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         LogInfinityStageStructure,
         Display,
         TEXT("INFINITY_STAGE_STRUCTURE_OK actor='%s' passage='%s' stations=%d cross_beams=%d rails=%d ")
-        TEXT("boards=%d slots=%d cloths=%d portal=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f"),
+        TEXT("boards=%d slots=%d cloths=%d portal=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f ")
+        TEXT("underpass_columns=%d underpass_piers=%d underpass_knees=%d underpass_decks=%d underpass_catwalks=%d"),
         *GetActorNameOrLabel(),
         *Passage->GetActorNameOrLabel(),
         StationCount,
@@ -520,7 +567,12 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         HangingLineCount,
         MovingLightsWithoutHousing,
         InstanceCount,
-        GridHalfWidthCm);
+        GridHalfWidthCm,
+        UnderpassColumnCount,
+        UnderpassPierCount,
+        UnderpassKneeCount,
+        UnderpassDeckCount,
+        UnderpassCatwalkCount);
     return true;
 }
 
@@ -1348,4 +1400,181 @@ void AInfinityStageStructureActor::BuildFixtures(
         ApplyInstances(*LineComponent, Lines, LineData);
         HangingLineCount = Lines.Num();
     }
+}
+
+void AInfinityStageStructureActor::BuildUnderpass(
+    const TArray<FInfinityStructureStation>& Stations,
+    const FInfinityUnderpassPart& Column,
+    const FInfinityUnderpassPart& Pier,
+    const FInfinityUnderpassPart& Knee,
+    const FInfinityUnderpassPart& Deck,
+    const FInfinityUnderpassPart& Catwalk)
+{
+    // One station is no bay: nothing to span, and no way to keep both ends clean.
+    if (Stations.Num() < 2)
+    {
+        return;
+    }
+    // Every size comes from the settings, never from another part's mesh, so a
+    // part left without a mesh moves nothing else.
+    const double ColumnLineCm = GetFloorHalfSpanCm(Stations) + FMath::Max(0.0, Underpass.ColumnOutsetCm);
+    const double ColumnWidthCm = FMath::Max(1.0, Underpass.ColumnWidthCm);
+    const double ColumnDepthCm = FMath::Max(1.0, Underpass.ColumnDepthCm);
+    const double PierSizeCm = FMath::Max(1.0, Underpass.PierSizeCm);
+    const double PierHeightCm = FMath::Max(0.0, Underpass.PierHeightCm);
+    const double KneeSizeCm = FMath::Max(1.0, Underpass.KneeSizeCm);
+    const double DeckDepthCm = FMath::Max(1.0, Underpass.DeckDepthCm);
+    const double DeckUndersideCm = Underpass.DeckHeightCm;
+    const double ColumnBaseCm = Ground.FloorHeightCm + PierHeightCm;
+    const double ColumnHeightCm = DeckUndersideCm - ColumnBaseCm;
+    const double DeckHalfSpanCm = ColumnLineCm + ColumnWidthCm * 0.5;
+    // At an end station the whole foot (pier and column, kept concentric) steps
+    // inside it, so the pier's outer face is flush with the Passage's end.
+    const double EndInsetCm = FMath::Max(PierSizeCm, ColumnDepthCm) * 0.5;
+    const int32 Every = FMath::Max(1, Underpass.ColumnEvery);
+    const int32 Last = Stations.Num() - 1;
+
+    struct FPartInstances
+    {
+        TArray<FTransform> Transforms;
+        TArray<float> Data;
+    };
+    FPartInstances Columns;
+    FPartInstances Piers;
+    FPartInstances Knees;
+    FPartInstances Decks;
+    FPartInstances Rails;
+    const auto AddPiece = [](FPartInstances& Into, const FBox& Bounds, const FVector& CentreWorld,
+                             const FQuat& Rotation, const FVector& SizeCm, const float Tone)
+    {
+        Into.Transforms.Add(FitMeshToTimber(Bounds, CentreWorld, Rotation, SizeCm));
+        Into.Data.Append({ Tone, static_cast<float>(SizeCm.X), static_cast<float>(SizeCm.Y), static_cast<float>(SizeCm.Z) });
+    };
+    const FBox ColumnBounds = Column.Mesh ? Column.Mesh->GetBoundingBox() : FBox(ForceInit);
+    const FBox PierBounds = Pier.Mesh ? Pier.Mesh->GetBoundingBox() : FBox(ForceInit);
+    const FBox KneeBounds = Knee.Mesh ? Knee.Mesh->GetBoundingBox() : FBox(ForceInit);
+    const FBox DeckBounds = Deck.Mesh ? Deck.Mesh->GetBoundingBox() : FBox(ForceInit);
+    const FBox CatwalkBounds = Catwalk.Mesh ? Catwalk.Mesh->GetBoundingBox() : FBox(ForceInit);
+
+    // Columns, piers and knees. Each part has its own stream per station, and every
+    // draw is its own statement made whether or not the part is built, so a part
+    // switched on or off never re-rolls another (memory: puss-random-draw-order).
+    const bool bBuildColumns = Underpass.bColumns && ColumnHeightCm >= 1.0;
+    const bool bBuildKnees = bBuildColumns && Underpass.bKnees && ColumnHeightCm >= KneeSizeCm;
+    for (int32 Index = 0; bBuildColumns && Index <= Last; ++Index)
+    {
+        if (Index % Every != 0 && Index != Last)
+        {
+            continue;
+        }
+        const FInfinityStructureStation& Station = Stations[Index];
+        const FVector Forward = Station.StationWorld.GetUnitAxis(EAxis::X);
+        const FVector Across = Station.StationWorld.GetUnitAxis(EAxis::Y);
+        const FVector Up = Station.StationWorld.GetUnitAxis(EAxis::Z);
+        const double InsetCm = Index == 0 ? EndInsetCm : (Index == Last ? -EndInsetCm : 0.0);
+        const FVector Foot = Station.StationWorld.GetLocation() + Forward * InsetCm;
+        // The column's length is local X (up); width across, depth along the route.
+        const FQuat Upright = FRotationMatrix::MakeFromXY(Up, Across).ToQuat();
+        const FQuat Square = FRotationMatrix::MakeFromXZ(Forward, Up).ToQuat();
+        FRandomStream ColumnStream = MakeTimberStream(Station.CueGuid, ETimberPart::UnderpassColumn);
+        FRandomStream PierStream = MakeTimberStream(Station.CueGuid, ETimberPart::UnderpassPier);
+        FRandomStream KneeStream = MakeTimberStream(Station.CueGuid, ETimberPart::UnderpassKnee);
+        for (const double Side : { -1.0, 1.0 })
+        {
+            const FVector Line = Foot + Across * (Side * ColumnLineCm);
+            const float PierTone = PierStream.FRand();
+            const float ColumnTone = ColumnStream.FRand();
+            if (Pier.Mesh && PierHeightCm >= 1.0)
+            {
+                AddPiece(Piers, PierBounds, Line + Up * (Ground.FloorHeightCm + PierHeightCm * 0.5), Square,
+                    FVector(PierSizeCm, PierSizeCm, PierHeightCm), PierTone);
+            }
+            if (Column.Mesh)
+            {
+                AddPiece(Columns, ColumnBounds, Line + Up * (ColumnBaseCm + ColumnHeightCm * 0.5), Upright,
+                    FVector(ColumnHeightCm, ColumnWidthCm, ColumnDepthCm), ColumnTone);
+            }
+            if (!bBuildKnees)
+            {
+                continue;
+            }
+            // A knee each way along the route, its top under the deck and its
+            // vertical leg on the column's face. An end column keeps only its
+            // inward knee, so nothing reaches past the Passage's end.
+            for (const double Direction : { -1.0, 1.0 })
+            {
+                const float KneeTone = KneeStream.FRand();
+                const bool bOutward = (Index == 0 && Direction < 0.0) || (Index == Last && Direction > 0.0);
+                if (!Knee.Mesh || bOutward)
+                {
+                    continue;
+                }
+                const FVector KneeX = Forward * (Underpass.bMirrorKnees ? -Direction : Direction);
+                const FVector KneeCentre = Line + Forward * (Direction * (ColumnDepthCm + KneeSizeCm) * 0.5)
+                    + Up * (DeckUndersideCm - KneeSizeCm * 0.5);
+                AddPiece(Knees, KneeBounds, KneeCentre, FRotationMatrix::MakeFromXZ(KneeX, Up).ToQuat(),
+                    FVector(KneeSizeCm, FMath::Max(1.0, KneeBounds.GetSize().Y), KneeSizeCm), KneeTone);
+            }
+        }
+    }
+
+    // The deck and its catwalk rails, one bay per station gap: each bay runs from
+    // its station to the next and no further, so the last station ends the deck.
+    const FVector CatwalkSize = CatwalkBounds.IsValid ? CatwalkBounds.GetSize().ComponentMax(FVector(1.0)) : FVector(1.0);
+    for (int32 Index = 0; Index < Last; ++Index)
+    {
+        const FInfinityStructureStation& Station = Stations[Index];
+        const FInfinityStructureStation& Next = Stations[Index + 1];
+        const FVector Up = Station.StationWorld.GetUnitAxis(EAxis::Z);
+        const FVector NextUp = Next.StationWorld.GetUnitAxis(EAxis::Z);
+        const FVector Start = Station.StationWorld.GetLocation() + Up * DeckUndersideCm;
+        const FVector End = Next.StationWorld.GetLocation() + NextUp * DeckUndersideCm;
+        const double LengthCm = FVector::Distance(Start, End);
+        if (LengthCm < 1.0)
+        {
+            continue;
+        }
+        const FVector BayUp = (Up + NextUp).GetSafeNormal();
+        const FQuat BayRotation = FRotationMatrix::MakeFromXZ((End - Start) / LengthCm, BayUp).ToQuat();
+        const FVector BayAcross = BayRotation.GetAxisY();
+        const FVector Middle = (Start + End) * 0.5;
+        FRandomStream DeckStream = MakeTimberStream(Station.CueGuid, ETimberPart::UnderpassDeck);
+        const float DeckTone = DeckStream.FRand();
+        if (Deck.Mesh && Underpass.bDeck)
+        {
+            AddPiece(Decks, DeckBounds, Middle + BayUp * (DeckDepthCm * 0.5), BayRotation,
+                FVector(LengthCm, DeckHalfSpanCm * 2.0, DeckDepthCm), DeckTone);
+        }
+        if (!Catwalk.Mesh || !Underpass.bCatwalk)
+        {
+            continue;
+        }
+        FRandomStream RailStream = MakeTimberStream(Station.CueGuid, ETimberPart::UnderpassCatwalk);
+        for (const double Side : { -1.0, 1.0 })
+        {
+            const float RailTone = RailStream.FRand();
+            AddPiece(Rails, CatwalkBounds,
+                Middle + BayAcross * (Side * (DeckHalfSpanCm - CatwalkSize.Y * 0.5)) + BayUp * (DeckDepthCm + CatwalkSize.Z * 0.5),
+                BayRotation, FVector(LengthCm, CatwalkSize.Y, CatwalkSize.Z), RailTone);
+        }
+    }
+
+    // One component per part, and none for a part with nothing to show.
+    const auto Emit = [this](const FPartInstances& Built, const TCHAR* BaseName, const FName LayerTag,
+                             const FInfinityUnderpassPart& Part, const bool bCastShadow, int32& OutCount)
+    {
+        if (Built.Transforms.IsEmpty())
+        {
+            return;
+        }
+        UInstancedStaticMeshComponent* Component =
+            CreateManagedComponent(FName(BaseName), LayerTag, Part.Mesh, Part.Material, bCastShadow);
+        ApplyInstances(*Component, Built.Transforms, Built.Data);
+        OutCount = Built.Transforms.Num();
+    };
+    Emit(Piers, TEXT("StructureUnderpassPiers"), UnderpassPierLayerTag, Pier, Underpass.bPierCastShadow, UnderpassPierCount);
+    Emit(Columns, TEXT("StructureUnderpassColumns"), UnderpassColumnLayerTag, Column, Underpass.bColumnCastShadow, UnderpassColumnCount);
+    Emit(Knees, TEXT("StructureUnderpassKnees"), UnderpassKneeLayerTag, Knee, Underpass.bKneeCastShadow, UnderpassKneeCount);
+    Emit(Decks, TEXT("StructureUnderpassDeck"), UnderpassDeckLayerTag, Deck, Underpass.bDeckCastShadow, UnderpassDeckCount);
+    Emit(Rails, TEXT("StructureUnderpassCatwalk"), UnderpassCatwalkLayerTag, Catwalk, Underpass.bCatwalkCastShadow, UnderpassCatwalkCount);
 }

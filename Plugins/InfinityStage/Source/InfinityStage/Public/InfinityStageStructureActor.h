@@ -432,6 +432,148 @@ struct INFINITYSTAGE_API FInfinityStageFixtureSettings
 };
 
 /**
+ * The underpass: the iron rig round the wings (Gary, 5 Oct; plan
+ * Docs/Conductor/UNDERPASS_RIG_KIT_PLAN_2026-10-05.md, Phase B). Laced columns
+ * on concrete piers outside the grid, knee brackets at their heads, an open-tie
+ * deck over the whole Passage, and an optional catwalk rail along the deck's edges.
+ *
+ * Built from the gridiron's stations and nothing else, like every layer, so it
+ * keeps the wings' rhythm and re-fits when the Show re-spaces them. Every piece
+ * is fitted by its mesh's bounds (FitMeshToTimber): columns stretch only in
+ * height, deck bays and rails only along the station gap and across the span,
+ * piers and knees not at all when the sizes below match the kit's.
+ *
+ * Clean ends: nothing stands past the first or last station, so a Passage still
+ * docks into a hangar. The column foot at an end station steps inside it, and an
+ * end column carries a knee on its inward side only.
+ *
+ * Off by default, with no meshes: the conductor sets the kit per Passage. A part
+ * with no mesh is skipped, never an error, and never moves another part.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass")
+    bool bEnabled = false;
+
+    /** Columns, with their piers and knees. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass")
+    bool bColumns = true;
+
+    /** Knee brackets at each column's head, along the route. Need the columns. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass")
+    bool bKnees = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass")
+    bool bDeck = true;
+
+    /** A rail along each edge of the deck, standing on its top. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass")
+    bool bCatwalk = false;
+
+    /** A column pair on every Nth station, and always on the last, so the deck's
+     * end is carried. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass", meta = (ClampMin = "1"))
+    int32 ColumnEvery = 2;
+
+    /** Column centre line beyond the grid's half-span (GridHalfWidthCm). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass", meta = (ClampMin = "0.0", Units = "cm"))
+    double ColumnOutsetCm = 60.0;
+
+    /** Underside of the deck above the route line: the columns' and knees' tops. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass", meta = (Units = "cm"))
+    double DeckHeightCm = 2000.0;
+
+    /** Column section: width across the route, depth along it. The kit's laced
+     * column is 60 x 40. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes", meta = (ClampMin = "1.0", Units = "cm"))
+    double ColumnWidthCm = 60.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes", meta = (ClampMin = "1.0", Units = "cm"))
+    double ColumnDepthCm = 40.0;
+
+    /** Pier footprint (square) and height; the column stands on the pier's top
+     * whether or not a pier mesh is set. The kit's pier is 140 x 140 x 120. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes", meta = (ClampMin = "1.0", Units = "cm"))
+    double PierSizeCm = 140.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes", meta = (ClampMin = "0.0", Units = "cm"))
+    double PierHeightCm = 120.0;
+
+    /** Both legs of the knee; its plate thickness is the mesh's own. Kit: 120. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes", meta = (ClampMin = "1.0", Units = "cm"))
+    double KneeSizeCm = 120.0;
+
+    /** The kit knee's vertical leg is at its local -X. If the import turned it to
+     * face away from the column, set this rather than re-exporting. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes")
+    bool bMirrorKnees = false;
+
+    /** Deck bay depth. The span is the column lines plus half a column each side. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Sizes", meta = (ClampMin = "1.0", Units = "cm"))
+    double DeckDepthCm = 30.0;
+
+    /** Length along +X (height, for the column), fitted by bounds. Null skips the part. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UStaticMesh> ColumnMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UMaterialInterface> ColumnMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    bool bColumnCastShadow = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UStaticMesh> PierMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UMaterialInterface> PierMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    bool bPierCastShadow = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UStaticMesh> KneeMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UMaterialInterface> KneeMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    bool bKneeCastShadow = false;
+
+    /** X along the bay, Y across the span (the ties), Z depth. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UStaticMesh> DeckMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UMaterialInterface> DeckMaterial;
+
+    /** The deck is the one underpass caster: its ties band the floor and slat the shafts. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    bool bDeckCastShadow = true;
+
+    /** X along the bay; width and height are the mesh's own. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UStaticMesh> CatwalkMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    TSoftObjectPtr<UMaterialInterface> CatwalkMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
+    bool bCatwalkCastShadow = false;
+};
+
+/** One underpass part's loaded mesh and material, as MaterializeStructure hands
+ * them to BuildUnderpass. Not reflected; lives only for one build. */
+struct FInfinityUnderpassPart
+{
+    UStaticMesh* Mesh = nullptr;
+    UMaterialInterface* Material = nullptr;
+};
+
+/**
  * The stage machine around one Passage — the structure pass beside
  * MaterializePassage.
  *
@@ -470,6 +612,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage")
     FInfinityStageFixtureSettings Fixtures;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage")
+    FInfinityStageUnderpassSettings Underpass;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Instanced, Category = "Materialization")
     TArray<TObjectPtr<UInstancedStaticMeshComponent>> ManagedComponents;
@@ -513,6 +658,23 @@ public:
     /** Enabled lights left without a housing because they ride a moving panel. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 MovingLightsWithoutHousing = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassColumnCount = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassPierCount = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassKneeCount = 0;
+
+    /** One per bay, between each station and the next. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassDeckCount = 0;
+
+    /** Two per bay when the catwalk is on. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassCatwalkCount = 0;
 
     /** Fingerprint of the stations and light placements the build was fitted to. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
@@ -584,4 +746,13 @@ private:
         UMaterialInterface* BodyMaterial,
         UStaticMesh* LineMesh,
         UMaterialInterface* LineMaterial);
+
+    /** A part whose Mesh is null is skipped; no part's placement depends on another's mesh. */
+    void BuildUnderpass(
+        const TArray<FInfinityStructureStation>& Stations,
+        const FInfinityUnderpassPart& Column,
+        const FInfinityUnderpassPart& Pier,
+        const FInfinityUnderpassPart& Knee,
+        const FInfinityUnderpassPart& Deck,
+        const FInfinityUnderpassPart& Catwalk);
 };
