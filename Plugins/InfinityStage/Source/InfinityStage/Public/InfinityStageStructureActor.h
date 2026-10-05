@@ -432,6 +432,65 @@ struct INFINITYSTAGE_API FInfinityStageFixtureSettings
     TSoftObjectPtr<UMaterialInterface> LineMaterial;
 };
 
+/** How an underpass fence panel's height is set. */
+UENUM(BlueprintType)
+enum class EInfinityFenceHeightMode : uint8
+{
+    /** The bay mesh's own height (Z scale 1): no squashed chain-link. */
+    Native,
+    /** Stretched to FenceHeightCm. Distorts a bay authored at another height. */
+    Fit
+};
+
+/**
+ * One kind of underpass fence panel. Panels tile each column gap: the bay mesh
+ * is fitted by its bounds to its slot of the gap (local X, close to its own
+ * width), keeps its own depth (local Y) and, in Native height mode, its own
+ * height (local Z); local +Y faces the walkway, as on the W&T FenceBay kit, whose
+ * tarp hangs on the bay's +Y side.
+ *
+ * The overlay is a second mesh authored in the bay mesh's own frame (the kit's
+ * SM_FenceTarp_* beside SM_FenceBay_*). It is not fitted by its own bounds: it
+ * takes the bay's transform exactly, so a half tarp stays half the bay's height.
+ * It is built only where its bay is, in its own layer.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityStageFenceVariant
+{
+    GENERATED_BODY()
+
+    FInfinityStageFenceVariant() = default;
+
+    explicit FInfinityStageFenceVariant(const double InWeight, const TCHAR* InOverlayMeshPath = nullptr)
+        : Weight(InWeight)
+    {
+        if (InOverlayMeshPath)
+        {
+            OverlayMesh = TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(InOverlayMeshPath));
+        }
+    }
+
+    /** Null skips the variant: its share goes to the others, by their weights. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UStaticMesh> Mesh;
+
+    /** Replaces slot 0 only (the kit's chain slot); other slots keep the mesh's
+     * own, so the kit's concertina keeps its metal. Null: the mesh's own. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UMaterialInterface> Material;
+
+    /** Relative share of the panels. 0 never builds this variant. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "0.0"))
+    double Weight = 0.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UStaticMesh> OverlayMesh;
+
+    /** Replaces the overlay's slot 0 only. Null: the overlay mesh's own. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UMaterialInterface> OverlayMaterial;
+};
+
 /**
  * The underpass: the iron rig round the wings (Gary, 5 Oct; plan
  * Docs/Conductor/UNDERPASS_RIG_KIT_PLAN_2026-10-05.md, Phase B). Laced columns
@@ -678,6 +737,76 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
     bool bTubeLightCastShadow = false;
+
+    /** Fencing in the spaces between the columns (Gary, 5 Oct: "ground to ~3 m:
+     * underpass-style fencing; the upper rig stays open and side light still gets
+     * through. Mostly open chain-link, some half or torn tarp, rare door gaps").
+     * Each gap between consecutive column stations, per side, is a straight chord
+     * from column centre to column centre (so the fence keeps the columns' clean
+     * ends), tiled with n = max(1, round(chord / native width)) panels, the native
+     * width being the widest built variant's bounds X. Each panel's variant is
+     * drawn on its own. Uses the column rhythm whether or not the columns
+     * themselves are built. Off, and with no bay meshes: the conductor sets the
+     * FenceBay kit from Python (the tarp overlays of B and C are preset). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    bool bFence = false;
+
+    /** Native keeps each bay's own height; Fit stretches it to FenceHeightCm. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    EInfinityFenceHeightMode FenceHeightMode = EInfinityFenceHeightMode::Native;
+
+    /** The intended height, bottom to top of the bay mesh's bounds. Fit builds it;
+     * Native warns (INFINITY_STAGE_STRUCTURE_FENCE_HEIGHT_MISMATCH) for each
+     * built variant whose own height is more than 10 % away from it. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "1.0", Units = "cm"))
+    double FenceHeightCm = 300.0;
+
+    /** The panel's bottom above the floor (Ground.FloorHeightCm). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
+    double FenceBaseCm = 0.0;
+
+    /** From the column line toward the route. The default clears the 140 cm pier
+     * (half 70) by 5 cm, so the panel stands just inside the iron, clear of it. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
+    double FenceInsetCm = 75.0;
+
+    /** Off: only the -Y side of the route (its left, looking along the stations) is fenced. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    bool bFenceBothSides = true;
+
+    /** Intended: SM_FenceBay_open_v2 (its own MI_FenceBay_open). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    FInfinityStageFenceVariant FenceVariantA = FInfinityStageFenceVariant(0.6);
+
+    /** Intended: SM_FenceBay_tarp_half_v2, overlay SM_FenceTarp_tarp_half_v2. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    FInfinityStageFenceVariant FenceVariantB = FInfinityStageFenceVariant(0.2,
+        TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_half_v2.SM_FenceTarp_tarp_half_v2"));
+
+    /** Intended: SM_FenceBay_tarp_torn_v2, overlay SM_FenceTarp_tarp_torn_v2. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    FInfinityStageFenceVariant FenceVariantC = FInfinityStageFenceVariant(0.15,
+        TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_torn_v2.SM_FenceTarp_tarp_torn_v2"));
+
+    /** Intended: SM_FenceBay_door_gap_v2 (its own MI_FenceBay_door_gap). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    FInfinityStageFenceVariant FenceVariantD = FInfinityStageFenceVariant(0.05);
+
+    /** Chain-link shadows are the point of the fence; panels and overlays alike. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    bool bFenceCastShadow = true;
+
+    /** Mixed into every panel's stream, to re-roll the variants without touching the Show. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    int32 FenceSeed = 0;
+
+    static constexpr int32 FenceVariantCount = 4;
+
+    /** Variants A..D by index; any other index is D. */
+    const FInfinityStageFenceVariant& GetFenceVariant(const int32 Index) const
+    {
+        return Index == 0 ? FenceVariantA : Index == 1 ? FenceVariantB : Index == 2 ? FenceVariantC : FenceVariantD;
+    }
 };
 
 /** One underpass part's loaded mesh and material, as MaterializeStructure hands
@@ -806,6 +935,14 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 UnderpassTubeLightEveryUsed = 0;
 
+    /** Fence panels built, every variant together: the tiles, not the gaps. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassFencePanelCount = 0;
+
+    /** Overlays (tarps) built on those panels. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassFenceOverlayCount = 0;
+
     /** Fingerprint of the stations and light placements the build was fitted to. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
     int32 StationSignature = 0;
@@ -891,6 +1028,13 @@ private:
         const TArray<FInfinityStructureStation>& Stations,
         const FInfinityUnderpassPart& Tube,
         UMaterialInterface* LightFunction);
+
+    /** Fence panels, one entry per variant A..D in each array. A null panel mesh
+     * skips its variant; a null overlay mesh builds the panel alone. */
+    void BuildUnderpassFence(
+        const TArray<FInfinityStructureStation>& Stations,
+        const TArray<FInfinityUnderpassPart>& Panels,
+        const TArray<FInfinityUnderpassPart>& Overlays);
 
     URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);
 };

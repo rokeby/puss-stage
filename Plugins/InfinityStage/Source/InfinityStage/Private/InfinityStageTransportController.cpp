@@ -877,6 +877,7 @@ bool UInfinityStageTransportController::BuildSegments(UInfinityStageShowAsset* I
     VampPlaybackState.Reset();
     GoCues.Reset();
     GoHoldState.Reset();
+    ClearTransportRests();
     if (InShowAsset && InShowAsset->DisplayRate.IsValid() && InShowAsset->TickResolution.IsValid())
     {
         GoHoldState.SettleOffset = FMath::Max(1, FMath::CeilToInt32(
@@ -1050,6 +1051,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
     bFastForwardActive = false;
     bMasterAudioMutedForFastForward = false;
     JumpResettleState.bPending = false;
+    ClearTransportRests();
     LastPlayToTargetForTests.Reset();
     LastResult = EInfinityTransportResult::NoPlayer;
     if (!InPlayer || !InShowAsset)
@@ -1101,7 +1103,15 @@ EInfinityTransportResult UInfinityStageTransportController::PlayForwardToBoundar
     }
     // Use one uninterrupted PlayTo operation so the nested Scene evaluates on
     // the boundary frame without a pause/restart or a second sequence player.
-    return PlayToFrame(Segments[StopIndex].EndFrame);
+    const EInfinityTransportResult Result = PlayToFrame(Segments[StopIndex].EndFrame);
+    if (Result == EInfinityTransportResult::Succeeded)
+    {
+        // The stop frame is also the next segment's first frame. Remember whose
+        // END it is, so RIGHT there lands on that next segment instead of
+        // skipping it (Gary, 5 Oct: S01's end, RIGHT, straight to P02).
+        BoundaryEndRest.Set(StopIndex, Segments[StopIndex].EndFrame);
+    }
+    return Result;
 }
 
 int32 UInfinityStageTransportController::GetForwardStopSegmentIndex(const int32 FromSegmentIndex) const
@@ -1155,47 +1165,100 @@ EInfinityTransportResult UInfinityStageTransportController::PlayReverseToBoundar
 EInfinityTransportResult UInfinityStageTransportController::JumpToCurrentStart()
 {
     RefreshSelectedSegment();
-    return JumpToSegment(SelectedSegmentIndex, false);
+    return JumpToSegment(GetOperatorCurrentSegmentIndex(), false);
 }
 
 EInfinityTransportResult UInfinityStageTransportController::JumpToCurrentEnd()
 {
     RefreshSelectedSegment();
-    return JumpToSegment(SelectedSegmentIndex, true);
+    return JumpToSegment(GetOperatorCurrentSegmentIndex(), true);
 }
 
 EInfinityTransportResult UInfinityStageTransportController::JumpToNextSegment()
 {
     RefreshSelectedSegment();
-    return JumpToSegment(SelectedSegmentIndex + 1, false);
+    return JumpToSegment(ResolveAdvanceTargetIndex(SelectedSegmentIndex, GetHeldAtEndSegmentIndex()), false);
 }
 
 EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment()
 {
     RefreshSelectedSegment();
 
-    const int32 TargetIndex = SelectedSegmentIndex + 1;
+    // A transition that RIGHT landed on and is holding is the cue that is up:
+    // this RIGHT is its GO. Space does the same through PlayForwardToBoundary.
+    const int32 ArmedIndex = GetArmedSequenceSegmentIndex();
+    if (ArmedIndex != INDEX_NONE && ArmedIndex == SelectedSegmentIndex)
+    {
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_ADVANCE_PLAYS_ARMED segment=%d frame=%d"),
+            ArmedIndex, GetCurrentMasterFrame().Value);
+        return PlayForwardToBoundary();
+    }
+
+    const int32 HeldAtEndIndex = GetHeldAtEndSegmentIndex();
+    const int32 TargetIndex = ResolveAdvanceTargetIndex(SelectedSegmentIndex, HeldAtEndIndex);
     const EInfinityTransportResult CueResult = JumpToSegment(TargetIndex, false);
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_ADVANCE selected=%d held_end=%d target=%d result=%d"),
+        SelectedSegmentIndex, HeldAtEndIndex, TargetIndex, static_cast<int32>(CueResult));
     if (CueResult != EInfinityTransportResult::Succeeded)
     {
         return CueResult;
     }
 
-    // Sequence cues are authored transitions, not static operator holds. In
-    // particular, post-Scene curtain interstitials must lower, perform their
-    // covered handoff, and rise without requiring a second Play command.
+    // A post-Scene curtain interstitial used to play the moment it was landed
+    // on, so it could not be examined. Rehearsal now holds it on its first
+    // frame; bAutoPlaySequenceOnAdvance restores the single-press transition.
+    // The covered handoff is claimed by the tick as playback crosses it, so it
+    // behaves the same whichever key starts the play.
     if (Segments.IsValidIndex(TargetIndex)
-        && (Segments[TargetIndex].Type == EInfinityCueType::Sequence
-            || (bAutoPlaySceneAfterPassage && Segments[TargetIndex].Type == EInfinityCueType::Scene)))
+        && AutoPlaysOnAdvance(Segments[TargetIndex].Type, bAutoPlaySequenceOnAdvance, bAutoPlaySceneAfterPassage))
     {
         return PlayForwardToBoundary();
     }
+    if (Segments.IsValidIndex(TargetIndex) && Segments[TargetIndex].Type == EInfinityCueType::Sequence)
+    {
+        ArmedSequenceRest.Set(TargetIndex, Segments[TargetIndex].StartFrame);
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_ADVANCE_ARMED segment=%d frame=%d label='%s': RIGHT or Space plays it."),
+            TargetIndex, Segments[TargetIndex].StartFrame.Value, *Segments[TargetIndex].Label.ToString());
+    }
     return LastResult = EInfinityTransportResult::Succeeded;
+}
+
+int32 UInfinityStageTransportController::GetHeldAtEndSegmentIndex() const
+{
+    const int32 Index = ResolveRestSegment(BoundaryEndRest, GetCurrentMasterFrame(), IsTransportPlaying());
+    return Segments.IsValidIndex(Index) && Segments[Index].EndFrame == BoundaryEndRest.Frame ? Index : INDEX_NONE;
+}
+
+int32 UInfinityStageTransportController::GetArmedSequenceSegmentIndex() const
+{
+    const int32 Index = ResolveRestSegment(ArmedSequenceRest, GetCurrentMasterFrame(), IsTransportPlaying());
+    return Segments.IsValidIndex(Index) && Segments[Index].StartFrame == ArmedSequenceRest.Frame ? Index : INDEX_NONE;
+}
+
+int32 UInfinityStageTransportController::GetOperatorCurrentSegmentIndex() const
+{
+    const int32 HeldAtEndIndex = GetHeldAtEndSegmentIndex();
+    return HeldAtEndIndex != INDEX_NONE ? HeldAtEndIndex : SelectedSegmentIndex;
+}
+
+void UInfinityStageTransportController::ClearTransportRests()
+{
+    BoundaryEndRest.Reset();
+    ArmedSequenceRest.Reset();
 }
 
 EInfinityTransportResult UInfinityStageTransportController::StepShotForward()
 {
     RefreshSelectedSegment();
+    // Held at the end of K, the playhead is already on K+1's first shot: a shot
+    // step from here would skip that shot (or, past the last, the whole cue).
+    if (GetHeldAtEndSegmentIndex() != INDEX_NONE)
+    {
+        return AdvanceToNextSegment();
+    }
     if (!Segments.IsValidIndex(SelectedSegmentIndex)
         || Segments[SelectedSegmentIndex].Type != EInfinityCueType::Scene)
     {
@@ -1294,6 +1357,10 @@ bool UInfinityStageTransportController::ReleaseActiveVamp()
     StopFastForwardPlayback();
     JumpResettleState.bPending = false;
     const FFrameNumber SegmentEnd = Segments[VampRanges[VampIndex].SegmentIndex].EndFrame;
+    // A forward play to a segment end, like PlayForwardToBoundary: RIGHT at the
+    // stop must land on the next cue, not skip it.
+    ClearTransportRests();
+    BoundaryEndRest.Set(VampRanges[VampIndex].SegmentIndex, SegmentEnd);
     const FFrameTime DisplayFrame = ShowAsset
         ? FFrameRate::TransformTime(FFrameTime(SegmentEnd), ShowAsset->TickResolution, ShowAsset->DisplayRate)
         : FFrameTime(SegmentEnd);
@@ -1310,9 +1377,13 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToPreviousSegmen
 {
     RefreshSelectedSegment();
     const FFrameNumber Current = GetCurrentMasterFrame();
-    const int32 TargetIndex = Segments.IsValidIndex(SelectedSegmentIndex) && Current > Segments[SelectedSegmentIndex].StartFrame
-        ? SelectedSegmentIndex
-        : SelectedSegmentIndex - 1;
+    const bool bPastSelectedStart =
+        Segments.IsValidIndex(SelectedSegmentIndex) && Current > Segments[SelectedSegmentIndex].StartFrame;
+    // Held at the end of K this already resolved to K's start (Selected is K+1
+    // and the playhead is on its first frame); the rest makes that explicit and
+    // keeps it true if a compiled gap ever separates K's end from K+1's start.
+    const int32 TargetIndex =
+        ResolvePreviousTargetIndex(SelectedSegmentIndex, bPastSelectedStart, GetHeldAtEndSegmentIndex());
     return JumpToSegment(TargetIndex, false);
 }
 
@@ -1388,6 +1459,7 @@ EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
         return LastResult = EInfinityTransportResult::NoPlayer;
     }
     JumpResettleState.bPending = false;
+    ClearTransportRests();
     Player->SetPlayRate(FMath::Max(0.001f, FMath::Abs(Player->GetPlayRate())));
     Player->Play();
     return LastResult = EInfinityTransportResult::Succeeded;
@@ -1400,6 +1472,7 @@ EInfinityTransportResult UInfinityStageTransportController::Shuttle(const float 
         return LastResult = EInfinityTransportResult::NoPlayer;
     }
     JumpResettleState.bPending = false;
+    ClearTransportRests();
     if (FMath::IsNearlyZero(Rate))
     {
         return PauseTransport();
@@ -1445,6 +1518,7 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
         : FFrameTime(TargetFrame);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+    ClearTransportRests();
     VampPlaybackState.OnNavigation(TargetFrame);
     GoHoldState.OnNavigation(TargetFrame);
     JumpResettleState = {true, TargetFrame, 0.0f, 0};
@@ -1553,6 +1627,8 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
         : FFrameTime(TargetFrame);
     Player->Pause();
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(DisplayFrame, EUpdatePositionMethod::Jump));
+    // Before the keep-playing branch: its PlayForwardToBoundary records a new rest.
+    ClearTransportRests();
     VampPlaybackState.OnNavigation(TargetFrame);
     GoHoldState.OnNavigation(TargetFrame);
     SelectedSegmentIndex = SegmentIndex;
@@ -2074,6 +2150,9 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
     {
         return LastResult = EInfinityTransportResult::UnsafeExternalClock;
     }
+    // Any play, forward or reverse, starts from a fresh rest; a forward boundary
+    // play records its own after this returns.
+    ClearTransportRests();
 
     const FFrameTime DisplayFrame = ShowAsset
         ? FFrameRate::TransformTime(FFrameTime(TargetFrame), ShowAsset->TickResolution, ShowAsset->DisplayRate)

@@ -1070,16 +1070,29 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
         }
 
         ShowRoot->Transport->bPerformanceMode = false;
+        // 5 Oct (Gary): a transition is its own cue moment. Rehearsal Advance lands on Interaction 1 and holds its
+        // first frame; Space (or a second RIGHT) plays it. The single-press curtain is bAutoPlaySequenceOnAdvance.
+        // Forced off here, whatever the saved level carries, and restored after.
+        const bool bSavedAutoPlaySequence = ShowRoot->Transport->bAutoPlaySequenceOnAdvance;
+        ShowRoot->Transport->bAutoPlaySequenceOnAdvance = false;
         const EInfinityTransportResult RehearsalJump = ShowRoot->Transport->AdvanceToNextSegment();
-        AddInfo(FString::Printf(TEXT("RehearsalJump=%d Current=%d ExpectedInteraction=%d Selected=%d"),
+        AddInfo(FString::Printf(TEXT("RehearsalJump=%d Current=%d ExpectedInteraction=%d Selected=%d Armed=%d"),
             static_cast<int32>(RehearsalJump),
             ShowRoot->Transport->GetCurrentMasterFrame().Value,
             ShowRoot->Transport->Segments[3].StartFrame.Value,
-            ShowRoot->Transport->SelectedSegmentIndex));
+            ShowRoot->Transport->SelectedSegmentIndex,
+            ShowRoot->Transport->GetArmedSequenceSegmentIndex()));
         TestEqual(TEXT("Rehearsal can enter Interaction 1"), RehearsalJump, EInfinityTransportResult::Succeeded);
         TestEqual(TEXT("Interaction 1 lands exactly"), ShowRoot->Transport->GetCurrentMasterFrame(), ShowRoot->Transport->Segments[3].StartFrame);
-        TestTrue(TEXT("Advancing into Interaction 1 starts its curtain sequence automatically"),
+        TestFalse(TEXT("Advancing into Interaction 1 holds its first frame for examination"),
             ShowRoot->Transport->IsTransportPlaying());
+        TestEqual(TEXT("The held Interaction is armed for RIGHT or Space"),
+            ShowRoot->Transport->GetArmedSequenceSegmentIndex(), 3);
+        TestEqual(TEXT("Space plays the held Interaction"),
+            ShowRoot->Transport->PlayForwardToBoundary(), EInfinityTransportResult::Succeeded);
+        TestTrue(TEXT("Playing the held Interaction starts its curtain sequence"),
+            ShowRoot->Transport->IsTransportPlaying());
+        ShowRoot->Transport->bAutoPlaySequenceOnAdvance = bSavedAutoPlaySequence;
         TestEqual(TEXT("Rehearsal can hold again for deterministic curtain inspection"),
             ShowRoot->Transport->PauseTransport(),
             EInfinityTransportResult::Succeeded);

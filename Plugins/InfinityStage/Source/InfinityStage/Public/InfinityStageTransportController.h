@@ -385,6 +385,29 @@ private:
     bool bHasPreviousFrame = false;
 };
 
+/**
+ * Where the transport last came to rest by its own doing, so a key pressed there
+ * can be read the way the operator sees it (Gary, 5 Oct).
+ *
+ * A segment's EndFrame is exclusive and equals the next segment's StartFrame, so
+ * the frame alone cannot say whether the show is "at the end of K" (playback
+ * stopped there) or "at the start of K+1" (a jump landed there). The rest is only
+ * believed while the player is stopped on exactly that frame; anything else makes
+ * it stale, and every jump, scrub, reverse or play clears it outright.
+ */
+struct INFINITYSTAGE_API FInfinityTransportRest
+{
+    int32 SegmentIndex = INDEX_NONE;
+    FFrameNumber Frame = 0;
+
+    void Set(const int32 InSegmentIndex, const FFrameNumber InFrame)
+    {
+        SegmentIndex = InSegmentIndex;
+        Frame = InFrame;
+    }
+    void Reset() { SegmentIndex = INDEX_NONE; Frame = 0; }
+};
+
 /** Pending one-shot re-evaluation of a frame after an operator jump. */
 struct INFINITYSTAGE_API FInfinityJumpResettle
 {
@@ -425,6 +448,22 @@ public:
      * The Scene still holds at its end; this never starts the next Passage. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
     bool bAutoPlaySceneAfterPassage = false;
+
+    /**
+     * What Advance (RIGHT, Cue Desk Next) does when it lands on a Sequence cue -
+     * the Opening, an Interaction, the Closing.
+     *
+     * False (rehearsal default, Gary 5 Oct: "the transitions [are] their own cue
+     * moment that I can move to with transport and examine"): the transition holds
+     * on its first frame, like a Passage. The next RIGHT, or Space, plays it to its
+     * boundary, stopping at its GO HOLD markers; Left goes back.
+     *
+     * True: the pre-5-Oct behaviour. Landing plays the Sequence at once, so a
+     * post-Scene curtain interstitial lowers, makes its covered handoff and rises
+     * on a single key press. Use it for performance.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Cues")
+    bool bAutoPlaySequenceOnAdvance = false;
 
     /** A shorter Right Arrow press keeps the existing advance-to-next-cue action. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
@@ -529,10 +568,56 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult JumpToNextSegment();
 
-    /** Operator advance: play a sequence/interstitial, or a Scene when automatic
-     * Scene playback is enabled. A new Passage remains held at its first frame. */
+    /** Operator advance to the next cue, as the operator sees it: at the end of a
+     * segment that playback stopped on, the next cue is the one starting on this
+     * frame, not the one after it. A landed Sequence holds (armed) unless
+     * bAutoPlaySequenceOnAdvance; Advance at an armed Sequence plays it. A Scene
+     * plays on landing only with bAutoPlaySceneAfterPassage. A Passage holds. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult AdvanceToNextSegment();
+
+    /** The segment the transport is held at the END of (playback stopped on its
+     * exclusive end frame), or -1. Stale the moment anything moves the playhead. */
+    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
+    int32 GetHeldAtEndSegmentIndex() const;
+
+    /** The Sequence segment Advance landed on and is holding at its first frame,
+     * waiting for RIGHT or Space to play it, or -1. */
+    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
+    int32 GetArmedSequenceSegmentIndex() const;
+
+    /** Pure: the segment a rest still applies to - only while stopped on its exact frame. */
+    static int32 ResolveRestSegment(const FInfinityTransportRest& Rest, FFrameNumber CurrentFrame, bool bPlaying)
+    {
+        return Rest.SegmentIndex != INDEX_NONE && !bPlaying && CurrentFrame == Rest.Frame
+            ? Rest.SegmentIndex
+            : INDEX_NONE;
+    }
+
+    /** Pure: Advance/Next target. Held at the end of K -> K+1 (the cue starting on
+     * this frame); anywhere else -> the segment after the one under the playhead. */
+    static int32 ResolveAdvanceTargetIndex(int32 SelectedIndex, int32 HeldAtEndIndex)
+    {
+        return HeldAtEndIndex != INDEX_NONE ? HeldAtEndIndex + 1 : SelectedIndex + 1;
+    }
+
+    /** Pure: Previous target. Held at the end of K -> K's start (the cue the
+     * operator is looking at); past a segment's start -> its start; else the one before. */
+    static int32 ResolvePreviousTargetIndex(int32 SelectedIndex, bool bPastSelectedStart, int32 HeldAtEndIndex)
+    {
+        if (HeldAtEndIndex != INDEX_NONE)
+        {
+            return HeldAtEndIndex;
+        }
+        return bPastSelectedStart ? SelectedIndex : SelectedIndex - 1;
+    }
+
+    /** Pure: whether landing on a segment of this type by Advance starts playing it. */
+    static bool AutoPlaysOnAdvance(EInfinityCueType TargetType, bool bAutoPlaySequence, bool bAutoPlayScene)
+    {
+        return (TargetType == EInfinityCueType::Sequence && bAutoPlaySequence)
+            || (TargetType == EInfinityCueType::Scene && bAutoPlayScene);
+    }
 
     /** Steps to the next root Camera Cut in a Scene, then falls through to Advance. */
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
@@ -684,6 +769,18 @@ private:
     FInfinityVampPlaybackState VampPlaybackState;
 
     FInfinityGoHoldState GoHoldState;
+
+    /** Set by a forward boundary play: the segment whose end it will stop on. */
+    FInfinityTransportRest BoundaryEndRest;
+
+    /** Set when Advance lands on a Sequence and holds it instead of playing it. */
+    FInfinityTransportRest ArmedSequenceRest;
+
+    /** Every jump, scrub, reverse and play forgets how the transport came to rest. */
+    void ClearTransportRests();
+
+    /** The segment the operator regards as current: K when held at K's end. */
+    int32 GetOperatorCurrentSegmentIndex() const;
 
     /** Nested audio tracks muted for fast-forward, with their prior local mute. */
     TArray<TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>> NestedAudioMutedForFastForward;
