@@ -2,7 +2,9 @@
 
 **For:** Gary, directing ambience in the Unreal editor himself.
 **Written:** 4 Oct night, offline. The research read only code and docs. No Unreal, MCP or build was run.
-**State it describes:** the build of 4 Oct night (cueing A1–A3 + A2e built, Choreos applied, bee swarm v3 built). **Held and NOT built:** the strobe (S1), the Cue List panel (B1), flash events (LD), the retime test (RT) and F1. Anything that depends on those is listed under "can't do by hand yet".
+**Updated 5 Oct afternoon:** see **§0, New on 5 Oct** first; it supersedes anything below that says "not built" for the strobe.
+
+**State it originally described:** the build of 4 Oct night (cueing A1–A3 + A2e built, Choreos applied, bee swarm v3 built). **Held and NOT built:** the strobe (S1), the Cue List panel (B1), flash events (LD), the retime test (RT) and F1. Anything that depends on those is listed under "can't do by hand yet".
 
 ## How to read the tags
 
@@ -36,6 +38,27 @@ Every claim carries one tag:
 The Show and Master paths are the ones the gate test loads [decl `InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp:1500-1505`]. The level path is from `Docs/CodexUnrealMCPRunbook.md`. The Choreo paths are from `Saved/CodexCueing/choreo_report_choreo-apply-3.json` [meas].
 
 ---
+
+## 0. New on 5 Oct (read first)
+
+| What | Where | Notes |
+|---|---|---|
+| **Lighting scores** on all six Passages | Show lamps labelled `Pnn SCORE Bnn <LOOK> <SLOT>` | Edit them like any Show lamp (§3.2). P02 rescored to your breakdown note: working stage rig bays 1–11, **failing** 12–19, mystic shrine 20–23 [meas: applied + tests 5 Oct] |
+| **Direction notes** | `Docs/Conductor/LIGHTING_DIRECTION_NOTES.md` | Your P01/P02/car-light/tubes notes; add to it as you direct |
+| **Iron rig** (girders, columns, piers, knees, deck at 20 m) | Structure actors → Details → Gridiron / Underpass (§3.5) | All six Passages. **TOP lamps hang just under the girders** now (≈1.28 m lower); P03 slashes 20 cm lower [meas] |
+| **Office fluorescent tubes** | Structure 02 → Underpass → Tubes (§3.5) | P02 bays 12–19 only; 55 tubes, 13 rect lights, 15 % dead, hum flicker [meas] |
+| **Car light** | "P02 Car Light (trial, Gary to tune)" (§3.5) | Too bright as placed; tune in Details while PIE runs, then copy values back after PIE |
+| **Strobe** | "P04 Strobe (default, Gary to place)" (§3.5) | Built; move it where you want it |
+| **Dark wet floor** | `MI_Floor_DarkWet` on the passage floor slabs | P02 untouched; 5.5 cm step at each hangar pit strip [meas] |
+| **Stills after any change** | ask the AI: "stills of Pnn" | `passage_stills.py`, 5 frames along the Passage from the show camera |
+| **PIE test list** | `Docs/Conductor/PIE_TEST_LIST_2026-10-05.md` | Today's checks, Passage by Passage |
+
+**Known problem (5 Oct, being fixed):** the 9 "S3 Wave Split" wave flats show up **inside P01** (world x 3,665–5,335,
+y −500…500). They belong to the Scene 3 beach (y ≈ 160,000). Don't move them by hand; the AI re-attaches them to
+"S3 Hangar Root" with the recorded offsets after PIE.
+
+**Tuning while PIE runs:** Details edits on level actors (car, strobe, tubes) in PIE are lost when PIE ends unless you
+right-click → **Keep Simulation Changes**, or note the values and set them after PIE.
 
 ## 1. Cheat sheet (one page)
 
@@ -288,7 +311,9 @@ These are actors labelled like `P01 Wing 001 Spot L` / `House L`. In the **Outli
 | **Local haze pockets** | Place Actors → **Local Fog Volume**; scale it; set density in Details | Level | Not on the silenced list [decl `CelestialRig.h:92-100` comment]. Each costs volumetric-fog work [inf, `LOOK_DEPTH_PLAN:131`]. The Show-attached alternative is a **Haze effect** attachment (§3.3) |
 | **Rig / gridiron / floor** (Structure actors) | Select the Passage's Structure actor → Details → **Materialize Structure** after re-spacing or moving lamps | Level | Not automatic [decl `StructureActor.h:504-524`]. It goes stale when wings are re-spaced **or a light moves** [decl `:520-522`]. On failure it keeps the old build [decl `:504-505`] |
 | **Hangar rise / roof / lattice / strike timing** | Select the Scene's Arrival actor → Details → **Read Hangar Timing** → edit → **Apply Hangar Timing** | That rise sequence (one undo step; Apply never saves) [decl `InfinityStage/Public/InfinityStageArrival.h:140-156`] | Fields: Roof Close Start/End, Lattice Start/End, Strike After Land, Dim Instead Of Strike, Dim Seconds [decl `Arrival.h:15-53`]. Hangars show **landed** in the editor and sink at BeginPlay in PIE [meas `BUILD_WINDOW_QUEUE.md`, HL] |
-| **Strobe** | **Not built** (held patch S1, spec `SPEC_STROBE_2026-10-05.md`) | — | Workaround in §6 |
+| **Strobe** | **Built** (2497c96). Place Actors → *Infinity Stage Strobe Light*, or move "P04 Strobe (default, Gary to place)". Details: Period, Flash, Decay, Ghost Seconds, Ghost Volume (a bounded PPV) | Level | 1 s, point light, ghost ≈ 1/3 s (Gary 5 Oct) [meas: placed + read back 5 Oct] |
+| **Car light (sweep light)** | **Built** (a52051c). Place Actors → *Infinity Stage Sweep Light*. Details: Start/End Offset (local path), Curved Path + Arc Control Offset, Aim At Target + Aim Target Local, Travel / Repeat Every / Repeat Jitter / Start Delay Seconds, Fade In/Out, Peak Intensity, Temperature, Attenuation Radius, cones, Light Function Material | Level | Must cast shadows to break through the gaps. Trial: "P02 Car Light (trial, Gary to tune)" — **too bright as placed (9000 cd)**, try ~2500 [meas: stills 5 Oct]. Freezes on pause / follows scrub like the strobe [inf: same clock] |
+| **Underpass rig + office tubes** | Select the Passage's Structure actor → Details → **Underpass**: Enabled, Columns / Knees / Deck / Catwalk, Column Every; **Tubes**: Tubes, From/To Station (a stretch), rows, Drop, Dead Fraction, Tube Seed; Tube Lights, Light Every / Max, Intensity (lumens), Temperature, Color, Light Function (e.g. `MI_LF_Flicker_Hum`). Then **Materialize Structure** | Level | On in all six Passages (rig); tubes only P02 stations 11–18 [meas 5 Oct]. Tubes are "occasional, dingy office" (Gary) — switch per stretch, not show-wide |
 | **Post-process** | A Post Process Volume in the level, or the camera's post settings | Level | Keyable in a Choreo as a level actor [inf]. Capture exposure ≠ show exposure (memory `puss-capture-exposure-convention`) |
 | **Your own level lights** | Place Actors → Spot/Point/Rect light | Level | Absolute world position: they **don't** follow wing re-spacing. Keep them few; VSM overflow shows up as coloured rectangles [meas, memory `puss-lighting-authoring-lessons`] |
 | **Time of day in the editor** | Cue Desk → View → **Editor Lighting** (Manual Editing Light / Follow Master / presets) [decl `CD:3105-3165`] | Rig actor (level) | Editor convenience only |
@@ -452,7 +477,8 @@ These are actors labelled like `P01 Wing 001 Spot L` / `House L`. In the **Outli
 | Can't do (by hand, today) | Least-bad workaround tomorrow | Minimal tool that unlocks it |
 |---|---|---|
 | **Change a Passage's length** with keys **shifting, not stretching**, and pins moving with the end | Freeze Passage lengths. If you must: lengthen the **tail** only, or shift downstream keys by hand (§3.1b) | C++: rebuild "keep + shift" key/pin policy + auto handoff rematch (RT test held, f52bf87) |
-| **Strobe** with a ~1/3 s ghost | Key a level Point Light in the Choreo with step keys (on 1 frame, off) and a fast linear tail. Key a Post Process Volume's Blend Weight for the ghost. Deterministic, because Choreo keys run on the Master clock [inf] | Build held patch **S1** (`SPEC_STROBE_2026-10-05.md`) |
+| ~~Strobe~~ **now built** (see §3.5) | — | — |
+| (old row) Strobe with a ~1/3 s ghost | Key a level Point Light in the Choreo with step keys (on 1 frame, off) and a fast linear tail. Key a Post Process Volume's Blend Weight for the ghost. Deterministic, because Choreo keys run on the Master clock [inf] | Build held patch **S1** (`SPEC_STROBE_2026-10-05.md`) |
 | **Operator cue list** (GO / Back / Jump / standby) | The GO markers already hold in PIE (→ / Space). Keep a paper list | **B1** Cue List panel (spec only, `SPEC_CUE_LIST_PANEL_B1_2026-10-05.md`) |
 | **Mid-song music dip** / volume automation | Use the rail's Fade In / Out only | Builder: keep artist volume keys (or a separate gain track) |
 | **Silence before the song** inside a Passage | None by hand | Builder change: a start delay for the music section [decl `SB:539-540`] |
