@@ -128,3 +128,12 @@
     being written offline (hangar_heave.py): a strain dip, 2–3 wrenched heaves with winch-catch stalls, a strained climb,
     then momentum tipping forward, a hard landing with a damped bounce, and a THUD marker. Start and end keys are kept
     exactly, so timing doesn't change. A preview plot (old vs heave) goes to Gary before any apply.
+30. **Fence realism (not today):** the short bays "look pretty good", but "the big X grid is too perfect". Ideally build
+    "the interlinked wire structure in 3D … good detail for reflection and shadow" (ref photo: galvanised chain-link,
+    zig-zag pickets woven through each other, knuckled tops, a round top rail through the loops).
+    Options for W&T:
+    - (a) now-ish: a better masked texture: a woven picket pattern with knuckles at the crossings, a per-wire normal map, slight
+      irregularity (sag, small diamond-size jitter, a few bent wires);
+    - (b) later: true 3D: each picket a crimped zig-zag wire tube interlocked with its neighbours, knuckled selvage and a top
+      rail. Probably Nanite (high tri count per bay) [inf]; real shadows and reflections.
+    Routed to W&T as a backlog item.
