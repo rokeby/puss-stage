@@ -58,7 +58,10 @@ PILE = bake_pile()
 
 
 def inputs_for(root_loc=(29284.0135, 0.0, 0.0), yaw=0.0, rise_start=-5.8739, speed=250.0, focal=24.0, eye=150.0,
-               span=14.0, stop_shift=0.0):
+               span=14.0, stop_shift=0.0, hem_cm=2.0, slab_lift=0.0):
+    """hem_cm: the HOLD sample's lowest point above the cache floor. The REAL final13 sample 479 hangs at 20 cm
+    (DropBake/final13_opening_a06_w188.json checkpoints["479"].aabb_m.z[0] = 0.2); the default 2 cm is a SYNTHETIC
+    floor-reaching curtain so the other gates can be tested clean. t_hem_* uses the real value."""
     root = {"loc": list(root_loc), "rot": [0.0, 0.0, yaw]}
     frame = ped.frame_of(root["loc"], root["rot"])
     stop = ped.to_world(frame, [-500.0 + stop_shift, 0.0, eye])
@@ -72,13 +75,14 @@ def inputs_for(root_loc=(29284.0135, 0.0, 0.0), yaw=0.0, rise_start=-5.8739, spe
         "n": 1, "root_live": copy.deepcopy(root), "root_landed": copy.deepcopy(root),
         "hangar": {"half_w": 1000.0, "height": 3000.0, "depth": 6000.0, "hinge_z": root_loc[2]},   # world, = root z
         "route_end": {"loc": ped.to_world(frame, [-500.0, 0.0, 0.0]), "yaw": yaw},
-        "floor_z": root_loc[2], "entry_camera": {"loc": stop, "yaw": yaw, "pitch": 0.0, "focal_mm": focal,
+        "floor": {"route_end_z": root_loc[2], "floor_height_cm": 0.0, "slab_lift_cm": slab_lift},
+        "other_cloths": [], "entry_camera": {"loc": stop, "yaw": yaw, "pitch": 0.0, "focal_mm": focal,
                                                  "filmback_mm": [23.76, 13.365]},
         "passage_camera": samples,
         "rise": {"root_pitch_keys": [[rise_start, -90.0], [4.1261, 0.0]], "tick_rate": 24000.0, "fps": 30.0},
         "rise_sub": {"section_start_s": 0.0, "start_offset_s": 0.0, "inner_start_s": 0.0, "rate": 1.0},
         "cache": {"bake_id": "final13_opening_a06_w188", "release_in_cache_s": 1.0, "duration_s": 11.0,
-                  "hang_aabb_cm": {"x": [-41.3, 39.1], "y": [-940.0, 940.0], "z": [20.0, 1020.0]},
+                  "hang_aabb_cm": {"x": [-41.3, 39.1], "y": [-940.0, 940.0], "z": [hem_cm, 1020.0]},
                   "pile_aabb_cm": copy.deepcopy(PILE)},
         "warnings": [],
     }
@@ -145,13 +149,13 @@ def t_box_hinge_and_back_limits():
 @test
 def t_floor_site_decision():
     inp = inputs_for()
-    inp["floor_z"] = 120.0                               # S3-like: the Passage floor 1.2 m above the hinge
+    inp["floor"]["route_end_z"] = 120.0                  # S3-like: the Passage floor 1.2 m above the hinge
     f = ped.check_pose(ped.plan_drape(inp, {}), inp)
     check(has(f, "FLOOR_MISMATCH"), "floor mismatch refused: %r" % f)
     f = ped.check_pose(ped.plan_drape(inp, {"floor_offset_cm": 120.0}), inp)
     check(not has(f, "FLOOR_MISMATCH") and not has(f, "BOX_Z"), "+control: recorded offset passes: %r" % f)
     inp = inputs_for(root_loc=(11421.97275, 160000.0, -120.0))   # S3 lowered hinge, record hinge_z -120 (world)
-    inp["floor_z"] = -120.0
+    inp["floor"]["route_end_z"] = -120.0
     f = ped.check_pose(ped.plan_drape(inp, {}), inp)
     check(f == [] and abs(ped.plan_drape(inp, {})["drape_world"]["loc"][2] + 120.0) < 1e-9, "S3 hinge -120: drape at -120, not -240: %r" % f)
     inp["hangar"]["hinge_z"] = 0.0
@@ -473,6 +477,65 @@ def t_exclusive_record():
 def t_cs_reuse_loaded():
     check(callable(CS["normalize_snapshot"]) and callable(CS["_track_rows"]), "curtain_sleight defs loaded (main not run)")
     check("main" in CS and CS.get("unreal") is None, "curtain_sleight loaded offline without running main()")
+
+
+# ------------------------------------------------------------------------------------------------- hem + S4 (5 Oct additions)
+
+REAL_HEM = 20.0          # final13 sample 479 z min 0.2 m
+
+
+@test
+def t_hem_real_final13_refuses():
+    inp = inputs_for(hem_cm=REAL_HEM, slab_lift=0.5)     # P01: dark-wet slab raised to +0.5
+    plan = ped.plan_drape(inp, {})
+    f = ped.check_pose(plan, inp)
+    check(has(f, "HEM_ABOVE_FLOOR"), "-control: the real 20 cm hem refuses: %r" % f)
+    check(abs(plan["floor"]["hem_gap_cm"] - 19.5) < 1e-9, "gap reported 19.5 cm (got %r)" % plan["floor"]["hem_gap_cm"])
+    check(plan["floor"]["hem_drop_window_cm"] is None, "no hem_drop satisfies hem AND pile with final13 (window %r)"
+          % plan["floor"]["hem_drop_window_cm"])
+
+
+@test
+def t_hem_drop_option_and_pile_guard():
+    inp = inputs_for(hem_cm=REAL_HEM, slab_lift=0.5)
+    f = ped.check_pose(ped.plan_drape(inp, {"hem_drop_cm": 19.5}), inp)
+    check(not has(f, "HEM_ABOVE_FLOOR") and has(f, "PILE_BELOW_FLOOR"), "hem_drop 19.5: hem ok, pile sunk -> refused: %r" % f)
+    f = ped.check_pose(ped.plan_drape(inp, {"hem_drop_cm": 40.0}), inp)
+    check(has(f, "HEM_BELOW_FLOOR"), "overdrop: hem buried refused: %r" % f)
+    inp = inputs_for(hem_cm=5.8, slab_lift=0.0)          # a curtain hanging 5.8 cm off its cache floor (synthetic)
+    plan = ped.plan_drape(inp, {})
+    check(has(ped.check_pose(plan, inp), "HEM_ABOVE_FLOOR"), "-control: 5.8 cm gap > 5 cm refused")
+    w = plan["floor"]["hem_drop_window_cm"]
+    check(w == [0.8, 1.0], "window [0.8, 1.0] for a 5.8 cm hem (hem tol 5, sink tol 1): %r" % w)
+    f = ped.check_pose(ped.plan_drape(inp, {"hem_drop_cm": 0.9}), inp)
+    check(f == [], "+control: hem_drop inside the window passes: %r" % f)
+    check(has(ped.check_pose(ped.plan_drape(inp, {"hem_drop_cm": 1.5}), inp), "PILE_BELOW_FLOOR"),
+          "-control: past the window's top sinks the pile")
+
+
+@test
+def t_hem_clean_synthetic():
+    inp = inputs_for(hem_cm=2.0)
+    check(not has(ped.check_pose(ped.plan_drape(inp, {}), inp), "HEM_"), "+control: a 2 cm hem passes")
+    check(abs(ped.floor_top_z({"route_end_z": 10.0, "floor_height_cm": 3.0, "slab_lift_cm": 0.5}) - 13.5) < 1e-12,
+          "floor top = route z + FloorHeightCm + slab lift")
+
+
+@test
+def t_s4_after_backcloth_revert():
+    rb = (11168.469500000001, 240000.0, 0.0)             # hangar_exit_doors_record.json root_before["4"]
+    inp = dict(inputs_for(root_loc=rb), n=4)
+    st = dict(CLEAN_STATE, scene=4, confirm="DRY S4")
+    r = ped.build_report(inp, {}, dict(st, slot_actor="P04 Backcloth (baked)"))
+    check(has(r["refusals"], "BACKCLOTH_SLOT_TAKEN"), "S4 before the revert: slot taken")
+    inp["other_cloths"] = [{"label": "P04 Backcloth (baked)", "loc": [10450.0, 240000.0, 0.0]}]   # CLOTH_X, p04 apply :45
+    r = ped.build_report(inp, {}, st)
+    check(has(r["refusals"], "STALE_CLOTH_IN_PATH"), "S4 after the revert, actor left: refused (%r)" % r["refusals"])
+    inp["other_cloths"] = []
+    r = ped.build_report(inp, {}, st)
+    check(r["apply_ready"], "S4 plans like the others once slot and actor are gone: %r" % r["refusals"])
+    inp["other_cloths"] = [{"label": "Far cloth", "loc": [0.0, 240000.0, 0.0]}]   # 111 m up the passage: not in the path
+    check(ped.build_report(inp, {}, st)["apply_ready"], "+control: a cloth far up the passage is not in the path")
 
 
 def main():

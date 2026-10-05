@@ -89,6 +89,9 @@ TAGS = ("PassageEndDrape", "PassageEndDrape.S%d")
 FOLDER = "InfinityStage/Curtains"                                        # import_passing_bake.py:281
 ENTRY_TAG = "InfinityStage.SceneEntry"                                   # builder .cpp:95; capture_p1_s1_handoff.py
 DOORS_RECORD = "hangar_exit_doors_record.json"
+STRUCTURE_LABEL = "Infinity Stage - Structure %02d"                       # floor_dark_wet_apply.py:74-80, 97
+DARK_WET_RECORD = "floor_dark_wet_record.json"                           # state applied 5 Oct (run 20261005-015555)
+DARK_WET_LIFT_CM = 0.5                                                   # floor_dark_wet_apply.py:90 LIFT_CM
 BAKE_DIR = os.path.join("CodexSoftGoods", "DropBake")
 CS_FILE = "curtain_sleight.py"
 RECORD_PATTERN = "passage_end_drape_record_S%d.json"
@@ -106,7 +109,10 @@ DEFAULTS = {
     "hinge_margin_cm": 20.0,       # the pile's far edge ends this far before the hinge
     "line_x_cm": None,             # None = derived from the pile; else an explicit curtain line (root x)
     "floor_offset_cm": 0.0,        # drape floor = the hinge (root z) + this (S3 needs a recorded site decision)
-    "floor_tol_cm": 10.0,          # composed floor vs the Passage actor floor and the hinge
+    "floor_tol_cm": 10.0,          # composed support plane vs the floor top (site decision gate)
+    "hem_tol_cm": 5.0,             # Gary 5 Oct "reach the floor more": HOLD-pose hem within this of the floor top
+    "hem_drop_cm": 0.0,            # OPTION (not default): lower the whole drape by this much
+    "pile_sink_tol_cm": 1.0,       # the pile's support plane (bake floor, z 0) may sit at most this below the floor top
     "back_limit_cm": 1500.0,       # nothing further than apron + this before the hinge ("at the passage end")
     "apron_cm": 500.0,             # hangar_s<N>_plan.json "apron"; dock = hinge - apron [meas I1 DRY dock_local]
     "pile_lateral_allow_cm": 150.0,  # the pile may spill this far past the hangar half width (floor level)
@@ -256,7 +262,7 @@ def plan_drape(inputs, params):
 
     # ---- pose: curtain line in the dock (root) frame, composed against the LIVE root
     line_x = float(p["line_x_cm"]) if p["line_x_cm"] is not None else -(float(pile["x"][1]) + float(p["hinge_margin_cm"]))
-    local = [line_x, 0.0, float(p["floor_offset_cm"])]      # the root IS the hinge (doors record hinge_z = root z)
+    local = [line_x, 0.0, float(p["floor_offset_cm"]) - float(p["hem_drop_cm"])]   # the root IS the hinge
     world = to_world(root_live, local)
     drape = {"loc": world, "pitch": root_live["pitch"], "yaw": wrap(root_live["yaw"]), "roll": root_live["roll"]}
 
@@ -318,8 +324,18 @@ def plan_drape(inputs, params):
             coverage["crossing_hidden"] = (overlap(oy0, oy1, hang_lo_l[1], hang_hi_l[1])
                                            * overlap(oz0, oz1, hang_lo_l[2], hang_hi_l[2]) / area) if area > 0 else 0.0
 
+    # ---- the hem (HOLD sample) and the pile (last checkpoint) against the floor top
+    fl = inputs["floor"]
+    floor_top = floor_top_z(fl)
+    support = world[2]                                   # the bake's floor plane (cache z 0) sits at the drape origin
+    floor_info = {"floor_top_z": floor_top, "support_z": support, "hem_z": support + float(hang["z"][0]),
+                  "hem_gap_cm": support + float(hang["z"][0]) - floor_top, "pile_sunk_cm": floor_top - support,
+                  "pile_height_cm": float(pile["z"][1]), "hem_drop_cm": float(p["hem_drop_cm"]),
+                  "hem_drop_window_cm": hem_drop_window(world[2] + float(p["hem_drop_cm"]), float(hang["z"][0]), floor_top,
+                                                        float(p["hem_tol_cm"]), float(p["pile_sink_tol_cm"]))}
+
     plan = {
-        "n": n, "label": DRAPE_LABEL % n, "tags": [TAGS[0], TAGS[1] % n], "rise": RISE_PATH % n,
+        "n": n, "label": DRAPE_LABEL % n, "floor": floor_info, "tags": [TAGS[0], TAGS[1] % n], "rise": RISE_PATH % n,
         "frame_local": local, "drape_world": drape, "line_x_cm": line_x,
         "boxes_landed": {"hang": [hang_lo_l, hang_hi_l], "pile": [pile_lo_l, pile_hi_l]},
         "timing": {"rise_start_motion_s": m0, "rise_land_motion_s": m_land, "rise_start_scene_s": rise_start_scene,
@@ -333,6 +349,23 @@ def plan_drape(inputs, params):
     }
     plan["digest"] = plan_digest(plan)
     return plan
+
+
+def floor_top_z(floor):
+    """Gary/conductor 5 Oct: floor top = route z + FloorHeightCm (+ the dark-wet slab's 0.5 where it is raised).
+    FloorHeightCm: InfinityStageStructureActor.h:130-132 [decl]; the 0.5 lift: floor_dark_wet_apply.py:90 LIFT_CM and
+    floor_dark_wet_record.json state=applied (P01, P03, P05 raised, P04 slab new, P02 untouched) [decl]."""
+    return float(floor["route_end_z"]) + float(floor["floor_height_cm"]) + float(floor["slab_lift_cm"])
+
+
+def hem_drop_window(support0, hem_rel, floor_top, hem_tol, sink_tol):
+    """[min, max] hem_drop_cm (>= 0) satisfying BOTH gates, or None when no drop can. support0 = the support plane
+    (cache z 0) with no drop; a drop d gives hem = support0 - d + hem_rel and support = support0 - d.
+      hem gate  |hem - floor_top| <= hem_tol       ->  d in [support0 + hem_rel - floor_top - hem_tol, ... + 2 hem_tol]
+      pile gate floor_top - support <= sink_tol    ->  d <= support0 - floor_top + sink_tol"""
+    lo = max(0.0, support0 + hem_rel - floor_top - hem_tol)
+    hi = min(support0 + hem_rel - floor_top + hem_tol, support0 - floor_top + sink_tol)
+    return [round(lo, 3), round(hi, 3)] if lo <= hi + 1.0e-9 else None
 
 
 def plan_digest(plan):
@@ -365,13 +398,31 @@ def check_pose(plan, inputs):
         fail.append("HINGE_Z_MISMATCH: doors record hinge_z %.1f (world) vs landed root z %.1f" % (h["hinge_z"], landed["loc"][2]))
     hinge_z = 0.0                                            # root-relative from here on
     origin_l = to_local(landed, d["loc"])
-    want_z = float(p["floor_offset_cm"])
+    want_z = float(p["floor_offset_cm"]) - float(p["hem_drop_cm"])
     if abs(origin_l[2] - want_z) > p["floor_tol_cm"]:
         fail.append("BOX_Z: drape floor at %.1f cm in the landed frame, want %.1f" % (origin_l[2], want_z))
-    floor_l = float(inputs["floor_z"]) - landed["loc"][2]
+    floor_top = floor_top_z(inputs["floor"])
+    floor_l = floor_top - landed["loc"][2]
     if abs(origin_l[2] - floor_l) > p["floor_tol_cm"]:
-        fail.append("FLOOR_MISMATCH: drape floor %.1f vs the Passage floor %.1f (landed frame); a site decision "
+        fail.append("FLOOR_MISMATCH: drape support plane %.1f vs the floor top %.1f (landed frame); a site decision "
                     "(floor_offset_cm) is needed" % (origin_l[2], floor_l))
+    hem = float(d["loc"][2]) + float(inputs["cache"]["hang_aabb_cm"]["z"][0])      # HOLD sample's lowest point
+    if hem - floor_top > float(p["hem_tol_cm"]):
+        fail.append("HEM_ABOVE_FLOOR: hanging hem %.1f cm above the floor top (tol %.1f; window for hem_drop_cm %r)"
+                    % (hem - floor_top, p["hem_tol_cm"], plan.get("floor", {}).get("hem_drop_window_cm")))
+    if floor_top - hem > float(p["hem_tol_cm"]):
+        fail.append("HEM_BELOW_FLOOR: hanging hem %.1f cm under the floor top" % (floor_top - hem))
+    if floor_top - float(d["loc"][2]) > float(p["pile_sink_tol_cm"]):
+        fail.append("PILE_BELOW_FLOOR: the pile's support plane (checkpoint %s) sits %.1f cm under the floor top (tol %.1f)"
+                    % (inputs["cache"].get("pile_sample", "780"), floor_top - float(d["loc"][2]), p["pile_sink_tol_cm"]))
+    stale = []
+    for row in inputs.get("other_cloths", []):
+        q = to_local(landed, row["loc"])
+        if -(float(p["apron_cm"]) + float(p["back_limit_cm"])) <= q[0] <= 0.0 and abs(q[1]) <= float(h["half_w"]):
+            stale.append("%s at dock x %.0f" % (row["label"], q[0]))
+    if stale:
+        fail.append("STALE_CLOTH_IN_PATH: %s (another GeometryCache actor hangs in the approach; e.g. the P04 backcloth "
+                    "actor survives p04_backcloth_final11_revert.py)" % "; ".join(stale))
     x_min = -(float(p["apron_cm"]) + float(p["back_limit_cm"]))
     x_max = -float(p["hinge_margin_cm"]) + 1.0e-6
     for name, (lo, hi), half in (("hang", plan["boxes_landed"]["hang"], float(h["half_w"])),
@@ -607,6 +658,9 @@ API_TABLE = [
     ("EditorActorSubsystem.destroy_actor", "prec", "curtain_sleight.py:2007 (ran? UNCLEAR: no CST revert yet); opening_sequence_apply.py:787"),
     ("EditorAssetLibrary.save_asset / EditorLoadingAndSavingUtils.save_map", "prec", "curtain_sleight.py:1864-1865 (ran 5 Oct)"),
     ("component.get_duration()", "prec", "p04_backcloth_section_apply.py:155"),
+    ("InfinityStageStructureActor ground.floor_height_cm / enabled", "prec", "floor_dark_wet_apply.py:403-405 (applied 5 Oct)"),
+    ("floor_dark_wet_record.json state/slabs/p04 (the +0.5 lift)", "decl", "record written by run 20261005-015555"),
+    ("GeometryCacheActor census (stale cloths in the approach)", "prec", "isinstance on level actors, import_passing_bake.py:276"),
 ]
 
 
@@ -816,7 +870,24 @@ def _gather(n, run, cs):
     length = route.get_spline_length()
     rend = route.get_location_at_distance_along_spline(length, unreal.SplineCoordinateSpace.WORLD)
     rtan = route.get_tangent_at_distance_along_spline(length, unreal.SplineCoordinateSpace.WORLD)
-    floor_z = float(passage.get_actor_location().z)
+    # floor top = route z + FloorHeightCm (+ 0.5 where the dark-wet slab is raised); floor_dark_wet_apply.py:403-405 [prec]
+    structs = [a for a in index.get(STRUCTURE_LABEL % n, []) if isinstance(a, unreal.InfinityStageStructureActor)]
+    if len(structs) != 1:
+        _stop(run, "STRUCTURE_COUNT|%s|%d" % (STRUCTURE_LABEL % n, len(structs)))
+    ground = structs[0].get_editor_property("ground")
+    dw = _load_json(os.path.join(_here(), DARK_WET_RECORD), required=False)
+    key = "P%02d" % n
+    raised = dw.get("state") == "applied" and (key in (dw.get("slabs") or {}) or (key == "P04" and dw.get("p04")))
+    floor = {"route_end_z": float(rend.z), "floor_height_cm": float(ground.get_editor_property("floor_height_cm")),
+             "slab_lift_cm": DARK_WET_LIFT_CM if raised else 0.0, "ground_enabled": bool(ground.get_editor_property("enabled")),
+             "dark_wet_slab": key if raised else None}
+    if not floor["ground_enabled"]:
+        warnings.append("GROUND_DISABLED: %s ground is off; FloorHeightCm may not describe a visible floor" % (STRUCTURE_LABEL % n))
+    other_cloths = []
+    for a in actors:
+        if isinstance(a, unreal.GeometryCacheActor) and str(a.get_actor_label()) != DRAPE_LABEL % n:
+            l = a.get_actor_location()
+            other_cloths.append({"label": str(a.get_actor_label()), "loc": [float(l.x), float(l.y), float(l.z)]})
 
     psets = [ps for ps in show.get_editor_property("passage_settings")
              if str(ps.get_editor_property("label")) == PASSAGE_LABEL % n]
@@ -869,6 +940,7 @@ def _gather(n, run, cs):
     if cache is None:
         _stop(run, "CACHE_MISSING")
     cache_facts, w = _bake_facts(cache, run)
+    cache_facts["hold_sample"] = cache_facts.get("held_sample")
     warnings.extend(w)
 
     # the engine's own mapping of the rise start (rate, offsets): rest just before it, moving 1 s after
@@ -890,7 +962,7 @@ def _gather(n, run, cs):
         "hangar": {"half_w": float(dims["half_w"]), "height": float(dims["height"]), "depth": float(dims["depth"]),
                    "hinge_z": float(dims.get("hinge_z", 0.0))},
         "route_end": {"loc": [float(rend.x), float(rend.y), float(rend.z)], "yaw": math.degrees(math.atan2(rtan.y, rtan.x))},
-        "floor_z": floor_z, "entry_camera": entry_camera, "passage_camera": samples,
+        "floor": floor, "other_cloths": other_cloths, "entry_camera": entry_camera, "passage_camera": samples,
         "rise": {"root_pitch_keys": pitch_keys, "tick_rate": tick_rate, "fps": rise_fps},
         "rise_sub": rise_sub, "cache": cache_facts, "warnings": warnings,
     }
