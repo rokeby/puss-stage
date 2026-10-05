@@ -87,7 +87,8 @@ def run():
     import unreal
 
     project_dir = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
-    run_id = "cuelist-%s" % unreal.MathLibrary.now().to_unix_timestamp()
+    import datetime
+    run_id = "cuelist-%s" % datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     report_path = os.path.join(project_dir, "Saved", "CodexCueing", "cue_list_%s.json" % run_id)
     sheet_path = report_path.replace(".json", ".txt")
     out = {"run": run_id, "cues": [], "audio": [], "vamps": [], "warnings": []}
