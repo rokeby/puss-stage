@@ -53,7 +53,13 @@ DERIVED_MOMENTS = ("final_quarter", "curtain_landed")
 HOUSE_WARMER_LABELS = ("P01 Wing 001 House L", "P01 Wing 001 House R")
 HOUSE_WARMER_RULE = "off_for_opening_only"
 HOUSE_WARMER_OWNER = "opening_sequence_apply.py"
-HOUSE_WARMER_MECHANISMS = (None,)   # none implemented yet; see the plan section 4b for the proposals
+# None = the warmers are left lit (they burn through the Opening). "disable_show_attachment" = rig takeover
+# (Gary 5 Oct ~16:25, 'let the rig FOH spots do it'): the Show attachments' Enabled flag goes False. Enabled is
+# NOT time-varying (InfinityStagePassageActor.cpp:905-908), so that also removes them from P01; the planner
+# refuses it until house_warmers.p01_without_warmers_confirmed_by names who accepted that.
+HOUSE_WARMER_MECHANISMS = (None, "disable_show_attachment")
+# The only attachment fields this tool may change on the warmers (record + REVERT cover exactly these).
+WARMER_WRITE_PATHS = (("enabled",), ("lighting", "inner_cone_angle_degrees"))
 
 
 def house_warmer_check(cfg):
@@ -61,8 +67,16 @@ def house_warmer_check(cfg):
     ws = cfg.get("house_warmers") or {}
     fails, warns = [], []
     if ws.get("disable"):
-        fails.append("house-warmers-disable: disabling the Show attachments kills them in P01 too "
-                     "(Gary 4 Oct: off for the Opening ONLY); this tool never writes their Enabled flag")
+        fails.append("house-warmers-disable: the legacy 'disable' key is refused; use mechanism "
+                     "'disable_show_attachment' with p01_without_warmers_confirmed_by (it kills them in P01 too)")
+    if ws.get("mechanism") == "disable_show_attachment" and not ws.get("p01_without_warmers_confirmed_by"):
+        fails.append("house-warmers-p01: disabling the Show warmers removes them from P01 too (Enabled is not "
+                     "time-varying; Gary 4 Oct wanted them ON in P01). Set p01_without_warmers_confirmed_by first")
+    cone = ws.get("cone")
+    if cone is not None:
+        d = float(cone.get("inner_equals_outer_minus_deg", -1))
+        if not 0.0 <= d < float(cone.get("expect_outer_deg", 0)):
+            fails.append("house-warmers-cone: inner_equals_outer_minus_deg %r outside [0, expect_outer_deg)" % d)
     if ws.get("rule") != HOUSE_WARMER_RULE:
         fails.append("house-warmers-rule: %r != %r (Gary 4 Oct)" % (ws.get("rule"), HOUSE_WARMER_RULE))
     if ws.get("owner") != HOUSE_WARMER_OWNER:
@@ -76,7 +90,93 @@ def house_warmer_check(cfg):
     elif mech is None:
         warns.append("house warmers stay ON through the Opening (Gary's 'off for the Opening only' has no "
                      "mechanism yet; plan section 4b): phase 0 is NOT dark")
+    elif mech == "disable_show_attachment":
+        warns.append("house warmers DISABLED in the Show: dark through the Opening AND absent from P01 "
+                     "(confirmed by %s)" % ws.get("p01_without_warmers_confirmed_by"))
     return fails, warns
+
+
+def warmer_targets(cfg, live):
+    """What APPLY writes on the two warmers. live: {label: {'enabled', 'inner', 'outer'}} read from the Show.
+    Returns (targets {label: {'enabled': bool, 'inner_cone_angle_degrees': float}}, failures). Only the two
+    WARMER_WRITE_PATHS fields are ever targeted; a field equal to live is a no-op."""
+    ws = cfg.get("house_warmers") or {}
+    fails, targets = [], {}
+    labels = tuple(ws.get("labels") or ())
+    if sorted(live) != sorted(labels):
+        return {}, ["warmers-live: found %r, expected %r" % (sorted(live), list(labels))]
+    cone = ws.get("cone")
+    for label in labels:
+        row = live[label]
+        inner = float(row["inner"])
+        if cone is not None:
+            if abs(float(row["outer"]) - float(cone["expect_outer_deg"])) > 1e-4:
+                fails.append("warmers-outer: %s outer %.3f != expected %.3f (re-read before changing the cone)"
+                             % (label, float(row["outer"]), float(cone["expect_outer_deg"])))
+                continue
+            inner = float(row["outer"]) - float(cone["inner_equals_outer_minus_deg"])
+        enabled = bool(row["enabled"])
+        if ws.get("mechanism") == "disable_show_attachment":
+            enabled = False
+        targets[label] = {"enabled": enabled, "inner_cone_angle_degrees": inner}
+    return targets, fails
+
+
+def _get_path(state, path):
+    for p in path:
+        state = state[p]
+    return state
+
+
+def _set_path(state, path, value):
+    for p in path[:-1]:
+        state = state[p]
+    state[path[-1]] = value
+
+
+def warmers_apply_state(states, targets):
+    """Pure model of the warmer write on attachment_state() dicts {label: state}: only WARMER_WRITE_PATHS change."""
+    new = json.loads(json.dumps(states))
+    for label, t in targets.items():
+        _set_path(new[label], ("enabled",), bool(t["enabled"]))
+        _set_path(new[label], ("lighting", "inner_cone_angle_degrees"), float(t["inner_cone_angle_degrees"]))
+    return new
+
+
+def warmers_revert_state(states, original):
+    """Pure model of REVERT: the WARMER_WRITE_PATHS fields back to the first-write snapshot; nothing else touched."""
+    new = json.loads(json.dumps(states))
+    for label, orig in original.items():
+        for path in WARMER_WRITE_PATHS:
+            _set_path(new[label], path, _get_path(orig, path))
+    return new
+
+
+def warmers_changed_paths(before, after):
+    """Field paths that differ between two {label: state} snapshots, as 'label:a.b'."""
+    out = []
+
+    def walk(label, a, b, path):
+        if isinstance(a, dict) and isinstance(b, dict):
+            for k in sorted(set(a) | set(b)):
+                walk(label, a.get(k), b.get(k), path + (k,))
+        elif a != b:
+            out.append("%s:%s" % (label, ".".join(path)))
+    for label in sorted(set(before) | set(after)):
+        walk(label, before.get(label), after.get(label), ())
+    return out
+
+
+def cone_check(cfg):
+    """Gary 5 Oct ~16:25: inner cone = outer - cone_rule.inner_equals_outer_minus_deg for every enabled spot fixture."""
+    rule = cfg.get("cone_rule")
+    if not rule:
+        return []
+    d = float(rule["inner_equals_outer_minus_deg"])
+    return ["cone-rule: %s inner %.2f != outer %.2f - %.2f" % (fx["name"], float(fx["inner_cone_deg"]),
+                                                                float(fx["outer_cone_deg"]), d)
+            for fx in cfg["fixtures"] if fx.get("enabled", True) and fx.get("kind") == "spot"
+            and abs(float(fx["inner_cone_deg"]) - (float(fx["outer_cone_deg"]) - d)) > 1e-6]
 
 
 # --------------------------------------------------------------------------------------------- small utils
@@ -538,8 +638,19 @@ def fixture_keys(fixture, frames, cfg, env_rate, env, fps):
     if fade_before_release is not None:
         out_frame = frames["curtain_release"] - int(round(float(fade_before_release) * fps))
 
+    trend = env_cfg.get("trend")
+
+    def trend_at(frame):
+        """Gary 5 Oct ~16:25: the FOH carry a RISE to the curtain. A linear multiplier on the envelope scale,
+        trend.start at frames[trend.from] -> trend.end at frames[trend.to], held outside. Absent = 1.0 (old)."""
+        if not trend:
+            return 1.0
+        a, b = frames[trend["from"]], frames[trend["to"]]
+        u = min(1.0, max(0.0, (frame - a) / float(max(1, b - a))))
+        return float(trend["start"]) + (float(trend["end"]) - float(trend["start"])) * u
+
     def level(frame):
-        s = envelope_scale(env_at(frame / fps, env_rate, env), env_cfg)
+        s = envelope_scale(env_at(frame / fps, env_rate, env), env_cfg) * trend_at(frame)
         return nominal * (idle + (s - idle) * weight)       # weight 1 = the full envelope, 0 = idle hold
 
     rise_from = env_cfg.get("rise_from")
@@ -633,8 +744,10 @@ def build_plan(cfg, analysis, walk_planner_path, marker_frames=None, last_applie
         "envelope": {"rate": env_rate, "series": env},
     }
     hw_fails, hw_warns = house_warmer_check(cfg)
-    plan["house_warmers"] = {"write": False, "rule": (cfg.get("house_warmers") or {}).get("rule"),
-                             "mechanism": (cfg.get("house_warmers") or {}).get("mechanism"),
+    ws = cfg.get("house_warmers") or {}
+    plan["house_warmers"] = {"write": bool(ws.get("mechanism") or ws.get("cone")), "rule": ws.get("rule"),
+                             "mechanism": ws.get("mechanism"), "cone": ws.get("cone"),
+                             "write_paths": [".".join(p) for p in WARMER_WRITE_PATHS],
                              "warnings": hw_warns}
     plan["failures"] = validate(plan, cfg)
     return plan
@@ -711,6 +824,14 @@ def validate(plan, cfg):
         fail.append("flicker-peak-order: peak_min %.2f > peak_max %.2f" % (float(fl_cfg["peak_min"]), float(fl_cfg["peak_max"])))
     if plan["conflicts"]:
         fail.extend("marker-conflict: " + c for c in plan["conflicts"])
+    tr = cfg["envelope"].get("trend")
+    if tr:
+        if fr[tr["from"]] >= fr[tr["to"]]:
+            fail.append("trend-order: trend.from %s (%d) not before trend.to %s (%d)"
+                        % (tr["from"], fr[tr["from"]], tr["to"], fr[tr["to"]]))
+        if not 0.0 < float(tr["start"]) <= float(tr["end"]):
+            fail.append("trend-rises: trend start %.3f / end %.3f must satisfy 0 < start <= end" % (tr["start"], tr["end"]))
+    fail.extend(cone_check(cfg))
     fail.extend(house_warmer_check(cfg)[0])
     return fail
 

@@ -78,6 +78,13 @@
     "key_step_frames": 10,
     "rise_from": "swivel_start",
     "rise_key_step_frames": 5,
+    "trend": {
+      "from": "swivel_end",
+      "to": "curtain_release",
+      "start": 0.6,
+      "end": 1.0,
+      "note": "Gary 5 Oct ~16:25: 'warmers off for the Opening, FOH rig spots carry the rise to the curtain'. The envelope scale is multiplied by a linear ramp start -> end from swivel_end to curtain_release (1.0 after), so the music rides an upward trend peaking at the release; the landing rise (rise_from) eases into the trended level at swivel_end. Remove 'trend' for the untrended envelope."
+    },
     "rise_note": "Gary 5 Oct ~15:45: 'Land dim, rise slowly with the swivel'. After the strobe each lamp holds idle_level until rise_from, then eases (smoothstep) to the envelope's level at swivel_end; remove rise_from for the old behaviour (idle held to swivel_end, then a 10-frame ramp into the envelope).",
     "notes": "scale = floor + (peak - floor) * min(1, gain * (1 - headroom) * env), env = normalized blend of the smoothed analysis 'intensity' curve and smoothed waveform RMS; scale multiplies each fixture's nominal_cd (1.0 = the approved warmer level)."
   },
@@ -120,7 +127,7 @@
         "yaw": -18.0
       },
       "outer_cone_deg": 33.0,
-      "inner_cone_deg": 20.0,
+      "inner_cone_deg": 30.0,
       "nominal_cd": 1740.0,
       "kelvin": 2800,
       "attenuation_radius_cm": 4500.0,
@@ -150,7 +157,7 @@
         "yaw": 18.0
       },
       "outer_cone_deg": 33.0,
-      "inner_cone_deg": 20.0,
+      "inner_cone_deg": 30.0,
       "nominal_cd": 1740.0,
       "kelvin": 2800,
       "attenuation_radius_cm": 4500.0,
@@ -176,7 +183,7 @@
         "roll": 0.0
       },
       "outer_cone_deg": 30.0,
-      "inner_cone_deg": 10.0,
+      "inner_cone_deg": 27.0,
       "nominal_cd": 900.0,
       "kelvin": 2800,
       "attenuation_radius_cm": 4000.0,
@@ -294,12 +301,23 @@
     "decided_by": "Gary, 4 Oct 2026",
     "owner": "opening_sequence_apply.py",
     "mechanism": null,
+    "p01_without_warmers_confirmed_by": null,
+    "cone": {
+      "inner_equals_outer_minus_deg": 3.0,
+      "expect_outer_deg": 33.0,
+      "note": "Gary 5 Oct ~16:25: if the warmers stay enabled anywhere, same cone rule on their Show attachment (33/20 -> 33/30, measured 33/20 on 4 Oct, light_guid_audit_20261004-121338.json). APPLY writes lighting.inner_cone_angle_degrees on both, records the full attachment state first (record warmers_attachment_original) and REVERT restores it exactly."
+    },
+    "rig_takeover_note": "Gary 5 Oct ~16:25: 'let the rig FOH spots do it'. Mechanism 'disable_show_attachment' (Enabled false) is implemented but REFUSED until p01_without_warmers_confirmed_by is set: the warmers also light P01 (Gary 4 Oct 'ON in P01'; the beam rakes P01's floor after the fall, Docs/Conductor/MORNING_2026-09-26.md:283-290) and Enabled is not time-varying.",
     "disable": false,
     "labels": [
       "P01 Wing 001 House L",
       "P01 Wing 001 House R"
     ],
     "notes": "Gary 4 Oct: the two Show house spots are OFF FOR THE OPENING ONLY and ON in P01. This tool owns that; lighting_scores_apply.py retains them (lighting_scores.json foreign_owned_lights). 'disable' must stay false: the attachment's Enabled flag is not time-varying, so disabling would kill them in P01 too (the planner refuses it). 'mechanism' is null because none exists yet: Light Drama cannot dark a lamp before its Passage segment (plan section 4b). Until a mechanism lands they burn through the Opening and phase 0 is NOT dark."
+  },
+  "cone_rule": {
+    "inner_equals_outer_minus_deg": 3.0,
+    "source": "Gary 5 Oct ~15:45 / ~16:25: 'sharper in definition - inner cone only 3 points less than outer cone'. Every enabled spot fixture (FOH L/R 33/30, Wash C 30/27; were 33/20 and 30/10); the planner refuses a mismatch (cone-rule). The house warmers get the same rule via house_warmers.cone."
   },
   "hand_tuned_tracks": [],
   "sketch2_note": "5 Oct: refit to Cameron's 'Tuning-Opening-sketch2' (95.5 s; DerivedAssets/Audio/Opening_Sketch2). Gary: curtain after the LAST swell (auto 76.4 s -> release ~77.4 s); FOH swivel follows the music (auto 36-44 s). All moments stay 'auto' so re-running on sketch 3 is cheap. Old analysis backup: opening_timing.json.bak-20261005-presketch2",

@@ -19,10 +19,14 @@ What APPLY writes (and REVERT undoes, from the first apply's snapshot in opening
     - marked frames 'OPN <moment>' for every moment (the manual-tuning handles).
   The level: the rig actors (created once; level default intensity 0, parked aim), then save_map.
   The Show: the Opening cue's Scene.Music takes P01's rail; P01's Music becomes Silence (flag in the JSON);
-    NEVER the two House warmers (Gary 4 Oct: off for the Opening ONLY, on in P01). Their Enabled flag is not
-    time-varying, so disabling would kill them in P01 too: the planner refuses house_warmers.disable, APPLY/REVERT
-    asserts their Enabled state is unchanged before saving, and lighting_scores_apply.py retains them.
-    No mechanism exists yet to dark them for the Opening alone (plan section 4b).
+    the two House warmers ('P01 Wing 001 House L/R'): ONLY the two fields in planner WARMER_WRITE_PATHS
+    (enabled, lighting.inner_cone_angle_degrees), ONLY as opening_sequence_plan.warmer_targets() says
+    (5 Oct ~16:25: cone inner = outer - 3; Enabled false only with mechanism 'disable_show_attachment', which the
+    planner refuses until house_warmers.p01_without_warmers_confirmed_by is set, because Enabled is not
+    time-varying and would remove them from P01 too). Their full attachment state is recorded once
+    (record 'warmers_attachment_original') before the first write; REVERT restores those fields and asserts the
+    whole state equals that snapshot. P01 is materialized (Passage + Structure, the lighting_events_apply.py
+    pattern) after a warmer write so the spawned lamps carry it. lighting_scores_apply.py retains them.
   The Master: rebuilt with the library call. Patch K (built; PassageKeysFollowSection Success,
     Saved/Logs/SS-FullInfinityStage-20261002.log:2776) carries Passage keys; this tool MEASURES that the
     carry happened for this Show (every Passage section's keys, section-relative, identical before/after)
@@ -184,6 +188,87 @@ def main(mode):
     music_now = {"opening": music_state(oscene.get_editor_property("music")),
                  "p01": music_state(psets[p01_idx[0]].get_editor_property("music"))}
     step("music_now", **music_now)
+
+    # ------------------------------------------------------------------ house warmers (Show attachments)
+    import importlib.util
+    _spec = importlib.util.spec_from_file_location("_infinity_attachment_state_opening",
+                                                   os.path.join(here, "_infinity_attachment_state.py"))
+    attstate = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(attstate)
+
+    def guid_text(g):
+        return unreal.GuidLibrary.conv_guid_to_string(g)
+
+    def warmer_locations():
+        """{label: (cue index, attachment index)} for the configured warmer labels; each must be unique."""
+        labels = set(cfg["house_warmers"]["labels"])
+        hits = {}
+        for ci, c in enumerate(show.get_editor_property("cues")):
+            for ai, a in enumerate(c.get_editor_property("wing_pair").get_editor_property("attachments")):
+                lab = str(a.get_editor_property("label"))
+                if lab in labels:
+                    hits.setdefault(lab, []).append((ci, ai))
+        if sorted(hits) != sorted(labels) or any(len(v) != 1 for v in hits.values()):
+            fail("house warmers not found exactly once each: %r (expected %r)" % (hits, sorted(labels)))
+        return {k: v[0] for k, v in hits.items()}
+
+    def warmers_full_state():
+        cues_ = list(show.get_editor_property("cues"))
+        out = {}
+        for lab, (ci, ai) in warmer_locations().items():
+            a = list(cues_[ci].get_editor_property("wing_pair").get_editor_property("attachments"))[ai]
+            out[lab] = attstate.attachment_state(a, guid_text)
+        return out
+
+    def warmers_live(states):
+        return {lab: {"enabled": st["enabled"], "inner": st["lighting"]["inner_cone_angle_degrees"],
+                      "outer": st["lighting"]["outer_cone_angle_degrees"]} for lab, st in states.items()}
+
+    def write_warmers(fields):
+        """fields: {label: {'enabled': bool, 'inner_cone_angle_degrees': float}} - the WARMER_WRITE_PATHS only."""
+        locs = warmer_locations()
+        cues_ = list(show.get_editor_property("cues"))
+        for lab, t in fields.items():
+            ci, ai = locs[lab]
+            cue = cues_[ci]
+            pair = cue.get_editor_property("wing_pair")
+            atts = list(pair.get_editor_property("attachments"))
+            a = atts[ai]
+            a.set_editor_property("enabled", bool(t["enabled"]))
+            lighting = a.get_editor_property("lighting")
+            lighting.set_editor_property("inner_cone_angle_degrees", float(t["inner_cone_angle_degrees"]))
+            a.set_editor_property("lighting", lighting)
+            atts[ai] = a
+            pair.set_editor_property("attachments", atts)
+            cue.set_editor_property("wing_pair", pair)
+            cues_[ci] = cue
+        show.modify()
+        show.set_editor_property("cues", cues_)
+
+    def materialize_p01():
+        """lighting_events_apply.py:1065-1074: Passage then its Structure, both asserted."""
+        passes = [a for a in actors.get_all_level_actors()
+                  if a.get_class().get_name() == "InfinityStagePassageActor"
+                  and a.get_actor_label().startswith("Passage 01") and a.get_editor_property("show_asset") == show]
+        if len(passes) != 1:
+            fail("expected one 'Passage 01' actor, found %d" % len(passes))
+        if not passes[0].materialize_passage():
+            fail("P01 materialize_passage returned false (backup %s)" % report.get("backup"))
+        structs = [a for a in actors.get_all_level_actors()
+                   if a.get_class().get_name() == "InfinityStageStructureActor"
+                   and a.get_editor_property("passage") == passes[0]]
+        if len(structs) != 1 or not structs[0].materialize_structure():
+            fail("P01 structure refit failed (%d structures)" % len(structs))
+        return {"passage": passes[0].get_actor_label(), "structure": structs[0].get_actor_label()}
+
+    warmers_before_full = warmers_full_state()
+    warmer_fields, warmer_fails = planner["warmer_targets"](cfg, warmers_live(warmers_before_full))
+    if warmer_fails:
+        fail("house warmer targets refused: %r" % warmer_fails)
+    warmers_expected = planner["warmers_apply_state"](warmers_before_full, warmer_fields)
+    report["house_warmer_write"] = {"targets": warmer_fields,
+                                    "changes": planner["warmers_changed_paths"](warmers_before_full, warmers_expected)}
+    step("warmers_now", live=warmers_live(warmers_before_full), changes=report["house_warmer_write"]["changes"])
 
     # ------------------------------------------------------------------ live sequence facts
     def bindings_named(name):
@@ -636,15 +721,6 @@ def main(mode):
         return {"opening": music_state(c.get_editor_property("scene").get_editor_property("music")),
                 "p01": music_state(p.get_editor_property("music"))}
 
-    def warmers_state():
-        labels = set(cfg["house_warmers"]["labels"])
-        out = {}
-        for c in show.get_editor_property("cues"):
-            for a in c.get_editor_property("wing_pair").get_editor_property("attachments"):
-                if str(a.get_editor_property("label")) in labels:
-                    out[str(a.get_editor_property("label"))] = bool(a.get_editor_property("enabled"))
-        return out
-
     def setp(obj, name, value):
         """Set only when different, so a re-run does not dirty the level for nothing."""
         cur = obj.get_editor_property(name)
@@ -707,14 +783,39 @@ def main(mode):
         return b, kb
 
     # ------------------------------------------------------------------ MUTATE
-    # House warmers: never written by this tool (Gary 4 Oct, off for the Opening ONLY; Enabled is not time-varying).
-    # Snapshot before any mutation; APPLY and REVERT assert it unchanged before any save.
-    warmers_before = warmers_state()
-    if sorted(warmers_before) != sorted(cfg["house_warmers"]["labels"]):
-        fail("house warmers not found: %r (expected %r)" % (warmers_before, cfg["house_warmers"]["labels"]))
+    # House warmers: only WARMER_WRITE_PATHS, only as the planner targets them (5 Oct ~16:25). Snapshot recorded
+    # (fsync'd) before the first write; the pre-save assertion compares the WHOLE attachment state to the model.
     if record.get("warmers_original"):
-        fail("record carries warmers_original %r: this tool no longer writes the house warmers (Gary 4 Oct); "
-             "restore them by hand in the Show, then delete that key" % record["warmers_original"])
+        fail("record carries the legacy warmers_original %r (pre-4-Oct disable path): restore them by hand in the "
+             "Show, then delete that key" % record["warmers_original"])
+    warmer_materialized = None
+    if mode == "APPLY":
+        warmers_expected = planner["warmers_apply_state"](warmers_before_full, warmer_fields)
+    else:
+        orig_w = record.get("warmers_attachment_original")
+        warmers_expected = (planner["warmers_revert_state"](warmers_before_full, orig_w) if orig_w
+                            else json.loads(json.dumps(warmers_before_full)))
+        if orig_w:
+            drift_w = attstate.state_differences(orig_w, warmers_expected)
+            if drift_w:
+                fail("house warmers were changed outside this tool since its first write %r: restoring only "
+                     "enabled + inner cone would not reproduce the snapshot; nothing mutated" % drift_w[:6])
+    warmer_changes = planner["warmers_changed_paths"](warmers_before_full, warmers_expected)
+    allowed = {"%s:%s" % (lab, ".".join(p)) for lab in warmers_before_full for p in planner["WARMER_WRITE_PATHS"]}
+    if set(warmer_changes) - allowed:
+        fail("warmer model would change %r outside %r" % (sorted(set(warmer_changes) - allowed), sorted(allowed)))
+    if warmer_changes:
+        if mode == "APPLY" and "warmers_attachment_original" not in record:
+            record["warmers_attachment_original"] = warmers_before_full
+            with open(paths["record"], "w", encoding="utf-8") as h:
+                json.dump(record, h, indent=1, default=str, ensure_ascii=False)
+                h.flush()
+                os.fsync(h.fileno())
+        write_warmers({lab: {"enabled": st["enabled"],
+                             "inner_cone_angle_degrees": st["lighting"]["inner_cone_angle_degrees"]}
+                       for lab, st in warmers_expected.items()})
+        warmer_materialized = materialize_p01()
+        step("warmers_written", changes=warmer_changes, materialized=warmer_materialized)
     if mode == "APPLY":
         end = plan["frames"]["opening_end"]
         seq.modify()
@@ -833,8 +934,9 @@ def main(mode):
     report["coverage"] = cov
     if cov["gaps"]:
         fail("camera cut gaps %r; NOTHING saved" % cov["gaps"])
-    if warmers_state() != warmers_before:
-        fail("house warmers changed during %s %r -> %r; NOTHING saved" % (mode, warmers_before, warmers_state()))
+    off_model = planner["warmers_changed_paths"](warmers_expected, warmers_full_state())
+    if off_model:
+        fail("house warmers differ from the planned %s state at %r; NOTHING saved" % (mode, off_model))
     if any(a.get_actor_label().startswith("ZZ_") for a in actors.get_all_level_actors()):
         fail("ZZ_ bench actors in the level; refusing to save it")
     now = census()
@@ -851,15 +953,24 @@ def main(mode):
     if WORLD in now["maps"]:
         saves[WORLD] = bool(unreal.EditorLoadingAndSavingUtils.save_map(world, WORLD))
     report["saves"] = saves
+    report["house_warmer_write"]["materialized"] = warmer_materialized
     if not all(saves.values()):
         fail("a save failed: %r" % saves)
 
     # ------------------------------------------------------------------ read-back (asserted)
     rb = {"playback": [seq.get_playback_start(), seq.get_playback_end()], "cut": [cut.get_start_frame(), cut.get_end_frame()],
           "gc_sections": gc_state(), "walk": read_walk(), "rig": read_rig(), "markers": read_markers()[0],
-          "music": music_after(), "show_master": ext["show_master_match"](show, master), "census": census()}
+          "music": music_after(), "show_master": ext["show_master_match"](show, master), "census": census(),
+          "warmers": warmers_full_state()}
     report["readback"] = rb
     problems = []
+    wdiff = planner["warmers_changed_paths"](warmers_expected, rb["warmers"])
+    if wdiff:
+        problems.append("house warmers read back off the planned state at %r" % wdiff)
+    if mode == "REVERT" and record.get("warmers_attachment_original"):
+        exact = attstate.state_differences(record["warmers_attachment_original"], rb["warmers"])
+        if exact:
+            problems.append("REVERT warmers != first-write snapshot %r" % exact[:6])
     if rb["census"]["content"] or rb["census"]["maps"]:
         problems.append("dirty after save %r" % rb["census"])
     if not rb["show_master"]["match"]:

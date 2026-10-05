@@ -59,12 +59,28 @@ r_raw = P.pearson(env, inten)
 case("envelope still tracks the RAW intensity curve (r >= 0.5)", r_raw >= 0.5, r_raw)
 lamp = base["lamps"]["FOH L"]["intensity"]
 env_keys = [(f, v) for f, v, i in lamp if fr["swivel_end"] < f < fr["walkin_start"]]
-env_vals = [P.envelope_scale(P.env_at(f / 25.0, rate, env), CFG["envelope"]) for f, _ in env_keys]
+TR = CFG["envelope"].get("trend")
+
+
+def trend_mult(f, frames=None):
+    """Mirror of the planner's trend multiplier (5 Oct ~16:25): start -> end linearly over [from, to], held outside."""
+    if not TR:
+        return 1.0
+    frames = frames or fr
+    a, b = frames[TR["from"]], frames[TR["to"]]
+    u = min(1.0, max(0.0, (f - a) / float(b - a)))
+    return TR["start"] + (TR["end"] - TR["start"]) * u
+
+
+# 5 Oct ~16:25: the lamp follows the TRENDED envelope (envelope x trend multiplier)
+env_vals = [P.envelope_scale(P.env_at(f / 25.0, rate, env), CFG["envelope"]) * trend_mult(f) for f, _ in env_keys]
 r_lamp = P.pearson([v for _, v in env_keys], env_vals)
 # 5 Oct: key floor 100 -> 50. The flicker moved to the entry (36.18 s) pushes the auto swivel_end to 59.52 s, so
 # phase 3 (swivel_end..walkin_start) is ~26 s = ~65 keys at 10-frame steps; the r test itself is unchanged.
 case("FOH L keys follow the envelope in phase 3 (r >= 0.999)", r_lamp >= 0.999 and len(env_keys) > 50, (r_lamp, len(env_keys)))
-flat, _ = plan_with(lambda c: c["envelope"].__setitem__("gain", 0.0))
+# 5 Oct ~16:25: the control drops the trend too - a trended 'flat' lamp is a ramp that still correlates with the
+# trended envelope (r 0.70 measured), which would hide whether the MUSIC is followed.
+flat, _ = plan_with(lambda c: c["envelope"].__setitem__("gain", 0.0) or c["envelope"].pop("trend", None))
 flat_keys = [v for f, v, i in flat["lamps"]["FOH L"]["intensity"] if fr["swivel_end"] < f < fr["walkin_start"]]
 r_flat = P.pearson(flat_keys, env_vals[:len(flat_keys)])
 case("NEG: gain 0 gives a flat lamp that does NOT follow the music (r < 0.5)", r_flat < 0.5, r_flat)
@@ -234,8 +250,11 @@ short, _ = plan_with(lambda c: [c["moments"].__setitem__(k, {"value": v}) for k,
 case("NEG: opening_end 92 s (track 96.34 s) fails music-fits", has(short["failures"], "music-fits"), short["failures"])
 
 # ---- 8. house warmers: off for the Opening ONLY (Gary 4 Oct) -> this tool never disables them
-case("house warmers: default config passes, write is False, and the 'not dark' warning is raised",
-     not has(base["failures"], "house-warmers") and base["house_warmers"]["write"] is False
+# 5 Oct ~16:25: write is now True (the cone rule on the warmers); the ONLY write paths are enabled + inner cone,
+# and with mechanism null the warmers still burn (the 'not dark' warning stays).
+case("house warmers: default config passes, writes only enabled+inner cone, and the 'not dark' warning is raised",
+     not has(base["failures"], "house-warmers") and base["house_warmers"]["write"] is True
+     and base["house_warmers"]["write_paths"] == ["enabled", "lighting.inner_cone_angle_degrees"]
      and any("NOT dark" in w for w in base["house_warmers"]["warnings"]), base["house_warmers"])
 hw, _ = plan_with(lambda c: c["house_warmers"].__setitem__("disable", True))
 case("NEG: house_warmers.disable true is refused (would kill them in P01 too)",
@@ -268,14 +287,19 @@ case("NEG: the same check on a copy with the gate removed reports False",
 apply_src = open(os.path.join(HERE, "opening_sequence_apply.py"), encoding="utf-8").read()
 
 
-def writes_warmer_enabled(src):
-    return 'set_editor_property("enabled"' in src or "def set_warmers(" in src
+def warmer_writes_gated(src):
+    """5 Oct ~16:25: the apply tool may now write the warmers, but ONLY through write_warmers(), whose values come
+    from the planner model (warmer_targets -> warmers_apply_state / warmers_revert_state): exactly one Enabled
+    write, taking the model's value, and no legacy set_warmers helper."""
+    return (src.count('set_editor_property("enabled"') == 1
+            and 'a.set_editor_property("enabled", bool(t["enabled"]))' in src
+            and 'planner["warmer_targets"](cfg' in src and "def set_warmers(" not in src)
 
 
-case("SOURCE: opening_sequence_apply.py has no Enabled write and no set_warmers helper",
-     not writes_warmer_enabled(apply_src))
-case("NEG: a copy with the old write restored is caught",
-     writes_warmer_enabled(apply_src + '\n    a.set_editor_property("enabled", False)\n'))
+case("SOURCE: opening_sequence_apply.py writes warmer Enabled only via write_warmers() from the planner targets",
+     warmer_writes_gated(apply_src))
+case("NEG: a copy with an extra hard-coded Enabled write is caught",
+     not warmer_writes_gated(apply_src + chr(10) + '    a.set_editor_property("enabled", False)' + chr(10)))
 
 # ---- 9. strobe flicker (Gary 5 Oct ~15:15: start on the entry; 'brutal with a bit of that strobe falloff')
 FL = CFG["flicker"]
@@ -497,8 +521,8 @@ vals = per_frame(lp["intensity"], lp["flicker_end"], fr["swivel_end"])
 idle_cd = FL["idle_level"] * 1740.0
 case("RISE: FOH L holds the dim landing until swivel_start, then rises monotonically to swivel_end",
      all(abs(v - idle_cd) < 1e-9 for v in vals[:fr["swivel_start"] - lp["flicker_end"] + 1])
-     and all(b >= a - 1e-9 for a, b in zip(vals, vals[1:])) and vals[-1] > idle_cd * 2.0, (vals[0], vals[-1]))
-env_lvl = 1740.0 * P.envelope_scale(P.env_at(fr["swivel_end"] / 25.0, rate, env), ENV)
+     and all(b >= a - 1e-9 for a, b in zip(vals, vals[1:])) and vals[-1] > idle_cd * 1.4, (vals[0], vals[-1]))
+env_lvl = 1740.0 * P.envelope_scale(P.env_at(fr["swivel_end"] / 25.0, rate, env), ENV) * trend_mult(fr["swivel_end"])
 case("RISE: FOH L arrives at the envelope's own level at swivel_end (%.1f cd)" % env_lvl,
      abs(vals[-1] - env_lvl) < 1e-6, (vals[-1], env_lvl))
 old_rise, _ = plan_with(lambda c: c["envelope"].pop("rise_from"))
@@ -513,6 +537,99 @@ case("RECORD: swivel_end JSON 1250 wins over last APPLY %d (marker unmoved), no 
 pse, _ = plan_with(markers=dict(mk_rec, swivel_end=last_rec["swivel_end"] + 25), last=last_rec)
 case("NEG: a swivel_end marker dragged since the last APPLY + the JSON change -> CONFLICT (refused)",
      has(pse["failures"], "marker-conflict"), pse["failures"])
+
+# ---- 11. rig takeover (Gary 5 Oct ~16:25): warmers, cones, the FOH rise to the curtain
+# Warmer state model on attachment_state()-shaped dicts. Values MEASURED 4 Oct (light_guid_audit_20261004-121338.json):
+# enabled, 1740 cd, outer 33, inner 20.
+def warmer_state(label):
+    return {"guid": label, "label": label, "kind": "InfinityAttachmentKind.LIGHT", "enabled": True,
+            "lighting": {"intensity": 1740.0, "outer_cone_angle_degrees": 33.0, "inner_cone_angle_degrees": 20.0,
+                         "temperature_kelvin": 2800.0, "drama": {"strike_on_approach": False}},
+            "trigger_distance_cm": 800.0}
+
+
+W0 = {lab: warmer_state(lab) for lab in CFG["house_warmers"]["labels"]}
+live0 = {lab: {"enabled": st["enabled"], "inner": st["lighting"]["inner_cone_angle_degrees"],
+               "outer": st["lighting"]["outer_cone_angle_degrees"]} for lab, st in W0.items()}
+tg, tf = P.warmer_targets(CFG, live0)
+case("WARMER CONE: targets inner = outer - 3 = 30 on both warmers, Enabled untouched (mechanism null)",
+     tf == [] and all(t == {"enabled": True, "inner_cone_angle_degrees": 30.0} for t in tg.values()) and len(tg) == 2,
+     (tg, tf))
+W1 = P.warmers_apply_state(W0, tg)
+ch1 = P.warmers_changed_paths(W0, W1)
+case("WARMER CONE: the model changes ONLY lighting.inner_cone_angle_degrees on the two warmers",
+     sorted(ch1) == sorted("%s:lighting.inner_cone_angle_degrees" % lab for lab in W0), ch1)
+case("REVERT exact: warmers_revert_state(apply(original)) == original", P.warmers_revert_state(W1, W0) == W0)
+tampered = {lab: dict(st, lighting=dict(st["lighting"], inner_cone_angle_degrees=21.0)) for lab, st in W0.items()}
+case("NEG: REVERT to a tampered snapshot (inner 21) is detected", P.warmers_revert_state(W1, tampered) != W0)
+W1x = json.loads(json.dumps(W1))
+W1x[CFG["house_warmers"]["labels"][0]]["lighting"]["intensity"] = 0.0
+allowed = {"%s:%s" % (lab, ".".join(p)) for lab in W0 for p in P.WARMER_WRITE_PATHS}
+case("NEG: a write that also touched intensity falls outside WARMER_WRITE_PATHS (apply refuses it)",
+     bool(set(P.warmers_changed_paths(W0, W1x)) - allowed))
+_, tf35 = P.warmer_targets(CFG, {lab: dict(v, outer=35.0) for lab, v in live0.items()})
+case("NEG: a live outer cone of 35 (not the expected 33) refuses the cone write",
+     any("warmers-outer" in f for f in tf35), tf35)
+case("WARMERS (default): mechanism null -> warmers stay ENABLED and the planner warns the Opening is NOT dark",
+     all(t["enabled"] for t in tg.values()) and any("NOT dark" in w for w in base["house_warmers"]["warnings"]))
+nc, _ = plan_with(lambda c: c["house_warmers"].__setitem__("mechanism", "disable_show_attachment"))
+case("NEG: rig takeover (disable_show_attachment) WITHOUT p01_without_warmers_confirmed_by is refused",
+     has(nc["failures"], "house-warmers-p01"), nc["failures"])
+
+
+def takeover(c):
+    c["house_warmers"]["mechanism"] = "disable_show_attachment"
+    c["house_warmers"]["p01_without_warmers_confirmed_by"] = "TEST ONLY"
+
+
+tk, tkc = plan_with(takeover)
+tgo, tfo = P.warmer_targets(tkc, live0)
+Wo = P.warmers_apply_state(W0, tgo)
+case("WARMERS OFF (confirmed takeover): plan passes, both warmers Enabled False + inner 30, only allowed paths",
+     tk["failures"] == [] and tfo == []
+     and all(not st["enabled"] and st["lighting"]["inner_cone_angle_degrees"] == 30.0 for st in Wo.values())
+     and not set(P.warmers_changed_paths(W0, Wo)) - allowed, (tk["failures"], tgo))
+case("REVERT exact (takeover): Enabled and cone come back to the snapshot", P.warmers_revert_state(Wo, W0) == W0)
+case("NEG: the 'not dark' warning is gone only under the takeover (the check can tell the two apart)",
+     not any("NOT dark" in w for w in tk["house_warmers"]["warnings"]))
+# cones on the rig
+case("CONE: FOH L/R inner = 33 - 3 = 30 and Wash C 30 - 3 = 27 (cone_rule passes)",
+     P.cone_check(CFG) == [] and [(fx["name"], fx["inner_cone_deg"]) for fx in CFG["fixtures"] if fx["enabled"]]
+     == [("FOH L", 30.0), ("FOH R", 30.0), ("Wash C", 27.0)])
+cc, _ = plan_with(lambda c: c["fixtures"][0].__setitem__("inner_cone_deg", 20.0))
+case("NEG: FOH L back at inner 20 is refused (cone-rule)", has(cc["failures"], "cone-rule"), cc["failures"])
+
+
+def maxima_to_release(plan, nm):
+    lp = plan["lamps"][nm]
+    a, b = plan["frames"]["swivel_end"], plan["frames"]["curtain_release"]
+    v = per_frame(lp["intensity"], a, b)
+    mx = [(a + i, v[i]) for i in range(1, len(v) - 1) if v[i] >= v[i - 1] and v[i] > v[i + 1]]
+    return mx, v
+
+
+for nm in base["lamps"]:
+    mx, v = maxima_to_release(base, nm)
+    peak_i = max(range(len(v)), key=lambda i: v[i])
+    case("TREND: %s local maxima rise to the release %s and the peak is within 1 s of the release"
+         % (nm, [round(x / base["lamps"][nm]["nominal_cd"], 3) for _, x in mx]),
+         all(b[1] > a[1] for a, b in zip(mx, mx[1:])) and len(v) - 1 - peak_i <= 25
+         and all(x < v[peak_i] for _, x in mx), (mx, peak_i, len(v)))
+nt, _ = plan_with(lambda c: c["envelope"].pop("trend"))
+mxn, _ = maxima_to_release(nt, "FOH L")
+case("NEG: without the trend FOH L's maxima do NOT rise to the release %s"
+     % [round(x / 1740.0, 3) for _, x in mxn], not all(b[1] > a[1] for a, b in zip(mxn, mxn[1:])))
+rel = fr["curtain_release"]
+case("TREND: the multiplier is %.2f at swivel_end and %.2f at the release (then held)"
+     % (trend_mult(fr["swivel_end"]), trend_mult(rel)), abs(trend_mult(fr["swivel_end"]) - TR["start"]) < 1e-12
+     and abs(trend_mult(rel) - TR["end"]) < 1e-12 and trend_mult(rel + 100) == TR["end"])
+bad_tr, _ = plan_with(lambda c: c["envelope"]["trend"].__setitem__("start", 1.2))
+case("NEG: a falling trend (start 1.2 > end 1.0) is refused (trend-rises)", has(bad_tr["failures"], "trend-rises"),
+     bad_tr["failures"])
+lpL = base["lamps"]["FOH L"]
+wk_end = per_frame(lpL["intensity"], fr["walkin_start"], fr["opening_end"])
+case("AFTER THE CURTAIN: FOH L ends where the walk-in takes it (%.1f cd at opening_end = end_light_level x nominal)"
+     % wk_end[-1], abs(wk_end[-1] - CFG["walkin"]["end_light_level"] * 1740.0) < 1e-9)
 
 passed = sum(1 for _, ok in RESULTS if ok)
 print("\nRESULT %d/%d passed" % (passed, len(RESULTS)))
