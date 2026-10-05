@@ -1,0 +1,231 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreSceneExitBlock-S5-20261004-214954",
+ "backup_files": [
+  "E:/PussStage/Backups\\PreSceneExitBlock-S5-20261004-214954\\LS_DevScene_05.uasset",
+  "E:/PussStage/Backups\\PreSceneExitBlock-S5-20261004-214954\\L_InfinityStage_V1VerticalSlice.umap",
+  "E:/PussStage/Backups\\PreSceneExitBlock-S5-20261004-214954\\DA_InfinityStage_V1Show.uasset"
+ ],
+ "binding_guids": {
+  "camera": "696D852142AE2F5364753CB966C2A22B",
+  "card": "EFB9A5354E2C40ED463C35AD0B8ADFE1",
+  "component": "32F6738C4C1730D5CFD9A59B4384ED3D",
+  "curtain": "11E25F534B6CDD32207E91A5BD379E69",
+  "leaf": "150536554FA3C608C848B18E869C15DC"
+ },
+ "census_after": {
+  "content": [],
+  "maps": []
+ },
+ "cue_guid": "730D67269F425DDC45C72A867BA04217",
+ "cut_range": [
+  1225,
+  2991
+ ],
+ "decided_by": "Gary, 4 Oct questionnaire: 'Yes apply tonight' (exit block)",
+ "decision": "curtain over door + ~60 s shadow-puppet hold, then through the door; S3 excluded (backdrop question open)",
+ "labels": {
+  "camera": "S5 Exit Block Camera",
+  "card": "S5 Exit Block Puppet Screen",
+  "curtain": "S5 Exit Block Curtain"
+ },
+ "markers_before": [],
+ "report": {
+  "block_params": {
+   "box_margin_cm": 10.0,
+   "card_frame_margin_cm": 10.0,
+   "card_gap_cm": 1.0,
+   "card_height_cm": 270.0,
+   "card_material": "/Engine/BasicShapes/BasicShapeMaterial",
+   "card_thickness_cm": 1.0,
+   "card_width_cm": 480.0,
+   "curtain_cover_margin_cm": 50.0,
+   "curtain_floor_gap_cm": 2.0,
+   "curtain_height_cm": 600.0,
+   "curtain_material": "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop",
+   "curtain_offset_cm": 60.0,
+   "curtain_out_s": 3.0,
+   "curtain_thickness_cm": 2.0,
+   "curtain_width_cm": 700.0,
+   "puppet_hold_s": 60.0,
+   "raise_margin_cm": 50.0,
+   "start_at_last_interior_end": false
+  },
+  "card": {
+   "center": [
+    14937.45,
+    0.0,
+    180.0
+   ],
+   "size": [
+    1.0,
+    480.0,
+    270.0
+   ]
+  },
+  "content_end": 1225,
+  "curtain": {
+   "center": [
+    14939.95,
+    0.0,
+    302.0
+   ],
+   "size": [
+    2.0,
+    700.0,
+    600.0
+   ]
+  },
+  "curtain_out": [
+   2725,
+   2800
+  ],
+  "door_start_frame": 2838,
+  "exit_hold": [
+   2991,
+   3016
+  ],
+  "exit_move_report": {
+   "door_start_frame": 2838,
+   "exit_hold_frames": 25,
+   "final_root_cm": [
+    15026.0,
+    0.0,
+    180.0
+   ],
+   "min_leaf_clearance_cm": 100.27762057689553,
+   "on_screen_s_including_exit_hold": 8.64,
+   "option": "B",
+   "params": {
+    "black_hold_s": 0.5,
+    "door_open_s": 3.0,
+    "ease_in_s": 1.0,
+    "ease_out_s": 0.8,
+    "final_gap_cm": 25.0,
+    "focal_mm": 35.0,
+    "frame_fill_margin_cm": 10.0,
+    "hinge_side": "left",
+    "hold_closed_s": 1.5,
+    "min_leaf_clearance_cm": 40.0,
+    "open_deg": 100.0,
+    "option": "B",
+    "s3_backdrop_cut": false,
+    "seat_distance_cm": 900.0,
+    "speed_cm_s": 250.0,
+    "walk_delay_s": 1.0
+   },
+   "scene_end_frame": 3016,
+   "seat_root_cm": [
+    14099.95,
+    0.0,
+    180.0
+   ],
+   "total_s": 7.64,
+   "walk_cm": 926.0499999999993,
+   "walk_s": 4.604199999999997,
+   "window": [
+    2800,
+    2991
+   ]
+  },
+  "fps": 25.0,
+  "grow_frames": 1791,
+  "grow_s": 71.64,
+  "move": [
+   2800,
+   2991
+  ],
+  "move_params": {
+   "black_hold_s": 0.5,
+   "door_open_s": 3.0,
+   "ease_in_s": 1.0,
+   "ease_out_s": 0.8,
+   "final_gap_cm": 25.0,
+   "focal_mm": 35.0,
+   "frame_fill_margin_cm": 10.0,
+   "hinge_side": "left",
+   "hold_closed_s": 1.5,
+   "min_leaf_clearance_cm": 40.0,
+   "open_deg": 100.0,
+   "option": "B",
+   "s3_backdrop_cut": false,
+   "seat_distance_cm": 900.0,
+   "speed_cm_s": 250.0,
+   "walk_delay_s": 1.0
+  },
+  "new_end": 3016,
+  "puppet": [
+   1225,
+   2725
+  ],
+  "raise_cm": 498.0,
+  "w0": 1225,
+  "w1": 2991
+ },
+ "root_cuts_after": [
+  {
+   "active": true,
+   "end": 1225,
+   "guid": "32AAB485214E0D12C0CEA582BE1DA818",
+   "handoff": true,
+   "label": "Scene 5 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "start": 0
+  },
+  {
+   "active": true,
+   "end": 3016,
+   "guid": "421B7B6E8C4CA1CDDBF4059362A29522",
+   "handoff": true,
+   "label": "Scene 5 \u2014 External Sound \u2014 Exit Handoff Camera",
+   "start": 2991
+  },
+  {
+   "active": true,
+   "end": 2991,
+   "guid": "696D852142AE2F5364753CB966C2A22B",
+   "handoff": false,
+   "label": "S5 Exit Block Camera",
+   "start": 1225
+  }
+ ],
+ "root_cuts_before": [
+  {
+   "active": true,
+   "end": 2991,
+   "guid": "32AAB485214E0D12C0CEA582BE1DA818",
+   "handoff": true,
+   "label": "Scene 5 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "start": 0
+  },
+  {
+   "active": true,
+   "end": 3016,
+   "guid": "421B7B6E8C4CA1CDDBF4059362A29522",
+   "handoff": true,
+   "label": "Scene 5 \u2014 External Sound \u2014 Exit Handoff Camera",
+   "start": 2991
+  }
+ ],
+ "root_pose": {
+  "location": [
+   47090.90125,
+   320000.0,
+   0.0
+  ],
+  "rotation": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "scale": [
+   1.0,
+   1.0,
+   1.0
+  ]
+ },
+ "run": "20261004-214954",
+ "scene": 5,
+ "schema_version": 1,
+ "sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_05",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}

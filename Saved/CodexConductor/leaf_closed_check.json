@@ -1,0 +1,56 @@
+{
+ "run": "SXR6-20261005-003316",
+ "scenes": [
+  6
+ ],
+ "rows": [
+  {
+   "scene": 6,
+   "leaf": "S6 Hangar Exit Door Leaf",
+   "expected": {
+    "location": [
+     6024.95,
+     0.0,
+     225.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     0.5,
+     2.99,
+     4.49
+    ]
+   },
+   "live": {
+    "parent": "S6 Hangar Root",
+    "location": [
+     6024.949999999997,
+     0.0,
+     225.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     0.5,
+     2.99,
+     4.49
+    ],
+    "mobility": "<ComponentMobility.MOVABLE: 2>"
+   },
+   "verdict": "CLOSED",
+   "reasons": [],
+   "leaf_bound_in_scene": false,
+   "exit_block_record_present": false
+  }
+ ],
+ "census": {
+  "content": [],
+  "maps": []
+ }
+}
