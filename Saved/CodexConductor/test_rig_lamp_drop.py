@@ -292,6 +292,29 @@ def _():
     assert len(M.build_plan(plain, "P01")["targets"]) == 1
 
 
+@case("5 Oct: explicit non-score approval + tagged record (P04 LOOK lamps); controls")
+def _():
+    plain = world1("P04", look_bays=6)
+    looks_only = M.build_plan(plain, "P04", {"label_regex": "LOOK .*TOP_[LR]$"})
+    assert len(looks_only["targets"]) == 6 and len(looks_only["non_score_targets"]) == 6
+    folder = tempfile.mkdtemp()
+    try:
+        M.ALLOW_NON_SCORE_BECAUSE, M.RECORD_TAG = "", ""
+        refuses("NON_SCORE_TARGETS", M.check_apply_gate, "P04", looks_only, [], folder)   # control: no approval
+        M.ALLOW_NON_SCORE_BECAUSE = "Gary 5 Oct: rehang to correct physical position on girders"
+        untagged = M.record_path("P04", folder)
+        M.RECORD_TAG = "LOOKS"
+        tagged = M.check_apply_gate("P04", looks_only, [], folder)                         # approved: passes
+        assert tagged.endswith("rig_lamp_drop_record_P04_LOOKS.json") and tagged != untagged
+        open(untagged, "w").write("{}")                                                    # score batch's record
+        M.check_apply_gate("P04", looks_only, [], folder)                                  # does not block the tag
+        open(tagged, "w").write("{}")
+        refuses("ACTIVE_REVERT_RECORD_EXISTS", M.check_apply_gate, "P04", looks_only, [], folder)  # control
+    finally:
+        M.ALLOW_NON_SCORE_BECAUSE, M.RECORD_TAG = "", ""
+        shutil.rmtree(folder)
+
+
 @case("non-score labels (P04 looks) match TOP_[LR]$: listed, APPLY refuses; narrowed regex control")
 def _():
     plain = world1("P04", look_bays=6)

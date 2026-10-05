@@ -40,4 +40,6 @@ runpy.run_path(os.path.join(HERE, "rig_lamp_drop.py"), init_globals={
     "RIG_LAMP_DROP_TOP_CONVENTION": args.get("top_convention", "BOX"),
     "RIG_LAMP_DROP_EXPECTED_TARGETS": args.get("expected_targets"),
     "RIG_LAMP_DROP_EXPECTED_DROP_CM": args.get("expected_drop_cm"),
+    "RIG_LAMP_DROP_RECORD_TAG": args.get("record_tag", ""),
+    "RIG_LAMP_DROP_ALLOW_NON_SCORE_BECAUSE": args.get("allow_non_score_because", ""),
 })

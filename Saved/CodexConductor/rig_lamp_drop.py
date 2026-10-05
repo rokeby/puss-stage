@@ -121,8 +121,13 @@ def passage_names(passage):
             "actor_prefix": PASSAGE_ACTOR_PREFIX_FMT % number}
 
 
+RECORD_TAG = ""
+ALLOW_NON_SCORE_BECAUSE = ""  # non-empty = an explicit, quoted approval to move non-score lamps (recorded in the report)            # 5 Oct: a second batch in one passage (e.g. P04 LOOK lamps) gets its own record "_<TAG>"
+
+
 def record_path(passage, folder=None):
-    return os.path.join(folder or HERE, "rig_lamp_drop_record_%s.json" % passage_names(passage)["key"])
+    tag = ("_" + RECORD_TAG) if RECORD_TAG else ""
+    return os.path.join(folder or HERE, "rig_lamp_drop_record_%s%s.json" % (passage_names(passage)["key"], tag))
 
 
 def report_path(passage, mode, run, folder=None):
@@ -665,7 +670,9 @@ def check_apply_gate(passage, plan, unacked, folder=None):
     require(plan["passage"] == passage_names(passage)["key"], "PLAN_PASSAGE_MISMATCH|" + str(plan["passage"]))
     require(not os.path.exists(path), "ACTIVE_REVERT_RECORD_EXISTS|" + path)
     require(not unacked, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacked))
-    require(not plan["non_score_targets"], "NON_SCORE_TARGETS|narrow label_regex|" + ";".join(plan["non_score_targets"]))
+    require(not plan["non_score_targets"] or ALLOW_NON_SCORE_BECAUSE,
+            "NON_SCORE_TARGETS|narrow label_regex (or set allow_non_score_because with Gary's words)|"
+            + ";".join(plan["non_score_targets"]))
     return path
 
 
@@ -1079,6 +1086,12 @@ def _run(mode, passage, label_regex, ack_records, convention, expected_targets, 
 
 def main():
     g = globals()
+    global RECORD_TAG, ALLOW_NON_SCORE_BECAUSE
+    RECORD_TAG = str(g.get("RIG_LAMP_DROP_RECORD_TAG", "") or "")
+    require(RECORD_TAG == "" or RECORD_TAG.isalnum(), "RECORD_TAG_INVALID|" + RECORD_TAG)
+    ALLOW_NON_SCORE_BECAUSE = str(g.get("RIG_LAMP_DROP_ALLOW_NON_SCORE_BECAUSE", "") or "")
+    if ALLOW_NON_SCORE_BECAUSE:
+        unreal.log("RIG_LAMP_DROP_NON_SCORE_ALLOWED|tag=%s|because=%s" % (RECORD_TAG, ALLOW_NON_SCORE_BECAUSE))
     mode, passage, convention = check_args(g.get("RIG_LAMP_DROP_MODE", "DRY"), g.get("RIG_LAMP_DROP_PASSAGE"),
                                            g.get("RIG_LAMP_DROP_CONFIRM"),
                                            g.get("RIG_LAMP_DROP_LABEL_REGEX", DEFAULT_LABEL_REGEX),
