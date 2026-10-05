@@ -97,10 +97,11 @@ def curtain(theme, palette):
 
 
 write_job("48_ALL_passage_end_curtains", "48 · Painted curtains at the end of each passage (Gary 5 Oct)",
-  "One per passage: the curtain seen at the END of the passage before the hangar comes up (Gary 5 Oct). It is NOT the shadow-play curtain (that one is the red velvet drop that falls in the hangar and matches the next passage mouth). Not cut out: a full rectangle.",
-  [("P01 end (to Scene 1)", curtain("a warm fairytale garden gate framed by painted rose swags, a far golden park in the centre", "honey, rose, gilt, soft green")),
-   ("P02 end (to the shrine)", curtain("a lurid jungle clearing framed by painted creepers, a misty stone pagoda glimpsed in the centre", "acid green, bruise purple, oxblood")),
-   ("P03 end (to the shore)", curtain("a pale whitewashed convent window opening onto a bright cold shore with standing stones", "cool white, straw yellow, pale sky")),
-   ("P04 end (to the school)", curtain("a ruined church-school interior framed by leaden columns, cold light falling on an empty floor", "leaden grey, black lead, cold white")),
-   ("P05 end (to the village)", curtain("sugared pastel mountains around a tiny storybook village under big cream clouds", "cream, sky blue, rose, fresh green")),
-   ("P06 end (to the void)", curtain("a grand chinoiserie pavilion half-hidden by scaffolding and black netting, the painting scorched at the edges", "faded gold, soot black, ember orange"))])
+  "One per passage: the curtain seen at the END of the passage before the hangar comes up. It must NOT show what is in the "
+  "coming scene. It is NOT the shadow-play curtain (the red velvet drop in the hangar). Not cut out: a full rectangle. "
+  "P06 has NO painted end curtain (Gary: only darkness, the curtain already on the ground on fire -- a staging/FX note).",
+  [("P01 end", curtain("overgrown vegetation swallowing an old railway track that curves away into the distance in strong one-point perspective", "honey, moss green, rust, soft gold")),
+   ("P02 end", curtain("a lurid jungle clearing, dense leaves framing an empty glade (no buildings)", "acid green, bruise purple, oxblood")),
+   ("P03 end", curtain("a pale whitewashed convent window opening onto a bright cold shore with standing stones", "cool white, straw yellow, pale sky")),
+   ("P04 end", curtain("a receding arcade of stone arches in strong one-point perspective, like a Baroque garden-arcade stage set, an empty floor between them", "leaden grey, black lead, cold white")),
+   ("P05 end", curtain("a deer sniffing a red, poisonous-looking toadstool in a bucolic meadow, mountains in the distance", "cream, sky blue, fresh green, one vivid red"))])

@@ -1,6 +1,9 @@
 """Write new Fuser job folders (SLOTS.md in the house §§ format) from a Python spec. Never overwrites an existing job."""
+import datetime
 import json
+import os
 import pathlib
+import shutil
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2] / "DerivedAssets" / "FlatV3" / "FuserQueue"
@@ -28,10 +31,14 @@ def pair(job_title, hand, subject_l, subject_r, avoid, aspect="portrait 1:2", st
 
 def write_job(job_id, title, notes, subs, inputs=()):
     d = ROOT / job_id
-    if d.exists():
+    overwrite = job_id in os.environ.get("FUSER_OVERWRITE", "").split(",")
+    if d.exists() and not overwrite:
         print("SKIP_EXISTS", job_id)
         return
-    (d / "results").mkdir(parents=True)
+    if overwrite and (d / "SLOTS.md").exists():
+        stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        shutil.copy2(d / "SLOTS.md", d / ("SLOTS.md.bak-" + stamp))
+    (d / "results").mkdir(parents=True, exist_ok=True)
     lines = ["# %s" % title, "", notes, ""]
     if inputs:
         lines += ["Inputs (Image node, in order):"] + ["- %s" % i for i in inputs] + [""]
