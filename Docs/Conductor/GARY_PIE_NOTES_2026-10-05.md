@@ -172,3 +172,14 @@
     - **Transitions:** the curtain sleight is on ALL of I1–I5 (I2–I5 applied 11:17–11:18 local; tails 451/463/62/62). I1's PILE hold is
       fixed (the fall would have wrapped at 77 s). Right lands on each transition (TB).
     - Camera Pilot keying works with the settle (KeysInsideCrossingSettle test).
+39. **Rig rise: the camera still snaps from cat view to the wider hangar view.** This is a hard camera cut inside the Scene. By-hand fix
+    given: tick Can Blend on the owning Camera Cuts track (the Scene's or the nested shot's) and ease into the wide cut, ~3 s.
+    Gary will try it on S1 and report the length; the conductor copies it to the other Scenes.
+40. **END-OF-DAY SESSION, final order (W&T):**
+    1. S3 wall probe (<1 min, read-only);
+    2. P04 gallery re-place, FV3D-20261006-02 (~15–20 min);
+    3. hand prints import + place (~20–30 min) + 1 PIE still;
+    4. holes/outlines per passage, P03→P05→P01→P02→P04→P06 (~45–60 min). Runbook:
+       DerivedAssets/FlatV3/Review_2026-10-05/holes/hf/RUNBOOK.md. 85 meshes; flags for Gary: cvl6 trims card tops
+       (P02 SET16_L −37.8 cm, SET04_R −13.5 cm); 3 still crinkly; the P02 _C top borders are excluded.
+    Before step 2: P04 "as-is" stills (conductor).
