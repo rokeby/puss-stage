@@ -875,6 +875,86 @@
      }
     }
    }
+  },
+  "P02_FAILING_STAGE": {
+   "base": "THEATRICAL",
+   "intent": "Gary 5 Oct: P02's stage lights on a dirty supply - the lurid-pop rig with tops and key on the FAULT flicker; the FAILING generator then dims it bay by bay, drops circuits, raises the stutter and turns lamps off behind the camera. What is left is the theatre's cold working light (the rig's fluorescent tubes, a structure layer, not this score)",
+   "instrument_overrides": {
+    "TOP_L": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.66
+     ],
+     "temperature_kelvin": 2050.0,
+     "intensity": 60.0,
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+     }
+    },
+    "TOP_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.66
+     ],
+     "temperature_kelvin": 2000.0,
+     "intensity": 40.0
+    },
+    "LOW_SIDE_L_KEY": {
+     "color_rgb_linear": [
+      1.0,
+      0.9,
+      0.62
+     ],
+     "temperature_kelvin": 2000.0,
+     "intensity": 480.0,
+     "flicker": {
+      "mode": "FAULT",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Fault"
+     }
+    },
+    "LOW_SIDE_R_FILL": {
+     "color_rgb_linear": [
+      0.1,
+      1.0,
+      0.35
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 120.0
+    },
+    "BEAM_R": {
+     "color_rgb_linear": [
+      1.0,
+      0.0,
+      0.6
+     ],
+     "temperature_kelvin": 6500.0,
+     "intensity": 9000.0,
+     "inner_cone_deg": 4.0,
+     "outer_cone_deg": 14.0,
+     "volumetric_scattering": 2.5,
+     "aim_wing_side": "RIGHT",
+     "aim_offset_pair_cm": [
+      0.0,
+      -100.0,
+      600.0
+     ]
+    },
+    "PRACTICAL_CLAMP": {
+     "color_rgb_linear": [
+      1.0,
+      0.85,
+      0.55
+     ],
+     "temperature_kelvin": 2100.0,
+     "flicker": {
+      "mode": "BUZZ",
+      "material": "/Game/InfinityStage/Lighting/MI_LF_Flicker_Buzz"
+     }
+    }
+   }
   }
  },
  "passages": {
@@ -1130,8 +1210,13 @@
    "pinned_cue_guids": {},
    "shadow_policy": "ALL",
    "max_consecutive_lit": 6,
-   "max_consecutive_lit_exempt": [],
-   "intent": "industrial night: sodium INDUSTRIAL bays (fence/industrial sets) against LURID_POP bays (one saturated gel on part of a plant wing: magenta / acid green / oxblood), dark gaps, then a pale MYSTIC run to the shrine. Ordinals are NOT yet matched to the P02 redo's plant/fence order (W&T) - re-cycle once that order exists",
+   "max_consecutive_lit_exempt": [
+    [
+     12,
+     19
+    ]
+   ],
+   "intent": "Gary 5 Oct: 'already more broken'. Bays 1-11 the stage rig still works (theatrical + lurid pops on the organic wings); from ~bay 12 the stage lights blink and go out (FAILING); what remains is the theatre's cold fluorescent working light on the lurid wings (rig tube layer, occasional, dingy office feel) and the window car light trial; bays 20-23 the mystic shrine run (kept; open question). Previous 'industrial night' score: lighting_scores.json.bak-20261005-preP02rescore",
    "retain": [
     {
      "scope": "passage",
@@ -1144,24 +1229,20 @@
     {
      "bays": [
       1,
-      19
+      11
      ],
      "cycle": [
       {
-       "look": "INDUSTRIAL",
-       "level": 0.6
+       "look": "THEATRICAL",
+       "level": 0.9
       },
       {
        "look": "P02_LURID_POP",
        "level": 0.9
       },
       {
-       "look": "GAP",
-       "level": 1.0
-      },
-      {
-       "look": "INDUSTRIAL",
-       "level": 0.8,
+       "look": "THEATRICAL",
+       "level": 0.85,
        "mirror": [
         "LOW_SIDE",
         "BEAM"
@@ -1169,7 +1250,7 @@
       },
       {
        "look": "P02_LURID_POP",
-       "level": 0.9,
+       "level": 0.85,
        "mirror": [
         "LOW_SIDE",
         "BEAM"
@@ -1191,34 +1272,94 @@
        }
       },
       {
-       "look": "INDUSTRIAL",
-       "level": 0.5
+       "look": "THEATRICAL",
+       "level": 0.8
       },
       {
        "look": "GAP",
        "level": 1.0
+      }
+     ]
+    },
+    {
+     "bays": [
+      12,
+      19
+     ],
+     "generator": "FAILING",
+     "look": "P02_FAILING_STAGE",
+     "level_from": 0.85,
+     "level_to": 0.08,
+     "stutter_from": 0.25,
+     "stutter_to": 0.95,
+     "mirror_alternate": [
+      "LOW_SIDE",
+      "PRACTICAL"
+     ],
+     "slot_failures": [
+      {
+       "at_fraction": 0.15,
+       "slots": [
+        "BEAM_R"
+       ]
       },
       {
-       "look": "P02_LURID_POP",
-       "level": 0.85,
+       "at_fraction": 0.35,
+       "slots": [
+        "TOP_R"
+       ]
+      },
+      {
+       "at_fraction": 0.55,
+       "slots": [
+        "TOP_L"
+       ]
+      },
+      {
+       "at_fraction": 0.75,
+       "slots": [
+        "LOW_SIDE_R_FILL"
+       ]
+      }
+     ],
+     "after_pass_steps": [
+      {
+       "at_fraction": 0.0,
+       "after_pass": "HOLD"
+      },
+      {
+       "at_fraction": 0.4,
+       "after_pass": "DECAY",
+       "after_pass_distance_cm": 300.0,
+       "decay_distance_cm": 900.0
+      },
+      {
+       "at_fraction": 0.75,
+       "after_pass": "EXTINGUISH",
+       "after_pass_distance_cm": 150.0
+      }
+     ],
+     "colour_steps": [
+      {
+       "at_fraction": 0.5,
        "overrides": {
-        "BEAM_R": {
+        "LOW_SIDE_L_KEY": {
          "color_rgb_linear": [
-          0.7,
-          0.02,
-          0.05
+          0.85,
+          0.95,
+          0.85
          ],
-         "temperature_kelvin": 3000.0
+         "temperature_kelvin": 4800.0
+        },
+        "PRACTICAL_CLAMP": {
+         "color_rgb_linear": [
+          0.9,
+          1.0,
+          0.88
+         ],
+         "temperature_kelvin": 4300.0
         }
        }
-      },
-      {
-       "look": "INDUSTRIAL",
-       "level": 0.7,
-       "mirror": [
-        "LOW_SIDE",
-        "BEAM"
-       ]
       }
      ]
     },
