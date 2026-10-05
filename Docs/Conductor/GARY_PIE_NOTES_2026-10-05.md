@@ -64,3 +64,20 @@
 17. **P03 floor "needs raising/replacing with the shiny one".** P03's slab WAS raised to +0.5 at 01:55 [measured], but
     it kept its matte oak herringbone. → the floor tool now takes "passage": P03 too and copies P01's waxed walnut.
 18. **P03 also very flat; "the lighting here is pretty much just fog".** → the fog bench should run on P03 as well as P02.
+19. **"We should basically never see the dusky horizon; the outer world of the stage can be entirely black, so the rig
+    emerges to swallow us from nothing into its rigging light."** Asked where: his answer, "keep the possibility of a sky,
+    but shouldn't S03 be 'artificial' lighting that creates the beach light?" → Plan: black void by default show-wide
+    (the Celestial rig's sun/moon/sky-light intensities 0, fog colours black, stars off; values recorded and restorable,
+    so the sky remains possible), and S3's beach light made by stage fixtures (an "artificial sun" key plus cyc washes),
+    not the celestial sun. Runs after PIE; S3's lighting is a first pass for his review.
+20. **TB transport patch is back (held, unbuilt).** Behaviour choice to confirm in PIE: Right from a held segment end LANDS
+    on the transition and arms it (the view may not change); the next Right is its GO and plays it (GO 10 still holds).
+    So repeated Right walks every segment once. `auto_play_sequence_on_advance` = false for rehearsal, true restores
+    the old auto-play for performance.
+21. **S3: "looking better but severely needs lighting and directing."**
+    - **Marble:** shinier, wetter-looking, more light, so it reads as white walls → re-tune with s3_marble_tune.py (roughness
+      down, specular up, albedo up) plus light. A look write: stills before/after.
+    - **Stained hands on:** the side-wall hand prints (beat sheet :114-121; Fuser job 24 → decal atlas + placement table).
+      Asked W&T for status.
+    - **"Back door needs removal - it doesn't work"** → hide/remove S3's back door actor(s) (identify after PIE; earlier
+      decision "Scene 3: no door").
