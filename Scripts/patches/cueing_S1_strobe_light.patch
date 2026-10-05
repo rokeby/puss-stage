@@ -1,9 +1,9 @@
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp
 new file mode 100644
-index 0000000..67cecfc
+index 0000000..66e79c6
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,149 @@
 +#include "InfinityStageStrobeLight.h"
 +
 +#include "Components/PointLightComponent.h"
@@ -53,12 +53,17 @@ index 0000000..67cecfc
 +    PrimaryActorTick.bCanEverTick = true;
 +    // After Sequencer has evaluated the frame, so keyed settings and the Master clock are this frame's.
 +    PrimaryActorTick.TickGroup = TG_PostUpdateWork;
-+    Light = CreateDefaultSubobject<UPointLightComponent>(TEXT("Light"));
-+    RootComponent = Light;
++    // A plain, saved root carries the placement. The light is a TRANSIENT child
++    // (RF_Transient): its per-frame driven values can never be written by a level save.
++    USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
++    Root->SetMobility(EComponentMobility::Movable);
++    RootComponent = Root;
++    Light = CreateDefaultSubobject<UPointLightComponent>(TEXT("Light"), /*bTransient*/ true);
++    Light->SetupAttachment(Root);
 +    Light->SetMobility(EComponentMobility::Movable);
 +    Light->SetIntensityUnits(ELightUnits::Candelas);
 +    Light->SetCastShadows(false);   // cost: a strobe in an area should not pay for a shadow map
-+    Light->SetAttenuationRadius(1500.0f);
++    Light->SetAttenuationRadius(AttenuationRadiusCm);
 +}
 +
 +void AInfinityStageStrobeLight::Tick(const float DeltaSeconds)
@@ -127,6 +132,12 @@ index 0000000..67cecfc
 +    {
 +        return;
 +    }
++    // Runtime setters only (no Modify / PostEditChange): the editor preview never dirties
++    // the level, and the transient component is never saved.
++    if (!FMath::IsNearlyEqual(Light->AttenuationRadius, AttenuationRadiusCm))
++    {
++        Light->SetAttenuationRadius(AttenuationRadiusCm);
++    }
 +    // Switched off rather than set to zero between flashes, as Light Drama does.
 +    const bool bLit = Level > UE_KINDA_SMALL_NUMBER;
 +    if (Light->IsVisible() != bLit)
@@ -144,10 +155,10 @@ index 0000000..67cecfc
 +}
 diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h
 new file mode 100644
-index 0000000..c296564
+index 0000000..6ac6e7b
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,113 @@
 +#pragma once
 +
 +#include "CoreMinimal.h"
@@ -178,8 +189,16 @@ index 0000000..c296564
 +public:
 +    AInfinityStageStrobeLight();
 +
-+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Strobe")
++    /**
++     * Driven every frame (also in the editor preview), so it is TRANSIENT: never saved.
++     * A level save therefore cannot persist a mid-flash value; everything authored
++     * lives on the actor's own settings below.
++     */
++    UPROPERTY(VisibleAnywhere, Transient, BlueprintReadOnly, Category = "Strobe")
 +    TObjectPtr<UPointLightComponent> Light;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe", meta = (ClampMin = "1.0", Units = "cm"))
++    float AttenuationRadiusCm = 1500.0f;
 +
 +    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe")
 +    bool bStrobeEnabled = true;
@@ -255,12 +274,15 @@ index 0000000..c296564
 +}
 diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp
 new file mode 100644
-index 0000000..c287f25
+index 0000000..7cb74ad
 --- /dev/null
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,119 @@
 +#include "InfinityStageStrobeLight.h"
 +#include "Misc/AutomationTest.h"
++#include "Components/PointLightComponent.h"
++#include "Engine/World.h"
++#include "UObject/Package.h"
 +
 +#if WITH_DEV_AUTOMATION_TESTS
 +
@@ -335,6 +357,42 @@ index 0000000..c287f25
 +    Filter.Add(Passage);
 +    TestTrue(TEXT("Listed segment: active"), InfinityStageStrobe::IsActiveInSegment(Filter, Passage));
 +    TestFalse(TEXT("Control: unlisted segment: dark"), InfinityStageStrobe::IsActiveInSegment(Filter, Scene));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageStrobeEditorPreviewTest,
++    "InfinityStage.Strobe.EditorPreviewNeverPersists",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// Review (5 Oct): the editor preview drives the light every frame, so a level save
++// must never persist a mid-flash value, and the preview must not dirty the level.
++bool FInfinityStageStrobeEditorPreviewTest::RunTest(const FString& Parameters)
++{
++    const FProperty* LightProperty = AInfinityStageStrobeLight::StaticClass()->FindPropertyByName(TEXT("Light"));
++    const FProperty* PeakProperty = AInfinityStageStrobeLight::StaticClass()->FindPropertyByName(TEXT("PeakIntensity"));
++    TestTrue(TEXT("The driven light component is Transient (never saved)"),
++        LightProperty && LightProperty->HasAnyPropertyFlags(CPF_Transient));
++    TestTrue(TEXT("Control: the authored peak IS saved"),
++        PeakProperty && !PeakProperty->HasAnyPropertyFlags(CPF_Transient));
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStageStrobeLight* Strobe = World->SpawnActor<AInfinityStageStrobeLight>();
++    TestTrue(TEXT("The light object itself is RF_Transient, so a save skips it"),
++        Strobe->Light && Strobe->Light->HasAnyFlags(RF_Transient));
++    TestFalse(TEXT("Control: the root, which carries the placement, is saved"),
++        Strobe->GetRootComponent() && Strobe->GetRootComponent()->HasAnyFlags(RF_Transient));
++    Strobe->PeakIntensity = 12345.0f;
++    Strobe->PeriodSeconds = 0.05f;   // short, so a few ticks cross flashes and gaps
++    UPackage* Package = World->GetOutermost();
++    Package->SetDirtyFlag(false);
++    for (int32 Tick = 0; Tick < 20; ++Tick)
++    {
++        Strobe->Tick(0.016f);
++    }
++    TestEqual(TEXT("Preview ticks leave the authored peak unchanged"), Strobe->PeakIntensity, 12345.0f);
++    TestFalse(TEXT("Preview ticks do not dirty the level package"), Package->IsDirty());
++    World->DestroyWorld(false);
 +    return true;
 +}
 +
