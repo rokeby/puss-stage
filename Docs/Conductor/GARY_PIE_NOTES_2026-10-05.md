@@ -44,3 +44,14 @@
     their first frame (new `bAutoPlaySequenceOnAdvance`, default false). Needs a build window (editor closed).
     Workaround until the build: put the Master playhead at Interaction 1's start in Sequencer and use PIE Starts At
     Playhead (inferred to work; not tested).
+11. **P02 "needs a lot of work, maybe mostly lighting; wings look quite flat."** Floor = lowest-hanging fruit: "the wooden
+    waxed shiny floor, not the slats" → **P01's walnut herringbone** (his pick). Tool `p02_floor_walnut.py` ready (raises
+    P02's four slabs above the boards and copies P01's slab material). Runs after PIE.
+12. **Fog / flatness** ("a big blur of light … layered flat foggy lit pieces look quite bad … lack of reflectivity").
+    He chose ALL tests: A haze only on hero beams, B low ground mist, C rake the wings, D lock exposure, plus E reflectivity
+    (his addition). Restorable P02 bench being written (`p02_fog_bench.py`), two bays (~8 and ~15), stills per variant.
+13. **"The car drive-by lighting is a good start in P02. Can the chain-link fence be a shadow actor?"** Yes: a masked
+    chain-link panel between the car and the wings throws a moving diamond-mesh shadow. The rig-fence patch (UF) is
+    already set to cast shadows (default true), and its panels sit on the column line, between the car (2400 cm out) and the
+    wings. To check at build: the FenceBay material's masked shadow, plus the cost of a masked shadow from a moving light
+    (VSM re-render each frame) [inferred].
