@@ -193,3 +193,22 @@ git apply Scripts/patches/cueing_A1_attachment_binding.patch Scripts/patches/cue
 - **N3. Documented.** Re-arming needs the playhead strictly *before* the settle frame. A jump that lands exactly on the settle frame, then plays, will not stop at that GO again.
 - **M1 test depth. Not changed.** `EndFastForward` returns NoPlayer before it reaches the hold check, and the hold state is private, so an offline test of the function itself would need a test seam. It is verified in the window instead: hold RIGHT into a GO, release, and the show must still be held.
 - **M4, M5, S8.** Measured in the window, as stated in round 2. The cache-only claim is downgraded to **UNCLEAR**: the header only says the call does not clear the cache. Prove it with a nested Choreo binding before trusting the guard.
+
+## M4 follow-up: the capture revert (5 Oct, offline)
+
+**What happened.** In the M4 probe, the second `set_editor_property("light_color", white)` logged neither `INFINITY_STAGE_ATTACHMENT_LIGHT_UPDATED` nor any `INFINITY_CAPTURE_*` line.
+
+**What the code shows** [decl, `InfinityStageEditorModule.cpp` HandleObjectPropertyChanged]:
+- Every silent early return comes *before* the cueing guard: Interactive change, null actor or editor world, no owner, `FindAttachmentByActor`, not a light, `CaptureAttachmentLightSettings` false.
+- The guard's own exit logs `SKIPPED`.
+- The withheld path logs `WITHHELD`.
+- The first edit on the same lamp passed every pre-guard check.
+
+**Conclusion.**
+- **The guard is not the cause** [decl], so there is no guard test.
+- The cause is upstream: either `OnObjectPropertyChanged` did not fire for the second set, or it arrived as Interactive.
+- Most likely, Python `set_editor_property` notifies only when the value changes, and the live colour had already returned to white [inf; not measured].
+
+**Measure next time.** Read `light_color` immediately before the revert set. Use the Details panel (a real hand edit), not Python, to test a revert.
+
+**Temp asset.** `delete_asset` returned False on the unsaved temp sequence [measured]. The conductor's Don't-Save restart discarded it, and no folder exists on disk [measured by the conductor]. Future probes create no assets.
