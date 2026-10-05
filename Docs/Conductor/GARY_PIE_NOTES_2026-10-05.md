@@ -157,3 +157,11 @@
     (b) corrected CV12B re-apply (recommended) or (a) tk_cv_revert. Take P04 "as-is" stills before it.
 35. Short FenceBays imported (FV3FBS-20261005-01): SM_FenceBay_short_open, _short_door_gap, SM_FenceTarp_short_half,
     _short_torn, SM_FencePost_short.
+36. **W&T correction:** the 4 Oct TK 5 cm run (FV3TK-20261004-02) ALSO used mirrored raw-frame shifts on 326 of 406 sides
+    (P01 none). Predicted [inf]: inner edges off ≤2.45 cm (small); backbone edges up to ±13.6 cm (worst P02 Wing 022).
+    The CR P05 cloud run had been placed correctly, then TK 4 Oct re-swapped 185 sides. Read-only audit probes are ready
+    (~1 min each) → run them in the END-OF-DAY session before deciding whether to fix.
+37. **END-OF-DAY SESSION plan (W&T):**
+    1. gallery fix (b), FV3D-20261006-02, ~15–20 min; R_v2 allowed 16 cm out per Gary; fallback (a) revert prepared;
+    2. TK 4 Oct audit probes;
+    3. hole/outline kit per passage (P03/P05 first), 1–2 h. Take P04 "as-is" stills first.
