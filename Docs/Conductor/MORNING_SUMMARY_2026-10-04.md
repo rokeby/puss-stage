@@ -209,3 +209,17 @@
   5. Look bench in PIE (bay 4 states, then bay 9 glint). W&T WETB → wet_cov_apply → WETA.
   6. Rig P05 if time.
   Then the editor is Gary's.
+
+## Wing art review with Gary (5 Oct, ~03:00)
+- All six passages were reviewed against fresh contact sheets: DerivedAssets/FlatV3/Review_2026-10-05/P0N_current.jpg, from a read-only Show dump.
+- New Fuser jobs 26–43 (62 prompts) are registered in queue.json (W&T; ingest validates). CSVs: FuserQueue/NEW_PROMPTS_2026-10-05.csv and ALL_PROMPTS.csv. Specs: Saved/CodexConductor/fuser_specs/.
+- **Gary's per-passage direction:**
+  - **P01:** warm-grade the B/W pieces; 8+ pairs: foliage variants, mossy statuary, beehives.
+  - **P02:** lurid variants (originals kept); creepers over the fences; a shrine pagoda from Gary's photo.
+  - **P03:** broken convent variants; beds.
+  - **P04:** pigeon nest, monastery bookshelves, seminary timber. The gallery is being recut (blunt curves), not removed.
+  - **P05:** meadows (first half), rocky slopes (second half), 3 cloud shapes.
+  - **P06:** chinoiserie ~3× each as a glimpse; double down on scaffolds and drapes (burning, fallen); bring in the lit Blender scaffold bay.
+- **Ceilings → vertical BORDERS:** a P04 arch-rib test bay in the look bench. W&T confirm a cue's top slot can hang a vertical L↔R panel with no kit change; it needs a wide border mesh per passage width, and bTopFollowsMechanism=false keeps it static.
+- **Note for Gary:** the queue README says "P06 jobs are strictly text-only: no photos, and no copying a known Sanxingdui object". Job 43 feeds our OWN generated StageOpening concept images, not photos, so I read it as within the rule's intent (inferred). Gary to confirm.
+- The Fuser production-use terms still need Gary's confirmation before any Fuser art is staged.
