@@ -4,6 +4,7 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "Materials/MaterialInterface.h"
 #include "Math/RandomStream.h"
 #include "Misc/AutomationTest.h"
 
@@ -947,6 +948,244 @@ bool FInfinityStageStructureStageFrontTest::RunTest(const FString& Parameters)
     }
     TestTrue(TEXT("Rebuilding lays the same stage front"),
         Rebuilt && Rebuilt->GetInstanceCount() == FrontBoxes.Num() && ReadInstances(*Rebuilt)[0].Equals(FirstBoard, 1.0e-4));
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+namespace
+{
+/** The portal's timber component: posts, header, trough, nosing, carried-forward grid. */
+UInstancedStaticMeshComponent* FindPortalTimber(const AInfinityStageStructureActor& Structure)
+{
+    for (UInstancedStaticMeshComponent* Component : Structure.ManagedComponents)
+    {
+        if (Component && Component->ComponentTags.Contains(FName(TEXT("InfinityStage.Structure.Portal")))
+            && Component->GetName().StartsWith(TEXT("StructurePortal"))
+            && !Component->GetName().StartsWith(TEXT("StructurePortalLines")))
+        {
+            return Component;
+        }
+    }
+    return nullptr;
+}
+
+/** One built component: its layer tags, mesh, slot-0 material, instances and custom data. */
+struct FBuiltLayer
+{
+    TArray<FName> Tags;
+    const UStaticMesh* Mesh = nullptr;
+    const UMaterialInterface* Material = nullptr;
+    TArray<FTransform> Transforms;
+    TArray<float> CustomData;
+};
+
+FBuiltLayer SnapshotLayer(const UInstancedStaticMeshComponent& Component)
+{
+    FBuiltLayer Layer;
+    Layer.Tags = Component.ComponentTags;
+    Layer.Mesh = Component.GetStaticMesh();
+    Layer.Material = Component.GetMaterial(0);
+    Layer.Transforms = ReadInstances(Component);
+    Layer.CustomData = Component.PerInstanceSMCustomData;
+    return Layer;
+}
+
+TArray<FBuiltLayer> SnapshotBuild(const AInfinityStageStructureActor& Structure)
+{
+    TArray<FBuiltLayer> Layers;
+    for (const UInstancedStaticMeshComponent* Component : Structure.ManagedComponents)
+    {
+        if (Component)
+        {
+            Layers.Add(SnapshotLayer(*Component));
+        }
+    }
+    return Layers;
+}
+
+bool SameLayer(const FBuiltLayer& A, const FBuiltLayer& B, FString& OutWhy)
+{
+    if (A.Tags != B.Tags) { OutWhy = TEXT("tags differ"); return false; }
+    if (A.Mesh != B.Mesh) { OutWhy = TEXT("mesh differs"); return false; }
+    if (A.Material != B.Material) { OutWhy = TEXT("material differs"); return false; }
+    if (A.CustomData != B.CustomData) { OutWhy = TEXT("custom data (sizes) differ"); return false; }
+    if (A.Transforms.Num() != B.Transforms.Num()) { OutWhy = TEXT("instance counts differ"); return false; }
+    for (int32 Index = 0; Index < A.Transforms.Num(); ++Index)
+    {
+        if (!A.Transforms[Index].Equals(B.Transforms[Index], 1.0e-4))
+        {
+            OutWhy = FString::Printf(TEXT("instance %d moved"), Index);
+            return false;
+        }
+    }
+    return true;
+}
+
+bool SameBuild(const TArray<FBuiltLayer>& A, const TArray<FBuiltLayer>& B, FString& OutWhy)
+{
+    if (A.Num() != B.Num())
+    {
+        OutWhy = FString::Printf(TEXT("%d components != %d"), A.Num(), B.Num());
+        return false;
+    }
+    for (int32 Index = 0; Index < A.Num(); ++Index)
+    {
+        FString Why;
+        if (!SameLayer(A[Index], B[Index], Why))
+        {
+            OutWhy = FString::Printf(TEXT("component %d: %s"), Index, *Why);
+            return false;
+        }
+    }
+    return true;
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageStructurePortalNullTimberTest,
+    "InfinityStage.Structure.PortalTimberNullFollowsTheGridiron",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageStructurePortalNullTimberTest::RunTest(const FString& Parameters)
+{
+    const TSoftObjectPtr<UMaterialInterface> Painted(
+        FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial")));
+    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
+    if (!Painted.LoadSynchronous() || !Cube.LoadSynchronous())
+    {
+        AddError(TEXT("Fixture: VertexColorMaterial or the engine cube does not load."));
+        return false;
+    }
+    // Otherwise "the portal wears the gridiron's material" could pass on the mesh's own.
+    TestTrue(TEXT("Fixture: the gridiron material is not the cube's own"),
+        Cube.LoadSynchronous()->GetMaterial(0) != Painted.LoadSynchronous());
+
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 3);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    TestTrue(TEXT("A new portal has no timber of its own"),
+        Structure->Portal.PortalMesh.IsNull() && Structure->Portal.PortalMaterial.IsNull());
+
+    // Ground and stage front on, and a nosing, so every portal component and
+    // every kind of portal timber is built.
+    Structure->Ground.bEnabled = true;
+    Structure->Portal.bEnabled = true;
+    Structure->Portal.NosingDepthCm = 10.0;
+    Structure->Gridiron.BeamMesh = Cube;
+    Structure->Gridiron.Material = Painted;
+    TestTrue(TEXT("Builds with null portal timber"), Structure->MaterializeStructure());
+    const TArray<FBuiltLayer> FromNull = SnapshotBuild(*Structure);
+    UInstancedStaticMeshComponent* Grid = FindLayer(*Structure, TEXT("InfinityStage.Structure.Gridiron"));
+    UInstancedStaticMeshComponent* Timber = FindPortalTimber(*Structure);
+    if (!Grid || !Timber)
+    {
+        AddError(TEXT("Expected a gridiron and a portal timber component."));
+        World->DestroyWorld(false);
+        return false;
+    }
+    TestTrue(TEXT("Null portal timber is the gridiron's beam mesh"),
+        Timber->GetStaticMesh() == Grid->GetStaticMesh() && Timber->GetStaticMesh() == Cube.LoadSynchronous());
+    TestTrue(TEXT("Null portal material is the gridiron's material"),
+        Timber->GetMaterial(0) == Painted.LoadSynchronous() && Grid->GetMaterial(0) == Painted.LoadSynchronous());
+    TestTrue(TEXT("A structure with null portal timber is current"), Structure->IsStructureCurrent());
+
+    // Pinned explicitly to the gridiron's own values, the building is identical:
+    // null means exactly what the portal did before it had slots.
+    Structure->Portal.PortalMesh = Structure->Gridiron.BeamMesh;
+    Structure->Portal.PortalMaterial = Structure->Gridiron.Material;
+    TestTrue(TEXT("Builds with portal timber pinned to the gridiron's"), Structure->MaterializeStructure());
+    FString Why;
+    const bool bSame = SameBuild(FromNull, SnapshotBuild(*Structure), Why);
+    TestTrue(FString::Printf(TEXT("Null slots build what the gridiron's own values build (%s)"), *Why), bSame);
+
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageStructurePortalKeepsTimberTest,
+    "InfinityStage.Structure.PortalKeepsItsOwnTimber",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageStructurePortalKeepsTimberTest::RunTest(const FString& Parameters)
+{
+    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
+    const TSoftObjectPtr<UStaticMesh> Sphere(FSoftObjectPath(TEXT("/Engine/BasicShapes/Sphere.Sphere")));
+    const TSoftObjectPtr<UMaterialInterface> Wood(
+        FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial")));
+    const TSoftObjectPtr<UMaterialInterface> Iron(
+        FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/M_SimpleOpaque.M_SimpleOpaque")));
+    if (!Cube.LoadSynchronous() || !Sphere.LoadSynchronous() || !Wood.LoadSynchronous() || !Iron.LoadSynchronous())
+    {
+        AddError(TEXT("Fixture: an engine mesh or material does not load."));
+        return false;
+    }
+    // Every comparison below must be able to fail: two distinct meshes, two
+    // distinct materials, neither material a mesh's own.
+    TestTrue(TEXT("Fixture: distinct meshes and materials"),
+        Cube.LoadSynchronous() != Sphere.LoadSynchronous() && Wood.LoadSynchronous() != Iron.LoadSynchronous());
+    for (const UStaticMesh* Mesh : { Cube.LoadSynchronous(), Sphere.LoadSynchronous() })
+    {
+        TestTrue(TEXT("Fixture: neither material is a mesh's own"),
+            Mesh->GetMaterial(0) != Wood.LoadSynchronous() && Mesh->GetMaterial(0) != Iron.LoadSynchronous());
+    }
+
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 3);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    Structure->Ground.bEnabled = true;
+    Structure->Portal.bEnabled = true;
+    Structure->Portal.NosingDepthCm = 10.0;
+    Structure->Gridiron.BeamMesh = Cube;
+    Structure->Gridiron.Material = Wood;
+    TestTrue(TEXT("The timber building materializes"), Structure->MaterializeStructure());
+    UInstancedStaticMeshComponent* Timber = FindPortalTimber(*Structure);
+    if (!Timber)
+    {
+        AddError(TEXT("Expected a portal timber component."));
+        World->DestroyWorld(false);
+        return false;
+    }
+    const FBuiltLayer WoodPortal = SnapshotLayer(*Timber);
+
+    // Control: nothing pinned, so the portal turns with the gridiron. Without
+    // this the assertions below could pass on a portal that never changes.
+    Structure->Gridiron.BeamMesh = Sphere;
+    Structure->Gridiron.Material = Iron;
+    TestTrue(TEXT("The iron building materializes"), Structure->MaterializeStructure());
+    Timber = FindPortalTimber(*Structure);
+    TestTrue(TEXT("Control: an unpinned portal follows the gridiron's mesh and material"),
+        Timber && Timber->GetStaticMesh() == Sphere.LoadSynchronous() && Timber->GetMaterial(0) == Iron.LoadSynchronous());
+
+    // Pinned: the gridiron stays iron, the portal goes back to its timber, in
+    // the same places with the same sections.
+    Structure->Portal.PortalMesh = Cube;
+    Structure->Portal.PortalMaterial = Wood;
+    TestTrue(TEXT("The pinned building materializes"), Structure->MaterializeStructure());
+    UInstancedStaticMeshComponent* Grid = FindLayer(*Structure, TEXT("InfinityStage.Structure.Gridiron"));
+    Timber = FindPortalTimber(*Structure);
+    if (!Grid || !Timber)
+    {
+        AddError(TEXT("Expected a gridiron and a portal timber component after pinning."));
+        World->DestroyWorld(false);
+        return false;
+    }
+    TestTrue(TEXT("The gridiron is iron"),
+        Grid->GetStaticMesh() == Sphere.LoadSynchronous() && Grid->GetMaterial(0) == Iron.LoadSynchronous());
+    TestTrue(TEXT("The pinned portal keeps its own mesh and material"),
+        Timber->GetStaticMesh() == Cube.LoadSynchronous() && Timber->GetMaterial(0) == Wood.LoadSynchronous());
+    FString Why;
+    const bool bSame = SameLayer(WoodPortal, SnapshotLayer(*Timber), Why);
+    TestTrue(FString::Printf(TEXT("The pinned portal is the timber portal it was, piece for piece (%s)"), *Why), bSame);
+    TestTrue(TEXT("A pinned structure is current"), Structure->IsStructureCurrent());
+
+    // The slots are independent: a pinned mesh with a null material wears the gridiron's.
+    Structure->Portal.PortalMaterial = nullptr;
+    TestTrue(TEXT("Builds with only the mesh pinned"), Structure->MaterializeStructure());
+    Timber = FindPortalTimber(*Structure);
+    TestTrue(TEXT("Only the mesh pinned: own mesh, the gridiron's material"),
+        Timber && Timber->GetStaticMesh() == Cube.LoadSynchronous() && Timber->GetMaterial(0) == Iron.LoadSynchronous());
 
     World->DestroyWorld(false);
     return true;

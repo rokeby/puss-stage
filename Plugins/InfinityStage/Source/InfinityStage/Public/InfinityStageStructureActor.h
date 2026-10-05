@@ -265,8 +265,9 @@ struct INFINITYSTAGE_API FInfinityStageClothSettings
  * structure") and the same object a hangar mouth will need.
  *
  * Built only from the machine's constant modules: the gridiron's beam mesh for
- * timber, the floor's board mesh for the forestage, the fixtures' line mesh for
- * the lines. Off by default, so existing structures are unchanged.
+ * timber (unless PortalMesh/PortalMaterial pin its own), the floor's board mesh
+ * for the forestage, the fixtures' line mesh for the lines. Off by default, so
+ * existing structures are unchanged.
  */
 USTRUCT(BlueprintType)
 struct INFINITYSTAGE_API FInfinityStagePortalSettings
@@ -362,6 +363,21 @@ struct INFINITYSTAGE_API FInfinityStagePortalSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal|Stage Front", meta = (ClampMin = "0.0", Units = "cm"))
     double NosingDepthCm = 0.0;
+
+    /** The portal's own timber: posts, header, float trough and the gridiron
+     * carried forward to meet it. Null builds from the gridiron's BeamMesh, as
+     * the portal always did, so the gridiron can turn to underpass iron (Gary,
+     * 5 Oct) while a portal pinned here stays wood. Fitted by bounds like every
+     * timber, length along +X. Section sizes do not change with the mesh: the
+     * carried-forward rails still take the gridiron's BeamWidthCm/BeamDepthCm. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
+    TSoftObjectPtr<UStaticMesh> PortalMesh;
+
+    /** Null uses the gridiron's Material, as the portal always did. Independent
+     * of PortalMesh: pinning only the mesh still paints it with the gridiron's
+     * material. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
+    TSoftObjectPtr<UMaterialInterface> PortalMaterial;
 };
 
 /**

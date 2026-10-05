@@ -397,11 +397,17 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         }
         return Loaded;
     };
-    // The portal is built from the gridiron's timber, so it needs the beam mesh
-    // even where a Passage has no grid.
-    UStaticMesh* BeamMesh = Gridiron.bEnabled || Portal.bEnabled
-        ? LoadMesh(Gridiron.BeamMesh, TEXT("Gridiron beam"))
+    UStaticMesh* BeamMesh = Gridiron.bEnabled ? LoadMesh(Gridiron.BeamMesh, TEXT("Gridiron beam")) : nullptr;
+    // The portal has its own timber when one is pinned; otherwise it is built from
+    // the gridiron's, as it always was, which it needs even where a Passage has no
+    // grid. Pinning lets the gridiron change (underpass iron) under a wooden portal.
+    const bool bPortalOwnMesh = !Portal.PortalMesh.IsNull();
+    UStaticMesh* PortalMeshLoaded = Portal.bEnabled
+        ? LoadMesh(bPortalOwnMesh ? Portal.PortalMesh : Gridiron.BeamMesh,
+            bPortalOwnMesh ? TEXT("Portal timber") : TEXT("Portal timber (gridiron beam)"))
         : nullptr;
+    const TSoftObjectPtr<UMaterialInterface>& PortalMaterialSource =
+        Portal.PortalMaterial.IsNull() ? Gridiron.Material : Portal.PortalMaterial;
     UStaticMesh* BoardMesh = Ground.bEnabled ? LoadMesh(Ground.BoardMesh, TEXT("Ground board")) : nullptr;
     UStaticMesh* UnderstageMesh = Ground.bEnabled && Ground.bUnderstage
         ? LoadMesh(Ground.UnderstageMesh, TEXT("Understage"))
@@ -465,12 +471,12 @@ bool AInfinityStageStructureActor::MaterializeStructure()
     {
         BuildCloth(Stations, ClothPieces, LoadMaterial(Cloth.Material, TEXT("Cloth")));
     }
-    if (BeamMesh && Portal.bEnabled)
+    if (PortalMeshLoaded)
     {
         BuildPortal(
             Stations,
-            *BeamMesh,
-            LoadMaterial(Gridiron.Material, TEXT("Portal timber")),
+            *PortalMeshLoaded,
+            LoadMaterial(PortalMaterialSource, TEXT("Portal timber")),
             BoardMesh,
             LoadMaterial(Ground.BoardMaterial, TEXT("Forestage board")),
             bPortalLines ? LineMesh : nullptr,
@@ -1126,6 +1132,8 @@ void AInfinityStageStructureActor::BuildPortal(
     }
     // The gridiron carried forward to meet the portal: a cross beam over it and
     // rails back to the first station, so the tunnel recedes above the curtain.
+    // They are portal pieces, so they take the portal's timber (TimberMesh), but
+    // keep the gridiron's section and height whichever mesh that is.
     const double GridTopCm = Gridiron.HeightCm + Gridiron.BeamDepthCm * 1.5;
     if (Portal.bExtendGridiron && Gridiron.bEnabled && GridHalfWidthCm > 0.0)
     {
