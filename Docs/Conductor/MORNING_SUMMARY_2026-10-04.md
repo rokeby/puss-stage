@@ -168,3 +168,8 @@
   - Fix: MI_CeramicTotem_01_L_Relief at HeightRatio 0 and POM steps 1. Stills FV3STL-20261005-02 show it sharp (measured).
   - Left APPLIED pending Gary's keep/revert; revert script p06/p6_pom_off_L_revert.py.
   - Other StageOpeningV2 relief pieces carry the same POM (inferred). A blanket rule is Gary's call.
+- **P06 parallax OFF on all old pieces** (Gary: "Turn it off but also remove these ceiling wings in p06"):
+  - 15 MIs changed. This includes M_Ceiling_bw_Front/Back, which P01's 24 ceiling tops share, so **P01's ceiling has parallax off too**. Revert: p6_pom_all_revert.py.
+  - P06's 64 ceiling tops are hidden (bHasTop=False, data kept). Revert: p6_ceiling_off_revert.py.
+  - SavedMasterMatchesShow passed. Stills FV3STL-20261005-03.
+  - **Design item for Gary:** "ceiling needs a little thought".
