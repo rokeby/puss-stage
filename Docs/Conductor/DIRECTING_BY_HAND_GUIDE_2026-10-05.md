@@ -53,7 +53,15 @@ The Show and Master paths are the ones the gate test loads [decl `InfinityStageE
 | **Stills after any change** | ask the AI: "stills of Pnn" | `passage_stills.py`, 5 frames along the Passage from the show camera |
 | **PIE test list** | `Docs/Conductor/PIE_TEST_LIST_2026-10-05.md` | Today's checks, Passage by Passage |
 
-**Known problem (5 Oct, being fixed):** the 9 "S3 Wave Split" wave flats show up **inside P01** (world x 3,665–5,335,
+**Since this afternoon (5 Oct, ~15:45):**
+- **Transport:** at the end of a segment, **Right** lands on the next one (transitions included) and holds; the next **Right** plays it. Repeated Right walks every segment once. Each transition holds at its GO (10/20/30/40/50) for the shadow play; Right releases it.
+- **Transitions:** all of I1–I5 have the curtain sleight (hangar curtain → shadow-play hold → hidden cut → drop → walk-in).
+- **Passage end:** the last 1 s eases the camera to the Scene's entry pose (no snap). Rig setting: `Crossing Settle Seconds` (1.0; 0 = off).
+- **Scene cut into the wide hangar shot:** blend it by hand: Camera Cuts track (the Scene's, or the nested shot's if that owns the cut) → Details **Can Blend** → drag the wide cut's ease-in (~3 s). Save only that sequence.
+- **Done:** the waves are back on the S3 beach; the S3 back door is closed; the S3 marble is wetter and whiter; the P02 floor is the shiny one; P04's look lamps are under the girders; P05 has its fence; the world is black.
+- **Your notes so far:** `Docs/Conductor/GARY_PIE_NOTES_2026-10-05.md`. **Today's checks:** `PIE_TEST_LIST_2026-10-05.md`. **Lighting direction:** `LIGHTING_DIRECTION_NOTES.md`.
+
+**Fixed (5 Oct, was a known problem):** the 9 "S3 Wave Split" wave flats show up **inside P01** (world x 3,665–5,335,
 y −500…500). They belong to the Scene 3 beach (y ≈ 160,000). Don't move them by hand; the AI re-attaches them to
 "S3 Hangar Root" with the recorded offsets after PIE.
 
