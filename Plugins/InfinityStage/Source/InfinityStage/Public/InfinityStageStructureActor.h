@@ -7,6 +7,7 @@
 class AInfinityStagePassageActor;
 class UInstancedStaticMeshComponent;
 class UMaterialInterface;
+class URectLightComponent;
 class USceneComponent;
 class UStaticMesh;
 
@@ -563,6 +564,120 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Look")
     bool bCatwalkCastShadow = false;
+
+    /** Fluorescent tubes hung under the deck: the theatre's own tired working
+     * light (Gary, 5 Oct: two rows at the centre top and one in each top corner;
+     * "only occasionally in use, having a dingy office light feel"). Off, so they
+     * are switched on per Passage or per stretch, never show-wide. Rows run along
+     * the route between the stretch's end stations and never past them. Needs the
+     * underpass on; independent of every other underpass part. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    bool bTubes = false;
+
+    /** The stretch, as station indices in route order. -1 for the last station.
+     * The clean-end rule holds for the stretch: no tube passes either end station. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0"))
+    int32 TubeFromStation = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "-1"))
+    int32 TubeToStation = -1;
+
+    /** Intended: /Engine/BasicShapes/Cylinder, scaled to a tube by its bounds.
+     * Null builds no tube meshes; the tube positions (and any lights) still stand. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    TSoftObjectPtr<UStaticMesh> TubeMesh;
+
+    /** The tube's length is the mesh's local Z, as on the engine Cylinder. Off for
+     * a mesh authored with its length along X like the rest of the kit. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    bool bTubeMeshAlongZ = true;
+
+    /** An emissive instance, authored from Python later. Per-instance custom data:
+     * [0] row (centre rows 0..N-1 across -Y to +Y, then the -Y corner, then +Y),
+     * [1] tube index along the row, [2] seeded random 0..1, [3] 1 alive, 0 dead. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    TSoftObjectPtr<UMaterialInterface> TubeMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    bool bTubeCastShadow = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "1.0", Units = "cm"))
+    double TubeLengthCm = 150.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0.5", Units = "cm"))
+    double TubeDiameterCm = 5.0;
+
+    /** The clear gap between one tube's end and the next along a row. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0.0", Units = "cm"))
+    double TubeGapCm = 100.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0"))
+    int32 TubeRowsCentre = 2;
+
+    /** Centre rows are this far apart, centred on the route line. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0.0", Units = "cm"))
+    double TubeCentreRowSpacingCm = 120.0;
+
+    /** A row in each top corner, on the column line. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    bool bTubeCornerRows = true;
+
+    /** Moves the corner rows inward from the column line. On the line itself a
+     * corner tube passes through the knee brackets at the column stations. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (Units = "cm"))
+    double TubeCornerInsetCm = 0.0;
+
+    /** The tube's centre hangs this far below the deck's underside. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (Units = "cm"))
+    double TubeDropCm = 30.0;
+
+    /** Tubes whose custom-data random [2] is below this are dead: [3] = 0, and no light. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    double TubeDeadFraction = 0.15;
+
+    /** Mixed into every tube's random, to re-roll which tubes are dead without touching the Show. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    int32 TubeSeed = 0;
+
+    /** Real light from the tubes, since emissive alone hardly lights the wings:
+     * one rect light per TubeLightEvery tubes along a row, at the group's middle
+     * tube, facing down, and none where that tube is dead. Movable, so it can be
+     * dimmed, flickered and failed later. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    bool bTubeLights = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "1"))
+    int32 TubeLightEvery = 4;
+
+    /** Most lights one structure builds. Above it the lights are thinned evenly:
+     * TubeLightEvery is raised until they fit, and the build logs the value used. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0"))
+    int32 TubeLightMax = 64;
+
+    /** Lumens: the light's total output, so it does not change with the source
+     * size (the tube length), and the unit of the looks' existing practical tubes
+     * (INDUSTRIAL 2200, WASH 1500). Modest for a group of tubes: dingy, not bright. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0.0"))
+    float TubeLightIntensity = 1500.0f;
+
+    /** Tired office fluorescent, not crisp daylight. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "1000.0", ClampMax = "15000.0"))
+    float TubeLightTemperatureK = 4300.0f;
+
+    /** Multiplies the temperature: a slight green cast. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    FLinearColor TubeLightColor = FLinearColor(0.92f, 1.0f, 0.88f);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes", meta = (ClampMin = "0.0", Units = "cm"))
+    float TubeLightAttenuationRadius = 1500.0f;
+
+    /** Intended for the dingy hum: /Game/InfinityStage/Lighting/MI_LF_Flicker_Hum
+     * (_Buzz, _Fault and _Slow also exist). Null: steady. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    TSoftObjectPtr<UMaterialInterface> TubeLightFunctionMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+    bool bTubeLightCastShadow = false;
 };
 
 /** One underpass part's loaded mesh and material, as MaterializeStructure hands
@@ -618,6 +733,10 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Instanced, Category = "Materialization")
     TArray<TObjectPtr<UInstancedStaticMeshComponent>> ManagedComponents;
+
+    /** The tube lights this actor generated, owned and cleared like ManagedComponents. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Instanced, Category = "Materialization")
+    TArray<TObjectPtr<URectLightComponent>> ManagedLights;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 StationCount = 0;
@@ -675,6 +794,17 @@ public:
     /** Two per bay when the catwalk is on. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 UnderpassCatwalkCount = 0;
+
+    /** Tube meshes built, dead ones included (they are dark, not missing). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassTubeCount = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassTubeLightCount = 0;
+
+    /** The TubeLightEvery the lights were built with: above the setting when the cap thinned them. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassTubeLightEveryUsed = 0;
 
     /** Fingerprint of the stations and light placements the build was fitted to. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
@@ -755,4 +885,12 @@ private:
         const FInfinityUnderpassPart& Knee,
         const FInfinityUnderpassPart& Deck,
         const FInfinityUnderpassPart& Catwalk);
+
+    /** Tube rows and their lights. A null Tube.Mesh builds the lights alone. */
+    void BuildUnderpassTubes(
+        const TArray<FInfinityStructureStation>& Stations,
+        const FInfinityUnderpassPart& Tube,
+        UMaterialInterface* LightFunction);
+
+    URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);
 };

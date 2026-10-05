@@ -1,6 +1,7 @@
 #include "InfinityStageStructureActor.h"
 
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Components/RectLightComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SplineComponent.h"
 #include "Engine/StaticMesh.h"
@@ -29,6 +30,8 @@ const FName UnderpassPierLayerTag(TEXT("InfinityStage.Structure.Underpass.Piers"
 const FName UnderpassKneeLayerTag(TEXT("InfinityStage.Structure.Underpass.Knees"));
 const FName UnderpassDeckLayerTag(TEXT("InfinityStage.Structure.Underpass.Deck"));
 const FName UnderpassCatwalkLayerTag(TEXT("InfinityStage.Structure.Underpass.Catwalk"));
+const FName UnderpassTubeLayerTag(TEXT("InfinityStage.Structure.Underpass.Tubes"));
+const FName UnderpassTubeLightLayerTag(TEXT("InfinityStage.Structure.Underpass.TubeLights"));
 
 /** Per-instance custom data: variation 0..1, then length, width, depth in cm. */
 constexpr int32 TimberCustomDataFloats = 4;
@@ -50,13 +53,25 @@ enum class ETimberPart : uint32
     UnderpassPier = 9,
     UnderpassKnee = 10,
     UnderpassDeck = 11,
-    UnderpassCatwalk = 12
+    UnderpassCatwalk = 12,
+    UnderpassTube = 13
 };
 
 FRandomStream MakeTimberStream(const FGuid& Identity, const ETimberPart Part)
 {
     return FRandomStream(static_cast<int32>(
         HashCombineFast(GetTypeHash(Identity), ::GetTypeHash(static_cast<uint32>(Part)))));
+}
+
+/** One tube row's stream within one bay, keyed by the bay's station, the row and
+ * the seed. One combine per statement, so the order is fixed (memory:
+ * puss-random-draw-order). */
+FRandomStream MakeTubeStream(const FGuid& Station, const int32 RowKey, const int32 Seed)
+{
+    uint32 Hash = HashCombineFast(GetTypeHash(Station), ::GetTypeHash(static_cast<uint32>(ETimberPart::UnderpassTube)));
+    Hash = HashCombineFast(Hash, ::GetTypeHash(RowKey));
+    Hash = HashCombineFast(Hash, ::GetTypeHash(Seed));
+    return FRandomStream(static_cast<int32>(Hash));
 }
 
 struct FFixturePlacement
@@ -350,6 +365,41 @@ void AInfinityStageStructureActor::ClearStructure()
         Component->DestroyComponent();
     }
     ManagedComponents.Reset();
+
+    // The tube lights, recovered by tag the same way.
+    TSet<URectLightComponent*> LightsToDestroy;
+    for (URectLightComponent* Light : ManagedLights)
+    {
+        if (IsValid(Light))
+        {
+            LightsToDestroy.Add(Light);
+        }
+    }
+    const int32 ReferencedLightCount = LightsToDestroy.Num();
+    TInlineComponentArray<URectLightComponent*> AttachedLights(this);
+    for (URectLightComponent* Light : AttachedLights)
+    {
+        if (IsValid(Light) && Light->ComponentTags.Contains(StructureTag))
+        {
+            LightsToDestroy.Add(Light);
+        }
+    }
+    if (LightsToDestroy.Num() > ReferencedLightCount)
+    {
+        UE_LOG(
+            LogInfinityStageStructure,
+            Display,
+            TEXT("INFINITY_STAGE_STRUCTURE_ORPHANS_RECOVERED actor='%s' lights=%d"),
+            *GetActorNameOrLabel(),
+            LightsToDestroy.Num() - ReferencedLightCount);
+    }
+    for (URectLightComponent* Light : LightsToDestroy)
+    {
+        Light->Modify();
+        RemoveInstanceComponent(Light);
+        Light->DestroyComponent();
+    }
+    ManagedLights.Reset();
     StationCount = 0;
     CrossBeamCount = 0;
     RailSegmentCount = 0;
@@ -367,6 +417,9 @@ void AInfinityStageStructureActor::ClearStructure()
     UnderpassKneeCount = 0;
     UnderpassDeckCount = 0;
     UnderpassCatwalkCount = 0;
+    UnderpassTubeCount = 0;
+    UnderpassTubeLightCount = 0;
+    UnderpassTubeLightEveryUsed = 0;
     StationSignature = 0;
     MarkPackageDirty();
 }
@@ -463,6 +516,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
     UStaticMesh* UnderpassKneeMesh = LoadUnderpassMesh(bUnderpassColumns && Underpass.bKnees, Underpass.KneeMesh, TEXT("Underpass knee"));
     UStaticMesh* UnderpassDeckMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bDeck, Underpass.DeckMesh, TEXT("Underpass deck"));
     UStaticMesh* UnderpassCatwalkMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bCatwalk, Underpass.CatwalkMesh, TEXT("Underpass catwalk"));
+    UStaticMesh* UnderpassTubeMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bTubes, Underpass.TubeMesh, TEXT("Underpass tube"));
     if (!bMeshesLoaded)
     {
         return false;
@@ -536,6 +590,13 @@ bool AInfinityStageStructureActor::MaterializeStructure()
             UnderpassPart(UnderpassKneeMesh, Underpass.KneeMaterial, TEXT("Underpass knee")),
             UnderpassPart(UnderpassDeckMesh, Underpass.DeckMaterial, TEXT("Underpass deck")),
             UnderpassPart(UnderpassCatwalkMesh, Underpass.CatwalkMaterial, TEXT("Underpass catwalk")));
+        if (Underpass.bTubes)
+        {
+            BuildUnderpassTubes(
+                Stations,
+                UnderpassPart(UnderpassTubeMesh, Underpass.TubeMaterial, TEXT("Underpass tube")),
+                Underpass.bTubeLights ? LoadMaterial(Underpass.TubeLightFunctionMaterial, TEXT("Underpass tube light function")) : nullptr);
+        }
     }
     int32 MovingLights = 0;
     StationSignature = ComputeStructureSignature(
@@ -553,7 +614,8 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         Display,
         TEXT("INFINITY_STAGE_STRUCTURE_OK actor='%s' passage='%s' stations=%d cross_beams=%d rails=%d ")
         TEXT("boards=%d slots=%d cloths=%d portal=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f ")
-        TEXT("underpass_columns=%d underpass_piers=%d underpass_knees=%d underpass_decks=%d underpass_catwalks=%d"),
+        TEXT("underpass_columns=%d underpass_piers=%d underpass_knees=%d underpass_decks=%d underpass_catwalks=%d ")
+        TEXT("underpass_tubes=%d underpass_tube_lights=%d"),
         *GetActorNameOrLabel(),
         *Passage->GetActorNameOrLabel(),
         StationCount,
@@ -572,7 +634,9 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         UnderpassPierCount,
         UnderpassKneeCount,
         UnderpassDeckCount,
-        UnderpassCatwalkCount);
+        UnderpassCatwalkCount,
+        UnderpassTubeCount,
+        UnderpassTubeLightCount);
     return true;
 }
 
@@ -619,6 +683,26 @@ UInstancedStaticMeshComponent* AInfinityStageStructureActor::CreateManagedCompon
     Component->RegisterComponent();
     ManagedComponents.Add(Component);
     return Component;
+}
+
+URectLightComponent* AInfinityStageStructureActor::CreateManagedLight(const FName BaseName, const FName LayerTag)
+{
+    // Owned exactly as CreateManagedComponent owns an instance layer: transactional,
+    // an instance component of this actor, tagged, attached to the root and saved
+    // with the level. Movable, unlike the iron: a tube is dimmed, flickered and
+    // failed at run time, and nothing here is baked. A movable child under the
+    // static root is allowed; only the reverse is not.
+    const FName ComponentName = MakeUniqueObjectName(this, URectLightComponent::StaticClass(), BaseName);
+    URectLightComponent* Light = NewObject<URectLightComponent>(this, ComponentName, RF_Transactional);
+    Light->CreationMethod = EComponentCreationMethod::Instance;
+    Light->ComponentTags.Add(StructureTag);
+    Light->ComponentTags.Add(LayerTag);
+    Light->SetupAttachment(SceneRoot);
+    Light->SetMobility(EComponentMobility::Movable);
+    AddInstanceComponent(Light);
+    Light->RegisterComponent();
+    ManagedLights.Add(Light);
+    return Light;
 }
 
 void AInfinityStageStructureActor::BuildGridiron(
@@ -1577,4 +1661,242 @@ void AInfinityStageStructureActor::BuildUnderpass(
     Emit(Knees, TEXT("StructureUnderpassKnees"), UnderpassKneeLayerTag, Knee, Underpass.bKneeCastShadow, UnderpassKneeCount);
     Emit(Decks, TEXT("StructureUnderpassDeck"), UnderpassDeckLayerTag, Deck, Underpass.bDeckCastShadow, UnderpassDeckCount);
     Emit(Rails, TEXT("StructureUnderpassCatwalk"), UnderpassCatwalkLayerTag, Catwalk, Underpass.bCatwalkCastShadow, UnderpassCatwalkCount);
+}
+
+void AInfinityStageStructureActor::BuildUnderpassTubes(
+    const TArray<FInfinityStructureStation>& Stations,
+    const FInfinityUnderpassPart& Tube,
+    UMaterialInterface* LightFunction)
+{
+    // The stretch. Fewer than two stations in it is no run: nothing is built.
+    const int32 Last = Stations.Num() - 1;
+    const int32 From = FMath::Clamp(Underpass.TubeFromStation, 0, FMath::Max(0, Last));
+    const int32 To = Underpass.TubeToStation < 0 ? Last : FMath::Min(Underpass.TubeToStation, Last);
+    if (Last < 1 || To <= From)
+    {
+        return;
+    }
+
+    const double LengthCm = FMath::Max(1.0, Underpass.TubeLengthCm);
+    const double DiameterCm = FMath::Max(0.5, Underpass.TubeDiameterCm);
+    const double GapCm = FMath::Max(0.0, Underpass.TubeGapCm);
+    const double PitchCm = LengthCm + GapCm;
+    const double DeadFraction = FMath::Clamp(Underpass.TubeDeadFraction, 0.0, 1.0);
+    const double ColumnLineCm = GetFloorHalfSpanCm(Stations) + FMath::Max(0.0, Underpass.ColumnOutsetCm);
+
+    // The rows across the route. Centre rows are numbered -Y to +Y, the corners
+    // after them; each row's stream key is fixed by its role, so switching the
+    // corners off never re-rolls a centre row.
+    struct FTubeRow
+    {
+        int32 Index;
+        int32 StreamKey;
+        double LateralCm;
+    };
+    TArray<FTubeRow> Rows;
+    const int32 CentreRows = FMath::Max(0, Underpass.TubeRowsCentre);
+    const double RowSpacingCm = FMath::Max(0.0, Underpass.TubeCentreRowSpacingCm);
+    for (int32 Row = 0; Row < CentreRows; ++Row)
+    {
+        Rows.Add({ Row, Row, (Row - (CentreRows - 1) * 0.5) * RowSpacingCm });
+    }
+    if (Underpass.bTubeCornerRows)
+    {
+        const double CornerCm = ColumnLineCm - Underpass.TubeCornerInsetCm;
+        Rows.Add({ CentreRows, 1000, -CornerCm });
+        Rows.Add({ CentreRows + 1, 1001, CornerCm });
+    }
+
+    // The run under the deck's underside: the same straight bays the deck is
+    // built from, station to station, so every tube hangs under a deck bay.
+    struct FTubeBay
+    {
+        FVector Start;
+        FVector Along;
+        FVector Across;
+        FVector Up;
+        double StartCm;
+        int32 Station;
+    };
+    TArray<FTubeBay> Bays;
+    double RunCm = 0.0;
+    for (int32 Index = From; Index < To; ++Index)
+    {
+        const FInfinityStructureStation& Station = Stations[Index];
+        const FInfinityStructureStation& Next = Stations[Index + 1];
+        const FVector Up = Station.StationWorld.GetUnitAxis(EAxis::Z);
+        const FVector NextUp = Next.StationWorld.GetUnitAxis(EAxis::Z);
+        const FVector Start = Station.StationWorld.GetLocation() + Up * Underpass.DeckHeightCm;
+        const FVector End = Next.StationWorld.GetLocation() + NextUp * Underpass.DeckHeightCm;
+        const double BayCm = FVector::Distance(Start, End);
+        if (BayCm < 1.0)
+        {
+            continue;
+        }
+        const FQuat BayRotation = FRotationMatrix::MakeFromXZ((End - Start) / BayCm, (Up + NextUp).GetSafeNormal()).ToQuat();
+        Bays.Add({ Start, BayRotation.GetAxisX(), BayRotation.GetAxisY(), BayRotation.GetAxisZ(), RunCm, Index });
+        RunCm += BayCm;
+    }
+
+    // Tubes per row: as many as fit with a gap between each, the spare length
+    // split between the two ends.
+    const int32 PerRow = Bays.IsEmpty() || RunCm < LengthCm
+        ? 0
+        : FMath::FloorToInt32((RunCm + GapCm) / PitchCm + 1.0e-9);
+    const double MarginCm = (RunCm - (PerRow * LengthCm + FMath::Max(0, PerRow - 1) * GapCm)) * 0.5;
+
+    // Clean ends, checked rather than assumed: on a curved route an outer row's
+    // tube can lean past an end station's plane. Such a tube is not built.
+    const FVector FirstPoint = Stations[From].StationWorld.GetLocation();
+    const FVector FirstForward = Stations[From].StationWorld.GetUnitAxis(EAxis::X);
+    const FVector LastPoint = Stations[To].StationWorld.GetLocation();
+    const FVector LastForward = Stations[To].StationWorld.GetUnitAxis(EAxis::X);
+
+    struct FTubeSpot
+    {
+        FVector Centre = FVector::ZeroVector;
+        FVector Along = FVector::XAxisVector;
+        FVector Up = FVector::ZAxisVector;
+        bool bAlive = false;
+        bool bBuilt = false;
+    };
+    TArray<TArray<FTubeSpot>> Spots;
+    TArray<FTransform> Transforms;
+    TArray<float> Data;
+    const FBox TubeBounds = Tube.Mesh ? Tube.Mesh->GetBoundingBox() : FBox(ForceInit);
+    int32 Trimmed = 0;
+    for (const FTubeRow& Row : Rows)
+    {
+        TArray<FTubeSpot>& RowSpots = Spots.AddDefaulted_GetRef();
+        int32 BayIndex = 0;
+        int32 StreamBay = INDEX_NONE;
+        FRandomStream Stream;
+        for (int32 TubeIndex = 0; TubeIndex < PerRow; ++TubeIndex)
+        {
+            const double AlongCm = MarginCm + LengthCm * 0.5 + TubeIndex * PitchCm;
+            while (BayIndex + 1 < Bays.Num() && AlongCm >= Bays[BayIndex + 1].StartCm)
+            {
+                ++BayIndex;
+            }
+            const FTubeBay& Bay = Bays[BayIndex];
+            if (StreamBay != BayIndex)
+            {
+                Stream = MakeTubeStream(Stations[Bay.Station].CueGuid, Row.StreamKey, Underpass.TubeSeed);
+                StreamBay = BayIndex;
+            }
+            // One draw per tube, made whether or not the tube is built.
+            const float Random = Stream.FRand();
+            FTubeSpot& Spot = RowSpots.AddDefaulted_GetRef();
+            Spot.Centre = Bay.Start + Bay.Along * (AlongCm - Bay.StartCm) + Bay.Across * Row.LateralCm - Bay.Up * Underpass.TubeDropCm;
+            Spot.Along = Bay.Along;
+            Spot.Up = Bay.Up;
+            Spot.bAlive = Random >= DeadFraction;
+            const FVector HalfLength = Bay.Along * (LengthCm * 0.5);
+            Spot.bBuilt = FVector::DotProduct(Spot.Centre - HalfLength - FirstPoint, FirstForward) >= -0.1
+                && FVector::DotProduct(Spot.Centre + HalfLength - LastPoint, LastForward) <= 0.1;
+            if (!Spot.bBuilt)
+            {
+                ++Trimmed;
+                continue;
+            }
+            if (!Tube.Mesh)
+            {
+                continue;
+            }
+            const FQuat Rotation = Underpass.bTubeMeshAlongZ
+                ? FRotationMatrix::MakeFromZX(Bay.Along, Bay.Up).ToQuat()
+                : FRotationMatrix::MakeFromXZ(Bay.Along, Bay.Up).ToQuat();
+            const FVector SizeCm = Underpass.bTubeMeshAlongZ
+                ? FVector(DiameterCm, DiameterCm, LengthCm)
+                : FVector(LengthCm, DiameterCm, DiameterCm);
+            Transforms.Add(FitMeshToTimber(TubeBounds, Spot.Centre, Rotation, SizeCm));
+            Data.Append({
+                static_cast<float>(Row.Index),
+                static_cast<float>(TubeIndex),
+                Random,
+                Spot.bAlive ? 1.0f : 0.0f });
+        }
+    }
+    if (Trimmed > 0)
+    {
+        UE_LOG(LogInfinityStageStructure, Display,
+            TEXT("INFINITY_STAGE_STRUCTURE_TUBES_TRIMMED actor='%s' tubes=%d (past an end station on the curve)"),
+            *GetActorNameOrLabel(), Trimmed);
+    }
+    if (!Transforms.IsEmpty())
+    {
+        UInstancedStaticMeshComponent* Component = CreateManagedComponent(
+            TEXT("StructureUnderpassTubes"), UnderpassTubeLayerTag, Tube.Mesh, Tube.Material, Underpass.bTubeCastShadow);
+        ApplyInstances(*Component, Transforms, Data);
+        UnderpassTubeCount = Transforms.Num();
+    }
+
+    if (!Underpass.bTubeLights || PerRow == 0)
+    {
+        return;
+    }
+    // One light per group of Every tubes along a row, on the group's middle tube,
+    // and none where that tube is dead or trimmed.
+    const auto LitHosts = [&Spots, PerRow](const int32 Every)
+    {
+        TArray<const FTubeSpot*> Hosts;
+        for (const TArray<FTubeSpot>& RowSpots : Spots)
+        {
+            for (int32 GroupStart = 0; GroupStart < PerRow; GroupStart += Every)
+            {
+                const int32 GroupSize = FMath::Min(Every, PerRow - GroupStart);
+                const FTubeSpot& Host = RowSpots[GroupStart + (GroupSize - 1) / 2];
+                if (Host.bBuilt && Host.bAlive)
+                {
+                    Hosts.Add(&Host);
+                }
+            }
+        }
+        return Hosts;
+    };
+    // Over the cap, thin evenly rather than refuse: the iron is right and a light
+    // count is no reason to keep the last build. Every is raised until the lights
+    // fit, so they stay evenly spaced along every row; the value used is logged.
+    const int32 Cap = FMath::Max(0, Underpass.TubeLightMax);
+    const int32 Asked = FMath::Max(1, Underpass.TubeLightEvery);
+    int32 Every = Asked;
+    TArray<const FTubeSpot*> Hosts = LitHosts(Every);
+    while (Hosts.Num() > Cap && Every < PerRow)
+    {
+        ++Every;
+        Hosts = LitHosts(Every);
+    }
+    if (Hosts.Num() > Cap)
+    {
+        UE_LOG(LogInfinityStageStructure, Warning,
+            TEXT("INFINITY_STAGE_STRUCTURE_TUBE_LIGHTS_REFUSED actor='%s' lights=%d cap=%d: one light per row is over the cap; no tube lights built."),
+            *GetActorNameOrLabel(), Hosts.Num(), Cap);
+        return;
+    }
+    if (Every != Asked)
+    {
+        UE_LOG(LogInfinityStageStructure, Display,
+            TEXT("INFINITY_STAGE_STRUCTURE_TUBE_LIGHTS_THINNED actor='%s' every=%d asked=%d lights=%d cap=%d"),
+            *GetActorNameOrLabel(), Every, Asked, Hosts.Num(), Cap);
+    }
+    for (const FTubeSpot* Host : Hosts)
+    {
+        URectLightComponent* Light = CreateManagedLight(TEXT("StructureUnderpassTubeLight"), UnderpassTubeLightLayerTag);
+        // A rect light emits along its +X: down, with its width along the tube.
+        Light->SetWorldLocationAndRotation(
+            Host->Centre - Host->Up * (DiameterCm * 0.5),
+            FRotationMatrix::MakeFromXY(-Host->Up, Host->Along).ToQuat());
+        Light->SetSourceWidth(static_cast<float>(LengthCm));
+        Light->SetSourceHeight(static_cast<float>(DiameterCm));
+        Light->SetIntensityUnits(ELightUnits::Lumens);
+        Light->SetIntensity(FMath::Max(0.0f, Underpass.TubeLightIntensity));
+        Light->SetLightColor(Underpass.TubeLightColor);
+        Light->SetUseTemperature(true);
+        Light->SetTemperature(FMath::Clamp(Underpass.TubeLightTemperatureK, 1000.0f, 15000.0f));
+        Light->SetAttenuationRadius(FMath::Max(0.0f, Underpass.TubeLightAttenuationRadius));
+        Light->SetCastShadows(Underpass.bTubeLightCastShadow);
+        Light->SetLightFunctionMaterial(LightFunction);
+    }
+    UnderpassTubeLightCount = Hosts.Num();
+    UnderpassTubeLightEveryUsed = Hosts.IsEmpty() ? 0 : Every;
 }
