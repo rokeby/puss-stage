@@ -228,3 +228,9 @@
 52. **P02 floor** (Gary ~15:30): "P02 also needs waxed floor to be in shot and the slatted stage floor removed". The slats are the
     structure's Ground boards (InfinityStageStructureActor.h:113-160); the 10:35 walnut fix raised four slabs placed around the
     old bend, which will not fit a straight P02. Folded into the P02 straighten tool: boards off, walnut re-laid over the straight route.
+53. **P03** (Gary ~15:35): floors like P02 (boards off, walnut) and "keep only 20% of L R side lighting" -> side lights in ~1 bay in 5
+    (bays 4, 8, 13, 18), aimed at their own wing. **Opening** (~15:45): swivel 43.8–50 s; land dim and rise with the swivel;
+    house warmers fully black until the flicker, rising till the curtain, inner cone = outer − 3°. Finding: the 10:35 P02 floor
+    run copied P01's *DarkWet* (not walnut) — walnut now set explicitly.
+54. **P04 last third** (Gary ~16:00): "place some practicals ('bulbs on the ground by wings') in the last third of P04 which can be
+    fairly dark overall with only striking lights from upper right on ceiling wing". Being designed in the scores tool.
