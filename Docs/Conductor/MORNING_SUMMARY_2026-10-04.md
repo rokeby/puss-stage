@@ -231,3 +231,5 @@
   - 48 passage-end curtains
   - The perspective clause was added to jobs 35, 38 and 39.
   - **Open:** job 48's no_cut flag must be honoured by the V3 flat build. Nothing reads it yet.
+- **Passage-end curtains (Gary 5 Oct):** these are the curtain seen at a passage's end BEFORE the hangar comes up, not the shadow-play drop, and they must not show the coming scene. P01: overgrown railway curving away. P02: jungle clearing. P03: as written. P04: a receding stone arcade. P05: a deer sniffing a red toadstool, mountains far off.
+  - **P06 has no end curtain:** "only darkness but the curtain's already on the ground on fire". A staging/FX item: a fallen burning drop on the floor in the dark before S6.
