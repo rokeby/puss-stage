@@ -81,3 +81,14 @@
       Asked W&T for status.
     - **"Back door needs removal - it doesn't work"** → hide/remove S3's back door actor(s) (identify after PIE; earlier
       decision "Scene 3: no door").
+22. **"Something broke transitioning into P04 — a mess of cat and wings before the next cue puts us into the more correct
+    looking version of the passage."** (Screenshot: during Interaction 3 (S3 → P04), the stalls view of P04's mouth: the old
+    drape pile on the floor, P04's wings in the wrong layout, and the black shadow-cat silhouette in front.) Known open gaps,
+    first noted in the 30 Sep run-through: **G7** "Passage P(N+1) seen in its pre-section state when the curtain drops: its
+    Master section starts only after the Interaction; wing mechanisms freeze outside their Passage"
+    (CURTAIN_SLEIGHT_TRANSITION_PLAN:98) and **"the cat spawning in front of the curtain"** (RUNTHROUGH_NOTES_2026-09-30:11,35,39).
+    Plan after PIE:
+    - (a) M4 measurement at I3: P04 wing ISM read-back during I3 vs P04 frame 0;
+    - (b) identify which cat actor shows during the Interaction and hold it hidden until the walk-in or the Passage start;
+    - (c) the I3 curtain-sleight rollout replaces this view with the hangar wide → sleight → drop → walk-in.
+23. **Strobe:** "overall effect works well" (P04 default strobe, 1 s, ghost ~1/3 s).
