@@ -1,0 +1,1310 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightEvents.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightEvents.cpp
+new file mode 100644
+index 0000000..615caed
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightEvents.cpp
+@@ -0,0 +1,619 @@
++#include "InfinityStageLightEvents.h"
++
++#include "Components/LocalLightComponent.h"
++#include "CoreGlobals.h"
++#include "Engine/Engine.h"
++#include "Engine/Level.h"
++#include "Engine/World.h"
++#include "EngineUtils.h"
++#include "GameFramework/Actor.h"
++#include "HAL/IConsoleManager.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "InfinityStageTypes.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageLightEvents, Log, All);
++
++namespace
++{
++TAutoConsoleVariable<int32> CVarInfinityStageShowLightEvents(
++    TEXT("InfinityStage.ShowLightEvents"),
++    0,
++    TEXT("Light tuning aid: report each light as it comes on, in Game/PIE worlds only.\n")
++    TEXT("0: off (default; no polling work at all).\n")
++    TEXT("1: on screen (never in performance mode) and to the log, LogInfinityStageLightEvents.\n")
++    TEXT("2: log only."));
++
++TAutoConsoleVariable<float> CVarInfinityStageShowLightEventsOnLevel(
++    TEXT("InfinityStage.ShowLightEvents.OnLevel"),
++    1.0f,
++    TEXT("Effective intensity, in the light's own units, at which a light counts as ON. It counts as OFF again\n")
++    TEXT("only below a quarter of this, so flicker inside that band never prints."));
++
++/** On-screen lines: a rolling set of keys, so roughly the last eight stay up. */
++constexpr uint64 ScreenKeyBase = 0x1E5E0000ull;
++constexpr int32 ScreenSlots = 8;
++constexpr float ScreenSeconds = 4.0f;
++
++/** A full rescan for new lights; spawned actors are picked up at once in between. */
++constexpr double RescanSeconds = 10.0;
++/** The ON log line waits this long for the rise to settle, so it carries the level reached. */
++constexpr double RiseSettleSeconds = 0.75;
++/** A repeating light's count is logged at most this often. */
++constexpr double RepeatLogSeconds = 4.0;
++/** Work cap for finding lights: level actors visited per poll by the sliced sweep. */
++constexpr int32 SweepActorsPerPoll = 256;
++/** Work cap: beyond this many lights a poll takes a rotating slice. */
++constexpr int32 MaxLightsPerPoll = 1024;
++
++const FString LightEventsAttachmentTagPrefix(TEXT("InfinityStage.Attachment."));
++
++bool CarriesAttachmentTag(const AActor& Actor)
++{
++    return Actor.Tags.ContainsByPredicate([](const FName& Tag)
++        { return Tag.ToString().StartsWith(LightEventsAttachmentTagPrefix); });
++}
++
++FString LabelFromPassage(const AInfinityStagePassageActor& Passage, const AActor& Actor)
++{
++    FGuid CueGuid;
++    FGuid AttachmentGuid;
++    if (!Passage.ShowAsset || !Passage.FindAttachmentByActor(&Actor, CueGuid, AttachmentGuid))
++    {
++        return FString();
++    }
++    for (const FInfinityShowCue& Cue : Passage.ShowAsset->Cues)
++    {
++        if (Cue.CueGuid != CueGuid)
++        {
++            continue;
++        }
++        for (const FInfinityCueAttachment& Attachment : Cue.WingPair.Attachments)
++        {
++            if (Attachment.AttachmentGuid == AttachmentGuid && !Attachment.Label.IsEmpty())
++            {
++                return Attachment.Label.ToString();
++            }
++        }
++    }
++    return FString();
++}
++
++/** The Show's label for a materialised attachment, or empty. Its owning Passage is
++ * the attach parent (PassageActor.cpp AttachToActor at materialise); a detached lamp
++ * falls back to asking every Passage in the world. Runs per light per scan, not per frame. */
++FString ShowAttachmentLabel(const AActor& Actor)
++{
++    if (!CarriesAttachmentTag(Actor))
++    {
++        return FString();
++    }
++    for (const AActor* Parent = Actor.GetAttachParentActor(); Parent; Parent = Parent->GetAttachParentActor())
++    {
++        if (const AInfinityStagePassageActor* Passage = Cast<AInfinityStagePassageActor>(Parent))
++        {
++            const FString Label = LabelFromPassage(*Passage, Actor);
++            if (!Label.IsEmpty())
++            {
++                return Label;
++            }
++        }
++    }
++    if (UWorld* World = Actor.GetWorld())
++    {
++        for (TActorIterator<AInfinityStagePassageActor> It(World); It; ++It)
++        {
++            const FString Label = LabelFromPassage(**It, Actor);
++            if (!Label.IsEmpty())
++            {
++                return Label;
++            }
++        }
++    }
++    return FString();
++}
++
++FString FormatIntensity(const float Intensity)
++{
++    return FMath::Abs(Intensity) >= 10.0f
++        ? FString::Printf(TEXT("%.0f"), Intensity)
++        : FString::Printf(TEXT("%.2f"), Intensity);
++}
++
++/** Log fields are '|'-separated, so a label never carries one. */
++FString LogSafe(const FString& Text)
++{
++    return Text.Replace(TEXT("|"), TEXT("/"));
++}
++}
++
++namespace InfinityStageLightEvents
++{
++EInfinityLightEdge StepEdge(
++    FInfinityLightEdgeState& State,
++    const double EffectiveLevel,
++    const double NowSeconds,
++    const FInfinityLightEdgeThresholds& Thresholds)
++{
++    if (!State.bOn)
++    {
++        if (EffectiveLevel < Thresholds.OnLevel)
++        {
++            return EInfinityLightEdge::None;
++        }
++        State.bOn = true;
++        // A scrub or restart can run the clock backwards: that is a fresh ON, never a repeat.
++        const double SincePrevious = NowSeconds - State.LastOnSeconds;
++        const bool bRepeat = State.RunCount > 0
++            && SincePrevious >= 0.0
++            && SincePrevious <= Thresholds.RepeatWindowSeconds;
++        State.LastOnSeconds = NowSeconds;
++        if (bRepeat)
++        {
++            ++State.RunCount;
++            return EInfinityLightEdge::Repeat;
++        }
++        State.RunCount = 1;
++        return EInfinityLightEdge::On;
++    }
++    if (EffectiveLevel < Thresholds.OffLevel)
++    {
++        State.bOn = false;
++        return EInfinityLightEdge::Off;
++    }
++    return EInfinityLightEdge::None;
++}
++
++void SeedEdge(FInfinityLightEdgeState& State, const double EffectiveLevel, const FInfinityLightEdgeThresholds& Thresholds)
++{
++    State = FInfinityLightEdgeState();
++    State.bOn = EffectiveLevel >= Thresholds.OnLevel;
++}
++
++double EffectiveLevel(const ULocalLightComponent& Light)
++{
++    if (!Light.IsRegistered() || !Light.IsVisible() || Light.bHiddenInGame || !Light.bAffectsWorld)
++    {
++        return 0.0;
++    }
++    if (Light.IntensityUnits == ELightUnits::EV)
++    {
++        // EV is logarithmic: map it onto a linear scale so the thresholds keep their meaning.
++        return FMath::Exp2(static_cast<double>(Light.Intensity));
++    }
++    return FMath::Max(0.0, static_cast<double>(Light.Intensity));
++}
++
++const TCHAR* UnitsLabel(const ULocalLightComponent& Light)
++{
++    switch (Light.IntensityUnits)
++    {
++    case ELightUnits::Candelas: return TEXT("cd");
++    case ELightUnits::Lumens: return TEXT("lm");
++    case ELightUnits::EV: return TEXT("EV");
++    case ELightUnits::Nits: return TEXT("nits");
++    default: return TEXT("");
++    }
++}
++
++FString ResolveLabel(const ULocalLightComponent& Light)
++{
++    const AActor* Owner = Light.GetOwner();
++    if (!Owner)
++    {
++        return Light.GetName();
++    }
++    FString Label = ShowAttachmentLabel(*Owner);
++    if (Label.IsEmpty())
++    {
++        Label = Owner->GetActorNameOrLabel();
++    }
++    TInlineComponentArray<ULocalLightComponent*> Lights(Owner);
++    if (Lights.Num() > 1)
++    {
++        // Structure tube lights and the Sweep's spot/rect pair share one actor.
++        Label += TEXT("/") + Light.GetName();
++    }
++    return Label;
++}
++
++int32 GetLevel()
++{
++    return FMath::Clamp(CVarInfinityStageShowLightEvents.GetValueOnGameThread(), 0, 2);
++}
++}
++
++bool UInfinityStageLightEventSubsystem::SupportsWorldType(const EWorldType::Type WorldType)
++{
++    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
++}
++
++bool UInfinityStageLightEventSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
++{
++    return SupportsWorldType(WorldType);
++}
++
++void UInfinityStageLightEventSubsystem::Initialize(FSubsystemCollectionBase& Collection)
++{
++    Super::Initialize(Collection);
++}
++
++void UInfinityStageLightEventSubsystem::Deinitialize()
++{
++    if (UWorld* World = GetWorld(); World && SpawnHandle.IsValid())
++    {
++        World->RemoveOnActorSpawnedHandler(SpawnHandle);
++    }
++    SpawnHandle.Reset();
++    Tracked.Reset();
++    TrackedIndex.Reset();
++    Super::Deinitialize();
++}
++
++bool UInfinityStageLightEventSubsystem::IsTickable() const
++{
++    // Off by default: at 0 the tick is never even called.
++    return IsInitialized() && InfinityStageLightEvents::GetLevel() > 0;
++}
++
++TStatId UInfinityStageLightEventSubsystem::GetStatId() const
++{
++    RETURN_QUICK_DECLARE_CYCLE_STAT(UInfinityStageLightEventSubsystem, STATGROUP_Tickables);
++}
++
++void UInfinityStageLightEventSubsystem::Tick(const float DeltaTime)
++{
++    Super::Tick(DeltaTime);
++    const UWorld* World = GetWorld();
++    TickAt(World ? World->GetRealTimeSeconds() : 0.0);
++}
++
++void UInfinityStageLightEventSubsystem::TickAt(const double RealSeconds)
++{
++    const int32 Level = InfinityStageLightEvents::GetLevel();
++    const UWorld* World = GetWorld();
++    // Second gate: Tick is reachable directly, and the editor world must never be polled.
++    if (Level <= 0 || !World || !World->IsGameWorld())
++    {
++        return;
++    }
++    Poll(RealSeconds, Level);
++}
++
++FInfinityLightEdgeThresholds UInfinityStageLightEventSubsystem::GetThresholds() const
++{
++    if (ThresholdsForTests.IsSet())
++    {
++        return ThresholdsForTests.GetValue();
++    }
++    FInfinityLightEdgeThresholds Thresholds;
++    Thresholds.OnLevel = FMath::Max(1.0e-3, static_cast<double>(CVarInfinityStageShowLightEventsOnLevel.GetValueOnGameThread()));
++    Thresholds.OffLevel = Thresholds.OnLevel * 0.25;
++    return Thresholds;
++}
++
++AInfinityStageShowRoot* UInfinityStageLightEventSubsystem::FindShowRoot()
++{
++    return CachedShowRoot.Get();
++}
++
++void UInfinityStageLightEventSubsystem::ReadClock(
++    double& OutMasterSeconds,
++    bool& bOutMasterClock,
++    int32& OutSegmentIndex,
++    FString& OutSegment)
++{
++    OutMasterSeconds = 0.0;
++    bOutMasterClock = false;
++    OutSegmentIndex = INDEX_NONE;
++    OutSegment = TEXT("-");
++    const AInfinityStageShowRoot* Root = FindShowRoot();
++    if (Root && Root->Transport && Root->ShowAsset && Root->ShowAsset->TickResolution.IsValid())
++    {
++        const FFrameNumber Frame = Root->Transport->GetCurrentMasterFrame();
++        OutMasterSeconds = Frame.Value / Root->ShowAsset->TickResolution.AsDecimal();
++        bOutMasterClock = true;
++        OutSegmentIndex = Root->Transport->FindSegmentAtFrame(Frame);
++        if (Root->Transport->Segments.IsValidIndex(OutSegmentIndex))
++        {
++            OutSegment = Root->Transport->Segments[OutSegmentIndex].Label.ToString();
++        }
++        return;
++    }
++    if (const UWorld* World = GetWorld())
++    {
++        OutMasterSeconds = World->GetTimeSeconds();
++    }
++}
++
++void UInfinityStageLightEventSubsystem::AddLight(
++    ULocalLightComponent& Light,
++    const bool bBaseline,
++    const FInfinityLightEdgeThresholds& Thresholds)
++{
++    const FObjectKey Key(&Light);
++    if (TrackedIndex.Contains(Key))
++    {
++        return;
++    }
++    FTrackedLight& Entry = Tracked.AddDefaulted_GetRef();
++    Entry.Light = &Light;
++    Entry.Label = InfinityStageLightEvents::ResolveLabel(Light);
++    if (bBaseline)
++    {
++        // Lights already lit when tracking starts are the state of the stage, not events.
++        InfinityStageLightEvents::SeedEdge(Entry.Edge, InfinityStageLightEvents::EffectiveLevel(Light), Thresholds);
++    }
++    // Otherwise the light is new to the world: if it arrives lit, that is a light coming on.
++    TrackedIndex.Add(Key, Tracked.Num() - 1);
++}
++
++void UInfinityStageLightEventSubsystem::StartSweep(const bool bBaseline)
++{
++    // Drop destroyed lights (a re-spawned lamp is a new light), then rebuild the index.
++    Tracked.RemoveAll([](const FTrackedLight& Entry) { return !Entry.Light.IsValid(); });
++    TrackedIndex.Reset();
++    for (int32 Index = 0; Index < Tracked.Num(); ++Index)
++    {
++        TrackedIndex.Add(FObjectKey(Tracked[Index].Light.Get()), Index);
++    }
++    PollCursor = 0;
++    bSweepActive = true;
++    bSweepBaseline = bBaseline;
++    SweepLevelIndex = 0;
++    SweepActorIndex = 0;
++}
++
++void UInfinityStageLightEventSubsystem::ContinueSweep(const int32 ActorBudget, const FInfinityLightEdgeThresholds& Thresholds)
++{
++    const UWorld* World = GetWorld();
++    if (!bSweepActive || !World)
++    {
++        return;
++    }
++    // Sliced over frames through the level actor lists, so finding new lights never
++    // costs one frame a whole-world walk (a hitch would read as stutter while tuning).
++    const TArray<ULevel*>& Levels = World->GetLevels();
++    int32 Visited = 0;
++    while (Visited < ActorBudget && Levels.IsValidIndex(SweepLevelIndex))
++    {
++        const ULevel* Level = Levels[SweepLevelIndex];
++        if (!Level || !Level->Actors.IsValidIndex(SweepActorIndex))
++        {
++            ++SweepLevelIndex;
++            SweepActorIndex = 0;
++            continue;
++        }
++        AActor* Actor = Level->Actors[SweepActorIndex++];
++        ++Visited;
++        if (!IsValid(Actor))
++        {
++            continue;
++        }
++        if (AInfinityStageShowRoot* Root = Cast<AInfinityStageShowRoot>(Actor); Root && !CachedShowRoot.IsValid())
++        {
++            CachedShowRoot = Root;
++        }
++        TInlineComponentArray<ULocalLightComponent*> Lights(Actor);
++        for (ULocalLightComponent* Light : Lights)
++        {
++            if (IsValid(Light))
++            {
++                AddLight(*Light, bSweepBaseline, Thresholds);
++            }
++        }
++    }
++    if (!Levels.IsValidIndex(SweepLevelIndex))
++    {
++        bSweepActive = false;
++    }
++}
++
++void UInfinityStageLightEventSubsystem::HandleActorSpawned(AActor* Actor)
++{
++    if (!IsValid(Actor) || !bScanned || InfinityStageLightEvents::GetLevel() <= 0)
++    {
++        return;
++    }
++    const FInfinityLightEdgeThresholds Thresholds = GetThresholds();
++    TInlineComponentArray<ULocalLightComponent*> Lights(Actor);
++    for (ULocalLightComponent* Light : Lights)
++    {
++        if (IsValid(Light))
++        {
++            AddLight(*Light, false, Thresholds);
++        }
++    }
++}
++
++void UInfinityStageLightEventSubsystem::EmitScreen(FTrackedLight& Entry, const FString& Line, const bool bAllowScreen)
++{
++    if (!bAllowScreen)
++    {
++        return;
++    }
++    const FObjectKey Owner(Entry.Light.Get());
++    if (SlotOwners.Num() != ScreenSlots)
++    {
++        SlotOwners.Init(FObjectKey(), ScreenSlots);
++    }
++    if (Entry.ScreenSlot != INDEX_NONE && SlotOwners[Entry.ScreenSlot] != Owner)
++    {
++        // A newer light has taken this line since: never overwrite its text.
++        Entry.ScreenSlot = INDEX_NONE;
++    }
++    if (Entry.ScreenSlot == INDEX_NONE)
++    {
++        Entry.ScreenSlot = NextScreenSlot;
++        NextScreenSlot = (NextScreenSlot + 1) % ScreenSlots;
++        SlotOwners[Entry.ScreenSlot] = Owner;
++    }
++    if (GEngine)
++    {
++        GEngine->AddOnScreenDebugMessage(
++            static_cast<uint64>(ScreenKeyBase + static_cast<uint64>(Entry.ScreenSlot)),
++            ScreenSeconds,
++            FColor::Yellow,
++            Line);
++    }
++    if (LineSinkForTests)
++    {
++        LineSinkForTests(Line, true);
++    }
++}
++
++void UInfinityStageLightEventSubsystem::EmitLog(const FString& Line)
++{
++    UE_LOG(LogInfinityStageLightEvents, Display, TEXT("%s"), *Line);
++    if (LineSinkForTests)
++    {
++        LineSinkForTests(Line, false);
++    }
++}
++
++void UInfinityStageLightEventSubsystem::Poll(const double RealSeconds, const int32 Level)
++{
++    ++PollCount;
++    const FInfinityLightEdgeThresholds Thresholds = GetThresholds();
++    UWorld* World = GetWorld();
++
++    double MasterSeconds = 0.0;
++    bool bMasterClock = false;
++    int32 SegmentIndex = INDEX_NONE;
++    FString Segment;
++
++    if (!bScanned)
++    {
++        // First poll since the cvar went up: what is lit during this first sweep is the
++        // baseline, seeded silently, so turning the aid on never prints a burst.
++        bScanned = true;
++        StartSweep(true);
++        LastRescanSeconds = RealSeconds;
++        if (World && !SpawnHandle.IsValid())
++        {
++            // Spawned actors are tracked at once (not seeded): a lamp that arrives lit is coming on.
++            SpawnHandle = World->AddOnActorSpawnedHandler(
++                FOnActorSpawned::FDelegate::CreateUObject(this, &UInfinityStageLightEventSubsystem::HandleActorSpawned));
++        }
++    }
++    else if (GFrameCounter > LastPollFrame + 1)
++    {
++        // The cvar was off for a while (no ticks): re-seed silently rather than print
++        // everything that changed while nobody was watching.
++        for (FTrackedLight& Entry : Tracked)
++        {
++            if (const ULocalLightComponent* Light = Entry.Light.Get())
++            {
++                InfinityStageLightEvents::SeedEdge(Entry.Edge, InfinityStageLightEvents::EffectiveLevel(*Light), Thresholds);
++                Entry.bLogPending = false;
++            }
++        }
++    }
++    LastPollFrame = GFrameCounter;
++
++    ReadClock(MasterSeconds, bMasterClock, SegmentIndex, Segment);
++    // Look for lights the spawn hook cannot see (components added to existing actors):
++    // a sliced sweep on a segment change, every RescanSeconds, or if the clock ran back.
++    if (!bSweepActive
++        && (SegmentIndex != LastSegmentIndex
++            || RealSeconds - LastRescanSeconds >= RescanSeconds
++            || RealSeconds < LastRescanSeconds))
++    {
++        StartSweep(false);
++        LastRescanSeconds = RealSeconds;
++    }
++    LastSegmentIndex = SegmentIndex;
++    ContinueSweep(SweepActorsPerPoll, Thresholds);
++    if (!bMasterClock && CachedShowRoot.IsValid())
++    {
++        // The sweep has just found the Show Root: read the Master clock from it this poll.
++        ReadClock(MasterSeconds, bMasterClock, SegmentIndex, Segment);
++        LastSegmentIndex = SegmentIndex;
++    }
++
++    const AInfinityStageShowRoot* Root = FindShowRoot();
++    const bool bPerformance = Root && Root->Transport && Root->Transport->bPerformanceMode;
++    const bool bAllowScreen = Level == 1 && !bPerformance;
++    const TCHAR* Clock = bMasterClock ? TEXT("master") : TEXT("world");
++
++    const int32 Num = Tracked.Num();
++    if (Num == 0)
++    {
++        return;
++    }
++    const int32 Count = FMath::Min(Num, MaxLightsPerPoll);
++    const int32 Start = Num > MaxLightsPerPoll ? PollCursor % Num : 0;
++    for (int32 Step = 0; Step < Count; ++Step)
++    {
++        FTrackedLight& Entry = Tracked[(Start + Step) % Num];
++        const ULocalLightComponent* Light = Entry.Light.Get();
++        if (!Light)
++        {
++            continue;
++        }
++        ++LightsSampled;
++        const double Effective = InfinityStageLightEvents::EffectiveLevel(*Light);
++        const EInfinityLightEdge Edge = InfinityStageLightEvents::StepEdge(Entry.Edge, Effective, RealSeconds, Thresholds);
++        const TCHAR* Units = InfinityStageLightEvents::UnitsLabel(*Light);
++
++        if (Edge == EInfinityLightEdge::On)
++        {
++            Entry.bLogPending = true;
++            Entry.PendingUntilSeconds = RealSeconds + RiseSettleSeconds;
++            Entry.PeakLevel = Effective;
++            Entry.PeakIntensity = Light->Intensity;
++            Entry.OnMasterSeconds = MasterSeconds;
++            Entry.OnSegment = Segment;
++            Entry.LastRepeatLogSeconds = RealSeconds;
++            Entry.ScreenSlot = INDEX_NONE;   // a fresh ON takes the next rolling line
++            EmitScreen(Entry, FString::Printf(TEXT("%.1f s  %s  %s  ON ->%s %s"),
++                MasterSeconds, *Segment, *Entry.Label, *FormatIntensity(Entry.PeakIntensity), Units), bAllowScreen);
++        }
++        else if (Edge == EInfinityLightEdge::Repeat)
++        {
++            // Strobes and flickers: one line, rewritten in place with the count.
++            EmitScreen(Entry, FString::Printf(TEXT("%.1f s  %s  %s  ON ->%s %s (x%d)"),
++                Entry.OnMasterSeconds, *Entry.OnSegment, *Entry.Label, *FormatIntensity(Entry.PeakIntensity), Units,
++                Entry.Edge.RunCount), bAllowScreen);
++            if (RealSeconds - Entry.LastRepeatLogSeconds >= RepeatLogSeconds)
++            {
++                Entry.LastRepeatLogSeconds = RealSeconds;
++                EmitLog(FString::Printf(TEXT("INFINITY_LIGHT_REPEAT|t=%.2f|clock=%s|seg=%s|label=%s|count=%d"),
++                    MasterSeconds, Clock, *LogSafe(Segment), *LogSafe(Entry.Label), Entry.Edge.RunCount));
++            }
++        }
++
++        if (Entry.bLogPending)
++        {
++            if (Effective > Entry.PeakLevel)
++            {
++                const bool bVisibleRise = Effective > Entry.PeakLevel * 1.05;
++                Entry.PeakLevel = Effective;
++                Entry.PeakIntensity = Light->Intensity;
++                if (bVisibleRise)
++                {
++                    EmitScreen(Entry, FString::Printf(TEXT("%.1f s  %s  %s  ON ->%s %s"),
++                        Entry.OnMasterSeconds, *Entry.OnSegment, *Entry.Label, *FormatIntensity(Entry.PeakIntensity), Units),
++                        bAllowScreen);
++                }
++            }
++            if (RealSeconds >= Entry.PendingUntilSeconds || Edge == EInfinityLightEdge::Off)
++            {
++                Entry.bLogPending = false;
++                EmitLog(FString::Printf(TEXT("INFINITY_LIGHT_ON|t=%.2f|clock=%s|seg=%s|label=%s|to=%s|units=%s"),
++                    Entry.OnMasterSeconds, Clock, *LogSafe(Entry.OnSegment), *LogSafe(Entry.Label),
++                    *FormatIntensity(Entry.PeakIntensity), Units));
++            }
++        }
++
++        // OFF goes to the log only, and not for a light in a repeating run (a strobe would flood it).
++        if (Edge == EInfinityLightEdge::Off && Entry.Edge.RunCount <= 1)
++        {
++            EmitLog(FString::Printf(TEXT("INFINITY_LIGHT_OFF|t=%.2f|clock=%s|seg=%s|label=%s"),
++                MasterSeconds, Clock, *LogSafe(Segment), *LogSafe(Entry.Label)));
++        }
++    }
++    PollCursor = (Start + Count) % Num;
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightEvents.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightEvents.h
+new file mode 100644
+index 0000000..beec498
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightEvents.h
+@@ -0,0 +1,171 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Subsystems/WorldSubsystem.h"
++#include "UObject/ObjectKey.h"
++#include "InfinityStageLightEvents.generated.h"
++
++class AActor;
++class AInfinityStageShowRoot;
++class ULocalLightComponent;
++
++/**
++ * Light tuning aid (Gary, 5 Oct: "an extremely useful small update for tuning
++ * lights is if screen text printed the light that was currently coming on").
++ *
++ * Console: InfinityStage.ShowLightEvents  0 off (default), 1 screen + log, 2 log only.
++ *
++ * Lights come on by many paths: Light Drama strikes, Sequencer Intensity keys on
++ * level lights (Opening FOH, hangar rises, Choreos), the Strobe and the Sweep Light,
++ * Effect-source flicker, and visibility toggles. Rather than hook each one, a
++ * per-world tracker polls every local light in the game world once a frame and
++ * reports an OFF->ON crossing of its effective intensity, with hysteresis. Polling
++ * sees every path the same way, including Sequencer keys.
++ */
++
++/** What one poll of one light produced. */
++enum class EInfinityLightEdge : uint8
++{
++    None,
++    /** A fresh OFF->ON crossing: printed. */
++    On,
++    /** An OFF->ON crossing inside the repeat window of the previous one: counted, not printed anew. */
++    Repeat,
++    /** An ON->OFF crossing. */
++    Off
++};
++
++struct INFINITYSTAGE_API FInfinityLightEdgeThresholds
++{
++    /** The light counts as ON once its effective intensity reaches this (in its own units). */
++    double OnLevel = 1.0;
++    /** ...and as OFF again only below this. Between the two nothing changes (hysteresis). */
++    double OffLevel = 0.25;
++    /** An ON within this many seconds of the light's previous ON is a repeat (strobe, flicker). */
++    double RepeatWindowSeconds = 8.0;
++};
++
++struct INFINITYSTAGE_API FInfinityLightEdgeState
++{
++    bool bOn = false;
++    /** ON crossings in the current run, the first included. 0 before the first. */
++    int32 RunCount = 0;
++    double LastOnSeconds = 0.0;
++};
++
++namespace InfinityStageLightEvents
++{
++/** Pure: advances one light's state by one sample and says what crossed. */
++INFINITYSTAGE_API EInfinityLightEdge StepEdge(
++    FInfinityLightEdgeState& State,
++    double EffectiveLevel,
++    double NowSeconds,
++    const FInfinityLightEdgeThresholds& Thresholds);
++
++/** Seeds a state silently from the current level (the first scan: no burst of prints at PIE start). */
++INFINITYSTAGE_API void SeedEdge(FInfinityLightEdgeState& State, double EffectiveLevel, const FInfinityLightEdgeThresholds& Thresholds);
++
++/** Intensity as the viewer gets it: 0 unless registered, visible, not hidden in game and affecting the world. */
++INFINITYSTAGE_API double EffectiveLevel(const ULocalLightComponent& Light);
++
++/** "cd", "lm", "nits", "EV" or "" (unitless). */
++INFINITYSTAGE_API const TCHAR* UnitsLabel(const ULocalLightComponent& Light);
++
++/**
++ * The name a person tuning lights knows this light by: the Show attachment label
++ * for a materialised Show lamp (resolved through its identity tag, so it is the
++ * Show's label even where the actor label differs), else the actor label. When
++ * the actor carries several local lights, the component name is appended.
++ */
++INFINITYSTAGE_API FString ResolveLabel(const ULocalLightComponent& Light);
++
++/** The console level, 0..2. */
++INFINITYSTAGE_API int32 GetLevel();
++}
++
++/**
++ * Polls the game world's local lights and reports lights coming on. Exists only in
++ * Game and PIE worlds, never in the editor world or a preview world, and does no
++ * work at all while InfinityStage.ShowLightEvents is 0.
++ */
++UCLASS()
++class INFINITYSTAGE_API UInfinityStageLightEventSubsystem : public UTickableWorldSubsystem
++{
++    GENERATED_BODY()
++
++public:
++    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
++    virtual void Deinitialize() override;
++    virtual void Tick(float DeltaTime) override;
++    virtual bool IsTickable() const override;
++    virtual TStatId GetStatId() const override;
++
++    /** True for the world types the tracker runs in (Game, PIE). */
++    static bool SupportsWorldType(EWorldType::Type WorldType);
++
++    /** TEST SEAM: one tick at an explicit real-time clock, through the same cvar gate as Tick. */
++    void TickAtForTests(double RealSeconds) { TickAt(RealSeconds); }
++
++    /** TEST SEAM: receives every emitted line; bScreen says whether it went to the screen. */
++    TFunction<void(const FString& Line, bool bScreen)> LineSinkForTests;
++
++    /** TEST SEAM: how many polls ran and how many lights they sampled. */
++    int64 GetPollCountForTests() const { return PollCount; }
++    int64 GetLightsSampledForTests() const { return LightsSampled; }
++    int32 GetTrackedLightCountForTests() const { return Tracked.Num(); }
++
++    /** TEST SEAM: overrides the thresholds (the cvar values otherwise). */
++    TOptional<FInfinityLightEdgeThresholds> ThresholdsForTests;
++
++protected:
++    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
++
++private:
++    struct FTrackedLight
++    {
++        TWeakObjectPtr<ULocalLightComponent> Light;
++        FString Label;
++        FInfinityLightEdgeState Edge;
++        /** Rolling on-screen slot this light last wrote, or INDEX_NONE. */
++        int32 ScreenSlot = INDEX_NONE;
++        /** The ON line is logged once the rise has settled, with the level it rose to. */
++        bool bLogPending = false;
++        double PendingUntilSeconds = 0.0;
++        double PeakLevel = 0.0;
++        float PeakIntensity = 0.0f;
++        double OnMasterSeconds = 0.0;
++        FString OnSegment;
++        double LastRepeatLogSeconds = 0.0;
++    };
++
++    void TickAt(double RealSeconds);
++    void Poll(double RealSeconds, int32 Level);
++    void StartSweep(bool bBaseline);
++    void ContinueSweep(int32 ActorBudget, const FInfinityLightEdgeThresholds& Thresholds);
++    void AddLight(ULocalLightComponent& Light, bool bBaseline, const FInfinityLightEdgeThresholds& Thresholds);
++    void HandleActorSpawned(AActor* Actor);
++    FInfinityLightEdgeThresholds GetThresholds() const;
++    AInfinityStageShowRoot* FindShowRoot();
++    void ReadClock(double& OutMasterSeconds, bool& bOutMasterClock, int32& OutSegmentIndex, FString& OutSegment);
++    void EmitScreen(FTrackedLight& Entry, const FString& Line, bool bAllowScreen);
++    void EmitLog(const FString& Line);
++
++    TArray<FTrackedLight> Tracked;
++    TMap<FObjectKey, int32> TrackedIndex;
++    /** Which light owns each rolling on-screen line. */
++    TArray<FObjectKey> SlotOwners;
++    TWeakObjectPtr<AInfinityStageShowRoot> CachedShowRoot;
++    FDelegateHandle SpawnHandle;
++    bool bScanned = false;
++    bool bSweepActive = false;
++    bool bSweepBaseline = false;
++    int32 SweepLevelIndex = 0;
++    int32 SweepActorIndex = 0;
++    double LastRescanSeconds = 0.0;
++    uint64 LastPollFrame = 0;
++    int32 LastSegmentIndex = INDEX_NONE;
++    int32 NextScreenSlot = 0;
++    int32 PollCursor = 0;
++    int64 PollCount = 0;
++    int64 LightsSampled = 0;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightEventsTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightEventsTests.cpp
+new file mode 100644
+index 0000000..c21dd76
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightEventsTests.cpp
+@@ -0,0 +1,502 @@
++#include "InfinityStageLightEvents.h"
++
++#include "Components/LocalLightComponent.h"
++#include "Engine/PointLight.h"
++#include "Engine/SpotLight.h"
++#include "Engine/World.h"
++#include "HAL/IConsoleManager.h"
++#include "InfinityStageAttachmentBinding.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageStrobeLight.h"
++#include "InfinityStageTransportController.h"
++#include "InfinityStageTypes.h"
++#include "Misc/AutomationTest.h"
++#include "UObject/Package.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++/** Sets InfinityStage.ShowLightEvents for one test and restores it after. */
++struct FShowLightEventsLevel
++{
++    IConsoleVariable* CVar = nullptr;
++    int32 Previous = 0;
++
++    explicit FShowLightEventsLevel(const int32 Value)
++    {
++        CVar = IConsoleManager::Get().FindConsoleVariable(TEXT("InfinityStage.ShowLightEvents"));
++        if (CVar)
++        {
++            Previous = CVar->GetInt();
++            CVar->Set(Value, ECVF_SetByCode);
++        }
++    }
++    void Set(const int32 Value) const
++    {
++        if (CVar)
++        {
++            CVar->Set(Value, ECVF_SetByCode);
++        }
++    }
++    int32 Get() const { return CVar ? CVar->GetInt() : -1; }
++    ~FShowLightEventsLevel()
++    {
++        if (CVar)
++        {
++            CVar->Set(Previous, ECVF_SetByCode);
++        }
++    }
++};
++
++/** Every line the subsystem emits, split by where it went. */
++struct FCapturedLines
++{
++    TArray<FString> Screen;
++    TArray<FString> Log;
++
++    void Attach(UInfinityStageLightEventSubsystem& Subsystem)
++    {
++        Subsystem.LineSinkForTests = [this](const FString& Line, const bool bScreen)
++        {
++            (bScreen ? Screen : Log).Add(Line);
++        };
++    }
++    int32 CountLog(const TCHAR* Prefix) const
++    {
++        return Log.FilterByPredicate([Prefix](const FString& Line) { return Line.StartsWith(Prefix); }).Num();
++    }
++    int32 CountScreen(const TCHAR* Needle, const bool bWith) const
++    {
++        return Screen.FilterByPredicate([Needle, bWith](const FString& Line) { return Line.Contains(Needle) == bWith; }).Num();
++    }
++};
++
++ULocalLightComponent* SpawnLamp(UWorld& World, const float Intensity, const bool bVisible)
++{
++    APointLight* Lamp = World.SpawnActor<APointLight>();
++    ULocalLightComponent* Light = Lamp ? Lamp->FindComponentByClass<ULocalLightComponent>() : nullptr;
++    if (Light)
++    {
++        Light->SetIntensityUnits(ELightUnits::Candelas);
++        Light->SetIntensity(Intensity);
++        Light->SetVisibility(bVisible);
++    }
++    return Light;
++}
++
++constexpr double LightEventsFrameSeconds = 1.0 / 60.0;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsOnceTest,
++    "InfinityStage.LightEvents.OnCrossingDetectedOnce",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightEventsOnceTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageLightEvents;
++    const FInfinityLightEdgeThresholds Thresholds;
++
++    // Pure edge: a 0.5 s strike ramp to 1740 cd, then a hold.
++    auto CountOns = [](const FInfinityLightEdgeThresholds& T, FInfinityLightEdgeState State)
++    {
++        int32 Ons = 0;
++        for (int32 Frame = 0; Frame < 180; ++Frame)
++        {
++            const double Level = 1740.0 * FMath::Clamp(Frame / 30.0, 0.0, 1.0);
++            Ons += StepEdge(State, Level, Frame * (1.0 / 60.0), T) == EInfinityLightEdge::On ? 1 : 0;
++        }
++        return Ons;
++    };
++    TestEqual(TEXT("A ramp from dark to 1740 cd crosses ON exactly once"), CountOns(Thresholds, FInfinityLightEdgeState()), 1);
++    FInfinityLightEdgeThresholds TooHigh;
++    TooHigh.OnLevel = 5000.0;
++    TooHigh.OffLevel = 1250.0;
++    TestEqual(TEXT("Control: an ON level above the peak never fires (the count can be 0)"),
++        CountOns(TooHigh, FInfinityLightEdgeState()), 0);
++    FInfinityLightEdgeState Seeded;
++    SeedEdge(Seeded, 1740.0, Thresholds);
++    TestTrue(TEXT("Seeding a lit light marks it ON silently (the baseline at start)"), Seeded.bOn);
++
++    // Through the real subsystem, in a Game world.
++    FShowLightEventsLevel Level(2);
++    TestEqual(TEXT("The cvar took level 2"), Level.Get(), 2);
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    UInfinityStageLightEventSubsystem* Subsystem = World ? World->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr;
++    ULocalLightComponent* Light = World ? SpawnLamp(*World, 0.0f, false) : nullptr;
++    if (!TestNotNull(TEXT("Game world has the light-event subsystem"), Subsystem) || !TestNotNull(TEXT("Lamp spawned"), Light))
++    {
++        if (World) { World->DestroyWorld(false); }
++        return false;
++    }
++    FCapturedLines Lines;
++    Lines.Attach(*Subsystem);
++    double Now = 100.0;
++    Subsystem->TickAtForTests(Now);   // baseline: dark
++    TestEqual(TEXT("Baseline poll emits nothing"), Lines.Log.Num(), 0);
++    TestEqual(TEXT("EffectiveLevel: an invisible lamp counts as dark"), EffectiveLevel(*Light), 0.0);
++
++    Light->SetVisibility(true);
++    Light->SetIntensity(1740.0f);
++    for (int32 Frame = 0; Frame < 120; ++Frame)
++    {
++        Now += LightEventsFrameSeconds;
++        Subsystem->TickAtForTests(Now);
++    }
++    TestEqual(TEXT("One INFINITY_LIGHT_ON line for one crossing"), Lines.CountLog(TEXT("INFINITY_LIGHT_ON|")), 1);
++    const FString* OnLine = Lines.Log.FindByPredicate([](const FString& Line) { return Line.StartsWith(TEXT("INFINITY_LIGHT_ON|")); });
++    TestTrue(TEXT("The line carries the level it rose to and its units"),
++        OnLine && OnLine->Contains(TEXT("|to=1740|units=cd")));
++    TestEqual(TEXT("Level 2 is log only: nothing went to the screen"), Lines.Screen.Num(), 0);
++
++    Light->SetVisibility(false);
++    Now += LightEventsFrameSeconds;
++    Subsystem->TickAtForTests(Now);
++    TestEqual(TEXT("Switching it off logs one OFF line"), Lines.CountLog(TEXT("INFINITY_LIGHT_OFF|")), 1);
++    Light->SetVisibility(true);
++    for (int32 Frame = 0; Frame < 60; ++Frame)
++    {
++        Now += LightEventsFrameSeconds;
++        Subsystem->TickAtForTests(Now);
++    }
++    TestEqual(TEXT("Control: a second crossing soon after is a repeat, not a second ON line"),
++        Lines.CountLog(TEXT("INFINITY_LIGHT_ON|")), 1);
++
++    Subsystem->LineSinkForTests = nullptr;
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsFlickerTest,
++    "InfinityStage.LightEvents.FlickerInsideBandDoesNotPrint",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightEventsFlickerTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageLightEvents;
++    const FInfinityLightEdgeThresholds Thresholds;   // ON at 1.0, OFF below 0.25
++    auto CountEdges = [&Thresholds](const double Low, const double High, FInfinityLightEdgeState State)
++    {
++        int32 Edges = 0;
++        for (int32 Frame = 0; Frame < 600; ++Frame)
++        {
++            const double Level = (Frame % 4 < 2) ? Low : High;   // 15 Hz flicker
++            Edges += StepEdge(State, Level, Frame * (1.0 / 60.0), Thresholds) != EInfinityLightEdge::None ? 1 : 0;
++        }
++        return Edges;
++    };
++    TestEqual(TEXT("A dark lamp flickering inside the band (0.3..0.9) never crosses"), CountEdges(0.3, 0.9, FInfinityLightEdgeState()), 0);
++    FInfinityLightEdgeState Lit;
++    SeedEdge(Lit, 1740.0, Thresholds);
++    TestEqual(TEXT("A lit lamp dipping to 0.5 (a stutter) never drops OFF"), CountEdges(0.5, 1740.0, Lit), 0);
++    TestTrue(TEXT("Control: the same flicker across the band (0.1..1.5) does cross, many times"),
++        CountEdges(0.1, 1.5, FInfinityLightEdgeState()) > 100);
++
++    // And nothing reaches the output for the in-band flicker.
++    FShowLightEventsLevel Level(1);
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    UInfinityStageLightEventSubsystem* Subsystem = World ? World->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr;
++    ULocalLightComponent* Light = World ? SpawnLamp(*World, 0.0f, true) : nullptr;
++    if (!TestNotNull(TEXT("Subsystem"), Subsystem) || !TestNotNull(TEXT("Lamp"), Light))
++    {
++        if (World) { World->DestroyWorld(false); }
++        return false;
++    }
++    FCapturedLines Lines;
++    Lines.Attach(*Subsystem);
++    double Now = 0.0;
++    Subsystem->TickAtForTests(Now);
++    for (int32 Frame = 0; Frame < 300; ++Frame)
++    {
++        Light->SetIntensity((Frame % 4 < 2) ? 0.3f : 0.9f);
++        Now += LightEventsFrameSeconds;
++        Subsystem->TickAtForTests(Now);
++    }
++    TestEqual(TEXT("In-band flicker: no screen line"), Lines.Screen.Num(), 0);
++    TestEqual(TEXT("In-band flicker: no log line"), Lines.Log.Num(), 0);
++    TestTrue(TEXT("Control: the lamp was being sampled all along"), Subsystem->GetLightsSampledForTests() >= 300);
++    Subsystem->LineSinkForTests = nullptr;
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsStrobeTest,
++    "InfinityStage.LightEvents.StrobePrintsOnceThenCounts",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightEventsStrobeTest::RunTest(const FString& Parameters)
++{
++    FShowLightEventsLevel Level(1);
++    // Runs a 1 Hz strobe (the Strobe's own LevelAt and its switch-off rule) for ten
++    // flashes, and returns the captured lines.
++    auto RunStrobe = [this](const double RepeatWindowSeconds, FCapturedLines& Lines)
++    {
++        UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++        UInfinityStageLightEventSubsystem* Subsystem = World ? World->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr;
++        ULocalLightComponent* Light = World ? SpawnLamp(*World, 0.0f, false) : nullptr;
++        if (!TestNotNull(TEXT("Subsystem"), Subsystem) || !TestNotNull(TEXT("Lamp"), Light))
++        {
++            if (World) { World->DestroyWorld(false); }
++            return;
++        }
++        FInfinityLightEdgeThresholds Thresholds;
++        Thresholds.RepeatWindowSeconds = RepeatWindowSeconds;
++        Subsystem->ThresholdsForTests = Thresholds;
++        Lines.Attach(*Subsystem);
++        Subsystem->TickAtForTests(0.5);   // baseline, between flashes
++        for (double T = 0.5 + LightEventsFrameSeconds; T < 10.5; T += LightEventsFrameSeconds)
++        {
++            const float Strobe = InfinityStageStrobe::LevelAt(T, 1.0f, 0.04f, 0.33f, 0.0f);
++            const bool bLit = Strobe > UE_KINDA_SMALL_NUMBER;
++            Light->SetVisibility(bLit);
++            if (bLit)
++            {
++                Light->SetIntensity(20000.0f * Strobe);
++            }
++            Subsystem->TickAtForTests(T);
++        }
++        Subsystem->LineSinkForTests = nullptr;
++        World->DestroyWorld(false);
++    };
++
++    FCapturedLines Limited;
++    RunStrobe(8.0, Limited);
++    TestEqual(TEXT("Ten flashes print ONE fresh ON line"), Limited.CountScreen(TEXT("(x"), false), 1);
++    TestEqual(TEXT("...and one INFINITY_LIGHT_ON log line"), Limited.CountLog(TEXT("INFINITY_LIGHT_ON|")), 1);
++    TestTrue(TEXT("...then counts on the same line, up to (x10)"),
++        !Limited.Screen.IsEmpty() && Limited.Screen.Last().EndsWith(TEXT("(x10)")));
++    TestTrue(TEXT("The strobe's ON line names the peak in cd"),
++        !Limited.Screen.IsEmpty() && Limited.Screen[0].Contains(TEXT("ON ->20000 cd")));
++    TestEqual(TEXT("A repeating light logs no OFF lines after its first"), Limited.CountLog(TEXT("INFINITY_LIGHT_OFF|")), 1);
++    TestTrue(TEXT("Its count is logged, rate-limited (well under one line per flash)"),
++        Limited.CountLog(TEXT("INFINITY_LIGHT_REPEAT|")) >= 1 && Limited.CountLog(TEXT("INFINITY_LIGHT_REPEAT|")) <= 3);
++
++    FCapturedLines Unlimited;
++    RunStrobe(0.0, Unlimited);
++    TestEqual(TEXT("Control: with no repeat window every flash is a fresh ON (10)"),
++        Unlimited.CountScreen(TEXT("(x"), false), 10);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsOffTest,
++    "InfinityStage.LightEvents.CvarZeroDoesNoWork",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightEventsOffTest::RunTest(const FString& Parameters)
++{
++    FShowLightEventsLevel Level(0);
++    if (!TestNotNull(TEXT("InfinityStage.ShowLightEvents is registered"), Level.CVar))
++    {
++        return false;
++    }
++    if ((Level.CVar->GetFlags() & ECVF_SetByMask) == ECVF_SetByConstructor)
++    {
++        TestEqual(TEXT("Off by default"), Level.Previous, 0);
++    }
++    else
++    {
++        AddInfo(TEXT("The cvar was set by an ini or the console before this test; its default is not checked."));
++    }
++    TestEqual(TEXT("The cvar took level 0"), Level.Get(), 0);
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    UInfinityStageLightEventSubsystem* Subsystem = World ? World->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr;
++    ULocalLightComponent* Light = World ? SpawnLamp(*World, 0.0f, false) : nullptr;
++    if (!TestNotNull(TEXT("Subsystem"), Subsystem) || !TestNotNull(TEXT("Lamp"), Light))
++    {
++        if (World) { World->DestroyWorld(false); }
++        return false;
++    }
++    FCapturedLines Lines;
++    Lines.Attach(*Subsystem);
++    TestFalse(TEXT("At 0 the subsystem is not tickable: the engine never calls Tick"), Subsystem->IsTickable());
++    double Now = 0.0;
++    for (int32 Frame = 0; Frame < 60; ++Frame)
++    {
++        Light->SetVisibility(Frame % 2 == 0);
++        Light->SetIntensity(Frame % 2 == 0 ? 1740.0f : 0.0f);
++        Now += LightEventsFrameSeconds;
++        Subsystem->TickAtForTests(Now);
++        Subsystem->Tick(static_cast<float>(LightEventsFrameSeconds));
++    }
++    TestEqual(TEXT("At 0: no polls"), Subsystem->GetPollCountForTests(), int64(0));
++    TestEqual(TEXT("At 0: no lights sampled"), Subsystem->GetLightsSampledForTests(), int64(0));
++    TestEqual(TEXT("At 0: no lights even gathered"), Subsystem->GetTrackedLightCountForTests(), 0);
++    TestEqual(TEXT("At 0: nothing emitted"), Lines.Screen.Num() + Lines.Log.Num(), 0);
++
++    Level.Set(2);
++    TestTrue(TEXT("Control: at 2 it is tickable"), Subsystem->IsTickable());
++    Subsystem->TickAtForTests(Now + LightEventsFrameSeconds);
++    TestEqual(TEXT("Control: at 2 one tick is one poll"), Subsystem->GetPollCountForTests(), int64(1));
++    TestTrue(TEXT("Control: at 2 the lamp is gathered and sampled"),
++        Subsystem->GetTrackedLightCountForTests() >= 1 && Subsystem->GetLightsSampledForTests() >= 1);
++
++    Subsystem->LineSinkForTests = nullptr;
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsEditorWorldTest,
++    "InfinityStage.LightEvents.IgnoredInEditorWorld",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightEventsEditorWorldTest::RunTest(const FString& Parameters)
++{
++    FShowLightEventsLevel Level(1);
++    TestFalse(TEXT("Not in the editor world"), UInfinityStageLightEventSubsystem::SupportsWorldType(EWorldType::Editor));
++    TestFalse(TEXT("Not in preview worlds"), UInfinityStageLightEventSubsystem::SupportsWorldType(EWorldType::EditorPreview));
++    TestTrue(TEXT("Control: PIE"), UInfinityStageLightEventSubsystem::SupportsWorldType(EWorldType::PIE));
++    TestTrue(TEXT("Control: Game (standalone)"), UInfinityStageLightEventSubsystem::SupportsWorldType(EWorldType::Game));
++
++    UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    TestNull(TEXT("A non-game world never gets the subsystem, even with the cvar on"),
++        Preview ? Preview->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr);
++    if (Preview)
++    {
++        Preview->DestroyWorld(false);
++    }
++    UWorld* Game = UWorld::CreateWorld(EWorldType::Game, false);
++    TestNotNull(TEXT("Control: a Game world does get it"),
++        Game ? Game->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr);
++    if (Game)
++    {
++        Game->DestroyWorld(false);
++    }
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsPerformanceTest,
++    "InfinityStage.LightEvents.PerformanceModeNeverPrintsToScreen",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightEventsPerformanceTest::RunTest(const FString& Parameters)
++{
++    FShowLightEventsLevel Level(1);
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    AInfinityStageShowRoot* Root = World ? World->SpawnActor<AInfinityStageShowRoot>() : nullptr;
++    UInfinityStageLightEventSubsystem* Subsystem = World ? World->GetSubsystem<UInfinityStageLightEventSubsystem>() : nullptr;
++    ULocalLightComponent* First = World ? SpawnLamp(*World, 0.0f, false) : nullptr;
++    ULocalLightComponent* Second = World ? SpawnLamp(*World, 0.0f, false) : nullptr;
++    if (!TestNotNull(TEXT("Show Root"), Root) || !TestNotNull(TEXT("Transport"), Root ? Root->Transport.Get() : nullptr)
++        || !TestNotNull(TEXT("Subsystem"), Subsystem) || !TestNotNull(TEXT("Lamps"), Second) || !First)
++    {
++        if (World) { World->DestroyWorld(false); }
++        return false;
++    }
++    FCapturedLines Lines;
++    Lines.Attach(*Subsystem);
++    Root->Transport->bPerformanceMode = true;
++    double Now = 0.0;
++    Subsystem->TickAtForTests(Now);
++    First->SetVisibility(true);
++    First->SetIntensity(1740.0f);
++    for (int32 Frame = 0; Frame < 60; ++Frame)
++    {
++        Now += LightEventsFrameSeconds;
++        Subsystem->TickAtForTests(Now);
++    }
++    TestEqual(TEXT("Performance mode: nothing on screen"), Lines.Screen.Num(), 0);
++    TestEqual(TEXT("Performance mode: the log still has the event"), Lines.CountLog(TEXT("INFINITY_LIGHT_ON|")), 1);
++
++    Root->Transport->bPerformanceMode = false;
++    Second->SetVisibility(true);
++    Second->SetIntensity(1740.0f);
++    Now += LightEventsFrameSeconds;
++    Subsystem->TickAtForTests(Now);
++    TestEqual(TEXT("Control: rehearsal mode prints the next light on screen"), Lines.Screen.Num(), 1);
++
++    Subsystem->LineSinkForTests = nullptr;
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightEventsLabelTest,
++    "InfinityStage.LightEvents.LabelIsShowAttachmentLabel",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// The materialise fixture of Cueing.Binding.SurvivesRealMaterialize, with a labelled lamp.
++// MaterializePassage refuses game worlds, so labels are resolved in the preview world the
++// lamp was materialised in; PIE lamps are duplicates of these.
++bool FInfinityStageLightEventsLabelTest::RunTest(const FString& Parameters)
++{
++    const FString ShowLabel(TEXT("P01 SCORE B07 P01_WARM_THEATRICAL TOP_L"));
++    InfinityStageAttachmentBinding::ResetCacheForTests();
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    FGuid LampCue;
++    FGuid LampAttachment;
++    for (int32 Index = 0; Index < 2; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.Left.Mesh = Cube;
++        Cue.WingPair.Right.Mesh = Cube;
++        Cue.WingPair.GapToNextCm = 500.0;
++        Cue.WingPair.IntervalToNext = 48000;
++        if (Index == 0)
++        {
++            FInfinityCueAttachment& Lamp = Cue.WingPair.Attachments.AddDefaulted_GetRef();
++            Lamp.AttachmentGuid = FGuid::NewGuid();
++            Lamp.Kind = EInfinityAttachmentKind::Light;
++            Lamp.Anchor = EInfinityAttachmentAnchor::Station;
++            Lamp.Label = FText::FromString(ShowLabel);
++            LampCue = Cue.CueGuid;
++            LampAttachment = Lamp.AttachmentGuid;
++        }
++    }
++    Show->ReconcilePassageSettings();
++    const FName Tag(*FString::Printf(TEXT("InfinityStage.Attachment.%s|%s"),
++        *LampCue.ToString(EGuidFormats::Digits), *LampAttachment.ToString(EGuidFormats::Digits)));
++
++    AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
++    Passage->ShowAsset = Show;
++    TestTrue(TEXT("Fixture materializes"), Passage->MaterializePassage());
++    AActor* LampActor = InfinityStageAttachmentBinding::FindAttachmentActor(World, Tag);
++    ULocalLightComponent* LampLight = LampActor ? LampActor->FindComponentByClass<ULocalLightComponent>() : nullptr;
++    if (!TestNotNull(TEXT("The materialised Show lamp has a local light"), LampLight))
++    {
++        World->DestroyWorld(false);
++        InfinityStageAttachmentBinding::ResetCacheForTests();
++        return false;
++    }
++#if WITH_EDITOR
++    // Prove the label comes from the Show, not from the actor label materialise also sets.
++    LampActor->SetActorLabel(TEXT("Renamed In Outliner"));
++#endif
++    const FString Resolved = InfinityStageLightEvents::ResolveLabel(*LampLight);
++    TestTrue(FString::Printf(TEXT("A materialised Show lamp resolves to its Show attachment label (got '%s')"), *Resolved),
++        Resolved == ShowLabel);
++
++    ASpotLight* LevelLamp = World->SpawnActor<ASpotLight>();
++#if WITH_EDITOR
++    if (LevelLamp)
++    {
++        LevelLamp->SetActorLabel(TEXT("Opening Rig - FOH L"));
++    }
++#endif
++    ULocalLightComponent* LevelLight = LevelLamp ? LevelLamp->FindComponentByClass<ULocalLightComponent>() : nullptr;
++    TestTrue(TEXT("Control: a level light resolves to its actor label"),
++        LevelLight && InfinityStageLightEvents::ResolveLabel(*LevelLight) == LevelLamp->GetActorNameOrLabel());
++
++    LampActor->Tags.Remove(Tag);
++    TestFalse(TEXT("Control: without its identity tag the lamp no longer resolves to the Show label"),
++        InfinityStageLightEvents::ResolveLabel(*LampLight) == ShowLabel);
++
++    World->DestroyWorld(false);
++    InfinityStageAttachmentBinding::ResetCacheForTests();
++    return true;
++}
++
++#endif
