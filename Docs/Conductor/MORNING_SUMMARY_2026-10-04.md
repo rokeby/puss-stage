@@ -233,3 +233,11 @@
   - **Open:** job 48's no_cut flag must be honoured by the V3 flat build. Nothing reads it yet.
 - **Passage-end curtains (Gary 5 Oct):** these are the curtain seen at a passage's end BEFORE the hangar comes up, not the shadow-play drop, and they must not show the coming scene. P01: overgrown railway curving away. P02: jungle clearing. P03: as written. P04: a receding stone arcade. P05: a deer sniffing a red toadstool, mountains far off.
   - **P06 has no end curtain:** "only darkness but the curtain's already on the ground on fire". A staging/FX item: a fallen burning drop on the floor in the dark before S6.
+
+## Gary's decisions, 5 Oct ~03:30 (questionnaire)
+- **Overnight authority (tonight only):** close/reopen UE when the census is clean; Don't-Save restart if a step stops (disk verified first); start/end my OWN PIE for captures.
+- Trim Scenes 1, 2, 4, 5 and 6 back to their original length overnight, with the exit-block revert.
+- Strobe defaults: 1 s, point light, a preset subtle ghost.
+- Fuser: production-use terms OK for the show; job 43 image-to-image from our own concepts is OK for P06.
+- Scene 3: no door (backdrop stays whole).
+- P04 lens flare back to the engine default 1.0.
