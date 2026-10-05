@@ -179,3 +179,11 @@
   - So: SHIFT, never stretch. Non-music keys move with the boundary they belong to.
   - The RT test's known-gap TODO resolves to "keep + shift". Pins past a new end must move with the end, not be dropped.
 - **Scene → Passage transition REDESIGN (supersedes the back-door exit block):** "At the end of a scene, we could shift out to wide view of its hangar and then a curtain falls that almost covers the whole screen, upon which shadow play happens. Behind it, the rig folds back down again leaving darkness, and we do a slight of hand where the new passage switches over (we switch to identical curtain at mouth of next passage, which is fully dark and therefore smooth transition while audience is distracted by boy cat shadow), and when that's done the curtain can drop, letting us onto the new scene. The key here will be letting the sleight of hand spawn in the correct order so we're not getting glitchy previews of behind the curtain."
+- **Curtain sleight, Gary's answers (5 Oct questionnaire):**
+  - The Interaction owns the curtain moment (option B).
+  - Same red velvet drop in the hangar.
+  - Fixed ~60 s shadow play, then a GO hold on the closed curtain.
+  - "Scene 6 will be done differently, scene 3 is done this way". So it applies to S1–S5→I1–I5; S6 is separate.
+  - Exit doors stay on stage, unused. The back-door exit block is to be REVERTED (doors kept; leaf-closed check).
+  - Plan: Docs/Conductor/CURTAIN_SLEIGHT_TRANSITION_PLAN_2026-10-05.md.
+  - Open: whether the Scenes keep the +71.64 s, which option B doesn't need.
