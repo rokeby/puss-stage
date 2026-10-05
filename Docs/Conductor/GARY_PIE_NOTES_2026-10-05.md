@@ -28,3 +28,11 @@
    when scene lights come in — could be rectangular with two bars of light, similar to floodlight type." Proposal when
    picked up: swap the hangar top lamp bodies for a rectangular twin-tube floodlight body (emissive bars) and, if
    they are lights, rect lights with a twin-bar mask; low priority since the Scene lights dominate. **Not actioned.**
+
+## Gary's answers, 5 Oct (questionnaire, his own clicks)
+- Wing edges: **test the new edge material on one wing** (P01 pillar1 L) → W&T, offline prep; editor slot after PIE.
+- Pillar2 R: **convert to V3** → W&T, offline prep.
+- Rig fencing: **ground to ~3 m**, mostly open chain-link, some half/torn tarp, rare door gaps → held C++ patch UF being
+  written (Underpass Fence part, FenceBay meshes, seeded variants), next build window.
+- End curtain: **stand-in drape falls** at the end of P01–P05 as the hangar starts rising (P06 excluded) → tool being
+  written offline (passage_end_drape.py).
