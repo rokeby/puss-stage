@@ -214,3 +214,10 @@
     intensity is ~0 from 0–34 s apart from a small bump at 8–10 s (peak 0.22); the first real entry is at **36.18 s**
     (major change, strength 1.0; first onset 35.0 s). Not re-run yet (Gary: "don't run this now"). Music analyses
     imported (MAI-20261005-145425, b8cea61). Choreo song-marker refresh DRY refused on a dirty level (not ours).
+49. **Opening flicker decided** (Gary ~15:15): **start on the entry** (36.18 s; the FOH swivel moves to the next change, 43.8 s);
+    look **"Brutal with a bit of that strobe falloff"**: flashes up to ~3x nominal, black between, single-frame pops,
+    each flash decaying over a few frames, longer dead gaps early.
+50. **P02 re-light** (Gary ~15:10): the L/R lurid/theatrical beams "give a really foggy blur of light across the whole screen
+    and make the wings look flat". Use the practicals (currently dead) and light the wings in those lurid/theatrical
+    colours **from above**, or **uplight** some; **no light may shoot through from L to R**. Questionnaire: top wash +
+    practicals + some uplights; **all of P02**; and **"also please straighten that passage"** (reverses the earlier keep-the-curve call).
