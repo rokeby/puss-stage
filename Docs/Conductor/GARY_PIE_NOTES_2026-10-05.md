@@ -237,3 +237,9 @@
 55. **Correction to note 17:** P03's slab did NOT keep its matte oak — floor_dark_wet's 01:55 APPLY had already raised it and set
     MI_Floor_DarkWet (P02FL DRY 14:34 UTC read top 0.5, DarkWet); P03 walnut was never applied. p03_floor.py (harness 40/40) sets walnut
     explicitly; Ground off would remove P03's stage front, under the curtain pile at the S2→P03 lip — Gary's call pending.
+56. **Decisions ~16:20–16:25:** P02 straighten anchored on the **S2 hangar end** (mouth moves ~97 m) and **stage front goes** with the
+    slats; P03 floor **remove everything** (stage front too; pile hangs over the slab edge); waxed = **walnut herringbone**.
+    Opening: **warmers off for the Opening, FOH rig spots carry the rise to the curtain**; FOH inner cone = outer − 3° (30/33).
+    Lighting: **all lights may cast shadows** (strike on P04 bay 17 included); shadow budget still applies.
+    Found: P04 bays 13–21 are now dark apart from the bulbs and the bay-17 strike; bulb bodies need an emissive material (being added);
+    rig_lamp_drop must be REVERTed before each score REVERT, then re-applied after the new score.
