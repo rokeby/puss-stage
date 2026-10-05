@@ -1,30 +1,42 @@
 {
  "mode": "DRY",
- "confirm": "DRY NARRATION",
  "run_id": null,
- "decided_by": "",
- "mapping_confirmed_by": "",
+ "decided_by": "Gary 5 Oct: start 'When the hangar lands'; S2: 'Lengthen S2 to fit' (retime S2 first via extend_scene_playback, then rebuild Master)",
+ "mapping_confirmed_by": "Gary 5 Oct (conductor questionnaire): 'Yes, that mapping' S1 Animals / S2 Shrine / S3 Shore",
  "mapping_note": "Animals->S1, Shrine->S2, Shore->S3 is INFERRED from the file names (conductor, 5 Oct); not yet confirmed by Gary. APPLY refuses until mapping_confirmed_by is filled in.",
  "start_option": "land",
- "start_option_choices": {"land": "(a) first Scene frame at/after the hangar root's land key (default, Gary's choice)", "land_plus_strike": "(b) land + the S<n> Arrival's StrikeAfterLandSeconds"},
+ "start_option_choices": {
+  "land": "(a) first Scene frame at/after the hangar root's land key (default, Gary's choice)",
+  "land_plus_strike": "(b) land + the S<n> Arrival's StrikeAfterLandSeconds"
+ },
  "section_end": "clip_length",
  "delete_assets": false,
  "dest_folder": "/Game/InfinityStage/Audio/ScenesAudio/Narration",
  "scenes": {
-  "1": {"wav": "DerivedAssets/Audio/Narration_Standin/Animals.wav",
-        "sha256": "44f44b397890a42003bcccb1dfe1d98096678521be3cf6cb57e5ecfdd083a747",
-        "duration_s": 34.986667, "asset_name": "SW_S1_Animals_Narration_Standin",
-        "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
-        "rise": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise"},
-  "2": {"wav": "DerivedAssets/Audio/Narration_Standin/Shrine.wav",
-        "sha256": "3fcac1e790d778c93df4c2cc52841ecb6b3d99939feb3e2d19ea7f4e091ccb79",
-        "duration_s": 74.752, "asset_name": "SW_S2_Shrine_Narration_Standin",
-        "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02",
-        "rise": "/Game/InfinityStage/RigAtmos/LS_S2_HangarRise"},
-  "3": {"wav": "DerivedAssets/Audio/Narration_Standin/Shore.wav",
-        "sha256": "c75589b8962a989b271f60b0447d90f949c8067e87d1bef78d535ffc845fff90",
-        "duration_s": 34.304, "asset_name": "SW_S3_Shore_Narration_Standin",
-        "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03",
-        "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise"}
- }
+  "1": {
+   "wav": "DerivedAssets/Audio/Narration_Standin/Animals.wav",
+   "sha256": "44f44b397890a42003bcccb1dfe1d98096678521be3cf6cb57e5ecfdd083a747",
+   "duration_s": 34.986667,
+   "asset_name": "SW_S1_Animals_Narration_Standin",
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise"
+  },
+  "2": {
+   "wav": "DerivedAssets/Audio/Narration_Standin/Shrine.wav",
+   "sha256": "3fcac1e790d778c93df4c2cc52841ecb6b3d99939feb3e2d19ea7f4e091ccb79",
+   "duration_s": 74.752,
+   "asset_name": "SW_S2_Shrine_Narration_Standin",
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02",
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S2_HangarRise"
+  },
+  "3": {
+   "wav": "DerivedAssets/Audio/Narration_Standin/Shore.wav",
+   "sha256": "c75589b8962a989b271f60b0447d90f949c8067e87d1bef78d535ffc845fff90",
+   "duration_s": 34.304,
+   "asset_name": "SW_S3_Shore_Narration_Standin",
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03",
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise"
+  }
+ },
+ "option": "land"
 }
