@@ -1,49 +1,68 @@
-"""LOOK BENCH: a reversible, NON-SAVING, in-memory A/B of "look depth" on ONE
-Passage bay (default P04 bay 4), for Gary's 5 Oct note that the passages read flat.
+"""LOOK BENCH: a reversible, NON-SAVING A/B of "look depth" on ONE Passage bay
+(default P04 bay 4), for Gary's 5 Oct note that the passages read flat.
 Plan and evidence: Docs/Conductor/LOOK_DEPTH_PLAN_2026-10-05.md.
 
-WHERE IT RUNS: ONLY in a PIE game world. It refuses to arm without one, so every
-change lands on PIE duplicates that die when PIE ends. It never begins or ends PIE
-(memory: never end someone's PIE); the operator does both.
+WHY THE POOL (redesign 5 Oct): the first live run failed on its first spawn inside
+PIE - `unreal.GameplayStatics.begin_deferred_actor_spawn_from_class` does not exist
+in UE 5.8 Python, and the spawn-API probe found NO Python route that spawns actors
+into a running PIE world (only EditorLevelLibrary / EditorActorSubsystem
+spawn_actor_from_class/_from_object, which target the editor world). Property edits
+on existing PIE actors DO work (the base and shadows states ran and restored). So:
+
+  PREPARE  editor world, PIE NOT running. Refuses unless the dirty census is clean
+           and no ZZ_LOOKBENCH_* actor exists. Plans the whole temp-actor POOL every
+           state can need (fog volumes, lights, floor + puddles, strobe, glint light
+           + bulb, underpass proxies, arch-ring border proxies, spare ties), WRITES
+           the labels and the census to look_bench_prepare.json (fsynced, re-read)
+           BEFORE the first spawn, then spawns each one into the EDITOR world,
+           labelled ZZ_LOOKBENCH_*, tagged ZZ_LOOKBENCH, hidden in game, component
+           invisible, lights at 0 cd, fog at 0 extinction, collision off, Movable.
+           It dirties the map: expected. The bench NEVER saves. Logs
+           LOOK_BENCH_PREPARED and LOOK_BENCH_NEEDS_DONT_SAVE_RESTART.
+  CAPTURE  in PIE (PIE duplicates the editor world, so the pool exists there).
+           Finds the PIE copies by tag + label, refuses if any pool actor a state
+           needs is missing or if any is already lit, and per state only MOVES,
+           SHOWS, HIDES and SETS PROPERTIES on them. No spawn call exists on the
+           PIE side. Same settle / streaming / clip logic as before.
+  HOLD     in PIE: apply BENCH_TOGGLES, hold HOLD_SECONDS, restore + verify.
+  RESTORE  in PIE: re-apply every original in this prepare's capture records
+           (newest first, so the oldest originals win) and hide the whole pool.
+           Then logs LOOK_BENCH_NEEDS_DONT_SAVE_RESTART: the editor-world pool and
+           the dirty map are discarded by a Don't-Save editor restart (Gary, 5 Oct
+           overnight authority). The bench never deletes + saves.
+  CLEANUP  optional, editor world, PIE NOT running: deletes the tagged
+           ZZ_LOOKBENCH_* editor actors WITHOUT saving; refuses (deleting nothing)
+           if any dirty package is not one PREPARE itself dirtied. A Don't-Save
+           restart is still needed afterwards (the map stays dirty).
+  PROBE    in PIE, read-only: resolves the bay, lights, edge slots, glint, cvars.
 
 Toggles (any subset, each applied from the recorded base):
   shadows    cast_shadows + cast_volumetric_shadow ON for the bay's KEY lights
-             (the SHADOW_KEYS_MAX brightest enabled spots in the bay)
-  haze       Local Fog Volumes of VARIED density across the bay (thick upstage,
-             thin near the camera), plus volumetric scattering raised on the bay's
-             lights and one back-light beam thrown toward the camera path
-             (haze only shows a shaft to a viewer the light travels toward)
-  rake       a raking side-light pair at the corridor edges, grazing the wing faces
-  floor      one dark glossy plane (walnut MI as a MID, roughness lowered) over the
-             board floor, top +0.5 cm
-  floor_wet  the floor plane, wetter (roughness near 0, grunge-driven roughness
-             breakup) plus puddle discs (roughness 0): no new textures
-  strobe     a ~1 Hz strobe low over the floor so its reflection reads
-  edge       the bay's Flat V3 "Edge" slot swapped to a pale raw-board MID
-
-Modes (BENCH_MODE, set through runpy init_globals):
-  PROBE    read-only: resolves the bay, lights, edge slots, cvars; writes nothing
-           to the world. Writes look_bench_probe_<run>.json.
-  CAPTURE  for each state in BENCH_STATES: pose the bay, settle (texture
-           streaming forced resident, exposure/Lumen/TSR settle delay), then a
-           short in-motion clip of HighResShot frames while the transport plays;
-           restores everything at the end and verifies it exactly.
-  HOLD     apply BENCH_TOGGLES and hold them HOLD_SECONDS for a live look in the
-           PIE viewport, then restore and verify.
-  RESTORE  crash recovery: re-apply every value in the newest record file and
-           destroy every ZZ_LOOKBENCH_ actor (GameplayStatics sweep, which sees
-           transient actors).
+  haze       Local Fog Volumes of VARIED density, volumetric scattering raised on
+             the bay's lights, one back-light beam thrown toward the camera path
+  rake       a raking side-light pair at the corridor edges
+  floor      one dark glossy plane (walnut MID, roughness lowered), top +0.5 cm
+  floor_wet  the floor plane wetter, plus puddle discs
+  strobe     a ~1 Hz strobe low over the floor
+  edge       the bay's Flat V3 "Edge" slot swapped to a pale raw-board MID.
+             The 5 Oct probe found edge_slots=0 for P04 bay 4, so there this toggle
+             changes NOTHING; every state logs edge_slots and edge_effective.
+  glint      a practical at the mirror position of one wing face for the route
+  underpass  box proxies of the UNDERPASS_RIG_KIT_PLAN Phase B mock bay
+  arch_ring_border  box-segment proxies of pointed arch-rib BORDERS spanning L<->R
+             above the bay, faces toward the camera, arch_count instances receding
+             at arch_spacing_cm (Gary: test vertical borders in P04). The existing
+             ceiling tops are NOT hidden by this toggle (base = current tops).
 
 Rules carried from memory, enforced here:
-  - originals are READ, WRITTEN to a JSON file (flushed, fsynced, re-read and
-    compared) and the path logged BEFORE the first change;
-  - the bench announces its temps (ZZ_LOOKBENCH_* count, until when);
-  - no save call exists in this file (the harness scans for one), and the
-    editor-world dirty census must be unchanged at the end or the run fails;
-  - Unreal objects live only inside the registered callback's closure; module
-    globals hold plain data only;
-  - spawned actors are destroyed by object reference in the same callback;
-  - captures use NO exposure override (show exposure), and the success marker is
+  - originals are READ, WRITTEN (flushed, fsynced, re-read, compared) and the path
+    logged BEFORE the first change, in every mode that changes anything;
+  - the bench announces its temps (ZZ_LOOKBENCH_* count, where, until when);
+  - no save call exists in this file (the harness scans for one);
+  - no spawn call exists on the PIE side (the harness scans the PIE adapter and
+    proves LookBench never calls adapter.spawn*);
+  - Unreal objects live only inside closures; module globals hold plain data only;
+  - captures use NO exposure override (show exposure), and success markers are
     printed only after asserted restore + census.
 """
 from __future__ import annotations
@@ -54,18 +73,25 @@ import json
 import math
 import os
 import pathlib
+import re
 import time
 import traceback
 
 BASE = pathlib.Path("E:/PussStage/Saved/CodexConductor")
+BENCH_DIR = BASE / "LookBench"
+PREPARE_RECORD_NAME = "look_bench_prepare.json"
+CAPTURE_RECORD_NAME = "look_bench_originals.json"
 SPAWN_PREFIX = "ZZ_LOOKBENCH_"
+POOL_TAG = "ZZ_LOOKBENCH"
 HANDLE_NAME = "PUSS_LOOK_BENCH_HANDLE"
 STATE_NAME = "PUSS_LOOK_BENCH_STATE"
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"
 TICKS_PER_SECOND = 24000          # Master tick rate as used by lighting_looks_p04_driver.py
-ALL_TOGGLES = ("shadows", "haze", "rake", "floor", "floor_wet", "strobe", "edge", "glint", "underpass")
+ALL_TOGGLES = ("shadows", "haze", "rake", "floor", "floor_wet", "strobe", "edge", "glint", "underpass",
+               "arch_ring_border")
 LIGHT_FIELDS = ("cast_shadows", "cast_volumetric_shadow", "volumetric_scattering_intensity")
 STREAM_CVAR = "r.Streaming.FullyLoadUsedTextures"
+RESTART_MARKER = "LOOK_BENCH_NEEDS_DONT_SAVE_RESTART"
 
 FLOOR_PARENT = "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
 EDGE_PARENT = "/Engine/BasicShapes/BasicShapeMaterial"
@@ -119,6 +145,22 @@ DEFAULTS = {
     "underpass_steel": (0.035, 0.045, 0.04, 1.0),
     "underpass_concrete": (0.18, 0.17, 0.16, 1.0),
     "underpass_shaft_cd": 8000.0,
+    # arch_ring_border: pointed arch-rib borders. [inf] starting values for a look test, not a
+    # measured fit: springing low enough to sit in frame from the cat-eye camera.
+    "arch_count": 3,
+    "arch_spacing_cm": 500.0,
+    "arch_first_dx_cm": 0.0,
+    "arch_half_span_cm": None,       # None = the corridor half width
+    "arch_spring_z_cm": 550.0,
+    "arch_radius_factor": 0.6,       # R = factor * span; > 0.5 gives a pointed (two-centred) arch
+    "arch_segments_per_side": 6,
+    "arch_band_cm": 150.0,           # radial depth of the rib band
+    "arch_thick_cm": 12.0,           # along the route
+    "arch_overlap_cm": 4.0,          # chord overlap so the band reads continuous
+    "arch_color": (0.06, 0.055, 0.05, 1.0),
+    # PREPARE: spare underpass ties beyond the editor-world count (PIE pitch may differ slightly)
+    "pool_tie_margin": 10,
+    "prepare_bays": ({"bay": 4}, {"bay": 9, "glint_mesh_contains": "coventry_ruin_R_v1"}),
 }
 
 
@@ -160,6 +202,12 @@ def default_states(glint_available=True):
     return states
 
 
+def same_level(world_a, world_b):
+    """Editor world path vs its PIE duplicate: PIE prefixes the map name with UEDPIE_<n>_."""
+    strip = lambda w: re.sub(r"UEDPIE_\d+_", "", str(w or ""))
+    return bool(world_a) and bool(world_b) and strip(world_a) == strip(world_b)
+
+
 def _sub(a, b):
     return tuple(x - y for x, y in zip(a, b))
 
@@ -181,6 +229,18 @@ def _unit(a):
     if n < 1e-9:
         raise ValueError("zero vector")
     return _mul(a, 1.0 / n)
+
+
+def rotator_axes(yaw, pitch, roll):
+    """World X/Y/Z axes of a UE FRotator, transcribed from FRotationTranslationMatrix
+    (UE_5.8 Engine/Source/Runtime/Core/Public/Math/RotationTranslationMatrix.h:72-84)."""
+    sp, cp = math.sin(math.radians(pitch)), math.cos(math.radians(pitch))
+    sy, cy = math.sin(math.radians(yaw)), math.cos(math.radians(yaw))
+    sr, cr = math.sin(math.radians(roll)), math.cos(math.radians(roll))
+    x = (cp * cy, cp * sy, sp)
+    y = (sr * sp * cy - cr * sy, sr * sp * sy + cr * cy, -sr * cp)
+    z = (-(cr * sp * cy + sr * sy), cy * sr - cr * sp * sy, cr * cp)
+    return x, y, z
 
 
 def glint_solution(face_point, face_normal, frame, p):
@@ -246,6 +306,20 @@ def bay_frame(here, before, after, half_width):
             "pitch_cm": pitch, "half_width_cm": float(half_width)}
 
 
+def resolve_bay(adapter, passage, bay, half_width):
+    """Bay lights -> (ids, light rows, frame). Shared by PREPARE (editor) and CAPTURE (PIE)."""
+    ids = adapter.find_lights(bay_prefixes(passage, bay))
+    if not ids:
+        raise RuntimeError("LOOK_BENCH_NO_BAY_LIGHTS|%s bay %d" % (passage, bay))
+    lights = {lid: adapter.read_light(lid) for lid in ids}
+    here = centroid([lights[l]["location"] for l in ids])
+    before = centroid([adapter.read_light(l)["location"]
+                       for l in adapter.find_lights(bay_prefixes(passage, bay - 1))]) if bay > 1 else None
+    after = centroid([adapter.read_light(l)["location"]
+                      for l in adapter.find_lights(bay_prefixes(passage, bay + 1))])
+    return ids, lights, bay_frame(here, before, after, half_width)
+
+
 def to_world(frame, dx, dy, z):
     ox, oy, _ = frame["origin"]
     fx, fy = frame["fwd"]
@@ -253,14 +327,62 @@ def to_world(frame, dx, dy, z):
     return (ox + fx * dx + rx * dy, oy + fy * dx + ry * dy, z)
 
 
-def _box(label, centre, yaw, size_cm, color):
-    return {"label": label, "kind": "mesh", "mesh": CUBE, "loc": centre, "yaw": yaw,
+def _box(label, centre, yaw, size_cm, color, roll=0.0):
+    return {"label": label, "kind": "mesh", "mesh": CUBE, "loc": centre, "yaw": yaw, "roll": roll,
             "scale": tuple(v / 100.0 for v in size_cm),
             "material": {"mid_parent": EDGE_PARENT, "vectors": {"Color": tuple(color)}}}
 
 
+def pointed_arch_profile(half_span, spring_z, radius, n):
+    """Two-centred (pointed) arch in the bay's (lateral y, height z) plane. The left
+    half is an arc of radius R centred at (R - s, spring_z), rising from the left
+    springing (-s, spring_z) to the apex on y = 0; the right half mirrors it.
+    Returns n+1 intrados points per side, springing -> apex."""
+    s, r = float(half_span), float(radius)
+    if r < s:
+        raise ValueError("LOOK_BENCH_ARCH_RADIUS|R %.1f < half span %.1f (not an arch)" % (r, s))
+    cy = r - s
+    t_apex = math.acos(max(-1.0, min(1.0, cy / r)))
+    left = [(cy - r * math.cos(t_apex * k / n), spring_z + r * math.sin(t_apex * k / n)) for k in range(n + 1)]
+    left[-1] = (0.0, left[-1][1])
+    right = [(-y, z) for y, z in left]
+    return {"L": left, "R": right, "centres": {"L": (cy, spring_z), "R": (-cy, spring_z)},
+            "apex_z": spring_z + r * math.sin(t_apex), "radius": r}
+
+
+def arch_specs(frame, p):
+    """Box-segment proxies of arch_count pointed arch-rib borders, each a band whose
+    INNER edge (intrados) follows the profile, thin along the route so its face
+    looks at the approaching camera, receding at arch_spacing_cm."""
+    hw = float(p.get("arch_half_span_cm") or frame["half_width_cm"])
+    n = int(p["arch_segments_per_side"])
+    band, thick, overlap = float(p["arch_band_cm"]), float(p["arch_thick_cm"]), float(p["arch_overlap_cm"])
+    prof = pointed_arch_profile(hw, float(p["arch_spring_z_cm"]), float(p["arch_radius_factor"]) * 2.0 * hw, n)
+    yaw = frame["yaw_deg"]
+    specs = []
+    for i in range(int(p["arch_count"])):
+        dx = float(p["arch_first_dx_cm"]) + i * float(p["arch_spacing_cm"])
+        for side in ("L", "R"):
+            pts, cen = prof[side], prof["centres"][side]
+            for k in range(n):
+                (y0, z0), (y1, z1) = pts[k], pts[k + 1]
+                length = math.hypot(y1 - y0, z1 - z0)
+                du, dz = (y1 - y0) / length, (z1 - z0) / length
+                my, mz = (y0 + y1) / 2.0, (z0 + z1) / 2.0
+                ny, nz = _unit((my - cen[0], mz - cen[1]))      # outward, perpendicular to the chord
+                cy, cz = my + ny * band / 2.0, mz + nz * band / 2.0
+                spec = _box(SPAWN_PREFIX + "ARCH_%d_%s%02d" % (i, side, k), to_world(frame, dx, cy, cz), yaw,
+                            (thick, length + overlap, band), p["arch_color"],
+                            roll=math.degrees(math.atan2(-dz, du)))
+                spec["arch"] = {"index": i, "dx": dx, "side": side, "inner": [[y0, z0], [y1, z1]],
+                                "chord_cm": length}
+                specs.append(spec)
+    return specs
+
+
 def plan_spawns(frame, toggles, p, glint=None):
-    """Plain spawn specs. Labels all start with SPAWN_PREFIX."""
+    """Plain pool specs (label, kind, transform, properties). Labels all start with
+    SPAWN_PREFIX. PREPARE spawns one actor per label; CAPTURE places and shows them."""
     specs = []
     yaw = frame["yaw_deg"]
     pitch_cm = max(frame["pitch_cm"], 600.0)
@@ -342,7 +464,17 @@ def plan_spawns(frame, toggles, p, glint=None):
                       "loc": to_world(frame, 0.0, 0.0, deck_z + 400.0), "rot": {"yaw": yaw, "pitch": -90.0},
                       "cd": p["underpass_shaft_cd"], "color": (0.85, 0.9, 1.0), "inner": 18.0, "outer": 34.0,
                       "radius": deck_z + 800.0, "shadows": True, "vsi": 3.0})
+    if "arch_ring_border" in toggles:
+        specs.extend(arch_specs(frame, p))
     return specs
+
+
+def needed_pool_labels(frame, states, p, glint):
+    out = set()
+    for _name, toggles in states:
+        for spec in plan_spawns(frame, normalise_toggles(toggles), p, glint):
+            out.add(spec["label"])
+    return sorted(out)
 
 
 def plan_light_changes(lights, toggles, p):
@@ -368,6 +500,16 @@ def strobe_on(now, start, hz, duty):
     return phase < duty
 
 
+def _plain(v):
+    if isinstance(v, tuple):
+        return [_plain(x) for x in v]
+    if isinstance(v, list):
+        return [_plain(x) for x in v]
+    if isinstance(v, dict):
+        return {k: _plain(x) for k, x in v.items()}
+    return v
+
+
 def write_record_verified(path, data, log):
     """Write, flush, fsync, re-read and compare BEFORE anything changes."""
     path = pathlib.Path(path)
@@ -385,9 +527,31 @@ def write_record_verified(path, data, log):
     return path
 
 
+def find_prepare_record(bench_dir, explicit=None):
+    """The PREPARE record CAPTURE / HOLD / RESTORE / CLEANUP work from: explicit, or newest."""
+    if explicit:
+        path = pathlib.Path(explicit)
+        if not path.is_file():
+            raise RuntimeError("LOOK_BENCH_NOT_PREPARED|no record at %s" % path.as_posix())
+        return path
+    found = sorted(pathlib.Path(bench_dir).glob("*/" + PREPARE_RECORD_NAME))
+    if not found:
+        raise RuntimeError("LOOK_BENCH_NOT_PREPARED|run PREPARE in the editor world (PIE not running) first")
+    return found[-1]
+
+
+def load_prepare_record(path):
+    rec = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    if rec.get("status") != "spawned":
+        raise RuntimeError("LOOK_BENCH_PREPARE_INCOMPLETE|status=%s|%s" % (rec.get("status"), path))
+    return rec
+
+
 class LookBench:
-    """Engine-free bench logic. `adapter` supplies every world operation; the
-    Unreal adapter is defined in make_unreal_adapter(), a fake in the harness."""
+    """Engine-free CAPTURE / HOLD / PROBE logic on a PIE world. `adapter` supplies
+    every world operation (make_pie_adapter() in the editor, a fake in the harness).
+    It NEVER spawns or destroys: it only places, shows and hides prepared pool
+    actors and edits properties."""
 
     def __init__(self, adapter, record_path, params=None, run_id=None):
         self.a = adapter
@@ -396,46 +560,48 @@ class LookBench:
         self.record_path = pathlib.Path(record_path)
         self.run_id = run_id or utc_stamp()
         self.record = None
-        self.spawned = []           # adapter handles, destroyed by reference
         self.strobe = None
         self.strobe_start = 0.0
         self.applied = ()
         self.mid_readback = {}
 
-    # ---- prepare: read, write originals, announce. Nothing changes here. ----
-    def prepare(self):
+    # ---- read originals, check the pool, write, announce. Nothing changes here. ----
+    def read_originals(self, states=None, require_pool=True, prepare_record=None):
         if self.a.world_kind() != "game":
-            raise RuntimeError("LOOK_BENCH_NEEDS_PIE|the bench only runs on a PIE game world")
-        leftovers = self.a.bench_actor_labels(SPAWN_PREFIX)
-        if leftovers:
-            raise RuntimeError("LOOK_BENCH_LEFTOVERS|%d|run RESTORE first" % len(leftovers))
+            raise RuntimeError("LOOK_BENCH_NEEDS_PIE|CAPTURE/HOLD/PROBE run on a PIE game world")
+        if prepare_record is not None and not same_level(prepare_record.get("world"), self.a.world_name()):
+            raise RuntimeError("LOOK_BENCH_WRONG_WORLD|prepared %s, PIE %s" % (prepare_record.get("world"),
+                                                                               self.a.world_name()))
         passage, bay = self.p["passage"], int(self.p["bay"])
-        ids = self.a.find_lights(bay_prefixes(passage, bay))
-        if not ids:
-            raise RuntimeError("LOOK_BENCH_NO_BAY_LIGHTS|%s bay %d" % (passage, bay))
-        lights = {lid: self.a.read_light(lid) for lid in ids}
-        here = centroid([lights[l]["location"] for l in ids])
-        before = centroid([self.a.read_light(l)["location"]
-                           for l in self.a.find_lights(bay_prefixes(passage, bay - 1))]) if bay > 1 else None
-        after = centroid([self.a.read_light(l)["location"]
-                          for l in self.a.find_lights(bay_prefixes(passage, bay + 1))])
-        frame = bay_frame(here, before, after, self.p["half_width_cm"])
+        ids, lights, frame = resolve_bay(self.a, passage, bay, self.p["half_width_cm"])
         box = {"frame": frame, "half_len_cm": max(frame["pitch_cm"], 600.0), "half_width_cm": frame["half_width_cm"]}
         edges = self.a.edge_slots(box)
         face = self.a.wing_face(self.p["glint_mesh_contains"], frame) if hasattr(self.a, "wing_face") else None
         glint = None
         if face:
-            glint = glint_solution(tuple(face["point"]), tuple(face["normal"]), frame, self.p)
-            glint = {k: (list(v) if isinstance(v, tuple) else v) for k, v in glint.items()}
+            glint = _plain(glint_solution(tuple(face["point"]), tuple(face["normal"]), frame, self.p))
             glint["face"] = face
         if len(edges) > int(self.p["edge_max_components"]):
             raise RuntimeError("LOOK_BENCH_TOO_MANY_EDGE_SLOTS|%d" % len(edges))
+        if states is None:
+            states = default_states(bool(glint and glint.get("light")))
+        states = [(n, normalise_toggles(t)) for n, t in states]
+        needed = needed_pool_labels(frame, states, self.p, glint)    # raises GLINT_UNRESOLVED before any write
+        pool = []
+        if require_pool:
+            pool = self.a.pool_labels()
+            missing = [l for l in needed if l not in pool]
+            if missing:
+                raise RuntimeError("LOOK_BENCH_PREPARED_MISSING|%d|%s|run PREPARE in the editor world before PIE"
+                                   % (len(missing), ",".join(missing[:6])))
+            lit = [l for l in pool if self.a.pool_state(l)["on"]]
+            if lit:
+                raise RuntimeError("LOOK_BENCH_POOL_NOT_BASE|%d|%s|run RESTORE first" % (len(lit), ",".join(lit[:6])))
         census = self.a.census()
         self.record = {
             "run": self.run_id, "written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "world": self.a.world_name(), "passage": passage, "bay": bay,
-            "params": {k: (list(v) if isinstance(v, tuple) else v) for k, v in self.p.items()},
-            "frame": {k: (list(v) if isinstance(v, tuple) else v) for k, v in frame.items()},
+            "params": _plain(self.p), "frame": _plain(frame),
             "lights": {lid: {k: lights[lid][k] for k in ("label",) + LIGHT_FIELDS} for lid in ids},
             "light_meta": {lid: {"type": lights[lid]["type"], "intensity": lights[lid]["intensity"],
                                  "visible": lights[lid]["visible"]} for lid in ids},
@@ -444,16 +610,18 @@ class LookBench:
             "census_before": census,
             "spawn_prefix": SPAWN_PREFIX,
             "glint": glint,
-            "planned_spawns": [s["label"] for s in plan_spawns(
-                frame, tuple(t for t in ALL_TOGGLES if t != "glint" or (glint and glint.get("light"))),
-                self.p, glint)],
+            "states": [[n, list(t)] for n, t in states],
+            "pool_needed": needed,
+            "pool_present": sorted(pool),
+            "prepare_run": (prepare_record or {}).get("run"),
         }
         write_record_verified(self.record_path, self.record, self.a.log)
         self.a.note("record_written")
-        n = len(self.record["planned_spawns"])
-        self.a.log("LOOK_BENCH_ANNOUNCE|run=%s|world=PIE|%s bay %d|up to %d %s* actors (PIE world only) "
-                   "for this run; restore at end|record=%s" % (self.run_id, passage, bay, n, SPAWN_PREFIX,
-                                                               self.record_path.as_posix()))
+        self.a.log("LOOK_BENCH_EDGE_SLOTS|run=%s|%s bay %d|edge_slots=%d%s" % (
+            self.run_id, passage, bay, len(edges), "|edge toggle is a NO-OP in this bay" if not edges else ""))
+        self.a.log("LOOK_BENCH_ANNOUNCE|run=%s|world=PIE|%s bay %d|uses %d prepared %s* pool actors (no spawns); "
+                   "restore at end|record=%s" % (self.run_id, passage, bay, len(needed), SPAWN_PREFIX,
+                                                 self.record_path.as_posix()))
         return self.record
 
     def _lights(self):
@@ -463,12 +631,18 @@ class LookBench:
             out[lid] = dict(row, **meta)
         return out
 
+    def _frame(self):
+        frame = dict(self.record["frame"])
+        for k in ("origin", "fwd", "right"):
+            frame[k] = tuple(frame[k])
+        return frame
+
     # ---- state changes ----
     def to_base(self):
-        for handle in list(self.spawned):
-            self.a.destroy(handle)
-            self.spawned.remove(handle)
         self.strobe = None
+        for label in self.a.pool_labels():
+            if self.a.pool_state(label)["on"]:
+                self.a.hide_pool(label)
         for lid, row in self.record["lights"].items():
             for field in LIGHT_FIELDS:
                 if self.a.read_light(lid)[field] != row[field]:
@@ -482,35 +656,41 @@ class LookBench:
         if self.record is None or not self.record_path.is_file():
             raise RuntimeError("LOOK_BENCH_NO_RECORD|originals must be on disk before any change")
         toggles = normalise_toggles(toggles)
+        specs = plan_spawns(self._frame(), toggles, self.p, self.record.get("glint"))
+        pool = set(self.a.pool_labels())
+        missing = [s["label"] for s in specs if s["label"] not in pool]
+        if missing:
+            raise RuntimeError("LOOK_BENCH_PREPARED_MISSING|%d|%s" % (len(missing), ",".join(missing[:6])))
         self.to_base()
         for lid, field, value in plan_light_changes(self._lights(), toggles, self.p):
             self.a.set_light(lid, field, value)
-        frame = dict(self.record["frame"])
-        frame["origin"] = tuple(frame["origin"])
-        frame["fwd"] = tuple(frame["fwd"])
-        frame["right"] = tuple(frame["right"])
-        for spec in plan_spawns(frame, toggles, self.p, self.record.get("glint")):
-            handle = self.a.spawn(spec)
-            self.spawned.append(handle)
+        shown = 0
+        for spec in specs:
+            self.a.show_pool(spec)
+            shown += 1
             if spec.get("strobe"):
-                self.strobe = (handle, spec["cd"])
+                self.strobe = (spec["label"], spec["cd"])
                 self.strobe_start = now
             if "material" in spec and spec["material"].get("scalars"):
-                self.mid_readback[spec["label"]] = self.a.material_readback(handle)
+                self.mid_readback[spec["label"]] = self.a.material_readback(spec["label"])
+        n_edges = len(self.record["edge_slots"])
         if "edge" in toggles:
             for slot in self.record["edge_slots"]:
                 self.a.set_slot_material(slot["id"], slot["slot"],
                                          {"mid_parent": EDGE_PARENT,
                                           "vectors": {"Color": tuple(self.p["edge_color"])}})
+            if not n_edges:
+                self.a.log("LOOK_BENCH_EDGE_NOOP|run=%s|toggles=%s|edge_slots=0|the edge toggle changed NOTHING "
+                           "in this bay" % (self.run_id, ",".join(toggles)))
         self.applied = toggles
-        self.a.log("LOOK_BENCH_STATE|run=%s|toggles=%s|spawned=%d" % (self.run_id, ",".join(toggles) or "base",
-                                                                    len(self.spawned)))
+        self.a.log("LOOK_BENCH_STATE|run=%s|toggles=%s|shown=%d|edge_slots=%d|edge_effective=%s" % (
+            self.run_id, ",".join(toggles) or "base", shown, n_edges, bool("edge" in toggles and n_edges)))
 
     def tick(self, now):
         if self.strobe:
-            handle, cd = self.strobe
-            self.a.set_spawn_intensity(handle, cd if strobe_on(now, self.strobe_start, self.p["strobe_hz"],
-                                                               self.p["strobe_duty"]) else 0.0)
+            label, cd = self.strobe
+            self.a.set_pool_intensity(label, cd if strobe_on(now, self.strobe_start, self.p["strobe_hz"],
+                                                             self.p["strobe_duty"]) else 0.0)
 
     # ---- restore + exact verification ----
     def restore(self):
@@ -535,20 +715,151 @@ class LookBench:
             got = self.a.slot_material(slot["id"], slot["slot"])
             if got != slot["material"]:
                 problems.append("edge %s[%d] %s != %s" % (slot["id"], slot["slot"], got, slot["material"]))
-        left = self.a.bench_actor_labels(SPAWN_PREFIX)
-        if left:
-            problems.append("leftover actors %s" % ",".join(sorted(left)))
+        lit = [l for l in self.a.pool_labels() if self.a.pool_state(l)["on"]]
+        if lit:
+            problems.append("pool actors still shown %s" % ",".join(sorted(lit)))
         return problems
 
 
 def restore_from_record(adapter, record_path):
-    """RESTORE mode: crash recovery from the file alone."""
+    """RESTORE: crash recovery from one capture record alone. Hides the pool; never destroys."""
     record = json.loads(pathlib.Path(record_path).read_text(encoding="utf-8"))
-    for handle in adapter.bench_actor_handles(SPAWN_PREFIX):
-        adapter.destroy(handle)
     bench = LookBench(adapter, record_path, record.get("params"), record.get("run"))
     bench.record = record
     return bench.restore()
+
+
+def restore_all(adapter, records, log):
+    """Newest capture record first, so the OLDEST originals are the last written."""
+    problems = []
+    for path in sorted((pathlib.Path(r) for r in records), key=lambda r: r.as_posix(), reverse=True):
+        got = restore_from_record(adapter, path)
+        log("LOOK_BENCH_RESTORED_RECORD|%s|problems=%d" % (path.as_posix(), len(got)))
+        problems.extend(got)
+    for label in adapter.pool_labels():          # no capture record at all: still leave the pool dark
+        if adapter.pool_state(label)["on"]:
+            adapter.hide_pool(label)
+    lit = [l for l in adapter.pool_labels() if adapter.pool_state(l)["on"]]
+    if lit:
+        problems.append("pool actors still shown %s" % ",".join(sorted(lit)))
+    return problems
+
+
+class PrepareBench:
+    """PREPARE (editor world, PIE not running): spawn the whole hidden pool."""
+
+    def __init__(self, adapter, record_path, bays=None, params=None, run_id=None):
+        self.a = adapter
+        self.p = dict(DEFAULTS)
+        self.p.update(params or {})
+        self.bays = [dict(b) for b in (bays or self.p["prepare_bays"])]
+        self.record_path = pathlib.Path(record_path)
+        self.run_id = run_id or utc_stamp()
+        self.record = None
+
+    def plan(self):
+        specs = {}
+        bays = []
+        for bay_params in self.bays:
+            p = dict(self.p)
+            p.update(bay_params)
+            ids, _lights, frame = resolve_bay(self.a, p["passage"], int(p["bay"]), p["half_width_cm"])
+            dummy_glint = {"light": list(to_world(frame, 0.0, 0.0, 500.0))}   # placed for real in PIE
+            for spec in plan_spawns(frame, ALL_TOGGLES, p, dummy_glint):
+                specs.setdefault(spec["label"], spec)
+            bays.append({"passage": p["passage"], "bay": int(p["bay"]), "lights": len(ids), "frame": _plain(frame)})
+        ties = sorted(l for l in specs if l.startswith(SPAWN_PREFIX + "UP_TIE_"))
+        if ties:
+            template = specs[ties[-1]]
+            for i in range(len(ties), len(ties) + int(self.p["pool_tie_margin"])):
+                spare = dict(template, label=SPAWN_PREFIX + "UP_TIE_%02d" % i)
+                specs[spare["label"]] = spare
+        return specs, bays
+
+    def run(self):
+        kind = self.a.world_kind()
+        if kind != "editor":
+            raise RuntimeError("LOOK_BENCH_PREPARE_NEEDS_EDITOR|world=%s|end PIE first; PREPARE never touches PIE"
+                               % kind)
+        census = self.a.census()
+        if census["maps"] or census["content"]:
+            raise RuntimeError("LOOK_BENCH_DIRTY_BEFORE_PREPARE|%r|a Don't-Save restart must lose nothing" % census)
+        left = self.a.bench_actor_labels(SPAWN_PREFIX)
+        if left:
+            raise RuntimeError("LOOK_BENCH_LEFTOVERS|%d|run CLEANUP or a Don't-Save restart first" % len(left))
+        specs, bays = self.plan()
+        labels = sorted(specs)
+        self.record = {
+            "run": self.run_id, "written_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "world": self.a.world_name(), "census_before": census, "leftovers_before": left,
+            "tag": POOL_TAG, "spawn_prefix": SPAWN_PREFIX, "bays": bays, "params": _plain(self.p),
+            "pool": [{"label": l, "kind": specs[l]["kind"], "mesh": specs[l].get("mesh"),
+                      "material_parent": specs[l].get("material", {}).get("mid_parent")} for l in labels],
+            "spawned": {}, "status": "planned",
+        }
+        write_record_verified(self.record_path, self.record, self.a.log)
+        self.a.note("record_written")
+        self.a.log("LOOK_BENCH_ANNOUNCE|run=%s|world=EDITOR|spawning %d hidden %s* actors (tag %s) into the editor "
+                   "world; they stay until a Don't-Save restart or CLEANUP; the map WILL be dirty and must NOT be "
+                   "saved|record=%s" % (self.run_id, len(labels), SPAWN_PREFIX, POOL_TAG, self.record_path.as_posix()))
+        complete = False
+        try:
+            for label in labels:
+                self.record["spawned"][label] = self.a.spawn_hidden(specs[label])
+            complete = True
+        finally:
+            after = self.a.census()
+            self.record["status"] = "spawned" if complete else "partial"
+            self.record["census_after"] = after
+            self.record["dirtied_by_prepare"] = {
+                "maps": sorted(set(after["maps"]) - set(census["maps"])),
+                "content": sorted(set(after["content"]) - set(census["content"]))}
+            write_record_verified(self.record_path, self.record, self.a.log)
+            self.a.log("%s|run=%s|editor world holds %s* actors and a dirty map; discard both with a Don't-Save "
+                       "restart (never Save All)" % (RESTART_MARKER, self.run_id, SPAWN_PREFIX))
+        problems = []
+        present = set(self.a.pool_labels())
+        if present != set(labels):
+            problems.append("pool mismatch: missing %s extra %s" % (sorted(set(labels) - present),
+                                                                    sorted(present - set(labels))))
+        problems += ["%s not hidden" % l for l in labels if l in present and self.a.pool_state(l)["on"]]
+        if problems:
+            raise RuntimeError("LOOK_BENCH_PREPARE_VERIFY|%r" % problems)
+        kinds = {}
+        for label in labels:
+            kinds[specs[label]["kind"]] = kinds.get(specs[label]["kind"], 0) + 1
+        self.a.log("LOOK_BENCH_PREPARED|run=%s|actors=%d|%s|bays=%s|record=%s" % (
+            self.run_id, len(labels), "|".join("%s=%d" % kv for kv in sorted(kinds.items())),
+            ",".join("%s/%d" % (b["passage"], b["bay"]) for b in bays), self.record_path.as_posix()))
+        return self.record
+
+
+def cleanup(adapter, prepare_record_path):
+    """CLEANUP (editor world, PIE not running): delete the tagged pool WITHOUT saving.
+    Refuses, deleting nothing, if any dirty package is not one PREPARE dirtied."""
+    if adapter.world_kind() != "editor":
+        raise RuntimeError("LOOK_BENCH_CLEANUP_NEEDS_EDITOR|world=%s|end PIE first" % adapter.world_kind())
+    record = json.loads(pathlib.Path(prepare_record_path).read_text(encoding="utf-8"))
+    allowed = record.get("dirtied_by_prepare")
+    if allowed is None:
+        raise RuntimeError("LOOK_BENCH_CLEANUP_NO_CENSUS|record has no dirtied_by_prepare; use a Don't-Save restart")
+    now = adapter.census()
+    foreign = ([m for m in now["maps"] if m not in allowed["maps"]]
+               + [c for c in now["content"] if c not in allowed["content"]])
+    if foreign:
+        raise RuntimeError("LOOK_BENCH_CLEANUP_FOREIGN_DIRTY|%s|nothing deleted" % ",".join(foreign))
+    untagged = sorted(set(adapter.bench_actor_labels(SPAWN_PREFIX)) - set(adapter.pool_labels()))
+    deleted = 0
+    for label in adapter.pool_labels():
+        adapter.destroy_pool(label)
+        deleted += 1
+    left = adapter.pool_labels()
+    if left:
+        raise RuntimeError("LOOK_BENCH_CLEANUP_LEFT|%s" % ",".join(left))
+    adapter.log("LOOK_BENCH_CLEANUP_OK|deleted=%d|untagged_prefix_actors_left=%s|record=%s" % (
+        deleted, ",".join(untagged) or "none", pathlib.Path(prepare_record_path).as_posix()))
+    adapter.log("%s|map still dirty after CLEANUP; never save it" % RESTART_MARKER)
+    return deleted
 
 
 def frame_stats(deltas):
@@ -573,20 +884,17 @@ def clip_plan(pass_frame, p):
 # Unreal side. Everything below runs only inside the editor.
 # --------------------------------------------------------------------------
 
-def make_unreal_adapter(unreal):
-    """Return an adapter whose UE references live in this closure only."""
-    editor_sub = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
-    world = editor_sub.get_game_world()
-    handles = {}
-    events = []
+def _world_common(unreal, world, handles, events):
+    """Read-side operations shared by the editor and PIE adapters (closure-held UE refs)."""
+    tag = unreal.Name(POOL_TAG)
 
     def all_actors():
         return list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.Actor))
 
     def get(key):
         obj = handles.get(key)
-        if obj is None:                      # RESTORE mode: a fresh adapter resolves by path
-            obj = unreal.find_object(None, key.split(":", 1)[-1] if key.startswith(("spawn:", "sweep:")) else key)
+        if obj is None:
+            obj = unreal.find_object(None, key)
             if obj is None:
                 raise RuntimeError("LOOK_BENCH_UNRESOLVED|" + key)
             handles[key] = obj
@@ -596,10 +904,36 @@ def make_unreal_adapter(unreal):
         comps = list(actor.get_components_by_class(unreal.LightComponent))
         return comps[0] if len(comps) == 1 else None
 
-    class A:
-        def world_kind(self):
-            return "game" if world is not None else None
+    def pool_map():
+        out = {}
+        for actor in all_actors():
+            label = actor.get_actor_label()
+            if label.startswith(SPAWN_PREFIX) and actor.actor_has_tag(tag):
+                if label in out:
+                    raise RuntimeError("LOOK_BENCH_POOL_DUPLICATE|" + label)
+                out[label] = actor
+        handles["pool"] = out
+        return out
 
+    def pool_actor(label):
+        pool = handles.get("pool") or pool_map()
+        actor = pool.get(label)
+        if actor is None:
+            actor = pool_map().get(label)
+        if actor is None:
+            raise RuntimeError("LOOK_BENCH_PREPARED_MISSING|1|" + label)
+        return actor
+
+    def main_comp(actor):
+        if isinstance(actor, unreal.SpotLight):
+            return "spot", actor.get_component_by_class(unreal.SpotLightComponent)
+        if isinstance(actor, unreal.PointLight):
+            return "point", actor.get_component_by_class(unreal.PointLightComponent)
+        if isinstance(actor, unreal.LocalFogVolume):
+            return "fog", actor.get_component_by_class(unreal.LocalFogVolumeComponent)
+        return "mesh", actor.static_mesh_component
+
+    class Common:
         def world_name(self):
             return world.get_path_name() if world else None
 
@@ -640,9 +974,124 @@ def make_unreal_adapter(unreal):
                     "volumetric_scattering_intensity": float(
                         comp.get_editor_property("volumetric_scattering_intensity"))}
 
+        def bench_actor_labels(self, prefix):
+            return sorted(a.get_actor_label() for a in all_actors() if a.get_actor_label().startswith(prefix))
+
+        def pool_labels(self):
+            return sorted(pool_map())
+
+        def pool_state(self, label):
+            kind, comp = main_comp(pool_actor(label))
+            on = bool(comp.is_visible())
+            out = {"kind": kind, "visible": on}
+            if kind in ("spot", "point"):
+                out["intensity"] = float(comp.get_editor_property("intensity"))
+                on = on or out["intensity"] > 0.0
+            out["on"] = on
+            return out
+
+        def get_cvar(self, name):
+            return int(unreal.SystemLibrary.get_console_variable_int_value(name))
+
+    return Common, all_actors, get, comp_of, pool_actor, main_comp
+
+
+def make_editor_adapter(unreal):
+    """PREPARE / CLEANUP: the EDITOR world, only while no PIE world exists."""
+    editor_sub = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    world = editor_sub.get_editor_world()
+    handles = {}
+    events = []
+    Common, _all, _get, _comp_of, pool_actor, main_comp = _world_common(unreal, world, handles, events)
+
+    class EditorAdapter(Common):
+        def world_kind(self):
+            if editor_sub.get_game_world() is not None:
+                return "pie_running"
+            return "editor" if world is not None else None
+
+        def spawn_hidden(self, spec):
+            events.append(("spawn", spec["label"]))
+            loc = unreal.Vector(*spec["loc"])
+            kind = spec["kind"]
+            cls = {"spot": unreal.SpotLight, "point": unreal.PointLight,
+                   "fog": unreal.LocalFogVolume}.get(kind, unreal.StaticMeshActor)
+            actor = actor_sub.spawn_actor_from_class(cls, loc, unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0))
+            if actor is None:
+                raise RuntimeError("LOOK_BENCH_SPAWN_FAILED|" + spec["label"])
+            if actor.get_world() != world:
+                actor_sub.destroy_actor(actor)
+                raise RuntimeError("LOOK_BENCH_SPAWN_NOT_IN_EDITOR_WORLD|" + spec["label"])
+            actor.set_actor_label(spec["label"], False)
+            actor.set_editor_property("tags", [unreal.Name(POOL_TAG)])
+            actor.set_actor_enable_collision(False)
+            _kind, comp = main_comp(actor)
+            if kind in ("spot", "point"):
+                comp.set_mobility(unreal.ComponentMobility.MOVABLE)
+                comp.set_intensity_units(unreal.LightUnits.CANDELAS)
+                comp.set_intensity(0.0)
+                comp.set_cast_shadows(False)
+            elif kind == "fog":
+                comp.set_radial_fog_extinction(0.0)
+                comp.set_height_fog_extinction(0.0)
+            else:
+                comp.set_mobility(unreal.ComponentMobility.MOVABLE)
+                comp.set_static_mesh(unreal.load_object(None, spec["mesh"]))
+                parent = spec.get("material", {}).get("mid_parent")
+                if parent:
+                    comp.set_material(0, unreal.load_object(None, parent))   # plain asset ref; MIDs made in PIE
+            actor.get_editor_property("root_component").set_mobility(unreal.ComponentMobility.MOVABLE)
+            comp.set_visibility(False, True)
+            actor.set_actor_hidden_in_game(True)
+            actor.set_is_temporarily_hidden_in_editor(True)
+            handles.pop("pool", None)
+            return actor.get_path_name()
+
+        def destroy_pool(self, label):
+            events.append(("destroy", label))
+            actor = pool_actor(label)
+            if not actor_sub.destroy_actor(actor):
+                raise RuntimeError("LOOK_BENCH_DESTROY_FAILED|" + label)
+            handles.pop("pool", None)
+
+    adapter = EditorAdapter()
+    adapter.events = events
+    return adapter
+
+
+# ---- PIE ADAPTER BEGIN (no spawn / destroy / editor-actor API may appear in this region) ----
+def make_pie_adapter(unreal):
+    """CAPTURE / HOLD / RESTORE / PROBE: the PIE game world. Places, shows, hides
+    and edits prepared pool actors; it has no way to create or remove actors."""
+    editor_sub = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    world = editor_sub.get_game_world()
+    handles = {}
+    events = []
+    Common, all_actors, get, _comp_of, pool_actor, main_comp = _world_common(unreal, world, handles, events)
+
+    def make_mid(spec):
+        parent = unreal.load_object(None, spec["mid_parent"])
+        # UE 5.8 Python exposes no KismetMaterialLibrary (measured 5 Oct); MaterialLibrary is the Python name of the
+        # same UKismetMaterialLibrary, else fall back to MaterialInstanceDynamic.create.
+        lib = getattr(unreal, "MaterialLibrary", None) or getattr(unreal, "KismetMaterialLibrary", None)
+        if lib is not None and hasattr(lib, "create_dynamic_material_instance"):
+            mid = lib.create_dynamic_material_instance(world, parent)
+        else:
+            mid = unreal.MaterialInstanceDynamic.create(parent, None)
+        for name, value in spec.get("scalars", {}).items():
+            mid.set_scalar_parameter_value(name, float(value))
+        for name, value in spec.get("vectors", {}).items():
+            mid.set_vector_parameter_value(name, unreal.LinearColor(*value))
+        return mid
+
+    class PieAdapter(Common):
+        def world_kind(self):
+            return "game" if world is not None else None
+
         def set_light(self, lid, field, value):
             events.append(("set_light", lid, field))
-            comp = comp_of(get(lid))
+            comp = _comp_of(get(lid))
             # UFUNCTION setters only: they mark render state, not the package.
             if field == "cast_shadows":
                 comp.set_cast_shadows(bool(value))
@@ -718,67 +1167,44 @@ def make_unreal_adapter(unreal):
             mat = get(cid).get_material(slot)
             return mat.get_path_name() if mat else None
 
-        def _material(self, spec):
-            if "path" in spec:
-                return unreal.load_object(None, spec["path"]) if spec["path"] else None
-            parent = unreal.load_object(None, spec["mid_parent"])
-            mid = unreal.KismetMaterialLibrary.create_dynamic_material_instance(world, parent)
-            for name, value in spec.get("scalars", {}).items():
-                mid.set_scalar_parameter_value(name, float(value))
-            for name, value in spec.get("vectors", {}).items():
-                mid.set_vector_parameter_value(name, unreal.LinearColor(*value))
-            return mid
-
         def set_slot_material(self, cid, slot, spec):
             events.append(("set_slot", cid, slot))
-            get(cid).set_material(slot, self._material(spec))
-
-        def spawn(self, spec):
-            events.append(("spawn", spec["label"]))
-            loc = unreal.Vector(*spec["loc"])
-            if spec["kind"] == "spot":
-                rot = unreal.Rotator(roll=0.0, pitch=spec["rot"]["pitch"], yaw=spec["rot"]["yaw"])
-                cls = unreal.SpotLight
-            elif spec["kind"] == "point":
-                rot = unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0)
-                cls = unreal.PointLight
-            elif spec["kind"] == "fog":
-                rot = unreal.Rotator(roll=0.0, pitch=0.0, yaw=spec["yaw"])
-                cls = unreal.LocalFogVolume
+            if "path" in spec:
+                mat = unreal.load_object(None, spec["path"]) if spec["path"] else None
             else:
-                rot = unreal.Rotator(roll=0.0, pitch=0.0, yaw=spec["yaw"])
-                cls = unreal.StaticMeshActor
-            transform = unreal.Transform(location=loc, rotation=rot)
-            actor = unreal.GameplayStatics.begin_deferred_actor_spawn_from_class(
-                world, cls, transform, unreal.SpawnActorCollisionHandlingMethod.ALWAYS_SPAWN, None)
-            actor = unreal.GameplayStatics.finish_spawning_actor(actor, transform)
-            if actor.get_world() != world:
-                actor.destroy_actor()
-                raise RuntimeError("LOOK_BENCH_SPAWN_NOT_IN_PIE|" + spec["label"])
-            actor.set_actor_label(spec["label"], False)
-            if spec["kind"] == "spot":
-                comp = actor.get_component_by_class(unreal.SpotLightComponent)
-                comp.set_mobility(unreal.ComponentMobility.MOVABLE)
-                comp.set_intensity_units(unreal.LightUnits.CANDELAS)
-                comp.set_intensity(float(spec["cd"]))
+                mat = make_mid(spec)
+            get(cid).set_material(slot, mat)
+
+        def show_pool(self, spec):
+            """Place a prepared actor at the spec, set its properties, then make it visible."""
+            events.append(("show", spec["label"]))
+            actor = pool_actor(spec["label"])
+            kind, comp = main_comp(actor)
+            if kind != spec["kind"]:
+                raise RuntimeError("LOOK_BENCH_POOL_KIND|%s is %s, spec wants %s" % (spec["label"], kind, spec["kind"]))
+            if kind == "spot":
+                rot = unreal.Rotator(roll=0.0, pitch=spec["rot"]["pitch"], yaw=spec["rot"]["yaw"])
+            elif kind == "point":
+                rot = unreal.Rotator(roll=0.0, pitch=0.0, yaw=0.0)
+            else:
+                rot = unreal.Rotator(roll=float(spec.get("roll", 0.0)), pitch=0.0, yaw=spec["yaw"])
+            loc = unreal.Vector(*spec["loc"])
+            actor.set_actor_location_and_rotation(loc, rot, False, True)
+            got = actor.get_actor_location()
+            if math.dist((got.x, got.y, got.z), tuple(spec["loc"])) > 1.0:
+                raise RuntimeError("LOOK_BENCH_MOVE_FAILED|%s (not Movable?)" % spec["label"])
+            if kind in ("spot", "point"):
                 comp.set_light_color(unreal.LinearColor(*spec["color"], 1.0), True)
-                comp.set_inner_cone_angle(float(spec["inner"]))
-                comp.set_outer_cone_angle(float(spec["outer"]))
                 comp.set_attenuation_radius(float(spec["radius"]))
                 comp.set_cast_shadows(bool(spec["shadows"]))
                 comp.set_volumetric_scattering_intensity(float(spec["vsi"]))
-            elif spec["kind"] == "point":
-                comp = actor.get_component_by_class(unreal.PointLightComponent)
-                comp.set_mobility(unreal.ComponentMobility.MOVABLE)
-                comp.set_intensity_units(unreal.LightUnits.CANDELAS)
+                if kind == "spot":
+                    comp.set_inner_cone_angle(float(spec["inner"]))
+                    comp.set_outer_cone_angle(float(spec["outer"]))
+                else:
+                    comp.set_source_radius(float(spec["source_radius"]))
                 comp.set_intensity(float(spec["cd"]))
-                comp.set_light_color(unreal.LinearColor(*spec["color"], 1.0), True)
-                comp.set_attenuation_radius(float(spec["radius"]))
-                comp.set_source_radius(float(spec["source_radius"]))
-                comp.set_cast_shadows(bool(spec["shadows"]))
-                comp.set_volumetric_scattering_intensity(float(spec["vsi"]))
-            elif spec["kind"] == "fog":
-                comp = actor.get_component_by_class(unreal.LocalFogVolumeComponent)
+            elif kind == "fog":
                 scale = float(spec["radius_cm"]) / 500.0     # GetBaseVolumeSize() = 500 (LocalFogVolumeComponent.h:74-76)
                 actor.set_actor_scale3d(unreal.Vector(scale, scale, scale * 0.6))
                 comp.set_radial_fog_extinction(float(spec["density"]))
@@ -786,19 +1212,29 @@ def make_unreal_adapter(unreal):
                 comp.set_height_fog_falloff(float(spec["height_falloff"]))
                 comp.set_fog_phase_g(float(spec["phase_g"]))
             else:
-                comp = actor.static_mesh_component
-                comp.set_mobility(unreal.ComponentMobility.MOVABLE)
-                comp.set_static_mesh(unreal.load_object(None, spec["mesh"]))
                 actor.set_actor_scale3d(unreal.Vector(*spec["scale"]))
-                comp.set_material(0, self._material(spec["material"]))
-            handle = "spawn:" + spec["label"]
-            handles[handle] = actor
-            return handle
+                comp.set_material(0, make_mid(spec["material"]))
+            comp.set_visibility(True, True)
+            actor.set_actor_hidden_in_game(False)
 
-        def material_readback(self, handle):
-            actor = handles[handle]
-            comp = actor.static_mesh_component
-            mid = comp.get_material(0)
+        def hide_pool(self, label):
+            events.append(("hide", label))
+            actor = pool_actor(label)
+            kind, comp = main_comp(actor)
+            if kind in ("spot", "point"):
+                comp.set_intensity(0.0)
+            elif kind == "fog":
+                comp.set_radial_fog_extinction(0.0)
+                comp.set_height_fog_extinction(0.0)
+            comp.set_visibility(False, True)
+            actor.set_actor_hidden_in_game(True)
+
+        def set_pool_intensity(self, label, value):
+            _kind, comp = main_comp(pool_actor(label))
+            comp.set_intensity(float(value))
+
+        def material_readback(self, label):
+            mid = pool_actor(label).static_mesh_component.get_material(0)
             out = {}
             for name in ("Roughness_Low", "Roughness_High", "Roughness_Add_Grunge"):
                 try:
@@ -806,28 +1242,6 @@ def make_unreal_adapter(unreal):
                 except Exception as exc:          # parameter absent on this parent
                     out[name] = "ERR " + repr(exc)
             return out
-
-        def set_spawn_intensity(self, handle, value):
-            handles[handle].get_component_by_class(unreal.SpotLightComponent).set_intensity(float(value))
-
-        def destroy(self, handle):
-            actor = handles.pop(handle)
-            actor.destroy_actor()
-
-        def bench_actor_labels(self, prefix):
-            return sorted(a.get_actor_label() for a in all_actors() if a.get_actor_label().startswith(prefix))
-
-        def bench_actor_handles(self, prefix):
-            out = []
-            for actor in all_actors():
-                if actor.get_actor_label().startswith(prefix):
-                    key = "sweep:" + actor.get_path_name()
-                    handles[key] = actor
-                    out.append(key)
-            return out
-
-        def get_cvar(self, name):
-            return int(unreal.SystemLibrary.get_console_variable_int_value(name))
 
         def set_cvar(self, name, value):
             unreal.SystemLibrary.execute_console_command(world, "%s %s" % (name, value))
@@ -886,27 +1300,31 @@ def make_unreal_adapter(unreal):
         def transport_frame(self):
             return int(self.show_root().transport.get_current_master_frame().value)
 
-    adapter = A()
+    adapter = PieAdapter()
     adapter.events = events
     return adapter
+# ---- PIE ADAPTER END ----
 
 
-def arm(unreal, mode, toggles, states, params):
+def arm(unreal, mode, toggles, states, params, prepare_path):
     if hasattr(builtins, HANDLE_NAME):
         raise RuntimeError("LOOK_BENCH_ALREADY_ARMED")
-    adapter = make_unreal_adapter(unreal)
+    adapter = make_pie_adapter(unreal)
     if adapter.world_kind() != "game":
-        raise RuntimeError("LOOK_BENCH_NEEDS_PIE|start PIE first (the bench never starts or ends it)")
+        raise RuntimeError("LOOK_BENCH_NEEDS_PIE|start PIE first (PREPARE in the editor world comes before PIE)")
+    prep = load_prepare_record(prepare_path)
     run_id = utc_stamp()
-    run_dir = BASE / "LookBench" / run_id
+    run_dir = pathlib.Path(prepare_path).parent / ("capture_%s_%s" % (run_id, mode.lower()))
     run_dir.mkdir(parents=True, exist_ok=False)
-    bench = LookBench(adapter, run_dir / "look_bench_originals.json", params, run_id)
-    bench.prepare()
+    bench = LookBench(adapter, run_dir / CAPTURE_RECORD_NAME, params, run_id)
+    if mode == "HOLD":
+        states = [("hold", tuple(toggles))]
+    bench.read_originals(states, require_pool=True, prepare_record=prep)
     p = bench.p
-    if states is None:
-        states = default_states(bool(bench.record.get("glint") and bench.record["glint"].get("light")))
+    states = [(n, tuple(t)) for n, t in bench.record["states"]]
     st = {"run": run_id, "mode": mode, "run_dir": run_dir.as_posix(), "phase": "start", "index": 0,
-          "states": [[n, list(t)] for n, t in states], "clips": [], "errors": [], "ticks": 0}
+          "states": [[n, list(t)] for n, t in states], "clips": [], "errors": [], "ticks": 0,
+          "edge_slots": len(bench.record["edge_slots"]), "prepare_record": pathlib.Path(prepare_path).as_posix()}
     setattr(builtins, STATE_NAME, st)
     if mode == "CAPTURE":
         pass_frame, seg_start, seg_end = adapter.bay_pass_frame(p["passage"], int(p["bay"]))
@@ -935,11 +1353,13 @@ def arm(unreal, mode, toggles, states, params):
         unreal.unregister_slate_post_tick_callback(getattr(builtins, HANDLE_NAME))
         delattr(builtins, HANDLE_NAME)
         if st["ok"]:
-            unreal.log("LOOK_BENCH_OK|run=%s|mode=%s|states=%d|run_dir=%s" % (run_id, mode, len(states),
-                                                                           run_dir.as_posix()))
+            unreal.log("LOOK_BENCH_OK|run=%s|mode=%s|states=%d|edge_slots=%d|run_dir=%s" % (
+                run_id, mode, len(states), st["edge_slots"], run_dir.as_posix()))
         else:
             unreal.log_error("LOOK_BENCH_FAILED|run=%s|problems=%r|errors=%d" % (run_id, problems,
                                                                              len(st["errors"])))
+        unreal.log("%s|run=%s|pool + dirty map remain in the editor world until a Don't-Save restart" % (
+            RESTART_MARKER, run_id))
 
     def tick(_delta):
         if st.get("inside") or st["phase"] in ("done", "finishing"):
@@ -981,9 +1401,11 @@ def arm(unreal, mode, toggles, states, params):
                     st["deltas"].append(float(_delta))        # static-pose frame time with this state on
                 if now - st["t0"] < float(p["settle_seconds"]) or st["settle_ticks"] < int(p["settle_ticks"]):
                     return
-                name, _ = states[st["index"]]
+                name, tset = states[st["index"]]
                 st["current"] = {"state": name, "frames": [], "dir": (run_dir / name).as_posix(),
-                                 "frame_ms": frame_stats(st.pop("deltas", []))}
+                                 "frame_ms": frame_stats(st.pop("deltas", [])),
+                                 "edge_slots": st["edge_slots"],
+                                 "edge_effective": bool("edge" in tset and st["edge_slots"])}
                 pathlib.Path(st["current"]["dir"]).mkdir(parents=True, exist_ok=True)
                 st["next"] = clip["start"]
                 adapter.transport_play()
@@ -1032,28 +1454,54 @@ def main():
     g = globals()
     mode = g.get("BENCH_MODE", "PROBE")
     params = dict(g.get("BENCH_PARAMS", {}))
+    if mode == "PREPARE":
+        adapter = make_editor_adapter(unreal)
+        if adapter.world_kind() != "editor":
+            raise RuntimeError("LOOK_BENCH_PREPARE_NEEDS_EDITOR|world=%s" % adapter.world_kind())
+        run_id = utc_stamp()
+        run_dir = BENCH_DIR / run_id
+        run_dir.mkdir(parents=True, exist_ok=False)
+        PrepareBench(adapter, run_dir / PREPARE_RECORD_NAME, g.get("BENCH_BAYS"), params, run_id).run()
+        return
+    if mode == "CLEANUP":
+        cleanup(make_editor_adapter(unreal), find_prepare_record(BENCH_DIR, g.get("BENCH_PREPARE_RECORD")))
+        return
     if mode == "RESTORE":
-        record = g.get("BENCH_RECORD") or sorted((BASE / "LookBench").glob("*/look_bench_originals.json"))[-1]
-        problems = restore_from_record(make_unreal_adapter(unreal), record)
+        adapter = make_pie_adapter(unreal)
+        if adapter.world_kind() != "game":
+            raise RuntimeError("LOOK_BENCH_NEEDS_PIE|RESTORE works on the PIE copies")
+        explicit = g.get("BENCH_RECORD")
+        if explicit:
+            records = [explicit] if isinstance(explicit, (str, pathlib.Path)) else list(explicit)
+        else:
+            prep = find_prepare_record(BENCH_DIR, g.get("BENCH_PREPARE_RECORD"))
+            records = sorted(prep.parent.glob("capture_*/" + CAPTURE_RECORD_NAME))
+        problems = restore_all(adapter, records, unreal.log)
         if problems:
             unreal.log_error("LOOK_BENCH_RESTORE_FAILED|%r" % problems)
         else:
-            unreal.log("LOOK_BENCH_RESTORE_OK|record=%s" % pathlib.Path(record).as_posix())
+            unreal.log("LOOK_BENCH_RESTORE_OK|records=%d" % len(records))
+        unreal.log("%s|pool + dirty map remain in the editor world; end PIE, then restart the editor choosing "
+                   "Don't Save" % RESTART_MARKER)
         return
     if mode == "PROBE":
-        adapter = make_unreal_adapter(unreal)
+        adapter = make_pie_adapter(unreal)
         if adapter.world_kind() != "game":
             raise RuntimeError("LOOK_BENCH_NEEDS_PIE")
         run_id = utc_stamp()
         out = BASE / ("look_bench_probe_%s.json" % run_id)
         bench = LookBench(adapter, out, params, run_id)
-        bench.prepare()                       # reads + writes the file; changes nothing
-        unreal.log("LOOK_BENCH_PROBE_OK|lights=%d|edge_slots=%d|path=%s" % (
-            len(bench.record["lights"]), len(bench.record["edge_slots"]), out.as_posix()))
+        bench.read_originals(None, require_pool=False)     # reads + writes the file; changes nothing
+        unreal.log("LOOK_BENCH_PROBE_OK|lights=%d|edge_slots=%d|pool_in_pie=%d|path=%s" % (
+            len(bench.record["lights"]), len(bench.record["edge_slots"]), len(adapter.pool_labels()),
+            out.as_posix()))
         return
+    if mode not in ("CAPTURE", "HOLD"):
+        raise RuntimeError("LOOK_BENCH_BAD_MODE|" + str(mode))
     toggles = tuple(g.get("BENCH_TOGGLES", ("shadows", "haze", "rake", "floor_wet", "strobe", "edge")))
     states = g.get("BENCH_STATES")
-    arm(unreal, mode, toggles, [(n, tuple(t)) for n, t in states] if states else None, params)
+    arm(unreal, mode, toggles, [(n, tuple(t)) for n, t in states] if states else None, params,
+        find_prepare_record(BENCH_DIR, g.get("BENCH_PREPARE_RECORD")))
 
 
 if __name__ == "__main__" or "BENCH_MODE" in globals():

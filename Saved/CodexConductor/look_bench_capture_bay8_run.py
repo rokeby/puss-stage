@@ -1,5 +1,6 @@
 """Run look_bench.py CAPTURE on P04 bay 8 (glint target: Wing 008 R, ruined_gallery_R_v3).
-PIE must already be running; this never starts or ends PIE."""
+Order: PREPARE in the editor world (look_bench_prepare_run.py), then begin PIE, then this.
+It uses the prepared pool only (no spawns); it never starts or ends PIE."""
 import os
 import runpy
 

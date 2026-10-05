@@ -1,4 +1,4 @@
-"""Run look_bench.py in CAPTURE mode (PIE must already be running; never starts or ends PIE)."""
+"""Run look_bench.py in CAPTURE mode (needs PREPARE first, then PIE running; uses the prepared pool, never spawns; never starts or ends PIE)."""
 import os
 import runpy
 
