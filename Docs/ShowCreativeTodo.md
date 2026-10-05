@@ -51,6 +51,8 @@ real-world fire-rating claim.
 - [ ] **C.6** (G) Write the surtitle text. S5's rumbles are the clearest case; decide per scene whether surtitles carry narrative, translate non-verbal sound, or stay absent.
 - [ ] **C.7** (G) Surtitle legibility — type size, bar opacity, contrast, at real throw distance in real ambient light.
 
+- [ ] **C.P06-end** (G, 5 Oct) P06 has NO painted end curtain: "only darkness but the curtain's already on the ground on fire". Stage a fallen drop burning on the floor in the dark before S6. Owners: Soft goods (drop) and Effects sources (fire). Passage-end curtains P01–P05 are Fuser job 48.
+
 ## Passages — aesthetics and timing
 
 - [ ] **H.2** (G) One stated idea per passage, written down. P1, P4 and P6 have none; P2, P3 and P5 already carry theirs in their wing families.
