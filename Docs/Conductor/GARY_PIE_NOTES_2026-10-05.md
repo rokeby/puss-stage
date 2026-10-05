@@ -183,3 +183,11 @@
        DerivedAssets/FlatV3/Review_2026-10-05/holes/hf/RUNBOOK.md. 85 meshes; flags for Gary: cvl6 trims card tops
        (P02 SET16_L −37.8 cm, SET04_R −13.5 cm); 3 still crinkly; the P02 _C top borders are excluded.
     Before step 2: P04 "as-is" stills (conductor).
+41. **Narration stand-ins (via Directing):** Gary confirmed S1 Animals / S2 Shrine / S3 Shore, start when the hangar lands
+    (~4.13 s), and "Lengthen S2 to fit" (S2 is 31 s; the clip is 74.75 s). WAVs are in DerivedAssets/Audio/Narration_Standin;
+    tool scene_narration_standin.py (12/97). Runs when the editor is free: extend S2 → Master rebuild → tests → narration DRY/APPLY → tests.
+42. **Light-event on-screen print (Gary):** held patch LE being written (cvar InfinityStage.ShowLightEvents, a game-world
+    OFF→ON poller with hysteresis, Show attachment labels, rate-limited strobes). Build in the end-of-day restart session.
+43. **Opening FOH flicker/envelope stays PROGRAMMATIC from the music** (Gary gave up hand-keying it; the music will change).
+    Re-run opening_sequence_plan/apply when Cameron's new music arrives. If Gary saved hand edits to LS_Opening_Curtain_Baked,
+    reconcile the hash drift first.
