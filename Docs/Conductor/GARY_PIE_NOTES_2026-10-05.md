@@ -92,3 +92,8 @@
     - (b) identify which cat actor shows during the Interaction and hold it hidden until the walk-in or the Passage start;
     - (c) the I3 curtain-sleight rollout replaces this view with the hangar wide → sleight → drop → walk-in.
 23. **Strobe:** "overall effect works well" (P04 default strobe, 1 s, ghost ~1/3 s).
+24. **"P04 does end on a curtain but it doesn't drop now; we walk straight through it."** Plus: dusk is visible behind it
+    (→ the black-void note) and "the curtain should also reach the floor more". This is the 30 Sep "P04 Backcloth (baked)"
+    in S4's Arrival backcloth slot, which has had an open render fault. Plan, within Gary's "stand-in drape falls at the end
+    of P01–P05": revert the P04 backcloth (its own revert script ran once already on 30 Sep), then passage_end_drape S4 like
+    the others. Add a check to the drape tool: the hem must touch the floor in the hanging pose (bottom ≤ floor top + 5 cm).
