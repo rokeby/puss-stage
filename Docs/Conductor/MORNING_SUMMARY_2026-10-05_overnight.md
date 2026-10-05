@@ -54,3 +54,19 @@ SceneCutBindingsResolve, run singly in the live editor, both green; census clean
 1. P05 underpass stills (tool being written), then stills of P01–P04/P06 under their new scores.
 2. P04 shadow-cost timing run.
 3. Gary: underpass look on P05 before other passages; candle in P06's void; pit-strip steps; lighting score verdicts.
+
+## Added ~03:10 local
+- **Stills of all six passages** (passage_stills.py, harness 51/51; live runs all OK, census clean): five fractions
+  each (0.1–0.9) via Master scrub with the show's own camera. Sheet sent to Gary. Folders:
+  Saved/CodexConductor/PassageStills/PSTILLS-P0n-20261005-07*.
+  - P05 (underpass): steel columns read at the sides; along the horizon there are many dark cubes, some with lit bowls,
+    some tumbled at angles. Origin NOT identified [inferred candidates: the P05 score's 185 practical props, or kit
+    pieces]. Check before the rig goes to other passages.
+  - P06 at 0.1 is blown white (a bright doorway); expected black-mode dark at bay ~6. Unexplained [inferred: the
+    fraction may still sit in the lead-in from S5].
+  - P02 at 0.9 and P01 at 0.9 show the hangar/blue void past the last wing.
+- **P04 shadow cost** [measured, frame_time_probe.py]: bay 4, base vs shadows-on (bench toggle, key spots), two runs
+  each: median 16.6–16.7 ms in every window = locked to the 60 fps cap; means 24.9–25.4 ms, p95 64–95 ms from
+  screenshot capture in every window. So no frame-rate loss at the cap; real GPU headroom is hidden by the cap
+  (an uncapped / `stat gpu` run would show it).
+- Bench prepare now refuses P04 bay 9 (its old lights are disabled by the P04 score); bay-4-only prepare added.
