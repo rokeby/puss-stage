@@ -1,0 +1,34 @@
+{
+  "tracks": [
+    {
+      "passage": 1,
+      "filename": "P01_Walking1.wav",
+      "sha256": "9dc719d10cc71e1be8b03a0dfd289fd7a3f76d2fdec14bd0371db8ab146d44e4"
+    },
+    {
+      "passage": 2,
+      "filename": "P02_Walking2.wav",
+      "sha256": "1ce5bd98b934d644b83d38311c8923e8e3e048581867f0e522fc5157b4f1446f"
+    },
+    {
+      "passage": 3,
+      "filename": "P03_Walking3.wav",
+      "sha256": "d464592f8a0cab28a12279726ab7c947e1e1f5cc0d374723bdd83abcc538e691"
+    },
+    {
+      "passage": 4,
+      "filename": "P04_Walking4_pad10.wav",
+      "sha256": "aeff66f86b1864bc29a78c341291d2eba9e51e27201c05c1871ca9a7632cfa7b"
+    },
+    {
+      "passage": 5,
+      "filename": "P05_Walking5.wav",
+      "sha256": "da01323b9e0036488e8fe58d0192c88b946987ff65a4768c404e703eb08b40e6"
+    },
+    {
+      "passage": 6,
+      "filename": "P06_Walking6.wav",
+      "sha256": "10b2b017fef21308e06b1a197be8c19ee91cf3448ddb8cd8542b460da100c6dc"
+    }
+  ]
+}
