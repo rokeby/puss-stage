@@ -150,3 +150,10 @@
     forward so we start ON the shiny floor, not in the "audience"; forget the slatted wood, P01's waxed floor is better.
     Also make puddles and pools of slick, thick water or oil on the floor.
 33. **Heave shake:** the heavy heave needs "a little bit of shake, coming up and on landing thud".
+34. **P04 gallery mirrored-shift: CONFIRMED** (W&T probe FV3TKAUDIT-20261006-01, matches the pre-registered prediction to
+    0.01 cm; the 15 controls show 0 error). L_v1 inner edge 35 cm into the walkway; R_v1/R_v3 inner edges recede 28.5 / 22.6 cm;
+    R_v2 −3.6 cm. Cause: TK's lateral shift was computed in the raw-FBX frame (Y reflected) and added to Unreal Y.
+    Gary: "save this til end of day too" → END-OF-DAY SESSION, with W&T's hole/outline kit:
+    (b) corrected CV12B re-apply (recommended) or (a) tk_cv_revert. Take P04 "as-is" stills before it.
+35. Short FenceBays imported (FV3FBS-20261005-01): SM_FenceBay_short_open, _short_door_gap, SM_FenceTarp_short_half,
+    _short_torn, SM_FencePost_short.
