@@ -97,7 +97,7 @@ def curtain(theme, palette):
 
 
 write_job("48_ALL_passage_end_curtains", "48 · Painted curtains at the end of each passage (Gary 5 Oct)",
-  "One per passage; at each sleight the hangar curtain and the mouth curtain must be the SAME art. Not cut out: a full rectangle.",
+  "One per passage: the curtain seen at the END of the passage before the hangar comes up (Gary 5 Oct). It is NOT the shadow-play curtain (that one is the red velvet drop that falls in the hangar and matches the next passage mouth). Not cut out: a full rectangle.",
   [("P01 end (to Scene 1)", curtain("a warm fairytale garden gate framed by painted rose swags, a far golden park in the centre", "honey, rose, gilt, soft green")),
    ("P02 end (to the shrine)", curtain("a lurid jungle clearing framed by painted creepers, a misty stone pagoda glimpsed in the centre", "acid green, bruise purple, oxblood")),
    ("P03 end (to the shore)", curtain("a pale whitewashed convent window opening onto a bright cold shore with standing stones", "cool white, straw yellow, pale sky")),
