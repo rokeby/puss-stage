@@ -173,3 +173,9 @@
   - P06's 64 ceiling tops are hidden (bHasTop=False, data kept). Revert: p6_ceiling_off_revert.py.
   - SavedMasterMatchesShow passed. Stills FV3STL-20261005-03.
   - **Design item for Gary:** "ceiling needs a little thought".
+
+## Gary, 5 Oct ~02:30 (his words, paraphrased only where marked)
+- **Passage retime policy:** "Passage camera is basically always in dog gaze mode but on a track, so there are no camera moves in passage music bit, in non music bits like opening and transition, they should get nudged forward or backwards correspondingly, not stretch. The only thing likely to shift around is music and wing passage length."
+  - So: SHIFT, never stretch. Non-music keys move with the boundary they belong to.
+  - The RT test's known-gap TODO resolves to "keep + shift". Pins past a new end must move with the end, not be dropped.
+- **Scene → Passage transition REDESIGN (supersedes the back-door exit block):** "At the end of a scene, we could shift out to wide view of its hangar and then a curtain falls that almost covers the whole screen, upon which shadow play happens. Behind it, the rig folds back down again leaving darkness, and we do a slight of hand where the new passage switches over (we switch to identical curtain at mouth of next passage, which is fully dark and therefore smooth transition while audience is distracted by boy cat shadow), and when that's done the curtain can drop, letting us onto the new scene. The key here will be letting the sleight of hand spawn in the correct order so we're not getting glitchy previews of behind the curtain."
