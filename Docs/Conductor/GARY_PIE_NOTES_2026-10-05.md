@@ -165,3 +165,10 @@
     1. gallery fix (b), FV3D-20261006-02, ~15–20 min; R_v2 allowed 16 cm out per Gary; fallback (a) revert prepared;
     2. TK 4 Oct audit probes;
     3. hole/outline kit per passage (P03/P05 first), 1–2 h. Take P04 "as-is" stills first.
+38. **SEAMS, end of afternoon (5 Oct ~15:40):**
+    - **Passage → Scene snap FIXED** (CS v2, 37eac9a, suite green). PIE re-measure, P01 → S1: last rig frame (28783.65, 0, 149.58),
+      roll −0.004° vs the Entry camera (28784.01, 0, 150.0), roll 0 → **0.36 cm / 0.42 cm, down from 33 / 17 cm**. The 0.4 s stall
+      at the cut remains (Master clamps one 400 ms frame: MaxUndilatedFrameTime) → separate Insights measurement.
+    - **Transitions:** the curtain sleight is on ALL of I1–I5 (I2–I5 applied 11:17–11:18 local; tails 451/463/62/62). I1's PILE hold is
+      fixed (the fall would have wrapped at 77 s). Right lands on each transition (TB).
+    - Camera Pilot keying works with the settle (KeysInsideCrossingSettle test).
