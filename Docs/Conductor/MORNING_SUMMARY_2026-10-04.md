@@ -255,3 +255,9 @@
 - **Default strobe placed in P04:** "P04 Strobe (default, Gary to place)" plus its ghost PPV, at world (2000, 240650, 60). Period 1 s, flash 0.04 s, decay 0.33 s, ghost 0.33 s.
 - **Look bench:** FAILED on its first spawn. UE 5.8 Python cannot spawn actors into a PIE world (measured: only the editor-world spawn APIs exist). Its property toggles worked and were restored. It is being reworked to pre-place hidden temps in the editor world, then toggle in PIE.
 - **Underpass rig kit:** Blender modules, materials and import/Phase A tools are being built offline.
+- **Gary, 5 Oct before bed (questionnaire), overnight approvals:**
+  - Restore the dark floor (raise the old slabs, add P04, new dark wet-wood MI with puddles).
+  - Apply lighting scores P01–P04 and P06 overnight.
+  - Underpass rig: review and build any engine change (portal kept separate, new column/deck layer), then prototype on P05 only.
+  - Measure shadow cost on P04 (temporary, reverted).
+- **W&T gallery cv12 swap:** blocked. The kit demands a PASS build report and no_frills fails; Gary's waiver lives only in the selector. W&T asked Gary directly. NOT for the conductor to work around.
