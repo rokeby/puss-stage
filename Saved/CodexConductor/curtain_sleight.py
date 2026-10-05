@@ -28,7 +28,13 @@ REMOVES every cut section and would destroy the sleight (fit_transition_drapes.p
 
 Modes (globals set by a runner):  CURTAIN_SLEIGHT_INTERACTION int 1..5 (required)
                                   CURTAIN_SLEIGHT_APPLY / CURTAIN_SLEIGHT_REVERT  True, else DRY
+                                  CURTAIN_SLEIGHT_FIXUP_PILE_DRY / _FIXUP_PILE / _FIXUP_PILE_REVERT  True (I1 only)
                                   CURTAIN_SLEIGHT_RUN_ID optional
+PILE (5 Oct, after the I1 apply): the mouth drape's post-release play is FALL [release, release + playable) then PILE
+[that, end), a one-tick window at the cache's last tick (the Opening's mechanism, pile_row()). playable is computed
+from the live cache length and the FALL's offset (fall_budget_frames()); check_sleight refuses any drape GC section
+that would wrap (DRAPE_CACHE_WRAP). I1 was applied before this split: FIXUP_PILE inserts the PILE into the applied I1
+drape and touches nothing else. Way out: FIXUP_PILE_REVERT FIRST, then the main REVERT (main_revert_gate enforces it).
 Importing with no `unreal` (system Python) never touches Unreal: the pure planner, the checks and the snapshot model
 are what test_curtain_sleight.py exercises.
 
@@ -77,6 +83,9 @@ OVERRIDES_NAME = "curtain_sleight_overrides.json"
 PLAN_PATTERN = "curtain_sleight_plan_I%d.json"
 RECORD_PATTERN = "curtain_sleight_record_I%d.json"
 DRY_PATTERN = "curtain_sleight_I%d_dry.json"
+FIXUP_RECORD_PATTERN = "curtain_sleight_fixup_pile_record_I%d.json"   # exclusive to FIXUP_PILE; never the main record
+FIXUP_DRY_PATTERN = "curtain_sleight_fixup_pile_I%d_dry.json"
+FIXUP_INTERACTIONS = (1,)                                              # I1 was applied before the PILE split
 WALK_TRACK = "WalkIn (Look & camera)"
 TRACK_NAME = "CurtainSleight (Conductor)"
 TAGS = ("CurtainSleight", "CurtainSleight.I%d")
@@ -273,6 +282,92 @@ def world_aabb(world_frame, local_lo, local_hi):
 # Pure planner
 # =====================================================================================================================
 
+def ticks_per_frame(tick_rate, fps):
+    return float(tick_rate) / float(fps)
+
+
+def fall_budget_frames(dur_ticks, start_off, end_off, tick_rate, fps):
+    """Display frames a GC section can play from `start_off` before UE wraps it. The section window is
+    dur - start_off - end_off ticks; MapTimeToAnimation fmods the elapsed time by that window [decl
+    MovieSceneGeometryCacheSection.h:71 declares MapTimeToAnimation(ComponentDuration, ...); the fmod itself is
+    INFERRED, no private .cpp in UE_5.8, memory ue58-engine-source-limits]. Same rule as
+    interaction_walkin_ready.py:185 (fall_cache_budget_frames) and fit_transition_drapes.py:125-126 ('it would LOOP'),
+    and the Opening's 250-frame FALL from offset 23200 (opening_sequence_plan.py:235)."""
+    return int(math.floor((int(dur_ticks) - int(start_off) - int(end_off)) / ticks_per_frame(tick_rate, fps) + 1.0e-9))
+
+
+def pile_row(fall_end, end, dur_ticks):
+    """The Opening's PILE, exactly: a ONE-TICK window at the cache's last tick (start offset dur - 1, end offset 0),
+    looped for the whole section, so it shows the final sample however long the section is.
+    Precedent: opening_sequence_plan.py:244 [fall_end, end_frame, dur_ticks - 1, 0]; live read-back
+    [299, 375, 263999, 0] (Saved/CodexSoftGoods/opening_hold_at_release_final13.json "after") [measured, read-back
+    only]; first authored by curtain_place_opening_and_transitions.py:146-148 (PILE 300-375 at dur - one frame)."""
+    return [int(fall_end), int(end), int(dur_ticks) - 1, 0]
+
+
+def split_fall(release, end, fall_so, fall_eo, dur_ticks, tick_rate, fps):
+    """Post-release drape play -> FALL [release, release + playable) + PILE [that, end) holding the last sample.
+    PILE is None when the FALL already fits the cache. Returns (fall_row, pile_row_or_None, playable_frames)."""
+    playable = fall_budget_frames(dur_ticks, fall_so, fall_eo, tick_rate, fps)
+    if playable < 1:
+        raise PlanError("DRAPE_CACHE_EMPTY: offsets %d/%d leave no playable frame in a %d-tick cache"
+                        % (fall_so, fall_eo, dur_ticks))
+    fall_end = min(int(end), int(release) + playable)
+    fall = [int(release), fall_end, int(fall_so), int(fall_eo)]
+    return fall, (pile_row(fall_end, end, dur_ticks) if fall_end < int(end) else None), playable
+
+
+def gc_wrap_frame(row, dur_ticks, tick_rate, fps):
+    """None if the GC section [a, b) never wraps inside the cache, else the display frame where it wraps.
+    A window of <= 1 tick is a HOLD by design (HOLD/PILE loop one sample: fit_transition_drapes.py:151-152)."""
+    a, b, so, eo = [int(v) for v in row]
+    window = int(dur_ticks) - so - eo
+    if window <= 1:
+        return None
+    tpf = ticks_per_frame(tick_rate, fps)
+    if (b - a) * tpf <= window:
+        return None
+    return a + window / tpf
+
+
+def drape_gc_rows(mouth_drape):
+    rows = [list(mouth_drape["hold"]), list(mouth_drape["fall"])]
+    if mouth_drape.get("pile"):
+        rows.append(list(mouth_drape["pile"]))
+    return rows
+
+
+def drape_section_failures(mouth_drape, end, dur_ticks, tick_rate, fps, extra_rows=()):
+    """The PILE gates, shared by check_sleight and check_fixup. extra_rows: (name, row) of other drape GC sections
+    (the hangar twin) that must not wrap either."""
+    fail = []
+    hold, fall, pile = mouth_drape["hold"], mouth_drape["fall"], mouth_drape.get("pile")
+    rows = [("mouth HOLD", hold), ("mouth FALL", fall)] + ([("mouth PILE", pile)] if pile else []) + list(extra_rows)
+    for name, row in rows:
+        if int(dur_ticks) - int(row[2]) - int(row[3]) <= 0:
+            fail.append("DRAPE_CACHE_WINDOW_EMPTY: %s %r (cache %d ticks)" % (name, list(row), dur_ticks))
+            continue
+        w = gc_wrap_frame(row, dur_ticks, tick_rate, fps)
+        if w is not None:
+            fail.append("DRAPE_CACHE_WRAP: %s [%d, %d) wraps back to its first sample at frame %.1f (cache %d ticks, "
+                        "offsets %d/%d)" % (name, row[0], row[1], w, dur_ticks, row[2], row[3]))
+    playable = fall_budget_frames(dur_ticks, fall[2], fall[3], tick_rate, fps)
+    if pile:
+        if int(pile[0]) != int(fall[1]):
+            fail.append("PILE_NOT_ON_FALL_END: PILE starts %d, FALL ends %d" % (pile[0], fall[1]))
+        if int(pile[1]) != int(end):
+            fail.append("PILE_END: PILE ends %d, playback %d" % (pile[1], end))
+        if [int(pile[2]), int(pile[3])] != [int(dur_ticks) - 1, 0]:
+            fail.append("PILE_NOT_LAST_SAMPLE: offsets %d/%d, want %d/0 (one tick at the cache end)"
+                        % (pile[2], pile[3], int(dur_ticks) - 1))
+        if int(fall[1]) - int(fall[0]) != playable:
+            fail.append("PILE_EARLY: FALL plays %d frames, the cache allows %d (the cloth would jump to the end sample)"
+                        % (int(fall[1]) - int(fall[0]), playable))
+    elif int(fall[1]) != int(end):
+        fail.append("DRAPE_END: FALL ends %d, playback %d, no PILE" % (fall[1], end))
+    return fail
+
+
 def merged_params(params):
     out = dict(DEFAULTS)
     unknown = sorted(set(params or {}) - set(DEFAULTS))
@@ -458,8 +553,14 @@ def plan_sleight(inputs, params, walk_ns):
         if frame >= max(1, walk_start - 1):
             mouth_keys.append((frame,) + tuple(float(v) for v in key[1:]))
 
-    # ---- mouth drape re-time (not re-baked): the HOLD now ends on the GO frame
-    mouth_drape = {"hold": [0, f["release"], hold_so, hold_eo], "fall": [f["release"], new_end, fall_so, fall_eo]}
+    # ---- mouth drape re-time (not re-baked): the HOLD now ends on the GO frame; the post-release play is FALL for as
+    # long as the cache lasts from the FALL's own offset, then PILE holds the last sample (the Opening's mechanism)
+    dur_ticks, tick_rate = int(inputs["cache"]["duration_ticks"]), float(inputs["tick_rate"])
+    fall_row, pile, playable = split_fall(f["release"], new_end, fall_so, fall_eo, dur_ticks, tick_rate, fps)
+    f["fall_end"] = fall_row[1]
+    mouth_drape = {"hold": [0, f["release"], hold_so, hold_eo], "fall": fall_row, "pile": pile}
+    drape_cache = {"duration_ticks": dur_ticks, "tick_rate": tick_rate, "playable_frames": playable,
+                   "fall_end": fall_row[1], "pile": pile}
 
     go_number = str(p["go_number"]) if p["go_number"] is not None else "%d0" % n
     go_label = "GO %s %s" % (go_number, p["go_label"])
@@ -490,7 +591,8 @@ def plan_sleight(inputs, params, walk_ns):
         "lights": lights,
         "fold": {"mode": "placeholder_lights", "sequence": FOLD_SEQ % n},
         "mouth_drape": mouth_drape,
-        "cuts": [{"camera": "hangar_camera", "range": [0, f["sleight"]]},
+        "drape_cache": drape_cache,
+        "cuts":[{"camera": "hangar_camera", "range": [0, f["sleight"]]},
                  {"camera": "mouth_camera", "range": [f["sleight"], new_end]}],
         "markers": markers, "go": [go_label, f["release"]],
         "lens": {"matched_focal_mm": focal_matched, "matched_focus_cm": focus_matched, "filmback_mm": film,
@@ -725,6 +827,12 @@ def check_sleight(plan, inputs):
         parsed_existing = parse_go_label(label)
         if parsed_existing and parse_go_label(go_label) and parsed_existing[0] == parse_go_label(go_label)[0]:
             fail.append("GO_DUPLICATE: %r already in the sequence at %d" % (label, frame))
+
+    # 11. the drape cache: no section wraps; PILE starts where FALL ends and holds the last sample. The cache length
+    # and tick rate come from the live inputs (never the plan's own copy), so a stale plan is judged on today's cache.
+    fail.extend(drape_section_failures(plan["mouth_drape"], plan["new_end"], int(inputs["cache"]["duration_ticks"]),
+                                       float(inputs["tick_rate"]), fps,
+                                       extra_rows=[("hangar drape", plan["hangar_drape"]["gc"])]))
     return fail
 
 
@@ -829,7 +937,7 @@ def apply_model(snap, plan, guids):
         if b["name"] == MOUTH_DRAPE:
             for t in b["tracks"]:
                 if t["class"] == "MovieSceneGeometryCacheTrack":
-                    t["sections"] = [list(plan["mouth_drape"]["hold"]), list(plan["mouth_drape"]["fall"])]
+                    t["sections"] = drape_gc_rows(plan["mouth_drape"])     # HOLD, FALL (+ PILE)
     for t in out["root_tracks"]:
         for s in t["sections"]:
             if t["class"] != "MovieSceneCameraCutTrack" and s[1] in (old_end, old_end + 1):
@@ -893,6 +1001,143 @@ def revert_model(snap_after, record, skip=()):
 
 
 # =====================================================================================================================
+# FIXUP_PILE (I1 only): the applied record's HOLD/FALL -> HOLD/FALL/PILE on the SAME drape binding. Nothing else moves.
+# Order on the way out: FIXUP_PILE_REVERT first, then the main REVERT (main_revert_gate refuses otherwise).
+# =====================================================================================================================
+
+def _drape_binding_guid(snap):
+    rows = [b for b in snap["bindings"] if b["name"] == MOUTH_DRAPE]
+    if len(rows) != 1:
+        raise PlanError("FIXUP_DRAPE_BINDING_COUNT: %d" % len(rows))
+    return rows[0]["guid"]
+
+
+def _with_drape_gc(snap, guid, rows):
+    out = copy.deepcopy(snap)
+    hit = 0
+    for b in out["bindings"]:
+        if b["guid"] == guid:
+            for t in b["tracks"]:
+                if t["class"] == "MovieSceneGeometryCacheTrack":
+                    t["sections"] = [list(r) for r in rows]
+                    hit += 1
+    if hit != 1:
+        raise PlanError("FIXUP_DRAPE_GC_TRACK_COUNT: %d" % hit)
+    return normalize_snapshot(out)
+
+
+def _drape_gc_of(snap, guid):
+    for b in snap["bindings"]:
+        if b["guid"] == guid:
+            for t in b["tracks"]:
+                if t["class"] == "MovieSceneGeometryCacheTrack":
+                    return [list(s) for s in t["sections"]]
+    return None
+
+
+def plan_fixup_pile(record, dur_ticks, tick_rate, fps):
+    """Pure. From the APPLIED main record (its plan and snapshot_after) and the LIVE cache length / rates."""
+    n = int(record.get("interaction", 0))
+    if n not in FIXUP_INTERACTIONS:
+        raise PlanError("FIXUP_PILE_I1_ONLY: interaction %d" % n)
+    if not record.get("applied"):
+        raise PlanError("FIXUP_MAIN_NOT_APPLIED")
+    plan = record["plan"]
+    md = plan["mouth_drape"]
+    if md.get("pile"):
+        raise PlanError("FIXUP_NOT_NEEDED: the main plan already has a PILE")
+    end = int(plan["new_end"])
+    hold, fall = [int(v) for v in md["hold"]], [int(v) for v in md["fall"]]
+    if fall[1] != end or hold[1] != fall[0]:
+        raise PlanError("FIXUP_SECTIONS_UNEXPECTED: hold %r fall %r end %d" % (hold, fall, end))
+    guid = _drape_binding_guid(record["snapshot_after"])
+    if _drape_gc_of(record["snapshot_after"], guid) != [hold, fall]:
+        raise PlanError("FIXUP_RECORD_INCONSISTENT: snapshot_after drape GC %r != plan %r"
+                        % (_drape_gc_of(record["snapshot_after"], guid), [hold, fall]))
+    new_fall, pile, playable = split_fall(fall[0], end, fall[2], fall[3], dur_ticks, tick_rate, fps)
+    if pile is None:
+        raise PlanError("FIXUP_NOT_NEEDED: FALL [%d, %d) fits the %d-tick cache" % (fall[0], fall[1], dur_ticks))
+    fix = {"interaction": n, "sequence": record["sequence"], "cue_guid": record["cue_guid"],
+           "main_run": record["run"], "main_plan_digest": record["plan_digest"], "drape_binding_guid": guid,
+           "end": end, "before_rows": [hold, fall], "after_rows": [hold, new_fall, pile],
+           "mouth_drape": {"hold": hold, "fall": new_fall, "pile": pile},
+           "fall_end": new_fall[1], "pile": pile, "playable_frames": playable,
+           "cache_duration_ticks": int(dur_ticks), "tick_rate": float(tick_rate), "fps": float(fps),
+           "wrap_frame_before": gc_wrap_frame(fall, dur_ticks, tick_rate, fps)}
+    fix["digest"] = hashlib.sha256(json.dumps(fix, sort_keys=True).encode("utf-8")).hexdigest()[:20]
+    return fix
+
+
+def fixup_model(snap_after, fix):
+    """The snapshot FIXUP_PILE must produce: only the drape's GC track changes."""
+    return _with_drape_gc(snap_after, fix["drape_binding_guid"], fix["after_rows"])
+
+
+def fixup_revert_model(snap_fixed, fix):
+    return _with_drape_gc(snap_fixed, fix["drape_binding_guid"], fix["before_rows"])
+
+
+def _without_drape_gc(snap, guid):
+    out = copy.deepcopy(snap)
+    for b in out["bindings"]:
+        if b["guid"] == guid:
+            b["tracks"] = [t for t in b["tracks"] if t["class"] != "MovieSceneGeometryCacheTrack"]
+    return out
+
+
+def check_fixup(fix, snap_before, snap_expected):
+    """Every FIXUP gate (the harness runs a -control for each)."""
+    fail = list(drape_section_failures(fix["mouth_drape"], fix["end"], fix["cache_duration_ticks"], fix["tick_rate"],
+                                       fix["fps"]))
+    guid = fix["drape_binding_guid"]
+    if snapshot_diff(_without_drape_gc(snap_before, guid), _without_drape_gc(snap_expected, guid)):
+        fail.append("FIXUP_TOUCHES_MORE: %r changes besides the drape GC track"
+                    % snapshot_diff(_without_drape_gc(snap_before, guid), _without_drape_gc(snap_expected, guid)))
+    if _drape_gc_of(snap_expected, guid) != fix["after_rows"]:
+        fail.append("FIXUP_MODEL: expected drape GC %r != %r" % (_drape_gc_of(snap_expected, guid), fix["after_rows"]))
+    if _drape_gc_of(snap_before, guid) != fix["before_rows"]:
+        fail.append("FIXUP_BEFORE: live drape GC %r != record %r" % (_drape_gc_of(snap_before, guid), fix["before_rows"]))
+    if fix["after_rows"][0] != fix["before_rows"][0] or fix["after_rows"][1][0] != fix["before_rows"][1][0] \
+            or fix["after_rows"][1][2:] != fix["before_rows"][1][2:]:
+        fail.append("FIXUP_MOVES_HOLD_OR_RELEASE: HOLD / FALL start / FALL offsets must not change")
+    return fail
+
+
+def fixup_gate(live_snap, record, fixrec):
+    """Refusals for FIXUP_PILE (live state vs records)."""
+    out = []
+    if int(record.get("interaction", 0)) not in FIXUP_INTERACTIONS:
+        out.append("FIXUP_PILE_I1_ONLY")
+    if not record.get("applied"):
+        out.append("FIXUP_MAIN_NOT_APPLIED: curtain_sleight_record_I%s.json is not applied" % record.get("interaction"))
+        return out
+    if fixrec.get("applied"):
+        out.append("FIXUP_ALREADY_APPLIED: run curtain_sleight_fixup_pile_revert_I1.py first")
+        return out
+    drift = snapshot_diff(live_snap, record["snapshot_after"])
+    if drift:
+        out.append("STATE_DRIFTED_SINCE_APPLY: %r (the fixup only runs on exactly what APPLY saved)" % drift)
+    return out
+
+
+def fixup_revert_gate(live_snap, fixrec):
+    if not fixrec.get("applied"):
+        return ["FIXUP_NOT_APPLIED: no applied curtain_sleight_fixup_pile_record"]
+    drift = snapshot_diff(live_snap, fixrec["snapshot_after"])
+    return ["STATE_DRIFTED_SINCE_FIXUP: %r (restore from %s instead)" % (drift, fixrec.get("backup"))] if drift else []
+
+
+def main_revert_gate(live_snap, record, fixrec):
+    """The main REVERT runs only on exactly what APPLY saved; an applied FIXUP_PILE must be reverted first."""
+    if fixrec.get("applied"):
+        return ["FIXUP_PILE_APPLIED: run curtain_sleight_fixup_pile_revert_I%s.py first, then this REVERT"
+                % record.get("interaction")]
+    drift = snapshot_diff(live_snap, record["snapshot_after"])
+    return ["STATE_DRIFTED_SINCE_APPLY|%r (a hand edit or another tool; restore from %s instead)"
+            % (drift, record.get("backup"))] if drift else []
+
+
+# =====================================================================================================================
 # DRY report (pure part)
 # =====================================================================================================================
 
@@ -917,6 +1162,12 @@ def build_dry_report(inputs, params, walk_ns, state):
                         "centre illuminance, the falloff across the frame differs (M1 measures)"
                         % (lt["throw_mouth_cm"], lt["throw_twin_cm"], lt["scale"], inputs["lantern"]["candela"],
                            lt["candela"]))
+    dc = plan["drape_cache"]
+    if dc["pile"]:
+        warnings.append("DRAPE_PILE: FALL [%d, %d) is the cache's %d playable frames from offset %d; PILE [%d, %d) "
+                        "holds the last sample (tick %d), as the Opening does" % (
+                            plan["mouth_drape"]["fall"][0], dc["fall_end"], dc["playable_frames"],
+                            plan["mouth_drape"]["fall"][2], dc["pile"][0], dc["pile"][1], dc["pile"][2]))
     warnings.append("SHOW_GROWS: Interaction %d grows by %.2f s (%d frames); later segments shift by that"
                     % (plan["n"], plan["delta_s"], plan["delta"]))
     report.update({"refusals": refusals, "warnings": warnings, "apply_ready": not refusals, "plan": plan,
@@ -939,6 +1190,10 @@ API_TABLE = [
     ("seq.get_bindings/get_display_name/get_id/get_tracks/get_sections", "prec", "fit_transition_drapes.py, scene_exit_block.py:558"),
     ("binding.get_object_template + root relative_location/rotation", "prec", "fit_transition_drapes.py apply_one (applied 30 Sep); reading relative_rotation: inf"),
     ("GC section params start/end_frame_offset (get/set)", "prec", "opening_sequence_apply.py set_gc (applied 4 Oct)"),
+    ("GC track add_section + params asset/offsets/play_rate + set_completion_mode(KEEP_STATE) (the PILE)", "prec",
+     "curtain_place_opening_and_transitions.py:146-160 (ran 29 Sep); rows read back opening_hold_at_release_final13.json"),
+    ("GC track remove_section (FIXUP_PILE_REVERT, main REVERT of a PILE)", "inf",
+     "same MovieSceneTrackExtensions.remove_section as the cut track (curtain_sleight APPLY 5 Oct); never on a GC track"),
     ("cache asset_import_data.get_first_filename / start_frame / end_frame", "prec", "fit_transition_drapes.py release_in_cache_s"),
     ("seq.set_playback_end", "prec", "opening_sequence_apply.py:719 (applied 4 Oct); decl MovieSceneSequenceExtensions.h:228"),
     ("section.set_range", "prec", "scene_exit_block.py:761, opening_sequence_apply.py:724; decl MovieSceneSectionExtensions.h:145"),
@@ -1413,7 +1668,7 @@ def _gather(n, run):
         "cut_rows": [[g, names.get(g, "?"), r, act] for g, r, act in cut_rows],
     }
     handles = {"show": show, "cue": cue, "seq": seq, "root": root_actor, "lantern": la, "drape": drapes[0],
-               "gc_sections": gsecs, "spawn_section": ssecs[0], "cut_tracks": cut_tracks, "stalls": stalls,
+               "gc_sections": gsecs, "gc_track": gct[0], "spawn_section": ssecs[0], "cut_tracks": cut_tracks, "stalls": stalls,
                "actors": actors, "index": index}
     return inputs, handles
 
@@ -1598,6 +1853,46 @@ def _camera_actor(subsystem, label, tags, attach_to, rel_or_world, focal, focus)
     return cam, comp
 
 
+def _add_pile_section(track, row, cache, run):
+    """The Opening's PILE section, copied call for call from curtain_place_opening_and_transitions.py:146-160 [prec,
+    ran 29 Sep; the live rows read back 30 Sep, opening_hold_at_release_final13.json "after"]: add_section, set_range,
+    params asset + start/end offsets + play_rate 1.0, write params back, KEEP_STATE completion if the call exists.
+    Returns (section, completion_mode_set)."""
+    if cache is None or cache.get_path_name().split(".")[0] != GC_PATH:
+        _stop(run, "PILE_CACHE|%s|NOTHING SAVED; Don't-Save restart" % (cache.get_path_name() if cache else None))
+    s = track.add_section()
+    if s is None:
+        _stop(run, "PILE_ADD_SECTION_NONE|NOTHING SAVED; Don't-Save restart")
+    s.set_range(int(row[0]), int(row[1]))
+    p = s.get_editor_property("params")
+    p.set_editor_property("geometry_cache_asset", cache)
+    p.set_editor_property("start_frame_offset", unreal.FrameNumber(int(row[2])))
+    p.set_editor_property("end_frame_offset", unreal.FrameNumber(int(row[3])))
+    p.set_editor_property("play_rate", 1.0)
+    s.set_editor_property("params", p)
+    completion = False
+    try:
+        s.set_completion_mode(unreal.MovieSceneCompletionMode.KEEP_STATE)
+        completion = True
+    except Exception:  # noqa: BLE001 - the Opening tolerated its absence too
+        pass
+    return s, completion
+
+
+def _drape_gc_assets(seq):
+    """Asset path of every mouth-drape GC section (read-back: the PILE must play the same cache)."""
+    out = []
+    for b in seq.get_bindings():
+        if str(b.get_display_name()) != MOUTH_DRAPE:
+            continue
+        for t in b.get_tracks():
+            if t.get_class().get_name() == "MovieSceneGeometryCacheTrack":
+                for s in t.get_sections():
+                    a = s.get_editor_property("params").get_editor_property("geometry_cache_asset")
+                    out.append(a.get_path_name().split(".")[0] if a is not None else None)
+    return out
+
+
 def _static_spawnable(seq, name, mesh, material, size, keys, spawn_keys, end, run):
     b = seq.add_spawnable_from_class(unreal.StaticMeshActor)          # [inf] see API_TABLE
     if b is None or not b.is_valid():
@@ -1706,6 +2001,11 @@ def run_apply(n, run, params, overrides):
         prm.set_editor_property("start_frame_offset", unreal.FrameNumber(int(row[2])))
         prm.set_editor_property("end_frame_offset", unreal.FrameNumber(int(row[3])))
         s.set_editor_property("params", prm)
+    pile_completion = None
+    if plan["mouth_drape"].get("pile"):
+        _, pile_completion = _add_pile_section(h["gc_track"], plan["mouth_drape"]["pile"],
+                                               h["gc_sections"][1].get_editor_property("params")
+                                               .get_editor_property("geometry_cache_asset"), run)
 
     # 2. level actors, composed against the LIVE landed root
     subsystem = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
@@ -1895,9 +2195,13 @@ def run_apply(n, run, params, overrides):
             mats = list(comp.get_editor_property("override_materials"))
             if mesh is None or mesh.get_path_name().split(".")[0] != CUBE_PATH.split(".")[0] or not mats or mats[0] is None:
                 problems.append("card template %s mesh=%s mats=%r" % (b.get_display_name(), mesh, mats))
+    gc_assets = _drape_gc_assets(seq)
+    if gc_assets != [GC_PATH] * len(drape_gc_rows(plan["mouth_drape"])):
+        problems.append("mouth drape GC assets %r" % gc_assets)
     if problems:
         _stop(run, "READBACK_FAILED_AFTER_SAVE|%r|restore from %s" % (problems, backup))
-    record.update({"applied": True, "snapshot_after": snap1, "saves": saves, "segment_rows": rows})
+    record.update({"applied": True, "snapshot_after": snap1, "saves": saves, "segment_rows": rows,
+                   "pile_completion_keep_state": pile_completion})
     _write_json(record_path, record)
     unreal.log("CURTAIN_SLEIGHT_APPLY_OK|run=%s|interaction=%d|cue_guid=%s|end=%d->%d|sleight=%d|go=%s@%d|backup=%s|"
                "record=%s|tests_required_singly=InfinityStage.Editor.SavedMasterMatchesShow,"
@@ -1923,10 +2227,10 @@ def run_revert(n, run):
     seq = cues[0].get_editor_property("scene").get_editor_property("sequence")
     if seq is None or seq.get_path_name().split(".")[0] != record["sequence"]:
         _stop(run, "SEQUENCE_CHANGED")
-    drift = snapshot_diff(_snapshot(seq, n), record["snapshot_after"])
-    if drift:
-        _stop(run, "STATE_DRIFTED_SINCE_APPLY|%r (a hand edit or another tool; restore from %s instead)"
-              % (drift, record["backup"]))
+    fixrec = _load_json(os.path.join(_here(), FIXUP_RECORD_PATTERN % n), required=False)
+    refusals = main_revert_gate(_snapshot(seq, n), record, fixrec)
+    if refusals:
+        _stop(run, "|".join(refusals))
     ext = _ext_helpers(run)
     world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
     project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
@@ -1981,7 +2285,10 @@ def run_revert(n, run):
             if str(b.get_display_name()) == MOUTH_DRAPE and cls == "MovieSceneGeometryCacheTrack":
                 want = [r for r in before["bindings"] if r["name"] == MOUTH_DRAPE][0]
                 rows = [tr for tr in want["tracks"] if tr["class"] == cls][0]["sections"]
-                for s, row in zip(sorted(t.get_sections(), key=lambda x: x.get_start_frame()), rows):
+                live = sorted(t.get_sections(), key=lambda x: x.get_start_frame())
+                for extra in live[len(rows):]:          # an APPLY-made PILE (the snapshot before had HOLD + FALL)
+                    t.remove_section(extra)
+                for s, row in zip(live, rows):
                     s.set_range(int(row[0]), int(row[1]))
                     prm = s.get_editor_property("params")
                     prm.set_editor_property("start_frame_offset", unreal.FrameNumber(int(row[2])))
@@ -2040,15 +2347,199 @@ def run_revert(n, run):
                % (run, n, record["cue_guid"], before["playback"][1], backup, archived))
 
 
+# ----------------------------------------------------------------------------------------------- FIXUP_PILE (I1 only)
+
+def _fixup_live(n, run):
+    """Read-only: records, sequence, live snapshot, drape GC track + sections, live cache length. Refuses on any gate."""
+    if n not in FIXUP_INTERACTIONS:
+        _stop(run, "FIXUP_PILE_I1_ONLY|%d" % n)
+    record = _load_json(os.path.join(_here(), RECORD_PATTERN % n))
+    if record.get("world") != EXPECTED_WORLD or int(record.get("interaction", 0)) != n:
+        _stop(run, "FIXUP_RECORD_CONTEXT")
+    fix_path = os.path.join(_here(), FIXUP_RECORD_PATTERN % n)
+    fixrec = _load_json(fix_path, required=False)
+    if _census() != {"content": [], "maps": []}:
+        _stop(run, "DIRTY_BEFORE|" + json.dumps(_census()))
+    if any(str(a.get_actor_label()).startswith("ZZ_") for a in _actors()):
+        _stop(run, "ZZ_ACTORS_PRESENT")
+    show = unreal.load_asset(SHOW_PATH)
+    cues = [c for c in show.get_editor_property("cues") if _guid(c.get_editor_property("cue_guid")) == record["cue_guid"]]
+    if len(cues) != 1:
+        _stop(run, "CUE_GUID_NOT_FOUND|%s" % record["cue_guid"])
+    seq = cues[0].get_editor_property("scene").get_editor_property("sequence")
+    if seq is None or seq.get_path_name().split(".")[0] != record["sequence"]:
+        _stop(run, "SEQUENCE_CHANGED")
+    rate, tick = seq.get_display_rate(), seq.get_tick_resolution()
+    fps, tick_rate = rate.numerator / float(rate.denominator), tick.numerator / float(tick.denominator)
+    snap = _snapshot(seq, n)
+    return record, fix_path, fixrec, show, seq, fps, tick_rate, snap
+
+
+def _fixup_drape_track(seq, guid, run):
+    bs = [b for b in seq.get_bindings() if _guid(b.get_id()) == guid and str(b.get_display_name()) == MOUTH_DRAPE]
+    if len(bs) != 1:
+        _stop(run, "FIXUP_DRAPE_BINDING|%s|%d" % (guid, len(bs)))
+    gts = [t for t in bs[0].get_tracks() if t.get_class().get_name() == "MovieSceneGeometryCacheTrack"]
+    if len(gts) != 1:
+        _stop(run, "FIXUP_DRAPE_GC_TRACKS|%d" % len(gts))
+    return gts[0], sorted(gts[0].get_sections(), key=lambda s: s.get_start_frame())
+
+
+def _cache_ticks(cache, tick_rate):
+    """Same formula as _bake_facts / fit_transition_drapes.py / opening_sequence_apply.py:228."""
+    return int(round((cache.get_editor_property("end_frame") - cache.get_editor_property("start_frame"))
+                     / CACHE_FPS * tick_rate))
+
+
+def _fixup_plan_live(record, seq, tick_rate, fps, run):
+    guid = _drape_binding_guid(record["snapshot_after"])
+    track, secs = _fixup_drape_track(seq, guid, run)
+    cache = secs[-1].get_editor_property("params").get_editor_property("geometry_cache_asset") if secs else None
+    if cache is None or cache.get_path_name().split(".")[0] != GC_PATH:
+        _stop(run, "FIXUP_CACHE|%s" % (cache.get_path_name() if cache else None))
+    dur = _cache_ticks(cache, tick_rate)
+    try:
+        fix = plan_fixup_pile(record, dur, tick_rate, fps)
+    except PlanError as exc:
+        _stop(run, "FIXUP_PLAN_REFUSED|%s" % exc)
+    if [_gc_row(s) for s in secs] != fix["before_rows"]:
+        _stop(run, "FIXUP_LIVE_SECTIONS|%r != %r" % ([_gc_row(s) for s in secs], fix["before_rows"]))
+    return fix, track, secs, cache
+
+
+def _backup_seq(tag, n, run, seq_path):
+    project = unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_dir())
+    backup = os.path.join(project, "Backups", "%s-I%d-%s" % (tag, n, run))
+    os.makedirs(backup, exist_ok=False)
+    src = _content_file(seq_path)
+    dst = os.path.join(backup, os.path.basename(src))
+    shutil.copy2(src, dst)
+    if os.path.getsize(dst) != os.path.getsize(src):
+        _stop(run, "BACKUP_SIZE_MISMATCH|" + src)
+    return backup, [dst]
+
+
+def _save_seq_only(seq_path, run):
+    census = _census()
+    if census != {"content": [seq_path], "maps": []}:
+        _stop(run, "UNEXPECTED_DIRTY|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(census))
+    ok = bool(unreal.EditorAssetLibrary.save_asset(seq_path, only_if_is_dirty=True))
+    if not ok:
+        _stop(run, "SAVE_FAILED|%s" % seq_path)
+    return {seq_path: ok}
+
+
+def run_fixup_pile(n, run, dry):
+    record, fix_path, fixrec, show, seq, fps, tick_rate, snap0 = _fixup_live(n, run)
+    refusals = fixup_gate(snap0, record, fixrec)
+    if refusals:
+        _stop(run, "FIXUP_REFUSED|" + " || ".join(refusals))
+    ext = _ext_helpers(run)
+    master = unreal.load_asset(MASTER_PATH)
+    sm0 = ext["show_master_match"](show, master)
+    if not sm0["match"]:
+        _stop(run, "SHOW_MASTER_MISMATCH_BEFORE|%r" % sm0)
+    fix, track, secs, cache = _fixup_plan_live(record, seq, tick_rate, fps, run)
+    expected = fixup_model(snap0, fix)
+    failures = check_fixup(fix, snap0, expected)
+    if failures:
+        _stop(run, "FIXUP_CHECK|" + " || ".join(failures))
+    if dry:
+        out = os.path.join(_here(), FIXUP_DRY_PATTERN % n)
+        _write_json(out, {"run": run, "interaction": n, "fix": fix, "expected_drape_gc": fix["after_rows"],
+                          "live_drape_gc": fix["before_rows"], "unapplied_fixup_record_present": bool(fixrec)})
+        if _census() != {"content": [], "maps": []}:
+            _stop(run, "DRY_DIRTIED|" + json.dumps(_census()))
+        unreal.log("CURTAIN_SLEIGHT_FIXUP_PILE_DRY_OK|run=%s|interaction=%d|mutated=0|cache_ticks=%d|playable=%d|"
+                   "wraps_at=%.1f|fall_end=%d|pile=[%d,%d)|digest=%s|report=%s"
+                   % (run, n, fix["cache_duration_ticks"], fix["playable_frames"], fix["wrap_frame_before"],
+                      fix["fall_end"], fix["pile"][0], fix["pile"][1], fix["digest"], out))
+        return
+    if fixrec:                                    # unapplied leftover: the drift gate proved nothing was half-written
+        os.rename(fix_path, fix_path + ".unapplied-" + run)
+    seq_path = record["sequence"]
+    backup, files = _backup_seq("PreCurtainSleightFixupPile", n, run, seq_path)
+    fixrec = {"schema_version": 1, "run": run, "interaction": n, "sequence": seq_path, "world": EXPECTED_WORLD,
+              "cue_guid": record["cue_guid"], "main_record": RECORD_PATTERN % n, "main_run": record["run"],
+              "backup": backup, "backup_files": files, "applied": False, "fix": fix,
+              "snapshot_before": snap0, "snapshot_expected": expected}
+    _write_json(fix_path, fixrec)
+    seq.modify()
+    fall_sec = secs[1]
+    fall_sec.set_range(int(fix["after_rows"][1][0]), int(fix["after_rows"][1][1]))
+    _, completion = _add_pile_section(track, fix["pile"], cache, run)
+    diff = snapshot_diff(_snapshot(seq, n), expected)
+    if diff:
+        _stop(run, "PRESAVE_SNAPSHOT_MISMATCH|%r|NOTHING SAVED; Don't-Save restart" % diff)
+    if _drape_gc_assets(seq) != [GC_PATH] * 3:
+        _stop(run, "PRESAVE_GC_ASSETS|%r|NOTHING SAVED; Don't-Save restart" % _drape_gc_assets(seq))
+    saves = _save_seq_only(seq_path, run)
+    problems = []
+    if _census() != {"content": [], "maps": []}:
+        problems.append("dirty after save %r" % _census())
+    seq = unreal.load_asset(seq_path)
+    snap1 = _snapshot(seq, n)
+    if snapshot_diff(snap1, expected):
+        problems.append("snapshot %r" % snapshot_diff(snap1, expected))
+    if _drape_gc_assets(seq) != [GC_PATH] * 3:
+        problems.append("gc assets %r" % _drape_gc_assets(seq))
+    sm1 = ext["show_master_match"](unreal.load_asset(SHOW_PATH), unreal.load_asset(MASTER_PATH))
+    if not sm1["match"]:
+        problems.append("show/master %r" % sm1)
+    if problems:
+        _stop(run, "FIXUP_READBACK_FAILED_AFTER_SAVE|%r|restore from %s" % (problems, backup))
+    fixrec.update({"applied": True, "snapshot_after": snap1, "saves": saves, "pile_completion_keep_state": completion})
+    _write_json(fix_path, fixrec)
+    unreal.log("CURTAIN_SLEIGHT_FIXUP_PILE_OK|run=%s|interaction=%d|fall_end=%d|pile=[%d,%d)|pile_offsets=%d/%d|"
+               "playable=%d|keep_state=%d|backup=%s|record=%s"
+               % (run, n, fix["fall_end"], fix["pile"][0], fix["pile"][1], fix["pile"][2], fix["pile"][3],
+                  fix["playable_frames"], int(completion), backup, fix_path))
+
+
+def run_fixup_pile_revert(n, run):
+    record, fix_path, fixrec, show, seq, fps, tick_rate, snap0 = _fixup_live(n, run)
+    refusals = fixup_revert_gate(snap0, fixrec)
+    if refusals:
+        _stop(run, "FIXUP_REVERT_REFUSED|" + " || ".join(refusals))
+    fix = fixrec["fix"]
+    track, secs = _fixup_drape_track(seq, fix["drape_binding_guid"], run)
+    if [_gc_row(s) for s in secs] != fix["after_rows"]:
+        _stop(run, "FIXUP_REVERT_LIVE_SECTIONS|%r != %r" % ([_gc_row(s) for s in secs], fix["after_rows"]))
+    want = fixup_revert_model(snap0, fix)
+    if snapshot_diff(want, fixrec["snapshot_before"]):
+        _stop(run, "FIXUP_REVERT_MODEL|%r" % snapshot_diff(want, fixrec["snapshot_before"]))
+    seq_path = fixrec["sequence"]
+    backup, _ = _backup_seq("PreCurtainSleightFixupPile", n, run + "-revert", seq_path)
+    seq.modify()
+    track.remove_section(secs[2])                 # the PILE (sorted by start: HOLD, FALL, PILE)
+    secs[1].set_range(int(fix["before_rows"][1][0]), int(fix["before_rows"][1][1]))
+    diff = snapshot_diff(_snapshot(seq, n), fixrec["snapshot_before"])
+    if diff:
+        _stop(run, "FIXUP_REVERT_NOT_EXACT|%r|NOTHING SAVED; Don't-Save restart" % diff)
+    saves = _save_seq_only(seq_path, run)
+    seq = unreal.load_asset(seq_path)
+    diff = snapshot_diff(_snapshot(seq, n), fixrec["snapshot_before"])
+    if diff or _census() != {"content": [], "maps": []}:
+        _stop(run, "FIXUP_REVERT_READBACK|%r|census=%r|restore from %s" % (diff, _census(), fixrec["backup"]))
+    archived = fix_path + ".reverted-" + run
+    os.rename(fix_path, archived)
+    unreal.log("CURTAIN_SLEIGHT_FIXUP_PILE_REVERT_OK|run=%s|interaction=%d|fall=[%d,%d)|saves=%r|backup=%s|record=%s|"
+               "next=main REVERT allowed (state == main snapshot_after)"
+               % (run, n, fix["before_rows"][1][0], fix["before_rows"][1][1], saves, backup, archived))
+
+
 def main():
     run = str(globals().get("CURTAIN_SLEIGHT_RUN_ID") or datetime.datetime.now().strftime("CST-%Y%m%d-%H%M%S"))
     n = int(globals().get("CURTAIN_SLEIGHT_INTERACTION", 0))
     apply = bool(globals().get("CURTAIN_SLEIGHT_APPLY"))
     revert = bool(globals().get("CURTAIN_SLEIGHT_REVERT"))
+    fixup = bool(globals().get("CURTAIN_SLEIGHT_FIXUP_PILE"))
+    fixup_dry = bool(globals().get("CURTAIN_SLEIGHT_FIXUP_PILE_DRY"))
+    fixup_revert = bool(globals().get("CURTAIN_SLEIGHT_FIXUP_PILE_REVERT"))
     if n not in SEQS:
         _stop(run, "INTERACTION_NOT_SET")
-    if apply and revert:
-        _stop(run, "APPLY_AND_REVERT_BOTH_SET")
+    if sum((apply, revert, fixup, fixup_dry, fixup_revert)) > 1:
+        _stop(run, "MORE_THAN_ONE_MODE_SET")
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if editor.get_game_world() is not None:
         _stop(run, "PIE_OR_SIE_ACTIVE")                    # never end PIE; refuse
@@ -2059,6 +2550,12 @@ def main():
         _stop(run, "SEQUENCER_IS_OPEN")                    # an open Sequencer evaluates and dirties the map
     if revert:
         run_revert(n, run)
+        return
+    if fixup or fixup_dry:
+        run_fixup_pile(n, run, dry=fixup_dry)
+        return
+    if fixup_revert:
+        run_fixup_pile_revert(n, run)
         return
     overrides = _load_json(os.path.join(_here(), OVERRIDES_NAME), required=False)
     params = dict(overrides.get("params", {}))

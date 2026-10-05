@@ -1,0 +1,32 @@
+{
+ "decided_by": "Gary 5 Oct (relayed by the conductor): option B, the Interaction owns the curtain moment; same red velvet drop; fixed ~60 s shadow play then a GO HOLD; S1-S5 -> I1-I5, prove on I1 first",
+ "decision": "Docs/Conductor/CURTAIN_SLEIGHT_TRANSITION_PLAN_2026-10-05.md (option B); commit b66636a 'Record Gary's curtain sleight answers'",
+ "interactions": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "params": {},
+ "interaction_params": {
+  "1": {
+   "extra_tail_frames": 270
+  },
+  "2": {
+   "extra_tail_frames": 451
+  },
+  "3": {
+   "extra_tail_frames": 463
+  },
+  "4": {
+   "extra_tail_frames": 62
+  },
+  "5": {
+   "extra_tail_frames": 62
+  }
+ },
+ "tail_note": "5 Oct conductor: I1 walk from the sleight seat needs ~19 s; DRY measured walk start 1431 < GO 1675, so +270 frames (244 + 1 s margin)",
+ "rollout_note": "Gary 5 Oct PIE: 'no evidence of Scene-to-passage transitions at scene ends. Need to be able to cue into this, have the curtain moment, the sleight of hand transition, the boy cat shadow slot' -> roll out to I2-I5 (DRY each first; walk-start vs GO margins per Interaction decide extra_tail_frames)",
+ "proposed_note": "PROPOSED 5 Oct (PILE agent, offline; NOT the live overrides). Tail per Interaction = the smallest extra_tail_frames whose walk start is >= the GO (1675) + 25 frames (I1's 1 s margin convention), re-planned with the pure planner on each live DRY's own inputs (curtain_sleight_I{2..5}_dry.json, runs CST-20261005-10475x/10480x): minimum walk-after-GO tail I2 426, I3 438, I4 37, I5 37 (+25); the pile-crossing clears from 91/93/28/28. At the proposed tails check_sleight returns [] for all four, including I2/I3's MATCH_LENS/MATCH_POSE/STATE_CHANGES (they were the early walk, not a tolerance). I2/I3 now need a PILE (FALL [1675,1925), PILE to 2226/2238); I4/I5 do not (end 1837). Re-DRY after adopting: the plan digest changed with the PILE split."
+}

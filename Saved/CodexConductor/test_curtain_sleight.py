@@ -354,6 +354,153 @@ for skip, ident in ((("cuts",), "cuts"), (("markers",), "markers"), (("sections"
 again = cs.apply_model(SNAP, PLAN, GUIDS)
 check("POS APPLY model deterministic", cs.snapshot_diff(again, after) == [])
 
+# ------------------------------------------------------------------------------------------------- 13. PILE (5 Oct)
+DUR, TPS = BASE["cache"]["duration_ticks"], BASE["tick_rate"]
+# the math: 264000-tick cache, FALL offset 23200, 960 ticks per 25 fps frame -> floor(240800 / 960) = 250
+check("POS PILE math: playable = floor((264000 - 23200 - 0) / 960) = 250",
+      cs.fall_budget_frames(DUR, 23200, 0, TPS, 25.0) == 250, cs.fall_budget_frames(DUR, 23200, 0, TPS, 25.0))
+check("POS PILE math is computed, not 250: offset 0 -> 275, 30 fps -> 301",
+      cs.fall_budget_frames(DUR, 0, 0, TPS, 25.0) == 275 and cs.fall_budget_frames(DUR, 23200, 0, TPS, 30.0) == 301)
+check("POS wrap frame of the I1 applied FALL [1675, 2183) = 1925.83 (readiness agent: ~1925.8)",
+      abs(cs.gc_wrap_frame([1675, 2183, 23200, 0], DUR, TPS, 25.0) - 1925.8333) < 1e-3)
+check("POS boundary: FALL of exactly 250 frames does not wrap",
+      cs.gc_wrap_frame([1675, 1925, 23200, 0], DUR, TPS, 25.0) is None)
+check("NEG boundary: FALL of 251 frames wraps", cs.gc_wrap_frame([1675, 1926, 23200, 0], DUR, TPS, 25.0) is not None)
+check("POS one-tick HOLD window never counts as a wrap", cs.gc_wrap_frame([0, 1675, 23200, 240799], DUR, TPS, 25.0) is None)
+check("POS pile_row = the Opening's PILE shape [fall_end, end, dur-1, 0] (live Opening [299, 375, 263999, 0])",
+      cs.pile_row(299, 375, DUR) == [299, 375, 263999, 0])
+check("POS default I1 plan (tail 0) needs no PILE: FALL [1675, 1913) fits",
+      PLAN["mouth_drape"]["pile"] is None and PLAN["mouth_drape"]["fall"] == [1675, 1913, 23200, 0])
+
+TAIL = plan_of(BASE, {"extra_tail_frames": 270})          # the applied I1 params
+ft = fails(TAIL, BASE)
+check("POS I1 with tail 270: FALL [1675, 1925) + PILE [1925, 2183, 263999, 0], every check clean",
+      TAIL["mouth_drape"]["fall"] == [1675, 1925, 23200, 0] and TAIL["mouth_drape"]["pile"] == [1925, 2183, 263999, 0]
+      and TAIL["new_end"] == 2183 and not [x for x in ft if x.startswith(("DRAPE_", "PILE_"))], (TAIL["mouth_drape"], ft))
+check("POS I1 tail-270 plan has no failures at all", ft == [], ft)
+p = copy.deepcopy(TAIL)
+p["mouth_drape"]["fall"] = [1675, 2183, 23200, 0]
+p["mouth_drape"]["pile"] = None                            # the shape APPLY actually wrote on 5 Oct
+check("NEG(control) the I1 APPLIED shape FALL [1675, 2183) -> DRAPE_CACHE_WRAP", has(fails(p, BASE), "DRAPE_CACHE_WRAP"),
+      fails(p, BASE))
+p = copy.deepcopy(TAIL)
+p["mouth_drape"]["pile"][0] += 1
+check("NEG PILE starts a frame after FALL ends -> PILE_NOT_ON_FALL_END", has(fails(p, BASE), "PILE_NOT_ON_FALL_END"))
+p = copy.deepcopy(TAIL)
+p["mouth_drape"]["pile"][2] = 0
+check("NEG PILE holding the FIRST sample -> PILE_NOT_LAST_SAMPLE", has(fails(p, BASE), "PILE_NOT_LAST_SAMPLE"))
+p = copy.deepcopy(TAIL)
+p["mouth_drape"]["pile"][2] = DUR - 960                    # a one-FRAME window: loops, the 30 Sep flicker
+check("NEG PILE a one-frame window -> PILE_NOT_LAST_SAMPLE", has(fails(p, BASE), "PILE_NOT_LAST_SAMPLE"))
+p = copy.deepcopy(TAIL)
+p["mouth_drape"]["fall"][1] -= 10
+p["mouth_drape"]["pile"][0] -= 10
+check("NEG FALL cut 10 frames short (cloth jumps to the end) -> PILE_EARLY", has(fails(p, BASE), "PILE_EARLY"))
+p = copy.deepcopy(TAIL)
+p["mouth_drape"]["pile"][1] -= 5
+check("NEG PILE ends before playback -> PILE_END", has(fails(p, BASE), "PILE_END"))
+p = copy.deepcopy(TAIL)
+p["hangar_drape"]["gc"] = [75, 1300, 23200, 0]             # the twin drape playing the fall for 49 s
+check("NEG hangar twin drape playing (not holding) -> DRAPE_CACHE_WRAP", has(fails(p, BASE), "DRAPE_CACHE_WRAP: hangar"))
+short = copy.deepcopy(BASE)
+short["cache"]["duration_ticks"] = 200000
+check("NEG plan is judged on the LIVE cache length: a 200000-tick cache refuses the 264000-tick plan",
+      has(fails(TAIL, short), "DRAPE_CACHE_WRAP") or has(fails(TAIL, short), "PILE_"), fails(TAIL, short))
+check("POS replan on the short cache splits earlier (fall_end 1675 + floor(176800/960) = 1859)",
+      plan_of(short, {"extra_tail_frames": 270})["drape_cache"]["fall_end"] == 1859)
+rt = cs.build_dry_report(BASE, {"extra_tail_frames": 270}, WALK, "pre")
+check("POS DRY report warns DRAPE_PILE when a PILE is planned", has(rt["warnings"], "DRAPE_PILE"), rt["warnings"][:2])
+
+# model: APPLY writes HOLD/FALL/PILE, REVERT drops the PILE exactly
+SNAP_T = SNAP
+after_t = cs.apply_model(SNAP_T, TAIL, GUIDS)
+gc_t = [t for t in [b for b in after_t["bindings"] if b["guid"] == "G-DRAPE"][0]["tracks"]
+        if t["class"] == "MovieSceneGeometryCacheTrack"][0]["sections"]
+check("POS APPLY model with PILE: drape GC = HOLD, FALL, PILE",
+      gc_t == [[0, 1675, 23200, 240799], [1675, 1925, 23200, 0], [1925, 2183, 263999, 0]], gc_t)
+record_t = dict(record, created_markers=[list(m) for m in TAIL["markers"]] + [list(TAIL["go"])])  # TAIL's walk marker
+check("POS REVERT model removes the PILE exactly", cs.snapshot_diff(cs.revert_model(after_t, record_t), SNAP_T) == [],
+      cs.snapshot_diff(cs.revert_model(after_t, record_t), SNAP_T))
+
+# ------------------------------------------------------------------------------------------------- 14. FIXUP_PILE on the REAL I1 record
+REC = load("CodexConductor", "curtain_sleight_record_I1.json")
+FIX = cs.plan_fixup_pile(REC, DUR, TPS, 25.0)
+check("POS FIXUP on the real record: fall_end 1925, PILE [1925, 2183, 263999, 0], HOLD unchanged",
+      FIX["fall_end"] == 1925 and FIX["pile"] == [1925, 2183, 263999, 0]
+      and FIX["after_rows"] == [[0, 1675, 23200, 240799], [1675, 1925, 23200, 0], [1925, 2183, 263999, 0]]
+      and FIX["before_rows"] == [[0, 1675, 23200, 240799], [1675, 2183, 23200, 0]], FIX)
+check("POS FIXUP wrap frame before = 1925.83 (77.03 s)", abs(FIX["wrap_frame_before"] - 1925.8333) < 1e-3)
+A1 = REC["snapshot_after"]
+E1 = cs.fixup_model(A1, FIX)
+check("POS FIXUP checks clean on the real record", cs.check_fixup(FIX, A1, E1) == [], cs.check_fixup(FIX, A1, E1))
+check("POS FIXUP changes ONLY bindings (cuts, playback, markers, labels, root tracks equal)",
+      cs.snapshot_diff(A1, E1) == ["bindings differs"], cs.snapshot_diff(A1, E1))
+bad = copy.deepcopy(E1)
+bad["cuts"][0][2] += 1
+check("NEG FIXUP model that also moves a cut -> FIXUP_TOUCHES_MORE", has(cs.check_fixup(FIX, A1, bad), "FIXUP_TOUCHES_MORE"))
+bad = copy.deepcopy(E1)
+bad["playback"][1] += 25
+check("NEG FIXUP model that changes the range -> FIXUP_TOUCHES_MORE", has(cs.check_fixup(FIX, A1, bad), "FIXUP_TOUCHES_MORE"))
+fx = copy.deepcopy(FIX)
+fx["mouth_drape"]["pile"][2] = 0
+fx["after_rows"][2][2] = 0
+check("NEG FIXUP whose PILE holds the first sample -> PILE_NOT_LAST_SAMPLE",
+      has(cs.check_fixup(fx, A1, cs.fixup_model(A1, fx)), "PILE_NOT_LAST_SAMPLE"))
+fx = copy.deepcopy(FIX)
+fx["after_rows"][1][0] -= 1
+check("NEG FIXUP that moves the release -> FIXUP_MOVES_HOLD_OR_RELEASE",
+      has(cs.check_fixup(fx, A1, cs.fixup_model(A1, fx)), "FIXUP_MOVES_HOLD_OR_RELEASE"))
+fx = copy.deepcopy(FIX)
+fx["mouth_drape"]["fall"] = fx["before_rows"][1]
+fx["mouth_drape"]["pile"] = None
+check("NEG(control) the un-fixed I1 drape -> DRAPE_CACHE_WRAP", has(cs.check_fixup(fx, A1, E1), "DRAPE_CACHE_WRAP"))
+try:
+    cs.plan_fixup_pile(REC, 600000, TPS, 25.0)
+    check("NEG FIXUP refuses when the FALL already fits (600000-tick cache)", False)
+except cs.PlanError as exc:
+    check("NEG FIXUP refuses when the FALL already fits (600000-tick cache)", "FIXUP_NOT_NEEDED" in str(exc))
+other_rec = dict(REC, interaction=2)
+try:
+    cs.plan_fixup_pile(other_rec, DUR, TPS, 25.0)
+    check("NEG FIXUP on interaction 2 refuses (I1 only)", False)
+except cs.PlanError as exc:
+    check("NEG FIXUP on interaction 2 refuses (I1 only)", "FIXUP_PILE_I1_ONLY" in str(exc))
+check("POS FIXUP plan deterministic", cs.plan_fixup_pile(REC, DUR, TPS, 25.0)["digest"] == FIX["digest"])
+
+# gates
+check("POS fixup gate clean on the applied state", cs.fixup_gate(A1, REC, {}) == [])
+check("NEG fixup gate: drifted sequence -> STATE_DRIFTED_SINCE_APPLY",
+      has(cs.fixup_gate(E1, REC, {}), "STATE_DRIFTED_SINCE_APPLY"))
+check("NEG fixup gate: fixup already applied -> FIXUP_ALREADY_APPLIED",
+      has(cs.fixup_gate(E1, REC, {"applied": True}), "FIXUP_ALREADY_APPLIED"))
+check("NEG fixup gate: main record not applied -> FIXUP_MAIN_NOT_APPLIED",
+      has(cs.fixup_gate(A1, dict(REC, applied=False), {}), "FIXUP_MAIN_NOT_APPLIED"))
+
+# the revert chain on the real record: fixup -> fixup revert -> main revert == snapshot_before
+FIXREC = {"applied": True, "fix": FIX, "snapshot_before": A1, "snapshot_after": E1, "backup": "B"}
+check("NEG main REVERT while the fixup is applied -> FIXUP_PILE_APPLIED",
+      has(cs.main_revert_gate(E1, REC, FIXREC), "FIXUP_PILE_APPLIED"))
+check("NEG main REVERT on the fixed state with the fixup record gone -> STATE_DRIFTED_SINCE_APPLY",
+      has(cs.main_revert_gate(E1, REC, {}), "STATE_DRIFTED_SINCE_APPLY"))
+check("POS fixup revert gate clean on the fixed state", cs.fixup_revert_gate(E1, FIXREC) == [])
+check("NEG fixup revert gate on the un-fixed state -> STATE_DRIFTED_SINCE_FIXUP",
+      has(cs.fixup_revert_gate(A1, FIXREC), "STATE_DRIFTED_SINCE_FIXUP"))
+check("NEG fixup revert gate without an applied record -> FIXUP_NOT_APPLIED",
+      has(cs.fixup_revert_gate(E1, {}), "FIXUP_NOT_APPLIED"))
+UNFIXED = cs.fixup_revert_model(E1, FIX)
+check("POS FIXUP_REVERT model restores the main snapshot_after exactly", cs.snapshot_diff(UNFIXED, A1) == [],
+      cs.snapshot_diff(UNFIXED, A1))
+check("POS after FIXUP_REVERT the main REVERT gate is clean (archived fixup record)",
+      cs.main_revert_gate(UNFIXED, REC, {}) == [])
+BACK = cs.revert_model(UNFIXED, REC)
+check("POS chain: FIXUP -> FIXUP_REVERT -> main REVERT == the real snapshot_before",
+      cs.snapshot_diff(BACK, cs.normalize_snapshot(REC["snapshot_before"])) == [],
+      cs.snapshot_diff(BACK, cs.normalize_snapshot(REC["snapshot_before"])))
+bad = copy.deepcopy(FIX)
+bad["before_rows"][1][1] -= 1
+check("NEG a FIXUP_REVERT that restores the wrong FALL end is caught",
+      cs.snapshot_diff(cs.fixup_revert_model(E1, bad), A1) == ["bindings differs"])
+
 # ------------------------------------------------------------------------------------------------- 12. leaf closed check
 leaf_s1 = [p for p in [r for r in DOORS["plan"]["scenes"] if r["scene"] == 1][0]["pieces"] if p["role"] == "leaf"][0]
 leaf_s3 = [p for p in [r for r in DOORS["plan"]["scenes"] if r["scene"] == 3][0]["pieces"] if p["role"] == "leaf"][0]
