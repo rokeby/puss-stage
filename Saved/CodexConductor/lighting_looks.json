@@ -1657,10 +1657,9 @@
     },
     "ppv": {
       "change_flag": "LIGHTING_LOOKS_ALLOW_PPV_CHANGE",
-      "requested_change": {
-        "lens_flare_intensity": 0.35
-      },
-      "note": "report-only unless the flag is passed via init_globals; the change is an override on the P04 camera rig's own post_process_settings, recorded and restored by REVERT"
+      "requested_change": {},
+      "note": "report-only unless the flag is passed via init_globals; the change is an override on the P04 camera rig's own post_process_settings, recorded and restored by REVERT",
+      "note_5oct": "Gary 5 Oct: lens flare back to engine default; override cleared by p04_lens_flare_default.py"
     }
   }
 }

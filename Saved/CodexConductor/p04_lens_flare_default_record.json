@@ -1,0 +1,9 @@
+{
+ "run": "FLARE-20261005-004042",
+ "rig": "Passage 04 \u2014 Camera + Shadow Figures",
+ "before": {
+  "override": true,
+  "value": 0.3499999940395355
+ },
+ "backup": "E:/PussStage/Backups/PreP04FlareDefault-FLARE-20261005-004042"
+}
