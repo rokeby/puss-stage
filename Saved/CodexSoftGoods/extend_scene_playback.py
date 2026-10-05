@@ -172,7 +172,11 @@ def show_master_match(show, master):
              s.get_editor_property("end_frame").value / rate) for s in tr.get_editor_property("segments")]
     del tr
     secs = sorted((sec.get_start_frame_seconds(), sec.get_end_frame_seconds())
-                  for track in master.find_tracks_by_type(unreal.MovieSceneSubTrack) for sec in track.get_sections())
+                  for track in master.find_tracks_by_type(unreal.MovieSceneSubTrack)
+                  # Passage Choreography tracks (cueing A2) nest per Passage, not per Scene/Sequence cue:
+                  # skip them as SavedMasterMatchesShow does (patch A2d). Measured 4 Oct: counting them gave 640 s.
+                  if "InfinityChoreo" not in track.get_class().get_name()
+                  for sec in track.get_sections())
     seq_segs = [s for s in segs if not s[0].startswith("Passage")]
     worst = max((max(abs(s[1] - m[0]), abs(s[2] - m[1])) for s, m in zip(seq_segs, secs)), default=0.0)
     return {"worst_err_s": round(worst, 3), "match": len(seq_segs) == len(secs) and worst <= 0.05}
@@ -231,7 +235,7 @@ def passage_keys_section_relative(master):
                          round(float(k.get_value()), 6)] for k in ch.get_keys()]
                 if keys:
                     rows[str(ch.get_editor_property("channel_name"))] = keys
-            out[str(sec.get_editor_property("passage_guid"))] = rows
+            out[unreal.GuidLibrary.conv_guid_to_string(sec.get_editor_property("passage_guid"))] = rows
     return out
 
 
@@ -244,7 +248,10 @@ def key_carry_failures(before, after):
             continue
         for ch, kb in chans.items():
             ka = now.get(ch)
-            if ka is None or len(ka) != len(kb) or any(abs(x[0] - y[0]) > 1 or abs(x[1] - y[1]) > 1e-5
+            # Tolerance: half a 25 fps display frame (480 ticks). The section start is derived from float
+            # seconds, so a correct carry shows +/-2 ticks (measured 4 Oct S2); a failed carry is off by the
+            # whole retime (71.6 s = 1.7M ticks).
+            if ka is None or len(ka) != len(kb) or any(abs(x[0] - y[0]) > 480 or abs(x[1] - y[1]) > 1e-5
                                                        for x, y in zip(ka, kb)):
                 bad.append("%s %s: %r -> %r" % (guid, ch, kb[:3], (ka or [])[:3]))
     return bad

@@ -702,6 +702,11 @@ def _space_occupants(n, root, cg, raise_cm):
         label = str(actor.get_actor_label())
         if label.startswith("S%d Hangar" % n) or label.startswith("S%d Exit Block" % n):
             continue
+        # A light actor's bounds include its influence volume (cone/attenuation), not a body: 4 Oct every
+        # Scene's back-wall uplight "occupied" the curtain slab this way. Skip pure lights; a light that
+        # carries a mesh body (StaticMeshComponent) is still checked.
+        if isinstance(actor, unreal.Light) and actor.get_component_by_class(unreal.StaticMeshComponent) is None:
+            continue
         origin, extent = actor.get_actor_bounds(False)
         corners = []
         for sx in (-1, 1):
