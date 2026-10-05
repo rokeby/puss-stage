@@ -897,7 +897,10 @@ def _master_check(master, plan, rows, args):
 
 def run_dry(args, run):
     g, _s, _m, _a = _gather(args, run)
-    existing = [p for k, p in sound_paths(args).items() if unreal.EditorAssetLibrary.does_asset_exist(p)]
+    # 5 Oct: only the TARGETED passages' new sounds must be absent (P02-P05 were imported in an earlier run)
+    targets = {str(t) for t in args.get("apply_passages", [])}
+    existing = [p for k, p in sound_paths(args).items()
+                if str(int(str(k).lstrip("P"))) in targets and unreal.EditorAssetLibrary.does_asset_exist(p)]
     if existing:
         g["refusals"].append("ASSET_EXISTS: %s" % existing)
     report = {"tool": TOOL, "run": run, "mode": "DRY", "args": args, "apply_ready": not g["refusals"],

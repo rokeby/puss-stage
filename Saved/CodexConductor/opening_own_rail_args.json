@@ -1,0 +1,21 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY OPENINGRAIL",
+ "run_id": null,
+ "decided_by": "Gary 5 Oct: Opening on Cameron's sketch 2 ('yes, refit'; 'do the opening now'); P01 gets its own walking track",
+ "decided_by_note": "Fill before APPLY (Gary / conductor 5 Oct: the Opening gets its own rail with Cameron's 'Opening sketch 2'; rail 2E86 goes back to P01 for the walking track).",
+ "wav": "DerivedAssets/Audio/Opening_Sketch2/Opening_Tuning_sketch2_16.wav",
+ "sha256": "8e43fbe21e40149b3f8cb9f156b31ad131da9567ec231bbe2a18c6aa03b3bb2f",
+ "duration_s": 95.503673,
+ "asset_path": "/Game/InfinityStage/Audio/Opening/SW_Opening_Tuning_Sketch2",
+ "rail_label": "Opening (Cameron sketch 2)",
+ "opening_cue_label": "Opening \u2014 Curtain",
+ "opening_cue_guid": "5674D1134EC0FFE62815588E1E88F9FF",
+ "p01_label": "Passage 1",
+ "p01_guid": "659D5386D64DA7742A351B9499ECCE4C",
+ "shared_rail_guid": "2E86171B614D036D59FEDCB9C6C5788A",
+ "guids_source": "opening_readback_OPRB-20261005-143737.json show.opening_cue_guid / p01_guid / opening_music.rail [meas 5 Oct]",
+ "opening_offset_frames": 0,
+ "opening_record": "opening_sequence_record.json",
+ "delete_asset_on_revert": false
+}

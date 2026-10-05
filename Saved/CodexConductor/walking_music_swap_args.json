@@ -1,0 +1,62 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY WALKING MUSIC",
+ "run_id": null,
+ "decided_by": "Gary 5 Oct: KEEP the Passage lengths (no retime); he fills extra time with pauses / set pieces",
+ "mapping_confirmed_by": "Gary 5 Oct (via conductor): P0n_WalkingN.wav -> Passage n",
+ "keep_passage_lengths": true,
+ "dest_folder": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005",
+ "apply_passages": [
+  "6"
+ ],
+ "apply_passages_note": "P01 is held back: its rail (2E86171B...) plays for the Opening cue and P01 is Silence since OPENING-APPLY-20261004-131449 (opening_sequence_report_apply.json). Add \"1\" in a SEPARATE run (own record) after the Opening has its own rail; then set silence_policy \"set_start\" for that run.",
+ "silence_policy": "refuse",
+ "source_out_policy": "new_duration",
+ "analysis_map_policy": "keep",
+ "delete_assets": false,
+ "passages": {
+  "1": {
+   "wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P01_Walking1.wav",
+   "sha256": "9dc719d10cc71e1be8b03a0dfd289fd7a3f76d2fdec14bd0371db8ab146d44e4",
+   "duration_s": 73.516032,
+   "asset_name": "SW_P01_Walking1_Cameron"
+  },
+  "2": {
+   "wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P02_Walking2.wav",
+   "sha256": "1ce5bd98b934d644b83d38311c8923e8e3e048581867f0e522fc5157b4f1446f",
+   "duration_s": 45.51424,
+   "asset_name": "SW_P02_Walking2_Cameron"
+  },
+  "3": {
+   "wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P03_Walking3.wav",
+   "sha256": "d464592f8a0cab28a12279726ab7c947e1e1f5cc0d374723bdd83abcc538e691",
+   "duration_s": 40.217914,
+   "asset_name": "SW_P03_Walking3_Cameron"
+  },
+  "4": {
+   "wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P04_Walking4_pad10.wav",
+   "sha256": "aeff66f86b1864bc29a78c341291d2eba9e51e27201c05c1871ca9a7632cfa7b",
+   "duration_s": 48.397664,
+   "asset_name": "SW_P04_Walking4_pad10_Cameron",
+   "pad": {
+    "unpadded_wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P04_Walking4.wav",
+    "unpadded_sha256": "ad21efb8688324095cfd6b76f6b3ef3d63677b2bc34fd88726062d3e46317cfc",
+    "pad_s": 10.0,
+    "decided_by": "Gary 5 Oct: '+10 silence for now' (Cameron's filename asks 0:38 -> 0:48; his real 0:48 replaces this)"
+   }
+  },
+  "5": {
+   "wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P05_Walking5.wav",
+   "sha256": "da01323b9e0036488e8fe58d0192c88b946987ff65a4768c404e703eb08b40e6",
+   "duration_s": 42.022472,
+   "asset_name": "SW_P05_Walking5_Cameron"
+  },
+  "6": {
+   "wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P06_Walking6.wav",
+   "sha256": "10b2b017fef21308e06b1a197be8c19ee91cf3448ddb8cd8542b460da100c6dc",
+   "duration_s": 125.0,
+   "asset_name": "SW_P06_Walking6_Cameron"
+  }
+ },
+ "encoding_note": "5 Oct: re-encoded to 16-bit PCM (Python wave can't read ffmpeg's 24-bit WAVE_FORMAT_EXTENSIBLE); 24-bit kept in s24/"
+}
