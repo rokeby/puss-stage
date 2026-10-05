@@ -205,3 +205,7 @@
       end kept at his 96.36 s).
     - The music-driven Choreo bar/§ markers and MM_Pnn analyses are now STALE for P02–P05. New analyses need 16-bit copies
       run outside Unreal.
+47. **Opening refit DONE** (OPENING-APPLY-20261005-144820 + own rail OPENRAIL-20261005-144921): sketch 2 on its own rail.
+    Flicker at 4.0 s on the gentle early swell (Gary); FOH swivel 36–44 s; curtain release 77.39 s; walk-in 85.8–96.36 s; end 96.36 s.
+    Gary's 14:02 FOH edits were overwritten as agreed (backed up). **Walking music P01–P05 IN.** P06 waits for the tail-extend tool.
+    Tests green. Editor handed back to Gary for PIE.
