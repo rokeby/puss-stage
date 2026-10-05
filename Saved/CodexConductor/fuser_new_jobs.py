@@ -34,7 +34,7 @@ def write_job(job_id, title, notes, subs, inputs=()):
     overwrite = job_id in os.environ.get("FUSER_OVERWRITE", "").split(",")
     if d.exists() and not overwrite:
         print("SKIP_EXISTS", job_id)
-        return
+        return False
     if overwrite and (d / "SLOTS.md").exists():
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         shutil.copy2(d / "SLOTS.md", d / ("SLOTS.md.bak-" + stamp))
@@ -46,7 +46,22 @@ def write_job(job_id, title, notes, subs, inputs=()):
         lines += ["## %s" % header, "ONE-LINE:", value, ""]
     (d / "SLOTS.md").write_text("\n".join(lines), encoding="utf-8")
     print("WROTE", job_id, len(subs))
+    return True
 
+
+def series8(job_id, title, notes, inp, task_stem, variants, hand, keep, avoid, frame):
+    """Gary 5 Oct: his Fuser pipe runs 8 prompts per paste, split on '~~'. A series is one job whose prompts share
+    every field except the varied subject, so the 8 outputs come back as one family. Writes SLOTS.md as usual plus
+    BATCH8.txt (the paste-ready block, prompts joined by a '~~' line) in the job folder."""
+    assert 1 <= len(variants) <= 8, "a series block holds at most 8 prompts"
+    subs = [("%s: %s" % (chr(97 + i), v[0]), one_line(inp, task_stem + v[1], hand, keep, avoid, frame))
+            for i, v in enumerate(variants)]
+    assert not any("~~" in s for _, s in subs), "a prompt contains the block delimiter"
+    if not write_job(job_id, title, notes, subs):
+        return  # BATCH8.txt stays in step with the SLOTS.md it came from
+    nl = chr(10)
+    (ROOT / job_id / "BATCH8.txt").write_text((nl + "~~" + nl).join(s for _, s in subs) + nl, encoding="utf-8")
+    print("BATCH8", job_id, len(subs))
 
 if __name__ == "__main__":
     spec = sys.argv[1]
