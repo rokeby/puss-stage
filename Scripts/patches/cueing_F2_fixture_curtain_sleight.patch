@@ -1,0 +1,144 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+index 1478f78..3f97c47 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageEditor/Private/InfinityStageEditorAutomationTests.cpp
+@@ -1104,11 +1104,93 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+                 && Actor->ActorHasTag(TEXT("InfinityStage.TransitionStalls"))
+                 && Actor->ActorHasTag(TEXT("InfinityStage.Mouth.P02"));
+         };
++        // 5 Oct: the curtain sleight gives an Interaction TWO cuts in one cut track, a hangar camera then the
++        // matched mouth camera (Saved/CodexConductor/curtain_sleight.py; tags CurtainSleight + CurtainSleight.I<N>).
++        // Which camera owns a frame is read from the Interaction's own cut sections, never assumed.
++        const auto CutSectionsOf = [&ShowRoot](const int32 SegmentIndex, const ULevelSequence*& OutSequence)
++        {
++            TArray<const UMovieSceneSection*> Sections;
++            OutSequence = nullptr;
++            const int32 CueIndex = ShowRoot->Transport->Segments.IsValidIndex(SegmentIndex)
++                ? ShowRoot->Transport->Segments[SegmentIndex].CueIndex : INDEX_NONE;
++            if (ShowRoot->ShowAsset && ShowRoot->ShowAsset->Cues.IsValidIndex(CueIndex))
++            {
++                OutSequence = ShowRoot->ShowAsset->Cues[CueIndex].Scene.Sequence.LoadSynchronous();
++            }
++            const UMovieScene* Scene = OutSequence ? OutSequence->GetMovieScene() : nullptr;
++            if (const UMovieSceneTrack* Cuts = Scene ? Scene->GetCameraCutTrack() : nullptr)
++            {
++                for (const UMovieSceneSection* Section : Cuts->GetAllSections())
++                {
++                    Sections.Add(Section);
++                }
++                Sections.Sort([](const UMovieSceneSection& A, const UMovieSceneSection& B)
++                    { return A.GetInclusiveStartFrame() < B.GetInclusiveStartFrame(); });
++            }
++            return Sections;
++        };
++        // Index of the Interaction-1 cut section that covers a Master frame, or INDEX_NONE.
++        const auto CutIndexAtMasterFrame = [&ShowRoot, &CutSectionsOf](const FFrameNumber MasterFrame)
++        {
++            const ULevelSequence* Sequence = nullptr;
++            const TArray<const UMovieSceneSection*> Sections = CutSectionsOf(3, Sequence);
++            if (!Sequence || !ShowRoot->ShowAsset)
++            {
++                return int32(INDEX_NONE);
++            }
++            const UMovieScene* Scene = Sequence->GetMovieScene();
++            const FFrameNumber Local = Scene->GetPlaybackRange().GetLowerBoundValue()
++                + FFrameRate::TransformTime(FFrameTime(MasterFrame - ShowRoot->Transport->Segments[3].StartFrame),
++                    ShowRoot->ShowAsset->TickResolution, Scene->GetTickResolution()).FloorToFrame();
++            for (int32 Index = 0; Index < Sections.Num(); ++Index)
++            {
++                if (Sections[Index]->GetRange().Contains(Local))
++                {
++                    return Index;
++                }
++            }
++            return int32(INDEX_NONE);
++        };
++        const ULevelSequence* InteractionOneSequence = nullptr;
++        const int32 InteractionOneCutCount = CutSectionsOf(3, InteractionOneSequence).Num();
++        const bool bInteractionOneSleight = InteractionOneCutCount >= 2;
++        AddInfo(FString::Printf(TEXT("Interaction1Cuts=%d Sleight=%d"), InteractionOneCutCount, bInteractionOneSleight ? 1 : 0));
++        // The sleight camera expected at a frame: cut 0 is the hangar camera, any later cut the mouth camera.
++        const auto IsExpectedSleightCamera = [&CutIndexAtMasterFrame](const AActor* Actor, const FFrameNumber MasterFrame)
++        {
++            const int32 Cut = CutIndexAtMasterFrame(MasterFrame);
++            if (!Actor || Cut == INDEX_NONE
++                || !Actor->ActorHasTag(TEXT("CurtainSleight")) || !Actor->ActorHasTag(TEXT("CurtainSleight.I1")))
++            {
++                return false;
++            }
++            return Actor->GetActorLabel().Contains(Cut == 0 ? TEXT("Hangar") : TEXT("Mouth"));
++        };
++        // Control: an Interaction the sleight has not touched keeps the single stalls cut. Read from data only.
++        for (int32 Index = 4; Index < ShowRoot->Transport->Segments.Num(); ++Index)
++        {
++            const ULevelSequence* Other = nullptr;
++            if (ShowRoot->Transport->Segments[Index].Type == EInfinityCueType::Sequence
++                && ShowRoot->Transport->Segments[Index].CurtainMode == EInfinityCurtainCueMode::PostSceneInterstitial)
++            {
++                const int32 OtherCuts = CutSectionsOf(Index, Other).Num();
++                AddInfo(FString::Printf(TEXT("ControlInteraction=%s Cuts=%d"),
++                    *ShowRoot->Transport->Segments[Index].Label.ToString(), OtherCuts));
++                TestTrue(FString::Printf(TEXT("Control: %s (no sleight) still has at most one cut"),
++                    *ShowRoot->Transport->Segments[Index].Label.ToString()), OtherCuts <= 1);
++                break;
++            }
++        }
+         if (PlayerController)
+         {
+             AActor* InteractionViewTarget = PlayerController->GetViewTarget();
+             TestNotNull(TEXT("Interaction 1 retains a camera owner"), InteractionViewTarget);
+-            if (bInteractionAuthorsCut)
++            if (bInteractionOneSleight)
++            {
++                TestTrue(TEXT("Interaction 1 (sleight) opens on the camera its first cut names"),
++                    IsExpectedSleightCamera(InteractionViewTarget, ShowRoot->Transport->Segments[3].StartFrame));
++            }
++            else if (bInteractionAuthorsCut)
+             {
+                 TestTrue(TEXT("Interaction 1 happens on its curtain: the view is the stalls camera at Passage 2's mouth"),
+                     IsPassageTwoMouthStalls(InteractionViewTarget));
+@@ -1196,7 +1278,29 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+                 }
+             }
+         }
+-        if (PlayerController && bInteractionAuthorsCut)
++        if (PlayerController && bInteractionOneSleight)
++        {
++            TestTrue(TEXT("At the covered frame the sleight cut that covers it owns the view"),
++                IsExpectedSleightCamera(PlayerController->GetViewTarget(), InteractionClosedFrame));
++            // After the Interaction's GO is released, the mouth camera (the sleight's second cut) owns the view.
++            const FInfinityGoCue* InteractionGo = ShowRoot->Transport->GoCues.FindByPredicate(
++                [](const FInfinityGoCue& Cue) { return Cue.SegmentIndex == 3; });
++            if (InteractionGo)
++            {
++                const FFrameNumber AfterGo = InteractionGo->Frame + FFrameNumber(1000);
++                TestEqual(TEXT("Rehearsal can scrub past Interaction 1's GO"),
++                    ShowRoot->Transport->ScrubToMasterFrame(AfterGo), EInfinityTransportResult::Succeeded);
++                TestTrue(TEXT("After the GO the sleight's mouth cut covers the frame (data)"),
++                    CutIndexAtMasterFrame(AfterGo) >= 1);
++                TestTrue(TEXT("After the GO the mouth camera owns the view"),
++                    IsExpectedSleightCamera(PlayerController->GetViewTarget(), AfterGo));
++            }
++            else
++            {
++                AddInfo(TEXT("Interaction 1 has no GO marker: the after-GO view is not exercised"));
++            }
++        }
++        else if (PlayerController && bInteractionAuthorsCut)
+         {
+             TestTrue(TEXT("The authored cut keeps the drape in view through the covered frame"),
+                 IsPassageTwoMouthStalls(PlayerController->GetViewTarget()));
+@@ -1235,7 +1339,12 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
+             // 30 Sep: reverse entry re-runs forward entry's camera arbitration, so once Interaction 1 authors its own
+             // Camera Cut it is seen from the same tagged stalls camera as on the way in. The retained Scene 1 exit camera
+             // is still built, and is still the fallback when no cut is authored (the legacy branch, unchanged).
+-            if (bInteractionAuthorsCut)
++            if (bInteractionOneSleight)
++            {
++                TestTrue(TEXT("Reverse navigation returns to the sleight's opening camera"),
++                    IsExpectedSleightCamera(ReverseInteractionViewTarget, ShowRoot->Transport->Segments[3].StartFrame));
++            }
++            else if (bInteractionAuthorsCut)
+             {
+                 TestTrue(TEXT("Reverse navigation returns to the Interaction's authored stalls camera"),
+                     IsPassageTwoMouthStalls(ReverseInteractionViewTarget));
