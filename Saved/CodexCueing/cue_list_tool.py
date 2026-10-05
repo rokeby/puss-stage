@@ -21,7 +21,10 @@ import os
 import re
 
 MASTER_PATH = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
-GO_RE = re.compile(r"^\s*GO\s+(\S+)(?:\s+(HOLD|PASS)\b)?\s*(.*)$", re.IGNORECASE)
+# Mirrors the transport's parser (InfinityStageGoCues::ParseMarkerLabel): upper-case GO,
+# a numeric cue number, optional upper-case HOLD/PASS.
+GO_RE = re.compile(r"^\s*GO\s+([0-9.]*[0-9][0-9.]*)(?:\s+(HOLD|PASS)\b)?\s*(.*)$")
+NEAR_MISS_RE = re.compile(r"^\s*go\b", re.IGNORECASE)
 
 
 def _rate(frame_rate):
@@ -37,10 +40,24 @@ def _walk(unreal, sequence, outer_start_s, kind, depth, visited, out):
     playback_start_s = sequence.get_playback_start_seconds()
     to_master = lambda inner_s: outer_start_s + (inner_s - playback_start_s)
 
+    vamp_starts, vamp_ends = [], []
+    for marked in sequence.get_marked_frames():
+        label = str(marked.get_editor_property("label"))
+        inner_s = marked.get_editor_property("frame_number").value / tick_rate
+        if label.strip().lower() == "infinitystage.vampstart":
+            vamp_starts.append(to_master(inner_s))
+        elif label.strip().lower() == "infinitystage.vampend":
+            vamp_ends.append(to_master(inner_s))
+    for start, end in zip(sorted(vamp_starts), sorted(vamp_ends)):
+        out["vamps"].append({"sequence": sequence.get_name(), "start_s": start, "end_s": end})
+
     for marked in sequence.get_marked_frames():
         label = str(marked.get_editor_property("label"))
         match = GO_RE.match(label)
         if not match:
+            if NEAR_MISS_RE.match(label):
+                out["warnings"].append("NOT_A_GO '%s' in %s: the transport ignores it (needs upper-case GO and a cue number)"
+                                       % (label, sequence.get_name()))
             continue
         inner_s = marked.get_editor_property("frame_number").value / tick_rate
         mode = (match.group(2) or ("PASS" if kind == "choreo" else "HOLD")).upper()
@@ -73,7 +90,7 @@ def run():
     run_id = "cuelist-%s" % unreal.MathLibrary.now().to_unix_timestamp()
     report_path = os.path.join(project_dir, "Saved", "CodexCueing", "cue_list_%s.json" % run_id)
     sheet_path = report_path.replace(".json", ".txt")
-    out = {"run": run_id, "cues": [], "audio": [], "warnings": []}
+    out = {"run": run_id, "cues": [], "audio": [], "vamps": [], "warnings": []}
     try:
         master = unreal.load_asset(MASTER_PATH)
         if master is None:
@@ -89,6 +106,11 @@ def run():
         for cue in out["cues"]:
             if cue["mode"] != "HOLD":
                 continue
+            for vamp in out["vamps"]:
+                if vamp["start_s"] <= cue["master_s"] <= vamp["end_s"]:
+                    out["warnings"].append(
+                        "HOLD_IN_VAMP go=%s at %.3f s inside a vamp in %s: the transport lists it as PASS"
+                        % (cue["number"], cue["master_s"], vamp["sequence"]))
             for audio in out["audio"]:
                 if audio["start_s"] < cue["master_s"] < audio["end_s"]:
                     out["warnings"].append(
