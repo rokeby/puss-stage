@@ -196,3 +196,12 @@
     opening_timing.json is repointed (all moments still auto). Refit folds into the Opening reconcile when the editor is free.
 45. **Walking music:** Cameron's 6 tracks converted (P01 73.5, P02 45.5, P03 40.2, P04 38.4 → padded to 48.4 s with 10 s of silence
     per Gary, P05 42.0, P06 125.0 s, which overruns P06's ~111 s). Passage lengths are KEPT. The swap tool is being written.
+46. **Music, 5 Oct afternoon:**
+    - Narration stand-ins IN: S1/S2/S3 at the hangar land; S2 extended 31 → 81 s.
+    - Cameron walking tracks IN on P02–P05 (lengths unchanged; long silent tails of 131–144 s).
+    - **P06:** Gary "Lengthen P06 to fit" → p06_tail_extend tool being written (+≈15.4 s tail).
+    - **P01:** waits for the Opening's own rail (opening_own_rail tool being written).
+    - **Opening refit to sketch 2:** Gary "yes, refit" (programmatic FOH overwrites his 14:02 FOH L/R edits, which are backed up;
+      end kept at his 96.36 s).
+    - The music-driven Choreo bar/§ markers and MM_Pnn analyses are now STALE for P02–P05. New analyses need 16-bit copies
+      run outside Unreal.
