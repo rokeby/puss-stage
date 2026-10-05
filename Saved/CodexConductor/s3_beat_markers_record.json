@@ -1,0 +1,99 @@
+{
+ "run": "S3BEATS-20261005-195921",
+ "before": [
+  {
+   "frame": 0,
+   "label": "S3 B01 Arrive - strike"
+  },
+  {
+   "frame": 360000,
+   "label": "S3 B02 Figures sway - wide to figures"
+  },
+  {
+   "frame": 960000,
+   "label": "S3 B03 Clam on pedestal (shut)"
+  },
+  {
+   "frame": 1440000,
+   "label": "S3 B04 Agitation builds - waves"
+  },
+  {
+   "frame": 2880000,
+   "label": "S3 B05 Clam opens slowly"
+  },
+  {
+   "frame": 3000000,
+   "label": "S3 B06 Close-up of opening"
+  },
+  {
+   "frame": 3480000,
+   "label": "S3 B07 Pearl glows - song of forgetting"
+  },
+  {
+   "frame": 3480000,
+   "label": "InfinityStage.VampStart"
+  },
+  {
+   "frame": 4200000,
+   "label": "InfinityStage.VampEnd"
+  },
+  {
+   "frame": 4200000,
+   "label": "S3 B08 Figures calm"
+  },
+  {
+   "frame": 4680000,
+   "label": "S3 B09 Calm swaying (animation start)"
+  },
+  {
+   "frame": 5040000,
+   "label": "S3 B10 Defocus - Puss's thoughts"
+  },
+  {
+   "frame": 5520000,
+   "label": "S3 B11 Pearl rises to camera"
+  },
+  {
+   "frame": 5880000,
+   "label": "S3 B12 Float out - to curtain"
+  }
+ ],
+ "added": [
+  {
+   "frame": 0,
+   "label": "S3 1 Arrival to shore",
+   "t": 0.0
+  },
+  {
+   "frame": 360000,
+   "label": "S3 2 Swaying shore people",
+   "t": 15.0
+  },
+  {
+   "frame": 960000,
+   "label": "S3 3 They whimper (narration)",
+   "t": 40.0
+  },
+  {
+   "frame": 1680000,
+   "label": "S3 4 Cello soothes / clam opens",
+   "t": 70.0
+  },
+  {
+   "frame": 2880000,
+   "label": "S3 5 Chorus / Puss takes the song (narration)",
+   "t": 120.0
+  },
+  {
+   "frame": 4320000,
+   "label": "S3 6 Anguished crying",
+   "t": 180.0
+  },
+  {
+   "frame": 5520000,
+   "label": "S3 7 Finish / out",
+   "t": 230.0
+  }
+ ],
+ "backup": "E:/PussStage/Backups/PreS3BeatMarkers-S3BEATS-20261005-195921"
+}
