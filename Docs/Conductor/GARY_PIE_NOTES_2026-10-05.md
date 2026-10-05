@@ -243,3 +243,6 @@
     Lighting: **all lights may cast shadows** (strike on P04 bay 17 included); shadow budget still applies.
     Found: P04 bays 13–21 are now dark apart from the bulbs and the bay-17 strike; bulb bodies need an emissive material (being added);
     rig_lamp_drop must be REVERTed before each score REVERT, then re-applied after the new score.
+57. **Retime conflict resolved:** Gary's 14:20 "keep lengths" (directing session note 48) vs his 15:25 retime (here). He re-confirmed
+    "Cut to song + 2 s" for **P02–P05** in the directing session (~17:00). Queue after the retime: Choreo/GO and Light Drama distance
+    check, plus stills of P02–P05 at the new pace (camera ~4x faster past the same wings — Gary to judge).

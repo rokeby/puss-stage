@@ -52,5 +52,5 @@
  },
  "per_passage_source": "guids: walking_music_swap_dry.json rows.N.passage.guid (WALK-20261005-144953); song_s/sound: walking_music_swap_record_P02-P03-P04-P05.json passages.N.import / rail_after.sound (WALK-20261005-143843)",
  "expected_note": "APPLY needs per_passage.N.expected = {old_len_ticks, new_len_ticks, route_cm} copied from the DRY's expected_for_apply_args.",
- "decided_by": "Gary 5 Oct ~15:25 questionnaire: 'P02-P05, P02 after straightening' and 'Song + short tail for the crossing' (supersedes the earlier keep-the-lengths call); P04 keeps its +10 s pad"
+ "decided_by": "Gary 5 Oct ~15:25 questionnaire: 'P02-P05, P02 after straightening' and 'Song + short tail for the crossing' (supersedes the earlier keep-the-lengths call); P04 keeps its +10 s pad | conflict with his 14:20 'keep lengths' (directing session) resolved: he re-confirmed 'Cut to song + 2 s' for P02-P05 in the directing session ~17:00 (relayed); his own answer in this session (15:25) stands"
 }
