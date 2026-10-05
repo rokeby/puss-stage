@@ -164,3 +164,7 @@
   - Tools with stale absolute frames: p04_bay3_trace, run_p6.json, the S3 family's (0,6240) guards.
   - Proposed: a RetimeEverythingFollows test, and a GUID-plus-offset rule for tools.
 - W&T: P05 stills under the new score were sent to Gary. The P05 "boxes" are Structure 05 rig cubes (inferred). W&T is probing the P06 soft piece read-only tonight.
+- **P06 soft piece solved (W&T, Gary approved the test):** it was parallax-occlusion smear on SM_CeramicTotem_01_L, not depth of field.
+  - Fix: MI_CeramicTotem_01_L_Relief at HeightRatio 0 and POM steps 1. Stills FV3STL-20261005-02 show it sharp (measured).
+  - Left APPLIED pending Gary's keep/revert; revert script p06/p6_pom_off_L_revert.py.
+  - Other StageOpeningV2 relief pieces carry the same POM (inferred). A blanket rule is Gary's call.
