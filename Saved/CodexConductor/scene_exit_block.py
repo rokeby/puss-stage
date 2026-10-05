@@ -911,14 +911,18 @@ def run_apply(n, run, params, overrides):
     # Inside-box guard on what was actually spawned (world bounds -> live root frame).
     root_xf = root.get_actor_transform()
     for actor, dz in ((curtain, 0.0), (card, 0.0), (curtain, rep["raise_cm"]), (card, rep["raise_cm"])):
-        origin, extent = actor.get_actor_bounds(False)
+        # ORIENTED bounds (4 Oct): the mesh's own box corners through the component's world transform, then
+        # into the root frame. A world AABB inflates on S2's rotated hangar and falsely fails the x axis
+        # (same trap hangar_exit_doors.py hit on S2).
+        mesh_component = actor.get_editor_property("static_mesh_component")
+        box = mesh_component.get_editor_property("static_mesh").get_bounding_box()
+        comp_xf = mesh_component.get_world_transform()
         pts = []
-        for sx in (-1, 1):
-            for sy in (-1, 1):
-                for sz in (-1, 1):
-                    local = unreal.MathLibrary.inverse_transform_location(
-                        root_xf, unreal.Vector(origin.x + sx * extent.x, origin.y + sy * extent.y,
-                                               origin.z + sz * extent.z))
+        for cx in (box.min.x, box.max.x):
+            for cy in (box.min.y, box.max.y):
+                for cz in (box.min.z, box.max.z):
+                    world = unreal.MathLibrary.transform_location(comp_xf, unreal.Vector(cx, cy, cz))
+                    local = unreal.MathLibrary.inverse_transform_location(root_xf, world)
                     pts.append((local.x, local.y, local.z + dz))
         lo = [min(p[i] for p in pts) for i in range(3)]
         hi = [max(p[i] for p in pts) for i in range(3)]
