@@ -1,0 +1,1379 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+index 57adfc2..ea0d6b3 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+@@ -32,6 +32,22 @@ const FName UnderpassDeckLayerTag(TEXT("InfinityStage.Structure.Underpass.Deck")
+ const FName UnderpassCatwalkLayerTag(TEXT("InfinityStage.Structure.Underpass.Catwalk"));
+ const FName UnderpassTubeLayerTag(TEXT("InfinityStage.Structure.Underpass.Tubes"));
+ const FName UnderpassTubeLightLayerTag(TEXT("InfinityStage.Structure.Underpass.TubeLights"));
++/** Every fence component carries this, and its variant's own tag below. */
++const FName UnderpassFenceTag(TEXT("InfinityStage.Structure.Underpass.Fence"));
++const FName UnderpassFenceLayerTags[] = {
++    FName(TEXT("InfinityStage.Structure.Underpass.Fence.A")),
++    FName(TEXT("InfinityStage.Structure.Underpass.Fence.B")),
++    FName(TEXT("InfinityStage.Structure.Underpass.Fence.C")),
++    FName(TEXT("InfinityStage.Structure.Underpass.Fence.D")),
++};
++const FName UnderpassFenceOverlayLayerTags[] = {
++    FName(TEXT("InfinityStage.Structure.Underpass.FenceOverlay.A")),
++    FName(TEXT("InfinityStage.Structure.Underpass.FenceOverlay.B")),
++    FName(TEXT("InfinityStage.Structure.Underpass.FenceOverlay.C")),
++    FName(TEXT("InfinityStage.Structure.Underpass.FenceOverlay.D")),
++};
++static_assert(UE_ARRAY_COUNT(UnderpassFenceLayerTags) == FInfinityStageUnderpassSettings::FenceVariantCount, "one tag per fence variant");
++static_assert(UE_ARRAY_COUNT(UnderpassFenceOverlayLayerTags) == FInfinityStageUnderpassSettings::FenceVariantCount, "one overlay tag per fence variant");
+ 
+ /** Per-instance custom data: variation 0..1, then length, width, depth in cm. */
+ constexpr int32 TimberCustomDataFloats = 4;
+@@ -54,7 +70,8 @@ enum class ETimberPart : uint32
+     UnderpassKnee = 10,
+     UnderpassDeck = 11,
+     UnderpassCatwalk = 12,
+-    UnderpassTube = 13
++    UnderpassTube = 13,
++    UnderpassFence = 14
+ };
+ 
+ FRandomStream MakeTimberStream(const FGuid& Identity, const ETimberPart Part)
+@@ -74,6 +91,18 @@ FRandomStream MakeTubeStream(const FGuid& Station, const int32 RowKey, const int
+     return FRandomStream(static_cast<int32>(Hash));
+ }
+ 
++/** One fence tile's stream, keyed by its gap's first column station, the side
++ * (0 for -Y, 1 for +Y), the tile's index along the gap and the seed. One combine
++ * per statement, as for the tubes. */
++FRandomStream MakeFenceStream(const FGuid& Station, const int32 SideKey, const int32 TileIndex, const int32 Seed)
++{
++    uint32 Hash = HashCombineFast(GetTypeHash(Station), ::GetTypeHash(static_cast<uint32>(ETimberPart::UnderpassFence)));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(SideKey));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(TileIndex));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Seed));
++    return FRandomStream(static_cast<int32>(Hash));
++}
++
+ struct FFixturePlacement
+ {
+     FGuid AttachmentGuid;
+@@ -420,6 +449,8 @@ void AInfinityStageStructureActor::ClearStructure()
+     UnderpassTubeCount = 0;
+     UnderpassTubeLightCount = 0;
+     UnderpassTubeLightEveryUsed = 0;
++    UnderpassFencePanelCount = 0;
++    UnderpassFenceOverlayCount = 0;
+     StationSignature = 0;
+     MarkPackageDirty();
+ }
+@@ -517,6 +548,18 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+     UStaticMesh* UnderpassDeckMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bDeck, Underpass.DeckMesh, TEXT("Underpass deck"));
+     UStaticMesh* UnderpassCatwalkMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bCatwalk, Underpass.CatwalkMesh, TEXT("Underpass catwalk"));
+     UStaticMesh* UnderpassTubeMesh = LoadUnderpassMesh(Underpass.bEnabled && Underpass.bTubes, Underpass.TubeMesh, TEXT("Underpass tube"));
++    // A fence variant is loaded only when it can be chosen (weight above 0); its
++    // overlay only with its panel.
++    TArray<UStaticMesh*> UnderpassFenceMeshes;
++    TArray<UStaticMesh*> UnderpassFenceOverlayMeshes;
++    for (int32 Variant = 0; Variant < FInfinityStageUnderpassSettings::FenceVariantCount; ++Variant)
++    {
++        const FInfinityStageFenceVariant& Kind = Underpass.GetFenceVariant(Variant);
++        const bool bVariantOn = Underpass.bEnabled && Underpass.bFence && Kind.Weight > 0.0;
++        UStaticMesh* Panel = LoadUnderpassMesh(bVariantOn, Kind.Mesh, TEXT("Underpass fence panel"));
++        UnderpassFenceMeshes.Add(Panel);
++        UnderpassFenceOverlayMeshes.Add(LoadUnderpassMesh(bVariantOn && Panel != nullptr, Kind.OverlayMesh, TEXT("Underpass fence overlay")));
++    }
+     if (!bMeshesLoaded)
+     {
+         return false;
+@@ -597,6 +640,18 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+                 UnderpassPart(UnderpassTubeMesh, Underpass.TubeMaterial, TEXT("Underpass tube")),
+                 Underpass.bTubeLights ? LoadMaterial(Underpass.TubeLightFunctionMaterial, TEXT("Underpass tube light function")) : nullptr);
+         }
++        if (Underpass.bFence)
++        {
++            TArray<FInfinityUnderpassPart> FencePanels;
++            TArray<FInfinityUnderpassPart> FenceOverlays;
++            for (int32 Variant = 0; Variant < FInfinityStageUnderpassSettings::FenceVariantCount; ++Variant)
++            {
++                const FInfinityStageFenceVariant& Kind = Underpass.GetFenceVariant(Variant);
++                FencePanels.Add(UnderpassPart(UnderpassFenceMeshes[Variant], Kind.Material, TEXT("Underpass fence panel")));
++                FenceOverlays.Add(UnderpassPart(UnderpassFenceOverlayMeshes[Variant], Kind.OverlayMaterial, TEXT("Underpass fence overlay")));
++            }
++            BuildUnderpassFence(Stations, FencePanels, FenceOverlays);
++        }
+     }
+     int32 MovingLights = 0;
+     StationSignature = ComputeStructureSignature(
+@@ -615,7 +670,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+         TEXT("INFINITY_STAGE_STRUCTURE_OK actor='%s' passage='%s' stations=%d cross_beams=%d rails=%d ")
+         TEXT("boards=%d slots=%d cloths=%d portal=%d housings=%d lines=%d moving_lights_skipped=%d instances=%d half_width_cm=%.0f ")
+         TEXT("underpass_columns=%d underpass_piers=%d underpass_knees=%d underpass_decks=%d underpass_catwalks=%d ")
+-        TEXT("underpass_tubes=%d underpass_tube_lights=%d"),
++        TEXT("underpass_tubes=%d underpass_tube_lights=%d underpass_fence_panels=%d"),
+         *GetActorNameOrLabel(),
+         *Passage->GetActorNameOrLabel(),
+         StationCount,
+@@ -636,7 +691,8 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+         UnderpassDeckCount,
+         UnderpassCatwalkCount,
+         UnderpassTubeCount,
+-        UnderpassTubeLightCount);
++        UnderpassTubeLightCount,
++        UnderpassFencePanelCount);
+     return true;
+ }
+ 
+@@ -685,6 +741,200 @@ UInstancedStaticMeshComponent* AInfinityStageStructureActor::CreateManagedCompon
+     return Component;
+ }
+ 
++void AInfinityStageStructureActor::BuildUnderpassFence(
++    const TArray<FInfinityStructureStation>& Stations,
++    const TArray<FInfinityUnderpassPart>& Panels,
++    const TArray<FInfinityUnderpassPart>& Overlays)
++{
++    constexpr int32 VariantCount = FInfinityStageUnderpassSettings::FenceVariantCount;
++    if (Stations.Num() < 2 || Panels.Num() != VariantCount || Overlays.Num() != VariantCount)
++    {
++        return;
++    }
++
++    // The weights. Every variant with a weight is in the first draw, built or not,
++    // so nulling one variant's mesh re-rolls only the panels that drew it; the
++    // second draw re-deals those among the built variants by their weights.
++    double Weights[VariantCount];
++    double AllWeight = 0.0;
++    double BuiltWeight = 0.0;
++    FBox Bounds[VariantCount];
++    // The tile width: the widest built bay. The FenceBay kit's bays are all one size.
++    double TileWidthCm = 0.0;
++    for (int32 Variant = 0; Variant < VariantCount; ++Variant)
++    {
++        const double Weight = Underpass.GetFenceVariant(Variant).Weight;
++        Weights[Variant] = FMath::IsFinite(Weight) ? FMath::Max(0.0, Weight) : 0.0;
++        AllWeight += Weights[Variant];
++        const bool bBuilt = Panels[Variant].Mesh && Weights[Variant] > 0.0;
++        BuiltWeight += bBuilt ? Weights[Variant] : 0.0;
++        Bounds[Variant] = Panels[Variant].Mesh ? Panels[Variant].Mesh->GetBoundingBox() : FBox(ForceInit);
++        if (bBuilt)
++        {
++            TileWidthCm = FMath::Max(TileWidthCm, Bounds[Variant].GetSize().X);
++        }
++    }
++    if (BuiltWeight <= 0.0 || TileWidthCm <= UE_KINDA_SMALL_NUMBER)
++    {
++        return;
++    }
++    const auto Pick = [&Weights, &Panels, AllWeight, BuiltWeight](const float Roll, const bool bBuiltOnly) -> int32
++    {
++        double Remaining = static_cast<double>(Roll) * (bBuiltOnly ? BuiltWeight : AllWeight);
++        int32 LastEligible = INDEX_NONE;
++        for (int32 Variant = 0; Variant < VariantCount; ++Variant)
++        {
++            if (Weights[Variant] <= 0.0 || (bBuiltOnly && !Panels[Variant].Mesh))
++            {
++                continue;
++            }
++            LastEligible = Variant;
++            if (Remaining < Weights[Variant])
++            {
++                return Variant;
++            }
++            Remaining -= Weights[Variant];
++        }
++        return LastEligible;
++    };
++
++    // Native height keeps each bay as authored; say so where that is not the
++    // height the fence was meant to be (W&T's 3 m bays will match).
++    const bool bNativeHeight = Underpass.FenceHeightMode == EInfinityFenceHeightMode::Native;
++    const double IntendedHeightCm = FMath::Max(1.0, Underpass.FenceHeightCm);
++    for (int32 Variant = 0; bNativeHeight && Variant < VariantCount; ++Variant)
++    {
++        const double OwnHeightCm = Bounds[Variant].GetSize().Z;
++        if (Panels[Variant].Mesh && Weights[Variant] > 0.0 && FMath::Abs(OwnHeightCm - IntendedHeightCm) > IntendedHeightCm * 0.1)
++        {
++            UE_LOG(LogInfinityStageStructure, Warning,
++                TEXT("INFINITY_STAGE_STRUCTURE_FENCE_HEIGHT_MISMATCH actor='%s' variant=%c mesh='%s' native_cm=%.1f intended_cm=%.1f (Native height mode builds the mesh's own)"),
++                *GetActorNameOrLabel(), TCHAR('A' + Variant), *Panels[Variant].Mesh->GetPathName(), OwnHeightCm, IntendedHeightCm);
++        }
++    }
++
++    // The column rhythm and feet exactly as BuildUnderpass stands them: every Nth
++    // station and the last, an end foot stepped inside its end station. The fence
++    // tests check that the tiles end on the built column centres, so a drift fails.
++    const double ColumnLineCm = GetFloorHalfSpanCm(Stations) + FMath::Max(0.0, Underpass.ColumnOutsetCm);
++    const double EndInsetCm = FMath::Max(FMath::Max(1.0, Underpass.PierSizeCm), FMath::Max(1.0, Underpass.ColumnDepthCm)) * 0.5;
++    const double LineCm = ColumnLineCm - Underpass.FenceInsetCm;
++    const double BaseCm = Ground.FloorHeightCm + Underpass.FenceBaseCm;
++    const int32 Every = FMath::Max(1, Underpass.ColumnEvery);
++    const int32 Last = Stations.Num() - 1;
++    TArray<int32> ColumnStations;
++    for (int32 Index = 0; Index <= Last; ++Index)
++    {
++        if (Index % Every == 0 || Index == Last)
++        {
++            ColumnStations.Add(Index);
++        }
++    }
++    const auto FootOnLine = [&Stations, Last, EndInsetCm, LineCm, BaseCm](const int32 Index, const double Side)
++    {
++        const FTransform& World = Stations[Index].StationWorld;
++        const double InsetCm = Index == 0 ? EndInsetCm : (Index == Last ? -EndInsetCm : 0.0);
++        return World.GetLocation() + World.GetUnitAxis(EAxis::X) * InsetCm
++            + World.GetUnitAxis(EAxis::Y) * (Side * LineCm) + World.GetUnitAxis(EAxis::Z) * BaseCm;
++    };
++
++    struct FVariantInstances
++    {
++        TArray<FTransform> Transforms;
++        TArray<float> Data;
++    };
++    FVariantInstances Built[VariantCount];
++
++    for (int32 Gap = 0; Gap + 1 < ColumnStations.Num(); ++Gap)
++    {
++        const int32 From = ColumnStations[Gap];
++        const int32 To = ColumnStations[Gap + 1];
++        const FVector BayUp = (Stations[From].StationWorld.GetUnitAxis(EAxis::Z)
++            + Stations[To].StationWorld.GetUnitAxis(EAxis::Z)).GetSafeNormal();
++        for (const double Side : { -1.0, 1.0 })
++        {
++            if (Side > 0.0 && !Underpass.bFenceBothSides)
++            {
++                continue;
++            }
++            const FVector Start = FootOnLine(From, Side);
++            const FVector End = FootOnLine(To, Side);
++            const double ChordCm = FVector::Distance(Start, End);
++            if (ChordCm < 1.0)
++            {
++                continue;
++            }
++            // Tiles along the chord, each its slot's length: X scale close to 1.
++            const int32 Tiles = FMath::Max(1, FMath::RoundToInt32(ChordCm / TileWidthCm));
++            const double SlotCm = ChordCm / Tiles;
++            const FVector Along = (End - Start) / ChordCm;
++            // Local X along the chord, Z up, so +Y faces the route on either side:
++            // the -Y side runs with the stations, the +Y side against them.
++            const FQuat Rotation = FRotationMatrix::MakeFromXZ(Side < 0.0 ? Along : -Along, BayUp).ToQuat();
++            for (int32 Tile = 0; Tile < Tiles; ++Tile)
++            {
++                // Three draws, each its own statement and always made, so no
++                // choice depends on another tile or on which variants are built.
++                FRandomStream Stream = MakeFenceStream(Stations[From].CueGuid, Side < 0.0 ? 0 : 1, Tile, Underpass.FenceSeed);
++                const float Roll = Stream.FRand();
++                const float Redeal = Stream.FRand();
++                const float Tone = Stream.FRand();
++                int32 Variant = Pick(Roll, false);
++                if (Variant == INDEX_NONE || !Panels[Variant].Mesh)
++                {
++                    Variant = Pick(Redeal, true);
++                }
++                if (Variant == INDEX_NONE)
++                {
++                    continue;
++                }
++                const double DepthCm = FMath::Max(1.0, Bounds[Variant].GetSize().Y);
++                const double HeightCm = bNativeHeight ? FMath::Max(1.0, Bounds[Variant].GetSize().Z) : IntendedHeightCm;
++                const FVector SizeCm(SlotCm, DepthCm, HeightCm);
++                const FVector Centre = Start + Along * (SlotCm * (Tile + 0.5)) + BayUp * (HeightCm * 0.5);
++                Built[Variant].Transforms.Add(FitMeshToTimber(Bounds[Variant], Centre, Rotation, SizeCm));
++                Built[Variant].Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
++            }
++        }
++    }
++
++    // One layer per variant, and its overlay's on the very same transforms. The
++    // variant's material goes on slot 0 alone: the kit's concertina (slot 1)
++    // keeps its own metal.
++    const auto Emit = [this](const FVariantInstances& Instances, const TCHAR* BaseName, const FName LayerTag,
++                             const FInfinityUnderpassPart& Part)
++    {
++        UInstancedStaticMeshComponent* Component =
++            CreateManagedComponent(FName(BaseName), LayerTag, Part.Mesh, nullptr, Underpass.bFenceCastShadow);
++        Component->ComponentTags.Add(UnderpassFenceTag);
++        if (Part.Material)
++        {
++            Component->SetMaterial(0, Part.Material);
++        }
++        ApplyInstances(*Component, Instances.Transforms, Instances.Data);
++    };
++    const TCHAR* const PanelNames[] = {
++        TEXT("StructureUnderpassFenceA"), TEXT("StructureUnderpassFenceB"),
++        TEXT("StructureUnderpassFenceC"), TEXT("StructureUnderpassFenceD") };
++    const TCHAR* const OverlayNames[] = {
++        TEXT("StructureUnderpassFenceOverlayA"), TEXT("StructureUnderpassFenceOverlayB"),
++        TEXT("StructureUnderpassFenceOverlayC"), TEXT("StructureUnderpassFenceOverlayD") };
++    for (int32 Variant = 0; Variant < VariantCount; ++Variant)
++    {
++        if (Built[Variant].Transforms.IsEmpty())
++        {
++            continue;
++        }
++        Emit(Built[Variant], PanelNames[Variant], UnderpassFenceLayerTags[Variant], Panels[Variant]);
++        UnderpassFencePanelCount += Built[Variant].Transforms.Num();
++        if (Overlays[Variant].Mesh)
++        {
++            Emit(Built[Variant], OverlayNames[Variant], UnderpassFenceOverlayLayerTags[Variant], Overlays[Variant]);
++            UnderpassFenceOverlayCount += Built[Variant].Transforms.Num();
++        }
++    }
++}
++
+ URectLightComponent* AInfinityStageStructureActor::CreateManagedLight(const FName BaseName, const FName LayerTag)
+ {
+     // Owned exactly as CreateManagedComponent owns an instance layer: transactional,
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+index c3b6e11..151a487 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+@@ -432,6 +432,65 @@ struct INFINITYSTAGE_API FInfinityStageFixtureSettings
+     TSoftObjectPtr<UMaterialInterface> LineMaterial;
+ };
+ 
++/** How an underpass fence panel's height is set. */
++UENUM(BlueprintType)
++enum class EInfinityFenceHeightMode : uint8
++{
++    /** The bay mesh's own height (Z scale 1): no squashed chain-link. */
++    Native,
++    /** Stretched to FenceHeightCm. Distorts a bay authored at another height. */
++    Fit
++};
++
++/**
++ * One kind of underpass fence panel. Panels tile each column gap: the bay mesh
++ * is fitted by its bounds to its slot of the gap (local X, close to its own
++ * width), keeps its own depth (local Y) and, in Native height mode, its own
++ * height (local Z); local +Y faces the walkway, as on the W&T FenceBay kit, whose
++ * tarp hangs on the bay's +Y side.
++ *
++ * The overlay is a second mesh authored in the bay mesh's own frame (the kit's
++ * SM_FenceTarp_* beside SM_FenceBay_*). It is not fitted by its own bounds: it
++ * takes the bay's transform exactly, so a half tarp stays half the bay's height.
++ * It is built only where its bay is, in its own layer.
++ */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityStageFenceVariant
++{
++    GENERATED_BODY()
++
++    FInfinityStageFenceVariant() = default;
++
++    explicit FInfinityStageFenceVariant(const double InWeight, const TCHAR* InOverlayMeshPath = nullptr)
++        : Weight(InWeight)
++    {
++        if (InOverlayMeshPath)
++        {
++            OverlayMesh = TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(InOverlayMeshPath));
++        }
++    }
++
++    /** Null skips the variant: its share goes to the others, by their weights. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UStaticMesh> Mesh;
++
++    /** Replaces slot 0 only (the kit's chain slot); other slots keep the mesh's
++     * own, so the kit's concertina keeps its metal. Null: the mesh's own. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UMaterialInterface> Material;
++
++    /** Relative share of the panels. 0 never builds this variant. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "0.0"))
++    double Weight = 0.0;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UStaticMesh> OverlayMesh;
++
++    /** Replaces the overlay's slot 0 only. Null: the overlay mesh's own. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    TSoftObjectPtr<UMaterialInterface> OverlayMaterial;
++};
++
+ /**
+  * The underpass: the iron rig round the wings (Gary, 5 Oct; plan
+  * Docs/Conductor/UNDERPASS_RIG_KIT_PLAN_2026-10-05.md, Phase B). Laced columns
+@@ -678,6 +737,76 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+ 
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+     bool bTubeLightCastShadow = false;
++
++    /** Fencing in the spaces between the columns (Gary, 5 Oct: "ground to ~3 m:
++     * underpass-style fencing; the upper rig stays open and side light still gets
++     * through. Mostly open chain-link, some half or torn tarp, rare door gaps").
++     * Each gap between consecutive column stations, per side, is a straight chord
++     * from column centre to column centre (so the fence keeps the columns' clean
++     * ends), tiled with n = max(1, round(chord / native width)) panels, the native
++     * width being the widest built variant's bounds X. Each panel's variant is
++     * drawn on its own. Uses the column rhythm whether or not the columns
++     * themselves are built. Off, and with no bay meshes: the conductor sets the
++     * FenceBay kit from Python (the tarp overlays of B and C are preset). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    bool bFence = false;
++
++    /** Native keeps each bay's own height; Fit stretches it to FenceHeightCm. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    EInfinityFenceHeightMode FenceHeightMode = EInfinityFenceHeightMode::Native;
++
++    /** The intended height, bottom to top of the bay mesh's bounds. Fit builds it;
++     * Native warns (INFINITY_STAGE_STRUCTURE_FENCE_HEIGHT_MISMATCH) for each
++     * built variant whose own height is more than 10 % away from it. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "1.0", Units = "cm"))
++    double FenceHeightCm = 300.0;
++
++    /** The panel's bottom above the floor (Ground.FloorHeightCm). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
++    double FenceBaseCm = 0.0;
++
++    /** From the column line toward the route. The default clears the 140 cm pier
++     * (half 70) by 5 cm, so the panel stands just inside the iron, clear of it. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
++    double FenceInsetCm = 75.0;
++
++    /** Off: only the -Y side of the route (its left, looking along the stations) is fenced. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    bool bFenceBothSides = true;
++
++    /** Intended: SM_FenceBay_open_v2 (its own MI_FenceBay_open). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    FInfinityStageFenceVariant FenceVariantA = FInfinityStageFenceVariant(0.6);
++
++    /** Intended: SM_FenceBay_tarp_half_v2, overlay SM_FenceTarp_tarp_half_v2. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    FInfinityStageFenceVariant FenceVariantB = FInfinityStageFenceVariant(0.2,
++        TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_half_v2.SM_FenceTarp_tarp_half_v2"));
++
++    /** Intended: SM_FenceBay_tarp_torn_v2, overlay SM_FenceTarp_tarp_torn_v2. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    FInfinityStageFenceVariant FenceVariantC = FInfinityStageFenceVariant(0.15,
++        TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_torn_v2.SM_FenceTarp_tarp_torn_v2"));
++
++    /** Intended: SM_FenceBay_door_gap_v2 (its own MI_FenceBay_door_gap). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    FInfinityStageFenceVariant FenceVariantD = FInfinityStageFenceVariant(0.05);
++
++    /** Chain-link shadows are the point of the fence; panels and overlays alike. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    bool bFenceCastShadow = true;
++
++    /** Mixed into every panel's stream, to re-roll the variants without touching the Show. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    int32 FenceSeed = 0;
++
++    static constexpr int32 FenceVariantCount = 4;
++
++    /** Variants A..D by index; any other index is D. */
++    const FInfinityStageFenceVariant& GetFenceVariant(const int32 Index) const
++    {
++        return Index == 0 ? FenceVariantA : Index == 1 ? FenceVariantB : Index == 2 ? FenceVariantC : FenceVariantD;
++    }
+ };
+ 
+ /** One underpass part's loaded mesh and material, as MaterializeStructure hands
+@@ -806,6 +935,14 @@ public:
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+     int32 UnderpassTubeLightEveryUsed = 0;
+ 
++    /** Fence panels built, every variant together: the tiles, not the gaps. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
++    int32 UnderpassFencePanelCount = 0;
++
++    /** Overlays (tarps) built on those panels. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
++    int32 UnderpassFenceOverlayCount = 0;
++
+     /** Fingerprint of the stations and light placements the build was fitted to. */
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
+     int32 StationSignature = 0;
+@@ -892,5 +1029,12 @@ private:
+         const FInfinityUnderpassPart& Tube,
+         UMaterialInterface* LightFunction);
+ 
++    /** Fence panels, one entry per variant A..D in each array. A null panel mesh
++     * skips its variant; a null overlay mesh builds the panel alone. */
++    void BuildUnderpassFence(
++        const TArray<FInfinityStructureStation>& Stations,
++        const TArray<FInfinityUnderpassPart>& Panels,
++        const TArray<FInfinityUnderpassPart>& Overlays);
++
+     URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);
+ };
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+index e768a7f..59008fe 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+@@ -2506,4 +2506,876 @@ bool FInfinityStageUnderpassTubeLightClearTest::RunTest(const FString& Parameter
+     return true;
+ }
+ 
++namespace
++{
++const TCHAR* const FenceTag = TEXT("InfinityStage.Structure.Underpass.Fence");
++const TCHAR* const FenceVariantTags[] = {
++    TEXT("InfinityStage.Structure.Underpass.Fence.A"),
++    TEXT("InfinityStage.Structure.Underpass.Fence.B"),
++    TEXT("InfinityStage.Structure.Underpass.Fence.C"),
++    TEXT("InfinityStage.Structure.Underpass.Fence.D"),
++};
++const TCHAR* const FenceOverlayTags[] = {
++    TEXT("InfinityStage.Structure.Underpass.FenceOverlay.A"),
++    TEXT("InfinityStage.Structure.Underpass.FenceOverlay.B"),
++    TEXT("InfinityStage.Structure.Underpass.FenceOverlay.C"),
++    TEXT("InfinityStage.Structure.Underpass.FenceOverlay.D"),
++};
++constexpr int32 FenceVariantTotal = 4;
++static_assert(sizeof(FenceVariantTags) / sizeof(FenceVariantTags[0]) == FenceVariantTotal, "one tag per fence variant");
++static_assert(FInfinityStageUnderpassSettings::FenceVariantCount == FenceVariantTotal, "the tests know four variants");
++/** The engine cube's (and cylinder's) bounds: 100 cm on every axis. */
++constexpr double EngineShapeCm = 100.0;
++
++FInfinityStageFenceVariant& FenceVariant(FInfinityStageUnderpassSettings& Underpass, const int32 Index)
++{
++    FInfinityStageFenceVariant* const Variants[] = {
++        &Underpass.FenceVariantA, &Underpass.FenceVariantB, &Underpass.FenceVariantC, &Underpass.FenceVariantD };
++    return *Variants[Index];
++}
++
++/** The underpass armed as above, and its fence on with every variant on the engine
++ * cube, no overlays (the preset tarps are game content), and the intended height
++ * the cube's own, so Native mode has nothing to warn about. */
++void ArmFence(AInfinityStageStructureActor& Structure)
++{
++    ArmUnderpass(Structure);
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    Structure.Underpass.bFence = true;
++    Structure.Underpass.FenceHeightCm = EngineShapeCm;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Structure.Underpass, Variant).Mesh = Cube;
++        FenceVariant(Structure.Underpass, Variant).OverlayMesh = nullptr;
++    }
++}
++
++/** A materialized straight Passage whose station gaps are as given, along +X. */
++AInfinityStagePassageActor* SpawnSpacedPassage(UWorld& World, const TArray<double>& GapsCm)
++{
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    for (int32 Index = 0; Index <= GapsCm.Num(); ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.Left.Mesh = Cube;
++        Cue.WingPair.Left.LocalTransform.SetLocation(FVector(0.0, -FixtureHalfWidthCm, 0.0));
++        Cue.WingPair.Right.Mesh = Cube;
++        Cue.WingPair.Right.LocalTransform.SetLocation(FVector(0.0, FixtureHalfWidthCm, 0.0));
++        Cue.WingPair.GapToNextCm = Index < GapsCm.Num() ? GapsCm[Index] : 500.0;
++        Cue.WingPair.IntervalToNext = 48000;
++    }
++    Show->ReconcilePassageSettings();
++    AInfinityStagePassageActor* Passage = World.SpawnActor<AInfinityStagePassageActor>(FVector::ZeroVector, FRotator::ZeroRotator);
++    Passage->ShowAsset = Show;
++    Passage->MaterializePassage();
++    return Passage;
++}
++
++/** One built panel: its variant (read from its layer), instance, world box and custom floats. */
++struct FFenceRead
++{
++    int32 Variant = INDEX_NONE;
++    FTransform Transform;
++    FBox Box = FBox(ForceInit);
++    float Data[4] = { -1.0f, -1.0f, -1.0f, -1.0f };
++};
++
++TArray<FFenceRead> ReadFence(const AInfinityStageStructureActor& Structure, const TCHAR* const* Tags = FenceVariantTags)
++{
++    TArray<FFenceRead> Panels;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        const UInstancedStaticMeshComponent* Layer = FindLayer(Structure, Tags[Variant]);
++        if (!Layer)
++        {
++            continue;
++        }
++        const bool bData = Layer->NumCustomDataFloats >= 4
++            && Layer->PerInstanceSMCustomData.Num() == Layer->GetInstanceCount() * Layer->NumCustomDataFloats;
++        const FBox MeshBounds = Layer->GetStaticMesh()->GetBoundingBox();
++        const TArray<FTransform> Instances = ReadInstances(*Layer);
++        for (int32 Instance = 0; Instance < Instances.Num(); ++Instance)
++        {
++            FFenceRead& Panel = Panels.AddDefaulted_GetRef();
++            Panel.Variant = Variant;
++            Panel.Transform = Instances[Instance];
++            Panel.Box = MeshBounds.TransformBy(Instances[Instance]);
++            for (int32 Float = 0; bData && Float < 4; ++Float)
++            {
++                Panel.Data[Float] = Layer->PerInstanceSMCustomData[Instance * Layer->NumCustomDataFloats + Float];
++            }
++        }
++    }
++    return Panels;
++}
++
++/** Each panel's variant, keyed by where it stands (its plan centre to the cm), which a rebuild does not move. */
++TMap<FIntPoint, int32> FenceChoices(const TArray<FFenceRead>& Panels)
++{
++    TMap<FIntPoint, int32> Choices;
++    for (const FFenceRead& Panel : Panels)
++    {
++        const FVector Centre = Panel.Box.GetCenter();
++        Choices.Add(FIntPoint(FMath::RoundToInt32(Centre.X), FMath::RoundToInt32(Centre.Y)), Panel.Variant);
++    }
++    return Choices;
++}
++
++TArray<FBuiltLayer> WithoutFence(const TArray<FBuiltLayer>& Layers)
++{
++    TArray<FBuiltLayer> Kept;
++    for (const FBuiltLayer& Layer : Layers)
++    {
++        if (!Layer.Tags.Contains(FName(FenceTag)))
++        {
++            Kept.Add(Layer);
++        }
++    }
++    return Kept;
++}
++
++int32 FenceLayerInstances(const AInfinityStageStructureActor& Structure)
++{
++    int32 Total = 0;
++    for (const TCHAR* Tag : FenceVariantTags)
++    {
++        const UInstancedStaticMeshComponent* Layer = FindLayer(Structure, Tag);
++        Total += Layer ? Layer->GetInstanceCount() : 0;
++    }
++    return Total;
++}
++
++/** Column centre X along the straight fixture route, sorted, from the built column layer. */
++TArray<double> ColumnCentreX(const AInfinityStageStructureActor& Structure)
++{
++    TArray<double> Xs;
++    if (const UInstancedStaticMeshComponent* Columns = FindLayer(Structure, UnderpassTags[0]))
++    {
++        for (const FBox& Box : InstanceBoxes(*Columns))
++        {
++            const double X = Box.GetCenter().X;
++            if (!Xs.ContainsByPredicate([X](const double Seen) { return FMath::IsNearlyEqual(Seen, X, 0.1); }))
++            {
++                Xs.Add(X);
++            }
++        }
++    }
++    Xs.Sort();
++    return Xs;
++}
++
++/** The brief's tiling rule, written out: n = max(1, round(gap / native width)). */
++int32 ExpectedTiles(const double GapCm, const double NativeWidthCm)
++{
++    return FMath::Max(1, static_cast<int32>(FMath::FloorToDouble(GapCm / NativeWidthCm + 0.5)));
++}
++
++/** Tiles over every column gap, per side, on the straight fixture. */
++int32 ExpectedFencePanels(const TArray<double>& ColumnXs, const double NativeWidthCm, const int32 Sides)
++{
++    int32 Total = 0;
++    for (int32 Gap = 0; Gap + 1 < ColumnXs.Num(); ++Gap)
++    {
++        Total += ExpectedTiles(ColumnXs[Gap + 1] - ColumnXs[Gap], NativeWidthCm);
++    }
++    return Total * Sides;
++}
++
++/** Each column gap, per side, tiled exactly: its count of panels, equal widths of
++ * gap / n, edge to edge from one column centre to the next. */
++bool TilesFillTheGaps(const TArray<FFenceRead>& Panels, const TArray<double>& ColumnXs, const double NativeWidthCm,
++    const int32 Sides, FString& OutWhy)
++{
++    for (const double Side : { -1.0, 1.0 })
++    {
++        if (Sides == 1 && Side > 0.0)
++        {
++            continue;
++        }
++        for (int32 Gap = 0; Gap + 1 < ColumnXs.Num(); ++Gap)
++        {
++            const double FromX = ColumnXs[Gap];
++            const double ToX = ColumnXs[Gap + 1];
++            const int32 Tiles = ExpectedTiles(ToX - FromX, NativeWidthCm);
++            const double SlotCm = (ToX - FromX) / Tiles;
++            TArray<FBox> InGap;
++            for (const FFenceRead& Panel : Panels)
++            {
++                const FVector Centre = Panel.Box.GetCenter();
++                if (Centre.Y * Side > 0.0 && Centre.X > FromX && Centre.X < ToX)
++                {
++                    InGap.Add(Panel.Box);
++                }
++            }
++            if (InGap.Num() != Tiles)
++            {
++                OutWhy = FString::Printf(TEXT("gap %d side %+.0f: %d panels, expected %d"), Gap, Side, InGap.Num(), Tiles);
++                return false;
++            }
++            InGap.Sort([](const FBox& A, const FBox& B) { return A.Min.X < B.Min.X; });
++            for (int32 Tile = 0; Tile < Tiles; ++Tile)
++            {
++                if (!FMath::IsNearlyEqual(InGap[Tile].Min.X, FromX + Tile * SlotCm, 0.1)
++                    || !FMath::IsNearlyEqual(InGap[Tile].Max.X, FromX + (Tile + 1) * SlotCm, 0.1))
++                {
++                    OutWhy = FString::Printf(TEXT("gap %d side %+.0f tile %d spans %.2f..%.2f, expected %.2f..%.2f"),
++                        Gap, Side, Tile, InGap[Tile].Min.X, InGap[Tile].Max.X, FromX + Tile * SlotCm, FromX + (Tile + 1) * SlotCm);
++                    return false;
++                }
++            }
++        }
++    }
++    return true;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFenceOffTest,
++    "InfinityStage.Structure.UnderpassFenceOffByDefaultChangesNothing",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFenceOffTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 5);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    // Floor, grooves, understage, portal and stage front too, so every existing layer is compared.
++    Structure->Ground.bEnabled = true;
++    Structure->Portal.bEnabled = true;
++
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    TestFalse(TEXT("The fence is off by default"), Underpass.bFence);
++    bool bNoBays = true;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        const FInfinityStageFenceVariant& Kind = FenceVariant(Underpass, Variant);
++        bNoBays &= Kind.Mesh.IsNull() && Kind.Material.IsNull() && Kind.OverlayMaterial.IsNull();
++    }
++    TestTrue(TEXT("No fence variant has a bay mesh or a material by default"), bNoBays);
++    TestTrue(TEXT("B and C carry the half and torn tarps as overlays by default; A and D none"),
++        Underpass.FenceVariantB.OverlayMesh.ToSoftObjectPath().ToString()
++            == TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_half_v2.SM_FenceTarp_tarp_half_v2")
++        && Underpass.FenceVariantC.OverlayMesh.ToSoftObjectPath().ToString()
++            == TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_torn_v2.SM_FenceTarp_tarp_torn_v2")
++        && Underpass.FenceVariantA.OverlayMesh.IsNull() && Underpass.FenceVariantD.OverlayMesh.IsNull());
++    TestTrue(TEXT("Fence weights default to 0.6, 0.2, 0.15, 0.05"),
++        FMath::IsNearlyEqual(Underpass.FenceVariantA.Weight, 0.6) && FMath::IsNearlyEqual(Underpass.FenceVariantB.Weight, 0.2)
++        && FMath::IsNearlyEqual(Underpass.FenceVariantC.Weight, 0.15) && FMath::IsNearlyEqual(Underpass.FenceVariantD.Weight, 0.05));
++    TestTrue(TEXT("Fence defaults as briefed: native height, 300 intended, from the floor, 75 inside the columns, both sides, casting, seed 0"),
++        Underpass.FenceHeightMode == EInfinityFenceHeightMode::Native
++        && FMath::IsNearlyEqual(Underpass.FenceHeightCm, 300.0) && FMath::IsNearlyEqual(Underpass.FenceBaseCm, 0.0)
++        && FMath::IsNearlyEqual(Underpass.FenceInsetCm, 75.0) && Underpass.bFenceBothSides && Underpass.bFenceCastShadow
++        && Underpass.FenceSeed == 0);
++
++    ArmUnderpass(*Structure);
++    TestTrue(TEXT("The underpass builds without a fence"), Structure->MaterializeStructure());
++    const TArray<FBuiltLayer> Baseline = SnapshotBuild(*Structure);
++    const TArray<int32> BaselineUnderpass = UnderpassCounts(*Structure);
++    const TArray<int32> BaselineExisting = ExistingCounts(*Structure);
++
++    // The whole fence kit set, an overlay too, but the fence off: nothing may change.
++    ArmFence(*Structure);
++    Underpass.FenceVariantB.OverlayMesh = TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    Underpass.bFence = false;
++    TestTrue(TEXT("Builds with the fence kit set but the fence off"), Structure->MaterializeStructure());
++    FString Why;
++    const bool bSameOff = SameBuild(Baseline, SnapshotBuild(*Structure), Why);
++    TestTrue(FString::Printf(TEXT("Fence off, every component is unchanged (%s)"), *Why), bSameOff);
++    TestTrue(TEXT("Fence off, every other count is unchanged"),
++        UnderpassCounts(*Structure) == BaselineUnderpass && ExistingCounts(*Structure) == BaselineExisting);
++    TestTrue(TEXT("Fence off, no panel or overlay is counted"),
++        Structure->UnderpassFencePanelCount == 0 && Structure->UnderpassFenceOverlayCount == 0);
++
++    // The fence on but the underpass off: still no fence.
++    Underpass.bFence = true;
++    Underpass.bEnabled = false;
++    TestTrue(TEXT("Builds with the fence on and the underpass off"), Structure->MaterializeStructure());
++    TestTrue(TEXT("Underpass off: no fence layer and no panel"),
++        FenceLayerInstances(*Structure) == 0 && FindLayer(*Structure, FenceTag) == nullptr
++        && Structure->UnderpassFencePanelCount == 0);
++
++    // Control: on, the fence adds its layers, so the comparisons above can fail.
++    // Every other layer and count stays exactly as it was.
++    Underpass.bEnabled = true;
++    TestTrue(TEXT("Builds with the fence on"), Structure->MaterializeStructure());
++    const TArray<FBuiltLayer> WithFence = SnapshotBuild(*Structure);
++    TestTrue(TEXT("Control: the fence adds components and panels"),
++        WithFence.Num() > Baseline.Num() && Structure->UnderpassFencePanelCount > 0);
++    const bool bSameOthers = SameBuild(Baseline, WithoutFence(WithFence), Why);
++    TestTrue(FString::Printf(TEXT("Fence on, every other layer is unchanged (%s)"), *Why), bSameOthers);
++    TestTrue(TEXT("Fence on, every other count is unchanged"),
++        UnderpassCounts(*Structure) == BaselineUnderpass && ExistingCounts(*Structure) == BaselineExisting);
++    TestTrue(TEXT("A structure with a fence is current"), Structure->IsStructureCurrent());
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFenceCountsTest,
++    "InfinityStage.Structure.UnderpassFenceCountsFollowTheColumnGaps",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFenceCountsTest::RunTest(const FString& Parameters)
++{
++    struct FCase
++    {
++        int32 Stations;
++        int32 Every;
++        bool bBothSides;
++    };
++    // As the column cases, and one side alone as the control on the side factor.
++    for (const FCase Case : { FCase{ 5, 2, true }, FCase{ 4, 2, true }, FCase{ 6, 3, true }, FCase{ 5, 1, true },
++                              FCase{ 5, 2, false } })
++    {
++        const FString Label = FString::Printf(TEXT("%d stations, columns every %d, %s"),
++            Case.Stations, Case.Every, Case.bBothSides ? TEXT("both sides") : TEXT("one side"));
++        UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, Case.Stations);
++        AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++        ArmFence(*Structure);
++        Structure->Underpass.ColumnEvery = Case.Every;
++        Structure->Underpass.bFenceBothSides = Case.bBothSides;
++        TestTrue(Label + TEXT(": builds"), Structure->MaterializeStructure());
++        const TArray<double> ColumnXs = ColumnCentreX(*Structure);
++        TestEqual(*(Label + TEXT(": the column stations")), ColumnXs.Num(), ExpectedColumnStations(Case.Stations, Case.Every));
++        const int32 Sides = Case.bBothSides ? 2 : 1;
++        const int32 Expected = ExpectedFencePanels(ColumnXs, EngineShapeCm, Sides);
++        TestTrue(Label + TEXT(": fixture, the gaps hold several tiles"), Expected >= 3 * (ColumnXs.Num() - 1) * Sides);
++        TestEqual(*(Label + TEXT(": tiles per gap x sides")), Structure->UnderpassFencePanelCount, Expected);
++        TestEqual(*(Label + TEXT(": the count is the fence layers' instances")), FenceLayerInstances(*Structure), Expected);
++        TestEqual(*(Label + TEXT(": no overlay without an overlay mesh")), Structure->UnderpassFenceOverlayCount, 0);
++        FString Why;
++        const bool bFilled = TilesFillTheGaps(ReadFence(*Structure), ColumnXs, EngineShapeCm, Sides, Why);
++        TestTrue(FString::Printf(TEXT("%s: every gap is tiled edge to edge (%s)"), *Label, *Why), bFilled);
++        int32 PositiveSide = 0;
++        for (const FFenceRead& Panel : ReadFence(*Structure))
++        {
++            PositiveSide += Panel.Box.GetCenter().Y > 0.0 ? 1 : 0;
++        }
++        TestEqual(*(Label + TEXT(": +Y side panels")), PositiveSide, Case.bBothSides ? Expected / 2 : 0);
++        TestTrue(Label + TEXT(": the structure is current"), Structure->IsStructureCurrent());
++        World->DestroyWorld(false);
++    }
++
++    // The census key, appended after the tube lights. The catwalk is off here and
++    // on in every case above, so this line is logged exactly once.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 5);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    Structure->Underpass.bCatwalk = false;
++    TArray<FInfinityStructureStation> Stations;
++    FString Error;
++    Structure->GatherStations(Stations, Error);
++    if (Stations.Num() != 5)
++    {
++        AddError(TEXT("Census: stations did not gather."));
++        World->DestroyWorld(false);
++        return false;
++    }
++    // Column centres at stations 0, 2 and 4, the end ones stepped 70 cm inside.
++    const double EndInsetCm = FMath::Max(Structure->Underpass.PierSizeCm, Structure->Underpass.ColumnDepthCm) * 0.5;
++    const TArray<double> PlannedXs = {
++        Stations[0].StationWorld.GetLocation().X + EndInsetCm,
++        Stations[2].StationWorld.GetLocation().X,
++        Stations[4].StationWorld.GetLocation().X - EndInsetCm };
++    const int32 Planned = ExpectedFencePanels(PlannedXs, EngineShapeCm, 2);
++    AddExpectedMessagePlain(
++        *FString::Printf(TEXT("underpass_catwalks=0 underpass_tubes=0 underpass_tube_lights=0 underpass_fence_panels=%d"), Planned),
++        ELogVerbosity::Display,
++        EAutomationExpectedMessageFlags::Contains,
++        1);
++    TestTrue(TEXT("Census: builds"), Structure->MaterializeStructure());
++    TestEqual(TEXT("Census: the planned count is the built count"), Structure->UnderpassFencePanelCount, Planned);
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFencePlacementTest,
++    "InfinityStage.Structure.UnderpassFencePanelsStandBetweenTheColumns",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFencePlacementTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 5);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    // Off the defaults, so each value is shown to come from its own setting.
++    Underpass.FenceBaseCm = 20.0;
++    Underpass.FenceInsetCm = 90.0;
++    TestTrue(TEXT("Builds"), Structure->MaterializeStructure());
++
++    const double FloorCm = Structure->Ground.FloorHeightCm;
++    const double ColumnLineCm = Structure->GridHalfWidthCm + Underpass.ColumnOutsetCm;
++    const TArray<double> ColumnXs = ColumnCentreX(*Structure);
++    TestEqual(TEXT("Fixture: three column stations"), ColumnXs.Num(), 3);
++
++    const auto CheckPanels = [&](const FString& Label, const double LateralCm, const double HeightCm)
++    {
++        const FInfinityStageUnderpassSettings& Set = Structure->Underpass;
++        const TArray<FFenceRead> Panels = ReadFence(*Structure);
++        const int32 Expected = ExpectedFencePanels(ColumnXs, EngineShapeCm, 2);
++        bool bPlaced = Panels.Num() == Expected && Expected > 0;
++        bool bInward = bPlaced;
++        bool bData = bPlaced;
++        for (const FFenceRead& Panel : Panels)
++        {
++            const FVector Centre = Panel.Box.GetCenter();
++            const FVector Size = Panel.Box.GetSize();
++            bPlaced &= FMath::IsNearlyEqual(Panel.Box.Min.Z, FloorCm + Set.FenceBaseCm, 0.1)
++                && FMath::IsNearlyEqual(Panel.Box.Max.Z, FloorCm + Set.FenceBaseCm + HeightCm, 0.1)
++                && FMath::IsNearlyEqual(FMath::Abs(Centre.Y), LateralCm, 0.1)
++                // The cube's own depth, unscaled.
++                && FMath::IsNearlyEqual(Size.Y, EngineShapeCm, 0.1);
++            // Local +Y faces the route on both sides.
++            bInward &= Panel.Transform.GetUnitAxis(EAxis::Y).Y * FMath::Sign(Centre.Y) < -0.9999
++                && Panel.Transform.GetUnitAxis(EAxis::Z).Z > 0.9999;
++            bData &= Panel.Data[0] >= 0.0f && Panel.Data[0] < 1.0f
++                && FMath::IsNearlyEqual(Panel.Data[1], static_cast<float>(Size.X), 0.01f)
++                && FMath::IsNearlyEqual(Panel.Data[2], static_cast<float>(EngineShapeCm), 0.01f)
++                && FMath::IsNearlyEqual(Panel.Data[3], static_cast<float>(HeightCm), 0.01f);
++        }
++        TestTrue(Label + TEXT(": every tile from base to base + height, on the inset line, at the mesh's own depth"), bPlaced);
++        FString Why;
++        const bool bFilled = TilesFillTheGaps(Panels, ColumnXs, EngineShapeCm, 2, Why);
++        TestTrue(FString::Printf(TEXT("%s: each gap tiled from one column centre to the next (%s)"), *Label, *Why), bFilled);
++        TestTrue(Label + TEXT(": each tile's +Y faces the route, upright"), bInward);
++        TestTrue(Label + TEXT(": custom data is tone 0..1, then length, depth and height"), bData);
++    };
++    // Native: the cube's own 100 cm, whatever the intended height says.
++    CheckPanels(TEXT("Native, inset 90, base 20"), ColumnLineCm - 90.0, EngineShapeCm);
++
++    // Control: no inset puts the tiles on the column line itself, so the inset is
++    // read; Fit builds the intended height instead of the mesh's.
++    Underpass.FenceInsetCm = 0.0;
++    Underpass.FenceBaseCm = 0.0;
++    Underpass.FenceHeightCm = 250.0;
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Fit;
++    TestTrue(TEXT("Builds fitted, with no inset"), Structure->MaterializeStructure());
++    CheckPanels(TEXT("Fit 250, inset 0, base 0"), ColumnLineCm, 250.0);
++    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFenceTilingTest,
++    "InfinityStage.Structure.UnderpassFenceTilesFollowTheGapAndNativeWidth",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFenceTilingTest::RunTest(const FString& Parameters)
++{
++    // Gaps of 1.1 to 10.3 native widths (the cube's 100 cm), a column on each
++    // station. The end gaps lose the 70 cm end inset: 430 each.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnSpacedPassage(*World, { 500.0, 110.0, 160.0, 250.0, 330.0, 1030.0, 500.0 });
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    Underpass.ColumnEvery = 1;
++    TestTrue(TEXT("Builds"), Structure->MaterializeStructure());
++    const TArray<double> ColumnXs = ColumnCentreX(*Structure);
++    TestEqual(TEXT("Fixture: a column on each of the 8 stations"), ColumnXs.Num(), 8);
++
++    const auto CheckScales = [&](const FString& Label, const double ZScale)
++    {
++        const TArray<FFenceRead> Panels = ReadFence(*Structure);
++        TestEqual(*(Label + TEXT(": tiles per gap x sides")), Panels.Num(), ExpectedFencePanels(ColumnXs, EngineShapeCm, 2));
++        FString Why;
++        const bool bFilled = TilesFillTheGaps(Panels, ColumnXs, EngineShapeCm, 2, Why);
++        TestTrue(FString::Printf(TEXT("%s: each gap holds max(1, round(gap / width)) equal tiles (%s)"), *Label, *Why), bFilled);
++        int32 Bounded = 0;
++        for (int32 Gap = 0; Gap + 1 < ColumnXs.Num(); ++Gap)
++        {
++            const double GapCm = ColumnXs[Gap + 1] - ColumnXs[Gap];
++            const double Ratio = GapCm / EngineShapeCm;
++            const double Want = GapCm / (ExpectedTiles(GapCm, EngineShapeCm) * EngineShapeCm);
++            bool bScale = true;
++            for (const FFenceRead& Panel : Panels)
++            {
++                const double X = Panel.Box.GetCenter().X;
++                if (X > ColumnXs[Gap] && X < ColumnXs[Gap + 1])
++                {
++                    const FVector Scale = Panel.Transform.GetScale3D();
++                    bScale &= FMath::IsNearlyEqual(Scale.X, Want, 1.0e-4) && FMath::IsNearlyEqual(Scale.Y, 1.0, 1.0e-4)
++                        && FMath::IsNearlyEqual(Scale.Z, ZScale, 1.0e-4);
++                }
++            }
++            TestTrue(FString::Printf(TEXT("%s: gap %.0f cm, X scale %.3f, depth 1, Z %.3f"), *Label, GapCm, Want, ZScale), bScale);
++            // The rounding rule keeps X within [0.85, 1.2] except for ratios in
++            // (1.2, 1.7) (one tile, stretched) and [2.4, 2.55) (two stretched or
++            // three squeezed): there no whole number of tiles can.
++            const bool bReachable = Ratio >= 1.0 && !(Ratio > 1.2 && Ratio < 1.7) && !(Ratio >= 2.4 && Ratio < 2.55);
++            if (bReachable)
++            {
++                ++Bounded;
++                TestTrue(FString::Printf(TEXT("%s: gap ratio %.2f keeps X scale %.3f within [0.85, 1.2]"), *Label, Ratio, Want),
++                    Want >= 0.85 && Want <= 1.2);
++            }
++            else
++            {
++                AddInfo(FString::Printf(TEXT("%s: gap ratio %.2f has X scale %.3f (outside the reachable band)"), *Label, Ratio, Want));
++            }
++        }
++        TestTrue(FString::Printf(TEXT("%s: fixture, at least five gaps are held to the band (%d)"), *Label, Bounded), Bounded >= 5);
++    };
++    CheckScales(TEXT("Native"), 1.0);
++
++    // Native leaves the mesh's height whatever the intended height, and warns once
++    // per built variant when that is more than 10 % away from it.
++    Underpass.FenceHeightCm = 300.0;
++    AddExpectedMessagePlain(TEXT("INFINITY_STAGE_STRUCTURE_FENCE_HEIGHT_MISMATCH"), ELogVerbosity::Warning,
++        EAutomationExpectedMessageFlags::Contains, FenceVariantTotal);
++    TestTrue(TEXT("Builds native with 300 intended"), Structure->MaterializeStructure());
++    CheckScales(TEXT("Native, 300 intended"), 1.0);
++    // Within 10 %: no warning (one more would break the exact count above).
++    Underpass.FenceHeightCm = 108.0;
++    TestTrue(TEXT("Builds native with 108 intended"), Structure->MaterializeStructure());
++
++    // Control: Fit stretches Z to the intended height (and does not warn), with the
++    // same tiles, so the Native checks above can fail.
++    Underpass.FenceHeightCm = 300.0;
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Fit;
++    TestTrue(TEXT("Builds fitted to 300"), Structure->MaterializeStructure());
++    CheckScales(TEXT("Control, Fit 300"), 3.0);
++    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFenceEndsTest,
++    "InfinityStage.Structure.UnderpassFenceKeepsThePassageEndsClean",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFenceEndsTest::RunTest(const FString& Parameters)
++{
++    // 5 stations end on a column station by the rhythm; 4 get one added at the end.
++    for (const int32 StationTotal : { 5, 4 })
++    {
++        const FString Label = FString::Printf(TEXT("%d stations"), StationTotal);
++        UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, StationTotal);
++        AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++        ArmFence(*Structure);
++        FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++        // Overlays on every variant, so they are held to the ends too.
++        for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++        {
++            FenceVariant(Underpass, Variant).OverlayMesh = FenceVariant(Underpass, Variant).Mesh;
++        }
++        TestTrue(Label + TEXT(": builds"), Structure->MaterializeStructure());
++        const TArray<double> Xs = FixtureStationX(*Structure);
++        if (Xs.Num() != StationTotal)
++        {
++            AddError(Label + TEXT(": stations did not gather."));
++            World->DestroyWorld(false);
++            return false;
++        }
++        const double EndInsetCm = FMath::Max(Underpass.PierSizeCm, Underpass.ColumnDepthCm) * 0.5;
++        TArray<FFenceRead> Pieces = ReadFence(*Structure);
++        const int32 PanelTotal = Pieces.Num();
++        Pieces.Append(ReadFence(*Structure, FenceOverlayTags));
++        TestTrue(Label + TEXT(": panels and as many overlays were built"),
++            PanelTotal > 0 && Pieces.Num() == 2 * PanelTotal && Structure->UnderpassFenceOverlayCount == PanelTotal);
++        double MinX = TNumericLimits<double>::Max();
++        double MaxX = TNumericLimits<double>::Lowest();
++        bool bInside = Pieces.Num() > 0;
++        for (const FFenceRead& Piece : Pieces)
++        {
++            bInside &= Piece.Box.Min.X >= Xs[0] - 0.5 && Piece.Box.Max.X <= Xs.Last() + 0.5;
++            MinX = FMath::Min(MinX, Piece.Box.Min.X);
++            MaxX = FMath::Max(MaxX, Piece.Box.Max.X);
++        }
++        TestTrue(Label + TEXT(": no panel or overlay passes the first or last station"), bInside);
++        // Controls, so the bound above measures a real edge: the fence reaches the
++        // end columns, which stand stepped inside the end stations.
++        TestTrue(FString::Printf(TEXT("%s: the fence starts at the first column (%.2f)"), *Label, MinX - Xs[0]),
++            FMath::IsNearlyEqual(MinX, Xs[0] + EndInsetCm, 0.5));
++        TestTrue(FString::Printf(TEXT("%s: the fence ends at the last column (%.2f)"), *Label, Xs.Last() - MaxX),
++            FMath::IsNearlyEqual(MaxX, Xs.Last() - EndInsetCm, 0.5));
++        const TArray<double> ColumnXs = ColumnCentreX(*Structure);
++        TestTrue(Label + TEXT(": the end columns stand where the fence ends"),
++            ColumnXs.Num() >= 2 && FMath::IsNearlyEqual(ColumnXs[0], MinX, 0.5) && FMath::IsNearlyEqual(ColumnXs.Last(), MaxX, 0.5));
++        World->DestroyWorld(false);
++    }
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFenceVariantsTest,
++    "InfinityStage.Structure.UnderpassFenceVariantsAreSeededAndWeighted",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFenceVariantsTest::RunTest(const FString& Parameters)
++{
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    const TSoftObjectPtr<UStaticMesh> Cylinder(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cylinder.Cylinder")));
++    if (!Cube.LoadSynchronous() || !Cylinder.LoadSynchronous())
++    {
++        AddError(TEXT("Fixture: the engine cube or cylinder does not load."));
++        return false;
++    }
++    TestTrue(TEXT("Fixture: the cylinder is as wide as the cube, so swapping them keeps the tiling"),
++        FMath::IsNearlyEqual(Cylinder.LoadSynchronous()->GetBoundingBox().GetSize().X, EngineShapeCm, 0.01));
++    // 21 stations with a column on each: 20 gaps of several tiles a side.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 21);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    Underpass.ColumnEvery = 1;
++    TestTrue(TEXT("Builds"), Structure->MaterializeStructure());
++    const TMap<FIntPoint, int32> First = FenceChoices(ReadFence(*Structure));
++    const int32 PanelTotal = Structure->UnderpassFencePanelCount;
++    TestTrue(FString::Printf(TEXT("Fixture: %d tiles, at least 150, each in its own place"), PanelTotal),
++        PanelTotal >= 150 && First.Num() == PanelTotal);
++
++    // The same seed chooses the same variant everywhere.
++    TestTrue(TEXT("Rebuilds"), Structure->MaterializeStructure());
++    TestTrue(TEXT("The same seed rebuilds the same choices"), FenceChoices(ReadFence(*Structure)).OrderIndependentCompareEqual(First));
++
++    // Another seed re-rolls the choices and moves nothing. About 0.575 of tiles
++    // change for these weights; 0.3 is far below that and far above zero.
++    Underpass.FenceSeed = 7;
++    TestTrue(TEXT("Builds with seed 7"), Structure->MaterializeStructure());
++    const TMap<FIntPoint, int32> Reseeded = FenceChoices(ReadFence(*Structure));
++    int32 Changed = 0;
++    bool bSamePlaces = Reseeded.Num() == First.Num();
++    for (const TPair<FIntPoint, int32>& Pair : First)
++    {
++        const int32* After = Reseeded.Find(Pair.Key);
++        bSamePlaces &= After != nullptr;
++        Changed += After && *After != Pair.Value ? 1 : 0;
++    }
++    TestTrue(TEXT("Another seed keeps every tile where it was"), bSamePlaces);
++    TestTrue(FString::Printf(TEXT("Another seed re-rolls the choices (%d of %d changed)"), Changed, PanelTotal),
++        Changed >= PanelTotal * 3 / 10);
++    // Neighbouring tiles of one gap draw independently: the gaps are not all one variant each.
++    Underpass.FenceSeed = 0;
++
++    // Changing one variant's mesh re-rolls nothing.
++    Underpass.FenceVariantB.Mesh = Cylinder;
++    TestTrue(TEXT("Builds with variant B on the cylinder"), Structure->MaterializeStructure());
++    TestTrue(TEXT("A new mesh for B keeps every tile's choice"), FenceChoices(ReadFence(*Structure)).OrderIndependentCompareEqual(First));
++    const UInstancedStaticMeshComponent* LayerB = FindLayer(*Structure, FenceVariantTags[1]);
++    TestTrue(TEXT("Control: B's layer now wears the cylinder"), LayerB && LayerB->GetStaticMesh() == Cylinder.LoadSynchronous());
++    Underpass.FenceVariantB.Mesh = Cube;
++
++    // A null variant is skipped, and only the tiles that drew it are re-dealt.
++    Underpass.FenceVariantC.Mesh = nullptr;
++    TestTrue(TEXT("Builds with variant C null"), Structure->MaterializeStructure());
++    const TMap<FIntPoint, int32> Nulled = FenceChoices(ReadFence(*Structure));
++    int32 FormerC = 0;
++    bool bOthersKept = Nulled.Num() == PanelTotal;
++    bool bRedealt = true;
++    for (const TPair<FIntPoint, int32>& Pair : First)
++    {
++        const int32* After = Nulled.Find(Pair.Key);
++        if (Pair.Value == 2)
++        {
++            ++FormerC;
++            bRedealt &= After && *After != 2;
++        }
++        else
++        {
++            bOthersKept &= After && *After == Pair.Value;
++        }
++    }
++    TestTrue(TEXT("C null: no C layer and the count unchanged"),
++        FindLayer(*Structure, FenceVariantTags[2]) == nullptr && Structure->UnderpassFencePanelCount == PanelTotal);
++    TestTrue(TEXT("C null: every tile that did not draw C keeps its variant"), bOthersKept);
++    TestTrue(FString::Printf(TEXT("C null: C's %d tiles went to the other variants"), FormerC), bRedealt && FormerC > 0);
++    TestTrue(TEXT("Rebuilds with C null"), Structure->MaterializeStructure());
++    TestTrue(TEXT("C null: the re-deal is deterministic"), FenceChoices(ReadFence(*Structure)).OrderIndependentCompareEqual(Nulled));
++
++    // The mix over thousands of tiles, the full kit and with C null: each share
++    // within 4.5 standard deviations of its weight's share (of the built weights).
++    constexpr int32 Seeds = 12;
++    int32 Full[FenceVariantTotal] = {};
++    int32 WithoutC[FenceVariantTotal] = {};
++    bool bAllBuilt = true;
++    for (int32 Seed = 0; Seed < Seeds; ++Seed)
++    {
++        Underpass.FenceSeed = 1000 + Seed;
++        Underpass.FenceVariantC.Mesh = Cube;
++        bAllBuilt &= Structure->MaterializeStructure();
++        for (const FFenceRead& Panel : ReadFence(*Structure))
++        {
++            ++Full[Panel.Variant];
++        }
++        Underpass.FenceVariantC.Mesh = nullptr;
++        bAllBuilt &= Structure->MaterializeStructure();
++        for (const FFenceRead& Panel : ReadFence(*Structure))
++        {
++            ++WithoutC[Panel.Variant];
++        }
++    }
++    TestTrue(TEXT("Every seeded build succeeded"), bAllBuilt);
++    const double Weights[FenceVariantTotal] = { 0.6, 0.2, 0.15, 0.05 };
++    const double Samples = static_cast<double>(Seeds * PanelTotal);
++    TestEqual(TEXT("Control: every full build was counted"), Full[0] + Full[1] + Full[2] + Full[3], Seeds * PanelTotal);
++    TestEqual(TEXT("Control: every C-null build was counted"),
++        WithoutC[0] + WithoutC[1] + WithoutC[2] + WithoutC[3], Seeds * PanelTotal);
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        const double Want = Weights[Variant];
++        const double Share = Full[Variant] / Samples;
++        const double Tolerance = 4.5 * FMath::Sqrt(Want * (1.0 - Want) / Samples);
++        TestTrue(FString::Printf(TEXT("Full kit: %s's share %.3f is within %.3f of %.3f"),
++            FenceVariantTags[Variant], Share, Tolerance, Want), FMath::Abs(Share - Want) <= Tolerance);
++        const double WantNull = Variant == 2 ? 0.0 : Want / (1.0 - Weights[2]);
++        const double ShareNull = WithoutC[Variant] / Samples;
++        const double ToleranceNull = Variant == 2 ? 0.0 : 4.5 * FMath::Sqrt(WantNull * (1.0 - WantNull) / Samples);
++        TestTrue(FString::Printf(TEXT("C null: %s's share %.3f is within %.3f of %.3f"),
++            FenceVariantTags[Variant], ShareNull, ToleranceNull, WantNull), FMath::Abs(ShareNull - WantNull) <= ToleranceNull + 1.0e-12);
++    }
++    // Control: the two mixes are told apart, so the share checks can fail.
++    TestTrue(TEXT("Control: A's share with C null differs from the full kit's by more than the tolerance"),
++        FMath::Abs(0.6 / 0.85 - 0.6) > 4.5 * FMath::Sqrt(0.6 * 0.4 / Samples));
++
++    // Every variant null: no fence, and no error.
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).Mesh = nullptr;
++    }
++    TestTrue(TEXT("Builds with every variant null"), Structure->MaterializeStructure());
++    TestTrue(TEXT("Every variant null: no tile"),
++        Structure->UnderpassFencePanelCount == 0 && FindLayer(*Structure, FenceTag) == nullptr);
++    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageUnderpassFenceMaterialsTest,
++    "InfinityStage.Structure.UnderpassFenceVariantsWearTheirOwnMaterials",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageUnderpassFenceMaterialsTest::RunTest(const FString& Parameters)
++{
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    const TSoftObjectPtr<UStaticMesh> Cylinder(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cylinder.Cylinder")));
++    // Five distinct surface materials, none the cube's own (WorldGridMaterial here).
++    const TSoftObjectPtr<UMaterialInterface> Paints[] = {
++        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial"))),
++        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/M_SimpleOpaque.M_SimpleOpaque"))),
++        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/DebugMeshMaterial.DebugMeshMaterial"))),
++        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/TangentColorMaterial.TangentColorMaterial"))),
++        TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/EngineDebugMaterials/LevelColorationLitMaterial.LevelColorationLitMaterial"))),
++    };
++    constexpr int32 PaintTotal = UE_ARRAY_COUNT(Paints);
++    if (!Cube.LoadSynchronous() || !Cylinder.LoadSynchronous())
++    {
++        AddError(TEXT("Fixture: the engine cube or cylinder does not load."));
++        return false;
++    }
++    for (int32 Index = 0; Index < PaintTotal; ++Index)
++    {
++        if (!Paints[Index].LoadSynchronous())
++        {
++            AddError(FString::Printf(TEXT("Fixture: material %s does not load."), *Paints[Index].ToSoftObjectPath().ToString()));
++            return false;
++        }
++        TestTrue(TEXT("Fixture: no test material is the cube's or the cylinder's own"),
++            Cube.LoadSynchronous()->GetMaterial(0) != Paints[Index].LoadSynchronous()
++            && Cylinder.LoadSynchronous()->GetMaterial(0) != Paints[Index].LoadSynchronous());
++        for (int32 Other = Index + 1; Other < PaintTotal; ++Other)
++        {
++            TestTrue(TEXT("Fixture: the test materials are distinct"),
++                Paints[Index].LoadSynchronous() != Paints[Other].LoadSynchronous());
++        }
++    }
++
++    // 11 stations, a column on each: dozens of tiles at equal weights, so every
++    // variant is drawn.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 11);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    Underpass.ColumnEvery = 1;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).Weight = 0.25;
++        FenceVariant(Underpass, Variant).Material = Paints[Variant];
++    }
++    // D on its own mesh, and A with an overlay in a fifth material.
++    Underpass.FenceVariantD.Mesh = Cylinder;
++    Underpass.FenceVariantA.OverlayMesh = Cylinder;
++    Underpass.FenceVariantA.OverlayMaterial = Paints[4];
++    TestTrue(TEXT("Builds"), Structure->MaterializeStructure());
++
++    const auto CheckLayers = [&](const FString& Label, const bool bShadow, const bool bPainted)
++    {
++        for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++        {
++            const UInstancedStaticMeshComponent* Layer = FindLayer(*Structure, FenceVariantTags[Variant]);
++            if (!Layer)
++            {
++                AddError(FString::Printf(TEXT("%s: fixture, no tile drew %s."), *Label, FenceVariantTags[Variant]));
++                continue;
++            }
++            const UStaticMesh* Mesh = (Variant == 3 ? Cylinder : Cube).LoadSynchronous();
++            const UMaterialInterface* Expected = bPainted || Variant != 0 ? Paints[Variant].LoadSynchronous() : Mesh->GetMaterial(0);
++            TestTrue(FString::Printf(TEXT("%s: %s wears its own material"), *Label, FenceVariantTags[Variant]),
++                Layer->GetMaterial(0) == Expected);
++            TestTrue(FString::Printf(TEXT("%s: %s is built from its own mesh"), *Label, FenceVariantTags[Variant]),
++                Layer->GetStaticMesh() == Mesh);
++            TestTrue(FString::Printf(TEXT("%s: %s casts shadow as set"), *Label, FenceVariantTags[Variant]),
++                static_cast<bool>(Layer->CastShadow) == bShadow);
++            TestTrue(FString::Printf(TEXT("%s: %s carries the fence tag"), *Label, FenceVariantTags[Variant]),
++                Layer->ComponentTags.Contains(FName(FenceTag)));
++        }
++        const UInstancedStaticMeshComponent* PanelsA = FindLayer(*Structure, FenceVariantTags[0]);
++        const UInstancedStaticMeshComponent* OverlayA = FindLayer(*Structure, FenceOverlayTags[0]);
++        bool bRides = PanelsA && OverlayA && OverlayA->GetInstanceCount() == PanelsA->GetInstanceCount();
++        if (bRides)
++        {
++            const TArray<FTransform> Under = ReadInstances(*PanelsA);
++            const TArray<FTransform> Over = ReadInstances(*OverlayA);
++            for (int32 Index = 0; bRides && Index < Under.Num(); ++Index)
++            {
++                bRides = Over[Index].Equals(Under[Index], 1.0e-4);
++            }
++        }
++        TestTrue(Label + TEXT(": A's overlay rides A's tiles, transform for transform"), bRides);
++        TestTrue(Label + TEXT(": the overlay count is A's tiles"),
++            PanelsA && Structure->UnderpassFenceOverlayCount == PanelsA->GetInstanceCount());
++        TestTrue(Label + TEXT(": the overlay wears its own material and mesh, and casts as set"),
++            OverlayA && OverlayA->GetMaterial(0) == Paints[4].LoadSynchronous()
++            && OverlayA->GetStaticMesh() == Cylinder.LoadSynchronous() && static_cast<bool>(OverlayA->CastShadow) == bShadow);
++        bool bNoOtherOverlay = true;
++        for (int32 Variant = 1; Variant < FenceVariantTotal; ++Variant)
++        {
++            bNoOtherOverlay &= FindLayer(*Structure, FenceOverlayTags[Variant]) == nullptr;
++        }
++        TestTrue(Label + TEXT(": no overlay where none is set"), bNoOtherOverlay);
++    };
++    TestTrue(TEXT("The fence casts shadow by default"), Underpass.bFenceCastShadow);
++    CheckLayers(TEXT("Painted"), true, true);
++
++    // Control: no shadow and no material for A read back as set, so each value
++    // comes from its own setting.
++    Underpass.bFenceCastShadow = false;
++    Underpass.FenceVariantA.Material = nullptr;
++    TestTrue(TEXT("Builds without shadows, A unpainted"), Structure->MaterializeStructure());
++    CheckLayers(TEXT("Control, no shadow, A unpainted"), false, false);
++    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
++
++    World->DestroyWorld(false);
++    return true;
++}
++
+ #endif
