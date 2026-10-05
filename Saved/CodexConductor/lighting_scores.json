@@ -1719,13 +1719,6 @@
      "label_suffix": " Blink Spot",
      "expected_count": 1,
      "why": "P06 Wing 044 timber-gobo blink: the rare cold flicker inside the failure (talk prep P06 item 3)"
-    },
-    {
-     "bay": 64,
-     "label_suffix": " Candle Light",
-     "expected_count": 1,
-     "owner": "fx_candle_s6 (FX TEST - S6 Candle, 3 Oct; fx_candle_s6_record.json)",
-     "why": "5 Oct conductor: the void bay's candle effect drives this linked light; the score must not snuff Gary's candle test. Its fate is Gary's call (P06: 'only darkness but the curtain's already on the ground on fire')"
     }
    ],
    "yield_to_events": {
@@ -1916,7 +1909,7 @@
      ]
     }
    ],
-   "rescore_note": "5 Oct conductor (overnight, Gary's 'apply lighting all' + recorded P06 rescore item): 55 -> 64 bays for W&T's interleave; same shape - grand 1-12 (2-10 yield to black mode), FAILING generator stretched 13-63 (fractions unchanged), VOID 64; label guard admits the 'P06 OLD nn - ...' cues. Backup lighting_scores.json.bak-20261005-preP06rescore"
+   "rescore_note": "5 Oct conductor (overnight, Gary's 'apply lighting all' + recorded P06 rescore item): 55 -> 64 bays for W&T's interleave; same shape - grand 1-12 (2-10 yield to black mode), FAILING generator stretched 13-63 (fractions unchanged), VOID 64; label guard admits the 'P06 OLD nn - ...' cues. Backup lighting_scores.json.bak-20261005-preP06rescore | 5 Oct ~08:12 Gary: 'lose the candle' -> fx_candle_s6 REVERTED; candle retain rule removed."
   }
  }
 }

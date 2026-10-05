@@ -93,9 +93,6 @@ def bay_attachments(passage, ordinal, cue_label, cue_guid):
             rows.append(light(cue_label, "Rig Slash", True, cue_guid=cue_guid))
         if ordinal in (3, 6, 9, 12, 15, 21):
             rows.append(light(cue_label, "Rig Back", True, cue_guid=cue_guid))
-    if passage == "P06" and ordinal == PAIRS["P06"]:  # the void bay carries the S6 candle FX test's linked light
-        rows.append({"guid": guid(cue_guid, "candle"), "label": "FX TEST - S6 Candle Light", "kind": "Light",
-                     "enabled": True, "lighting": {"cast_shadows": False}})
     blink = {"P02": [19], "P03": [17], "P04": [17], "P05": [7, 8], "P06": [44]}.get(passage, [])
     if ordinal in blink:
         rows.append(light(cue_label, "Blink Spot", True, cue_guid=cue_guid))
@@ -382,7 +379,6 @@ l6["segments"][1]["bays"] = [13, 54]
 l6["segments"][2]["bays"] = [55, 55]
 l6["max_consecutive_lit_exempt"] = [[13, 55]]
 l6["monotone_dark_segment"] = [13, 55]
-l6["retain"] = [r for r in l6["retain"] if r.get("label_suffix") != " Candle Light"]
 saved_pairs = dict(PAIRS)
 PAIRS["P06"] = 55
 try:
