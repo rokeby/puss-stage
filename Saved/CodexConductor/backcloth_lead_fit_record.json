@@ -1,0 +1,104 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreBackclothLeadFit-BLF-20261006-015230",
+ "binding_guid": "3775D9A84FD0EAB3659ED2B7F2123112",
+ "decided_by": "Gary 6 Oct ~02:00 (his session): 'P04, restore back curtain fall to 5s, always'",
+ "engine_readback": {
+  "at_release": 1.0,
+  "held": 0.9666666388511658
+ },
+ "plan": {
+  "approach_sign": -1.0,
+  "cache": {
+   "bake_id": "final11_backcloth_p04_a06",
+   "duration_s": 11.000000953674316,
+   "hang_aabb_cm": {
+    "x": [
+     -39.4,
+     38.3
+    ],
+    "y": [
+     -500.0,
+     500.0
+    ],
+    "z": [
+     20.0,
+     1220.0
+    ]
+   },
+   "held_sample": 479,
+   "release_in_cache_s": 1.0
+  },
+  "camera_cross_scene_s": -1.9992351122727943,
+  "delta_s": -1.125375,
+  "digest": "58d5f709c264e1c2d6e1",
+  "lateral_at_cross_cm": 0.0,
+  "lead_new_s": 5.000014997081861,
+  "lead_now_s": 3.874639997081861,
+  "lead_s": 5.0,
+  "params": {
+   "lead_s": 5.0,
+   "lens_clear_cm": 0.0,
+   "max_rise_gap_s": 1.0,
+   "min_lead_s": 2.7,
+   "noop_tol_s": 0.016666666666666666,
+   "sample_step_s": 0.05,
+   "span_s": 24.0
+  },
+  "passage_len_s": 50.4,
+  "release_new_scene_s": -6.999250109354655,
+  "release_now_scene_s": -5.873875109354655,
+  "rise_start_scene_s": -5.866666666666666,
+  "section_after": {
+   "completion": "<MovieSceneCompletionMode.KEEP_STATE: 0>",
+   "end_offset_ticks": 0,
+   "end_s": 3.000791820526123,
+   "offset_s": 0.9666666666666667,
+   "offset_ticks": 23200,
+   "start_s": -7.032583442687988,
+   "tick_rate": 24000.0
+  },
+  "section_before": {
+   "completion": "<MovieSceneCompletionMode.KEEP_STATE: 0>",
+   "end_offset_ticks": 0,
+   "end_s": 4.126166820526123,
+   "offset_s": 0.9666666666666667,
+   "offset_ticks": 23200,
+   "start_s": -5.907208442687988,
+   "tick_rate": 24000.0
+  }
+ },
+ "rise": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+ "run": "BLF-20261006-015230",
+ "section_after": {
+  "completion": "<MovieSceneCompletionMode.KEEP_STATE: 0>",
+  "end_offset_ticks": 0,
+  "end_s": 3.000791820526123,
+  "offset_s": 0.9666666666666667,
+  "offset_ticks": 23200,
+  "start_s": -7.032583442687988,
+  "tick_rate": 24000.0
+ },
+ "section_before": {
+  "completion": "<MovieSceneCompletionMode.KEEP_STATE: 0>",
+  "end_offset_ticks": 0,
+  "end_s": 4.126166820526123,
+  "offset_s": 0.9666666666666667,
+  "offset_ticks": 23200,
+  "start_s": -5.907208442687988,
+  "tick_rate": 24000.0
+ },
+ "section_live_after": {
+  "completion": "<MovieSceneCompletionMode.KEEP_STATE: 0>",
+  "end_offset_ticks": 0,
+  "end_s": 3.00083327293396,
+  "offset_s": 0.9666666666666667,
+  "offset_ticks": 23200,
+  "start_s": -7.032583236694336,
+  "tick_rate": 24000.0
+ },
+ "warnings": [
+  "RELEASE_VS_RISE: the cloth releases 1.13 s before the hangar starts rising (30 Sep rule: rise starts at the release); the rise is NOT moved by this tool (look call)"
+ ],
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}

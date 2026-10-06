@@ -1,0 +1,157 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+index 7dfeb18..4cdff85 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+@@ -142,10 +142,14 @@ const TCHAR* KindLabel(const EInfinityCueType Type)
+ 
+ FString FormatClock(const double Seconds)
+ {
+-    const double Clamped = FMath::Max(0.0, Seconds);
+-    const int32 Minutes = FMath::FloorToInt32(Clamped / 60.0);
+-    const double Rest = Clamped - Minutes * 60.0;
+-    return FString::Printf(TEXT("%d:%04.1f"), Minutes, FMath::FloorToDouble(Rest * 10.0) / 10.0);
++    // Whole tenths first, then integer arithmetic. Subtracting the minutes in
++    // floating point turned 62.3 s into 2.2999999 s, which truncated to "1:02.2"
++    // (suite 6 Oct, DirectorHud.PureRules). The epsilon absorbs representation
++    // error only; the clock still truncates, never shows a tenth not yet reached.
++    const int64 Tenths = FMath::FloorToInt64(FMath::Max(0.0, Seconds) * 10.0 + 1.0e-6);
++    const int64 Minutes = Tenths / 600;
++    const int64 RestTenths = Tenths % 600;
++    return FString::Printf(TEXT("%lld:%02lld.%lld"), Minutes, RestTenths / 10, RestTenths % 10);
+ }
+ 
+ FString ShotAtFrame(const TArray<FInfinityHudShotSpan>& Spans, const FFrameNumber Frame)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
+index 3d83c4a..81fad89 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
+@@ -160,30 +160,26 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
+         return nullptr;
+     };
+ 
+-    // Editor-type world: nothing is driven (the authored look is kept, no level write).
+-    {
+-        UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+-        AInfinityStagePassageActor* Passage = Preview->SpawnActor<AInfinityStagePassageActor>();
+-        Passage->ShowAsset = Show;
+-        Passage->MaterializePassage();
+-        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
+-        AActor* Body = FindBody(*Passage, GlassGuid);
+-        TestNotNull(TEXT("Preview: the glass is placed"), Body);
+-        TestEqual(TEXT("Preview: the glass is never driven"), Passage->GetBulbBodyLevelForTests(Body), -1.0f);
+-        Preview->DestroyWorld(false);
+-    }
+-
+-    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    // MaterializePassage refuses game worlds by design ("editor authoring only";
++    // PassageActor.cpp:716-718): stage content is built in the editor and PIE gets
++    // a copy. So build in an editor-type world, check nothing is driven there, then
++    // retype the same world as Game - what PIE's duplicate is - and evaluate.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+     AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
+     Passage->ShowAsset = Show;
+     Passage->MaterializePassage();
+     AActor* Body = FindBody(*Passage, GlassGuid);
+     AActor* PlainBody = FindBody(*Passage, PlainGuid);
+-    if (!TestNotNull(TEXT("Game: the glass is placed"), Body) || !TestNotNull(TEXT("Game: the plain prop is placed"), PlainBody))
++    if (!TestNotNull(TEXT("The glass is placed"), Body) || !TestNotNull(TEXT("The plain prop is placed"), PlainBody))
+     {
+         World->DestroyWorld(false);
+         return false;
+     }
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
++    TestEqual(TEXT("Editor world: the glass is never driven"), Passage->GetBulbBodyLevelForTests(Body), -1.0f);
++
++    World->WorldType = EWorldType::Game;
++    TestTrue(TEXT("Fixture: the world now reads as a game world"), World->IsGameWorld());
+     TestTrue(TEXT("The glass is a static mesh prop"), Body->IsA<AStaticMeshActor>());
+ 
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
+@@ -203,6 +199,7 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
+     AActor* LampActor = FindBody(*Passage, Show->Cues[1].WingPair.Attachments[0].AttachmentGuid);
+     const ULightComponent* Light = LampActor ? LampActor->FindComponentByClass<ULightComponent>() : nullptr;
+     TestTrue(TEXT("Fail + drives light: the lamp is switched off with its glass"), Light && !Light->IsVisible());
++    World->WorldType = EWorldType::EditorPreview;
+     World->DestroyWorld(false);
+     return true;
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
+index 4034497..de4cde9 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
+@@ -101,6 +101,10 @@ bool FInfinityStageDirectorHudPureTest::RunTest(const FString& Parameters)
+     TestEqual(TEXT("Clock 0"), FormatClock(0.0), FString(TEXT("0:00.0")));
+     TestEqual(TEXT("Clock 83.46 s"), FormatClock(83.46), FString(TEXT("1:23.4")));
+     TestEqual(TEXT("Clock clamps negatives"), FormatClock(-4.0), FString(TEXT("0:00.0")));
++    // Regression (suite 6 Oct): 62.3 - 60 in floating point is 2.2999..., which truncated to 1:02.2.
++    TestEqual(TEXT("Clock 62.3 s is 1:02.3, not 1:02.2"), FormatClock(62.3), FString(TEXT("1:02.3")));
++    TestEqual(TEXT("Clock still truncates: 62.39 s is 1:02.3"), FormatClock(62.39), FString(TEXT("1:02.3")));
++    TestEqual(TEXT("Clock past an hour"), FormatClock(3725.0), FString(TEXT("62:05.0")));
+ 
+     TArray<FInfinityHudShotSpan> Spans;
+     Spans.Add({FFrameNumber(0), FFrameNumber(100), TEXT("LS_A")});
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp
+index 9d85a6b..03ded7e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp
+@@ -140,20 +140,11 @@ bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
+         return nullptr;
+     };
+ 
+-    {
+-        UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+-        AInfinityStagePassageActor* Passage = Preview->SpawnActor<AInfinityStagePassageActor>();
+-        Passage->ShowAsset = Show;
+-        Passage->MaterializePassage();
+-        AActor* Actor = FindLamp(*Passage);
+-        const FQuat Before = Actor ? Actor->GetActorQuat() : FQuat::Identity;
+-        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
+-        TestTrue(TEXT("Editor world: the lamp keeps its authored aim (no level write)"),
+-            Actor && Actor->GetActorQuat().Equals(Before, 1.0e-6));
+-        Preview->DestroyWorld(false);
+-    }
+-
+-    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    // MaterializePassage refuses game worlds by design ("editor authoring only";
++    // PassageActor.cpp:716-718); PIE plays a copy of editor-built content. So build
++    // in an editor-type world, check nothing moves there, then retype the same world
++    // as Game to evaluate - and back to editor to re-materialize.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+     AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
+     Passage->ShowAsset = Show;
+     Passage->MaterializePassage();
+@@ -163,6 +154,13 @@ bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
+         World->DestroyWorld(false);
+         return false;
+     }
++    const FQuat Before = Actor->GetActorQuat();
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
++    TestTrue(TEXT("Editor world: the lamp keeps its authored aim (no level write)"),
++        Actor->GetActorQuat().Equals(Before, 1.0e-6));
++
++    World->WorldType = EWorldType::Game;
++    TestTrue(TEXT("Fixture: the world now reads as a game world"), World->IsGameWorld());
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
+     const FQuat Authored = Actor->GetActorQuat();
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
+@@ -171,15 +169,19 @@ bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
+     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
+     TestTrue(TEXT("Back before the approach (a rewind): exactly the authored aim again"),
+         Actor->GetActorQuat().Equals(Authored, 1.0e-5));
+-    // Re-materialize: the mover is Show data, so it is still there.
++    // Re-materialize (in the editor, where materializing happens): the mover is
++    // Show data, so the new lamp actor moves the same way in game.
++    World->WorldType = EWorldType::EditorPreview;
+     Passage->MaterializePassage();
+     AActor* Again = FindLamp(*Passage);
+     TestNotNull(TEXT("Survives re-materialize"), Again);
++    World->WorldType = EWorldType::Game;
+     if (Again)
+     {
+         Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
+         TestTrue(TEXT("...and moves the same way"), Again->GetActorQuat().Equals(Wild, 1.0e-4));
+     }
++    World->WorldType = EWorldType::EditorPreview;
+     World->DestroyWorld(false);
+     return true;
+ }
