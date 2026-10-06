@@ -63,8 +63,11 @@ SCORES_PATH = os.path.join(HERE, "lighting_scores.json")
 P04_TOOL_PATH = os.path.join(HERE, "lighting_looks_apply.py")
 VALID_MODES = ("DRY", "APPLY", "REVERT")
 PASSAGE_KEY = re.compile(r"^P0[1-6]$")
-VALID_ROLES = ("TOP", "LOW_SIDE", "BEAM", "PRACTICAL")
-ROLE_MAX = {"TOP": 2, "LOW_SIDE": 2, "BEAM": 1, "PRACTICAL": 2}
+VALID_ROLES = ("TOP", "LOW_SIDE", "BEAM", "PRACTICAL", "FILL", "UPLIGHT", "MOVER")
+# 6 Oct round 2: PRACTICAL 2 -> 4 (P04 floor + hanging bulbs, P06 embers); FILL = soft fence-facing
+# spots (P05 sky-curtain fills); UPLIGHT = small floor spots up a wing (P05 mountain pieces, P04 wing texture);
+# MOVER = P05 club movers (C++ pending: data only, skipped with a warning, see requires_cpp).
+ROLE_MAX = {"TOP": 2, "LOW_SIDE": 2, "BEAM": 1, "PRACTICAL": 4, "FILL": 2, "UPLIGHT": 2, "MOVER": 2}
 AFTER_PASS = ("HOLD", "DECAY", "EXTINGUISH")
 SHADOW_POLICIES = ("ALL", "ALTERNATE_LIT", "NONE")
 UNITS = ("CANDELAS", "LUMENS")
@@ -81,6 +84,16 @@ VARIANT_FIELDS = {
     # something that is not a side wing panel (the P04 ceiling border). The rotation is
     # computed offline from it (bay_fixtures) and _apply_live_aims leaves it alone.
     "aim_target_pair_cm",
+    # 6 Oct round 2 (Gary note 59):
+    #  keying       per-lamp strike-on-approach keys (DRAMA_KEYS), merged over the bay's distance keying, so ONE
+    #               lamp can strike N bays ahead (P01 bay-20 beams seen in the distance) while the rest of the
+    #               bay keeps the default 650 cm.
+    #  drama        per-lamp FInfinityStageLightDrama slow-move keys (SLOW_MOVE_KEYS), written by the P04
+    #               tool's _make_light (DRAMA_OVERRIDE_FIELDS, lighting_looks_apply.py:421-426).
+    #  dim_tint     ORANGE | WHITE | PINK: the colour a dead bulb glows at when the dim_bulbs policy revives it.
+    #  body_mode    STABLE | SLIGHT | FAIL: the bulb-glass behaviour the C++ agent is adding (no-op until then).
+    #  requires_cpp a lamp that needs C++ not yet built (P05 movers): validated, then SKIPPED with a warning.
+    "keying", "drama", "dim_tint", "body_mode", "requires_cpp",
 }
 # NO-CROSS-SHOT rule (Gary 5 Oct, P02: "those lights should not shoot through from
 # L to R"). Enabled per passage by passages.<P>.no_cross_shots (true or a dict).
@@ -91,7 +104,12 @@ BAY_OVERRIDE_FIELDS = {
     "intensity", "color_rgb_linear", "temperature_kelvin", "volumetric_scattering",
     "inner_cone_deg", "outer_cone_deg", "attenuation_cm", "location_cm",
     "aim_wing_side", "aim_offset_pair_cm", "flicker",
+    "keying", "drama", "dim_tint", "body_mode",  # 6 Oct round 2, see VARIANT_FIELDS
 }
+SLOW_MOVE_KEYS = {"slow_move", "pan_amplitude_degrees", "tilt_amplitude_degrees", "period_seconds",
+                  "phase_from_identity", "phase_cycles"}
+BODY_BEHAVIOURS = ("STABLE", "SLIGHT", "FAIL")
+DIM_TINTS = ("ORANGE", "WHITE", "PINK")
 DRAMA_KEYS = {
     "strike_distance_cm", "ramp_distance_cm", "unstruck_intensity_scale", "after_pass",
     "ignition_stutter", "after_pass_distance_cm", "decay_distance_cm",
@@ -317,6 +335,14 @@ def derive_variant(name, variant, base_looks):
         instruments.append(_apply_instrument_overrides(
             row, overrides.get(row["slot"], {}), VARIANT_FIELDS,
             "variant=%s|slot=%s" % (name, row["slot"])))
+    # 6 Oct round 2: a variant may ADD whole instruments (P04 hanging bulbs, P05 fills/movers, P06 embers).
+    # Each is a full row, validated like a base row; its slot may not shadow a base slot.
+    for row in variant.get("add_instruments", []):
+        require(isinstance(row, dict) and row.get("slot") and row["slot"] not in slots
+                and set(row) - {"slot", "role", "type", "transform", "intensity_units", "rect_source_width_cm",
+                                "rect_source_height_cm"} <= VARIANT_FIELDS | {"note"},
+                "VARIANT_ADD_BAD|variant=%s|slot=%s" % (name, row.get("slot") if isinstance(row, dict) else row))
+        instruments.append(copy.deepcopy(row))
     return {"intent": variant.get("intent", ""), "base": variant["base"], "instruments": instruments}
 
 
@@ -392,6 +418,33 @@ def validate_instrument(row, where):
         offset = row.get("aim_offset_pair_cm")
         require(isinstance(offset, list) and len(offset) == 3
                 and all(math.isfinite(float(v)) for v in offset), "WING_AIM_OFFSET_BAD|" + where)
+    keying = row.get("keying")
+    if keying is not None:
+        require(isinstance(keying, dict) and keying, "LAMP_KEYING_BAD|" + where)
+        _check_drama(keying, "lamp|" + where)
+    drama = row.get("drama")
+    if drama is not None:
+        require(isinstance(drama, dict) and set(drama) <= SLOW_MOVE_KEYS and row["type"] == "SPOT",
+                "LAMP_DRAMA_BAD|" + where)
+        if "slow_move" in drama:
+            require(isinstance(drama["slow_move"], bool), "LAMP_DRAMA_BAD|" + where)
+        if "phase_from_identity" in drama:
+            require(isinstance(drama["phase_from_identity"], bool), "LAMP_DRAMA_BAD|" + where)
+        for key in ("pan_amplitude_degrees", "tilt_amplitude_degrees"):
+            if key in drama:
+                require(0.0 <= _finite(drama[key], key) <= 45.0, "LAMP_DRAMA_RANGE|%s|%s" % (key, where))
+        if "period_seconds" in drama:
+            require(_finite(drama["period_seconds"], "PERIOD") >= 1.0, "LAMP_DRAMA_RANGE|period|" + where)
+        if "phase_cycles" in drama:
+            require(0.0 <= _finite(drama["phase_cycles"], "PHASE") <= 1.0, "LAMP_DRAMA_RANGE|phase|" + where)
+    require(row.get("dim_tint") in (None,) + DIM_TINTS, "DIM_TINT_BAD|" + where)
+    require(row.get("body_mode") in (None,) + BODY_BEHAVIOURS and (row.get("body_mode") is None or role == "PRACTICAL"),
+            "BODY_MODE_BAD|" + where)
+    if row.get("requires_cpp") is not None:
+        require(isinstance(row["requires_cpp"], str) and row["requires_cpp"].strip() and role == "MOVER",
+                "REQUIRES_CPP_BAD|" + where)
+    if role == "MOVER":
+        require(row.get("requires_cpp"), "MOVER_WITHOUT_CPP_GATE|" + where)
     if role == "PRACTICAL":
         visible = row.get("visible_mesh", {})
         require(str(visible.get("mesh", "")).startswith(("/Game/", "/Engine/")),
@@ -544,13 +597,132 @@ def bay_fixtures(tool, scores, looks, passage_key, spec):
         "instrument_overrides": copy.deepcopy(spec["overrides"]),
     }
     fixtures = tool.expand_bay(config, bay_row)
+    spec["cpp_pending"] = _drop_cpp_pending(fixtures, where)
+    _apply_lamp_keying(fixtures)
+    _apply_dim_bulbs(scores, passage_key, spec["ordinal"], fixtures)
     _mirror_explicit_aims(fixtures, spec)
     _apply_fixed_aim_points(tool, fixtures, spec)
     _resolve_lamp_bodies(fixtures, where)
+    _add_bulb_caps(scores, fixtures)
+    _assign_body_behaviours(scores, passage_key, spec["ordinal"], fixtures)
     for row in fixtures:
         if row["authored_kind"] == "LIGHT":
             validate_instrument(row, "%s|look=%s|slot=%s" % (where, look_name, row["slot"]))
     return fixtures
+
+
+# --------------------------------------------------------------------------
+# 6 Oct round 2 (Gary note 59) fixture passes. Each is a no-op unless its data is present
+# (per-lamp keying / requires_cpp rows, scores["dim_bulbs"], scores["bulb_caps"],
+# scores["bulb_body_behaviours"]), so a score without them expands exactly as before.
+# --------------------------------------------------------------------------
+def _drop_cpp_pending(fixtures, where):
+    """Lamps that need C++ not yet built (P05 movers): validated as data, then removed from the
+    bay with a warning row, so APPLY never authors a half-working lamp."""
+    pending = []
+    for row in list(fixtures):
+        if row.get("authored_kind") == "LIGHT" and row.get("requires_cpp"):
+            validate_instrument(row, where + "|slot=" + row["slot"])
+            pending.append({"slot": row["slot"], "label": row["label"], "role": row["role"],
+                            "requires_cpp": row["requires_cpp"],
+                            "warning": "SKIPPED_PENDING_CPP|%s|slot=%s|needs=%s" % (where, row["slot"], row["requires_cpp"])})
+            fixtures.remove(row)
+    return pending
+
+
+def _apply_lamp_keying(fixtures):
+    """Per-lamp strike keys over the bay's distance keying (VARIANT_FIELDS 'keying')."""
+    for row in fixtures:
+        if row.get("authored_kind") == "LIGHT" and row.get("keying"):
+            row["distance_keying"].update(copy.deepcopy(row["keying"]))
+
+
+def _stable_unit(*parts):
+    """Deterministic [0,1) from text (sha1): no random stream, so no draw-order re-rolls across runs."""
+    return int(hashlib.sha1("|".join(str(p) for p in parts).encode()).hexdigest()[:8], 16) / float(16 ** 8)
+
+
+def _apply_dim_bulbs(scores, passage_key, ordinal, fixtures):
+    """Every PRACTICAL lamp left at 0 becomes a DIM bulb: a tiny real point light in orange, white or pink and,
+    on a Sphere bulb body, a low-glowing glass body (mode DIM). Gary 6 Oct ~00:30."""
+    policy = scores.get("dim_bulbs")
+    if not policy or not policy.get("enabled"):
+        return
+    tints = policy["tints"]
+    choices = policy["passage_tints"][passage_key]
+    bodies = {row["paired_slot"]: row for row in fixtures if row.get("role") == "PRACTICAL_BODY"}
+    for row in fixtures:
+        if row.get("authored_kind") != "LIGHT" or row["role"] != "PRACTICAL" or float(row["intensity"]) > 0.0:
+            continue
+        tint = row.get("dim_tint") or choices[int(_stable_unit(passage_key, ordinal, row["slot"]) * len(choices))]
+        require(tint in tints and row["intensity_units"] == "LUMENS",
+                "DIM_BULB_BAD|%s|B%02d|%s" % (passage_key, ordinal, row["slot"]))
+        row.update({"intensity": float(policy["lumens"]), "attenuation_cm": float(policy["attenuation_cm"]),
+                    "volumetric_scattering": float(policy["volumetric_scattering"]),
+                    "color_rgb_linear": list(tints[tint]["rgb"]), "temperature_kelvin": float(tints[tint]["kelvin"]),
+                    "flicker": {"mode": "STEADY", "material": None}, "dim_bulb": tint})
+        visible = row["visible_mesh"]
+        if visible["mesh"] == BULB_MESH:
+            visible["emissive"] = True
+            visible["material"] = {"parent": policy["body_parent"], "mode": "DIM"}
+            if row["slot"] in bodies:
+                bodies[row["slot"]]["emissive"] = True
+
+
+def _add_bulb_caps(scores, fixtures):
+    """A Sphere body alone reads as a ball; a small dull screw cap above it makes it a light bulb (no real bulb mesh
+    exists in Content: searched 6 Oct). One extra PROP per Sphere-bodied practical, placed from the body's own
+    transform, derived create-only like the bodies."""
+    caps = scores.get("bulb_caps")
+    if not caps or not caps.get("enabled"):
+        return
+    for prop in [row for row in fixtures if row.get("role") == "PRACTICAL_BODY"]:
+        source = prop["body"]["source_mesh"] if prop.get("body") else prop["mesh"]
+        if source != BULB_MESH:
+            continue
+        sx, sy, sz = [float(v) for v in prop["transform"]["scale"]]
+        height = sz * 100.0 * float(caps["height_fraction"])
+        location = list(prop["transform"]["location_cm"])
+        location[2] += sz * 50.0 + height * 0.5 - float(caps["overlap_cm"])
+        colour, intensity = list(CAP_COLOUR), CAP_INTENSITY
+        mi, mesh = _body_names(CAP_MESH, caps["parent"], colour, intensity)
+        require(prop["label"].endswith("_BODY"), "CAP_LABEL|" + prop["label"])
+        fixtures.append({
+            "slot": prop["paired_slot"] + "_CAP", "paired_slot": prop["paired_slot"], "role": "PRACTICAL_CAP",
+            "authored_kind": "PROP", "label": prop["label"][:-len("_BODY")] + "_CAP",
+            "bay_index": prop["bay_index"], "look": prop["look"], "mesh": mesh, "style": "bulb screw cap",
+            "emissive": False,
+            "transform": {"location_cm": location, "rotation_rpy_deg": [0.0, 0.0, 0.0],
+                          "scale": [sx * float(caps["width_fraction"]), sy * float(caps["width_fraction"]),
+                                    height / 100.0]},
+            "cast_shadows": False,
+            "body": {"source_mesh": CAP_MESH, "parent": caps["parent"], "mode": "CAP", "colour": colour,
+                     "intensity": intensity, "mi": mi, "mesh": mesh, "flicker_follows_light": False},
+        })
+
+
+def _assign_body_behaviours(scores, passage_key, ordinal, fixtures):
+    """Gary 6 Oct: 'a flickering and dying bulb, not all bulbs! some should flicker only slightly and others be
+    stable'. Each practical body gets STABLE / SLIGHT / FAIL (an explicit body_mode on the lamp wins, else a
+    stable hash split). DATA ONLY until the C++ per-attachment body option exists: carried on the plan, written
+    by nothing (scores["bulb_body_behaviours"]["cpp_field"] names the field once the patch lands)."""
+    policy = scores.get("bulb_body_behaviours")
+    if not policy:
+        return
+    lights = {row["slot"]: row for row in fixtures if row.get("authored_kind") == "LIGHT"}
+    fail, slight = float(policy["fractions"]["FAIL"]), float(policy["fractions"]["SLIGHT"])
+    for prop in fixtures:
+        if prop.get("role") != "PRACTICAL_BODY":
+            continue
+        explicit = lights[prop["paired_slot"]].get("body_mode")
+        if explicit:
+            mode = explicit
+        else:
+            u = _stable_unit("body", passage_key, ordinal, prop["paired_slot"])
+            mode = "FAIL" if u < fail else ("SLIGHT" if u < fail + slight else "STABLE")
+        prop["body_behaviour"] = {"mode": mode,
+                                  "seed": int(_stable_unit("seed", passage_key, ordinal, prop["paired_slot"]) * 2 ** 31),
+                                  "authored": False, "cpp_field": policy.get("cpp_field")}
 
 
 def _mirror_explicit_aims(fixtures, spec):
@@ -596,13 +768,17 @@ def no_cross_config(passage):
     cfg = dict(NO_CROSS_DEFAULTS)
     if raw is not True:
         require(isinstance(raw, dict) and raw.get("enabled", True) is True
-                and set(raw).issubset(set(NO_CROSS_DEFAULTS) | {"enabled", "note", "bays"}),
+                and set(raw).issubset(set(NO_CROSS_DEFAULTS) | {"enabled", "note", "bays", "exempt_bays"}),
                 "BAD_NO_CROSS_CONFIG|" + _canonical(raw))
         cfg.update({k: float(v) for k, v in raw.items() if k in NO_CROSS_DEFAULTS})
         if "bays" in raw:  # check only these ordinals (bays where the rule can pass)
             first, last = [int(v) for v in raw["bays"]]
             require(1 <= first <= last <= int(passage["expected_bay_count"]), "BAD_NO_CROSS_BAYS|" + _canonical(raw))
             cfg["bays"] = [first, last]
+        if "exempt_bays" in raw:  # 6 Oct: named exceptions inside the range (each must be a reasoned look choice)
+            exempt = sorted(int(v) for v in raw["exempt_bays"])
+            require(all(1 <= v <= int(passage["expected_bay_count"]) for v in exempt), "BAD_NO_CROSS_EXEMPT|" + _canonical(raw))
+            cfg["exempt_bays"] = exempt
     require(0.0 <= cfg["centre_tolerance_cm"] < cfg["nominal_panel_abs_y_cm"], "BAD_NO_CROSS_TOLERANCE")
     return cfg
 
@@ -648,6 +824,8 @@ def no_cross_rows(passage_key, ordinal, fixtures, cfg, live_goals=None):
     rows = []
     tol = cfg["centre_tolerance_cm"]
     if "bays" in cfg and not cfg["bays"][0] <= int(ordinal) <= cfg["bays"][1]:
+        return rows
+    if int(ordinal) in cfg.get("exempt_bays", []):
         return rows
     for row in fixtures:
         if row.get("authored_kind") != "LIGHT" or row.get("type") != "SPOT":
@@ -704,9 +882,18 @@ BODY_PARENTS = {
     # (underpass_tubes_apply.py:8, 58-79); on disk under Content/InfinityStage/RigAtmos/Underpass/Materials.
     "/Game/InfinityStage/RigAtmos/Underpass/Materials/M_UP_TubeEmissive": ("Colour", "Intensity"),
 }
-BODY_MODES = ("MATCH_LIGHT", "DEAD")
-BODY_DEAD_COLOUR = [0.2, 0.19, 0.18]
-BODY_DEAD_INTENSITY = 0.15
+# 6 Oct round 2 (Gary note 59: "make all the dead bulbs minimally glowing ... a bulb can still glow orange, white,
+# pink, and cast a small reflection"): the DEAD body mode is gone. A dead bulb is now a DIM lamp: a tiny real
+# point light (DIM_MAX_LUMENS at most, short attenuation) plus a low-glowing glass body; CAP is the bulb's metal
+# screw cap (a second, dull prop) that makes a Sphere read as a light bulb.
+BODY_MODES = ("MATCH_LIGHT", "DIM", "CAP")
+BODY_DIM_INTENSITY = 1.5
+DIM_MAX_LUMENS = 40.0
+DIM_MAX_ATTENUATION_CM = 200.0
+CAP_MESH = "/Engine/BasicShapes/Cylinder"
+CAP_COLOUR = [0.42, 0.32, 0.16]
+CAP_INTENSITY = 0.25
+BULB_MESH = "/Engine/BasicShapes/Sphere"
 
 
 def kelvin_rgb_linear(kelvin):
@@ -727,13 +914,16 @@ def kelvin_rgb_linear(kelvin):
 
 
 def body_emission(light_row, mode):
-    """(colour, intensity) for a body: the light's colour x its Kelvin tint, brightness from its output."""
-    if mode == "DEAD":
-        return list(BODY_DEAD_COLOUR), BODY_DEAD_INTENSITY
+    """(colour, intensity) for a body: the light's colour x its Kelvin tint, brightness from its output
+    (MATCH_LIGHT) or the fixed low glow (DIM); CAP is a fixed dull brass."""
+    if mode == "CAP":
+        return list(CAP_COLOUR), CAP_INTENSITY
     tint = kelvin_rgb_linear(light_row["temperature_kelvin"])
     raw = [float(c) * k for c, k in zip(light_row["color_rgb_linear"], tint)]
     peak = max(raw)
     require(peak > 0.0, "BODY_COLOUR_BLACK|slot=" + light_row["slot"])
+    if mode == "DIM":
+        return [round(v / peak, 3) for v in raw], BODY_DIM_INTENSITY
     lumens = float(light_row["intensity"]) * (1.0 if light_row["intensity_units"] == "LUMENS" else 4.0 * math.pi)
     intensity = max(2.0, min(10.0, 4.0 * math.sqrt(lumens / 200.0)))
     return [round(v / peak, 3) for v in raw], round(intensity * 2.0) / 2.0
@@ -751,11 +941,10 @@ def validate_body_material(row, where):
     if spec is None:
         return
     require(isinstance(spec, dict) and set(spec) == {"parent", "mode"} and spec["parent"] in BODY_PARENTS
-            and spec["mode"] in BODY_MODES, "BAD_BODY_MATERIAL|" + where)
+            and spec["mode"] in ("MATCH_LIGHT", "DIM"), "BAD_BODY_MATERIAL|" + where)
     require(row["role"] == "PRACTICAL" and str(row["visible_mesh"]["mesh"]).startswith(("/Engine/BasicShapes/", "/Game/")),
             "BAD_BODY_MATERIAL_HOST|" + where)
-    require(bool(row["visible_mesh"]["emissive"]) == (spec["mode"] == "MATCH_LIGHT"),
-            "BODY_EMISSIVE_FLAG_DISAGREES|" + where)
+    require(bool(row["visible_mesh"]["emissive"]), "BODY_EMISSIVE_FLAG_DISAGREES|" + where)
 
 
 def _resolve_lamp_bodies(fixtures, where):
@@ -771,9 +960,12 @@ def _resolve_lamp_bodies(fixtures, where):
             continue
         here = "%s|slot=%s" % (where, light["slot"])
         validate_body_material(light, here)
-        lit = float(light["intensity"]) > 0.0
-        require(not (lit and spec["mode"] == "DEAD"), "BODY_DEAD_ON_LIT_LAMP|" + here)
-        require(not (not lit and spec["mode"] == "MATCH_LIGHT"), "BODY_GLOWS_ON_DEAD_LAMP|" + here)
+        lumens = float(light["intensity"])
+        require(lumens > 0.0, "BODY_GLOWS_ON_DEAD_LAMP|" + here)
+        if spec["mode"] == "DIM":
+            require(light["intensity_units"] == "LUMENS" and lumens <= DIM_MAX_LUMENS + 1.0e-9
+                    and float(light["attenuation_cm"]) <= DIM_MAX_ATTENUATION_CM,
+                    "BODY_DIM_ON_BRIGHT_LAMP|%s|lm=%.1f|att=%.0f" % (here, lumens, float(light["attenuation_cm"])))
         colour, intensity = body_emission(light, spec["mode"])
         mi, mesh = _body_names(prop["mesh"], spec["parent"], colour, intensity)
         prop["body"] = {"source_mesh": prop["mesh"], "parent": spec["parent"], "mode": spec["mode"],
@@ -911,10 +1103,97 @@ class UnrealBodyAssets:
         return [p.split(".")[0] for p in self.eal.list_assets(folder, recursive=False) if "/SM_PB_Bulb_" in p]
 
 
+# --------------------------------------------------------------------------
+# New light-function instances (6 Oct round 2): irregular ~1 Hz pulse, 2 Hz x ~0.5 s bursts (three phases, so
+# lamps sharing a bay never burst together), harp flutter. CREATE-ONLY MaterialInstanceConstants of the existing
+# M_LF_StageFlicker (scalar parameters only; no node is touched: the parent's graph is
+# Saved/CodexLighting/rebuild_flicker_master.py:16-39). Declared in scores["flicker_instances"].
+# lf_level() is that graph in Python (UE Sine node Period left at its default 1 -> sin(2*pi*x): Speed is Hz,
+# Phase is cycles; INFERRED from the script, which never sets Period).
+# --------------------------------------------------------------------------
+FLICKER_PARENT = "/Game/InfinityStage/Lighting/M_LF_StageFlicker"
+FLICKER_PARAMS = ("Speed", "SpeedRatio", "Depth", "Phase", "Hardness", "OnBias")
+
+
+def lf_level(t, params):
+    """M_LF_StageFlicker output at time t (1 = full, 1-Depth = fully dipped)."""
+    sp, ra, de, ph, ha, ob = [float(params[name]) for name in FLICKER_PARAMS]
+    s = 0.5 + 0.25 * math.sin(2.0 * math.pi * (sp * t + ph)) + 0.25 * math.sin(2.0 * math.pi * (sp * ra * t + 1.7 * ph))
+    w = 0.5 * (1.0 - ha) + 0.002
+    x = min(1.0, max(0.0, (s - (ob - w)) / (2.0 * w)))
+    return 1.0 - de * (1.0 - x * x * (3.0 - 2.0 * x))
+
+
+def validate_flicker_instances(scores):
+    out = {}
+    for path, spec in sorted(scores.get("flicker_instances", {}).items()):
+        require(path.startswith(FLICKER_ROOT) and spec.get("parent") == FLICKER_PARENT
+                and set(spec.get("params", {})) == set(FLICKER_PARAMS)
+                and all(math.isfinite(float(v)) for v in spec["params"].values())
+                and 0.0 <= float(spec["params"]["Depth"]) <= 1.0 and 0.0 <= float(spec["params"]["Hardness"]) <= 1.0,
+                "BAD_FLICKER_INSTANCE|" + path)
+        out[path] = {"parent": spec["parent"], "params": {k: float(v) for k, v in spec["params"].items()}}
+    return out
+
+
+def ensure_flicker_instances(api, wanted):
+    """CREATE-ONLY, as ensure_body_assets. api: exists/read_lf/create_lf/save. Returns created paths."""
+    created = []
+
+    def same(got, spec):
+        return got["parent"] == spec["parent"] and all(
+            abs(float(got["params"].get(k, float("nan"))) - v) <= 1.0e-4 for k, v in spec["params"].items())
+    for path, spec in sorted(wanted.items()):
+        if api.exists(path):
+            got = api.read_lf(path)
+            require(same(got, spec), "FLICKER_INSTANCE_EXISTS_DIFFERENT|%s|have=%s|want=%s"
+                    % (path, _canonical(got), _canonical(spec)))
+            continue
+        api.create_lf(path, spec["parent"], spec["params"])
+        created.append(path)
+        require(same(api.read_lf(path), spec), "FLICKER_INSTANCE_READBACK|" + path)
+    for path in created:
+        require(api.save(path), "FLICKER_INSTANCE_SAVE_FAILED|" + path)
+    return created
+
+
+class UnrealFlickerInstances:
+    """Unreal side of ensure_flicker_instances. INFERRED until the first live APPLY: the same
+    MaterialEditingLibrary scalar setters rebuild_flicker_master.py:48-52 ran live on 18 Sep."""
+
+    def __init__(self):
+        self.eal = unreal.EditorAssetLibrary
+        self.mel = unreal.MaterialEditingLibrary
+        self.tools = unreal.AssetToolsHelpers.get_asset_tools()
+
+    def exists(self, path):
+        return bool(self.eal.does_asset_exist(path))
+
+    def read_lf(self, path):
+        mi = unreal.load_asset(path)
+        return {"parent": mi.get_editor_property("parent").get_path_name().split(".")[0],
+                "params": {k: float(self.mel.get_material_instance_scalar_parameter_value(mi, k)) for k in FLICKER_PARAMS}}
+
+    def create_lf(self, path, parent, params):
+        folder, name = path.rsplit("/", 1)
+        mi = self.tools.create_asset(name, folder, unreal.MaterialInstanceConstant,
+                                     unreal.MaterialInstanceConstantFactoryNew())
+        require(mi is not None, "FLICKER_INSTANCE_CREATE_FAILED|" + path)
+        self.mel.set_material_instance_parent(mi, unreal.load_asset(parent))
+        for key in FLICKER_PARAMS:
+            self.mel.set_material_instance_scalar_parameter_value(mi, key, float(params[key]))
+        self.mel.update_material_instance(mi)
+
+    def save(self, path):
+        return bool(self.eal.save_asset(path, only_if_is_dirty=False))
+
+
 def bay_output(fixtures):
+    """Scored light per bay. 6 Oct: DIM bulbs (dead bulbs revived at a fixed ~18 lm glow) are set dressing, not
+    score output, so they do not count: a VOID bay with a glowing dead bulb is still 'dark' for the shape rules."""
     out = {unit: 0.0 for unit in UNITS}
     for row in fixtures:
-        if row.get("authored_kind") == "LIGHT":
+        if row.get("authored_kind") == "LIGHT" and not row.get("dim_bulb"):
             out[row["intensity_units"]] += float(row["intensity"])
     return out
 
@@ -1239,6 +1518,7 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
                          "mirror": list(spec["if_absent"].get("mirror", [])),
                          "note": "prototype fallback (prototype ABSENT, AUTHOR_FALLBACK)"})
         fixtures = bay_fixtures(tool, scores, looks, passage_key, spec)
+        cpp_pending = spec.get("cpp_pending", [])
         cue = cues_by_guid[row["cue_guid"]]
         lights = [att for att in cue["attachments"] if str(att.get("kind", "")).upper() == "LIGHT"]
         targets.append({
@@ -1256,6 +1536,7 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
             "fixture_count": len(fixtures),
             "light_fixture_count": sum(f["authored_kind"] == "LIGHT" for f in fixtures),
             "practical_prop_count": sum(f["authored_kind"] == "PROP" for f in fixtures),
+            "cpp_pending": cpp_pending,
         })
     require(len({t["cue_guid"] for t in targets}) == len(targets), "TARGET_GUIDS_NOT_UNIQUE")
     cross_cfg = no_cross_config(passage_cfg)
@@ -1320,6 +1601,7 @@ def build_score_plan(tool, scores, looks, passage_key, passages, cues, p04_recor
                    "budget_ok": after <= before},
         "label_prefix": prefix,
         "no_cross": cross,
+        "warnings": [p["warning"] for t in targets for p in t["cpp_pending"]],
     }
 
 
@@ -1482,6 +1764,48 @@ def _apply_live_aims(tool, show, plan):
                                    "rotation_rpy_deg": fixture["transform"]["rotation_rpy_deg"]})
 
 
+PASSAGE_TICKS_PER_SECOND = 24000.0  # Show TickResolution (run_p6.json tick_resolution 24000) [measured offline]
+
+
+def beat_check(beat_map, pass_rows):
+    """For each planned beat lamp: when does it actually strike, given LIVE per-bay pass times and distances?
+    pass_rows: {ordinal: {"t_s": seconds from the first pass, "d_cm": cm from the first pass}}; beat_map rows:
+    {"bay", "beat_s", "strike_distance_cm", "first_pass_s"}. Speed inside a bay is the bay's own gap/interval
+    (InfinityStageCompiler.cpp:380-411 per passage_retime_to_music.py:14). REPORT ONLY."""
+    out = []
+    for row in beat_map:
+        bay = int(row["bay"])
+        here, before = pass_rows.get(bay), pass_rows.get(bay - 1)
+        if here is None or before is None:
+            out.append(dict(row, verdict="UNREADABLE"))
+            continue
+        span_s, span_cm = here["t_s"] - before["t_s"], here["d_cm"] - before["d_cm"]
+        speed = span_cm / span_s if span_s > 0 else float("nan")
+        strike_s = float(row["first_pass_s"]) + here["t_s"] - float(row["strike_distance_cm"]) / speed
+        drift = strike_s - float(row["beat_s"])
+        out.append(dict(row, live_strike_s=round(strike_s, 2), drift_s=round(drift, 2),
+                        verdict="ON_BEAT" if abs(drift) <= 0.35 else "OFF_BEAT_RETUNE"))
+    return out
+
+
+def _passage_timing(tool, show, plan):
+    """Per-bay pass time and distance relative to the FIRST bay of the passage, read from the wing pairs'
+    IntervalToNext / GapToNextCm (property names as passage_retime_to_music.py:857-858 reads them). The lead-in is
+    not read here: beat maps carry first_pass_s, which the DRY must confirm. Never refuses."""
+    try:
+        cues = list(show.get_editor_property("cues"))
+        by_guid = {tool._guid_text(c.get_editor_property("cue_guid")): c for c in cues}
+        rows, t, d = {}, 0.0, 0.0
+        for ordinal, guid in enumerate(plan["bay_guids"], start=1):
+            rows[ordinal] = {"t_s": round(t, 4), "d_cm": round(d, 2)}
+            pair = by_guid[guid].get_editor_property("wing_pair")
+            t += int(pair.get_editor_property("interval_to_next").value) / PASSAGE_TICKS_PER_SECOND
+            d += float(pair.get_editor_property("gap_to_next_cm"))
+        return {"ok": True, "rows": rows}
+    except Exception as error:  # noqa: BLE001 - a readout, never a gate
+        return {"ok": False, "error": "%s: %s" % (type(error).__name__, error)}
+
+
 def require_no_cross_live(plan):
     """Re-run the no-cross rule on the LIVE panel goals _apply_live_aims wrote
     (plan.targets[].aims). Static validation used nominal panels; this is the
@@ -1519,9 +1843,29 @@ def _template(tool, fixture, materials, meshes):
     return tool._make_prop(fixture, meshes)
 
 
-def _assets(tool, looks):
+def _assets(tool, looks, scores):
+    """Flicker materials and practical meshes the templates need. A declared new flicker instance that does not
+    exist yet is stood in by its parent for DRY templates (APPLY creates it before the mutation)."""
     config = {"looks": looks}
-    return tool._materials(config), tool._practical_meshes(config)
+    declared = validate_flicker_instances(scores)
+    flicker_state = {path: ("REUSE" if unreal.EditorAssetLibrary.does_asset_exist(path) else "CREATE")
+                     for path in declared}
+    paths = sorted({row["flicker"]["material"] for look in looks.values() for row in look["instruments"]
+                    if row["flicker"]["material"]})
+    materials = {}
+    for path in paths:
+        if flicker_state.get(path) == "CREATE":
+            asset = unreal.load_asset(declared[path]["parent"])
+        else:
+            asset = unreal.load_asset(path)
+        require(asset is not None, "FLICKER_MATERIAL_MISSING|asset=" + path)
+        materials[path] = asset
+    meshes = tool._practical_meshes(config)
+    if scores.get("bulb_caps", {}).get("enabled"):
+        cap = unreal.load_asset(CAP_MESH)
+        require(cap is not None, "CAP_MESH_MISSING|" + CAP_MESH)
+        meshes[CAP_MESH] = cap
+    return materials, meshes, declared, flicker_state
 
 
 def _current_target(tool, show, target):
@@ -1656,6 +2000,10 @@ def _verify_fixture_values(plan, rows_by_guid):
                     "STUTTER_READBACK|" + fixture["label"])
             require(str(keying["after_pass"]).upper() in str(drama["after_pass"]).upper(),
                     "AFTER_PASS_READBACK|" + fixture["label"])
+            for key, value in sorted(fixture.get("drama", {}).items()):  # 6 Oct: per-lamp slow move
+                got = drama[key]
+                require(bool(got) == value if isinstance(value, bool) else _close(got, value),
+                        "SLOW_MOVE_READBACK|%s|%s" % (key, fixture["label"]))
 
 
 def _verify_applied(tool, show, plan, outside_before):
@@ -1738,7 +2086,7 @@ def _run(mode, passage_key, ack_records, prototype_absent):
         looks = resolve_looks(scores, base_looks)
         passage_cfg = scores["passages"][passage_key]
         world = tool._require_context()
-        materials, meshes = _assets(tool, looks)
+        materials, meshes, flicker_declared, flicker_state = _assets(tool, looks, scores)
         show = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
         require(show is not None, "SHOW_ASSET_MISSING")
         p04_record = None
@@ -1756,6 +2104,10 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             _require_show_resolution(tool, show, plan)
             _apply_live_aims(tool, show, plan)
             require_no_cross_live(plan)
+            timing = _passage_timing(tool, show, plan)
+            plan["timing_readout"] = timing
+            beat_map = passage_cfg.get("beat_map", {}).get("beats", [])
+            plan["beat_check"] = beat_check(beat_map, timing["rows"]) if (beat_map and timing["ok"]) else None
             cues = list(show.get_editor_property("cues"))
             for target in plan["targets"]:
                 target["before_rows"] = tool._attachment_rows(tool._pair_attachments(cues[target["show_index"]]))
@@ -1772,6 +2124,9 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             require(actors == 1, "PASSAGE_ACTOR_COUNT|prefix=%s|count=%d"
                     % (passage_cfg["passage_actor_label_prefix"], actors))
             plan["body_assets"] = body_asset_plan([f for t in plan["targets"] for f in t["fixtures"]])
+            used_flicker = {f["flicker"]["material"] for t in plan["targets"] for f in t["fixtures"]
+                            if f.get("authored_kind") == "LIGHT" and f["flicker"]["material"]}
+            plan["flicker_instances"] = {p: flicker_declared[p] for p in sorted(used_flicker) if p in flicker_declared}
             body_api = UnrealBodyAssets()
             body_state = {path: ("REUSE" if body_api.exists(path) else "CREATE")
                           for kind in ("mis", "meshes") for path in plan["body_assets"][kind]}
@@ -1794,6 +2149,9 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 "foreign_records": foreign,
                 "unacknowledged_foreign_records": unacknowledged, "templates_built": templates,
                 "body_assets": body_state,
+                "flicker_instances": {p: flicker_state[p] for p in plan["flicker_instances"]},
+                "warnings": plan["warnings"],
+                "beat_check": plan["beat_check"],
                 "no_cross_live": None if not plan.get("no_cross") else
                 {"spots": len(plan["no_cross"]["live"]), "verdict": "PASS"}}})
             if mode == "DRY":
@@ -1825,6 +2183,16 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                         "DIRTY_AFTER_BODY_ASSETS|" + _canonical(tool._dirty_census()))
                 for path in plan["body_assets"]["meshes"]:
                     meshes[path] = unreal.load_asset(path)
+            if plan["flicker_instances"]:
+                try:
+                    record["flicker_instances_created"] = ensure_flicker_instances(
+                        UnrealFlickerInstances(), plan["flicker_instances"])
+                finally:
+                    tool._write_json(record_path, record)
+                require(tool._dirty_census() == {"content": [], "maps": []},
+                        "DIRTY_AFTER_FLICKER_INSTANCES|" + _canonical(tool._dirty_census()))
+                for path in plan["flicker_instances"]:
+                    materials[path] = unreal.load_asset(path)
             try:
                 _mutate_apply(tool, show, plan, materials, meshes, _other_score_targets(passage_key))
             except Exception:
@@ -1880,6 +2248,8 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             require(tool._dirty_census() == {"content": [], "maps": []},
                     "DIRTY_AFTER_BODY_REVERT|" + _canonical(tool._dirty_census()))
         report["body_assets_revert"] = body_revert
+        # Flicker instances are shared, tiny and parameter-only: REVERT keeps them (never deletes).
+        report["flicker_instances_kept"] = record.get("flicker_instances_created", [])
         archived = record_path + ".reverted-" + run
         os.rename(record_path, archived)
         tool._queue_master_test(world, "LIGHTING_SCORES_REVERT", run)

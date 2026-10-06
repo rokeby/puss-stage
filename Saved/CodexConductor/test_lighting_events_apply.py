@@ -528,11 +528,12 @@ class ScoresInterlockTests(unittest.TestCase):
         tool = L.load_p04_tool()
         scores = copy.deepcopy(SCORES_CFG)
         p6 = scores["passages"]["P06"]
-        p6["expected_bay_count"] = 64
-        p6["segments"][1]["bays"] = [13, 63]
-        p6["segments"][2]["bays"] = [64, 64]
-        p6["max_consecutive_lit_exempt"] = [[13, 64]]
-        p6["monotone_dark_segment"] = [13, 64]
+        if p6["expected_bay_count"] != 64:  # 6 Oct: the live score is already 64 bays (round 2 re-segmented it)
+            p6["expected_bay_count"] = 64
+            p6["segments"][1]["bays"] = [13, 63]
+            p6["segments"][2]["bays"] = [64, 64]
+            p6["max_consecutive_lit_exempt"] = [[13, 64]]
+            p6["monotone_dark_segment"] = [13, 64]
         # The rescore must also accept W&T's restored-cue labels (p6_workflow.py:387);
         # today's guard '^P06 Wing \d{3}$' refuses them (CUE_LABEL_DRIFT), see below.
         today_guard = p6["cue_label_drift_guard"]

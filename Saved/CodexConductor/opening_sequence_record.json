@@ -12111,14 +12111,20 @@
    "mode": "APPLY",
    "backup": "E:/PussStage/Backups\\PreOpeningSequence-20261005-1448",
    "at": "20261005-1448"
+  },
+  {
+   "run": "OPENING-APPLY-20261006-013238",
+   "mode": "APPLY",
+   "backup": "E:/PussStage/Backups\\PreOpeningSequence-20261006-0132",
+   "at": "20261006-0132"
   }
  ],
  "last_applied_frames": {
   "music_start": 100,
-  "flicker_start": 100,
-  "flicker_end": 162,
-  "swivel_start": 904,
-  "swivel_end": 1096,
+  "flicker_start": 904,
+  "flicker_end": 991,
+  "swivel_start": 1096,
+  "swivel_end": 1250,
   "last_swell": 1910,
   "curtain_release": 1935,
   "walkin_start": 2145,
@@ -12136,22 +12142,316 @@
    "CameraComponent/MovieSceneFloatTrack/ManualFocusDistance": "2c2b2057cc5cb517"
   },
   "rig": {
-   "Opening Rig - FOH L/MovieSceneFloatTrack/Intensity": "a0a188d4ce797250",
+   "Opening Rig - FOH L/MovieSceneFloatTrack/Intensity": "9fb5bbeca16c0f5e",
    "Opening Rig - FOH R/MovieScene3DTransformTrack/Location.X": "5828017681f9fafb",
    "Opening Rig - FOH R/MovieScene3DTransformTrack/Location.Y": "6ac9b73c2a795227",
    "Opening Rig - FOH R/MovieScene3DTransformTrack/Location.Z": "b5ac96c9945455ab",
-   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.X": "51443e28245ef442",
-   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Y": "3d73059191f05a47",
-   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Z": "b945421947300b78",
-   "Opening Rig - FOH R/MovieSceneFloatTrack/Intensity": "702018727aa042b6",
-   "Opening Rig - Wash C/MovieSceneFloatTrack/Intensity": "481cdf57eed7729a",
+   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.X": "aaa2cf129495d232",
+   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Y": "8b6e8ebcadab23fa",
+   "Opening Rig - FOH R/MovieScene3DTransformTrack/Rotation.Z": "a090ebe110a8ab3d",
+   "Opening Rig - FOH R/MovieSceneFloatTrack/Intensity": "628c225666470d3c",
+   "Opening Rig - Wash C/MovieSceneFloatTrack/Intensity": "c56664c4d9f88ec8",
    "Opening Rig - FOH L/MovieScene3DTransformTrack/Location.X": "5828017681f9fafb",
    "Opening Rig - FOH L/MovieScene3DTransformTrack/Location.Y": "33873fc01d9a66ab",
    "Opening Rig - FOH L/MovieScene3DTransformTrack/Location.Z": "b5ac96c9945455ab",
-   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.X": "51443e28245ef442",
-   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Y": "3d73059191f05a47",
-   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Z": "6702c52b03df19f9"
+   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.X": "aaa2cf129495d232",
+   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Y": "8b6e8ebcadab23fa",
+   "Opening Rig - FOH L/MovieScene3DTransformTrack/Rotation.Z": "12950de1dfa31497"
   }
  },
- "flicker_note": "5 Oct conductor: Gary's 14:02 marker drag (38->208) acknowledged; superseded by his answer 'flicker should come with first rising of a swell' -> gentle early swell, json flicker_start 4.0 s"
+ "flicker_note": "5 Oct conductor: Gary's 14:02 marker drag (38->208) acknowledged; superseded by his answer 'flicker should come with first rising of a swell' -> gentle early swell, json flicker_start 4.0 s",
+ "warmers_attachment_original": {
+  "P01 Wing 001 House L": {
+   "guid": "24F0FC454E591513FB387DBE58E881DC",
+   "label": "P01 Wing 001 House L",
+   "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+   "enabled": true,
+   "actor_class": null,
+   "mesh": null,
+   "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+   "relative_transform": {
+    "location": [
+     -2350.0000000000005,
+     -664.3452912896664,
+     1265.0000000000002
+    ],
+    "rotation_xyzw": [
+     0.03268795028985078,
+     -0.16880186997068267,
+     -0.18728385466288586,
+     -0.9671412432436431
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "lighting": {
+    "type": "<InfinityStageLightType.SPOT: 0>",
+    "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+    "intensity": 800.0,
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "use_temperature": true,
+    "temperature_kelvin": 2800.0,
+    "attenuation_radius_cm": 3467.53173828125,
+    "indirect_lighting_intensity": 1.0,
+    "volumetric_scattering_intensity": 1.0,
+    "diffuse_scale": 1.0,
+    "specular_scale": 1.0,
+    "affect_translucent_lighting": true,
+    "transmission": false,
+    "cast_shadows": true,
+    "cast_volumetric_shadow": false,
+    "affect_reflection": true,
+    "affect_global_illumination": true,
+    "shadow_bias": 0.5,
+    "shadow_slope_bias": 0.5,
+    "force_cached_shadows_for_movable_primitives": false,
+    "use_ray_traced_distance_field_shadows": false,
+    "lighting_channel0": true,
+    "lighting_channel1": false,
+    "lighting_channel2": false,
+    "max_draw_distance_cm": 0.0,
+    "max_distance_fade_range_cm": 0.0,
+    "use_inverse_squared_falloff": true,
+    "light_falloff_exponent": 8.0,
+    "inverse_exposure_blend": 0.0,
+    "source_radius_cm": 0.0,
+    "soft_source_radius_cm": 0.0,
+    "source_length_cm": 0.0,
+    "inner_cone_angle_degrees": 12.416001319885254,
+    "outer_cone_angle_degrees": 14.944001197814941,
+    "rect_source_width_cm": 100.0,
+    "rect_source_height_cm": 100.0,
+    "rect_barn_door_angle_degrees": 88.0,
+    "rect_barn_door_length_cm": 20.0,
+    "rect_source_texture": null,
+    "ies_texture": null,
+    "use_ies_brightness": false,
+    "ies_brightness_scale": 1.0,
+    "light_function_material": null,
+    "light_function_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "light_function_fade_distance_cm": 100000.0,
+    "light_function_disabled_brightness": 0.0,
+    "drama": {
+     "strike_on_approach": false,
+     "strike_distance_cm": 2500.0,
+     "strike_ramp_cm": 250.0,
+     "ignition_stutter": 0.6000000238418579,
+     "unstruck_intensity_scale": 0.0,
+     "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+     "after_pass_distance_cm": 600.0,
+     "decay_distance_cm": 1500.0,
+     "slow_move": false,
+     "pan_amplitude_degrees": 6.0,
+     "tilt_amplitude_degrees": 3.0,
+     "period_seconds": 14.0,
+     "phase_from_identity": true,
+     "phase_cycles": 0.0
+    }
+   },
+   "effect": {
+    "type": "<InfinityStageEffectType.HAZE: 0>",
+    "output": 0.5,
+    "tint": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "active_radius_cm": 6000.0,
+    "pulse_period_seconds": 6.0,
+    "pulse_duty": 0.3499999940395355,
+    "feeds_local_medium": true,
+    "medium_offset_cm": [
+     250.0,
+     0.0,
+     150.0
+    ],
+    "medium_radius_cm": 400.0,
+    "medium_density": 0.15000000596046448,
+    "medium_height_falloff": 1000.0,
+    "linked_light_attachment_guid": "00000000000000000000000000000000",
+    "flicker_amount": 0.25,
+    "burn_start_ahead_cm": 3000.0,
+    "burn_span_cm": 4000.0,
+    "ignition_uv": [
+     0.5,
+     1.0
+    ],
+    "burn_u_axis": [
+     0.0,
+     0.0
+    ],
+    "burn_v_axis": [
+     0.0,
+     0.0
+    ],
+    "burn_uv_measured_mesh": null,
+    "motes_extent_cm": [
+     250.0,
+     400.0,
+     500.0
+    ],
+    "replicated_from_attachment_guid": "00000000000000000000000000000000"
+   },
+   "trigger_distance_cm": 800.0
+  },
+  "P01 Wing 001 House R": {
+   "guid": "DB2C97FF45A2A04CE85B34B7CC80EBBE",
+   "label": "P01 Wing 001 House R",
+   "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+   "enabled": true,
+   "actor_class": null,
+   "mesh": null,
+   "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+   "relative_transform": {
+    "location": [
+     -2350.0000000000005,
+     650.0000000000001,
+     1265.0000000000002
+    ],
+    "rotation_xyzw": [
+     0.032687950289850776,
+     0.16880186997068267,
+     -0.18728385466288583,
+     0.9671412432436431
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "lighting": {
+    "type": "<InfinityStageLightType.SPOT: 0>",
+    "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+    "intensity": 800.0,
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "use_temperature": true,
+    "temperature_kelvin": 2800.0,
+    "attenuation_radius_cm": 3025.019287109375,
+    "indirect_lighting_intensity": 1.0,
+    "volumetric_scattering_intensity": 1.0,
+    "diffuse_scale": 1.0,
+    "specular_scale": 1.0,
+    "affect_translucent_lighting": true,
+    "transmission": false,
+    "cast_shadows": true,
+    "cast_volumetric_shadow": false,
+    "affect_reflection": true,
+    "affect_global_illumination": true,
+    "shadow_bias": 0.5,
+    "shadow_slope_bias": 0.5,
+    "force_cached_shadows_for_movable_primitives": false,
+    "use_ray_traced_distance_field_shadows": false,
+    "lighting_channel0": true,
+    "lighting_channel1": false,
+    "lighting_channel2": false,
+    "max_draw_distance_cm": 0.0,
+    "max_distance_fade_range_cm": 0.0,
+    "use_inverse_squared_falloff": true,
+    "light_falloff_exponent": 8.0,
+    "inverse_exposure_blend": 0.0,
+    "source_radius_cm": 0.0,
+    "soft_source_radius_cm": 0.0,
+    "source_length_cm": 0.0,
+    "inner_cone_angle_degrees": 12.776000022888184,
+    "outer_cone_angle_degrees": 15.93600082397461,
+    "rect_source_width_cm": 100.0,
+    "rect_source_height_cm": 100.0,
+    "rect_barn_door_angle_degrees": 88.0,
+    "rect_barn_door_length_cm": 20.0,
+    "rect_source_texture": null,
+    "ies_texture": null,
+    "use_ies_brightness": false,
+    "ies_brightness_scale": 1.0,
+    "light_function_material": null,
+    "light_function_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "light_function_fade_distance_cm": 100000.0,
+    "light_function_disabled_brightness": 0.0,
+    "drama": {
+     "strike_on_approach": false,
+     "strike_distance_cm": 2500.0,
+     "strike_ramp_cm": 250.0,
+     "ignition_stutter": 0.6000000238418579,
+     "unstruck_intensity_scale": 0.0,
+     "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+     "after_pass_distance_cm": 600.0,
+     "decay_distance_cm": 1500.0,
+     "slow_move": false,
+     "pan_amplitude_degrees": 6.0,
+     "tilt_amplitude_degrees": 3.0,
+     "period_seconds": 14.0,
+     "phase_from_identity": true,
+     "phase_cycles": 0.0
+    }
+   },
+   "effect": {
+    "type": "<InfinityStageEffectType.HAZE: 0>",
+    "output": 0.5,
+    "tint": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "active_radius_cm": 6000.0,
+    "pulse_period_seconds": 6.0,
+    "pulse_duty": 0.3499999940395355,
+    "feeds_local_medium": true,
+    "medium_offset_cm": [
+     250.0,
+     0.0,
+     150.0
+    ],
+    "medium_radius_cm": 400.0,
+    "medium_density": 0.15000000596046448,
+    "medium_height_falloff": 1000.0,
+    "linked_light_attachment_guid": "00000000000000000000000000000000",
+    "flicker_amount": 0.25,
+    "burn_start_ahead_cm": 3000.0,
+    "burn_span_cm": 4000.0,
+    "ignition_uv": [
+     0.5,
+     1.0
+    ],
+    "burn_u_axis": [
+     0.0,
+     0.0
+    ],
+    "burn_v_axis": [
+     0.0,
+     0.0
+    ],
+    "burn_uv_measured_mesh": null,
+    "motes_extent_cm": [
+     250.0,
+     400.0,
+     500.0
+    ],
+    "replicated_from_attachment_guid": "00000000000000000000000000000000"
+   },
+   "trigger_distance_cm": 800.0
+  }
+ }
 }

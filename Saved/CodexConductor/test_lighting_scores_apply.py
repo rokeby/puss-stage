@@ -283,29 +283,29 @@ expect_error("- control: a hand-edited added fixture blocks revert", lambda: L.r
 expect_error("- control: re-planning on the applied Show refuses (score already present)",
              lambda: L.build_score_plan(TOOL, SCORES, LOOKS, "P06", passages, after, record), "SCORE_ALREADY_PRESENT")
 
-print("\n== 6. P06 failing gold decays monotonically to dark")
+print("\n== 6. P06 failing gold decays monotonically to dark (6 Oct round 2: the failing tail is the last third, 43-64)")
 rows = L.validate_scores(SCORES, LOOKS, TOOL)["P06"]["rows"]
-seg = [r for r in rows if 13 <= r["ordinal"] <= 64]
+seg = [r for r in rows if 43 <= r["ordinal"] <= 64]
 mono = all(b["output"][u] <= a["output"][u] for a, b in zip(seg, seg[1:]) for u in L.UNITS)
-check("+ P06 bays 13-64: per-bay output non-increasing (cd and lm), ends at zero",
+check("+ P06 bays 43-64: per-bay output non-increasing (cd and lm), ends at zero",
       mono and not L._is_lit(seg[-1]["output"]),
-      "bay13=%.0fcd/%.0flm  bay33=%.0fcd/%.0flm  bay64=0" % (seg[0]["output"]["CANDELAS"], seg[0]["output"]["LUMENS"],
-                                                             seg[20]["output"]["CANDELAS"], seg[20]["output"]["LUMENS"]))
+      "bay43=%.0fcd/%.0flm  bay53=%.0fcd/%.0flm  bay64=0" % (seg[0]["output"]["CANDELAS"], seg[0]["output"]["LUMENS"],
+                                                             seg[10]["output"]["CANDELAS"], seg[10]["output"]["LUMENS"]))
 lit = [r for r in seg if L._is_lit(r["output"])]
 check("+ P06 ignition stutter rises while lamps still emit",
       all(b["stutter"] >= a["stutter"] for a, b in zip(lit, lit[1:])),
       "%.2f -> %.2f" % (lit[0]["stutter"], lit[-1]["stutter"]))
 bad = copy.deepcopy(SCORES)
-bad["passages"]["P06"]["segments"][2]["cycle"][0]["look"] = "GAP"
+bad["passages"]["P06"]["segments"][5]["cycle"][0]["look"] = "GAP"
 expect_error("- control: a glimmering GAP as the last bay breaks the monotone-to-dark rule",
              lambda: L.validate_scores(bad, LOOKS, TOOL), "NOT_MONOTONE_DARK")
 bad = copy.deepcopy(SCORES)
-bad["passages"]["P06"]["segments"][1]["level_to"] = 0.95
+bad["passages"]["P06"]["segments"][4]["level_to"] = 0.95
 expect_error("- control: a failing segment that brightens is refused",
              lambda: L.validate_scores(bad, LOOKS, TOOL), "FAILING_LEVEL_NOT_DECAYING")
 bad = copy.deepcopy(SCORES)
-bad["passages"]["P06"]["segments"][1]["slot_failures"] = []
-bad["passages"]["P06"]["segments"][2]["cycle"][0]["look"] = "P06_GRAND_GOLD"
+bad["passages"]["P06"]["segments"][4]["slot_failures"] = []
+bad["passages"]["P06"]["segments"][5]["cycle"][0]["look"] = "P06_GRAND_GOLD"
 expect_error("- control: no circuit failures + a lit last bay is refused",
              lambda: L.validate_scores(bad, LOOKS, TOOL), "NOT_MONOTONE_DARK")
 
@@ -359,7 +359,7 @@ bad = copy.deepcopy(SCORES)
 bad["passages"]["P02"]["segments"][0]["cycle"][0]["look"] = "WASH"
 expect_error("- control: WASH in a score is refused", lambda: L.validate_scores(bad, LOOKS, TOOL), "FORBIDDEN_LOOK")
 bad = copy.deepcopy(SCORES)
-bad["passages"]["P05"]["segments"][0]["cycle"][4]["look"] = "P05_SOFT_POOL"
+bad["passages"]["P05"]["segments"][3]["cycle"][0]["look"] = "P05_SOFT_POOL"  # 6 Oct: phrase now 19-84, its gap at bay 19
 expect_error("- control: removing P05's phrase gap gives a washed-out run", lambda: L.validate_scores(bad, LOOKS, TOOL),
              "WASHED_OUT_RUN")
 bad = copy.deepcopy(SCORES)
@@ -376,10 +376,10 @@ print("\n== 11. P06 bays 2-10 yield to lighting_events black mode (Gary 4 Oct), 
 legacy = copy.deepcopy(SCORES)
 l6 = legacy["passages"]["P06"]
 l6["expected_bay_count"] = 55
-l6["segments"][1]["bays"] = [13, 54]
-l6["segments"][2]["bays"] = [55, 55]
-l6["max_consecutive_lit_exempt"] = [[13, 55]]
-l6["monotone_dark_segment"] = [13, 55]
+l6["segments"][4]["bays"] = [43, 54]
+l6["segments"][5]["bays"] = [55, 55]
+l6["max_consecutive_lit_exempt"] = [[2, 10], [22, 55]]
+l6["monotone_dark_segment"] = [43, 55]
 saved_pairs = dict(PAIRS)
 PAIRS["P06"] = 55
 try:
@@ -471,8 +471,8 @@ nc = p02_static["no_cross"]
 check("+ P02 enables no_cross_shots; every SPOT in bays 1-23 stays on its own side (static, nominal panels)",
       nc is not None and nc["rows"] and all(r["verdict"].startswith("OK") for r in nc["rows"]),
       "spots=%d verdicts=%s" % (len(nc["rows"]), sorted({r["verdict"] for r in nc["rows"]})))
-check("+ the rule is opt-in: only P02, P03 and P04 (bays 15-21) enable it",
-      all(L.validate_scores(SCORES, LOOKS, TOOL)[k]["no_cross"] is None for k in PAIRS if k not in ("P02", "P03", "P04")))
+check("+ the rule is opt-in: only P02, P03, P04 (7-21, 11 exempt) and P06 (22-42) enable it (6 Oct round 2)",
+      all(L.validate_scores(SCORES, LOOKS, TOOL)[k]["no_cross"] is None for k in PAIRS if k not in ("P02", "P03", "P04", "P06")))
 p02_plan = plan_for("P02")
 p02_bays = {t["ordinal"]: t for t in p02_plan["targets"]}
 p02_lights = [(t["ordinal"], f) for t in p02_plan["targets"] for f in t["fixtures"] if f["authored_kind"] == "LIGHT"]
@@ -486,7 +486,7 @@ check("+ uplights only on bays 3, 7, 10, 12, 20, 21, 23, each wing-aimed at its 
       and all((f["transform"]["location_cm"][1] < 0) == (f["aim_wing_side"] == "LEFT") for f in ups.values())
       and [o for o, f in sorted(ups.items()) if f.get("aim_mirrored")] == [3, 10, 21],
       " ".join("B%d:%s@%+.0f" % (o, f["aim_wing_side"][0], f["transform"]["location_cm"][1]) for o, f in sorted(ups.items())))
-revived = [f for o, f in p02_lights if f["slot"] in ("PRACTICAL_BULB_DEAD", "PRACTICAL_R")]
+revived = [f for o, f in p02_lights if f["slot"] in ("PRACTICAL_BULB_DEAD", "PRACTICAL_R") and not f.get("dim_bulb")]
 check("+ the dead practicals are revived (intensity > 0, lit lamp body) wherever their look is used",
       revived and all(float(f["intensity"]) > 0.0 for f in revived)
       and all(f["visible_mesh"]["material"]["mode"] == "MATCH_LIGHT" and f["visible_mesh"]["emissive"] for f in revived),
@@ -549,7 +549,7 @@ try:
     expect_error("- control: legacy mirror (position flipped, aim not) makes bay 3's uplight a cross shot",
                  lambda: L.validate_scores(SCORES, LOOKS, TOOL), "NO_CROSS_SHOT|passage=P02|bay=3|slot=LOW_SIDE_L_KEY")
     legacy = {k: v["specs"] for k, v in L.validate_scores(
-        {**SCORES, "passages": {k: p for k, p in SCORES["passages"].items() if k not in ("P02", "P03")}},
+        {**SCORES, "passages": {k: p for k, p in SCORES["passages"].items() if k not in ("P02", "P03", "P04")}},
         LOOKS, TOOL).items()}
     legacy_fx = {k: [L.bay_fixtures(TOOL, SCORES, LOOKS, k, s) for s in specs if s["look"] != "PROTOTYPE"]
                  for k, specs in legacy.items()}
@@ -557,7 +557,7 @@ finally:
     L._mirror_explicit_aims = saved_mirror
 now_fx = {k: [L.bay_fixtures(TOOL, SCORES, LOOKS, k, s) for s in specs if s["look"] != "PROTOTYPE"]
           for k, specs in legacy.items()}
-check("+ aim-aware mirroring changes no fixture outside P02/P03 (P01, P04-P06 byte-identical)",
+check("+ aim-aware mirroring changes no fixture outside P02/P03/P04 (P01, P05, P06 byte-identical; 6 Oct: P04 bay 9 mirrors a wing-aimed uplight)",
       L._canonical(now_fx) == L._canonical(legacy_fx), "passages=%s" % ",".join(sorted(now_fx)))
 bad = copy.deepcopy(SCORES)
 bad["passages"]["P02"]["no_cross_shots"] = {"enabled": True, "centre_tolerance": 50}
@@ -609,14 +609,15 @@ CEILING = {"x": (0.0, 500.0), "y": (-600.0, 600.0), "z": (700.0 + RIG_DROP, 1126
 
 
 def bulb_faults(fixtures):
-    """Every practical: on the floor (z 10-20), near a wing (|y| 700-1300), warm (2200-2700 K), small pool (<= 400 cm),
-    a bulb body (Sphere). Returns the failures (empty = OK)."""
+    """Every practical: on the floor (z 10-20) - or, 6 Oct round 2, a PRACTICAL_HANG bulb hanging at z 180-260 -
+    near a wing (|y| 700-1300), warm (2200-2700 K), small pool (<= 400 cm), a bulb body (Sphere). Returns the failures."""
     bad = []
     for f in fixtures:
         if f["authored_kind"] != "LIGHT" or f["role"] != "PRACTICAL":
             continue
         x, y, z = f["transform"]["location_cm"]
-        if not (10.0 <= z <= 20.0 and 700.0 <= abs(y) <= 1300.0 and 2200.0 <= f["temperature_kelvin"] <= 2700.0
+        height_ok = (180.0 <= z <= 260.0) if f["slot"] == "PRACTICAL_HANG" else (10.0 <= z <= 20.0)
+        if not (height_ok and 700.0 <= abs(y) <= 1300.0 and 2200.0 <= f["temperature_kelvin"] <= 2700.0
                 and f["attenuation_cm"] <= 400.0 and f["visible_mesh"]["mesh"] == "/Engine/BasicShapes/Sphere"):
             bad.append("%s B%02d (%.0f,%.0f,%.0f) %.0fK att%.0f" % (f["slot"], f["bay_index"], x, y, z,
                                                                    f["temperature_kelvin"], f["attenuation_cm"]))
@@ -656,14 +657,17 @@ expect_error("- control: keeping MOODY's cross-aimed LOW_SIDE_L_KEY in the bulb 
              lambda: plan_for("P04", scores=bad), "NO_CROSS_SHOT|passage=P04|bay=15|slot=LOW_SIDE_L_KEY")
 faults = [x for o in LAST for x in bulb_faults(p04_bays[o]["fixtures"])]
 bulbs = [f for f in last_lights if f["role"] == "PRACTICAL"]
-check("+ every bulb in 15-21 is on the floor by a wing, warm, small pool, bulb body",
-      bulbs and not faults, "%d bulbs, %d dead, %d flickering" % (
-          len(bulbs), sum(f["intensity"] == 0.0 for f in bulbs), sum(f["flicker"]["mode"] != "STEADY" for f in bulbs)))
+check("+ every bulb in 15-21 is on the floor (or hanging, PRACTICAL_HANG) by a wing, warm, small pool, bulb body",
+      bulbs and not faults, "%d bulbs, %d dim (were dead), %d flickering%s" % (
+          len(bulbs), sum(bool(f.get("dim_bulb")) for f in bulbs), sum(f["flicker"]["mode"] != "STEADY" for f in bulbs),
+          (" | " + "; ".join(faults)) if faults else ""))
 check("+ each bulb sits on its own side, inside the wing the live P04 record read (bay-level positions)",
       all((f["transform"]["location_cm"][1] < 0) == (f["slot"].endswith("_L") != bool(o == 19))
-          for o in LAST for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT" and f["role"] == "PRACTICAL"))
-check("+ variety: pairs, singles (one dead) and HUM/BUZZ flicker all occur",
-      {sum(f["intensity"] > 0 for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT" and f["role"] == "PRACTICAL")
+          for o in LAST for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT" and f["role"] == "PRACTICAL"
+          and f["slot"] in ("PRACTICAL_L", "PRACTICAL_R")))
+check("+ variety: pairs, singles (one dim) and HUM/BUZZ flicker all occur (floor pair counted; dim = revived dead bulb)",
+      {sum(f["intensity"] > 0 and not f.get("dim_bulb") for f in p04_bays[o]["fixtures"]
+           if f["authored_kind"] == "LIGHT" and f["slot"] in ("PRACTICAL_L", "PRACTICAL_R"))
        for o in LAST} == {1, 2} and {"HUM", "BUZZ"} <= {f["flicker"]["mode"] for f in bulbs})
 raised = copy.deepcopy(p04_bays[15]["fixtures"])
 next(f for f in raised if f["slot"] == "PRACTICAL_L")["transform"]["location_cm"][2] = 140.0
@@ -686,9 +690,11 @@ low["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["aim_targ
 check("- control: aimed at the wing foot instead of the ceiling fails the strike predicate",
       strike_faults(plan_for("P04", scores=low)["targets"][17 - 7]["fixtures"]))
 p04_nc = L.validate_scores(SCORES, LOOKS, TOOL)["P04"]["no_cross"]
-check("+ P04 no-cross passes on bays 15-21 (strike = AIM_POINT, beam end stays right of centre)",
-      p04_nc["rows"] and {r["bay"] for r in p04_nc["rows"]} == {17}
-      and all(r["verdict"] == "OK_SAME_SIDE" and r["basis"] == "AIM_POINT" for r in p04_nc["rows"]), str(p04_nc["rows"]))
+check("+ P04 no-cross passes on bays 7-21 (11 exempt): wing tops/uplights own side, strike = AIM_POINT (6 Oct round 2)",
+      p04_nc["rows"] and {r["bay"] for r in p04_nc["rows"]} == {8, 9, 12, 17}
+      and all(r["verdict"] == "OK_SAME_SIDE" for r in p04_nc["rows"])
+      and [r["basis"] for r in p04_nc["rows"] if r["bay"] == 17] == ["AIM_POINT"],
+      "%d spots" % len(p04_nc["rows"]))
 x = copy.deepcopy(SCORES)
 x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["aim_target_pair_cm"] = [250.0, -300.0, 1077.6]
 expect_error("- control: strike aimed at the LEFT half of the border is a cross shot",
@@ -698,9 +704,9 @@ x["variants"]["P04_CEILING_STRIKE"]["instrument_overrides"]["TOP_R"]["attenuatio
 expect_error("- control: the same strike with a 20 m reach carries on past centre (CROSS_BEYOND_TARGET)",
              lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL), "verdict=CROSS_BEYOND_TARGET")
 x = copy.deepcopy(SCORES)
-x["passages"]["P04"]["no_cross_shots"].pop("bays")
-expect_error("- control: the rule over ALL P04 bays fails on 7-14 (MOODY low sides across), hence bays 15-21",
-             lambda: L.validate_scores(x, LOOKS, TOOL), "NO_CROSS_SHOT|passage=P04|bay=8")
+x["passages"]["P04"]["no_cross_shots"].pop("exempt_bays")
+expect_error("- control: without the bay-11 exemption the cold breakage beam (4 Oct look) is a cross shot",
+             lambda: L.validate_scores(x, LOOKS, TOOL), "NO_CROSS_SHOT|passage=P04|bay=11|")
 check("+ the bay-17 strike casts shadows (Gary 5 Oct ~16:25; the LOW_SIDE-only rule is gone)",
       next(f for f in p04_bays[17]["fixtures"] if f["slot"] == "TOP_R")["cast_shadows"] is True)
 x = copy.deepcopy(SCORES)
@@ -771,34 +777,20 @@ def fixtures_of(module, tool, scores, looks, key, keep=lambda o: True):
     return [module.bay_fixtures(tool, scores, looks, key, s) for s in specs if s["look"] != "PROTOTYPE" and keep(s["ordinal"])]
 
 
-same = {}
-for key, keep in (("P01", lambda o: True), ("P05", lambda o: True), ("P06", lambda o: True), ("P04", lambda o: o <= 14)):
-    same[key] = L._canonical(fixtures_of(L, TOOL, SCORES, LOOKS, key, keep)) == L._canonical(
-        fixtures_of(OLD_TOOL, OLD_P04, OLD_SCORES, OLD_LOOKS, key, keep))
-check("+ P01, P05, P06 and P04 bays 7-14: every fixture byte-identical to the pre-change tool + data", all(same.values()),
-      str(same))
-old_plans = {}
-for key in ("P01", "P05", "P06"):
-    built_cues, built_passages, built_record = build_show(SCORES)
-    new = L.build_score_plan(TOOL, SCORES, LOOKS, key, built_passages, built_cues, built_record)
-    old = OLD_TOOL.build_score_plan(OLD_P04, OLD_SCORES, OLD_LOOKS, key, built_passages, built_cues, built_record)
-    old.pop("no_cross", None)
-    new.pop("no_cross", None)
-    new.pop("body_assets", None)
-    old_plans[key] = L._canonical(new) == L._canonical(old)
-check("+ P01, P05, P06 whole plans byte-identical (shadow rule removal + body code are no-ops there)",
-      all(old_plans.values()), str(old_plans))
+# 6 Oct round 2: P01/P04/P05/P06 change on purpose and dead bulbs glow everywhere, so the 5 Oct identity against
+# the pre-bodies tool is re-stated against the preRound2 tool + data in section 17 (features off -> identical).
 p04_bodies = [f for o in LAST for f in p04_bays[o]["fixtures"] if f.get("role") == "PRACTICAL_BODY"]
-p02_bodies = [f for t in p02_plan["targets"] for f in t["fixtures"] if f.get("body")]
+p02_bodies = [f for t in p02_plan["targets"] for f in t["fixtures"] if f.get("role") == "PRACTICAL_BODY"
+              and f["paired_slot"] in ("PRACTICAL_BULB_DEAD", "PRACTICAL_R") and f["body"]["mode"] == "MATCH_LIGHT"]
 lights04 = {(f["bay_index"], f["slot"]): f for o in LAST for f in p04_bays[o]["fixtures"] if f["authored_kind"] == "LIGHT"}
-check("+ every P04 floor bulb body is a derived Bulbs/ mesh: lit -> emissive matched, dead -> dull",
+check("+ every P04 bulb body is a derived Bulbs/ mesh: lit -> emissive matched, revived dead -> DIM glow",
       p04_bodies and all(f["mesh"].startswith(L.BODY_ASSET_DIR + "/SM_PB_Bulb_") for f in p04_bodies)
-      and all((f["body"]["mode"] == "MATCH_LIGHT") == (lights04[(f["bay_index"], f["paired_slot"])]["intensity"] > 0)
-              for f in p04_bodies), "%d bodies, %d dead" % (len(p04_bodies), sum(f["body"]["mode"] == "DEAD" for f in p04_bodies)))
+      and all((f["body"]["mode"] == "DIM") == bool(lights04[(f["bay_index"], f["paired_slot"])].get("dim_bulb"))
+              for f in p04_bodies), "%d bodies, %d dim" % (len(p04_bodies), sum(f["body"]["mode"] == "DIM" for f in p04_bodies)))
 warm = [f["body"]["colour"] for f in p04_bodies if f["body"]["mode"] == "MATCH_LIGHT"]
-check("+ live warm bodies are warm (r >= g >= b, b <= 0.25) and brighter than dead ones",
+check("+ live warm bodies are warm (r >= g >= b, b <= 0.25) and brighter than the DIM glow",
       all(c[0] >= c[1] >= c[2] and c[2] <= 0.25 for c in warm)
-      and min(f["body"]["intensity"] for f in p04_bodies if f["body"]["mode"] == "MATCH_LIGHT") > L.BODY_DEAD_INTENSITY,
+      and min(f["body"]["intensity"] for f in p04_bodies if f["body"]["mode"] == "MATCH_LIGHT") > L.BODY_DIM_INTENSITY,
       str(sorted({tuple(c) for c in warm})))
 k22, k27 = L.kelvin_rgb_linear(2200), L.kelvin_rgb_linear(2700)
 check("+ Kelvin tint: 2200 K is redder than 2700 K, 6500 K is near white",
@@ -812,23 +804,29 @@ check("+ P02 revived bulbs carry matched emissive bodies (rose / acid / violet k
       str(sorted({tuple(f["body"]["colour"]) for f in p02_bodies})))
 assets = L.body_asset_plan([f for t in p04_plan["targets"] + p02_plan["targets"] for f in t["fixtures"]])
 check("+ the derived asset plan is small and all under /Game/InfinityStage/Lighting/Bulbs",
-      0 < len(assets["mis"]) <= 20 and len(assets["meshes"]) == len(assets["mis"])
+      0 < len(assets["mis"]) <= 40 and len(assets["meshes"]) == len(assets["mis"])  # 6 Oct: + DIM tints + caps
       and all(p.startswith(L.BODY_ASSET_DIR + "/") for p in list(assets["mis"]) + list(assets["meshes"])),
       "MIs=%d meshes=%d" % (len(assets["mis"]), len(assets["meshes"])))
 x = copy.deepcopy(SCORES)
 x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["material"]["mode"] = "DEAD"
-x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["emissive"] = False
-expect_error("- control: a dead body on a lit lamp is refused", lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL),
-             "BODY_DEAD_ON_LIT_LAMP")
+expect_error("- control: the retired DEAD body mode is refused (6 Oct: dead bulbs glow DIM)",
+             lambda: L.resolve_looks(x, BASE), "BAD_BODY_MATERIAL")
 x = copy.deepcopy(SCORES)
-x["variants"]["P04_GROUND_BULB_ONE_DEAD"]["instrument_overrides"]["PRACTICAL_R"]["visible_mesh"]["material"]["mode"] = "MATCH_LIGHT"
-x["variants"]["P04_GROUND_BULB_ONE_DEAD"]["instrument_overrides"]["PRACTICAL_R"]["visible_mesh"]["emissive"] = True
-expect_error("- control: a glowing body on a dead lamp is refused", lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL),
-             "BODY_GLOWS_ON_DEAD_LAMP")
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["material"]["mode"] = "DIM"
+expect_error("- control: a DIM body on a bright (220 lm) lamp is refused",
+             lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL), "BODY_DIM_ON_BRIGHT_LAMP")
+x = copy.deepcopy(SCORES)
+x["dim_bulbs"]["enabled"] = False
+expect_error("- control: with the dim policy OFF a dead lamp with a body material is refused (no glowing dead body)",
+             lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL), "BODY_GLOWS_ON_DEAD_LAMP")
 x = copy.deepcopy(SCORES)
 x["passages"]["P04"]["segments"][2]["cycle"][0]["overrides"]["PRACTICAL_L"]["intensity"] = 0.0
-expect_error("- control: a bay override that kills a lamp but keeps its glowing body is refused",
-             lambda: L.validate_scores(x, LOOKS, TOOL), "BODY_GLOWS_ON_DEAD_LAMP|passage=P04|bay=15")
+px = L.validate_scores(x, LOOKS, TOOL)
+f15 = L.bay_fixtures(TOOL, x, LOOKS, "P04", px["P04"]["specs"][14])
+lamp = next(f for f in f15 if f["slot"] == "PRACTICAL_L")
+check("+ a bay override that kills a lamp now turns it into a DIM bulb (18 lm orange) instead of a dark glowing body",
+      lamp.get("dim_bulb") == "ORANGE" and lamp["intensity"] == 18.0
+      and next(f for f in f15 if f["slot"] == "PRACTICAL_L_BODY")["body"]["mode"] == "DIM")
 x = copy.deepcopy(SCORES)
 x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["visible_mesh"]["material"]["parent"] = "/Game/Foo/M_Bar"
 expect_error("- control: an unknown parent material is refused", lambda: L.resolve_looks(x, BASE), "BAD_BODY_MATERIAL")
@@ -907,8 +905,354 @@ for name in ("P03_PYRE", "P03_PYRE_SIDES"):
 expect_error("- control: the shadow BUDGET still refuses: P03 with the 0 cd pyre TOP_R also casting exceeds 54",
              lambda: plan_for("P03", scores=x), "SHADOW_BUDGET_EXCEEDED|passage=P03|before=54|after=57")
 casters = {k: (plan_for(k)["shadow"]["passage_before"], plan_for(k)["shadow"]["passage_after"]) for k in ("P02", "P03", "P04")}
-check("+ shadow counts within budget (model census): P02 70->40, P03 54->49, P04 43->22",
-      casters == {"P02": (70, 40), "P03": (54, 49), "P04": (43, 22)}, str(casters))
+check("+ shadow counts within budget (model census): P02 70->40, P03 54->49, P04 43->25 (6 Oct: +3 wing-wash casters, bays 8, 9, 12 tops/uplights)",
+      casters == {"P02": (70, 40), "P03": (54, 49), "P04": (43, 25)}, str(casters))
+
+print("\n== 17. round 2 (Gary note 59, 6 Oct): dim bulbs, caps, bulb behaviours, new light functions, P01/P04/P05/P06")
+R2_TOOL = load_backup_tool(os.path.join(HERE, "lighting_scores_apply.py.bak-20261006-preRound2"), "_scores_pre_round2")
+R2_SCORES = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261006-preRound2"), encoding="utf-8"))
+# The retired DEAD body mode (2 lamps, P04) is refused by the round-2 code, so the identity runs on the preRound2
+# data with those two bodies as plain spheres (both tools get the same data).
+for _name in ("P04_GROUND_BULB_ONE_DEAD", "P04_CEILING_STRIKE"):
+    _body = R2_SCORES["variants"][_name]["instrument_overrides"]["PRACTICAL_R"]["visible_mesh"]
+    assert _body["material"]["mode"] == "DEAD"
+    _body.pop("material")
+    _body["emissive"] = False
+R2_P04 = R2_TOOL.load_p04_tool()
+R2_LOOKS = R2_TOOL.resolve_looks(R2_SCORES, R2_TOOL.load_base_looks(R2_SCORES)[0])
+ALL = ("P01", "P02", "P03", "P04", "P05", "P06")
+
+
+new_on_old = {k: L._canonical(fixtures_of(L, TOOL, R2_SCORES, L.resolve_looks(R2_SCORES, BASE), k))
+              == L._canonical(fixtures_of(R2_TOOL, R2_P04, R2_SCORES, R2_LOOKS, k)) for k in ALL}
+same_plans = {}
+for key in ALL:
+    built_cues, built_passages, built_record = build_show(R2_SCORES)
+    new = L.build_score_plan(TOOL, R2_SCORES, L.resolve_looks(R2_SCORES, BASE), key, built_passages, built_cues, built_record)
+    old = R2_TOOL.build_score_plan(R2_P04, R2_SCORES, R2_LOOKS, key, built_passages, built_cues, built_record)
+    new.pop("warnings")
+    for t in new["targets"]:
+        t.pop("cpp_pending")
+    same_plans[key] = L._canonical(new) == L._canonical(old)
+check("+ the round-2 code on the preRound2 data: every fixture AND whole plan byte-identical, all six passages (new passes are no-ops without their data)",
+      all(new_on_old.values()) and all(same_plans.values()), "%s %s" % (new_on_old, same_plans))
+x = copy.deepcopy(R2_SCORES)
+x["dim_bulbs"] = copy.deepcopy(SCORES["dim_bulbs"])
+check("- control: the same old data WITH the dim policy differs (the identity check can fail)",
+      L._canonical(fixtures_of(L, TOOL, x, L.resolve_looks(x, BASE), "P01"))
+      != L._canonical(fixtures_of(R2_TOOL, R2_P04, R2_SCORES, R2_LOOKS, "P01")))
+OFF = copy.deepcopy(SCORES)
+OFF["dim_bulbs"]["enabled"] = False
+OFF["bulb_caps"]["enabled"] = False
+del OFF["bulb_body_behaviours"]
+for _variant in OFF["variants"].values():  # policy off: every DIM-coded 0-lm body goes back to a plain sphere
+    for _row in list(_variant.get("instrument_overrides", {}).values()) + _variant.get("add_instruments", []):
+        _body = _row.get("visible_mesh", {})
+        if _body.get("material", {}).get("mode") == "DIM":
+            _body.pop("material")
+            _body["emissive"] = False
+LOOKS_OFF = L.resolve_looks(OFF, BASE)
+untouched = {k: L._canonical(fixtures_of(L, TOOL, OFF, LOOKS_OFF, k))
+             == L._canonical(fixtures_of(R2_TOOL, R2_P04, R2_SCORES, R2_LOOKS, k)) for k in ("P02", "P03")}
+check("+ P02/P03 score data untouched: with the bulb features off their fixtures equal preRound2 byte for byte",
+      all(untouched.values()), str(untouched))
+
+
+def _lights(bays):
+    """Every lamp field except visible_mesh (the dim body's style text is new on 6 Oct)."""
+    return [[{k: v for k, v in f.items() if k != "visible_mesh"} for f in bay if f.get("authored_kind") == "LIGHT"]
+            for bay in bays]
+
+
+p04_17 = L._canonical(_lights(fixtures_of(L, TOOL, OFF, LOOKS_OFF, "P04", lambda o: o == 17))) == L._canonical(
+    _lights(fixtures_of(R2_TOOL, R2_P04, R2_SCORES, R2_LOOKS, "P04", lambda o: o == 17)))
+p05_tail = L._canonical(fixtures_of(L, TOOL, OFF, LOOKS_OFF, "P05", lambda o: o >= 19)) == L._canonical(
+    fixtures_of(R2_TOOL, R2_P04, R2_SCORES, R2_LOOKS, "P05", lambda o: o >= 19))
+check("+ kept as Gary loves them: P04 bay-17 lamps and P05 bays 19-93 identical to preRound2 (bulb features off)",
+      p04_17 and p05_tail, "p04_17=%s p05_19_93=%s" % (p04_17, p05_tail))
+
+# -- dim bulbs everywhere
+fx_all = {k: fixtures_of(L, TOOL, SCORES, LOOKS, k) for k in ALL}
+pract = [(k, f) for k in ALL for bay in fx_all[k] for f in bay if f.get("authored_kind") == "LIGHT" and f["role"] == "PRACTICAL"]
+dims = [(k, f) for k, f in pract if f.get("dim_bulb")]
+pol = SCORES["dim_bulbs"]
+check("+ no dead practical is left: every former 0-lumen practical glows (orange/white/pink), <= 40 lm, short reach",
+      not [f for k, f in pract if float(f["intensity"]) <= 0.0] and dims
+      and all(f["intensity"] == pol["lumens"] and f["attenuation_cm"] <= L.DIM_MAX_ATTENUATION_CM
+              and f["dim_bulb"] in pol["tints"] and f["color_rgb_linear"] == pol["tints"][f["dim_bulb"]]["rgb"] for k, f in dims),
+      "%d dim bulbs: %s" % (len(dims), {k: sum(1 for kk, f in dims if kk == k) for k in ALL}))
+check("+ P01's dead bulbs are pale PINK (note 59); P04's are ORANGE (warm floor-bulb rule)",
+      {f["dim_bulb"] for k, f in dims if k == "P01"} == {"PINK"} and {f["dim_bulb"] for k, f in dims if k == "P04"} == {"ORANGE"})
+bodies_all = [(k, f) for k in ALL for bay in fx_all[k] for f in bay if f.get("role") == "PRACTICAL_BODY"]
+sphere_dims = [(k, f) for k, f in dims if f["visible_mesh"]["mesh"] == L.BULB_MESH]
+check("+ every dim bulb with a Sphere body has a DIM glass body (emissive MI, colour of its tint)",
+      all(any(b["label"] == f["label"] + "_BODY" and b.get("body", {}).get("mode") == "DIM" for kk, b in bodies_all if kk == k)
+          for k, f in sphere_dims), "%d sphere-bodied dim bulbs" % len(sphere_dims))
+x = copy.deepcopy(SCORES)
+x["variants"]["P01_WARM_EARLY"]["instrument_overrides"]["PRACTICAL_BULB_DEAD"]["dim_tint"] = "GREEN"
+expect_error("- control: an unknown dim tint is refused", lambda: L.resolve_looks(x, BASE), "DIM_TINT_BAD")
+x = copy.deepcopy(SCORES)
+x["dim_bulbs"]["lumens"] = 120.0
+expect_error("- control: a 'dim' bulb at 120 lm is refused (DIM means minimal glow)",
+             lambda: L.validate_scores(x, L.resolve_looks(x, BASE), TOOL), "BODY_DIM_ON_BRIGHT_LAMP")
+
+# -- caps
+caps = [(k, f) for k in ALL for bay in fx_all[k] for f in bay if f.get("role") == "PRACTICAL_CAP"]
+sphere_bodies = [(k, b) for k, b in bodies_all
+                 if (b["body"]["source_mesh"] if b.get("body") else b["mesh"]) == L.BULB_MESH]
+
+
+def cap_ok(body, cap):
+    bz, sz = body["transform"]["location_cm"][2], body["transform"]["scale"][2]
+    cz, ch = cap["transform"]["location_cm"][2], cap["transform"]["scale"][2] * 100.0
+    return (abs((cz - ch / 2.0) - (bz + sz * 50.0 - 1.0)) < 1.0e-6 and cap["transform"]["location_cm"][:2] == body["transform"]["location_cm"][:2]
+            and cap["mesh"].startswith(L.BODY_ASSET_DIR + "/SM_PB_Bulb_") and cap["body"]["mode"] == "CAP")
+
+
+cap_by_label = {(k, c["label"]): c for k, c in caps}
+check("+ every Sphere bulb body has exactly one dull screw cap sitting on its top; fixtures (SM_Lamp_*) get none",
+      len(caps) == len(sphere_bodies) and all(cap_ok(b, cap_by_label[(k, b["label"][:-5] + "_CAP")]) for k, b in sphere_bodies),
+      "%d caps" % len(caps))
+bad_cap = copy.deepcopy(caps[0][1])
+bad_cap["transform"]["location_cm"][2] += 30.0
+check("- control: a cap floating 30 cm above its bulb fails the predicate",
+      not cap_ok(next(b for k, b in sphere_bodies if b["label"][:-5] + "_CAP" == caps[0][1]["label"]), bad_cap))
+check("- control: caps OFF -> no caps", not [f for bay in fixtures_of(L, TOOL, OFF, LOOKS_OFF, "P04") for f in bay
+                                         if f.get("role") == "PRACTICAL_CAP"])
+
+# -- bulb behaviours (data only)
+modes = [b["body_behaviour"]["mode"] for k, b in bodies_all]
+frac = {m: modes.count(m) / float(len(modes)) for m in L.BODY_BEHAVIOURS}
+check("+ bulb behaviours: ~65%% STABLE, ~25%% SLIGHT, ~10%% FAIL over all %d bodies (deterministic hash split)" % len(modes),
+      0.05 <= frac["FAIL"] <= 0.15 and 0.18 <= frac["SLIGHT"] <= 0.32, str({m: round(v, 3) for m, v in frac.items()}))
+again = [b["body_behaviour"] for k in ALL for bay in fixtures_of(L, TOOL, SCORES, LOOKS, k) for b in bay if b.get("role") == "PRACTICAL_BODY"]
+check("+ the split is stable across runs (no random stream: same modes and seeds on a second expansion)",
+      again == [b["body_behaviour"] for k, b in bodies_all])
+x = copy.deepcopy(SCORES)
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["body_mode"] = "FAIL"
+fx = [f for bay in fixtures_of(L, TOOL, x, L.resolve_looks(x, BASE), "P04", lambda o: o == 15) for f in bay]
+check("+ an explicit body_mode on the lamp wins over the split",
+      next(f for f in fx if f["slot"] == "PRACTICAL_L_BODY")["body_behaviour"]["mode"] == "FAIL")
+x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["body_mode"] = "EXPLODE"
+expect_error("- control: an unknown body_mode is refused", lambda: L.resolve_looks(x, BASE), "BODY_MODE_BAD")
+import inspect as _inspect  # noqa: E402
+check("+ behaviours are DATA ONLY until the C++ field exists: cpp_field is null and no authoring code reads body_behaviour",
+      SCORES["bulb_body_behaviours"]["cpp_field"] is None
+      and "body_behaviour" not in _inspect.getsource(TOOL._make_prop) + _inspect.getsource(L._template)
+      + _inspect.getsource(L._mutate_apply))
+
+# -- new light functions (the parent graph in Python; INFERRED vs the binary: Sine Period default 1)
+LFI = L.validate_flicker_instances(SCORES)
+
+
+def lf_series(params, seconds=40.0, dt=0.005):
+    return [(i * dt, L.lf_level(i * dt, params)) for i in range(int(seconds / dt))]
+
+
+def bursts(params, seconds=40.0):
+    series, flashes, start = lf_series(params, seconds), [], None
+    for t, v in series:
+        if v > 0.5 and start is None:
+            start = t
+        elif v <= 0.5 and start is not None:
+            flashes.append((start, t))
+            start = None
+    groups = []
+    for a, b in flashes:
+        if groups and a - groups[-1][1] < 0.7:
+            groups[-1][1], groups[-1][2] = b, groups[-1][2] + 1
+        else:
+            groups.append([a, b, 1])
+    return groups
+
+
+def dips_per_second(params, seconds=30.0):
+    series = lf_series(params, seconds)
+    mins = sum(1 for (unused, a), (unused2, b), (unused3, c) in zip(series, series[1:], series[2:]) if b < a and b <= c and b < 0.97)
+    return mins / seconds, min(v for unused, v in series), max(v for unused, v in series)
+
+
+rate, low, high = dips_per_second(LFI[L.FLICKER_ROOT + "Pulse1Hz_A"]["params"])
+check("+ Pulse1Hz: gentle irregular ~1 Hz pulse (0.6-1.6 dips/s, never below 60%)", 0.6 <= rate <= 1.6 and low >= 0.6 and high > 0.99,
+      "dips/s=%.2f min=%.2f" % (rate, low))
+groups = {n: bursts(LFI[L.FLICKER_ROOT + "Burst2Hz_" + n]["params"]) for n in "ABC"}
+def burst_ok(gs):
+    return len(gs) >= 5 and all(g[2] == 2 and g[1] - g[0] <= 0.7 for g in gs[1:-1])
+
+
+shape = all(burst_ok(groups[n]) for n in "ABC")
+period = all(abs((groups[n][i + 1][0] - groups[n][i][0]) - 4.0) < 0.05 for n in "ABC" for i in range(1, len(groups[n]) - 2))
+starts = sorted(groups[n][2][0] % 4.0 for n in "ABC")
+check("+ Burst2Hz A/B/C: 2 flashes at 2 Hz inside <= 0.7 s, every 4 s, the three phases >= 0.5 s apart",
+      shape and period and min(b - a for a, b in zip(starts, starts[1:] + [starts[0] + 4.0])) >= 0.5,
+      "starts=%s" % [round(v, 2) for v in starts])
+soft = dict(LFI[L.FLICKER_ROOT + "Burst2Hz_A"]["params"], Hardness=0.0, OnBias=0.5)
+check("- control: the same burst with Hardness 0 / OnBias 0.5 is NOT a 2-flash burst (the predicate can fail)",
+      not burst_ok(bursts(soft)), "groups=%d" % len(bursts(soft)))
+rate, low, high = dips_per_second(LFI[L.FLICKER_ROOT + "HarpFlutter"]["params"])
+check("+ HarpFlutter: shallow harp-rate flutter (5-10 dips/s, never below 84%)", 5.0 <= rate <= 10.0 and low >= 0.84, "dips/s=%.1f min=%.2f" % (rate, low))
+x = copy.deepcopy(SCORES)
+x["flicker_instances"]["/Game/Other/MI_X"] = x["flicker_instances"].pop(L.FLICKER_ROOT + "HarpFlutter")
+expect_error("- control: a flicker instance outside MI_LF_Flicker_ is refused", lambda: L.validate_flicker_instances(x),
+             "BAD_FLICKER_INSTANCE")
+used = {f["flicker"]["material"] for k in ALL for bay in fx_all[k] for f in bay if f.get("authored_kind") == "LIGHT"} - {None}
+check("+ every new MI the scores use is declared (create-only); every declared MI is used",
+      {p for p in used if p.split("_Flicker_")[1] not in ("Steady", "Slow", "Breath", "Hum", "Buzz", "Fault")}
+      == set(LFI), str(sorted(set(LFI))))
+
+
+class FakeLF:
+    def __init__(self, assets=None):
+        self.assets, self.calls = copy.deepcopy(assets or {}), []
+
+    def exists(self, path):
+        return path in self.assets
+
+    def read_lf(self, path):
+        return copy.deepcopy(self.assets[path])
+
+    def create_lf(self, path, parent, params):
+        self.calls.append(("create", path))
+        self.assets[path] = {"parent": parent, "params": dict(params)}
+
+    def save(self, path):
+        self.calls.append(("save", path))
+        return True
+
+
+api = FakeLF()
+check("+ flicker MIs: created once and saved, a second run reuses them", sorted(L.ensure_flicker_instances(api, LFI)) == sorted(LFI)
+      and L.ensure_flicker_instances(FakeLF(api.assets), LFI) == [])
+tampered = copy.deepcopy(api.assets)
+tampered[L.FLICKER_ROOT + "Pulse1Hz_A"]["params"]["Speed"] = 3.0
+expect_error("- control: an existing MI with other parameters stops the run (never edited)",
+             lambda: L.ensure_flicker_instances(FakeLF(tampered), LFI), "FLICKER_INSTANCE_EXISTS_DIFFERENT")
+
+# -- per-lamp keying, P01
+p01p = {t["ordinal"]: t for t in plan_for("P01")["targets"]}
+beam = {o: next((f for f in p01p[o]["fixtures"] if f.get("role") == "BEAM"), None) for o in range(13, 41)}
+lit_beams = {o: f for o, f in beam.items() if f is not None}
+check("+ P01 ground beams: bay 20 = the original orange BEAM_R; 18/21/22 burst (A/B/C) and strike at 5400/1500/4200 cm while the rest of their bay keeps 650",
+      [round(lit_beams[o]["distance_keying"]["strike_distance_cm"]) for o in (18, 20, 21, 22)] == [5400, 650, 1500, 4200]
+      and [lit_beams[o]["flicker"]["material"].rsplit("_", 1)[-1] if lit_beams[o]["flicker"]["material"] else None
+           for o in (18, 20, 21, 22)] == ["A", None, "B", "C"]
+      and all(f["distance_keying"]["strike_distance_cm"] == 650.0 for o in (18, 21, 22) for f in p01p[o]["fixtures"]
+              if f.get("authored_kind") == "LIGHT" and f.get("role") != "BEAM")
+      and len({tuple(lit_beams[o]["color_rgb_linear"]) for o in (18, 20, 21, 22)}) == 4)
+old20 = next(f for f in fixtures_of(R2_TOOL, R2_P04, R2_SCORES, R2_LOOKS, "P01", lambda o: o == 20)[0] if f["slot"] == "BEAM_R")
+new20 = dict(lit_beams[20])
+check("+ bay 20's BEAM_R is the 5 Oct lamp (colour, intensity, aim, flicker, keying) apart from its new label look name",
+      all(new20[k] == old20[k] for k in ("color_rgb_linear", "intensity", "transform", "flicker", "distance_keying", "volumetric_scattering")))
+x = copy.deepcopy(SCORES)
+x["passages"]["P01"]["segments"][3]["cycle"][5]["overrides"]["BEAM_R"]["keying"]["strike_cm"] = 10.0
+expect_error("- control: a misspelt per-lamp keying key is refused", lambda: L.validate_scores(x, LOOKS, TOOL), "BAD_DRAMA_FIELDS")
+tops = {o: [f for f in p01p[o]["fixtures"] if f.get("role") == "TOP"] for o in range(1, 49)}
+check("+ P01 tops: dark in 3-5, ping on from bay 6 with the 1 Hz pulse in red/green/cream/pink (>= 4 colours)",
+      all(f["intensity"] == 0.0 for o in (3, 4, 5) for f in tops[o])
+      and all(f["intensity"] > 0 and "Pulse1Hz" in f["flicker"]["material"] for o in range(6, 49) for f in tops[o])
+      and len({tuple(f["color_rgb_linear"]) for o in range(6, 49) for f in tops[o]}) >= 4)
+low = {o: sum(f["intensity"] for f in p01p[o]["fixtures"] if f.get("role") == "LOW_SIDE") / p01p[o]["level_scale"]
+       for o in range(3, 49) if any(f.get("role") == "LOW_SIDE" for f in p01p[o]["fixtures"])}
+topsum = {o: sum(f["intensity"] for f in tops[o]) / p01p[o]["level_scale"] for o in low}
+check("+ P01 low sides darken after bay 12 (<= 40% of the early level) and the tops then out-shine them",
+      max(low[o] for o in low if o > 12) <= 0.4 * min(low[o] for o in low if o <= 12)
+      and all(topsum[o] >= low[o] for o in low if o > 12), "early min %.0f, late max %.0f" % (
+          min(low[o] for o in low if o <= 12), max(low[o] for o in low if o > 12)))
+clamps = [f for t in p01p.values() for f in t["fixtures"] if f.get("slot") == "PRACTICAL_CLAMP"]
+check("+ P01 clamp lamps are pale pink and lit", clamps and all(f["color_rgb_linear"] == [1.0, 0.72, 0.8] and f["intensity"] > 0 for f in clamps))
+
+# -- P04
+p04p = {t["ordinal"]: t for t in plan_for("P04")["targets"]}
+lit_pr = {o: [f for f in p04p[o]["fixtures"] if f.get("role") == "PRACTICAL" and f["intensity"] > 0 and not f.get("dim_bulb")]
+          for o in range(7, 22)}
+check("+ P04 7-21: active (non-dim) practicals in every bay but the VOID (14); hanging bulbs in the bulb bays",
+      all(lit_pr[o] for o in range(7, 22) if o != 14) and not lit_pr[14]
+      and all(any(f["transform"]["location_cm"][2] > 150 for f in p04p[o]["fixtures"] if f.get("role") == "PRACTICAL")
+              for o in (7, 8, 9, 10, 13, 15, 16, 18, 19, 20, 21)),
+      " ".join("B%d:%d" % (o, len(v)) for o, v in sorted(lit_pr.items())))
+wing = [(o, f) for o in (8, 9, 12) for f in p04p[o]["fixtures"] if f.get("authored_kind") == "LIGHT"
+        and f["role"] in ("TOP", "LOW_SIDE")]
+check("+ P04 8/9/12: tops and the uplight wash their own wing (aim_wing_side, volumetric <= 0.1)",
+      wing and all(f.get("aim_wing_side") and f["volumetric_scattering"] <= 0.1 for o, f in wing), "%d lamps" % len(wing))
+
+# -- P05
+p05_plan = plan_for("P05")
+p05p = {t["ordinal"]: t for t in p05_plan["targets"]}
+
+
+def roles(o):
+    return sorted(f["role"] for f in p05p[o]["fixtures"] if f.get("authored_kind") == "LIGHT")
+
+
+fills = [[f["distance_keying"]["strike_distance_cm"] for f in p05p[o]["fixtures"] if f.get("role") == "FILL"] for o in range(1, 7)]
+check("+ P05 1-6: upper spots + fills + up-spots; the fills come on in sequence (each bay's strikes further ahead, L before R)",
+      all({"FILL", "UPLIGHT", "TOP", "LOW_SIDE", "BEAM"} <= set(roles(o)) for o in range(1, 7))
+      and all(a[0] < b[0] and a[1] < b[1] for a, b in zip(fills, fills[1:])) and all(l > r for l, r in fills), str(fills))
+check("+ P05 7-12: sky cut (no FILL/BEAM/LOW_SIDE), tops + up-spots blink (FAULT), snuffed just behind Puss (EXTINGUISH)",
+      all(not {"FILL", "BEAM", "LOW_SIDE"} & set(roles(o)) for o in range(7, 13))
+      and all(f["flicker"]["mode"] == "FAULT" and f["distance_keying"]["after_pass"] == "EXTINGUISH"
+              for o in range(7, 13) for f in p05p[o]["fixtures"] if f.get("role") in ("TOP", "UPLIGHT")))
+check("+ P05 13-18: everything on; the 12 club movers are SKIPPED with a warning (no C++ yet), none authored",
+      all({"FILL", "UPLIGHT", "TOP", "LOW_SIDE", "BEAM"} <= set(roles(o)) for o in range(13, 19))
+      and "MOVER" not in {r for o in p05p for r in roles(o)} and len(p05_plan["warnings"]) == 12
+      and all(w.startswith("SKIPPED_PENDING_CPP|passage=P05") for w in p05_plan["warnings"]))
+x = copy.deepcopy(SCORES)
+for row in x["variants"]["P05_ALL_ON"]["add_instruments"]:
+    row.pop("requires_cpp", None)
+expect_error("- control: a MOVER without its requires_cpp gate is refused (never authored half-working)",
+             lambda: L.resolve_looks(x, BASE), "MOVER_WITHOUT_CPP_GATE")
+own = [(o, f) for o in range(1, 19) for f in p05p[o]["fixtures"] if f.get("role") in ("FILL", "UPLIGHT", "TOP")]
+check("+ P05 new spots stay on their own side (FILL aimed outward at the fence line, TOP/UPLIGHT own wing)",
+      all(L.no_cross_rows("P05", o, [f], dict(L.NO_CROSS_DEFAULTS)) for o, f in own if f["type"] == "SPOT"), "%d spots" % len(own))
+x = copy.deepcopy(SCORES)
+x["variants"]["P05_SKY_APPROACH"]["add_instruments"][0]["aim_target_pair_cm"] = [0.0, 2100.0, 450.0]
+expect_error("- control: a sky fill aimed at the OTHER fence fails the cross rule",
+             lambda: [L.no_cross_rows("P05", 1, [f], dict(L.NO_CROSS_DEFAULTS)) for f in L.bay_fixtures(
+                 TOOL, x, L.resolve_looks(x, BASE), "P05", L.validate_scores(x, L.resolve_looks(x, BASE), TOOL)["P05"]["specs"][0])
+                 if f.get("role") == "FILL"], "NO_CROSS_SHOT|passage=P05|bay=1|slot=FILL_L")
+x = copy.deepcopy(SCORES)
+x["variants"]["P05_ALL_ON"]["add_instruments"][-1]["drama"] = {"slow_move": True, "pan_amplitude_degrees": 60.0}
+expect_error("- control: slow-move amplitude above the C++ clamp (45 deg) is refused", lambda: L.resolve_looks(x, BASE),
+             "LAMP_DRAMA_RANGE")
+
+# -- P06
+model = SCORES["passages"]["P06"]["beat_map"]
+p06_plan = plan_for("P06")
+p06p = {t["ordinal"]: t for t in p06_plan["targets"]}
+blue = all(f["color_rgb_linear"][2] > f["color_rgb_linear"][0] for o in [1] + list(range(11, 22)) if o in p06p
+           for f in p06p[o]["fixtures"] if f.get("role") == "LOW_SIDE")
+check("+ P06 first third: the sideways wash (low sides) is cool blue, not orange (bays 1, 11-21)", blue)
+embers = {o: [f for f in p06p[o]["fixtures"] if f.get("role") == "PRACTICAL"] for o in range(22, 43)}
+check("+ P06 middle: four ember bulbs per bay (2 hanging, 2 on the floor), deep orange, <= 40 lm, short reach; tops blink",
+      all(len(v) == 4 and sum(f["transform"]["location_cm"][2] > 100 for f in v) == 2
+          and all(f["temperature_kelvin"] <= 1800 and f["intensity"] <= 40 and f["attenuation_cm"] <= 200 for f in v)
+          for v in embers.values())
+      and all(f["flicker"]["mode"] in ("FAULT", "HARPFLUTTER") for o in range(22, 43) for f in p06p[o]["fixtures"]
+              if f.get("slot") == "TOP_L"))
+T, D = 110.561125, 27640.28
+v6, pitch = D / T, D / 64
+uniform = {k: {"t_s": (k - 1) * pitch / v6, "d_cm": (k - 1) * pitch} for k in range(1, 65)}
+bc = L.beat_check(model["beats"], uniform)
+check("+ P06 beats (major changes 36.22 / 48.85 / 61.90 / 68.55 s) each strike a cold top ON the beat (uniform-speed model)",
+      [b["beat_s"] for b in model["beats"]] == [36.22, 48.85, 61.9, 68.55] and all(b["verdict"] == "ON_BEAT" for b in bc)
+      and all(next(f for f in p06p[b["bay"]]["fixtures"] if f.get("slot") == "TOP_R")["distance_keying"]["strike_distance_cm"]
+              == b["strike_distance_cm"] for b in model["beats"]),
+      " ".join("B%d@%.2fs(%+.2f)" % (b["bay"], b["beat_s"], b["drift_s"]) for b in bc))
+shifted = [dict(b, strike_distance_cm=b["strike_distance_cm"] + 300.0) for b in model["beats"]]
+check("- control: the same beats with strikes 300 cm early are OFF_BEAT (the check can fail)",
+      all(b["verdict"] == "OFF_BEAT_RETUNE" for b in L.beat_check(shifted, uniform)))
+harp = [o for o in range(22, 43) if any(f["flicker"]["mode"] == "HARPFLUTTER" for f in p06p[o]["fixtures"] if f.get("slot") == "TOP_L")]
+check("+ P06 harp lilting parts (rhythmicDensity > 0.5: 61-64, 68-71, 74-76, 80-83 s) flutter in their bays",
+      harp == model["harp_bays"] and harp, str(harp))
+check("+ P06 middle third passes the no-cross rule; last third (43-64) keeps the failing gold for tomorrow's fires",
+      all(r["verdict"].startswith("OK") for r in L.validate_scores(SCORES, LOOKS, TOOL)["P06"]["no_cross"]["rows"])
+      and all(p06p[o]["look"] == "P06_FAILING_GOLD" for o in range(43, 64)))
+
+# -- budgets with everything on
+budget = {k: plan_for(k)["shadow"] for k in ALL}
+check("+ every passage within its shadow budget after round 2 (after <= before)",
+      all(b["budget_ok"] for b in budget.values()),
+      " ".join("%s %d->%d" % (k, b["passage_before"], b["passage_after"]) for k, b in sorted(budget.items())))
 
 print("\n== summary (MODEL census, inferred; DRY on the live Show is the measurement)")
 print("passage bays targets skipped fixtures lights props disabled retained casters_before->after")
