@@ -136,3 +136,12 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   disabled (editor visibility can't be held: the figure BP re-sets it). VERIFY + S3SKIN VERIFY OK. PIE_PROBE pending Gary's PIE.
 - ~16:55 **W&T**: edge v3 (two-sided, timber core, bevel) rolled out to all 208 thick5 wings (edges were invisible: faces pointed
   inward); **HF P01 applied** — the hole/outline kit is now on all six passages. Gary to glance at edges in PIE.
+- ~17:00 **Sacks reverted** (S3SACK-20261006-170027) after Gary's PIE: separate follower actors floated (attach lost when the figure
+  BP reconstructs in PIE), white (material lost), poor cover. Gary: rebuild as **live Chaos cloth with the new 2 m hessian sack**
+  (follows rig, collides). Tool in progress (s3_sack_livecloth.py).
+- **New scene audio** (Drive "Sound/Scenes"): S06 The_Void_Live_Stereo (188 s) and S03 Shore_People_Stereo (246.9 s; the file is in
+  the "old ignore" subfolder but dated today). Analysis: Saved/InfinityStage/MusicAnalysis/Scenes_20261006/.
+  S3 vs Gary's cues: clam 0:45 · cello 1:00 (steady to ~2:00) · choir build 2:00, **choir 2:09.5** (strongest change) · Puss takes
+  clam ~**3:06–3:10** (sustained section 3:06, softening 3:10) · crying/exit from **3:18** · quiet 3:53 · silence 3:56.
+  Gary: walk through S3 together before changing it; **remove S3 narration for now**; **S6 audio in from the hangar landing**.
+- Gary (via W&T): edge v3 more wood-coloured (W&T slot done/pending); **girders "more realistic, not floating, more solid"** (P05 lattice columns) — queued for Rig.
