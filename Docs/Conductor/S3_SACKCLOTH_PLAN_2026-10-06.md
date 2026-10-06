@@ -1,0 +1,435 @@
+# S3 sackcloth: heavy hessian over the shore figures, a rag pile, sand piles
+
+**Written:** 6 Oct 2026. Investigation and offline prep only. Unreal was not run, MCP was not called, nothing was
+committed, and no Content was touched.
+**For:** Gary (6 Oct), Scene 3:
+- "a larger piece of sackcloth that is heavy and covers their whole body";
+- "we just see mostly their legs and arms underneath";
+- "heft, similar to the entry curtain";
+- "about 1.2 by 1.2 m";
+- "rough sacks you might transport coffee beans in";
+- a "pile of dry rags ... on top of some sandy ground".
+
+**Tiers, used on every claim (AGENTS.md):**
+- **[decl]**: read in a file, script or record (cited `file:line` or by key);
+- **[meas]**: run and read back today (dated);
+- **[rec]**: measured by an earlier session, as its record states (not re-run);
+- **[inf]**: inferred, with the reason.
+
+---
+
+## 0. Short version
+
+- **The current cloth** [decl/rec]:
+  - It is a **Chaos Cloth Asset** (the UE 5.3+ Panel Cloth / Dataflow kind), `CA_ShoreHeadDrape`.
+  - It is played by a **`ChaosClothComponent`** that is attached to the MetaHuman Body's `head` socket inside
+    six scoped Blueprint copies, `BP_Shore0N_*_Draped`.
+  - It simulates live, every frame.
+  - It is a 100 cm source plane scaled by 1.641315, so **it is already ~1.64 m square: larger than Gary's 1.2 m**.
+  - Its material is a flat constant linen colour.
+- **The figures animate** [rec]: six MetaHumans sway through selected sections of their own mocap at 0.6×. They are
+  not a held cower. An agitation layer is still planned.
+- **1.2 × 1.2 m will not cover the underpants of a standing figure** [inf, arithmetic + meas on a crude proxy]:
+  - Centred on the crown, its hem lands at chest height.
+  - Hip coverage on the four upright figures needs **≈1.8 m**, or a front-back-long rectangle.
+  - This is Gary's first call (§6).
+- **Recommended route: D, "drape then skin"** (§3), not a live free sheet and not a per-figure Alembic:
+  1. Blender drapes a thick, frayed, heavy hessian sheet over each figure in its own pose.
+  2. The result is skinned to the MetaHuman skeleton and rides the body as a leader-posed skeletal mesh.
+  - It is deterministic, scrub-safe and nearly free at runtime.
+  - Retiring the six live drapes **removes a measured 4–10 ms × 6 of cloth end-tick** [rec].
+  - Optional upgrade: Chaos secondary motion on the hem only.
+- **Material:** Poly Haven **`hessian_230`** (CC0, coarse burlap, 0.269 m tile, with a Mask map) [meas: API metadata,
+  6 Oct]. Nothing hessian-like exists in Content [meas: name search]. It goes on the Fab `M_MS_Fabric` master, or
+  on a new Cloth-model master per the curtain plan.
+- **Rag pile and sand:**
+  - one Blender pile, a single static mesh, on the existing Megascans sand;
+  - the beach-v2 sand floor already exists and is applied [rec].
+- **Written today:**
+  - this plan;
+  - `Tools/S3Sackcloth/build_sackcloth.py`, with a `--dry-run` and drape/pile modes, smoke-tested in Blender 4.4 (§7).
+
+---
+
+## 1. The current set-up
+
+### 1.1 Assets
+
+| What | Path | Tier |
+|---|---|---|
+| Six MetaHumans | `/Game/Metahuman/ShoreCast_20260910/Characters/MHC_Shore0{1..6}_*`; assembled `Assembled/Shore0N_*/MHC_Shore0N_*/BP_MHC_Shore0N_*` (Body, Face, Outfits, PHYS) | decl (folder listing) |
+| Scene copies with the cloth | `/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore0{1..6}_*_Draped` | decl (`Saved/CodexMocap/shore_draped_cast_components.json`) |
+| Cloth component | `ShoreHeadCloth`, a `ChaosClothComponent`, child of `Body`, socket `head`, `use_attached_parent_as_pose_component=False`, relative scale 1.641315 | decl (`Saved/CodexMocap/create_shore_drape_pilot.py:23-36`; `shore_drape_pilot.json`) |
+| Cloth asset | `Cloth/CA_ShoreHeadDrape` (five figures) and `Cloth/CA_ShoreHeadDrape_Bowed` (Shore02, gravity-aligned and anchored at the head-capsule centre). Both are duplicates of the mannequin prototype `/Game/Scenes/CA__OrtolanSheets` | decl (`create_pinned_shore_drape.py:22`; `shore_bowed_drape.json`; `shore_clam_integration.json`) |
+| Source mesh | `/Game/Scenes/SM_OrtalanSheet`: 441 vertices (21 × 21, 5 cm grid), box extent 50 × 50 × 0 cm | decl (`create_pinned_shore_drape.py:10`; `drape_source_mesh_api.json:2`; `shore_pinned_drape.json` `source_vertices`) |
+| Size in the scene | 100 cm × 1.641315 ≈ **1.64 m square**, simulated at 5 cm × 1.64 ≈ **8.2 cm edges**, with zero thickness | inf (component scale applies to the cloth: the bowed record's `rest_crown_above_skull_center_cm` 16.41315 = 10 × 1.641315) |
+| Attachment | A spatial crown disc: Max Distance 0 inside 3 cm, falling off to 14 cm, free beyond (max distance 140 cm). Numbered pins are SUPERSEDED ("canopy") | decl (`shore_spatial_crown_attachment.json`; `shore_pinned_drape.json` `status`) |
+| Collision | A per-figure `Cloth/PHYS_Shore0N_*_Drape`: the body PHYS with head +3 cm and clavicle/upper-arm +2.5 cm | decl (`Docs/ShoreCast-20260910.md:5,90`) |
+| Material | `Cloth/M_ShoreLinen`: Default Lit, two-sided, **constant** base 0.58/0.55/0.48, roughness 0.94, no maps. This is the "basic plain sheet" | decl (`create_pinned_shore_drape.py:37-46`) |
+| Grooms | Hidden in the draped copies (the cloth covers the hair) | decl (`shore_pinned_drape.json` `grooms_hidden_in_draped_copies`) |
+
+### 1.2 What the figures do
+
+**Six figures** [decl: `shore_cast_brief.json`]:
+
+| Figure | Height |
+|---|---|
+| Shore01_M56 | 179 cm |
+| Shore02_F52 | 166 cm |
+| Shore03_M59 | 173 cm |
+| Shore04_F55 | 160 cm |
+| Shore05_M53 | 184 cm |
+| Shore06_F25 | 169 cm |
+
+**They animate** [decl: `Docs/ShoreCast-20260910.md:3`; `shore_gentle_motion_selection.json`]:
+- Each plays an 18 s source section of its own fitted take at **0.60×**.
+- The sections sit in `LS_Clams`, which runs at 30 fps.
+- Routing: `DA_InfinityStage_V1Show` → `LS_DevScene_03` → `LS_Clams` (`ShoreCast-20260910.md:9`).
+- `s3_beats_record.json` shows a nested `Body` SkeletalAnimation section of range 0–14852 [decl]. Whether it loops
+  over the whole scene is **not checked** [inf: units/rate unread].
+
+**Posture** [decl: `shore_gentle_motion_selection.json`, `head_height_range_cm` over the selected sections]:
+
+| Figure | Head-bone height | Posture |
+|---|---|---|
+| Shore01 | 159–162 cm | standing |
+| Shore02 | **90–102 cm** | deeply bowed / crouched, already a cower |
+| Shore03 | 146–155 cm | |
+| Shore04 | 141–144 cm | |
+| Shore05 | 144–163 cm | |
+| Shore06 | 151–154 cm | |
+
+- **Head sway:** over the full takes the head bone moves −32…+37 cm in x for Shore01 [decl, same file]. The selected
+  sections were chosen for low motion energy, so they move less [inf].
+- **Still planned:** an agitation ramp and a return to the start pose ("animation work, owner TBD") [decl:
+  `Docs/Scene3BeatSheet_2026-10-01.md:38`].
+
+### 1.3 Where they stand now
+
+- **Diorama move:** applied 1 Oct [rec: `Saved/CodexConductor/s3_diorama_move_record.json`; spec
+  `specs/S3_DIORAMA_MOVE.md`].
+- **Beach v2:** applied 4 Oct [rec: `s3_beach_place_record.json` `applied: true`, backup `PreS3BeachV2-20261004-1242`]:
+  - the sand floor `SM_S3_BeachV2_SandFloor`;
+  - five Megascans rocks and three seaweeds;
+  - the six figures raised 35–44 cm onto the sand.
+- **Figure dock positions** (S3 dock frame, cm) [decl: same record `figures[].dock_xy`]:
+
+  | Figure | x | y |
+  |---|---|---|
+  | Shore01 | 3649 | −213 |
+  | Shore02 | 3199 | 109 |
+  | Shore03 | 3391 | 301 |
+  | Shore04 | 3684 | 262 |
+  | Shore05 | 3411 | −244 |
+  | Shore06 | 3760 | 0 |
+
+- **Draft shot cameras** [decl: `s3_shotlist_record.json` `plan.shots`, tag `S3.ShotDraft`]:
+  - Several cameras sit close to the figures: B04 at 35 mm focused 5.5 m on Shore01, and B08 at 50 mm focused 1.4 m
+    from inside the ring.
+  - **The cloth will be seen close.** It must hold up at about 1.5 m, not only at the 14 m stalls distance.
+
+### 1.4 What the live drapes cost
+
+- **Overall:** "the six Shore drapes ... 13.4 ms of a 23.6 ms PIE frame, a stall in
+  `FChaosClothComponentEndTickFunction`, every frame" [rec: `Docs/ChaosClothCurtain.md:705-707`].
+- **Suspending all six** cut the end-tick from 4–10 ms × 6 to under 1 ms. The mean frame went from 30.2 to 24.3 ms
+  [rec: `ChaosClothCurtain.md:605-608`].
+- **The gate was never applied:**
+  - `Saved/CodexSoftGoods/cloth_gate_apply.py` exists, but no `Backups/PreClothGate-*` exists [meas: ls, 6 Oct].
+  - The last status (29 Sep) shows all six enabled and not suspended [decl: `cloth_gate_status.json`].
+- **Consequence:** the drapes cost frame time everywhere in the show, not only in S3 [inf: they tick whenever the
+  level is loaded].
+
+### 1.5 Searched, with nothing found
+
+Content folder and file names were searched for: Burlap, Jute, Sack, Hessian, Fabric, Cloth, Rag, Linen, Canvas, Sand
+[meas, 6 Oct]. Results:
+- **No sack or hessian textures anywhere.**
+- `Content/Fab/Materials/Standard/M_MS_Fabric(_Masked)`: a Fab/Megascans fabric master with the `QMF_FabricFuzz`
+  function, but **no fabric surfaces downloaded**.
+- MetaHuman default-garment textures (e.g. `macro_linen_rbess3s_4K`).
+- Sand:
+  - Megascans `01_Soil_Sand_pjuuz0` (2K) and `02_` (4K);
+  - OceanFloor `T_SandDunes_*` and `T_SandDetail_*`;
+  - Forest pack `MI_ground_Sand_*`.
+- `DerivedAssets/TextureLibrary` holds one fabric, `Fabric081B` (ambientCG, a dirty plastisol tarp). It is not
+  hessian.
+
+No body FBX/Alembic export of the shore cast exists on disk [meas: find for `shoreguy*`/`Shore0*` outside Content; only
+autosaves, backups and JSON]. Every Blender route therefore starts with an export from UE (§5 step 2).
+
+---
+
+## 2. Material
+
+### 2.1 Source
+
+**Primary: Poly Haven `hessian_230`** [meas: `api.polyhaven.com/info/hessian_230`, 6 Oct, metadata only, nothing
+downloaded]:
+- CC0, tags burlap/sack/hessian/jute/coarse/sackcloth;
+- 268.75 × 267.2 mm real-world tile;
+- maps include Diffuse, nor_dx, Rough, AO, Displacement, **Mask** and anisotropy (`/files/hessian_230`).
+
+**Alternatives:**
+- **`hessian_380`** is the "fine" grade: more of a coffee-sack inner layer.
+- **ambientCG** has no hessian [meas]: searches for burlap/jute/hessian/sack/sackcloth returned 0. Its "rough"
+  fabrics (Fabric061–066) are unvetted.
+- **The Blender MCP's Poly Haven tools** could not be checked: "Could not connect to Blender" [meas]. The public API
+  carries the same catalogue.
+
+**Download route:** add `hessian_230` and `hessian_380` to `DerivedAssets/TextureLibrary/download_cc0_library.py`
+(the Flat V3 library tool), as a new family `Sackcloth` [inf: same pattern; it keeps publisher files byte-for-byte and
+records the sha256]. Use 2K for the sheet (the tile is 27 cm) and 4K only if B08-distance stills show softness.
+
+### 2.2 Recipe (UE 5.8): a new master `M_Sackcloth`, create-only
+
+Build it with the guard scaffolding of `velvet_v2_build.py` (`Docs/CurtainFabricPlan_2026-10-06.md` §1).
+
+- **Shading model:** **Default Lit**, not Cloth.
+  - Hessian is matte and hairy-dull; it is not a pile fabric. Cloth's fuzz lobe gives the velvet "bright rim, dark
+    core" [decl: `CurtainFabricPlan` §2.1], which reads as plush [inf].
+  - Add a weak **sheen-like rim** instead: Fresnel (exp 4) × 0.08 lifting the base toward a pale straw colour. That
+    gives loose-fibre glint at grazing light.
+  - Two-sided is **not** needed: the mesh has real back faces and a rim from solidify.
+- **UV0 is in metres** (written by the tool), so the weave tiles at `TileM` 0.269 and stays continuous through the folds.
+- **Maps:** the scan's Diffuse, NormalDX (strength 1.0, coarse weave at 1.5 m), Roughness (~0.9 overall) and AO
+  into AO.
+- **Height / parallax:** skip parallax (cost; it breaks on folded cloth) [inf]. The displacement map feeds only a
+  slight normal boost.
+  - Real relief comes from the geometry: folds plus the 6–8 mm solidify.
+  - Optionally, Nanite tessellation displacement of 1–2 mm on the front slot only if a close still demands it (needs
+    the Nanite displacement project setting; **not checked** in `DefaultEngine.ini`).
+- **Weave gaps (opacity):** no on the main field.
+  - At 1.4 m, light through the weave would show the body as a dotted silhouette. That could be lovely but costs
+    masked overdraw [inf]. Leave it as a bench variant using the scan's Mask.
+- **Colour variation:**
+  - a 0.4–0.8 m low-frequency mottle on value and hue (±8%; procedural, as `VV2_Crush`);
+  - a per-figure tint from UV1.y (random per piece, 0..1): a lerp between "new jute" (linear ~0.42/0.30/0.17) and
+    "old grey sack" (~0.30/0.27/0.22).
+- **Dirt and stains:**
+  - a world-Z gradient darkening near the ground (wet sand and grime on the hem) using **UV1.x** (distance to the
+    torn edge) and a world-position mask (below 0.4 m);
+  - one or two blotchy "coffee/oil" stains from a tiling grunge texture;
+  - a stencil print (e.g. a faded "CAFÉ" bale stamp) is a possible flourish; it is a look call.
+- **Frayed edges:**
+  - a **masked** variant `M_Sackcloth_Masked` uses `UV1.x < FrayWidth (~2 cm)` × a stretched noise to cut a hairy
+    fringe;
+  - the geometry already carries an aperiodic torn border and a few worn holes (tool).
+  - Masked costs a little; it applies only to the `Sack_Edge` and outer-band pixels if implemented as a separate
+    slot [inf].
+- **Slots** (from the tool):
+  - `Sack_Front`: the outer face;
+  - `Sack_Back`: the inner face, darker × 0.7 and less normal;
+  - `Sack_Edge`: the solidify rim, fibrous and lighter.
+- **Usage flags:** Skeletal Mesh (route D), Clothing (route D+), Geometry Cache (route B), Nanite (the pile).
+- **Thickness:** the solidify at 6–8 mm, applied in Blender on the settled copy, so the rim strip reads in the close
+  shots (curtain lesson: zero thickness folds to knife edges, `ChaosClothCurtain.md:510-512`).
+
+**Rag-pile instances:** `MI_Sackcloth_Dry`, `MI_Sackcloth_Dirty` (darker, grime ×2) and `MI_Sackcloth_Bleached`
+(pale grey), assigned per piece. Per-piece variation also comes for free from UV1.y.
+
+---
+
+## 3. Simulation approach
+
+### 3.1 The facts that decide it
+
+1. **The figures animate**: they sway now, and an agitation layer is planned [rec/decl §1.2]. Anything that does not
+   follow the skeleton fails.
+2. **Six figures now**, with "duplicate some figures for a bigger huddle" requested [decl:
+   `Scene3BeatSheet_2026-10-01.md:107`].
+3. **Live cloth already costs 4–10 ms per figure** [rec §1.4]. A larger, heavier, thicker sheet with real
+   self-collision costs more, not less [inf].
+4. **Close cameras** (B08 ~1.4 m) [decl §1.3]: the cloth must carry rich folds, thickness and a ragged edge.
+5. **Live Chaos is not deterministic under Sequencer scrubbing or transport jumps** [inf: it integrates from whatever
+   state it holds; the curtain moved to GeometryCache for this reason, `ChaosClothCurtain.md:90`].
+
+### 3.2 The options
+
+| | What | For | Against | Cost to build |
+|---|---|---|---|---|
+| **A**: live Chaos per figure (today's route, made heavy) | Replace `CA_ShoreHeadDrape` with a 1.2–1.8 m, heavier, stiffer-bending asset; a bigger crown/shoulder Max-Distance region; the body PHYS colliders | Real motion and response to agitation; the pipeline exists | **Frame cost** ×6+ (already 13.4 ms of 23.6); slips and canopies (two corrections already, §1.1); a free sheet over a pot-belly and arms penetrates [inf]; no thickness (Chaos simulates a surface, so thickness would be render-only); non-deterministic on scrub/jump; the cloth gate is still unapplied | ~1 day of tuning per pose class; editor-only, every iteration a live run |
+| **B**: a Blender-baked Alembic per figure | Export each body's animated section (FBX: skeleton + `AS_*_Full` at its start and 0.6 rate), drape and simulate the sheet hooked to the head bone, GeometryCache on the actor | The best-looking motion; deterministic; scrub-safe (the curtain pipeline) | Coupled to the animation timing: **any agitation edit or section move = re-bake** ×6; ~4.8k frames per figure for a 160 s scene [inf: 160.375 s, `ChaosClothCurtain.md` cue 97 note]; ~0.1–0.5 s/frame → 1–7 h each [inf]; ~0.3–0.6 GB Alembic each [inf: 4–8k verts × frames]; GeometryCache traps (stale frame after a jump, `running=false` freezes frame 0: memory *ue58-geometrycache-sequencer-traps*) | ~1 day setup + 6–40 h unattended |
+| **C**: a static draped mesh | Blender drape in one pose → a static mesh attached to `head` | Cheapest | **Fails on animated bodies:** a rigid shell on the head swings through the shoulders and arms as the torso sways (±20–40 cm head travel) [inf] | ~½ day |
+| **D**: drape then skin (**recommended**) | Blender drape per figure in a representative frame of its own section, then skin weights transferred from the MetaHuman body (head, neck, spine_03–05, clavicles, upper arms) → a **SkeletalMesh** on the MetaHuman skeleton → a component on `BP_Shore0N_Draped` with **Leader Pose = Body** | Follows any animation, including future agitation, with no re-bake; deterministic and scrub-safe; ~0 ms (one skinned mesh per figure); full authored richness (thickness, torn edge, folds); retiring the live drapes buys back ~6 ms of the mean frame [rec §1.4] | Folds are frozen in shape and only bend with the body. Under hard sway, slight "rubber shell" stretching is possible [inf], mitigated by heavy stiff hessian, which barely moves anyway. Needs a per-figure pose export. Leader-pose with a mesh bound in a different reference pose is standard practice but **untested here** [inf] | ~1.5–2 days for six |
+| **D+**: D plus Chaos on the hem only | Build a Chaos Cloth Asset from D's skeletal mesh (skeletal import node, `ChaosClothCurtain.md:941`): Max Distance 0 on the crown/shoulders, 5–15 cm toward the hem, backstop; **3D rest lengths ON** (here the draped folds ARE the wanted rest shape, the opposite of the curtain rule) | The hem swings and settles during agitation; still far cheaper than A (small deviations, short solve) | Cost returns (smaller) and must be measured; cloth-component pose-from-parent is "unverified" in memory (*puss-chaos-cloth-teleport-floor*); scrub jumps need a teleport-reset | +1 day, after D is approved |
+
+### 3.3 Recommendation
+
+**D for all six now. D+ only if Gary, after seeing D in the agitation beats, wants the hem to move.**
+
+**Why not A:**
+- It is the expensive, fragile path Gary's complaint came from.
+- It still cannot carry the 6–8 mm thickness or the torn edge into the sim.
+
+**Why not B:**
+- It is best only for a fixed animation, and S3's animation is explicitly not final (agitation layer).
+- Six re-bakes per animation change is the trap the curtain team already lives with.
+
+**What D keeps:** the realism that matters at 1.4 m (folds, weight, thickness, edges, material).
+
+**Shore02 (bowed, crown at ~1.1 m):**
+- Her drape is the easiest: 1.2 m already reaches the ground around a crouched body [inf].
+- Do her first as the pilot, because her current asset is the special case (`CA_ShoreHeadDrape_Bowed`).
+
+### 3.4 Size (the arithmetic Gary needs) [inf, with a measured cross-check]
+
+- **The hem needs to sit below the crotch:** ≈0.45 × stature, i.e. ~0.72–0.83 m for these six. The crown of an
+  upright figure is ~1.60–1.84 m.
+- **A centred square** reaches about 0.8 × half-side below the crown at the edge mid-points and 0.8 × half-diagonal at
+  the corners (the 0.8 accounts for wrapping over the head and shoulders).
+
+  | Sheet | Edge drop | Corner drop | Hem lands at |
+  |---|---|---|---|
+  | **1.2 m** | ~0.48 m | ~0.68 m | **chest / waist** |
+  | 1.64 m (today) | ~0.66 m | ~0.93 m | |
+  | **1.8 m** | ~0.72 m | ~1.0 m | crotch / upper thigh |
+
+- **Measured on a crude 1.76 m cylinder proxy** (smoke test, §7):
+  - 1.2 m: hem median 1.36 m above the feet, 0 % of the hem below the 0.79 m target;
+  - 1.8 m: hem median 1.0 m, 15 % below.
+  - This proves only the direction. The proxy has no shoulders or arms, and the run is coarse and not fully settled.
+- **Ways to keep Gary's "1.2 m" feel** and still hide the underpants:
+  - (a) 1.2 × 1.8 m with the long axis front-to-back and the pin offset 15 cm forward. The face is covered, and the
+    back drops to the buttocks [inf]. The tool supports `--size-y 1.8 --pin-offset 0,0.15`.
+  - (b) Lower the figures into a real cower (crouch). That is animation, Gary's call.
+  - (c) Darken or recolour the default-garment underpants so whatever shows reads as shadow (a cheap MI override on
+    the outfit; it complements any choice).
+
+---
+
+## 4. Rag pile and sand
+
+**Pile** (tool `--mode pile`):
+- 8–12 torn hessian pieces, 0.45–1.3 m, pre-crumpled.
+- They are dropped in a stack onto a generated sand mound, all in one mesh so self-collision stacks them.
+- Settled for ~4 s.
+- Exported as ONE static mesh with the mound.
+- **Measured smoke:** 5 coarse pieces gave a 1.2 × 1.3 m footprint, 0.34 m P95 height, a 0.5 m peak.
+- A production pile is ~1.8–2.5 m across and 0.4–0.6 m high [inf, to be set by Gary].
+- **Pile assets:**
+  - `/Game/Scenes/S3/Sackcloth/SM_S3_RagPile_A` (Nanite on; the material slots take `MI_Sackcloth_Dry` / `_Dirty` /
+    `_Bleached`);
+  - `SM_S3_SandPile_A..C`.
+- Add a few loose single rags (2–3 pieces) as separate small meshes to scatter between the figures [inf: breaks the
+  "one heap" read].
+
+**Sand:**
+- Beach v2 already lays a sand floor over an ellipse at dock centre x 3550, rx 500, ry 700, up to 20 cm high, with
+  the Megascans `01_Soil_Sand_pjuuz0_2K_inst` [decl: `Saved/CodexConductor/s3_beach_v2.py:41-49`].
+- **"Small beachy sand piles":** 3–5 extra mounds, 0.3–1.0 m across and 5–20 cm high.
+  - Either the tool's mound generator or the Forest pack's `SM_sandy_slope_0N` pieces [decl: listing].
+  - Give them **the same MI**, so they match the floor.
+  - Optionally add Poly Haven `dry`/`dense_sand` for a drier, lighter top, as a later look call.
+
+**Placement** (draft for Gary, in S3 dock frame cm):
+- **Rag pile candidate R1: (3450, 560).**
+  - Beside Shore03 at the +y side, inside the sand ellipse (normalised radius ≈ 0.81) [inf].
+  - Clear of the camera-side gap (θ = 180°, −x) and of B04's camera at (3500, −750).
+- **Candidate R2: (3300, −520).**
+  - A foreground element in B04's view.
+  - ~3 m from that camera [inf], which clears the 150 cm camera rule used by beach v2 [decl: `CAMERA_CLEARANCE_CM`].
+- **The house pattern** [decl: `s3_beach_v2.py`; memory *puss-level-saved-landed-frame-trap*]:
+  - attach to `S3 Hangar Root`;
+  - tag **`S3.Rags`** (sand piles `S3.SandPiles`);
+  - folder `S3/Sackcloth`;
+  - compose against the LIVE root with an inside-box guard;
+  - DRY/APPLY/REVERT, backup, record and level-only save.
+- **Seat on the sand:** sample `sand_height()` from `s3_beach_v2.py` for the pile's base z, as beach v2 did for the
+  figures' feet [inf: reuse].
+
+---
+
+## 5. Step list (route D), with estimates
+
+Agent-hours are inferred. Editor steps need a free editor and, for writes, Gary's yes
+(memory *puss-mutation-scripts-need-gary*, *puss-gary-word-means-gary*).
+
+| # | Step | Where | Est. | Gate |
+|---|---|---|---|---|
+| 1 | **Gary's calls** (§6): size, cower vs sway, pile size/position, underpants tint | chat | — | blocks 3+ |
+| 2 | **Export six posed bodies** (read-only to Content): per figure, `SKM_MHC_Shore0N_BodyMesh` + its `AS_Shore0N_*_Full` as FBX (`AssetExportTask`, FBX exporter, anim range = the selected section), into `DerivedAssets/S3Sackcloth/Bodies/`. Pick each figure's representative frame (the median-head-height sample in `shore_gentle_motion_selection.json`). Also export the skeleton and a reference-pose FBX for skin transfer. | editor, MCP | 1 h + run | read-only run; Gary's permission per memory |
+| 3 | **Download** `hessian_230` / `hessian_380` via the library tool | offline | 0.5 h | — |
+| 4 | **Size test:** run `build_sackcloth.py --mode drape` on Shore01 (upright) and Shore02 (bowed) at 1.2², 1.2 × 1.8 and 1.8², 2 cm quads, ~6 s settle, `--render`. Phone-card stills to Gary. | Blender | 1 h + ~10 min unattended | Gary picks the size |
+| 5 | **Six drapes** at the chosen size, 1.5 cm quads, solidify 7 mm, per-figure yaw/pin offset. Check: hem metric, no penetration (add a body-distance check), stills. | Blender | 2 h + ~1 h unattended | Gary eyeballs stills |
+| 6 | **Skin transfer** (to add to the tool as `--mode skin`): import the reference-pose skeleton FBX; Data Transfer of vertex groups from the body (nearest face interpolated); limit to 4 influences; zero the hand/finger groups (the cloth must not grab hands); smooth weights; export a skeletal FBX bound to the same bone names | Blender | 3 h (first), then scripted | — |
+| 7 | **Material:** create-only `M_Sackcloth` (+ `_Masked`), three MIs, import the textures (`/Game/Scenes/S3/Sackcloth/Textures`) | editor | 2–3 h | Gary's yes (new assets only) |
+| 8 | **Import** `SK_S3_Sack_Shore0N` (skeleton = the MetaHuman body skeleton; Interchange: watch the FBX traps, memory *ue58-fbx-import-traps*) | editor | 1 h | backup `Backups/PreS3Sackcloth-…` |
+| 9 | **Wire:** in each `BP_Shore0N_Draped`, add `SackCloth` (SkeletalMeshComponent, leader pose = Body via construction script, as `ConfigureShoreDrape` does for the cloth) and **hide + disable simulation** on `ShoreHeadCloth` (do not delete: reversible). Never give a cloth asset to a pose component (crash memory). | editor | 2 h | Gary's yes; backup the six BPs |
+| 10 | **Verify:** saved read-back; PIE through the S3 beats (sway + agitation), stills at B02/B04/B08; `stat` frame A/B against the 1.4 numbers; scrub jumps | editor | 2 h | report tiered |
+| 11 | **Rag pile + sand piles:** pile bake (~10 min), import, `s3_rags_place.py` DRY/APPLY/REVERT (beach-v2 pattern, tag `S3.Rags`) | Blender + editor | 4 h | Gary's position |
+| 12 | (optional) **D+** hem Chaos on 1–2 hero figures | editor | 1 day | after Gary sees D |
+
+**Total for D plus the pile:** ~2.5 working days with Gary's answers in hand, mostly agent time [inf].
+
+**Assets** (proposed):
+
+| Kind | Name / path |
+|---|---|
+| Master materials | `/Game/Scenes/S3/Sackcloth/M_Sackcloth`, `M_Sackcloth_Masked` |
+| Material instances | `MI_Sackcloth_Dry`, `_Dirty`, `_Bleached` |
+| Textures | `T_Sackcloth_Hessian230_{BC,N,R,AO,Mask}` |
+| Drapes | `SK_S3_Sack_Shore0{1..6}` |
+| Rag pile | `SM_S3_RagPile_A` |
+| Sand piles | `SM_S3_SandPile_{A..C}` |
+| Blender outputs | `DerivedAssets/S3Sackcloth/` (the tool's default `--out-dir`) |
+
+---
+
+## 6. Gary's decisions
+
+1. **Size:** 1.2 × 1.2 m covers to the chest on the upright figures (§3.4).
+   - Choose 1.2 × 1.8 (front-back long, recommended), or 1.8 × 1.8.
+   - Or keep 1.2 and make them crouch.
+   - (Today's sheet is already 1.64 m.)
+2. **Cower or sway:**
+   - Should the figures stay in their current standing sway (Shore02 already crouches)?
+   - Or get a lower, cowering posture? That is animation work, and it changes how much cloth is needed.
+3. **Motion of the cloth:**
+   - Is a cloth that rides the body with authored folds (D) enough?
+   - Or must the hem visibly swing in the agitation beats (D+, costs frame time)?
+4. **The underpants fallback:** OK to darken the default-garment underpants as insurance?
+5. **Look:**
+   - new golden jute versus old grey sack (per figure or uniform);
+   - stains;
+   - a faded stencil print or not;
+   - weave see-through (masked) or solid.
+6. **Rag pile:**
+   - size (1.5 m vs 2.5 m across);
+   - one heap or a heap plus scattered rags;
+   - position R1 (3450, 560), R2 (3300, −520), or elsewhere;
+   - sand piles where.
+7. **More figures:** if the huddle grows, D scales cheaply. Each duplicate is one more skinned mesh and no sim.
+8. **The live drapes:** may they be switched off (hidden + simulation disabled, reversible) once D is in?
+   - That also settles the never-applied cloth gate (§1.4).
+
+---
+
+## 7. What was run today, and what was not
+
+**`Tools/S3Sackcloth/build_sackcloth.py`** (new):
+- **`--dry-run`** (plain Python) [meas, 6 Oct]:
+  - drape 1.2² gives `SACK_DRY_RUN_OK` with 3721 verts;
+  - 1.4 × 1.9 with a pin offset passes;
+  - pile passes;
+  - the negative cases fail as designed: `--quad 0.09` ("fewer than 20 quads") and a missing `--collider`, both rc 2.
+- **Blender 4.4.0 smoke tests** [meas, 6 Oct, scratchpad outputs, a few seconds each]:
+  - drape on a crude OBJ cylinder proxy, 4 cm quads, 180 frames, quality 8: runs end to end (import, auto-scale,
+    crown, pin disc, cloth, settled copy, solidify, FBX, JSON, renders). Hem metrics as in §3.4.
+  - pile with 5 pieces, 5 cm quads, 90 frames: `SACK_OK`, footprint 1.16 × 1.33 m, P95 height 0.34 m.
+- **Found and fixed by the smoke test:**
+  - a physical sacking mass (0.55 kg/m²) did not fall at all: the hem stayed at the crown after 40 frames.
+  - Blender stiffness is not mass-normalised (memory *puss-blender-cloth-drop-traps*). The tool now takes
+    `--solver-mass` (default 13.4 kg/m² = the approved curtain's 0.1111 kg per 9.1 cm vertex
+    [decl: `Saved/CodexSoftGoods/DropBake/final10_opening_dense_a06.json` `mass_per_vertex`]), with air damping
+    scaled by vertex area.
+- **Not exercised:**
+  - FBX armature import;
+  - `--head-bone` hook (route B);
+  - `--export-abc`;
+  - a real MetaHuman body;
+  - the cm→m auto-scale on a real UE FBX.
+- **Stiffness:** at production settings the stiffness is untuned. The 1.8 m smoke drape stood as a stiff tent on the
+  proxy. Tune `--bend`/`--compression` on a real body in step 4 and judge from the pictures, not the numbers (curtain
+  lesson).
+- **Not written:** `--mode skin` (step 6), the UE material builder (step 7) and the placement tool (step 11).
