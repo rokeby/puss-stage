@@ -160,30 +160,26 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
         return nullptr;
     };
 
-    // Editor-type world: nothing is driven (the authored look is kept, no level write).
-    {
-        UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
-        AInfinityStagePassageActor* Passage = Preview->SpawnActor<AInfinityStagePassageActor>();
-        Passage->ShowAsset = Show;
-        Passage->MaterializePassage();
-        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
-        AActor* Body = FindBody(*Passage, GlassGuid);
-        TestNotNull(TEXT("Preview: the glass is placed"), Body);
-        TestEqual(TEXT("Preview: the glass is never driven"), Passage->GetBulbBodyLevelForTests(Body), -1.0f);
-        Preview->DestroyWorld(false);
-    }
-
-    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+    // MaterializePassage refuses game worlds by design ("editor authoring only";
+    // PassageActor.cpp:716-718): stage content is built in the editor and PIE gets
+    // a copy. So build in an editor-type world, check nothing is driven there, then
+    // retype the same world as Game - what PIE's duplicate is - and evaluate.
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
     AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
     Passage->ShowAsset = Show;
     Passage->MaterializePassage();
     AActor* Body = FindBody(*Passage, GlassGuid);
     AActor* PlainBody = FindBody(*Passage, PlainGuid);
-    if (!TestNotNull(TEXT("Game: the glass is placed"), Body) || !TestNotNull(TEXT("Game: the plain prop is placed"), PlainBody))
+    if (!TestNotNull(TEXT("The glass is placed"), Body) || !TestNotNull(TEXT("The plain prop is placed"), PlainBody))
     {
         World->DestroyWorld(false);
         return false;
     }
+    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
+    TestEqual(TEXT("Editor world: the glass is never driven"), Passage->GetBulbBodyLevelForTests(Body), -1.0f);
+
+    World->WorldType = EWorldType::Game;
+    TestTrue(TEXT("Fixture: the world now reads as a game world"), World->IsGameWorld());
     TestTrue(TEXT("The glass is a static mesh prop"), Body->IsA<AStaticMeshActor>());
 
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
@@ -203,6 +199,7 @@ bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
     AActor* LampActor = FindBody(*Passage, Show->Cues[1].WingPair.Attachments[0].AttachmentGuid);
     const ULightComponent* Light = LampActor ? LampActor->FindComponentByClass<ULightComponent>() : nullptr;
     TestTrue(TEXT("Fail + drives light: the lamp is switched off with its glass"), Light && !Light->IsVisible());
+    World->WorldType = EWorldType::EditorPreview;
     World->DestroyWorld(false);
     return true;
 }

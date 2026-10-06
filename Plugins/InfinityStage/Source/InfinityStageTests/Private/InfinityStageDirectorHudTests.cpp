@@ -101,6 +101,10 @@ bool FInfinityStageDirectorHudPureTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Clock 0"), FormatClock(0.0), FString(TEXT("0:00.0")));
     TestEqual(TEXT("Clock 83.46 s"), FormatClock(83.46), FString(TEXT("1:23.4")));
     TestEqual(TEXT("Clock clamps negatives"), FormatClock(-4.0), FString(TEXT("0:00.0")));
+    // Regression (suite 6 Oct): 62.3 - 60 in floating point is 2.2999..., which truncated to 1:02.2.
+    TestEqual(TEXT("Clock 62.3 s is 1:02.3, not 1:02.2"), FormatClock(62.3), FString(TEXT("1:02.3")));
+    TestEqual(TEXT("Clock still truncates: 62.39 s is 1:02.3"), FormatClock(62.39), FString(TEXT("1:02.3")));
+    TestEqual(TEXT("Clock past an hour"), FormatClock(3725.0), FString(TEXT("62:05.0")));
 
     TArray<FInfinityHudShotSpan> Spans;
     Spans.Add({FFrameNumber(0), FFrameNumber(100), TEXT("LS_A")});

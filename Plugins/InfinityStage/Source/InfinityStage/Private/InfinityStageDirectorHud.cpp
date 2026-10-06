@@ -142,10 +142,14 @@ const TCHAR* KindLabel(const EInfinityCueType Type)
 
 FString FormatClock(const double Seconds)
 {
-    const double Clamped = FMath::Max(0.0, Seconds);
-    const int32 Minutes = FMath::FloorToInt32(Clamped / 60.0);
-    const double Rest = Clamped - Minutes * 60.0;
-    return FString::Printf(TEXT("%d:%04.1f"), Minutes, FMath::FloorToDouble(Rest * 10.0) / 10.0);
+    // Whole tenths first, then integer arithmetic. Subtracting the minutes in
+    // floating point turned 62.3 s into 2.2999999 s, which truncated to "1:02.2"
+    // (suite 6 Oct, DirectorHud.PureRules). The epsilon absorbs representation
+    // error only; the clock still truncates, never shows a tenth not yet reached.
+    const int64 Tenths = FMath::FloorToInt64(FMath::Max(0.0, Seconds) * 10.0 + 1.0e-6);
+    const int64 Minutes = Tenths / 600;
+    const int64 RestTenths = Tenths % 600;
+    return FString::Printf(TEXT("%lld:%02lld.%lld"), Minutes, RestTenths / 10, RestTenths % 10);
 }
 
 FString ShotAtFrame(const TArray<FInfinityHudShotSpan>& Spans, const FFrameNumber Frame)

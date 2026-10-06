@@ -140,20 +140,11 @@ bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
         return nullptr;
     };
 
-    {
-        UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
-        AInfinityStagePassageActor* Passage = Preview->SpawnActor<AInfinityStagePassageActor>();
-        Passage->ShowAsset = Show;
-        Passage->MaterializePassage();
-        AActor* Actor = FindLamp(*Passage);
-        const FQuat Before = Actor ? Actor->GetActorQuat() : FQuat::Identity;
-        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
-        TestTrue(TEXT("Editor world: the lamp keeps its authored aim (no level write)"),
-            Actor && Actor->GetActorQuat().Equals(Before, 1.0e-6));
-        Preview->DestroyWorld(false);
-    }
-
-    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+    // MaterializePassage refuses game worlds by design ("editor authoring only";
+    // PassageActor.cpp:716-718); PIE plays a copy of editor-built content. So build
+    // in an editor-type world, check nothing moves there, then retype the same world
+    // as Game to evaluate - and back to editor to re-materialize.
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
     AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
     Passage->ShowAsset = Show;
     Passage->MaterializePassage();
@@ -163,6 +154,13 @@ bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
         World->DestroyWorld(false);
         return false;
     }
+    const FQuat Before = Actor->GetActorQuat();
+    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
+    TestTrue(TEXT("Editor world: the lamp keeps its authored aim (no level write)"),
+        Actor->GetActorQuat().Equals(Before, 1.0e-6));
+
+    World->WorldType = EWorldType::Game;
+    TestTrue(TEXT("Fixture: the world now reads as a game world"), World->IsGameWorld());
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
     const FQuat Authored = Actor->GetActorQuat();
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
@@ -171,15 +169,19 @@ bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
     Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
     TestTrue(TEXT("Back before the approach (a rewind): exactly the authored aim again"),
         Actor->GetActorQuat().Equals(Authored, 1.0e-5));
-    // Re-materialize: the mover is Show data, so it is still there.
+    // Re-materialize (in the editor, where materializing happens): the mover is
+    // Show data, so the new lamp actor moves the same way in game.
+    World->WorldType = EWorldType::EditorPreview;
     Passage->MaterializePassage();
     AActor* Again = FindLamp(*Passage);
     TestNotNull(TEXT("Survives re-materialize"), Again);
+    World->WorldType = EWorldType::Game;
     if (Again)
     {
         Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
         TestTrue(TEXT("...and moves the same way"), Again->GetActorQuat().Equals(Wild, 1.0e-4));
     }
+    World->WorldType = EWorldType::EditorPreview;
     World->DestroyWorld(false);
     return true;
 }
