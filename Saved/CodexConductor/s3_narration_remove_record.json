@@ -1,0 +1,832 @@
+{
+ "after": [
+  {
+   "cls": "MovieSceneCinematicShotTrack",
+   "color_tint": [
+    0,
+    0,
+    0,
+    127
+   ],
+   "index": 0,
+   "name": "Shots",
+   "sections": [
+    {
+     "channels": [],
+     "cls": "MovieSceneCinematicShotSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "KEEP_STATE",
+     "end": 1454,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": -1
+    }
+   ],
+   "sorting_order": 1
+  },
+  {
+   "cls": "MovieSceneSubTrack",
+   "color_tint": [
+    180,
+    0,
+    40,
+    65
+   ],
+   "index": 1,
+   "name": "Hangar Fold",
+   "sections": [
+    {
+     "channels": [],
+     "cls": "MovieSceneSubSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "KEEP_STATE",
+     "end": 744,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 0
+    }
+   ],
+   "sorting_order": -1
+  },
+  {
+   "cls": "MovieSceneCameraCutTrack",
+   "color_tint": [
+    120,
+    120,
+    120,
+    65
+   ],
+   "index": 3,
+   "name": "Camera Cuts",
+   "sections": [
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 95,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 0
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 6216,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 95
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 6240,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 6216
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 960,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 360
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 1440,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 960
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 2880,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 1440
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 3000,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 2880
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 3480,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 3000
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 4200,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 3480
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 4680,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 4200
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 5040,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 4680
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 5520,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 5040
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 5880,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 5520
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 6216,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 5880
+    }
+   ],
+   "sorting_order": 0
+  }
+ ],
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreS3NarrationRemove-S3NARR-20261006-171721",
+ "before": [
+  {
+   "cls": "MovieSceneCinematicShotTrack",
+   "color_tint": [
+    0,
+    0,
+    0,
+    127
+   ],
+   "index": 0,
+   "name": "Shots",
+   "sections": [
+    {
+     "channels": [],
+     "cls": "MovieSceneCinematicShotSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "KEEP_STATE",
+     "end": 1454,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": -1
+    }
+   ],
+   "sorting_order": 1
+  },
+  {
+   "cls": "MovieSceneSubTrack",
+   "color_tint": [
+    180,
+    0,
+    40,
+    65
+   ],
+   "index": 1,
+   "name": "Hangar Fold",
+   "sections": [
+    {
+     "channels": [],
+     "cls": "MovieSceneSubSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "KEEP_STATE",
+     "end": 744,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 0
+    }
+   ],
+   "sorting_order": -1
+  },
+  {
+   "cls": "MovieSceneAudioTrack",
+   "color_tint": [
+    93,
+    95,
+    136,
+    255
+   ],
+   "index": 2,
+   "name": "Narration (stand-in)",
+   "sections": [
+    {
+     "attenuation": null,
+     "channels": [
+      {
+       "default": "<unreadable>",
+       "has_default": true,
+       "keys": [],
+       "name": "AttachActor"
+      },
+      {
+       "default": 1.0,
+       "has_default": true,
+       "keys": [],
+       "name": "Pitch"
+      },
+      {
+       "default": 1.0,
+       "has_default": true,
+       "keys": [],
+       "name": "Volume"
+      }
+     ],
+     "cls": "MovieSceneAudioSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 924,
+     "is_active": true,
+     "is_locked": false,
+     "looping": false,
+     "overlap_priority": 0,
+     "override_attenuation": false,
+     "play_until_finished": false,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S3_Shore_Narration_Standin",
+     "start": 100,
+     "start_offset": 0,
+     "suppress_subtitles": false
+    }
+   ],
+   "sorting_order": -1
+  },
+  {
+   "cls": "MovieSceneCameraCutTrack",
+   "color_tint": [
+    120,
+    120,
+    120,
+    65
+   ],
+   "index": 3,
+   "name": "Camera Cuts",
+   "sections": [
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 95,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 0
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 6216,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 95
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 6240,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 6216
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 960,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 360
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 1440,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 960
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 2880,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 1440
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 3000,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 2880
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 3480,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 3000
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 4200,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 3480
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 4680,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 4200
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 5040,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 4680
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 5520,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 5040
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 5880,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 5520
+    },
+    {
+     "channels": [],
+     "cls": "MovieSceneCameraCutSection",
+     "color_tint": [
+      0,
+      0,
+      0,
+      0
+     ],
+     "completion_mode": "PROJECT_DEFAULT",
+     "end": 6216,
+     "is_active": true,
+     "is_locked": false,
+     "overlap_priority": 0,
+     "post_roll": 0,
+     "pre_roll": 0,
+     "row_index": 0,
+     "start": 5880
+    }
+   ],
+   "sorting_order": 0
+  }
+ ],
+ "decided_by": "Gary 6 Oct ~17:10: S3 narration 'Remove it for now'",
+ "note": "S1/S2 and SW_S3_Shore_Narration_Standin untouched; the 5 Oct record is left as is (stale).",
+ "playback": [
+  0,
+  6240
+ ],
+ "revert_supported": "yes",
+ "run": "S3NARR-20261006-171721",
+ "schema": 1,
+ "sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03",
+ "target": {
+  "cls": "MovieSceneAudioTrack",
+  "color_tint": [
+   93,
+   95,
+   136,
+   255
+  ],
+  "index": 2,
+  "name": "Narration (stand-in)",
+  "sections": [
+   {
+    "attenuation": null,
+    "channels": [
+     {
+      "default": "<unreadable>",
+      "has_default": true,
+      "keys": [],
+      "name": "AttachActor"
+     },
+     {
+      "default": 1.0,
+      "has_default": true,
+      "keys": [],
+      "name": "Pitch"
+     },
+     {
+      "default": 1.0,
+      "has_default": true,
+      "keys": [],
+      "name": "Volume"
+     }
+    ],
+    "cls": "MovieSceneAudioSection",
+    "color_tint": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "completion_mode": "PROJECT_DEFAULT",
+    "end": 924,
+    "is_active": true,
+    "is_locked": false,
+    "looping": false,
+    "overlap_priority": 0,
+    "override_attenuation": false,
+    "play_until_finished": false,
+    "post_roll": 0,
+    "pre_roll": 0,
+    "row_index": 0,
+    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S3_Shore_Narration_Standin",
+    "start": 100,
+    "start_offset": 0,
+    "suppress_subtitles": false
+   }
+  ],
+  "sorting_order": -1
+ },
+ "tool": "s3_narration_remove",
+ "warnings": [],
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "written": "2026-10-06T17:17:22"
+}

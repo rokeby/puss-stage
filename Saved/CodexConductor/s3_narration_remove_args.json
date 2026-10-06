@@ -2,8 +2,11 @@
  "mode": "DRY",
  "confirm": "DRY S3NARR",
  "run_id": null,
- "decided_by": "Gary 6 Oct ~17:10 (conductor questionnaire): S3 narration 'Remove it for now'",
+ "decided_by": "Gary 6 Oct ~17:10: S3 narration 'Remove it for now'",
  "expect_sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S3_Shore_Narration_Standin",
- "expect_range": [100, 924],
+ "expect_range": [
+  100,
+  924
+ ],
  "note": "Removes ONLY 'Narration (stand-in)' from LS_DevScene_03. S1/S2 and the SoundWave are untouched. Do NOT use scene_narration_standin.py REVERT (all scenes; S1 row stale)."
 }
