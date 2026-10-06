@@ -1,0 +1,21 @@
+{
+ "run": "WALNUT-20261006-112225",
+ "before": {
+  "Passage 02 - Floor Near": [
+   "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+  ],
+  "Passage 02 - Floor Left": [
+   "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+  ],
+  "Passage 02 - Floor Right": [
+   "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+  ],
+  "Passage 02 - Floor Far": [
+   "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+  ],
+  "Passage 03 - Floor": [
+   "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+  ]
+ },
+ "backup": "E:/PussStage/Backups/PreFloorWalnut-WALNUT-20261006-112225"
+}
