@@ -67,20 +67,36 @@ def build_parser():
     # fabric
     p.add_argument("--size-x", type=float, default=1.8, help="sheet width, m (Gary, 6 Oct: 1.8 x 1.8)")
     p.add_argument("--size-y", type=float, default=1.8, help="sheet length, m (Gary, 6 Oct: 1.8 x 1.8); Y = front-back")
-    p.add_argument("--quad", type=float, default=0.02, help="sim edge length, m (2 cm: ~3.7k verts at 1.2 m)")
+    p.add_argument("--quad", type=float, default=None, help="sim edge length, m (2 cm: ~3.7k verts at 1.2 m)")
     p.add_argument("--thickness", type=float, default=0.007, help="solidify thickness, m (Gary: heft; 6-8 mm)")
     p.add_argument("--solver-mass", type=float, default=13.4,
                    help="Blender SOLVER areal mass, kg/m2 (NOT the fabric's: real sacking 0.3-0.6 kg/m2 floats in "
                         "Blender's default stiffness/damping; 13.4 = the approved curtain, 0.1111 kg per 9.1 cm vertex)")
     p.add_argument("--bend", type=float, default=None,
                    help="bending stiffness; default drape/skin 1.0, pile 2.0 (velvet curtain 5)")
-    p.add_argument("--tension", type=float, default=40.0, help="curtain default 40")
+    p.add_argument("--tension", type=float, default=None, help="curtain default 40")
+    p.add_argument("--shear", type=float, default=None)
+    p.add_argument("--vertex-mass", type=float, default=None,
+                   help="Blender kg PER VERTEX; overrides --solver-mass. Blender's presets (and so its stiffness "
+                        "units) assume ~0.3-1 kg per vertex; 0 = use --solver-mass x vertex area")
+    p.add_argument("--hem-gate", type=float, default=0.85, help="gate: outer-hem median height above the feet, m")
+    p.add_argument("--radial-gate", type=float, default=0.65, help="gate: max horizontal cloth distance from the body axis, m")
+    p.add_argument("--gap-gate", type=float, default=0.10,
+                   help="INFO only: p75 cloth-to-body distance, m (a crouched figure's tent to the ground fails it "
+                        "without ballooning: Shore02 0.25 m)")
+    p.add_argument("--balloon-gate", type=float, default=0.85,
+                   help="gate: max horizontal bbox side of the cloth, m (balloon run 1.10 m; hanging runs 0.53-0.73 m)")
+    p.add_argument("--no-hip-proxy", action="store_true",
+                   help="skin: do not add the torso collider proxy (the exported MetaHuman body has its outfit-covered "
+                        "faces removed: no torso or hips between the thigh tops and the neck)")
+    p.add_argument("--no-dna", action="store_true", help="skin: use the cut Body FBX even if a full BodyDNA FBX was exported")
+    p.add_argument("--textured", action="store_true", help="render stills with the hessian_230 material (EEVEE/Cycles)")
     p.add_argument("--compression", type=float, default=None,
                    help="default drape/skin 20 (4 crumpled the drape into a cap, synthetic A/B 6 Oct), pile 4")
     p.add_argument("--air-damping", type=float, default=None,
                    help="default drape/skin 6 (a quasi-static settle: at 1 the far edges flipped back over the head, "
                         "synthetic rig 6 Oct), pile 1")
-    p.add_argument("--self-dist", type=float, default=0.006, help="self-collision distance, m (~thickness)")
+    p.add_argument("--self-dist", type=float, default=None, help="self-collision distance, m (~thickness)")
     p.add_argument("--friction", type=float, default=None, help="default drape/skin 2, pile 8")
     p.add_argument("--quality", type=int, default=None, help="default drape/skin 10, pile 20 (anti-swell)")
     p.add_argument("--collision-quality", type=int, default=8)
@@ -94,7 +110,10 @@ def build_parser():
                         "bone; default in skin mode, right for bowed figures) or 'x,y,z' in metres, world")
     p.add_argument("--pin-offset", default="0,0", help="pin point on the sheet from its centre, m (x,y)")
     p.add_argument("--pin-radius", type=float, default=0.06, help="pinned disc radius on the sheet, m")
-    p.add_argument("--yaw", type=float, default=0.0, help="sheet yaw about Z, degrees")
+    p.add_argument("--yaw", type=float, default=0.0,
+                   help="sheet yaw about Z, degrees (skin: relative to the figure's facing; 45 = corners front/back)")
+    p.add_argument("--pin-forward", type=float, default=0.0,
+                   help="skin: move the sheet this far FORWARD of the crown pin (more cloth over the face/front), m")
     p.add_argument("--lift", type=float, default=0.02, help="start height above the crown, m")
     p.add_argument("--head-bone", default="", help="hook the pin disc to this armature bone (animated drape)")
     p.add_argument("--target-hem-z", type=float, default=0.0,
@@ -225,7 +244,7 @@ def validate(a):
     if a.thickness > 2.5 * a.self_dist:
         warn.append("solidify thickness is much larger than the self-collision distance: layers may interpenetrate "
                     "visually after solidify (raise --self-dist toward the thickness)")
-    mass_per_vertex = a.solver_mass * area / max(1, n)
+    mass_per_vertex = a.vertex_mass if a.vertex_mass else a.solver_mass * area / max(1, n)
     # Cost (INFERRED from the curtain bakes, Docs/ChaosClothCurtain.md: 15.7k verts ~1 s/frame, 42.9k ~2-5 s/frame,
     # both at quality 10-20). A body collider adds an unknown amount; the smoke test is the first real number.
     s_per_frame = max(0.05, n / 15700.0)
@@ -236,6 +255,118 @@ def validate(a):
             "uv0": f"metres (material tile {HESSIAN_TILE_M} m)", "coverage_arithmetic_INFERRED": cover}
     return err, warn, plan
 
+
+
+# ----------------------------------------------------------------------------------------------- textured stills
+TEX_DIR = DEFAULT_OUT / "textures" / "hessian_230"
+
+
+def textured_setup(scene, sack, bodies, feet_z):
+    """Old-grey hessian look for review stills only (UE builds its own material). Returns the engine used."""
+    import bpy
+    def img(name, colour):
+        im = bpy.data.images.load(str(TEX_DIR / name), check_existing=True)
+        im.colorspace_settings.name = "sRGB" if colour else "Non-Color"
+        return im
+
+    def sack_mat(name, darken):
+        m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+        m.use_nodes = True
+        nt = m.node_tree
+        for n in list(nt.nodes):
+            nt.nodes.remove(n)
+        out = nt.nodes.new("ShaderNodeOutputMaterial")
+        bsdf = nt.nodes.new("ShaderNodeBsdfPrincipled")
+        uv = nt.nodes.new("ShaderNodeUVMap")
+        uv.uv_map = "UVMap"
+        mp = nt.nodes.new("ShaderNodeMapping")
+        mp.inputs["Scale"].default_value = (1 / HESSIAN_TILE_M, 1 / HESSIAN_TILE_M, 1)
+        nt.links.new(uv.outputs["UV"], mp.inputs["Vector"])
+
+        def tex(name, colour):
+            t = nt.nodes.new("ShaderNodeTexImage")
+            t.image = img(name, colour)
+            nt.links.new(mp.outputs["Vector"], t.inputs["Vector"])
+            return t
+        diff, rough, nor = tex("hessian_230_diff_2k.png", True), tex("hessian_230_rough_2k.png", False), \
+            tex("hessian_230_nor_dx_2k.png", False)
+        hs = nt.nodes.new("ShaderNodeHueSaturation")
+        hs.inputs["Saturation"].default_value = 0.25          # "old grey worn sack" (Gary, 6 Oct)
+        nt.links.new(diff.outputs["Color"], hs.inputs["Color"])
+        mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type, mix.blend_type = "RGBA", "MULTIPLY"
+        mix.inputs["Factor"].default_value = 1.0
+        tint = (0.62 * darken, 0.60 * darken, 0.56 * darken, 1.0)
+        mix.inputs["B"].default_value = tint
+        nt.links.new(hs.outputs["Color"], mix.inputs["A"])
+        nt.links.new(mix.outputs["Result"], bsdf.inputs["Base Color"])
+        nt.links.new(rough.outputs["Color"], bsdf.inputs["Roughness"])
+        sep = nt.nodes.new("ShaderNodeSeparateColor")
+        inv = nt.nodes.new("ShaderNodeMath")
+        inv.operation = "SUBTRACT"
+        inv.inputs[0].default_value = 1.0
+        comb = nt.nodes.new("ShaderNodeCombineColor")
+        nt.links.new(nor.outputs["Color"], sep.inputs["Color"])
+        nt.links.new(sep.outputs[1], inv.inputs[1])                # DirectX -> OpenGL: flip green
+        nt.links.new(sep.outputs[0], comb.inputs[0])
+        nt.links.new(inv.outputs[0], comb.inputs[1])
+        nt.links.new(sep.outputs[2], comb.inputs[2])
+        nm = nt.nodes.new("ShaderNodeNormalMap")
+        nm.uv_map = "UVMap"
+        nt.links.new(comb.outputs["Color"], nm.inputs["Color"])
+        nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
+        bsdf.inputs["Specular IOR Level"].default_value = 0.3
+        nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+        return m
+
+    front, back = sack_mat("Sack_Front", 1.0), sack_mat("Sack_Back", 0.7)
+    edge = sack_mat("Sack_Edge", 1.1)
+    for i, m in enumerate((front, back, edge)):
+        if i < len(sack.data.materials):
+            sack.data.materials[i] = m
+    skin = bpy.data.materials.new("ReviewSkin")
+    skin.use_nodes = True
+    b = next(n for n in skin.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    b.inputs["Base Color"].default_value = (0.42, 0.33, 0.28, 1.0)
+    b.inputs["Roughness"].default_value = 0.6
+    for o in bodies:
+        o.data.materials.clear()
+        o.data.materials.append(skin)
+        for poly in o.data.polygons:
+            poly.material_index = 0
+            poly.use_smooth = True
+    bpy.ops.mesh.primitive_plane_add(size=8.0, location=(0, 0, feet_z))
+    floor = bpy.context.active_object
+    fm = bpy.data.materials.new("ReviewFloor")
+    fm.use_nodes = True
+    next(n for n in fm.node_tree.nodes if n.type == "BSDF_PRINCIPLED").inputs["Base Color"].default_value = (0.35, 0.32, 0.27, 1)
+    floor.data.materials.append(fm)
+    sun = bpy.data.objects.new("Key", bpy.data.lights.new("Key", "SUN"))
+    sun.data.energy = 3.0
+    sun.rotation_euler = (math.radians(50), 0, math.radians(35))
+    scene.collection.objects.link(sun)
+    rim = bpy.data.objects.new("Rim", bpy.data.lights.new("Rim", "SUN"))
+    rim.data.energy = 1.5
+    rim.rotation_euler = (math.radians(60), 0, math.radians(200))
+    scene.collection.objects.link(rim)
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new("World")
+    scene.world.use_nodes = True
+    bg = next(n for n in scene.world.node_tree.nodes if n.type == "BACKGROUND")
+    bg.inputs["Color"].default_value = (0.25, 0.25, 0.26, 1)
+    bg.inputs["Strength"].default_value = 0.6
+    for eng in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE", "CYCLES"):
+        try:
+            scene.render.engine = eng
+            break
+        except TypeError:
+            continue
+    if scene.render.engine == "CYCLES":
+        scene.cycles.samples = 24
+        scene.cycles.device = "CPU"
+    scene.view_settings.view_transform = "AgX" if "AgX" in [i.identifier for i in
+        scene.view_settings.bl_rna.properties["view_transform"].enum_items] else "Standard"
+    return scene.render.engine
 
 
 # ----------------------------------------------------------------------------------------------- skin mode helpers
@@ -300,7 +431,9 @@ def pose_figure(a, scene, report):
     fps = float(row["anim_fps_n_over_len"])
     scene.render.fps = max(1, int(round(fps)))
     scene.render.fps_base = scene.render.fps / fps          # exact rate, so seconds map to frames 1:1
-    body_objs, _ = _import_fbx(row["body_fbx"]["file"])
+    use_dna = bool(row.get("body_dna_fbx")) and not a.no_dna
+    body_objs, _ = _import_fbx((row["body_dna_fbx"] if use_dna else row["body_fbx"])["file"])
+    report["body_source"] = "BodyDNA (full body)" if use_dna else "Body (outfit-covered faces removed)"
     face_objs, _ = _import_fbx(row["face_fbx"]["file"])
     anim_objs, actions = _import_fbx(row["anim_fbx"]["file"])
     A = _one(body_objs, "ARMATURE", "body FBX")
@@ -364,7 +497,60 @@ def pose_figure(a, scene, report):
         o.hide_set(True)
         o.hide_render = True
     bpy.data.objects.remove(C)
-    return {"colliders": posed, "body_arm": A, "face_arm": F, "rest_height_m": rest_h, "row": row}
+    weight_sources = list(posed)
+    if not a.no_hip_proxy and not use_dna:
+        posed.extend(hip_proxy(A, posed[0], scene, report))
+    return {"colliders": posed, "weight_sources": weight_sources, "body_arm": A, "face_arm": F,
+            "rest_height_m": rest_h, "row": row}
+
+
+def hip_proxy(A, body, scene, report):
+    """Collider-only TORSO proxy: four ellipsoids along the posed spine (never exported, never a weight source).
+
+    Measured 6 Oct on Shore01/02: the exported body mesh has NO vertices dominated by pelvis/spine bones above
+    0.79 m in the rest pose; the torso and hips are cut away where the outfit (DefaultGarment shirt + short) covers
+    them [meas: Blender probe of Shore01_M56_Body.fbx; inf: MetaHuman removes garment-hidden faces]. Without this
+    the sack falls into the empty torso. Sized from the posed bones: hip width from the thighs, chest width from
+    the upper arms; depths are fixed (gaunt chest, pot belly) [inf]. Replace with the full DNA body when exported.
+    """
+    import bmesh
+    import bpy
+    from mathutils import Matrix, Vector
+    pw = A.matrix_world
+    P = lambda n: pw @ A.pose.bones[n].head
+    need = ("pelvis", "spine_02", "spine_04", "spine_05", "neck_01", "thigh_l", "thigh_r", "upperarm_l", "upperarm_r")
+    if any(n not in A.pose.bones for n in need):
+        report["torso_proxy"] = {"skipped": "bones missing"}
+        return []
+    hip_lat = P("thigh_l") - P("thigh_r")
+    sh_lat = P("upperarm_l") - P("upperarm_r")
+    hip_w = hip_lat.length / 2 + 0.085
+    sh_w = sh_lat.length / 2 - 0.02
+    chain = [("pelvis", "spine_02", hip_w, 0.11, hip_lat), ("spine_02", "spine_04", 0.5 * (hip_w + sh_w), 0.135, hip_lat.lerp(sh_lat, 0.5)),
+             ("spine_04", "spine_05", sh_w, 0.115, sh_lat), ("spine_05", "neck_01", sh_w * 0.95, 0.10, sh_lat)]
+    out, rows = [], []
+    for a_name, b_name, w, d, lat in chain:
+        pa, pb = P(a_name), P(b_name)
+        up = (pb - pa)
+        half_len = max(0.06, up.length * 0.65)
+        up.normalize()
+        x = (lat - up * lat.dot(up)).normalized()
+        y = up.cross(x).normalized()
+        centre = (pa + pb) / 2
+        bm = bmesh.new()
+        bmesh.ops.create_uvsphere(bm, u_segments=24, v_segments=14, radius=1.0)
+        me = bpy.data.meshes.new("TorsoProxy")
+        bm.to_mesh(me)
+        bm.free()
+        ob = bpy.data.objects.new("TorsoProxy_" + a_name, me)
+        scene.collection.objects.link(ob)
+        rot = Matrix((x, y, up)).transposed().to_4x4()
+        ob.matrix_world = Matrix.Translation(centre) @ rot @ Matrix.Diagonal((w, d, half_len, 1.0))
+        out.append(ob)
+        rows.append({"segment": a_name + "-" + b_name, "half_width_m": round(w, 3), "half_depth_m": d,
+                     "half_length_m": round(half_len, 3)})
+    report["torso_proxy"] = rows
+    return out
 
 
 def skin_and_export(a, scene, settled, skin, stem, report):
@@ -383,7 +569,7 @@ def skin_and_export(a, scene, settled, skin, stem, report):
 
     # 1. one source object with every posed vertex group (body + face)
     copies = []
-    for c in skin["colliders"]:
+    for c in skin["weight_sources"]:
         d = c.copy()
         d.data = c.data.copy()
         d.modifiers.clear()
@@ -600,14 +786,14 @@ def blender_main(a):
         s = cl.settings
         area = sum(p.area for p in ob.data.polygons)
         vertex_area = area / max(1, len(ob.data.vertices))
-        s.mass = a.solver_mass * vertex_area
+        s.mass = a.vertex_mass if a.vertex_mass > 0 else a.solver_mass * vertex_area
         # Air damping acts per vertex like the mass, so it scales with vertex area too; reference = the curtain's
         # 27.4 cm scout spacing, where AIR_DAMPING 1.0 was set (bake_curtain_drop.py finish_cloth).
-        s.air_damping = a.air_damping * vertex_area / (0.274 * 0.274)
+        s.air_damping = a.air_damping if a.vertex_mass > 0 else a.air_damping * vertex_area / (0.274 * 0.274)
         s.quality = a.quality
         s.bending_model = "ANGULAR"
         s.tension_stiffness, s.compression_stiffness = a.tension, a.compression
-        s.shear_stiffness, s.bending_stiffness = 20.0, a.bend
+        s.shear_stiffness, s.bending_stiffness = a.shear, a.bend
         s.tension_damping = s.compression_damping = s.shear_damping = 5.0
         s.bending_damping = 0.5
         if pin_group:
@@ -669,6 +855,11 @@ def blender_main(a):
         feet_z = min(zs)
         for o in meshes:
             make_collider(o)
+        bpy.ops.mesh.primitive_plane_add(size=6.0, location=(0, 0, feet_z))
+        ground = bpy.context.active_object
+        ground.name = "GroundCollider"
+        make_collider(ground, 0.01)
+        ground.hide_render = True
         if a.crown == "auto":
             top_z = max(zs)
             cap = [p for p in pts if p.z > top_z - 0.03]
@@ -689,12 +880,26 @@ def blender_main(a):
                               "armature": arm.name if arm else None}
         # ---- the sheet, flat, centred so that its pin point sits over the crown
         ox, oy = parse_vec(a.pin_offset, 2)
+        base_yaw = 0.0
+        if skin:
+            # facing = horizontal direction from the head bone to the nose tip (the face vertex farthest out
+            # horizontally between 2 and 12 cm above the head bone)
+            hb = arm.matrix_world @ arm.pose.bones["head"].head
+            face = skin["weight_sources"][-1]
+            cand = [face.matrix_world @ v.co for v in face.data.vertices]
+            cand = [q for q in cand if 0.02 < q.z - hb.z < 0.12]
+            nose = max(cand, key=lambda q: math.hypot(q.x - hb.x, q.y - hb.y))
+            fwd = Vector((nose.x - hb.x, nose.y - hb.y, 0.0)).normalized()
+            base_yaw = math.degrees(math.atan2(fwd.y, fwd.x)) - 90.0     # sheet +Y -> facing
+            oy -= a.pin_forward
+            report["facing"] = {"forward_xy": [round(fwd.x, 3), round(fwd.y, 3)], "sheet_yaw_deg": round(base_yaw + a.yaw, 1)}
         bm = bmesh.new()
         make_piece(bm, a.size_x, a.size_y, (0.0, 0.0, 0.0), rnd.random())
         sheet = new_obj(f"Sack_{a.out_id}", bm)
         report["islands_removed"] = keep_largest_island(sheet)
         sheet.matrix_world = (Matrix.Translation(crown + Vector((0, 0, a.lift)))
-                              @ Matrix.Rotation(math.radians(a.yaw), 4, "Z") @ Matrix.Translation((-ox, -oy, 0)))
+                              @ Matrix.Rotation(math.radians(base_yaw + a.yaw), 4, "Z") @ Matrix.Translation((-ox, -oy, 0)))
+        report["pin_xy_on_sheet_m"] = [ox, oy]
         vg = sheet.vertex_groups.new(name="Pin")
         for v in sheet.data.vertices:
             r = math.hypot(v.co.x - ox, v.co.y - oy)
@@ -773,7 +978,7 @@ def blender_main(a):
     # ~0.3 m high on every run).
     uvl = bm.loops.layers.uv.get("UVMap")
     if a.mode in ("drape", "skin") and uvl is not None:
-        ox, oy = parse_vec(a.pin_offset, 2)
+        ox, oy = report.get("pin_xy_on_sheet_m") or parse_vec(a.pin_offset, 2)
         pin_uv = (a.size_x / 2 + ox, a.size_y / 2 + oy)
         reach = 0.7 * min(a.size_x, a.size_y) / 2
         boundary = []
@@ -797,7 +1002,54 @@ def blender_main(a):
         report["metrics"] = {"hem_z_p10_m": round(pct(hem, 10), 3), "hem_z_p50_m": round(pct(hem, 50), 3),
                              "hem_z_p90_m": round(pct(hem, 90), 3), "target_hem_z_m": round(target, 3),
                              "hem_fraction_below_target": round(sum(1 for z in hem if z < target) / len(hem), 3)}
-        report["checks"]["hem_median_below_target"] = report["metrics"]["hem_z_p50_m"] < target
+        # body axis: vertical through the posed pelvis (skin) or the collider's centre of mass (drape)
+        if skin:
+            ax = skin["body_arm"].matrix_world @ skin["body_arm"].pose.bones["pelvis"].head
+        else:
+            ax = sum(pts, Vector()) / len(pts)
+        rad = [math.hypot(p.x - ax.x, p.y - ax.y) for p in co]
+        core_d = None
+        if skin:
+            A_ = skin["body_arm"]
+            line = [A_.matrix_world @ A_.pose.bones[n].head for n in
+                    ("pelvis", "spine_01", "spine_02", "spine_03", "spine_04", "spine_05", "neck_01", "neck_02", "head")
+                    if n in A_.pose.bones]
+            line.append(A_.matrix_world @ A_.pose.bones["head"].tail)
+
+            def seg_d(p, a0, b0):
+                ab = b0 - a0
+                t = max(0.0, min(1.0, (p - a0).dot(ab) / max(1e-9, ab.dot(ab))))
+                q = a0 + ab * t
+                return math.hypot(p.x - q.x, p.y - q.y)     # horizontal offset from the nearest core point
+            core_d = [min(seg_d(p, line[i], line[i + 1]) for i in range(len(line) - 1)) for p in co]
+            rad = core_d
+        from mathutils.bvhtree import BVHTree
+        dgm = bpy.context.evaluated_depsgraph_get()
+        trees = [BVHTree.FromObject(o, dgm) for o in meshes]
+        inv = [o.matrix_world.inverted() for o in meshes]
+
+        def gap(p):
+            best = 9.0
+            for t, o, iv in zip(trees, meshes, inv):
+                hit = t.find_nearest(iv @ p)
+                if hit[0] is not None:
+                    best = min(best, ((o.matrix_world @ hit[0]) - p).length)
+            return best
+
+        gaps = [gap(p) for p in co[::3]]
+        xs, ys = [p.x for p in co], [p.y for p in co]
+        report["metrics"].update({
+            "radial_max_m": round(max(rad), 3), "radial_p99_m": round(pct(rad, 99), 3),
+            "radial_basis": "horizontal offset from the nearest point of the posed pelvis-head bone chain" if core_d
+            else "horizontal distance from the collider centroid axis",
+            "bbox_xy_m": [round(max(xs) - min(xs), 3), round(max(ys) - min(ys), 3)],
+            "lowest_cloth_z_m": round(min(p.z for p in co) - feet_z, 3),
+            "gap_p50_m": round(pct(gaps, 50), 3), "gap_p75_m": round(pct(gaps, 75), 3),
+            "gap_p95_m": round(pct(gaps, 95), 3)})
+        report["checks"]["hem_median_le_gate"] = report["metrics"]["hem_z_p50_m"] <= a.hem_gate
+        report["checks"]["radial_max_le_gate"] = report["metrics"]["radial_max_m"] <= a.radial_gate
+        report["checks"]["no_balloon_bbox"] = max(report["metrics"]["bbox_xy_m"]) <= a.balloon_gate
+        report["metrics"]["gap_p75_le_gap_gate_INFO"] = report["metrics"]["gap_p75_m"] <= a.gap_gate
         report["checks"]["no_vertex_below_feet"] = min(p.z for p in co) > feet_z - 0.01
     else:
         xs, ys, zs = [p.x for p in co], [p.y for p in co], [p.z for p in co]
@@ -807,6 +1059,8 @@ def blender_main(a):
         report["checks"]["pile_settled_low"] = report["metrics"]["height_max_m"] < a.mound_height + 1.0
     report["checks"]["finite"] = all(math.isfinite(c) for p in co for c in p)
 
+    for poly in settled.data.polygons:
+        poly.use_smooth = True
     # ---- thickness on the COPY: solidify with rim; slots Front / Back / Edge
     for name in ("Sack_Front", "Sack_Back", "Sack_Edge"):
         settled.data.materials.append(bpy.data.materials.get(name) or bpy.data.materials.new(name))
@@ -825,7 +1079,7 @@ def blender_main(a):
         for o in bpy.context.view_layer.objects:
             o.select_set(o in export)
         bpy.ops.export_scene.fbx(filepath=str(stem) + ".fbx", use_selection=True, apply_unit_scale=True,
-                                 mesh_smooth_type="FACE", add_leaf_bones=False, bake_anim=False)
+                                 mesh_smooth_type="FACE", add_leaf_bones=False, bake_anim=False)   # FACE = per-face smooth flags
         report["fbx"] = str(stem) + ".fbx"
     if skin:
         report["skin_fbx"] = skin_and_export(a, scene, settled, skin, stem, report)
@@ -837,6 +1091,12 @@ def blender_main(a):
         report["abc"] = str(stem) + ".abc"
     if a.render:
         scene.render.engine = "BLENDER_WORKBENCH"
+        if a.textured:
+            report["render_engine"] = textured_setup(scene, settled, [o for o in meshes if not o.name.startswith("TorsoProxy")]
+                                                     if a.mode in ("drape", "skin") else [], feet_z)
+        for o in bpy.data.objects:
+            if o.name.startswith(("HipProxy", "TorsoProxy", "GroundCollider")):
+                o.hide_render = True
         scene.render.resolution_x, scene.render.resolution_y = 900, 1200
         cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam"))
         scene.collection.objects.link(cam)
@@ -856,8 +1116,13 @@ def blender_main(a):
 
 def main(argv):
     a = build_parser().parse_args(argv)
-    soft = {"bend": 1.0, "compression": 20.0, "friction": 2.0, "quality": 20, "air_damping": 6.0, "frames": 240}
-    hard = {"bend": 2.0, "compression": 4.0, "friction": 8.0, "quality": 20, "air_damping": 1.0, "frames": 120}
+    # drape/skin: the 6 Oct recipe measured on the real Shore01/02 bodies (Docs/Conductor/S3_SACKCLOTH_PLAN §9):
+    # Blender-scale vertex mass (0.6 kg) so gravity beats the springs; low compression so it folds instead of
+    # standing; the old 13.4 kg/m2 x 4 cm-vertex mass (0.005-0.02 kg) made a stiff 1.1 m wide "boulder".
+    soft = {"bend": 1.0, "compression": 5.0, "friction": 5.0, "quality": 12, "air_damping": 1.0, "frames": 300,
+            "vertex_mass": 0.6, "tension": 40.0, "shear": 10.0, "self_dist": 0.005, "quad": 0.03}
+    hard = {"bend": 2.0, "compression": 4.0, "friction": 8.0, "quality": 20, "air_damping": 1.0, "frames": 120,
+            "vertex_mass": 0.0, "tension": 40.0, "shear": 20.0, "self_dist": 0.006, "quad": 0.02}
     for k, v in (hard if a.mode == "pile" else soft).items():
         if getattr(a, k) is None:
             setattr(a, k, v)

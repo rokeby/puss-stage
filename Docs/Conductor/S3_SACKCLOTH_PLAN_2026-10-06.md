@@ -688,3 +688,126 @@ All values are starting points [inf]. Gary judges them from stills.
 3. **The other four** with the same command, then the 2 cm-quad finals for all six (`--quad 0.02`).
 4. **The UE builder and import** (8.4): to be written, then DRY → APPLY (Gary's yes) → VERIFY.
 5. **Wiring** (8.4 item 5): Gary's yes.
+
+---
+
+## 9. 6 Oct afternoon: first real bodies. The balloon fixed, and the missing torso
+
+All runs below used Blender 4.4.0 on the exported Shore01/Shore02 FBX. Stills and JSON are in
+`DerivedAssets/S3Sackcloth/iter_20261006/`. Every number is [meas] unless marked.
+
+### 9.1 Why the first run ballooned (the conductor's Shore01 run: a 0.9 m "boulder")
+
+**Cause: the vertex mass was ~100× too light for Blender's stiffness units.**
+- The tool's `--solver-mass 13.4 kg/m²` × vertex area gave 0.005–0.012 kg per vertex.
+- Blender's cloth presets assume 0.3–1 kg per vertex at the same spring values, so the springs out-muscled gravity
+  and the sheet crumpled stiffly.
+- With the old recipe re-run at 3 cm, the footprint was **1.10 × 1.10 m**.
+- With a 0.6 kg vertex mass (everything else at preset-like values), the same sheet **hangs**, with a footprint of
+  0.53–0.73 m.
+- Of four recipes tried (cotton-like, denim-like, heavy-soft, mass-only), all four hung once the mass was right.
+  Heavy-soft hung closest to the body.
+
+**The recipe is now the drape/skin default:**
+
+| Setting | Value |
+|---|---|
+| vertex mass | 0.6 kg |
+| tension | 40 |
+| compression | 5 |
+| shear | 10 |
+| bend | 1 |
+| air damping | 1 |
+| quality / collision | 12 / 4 |
+| friction | 5 |
+| self-collision distance | 5 mm |
+| quad | 3 cm |
+| frames | 300 (10 s) |
+
+- Solidify stays at 7 mm.
+- Cost: about 1.0–1.4 s/frame, so ~6 min per figure. Four figures run in parallel in about the same time.
+
+### 9.2 The missing hips are not a dropped slot: the exported Body has no torso at all
+
+- **Measured in Blender:** the rest-pose `Shore01_M56_Body.fbx` has 380–512 open boundary edges at 0.8–1.0 m.
+- **More decisive, also measured:** **no vertex dominated by a pelvis, spine or thigh bone lies above 0.79 m.** Arms,
+  legs, feet and neck are present; the whole torso from the thigh tops to the neck is cut away.
+- **Interpretation [inf]:** MetaHuman removes the body faces hidden under the outfit. The assembled
+  `MHC_<id>_Outfits` holds DefaultGarment Shirt and Short materials [decl: `assembly_assets_Shore01_M56.json`]. In UE
+  the shirt/short garment (Gary's "white underpants") fills the gap.
+- **In Blender (until a full body exists):** skin mode adds a **collider-only torso proxy**. It is four ellipsoids
+  along the posed spine: hip width from the thigh bones, shoulder width from the upper arms, depths 0.10–0.135 m.
+  It is never exported and never used for weights.
+- **The proper fix (UE, read-only):**
+  - The export tool now also exports `SKM_MHC_<id>_BodyMesh_DNA` when it exists and shares the skeleton. It is
+    expected to be the uncut body [inf, by name only].
+  - Skin mode prefers it automatically (`body_source` in the JSON) and drops the proxy.
+  - **Re-run the export** to get it.
+- **Also added:** a ground collider at the feet. Shore02's cloth reached the floor and went 13 cm through it without
+  one.
+
+### 9.3 New gates (numbers per figure)
+
+The conductor's spec gave three gates:
+- hem median ≤ 0.85 m above the feet;
+- max horizontal extent ≤ 0.65 m from the body axis;
+- no balloon.
+
+**How each is measured now:**
+- **Hem:** the outer hem only. Holes are excluded, which earlier made the hem read high.
+- **Extent:** the horizontal offset from the nearest point of the posed pelvis-to-head bone chain. A pelvis-only axis
+  read 0.75 m on bowed Shore02 because the head is far in front of the pelvis.
+- **Balloon:** the gate is now the **footprint** (bbox side ≤ 0.85 m: the balloon measured 1.10 m, hanging runs
+  0.50–0.73 m).
+  - The cloth-to-body gap p75 is reported but is **not** a gate. A crouched figure's sheet tents to the ground
+    (Shore02 gap p75 0.26 m) without ballooning.
+  - Calibration, old recipe: gap p75 0.27 m and bbox 1.10 m. New recipe on Shore01: gap p75 0.10 m and bbox 0.66 m.
+
+**Shore01 (upright, 1.79 m, crown 1.86 m):**
+
+| Size / pin | Hem p50 | Hem p10 | Extent max | bbox (m) | Gates |
+|---|---|---|---|---|---|
+| **1.8 × 1.8** (Gary's) | **1.015** | 0.79 | 0.33 | 0.66 × 0.53 | hem FAILS |
+| 1.8 + pin 20 cm forward | 0.97 | 0.71 | 0.32 | 0.65 × 0.51 | hem FAILS |
+| 1.8 + 45° turn | 1.02 | 0.82 | 0.39 | | hem FAILS (old proxy-less run) |
+| **2.0 + pin 20 cm forward** | **0.848** | 0.56 | 0.32 | 0.71 × 0.50 | all pass |
+| 2.2 × 2.2 | 0.815 | 0.57 | 0.38 | 0.71 × 0.61 | all pass |
+
+**Shore02 (bowed, head bone 0.94 m):**
+
+| Size | Hem p50 | Hem p10 | Extent | bbox (m) | Gates |
+|---|---|---|---|---|---|
+| **1.8 × 1.8** | **0.32** | 0.10 | 0.32 | 0.59 × 0.54 | all pass |
+
+- For Shore02 the cloth falls forward over the bowed head and shoulders down to the ground.
+- **But her rear and the back of the thighs stay uncovered** in the side still (the open tubes are the cut body; in UE
+  that is where the white shorts show).
+- A **backward** pin offset is the lever for her (`--pin-forward -0.2`). Not run yet.
+
+### 9.4 What this means for Gary
+
+1. **1.8 m cannot cover the crotch on the upright figures.** The pin offset and the 45° turn each moved the median
+   hem ≤ 5 cm. **2.0 m with the pin 20 cm forward** is the smallest tried that passes (median 0.85 m; the corners
+   reach the knees at 0.56 m).
+   - Choose per figure: 2.0 m for the four upright figures, 1.8 m for bowed Shore02.
+   - Or keep 1.8 m everywhere and darken the shorts. His call.
+2. **Look:** stills are rendered with the hessian_230 material, desaturated to "old grey worn", in EEVEE:
+   - `iter_20261006/Shore01_M56_Sack_1p8_{34,side}.png`
+   - `iter_20261006/Shore01_M56_Sack_2p0_fwd20_{34,side}.png`
+   - `iter_20261006/Shore01_M56_Sack_2p2_{34,side}.png`
+   - `iter_20261006/Shore02_F52_Sack_1p8_{34,side}.png`
+   - The body renders black in these stills (the review skin material did not take). This is cosmetic, review only.
+3. **The earlier `DerivedAssets/S3Sackcloth/Shore01_M56_Sack*` files are the balloon run.** They are superseded; do
+   not import them.
+
+### 9.5 Commands
+
+All four candidates above came from (`--textured` renders the material):
+```
+"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" -b --factory-startup --python Tools/S3Sackcloth/build_sackcloth.py -- --mode skin --figure Shore01_M56 --out-dir DerivedAssets/S3Sackcloth/iter_20261006 --out-id Shore01_M56_Sack_2p0_fwd20 --size-x 2.0 --size-y 2.0 --pin-forward 0.2 --render --textured
+```
+
+**Size flags:**
+- `--size-x 1.8 --size-y 1.8` is the default (Gary's size);
+- add `--pin-forward 0.2` for more cloth at the front, or `-0.2` for Shore02's back;
+- `--quad 0.02` for a finer final (≈2–3× the time) [inf].

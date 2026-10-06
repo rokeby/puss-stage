@@ -24,7 +24,7 @@ Why not a posed mesh directly: no exporter in the headers writes a skeletal mesh
 mesh exporter writes the reference pose; the anim exporter writes skeleton + curves). So Blender poses it: import the
 mesh FBX, import the anim FBX onto the same bone names, go to the pose frame, evaluate (build_sackcloth.py skin mode).
 
-Marker: S3_SHORE_EXPORT_OK|run=<id>|figures=6|files=18|census=... (or S3_SHORE_EXPORT_FAILED|run=..|reason=..).
+Marker: S3_SHORE_EXPORT_OK|run=<id>|figures=6|files=18..24 (24 with the _DNA bodies)|census=... (or S3_SHORE_EXPORT_FAILED|run=..|reason=..).
 """
 import datetime
 import hashlib
@@ -212,6 +212,19 @@ def main():
             row["face_fbx"] = export(face_mesh, os.path.join(out, fid + "_Face.fbx"), "SkeletalMeshExporterFBX", mesh_opt)
             row["anim_fbx"] = export(anim, os.path.join(out, fid + "_Anim.fbx"), "AnimSequenceExporterFBX", anim_opt)
             files += 3
+            # The assembled body mesh has the outfit-covered faces removed (no torso/hips: measured in Blender,
+            # 6 Oct). The sibling "<body>_DNA" skeletal mesh is expected to be the full body [inf, by name]; export
+            # it too when it exists and shares the skeleton, so the drape can collide with a real torso.
+            dna_path = body_mesh.get_path_name().split(".")[0] + "_DNA"
+            dna = unreal.load_asset(dna_path) if unreal.EditorAssetLibrary.does_asset_exist(dna_path) else None
+            if isinstance(dna, unreal.SkeletalMesh) and dna.get_editor_property("skeleton") == body_mesh.get_editor_property("skeleton"):
+                row["body_dna_fbx"] = export(dna, os.path.join(out, fid + "_BodyDNA.fbx"), "SkeletalMeshExporterFBX", mesh_opt)
+                row["body_dna_mesh"] = dna.get_path_name()
+                files += 1
+            else:
+                row["body_dna_fbx"] = None
+                row["body_dna_note"] = "not exported: %s" % ("missing" if dna is None else
+                                                             "class %s or different skeleton" % dna.get_class().get_name())
             rows.append(row)
         after = census()
         if after != before:
