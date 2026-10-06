@@ -251,3 +251,21 @@
     shore people · 7 finish / out of scene. Facts: S3 = 260 s; the Shore stand-in narration is ONE 34.3 s clip at 4.17 s
     (lands 4.13 s) with a clear pause 17–22 s into the clip [measured RMS] -> splits naturally into beat 3 / beat 5 halves.
     No cello/chorus audio exists in Saved/InfinityStage/MusicAnalysis/Scenes (Mountain/School/Shrine/Void only).
+59. **Gary's big run-through note (6 Oct ~00:30)** — triaged:
+    - **Bulbs/holders:** dead bulbs must LOOK like light bulbs and all glow minimally (orange/white/pink, small light + a reflection);
+      the cuboid lamp "holders" should look like minimal stage-lighting pieces.
+    - **P01:** low side lights (dominant, orange fog flood) work. Add fairy-tale colour: TOP L/R red, green, whitish-yellow, pink,
+      pinging on after ~bay 5, gentle irregular ~1 Hz pulse; lower lights darken after ~bay 12 so the tops dominate; pale pink in
+      PRACTICAL_BULB_DEAD + CLAMP. ~Bay 20: ground BEAM_Rs of different colours (gobos later); keep the one that flickers nicely +
+      3 more pulsing 2 Hz for 0.5 s at staggered moments (some seen in the distance, some only a few bays ahead of Puss).
+    - **Seam:** arriving at the hangar the camera switch sometimes SNAPS — seems to happen after pausing play (two timers out of sync?).
+    - **HUD (build):** bottom of screen: current bay, current cue, sequence/subsequence; **hold Left = rewind** like hold Right = fast-forward.
+    - **P02:** horizontal low side key/fill floods and flattens — light the wings instead (already in the new score); walnut + straight (queued).
+    - **S→P transitions (S02):** the transition curtain never drops and the hangar is empty, so the cue before the next P is unreadable; easier once Scenes are imported.
+    - **P03:** wings full of small holes (hole kit); large roundish rock wings work and deserve light through them; wings need more detail; more progression / new wings (later).
+    - **P04:** strobe effective but too strong — want a local halo, not a fog wash; more active practicals on the floor + hanging, dim; more light on wing texture; the top-R strike on the detailed wing is the depth we want. More wings, normal speed (retime), wings need movement; maybe RAIN with the strobe.
+    - **Back-passage curtains** across P01–P05 (not P06), easy to put images on; P04's back curtain falls too late.
+    - **New curtain bake:** bunched-up curtain dropping from above to hang normally — for S→P transitions and **P05 "blue skies"**: blue, fill-lit curtains lining the rig fences, cascading down nearest-to-Puss first.
+    - **P05:** cloud lighting very good but too dark for the approach to the bright mountains: upper L/R spots on the first cloud wings + sky-curtain fills on in sequence + small bottom L/R up-spots for Gary's new mountain pieces; after ~bay 6 sky lights cut, new spots blink (only current lights on); ~6 bays later everything on. Plus a few club-style "mover" spots: on the ground, then haywire rapid jolting rotation.
+    - **P06:** analyse the void music, light moments on its beats; harp lilting parts -> gentle breathing/flutter; first-third side wash cool sleepy-hollow BLUE not orange; middle third keep dark + blinking, add hanging + floor ember bulbs (nice meshes, floor reflections); another car drive-by; last third fires (Niagara, tomorrow). Remove chinoiserie wings, replace with ceramic towers / under-used P06 wings. Looking up at wings + floor reflections works.
+    - **Tubes:** asked where the dingy fluorescent tubes were — P02 (Structure 02, stations 11–18, UPT-20261005-092351): two centre-top rows + top L/R corners.
