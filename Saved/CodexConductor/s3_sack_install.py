@@ -23,13 +23,15 @@ Modes (write modes need the confirm string; every write mode refuses on a dirty 
   BUILD_MAT  create-only: 6 textures (Sack/Textures), M_Sackcloth (opaque), M_Sackcloth_Masked (+ fringe opacity from
              UV1.x), MI_Sackcloth_OldGrey and MI_Sackcloth_OldGrey_Inner (both children of the MASKED master: the
              fringe is on every slot, plan 10.3). Every edge, parameter, flag and MI value is read back.
-  APPLY      route 2 (conductor 6 Oct 16:05; route 1, an instance component via SubobjectDataSubsystem, failed live
-             with BODY_HANDLE|Shore01_M56 Clam|0). Phase 1 reads EVERYTHING for every figure and asserts the census
-             unchanged; only then: backup the umap, and per figure spawn a SkeletalMeshActor "<id> Sack" (tags S3.Sack,
-             S3.Sack.<id>) at the Body's world transform, attach it to Body (KEEP_WORLD), set mesh, slot MIs, bounds
-             scale, leader pose = the figure's Body; hide ShoreHeadCloth and switch its simulation off. Body/Face (the
-             skin pass's level overrides, S3SKIN-20261006-134520) are snapshotted and must not change. The figure BPs
-             are never edited.
+  APPLY      route 3 (see the APPLY / REVERT section header for why). Phase 1 reads EVERYTHING for every figure
+             and asserts the census unchanged; then backup the umap; then (a) ShoreHeadCloth on every figure: visible
+             false, hidden in game, suspend on, simulation off, one set_editor_property at a time on a freshly found
+             component; (b) per figure spawn BP_S3SackFollower "<id> Sack" (tags S3.Sack, S3.Sack.<id>) at the Body's
+             world transform, mesh / slot MIs / bounds scale by property, attach to Body (KEEP_WORLD), rerun its
+             construction script (RelinkLeader: SetLeaderPoseComponent on the attach parent named "Body"). Body/Face
+             (the skin pass's level overrides, S3SKIN-20261006-134520) must not change. Figure BPs are never edited.
+  PIE_PROBE  read-only, only while Gary's PIE runs: every sack led by its figure's Body in the game world (the
+             persistence proof: PIE is a fresh copy of the SAVED level), cloth hidden and suspended.
   REVERT     exact inverse from the record (refuses on drift, or if the sack actor is not the recorded one): lookups
              first, then destroy the tagged sack actors and restore the cloth flags; save the map. Assets stay.
   VERIFY     read-only: every record's end state (meshes, materials, attachment, leader pose resolving to the CURRENT
@@ -42,7 +44,8 @@ ROOT BONE (measured 6 Oct, fbx_skeleton_summary below on the files): UE's own bo
   skeleton [inferred; the compatibility .cpp is absent from the UE 5.8 install]. IMPORT therefore reads
   <id>_SK_root.fbx (same mesh/weights/bind, armature renamed "root", Root node, Z-up) and gates its structure.
 
-PERSISTENCE: SkinnedMeshComponent.LeaderPoseComponent is a UPROPERTY(BlueprintReadOnly) TWeakObjectPtr
+PERSISTENCE (route 3): the sack is a BP_S3SackFollower whose construction script and BeginPlay re-link it
+  (RelinkLeader). PIE_PROBE is the proof in a fresh world. Background: SkinnedMeshComponent.LeaderPoseComponent is a UPROPERTY(BlueprintReadOnly) TWeakObjectPtr
   (Engine/Classes/Components/SkinnedMeshComponent.h:313-314), so it is serialized with the level [decl]. Whether it
   survives the figure BP's construction-script rerun on load (ConfigureShoreDrape runs on construction and BeginPlay,
   Docs/ShoreCast-20260910.md:84), which may replace the Body component object, is [inferred, unproven]; the same holds
@@ -56,6 +59,7 @@ Crash rules: no UE object at module level; all editor work inside functions.
 import datetime
 import hashlib
 import json
+import math
 import os
 import shutil
 import struct
@@ -72,6 +76,7 @@ RECORDS = {"IMPORT": HERE + "s3_sack_install_import_record.json",
            "BUILD_MAT": HERE + "s3_sack_install_mat_record.json",
            "APPLY": HERE + "s3_sack_install_apply_record.json"}
 DRY_OUT = HERE + "s3_sack_install_dry.json"
+PIE_OUT = HERE + "s3_sack_install_pie_probe.json"
 VERIFY_OUT = HERE + "s3_sack_install_verify.json"
 BACKUP_ROOT = PROJECT + "Backups/PreS3Sack-"
 CONTENT = PROJECT + "Content/"
@@ -89,9 +94,15 @@ SKELETON = ROOT + "/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_b
 ROOT_BONE, FIRST_CHILD = "root", "pelvis"
 CONFIRM_WORD = "S3SACK"
 WRITE_MODES = ("IMPORT", "BUILD_MAT", "APPLY", "REVERT")
-MODES = ("DRY", "VERIFY") + WRITE_MODES
+MODES = ("DRY", "VERIFY", "PIE_PROBE") + WRITE_MODES
 SACK_COMPONENT, CLOTH_COMPONENT, BODY, FACE = "SackSK", "ShoreHeadCloth", "Body", "Face"   # SackSK: legacy route
 SACK_TAG = "S3.Sack"
+SACK_BP = SACK_DIR + "/BP_S3SackFollower"                 # authored by s3_sack_follower_bp_*.json (MCP generator)
+SACK_BP_CLASS_NAME = "BP_S3SackFollower_C"
+# cloth state key -> UPROPERTY python name: bVisible SceneComponent.h:182-183 (EditAnywhere), bHiddenInGame :225-226,
+# bSuspendSimulation / bEnableSimulation ClothComponent.h:462-463 / 458-459 (Interp). Written AND read as properties.
+CLOTH_PROPS = (("visible", "visible"), ("hidden_in_game", "hidden_in_game"), ("suspended", "suspend_simulation"),
+               ("enabled", "enable_simulation"))
 TOL = 1e-3
 
 FIGURES = ("Shore01_M56", "Shore02_F52", "Shore03_M59", "Shore04_F55", "Shore05_M53", "Shore06_F25")
@@ -715,6 +726,8 @@ def check_mode(args, records_exist):
         _require(records_exist["APPLY"], "NO_APPLY_RECORD")
     if mode == "VERIFY":
         _require(any(records_exist.values()), "NOTHING_TO_VERIFY")
+    if mode == "PIE_PROBE":
+        _require(records_exist["APPLY"], "NO_APPLY_RECORD")
     return mode, figs, opts
 
 
@@ -736,6 +749,7 @@ def cloth_target(before, switch):
     """The cloth state APPLY writes (and REVERT restores 'before')."""
     after = dict(before)
     after["visible"] = False
+    after["hidden_in_game"] = True
     after["suspended"] = True
     if switch == "suspend+disable":
         after["enabled"] = False
@@ -875,26 +889,27 @@ def _leader(comp):
         raise SackError("LEADER_UNREADABLE|%s" % exc)
 
 
+def _leader_path_safe(comp):
+    """Full path of comp's leader, None, or "UNREADABLE" when Python cannot read the weak pointer (then compared
+    before/after like any value, never treated as 'no leader' proof)."""
+    try:
+        return _full(_leader(comp))
+    except SackError:
+        return "UNREADABLE"
+
+
 def _cloth_state(cloth):
-    st = {"visible": bool(cloth.is_visible()),
-          "hidden_in_game": bool(cloth.get_editor_property("hidden_in_game")),
-          "enabled": bool(cloth.is_simulation_enabled()),
-          "suspended": bool(cloth.get_editor_property("suspend_simulation"))}
-    st["suspended_fn"] = bool(cloth.is_simulation_suspended())   # informational (may fold in CVars)
+    """Read through the SAME properties the writes use (CLOTH_PROPS). The function reads are informational only:
+    IsSimulationEnabled/IsSimulationSuspended are virtual and may fold in more than the flag (ClothComponent.h:160,171)."""
+    st = {k: bool(cloth.get_editor_property(prop)) for k, prop in CLOTH_PROPS}
+    info = {}
+    for name in ("is_visible", "is_simulation_enabled", "is_simulation_suspended"):
+        try:
+            info[name] = bool(getattr(cloth, name)())
+        except Exception as exc:  # noqa: BLE001
+            info[name] = "ERR %s" % exc
+    st["functions_info"] = info
     return st
-
-
-def _set_cloth(cloth, want):
-    cloth.modify()
-    cloth.set_visibility(bool(want["visible"]), False)
-    # bSuspendSimulation's Python name shadows the SuspendSimulation() UFUNCTION (ChaosClothCurtain.md:606-607);
-    # both are Interp UPROPERTYs (ClothComponent.h:458-463).
-    cloth.set_editor_property("suspend_simulation", bool(want["suspended"]))
-    cloth.set_editor_property("enable_simulation", bool(want["enabled"]))
-    got = _cloth_state(cloth)
-    bad = state_diff({k: want[k] for k in ("visible", "suspended", "enabled")}, got, ["visible", "suspended", "enabled"])
-    _require(not bad, "CLOTH_READBACK|%s" % bad)
-    return got
 
 
 def _bone_children(mesh, name):
@@ -1367,10 +1382,18 @@ def run_build_mat(run, opts, ed):
 
 
 # ------------------------------------------------------------------------------------------- APPLY / REVERT
-# Route (conductor, 6 Oct 16:05, after the instance-component route failed live with BODY_HANDLE|Shore01_M56 Clam|0):
-# one SkeletalMeshActor per figure, labelled "<id> Sack", tagged S3.Sack + S3.Sack.<id>, spawned at the Body's world
-# transform and attached to Body (KEEP_WORLD), leader pose = that Body. The figure BPs are never edited.
-# Every lookup for EVERY figure runs before the first mutation, and the census is asserted unchanged after them.
+# Route 3 (conductor 6 Oct, after live APPLY S3SACK-20261006-161735 read back SACK_LEADER=None on all six and the
+# cloth's visible/enabled unchanged). Reading of that failure [inf, consistent with every reported number]:
+#   a set_editor_property on a component of a placed BP figure reruns the figure's construction script, which
+#   REPLACES its components (Body, Face, ShoreHeadCloth). Edits made through the property system are carried to the
+#   new components by the instance cache (suspend_simulation survived); a UFUNCTION edit (set_visibility) and any
+#   edit made afterwards through the now-dead held reference (enable_simulation) are lost; a leader pointer set to
+#   the old Body dangles (reads None).
+# So: (1) every figure write goes through set_editor_property on a FRESHLY found component, one property at a time;
+#     (2) all cloth writes happen BEFORE any sack exists; (3) the sack is a BP_S3SackFollower (child of
+#     SkeletalMeshActor) whose construction script and BeginPlay call RelinkLeader (attach parent named "Body" ->
+#     SetLeaderPoseComponent), so it re-links itself after reconstruction or in PIE; (4) every read-back re-finds
+#     everything by name. Every lookup for every figure still runs before the first mutation.
 def _world():
     return unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
 
@@ -1379,11 +1402,11 @@ def _tags(actor):
     return [str(t) for t in (actor.get_editor_property("tags") or [])]
 
 
-def _sack_actors(fig=None):
+def _sack_actors(fig=None, world=None):
     """Every actor that is, or claims to be, a sack: tag S3.Sack, or a label ending " Sack". GameplayStatics sees
     transient actors too (memory puss-benches)."""
     out = []
-    for a in unreal.GameplayStatics.get_all_actors_of_class(_world(), unreal.Actor):
+    for a in unreal.GameplayStatics.get_all_actors_of_class(world or _world(), unreal.Actor):
         label = str(a.get_actor_label())
         if SACK_TAG in _tags(a) or label.endswith(" Sack"):
             if fig is None or label == sack_label(fig) or (SACK_TAG + "." + fig) in _tags(a):
@@ -1399,21 +1422,56 @@ def _rot(r):
     return [float(r.roll), float(r.pitch), float(r.yaw)]
 
 
-def _figure_state(actor, fig):
-    """Everything APPLY touches or must not touch, for one placed figure (read-only)."""
+def _drape_head_cm(fig):
+    """The head bone in the sack's bind (drape) pose, Body component space, cm (Blender JSON
+    pose.record_head_m_ue_component). An UNLED sack draws its head here."""
+    src = _read(source_files(fig)["json"])
+    return [100.0 * float(v) for v in src["pose"]["record_head_m_ue_component"]]
+
+
+def _leader_evidence(c, body, drape_head_cm):
+    """Two independent reads of 'is the sack led by THIS Body':
+      prop   leader_pose_component resolves to the current Body (None if Python cannot read the weak pointer);
+      socket the sack's 'head' socket coincides with the Body's (a follower reads its bones from the leader [inf]),
+             conclusive only when the Body's current head is > 2 cm from the drape-pose head (else an unled sack
+             would coincide too)."""
+    ev = {"prop": None, "socket_gap_cm": None, "socket_conclusive": False, "socket_led": False}
+    try:
+        lp = _leader(c)
+        ev["prop_value"] = _full(lp)
+        ev["prop"] = lp is not None and _full(lp) == _full(body)
+    except SackError as exc:
+        ev["prop_error"] = str(exc)
+    try:
+        sh, bh = c.get_socket_location("head"), body.get_socket_location("head")
+        ev["socket_gap_cm"] = math.dist(_vec(sh), _vec(bh))
+        cs = _vec(unreal.MathLibrary.inverse_transform_location(body.get_world_transform(), bh))
+        ev["body_head_cs_cm"] = cs
+        ev["body_vs_drape_head_cm"] = math.dist(cs, drape_head_cm)
+        ev["socket_conclusive"] = ev["body_vs_drape_head_cm"] > 2.0
+        ev["socket_led"] = ev["socket_conclusive"] and ev["socket_gap_cm"] < 0.5
+    except Exception as exc:  # noqa: BLE001 - evidence, reported
+        ev["socket_error"] = str(exc)
+    ev["led"] = bool(ev["prop"]) or bool(ev["socket_led"])
+    return ev
+
+
+def _figure_state(actor, fig, world=None):
+    """Everything APPLY touches or must not touch, for one placed figure (read-only, all found fresh by name)."""
     body, bm = _body_mesh(actor)
     face = _one(actor, FACE, "SkeletalMeshComponent")
     cloth = _one(actor, CLOTH_COMPONENT, "ChaosClothComponent")
-    sacks = _sack_actors(fig)
+    sacks = _sack_actors(fig, world)
     st = {"actor": actor.get_path_name(), "label": str(actor.get_actor_label()),
           "body_mesh": _path(bm), "body_skeleton": _path(bm.get_editor_property("skeleton")),
-          "body_leader": _full(_leader(body)), "body_overrides": _overrides(body), "face_overrides": _overrides(face),
+          "body_leader": _leader_path_safe(body), "body_overrides": _overrides(body),
+          "face_overrides": _overrides(face),
           "cloth": _cloth_state(cloth), "sack": None, "sack_actors": sorted(_full(a) for a in sacks),
           # an instance component from the abandoned first route must never exist
           "legacy_sack_component": len(_components(actor, SACK_COMPONENT))}
     if len(sacks) == 1:
         sa = sacks[0]
-        c = sa.get_editor_property("skeletal_mesh_component")
+        c = sa.get_editor_property("skeletal_mesh_component")      # SkeletalMeshActor.h:38-39
         root = sa.get_editor_property("root_component")
         n = int(c.get_num_materials())
         ap = root.get_attach_parent() if root is not None else None
@@ -1428,10 +1486,9 @@ def _figure_state(actor, fig):
                       "relative_location": _vec(root.get_editor_property("relative_location")),
                       "relative_rotation": _rot(root.get_editor_property("relative_rotation")),
                       "relative_scale": _vec(root.get_editor_property("relative_scale3d")),
-                      "leader": _full(_leader(c)),
-                      "leader_is_current_body": _leader(c) is not None and _full(_leader(c)) == _full(body),
+                      "leader_evidence": _leader_evidence(c, body, _drape_head_cm(fig)),
                       "bounds_scale": float(c.get_editor_property("bounds_scale")),
-                      "visible": bool(c.is_visible()),
+                      "visible": bool(c.get_editor_property("visible")),
                       "num_bones": int(c.get_num_bones()),
                       "bone_names_missing_on_body": sorted(
                           {str(c.get_bone_name(i)) for i in range(int(c.get_num_bones()))}
@@ -1447,7 +1504,7 @@ def _sack_problems(fig, st, slots, opts):
     probs = []
     if s["label"] != sack_label(fig) or not {SACK_TAG, SACK_TAG + "." + fig} <= set(s["tags"]):
         probs.append("SACK_IDENTITY|%s|%s|%s" % (fig, s["label"], s["tags"]))
-    if s["class"] != "SkeletalMeshActor" or not s["root_is_mesh_component"]:
+    if s["class"] != SACK_BP_CLASS_NAME or not s["root_is_mesh_component"]:
         probs.append("SACK_CLASS|%s|%s" % (fig, s["class"]))
     if s["mesh"] != want["mesh"]:
         probs.append("SACK_MESH|%s|%s" % (fig, s["mesh"]))
@@ -1456,8 +1513,8 @@ def _sack_problems(fig, st, slots, opts):
     if not (s["attach_parent_is_body"] and s["attach_parent_actor_is_figure"]) or s["socket"] not in ("None", ""):
         probs.append("SACK_ATTACH|%s|%s|%s" % (fig, s["attach_parent"], s["socket"]))
     probs += relative_identity_problems(fig, s)
-    if not s["leader_is_current_body"]:
-        probs.append("SACK_LEADER|%s|%s" % (fig, s["leader"]))
+    if not s["leader_evidence"]["led"]:
+        probs.append("SACK_LEADER|%s|%s" % (fig, json.dumps(s["leader_evidence"], default=str)))
     if abs(s["bounds_scale"] - opts["bounds_scale"]) > 1e-4:
         probs.append("SACK_BOUNDS_SCALE|%s|%s" % (fig, s["bounds_scale"]))
     if not s["visible"]:
@@ -1475,15 +1532,29 @@ def _slots_from_import(fig, mesh):
     return classify_slots(_mesh_slots(mesh))
 
 
+def _sack_bp_class():
+    """The follower BP (authored by the MCPBlueprintsGenerator specs, see s3_sack_follower_bp_*.json): exists, is a
+    SkeletalMeshActor, has RelinkLeader. Returns the generated class."""
+    eal = unreal.EditorAssetLibrary
+    _require(eal.does_asset_exist(SACK_BP), "SACK_BP_MISSING|%s (apply the s3_sack_follower_bp specs first)" % SACK_BP)
+    bp = unreal.load_asset(SACK_BP)
+    _require(unreal.BlueprintEditorLibrary.find_graph(bp, "RelinkLeader") is not None, "SACK_BP_NO_RELINK|" + SACK_BP)
+    cls = eal.load_blueprint_class(SACK_BP)
+    _require(cls is not None and isinstance(unreal.get_default_object(cls), unreal.SkeletalMeshActor),
+             "SACK_BP_PARENT|%s" % cls)
+    return cls
+
+
 def _apply_lookups(figs):
     """Phase 1 of APPLY: every read, for every figure, before anything is touched. Returns the plan."""
     mat_rec = _read(RECORDS["BUILD_MAT"])
     _require(mat_rec.get("saved"), "MAT_RECORD_UNSAVED")
     api = _api_presence()
-    need = ["EditorActorSubsystem.spawn_actor_from_class", "EditorActorSubsystem.destroy_actor", "SkeletalMeshActor",
-            "Actor.attach_to_component", "SkinnedMeshComponent.set_leader_pose_component",
-            "SkeletalMeshComponent.set_skeletal_mesh_asset"]
+    need = ["EditorActorSubsystem.spawn_actor_from_class", "EditorActorSubsystem.destroy_actor",
+            "Actor.attach_to_component", "BlueprintEditorLibrary.find_graph", "EditorAssetLibrary.load_blueprint_class",
+            "MathLibrary.inverse_transform_location"]
     _require(all(api.get(k) for k in need), "API_MISSING|%s" % [k for k in need if not api.get(k)])
+    bp_class = _sack_bp_class()
     meshes = {f: unreal.load_asset(mesh_path(f)) for f in figs}
     mis = {r: unreal.load_asset(p) for r, p in SLOT_MI.items()}
     missing = [mesh_path(f) for f, m in meshes.items() if m is None] + [SLOT_MI[r] for r, m in mis.items() if m is None]
@@ -1493,8 +1564,7 @@ def _apply_lookups(figs):
     plan, probs = {}, []
     for f in figs:
         a = actors[f]
-        body, _bm = _body_mesh(a)
-        cloth = _one(a, CLOTH_COMPONENT, "ChaosClothComponent")
+        _one(a, CLOTH_COMPONENT, "ChaosClothComponent")
         st = _figure_state(a, f)
         if st["sack_actors"]:
             probs.append("SACK_EXISTS|%s|%s" % (f, st["sack_actors"]))
@@ -1502,67 +1572,97 @@ def _apply_lookups(figs):
             probs.append("LEGACY_SACKSK_COMPONENT|%s" % f)
         if st["body_skeleton"] != SKELETON:
             probs.append("BODY_SKELETON|%s|%s" % (f, st["body_skeleton"]))
-        if st["body_leader"] is not None:
+        if st["body_leader"] not in (None, "UNREADABLE"):
             probs.append("BODY_HAS_LEADER|%s|%s (a follower of a follower is unproven)" % (f, st["body_leader"]))
-        t = body.get_world_transform()
-        plan[f] = {"actor": a, "body": body, "cloth": cloth, "mesh": meshes[f], "slots": _slots_from_import(f, meshes[f]),
-                   "before": st, "body_world": t, "folder": str(a.get_folder_path()),
-                   "body_world_rec": {"location": _vec(t.translation), "rotation": _rot(t.rotation.rotator()),
-                                      "scale": _vec(t.scale3d)}}
+        plan[f] = {"actor": a, "mesh": meshes[f], "slots": _slots_from_import(f, meshes[f]), "before": st,
+                   "folder": str(a.get_folder_path()), "drape_head_cm": _drape_head_cm(f)}
     stray = [_full(x) for x in _sack_actors() if not any(_full(x) in plan[f]["before"]["sack_actors"] for f in figs)]
     if stray:
         probs.append("STRAY_SACK_ACTORS|%s" % stray)
     _require(not probs, "PLAN_PROBLEMS|%s" % probs)
-    return plan, mis
+    return plan, mis, bp_class
 
 
-def _spawn_sack(f, p, mis, opts):
-    """Phase 3, one figure. The caller re-reads the whole end state afterwards (setters are not trusted)."""
+def _set_cloth(actor, want):
+    """One property per write, each on a FRESHLY found ShoreHeadCloth (a write may rebuild the figure's components),
+    through the property system (the path the instance cache carries across a rebuild). Read back fresh."""
+    for key, prop in CLOTH_PROPS:
+        cloth = _one(actor, CLOTH_COMPONENT, "ChaosClothComponent")
+        cloth.modify()
+        cloth.set_editor_property(prop, bool(want[key]))
+    got = _cloth_state(_one(actor, CLOTH_COMPONENT, "ChaosClothComponent"))
+    bad = state_diff({k: want[k] for k, _p in CLOTH_PROPS}, got, [k for k, _p in CLOTH_PROPS])
+    _require(not bad, "CLOTH_READBACK|%s|%s" % (actor.get_actor_label(), bad))
+    return got
+
+
+def _spawn_sack(f, p, mis, bp_class, opts):
+    """Phase 3b, one figure, after every cloth write. Sack-actor writes go first (each may rebuild the sack BP; its
+    mesh component is native, so it survives), then attach, then a deliberate construction rerun (re-set the tags)
+    so the BP's own construction script does the linking. RelinkLeader via call_method is the fallback, recorded."""
     eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    t = p["body_world"]
-    sa = eas.spawn_actor_from_class(unreal.SkeletalMeshActor, t.translation, t.rotation.rotator())
+    actor = p["actor"]
+    body, _bm = _body_mesh(actor)                                       # fresh: after the cloth writes
+    t = body.get_world_transform()
+    sa = eas.spawn_actor_from_class(bp_class, t.translation, t.rotation.rotator())
     _require(sa is not None, "SPAWN_FAILED|%s" % f)
     sa.modify()
     sa.set_actor_label(sack_label(f))
     sa.set_actor_scale3d(t.scale3d)
-    sa.set_editor_property("tags", [unreal.Name(SACK_TAG), unreal.Name(SACK_TAG + "." + f)])
+    tags = [unreal.Name(SACK_TAG), unreal.Name(SACK_TAG + "." + f)]
+    sa.set_editor_property("tags", tags)
     if p["folder"] not in ("", "None"):
         sa.set_folder_path(p["folder"])
     c = sa.get_editor_property("skeletal_mesh_component")
     _require(c is not None, "NO_MESH_COMPONENT|%s" % f)
     c.modify()
-    c.set_skeletal_mesh_asset(p["mesh"])                                 # SkeletalMeshComponent.h:369
+    try:
+        c.set_editor_property("skeletal_mesh_asset", p["mesh"])       # SkeletalMeshComponent.h:360-361 (Setter=)
+    except Exception:  # noqa: BLE001 - property path refused: the UFUNCTION (SkeletalMeshComponent.h:369); read back
+        c.set_skeletal_mesh_asset(p["mesh"])
+    mats = [None, None, None]
     for role, idx in p["slots"].items():
-        c.set_material(idx, mis[role])
-    c.set_editor_property("bounds_scale", p["bounds_scale"])
+        mats[idx] = mis[role]
+    c = sa.get_editor_property("skeletal_mesh_component")
+    c.set_editor_property("override_materials", mats)
+    c = sa.get_editor_property("skeletal_mesh_component")
+    c.set_editor_property("bounds_scale", opts["bounds_scale"])
+    body, _bm = _body_mesh(actor)
     keep = unreal.AttachmentRule.KEEP_WORLD
-    sa.attach_to_component(p["body"], unreal.Name(""), keep, keep, keep, False)   # AActor::K2_AttachToComponent
-    c.set_leader_pose_component(p["body"], True)                       # SkinnedMeshComponent.h:1884
-    return sa
+    sa.attach_to_component(body, unreal.Name(""), keep, keep, keep, False)   # AActor::K2_AttachToComponent
+    sa.set_editor_property("tags", tags)                                # construction rerun -> RelinkLeader
+    body, _bm = _body_mesh(actor)
+    ev = _leader_evidence(sa.get_editor_property("skeletal_mesh_component"), body, p["drape_head_cm"])
+    path = "construction"
+    if not ev["led"]:
+        sa.call_method("RelinkLeader")                                  # BP function (call_method: as ConfigureShoreDrape)
+        ev = _leader_evidence(sa.get_editor_property("skeletal_mesh_component"), body, p["drape_head_cm"])
+        path = "call_method" if ev["led"] else "none"
+    return sa, path, ev
 
 
 def run_apply(run, opts, figs, ed):
     c0 = _census()
-    plan, mis = _apply_lookups(figs)
+    plan, mis, bp_class = _apply_lookups(figs)
     c1 = _census()
     _require(c1 == c0, "LOOKUP_DIRTIED|%s -> %s (a READ dirtied the editor; this tool mutated nothing)"
              % (json.dumps(c0), json.dumps(c1)))
     before = {f: p["before"] for f, p in plan.items()}
     slots = {f: p["slots"] for f, p in plan.items()}
-    record = {"run": run, "world": WORLD, "route": "SkeletalMeshActor", "figures": figs, "opts": opts, "slots": slots,
-              "before": before, "body_world": {f: p["body_world_rec"] for f, p in plan.items()}, "spawned": {},
-              "saved": False}
+    record = {"run": run, "world": WORLD, "route": "BP_S3SackFollower", "figures": figs, "opts": opts, "slots": slots,
+              "before": before, "spawned": {}, "saved": False}
     _write(RECORDS["APPLY"], record, exclusive=True)
     record["backup"], record["backup_files"] = _backup_umap(run)
     _write(RECORDS["APPLY"], record)
     # ---------------- first mutation below this line
-    for f in figs:
-        plan[f]["bounds_scale"] = opts["bounds_scale"]
-        sa = _spawn_sack(f, plan[f], mis, opts)
-        record["spawned"][f] = {"path": _full(sa), "label": sack_label(f)}
+    for f in figs:                                     # 3a: every figure write first (each may rebuild that figure)
+        _set_cloth(plan[f]["actor"], cloth_target(before[f]["cloth"], opts["cloth_switch"]))
+    for f in figs:                                     # 3b: then the sacks, attached to the rebuilt Bodies
+        sa, path, ev = _spawn_sack(f, plan[f], mis, bp_class, opts)
+        record["spawned"][f] = {"path": _full(sa), "label": sack_label(f), "relink_path": path, "evidence": ev}
         _write(RECORDS["APPLY"], record)
-        _set_cloth(plan[f]["cloth"], cloth_target(before[f]["cloth"], opts["cloth_switch"]))
-    after = {f: _figure_state(plan[f]["actor"], f) for f in figs}
+    actors = _figure_actors(figs)                      # everything re-found by name
+    after = {f: _figure_state(actors[f], f) for f in figs}
     record["after"] = after
     _write(RECORDS["APPLY"], record)
     bad = _apply_problems(figs, before, after, slots, opts)
@@ -1574,7 +1674,7 @@ def run_apply(run, opts, figs, ed):
     bad = _apply_problems(figs, before, again, slots, opts)
     _require(not bad, "APPLY_READBACK_AFTER_SAVE|%s" % bad[:8])
     return {"figures": figs, "backup": record["backup"], "saved": record["saved_packages"],
-            "sacks": {f: v["path"] for f, v in record["spawned"].items()}}
+            "relink": {f: v["relink_path"] for f, v in record["spawned"].items()}}
 
 
 def _apply_problems(figs, before, after, slots, opts):
@@ -1583,7 +1683,7 @@ def _apply_problems(figs, before, after, slots, opts):
         b, a = before[f], after[f]
         bad += _sack_problems(f, a, slots[f], opts)
         want_cloth = cloth_target(b["cloth"], opts["cloth_switch"])
-        d = state_diff(want_cloth, a["cloth"], ["visible", "suspended", "enabled"])
+        d = state_diff(want_cloth, a["cloth"], [k for k, _p in CLOTH_PROPS])
         if d:
             bad.append("CLOTH|%s|%s" % (f, d))
         for k in ("body_overrides", "face_overrides", "body_mesh", "body_leader"):
@@ -1595,7 +1695,7 @@ def _apply_problems(figs, before, after, slots, opts):
 def run_revert(run, opts, ed):
     record = _read(RECORDS["APPLY"])
     _require(record.get("world") == WORLD and record.get("saved"), "RECORD_INVALID")
-    _require(record.get("route") == "SkeletalMeshActor", "RECORD_ROUTE|%s" % record.get("route"))
+    _require(record.get("route") == "BP_S3SackFollower", "RECORD_ROUTE|%s" % record.get("route"))
     figs, before, slots = record["figures"], record["before"], {f: dict(v) for f, v in record["slots"].items()}
     # ---------------- lookups (all figures) before any mutation
     c0 = _census()
@@ -1604,23 +1704,24 @@ def run_revert(run, opts, ed):
     now = {f: _figure_state(a, f) for f, a in actors.items()}
     drift = _apply_problems(figs, before, now, slots, record["opts"])
     _require(not drift, "DRIFT_SINCE_APPLY|%s" % drift[:8])
-    sacks, clothes = {}, {}
     for f in figs:
         hits = _sack_actors(f)
         _require(len(hits) == 1 and _full(hits[0]) == record["spawned"][f]["path"],
                  "SACK_NOT_THE_RECORDED_ONE|%s|%s" % (f, [_full(h) for h in hits]))
-        sacks[f] = hits[0]
-        clothes[f] = _one(actors[f], CLOTH_COMPONENT, "ChaosClothComponent")
+        _one(actors[f], CLOTH_COMPONENT, "ChaosClothComponent")
     _require(_census() == c0, "LOOKUP_DIRTIED|%s" % json.dumps(_census()))
     backup, _ = _backup_umap(run, "Revert")
     # ---------------- first mutation below this line
     eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    for f in figs:
-        _require(bool(eas.destroy_actor(sacks[f])), "DESTROY_FAILED|%s" % f)
-        _set_cloth(clothes[f], before[f]["cloth"])
-    sacks.clear()
+    for f in figs:                                     # sacks first: nothing then points at the Bodies
+        sa = _sack_actors(f)
+        _require(len(sa) == 1, "SACK_GONE_MIDWAY|%s" % f)
+        _require(bool(eas.destroy_actor(sa[0])), "DESTROY_FAILED|%s" % f)
     left = [_full(a) for a in _sack_actors()]
     _require(not left, "SACKS_REMAIN|%s" % left)
+    for f in figs:
+        _set_cloth(_figure_actors([f])[f], before[f]["cloth"])
+    actors = _figure_actors(figs)
     back = {f: _figure_state(a, f) for f, a in actors.items()}
     bad = []
     for f in figs:
@@ -1628,7 +1729,7 @@ def run_revert(run, opts, ed):
                   "legacy_sack_component"):
             want, got = before[f][k], back[f][k]
             if k == "cloth":
-                d = state_diff(want, got, ["visible", "suspended", "enabled", "hidden_in_game"])
+                d = state_diff(want, got, [k2 for k2, _p in CLOTH_PROPS])
                 if d:
                     bad.append("CLOTH|%s|%s" % (f, d))
             elif got != want:
@@ -1637,6 +1738,36 @@ def run_revert(run, opts, ed):
     saved = _save(ed, planned_packages("REVERT", figs))
     os.replace(RECORDS["APPLY"], RECORDS["APPLY"] + ".reverted-" + run)
     return {"figures": figs, "backup": backup, "saved": saved, "assets_kept": True}
+
+
+def run_pie_probe(run, figs, ed):
+    """Read-only, ONLY while PIE runs (never starts or ends it): in the GAME world, every sack is led by its figure's
+    Body (prop or socket evidence), the cloth is hidden and suspended. This is the persistence proof: the PIE world
+    is a fresh copy of the saved level, constructed and BeginPlay'd."""
+    gw = ed.get_game_world()
+    _require(gw is not None, "PIE_NOT_RUNNING (Gary starts PIE; this probe never starts or ends it)")
+    by_label = {}
+    for a in unreal.GameplayStatics.get_all_actors_of_class(gw, unreal.Actor):
+        by_label.setdefault(str(a.get_actor_label()), []).append(a)
+    out, fails = {"run": run, "figures": {}}, []
+    for f in figs:
+        figs_hit, sacks = by_label.get(f + " Clam", []), by_label.get(sack_label(f), [])
+        if len(figs_hit) != 1 or len(sacks) != 1:
+            fails.append("PIE_ACTORS|%s|clam=%d|sack=%d" % (f, len(figs_hit), len(sacks)))
+            continue
+        body, _bm = _body_mesh(figs_hit[0])
+        c = sacks[0].get_editor_property("skeletal_mesh_component")
+        ev = _leader_evidence(c, body, _drape_head_cm(f))
+        cl = _cloth_state(_one(figs_hit[0], CLOTH_COMPONENT, "ChaosClothComponent"))
+        out["figures"][f] = {"evidence": ev, "cloth": cl}
+        if not ev["led"]:
+            fails.append("PIE_NOT_LED|%s|%s" % (f, json.dumps(ev, default=str)))
+        if cl["visible"] or not cl["suspended"]:
+            fails.append("PIE_CLOTH|%s|%s" % (f, cl))
+    out["fails"] = fails
+    _write(PIE_OUT, out)
+    _require(not fails, "PIE_PROBE|%s|out=%s" % (fails[:6], PIE_OUT))
+    return {"figures": len(figs), "out": PIE_OUT}
 
 
 # ------------------------------------------------------------------------------------------- DRY / VERIFY
@@ -1649,6 +1780,8 @@ def _api_presence():
     want = [("InterchangeGenericAssetsPipeline", None), ("InterchangePipelineStackOverride", None),
             ("EditorActorSubsystem", "spawn_actor_from_class"), ("EditorActorSubsystem", "destroy_actor"),
             ("SkeletalMeshActor", None), ("Actor", "attach_to_component"),
+            ("BlueprintEditorLibrary", "find_graph"), ("EditorAssetLibrary", "load_blueprint_class"),
+            ("MathLibrary", "inverse_transform_location"),
             ("SkinnedMeshComponent", "set_leader_pose_component"), ("SkeletalMeshComponent", "set_skeletal_mesh_asset"),
             ("SkeletalMeshEditorSubsystem", "get_bone_children"), ("SkeletalMeshEditorSubsystem", "get_lod_count"),
             ("SkeletalMeshEditorSubsystem", "get_num_verts"), ("ChaosClothComponent", None),
@@ -1684,7 +1817,7 @@ def run_dry(run, opts, figs):
                 out["problems"].append("FBX_BONES_NOT_ON_BODY|%s|%s" % (f, st["fbx_bones_not_on_body"]))
         if st["body_skeleton"] != SKELETON:
             out["problems"].append("BODY_SKELETON|%s|%s" % (f, st["body_skeleton"]))
-        if st["body_leader"] is not None:
+        if st["body_leader"] not in (None, "UNREADABLE"):
             out["problems"].append("BODY_HAS_LEADER|%s|%s" % (f, st["body_leader"]))
         if st["sack_actors"] or st["legacy_sack_component"]:
             out["problems"].append("SACK_ALREADY_PRESENT|%s|%s" % (f, st["sack_actors"]))
@@ -1701,6 +1834,12 @@ def run_dry(run, opts, figs):
                 if want and got != want:
                     out["problems"].append("SKIN_OVERRIDES_NOT_AS_RECORDED|%s|%s" % (f, comp))
     out["targets"] = {p: bool(eal.does_asset_exist(p)) for p in [mesh_path(f) for f in figs] + mat_stage_assets()}
+    try:
+        _sack_bp_class()
+        out["sack_bp"] = "OK"
+    except SackError as exc:
+        out["sack_bp"] = str(exc)
+        out["problems"].append(str(exc))
     out["would_save"] = {m: planned_packages(m, figs) for m in WRITE_MODES}
     out["apply_backs_up"] = [UMAP]
     _require(_census() == c0, "DRY_MUTATED|%s" % _census())
@@ -1791,9 +1930,12 @@ def main():
         ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         world = ed.get_editor_world()
         _require(world is not None and str(world.get_outermost().get_name()) == WORLD, "WRONG_WORLD")
-        _require(ed.get_game_world() is None, "PIE_ACTIVE (never end PIE: refuse instead)")
+        if mode != "PIE_PROBE":
+            _require(ed.get_game_world() is None, "PIE_ACTIVE (never end PIE: refuse instead)")
         unreal.log("S3SACK_START|run=%s|mode=%s|figures=%s|opts=%s" % (run, mode, figs, json.dumps(opts)))
-        if mode == "DRY":
+        if mode == "PIE_PROBE":
+            result = run_pie_probe(run, figs, ed)
+        elif mode == "DRY":
             result = run_dry(run, opts, figs)
         elif mode == "VERIFY":
             result = run_verify(run)

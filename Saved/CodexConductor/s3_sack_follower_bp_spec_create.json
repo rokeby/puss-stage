@@ -1,0 +1,48 @@
+{
+ "blueprint": "BP_S3SackFollower",
+ "output_path": "/Game/Metahuman/ShoreCast_20260910/Sack",
+ "parent_class": "/Script/Engine.SkeletalMeshActor",
+ "functions": [
+  {
+   "name": "RelinkLeader",
+   "pure": false,
+   "inputs": [],
+   "returns": [],
+   "notes": "S3 sackcloth (s3_sack_install.py): if this actor is attached to a SkinnedMeshComponent named Body, follow its pose (SetLeaderPoseComponent, force). Called by the construction script and BeginPlay, so the link is rebuilt after any construction rerun and in every PIE/game world. Tick-free.",
+   "nodes": [
+    {"id": "root", "type": "call", "class": "/Script/Engine.Actor", "function": "K2_GetRootComponent", "x": 100, "y": 220},
+    {"id": "parent", "type": "call", "class": "/Script/Engine.SceneComponent", "function": "GetAttachParent", "x": 360, "y": 320},
+    {"id": "parent_name", "type": "call", "class": "/Script/Engine.KismetSystemLibrary", "function": "GetObjectName", "x": 620, "y": 420},
+    {"id": "is_body", "type": "call", "class": "/Script/Engine.KismetStringLibrary", "function": "EqualEqual_StrStr", "x": 880, "y": 420, "defaults": {"B": "Body"}},
+    {"id": "cast_self", "type": "cast", "class": "/Script/Engine.SkinnedMeshComponent", "x": 360, "y": 0},
+    {"id": "cast_parent", "type": "cast", "class": "/Script/Engine.SkinnedMeshComponent", "x": 660, "y": 0},
+    {"id": "branch", "type": "branch", "x": 960, "y": 0},
+    {"id": "set_leader", "type": "call", "class": "/Script/Engine.SkinnedMeshComponent", "function": "SetLeaderPoseComponent", "x": 1220, "y": 0, "defaults": {"bForceUpdate": true}}
+   ],
+   "links": [
+    {"from": "entry.then", "to": "cast_self.execute"},
+    {"from": "root.ReturnValue", "to": "cast_self.Object"},
+    {"from": "root.ReturnValue", "to": "parent.self"},
+    {"from": "cast_self.then", "to": "cast_parent.execute"},
+    {"from": "parent.ReturnValue", "to": "cast_parent.Object"},
+    {"from": "parent.ReturnValue", "to": "parent_name.Object"},
+    {"from": "parent_name.ReturnValue", "to": "is_body.A"},
+    {"from": "cast_parent.then", "to": "branch.execute"},
+    {"from": "is_body.ReturnValue", "to": "branch.Condition"},
+    {"from": "branch.then", "to": "set_leader.execute"},
+    {"from": "cast_self.AsSkinnedMeshComponent", "to": "set_leader.self"},
+    {"from": "cast_parent.AsSkinnedMeshComponent", "to": "set_leader.NewLeaderBoneComponent"}
+   ]
+  }
+ ],
+ "event_graph": {
+  "nodes": [
+   {"id": "begin", "type": "begin_play", "x": 0, "y": 0},
+   {"id": "relink", "type": "call_self", "function": "RelinkLeader", "x": 320, "y": 0}
+  ],
+  "links": [
+   {"from": "begin.then", "to": "relink.execute"}
+  ]
+ },
+ "event_graph_notes": "BeginPlay -> RelinkLeader: in PIE/game the sack follows the Body of the figure it is attached to, whatever the editor-world pointer was."
+}

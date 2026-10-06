@@ -2,8 +2,9 @@
 
 Part A: pure helpers on the REAL source files (Blender JSONs, the _SK.fbx / _SK_root.fbx finals, the UE body
         export, the texture manifest), with broken copies as negative controls.
-Part B: APPLY -> VERIFY -> REVERT (route 2: one SkeletalMeshActor "<id> Sack" per figure) through the tool's own
-        unreal glue against a FAKE `unreal` module (an in-memory level with six figures). The fake models what the glue calls; it proves the tool's logic (records, read-back
+Part B: APPLY -> VERIFY -> REVERT -> PIE_PROBE (route 3: one BP_S3SackFollower "<id> Sack" per figure) through the
+        tool's own unreal glue against a FAKE `unreal` module: an in-memory level with six BP figures whose property
+        edits REBUILD their components (the inferred cause of the live failure S3SACK-20261006-161735). The fake models what the glue calls; it proves the tool's logic (records, read-back
         gates, census, revert), NOT the UE API behaviour (that is the live DRY's job). IMPORT and BUILD_MAT glue are
         not faked (their APIs are too wide to model honestly): their pure gates are tested in Part A.
 Run: python Saved/CodexConductor/test_s3_sack_install_offline.py   -> exit 0 and S3SACK_OFFLINE_OK
@@ -290,7 +291,10 @@ def t_census_and_cloth():
           S.planned_packages("REVERT", figs))
     b = {"visible": True, "hidden_in_game": False, "enabled": True, "suspended": False}
     check("cloth: suspend+disable target", S.cloth_target(b, "suspend+disable") ==
-          {"visible": False, "hidden_in_game": False, "enabled": False, "suspended": True})
+          {"visible": False, "hidden_in_game": True, "enabled": False, "suspended": True})
+    check("cloth props written and read as the same UPROPERTYs",
+          dict(S.CLOTH_PROPS) == {"visible": "visible", "hidden_in_game": "hidden_in_game",
+                                  "suspended": "suspend_simulation", "enabled": "enable_simulation"})
     check("cloth: suspend-only keeps 'enabled'", S.cloth_target(b, "suspend")["enabled"] is True)
     check("cloth target does not mutate 'before'", b["visible"] is True)
 
@@ -318,10 +322,17 @@ class _Cls:
         return self.n
 
 
+BODY_HEAD_CS = (0.0, 0.0, 130.0)     # the fake editor pose: far (> 2 cm) from every drape-pose head
+
+
 def make_fake(world_path, quirks):
-    """In-memory level. quirks = fault injections for the negative controls."""
+    """In-memory level. Models what the live APPLY S3SACK-20261006-161735 showed [inf]: a set_editor_property on a
+    component of a placed BP actor reruns its construction script, which REPLACES its SCS components; values set
+    through the property system are carried over (instance cache), UFUNCTION-set values and writes made through the
+    dead reference are lost, and weak leader pointers to a dead component read None.
+    quirks = fault injections for the negative controls."""
     st = {"dirty_maps": set(), "dirty_content": set(), "saved_maps": 0, "assets": {}, "actors": [], "quirks": quirks,
-          "transient": [], "spawn_count": 0}
+          "transient": [], "spawn_count": 0, "rebuilds": 0, "pie": False}
 
     def dirty():
         st["dirty_maps"].add(world_path)
@@ -353,36 +364,46 @@ def make_fake(world_path, quirks):
         def __init__(self, loc, rot, scale):
             self.translation, self.rotation, self.scale3d = loc, Quat(rot), scale
 
+    class MathLibrary:
+        @staticmethod
+        def inverse_transform_location(t, v):    # the fake never rotates or scales the figures
+            return Vector(v.x - t.translation.x, v.y - t.translation.y, v.z - t.translation.z)
+
     class AttachmentRule:
         KEEP_WORLD, KEEP_RELATIVE, SNAP_TO_TARGET = "KEEP_WORLD", "KEEP_RELATIVE", "SNAP_TO_TARGET"
 
     class ActorComponent(_Obj):
         def __init__(self, path, name, owner):
             super().__init__(path, name)
-            self.owner, self.props = owner, {}
+            self.owner, self.props, self.alive, self.edited = owner, {}, True, set()
+
+        def get_path_name(self):
+            return self._path if self.alive else self._path + "_TRASH"
 
         def modify(self):
             dirty()
 
         def get_editor_property(self, k):
+            if "read_dirties" in quirks:
+                dirty()
             if k not in self.props:
                 raise AttributeError(k)
             return self.props[k]
 
         def set_editor_property(self, k, v):
             dirty()
-            if k == "suspend_simulation" and "cloth_suspend_lies" in quirks:
-                return
-            self.props[k] = v
+            if not (k == "suspend_simulation" and "cloth_suspend_lies" in quirks):
+                self.props[k] = v
+                self.edited.add(k)
+            self.owner._post_edit()
 
     class SceneComponent(ActorComponent):
         def __init__(self, path, name, owner, parent=None, world=(0.0, 0.0, 0.0)):
             super().__init__(path, name, owner)
             self.parent, self.world = parent, list(world)
-            self.props.update({"hidden_in_game": False, "relative_location": Vector(0, 0, 0),
+            self.props.update({"visible": True, "hidden_in_game": False, "relative_location": Vector(0, 0, 0),
                                "relative_rotation": Rotator(), "relative_scale3d": Vector(1, 1, 1),
                                "bounds_scale": 1.0})
-            self.visible = True
 
         def get_attach_parent(self):
             return self.parent
@@ -391,21 +412,22 @@ def make_fake(world_path, quirks):
             return "None"
 
         def is_visible(self):
-            return self.visible
+            return self.props["visible"]
 
-        def set_visibility(self, v, propagate=False):
+        def set_visibility(self, v, propagate=False):     # UFUNCTION: not an instance edit
             dirty()
-            self.visible = bool(v)
+            self.props["visible"] = bool(v)
 
         def get_world_transform(self):
-            if "read_dirties" in quirks:
-                dirty()
-            return Transform(Vector(*self.world), Rotator(0.0, 0.0, 35.0), Vector(1.0, 1.0, 1.0))
+            return Transform(Vector(*self.world), Rotator(0.0, 0.0, 0.0), Vector(1.0, 1.0, 1.0))
+
+        def get_socket_location(self, name):
+            return Vector(*[w + h for w, h in zip(self.world, BODY_HEAD_CS)])
 
     class SkinnedMeshComponent(SceneComponent):
         def __init__(self, *a, **k):
             super().__init__(*a, **k)
-            self.mesh, self.overrides = None, []
+            self.mesh, self.overrides, self.drape_head = None, [], None
             self.props["leader_pose_component"] = None
 
         def get_skeletal_mesh_asset(self):
@@ -432,12 +454,40 @@ def make_fake(world_path, quirks):
         def get_editor_property(self, k):
             if k == "override_materials":
                 return list(self.overrides)
+            if k == "skeletal_mesh_asset":
+                return self.mesh
+            if k == "leader_pose_component":
+                if "leader_unreadable" in quirks:
+                    raise AttributeError("weak pointer not exposed")
+                lp = self.props["leader_pose_component"]
+                return lp if lp is not None and lp.alive else None      # weak pointer to a dead component
             return super().get_editor_property(k)
 
+        def set_editor_property(self, k, v):
+            if k == "override_materials":
+                dirty()
+                self.overrides = list(v)
+                self.edited.add(k)
+                self.owner._post_edit()
+            elif k == "skeletal_mesh_asset":
+                dirty()
+                self.mesh = v
+                self.drape_head = getattr(v, "drape_head", None)
+                self.edited.add(k)
+                self.owner._post_edit()
+            else:
+                super().set_editor_property(k, v)
+
         def set_leader_pose_component(self, leader, force=False):
-            dirty()
             if "leader_lies" not in quirks:
                 self.props["leader_pose_component"] = leader
+
+        def get_socket_location(self, name):
+            lp = self.props["leader_pose_component"]
+            if lp is not None and lp.alive:
+                return lp.get_socket_location(name)
+            head = self.drape_head if self.drape_head is not None else BODY_HEAD_CS   # unled: own bind pose
+            return Vector(*[w + h for w, h in zip(self.world, head)])
 
         def get_num_bones(self):
             return len(self.mesh.bones) if self.mesh else 0
@@ -460,9 +510,12 @@ def make_fake(world_path, quirks):
             return self.props["suspend_simulation"]
 
     class Actor(_Obj):
+        bp = False
+
         def __init__(self, path, label, cls):
             super().__init__(path)
-            self.label, self.cls, self.comps, self.props = label, cls, [], {"tags": [], "root_component": None}
+            self.label, self.cls, self.comps = label, cls, []
+            self.props = {"tags": [], "root_component": None}
             self.folder = "S3/Figures"
 
         def get_actor_label(self):
@@ -479,7 +532,7 @@ def make_fake(world_path, quirks):
             dirty()
 
         def get_components_by_class(self, cls):
-            return [c for c in self.comps if isinstance(c, cls)]
+            return [c for c in self.comps if isinstance(c, cls) and c.alive]
 
         def get_editor_property(self, k):
             return self.props[k]
@@ -487,6 +540,7 @@ def make_fake(world_path, quirks):
         def set_editor_property(self, k, v):
             dirty()
             self.props[k] = v
+            self._post_edit()
 
         def get_folder_path(self):
             return self.folder
@@ -506,12 +560,70 @@ def make_fake(world_path, quirks):
             dirty()
             r = self.props["root_component"]
             r.parent = parent
-            if lr == "KEEP_WORLD":   # relative = own world - parent world (rotation equal by construction here)
+            if lr == "KEEP_WORLD":
                 r.props["relative_location"] = Vector(*[a - b for a, b in zip(r.world, parent.world)])
             return True
 
-    class SkeletalMeshActor(Actor):
-        pass
+        def _post_edit(self):
+            pass
+
+    class FigureActor(Actor):
+        """A placed BP_<id>_Draped: every property edit on it or its components reruns its construction script."""
+        bp = True
+
+        def _post_edit(self):
+            if "no_rebuild" in quirks:
+                return
+            st["rebuilds"] += 1
+            old = list(self.comps)
+            mapping = {}
+            for c in old:
+                n = type(c)(c._path, c._name, self, None, tuple(c.world))
+                n.props.update({k: c.archetype.get(k, n.props.get(k)) for k in n.props})   # defaults
+                for k in c.edited:                                                       # instance cache
+                    if k in c.props:
+                        n.props[k] = c.props[k]
+                n.edited = set(c.edited)
+                if isinstance(c, SkinnedMeshComponent):
+                    n.mesh, n.overrides, n.drape_head = c.mesh, list(c.overrides), c.drape_head
+                n.archetype = c.archetype
+                mapping[id(c)] = n
+                c.alive = False
+            for c in old:
+                n = mapping[id(c)]
+                n.parent = mapping.get(id(c.parent), c.parent) if c.parent is not None else None
+            self.comps = [mapping[id(c)] for c in old]
+            self.props["root_component"] = mapping.get(id(self.props["root_component"]))
+            for a in st["actors"]:                       # attached actors follow by component name [inf]
+                r = a.props.get("root_component")
+                if r is not None and r.parent is not None and id(r.parent) in mapping:
+                    r.parent = mapping[id(r.parent)]
+
+    class SackFollower(Actor):
+        """BP_S3SackFollower: native SkeletalMeshComponent (survives rebuilds); construction script = RelinkLeader."""
+        bp = True
+
+        def relink(self):
+            if "relink_noop" in quirks:
+                return
+            c = self.props["root_component"]
+            p = c.parent
+            if p is not None and p.alive and p.get_name() == "Body" and isinstance(p, SkinnedMeshComponent):
+                c.set_leader_pose_component(p, True)
+
+        def _post_edit(self):
+            if "construction_noop" not in quirks:
+                self.relink()
+
+        def call_method(self, name, *args):
+            assert name == "RelinkLeader", name
+            self.relink()
+
+    class BPClass:
+        def __init__(self, name):
+            self.name = name
+
+    sack_class = BPClass("BP_S3SackFollower_C")
 
     class Mesh(_Obj):
         def __init__(self, path, slots, defaults, bones, skeleton):
@@ -543,7 +655,7 @@ def make_fake(world_path, quirks):
             return world
 
         def get_game_world(self):
-            return None
+            return world if st["pie"] else None
 
     class EditorActorSubsystem:
         def get_all_level_actors(self):
@@ -551,16 +663,18 @@ def make_fake(world_path, quirks):
 
         def spawn_actor_from_class(self, cls, loc, rot):
             dirty()
+            assert cls is sack_class, cls
             st["spawn_count"] += 1
-            name = "SkeletalMeshActor_%d" % st["spawn_count"]
-            a = SkeletalMeshActor(world_path + "." + world_path.rsplit("/", 1)[1] + ":PersistentLevel." + name,
-                                  name, "SkeletalMeshActor")
+            name = "BP_S3SackFollower_C_%d" % st["spawn_count"]
+            a = SackFollower(world_path + "." + world_path.rsplit("/", 1)[1] + ":PersistentLevel." + name, name,
+                             "BP_S3SackFollower_C")
             off = 3.0 if "spawn_offset" in quirks else 0.0
             c = SkeletalMeshComponent(a.get_path_name() + ".SkeletalMeshComponent0", "SkeletalMeshComponent0", a,
                                       world=(loc.x + off, loc.y, loc.z))
             a.comps = [c]
             a.props["root_component"] = c
             a.props["skeletal_mesh_component"] = c
+            a._post_edit()                                # construction at spawn: not attached yet -> no link
             st["actors"].append(a)
             return a
 
@@ -596,18 +710,32 @@ def make_fake(world_path, quirks):
             st["dirty_content"].discard(p)
             return True
 
+        @staticmethod
+        def load_blueprint_class(p):
+            return sack_class if p in st["assets"] else None
+
+    class BlueprintEditorLibrary:
+        @staticmethod
+        def find_graph(bp, name):
+            return None if "bp_no_relink" in quirks else _Obj("/G/" + name)
+
     class GameplayStatics:
         @staticmethod
         def get_all_actors_of_class(w, cls):
             return list(st["actors"]) + list(st["transient"])
 
+    def get_default_object(cls):
+        return SackFollower("/Default", "Default", cls.name)
+
     for k, v in dict(Name=Name, Vector=Vector, Rotator=Rotator, Transform=Transform, AttachmentRule=AttachmentRule,
-                     ActorComponent=ActorComponent, SkinnedMeshComponent=SkinnedMeshComponent,
+                     MathLibrary=MathLibrary, ActorComponent=ActorComponent, SkinnedMeshComponent=SkinnedMeshComponent,
                      SkeletalMeshComponent=SkeletalMeshComponent, ChaosClothComponent=ChaosClothComponent, Actor=Actor,
-                     SkeletalMeshActor=SkeletalMeshActor, EditorActorSubsystem=EditorActorSubsystem,
-                     UnrealEditorSubsystem=Editor, EditorLoadingAndSavingUtils=EditorLoadingAndSavingUtils,
-                     EditorAssetLibrary=EditorAssetLibrary, GameplayStatics=GameplayStatics, Mesh=Mesh).items():
+                     SkeletalMeshActor=Actor, FigureActor=FigureActor, SackFollower=SackFollower,
+                     EditorActorSubsystem=EditorActorSubsystem, UnrealEditorSubsystem=Editor,
+                     EditorLoadingAndSavingUtils=EditorLoadingAndSavingUtils, EditorAssetLibrary=EditorAssetLibrary,
+                     BlueprintEditorLibrary=BlueprintEditorLibrary, GameplayStatics=GameplayStatics, Mesh=Mesh).items():
         setattr(U, k, v)
+    U.get_default_object = get_default_object
     eas = EditorActorSubsystem()
     U.get_editor_subsystem = lambda cls: Editor() if cls is Editor else eas
     U.load_asset = lambda p: st["assets"].get(p)
@@ -625,23 +753,30 @@ def build_level(mod, U):
     skel = _Obj(mod.SKELETON + ".metahuman_base_skel")
     for p in [mod.MI_OUTER, mod.MI_INNER]:
         st["assets"][p] = _Obj(p + "." + p.rsplit("/", 1)[1])
+    if "no_bp" not in st["quirks"]:
+        st["assets"][mod.SACK_BP] = _Obj(mod.SACK_BP + ".BP_S3SackFollower")
     skin_rec = {"run": "S3SKIN-FAKE", "target": "level", "saved": True, "plan": {}}
     for i, f in enumerate(mod.FIGURES):
         mp = mod.mesh_path(f)
         st["assets"][mp] = U.Mesh(mp, ["Sack_Front", "Sack_Back", "Sack_Edge"], [None] * 3, bones, skel)
-        a = U.Actor("/Game/Map.Map:PersistentLevel.BP_%s_Draped_C_0" % f, f + " Clam", "BP_%s_Draped_C" % f)
+        st["assets"][mp].drape_head = tuple(mod._drape_head_cm(f))      # the sack's bind (drape) pose head
+        a = U.FigureActor("/Game/Map.Map:PersistentLevel.BP_%s_Draped_C_0" % f, f + " Clam", "BP_%s_Draped_C" % f)
         w = (14000.0 + 100 * i, 160000.0, 8.0)
         root = U.SkeletalMeshComponent(a.get_path_name() + ".Root", "Root", a, world=w)
         body = U.SkeletalMeshComponent(a.get_path_name() + ".Body", "Body", a, root, world=w)
         body.mesh = U.Mesh("/Game/Body/SKM_%s" % f, ["body"], [_Obj("/Game/M/MI_Body.MI_Body")], bones, skel)
         skin_mi = _Obj("/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_%s_Body_v1.x" % f)
         body.overrides = [skin_mi]
+        body.edited.add("override_materials")          # the skin pass wrote them with set_editor_property
         face = U.SkeletalMeshComponent(a.get_path_name() + ".Face", "Face", a, body, world=w)
         face.mesh = U.Mesh("/Game/Face/SKM_%s" % f, ["a", "b"], [None, None], bones, skel)
         face_mi = _Obj("/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_%s_Face_v1.x" % f)
         face.overrides = [None, face_mi]
+        face.edited.add("override_materials")
         cloth = U.ChaosClothComponent(a.get_path_name() + ".ShoreHeadCloth", "ShoreHeadCloth", a, body, world=w)
         a.comps = [root, body, face, cloth]
+        for c in a.comps:
+            c.archetype = dict(c.props)
         a.props["root_component"] = root
         st["actors"].append(a)
         skin_rec["plan"][f] = {"components": {"Body": {"override_after": [mod._path(skin_mi)]},
@@ -649,8 +784,18 @@ def build_level(mod, U):
     return skin_rec
 
 
+def _fresh(U, label, name=None):
+    a = [x for x in U.st["actors"] if x.label == label]
+    if not a:
+        return None
+    if name is None:
+        return a[0]
+    hits = [c for c in a[0].comps if c.get_name() == name and c.alive]
+    return hits[0] if hits else None
+
+
 def run_fake(quirks=(), figures=None, steps=("APPLY", "VERIFY", "REVERT"), mutate_between=None, transient=None,
-             preexisting_sack=None):
+             preexisting_sack=None, patch=None):
     mod = load()
     tmp = tempfile.mkdtemp(prefix="s3sack_")
     try:
@@ -659,7 +804,7 @@ def run_fake(quirks=(), figures=None, steps=("APPLY", "VERIFY", "REVERT"), mutat
         if transient:
             U.st["transient"] = [U.Actor("/T", transient, "Actor")]
         if preexisting_sack:
-            old = U.SkeletalMeshActor("/Game/Map.Map:PersistentLevel.Old", preexisting_sack, "SkeletalMeshActor")
+            old = U.Actor("/Game/Map.Map:PersistentLevel.Old", preexisting_sack, "SkeletalMeshActor")
             oc = U.SkeletalMeshComponent(old.get_path_name() + ".C", "C", old)
             old.comps, old.props["root_component"], old.props["skeletal_mesh_component"] = [oc], oc, oc
             U.st["actors"].append(old)
@@ -667,10 +812,12 @@ def run_fake(quirks=(), figures=None, steps=("APPLY", "VERIFY", "REVERT"), mutat
         mod.HERE = tmp + "/"
         mod.ARGS = tmp + "/args.json"
         mod.RECORDS = {k: tmp + "/" + os.path.basename(v) for k, v in mod.RECORDS.items()}
-        mod.DRY_OUT, mod.VERIFY_OUT = tmp + "/dry.json", tmp + "/verify.json"
+        mod.DRY_OUT, mod.VERIFY_OUT, mod.PIE_OUT = tmp + "/dry.json", tmp + "/verify.json", tmp + "/pie.json"
         mod.BACKUP_ROOT = tmp + "/Backups/PreS3Sack-"
         mod.UMAP = tmp + "/L.umap"
         mod.SKIN_RECORD = tmp + "/skin.json"
+        if patch:
+            patch(mod, U)
         with open(mod.UMAP, "wb") as h:
             h.write(b"umap-bytes")
         json.dump(skin_rec, open(mod.SKIN_RECORD, "w"))
@@ -686,7 +833,7 @@ def run_fake(quirks=(), figures=None, steps=("APPLY", "VERIFY", "REVERT"), mutat
             if mutate_between and step in mutate_between:
                 mutate_between[step](mod, U)
             hidden = {}
-            if step == "VERIFY":   # the fake has no IMPORT/BUILD_MAT assets: verify the APPLY stage only
+            if step in ("VERIFY", "PIE_PROBE"):   # the fake has no IMPORT/BUILD_MAT assets: APPLY stage only
                 for k in ("IMPORT", "BUILD_MAT"):
                     if os.path.exists(mod.RECORDS[k]):
                         os.replace(mod.RECORDS[k], mod.RECORDS[k] + ".hidden")
@@ -706,7 +853,10 @@ def run_fake(quirks=(), figures=None, steps=("APPLY", "VERIFY", "REVERT"), mutat
             if out[step] == "FAILED":
                 break
         out["saved_maps"] = U.st["saved_maps"]
+        out["rebuilds"] = U.st["rebuilds"]
         out["apply_record_exists"] = os.path.exists(mod.RECORDS["APPLY"])
+        if out["apply_record_exists"]:
+            out["apply_record"] = json.load(open(mod.RECORDS["APPLY"]))
         out["logs"] = [l for l in U.logs if "S3SACK_" in l[1]]
         return out
     finally:
@@ -714,49 +864,156 @@ def run_fake(quirks=(), figures=None, steps=("APPLY", "VERIFY", "REVERT"), mutat
 
 
 def _snapshot(mod, U, f):
-    a = [x for x in U.st["actors"] if x.label == f + " Clam"][0]
-    cl = ([c for c in a.comps if c.get_name() == "ShoreHeadCloth"] or [None])[0]
-    body = [c for c in a.comps if c.get_name() == "Body"][0]
-    face = [c for c in a.comps if c.get_name() == "Face"][0]
-    sacks = [x for x in U.st["actors"] if x.label == f + " Sack"]
-    sc = sacks[0].props["skeletal_mesh_component"] if sacks else None
-    return {"cloth": (cl.visible, cl.props["suspend_simulation"], cl.props["enable_simulation"]) if cl else None,
-            "sack": len(sacks), "sack_leader": sc.props["leader_pose_component"] is body if sc else None,
-            "sack_parent_is_body": sc.parent is body if sc else None,
-            "sack_tags": sorted(sacks[0].props["tags"]) if sacks else None,
+    cl = _fresh(U, f + " Clam", "ShoreHeadCloth")
+    body = _fresh(U, f + " Clam", "Body")
+    face = _fresh(U, f + " Clam", "Face")
+    sack = _fresh(U, f + " Sack")
+    sc = sack.props["skeletal_mesh_component"] if sack else None
+    lp = sc.props["leader_pose_component"] if sc else None
+    return {"cloth": (cl.props["visible"], cl.props["hidden_in_game"], cl.props["suspend_simulation"],
+                      cl.props["enable_simulation"]) if cl else None,
+            "sack": len([x for x in U.st["actors"] if x.label == f + " Sack"]),
+            "sack_leader": (lp is body) if sc else None,
+            "sack_parent_is_body": (sc.parent is body) if sc else None,
+            "sack_tags": sorted(sack.props["tags"]) if sack else None,
             "sack_mats": [mod._path(m) for m in sc.overrides] if sc else None,
             "body": [mod._path(m) for m in body.overrides], "face": [mod._path(m) for m in face.overrides]}
 
 
+def _rebuild_all_figures(mod, U):
+    for f in mod.FIGURES:
+        a = _fresh(U, f + " Clam")
+        if a is not None:
+            a._post_edit()
+
+
 def t_fake():
     r = run_fake()
-    check("FAKE happy path: APPLY, VERIFY, REVERT all OK", (r.get("APPLY"), r.get("VERIFY"), r.get("REVERT")) ==
-          ("OK", "OK", "OK"), r["errors"])
+    check("FAKE happy path (figure rebuilds modelled): APPLY, VERIFY, REVERT all OK",
+          (r.get("APPLY"), r.get("VERIFY"), r.get("REVERT")) == ("OK", "OK", "OK"), r["errors"])
+    check("FAKE the run really rebuilt the figures (the live failure mode is exercised)", r["rebuilds"] >= 24, r["rebuilds"])
     a = r["states"].get("APPLY", {})
-    check("FAKE after APPLY: one '<id> Sack' actor per figure, attached to Body, leader = Body, tags, slot MIs, "
-          "cloth hidden+suspended+disabled",
+    check("FAKE after APPLY: one '<id> Sack' per figure, attached to the CURRENT Body and led by it, tags, slot MIs; "
+          "cloth hidden+hidden-in-game+suspended+disabled on the CURRENT cloth",
           a and all(s["sack"] == 1 and s["sack_leader"] and s["sack_parent_is_body"] and
-                    s["sack_tags"] == sorted(["S3.Sack", "S3.Sack." + f]) and s["cloth"] == (False, True, False) and
+                    s["sack_tags"] == sorted(["S3.Sack", "S3.Sack." + f]) and
+                    s["cloth"] == (False, True, True, False) and
                     s["sack_mats"] == [S.MI_OUTER, S.MI_INNER, S.MI_OUTER] for f, s in a.items()), a)
     check("FAKE skin overrides untouched by APPLY", a and all(a[f]["body"] == r["states"]["before"][f]["body"] and
                                                               a[f]["face"] == r["states"]["before"][f]["face"] for f in a))
-    check("FAKE REVERT restores the exact before-state (sack actors destroyed, cloth restored)",
+    check("FAKE REVERT restores the exact before-state (sacks destroyed, cloth restored on the current cloth)",
           r["states"].get("REVERT") == r["states"]["before"], r["states"].get("REVERT"))
     check("FAKE saves: one map save each for APPLY and REVERT, nothing left dirty",
           r["saved_maps"] == 2 and r.get("dirty_after_REVERT") == [], (r["saved_maps"], r.get("dirty_after_REVERT")))
     check("FAKE OK markers carry the run id", any(l[1].startswith("S3SACK_APPLY_OK|run=S3SACK-") for l in r["logs"]))
+    r = run_fake(steps=("APPLY",))
+    check("FAKE relink path recorded per figure = construction",
+          r["APPLY"] == "OK" and all(v["relink_path"] == "construction" for v in r["apply_record"]["spawned"].values()),
+          r.get("apply_record", {}).get("spawned"))
 
-    # --- the live failure's lesson: a failing or dirtying LOOKUP must leave the editor untouched
+    # --- regression: the live failure reproduced by the old write pattern
+    def old_cloth_writes(mod, U):
+        def old_set_cloth(actor, want):
+            cloth = mod._one(actor, mod.CLOTH_COMPONENT, "ChaosClothComponent")   # held across the writes
+            cloth.modify()
+            cloth.set_visibility(bool(want["visible"]), False)
+            cloth.set_editor_property("suspend_simulation", bool(want["suspended"]))
+            cloth.set_editor_property("enable_simulation", bool(want["enabled"]))
+            cloth.set_editor_property("hidden_in_game", bool(want["hidden_in_game"]))
+            return {}
+        mod._set_cloth = old_set_cloth
+    r = run_fake(steps=("APPLY",), patch=old_cloth_writes)
+    check("REGRESSION the route-2 cloth writes (held reference + set_visibility) fail read-back as live did "
+          "(visible/enabled reverted)", r["APPLY"] == "FAILED" and "CLOTH|" in " ".join(r["errors"]) and
+          r["saved_maps"] == 0, r["errors"])
+
+    def sacks_before_cloth(mod, U):
+        orig = mod.run_apply
+
+        def swapped(run, opts, figs, ed):   # sacks first, cloth second: the live ordering
+            plan, mis, bp_class = mod._apply_lookups(figs)
+            for f in figs:
+                mod._spawn_sack(f, plan[f], mis, bp_class, opts)
+            for f in figs:
+                mod._set_cloth(plan[f]["actor"], mod.cloth_target(plan[f]["before"]["cloth"], opts["cloth_switch"]))
+            actors = mod._figure_actors(figs)
+            after = {f: mod._figure_state(actors[f], f) for f in figs}
+            bad = mod._apply_problems(figs, {f: plan[f]["before"] for f in figs}, after,
+                                      {f: plan[f]["slots"] for f in figs}, opts)
+            mod._require(not bad, "APPLY_READBACK|%s" % bad[:8])
+            return orig
+        mod.run_apply = swapped
+    r = run_fake(steps=("APPLY",), patch=sacks_before_cloth)
+    check("REGRESSION sacks before cloth writes: the leader dangles after the figure rebuild (SACK_LEADER), as live",
+          r["APPLY"] == "FAILED" and "SACK_LEADER" in " ".join(r["errors"]), r["errors"])
+
+    # --- leader evidence paths
+    r = run_fake(quirks={"construction_noop"}, steps=("APPLY",))
+    check("FAKE construction rerun does nothing -> RelinkLeader via call_method, recorded as such",
+          r["APPLY"] == "OK" and all(v["relink_path"] == "call_method" for v in r["apply_record"]["spawned"].values()),
+          r["errors"])
+    r = run_fake(quirks={"relink_noop"}, steps=("APPLY",))
+    check("NEG FAKE RelinkLeader that links nothing: APPLY fails SACK_LEADER, nothing saved",
+          r["APPLY"] == "FAILED" and "SACK_LEADER" in " ".join(r["errors"]) and r["saved_maps"] == 0, r["errors"])
+    r = run_fake(quirks={"leader_unreadable"}, steps=("APPLY", "VERIFY"))
+    check("FAKE weak pointer unreadable from Python: the socket evidence alone proves the link",
+          (r["APPLY"], r["VERIFY"]) == ("OK", "OK"), r["errors"])
+    r = run_fake(quirks={"leader_unreadable", "relink_noop"}, steps=("APPLY",))
+    check("NEG FAKE unreadable pointer AND no link: socket evidence refuses",
+          r["APPLY"] == "FAILED" and "SACK_LEADER" in " ".join(r["errors"]), r["errors"])
+
+    def editor_pose_is_drape(mod, U):
+        global BODY_HEAD_CS
+        BODY_HEAD_CS = tuple(mod._drape_head_cm("Shore01_M56"))
+    r = run_fake(quirks={"leader_unreadable"}, steps=("APPLY",), figures=["Shore01_M56"], patch=editor_pose_is_drape)
+    BODY_HEAD_CS_RESET()
+    check("NEG FAKE socket evidence inconclusive (editor pose == drape pose) with no readable pointer: refused, "
+          "never a false pass", r["APPLY"] == "FAILED" and '"socket_conclusive": false' in " ".join(r["errors"]),
+          r["errors"])
+
+    # --- persistence: figure rebuilt after APPLY (as a reload may do), then PIE BeginPlay relinks
+    r = run_fake(steps=("APPLY", "VERIFY"), mutate_between={"VERIFY": _rebuild_all_figures})
+    check("NEG FAKE VERIFY catches the leader dangling after a later figure rebuild (editor-world limitation)",
+          r["VERIFY"] == "FAILED" and "SACK_LEADER" in " ".join(r["errors"]), r["errors"])
+
+    def pie_begin_play(mod, U):
+        _rebuild_all_figures(mod, U)
+        U.st["pie"] = True
+        for a in U.st["actors"]:
+            if isinstance(a, U.SackFollower):
+                a.relink()                                    # BeginPlay -> RelinkLeader
+    r = run_fake(steps=("APPLY", "PIE_PROBE"), mutate_between={"PIE_PROBE": pie_begin_play})
+    check("FAKE PIE_PROBE: after a rebuild, BeginPlay relinks every sack; probe passes",
+          (r["APPLY"], r["PIE_PROBE"]) == ("OK", "OK"), r["errors"])
+
+    def pie_no_begin_play(mod, U):
+        _rebuild_all_figures(mod, U)
+        U.st["pie"] = True
+    r = run_fake(steps=("APPLY", "PIE_PROBE"), mutate_between={"PIE_PROBE": pie_no_begin_play})
+    check("NEG FAKE PIE_PROBE without the BeginPlay relink fails PIE_NOT_LED",
+          r["PIE_PROBE"] == "FAILED" and "PIE_NOT_LED" in " ".join(r["errors"]), r["errors"])
+    r = run_fake(steps=("APPLY", "PIE_PROBE"))
+    check("NEG FAKE PIE_PROBE refuses when PIE is not running (never starts PIE)",
+          r["PIE_PROBE"] == "FAILED" and "PIE_NOT_RUNNING" in " ".join(r["errors"]), r["errors"])
+
+    # --- the BP prerequisite
+    for q, token in (("no_bp", "SACK_BP_MISSING"), ("bp_no_relink", "SACK_BP_NO_RELINK")):
+        r = run_fake(quirks={q}, steps=("APPLY",))
+        check("NEG FAKE %s: refused before mutation" % token,
+              r["APPLY"] == "FAILED" and token in " ".join(r["errors"]) and r["spawned_after_APPLY"] == 0 and
+              r["dirty_after_APPLY"] == [], r["errors"])
+
+    # --- lookups before mutation
     r = run_fake(quirks={"read_dirties"}, steps=("APPLY",))
-    check("NEG FAKE a READ that dirties the map: APPLY refuses (LOOKUP_DIRTIED) before any spawn or cloth change",
+    check("NEG FAKE a READ that dirties the map: APPLY refuses (LOOKUP_DIRTIED) before any write",
           r["APPLY"] == "FAILED" and "LOOKUP_DIRTIED" in " ".join(r["errors"]) and r["spawned_after_APPLY"] == 0 and
           r["states"]["APPLY"] == r["states"]["before"], r["errors"])
 
     def break_last_cloth(mod, U):
-        a = [x for x in U.st["actors"] if x.label == "Shore06_F25 Clam"][0]
+        a = _fresh(U, "Shore06_F25 Clam")
         a.comps = [c for c in a.comps if c.get_name() != "ShoreHeadCloth"]
     r = run_fake(steps=("APPLY",), mutate_between={"APPLY": break_last_cloth})
-    check("NEG FAKE a lookup failing on the LAST figure: refused with zero spawns and a clean map",
+    check("NEG FAKE a lookup failing on the LAST figure: refused with zero writes and a clean map",
           r["APPLY"] == "FAILED" and r["spawned_after_APPLY"] == 0 and r["dirty_after_APPLY"] == [] and
           "COMPONENT|Shore06_F25 Clam|ShoreHeadCloth|0" in " ".join(r["errors"]), r["errors"])
     r = run_fake(steps=("APPLY",), preexisting_sack="Shore04_F55 Sack")
@@ -769,13 +1026,12 @@ def t_fake():
           r["errors"])
 
     # --- read-back gates after mutation (nothing saved)
-    for quirk, token, why in (("leader_lies", "SACK_LEADER", "leader setter that does nothing"),
-                              ("cloth_suspend_lies", "CLOTH_READBACK", "cloth suspend setter that lies"),
+    for quirk, token, why in (("cloth_suspend_lies", "CLOTH_READBACK", "cloth suspend setter that lies"),
                               ("spawn_offset", "SACK_OFFSET", "sack spawned 3 cm off the Body")):
         r = run_fake(quirks={quirk}, steps=("APPLY",))
         check("NEG FAKE %s: APPLY fails, nothing saved" % why,
               r["APPLY"] == "FAILED" and r["saved_maps"] == 0 and token in " ".join(r["errors"]), r["errors"])
-    r = run_fake(quirks={"leader_lies"}, steps=("APPLY",))
+    r = run_fake(quirks={"relink_noop"}, steps=("APPLY",))
     check("NEG FAKE failed APPLY leaves no live apply record (renamed .failed)", not r["apply_record_exists"])
 
     def dirty_extra(mod, U):
@@ -786,34 +1042,28 @@ def t_fake():
           r["errors"])
 
     def skin_changed(mod, U):
-        orig = U.SkeletalMeshComponent.set_leader_pose_component
+        orig = U.SackFollower.relink
 
-        def evil(self, leader, force=False):
-            orig(self, leader, force)
-            leader.overrides = [None]
-        U.SkeletalMeshComponent.set_leader_pose_component = evil
+        def evil(self):
+            orig(self)
+            body = self.props["root_component"].parent
+            if body is not None:
+                body.overrides = [None]
+        U.SackFollower.relink = evil
     r = run_fake(steps=("APPLY",), mutate_between={"APPLY": skin_changed})
     check("NEG FAKE a skin override changed during APPLY: refused, not saved",
           r["APPLY"] == "FAILED" and r["saved_maps"] == 0 and "UNTOUCHED_CHANGED" in " ".join(r["errors"]), r["errors"])
 
     def drift(mod, U):
-        s = [x for x in U.st["actors"] if x.label == "Shore03_M59 Sack"][0]
+        s = _fresh(U, "Shore03_M59 Sack")
         s.props["skeletal_mesh_component"].overrides[0] = _Obj("/Game/Other/MI_X.MI_X")
     r = run_fake(steps=("APPLY", "REVERT"), mutate_between={"REVERT": drift})
-    check("NEG FAKE REVERT after drift refuses (state changed since APPLY), nothing destroyed",
+    check("NEG FAKE REVERT after drift refuses, nothing destroyed",
           r["APPLY"] == "OK" and r["REVERT"] == "FAILED" and "DRIFT_SINCE_APPLY" in " ".join(r["errors"]) and
           all(s["sack"] == 1 for s in r["states"]["REVERT"].values()), r["errors"])
     r = run_fake(steps=("APPLY", "VERIFY"), mutate_between={"VERIFY": drift})
     check("NEG FAKE VERIFY catches a changed sack material", r["VERIFY"] == "FAILED" and
           "SACK_MATERIALS" in " ".join(r["errors"]), r["errors"])
-
-    def relink_lost(mod, U):   # what a construction-script rerun could do: Body replaced, pointer now stale
-        for f in mod.FIGURES:
-            s = [x for x in U.st["actors"] if x.label == f + " Sack"][0]
-            s.props["skeletal_mesh_component"].props["leader_pose_component"] = _Obj("/Game/Map.Map:Old.Body")
-    r = run_fake(steps=("APPLY", "VERIFY"), mutate_between={"VERIFY": relink_lost})
-    check("NEG FAKE VERIFY catches a leader pointer that no longer resolves to the CURRENT Body",
-          r["VERIFY"] == "FAILED" and "SACK_LEADER" in " ".join(r["errors"]), r["errors"])
     r = run_fake(quirks={"destroy_fails"}, steps=("APPLY", "REVERT"))
     check("NEG FAKE destroy_actor returning False: REVERT fails, map not saved again",
           r["REVERT"] == "FAILED" and r["saved_maps"] == 1 and "DESTROY_FAILED" in " ".join(r["errors"]), r["errors"])
@@ -824,11 +1074,70 @@ def t_fake():
     r = run_fake(figures=["Shore02_F52"], steps=("APPLY", "VERIFY", "REVERT"))
     check("FAKE pilot (Shore02 only) APPLY/VERIFY/REVERT OK", (r.get("APPLY"), r.get("VERIFY"), r.get("REVERT")) ==
           ("OK", "OK", "OK"), r["errors"])
+    r = run_fake(quirks={"no_rebuild"})
+    check("FAKE also correct if the editor does NOT rebuild figures on property edits",
+          (r.get("APPLY"), r.get("VERIFY"), r.get("REVERT")) == ("OK", "OK", "OK"), r["errors"])
+
+
+def BODY_HEAD_CS_RESET():
+    global BODY_HEAD_CS
+    BODY_HEAD_CS = (0.0, 0.0, 130.0)
+
+
+def t_bp_spec():
+    """The follower BP specs: well-formed, every call resolves to a declared UFUNCTION in the 5.8 headers, every link
+    endpoint names a declared node, the request files embed exactly these specs."""
+    create = json.load(open(os.path.join(HERE, "s3_sack_follower_bp_spec_create.json"), encoding="utf-8"))
+    patch = json.load(open(os.path.join(HERE, "s3_sack_follower_bp_spec_ucs_patch.json"), encoding="utf-8"))
+    check("BP spec: new asset BP_S3SackFollower under Sack/, parent SkeletalMeshActor",
+          create["blueprint"] == "BP_S3SackFollower" and create["output_path"] == S.SACK_DIR and
+          create["parent_class"] == "/Script/Engine.SkeletalMeshActor" and S.SACK_BP == S.SACK_DIR + "/BP_S3SackFollower")
+    fn = create["functions"][0]
+    ids = {n["id"] for n in fn["nodes"]} | {"entry"}
+    bad = [l for l in fn["links"] if l["from"].split(".")[0] not in ids or l["to"].split(".")[0] not in ids]
+    check("BP spec: every RelinkLeader link endpoint is a declared node", not bad, bad)
+    ev = create["event_graph"]
+    check("BP spec: BeginPlay -> RelinkLeader", {"from": "begin.then", "to": "relink.execute"} in ev["links"] and
+          any(n["type"] == "begin_play" for n in ev["nodes"]))
+    check("BP spec: construction script patch calls RelinkLeader from the entry",
+          patch["target_blueprint"] == S.SACK_BP + ".BP_S3SackFollower" and
+          patch["function_patches"][0]["function"] == "UserConstructionScript" and
+          {"from": "entry.then", "to": "relink_construct.execute"} in patch["function_patches"][0]["links"])
+    eng = "D:/Unreal Engine/UE_5.8/Engine/Source/Runtime/Engine/Classes/"
+    headers = {"/Script/Engine.Actor": eng + "GameFramework/Actor.h",
+               "/Script/Engine.SceneComponent": eng + "Components/SceneComponent.h",
+               "/Script/Engine.KismetSystemLibrary": eng + "Kismet/KismetSystemLibrary.h",
+               "/Script/Engine.KismetStringLibrary": eng + "Kismet/KismetStringLibrary.h",
+               "/Script/Engine.SkinnedMeshComponent": eng + "Components/SkinnedMeshComponent.h"}
+    if os.path.isdir(eng):
+        import re
+        for n in fn["nodes"]:
+            if n["type"] != "call":
+                continue
+            text = open(headers[n["class"]], encoding="utf-8", errors="replace").read()
+            m = re.search(r"UFUNCTION\([^)]*\)[^;{]*?\b%s\s*\(" % re.escape(n["function"]), text, re.S)
+            check("BP spec: %s.%s is a UFUNCTION in the 5.8 header" % (n["class"].rsplit(".", 1)[1], n["function"]),
+                  m is not None)
+        sm = open(headers["/Script/Engine.SkinnedMeshComponent"], encoding="utf-8").read()
+        check("BP spec: SetLeaderPoseComponent pins NewLeaderBoneComponent / bForceUpdate exist",
+              "USkinnedMeshComponent* NewLeaderBoneComponent, bool bForceUpdate" in sm)
+    else:
+        check("engine headers absent: UFUNCTION cross-check skipped (UNCLEAR)", True)
+    spec_mod = importlib.util.spec_from_file_location("_mk", os.path.join(HERE, "s3_sack_follower_bp_make_requests.py"))
+    mk = importlib.util.module_from_spec(spec_mod)
+    spec_mod.loader.exec_module(mk)
+    built = mk.build("")
+    for key, body in built.items():
+        path = os.path.join(HERE, "s3_sack_follower_bp_%s_request.json" % key)
+        on_disk = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else None
+        check("BP request %s on disk == generated from the specs" % key, on_disk == body)
+    check("BP apply requests save only touched packages", built["apply_create"]["arguments"]["arguments"]["bSaveChanges"]
+          is True and built["apply_create"]["arguments"]["tool_name"] == "ApplySpecification")
 
 
 def main():
     for t in (t_tables, t_sources, t_bounds, t_slots, t_interchange, t_textures, t_graph, t_mis, t_modes,
-              t_census_and_cloth, t_fake):
+              t_census_and_cloth, t_bp_spec, t_fake):
         try:
             t()
         except Exception as exc:  # noqa: BLE001 - a crashed test is a failed test
