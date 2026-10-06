@@ -94,3 +94,11 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   (stills Saved/CodexFlatV3/handprints/stills/hp_full_LR.jpg). **Look issue for Gary:** the prints sit at z 45–241, behind the
   S3 wave-row flats (z −5…255), so from the hangar centre they're hidden except where the waves slide away — raise them above
   the waves (~2.6–4 m), or keep them as a reveal when the waves part. Revert: hp_revert_decals.
+
+## 6 Oct day
+- **Hand prints**: Gary — they belong on the marble sides at **1.6–4 m, like people have been scrambling** (drips stay ~downward,
+  clean drags may go up/diagonal); W&T re-placing.
+- **S3 sackcloth** (Gary, building S3 fully today): the head-pinned cloth the MetaHumans cower under should be a **heavy, rich,
+  realistic 1.2 × 1.2 m coffee-sack hessian/burlap** with thickness and weight (like the entry curtain), covering the body so the
+  white underpants don't show (legs and arms visible beneath). Nearby: a **pile of dry rags/dregs/sackcloth** on **low beachy sand
+  mounds** (lower priority). Investigation + plan under way (Docs/Conductor/S3_SACKCLOTH_PLAN_2026-10-06.md).
