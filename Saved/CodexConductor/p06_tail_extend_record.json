@@ -1,0 +1,741 @@
+{
+ "after": {
+  "keys": {
+   "0067B5F57142956FB5B80EA31B1210B5": {
+    "channels": {},
+    "pins_rel": [],
+    "start": 33709825,
+    "wing_pins": []
+   },
+   "3B27C331B54325A469AE8A818B9049F9": {
+    "channels": {},
+    "pins_rel": [],
+    "start": 40537345,
+    "wing_pins": []
+   },
+   "49F93D652B46B99C10116EBAE927A3C6": {
+    "channels": {
+     "Camera.FocalLengthMm": [
+      [
+       14982145,
+       50.0
+      ],
+      [
+       15102145,
+       50.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 21001345,
+    "wing_pins": []
+   },
+   "659D5386D64DA7742A351B9499ECCE4C": {
+    "channels": {
+     "Wing.CycleRateScale": [
+      [
+       2312640,
+       0.6
+      ],
+      [
+       2393280,
+       2.0
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.InwardTravelScale": [
+      [
+       2312640,
+       0.5
+      ],
+      [
+       2393280,
+       1.3
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.PhaseBiasCycles": [
+      [
+       2312640,
+       0.0
+      ],
+      [
+       2393280,
+       1.0
+      ],
+      [
+       2661120,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 2312640,
+    "wing_pins": []
+   },
+   "7FF34BBDA744E406C264A7B7E4DD61D9": {
+    "channels": {
+     "Camera.FocusDistanceCm": [
+      [
+       7901185,
+       600.0
+      ]
+     ],
+     "Camera.LongitudinalOffsetCm": [
+      [
+       7901185,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 12600385,
+    "wing_pins": []
+   },
+   "9BFC29C45D47911FF7836BB8537230D2": {
+    "channels": {
+     "Camera.SpeedMultiplier": [
+      [
+       38893392,
+       1.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 47949592,
+    "wing_pins": []
+   }
+  },
+  "managed": {
+   "Choreo:0067B5F57142956FB5B80EA31B1210B5": [
+    33709825,
+    38029825
+   ],
+   "Choreo:3B27C331B54325A469AE8A818B9049F9": [
+    40537345,
+    45010072
+   ],
+   "Choreo:49F93D652B46B99C10116EBAE927A3C6": [
+    21001345,
+    25321345
+   ],
+   "Choreo:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Choreo:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12600385,
+    16920385
+   ],
+   "Choreo:9BFC29C45D47911FF7836BB8537230D2": [
+    47949592,
+    50973621
+   ],
+   "Music:0067B5F57142956FB5B80EA31B1210B5": [
+    33709825,
+    38029825
+   ],
+   "Music:3B27C331B54325A469AE8A818B9049F9": [
+    40537345,
+    45010072
+   ],
+   "Music:49F93D652B46B99C10116EBAE927A3C6": [
+    21001345,
+    25321345
+   ],
+   "Music:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Music:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Music:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12600385,
+    16920385
+   ],
+   "Music:9BFC29C45D47911FF7836BB8537230D2": [
+    47949592,
+    50973621
+   ],
+   "Passage:0067B5F57142956FB5B80EA31B1210B5": [
+    33709825,
+    38029825
+   ],
+   "Passage:3B27C331B54325A469AE8A818B9049F9": [
+    40537345,
+    45010072
+   ],
+   "Passage:49F93D652B46B99C10116EBAE927A3C6": [
+    21001345,
+    25321345
+   ],
+   "Passage:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Passage:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12600385,
+    16920385
+   ],
+   "Passage:9BFC29C45D47911FF7836BB8537230D2": [
+    47949592,
+    50973621
+   ],
+   "Playback:master": [
+    0,
+    52077621
+   ],
+   "Scene:1196A03E4E16AE74EA811A8566C84E9B": [
+    38773825,
+    40537345
+   ],
+   "Scene:42D2F59416487AF7018DAEB62639C9BB": [
+    16920385,
+    18864385
+   ],
+   "Scene:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Scene:5C960C0C7A462BFEA4C86F93ADF5558D": [
+    38029825,
+    38773825
+   ],
+   "Scene:673B3535884DEBAE99723B8CC6BE877B": [
+    50973621,
+    51717621
+   ],
+   "Scene:730D67269F425DDC45C72A867BA04217": [
+    45010072,
+    46186072
+   ],
+   "Scene:7A03F85B4E7FAE6807F9748D6802822D": [
+    31561345,
+    33709825
+   ],
+   "Scene:86CEBAF64E3A9FF279651AB0D2E279B4": [
+    51717621,
+    52077621
+   ],
+   "Scene:91030A272145EBEF25D33BA016458739": [
+    4624705,
+    10504705
+   ],
+   "Scene:D8F61D9DF94F1E6080CC8D9028EE49D3": [
+    25321345,
+    31561345
+   ],
+   "Scene:E082311A4165CFA7949986829B0833E5": [
+    18864385,
+    21001345
+   ],
+   "Scene:E49499EB417AC22745470BA7C85FB609": [
+    10504705,
+    12600385
+   ],
+   "Scene:FB09B25844709C21708A77A3FB2E9B96": [
+    46186072,
+    47949592
+   ]
+  },
+  "segments": [
+   {
+    "end": 2312640,
+    "label": "Opening \u2014 Curtain",
+    "start": 0
+   },
+   {
+    "end": 4624705,
+    "label": "Passage 1",
+    "start": 2312640
+   },
+   {
+    "end": 10504705,
+    "label": "Scene 1 \u2014 External Sound",
+    "start": 4624705
+   },
+   {
+    "end": 12600385,
+    "label": "Interaction 1 \u2014 Washing the Boy",
+    "start": 10504705
+   },
+   {
+    "end": 16920385,
+    "label": "Passage 2",
+    "start": 12600385
+   },
+   {
+    "end": 18864385,
+    "label": "Scene 2 \u2014 External Sound",
+    "start": 16920385
+   },
+   {
+    "end": 21001345,
+    "label": "Interaction 2 \u2014 Turnips",
+    "start": 18864385
+   },
+   {
+    "end": 25321345,
+    "label": "Passage 3",
+    "start": 21001345
+   },
+   {
+    "end": 31561345,
+    "label": "Scene 3 \u2014 External Sound",
+    "start": 25321345
+   },
+   {
+    "end": 33709825,
+    "label": "Interaction 3 \u2014 Forgets His Name",
+    "start": 31561345
+   },
+   {
+    "end": 38029825,
+    "label": "Passage 4",
+    "start": 33709825
+   },
+   {
+    "end": 38773825,
+    "label": "Scene 4 \u2014 External Sound",
+    "start": 38029825
+   },
+   {
+    "end": 40537345,
+    "label": "Interaction 4 \u2014 Gets a Name",
+    "start": 38773825
+   },
+   {
+    "end": 45010072,
+    "label": "Passage 5",
+    "start": 40537345
+   },
+   {
+    "end": 46186072,
+    "label": "Scene 5 \u2014 External Sound",
+    "start": 45010072
+   },
+   {
+    "end": 47949592,
+    "label": "Interaction 5 \u2014 Becomes King",
+    "start": 46186072
+   },
+   {
+    "end": 50973619,
+    "label": "Passage 6",
+    "start": 47949592
+   },
+   {
+    "end": 51717619,
+    "label": "Scene 6 \u2014 External Sound",
+    "start": 50973619
+   },
+   {
+    "end": 52077619,
+    "label": "Closing \u2014 Sweeping Up",
+    "start": 51717619
+   }
+  ],
+  "tail_distance_cm": 390.28349999999773,
+  "tail_frames": 408027
+ },
+ "applied": true,
+ "args": {
+  "confirm": "APPLY P06TAIL",
+  "decided_by": "Gary 5 Oct: 'Lengthen P06 to fit' (TAIL only; TailDistanceCm unchanged)",
+  "expected_old_len_source": "walking_music_swap_dry.json segments: Passage 6 [47128792, 49782259) at 24000 ticks/s = 110.561125 s",
+  "expected_old_len_ticks": 2653467,
+  "headroom_s": 1.0,
+  "max_delta_s": 16.0,
+  "mode": "APPLY",
+  "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+  "passage_guid_source": "walking_music_swap_dry.json rows.6.passage.guid (run WALK-20261005-143830) = choreo_report_choreo-apply-3.json",
+  "passage_label": "Passage 6",
+  "run_id": null,
+  "song_s": 125.0,
+  "song_sha256": "10b2b017fef21308e06b1a197be8c19ee91cf3448ddb8cd8542b460da100c6dc",
+  "song_wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P06_Walking6.wav"
+ },
+ "backup": "E:/PussStage/Backups\\PreP06TailExtend-P06TAIL-20261006-012428",
+ "before": {
+  "keys": {
+   "0067B5F57142956FB5B80EA31B1210B5": {
+    "channels": {},
+    "pins_rel": [],
+    "start": 33709825,
+    "wing_pins": []
+   },
+   "3B27C331B54325A469AE8A818B9049F9": {
+    "channels": {},
+    "pins_rel": [],
+    "start": 40537345,
+    "wing_pins": []
+   },
+   "49F93D652B46B99C10116EBAE927A3C6": {
+    "channels": {
+     "Camera.FocalLengthMm": [
+      [
+       14982145,
+       50.0
+      ],
+      [
+       15102145,
+       50.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 21001345,
+    "wing_pins": []
+   },
+   "659D5386D64DA7742A351B9499ECCE4C": {
+    "channels": {
+     "Wing.CycleRateScale": [
+      [
+       2312640,
+       0.6
+      ],
+      [
+       2393280,
+       2.0
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.InwardTravelScale": [
+      [
+       2312640,
+       0.5
+      ],
+      [
+       2393280,
+       1.3
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.PhaseBiasCycles": [
+      [
+       2312640,
+       0.0
+      ],
+      [
+       2393280,
+       1.0
+      ],
+      [
+       2661120,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 2312640,
+    "wing_pins": []
+   },
+   "7FF34BBDA744E406C264A7B7E4DD61D9": {
+    "channels": {
+     "Camera.FocusDistanceCm": [
+      [
+       7901185,
+       600.0
+      ]
+     ],
+     "Camera.LongitudinalOffsetCm": [
+      [
+       7901185,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 12600385,
+    "wing_pins": []
+   },
+   "9BFC29C45D47911FF7836BB8537230D2": {
+    "channels": {
+     "Camera.SpeedMultiplier": [
+      [
+       38893392,
+       1.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 47949592,
+    "wing_pins": []
+   }
+  },
+  "managed": {
+   "Choreo:0067B5F57142956FB5B80EA31B1210B5": [
+    33709825,
+    38029825
+   ],
+   "Choreo:3B27C331B54325A469AE8A818B9049F9": [
+    40537345,
+    45010072
+   ],
+   "Choreo:49F93D652B46B99C10116EBAE927A3C6": [
+    21001345,
+    25321345
+   ],
+   "Choreo:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Choreo:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12600385,
+    16920385
+   ],
+   "Choreo:9BFC29C45D47911FF7836BB8537230D2": [
+    47949592,
+    50603057
+   ],
+   "Music:0067B5F57142956FB5B80EA31B1210B5": [
+    33709825,
+    38029825
+   ],
+   "Music:3B27C331B54325A469AE8A818B9049F9": [
+    40537345,
+    45010072
+   ],
+   "Music:49F93D652B46B99C10116EBAE927A3C6": [
+    21001345,
+    25321345
+   ],
+   "Music:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Music:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Music:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12600385,
+    16920385
+   ],
+   "Music:9BFC29C45D47911FF7836BB8537230D2": [
+    47949592,
+    50603057
+   ],
+   "Passage:0067B5F57142956FB5B80EA31B1210B5": [
+    33709825,
+    38029825
+   ],
+   "Passage:3B27C331B54325A469AE8A818B9049F9": [
+    40537345,
+    45010072
+   ],
+   "Passage:49F93D652B46B99C10116EBAE927A3C6": [
+    21001345,
+    25321345
+   ],
+   "Passage:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Passage:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12600385,
+    16920385
+   ],
+   "Passage:9BFC29C45D47911FF7836BB8537230D2": [
+    47949592,
+    50603057
+   ],
+   "Playback:master": [
+    0,
+    51707057
+   ],
+   "Scene:1196A03E4E16AE74EA811A8566C84E9B": [
+    38773825,
+    40537345
+   ],
+   "Scene:42D2F59416487AF7018DAEB62639C9BB": [
+    16920385,
+    18864385
+   ],
+   "Scene:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Scene:5C960C0C7A462BFEA4C86F93ADF5558D": [
+    38029825,
+    38773825
+   ],
+   "Scene:673B3535884DEBAE99723B8CC6BE877B": [
+    50603057,
+    51347057
+   ],
+   "Scene:730D67269F425DDC45C72A867BA04217": [
+    45010072,
+    46186072
+   ],
+   "Scene:7A03F85B4E7FAE6807F9748D6802822D": [
+    31561345,
+    33709825
+   ],
+   "Scene:86CEBAF64E3A9FF279651AB0D2E279B4": [
+    51347057,
+    51707057
+   ],
+   "Scene:91030A272145EBEF25D33BA016458739": [
+    4624705,
+    10504705
+   ],
+   "Scene:D8F61D9DF94F1E6080CC8D9028EE49D3": [
+    25321345,
+    31561345
+   ],
+   "Scene:E082311A4165CFA7949986829B0833E5": [
+    18864385,
+    21001345
+   ],
+   "Scene:E49499EB417AC22745470BA7C85FB609": [
+    10504705,
+    12600385
+   ],
+   "Scene:FB09B25844709C21708A77A3FB2E9B96": [
+    46186072,
+    47949592
+   ]
+  },
+  "segments": [
+   {
+    "end": 2312640,
+    "label": "Opening \u2014 Curtain",
+    "start": 0
+   },
+   {
+    "end": 4624705,
+    "label": "Passage 1",
+    "start": 2312640
+   },
+   {
+    "end": 10504705,
+    "label": "Scene 1 \u2014 External Sound",
+    "start": 4624705
+   },
+   {
+    "end": 12600385,
+    "label": "Interaction 1 \u2014 Washing the Boy",
+    "start": 10504705
+   },
+   {
+    "end": 16920385,
+    "label": "Passage 2",
+    "start": 12600385
+   },
+   {
+    "end": 18864385,
+    "label": "Scene 2 \u2014 External Sound",
+    "start": 16920385
+   },
+   {
+    "end": 21001345,
+    "label": "Interaction 2 \u2014 Turnips",
+    "start": 18864385
+   },
+   {
+    "end": 25321345,
+    "label": "Passage 3",
+    "start": 21001345
+   },
+   {
+    "end": 31561345,
+    "label": "Scene 3 \u2014 External Sound",
+    "start": 25321345
+   },
+   {
+    "end": 33709825,
+    "label": "Interaction 3 \u2014 Forgets His Name",
+    "start": 31561345
+   },
+   {
+    "end": 38029825,
+    "label": "Passage 4",
+    "start": 33709825
+   },
+   {
+    "end": 38773825,
+    "label": "Scene 4 \u2014 External Sound",
+    "start": 38029825
+   },
+   {
+    "end": 40537345,
+    "label": "Interaction 4 \u2014 Gets a Name",
+    "start": 38773825
+   },
+   {
+    "end": 45010072,
+    "label": "Passage 5",
+    "start": 40537345
+   },
+   {
+    "end": 46186072,
+    "label": "Scene 5 \u2014 External Sound",
+    "start": 45010072
+   },
+   {
+    "end": 47949592,
+    "label": "Interaction 5 \u2014 Becomes King",
+    "start": 46186072
+   },
+   {
+    "end": 50603059,
+    "label": "Passage 6",
+    "start": 47949592
+   },
+   {
+    "end": 51347059,
+    "label": "Scene 6 \u2014 External Sound",
+    "start": 50603059
+   },
+   {
+    "end": 51707059,
+    "label": "Closing \u2014 Sweeping Up",
+    "start": 51347059
+   }
+  ],
+  "tail_distance_cm": 390.28349999999773,
+  "tail_frames": 37467
+ },
+ "decided_by": "Gary 5 Oct: 'Lengthen P06 to fit' (TAIL only; TailDistanceCm unchanged)",
+ "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+ "passage_index": 5,
+ "plan": {
+  "delta_frames": 386,
+  "delta_s": 15.44,
+  "delta_ticks": 370560,
+  "headroom_after_s": 1.001125,
+  "new_end": 50973619,
+  "new_len": 3024027,
+  "new_len_s": 126.001125,
+  "new_tail": 408027,
+  "old_end": 50603059,
+  "old_len": 2653467,
+  "old_len_s": 110.561125,
+  "old_start": 47949592,
+  "old_tail": 37467,
+  "raw_delta_ticks": 370533,
+  "target_ticks": 3024000,
+  "ticks_per_display_frame": 960
+ },
+ "rebuild_report": "Rebuilt 6 Passage, 13 Scene, and 7 music section(s); 0 Scene cue(s) lack a sequence and 0 music binding(s) lack a rail/sound.",
+ "run": "P06TAIL-20261006-012428",
+ "schema": 1,
+ "tool": "p06_tail_extend",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "written": "2026-10-06T01:24:28"
+}
