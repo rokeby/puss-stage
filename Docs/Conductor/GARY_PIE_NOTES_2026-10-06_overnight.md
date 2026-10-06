@@ -156,3 +156,6 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   heavier, collision thickness 2 cm, two-sided OldGrey hessian cloth material) set on the six BP templates (S3LIVESACK-20261006-172656)
   AND on the placed figures (instance overrides, S3LSFIX-20261006-172813). VERIFY OK. Performance unmeasured (~4× particles).
   Offline harness now shows 7 "fails" that are its pre-apply live-content assertions (expected after the apply).
+- ~17:45 **Beam texture** (Gary): beams "lack texture" — approved an A/B bench "especially for the big beams": (a) volumetric shadows +
+  occluders, (b) noise-density fog volume, (c) dust motes (Niagara session), (d) finer fog grid + anisotropy. **Queued ~18:45** (in an hour);
+  tool being written. Gary first has "a few things"; then his P01(?) bay-lighting hand pass to replicate with variation.
