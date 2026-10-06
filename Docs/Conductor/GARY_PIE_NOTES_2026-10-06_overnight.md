@@ -126,3 +126,8 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   **stacked two full 3 m rows = 6.05 m** (no squashed diamonds); tubes glow 0.15→0.07, light ×¼. Needs build (FS patch) →
   underpass_fence_apply for P01–P04/P06 → fence_stack_750 (top_row whole) → stills. **P02 boards off** tool ready (p02_floor.py).
 - **Sacks**: finals done for all six (2 cm, sawtooth fixed: smooth irregular cut + masked fringe). Shore02 can't cover head and rear at 1.8 m.
+- ~16:00–16:20 **Editor block**: W&T wet-paper undo (3 MIs back to v1) → build FS fence stack (**suite 210/0**) → fence on P01–P04/P06
+  + **stacked 2 rows = 6.05 m on all six, tubes dimmed** (FENCE750-20261006-160442) → **P02 boards off** (P02FLOOR-20261006-160506)
+  → S3 sacks: 6 meshes imported on the body skeleton, M_Sackcloth(+Masked) + MI_Sackcloth_OldGrey built; **APPLY failed twice**
+  (component route: no body handle; actor route: leader pointer + cloth flags didn't persist) → nothing saved; fixing (follower BP / C++ component).
+  → **P04 roughness bench** stills base/subtle/medium/strong/revert (PSTILLS-P04-20261006-20*-rough_*), W&T building Gary's sheet.
