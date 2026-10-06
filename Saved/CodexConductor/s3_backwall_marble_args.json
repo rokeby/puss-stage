@@ -1,1 +1,11 @@
-{"mode": "DRY", "parts": ["backdrop", "marble"], "marble_mirror_alternate": true, "marble_top_z": null, "max_tile_squash": 0.15}
+{
+ "mode": "DRY",
+ "parts": [
+  "backdrop",
+  "marble"
+ ],
+ "marble_mirror_alternate": true,
+ "marble_top_z": null,
+ "max_tile_squash": 0.15,
+ "decided_by": "Gary 5 Oct ~16:50 (his session): 'There can be structurally a far wall but backdrop covers it'; marble 'Yes, to full wall height'"
+}

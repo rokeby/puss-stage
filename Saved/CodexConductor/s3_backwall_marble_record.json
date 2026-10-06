@@ -1,0 +1,590 @@
+{
+ "run": "S3BWM-20261006-011800",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "backup": "E:/PussStage/Backups/PreS3BackwallMarble-S3BWM-20261006-011800",
+ "applied": true,
+ "parts": [
+  "backdrop",
+  "marble"
+ ],
+ "plan": {
+  "parts": [
+   "backdrop",
+   "marble"
+  ],
+  "backdrop": {
+   "needs_restore": true,
+   "mechanism": "parent_rescale_squash",
+   "live_world": {
+    "location": [
+     17418.972999999998,
+     160000.0,
+     543.1500000000001
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     0.81
+    ]
+   },
+   "live_aabb": {
+    "min": [
+     17418.972837079316,
+     159000.0,
+     543.1500000000001
+    ],
+    "max": [
+     17418.97316292068,
+     161000.0,
+     2973.15
+    ]
+   },
+   "target_world": {
+    "location": [
+     17418.973,
+     160000.0,
+     -5.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "target_aabb": {
+    "min": [
+     17418.97283707932,
+     159000.0,
+     -5.0
+    ],
+    "max": [
+     17418.973162920684,
+     161000.0,
+     2995.0
+    ]
+   },
+   "predicted_squash_world": {
+    "location": [
+     17418.972999999998,
+     160000.0,
+     543.1500000000001
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     0.81
+    ]
+   },
+   "wall_front_x": 17421.97275,
+   "wall_top_z": 2880.0,
+   "side_faces_y": [
+    159000.0,
+    161000.0
+   ],
+   "hide_door_pokes": [],
+   "foreign_in_front_listed_only": [
+    "S3 Uplight 1",
+    "S3 Uplight 2",
+    "S3 Uplight 3"
+   ],
+   "uncovered_band_z_now": [
+    -5.0,
+    543.1500000000001
+   ]
+  },
+  "tiles": [
+   {
+    "side": "L",
+    "label": "S3 Marble Inner Wall Left Upper 1",
+    "wall_label": "S3 Hangar Left Wall",
+    "location": [
+     14421.97275,
+     159000.5,
+     885.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     -5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      159000.0,
+      600.0
+     ],
+     "max": [
+      17421.97275,
+      159001.0,
+      1170.0
+     ]
+    },
+    "mirrored": true,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "L",
+    "label": "S3 Marble Inner Wall Left Upper 2",
+    "wall_label": "S3 Hangar Left Wall",
+    "location": [
+     14421.97275,
+     159000.5,
+     1455.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      159000.0,
+      1170.0
+     ],
+     "max": [
+      17421.97275,
+      159001.0,
+      1740.0
+     ]
+    },
+    "mirrored": false,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "L",
+    "label": "S3 Marble Inner Wall Left Upper 3",
+    "wall_label": "S3 Hangar Left Wall",
+    "location": [
+     14421.97275,
+     159000.5,
+     2025.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     -5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      159000.0,
+      1740.0
+     ],
+     "max": [
+      17421.97275,
+      159001.0,
+      2310.0
+     ]
+    },
+    "mirrored": true,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "L",
+    "label": "S3 Marble Inner Wall Left Upper 4",
+    "wall_label": "S3 Hangar Left Wall",
+    "location": [
+     14421.97275,
+     159000.5,
+     2595.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      159000.0,
+      2310.0
+     ],
+     "max": [
+      17421.97275,
+      159001.0,
+      2880.0
+     ]
+    },
+    "mirrored": false,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "R",
+    "label": "S3 Marble Inner Wall Right Upper 1",
+    "wall_label": "S3 Hangar Right Wall",
+    "location": [
+     14421.97275,
+     160999.5,
+     885.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     -5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      160999.0,
+      600.0
+     ],
+     "max": [
+      17421.97275,
+      161000.0,
+      1170.0
+     ]
+    },
+    "mirrored": true,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "R",
+    "label": "S3 Marble Inner Wall Right Upper 2",
+    "wall_label": "S3 Hangar Right Wall",
+    "location": [
+     14421.97275,
+     160999.5,
+     1455.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      160999.0,
+      1170.0
+     ],
+     "max": [
+      17421.97275,
+      161000.0,
+      1740.0
+     ]
+    },
+    "mirrored": false,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "R",
+    "label": "S3 Marble Inner Wall Right Upper 3",
+    "wall_label": "S3 Hangar Right Wall",
+    "location": [
+     14421.97275,
+     160999.5,
+     2025.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     -5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      160999.0,
+      1740.0
+     ],
+     "max": [
+      17421.97275,
+      161000.0,
+      2310.0
+     ]
+    },
+    "mirrored": true,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   },
+   {
+    "side": "R",
+    "label": "S3 Marble Inner Wall Right Upper 4",
+    "wall_label": "S3 Hangar Right Wall",
+    "location": [
+     14421.97275,
+     160999.5,
+     2595.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     60.0,
+     0.01,
+     5.7
+    ],
+    "aabb": {
+     "min": [
+      11421.97275,
+      160999.0,
+      2310.0
+     ],
+     "max": [
+      17421.97275,
+      161000.0,
+      2880.0
+     ]
+    },
+    "mirrored": false,
+    "tile_h": 570.0,
+    "squash": 0.9421487603305785,
+    "mesh": "/Engine/BasicShapes/Cube",
+    "material": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   }
+  ]
+ },
+ "before": {
+  "backdrop": {
+   "relative": {
+    "location": [
+     -55.999500000005355,
+     0.0,
+     -46.166666666666664
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     2.0,
+     0.047619047619047616,
+     0.03333333333333333
+    ]
+   },
+   "world": {
+    "location": [
+     17418.972999999998,
+     160000.0,
+     543.1500000000001
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     0.81
+    ]
+   },
+   "aabb": {
+    "min": [
+     17418.972837079316,
+     159000.0,
+     543.1500000000001
+    ],
+    "max": [
+     17418.97316292068,
+     161000.0,
+     2973.15
+    ]
+   }
+  },
+  "hidden": {}
+ },
+ "spawned": [
+  {
+   "label": "S3 Marble Inner Wall Left Upper 1",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3148",
+   "aabb": {
+    "min": [
+     11421.97275,
+     159000.0,
+     600.0
+    ],
+    "max": [
+     17421.97275,
+     159001.0,
+     1170.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 2",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3149",
+   "aabb": {
+    "min": [
+     11421.97275,
+     159000.0,
+     1170.0
+    ],
+    "max": [
+     17421.97275,
+     159001.0,
+     1740.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 3",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3150",
+   "aabb": {
+    "min": [
+     11421.97275,
+     159000.0,
+     1740.0
+    ],
+    "max": [
+     17421.97275,
+     159001.0,
+     2310.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3151",
+   "aabb": {
+    "min": [
+     11421.97275,
+     159000.0,
+     2310.0
+    ],
+    "max": [
+     17421.97275,
+     159001.0,
+     2880.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 1",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3152",
+   "aabb": {
+    "min": [
+     11421.97275,
+     160999.0,
+     600.0
+    ],
+    "max": [
+     17421.97275,
+     161000.0,
+     1170.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 2",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3153",
+   "aabb": {
+    "min": [
+     11421.97275,
+     160999.0,
+     1170.0
+    ],
+    "max": [
+     17421.97275,
+     161000.0,
+     1740.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 3",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3154",
+   "aabb": {
+    "min": [
+     11421.97275,
+     160999.0,
+     1740.0
+    ],
+    "max": [
+     17421.97275,
+     161000.0,
+     2310.0
+    ]
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3155",
+   "aabb": {
+    "min": [
+     11421.97275,
+     160999.0,
+     2310.0
+    ],
+    "max": [
+     17421.97275,
+     161000.0,
+     2880.0
+    ]
+   }
+  }
+ ],
+ "saved": true,
+ "post_save_census": {
+  "content": [],
+  "maps": []
+ }
+}
