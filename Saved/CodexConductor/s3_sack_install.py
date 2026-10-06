@@ -23,12 +23,15 @@ Modes (write modes need the confirm string; every write mode refuses on a dirty 
   BUILD_MAT  create-only: 6 textures (Sack/Textures), M_Sackcloth (opaque), M_Sackcloth_Masked (+ fringe opacity from
              UV1.x), MI_Sackcloth_OldGrey and MI_Sackcloth_OldGrey_Inner (both children of the MASKED master: the
              fringe is on every slot, plan 10.3). Every edge, parameter, flag and MI value is read back.
-  APPLY      per placed figure "<id> Clam" (BP_<id>_Draped_C): backup the umap, add an instance SkeletalMeshComponent
-             "SackSK" under Body (SubobjectDataSubsystem, the editor's own Add Component path), set mesh, slot MIs,
-             bounds scale, leader pose = Body; hide ShoreHeadCloth and switch its simulation off. Body/Face (the skin
-             pass's level overrides, S3SKIN-20261006-134520) are read before and after and must not change.
-  REVERT     exact inverse of APPLY from its record (refuses if the state drifted): delete the SackSK instance
-             components, restore the cloth's visibility and simulation flags, save the map. Assets stay (create-only).
+  APPLY      route 2 (conductor 6 Oct 16:05; route 1, an instance component via SubobjectDataSubsystem, failed live
+             with BODY_HANDLE|Shore01_M56 Clam|0). Phase 1 reads EVERYTHING for every figure and asserts the census
+             unchanged; only then: backup the umap, and per figure spawn a SkeletalMeshActor "<id> Sack" (tags S3.Sack,
+             S3.Sack.<id>) at the Body's world transform, attach it to Body (KEEP_WORLD), set mesh, slot MIs, bounds
+             scale, leader pose = the figure's Body; hide ShoreHeadCloth and switch its simulation off. Body/Face (the
+             skin pass's level overrides, S3SKIN-20261006-134520) are snapshotted and must not change. The figure BPs
+             are never edited.
+  REVERT     exact inverse from the record (refuses on drift, or if the sack actor is not the recorded one): lookups
+             first, then destroy the tagged sack actors and restore the cloth flags; save the map. Assets stay.
   VERIFY     read-only: every record's end state (meshes, materials, attachment, leader pose resolving to the CURRENT
              Body, bone names, hidden cloth, skin overrides intact). Run it again after an editor RESTART: the leader
              pointer's persistence across reload/reconstruction is UNPROVEN (see PERSISTENCE).
@@ -40,10 +43,11 @@ ROOT BONE (measured 6 Oct, fbx_skeleton_summary below on the files): UE's own bo
   <id>_SK_root.fbx (same mesh/weights/bind, armature renamed "root", Root node, Z-up) and gates its structure.
 
 PERSISTENCE: SkinnedMeshComponent.LeaderPoseComponent is a UPROPERTY(BlueprintReadOnly) TWeakObjectPtr
-  (Engine/Classes/Components/SkinnedMeshComponent.h:313-314), so it is serialized with the level [decl], but whether
-  it survives the BP actors' construction-script reruns (ConfigureShoreDrape runs on construction) and level reload
-  is [inferred, unproven]. VERIFY checks that it resolves to the CURRENT Body; if a post-restart VERIFY fails, use
-  the BP route (component in BP_<id>_Draped + SetLeaderPoseComponent inside ConfigureShoreDrape), see the report.
+  (Engine/Classes/Components/SkinnedMeshComponent.h:313-314), so it is serialized with the level [decl]. Whether it
+  survives the figure BP's construction-script rerun on load (ConfigureShoreDrape runs on construction and BeginPlay,
+  Docs/ShoreCast-20260910.md:84), which may replace the Body component object, is [inferred, unproven]; the same holds
+  for the actor attachment. VERIFY checks both resolve to the CURRENT Body. Fallbacks if a post-restart VERIFY fails:
+  see the conductor report (re-link at construction/BeginPlay, not implemented).
 
 Markers: S3SACK_START / S3SACK_PLAN / S3SACK_<MODE>_OK|run=.. / S3SACK_FAILED|run=..
 Offline: importing this file without `unreal` defines only the pure helpers (harness test_s3_sack_install_offline.py).
@@ -86,7 +90,8 @@ ROOT_BONE, FIRST_CHILD = "root", "pelvis"
 CONFIRM_WORD = "S3SACK"
 WRITE_MODES = ("IMPORT", "BUILD_MAT", "APPLY", "REVERT")
 MODES = ("DRY", "VERIFY") + WRITE_MODES
-SACK_COMPONENT, CLOTH_COMPONENT, BODY, FACE = "SackSK", "ShoreHeadCloth", "Body", "Face"
+SACK_COMPONENT, CLOTH_COMPONENT, BODY, FACE = "SackSK", "ShoreHeadCloth", "Body", "Face"   # SackSK: legacy route
+SACK_TAG = "S3.Sack"
 TOL = 1e-3
 
 FIGURES = ("Shore01_M56", "Shore02_F52", "Shore03_M59", "Shore04_F55", "Shore05_M53", "Shore06_F25")
@@ -737,6 +742,22 @@ def cloth_target(before, switch):
     return after
 
 
+def sack_label(fig):
+    return fig + " Sack"
+
+
+def relative_identity_problems(fig, s, tol_cm=0.1, tol_deg=0.01, tol_scale=1e-4):
+    """The sack actor is spawned at the Body's world transform and attached KEEP_WORLD: relative = identity."""
+    probs = []
+    if any(abs(v) > tol_cm for v in s["relative_location"]):
+        probs.append("SACK_OFFSET|%s|%s" % (fig, s["relative_location"]))
+    if any(abs(((v + 180.0) % 360.0) - 180.0) > tol_deg for v in s["relative_rotation"]):
+        probs.append("SACK_ROTATION|%s|%s" % (fig, s["relative_rotation"]))
+    if any(abs(v - 1.0) > tol_scale for v in s["relative_scale"]):
+        probs.append("SACK_SCALE|%s|%s" % (fig, s["relative_scale"]))
+    return probs
+
+
 def apply_expectation(fig, slots):
     """What VERIFY expects on a placed figure after APPLY (slots = classify_slots of the imported mesh)."""
     mats = [None, None, None]
@@ -1346,70 +1367,68 @@ def run_build_mat(run, opts, ed):
 
 
 # ------------------------------------------------------------------------------------------- APPLY / REVERT
-def _subobject_handles(actor):
-    sub = unreal.get_engine_subsystem(unreal.SubobjectDataSubsystem)
-    lib = unreal.SubobjectDataBlueprintFunctionLibrary
-    rows = []
-    for h in sub.k2_gather_subobject_data_for_instance(actor):        # SubobjectDataSubsystem.h:197
-        d = lib.get_data(h)
-        rows.append((h, d, lib.get_object(d)))
-    return sub, lib, rows
+# Route (conductor, 6 Oct 16:05, after the instance-component route failed live with BODY_HANDLE|Shore01_M56 Clam|0):
+# one SkeletalMeshActor per figure, labelled "<id> Sack", tagged S3.Sack + S3.Sack.<id>, spawned at the Body's world
+# transform and attached to Body (KEEP_WORLD), leader pose = that Body. The figure BPs are never edited.
+# Every lookup for EVERY figure runs before the first mutation, and the census is asserted unchanged after them.
+def _world():
+    return unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
 
 
-def _add_sack_component(actor, body):
-    sub, lib, rows = _subobject_handles(actor)
-    parent = [h for h, _d, o in rows if o is not None and _full(o) == _full(body)]
-    _require(len(parent) == 1, "BODY_HANDLE|%s|%d" % (actor.get_actor_label(), len(parent)))
-    params = unreal.AddNewSubobjectParams()
-    params.set_editor_property("parent_handle", parent[0])
-    params.set_editor_property("new_class", unreal.SkeletalMeshComponent)
-    params.set_editor_property("blueprint_context", None)              # instance, not the BP
-    params.set_editor_property("conform_transform_to_parent", True)
-    res = sub.add_new_subobject(params)                                 # SubobjectDataSubsystem.h:251
-    handle, reason = (res if isinstance(res, tuple) else (res, ""))
-    _require(lib.is_handle_valid(handle), "ADD_SUBOBJECT_FAILED|%s|%s" % (actor.get_actor_label(), reason))
-    renamed = sub.rename_subobject(handle, unreal.Text(SACK_COMPONENT))   # SubobjectDataSubsystem.h:319
-    d = lib.get_data(handle)
-    comp = lib.get_object(d)
-    _require(comp is not None and isinstance(comp, unreal.SkeletalMeshComponent), "NEW_COMPONENT_CLASS|%s" % comp)
-    _require(str(comp.get_name()) == SACK_COMPONENT, "RENAME|%s|%s|%s" % (actor.get_actor_label(), renamed, comp.get_name()))
-    _require(bool(lib.is_instanced_component(d)), "NOT_INSTANCE_COMPONENT|%s" % actor.get_actor_label())
-    return comp
+def _tags(actor):
+    return [str(t) for t in (actor.get_editor_property("tags") or [])]
 
 
-def _delete_sack_component(actor):
-    sub, lib, rows = _subobject_handles(actor)
-    ctx = [h for h, d, _o in rows if lib.is_actor(d)]
-    target = [h for h, _d, o in rows if o is not None and str(o.get_name()) == SACK_COMPONENT]
-    _require(len(ctx) >= 1 and len(target) == 1, "DELETE_HANDLES|%s|ctx=%d|sack=%d" % (actor.get_actor_label(), len(ctx), len(target)))
-    n = sub.delete_subobject(ctx[0], target[0], None)                  # SubobjectDataSubsystem.h:297
-    _require(int(n) == 1, "DELETE_SUBOBJECT|%s|%s" % (actor.get_actor_label(), n))
-    _require(not _components(actor, SACK_COMPONENT), "SACK_STILL_PRESENT|%s" % actor.get_actor_label())
+def _sack_actors(fig=None):
+    """Every actor that is, or claims to be, a sack: tag S3.Sack, or a label ending " Sack". GameplayStatics sees
+    transient actors too (memory puss-benches)."""
+    out = []
+    for a in unreal.GameplayStatics.get_all_actors_of_class(_world(), unreal.Actor):
+        label = str(a.get_actor_label())
+        if SACK_TAG in _tags(a) or label.endswith(" Sack"):
+            if fig is None or label == sack_label(fig) or (SACK_TAG + "." + fig) in _tags(a):
+                out.append(a)
+    return out
 
 
-def _figure_state(actor):
-    """Everything APPLY touches or must not touch, on one placed figure."""
+def _vec(v):
+    return [float(v.x), float(v.y), float(v.z)]
+
+
+def _rot(r):
+    return [float(r.roll), float(r.pitch), float(r.yaw)]
+
+
+def _figure_state(actor, fig):
+    """Everything APPLY touches or must not touch, for one placed figure (read-only)."""
     body, bm = _body_mesh(actor)
     face = _one(actor, FACE, "SkeletalMeshComponent")
     cloth = _one(actor, CLOTH_COMPONENT, "ChaosClothComponent")
+    sacks = _sack_actors(fig)
     st = {"actor": actor.get_path_name(), "label": str(actor.get_actor_label()),
           "body_mesh": _path(bm), "body_skeleton": _path(bm.get_editor_property("skeleton")),
           "body_leader": _full(_leader(body)), "body_overrides": _overrides(body), "face_overrides": _overrides(face),
-          "cloth": _cloth_state(cloth), "sack": None}
-    sacks = _components(actor, SACK_COMPONENT)
-    if sacks:
-        _require(len(sacks) == 1, "SACK_COUNT|%s|%d" % (st["label"], len(sacks)))
-        c = sacks[0]
+          "cloth": _cloth_state(cloth), "sack": None, "sack_actors": sorted(_full(a) for a in sacks),
+          # an instance component from the abandoned first route must never exist
+          "legacy_sack_component": len(_components(actor, SACK_COMPONENT))}
+    if len(sacks) == 1:
+        sa = sacks[0]
+        c = sa.get_editor_property("skeletal_mesh_component")
+        root = sa.get_editor_property("root_component")
         n = int(c.get_num_materials())
-        ap = c.get_attach_parent()
-        rel = c.get_editor_property("relative_location")
-        st["sack"] = {"class": str(c.get_class().get_name()), "mesh": _path(c.get_skeletal_mesh_asset()),
+        ap = root.get_attach_parent() if root is not None else None
+        st["sack"] = {"actor": _full(sa), "label": str(sa.get_actor_label()), "class": str(sa.get_class().get_name()),
+                      "tags": sorted(_tags(sa)), "root_is_mesh_component": _full(root) == _full(c),
+                      "mesh": _path(c.get_skeletal_mesh_asset()),
                       "materials": [_path(c.get_material(i)) for i in range(n)],
                       "attach_parent": str(ap.get_name()) if ap is not None else None,
                       "attach_parent_is_body": ap is not None and _full(ap) == _full(body),
-                      "socket": str(c.get_attach_socket_name()),
-                      "relative_location": [float(rel.x), float(rel.y), float(rel.z)],
-                      "leader": str(_leader(c).get_name()) if _leader(c) is not None else None,
+                      "attach_parent_actor_is_figure": _full(sa.get_attach_parent_actor()) == _full(actor),
+                      "socket": str(root.get_attach_socket_name()) if root is not None else None,
+                      "relative_location": _vec(root.get_editor_property("relative_location")),
+                      "relative_rotation": _rot(root.get_editor_property("relative_rotation")),
+                      "relative_scale": _vec(root.get_editor_property("relative_scale3d")),
+                      "leader": _full(_leader(c)),
                       "leader_is_current_body": _leader(c) is not None and _full(_leader(c)) == _full(body),
                       "bounds_scale": float(c.get_editor_property("bounds_scale")),
                       "visible": bool(c.is_visible()),
@@ -1423,17 +1442,20 @@ def _figure_state(actor):
 def _sack_problems(fig, st, slots, opts):
     want = apply_expectation(fig, slots)
     s = st.get("sack")
-    if s is None:
-        return ["NO_SACK|%s" % fig]
+    if s is None or len(st.get("sack_actors", [])) != 1:
+        return ["SACK_ACTORS|%s|%s" % (fig, st.get("sack_actors"))]
     probs = []
+    if s["label"] != sack_label(fig) or not {SACK_TAG, SACK_TAG + "." + fig} <= set(s["tags"]):
+        probs.append("SACK_IDENTITY|%s|%s|%s" % (fig, s["label"], s["tags"]))
+    if s["class"] != "SkeletalMeshActor" or not s["root_is_mesh_component"]:
+        probs.append("SACK_CLASS|%s|%s" % (fig, s["class"]))
     if s["mesh"] != want["mesh"]:
         probs.append("SACK_MESH|%s|%s" % (fig, s["mesh"]))
     if s["materials"] != want["materials"]:
         probs.append("SACK_MATERIALS|%s|%s" % (fig, s["materials"]))
-    if not s["attach_parent_is_body"] or s["socket"] not in ("None", ""):
+    if not (s["attach_parent_is_body"] and s["attach_parent_actor_is_figure"]) or s["socket"] not in ("None", ""):
         probs.append("SACK_ATTACH|%s|%s|%s" % (fig, s["attach_parent"], s["socket"]))
-    if any(abs(v) > 1e-3 for v in s["relative_location"]):
-        probs.append("SACK_OFFSET|%s|%s" % (fig, s["relative_location"]))
+    probs += relative_identity_problems(fig, s)
     if not s["leader_is_current_body"]:
         probs.append("SACK_LEADER|%s|%s" % (fig, s["leader"]))
     if abs(s["bounds_scale"] - opts["bounds_scale"]) > 1e-4:
@@ -1442,55 +1464,105 @@ def _sack_problems(fig, st, slots, opts):
         probs.append("SACK_HIDDEN|%s" % fig)
     if s["bone_names_missing_on_body"]:
         probs.append("SACK_BONES_NOT_ON_BODY|%s|%s" % (fig, s["bone_names_missing_on_body"]))
+    if st.get("legacy_sack_component"):
+        probs.append("LEGACY_SACKSK_COMPONENT|%s" % fig)
     return probs
 
 
-def _slots_from_import(fig):
+def _slots_from_import(fig, mesh):
     rec = _read(RECORDS["IMPORT"])
     _require(fig in rec.get("figures", {}) and rec["figures"][fig].get("saved"), "NOT_IMPORTED|" + fig)
-    return classify_slots(_mesh_slots(unreal.load_asset(mesh_path(fig))))
+    return classify_slots(_mesh_slots(mesh))
 
 
-def run_apply(run, opts, figs, ed):
+def _apply_lookups(figs):
+    """Phase 1 of APPLY: every read, for every figure, before anything is touched. Returns the plan."""
     mat_rec = _read(RECORDS["BUILD_MAT"])
     _require(mat_rec.get("saved"), "MAT_RECORD_UNSAVED")
-    eal = unreal.EditorAssetLibrary
-    missing = [p for p in [mesh_path(f) for f in figs] + list(SLOT_MI.values()) if not eal.does_asset_exist(p)]
+    api = _api_presence()
+    need = ["EditorActorSubsystem.spawn_actor_from_class", "EditorActorSubsystem.destroy_actor", "SkeletalMeshActor",
+            "Actor.attach_to_component", "SkinnedMeshComponent.set_leader_pose_component",
+            "SkeletalMeshComponent.set_skeletal_mesh_asset"]
+    _require(all(api.get(k) for k in need), "API_MISSING|%s" % [k for k in need if not api.get(k)])
+    meshes = {f: unreal.load_asset(mesh_path(f)) for f in figs}
+    mis = {r: unreal.load_asset(p) for r, p in SLOT_MI.items()}
+    missing = [mesh_path(f) for f, m in meshes.items() if m is None] + [SLOT_MI[r] for r, m in mis.items() if m is None]
     _require(not missing, "ASSETS_MISSING|%s" % missing)
-    _temp_actor_guard(ed.get_editor_world())
+    _temp_actor_guard(_world())
     actors = _figure_actors(figs)
-    slots = {f: _slots_from_import(f) for f in figs}
-    before, probs = {}, []
-    for f, a in actors.items():
-        st = _figure_state(a)
-        before[f] = st
-        if st["sack"] is not None:
-            probs.append("SACK_EXISTS|%s" % f)
+    plan, probs = {}, []
+    for f in figs:
+        a = actors[f]
+        body, _bm = _body_mesh(a)
+        cloth = _one(a, CLOTH_COMPONENT, "ChaosClothComponent")
+        st = _figure_state(a, f)
+        if st["sack_actors"]:
+            probs.append("SACK_EXISTS|%s|%s" % (f, st["sack_actors"]))
+        if st["legacy_sack_component"]:
+            probs.append("LEGACY_SACKSK_COMPONENT|%s" % f)
         if st["body_skeleton"] != SKELETON:
             probs.append("BODY_SKELETON|%s|%s" % (f, st["body_skeleton"]))
         if st["body_leader"] is not None:
             probs.append("BODY_HAS_LEADER|%s|%s (a follower of a follower is unproven)" % (f, st["body_leader"]))
+        t = body.get_world_transform()
+        plan[f] = {"actor": a, "body": body, "cloth": cloth, "mesh": meshes[f], "slots": _slots_from_import(f, meshes[f]),
+                   "before": st, "body_world": t, "folder": str(a.get_folder_path()),
+                   "body_world_rec": {"location": _vec(t.translation), "rotation": _rot(t.rotation.rotator()),
+                                      "scale": _vec(t.scale3d)}}
+    stray = [_full(x) for x in _sack_actors() if not any(_full(x) in plan[f]["before"]["sack_actors"] for f in figs)]
+    if stray:
+        probs.append("STRAY_SACK_ACTORS|%s" % stray)
     _require(not probs, "PLAN_PROBLEMS|%s" % probs)
-    record = {"run": run, "world": WORLD, "figures": figs, "opts": opts, "slots": slots, "before": before,
+    return plan, mis
+
+
+def _spawn_sack(f, p, mis, opts):
+    """Phase 3, one figure. The caller re-reads the whole end state afterwards (setters are not trusted)."""
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    t = p["body_world"]
+    sa = eas.spawn_actor_from_class(unreal.SkeletalMeshActor, t.translation, t.rotation.rotator())
+    _require(sa is not None, "SPAWN_FAILED|%s" % f)
+    sa.modify()
+    sa.set_actor_label(sack_label(f))
+    sa.set_actor_scale3d(t.scale3d)
+    sa.set_editor_property("tags", [unreal.Name(SACK_TAG), unreal.Name(SACK_TAG + "." + f)])
+    if p["folder"] not in ("", "None"):
+        sa.set_folder_path(p["folder"])
+    c = sa.get_editor_property("skeletal_mesh_component")
+    _require(c is not None, "NO_MESH_COMPONENT|%s" % f)
+    c.modify()
+    c.set_skeletal_mesh_asset(p["mesh"])                                 # SkeletalMeshComponent.h:369
+    for role, idx in p["slots"].items():
+        c.set_material(idx, mis[role])
+    c.set_editor_property("bounds_scale", p["bounds_scale"])
+    keep = unreal.AttachmentRule.KEEP_WORLD
+    sa.attach_to_component(p["body"], unreal.Name(""), keep, keep, keep, False)   # AActor::K2_AttachToComponent
+    c.set_leader_pose_component(p["body"], True)                       # SkinnedMeshComponent.h:1884
+    return sa
+
+
+def run_apply(run, opts, figs, ed):
+    c0 = _census()
+    plan, mis = _apply_lookups(figs)
+    c1 = _census()
+    _require(c1 == c0, "LOOKUP_DIRTIED|%s -> %s (a READ dirtied the editor; this tool mutated nothing)"
+             % (json.dumps(c0), json.dumps(c1)))
+    before = {f: p["before"] for f, p in plan.items()}
+    slots = {f: p["slots"] for f, p in plan.items()}
+    record = {"run": run, "world": WORLD, "route": "SkeletalMeshActor", "figures": figs, "opts": opts, "slots": slots,
+              "before": before, "body_world": {f: p["body_world_rec"] for f, p in plan.items()}, "spawned": {},
               "saved": False}
     _write(RECORDS["APPLY"], record, exclusive=True)
     record["backup"], record["backup_files"] = _backup_umap(run)
     _write(RECORDS["APPLY"], record)
-    mis = {r: unreal.load_asset(p) for r, p in SLOT_MI.items()}
-    for f, a in actors.items():
-        body, _bm = _body_mesh(a)
-        a.modify()
-        comp = _add_sack_component(a, body)
-        comp.modify()
-        comp.set_skeletal_mesh_asset(unreal.load_asset(mesh_path(f)))     # SkeletalMeshComponent.h:369
-        for role, idx in slots[f].items():
-            comp.set_material(idx, mis[role])
-        comp.set_editor_property("bounds_scale", opts["bounds_scale"])
-        comp.set_leader_pose_component(body, True)                        # SkinnedMeshComponent.h:1884
-        _set_cloth(_one(a, CLOTH_COMPONENT, "ChaosClothComponent"), cloth_target(before[f]["cloth"], opts["cloth_switch"]))
-    after = {}
-    for f, a in actors.items():
-        after[f] = _figure_state(a)
+    # ---------------- first mutation below this line
+    for f in figs:
+        plan[f]["bounds_scale"] = opts["bounds_scale"]
+        sa = _spawn_sack(f, plan[f], mis, opts)
+        record["spawned"][f] = {"path": _full(sa), "label": sack_label(f)}
+        _write(RECORDS["APPLY"], record)
+        _set_cloth(plan[f]["cloth"], cloth_target(before[f]["cloth"], opts["cloth_switch"]))
+    after = {f: _figure_state(plan[f]["actor"], f) for f in figs}
     record["after"] = after
     _write(RECORDS["APPLY"], record)
     bad = _apply_problems(figs, before, after, slots, opts)
@@ -1498,10 +1570,11 @@ def run_apply(run, opts, figs, ed):
     record["saved_packages"] = _save(ed, planned_packages("APPLY", figs))
     record["saved"] = True
     _write(RECORDS["APPLY"], record)
-    again = {f: _figure_state(a) for f, a in _figure_actors(figs).items()}
+    again = {f: _figure_state(a, f) for f, a in _figure_actors(figs).items()}
     bad = _apply_problems(figs, before, again, slots, opts)
     _require(not bad, "APPLY_READBACK_AFTER_SAVE|%s" % bad[:8])
-    return {"figures": figs, "backup": record["backup"], "saved": record["saved_packages"]}
+    return {"figures": figs, "backup": record["backup"], "saved": record["saved_packages"],
+            "sacks": {f: v["path"] for f, v in record["spawned"].items()}}
 
 
 def _apply_problems(figs, before, after, slots, opts):
@@ -1522,23 +1595,38 @@ def _apply_problems(figs, before, after, slots, opts):
 def run_revert(run, opts, ed):
     record = _read(RECORDS["APPLY"])
     _require(record.get("world") == WORLD and record.get("saved"), "RECORD_INVALID")
+    _require(record.get("route") == "SkeletalMeshActor", "RECORD_ROUTE|%s" % record.get("route"))
     figs, before, slots = record["figures"], record["before"], {f: dict(v) for f, v in record["slots"].items()}
-    _temp_actor_guard(ed.get_editor_world())
+    # ---------------- lookups (all figures) before any mutation
+    c0 = _census()
+    _temp_actor_guard(_world())
     actors = _figure_actors(figs)
-    now = {f: _figure_state(a) for f, a in actors.items()}
+    now = {f: _figure_state(a, f) for f, a in actors.items()}
     drift = _apply_problems(figs, before, now, slots, record["opts"])
     _require(not drift, "DRIFT_SINCE_APPLY|%s" % drift[:8])
+    sacks, clothes = {}, {}
+    for f in figs:
+        hits = _sack_actors(f)
+        _require(len(hits) == 1 and _full(hits[0]) == record["spawned"][f]["path"],
+                 "SACK_NOT_THE_RECORDED_ONE|%s|%s" % (f, [_full(h) for h in hits]))
+        sacks[f] = hits[0]
+        clothes[f] = _one(actors[f], CLOTH_COMPONENT, "ChaosClothComponent")
+    _require(_census() == c0, "LOOKUP_DIRTIED|%s" % json.dumps(_census()))
     backup, _ = _backup_umap(run, "Revert")
-    for f, a in actors.items():
-        a.modify()
-        _delete_sack_component(a)
-        _set_cloth(_one(a, CLOTH_COMPONENT, "ChaosClothComponent"), before[f]["cloth"])
-    back = {f: _figure_state(a) for f, a in actors.items()}
+    # ---------------- first mutation below this line
+    eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    for f in figs:
+        _require(bool(eas.destroy_actor(sacks[f])), "DESTROY_FAILED|%s" % f)
+        _set_cloth(clothes[f], before[f]["cloth"])
+    sacks.clear()
+    left = [_full(a) for a in _sack_actors()]
+    _require(not left, "SACKS_REMAIN|%s" % left)
+    back = {f: _figure_state(a, f) for f, a in actors.items()}
     bad = []
     for f in figs:
-        for k in ("cloth", "body_overrides", "face_overrides", "body_mesh", "body_leader", "sack"):
-            want = before[f][k]
-            got = back[f][k]
+        for k in ("cloth", "body_overrides", "face_overrides", "body_mesh", "body_leader", "sack", "sack_actors",
+                  "legacy_sack_component"):
+            want, got = before[f][k], back[f][k]
             if k == "cloth":
                 d = state_diff(want, got, ["visible", "suspended", "enabled", "hidden_in_game"])
                 if d:
@@ -1552,29 +1640,20 @@ def run_revert(run, opts, ed):
 
 
 # ------------------------------------------------------------------------------------------- DRY / VERIFY
+def _has(cls_name, attr=None):
+    cls = getattr(unreal, cls_name, None)
+    return cls is not None and (attr is None or hasattr(cls, attr))
+
+
 def _api_presence():
-    checks = {
-        "InterchangeGenericAssetsPipeline": hasattr(unreal, "InterchangeGenericAssetsPipeline"),
-        "InterchangePipelineStackOverride": hasattr(unreal, "InterchangePipelineStackOverride"),
-        "SubobjectDataSubsystem.add_new_subobject": hasattr(unreal.SubobjectDataSubsystem, "add_new_subobject"),
-        "SubobjectDataSubsystem.k2_gather_subobject_data_for_instance":
-            hasattr(unreal.SubobjectDataSubsystem, "k2_gather_subobject_data_for_instance"),
-        "SubobjectDataSubsystem.delete_subobject": hasattr(unreal.SubobjectDataSubsystem, "delete_subobject"),
-        "SubobjectDataSubsystem.rename_subobject": hasattr(unreal.SubobjectDataSubsystem, "rename_subobject"),
-        "SubobjectDataBlueprintFunctionLibrary.get_object":
-            hasattr(unreal.SubobjectDataBlueprintFunctionLibrary, "get_object"),
-        "AddNewSubobjectParams": hasattr(unreal, "AddNewSubobjectParams"),
-        "SkinnedMeshComponent.set_leader_pose_component": hasattr(unreal.SkinnedMeshComponent, "set_leader_pose_component"),
-        "SkeletalMeshComponent.set_skeletal_mesh_asset": hasattr(unreal.SkeletalMeshComponent, "set_skeletal_mesh_asset"),
-        "SkeletalMeshEditorSubsystem.get_bone_children": hasattr(unreal.SkeletalMeshEditorSubsystem, "get_bone_children"),
-        "SkeletalMeshEditorSubsystem.get_lod_count": hasattr(unreal.SkeletalMeshEditorSubsystem, "get_lod_count"),
-        "SkeletalMeshEditorSubsystem.get_num_verts": hasattr(unreal.SkeletalMeshEditorSubsystem, "get_num_verts"),
-        "ChaosClothComponent": hasattr(unreal, "ChaosClothComponent"),
-        "TexturePowerOfTwoSetting": hasattr(unreal, "TexturePowerOfTwoSetting"),
-        "MaterialEditingLibrary.is_material_instance_parameter_overridden":
-            hasattr(unreal.MaterialEditingLibrary, "is_material_instance_parameter_overridden"),
-    }
-    return checks
+    want = [("InterchangeGenericAssetsPipeline", None), ("InterchangePipelineStackOverride", None),
+            ("EditorActorSubsystem", "spawn_actor_from_class"), ("EditorActorSubsystem", "destroy_actor"),
+            ("SkeletalMeshActor", None), ("Actor", "attach_to_component"),
+            ("SkinnedMeshComponent", "set_leader_pose_component"), ("SkeletalMeshComponent", "set_skeletal_mesh_asset"),
+            ("SkeletalMeshEditorSubsystem", "get_bone_children"), ("SkeletalMeshEditorSubsystem", "get_lod_count"),
+            ("SkeletalMeshEditorSubsystem", "get_num_verts"), ("ChaosClothComponent", None),
+            ("TexturePowerOfTwoSetting", None), ("MaterialEditingLibrary", "is_material_instance_parameter_overridden")]
+    return {(c if a is None else c + "." + a): _has(c, a) for c, a in want}
 
 
 def run_dry(run, opts, figs):
@@ -1593,7 +1672,7 @@ def run_dry(run, opts, figs):
     actors = _figure_actors(figs)
     out["figures_live"] = {}
     for f, a in actors.items():
-        st = _figure_state(a)
+        st = _figure_state(a, f)
         _, bm = _body_mesh(a)
         tree = _bone_tree(bm)
         st["body_bones"] = len(tree)
@@ -1607,8 +1686,8 @@ def run_dry(run, opts, figs):
             out["problems"].append("BODY_SKELETON|%s|%s" % (f, st["body_skeleton"]))
         if st["body_leader"] is not None:
             out["problems"].append("BODY_HAS_LEADER|%s|%s" % (f, st["body_leader"]))
-        if st["sack"] is not None:
-            out["problems"].append("SACK_ALREADY_PRESENT|%s" % f)
+        if st["sack_actors"] or st["legacy_sack_component"]:
+            out["problems"].append("SACK_ALREADY_PRESENT|%s|%s" % (f, st["sack_actors"]))
         out["figures_live"][f] = st
     if os.path.exists(SKIN_RECORD):
         skin = _read(SKIN_RECORD)
@@ -1685,7 +1764,7 @@ def run_verify(run):
         rec = _read(RECORDS["APPLY"])
         out["stages"]["APPLY"] = rec["figures"]
         actors = _figure_actors(rec["figures"])
-        now = {f: _figure_state(a) for f, a in actors.items()}
+        now = {f: _figure_state(a, f) for f, a in actors.items()}
         out["live"] = now
         out["fails"] += _apply_problems(rec["figures"], rec["before"], now, rec["slots"], rec["opts"])
         if os.path.exists(SKIN_RECORD):
