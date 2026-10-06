@@ -145,3 +145,7 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   clam ~**3:06–3:10** (sustained section 3:06, softening 3:10) · crying/exit from **3:18** · quiet 3:53 · silence 3:56.
   Gary: walk through S3 together before changing it; **remove S3 narration for now**; **S6 audio in from the hangar landing**.
 - Gary (via W&T): edge v3 more wood-coloured (W&T slot done/pending); **girders "more realistic, not floating, more solid"** (P05 lattice columns) — queued for Rig.
+- **Fence tarps** (Gary via W&T): the pale jagged blocks are the coarse fence tarp overlays (now on all six stacked fences).
+  W&T rebuilding _v2 tarps (smooth, real tears, walkway side). Gary: "can place more tarps on the inside or flip the fence orientation"
+  — tarps should face the walkway and be more frequent. Conductor to apply: repoint overlay meshes on all six; raise variant B/C
+  weights (data); facing flip if the v2 mesh doesn't already face inward (may need a mirrored mesh or a C++ facing field).
