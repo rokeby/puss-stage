@@ -70,3 +70,20 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - 02:35 **P03 relit** (round 1+2: side lights only in bays 4/8/13/18, own-side tops, live practicals, no-cross PASS 46 spots, shadows 54→49).
   **Regression:** P03's 14 lamp housings could NOT be re-dropped (the housing tool's source DRY predates the girder phase A: beam depth
   34 vs live 90 → DRY_SOURCE_STALE). They are back at their pre-5-Oct height. Fix in the morning (refresh the housing source).
+- 02:37 Tests green after the P03/P05 relight. **Morning stills** of P02–P06 at 0.1/0.3/0.5/0.7/0.9 (all 25 frames captured; the
+  drift flags are flicker): Saved/CodexConductor/PassageStills/PSTILLS-P0n-20261006-06*-morning. P01 edge before/after and P06
+  chinoiserie before/after are in the same folder.
+- 02:42 **Rain bench: not authorable from Python** (the engine template has no stateless emitter) → Niagara session tomorrow with the fires.
+- 02:43 **Fog bench**: PREPARE ok; CAPTURE failed at once on an untested API call (pp_sources: AttributeError) — nothing changed;
+  PIE ended; Don't-Save restart cleared the bench mist actors. Fix + run in a supervised session.
+
+## Morning: what needs Gary
+1. **Lighting hand edits** (Docs/Conductor/LIGHTING_DRIFT_2026-10-06.md): P01 4, P02 12, P04 1, P06 2 hand-tuned lamps — keep /
+   overwrite / fold-into-score per light; then P01/P02/P04/P06 get their new scores.
+2. **P02 straighten**: the I1 sleight mouth camera, stalls camera, S2 handoffs, car light and lantern need re-placing (supervised).
+3. **P05 retime**: 93 bays can't fit the 42 s song (1070 cm/s) — keep long, extend/loop the song, or cut bays.
+4. **P03 floor**: Ground-off blanks Fixtures + Gridiron — new method needed (also P02's floor step).
+5. **P03 housings** are back at their old height (source DRY stale) — refresh and re-drop.
+6. **I1 shadow-play spot**: I1's bindings changed since its sleight (hand edits?) — check, then apply.
+7. Edge v2 verdict (P01 stills) → HF P01; chinoiserie → towers look (P06 stills); hand prints (lighter import pending, W&T).
+8. Snap after pause: run with `InfinityStage.SeamDiag 1` and reproduce; HUD toggles with H; hold Left rewinds.

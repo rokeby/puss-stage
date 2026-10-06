@@ -1,0 +1,20 @@
+{
+ "assets_in_bench_folder": [],
+ "authorable": false,
+ "census_after": {
+  "content": [],
+  "maps": []
+ },
+ "census_before": {
+  "content": [],
+  "maps": []
+ },
+ "emitter_error": "P04_RAIN_BENCH_FAILED|run=?|step=?|reason=class_not_exposed|NiagaraStatelessEmitter",
+ "missing": [
+  "one_stateless_emitter(found 0)"
+ ],
+ "run": "PROBE-20261006-064209",
+ "stateless_emitters": [],
+ "template": "/Niagara/DefaultAssets/Templates/Systems/FountainLightweight.FountainLightweight",
+ "template_loaded": true
+}
