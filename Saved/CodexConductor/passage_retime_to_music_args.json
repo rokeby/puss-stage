@@ -3,10 +3,8 @@
  "confirm": "DRY RETIME",
  "run_id": null,
  "passages": [
-  "2",
   "3",
-  "4",
-  "5"
+  "4"
  ],
  "passages_note": "Gary 5 Oct: retime P02-P05 in one run; P02 waits for p02_straighten. Split runs also work: [\"3\",\"4\",\"5\"] first, then [\"2\"] (own record each, LIFO revert).",
  "tail_s": 2.0,
@@ -34,13 +32,21 @@
    "guid": "49F93D652B46B99C10116EBAE927A3C6",
    "song_s": 40.217914,
    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P03_Walking3_Cameron",
-   "expected": null
+   "expected": {
+    "new_len_ticks": 1013760,
+    "old_len_ticks": 4320000,
+    "route_cm": 10921.9728
+   }
   },
   "4": {
    "guid": "0067B5F57142956FB5B80EA31B1210B5",
    "song_s": 48.397664,
    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P04_Walking4_pad10_Cameron",
-   "expected": null,
+   "expected": {
+    "new_len_ticks": 1209600,
+    "old_len_ticks": 4320000,
+    "route_cm": 10668.4695
+   },
    "note": "padded +10 s silence kept (Gary 5 Oct)"
   },
   "5": {
