@@ -90,3 +90,7 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - ~06:00 **Hand prints (W&T)**: lighter import done (3 textures, BaseColor 4096 per Gary); v1 decal master failed to compile (unreferenced);
   v2 compiled and 395 decals placed but **did not render** (per-decal DecalColor atlas index likely clamped) → **reverted** (0 left,
   backup PreHPS03Revert-20261006-1002). Next: one MI per atlas element in batches ≤20, a 2-decal PIE test, then re-place.
+- ~06:30 **Hand prints placed (W&T v3)**: 395 decals, 178 per-element MIs, render fingers-up on both S3 marble walls
+  (stills Saved/CodexFlatV3/handprints/stills/hp_full_LR.jpg). **Look issue for Gary:** the prints sit at z 45–241, behind the
+  S3 wave-row flats (z −5…255), so from the hangar centre they're hidden except where the waves slide away — raise them above
+  the waves (~2.6–4 m), or keep them as a reveal when the waves part. Revert: hp_revert_decals.
