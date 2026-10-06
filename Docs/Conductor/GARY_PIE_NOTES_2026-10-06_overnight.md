@@ -87,3 +87,6 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 6. **I1 shadow-play spot**: I1's bindings changed since its sleight (hand edits?) — check, then apply.
 7. Edge v2 verdict (P01 stills) → HF P01; chinoiserie → towers look (P06 stills); hand prints (lighter import pending, W&T).
 8. Snap after pause: run with `InfinityStage.SeamDiag 1` and reproduce; HUD toggles with H; hold Left rewinds.
+- ~06:00 **Hand prints (W&T)**: lighter import done (3 textures, BaseColor 4096 per Gary); v1 decal master failed to compile (unreferenced);
+  v2 compiled and 395 decals placed but **did not render** (per-decal DecalColor atlas index likely clamped) → **reverted** (0 left,
+  backup PreHPS03Revert-20261006-1002). Next: one MI per atlas element in batches ≤20, a 2-decal PIE test, then re-place.
