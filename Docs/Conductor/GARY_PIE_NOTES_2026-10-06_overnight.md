@@ -102,3 +102,6 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   realistic 1.2 × 1.2 m coffee-sack hessian/burlap** with thickness and weight (like the entry curtain), covering the body so the
   white underpants don't show (legs and arms visible beneath). Nearby: a **pile of dry rags/dregs/sackcloth** on **low beachy sand
   mounds** (lower priority). Investigation + plan under way (Docs/Conductor/S3_SACKCLOTH_PLAN_2026-10-06.md).
+- **S3 sackcloth decisions** (Gary): **1.8 × 1.8 m**; motion "try option 1" = drape once in Blender per figure, skinned to the body,
+  fixed folds (live drapes off, reversible — they cost ~13 ms); **old grey worn sack**; export of the six posed bodies approved.
+  Plan: Docs/Conductor/S3_SACKCLOTH_PLAN_2026-10-06.md (CC0 Poly Haven hessian_230 texture; download to be confirmed).
