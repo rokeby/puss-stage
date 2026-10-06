@@ -433,3 +433,258 @@ Agent-hours are inferred. Editor steps need a free editor and, for writes, Gary'
   proxy. Tune `--bend`/`--compression` on a real body in step 4 and judge from the pictures, not the numbers (curtain
   lesson).
 - **Not written:** `--mode skin` (step 6), the UE material builder (step 7) and the placement tool (step 11).
+
+---
+
+## 8. 6 Oct follow-up: Gary's answers and what was built
+
+### 8.1 Gary's answers (relayed by the conductor)
+
+- **Size:** 1.8 × 1.8 m.
+- **Route:** D, drape-then-skin: fixed folds that ride the body, no live hem. In his words: "Let's try option 1 and
+  see if it looks ok".
+- **Look:** "Old grey worn sack" for all figures. No golden jute, no stencil.
+- **Export of the six posed bodies:** "Yes, export now".
+- **Texture:** `hessian_230` 2K was downloaded with his OK, to `DerivedAssets/S3Sackcloth/textures/hessian_230/`
+  (diff, nor_dx, rough, ao, disp, mask, plus `manifest.json` with sha256 and the Poly Haven md5) [decl: manifest].
+  Step 3 is done.
+
+### 8.2 Export tool: `Saved/CodexConductor/s3_shore_export_bodies.py` (+ `_run.py`, `_request.json`)
+
+**Status:** written and **not run** (no MCP from this session). Its offline part has run (8.2.3).
+
+#### 8.2.1 What it does
+
+- Read-only on the level and the Show.
+- **Inputs:** for each figure it uses the level actor `<id> Clam`, asserting the class is `BP_<id>_Draped_C`, and
+  that actor's `Body` and `Face` components.
+- **Exports**, with `AssetExportTask` + `FbxExportOption`, to `DerivedAssets/S3Sackcloth/bodies/<id>/`:
+  - `<id>_Body.fbx` (the body skeletal mesh, reference pose);
+  - `<id>_Face.fbx` (the face skeletal mesh; it carries the head the drape rests on: the MetaHuman body mesh stops at
+    the neck [inf, MetaHuman layout]);
+  - `<id>_Anim.fbx` (the figure's full `AS_<id>_*_Full` take; skeleton plus curves).
+- **Writes** `bodies/export_manifest.json`: paths, bytes, sha256, the anim frame count / length / fps, the pose time
+  and frame, and the actor and Body world transforms.
+- **Never** loads a LevelSequence. The scene section comes from the records (`shore_gentle_motion_selection.json`,
+  cross-checked against `shore_clam_integration.json`); it fails on a mismatch.
+- **Never** saves.
+- **Census:** the dirty-package census must be identical before and after.
+- **Refuses** if PIE is running. It never ends PIE.
+- **Marker:** `S3_SHORE_EXPORT_OK|run=…|figures=6|files=18|census=…|manifest=…`. Any failure is
+  `S3_SHORE_EXPORT_FAILED|run=…|reason=…`.
+
+#### 8.2.2 API basis
+
+**Declaration-proven:**
+- `UAssetExportTask` fields: `Runtime/Engine/Public/AssetExportTask.h:20-65`.
+- `UExporter::RunAssetExportTask`, a static `BlueprintCallable`: `Runtime/Engine/Classes/Exporters/Exporter.h:254-255`.
+- `UFbxExportOption` flags: `Editor/UnrealEd/Classes/Exporters/FbxExportOption.h:69-115`.
+- `USkeletalMeshExporterFBX` and `UAnimSequenceExporterFBX`: `Editor/UnrealEd/Classes/Exporters/`.
+- `GetNumFrames` / `GetSequenceLength` take out-params, so Python gets return values:
+  `Editor/AnimationBlueprintLibrary/Public/AnimationBlueprintLibrary.h:73,598`.
+
+**Inferred** (no exporter .cpp in the install, memory *ue58-engine-source-limits*):
+- the exact bind pose, units and axes written;
+- whether Python exposes the exporter classes. The tool falls back to "by extension".
+- These are checked on the Blender side.
+
+**Why not a posed mesh directly** [decl]: no exporter in the headers writes a skeletal mesh in an animated pose. So
+Blender poses it from mesh + anim (8.3).
+
+#### 8.2.3 Pose frames
+
+Picked offline [meas: `python s3_shore_export_bodies.py`, 6 Oct]. Each is the 0.5 s sample inside the figure's scene
+window whose head height is nearest the window median.
+
+| Figure | Section start | Pose source time | Head z |
+|---|---|---|---|
+| Shore01 | 12.5 | 27.0 s | 161.2 cm |
+| Shore02 | 49.0 | 57.5 s | 94.0 cm |
+| Shore03 | 33.0 | 40.5 s | 152.7 cm |
+| Shore04 | 72.5 | 80.0 s | 142.5 cm |
+| Shore05 | 14.0 | 19.5 s | 154.3 cm |
+| Shore06 | 28.5 | 32.0 s | 152.5 cm |
+
+### 8.3 `build_sackcloth.py --mode skin` (route D)
+
+#### 8.3.1 Steps
+
+1. **Pose.**
+   - Import the three FBX files from the manifest. The scene fps is set to the anim's first, so seconds map to frames.
+   - Measure the rest body + face height and rescale cm→m if needed.
+   - Go to the pose frame and copy the anim rig's pose onto the body and face rigs (`copy_pose`).
+   - **Two copy modes:**
+     - `matrix`: full bone transforms;
+     - `rotation`: anim rotations on the body's own bone offsets, i.e. UE's "Skeleton" translation retargeting.
+   - `auto` (the default) keeps whichever puts the head bone nearest the UE record. The check
+     `pose_head_z_matches_record` (3 cm) fails the run otherwise.
+   - This matters because the anim FBX's rig carries `metahuman_base_skel`'s proportions, not each body's.
+2. **Colliders.** Make static posed copies of body + face as colliders.
+3. **Crown.** The crown is the highest collider point within 25 cm of the head bone (`--crown head`), so bowed
+   Shore02 gets its crown, not its back.
+4. **Drape** the 1.8 × 1.8 m sheet with the 7 mm solidify and the frayed border.
+5. **Weights.**
+   - Data Transfer (nearest face, interpolated) from the posed body + face.
+   - Every weight is remapped to its nearest ancestor in the chain: head, neck_01/02, spine_01-05, clavicle_l/r,
+     upperarm_l/r. Hands → upper arm; facial bones → head; pelvis and legs → `spine_01`.
+   - Non-bone groups such as the cloth's `Pin` are dropped.
+   - Then 3 Laplacian smoothing passes, top-4 influences, and normalise.
+6. **Bind.**
+   - A copy of the body rig with the **pose applied as rest**, named `Armature`. The sack's bind pose is therefore
+     the drape pose.
+   - In UE, leader pose drives it from the Body's live bones [inf: standard; a follower skins with its own
+     inverse-bind matrices].
+7. **Export and verify.** Export `<out-id>_SK.fbx`, re-import it and compare. The checks:
+   - `skin_bind_is_identity` (< 0.1 mm);
+   - `skin_roundtrip_within_5mm` (head bone and bounding box);
+   - `skin_unweighted_under_1pct`.
+
+#### 8.3.2 Harness
+
+`Tools/S3Sackcloth/make_synthetic_rig.py` writes a synthetic body/face/anim FBX set at cm scale with a manifest of the
+same shape:
+- the MetaHuman bone names;
+- an anim rig whose spine is 5% longer than the body's.
+
+#### 8.3.3 Measured on the synthetic rig (6 Oct, Blender 4.4.0, 4 cm quads, scratchpad outputs)
+
+**The whole skin path runs:**
+- head z matches the record to 0.0 mm in `matrix` mode. `rotation` mode is 2.25 cm off, so `auto` discriminates;
+- 0 unweighted vertices;
+- bind error 3e-7 m;
+- re-import head and bounding-box error under 4e-7 m;
+- 22 bones exported.
+
+**Coverage at 1.8 m does NOT reach the crotch on a 1.77 m stand-in:**
+- At default settings the outer-hem P10 was **1.0-1.1 m above the feet** and the median 1.3-1.5 m, against a 0.80 m
+  target. `hem_median_below_target` correctly FAILS.
+- The stand-in is a 34 cm-wide cylinder with no shoulders, so the fabric gathers and bells out around a narrow
+  column [inf]. The real bodies decide (step 4).
+- **If it is still short** on a real body, the levers:
+  - `--pin-offset 0,0.2` (more cloth to the front);
+  - `--yaw 45` (corners front and back; the one try on the stand-in slid sideways, so look at the stills);
+  - 2.0 m.
+  - Gary's eye decides.
+
+**Settle defaults** for drape and skin, chosen from stills on the stand-in:
+- compression 20, bend 1, friction 2, quality 20 / collision 8, **air damping 6**, 240 frames.
+- At air damping 1 the far edges flipped back over the head. With compression 4 the sheet crumpled into a cap.
+- These are a starting point, not a tune.
+- Pile mode keeps its own defaults (compression 4, bend 2, friction 8, air 1, 120 frames); its regression run passed
+  (`SACK_OK`).
+
+**Other measurements:**
+- **Two bugs fixed by measuring:**
+  - worn holes counted as "hem" and read 0.3 m high, so the hem is now the outer boundary in the flat pattern;
+  - the `vertex_group_smooth` operator's poll fails headless, so the smoothing is now done in the tool.
+- **Cost:** 0.25 s/frame at 4 cm on the stand-in. Real bodies at 2 cm should be ~1-2 s/frame, ~4-8 min per figure [inf].
+
+**Not exercised:** a real UE FBX (units, axes, the bone count of about 1000, the face rig's root). The re-import and
+head checks are the gates.
+
+#### 8.3.4 Commands per figure (after the export)
+
+```
+"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" -b --factory-startup --python Tools/S3Sackcloth/build_sackcloth.py -- --mode skin --figure Shore01_M56 --out-id Shore01_M56_Sack --quad 0.02 --render
+```
+
+Outputs, in `DerivedAssets/S3Sackcloth/`:
+- `<id>_Sack.json`: checks and metrics;
+- `_34.png` / `_side.png`: stills for Gary;
+- `<id>_Sack_SK.fbx`: the skeletal mesh;
+- `<id>_Sack.fbx`: a static preview.
+
+### 8.4 UE import and material builder plan (not written; create-only; conductor runs; Gary's yes for the writes)
+
+**Builder:** `Saved/CodexConductor/s3_sackcloth_build.py`, DRY / APPLY / VERIFY. It copies `velvet_v2_build.py`'s
+scaffolding:
+- refuse if a target exists;
+- never delete a node (memory *ue58-python-material-authoring*);
+- assert every connection and re-read every edge;
+- gate on material-instance read-back, not on setter bools;
+- refuse if content is dirty before; save only its own packages;
+- pixel-shader instruction count above 0 at VERIFY.
+
+**1. Textures** → `/Game/Scenes/S3/Sackcloth/Textures/`, from `DerivedAssets/S3Sackcloth/textures/hessian_230/`:
+
+| Texture | Source map | Settings |
+|---|---|---|
+| `T_Sack_Hessian230_BC` | diff | sRGB |
+| `T_Sack_Hessian230_N` | nor_dx | `TC_Normalmap`; DirectX is UE's convention |
+| `T_Sack_Hessian230_R` | rough | linear grayscale; memory: use `LINEAR_GRAYSCALE` |
+| `T_Sack_Hessian230_AO` | ao | linear grayscale |
+| `T_Sack_Hessian230_H` | disp | linear grayscale |
+| `T_Sack_Hessian230_Mask` | mask | linear grayscale; for the later see-through variant |
+
+- Use AssetImportTask with options set, and **diff the folder before and after** (memory *ue58-fbx-import-traps*:
+  stray assets).
+- The rough, AO and disp PNGs are 16-bit (`I;16`) [meas: PIL]. **Check** that UE imports them as G16, not 8-bit.
+
+**2. `M_Sackcloth`** (master):
+- **Model and flags:** Default Lit, opaque, NOT two-sided (solidify gives real back faces). Usage: Skeletal Mesh, Static
+  Mesh (the rag pile), Nanite.
+- **Coordinates:** UV0 is in metres, so `TexCoord0 / TileM` (TileM 0.269).
+- **Base colour:**
+  - `BC × lerp(1, Mottle, MottleAmount)`. The mottle is low-frequency noise on world position, 0.5 m, ±8%.
+  - Then desaturate by `Desaturate` and multiply by `Tint`.
+  - Then `lerp(…, GrimeColor, GrimeMask)`. GrimeMask = saturate((`HemGrimeHeightM` − world Z above the ground plane
+    param) / falloff), maxed with `(1 − UV1.x / EdgeGrimeWidthM)` × EdgeGrimeAmount.
+  - UV1.x is the torn-edge distance written by the tool.
+- **Normal:** `T_N` with `NormalStrength` (FlattenNormal), plus a 1 m crumple normal from noise at 0.15.
+- **Roughness:** `T_R × RoughnessScale` (start 1.0, clamp 0.75-1.0).
+- **Specular:** 0.3.
+- **AO:** `T_AO`.
+- **Rim:** `Fresnel(exp RimExponent 4) × RimAmount 0.06 × RimColor` added to the base colour: loose-fibre glint at
+  grazing light.
+- **No parallax, no displacement in pass 1.**
+- **Slots (from the tool):** `Sack_Front` → `MI_Sackcloth_OldGrey`; `Sack_Back` → `MI_Sackcloth_OldGrey_Inner`;
+  `Sack_Edge` → `MI_Sackcloth_OldGrey`.
+
+**3. `MI_Sackcloth_OldGrey`** (Gary: "old grey worn sack"):
+- Desaturate 0.75, Tint linear 0.62/0.60/0.56;
+- MottleAmount 0.10, GrimeColor 0.10/0.09/0.08, HemGrimeHeightM 0.35, EdgeGrimeWidthM 0.03, EdgeGrimeAmount 0.6;
+- RoughnessScale 1.0, NormalStrength 1.0, RimAmount 0.05.
+
+`MI_Sackcloth_OldGrey_Inner`: the same with InnerDarken 0.7 and NormalStrength 0.6.
+
+All values are starting points [inf]. Gary judges them from stills.
+
+**4. Skeletal meshes** → `/Game/Scenes/S3/Sackcloth/SK_S3_Sack_<id>` from `DerivedAssets/S3Sackcloth/<id>_Sack_SK.fbx`:
+- Skeleton = the figure's body skeleton, read from the export manifest's `skeleton` (record:
+  `/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel`).
+- Import as a skeletal mesh only: no animations, no materials or textures, no morph targets, no physics asset; keep the
+  mesh's own reference pose (do **not** use T0 as the reference pose).
+- Through Interchange, read every option back.
+- **Gates:**
+  - one LOD;
+  - three material slots;
+  - bone count equals the Blender export's;
+  - the skeleton is the body's;
+  - a probe actor with leader pose set at the pose time puts the sack within 1 cm of the Blender bounding box (bench,
+    no save).
+
+**5. Wire, per figure** (backup `Backups/PreS3Sackcloth-YYYYMMDD-HHMM`: the six BPs and the level):
+- In `BP_<id>_Draped`, add a `SackCloth` SkeletalMeshComponent (the asset above, the OldGrey MIs per slot), parented
+  to Body.
+- In the construction script, call `SetLeaderPoseComponent(Body)`. That is the pattern `ConfigureShoreDrape` uses for
+  the head cloth.
+- Hide `ShoreHeadCloth` and set Enable Simulation false. Do not delete it (reversible).
+- **Never** give a cloth asset to a pose or skeletal component (crash memory).
+- Save only those packages. Read back.
+- Verify in PIE (stills at B02/B04/B08, `stat` frame A/B, scrub jumps); the conductor must not end PIE.
+
+### 8.5 Order of runs for the conductor
+
+1. `python Saved/CodexMocap/mcp_request.py tools/call --params-file Saved/CodexConductor/s3_shore_export_bodies_request.json`
+   - Expect `S3_SHORE_EXPORT_OK|run=…|figures=6|files=18`.
+   - Then check `DerivedAssets/S3Sackcloth/bodies/export_manifest.json` and that the census is empty before and after.
+2. **Size and look test** on Shore01 (upright) and Shore02 (bowed), about 5-10 min each. Show the stills to Gary:
+   ```
+   "C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" -b --factory-startup --python Tools/S3Sackcloth/build_sackcloth.py -- --mode skin --figure Shore01_M56 --out-id Shore01_M56_Sack --render
+   ```
+   - Then the same with `Shore02_F52`.
+   - **Gate:** all checks pass except possibly `hem_median_below_target`, which is a coverage question for Gary,
+     with the levers in 8.3.3.
+3. **The other four** with the same command, then the 2 cm-quad finals for all six (`--quad 0.02`).
+4. **The UE builder and import** (8.4): to be written, then DRY → APPLY (Gary's yes) → VERIFY.
+5. **Wiring** (8.4 item 5): Gary's yes.

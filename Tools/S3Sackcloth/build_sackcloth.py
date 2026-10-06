@@ -51,6 +51,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "DerivedAssets" / "S3Sackcloth"
+SKIN_BONES = ["head", "neck_01", "neck_02", "spine_01", "spine_02", "spine_03", "spine_04", "spine_05",
+              "clavicle_l", "clavicle_r", "upperarm_l", "upperarm_r"]
 HESSIAN_TILE_M = 0.269          # Poly Haven hessian_230 declared dimensions 268.75 x 267.2 mm (api.polyhaven.com/info)
 
 
@@ -58,32 +60,38 @@ HESSIAN_TILE_M = 0.269          # Poly Haven hessian_230 declared dimensions 268
 def build_parser():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--dry-run", action="store_true", help="validate and print the plan; no Blender")
-    p.add_argument("--mode", choices=("drape", "pile"), default="drape")
+    p.add_argument("--mode", choices=("drape", "pile", "skin"), default="drape")
     p.add_argument("--out-id", default="sack_scout")
     p.add_argument("--out-dir", default=str(DEFAULT_OUT))
     p.add_argument("--seed", type=int, default=20261006)
     # fabric
-    p.add_argument("--size-x", type=float, default=1.2, help="sheet width, m (Gary: 1.2)")
-    p.add_argument("--size-y", type=float, default=1.2, help="sheet length, m (Gary: 1.2); Y runs front-back")
+    p.add_argument("--size-x", type=float, default=1.8, help="sheet width, m (Gary, 6 Oct: 1.8 x 1.8)")
+    p.add_argument("--size-y", type=float, default=1.8, help="sheet length, m (Gary, 6 Oct: 1.8 x 1.8); Y = front-back")
     p.add_argument("--quad", type=float, default=0.02, help="sim edge length, m (2 cm: ~3.7k verts at 1.2 m)")
     p.add_argument("--thickness", type=float, default=0.007, help="solidify thickness, m (Gary: heft; 6-8 mm)")
     p.add_argument("--solver-mass", type=float, default=13.4,
                    help="Blender SOLVER areal mass, kg/m2 (NOT the fabric's: real sacking 0.3-0.6 kg/m2 floats in "
                         "Blender's default stiffness/damping; 13.4 = the approved curtain, 0.1111 kg per 9.1 cm vertex)")
-    p.add_argument("--bend", type=float, default=2.0, help="bending stiffness (jute holds round folds; velvet 5)")
+    p.add_argument("--bend", type=float, default=None,
+                   help="bending stiffness; default drape/skin 1.0, pile 2.0 (velvet curtain 5)")
     p.add_argument("--tension", type=float, default=40.0, help="curtain default 40")
-    p.add_argument("--compression", type=float, default=4.0, help="low: heavy cloth must buckle, not stand")
-    p.add_argument("--air-damping", type=float, default=1.0)
+    p.add_argument("--compression", type=float, default=None,
+                   help="default drape/skin 20 (4 crumpled the drape into a cap, synthetic A/B 6 Oct), pile 4")
+    p.add_argument("--air-damping", type=float, default=None,
+                   help="default drape/skin 6 (a quasi-static settle: at 1 the far edges flipped back over the head, "
+                        "synthetic rig 6 Oct), pile 1")
     p.add_argument("--self-dist", type=float, default=0.006, help="self-collision distance, m (~thickness)")
-    p.add_argument("--friction", type=float, default=8.0)
-    p.add_argument("--quality", type=int, default=20)
+    p.add_argument("--friction", type=float, default=None, help="default drape/skin 2, pile 8")
+    p.add_argument("--quality", type=int, default=None, help="default drape/skin 10, pile 20 (anti-swell)")
     p.add_argument("--collision-quality", type=int, default=8)
     p.add_argument("--fray-depth", type=float, default=0.035, help="torn-edge depth into the sheet, m")
     p.add_argument("--fray-holes", type=int, default=3, help="small worn holes per m2")
     # drape
     p.add_argument("--collider", default="", help="posed body: .fbx (armature ok) / .obj / .abc, any units")
     p.add_argument("--collider-scale", type=float, default=0.0, help="force a scale; 0 = auto (cm -> m)")
-    p.add_argument("--crown", default="auto", help="'auto' (top of collider) or 'x,y,z' in metres, world")
+    p.add_argument("--crown", default="auto",
+                   help="'auto' (top of collider), 'head' (highest collider point within 25 cm of the posed head "
+                        "bone; default in skin mode, right for bowed figures) or 'x,y,z' in metres, world")
     p.add_argument("--pin-offset", default="0,0", help="pin point on the sheet from its centre, m (x,y)")
     p.add_argument("--pin-radius", type=float, default=0.06, help="pinned disc radius on the sheet, m")
     p.add_argument("--yaw", type=float, default=0.0, help="sheet yaw about Z, degrees")
@@ -91,6 +99,20 @@ def build_parser():
     p.add_argument("--head-bone", default="", help="hook the pin disc to this armature bone (animated drape)")
     p.add_argument("--target-hem-z", type=float, default=0.0,
                    help="m above the collider's feet the hem should reach below (crotch ~0.45 x height); 0 = auto")
+    # skin (route D): pose the exported body, drape, transfer weights, export a skeletal mesh
+    p.add_argument("--figure", default="", help="skin: figure id, e.g. Shore01_M56 (reads the export manifest)")
+    p.add_argument("--manifest", default=str(DEFAULT_OUT / "bodies" / "export_manifest.json"),
+                   help="skin: written by Saved/CodexConductor/s3_shore_export_bodies.py")
+    p.add_argument("--pose-seconds", type=float, default=-1.0, help="skin: override the manifest's pose time (source s)")
+    p.add_argument("--skin-bones", default=",".join(SKIN_BONES), help="skin: allowed deform bones (chain)")
+    p.add_argument("--skin-fallback", default="spine_01", help="skin: bone for weights with no allowed ancestor")
+    p.add_argument("--max-influences", type=int, default=4)
+    p.add_argument("--pose-copy", choices=("auto", "matrix", "rotation"), default="auto",
+                   help="skin: 'matrix' = full bone transforms from the anim; 'rotation' = anim rotations on the "
+                        "body's own bone offsets; auto = whichever puts the head nearest the UE motion record")
+    p.add_argument("--skin-smooth", type=int, default=3, help="skin: weight smoothing passes")
+    p.add_argument("--head-tolerance", type=float, default=0.03,
+                   help="skin: posed head-bone z must match the UE motion record within this, m")
     # pile
     p.add_argument("--pieces", type=int, default=9)
     p.add_argument("--piece-min", type=float, default=0.45, help="m, shortest piece side")
@@ -99,7 +121,7 @@ def build_parser():
     p.add_argument("--mound-height", type=float, default=0.18, help="m")
     p.add_argument("--crumple", type=float, default=0.08, help="pre-crumple amplitude, m")
     # run
-    p.add_argument("--frames", type=int, default=120, help="settle frames at 30 fps (animated: the clip length)")
+    p.add_argument("--frames", type=int, default=None, help="settle frames at 30 fps; default drape/skin 240, pile 120")
     p.add_argument("--fps", type=int, default=30)
     p.add_argument("--export-abc", action="store_true")
     p.add_argument("--no-fbx", action="store_true")
@@ -133,11 +155,36 @@ def validate(a):
     rng("collision-quality", a.collision_quality, 2, 20)
     rng("frames", a.frames, 10, 20000)
     rng("fray-depth", a.fray_depth, 0.0, 0.15)
-    if a.mode == "drape":
+    if a.mode == "skin":
+        if not a.figure:
+            err.append("--figure is required in skin mode (e.g. Shore01_M56)")
+        elif Path(a.manifest).is_file():
+            try:
+                rows = {r["id"]: r for r in json.loads(Path(a.manifest).read_text(encoding="utf-8"))["figures"]}
+                row = rows.get(a.figure)
+                if row is None:
+                    err.append(f"figure {a.figure} not in {a.manifest}")
+                else:
+                    for key in ("body_fbx", "face_fbx", "anim_fbx"):
+                        if not Path(row[key]["file"]).is_file():
+                            err.append(f"{key} missing: {row[key]['file']}")
+            except (ValueError, KeyError) as e:
+                err.append(f"manifest unreadable: {e}")
+        elif not a.dry_run:
+            err.append(f"manifest not found: {a.manifest} (run the UE export first)")
+        else:
+            warn.append(f"manifest not found yet: {a.manifest} (dry run continues)")
+        if a.crown == "auto":
+            a.crown = "head"
+        bad = [b for b in a.skin_bones.split(",") if not b.strip()]
+        if bad or a.skin_fallback not in a.skin_bones.split(","):
+            err.append("--skin-fallback must be one of --skin-bones")
+        rng("max-influences", a.max_influences, 1, 8)
+    if a.mode in ("drape", "skin"):
         n = (int(round(a.size_x / a.quad)) + 1) * (int(round(a.size_y / a.quad)) + 1)
         if min(a.size_x, a.size_y) / a.quad < 20:
             err.append("fewer than 20 quads across the sheet: folds will be knife-edged (curtain lesson)")
-        if not a.dry_run and not a.collider:
+        if a.mode == "drape" and not a.dry_run and not a.collider:
             err.append("--collider is required in drape mode (a posed body exported from UE; plan step 2)")
         if a.collider and Path(a.collider).suffix.lower() not in (".fbx", ".obj", ".abc"):
             err.append(f"collider must be .fbx/.obj/.abc: {a.collider}")
@@ -145,7 +192,7 @@ def validate(a):
             err.append(f"collider not found: {a.collider}")
         if a.head_bone and a.collider and Path(a.collider).suffix.lower() != ".fbx":
             err.append("--head-bone needs an FBX armature collider")
-        if a.crown != "auto":
+        if a.crown not in ("auto", "head"):
             try:
                 parse_vec(a.crown, 3)
             except ValueError as e:
@@ -189,6 +236,277 @@ def validate(a):
             "uv0": f"metres (material tile {HESSIAN_TILE_M} m)", "coverage_arithmetic_INFERRED": cover}
     return err, warn, plan
 
+
+
+# ----------------------------------------------------------------------------------------------- skin mode helpers
+def _import_fbx(path):
+    import bpy
+    objs0, acts0 = set(bpy.data.objects), set(bpy.data.actions)
+    bpy.ops.import_scene.fbx(filepath=str(path), use_anim=True, ignore_leaf_bones=False,
+                             automatic_bone_orientation=False)
+    return [o for o in bpy.data.objects if o not in objs0], [x for x in bpy.data.actions if x not in acts0]
+
+
+def _one(objs, kind, what):
+    hits = [o for o in objs if o.type == kind]
+    if len(hits) != 1:
+        raise SystemExit(f"SACK_FAIL|{what}: expected 1 {kind}, got {len(hits)}")
+    return hits[0]
+
+
+def copy_pose(src, dst, mode="matrix"):
+    """Give dst's bones the ARMATURE-SPACE matrices of src's same-named bones, parents first.
+
+    Copying full matrices (not the action's rest-relative deltas) makes the result independent of the two rigs'
+    rest poses: the anim FBX's armature carries the skeleton's reference pose, the body FBX the mesh's own
+    (MetaHuman bodies differ in proportions). Unmatched dst bones (facial bones) keep their rest pose.
+    """
+    import bpy
+    depth = {}
+
+    def d(b):
+        if b.name not in depth:
+            depth[b.name] = 0 if b.parent is None else d(b.parent) + 1
+        return depth[b.name]
+
+    names = sorted((b.name for b in dst.data.bones if b.name in src.pose.bones), key=lambda n: d(dst.data.bones[n]))
+    to_dst = dst.matrix_world.inverted() @ src.matrix_world
+    level = None
+    for n in names:
+        if d(dst.data.bones[n]) != level:
+            bpy.context.view_layer.update()
+            level = d(dst.data.bones[n])
+        sp, db = src.pose.bones[n], dst.data.bones[n]
+        if mode == "matrix" or db.parent is None or sp.parent is None:
+            dst.pose.bones[n].matrix = to_dst @ sp.matrix
+        else:
+            # rotation from the anim, translation (bone offset) from the BODY's own rest: UE's "Skeleton"
+            # translation-retargeting reading of the same keys
+            local = sp.parent.matrix.inverted() @ sp.matrix
+            rest_local = db.parent.matrix_local.inverted() @ db.matrix_local
+            m = local.to_quaternion().to_matrix().to_4x4()
+            m.translation = rest_local.translation
+            dst.pose.bones[n].matrix = dst.pose.bones[db.parent.name].matrix @ m
+    bpy.context.view_layer.update()
+    return len(names)
+
+
+def pose_figure(a, scene, report):
+    """Import the UE export (body, face, anim FBX), pose body + face at the pose frame, return static colliders."""
+    import bpy
+    from mathutils import Matrix
+    rows = {r["id"]: r for r in json.loads(Path(a.manifest).read_text(encoding="utf-8"))["figures"]}
+    row = rows[a.figure]
+    fps = float(row["anim_fps_n_over_len"])
+    scene.render.fps = max(1, int(round(fps)))
+    scene.render.fps_base = scene.render.fps / fps          # exact rate, so seconds map to frames 1:1
+    body_objs, _ = _import_fbx(row["body_fbx"]["file"])
+    face_objs, _ = _import_fbx(row["face_fbx"]["file"])
+    anim_objs, actions = _import_fbx(row["anim_fbx"]["file"])
+    A = _one(body_objs, "ARMATURE", "body FBX")
+    F = _one(face_objs, "ARMATURE", "face FBX")
+    C = _one(anim_objs, "ARMATURE", "anim FBX")
+    body_meshes = [o for o in body_objs if o.type == "MESH"]
+    face_meshes = [o for o in face_objs if o.type == "MESH"]
+    for o in anim_objs:                                     # a preview mesh, if the exporter wrote one
+        if o.type == "MESH":
+            bpy.data.objects.remove(o)
+    if not body_meshes or not face_meshes:
+        raise SystemExit("SACK_FAIL|body or face FBX has no mesh")
+    act = C.animation_data.action if C.animation_data else (actions[0] if actions else None)
+    if act is None:
+        raise SystemExit("SACK_FAIL|anim FBX imported no action")
+    # units: UE writes cm; whatever the importer did, measure the REST body and rescale all three rigs together
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    zs = [(o.matrix_world @ v.co).z for o in body_meshes + face_meshes for v in o.evaluated_get(dg).data.vertices]
+    rest_h = max(zs) - min(zs)
+    scale = a.collider_scale or (0.01 if rest_h > 20.0 else 1.0)
+    if scale != 1.0:
+        for o in body_objs + face_objs + [C]:
+            if o.parent is None:
+                o.matrix_world = Matrix.Scale(scale, 4) @ o.matrix_world
+        bpy.context.view_layer.update()
+        rest_h *= scale
+    if not 1.3 <= rest_h <= 2.1:
+        raise SystemExit(f"SACK_FAIL|rest body height {rest_h:.3f} m after scale {scale}")
+    # the pose frame: action start + source seconds x fps
+    t = a.pose_seconds if a.pose_seconds >= 0 else float(row["pose_source_seconds"])
+    frame = act.frame_range[0] + t * fps
+    scene.frame_set(int(frame), subframe=frame - int(frame))
+    rec = [c / 100.0 for c in row["pose_head_cm"]]
+    trials = {}
+    for mode in (("matrix", "rotation") if a.pose_copy == "auto" else (a.pose_copy,)):
+        n_body = copy_pose(C, A, mode)
+        trials[mode] = (A.matrix_world @ A.pose.bones["head"].head).z - rec[2]
+    best = min(trials, key=lambda k: abs(trials[k]))
+    n_body = copy_pose(C, A, best)
+    n_face = copy_pose(C, F, best)
+    head = A.matrix_world @ A.pose.bones["head"].head
+    dz = head.z - rec[2]
+    report["pose"] = {"figure": a.figure, "pose_source_seconds": t, "blender_frame": frame, "fps": fps,
+                      "action": act.name, "action_range": list(act.frame_range), "bones_posed_body": n_body,
+                      "bones_posed_face": n_face, "head_bone_m": [round(c, 4) for c in head],
+                      "record_head_m_ue_component": rec, "head_dz_m": round(dz, 4),
+                      "head_xy_norm_m": [round(math.hypot(head.x, head.y), 4), round(math.hypot(rec[0], rec[1]), 4)],
+                      "import_scale_applied": scale, "pose_copy_used": best,
+                      "pose_copy_trials_dz_m": {k: round(v, 4) for k, v in trials.items()}}
+    report["checks"]["pose_head_z_matches_record"] = abs(dz) < a.head_tolerance
+    # static posed copies (keep vertex groups: names live on the mesh since Blender 3.0) = colliders + skin source
+    dg = bpy.context.evaluated_depsgraph_get()
+    posed = []
+    for o in body_meshes + face_meshes:
+        me = bpy.data.meshes.new_from_object(o.evaluated_get(dg), preserve_all_data_layers=True, depsgraph=dg)
+        c = bpy.data.objects.new(o.name + "_Posed", me)
+        scene.collection.objects.link(c)
+        c.matrix_world = o.matrix_world.copy()
+        posed.append(c)
+        o.hide_set(True)
+        o.hide_render = True
+    bpy.data.objects.remove(C)
+    return {"colliders": posed, "body_arm": A, "face_arm": F, "rest_height_m": rest_h, "row": row}
+
+
+def skin_and_export(a, scene, settled, skin, stem, report):
+    """Weights from the posed body+face onto the settled sack; bind in the posed frame; export a skeletal FBX."""
+    import bpy
+    A, F = skin["body_arm"], skin["face_arm"]
+    allowed = [b.strip() for b in a.skin_bones.split(",") if b.strip()]
+    missing = [b for b in allowed if b not in A.data.bones]
+    if missing:
+        raise SystemExit("SACK_FAIL|skin bones not in the body armature: " + ",".join(missing))
+
+    def activate(ob, *others):
+        for o in bpy.context.view_layer.objects:
+            o.select_set(o is ob or o in others)
+        bpy.context.view_layer.objects.active = ob
+
+    # 1. one source object with every posed vertex group (body + face)
+    copies = []
+    for c in skin["colliders"]:
+        d = c.copy()
+        d.data = c.data.copy()
+        d.modifiers.clear()
+        scene.collection.objects.link(d)
+        copies.append(d)
+    activate(copies[0], *copies[1:])
+    if len(copies) > 1:
+        bpy.ops.object.join()
+    src = bpy.context.view_layer.objects.active
+    src.name = "SkinSource"
+    # 2. transfer (nearest face, interpolated), then remap every weight to its nearest ALLOWED ancestor bone
+    m = settled.modifiers.new("SkinXfer", "DATA_TRANSFER")
+    m.object, m.use_object_transform = src, True
+    m.use_vert_data, m.data_types_verts = True, {"VGROUP_WEIGHTS"}
+    m.vert_mapping = "POLYINTERP_NEAREST"
+    m.layers_vgroup_select_src, m.layers_vgroup_select_dst = "ALL", "NAME"
+    activate(settled)
+    bpy.ops.object.datalayout_transfer(modifier=m.name)
+    bpy.ops.object.modifier_apply(modifier=m.name)
+    parents = {}
+    for arm in (A, F):
+        for b in arm.data.bones:
+            parents.setdefault(b.name, b.parent.name if b.parent else None)
+
+    def target(name):
+        n = name
+        while n is not None:
+            if n in allowed:
+                return n
+            n = parents.get(n)
+        return a.skin_fallback
+
+    names = {g.index: g.name for g in settled.vertex_groups}
+    acc = []
+    for v in settled.data.vertices:
+        w = {}
+        for ge in v.groups:
+            if ge.weight > 1e-5 and names[ge.group] in parents:     # bone groups only ("Pin" etc. dropped)
+                t = target(names[ge.group])
+                w[t] = w.get(t, 0.0) + ge.weight
+        acc.append(w)
+    nbrs = [[] for _ in settled.data.vertices]
+    for e in settled.data.edges:
+        i, j = e.vertices
+        nbrs[i].append(j)
+        nbrs[j].append(i)
+    for _ in range(a.skin_smooth):          # Laplacian blend 50/50 with the edge neighbours' mean
+        nxt = []
+        for i, w in enumerate(acc):
+            if not nbrs[i]:
+                nxt.append(w)
+                continue
+            mean = {}
+            for j in nbrs[i]:
+                for b, x in acc[j].items():
+                    mean[b] = mean.get(b, 0.0) + x / len(nbrs[i])
+            keys = set(w) | set(mean)
+            nxt.append({b: 0.5 * w.get(b, 0.0) + 0.5 * mean.get(b, 0.0) for b in keys})
+        acc = nxt
+    settled.vertex_groups.clear()
+    groups = {b: settled.vertex_groups.new(name=b) for b in allowed}
+    unweighted, usage = 0, {b: 0 for b in allowed}
+    for i, w in enumerate(acc):
+        if not w:
+            w, unweighted = {a.skin_fallback: 1.0}, unweighted + 1
+        top = sorted(w.items(), key=lambda kv: -kv[1])[:a.max_influences]
+        total = sum(x for _, x in top)
+        for b, x in top:
+            groups[b].add([i], x / total, "REPLACE")
+            usage[b] += 1
+    smooth_ok = f"{a.skin_smooth} Laplacian passes before the top-{a.max_influences} cut and normalise"
+    # 3. bind armature = the body rig with the POSE APPLIED AS REST (so the sack's bind pose is the drape pose)
+    A.name = "BodyArmature_Source"
+    B = A.copy()
+    B.data = A.data.copy()
+    B.animation_data_clear()
+    scene.collection.objects.link(B)
+    B.name = "Armature"            # UE treats an FBX node named "Armature" as the rig node, not a bone [inf]
+    activate(B)
+    bpy.ops.object.mode_set(mode="POSE")
+    bpy.ops.pose.armature_apply(selected=False)
+    bpy.ops.object.mode_set(mode="OBJECT")
+    world = settled.matrix_world.copy()
+    settled.parent = B
+    settled.matrix_world = world
+    mod = settled.modifiers.new("Armature", "ARMATURE")
+    mod.object = B
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = settled.evaluated_get(dg).data
+    rest_err = max((settled.matrix_world @ v.co - settled.matrix_world @ e.co).length
+                   for v, e in zip(settled.data.vertices, ev.vertices))
+    # 4. export, then RE-IMPORT and compare (catches unit/axis/bind surprises before UE does)
+    path = str(stem) + "_SK.fbx"
+    activate(B, settled)
+    bpy.ops.export_scene.fbx(filepath=path, use_selection=True, object_types={"ARMATURE", "MESH"},
+                             add_leaf_bones=False, bake_anim=False, apply_unit_scale=True, mesh_smooth_type="FACE",
+                             use_armature_deform_only=False, armature_nodetype="NULL",
+                             primary_bone_axis="Y", secondary_bone_axis="X")
+    back, _ = _import_fbx(path)
+    rb_arm = _one(back, "ARMATURE", "re-import")
+    rb_mesh = _one(back, "MESH", "re-import")
+    bpy.context.view_layer.update()
+    head_b = B.matrix_world @ B.data.bones["head"].head_local
+    head_r = rb_arm.matrix_world @ rb_arm.data.bones["head"].head_local
+    dg = bpy.context.evaluated_depsgraph_get()
+
+    def bbox(ob):
+        pts = [ob.matrix_world @ v.co for v in ob.evaluated_get(dg).data.vertices]
+        return [min(p[i] for p in pts) for i in range(3)] + [max(p[i] for p in pts) for i in range(3)]
+
+    bb_src, bb_back = bbox(settled), bbox(rb_mesh)
+    bb_err = max(abs(x - y) for x, y in zip(bb_src, bb_back))
+    for o in back:
+        bpy.data.objects.remove(o)
+    report["skin"] = {"fbx": path, "bones": allowed, "fallback": a.skin_fallback, "unweighted_vertices": unweighted,
+                      "vertices": len(acc), "usage": usage, "smooth": smooth_ok, "bind_rest_error_m": rest_err,
+                      "roundtrip_head_error_m": (head_b - head_r).length, "roundtrip_bbox_error_m": bb_err,
+                      "exported_bones": len(B.data.bones)}
+    report["checks"]["skin_unweighted_under_1pct"] = unweighted <= 0.01 * len(acc)
+    report["checks"]["skin_bind_is_identity"] = rest_err < 1e-4
+    report["checks"]["skin_roundtrip_within_5mm"] = (head_b - head_r).length < 0.005 and bb_err < 0.005
+    return path
 
 # ----------------------------------------------------------------------------------------------- Blender side
 def blender_main(a):
@@ -309,7 +627,13 @@ def blender_main(a):
 
     report = {"args": vars(a), "blender": bpy.app.version_string, "checks": {}}
     feet_z = 0.0
-    if a.mode == "drape":
+    skin = None
+    if a.mode == "skin":
+        # ---- posed MetaHuman body + face from the UE export (s3_shore_export_bodies.py), as static colliders
+        skin = pose_figure(a, scene, report)
+        imported = meshes = skin["colliders"]
+        arm = skin["body_arm"]
+    elif a.mode == "drape":
         # ---- collider (posed or animated body)
         ext = Path(a.collider).suffix.lower()
         before = set(bpy.data.objects)
@@ -322,6 +646,7 @@ def blender_main(a):
         imported = [o for o in bpy.data.objects if o not in before]
         meshes = [o for o in imported if o.type == "MESH"]
         arm = next((o for o in imported if o.type == "ARMATURE"), None)
+    if a.mode in ("drape", "skin"):
         if not meshes:
             raise SystemExit("SACK_FAIL|collider has no mesh")
         scene.frame_set(1)
@@ -348,6 +673,15 @@ def blender_main(a):
             top_z = max(zs)
             cap = [p for p in pts if p.z > top_z - 0.03]
             crown = Vector((sum(p.x for p in cap) / len(cap), sum(p.y for p in cap) / len(cap), top_z))
+        elif a.crown == "head":
+            if arm is None or "head" not in arm.pose.bones:
+                raise SystemExit("SACK_FAIL|--crown head needs an armature with a 'head' bone")
+            hb = arm.matrix_world @ arm.pose.bones["head"].head
+            near = [p for p in pts if (p - hb).length < 0.25]
+            if not near:
+                raise SystemExit("SACK_FAIL|no collider vertex within 25 cm of the head bone")
+            top = max(near, key=lambda p: p.z)
+            crown = Vector((top.x, top.y, top.z))
         else:
             crown = Vector(parse_vec(a.crown, 3))
         report["collider"] = {"objects": [o.name for o in meshes], "height_m": round(height, 3),
@@ -434,15 +768,30 @@ def blender_main(a):
     # ---- metrics
     bm = bmesh.new()
     bm.from_mesh(settled.data)
-    boundary = [settled.matrix_world @ v.co for v in bm.verts if v.is_boundary]
+    # the HEM = outer boundary only: boundary vertices far (in the flat pattern, UV0 metres) from the pin point.
+    # Worn holes and tears near the crown are boundaries too and must not count (6 Oct: they made the hem read
+    # ~0.3 m high on every run).
+    uvl = bm.loops.layers.uv.get("UVMap")
+    if a.mode in ("drape", "skin") and uvl is not None:
+        ox, oy = parse_vec(a.pin_offset, 2)
+        pin_uv = (a.size_x / 2 + ox, a.size_y / 2 + oy)
+        reach = 0.7 * min(a.size_x, a.size_y) / 2
+        boundary = []
+        for v in bm.verts:
+            if v.is_boundary and v.link_loops:
+                u, w = v.link_loops[0][uvl].uv
+                if math.hypot(u - pin_uv[0], w - pin_uv[1]) > reach:
+                    boundary.append(settled.matrix_world @ v.co)
+    else:
+        boundary = [settled.matrix_world @ v.co for v in bm.verts if v.is_boundary]
     bm.free()
 
     def pct(vals, p):
         s = sorted(vals)
         return s[min(len(s) - 1, max(0, int(round(p / 100.0 * (len(s) - 1)))))]
 
-    if a.mode == "drape":
-        h = report["collider"]["height_m"]
+    if a.mode in ("drape", "skin"):
+        h = skin["rest_height_m"] if skin else report["collider"]["height_m"]
         target = a.target_hem_z or 0.45 * h            # crotch ~0.45 x stature (INFERRED anthropometric rule)
         hem = [p.z - feet_z for p in boundary]
         report["metrics"] = {"hem_z_p10_m": round(pct(hem, 10), 3), "hem_z_p50_m": round(pct(hem, 50), 3),
@@ -478,6 +827,8 @@ def blender_main(a):
         bpy.ops.export_scene.fbx(filepath=str(stem) + ".fbx", use_selection=True, apply_unit_scale=True,
                                  mesh_smooth_type="FACE", add_leaf_bones=False, bake_anim=False)
         report["fbx"] = str(stem) + ".fbx"
+    if skin:
+        report["skin_fbx"] = skin_and_export(a, scene, settled, skin, stem, report)
     if a.export_abc:
         for o in bpy.context.view_layer.objects:
             o.select_set(o is cloth_obj)
@@ -505,6 +856,11 @@ def blender_main(a):
 
 def main(argv):
     a = build_parser().parse_args(argv)
+    soft = {"bend": 1.0, "compression": 20.0, "friction": 2.0, "quality": 20, "air_damping": 6.0, "frames": 240}
+    hard = {"bend": 2.0, "compression": 4.0, "friction": 8.0, "quality": 20, "air_damping": 1.0, "frames": 120}
+    for k, v in (hard if a.mode == "pile" else soft).items():
+        if getattr(a, k) is None:
+            setattr(a, k, v)
     err, warn, plan = validate(a)
     for w in warn:
         print("SACK_WARNING|" + w)
