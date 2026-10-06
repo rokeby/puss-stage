@@ -71,6 +71,56 @@ SOURCES = {
                 "NormalTexture": "/Engine/EngineMaterials/FlatNormal",
                 "RoughnessTexture": "/Game/KK_S2_Shrine/StarterContent/Textures/T_Rock_Marble_Polished_D"},
 }
+# Gary 6 Oct: "Download both to try". ambientCG CC0, 2K JPG, in DerivedAssets/S3Marble (manifest.json = zip sha256).
+# A = Marble012 (grey-white, darker veins), B = Marble021 (near-white, faint warm veins).
+SRC_ROOT = "E:/PussStage/DerivedAssets/S3Marble"
+IMPORT_ROOT = MATDIR + "/S3Marble"
+VARIANTS = {"A": "Marble012", "B": "Marble021"}
+# map key in the file name -> (texture parameter, asset suffix, compression, srgb). Displacement is NOT imported:
+# the master has no displacement/POM input.
+IMPORT_MAPS = (("Color", "BaseColorTexture", "Color", "TC_DEFAULT", True),
+               ("NormalDX", "NormalTexture", "NormalDX", "TC_NORMALMAP", False),
+               ("Roughness", "RoughnessTexture", "Roughness", "TC_GRAYSCALE", False))
+EXPECTED_SIZE = 2048
+VARIANT_SCALARS = {"RoughnessTextureWeight": 1.0}   # real roughness maps replace the vein-luminance stand-in
+
+
+def variant_textures(variant):
+    name = VARIANTS[variant]
+    return {param: "%s/%s/T_%s_%s" % (IMPORT_ROOT, name, name, suffix) for _, param, suffix, _, _ in IMPORT_MAPS}
+
+
+for _v, _n in VARIANTS.items():
+    SOURCES[_v] = variant_textures(_v)
+
+
+def import_plan(variants=("A", "B"), root=SRC_ROOT):
+    """Pure: one row per texture to import. Never includes Displacement / NormalGL."""
+    rows = []
+    for v in variants:
+        name = VARIANTS[v]
+        for key, param, suffix, comp, srgb in IMPORT_MAPS:
+            rows.append({"variant": v, "set": name, "param": param,
+                         "file": "%s/%s/%s_2K-JPG_%s.jpg" % (root, name, name, key),
+                         "dest_dir": "%s/%s" % (IMPORT_ROOT, name), "dest_name": "T_%s_%s" % (name, suffix),
+                         "dest": "%s/%s/T_%s_%s" % (IMPORT_ROOT, name, name, suffix),
+                         "compression": comp, "srgb": srgb, "flip_green": False,
+                         "sampler": sampler_for(comp, srgb)})
+    return rows
+
+
+def texture_settings_problems(row, got):
+    """got: {compression, srgb, flip_green, size_x, size_y} read back from the asset."""
+    probs = []
+    if str(got.get("compression", "")).upper().rsplit(".", 1)[-1] != row["compression"]:
+        probs.append("COMPRESSION|%s|%s" % (row["dest"], got.get("compression")))
+    if bool(got.get("srgb")) != row["srgb"]:
+        probs.append("SRGB|%s|%s" % (row["dest"], got.get("srgb")))
+    if row["compression"] == "TC_NORMALMAP" and bool(got.get("flip_green")):
+        probs.append("FLIP_GREEN|%s" % row["dest"])
+    if (got.get("size_x"), got.get("size_y")) != (EXPECTED_SIZE, EXPECTED_SIZE):
+        probs.append("SIZE|%s|%sx%s" % (row["dest"], got.get("size_x"), got.get("size_y")))
+    return probs
 SIDE_U_SHIFT_CM = {"L": 0.0, "R": 317.0}   # object frame: keep the facing walls from being mirror twins
 TOL_AXIS = 0.999
 TOL_PLANE_CM = 0.5
@@ -175,13 +225,27 @@ def _hash(ix, iy):
 
 def coords_reference(wp_abs, normal, wp_minus_op, au, av, p):
     """Python mirror of CODE_COORDS (same order of operations). Returns (uvA, uvB, blend)."""
+    full = coords_full(wp_abs, normal, wp_minus_op, au, av, p)
+    return full["uvA"], full["uvB"], full["blend"]
+
+
+def _comb(a, x, b, y):
+    return [a * x[i] + b * y[i] for i in range(3)]
+
+
+def coords_full(wp_abs, normal, wp_minus_op, au, av, p):
+    """Python mirror of CODE_COORDS including the planar tangent frames: TA/BA = world directions of increasing
+    u/v of sample A, TBr/BBr the same for the rotated sample B."""
     an = [abs(float(c)) for c in normal]
     if an[1] >= an[0] and an[1] >= an[2]:
         pw, back = [wp_abs[0], wp_abs[2]], normal[1] < 0.0
+        tw, bw = [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]
     elif an[0] >= an[2]:
         pw, back = [wp_abs[1], wp_abs[2]], normal[0] < 0.0
+        tw, bw = [0.0, 1.0, 0.0], [0.0, 0.0, -1.0]
     else:
         pw, back = [wp_abs[0], wp_abs[1]], normal[2] < 0.0
+        tw, bw = [1.0, 0.0, 0.0], [0.0, -1.0, 0.0]
     pw[0] += p["BackFaceShiftCm"] if back else 0.0
     po = [p["USign"] * _dot(wp_minus_op, _norm(au)) + p["UOffsetCm"],
           p["VSign"] * _dot(wp_minus_op, _norm(av)) + p["VOffsetCm"]]
@@ -209,7 +273,30 @@ def coords_reference(wp_abs, normal, wp_minus_op, au, av, p):
         q = [q[0] * 2.03 + 17.1, q[1] * 2.03 + 5.3]
         amp = 0.35
     blend = min(max((n - 0.5) * p["BreakupContrast"] + 0.5, 0.0), 1.0) * min(max(p["BreakupAmount"], 0.0), 1.0)
-    return [t[0] * r, t[1] * r], uvb, blend
+    # Planar tangent frame. u grows along +p.x, v grows along -p.y (t = (p.x, -p.y)).
+    if p["ObjectRelative"] > 0.5:
+        ta = _scale(_norm(au), p["USign"])
+        ba = _scale(_norm(av), -p["VSign"])
+    else:
+        ta, ba = tw, bw
+    # Sample B: uvB = Rot(ang) * t * rb, so d(t)/d(uB) = (cs, -sn) and d(t)/d(vB) = (sn, cs).
+    tbr = _comb(cs, ta, -sn, ba)
+    bbr = _comb(sn, ta, cs, ba)
+    return {"uvA": [t[0] * r, t[1] * r], "uvB": uvb, "blend": blend, "TA": ta, "BA": ba, "TBr": tbr, "BBr": bbr}
+
+
+def normal_ts_to_world(n_ts, tangent, bitangent_v, normal_ws, intensity):
+    """DirectX-convention tangent-space normal (x along +u, y along +v = image DOWN, z out of the surface) to world,
+    in the PLANAR frame (not the mesh's UV tangents, which flip on the mirrored -Z tiles)."""
+    n = _norm([n_ts[0] * intensity, n_ts[1] * intensity, 1.0 + (n_ts[2] - 1.0) * intensity])
+    return _norm([n[0] * tangent[i] + n[1] * bitangent_v[i] + n[2] * normal_ws[i] for i in range(3)])
+
+
+def shade_normal_reference(na_ts, nb_ts, frames, blend, normal_ws, intensity):
+    """Python mirror of the normal part of CODE_SHADE."""
+    wa = normal_ts_to_world(na_ts, frames["TA"], frames["BA"], normal_ws, intensity)
+    wb = normal_ts_to_world(nb_ts, frames["TBr"], frames["BBr"], normal_ws, intensity)
+    return _norm([wa[i] + (wb[i] - wa[i]) * blend for i in range(3)])
 
 
 def compile_errors_since(log_text, marker):
@@ -231,9 +318,11 @@ CODE_COORDS = r"""
 float3 an = abs(N);
 float2 pw;
 float back;
-if (an.y >= an.x && an.y >= an.z) { pw = float2(WPAbs.x, WPAbs.z); back = N.y < 0.0 ? 1.0 : 0.0; }
-else if (an.x >= an.z)            { pw = float2(WPAbs.y, WPAbs.z); back = N.x < 0.0 ? 1.0 : 0.0; }
-else                              { pw = float2(WPAbs.x, WPAbs.y); back = N.z < 0.0 ? 1.0 : 0.0; }
+float3 tw;
+float3 bw;
+if (an.y >= an.x && an.y >= an.z) { pw = float2(WPAbs.x, WPAbs.z); back = N.y < 0.0 ? 1.0 : 0.0; tw = float3(1.0, 0.0, 0.0); bw = float3(0.0, 0.0, -1.0); }
+else if (an.x >= an.z)            { pw = float2(WPAbs.y, WPAbs.z); back = N.x < 0.0 ? 1.0 : 0.0; tw = float3(0.0, 1.0, 0.0); bw = float3(0.0, 0.0, -1.0); }
+else                              { pw = float2(WPAbs.x, WPAbs.y); back = N.z < 0.0 ? 1.0 : 0.0; tw = float3(1.0, 0.0, 0.0); bw = float3(0.0, -1.0, 0.0); }
 pw.x += back * BackShift;
 float3 d = WPc - OPc;
 float2 po = float2(USign * dot(d, normalize(AU)) + UOff, VSign * dot(d, normalize(AV)) + VOff);
@@ -265,6 +354,12 @@ for (int o = 0; o < 2; o++)
     amp = 0.35;
 }
 Blend = saturate((n - 0.5) * Contrast + 0.5) * saturate(Amount);
+float3 ta = ObjRel > 0.5 ? USign * normalize(AU) : tw;
+float3 ba = ObjRel > 0.5 ? -VSign * normalize(AV) : bw;
+TA = ta;
+BA = ba;
+TBr = cs * ta - sn * ba;
+BBr = sn * ta + cs * ba;
 return t * r;
 """
 COORD_INPUTS = ["WPAbs", "WPc", "OPc", "N", "AU", "AV", "ObjRel", "USign", "VSign", "UOff", "VOff", "BackShift",
@@ -276,19 +371,36 @@ COORD_PARAM_PINS = {"ObjRel": "ObjectRelative", "USign": "USign", "VSign": "VSig
 
 CODE_SHADE = r"""
 float3 bc = lerp(BCA, BCB, Blend);
-float3 nn = normalize(lerp(NA, NB, Blend));
 float rt = lerp(RA, RB, Blend);
 float lum = dot(bc, float3(0.2126, 0.7152, 0.0722));
 float3 c = lerp(lum.xxx, bc, Saturation) * Brightness;
 float vein = saturate(1.0 - lum);
 OutRoughness = lerp(MinR, MaxR, lerp(vein, rt, saturate(RoughW)));
-OutNormal = normalize(lerp(float3(0.0, 0.0, 1.0), nn, NormalIntensity));
+// WORLD-space normal (material TangentSpaceNormal = false): DirectX map (x along +u, y along +v, z out),
+// expressed in the PLANAR frame from the coords node, so mirrored tiles and seams agree.
+float3 na = normalize(float3(NA.x * NormalIntensity, NA.y * NormalIntensity, 1.0 + (NA.z - 1.0) * NormalIntensity));
+float3 nb = normalize(float3(NB.x * NormalIntensity, NB.y * NormalIntensity, 1.0 + (NB.z - 1.0) * NormalIntensity));
+float3 nw = normalize(NW);
+float3 wa = normalize(na.x * TA + na.y * BA + na.z * nw);
+float3 wb = normalize(nb.x * TBr + nb.y * BBr + nb.z * nw);
+OutNormal = normalize(lerp(wa, wb, Blend));
 return saturate(c);
 """
 SHADE_INPUTS = ["BCA", "BCB", "NA", "NB", "RA", "RB", "Blend", "Brightness", "Saturation", "MinR", "MaxR",
-                "RoughW", "NormalIntensity"]
+                "RoughW", "NormalIntensity", "TA", "BA", "TBr", "BBr", "NW"]
+FRAME_OUTPUTS = ("TA", "BA", "TBr", "BBr")
 SHADE_PARAM_PINS = {"Brightness": "Brightness", "Saturation": "Saturation", "MinR": "Min Roughness",
                     "MaxR": "Max Roughness", "RoughW": "RoughnessTextureWeight", "NormalIntensity": "Normal Intensity"}
+
+
+def sampler_problems(master_samplers, texture_samplers):
+    """A texture set may only go on this master if each param's sampler type matches (else compile fails)."""
+    out = []
+    for k, want in texture_samplers.items():
+        have = str(master_samplers.get(k, "")).upper().rsplit(".", 1)[-1]
+        if have != str(want).upper().rsplit(".", 1)[-1]:
+            out.append("SAMPLER_MISMATCH|%s|master=%s|texture=%s" % (k, have or None, want))
+    return out
 
 
 def graph_spec_problems():
@@ -311,6 +423,13 @@ def graph_spec_problems():
     for k in LOOK_FALLBACK:
         if k not in SCALARS:
             probs.append("LOOK_NOT_A_PARAM|" + k)
+    for o in FRAME_OUTPUTS:
+        if not re.search(r"\b%s\s*=" % o, CODE_COORDS):
+            probs.append("FRAME_OUTPUT_UNSET|" + o)
+        if o not in SHADE_INPUTS:
+            probs.append("FRAME_OUTPUT_UNWIRED|" + o)
+    if not re.search(r"\bOutNormal\s*=.*\bwa\b.*\bwb\b", CODE_SHADE):
+        probs.append("SHADE_NOT_WORLD_NORMAL")
     for tok in ("127.1", "311.7", "43758.5453", "289.0", "2.03", "17.1", "5.3", "0.65", "0.35", "0.37", "0.61",
                 "0.0174532925"):
         if tok not in CODE_COORDS:
@@ -394,7 +513,8 @@ def build_master(look, textures):
     mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_OPAQUE)
     mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_DEFAULT_LIT)
     mat.set_editor_property("two_sided", False)
-    F1, F2, F3 = (unreal.CustomMaterialOutputType.CMOT_FLOAT1, unreal.CustomMaterialOutputType.CMOT_FLOAT2,
+    mat.set_editor_property("tangent_space_normal", False)   # OutNormal is WORLD space (planar frame)
+    F1, F2, F3 =(unreal.CustomMaterialOutputType.CMOT_FLOAT1, unreal.CustomMaterialOutputType.CMOT_FLOAT2,
                   unreal.CustomMaterialOutputType.CMOT_FLOAT3)
     shared = unreal.SamplerSourceMode.SSM_WRAP_WORLD_GROUP_SETTINGS
     params = {}
@@ -422,7 +542,7 @@ def build_master(look, textures):
         g.link(c, "", t, "VectorInput")
         axes.append(t)
     coords = g.custom(-1900, 200, "S3 marble planar coords + macro breakup", CODE_COORDS, COORD_INPUTS, F2,
-                      [("UVB", F2), ("Blend", F1)])
+                      [("UVB", F2), ("Blend", F1)] + [(o, F3) for o in FRAME_OUTPUTS])
     wires = {"WPAbs": wabs_f, "WPc": wcam, "OPc": ocam, "N": vn, "AU": axes[0], "AV": axes[1]}
     wires.update({pin: params[name] for pin, name in COORD_PARAM_PINS.items()})
     for pin in COORD_INPUTS:
@@ -449,7 +569,8 @@ def build_master(look, textures):
     sw = {"BCA": (samples["BaseColorTexture"][0], "RGB"), "BCB": (samples["BaseColorTexture"][1], "RGB"),
           "NA": (samples["NormalTexture"][0], "RGB"), "NB": (samples["NormalTexture"][1], "RGB"),
           "RA": (samples["RoughnessTexture"][0], "R"), "RB": (samples["RoughnessTexture"][1], "R"),
-          "Blend": (coords, "Blend")}
+          "Blend": (coords, "Blend"), "NW": (vn, "")}
+    sw.update({o: (coords, o) for o in FRAME_OUTPUTS})
     sw.update({pin: (params[name], "") for pin, name in SHADE_PARAM_PINS.items()})
     for pin in SHADE_INPUTS:
         src, out = sw[pin]
@@ -474,7 +595,7 @@ def readback_master(mat, shade=None, spec=None, look=None, samplers=None):
           "expressions": int(mel.get_num_material_expressions(mat)),
           "scalars": sorted(str(n) for n in mel.get_scalar_parameter_names(mat)),
           "textures": sorted(str(n) for n in mel.get_texture_parameter_names(mat)),
-          "samplers": samplers, "inputs": {}}
+          "samplers": samplers, "inputs": {}, "param_samplers": master_samplers(mat)}
     for key, prop in (("base", MP.MP_BASE_COLOR), ("rough", MP.MP_ROUGHNESS), ("normal", MP.MP_NORMAL),
                       ("spec", MP.MP_SPECULAR)):
         n = mel.get_material_property_input_node(mat, prop)
@@ -484,6 +605,7 @@ def readback_master(mat, shade=None, spec=None, look=None, samplers=None):
     _require("OPAQUE" in rb["blend_mode"] and "DEFAULT_LIT" in rb["shading_model"], "MASTER_MODE|%s" % rb)
     _require("COLOR_NORMAL_ROUGHNESS" in rb["decal_response"], "DECAL_RESPONSE|%s" % rb["decal_response"])
     _require(all(rb["inputs"].values()), "MASTER_UNWIRED|%s" % rb["inputs"])
+    _require(rb["tangent_space_normal"] is False, "TANGENT_SPACE_NORMAL_STILL_ON")
     if shade is not None:
         for k in ("base", "rough", "normal"):
             _require(rb["inputs"][k] == shade.get_name(), "MASTER_WIRE|%s|%s" % (k, rb["inputs"][k]))
@@ -491,12 +613,45 @@ def readback_master(mat, shade=None, spec=None, look=None, samplers=None):
     return rb
 
 
+def master_samplers(mat):
+    """Sampler type of each texture-object parameter, read from the graph."""
+    out = {}
+    for e in unreal.MaterialEditingLibrary.get_material_expressions(mat):
+        if isinstance(e, unreal.MaterialExpressionTextureObjectParameter):
+            out[str(e.get_editor_property("parameter_name"))] = str(e.get_editor_property("sampler_type"))
+    return out
+
+
+def texture_samplers(textures):
+    return {k: texture_sampler(p)[1] for k, p in textures.items()}
+
+
 def _mi_scalars(mi, names):
     mel = unreal.MaterialEditingLibrary
     return {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in names}
 
 
-def create_mi(path, parent, values):
+def mi_textures(mi, names=TEXTURE_PARAMS):
+    """Effective texture parameter values (inherited or overridden)."""
+    mel = unreal.MaterialEditingLibrary
+    return {k: _path(mel.get_material_instance_texture_parameter_value(mi, k)) for k in names}
+
+
+def set_mi_textures(mi, textures):
+    """Setter return values lie (memory): set, update, then judge by read-back only."""
+    mel = unreal.MaterialEditingLibrary
+    for k, path in textures.items():
+        tex = unreal.load_asset(path)
+        _require(tex is not None, "TEXTURE_MISSING|" + path)
+        mel.set_material_instance_texture_parameter_value(mi, k, tex)
+    mel.update_material_instance(mi)
+    got = mi_textures(mi, list(textures))
+    bad = {k: (got[k], v) for k, v in textures.items() if got[k] != v}
+    _require(not bad, "MI_TEXTURE_READBACK|%s|%s" % (_path(mi), bad))
+    return got
+
+
+def create_mi(path, parent, values, textures=None):
     """CREATE-ONLY instance. Read back parent and every value; refuses if it exists."""
     eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
     _require(not eal.does_asset_exist(path), "MI_EXISTS|" + path)
@@ -507,37 +662,49 @@ def create_mi(path, parent, values):
     for k, v in values.items():
         mel.set_material_instance_scalar_parameter_value(mi, k, float(v))
     mel.update_material_instance(mi)
-    check_mi(mi, parent, values)
+    if textures:
+        set_mi_textures(mi, textures)
+    check_mi(mi, parent, values, textures)
     return mi
 
 
-def check_mi(mi, parent, values):
+def check_mi(mi, parent, values, textures=None):
     _require(_path(mi.get_editor_property("parent")) == _path(parent), "MI_PARENT|%s" % _path(mi))
     got = _mi_scalars(mi, values)
     bad = {k: (got[k], v) for k, v in values.items() if abs(got[k] - float(v)) > 1e-3}
     _require(not bad, "MI_READBACK|%s|%s" % (_path(mi), bad))
+    if textures:
+        gt = mi_textures(mi, list(textures))
+        badt = {k: (gt[k], v) for k, v in textures.items() if gt[k] != v}
+        _require(not badt, "MI_TEXTURES|%s|%s" % (_path(mi), badt))
     return got
 
 
-def ensure(look, textures, children=None):
+def ensure(look, textures, children=None, extra_scalars=None):
     """Create whatever is missing (never edits an existing asset; existing ones are only CHECKED).
-    children: {suffix: {param: value}} for the object frame. Returns (assets, created_paths, readback)."""
+    textures: the source set; the master takes them as defaults and every NEW MI sets them explicitly, so each
+    instance says which marble it shows. children: {suffix: {param: value}} for the object frame.
+    Returns (assets, created_paths, readback)."""
     eal = unreal.EditorAssetLibrary
     created, rb = [], {}
     if eal.does_asset_exist(MASTER):
         master = unreal.load_asset(MASTER)
         rb["master"] = readback_master(master)
+        probs = sampler_problems(rb["master"]["param_samplers"], texture_samplers(textures))
+        _require(not probs, ";".join(probs))
     else:
-        master, rb["master"] = build_master(look, textures)
+        master, rb["master"] = build_master(dict(look, **(extra_scalars or {})), textures)
         created.append(MASTER)
     mi_values = dict(look)
+    mi_values.update(extra_scalars or {})
     mi_values.update({"RepeatCm": SCALARS["RepeatCm"][0], "ObjectRelative": 0.0})
     if eal.does_asset_exist(MI):
         mi = unreal.load_asset(MI)
         _require(_path(mi.get_editor_property("parent")) == MASTER, "MI_PARENT_FOREIGN")
         rb["mi"] = _mi_scalars(mi, mi_values)   # existing: report, do not edit
+        rb["mi_textures"] = mi_textures(mi)
     else:
-        mi = create_mi(MI, master, mi_values)
+        mi = create_mi(MI, master, mi_values, textures)
         rb["mi"] = _mi_scalars(mi, mi_values)
         created.append(MI)
     assets = {"master": master, "mi": mi, "children": {}}
@@ -547,7 +714,41 @@ def ensure(look, textures, children=None):
             child = unreal.load_asset(path)
             check_mi(child, mi, vals)       # stale offsets -> refuse; never edit
         else:
-            child = create_mi(path, mi, vals)
+            child = create_mi(path, mi, vals, textures)
             created.append(path)
         assets["children"][suffix] = child
     return assets, created, rb
+
+
+def read_texture_settings(path):
+    tex = unreal.load_asset(path)
+    _require(tex is not None, "TEXTURE_MISSING|" + path)
+    return tex, {"compression": str(tex.get_editor_property("compression_settings")),
+                 "srgb": bool(tex.get_editor_property("srgb")),
+                 "flip_green": bool(tex.get_editor_property("flip_green_channel")),
+                 "size_x": int(tex.blueprint_get_size_x()), "size_y": int(tex.blueprint_get_size_y())}
+
+
+def import_texture(row):
+    """CREATE-ONLY import of one JPG (precedent curtain_image.py / hangar_exit_doors.py), then set and READ BACK
+    compression + sRGB (+ flip green off for the DirectX normal). Only touches the asset it just created."""
+    eal = unreal.EditorAssetLibrary
+    _require(not eal.does_asset_exist(row["dest"]), "TEXTURE_EXISTS|" + row["dest"])
+    task = unreal.AssetImportTask()
+    for key, value in (("filename", row["file"]), ("destination_path", row["dest_dir"]),
+                       ("destination_name", row["dest_name"]), ("automated", True), ("replace_existing", False),
+                       ("save", False)):
+        task.set_editor_property(key, value)
+    unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
+    tex = eal.load_asset(row["dest"])
+    _require(isinstance(tex, unreal.Texture2D), "IMPORT_FAILED|" + row["dest"])
+    tex.modify()
+    tex.set_editor_property("compression_settings", getattr(unreal.TextureCompressionSettings, row["compression"]))
+    tex.set_editor_property("srgb", bool(row["srgb"]))
+    if row["compression"] == "TC_NORMALMAP":
+        tex.set_editor_property("flip_green_channel", False)
+    _, got = read_texture_settings(row["dest"])
+    probs = texture_settings_problems(row, got)
+    _require(not probs, "TEXTURE_SETTINGS|%s" % probs)
+    _require(sampler_for(got["compression"], got["srgb"]) == row["sampler"], "SAMPLER_DRIFT|" + row["dest"])
+    return got

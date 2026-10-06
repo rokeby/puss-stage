@@ -1,6 +1,8 @@
 {
  "mode": "DRY",
  "confirm": "",
- "frame": "world",
- "source": "starter"
+ "frame": "object",
+ "source": "A",
+ "variant": "B",
+ "variants": ["A", "B"]
 }

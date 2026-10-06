@@ -305,6 +305,208 @@ def t_noise_wrap_control():
           sorted(caught))
 
 
+def world_normal_at(row, u, v, params, n_ts, hangar=(IDENT, [0.0, 0.0, 0.0]), face_sign=1.0, frame_fn=None):
+    """World normal the material outputs for tangent-space sample n_ts (same sample for A and B)."""
+    R, t = hangar
+    loc = row["world"]["location"]
+    p_landed = [loc[0] + u, loc[1], loc[2] + v]
+    au, av = M.local_axes_world(row["world"])
+    p = [a + b for a, b in zip(matvec(R, p_landed), t)]
+    op = [a + b for a, b in zip(matvec(R, loc), t)]
+    n = matvec(R, [0.0, face_sign, 0.0])
+    full = M.coords_full(p, n, [p[i] - op[i] for i in range(3)], matvec(R, au), matvec(R, av), params)
+    if frame_fn is not None:
+        full = frame_fn(row, R, full)
+    return M.shade_normal_reference(n_ts, n_ts, full, full["blend"], n, params["Normal Intensity"])
+
+
+def mesh_uv_frame(row, R, full):
+    """CONTROL model: the cube's own UV tangent frame (T along local +X, v along local -Z, both carried by the actor
+    matrix, so v flips on the mirrored -Z tiles) used with planar-sampled normals."""
+    x, _, z = M.rotator_axes(row["world"]["rotation"])
+    s = row["world"]["scale"]
+    t_m = matvec(R, M._norm(M._scale(x, s[0])))
+    b_m = matvec(R, M._norm(M._scale(z, -s[2])))
+    return dict(full, TA=t_m, BA=b_m, TBr=t_m, BBr=b_m)
+
+
+def t_normal_frame():
+    rows = A.select_targets(make_rows())
+    fp = M.object_frame_params(rows)
+    bump = [0.35, 0.45, math.sqrt(1 - 0.35 ** 2 - 0.45 ** 2)]
+    flat = [0.0, 0.0, 1.0]
+
+    def seam_normals(frame_fn, hangar=(IDENT, [0.0, 0.0, 0.0])):
+        worst = 0.0
+        for side in "LR":
+            stack = sorted([r for r in rows if r["side"] == side], key=lambda r: r["world"]["location"][2])
+            fs = 1.0 if side == "L" else -1.0
+            for lo, hi in zip(stack, stack[1:]):
+                seam_z = lo["world"]["location"][2] + abs(lo["world"]["scale"][2]) * 50.0
+                for u in (-2000.0, 0.0, 1500.0):
+                    a = world_normal_at(lo, u, seam_z - lo["world"]["location"][2], mi_params(fp[lo["label"]]),
+                                        bump, hangar, fs, frame_fn)
+                    b = world_normal_at(hi, u, seam_z - hi["world"]["location"][2], mi_params(fp[hi["label"]]),
+                                        bump, hangar, fs, frame_fn)
+                    worst = max(worst, max(abs(x - y) for x, y in zip(a, b)))
+        return worst
+
+    w = seam_normals(None)
+    check("normal_planar_frame_agrees_across_mirrored_seams", w < 1e-9, w)
+    wc = seam_normals(mesh_uv_frame)
+    check("CONTROL_mesh_uv_frame_disagrees_on_mirrored_tile", wc > 0.2, wc)
+    mid = (rot_pitch(-60.0), [0.0, 0.0, -1800.0])
+    check("normal_planar_frame_seams_mid_rise", seam_normals(None, mid) < 1e-9, seam_normals(None, mid))
+    base = rows[0]
+    n0 = world_normal_at(base, 900.0, 200.0, mi_params(fp[base["label"]]), bump)
+    n1 = world_normal_at(base, 900.0, 200.0, mi_params(fp[base["label"]]), bump, mid)
+    check("normal_rigid_with_box_through_rise", close(matvec(mid[0], n0), n1, 1e-9), (n0, n1))
+    nf = world_normal_at(base, 900.0, 200.0, mi_params(fp[base["label"]]), flat)
+    check("flat_sample_gives_surface_normal", close(nf, [0.0, 1.0, 0.0], 1e-12), nf)
+    tilt = world_normal_at(base, 900.0, 200.0, mi_params(fp[base["label"]], **{"Normal Intensity": 1.0}),
+                           [0.6, 0.0, 0.8])
+    full = M.coords_full([0, 0, 0], [0, 1, 0], [1, 0, 0], *M.local_axes_world(base["world"]),
+                         mi_params(fp[base["label"]]))
+    check("DX_x_tilts_toward_increasing_u", M._dot(tilt, full["TA"]) > 0.5 and M._dot(tilt, [0, 1, 0]) > 0, tilt)
+    orth = max(abs(M._dot(full[a], full[b])) for a, b in (("TA", "BA"), ("TBr", "BBr")))
+    inplane = max(abs(M._dot(full[k], [0, 1, 0])) for k in M.FRAME_OUTPUTS)
+    check("planar_frames_orthonormal_and_in_face", orth < 1e-9 and inplane < 1e-9, (orth, inplane))
+    # UV-consistency: moving +1 cm along TA increases uvA.x by 1/Repeat; along BA increases uvA.y
+    p = mi_params(fp[base["label"]])
+    au, av = M.local_axes_world(base["world"])
+    f0 = M.coords_full([0, 0, 0], [0, 1, 0], [10.0, 0.0, 20.0], au, av, p)
+    f1 = M.coords_full([0, 0, 0], [0, 1, 0], [10.0 + f0["TA"][0], 0.0, 20.0 + f0["TA"][2]], au, av, p)
+    f2 = M.coords_full([0, 0, 0], [0, 1, 0], [10.0 + f0["BA"][0], 0.0, 20.0 + f0["BA"][2]], au, av, p)
+    r = 1.0 / p["RepeatCm"]
+    check("frame_matches_uv_derivatives_A", abs(f1["uvA"][0] - f0["uvA"][0] - r) < 1e-12 and
+          abs(f2["uvA"][1] - f0["uvA"][1] - r) < 1e-12, (f0["uvA"], f1["uvA"], f2["uvA"]))
+    rb = r / p["BreakupScale"]
+    g1 = M.coords_full([0, 0, 0], [0, 1, 0], [10.0 + f0["TBr"][0], 0.0, 20.0 + f0["TBr"][2]], au, av, p)
+    g2 = M.coords_full([0, 0, 0], [0, 1, 0], [10.0 + f0["BBr"][0], 0.0, 20.0 + f0["BBr"][2]], au, av, p)
+    check("frame_matches_uv_derivatives_B_rotated",
+          abs(g1["uvB"][0] - f0["uvB"][0] - rb) < 1e-12 and abs(g1["uvB"][1] - f0["uvB"][1]) < 1e-12 and
+          abs(g2["uvB"][1] - f0["uvB"][1] - rb) < 1e-12, (f0["uvB"], g1["uvB"], g2["uvB"]))
+
+
+def t_import_plan():
+    rows = M.import_plan()
+    check("import_plan_six_textures_no_displacement",
+          len(rows) == 6 and not any("Displacement" in r["file"] or "NormalGL" in r["file"] for r in rows),
+          [r["dest"] for r in rows])
+    samplers = {(r["set"], r["param"]): r["sampler"] for r in rows}
+    check("import_samplers", all(samplers[(s, "BaseColorTexture")] == "SAMPLERTYPE_COLOR" and
+                                 samplers[(s, "NormalTexture")] == "SAMPLERTYPE_NORMAL" and
+                                 samplers[(s, "RoughnessTexture")] == "SAMPLERTYPE_LINEAR_GRAYSCALE"
+                                 for s in M.VARIANTS.values()), samplers)
+    check("variant_textures_match_import_dests",
+          all(M.SOURCES[v][r["param"]] == r["dest"] for v in M.VARIANTS for r in rows if r["variant"] == v))
+    try:
+        from PIL import Image
+    except ImportError:
+        Image = None
+    present = [r for r in rows if os.path.isfile(r["file"])]
+    check("MEASURED_source_files_present", len(present) == 6, [r["file"] for r in rows if r not in present])
+    if Image is not None and present:
+        sizes = {r["file"]: Image.open(r["file"]).size for r in present}
+        check("MEASURED_source_files_2048", all(v == (2048, 2048) for v in sizes.values()), sizes)
+        ratios = {}
+        for r in present:
+            if r["param"] != "BaseColorTexture":
+                continue
+            im = Image.open(r["file"]).convert("L")
+            ratios[r["set"]] = tile_ratio(im)
+            crop = im.crop((0, 0, int(im.size[0] * 0.63), int(im.size[1] * 0.63)))
+            ratios[r["set"] + "_CONTROL_crop"] = tile_ratio(crop)
+        check("MEASURED_color_maps_tile (wrap seam ~ interior)",
+              all(v < 1.6 for k, v in ratios.items() if "CONTROL" not in k), ratios)
+        check("CONTROL_tile_detector_flags_non_tiling_crop",
+              all(v > 1.6 for k, v in ratios.items() if "CONTROL" in k), ratios)
+    good = {"compression": "TextureCompressionSettings.TC_GRAYSCALE", "srgb": False, "flip_green": False,
+            "size_x": 2048, "size_y": 2048}
+    rough = next(r for r in rows if r["param"] == "RoughnessTexture")
+    norm = next(r for r in rows if r["param"] == "NormalTexture")
+    check("settings_ok_roughness", M.texture_settings_problems(rough, good) == [])
+    check("CONTROL_settings_srgb_on_roughness", any("SRGB" in x for x in
+                                                    M.texture_settings_problems(rough, dict(good, srgb=True))))
+    check("CONTROL_settings_wrong_compression", any("COMPRESSION" in x for x in M.texture_settings_problems(
+        rough, dict(good, compression="TC_DEFAULT"))))
+    check("CONTROL_settings_green_flip_on_dx_normal", any("FLIP_GREEN" in x for x in M.texture_settings_problems(
+        norm, dict(good, compression="TC_NORMALMAP", flip_green=True))))
+    check("CONTROL_settings_size", any("SIZE" in x for x in M.texture_settings_problems(rough, dict(good, size_x=1024))))
+    a_master = {"BaseColorTexture": "MaterialSamplerType.SAMPLERTYPE_COLOR",
+                "NormalTexture": "MaterialSamplerType.SAMPLERTYPE_NORMAL",
+                "RoughnessTexture": "MaterialSamplerType.SAMPLERTYPE_LINEAR_GRAYSCALE"}
+    b_tex = {r["param"]: r["sampler"] for r in rows if r["variant"] == "B"}
+    check("switch_B_compatible_with_A_master", M.sampler_problems(a_master, b_tex) == [])
+    starter_master = dict(a_master, RoughnessTexture="MaterialSamplerType.SAMPLERTYPE_COLOR")
+    check("CONTROL_starter_master_rejects_variant_roughness",
+          any("RoughnessTexture" in x for x in M.sampler_problems(starter_master, b_tex)))
+
+
+def tile_ratio(im):
+    w, h = im.size
+    px = im.load()
+    step = 2
+    seam = statistics.mean([abs(px[0, y] - px[w - 1, y]) for y in range(0, h, step)] +
+                           [abs(px[x, 0] - px[x, h - 1]) for x in range(0, w, step)])
+    inner = statistics.mean([abs(px[w // 2, y] - px[w // 2 + 1, y]) for y in range(0, h, step)] +
+                            [abs(px[x, h // 2] - px[x, h // 2 + 1]) for x in range(0, w, step)])
+    return round(seam / max(inner, 1e-6), 3)
+
+
+def t_switch_logic():
+    a, b = M.SOURCES["A"], M.SOURCES["B"]
+    kids = {M.CHILD_PREFIX + s: dict(a) for s in ("L0", "L1", "R0")}
+    check("switch_plan_all_change_A_to_B", A.switch_plan(kids, b) == sorted(kids))
+    check("switch_plan_noop_when_already_B", A.switch_plan({k: dict(b) for k in kids}, b) == [])
+    mixed = dict(kids)
+    mixed[M.CHILD_PREFIX + "L1"] = dict(b)
+    check("switch_plan_only_differing", A.switch_plan(mixed, b) == [M.CHILD_PREFIX + "L0", M.CHILD_PREFIX + "R0"])
+    sb = {k: {"Brightness": 1.15} for k in kids}
+    check("switch_plan_scalar_only_change", A.switch_plan({k: dict(b) for k in kids}, b, sb, {"Brightness": 1.0})
+          == sorted(kids))
+    check("CONTROL_switch_plan_scalar_equal_is_noop",
+          A.switch_plan({k: dict(b) for k in kids}, b, sb, {"Brightness": 1.15}) == [])
+    h = A.switch_history_push(None, "r1", "B", {k: dict(a) for k in kids})
+    h = A.switch_history_push(h, "r2", "A", {k: dict(b) for k in kids})
+    h2, last = A.switch_history_pop(h, "r3")
+    check("switch_history_pops_last", last["run"] == "r2" and len(h2["history"]) == 1 and len(h["history"]) == 2 and
+          h2["reverted"][-1]["reverted_by"] == "r3")
+    check("CONTROL_switch_revert_with_empty_history", raises(A.switch_history_pop, {"history": []}, "r",
+                                                             contains="NO_SWITCH_TO_REVERT"))
+
+
+def undefined_names(src):
+    """Names loaded but never bound anywhere in the module (catches a helper lost while patching the Unreal glue,
+    which the offline import cannot execute)."""
+    import ast
+    import builtins
+    tree = ast.parse(src)
+    bound = set(dir(builtins)) | {"__file__"}
+    for n in ast.walk(tree):
+        if isinstance(n, (ast.FunctionDef, ast.ClassDef)):
+            bound.add(n.name)
+        elif isinstance(n, ast.Import):
+            bound.update(a.asname or a.name.split(".")[0] for a in n.names)
+        elif isinstance(n, ast.ImportFrom):
+            bound.update(a.asname or a.name for a in n.names)
+        elif isinstance(n, ast.Name) and isinstance(n.ctx, (ast.Store, ast.Del)):
+            bound.add(n.id)
+        elif isinstance(n, ast.arg):
+            bound.add(n.arg)
+        elif isinstance(n, ast.ExceptHandler) and n.name:
+            bound.add(n.name)
+    return sorted({n.id for n in ast.walk(tree) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)} - bound)
+
+
+def t_names():
+    for f in ("s3_marble_tiling_apply.py", "s3_marble_tiling_material.py"):
+        src = open(os.path.join(HERE, f), encoding="utf-8").read()
+        check("no_undefined_names|" + f, undefined_names(src) == [], undefined_names(src))
+    check("CONTROL_undefined_name_detected", undefined_names("def f():\n    return _lost_helper(1)\n") ==
+          ["_lost_helper"])
+
+
 def t_mode_and_census():
     check("dry_needs_no_confirm", A.check_mode({"mode": "DRY"}, False)[0] == "DRY")
     check("verify_needs_no_confirm", A.check_mode({"mode": "VERIFY"}, True)[0] == "VERIFY")
@@ -328,6 +530,32 @@ def t_mode_and_census():
     check("CONTROL_census_build_must_not_dirty_level", not A.census_ok({"maps": [A.WORLD], "content": created},
                                                                        "BUILD", created))
     check("CONTROL_census_apply_missing_level", not A.census_ok({"maps": [], "content": []}, "APPLY", []))
+    tex = [r["dest"] for r in M.import_plan()]
+    check("census_import_exactly_textures", A.census_ok({"maps": [], "content": tex}, "IMPORT", tex))
+    check("CONTROL_census_import_with_level_dirty", not A.census_ok({"maps": [A.WORLD], "content": tex},
+                                                                    "IMPORT", tex))
+    kids = [M.CHILD_PREFIX + "L0", M.CHILD_PREFIX + "R0"]
+    check("census_switch_exactly_children", A.census_ok({"maps": [], "content": kids}, "SWITCH", kids))
+    check("CONTROL_census_switch_extra_parent_mi", not A.census_ok({"maps": [], "content": kids + [M.MI]},
+                                                                   "SWITCH", kids))
+    m, f, s = A.check_mode({"mode": "DRY"}, False)
+    check("defaults_object_frame_source_A", (f, s) == ("object", "A"), (f, s))
+    check("switch_ok", A.check_mode({"mode": "SWITCH", "confirm": "SWITCH S3MARBLE", "variant": "b"}, True)[0]
+          == "SWITCH")
+    check("CONTROL_switch_without_apply_record", raises(A.check_mode, {"mode": "SWITCH", "confirm":
+                                                                       "SWITCH S3MARBLE", "variant": "B"}, False,
+                                                        contains="NO_RECORD"))
+    check("CONTROL_switch_bad_variant", raises(A.check_mode, {"mode": "SWITCH", "confirm": "SWITCH S3MARBLE",
+                                                              "variant": "C"}, True, contains="VARIANT"))
+    check("CONTROL_switch_world_frame", raises(A.check_mode, {"mode": "SWITCH", "confirm": "SWITCH S3MARBLE",
+                                                             "variant": "B", "frame": "world"}, True,
+                                               contains="SWITCH_NEEDS_OBJECT_FRAME"))
+    check("CONTROL_import_needs_confirm", raises(A.check_mode, {"mode": "IMPORT"}, False, contains="CONFIRM"))
+    check("CONTROL_import_bad_variant", raises(A.check_mode, {"mode": "IMPORT", "confirm": "IMPORT S3MARBLE",
+                                                              "variants": ["A", "Z"]}, False,
+                                               contains="IMPORT_VARIANTS"))
+    check("variant_sources_set_roughness_weight", A.extra_scalars_for({"source": "B"}) == {"RoughnessTextureWeight": 1.0}
+          and A.extra_scalars_for({"source": "starter"}) == {})
 
 
 def t_hp():
@@ -379,7 +607,8 @@ def t_probe_fact():
 
 def main():
     for t in (t_graph_spec, t_sampler, t_axes, t_targets, t_plan, t_frame_params, t_continuity_and_rigidity,
-              t_tiling_and_breakup, t_noise_wrap_control, t_mode_and_census, t_hp, t_log_scan, t_probe_fact):
+              t_tiling_and_breakup, t_noise_wrap_control, t_normal_frame, t_import_plan, t_switch_logic,
+              t_names, t_mode_and_census, t_hp, t_log_scan, t_probe_fact):
         try:
             t()
         except Exception as exc:  # noqa: BLE001
