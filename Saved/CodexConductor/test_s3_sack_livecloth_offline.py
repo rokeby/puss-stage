@@ -386,23 +386,126 @@ def t_back_geometry():
     _c, cp = S.pin_coverage(sheet, crown_only, p)
     check("NEG a crown-only pin under the v2 layout -> coverage does not span + BACK_PIN_SPAN",
           any("does not span" in x for x in cp) and any(x.startswith("BACK_PIN_SPAN") for x in cp), cp)
-    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(back=(6.0, 0.0, -40.0), p=p), p, "crown+back")
-    check("NEG back point ahead of the crown -> BACK_PIN_NOT_BEHIND", any(x.startswith("BACK_PIN_NOT_BEHIND") for x in pr), pr)
-    pt = dict(p, back_handle=0.6)
+    pb = dict(p, back_path="bezier")                      # the original path's own gates (still selectable)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(p=pb), pb, "crown+back")
+    check("bezier path still passes the Shore05-like synthetic frame", not pr, pr)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(back=(6.0, 0.0, -40.0), p=pb), pb, "crown+back")
+    check("NEG (bezier) back point ahead of the crown -> BACK_PIN_NOT_BEHIND", any(x.startswith("BACK_PIN_NOT_BEHIND") for x in pr), pr)
+    pt = dict(pb, back_handle=0.6)
     _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(p=pt), pt, "crown+back")
-    check("NEG a tight bend (handle 0.6) -> BEND_TIGHT and PATTERN_NOT_ISOMETRIC",
+    check("NEG (bezier) a tight bend (handle 0.6) -> BEND_TIGHT and PATTERN_NOT_ISOMETRIC",
           any(x.startswith("BEND_TIGHT") for x in pr) and any(x.startswith("PATTERN_NOT_ISOMETRIC") for x in pr), pr)
     fr2 = _back_frame(back=(-5.0, -40.0, -38.0), p=p)
     _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", fr2, p, "crown+back")
     check("NEG back point 83 deg off the eyes -> BACK_FACING", any(x.startswith("BACK_FACING") for x in pr), pr)
-    fr3 = _back_frame(down=(0.6, 0.0, 0.8), p=p)
-    S.plan_geometry("Shore05_M53", fr3, p, "crown+back")
-    check("back tangent pointing back at the crown -> chord fallback (recorded)",
+    fr3 = _back_frame(down=(0.6, 0.0, 0.8), p=pb)
+    S.plan_geometry("Shore05_M53", fr3, pb, "crown+back")
+    check("(bezier) back tangent pointing back at the crown -> chord fallback (recorded)",
           fr3["back"]["geometry"]["tangent_source"] == "chord")
     flat = S.plan_geometry("Shore01_M56", _back_frame(p=p), p, "crown")[3]
     check("upright crown layout under v2: v1 gates, no coverage problems", not flat, flat)
     c1, _ = S.pin_coverage(*S.plan_geometry("Shore01_M56", _back_frame(p=p), p, "crown")[:2], p)
     check("upright crown layout: one disc only", len(c1["pins_cm"]) == 1)
+
+
+def _seg_dist(q, a, b):
+    ab = S._sub(b, a)
+    t = max(0.0, min(1.0, S._dot(S._sub(q, a), ab) / S._dot(ab, ab)))
+    return S._norm(S._sub(q, S._add(a, S._mul(ab, t))))
+
+
+DRY_JSON = os.path.join(HERE, "s3_sack_livecloth_dry.json")
+HEAD_PROXY_LOCAL = [0.0, 0.0, -21.0]   # head socket in the cloth component frame [inferred, see t_back_arc]
+
+
+def t_back_arc():
+    """back_path "arc" (6 Oct): arc R1 / tangent segment / arc R2 / straight; heading behind vs hook."""
+    p = dict(S.PARAMS)
+    check("default back_path is arc", p["back_path"] == "arc")
+    fr = _back_frame(p=p)
+    _s, placed, m, pr = S.plan_geometry("Shore05_M53", fr, p, "crown+back")
+    g = fr["back"]["geometry"]
+    check("arc: synthetic Shore05-like frame passes every gate", not pr, pr)
+    check("arc: back point lies on the path at s_B (end error < 1e-6, lateral ~0, pin = curve point)",
+          g["back_end_error_cm"] < 1e-6 and abs(g["lateral_error_cm"]) < 1e-6 and m["coverage"]["back_vs_target_cm"] < 1e-6, g)
+    bg0 = S.back_geometry(fr, fr["back"]["back_local_cm"], fr["back"]["down_back_local"], p)
+    (a, b), _t = S._rear_point(bg0, g["s_B_cm"])
+    check("arc: _rear_point(s_B) = b2_cm", abs(a - g["b2_cm"][0]) < 1e-6 and abs(b - g["b2_cm"][1]) < 1e-6, (a, b, g["b2_cm"]))
+    check("arc: synthetic heading 'behind', theta1 < 90", g["heading_mode"] == "behind" and g["theta1_deg"] < 90.0, g)
+    # hook: back point ahead of the crown and well below -> heading +Bh, theta1 > 90, no BACK_FACING
+    frh = _back_frame(back=(12.0, 0.0, -35.0), down=(0.3, 0.0, -0.95), p=p)
+    _s, _pl, mh, prh = S.plan_geometry("Shore05_M53", frh, p, "crown+back")
+    gh = frh["back"]["geometry"]
+    check("arc: hook (back point 12 cm AHEAD, 37 cm below) passes; theta1 > 90; heading = +Bh (0 deg off eyes)",
+          not prh and gh["heading_mode"] == "hook" and gh["theta1_deg"] > 90.0 and gh["fwd2_vs_eyes_deg"] < 1e-6, (prh, gh))
+    # analytic check: a pure quarter arc. B at (A=R1, b=-R1 - L) straight below the arc end -> theta1 = 90 exactly
+    R = p["back_arc_radius_cm"]
+    frq = _back_frame(back=(-R, 0.0, 2.0 - R - 20.0), down=(0.0, 0.0, -1.0), p=p)
+    S.plan_geometry("Shore05_M53", frq, p, "crown+back")
+    gq = frq["back"]["geometry"]
+    check("arc: analytic quarter arc: theta1 = 90, segment 20, s_B = pi R/2 + 20, arc 2 skipped (no turn)",
+          abs(gq["theta1_deg"] - 90.0) < 1e-6 and abs(gq["segment_cm"] - 20.0) < 1e-6 and
+          abs(gq["s_B_cm"] - (math.pi * R / 2 + 20.0)) < 0.01 and gq["arc2"] == "skipped_small", gq)
+    # negative controls
+    p6 = dict(p, back_arc_radius_cm=6.0)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(p=p6), p6, "crown+back")
+    check("NEG arc R1 = 6 -> BEND_TIGHT", any(x.startswith("BEND_TIGHT") for x in pr), pr)
+    p6b = dict(p, back_arc2_radius_cm=6.0)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(p=p6b), p6b, "crown+back")
+    check("NEG arc R2 = 6 (arc 2 used) -> BEND_TIGHT", any(x.startswith("BEND_TIGHT") for x in pr), pr)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(back=(-28.0, 0.0, -8.0), p=p), p, "crown+back")
+    check("NEG back point 10 cm below the crown -> BACK_PIN_NOT_BELOW", any(x.startswith("BACK_PIN_NOT_BELOW") for x in pr), pr)
+    frf = _back_frame(p=p)
+    frf["fwd_local"] = [0.0, 1.0, 0.0]                   # eyes 90 deg off the crown->back heading
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", frf, p, "crown+back")
+    check("NEG heading 90 deg off the eyes -> BACK_FACING", any(x.startswith("BACK_FACING") for x in pr), pr)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(back=(-8.0, 0.0, -6.0), p=p), p, "crown+back")
+    check("NEG back point inside the R1 circle -> BACK_TOO_CLOSE", any(x.startswith("BACK_TOO_CLOSE") for x in pr), pr)
+    check("NEG params back_path=spline -> PARAM_BACK_PATH",
+          any(x.startswith("PARAM_BACK_PATH") for x in S.validate_params(dict(p, back_path="spline"))))
+    # ---- the REAL measured inputs (live DRY S3LIVESACK, figures_detail.<fig>.frame)
+    if not os.path.exists(DRY_JSON):
+        check("DRY json absent: real-input arc check SKIPPED (UNVERIFIED)", True)
+        return
+    dry = json.load(open(DRY_JSON, encoding="utf-8"))
+    for f in ("Shore03_M59", "Shore05_M53"):
+        det = dry["figures_detail"].get(f, {})
+        if "frame" not in det or "back" not in det["frame"]:
+            check("%s: DRY has no crown+back frame" % f, False, sorted(det))
+            continue
+        frr = copy.deepcopy(det["frame"])
+        _s, plr, mr, prr = S.plan_geometry(f, frr, p, "crown+back")
+        gr, cov = frr["back"]["geometry"], mr["coverage"]
+        ok = (not prr and gr["min_radius_cm"] >= S.BEND_MIN_RADIUS_CM and 0.99 <= mr["edge_ratio_min"] and
+              mr["edge_ratio_max"] <= 1.01 and cov["back_vs_target_cm"] <= S.BACK_TARGET_TOL_CM)
+        bg = S.back_geometry(copy.deepcopy(det["frame"]), frr["back"]["back_local_cm"], frr["back"]["down_back_local"], p)
+        C, h, up = bg["pin_local_cm"], bg["fwd2_local"], bg["up_local"]
+        sp = S.to_local(frr["back"]["spine05_world_cm"], frr["comp_origin_world"], frr["comp_axes_world"])
+        near = {"head_proxy": 1e9, "skull_axis_s>=10": 1e9, "neck_proxy": 1e9, "spine05": 1e9}
+        s = 0.0
+        while s <= bg["s_B_cm"] + 10.0:
+            (a, b), _t = S._rear_point(bg, s)
+            q = S._add(C, S._add(S._mul(h, a), S._mul(up, b)))
+            near["head_proxy"] = min(near["head_proxy"], S._norm(S._sub(q, HEAD_PROXY_LOCAL)))
+            if s >= 10.0:
+                near["skull_axis_s>=10"] = min(near["skull_axis_s>=10"], _seg_dist(q, HEAD_PROXY_LOCAL, [0.0, 0.0, 0.0]))
+            near["neck_proxy"] = min(near["neck_proxy"], _seg_dist(q, HEAD_PROXY_LOCAL, sp))
+            near["spine05"] = min(near["spine05"], S._norm(S._sub(q, sp)))
+            s += 0.5
+        line = ("%s heading=%s vs_eyes=%.1fdeg theta1=%.1f theta2=%.1f (%s) minR=%.1f edge=%.4f..%.4f s_B=%.1f "
+                "seg=%.1f lateral=%.1e kin=%d per_pin=%s rear_kin=%.1f..%.1f back_vs_target=%.2e below=%.1f "
+                "closest(cm) %s" % (f, gr["heading_mode"], gr["fwd2_vs_eyes_deg"], gr["theta1_deg"], gr["theta2_deg"],
+                                    gr["arc2"], gr["min_radius_cm"], mr["edge_ratio_min"], mr["edge_ratio_max"],
+                                    gr["s_B_cm"], gr["segment_cm"], gr["lateral_error_cm"], cov["kinematic"],
+                                    cov["per_pin"], cov["rear_arc_min_cm"], cov["rear_arc_max_cm"],
+                                    cov["back_vs_target_cm"], gr["back_below_crown_cm"],
+                                    {k: round(v, 1) for k, v in near.items()}))
+        print("REAL_DRY_ARC|" + line)
+        check("REAL DRY %s: arc path passes every geometry + coverage gate (min R >= 12, edges 0.99..1.01, back on "
+              "target)" % f, ok, (prr, line))
+        pbz = dict(p, back_path="bezier")
+        _s, _pl, _m, prb = S.plan_geometry(f, copy.deepcopy(det["frame"]), pbz, "crown+back")
+        check("NEG REAL DRY %s: the old bezier path still fails (the reason for the arc)" % f, bool(prb), prb)
 
 
 def t_material():
@@ -1021,7 +1124,7 @@ def t_fake():
 
 
 def main():
-    for t in (t_params, t_modes, t_files, t_binary_facts, t_sheet, t_lean, t_back_geometry, t_material, t_frames,
+    for t in (t_params, t_modes, t_files, t_binary_facts, t_sheet, t_lean, t_back_geometry, t_back_arc, t_material, t_frames,
               t_blender_frame, t_dataflow, t_census, t_gates, t_fake):
         try:
             t()

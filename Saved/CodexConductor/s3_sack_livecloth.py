@@ -71,6 +71,11 @@ it's not pinned to his back. And the material reads much too dark"):
     sheet starts on a smooth arc-length (isometric) curve from the crown over the back of the head to that point, so
     both discs lie ON the sheet. Gate pin_coverage(): kinematic particles at the crown AND at the back point, spanning
     the crown->back arc. Shore02 keeps her v1 back pin; the other upright figures keep the v1 crown pin.
+    Rear path (6 Oct evening, after the live DRY failed both back-pin figures with the cubic Bezier): params
+    back_path "arc" (default; back_geometry_arc: arc R1 down from the crown, tangent segment to the back point,
+    arc R2 onto the spine, straight; heading "behind" or "hook" when the head is thrown back and the back point
+    lies AHEAD of the crown) or "bezier" (the original back_geometry_bezier). Gates for "arc": BACK_TOO_CLOSE,
+    BACK_PIN_NOT_BELOW (replaces BACK_PIN_NOT_BEHIND), BEND_TIGHT, BACK_FACING; isometry unchanged.
   - Material. v2 makes MI_Sackcloth_OldGrey_Cloth_v2 (create-only; v1 MI untouched, so REVERT v1 / APPLY v1 still
     work). MI_LOOK[2]: HemGrimeAmount 0 (the hem grime is referenced to ObjectPositionWS = the cloth's BOUNDS centre,
     PrimitiveUniformShaderParametersBuilder.h:194, which for a head-attached cloth sits above most of the sack: the
@@ -200,7 +205,13 @@ PARAMS = {
     "material_variant": "masked",              # "masked" (fray fringe from UV1.x) or "opaque"
     # v2 back pin (crown+back layout only)
     "back_pin_depth_cm": 12.0,  # spine_05 joint -> back skin: the finals' torso proxy half-depth 0.115 / 0.10 m
-    "back_handle": 0.40,        # Bezier handles crown->back, x |crown - back| (larger = rounder over the occiput)
+    "back_handle": 0.40,        # Bezier handles crown->back, x |crown - back| (back_path "bezier" only)
+    # v2 rear path (6 Oct, after the DRY failed both back-pin figures with the Bezier: Shore05 min radius 8.4 cm,
+    # Shore03 head thrown back -> back point AHEAD of the crown): "arc" = arc R1 down from the crown, tangent line to
+    # the back point B, arc R2 onto the spine, straight. "bezier" = the original cubic (kept selectable).
+    "back_path": "arc",
+    "back_arc_radius_cm": 15.0,     # R1: chord ratio at quad 5 cm = 2R sin(q/2R)/q = 0.9954 (>= 0.99)
+    "back_arc2_radius_cm": 15.0,    # R2: segment -> spine direction at B
 }
 PARAM_RANGES = {"quad_cm": (2.0, 10.0), "fray_depth_cm": (0.0, 8.0), "lift_cm": (0.0, 10.0),
                 "back_lift_cm": (0.0, 10.0), "pin_inner_cm": (2.0, 20.0), "pin_outer_cm": (5.0, 60.0),
@@ -210,11 +221,16 @@ PARAM_RANGES = {"quad_cm": (2.0, 10.0), "fray_depth_cm": (0.0, 8.0), "lift_cm": 
                 "collision_thickness_cm": (0.1, 10.0), "friction": (0.0, 2.0), "self_thickness_cm": (0.05, 5.0),
                 "iterations": (1, 20), "max_iterations": (1, 40), "substeps": (1, 12),
                 "tether_stiffness": (0.0, 1.0), "tether_scale": (0.9, 1.2),
-                "back_pin_depth_cm": (0.0, 25.0), "back_handle": (0.1, 0.7)}
+                "back_pin_depth_cm": (0.0, 25.0), "back_handle": (0.1, 0.7),
+                "back_arc_radius_cm": (4.0, 60.0), "back_arc2_radius_cm": (4.0, 60.0)}
+BACK_PATHS = ("arc", "bezier")
 BEND_MIN_RADIUS_CM = 12.0     # a sanity floor; the binding gate is PATTERN_NOT_ISOMETRIC on EVERY triangle (0.99-1.01)
 BACK_TARGET_TOL_CM = 6.0      # the back disc centre (on the sheet) vs the measured back point
 BACK_MIN_SPAN_CM = 20.0       # crown -> back disc distance: below this it is one disc, not a back pin
 BACK_FACING_MAX_DEG = 60.0    # sheet "forward" (away from the back) vs the eyes
+BACK_BELOW_MIN_CM = 20.0      # arc path: the back point must sit at least this far below the crown
+BACK_HEADING_MIN_CM = 3.0     # arc path: below this horizontal crown->back distance the heading is the eyes'
+ARC2_MIN_TURN_DEG = 2.0       # arc path: a smaller turn onto the spine is skipped
 
 
 class LiveSackError(RuntimeError):
@@ -329,6 +345,8 @@ def validate_params(p):
             probs.append("PARAM_RANGE|%s=%r not in [%s, %s]" % (k, v, lo, hi))
     if p.get("material_variant") not in ("masked", "opaque"):
         probs.append("PARAM_VARIANT|%r" % p.get("material_variant"))
+    if p.get("back_path", "arc") not in BACK_PATHS:
+        probs.append("PARAM_BACK_PATH|%r not in %s" % (p.get("back_path"), BACK_PATHS))
     if not probs:
         if p["pin_outer_cm"] <= p["pin_inner_cm"] + 2.0:
             probs.append("PIN_FALLOFF|outer must exceed inner by > 2 cm")
@@ -640,7 +658,14 @@ def _bezier_d(p, t):
 
 
 def back_geometry(frame, back_local_cm, down_back_local, params, samples=4000):
-    """The rear profile of a crown+back sheet in the plane through the crown pin C spanned by world-up and the
+    """Dispatch on params["back_path"]: "arc" (default since 6 Oct) or the original "bezier"."""
+    if params.get("back_path", "arc") == "bezier":
+        return back_geometry_bezier(frame, back_local_cm, down_back_local, params, samples)
+    return back_geometry_arc(frame, back_local_cm, down_back_local, params)
+
+
+def back_geometry_bezier(frame, back_local_cm, down_back_local, params, samples=4000):
+    """back_path "bezier" (the original v2 path). The rear profile of a crown+back sheet in the plane through the crown pin C spanned by world-up and the
     horizontal C->back direction (so the back point lies IN the plane: no lateral error). 2D coords (a, b) cm:
     a along fwd2 (= away from the back), b along up. Rear path: cubic Bezier C -> B leaving C horizontally backwards
     (continuous with the flat front panel: no fold at the crown) and arriving at B along the back (down_back); beyond
@@ -679,10 +704,111 @@ def back_geometry(frame, back_local_cm, down_back_local, params, samples=4000):
         if _norm(e) > 1e-6:
             eye_deg = math.degrees(math.acos(max(-1.0, min(1.0, _dot(_unit(e), fwd2)))))
             along_eyes = _dot(d, _unit(e))
-    return {"fwd2_local": fwd2, "side_local": side, "up_local": up, "pin_local_cm": C, "back_local_cm": back_local_cm,
+    return {"path": "bezier", "fwd2_local": fwd2, "side_local": side, "up_local": up, "pin_local_cm": C,
+            "back_local_cm": back_local_cm,
             "b2_cm": [aB, bB], "chord_cm": L, "tangent_b": [ta, tb], "tangent_source": tangent_src, "ctrl_cm": P,
             "pts": pts, "arc": arc, "rear_len_cm": arc[-1], "min_radius_cm": rmin, "fwd2_vs_eyes_deg": eye_deg,
             "back_along_eyes_cm": along_eyes}
+
+
+def _arc_piece(pos0, psi0, sign, radius, length, step):
+    """Points of a circular arc (2D) leaving pos0 at heading psi0, turning CCW (sign +1) or CW (-1), first point
+    excluded. pos(s) = pos0 + sign R (sin psi(s) - sin psi0, cos psi0 - cos psi(s)), psi(s) = psi0 + sign s / R."""
+    n = max(1, int(math.ceil(length / step)))
+    out = []
+    for i in range(1, n + 1):
+        psi = psi0 + sign * (length * i / n) / radius
+        out.append([pos0[0] + sign * radius * (math.sin(psi) - math.sin(psi0)),
+                    pos0[1] + sign * radius * (math.cos(psi0) - math.cos(psi))])
+    return out
+
+
+def back_geometry_arc(frame, back_local_cm, down_back_local, params, step_cm=0.05):
+    """back_path "arc". Heading h (sheet forward, the front panel's direction) from the horizontal crown->back vector
+    Bh: h = -unit(Bh) if B is behind the crown w.r.t. the eyes ("behind"), +unit(Bh) if ahead (head thrown back:
+    "hook"), the eyes' forward if |Bh| < BACK_HEADING_MIN_CM. B therefore lies in the plane (up, h): no lateral error.
+    Rear path in 2D (A along -h = backwards, b up), from the crown C=(0,0) heading +A (continuous with the flat front
+    panel): arc R1 turning DOWN (centre (0,-R1)) through theta1, until its tangent line passes through B; the straight
+    tangent segment to B (s = s_B); at B an arc R2 turning onto the in-plane spine direction (theta2, skipped when the
+    projection is degenerate or the turn < ARC2_MIN_TURN_DEG); then straight. Stored in the Bezier path's (a, b)
+    convention (a along fwd2 = h, so a = -A) and arc-length table, so _rear_point / place_sheet_back are shared."""
+    up, C = frame["up_local"], frame["pin_local_cm"]
+    R1, R2 = float(params["back_arc_radius_cm"]), float(params["back_arc2_radius_cm"])
+    d = _sub(back_local_cm, C)
+    horiz = _sub(d, _mul(up, _dot(d, up)))
+    eye = frame.get("fwd_local")
+    e = None
+    if eye is not None:
+        e0 = _sub(eye, _mul(up, _dot(eye, up)))
+        e = _unit(e0, "eyes horizontal") if _norm(e0) > 1e-6 else None
+    along_eyes = _dot(d, e) if e is not None else None
+    if _norm(horiz) < BACK_HEADING_MIN_CM:
+        _require(e is not None, "BACK_HEADING|crown->back nearly vertical and no eyes' forward")
+        h, heading_src = e, "eyes"
+    else:
+        hb = _unit(horiz, "crown->back horizontal")
+        behind = along_eyes is None or along_eyes < 0.0
+        h, heading_src = (_mul(hb, -1.0) if behind else hb), "back"
+    mode = "behind" if (along_eyes is None or along_eyes < 0.0) else "hook"
+    side = _unit(_cross(h, up), "side")
+    lateral = _dot(d, side)
+    BA, Bb = -_dot(d, h), _dot(d, up)                     # spec coords: A backwards, b up
+    eye_deg = None if e is None else math.degrees(math.acos(max(-1.0, min(1.0, _dot(e, h)))))
+    # arc 1 + tangent segment
+    DA, Db = BA, Bb + R1                                   # B relative to the arc-1 centre (0, -R1)
+    Dn = math.hypot(DA, Db)
+    too_close = Dn <= R1 * (1.0 + 1e-9)
+    pts = [[0.0, 0.0]]
+    if too_close:                                          # reported (BACK_TOO_CLOSE); fallback = the chord (a fold)
+        theta1, seg_len, rmin = 0.0, math.hypot(BA, Bb), 0.0
+        psi_seg = math.atan2(Bb, BA)
+        pts.append([BA, Bb])
+    else:
+        theta1 = (math.atan2(DA, Db) - math.acos(R1 / Dn)) % (2.0 * math.pi)
+        if theta1 > 2.0 * math.pi - 1e-9:
+            theta1 = 0.0
+        if theta1 > 0.0:
+            pts += _arc_piece([0.0, 0.0], 0.0, -1.0, R1, R1 * theta1, step_cm)
+        psi_seg = -theta1
+        seg_len = math.sqrt(max(0.0, Dn * Dn - R1 * R1))
+        p1 = pts[-1]
+        pts.append([p1[0] + seg_len * math.cos(psi_seg), p1[1] + seg_len * math.sin(psi_seg)])
+        rmin = R1
+    i_B = len(pts) - 1
+    end_err = math.hypot(pts[i_B][0] - BA, pts[i_B][1] - Bb)
+    # arc 2 onto the spine direction
+    sA, sb = -_dot(down_back_local, h), _dot(down_back_local, up)
+    sn = math.hypot(sA, sb)
+    theta2, arc2 = 0.0, "skipped_degenerate"
+    psi_end = psi_seg
+    if sn >= 1e-3:
+        turn = math.atan2(sb, sA) - psi_seg
+        turn = (turn + math.pi) % (2.0 * math.pi) - math.pi
+        theta2 = math.degrees(turn)
+        if abs(theta2) < ARC2_MIN_TURN_DEG:
+            arc2 = "skipped_small"
+        else:
+            sign = 1.0 if turn > 0 else -1.0
+            pts += _arc_piece(pts[i_B], psi_seg, sign, R2, R2 * abs(turn), step_cm)
+            psi_end = psi_seg + turn
+            rmin = min(rmin, R2)
+            arc2 = "used"
+    tail = [pts[-1][0] + 5.0 * math.cos(psi_end), pts[-1][1] + 5.0 * math.sin(psi_end)]
+    pts.append(tail)                                       # a short table tail; _rear_point extrapolates beyond
+    pts = [[-p[0], p[1]] for p in pts]                     # -> (a along fwd2 = h, b up)
+    arc = [0.0]
+    for i in range(1, len(pts)):
+        arc.append(arc[-1] + math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
+    tb = [-math.cos(psi_end), math.sin(psi_end)]
+    return {"path": "arc", "fwd2_local": h, "side_local": side, "up_local": up, "pin_local_cm": C,
+            "back_local_cm": back_local_cm, "b2_cm": list(pts[i_B]), "chord_cm": math.hypot(BA, Bb),
+            "tangent_b": tb, "tangent_source": "spine" if arc2 != "skipped_degenerate" else "segment",
+            "pts": pts, "arc": arc, "rear_len_cm": arc[i_B], "s_B_cm": arc[i_B], "path_len_cm": arc[-1],
+            "min_radius_cm": rmin, "fwd2_vs_eyes_deg": eye_deg, "back_along_eyes_cm": along_eyes,
+            "heading_mode": mode, "heading_source": heading_src, "theta1_deg": math.degrees(theta1),
+            "theta2_deg": theta2, "arc2": arc2, "segment_cm": seg_len, "lateral_error_cm": lateral,
+            "back_end_error_cm": end_err, "back_below_crown_cm": -Bb, "too_close": too_close,
+            "arc_radii_cm": [R1, R2]}
 
 
 def _rear_point(bg, s):
@@ -761,7 +887,20 @@ def pin_coverage(sheet, placed, params, back_target_cm=None):
 
 def back_geometry_problems(bg):
     probs = []
-    if bg["back_along_eyes_cm"] > -5.0:      # fwd2 is built FROM the back point: test against the eyes instead
+    if bg.get("path") == "arc":
+        # BACK_PIN_NOT_BEHIND does not apply: the hook path reaches a back point AHEAD of the crown (head thrown back)
+        if bg["too_close"]:
+            probs.append("BACK_TOO_CLOSE|back point inside the R1 %.1f cm arc circle" % bg["arc_radii_cm"][0])
+        if bg["back_below_crown_cm"] < BACK_BELOW_MIN_CM:
+            probs.append("BACK_PIN_NOT_BELOW|back point %.1f cm below the crown (< %.0f)"
+                         % (bg["back_below_crown_cm"], BACK_BELOW_MIN_CM))
+        if bg["min_radius_cm"] < BEND_MIN_RADIUS_CM:
+            probs.append("BEND_TIGHT|min radius %.1f cm < %.0f" % (bg["min_radius_cm"], BEND_MIN_RADIUS_CM))
+        if bg["fwd2_vs_eyes_deg"] is not None and bg["fwd2_vs_eyes_deg"] > BACK_FACING_MAX_DEG:
+            probs.append("BACK_FACING|sheet forward (heading %s) vs eyes %.0f deg"
+                         % (bg["heading_mode"], bg["fwd2_vs_eyes_deg"]))
+        return probs
+    if bg["back_along_eyes_cm"] > -5.0:     # fwd2 is built FROM the back point: test against the eyes instead
         probs.append("BACK_PIN_NOT_BEHIND|back point %.1f cm along the eyes' forward (must be behind the crown)"
                      % bg["back_along_eyes_cm"])
     if bg["min_radius_cm"] < BEND_MIN_RADIUS_CM:
@@ -1229,6 +1368,20 @@ def _template_state(bp_path):
     return st                      # (Docs/ShoreCast-20260910.md:84): compared on the INSTANCE only
 
 
+def _facing_live(actor, body):
+    """Feet facing; 6 Oct live: the editor Body returned one point for every leg socket (ZERO_VECTOR|hip line), so
+    fall back to the horizontal head->eye-midpoint direction from the Face (rigid on the head)."""
+    try:
+        return facing_from_feet(*[_socket(body, b) for b in ("thigh_l", "thigh_r", "ball_l", "foot_l", "ball_r", "foot_r")])
+    except LiveSackError:
+        face = _one(actor, FACE, "SkeletalMeshComponent")
+        eye_mid, _e = _eye_mid(face)
+        head = _socket(face, "head") if _norm(_sub(_socket(face, "head"), _vec(face.get_world_location()))) > 1.0 else _socket(body, "head")
+        d = _sub(eye_mid, head)
+        d[2] = 0.0
+        return _unit(d, "eye facing"), 0.0
+
+
 def _socket(comp, name):
     return _vec(comp.get_socket_location(name))
 
@@ -1256,7 +1409,7 @@ def _measure(fig, actor, params, override, layout=None, accept=()):
     cloth = _one(actor, CLOTH, CLOTH_CLASS)
     origin, axes = _vec(cloth.get_world_location()), _axes(cloth)
     up = [0.0, 0.0, 1.0]
-    feet, toes = facing_from_feet(*[_socket(body, b) for b in ("thigh_l", "thigh_r", "ball_l", "foot_l", "ball_r", "foot_r")])
+    feet, toes = _facing_live(actor, body)
     if layout == "crown+back":
         eye_mid, eyes = _eye_mid(_one(actor, FACE, "SkeletalMeshComponent"))
         frame, probs = upright_frame(origin, axes, eye_mid, up, feet if toes > 1.0 else None, params, override)
@@ -1730,7 +1883,7 @@ def _back_pin_track(actor, row, params):
     c = _one(actor, CLOTH, CLOTH_CLASS)
     pins = (row.get("metrics") or {}).get("coverage", {}).get("pins_cm") or [None, back["back_local_cm"]]
     disc = _vec(unreal.MathLibrary.transform_location(c.get_world_transform(), unreal.Vector(*pins[1])))
-    feet, _t = facing_from_feet(*[_socket(body, b) for b in ("thigh_l", "thigh_r", "ball_l", "foot_l", "ball_r", "foot_r")])
+    feet, _t = _facing_live(actor, body)
     target, _i = back_target_world(_socket(body, "spine_05"), _socket(body, "spine_03"), _socket(body, "neck_01"), feet, params)
     return {"back_pin_track_cm": _norm(_sub(disc, target)), "disc_world_cm": disc, "target_world_cm": target}
 
