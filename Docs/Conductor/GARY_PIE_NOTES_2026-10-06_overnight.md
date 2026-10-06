@@ -122,3 +122,7 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - **S3 sack**: 2.0 m pinned 20 cm forward for upright figures, Shore02 1.8 m pinned back; sawtooth edge → irregular cut + masked fringe; finals for all six building.
 - ~13:53 **S3 exposure NOT yet applied** (commit 307dc94's message is wrong — it only added the tool): APPLY refused DIRTY_BEFORE
   (the level had unsaved changes, presumably Gary's S3 work). Plan: pinned PPV "S3 Hangar Pinned Exposure" EV100 2.0 → 3.0 once the level is saved.
+- **Fence** (Gary): **fence all six passages** (only P05 had one — the other five had tubes floating on an empty fence line),
+  **stacked two full 3 m rows = 6.05 m** (no squashed diamonds); tubes glow 0.15→0.07, light ×¼. Needs build (FS patch) →
+  underpass_fence_apply for P01–P04/P06 → fence_stack_750 (top_row whole) → stills. **P02 boards off** tool ready (p02_floor.py).
+- **Sacks**: finals done for all six (2 cm, sawtooth fixed: smooth irregular cut + masked fringe). Shore02 can't cover head and rear at 1.8 m.

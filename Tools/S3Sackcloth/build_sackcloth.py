@@ -90,6 +90,8 @@ def build_parser():
                    help="skin: do not add the torso collider proxy (the exported MetaHuman body has its outfit-covered "
                         "faces removed: no torso or hips between the thigh tops and the neck)")
     p.add_argument("--no-dna", action="store_true", help="skin: use the cut Body FBX even if a full BodyDNA FBX was exported")
+    p.add_argument("--engine", default="", help="review render engine: CYCLES (alpha fringe reliable) or BLENDER_EEVEE_NEXT; default EEVEE")
+    p.add_argument("--fringe-width", type=float, default=0.015, help="review render: opacity fringe depth, m (0 = off)")
     p.add_argument("--textured", action="store_true", help="render stills with the hessian_230 material (EEVEE/Cycles)")
     p.add_argument("--compression", type=float, default=None,
                    help="default drape/skin 20 (4 crumpled the drape into a cap, synthetic A/B 6 Oct), pile 4")
@@ -101,7 +103,7 @@ def build_parser():
     p.add_argument("--quality", type=int, default=None, help="default drape/skin 10, pile 20 (anti-swell)")
     p.add_argument("--collision-quality", type=int, default=8)
     p.add_argument("--fray-depth", type=float, default=0.035, help="torn-edge depth into the sheet, m")
-    p.add_argument("--fray-holes", type=int, default=3, help="small worn holes per m2")
+    p.add_argument("--fray-holes", type=int, default=0, help="IGNORED since 6 Oct (square holes); wear is a material job")
     # drape
     p.add_argument("--collider", default="", help="posed body: .fbx (armature ok) / .obj / .abc, any units")
     p.add_argument("--collider-scale", type=float, default=0.0, help="force a scale; 0 = auto (cm -> m)")
@@ -211,7 +213,7 @@ def validate(a):
             err.append(f"collider not found: {a.collider}")
         if a.head_bone and a.collider and Path(a.collider).suffix.lower() != ".fbx":
             err.append("--head-bone needs an FBX armature collider")
-        if a.crown not in ("auto", "head"):
+        if a.crown not in ("auto", "head", "back"):
             try:
                 parse_vec(a.crown, 3)
             except ValueError as e:
@@ -259,6 +261,8 @@ def validate(a):
 
 # ----------------------------------------------------------------------------------------------- textured stills
 TEX_DIR = DEFAULT_OUT / "textures" / "hessian_230"
+REVIEW_ENGINE = ""
+FRINGE_WIDTH_M = 0.015          # opacity fringe depth from the cut edge (the UE masked material uses the same rule)
 
 
 def textured_setup(scene, sack, bodies, feet_z):
@@ -316,11 +320,52 @@ def textured_setup(scene, sack, bodies, feet_z):
         nt.links.new(comb.outputs["Color"], nm.inputs["Color"])
         nt.links.new(nm.outputs["Normal"], bsdf.inputs["Normal"])
         bsdf.inputs["Specular IOR Level"].default_value = 0.3
+        # fine fraying = an opacity fringe, not geometry: alpha from the distance to the cut edge (UV1.x, metres)
+        # broken up by a fine noise, so loose threads poke out irregularly over the last ~1.5 cm
+        fm = nt.nodes.new("ShaderNodeUVMap")
+        fm.uv_map = "FrayMask"
+        sxyz = nt.nodes.new("ShaderNodeSeparateXYZ")
+        nt.links.new(fm.outputs["UV"], sxyz.inputs["Vector"])
+        tdiv = nt.nodes.new("ShaderNodeMath")
+        tdiv.operation = "DIVIDE"
+        tdiv.inputs[1].default_value = max(1e-4, FRINGE_WIDTH_M)
+        nt.links.new(sxyz.outputs["X"], tdiv.inputs[0])
+        noise = nt.nodes.new("ShaderNodeTexNoise")
+        noise.inputs["Scale"].default_value = 45.0
+        noise.inputs["Detail"].default_value = 3.0
+        nt.links.new(mp.outputs["Vector"], noise.inputs["Vector"])
+        nmix = nt.nodes.new("ShaderNodeMath")
+        nmix.operation = "MULTIPLY_ADD"
+        nmix.inputs[1].default_value = 0.9
+        nmix.inputs[2].default_value = -0.45
+        nt.links.new(noise.outputs["Fac"], nmix.inputs[0])
+        add = nt.nodes.new("ShaderNodeMath")
+        add.operation = "ADD"
+        nt.links.new(tdiv.outputs[0], add.inputs[0])
+        nt.links.new(nmix.outputs[0], add.inputs[1])
+        gt = nt.nodes.new("ShaderNodeMath")
+        gt.operation = "GREATER_THAN"
+        gt.inputs[1].default_value = 0.45
+        nt.links.new(add.outputs[0], gt.inputs[0])
+        if FRINGE_WIDTH_M > 0:
+            nt.links.new(gt.outputs[0], bsdf.inputs["Alpha"])
+        for attr, val in (("surface_render_method", "DITHERED"), ("blend_method", "HASHED")):
+            try:
+                setattr(m, attr, val)
+            except (AttributeError, TypeError):
+                pass
         nt.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
         return m
 
     front, back = sack_mat("Sack_Front", 1.0), sack_mat("Sack_Back", 0.7)
     edge = sack_mat("Sack_Edge", 1.1)
+    # the solidify rim carries no usable fray UVs (it rendered as a white wire along the cut, 6 Oct): hide it in
+    # review; the 7 mm thickness still reads where the faces fold. UE: give the Edge slot the masked fringe
+    # material too, or a fully masked one.
+    eb = next(n for n in edge.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    for lk in list(eb.inputs["Alpha"].links):
+        edge.node_tree.links.remove(lk)
+    eb.inputs["Alpha"].default_value = 0.0
     for i, m in enumerate((front, back, edge)):
         if i < len(sack.data.materials):
             sack.data.materials[i] = m
@@ -355,7 +400,7 @@ def textured_setup(scene, sack, bodies, feet_z):
     bg = next(n for n in scene.world.node_tree.nodes if n.type == "BACKGROUND")
     bg.inputs["Color"].default_value = (0.25, 0.25, 0.26, 1)
     bg.inputs["Strength"].default_value = 0.6
-    for eng in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE", "CYCLES"):
+    for eng in ((REVIEW_ENGINE,) if REVIEW_ENGINE else ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE", "CYCLES")):
         try:
             scene.render.engine = eng
             break
@@ -529,8 +574,16 @@ def hip_proxy(A, body, scene, report):
     chain = [("pelvis", "spine_02", hip_w, 0.11, hip_lat), ("spine_02", "spine_04", 0.5 * (hip_w + sh_w), 0.135, hip_lat.lerp(sh_lat, 0.5)),
              ("spine_04", "spine_05", sh_w, 0.115, sh_lat), ("spine_05", "neck_01", sh_w * 0.95, 0.10, sh_lat)]
     out, rows = [], []
+    # hips/buttocks block first: centred between the pelvis and the thigh heads, long enough to bridge down to the
+    # cut thigh tops (Shore02 bowed: without it the rear of the sack fell into the hole between the thighs)
+    thigh_mid = (P("thigh_l") + P("thigh_r")) / 2
+    hip_axis = P("spine_02") - thigh_mid
+    chain.insert(0, ("_hips", None, hip_w, 0.13, hip_lat))
     for a_name, b_name, w, d, lat in chain:
-        pa, pb = P(a_name), P(b_name)
+        if a_name == "_hips":
+            pa, pb = thigh_mid - hip_axis.normalized() * 0.16, P("spine_02")
+        else:
+            pa, pb = P(a_name), P(b_name)
         up = (pb - pa)
         half_len = max(0.06, up.length * 0.65)
         up.normalize()
@@ -542,12 +595,12 @@ def hip_proxy(A, body, scene, report):
         me = bpy.data.meshes.new("TorsoProxy")
         bm.to_mesh(me)
         bm.free()
-        ob = bpy.data.objects.new("TorsoProxy_" + a_name, me)
+        ob = bpy.data.objects.new("TorsoProxy_" + a_name.strip("_"), me)
         scene.collection.objects.link(ob)
         rot = Matrix((x, y, up)).transposed().to_4x4()
         ob.matrix_world = Matrix.Translation(centre) @ rot @ Matrix.Diagonal((w, d, half_len, 1.0))
         out.append(ob)
-        rows.append({"segment": a_name + "-" + b_name, "half_width_m": round(w, 3), "half_depth_m": d,
+        rows.append({"segment": a_name + "-" + str(b_name), "half_width_m": round(w, 3), "half_depth_m": d,
                      "half_length_m": round(half_len, 3)})
     report["torso_proxy"] = rows
     return out
@@ -711,37 +764,44 @@ def blender_main(a):
 
     # ---- the cloth grid in the flat pattern (z = 0), UVs in metres, torn border, worn holes
     def make_piece(bm, sx, sy, origin, piece_rand):
+        """A flat sheet whose outline is a SMOOTH, irregular cut (no per-quad stair-steps).
+
+        6 Oct (Gary: "what's with the sawtooth edge?"): the old version deleted every quad whose corner fell outside
+        the cut line and jittered the border vertices by 1/4 quad, so the edge read as a 3 cm zig-zag; holes were
+        removed quads (square). Now the WHOLE grid is warped so its boundary lies exactly on the cut curve: each
+        side's inset is a sum of 4 random-frequency sines (periods ~0.15-1.5 m, never a single period), resolved at
+        quad spacing, so the outline is a smooth curve at any --quad. Fine fraying belongs to the material (UV1.x =
+        distance to the cut edge, metres -> an opacity fringe), not to geometry.
+        """
         nx, ny = max(2, int(round(sx / a.quad))), max(2, int(round(sy / a.quad)))
         uv0 = bm.loops.layers.uv.get("UVMap") or bm.loops.layers.uv.new("UVMap")
         uv1 = bm.loops.layers.uv.get("FrayMask") or bm.loops.layers.uv.new("FrayMask")
-        # aperiodic torn edge: per-side low-frequency bite depth + per-vertex jitter
-        phases = [rnd.uniform(0, 6.283) for _ in range(8)]
+        waves = [[(rnd.uniform(4.0, 40.0), rnd.uniform(0, 6.283), rnd.uniform(0.3, 1.0)) for _ in range(4)]
+                 for _ in range(4)]
 
-        def bite(t, side):
-            return a.fray_depth * (0.5 + 0.35 * math.sin(7.1 * t + phases[side]) + 0.15 * math.sin(23.0 * t + phases[side + 4]))
+        def inset(t, side):          # t = metres along the side; 0..fray_depth, smooth and aperiodic
+            w = waves[side]
+            norm = sum(amp for _, _, amp in w)
+            val = sum(amp * math.sin(f * t + ph) for f, ph, amp in w) / norm      # -1..1
+            return a.fray_depth * 0.5 * (1.0 + val)
 
         grid = {}
-        for j in range(ny + 1):
-            for i in range(nx + 1):
-                x, y = -sx / 2 + sx * i / nx, -sy / 2 + sy * j / ny
-                d = min(x + sx / 2 - bite(y / sy, 0), sx / 2 - x - bite(y / sy, 1),
-                        y + sy / 2 - bite(x / sx, 2), sy / 2 - y - bite(x / sx, 3))
-                if d < -0.5 * a.quad:            # bitten away: the torn edge
-                    continue
-                jitter = 0.25 * a.quad if d < a.quad else 0.0
-                v = bm.verts.new((origin[0] + x + rnd.uniform(-jitter, jitter),
-                                  origin[1] + y + rnd.uniform(-jitter, jitter), origin[2]))
-                grid[(i, j)] = (v, x, y, max(0.0, d))
-        holes = [(rnd.uniform(-sx / 2.6, sx / 2.6), rnd.uniform(-sy / 2.6, sy / 2.6), rnd.uniform(0.012, 0.035))
-                 for _ in range(int(a.fray_holes * sx * sy))]
-        for j in range(ny):
-            for i in range(nx):
-                q = [grid.get(k) for k in ((i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1))]
-                if any(c is None for c in q):
-                    continue
-                cx, cy = sum(c[1] for c in q) / 4, sum(c[2] for c in q) / 4
-                if any(math.hypot(cx - hx, cy - hy) < hr for hx, hy, hr in holes):
-                    continue
+        for jj in range(ny + 1):
+            for ii in range(nx + 1):
+                u, v = ii / nx, jj / ny                       # 0..1 parameters
+                x0, y0 = -sx / 2 + sx * u, -sy / 2 + sy * v    # unwarped
+                left, right = -sx / 2 + inset(y0, 0), sx / 2 - inset(y0, 1)
+                x = left + u * (right - left)
+                bottom, top = -sy / 2 + inset(x, 2), sy / 2 - inset(x, 3)
+                y = bottom + v * (top - bottom)
+                d = min(x - left, right - x, y - bottom, top - y)                # metres to the cut edge
+                vert = bm.verts.new((origin[0] + x, origin[1] + y, origin[2]))
+                grid[(ii, jj)] = (vert, x, y, max(0.0, d))
+        if a.fray_holes:
+            print("SACK_WARNING|--fray-holes ignored: geometry holes read as square cut-outs; wear goes in the material")
+        for jj in range(ny):
+            for ii in range(nx):
+                q = [grid[k] for k in ((ii, jj), (ii + 1, jj), (ii + 1, jj + 1), (ii, jj + 1))]
                 f = bm.faces.new([c[0] for c in q])
                 for loop, c in zip(f.loops, q):
                     loop[uv0].uv = (c[1] + sx / 2, c[2] + sy / 2)
@@ -864,6 +924,15 @@ def blender_main(a):
             top_z = max(zs)
             cap = [p for p in pts if p.z > top_z - 0.03]
             crown = Vector((sum(p.x for p in cap) / len(cap), sum(p.y for p in cap) / len(cap), top_z))
+        elif a.crown == "back":
+            # bowed figures: pin on top of the mid-back (spine_03), so the sheet covers both the hanging head and
+            # the rump (Shore02, 6 Oct: pinned at the neck, the rear flap could not climb to her rump)
+            sb = arm.matrix_world @ arm.pose.bones["spine_03"].head
+            near = [p for p in pts if math.hypot(p.x - sb.x, p.y - sb.y) < 0.12]
+            if not near:
+                raise SystemExit("SACK_FAIL|no collider point above spine_03")
+            top = max(near, key=lambda p: p.z)
+            crown = Vector((top.x, top.y, top.z))
         elif a.crown == "head":
             if arm is None or "head" not in arm.pose.bones:
                 raise SystemExit("SACK_FAIL|--crown head needs an armature with a 'head' bone")
@@ -889,10 +958,31 @@ def blender_main(a):
             cand = [face.matrix_world @ v.co for v in face.data.vertices]
             cand = [q for q in cand if 0.02 < q.z - hb.z < 0.12]
             nose = max(cand, key=lambda q: math.hypot(q.x - hb.x, q.y - hb.y))
-            fwd = Vector((nose.x - hb.x, nose.y - hb.y, 0.0)).normalized()
+            nose_dir = Vector((nose.x - hb.x, nose.y - hb.y, 0.0)).normalized()
+            # Facing = perpendicular to the hip line (thigh_l - thigh_r), signed by the pelvis->head lean when the
+            # head is >15 cm ahead (bowed Shore02: her face points DOWN, so the nose test picked a cheek and the
+            # "back" offset went sideways, 6 Oct), else by the nose.
+            pb = arm.pose.bones
+            lat = (arm.matrix_world @ pb["thigh_l"].head) - (arm.matrix_world @ pb["thigh_r"].head)
+            fwd = Vector((-lat.y, lat.x, 0.0)).normalized()
+            pel = arm.matrix_world @ pb["pelvis"].head
+            lean = Vector((hb.x - pel.x, hb.y - pel.y, 0.0))
+            toes = Vector((0.0, 0.0, 0.0))
+            for side in ("l", "r"):
+                if f"ball_{side}" in pb and f"foot_{side}" in pb:
+                    toes += (arm.matrix_world @ pb[f"ball_{side}"].head) - (arm.matrix_world @ pb[f"foot_{side}"].head)
+            toes.z = 0.0
+            # the feet are the facing (bowed Shore02's head hangs on the opposite side of the pelvis from her toes:
+            # the lean test pointed her "forward" backwards, 6 Oct); then the lean, then the nose
+            ref = toes.normalized() if toes.length > 0.05 else (lean.normalized() if lean.length > 0.15 else nose_dir)
+            if fwd.dot(ref) < 0:
+                fwd = -fwd
             base_yaw = math.degrees(math.atan2(fwd.y, fwd.x)) - 90.0     # sheet +Y -> facing
             oy -= a.pin_forward
-            report["facing"] = {"forward_xy": [round(fwd.x, 3), round(fwd.y, 3)], "sheet_yaw_deg": round(base_yaw + a.yaw, 1)}
+            report["facing"] = {"forward_xy": [round(fwd.x, 3), round(fwd.y, 3)], "sheet_yaw_deg": round(base_yaw + a.yaw, 1),
+                                "nose_xy": [round(nose_dir.x, 3), round(nose_dir.y, 3)], "lean_m": round(lean.length, 3),
+                                "toes_xy": [round(toes.x, 3), round(toes.y, 3)],
+                                "sign_from": "toes" if toes.length > 0.05 else ("lean" if lean.length > 0.15 else "nose")}
         bm = bmesh.new()
         make_piece(bm, a.size_x, a.size_y, (0.0, 0.0, 0.0), rnd.random())
         sheet = new_obj(f"Sack_{a.out_id}", bm)
@@ -1048,7 +1138,39 @@ def blender_main(a):
             "gap_p95_m": round(pct(gaps, 95), 3)})
         report["checks"]["hem_median_le_gate"] = report["metrics"]["hem_z_p50_m"] <= a.hem_gate
         report["checks"]["radial_max_le_gate"] = report["metrics"]["radial_max_m"] <= a.radial_gate
-        report["checks"]["no_balloon_bbox"] = max(report["metrics"]["bbox_xy_m"]) <= a.balloon_gate
+        # balloon: the cloth footprint may exceed the BODY's own footprint (+ hanging allowance) only so far; a
+        # bowed figure is ~0.8 m long front-to-back by itself (Shore02), so a fixed 0.85 m gate misfires on her
+        bxs = [p.x for p in pts]
+        bys = [p.y for p in pts]
+        body_fp = max(max(bxs) - min(bxs), max(bys) - min(bys))
+        balloon_limit = max(a.balloon_gate, body_fp + 0.3)
+        report["metrics"]["body_footprint_m"] = round(body_fp, 3)
+        report["metrics"]["balloon_limit_m"] = round(balloon_limit, 3)
+        report["checks"]["no_balloon_bbox"] = max(report["metrics"]["bbox_xy_m"]) <= balloon_limit
+        if skin:
+            # coverage: share of head (face mesh) and thigh-top/rump (body verts weighted to thigh/pelvis above the
+            # knees) vertices with sack cloth within 8 cm -- the rear Gary asked to cover on Shore02
+            from mathutils.kdtree import KDTree
+            kd = KDTree(len(co))
+            for i_, p_ in enumerate(co):
+                kd.insert(p_, i_)
+            kd.balance()
+            A_ = skin["body_arm"]
+            knee_z = max(A_.matrix_world @ A_.pose.bones[n].head for n in ("calf_l", "calf_r")
+                         if n in A_.pose.bones).z if "calf_l" in A_.pose.bones else feet_z + 0.5
+            face_o, body_o = skin["weight_sources"][-1], skin["weight_sources"][0]
+            head_pts = [face_o.matrix_world @ v.co for v in face_o.data.vertices][::4]
+            gn = {g.index: g.name for g in body_o.vertex_groups}
+            rear_pts = []
+            for v in list(body_o.data.vertices)[::2]:
+                if v.groups:
+                    g = gn.get(max(v.groups, key=lambda e: e.weight).group, "")
+                    q = body_o.matrix_world @ v.co
+                    if g.startswith(("thigh", "pelvis")) and q.z > knee_z:
+                        rear_pts.append(q)
+            cov = lambda ps: round(sum(1 for q in ps if kd.find(q)[2] < 0.08) / max(1, len(ps)), 3)
+            report["metrics"]["head_covered_frac"] = cov(head_pts)
+            report["metrics"]["thigh_tops_covered_frac"] = cov(rear_pts)
         report["metrics"]["gap_p75_le_gap_gate_INFO"] = report["metrics"]["gap_p75_m"] <= a.gap_gate
         report["checks"]["no_vertex_below_feet"] = min(p.z for p in co) > feet_z - 0.01
     else:
@@ -1094,6 +1216,8 @@ def blender_main(a):
         if a.textured:
             report["render_engine"] = textured_setup(scene, settled, [o for o in meshes if not o.name.startswith("TorsoProxy")]
                                                      if a.mode in ("drape", "skin") else [], feet_z)
+        cloth_obj.hide_render = True    # the zero-thickness sim sheet sits inside the solidified copy: it showed
+        #                                 through the alpha fringe as a white line (6 Oct). Settled copy is already made.
         for o in bpy.data.objects:
             if o.name.startswith(("HipProxy", "TorsoProxy", "GroundCollider")):
                 o.hide_render = True
@@ -1102,7 +1226,11 @@ def blender_main(a):
         scene.collection.objects.link(cam)
         scene.camera = cam
         c = sum(co, Vector()) / len(co)
-        for tag, off in (("34", Vector((2.2, -2.2, 0.9))), ("side", Vector((3.0, 0.0, 0.3)))):
+        views = [("34", Vector((2.2, -2.2, 0.9))), ("side", Vector((3.0, 0.0, 0.3)))]
+        if report.get("facing"):
+            fx, fy = report["facing"]["forward_xy"]
+            views.append(("back", Vector((-3.0 * fx, -3.0 * fy, 0.4))))     # from behind the figure
+        for tag, off in views:
             cam.location = c + off
             cam.rotation_euler = (c - cam.location).to_track_quat("-Z", "Y").to_euler()
             scene.render.filepath = f"{stem}_{tag}.png"
@@ -1116,6 +1244,9 @@ def blender_main(a):
 
 def main(argv):
     a = build_parser().parse_args(argv)
+    global FRINGE_WIDTH_M, REVIEW_ENGINE
+    FRINGE_WIDTH_M = a.fringe_width
+    REVIEW_ENGINE = a.engine
     # drape/skin: the 6 Oct recipe measured on the real Shore01/02 bodies (Docs/Conductor/S3_SACKCLOTH_PLAN §9):
     # Blender-scale vertex mass (0.6 kg) so gravity beats the springs; low compression so it folds instead of
     # standing; the old 13.4 kg/m2 x 4 cm-vertex mass (0.005-0.02 kg) made a stiff 1.1 m wide "boulder".

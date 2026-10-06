@@ -811,3 +811,128 @@ All four candidates above came from (`--textured` renders the material):
 - `--size-x 1.8 --size-y 1.8` is the default (Gary's size);
 - add `--pin-forward 0.2` for more cloth at the front, or `-0.2` for Shore02's back;
 - `--quad 0.02` for a finer final (≈2–3× the time) [inf].
+
+---
+
+## 10. 6 Oct evening: sawtooth fixed, Shore02 pinned back, finals for all six
+
+Blender 4.4.0 only. Every number below is [meas] unless marked. Outputs: `DerivedAssets/S3Sackcloth/final_20261006/`
+(runner `run_finals.sh`, table `finals_summary.txt`).
+
+### 10.1 Gary's answers (relayed)
+
+- **Upright figures:** 2.0 m, pinned 20 cm forward.
+- **Shore02:** stays 1.8 m, pinned back.
+- **Re-export:** with the full DNA body.
+- **New:** "what's with the sawtooth edge?"
+
+### 10.2 No full body exists as a skeletal mesh
+
+- The re-export (run 20261006-133132) reports for all six: `not exported: class DNA or different skeleton` [meas:
+  `bodies/export_manifest.json` `body_dna_note`].
+- `SKM_MHC_<id>_BodyMesh_DNA` is a DNA asset (rig data), not a mesh [inf from the class name].
+- **So the torso proxy stays.** It now has a fifth "hips/buttocks" ellipsoid bridging down to the cut thigh tops.
+  Without it, bowed Shore02's sack fell into the hole between her thighs.
+
+### 10.3 The sawtooth: cause and fix
+
+**Cause** [decl: the old `make_piece`]:
+- Every quad with a corner outside the cut line was **deleted**, so the outline was a stair-step at the quad size
+  (3 cm).
+- Border vertices were jittered by ¼ quad.
+- The "worn holes" were deleted quads, so they were square.
+
+**Fix:**
+- The whole grid is now **warped** so its boundary lies exactly on the cut curve. The inset per side is a sum of four
+  random-frequency sines (periods about 0.15–1.5 m, depth up to 3.5 cm), so the outline is smooth and aperiodic at
+  any `--quad`.
+- Geometry holes are off (`--fray-holes` is ignored).
+- **Fine fraying is a material opacity fringe:**
+  - UV1.x is the distance to the cut edge in metres.
+  - alpha = (UV1.x / 1.5 cm + 0.9 · (noise − 0.5)) > 0.45.
+  - Noise scale 45 on the 0.269 m tile, so threads of a few mm.
+- **Review renders** use that fringe (EEVEE, dithered). Two traps found while doing it:
+  - The zero-thickness simulated sheet sits inside the solidified copy and showed through the fringe as a white
+    line. It is now hidden in renders.
+  - The solidify rim has no usable fringe UVs, so the review Edge slot is fully transparent.
+- **UE:** `M_Sackcloth_Masked` with the same rule on all three slots (the Edge slot masked out).
+
+### 10.4 Facing and pin placement
+
+**Facing:**
+- The figure's forward is now perpendicular to the hip line, signed by the feet (ball minus foot bones).
+- The old nose test picked a cheek on bowed Shore02 and sent her "back" offset sideways.
+
+**`--crown back`** (new): pins on the top of the mid-back (spine_03) instead of the crown.
+
+**Shore02 coverage** (3 cm scouts; metrics `head_covered_frac` and `thigh_tops_covered_frac` = the share of face, and
+of thigh/pelvis vertices above the knees, with cloth within 8 cm):
+
+| Shore02 pin (1.8 m) | Head covered | Thigh tops covered |
+|---|---|---|
+| crown | 0.92 | 0.07 |
+| back | 0.71 | 0.47 |
+| back, 10 cm fwd | 0.38 | 0.57 |
+| back, 10 cm back | 0.43 | 0.61 |
+
+- **At 1.8 m she cannot have both her head and her rear covered.** Her bowed body is 0.79 m long front to back
+  [meas: `body_footprint_m`].
+
+### 10.5 Finals (2 cm quads, 300 frames, 3.6–4.7 s/frame, 8 runs in parallel ≈ 20 min)
+
+Every run passes every gate:
+- hem ≤ 0.85;
+- extent ≤ 0.65;
+- no balloon. The limit is max(0.85, body footprint + 0.3): bowed Shore02 alone is 0.79 m long, and so is Shore06's
+  out-held arm.
+- head z matches the record;
+- bind identity;
+- round-trip ≤ 5 mm;
+- unweighted vertices ≤ 1%.
+
+Columns: Hem p50/p10 in m above the feet; "Head" and "Thigh tops" are covered fractions.
+
+| Figure (config) | Hem p50 | Hem p10 | Extent | bbox (m) | Head | Thigh tops |
+|---|---|---|---|---|---|---|
+| Shore01 (2.0, fwd 0.2) | 0.772 | 0.518 | 0.305 | 0.62 × 0.51 | 0.99 | 0.55 |
+| Shore03 (2.0, fwd 0.2) | 0.615 | 0.348 | 0.293 | 0.64 × 0.57 | 1.00 | 0.70 |
+| Shore04 (2.0, fwd 0.2) | 0.656 | 0.441 | 0.392 | 0.65 × 0.59 | 1.00 | 0.50 |
+| Shore05 (2.0, fwd 0.2) | 0.669 | 0.381 | 0.307 | 0.65 × 0.64 | 0.98 | 0.28 |
+| Shore06 (2.0, fwd 0.2) | 0.671 | 0.355 | 0.567 | 0.80 × 0.62 | 1.00 | 0.85 |
+| **Shore02 (1.8, back pin) — Gary's spec** | 0.582 | 0.207 | 0.345 | 0.38 × 0.48 | **0.27** | 0.34 |
+| Shore02 alt (2.0, back pin) | 0.391 | 0.225 | 0.335 | 0.61 × 0.61 | **0.99** | 0.20 |
+| Shore02 alt (1.8, crown pin) | 0.383 | 0.143 | 0.325 | 0.51 × 0.48 | 0.97 | 0.09 |
+
+**Reading the Shore02 stills** (`contact_shore02_options.png`):
+- 1.8 back-pin leaves **her head bare** (the side view shows it hanging out in front).
+- **2.0 back-pin covers her head and drapes over the back and rump.** Seen from behind, the cloth covers the rump;
+  the thigh-top metric is low because the cut rings sit inside the cloth's hang [inf].
+- 1.8 crown-pin covers the head but not the rump.
+- **Recommendation: Shore02 at 2.0 m with the back pin.** It needs Gary's yes, since he said 1.8.
+
+**Other notes:**
+- **Run-to-run variance:** the identical Shore01 3 cm config gave a hem median of 0.83, 0.86, 0.91 and 0.93 m
+  across runs.
+  - The likely cause is Blender's multithreaded collision under parallel load [inf]. The thread count was not
+    pinned.
+  - The finals are single takes. Judge them by the stills, not the third decimal.
+- **Shore06:** her arm is held out, so the sack tents over it (extent 0.57 m). It is in the stills; that is her pose.
+
+### 10.6 Files
+
+**Per figure** (in `DerivedAssets/S3Sackcloth/final_20261006/`):
+- `<id>_Sack_SK.fbx`: the skinned skeletal mesh for UE;
+- `<id>_Sack.fbx`: a static preview;
+- `<id>_Sack.json`: gates and metrics;
+- `<id>_Sack_{34,side,back}.png`: stills;
+- `<id>_Sack.log`.
+
+**The two Shore02 alternatives:** `Shore02_F52_Sack_alt2p0*`, `Shore02_F52_Sack_altHeadPin*`.
+
+**Contact sheets:**
+- `contact_all_six.png` (3/4 over side);
+- `contact_shore02_options.png` (columns: 1.8 back, 2.0 back, 1.8 crown; rows: 3/4, side, back).
+
+**Superseded, do not import:**
+- `DerivedAssets/S3Sackcloth/Shore01_M56_Sack*` (the balloon run);
+- `iter_20261006/` (the pre-fix sawtooth runs).
