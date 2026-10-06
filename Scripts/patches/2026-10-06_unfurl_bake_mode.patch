@@ -1,0 +1,321 @@
+REST=unfurl: a brailed ("bunched-up") curtain that unrolls from under its heading and hangs. HELD PATCH, NOT APPLIED,
+NOT RUN IN BLENDER. Written 6 Oct 2026 (offline) for Gary's ~02:00 question "Is bunched drop curtain so much work?".
+
+Owner: Scripts/bake_curtain_drop.py is the Soft goods stream's file (memory puss-session-ownership: "Scripts/build_curtain_*",
+Docs/ChaosClothCurtain.md; every commit to it, 3663458..155f964 on 30 Sep, is curtain-bake work). Soft goods is PARKED since
+1 Oct (Docs/ChaosClothCurtain.md:3), so the script is untouched; this patch is held here instead of edited in.
+
+APPLY (only when the bake runs; the working copy is CRLF, the patch is LF against blob ea4cf89 = HEAD 4ef0b36):
+    git apply --check Scripts/patches/2026-10-06_unfurl_bake_mode.patch     (or: git show HEAD:<this file> | git apply)
+Checked before writing: `git apply --check` passes against the index AND the CRLF working copy; applied to a copy of
+HEAD:Scripts/bake_curtain_drop.py it reproduces the edited file exactly (once autocrlf's CRLF is stripped); it parses (ast), and its pure parts (unfurl_refusals, unfurl_gates) ran under stubbed bpy: a good record passes all
+seven gates, a heading-fell / hem-stayed-up record fails U3 and U4, and a bad config (hem guide on, brail weight 1.0,
+stack under 1.5 x self distance) is refused with three reasons. NOTHING has run in Blender.
+
+WHAT IT ADDS (nothing else changes; every other REST mode runs as before)
+  * REST=unfurl. The mesh is the pleated pose and stays the rest shape (no Flat key, no Dynamic Mesh).
+  * Heading pinned at weight 1.0 (kinematic) and never released. The brail rows (BRAIL_ROWS, the hem is the last) are soft
+    pins at BRAIL_WEIGHT 0.99 that follow a "Brailed" shape key, from BRAIL_FROM over BRAIL_FRAMES, straight up their own
+    pleat columns to a stack under the heading. The release is the existing pin-stiffness key (50 -> 0), which frees only
+    soft pins. RELEASE_AUTO works unchanged.
+  * Per-frame from R-1: hem mean z, heading drift, largest vertex move. hang_profile is taken at the LAST frame (R-1 is
+    the bunch). "released" means the hem fell below mid-height 1.5 s after the release (the heading never falls here).
+  * unfurl_gates in the JSON, and a log line CURTAIN_DROP_UNFURL_GATES|<id>|pass=..|U1..U7.
+  * Refuses (CURTAIN_DROP_UNFURL_REFUSED) when: RELEASE_METHOD is not stiffness, a hem guide is on, THROW/BEND ramp is set,
+    BRAIL_WEIGHT >= 0.999 (it would never release), the stack reaches half the drop, BRAIL_STACK_M < 1.5 x SELF_DIST_M,
+    the haul ends within 30 frames of the earliest release, or SHOW_START is 0 without RELEASE_AUTO.
+
+THE ONE UNPROVEN STEP. A weight-1.0 vertex stays pinned when pin stiffness is keyed to 0. Two in-repo facts support it:
+  the RELEASE_METHOD comment ("0.99 (a spring; >= 0.999 is a hard snap)") and the traveller's kinematic 1.0 heading
+  (Docs/ChaosClothCurtain.md "The traveller"). But the traveller never keyed stiffness to 0, so this is INFERRED until the
+  scout's U3 measures it.
+  Fallback if U3 fails: leave pin stiffness up and key the Brailed value 1 -> 0 over 2 frames instead. The brails then drop
+  at a speed that is keyed, not at gravity's, which is a worse look.
+
+PARAMETER DIFF vs final13 (the last accepted drop; values from DropBake/final13_opening_a06_w188.json, measured record)
+  key                       final13                     unfurl, P05 fence (Gary)      unfurl, S->P transition size
+  REST                      pleated_switch              unfurl                        unfurl
+  REST_SWITCH_AMOUNT        0.6                         (unused: no switch)           (unused)
+  HEM_GUIDE_WEIGHT/ROWS     0.7 / 1                     0 (hem is a brail row)        0
+  heading pin weight        0.99 (released)             1.0 (never released)          1.0
+  BRAIL_ROWS                -                           4 (0.70 m festoons)           8 (1.25 m festoons)
+  BRAIL_WEIGHT              -                           0.99                          0.99
+  BRAIL_FROM/BRAIL_FRAMES   -                           2 / 120 (haul ~0.7 m/s)       2 / 180 (haul ~1.6 m/s)
+  BRAIL_TOP_GAP_M/STACK_M   -                           0.10 / 0.06                   0.10 / 0.06
+  CURTAIN_TRACK_M           18.8                        10.0 (one column gap)         18.8
+  CURTAIN_DROP_M / LIFT_M   10.0 / 0.2                  2.8 / 0.2 (heading 3.00 m)    10.0 / 0.2
+  RELEASE                   480 fixed                   RELEASE_AUTO 240:360:1.5:30   RELEASE_AUTO 360:600:1.5:30
+  FRAMES                    780 (R + 300)               R + 300 (660 at max)          R + 300 (900 at max)
+  SHOW_START / ABC_START    450                         set by RELEASE_AUTO (R - 30)  set by RELEASE_AUTO
+  COLLIDERS                 StageFrontColliders|v2      "" (floor plane)              as final13 (same six sites)
+  unchanged                 QUADS_PER_BOLT 15 (9.1 cm), FULLNESS 2.0, FOLD_WAVELENGTH 0.85, TENSION 40, COMPRESSION 0.1,
+                            BEND 5, BEND_DAMPING 0.5, VERTEX_MASS_SCOUT 1.0, AIR_DAMPING 1.0, SELF_DIST_M 0.03,
+                            SELF/FLOOR_FRICTION 10, PIN_STIFFNESS 50, QUALITY 20, COLLISION_QUALITY 8, CURTAIN_SEED
+  Fence height: FenceHeightCm 300 and FenceBaseCm 0 (InfinityStageStructureActor.h:818,822; underpass_fence_apply.py:28 sets
+  300). Mode Native keeps the short bay's own height, whose coil top is 2.70 + 2 x 0.16 = 3.02 m
+  (Tools/FlatV3/build_fence_bay.py:70-74). So the heading is at 3.00 m: drop 2.8 m + lift 0.2 m, "no taller" than the fence.
+  The P05 fence's own value is read from a script, not from the Show (inferred).
+
+ACCEPTANCE GATES (provisional: they are stated before any run so the data can argue with them; env UNFURL_* overrides)
+  U1 bunched at the held frame R-1: lowest cloth <= max(0.6 m, 0.2 x drop) below the heading (fence 0.6 m, 10 m 2.0 m)
+  U2 still before release: still_window_max_mm < 1.5 (the RELEASE_AUTO limit; the show holds R-1)
+  U3 heading held: no heading vertex moves more than 1 cm from its pinned height after the release
+  U4 unrolled in time: hem mean z <= lift + 0.25 x drop by 60 frames (2 s) after the release
+  U5 hang: the existing hang_profile at the LAST frame passes (flare <= 1.15; folds kept >= 0.75 and depth >= 0.5 at
+     75/50/25% of the height)
+  U6 hem clear of the floor (min z >= 2 cm) and stretch (heading - hem) / drop <= 1.03
+  U7 settled: largest per-vertex move over the last 30 frames < 2 mm (the frame the show holds after the unroll)
+  Plus the eye: the clip (CLIP_STEP=1) from R-30, judged by Gary. Numbers pass a look; they do not approve it.
+
+ESTIMATE (the BAKE alone; the 3-4 agent-days also counted the P05 cascade placement and trigger tooling and the S->P swap)
+  Script: written (this patch). Remaining agent time ~2-3 h: a launcher PS1 copied from run_final16_auto.ps1, scouts, one
+    tuning pass (BRAIL_ROWS, haul speed), and teaching report_overnight_bakes.py / acceptance.json to read unfurl_gates (the
+    importer refuses unless acceptance.json says ALL; Saved/CodexSoftGoods/import_passing_bake.py:13-14).
+  Scout (27 cm quads, CURTAIN_QUADS_PER_BOLT=5): fence ~810 vertices, minutes; S->P size ~5,100 vertices at Q20/CQ8,
+    ~3.4 s/frame (pswitch_coarse.json, measured) x ~780 frames, about 45 min, or ~5 min at QUALITY 10.
+  Production (9.1 cm):
+    fence: 7,040 vertices, between the 4,847-vertex coarse (3.0-3.4 s/frame) and the 14,520-vertex strip (11-12 s/frame,
+      sw_ps_*.json) records, so ~5 s/frame x ~660 frames = about 1 h. Allow 2 h, since the festoons are in self-contact the
+      whole time (inferred). Three seeds for variety fit in one evening.
+    S->P size: 45,430 vertices. final13 averaged 21.7 s/frame (hang ~12, fall 34-47; its log). With the bunch in contact
+      from the haul on, allow 25-40 s/frame x ~780-900 frames = 5.5-9 h: ONE overnight bake (inferred from final13).
+
+diff --git a/Scripts/bake_curtain_drop.py b/Scripts/bake_curtain_drop.py
+index ea4cf89..e854ae7 100644
+--- a/Scripts/bake_curtain_drop.py
++++ b/Scripts/bake_curtain_drop.py
+@@ -23,6 +23,9 @@ Workbench renders (3/4 and side) of the settled frame, validated by eye against
+ 
+ Env: CURTAIN_FULLNESS, CURTAIN_QUADS_PER_BOLT (5 = 27 cm scout, 9 = 15 cm), DROP_ID, BEND, SELF_DIST_M,
+ FLOOR_FRICTION, SELF_FRICTION, AIR_DAMPING, RELEASE_FRAME, FRAMES, QUALITY, OUT_DIR, EXPORT_ABC (1 to write Alembic).
++REST=unfurl (6 Oct): a BRAILED curtain that unrolls from a bunch under its heading and hangs (the heading is never
++released). Its own env: BRAIL_ROWS, BRAIL_WEIGHT, BRAIL_FROM, BRAIL_FRAMES, BRAIL_TOP_GAP_M, BRAIL_STACK_M, and the
++gate thresholds UNFURL_*. See the block at BRAIL_ROWS and "unfurl_gates" in the JSON.
+ Outputs: <OUT_DIR>/<DROP_ID>.json, <DROP_ID>_34.png, <DROP_ID>_side.png (+ .abc when asked).
+ """
+ from __future__ import annotations
+@@ -159,6 +162,36 @@ REST_SWITCH_AMOUNT = float(os.environ.get("REST_SWITCH_AMOUNT", "1.0"))
+ # still moving when the pins let go and the top topples upstage. Blender gives that motion real inertia.
+ THROW_M = float(os.environ.get("THROW_M", "0"))
+ THROW_FRAMES = int(os.environ.get("THROW_FRAMES", "10"))
++# REST=unfurl (6 Oct; Gary: "bunched-up curtain dropping from above to hang normally", for the S->P transitions and P05's
++# blue-sky fence curtains). A BRAILED curtain, as on a real fly floor: lines tie BRAIL_ROWS rows (the last is the hem),
++# haul them up under the heading so the cloth hangs in nested festoons, then let go; the curtain unrolls and hangs.
++#   * The mesh IS the pleated pose (as pleated_switch) and it STAYS the rest shape: no Flat key, no Dynamic Mesh. So the
++#     unrolled cloth goes back to trained columns. (final13, which hung on this pleated rest, kept 23 of 23 folds at
++#     75/50/25% of the height before its rest switch; DropBake/final13_opening_a06_w188.json "hang_profile".)
++#   * The heading is pinned at weight 1.0. At >= 0.999 Blender pins KINEMATICALLY (the RELEASE_METHOD note above; the
++#     traveller's heading, Docs/ChaosClothCurtain.md "The traveller"), so keying pin stiffness to 0 does not free it.
++#     THIS IS THE ONE UNPROVEN STEP OF THE MODE: the scout's gate U3 (heading_drift) measures it before any long bake.
++#   * The brail rows are SOFT pins (BRAIL_WEIGHT, a spring at PIN_STIFFNESS) that follow a "Brailed" shape key from
++#     BRAIL_FROM over BRAIL_FRAMES (Blender's default Bezier keys: eased). Each row rises in its own pleat column to a
++#     stack under the heading, row k (1 = highest) at BRAIL_TOP_GAP_M + (k - 1) * BRAIL_STACK_M below it, the hem lowest:
++#     the soft-pin-follows-a-shape-key route REST=gather already uses for its heading.
++#   * The release is the existing one (pin stiffness 50 -> 0 at RELEASE_FRAME). It frees the soft pins, i.e. the brails.
++#     RELEASE_AUTO works unchanged: it moves the pin-stiffness keys, never the Brailed key.
++# The haul and its settle are setup, before SHOW_START, and are not exported.
++BRAIL_ROWS = int(os.environ.get("BRAIL_ROWS", "4"))
++BRAIL_WEIGHT = float(os.environ.get("BRAIL_WEIGHT", "0.99"))
++BRAIL_FROM = int(os.environ.get("BRAIL_FROM", "2"))
++BRAIL_FRAMES = int(os.environ.get("BRAIL_FRAMES", "120"))
++BRAIL_TOP_GAP_M = float(os.environ.get("BRAIL_TOP_GAP_M", "0.10"))
++BRAIL_STACK_M = float(os.environ.get("BRAIL_STACK_M", "0.06"))
++# Acceptance for REST=unfurl (provisional, stated before any run so the data can argue with them): see unfurl_gates().
++UNFURL_BUNCH_MAX_M = float(os.environ["UNFURL_BUNCH_MAX_M"]) if os.environ.get("UNFURL_BUNCH_MAX_M") else None
++UNFURL_STILL_MM = float(os.environ.get("UNFURL_STILL_MM", "1.5"))         # the bunch before release (as RELEASE_AUTO)
++UNFURL_HEADING_DRIFT_M = float(os.environ.get("UNFURL_HEADING_DRIFT_M", "0.01"))
++UNFURL_DROP_FRAMES = int(os.environ.get("UNFURL_DROP_FRAMES", "60"))     # the hem is down within 2 s of the release
++UNFURL_STRETCH_MAX = float(os.environ.get("UNFURL_STRETCH_MAX", "1.03"))
++UNFURL_HEM_CLEAR_M = float(os.environ.get("UNFURL_HEM_CLEAR_M", "0.02"))
++UNFURL_END_STILL_MM = float(os.environ.get("UNFURL_END_STILL_MM", "2.0"))  # the last 30 frames (the held final frame)
+ 
+ spec = importlib.util.spec_from_file_location("curtain_pattern", ROOT / "Scripts" / "build_curtain_chaos_pattern.py")
+ pattern = importlib.util.module_from_spec(spec)
+@@ -224,8 +257,30 @@ def build_curtain():
+         key.keyframe_insert("value", frame=RELEASE_FRAME)
+         key.value = REST_SWITCH_AMOUNT
+         key.keyframe_insert("value", frame=RELEASE_FRAME + REST_SWITCH_FRAMES)
++    brailed = []
++    if REST == "unfurl":
++        obj.shape_key_add(name="Basis", from_mix=False)          # pleated: the rest shape, before AND after the brails
++        key = obj.shape_key_add(name="Brailed", from_mix=False)
++        rows = {}
++        for k in range(1, BRAIL_ROWS + 1):                       # row k of the grid's ROWS (row 0 = heading, ROWS = hem)
++            r = int(round(k * pattern.ROWS / BRAIL_ROWS))
++            z_row = pattern.DROP * (1.0 - r / pattern.ROWS)      # build_grid's z for row r (mesh space, before LIFT_M)
++            idx = [v.index for v in mesh.vertices if abs(v.co.z - z_row) < 1e-4]
++            z_to = pattern.DROP - BRAIL_TOP_GAP_M - (k - 1) * BRAIL_STACK_M
++            for i in idx:                                        # straight up its own pleat column
++                key.data[i].co = Vector((gathered[i].x, gathered[i].y, z_to))
++            rows[k] = {"grid_row": r, "from_z_m": round(z_row, 3), "to_z_m": round(z_to, 3), "vertices": len(idx)}
++            brailed.extend(idx)
++        key.value = 0.0
++        key.keyframe_insert("value", frame=BRAIL_FROM)
++        key.value = 1.0
++        key.keyframe_insert("value", frame=BRAIL_FROM + BRAIL_FRAMES)   # held at 1 to the end: brails slack after release
++        scene["unfurl_rows"] = json.dumps(rows)
+     pin = obj.vertex_groups.new(name="Pin")
+-    if RELEASE_METHOD != "none":        # "none": no pinned vertices at all (control: must fall from frame 1)
++    if REST == "unfurl":
++        pin.add(top, 1.0, "REPLACE")                             # kinematic: never released
++        pin.add(brailed, BRAIL_WEIGHT, "REPLACE")                # soft: released by the pin-stiffness key
++    elif RELEASE_METHOD != "none":        # "none": no pinned vertices at all (control: must fall from frame 1)
+         pin.add(top, 0.99 if RELEASE_METHOD == "stiffness" else 1.0, "REPLACE")
+     if HEM_GUIDE_WEIGHT > 0 and RELEASE_METHOD == "stiffness":
+         levels = sorted({round(v.co.z, 4) for v in mesh.vertices})[:HEM_GUIDE_ROWS]
+@@ -609,9 +664,75 @@ def set_side_hide(side):
+             o.hide_render = side or bool(COLLIDER_ORIGIN_CM)
+ 
+ 
++def unfurl_refusals():
++    """REST=unfurl's preconditions, checked before anything is built (a refusal, not a warning)."""
++    bad = []
++    if RELEASE_METHOD != "stiffness":
++        bad.append(f"RELEASE_METHOD={RELEASE_METHOD} (the brails are released by the pin-stiffness key only)")
++    if HEM_GUIDE_WEIGHT > 0:
++        bad.append("HEM_GUIDE_WEIGHT > 0 (the hem is the last brail row; one vertex group holds one weight)")
++    if THROW_M or os.environ.get("BEND_DAMPING_RAMP"):
++        bad.append("THROW_M / BEND_DAMPING_RAMP (not defined for a heading that never moves)")
++    if not 1 <= BRAIL_ROWS <= pattern.ROWS:
++        bad.append(f"BRAIL_ROWS={BRAIL_ROWS} outside 1..{pattern.ROWS}")
++    if not 0.98 <= BRAIL_WEIGHT < 0.999:
++        bad.append(f"BRAIL_WEIGHT={BRAIL_WEIGHT}: >= 0.999 is a kinematic pin that never releases; keep 0.98..0.998")
++    if BRAIL_TOP_GAP_M + (BRAIL_ROWS - 1) * BRAIL_STACK_M >= 0.5 * pattern.DROP:
++        bad.append("the brail stack reaches below half the drop")
++    if BRAIL_STACK_M < 1.5 * SELF_DIST:
++        bad.append(f"BRAIL_STACK_M={BRAIL_STACK_M} under 1.5 x SELF_DIST_M={SELF_DIST}: stacked rows would start in contact")
++    earliest = int(RELEASE_AUTO[0]) if RELEASE_AUTO else RELEASE_FRAME
++    if BRAIL_FROM + BRAIL_FRAMES + 30 > earliest:
++        bad.append(f"the haul ends at {BRAIL_FROM + BRAIL_FRAMES}, under 30 frames before the earliest release {earliest}")
++    if not SHOW_START and not RELEASE_AUTO:
++        bad.append("SHOW_START=0: the pre-release stillness (gate U2) is only measured with SHOW_START set (e.g. R - 30)")
++    return bad
++
++
++def unfurl_gates(report):
++    """The acceptance for REST=unfurl (provisional targets, stated before any run). Each gate: value, limit, pass."""
++    u = report["unfurl"]
++    top_z = pattern.DROP + LIFT_M
++    bunch_max = UNFURL_BUNCH_MAX_M if UNFURL_BUNCH_MAX_M is not None else max(0.6, 0.2 * pattern.DROP)
++    g = {}
++    b = u.get("bunch_at_hold") or {}
++    g["U1_bunched"] = {"value_m": b.get("depth_below_heading_m"), "limit_m": round(bunch_max, 3),
++                       "pass": b.get("depth_below_heading_m") is not None and b["depth_below_heading_m"] <= bunch_max,
++                       "what": "lowest cloth below the heading at the held frame R-1"}
++    still = report.get("still_window_max_mm")
++    g["U2_still_before_release"] = {"value_mm": still, "limit_mm": UNFURL_STILL_MM,
++                                    "pass": still is not None and still < UNFURL_STILL_MM}
++    drift = u.get("heading_drift_max_m")
++    g["U3_heading_held"] = {"value_m": drift, "limit_m": UNFURL_HEADING_DRIFT_M,
++                            "pass": drift is not None and drift <= UNFURL_HEADING_DRIFT_M,
++                            "what": "largest move of any heading vertex from its pinned height, release to end"}
++    hem_series = dict(u.get("hem_mean_z", []))
++    at = hem_series.get(report["release_frame"] + UNFURL_DROP_FRAMES)
++    lim = LIFT_M + 0.25 * pattern.DROP
++    g["U4_unrolled_in_time"] = {"value_m": at, "limit_m": round(lim, 3), "frames_after_release": UNFURL_DROP_FRAMES,
++                                "pass": at is not None and at <= lim, "what": "hem mean z"}
++    hp = report.get("hang_profile") or {}
++    g["U5_hang_profile"] = {"pass": bool(hp.get("pass")), "what": "hang_profile at the LAST frame (flare, folds kept)"}
++    end = u.get("end") or {}
++    g["U6_hem_clear_and_stretch"] = {"hem_min_z_m": end.get("hem_min_z_m"), "stretch": end.get("stretch"),
++                                     "limits": {"hem_min_z_m": UNFURL_HEM_CLEAR_M, "stretch_max": UNFURL_STRETCH_MAX},
++                                     "pass": end.get("hem_min_z_m") is not None
++                                     and end["hem_min_z_m"] >= UNFURL_HEM_CLEAR_M and end["stretch"] <= UNFURL_STRETCH_MAX}
++    es = u.get("end_still_max_mm")
++    g["U7_settled_at_end"] = {"value_mm": es, "limit_mm": UNFURL_END_STILL_MM,
++                              "pass": es is not None and es < UNFURL_END_STILL_MM}
++    g["pass"] = all(v["pass"] for v in g.values() if isinstance(v, dict))
++    g["top_z_m"] = round(top_z, 3)
++    return g
++
++
+ def main():
+     global RELEASE_FRAME, SHOW_START, ABC_START, CLIP_START, FRAMES, SETTLE_PROBE
+     OUT_DIR.mkdir(parents=True, exist_ok=True)
++    if REST == "unfurl":
++        bad = unfurl_refusals()
++        if bad:
++            raise SystemExit("CURTAIN_DROP_UNFURL_REFUSED|" + "; ".join(bad))
+     if RELEASE_AUTO:
+         if THROW_M or os.environ.get("BEND_DAMPING_RAMP"):
+             raise SystemExit("RELEASE_AUTO refuses THROW_M and BEND_DAMPING_RAMP (their keys are not moved)")
+@@ -635,6 +756,16 @@ def main():
+         report["colliders_sha256"] = hashlib.sha256(
+             (ROOT / COLLIDERS.split("|")[0]).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+     report["hem_guided_vertices"] = scene.get("hem_guided")
++    hem = []
++    if REST == "unfurl":
++        hem = [v.index for v in obj.data.vertices if abs(v.co.z) < 1e-4]      # mesh space: the hem row is z = 0
++        report["unfurl"] = {"brail_rows": BRAIL_ROWS, "brail_weight": BRAIL_WEIGHT, "brail_from": BRAIL_FROM,
++                            "brail_frames": BRAIL_FRAMES, "brail_top_gap_m": BRAIL_TOP_GAP_M,
++                            "brail_stack_m": BRAIL_STACK_M, "rows": json.loads(scene.get("unfurl_rows", "{}")),
++                            "heading_vertices": len(top), "hem_vertices": len(hem), "heading_pin_weight": 1.0,
++                            "hem_mean_z": [], "heading_drift_max_m": None, "bunch_at_hold": None, "end": None,
++                            "end_still_max_mm": None, "settle_to_2mm_after_release_s": None}
++        u_prev, u_moves = None, []
+     report["air_damping_applied"] = round(obj.modifiers["Cloth"].settings.air_damping, 4)
+     cs = obj.modifiers["Cloth"].collision_settings
+     report["self_dist_applied_m"] = round(cs.self_distance_min, 4)
+@@ -696,7 +827,30 @@ def main():
+             co = world_coords(obj)
+             report.setdefault("com_z", []).append(round(sum(p.z for p in co) / len(co), 4))
+             report.setdefault("top_z", []).append(round(max(p.z for p in co), 4))
+-        if f == RELEASE_FRAME - 1:
++        if REST == "unfurl" and f >= RELEASE_FRAME - 1:
++            # The unroll, measured per frame: the hem's mean height, the heading's drift from its kinematic pin (gate U3),
++            # and the largest per-vertex move (the post-release settle; gates U7 and the settle time).
++            co = world_coords(obj)
++            top_z = pattern.DROP + LIFT_M
++            u = report["unfurl"]
++            u["hem_mean_z"].append([f, round(sum(co[i].z for i in hem) / len(hem), 4)])
++            drift = max(abs(co[i].z - top_z) for i in top)
++            if f >= RELEASE_FRAME:
++                u["heading_drift_max_m"] = round(max(u["heading_drift_max_m"] or 0.0, drift), 4)
++            if u_prev is not None:
++                u_moves.append([f, round(1000 * max((a_ - b_).length for a_, b_ in zip(co, u_prev)), 2)])
++            u_prev = co
++            if f == FRAMES:                               # the last frame, measured in the loop (no stepping back)
++                heading_z = sum(co[i].z for i in top) / len(top)
++                hem_z = u["hem_mean_z"][-1][1]
++                u["end"] = {"hem_min_z_m": round(min(co[i].z for i in hem), 3), "hem_mean_z_m": hem_z,
++                            "heading_mean_z_m": round(heading_z, 3),
++                            "stretch": round((heading_z - hem_z) / pattern.DROP, 3)}
++            if f == RELEASE_FRAME - 1:                    # the HELD frame: the bunch the audience sees before the release
++                u["bunch_at_hold"] = {"depth_below_heading_m": round(top_z - min(p.z for p in co), 3),
++                                      "hem_mean_z_m": u["hem_mean_z"][-1][1], "heading_drift_m": round(drift, 4)}
++        if f == (FRAMES if REST == "unfurl" else RELEASE_FRAME - 1):
++            # unfurl: the hang that matters is the one it unrolls INTO (R-1 is the bunch)
+             report["_hang_profile"] = hang_profile(world_coords(obj))
+         if f in (RELEASE_FRAME - 1, RELEASE_FRAME + 5, RELEASE_FRAME + 15, RELEASE_FRAME + 30, FRAMES - 30, FRAMES):
+             report["checkpoints"][f] = metrics(world_coords(obj), top)
+@@ -727,6 +881,10 @@ def main():
+                           "portal_absY_max": round(100 * max(r[3] for r in ext)), "portal_Z_max": round(100 * max(r[4] for r in ext)),
+                           "Y_min": round(100 * min(r[5] for r in ext)), "Y_max": round(100 * max(r[6] for r in ext))}}
+     report["released"] = report["checkpoints"][RELEASE_FRAME + 15]["heading_mean_z_m"] < pattern.DROP + LIFT_M - 0.5
++    if REST == "unfurl":
++        # The heading never falls here: "released" means the BRAILS let go (the hem is below mid-height 1.5 s later).
++        hem_at = dict(report["unfurl"]["hem_mean_z"]).get(RELEASE_FRAME + 45)
++        report["released"] = hem_at is not None and hem_at < LIFT_M + 0.5 * pattern.DROP
+     prev = report["checkpoints"].get(FRAMES - 30, {})
+     report["settled"] = bool(prev) and abs(prev.get("height_m", 0) - final["height_m"]) < 0.05 and abs(prev.get("depth_m", 0) - final.get("depth_m", 0)) < 0.1
+     report["solve_seconds_total"] = round(sum(report["frame_seconds"]), 1)
+@@ -776,6 +934,19 @@ def main():
+         report["settle_to_2mm_s"] = (round((last_bad + 1 - (GATHER_FRAMES + 1)) / 30.0, 1) if last_bad is not None
+                                      else round((still[0][0] - (GATHER_FRAMES + 1)) / 30.0, 1))
+         report["settle_to_2mm_reached"] = last_bad is None or last_bad < still[-1][0]
++    if REST == "unfurl":
++        u = report["unfurl"]
++        u_moves = [m for m in u_moves if m[0] > RELEASE_FRAME]
++        tail = [m for f_, m in u_moves[-30:]]
++        u["end_still_max_mm"] = max(tail) if tail else None
++        last_bad = max((f_ for f_, m in u_moves if m >= 2.0), default=None)
++        u["settle_to_2mm_after_release_s"] = (round((last_bad + 1 - RELEASE_FRAME) / 30.0, 1) if last_bad is not None
++                                              else 0.0)
++        u["settle_to_2mm_reached"] = last_bad is None or last_bad < FRAMES
++        u["post_release_moves_mm"] = u_moves
++        report["unfurl_gates"] = unfurl_gates(report)
++        print(f"CURTAIN_DROP_UNFURL_GATES|{DROP_ID}|pass={report['unfurl_gates']['pass']}|"
++              + "|".join(f"{k}={v['pass']}" for k, v in report["unfurl_gates"].items() if isinstance(v, dict)), flush=True)
+     (OUT_DIR / f"{DROP_ID}.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
+     print(f"CURTAIN_DROP_BAKE_DONE|{DROP_ID}|released={report['released']}|final={json.dumps(final)}"
+           f"|hang_depth={report['hang_depth_m']}|solve_s={report['solve_seconds_total']}")
