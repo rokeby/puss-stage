@@ -1,0 +1,15 @@
+{
+ "run": "S3EXP-20261006-135448",
+ "before": {
+  "auto_exposure_min_brightness": 2.0,
+  "auto_exposure_max_brightness": 2.0,
+  "auto_exposure_bias": 1.0,
+  "override_auto_exposure_min_brightness": true,
+  "override_auto_exposure_max_brightness": true,
+  "override_auto_exposure_bias": false,
+  "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+  "override_auto_exposure_method": false
+ },
+ "ev100": 3.0,
+ "backup": "E:/PussStage/Backups/PreS3Exposure-S3EXP-20261006-135448"
+}
