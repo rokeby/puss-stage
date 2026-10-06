@@ -50,3 +50,14 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - **Bulb + housing:** Gary makes them in Fuser tomorrow as separate assets — prompts to be written.
 - **Research:** a better curtain fabric (effective velvet that responds to the lighting, or another textile); animated gobos for
   the shadow puppetry from iPhone videos of live puppets (cheap stop-motion gobos in front of lights).
+- 02:00 **Build 2 (FIX1)**: suite **208/0** (HUD, rewind, seam diag, tubes, bulb glass, movers, light events all in).
+- 01:56 **Shadow-play spots I2–I5** applied (3.6 m circle — the frame is only ~4.4 m tall; edge inner 85 %; held to the GO,
+  1 s fade into the drop). **I1 refused**: its sequence bindings changed since the sleight record (hand edits?) — Gary to check I1.
+- 01:52 **P04 back curtain lead = 5.0 s** (BLF-20261006-015230).
+- W&T slot: P04 gallery re-place, edge v2 on pillar1 L (P01 before/after stills), Pillar2 R, chinoiserie → ceramic towers (P06
+  before/after stills), HF kit P02–P06 (P01 parked for the edge verdict). **Editor crashed (out of memory) on the hand-print atlas
+  import** — nothing saved was lost; W&T is making the import lighter; hand prints not placed tonight.
+- 02:17 **Structures 01/02/04/06 were stale** after the wing placements -> re-fit (REFIT-20261006-021730); only Ground board counts changed (boards re-rolled; cosmetic).
+- 02:18 **P01 lighting held**: the score REVERT refuses — the house warmers on P01 Wing 001 differ from the score's record (Opening
+  switched them off tonight; cones/intensity/reach had also been hand-changed: inner 12.4, 800 cd, 3467 cm). Needs a morning
+  reconciliation before P01's fairy-tale colours can go in. P01 lamp re-hang being restored.
