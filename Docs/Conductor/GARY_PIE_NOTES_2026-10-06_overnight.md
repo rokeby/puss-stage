@@ -131,3 +131,8 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   → S3 sacks: 6 meshes imported on the body skeleton, M_Sackcloth(+Masked) + MI_Sackcloth_OldGrey built; **APPLY failed twice**
   (component route: no body handle; actor route: leader pointer + cloth flags didn't persist) → nothing saved; fixing (follower BP / C++ component).
   → **P04 roughness bench** stills base/subtle/medium/strong/revert (PSTILLS-P04-20261006-20*-rough_*), W&T building Gary's sheet.
+- ~16:37 **S3 sacks installed** (S3SACK-20261006-163706): 6 × BP_S3SackFollower actors (2.0 m old-grey hessian, masked fringe),
+  led by each figure's Body (relink via RelinkLeader on construction/BeginPlay); old ShoreHeadCloth hidden-in-game + suspended +
+  disabled (editor visibility can't be held: the figure BP re-sets it). VERIFY + S3SKIN VERIFY OK. PIE_PROBE pending Gary's PIE.
+- ~16:55 **W&T**: edge v3 (two-sided, timber core, bevel) rolled out to all 208 thick5 wings (edges were invisible: faces pointed
+  inward); **HF P01 applied** — the hole/outline kit is now on all six passages. Gary to glance at edges in PIE.
