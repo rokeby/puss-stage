@@ -33,8 +33,11 @@ WHAT IT DOES (per figure <id>, all names versioned: _v<version>):
     - Refuses if a level instance of the figure overrides the cloth's asset / materials / scale (the template change
       would not reach it).
     - Backup Backups/PreS3LiveSack-<run>/ (the six BP .uasset + the umap) BEFORE the first write.
-    - Saves exactly the BP packages (+ the level only if the BP compile re-instancing dirtied it; nothing else).
-  REVERT the exact inverse of the APPLY record (old asset, old override material, old scale), drift-checked first.
+    - Then sets the INSTANCE asset on each placed figure (fresh lookup; see VERSION 2) and saves exactly the BP
+      packages + the level (required) in one scope, after every read-back passed.
+  REVERT the exact inverse of the APPLY record (old asset, old override material, old scale on the templates; the old
+         instance assets from instance_asset_override), drift-checked first (templates AND instance assets), all
+         read back before ONE save (BPs + level).
          The created assets stay (create-only; unreferenced after REVERT).
   VERIFY read-only: assets, graph link, CA slot material, BP templates, level instances (asset, material,
          attach parent = the CURRENT Body / socket head).
@@ -53,7 +56,42 @@ Args Saved/CodexConductor/s3_sack_livecloth_args.json:
    "figures": [...]                         (default all six; BUILD/APPLY may pilot a subset),
    "version": 1, "params": {...}            (overrides of PARAMS below, validated),
    "forward_local_override": {"<id>": [x,y,z]}   (only if a face has no eye bones),
-   "camera_label": "..."                    (SIM_READ still, optional)}
+   "camera_label": "..."                    (SIM_READ still, optional),
+   "back_pin_figures": [...]                (v2+: override the measured leaning set),
+   "accept_editor_pose": [...]              (v2+: figures whose atypical editor pose is accepted for the back pin),
+   "mi_look": {"scalars": {..}, "vectors": {..}}   (v2+: override MI_LOOK[2] values, keys limited to MI_LOOK_KEYS)}
+
+VERSION 2 (written 6 Oct OFFLINE after Gary's PIE note ~17:50: "the guy on the left is always losing his piece because
+it's not pinned to his back. And the material reads much too dark"):
+  - Pins. v2 builds ALL six figures (same names, _v2) so APPLY/REVERT stay per version. Figures in BACK_PIN_FIGURES
+    (default leaning_figures(LEAN_SCAN) = Shore03_M59, Shore05_M53; measured from the exported anims, see LEAN_SCAN)
+    get layout "crown+back": the crown disc is KEPT and a second MaxDistance-0 disc sits on the upper back
+    (spine_05 + back normal x (back_pin_depth_cm + back_lift_cm)); the two distances are joined by a Min sampler
+    (FDataflowMinSamplerNode, DataflowMinSamplerNode.h) before the one smoothstep -> one weight map. The rear of the
+    sheet starts on a smooth arc-length (isometric) curve from the crown over the back of the head to that point, so
+    both discs lie ON the sheet. Gate pin_coverage(): kinematic particles at the crown AND at the back point, spanning
+    the crown->back arc. Shore02 keeps her v1 back pin; the other upright figures keep the v1 crown pin.
+  - Material. v2 makes MI_Sackcloth_OldGrey_Cloth_v2 (create-only; v1 MI untouched, so REVERT v1 / APPLY v1 still
+    work). MI_LOOK[2]: HemGrimeAmount 0 (the hem grime is referenced to ObjectPositionWS = the cloth's BOUNDS centre,
+    PrimitiveUniformShaderParametersBuilder.h:194, which for a head-attached cloth sits above most of the sack: the
+    v1 sack rendered as GrimeColor 0.10/0.09/0.08 [inferred, see report]), Tint x2.0 (0.62,0.60,0.56 ->
+    1.24,1.20,1.12), Desaturate 0.75 -> 0.60, InnerDarken 1.0 explicitly (v1 already 1.0 by default: the master has
+    NO back-face term, InnerDarken multiplies both faces). UV/tiling, NormalStrength, roughness unchanged (Gary:
+    "weave actually looks quite ok"). UV0 is METRES (build_sheet: uv0 = x + s/2), TileM 0.269 m: real scale.
+  - APPLY now also sets the INSTANCE asset on each placed figure (fresh lookup after the BP compile; the placed
+    figures carry their own asset value, S3LSFIX-20261006-172813) and saves BPs + the level in ONE save scope (the
+    level is REQUIRED dirty). The instance before-values are in the record (before.<fig>.instance and
+    instance_asset_override) for REVERT, which restores templates + instance assets and saves once.
+
+LIVE ORDER for v2 (each step: args file, run, read the marker; stop on any _FAILED):
+  1. REVERT  {"mode":"REVERT","confirm":"REVERT S3LIVESACK"}  -> restores v1's six templates AND the six instance
+     assets (record instance_asset_override), one save (6 BPs + level). Record -> .reverted-<run>.
+  2. DRY     {"mode":"DRY","version":2}                       -> geometry + coverage + editor-pose gates, no writes.
+  3. BUILD   {"mode":"BUILD","confirm":"BUILD S3LIVESACK","version":2,"figures":["Shore05_M53"]}  (pilot: the Min
+     sampler pin names are the one unproven link; a DF_LINK failure leaves only new unsaved assets: Don't-Save
+     restart), then the remaining five with the same args minus "figures".
+  4. APPLY   {"mode":"APPLY","confirm":"APPLY S3LIVESACK","version":2}  -> templates + instance assets, one save.
+  5. VERIFY  {"mode":"VERIFY"} ; Gary's PIE ; PIE_PROBE while it runs (reports back_pin_track_cm per leaning figure).
 
 Markers: S3LIVESACK_START / S3LIVESACK_<MODE>_OK|run=.. / S3LIVESACK_FAILED|run=..|reason
 Crash rules: no UE object at module level; editor work only inside functions; no node deletion; no level reload;
@@ -109,6 +147,31 @@ DECISION["Shore02_F52"] = {"size_m": 2.0, "pin": "back", "pin_forward_m": 0.0}
 SHORE02_RECORD = FINALS + "Shore02_F52_Sack_alt2p0.json"
 TOL = 1e-3
 
+# v2 back pin. MEASURED 6 Oct offline: Tools/S3Sackcloth/lean_scan.py (Blender 4.4 -b) over each figure's exported
+# anim FBX (export_manifest.json), every 6th frame; head-z at the pose frame matched the record to <=1.1 mm for all six.
+# "window" = the manifest's section [section_start_s, +section_source_duration_s] (what the scene plays [inferred from
+# the manifest field names]); lean = |head - pelvis| horizontal (m); tilt = pelvis->neck_01 from vertical (deg).
+# Summary: DerivedAssets/S3Sackcloth/bodies/lean_scan_summary.json.
+LEAN_SCAN = {
+    "Shore01_M56": {"lean_p50_m": 0.101, "lean_p90_m": 0.168, "tilt_p50_deg": 8.8, "tilt_p90_deg": 16.7, "tilt_max_deg": 20.1, "lean_max_m": 0.202},
+    "Shore02_F52": {"lean_p50_m": 0.493, "lean_p90_m": 0.500, "tilt_p50_deg": 70.7, "tilt_p90_deg": 74.1, "tilt_max_deg": 75.8, "lean_max_m": 0.504},
+    "Shore03_M59": {"lean_p50_m": 0.121, "lean_p90_m": 0.236, "tilt_p50_deg": 11.1, "tilt_p90_deg": 20.0, "tilt_max_deg": 24.9, "lean_max_m": 0.286},
+    "Shore04_F55": {"lean_p50_m": 0.048, "lean_p90_m": 0.110, "tilt_p50_deg": 4.1, "tilt_p90_deg": 9.6, "tilt_max_deg": 13.5, "lean_max_m": 0.136},
+    "Shore05_M53": {"lean_p50_m": 0.305, "lean_p90_m": 0.378, "tilt_p50_deg": 23.8, "tilt_p90_deg": 31.7, "tilt_max_deg": 38.0, "lean_max_m": 0.436},
+    "Shore06_F25": {"lean_p50_m": 0.055, "lean_p90_m": 0.090, "tilt_p50_deg": 6.8, "tilt_p90_deg": 11.0, "tilt_max_deg": 14.8, "lean_max_m": 0.119},
+}
+LEAN_P90_M, TILT_P90_DEG = 0.20, 19.0      # a crown disc alone lets the sheet slide off a back beyond these [inferred]
+MI_LOOK_KEYS = {"scalars": ("HemGrimeAmount", "Desaturate", "InnerDarken", "MottleAmount", "NormalStrength",
+                            "RoughnessScale", "RimAmount", "EdgeGrimeAmount"), "vectors": ("Tint", "GrimeColor")}
+# v1 = the source MI's values (MI_Sackcloth_OldGrey). v2: Gary 6 Oct "still a bit dark" (weave and tiling OK).
+MI_LOOK = {1: {"scalars": {}, "vectors": {}},
+           2: {"scalars": {"HemGrimeAmount": 0.0, "Desaturate": 0.60, "InnerDarken": 1.0},
+               "vectors": {"Tint": [1.24, 1.20, 1.12, 1.0]}}}
+# MEASURED 6 Oct from DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_diff_2k.png (sRGB -> linear mean)
+HESSIAN_DIFF_LINEAR = {"mean_rgb": [0.2824, 0.1991, 0.1070], "lum_mean": 0.2102, "lum_p10": 0.0874, "lum_p90": 0.3263}
+SRC_MI_LOOK = {"Desaturate": 0.75, "Tint": [0.62, 0.60, 0.56], "GrimeColor": [0.10, 0.09, 0.08], "InnerDarken": 1.0,
+               "HemGrimeAmount": 1.0}   # build record v1 material_readback + master defaults (s3_sack_install.py:142,145)
+
 # Starting point, not a tune (judge from Gary's PIE stills). Chaos PBD units; relationships carried from the
 # approved curtain (ChaosClothCurtain.md "Physics" + build_curtain_chaos_asset.py:52-71), made heavier and stiffer.
 PARAMS = {
@@ -135,6 +198,9 @@ PARAMS = {
     "tether_stiffness": 1.0, "tether_scale": 1.0,
     "skinned_triangle_mesh_collisions": True,   # unchanged from today's measured asset; a perf lever to bench
     "material_variant": "masked",              # "masked" (fray fringe from UV1.x) or "opaque"
+    # v2 back pin (crown+back layout only)
+    "back_pin_depth_cm": 12.0,  # spine_05 joint -> back skin: the finals' torso proxy half-depth 0.115 / 0.10 m
+    "back_handle": 0.40,        # Bezier handles crown->back, x |crown - back| (larger = rounder over the occiput)
 }
 PARAM_RANGES = {"quad_cm": (2.0, 10.0), "fray_depth_cm": (0.0, 8.0), "lift_cm": (0.0, 10.0),
                 "back_lift_cm": (0.0, 10.0), "pin_inner_cm": (2.0, 20.0), "pin_outer_cm": (5.0, 60.0),
@@ -143,7 +209,12 @@ PARAM_RANGES = {"quad_cm": (2.0, 10.0), "fray_depth_cm": (0.0, 8.0), "lift_cm": 
                 "damping": (0.0, 1.0), "drag": (0.0, 1.0), "lift": (0.0, 1.0),
                 "collision_thickness_cm": (0.1, 10.0), "friction": (0.0, 2.0), "self_thickness_cm": (0.05, 5.0),
                 "iterations": (1, 20), "max_iterations": (1, 40), "substeps": (1, 12),
-                "tether_stiffness": (0.0, 1.0), "tether_scale": (0.9, 1.2)}
+                "tether_stiffness": (0.0, 1.0), "tether_scale": (0.9, 1.2),
+                "back_pin_depth_cm": (0.0, 25.0), "back_handle": (0.1, 0.7)}
+BEND_MIN_RADIUS_CM = 12.0     # a sanity floor; the binding gate is PATTERN_NOT_ISOMETRIC on EVERY triangle (0.99-1.01)
+BACK_TARGET_TOL_CM = 6.0      # the back disc centre (on the sheet) vs the measured back point
+BACK_MIN_SPAN_CM = 20.0       # crown -> back disc distance: below this it is one disc, not a back pin
+BACK_FACING_MAX_DEG = 60.0    # sheet "forward" (away from the back) vs the eyes
 
 
 class LiveSackError(RuntimeError):
@@ -158,11 +229,93 @@ def _require(cond, msg):
 # ============================================================================================== pure: names / args
 def names(fig, version, variant="masked"):
     v = "_v%d" % int(version)
+    mi_v = "" if int(version) == 1 else v          # v1 MI kept its unversioned name (built 6 Oct, S3LIVESACK-20261006-172635)
     return {"mesh": "%s/SM_ShoreSack_%s%s" % (LIVE_DIR, fig, v), "dataflow": "%s/DF_ShoreSack_%s%s" % (LIVE_DIR, fig, v),
             "cloth": "%s/CA_ShoreSack_%s%s" % (LIVE_DIR, fig, v),
             "master": MAT_DIR + ("/M_Sackcloth_Masked_Cloth" if variant == "masked" else "/M_Sackcloth_Cloth"),
-            "mi": MAT_DIR + ("/MI_Sackcloth_OldGrey_Cloth" if variant == "masked" else "/MI_Sackcloth_OldGrey_ClothOpaque"),
+            "mi": MAT_DIR + ("/MI_Sackcloth_OldGrey_Cloth" if variant == "masked" else "/MI_Sackcloth_OldGrey_ClothOpaque") + mi_v,
             "bp": "%s/SceneCharacters/BP_%s_Draped" % (ROOT, fig)}
+
+
+def leaning_figures(scan=None, lean_p90_m=LEAN_P90_M, tilt_p90_deg=TILT_P90_DEG):
+    """Figures whose measured lean needs a back pin. Shore02 is excluded: her v1 layout already pins the back."""
+    scan = LEAN_SCAN if scan is None else scan
+    return sorted(f for f, r in scan.items() if DECISION[f]["pin"] != "back" and
+                  (r["lean_p90_m"] >= lean_p90_m or r["tilt_p90_deg"] >= tilt_p90_deg))
+
+
+BACK_PIN_FIGURES = tuple(leaning_figures())
+
+
+def pin_layout(fig, version, back_figs=BACK_PIN_FIGURES):
+    """v1: DECISION ("crown" / "back"). v2+: "crown+back" for the leaning figures, else the v1 layout."""
+    if int(version) >= 2 and fig in back_figs:
+        _require(DECISION[fig]["pin"] == "crown", "LAYOUT|%s: crown+back needs a crown-pinned figure" % fig)
+        return "crown+back"
+    return DECISION[fig]["pin"]
+
+
+def mi_look(version, override=None):
+    """The MI values this version writes over the source MI's (v1: none). override = args "mi_look" (v2+)."""
+    base = MI_LOOK.get(int(version), MI_LOOK[max(MI_LOOK)]) if int(version) > 1 else MI_LOOK[1]
+    look = {"scalars": dict(base["scalars"]), "vectors": {k: list(v) for k, v in base["vectors"].items()}}
+    for kind in ("scalars", "vectors"):
+        for k, v in ((override or {}).get(kind) or {}).items():
+            look[kind][k] = list(v) if kind == "vectors" else v
+    return look
+
+
+def look_problems(look):
+    probs = []
+    for kind in ("scalars", "vectors"):
+        for k, v in look.get(kind, {}).items():
+            if k not in MI_LOOK_KEYS[kind]:
+                probs.append("LOOK_KEY|%s.%s" % (kind, k))
+            elif kind == "scalars" and (not isinstance(v, (int, float)) or isinstance(v, bool) or not 0.0 <= v <= 4.0):
+                probs.append("LOOK_RANGE|%s=%r" % (k, v))
+            elif kind == "vectors" and (not isinstance(v, list) or len(v) != 4 or
+                                        not all(isinstance(x, (int, float)) and 0.0 <= x <= 4.0 for x in v)):
+                probs.append("LOOK_VECTOR|%s=%r" % (k, v))
+    return probs
+
+
+def predicted_albedo(look, tex=HESSIAN_DIFF_LINEAR, src=SRC_MI_LOOK, hem=1.0):
+    """Mean linear albedo of the master's SK_Base (s3_sack_install.py:202-215) with mottle at its mean (0) and no edge
+    grime: desaturate -> tint -> hem-grime lerp (hem = the hem weight; 1.0 = fully inside the grime band) -> InnerDarken.
+    Rim excluded (view-dependent)."""
+    s = dict(src)
+    s.update(look.get("scalars", {}))
+    s.update({k: v[:3] for k, v in look.get("vectors", {}).items()})
+    d = max(0.0, min(1.0, s["Desaturate"]))
+    lum = tex["lum_mean"]
+    col = [c * (1 - d) + lum * d for c in tex["mean_rgb"]]
+    col = [c * t for c, t in zip(col, s["Tint"])]
+    w = max(0.0, min(1.0, hem * s["HemGrimeAmount"]))
+    col = [c * (1 - w) + g * w for c, g in zip(col, s["GrimeColor"])]
+    col = [c * s["InnerDarken"] for c in col]
+    return {"rgb": [round(c, 4) for c in col], "lum": round(0.2126 * col[0] + 0.7152 * col[1] + 0.0722 * col[2], 4)}
+
+
+def hem_weight(z_above_bounds_centre_m, hem_h=0.35, hem_fall=0.25):
+    """SK_Base's hem term (s3_sack_install.py:208-209) before HemGrimeAmount: saturate((HemH - zr) / HemFall)."""
+    return max(0.0, min(1.0, (hem_h - z_above_bounds_centre_m) / hem_fall))
+
+
+def material_problems(version, look):
+    """v2+ gates: no hem grime on a head-attached cloth; brighter than v1 by 1.8-2.2x (Gary: moderate); not white."""
+    probs = look_problems(look)
+    if int(version) < 2:
+        return probs
+    v1 = predicted_albedo(MI_LOOK[1], hem=0.0)
+    v2 = predicted_albedo(look, hem=1.0)          # worst case: every pixel inside the (broken) hem band
+    if look.get("scalars", {}).get("HemGrimeAmount", SRC_MI_LOOK["HemGrimeAmount"]) != 0.0:
+        probs.append("HEM_GRIME_ON|the hem band is referenced to the cloth's bounds centre (head-attached): it blackens the sack")
+    ratio = v2["lum"] / max(v1["lum"], 1e-6)
+    if not 1.8 <= ratio <= 2.2:
+        probs.append("ALBEDO_STEP|v2/v1 textured albedo %.2fx (want 1.8-2.2x)" % ratio)
+    if v2["lum"] > 0.5:
+        probs.append("ALBEDO_HIGH|%.3f" % v2["lum"])
+    return probs
 
 
 def validate_params(p):
@@ -215,13 +368,25 @@ def check_mode(args, records_exist):
         _require(any(records_exist.values()), "NOTHING_TO_VERIFY")
     if mode in ("SIM_READ", "SIM_STOP"):
         _require(os.path.exists(OUT["SIM"]), "NO_SIM_START|run SIM_START first")
-    extra = {"forward_local_override": over, "camera_label": str(args.get("camera_label") or "")}
+    back = args.get("back_pin_figures")
+    back = list(BACK_PIN_FIGURES) if back is None else back
+    _require(isinstance(back, list) and all(f in FIGURES and DECISION[f]["pin"] == "crown" for f in back),
+             "BACK_PIN_FIGURES|%r (crown-pinned figure ids only)" % back)
+    accept = args.get("accept_editor_pose") or []
+    _require(isinstance(accept, list) and all(f in FIGURES for f in accept), "ACCEPT_EDITOR_POSE|%r" % accept)
+    look = mi_look(version, args.get("mi_look"))
+    _require(version >= 2 or not args.get("mi_look"), "MI_LOOK|v1 is the source look (bump version)")
+    probs = material_problems(version, look)
+    _require(not probs, "MATERIAL|%s" % probs)
+    extra = {"forward_local_override": over, "camera_label": str(args.get("camera_label") or ""),
+             "back_pin_figures": sorted(back), "accept_editor_pose": accept, "mi_look": look}
     return mode, figs, version, params, extra
 
 
-def planned_packages(mode, figs, version, variant, existing=()):
-    """Content packages each write mode may dirty and save. Maps: APPLY/REVERT may also save WORLD (only if the BP
-    compile re-instancing dirtied it; census_ok allows it, never requires it)."""
+def planned_packages(mode, figs, version, variant, existing=(), instances=True):
+    """Content packages each write mode may dirty and save. Maps: APPLY/REVERT save WORLD; with instances=True (APPLY
+    from v2's tool on; REVERT of a record with instance writes) the level is REQUIRED dirty (the instance asset
+    writes), else only allowed (the BP compile re-instancing may dirty it)."""
     if mode == "BUILD":
         n0 = names(figs[0], version, variant)
         shared = [p for p in (n0["master"], n0["mi"]) if p not in existing]
@@ -230,18 +395,21 @@ def planned_packages(mode, figs, version, variant, existing=()):
         # BUILD then proves existence of every planned asset after the save instead.
         return {"content": sorted(shared + per), "maps_allowed": [], "exact": False}
     if mode in ("APPLY", "REVERT"):
-        return {"content": sorted(names(f, version, variant)["bp"] for f in figs), "maps_allowed": [WORLD], "exact": True}
+        return {"content": sorted(names(f, version, variant)["bp"] for f in figs), "maps_allowed": [WORLD],
+                "maps_required": [WORLD] if instances else [], "exact": True}
     return {"content": [], "maps_allowed": [], "exact": True}
 
 
 def census_ok(dirty, planned):
     """exact: content dirty == planned (a missing one = a write that did not happen; an extra one = a side effect).
-    Not exact (BUILD, create-only): dirty must be a SUBSET of planned. Maps dirty must be within maps_allowed."""
+    Not exact (BUILD, create-only): dirty must be a SUBSET of planned. Maps dirty must be within maps_allowed and
+    include maps_required (a required map that is clean = the instance writes did not happen)."""
     if planned.get("exact", True):
         content_ok = sorted(dirty["content"]) == sorted(planned["content"])
     else:
         content_ok = set(dirty["content"]) <= set(planned["content"])
-    return content_ok and set(dirty["maps"]) <= set(planned["maps_allowed"])
+    return (content_ok and set(dirty["maps"]) <= set(planned["maps_allowed"]) and
+            set(planned.get("maps_required", [])) <= set(dirty["maps"]))
 
 
 # ============================================================================================== pure: vectors
@@ -429,6 +597,201 @@ def place_sheet(sheet, frame, pin_forward_m):
     return {"positions_cm": pos, "normal": up, "side": side, "pin_local_cm": pin}
 
 
+# ---------------------------------------------------------------------------------------------- v2: crown + back pin
+def back_target_world(spine05, spine03, neck01, facing_world, params):
+    """The upper-back pin point (world cm): spine_05 + the back normal x (depth + lift). Back normal = minus the feet
+    facing, made perpendicular to the spine (spine_03 -> neck_01). down_back = along the back, away from the head."""
+    up_sp = _unit(_sub(neck01, spine03), "spine")
+    back = _mul(_unit([facing_world[0], facing_world[1], 0.0], "facing"), -1.0)
+    nb = _unit(_sub(back, _mul(up_sp, _dot(back, up_sp))), "back normal")
+    target = _add(spine05, _mul(nb, params["back_pin_depth_cm"] + params["back_lift_cm"]))
+    return target, {"back_normal_world": nb, "down_back_world": _mul(up_sp, -1.0)}
+
+
+def torso_pose(pelvis, neck01, head):
+    """Frame-invariant pose numbers, comparable with LEAN_SCAN: torso tilt (deg) and head-pelvis horizontal lean (m)."""
+    t = _unit(_sub(neck01, pelvis), "torso")
+    return {"tilt_deg": math.degrees(math.acos(max(-1.0, min(1.0, t[2])))),
+            "lean_m": math.hypot(head[0] - pelvis[0], head[1] - pelvis[1]) / 100.0}
+
+
+def editor_pose_problems(fig, pose, accept=()):
+    """The back disc rides the HEAD (BindToRootBone: the whole sheet follows the component), so it is placed from the
+    editor pose: refuse an editor pose whose torso tilt is outside [0.5 x window p50, window max + 5 deg] of the
+    measured scene motion (then the head->back relation would be atypical) unless the figure is in accept_editor_pose."""
+    r = LEAN_SCAN[fig]
+    lo, hi = 0.5 * r["tilt_p50_deg"], r["tilt_max_deg"] + 5.0
+    if not lo <= pose["tilt_deg"] <= hi and fig not in accept:
+        return ["EDITOR_POSE_ATYPICAL|%s|editor torso tilt %.1f deg not in [%.1f, %.1f] (scene motion); pass "
+                "accept_editor_pose to override" % (fig, pose["tilt_deg"], lo, hi)]
+    return []
+
+
+def _bezier(p, t):
+    m = 1.0 - t
+    return [m * m * m * p[0][i] + 3 * m * m * t * p[1][i] + 3 * m * t * t * p[2][i] + t * t * t * p[3][i] for i in (0, 1)]
+
+
+def _bezier_d(p, t):
+    m = 1.0 - t
+    d1 = [3 * m * m * (p[1][i] - p[0][i]) + 6 * m * t * (p[2][i] - p[1][i]) + 3 * t * t * (p[3][i] - p[2][i]) for i in (0, 1)]
+    d2 = [6 * m * (p[2][i] - 2 * p[1][i] + p[0][i]) + 6 * t * (p[3][i] - 2 * p[2][i] + p[1][i]) for i in (0, 1)]
+    return d1, d2
+
+
+def back_geometry(frame, back_local_cm, down_back_local, params, samples=4000):
+    """The rear profile of a crown+back sheet in the plane through the crown pin C spanned by world-up and the
+    horizontal C->back direction (so the back point lies IN the plane: no lateral error). 2D coords (a, b) cm:
+    a along fwd2 (= away from the back), b along up. Rear path: cubic Bezier C -> B leaving C horizontally backwards
+    (continuous with the flat front panel: no fold at the crown) and arriving at B along the back (down_back); beyond
+    B a straight run along that tangent. Arc-length table -> isometric placement."""
+    up, C = frame["up_local"], frame["pin_local_cm"]
+    d = _sub(back_local_cm, C)
+    horiz = _sub(d, _mul(up, _dot(d, up)))
+    fwd2 = _mul(_unit(horiz, "crown->back horizontal"), -1.0)
+    side = _unit(_cross(fwd2, up), "side")
+    aB, bB = _dot(d, fwd2), _dot(d, up)
+    L = math.hypot(aB, bB)
+    ta, tb = _dot(down_back_local, fwd2), _dot(down_back_local, up)
+    tn = math.hypot(ta, tb)
+    tangent_src = "spine"
+    if tn < 1e-3 or (ta * aB + tb * bB) <= 0.0:       # degenerate, or pointing back toward the crown: use the chord
+        ta, tb, tangent_src = aB, bB, "chord"
+        tn = math.hypot(ta, tb)
+    ta, tb = ta / tn, tb / tn
+    h = params["back_handle"] * L
+    P = [[0.0, 0.0], [-h, 0.0], [aB - ta * h, bB - tb * h], [aB, bB]]
+    pts, arc, rmin = [], [0.0], float("inf")
+    for i in range(samples + 1):
+        t = i / samples
+        pts.append(_bezier(P, t))
+        d1, d2 = _bezier_d(P, t)
+        sp = math.hypot(d1[0], d1[1])
+        cr = abs(d1[0] * d2[1] - d1[1] * d2[0])
+        if sp > 1e-9 and cr > 1e-12:
+            rmin = min(rmin, sp ** 3 / cr)
+        if i:
+            arc.append(arc[-1] + math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
+    eye = frame.get("fwd_local")
+    eye_deg, along_eyes = None, aB
+    if eye is not None:
+        e = _sub(eye, _mul(up, _dot(eye, up)))
+        if _norm(e) > 1e-6:
+            eye_deg = math.degrees(math.acos(max(-1.0, min(1.0, _dot(_unit(e), fwd2)))))
+            along_eyes = _dot(d, _unit(e))
+    return {"fwd2_local": fwd2, "side_local": side, "up_local": up, "pin_local_cm": C, "back_local_cm": back_local_cm,
+            "b2_cm": [aB, bB], "chord_cm": L, "tangent_b": [ta, tb], "tangent_source": tangent_src, "ctrl_cm": P,
+            "pts": pts, "arc": arc, "rear_len_cm": arc[-1], "min_radius_cm": rmin, "fwd2_vs_eyes_deg": eye_deg,
+            "back_along_eyes_cm": along_eyes}
+
+
+def _rear_point(bg, s):
+    """(a, b) and the unit tangent d/ds at arc length s >= 0 along the rear path."""
+    arc, pts = bg["arc"], bg["pts"]
+    if s >= arc[-1]:
+        ta, tb = bg["tangent_b"]
+        e = s - arc[-1]
+        return [pts[-1][0] + ta * e, pts[-1][1] + tb * e], [ta, tb]
+    lo, hi = 0, len(arc) - 1
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        if arc[mid] <= s:
+            lo = mid
+        else:
+            hi = mid
+    seg = arc[hi] - arc[lo]
+    f = (s - arc[lo]) / seg if seg > 0 else 0.0
+    p = [pts[lo][i] + f * (pts[hi][i] - pts[lo][i]) for i in (0, 1)]
+    t = [(pts[hi][i] - pts[lo][i]) / seg if seg > 0 else 0.0 for i in (0, 1)]
+    return p, t
+
+
+def place_sheet_back(sheet, bg, pin_forward_m):
+    """Crown+back placement. Sheet +y = fwd2 on the front panel (flat, as v1, sheet centre pin_forward AHEAD of the
+    crown); behind the crown pin the sheet follows the rear path by arc length, so the 2D pattern is unchanged
+    (isometric: a generalised cylinder with rulings along the side axis). Per-vertex normals = side x dP/du."""
+    C, f2, up, side = bg["pin_local_cm"], bg["fwd2_local"], bg["up_local"], bg["side_local"]
+    pos, nrm, us = [], [], []
+    for x, y in sheet["xy"]:
+        u = 100.0 * (y + pin_forward_m)                 # signed arc length from the crown pin, + = forward
+        if u >= 0.0:
+            a, b, T = u, 0.0, [1.0, 0.0]
+        else:
+            (a, b), t = _rear_point(bg, -u)
+            T = [-t[0], -t[1]]
+        pos.append(_add(C, _add(_mul(side, 100.0 * x), _add(_mul(f2, a), _mul(up, b)))))
+        T3 = _add(_mul(f2, T[0]), _mul(up, T[1]))
+        nrm.append(_unit(_cross(side, T3), "normal"))
+        us.append(u)
+    back_on_sheet = _add(C, _add(_mul(f2, bg["b2_cm"][0]), _mul(up, bg["b2_cm"][1])))
+    return {"positions_cm": pos, "normals": nrm, "normal": up, "side": side, "pin_local_cm": C,
+            "pins": [C, back_on_sheet], "u_cm": us, "rear_len_cm": bg["rear_len_cm"]}
+
+
+def pin_coverage(sheet, placed, params, back_target_cm=None):
+    """The MaxDistance-0 region (smoothstep(min distance to the pin centres) == 0) and whether it spans crown -> upper
+    back. Returns (metrics, problems). For a single-pin layout it only reports."""
+    pins = placed.get("pins") or [placed["pin_local_cm"]]
+    pos = placed["positions_cm"]
+    inner = params["pin_inner_cm"]
+    dist = [min(_norm(_sub(p, c)) for c in pins) for p in pos]
+    kin = [i for i, d in enumerate(dist) if smoothstep_weight(d, inner, params["pin_outer_cm"]) <= 0.0]
+    near = [sum(1 for i in kin if _norm(_sub(pos[i], c)) <= inner + 1e-9) for c in pins]
+    m = {"kinematic": len(kin), "per_pin": near, "pins_cm": pins}
+    probs = []
+    if len(pins) < 2:
+        return m, probs
+    us = placed["u_cm"]
+    rear = [-us[i] for i in kin]
+    m.update({"rear_arc_min_cm": min(rear) if rear else None, "rear_arc_max_cm": max(rear) if rear else None,
+              "rear_len_cm": placed["rear_len_cm"], "span_cm": _norm(_sub(pins[1], pins[0]))})
+    if min(near) < 3:
+        probs.append("BACK_PIN_COVERAGE|kinematic particles per disc %s (< 3)" % near)
+    if not rear or m["rear_arc_min_cm"] > inner or m["rear_arc_max_cm"] < placed["rear_len_cm"] - inner:
+        probs.append("BACK_PIN_COVERAGE|kinematic rear arc %s..%s does not span 0..%.1f cm (crown -> back)"
+                     % (m["rear_arc_min_cm"], m["rear_arc_max_cm"], placed["rear_len_cm"]))
+    if m["span_cm"] < BACK_MIN_SPAN_CM:
+        probs.append("BACK_PIN_SPAN|crown -> back disc %.1f cm (< %.0f)" % (m["span_cm"], BACK_MIN_SPAN_CM))
+    if back_target_cm is not None:
+        m["back_vs_target_cm"] = _norm(_sub(pins[1], back_target_cm))
+        if m["back_vs_target_cm"] > BACK_TARGET_TOL_CM:
+            probs.append("BACK_PIN_OFF_TARGET|%.1f cm" % m["back_vs_target_cm"])
+    return m, probs
+
+
+def back_geometry_problems(bg):
+    probs = []
+    if bg["back_along_eyes_cm"] > -5.0:      # fwd2 is built FROM the back point: test against the eyes instead
+        probs.append("BACK_PIN_NOT_BEHIND|back point %.1f cm along the eyes' forward (must be behind the crown)"
+                     % bg["back_along_eyes_cm"])
+    if bg["min_radius_cm"] < BEND_MIN_RADIUS_CM:
+        probs.append("BEND_TIGHT|min radius %.1f cm < %.0f" % (bg["min_radius_cm"], BEND_MIN_RADIUS_CM))
+    if bg["fwd2_vs_eyes_deg"] is not None and bg["fwd2_vs_eyes_deg"] > BACK_FACING_MAX_DEG:
+        probs.append("BACK_FACING|sheet forward vs eyes %.0f deg" % bg["fwd2_vs_eyes_deg"])
+    return probs
+
+
+def plan_geometry(fig, frame, params, layout, seed_offset=None):
+    """Pure: the sheet, its placement, metrics and every geometry problem for one figure (DRY and BUILD share it)."""
+    seed = params["seed"] + (FIGURES.index(fig) if seed_offset is None else seed_offset)
+    sheet = build_sheet(DECISION[fig]["size_m"], params["quad_cm"], params["fray_depth_cm"], seed)
+    probs = []
+    if layout == "crown+back":
+        b = frame["back"]
+        bg = back_geometry(frame, b["back_local_cm"], b["down_back_local"], params)
+        placed = place_sheet_back(sheet, bg, DECISION[fig]["pin_forward_m"])
+        probs += back_geometry_problems(bg)
+        frame["back"]["geometry"] = {k: v for k, v in bg.items() if k not in ("pts", "arc")}
+    else:
+        placed = place_sheet(sheet, frame, DECISION[fig]["pin_forward_m"])
+    m = sheet_metrics(sheet, placed, params)
+    cov, cprobs = pin_coverage(sheet, placed, params,
+                               frame["back"]["back_local_cm"] if layout == "crown+back" else None)
+    m["coverage"] = cov
+    probs += sheet_problems(m, params) + cprobs
+    return sheet, placed, m, probs
+
+
 def smoothstep_weight(dist_cm, inner, outer):
     """FDataflowSmoothStepFloatSampler (MinValue=inner, MaxValue=outer, ValueA 0 -> ValueB 1) [inferred: Hermite]."""
     t = max(0.0, min(1.0, (dist_cm - inner) / (outer - inner)))
@@ -439,18 +802,26 @@ def sheet_metrics(sheet, placed, params):
     """Offline gates on what BUILD will author (the same buffers go to GeometryScript)."""
     pos, uv0, tris = placed["positions_cm"], sheet["uv0"], sheet["tris"]
     pin = placed["pin_local_cm"]
+    pins = placed.get("pins") or [pin]
+    vn = placed.get("normals")                       # crown+back: per-vertex normals (curved rear)
+    curved = vn is not None
+    # curved sheets: EVERY triangle (the bends are local); flat: a 400-triangle stride as v1
     ratios, wind = [], 0
-    for a, b, c in tris[:: max(1, len(tris) // 400)]:
+    for a, b, c in (tris if curved else tris[:: max(1, len(tris) // 400)]):
         for i, j in ((a, b), (b, c), (c, a)):
             l3 = _norm(_sub(pos[i], pos[j]))
             l2 = 100.0 * math.hypot(uv0[i][0] - uv0[j][0], uv0[i][1] - uv0[j][1])
             ratios.append(l3 / l2 if l2 > 1e-9 else float("inf"))
         nrm = _cross(_sub(pos[b], pos[a]), _sub(pos[c], pos[a]))
-        wind += 1 if _dot(nrm, placed["normal"]) > 0 else -1
-    dist = [_norm(_sub(p, pin)) for p in pos]
+        wind += 1 if _dot(nrm, vn[a] if curved else placed["normal"]) > 0 else -1
+    dist = [min(_norm(_sub(p, c)) for c in pins) for p in pos]
     w = [smoothstep_weight(d, params["pin_inner_cm"], params["pin_outer_cm"]) for d in dist]
     kin = sum(1 for x in w if x <= 0.0)
-    plane = max(abs(_dot(_sub(p, pin), placed["normal"])) for p in pos)
+    if curved:   # flatness of the FRONT panel only (the rear is curved by design; isometry is the gate there)
+        plane = max(abs(_dot(_sub(p, pin), placed["normal"])) for p, u in zip(pos, placed["u_cm"]) if u >= 0.0)
+    else:
+        plane = max(abs(_dot(_sub(p, pin), placed["normal"])) for p in pos)
+    dist = [_norm(_sub(p, pin)) for p in pos]       # farthest reach is measured from the crown pin (conservative)
     edge_d = [u[0] for u in sheet["uv1"]]
     return {"vertices": len(pos), "triangles": len(tris), "edge_ratio_min": min(ratios), "edge_ratio_max": max(ratios),
             "winding_sign": wind, "kinematic": kin, "partially_pinned": sum(1 for x in w if 0.0 < x < 1.0),
@@ -513,18 +884,31 @@ def _b(v):
 WEIGHT_ATTR = "ShoreSackMaxDistance"
 
 
-def dataflow_spec(mesh_path, pin_local_cm, p):
+SAMPLER_KEYS = ("CrownDistance", "BackDistance", "PinUnion", "CrownFalloff")
+MIN_SAMPLER_INPUTS = ("InputSamplers[%d]", "InputSamplers_%d")   # array pin naming: "CollectionLods[0]" ran in v1 BUILD
+
+
+def _sphere(c):
+    return "(Sphere=(Center=(X=%s,Y=%s,Z=%s),W=0))" % (_num(c[0]), _num(c[1]), _num(c[2]))
+
+
+def dataflow_spec(mesh_path, pin_local_cm, p, back_local_cm=None):
     """[(key, type, {prop: ImportText})], [(from, out, to, in)], terminal key. Property names: the 5.8 headers
     (ChaosClothAssetDataflowNodes/Public/ChaosClothAsset/*.h) and the curtain build that ran
-    (build_curtain_chaos_asset.py:413-483); sampler nodes as fix_spatial_crown_attachment.py:20-33."""
-    cx, cy, cz = pin_local_cm
+    (build_curtain_chaos_asset.py:413-483); sampler nodes as fix_spatial_crown_attachment.py:20-33.
+    back_local_cm (v2 crown+back): a second sphere distance and FDataflowMinSamplerNode (DataflowMinSamplerNode.h,
+    multi-input InputSamplers) -> min distance -> the same smoothstep -> one weight map = union of the two discs."""
     nodes = [
         ("Import", "FChaosClothAssetStaticMeshImportNode_v2", {
             "StaticMesh": mesh_path, "bImportSimMesh": "True", "bImportRenderMesh": "True",
             "UVChannel": "0", "UVScale": "(X=100,Y=100)"}),                 # UV0 metres -> pattern cm
         ("BindToRoot", "FChaosClothAssetBindToRootBoneNode", {"bBindSimMesh": "True", "bBindRenderMesh": "True"}),
-        ("CrownDistance", "FDataflowDistanceFromSphereFloatSamplerNode", {
-            "DistanceFromSphereSampler": "(Sphere=(Center=(X=%s,Y=%s,Z=%s),W=0))" % (_num(cx), _num(cy), _num(cz))}),
+        ("CrownDistance", "FDataflowDistanceFromSphereFloatSamplerNode", {"DistanceFromSphereSampler": _sphere(pin_local_cm)}),
+    ]
+    if back_local_cm is not None:
+        nodes += [("BackDistance", "FDataflowDistanceFromSphereFloatSamplerNode", {"DistanceFromSphereSampler": _sphere(back_local_cm)}),
+                  ("PinUnion", "FDataflowMinSamplerNode", {})]
+    nodes += [
         ("CrownFalloff", "FDataflowSmoothStepFloatSamplerNode", {
             "SmoothStepSampler": "(MinValue=%s,MaxValue=%s,ValueA=0,ValueB=1)" % (_num(p["pin_inner_cm"]), _num(p["pin_outer_cm"]))}),
         ("CrownWeights", "FDataflowSamplerToAttributeNode", {
@@ -562,9 +946,15 @@ def dataflow_spec(mesh_path, pin_local_cm, p):
             "TetherStiffness": weighted(p["tether_stiffness"]), "TetherScale": weighted(p["tether_scale"])}),
         ("Terminal", "FChaosClothAssetTerminalNode_v2", {}),
     ]
-    chain = [k for k, _t, _p in nodes if k not in ("CrownDistance", "CrownFalloff", "Terminal")]
+    chain = [k for k, _t, _p in nodes if k not in SAMPLER_KEYS + ("Terminal",)]
     links = [(a, "Collection", b, "Collection") for a, b in zip(chain, chain[1:])]
-    links += [("CrownDistance", "Sampler", "CrownFalloff", "Sampler"), ("CrownFalloff", "Sampler", "CrownWeights", "Sampler"),
+    if back_local_cm is None:
+        links += [("CrownDistance", "Sampler", "CrownFalloff", "Sampler")]
+    else:
+        links += [("CrownDistance", "Sampler", "PinUnion", MIN_SAMPLER_INPUTS[0] % 0),
+                  ("BackDistance", "Sampler", "PinUnion", MIN_SAMPLER_INPUTS[0] % 1),
+                  ("PinUnion", "Sampler", "CrownFalloff", "Sampler")]
+    links += [("CrownFalloff", "Sampler", "CrownWeights", "Sampler"),
               ("CrownWeights", "AttributeName", "MaxDistance", "MaxDistance.WeightMap")]
     return nodes, links, "Terminal"
 
@@ -592,10 +982,20 @@ def dataflow_problems(nodes, links, terminal, p):
         probs.append("TERMINAL")
     coll_in = {b for _a, pa, b, pb in links if pb == "Collection"}
     coll_out = {a for a, pa, _b, pb in links if pa == "Collection"}
-    heads = [k for k, t, _ in nodes if k not in coll_in and k not in ("CrownDistance", "CrownFalloff", terminal)]
-    tails = [k for k, t, _ in nodes if k not in coll_out and k not in ("CrownDistance", "CrownFalloff", terminal)]
+    heads = [k for k, t, _ in nodes if k not in coll_in and k not in SAMPLER_KEYS + (terminal,)]
+    tails = [k for k, t, _ in nodes if k not in coll_out and k not in SAMPLER_KEYS + (terminal,)]
     if heads != ["Import"] or len(tails) != 1:
         probs.append("CHAIN|heads=%s tails=%s" % (heads, tails))
+    if "BackDistance" in by:     # v2 crown+back: both distances must reach the falloff through the Min sampler
+        want = {("CrownDistance", "Sampler", "PinUnion", MIN_SAMPLER_INPUTS[0] % 0),
+                ("BackDistance", "Sampler", "PinUnion", MIN_SAMPLER_INPUTS[0] % 1),
+                ("PinUnion", "Sampler", "CrownFalloff", "Sampler")}
+        if by.get("PinUnion", (None,))[0] != "FDataflowMinSamplerNode" or not want <= set(links):
+            probs.append("BACK_PIN_UNLINKED|the back sphere does not reach the weight map through a Min sampler")
+        if ("CrownDistance", "Sampler", "CrownFalloff", "Sampler") in links:
+            probs.append("BACK_PIN_BYPASSED|crown distance wired straight to the falloff")
+    elif ("CrownDistance", "Sampler", "CrownFalloff", "Sampler") not in links:
+        probs.append("CROWN_UNLINKED")
     order = [k for k, _t, _p in nodes]
     if order.index("CrownWeights") > order.index("MaxDistance") or order.index("MaxDistance") > order.index("Tethers"):
         probs.append("ORDER|weights before MaxDistance before Tethers")
@@ -848,14 +1248,27 @@ def _eye_mid(face):
     return _mul(_add(a, b), 0.5), want
 
 
-def _measure(fig, actor, params, override):
-    """Read-only: the component-frame pin geometry for one figure (see upright_frame / shore02_frame)."""
+def _measure(fig, actor, params, override, layout=None, accept=()):
+    """Read-only: the component-frame pin geometry for one figure (see upright_frame / shore02_frame; crown+back adds
+    frame["back"]: the upper-back point and the down-the-back direction in the component frame, from the editor pose)."""
+    layout = layout or DECISION[fig]["pin"]
     body = _one(actor, BODY, "SkeletalMeshComponent")
     cloth = _one(actor, CLOTH, CLOTH_CLASS)
     origin, axes = _vec(cloth.get_world_location()), _axes(cloth)
     up = [0.0, 0.0, 1.0]
     feet, toes = facing_from_feet(*[_socket(body, b) for b in ("thigh_l", "thigh_r", "ball_l", "foot_l", "ball_r", "foot_r")])
-    if DECISION[fig]["pin"] == "back":
+    if layout == "crown+back":
+        eye_mid, eyes = _eye_mid(_one(actor, FACE, "SkeletalMeshComponent"))
+        frame, probs = upright_frame(origin, axes, eye_mid, up, feet if toes > 1.0 else None, params, override)
+        sk = {b: _socket(body, b) for b in ("pelvis", "spine_03", "spine_05", "neck_01", "head")}
+        target, info = back_target_world(sk["spine_05"], sk["spine_03"], sk["neck_01"], feet, params)
+        pose = torso_pose(sk["pelvis"], sk["neck_01"], sk["head"])
+        probs += editor_pose_problems(fig, pose, accept)
+        frame["back"] = {"target_world_cm": target, "back_local_cm": to_local(target, origin, axes),
+                         "down_back_local": dir_to_local(info["down_back_world"], axes),
+                         "back_normal_world": info["back_normal_world"], "editor_pose": pose,
+                         "spine05_world_cm": sk["spine_05"]}
+    elif DECISION[fig]["pin"] == "back":
         rec = _read(SHORE02_RECORD)
         bt = body.get_world_transform()
         frame, probs = shore02_frame(rec, lambda v: _vec(unreal.MathLibrary.transform_location(bt, unreal.Vector(*v))),
@@ -882,7 +1295,9 @@ def _api_presence():
             ("ChaosClothComponent", "set_asset"), ("ChaosClothComponent", "get_cloth_outfit_interactor"),
             ("ChaosClothComponent", "set_simulate_in_editor"), ("SubobjectDataSubsystem", "k2_gather_subobject_data_for_blueprint"),
             ("MathLibrary", "transform_location"), ("SystemLibrary", "get_component_bounds"),
-            ("MaterialEditingLibrary", "set_material_instance_parent"), ("EditorAssetLibrary", "duplicate_asset")]
+            ("MaterialEditingLibrary", "set_material_instance_parent"), ("EditorAssetLibrary", "duplicate_asset"),
+            ("MaterialEditingLibrary", "set_material_instance_scalar_parameter_value"),
+            ("MaterialEditingLibrary", "set_material_instance_vector_parameter_value")]
     out = {}
     for c, a in want:
         cls = getattr(unreal, c, None)
@@ -907,9 +1322,30 @@ def _mi_values(mi):
     return out
 
 
-def _build_materials(nm, variant):
+def look_target(src_values, look):
+    """The MI values BUILD must read back: the source MI's overrides, then the version's look on top."""
+    want = {"scalars": dict(src_values["scalars"]), "vectors": {k: list(v) for k, v in src_values["vectors"].items()},
+            "textures": dict(src_values.get("textures", {}))}
+    want["scalars"].update({k: float(v) for k, v in look.get("scalars", {}).items()})
+    want["vectors"].update({k: [float(x) for x in v] for k, v in look.get("vectors", {}).items()})
+    return want
+
+
+def mi_values_match(want, got, tol=1e-5):
+    """float32 read-back tolerant equality (0.6 reads back 0.6000000238)."""
+    if set(want["scalars"]) != set(got["scalars"]) or set(want["vectors"]) != set(got["vectors"]):
+        return False
+    if want.get("textures", {}) != got.get("textures", {}):
+        return False
+    if any(abs(want["scalars"][k] - got["scalars"][k]) > tol for k in want["scalars"]):
+        return False
+    return all(abs(a - b) <= tol for k in want["vectors"] for a, b in zip(want["vectors"][k], got["vectors"][k]))
+
+
+def _build_materials(nm, variant, look=None):
     """Create-only duplicates; returns (created paths, readback). Reuses them only if this tool's BUILD record made
-    them (a second figure batch of the same version)."""
+    them (a second figure batch of the same version). v2+: the MI gets the version's look over the source values."""
+    look = look or MI_LOOK[1]
     eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
     created, rb = [], {}
     if not eal.does_asset_exist(nm["master"]):
@@ -931,13 +1367,19 @@ def _build_materials(nm, variant):
         _require(mi is not None, "DUP_MI|" + nm["mi"])
         mi.modify()
         mel.set_material_instance_parent(mi, m)
+        for k, v in look.get("scalars", {}).items():       # setter returns are not trusted: read back below
+            mel.set_material_instance_scalar_parameter_value(mi, k, float(v))
+        for k, v in look.get("vectors", {}).items():
+            mel.set_material_instance_vector_parameter_value(mi, k, unreal.LinearColor(*[float(x) for x in v]))
         mel.update_material_instance(mi)
         created.append(nm["mi"])
     mi = unreal.load_asset(nm["mi"])
     _require(_path(mi.get_editor_property("parent")) == nm["master"], "MI_PARENT|%s" % mi.get_editor_property("parent"))
-    want, got = _mi_values(unreal.load_asset(SRC_MI)), _mi_values(mi)
-    _require(want == got and want["scalars"], "MI_VALUES|source=%s copy=%s" % (want, got))
+    src = _mi_values(unreal.load_asset(SRC_MI))
+    want, got = look_target(src, look), _mi_values(mi)
+    _require(src["scalars"] and mi_values_match(want, got), "MI_VALUES|want=%s got=%s" % (want, got))
     rb["mi"] = got
+    rb["mi_look"] = look
     return created, rb
 
 
@@ -948,7 +1390,8 @@ def _dynamic_mesh(sheet, placed):
     unreal.GeometryScript_UVs.set_num_uv_sets(dm, 2)
     buf = unreal.GeometryScriptSimpleMeshBuffers()
     buf.set_editor_property("vertices", [unreal.Vector(*p) for p in placed["positions_cm"]])
-    buf.set_editor_property("normals", [unreal.Vector(*placed["normal"]) for _ in placed["positions_cm"]])
+    vn = placed.get("normals") or [placed["normal"]] * len(placed["positions_cm"])   # crown+back: per-vertex
+    buf.set_editor_property("normals", [unreal.Vector(*n) for n in vn])
     buf.set_editor_property("uv0", [unreal.Vector2D(u, v) for u, v in sheet["uv0"]])
     buf.set_editor_property("uv1", [unreal.Vector2D(u, v) for u, v in sheet["uv1"]])
     buf.set_editor_property("triangles", [unreal.IntVector(a, b, c) for a, b, c in sheet["tris"]])
@@ -1000,9 +1443,17 @@ def _build_mesh(path, sheet, placed, mi):
     return mesh, rb
 
 
-def _build_dataflow(path, mesh_path, pin_local, p):
+def _min_input_candidates(pin):
+    """'InputSamplers[1]' -> every naming the multi-input pin may carry (the array form ran for CollectionLods[0])."""
+    if not pin.startswith("InputSamplers["):
+        return [pin]
+    i = int(pin[len("InputSamplers["):-1])
+    return [fmt % i for fmt in MIN_SAMPLER_INPUTS]
+
+
+def _build_dataflow(path, mesh_path, pin_local, p, back_local=None):
     dfl = unreal.DataflowEditorBlueprintLibrary
-    nodes, links, terminal = dataflow_spec(mesh_path, pin_local, p)
+    nodes, links, terminal = dataflow_spec(mesh_path, pin_local, p, back_local)
     probs = dataflow_problems(nodes, links, terminal, p)
     _require(not probs, "DATAFLOW_SPEC|%s" % probs)
     d, n = path.rsplit("/", 1)
@@ -1010,23 +1461,30 @@ def _build_dataflow(path, mesh_path, pin_local, p):
     _require(df is not None, "DF_CREATE|" + path)
     made, fails = {}, []
     for i, (key, typ, props) in enumerate(nodes):
-        name = dfl.add_dataflow_node(df, typ, key, unreal.Vector2D(320.0 * i, 0.0 if not key.startswith("Crown") else 400.0))
+        name = dfl.add_dataflow_node(df, typ, key, unreal.Vector2D(320.0 * i, 400.0 if key in SAMPLER_KEYS else 0.0))
         _require(name and str(name) != "None", "DF_NODE|%s|%s" % (key, typ))
         made[key] = name
         for prop, value in props.items():
             if not dfl.set_dataflow_node_property(df, name, prop, value):
                 fails.append("%s.%s=%s" % (key, prop, value))
     _require(not fails, "DF_PROPS|%s" % fails)
+    used_pins = {}
     for a, pa, b, pb in links:
-        _require(dfl.connect_dataflow_nodes(df, made[a], pa, made[b], pb), "DF_LINK|%s.%s->%s.%s" % (a, pa, b, pb))
-    tail = [k for k, _t, _p in nodes if k not in ("CrownDistance", "CrownFalloff", terminal)][-1]
+        ok = False
+        for cand in _min_input_candidates(pb):
+            if dfl.connect_dataflow_nodes(df, made[a], pa, made[b], cand):
+                ok, used_pins["%s.%s" % (b, pb)] = True, cand
+                break
+        _require(ok, "DF_LINK|%s.%s->%s.%s (tried %s)" % (a, pa, b, pb, _min_input_candidates(pb)))
+    tail = [k for k, _t, _p in nodes if k not in SAMPLER_KEYS + (terminal,)][-1]
     term_in = None
     for cand in ("CollectionLods[0]", "CollectionLods_0", "CollectionLods", "Collection"):
         if dfl.connect_dataflow_nodes(df, made[tail], "Collection", made[terminal], cand):
             term_in = cand
             break
     _require(term_in is not None, "DF_TERMINAL_LINK")
-    return df, {"nodes": {k: str(v) for k, v in made.items()}, "terminal_input": term_in, "terminal": str(made[terminal])}
+    return df, {"nodes": {k: str(v) for k, v in made.items()}, "terminal_input": term_in, "terminal": str(made[terminal]),
+                "link_pins": used_pins}
 
 
 def _build_cloth(path, df, terminal_name, mi):
@@ -1075,32 +1533,39 @@ def run_build(run, figs, version, params, extra, ed):
     planned = planned_packages("BUILD", figs, version, variant, existing)
     actors = _figure_actors(figs)
     geo, probs = {}, []
+    look = extra.get("mi_look") or mi_look(version)
+    _require(vrec.get("mi_look", look) == look, "LOOK_DIFFERS_WITHIN_VERSION|bump version")
+    back_figs = extra.get("back_pin_figures", list(BACK_PIN_FIGURES))
+    _require(vrec.get("back_pin_figures", back_figs) == back_figs, "BACK_PIN_FIGURES_DIFFER_WITHIN_VERSION|bump version")
     for f in figs:                                       # every read before the first write
-        frame, fp = _measure(f, actors[f], params, extra["forward_local_override"].get(f))
-        sheet = build_sheet(DECISION[f]["size_m"], params["quad_cm"], params["fray_depth_cm"], params["seed"] + FIGURES.index(f))
-        placed = place_sheet(sheet, frame, DECISION[f]["pin_forward_m"])
-        m = sheet_metrics(sheet, placed, params)
-        probs += fp + sheet_problems(m, params)
-        geo[f] = (frame, sheet, placed, m)
+        layout = pin_layout(f, version, back_figs)
+        frame, fp = _measure(f, actors[f], params, extra["forward_local_override"].get(f), layout,
+                             extra.get("accept_editor_pose", ()))
+        sheet, placed, m, gp = plan_geometry(f, frame, params, layout)
+        probs += fp + gp
+        geo[f] = (frame, sheet, placed, m, layout)
     _require(not probs, "PREFLIGHT|%s" % probs)
     unreal.log("S3LIVESACK_PLAN|run=%s|BUILD|%s" % (run, json.dumps(planned)))
     created, mats_created, out = [], [], {}
-    mat_created, mat_rb = _build_materials(nm0, variant)
+    mat_created, mat_rb = _build_materials(nm0, variant, look)
     mats_created += mat_created
     mi = unreal.load_asset(nm0["mi"])
     for f in figs:
         nm = names(f, version, variant)
-        frame, sheet, placed, m = geo[f]
+        frame, sheet, placed, m, layout = geo[f]
+        back_local = placed["pins"][1] if layout == "crown+back" else None
         mesh, mesh_rb = _build_mesh(nm["mesh"], sheet, placed, mi)
-        df, df_rb = _build_dataflow(nm["dataflow"], nm["mesh"], placed["pin_local_cm"], params)
+        df, df_rb = _build_dataflow(nm["dataflow"], nm["mesh"], placed["pin_local_cm"], params, back_local)
         cloth, ca_rb = _build_cloth(nm["cloth"], df, df_rb["terminal"], mi)
         created += [nm["mesh"], nm["dataflow"], nm["cloth"]]
-        out[f] = {"names": nm, "frame": frame, "metrics": m, "sheet_sha256": buffers_sha(sheet, placed),
+        out[f] = {"names": nm, "layout": layout, "frame": frame, "metrics": m, "sheet_sha256": buffers_sha(sheet, placed),
                   "mesh": mesh_rb, "dataflow": df_rb, "cloth": ca_rb}
     saved = _save(ed, planned)
     vrec["figures"].update(out)
     vrec["materials_created"] = sorted(set(vrec["materials_created"]) | set(mats_created))
     vrec["params"] = params
+    vrec["mi_look"] = look
+    vrec["back_pin_figures"] = back_figs
     vrec.setdefault("runs", []).append({"run": run, "figures": figs, "saved": saved, "material_readback": mat_rb})
     prior["versions"][str(version)] = vrec
     _write(RECORDS["BUILD"], prior)
@@ -1153,56 +1618,83 @@ def run_apply(run, figs, version, params, ed):
         probs += before_problems(f, tpl, inst)
         before[f] = {"template": tpl, "instance": inst}
     _require(not probs, "PREFLIGHT|%s" % probs)
-    planned = planned_packages("APPLY", figs, version, variant)
+    planned = planned_packages("APPLY", figs, version, variant, instances=True)
     backup, files = _backup(run, figs)
+    # the instance before-values REVERT restores (before.<fig>.instance has the full state; this map is what
+    # run_revert writes back, the same key the 6 Oct instance fix used)
     rec = {"run": run, "version": version, "variant": variant, "figures": figs, "before": before, "backup": backup,
-           "backup_files": files, "saved": False}
+           "backup_files": files, "saved": False,
+           "instance_asset_override": {f: before[f]["instance"]["asset"] for f in figs}, "instance_write": True}
     _write(RECORDS["APPLY"], rec, exclusive=True)
     unreal.log("S3LIVESACK_PLAN|run=%s|APPLY|%s|backup=%s" % (run, json.dumps(planned), backup))
     after = {}
     for f in figs:
         nm = names(f, version, variant)
         after[f] = {"template": _set_template(nm["bp"], template_target(before[f]["template"], nm["cloth"], nm["mi"]))}
-    rec["saved_packages"] = _save(ed, planned)
-    rec["saved"] = True
-    for f, a in _figure_actors(figs).items():           # fresh lookups: the compile re-instanced the actors
+    # the placed figures carry their OWN asset value (6 Oct: APPLY v1 saved the templates and the level kept
+    # CA_ShoreHeadDrape; S3LSFIX-20261006-172813 set it per instance): set it on each, after the compile, by a
+    # FRESH lookup (the compile re-instanced the actors), read back, and only then save BPs + level together.
+    for f, a in _figure_actors(figs).items():
+        _set_instance_asset(a, names(f, version, variant)["cloth"])
+    for f, a in _figure_actors(figs).items():
         nm = names(f, version, variant)
         inst = _instance_state(a)
-        after[f]["instance"] = inst
         bad = template_diff({"asset": nm["cloth"], "override_materials": [nm["mi"]], "relative_scale": [1.0, 1.0, 1.0]},
                             inst, ("asset", "override_materials", "relative_scale"))
-        _require(not bad and inst["parent_is_this_body"], "INSTANCE_READBACK|%s|%s|parent=%s" % (f, bad, inst["parent_is_this_body"]))
+        _require(not bad and inst["parent_is_this_body"],
+                 "INSTANCE_READBACK|%s|%s|parent=%s|NOTHING SAVED" % (f, bad, inst["parent_is_this_body"]))
+    rec["saved_packages"] = _save(ed, planned)
+    rec["saved"] = True
+    for f, a in _figure_actors(figs).items():           # post-save read-back = the record's "after"
+        after[f]["instance"] = _instance_state(a)
+        _require(after[f]["instance"]["asset"] == names(f, version, variant)["cloth"], "POST_SAVE_INSTANCE|%s" % f)
     rec["after"] = after
     _write(RECORDS["APPLY"], rec)
     return {"figures": figs, "backup": backup, "saved": rec["saved_packages"]}
 
 
+def _set_instance_asset(actor, asset_path):
+    """The level instance's own ShoreHeadCloth asset value (modify() -> the level dirties: it is in the save scope)."""
+    c = _one(actor, CLOTH, CLOTH_CLASS)
+    asset = unreal.load_asset(asset_path)
+    _require(asset is not None and str(asset.get_class().get_name()) == "ChaosClothAsset", "INSTANCE_ASSET_CLASS|" + asset_path)
+    c.modify()
+    c.set_asset(asset)
+
+
 def run_revert(run, ed):
     rec = _read(RECORDS["APPLY"])
     figs, version, variant = rec["figures"], rec["version"], rec["variant"]
+    inst_over = rec.get("instance_asset_override") or {}   # v1: written by the 6 Oct instance fix; v2+: by APPLY
     probs = []
-    for f in figs:                                       # drift check first: the BP must still be what APPLY left
+    actors = _figure_actors(figs)
+    for f in figs:                                       # drift check first: BP + instance must still be what APPLY left
         nm = names(f, version, variant)
         got = _template_state(nm["bp"])
-        want_after = (rec.get("after") or {}).get(f, {}).get("template") or             template_target(rec["before"][f]["template"], nm["cloth"], nm["mi"])   # 6 Oct instance-fix record has no "after"
+        want_after = (rec.get("after") or {}).get(f, {}).get("template") or \
+            template_target(rec["before"][f]["template"], nm["cloth"], nm["mi"])
         bad = template_diff(want_after, got)
         if bad:
             probs.append("DRIFT|%s|%s" % (f, bad))
+        # the instance ASSET only (v1's record carries a RECONSTRUCTED after.instance whose material/scale are the old
+        # values: not a measurement; VERIFY S3LIVESACK-20261006-172851 read MI + scale 1 on every instance)
+        ia = _instance_state(actors[f])["asset"]
+        if inst_over and ia != nm["cloth"]:
+            probs.append("INSTANCE_DRIFT|%s|%s (want %s)" % (f, ia, nm["cloth"]))
+        if inst_over and f not in inst_over:
+            probs.append("INSTANCE_RECORD|%s missing from instance_asset_override" % f)
     _require(not probs, "REVERT_REFUSED|%s" % probs)
-    planned = planned_packages("REVERT", figs, version, variant)
+    planned = planned_packages("REVERT", figs, version, variant, instances=bool(inst_over))
     for f in figs:
         _set_template(names(f, version, variant)["bp"], rec["before"][f]["template"])
-    saved = _save(ed, planned)
-    if rec.get("instance_asset_override"):              # 6 Oct: the placed figures carry their own asset value
+    if inst_over:                                        # fresh lookups: the compile re-instanced the actors
         for f, a in _figure_actors(figs).items():
-            c = _one(a, CLOTH, CLOTH_CLASS)
-            c.modify()
-            c.set_asset(unreal.load_asset(rec["instance_asset_override"][f]))
-        _require(unreal.EditorLoadingAndSavingUtils.save_map(ed.get_editor_world(), WORLD), "REVERT_MAP_SAVE")
-    for f, a in _figure_actors(figs).items():
+            _set_instance_asset(a, inst_over[f])
+    for f, a in _figure_actors(figs).items():           # read back BEFORE the save: refuse = nothing saved
         inst = _instance_state(a)
         bad = template_diff(rec["before"][f]["instance"], inst, ("asset", "override_materials", "relative_scale"))
-        _require(not bad, "REVERT_INSTANCE|%s|%s" % (f, bad))
+        _require(not bad, "REVERT_INSTANCE|%s|%s|NOTHING SAVED" % (f, bad))
+    saved = _save(ed, planned)                           # one scope: the BPs (+ the level, required if instances)
     rec["reverted"] = {"run": run, "saved": saved}
     _write(RECORDS["APPLY"], rec)
     os.replace(RECORDS["APPLY"], RECORDS["APPLY"] + ".reverted-" + run)
@@ -1220,7 +1712,30 @@ def _expected(fig):
     return OLD_ASSET[fig], OLD_MATERIAL
 
 
-def _reading(actor, fig, world_kind):
+def _build_row(fig, version):
+    """(row, params) of the BUILD record for this figure/version, or (None, None)."""
+    if not os.path.exists(RECORDS["BUILD"]):
+        return None, None
+    v = _read(RECORDS["BUILD"])["versions"].get(str(version)) or {}
+    return (v.get("figures") or {}).get(fig), v.get("params")
+
+
+def _back_pin_track(actor, row, params):
+    """v2 crown+back, informational: where the (head-riding) back disc centre is NOW vs the back point the current
+    pose puts it (spine_05 + back normal x (depth + lift)). Large values = the head moved relative to the torso."""
+    back = ((row or {}).get("frame") or {}).get("back")
+    if not back or (row or {}).get("layout") != "crown+back":
+        return None
+    body = _one(actor, BODY, "SkeletalMeshComponent")
+    c = _one(actor, CLOTH, CLOTH_CLASS)
+    pins = (row.get("metrics") or {}).get("coverage", {}).get("pins_cm") or [None, back["back_local_cm"]]
+    disc = _vec(unreal.MathLibrary.transform_location(c.get_world_transform(), unreal.Vector(*pins[1])))
+    feet, _t = facing_from_feet(*[_socket(body, b) for b in ("thigh_l", "thigh_r", "ball_l", "foot_l", "ball_r", "foot_r")])
+    target, _i = back_target_world(_socket(body, "spine_05"), _socket(body, "spine_03"), _socket(body, "neck_01"), feet, params)
+    return {"back_pin_track_cm": _norm(_sub(disc, target)), "disc_world_cm": disc, "target_world_cm": target}
+
+
+def _reading(actor, fig, world_kind, build_row=None, build_params=None):
     body = _one(actor, BODY, "SkeletalMeshComponent")
     c = _one(actor, CLOTH, CLOTH_CLASS)
     st = _instance_state(actor, body)
@@ -1254,6 +1769,13 @@ def _reading(actor, fig, world_kind):
                                              "StretchStiffness", "FrictionCoefficient")}
     except Exception as exc:  # noqa: BLE001
         r["interactor_error"] = str(exc)
+    if build_row is not None:
+        try:
+            bt = _back_pin_track(actor, build_row, dict(PARAMS, **(build_params or {})))
+            if bt is not None:
+                r["back_pin"] = bt
+        except Exception as exc:  # noqa: BLE001 - informational
+            r["back_pin_error"] = str(exc)
     return r
 
 
@@ -1265,7 +1787,7 @@ def run_pie_probe(run, figs, ed):
     actors = _figure_actors([f for f in figs if f in rec["figures"]], world=gw)
     for f, a in actors.items():
         nm = names(f, rec["version"], rec["variant"])
-        r = _reading(a, f, "PIE")
+        r = _reading(a, f, "PIE", *_build_row(f, rec["version"]))
         out["figures"][f] = r
         fails += pie_problems(f, r, nm["cloth"], nm["mi"])
     out["fails"] = fails
@@ -1316,7 +1838,11 @@ def run_dry(run, figs, version, params, extra):
     c0 = _census()
     variant = params["material_variant"]
     out = {"run": run, "figures": figs, "version": version, "params": params, "census": c0, "api": _api_presence(),
-           "problems": [], "figures_detail": {}}
+           "problems": [], "figures_detail": {}, "mi_look": extra.get("mi_look"),
+           "back_pin_figures": extra.get("back_pin_figures"),
+           "predicted_albedo": {"v1_textured": predicted_albedo(MI_LOOK[1], hem=0.0),
+                                "v1_in_hem_band": predicted_albedo(MI_LOOK[1], hem=1.0),
+                                "this_version": predicted_albedo(extra.get("mi_look") or MI_LOOK[1], hem=1.0)}}
     out["problems"] += ["API_MISSING|%s" % k for k, v in out["api"].items() if not v]
     eal = unreal.EditorAssetLibrary
     for p in (SRC_MASTER[variant], SRC_MI):
@@ -1340,13 +1866,15 @@ def run_dry(run, figs, version, params, extra):
             d["instance"] = _instance_state(actors[f])
             if not os.path.exists(RECORDS["APPLY"]):
                 out["problems"] += before_problems(f, d["template"], d["instance"])
-            frame, fp = _measure(f, actors[f], params, extra["forward_local_override"].get(f))
-            sheet = build_sheet(DECISION[f]["size_m"], params["quad_cm"], params["fray_depth_cm"], params["seed"] + FIGURES.index(f))
-            placed = place_sheet(sheet, frame, DECISION[f]["pin_forward_m"])
-            d["frame"], d["metrics"] = frame, sheet_metrics(sheet, placed, params)
+            layout = pin_layout(f, version, extra.get("back_pin_figures", list(BACK_PIN_FIGURES)))
+            frame, fp = _measure(f, actors[f], params, extra["forward_local_override"].get(f), layout,
+                                 extra.get("accept_editor_pose", ()))
+            sheet, placed, d["metrics"], gp = plan_geometry(f, frame, params, layout)
+            d["frame"], d["layout"] = frame, layout
             d["sheet_sha256"] = buffers_sha(sheet, placed)
-            nodes, links, term = dataflow_spec(nm["mesh"], placed["pin_local_cm"], params)
-            out["problems"] += fp + sheet_problems(d["metrics"], params) + dataflow_problems(nodes, links, term, params)
+            nodes, links, term = dataflow_spec(nm["mesh"], placed["pin_local_cm"], params,
+                                               placed["pins"][1] if layout == "crown+back" else None)
+            out["problems"] += fp + gp + dataflow_problems(nodes, links, term, params)
             _dm, d["dynamic_mesh_probe"], dp = _dynamic_mesh(sheet, placed)   # in memory: no package, no save
             out["problems"] += ["%s|%s" % (x, f) for x in dp]
             _dm = None
@@ -1365,6 +1893,12 @@ def run_verify(run):
     eal = unreal.EditorAssetLibrary
     if os.path.exists(RECORDS["BUILD"]):
         for ver, v in _read(RECORDS["BUILD"])["versions"].items():
+            mi_path = next(iter(v["figures"].values()))["names"]["mi"] if v["figures"] else None
+            if mi_path and v.get("mi_look") and eal.does_asset_exist(mi_path):
+                want = look_target(_mi_values(unreal.load_asset(SRC_MI)), v["mi_look"])
+                got = _mi_values(unreal.load_asset(mi_path))
+                if not mi_values_match(want, got):
+                    fails.append("MI_LOOK|v%s|%s|want=%s got=%s" % (ver, mi_path, want, got))
             for f, row in v["figures"].items():
                 nm = row["names"]
                 for k in ("mesh", "dataflow", "cloth", "mi", "master"):
@@ -1384,7 +1918,7 @@ def run_verify(run):
             bad = template_diff(rec["after"][f]["template"], _template_state(nm["bp"])) if "after" in rec else {"after": "missing"}
             if bad:
                 fails.append("TEMPLATE|%s|%s" % (f, bad))
-            r = _reading(actors[f], f, "editor")
+            r = _reading(actors[f], f, "editor", *_build_row(f, rec["version"]))
             p = [x for x in pie_problems(f, r, nm["cloth"], nm["mi"]) if not x.startswith("PIE_SIM_DISABLED")]
             fails += [x.replace("PIE_", "EDITOR_", 1) for x in p]
             out[f] = r

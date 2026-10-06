@@ -4,6 +4,9 @@ Part A  pure helpers: params, modes, census, the sheet (isometric 2D pattern, wi
         determinism), the component-frame geometry (upright eyes / Shore02 recorded back pin), the Dataflow spec, the
         BP / PIE gates; cross-checked against the REAL files (Blender finals, the BP and cloth .uasset bytes, the UE 5.8
         Chaos Cloth headers) where those carry the fact.
+        v2 (6 Oct): the measured lean set, the crown+back pin geometry and its coverage gate, the v2 MI look, the
+        Min-sampler Dataflow spec. Live-content checks are STATE-AWARE (the BUILD / APPLY records say what must exist
+        and what the BP / level must reference), not hard-coded "before" assertions.
 Part B  APPLY -> REVERT through the tool's OWN glue (_set_template, _template_state, _comp_state, _instance_state,
         _save, census) against a FAKE `unreal`: six BP templates whose compile propagates to level instances unless
         an instance overrides the property. It proves the tool's logic (records, read-back gates, census, drift,
@@ -99,10 +102,51 @@ def t_modes():
                                                                   {"Shore01_M56": [1, 0]}}, none, contains="FORWARD"))
     check("pilot subset accepted", S.check_mode({"mode": "BUILD", "confirm": "BUILD S3LIVESACK",
                                                  "figures": ["Shore02_F52"]}, none)[1] == ["Shore02_F52"])
+    m2 = S.check_mode({"mode": "DRY", "version": 2}, none)
+    check("v2 DRY: default back-pin figures + the v2 look", m2[4]["back_pin_figures"] == ["Shore03_M59", "Shore05_M53"]
+          and m2[4]["mi_look"] == S.mi_look(2), m2[4])
+    check("NEG back_pin_figures with Shore02 (already back-pinned) -> BACK_PIN_FIGURES",
+          raises(S.check_mode, {"mode": "DRY", "version": 2, "back_pin_figures": ["Shore02_F52"]}, none, contains="BACK_PIN_FIGURES"))
+    check("NEG accept_editor_pose unknown figure", raises(S.check_mode, {"mode": "DRY", "accept_editor_pose": ["X"]}, none,
+                                                         contains="ACCEPT_EDITOR_POSE"))
+    check("REVERT needs no version (the record carries it)", S.check_mode({"mode": "REVERT", "confirm": "REVERT S3LIVESACK"},
+                                                                         applied)[0] == "REVERT")
+
+
+def live_state():
+    """What the records say the project holds NOW: {"built": {version: {fig: names}}, "applied": record or None}."""
+    built = {}
+    if os.path.exists(S.RECORDS["BUILD"]):
+        for ver, v in json.load(open(S.RECORDS["BUILD"], encoding="utf-8"))["versions"].items():
+            built[int(ver)] = {f: row["names"] for f, row in v["figures"].items()}
+    applied = json.load(open(S.RECORDS["APPLY"], encoding="utf-8")) if os.path.exists(S.RECORDS["APPLY"]) else None
+    return {"built": built, "applied": applied}
+
+
+def content_state_problems(state, exists, versions=(1, 2)):
+    """State-aware create-only check: every asset a BUILD record lists must exist; every target of a version (or figure)
+    that is NOT in the record must be free. Pure (exists = a path predicate) so it has negative controls."""
+    probs = []
+    for ver in versions:
+        rec = state["built"].get(ver, {})
+        for f in S.FIGURES:
+            nm = S.names(f, ver)
+            for k in ("mesh", "dataflow", "cloth"):
+                if f in rec and not exists(nm[k]):
+                    probs.append("BUILT_BUT_MISSING|v%d|%s" % (ver, nm[k]))
+                if f not in rec and exists(nm[k]):
+                    probs.append("NOT_BUILT_BUT_TAKEN|v%d|%s" % (ver, nm[k]))
+        mi = S.names(S.FIGURES[0], ver)["mi"]
+        if rec and not exists(mi):
+            probs.append("BUILT_BUT_MISSING|v%d|%s" % (ver, mi))
+        if not rec and exists(mi):
+            probs.append("NOT_BUILT_BUT_TAKEN|v%d|%s" % (ver, mi))
+    return probs
 
 
 def t_files():
-    """The paths the tool names exist on disk today (declaration: Content listing, 6 Oct)."""
+    """The paths the tool names exist on disk today (declaration: Content listing), STATE-AWARE: what a BUILD record
+    lists must exist, what no record lists must be free (create-only)."""
     for f in S.FIGURES:
         check("BP on disk: %s" % f, os.path.exists(content_file(S.names(f, 1)["bp"])))
         check("old cloth asset on disk: %s" % S.OLD_ASSET[f], os.path.exists(content_file(S.OLD_ASSET[f])))
@@ -110,12 +154,38 @@ def t_files():
         check("source material on disk: %s" % p, os.path.exists(content_file(p)))
     check("umap on disk", os.path.exists(S.UMAP))
     check("Shore02 record on disk", os.path.exists(S.SHORE02_RECORD))
-    taken = [S.names(f, 1)[k] for f in S.FIGURES for k in ("mesh", "dataflow", "cloth")] + \
-            [S.names("Shore01_M56", 1)[k] for k in ("master", "mi")]
-    check("v1 targets are free (create-only)", not [p for p in taken if os.path.exists(content_file(p))],
-          [p for p in taken if os.path.exists(content_file(p))])
+    st = live_state()
+    on_disk = lambda p: os.path.exists(content_file(p))
+    probs = content_state_problems(st, on_disk)
+    check("content matches the BUILD record (built -> exists, unbuilt -> free); built versions %s" % sorted(st["built"]),
+          not probs, probs)
+    fake = {"built": {1: {}}, "applied": None}
+    check("NEG a record-less version whose assets exist -> NOT_BUILT_BUT_TAKEN",
+          any(x.startswith("NOT_BUILT_BUT_TAKEN|v1") for x in content_state_problems(fake, lambda p: True, (1,))))
+    fake = {"built": {2: {f: S.names(f, 2) for f in S.FIGURES}}, "applied": None}
+    check("NEG a recorded version whose assets are gone -> BUILT_BUT_MISSING",
+          any(x.startswith("BUILT_BUT_MISSING|v2") for x in content_state_problems(fake, lambda p: False, (2,))))
+    if 2 not in st["built"]:
+        check("v2 targets free (v2 not built yet)", not any(on_disk(S.names(f, 2)[k]) for f in S.FIGURES
+                                                            for k in ("mesh", "dataflow", "cloth", "mi")))
+    taken = [S.names(f, v)[k] for v in (1, 2) for f in S.FIGURES for k in ("mesh", "dataflow", "cloth")] + \
+            [S.names("Shore01_M56", v)[k] for v in (1, 2) for k in ("master", "mi")]
     check("targets live under ShoreCast Cloth/LiveSack or Sack/Materials",
           all(p.startswith(S.LIVE_DIR + "/") or p.startswith(S.MAT_DIR + "/") for p in taken))
+    check("v1 MI name unchanged (built 6 Oct), v2 MI versioned, master shared",
+          S.names("Shore01_M56", 1)["mi"] == S.MAT_DIR + "/MI_Sackcloth_OldGrey_Cloth" and
+          S.names("Shore01_M56", 2)["mi"] == S.MAT_DIR + "/MI_Sackcloth_OldGrey_Cloth_v2" and
+          S.names("Shore01_M56", 1)["master"] == S.names("Shore01_M56", 2)["master"])
+
+
+def bp_expected(f):
+    """(want, other): what the saved BP must reference now (the active APPLY record, else today's drape)."""
+    old = {"state": "old drape", "asset": S.OLD_ASSET[f], "mi": S.OLD_MATERIAL}
+    a = live_state()["applied"]
+    if a and f in a["figures"]:
+        nm = S.names(f, a["version"], a["variant"])
+        return {"state": "applied v%d" % a["version"], "asset": nm["cloth"], "mi": nm["mi"]}, old
+    return old, {"state": "live sack v1", "asset": S.names(f, 1)["cloth"], "mi": S.names(f, 1)["mi"]}
 
 
 def t_binary_facts():
@@ -126,9 +196,51 @@ def t_binary_facts():
               {"ConfigureShoreDrape", "K2_AttachToComponent", "AddCollisionSource", "ResetCollisionSources"} <= s)
         check("BP %s: no SetMaterial/SetAsset/SetSkinnedAsset symbol (construction cannot reset our material/asset)" % f,
               not any(x in s for x in ("SetMaterial", "SetAsset", "SetSkinnedAssetAndUpdate", "SetClothAsset")))
-        check("BP %s: template references the old asset + M_ShoreLinen + OverrideMaterials" % f,
-              S.OLD_ASSET[f] in s and S.OLD_MATERIAL in s and "OverrideMaterials" in s)
+        want, other = bp_expected(f)
+        check("BP %s: template references the %s asset + material + OverrideMaterials" % (f, want["state"]),
+              want["asset"] in s and want["mi"] in s and "OverrideMaterials" in s, want)
+        check("BP %s: and NOT the %s asset (the state is unambiguous)" % (f, other["state"]), other["asset"] not in s, other)
         check("BP %s: collision = the drape PHYS" % f, "%s/Cloth/PHYS_%s_Drape" % (S.ROOT, f) in s)
+    # The level on disk carries NO cloth asset for the placed figures, before APPLY (the PreS3LiveSack backup) or after
+    # the S3LSFIX save (binary, 6 Oct): ClothComponent.h:494-495 `Asset` is Transient (an alias of SkinnedAsset), and
+    # an instance equal to its archetype writes no delta. So the "instance keeps its own asset" seen live is IN-MEMORY
+    # state of the open editor [inferred]; on a reload the template governs. APPLY/REVERT still write the instance
+    # (the open session and PIE use it) and save the level that write dirties.
+    umap = open(S.UMAP, "rb").read()
+    check("level on disk: no ShoreHeadCloth asset reference (neither old drape nor sack): the template governs on load",
+          b"ShoreSack" not in umap and b"HeadDrape" not in umap)
+    check("NEG control: the same byte scan finds the figures' BP class in the level", b"BP_Shore01_M56_Draped" in umap)
+    cc = "D:/Unreal Engine/UE_5.8/Engine/Plugins/ChaosClothAsset/Source/ChaosClothAssetEngine/Public/ChaosClothAsset/ClothComponent.h"
+    if os.path.exists(cc):
+        t = open(cc, encoding="utf-8", errors="replace").read()
+        check("header: UChaosClothComponent::Asset is Transient (Setter = SetAsset)",
+              re.search(r"UPROPERTY\(EditAnywhere, Transient, Setter = SetAsset[^\n]*\)\s*TObjectPtr<UChaosClothAssetBase> Asset;", t) is not None)
+    # material facts behind the v2 look (binary-proven: names in the saved assets)
+    mst = strings(content_file(S.names("Shore01_M56", 1)["master"]), 4)
+    check("cloth master: HemGrimeAmount + InnerDarken params, an ObjectPositionWS node, NO TwoSidedSign node "
+          "(InnerDarken darkens BOTH faces; there is no back-face-only term)",
+          {"HemGrimeAmount", "InnerDarken", "MaterialExpressionObjectPositionWS"} <= mst and
+          "MaterialExpressionTwoSidedSign" not in mst)
+    mi1 = strings(content_file(S.names("Shore01_M56", 1)["mi"]), 4)
+    check("v1 cloth MI overrides Tint/Desaturate/HemGrimeHeightM but NOT HemGrimeAmount/InnerDarken (defaults 1.0)",
+          {"Tint", "Desaturate", "HemGrimeHeightM"} <= mi1 and not ({"HemGrimeAmount", "InnerDarken"} & mi1))
+    check("NEG control: the same scan finds a name that IS in the MI", "Desaturate" in mi1)
+    eng = "D:/Unreal Engine/UE_5.8/Engine/"
+    pu = eng + "Source/Runtime/Engine/Public/PrimitiveUniformShaderParametersBuilder.h"
+    if os.path.exists(pu):
+        check("header: ObjectPositionWS source = the primitive's WORLD BOUNDS origin "
+              "(PrimitiveUniformShaderParametersBuilder.h: AbsoluteObjectWorldPosition = InWorldBounds.Origin)",
+              "AbsoluteObjectWorldPosition = InWorldBounds.Origin;" in open(pu, encoding="utf-8", errors="replace").read())
+    mn = eng + "Plugins/Dataflow/Source/DataflowNodes/Private/Dataflow/SamplerNodes/DataflowMinSamplerNode.h"
+    mi_h = eng + "Plugins/Dataflow/Source/DataflowNodes/Private/Dataflow/SamplerNodes/DataflowSamplerMultiInput.h"
+    if os.path.exists(mn) and os.path.exists(mi_h):
+        t1, t2 = open(mn, encoding="utf-8").read(), open(mi_h, encoding="utf-8").read()
+        check("header: FDataflowMinSamplerNode exists on the multi-input base (InputSamplers array, output Sampler)",
+              "struct FDataflowMinSamplerNode : public FDataflowMultiInputSamplerNodeBase" in t1 and
+              "TArray<FDataflowSamplerTypes> InputSamplers;" in t2 and "FDataflowSamplerTypes Sampler;" in t2)
+        check("NEG header scan rejects a made-up sampler", "struct FDataflowUnionSamplerNode" not in t1)
+    else:
+        check("Min sampler header absent: UNCLEAR (skipped)", True)
     ca = strings(content_file(S.OLD_ASSET["Shore01_M56"]))
     for t in ("FDataflowDistanceFromSphereFloatSamplerNode", "FDataflowSmoothStepFloatSamplerNode",
               "FDataflowSamplerToAttributeNode", "DistanceFromSphereSampler", "SmoothStepSampler",
@@ -190,6 +302,159 @@ def t_sheet():
     check("NEG tilted (non-flat) sheet -> NOT_FLAT", any(x.startswith("NOT_FLAT") for x in S.sheet_problems(S.sheet_metrics(a, tilt, p), p)))
     m = S.sheet_metrics(a, pl, p)
     check("particle count: 41 x 41 at 5 cm (old drape 21 x 21 = 441)", m["vertices"] == 1681, m["vertices"])
+
+
+def _back_frame(back=(-28.0, 0.0, -38.0), down=(-0.5, 0.0, -0.87), p=None):
+    """A Shore05-like crown+back frame in an identity component frame (cm): crown pin 2 cm up, eyes ahead (+X),
+    upper back 28 cm behind and 38 cm below the crown, the back running down-and-back."""
+    p = p or dict(S.PARAMS)
+    fr, _ = S.upright_frame([0, 0, 0], [[1, 0, 0], [0, 1, 0], [0, 0, 1]], [10, 0, -3], [0, 0, 1], None, p)
+    fr["back"] = {"back_local_cm": list(back), "down_back_local": S._unit(list(down))}
+    return fr
+
+
+def t_lean():
+    """Which figures lean (MEASURED: Tools/S3Sackcloth/lean_scan.py over the exported anims)."""
+    check("leaning figures = Shore03_M59 + Shore05_M53 (Shore02 already back-pinned)",
+          S.leaning_figures() == ["Shore03_M59", "Shore05_M53"] and S.BACK_PIN_FIGURES == ("Shore03_M59", "Shore05_M53"),
+          S.leaning_figures())
+    check("Shore05_M53 is the most bent crown-pinned figure (window lean p50 0.31 m, tilt p50 24 deg)",
+          max((r["lean_p50_m"], f) for f, r in S.LEAN_SCAN.items() if S.DECISION[f]["pin"] == "crown")[1] == "Shore05_M53")
+    check("NEG thresholds above every figure -> nobody leans", S.leaning_figures(lean_p90_m=0.6, tilt_p90_deg=80.0) == [])
+    check("NEG Shore02 never in the set even at zero thresholds",
+          "Shore02_F52" not in S.leaning_figures(lean_p90_m=0.0, tilt_p90_deg=0.0))
+    summ = os.path.join(PROJECT, "DerivedAssets", "S3Sackcloth", "bodies", "lean_scan_summary.json")
+    if os.path.exists(summ):
+        d = json.load(open(summ, encoding="utf-8"))["figures"]
+        diffs = []
+        for f, r in S.LEAN_SCAN.items():
+            w = d[f]["window"]
+            for k, v in (("lean_p50_m", w["lean_m"]["p50"]), ("lean_p90_m", w["lean_m"]["p90"]),
+                         ("tilt_p90_deg", w["torso_tilt_deg"]["p90"]), ("tilt_max_deg", w["torso_tilt_deg"]["max"])):
+                if abs(r[k] - v) > 0.06:
+                    diffs.append((f, k, r[k], v))
+            hz = d[f]["pose_head_z_check"]
+            if abs(hz[0] - hz[1]) > 0.003:
+                diffs.append((f, "head_z", hz))
+        check("LEAN_SCAN constants = the scan summary; scan head z = the export record (<3 mm) for all six", not diffs, diffs)
+        bad = copy.deepcopy(d)
+        bad["Shore05_M53"]["window"]["lean_m"]["p50"] = 0.05
+        check("NEG a changed summary value is detected",
+              abs(S.LEAN_SCAN["Shore05_M53"]["lean_p50_m"] - bad["Shore05_M53"]["window"]["lean_m"]["p50"]) > 0.06)
+    else:
+        check("lean scan summary absent: constants UNVERIFIED (skipped)", True)
+    check("layout v1 = DECISION; v2 = crown+back for the leaning, v1 layout for the rest",
+          [S.pin_layout(f, 1) for f in S.FIGURES] == [S.DECISION[f]["pin"] for f in S.FIGURES] and
+          [S.pin_layout(f, 2) for f in S.FIGURES] == ["crown", "back", "crown+back", "crown", "crown+back", "crown"])
+    check("NEG crown+back asked for Shore02 -> LAYOUT", raises(S.pin_layout, "Shore02_F52", 2, ("Shore02_F52",), contains="LAYOUT"))
+    p = dict(S.PARAMS)
+    pose_ok = {"tilt_deg": 24.0, "lean_m": 0.3}
+    check("editor pose inside the scene motion -> no problem", not S.editor_pose_problems("Shore05_M53", pose_ok))
+    check("NEG upright editor pose for bent Shore05 -> EDITOR_POSE_ATYPICAL",
+          any(x.startswith("EDITOR_POSE_ATYPICAL") for x in S.editor_pose_problems("Shore05_M53", {"tilt_deg": 3.0, "lean_m": 0.02})))
+    check("accept_editor_pose overrides it", not S.editor_pose_problems("Shore05_M53", {"tilt_deg": 3.0, "lean_m": 0.02}, ["Shore05_M53"]))
+    tgt, info = S.back_target_world([0, -10, 140], [0, -14, 120], [0, -6, 150], [1, 0, 0], p)
+    check("back target: behind the spine (against the facing) by depth + lift",
+          tgt[0] < -10 and abs(S._norm(S._sub(tgt, [0, -10, 140])) - (p["back_pin_depth_cm"] + p["back_lift_cm"])) < 1e-6, tgt)
+    check("back target: down_back points away from the head", info["down_back_world"][2] < 0, info)
+
+
+def t_back_geometry():
+    p = dict(S.PARAMS)
+    fr = _back_frame(p=p)
+    sheet, placed, m, probs = S.plan_geometry("Shore05_M53", fr, p, "crown+back")
+    cov = m["coverage"]
+    check("crown+back: every gate passes (isometric on EVERY triangle, winding, discs, coverage)", not probs, (probs, m))
+    check("crown+back: kinematic particles at the crown AND the back disc (>= 3 each)", min(cov["per_pin"]) >= 3, cov)
+    check("crown+back: MaxDistance-0 region spans the crown -> back arc",
+          cov["rear_arc_min_cm"] <= p["pin_inner_cm"] and cov["rear_arc_max_cm"] >= cov["rear_len_cm"] - p["pin_inner_cm"], cov)
+    check("crown+back: back disc centre is ON the sheet at the measured back point", cov["back_vs_target_cm"] < 0.01, cov)
+    check("crown+back: crown pin kept at the v1 crown point", placed["pins"][0] == fr["pin_local_cm"])
+    check("crown+back: the front panel is flat (v1 shape ahead of the crown)", m["plane_dev_cm"] < 0.01, m["plane_dev_cm"])
+    check("crown+back: same particle count / pattern as v1 (1681)", m["vertices"] == 1681)
+    s1 = S.buffers_sha(sheet, placed)
+    _s, pl2, _m, _p = S.plan_geometry("Shore05_M53", _back_frame(p=p), p, "crown+back")
+    check("crown+back: deterministic", S.buffers_sha(sheet, pl2) == s1)
+    # negative controls on the coverage / geometry gates
+    off = copy.deepcopy(placed)
+    off["pins"] = [placed["pins"][0], [-300.0, 0.0, -38.0]]
+    _c, cp = S.pin_coverage(sheet, off, p, fr["back"]["back_local_cm"])
+    check("NEG back disc off the sheet -> BACK_PIN_COVERAGE + OFF_TARGET",
+          any(x.startswith("BACK_PIN_COVERAGE") for x in cp) and any(x.startswith("BACK_PIN_OFF_TARGET") for x in cp), cp)
+    crown_only = copy.deepcopy(placed)
+    crown_only["pins"] = [placed["pins"][0], placed["pins"][0]]
+    _c, cp = S.pin_coverage(sheet, crown_only, p)
+    check("NEG a crown-only pin under the v2 layout -> coverage does not span + BACK_PIN_SPAN",
+          any("does not span" in x for x in cp) and any(x.startswith("BACK_PIN_SPAN") for x in cp), cp)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(back=(6.0, 0.0, -40.0), p=p), p, "crown+back")
+    check("NEG back point ahead of the crown -> BACK_PIN_NOT_BEHIND", any(x.startswith("BACK_PIN_NOT_BEHIND") for x in pr), pr)
+    pt = dict(p, back_handle=0.6)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", _back_frame(p=pt), pt, "crown+back")
+    check("NEG a tight bend (handle 0.6) -> BEND_TIGHT and PATTERN_NOT_ISOMETRIC",
+          any(x.startswith("BEND_TIGHT") for x in pr) and any(x.startswith("PATTERN_NOT_ISOMETRIC") for x in pr), pr)
+    fr2 = _back_frame(back=(-5.0, -40.0, -38.0), p=p)
+    _s, _pl, _m, pr = S.plan_geometry("Shore05_M53", fr2, p, "crown+back")
+    check("NEG back point 83 deg off the eyes -> BACK_FACING", any(x.startswith("BACK_FACING") for x in pr), pr)
+    fr3 = _back_frame(down=(0.6, 0.0, 0.8), p=p)
+    S.plan_geometry("Shore05_M53", fr3, p, "crown+back")
+    check("back tangent pointing back at the crown -> chord fallback (recorded)",
+          fr3["back"]["geometry"]["tangent_source"] == "chord")
+    flat = S.plan_geometry("Shore01_M56", _back_frame(p=p), p, "crown")[3]
+    check("upright crown layout under v2: v1 gates, no coverage problems", not flat, flat)
+    c1, _ = S.pin_coverage(*S.plan_geometry("Shore01_M56", _back_frame(p=p), p, "crown")[:2], p)
+    check("upright crown layout: one disc only", len(c1["pins_cm"]) == 1)
+
+
+def t_material():
+    l2 = S.mi_look(2)
+    check("v2 look passes its gates", not S.material_problems(2, l2), S.material_problems(2, l2))
+    v1t, v1h, v2 = S.predicted_albedo(S.MI_LOOK[1], hem=0.0), S.predicted_albedo(S.MI_LOOK[1], hem=1.0), S.predicted_albedo(l2, hem=1.0)
+    check("v2 albedo = 2.0x v1's textured albedo (Gary: moderate, 1.8-2.2x)", 1.8 <= v2["lum"] / v1t["lum"] <= 2.2, (v1t, v2))
+    check("v1 inside the hem band renders as GrimeColor (lum ~0.09): the near-black flat look [mechanism]",
+          abs(v1h["lum"] - 0.0914) < 0.002 and v1h["rgb"] == [0.1, 0.09, 0.08], v1h)
+    check("hem band: full grime at <= 0.10 m above the bounds centre, none above 0.35 m",
+          abs(S.hem_weight(0.10) - 1.0) < 1e-9 and S.hem_weight(-1.0) == 1.0 and S.hem_weight(0.35) == 0.0 and
+          0.0 < S.hem_weight(0.2) < 1.0)
+    check("v2 keeps UV/tiling/normal/roughness (Gary: weave OK): not in the look",
+          not ({"TileM", "NormalStrength", "RoughnessScale"} & set(l2["scalars"])))
+    check("v1 look = the source MI (no overrides)", S.mi_look(1) == {"scalars": {}, "vectors": {}})
+    for look, want in (({"scalars": {"HemGrimeAmount": 1.0}}, "HEM_GRIME_ON"),
+                       ({"vectors": {"Tint": [1.86, 1.80, 1.68, 1.0]}}, "ALBEDO_STEP"),
+                       ({"vectors": {"Tint": [0.62, 0.60, 0.56, 1.0]}}, "ALBEDO_STEP"),
+                       ({"scalars": {"TileM": 0.1}}, "LOOK_KEY"),
+                       ({"scalars": {"Desaturate": True}}, "LOOK_RANGE"),
+                       ({"vectors": {"Tint": [1, 1, 1]}}, "LOOK_VECTOR")):
+        lk = S.mi_look(2, look)
+        check("NEG look %s -> %s" % (look, want), any(x.startswith(want) for x in S.material_problems(2, lk)),
+              S.material_problems(2, lk))
+    src = {"scalars": {"Desaturate": 0.75, "MottleAmount": 0.10000000149011612}, "vectors": {"Tint": [0.62, 0.6, 0.56, 1.0]},
+           "textures": {}}
+    want = S.look_target(src, l2)
+    got = copy.deepcopy(want)
+    got["scalars"]["Desaturate"] = 0.6000000238418579
+    check("MI read-back: float32 jitter accepted", S.mi_values_match(want, got))
+    got2 = copy.deepcopy(want)
+    del got2["scalars"]["HemGrimeAmount"]
+    check("NEG MI read-back: a look value that did not take -> mismatch", not S.mi_values_match(want, got2))
+    got3 = copy.deepcopy(want)
+    got3["vectors"]["Tint"] = [0.62, 0.6, 0.56, 1.0]
+    check("NEG MI read-back: v1 tint on the v2 MI -> mismatch", not S.mi_values_match(want, got3))
+    check("NEG mi_look in a v1 run is refused", raises(S.check_mode, {"mode": "DRY", "mi_look": {"scalars": {"Desaturate": 0.5}}},
+                                                       {"BUILD": False, "APPLY": False}, contains="MI_LOOK"))
+    check("NEG a bad look via args is refused", raises(S.check_mode, {"mode": "DRY", "version": 2,
+                                                                      "mi_look": {"scalars": {"HemGrimeAmount": 1.0}}},
+                                                       {"BUILD": False, "APPLY": False}, contains="MATERIAL"))
+    tex = os.path.join(PROJECT, "DerivedAssets", "S3Sackcloth", "textures", "hessian_230", "hessian_230_diff_2k.png")
+    try:
+        from PIL import Image
+        import numpy as np
+        im = np.asarray(Image.open(tex).convert("RGB"), dtype=np.float64) / 255.0
+        lin = np.where(im <= 0.04045, im / 12.92, ((im + 0.055) / 1.055) ** 2.4)
+        mean = lin.reshape(-1, 3).mean(0)
+        check("HESSIAN_DIFF_LINEAR = the texture's measured linear mean (<0.002)",
+              all(abs(a - b) < 0.002 for a, b in zip(mean, S.HESSIAN_DIFF_LINEAR["mean_rgb"])), list(mean))
+    except Exception as exc:  # noqa: BLE001
+        check("texture mean UNVERIFIED (PIL/numpy or file missing: %s)" % exc, True)
 
 
 def t_frames():
@@ -273,6 +538,21 @@ def t_dataflow():
     check("NEG chain broken -> CHAIN", any(x.startswith("CHAIN") for x in S.dataflow_problems(nodes, l3, term, p)))
     n4 = [x for x in nodes if x[0] != "MaxDistance"] + [x for x in nodes if x[0] == "MaxDistance"]
     check("NEG MaxDistance after the terminal/tethers -> ORDER", any(x.startswith("ORDER") for x in S.dataflow_problems(n4, links, term, p)))
+    nb, lb, tb = S.dataflow_spec("/Game/X/SM", [0, 0, 2], p, [-28, 0, -38])
+    check("crown+back spec passes its gates (two spheres -> Min -> one falloff)", not S.dataflow_problems(nb, lb, tb, p),
+          S.dataflow_problems(nb, lb, tb, p))
+    check("crown+back spec: v1 nodes unchanged + BackDistance + PinUnion(FDataflowMinSamplerNode)",
+          [k for k, _t, _p in nb if k not in ("BackDistance", "PinUnion")] == [k for k, _t, _p in nodes] and
+          dict((k, t) for k, t, _ in nb)["PinUnion"] == "FDataflowMinSamplerNode")
+    check("v1 spec unchanged by the v2 code (no back -> same nodes and links as before)",
+          ("CrownDistance", "Sampler", "CrownFalloff", "Sampler") in links and not any(k == "PinUnion" for k, _t, _p in nodes))
+    lb2 = [x for x in lb if x[0] != "BackDistance"]
+    check("NEG back sphere unlinked -> BACK_PIN_UNLINKED", any(x.startswith("BACK_PIN_UNLINKED") for x in S.dataflow_problems(nb, lb2, tb, p)))
+    lb3 = lb + [("CrownDistance", "Sampler", "CrownFalloff", "Sampler")]
+    check("NEG crown wired around the Min -> BACK_PIN_BYPASSED", any(x.startswith("BACK_PIN_BYPASSED") for x in S.dataflow_problems(nb, lb3, tb, p)))
+    check("Min input pin candidates: array form first (CollectionLods[0] ran in v1 BUILD)",
+          S._min_input_candidates("InputSamplers[1]") == ["InputSamplers[1]", "InputSamplers_1"] and
+          S._min_input_candidates("Sampler") == ["Sampler"])
     ps = dict(p, self_collision=True)
     n5, l5, t5 = S.dataflow_spec("/Game/X/SM", [0, 0, 2], ps)
     check("self-collision variant adds the v2 node and still passes",
@@ -318,10 +598,18 @@ def t_census():
     check("BUILD census: subset passes", S.census_ok({"content": pb["content"][:3], "maps": []}, pb))
     check("NEG BUILD census: a foreign package fails", not S.census_ok({"content": pb["content"] + ["/Game/Other"], "maps": []}, pb))
     check("NEG BUILD census: the level dirty fails", not S.census_ok({"content": pb["content"], "maps": [S.WORLD]}, pb))
+    pb3 = S.planned_packages("BUILD", list(S.FIGURES), 2, "masked", existing=[S.names("Shore01_M56", 2)["master"]])
+    check("BUILD v2 plans the v2 MI (master exists) + 18 assets", len(pb3["content"]) == 19 and
+          S.names("Shore01_M56", 2)["mi"] in pb3["content"] and S.names("Shore01_M56", 1)["mi"] not in pb3["content"], pb3)
     pa = S.planned_packages("APPLY", list(S.FIGURES), 1, "masked")
-    check("APPLY plans the six BPs exactly", pa["exact"] and len(pa["content"]) == 6)
-    check("APPLY census: exact + level allowed", S.census_ok({"content": pa["content"], "maps": [S.WORLD]}, pa))
-    check("APPLY census: exact without the level", S.census_ok({"content": pa["content"], "maps": []}, pa))
+    check("APPLY plans the six BPs exactly + the level REQUIRED (instance writes)",
+          pa["exact"] and len(pa["content"]) == 6 and pa["maps_required"] == [S.WORLD])
+    check("APPLY census: exact + level", S.census_ok({"content": pa["content"], "maps": [S.WORLD]}, pa))
+    check("NEG APPLY census: the level clean = the instance writes did not happen",
+          not S.census_ok({"content": pa["content"], "maps": []}, pa))
+    pr = S.planned_packages("REVERT", list(S.FIGURES), 1, "masked", instances=False)
+    check("REVERT of a record without instance writes: the level allowed, not required",
+          S.census_ok({"content": pr["content"], "maps": []}, pr) and S.census_ok({"content": pr["content"], "maps": [S.WORLD]}, pr))
     check("NEG APPLY census: one BP not dirty (a write that did not happen)", not S.census_ok({"content": pa["content"][1:], "maps": []}, pa))
     check("NEG APPLY census: an extra package", not S.census_ok({"content": pa["content"] + ["/Game/X"], "maps": []}, pa))
     check("NEG APPLY census: another map", not S.census_ok({"content": pa["content"], "maps": ["/Game/Other/Map"]}, pa))
@@ -425,11 +713,15 @@ class FComp:
     def set_asset(self, a):
         if self.U.quirks.get("setter_lies"):
             return
+        if self.template is not None and self.U.quirks.get("instance_setter_lies"):
+            return
         self.own["asset"] = a.path
 
     def modify(self):
         if self.template is None:
             self.U.dirty_content.add(self.bp)
+        elif not self.U.quirks.get("instance_modify_silent"):
+            self.U.dirty_maps.add(S.WORLD)          # a level actor's component: its package is the map
 
     def get_editor_property(self, k):
         if k == "override_materials":
@@ -480,9 +772,10 @@ def make_fake(quirks=None):
     U.assets = {}
     for f in S.FIGURES:
         U.assets[S.OLD_ASSET[f]] = FAsset(S.OLD_ASSET[f], "ChaosClothAsset")
-        nm = S.names(f, 1)
-        U.assets[nm["cloth"]] = FAsset(nm["cloth"], "ChaosClothAsset")
-        U.assets[nm["mi"]] = FAsset(nm["mi"], "MaterialInstanceConstant")
+        for v in (1, 2):
+            nm = S.names(f, v)
+            U.assets[nm["cloth"]] = FAsset(nm["cloth"], "ChaosClothAsset")
+            U.assets[nm["mi"]] = FAsset(nm["mi"], "MaterialInstanceConstant")
     U.assets[S.OLD_MATERIAL] = FAsset(S.OLD_MATERIAL, "Material")
     U.templates, U.bps = {}, {}
     for f in S.FIGURES:
@@ -494,6 +787,11 @@ def make_fake(quirks=None):
         U.templates[f] = t
         U.bps[t.bp] = (FAsset(t.bp, "Blueprint"), t)
     U.actors = {f: FActor(U, f) for f in S.FIGURES}
+    if U.quirks.get("instance_asset_pinned", True):
+        # MEASURED 6 Oct: each placed figure carries its OWN asset value (create_pinned_shore_drape.py set it on the
+        # level actor); APPLY v1 saved the templates and the level kept CA_ShoreHeadDrape (INSTANCE_READBACK refusal)
+        for f in S.FIGURES:
+            U.actors[f].cloth.own["asset"] = S.OLD_ASSET[f]
     for k, v in (U.quirks.get("instance_override") or {}).items():
         U.actors[k].cloth.own.update(v)
     U.dirty_content, U.dirty_maps = set(), set()
@@ -554,8 +852,8 @@ def bind(U, tmp):
     S._figure_actors = lambda figs, world=None: {f: U.actors[f] for f in figs}
     S._backup = lambda run, figs: (os.path.join(tmp, "backup-" + run), [{"src": "x"}])
     S._temp_actor_guard = lambda world: None
-    build = {"versions": {"1": {"figures": {f: {"names": S.names(f, 1)} for f in S.FIGURES},
-                                "params": dict(S.PARAMS), "materials_created": []}}}
+    build = {"versions": {str(v): {"figures": {f: {"names": S.names(f, v)} for f in S.FIGURES},
+                                   "params": dict(S.PARAMS), "materials_created": []} for v in (1, 2)}}
     with open(S.RECORDS["BUILD"], "w") as h:
         json.dump(build, h)
 
@@ -565,21 +863,35 @@ class _Ed:
         return object()
 
 
-def fake_run(quirks=None, between=None, figs=None):
+def fake_run(quirks=None, between=None, figs=None, version=1, record_hook=None, patch=None):
+    """APPLY then REVERT through the tool's glue on the fake. record_hook(rec) may rewrite the APPLY record between
+    them (e.g. into the shape the real 6 Oct v1 record has); patch = {tool attr: replacement} for the whole run."""
     tmp = tempfile.mkdtemp(prefix="livesack_")
     U = make_fake(quirks)
-    real = {k: getattr(S, k) for k in ("unreal", "RECORDS", "_template", "_figure_actors", "_backup", "_temp_actor_guard")}
+    keys = ("unreal", "RECORDS", "_template", "_figure_actors", "_backup", "_temp_actor_guard") + tuple(patch or {})
+    real = {k: getattr(S, k) for k in keys}
     out = {"U": U, "tmp": tmp}
     try:
         bind(U, tmp)
+        for k, v in (patch or {}).items():
+            setattr(S, k, v)
         figs = figs or list(S.FIGURES)
         try:
-            out["apply"] = S.run_apply("RUN-A", figs, 1, dict(S.PARAMS), _Ed())
+            out["apply"] = S.run_apply("RUN-A", figs, version, dict(S.PARAMS), _Ed())
         except Exception as exc:  # noqa: BLE001
             out["apply_error"] = str(exc)
+            out["record"] = json.load(open(S.RECORDS["APPLY"])) if os.path.exists(S.RECORDS["APPLY"]) else None
+            out["instances_now"] = {f: dict(U.actors[f].cloth.own) for f in figs}
             return out
+        out["record"] = json.load(open(S.RECORDS["APPLY"]))
         out["after_apply"] = {f: dict(U.templates[f].own) for f in figs}
         out["instances_after_apply"] = {f: S._instance_state(U.actors[f]) for f in figs}
+        out["dirty_after_apply"] = (sorted(U.dirty_content), sorted(U.dirty_maps))
+        if record_hook:
+            rec = json.load(open(S.RECORDS["APPLY"]))
+            record_hook(rec)
+            with open(S.RECORDS["APPLY"], "w") as h:
+                json.dump(rec, h)
         if between:
             between(U)
         try:
@@ -587,6 +899,7 @@ def fake_run(quirks=None, between=None, figs=None):
         except Exception as exc:  # noqa: BLE001
             out["revert_error"] = str(exc)
         out["after_revert"] = {f: dict(U.templates[f].own) for f in figs}
+        out["instances_after_revert"] = {f: S._instance_state(U.actors[f]) for f in figs}
         out["files"] = sorted(os.listdir(tmp))
         return out
     finally:
@@ -607,8 +920,15 @@ def t_fake():
         check("APPLY: location/rotation/absolute kept", a["relative_location"] == [21.0, 0.0, 0.0] and
               a["relative_rotation"] == [0.0, -90.0, 0.0] and r["after_apply"]["Shore02_F52"]["absolute_rotation"] is True)
         i = r["instances_after_apply"][f]
-        check("APPLY: the level instance sees the new asset + MI via the template", i["asset"] == nm["cloth"] and
+        check("APPLY: the level instance (own asset value, as measured 6 Oct) gets the new asset by the INSTANCE write, "
+              "the MI + scale via the template", i["asset"] == nm["cloth"] and
               i["override_materials"] == [nm["mi"]] and i["parent_is_this_body"], i)
+        check("APPLY: record carries the instance before-values for REVERT",
+              r["record"]["instance_asset_override"] == {g: S.OLD_ASSET[g] for g in S.FIGURES} and
+              all(r["record"]["before"][g]["instance"]["asset"] == S.OLD_ASSET[g] for g in S.FIGURES))
+        check("APPLY: one save scope: BPs + the level, nothing left dirty", r["dirty_after_apply"] == ([], []), r["dirty_after_apply"])
+        check("REVERT: every instance asset back to the old drape",
+              all(r["instances_after_revert"][g]["asset"] == S.OLD_ASSET[g] for g in S.FIGURES), r.get("revert_error"))
         check("REVERT ok and restores every template exactly", "revert" in r and
               all(r["after_revert"][g]["asset"] == S.OLD_ASSET[g] and r["after_revert"][g]["override_materials"] == [S.OLD_MATERIAL]
                   and abs(r["after_revert"][g]["relative_scale"][0] - S.OLD_SCALE) < 1e-9 for g in S.FIGURES), r.get("revert_error"))
@@ -640,11 +960,60 @@ def t_fake():
           "REVERT_REFUSED" in r.get("revert_error", "") and r["after_revert"]["Shore01_M56"]["asset"] == S.names("Shore01_M56", 1)["cloth"],
           r.get("revert_error"))
 
-    def break_instance(U):   # an instance that stopped following the template (e.g. a level edit after APPLY)
+    def break_instance(U):   # a level edit after APPLY changed one placed figure's cloth
         U.actors["Shore05_M53"].cloth.own["asset"] = "/Game/Elsewhere"
     r = fake_run(between=break_instance)
-    check("NEG REVERT: an instance that does not come back -> REVERT_INSTANCE",
-          "REVERT_INSTANCE" in r.get("revert_error", ""), r.get("revert_error"))
+    check("NEG REVERT: an instance asset changed after APPLY -> REVERT_REFUSED/INSTANCE_DRIFT, nothing written",
+          "INSTANCE_DRIFT|Shore05_M53" in r.get("revert_error", "") and
+          r["after_revert"]["Shore01_M56"]["asset"] == S.names("Shore01_M56", 1)["cloth"], r.get("revert_error"))
+
+    def override_mats(U):    # an instance that will not come back (it overrides materials since APPLY)
+        U.actors["Shore04_F55"].cloth.own["override_materials"] = ["/Game/Elsewhere/M"]
+    r = fake_run(between=override_mats)
+    check("NEG REVERT: an instance that does not come back -> REVERT_INSTANCE before the save (nothing saved)",
+          "REVERT_INSTANCE|Shore04_F55" in r.get("revert_error", "") and r["U"].dirty_content, r.get("revert_error"))
+
+    # ---- the instance-asset write (v2 tool: APPLY writes it; v1's APPLY did not and was refused live)
+    r = fake_run(patch={"_set_instance_asset": lambda actor, path: None})
+    check("NEG APPLY without the instance write (the v1 behaviour) -> INSTANCE_READBACK before any save",
+          "INSTANCE_READBACK" in r.get("apply_error", "") and r["record"] and r["record"]["saved"] is False and
+          r["U"].dirty_content, r.get("apply_error"))
+    r = fake_run({"instance_setter_lies": True})
+    check("NEG a lying instance set_asset -> INSTANCE_READBACK, nothing saved (BPs still dirty)",
+          "INSTANCE_READBACK" in r.get("apply_error", "") and r["U"].dirty_content, r.get("apply_error"))
+    r = fake_run({"instance_modify_silent": True})
+    check("NEG the instance write does not dirty the level -> DIRTY_SCOPE (level REQUIRED in the save scope)",
+          "DIRTY_SCOPE" in r.get("apply_error", ""), r.get("apply_error"))
+    r = fake_run({"instance_asset_pinned": False})
+    check("instances that DO follow the template: the instance write is harmless, APPLY + REVERT ok",
+          "apply" in r and "revert" in r, (r.get("apply_error"), r.get("revert_error")))
+
+    # ---- REVERT of the real 6 Oct v1 record shape (instance fix: no instance_write key, RECONSTRUCTED after.instance
+    # with the OLD material/scale, which VERIFY S3LIVESACK-20261006-172851 contradicts: never compared)
+    def v1_shape(rec):
+        rec.pop("instance_write", None)
+        for g in rec["figures"]:
+            rec["after"][g]["instance"].update({"override_materials": [S.OLD_MATERIAL], "relative_scale": [S.OLD_SCALE] * 3})
+            rec["after"][g]["note"] = "reconstructed 6 Oct from template_target (instance-fix run)"
+    r = fake_run(record_hook=v1_shape)
+    check("REVERT of the real v1 record shape: templates + instance assets restored, one save, record renamed",
+          "revert" in r and all(r["instances_after_revert"][g]["asset"] == S.OLD_ASSET[g] for g in S.FIGURES) and
+          not r["U"].dirty_content and not r["U"].dirty_maps and
+          any(x.startswith("apply.json.reverted-RUN-R") for x in r["files"]), r.get("revert_error"))
+
+    def no_inst_record(rec):
+        rec.pop("instance_asset_override", None)
+    r = fake_run(record_hook=no_inst_record)
+    check("NEG REVERT of a record WITHOUT the instance map, on pinned instances -> REVERT_INSTANCE (instances would stay "
+          "on the sack): the map is what makes REVERT complete", "REVERT_INSTANCE" in r.get("revert_error", ""), r.get("revert_error"))
+
+    # ---- v2 round trip
+    r = fake_run(version=2)
+    f = "Shore05_M53"
+    check("v2 APPLY: template + instance on CA_..._v2 and MI _v2; REVERT restores the old drape",
+          "apply" in r and r["instances_after_apply"][f]["asset"] == S.names(f, 2)["cloth"] and
+          r["instances_after_apply"][f]["override_materials"] == [S.names(f, 2)["mi"]] and
+          "revert" in r and r["instances_after_revert"][f]["asset"] == S.OLD_ASSET[f], (r.get("apply_error"), r.get("revert_error")))
 
     r = fake_run({"save_fails": S.names("Shore02_F52", 1)["bp"]})
     check("NEG a failed save -> SAVE_ASSET_FAILED, the record stays unsaved", "SAVE_ASSET_FAILED" in r.get("apply_error", ""),
@@ -652,8 +1021,8 @@ def t_fake():
 
 
 def main():
-    for t in (t_params, t_modes, t_files, t_binary_facts, t_sheet, t_frames, t_blender_frame, t_dataflow, t_census,
-              t_gates, t_fake):
+    for t in (t_params, t_modes, t_files, t_binary_facts, t_sheet, t_lean, t_back_geometry, t_material, t_frames,
+              t_blender_frame, t_dataflow, t_census, t_gates, t_fake):
         try:
             t()
         except Exception as exc:  # noqa: BLE001 - a crashed test is a failed test
