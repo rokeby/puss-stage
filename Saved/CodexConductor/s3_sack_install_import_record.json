@@ -1,0 +1,391 @@
+{
+ "figures": {
+  "Shore02_F52": {
+   "run": "S3SACK-20261006-160535",
+   "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore02_F52",
+   "source": {
+    "id": "Shore02_F52_Sack_alt2p0",
+    "json": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore02_F52_Sack_alt2p0.json",
+    "fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore02_F52_Sack_alt2p0_SK_root.fbx",
+    "fbx_original": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore02_F52_Sack_alt2p0_SK.fbx"
+   },
+   "sha256": "6cac60418aadf33690d47b74420b95b515c3f16d1c23e05f12cac19af861f355",
+   "readback": {
+    "path": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore02_F52",
+    "skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+    "lods": 1,
+    "render_vertices": 21202,
+    "slots": [
+     "Sack_Front",
+     "Sack_Back",
+     "Sack_Edge"
+    ],
+    "physics_asset": null,
+    "morph_targets": [],
+    "bounds_origin_cm": [
+     12.234001159667969,
+     37.959190130233765,
+     65.20620965957642
+    ],
+    "bounds_extent_cm": [
+     30.63469696044922,
+     30.95106530189514,
+     50.48506689071655
+    ],
+    "bones": 342,
+    "slot_roles": {
+     "Front": 0,
+     "Back": 1,
+     "Edge": 2
+    },
+    "exists": true,
+    "pipeline": {
+     "pipeline.asset_name": "SKM_Sack_Shore02_F52",
+     "pipeline.use_source_name_for_asset": false,
+     "pipeline.import_offset_uniform_scale": 1.0,
+     "common_meshes.import_lods": false,
+     "common_meshes.import_sockets": false,
+     "common_skeletal.skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+     "common_skeletal.use_t0_as_ref_pose": false,
+     "common_skeletal.import_only_animations": false,
+     "common_skeletal.try_auto_select_skeleton": false,
+     "common_skeletal.add_curve_metadata_to_skeleton": false,
+     "mesh.import_skeletal_meshes": true,
+     "mesh.import_static_meshes": false,
+     "mesh.import_morph_targets": false,
+     "mesh.update_skeleton_reference_pose": false,
+     "mesh.create_physics_asset": false,
+     "mesh.import_vertex_attributes": false,
+     "animation.import_animations": false,
+     "material.import_materials": false,
+     "texture.import_textures": false
+    }
+   },
+   "saved": true
+  },
+  "Shore01_M56": {
+   "run": "S3SACK-20261006-160548",
+   "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore01_M56",
+   "source": {
+    "id": "Shore01_M56_Sack",
+    "json": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore01_M56_Sack.json",
+    "fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore01_M56_Sack_SK_root.fbx",
+    "fbx_original": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore01_M56_Sack_SK.fbx"
+   },
+   "sha256": "e8f973609fcccc5945ac57a30533504328828f3d40285d7d6cbf30ad71ff5a0d",
+   "readback": {
+    "path": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore01_M56",
+    "skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+    "lods": 1,
+    "render_vertices": 21202,
+    "slots": [
+     "Sack_Front",
+     "Sack_Back",
+     "Sack_Edge"
+    ],
+    "physics_asset": null,
+    "morph_targets": [],
+    "bounds_origin_cm": [
+     3.787611961364746,
+     -4.137836456298828,
+     113.07485389709473
+    ],
+    "bounds_extent_cm": [
+     31.419320106506348,
+     25.973407745361328,
+     75.1104793548584
+    ],
+    "bones": 342,
+    "slot_roles": {
+     "Front": 0,
+     "Back": 1,
+     "Edge": 2
+    },
+    "exists": true,
+    "pipeline": {
+     "pipeline.asset_name": "SKM_Sack_Shore01_M56",
+     "pipeline.use_source_name_for_asset": false,
+     "pipeline.import_offset_uniform_scale": 1.0,
+     "common_meshes.import_lods": false,
+     "common_meshes.import_sockets": false,
+     "common_skeletal.skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+     "common_skeletal.use_t0_as_ref_pose": false,
+     "common_skeletal.import_only_animations": false,
+     "common_skeletal.try_auto_select_skeleton": false,
+     "common_skeletal.add_curve_metadata_to_skeleton": false,
+     "mesh.import_skeletal_meshes": true,
+     "mesh.import_static_meshes": false,
+     "mesh.import_morph_targets": false,
+     "mesh.update_skeleton_reference_pose": false,
+     "mesh.create_physics_asset": false,
+     "mesh.import_vertex_attributes": false,
+     "animation.import_animations": false,
+     "material.import_materials": false,
+     "texture.import_textures": false
+    }
+   },
+   "saved": true
+  },
+  "Shore03_M59": {
+   "run": "S3SACK-20261006-160548",
+   "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore03_M59",
+   "source": {
+    "id": "Shore03_M59_Sack",
+    "json": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore03_M59_Sack.json",
+    "fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore03_M59_Sack_SK_root.fbx",
+    "fbx_original": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore03_M59_Sack_SK.fbx"
+   },
+   "sha256": "8148cd145e85bc97e219d0ff1cc63932ed54d9c735779feb55f19abef8786bf6",
+   "readback": {
+    "path": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore03_M59",
+    "skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+    "lods": 1,
+    "render_vertices": 21202,
+    "slots": [
+     "Sack_Front",
+     "Sack_Back",
+     "Sack_Edge"
+    ],
+    "physics_asset": null,
+    "morph_targets": [],
+    "bounds_origin_cm": [
+     0.917755126953125,
+     2.459299087524414,
+     96.86540031433105
+    ],
+    "bounds_extent_cm": [
+     32.500274658203125,
+     28.824010848999023,
+     75.13139533996582
+    ],
+    "bones": 342,
+    "slot_roles": {
+     "Front": 0,
+     "Back": 1,
+     "Edge": 2
+    },
+    "exists": true,
+    "pipeline": {
+     "pipeline.asset_name": "SKM_Sack_Shore03_M59",
+     "pipeline.use_source_name_for_asset": false,
+     "pipeline.import_offset_uniform_scale": 1.0,
+     "common_meshes.import_lods": false,
+     "common_meshes.import_sockets": false,
+     "common_skeletal.skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+     "common_skeletal.use_t0_as_ref_pose": false,
+     "common_skeletal.import_only_animations": false,
+     "common_skeletal.try_auto_select_skeleton": false,
+     "common_skeletal.add_curve_metadata_to_skeleton": false,
+     "mesh.import_skeletal_meshes": true,
+     "mesh.import_static_meshes": false,
+     "mesh.import_morph_targets": false,
+     "mesh.update_skeleton_reference_pose": false,
+     "mesh.create_physics_asset": false,
+     "mesh.import_vertex_attributes": false,
+     "animation.import_animations": false,
+     "material.import_materials": false,
+     "texture.import_textures": false
+    }
+   },
+   "saved": true
+  },
+  "Shore04_F55": {
+   "run": "S3SACK-20261006-160548",
+   "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore04_F55",
+   "source": {
+    "id": "Shore04_F55_Sack",
+    "json": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore04_F55_Sack.json",
+    "fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore04_F55_Sack_SK_root.fbx",
+    "fbx_original": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore04_F55_Sack_SK.fbx"
+   },
+   "sha256": "4e6d83c861470ee4651062d6cf1c3e091756ec2de9184bee82e40fd28f39b252",
+   "readback": {
+    "path": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore04_F55",
+    "skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+    "lods": 1,
+    "render_vertices": 21204,
+    "slots": [
+     "Sack_Front",
+     "Sack_Back",
+     "Sack_Edge"
+    ],
+    "physics_asset": null,
+    "morph_targets": [],
+    "bounds_origin_cm": [
+     9.030638694763184,
+     33.11086630821228,
+     94.78435802459717
+    ],
+    "bounds_extent_cm": [
+     32.69474124908447,
+     29.813499689102173,
+     65.57269763946533
+    ],
+    "bones": 342,
+    "slot_roles": {
+     "Front": 0,
+     "Back": 1,
+     "Edge": 2
+    },
+    "exists": true,
+    "pipeline": {
+     "pipeline.asset_name": "SKM_Sack_Shore04_F55",
+     "pipeline.use_source_name_for_asset": false,
+     "pipeline.import_offset_uniform_scale": 1.0,
+     "common_meshes.import_lods": false,
+     "common_meshes.import_sockets": false,
+     "common_skeletal.skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+     "common_skeletal.use_t0_as_ref_pose": false,
+     "common_skeletal.import_only_animations": false,
+     "common_skeletal.try_auto_select_skeleton": false,
+     "common_skeletal.add_curve_metadata_to_skeleton": false,
+     "mesh.import_skeletal_meshes": true,
+     "mesh.import_static_meshes": false,
+     "mesh.import_morph_targets": false,
+     "mesh.update_skeleton_reference_pose": false,
+     "mesh.create_physics_asset": false,
+     "mesh.import_vertex_attributes": false,
+     "animation.import_animations": false,
+     "material.import_materials": false,
+     "texture.import_textures": false
+    }
+   },
+   "saved": true
+  },
+  "Shore05_M53": {
+   "run": "S3SACK-20261006-160548",
+   "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore05_M53",
+   "source": {
+    "id": "Shore05_M53_Sack",
+    "json": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore05_M53_Sack.json",
+    "fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore05_M53_Sack_SK_root.fbx",
+    "fbx_original": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore05_M53_Sack_SK.fbx"
+   },
+   "sha256": "fd57f79476c93175ac1112f6a5b44e874eedd215e60cbcebd5ba9090849cfe2e",
+   "readback": {
+    "path": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore05_M53",
+    "skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+    "lods": 1,
+    "render_vertices": 21202,
+    "slots": [
+     "Sack_Front",
+     "Sack_Back",
+     "Sack_Edge"
+    ],
+    "physics_asset": null,
+    "morph_targets": [],
+    "bounds_origin_cm": [
+     5.702206611633301,
+     42.54048490524292,
+     99.71385097503662
+    ],
+    "bounds_extent_cm": [
+     32.916232109069824,
+     32.20394563674927,
+     75.36634922027588
+    ],
+    "bones": 342,
+    "slot_roles": {
+     "Front": 0,
+     "Back": 1,
+     "Edge": 2
+    },
+    "exists": true,
+    "pipeline": {
+     "pipeline.asset_name": "SKM_Sack_Shore05_M53",
+     "pipeline.use_source_name_for_asset": false,
+     "pipeline.import_offset_uniform_scale": 1.0,
+     "common_meshes.import_lods": false,
+     "common_meshes.import_sockets": false,
+     "common_skeletal.skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+     "common_skeletal.use_t0_as_ref_pose": false,
+     "common_skeletal.import_only_animations": false,
+     "common_skeletal.try_auto_select_skeleton": false,
+     "common_skeletal.add_curve_metadata_to_skeleton": false,
+     "mesh.import_skeletal_meshes": true,
+     "mesh.import_static_meshes": false,
+     "mesh.import_morph_targets": false,
+     "mesh.update_skeleton_reference_pose": false,
+     "mesh.create_physics_asset": false,
+     "mesh.import_vertex_attributes": false,
+     "animation.import_animations": false,
+     "material.import_materials": false,
+     "texture.import_textures": false
+    }
+   },
+   "saved": true
+  },
+  "Shore06_F25": {
+   "run": "S3SACK-20261006-160548",
+   "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore06_F25",
+   "source": {
+    "id": "Shore06_F25_Sack",
+    "json": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore06_F25_Sack.json",
+    "fbx": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore06_F25_Sack_SK_root.fbx",
+    "fbx_original": "E:/PussStage/DerivedAssets/S3Sackcloth/final_20261006/Shore06_F25_Sack_SK.fbx"
+   },
+   "sha256": "510394653cc7277ea6b6849d6ec08782009ef3ebcc7925059186c90d2764ae72",
+   "readback": {
+    "path": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore06_F25",
+    "skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+    "lods": 1,
+    "render_vertices": 21204,
+    "slots": [
+     "Sack_Front",
+     "Sack_Back",
+     "Sack_Edge"
+    ],
+    "physics_asset": null,
+    "morph_targets": [],
+    "bounds_origin_cm": [
+     6.931894302368164,
+     -2.904346466064453,
+     96.68951606750488
+    ],
+    "bounds_extent_cm": [
+     40.10629844665527,
+     31.184551239013672,
+     74.62563896179199
+    ],
+    "bones": 342,
+    "slot_roles": {
+     "Front": 0,
+     "Back": 1,
+     "Edge": 2
+    },
+    "exists": true,
+    "pipeline": {
+     "pipeline.asset_name": "SKM_Sack_Shore06_F25",
+     "pipeline.use_source_name_for_asset": false,
+     "pipeline.import_offset_uniform_scale": 1.0,
+     "common_meshes.import_lods": false,
+     "common_meshes.import_sockets": false,
+     "common_skeletal.skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+     "common_skeletal.use_t0_as_ref_pose": false,
+     "common_skeletal.import_only_animations": false,
+     "common_skeletal.try_auto_select_skeleton": false,
+     "common_skeletal.add_curve_metadata_to_skeleton": false,
+     "mesh.import_skeletal_meshes": true,
+     "mesh.import_static_meshes": false,
+     "mesh.import_morph_targets": false,
+     "mesh.update_skeleton_reference_pose": false,
+     "mesh.create_physics_asset": false,
+     "mesh.import_vertex_attributes": false,
+     "animation.import_animations": false,
+     "material.import_materials": false,
+     "texture.import_textures": false
+    }
+   },
+   "saved": true
+  }
+ },
+ "last_run": "S3SACK-20261006-160548",
+ "saved_packages": [
+  "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore01_M56",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore02_F52",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore03_M59",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore04_F55",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore05_M53",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore06_F25"
+ ]
+}

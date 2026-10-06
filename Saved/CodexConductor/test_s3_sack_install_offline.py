@@ -291,7 +291,7 @@ def t_census_and_cloth():
           S.planned_packages("REVERT", figs))
     b = {"visible": True, "hidden_in_game": False, "enabled": True, "suspended": False}
     check("cloth: suspend+disable target", S.cloth_target(b, "suspend+disable") ==
-          {"visible": False, "hidden_in_game": True, "enabled": False, "suspended": True})
+          {"visible": True, "hidden_in_game": True, "enabled": False, "suspended": True})  # 6 Oct: editor visibility left as found
     check("cloth props written and read as the same UPROPERTYs",
           dict(S.CLOTH_PROPS) == {"visible": "visible", "hidden_in_game": "hidden_in_game",
                                   "suspended": "suspend_simulation", "enabled": "enable_simulation"})
@@ -897,7 +897,7 @@ def t_fake():
           "cloth hidden+hidden-in-game+suspended+disabled on the CURRENT cloth",
           a and all(s["sack"] == 1 and s["sack_leader"] and s["sack_parent_is_body"] and
                     s["sack_tags"] == sorted(["S3.Sack", "S3.Sack." + f]) and
-                    s["cloth"] == (False, True, True, False) and
+                    s["cloth"] == (True, True, True, False) and
                     s["sack_mats"] == [S.MI_OUTER, S.MI_INNER, S.MI_OUTER] for f, s in a.items()), a)
     check("FAKE skin overrides untouched by APPLY", a and all(a[f]["body"] == r["states"]["before"][f]["body"] and
                                                               a[f]["face"] == r["states"]["before"][f]["face"] for f in a))
@@ -1096,7 +1096,7 @@ def t_bp_spec():
     ids = {n["id"] for n in fn["nodes"]} | {"entry"}
     bad = [l for l in fn["links"] if l["from"].split(".")[0] not in ids or l["to"].split(".")[0] not in ids]
     check("BP spec: every RelinkLeader link endpoint is a declared node", not bad, bad)
-    ev = create["event_graph"]
+    ev = create.get("event_graph_patch") or create["event_graph"]
     check("BP spec: BeginPlay -> RelinkLeader", {"from": "begin.then", "to": "relink.execute"} in ev["links"] and
           any(n["type"] == "begin_play" for n in ev["nodes"]))
     check("BP spec: construction script patch calls RelinkLeader from the entry",

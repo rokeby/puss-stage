@@ -748,7 +748,9 @@ def census_ok(dirty, planned):
 def cloth_target(before, switch):
     """The cloth state APPLY writes (and REVERT restores 'before')."""
     after = dict(before)
-    after["visible"] = False
+    # 6 Oct live: the figure BP construction script (ConfigureShoreDrape) re-sets the cloth's editor bVisible on every
+    # rerun, so editor visibility cannot be held from Python. The show gate is hidden_in_game + suspended + disabled.
+    after["visible"] = before.get("visible", True)
     after["hidden_in_game"] = True
     after["suspended"] = True
     if switch == "suspend+disable":
@@ -1762,7 +1764,7 @@ def run_pie_probe(run, figs, ed):
         out["figures"][f] = {"evidence": ev, "cloth": cl}
         if not ev["led"]:
             fails.append("PIE_NOT_LED|%s|%s" % (f, json.dumps(ev, default=str)))
-        if cl["visible"] or not cl["suspended"]:
+        if not cl.get("hidden_in_game") or not cl["suspended"]:
             fails.append("PIE_CLOTH|%s|%s" % (f, cl))
     out["fails"] = fails
     _write(PIE_OUT, out)

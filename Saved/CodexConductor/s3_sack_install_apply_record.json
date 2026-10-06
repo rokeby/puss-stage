@@ -1,0 +1,918 @@
+{
+ "run": "S3SACK-20261006-163706",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "route": "BP_S3SackFollower",
+ "figures": [
+  "Shore01_M56",
+  "Shore02_F52",
+  "Shore03_M59",
+  "Shore04_F55",
+  "Shore05_M53",
+  "Shore06_F25"
+ ],
+ "opts": {
+  "fbx_suffix": "_SK_root.fbx",
+  "cloth_switch": "suspend+disable",
+  "bounds_scale": 1.25,
+  "pow2_mode": "STRETCH_TO_POWER_OF_TWO"
+ },
+ "slots": {
+  "Shore01_M56": {
+   "Front": 0,
+   "Back": 1,
+   "Edge": 2
+  },
+  "Shore02_F52": {
+   "Front": 0,
+   "Back": 1,
+   "Edge": 2
+  },
+  "Shore03_M59": {
+   "Front": 0,
+   "Back": 1,
+   "Edge": 2
+  },
+  "Shore04_F55": {
+   "Front": 0,
+   "Back": 1,
+   "Edge": 2
+  },
+  "Shore05_M53": {
+   "Front": 0,
+   "Back": 1,
+   "Edge": 2
+  },
+  "Shore06_F25": {
+   "Front": 0,
+   "Back": 1,
+   "Edge": 2
+  }
+ },
+ "before": {
+  "Shore01_M56": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0",
+   "label": "Shore01_M56 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Body/SKM_MHC_Shore01_M56_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": false,
+    "suspended": false,
+    "enabled": true,
+    "functions_info": {
+     "is_visible": true,
+     "is_simulation_enabled": true,
+     "is_simulation_suspended": false
+    }
+   },
+   "sack": null,
+   "sack_actors": [],
+   "legacy_sack_component": 0
+  },
+  "Shore02_F52": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0",
+   "label": "Shore02_F52 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Body/SKM_MHC_Shore02_F52_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": false,
+    "suspended": false,
+    "enabled": true,
+    "functions_info": {
+     "is_visible": true,
+     "is_simulation_enabled": true,
+     "is_simulation_suspended": false
+    }
+   },
+   "sack": null,
+   "sack_actors": [],
+   "legacy_sack_component": 0
+  },
+  "Shore03_M59": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0",
+   "label": "Shore03_M59 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Body/SKM_MHC_Shore03_M59_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": false,
+    "suspended": false,
+    "enabled": true,
+    "functions_info": {
+     "is_visible": true,
+     "is_simulation_enabled": true,
+     "is_simulation_suspended": false
+    }
+   },
+   "sack": null,
+   "sack_actors": [],
+   "legacy_sack_component": 0
+  },
+  "Shore04_F55": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0",
+   "label": "Shore04_F55 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Body/SKM_MHC_Shore04_F55_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": false,
+    "suspended": false,
+    "enabled": true,
+    "functions_info": {
+     "is_visible": true,
+     "is_simulation_enabled": true,
+     "is_simulation_suspended": false
+    }
+   },
+   "sack": null,
+   "sack_actors": [],
+   "legacy_sack_component": 0
+  },
+  "Shore05_M53": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0",
+   "label": "Shore05_M53 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Body/SKM_MHC_Shore05_M53_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": false,
+    "suspended": false,
+    "enabled": true,
+    "functions_info": {
+     "is_visible": true,
+     "is_simulation_enabled": true,
+     "is_simulation_suspended": false
+    }
+   },
+   "sack": null,
+   "sack_actors": [],
+   "legacy_sack_component": 0
+  },
+  "Shore06_F25": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0",
+   "label": "Shore06_F25 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Body/SKM_MHC_Shore06_F25_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": false,
+    "suspended": false,
+    "enabled": true,
+    "functions_info": {
+     "is_visible": true,
+     "is_simulation_enabled": true,
+     "is_simulation_suspended": false
+    }
+   },
+   "sack": null,
+   "sack_actors": [],
+   "legacy_sack_component": 0
+  }
+ },
+ "spawned": {
+  "Shore01_M56": {
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_0",
+   "label": "Shore01_M56 Sack",
+   "relink_path": "call_method",
+   "evidence": {
+    "prop": true,
+    "socket_gap_cm": 0.0,
+    "socket_conclusive": true,
+    "socket_led": true,
+    "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0.Body",
+    "body_head_cs_cm": [
+     -16.45533487526562,
+     -1.30503905201885,
+     161.5948089622941
+    ],
+    "body_vs_drape_head_cm": 27.569342288946242,
+    "led": true
+   }
+  },
+  "Shore02_F52": {
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_1",
+   "label": "Shore02_F52 Sack",
+   "relink_path": "call_method",
+   "evidence": {
+    "prop": true,
+    "socket_gap_cm": 0.0,
+    "socket_conclusive": true,
+    "socket_led": true,
+    "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0.Body",
+    "body_head_cs_cm": [
+     17.83733341223985,
+     48.24302894287576,
+     90.75787818995606
+    ],
+    "body_vs_drape_head_cm": 7.969036983753259,
+    "led": true
+   }
+  },
+  "Shore03_M59": {
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_2",
+   "label": "Shore03_M59 Sack",
+   "relink_path": "call_method",
+   "evidence": {
+    "prop": true,
+    "socket_gap_cm": 0.0,
+    "socket_conclusive": true,
+    "socket_led": true,
+    "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0.Body",
+    "body_head_cs_cm": [
+     3.393313381416096,
+     -23.113686100017063,
+     146.37087578635163
+    ],
+    "body_vs_drape_head_cm": 23.06361923048467,
+    "led": true
+   }
+  },
+  "Shore04_F55": {
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_3",
+   "label": "Shore04_F55 Sack",
+   "relink_path": "call_method",
+   "evidence": {
+    "prop": true,
+    "socket_gap_cm": 0.0,
+    "socket_conclusive": true,
+    "socket_led": true,
+    "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0.Body",
+    "body_head_cs_cm": [
+     13.520419730637148,
+     21.50859494564462,
+     143.2061098202785
+    ],
+    "body_vs_drape_head_cm": 6.13575283056299,
+    "led": true
+   }
+  },
+  "Shore05_M53": {
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_4",
+   "label": "Shore05_M53 Sack",
+   "relink_path": "call_method",
+   "evidence": {
+    "prop": true,
+    "socket_gap_cm": 0.0,
+    "socket_conclusive": true,
+    "socket_led": true,
+    "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0.Body",
+    "body_head_cs_cm": [
+     -23.82944835731126,
+     33.80757239665151,
+     161.81039048161483
+    ],
+    "body_vs_drape_head_cm": 29.41395715918874,
+    "led": true
+   }
+  },
+  "Shore06_F25": {
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_5",
+   "label": "Shore06_F25 Sack",
+   "relink_path": "call_method",
+   "evidence": {
+    "prop": true,
+    "socket_gap_cm": 0.0,
+    "socket_conclusive": true,
+    "socket_led": true,
+    "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0.Body",
+    "body_head_cs_cm": [
+     28.723253096636412,
+     9.531012525084225,
+     153.2913032167612
+    ],
+    "body_vs_drape_head_cm": 16.353990296118546,
+    "led": true
+   }
+  }
+ },
+ "saved": true,
+ "backup": "E:/PussStage/Backups/PreS3Sack-S3SACK-20261006-163706",
+ "backup_files": [
+  {
+   "src": "E:/PussStage/Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap",
+   "dst": "E:/PussStage/Backups/PreS3Sack-S3SACK-20261006-163706\\L_InfinityStage_V1VerticalSlice.umap",
+   "bytes": 19320133
+  }
+ ],
+ "after": {
+  "Shore01_M56": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0",
+   "label": "Shore01_M56 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Body/SKM_MHC_Shore01_M56_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": true,
+    "suspended": true,
+    "enabled": false,
+    "functions_info": {
+     "is_visible": false,
+     "is_simulation_enabled": false,
+     "is_simulation_suspended": true
+    }
+   },
+   "sack": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_0",
+    "label": "Shore01_M56 Sack",
+    "class": "BP_S3SackFollower_C",
+    "tags": [
+     "S3.Sack",
+     "S3.Sack.Shore01_M56"
+    ],
+    "root_is_mesh_component": true,
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore01_M56",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey"
+    ],
+    "attach_parent": "Body",
+    "attach_parent_is_body": true,
+    "attach_parent_actor_is_figure": true,
+    "socket": "None",
+    "relative_location": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     -0.0,
+     0.0,
+     6.3611093629270335e-15
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "leader_evidence": {
+     "prop": true,
+     "socket_gap_cm": 0.0,
+     "socket_conclusive": true,
+     "socket_led": true,
+     "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore01_M56_Draped_C_0.Body",
+     "body_head_cs_cm": [
+      -16.45533487526562,
+      -1.30503905201885,
+      161.5948089622941
+     ],
+     "body_vs_drape_head_cm": 27.569342288946242,
+     "led": true
+    },
+    "bounds_scale": 1.25,
+    "visible": true,
+    "num_bones": 342,
+    "bone_names_missing_on_body": []
+   },
+   "sack_actors": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_0"
+   ],
+   "legacy_sack_component": 0
+  },
+  "Shore02_F52": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0",
+   "label": "Shore02_F52 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Body/SKM_MHC_Shore02_F52_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": true,
+    "suspended": true,
+    "enabled": false,
+    "functions_info": {
+     "is_visible": false,
+     "is_simulation_enabled": false,
+     "is_simulation_suspended": true
+    }
+   },
+   "sack": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_1",
+    "label": "Shore02_F52 Sack",
+    "class": "BP_S3SackFollower_C",
+    "tags": [
+     "S3.Sack",
+     "S3.Sack.Shore02_F52"
+    ],
+    "root_is_mesh_component": true,
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore02_F52",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey"
+    ],
+    "attach_parent": "Body",
+    "attach_parent_is_body": true,
+    "attach_parent_actor_is_figure": true,
+    "socket": "None",
+    "relative_location": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     7.062250076880257e-31,
+     8.474700092256302e-30,
+     6.361109362927032e-15
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "leader_evidence": {
+     "prop": true,
+     "socket_gap_cm": 0.0,
+     "socket_conclusive": true,
+     "socket_led": true,
+     "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore02_F52_Draped_C_0.Body",
+     "body_head_cs_cm": [
+      17.83733341223985,
+      48.24302894287576,
+      90.75787818995606
+     ],
+     "body_vs_drape_head_cm": 7.969036983753259,
+     "led": true
+    },
+    "bounds_scale": 1.25,
+    "visible": true,
+    "num_bones": 342,
+    "bone_names_missing_on_body": []
+   },
+   "sack_actors": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_1"
+   ],
+   "legacy_sack_component": 0
+  },
+  "Shore03_M59": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0",
+   "label": "Shore03_M59 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Body/SKM_MHC_Shore03_M59_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": true,
+    "suspended": true,
+    "enabled": false,
+    "functions_info": {
+     "is_visible": false,
+     "is_simulation_enabled": false,
+     "is_simulation_suspended": true
+    }
+   },
+   "sack": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_2",
+    "label": "Shore03_M59 Sack",
+    "class": "BP_S3SackFollower_C",
+    "tags": [
+     "S3.Sack",
+     "S3.Sack.Shore03_M59"
+    ],
+    "root_is_mesh_component": true,
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore03_M59",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey"
+    ],
+    "attach_parent": "Body",
+    "attach_parent_is_body": true,
+    "attach_parent_actor_is_figure": true,
+    "socket": "None",
+    "relative_location": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "leader_evidence": {
+     "prop": true,
+     "socket_gap_cm": 0.0,
+     "socket_conclusive": true,
+     "socket_led": true,
+     "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore03_M59_Draped_C_0.Body",
+     "body_head_cs_cm": [
+      3.393313381416096,
+      -23.113686100017063,
+      146.37087578635163
+     ],
+     "body_vs_drape_head_cm": 23.06361923048467,
+     "led": true
+    },
+    "bounds_scale": 1.25,
+    "visible": true,
+    "num_bones": 342,
+    "bone_names_missing_on_body": []
+   },
+   "sack_actors": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_2"
+   ],
+   "legacy_sack_component": 0
+  },
+  "Shore04_F55": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0",
+   "label": "Shore04_F55 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Body/SKM_MHC_Shore04_F55_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": true,
+    "suspended": true,
+    "enabled": false,
+    "functions_info": {
+     "is_visible": false,
+     "is_simulation_enabled": false,
+     "is_simulation_suspended": true
+    }
+   },
+   "sack": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_3",
+    "label": "Shore04_F55 Sack",
+    "class": "BP_S3SackFollower_C",
+    "tags": [
+     "S3.Sack",
+     "S3.Sack.Shore04_F55"
+    ],
+    "root_is_mesh_component": true,
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore04_F55",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey"
+    ],
+    "attach_parent": "Body",
+    "attach_parent_is_body": true,
+    "attach_parent_actor_is_figure": true,
+    "socket": "None",
+    "relative_location": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "leader_evidence": {
+     "prop": true,
+     "socket_gap_cm": 0.0,
+     "socket_conclusive": true,
+     "socket_led": true,
+     "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore04_F55_Draped_C_0.Body",
+     "body_head_cs_cm": [
+      13.520419730637148,
+      21.50859494564462,
+      143.2061098202785
+     ],
+     "body_vs_drape_head_cm": 6.13575283056299,
+     "led": true
+    },
+    "bounds_scale": 1.25,
+    "visible": true,
+    "num_bones": 342,
+    "bone_names_missing_on_body": []
+   },
+   "sack_actors": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_3"
+   ],
+   "legacy_sack_component": 0
+  },
+  "Shore05_M53": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0",
+   "label": "Shore05_M53 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Body/SKM_MHC_Shore05_M53_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": true,
+    "suspended": true,
+    "enabled": false,
+    "functions_info": {
+     "is_visible": false,
+     "is_simulation_enabled": false,
+     "is_simulation_suspended": true
+    }
+   },
+   "sack": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_4",
+    "label": "Shore05_M53 Sack",
+    "class": "BP_S3SackFollower_C",
+    "tags": [
+     "S3.Sack",
+     "S3.Sack.Shore05_M53"
+    ],
+    "root_is_mesh_component": true,
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore05_M53",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey"
+    ],
+    "attach_parent": "Body",
+    "attach_parent_is_body": true,
+    "attach_parent_actor_is_figure": true,
+    "socket": "None",
+    "relative_location": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "leader_evidence": {
+     "prop": true,
+     "socket_gap_cm": 0.0,
+     "socket_conclusive": true,
+     "socket_led": true,
+     "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore05_M53_Draped_C_0.Body",
+     "body_head_cs_cm": [
+      -23.82944835731126,
+      33.80757239665151,
+      161.81039048161483
+     ],
+     "body_vs_drape_head_cm": 29.41395715918874,
+     "led": true
+    },
+    "bounds_scale": 1.25,
+    "visible": true,
+    "num_bones": 342,
+    "bone_names_missing_on_body": []
+   },
+   "sack_actors": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_4"
+   ],
+   "legacy_sack_component": 0
+  },
+  "Shore06_F25": {
+   "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0",
+   "label": "Shore06_F25 Clam",
+   "body_mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Body/SKM_MHC_Shore06_F25_BodyMesh",
+   "body_skeleton": "/Game/Metahuman/ShoreCast_20260910/Assembled/Common/Female/Medium/NormalWeight/Body/metahuman_base_skel",
+   "body_leader": null,
+   "body_overrides": [
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1"
+   ],
+   "face_overrides": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1"
+   ],
+   "cloth": {
+    "visible": true,
+    "hidden_in_game": true,
+    "suspended": true,
+    "enabled": false,
+    "functions_info": {
+     "is_visible": false,
+     "is_simulation_enabled": false,
+     "is_simulation_suspended": true
+    }
+   },
+   "sack": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_5",
+    "label": "Shore06_F25 Sack",
+    "class": "BP_S3SackFollower_C",
+    "tags": [
+     "S3.Sack",
+     "S3.Sack.Shore06_F25"
+    ],
+    "root_is_mesh_component": true,
+    "mesh": "/Game/Metahuman/ShoreCast_20260910/Sack/SKM_Sack_Shore06_F25",
+    "materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey"
+    ],
+    "attach_parent": "Body",
+    "attach_parent_is_body": true,
+    "attach_parent_actor_is_figure": true,
+    "socket": "None",
+    "relative_location": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     -0.0,
+     -0.0,
+     -2.5444437451708147e-14
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "leader_evidence": {
+     "prop": true,
+     "socket_gap_cm": 0.0,
+     "socket_conclusive": true,
+     "socket_led": true,
+     "prop_value": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_Shore06_F25_Draped_C_0.Body",
+     "body_head_cs_cm": [
+      28.723253096636412,
+      9.531012525084225,
+      153.2913032167612
+     ],
+     "body_vs_drape_head_cm": 16.353990296118546,
+     "led": true
+    },
+    "bounds_scale": 1.25,
+    "visible": true,
+    "num_bones": 342,
+    "bone_names_missing_on_body": []
+   },
+   "sack_actors": [
+    "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.BP_S3SackFollower_C_5"
+   ],
+   "legacy_sack_component": 0
+  }
+ },
+ "saved_packages": {
+  "content": [],
+  "maps": [
+   "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  ]
+ }
+}

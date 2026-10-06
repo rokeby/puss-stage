@@ -1,0 +1,224 @@
+{
+ "run": "S3SACK-20261006-160613",
+ "saved": true,
+ "created": [
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_BC",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_N",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_R",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_AO",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_H",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_Mask",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner"
+ ],
+ "opts": {
+  "fbx_suffix": "_SK_root.fbx",
+  "cloth_switch": "suspend+disable",
+  "bounds_scale": 1.25,
+  "pow2_mode": "STRETCH_TO_POWER_OF_TWO"
+ },
+ "saved_packages": [
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_AO",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_BC",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_H",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_Mask",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_N",
+  "/Game/Metahuman/ShoreCast_20260910/Sack/Textures/T_Sack_Hessian230_R"
+ ],
+ "readback": {
+  "textures": {
+   "BC": {
+    "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "srgb": true,
+    "flip_green": false,
+    "pow2": "<TexturePowerOfTwoSetting.STRETCH_TO_POWER_OF_TWO: 3>",
+    "size_x": 32,
+    "size_y": 32,
+    "registry_tags": {
+     "Format": "B8G8R8A8",
+     "SourceFormat": "TSF RGBA16"
+    },
+    "source": "E:/PussStage/DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_diff_2k.png",
+    "sha256": "edda26fe2be84c156c1e17f158c3c3cd1c5078a51602eef78c3c2a1355eca4fe"
+   },
+   "N": {
+    "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "srgb": false,
+    "flip_green": false,
+    "pow2": "<TexturePowerOfTwoSetting.STRETCH_TO_POWER_OF_TWO: 3>",
+    "size_x": 32,
+    "size_y": 32,
+    "registry_tags": {
+     "Format": "B8G8R8A8",
+     "SourceFormat": "TSF RGBA16"
+    },
+    "source": "E:/PussStage/DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_nor_dx_2k.png",
+    "sha256": "bf8fc6453cc355a1fbdeb8a6edbde00ba00d958ef776faf956359ac6bc79f509"
+   },
+   "R": {
+    "compression": "<TextureCompressionSettings.TC_GRAYSCALE: 3>",
+    "srgb": false,
+    "flip_green": false,
+    "pow2": "<TexturePowerOfTwoSetting.STRETCH_TO_POWER_OF_TWO: 3>",
+    "size_x": 32,
+    "size_y": 32,
+    "registry_tags": {
+     "Format": "B8G8R8A8",
+     "SourceFormat": "TSF G16"
+    },
+    "source": "E:/PussStage/DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_rough_2k.png",
+    "sha256": "afc2e8370dabf92fbe584e5da35a84f70ede96b4d9e1b682609fe4f5c6ac2b57"
+   },
+   "AO": {
+    "compression": "<TextureCompressionSettings.TC_GRAYSCALE: 3>",
+    "srgb": false,
+    "flip_green": false,
+    "pow2": "<TexturePowerOfTwoSetting.STRETCH_TO_POWER_OF_TWO: 3>",
+    "size_x": 32,
+    "size_y": 32,
+    "registry_tags": {
+     "Format": "B8G8R8A8",
+     "SourceFormat": "TSF G16"
+    },
+    "source": "E:/PussStage/DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_ao_2k.png",
+    "sha256": "aa5a8fa93ade6e88f5a5c0a5dcd2dccff7c701dd70f460e32f2778b2052e6cbe"
+   },
+   "H": {
+    "compression": "<TextureCompressionSettings.TC_GRAYSCALE: 3>",
+    "srgb": false,
+    "flip_green": false,
+    "pow2": "<TexturePowerOfTwoSetting.STRETCH_TO_POWER_OF_TWO: 3>",
+    "size_x": 32,
+    "size_y": 32,
+    "registry_tags": {
+     "Format": "B8G8R8A8",
+     "SourceFormat": "TSF G16"
+    },
+    "source": "E:/PussStage/DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_disp_2k.png",
+    "sha256": "02cbba24dfa937fddfe23df2cf100afedc4ae9f8100d5fa4b2bbb97b17cf0021"
+   },
+   "Mask": {
+    "compression": "<TextureCompressionSettings.TC_GRAYSCALE: 3>",
+    "srgb": false,
+    "flip_green": false,
+    "pow2": "<TexturePowerOfTwoSetting.STRETCH_TO_POWER_OF_TWO: 3>",
+    "size_x": 32,
+    "size_y": 32,
+    "registry_tags": {
+     "Format": "B8G8R8A8",
+     "SourceFormat": "TSF RGBA16"
+    },
+    "source": "E:/PussStage/DerivedAssets/S3Sackcloth/textures/hessian_230/hessian_230_mask_2k.png",
+    "sha256": "8f3559f94737506da6b4117c318e7392272911cd32aca47bf0ab1e200954c413"
+   }
+  },
+  "masters": {
+   "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth": {
+    "nodes": 32,
+    "edges": 32,
+    "props": 5,
+    "flags": {
+     "blend_mode": "BLEND_OPAQUE",
+     "shading_model": "MSM_DEFAULT_LIT",
+     "two_sided": false,
+     "used_with_skeletal_mesh": true,
+     "opacity_mask_clip_value": 0.33329999446868896
+    }
+   },
+   "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked": {
+    "nodes": 37,
+    "edges": 38,
+    "props": 6,
+    "flags": {
+     "blend_mode": "BLEND_MASKED",
+     "shading_model": "MSM_DEFAULT_LIT",
+     "two_sided": false,
+     "used_with_skeletal_mesh": true,
+     "opacity_mask_clip_value": 0.5
+    }
+   }
+  },
+  "mis": {
+   "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey": {
+    "scalars": {
+     "Desaturate": 0.75,
+     "MottleAmount": 0.10000000149011612,
+     "HemGrimeHeightM": 0.3499999940395355,
+     "EdgeGrimeWidthM": 0.029999999329447746,
+     "EdgeGrimeAmount": 0.6000000238418579,
+     "RoughnessScale": 1.0,
+     "NormalStrength": 1.0,
+     "RimAmount": 0.05000000074505806
+    },
+    "vectors": {
+     "Tint": [
+      0.6200000047683716,
+      0.6000000238418579,
+      0.5600000023841858
+     ],
+     "GrimeColor": [
+      0.10000000149011612,
+      0.09000000357627869,
+      0.07999999821186066
+     ]
+    },
+    "overridden": {
+     "Desaturate": true,
+     "MottleAmount": true,
+     "HemGrimeHeightM": true,
+     "EdgeGrimeWidthM": true,
+     "EdgeGrimeAmount": true,
+     "RoughnessScale": true,
+     "NormalStrength": true,
+     "RimAmount": true,
+     "Tint": true,
+     "GrimeColor": true
+    }
+   },
+   "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Inner": {
+    "scalars": {
+     "Desaturate": 0.75,
+     "MottleAmount": 0.10000000149011612,
+     "HemGrimeHeightM": 0.3499999940395355,
+     "EdgeGrimeWidthM": 0.029999999329447746,
+     "EdgeGrimeAmount": 0.6000000238418579,
+     "RoughnessScale": 1.0,
+     "NormalStrength": 0.6000000238418579,
+     "RimAmount": 0.05000000074505806,
+     "InnerDarken": 0.699999988079071
+    },
+    "vectors": {
+     "Tint": [
+      0.6200000047683716,
+      0.6000000238418579,
+      0.5600000023841858
+     ],
+     "GrimeColor": [
+      0.10000000149011612,
+      0.09000000357627869,
+      0.07999999821186066
+     ]
+    },
+    "overridden": {
+     "Desaturate": true,
+     "MottleAmount": true,
+     "HemGrimeHeightM": true,
+     "EdgeGrimeWidthM": true,
+     "EdgeGrimeAmount": true,
+     "RoughnessScale": true,
+     "NormalStrength": true,
+     "RimAmount": true,
+     "InnerDarken": true,
+     "Tint": true,
+     "GrimeColor": true
+    }
+   }
+  }
+ }
+}
