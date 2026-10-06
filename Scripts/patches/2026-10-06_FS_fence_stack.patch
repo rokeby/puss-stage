@@ -1,0 +1,739 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+index f03dd04..736f834 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+@@ -105,6 +105,23 @@ FRandomStream MakeFenceStream(const FGuid& Station, const int32 SideKey, const i
+     return FRandomStream(static_cast<int32>(Hash));
+ }
+ 
++/** A stacked fence row's stream. Row 0 is exactly MakeFenceStream, so stacking
++ * never re-rolls the ground row; each row above mixes its row index in, one
++ * combine per statement. */
++FRandomStream MakeFenceRowStream(const FGuid& Station, const int32 SideKey, const int32 TileIndex, const int32 Row, const int32 Seed)
++{
++    if (Row == 0)
++    {
++        return MakeFenceStream(Station, SideKey, TileIndex, Seed);
++    }
++    uint32 Hash = HashCombineFast(GetTypeHash(Station), ::GetTypeHash(static_cast<uint32>(ETimberPart::UnderpassFence)));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(SideKey));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(TileIndex));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Seed));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Row));
++    return FRandomStream(static_cast<int32>(Hash));
++}
++
+ struct FFixturePlacement
+ {
+     FGuid AttachmentGuid;
+@@ -456,6 +473,8 @@ void AInfinityStageStructureActor::ClearStructure()
+     TubeBlinkLit.Reset();
+     UnderpassFencePanelCount = 0;
+     UnderpassFenceOverlayCount = 0;
++    UnderpassFenceRowCount = 0;
++    UnderpassFenceStackTopCm = 0.0;
+     StationSignature = 0;
+     MarkPackageDirty();
+ }
+@@ -565,6 +584,29 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+         UnderpassFenceMeshes.Add(Panel);
+         UnderpassFenceOverlayMeshes.Add(LoadUnderpassMesh(bVariantOn && Panel != nullptr, Kind.OverlayMesh, TEXT("Underpass fence overlay")));
+     }
++    // Stack mode: one plan for the fence and the fence-top tubes. The row is the
++    // tallest built bay (built = loaded and a finite weight above 0, exactly the
++    // fence's own rule). No built bay, or any other mode: the tubes read
++    // FenceHeightCm as they always have.
++    FInfinityStageFenceStackPlan FenceStack;
++    double FenceTopAboveBaseCm = FMath::Max(1.0, Underpass.FenceHeightCm);
++    if (Underpass.FenceHeightMode == EInfinityFenceHeightMode::Stack)
++    {
++        double FenceRowCm = 0.0;
++        for (int32 Variant = 0; Variant < FInfinityStageUnderpassSettings::FenceVariantCount; ++Variant)
++        {
++            const double Weight = Underpass.GetFenceVariant(Variant).Weight;
++            if (UnderpassFenceMeshes[Variant] && FMath::IsFinite(Weight) && Weight > 0.0)
++            {
++                FenceRowCm = FMath::Max(FenceRowCm, UnderpassFenceMeshes[Variant]->GetBoundingBox().GetSize().Z);
++            }
++        }
++        if (FenceRowCm > UE_KINDA_SMALL_NUMBER)
++        {
++            FenceStack = PlanFenceStack(Underpass.FenceHeightCm, FenceRowCm, Underpass.bFenceStackCutTopRow);
++            FenceTopAboveBaseCm = FenceStack.TopCm;
++        }
++    }
+     if (!bMeshesLoaded)
+     {
+         return false;
+@@ -643,7 +685,8 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+             BuildUnderpassTubes(
+                 Stations,
+                 UnderpassPart(UnderpassTubeMesh, Underpass.TubeMaterial, TEXT("Underpass tube")),
+-                Underpass.bTubeLights ? LoadMaterial(Underpass.TubeLightFunctionMaterial, TEXT("Underpass tube light function")) : nullptr);
++                Underpass.bTubeLights ? LoadMaterial(Underpass.TubeLightFunctionMaterial, TEXT("Underpass tube light function")) : nullptr,
++                FenceTopAboveBaseCm);
+         }
+         if (Underpass.bFence)
+         {
+@@ -655,7 +698,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
+                 FencePanels.Add(UnderpassPart(UnderpassFenceMeshes[Variant], Kind.Material, TEXT("Underpass fence panel")));
+                 FenceOverlays.Add(UnderpassPart(UnderpassFenceOverlayMeshes[Variant], Kind.OverlayMaterial, TEXT("Underpass fence overlay")));
+             }
+-            BuildUnderpassFence(Stations, FencePanels, FenceOverlays);
++            BuildUnderpassFence(Stations, FencePanels, FenceOverlays, FenceStack);
+         }
+     }
+     int32 MovingLights = 0;
+@@ -746,10 +789,47 @@ UInstancedStaticMeshComponent* AInfinityStageStructureActor::CreateManagedCompon
+     return Component;
+ }
+ 
++FInfinityStageFenceStackPlan AInfinityStageStructureActor::PlanFenceStack(
++    const double IntendedCm, const double RowCm, const bool bCutTopRow)
++{
++    FInfinityStageFenceStackPlan Plan;
++    const double Row = FMath::Max(1.0, FMath::IsFinite(RowCm) ? RowCm : 1.0);
++    const double Intended = FMath::Max(1.0, FMath::IsFinite(IntendedCm) ? IntendedCm : 1.0);
++    Plan.RowHeightCm = Row;
++    Plan.TopRowHeightCm = Row;
++    if (!bCutTopRow)
++    {
++        Plan.Rows = FMath::Max(1, FMath::RoundToInt32(Intended / Row));
++    }
++    else
++    {
++        const int32 Whole = FMath::FloorToInt32(Intended / Row);
++        const double Rest = Intended - Row * Whole;
++        if (Whole == 0)
++        {
++            // Lower than one row: one row, cut to the height.
++            Plan.Rows = 1;
++            Plan.TopRowHeightCm = Intended;
++        }
++        else if (Rest >= Row * FInfinityStageUnderpassSettings::FenceStackMinCutFraction)
++        {
++            Plan.Rows = Whole + 1;
++            Plan.TopRowHeightCm = Rest;
++        }
++        else
++        {
++            Plan.Rows = Whole;
++        }
++    }
++    Plan.TopCm = Row * (Plan.Rows - 1) + Plan.TopRowHeightCm;
++    return Plan;
++}
++
+ void AInfinityStageStructureActor::BuildUnderpassFence(
+     const TArray<FInfinityStructureStation>& Stations,
+     const TArray<FInfinityUnderpassPart>& Panels,
+-    const TArray<FInfinityUnderpassPart>& Overlays)
++    const TArray<FInfinityUnderpassPart>& Overlays,
++    const FInfinityStageFenceStackPlan& StackPlan)
+ {
+     constexpr int32 VariantCount = FInfinityStageUnderpassSettings::FenceVariantCount;
+     if (Stations.Num() < 2 || Panels.Num() != VariantCount || Overlays.Num() != VariantCount)
+@@ -783,25 +863,64 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+     {
+         return;
+     }
+-    const auto Pick = [&Weights, &Panels, AllWeight, BuiltWeight](const float Roll, const bool bBuiltOnly) -> int32
++    // Stack rows above the ground row draw from the same weights with every
++    // ground-row-only variant (the door gap) at 0.
++    double UpperWeights[VariantCount];
++    double UpperAllWeight = 0.0;
++    double UpperBuiltWeight = 0.0;
++    for (int32 Variant = 0; Variant < VariantCount; ++Variant)
+     {
+-        double Remaining = static_cast<double>(Roll) * (bBuiltOnly ? BuiltWeight : AllWeight);
++        UpperWeights[Variant] = Underpass.GetFenceVariant(Variant).bGroundRowOnly ? 0.0 : Weights[Variant];
++        UpperAllWeight += UpperWeights[Variant];
++        UpperBuiltWeight += Panels[Variant].Mesh && UpperWeights[Variant] > 0.0 ? UpperWeights[Variant] : 0.0;
++    }
++    const auto PickFrom = [&Panels](const double* InWeights, const double InAllWeight, const double InBuiltWeight,
++                                    const float Roll, const bool bBuiltOnly) -> int32
++    {
++        double Remaining = static_cast<double>(Roll) * (bBuiltOnly ? InBuiltWeight : InAllWeight);
+         int32 LastEligible = INDEX_NONE;
+         for (int32 Variant = 0; Variant < VariantCount; ++Variant)
+         {
+-            if (Weights[Variant] <= 0.0 || (bBuiltOnly && !Panels[Variant].Mesh))
++            if (InWeights[Variant] <= 0.0 || (bBuiltOnly && !Panels[Variant].Mesh))
+             {
+                 continue;
+             }
+             LastEligible = Variant;
+-            if (Remaining < Weights[Variant])
++            if (Remaining < InWeights[Variant])
+             {
+                 return Variant;
+             }
+-            Remaining -= Weights[Variant];
++            Remaining -= InWeights[Variant];
+         }
+         return LastEligible;
+     };
++    const auto Pick = [&PickFrom, &Weights, &UpperWeights, AllWeight, BuiltWeight, UpperAllWeight, UpperBuiltWeight](
++                          const float Roll, const bool bBuiltOnly, const bool bUpperRow) -> int32
++    {
++        return bUpperRow
++            ? PickFrom(UpperWeights, UpperAllWeight, UpperBuiltWeight, Roll, bBuiltOnly)
++            : PickFrom(Weights, AllWeight, BuiltWeight, Roll, bBuiltOnly);
++    };
++
++    // Stack: rows of the plan's height, the last perhaps cut. Any other mode is
++    // one row, built exactly as before the stack existed.
++    const bool bStack = Underpass.FenceHeightMode == EInfinityFenceHeightMode::Stack && StackPlan.RowHeightCm > UE_KINDA_SMALL_NUMBER;
++    const int32 Rows = bStack ? FMath::Max(1, StackPlan.Rows) : 1;
++    if (bStack)
++    {
++        UnderpassFenceRowCount = Rows;
++        UnderpassFenceStackTopCm = StackPlan.TopCm;
++        UE_LOG(LogInfinityStageStructure, Display,
++            TEXT("INFINITY_STAGE_STRUCTURE_FENCE_STACK actor='%s' rows=%d row_cm=%.2f top_row_cm=%.2f top_cm=%.2f intended_cm=%.1f cut_top_row=%d"),
++            *GetActorNameOrLabel(), Rows, StackPlan.RowHeightCm, StackPlan.TopRowHeightCm, StackPlan.TopCm,
++            Underpass.FenceHeightCm, Underpass.bFenceStackCutTopRow ? 1 : 0);
++        if (Rows > 1 && UpperBuiltWeight <= 0.0)
++        {
++            UE_LOG(LogInfinityStageStructure, Warning,
++                TEXT("INFINITY_STAGE_STRUCTURE_FENCE_STACK_NO_UPPER_VARIANT actor='%s' (every built variant is ground-row-only: the rows above it stay empty)"),
++                *GetActorNameOrLabel());
++        }
++    }
+ 
+     // Native height keeps each bay as authored; say so where that is not the
+     // height the fence was meant to be (W&T's 3 m bays will match).
+@@ -878,27 +997,38 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
+             const FQuat Rotation = FRotationMatrix::MakeFromXZ(Side < 0.0 ? Along : -Along, BayUp).ToQuat();
+             for (int32 Tile = 0; Tile < Tiles; ++Tile)
+             {
+-                // Three draws, each its own statement and always made, so no
+-                // choice depends on another tile or on which variants are built.
+-                FRandomStream Stream = MakeFenceStream(Stations[From].CueGuid, Side < 0.0 ? 0 : 1, Tile, Underpass.FenceSeed);
+-                const float Roll = Stream.FRand();
+-                const float Redeal = Stream.FRand();
+-                const float Tone = Stream.FRand();
+-                int32 Variant = Pick(Roll, false);
+-                if (Variant == INDEX_NONE || !Panels[Variant].Mesh)
++                for (int32 Row = 0; Row < Rows; ++Row)
+                 {
+-                    Variant = Pick(Redeal, true);
+-                }
+-                if (Variant == INDEX_NONE)
+-                {
+-                    continue;
++                    // Three draws, each its own statement and always made, so no
++                    // choice depends on another tile or row, or on which variants
++                    // are built. Row 0's stream is the unstacked fence's own.
++                    FRandomStream Stream = MakeFenceRowStream(Stations[From].CueGuid, Side < 0.0 ? 0 : 1, Tile, Row, Underpass.FenceSeed);
++                    const float Roll = Stream.FRand();
++                    const float Redeal = Stream.FRand();
++                    const float Tone = Stream.FRand();
++                    const bool bUpperRow = Row > 0;
++                    int32 Variant = Pick(Roll, false, bUpperRow);
++                    if (Variant == INDEX_NONE || !Panels[Variant].Mesh)
++                    {
++                        Variant = Pick(Redeal, true, bUpperRow);
++                    }
++                    if (Variant == INDEX_NONE)
++                    {
++                        continue;
++                    }
++                    const double DepthCm = FMath::Max(1.0, Bounds[Variant].GetSize().Y);
++                    double HeightCm = bNativeHeight ? FMath::Max(1.0, Bounds[Variant].GetSize().Z) : IntendedHeightCm;
++                    double BottomCm = 0.0;
++                    if (bStack)
++                    {
++                        HeightCm = Row == Rows - 1 ? StackPlan.TopRowHeightCm : StackPlan.RowHeightCm;
++                        BottomCm = StackPlan.RowHeightCm * Row;
++                    }
++                    const FVector SizeCm(SlotCm, DepthCm, HeightCm);
++                    const FVector Centre = Start + Along * (SlotCm * (Tile + 0.5)) + BayUp * (BottomCm + HeightCm * 0.5);
++                    Built[Variant].Transforms.Add(FitMeshToTimber(Bounds[Variant], Centre, Rotation, SizeCm));
++                    Built[Variant].Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
+                 }
+-                const double DepthCm = FMath::Max(1.0, Bounds[Variant].GetSize().Y);
+-                const double HeightCm = bNativeHeight ? FMath::Max(1.0, Bounds[Variant].GetSize().Z) : IntendedHeightCm;
+-                const FVector SizeCm(SlotCm, DepthCm, HeightCm);
+-                const FVector Centre = Start + Along * (SlotCm * (Tile + 0.5)) + BayUp * (HeightCm * 0.5);
+-                Built[Variant].Transforms.Add(FitMeshToTimber(Bounds[Variant], Centre, Rotation, SizeCm));
+-                Built[Variant].Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
+             }
+         }
+     }
+@@ -1999,7 +2129,8 @@ void AInfinityStageStructureActor::OnTubeBlinkTimer()
+ void AInfinityStageStructureActor::BuildUnderpassTubes(
+     const TArray<FInfinityStructureStation>& Stations,
+     const FInfinityUnderpassPart& Tube,
+-    UMaterialInterface* LightFunction)
++    UMaterialInterface* LightFunction,
++    const double FenceTopAboveBaseCm)
+ {
+     // The stretch. Fewer than two stations in it is no run: nothing is built.
+     const int32 Last = Stations.Num() - 1;
+@@ -2051,7 +2182,7 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+         // station like the fence; the bays below run at deck height, so offset back.
+         const double FenceLineCm = ColumnLineCm - Underpass.FenceInsetCm;
+         const double FenceTopCm = Ground.FloorHeightCm + Underpass.FenceBaseCm
+-            + FMath::Max(1.0, Underpass.FenceHeightCm) + Underpass.TubeFenceTopRaiseCm;
++            + FenceTopAboveBaseCm + Underpass.TubeFenceTopRaiseCm;
+         const double FenceVerticalCm = FenceTopCm - Underpass.DeckHeightCm;
+         Rows.Add({ NextRowIndex++, 1002, -FenceLineCm, FenceVerticalCm, Underpass.bTubeFenceTopRowsEmitLight });
+         if (Underpass.bFenceBothSides)
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+index e11f172..be353ca 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+@@ -440,7 +440,34 @@ enum class EInfinityFenceHeightMode : uint8
+     /** The bay mesh's own height (Z scale 1): no squashed chain-link. */
+     Native,
+     /** Stretched to FenceHeightCm. Distorts a bay authored at another height. */
+-    Fit
++    Fit,
++    /** Whole native-height panels stacked in rows up to FenceHeightCm (Gary, 6 Oct:
++     * "Stack it", 7.5 m on every Passage). The row height is the tallest built
++     * variant's own; bFenceStackCutTopRow says how the last part row is handled.
++     * Doors only on the ground row (bGroundRowOnly). See FInfinityStageFenceStackPlan. */
++    Stack
++};
++
++/**
++ * How a Stack fence is divided into rows: pure, from the intended height and the
++ * native row height (AInfinityStageStructureActor::PlanFenceStack). Not a USTRUCT:
++ * never stored, recomputed on every build.
++ *
++ * Cut (bFenceStackCutTopRow, the default): floor(intended / row) whole rows, then
++ * the rest as one more row Z-scaled down to fit when it is at least
++ * FenceStackMinCutFraction of a row, so the top is exactly the intended height;
++ * a smaller rest is dropped (the top falls short by under a quarter row). Whole:
++ * round(intended / row) whole rows, at least one, and no row is scaled.
++ */
++struct FInfinityStageFenceStackPlan
++{
++    int32 Rows = 1;
++    /** Each row's bottom is Row * RowHeightCm above the fence base. */
++    double RowHeightCm = 0.0;
++    /** The last row's height: RowHeightCm unless it was cut. */
++    double TopRowHeightCm = 0.0;
++    /** The stack's top above the fence base: (Rows - 1) * RowHeightCm + TopRowHeightCm. */
++    double TopCm = 0.0;
+ };
+ 
+ /**
+@@ -462,8 +489,10 @@ struct INFINITYSTAGE_API FInfinityStageFenceVariant
+ 
+     FInfinityStageFenceVariant() = default;
+ 
+-    explicit FInfinityStageFenceVariant(const double InWeight, const TCHAR* InOverlayMeshPath = nullptr)
++    explicit FInfinityStageFenceVariant(const double InWeight, const TCHAR* InOverlayMeshPath = nullptr,
++        const bool bInGroundRowOnly = false)
+         : Weight(InWeight)
++        , bGroundRowOnly(bInGroundRowOnly)
+     {
+         if (InOverlayMeshPath)
+         {
+@@ -484,6 +513,12 @@ struct INFINITYSTAGE_API FInfinityStageFenceVariant
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "0.0"))
+     double Weight = 0.0;
+ 
++    /** Stack height mode only: this variant is drawn on the ground row alone (its
++     * weight counts as 0 above it). On by default for D, the door gap: a door in
++     * the air is no door. Native and Fit build one row and never read it. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    bool bGroundRowOnly = false;
++
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+     TSoftObjectPtr<UStaticMesh> OverlayMesh;
+ 
+@@ -755,7 +790,8 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+ 
+     /** A row along the top of each side fence: on the fence line (FenceInsetCm in from
+      * the column line), its centre TubeFenceTopRaiseCm above the fence's intended top
+-     * (Ground.FloorHeightCm + FenceBaseCm + FenceHeightCm). Independent of bFence;
++     * (Ground.FloorHeightCm + FenceBaseCm + FenceHeightCm; in Stack mode with the
++     * fence built, the stacked top, FInfinityStageFenceStackPlan::TopCm). Independent of bFence;
+      * bFenceBothSides off builds the -Y row only. Same stretch, pitch and dead share
+      * as the other rows; stream keys 1002 (-Y) and 1003 (+Y), so adding these rows
+      * never re-rolls another row. */
+@@ -807,16 +843,27 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+     bool bFence = false;
+ 
+-    /** Native keeps each bay's own height; Fit stretches it to FenceHeightCm. */
++    /** Native keeps each bay's own height; Fit stretches it to FenceHeightCm; Stack
++     * stacks native-height rows up to FenceHeightCm. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+     EInfinityFenceHeightMode FenceHeightMode = EInfinityFenceHeightMode::Native;
+ 
+     /** The intended height, bottom to top of the bay mesh's bounds. Fit builds it;
+      * Native warns (INFINITY_STAGE_STRUCTURE_FENCE_HEIGHT_MISMATCH) for each
+-     * built variant whose own height is more than 10 % away from it. */
++     * built variant whose own height is more than 10 % away from it; Stack builds
++     * rows up to it (FInfinityStageFenceStackPlan). */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "1.0", Units = "cm"))
+     double FenceHeightCm = 300.0;
+ 
++    /** Stack mode only. On: the top row is cut (Z-scaled) so the stack ends at
++     * FenceHeightCm, unless the rest is under FenceStackMinCutFraction of a row
++     * (then it is dropped). Off: the nearest whole number of rows, none scaled. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
++    bool bFenceStackCutTopRow = true;
++
++    /** A cut top row thinner than this share of a row is not built. */
++    static constexpr double FenceStackMinCutFraction = 0.25;
++
+     /** The panel's bottom above the floor (Ground.FloorHeightCm). */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
+     double FenceBaseCm = 0.0;
+@@ -844,9 +891,9 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+     FInfinityStageFenceVariant FenceVariantC = FInfinityStageFenceVariant(0.15,
+         TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_torn_v2.SM_FenceTarp_tarp_torn_v2"));
+ 
+-    /** Intended: SM_FenceBay_door_gap_v2 (its own MI_FenceBay_door_gap). */
++    /** Intended: SM_FenceBay_door_gap_v2 (its own MI_FenceBay_door_gap). Ground row only. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+-    FInfinityStageFenceVariant FenceVariantD = FInfinityStageFenceVariant(0.05);
++    FInfinityStageFenceVariant FenceVariantD = FInfinityStageFenceVariant(0.05, nullptr, true);
+ 
+     /** Chain-link shadows are the point of the fence; panels and overlays alike. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+@@ -1040,6 +1087,17 @@ public:
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+     int32 UnderpassFenceOverlayCount = 0;
+ 
++    /** Stack mode only (0 otherwise): the rows the fence was built with. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
++    int32 UnderpassFenceRowCount = 0;
++
++    /** Stack mode only (0 otherwise): the stack's top above the fence base, as built. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", meta = (Units = "cm"))
++    double UnderpassFenceStackTopCm = 0.0;
++
++    /** Pure: how a Stack fence of IntendedCm divides into rows of RowCm (see the plan struct). */
++    static FInfinityStageFenceStackPlan PlanFenceStack(double IntendedCm, double RowCm, bool bCutTopRow);
++
+     /** Fingerprint of the stations and light placements the build was fitted to. */
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
+     int32 StationSignature = 0;
+@@ -1131,18 +1189,23 @@ private:
+         const FInfinityUnderpassPart& Deck,
+         const FInfinityUnderpassPart& Catwalk);
+ 
+-    /** Tube rows and their lights. A null Tube.Mesh builds the lights alone. */
++    /** Tube rows and their lights. A null Tube.Mesh builds the lights alone.
++     * FenceTopAboveBaseCm: the fence's top above its base, for the fence-top rows
++     * (FenceHeightCm, or the stacked top in Stack mode). */
+     void BuildUnderpassTubes(
+         const TArray<FInfinityStructureStation>& Stations,
+         const FInfinityUnderpassPart& Tube,
+-        UMaterialInterface* LightFunction);
++        UMaterialInterface* LightFunction,
++        double FenceTopAboveBaseCm);
+ 
+     /** Fence panels, one entry per variant A..D in each array. A null panel mesh
+-     * skips its variant; a null overlay mesh builds the panel alone. */
++     * skips its variant; a null overlay mesh builds the panel alone. StackPlan is read
++     * only in Stack height mode. */
+     void BuildUnderpassFence(
+         const TArray<FInfinityStructureStation>& Stations,
+         const TArray<FInfinityUnderpassPart>& Panels,
+-        const TArray<FInfinityUnderpassPart>& Overlays);
++        const TArray<FInfinityUnderpassPart>& Overlays,
++        const FInfinityStageFenceStackPlan& StackPlan);
+ 
+     URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);
+ };
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+index b9e8f7e..e908179 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+@@ -3715,4 +3715,289 @@ bool FInfinityStageTubesEverywhereBlinkTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++// ---------------------------------------------------------------------------
++// Fence stack (patch FS, 6 Oct; Gary: "7.5m on all passages", "Stack it"): whole
++// native-height rows up to FenceHeightCm, the top row cut or rounded, doors only
++// on the ground row, the fence-top tubes on the stacked top. Every non-Stack
++// build is unchanged, which the first test proves against the new fields.
++// ---------------------------------------------------------------------------
++namespace
++{
++/** A stacked panel's identity: its plan centre to the cm and its row (from its bottom). */
++FIntVector StackKey(const FFenceRead& Panel, const double BaseCm, const double RowCm)
++{
++    const FVector Centre = Panel.Box.GetCenter();
++    return FIntVector(FMath::RoundToInt32(Centre.X), FMath::RoundToInt32(Centre.Y),
++        FMath::RoundToInt32((Panel.Box.Min.Z - BaseCm) / RowCm));
++}
++
++TMap<FIntVector, int32> StackChoices(const TArray<FFenceRead>& Panels, const double BaseCm, const double RowCm)
++{
++    TMap<FIntVector, int32> Choices;
++    for (const FFenceRead& Panel : Panels)
++    {
++        Choices.Add(StackKey(Panel, BaseCm, RowCm), Panel.Variant);
++    }
++    return Choices;
++}
++
++/** The fence-top tube rows' centre Z (rows numbered after the deck rows), or empty. */
++TArray<double> FenceTopTubeZs(const AInfinityStageStructureActor& Structure)
++{
++    const int32 DeckRows = Structure.Underpass.TubeRowsCentre + (Structure.Underpass.bTubeCornerRows ? 2 : 0);
++    TArray<double> Zs;
++    for (const FEverywhereTube& Tube : ReadEveryTube(Structure))
++    {
++        if (Tube.Row >= DeckRows)
++        {
++            Zs.Add(Tube.Centre.Z);
++        }
++    }
++    return Zs;
++}
++
++bool AllNear(const TArray<double>& Values, const double Want, const double Tolerance)
++{
++    bool bAll = !Values.IsEmpty();
++    for (const double Value : Values)
++    {
++        bAll &= FMath::IsNearlyEqual(Value, Want, Tolerance);
++    }
++    return bAll;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageFenceStackDefaultsTest,
++    "InfinityStage.Structure.FenceStack.DefaultsAndOtherModesBuildExactlyAsBefore",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageFenceStackDefaultsTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageUnderpassSettings Defaults;
++    TestTrue(TEXT("Defaults: Native mode, cut top row, only D ground-row-only"),
++        Defaults.FenceHeightMode == EInfinityFenceHeightMode::Native && Defaults.bFenceStackCutTopRow
++        && !Defaults.FenceVariantA.bGroundRowOnly && !Defaults.FenceVariantB.bGroundRowOnly
++        && !Defaults.FenceVariantC.bGroundRowOnly && Defaults.FenceVariantD.bGroundRowOnly);
++
++    // The plan, written out for the real kit (SM_FenceBay_short_open, 302.68 cm,
++    // FV3FBS-20261005-01) and for edge cases.
++    using T = AInfinityStageStructureActor;
++    const double KitCm = 302.676;
++    const FInfinityStageFenceStackPlan Cut750 = T::PlanFenceStack(750.0, KitCm, true);
++    TestTrue(FString::Printf(TEXT("750 cut: 3 rows, top row %.2f, top 750 (got %d, %.2f, %.2f)"),
++            750.0 - 2.0 * KitCm, Cut750.Rows, Cut750.TopRowHeightCm, Cut750.TopCm),
++        Cut750.Rows == 3 && FMath::IsNearlyEqual(Cut750.TopRowHeightCm, 750.0 - 2.0 * KitCm, 1.0e-6)
++        && FMath::IsNearlyEqual(Cut750.TopCm, 750.0, 1.0e-6));
++    const FInfinityStageFenceStackPlan Whole750 = T::PlanFenceStack(750.0, KitCm, false);
++    TestTrue(TEXT("750 whole: 2 rows (2.48 rounds down), top 605.35, no row scaled"),
++        Whole750.Rows == 2 && FMath::IsNearlyEqual(Whole750.TopCm, 2.0 * KitCm, 1.0e-6)
++        && Whole750.TopRowHeightCm == Whole750.RowHeightCm);
++    const FInfinityStageFenceStackPlan Sliver = T::PlanFenceStack(610.0, KitCm, true);
++    TestTrue(TEXT("610 cut: a 4.6 cm rest is under a quarter row, dropped: 2 whole rows"),
++        Sliver.Rows == 2 && FMath::IsNearlyEqual(Sliver.TopCm, 2.0 * KitCm, 1.0e-6));
++    const FInfinityStageFenceStackPlan Low = T::PlanFenceStack(200.0, KitCm, true);
++    TestTrue(TEXT("200 cut: one row cut to 200"), Low.Rows == 1 && FMath::IsNearlyEqual(Low.TopCm, 200.0, 1.0e-6));
++    const FInfinityStageFenceStackPlan Exact = T::PlanFenceStack(900.0, 300.0, true);
++    TestTrue(TEXT("900 / 300 cut: exactly 3 whole rows"),
++        Exact.Rows == 3 && Exact.TopRowHeightCm == 300.0 && Exact.TopCm == 900.0);
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 6);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    ArmTubesEverywhere(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    Underpass.bTubeFenceTopRows = true;
++    TestTrue(TEXT("Builds Native"), Structure->MaterializeStructure());
++    const TArray<FBuiltLayer> Native = SnapshotBuild(*Structure);
++    const TArray<FFenceRead> NativePanels = ReadFence(*Structure);
++    TestTrue(TEXT("Native: no stack rows or top recorded"),
++        Structure->UnderpassFenceRowCount == 0 && Structure->UnderpassFenceStackTopCm == 0.0);
++
++    // The new fields are read only in Stack mode: flipping them changes nothing.
++    Underpass.bFenceStackCutTopRow = false;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).bGroundRowOnly = !FenceVariant(Underpass, Variant).bGroundRowOnly;
++    }
++    TestTrue(TEXT("Builds Native with the stack fields flipped"), Structure->MaterializeStructure());
++    FString Why;
++    TestTrue(FString::Printf(TEXT("Native ignores the stack fields: every component identical (%s)"), *Why),
++        SameBuild(Native, SnapshotBuild(*Structure), Why));
++    Underpass.bFenceStackCutTopRow = true;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).bGroundRowOnly = Variant == 3;
++    }
++
++    // A one-row stack (intended = the cube's own 100) is the Native build exactly:
++    // the ground row's stream and placement are the unstacked fence's own.
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Stack;
++    TestTrue(TEXT("Builds a one-row stack"), Structure->MaterializeStructure());
++    TestTrue(FString::Printf(TEXT("One-row stack = Native, every component, tubes included (%s)"), *Why),
++        SameBuild(Native, SnapshotBuild(*Structure), Why));
++    TestTrue(TEXT("One-row stack records 1 row, top 100"),
++        Structure->UnderpassFenceRowCount == 1 && FMath::IsNearlyEqual(Structure->UnderpassFenceStackTopCm, EngineShapeCm));
++
++    // Control: a taller stack does change the build, so the comparisons can fail.
++    Underpass.FenceHeightCm = 250.0;
++    TestTrue(TEXT("Builds a three-row stack"), Structure->MaterializeStructure());
++    TestFalse(TEXT("Control: a three-row stack differs from Native"), SameBuild(Native, SnapshotBuild(*Structure), Why));
++    TestEqual(TEXT("Control: three rows of panels"), ReadFence(*Structure).Num(), NativePanels.Num() * 3);
++
++    // And back to Native: identical to the first build.
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Native;
++    Underpass.FenceHeightCm = EngineShapeCm;
++    TestTrue(TEXT("Rebuilds Native"), Structure->MaterializeStructure());
++    TestTrue(FString::Printf(TEXT("Native again: every component identical (%s)"), *Why),
++        SameBuild(Native, SnapshotBuild(*Structure), Why));
++    TestTrue(TEXT("Native again: the stack record is cleared"),
++        Structure->UnderpassFenceRowCount == 0 && Structure->UnderpassFenceStackTopCm == 0.0);
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageFenceStackRowsTest,
++    "InfinityStage.Structure.FenceStack.RowsDoorsTubesAndDeterminism",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageFenceStackRowsTest::RunTest(const FString& Parameters)
++{
++    // Long gaps, a column on every station: ~80 ground tiles, so every variant is drawn.
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnSpacedPassage(*World, { 1000.0, 1000.0, 1000.0, 1000.0 });
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmFence(*Structure);
++    ArmTubesEverywhere(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    Underpass.ColumnEvery = 1;
++    Underpass.bTubeFenceTopRows = true;
++    Underpass.FenceBaseCm = 20.0;
++    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
++    {
++        FenceVariant(Underpass, Variant).Weight = 0.25;
++    }
++    TestTrue(TEXT("Builds Native"), Structure->MaterializeStructure());
++    const TArray<FFenceRead> NativePanels = ReadFence(*Structure);
++    TArray<FInfinityStructureStation> Stations;
++    FString Error;
++    Structure->GatherStations(Stations, Error);
++    const double StationZ = Stations.IsEmpty() ? 0.0 : Stations[0].StationWorld.GetLocation().Z;
++    const double BaseCm = StationZ + Structure->Ground.FloorHeightCm + Underpass.FenceBaseCm;
++    TMap<FIntVector, int32> NativeChoices = StackChoices(NativePanels, BaseCm, EngineShapeCm);
++
++    // Stack 250 on 100 cm rows, cut: rows at 0, 100 and a 50 cm cut row at 200.
++    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Stack;
++    Underpass.FenceHeightCm = 250.0;
++    TestTrue(TEXT("Builds a 250 cm stack"), Structure->MaterializeStructure());
++    const TArray<FFenceRead> Panels = ReadFence(*Structure);
++    TestEqual(TEXT("Three rows: three panels per Native tile"), Panels.Num(), NativePanels.Num() * 3);
++    TestTrue(TEXT("Records 3 rows, top 250"),
++        Structure->UnderpassFenceRowCount == 3 && FMath::IsNearlyEqual(Structure->UnderpassFenceStackTopCm, 250.0));
++    int32 PerRow[3] = { 0, 0, 0 };
++    bool bRowsPlaced = !Panels.IsEmpty();
++    int32 GroundDoors = 0;
++    int32 UpperDoors = 0;
++    for (const FFenceRead& Panel : Panels)
++    {
++        const int32 Row = FMath::RoundToInt32((Panel.Box.Min.Z - BaseCm) / EngineShapeCm);
++        const double WantTop = Row == 2 ? 250.0 : (Row + 1) * EngineShapeCm;
++        const bool bRow = Row >= 0 && Row < 3;
++        bRowsPlaced &= bRow && FMath::IsNearlyEqual(Panel.Box.Min.Z, BaseCm + Row * EngineShapeCm, 0.1)
++            && FMath::IsNearlyEqual(Panel.Box.Max.Z, BaseCm + WantTop, 0.1)
++            && FMath::IsNearlyEqual(Panel.Data[3], static_cast<float>(WantTop - Row * EngineShapeCm), 0.01f)
++            && FMath::IsNearlyEqual(Panel.Transform.GetScale3D().Z, (WantTop - Row * EngineShapeCm) / EngineShapeCm, 1.0e-4);
++        PerRow[bRow ? Row : 0] += bRow ? 1 : 0;
++        if (Panel.Variant == 3)
++        {
++            (Row == 0 ? GroundDoors : UpperDoors) += 1;
++        }
++    }
++    TestTrue(TEXT("Rows stand at base, base + 100 and base + 200; the top row is cut to 50 (Z scale 0.5, data [3] = 50)"), bRowsPlaced);
++    TestTrue(TEXT("Each row holds every tile"),
++        PerRow[0] == NativePanels.Num() && PerRow[1] == NativePanels.Num() && PerRow[2] == NativePanels.Num());
++    TestTrue(FString::Printf(TEXT("Fixture: some doors on the ground row (%d)"), GroundDoors), GroundDoors > 0);
++    TestEqual(TEXT("Doors only on the ground row"), UpperDoors, 0);
++
++    // The ground row keeps every Native choice: stacking re-rolls nothing below.
++    const TMap<FIntVector, int32> Stacked = StackChoices(Panels, BaseCm, EngineShapeCm);
++    bool bGroundKept = NativeChoices.Num() == NativePanels.Num();
++    for (const TPair<FIntVector, int32>& Pair : NativeChoices)
++    {
++        const int32* Found = Stacked.Find(Pair.Key);
++        bGroundKept &= Found && *Found == Pair.Value;
++    }
++    TestTrue(TEXT("The ground row's variants are the Native fence's, tile for tile"), bGroundKept);
++
++    // Fence-top tubes ride the stacked top.
++    const double Raise = Underpass.TubeFenceTopRaiseCm;
++    TestTrue(TEXT("Fence-top tubes at base + 250 + raise"), AllNear(FenceTopTubeZs(*Structure), BaseCm + 250.0 + Raise, 0.5));
++
++    // Deterministic: a rebuild is identical, component for component.
++    const TArray<FBuiltLayer> First = SnapshotBuild(*Structure);
++    TestTrue(TEXT("Rebuilds"), Structure->MaterializeStructure());
++    FString Why;
++    TestTrue(FString::Printf(TEXT("A rebuild is identical (%s)"), *Why), SameBuild(First, SnapshotBuild(*Structure), Why));
++
++    // A taller stack keeps rows 0..2's choices (each row's stream is its own).
++    Underpass.FenceHeightCm = 350.0;
++    TestTrue(TEXT("Builds a 350 cm stack"), Structure->MaterializeStructure());
++    const TMap<FIntVector, int32> Taller = StackChoices(ReadFence(*Structure), BaseCm, EngineShapeCm);
++    bool bLowerKept = Stacked.Num() == Panels.Num();
++    for (const TPair<FIntVector, int32>& Pair : Stacked)
++    {
++        const int32* Found = Taller.Find(Pair.Key);
++        bLowerKept &= Found && *Found == Pair.Value;
++    }
++    TestTrue(TEXT("Raising the stack keeps every lower row's variants"), bLowerKept);
++    TestEqual(TEXT("350 cm: four rows"), Structure->UnderpassFenceRowCount, 4);
++
++    // Control: a new seed re-rolls (so the comparisons above can fail).
++    Underpass.FenceHeightCm = 250.0;
++    Underpass.FenceSeed = 7;
++    TestTrue(TEXT("Builds reseeded"), Structure->MaterializeStructure());
++    TestFalse(TEXT("Control: a new seed changes the choices"),
++        StackChoices(ReadFence(*Structure), BaseCm, EngineShapeCm).OrderIndependentCompareEqual(Stacked));
++    Underpass.FenceSeed = 0;
++
++    // Control: D no longer ground-only does reach the upper rows.
++    Underpass.FenceVariantD.bGroundRowOnly = false;
++    TestTrue(TEXT("Builds with D allowed above"), Structure->MaterializeStructure());
++    int32 UpperDoorsAllowed = 0;
++    for (const FFenceRead& Panel : ReadFence(*Structure))
++    {
++        UpperDoorsAllowed += Panel.Variant == 3 && Panel.Box.Min.Z > BaseCm + 1.0 ? 1 : 0;
++    }
++    TestTrue(FString::Printf(TEXT("Control: D allowed above is drawn above (%d)"), UpperDoorsAllowed), UpperDoorsAllowed > 0);
++    Underpass.FenceVariantD.bGroundRowOnly = true;
++
++    // Whole rows: 240 / 100 rounds to 2 rows, top 200, none scaled; the tubes
++    // follow the built top, not FenceHeightCm.
++    Underpass.FenceHeightCm = 240.0;
++    Underpass.bFenceStackCutTopRow = false;
++    TestTrue(TEXT("Builds whole rows"), Structure->MaterializeStructure());
++    const TArray<FFenceRead> WholePanels = ReadFence(*Structure);
++    bool bUnscaled = WholePanels.Num() == NativePanels.Num() * 2;
++    for (const FFenceRead& Panel : WholePanels)
++    {
++        bUnscaled &= FMath::IsNearlyEqual(Panel.Transform.GetScale3D().Z, 1.0, 1.0e-4) && Panel.Box.Max.Z < BaseCm + 200.1;
++    }
++    TestTrue(TEXT("Whole 240: two unscaled rows, nothing above 200"), bUnscaled);
++    TestTrue(TEXT("Whole 240: fence-top tubes at base + 200 + raise"),
++        AllNear(FenceTopTubeZs(*Structure), BaseCm + 200.0 + Raise, 0.5));
++    TestFalse(TEXT("Control: not at FenceHeightCm"), AllNear(FenceTopTubeZs(*Structure), BaseCm + 240.0 + Raise, 0.5));
++
++    // With the fence off the tubes fall back to FenceHeightCm (no bay to measure).
++    Underpass.bFence = false;
++    TestTrue(TEXT("Builds with the fence off"), Structure->MaterializeStructure());
++    TestTrue(TEXT("Fence off, Stack: fence-top tubes at base + FenceHeightCm + raise"),
++        AllNear(FenceTopTubeZs(*Structure), BaseCm + 240.0 + Raise, 0.5));
++    TestTrue(TEXT("Fence off: no stack record"), Structure->UnderpassFenceRowCount == 0);
++    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
++    World->DestroyWorld(false);
++    return true;
++}
++
+ #endif
