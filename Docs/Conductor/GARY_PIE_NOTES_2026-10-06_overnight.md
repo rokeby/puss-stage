@@ -37,3 +37,16 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - 01:47 **P03 floor STOPPED (nothing saved)**: Ground off also blanked the Structure **Fixtures** and **Gridiron** layers. Parked;
   P02's floor step has the same flaw. Needs a different method (hide only the board layers, or bury them).
 - 01:50 Build started with 7 held patches (LE, HD, RW, SD, TU, BG, MV).
+
+## Gary ~02:00 answers
+- **P04 back curtain:** restore the fall lead to **5 s, always** (re-fit after any retime).
+- **Shadow-play spot:** after each Scene's curtain falls into the boy-cat-shadow (I1–I5), a large central spot lights the curtain,
+  soft but defined edge — the placeholder for the shadow play — held until the next cue (lights down, curtain falls to the next P).
+  Tool: shadow_play_spot.py (per Interaction; inner_ratio raised for a more defined edge).
+- **Curtain pictures:** UV-mapped, printed on the cloth (squashed by the pleats).
+- **P05 blue-sky curtains:** cascade starts at P05's beginning and moves with the walk but completes in HALF the walk time; full fence height, no taller.
+- **P01 "flickers nicely" beam:** the gobo one — bay 20's orange BEAM_R (as assumed), "maybe".
+- **Bunched drop:** questions the 3–4 day estimate — re-estimating the bake alone (overnight bake).
+- **Bulb + housing:** Gary makes them in Fuser tomorrow as separate assets — prompts to be written.
+- **Research:** a better curtain fabric (effective velvet that responds to the lighting, or another textile); animated gobos for
+  the shadow puppetry from iPhone videos of live puppets (cheap stop-motion gobos in front of lights).
