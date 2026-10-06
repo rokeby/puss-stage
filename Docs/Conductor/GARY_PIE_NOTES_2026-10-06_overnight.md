@@ -105,3 +105,10 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - **S3 sackcloth decisions** (Gary): **1.8 × 1.8 m**; motion "try option 1" = drape once in Blender per figure, skinned to the body,
   fixed folds (live drapes off, reversible — they cost ~13 ms); **old grey worn sack**; export of the six posed bodies approved.
   Plan: Docs/Conductor/S3_SACKCLOTH_PLAN_2026-10-06.md (CC0 Poly Haven hessian_230 texture; download to be confirmed).
+- ~12:50 **P03 boards off + walnut** (P03FLOOR-20261006-124934): last night's "fixtures/gridiron wiped" stop was a FALSE ALARM
+  (cached component bounds read as zero right after a rebuild; instance counts were identical). Readback now uses instance transforms.
+  Stage front + forestage go with the boards (Gary's "remove everything"). Fixtures/girders/wings unchanged; tests green.
+- ~12:50 **P03 housings re-dropped** (20 cm, 14 Rig Slash, from the live rig). The material-only walnut swap on P02 (4 slabs) stays; P02 boards wait for its straighten.
+- **S3 marble**: Gary — download both CC0 marbles (ambientCG Marble012 + Marble021, in DerivedAssets/S3Marble) and keep the grain
+  **fixed to the walls** through the rise. Tool being extended (import, A/B switch, mirrored-tile normals).
+- Held C++ patch GB (Ground.bDrawBoards: boards-only off, keeps forestage/stage front) is available if a passage should keep its stage front.
