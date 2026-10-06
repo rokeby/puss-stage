@@ -1,0 +1,687 @@
+{
+ "run": "P02FLOOR-20261006-160506",
+ "state": "applied",
+ "written": "2026-10-06T16:05:06",
+ "ground": {
+  "enabled": true,
+  "floor_height_cm": 0.0,
+  "board_thickness_cm": 5.0,
+  "apron_cm": 400.0,
+  "cut_chariot_slots": true,
+  "steel_grooves": true,
+  "understage": true,
+  "understage_depth_cm": 250.0
+ },
+ "slabs": {
+  "Passage 02 - Floor Near": {
+   "xf": {
+    "loc": [
+     5996.18,
+     95225.6,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     270.7546,
+     712.5424,
+     0.01
+    ]
+   },
+   "overrides": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ]
+  },
+  "Passage 02 - Floor Left": {
+   "xf": {
+    "loc": [
+     16774.87,
+     54867.19,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     441.7878,
+     276.336,
+     0.01
+    ]
+   },
+   "overrides": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ]
+  },
+  "Passage 02 - Floor Right": {
+   "xf": {
+    "loc": [
+     42141.55,
+     81530.42,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     441.7878,
+     412.7064,
+     0.01
+    ]
+   },
+   "overrides": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ]
+  },
+  "Passage 02 - Floor Far": {
+   "xf": {
+    "loc": [
+     31094.52,
+     61936.41,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     331.7478,
+     23.5,
+     0.01
+    ]
+   },
+   "overrides": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ]
+  }
+ },
+ "layers": {
+  "StructureFixtures|InfinityStage.Structure,InfinityStage.Structure.Fixtures": [
+   {
+    "count": 132,
+    "b": [
+     3227.7060525317875,
+     15068.777066699144,
+     -16090.625381350394,
+     -4468.637312190548,
+     61.17755901546616,
+     1905.4207233324225
+    ],
+    "name": "StructureFixtures_1"
+   }
+  ],
+  "StructureForestage|InfinityStage.Structure,InfinityStage.Structure.Portal": [
+   {
+    "count": 105,
+    "b": [
+     4939.388574356948,
+     7301.4087410432785,
+     -16437.90299132534,
+     -14027.611139601058,
+     -2.5,
+     -2.5
+    ],
+    "name": "StructureForestage_1"
+   }
+  ],
+  "StructureGridiron|InfinityStage.Structure,InfinityStage.Structure.Gridiron": [
+   {
+    "count": 67,
+    "b": [
+     2209.1423103818115,
+     15694.185548996415,
+     -16838.657547118142,
+     -3528.0361071513353,
+     1150.0,
+     1240.0
+    ],
+    "name": "StructureGridiron_1"
+   }
+  ],
+  "StructureGrooves|InfinityStage.Structure,InfinityStage.Structure.Grooves": [
+   {
+    "count": 138,
+    "b": [
+     2384.652977991487,
+     15396.699696100399,
+     -16564.94428231609,
+     -3739.168723905271,
+     -4.75,
+     -2.25
+    ],
+    "name": "StructureGrooves_1"
+   }
+  ],
+  "StructureGround|InfinityStage.Structure,InfinityStage.Structure.Ground": [
+   {
+    "count": 6944,
+    "b": [
+     2000.6156084129916,
+     16244.360182520502,
+     -17168.049043945226,
+     -3123.439337437707,
+     -2.5,
+     -2.5
+    ],
+    "name": "StructureGround_1"
+   }
+  ],
+  "StructureLines|InfinityStage.Structure,InfinityStage.Structure.Lines": [
+   {
+    "count": 33,
+    "b": [
+     4017.0368630335197,
+     13911.113974831795,
+     -15262.413930525985,
+     -5615.534841563309,
+     1185.879038646542,
+     1187.7242873036398
+    ],
+    "name": "StructureLines_1"
+   }
+  ],
+  "StructurePortal|InfinityStage.Structure,InfinityStage.Structure.Portal": [
+   {
+    "count": 7,
+    "b": [
+     4124.6327885079145,
+     8273.33356343006,
+     -17163.55974267682,
+     -12933.052435069148,
+     12.5,
+     1240.0
+    ],
+    "name": "StructurePortal_1"
+   }
+  ],
+  "StructurePortalLines|InfinityStage.Structure,InfinityStage.Structure.Portal": [
+   {
+    "count": 5,
+    "b": [
+     5453.467506447957,
+     6847.1896252455,
+     -15875.09041908717,
+     -14452.885344852626,
+     1190.0,
+     1190.0
+    ],
+    "name": "StructurePortalLines_1"
+   }
+  ],
+  "StructureStageFront|InfinityStage.Structure,InfinityStage.Structure.Portal": [
+   {
+    "count": 1418,
+    "b": [
+     2211.536793449279,
+     9340.268862539462,
+     -19345.60298653087,
+     -12202.325907387094,
+     -122.5,
+     -11.680000000000007
+    ],
+    "name": "StructureStageFront_1"
+   }
+  ],
+  "StructureUnderpassColumns|InfinityStage.Structure,InfinityStage.Structure.Underpass.Columns": [
+   {
+    "count": 24,
+    "b": [
+     2074.622461096428,
+     15980.621541263343,
+     -17049.03418843727,
+     -3324.3472405508464,
+     1060.0,
+     1060.0
+    ],
+    "name": "StructureUnderpassColumns_1"
+   }
+  ],
+  "StructureUnderpassDeck|InfinityStage.Structure,InfinityStage.Structure.Underpass.Deck": [
+   {
+    "count": 22,
+    "b": [
+     4457.762247769125,
+     13311.72489531461,
+     -14699.539399552763,
+     -6088.7286864217795,
+     2015.0,
+     2015.0
+    ],
+    "name": "StructureUnderpassDeck_1"
+   }
+  ],
+  "StructureUnderpassKnees|InfinityStage.Structure,InfinityStage.Structure.Underpass.Knees": [
+   {
+    "count": 44,
+    "b": [
+     2121.731576792171,
+     15912.968680988843,
+     -16974.924315827622,
+     -3361.1123923436135,
+     1940.0,
+     1940.0
+    ],
+    "name": "StructureUnderpassKnees_1"
+   }
+  ],
+  "StructureUnderpassPiers|InfinityStage.Structure,InfinityStage.Structure.Underpass.Piers": [
+   {
+    "count": 24,
+    "b": [
+     2074.6224432711115,
+     15980.621538166277,
+     -17049.034181613228,
+     -3324.3472196110633,
+     60.0,
+     60.0
+    ],
+    "name": "StructureUnderpassPiers_1"
+   }
+  ],
+  "StructureUnderpassTubes|InfinityStage.Structure,InfinityStage.Structure.Underpass.Tubes": [
+   {
+    "count": 217,
+    "b": [
+     2105.69855333525,
+     15820.752178822755,
+     -16968.959607150937,
+     -3433.264837686721,
+     620.3526604811296,
+     1970.0
+    ],
+    "name": "StructureUnderpassTubes_1"
+   }
+  ],
+  "StructureUnderpassTubesBlink|InfinityStage.Structure,InfinityStage.Structure.Underpass.Tubes": [
+   {
+    "count": 45,
+    "b": [
+     2287.6712860350844,
+     15467.793375514795,
+     -16608.07888401318,
+     -3602.643329431555,
+     620.3526604811296,
+     1970.0
+    ],
+    "name": "StructureUnderpassTubesBlink_2"
+   }
+  ],
+  "StructureUnderstage|InfinityStage.Structure,InfinityStage.Structure.Understage": [
+   {
+    "count": 12,
+    "b": [
+     4461.5472032081325,
+     13500.518590235435,
+     -14700.06910520485,
+     -5913.367268559763,
+     -260.0,
+     -260.0
+    ],
+    "name": "StructureUnderstage_1"
+   }
+  ],
+  "StructureUnderpassFenceA|InfinityStage.Structure,InfinityStage.Structure.Underpass.Fence,InfinityStage.Structure.Underpass.Fence.A": [
+   {
+    "count": 88,
+    "b": [
+     2742.1107406039882,
+     15748.496682236557,
+     -16355.644519535914,
+     -3502.402038140681,
+     -3.2584136988589307e-07,
+     302.6763299147235
+    ],
+    "name": "StructureUnderpassFenceA_1"
+   }
+  ],
+  "StructureUnderpassFenceOverlayB|InfinityStage.Structure,InfinityStage.Structure.Underpass.Fence,InfinityStage.Structure.Underpass.FenceOverlay.B": [
+   {
+    "count": 16,
+    "b": [
+     2856.301817852789,
+     14264.13158713185,
+     -16355.644519535914,
+     -5034.613582425083,
+     -3.2584136988589307e-07,
+     302.6763299147235
+    ],
+    "name": "StructureUnderpassFenceOverlayB_1"
+   }
+  ],
+  "StructureUnderpassFenceOverlayC|InfinityStage.Structure,InfinityStage.Structure.Underpass.Fence,InfinityStage.Structure.Underpass.FenceOverlay.C": [
+   {
+    "count": 24,
+    "b": [
+     2273.4431914184597,
+     15522.777548055554,
+     -16564.265456523226,
+     -3502.402038140681,
+     -3.2584136988589307e-07,
+     302.6763299147235
+    ],
+    "name": "StructureUnderpassFenceOverlayC_1"
+   }
+  ],
+  "StructureUnderpassFenceB|InfinityStage.Structure,InfinityStage.Structure.Underpass.Fence,InfinityStage.Structure.Underpass.Fence.B": [
+   {
+    "count": 16,
+    "b": [
+     2856.301817852789,
+     14264.13158713185,
+     -16355.644519535914,
+     -5034.613582425083,
+     -3.2584136988589307e-07,
+     302.6763299147235
+    ],
+    "name": "StructureUnderpassFenceB_1"
+   }
+  ],
+  "StructureUnderpassFenceC|InfinityStage.Structure,InfinityStage.Structure.Underpass.Fence,InfinityStage.Structure.Underpass.Fence.C": [
+   {
+    "count": 24,
+    "b": [
+     2273.4431914184597,
+     15522.777548055554,
+     -16564.265456523226,
+     -3502.402038140681,
+     -3.2584136988589307e-07,
+     302.6763299147235
+    ],
+    "name": "StructureUnderpassFenceC_1"
+   }
+  ],
+  "StructureUnderpassFenceD|InfinityStage.Structure,InfinityStage.Structure.Underpass.Fence,InfinityStage.Structure.Underpass.Fence.D": [
+   {
+    "count": 2,
+    "b": [
+     11199.467308320101,
+     11537.334272724587,
+     -9550.132947357011,
+     -9220.853822129291,
+     -3.2584136988589307e-07,
+     -3.2584136988589307e-07
+    ],
+    "name": "StructureUnderpassFenceD_1"
+   }
+  ]
+ },
+ "wings": {
+  "P|Route": 0.0,
+  "P|InfinityManaged_0336592F_0": 0.0,
+  "P|InfinityManaged_0C8F2356_0": 750.0,
+  "P|InfinityManaged_0CB1E0E3_0": 0.0,
+  "P|InfinityManaged_1F58E540_0": 750.0,
+  "P|InfinityManaged_2069F15D_0": 0.0,
+  "P|InfinityManaged_24C8E753_0": 0.0,
+  "P|InfinityManaged_387FC200_0": 750.0,
+  "P|InfinityManaged_3FDBCD34_0": 0.0,
+  "P|InfinityManaged_43A6D40B_0": 0.0,
+  "P|InfinityManaged_4806E683_0": 0.0,
+  "P|InfinityManaged_4B017533_0": 0.0,
+  "P|InfinityManaged_4C1CCE2E_0": 0.0,
+  "P|InfinityManaged_50A199EF_0": 0.0,
+  "P|InfinityManaged_50B5A8B4_0": 0.0,
+  "P|InfinityManaged_50FB1FAE_0": 0.0,
+  "P|InfinityManaged_5ADA8F9F_0": 0.0,
+  "P|InfinityManaged_5FA3DA42_0": 0.0,
+  "P|InfinityManaged_698F36C1_0": 0.0,
+  "P|InfinityManaged_9952293D_0": 0.0,
+  "P|InfinityManaged_9DB562C2_0": 0.0,
+  "P|InfinityManaged_A74AE996_0": 0.0,
+  "P|InfinityManaged_A88E838B_0": 0.0,
+  "P|InfinityManaged_AAFB9FAC_0": 0.0,
+  "P|InfinityManaged_B32E6F57_0": 0.0,
+  "P|InfinityManaged_B374E916_0": 0.0,
+  "P|InfinityManaged_B549A3C5_0": 0.0,
+  "P|InfinityManaged_C17B8E57_0": 750.0,
+  "P|InfinityManaged_C74711EB_0": 0.0,
+  "P|InfinityManaged_D0445AA5_0": 0.0,
+  "P|InfinityManaged_D1FEAAB8_0": 750.0,
+  "P|InfinityManaged_E0B9AF97_0": 0.0,
+  "P|InfinityManaged_E850B9B5_0": 0.0,
+  "P|InfinityManaged_ED60B26C_0": 749.9999888241291,
+  "P|InfinityManaged_EF3E165B_0": 0.0,
+  "P|InfinityManaged_F545EBE5_0": 749.99999794818,
+  "P|InfinityManaged_F6D98DF8_0": 749.9999776482582,
+  "P|InfinityManaged_FB43C50A_0": 0.0,
+  "A|P02 SCORE B23 P02_MYSTIC PRACTICAL_R_BODY": 103.0,
+  "A|P02 SCORE B23 P02_MYSTIC PRACTICAL_R": -13.0,
+  "A|P02 SCORE B23 P02_MYSTIC PRACTICAL_L_BODY": 83.23124694824219,
+  "A|P02 SCORE B23 P02_MYSTIC PRACTICAL_L": 22.0,
+  "A|P02 SCORE B23 P02_MYSTIC LOW_SIDE_R_FILL": -68.0,
+  "A|P02 SCORE B23 P02_MYSTIC LOW_SIDE_L_KEY": -28.0,
+  "A|P02 SCORE B23 P02_MYSTIC TOP_R": 801.1928275893733,
+  "A|P02 SCORE B23 P02_MYSTIC TOP_L": 803.0298655736733,
+  "A|P02 SCORE B22 GAP PRACTICAL_DEAD_BODY": 103.0,
+  "A|P02 SCORE B22 GAP PRACTICAL_DEAD": -13.0,
+  "A|P02 SCORE B22 GAP PRACTICAL_GLIMMER_BODY": 86.58499755859373,
+  "A|P02 SCORE B22 GAP PRACTICAL_GLIMMER": 12.0,
+  "A|P02 SCORE B21 P02_MYSTIC PRACTICAL_R_BODY": 103.0,
+  "A|P02 SCORE B21 P02_MYSTIC PRACTICAL_R": -13.0,
+  "A|P02 SCORE B21 P02_MYSTIC PRACTICAL_L_BODY": 83.23124694824219,
+  "A|P02 SCORE B21 P02_MYSTIC PRACTICAL_L": 22.0,
+  "A|P02 SCORE B21 P02_MYSTIC LOW_SIDE_R_FILL": -68.0,
+  "A|P02 SCORE B21 P02_MYSTIC LOW_SIDE_L_KEY": -28.0,
+  "A|P02 SCORE B21 P02_MYSTIC TOP_R": 802.5155375100858,
+  "A|P02 SCORE B21 P02_MYSTIC TOP_L": 801.027334745894,
+  "A|P02 SCORE B20 P02_MYSTIC PRACTICAL_R_BODY": 102.9999984651804,
+  "A|P02 SCORE B20 P02_MYSTIC PRACTICAL_R": -13.000001713633537,
+  "A|P02 SCORE B20 P02_MYSTIC PRACTICAL_L_BODY": 83.23124570799996,
+  "A|P02 SCORE B20 P02_MYSTIC PRACTICAL_L": 21.99999776482582,
+  "A|P02 SCORE B20 P02_MYSTIC LOW_SIDE_R_FILL": -68.00000089406967,
+  "A|P02 SCORE B20 P02_MYSTIC LOW_SIDE_L_KEY": -28.00000149011612,
+  "A|P02 SCORE B20 P02_MYSTIC TOP_R": 801.3618628053446,
+  "A|P02 SCORE B20 P02_MYSTIC TOP_L": 802.0405314111317,
+  "A|P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B19 P02_FAILING_STAGE LOW_SIDE_L_KEY": 2.0,
+  "A|P02 Wing 019 Blink Gobo": 1781.3970360904698,
+  "A|P02 Wing 019 Blink Spot": 1640.1784768463986,
+  "A|P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 114.00000254809856,
+  "A|P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -2.999997206032276,
+  "A|P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963565542472,
+  "A|P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_CLAMP": 17.00000324100256,
+  "A|P02 SCORE B18 P02_FAILING_STAGE LOW_SIDE_L_KEY": 2.000002905726433,
+  "A|P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 113.99999660253525,
+  "A|P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.0000037252902985,
+  "A|P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93962809623383,
+  "A|P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_CLAMP": 16.999995678663254,
+  "A|P02 SCORE B17 P02_FAILING_STAGE LOW_SIDE_R_FILL": 21.999995529651642,
+  "A|P02 SCORE B17 P02_FAILING_STAGE LOW_SIDE_L_KEY": 1.9999961256980896,
+  "A|P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 113.99999968812335,
+  "A|P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.000000341970008,
+  "A|P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963201925143,
+  "A|P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_CLAMP": 16.99999960331479,
+  "A|P02 SCORE B16 P02_FAILING_STAGE LOW_SIDE_R_FILL": 21.99999958963599,
+  "A|P02 SCORE B16 P02_FAILING_STAGE LOW_SIDE_L_KEY": 1.9999996443511918,
+  "A|P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B15 P02_FAILING_STAGE LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B15 P02_FAILING_STAGE LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B15 P02_FAILING_STAGE TOP_L": 802.7021673867264,
+  "A|P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B14 P02_FAILING_STAGE LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B14 P02_FAILING_STAGE LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B14 P02_FAILING_STAGE TOP_R": 801.270466919495,
+  "A|P02 SCORE B14 P02_FAILING_STAGE TOP_L": 801.270466919495,
+  "A|P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B13 P02_FAILING_STAGE BEAM_R": 12.0,
+  "A|P02 SCORE B13 P02_FAILING_STAGE LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B13 P02_FAILING_STAGE LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B13 P02_FAILING_STAGE TOP_R": 807.2733122060295,
+  "A|P02 SCORE B13 P02_FAILING_STAGE TOP_L": 805.7914320549162,
+  "A|P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B12 P02_FAILING_STAGE BEAM_R": 12.0,
+  "A|P02 SCORE B12 P02_FAILING_STAGE LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B12 P02_FAILING_STAGE LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B12 P02_FAILING_STAGE TOP_R": 808.9026071523585,
+  "A|P02 SCORE B12 P02_FAILING_STAGE TOP_L": 806.5618499832246,
+  "A|P02 SCORE B11 THEATRICAL PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B11 THEATRICAL PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B11 THEATRICAL PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B11 THEATRICAL PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B11 THEATRICAL BEAM_R": 12.0,
+  "A|P02 SCORE B11 THEATRICAL LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B11 THEATRICAL LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B11 THEATRICAL TOP_R": 801.8183842880658,
+  "A|P02 SCORE B11 THEATRICAL TOP_L": 802.9152211497203,
+  "A|P02 SCORE B10 P02_LURID_POP PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B10 P02_LURID_POP PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B10 P02_LURID_POP PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B10 P02_LURID_POP PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B10 P02_LURID_POP BEAM_R": 12.0,
+  "A|P02 SCORE B10 P02_LURID_POP LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B10 P02_LURID_POP LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B10 P02_LURID_POP TOP_R": 807.2731414528737,
+  "A|P02 SCORE B10 P02_LURID_POP TOP_L": 807.3842100797065,
+  "A|P02 SCORE B09 THEATRICAL PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B09 THEATRICAL PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B09 THEATRICAL PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B09 THEATRICAL PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B09 THEATRICAL BEAM_R": 12.0,
+  "A|P02 SCORE B09 THEATRICAL LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B09 THEATRICAL LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B09 THEATRICAL TOP_R": 801.5794845551095,
+  "A|P02 SCORE B09 THEATRICAL TOP_L": 803.3076811626488,
+  "A|P02 SCORE B08 P02_LURID_POP PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B08 P02_LURID_POP PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B08 P02_LURID_POP PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B08 P02_LURID_POP PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B08 P02_LURID_POP BEAM_R": 12.0,
+  "A|P02 SCORE B08 P02_LURID_POP LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B08 P02_LURID_POP LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B08 P02_LURID_POP TOP_R": 807.2646976983879,
+  "A|P02 SCORE B08 P02_LURID_POP TOP_L": 807.4078412380479,
+  "A|P02 SCORE B07 THEATRICAL PRACTICAL_BULB_DEAD_BODY": 114.00000339746475,
+  "A|P02 SCORE B07 THEATRICAL PRACTICAL_BULB_DEAD": -2.9999962747097015,
+  "A|P02 SCORE B07 THEATRICAL PRACTICAL_CLAMP_BODY": 144.93963673530914,
+  "A|P02 SCORE B07 THEATRICAL PRACTICAL_CLAMP": 17.000004321336746,
+  "A|P02 SCORE B07 THEATRICAL BEAM_R": 12.000004172325134,
+  "A|P02 SCORE B07 THEATRICAL LOW_SIDE_R_FILL": 22.000004470348358,
+  "A|P02 SCORE B07 THEATRICAL LOW_SIDE_L_KEY": 2.0000038743019104,
+  "A|P02 SCORE B07 THEATRICAL TOP_R": 805.2608107790568,
+  "A|P02 SCORE B07 THEATRICAL TOP_L": 804.722181842387,
+  "A|P02 SCORE B06 GAP PRACTICAL_DEAD_BODY": 103.0000030696392,
+  "A|P02 SCORE B06 GAP PRACTICAL_DEAD": -12.999996572732925,
+  "A|P02 SCORE B06 GAP PRACTICAL_GLIMMER_BODY": 86.58500013902776,
+  "A|P02 SCORE B06 GAP PRACTICAL_GLIMMER": 12.000004172325134,
+  "A|P02 SCORE B05 THEATRICAL PRACTICAL_BULB_DEAD_BODY": 114.00000169873238,
+  "A|P02 SCORE B05 THEATRICAL PRACTICAL_BULB_DEAD": -2.9999981373548508,
+  "A|P02 SCORE B05 THEATRICAL PRACTICAL_CLAMP_BODY": 144.9396345755403,
+  "A|P02 SCORE B05 THEATRICAL PRACTICAL_CLAMP": 17.000002160668373,
+  "A|P02 SCORE B05 THEATRICAL BEAM_R": 12.000002086162567,
+  "A|P02 SCORE B05 THEATRICAL LOW_SIDE_R_FILL": 22.00000223517418,
+  "A|P02 SCORE B05 THEATRICAL LOW_SIDE_L_KEY": 2.000001937150955,
+  "A|P02 SCORE B05 THEATRICAL TOP_R": 805.5629670808912,
+  "A|P02 SCORE B05 THEATRICAL TOP_L": 804.8369905220552,
+  "A|P02 SCORE B04 P02_LURID_POP PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B04 P02_LURID_POP PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B04 P02_LURID_POP PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B04 P02_LURID_POP PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B04 P02_LURID_POP BEAM_R": 12.0,
+  "A|P02 SCORE B04 P02_LURID_POP LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B04 P02_LURID_POP LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B04 P02_LURID_POP TOP_R": 809.7114800371569,
+  "A|P02 SCORE B04 P02_LURID_POP TOP_L": 808.0642876893005,
+  "A|P02 SCORE B03 THEATRICAL PRACTICAL_BULB_DEAD_BODY": 114.00000254809856,
+  "A|P02 SCORE B03 THEATRICAL PRACTICAL_BULB_DEAD": -2.999997206032276,
+  "A|P02 SCORE B03 THEATRICAL PRACTICAL_CLAMP_BODY": 144.93963565542472,
+  "A|P02 SCORE B03 THEATRICAL PRACTICAL_CLAMP": 17.00000324100256,
+  "A|P02 SCORE B03 THEATRICAL BEAM_R": 12.00000312924385,
+  "A|P02 SCORE B03 THEATRICAL LOW_SIDE_R_FILL": 22.00000335276127,
+  "A|P02 SCORE B03 THEATRICAL LOW_SIDE_L_KEY": 2.000002905726433,
+  "A|P02 SCORE B03 THEATRICAL TOP_R": 804.001021982566,
+  "A|P02 SCORE B03 THEATRICAL TOP_L": 803.8090716899997,
+  "A|P02 SCORE B02 P02_LURID_POP PRACTICAL_BULB_DEAD_BODY": 114.0,
+  "A|P02 SCORE B02 P02_LURID_POP PRACTICAL_BULB_DEAD": -3.0,
+  "A|P02 SCORE B02 P02_LURID_POP PRACTICAL_CLAMP_BODY": 144.93963241577148,
+  "A|P02 SCORE B02 P02_LURID_POP PRACTICAL_CLAMP": 17.0,
+  "A|P02 SCORE B02 P02_LURID_POP BEAM_R": 12.0,
+  "A|P02 SCORE B02 P02_LURID_POP LOW_SIDE_R_FILL": 22.0,
+  "A|P02 SCORE B02 P02_LURID_POP LOW_SIDE_L_KEY": 2.0,
+  "A|P02 SCORE B02 P02_LURID_POP TOP_R": 810.3267079548025,
+  "A|P02 SCORE B02 P02_LURID_POP TOP_L": 808.6656090819986,
+  "A|P02 SCORE B01 THEATRICAL PRACTICAL_BULB_DEAD_BODY": 114.00000220304355,
+  "A|P02 SCORE B01 THEATRICAL PRACTICAL_BULB_DEAD": -2.999997584382072,
+  "A|P02 SCORE B01 THEATRICAL PRACTICAL_CLAMP_BODY": 144.93963521672168,
+  "A|P02 SCORE B01 THEATRICAL PRACTICAL_CLAMP": 17.000002802116796,
+  "A|P02 SCORE B01 THEATRICAL BEAM_R": 12.00000270549208,
+  "A|P02 SCORE B01 THEATRICAL LOW_SIDE_R_FILL": 22.000002898741513,
+  "A|P02 SCORE B01 THEATRICAL LOW_SIDE_L_KEY": 2.000002512242645,
+  "A|P02 SCORE B01 THEATRICAL TOP_R": 801.3721867471054,
+  "A|P02 SCORE B01 THEATRICAL TOP_L": 804.023397231658
+ },
+ "board_top": 0.0,
+ "coverage": {
+  "by_source": {
+   "route": {
+    "Passage 02 - Floor Near": 123,
+    "PIT": 13
+   },
+   "StructureForestage": {
+    "Passage 02 - Floor Near": 105
+   },
+   "StructureGrooves": {
+    "Passage 02 - Floor Near": 138
+   },
+   "StructureGround": {
+    "Passage 02 - Floor Near": 6944
+   }
+  },
+  "pit": 13,
+  "gaps": 0,
+  "gap_points": []
+ },
+ "pit": {
+  "x0": 500.01558249296795,
+  "x1": 11504.004045545567,
+  "half_y": 1174.9934953360787,
+  "near": "Passage 02 - Floor Near"
+ },
+ "applied": "2026-10-06T16:05:07",
+ "backup": "E:\\PussStage\\Backups\\PreP02Floor-P02FLOOR-20261006-160506",
+ "after": {
+  "ground": {
+   "enabled": false,
+   "floor_height_cm": 0.0,
+   "board_thickness_cm": 5.0,
+   "apron_cm": 400.0,
+   "cut_chariot_slots": true,
+   "steel_grooves": true,
+   "understage": true,
+   "understage_depth_cm": 250.0
+  }
+ }
+}
