@@ -1,11 +1,5 @@
 {
  "dry": false,
- "params": {
-  "variants": [
-   "base",
-   "A",
-   "D"
-  ]
- },
+ "params": {},
  "prepare_record": null
 }

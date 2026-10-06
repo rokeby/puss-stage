@@ -1900,8 +1900,10 @@ def make_editor_adapter(unreal):
 
     def build_noise(p):
         mat = create_material(MAT_NOISE)
-        mat.set_editor_property("material_domain", unreal.MaterialDomain.MD_VOLUME)
+        # blend BEFORE domain: Volume + the default Opaque blend logs "Failed to compile" for that transient state
+        # (measured 6 Oct, beamtex_b_probe2.py: final shader identical either way), which the compile gate caught
         mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_ADDITIVE)
+        mat.set_editor_property("material_domain", unreal.MaterialDomain.MD_VOLUME)
         # not UNLIT: the non-Substrate voxeliser reads Extinction from SubsurfaceColor.r only when the shading model
         # is not unlit (VolumetricFogVoxelization.usf:36-38)
         mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_DEFAULT_LIT)
