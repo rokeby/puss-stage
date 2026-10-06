@@ -105,6 +105,23 @@ FRandomStream MakeFenceStream(const FGuid& Station, const int32 SideKey, const i
     return FRandomStream(static_cast<int32>(Hash));
 }
 
+/** A stacked fence row's stream. Row 0 is exactly MakeFenceStream, so stacking
+ * never re-rolls the ground row; each row above mixes its row index in, one
+ * combine per statement. */
+FRandomStream MakeFenceRowStream(const FGuid& Station, const int32 SideKey, const int32 TileIndex, const int32 Row, const int32 Seed)
+{
+    if (Row == 0)
+    {
+        return MakeFenceStream(Station, SideKey, TileIndex, Seed);
+    }
+    uint32 Hash = HashCombineFast(GetTypeHash(Station), ::GetTypeHash(static_cast<uint32>(ETimberPart::UnderpassFence)));
+    Hash = HashCombineFast(Hash, ::GetTypeHash(SideKey));
+    Hash = HashCombineFast(Hash, ::GetTypeHash(TileIndex));
+    Hash = HashCombineFast(Hash, ::GetTypeHash(Seed));
+    Hash = HashCombineFast(Hash, ::GetTypeHash(Row));
+    return FRandomStream(static_cast<int32>(Hash));
+}
+
 struct FFixturePlacement
 {
     FGuid AttachmentGuid;
@@ -456,6 +473,8 @@ void AInfinityStageStructureActor::ClearStructure()
     TubeBlinkLit.Reset();
     UnderpassFencePanelCount = 0;
     UnderpassFenceOverlayCount = 0;
+    UnderpassFenceRowCount = 0;
+    UnderpassFenceStackTopCm = 0.0;
     StationSignature = 0;
     MarkPackageDirty();
 }
@@ -565,6 +584,29 @@ bool AInfinityStageStructureActor::MaterializeStructure()
         UnderpassFenceMeshes.Add(Panel);
         UnderpassFenceOverlayMeshes.Add(LoadUnderpassMesh(bVariantOn && Panel != nullptr, Kind.OverlayMesh, TEXT("Underpass fence overlay")));
     }
+    // Stack mode: one plan for the fence and the fence-top tubes. The row is the
+    // tallest built bay (built = loaded and a finite weight above 0, exactly the
+    // fence's own rule). No built bay, or any other mode: the tubes read
+    // FenceHeightCm as they always have.
+    FInfinityStageFenceStackPlan FenceStack;
+    double FenceTopAboveBaseCm = FMath::Max(1.0, Underpass.FenceHeightCm);
+    if (Underpass.FenceHeightMode == EInfinityFenceHeightMode::Stack)
+    {
+        double FenceRowCm = 0.0;
+        for (int32 Variant = 0; Variant < FInfinityStageUnderpassSettings::FenceVariantCount; ++Variant)
+        {
+            const double Weight = Underpass.GetFenceVariant(Variant).Weight;
+            if (UnderpassFenceMeshes[Variant] && FMath::IsFinite(Weight) && Weight > 0.0)
+            {
+                FenceRowCm = FMath::Max(FenceRowCm, UnderpassFenceMeshes[Variant]->GetBoundingBox().GetSize().Z);
+            }
+        }
+        if (FenceRowCm > UE_KINDA_SMALL_NUMBER)
+        {
+            FenceStack = PlanFenceStack(Underpass.FenceHeightCm, FenceRowCm, Underpass.bFenceStackCutTopRow);
+            FenceTopAboveBaseCm = FenceStack.TopCm;
+        }
+    }
     if (!bMeshesLoaded)
     {
         return false;
@@ -643,7 +685,8 @@ bool AInfinityStageStructureActor::MaterializeStructure()
             BuildUnderpassTubes(
                 Stations,
                 UnderpassPart(UnderpassTubeMesh, Underpass.TubeMaterial, TEXT("Underpass tube")),
-                Underpass.bTubeLights ? LoadMaterial(Underpass.TubeLightFunctionMaterial, TEXT("Underpass tube light function")) : nullptr);
+                Underpass.bTubeLights ? LoadMaterial(Underpass.TubeLightFunctionMaterial, TEXT("Underpass tube light function")) : nullptr,
+                FenceTopAboveBaseCm);
         }
         if (Underpass.bFence)
         {
@@ -655,7 +698,7 @@ bool AInfinityStageStructureActor::MaterializeStructure()
                 FencePanels.Add(UnderpassPart(UnderpassFenceMeshes[Variant], Kind.Material, TEXT("Underpass fence panel")));
                 FenceOverlays.Add(UnderpassPart(UnderpassFenceOverlayMeshes[Variant], Kind.OverlayMaterial, TEXT("Underpass fence overlay")));
             }
-            BuildUnderpassFence(Stations, FencePanels, FenceOverlays);
+            BuildUnderpassFence(Stations, FencePanels, FenceOverlays, FenceStack);
         }
     }
     int32 MovingLights = 0;
@@ -746,10 +789,47 @@ UInstancedStaticMeshComponent* AInfinityStageStructureActor::CreateManagedCompon
     return Component;
 }
 
+FInfinityStageFenceStackPlan AInfinityStageStructureActor::PlanFenceStack(
+    const double IntendedCm, const double RowCm, const bool bCutTopRow)
+{
+    FInfinityStageFenceStackPlan Plan;
+    const double Row = FMath::Max(1.0, FMath::IsFinite(RowCm) ? RowCm : 1.0);
+    const double Intended = FMath::Max(1.0, FMath::IsFinite(IntendedCm) ? IntendedCm : 1.0);
+    Plan.RowHeightCm = Row;
+    Plan.TopRowHeightCm = Row;
+    if (!bCutTopRow)
+    {
+        Plan.Rows = FMath::Max(1, FMath::RoundToInt32(Intended / Row));
+    }
+    else
+    {
+        const int32 Whole = FMath::FloorToInt32(Intended / Row);
+        const double Rest = Intended - Row * Whole;
+        if (Whole == 0)
+        {
+            // Lower than one row: one row, cut to the height.
+            Plan.Rows = 1;
+            Plan.TopRowHeightCm = Intended;
+        }
+        else if (Rest >= Row * FInfinityStageUnderpassSettings::FenceStackMinCutFraction)
+        {
+            Plan.Rows = Whole + 1;
+            Plan.TopRowHeightCm = Rest;
+        }
+        else
+        {
+            Plan.Rows = Whole;
+        }
+    }
+    Plan.TopCm = Row * (Plan.Rows - 1) + Plan.TopRowHeightCm;
+    return Plan;
+}
+
 void AInfinityStageStructureActor::BuildUnderpassFence(
     const TArray<FInfinityStructureStation>& Stations,
     const TArray<FInfinityUnderpassPart>& Panels,
-    const TArray<FInfinityUnderpassPart>& Overlays)
+    const TArray<FInfinityUnderpassPart>& Overlays,
+    const FInfinityStageFenceStackPlan& StackPlan)
 {
     constexpr int32 VariantCount = FInfinityStageUnderpassSettings::FenceVariantCount;
     if (Stations.Num() < 2 || Panels.Num() != VariantCount || Overlays.Num() != VariantCount)
@@ -783,25 +863,64 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
     {
         return;
     }
-    const auto Pick = [&Weights, &Panels, AllWeight, BuiltWeight](const float Roll, const bool bBuiltOnly) -> int32
+    // Stack rows above the ground row draw from the same weights with every
+    // ground-row-only variant (the door gap) at 0.
+    double UpperWeights[VariantCount];
+    double UpperAllWeight = 0.0;
+    double UpperBuiltWeight = 0.0;
+    for (int32 Variant = 0; Variant < VariantCount; ++Variant)
     {
-        double Remaining = static_cast<double>(Roll) * (bBuiltOnly ? BuiltWeight : AllWeight);
+        UpperWeights[Variant] = Underpass.GetFenceVariant(Variant).bGroundRowOnly ? 0.0 : Weights[Variant];
+        UpperAllWeight += UpperWeights[Variant];
+        UpperBuiltWeight += Panels[Variant].Mesh && UpperWeights[Variant] > 0.0 ? UpperWeights[Variant] : 0.0;
+    }
+    const auto PickFrom = [&Panels](const double* InWeights, const double InAllWeight, const double InBuiltWeight,
+                                    const float Roll, const bool bBuiltOnly) -> int32
+    {
+        double Remaining = static_cast<double>(Roll) * (bBuiltOnly ? InBuiltWeight : InAllWeight);
         int32 LastEligible = INDEX_NONE;
         for (int32 Variant = 0; Variant < VariantCount; ++Variant)
         {
-            if (Weights[Variant] <= 0.0 || (bBuiltOnly && !Panels[Variant].Mesh))
+            if (InWeights[Variant] <= 0.0 || (bBuiltOnly && !Panels[Variant].Mesh))
             {
                 continue;
             }
             LastEligible = Variant;
-            if (Remaining < Weights[Variant])
+            if (Remaining < InWeights[Variant])
             {
                 return Variant;
             }
-            Remaining -= Weights[Variant];
+            Remaining -= InWeights[Variant];
         }
         return LastEligible;
     };
+    const auto Pick = [&PickFrom, &Weights, &UpperWeights, AllWeight, BuiltWeight, UpperAllWeight, UpperBuiltWeight](
+                          const float Roll, const bool bBuiltOnly, const bool bUpperRow) -> int32
+    {
+        return bUpperRow
+            ? PickFrom(UpperWeights, UpperAllWeight, UpperBuiltWeight, Roll, bBuiltOnly)
+            : PickFrom(Weights, AllWeight, BuiltWeight, Roll, bBuiltOnly);
+    };
+
+    // Stack: rows of the plan's height, the last perhaps cut. Any other mode is
+    // one row, built exactly as before the stack existed.
+    const bool bStack = Underpass.FenceHeightMode == EInfinityFenceHeightMode::Stack && StackPlan.RowHeightCm > UE_KINDA_SMALL_NUMBER;
+    const int32 Rows = bStack ? FMath::Max(1, StackPlan.Rows) : 1;
+    if (bStack)
+    {
+        UnderpassFenceRowCount = Rows;
+        UnderpassFenceStackTopCm = StackPlan.TopCm;
+        UE_LOG(LogInfinityStageStructure, Display,
+            TEXT("INFINITY_STAGE_STRUCTURE_FENCE_STACK actor='%s' rows=%d row_cm=%.2f top_row_cm=%.2f top_cm=%.2f intended_cm=%.1f cut_top_row=%d"),
+            *GetActorNameOrLabel(), Rows, StackPlan.RowHeightCm, StackPlan.TopRowHeightCm, StackPlan.TopCm,
+            Underpass.FenceHeightCm, Underpass.bFenceStackCutTopRow ? 1 : 0);
+        if (Rows > 1 && UpperBuiltWeight <= 0.0)
+        {
+            UE_LOG(LogInfinityStageStructure, Warning,
+                TEXT("INFINITY_STAGE_STRUCTURE_FENCE_STACK_NO_UPPER_VARIANT actor='%s' (every built variant is ground-row-only: the rows above it stay empty)"),
+                *GetActorNameOrLabel());
+        }
+    }
 
     // Native height keeps each bay as authored; say so where that is not the
     // height the fence was meant to be (W&T's 3 m bays will match).
@@ -878,27 +997,38 @@ void AInfinityStageStructureActor::BuildUnderpassFence(
             const FQuat Rotation = FRotationMatrix::MakeFromXZ(Side < 0.0 ? Along : -Along, BayUp).ToQuat();
             for (int32 Tile = 0; Tile < Tiles; ++Tile)
             {
-                // Three draws, each its own statement and always made, so no
-                // choice depends on another tile or on which variants are built.
-                FRandomStream Stream = MakeFenceStream(Stations[From].CueGuid, Side < 0.0 ? 0 : 1, Tile, Underpass.FenceSeed);
-                const float Roll = Stream.FRand();
-                const float Redeal = Stream.FRand();
-                const float Tone = Stream.FRand();
-                int32 Variant = Pick(Roll, false);
-                if (Variant == INDEX_NONE || !Panels[Variant].Mesh)
+                for (int32 Row = 0; Row < Rows; ++Row)
                 {
-                    Variant = Pick(Redeal, true);
+                    // Three draws, each its own statement and always made, so no
+                    // choice depends on another tile or row, or on which variants
+                    // are built. Row 0's stream is the unstacked fence's own.
+                    FRandomStream Stream = MakeFenceRowStream(Stations[From].CueGuid, Side < 0.0 ? 0 : 1, Tile, Row, Underpass.FenceSeed);
+                    const float Roll = Stream.FRand();
+                    const float Redeal = Stream.FRand();
+                    const float Tone = Stream.FRand();
+                    const bool bUpperRow = Row > 0;
+                    int32 Variant = Pick(Roll, false, bUpperRow);
+                    if (Variant == INDEX_NONE || !Panels[Variant].Mesh)
+                    {
+                        Variant = Pick(Redeal, true, bUpperRow);
+                    }
+                    if (Variant == INDEX_NONE)
+                    {
+                        continue;
+                    }
+                    const double DepthCm = FMath::Max(1.0, Bounds[Variant].GetSize().Y);
+                    double HeightCm = bNativeHeight ? FMath::Max(1.0, Bounds[Variant].GetSize().Z) : IntendedHeightCm;
+                    double BottomCm = 0.0;
+                    if (bStack)
+                    {
+                        HeightCm = Row == Rows - 1 ? StackPlan.TopRowHeightCm : StackPlan.RowHeightCm;
+                        BottomCm = StackPlan.RowHeightCm * Row;
+                    }
+                    const FVector SizeCm(SlotCm, DepthCm, HeightCm);
+                    const FVector Centre = Start + Along * (SlotCm * (Tile + 0.5)) + BayUp * (BottomCm + HeightCm * 0.5);
+                    Built[Variant].Transforms.Add(FitMeshToTimber(Bounds[Variant], Centre, Rotation, SizeCm));
+                    Built[Variant].Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
                 }
-                if (Variant == INDEX_NONE)
-                {
-                    continue;
-                }
-                const double DepthCm = FMath::Max(1.0, Bounds[Variant].GetSize().Y);
-                const double HeightCm = bNativeHeight ? FMath::Max(1.0, Bounds[Variant].GetSize().Z) : IntendedHeightCm;
-                const FVector SizeCm(SlotCm, DepthCm, HeightCm);
-                const FVector Centre = Start + Along * (SlotCm * (Tile + 0.5)) + BayUp * (HeightCm * 0.5);
-                Built[Variant].Transforms.Add(FitMeshToTimber(Bounds[Variant], Centre, Rotation, SizeCm));
-                Built[Variant].Data.Append({ Tone, static_cast<float>(SlotCm), static_cast<float>(DepthCm), static_cast<float>(HeightCm) });
             }
         }
     }
@@ -1999,7 +2129,8 @@ void AInfinityStageStructureActor::OnTubeBlinkTimer()
 void AInfinityStageStructureActor::BuildUnderpassTubes(
     const TArray<FInfinityStructureStation>& Stations,
     const FInfinityUnderpassPart& Tube,
-    UMaterialInterface* LightFunction)
+    UMaterialInterface* LightFunction,
+    const double FenceTopAboveBaseCm)
 {
     // The stretch. Fewer than two stations in it is no run: nothing is built.
     const int32 Last = Stations.Num() - 1;
@@ -2051,7 +2182,7 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
         // station like the fence; the bays below run at deck height, so offset back.
         const double FenceLineCm = ColumnLineCm - Underpass.FenceInsetCm;
         const double FenceTopCm = Ground.FloorHeightCm + Underpass.FenceBaseCm
-            + FMath::Max(1.0, Underpass.FenceHeightCm) + Underpass.TubeFenceTopRaiseCm;
+            + FenceTopAboveBaseCm + Underpass.TubeFenceTopRaiseCm;
         const double FenceVerticalCm = FenceTopCm - Underpass.DeckHeightCm;
         Rows.Add({ NextRowIndex++, 1002, -FenceLineCm, FenceVerticalCm, Underpass.bTubeFenceTopRowsEmitLight });
         if (Underpass.bFenceBothSides)

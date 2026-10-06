@@ -1,0 +1,10 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "figures": ["Shore01_M56", "Shore02_F52", "Shore03_M59", "Shore04_F55", "Shore05_M53", "Shore06_F25"],
+ "fbx_suffix": "_SK_root.fbx",
+ "cloth_switch": "suspend+disable",
+ "bounds_scale": 1.25,
+ "pow2_mode": "STRETCH_TO_POWER_OF_TWO",
+ "decided_by": "Gary 6 Oct: old grey worn sack; Shore02 2.0 m back pin; others 2.0 m pinned 20 cm forward"
+}

@@ -23,13 +23,13 @@
  */
 namespace InfinityStageCrossingSettleTests
 {
-constexpr int32 WingCount = 6;
+constexpr int32 SettleWingCount = 6;
 constexpr int32 IntervalTicks = 30000;          // 1.25 s at 24 kHz
 constexpr double TickRate = 24000.0;            // UInfinityStageShowAsset default
 constexpr int32 DisplayStepTicks = 960;         // one 25 fps display frame
 constexpr int32 HitchLastFrameTicks = 3200;     // 0.133 s: the measured last rig frame
 constexpr int32 SettleTicks = 24000;            // the 1.0 s default
-const double GapsCm[WingCount - 1] = {312.5, 437.5, 312.5, 437.5, 312.5};
+const double GapsCm[SettleWingCount - 1] = {312.5, 437.5, 312.5, 437.5, 312.5};
 
 struct FShowFixture
 {
@@ -41,14 +41,14 @@ struct FShowFixture
     FShowFixture()
     {
         Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
-        for (int32 Index = 0; Index < WingCount; ++Index)
+        for (int32 Index = 0; Index < SettleWingCount; ++Index)
         {
             FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
             Cue.Type = EInfinityCueType::WingPair;
             Cue.CueGuid = FGuid::NewGuid();
             Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
             Cue.WingPair.IntervalToNext = FFrameNumber(IntervalTicks);
-            Cue.WingPair.GapToNextCm = GapsCm[FMath::Min(Index, WingCount - 2)];
+            Cue.WingPair.GapToNextCm = GapsCm[FMath::Min(Index, SettleWingCount - 2)];
         }
         Show->EnsureStableIds();
         Show->ReconcilePassageSettings();
@@ -76,7 +76,7 @@ struct FShowFixture
         Section->BlockGuid = Passage.PassageGuid;
         Track->AddSection(*Section);
         Show->ManagedMasterSequence = Master;
-        bValid = Passage.SegmentEndFrame.Value - Passage.SegmentStartFrame.Value == (WingCount - 1) * IntervalTicks;
+        bValid = Passage.SegmentEndFrame.Value - Passage.SegmentStartFrame.Value == (SettleWingCount - 1) * IntervalTicks;
     }
 
     int32 End() const { return Passage.SegmentEndFrame.Value; }

@@ -440,7 +440,34 @@ enum class EInfinityFenceHeightMode : uint8
     /** The bay mesh's own height (Z scale 1): no squashed chain-link. */
     Native,
     /** Stretched to FenceHeightCm. Distorts a bay authored at another height. */
-    Fit
+    Fit,
+    /** Whole native-height panels stacked in rows up to FenceHeightCm (Gary, 6 Oct:
+     * "Stack it", 7.5 m on every Passage). The row height is the tallest built
+     * variant's own; bFenceStackCutTopRow says how the last part row is handled.
+     * Doors only on the ground row (bGroundRowOnly). See FInfinityStageFenceStackPlan. */
+    Stack
+};
+
+/**
+ * How a Stack fence is divided into rows: pure, from the intended height and the
+ * native row height (AInfinityStageStructureActor::PlanFenceStack). Not a USTRUCT:
+ * never stored, recomputed on every build.
+ *
+ * Cut (bFenceStackCutTopRow, the default): floor(intended / row) whole rows, then
+ * the rest as one more row Z-scaled down to fit when it is at least
+ * FenceStackMinCutFraction of a row, so the top is exactly the intended height;
+ * a smaller rest is dropped (the top falls short by under a quarter row). Whole:
+ * round(intended / row) whole rows, at least one, and no row is scaled.
+ */
+struct FInfinityStageFenceStackPlan
+{
+    int32 Rows = 1;
+    /** Each row's bottom is Row * RowHeightCm above the fence base. */
+    double RowHeightCm = 0.0;
+    /** The last row's height: RowHeightCm unless it was cut. */
+    double TopRowHeightCm = 0.0;
+    /** The stack's top above the fence base: (Rows - 1) * RowHeightCm + TopRowHeightCm. */
+    double TopCm = 0.0;
 };
 
 /**
@@ -462,8 +489,10 @@ struct INFINITYSTAGE_API FInfinityStageFenceVariant
 
     FInfinityStageFenceVariant() = default;
 
-    explicit FInfinityStageFenceVariant(const double InWeight, const TCHAR* InOverlayMeshPath = nullptr)
+    explicit FInfinityStageFenceVariant(const double InWeight, const TCHAR* InOverlayMeshPath = nullptr,
+        const bool bInGroundRowOnly = false)
         : Weight(InWeight)
+        , bGroundRowOnly(bInGroundRowOnly)
     {
         if (InOverlayMeshPath)
         {
@@ -483,6 +512,12 @@ struct INFINITYSTAGE_API FInfinityStageFenceVariant
     /** Relative share of the panels. 0 never builds this variant. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "0.0"))
     double Weight = 0.0;
+
+    /** Stack height mode only: this variant is drawn on the ground row alone (its
+     * weight counts as 0 above it). On by default for D, the door gap: a door in
+     * the air is no door. Native and Fit build one row and never read it. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    bool bGroundRowOnly = false;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
     TSoftObjectPtr<UStaticMesh> OverlayMesh;
@@ -755,7 +790,8 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
 
     /** A row along the top of each side fence: on the fence line (FenceInsetCm in from
      * the column line), its centre TubeFenceTopRaiseCm above the fence's intended top
-     * (Ground.FloorHeightCm + FenceBaseCm + FenceHeightCm). Independent of bFence;
+     * (Ground.FloorHeightCm + FenceBaseCm + FenceHeightCm; in Stack mode with the
+     * fence built, the stacked top, FInfinityStageFenceStackPlan::TopCm). Independent of bFence;
      * bFenceBothSides off builds the -Y row only. Same stretch, pitch and dead share
      * as the other rows; stream keys 1002 (-Y) and 1003 (+Y), so adding these rows
      * never re-rolls another row. */
@@ -807,15 +843,26 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
     bool bFence = false;
 
-    /** Native keeps each bay's own height; Fit stretches it to FenceHeightCm. */
+    /** Native keeps each bay's own height; Fit stretches it to FenceHeightCm; Stack
+     * stacks native-height rows up to FenceHeightCm. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
     EInfinityFenceHeightMode FenceHeightMode = EInfinityFenceHeightMode::Native;
 
     /** The intended height, bottom to top of the bay mesh's bounds. Fit builds it;
      * Native warns (INFINITY_STAGE_STRUCTURE_FENCE_HEIGHT_MISMATCH) for each
-     * built variant whose own height is more than 10 % away from it. */
+     * built variant whose own height is more than 10 % away from it; Stack builds
+     * rows up to it (FInfinityStageFenceStackPlan). */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (ClampMin = "1.0", Units = "cm"))
     double FenceHeightCm = 300.0;
+
+    /** Stack mode only. On: the top row is cut (Z-scaled) so the stack ends at
+     * FenceHeightCm, unless the rest is under FenceStackMinCutFraction of a row
+     * (then it is dropped). Off: the nearest whole number of rows, none scaled. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    bool bFenceStackCutTopRow = true;
+
+    /** A cut top row thinner than this share of a row is not built. */
+    static constexpr double FenceStackMinCutFraction = 0.25;
 
     /** The panel's bottom above the floor (Ground.FloorHeightCm). */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
@@ -844,9 +891,9 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
     FInfinityStageFenceVariant FenceVariantC = FInfinityStageFenceVariant(0.15,
         TEXT("/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_torn_v2.SM_FenceTarp_tarp_torn_v2"));
 
-    /** Intended: SM_FenceBay_door_gap_v2 (its own MI_FenceBay_door_gap). */
+    /** Intended: SM_FenceBay_door_gap_v2 (its own MI_FenceBay_door_gap). Ground row only. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
-    FInfinityStageFenceVariant FenceVariantD = FInfinityStageFenceVariant(0.05);
+    FInfinityStageFenceVariant FenceVariantD = FInfinityStageFenceVariant(0.05, nullptr, true);
 
     /** Chain-link shadows are the point of the fence; panels and overlays alike. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
@@ -1040,6 +1087,17 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 UnderpassFenceOverlayCount = 0;
 
+    /** Stack mode only (0 otherwise): the rows the fence was built with. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassFenceRowCount = 0;
+
+    /** Stack mode only (0 otherwise): the stack's top above the fence base, as built. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", meta = (Units = "cm"))
+    double UnderpassFenceStackTopCm = 0.0;
+
+    /** Pure: how a Stack fence of IntendedCm divides into rows of RowCm (see the plan struct). */
+    static FInfinityStageFenceStackPlan PlanFenceStack(double IntendedCm, double RowCm, bool bCutTopRow);
+
     /** Fingerprint of the stations and light placements the build was fitted to. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
     int32 StationSignature = 0;
@@ -1131,18 +1189,23 @@ private:
         const FInfinityUnderpassPart& Deck,
         const FInfinityUnderpassPart& Catwalk);
 
-    /** Tube rows and their lights. A null Tube.Mesh builds the lights alone. */
+    /** Tube rows and their lights. A null Tube.Mesh builds the lights alone.
+     * FenceTopAboveBaseCm: the fence's top above its base, for the fence-top rows
+     * (FenceHeightCm, or the stacked top in Stack mode). */
     void BuildUnderpassTubes(
         const TArray<FInfinityStructureStation>& Stations,
         const FInfinityUnderpassPart& Tube,
-        UMaterialInterface* LightFunction);
+        UMaterialInterface* LightFunction,
+        double FenceTopAboveBaseCm);
 
     /** Fence panels, one entry per variant A..D in each array. A null panel mesh
-     * skips its variant; a null overlay mesh builds the panel alone. */
+     * skips its variant; a null overlay mesh builds the panel alone. StackPlan is read
+     * only in Stack height mode. */
     void BuildUnderpassFence(
         const TArray<FInfinityStructureStation>& Stations,
         const TArray<FInfinityUnderpassPart>& Panels,
-        const TArray<FInfinityUnderpassPart>& Overlays);
+        const TArray<FInfinityUnderpassPart>& Overlays,
+        const FInfinityStageFenceStackPlan& StackPlan);
 
     URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);
 };
