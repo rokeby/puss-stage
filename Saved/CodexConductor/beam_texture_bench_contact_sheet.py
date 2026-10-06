@@ -28,7 +28,7 @@ import beam_texture_bench as btb  # noqa: E402
 SHEET_PNG = "beam_texture_bench_contact_sheet.png"
 SHEET_JSON = "beam_texture_bench_contact_sheet.json"
 TITLES = {"base": "unchanged", "A": "vol. shadows + occluder", "B": "noise fog volume",
-          "BL": "fog clumps (LFV)", "D": "finer fog grid, g 0.7", "ALL": "A + B + D"}
+          "BL": "fog clumps (LFV)", "D": "finer fog grid, g 0.7", "AB": "A + B (shadows + noise fog)", "ALL": "A + B + D"}
 
 
 def load_luma(path, width):
@@ -77,7 +77,7 @@ def notes_for(pos, v):
             "mask_min_frac", btb.DEFAULTS["mask_min_frac"])):
         out.append("beam not in shot")
     a = plan.get("A") or {}
-    if v in ("A", "ALL"):
+    if v in ("A", "AB", "ALL"):
         out.append("occl %s%s" % (a.get("occlusion"), (" +%s" % a["occluder"]) if a.get("occluder") else ""))
     d = plan.get("D") or {}
     if v in ("D", "ALL") and d.get("escalated"):

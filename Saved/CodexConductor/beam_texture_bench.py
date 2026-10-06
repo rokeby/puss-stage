@@ -129,7 +129,7 @@ HANDLE_NAME = "PUSS_BEAM_TEXTURE_BENCH_HANDLE"
 STATE_NAME = "PUSS_BEAM_TEXTURE_BENCH_STATE"
 MARK = "BEAM_TEXTURE_BENCH"
 RESTART = MARK + "_NEEDS_DONT_SAVE_RESTART"
-ORDER = ("base", "A", "B", "BL", "D", "ALL")
+ORDER = ("base", "A", "B", "BL", "AB", "D", "ALL")
 DEFAULT_VARIANTS = ("base", "A", "B", "D", "ALL")
 KINDS = ("light", "fog", "cvar")
 ASSET_DIR = "/Game/ZZ_Bench/BeamTexture"
@@ -695,7 +695,7 @@ def plan_d(fogs, cvars_live, p):
                                              "scattering_was": [f["scattering_distribution"] for f in fogs]}}
 
 
-VARIANT_PARTS = {"base": (), "A": ("A",), "B": ("B",), "BL": ("BL",), "D": ("D",), "ALL": ("A", "B", "D")}
+VARIANT_PARTS = {"base": (), "A": ("A",), "B": ("B",), "BL": ("BL",), "AB": ("A", "B"), "D": ("D",), "ALL": ("A", "B", "D")}
 
 
 def variant_plan(name, plans):
@@ -1572,9 +1572,9 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
             if pathlib.Path(log_path).is_file() else ""
         errs = compile_errors_since(log_text, prep.get("marker") or "\x00", BENCH_MATERIALS)
         needed = set()
-        if any(v in ("B", "ALL") for v in p["variants"]):
+        if any(v in ("B", "AB", "ALL") for v in p["variants"]):
             needed.add(MAT_NOISE)
-        if any(v in ("A", "ALL") for v in p["variants"]) and p["a_occluder_policy"] != "never":
+        if any(v in ("A", "AB", "ALL") for v in p["variants"]) and p["a_occluder_policy"] != "never":
             needed.add(MAT_BREAKUP if p["a_occluder"] == "breakup" else MAT_BLACK)
         if errs is None and needed:
             raise BenchRefused("compile_unknown", "PREPARE marker %r not in %s: cannot judge the bench materials" % (
