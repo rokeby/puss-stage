@@ -1,0 +1,818 @@
+{
+ "versions": {
+  "1": {
+   "figures": {
+    "Shore01_M56": {
+     "names": {
+      "mesh": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore01_M56_v1",
+      "dataflow": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore01_M56_v1",
+      "cloth": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore01_M56_v1",
+      "master": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth",
+      "mi": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+      "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore01_M56_Draped"
+     },
+     "frame": {
+      "up_local": [
+       -0.042795442584115946,
+       -0.038951157467134956,
+       0.9983242746853349
+      ],
+      "fwd_local": [
+       -0.09200518922720631,
+       0.9951473298246093,
+       0.03488319220221309
+      ],
+      "pin_local_cm": [
+       -0.08559088516823189,
+       -0.07790231493426991,
+       1.9966485493706698
+      ],
+      "fwd_source": "eyes",
+      "comp_z_vs_up_deg": 3.317414286585679,
+      "face_vs_feet_deg": 2.4296716682754713,
+      "comp_origin_world": [
+       14558.840866201994,
+       159777.60287724368,
+       190.80226511871192
+      ],
+      "comp_axes_world": [
+       [
+        0.8908822896635967,
+        0.4522137725211132,
+        -0.042795442584115946
+       ],
+       [
+        -0.4537720875192152,
+        0.890266083775196,
+        -0.038951157467134956
+       ],
+       [
+        0.020485081210510146,
+        0.05412027366707149,
+        0.9983242746853349
+       ]
+      ],
+      "eye_bones": [
+       "FACIAL_L_Eye",
+       "FACIAL_R_Eye"
+      ],
+      "feet_facing_world": [
+       -0.5682164761706483,
+       0.8228791139700965,
+       0.0
+      ]
+     },
+     "metrics": {
+      "vertices": 1681,
+      "triangles": 3200,
+      "edge_ratio_min": 0.9999999999999921,
+      "edge_ratio_max": 1.0000000000000084,
+      "winding_sign": 400,
+      "kinematic": 7,
+      "partially_pinned": 43,
+      "farthest_from_pin_cm": 153.8395926625684,
+      "plane_dev_cm": 1.4210854715202004e-14,
+      "edge_dist_max_m": 0.978990128060943,
+      "edge_dist_min_m": 0.0,
+      "boundary_on_edge": 1.1102230246251565e-16
+     },
+     "sheet_sha256": "dd45b4b485b9e6d1001014061f4da29c4020b13b80c196de0e6dd2e71693235d",
+     "mesh": {
+      "verts": 1681,
+      "uv_channels": 2,
+      "box_min": [
+       -108.3184814453125,
+       -86.83637237548828,
+       -5.212029457092285
+      ],
+      "box_max": [
+       103.9572982788086,
+       126.25071716308594,
+       10.655911445617676
+      ],
+      "material0": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+     },
+     "dataflow": {
+      "nodes": {
+       "Import": "Import",
+       "BindToRoot": "BindToRoot",
+       "CrownDistance": "CrownDistance",
+       "CrownFalloff": "CrownFalloff",
+       "CrownWeights": "CrownWeights",
+       "Mass": "Mass",
+       "Stretch": "Stretch",
+       "Bending": "Bending",
+       "Damping": "Damping",
+       "Aero": "Aero",
+       "Collision": "Collision",
+       "Solver": "Solver",
+       "MaxDistance": "MaxDistance",
+       "Tethers": "Tethers",
+       "Terminal": "Terminal"
+      },
+      "terminal_input": "CollectionLods[0]",
+      "terminal": "Terminal"
+     },
+     "cloth": {
+      "evaluated_return": false,
+      "materials": [
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+      ]
+     }
+    },
+    "Shore02_F52": {
+     "names": {
+      "mesh": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore02_F52_v1",
+      "dataflow": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore02_F52_v1",
+      "cloth": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore02_F52_v1",
+      "master": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth",
+      "mi": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+      "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore02_F52_Draped"
+     },
+     "frame": {
+      "up_local": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "fwd_local": [
+       -0.4962609121729581,
+       0.8681734314347933,
+       0.0
+      ],
+      "pin_local_cm": [
+       15.459411894045843,
+       -27.868997439480154,
+       22.37868318701706
+      ],
+      "fwd_source": "record",
+      "origin_offset_cm": 6.251566738555727,
+      "back_from_head_cm": 32.72208161011725,
+      "comp_origin_world": [
+       14111.268046271885,
+       160162.08325246765,
+       94.18577365539889
+      ],
+      "comp_axes_world": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "eye_bones": null,
+      "feet_facing_world": [
+       -0.5140030524318863,
+       0.8577883550682556,
+       0.0
+      ]
+     },
+     "metrics": {
+      "vertices": 1681,
+      "triangles": 3200,
+      "edge_ratio_min": 0.9999999999999919,
+      "edge_ratio_max": 1.0000000000000089,
+      "winding_sign": 400,
+      "kinematic": 7,
+      "partially_pinned": 43,
+      "farthest_from_pin_cm": 139.98785358267594,
+      "plane_dev_cm": 0.0,
+      "edge_dist_max_m": 0.9871624708395436,
+      "edge_dist_min_m": 0.0,
+      "boundary_on_edge": 1.1102230246251565e-16
+     },
+     "sheet_sha256": "2ccc1060296097137653f2dcaf18c9f1ce8057aebda5057a1ecb7921428d37e3",
+     "mesh": {
+      "verts": 1681,
+      "uv_channels": 2,
+      "box_min": [
+       -119.51571655273438,
+       -161.21865844726562,
+       22.37868309020996
+      ],
+      "box_max": [
+       149.1389923095703,
+       105.43158721923828,
+       22.37868309020996
+      ],
+      "material0": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+     },
+     "dataflow": {
+      "nodes": {
+       "Import": "Import",
+       "BindToRoot": "BindToRoot",
+       "CrownDistance": "CrownDistance",
+       "CrownFalloff": "CrownFalloff",
+       "CrownWeights": "CrownWeights",
+       "Mass": "Mass",
+       "Stretch": "Stretch",
+       "Bending": "Bending",
+       "Damping": "Damping",
+       "Aero": "Aero",
+       "Collision": "Collision",
+       "Solver": "Solver",
+       "MaxDistance": "MaxDistance",
+       "Tethers": "Tethers",
+       "Terminal": "Terminal"
+      },
+      "terminal_input": "CollectionLods[0]",
+      "terminal": "Terminal"
+     },
+     "cloth": {
+      "evaluated_return": false,
+      "materials": [
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+      ]
+     }
+    },
+    "Shore03_M59": {
+     "names": {
+      "mesh": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore03_M59_v1",
+      "dataflow": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore03_M59_v1",
+      "cloth": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore03_M59_v1",
+      "master": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth",
+      "mi": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+      "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore03_M59_Draped"
+     },
+     "frame": {
+      "up_local": [
+       0.5829585385797559,
+       0.7760312420930288,
+       0.240696600708249
+      ],
+      "fwd_local": [
+       -0.13612389860711546,
+       0.38533714840065597,
+       -0.9126804294442006
+      ],
+      "pin_local_cm": [
+       1.1659170771595118,
+       1.5520624841860575,
+       0.481393201416498
+      ],
+      "fwd_source": "eyes",
+      "comp_z_vs_up_deg": 76.0723420645498,
+      "face_vs_feet_deg": 2.1696769954301165,
+      "comp_origin_world": [
+       14284.875088633959,
+       160334.40168415947,
+       161.925111891845
+      ],
+      "comp_axes_world": [
+       [
+        -0.4691794380990624,
+        -0.6633475688973357,
+        0.5829585385797562
+       ],
+       [
+        0.5633783573267134,
+        0.28351426382354294,
+        0.7760312420930293
+       ],
+       [
+        -0.6800554987358789,
+        0.6925241259671682,
+        0.24069660070824916
+       ]
+      ],
+      "eye_bones": [
+       "FACIAL_L_Eye",
+       "FACIAL_R_Eye"
+      ],
+      "feet_facing_world": [
+       0.8846098320564353,
+       -0.46633190436542654,
+       0.0
+      ]
+     },
+     "metrics": {
+      "vertices": 1681,
+      "triangles": 3200,
+      "edge_ratio_min": 0.9999999999999909,
+      "edge_ratio_max": 1.0000000000000073,
+      "winding_sign": 400,
+      "kinematic": 8,
+      "partially_pinned": 43,
+      "farthest_from_pin_cm": 155.0869683648881,
+      "plane_dev_cm": 2.6645352591003757e-14,
+      "edge_dist_max_m": 0.9830200965733207,
+      "edge_dist_min_m": 0.0,
+      "boundary_on_edge": 1.1102230246251565e-16
+     },
+     "sheet_sha256": "a0cfeed558dd584c48258b6edaed7ed5fcb1cc36f5302661d892b04d022ec84b",
+     "mesh": {
+      "verts": 1681,
+      "uv_channels": 2,
+      "box_min": [
+       -94.2691650390625,
+       -77.77117919921875,
+       -139.6710968017578
+      ],
+      "box_max": [
+       90.655029296875,
+       96.95204162597656,
+       105.1390609741211
+      ],
+      "material0": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+     },
+     "dataflow": {
+      "nodes": {
+       "Import": "Import",
+       "BindToRoot": "BindToRoot",
+       "CrownDistance": "CrownDistance",
+       "CrownFalloff": "CrownFalloff",
+       "CrownWeights": "CrownWeights",
+       "Mass": "Mass",
+       "Stretch": "Stretch",
+       "Bending": "Bending",
+       "Damping": "Damping",
+       "Aero": "Aero",
+       "Collision": "Collision",
+       "Solver": "Solver",
+       "MaxDistance": "MaxDistance",
+       "Tethers": "Tethers",
+       "Terminal": "Terminal"
+      },
+      "terminal_input": "CollectionLods[0]",
+      "terminal": "Terminal"
+     },
+     "cloth": {
+      "evaluated_return": false,
+      "materials": [
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+      ]
+     }
+    },
+    "Shore04_F55": {
+     "names": {
+      "mesh": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore04_F55_v1",
+      "dataflow": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore04_F55_v1",
+      "cloth": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore04_F55_v1",
+      "master": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth",
+      "mi": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+      "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore04_F55_Draped"
+     },
+     "frame": {
+      "up_local": [
+       0.11060419743851,
+       0.3341404226251738,
+       0.9360111588420585
+      ],
+      "fwd_local": [
+       0.11577752385896044,
+       0.9310455756888015,
+       -0.34604869738144667
+      ],
+      "pin_local_cm": [
+       0.22120839487702,
+       0.6682808452503476,
+       1.872022317684117
+      ],
+      "fwd_source": "eyes",
+      "comp_z_vs_up_deg": 20.60787651280403,
+      "face_vs_feet_deg": 5.526565570589886,
+      "comp_origin_world": [
+       14587.434585639357,
+       160255.4070371129,
+       170.2047928544129
+      ],
+      "comp_axes_world": [
+       [
+        -0.9705194877257668,
+        0.21414629451265726,
+        0.11060419743851
+       ],
+       [
+        -0.16661374311567817,
+        -0.9276799224801928,
+        0.3341404226251738
+       ],
+       [
+        0.17416022665781486,
+        0.3058616124551187,
+        0.9360111588420585
+       ]
+      ],
+      "eye_bones": [
+       "FACIAL_L_Eye",
+       "FACIAL_R_Eye"
+      ],
+      "feet_facing_world": [
+       -0.2352462803196481,
+       -0.9719357939677752,
+       0.0
+      ]
+     },
+     "metrics": {
+      "vertices": 1681,
+      "triangles": 3200,
+      "edge_ratio_min": 0.9999999999999899,
+      "edge_ratio_max": 1.000000000000009,
+      "winding_sign": 400,
+      "kinematic": 6,
+      "partially_pinned": 45,
+      "farthest_from_pin_cm": 153.54341973880042,
+      "plane_dev_cm": 2.1316282072803006e-14,
+      "edge_dist_max_m": 0.9838768047785468,
+      "edge_dist_min_m": 0.0,
+      "boundary_on_edge": 1.1102230246251565e-16
+     },
+     "sheet_sha256": "f40813e4266d4e95f82b615030c6fede460ed9d10753ddb476a228018044b999",
+     "mesh": {
+      "verts": 1681,
+      "uv_channels": 2,
+      "box_min": [
+       -106.26080322265625,
+       -86.17860412597656,
+       -45.28892135620117
+      ],
+      "box_max": [
+       110.63621520996094,
+       124.73902130126953,
+       35.657989501953125
+      ],
+      "material0": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+     },
+     "dataflow": {
+      "nodes": {
+       "Import": "Import",
+       "BindToRoot": "BindToRoot",
+       "CrownDistance": "CrownDistance",
+       "CrownFalloff": "CrownFalloff",
+       "CrownWeights": "CrownWeights",
+       "Mass": "Mass",
+       "Stretch": "Stretch",
+       "Bending": "Bending",
+       "Damping": "Damping",
+       "Aero": "Aero",
+       "Collision": "Collision",
+       "Solver": "Solver",
+       "MaxDistance": "MaxDistance",
+       "Tethers": "Tethers",
+       "Terminal": "Terminal"
+      },
+      "terminal_input": "CollectionLods[0]",
+      "terminal": "Terminal"
+     },
+     "cloth": {
+      "evaluated_return": false,
+      "materials": [
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+      ]
+     }
+    },
+    "Shore05_M53": {
+     "names": {
+      "mesh": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore05_M53_v1",
+      "dataflow": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore05_M53_v1",
+      "cloth": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore05_M53_v1",
+      "master": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth",
+      "mi": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+      "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore05_M53_Draped"
+     },
+     "frame": {
+      "up_local": [
+       0.16266307435766686,
+       0.37761987287075666,
+       0.9115612737789961
+      ],
+      "fwd_local": [
+       0.11113294533052744,
+       0.9109748932867596,
+       -0.39720802139853506
+      ],
+      "pin_local_cm": [
+       0.3253261487153337,
+       0.7552397457415133,
+       1.8231225475579922
+      ],
+      "fwd_source": "eyes",
+      "comp_z_vs_up_deg": 24.277992452348922,
+      "face_vs_feet_deg": 9.063052607583616,
+      "comp_origin_world": [
+       14324.206753797802,
+       159790.0744476493,
+       191.47082204864873
+      ],
+      "comp_axes_world": [
+       [
+        0.9463503039127783,
+        -0.2792164510280587,
+        0.16266307435766686
+       ],
+       [
+        0.20173117751434644,
+        0.903718852094914,
+        0.37761987287075666
+       ],
+       [
+        -0.2524393675773796,
+        -0.3245464679264695,
+        0.9115612737789961
+       ]
+      ],
+      "eye_bones": [
+       "FACIAL_L_Eye",
+       "FACIAL_R_Eye"
+      ],
+      "feet_facing_world": [
+       0.2392542244692166,
+       0.9709569589192066,
+       0.0
+      ]
+     },
+     "metrics": {
+      "vertices": 1681,
+      "triangles": 3200,
+      "edge_ratio_min": 0.9999999999999909,
+      "edge_ratio_max": 1.0000000000000084,
+      "winding_sign": 400,
+      "kinematic": 7,
+      "partially_pinned": 44,
+      "farthest_from_pin_cm": 153.63693085717205,
+      "plane_dev_cm": 1.4210854715202004e-14,
+      "edge_dist_max_m": 0.976731945072951,
+      "edge_dist_min_m": 0.0,
+      "boundary_on_edge": 1.1102230246251565e-16
+     },
+     "sheet_sha256": "3bd8f6cbf72f1d7324e87e56530860b6dc1e6dc321e81c1d359480fe2915b9e3",
+     "mesh": {
+      "verts": 1681,
+      "uv_channels": 2,
+      "box_min": [
+       -104.92972564697266,
+       -86.66941833496094,
+       -55.43106460571289
+      ],
+      "box_max": [
+       110.16195678710938,
+       124.25201416015625,
+       43.17411422729492
+      ],
+      "material0": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+     },
+     "dataflow": {
+      "nodes": {
+       "Import": "Import",
+       "BindToRoot": "BindToRoot",
+       "CrownDistance": "CrownDistance",
+       "CrownFalloff": "CrownFalloff",
+       "CrownWeights": "CrownWeights",
+       "Mass": "Mass",
+       "Stretch": "Stretch",
+       "Bending": "Bending",
+       "Damping": "Damping",
+       "Aero": "Aero",
+       "Collision": "Collision",
+       "Solver": "Solver",
+       "MaxDistance": "MaxDistance",
+       "Tethers": "Tethers",
+       "Terminal": "Terminal"
+      },
+      "terminal_input": "CollectionLods[0]",
+      "terminal": "Terminal"
+     },
+     "cloth": {
+      "evaluated_return": false,
+      "materials": [
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+      ]
+     }
+    },
+    "Shore06_F25": {
+     "names": {
+      "mesh": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore06_F25_v1",
+      "dataflow": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore06_F25_v1",
+      "cloth": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore06_F25_v1",
+      "master": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth",
+      "mi": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+      "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore06_F25_Draped"
+     },
+     "frame": {
+      "up_local": [
+       0.06623403633437439,
+       0.2180583774182972,
+       0.9736855737190299
+      ],
+      "fwd_local": [
+       0.07106238063489954,
+       0.9723196101370959,
+       -0.22258641872618057
+      ],
+      "pin_local_cm": [
+       0.13246807266874877,
+       0.4361167548365944,
+       1.9473711474380597
+      ],
+      "fwd_source": "eyes",
+      "comp_z_vs_up_deg": 13.173208388084534,
+      "face_vs_feet_deg": 23.802331612052466,
+      "comp_origin_world": [
+       14661.351787450709,
+       160016.59358927768,
+       182.43619446959318
+      ],
+      "comp_axes_world": [
+       [
+        -0.3123956835108286,
+        0.9476402214736664,
+        0.06623403633437439
+       ],
+       [
+        -0.9222375249954361,
+        -0.3192624179699084,
+        0.2180583774182972
+       ],
+       [
+        0.22778692766288258,
+        0.007036982119379892,
+        0.9736855737190299
+       ]
+      ],
+      "eye_bones": [
+       "FACIAL_L_Eye",
+       "FACIAL_R_Eye"
+      ],
+      "feet_facing_world": [
+       -0.788403065526821,
+       -0.6151590089301392,
+       0.0
+      ]
+     },
+     "metrics": {
+      "vertices": 1681,
+      "triangles": 3200,
+      "edge_ratio_min": 0.9999999999999916,
+      "edge_ratio_max": 1.000000000000009,
+      "winding_sign": 400,
+      "kinematic": 6,
+      "partially_pinned": 43,
+      "farthest_from_pin_cm": 154.1498358328899,
+      "plane_dev_cm": 3.197442310920451e-14,
+      "edge_dist_max_m": 0.9754613736452675,
+      "edge_dist_min_m": 0.0,
+      "boundary_on_edge": 1.1102230246251565e-16
+     },
+     "sheet_sha256": "507604fceceecb8bdaaf79ee806f22851c0e041feaa07b3e955412a263099a6d",
+     "mesh": {
+      "verts": 1681,
+      "uv_channels": 2,
+      "box_min": [
+       -103.2676773071289,
+       -84.63896179199219,
+       -29.286285400390625
+      ],
+      "box_max": [
+       105.78824615478516,
+       124.48995971679688,
+       24.246137619018555
+      ],
+      "material0": "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+     },
+     "dataflow": {
+      "nodes": {
+       "Import": "Import",
+       "BindToRoot": "BindToRoot",
+       "CrownDistance": "CrownDistance",
+       "CrownFalloff": "CrownFalloff",
+       "CrownWeights": "CrownWeights",
+       "Mass": "Mass",
+       "Stretch": "Stretch",
+       "Bending": "Bending",
+       "Damping": "Damping",
+       "Aero": "Aero",
+       "Collision": "Collision",
+       "Solver": "Solver",
+       "MaxDistance": "MaxDistance",
+       "Tethers": "Tethers",
+       "Terminal": "Terminal"
+      },
+      "terminal_input": "CollectionLods[0]",
+      "terminal": "Terminal"
+     },
+     "cloth": {
+      "evaluated_return": false,
+      "materials": [
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+      ]
+     }
+    }
+   },
+   "materials_created": [
+    "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+    "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth"
+   ],
+   "params": {
+    "quad_cm": 5.0,
+    "fray_depth_cm": 3.5,
+    "seed": 20261006,
+    "lift_cm": 2.0,
+    "back_lift_cm": 2.0,
+    "pin_inner_cm": 7.0,
+    "pin_outer_cm": 20.0,
+    "max_distance_cm": 250.0,
+    "density_kg_m2": 0.5,
+    "stretch_stiffness": 1.0,
+    "bending_stiffness": 0.9,
+    "buckling_ratio": 0.0,
+    "buckling_stiffness": 0.05,
+    "damping": 0.12,
+    "drag": 0.02,
+    "lift": 0.02,
+    "collision_thickness_cm": 2.0,
+    "friction": 0.8,
+    "self_collision": false,
+    "self_thickness_cm": 0.5,
+    "iterations": 2,
+    "max_iterations": 6,
+    "substeps": 4,
+    "tether_stiffness": 1.0,
+    "tether_scale": 1.0,
+    "skinned_triangle_mesh_collisions": true,
+    "material_variant": "masked"
+   },
+   "runs": [
+    {
+     "run": "S3LIVESACK-20261006-172635",
+     "figures": [
+      "Shore01_M56",
+      "Shore02_F52",
+      "Shore03_M59",
+      "Shore04_F55",
+      "Shore05_M53",
+      "Shore06_F25"
+     ],
+     "saved": {
+      "content": [
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore01_M56_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore02_F52_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore03_M59_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore04_F55_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore05_M53_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore06_F25_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore01_M56_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore02_F52_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore03_M59_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore04_F55_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore05_M53_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/DF_ShoreSack_Shore06_F25_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore01_M56_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore02_F52_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore03_M59_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore04_F55_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore05_M53_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/SM_ShoreSack_Shore06_F25_v1",
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth",
+       "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/M_Sackcloth_Masked_Cloth"
+      ],
+      "maps": []
+     },
+     "material_readback": {
+      "master": {
+       "two_sided": true,
+       "used_with_clothing": true,
+       "used_with_skeletal_mesh": true
+      },
+      "mi": {
+       "scalars": {
+        "MottleAmount": 0.10000000149011612,
+        "Desaturate": 0.75,
+        "HemGrimeHeightM": 0.3499999940395355,
+        "EdgeGrimeWidthM": 0.029999999329447746,
+        "EdgeGrimeAmount": 0.6000000238418579,
+        "RoughnessScale": 1.0,
+        "NormalStrength": 1.0,
+        "RimAmount": 0.05000000074505806
+       },
+       "vectors": {
+        "Tint": [
+         0.62,
+         0.6,
+         0.56,
+         1.0
+        ],
+        "GrimeColor": [
+         0.1,
+         0.09,
+         0.08,
+         1.0
+        ]
+       },
+       "textures": {}
+      }
+     }
+    }
+   ]
+  }
+ }
+}

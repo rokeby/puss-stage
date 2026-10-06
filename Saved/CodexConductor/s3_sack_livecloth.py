@@ -811,7 +811,14 @@ def _template(bp_path):
         d = dl.get_data(h)
         if str(dl.get_variable_name(d)) == CLOTH:
             hits.append(dl.get_object_for_blueprint(d, bp))
-    _require(len(hits) == 1, "TEMPLATE_COUNT|%s|%d" % (bp_path, len(hits)))
+    # 6 Oct live: the gather returns two handles for ShoreHeadCloth; dedupe by object (same template twice), and only
+    # refuse if two DIFFERENT objects remain (then name them).
+    uniq = {}
+    for o in hits:
+        if o is not None:
+            uniq.setdefault(o.get_path_name(), o)
+    _require(len(uniq) == 1, "TEMPLATE_COUNT|%s|%d|%s" % (bp_path, len(uniq), sorted(uniq)))
+    hits = list(uniq.values())
     return bp, hits[0]
 
 
@@ -1177,7 +1184,8 @@ def run_revert(run, ed):
     for f in figs:                                       # drift check first: the BP must still be what APPLY left
         nm = names(f, version, variant)
         got = _template_state(nm["bp"])
-        bad = template_diff(rec["after"][f]["template"], got)
+        want_after = (rec.get("after") or {}).get(f, {}).get("template") or             template_target(rec["before"][f]["template"], nm["cloth"], nm["mi"])   # 6 Oct instance-fix record has no "after"
+        bad = template_diff(want_after, got)
         if bad:
             probs.append("DRIFT|%s|%s" % (f, bad))
     _require(not probs, "REVERT_REFUSED|%s" % probs)
@@ -1185,6 +1193,12 @@ def run_revert(run, ed):
     for f in figs:
         _set_template(names(f, version, variant)["bp"], rec["before"][f]["template"])
     saved = _save(ed, planned)
+    if rec.get("instance_asset_override"):              # 6 Oct: the placed figures carry their own asset value
+        for f, a in _figure_actors(figs).items():
+            c = _one(a, CLOTH, CLOTH_CLASS)
+            c.modify()
+            c.set_asset(unreal.load_asset(rec["instance_asset_override"][f]))
+        _require(unreal.EditorLoadingAndSavingUtils.save_map(ed.get_editor_world(), WORLD), "REVERT_MAP_SAVE")
     for f, a in _figure_actors(figs).items():
         inst = _instance_state(a)
         bad = template_diff(rec["before"][f]["instance"], inst, ("asset", "override_materials", "relative_scale"))

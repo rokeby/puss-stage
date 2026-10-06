@@ -152,3 +152,7 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - ~17:20 **S3 stand-in narration removed** (S3NARR-20261006-171721). **S6 extended 31 → 194 s** (cuts cover, handoffs unmoved, Master
   match) and **Void score in** from the hangar landing (SCENEAUDIO-20261006-172057, track "Scene Score", 4.16–192.16 s) with markers:
   score in 0, swell 0:50.8, trough 1:56, climax 2:35.9, drop 2:53.8. The Closing moved 163 s later.
+- ~17:28 **S3 live-cloth sacks applied** (Gary: "All six now"): six new Chaos cloth assets CA_ShoreSack_<id>_v1 (2 m, crown pin,
+  heavier, collision thickness 2 cm, two-sided OldGrey hessian cloth material) set on the six BP templates (S3LIVESACK-20261006-172656)
+  AND on the placed figures (instance overrides, S3LSFIX-20261006-172813). VERIFY OK. Performance unmeasured (~4× particles).
+  Offline harness now shows 7 "fails" that are its pre-apply live-content assertions (expected after the apply).

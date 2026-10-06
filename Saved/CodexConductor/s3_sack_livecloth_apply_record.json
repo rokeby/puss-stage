@@ -1,0 +1,786 @@
+{
+ "run": "S3LIVESACK-20261006-172656",
+ "version": 1,
+ "variant": "masked",
+ "figures": [
+  "Shore01_M56",
+  "Shore02_F52",
+  "Shore03_M59",
+  "Shore04_F55",
+  "Shore05_M53",
+  "Shore06_F25"
+ ],
+ "before": {
+  "Shore01_M56": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body_GEN_VARIABLE",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   }
+  },
+  "Shore02_F52": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape_Bowed",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     6.179051,
+     0.949429,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": true,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape_Bowed",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     6.179051,
+     0.949429,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": true,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   }
+  },
+  "Shore03_M59": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   }
+  },
+  "Shore04_F55": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   }
+  },
+  "Shore05_M53": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   }
+  },
+  "Shore06_F25": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   }
+  }
+ },
+ "backup": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656",
+ "backup_files": [
+  {
+   "src": "E:/PussStage/Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+   "bytes": 19347013,
+   "sha256": "0c12deeb029ebb6fce283e290db52f8141bcd95e122519b079cfef1c672018ed"
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore01_M56_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\Metahuman\\ShoreCast_20260910\\SceneCharacters\\BP_Shore01_M56_Draped.uasset",
+   "bytes": 233450,
+   "sha256": "56b6a6b4032d749146ead0328f81be83417409a9f0d2de02395572de3d3a9e6d"
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore02_F52_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\Metahuman\\ShoreCast_20260910\\SceneCharacters\\BP_Shore02_F52_Draped.uasset",
+   "bytes": 229618,
+   "sha256": "01f0fd721b44270c4d5ab4067e49287f243c4c5d657f1f6a3535b0ba4a66f816"
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore03_M59_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\Metahuman\\ShoreCast_20260910\\SceneCharacters\\BP_Shore03_M59_Draped.uasset",
+   "bytes": 234952,
+   "sha256": "4c0140be18449ef5ed0402f47a9d673509d50d69ede3aee56bf6aeb3f6fc1f97"
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore04_F55_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\Metahuman\\ShoreCast_20260910\\SceneCharacters\\BP_Shore04_F55_Draped.uasset",
+   "bytes": 229816,
+   "sha256": "e7cc0c70020f19de80bab59eccaee7b93478b549b8d3f678fd44bd22854dd7b8"
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore05_M53_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\Metahuman\\ShoreCast_20260910\\SceneCharacters\\BP_Shore05_M53_Draped.uasset",
+   "bytes": 233760,
+   "sha256": "b93f2388891089a703b594b4c1dd8321aa02c7c60694b29d26b8d89d967c7694"
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore06_F25_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3LiveSack-S3LIVESACK-20261006-172656\\Metahuman\\ShoreCast_20260910\\SceneCharacters\\BP_Shore06_F25_Draped.uasset",
+   "bytes": 230468,
+   "sha256": "effe3aa7d05d072fa72ba49c71230934fa498a58f2d446be17f329ec238032c4"
+  }
+ ],
+ "saved": true,
+ "instance_asset_override": {
+  "Shore01_M56": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+  "Shore02_F52": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape_Bowed",
+  "Shore03_M59": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+  "Shore04_F55": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+  "Shore05_M53": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape",
+  "Shore06_F25": "/Game/Metahuman/ShoreCast_20260910/Cloth/CA_ShoreHeadDrape"
+ },
+ "instance_fix_run": "S3LSFIX-20261006-172813",
+ "after": {
+  "Shore01_M56": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore01_M56_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body_GEN_VARIABLE",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore01_M56_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   },
+   "note": "reconstructed 6 Oct from template_target (instance-fix run)"
+  },
+  "Shore02_F52": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore02_F52_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+    ],
+    "relative_location": [
+     6.179051,
+     0.949429,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "absolute_rotation": true,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore02_F52_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     6.179051,
+     0.949429,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": true,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   },
+   "note": "reconstructed 6 Oct from template_target (instance-fix run)"
+  },
+  "Shore03_M59": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore03_M59_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore03_M59_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   },
+   "note": "reconstructed 6 Oct from template_target (instance-fix run)"
+  },
+  "Shore04_F55": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore04_F55_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore04_F55_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   },
+   "note": "reconstructed 6 Oct from template_target (instance-fix run)"
+  },
+  "Shore05_M53": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore05_M53_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore05_M53_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   },
+   "note": "reconstructed 6 Oct from template_target (instance-fix run)"
+  },
+  "Shore06_F25": {
+   "template": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore06_F25_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Sack/Materials/MI_Sackcloth_OldGrey_Cloth"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": null,
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false
+   },
+   "instance": {
+    "class": "ChaosClothComponent",
+    "asset": "/Game/Metahuman/ShoreCast_20260910/Cloth/LiveSack/CA_ShoreSack_Shore06_F25_v1",
+    "override_materials": [
+     "/Game/Metahuman/ShoreCast_20260910/Cloth/M_ShoreLinen"
+    ],
+    "relative_location": [
+     21.0,
+     0.0,
+     0.0
+    ],
+    "relative_rotation": [
+     0.0,
+     -90.0,
+     0.0
+    ],
+    "relative_scale": [
+     1.641315,
+     1.641315,
+     1.641315
+    ],
+    "absolute_rotation": false,
+    "attach_socket": "head",
+    "attach_parent": "Body",
+    "teleport_distance_threshold": 300.0,
+    "teleport_rotation_threshold": 0.0,
+    "use_attached_parent_as_pose_component": false,
+    "parent_is_this_body": true
+   },
+   "note": "reconstructed 6 Oct from template_target (instance-fix run)"
+  }
+ }
+}
