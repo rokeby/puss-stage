@@ -1,0 +1,34 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY SONGMARKERS",
+ "run_id": null,
+ "passages": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5"
+ ],
+ "passages_note": "P06 is not swapped yet (no applied walking_music_swap record covers it): the tool refuses \"6\" until one does.",
+ "analysis": {
+  "1": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P01_P01_Walking1.analysis.json",
+  "2": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P02_P02_Walking2.analysis.json",
+  "3": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P03_P03_Walking3.analysis.json",
+  "4": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P04_P04_Walking4_pad10.analysis.json",
+  "5": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P05_P05_Walking5.analysis.json"
+ },
+ "old_analysis": {
+  "1": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P01_Intro_WalkingMusic_1.analysis.json",
+  "2": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P02_WalkingMusic_2.analysis.json",
+  "3": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P03_WalkingMusic_3.analysis.json",
+  "4": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P04_WalkingMusic_4.analysis.json",
+  "5": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P05_WalkingMusic_5_with_Tennis_Ball_Moment.analysis.json"
+ },
+ "change_bodies": [
+  "Major change suggestion",
+  "change"
+ ],
+ "change_bodies_note": "'\u00a7 ' + body labels choreo_tool writes: the importer's default change label (InfinityStageMusicAnalysisImporter.cpp:213, also every JSON's label) and choreo_tool's fallback 'change' (choreo_tool.py:123).",
+ "declared_keep": [],
+ "decided_by": "Gary 6 Oct ~00:50 (his session): 'Refresh'"
+}

@@ -1,0 +1,16 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY P06TAIL",
+ "run_id": null,
+ "passage_label": "Passage 6",
+ "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+ "passage_guid_source": "walking_music_swap_dry.json rows.6.passage.guid (run WALK-20261005-143830) = choreo_report_choreo-apply-3.json",
+ "song_s": 125.0,
+ "song_wav": "DerivedAssets/Audio/WalkingMusic_Cameron_20261005/P06_Walking6.wav",
+ "song_sha256": "10b2b017fef21308e06b1a197be8c19ee91cf3448ddb8cd8542b460da100c6dc",
+ "headroom_s": 1.0,
+ "max_delta_s": 16.0,
+ "expected_old_len_ticks": 2653467,
+ "expected_old_len_source": "walking_music_swap_dry.json segments: Passage 6 [47128792, 49782259) at 24000 ticks/s = 110.561125 s",
+ "decided_by": "Gary 5 Oct: 'Lengthen P06 to fit' (TAIL only; TailDistanceCm unchanged)"
+}

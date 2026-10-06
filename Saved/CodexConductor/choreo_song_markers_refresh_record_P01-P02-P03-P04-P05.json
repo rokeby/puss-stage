@@ -1,0 +1,6619 @@
+{
+ "applied": true,
+ "args": {
+  "analysis": {
+   "1": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P01_P01_Walking1.analysis.json",
+   "2": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P02_P02_Walking2.analysis.json",
+   "3": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P03_P03_Walking3.analysis.json",
+   "4": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P04_P04_Walking4_pad10.analysis.json",
+   "5": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P05_P05_Walking5.analysis.json"
+  },
+  "change_bodies": [
+   "Major change suggestion",
+   "change"
+  ],
+  "change_bodies_note": "'§ ' + body labels choreo_tool writes: the importer's default change label (InfinityStageMusicAnalysisImporter.cpp:213, also every JSON's label) and choreo_tool's fallback 'change' (choreo_tool.py:123).",
+  "confirm": "APPLY SONGMARKERS",
+  "decided_by": "Gary 6 Oct ~00:50 (his session): 'Refresh'",
+  "declared_keep": [],
+  "mode": "APPLY",
+  "old_analysis": {
+   "1": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P01_Intro_WalkingMusic_1.analysis.json",
+   "2": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P02_WalkingMusic_2.analysis.json",
+   "3": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P03_WalkingMusic_3.analysis.json",
+   "4": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P04_WalkingMusic_4.analysis.json",
+   "5": "Saved/InfinityStage/MusicAnalysis/_superseded_20261005/P05_WalkingMusic_5_with_Tennis_Ball_Moment.analysis.json"
+  },
+  "passages": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5"
+  ],
+  "passages_note": "P06 is not swapped yet (no applied walking_music_swap record covers it): the tool refuses \"6\" until one does.",
+  "run_id": null
+ },
+ "backup": "E:/PussStage/Backups\\PreChoreoSongMarkers-SONGMK-20261006-011925",
+ "choreo_tool_sha256": "59fe502019c5a43eded178f79ddb1ce3a538896e7f3e54a8fd2418b2847cea78",
+ "master_tick": 24000.0,
+ "passages": {
+  "1": {
+   "before": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 14489,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 99197,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 131518,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 183902,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 268608,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 292015,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 353316,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 438022,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 522727,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 551707,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 607435,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 692141,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 776846,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 861552,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 946260,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1030966,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1115671,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1200379,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1285085,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1369790,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1454498,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1539204,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1623910,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1662919,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1708618,
+     "inclusive": false,
+     "label": "bar 21",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1793323,
+     "inclusive": false,
+     "label": "bar 22",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1796666,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1878029,
+     "inclusive": false,
+     "label": "bar 23",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1947132,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1962737,
+     "inclusive": false,
+     "label": "bar 24",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2047442,
+     "inclusive": false,
+     "label": "bar 25",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2132148,
+     "inclusive": false,
+     "label": "bar 26",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2216856,
+     "inclusive": false,
+     "label": "bar 27",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2231345,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2301562,
+     "inclusive": false,
+     "label": "bar 28",
+     "use_custom_color": false
+    }
+   ],
+   "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_1",
+   "kept": [],
+   "linked_map": {
+    "is_new_song": true,
+    "path": "/Game/InfinityStage/MusicMaps/MM_P01_Analysis",
+    "source_sha256": "9dc719d10cc71e1be8b03a0dfd289fd7a3f76d2fdec14bd0371db8ab146d44e4"
+   },
+   "music_note": "ok offset_s=0.000 beats=84",
+   "new_song": [
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 0,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 84706,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 169414,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 254119,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 338825,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 423533,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 508238,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 592944,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 677652,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 762358,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 847063,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 931771,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1016477,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1101182,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1185890,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1270596,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1355302,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1440010,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1524715,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1609421,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1694129,
+     "inclusive": false,
+     "label": "bar 21",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 75790,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 276410,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 730034,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 917280,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1107871,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1327438,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1510226,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    }
+   ],
+   "old_matches": {
+    "linked_map": false,
+    "old_analysis": true
+   },
+   "old_song": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 14489,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 99197,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 131518,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 183902,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 268608,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 292015,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 353316,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 438022,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 522727,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 551707,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 607435,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 692141,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 776846,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 861552,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 946260,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1030966,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1115671,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1200379,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1285085,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1369790,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1454498,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1539204,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1623910,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1662919,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1708618,
+     "inclusive": false,
+     "label": "bar 21",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1793323,
+     "inclusive": false,
+     "label": "bar 22",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1796666,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1878029,
+     "inclusive": false,
+     "label": "bar 23",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1947132,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1962737,
+     "inclusive": false,
+     "label": "bar 24",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2047442,
+     "inclusive": false,
+     "label": "bar 25",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2132148,
+     "inclusive": false,
+     "label": "bar 26",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2216856,
+     "inclusive": false,
+     "label": "bar 27",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2231345,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2301562,
+     "inclusive": false,
+     "label": "bar 28",
+     "use_custom_color": false
+    }
+   ],
+   "rail": {
+    "guid": "2E86171B614D036D59FEDCB9C6C5788A",
+    "rail_offset": 0,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P01_Walking1_Cameron",
+    "source_in": 0,
+    "walking_record": "walking_music_swap_record_P01.json"
+   }
+  },
+  "2": {
+   "before": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2230,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 60187,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 75790,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 118142,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 176100,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 234058,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 249660,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 292015,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 349970,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 407928,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 465886,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 468115,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 523843,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 581798,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 639756,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 697714,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 755671,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 813626,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 871584,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 929542,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 987499,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1009790,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1045454,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1103412,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    }
+   ],
+   "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_2",
+   "kept": [],
+   "linked_map": {
+    "is_new_song": true,
+    "path": "/Game/InfinityStage/MusicMaps/MM_P02_Analysis",
+    "source_sha256": "1ce5bd98b934d644b83d38311c8923e8e3e048581867f0e522fc5157b4f1446f"
+   },
+   "music_note": "ok offset_s=0.000 beats=75",
+   "new_song": [
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 11146,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 69103,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 127058,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 185016,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 242974,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 300931,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 358889,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 416844,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 474802,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 532759,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 590717,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 648672,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 706630,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 764587,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 822545,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 880500,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 938458,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 996415,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1054373,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 75790,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 248546,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 403469,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 975238,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    }
+   ],
+   "old_matches": {
+    "linked_map": false,
+    "old_analysis": true
+   },
+   "old_song": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2230,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 60187,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 75790,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 118142,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 176100,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 234058,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 249660,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 292015,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 349970,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 407928,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 465886,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 468115,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 523843,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 581798,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 639756,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 697714,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 755671,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 813626,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 871584,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 929542,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 987499,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1009790,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1045454,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1103412,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    }
+   ],
+   "rail": {
+    "guid": "74C172D76E4F4E5FAB02E1B20F5A3911",
+    "rail_offset": 0,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P02_Walking2_Cameron",
+    "source_in": 0,
+    "walking_record": "walking_music_swap_record_P02-P03-P04-P05.json"
+   }
+  },
+  "3": {
+   "before": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 14489,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 99197,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 183902,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 268608,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 353316,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 438022,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 464770,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 522727,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 607435,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 692141,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 774617,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 776846,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 861552,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 946260,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 948490,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1030966,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    }
+   ],
+   "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_3",
+   "kept": [],
+   "linked_map": {
+    "is_new_song": true,
+    "path": "/Game/InfinityStage/MusicMaps/MM_P03_Analysis",
+    "source_sha256": "d464592f8a0cab28a12279726ab7c947e1e1f5cc0d374723bdd83abcc538e691"
+   },
+   "music_note": "ok offset_s=0.000 beats=45",
+   "new_song": [
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 14489,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 99197,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 183902,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 268608,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 353316,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 438022,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 522727,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 607435,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 692141,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 776846,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 861552,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 946260,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 250776,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 392323,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 555050,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 701057,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 843720,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    }
+   ],
+   "old_matches": {
+    "linked_map": false,
+    "old_analysis": true
+   },
+   "old_song": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 14489,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 99197,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 183902,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 268608,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 353316,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 438022,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 464770,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 522727,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 607435,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 692141,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 774617,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 776846,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 861552,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 946260,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 948490,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1030966,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    }
+   ],
+   "rail": {
+    "guid": "39146A0581471F2D744691A7AB6F2150",
+    "rail_offset": 0,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P03_Walking3_Cameron",
+    "source_in": 0,
+    "walking_record": "walking_music_swap_record_P02-P03-P04-P05.json"
+   }
+  },
+  "4": {
+   "before": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 16718,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 114799,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 177214,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 212880,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 302045,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 310961,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 409042,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 466999,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 507125,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 605206,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 703286,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 801367,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 894989,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 899448,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 997529,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    }
+   ],
+   "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_4",
+   "kept": [],
+   "linked_map": {
+    "is_new_song": true,
+    "path": "/Game/InfinityStage/MusicMaps/MM_P04_Analysis",
+    "source_sha256": "aeff66f86b1864bc29a78c341291d2eba9e51e27201c05c1871ca9a7632cfa7b"
+   },
+   "music_note": "ok offset_s=0.000 beats=47",
+   "new_song": [
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 16718,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 114799,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 212880,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 310961,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 409042,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 507125,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 605206,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 703286,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 801367,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 899448,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 997529,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1095610,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 156038,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 445824,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 752326,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 926198,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    }
+   ],
+   "old_matches": {
+    "linked_map": false,
+    "old_analysis": true
+   },
+   "old_song": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 16718,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 114799,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 177214,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 212880,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 302045,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 310961,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 409042,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 466999,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 507125,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 605206,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 703286,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 801367,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 894989,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 899448,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 997529,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    }
+   ],
+   "rail": {
+    "guid": "1F78FB563A43A46BE0768D9B4D22C603",
+    "rail_offset": 0,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P04_Walking4_pad10_Cameron",
+    "source_in": 0,
+    "walking_record": "walking_music_swap_record_P02-P03-P04-P05.json"
+   }
+  },
+  "5": {
+   "before": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4459,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 62414,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 120372,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 178330,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 236287,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 294242,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 352200,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 410158,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 468115,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 472572,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 526070,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 584028,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 641986,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 699943,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 705516,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 757898,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 815856,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 873814,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 926198,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 931771,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 989726,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1047684,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1105642,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1163599,
+     "inclusive": false,
+     "label": "bar 21",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1175858,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1221554,
+     "inclusive": false,
+     "label": "bar 22",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1279512,
+     "inclusive": false,
+     "label": "bar 23",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1337470,
+     "inclusive": false,
+     "label": "bar 24",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1395427,
+     "inclusive": false,
+     "label": "bar 25",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1453382,
+     "inclusive": false,
+     "label": "bar 26",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1483476,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1511340,
+     "inclusive": false,
+     "label": "bar 27",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1569298,
+     "inclusive": false,
+     "label": "bar 28",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1627255,
+     "inclusive": false,
+     "label": "bar 29",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1679638,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1685210,
+     "inclusive": false,
+     "label": "bar 30",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1743168,
+     "inclusive": false,
+     "label": "bar 31",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1801126,
+     "inclusive": false,
+     "label": "bar 32",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1859083,
+     "inclusive": false,
+     "label": "bar 33",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1917038,
+     "inclusive": false,
+     "label": "bar 34",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1974996,
+     "inclusive": false,
+     "label": "bar 35",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2032954,
+     "inclusive": false,
+     "label": "bar 36",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2090911,
+     "inclusive": false,
+     "label": "bar 37",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2148866,
+     "inclusive": false,
+     "label": "bar 38",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2206824,
+     "inclusive": false,
+     "label": "bar 39",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2264782,
+     "inclusive": false,
+     "label": "bar 40",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2306021,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2322739,
+     "inclusive": false,
+     "label": "bar 41",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2380694,
+     "inclusive": false,
+     "label": "bar 42",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2438652,
+     "inclusive": false,
+     "label": "bar 43",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2496610,
+     "inclusive": false,
+     "label": "bar 44",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2554567,
+     "inclusive": false,
+     "label": "bar 45",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2612522,
+     "inclusive": false,
+     "label": "bar 46",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2670480,
+     "inclusive": false,
+     "label": "bar 47",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2728438,
+     "inclusive": false,
+     "label": "bar 48",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2739583,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2786395,
+     "inclusive": false,
+     "label": "bar 49",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2844350,
+     "inclusive": false,
+     "label": "bar 50",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2902308,
+     "inclusive": false,
+     "label": "bar 51",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2960266,
+     "inclusive": false,
+     "label": "bar 52",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3018223,
+     "inclusive": false,
+     "label": "bar 53",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3076178,
+     "inclusive": false,
+     "label": "bar 54",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3134136,
+     "inclusive": false,
+     "label": "bar 55",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3192094,
+     "inclusive": false,
+     "label": "bar 56",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3250051,
+     "inclusive": false,
+     "label": "bar 57",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3308009,
+     "inclusive": false,
+     "label": "bar 58",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3365964,
+     "inclusive": false,
+     "label": "bar 59",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3423922,
+     "inclusive": false,
+     "label": "bar 60",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3481879,
+     "inclusive": false,
+     "label": "bar 61",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3484109,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3539837,
+     "inclusive": false,
+     "label": "bar 62",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3597792,
+     "inclusive": false,
+     "label": "bar 63",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3655750,
+     "inclusive": false,
+     "label": "bar 64",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3713707,
+     "inclusive": false,
+     "label": "bar 65",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3771665,
+     "inclusive": false,
+     "label": "bar 66",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3829620,
+     "inclusive": false,
+     "label": "bar 67",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3887578,
+     "inclusive": false,
+     "label": "bar 68",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3934390,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3945535,
+     "inclusive": false,
+     "label": "bar 69",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4003493,
+     "inclusive": false,
+     "label": "bar 70",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4061448,
+     "inclusive": false,
+     "label": "bar 71",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4119406,
+     "inclusive": false,
+     "label": "bar 72",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4177363,
+     "inclusive": false,
+     "label": "bar 73",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4178477,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4235321,
+     "inclusive": false,
+     "label": "bar 74",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4293276,
+     "inclusive": false,
+     "label": "bar 75",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4323370,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4351234,
+     "inclusive": false,
+     "label": "bar 76",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4409191,
+     "inclusive": false,
+     "label": "bar 77",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4467149,
+     "inclusive": false,
+     "label": "bar 78",
+     "use_custom_color": false
+    }
+   ],
+   "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_5",
+   "kept": [],
+   "linked_map": {
+    "is_new_song": true,
+    "path": "/Game/InfinityStage/MusicMaps/MM_P05_Analysis",
+    "source_sha256": "da01323b9e0036488e8fe58d0192c88b946987ff65a4768c404e703eb08b40e6"
+   },
+   "music_note": "ok offset_s=0.000 beats=48",
+   "new_song": [
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 6686,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 91394,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 176100,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 260806,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 345514,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 430219,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 514925,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 599633,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 684338,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 769044,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 853752,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 938458,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 255233,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 469229,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 638642,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 858209,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    }
+   ],
+   "old_matches": {
+    "linked_map": false,
+    "old_analysis": true
+   },
+   "old_song": [
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4459,
+     "inclusive": false,
+     "label": "bar 1",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 62414,
+     "inclusive": false,
+     "label": "bar 2",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 120372,
+     "inclusive": false,
+     "label": "bar 3",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 178330,
+     "inclusive": false,
+     "label": "bar 4",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 236287,
+     "inclusive": false,
+     "label": "bar 5",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 294242,
+     "inclusive": false,
+     "label": "bar 6",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 352200,
+     "inclusive": false,
+     "label": "bar 7",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 410158,
+     "inclusive": false,
+     "label": "bar 8",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 468115,
+     "inclusive": false,
+     "label": "bar 9",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 472572,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 526070,
+     "inclusive": false,
+     "label": "bar 10",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 584028,
+     "inclusive": false,
+     "label": "bar 11",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 641986,
+     "inclusive": false,
+     "label": "bar 12",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 699943,
+     "inclusive": false,
+     "label": "bar 13",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 705516,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 757898,
+     "inclusive": false,
+     "label": "bar 14",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 815856,
+     "inclusive": false,
+     "label": "bar 15",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 873814,
+     "inclusive": false,
+     "label": "bar 16",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 926198,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 931771,
+     "inclusive": false,
+     "label": "bar 17",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 989726,
+     "inclusive": false,
+     "label": "bar 18",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1047684,
+     "inclusive": false,
+     "label": "bar 19",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1105642,
+     "inclusive": false,
+     "label": "bar 20",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1163599,
+     "inclusive": false,
+     "label": "bar 21",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1175858,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1221554,
+     "inclusive": false,
+     "label": "bar 22",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1279512,
+     "inclusive": false,
+     "label": "bar 23",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1337470,
+     "inclusive": false,
+     "label": "bar 24",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1395427,
+     "inclusive": false,
+     "label": "bar 25",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1453382,
+     "inclusive": false,
+     "label": "bar 26",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1483476,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1511340,
+     "inclusive": false,
+     "label": "bar 27",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1569298,
+     "inclusive": false,
+     "label": "bar 28",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1627255,
+     "inclusive": false,
+     "label": "bar 29",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1679638,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1685210,
+     "inclusive": false,
+     "label": "bar 30",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1743168,
+     "inclusive": false,
+     "label": "bar 31",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1801126,
+     "inclusive": false,
+     "label": "bar 32",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1859083,
+     "inclusive": false,
+     "label": "bar 33",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1917038,
+     "inclusive": false,
+     "label": "bar 34",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 1974996,
+     "inclusive": false,
+     "label": "bar 35",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2032954,
+     "inclusive": false,
+     "label": "bar 36",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2090911,
+     "inclusive": false,
+     "label": "bar 37",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2148866,
+     "inclusive": false,
+     "label": "bar 38",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2206824,
+     "inclusive": false,
+     "label": "bar 39",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2264782,
+     "inclusive": false,
+     "label": "bar 40",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2306021,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2322739,
+     "inclusive": false,
+     "label": "bar 41",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2380694,
+     "inclusive": false,
+     "label": "bar 42",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2438652,
+     "inclusive": false,
+     "label": "bar 43",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2496610,
+     "inclusive": false,
+     "label": "bar 44",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2554567,
+     "inclusive": false,
+     "label": "bar 45",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2612522,
+     "inclusive": false,
+     "label": "bar 46",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2670480,
+     "inclusive": false,
+     "label": "bar 47",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2728438,
+     "inclusive": false,
+     "label": "bar 48",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2739583,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2786395,
+     "inclusive": false,
+     "label": "bar 49",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2844350,
+     "inclusive": false,
+     "label": "bar 50",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2902308,
+     "inclusive": false,
+     "label": "bar 51",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 2960266,
+     "inclusive": false,
+     "label": "bar 52",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3018223,
+     "inclusive": false,
+     "label": "bar 53",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3076178,
+     "inclusive": false,
+     "label": "bar 54",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3134136,
+     "inclusive": false,
+     "label": "bar 55",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3192094,
+     "inclusive": false,
+     "label": "bar 56",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3250051,
+     "inclusive": false,
+     "label": "bar 57",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3308009,
+     "inclusive": false,
+     "label": "bar 58",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3365964,
+     "inclusive": false,
+     "label": "bar 59",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3423922,
+     "inclusive": false,
+     "label": "bar 60",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3481879,
+     "inclusive": false,
+     "label": "bar 61",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3484109,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3539837,
+     "inclusive": false,
+     "label": "bar 62",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3597792,
+     "inclusive": false,
+     "label": "bar 63",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3655750,
+     "inclusive": false,
+     "label": "bar 64",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3713707,
+     "inclusive": false,
+     "label": "bar 65",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3771665,
+     "inclusive": false,
+     "label": "bar 66",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3829620,
+     "inclusive": false,
+     "label": "bar 67",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3887578,
+     "inclusive": false,
+     "label": "bar 68",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3934390,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 3945535,
+     "inclusive": false,
+     "label": "bar 69",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4003493,
+     "inclusive": false,
+     "label": "bar 70",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4061448,
+     "inclusive": false,
+     "label": "bar 71",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4119406,
+     "inclusive": false,
+     "label": "bar 72",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4177363,
+     "inclusive": false,
+     "label": "bar 73",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4178477,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4235321,
+     "inclusive": false,
+     "label": "bar 74",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4293276,
+     "inclusive": false,
+     "label": "bar 75",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4323370,
+     "inclusive": false,
+     "label": "§ Major change suggestion",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4351234,
+     "inclusive": false,
+     "label": "bar 76",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4409191,
+     "inclusive": false,
+     "label": "bar 77",
+     "use_custom_color": false
+    },
+    {
+     "color": [
+      0.0,
+      1.0,
+      1.0,
+      0.4000000059604645
+     ],
+     "comment": "",
+     "fence": false,
+     "frame": 4467149,
+     "inclusive": false,
+     "label": "bar 78",
+     "use_custom_color": false
+    }
+   ],
+   "rail": {
+    "guid": "2F86E6BD6344E909346E77AC7FCBF838",
+    "rail_offset": 0,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P05_Walking5_Cameron",
+    "source_in": 0,
+    "walking_record": "walking_music_swap_record_P02-P03-P04-P05.json"
+   }
+  }
+ },
+ "run": "SONGMK-20261006-011925",
+ "tool": "choreo_song_markers_refresh"
+}
