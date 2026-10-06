@@ -1,0 +1,11 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY S4",
+ "run_id": null,
+ "params": {},
+ "params_note": "defaults: lead_s 5.0 (Gary 30 Sep 'could be 2 s earlier' -> p04_backcloth_lead5_apply.py), min_lead_s 2.7 (final11 under the 1.80 m lens 2.20 s after release + 0.5), max_rise_gap_s 1.0 (warning only)",
+ "expected_delta_s": null,
+ "expected_note": "APPLY needs expected_delta_s copied from the DRY's expected_for_apply_args (backcloth_lead_fit_dry.json)",
+ "decided_by": "",
+ "order_note": "Run AFTER passage_retime_to_music (P04 180 -> ~50.4 s). Offline estimate (hang front): lead today ~1.3-1.5 s (late), after the retime ~4.17 s with no change; lead 5.0 after the retime = delta ~-0.83 s; APPLY moves the cloth only, never the rise."
+}

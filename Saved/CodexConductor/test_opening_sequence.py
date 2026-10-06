@@ -553,6 +553,7 @@ live0 = {lab: {"enabled": st["enabled"], "inner": st["lighting"]["inner_cone_ang
                "outer": st["lighting"]["outer_cone_angle_degrees"]} for lab, st in W0.items()}
 # The live JSON now carries Gary's takeover (16:40); the "default" cases model the unset state explicitly.
 CFG0 = json.loads(json.dumps(CFG))
+CFG0["house_warmers"]["cone"] = CFG0["house_warmers"].get("cone") or CFG0["house_warmers"]["cone_parked"]  # live JSON parks it (6 Oct)
 CFG0["house_warmers"]["mechanism"] = None
 CFG0["house_warmers"]["p01_without_warmers_confirmed_by"] = None
 tg, tf = P.warmer_targets(CFG0, live0)
@@ -586,9 +587,18 @@ case("NEG: rig takeover (disable_show_attachment) WITHOUT p01_without_warmers_co
 def takeover(c):
     c["house_warmers"]["mechanism"] = "disable_show_attachment"
     c["house_warmers"]["p01_without_warmers_confirmed_by"] = "TEST ONLY"
+    c["house_warmers"]["cone"] = c["house_warmers"].get("cone") or c["house_warmers"]["cone_parked"]  # model the cone rule (parked live, 6 Oct)
 
 
 tk, tkc = plan_with(takeover)
+def takeover_live(c):
+    takeover(c)
+    c["house_warmers"]["cone"] = None
+tl, tlc = plan_with(takeover_live)
+tgl, tfl = P.warmer_targets(tlc, live0)
+case("WARMERS OFF, cone parked (live 6 Oct): Enabled False, inner cone untouched (20)",
+     tfl == [] and all(t == {"enabled": False, "inner_cone_angle_degrees": 20.0} for t in tgl.values()), (tfl, tgl))
+
 tgo, tfo = P.warmer_targets(tkc, live0)
 Wo = P.warmers_apply_state(W0, tgo)
 case("WARMERS OFF (confirmed takeover): plan passes, both warmers Enabled False + inner 30, only allowed paths",

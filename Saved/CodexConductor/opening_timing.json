@@ -302,7 +302,9 @@
     "owner": "opening_sequence_apply.py",
     "mechanism": "disable_show_attachment",
     "p01_without_warmers_confirmed_by": "Gary 5 Oct ~16:40 questionnaire: 'Gone from P01 too' (warmers off in the Show; Opening black until the flicker; P01 floor loses the raking beam)",
-    "cone": {
+    "cone": null,
+    "cone_parked_note": "6 Oct 01:25 conductor: live warmer cones measured 14.944 / 15.936 outer (not the 33 recorded 4 Oct) and the warmers are being DISABLED (Gary 16:40 Gone from P01 too), so the warmer cone write is moot and parked; FOH rig cones keep the outer-3 rule.",
+    "cone_parked": {
       "inner_equals_outer_minus_deg": 3.0,
       "expect_outer_deg": 33.0,
       "note": "Gary 5 Oct ~16:25: if the warmers stay enabled anywhere, same cone rule on their Show attachment (33/20 -> 33/30, measured 33/20 on 4 Oct, light_guid_audit_20261004-121338.json). APPLY writes lighting.inner_cone_angle_degrees on both, records the full attachment state first (record warmers_attachment_original) and REVERT restores it exactly."

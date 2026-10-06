@@ -1,0 +1,18 @@
+{
+ "mode": "VERIFY",
+ "confirm": "VERIFY ALL",
+ "run_id": null,
+ "passage": null,
+ "png": null,
+ "texture": null,
+ "mi_scalars": {},
+ "decided_by": "",
+ "howto": [
+  "ONCE: {\"mode\": \"BUILD\", \"confirm\": \"BUILD ALL\"}  -> M_CurtainImage + MI_CurtainImage_P01..P05 (create-only, 6 packages)",
+  "ONCE per curtain (level write): {\"mode\": \"ASSIGN\", \"passage\": 4, \"confirm\": \"ASSIGN P04\", \"decided_by\": \"...\"}",
+  "PUT A PICTURE ON P04: {\"mode\": \"SET\", \"passage\": 4, \"png\": \"E:/PussStage/DerivedAssets/CurtainImages/p04.png\", \"confirm\": \"SET P04\"}",
+  "UNDO A PICTURE: {\"mode\": \"SET\", \"passage\": 4, \"texture\": \"<previous from curtain_image_log.json>\", \"confirm\": \"SET P04\"}",
+  "TUNE without a new picture: add \"mi_scalars\": {\"ImageEmissive\": 0.5, \"PlanarMinZCm\": 120} (or open MI_CurtainImage_P04 in the editor: its parameters are live)",
+  "PICTURE SIZE: end drapes 18.8 x 10 m (1.88:1, e.g. 4096x2048); P04 backcloth 10 x 12 m (0.83:1, e.g. 2048x2048 + stretch)"
+ ]
+}
