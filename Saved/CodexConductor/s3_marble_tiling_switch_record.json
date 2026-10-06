@@ -1,0 +1,111 @@
+{
+ "history": [
+  {
+   "run": "S3MT-20261006-131127",
+   "variant": "B",
+   "before": {
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L0": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L1": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L2": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L3": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L4": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R0": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R1": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R2": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R3": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    },
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R4": {
+     "textures": {
+      "BaseColorTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+      "NormalTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+      "RoughnessTexture": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness"
+     },
+     "scalars": {
+      "Brightness": 1.149999976158142
+     }
+    }
+   }
+  }
+ ],
+ "reverted": []
+}

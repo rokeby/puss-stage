@@ -112,3 +112,5 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - **S3 marble**: Gary — download both CC0 marbles (ambientCG Marble012 + Marble021, in DerivedAssets/S3Marble) and keep the grain
   **fixed to the walls** through the rise. Tool being extended (import, A/B switch, mirrored-tile normals).
 - Held C++ patch GB (Ground.bDrawBoards: boards-only off, keeps forestage/stage front) is available if a passage should keep its stage front.
+- ~13:15 **S3 marble = B** (ambientCG Marble021, warm near-white, Brightness 1.0; tiled ~1.5 m, fixed to the walls; 10 liners;
+  stills Saved/CodexFlatV3/handprints/stills/marble_A_vs_B.jpg). Check for bloom in PIE under the S3 daylight; drop Brightness ~0.9 if needed (SWITCH, ~1 min).
