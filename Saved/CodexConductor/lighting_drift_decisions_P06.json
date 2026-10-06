@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "passage": "P06",
+  "report_run": "DRIFT-20261006-023111",
+  "report_sha256": "9f7da3e3083dfe1f1bf4a1ed6c5b46ba6ec33906eac1b808df4f4153a0f61338",
+  "record_run": "20261005-025548",
+  "status": "TEMPLATE",
+  "decided_by": null,
+  "about": "Per-light decisions for the P06 scores REVERT (lighting_scores_apply.py, 'Per-light drift decisions'). One entry per drifted light the drift report could NOT attribute (class UNKNOWN = inferred hand edit). Attributed drift (RIG_LAMP_DROP etc.) is not decided here: revert that tool first.",
+  "how_to_decide": "Set each 'decision' to keep / overwrite / fold (see that light's 'options'), then set status to DECIDED and decided_by to who decided (Gary). Leave row_hash alone: it pins the live row this decision is about; REVERT refuses if the light changed since.",
+  "33B58DB3451B333680B3C9B9D22A3DD2": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "ABSENT",
+    "label": "FX TEST - S6 Candle Light",
+    "cue": "P06 Wing 055",
+    "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+    "slot": "RETAINED (pre-score, kept lit)",
+    "row_kind": "REMOVED (RETAINED)",
+    "changes": [
+      "<row removed>: present -> absent"
+    ],
+    "options": {
+      "keep": "the row stays absent",
+      "overwrite": "the row stays absent (same as keep)",
+      "fold": "NOT POSSIBLE: nothing to fold"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "13EFC57B4FCE1C81FD50B98C6C8B8CDD": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "ABSENT",
+    "label": "FX TEST - S6 Candle",
+    "cue": "P06 Wing 055",
+    "cue_guid": "07E24048F24647AA7D5992AB6A8A0770",
+    "slot": null,
+    "row_kind": "REMOVED (PRE_SCORE)",
+    "changes": [
+      "<row removed>: present -> absent"
+    ],
+    "options": {
+      "keep": "the row stays absent",
+      "overwrite": "the row stays absent (same as keep)",
+      "fold": "NOT POSSIBLE: nothing to fold"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  }
+}

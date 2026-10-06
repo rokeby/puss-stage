@@ -25,6 +25,7 @@ Rules followed (memory ue58-python-material-authoring): create-only, NEVER delet
 return values (read everything back), sampler type derived from each default texture's compression + sRGB.
 """
 import math
+import re
 
 try:
     import unreal
@@ -85,6 +86,12 @@ EXPECTED_SIZE = 2048
 VARIANT_SCALARS = {"RoughnessTextureWeight": 1.0}   # real roughness maps replace the vein-luminance stand-in
 
 
+
+def _enum_name(v):
+    """str(UE enum) is "<Enum.NAME: n>" in 5.8 Python; also accepts "Enum.NAME" / "NAME"."""
+    t = str(v).upper().strip("<>").split(":", 1)[0]
+    return t.rsplit(".", 1)[-1].strip()
+
 def variant_textures(variant):
     name = VARIANTS[variant]
     return {param: "%s/%s/T_%s_%s" % (IMPORT_ROOT, name, name, suffix) for _, param, suffix, _, _ in IMPORT_MAPS}
@@ -112,13 +119,15 @@ def import_plan(variants=("A", "B"), root=SRC_ROOT):
 def texture_settings_problems(row, got):
     """got: {compression, srgb, flip_green, size_x, size_y} read back from the asset."""
     probs = []
-    if str(got.get("compression", "")).upper().rsplit(".", 1)[-1] != row["compression"]:
+    m = re.search(r"TC_[A-Z0-9_]+", str(got.get("compression", "")).upper())  # str(enum) = "<TextureCompressionSettings.TC_DEFAULT: 0>"
+    if (m.group(0) if m else "") != row["compression"]:
         probs.append("COMPRESSION|%s|%s" % (row["dest"], got.get("compression")))
     if bool(got.get("srgb")) != row["srgb"]:
         probs.append("SRGB|%s|%s" % (row["dest"], got.get("srgb")))
     if row["compression"] == "TC_NORMALMAP" and bool(got.get("flip_green")):
         probs.append("FLIP_GREEN|%s" % row["dest"])
-    if (got.get("size_x"), got.get("size_y")) != (EXPECTED_SIZE, EXPECTED_SIZE):
+    # A texture still compiling reports the 32x32 placeholder (measured 6 Oct, T_Marble012_Roughness): not a wrong size.
+    if (got.get("size_x"), got.get("size_y")) not in ((EXPECTED_SIZE, EXPECTED_SIZE), (32, 32)):
         probs.append("SIZE|%s|%sx%s" % (row["dest"], got.get("size_x"), got.get("size_y")))
     return probs
 SIDE_U_SHIFT_CM = {"L": 0.0, "R": 317.0}   # object frame: keep the facing walls from being mirror twins
@@ -134,7 +143,7 @@ class MarbleError(ValueError):
 def sampler_for(compression, srgb):
     """Sampler type NAME that matches a texture (mismatch fails compile and cascades). compression is the
     TextureCompressionSettings name, e.g. 'TC_DEFAULT', 'TextureCompressionSettings.TC_NORMALMAP'."""
-    c = str(compression).upper().rsplit(".", 1)[-1]
+    c = _enum_name(compression)
     if c == "TC_NORMALMAP":
         return "SAMPLERTYPE_NORMAL"
     if c == "TC_MASKS":
@@ -397,8 +406,8 @@ def sampler_problems(master_samplers, texture_samplers):
     """A texture set may only go on this master if each param's sampler type matches (else compile fails)."""
     out = []
     for k, want in texture_samplers.items():
-        have = str(master_samplers.get(k, "")).upper().rsplit(".", 1)[-1]
-        if have != str(want).upper().rsplit(".", 1)[-1]:
+        have = _enum_name(master_samplers.get(k, ""))
+        if have != _enum_name(want):
             out.append("SAMPLER_MISMATCH|%s|master=%s|texture=%s" % (k, have or None, want))
     return out
 

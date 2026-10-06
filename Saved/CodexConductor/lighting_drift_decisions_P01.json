@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "passage": "P01",
+  "report_run": "DRIFT-20261006-023111",
+  "report_sha256": "9f7da3e3083dfe1f1bf4a1ed6c5b46ba6ec33906eac1b808df4f4153a0f61338",
+  "record_run": "20261005-024851",
+  "status": "TEMPLATE",
+  "decided_by": null,
+  "about": "Per-light decisions for the P01 scores REVERT (lighting_scores_apply.py, 'Per-light drift decisions'). One entry per drifted light the drift report could NOT attribute (class UNKNOWN = inferred hand edit). Attributed drift (RIG_LAMP_DROP etc.) is not decided here: revert that tool first.",
+  "how_to_decide": "Set each 'decision' to keep / overwrite / fold (see that light's 'options'), then set status to DECIDED and decided_by to who decided (Gary). Leave row_hash alone: it pins the live row this decision is about; REVERT refuses if the light changed since.",
+  "24F0FC454E591513FB387DBE58E881DC": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "1f0b5b6653b4f55ba331a30d2ae82ba34a2a34ecb1e25197c40610bdafbdabae",
+    "label": "P01 Wing 001 House L",
+    "cue": "P01 Wing 001",
+    "cue_guid": "3DD6B12A2F4F82BFEE2B478E31CF2B03",
+    "slot": "RETAINED (pre-score, kept lit)",
+    "row_kind": "RETAINED",
+    "changes": [
+      "enabled: True -> False (OPENING_SEQUENCE_WARMERS)",
+      "lighting.attenuation_radius_cm: 4500 -> 3468",
+      "lighting.inner_cone_angle_degrees: 20 -> 12.42 (OPENING_SEQUENCE_WARMERS)",
+      "lighting.intensity: 1740 -> 800",
+      "lighting.outer_cone_angle_degrees: 33 -> 14.94",
+      "relative_transform.location[0]: -2350 -> -2350 [float noise]",
+      "relative_transform.location[1]: -650 -> -664.3",
+      "relative_transform.location[2]: 1265 -> 1265 [float noise]",
+      "relative_transform.rotation_xyzw: [0.03269, -0.1688, -0.1873, -0.9671] -> [0.03269, -0.1688, -0.1873, -0.9671] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT never writes this lamp (the score kept it lit): it stays exactly as it is now",
+      "overwrite": "same as keep: the live row is accepted as the pre-score baseline",
+      "fold": "NOT POSSIBLE: not a score lamp"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "DB2C97FF45A2A04CE85B34B7CC80EBBE": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "15ac0be0aaa215b08ec6ac3f69920149450913ba97dd761677ed8c9305d83eaa",
+    "label": "P01 Wing 001 House R",
+    "cue": "P01 Wing 001",
+    "cue_guid": "3DD6B12A2F4F82BFEE2B478E31CF2B03",
+    "slot": "RETAINED (pre-score, kept lit)",
+    "row_kind": "RETAINED",
+    "changes": [
+      "enabled: True -> False (OPENING_SEQUENCE_WARMERS)",
+      "lighting.attenuation_radius_cm: 4500 -> 3025",
+      "lighting.inner_cone_angle_degrees: 20 -> 12.78 (OPENING_SEQUENCE_WARMERS)",
+      "lighting.intensity: 1740 -> 800",
+      "lighting.outer_cone_angle_degrees: 33 -> 15.94",
+      "relative_transform.location[0]: -2350 -> -2350 [float noise]",
+      "relative_transform.location[1]: 650 -> 650 [float noise]",
+      "relative_transform.location[2]: 1265 -> 1265 [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT never writes this lamp (the score kept it lit): it stays exactly as it is now",
+      "overwrite": "same as keep: the live row is accepted as the pre-score baseline",
+      "fold": "NOT POSSIBLE: not a score lamp"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "FDF5DFC64D45681345CE5FA13C55F6EA": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "e5c9fe81d7640a4be7399e366854168aa519e5136933c01dc6fbfe45fb838b6e",
+    "label": "P01 SCORE B01 VOID PRACTICAL_DEAD",
+    "cue": "P01 Wing 001",
+    "cue_guid": "3DD6B12A2F4F82BFEE2B478E31CF2B03",
+    "slot": "PRACTICAL_DEAD",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0.72, 0.4, 1] -> [1, 0.4793, 0.1329, 1]",
+      "relative_transform.location[0]: -10 -> 14.77",
+      "relative_transform.location[1]: 700 -> 700 [float noise]",
+      "relative_transform.location[2]: 115 -> 115 [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P01 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_NOT_REPRODUCED|P01 SCORE B01 VOID PRACTICAL_DEAD|color_rgb_linear|a later score pass rewrites it (e.g. dim_bulbs recolours a practical left at 0)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "07C6C4424357A9334CDFE89FE9705D69": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "578f43284866a7d232780dcd7cb7f03fc8b5f9bb80e4f518c2878b2ab490a63a",
+    "label": "P01 SCORE B02 GAP PRACTICAL_GLIMMER",
+    "cue": "P01 Wing 002",
+    "cue_guid": "689197196949E5685EBA6BB13F0145AE",
+    "slot": "PRACTICAL_GLIMMER",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0.7, 0.4, 1] -> [1, 0.4508, 0.1329, 1]",
+      "relative_transform.scale[0]: 1 -> 1 [float noise]",
+      "relative_transform.scale[1]: 1 -> 1 [float noise]",
+      "relative_transform.scale[2]: 1 -> 1 [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P01 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "possible: writes bay_overrides[\"2\"][\"PRACTICAL_GLIMMER\"] = {\"color_rgb_linear\":[1.0,0.4507857859134674,0.13286831974983215]} (current look GAP; the edit was made on GAP)"
+    },
+    "fold_preview": {
+      "bay": 2,
+      "slot": "PRACTICAL_GLIMMER",
+      "look": "GAP",
+      "record_look": "GAP",
+      "overrides": {
+        "color_rgb_linear": [
+          1.0,
+          0.4507857859134674,
+          0.13286831974983215
+        ]
+      },
+      "noise_ignored": [
+        "relative_transform.scale"
+      ]
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  }
+}

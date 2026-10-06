@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "passage": "P02",
+  "report_run": "DRIFT-20261006-023111",
+  "report_sha256": "9f7da3e3083dfe1f1bf4a1ed6c5b46ba6ec33906eac1b808df4f4153a0f61338",
+  "record_run": "20261005-090808",
+  "status": "TEMPLATE",
+  "decided_by": null,
+  "about": "Per-light decisions for the P02 scores REVERT (lighting_scores_apply.py, 'Per-light drift decisions'). One entry per drifted light the drift report could NOT attribute (class UNKNOWN = inferred hand edit). Attributed drift (RIG_LAMP_DROP etc.) is not decided here: revert that tool first.",
+  "how_to_decide": "Set each 'decision' to keep / overwrite / fold (see that light's 'options'), then set status to DECIDED and decided_by to who decided (Gary). Leave row_hash alone: it pins the live row this decision is about; REVERT refuses if the light changed since.",
+  "2138879B4CD8983A937508A54FCB6C1B": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "7192c82500a3ea2c4822644bc49fee5d98410a89d90d896d4ea601efb80de868",
+    "label": "P02 SCORE B01 THEATRICAL BEAM_R",
+    "cue": "P02 Wing 001",
+    "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.35, 1] -> [0.2307, 0.001518, 0.09759, 1]",
+      "lighting.inner_cone_angle_degrees: 2 -> 6",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: -1250 -> -1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.02685, -0.03437, -0.6151, -0.7873] -> [0.0283, -0.0332, -0.6481, -0.7603]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_FIELD_UNSUPPORTED|P02 SCORE B01 THEATRICAL BEAM_R|field=relative_transform.rotation_xyzw|the score cannot author it (aims are computed; flags/materials are look data): choose keep or overwrite"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "6E40E1EE4C897401D96E5C9B5EEC1EA4": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "a758c43f6ba2efc052401102e8875be0055a81fc774fb616714316e845177c2f",
+    "label": "P02 SCORE B01 THEATRICAL PRACTICAL_CLAMP",
+    "cue": "P02 Wing 001",
+    "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+    "slot": "PRACTICAL_CLAMP",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0.66, 0.38, 1] -> [1, 0.3916, 0.1195, 1]",
+      "relative_transform.location[0]: -30 -> -30 [float noise]",
+      "relative_transform.location[1]: -720 -> -720 [float noise]",
+      "relative_transform.rotation_xyzw: [0, -0, 0, 1] -> [0, 0, 1.388e-16, 1] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "possible: writes bay_overrides[\"1\"][\"PRACTICAL_CLAMP\"] = {\"color_rgb_linear\":[1.0,0.3915724754333496,0.11953842639923096]} (current look P02_THEATRICAL_TOP; the edit was made on THEATRICAL)"
+    },
+    "fold_preview": {
+      "bay": 1,
+      "slot": "PRACTICAL_CLAMP",
+      "look": "P02_THEATRICAL_TOP",
+      "record_look": "THEATRICAL",
+      "overrides": {
+        "color_rgb_linear": [
+          1.0,
+          0.3915724754333496,
+          0.11953842639923096
+        ]
+      },
+      "noise_ignored": [
+        "relative_transform.location",
+        "relative_transform.rotation_xyzw"
+      ]
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "5503F4D0487874467E96848A02E753C1": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "fd1a36717393cf126f94e6a2bce71ef5b86f343b981411d677c2ba936b39bcca",
+    "label": "P02 SCORE B01 THEATRICAL PRACTICAL_BULB_DEAD",
+    "cue": "P02 Wing 001",
+    "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+    "slot": "PRACTICAL_BULB_DEAD",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [0.55, 0.7, 1, 1] -> [0.2623, 0.4508, 1, 1]",
+      "relative_transform.location[0]: -20 -> -34.13",
+      "relative_transform.location[1]: 700 -> 706.4",
+      "relative_transform.rotation_xyzw: [0, -0, 0, 1] -> [0, 0, 1.388e-16, 1] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "possible: writes bay_overrides[\"1\"][\"PRACTICAL_BULB_DEAD\"] = {\"color_rgb_linear\":[0.2622506618499756,0.4507857859134674,1.0],\"location_cm\":[-34.1323699209657,706.3821563715785,125.0]} (current look P02_THEATRICAL_TOP; the edit was made on THEATRICAL)"
+    },
+    "fold_preview": {
+      "bay": 1,
+      "slot": "PRACTICAL_BULB_DEAD",
+      "look": "P02_THEATRICAL_TOP",
+      "record_look": "THEATRICAL",
+      "overrides": {
+        "color_rgb_linear": [
+          0.2622506618499756,
+          0.4507857859134674,
+          1.0
+        ],
+        "location_cm": [
+          -34.1323699209657,
+          706.3821563715785,
+          125.0
+        ]
+      },
+      "noise_ignored": [
+        "relative_transform.rotation_xyzw"
+      ]
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "734A455A403512D3571C2DABA529EE77": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "579e5a1b5cc460babdd8158b26bfc31ddc11ac350f3cf01e62fce096b8970854",
+    "label": "P02 SCORE B02 P02_LURID_POP BEAM_R",
+    "cue": "P02 Wing 002",
+    "cue_guid": "973A6AE0454E4045F75F6E824218157D",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.6, 1] -> [0.3663, 0.855, 0.2346, 1]",
+      "lighting.inner_cone_angle_degrees: 4 -> 12",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: -1250 -> -1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.066, -0.07035, 0.681, 0.7259] -> [0.066, -0.07035, 0.681, 0.7259] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B02 P02_LURID_POP BEAM_R|bay 2's current look P02_LURID_POP has no BEAM_R (the edit was made on P02_LURID_POP)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "F2C2F1C74E1FC48E0C3444BF15CC9179": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "9f5d3fad1a8dc431b271aa9c0dcb98be0bab8681fb6627077dede81e8b148e14",
+    "label": "P02 SCORE B03 THEATRICAL BEAM_R",
+    "cue": "P02 Wing 004",
+    "cue_guid": "34E33BCD364FAB686BC453A3BC754B26",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.35, 1] -> [0.2307, 0.001518, 0.09759, 1]",
+      "lighting.inner_cone_angle_degrees: 2 -> 6",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: 1250 -> 1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.02685, 0.03437, -0.6151, 0.7873] -> [0.02685, 0.03437, -0.6151, 0.7873] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B03 THEATRICAL BEAM_R|bay 3's current look P02_LURID_UP has no BEAM_R (the edit was made on THEATRICAL)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "607741D044ABC2C2BB8D9DB85EC63BAD": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "7be6b513341f1e4d731eae7d395a141c147649b2d001874aecd366591e3da92b",
+    "label": "P02 SCORE B04 P02_LURID_POP BEAM_R",
+    "cue": "P02 Wing 005",
+    "cue_guid": "F2A13CF80B447B1AA10EA4881F10C821",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [0.3, 1, 0, 1] -> [0.07421, 1, 0, 1]",
+      "lighting.inner_cone_angle_degrees: 4 -> 12",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: 1250 -> 1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.06751, 0.07208, 0.6803, -0.7263] -> [0.06751, 0.07208, 0.6803, -0.7263] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B04 P02_LURID_POP BEAM_R|bay 4's current look P02_THEATRICAL_TOP has no BEAM_R (the edit was made on P02_LURID_POP)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "A4CBB969494243738A47538B769B6DEB": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "36d5a21430bc93a87c9903db090bd7b2e6c160bae4adb61f7435c9b26ffdfb23",
+    "label": "P02 SCORE B05 THEATRICAL BEAM_R",
+    "cue": "P02 Wing 006",
+    "cue_guid": "6408185AE84BF6527CC2189329A5AEE7",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.35, 1] -> [0.2307, 0.001518, 0.09759, 1]",
+      "lighting.inner_cone_angle_degrees: 2 -> 6",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: -1250 -> -1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.02685, -0.03437, -0.6151, -0.7873] -> [0.02685, -0.03437, -0.6151, -0.7873] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B05 THEATRICAL BEAM_R|bay 5's current look P02_LURID_POP has no BEAM_R (the edit was made on THEATRICAL)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "6C320ACF4EE33D1EAED0AC9266DCC2FF": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "00e2ae99db884662156fd77be656642e7f4480499417a8a343ef9555c8a259c2",
+    "label": "P02 SCORE B07 THEATRICAL BEAM_R",
+    "cue": "P02 Wing 008",
+    "cue_guid": "1E888ABDB94B07483942B9940A58A9F3",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.35, 1] -> [0.2307, 0.001518, 0.09759, 1]",
+      "lighting.inner_cone_angle_degrees: 2 -> 6",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: -1250 -> -1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.02685, -0.03437, -0.6151, -0.7873] -> [0.02685, -0.03437, -0.6151, -0.7873] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B07 THEATRICAL BEAM_R|bay 7's current look P02_THEATRICAL_UP has no BEAM_R (the edit was made on THEATRICAL)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "339E4DF9478DAF24DCB639851BA0D52C": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "50b1f71c723c625326d6c5e1876d7be9ad069cfba2b3351523350b58eb7eb2dc",
+    "label": "P02 SCORE B08 P02_LURID_POP BEAM_R",
+    "cue": "P02 Wing 009",
+    "cue_guid": "3C63FFF5804AE7B1625AF08713E09CF9",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.6, 1] -> [0.01444, 0.1413, 0.03955, 1]",
+      "lighting.inner_cone_angle_degrees: 4 -> 12",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: -1250 -> -1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.06809, -0.07274, 0.68, 0.7264] -> [0.06809, -0.07274, 0.68, 0.7264] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B08 P02_LURID_POP BEAM_R|bay 8's current look P02_LURID_POP has no BEAM_R (the edit was made on P02_LURID_POP)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "C80B156E488E1FA85320B2A71EB97558": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "f32c8cdd82992cadbe1ce8d4993e1358b932c94f75459f249608c202d9b28aed",
+    "label": "P02 SCORE B09 THEATRICAL BEAM_R",
+    "cue": "P02 Wing 010",
+    "cue_guid": "BE5E3873F44ACC7A85BA089503191E1C",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.35, 1] -> [0.2307, 0.001518, 0.09759, 1]",
+      "lighting.inner_cone_angle_degrees: 2 -> 6",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: 1250 -> 1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.02685, 0.03437, -0.6151, 0.7873] -> [0.02685, 0.03437, -0.6151, 0.7873] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B09 THEATRICAL BEAM_R|bay 9's current look P02_THEATRICAL_TOP has no BEAM_R (the edit was made on THEATRICAL)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "8126AA754C26ED53CE5831BCE349ACCA": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "674dea114934f81cc675ada3f50c0edf83463ccd1f2a5827a53fcc4041138c0b",
+    "label": "P02 SCORE B10 P02_LURID_POP BEAM_R",
+    "cue": "P02 Wing 011",
+    "cue_guid": "0B80F8886249E85D99B0C691DC6466D5",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [0.3, 1, 0, 1] -> [0.07421, 1, 0, 1]",
+      "lighting.inner_cone_angle_degrees: 4 -> 12",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: 1250 -> 1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.06801, 0.07264, 0.68, -0.7264] -> [0.06801, 0.07264, 0.68, -0.7264] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B10 P02_LURID_POP BEAM_R|bay 10's current look P02_LURID_UP has no BEAM_R (the edit was made on P02_LURID_POP)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  },
+  "A95EB06F4AEDE66F2B20828D92E9E1FA": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "996b212b36ade6fc9100f0b80ad57c46212b1b182150dce8cd93c9608e416276",
+    "label": "P02 SCORE B11 THEATRICAL BEAM_R",
+    "cue": "P02 Wing 012",
+    "cue_guid": "C7C77C36F04E62E5764E5BA7BE04060C",
+    "slot": "BEAM_R",
+    "row_kind": "SCORE_FIXTURE",
+    "changes": [
+      "lighting.color: [1, 0, 0.35, 1] -> [0.2307, 0.001518, 0.09759, 1]",
+      "lighting.inner_cone_angle_degrees: 2 -> 6",
+      "relative_transform.location[0]: -150 -> -150 [float noise]",
+      "relative_transform.location[1]: -1250 -> -1250 [float noise]",
+      "relative_transform.rotation_xyzw: [0.02685, -0.03437, -0.6151, -0.7873] -> [0.02685, -0.03437, -0.6151, -0.7873] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of P02 then refuses SCORE_ALREADY_PRESENT until the lamp is removed by hand",
+      "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the score's own value)",
+      "fold": "NOT POSSIBLE: FOLD_SLOT_ABSENT|P02 SCORE B11 THEATRICAL BEAM_R|bay 11's current look P02_THEATRICAL_TOP has no BEAM_R (the edit was made on THEATRICAL)"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  }
+}

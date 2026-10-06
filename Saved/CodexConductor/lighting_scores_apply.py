@@ -36,6 +36,14 @@ swap, don't add), materialize ONLY this passage, save ONLY Show + level, read
 the Show back and compare every field, queue SavedMasterMatchesShow. The
 operator must then run BOTH run_saved_master_test_request.json and
 run_scene_cut_test_request.json and read the results; "queued" is not a pass.
+
+6 Oct (C++ wiring): MOVER lamps write FInfinityCueAttachment::Mover and practical glass bodies write ::Body
+(sections "C++ attachment options" below). Every authored attachment gets BOTH structs written explicitly (the
+default-off values when it has none), so nothing is inherited from the replicated scratch lights, and both are
+read back after the write (template, in-memory and saved Show); a setter that lies stops the run.
+
+6 Oct (drift decisions, option c): REVERT honours an optional lighting_drift_decisions_P0N.json (section
+"Per-light drift decisions"). Without that file REVERT runs the unchanged pre-6-Oct path.
 """
 from __future__ import annotations
 
@@ -66,7 +74,8 @@ PASSAGE_KEY = re.compile(r"^P0[1-6]$")
 VALID_ROLES = ("TOP", "LOW_SIDE", "BEAM", "PRACTICAL", "FILL", "UPLIGHT", "MOVER")
 # 6 Oct round 2: PRACTICAL 2 -> 4 (P04 floor + hanging bulbs, P06 embers); FILL = soft fence-facing
 # spots (P05 sky-curtain fills); UPLIGHT = small floor spots up a wing (P05 mountain pieces, P04 wing texture);
-# MOVER = P05 club movers (C++ pending: data only, skipped with a warning, see requires_cpp).
+# MOVER = P05 club movers: a "mover" dict written to FInfinityCueAttachment::Mover (6 Oct C++), or, for a lamp whose
+# C++ is not built yet, requires_cpp (validated, then skipped with a warning). Exactly one of the two.
 ROLE_MAX = {"TOP": 2, "LOW_SIDE": 2, "BEAM": 1, "PRACTICAL": 4, "FILL": 2, "UPLIGHT": 2, "MOVER": 2}
 AFTER_PASS = ("HOLD", "DECAY", "EXTINGUISH")
 SHADOW_POLICIES = ("ALL", "ALTERNATE_LIT", "NONE")
@@ -91,9 +100,10 @@ VARIANT_FIELDS = {
     #  drama        per-lamp FInfinityStageLightDrama slow-move keys (SLOW_MOVE_KEYS), written by the P04
     #               tool's _make_light (DRAMA_OVERRIDE_FIELDS, lighting_looks_apply.py:421-426).
     #  dim_tint     ORANGE | WHITE | PINK: the colour a dead bulb glows at when the dim_bulbs policy revives it.
-    #  body_mode    STABLE | SLIGHT | FAIL: the bulb-glass behaviour the C++ agent is adding (no-op until then).
-    #  requires_cpp a lamp that needs C++ not yet built (P05 movers): validated, then SKIPPED with a warning.
-    "keying", "drama", "dim_tint", "body_mode", "requires_cpp",
+    #  body_mode    STABLE | SLIGHT | FAIL: forces the bulb-glass behaviour (FInfinityCueAttachment::Body, 6 Oct C++).
+    #  requires_cpp a lamp that needs C++ not yet built: validated, then SKIPPED with a warning.
+    #  mover        MOVER lamps: FInfinityLightMoverSettings fields (MOVER_DEFAULTS), written to ::Mover.
+    "keying", "drama", "dim_tint", "body_mode", "requires_cpp", "mover",
 }
 # NO-CROSS-SHOT rule (Gary 5 Oct, P02: "those lights should not shoot through from
 # L to R"). Enabled per passage by passages.<P>.no_cross_shots (true or a dict).
@@ -443,8 +453,12 @@ def validate_instrument(row, where):
     if row.get("requires_cpp") is not None:
         require(isinstance(row["requires_cpp"], str) and row["requires_cpp"].strip() and role == "MOVER",
                 "REQUIRES_CPP_BAD|" + where)
+    if row.get("mover") is not None:
+        require(role == "MOVER" and row["type"] == "SPOT" and row.get("requires_cpp") is None,
+                "MOVER_HOST_BAD|" + where)
+        require(resolve_mover(row["mover"], where)["enabled"] is True, "MOVER_NOT_ENABLED|" + where)
     if role == "MOVER":
-        require(row.get("requires_cpp"), "MOVER_WITHOUT_CPP_GATE|" + where)
+        require(row.get("requires_cpp") or row.get("mover") is not None, "MOVER_WITHOUT_CPP_GATE|" + where)
     if role == "PRACTICAL":
         visible = row.get("visible_mesh", {})
         require(str(visible.get("mesh", "")).startswith(("/Game/", "/Engine/")),
@@ -525,6 +539,15 @@ def expand_score(passage_key, passage):
             specs[ordinal] = spec
     missing = [ordinal for ordinal in range(1, count + 1) if ordinal not in specs]
     require(not missing, "BAYS_UNCOVERED|passage=%s|bays=%s" % (passage_key, missing))
+    # 6 Oct (drift fold): passages.<P>.bay_overrides {"<ordinal>": {slot: {field: value}}} is ONE bay's own
+    # override, merged last (it wins over the segment cycle/colour steps). Fields are checked against
+    # BAY_OVERRIDE_FIELDS by bay_fixtures. Absent (every score before the first fold): specs are unchanged.
+    for key, slots in sorted(passage.get("bay_overrides", {}).items()):
+        require(str(key).isdigit() and 1 <= int(key) <= count and isinstance(slots, dict)
+                and all(isinstance(values, dict) and values for values in slots.values()),
+                "BAD_BAY_OVERRIDES|passage=%s|bay=%s" % (passage_key, key))
+        for slot, values in slots.items():
+            specs[int(key)]["overrides"].setdefault(slot, {}).update(copy.deepcopy(values))
     return [specs[ordinal] for ordinal in range(1, count + 1)]
 
 
@@ -598,6 +621,7 @@ def bay_fixtures(tool, scores, looks, passage_key, spec):
     }
     fixtures = tool.expand_bay(config, bay_row)
     spec["cpp_pending"] = _drop_cpp_pending(fixtures, where)
+    _resolve_movers(fixtures, where)
     _apply_lamp_keying(fixtures)
     _apply_dim_bulbs(scores, passage_key, spec["ordinal"], fixtures)
     _mirror_explicit_aims(fixtures, spec)
@@ -704,11 +728,14 @@ def _add_bulb_caps(scores, fixtures):
 def _assign_body_behaviours(scores, passage_key, ordinal, fixtures):
     """Gary 6 Oct: 'a flickering and dying bulb, not all bulbs! some should flicker only slightly and others be
     stable'. Each practical body gets STABLE / SLIGHT / FAIL (an explicit body_mode on the lamp wins, else a
-    stable hash split). DATA ONLY until the C++ per-attachment body option exists: carried on the plan, written
-    by nothing (scores["bulb_body_behaviours"]["cpp_field"] names the field once the patch lands)."""
+    stable hash split). With cpp_field "Body" (the 6 Oct C++, FInfinityCueAttachment::Body) a body that HAS an
+    emissive glass (a derived M_UP_TubeEmissive MI: visible_mesh.material MATCH_LIGHT or DIM) gets a body_write:
+    follow its paired light + the mode's flicker (scores["bulb_body_behaviours"]["modes"]). A body without that
+    glass is left default-off (the C++ drives a scalar its mesh's own material may not have) and says so."""
     policy = scores.get("bulb_body_behaviours")
     if not policy:
         return
+    wired = body_policy(scores)
     lights = {row["slot"]: row for row in fixtures if row.get("authored_kind") == "LIGHT"}
     fail, slight = float(policy["fractions"]["FAIL"]), float(policy["fractions"]["SLIGHT"])
     for prop in fixtures:
@@ -723,6 +750,281 @@ def _assign_body_behaviours(scores, passage_key, ordinal, fixtures):
         prop["body_behaviour"] = {"mode": mode,
                                   "seed": int(_stable_unit("seed", passage_key, ordinal, prop["paired_slot"]) * 2 ** 31),
                                   "authored": False, "cpp_field": policy.get("cpp_field")}
+        if wired is None:
+            continue
+        if prop.get("body") and prop["body"]["mode"] in BODY_GLASS_MODES:
+            write = copy.deepcopy(wired[mode])
+            write.update({"follow_light": True, "seed": prop["body_behaviour"]["seed"],
+                          "light_attachment_guid": PAIRED_LIGHT_PREFIX + prop["paired_slot"]})
+            prop["body_write"] = write
+            prop["body_behaviour"]["authored"] = True
+        else:
+            prop["body_behaviour"]["unwired"] = "NO_EMISSIVE_GLASS"
+
+
+# --------------------------------------------------------------------------
+# C++ attachment options built 6 Oct (commits 4ef0b36 + b6fadc6; held patches
+# Scripts/patches/2026-10-06_MV_light_movers.patch and _BG_bulb_glass_follows_light.patch).
+#   FInfinityCueAttachment::Body  FInfinityBulbBodySettings   InfinityStageTypes.h:483-484   [declaration-proven]
+#   FInfinityCueAttachment::Mover FInfinityLightMoverSettings InfinityStageTypes.h:489-491   [declaration-proven]
+# Fields, defaults and clamps: InfinityStageLightMover.h:43-86, InfinityStageBulbBody.h:38-87 [declaration-proven].
+# Runtime use: InfinityStagePassageActor.cpp:1698-1725 (Mover: Light kind + Station anchor only, offset in the
+# lamp's own frame from the authored aim) and :1758-1830 (Body: non-Light kind; LightAttachmentGuid unset = the
+# FIRST enabled light on the cue, so the tool always sets it to the paired lamp's minted GUID) [source-read].
+# Python names follow UE reflection (bool 'b' prefix dropped, snake_case); InfinityStageLightMover.h:24-27 lists
+# the mover's; the body's are INFERRED by the same rule until a live DRY: DRY writes and reads back both structs on
+# every template before any Show write, so a wrong name or enum stops there with mutated=0.
+# Replication (InfinityStageShowAsset.cpp:572-640) copies whole source lights, Mover/Body included, into the vessels:
+# every authored vessel therefore gets both structs written in full (defaults when it has none), then read back.
+# --------------------------------------------------------------------------
+MOVER_TRIGGERS = ("ALWAYS_IN_PASSAGE", "ON_APPROACH")
+MOVER_DEFAULTS = (  # (python name, C++ default), InfinityStageLightMover.h:45-86
+    ("enabled", False), ("trigger", "ON_APPROACH"), ("approach_distance_cm", 2500.0),
+    ("yaw_amplitude_degrees", 35.0), ("pitch_amplitude_degrees", 20.0), ("steps_per_second", 3.0),
+    ("ease_fraction", 0.25), ("calm_scale", 0.15), ("erratic_ramp_cm", 1500.0), ("seed", 0),
+)
+MOVER_RANGES = {  # ClampMin/ClampMax (steps_per_second: UIMax 12)
+    "approach_distance_cm": (0.0, None), "yaw_amplitude_degrees": (0.0, 180.0),
+    "pitch_amplitude_degrees": (0.0, 89.0), "steps_per_second": (0.1, 12.0), "ease_fraction": (0.01, 1.0),
+    "calm_scale": (0.0, 1.0), "erratic_ramp_cm": (1.0, None),
+}
+ZERO_GUID = "0" * 32
+PAIRED_LIGHT_PREFIX = "PAIRED:"
+BODY_FLICKERS = ("STABLE", "SLIGHT", "FAIL")
+BODY_DEFAULTS = (  # (python name, C++ default), InfinityStageBulbBody.h:39-87
+    ("follow_light", False), ("light_attachment_guid", ZERO_GUID), ("intensity_parameter", "Intensity"),
+    ("full_intensity", -1.0), ("flicker", "STABLE"), ("seed", 0), ("slight_depth", 0.12),
+    ("flicker_rate_hz", 14.0), ("fail_window_cm", 1500.0), ("fail_at_cm", 0.0),
+    ("flicker_also_drives_light", False),
+)
+BODY_RANGES = {"slight_depth": (0.0, 1.0), "flicker_rate_hz": (1.0, 60.0), "fail_window_cm": (1.0, None),
+               "fail_at_cm": (None, None)}
+BODY_MODE_FIELDS = {"flicker", "slight_depth", "flicker_rate_hz", "fail_window_cm", "fail_at_cm",
+                    "flicker_also_drives_light", "intensity_parameter", "full_intensity"}
+BODY_GLASS_MODES = ("MATCH_LIGHT", "DIM")
+INT32 = (-2 ** 31, 2 ** 31 - 1)
+
+
+def _is_int32(value):
+    return isinstance(value, int) and not isinstance(value, bool) and INT32[0] <= value <= INT32[1]
+
+
+def _check_ranges(spec, ranges, kind, where):
+    for key, (low, high) in ranges.items():
+        value = _finite(spec[key], key.upper())
+        require((low is None or value >= low) and (high is None or value <= high),
+                "%s_RANGE|%s=%r|%s" % (kind, key, spec[key], where))
+        spec[key] = value
+
+
+def resolve_mover(spec, where):
+    """A scores 'mover' dict -> every FInfinityLightMoverSettings field (C++ defaults filled in), validated."""
+    names = [name for name, unused in MOVER_DEFAULTS]
+    require(isinstance(spec, dict) and set(spec) <= set(names),
+            "MOVER_FIELDS_BAD|%s|fields=%s" % (where, sorted(spec) if isinstance(spec, dict) else spec))
+    out = {name: copy.deepcopy(spec.get(name, default)) for name, default in MOVER_DEFAULTS}
+    require(isinstance(out["enabled"], bool) and out["trigger"] in MOVER_TRIGGERS and _is_int32(out["seed"]),
+            "MOVER_FIELDS_BAD|" + where)
+    _check_ranges(out, MOVER_RANGES, "MOVER", where)
+    return out
+
+
+def body_policy(scores):
+    """None while the body option is data-only (cpp_field null); else {mode: resolved body fields}."""
+    policy = scores.get("bulb_body_behaviours") or {}
+    if policy.get("cpp_field") is None:
+        return None
+    require(policy["cpp_field"] == "Body", "BODY_CPP_FIELD_UNKNOWN|" + str(policy["cpp_field"]))
+    modes = policy.get("modes")
+    require(isinstance(modes, dict) and set(modes) == set(BODY_BEHAVIOURS), "BODY_MODES_BAD|" + _canonical(modes))
+    out = {}
+    for name, spec in sorted(modes.items()):
+        require(isinstance(spec, dict) and set(spec) <= BODY_MODE_FIELDS and spec.get("flicker") == name,
+                "BODY_MODE_BAD|" + name)
+        row = {key: copy.deepcopy(spec.get(key, default)) for key, default in BODY_DEFAULTS}
+        require(isinstance(row["flicker_also_drives_light"], bool) and isinstance(row["intensity_parameter"], str)
+                and row["intensity_parameter"], "BODY_MODE_BAD|" + name)
+        row["full_intensity"] = _finite(row["full_intensity"], "FULL_INTENSITY")
+        _check_ranges(row, BODY_RANGES, "BODY", name)
+        out[name] = row
+    return out
+
+
+def _resolve_movers(fixtures, where):
+    for row in fixtures:
+        if row.get("authored_kind") == "LIGHT" and row.get("mover") is not None:
+            row["mover_write"] = resolve_mover(row["mover"], "%s|slot=%s" % (where, row["slot"]))
+
+
+def _plain_enum(value):
+    """'<InfinityBulbBodyFlicker.FAIL: 2>' / an enum wrapper / 'FAIL' -> 'FAIL'."""
+    name = getattr(value, "name", None)
+    text = str(name if isinstance(name, str) else value)
+    return text.split(".")[-1].split(":")[0].strip("<> ").upper()
+
+
+def planned_extensions(fixture, light_guid_text):
+    """The exact Mover/Body values one authored attachment must hold (defaults when it has none)."""
+    mover = copy.deepcopy(fixture["mover_write"]) if fixture.get("mover_write") else dict(MOVER_DEFAULTS)
+    if fixture.get("body_write"):
+        body = copy.deepcopy(fixture["body_write"])
+        require(str(body["light_attachment_guid"]) == PAIRED_LIGHT_PREFIX + str(fixture.get("paired_slot")),
+                "BODY_PAIRING_BAD|" + fixture["label"])
+        body["light_attachment_guid"] = str(light_guid_text)
+    else:
+        body = dict(BODY_DEFAULTS)
+    return {"mover": mover, "body": body}
+
+
+def read_extensions(tool, attachment):
+    """Plain Mover/Body values read from an attachment (never trusts a setter's return)."""
+    mover_struct = attachment.get_editor_property("mover")
+    body_struct = attachment.get_editor_property("body")
+    mover, body = {}, {}
+    for name, default in MOVER_DEFAULTS:
+        value = mover_struct.get_editor_property(name)
+        mover[name] = (_plain_enum(value) if name == "trigger" else bool(value) if isinstance(default, bool)
+                       else int(value) if name == "seed" else float(value))
+    for name, default in BODY_DEFAULTS:
+        value = body_struct.get_editor_property(name)
+        if name == "flicker":
+            body[name] = _plain_enum(value)
+        elif name == "light_attachment_guid":
+            body[name] = tool._guid_text(value)
+        elif name == "intensity_parameter":
+            body[name] = str(value)
+        else:
+            body[name] = (bool(value) if isinstance(default, bool) else int(value) if name == "seed"
+                          else float(value))
+    return {"mover": mover, "body": body}
+
+
+def extension_mismatches(planned, got):
+    """[(struct.field, planned, got)]; floats compared at float32 precision (the C++ floats are float)."""
+    out = []
+    for struct in ("mover", "body"):
+        for name, want in sorted(planned[struct].items()):
+            have = got.get(struct, {}).get(name)
+            if isinstance(want, float) and not isinstance(want, bool):
+                ok = have is not None and abs(float(have) - want) <= 1.0e-5 * max(1.0, abs(want))
+            else:
+                ok = have == want
+            if not ok:
+                out.append(("%s.%s" % (struct, name), want, have))
+    return out
+
+
+def require_extensions(planned, got, label, message="EXTENSION_READBACK"):
+    bad = extension_mismatches(planned, got)
+    require(not bad, "%s|%s|%s" % (message, label, ";".join("%s want=%r got=%r" % row for row in bad)))
+
+
+def write_extensions(attachment, planned, enums, guid_value):
+    """Write every Mover and Body field (struct copy, set back: UE Python struct getters return copies)."""
+    mover = attachment.get_editor_property("mover")
+    for name, unused in MOVER_DEFAULTS:
+        value = planned["mover"][name]
+        mover.set_editor_property(name, enums["trigger"](value) if name == "trigger" else value)
+    attachment.set_editor_property("mover", mover)
+    body = attachment.get_editor_property("body")
+    for name, unused in BODY_DEFAULTS:
+        value = planned["body"][name]
+        if name == "flicker":
+            value = enums["flicker"](value)
+        elif name == "light_attachment_guid":
+            value = guid_value
+        elif name == "intensity_parameter":
+            value = enums["name"](value)
+        body.set_editor_property(name, value)
+    attachment.set_editor_property("body", body)
+
+
+def apply_extensions(tool, fixtures, attachments, enums):
+    """Write + read back Mover/Body on attachments authored for ``fixtures`` (same order). A body follows the
+    attachment authored for its paired lamp: its GUID is taken from that attachment (minted in APPLY; the zero
+    GUID on DRY templates). Returns {label: readback}. Any mismatch refuses (setter-lie guard)."""
+    require(len(fixtures) == len(attachments), "EXTENSION_COUNT|fixtures=%d|attachments=%d"
+            % (len(fixtures), len(attachments)))
+    by_slot = {fixture["slot"]: (fixture, attachment) for fixture, attachment in zip(fixtures, attachments)}
+    out = {}
+    for fixture, attachment in zip(fixtures, attachments):
+        if fixture.get("body_write"):
+            paired = by_slot.get(fixture.get("paired_slot"))
+            require(paired is not None and paired[0].get("authored_kind") == "LIGHT",
+                    "BODY_PAIRED_LIGHT_MISSING|" + fixture["label"])
+            guid_value = paired[1].get_editor_property("attachment_guid")
+            guid_text = tool._guid_text(guid_value)
+        else:
+            guid_value, guid_text = enums["zero_guid"](), ZERO_GUID
+        planned = planned_extensions(fixture, guid_text)
+        write_extensions(attachment, planned, enums, guid_value)
+        got = read_extensions(tool, attachment)
+        require_extensions(planned, got, fixture["label"])
+        out[fixture["label"]] = got
+    return out
+
+
+def verify_target_extensions(tool, target, attachments):
+    """Saved/in-memory readback: every authored attachment holds its planned Mover/Body (the body's light GUID =
+    the GUID of the attachment now carrying its paired lamp's label), and no pre-existing attachment of the cue
+    changed its Mover/Body (target["before_extensions"])."""
+    by_label = {}
+    for attachment in attachments:
+        by_label.setdefault(str(attachment.get_editor_property("label")), []).append(attachment)
+    slots = {fixture["slot"]: fixture for fixture in target["fixtures"]}
+    for fixture in target["fixtures"]:
+        hits = by_label.get(fixture["label"], [])
+        require(len(hits) == 1, "EXTENSION_ROW_COUNT|%s|%d" % (fixture["label"], len(hits)))
+        guid_text = ZERO_GUID
+        if fixture.get("body_write"):
+            lamp = by_label.get(slots[fixture["paired_slot"]]["label"], [])
+            require(len(lamp) == 1, "BODY_PAIRED_LIGHT_MISSING|" + fixture["label"])
+            guid_text = tool._guid_text(lamp[0].get_editor_property("attachment_guid"))
+        require_extensions(planned_extensions(fixture, guid_text), read_extensions(tool, hits[0]), fixture["label"],
+                           "EXTENSION_SAVED_READBACK")
+    before = target.get("before_extensions", {})
+    for attachment in attachments:
+        guid = tool._guid_text(attachment.get_editor_property("attachment_guid"))
+        if guid in before:
+            require(_canonical(read_extensions(tool, attachment)) == _canonical(before[guid]),
+                    "EXTENSION_PREEXISTING_CHANGED|" + str(attachment.get_editor_property("label")))
+
+
+def extension_rows(tool, attachments):
+    return {tool._guid_text(a.get_editor_property("attachment_guid")): read_extensions(tool, a) for a in attachments}
+
+
+def extension_outside_hash(tool, show, target_guids):
+    """Mover/Body of every attachment OUTSIDE the target cues. The P04 tool's _outside_hash rows
+    (_infinity_attachment_state.py:104-129) predate these structs and cannot see them."""
+    targets = set(target_guids)
+    rows = {}
+    for cue in show.get_editor_property("cues"):
+        guid = tool._guid_text(cue.get_editor_property("cue_guid"))
+        if guid in targets:
+            continue
+        pair = cue.get_editor_property("wing_pair")
+        rows[guid] = extension_rows(tool, list(pair.get_editor_property("attachments")))
+    return _sha256_bytes(_canonical(rows).encode("utf-8"))
+
+
+def extension_summary(plan):
+    fixtures = [f for t in plan["targets"] for f in t["fixtures"]]
+    modes = {}
+    for f in fixtures:
+        if f.get("body_write"):
+            modes[f["body_write"]["flicker"]] = modes.get(f["body_write"]["flicker"], 0) + 1
+    return {"movers": sum(1 for f in fixtures if f.get("mover_write")),
+            "bodies_follow_light": sum(modes.values()), "bodies_by_flicker": dict(sorted(modes.items())),
+            "bodies_unwired_no_glass": sum(1 for f in fixtures
+                                           if (f.get("body_behaviour") or {}).get("unwired") == "NO_EMISSIVE_GLASS")}
+
+
+def _ue_extension_enums(tool):
+    return {"trigger": lambda name: tool._enum_member(unreal.InfinityLightMoverTrigger, name),
+            "flicker": lambda name: tool._enum_member(unreal.InfinityBulbBodyFlicker, name),
+            "name": lambda text: unreal.Name(text),
+            "zero_guid": lambda: unreal.Guid()}
 
 
 def _mirror_explicit_aims(fixtures, spec):
@@ -1694,6 +1996,542 @@ def scan_foreign_records(roots, guids, exclude=()):
 
 
 # --------------------------------------------------------------------------
+# Per-light drift decisions (option c, 6 Oct). Docs/Conductor/LIGHTING_DRIFT_2026-10-06.md: REVERT refuses
+# REVERT_CURRENT_STATE_DRIFT at the first target cue whose live rows differ from the record's after_rows.
+# Attributed drift (RIG_LAMP_DROP, P03_HOUSING_DROP, OPENING_SEQUENCE_WARMERS ...) is cleared by reverting its own
+# tool first, as before. Drift the report could not attribute (class UNKNOWN, inferred to be hand edits) is decided
+# PER LIGHT in lighting_drift_decisions_P0N.json:
+#   {"report_run", "report_sha256", "record_run", "passage", "status": "DECIDED", "decided_by",
+#    "<GUID>": {"decision": "keep|overwrite|fold", "row_hash": sha256 of the live row (or "ABSENT"), ...readable}}
+#   keep       the GUID is masked out of the drift check and its live row is left exactly as it is (a score lamp
+#              kept this way stays in the Show; a later APPLY of the passage then refuses SCORE_ALREADY_PRESENT).
+#   overwrite  the pinned live row is accepted as the baseline; REVERT then does to it what it always does
+#              (removes a score lamp; restores a pre-score lamp's `enabled`; never writes a retained lamp).
+#   fold       score lamps only: the hand values are written into lighting_scores.json
+#              passages.<P>.bay_overrides["<bay>"][slot] (BAY_OVERRIDE_FIELDS), re-expanded and required to
+#              reproduce the hand values, then as overwrite.
+# REVERT refuses DRIFT_UNDECIDED for any drifted GUID not listed, DRIFT_DECISION_STALE when a listed row changed
+# after it was pinned, and any decision on a GUID the report attributes to another tool. Without the file, REVERT
+# runs the unchanged pre-6-Oct path (_mutate_revert). A TEMPLATE (status "TEMPLATE") is refused until marked DECIDED.
+# --------------------------------------------------------------------------
+DRIFT_REPORT_PATH = os.path.join(HERE, "lighting_drift_report.json")
+DRIFT_UNKNOWN = "UNKNOWN (likely hand edit)"  # lighting_drift_report.py:74
+DRIFT_DECISIONS = ("keep", "overwrite", "fold")
+DRIFT_TEMPLATE_PASSAGES = ("P01", "P02", "P04", "P06")
+DECISION_META = ("schema", "passage", "report_run", "report_sha256", "record_run", "status", "decided_by",
+                 "about", "how_to_decide")
+GUID_KEY = re.compile(r"^[0-9A-F]{32}$")
+ABSENT = "ABSENT"
+# attachment_state path (_infinity_attachment_state.py:104-129) -> scores bay override field (BAY_OVERRIDE_FIELDS)
+FOLD_FIELDS = {
+    "lighting.intensity": "intensity", "lighting.color": "color_rgb_linear",
+    "lighting.temperature_kelvin": "temperature_kelvin", "lighting.attenuation_radius_cm": "attenuation_cm",
+    "lighting.inner_cone_angle_degrees": "inner_cone_deg", "lighting.outer_cone_angle_degrees": "outer_cone_deg",
+    "lighting.volumetric_scattering_intensity": "volumetric_scattering",
+    "relative_transform.location": "location_cm",
+}
+# Transform changes at or below these are editor float noise (seen in the 6 Oct report: -2350 -> -2350.0000000000005).
+FOLD_NOISE = {"relative_transform.location": 0.01, "relative_transform.rotation_xyzw": 1.0e-6,
+              "relative_transform.scale": 1.0e-6}
+
+
+def _decisions_path(passage_key):
+    return os.path.join(HERE, "lighting_drift_decisions_%s.json" % passage_key)
+
+
+def _load_json_unique(path):
+    """json.load that refuses duplicate keys (a GUID listed twice would silently keep only the last)."""
+    def hook(pairs):
+        keys = [key for key, unused in pairs]
+        require(len(keys) == len(set(keys)), "JSON_DUPLICATE_KEY|%s|%s" % (path, sorted(
+            {k for k in keys if keys.count(k) > 1})))
+        return dict(pairs)
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle, object_pairs_hook=hook)
+
+
+def _write_json_lf(path, value):
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(value, indent=2) + "\n")
+
+
+def drift_row_hash(row):
+    return ABSENT if row is None else _sha256_bytes(_canonical(row).encode("utf-8"))
+
+
+def _path_tokens(path):
+    out = []
+    for part in path.split("."):
+        while "[" in part:
+            head, rest = part.split("[", 1)
+            if head:
+                out.append(head)
+            index, part = rest.split("]", 1)
+            out.append(int(index))
+        if part:
+            out.append(part)
+    return out
+
+
+def _get_path(value, path):
+    for token in _path_tokens(path):
+        value = value[token]
+    return value
+
+
+def _set_path(row, path, value):
+    tokens = _path_tokens(path)
+    node = row
+    for token in tokens[:-1]:
+        node = node[token]
+    node[tokens[-1]] = value
+
+
+def _drift_field_of(path):
+    """lighting_drift_report.field_of (lighting_drift_report.py:178-184): components kept for location/scale."""
+    if path.startswith("relative_transform.location[") or path.startswith("relative_transform.scale["):
+        return path
+    while path.endswith("]") and "[" in path:
+        path = path[: path.rfind("[")]
+    return path
+
+
+def _fold_field(path):
+    while path.endswith("]") and "[" in path:
+        path = path[: path.rfind("[")]
+    return path
+
+
+def _row_is_light(row):
+    return str(row.get("kind", "")).upper().split(".")[-1].split(":")[0].strip("<> ") == "LIGHT"
+
+
+def _row_casts(row):
+    return _row_is_light(row) and bool(row.get("enabled")) and bool(row.get("lighting", {}).get("cast_shadows"))
+
+
+def drift_row_kind(target, guid):
+    if guid in {str(a["guid"]) for a in target.get("added", [])}:
+        return "SCORE_FIXTURE"
+    if guid in set(target.get("retained_guids", [])):
+        return "RETAINED"
+    if guid in {str(r["guid"]) for r in target["before_rows"]}:
+        return "PRE_SCORE"
+    return "HAND_ADDED"
+
+
+def _report_passage(report, passage_key):
+    rows = [p for p in report.get("passages", []) if p.get("passage") == passage_key]
+    require(len(rows) == 1 and not rows[0].get("skipped"), "DRIFT_REPORT_PASSAGE_ABSENT|" + passage_key)
+    return rows[0]
+
+
+def reconstruct_live_row(tool, after_row, light):
+    """The live row the report saw: the record's after row with every reported field set to its 'new' value. None
+    for a removed row. Self-check: re-diffing gives exactly the reported fields (else the report is not readable
+    as a full row and the GUID cannot be pinned)."""
+    fields = [f["field"] for f in light["fields"]]
+    if "<row removed>" in fields:
+        return None
+    require("<row added>" not in fields, "DRIFT_ROW_ADDED_UNPINNABLE|%s|the report holds no full row for a "
+            "hand-added attachment: decide it by hand-reading the Show" % light["guid"])
+    row = copy.deepcopy(after_row)
+    for field in light["fields"]:
+        _set_path(row, field["field"], copy.deepcopy(field["new"]))
+    got = {_drift_field_of(d["path"]) for d in tool._state_differences(after_row, row)}
+    require(got == set(fields), "DRIFT_ROW_RECONSTRUCT|%s|reported=%s|rebuilt=%s"
+            % (light["guid"], sorted(fields), sorted(got)))
+    return row
+
+
+def _fmt(value):
+    if isinstance(value, bool) or value is None:
+        return str(value)
+    if isinstance(value, float):
+        return "%.4g" % value
+    if isinstance(value, list):
+        return "[" + ", ".join(_fmt(v) for v in value) + "]"
+    return str(value)
+
+
+def _noise_only(field, old, new):
+    base = _fold_field(field)
+    if base not in FOLD_NOISE or old is None or new is None:
+        return False
+    a = [float(v) for v in (old if isinstance(old, list) else [old])]
+    b = [float(v) for v in (new if isinstance(new, list) else [new])]
+    if len(a) != len(b):
+        return False
+    dist = max(abs(x - y) for x, y in zip(a, b))
+    if base == "relative_transform.rotation_xyzw":
+        dist = min(dist, max(abs(x + y) for x, y in zip(a, b)))
+    return dist <= FOLD_NOISE[base]
+
+
+def fold_overrides(tool, scores, looks, passage_key, target, after_row, live_row):
+    """One score lamp's hand values as a bay override, proven by re-expansion. Returns
+    (folded_scores, {"bay", "slot", "look", "record_look", "overrides", "noise_ignored"})."""
+    label = after_row["label"]
+    fixtures = [f for f in target["fixtures"] if f["label"] == label]
+    require(len(fixtures) == 1 and fixtures[0]["authored_kind"] == "LIGHT", "FOLD_NOT_A_SCORE_LAMP|" + label)
+    require(live_row is not None, "FOLD_ROW_ABSENT|" + label)
+    slot, ordinal = fixtures[0]["slot"], int(target["ordinal"])
+    groups = sorted({_fold_field(d["path"]) for d in tool._state_differences(after_row, live_row)})
+    overrides, noise = {}, []
+    for field in groups:
+        old, new = _get_path(after_row, field), _get_path(live_row, field)
+        if field in FOLD_NOISE and _noise_only(field, old, new):
+            noise.append(field)
+            continue
+        require(field in FOLD_FIELDS, "FOLD_FIELD_UNSUPPORTED|%s|field=%s|the score cannot author it (aims are computed;"
+                " flags/materials are look data): choose keep or overwrite" % (label, field))
+        key = FOLD_FIELDS[field]
+        overrides[key] = ([float(v) for v in new[:3]] if key in ("color_rgb_linear", "location_cm")
+                          else float(new))
+    require(overrides, "FOLD_NOTHING_TO_FOLD|%s|only float noise changed: choose overwrite" % label)
+    require(passage_key in scores["passages"] and 1 <= ordinal <= int(scores["passages"][passage_key]["expected_bay_count"]),
+            "FOLD_BAY_OUT_OF_RANGE|" + label)
+    spec = validate_scores(scores, looks, tool)[passage_key]["specs"][ordinal - 1]
+    require(spec["look"] != "PROTOTYPE", "FOLD_BAY_NOT_SCORED|%s|bay %d is owned by the prototype" % (label, ordinal))
+    present = {r["slot"] for r in looks[spec["look"]]["instruments"]} - set(spec["drop_slots"])
+    require(slot in present, "FOLD_SLOT_ABSENT|%s|bay %d's current look %s has no %s (the edit was made on %s)"
+            % (label, ordinal, spec["look"], slot, fixtures[0]["look"]))
+    if "intensity" in overrides:  # expand_bay multiplies the override by the bay level (lighting_looks_apply.py:362)
+        overrides["intensity"] = overrides["intensity"] / float(spec["level"])
+    folded = copy.deepcopy(scores)
+    bay = folded["passages"][passage_key].setdefault("bay_overrides", {}).setdefault(str(ordinal), {})
+    bay.setdefault(slot, {}).update(copy.deepcopy(overrides))
+    try:
+        new_spec = validate_scores(folded, looks, tool)[passage_key]["specs"][ordinal - 1]
+        rows = bay_fixtures(tool, folded, looks, passage_key, new_spec)
+    except LightingScoresError as error:
+        raise LightingScoresError("FOLD_REFUSED_BY_SCORE|%s|%s" % (label, error))
+    match = [r for r in rows if r.get("slot") == slot and r.get("authored_kind") == "LIGHT"]
+    require(len(match) == 1, "FOLD_SLOT_ABSENT|%s|slot %s is not in bay %d's current look %s"
+            % (label, slot, ordinal, new_spec["look"]))
+    _require_fold_reproduces(match[0], live_row, overrides, label)
+    return folded, {"bay": ordinal, "slot": slot, "look": new_spec["look"], "record_look": fixtures[0]["look"],
+                    "overrides": overrides, "noise_ignored": noise}
+
+
+def _require_fold_reproduces(fixture, live_row, overrides, label):
+    """The re-expanded score lamp must hold the hand values (later passes, e.g. dim bulbs, could override them)."""
+    lighting, bad = live_row["lighting"], []
+    pairs = {"intensity": (fixture["intensity"], lighting["intensity"]),
+             "temperature_kelvin": (fixture["temperature_kelvin"], lighting["temperature_kelvin"]),
+             "attenuation_cm": (fixture["attenuation_cm"], lighting["attenuation_radius_cm"]),
+             "inner_cone_deg": (fixture.get("inner_cone_deg"), lighting["inner_cone_angle_degrees"]),
+             "outer_cone_deg": (fixture.get("outer_cone_deg"), lighting["outer_cone_angle_degrees"]),
+             "volumetric_scattering": (fixture["volumetric_scattering"], lighting["volumetric_scattering_intensity"])}
+    for key in overrides:
+        if key == "color_rgb_linear":
+            ok = _close_list(fixture["color_rgb_linear"], lighting["color"][:3], 1.0e-6)
+        elif key == "location_cm":
+            ok = _close_list(fixture["transform"]["location_cm"], live_row["relative_transform"]["location"], 0.01)
+        else:
+            got, want = pairs[key]
+            ok = got is not None and abs(float(got) - float(want)) <= 1.0e-4 * max(1.0, abs(float(want)))
+        if not ok:
+            bad.append(key)
+    if "intensity" in overrides and _plain_enum(lighting["intensity_units"]) != fixture["intensity_units"]:
+        bad.append("intensity_units")
+    require(not bad, "FOLD_NOT_REPRODUCED|%s|%s|a later score pass rewrites it (e.g. dim_bulbs recolours a"
+            " practical left at 0)" % (label, ",".join(bad)))
+
+
+def fold_scores(tool, scores, looks, passage_key, items):
+    """items: [(target, after_row, live_row)]. Folds them in order; returns (folded_scores, rows). Idempotent:
+    folding values already present leaves the scores canonically identical."""
+    folded, rows = scores, []
+    for target, after_row, live_row in items:
+        folded, row = fold_overrides(tool, folded, looks, passage_key, target, after_row, live_row)
+        rows.append(dict(row, guid=after_row["guid"], label=after_row["label"]))
+    return folded, rows
+
+
+def _options(kind, removed, passage_key):
+    if removed:
+        return {"keep": "the row stays absent", "overwrite": "the row stays absent (same as keep)",
+                "fold": "NOT POSSIBLE: nothing to fold"}
+    if kind == "SCORE_FIXTURE":
+        return {"keep": "REVERT leaves this score lamp in the Show WITH your edit; a later APPLY of %s then refuses "
+                        "SCORE_ALREADY_PRESENT until the lamp is removed by hand" % passage_key,
+                "overwrite": "REVERT removes the lamp as usual; your edit is discarded (a re-APPLY authors the "
+                             "score's own value)"}
+    if kind == "RETAINED":
+        return {"keep": "REVERT never writes this lamp (the score kept it lit): it stays exactly as it is now",
+                "overwrite": "same as keep: the live row is accepted as the pre-score baseline",
+                "fold": "NOT POSSIBLE: not a score lamp"}
+    if kind == "PRE_SCORE":
+        return {"keep": "stays exactly as it is now (still disabled by the score, with your edit)",
+                "overwrite": "REVERT re-enables it as it was before the score; your edit stays",
+                "fold": "NOT POSSIBLE: not a score lamp"}
+    return {"keep": "the hand-added row stays", "overwrite": "the hand-added row stays (same as keep)",
+            "fold": "NOT POSSIBLE: not a score lamp"}
+
+
+def build_drift_decisions_template(tool, scores, looks, passage_key, report, report_sha, record, existing=None):
+    """A decisions file for one passage from the drift report: every UNKNOWN-class drifted light, proposal keep.
+    ``existing``: a previous decisions file; a decision is carried over when its row_hash is unchanged."""
+    rp = _report_passage(report, passage_key)
+    require(rp.get("record_run") == record.get("run") and record.get("passage") == passage_key,
+            "DRIFT_REPORT_RECORD_MISMATCH|%s|report=%s|record=%s" % (passage_key, rp.get("record_run"), record.get("run")))
+    targets = {t["cue_guid"]: t for t in record["plan"]["targets"]}
+    out = {
+        "schema": 1, "passage": passage_key, "report_run": report["run"], "report_sha256": report_sha,
+        "record_run": record["run"], "status": "TEMPLATE", "decided_by": None,
+        "about": "Per-light decisions for the %s scores REVERT (lighting_scores_apply.py, 'Per-light drift decisions')."
+                 " One entry per drifted light the drift report could NOT attribute (class UNKNOWN = inferred hand"
+                 " edit). Attributed drift (RIG_LAMP_DROP etc.) is not decided here: revert that tool first." % passage_key,
+        "how_to_decide": "Set each 'decision' to keep / overwrite / fold (see that light's 'options'), then set status to"
+                         " DECIDED and decided_by to who decided (Gary). Leave row_hash alone: it pins the live row this"
+                         " decision is about; REVERT refuses if the light changed since.",
+    }
+    carried, new = 0, 0
+    for cue in rp["cues"]:
+        target = targets.get(cue["cue_guid"])
+        require(target is not None, "DRIFT_REPORT_CUE_NOT_TARGET|" + cue["cue_guid"])
+        after_by = {str(r["guid"]): r for r in target["after_rows"]}
+        for light in cue["lights"]:
+            if light["class"] != DRIFT_UNKNOWN:
+                continue
+            guid = light["guid"]
+            fields = [f["field"] for f in light["fields"]]
+            removed = "<row removed>" in fields
+            kind = drift_row_kind(target, guid)
+            entry = {"decision": "keep", "proposed": "keep", "row_hash": None, "label": light["label"],
+                     "cue": cue["cue_label"], "cue_guid": cue["cue_guid"], "slot": light.get("slot"),
+                     "row_kind": "REMOVED (" + kind + ")" if removed else kind,
+                     "changes": ["%s: %s -> %s%s%s" % (f["field"], _fmt(f["old"]), _fmt(f["new"]),
+                                                       " [float noise]" if _noise_only(f["field"], f["old"], f["new"]) else "",
+                                                       "" if f["class"] == DRIFT_UNKNOWN else " (%s)" % f["class"])
+                                 for f in light["fields"]],
+                     "options": _options(kind, removed, passage_key)}
+            try:
+                live = reconstruct_live_row(tool, after_by[guid], light) if guid in after_by else None
+                entry["row_hash"] = drift_row_hash(live)
+            except LightingScoresError as error:
+                live = None
+                entry["row_hash"] = None
+                entry["unpinnable"] = str(error)
+            if kind == "SCORE_FIXTURE" and not removed and live is not None:
+                try:
+                    unused, row = fold_overrides(tool, scores, looks, passage_key, target, after_by[guid], live)
+                    entry["options"]["fold"] = ("possible: writes bay_overrides[\"%d\"][\"%s\"] = %s (current look %s;"
+                                                " the edit was made on %s)" % (row["bay"], row["slot"],
+                                                                               _canonical(row["overrides"]), row["look"],
+                                                                               row["record_look"]))
+                    entry["fold_preview"] = row
+                except LightingScoresError as error:
+                    entry["options"]["fold"] = "NOT POSSIBLE: " + str(error)
+            previous = (existing or {}).get(guid)
+            if (isinstance(previous, dict) and previous.get("row_hash") == entry["row_hash"]
+                    and previous.get("decision") in DRIFT_DECISIONS):
+                entry["decision"] = previous["decision"]
+                entry["carried_from"] = existing.get("report_run")
+                carried += 1
+            else:
+                new += 1
+            out[guid] = entry
+    guids = {k for k in out if GUID_KEY.match(k)}
+    if (existing and existing.get("status") == "DECIDED" and new == 0
+            and guids == {k for k in existing if GUID_KEY.match(k)}):
+        out["status"], out["decided_by"] = "DECIDED", existing.get("decided_by")
+    return out
+
+
+def validate_drift_decisions(tool, data, passage_key, report, report_sha, record):
+    """A DECIDED file, bound to this report and record, deciding only UNKNOWN-class drift. Returns
+    {guid: {"decision", "row_hash", "cue_guid", "row_kind", "label"}}."""
+    require(isinstance(data, dict), "DRIFT_DECISIONS_NOT_AN_OBJECT")
+    require(data.get("status") == "DECIDED" and str(data.get("decided_by") or "").strip(),
+            "DRIFT_DECISIONS_NOT_DECIDED|status=%s|a template is not a decision: set status DECIDED and decided_by"
+            % data.get("status"))
+    require(data.get("passage") == passage_key, "DRIFT_DECISIONS_PASSAGE|%s" % data.get("passage"))
+    require(data.get("report_run") == report.get("run") and data.get("report_sha256") == report_sha,
+            "DRIFT_DECISIONS_REPORT_MISMATCH|decisions=%s/%s|report=%s/%s|re-run lighting_drift_report.py and"
+            " regenerate (decisions with unchanged rows carry over)"
+            % (data.get("report_run"), str(data.get("report_sha256"))[:12], report.get("run"), report_sha[:12]))
+    require(data.get("record_run") == record.get("run"), "DRIFT_DECISIONS_RECORD_MISMATCH|%s|%s"
+            % (data.get("record_run"), record.get("run")))
+    rp = _report_passage(report, passage_key)
+    require(rp.get("record_run") == record.get("run"), "DRIFT_REPORT_RECORD_MISMATCH|" + passage_key)
+    unknown, attributed = {}, {}
+    for cue in rp["cues"]:
+        for light in cue["lights"]:
+            (unknown if light["class"] == DRIFT_UNKNOWN else attributed)[light["guid"]] = (cue["cue_guid"], light)
+    targets = {t["cue_guid"]: t for t in record["plan"]["targets"]}
+    decided = {}
+    for key, entry in data.items():
+        if key in DECISION_META:
+            continue
+        require(GUID_KEY.match(str(key)), "DRIFT_DECISION_KEY_BAD|%r" % key)
+        require(isinstance(entry, dict) and entry.get("decision") in DRIFT_DECISIONS,
+                "DRIFT_DECISION_BAD|%s|%r" % (key, entry.get("decision") if isinstance(entry, dict) else entry))
+        if key not in unknown:
+            cls = attributed[key][1]["class"] if key in attributed else "not drifted in the report"
+            raise LightingScoresError("DRIFT_DECISION_NOT_UNKNOWN|%s|class=%s|attributed drift is cleared by reverting"
+                                      " its own tool, not decided per light" % (key, cls))
+        require(isinstance(entry.get("row_hash"), str) and entry["row_hash"], "DRIFT_DECISION_UNPINNED|" + key)
+        cue_guid, light = unknown[key]
+        kind = drift_row_kind(targets[cue_guid], key)
+        if entry["decision"] == "fold":
+            require(kind == "SCORE_FIXTURE" and entry["row_hash"] != ABSENT,
+                    "FOLD_NOT_APPLICABLE|%s|%s|row is %s: only a present score lamp can be folded"
+                    % (key, light["label"], kind))
+        decided[key] = {"decision": entry["decision"], "row_hash": entry["row_hash"], "cue_guid": cue_guid,
+                        "row_kind": kind, "label": light["label"]}
+    return decided
+
+
+def revert_target_plan(tool, target, live_rows, decided):
+    """Decision-aware REVERT of one target cue, on plain rows. Returns {"actions": {guid: (action, value)},
+    "expected_rows", "kept_score_fixtures", "decided"}; refuses DRIFT_UNDECIDED / DRIFT_DECISION_STALE /
+    REVERT_CURRENT_STATE_DRIFT (the unchanged comparator on every undecided row, order included)."""
+    label = target["cue_label"]
+    after = target["after_rows"]
+    after_by = {str(r["guid"]): r for r in after}
+    before_by = {str(r["guid"]): r for r in target["before_rows"]}
+    live_guids = [str(r["guid"]) for r in live_rows]
+    require(len(live_guids) == len(set(live_guids)), "REVERT_LIVE_GUIDS_DUPLICATE|cue=" + label)
+    live_by = dict(zip(live_guids, live_rows))
+    here = {g: e for g, e in decided.items() if e["cue_guid"] == target["cue_guid"]}
+    drifted = [g for g in after_by if g not in live_by or tool._state_differences(after_by[g], live_by[g])]
+    drifted += [g for g in live_guids if g not in after_by]
+    undecided = [g for g in drifted if g not in here]
+    require(not undecided, "DRIFT_UNDECIDED|cue=%s|guids=%s" % (label, ",".join(
+        "%s(%s)" % (g, (after_by.get(g) or live_by.get(g))["label"]) for g in undecided)))
+    for guid, entry in sorted(here.items()):
+        live = drift_row_hash(live_by.get(guid))
+        require(live == entry["row_hash"], "DRIFT_DECISION_STALE|cue=%s|guid=%s|%s|pinned=%s|live=%s|the light changed"
+                " after it was decided: re-run the drift report and decide again"
+                % (label, guid, entry["label"], entry["row_hash"][:12], live[:12]))
+    tool._require_attachment_rows_equal([r for r in live_rows if str(r["guid"]) not in here],
+                                        [r for r in after if str(r["guid"]) not in here],
+                                        "REVERT_CURRENT_STATE_DRIFT|cue=" + label)
+    added = {str(a["guid"]) for a in target["added"]}
+    actions, expected, kept = {}, [], []
+    for row in live_rows:
+        guid = str(row["guid"])
+        decision = here.get(guid, {}).get("decision")
+        if guid in added:
+            if decision == "keep":
+                actions[guid] = ("keep", None)
+                expected.append(row)
+                kept.append(row["label"])
+            else:
+                actions[guid] = ("drop", None)
+            continue
+        if guid not in after_by:
+            require(decision in ("keep", "overwrite"), "DRIFT_DECISION_BAD_FOR_ROW|cue=%s|guid=%s" % (label, guid))
+            actions[guid] = ("keep", None)
+            expected.append(row)
+            continue
+        require(decision != "fold", "FOLD_NOT_APPLICABLE|cue=%s|guid=%s" % (label, guid))
+        # The score's only write to a pre-existing row is `enabled` (before -> after). overwrite undoes exactly that
+        # write; where the score did not change it (a retained lamp) the live value is the accepted baseline, so a
+        # flag another tool set since (the Opening's warmers-off) is not touched.
+        score_wrote_enabled = bool(after_by[guid]["enabled"]) != bool(before_by[guid]["enabled"])
+        if decision == "keep" or not _row_is_light(row) or (decision == "overwrite" and not score_wrote_enabled):
+            actions[guid] = ("keep", None)
+            expected.append(row)
+        else:
+            want = bool(before_by[guid]["enabled"])
+            actions[guid] = ("enabled", want)
+            restored = copy.deepcopy(row)
+            restored["enabled"] = want
+            expected.append(restored)
+        if decision is None:
+            tool._require_attachment_rows_equal([expected[-1]], [before_by[guid]], "REVERT_NOT_EXACT|cue=" + label)
+    return {"actions": actions, "expected_rows": expected, "kept_score_fixtures": kept, "decided": sorted(here)}
+
+
+def load_revert_decisions(tool, passage_key, record, decisions_path=None, report_path=None):
+    """None when the passage has no decisions file (REVERT then runs the unchanged pre-6-Oct path); else the
+    validated decisions and provenance."""
+    path = decisions_path or _decisions_path(passage_key)
+    if not os.path.isfile(path):
+        return None
+    report_path = report_path or DRIFT_REPORT_PATH
+    require(os.path.isfile(report_path), "DRIFT_DECISIONS_REPORT_ABSENT|" + report_path)
+    data = _load_json_unique(path)
+    report_sha = _sha256_path(report_path)
+    with open(report_path, encoding="utf-8") as handle:
+        report = json.load(handle)
+    decided = validate_drift_decisions(tool, data, passage_key, report, report_sha, record)
+    return {"decided": decided, "path": path, "sha256": _sha256_path(path), "report_run": report["run"],
+            "report_sha256": report_sha, "decided_by": data.get("decided_by"),
+            "counts": {d: sum(1 for e in decided.values() if e["decision"] == d) for d in DRIFT_DECISIONS}}
+
+
+def plan_decided_revert(tool, plan, decided, live_rows_by_cue):
+    """Every target's revert_target_plan, BEFORE any write (all refusals happen here), and the fold items."""
+    plans, folds = {}, []
+    for target in plan["targets"]:
+        live = live_rows_by_cue[target["cue_guid"]]
+        plans[target["cue_guid"]] = revert_target_plan(tool, target, live, decided)
+        after_by = {str(r["guid"]): r for r in target["after_rows"]}
+        live_by = {str(r["guid"]): r for r in live}
+        for guid, entry in sorted(decided.items()):
+            if entry["cue_guid"] == target["cue_guid"] and entry["decision"] == "fold":
+                folds.append((target, after_by[guid], live_by.get(guid)))
+    return plans, folds
+
+
+def write_drift_decision_templates(passages=DRIFT_TEMPLATE_PASSAGES, report_path=None, out_dir=HERE):
+    """OFFLINE: (re)write lighting_drift_decisions_P0N.json for each passage from the drift report + the active
+    scores record. Existing decisions carry over where the pinned row is unchanged. Returns the paths."""
+    report_path = report_path or DRIFT_REPORT_PATH
+    tool = load_p04_tool()
+    scores = load_scores()
+    base, unused = load_base_looks(scores)
+    looks = resolve_looks(scores, base)
+    report_sha = _sha256_path(report_path)
+    with open(report_path, encoding="utf-8") as handle:
+        report = json.load(handle)
+    paths = []
+    for passage_key in passages:
+        with open(_record_path(passage_key), encoding="utf-8") as handle:
+            record = json.load(handle)
+        path = os.path.join(out_dir, "lighting_drift_decisions_%s.json" % passage_key)
+        existing = _load_json_unique(path) if os.path.isfile(path) else None
+        _write_json_lf(path, build_drift_decisions_template(tool, scores, looks, passage_key, report, report_sha,
+                                                            record, existing))
+        paths.append(path)
+    return paths
+
+
+def check_drift_decisions(passage_key, decisions_path=None, report_path=None):
+    """OFFLINE pre-flight of a DECIDED file against the report + record: validation, and every fold re-expanded
+    on the report's rows (no write). The live REVERT repeats all of it on the live Show."""
+    tool = load_p04_tool()
+    scores = load_scores()
+    base, unused = load_base_looks(scores)
+    looks = resolve_looks(scores, base)
+    with open(_record_path(passage_key), encoding="utf-8") as handle:
+        record = json.load(handle)
+    loaded = load_revert_decisions(tool, passage_key, record, decisions_path, report_path)
+    require(loaded is not None, "DRIFT_DECISIONS_ABSENT|" + passage_key)
+    with open(report_path or DRIFT_REPORT_PATH, encoding="utf-8") as handle:
+        report = json.load(handle)
+    rp = _report_passage(report, passage_key)
+    targets = {t["cue_guid"]: t for t in record["plan"]["targets"]}
+    items = []
+    for cue in rp["cues"]:
+        after_by = {str(r["guid"]): r for r in targets[cue["cue_guid"]]["after_rows"]}
+        for light in cue["lights"]:
+            entry = loaded["decided"].get(light["guid"])
+            if entry and entry["decision"] == "fold":
+                items.append((targets[cue["cue_guid"]], after_by[light["guid"]],
+                              reconstruct_live_row(tool, after_by[light["guid"]], light)))
+    unused, rows = fold_scores(tool, scores, looks, passage_key, items)
+    undecided = sorted(light["guid"] for cue in rp["cues"] for light in cue["lights"]
+                       if light["class"] == DRIFT_UNKNOWN and light["guid"] not in loaded["decided"])
+    return {"passage": passage_key, "counts": loaded["counts"], "folds": rows, "undecided_unknown": undecided,
+            "attributed_lights": {k: v for k, v in rp["lights_by_class"].items() if k != DRIFT_UNKNOWN}}
+
+
+# --------------------------------------------------------------------------
 # Unreal runtime (never executed offline).
 # --------------------------------------------------------------------------
 def _record_path(passage_key):
@@ -1897,7 +2735,7 @@ def _choose_scratch(tool, show, plan, avoid):
     return candidates[0][1], candidates[0][2]
 
 
-def _mutate_apply(tool, show, plan, materials, meshes, avoid):
+def _mutate_apply(tool, show, plan, materials, meshes, avoid, enums):
     cues = list(show.get_editor_property("cues"))
     scratch_index, scratch_guid = _choose_scratch(tool, show, plan, avoid)
     plan["scratch"] = {"show_index": scratch_index, "cue_guid": scratch_guid}
@@ -1946,6 +2784,9 @@ def _mutate_apply(tool, show, plan, materials, meshes, avoid):
                         "MINTED_GUID_NOT_FRESH|guid=" + minted)
                 authored.append(tool._overwrite_vessel(vessel, _template(tool, fixture, materials, meshes)))
                 added_all.add(minted)
+            # 6 Oct: Mover/Body are not in the P04 _overwrite_vessel field list (lighting_looks_apply.py:1570-1571):
+            # write both in full on every vessel (bodies follow their paired lamp's minted GUID) and read back.
+            target["extensions"] = apply_extensions(tool, target["fixtures"], authored, enums)
             tool._set_pair_attachments(show, index, modified + authored)
             target["added"] = [{"guid": tool._guid_text(a.get_editor_property("attachment_guid")),
                                 "label": str(a.get_editor_property("label"))} for a in authored]
@@ -2006,13 +2847,16 @@ def _verify_fixture_values(plan, rows_by_guid):
                         "SLOW_MOVE_READBACK|%s|%s" % (key, fixture["label"]))
 
 
-def _verify_applied(tool, show, plan, outside_before):
+def _verify_applied(tool, show, plan, outside_before, extension_outside_before):
     all_rows = tool._all_pair_rows(show)
     require(tool._outside_hash(all_rows, plan["target_cue_guids"]) == outside_before,
             "OUTSIDE_TARGET_SCOPE_CHANGED")
+    require(extension_outside_hash(tool, show, plan["target_cue_guids"]) == extension_outside_before,
+            "OUTSIDE_TARGET_EXTENSIONS_CHANGED")
     read_rows = {}
     for target in plan["targets"]:
         unused, attachments = _current_target(tool, show, target)
+        verify_target_extensions(tool, target, attachments)
         rows = tool._attachment_rows(attachments)
         read_rows[target["cue_guid"]] = rows
         tool._require_attachment_rows_equal(rows, target["after_rows"], "APPLY_READBACK_MISMATCH|cue=" + target["cue_label"])
@@ -2112,6 +2956,7 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             for target in plan["targets"]:
                 target["before_rows"] = tool._attachment_rows(tool._pair_attachments(cues[target["show_index"]]))
                 target["before_hash"] = tool._rows_hash(target["before_rows"])
+                target["before_extensions"] = extension_rows(tool, tool._pair_attachments(cues[target["show_index"]]))
             foreign = scan_foreign_records(
                 [os.path.join(os.path.dirname(HERE), name) for name in os.listdir(os.path.dirname(HERE))
                  if name.startswith("Codex")],
@@ -2137,9 +2982,16 @@ def _run(mode, passage_key, ack_records, prototype_absent):
             for path, spec in plan["body_assets"]["meshes"].items():
                 template_meshes[path] = (unreal.load_asset(path) if body_state[path] == "REUSE"
                                          else meshes[spec["source"]])
-            templates = sum(1 for t in plan["targets"] for f in t["fixtures"]
-                            if _template(tool, f, materials, template_meshes) is not None)
+            # Templates are built AND given their Mover/Body, read back (proves the 6 Oct property names and
+            # enums on fresh attachments before any Show write; DRY stops here on a wrong name, mutated=0).
+            enums = _ue_extension_enums(tool)
+            templates = 0
+            for t in plan["targets"]:
+                built = [_template(tool, f, materials, template_meshes) for f in t["fixtures"]]
+                templates += sum(1 for a in built if a is not None)
+                apply_extensions(tool, t["fixtures"], built, enums)
             require(templates == plan["fixture_count"], "TEMPLATE_BUILD_COUNT")
+            extensions = extension_summary(plan)
             report.update({"plan_summary": {
                 "bays": plan["bay_count"], "targets": len(plan["targets"]), "skipped": plan["skipped"],
                 "retained": plan["retained"], "fixtures": plan["fixture_count"],
@@ -2151,6 +3003,7 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 "body_assets": body_state,
                 "flicker_instances": {p: flicker_state[p] for p in plan["flicker_instances"]},
                 "warnings": plan["warnings"],
+                "extensions": extensions,
                 "beat_check": plan["beat_check"],
                 "no_cross_live": None if not plan.get("no_cross") else
                 {"spots": len(plan["no_cross"]["live"]), "verdict": "PASS"}}})
@@ -2158,20 +3011,24 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 report.update({"ok": True, "mutated": False, "plan": plan, "census": tool._dirty_census()})
                 tool._write_json(report_path, report)
                 unreal.log("LIGHTING_SCORES_DRY_OK|run=%s|passage=%s|targets=%d|skipped=%d|attachments=%d|lights=%d|"
-                           "practical_props=%d|disabled=%d|retained=%d|shadow=%d->%d|foreign=%d|no_cross=%s|mutated=0"
+                           "practical_props=%d|disabled=%d|retained=%d|shadow=%d->%d|foreign=%d|no_cross=%s|"
+                           "movers=%d|bodies_follow=%d|extensions_readback=1|mutated=0"
                            % (run, passage_key, len(plan["targets"]), len(plan["skipped"]), plan["fixture_count"],
                               plan["light_fixture_count"], plan["practical_prop_count"],
                               plan["existing_lights_disabled"], len(plan["retained"]),
                               plan["shadow"]["passage_before"], plan["shadow"]["passage_after"], len(foreign),
-                              "OFF" if not plan.get("no_cross") else "PASS_%d_SPOTS" % len(plan["no_cross"]["live"])))
+                              "OFF" if not plan.get("no_cross") else "PASS_%d_SPOTS" % len(plan["no_cross"]["live"]),
+                              extensions["movers"], extensions["bodies_follow_light"]))
                 return report
             require(not unacknowledged, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacknowledged))
             outside_before = tool._outside_hash(tool._all_pair_rows(show), plan["target_cue_guids"])
+            extension_outside_before = extension_outside_hash(tool, show, plan["target_cue_guids"])
             backup = tool._backup("PreLightingScores%s-" % passage_key, run)
             record = {"schema_version": 1, "status": "prepared", "run": run, "passage": passage_key,
                       "scores_sha256": report["scores_sha256"], "base_looks": base_info,
                       "p04_tool_sha256": report["p04_tool_sha256"], "backup": backup,
-                      "outside_before_hash": outside_before, "plan": plan}
+                      "outside_before_hash": outside_before,
+                      "extension_outside_before_hash": extension_outside_before, "plan": plan}
             tool._write_json(record_path, record, exclusive=True)
             if plan["body_assets"]["mis"] or plan["body_assets"]["meshes"]:
                 # Created and saved BEFORE the Show mutation, so _save_narrow still sees only Show + level dirty.
@@ -2194,7 +3051,7 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 for path in plan["flicker_instances"]:
                     materials[path] = unreal.load_asset(path)
             try:
-                _mutate_apply(tool, show, plan, materials, meshes, _other_score_targets(passage_key))
+                _mutate_apply(tool, show, plan, materials, meshes, _other_score_targets(passage_key), enums)
             except Exception:
                 record["status"] = "failed_rolled_back_in_memory"
                 tool._write_json(record_path, record)
@@ -2202,11 +3059,11 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                 raise
             record.update({"status": "mutated_verified", "plan": plan})
             tool._write_json(record_path, record)
-            _verify_applied(tool, show, plan, outside_before)
+            _verify_applied(tool, show, plan, outside_before, extension_outside_before)
             materialized = _materialize_passage(show, passage_cfg["passage_actor_label_prefix"])
             tool._save_narrow()
             readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
-            after = _verify_applied(tool, readback, plan, outside_before)
+            after = _verify_applied(tool, readback, plan, outside_before, extension_outside_before)
             record.update({"status": "saved_readback_verified", "materialized": materialized,
                            "saved_census": tool._dirty_census()})
             tool._write_json(record_path, record)
@@ -2225,20 +3082,41 @@ def _run(mode, passage_key, ack_records, prototype_absent):
         require(record.get("status") == "saved_readback_verified", "REVERT_RECORD_STATUS|" + str(record.get("status")))
         require(record.get("passage") == passage_key, "REVERT_RECORD_PASSAGE")
         plan = record["plan"]
+        # 6 Oct: per-light drift decisions. None (no lighting_drift_decisions_P0N.json) = the pre-6-Oct path below.
+        decisions = load_revert_decisions(tool, passage_key, record)
         plain, unused = _runtime_plain(tool, show)
         before_revert = passage_casters(tool, plain, plan["bay_guids"])
+        if decisions is not None:
+            live_rows = {t["cue_guid"]: tool._attachment_rows(_current_target(tool, show, t)[1])
+                         for t in plan["targets"]}
+            unused_plans, folds = plan_decided_revert(tool, plan, decisions["decided"], live_rows)  # refusals here
+            live_casts = sum(_row_casts(r) for rows in live_rows.values() for r in rows)
+            report["drift_decisions"] = {k: v for k, v in decisions.items() if k != "decided"}
+            report["fold"] = _fold_into_scores(tool, scores, looks, passage_key, folds, run)
         backup = tool._backup("PreLightingScores%sRevert-" % passage_key, run)
-        _mutate_revert(tool, show, plan)
+        if decisions is None:
+            _mutate_revert(tool, show, plan)
+            expected_rows = None
+        else:
+            revert_plans = _mutate_revert_decided(tool, show, plan, decisions["decided"])
+            expected_rows = {cue: steps["expected_rows"] for cue, steps in revert_plans.items()}
+            report["kept_score_fixtures"] = sorted(label for steps in revert_plans.values()
+                                                   for label in steps["kept_score_fixtures"])
         plain, unused = _runtime_plain(tool, show)
         after_revert = passage_casters(tool, plain, plan["bay_guids"])
-        expected = before_revert - plan["shadow"]["target_after"] + plan["shadow"]["target_before"]
+        if expected_rows is None:
+            expected = before_revert - plan["shadow"]["target_after"] + plan["shadow"]["target_before"]
+        else:
+            expected = before_revert - live_casts + sum(_row_casts(r) for rows in expected_rows.values() for r in rows)
         require(after_revert == expected, "REVERT_SHADOW_MISMATCH|expected=%d|actual=%d" % (expected, after_revert))
         materialized = _materialize_passage(show, passage_cfg["passage_actor_label_prefix"])
         tool._save_narrow()
         readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
         for target in plan["targets"]:
             unused_index, attachments = _current_target(tool, readback, target)
-            tool._require_attachment_rows_equal(tool._attachment_rows(attachments), target["before_rows"],
+            tool._require_attachment_rows_equal(tool._attachment_rows(attachments),
+                                                target["before_rows"] if expected_rows is None
+                                                else expected_rows[target["cue_guid"]],
                                                 "REVERT_READBACK_NOT_EXACT|cue=" + target["cue_label"])
         body_revert = None
         if record.get("body_assets_created"):
@@ -2257,6 +3135,12 @@ def _run(mode, passage_key, ack_records, prototype_absent):
                        "shadow": {"before_revert": before_revert, "after_revert": after_revert},
                        "saved_master_test": "queued", "census": tool._dirty_census()})
         tool._write_json(report_path, report)
+        if decisions is not None:
+            unreal.log("LIGHTING_SCORES_REVERT_DECISIONS|run=%s|passage=%s|keep=%d|overwrite=%d|fold=%d|"
+                       "kept_score_fixtures=%d|scores_folded=%d"
+                       % (run, passage_key, decisions["counts"]["keep"], decisions["counts"]["overwrite"],
+                          decisions["counts"]["fold"], len(report["kept_score_fixtures"]),
+                          int(bool(report["fold"] and report["fold"]["changed"]))))
         unreal.log("LIGHTING_SCORES_REVERT_OK|run=%s|passage=%s|targets=%d|shadow=%d->%d|show_saved=1|level_saved=1|"
                    "readback=1|saved_master=queued|scene_cut=RUN_SEPARATELY"
                    % (run, passage_key, len(plan["targets"]), before_revert, after_revert))
@@ -2316,6 +3200,68 @@ def _mutate_revert(tool, show, plan):
                         a.get_editor_property("attachment_guid"))])
             tool._set_pair_attachments(show, index, attachments)
         raise
+
+
+def _mutate_revert_decided(tool, show, plan, decided):
+    """_mutate_revert with per-light decisions: the plan comes from revert_target_plan on the rows read NOW; each
+    live attachment is dropped, kept, or has `enabled` restored; the result must equal the plan's expected rows.
+    Rolls back in memory on any failure, like _mutate_revert. Returns {cue_guid: revert_target_plan}."""
+    outside_before = tool._outside_hash(tool._all_pair_rows(show), plan["target_cue_guids"])
+    current, current_enabled, plans = {}, {}, {}
+    try:
+        for target in plan["targets"]:
+            index, attachments = _current_target(tool, show, target)
+            current[index] = attachments
+            for a in attachments:
+                if tool._is_light(a):
+                    current_enabled[tool._guid_text(a.get_editor_property("attachment_guid"))] = bool(
+                        a.get_editor_property("enabled"))
+            steps = revert_target_plan(tool, target, tool._attachment_rows(attachments), decided)
+            restored = []
+            for a in attachments:
+                guid = tool._guid_text(a.get_editor_property("attachment_guid"))
+                action, value = steps["actions"][guid]
+                if action == "drop":
+                    continue
+                if action == "enabled":
+                    require(tool._is_light(a), "REVERT_ENABLED_ON_NON_LIGHT|cue=%s|guid=%s" % (target["cue_label"], guid))
+                    a.set_editor_property("enabled", bool(value))
+                restored.append(a)
+            tool._set_pair_attachments(show, index, restored)
+            tool._require_attachment_rows_equal(tool._attachment_rows(restored), steps["expected_rows"],
+                                                "REVERT_NOT_EXACT|cue=" + target["cue_label"])
+            plans[target["cue_guid"]] = steps
+        require(tool._outside_hash(tool._all_pair_rows(show), plan["target_cue_guids"]) == outside_before,
+                "REVERT_OUTSIDE_TARGET_SCOPE_CHANGED")
+    except Exception:
+        for index, attachments in current.items():
+            for a in attachments:
+                if tool._is_light(a):
+                    a.set_editor_property("enabled", current_enabled[tool._guid_text(
+                        a.get_editor_property("attachment_guid"))])
+            tool._set_pair_attachments(show, index, attachments)
+        raise
+    return plans
+
+
+def _fold_into_scores(tool, scores, looks, passage_key, folds, run):
+    """Write the fold decisions into lighting_scores.json (backup first, read back). Before any Show write;
+    idempotent, so a REVERT that later stops leaves a score that a re-run folds to the same bytes."""
+    if not folds:
+        return None
+    folded, rows = fold_scores(tool, scores, looks, passage_key, folds)
+    before_sha = _sha256_path(SCORES_PATH)
+    changed = _canonical(folded) != _canonical(scores)
+    backup = None
+    if changed:
+        backup = SCORES_PATH + ".bak-%s-preFold" % run
+        require(not os.path.exists(backup), "FOLD_BACKUP_EXISTS|" + backup)
+        with open(SCORES_PATH, "rb") as source, open(backup, "wb") as target:
+            target.write(source.read())
+        _write_json_lf(SCORES_PATH, folded)
+        require(_canonical(load_scores(SCORES_PATH)) == _canonical(folded), "FOLD_SCORES_READBACK")
+    return {"rows": rows, "changed": changed, "backup": backup, "scores_sha256_before": before_sha,
+            "scores_sha256_after": _sha256_path(SCORES_PATH)}
 
 
 def main(mode=None, passage=None):

@@ -1036,10 +1036,20 @@ check("+ an explicit body_mode on the lamp wins over the split",
 x["variants"]["P04_GROUND_BULBS"]["instrument_overrides"]["PRACTICAL_L"]["body_mode"] = "EXPLODE"
 expect_error("- control: an unknown body_mode is refused", lambda: L.resolve_looks(x, BASE), "BODY_MODE_BAD")
 import inspect as _inspect  # noqa: E402
-check("+ behaviours are DATA ONLY until the C++ field exists: cpp_field is null and no authoring code reads body_behaviour",
-      SCORES["bulb_body_behaviours"]["cpp_field"] is None
-      and "body_behaviour" not in _inspect.getsource(TOOL._make_prop) + _inspect.getsource(L._template)
-      + _inspect.getsource(L._mutate_apply))
+_wired = [f for o in ALL for t in plan_for(o)["targets"] for f in t["fixtures"] if f.get("role") == "PRACTICAL_BODY"]
+check("+ behaviours are WIRED (6 Oct C++ Body): every glass-bodied practical carries a body_write (follow its own lamp + "
+      "its mode); glassless bodies are left default-off and say so",
+      SCORES["bulb_body_behaviours"]["cpp_field"] == "Body"
+      and all((f.get("body_write") is not None) == bool(f.get("body") and f["body"]["mode"] in ("MATCH_LIGHT", "DIM"))
+              for f in _wired)
+      and all(f["body_write"]["follow_light"] and f["body_write"]["flicker"] == f["body_behaviour"]["mode"]
+              and f["body_write"]["light_attachment_guid"] == "PAIRED:" + f["paired_slot"] for f in _wired if f.get("body_write"))
+      and all(f["body_behaviour"].get("unwired") == "NO_EMISSIVE_GLASS" for f in _wired if not f.get("body_write")),
+      "wired=%d unwired=%d" % (sum(1 for f in _wired if f.get("body_write")), sum(1 for f in _wired if not f.get("body_write"))))
+x = copy.deepcopy(SCORES)
+x["bulb_body_behaviours"]["cpp_field"] = None
+check("- control: cpp_field null -> no body_write anywhere (the old data-only path is intact)",
+      not any(f.get("body_write") for t in plan_for("P04", scores=x)["targets"] for f in t["fixtures"]))
 
 # -- new light functions (the parent graph in Python; INFERRED vs the binary: Sine Period default 1)
 LFI = L.validate_flicker_instances(SCORES)
@@ -1192,14 +1202,24 @@ check("+ P05 7-12: sky cut (no FILL/BEAM/LOW_SIDE), tops + up-spots blink (FAULT
       all(not {"FILL", "BEAM", "LOW_SIDE"} & set(roles(o)) for o in range(7, 13))
       and all(f["flicker"]["mode"] == "FAULT" and f["distance_keying"]["after_pass"] == "EXTINGUISH"
               for o in range(7, 13) for f in p05p[o]["fixtures"] if f.get("role") in ("TOP", "UPLIGHT")))
-check("+ P05 13-18: everything on; the 12 club movers are SKIPPED with a warning (no C++ yet), none authored",
+check("+ P05 13-18: everything on; the 12 club movers are AUTHORED with their Mover settings (C++ 6 Oct), no warnings",
       all({"FILL", "UPLIGHT", "TOP", "LOW_SIDE", "BEAM"} <= set(roles(o)) for o in range(13, 19))
-      and "MOVER" not in {r for o in p05p for r in roles(o)} and len(p05_plan["warnings"]) == 12
-      and all(w.startswith("SKIPPED_PENDING_CPP|passage=P05") for w in p05_plan["warnings"]))
+      and sorted(o for o in p05p for r in roles(o) if r == "MOVER") == sorted(list(range(13, 19)) * 2)
+      and all(f["mover_write"]["enabled"] for o in range(13, 19) for f in p05p[o]["fixtures"] if f.get("role") == "MOVER")
+      and p05_plan["warnings"] == [])
 x = copy.deepcopy(SCORES)
 for row in x["variants"]["P05_ALL_ON"]["add_instruments"]:
-    row.pop("requires_cpp", None)
-expect_error("- control: a MOVER without its requires_cpp gate is refused (never authored half-working)",
+    if row.get("role") == "MOVER":
+        row.pop("mover")
+        row["requires_cpp"] = "gate test"
+_skip = plan_for("P05", scores=x)
+check("- control: the same movers behind a requires_cpp gate are SKIPPED with 12 warnings (the gate still works)",
+      len(_skip["warnings"]) == 12 and all(w.startswith("SKIPPED_PENDING_CPP|passage=P05") for w in _skip["warnings"])
+      and not any(f.get("role") == "MOVER" for t in _skip["targets"] for f in t["fixtures"]))
+x = copy.deepcopy(SCORES)
+for row in x["variants"]["P05_ALL_ON"]["add_instruments"]:
+    row.pop("mover", None)
+expect_error("- control: a MOVER with neither Mover settings nor a requires_cpp gate is refused",
              lambda: L.resolve_looks(x, BASE), "MOVER_WITHOUT_CPP_GATE")
 own = [(o, f) for o in range(1, 19) for f in p05p[o]["fixtures"] if f.get("role") in ("FILL", "UPLIGHT", "TOP")]
 check("+ P05 new spots stay on their own side (FILL aimed outward at the fence line, TOP/UPLIGHT own wing)",
@@ -1253,6 +1273,672 @@ budget = {k: plan_for(k)["shadow"] for k in ALL}
 check("+ every passage within its shadow budget after round 2 (after <= before)",
       all(b["budget_ok"] for b in budget.values()),
       " ".join("%s %d->%d" % (k, b["passage_before"], b["passage_after"]) for k, b in sorted(budget.items())))
+
+# ============================================================================ 6 Oct: C++ wiring + drift decisions
+print("\n== 20. C++ Mover/Body wiring (FInfinityCueAttachment::Mover / ::Body, built 6 Oct)")
+import re as _re  # noqa: E402
+
+PUBLIC = os.path.join(os.path.dirname(os.path.dirname(HERE)), "Plugins", "InfinityStage", "Source", "InfinityStage", "Public")
+
+
+def header_fields(path, struct):
+    """(python_name, default) per UPROPERTY of ``struct`` in a header, by UE's naming rule (bool b-prefix dropped,
+    CamelCase -> snake_case). The declaration is the source of truth the tool's tables must match."""
+    text = open(path, encoding="utf-8").read()
+    body = text[text.index("struct INFINITYSTAGE_API " + struct):]
+    body = body[: body.index("};")]
+    out = []
+    for ctype, name, default in _re.findall(r"UPROPERTY\([^;]*?\)\s*(\w+)\s+(\w+)(?:\s*=\s*([^;]+))?;", body, _re.S):
+        if ctype == "bool" and name.startswith("b") and name[1:2].isupper():
+            name = name[1:]
+        snake = _re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", name).lower()
+        if not default:
+            value = "0" * 32 if ctype == "FGuid" else None
+        else:
+            d = default.strip()
+            if d in ("true", "false"):
+                value = d == "true"
+            elif "::" in d:
+                value = _re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", d.split("::")[-1]).upper()
+            elif d.startswith("TEXT("):
+                value = d[len('TEXT("'):-2]
+            elif ctype == "int32":
+                value = int(d)
+            else:
+                value = float(d.rstrip("f"))
+        out.append((snake, value))
+    return out
+
+
+mover_h = header_fields(os.path.join(PUBLIC, "InfinityStageLightMover.h"), "FInfinityLightMoverSettings")
+body_h = header_fields(os.path.join(PUBLIC, "InfinityStageBulbBody.h"), "FInfinityBulbBodySettings")
+check("+ MOVER_DEFAULTS == the header's UPROPERTYs (names by UE's rule, order, defaults) [declaration-proven]",
+      tuple(mover_h) == L.MOVER_DEFAULTS, str(mover_h))
+check("+ BODY_DEFAULTS == the header's UPROPERTYs (names by UE's rule, order, defaults) [declaration-proven]",
+      tuple(body_h) == L.BODY_DEFAULTS, str(body_h))
+_tmp_h = tempfile.mkdtemp(prefix="hdr_")
+open(os.path.join(_tmp_h, "m.h"), "w", encoding="utf-8").write(open(os.path.join(
+    PUBLIC, "InfinityStageLightMover.h"), encoding="utf-8").read().replace("StepsPerSecond = 3.0f;", "StepsPerSecond = 4.0f;"))
+check("- control: the same parse of a header with one changed default disagrees (the comparison can fail)",
+      tuple(header_fields(os.path.join(_tmp_h, "m.h"), "FInfinityLightMoverSettings")) != L.MOVER_DEFAULTS)
+shutil.rmtree(_tmp_h, ignore_errors=True)
+types_h = open(os.path.join(PUBLIC, "InfinityStageTypes.h"), encoding="utf-8").read().splitlines()
+check("+ the attachment carries both structs where the tool cites them (InfinityStageTypes.h:484 Body, :491 Mover)",
+      types_h[483].strip() == "FInfinityBulbBodySettings Body;" and types_h[490].strip() == "FInfinityLightMoverSettings Mover;",
+      "%r %r" % (types_h[483].strip(), types_h[490].strip()))
+
+p05_movers = [f for t in plan_for("P05")["targets"] for f in t["fixtures"] if f.get("role") == "MOVER"]
+m0 = p05_movers[0]["mover_write"]
+check("+ P05 movers carry Gary's brief: ground aim first (ON_APPROACH 500 cm, inside the 650 cm strike; calm 0), then "
+      "+-40/+-25 deg jolts at 4 steps/s, ease 0.2; own seeds L/R",
+      len(p05_movers) == 12 and m0["trigger"] == "ON_APPROACH" and m0["calm_scale"] == 0.0
+      and m0["approach_distance_cm"] < p05_movers[0]["distance_keying"]["strike_distance_cm"]
+      and m0["steps_per_second"] == 4.0 and m0["ease_fraction"] == 0.2 and m0["enabled"]
+      and {f["mover_write"]["seed"] for f in p05_movers} == {1, 2}
+      and all(f["aim_target_pair_cm"][2] == 0.0 for f in p05_movers), str(m0))
+for name, edit, needle in (
+        ("pitch above the 89 deg clamp", {"pitch_amplitude_degrees": 95.0}, "MOVER_RANGE"),
+        ("ease below the 0.01 clamp", {"ease_fraction": 0.0}, "MOVER_RANGE"),
+        ("an unknown field", {"spin": 1.0}, "MOVER_FIELDS_BAD"),
+        ("an unknown trigger", {"trigger": "SOMETIMES"}, "MOVER_FIELDS_BAD"),
+        ("a 64-bit seed", {"seed": 2 ** 40}, "MOVER_FIELDS_BAD"),
+        ("enabled false", {"enabled": False}, "MOVER_NOT_ENABLED")):
+    x = copy.deepcopy(SCORES)
+    x["variants"]["P05_ALL_ON"]["add_instruments"][4]["mover"].update(edit)
+    expect_error("- control: a mover with %s is refused" % name, lambda: L.resolve_looks(x, BASE), needle)
+x = copy.deepcopy(SCORES)
+x["variants"]["P05_ALL_ON"]["add_instruments"][4]["requires_cpp"] = "both"
+expect_error("- control: Mover settings AND a requires_cpp gate together are refused", lambda: L.resolve_looks(x, BASE),
+             "MOVER_HOST_BAD")
+x = copy.deepcopy(SCORES)
+x["variants"]["P05_ALL_ON"]["add_instruments"][0]["mover"] = {"enabled": True}
+expect_error("- control: Mover settings on a non-MOVER lamp are refused", lambda: L.resolve_looks(x, BASE), "MOVER_HOST_BAD")
+
+pol = L.body_policy(SCORES)
+check("+ body policy: STABLE steady glass; SLIGHT glass-only shimmer; FAIL dies at the lamp and drives the lamp",
+      pol["STABLE"]["flicker"] == "STABLE" and not pol["SLIGHT"]["flicker_also_drives_light"]
+      and pol["FAIL"]["flicker_also_drives_light"] and pol["FAIL"]["fail_at_cm"] == 0.0
+      and all(p["full_intensity"] == -1.0 and p["intensity_parameter"] == "Intensity" for p in pol.values()))
+for name, mutate, needle in (
+        ("a missing mode", lambda b: b["modes"].pop("SLIGHT"), "BODY_MODES_BAD"),
+        ("a mode whose flicker disagrees", lambda b: b["modes"]["FAIL"].update(flicker="SLIGHT"), "BODY_MODE_BAD"),
+        ("a slight depth above 1", lambda b: b["modes"]["SLIGHT"].update(slight_depth=1.5), "BODY_RANGE"),
+        ("an unknown cpp_field", lambda b: b.update(cpp_field="Glass"), "BODY_CPP_FIELD_UNKNOWN")):
+    x = copy.deepcopy(SCORES)
+    mutate(x["bulb_body_behaviours"])
+    expect_error("- control: body policy with %s is refused" % name, lambda: L.body_policy(x), needle)
+
+
+# ---- fake UE objects (value semantics like UE Python struct wrappers: getters return copies)
+class EnumV:
+    def __init__(self, enum, name, value=0):
+        self.enum, self.name, self.value = enum, name, value
+
+    def __eq__(self, other):
+        return isinstance(other, EnumV) and (self.enum, self.name) == (other.enum, other.name)
+
+    def __hash__(self):
+        return hash((self.enum, self.name))
+
+    def __str__(self):
+        return "<%s.%s: %d>" % (self.enum, self.name, self.value)
+
+
+class V:
+    def __init__(self, *xyz):
+        self.x, self.y, self.z = [float(v) for v in xyz]
+
+
+class Q:
+    def __init__(self, x, y, z, w):
+        self.x, self.y, self.z, self.w = float(x), float(y), float(z), float(w)
+
+
+class C:
+    def __init__(self, r, g, b, a):
+        self.r, self.g, self.b, self.a = r, g, b, a
+
+
+class V2:
+    def __init__(self, x, y):
+        self.x, self.y = float(x), float(y)
+
+
+def struct_value(value):
+    """A row list back to the UE struct _plain_struct_value reads: 2 -> Vector2D, 3 -> Vector, 4 -> LinearColor."""
+    if isinstance(value, list) and all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in value):
+        return {2: lambda: V2(*value), 3: lambda: V(*value), 4: lambda: C(*value)}.get(len(value), lambda: value)()
+    return value
+
+
+class FT:
+    def __init__(self, location, rotation, scale):
+        self.translation, self.rotation, self.scale3d = V(*location), Q(*rotation), V(*scale)
+
+
+class FS:
+    """A struct: get returns a copy; set of an unknown name raises (as UE does)."""
+    ignore = ()
+
+    def __init__(self, **props):
+        self.__dict__["_p"] = props
+
+    def get_editor_property(self, name):
+        if name not in self._p:
+            raise AttributeError("no property " + name)
+        return copy.deepcopy(self._p[name])
+
+    def set_editor_property(self, name, value):
+        if name not in self._p:
+            raise AttributeError("no property " + name)
+        if name in self.ignore:
+            return True  # a setter that LIES: reports success, changes nothing
+        self._p[name] = copy.deepcopy(value)
+        return True
+
+    def modify(self):
+        return True
+
+
+class LyingFS(FS):
+    ignore = ("steps_per_second", "light_attachment_guid", "enabled")
+
+
+class LyingMoverFS(FS):
+    ignore = ("steps_per_second",)
+
+
+KIND = {"LIGHT": EnumV("InfinityAttachmentKind", "LIGHT", 1), "PROP": EnumV("InfinityAttachmentKind", "PROP", 0)}
+ENUMS = {"trigger": lambda n: EnumV("InfinityLightMoverTrigger", n), "flicker": lambda n: EnumV("InfinityBulbBodyFlicker", n),
+         "name": lambda s: str(s), "zero_guid": lambda: "0" * 32}
+
+
+def fake_mover(cls=FS, **over):
+    p = {k: (EnumV("InfinityLightMoverTrigger", v) if k == "trigger" else v) for k, v in L.MOVER_DEFAULTS}
+    p.update(over)
+    return cls(**p)
+
+
+def fake_body(cls=FS, **over):
+    p = {k: (EnumV("InfinityBulbBodyFlicker", v) if k == "flicker" else v) for k, v in L.BODY_DEFAULTS}
+    p.update(over)
+    return cls(**p)
+
+
+def fake_from_row(row, cls=FS, mover=None, body=None):
+    """A fake attachment whose attachment_state is exactly ``row`` (+ Mover/Body structs)."""
+    kind_name = str(row["kind"]).split(".")[-1].split(":")[0]
+    lighting = {k: struct_value(v) for k, v in row["lighting"].items() if k != "drama"}
+    lighting["drama"] = FS(**{k: struct_value(v) for k, v in row["lighting"]["drama"].items()})
+    t = row["relative_transform"]
+    return cls(attachment_guid=row["guid"], label=row["label"],
+               kind=KIND.get(kind_name, EnumV("InfinityAttachmentKind", kind_name, 2)),
+               enabled=row["enabled"], actor_class=row["actor_class"], mesh=row["mesh"], anchor=row["anchor"],
+               relative_transform=FT(t["location"], t["rotation_xyzw"], t["scale"]),
+               lighting=FS(**lighting), effect=FS(**{k: struct_value(v) for k, v in row["effect"].items()}),
+               trigger_distance_cm=row["trigger_distance_cm"],
+               mover=mover or fake_mover(), body=body or fake_body())
+
+
+def fake_cue(guid_text, label, rows, cls=FS):
+    return FS(cue_guid=guid_text, label=label, type="WING_PAIR",
+              wing_pair=FS(attachments=[fake_from_row(r, cls) for r in rows],
+                           occurrence_offset=FT([0, 0, 0], [0, 0, 0, 1], [1, 1, 1])))
+
+
+REC = {k: json.load(open(L._record_path(k), encoding="utf-8")) for k in ("P01", "P02", "P04", "P06")}
+sample = REC["P02"]["plan"]["targets"][0]["after_rows"][0]
+_saved_tool_unreal = TOOL.unreal
+TOOL.unreal = types.SimpleNamespace(InfinityAttachmentKind=types.SimpleNamespace(**KIND))
+try:
+    check("+ fake attachments are lossless: attachment_state(fake(row)) == row on a real record row",
+          TOOL._attachment_rows([fake_from_row(sample)]) == [sample])
+    p05t = next(t for t in plan_for("P05")["targets"] if t["ordinal"] == 13)
+    p04t = next(t for t in plan_for("P04")["targets"] if any(f.get("body_write") for f in t["fixtures"]))
+
+    def vessels(target, cls=FS, poison=False):
+        out = []
+        for f in target["fixtures"]:
+            row = copy.deepcopy(sample)
+            row.update(guid=guid("vessel", target["ordinal"], f["slot"]), label=f["label"])
+            mover = fake_mover(cls, enabled=True, steps_per_second=9.0) if poison else fake_mover(cls)
+            body = (fake_body(cls, follow_light=True, flicker=EnumV("InfinityBulbBodyFlicker", "FAIL")) if poison
+                    else fake_body(cls))
+            out.append(fake_from_row(row, cls, mover, body))
+        return out
+
+    def planned_ok(target, atts):
+        by_slot = {f["slot"]: a for f, a in zip(target["fixtures"], atts)}
+        return all(not L.extension_mismatches(L.planned_extensions(f, TOOL._guid_text(
+            by_slot[f["paired_slot"]].get_editor_property("attachment_guid")) if f.get("body_write") else L.ZERO_GUID),
+            L.read_extensions(TOOL, a)) for f, a in zip(target["fixtures"], atts))
+
+    for name, target in (("P05 bay 13 (2 movers)", p05t), ("P04 bay %d (glass bodies)" % p04t["ordinal"], p04t)):
+        atts = vessels(target)
+        got = L.apply_extensions(TOOL, target["fixtures"], atts, ENUMS)
+        lamp_guid = {f["slot"]: TOOL._guid_text(a.get_editor_property("attachment_guid"))
+                     for f, a in zip(target["fixtures"], atts)}
+        bodies = [(f, got[f["label"]]) for f in target["fixtures"] if f.get("body_write")]
+        check("+ %s: every vessel written + read back; movers on, glass follows ITS OWN lamp's GUID, rest default-off" % name,
+              all(got[f["label"]]["mover"]["enabled"] == bool(f.get("mover_write")) for f in target["fixtures"])
+              and all(g["body"]["follow_light"] and g["body"]["light_attachment_guid"] == lamp_guid[f["paired_slot"]]
+                      and g["body"]["flicker"] == f["body_behaviour"]["mode"] for f, g in bodies)
+              and all(got[f["label"]]["body"] == dict(L.BODY_DEFAULTS) for f in target["fixtures"] if not f.get("body_write"))
+              and planned_ok(target, atts),
+              "movers=%d bodies=%d" % (sum(1 for f in target["fixtures"] if f.get("mover_write")), len(bodies)))
+    poisoned = vessels(p04t, poison=True)
+    plain_lamp = next(i for i, f in enumerate(p04t["fixtures"]) if not f.get("mover_write") and not f.get("body_write"))
+    check("- control: a vessel replicated from a scratch light that carried a Mover/Body is NOT default-off before the "
+          "write (the inheritance hazard is real)",
+          L.read_extensions(TOOL, poisoned[plain_lamp])["mover"] != dict(L.MOVER_DEFAULTS))
+    L.apply_extensions(TOOL, p04t["fixtures"], poisoned, ENUMS)
+    check("+ ... and after apply_extensions every poisoned vessel holds exactly its planned values (defaults written in full)",
+          planned_ok(p04t, poisoned))
+    expect_error("- control: a mover setter that lies (steps_per_second ignored) refuses EXTENSION_READBACK",
+                 lambda: L.apply_extensions(TOOL, p05t["fixtures"], vessels(p05t, LyingMoverFS), ENUMS),
+                 "EXTENSION_READBACK|P05 SCORE B13 P05_ALL_ON MOVER_L|mover.steps_per_second want=4.0 got=3.0")
+    bi = next(i for i, f in enumerate(p04t["fixtures"]) if f.get("body_write"))
+    lying_body = vessels(p04t)
+    lying_body[bi] = fake_from_row(TOOL._attachment_rows([lying_body[bi]])[0], FS, fake_mover(), fake_body(LyingFS))
+    expect_error("- control: a body setter that lies (light_attachment_guid ignored) refuses EXTENSION_READBACK",
+                 lambda: L.apply_extensions(TOOL, p04t["fixtures"], lying_body, ENUMS), "body.light_attachment_guid")
+    lone = p04t["fixtures"][bi]["paired_slot"]
+    expect_error("- control: a body whose paired lamp is not in the bay refuses BODY_PAIRED_LIGHT_MISSING",
+                 lambda: L.apply_extensions(TOOL, [f for f in p04t["fixtures"] if f["slot"] != lone],
+                                            [a for f, a in zip(p04t["fixtures"], vessels(p04t)) if f["slot"] != lone],
+                                            ENUMS), "BODY_PAIRED_LIGHT_MISSING")
+
+    t = copy.deepcopy(p04t)
+    pre = [fake_from_row(r) for r in REC["P04"]["plan"]["targets"][0]["before_rows"][:3]]
+    authored = vessels(t)
+    L.apply_extensions(TOOL, t["fixtures"], authored, ENUMS)
+    t["before_extensions"] = L.extension_rows(TOOL, pre)
+    L.verify_target_extensions(TOOL, t, pre + authored)
+    check("+ saved-readback check passes on the authored cue (planned values, own-lamp GUIDs, pre-existing untouched)", True)
+    swapped = copy.deepcopy(pre + authored)
+    body_lamp = t["fixtures"][bi]["paired_slot"]
+    i0 = len(pre) + next(i for i, f in enumerate(t["fixtures"]) if f["slot"] == body_lamp)
+    i1 = len(pre) + next(i for i, f in enumerate(t["fixtures"]) if f["authored_kind"] == "LIGHT" and f["slot"] != body_lamp)
+    g0, g1 = swapped[i0].get_editor_property("attachment_guid"), swapped[i1].get_editor_property("attachment_guid")
+    swapped[i0].set_editor_property("attachment_guid", g1)
+    swapped[i1].set_editor_property("attachment_guid", g0)
+    expect_error("- control: a glass pointing at ANOTHER lamp's GUID refuses EXTENSION_SAVED_READBACK",
+                 lambda: L.verify_target_extensions(TOOL, t, swapped), "EXTENSION_SAVED_READBACK")
+    touched = copy.deepcopy(pre + authored)
+    mv = touched[0].get_editor_property("mover")
+    mv.set_editor_property("enabled", True)
+    touched[0].set_editor_property("mover", mv)
+    expect_error("- control: a pre-existing attachment whose Mover changed refuses EXTENSION_PREEXISTING_CHANGED",
+                 lambda: L.verify_target_extensions(TOOL, t, touched), "EXTENSION_PREEXISTING_CHANGED")
+
+    def poke(show, index, att_index, struct, field, value):
+        cues = show.get_editor_property("cues")
+        pair = cues[index].get_editor_property("wing_pair")
+        atts = pair.get_editor_property("attachments")
+        s = atts[att_index].get_editor_property(struct)
+        s.set_editor_property(field, value)
+        atts[att_index].set_editor_property(struct, s)
+        pair.set_editor_property("attachments", atts)
+        cues[index].set_editor_property("wing_pair", pair)
+        show.set_editor_property("cues", cues)
+        return atts
+
+    show_x = FS(cues=[fake_cue("A" * 32, "inside", REC["P04"]["plan"]["targets"][0]["before_rows"][:2]),
+                      fake_cue("B" * 32, "outside", REC["P04"]["plan"]["targets"][1]["before_rows"][:2])])
+    h0 = L.extension_outside_hash(TOOL, show_x, ["A" * 32])
+    poke(show_x, 0, 0, "mover", "enabled", True)
+    check("+ extension outside hash ignores the target cues' Mover/Body", L.extension_outside_hash(TOOL, show_x, ["A" * 32]) == h0)
+    atts = poke(show_x, 1, 1, "body", "follow_light", True)
+    check("- control: one Body changed on an OUTSIDE cue changes the extension outside hash",
+          L.extension_outside_hash(TOOL, show_x, ["A" * 32]) != h0)
+    check("- control: the P04 tool's own rows cannot see it (attachment_state has no Mover/Body: why the new hash exists)",
+          "mover" not in TOOL._attachment_rows(atts)[1] and "body" not in TOOL._attachment_rows(atts)[1])
+finally:
+    TOOL.unreal = _saved_tool_unreal
+
+src = _inspect.getsource(L._mutate_apply)
+check("+ _mutate_apply writes Mover/Body on the authored vessels BEFORE they are set into the Show [source]",
+      0 < src.index('apply_extensions(tool, target["fixtures"], authored, enums)')
+      < src.index("tool._set_pair_attachments(show, index, modified + authored)"))
+src = _inspect.getsource(L._run)
+check("+ DRY/APPLY build every template AND write+read back its Mover/Body before any mutation; APPLY checks the "
+      "saved Show (in-memory + after save) incl. the extension outside hash [source]",
+      src.index('apply_extensions(tool, t["fixtures"], built, enums)') < src.index('if mode == "DRY":')
+      and src.count("_verify_applied(tool, show, plan, outside_before, extension_outside_before)") == 1
+      and src.count("_verify_applied(tool, readback, plan, outside_before, extension_outside_before)") == 1)
+
+print("\n== 21. every other passage byte-identical to the pre-wiring tool + data (.bak-20261006-preCppWire)")
+PRE = load_backup_tool(os.path.join(HERE, "lighting_scores_apply.py.bak-20261006-preCppWire"), "_scores_pre_cppwire")
+PRE_SCORES = json.load(open(os.path.join(HERE, "lighting_scores.json.bak-20261006-preCppWire"), encoding="utf-8"))
+PRE_LOOKS = PRE.resolve_looks(PRE_SCORES, PRE.load_base_looks(PRE_SCORES)[0])
+NEW_KEYS = ("mover", "mover_write", "body_write")
+
+
+def normalise(plan, drop_movers=False):
+    plan = copy.deepcopy(plan)
+    for t in plan["targets"]:
+        if drop_movers:
+            t["fixtures"] = [f for f in t["fixtures"] if f.get("role") != "MOVER"]
+            for key in ("fixture_count", "light_fixture_count", "output", "cpp_pending"):
+                t.pop(key, None)
+        for f in t["fixtures"]:
+            for key in NEW_KEYS:
+                f.pop(key, None)
+            for key in ("cpp_field", "authored", "unwired"):
+                (f.get("body_behaviour") or {}).pop(key, None)
+    if drop_movers:
+        for key in ("fixture_count", "light_fixture_count", "warnings"):
+            plan.pop(key, None)
+    return plan
+
+
+def pre_plan(key):
+    cues, passages, record = build_show(PRE_SCORES)
+    return PRE.build_score_plan(TOOL, PRE_SCORES, PRE_LOOKS, key, passages, cues, record, None)
+
+
+IDENT = {}
+for key in ALL:
+    old, new = pre_plan(key), plan_for(key)
+    IDENT[key] = (old, new)
+    check("+ %s plan identical to the pre-wiring tool except the new Mover/Body write keys%s" % (
+        key, " and P05's 12 movers" if key == "P05" else ""),
+        L._canonical(normalise(old, key == "P05")) == L._canonical(normalise(new, key == "P05")))
+old5, new5 = IDENT["P05"]
+added = {(t["ordinal"], f["slot"]) for t in new5["targets"] for f in t["fixtures"]} - {
+    (t["ordinal"], f["slot"]) for t in old5["targets"] for f in t["fixtures"]}
+check("+ P05's only additions are MOVER_L/R in bays 13-18; its 12 warnings are gone; casters unchanged",
+      added == {(o, s) for o in range(13, 19) for s in ("MOVER_L", "MOVER_R")} and len(old5["warnings"]) == 12
+      and new5["warnings"] == [] and old5["shadow"] == new5["shadow"], str(sorted(added)))
+x = copy.deepcopy(IDENT["P03"][1])
+x["targets"][4]["fixtures"][0]["intensity"] += 1.0e-9
+check("- control: one 1e-9 intensity change in one P03 fixture breaks the identity (the comparison can fail)",
+      L._canonical(normalise(IDENT["P03"][0])) != L._canonical(normalise(x)))
+check("+ the only new keys on any non-P05 fixture are the write keys (mover/mover_write/body_write)",
+      all(set(f) - set(g) <= set(NEW_KEYS) for key in ("P01", "P02", "P03", "P04", "P06")
+          for to, tn in zip(IDENT[key][0]["targets"], IDENT[key][1]["targets"])
+          for g, f in zip(to["fixtures"], tn["fixtures"])))
+
+print("\n== 22. per-light drift decisions (option c)")
+REPORT = json.load(open(L.DRIFT_REPORT_PATH, encoding="utf-8"))
+REPORT_SHA = L._sha256_path(L.DRIFT_REPORT_PATH)
+TPL = {k: json.load(open(L._decisions_path(k), encoding="utf-8")) for k in L.DRIFT_TEMPLATE_PASSAGES}
+counts = {k: len([g for g in v if L.GUID_KEY.match(g)]) for k, v in TPL.items()}
+unknown_counts = {p["passage"]: p["lights_by_class"].get(L.DRIFT_UNKNOWN, 0) for p in REPORT["passages"] if not p.get("skipped")}
+check("+ templates exist for P01/P02/P04/P06, one entry per UNKNOWN light in the report, all proposed keep, status TEMPLATE",
+      counts == {k: unknown_counts[k] for k in counts} and all(v["status"] == "TEMPLATE" for v in TPL.values())
+      and all(e["decision"] == e["proposed"] == "keep" for v in TPL.values() for g, e in v.items() if L.GUID_KEY.match(g))
+      and all(v["report_sha256"] == REPORT_SHA and v["report_run"] == REPORT["run"] for v in TPL.values()), str(counts))
+check("+ P03/P05 get no template (no UNKNOWN drift: attributed classes only)",
+      unknown_counts.get("P03") == 0 and unknown_counts.get("P05") == 0)
+check("+ every template entry is readable (label, cue, kind, old -> new per field, a consequence per option) and pinned",
+      all(e["label"] and e["cue"] and e["row_kind"] and e["changes"] and set(e["options"]) == {"keep", "overwrite", "fold"}
+          and isinstance(e["row_hash"], str) for v in TPL.values() for g, e in v.items() if L.GUID_KEY.match(g)))
+
+
+def report_live(passage, target, unknown_only=True):
+    """The target's live rows as the report saw them; by default with ATTRIBUTED drift already reverted by its tool."""
+    rp = L._report_passage(REPORT, passage)
+    cue = next(c for c in rp["cues"] if c["cue_guid"] == target["cue_guid"])
+    after_by = {r["guid"]: r for r in target["after_rows"]}
+    removed, recon = set(), {}
+    for light in cue["lights"]:
+        if light["class"] != L.DRIFT_UNKNOWN and unknown_only:
+            continue
+        row = L.reconstruct_live_row(TOOL, after_by[light["guid"]], light)
+        if row is None:
+            removed.add(light["guid"])
+        else:
+            recon[light["guid"]] = row
+    return [recon.get(r["guid"], r) for r in target["after_rows"] if r["guid"] not in removed], cue
+
+
+def decided_from(tpl, decision=None, per=None, status="DECIDED"):
+    d = copy.deepcopy(tpl)
+    d["status"], d["decided_by"] = status, "harness"
+    for g, e in d.items():
+        if L.GUID_KEY.match(g):
+            e["decision"] = (per or {}).get(g, decision or e["decision"])
+    return d
+
+
+def target_of(passage, label):
+    return next(t for t in REC[passage]["plan"]["targets"] if t["cue_label"] == label)
+
+
+def fake_show(passage, live_by_cue=None, cls=FS):
+    targets = REC[passage]["plan"]["targets"]
+    size = max(t["show_index"] for t in targets) + 2
+    cues = [fake_cue(guid("filler", passage, i), "filler %d" % i, targets[0]["before_rows"][:1], cls) for i in range(size)]
+    for t in targets:
+        cues[t["show_index"]] = fake_cue(t["cue_guid"], t["cue_label"], (live_by_cue or {}).get(t["cue_guid"], t["after_rows"]), cls)
+    return FS(cues=cues)
+
+
+def rows_of(show):
+    return {TOOL._guid_text(c.get_editor_property("cue_guid")): TOOL._attachment_rows(
+        c.get_editor_property("wing_pair").get_editor_property("attachments")) for c in show.get_editor_property("cues")}
+
+
+_saved_tool_unreal = TOOL.unreal
+TOOL.unreal = types.SimpleNamespace(InfinityAttachmentKind=types.SimpleNamespace(**KIND))
+_tmp = tempfile.mkdtemp(prefix="decisions_")
+try:
+    ok = L.validate_drift_decisions(TOOL, decided_from(TPL["P02"]), "P02", REPORT, REPORT_SHA, REC["P02"])
+    check("+ a DECIDED P02 file validates: 12 GUIDs, all SCORE_FIXTURE", len(ok) == 12
+          and {e["row_kind"] for e in ok.values()} == {"SCORE_FIXTURE"})
+    expect_error("- control: the TEMPLATE itself is refused until marked DECIDED",
+                 lambda: L.validate_drift_decisions(TOOL, TPL["P02"], "P02", REPORT, REPORT_SHA, REC["P02"]),
+                 "DRIFT_DECISIONS_NOT_DECIDED")
+    expect_error("- control: DECIDED without decided_by is refused",
+                 lambda: L.validate_drift_decisions(TOOL, dict(decided_from(TPL["P02"]), decided_by=" "), "P02", REPORT,
+                                                    REPORT_SHA, REC["P02"]), "DRIFT_DECISIONS_NOT_DECIDED")
+    expect_error("- control: decisions bound to another report (sha) are refused",
+                 lambda: L.validate_drift_decisions(TOOL, decided_from(TPL["P02"]), "P02", REPORT, "0" * 64, REC["P02"]),
+                 "DRIFT_DECISIONS_REPORT_MISMATCH")
+    expect_error("- control: decisions for another scores record run are refused",
+                 lambda: L.validate_drift_decisions(TOOL, decided_from(TPL["P02"]), "P02", REPORT, REPORT_SHA,
+                                                    dict(REC["P02"], run="20990101-000000")), "DRIFT_DECISIONS_RECORD_MISMATCH")
+    rp02 = L._report_passage(REPORT, "P02")
+    rig = next(l for c in rp02["cues"] for l in c["lights"] if l["class"] == "RIG_LAMP_DROP")
+    x = decided_from(TPL["P02"])
+    x[rig["guid"]] = {"decision": "overwrite", "row_hash": "x"}
+    expect_error("- control: a decision on a RIG_LAMP_DROP light is refused (attributed: revert that tool first)",
+                 lambda: L.validate_drift_decisions(TOOL, x, "P02", REPORT, REPORT_SHA, REC["P02"]),
+                 "DRIFT_DECISION_NOT_UNKNOWN|%s|class=RIG_LAMP_DROP" % rig["guid"])
+    expect_error("- control: fold on a RETAINED lamp (P01 House L) is refused",
+                 lambda: L.validate_drift_decisions(TOOL, decided_from(TPL["P01"], per={"24F0FC454E591513FB387DBE58E881DC": "fold"}),
+                                                    "P01", REPORT, REPORT_SHA, REC["P01"]), "FOLD_NOT_APPLICABLE")
+    expect_error("- control: an unknown decision word is refused",
+                 lambda: L.validate_drift_decisions(TOOL, decided_from(TPL["P04"], decision="maybe"), "P04", REPORT,
+                                                    REPORT_SHA, REC["P04"]), "DRIFT_DECISION_BAD")
+    dup = os.path.join(_tmp, "dup.json")
+    g4 = next(g for g in TPL["P04"] if L.GUID_KEY.match(g))
+    open(dup, "w").write('{"%s": {"decision": "keep"}, "%s": {"decision": "overwrite"}}' % (g4, g4))
+    expect_error("- control: a GUID listed twice is refused (json.load would keep only the last)",
+                 lambda: L._load_json_unique(dup), "JSON_DUPLICATE_KEY")
+    check("+ no decisions file -> load_revert_decisions is None -> REVERT runs the unchanged pre-6-Oct path",
+          L.load_revert_decisions(TOOL, "P02", REC["P02"], os.path.join(_tmp, "absent.json")) is None)
+
+    t02 = target_of("P02", "P02 Wing 001")
+    live, unused = report_live("P02", t02)
+    dec_over = L.validate_drift_decisions(TOOL, decided_from(TPL["P02"], "overwrite"), "P02", REPORT, REPORT_SHA, REC["P02"])
+    dec_keep = L.validate_drift_decisions(TOOL, decided_from(TPL["P02"], "keep"), "P02", REPORT, REPORT_SHA, REC["P02"])
+    steps = L.revert_target_plan(TOOL, t02, live, dec_over)
+    check("+ P02 Wing 001, all overwrite: the 3 hand-edited score lamps are removed and the cue returns EXACTLY to "
+          "before_rows", steps["expected_rows"] == t02["before_rows"] and not steps["kept_score_fixtures"])
+    steps = L.revert_target_plan(TOOL, t02, live, dec_keep)
+    kept = [r for r in live if r["guid"] in dec_keep]
+    check("+ P02 Wing 001, all keep: the 3 edited score lamps stay as they are (and are listed), everything else reverts",
+          steps["expected_rows"] == t02["before_rows"] + kept and len(steps["kept_score_fixtures"]) == 3)
+    expect_error("- control: the same drift with NO decision for it refuses DRIFT_UNDECIDED (lists the lamps)",
+                 lambda: L.revert_target_plan(TOOL, t02, live, {}), "DRIFT_UNDECIDED|cue=P02 Wing 001|")
+    stale = copy.deepcopy(live)
+    next(r for r in stale if r["guid"] in dec_keep)["lighting"]["intensity"] += 1.0
+    expect_error("- control: a decided lamp edited AGAIN after it was pinned refuses DRIFT_DECISION_STALE",
+                 lambda: L.revert_target_plan(TOOL, t02, stale, dec_keep), "DRIFT_DECISION_STALE|cue=P02 Wing 001")
+    with_rig, unused = report_live("P02", t02, unknown_only=False)
+    expect_error("- control: attributed drift left in place (rig lamp drop not reverted first) refuses DRIFT_UNDECIDED",
+                 lambda: L.revert_target_plan(TOOL, t02, with_rig, dec_keep), "DRIFT_UNDECIDED|cue=P02 Wing 001")
+    t03 = target_of("P02", "P02 Wing 003")
+    check("+ an undrifted cue under a decisions file reverts exactly to before_rows",
+          L.revert_target_plan(TOOL, t03, t03["after_rows"], dec_keep)["expected_rows"] == t03["before_rows"])
+    t01 = target_of("P01", "P01 Wing 001")
+    live01, unused = report_live("P01", t01)
+    s01 = L.revert_target_plan(TOOL, t01, live01, L.validate_drift_decisions(
+        TOOL, decided_from(TPL["P01"], "keep"), "P01", REPORT, REPORT_SHA, REC["P01"]))
+    house = [r for r in live01 if r["label"].endswith((" House L", " House R"))]
+    check("+ P01 Wing 001 keep: House L/R (retained, hand-tuned, warmers off by the Opening) stay EXACTLY as live",
+          len(house) == 2 and all(r in s01["expected_rows"] for r in house) and all(not r["enabled"] for r in house))
+    s01o = L.revert_target_plan(TOOL, t01, live01, L.validate_drift_decisions(
+        TOOL, decided_from(TPL["P01"], "overwrite"), "P01", REPORT, REPORT_SHA, REC["P01"]))
+    check("+ P01 overwrite on a RETAINED lamp == keep (REVERT never writes a retained lamp); the score lamp is removed",
+          all(r in s01o["expected_rows"] for r in house)
+          and not any(r["label"] == "P01 SCORE B01 VOID PRACTICAL_DEAD" for r in s01o["expected_rows"]))
+    t06 = target_of("P06", "P06 Wing 055")
+    live06, unused = report_live("P06", t06)
+    s06 = L.revert_target_plan(TOOL, t06, live06, L.validate_drift_decisions(
+        TOOL, decided_from(TPL["P06"], "keep"), "P06", REPORT, REPORT_SHA, REC["P06"]))
+    gone = {g for g in TPL["P06"] if L.GUID_KEY.match(g)}
+    check("+ P06 Wing 055: the removed FX TEST candle rows stay removed; the rest returns to before_rows",
+          s06["expected_rows"] == [r for r in t06["before_rows"] if r["guid"] not in gone] and len(gone) == 2)
+
+    plan02 = REC["P02"]["plan"]
+    s_old, s_new = fake_show("P02"), fake_show("P02")
+    PRE._mutate_revert(TOOL, s_old, plan02)
+    L._mutate_revert(TOOL, s_new, plan02)
+    r_old, r_new = rows_of(s_old), rows_of(s_new)
+    check("+ clean P02 (live == after), fake Show: old and new _mutate_revert give byte-identical Shows, every target == "
+          "before_rows", L._canonical(r_old) == L._canonical(r_new)
+          and all(r_new[t["cue_guid"]] == t["before_rows"] for t in plan02["targets"]))
+    s_dec = fake_show("P02")
+    L._mutate_revert_decided(TOOL, s_dec, plan02, {})
+    check("+ clean P02 through the DECIDED path with no decisions: the same Show as the old path",
+          L._canonical(rows_of(s_dec)) == L._canonical(r_old))
+    check("+ _mutate_revert is source-identical to the pre-6-Oct tool's (no-decisions REVERT unchanged) [source]",
+          _inspect.getsource(L._mutate_revert) == _inspect.getsource(PRE._mutate_revert))
+    rp02_cues = {c["cue_guid"] for c in rp02["cues"]}
+    drift_live = {tt["cue_guid"]: report_live("P02", tt)[0] for tt in plan02["targets"] if tt["cue_guid"] in rp02_cues}
+    kept_by = {cg: [r for r in rows if r["guid"] in dec_keep] for cg, rows in drift_live.items()}
+    errs = []
+    for module in (PRE, L):
+        try:
+            module._mutate_revert(TOOL, fake_show("P02", drift_live), plan02)
+            errs.append(None)
+        except Exception as error:  # noqa: BLE001
+            errs.append(str(error))
+    check("+ drifted P02 with no decisions file: old and new refuse with the IDENTICAL message (REVERT_CURRENT_STATE_DRIFT)",
+          errs[0] is not None and errs[0] == errs[1] and errs[0].startswith("REVERT_CURRENT_STATE_DRIFT|cue=P02 Wing 001"),
+          (errs[0] or "")[:90])
+    s_keep = fake_show("P02", drift_live)
+    L._mutate_revert_decided(TOOL, s_keep, plan02, dec_keep)
+    after_keep = rows_of(s_keep)
+    check("+ drifted P02 (all 17 drifted cues, hand edits only), DECIDED keep (fake Show): each cue == before_rows + its "
+          "own kept edited lamps (12 in all); undrifted cues == before_rows",
+          all(after_keep[tt["cue_guid"]] == tt["before_rows"] + kept_by.get(tt["cue_guid"], []) for tt in plan02["targets"])
+          and sum(len(v) for v in kept_by.values()) == 12 and kept_by[t02["cue_guid"]] == kept)
+    s_over = fake_show("P02", drift_live)
+    L._mutate_revert_decided(TOOL, s_over, plan02, dec_over)
+    check("+ drifted P02, DECIDED overwrite (fake Show): EXACTLY every before_rows, as a clean REVERT would give",
+          all(rows_of(s_over)[t["cue_guid"]] == t["before_rows"] for t in plan02["targets"]))
+    s_lie = fake_show("P02", drift_live, cls=LyingFS)
+    snapshot = L._canonical(rows_of(s_lie))
+    expect_error("- control: an `enabled` setter that lies refuses REVERT_NOT_EXACT ...",
+                 lambda: L._mutate_revert_decided(TOOL, s_lie, plan02, dec_keep), "REVERT_NOT_EXACT|cue=P02 Wing 0")
+    check("- ... and the in-memory rollback leaves the fake Show exactly as it was", L._canonical(rows_of(s_lie)) == snapshot)
+    live_casts = sum(L._row_casts(r) for t in plan02["targets"] for r in t["after_rows"])
+    exp_casts = sum(L._row_casts(r) for t in plan02["targets"] for r in t["before_rows"])
+    check("+ shadow arithmetic: (before - live target casters + expected casters) == the old formula on a clean P02",
+          exp_casts - live_casts == plan02["shadow"]["target_before"] - plan02["shadow"]["target_after"],
+          "%d-%d vs %d-%d" % (exp_casts, live_casts, plan02["shadow"]["target_before"], plan02["shadow"]["target_after"]))
+
+    clamp = "6E40E1EE4C897401D96E5C9B5EEC1EA4"
+    after_by = {r["guid"]: r for r in t02["after_rows"]}
+    live_by = {r["guid"]: r for r in live}
+    folded, rows = L.fold_scores(TOOL, SCORES, LOOKS, "P02", [(t02, after_by[clamp], live_by[clamp])])
+    bay1 = [f for f in L.bay_fixtures(TOOL, folded, LOOKS, "P02", L.validate_scores(folded, LOOKS, TOOL)["P02"]["specs"][0])
+            if f.get("slot") == "PRACTICAL_CLAMP"][0]
+    check("+ fold P02 B01 PRACTICAL_CLAMP: writes bay_overrides['1'] colour; the re-expanded lamp carries the hand colour",
+          folded["passages"]["P02"]["bay_overrides"] == {"1": {"PRACTICAL_CLAMP": rows[0]["overrides"]}}
+          and L._close_list(bay1["color_rgb_linear"], live_by[clamp]["lighting"]["color"][:3], 1e-9), str(rows[0]["overrides"]))
+    again, unused = L.fold_scores(TOOL, folded, LOOKS, "P02", [(t02, after_by[clamp], live_by[clamp])])
+    check("+ fold is idempotent (folding again changes nothing)", L._canonical(again) == L._canonical(folded))
+    check("+ fold leaves every OTHER passage's plan byte-identical, and P02's other bays too",
+          all(L._canonical(plan_for(k, scores=folded)) == L._canonical(IDENT[k][1]) for k in ("P01", "P03", "P04", "P05", "P06"))
+          and all(L._canonical(a) == L._canonical(b) for a, b in zip(plan_for("P02", scores=folded)["targets"][1:],
+                                                                         IDENT["P02"][1]["targets"][1:])))
+    beam = "2138879B4CD8983A937508A54FCB6C1B"
+    expect_error("- control: fold of a re-aimed lamp (rotation changed) is refused FOLD_FIELD_UNSUPPORTED",
+                 lambda: L.fold_scores(TOOL, SCORES, LOOKS, "P02", [(t02, after_by[beam], live_by[beam])]),
+                 "FOLD_FIELD_UNSUPPORTED|P02 SCORE B01 THEATRICAL BEAM_R|field=relative_transform.rotation_xyzw")
+    t02b = target_of("P02", "P02 Wing 002")
+    live_b, unused = report_live("P02", t02b)
+    g_b = next(g for g in TPL["P02"] if g.startswith("734A455A"))
+    expect_error("- control: fold onto a slot the round-2 look no longer has is refused FOLD_SLOT_ABSENT",
+                 lambda: L.fold_scores(TOOL, SCORES, LOOKS, "P02", [(t02b, {r["guid"]: r for r in t02b["after_rows"]}[g_b],
+                                                                    {r["guid"]: r for r in live_b}[g_b])]), "FOLD_SLOT_ABSENT")
+    g_d = next(g for g in TPL["P01"] if g.startswith("FDF5DFC6"))
+    expect_error("- control: a fold the dim-bulb pass would overwrite (P01 B01 dead practical colour) is refused "
+                 "FOLD_NOT_REPRODUCED",
+                 lambda: L.fold_scores(TOOL, SCORES, LOOKS, "P01", [(t01, {r["guid"]: r for r in t01["after_rows"]}[g_d],
+                                                                    {r["guid"]: r for r in live01}[g_d])]),
+                 "FOLD_NOT_REPRODUCED")
+    x = copy.deepcopy(SCORES)
+    x["passages"]["P02"]["bay_overrides"] = {"99": {"PRACTICAL_CLAMP": {"intensity": 1.0}}}
+    expect_error("- control: a bay override outside the passage is refused BAD_BAY_OVERRIDES",
+                 lambda: L.validate_scores(x, LOOKS, TOOL), "BAD_BAY_OVERRIDES")
+    x["passages"]["P02"]["bay_overrides"] = {"1": {"PRACTICAL_CLAMP": {"rotation_rpy_deg": [0, 0, 0]}}}
+    expect_error("- control: a bay override field outside BAY_OVERRIDE_FIELDS is refused",
+                 lambda: L.validate_scores(x, LOOKS, TOOL), "BAD_BAY_OVERRIDE_FIELDS")
+    real_sha = L._sha256_path(L.SCORES_PATH)
+    saved_path = L.SCORES_PATH
+    tmp_scores = os.path.join(_tmp, "lighting_scores.json")
+    shutil.copyfile(saved_path, tmp_scores)
+    L.SCORES_PATH = tmp_scores
+    try:
+        first = L._fold_into_scores(TOOL, SCORES, LOOKS, "P02", [(t02, after_by[clamp], live_by[clamp])], "RUN1")
+        second = L._fold_into_scores(TOOL, L.load_scores(tmp_scores), LOOKS, "P02", [(t02, after_by[clamp], live_by[clamp])], "RUN2")
+        on_disk = json.load(open(tmp_scores, encoding="utf-8"))
+        check("+ fold write: backup of the old bytes, new scores read back, LF only, a second REVERT run is a no-op",
+              first["changed"] and os.path.isfile(first["backup"]) and not second["changed"]
+              and L._sha256_path(first["backup"]) == real_sha
+              and on_disk["passages"]["P02"]["bay_overrides"]["1"]["PRACTICAL_CLAMP"] == rows[0]["overrides"]
+              and open(tmp_scores, "rb").read().count(b"\r\n") == 0)
+    finally:
+        L.SCORES_PATH = saved_path
+    check("+ the real lighting_scores.json was not touched by the fold tests",
+          L._sha256_path(L.SCORES_PATH) == real_sha and "bay_overrides" not in json.dumps(L.load_scores()))
+    dpath = os.path.join(_tmp, "lighting_drift_decisions_P02.json")
+    L._write_json_lf(dpath, decided_from(TPL["P02"], per={clamp: "fold"}))
+    pre_flight = L.check_drift_decisions("P02", dpath)
+    check("+ offline pre-flight of a DECIDED P02 (11 keep, 1 fold): fold reproduced, nothing undecided, RIG drift listed",
+          pre_flight["counts"] == {"keep": 11, "overwrite": 0, "fold": 1} and len(pre_flight["folds"]) == 1
+          and not pre_flight["undecided_unknown"] and pre_flight["attributed_lights"] == {"RIG_LAMP_DROP": 33},
+          str(pre_flight["counts"]))
+    regen = L.build_drift_decisions_template(TOOL, SCORES, LOOKS, "P02", REPORT, REPORT_SHA, REC["P02"],
+                                             decided_from(TPL["P02"], per={clamp: "fold"}))
+    check("+ regenerating from the same report carries every decision over (row unchanged) and keeps DECIDED",
+          regen["status"] == "DECIDED" and regen[clamp]["decision"] == "fold")
+    moved = decided_from(TPL["P02"], per={clamp: "fold"})
+    moved[clamp]["row_hash"] = "0" * 64
+    regen = L.build_drift_decisions_template(TOOL, SCORES, LOOKS, "P02", REPORT, REPORT_SHA, REC["P02"], moved)
+    check("- control: a decision whose row changed is NOT carried (back to the keep proposal, status TEMPLATE)",
+          regen["status"] == "TEMPLATE" and regen[clamp]["decision"] == "keep")
+    bad_light = copy.deepcopy(next(l for c in rp02["cues"] for l in c["lights"] if l["guid"] == clamp))
+    bad_light["fields"][0]["new"] = copy.deepcopy(bad_light["fields"][0]["old"])
+    expect_error("- control: a report light whose listed field does not actually differ (not a readable row) cannot be pinned",
+                 lambda: L.reconstruct_live_row(TOOL, after_by[clamp], bad_light), "DRIFT_ROW_RECONSTRUCT")
+finally:
+    TOOL.unreal = _saved_tool_unreal
+    shutil.rmtree(_tmp, ignore_errors=True)
+src = _inspect.getsource(L._run)
+check("+ REVERT: decisions load first; every refusal (undecided/stale/drift) and the fold run BEFORE the backup and any "
+      "Show write; no file -> _mutate_revert + the old shadow formula + before_rows readback [source]",
+      src.index("load_revert_decisions(tool, passage_key, record)") < src.index("plan_decided_revert(")
+      < src.index("_fold_into_scores(") < src.index('tool._backup("PreLightingScores%sRevert-"')
+      < src.index("_mutate_revert(tool, show, plan)")
+      and 'expected = before_revert - plan["shadow"]["target_after"] + plan["shadow"]["target_before"]' in src
+      and 'target["before_rows"] if expected_rows is None' in src)
 
 print("\n== summary (MODEL census, inferred; DRY on the live Show is the measurement)")
 print("passage bays targets skipped fixtures lights props disabled retained casters_before->after")

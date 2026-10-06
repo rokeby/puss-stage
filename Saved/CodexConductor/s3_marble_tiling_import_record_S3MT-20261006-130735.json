@@ -1,0 +1,147 @@
+{
+ "run": "S3MT-20261006-130735",
+ "rows": [
+  {
+   "variant": "A",
+   "set": "Marble012",
+   "param": "BaseColorTexture",
+   "file": "E:/PussStage/DerivedAssets/S3Marble/Marble012/Marble012_2K-JPG_Color.jpg",
+   "dest_dir": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012",
+   "dest_name": "T_Marble012_Color",
+   "dest": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+   "compression": "TC_DEFAULT",
+   "srgb": true,
+   "flip_green": false,
+   "sampler": "SAMPLERTYPE_COLOR",
+   "sha256": "1e1ef2d556dcda237181590b4a7543a66ea49223ccf2d455000e05f37e8a8ec5",
+   "bytes": 5139092,
+   "existing": {
+    "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "srgb": true,
+    "flip_green": false,
+    "size_x": 2048,
+    "size_y": 2048
+   }
+  },
+  {
+   "variant": "A",
+   "set": "Marble012",
+   "param": "NormalTexture",
+   "file": "E:/PussStage/DerivedAssets/S3Marble/Marble012/Marble012_2K-JPG_NormalDX.jpg",
+   "dest_dir": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012",
+   "dest_name": "T_Marble012_NormalDX",
+   "dest": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+   "compression": "TC_NORMALMAP",
+   "srgb": false,
+   "flip_green": false,
+   "sampler": "SAMPLERTYPE_NORMAL",
+   "sha256": "71971918a1c8b3d1e8bdd9d81af09d61880a47ec894b14cb3f9adef470d05b95",
+   "bytes": 1417585,
+   "existing": {
+    "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "srgb": false,
+    "flip_green": false,
+    "size_x": 2048,
+    "size_y": 2048
+   }
+  },
+  {
+   "variant": "A",
+   "set": "Marble012",
+   "param": "RoughnessTexture",
+   "file": "E:/PussStage/DerivedAssets/S3Marble/Marble012/Marble012_2K-JPG_Roughness.jpg",
+   "dest_dir": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012",
+   "dest_name": "T_Marble012_Roughness",
+   "dest": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness",
+   "compression": "TC_GRAYSCALE",
+   "srgb": false,
+   "flip_green": false,
+   "sampler": "SAMPLERTYPE_LINEAR_GRAYSCALE",
+   "sha256": "d4a906a9739f30f386914a8b8393e64100f340851dc50328e5b91e24fa95ce7a",
+   "bytes": 2166701,
+   "existing": {
+    "compression": "<TextureCompressionSettings.TC_GRAYSCALE: 3>",
+    "srgb": false,
+    "flip_green": false,
+    "size_x": 2048,
+    "size_y": 2048
+   }
+  },
+  {
+   "variant": "B",
+   "set": "Marble021",
+   "param": "BaseColorTexture",
+   "file": "E:/PussStage/DerivedAssets/S3Marble/Marble021/Marble021_2K-JPG_Color.jpg",
+   "dest_dir": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021",
+   "dest_name": "T_Marble021_Color",
+   "dest": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021/T_Marble021_Color",
+   "compression": "TC_DEFAULT",
+   "srgb": true,
+   "flip_green": false,
+   "sampler": "SAMPLERTYPE_COLOR",
+   "sha256": "8eae10b9fa829a88458a076cff1235da48aa2aaf3ab043535cce59ec5bce1fbf",
+   "bytes": 3687428,
+   "existing": {
+    "compression": "<TextureCompressionSettings.TC_DEFAULT: 0>",
+    "srgb": true,
+    "flip_green": false,
+    "size_x": 2048,
+    "size_y": 2048
+   }
+  },
+  {
+   "variant": "B",
+   "set": "Marble021",
+   "param": "NormalTexture",
+   "file": "E:/PussStage/DerivedAssets/S3Marble/Marble021/Marble021_2K-JPG_NormalDX.jpg",
+   "dest_dir": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021",
+   "dest_name": "T_Marble021_NormalDX",
+   "dest": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021/T_Marble021_NormalDX",
+   "compression": "TC_NORMALMAP",
+   "srgb": false,
+   "flip_green": false,
+   "sampler": "SAMPLERTYPE_NORMAL",
+   "sha256": "efb9069ea8a1e0f0513eeac77796c4480d5a31bcf0c56f0bd7e00f11e6fb3aa9",
+   "bytes": 1312240,
+   "existing": {
+    "compression": "<TextureCompressionSettings.TC_NORMALMAP: 1>",
+    "srgb": false,
+    "flip_green": false,
+    "size_x": 2048,
+    "size_y": 2048
+   }
+  },
+  {
+   "variant": "B",
+   "set": "Marble021",
+   "param": "RoughnessTexture",
+   "file": "E:/PussStage/DerivedAssets/S3Marble/Marble021/Marble021_2K-JPG_Roughness.jpg",
+   "dest_dir": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021",
+   "dest_name": "T_Marble021_Roughness",
+   "dest": "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021/T_Marble021_Roughness",
+   "compression": "TC_GRAYSCALE",
+   "srgb": false,
+   "flip_green": false,
+   "sampler": "SAMPLERTYPE_LINEAR_GRAYSCALE",
+   "sha256": "26287d257dd85cbab6b3828b609ea9df955ce84691d2898514f208cab3492489",
+   "bytes": 1253588,
+   "existing": {
+    "compression": "<TextureCompressionSettings.TC_GRAYSCALE: 3>",
+    "srgb": false,
+    "flip_green": false,
+    "size_x": 2048,
+    "size_y": 2048
+   }
+  }
+ ],
+ "created": [],
+ "resumed_unsaved": [
+  "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Color",
+  "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_NormalDX",
+  "/Game/InfinityStage/Dev/Materials/S3Marble/Marble012/T_Marble012_Roughness",
+  "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021/T_Marble021_Color",
+  "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021/T_Marble021_NormalDX",
+  "/Game/InfinityStage/Dev/Materials/S3Marble/Marble021/T_Marble021_Roughness"
+ ],
+ "saved": true
+}

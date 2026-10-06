@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "passage": "P04",
+  "report_run": "DRIFT-20261006-023111",
+  "report_sha256": "9f7da3e3083dfe1f1bf4a1ed6c5b46ba6ec33906eac1b808df4f4153a0f61338",
+  "record_run": "20261005-025247",
+  "status": "TEMPLATE",
+  "decided_by": null,
+  "about": "Per-light decisions for the P04 scores REVERT (lighting_scores_apply.py, 'Per-light drift decisions'). One entry per drifted light the drift report could NOT attribute (class UNKNOWN = inferred hand edit). Attributed drift (RIG_LAMP_DROP etc.) is not decided here: revert that tool first.",
+  "how_to_decide": "Set each 'decision' to keep / overwrite / fold (see that light's 'options'), then set status to DECIDED and decided_by to who decided (Gary). Leave row_hash alone: it pins the live row this decision is about; REVERT refuses if the light changed since.",
+  "8335AD49485469BEA3BF3595DDA886D8": {
+    "decision": "keep",
+    "proposed": "keep",
+    "row_hash": "459ee510519b46b93ddfd8e4ac76821fb6a3f162f707fed65fd08f9a603c37e2",
+    "label": "P04 Wing 017 Blink Spot",
+    "cue": "P04 Wing 017",
+    "cue_guid": "51127A0ADA4FEED69D4CE693D1A650C0",
+    "slot": "RETAINED (pre-score, kept lit)",
+    "row_kind": "RETAINED",
+    "changes": [
+      "lighting.color: [1, 0.1356, 0.02732, 1] -> [0.521, 0.7231, 1, 1]",
+      "relative_transform.location[0]: -425.3 -> -425.3 [float noise]",
+      "relative_transform.location[1]: 1006 -> 1006 [float noise]",
+      "relative_transform.rotation_xyzw: [0.2632, 0.4089, -0.4729, 0.7348] -> [0.2632, 0.4089, -0.4729, 0.7348] [float noise]"
+    ],
+    "options": {
+      "keep": "REVERT never writes this lamp (the score kept it lit): it stays exactly as it is now",
+      "overwrite": "same as keep: the live row is accepted as the pre-score baseline",
+      "fold": "NOT POSSIBLE: not a score lamp"
+    },
+    "carried_from": "DRIFT-20261006-023111"
+  }
+}

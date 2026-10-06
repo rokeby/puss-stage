@@ -3433,7 +3433,7 @@
     },
     "P05_ALL_ON": {
       "base": "THEATRICAL",
-      "intent": "P05 bays 13-18 (note 59 '~6 bays later everything comes on'): clouds, sky beam, upper spots, fills, up-spots; the club movers are DATA ONLY until the C++ mover lands (skipped with a warning)",
+      "intent": "P05 bays 13-18 (note 59 '~6 bays later everything comes on'): clouds, sky beam, upper spots, fills, up-spots; the club movers are written to the 6 Oct C++ Mover (two per bay, own seeds)",
       "instrument_overrides": {
         "TOP_L": {
           "color_rgb_linear": [
@@ -3757,7 +3757,19 @@
             -300.0,
             0.0
           ],
-          "requires_cpp": "club mover drama (C++ agent, 6 Oct): see report spec"
+          "mover": {
+            "enabled": true,
+            "trigger": "ON_APPROACH",
+            "approach_distance_cm": 500.0,
+            "yaw_amplitude_degrees": 40.0,
+            "pitch_amplitude_degrees": 25.0,
+            "steps_per_second": 4.0,
+            "ease_fraction": 0.2,
+            "calm_scale": 0.0,
+            "erratic_ramp_cm": 1200.0,
+            "seed": 1
+          },
+          "note": "Gary note 59 (P05): 'spots focused on the ground at first but go a bit haywire and have their own repetitive quite rapid jolting rotation'. Authored aim = the ground point (aim_target_pair_cm); ON_APPROACH 500 cm (just after the 650 cm strike, so it is first SEEN still on its ground focus), calm_scale 0 -> full +-40 yaw / +-25 pitch over 1200 cm of camera travel; 4 steps/s, ease 0.2 of each step then hold = rapid jolts. FInfinityCueAttachment::Mover (C++ 6 Oct, InfinityStageLightMover.h)"
         },
         {
           "slot": "MOVER_R",
@@ -3797,7 +3809,19 @@
             300.0,
             0.0
           ],
-          "requires_cpp": "club mover drama (C++ agent, 6 Oct): see report spec"
+          "mover": {
+            "enabled": true,
+            "trigger": "ON_APPROACH",
+            "approach_distance_cm": 500.0,
+            "yaw_amplitude_degrees": 40.0,
+            "pitch_amplitude_degrees": 25.0,
+            "steps_per_second": 4.0,
+            "ease_fraction": 0.2,
+            "calm_scale": 0.0,
+            "erratic_ramp_cm": 1200.0,
+            "seed": 2
+          },
+          "note": "Gary note 59 (P05): 'spots focused on the ground at first but go a bit haywire and have their own repetitive quite rapid jolting rotation'. Authored aim = the ground point (aim_target_pair_cm); ON_APPROACH 500 cm (just after the 650 cm strike, so it is first SEEN still on its ground focus), calm_scale 0 -> full +-40 yaw / +-25 pitch over 1200 cm of camera travel; 4 steps/s, ease 0.2 of each step then hold = rapid jolts. FInfinityCueAttachment::Mover (C++ 6 Oct, InfinityStageLightMover.h)"
         }
       ]
     },
@@ -7160,8 +7184,29 @@
       "FAIL": 0.1
     },
     "decided_by": "Gary 6 Oct (via conductor): 'a flickering and dying bulb, not all bulbs! some should flicker only slightly and others be stable'",
-    "cpp_field": null,
-    "status": "DATA ONLY: the C++ per-attachment body option (STABLE/SLIGHT/FAIL + seed, glass follows evaluated intensity) is being built by the C++ agent; the field name is filled in from Scripts/patches/2026-10-06_*.patch when it lands. Until then nothing is written"
+    "cpp_field": "Body",
+    "status": "WIRED 6 Oct: bodies with an emissive glass (MATCH_LIGHT / DIM) write Body.follow_light + the mode below; every authored attachment's Body/Mover is written in full and read back (lighting_scores_apply.py)",
+    "cpp_source": "FInfinityCueAttachment::Body (InfinityStageTypes.h:483-484), FInfinityBulbBodySettings (InfinityStageBulbBody.h:33-88); built 6 Oct (4ef0b36 + b6fadc6)",
+    "modes": {
+      "STABLE": {
+        "flicker": "STABLE",
+        "flicker_also_drives_light": false
+      },
+      "SLIGHT": {
+        "flicker": "SLIGHT",
+        "slight_depth": 0.12,
+        "flicker_rate_hz": 14.0,
+        "flicker_also_drives_light": false
+      },
+      "FAIL": {
+        "flicker": "FAIL",
+        "flicker_rate_hz": 14.0,
+        "fail_window_cm": 1500.0,
+        "fail_at_cm": 0.0,
+        "flicker_also_drives_light": true
+      }
+    },
+    "modes_note": "Every glass follows its OWN lamp's evaluated drama (LightAttachmentGuid = the paired lamp's minted GUID). STABLE: steady at the lamp's level. SLIGHT: glass-only shimmer, dips to 12% at 14 Hz; the lamp keeps its own light function. FAIL: flickers harder over the last 15 m and dies as the camera passes it, and drives the lamp too (a dead bulb casts no light). full_intensity -1 = the glass MI's own Intensity. Bodies without a derived emissive glass (no visible_mesh.material) are left default-off. SLIGHT glass-only and FAIL-drives-light are tool choices, not Gary's: flip flicker_also_drives_light here."
   },
   "flicker_instances": {
     "/Game/InfinityStage/Lighting/MI_LF_Flicker_Pulse1Hz_A": {

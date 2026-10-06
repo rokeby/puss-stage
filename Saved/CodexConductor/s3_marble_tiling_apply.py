@@ -480,9 +480,13 @@ def run_import(run, args, ed):
         next(e for e in record["rows"] if e["dest"] == r["dest"])["readback"] = got
         _write(rec_path, record)
     created = list(record["created"])
+    dirty_now = set(_census()["content"])
+    resumed = [e["dest"] for e in record["rows"] if "existing" in e and e["dest"] in dirty_now]  # unsaved from a stopped run
+    record["resumed_unsaved"] = resumed
+    _write(rec_path, record)
     _hp_check(hp, "IMPORT")
-    if created:
-        _save(ed, created, "IMPORT")
+    if created or resumed:
+        _save(ed, created + resumed, "IMPORT")
         for r in todo:                                         # read back again after the save
             _, got = M.read_texture_settings(r["dest"])
             probs = M.texture_settings_problems(r, got)
@@ -745,8 +749,12 @@ def main():
         elif mode == "VERIFY":
             result = run_verify(run, args, frame)
         else:
-            if _census() != {"content": [], "maps": []}:
-                raise PlanError("DIRTY_BEFORE|" + json.dumps(_census()))
+            c0 = _census()
+            # IMPORT may resume over its OWN unsaved new textures (a run that stopped before saving); nothing else.
+            resumable = (mode == "IMPORT" and not c0["maps"]
+                         and all(p.startswith("/Game/InfinityStage/Dev/Materials/S3Marble/") for p in c0["content"]))
+            if c0 != {"content": [], "maps": []} and not resumable:
+                raise PlanError("DIRTY_BEFORE|" + json.dumps(c0))
             if mode == "IMPORT":
                 result = run_import(run, args, ed)
             elif mode == "BUILD":
