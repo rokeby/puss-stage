@@ -1,0 +1,29 @@
+{
+  "mode": "DRY",
+  "jitter": {
+    "loc_cm": 25,
+    "rot_deg": 3,
+    "seed": 20261006
+  },
+  "skip": [
+    [
+      "P01 Wing 005",
+      "BEAM_R"
+    ]
+  ],
+  "roles": [
+    "TOP_L",
+    "TOP_R",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL",
+    "BEAM_R",
+    "PRACTICAL_CLAMP",
+    "PRACTICAL_BULB_DEAD"
+  ],
+  "expected_targets": null,
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P01.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P01.json"
+  ],
+  "allow_dirty": []
+}
