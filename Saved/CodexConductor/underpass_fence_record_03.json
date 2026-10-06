@@ -1,0 +1,40 @@
+{
+ "run": "UPF-20261006-160352",
+ "structure": "Infinity Stage - Structure 03",
+ "before": {
+  "fence": false,
+  "fence_height_cm": 300.0,
+  "fence_both_sides": true,
+  "fence_cast_shadow": true,
+  "fence_height_mode": "<InfinityFenceHeightMode.NATIVE: 0>",
+  "fence_variant_a": {
+   "mesh": null,
+   "material": null,
+   "weight": 0.6,
+   "overlay_mesh": null,
+   "overlay_material": null
+  },
+  "fence_variant_b": {
+   "mesh": null,
+   "material": null,
+   "weight": 0.2,
+   "overlay_mesh": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_half_v2.SM_FenceTarp_tarp_half_v2",
+   "overlay_material": null
+  },
+  "fence_variant_c": {
+   "mesh": null,
+   "material": null,
+   "weight": 0.15,
+   "overlay_mesh": "/Game/InfinityStage/RigAtmos/FenceBay/StaticMeshes/SM_FenceTarp_tarp_torn_v2.SM_FenceTarp_tarp_torn_v2",
+   "overlay_material": null
+  },
+  "fence_variant_d": {
+   "mesh": null,
+   "material": null,
+   "weight": 0.05,
+   "overlay_mesh": null,
+   "overlay_material": null
+  }
+ },
+ "backup": "E:/PussStage/Backups/PreUnderpassFence-03-UPF-20261006-160352"
+}
