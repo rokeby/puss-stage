@@ -120,3 +120,5 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   materials: visible veins / age spots (no input) — would need new textures + a new material. Saturation skipped (semantics unclear).
   Check in PIE; tune by REVERT + APPLY look_version v2.
 - **S3 sack**: 2.0 m pinned 20 cm forward for upright figures, Shore02 1.8 m pinned back; sawtooth edge → irregular cut + masked fringe; finals for all six building.
+- ~13:53 **S3 exposure NOT yet applied** (commit 307dc94's message is wrong — it only added the tool): APPLY refused DIRTY_BEFORE
+  (the level had unsaved changes, presumably Gary's S3 work). Plan: pinned PPV "S3 Hangar Pinned Exposure" EV100 2.0 → 3.0 once the level is saved.
