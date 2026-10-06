@@ -1,0 +1,283 @@
+{
+ "run": "S3MT-20261006-130956",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "frame": "object",
+ "source": "A",
+ "backup": "E:/PussStage/Backups/PreS3MarbleTiling-S3MT-20261006-130956",
+ "saved": true,
+ "targets": [
+  {
+   "label": "S3 Marble Inner Wall Left",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_349",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Right",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_350",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 1",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3148",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 2",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3149",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 3",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3150",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3151",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 1",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3152",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 2",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3153",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 3",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3154",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3155",
+   "materials": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ],
+   "overrides": [
+    "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight"
+   ]
+  }
+ ],
+ "plan": [
+  {
+   "label": "S3 Marble Inner Wall Left",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_349",
+   "side": "L",
+   "role": "base",
+   "index": 0,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L0",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": 1.0,
+    "UOffsetCm": 0.0,
+    "VOffsetCm": 0.0
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_350",
+   "side": "R",
+   "role": "base",
+   "index": 0,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R0",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": 1.0,
+    "UOffsetCm": 317.0,
+    "VOffsetCm": 0.0
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 1",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3148",
+   "side": "L",
+   "role": "upper",
+   "index": 1,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L1",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": -1.0,
+    "UOffsetCm": 0.0,
+    "VOffsetCm": 587.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 2",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3149",
+   "side": "L",
+   "role": "upper",
+   "index": 2,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L2",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": 1.0,
+    "UOffsetCm": 0.0,
+    "VOffsetCm": 1157.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 3",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3150",
+   "side": "L",
+   "role": "upper",
+   "index": 3,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L3",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": -1.0,
+    "UOffsetCm": 0.0,
+    "VOffsetCm": 1727.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Left Upper 4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3151",
+   "side": "L",
+   "role": "upper",
+   "index": 4,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_L4",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": 1.0,
+    "UOffsetCm": 0.0,
+    "VOffsetCm": 2297.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 1",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3152",
+   "side": "R",
+   "role": "upper",
+   "index": 1,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R1",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": -1.0,
+    "UOffsetCm": 317.0,
+    "VOffsetCm": 587.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 2",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3153",
+   "side": "R",
+   "role": "upper",
+   "index": 2,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R2",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": 1.0,
+    "UOffsetCm": 317.0,
+    "VOffsetCm": 1157.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 3",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3154",
+   "side": "R",
+   "role": "upper",
+   "index": 3,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R3",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": -1.0,
+    "UOffsetCm": 317.0,
+    "VOffsetCm": 1727.5
+   }
+  },
+  {
+   "label": "S3 Marble Inner Wall Right Upper 4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_3155",
+   "side": "R",
+   "role": "upper",
+   "index": 4,
+   "from": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Heavy_Daylight",
+   "to": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R4",
+   "frame_params": {
+    "ObjectRelative": 1.0,
+    "USign": 1.0,
+    "VSign": 1.0,
+    "UOffsetCm": 317.0,
+    "VOffsetCm": 2297.5
+   }
+  }
+ ],
+ "hp_count": 449,
+ "hp_digest": "cea1edbe37925e65bcfc7bfcbd3b9774ff0af81a0904f54f7efaf5c315f6edba",
+ "created": [],
+ "look": {
+  "Brightness": 1.149999976158142,
+  "Min Roughness": 0.05000000074505806,
+  "Max Roughness": 0.11999999731779099,
+  "Specular": 0.699999988079071,
+  "Saturation": 0.800000011920929
+ },
+ "look_source": "live"
+}
