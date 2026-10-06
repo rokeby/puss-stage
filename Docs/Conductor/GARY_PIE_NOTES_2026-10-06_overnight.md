@@ -13,3 +13,10 @@
 Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> song markers -> P06 tail -> Opening -> P02 straighten (+handoffs, route actors)
 -> retime P02–P05 -> P03 floor -> P06 wing swap (W&T) -> lighting P01–P06 (stills each) -> tests -> build -> reopen -> tubes -> rain bench
 -> fog bench (after midnight) -> stills of every passage.
+
+## Timing (Gary ~01:30): "transport gets confused or frustrated by something to do with sound or passage or sequence timing being out of sync"
+- **Measured tonight:** the managed Master's section boundaries are NOT exactly the compiled Show segments — P06's end was 2 ticks
+  SHORT before the rebuild (50603057 vs 50603059) and 2 ticks LONG after it (50973621 vs 50973619); Scene 6 started 2 ticks early.
+  It tripped the P06 tool twice (Don't-Save restarts). A boundary frame can therefore belong to P06 by one clock and to Scene 6 by the
+  other — a plausible contributor to "arrive at the hangar, camera snaps after a pause". Routed to the C++ build pass: find the rounding,
+  check which clock the transport/CueDesk/Pilot uses, check audio pause/resume, fix if proven, else a cvar-gated two-clock logger.

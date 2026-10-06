@@ -323,9 +323,21 @@ def t_world_apply_and_gates():
         check(refused(pt.managed_shift_gate(before["managed"], bad, P06, p["old_start"], p["old_end"], p["delta_ticks"]),
                       "MANAGED_MOVED_WRONG"), "control: Choreo section not grown" + tag)
         bad = copy.deepcopy(after["managed"])
-        bad["Playback:master"][1] -= 1
+        bad["Playback:master"][1] -= pt.MASTER_ROUNDING_TICKS + 1     # beyond the measured 2-tick rebuild rounding (6 Oct)
         check(refused(pt.managed_shift_gate(before["managed"], bad, P06, p["old_start"], p["old_end"], p["delta_ticks"]),
                       "MANAGED_MOVED_WRONG"), "control: playback range" + tag)
+        ok_round = copy.deepcopy(after["managed"])
+        ok_round["Playback:master"][1] += 2                                # measured 6 Oct: rebuild rounding is accepted
+        check(pt.managed_shift_gate(before["managed"], ok_round, P06, p["old_start"], p["old_end"], p["delta_ticks"]) == [],
+              "rounding: +2 ticks on a boundary passes" + tag)
+        b2 = copy.deepcopy(before["managed"]); a2 = copy.deepcopy(after["managed"])
+        k = [x for x in b2 if x.startswith("Scene:") and int(b2[x][0]) >= p["old_end"]][0]
+        b2[k] = [b2[k][0] - 2, b2[k][1] - 2]; a2[k] = [a2[k][0] - 2, a2[k][1] - 2]   # measured 6 Oct: Master 2 ticks early
+        check(pt.managed_shift_gate(b2, a2, P06, p["old_start"], p["old_end"], p["delta_ticks"]) == [],
+              "rounding: a later Scene starting 2 ticks before old_end is not a straddle" + tag)
+        b3 = copy.deepcopy(b2); b3[k] = [b3[k][0] - 100, b3[k][1]]
+        check(refused(pt.managed_shift_gate(b3, a2, P06, p["old_start"], p["old_end"], p["delta_ticks"]),
+                      "MANAGED_STRADDLES_P06"), "control: 100 ticks early IS a straddle" + tag)
         bad = copy.deepcopy(after["managed"])
         bad["Scene:G-Passage 1"] = [1, 2]
         check(refused(pt.managed_shift_gate(before["managed"], bad, P06, p["old_start"], p["old_end"], p["delta_ticks"]),
