@@ -2,7 +2,7 @@
  "mode": "DRY",
  "confirm": "DRY SCENEAUDIO",
  "run_id": null,
- "decided_by": "Gary 6 Oct ~17:10 (conductor questionnaire): S6 audio 'Yes, from the hangar landing'",
+ "decided_by": "Gary 6 Oct ~17:10: S6 audio 'Yes, from the hangar landing'; ~17:20 'Extend S6 to ~3:14'",
  "dest_folder": "/Game/InfinityStage/Audio/ScenesAudio/Score",
  "track_name": "Scene Score",
  "start_option": "land",
@@ -16,31 +16,43 @@
    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06",
    "rise": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
    "analysis": "Saved/InfinityStage/MusicAnalysis/Scenes_20261006/P02_S06_The_Void_Live_Stereo.analysis.json",
-   "watch_sounds": ["/Game/InfinityStage/Audio/ScenesAudio/The_Void_Scene"],
+   "watch_sounds": [
+    "/Game/InfinityStage/Audio/ScenesAudio/The_Void_Scene"
+   ],
    "land_marker_label": "S6 score in (land)",
    "markers": [
     {
      "label": "S6 swell 0:50",
      "track_s": 50.8,
-     "source": {"kind": "intensity_onset", "after_s": 45.604, "threshold": 0.1},
+     "source": {
+      "kind": "intensity_onset",
+      "after_s": 45.604,
+      "threshold": 0.1
+     },
      "why": "Audible swell: first intensity sample >= 0.1 after the 45.604 s 'building' major change (strength 0.80). A faint blip 46.4-48.4 s peaks at 0.07 (stays under the threshold); the swell proper rises from 50.4 s, crosses 0.1 at 50.8 s and peaks 0.82 at 52.2 s."
     },
     {
      "label": "S6 trough 2:00",
      "track_s": 115.9605,
-     "source": {"kind": "major_change"},
+     "source": {
+      "kind": "major_change"
+     },
      "why": "Start of the quietest long section, 115.96-142.11 s (mean intensity 0.0135, peak 0.12), after the 88.2-116.0 peak 0.95. Nominal 2:00 (120 s) lies inside it; the marker sits where the music falls into it (1:56)."
     },
     {
      "label": "S6 climax 2:35",
      "track_s": 155.8523,
-     "source": {"kind": "major_change"},
+     "source": {
+      "kind": "major_change"
+     },
      "why": "Start of the 'intense' section (mean 0.74); intensity crosses 0.3 here. Alternative: 161.3322 (strength 0.80) where it pins at 1.0 for the loudest stretch (mean 0.98) to 173.8."
     },
     {
      "label": "S6 drop 2:54",
      "track_s": 173.7781,
-     "source": {"kind": "major_change"},
+     "source": {
+      "kind": "major_change"
+     },
      "why": "Strongest major change of the track (1.0): intensity 0.91 -> 0.09 between 173.4 and 174.0 s; 'quiet' to the end (187.8 s)."
     }
    ]

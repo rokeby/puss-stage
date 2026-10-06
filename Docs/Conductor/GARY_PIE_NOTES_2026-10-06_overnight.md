@@ -149,3 +149,6 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
   W&T rebuilding _v2 tarps (smooth, real tears, walkway side). Gary: "can place more tarps on the inside or flip the fence orientation"
   — tarps should face the walkway and be more frequent. Conductor to apply: repoint overlay meshes on all six; raise variant B/C
   weights (data); facing flip if the v2 mesh doesn't already face inward (may need a mirrored mesh or a C++ facing field).
+- ~17:20 **S3 stand-in narration removed** (S3NARR-20261006-171721). **S6 extended 31 → 194 s** (cuts cover, handoffs unmoved, Master
+  match) and **Void score in** from the hangar landing (SCENEAUDIO-20261006-172057, track "Scene Score", 4.16–192.16 s) with markers:
+  score in 0, swell 0:50.8, trough 1:56, climax 2:35.9, drop 2:53.8. The Closing moved 163 s later.

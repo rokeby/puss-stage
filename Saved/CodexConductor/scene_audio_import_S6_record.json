@@ -1,0 +1,230 @@
+{
+ "added_markers": [
+  {
+   "label": "S6 score in (land)",
+   "tick": 99840
+  },
+  {
+   "label": "S6 swell 0:50",
+   "tick": 1319040
+  },
+  {
+   "label": "S6 trough 2:00",
+   "tick": 2882880
+  },
+  {
+   "label": "S6 climax 2:35",
+   "tick": 3840000
+  },
+  {
+   "label": "S6 drop 2:54",
+   "tick": 4270080
+  }
+ ],
+ "added_track": {
+  "cls": "MovieSceneAudioTrack",
+  "name": "Scene Score",
+  "sections": [
+   {
+    "end": 4804,
+    "looping": false,
+    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+    "start": 104
+   }
+  ]
+ },
+ "applied": true,
+ "args_row": {
+  "analysis": "Saved/InfinityStage/MusicAnalysis/Scenes_20261006/P02_S06_The_Void_Live_Stereo.analysis.json",
+  "asset_name": "SW_S6_The_Void_Live",
+  "duration_s": 188.0,
+  "land_marker_label": "S6 score in (land)",
+  "markers": [
+   {
+    "label": "S6 swell 0:50",
+    "source": {
+     "after_s": 45.604,
+     "kind": "intensity_onset",
+     "threshold": 0.1
+    },
+    "track_s": 50.8,
+    "why": "Audible swell: first intensity sample >= 0.1 after the 45.604 s 'building' major change (strength 0.80). A faint blip 46.4-48.4 s peaks at 0.07 (stays under the threshold); the swell proper rises from 50.4 s, crosses 0.1 at 50.8 s and peaks 0.82 at 52.2 s."
+   },
+   {
+    "label": "S6 trough 2:00",
+    "source": {
+     "kind": "major_change"
+    },
+    "track_s": 115.9605,
+    "why": "Start of the quietest long section, 115.96-142.11 s (mean intensity 0.0135, peak 0.12), after the 88.2-116.0 peak 0.95. Nominal 2:00 (120 s) lies inside it; the marker sits where the music falls into it (1:56)."
+   },
+   {
+    "label": "S6 climax 2:35",
+    "source": {
+     "kind": "major_change"
+    },
+    "track_s": 155.8523,
+    "why": "Start of the 'intense' section (mean 0.74); intensity crosses 0.3 here. Alternative: 161.3322 (strength 0.80) where it pins at 1.0 for the loudest stretch (mean 0.98) to 173.8."
+   },
+   {
+    "label": "S6 drop 2:54",
+    "source": {
+     "kind": "major_change"
+    },
+    "track_s": 173.7781,
+    "why": "Strongest major change of the track (1.0): intensity 0.91 -> 0.09 between 173.4 and 174.0 s; 'quiet' to the end (187.8 s)."
+   }
+  ],
+  "rise": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
+  "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06",
+  "sha256": "037738f2b5c1208a67513ad1158dd13db08c69e3615a8be69d8332337d11219c",
+  "watch_sounds": [
+   "/Game/InfinityStage/Audio/ScenesAudio/The_Void_Scene"
+  ],
+  "wav": "DerivedAssets/Audio/Scenes_20261006/S06_The_Void_Live_Stereo.wav"
+ },
+ "backup": "E:/PussStage/Backups\\PreSceneAudio-SCENEAUDIO-20261006-172057",
+ "decided_by": "Gary 6 Oct ~17:10: S6 audio 'Yes, from the hangar landing'; ~17:20 'Extend S6 to ~3:14'",
+ "existing_audio": [],
+ "markers_before": [],
+ "plan": {
+  "clip_frames": 4700,
+  "duration_s": 188.0,
+  "end_frame": 4804,
+  "end_s": 192.16,
+  "existing_audio_overlapping": [],
+  "fits": true,
+  "fps": 25.0,
+  "frames_by_option": {
+   "land": 104,
+   "land_plus_strike": 251
+  },
+  "headroom_s": 1.84,
+  "land_s": 4.133333333333334,
+  "land_tick_outer": 99200.0,
+  "markers": [
+   {
+    "display_frame": 104,
+    "label": "S6 score in (land)",
+    "scene_s": 4.16,
+    "source": "land (audio start)",
+    "tick": 99840,
+    "track_s": 0.0
+   },
+   {
+    "display_frame": 1374,
+    "label": "S6 swell 0:50",
+    "scene_s": 54.96,
+    "snap_error_s": 7.105427357601002e-15,
+    "source": "intensity_onset",
+    "tick": 1319040,
+    "track_s": 50.8
+   },
+   {
+    "display_frame": 3003,
+    "label": "S6 trough 2:00",
+    "scene_s": 120.12,
+    "snap_error_s": -0.0004999999999881766,
+    "source": "major_change",
+    "tick": 2882880,
+    "track_s": 115.9605
+   },
+   {
+    "display_frame": 4000,
+    "label": "S6 climax 2:35",
+    "scene_s": 160.0,
+    "snap_error_s": -0.012300000000010414,
+    "source": "major_change",
+    "tick": 3840000,
+    "track_s": 155.8523
+   },
+   {
+    "display_frame": 4448,
+    "label": "S6 drop 2:54",
+    "scene_s": 177.92,
+    "snap_error_s": -0.018100000000004002,
+    "source": "major_change",
+    "tick": 4270080,
+    "track_s": 173.7781
+   }
+  ],
+  "needed_end_frame": 4804,
+  "needed_end_s": 192.16,
+  "option": "land",
+  "overrun_s": 0.0,
+  "playback": [
+   0,
+   4850
+  ],
+  "refusals": [],
+  "scene_end_s": 194.0,
+  "scene_res": 24000.0,
+  "seconds_by_option": {
+   "land": 4.16,
+   "land_plus_strike": 10.04
+  },
+  "start_frame": 104,
+  "start_s": 4.16,
+  "warnings": []
+ },
+ "playback_before": [
+  0,
+  4850
+ ],
+ "run": "SCENEAUDIO-20261006-172057",
+ "scene": "6",
+ "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06",
+ "schema": 1,
+ "sound": "/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live",
+ "sound_facts": {
+  "duration_s": 188.0,
+  "num_channels": 2
+ },
+ "sound_imported": true,
+ "tool": "scene_audio_import",
+ "track_name": "Scene Score",
+ "tracks_before": [
+  {
+   "cls": "MovieSceneCinematicShotTrack",
+   "name": "Shots",
+   "sections": [
+    {
+     "end": 375,
+     "start": 0
+    }
+   ]
+  },
+  {
+   "cls": "MovieSceneSubTrack",
+   "name": "Hangar Fold",
+   "sections": [
+    {
+     "end": 775,
+     "start": 0
+    }
+   ]
+  },
+  {
+   "cls": "MovieSceneCameraCutTrack",
+   "name": "Camera Cuts",
+   "sections": [
+    {
+     "end": 4825,
+     "start": 0
+    },
+    {
+     "end": 4850,
+     "start": 4825
+    }
+   ]
+  }
+ ],
+ "watch_sounds": {
+  "/Game/InfinityStage/Audio/ScenesAudio/The_Void_Scene": {
+   "exists": true,
+   "referencers": []
+  }
+ },
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "written": "2026-10-06T17:20:57"
+}
