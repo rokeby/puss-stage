@@ -26,9 +26,12 @@ theatrical + lurid; P02 bay ~15, the failing stretch + office tubes):
         records that (P02_FOG_BENCH_D_ALREADY_LOCKED).
   E     reflectivity: Lumen reflection quality / screen traces / max roughness to trace (post-process overrides on
         the same sources), and transient MIDs on the P02 floor slabs and on wing "Front" slots near the camera with
-        every scalar parameter whose name holds "rough" scaled down. Prefer running AFTER p02_floor_walnut.py
-        (walnut_policy "warn" logs P02_FOG_BENCH_E_BEFORE_WALNUT, "require" refuses).
+        every scalar parameter whose name holds "rough" scaled down. P02's floor is the walnut herringbone MIC since
+        6 Oct 11:22 (floor_walnut_material.py; scalars Roughness_Low / Roughness_High). walnut_policy "require"
+        (default) refuses when the P02 slabs are not that MIC; "warn" logs P02_FOG_BENCH_E_BEFORE_WALNUT.
   ALL   A+B+C+D+E together.
+A includes the Structure tube rect lights ("tubes everywhere", RTE-20261006-022318: many lights on one Structure
+actor, one row per component); C never re-aims them. Lighting (the P02 score) is unchanged since the 6 Oct run.
 
 Modes (BENCH_MODE): PREPARE (editor world, PIE NOT running: spawns the hidden ZZ_P02FOG_MIST_* pool, never
 saves), CAPTURE (PIE: the stills run; BENCH_DRY=True only scrubs, settles, plans and shoots base), RESTORE (PIE:
@@ -40,7 +43,14 @@ ROBUST. Settle = the medians of the two halves of the last settle_window probes 
 median is back within max(abs, rel * ref, iqr_k * IQR). A frame matched to the flicker phase is NOT used: the
 flicker runs on material time, which the Master frame does not set [inferred: the light-function Time input is
 renderer-private and could not be read], so the same Master frame does not give the same flicker phase. Each
-shot takes stills_per_shot stills; the contact sheet picks the one nearest the shot's median luma.
+shot takes stills_per_shot stills; the contact sheet picks the one nearest the shot's median luma. The tubes add
+Tick-driven blinks (3 s period x0.6-1.4, 20 % of tubes; InfinityStageStructureActor.h:784-793, 1021) that also run
+while the Master is paused.
+
+Before anything changes, arm refuses on any missing Unreal binding (api_missing over PIE_API, hasattr) and runs
+every plan READ once (read_preflight): the 6 Oct capture died on its first plan on PlayerCameraManager.
+get_view_target, which is not a UFUNCTION (PlayerCameraManager.h:559); the view target now comes from
+AController::GetViewTarget (Controller.h:252-253).
 
 Markers carry run ids: P02_FOG_BENCH_START|run=..., P02_FOG_BENCH_ANNOUNCE|run=..., P02_FOG_BENCH_PLAN|run=...,
 P02_FOG_BENCH_PREPARE_OK|run=..., P02_FOG_BENCH_CAPTURE_OK|run=... (only after restore verified, census equal,
@@ -74,7 +84,11 @@ PREPARE_RECORD_NAME = "p02_fog_bench_prepare.json"
 ORIGINALS_NAME = "p02_fog_bench_originals.json"
 MANIFEST_NAME = "p02_fog_bench_manifest.json"
 OWNER = BASE / "pie_recording_owner.json"
-WALNUT_RECORD = BASE / "p02_floor_walnut_record.json"
+WALNUT_RECORD = BASE / "floor_walnut_material_record.json"   # floor_walnut_material.py:10 (APPLY 6 Oct 11:22)
+WALNUT_MAT = ("/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup."
+              "M_Walnut_Hrrngbn_02_Mat_Inst_Dup")              # floor_walnut_material.py:11; a MaterialInstanceConstant
+#                                                  whose overridden scalars are Roughness_Low / Roughness_High
+#                                                  [binary-proven: names in the .uasset], so E's "rough" token hits both
 PREFIX = "ZZ_P02FOG_"
 TAG = "ZZ_P02FOG"
 HANDLE_NAME = "PUSS_P02_FOG_BENCH_HANDLE"
@@ -113,6 +127,7 @@ DEFAULTS = {
     "settle_window": 6,
     "settle_tol_abs": 3.0,
     "settle_tol_rel": 0.05,
+    "settle_trend": True,            # also require the robust (Theil-Sen) drift across the window <= tol
     "base_return_tol_abs": 4.0,
     "base_return_tol_rel": 0.10,
     "base_return_iqr_k": 1.0,
@@ -126,7 +141,8 @@ DEFAULTS = {
     "show_strobes": "off",           # "off" = strobe_enabled False for the run (look_bench mechanism), restored
     "sweep_lights": "off",           # the P02 car light floods white (PIE_TEST_LIST_2026-10-05.md:23); restored
     "screen_messages": "off",
-    "walnut_policy": "warn",         # "warn" | "require"
+    "walnut_policy": "require",      # "warn" | "require": the walnut is applied and saved (6 Oct 11:22), so E is
+    #                                  only meaningful on it; a non-walnut P02 floor refuses at arm
     # A
     "a_radius_cm": 6000.0,
     "a_keep_beams": 2,
@@ -251,6 +267,18 @@ def stats(values):
             "iqr": q(0.75) - q(0.25), "min": v[0], "max": v[-1]}
 
 
+def window_drift(samples):
+    """Theil-Sen slope (median of pairwise slopes, robust to flicker dips) x the window's time span: how far the
+    picture moved across the window. 6 Oct P02FOG-20261006-064243 bay08 base_ref rose 28.6 -> 32.5 in a straight
+    line over 4.7 s and the half-median test alone (29.5 vs 31.6, tol 3) called it stable [measured: manifest
+    positions[0].settles[0].samples]; its drift here is ~3.9 > 3, so it now waits."""
+    pts = [(float(t), float(y)) for t, y in samples]
+    slopes = [(y2 - y1) / (t2 - t1) for i, (t1, y1) in enumerate(pts) for (t2, y2) in pts[i + 1:] if t2 > t1]
+    if not slopes:
+        return 0.0
+    return stats(slopes)["median"] * (pts[-1][0] - pts[0][0])
+
+
 def robust_settle(samples, elapsed, p):
     """'stable' when the medians of the two halves of the last settle_window probes agree within
     max(settle_tol_abs, settle_tol_rel * median) and elapsed >= settle_min_seconds; 'timeout' past
@@ -262,7 +290,8 @@ def robust_settle(samples, elapsed, p):
         a = stats(last[:w // 2])["median"]
         b = stats(last[w // 2:])["median"]
         mid = stats(last)["median"]
-        if abs(a - b) <= max(float(p["settle_tol_abs"]), float(p["settle_tol_rel"]) * mid):
+        tol = max(float(p["settle_tol_abs"]), float(p["settle_tol_rel"]) * mid)
+        if abs(a - b) <= tol and (not p.get("settle_trend", True) or abs(window_drift(samples[-w:])) <= tol):
             return "stable"
     if elapsed > float(p["settle_max_seconds"]):
         return "timeout"
@@ -351,6 +380,8 @@ def plan_a(lights, pose, p):
     ops = [op("light", l["id"], "volumetric_scattering_intensity", 0.0)
            for l in sorted(near, key=lambda l: l["id"]) if l["id"] not in keep_ids]
     return {"ops": ops, "pool": [], "info": {"kept_beams": [l["label"] for l in keep], "zeroed": len(ops),
+                                             "zeroed_components": sum(1 for l in near if l.get("component")
+                                                                      and l["id"] not in keep_ids),
                                              "near": len(near), "no_beam_in_view": not keep}}
 
 
@@ -407,7 +438,7 @@ def plan_c(lights, pose, bay, p):
     ops, lit, dark = [], [], []
     for l in sorted(lights, key=lambda l: l["id"]):
         b = lamp_bay(l["label"])
-        if b is None or not (lo <= b <= hi) or not any(t in l["label"] for t in p["c_tokens"]):
+        if l.get("component") or b is None or not (lo <= b <= hi) or not any(t in l["label"] for t in p["c_tokens"]):
             continue
         is_lit = (not p["c_alternate"]) or ((b - lo) % 2 == 0)
         if is_lit:
@@ -549,12 +580,57 @@ def write_verified(path, data, log=None, run="?"):
     return path
 
 
-def walnut_state(floor_mats, p01_mats, record_exists):
-    """Walnut is applied when every P02 slab slot renders P01's slab material (p02_floor_walnut.py sets that)."""
-    p01 = set(m for m in p01_mats if m)
-    applied = bool(floor_mats) and bool(p01) and all(m in p01 for m in floor_mats)
-    return {"applied": applied, "record_exists": bool(record_exists), "p02": sorted(set(map(str, floor_mats))),
-            "p01": sorted(p01)}
+def walnut_state(floor_mats, p01_mats, record_exists, walnut=WALNUT_MAT):
+    """Walnut is applied when every P02 slab slot renders the walnut herringbone MIC that floor_walnut_material.py
+    sets explicitly (floor_walnut_material.py:11, APPLY_OK run WALNUT-20261006-112225). The old test ("P02 renders
+    P01's slab material", p02_floor_walnut.py) is wrong since P01's slab became MI_Floor_DarkWet: on 6 Oct 06:42 it
+    reported applied=True for a DarkWet P02 floor. P01's materials are kept for the record only."""
+    mats = [str(m) for m in floor_mats]
+    applied = bool(mats) and all(m == walnut for m in mats)
+    return {"applied": applied, "record_exists": bool(record_exists), "p02": sorted(set(mats)),
+            "p01": sorted(set(m for m in p01_mats if m)), "walnut": walnut}
+
+
+# Python names of every UFUNCTION / UPROPERTY-backed class the PIE adapter calls. Each row: (class, (attr, ...)),
+# or (class, ((attr_a, attr_b),)) where any one of the alternatives suffices. Declaration-proven sources are cited in
+# the adapter at each call; api_missing() makes a wrong name a refusal at arm, before any change.
+PIE_API = (
+    ("GameplayStatics", ("get_all_actors_of_class", "get_player_controller", "get_player_camera_manager")),
+    ("Controller", ("get_view_target",)),                               # Controller.h:252-253
+    ("PlayerCameraManager", ("get_camera_location", "get_camera_rotation", "get_fov_angle")),
+    ("Actor", ("get_component_by_class", "get_components_by_class", "get_actor_bounds", "get_actor_location",
+               "get_actor_rotation", "set_actor_rotation", "set_actor_location_and_rotation", "set_actor_scale3d",
+               "set_actor_hidden_in_game", "get_actor_label", "actor_has_tag")),
+    ("SceneComponent", ("get_world_location", "get_world_rotation", "is_visible", "set_visibility")),
+    ("LightComponent", ("set_volumetric_scattering_intensity",)),      # LightComponent.h:291-292
+    ("ExponentialHeightFogComponent", ("set_fog_density", "set_second_fog_density", "set_volumetric_fog")),
+    ("LocalFogVolumeComponent", ("set_radial_fog_extinction", "set_height_fog_extinction", "set_height_fog_falloff",
+                                 "set_height_fog_offset", "set_fog_phase_g")),   # LocalFogVolumeComponent.h:55-64
+    ("PrimitiveComponent", ("get_material", "get_num_materials", "get_material_index", "set_material")),
+    ("MeshComponent", ("get_materials",)),
+    ("MaterialInstanceDynamic", ("set_scalar_parameter_value", "get_scalar_parameter_value")),
+    ("MaterialInstanceConstant", ("get_scalar_parameter_value",)),     # MaterialInstanceConstant.h:54-55 ScriptName
+    ("MaterialEditingLibrary", ("get_scalar_parameter_names", "get_material_default_scalar_parameter_value")),
+    ("SystemLibrary", ("execute_console_command", "get_component_bounds", "get_console_variable_float_value")),
+    ("PostProcessVolume", ()), ("CameraComponent", ()), ("LocalLightComponent", ()), ("StaticMeshActor", ()),
+    ("StaticMeshComponent", ()), ("ExponentialHeightFog", ()), ("Material", ()), ("InfinityStageShowRoot", ()),
+)
+PIE_API_ANY = ((("MaterialLibrary", "create_dynamic_material_instance"), ("MaterialInstanceDynamic", "create")),)
+
+
+def api_missing(unreal, table=PIE_API, any_of=PIE_API_ANY):
+    """-> ["Class.attr", ...] for every class or attribute the module does not expose (hasattr on the class)."""
+    out = []
+    for cls_name, attrs in table:
+        cls = getattr(unreal, cls_name, None)
+        if cls is None:
+            out.append(cls_name)
+            continue
+        out += ["%s.%s" % (cls_name, a) for a in attrs if not hasattr(cls, a)]
+    for options in any_of:
+        if not any(hasattr(getattr(unreal, c, None), a) for c, a in options if getattr(unreal, c, None) is not None):
+            out.append(" | ".join("%s.%s" % o for o in options))
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -792,6 +868,25 @@ def find_prepare_record(root=PREPARE_ROOT, explicit=None):
     if not found:
         raise BenchRefused("not_prepared", "run PREPARE in the editor world (PIE not running) first")
     return found[-1]
+
+
+def session_records(out_root=OUT_ROOT, prepare_root=PREPARE_ROOT):
+    """RESTORE's default records: only the captures armed against the NEWEST PREPARE (= this editor session; a
+    Don't-Save restart discards the pool, so every session PREPAREs anew). Older sessions' originals describe a
+    world that has since changed (e.g. the pre-walnut floor) and must not be re-applied; restore_all writes the
+    oldest record last, so a stale record would win."""
+    found = sorted(pathlib.Path(prepare_root).glob("*/" + PREPARE_RECORD_NAME))
+    if not found:
+        return []
+    current = json.loads(found[-1].read_text(encoding="utf-8")).get("run")
+    out = []
+    for path in sorted(pathlib.Path(out_root).glob("P02FOG-*/" + ORIGINALS_NAME)):
+        try:
+            if json.loads(path.read_text(encoding="utf-8")).get("prepare_run") == current:
+                out.append(path)
+        except ValueError:
+            continue
+    return out
 
 
 def load_prepare_record(path):
@@ -1136,6 +1231,32 @@ class FogMachine:
 # CAPTURE lifecycle (engine-free; adapter, tick registrar, store and clock injected)
 # --------------------------------------------------------------------------
 
+def read_preflight(adapter, p):
+    """Every read the plans make, once, at the current PIE pose and BEFORE any change: a bad binding raises here
+    (arm refuses, nothing to restore) instead of at the first CAPTURE plan (6 Oct: pp_sources, AttributeError).
+    Returns counts for the PREFLIGHT marker. Pure: only adapter calls."""
+    w, h = p["resolution"]
+    pose = adapter.camera_pose(float(w) / float(h), p["fov_fallback_deg"])
+    if pose is None:
+        raise BenchRefused("no_camera", "no player camera manager in PIE")
+    lights = adapter.lights()
+    sources = adapter.pp_sources(pose["loc"])
+    floor = adapter.floor_slots()
+    wings = adapter.wing_slots(pose, float(p["e_wing_radius_cm"]), p["e_wing_slot"])
+    mats = sorted({r["material"] for r in floor if r["material"]})
+    rough = {}
+    for m in mats:
+        rough[m] = sorted(n for n in adapter.scalar_params(m) if p["e_rough_token"] in n.lower())
+    out = {"lights": len(lights), "light_components": sum(1 for l in lights if l.get("component")),
+           "fogs": len(adapter.fogs()), "media": len(adapter.media()), "pp_sources": len(sources),
+           "pp_camera": sum(1 for s in sources if s["kind"] == "camera"),
+           "pp_affecting": len(affecting(sources)), "floor_slots": len(floor), "wing_slots": len(wings),
+           "floor_top_z": adapter.floor_top_z(pose["loc"]), "floor_rough_scalars": rough}
+    if not out["pp_camera"]:
+        adapter.log("%s_NO_CAMERA_PP|the view target has no CameraComponent row: D/E act on volumes only" % MARK)
+    return out
+
+
 def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, prepare_root=PREPARE_ROOT,
         owner_path=OWNER, walnut_record=WALNUT_RECORD, register=None, unregister=None, store=builtins,
         luma_reader=None, clock=time.monotonic):
@@ -1155,6 +1276,9 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
             raise BenchRefused("bad_variants", "base must come first; known %s" % ",".join(ORDER))
         if adapter.world_kind() != "game":
             raise BenchRefused("no_pie", "start PIE first (conductor_pie_begin.py); PREPARE comes before PIE")
+        missing_api = adapter.api_missing()
+        if missing_api:
+            raise BenchRefused("api_missing", ",".join(missing_api))
         handles = ps.armed_handles(store)
         if handles:
             raise BenchRefused("tick_armed", ",".join(handles))
@@ -1162,6 +1286,10 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
             raise BenchRefused("pie_owner_active", pathlib.Path(owner_path).as_posix())
         prep_path = find_prepare_record(prepare_root, prepare_path)
         prep = load_prepare_record(prep_path)
+        newest = sorted(pathlib.Path(prepare_root).glob("*/" + PREPARE_RECORD_NAME))
+        if newest and newest[-1].resolve() != pathlib.Path(prep_path).resolve():
+            raise BenchRefused("stale_prepare", "%s is not the newest PREPARE %s; set prepare_record null" % (
+                pathlib.Path(prep_path).as_posix(), newest[-1].as_posix()))
         if not lb.same_level(prep.get("world"), adapter.world_name()):
             raise BenchRefused("wrong_world", "prepared %s, PIE %s" % (prep.get("world"), adapter.world_name()))
         pool = adapter.pool_labels()
@@ -1179,14 +1307,18 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
         walnut = walnut_state(floor_mats, p01_mats, pathlib.Path(walnut_record).is_file())
         if not walnut["applied"] and any(v in ("E", "ALL") for v in p["variants"]) \
                 and p["walnut_policy"] == "require":
-            raise BenchRefused("walnut_not_applied", "run p02_floor_walnut.py APPLY first (walnut_policy=require)")
+            raise BenchRefused("walnut_not_applied", "P02 slabs %s are not %s (floor_walnut_material.py APPLY; "
+                               "walnut_policy=require)" % (",".join(walnut["p02"]), WALNUT_MAT))
+        preflight = read_preflight(adapter, p)          # every plan READ once, before anything changes
     except BenchRefused as exc:
         refuse(exc)
     except Exception as exc:
         refuse(BenchRefused("arm_error", "%s: %s" % (type(exc).__name__, exc)))
+    adapter.log("%s_PREFLIGHT|run=%s|%s" % (MARK, run_id, json.dumps(preflight, sort_keys=True)))
     if not walnut["applied"]:
-        adapter.log("%s_E_BEFORE_WALNUT|run=%s|P02 floor slots are not P01's walnut (record_exists=%s); E's floor "
-                    "MIDs act on the current floor" % (MARK, run_id, walnut["record_exists"]))
+        adapter.log("%s_E_BEFORE_WALNUT|run=%s|P02 floor slots %s are not the walnut MIC (record_exists=%s); E's "
+                    "floor MIDs act on the current floor" % (MARK, run_id, ",".join(walnut["p02"]),
+                                                              walnut["record_exists"]))
     original_frame = int(adapter.transport_frame())
     run_dir = pathlib.Path(out_root) / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
@@ -1206,7 +1338,7 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
     run = {"run_id": run_id, "run_dir": run_dir.as_posix(), "dry": bool(dry), "params": plain(p),
            "positions": positions, "census_before": census_before, "original_frame": original_frame,
            "world": adapter.world_name(), "prepare_record": pathlib.Path(prep_path).as_posix(), "walnut": walnut,
-           "started_utc": utc_iso(), "status": "armed", "errors": [],
+           "preflight": preflight, "started_utc": utc_iso(), "status": "armed", "errors": [],
            "route": "passage_stills: Master scrub (ScrubToMasterFrame) + live camera pose; no actor moved"}
     manifest = run_dir / MANIFEST_NAME
     write_verified(manifest, run)
@@ -1564,6 +1696,29 @@ def make_pie_adapter(unreal):
             return {"loc": vec(loc), "rot": rot_dict(rot), "fov_deg": fov if fov > 1.0 else float(fov_fallback),
                     "fov_read": fov, "aspect": float(aspect)}
 
+        def view_target(self):
+            """The actor the player views through. AController::GetViewTarget is a UFUNCTION (Controller.h:252-253,
+            BlueprintCallable); APlayerCameraManager::GetViewTarget is NOT (PlayerCameraManager.h:559, plain
+            ENGINE_API), which is the AttributeError of P02FOG-20261006-064243. Live precedent for
+            get_player_controller(world, 0).get_view_target() in PIE: CodexSceneTransitions/probe_scene_camera.py:22
+            and verify_opening_play.py:75 (results scene_camera_probe.json / opening_verification.json name a
+            CineCameraActor)."""
+            world = live_world()
+            if world is None:
+                raise BenchRefused("pie_ended", "view target with no PIE world")
+            pc = unreal.GameplayStatics.get_player_controller(world, 0)
+            if pc is None:
+                raise BenchRefused("no_player_controller", "PIE player 0 has no controller")
+            target = pc.get_view_target()
+            if target is None:
+                raise BenchRefused("no_view_target", "player controller 0 has no view target")
+            return target
+
+        def api_missing(self):
+            """Every UFUNCTION / class this adapter calls, checked with hasattr BEFORE anything changes, so a wrong
+            binding name refuses at arm instead of failing mid-capture (the 6 Oct AttributeError)."""
+            return api_missing(unreal, PIE_API)
+
         def console(self, command):
             world = live_world()
             if world is None:
@@ -1578,16 +1733,34 @@ def make_pie_adapter(unreal):
                 label = actor.get_actor_label()
                 if label.startswith(PREFIX) or (skip and isinstance(actor, skip)):
                     continue
-                comp = light_comp(actor)
-                if comp is None:
+                comps = list(actor.get_components_by_class(unreal.LocalLightComponent))
+                if not comps:
                     continue
-                lid = actor.get_path_name()
-                handles[lid] = actor
-                rows.append({"id": lid, "label": label, "location": vec(actor.get_actor_location()),
-                             "rotation": rot_dict(actor.get_actor_rotation()),
-                             "volumetric_scattering_intensity": float(
-                                 comp.get_editor_property("volumetric_scattering_intensity")),
-                             "visible": bool(comp.is_visible()), "intensity": float(comp.get_editor_property("intensity"))})
+                if len(comps) == 1:              # a lamp actor: id = the actor (C re-aims it by actor rotation)
+                    comp = comps[0]
+                    lid = actor.get_path_name()
+                    handles[lid] = actor
+                    rows.append({"id": lid, "label": label, "location": vec(actor.get_actor_location()),
+                                 "rotation": rot_dict(actor.get_actor_rotation()), "component": False,
+                                 "volumetric_scattering_intensity": float(
+                                     comp.get_editor_property("volumetric_scattering_intensity")),
+                                 "visible": bool(comp.is_visible()),
+                                 "intensity": float(comp.get_editor_property("intensity"))})
+                    continue
+                # Several lights on one actor: the Structure's tube rect lights since "tubes everywhere"
+                # (RTE-20261006-022318; InfinityStageStructureActor.cpp:2285 CreateManagedLight, up to 48 on
+                # Structure 02). Before 6 Oct these were skipped, so A left every tube scattering. One row per
+                # component, id = the component; A may zero its scattering, C never re-aims it (plan_c skips).
+                for comp in comps:
+                    cid = comp.get_path_name()
+                    handles[cid] = comp
+                    rows.append({"id": cid, "label": "%s/%s" % (label, comp.get_name()),
+                                 "location": vec(comp.get_world_location()),
+                                 "rotation": rot_dict(comp.get_world_rotation()), "component": True,
+                                 "volumetric_scattering_intensity": float(
+                                     comp.get_editor_property("volumetric_scattering_intensity")),
+                                 "visible": bool(comp.is_visible()),
+                                 "intensity": float(comp.get_editor_property("intensity"))})
             return sorted(rows, key=lambda r: r["id"])
 
         def fogs(self):
@@ -1638,10 +1811,11 @@ def make_pie_adapter(unreal):
                              "weight": float(v.get_editor_property("blend_weight")),
                              "affects": enabled and contains and float(v.get_editor_property("blend_weight")) > 0.0,
                              "fields": {f: plain_pp(s.get_editor_property(f)) for f in fields}})
-            world = live_world()
-            mgr = unreal.GameplayStatics.get_player_camera_manager(world, 0) if world is not None else None
-            target = mgr.get_view_target() if mgr is not None else None
-            comp = target.get_component_by_class(unreal.CameraComponent) if target is not None else None
+            target = self.view_target()
+            comp = target.get_component_by_class(unreal.CameraComponent)
+            if comp is None:
+                unreal.log_warning("%s_VIEW_TARGET_NO_CAMERA|%s|the camera's own post-process is not read" % (
+                    MARK, target.get_path_name()))
             if comp is not None:
                 cid = comp.get_path_name()
                 handles[cid] = comp
@@ -1711,15 +1885,22 @@ def make_pie_adapter(unreal):
         def scalar_params(self, material_path):
             out = {}
             try:
-                mat = unreal.load_object(None, material_path)
-                names = unreal.MaterialEditingLibrary.get_scalar_parameter_names(mat)
+                mat = unreal.find_object(None, material_path) or unreal.load_object(None, material_path)
+                # UMaterialInstance itself has no scalar getter UFUNCTION; MIC and MID each declare
+                # K2_GetScalarParameterValue with ScriptName GetScalarParameterValue (MaterialInstanceConstant.h:54-55,
+                # MaterialInstanceDynamic.h:56-57); a UMaterial goes through MaterialEditingLibrary
+                # (MaterialEditingLibrary.h:295-296). Anything else is refused (logged), never guessed.
+                if isinstance(mat, (unreal.MaterialInstanceConstant, unreal.MaterialInstanceDynamic)):
+                    getter = lambda name: mat.get_scalar_parameter_value(name)
+                elif isinstance(mat, unreal.Material):
+                    getter = lambda name: unreal.MaterialEditingLibrary.get_material_default_scalar_parameter_value(
+                        mat, name)
+                else:
+                    raise RuntimeError("unsupported material class %s" % (type(mat).__name__,))
+                names = unreal.MaterialEditingLibrary.get_scalar_parameter_names(mat)   # MaterialEditingLibrary.h:501-502
                 for n in names:
                     name = str(n)
-                    if isinstance(mat, unreal.MaterialInstance):
-                        out[name] = float(mat.get_scalar_parameter_value(name))
-                    else:
-                        out[name] = float(unreal.MaterialEditingLibrary.get_material_default_scalar_parameter_value(
-                            mat, name))
+                    out[name] = float(getter(name))
             except Exception as exc:                 # report, never guess
                 unreal.log_warning("%s_SCALARS_UNREAD|%s|%r" % (MARK, material_path, exc))
             return out
@@ -1727,10 +1908,11 @@ def make_pie_adapter(unreal):
         # ---- generic property access by (kind, id, field)
         def read(self, kind, oid, field):
             if kind == "light":
-                actor = get(oid)
+                obj = get(oid)
+                is_comp = isinstance(obj, unreal.LocalLightComponent)
                 if field == "rotation":
-                    return rot_dict(actor.get_actor_rotation())
-                return float(light_comp(actor).get_editor_property(field))
+                    return rot_dict(obj.get_world_rotation() if is_comp else obj.get_actor_rotation())
+                return float((obj if is_comp else light_comp(obj)).get_editor_property(field))
             if kind == "fog":
                 return fog_read(get(oid), field)
             if kind == "media":
@@ -1747,12 +1929,15 @@ def make_pie_adapter(unreal):
         def write(self, kind, oid, field, value):
             events.append(("write", kind, oid, field))
             if kind == "light":
-                actor = get(oid)
+                obj = get(oid)
+                is_comp = isinstance(obj, unreal.LocalLightComponent)
                 if field == "rotation":
-                    actor.set_actor_rotation(unreal.Rotator(roll=float(value["roll"]), pitch=float(value["pitch"]),
-                                                            yaw=float(value["yaw"])), False)
+                    if is_comp:                  # plan_c never aims a component light; refuse rather than guess
+                        raise RuntimeError("%s_LIGHT_COMPONENT_ROTATION|%s" % (MARK, oid))
+                    obj.set_actor_rotation(unreal.Rotator(roll=float(value["roll"]), pitch=float(value["pitch"]),
+                                                          yaw=float(value["yaw"])), False)
                 elif field == "volumetric_scattering_intensity":
-                    light_comp(actor).set_volumetric_scattering_intensity(float(value))
+                    (obj if is_comp else light_comp(obj)).set_volumetric_scattering_intensity(float(value))
                 else:
                     raise RuntimeError("%s_LIGHT_FIELD|%s" % (MARK, field))
             elif kind == "fog":
@@ -1904,7 +2089,9 @@ def main():
             raise RuntimeError("armed")
         explicit = g.get("BENCH_RECORD")
         records = ([explicit] if isinstance(explicit, (str, pathlib.Path)) else list(explicit)) if explicit else \
-            sorted(OUT_ROOT.glob("P02FOG-*/" + ORIGINALS_NAME))
+            session_records()
+        unreal.log("%s_RESTORE_RECORDS|run=%s|%s" % (MARK, run_id, ",".join(pathlib.Path(r).as_posix()
+                                                                           for r in records) or "none"))
         problems = restore_all(adapter, records, unreal.log)
         if problems:
             unreal.log_error("%s_FAILED|run=%s|reason=restore|problems=%r" % (MARK, run_id, problems[:8]))

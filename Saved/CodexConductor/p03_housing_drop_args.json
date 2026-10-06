@@ -1,1 +1,10 @@
-{"mode": "DRY"}
+{
+  "mode": "DRY",
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P03.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P03.json",
+    "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json"
+  ],
+  "extra_light_guids": [],
+  "top_convention": "BOX"
+}

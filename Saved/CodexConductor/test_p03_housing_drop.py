@@ -153,12 +153,12 @@ def _():
         (p["station_index"], p["attachment_index"]) for p in placements)
 
 
-@case("wrong count: 5 points for 6 expected refuses; default expects 13")
+@case("wrong count: 5 points for 6 expected refuses; default expects 14")
 def _():
     plain = make_show()
     points = slash_points(plain)
     refuses("HOUSING_COUNT", M.build_plan, plain, points[:5], OPTS)
-    refuses("HOUSING_COUNT", M.build_plan, plain, points, {})     # 6 != 13
+    refuses("HOUSING_COUNT", M.build_plan, plain, points, {})     # 6 != 14
     M.build_plan(plain, points, OPTS)                              # control passes
 
 
@@ -309,24 +309,83 @@ def _():
             dict(OPTS, extra_light_guids=[_guid("A1", 0)]))
 
 
-# ---------------------------------------------------------------- DRY source
-DRY_ROW = {"mode": "DRY", "mutated": 0, "structures": {M.STRUCTURE_LABEL: {
-    "targeted": True, "gridiron": {"height_cm": 1150.0, "beam_depth_cm": 34.0},
-    "counts": {"fixture_body_count": 12},
-    "would_set": {"beam_depth_cm": 90.0, "beam_width_cm": 40.0},
-    "clearance_new_band_housings": [[1, 2, 3]]}}}
+# ---------------------------------------------------------------- live source (6 Oct)
+def phase_a_show(top_z=1180.0, **kwargs):
+    """make_show() with Phase A live (90 x 40); TOP lamps at top_z (1052.2 = rig_lamp_drop P03 applied)."""
+    plain = make_show(depth=90.0, **kwargs)
+    plain["structure"]["gridiron_width_cm"] = 40.0
+    for cue in plain["cues"][:-1]:
+        cue["attachments"][1]["relative_transform"]["location"][2] = top_z
+    placements, unused = M.gather_placements(plain)
+    plain["instances"] = [list(p["geometry"]["instance_location"]) for p in placements]
+    plain["structure"]["fixture_body_count"] = len(placements)
+    return plain
 
 
-@case("DRY source gate: matches live; stale depth / count / Phase A refuse")
+SLASH_GUIDS = sorted(_guid("A1", k) for k in range(6))
+
+
+@case("live source: Phase A live + TOP lamps dropped -> exactly the 6 Rig Slash, same plan as the DRY points")
 def _():
-    plain = make_show()
-    assert M.load_dry_points(DRY_ROW, plain["structure"]) == [[1.0, 2.0, 3.0]]
-    for path, value, reason in ((("gridiron", "beam_depth_cm"), 90.0, "DRY_SOURCE_STALE|beam_depth_cm"),
-                                (("counts", "fixture_body_count"), 11, "fixture_body_count"),
-                                (("would_set", "beam_depth_cm"), 80.0, "DRY_SOURCE_PHASE_A_CHANGED")):
-        bad = copy.deepcopy(DRY_ROW)
-        bad["structures"][M.STRUCTURE_LABEL][path[0]][path[1]] = value
-        refuses(reason, M.load_dry_points, bad, plain["structure"])
+    plain = phase_a_show(top_z=1052.2)
+    points = M.live_points(plain)
+    assert len(points) == 6
+    plan = M.build_plan(plain, points, OPTS)
+    assert plan["target_attachment_guids"] == SLASH_GUIDS
+    assert M.check_approved_set(plan, SLASH_GUIDS) == SLASH_GUIDS
+    legacy = M.build_plan(plain, slash_points(plain), OPTS)      # the old DRY-point route, same housings
+    assert legacy["drop_cm"] == plan["drop_cm"] and legacy["target_attachment_guids"] == SLASH_GUIDS
+
+
+@case("stale-source control: last night's state (live depth 90) passes; pre-Phase-A depth 34 refuses")
+def _():
+    plain = phase_a_show(top_z=1052.2)
+    M.live_points(plain)                                          # depth 90 / width 40: the state that refused
+    stale = copy.deepcopy(plain)
+    stale["structure"]["gridiron_depth_cm"], stale["structure"]["gridiron_width_cm"] = 34.0, 26.0
+    refuses("PHASE_A_NOT_LIVE", M.live_points, stale)
+    partial = copy.deepcopy(plain)
+    partial["structure"]["gridiron_width_cm"] = 26.0
+    refuses("PHASE_A_NOT_LIVE", M.live_points, partial)
+
+
+@case("stale-source control: fixture_body_count disagreeing with the ISM refuses")
+def _():
+    plain = phase_a_show(top_z=1052.2)
+    bad = copy.deepcopy(plain)
+    bad["structure"]["fixture_body_count"] += 1
+    refuses("FIXTURE_COUNT_STALE", M.live_points, bad)
+
+
+@case("approved-set control: TOP lamps NOT dropped (rig_lamp_drop reverted) -> unapproved targets refuse")
+def _():
+    plain = phase_a_show(top_z=1180.0)
+    points = M.live_points(plain)
+    assert len(points) == 12
+    refuses("HOUSING_COUNT", M.build_plan, plain, points, OPTS)
+    refuses("DROP_TOO_LARGE", M.build_plan, plain, points, {"expected_housings": 12})   # TOP needs ~127 cm
+    placements, unused = M.gather_placements(plain)
+    twelve = {"target_attachment_guids": sorted(p["attachment_guid"] for p in placements)}
+    refuses("TARGET_SET_NOT_APPROVED", M.check_approved_set, twelve, SLASH_GUIDS)
+    refuses("TARGET_SET_NOT_APPROVED", M.check_approved_set,
+            {"target_attachment_guids": SLASH_GUIDS[:5]}, SLASH_GUIDS)                  # one missing
+    refuses("TARGET_SET_NOT_APPROVED", M.check_approved_set, {"target_attachment_guids": SLASH_GUIDS})  # vs real 14
+
+
+@case("live source: housings already below the band are not selected (nothing to drop twice)")
+def _():
+    plain = phase_a_show(top_z=1052.2, slash_z=1058.0)           # the 5 Oct after-state
+    assert M.live_points(plain) == []
+    refuses("HOUSING_COUNT", M.build_plan, plain, [], OPTS)
+
+
+@case("default approved set is the 14 GUIDs of the 5 Oct applied record")
+def _():
+    path = os.path.join(HERE, "p03_housing_drop_record.json.reverted-20261006-023409")
+    assert len(M.APPROVED_TARGET_GUIDS) == M.EXPECTED_HOUSINGS == 14
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as handle:
+            assert set(json.load(handle)["plan"]["target_attachment_guids"]) == M.APPROVED_TARGET_GUIDS
 
 
 # ---------------------------------------------------------------- context gates
@@ -490,38 +549,60 @@ def _():
 EVIDENCE = {}
 
 
-@case("evidence: the P03 scores record + the real DRY points map to 13 Rig Slash lamps")
+def _yaw_q(deg):
+    half = math.radians(float(deg)) / 2.0
+    return [0.0, 0.0, math.sin(half), math.cos(half)]
+
+
+@case("evidence: current P03 (new score + rig_lamp_drop P03 applied, Phase A) -> the 14 approved, drop 20.0")
 def _():
-    record_path = os.path.join(HERE, "lighting_scores_record_P03.json")
-    if not os.path.isfile(record_path) or not os.path.isfile(M.DRY_SOURCE_PATH):
+    """Offline rebuild of the state the 6 Oct DRY will read. MEASURED inputs: the active scores record's
+    after_rows, rig_lamp_drop P03's station frames (its DRY 20261006-023525) and its applied TOP rows.
+    ASSUMED: identity occurrence offsets; the instance fit is self-consistent here, the live DRY proves it."""
+    names = {"scores": "lighting_scores_record_P03.json", "rld": "rig_lamp_drop_record_P03.json",
+             "frames": "rig_lamp_drop_report_P03_DRY_20261006-023525.json"}
+    paths = {k: os.path.join(HERE, v) for k, v in names.items()}
+    if not all(os.path.isfile(v) for v in paths.values()):
         EVIDENCE["skipped"] = True
         return
-    with open(record_path, encoding="utf-8") as handle:
-        rec = json.load(handle)
-    with open(M.DRY_SOURCE_PATH, encoding="utf-8") as handle:
-        dry = json.load(handle)
-    cues, stations = [], []
-    # ASSUMED frames (not in the record): station k at x = 250 + 500*(ordinal-1), y = 160000, z = 0,
-    # identity rotation and occurrence offset. The fit to the DRY points to <1 cm is the test.
-    for target in sorted(rec["plan"]["targets"], key=lambda t: t["ordinal"]):
+    loaded = {}
+    for key, path in paths.items():
+        with open(path, encoding="utf-8") as handle:
+            loaded[key] = json.load(handle)
+    rec, rld, frames = loaded["scores"], loaded["rld"], loaded["frames"]
+    top_after = rld["after_target_rows"]
+    cues, by_cue = [], {}
+    for target in rec["plan"]["targets"]:
+        rows = [copy.deepcopy(top_after.get(row["guid"], row)) for row in target["after_rows"]]
         cues.append({"show_index": target["show_index"], "guid": target["cue_guid"], "label": target["cue_label"],
                      "type": "<InfinityCueType.WING_PAIR: 0>", "occurrence_offset": copy.deepcopy(IDENTITY),
-                     "attachments": target["after_rows"]})
-        stations.append({"cue_guid": target["cue_guid"], "world": {
-            "location": [250.0 + 500.0 * (target["ordinal"] - 1), 160000.0, 0.0],
-            "rotation_xyzw": [0.0, 0.0, 0.0, 1.0], "scale": [1.0, 1.0, 1.0]}})
-    plain = {"cues": cues, "stations": stations, "bay_guids": rec["plan"]["bay_guids"],
-             "structure": dict(make_show()["structure"], fixture_body_count=0)}
+                     "attachments": rows})
+        by_cue[target["cue_guid"]] = target
+    stations = [{"cue_guid": f["cue_guid"], "world": {"location": list(f["location"]),
+                                                       "rotation_xyzw": _yaw_q(f["yaw_deg"]),
+                                                       "scale": [1.0, 1.0, 1.0]}}
+                for f in sorted(frames["station_frames"], key=lambda f: f["index"])]
+    structure = dict(make_show()["structure"], gridiron_depth_cm=90.0, gridiron_width_cm=40.0)
+    plain = {"cues": cues, "stations": stations, "bay_guids": rec["plan"]["bay_guids"], "structure": structure}
     placements, unused = M.gather_placements(plain)
     plain["instances"] = [list(p["geometry"]["instance_location"]) for p in placements]
-    plain["structure"]["fixture_body_count"] = len(placements)
-    points = M.load_dry_points(dry, plain["structure"])
-    assert len(placements) == 142
+    structure["fixture_body_count"] = len(placements)
+    assert len(placements) == frames["structure"]["fixture_body_count"] == 103, len(placements)
     for convention in ("BOX", "AXIS"):
+        points = M.live_points(plain, convention)
+        # Wing 010 (5 Oct's "extra") is selected live under both conventions: AXIS top 1104.8 > 1100.
         plan = M.build_plan(plain, points, {"top_convention": convention})
+        M.check_approved_set(plan)
         EVIDENCE[convention] = plan
-    labels = sorted(t["attachment_label"] for t in EVIDENCE["BOX"]["targets"])
-    assert len(labels) == 13 and all(label.endswith(" Rig Slash") for label in labels), labels
+    box = EVIDENCE["BOX"]
+    assert box["drop_cm"] == 20.0 and all(t["z_before"] == 1078.0 and t["z_after"] == 1058.0 for t in box["targets"])
+    applied = os.path.join(HERE, "p03_housing_drop_record.json.reverted-20261006-023409")
+    if os.path.isfile(applied):
+        with open(applied, encoding="utf-8") as handle:
+            old = json.load(handle)
+        assert M.target_rows({c["guid"]: c["attachments"] for c in cues}, box) == old["before_target_rows"]
+        assert box["drop_cm"] == old["plan"]["drop_cm"]
+        EVIDENCE["matches_5oct"] = True
 
 
 def main():
@@ -533,8 +614,10 @@ def main():
     if EVIDENCE.get("BOX"):
         for convention in ("BOX", "AXIS"):
             plan = EVIDENCE[convention]
-            print("EVIDENCE %s drop_cm=%.1f raw=%.3f others_in_band=%d" % (
-                convention, plan["drop_cm"], plan["drop_raw_cm"], len(plan["other_housings_in_new_band"])))
+            print("EVIDENCE %s drop_cm=%.1f raw=%.3f targets=%d others_in_band=%d" % (
+                convention, plan["drop_cm"], plan["drop_raw_cm"], len(plan["targets"]),
+                len(plan["other_housings_in_new_band"])))
+        print("  rows + drop identical to the 5 Oct applied record: %s" % bool(EVIDENCE.get("matches_5oct")))
         for t in EVIDENCE["BOX"]["targets"]:
             print("  %-24s %-14s %s z %.1f->%.1f box_top %.1f->%.1f axis_top %.1f route_gap %.1f line_new_depth %s"
                   % (t["attachment_label"], t["cue_label"], t["attachment_guid"], t["z_before"], t["z_after"],

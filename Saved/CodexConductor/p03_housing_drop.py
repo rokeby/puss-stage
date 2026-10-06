@@ -31,7 +31,7 @@ Modes via runpy init_globals (see p03_housing_drop_run.py):
   P03_HOUSING_DROP_MODE            DRY (default) | APPLY | REVERT
   P03_HOUSING_DROP_CONFIRM         "APPLY P03" / "REVERT P03" (required for writes)
   P03_HOUSING_DROP_ACK_RECORDS     foreign active record paths the operator accepts
-  P03_HOUSING_DROP_EXTRA_LIGHT_GUIDS  extra attachment GUIDs to drop with the 13
+  P03_HOUSING_DROP_EXTRA_LIGHT_GUIDS  extra attachment GUIDs to drop with the live set
   P03_HOUSING_DROP_TOP_CONVENTION  BOX (default: highest corner of the rotated
                                    housing box) | AXIS (centre + BodySize.Z/2,
                                    the convention clearance() and the C++ line
@@ -39,6 +39,22 @@ Modes via runpy init_globals (see p03_housing_drop_run.py):
 
 Write pattern follows lighting_scores_apply.py: it loads the P04 tool module
 (``tool``) through lighting_scores_apply.load_p04_tool(), never via import.
+
+6 Oct: LIVE SOURCE. The housing points used to come from the underpass DRY
+file above, which pinned the live gridiron at the pre-Phase-A depth 34; once
+Phase A went live on P03 (underpass_rig_applied_index.json run
+UPRIG-20261005-085951) every re-apply refused DRY_SOURCE_STALE|beam_depth_cm
+(report p03_housing_drop_report_DRY_20261006-023555.json). A fresh underpass
+DRY cannot replace it: clearance() keeps only housings the new band reaches
+AND the old band did not, with old depth = the live depth (underpass_rig_apply.py
+:445-456, :486), so with 90 live it returns []. live_points() now selects the
+housings from the live structure with this tool's own in-band rule (the
+other_housings_in_new_band test below), refuses unless Phase A is live and the
+fixture count matches the ISM, and check_approved_set() refuses unless the
+targets are exactly the 14 Rig Slash attachments applied on 5 Oct (13 DRY
+points + extra Wing 010, run 20261005-085813). Every downstream gate (mapping,
+ambiguity, instance fit, band drift, frame, drop limits, scope, export,
+revert) is unchanged.
 """
 from __future__ import annotations
 
@@ -61,7 +77,6 @@ except ModuleNotFoundError:  # offline harness import
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCORES_TOOL_PATH = os.path.join(HERE, "lighting_scores_apply.py")
-DRY_SOURCE_PATH = os.path.join(HERE, "underpass_rig_dry_UPRIG-20261005-081407.json")
 RECORD_PATH = os.path.join(HERE, "p03_housing_drop_record.json")
 VALID_MODES = ("DRY", "APPLY", "REVERT")
 TOP_CONVENTIONS = ("BOX", "AXIS")
@@ -69,7 +84,16 @@ TOP_CONVENTIONS = ("BOX", "AXIS")
 PASSAGE_KEY = "P03"
 PASSAGE_ACTOR_PREFIX = "Passage 03"
 STRUCTURE_LABEL = "Infinity Stage - Structure 03"
-EXPECTED_HOUSINGS = 13
+EXPECTED_HOUSINGS = 14   # live in-band set (BOX); was 13 DRY points + 1 extra on 5 Oct
+# The 14 Rig Slash attachments Gary's 5 Oct drop moved (p03_housing_drop_record.json
+# .reverted-20261006-023409, plan.target_attachment_guids). A different live set is a
+# new decision, so it refuses rather than silently dropping other lamps.
+APPROVED_TARGET_GUIDS = frozenset((
+    "02C239D14E23CD5512F451B69C617737", "0F3FD3F846A35A2F05D4B7A32F5D7F01", "3A786C61439BB242E0E1D58B42391832",
+    "3FACD8E44D4FDFD87CF919AEE2CDC4AB", "4E63D1B24A36ACF14A2C36B32A70B8C0", "52D41212415A6CF53800968117895B89",
+    "681420B0499A9FA5BDF4118939AE527C", "6B830737426981679115C5A0D8B5D984", "80282D394589898793525A8F3EBA9013",
+    "9DA65BFE497AE1CE97A41B9C7938F84C", "A9ED0FFA4491A6425BF5E19918B43F13", "C6D207F34C97DD2F19259DB9BB7BE04E",
+    "D2E6323C4C87C7AC728829BE579DC6ED", "E709499949DB55D6CB6EF1A0A2A46948"))
 NEW_BEAM_DEPTH_CM = 90.0   # underpass_rig_apply.py:70 PHASE_A
 NEW_BEAM_WIDTH_CM = 40.0   # underpass_rig_apply.py:70 PHASE_A
 EXPECTED_BAND_LO_CM = 1105.0
@@ -286,26 +310,41 @@ def map_points(points, placements):
     return mapping
 
 
-def load_dry_points(dry, structure):
-    """Validate the DRY source against the live structure and return its points."""
-    require(dry.get("mode") == "DRY" and int(dry.get("mutated", 1)) == 0, "DRY_SOURCE_NOT_A_DRY")
-    row = dry.get("structures", {}).get(STRUCTURE_LABEL)
-    require(row is not None and row.get("targeted"), "DRY_SOURCE_STRUCTURE_MISSING")
-    would = row.get("would_set", {})
-    require(float(would.get("beam_depth_cm", -1)) == NEW_BEAM_DEPTH_CM
-            and float(would.get("beam_width_cm", -1)) == NEW_BEAM_WIDTH_CM, "DRY_SOURCE_PHASE_A_CHANGED")
-    grid = row.get("gridiron", {})
-    require(abs(float(grid.get("height_cm", -1)) - structure["gridiron_height_cm"]) < 1.0e-6,
-            "DRY_SOURCE_STALE|height_cm")
-    require(abs(float(grid.get("beam_depth_cm", -1)) - structure["gridiron_depth_cm"]) < 1.0e-6,
-            "DRY_SOURCE_STALE|beam_depth_cm|dry=%s|live=%s" % (grid.get("beam_depth_cm"),
-                                                               structure["gridiron_depth_cm"]))
-    require(int(row.get("counts", {}).get("fixture_body_count", -1)) == structure["fixture_body_count"],
-            "DRY_SOURCE_STALE|fixture_body_count|dry=%s|live=%s"
-            % (row.get("counts", {}).get("fixture_body_count"), structure["fixture_body_count"]))
-    points = [[float(v) for v in p] for p in row.get("clearance_new_band_housings", [])]
-    require(all(len(p) == 3 for p in points), "DRY_SOURCE_POINT_SHAPE")
+def live_points(plain, convention="BOX"):
+    """Housing points read from the LIVE structure (replaces the stale underpass DRY file).
+
+    Gates carried over from the old load_dry_points: Phase A must be what the band
+    maths assumes (was DRY_SOURCE_PHASE_A_CHANGED); the source must describe the
+    current fixtures (was DRY_SOURCE_STALE|fixture_body_count); points are 3-vectors.
+    Selection = the in-band test build_plan() already uses for
+    other_housings_in_new_band: BOX/AXIS top above band_lo - clearance and the box
+    bottom below band_lo + depth, against the housing's own station's Phase A band."""
+    convention = str(convention or "BOX").upper()
+    require(convention in TOP_CONVENTIONS, "TOP_CONVENTION_INVALID|" + convention)
+    structure = plain["structure"]
+    depth, width = float(structure["gridiron_depth_cm"]), float(structure["gridiron_width_cm"])
+    require(depth == NEW_BEAM_DEPTH_CM and width == NEW_BEAM_WIDTH_CM,
+            "PHASE_A_NOT_LIVE|depth=%s|width=%s|need=%s/%s" % (depth, width, NEW_BEAM_DEPTH_CM, NEW_BEAM_WIDTH_CM))
+    require(int(structure["fixture_body_count"]) == len(plain["instances"]),
+            "FIXTURE_COUNT_STALE|fixture_body_count=%s|ism_instances=%d"
+            % (structure["fixture_body_count"], len(plain["instances"])))
+    placements, unused = gather_placements(plain)
+    points = []
+    for placement in placements:
+        geometry = placement["geometry"]
+        lo = band_lo(placement, structure, plain)
+        if housing_top(geometry, convention) > lo - CLEARANCE_CM and geometry["bottom_box"] < lo + NEW_BEAM_DEPTH_CM:
+            points.append([float(v) for v in geometry["instance_location"]])
+    require(all(len(p) == 3 for p in points), "LIVE_POINT_SHAPE")
     return points
+
+
+def check_approved_set(plan, approved=APPROVED_TARGET_GUIDS):
+    """The planned targets must be exactly the approved attachments: no more, no fewer."""
+    planned, approved = set(plan["target_attachment_guids"]), set(approved)
+    require(planned == approved, "TARGET_SET_NOT_APPROVED|missing=%s|unapproved=%s"
+            % (sorted(approved - planned), sorted(planned - approved)))
+    return sorted(planned)
 
 
 def band_lo(placement, structure, plain):
@@ -823,14 +862,15 @@ def _run(mode, ack_records, extras, convention):
         report["structure"] = plain["structure"]
 
         if mode in ("DRY", "APPLY"):
-            with open(DRY_SOURCE_PATH, encoding="utf-8") as handle:
-                points = load_dry_points(json.load(handle), plain["structure"])
+            points = live_points(plain, convention)
             plan = build_plan(plain, points, {"extra_light_guids": extras, "top_convention": convention})
+            check_approved_set(plan)
             before_all = _all_rows(plain)
             texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"])
             foreign = _scan_foreign(scores, plan)
             unacked = sorted({h["path"] for h in foreign} - set(ack_records or []))
-            report.update({"plan": plan, "foreign_records": foreign, "unacknowledged_foreign_records": unacked,
+            report.update({"plan": plan, "housing_source": {"kind": "live_structure", "points": len(points)},
+                           "foreign_records": foreign, "unacknowledged_foreign_records": unacked,
                            "active_record": RECORD_PATH if os.path.exists(RECORD_PATH) else None})
             if mode == "DRY":
                 for t in plan["targets"]:

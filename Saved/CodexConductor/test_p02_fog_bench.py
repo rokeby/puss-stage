@@ -92,6 +92,13 @@ class World:
                        {"roll": 0.0, "pitch": -90.0, "yaw": 0.0}, 0.4)
         self.add_light("/PIE/Far_Lamp", "P05 SCORE B40 LOOK TOP_L", (60000.0, 0.0, 1180.0),
                        {"roll": 0.0, "pitch": -57.0, "yaw": 0.0}, 0.35)
+        # "tubes everywhere": several rect lights on ONE Structure actor -> one row per component
+        for i, k in enumerate((7, 8, 9, 14, 15, 16)):
+            self.add_light("/PIE/Structure02.StructureUnderpassTubeLight_%d" % i,
+                           "Infinity Stage - Structure 02/StructureUnderpassTubeLight_%d" % i,
+                           (bay_x(k) + 100.0, (-1.0) ** i * 900.0, 420.0), {"roll": 0.0, "pitch": -90.0, "yaw": 0.0}, 1.0,
+                           component=True)
+        self.missing_api = []
         self.fog_id = "/PIE/HeightFog.Component"
         self.set_("fog", self.fog_id, "fog_density", 0.035)
         self.set_("fog", self.fog_id, "second_fog_density", 0.01)
@@ -120,16 +127,17 @@ class World:
                 self.set_("pp", pid, f, v)
         self.slabs = ["/PIE/Floor_%s.SMC" % n for n in ("Near", "Left", "Right", "Far")]
         for s in self.slabs:
-            self.set_("mid", s, "slot0", "/Game/Floor/MI_Slats")
+            self.set_("mid", s, "slot0", fb.WALNUT_MAT)
         self.wings = {"/PIE/Wing_A.ISM": "/Game/Wing/MI_Front_Tex", "/PIE/Wing_B.ISM": "/Game/Wing/MI_Front_Scalar"}
         for w, m in self.wings.items():
             self.set_("mid", w, "slot0", m)
-        self.scalars = {"/Game/Floor/MI_Slats": {"Roughness": 0.6, "Tint": 1.0}, "/Game/Wing/MI_Front_Tex": {},
+        self.scalars = {fb.WALNUT_MAT: {"Roughness_Low": 0.3, "Roughness_High": 0.8, "Tint": 1.0},
+                        "/Game/Floor/MI_Slats": {"Roughness": 0.6}, "/Game/Wing/MI_Front_Tex": {},
                         "/Game/Wing/MI_Front_Scalar": {"RoughnessScale": 1.0}}
-        self.p01_floor = ["/Game/Walnut/MI_Walnut"]
+        self.p01_floor = ["/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"]
 
-    def add_light(self, lid, label, loc, rot, vsi):
-        self.meta[lid] = {"label": label, "location": loc}
+    def add_light(self, lid, label, loc, rot, vsi, component=False):
+        self.meta[lid] = {"label": label, "location": loc, "component": component}
         self.set_("light", lid, "rotation", dict(rot))
         self.set_("light", lid, "volumetric_scattering_intensity", vsi)
 
@@ -138,6 +146,7 @@ class World:
             value = struct.unpack("<f", struct.pack("<f", value))[0]
         self.state[(kind, oid, field)] = copy.deepcopy(value)
 
+    def api_missing(self): return list(self.missing_api)
     def note(self, e): self.events.append(e)
     def log(self, m): self.logs_.append(m)
     def log_error(self, m): self.errors.append(m)
@@ -168,6 +177,7 @@ class World:
             if kind == "light" and field == "rotation":
                 m = self.meta[oid]
                 out.append({"id": oid, "label": m["label"], "location": list(m["location"]),
+                            "component": m["component"],
                             "rotation": self.read("light", oid, "rotation"),
                             "volumetric_scattering_intensity": self.read("light", oid, "volumetric_scattering_intensity"),
                             "visible": True, "intensity": 100.0})
@@ -259,8 +269,12 @@ class PieFake(World):
     the target with time constant tau, plus a fault-flicker (brief dips)."""
 
     def __init__(self, clock, prepared=True, kind="game", tau=1.0, flicker=12.0, residual_after=None,
-                 slowmove=False, dirty_on_rotation=False, scrub_result="<InfinityTransportResult.SUCCEEDED: 0>"):
+                 slowmove=False, dirty_on_rotation=False, scrub_result="<InfinityTransportResult.SUCCEEDED: 0>",
+                 old_floor=False):
         super().__init__(kind)
+        if old_floor:                                    # the pre-6 Oct-11:22 P02 floor
+            for s in self.slabs:
+                self.set_("mid", s, "slot0", "/Game/Floor/MI_Slats")
         self.clock = clock
         if prepared:
             self.pool = {fb.PREFIX + "MIST_%d" % i: {"on": False} for i in range(4)}
@@ -538,17 +552,18 @@ check("+ bisect_ev: too bright raises the floor, too dark lowers the ceiling",
       fb.bisect_ev(-8.0, 4.0, -2.0, 100.0, 80.0) == (-2.0, 4.0) and fb.bisect_ev(-8.0, 4.0, -2.0, 60.0, 80.0) == (-8.0, -2.0))
 
 # E
-scal = {m: W.scalar_params(m) for m in ("/Game/Floor/MI_Slats", "/Game/Wing/MI_Front_Tex", "/Game/Wing/MI_Front_Scalar")}
+scal = {m: W.scalar_params(m) for m in (fb.WALNUT_MAT, "/Game/Wing/MI_Front_Tex", "/Game/Wing/MI_Front_Scalar")}
 pe = fb.plan_e(SRC, W.floor_slots(), W.wing_slots(POSE8, 4000.0, "Front"), scal, P)
 pp_ops = [o for o in pe["ops"] if o[0] == "pp"]
 mid_ops = [o for o in pe["ops"] if o[0] == "mid"]
 check("+ E: Lumen reflection quality 2 / screen traces / max roughness 0.6 with override flags, on affecting sources only",
       {o[1] for o in pp_ops} == {"/PIE/PPV_Unbound", "/PIE/CineCam.Camera"} and len(pp_ops) == 12
       and ("pp", "/PIE/PPV_Unbound", "lumen_max_roughness_to_trace_reflections", 0.6) in pp_ops)
-check("+ E: floor MIDs scale only the 'rough' scalars (Roughness 0.6 -> 0.21, Tint untouched) on all 4 slabs; the "
-      "texture-only wing is a logged no-op, the scalar wing gets a MID",
+check("+ E: walnut floor MIDs scale only the 'rough' scalars (Roughness_Low 0.3, Roughness_High 0.8 x0.35; Tint "
+      "untouched) on all 4 slabs; the texture-only wing is a logged no-op, the scalar wing gets a MID",
       len([o for o in mid_ops if "Floor" in o[1]]) == 4
-      and all(o[3]["scalars"] == {"Roughness": 0.6 * 0.35} for o in mid_ops if "Floor" in o[1])
+      and all(o[3]["scalars"] == {"Roughness_Low": 0.3 * 0.35, "Roughness_High": 0.8 * 0.35} and
+              o[3]["mid_parent"] == fb.WALNUT_MAT for o in mid_ops if "Floor" in o[1])
       and pe["info"]["wing_noop"] == 1 and pe["info"]["wing_mids"] == 1)
 check("- control: a token no scalar holds makes the floor a no-op (E_FLOOR_NOOP path)",
       fb.plan_e(SRC, W.floor_slots(), [], scal, dict(P, e_rough_token="zzz"))["info"]["floor_mids"] == 0)
@@ -704,8 +719,13 @@ check("+ D calibration: the bisected EV matches the auto exposure the base settl
 check("+ markers carry the run id: START, ANNOUNCE, PLAN, BASE_RETURN, STILL, CAPTURE_OK, NEEDS_DONT_SAVE_RESTART",
       all(any(m.startswith("P02_FOG_BENCH_%s|run=%s" % (t, r1["run_id"])) for m in f1.logs_)
           for t in ("START", "ANNOUNCE", "PLAN", "BASE_RETURN", "STILL", "CAPTURE_OK", "NEEDS_DONT_SAVE_RESTART")))
-check("+ E ran before the walnut floor: P02_FOG_BENCH_E_BEFORE_WALNUT logged (policy warn), manifest records it",
-      f1.logs("P02_FOG_BENCH_E_BEFORE_WALNUT|run=") and man["walnut"]["applied"] is False)
+check("+ walnut: the default fake floor is the walnut MIC -> applied, no E_BEFORE_WALNUT, manifest records it",
+      not f1.logs("E_BEFORE_WALNUT") and man["walnut"]["applied"] is True and man["walnut"]["p02"] == [fb.WALNUT_MAT])
+rW, fW, _s, _m = run(params={"walnut_policy": "warn"}, old_floor=True)
+mW = json.loads((pathlib.Path(rW["run_dir"]) / fb.MANIFEST_NAME).read_text(encoding="utf-8"))
+check("+ walnut warn on the old floor: E_BEFORE_WALNUT logged with the floor's material, manifest applied=False",
+      fW.logs("P02_FOG_BENCH_E_BEFORE_WALNUT|run=%s|P02 floor slots /Game/Floor/MI_Slats" % rW["run_id"])
+      and mW["walnut"]["applied"] is False and mW["status"] == "passed")
 
 rD, fD, _s, _m = run(params={"d_cal_iters": 1, "d_ev_clamp": (-8.0, 0.0)})
 errD = []
@@ -802,15 +822,321 @@ check("+ CAPTURE refuses with no PREPARE record", raises(lambda: arm_only(PieFak
 partial = dict(prep_disk, status="partial")
 (tmp / "partial.json").write_text(json.dumps(partial), encoding="utf-8")
 check("+ CAPTURE refuses a partial PREPARE", raises(lambda: arm_only(PieFake([0.0]), prep=tmp / "partial.json"), "reason=prepare_incomplete"))
-check("+ walnut_policy=require refuses while the P02 floor is not P01's walnut",
-      raises(lambda: arm_only(PieFake([0.0]), params={"walnut_policy": "require"}), "reason=walnut_not_applied"))
+check("+ walnut_policy=require (the default) refuses while the P02 floor is not the walnut MIC",
+      raises(lambda: arm_only(PieFake([0.0], old_floor=True)), "reason=walnut_not_applied"))
+same = PieFake([0.0], old_floor=True)
+same.p01_floor = ["/Game/Floor/MI_Slats"]
+check("+ the 6 Oct false positive is gone: P02 == P01's slab material (both DarkWet then) is NOT walnut",
+      raises(lambda: arm_only(same), "reason=walnut_not_applied")
+      and fb.walnut_state(["/X/DarkWet"] * 4, ["/X/DarkWet"], True)["applied"] is False)
 wal = PieFake([0.0])
-wal.p01_floor = ["/Game/Floor/MI_Slats"]
 check("- control: with the walnut applied, require arms and no E_BEFORE_WALNUT is logged",
-      not raises(lambda: arm_only(wal, params={"walnut_policy": "require"}), "FAILED") and not wal.logs("E_BEFORE_WALNUT"))
+      not raises(lambda: arm_only(wal), "FAILED") and not wal.logs("E_BEFORE_WALNUT"))
 check("+ CAPTURE refuses a variant list that does not start with base",
       raises(lambda: arm_only(PieFake([0.0]), params={"variants": ("A", "base")}), "reason=bad_variants"))
 check("- control: a clean PIE fake arms", not raises(lambda: arm_only(PieFake([0.0])), "FAILED"))
+
+# ======================= the REAL PIE adapter on a strict fake `unreal` =======================
+# Only names the UE 5.8 headers declare as UFUNCTION / UPROPERTY exist on these classes (cited in p02_fog_bench.py);
+# anything else raises AttributeError exactly as the live binding did on 6 Oct.
+import types  # noqa: E402
+
+
+def strict_unreal(drop=(), view_target=True):
+    U = types.SimpleNamespace()
+    logs = {"log": [], "warn": [], "err": []}
+
+    class Vector:
+        def __init__(self, x=0.0, y=0.0, z=0.0): self.x, self.y, self.z = float(x), float(y), float(z)
+
+    class Rotator:
+        def __init__(self, roll=0.0, pitch=0.0, yaw=0.0): self.roll, self.pitch, self.yaw = roll, pitch, yaw
+
+    class Obj:
+        def __init__(self, path, **props): self._path, self._props = path, dict(props)
+        def get_path_name(self): return self._path
+        def get_name(self): return self._path.rsplit(".", 1)[-1]
+        def get_editor_property(self, n): return self._props[n]
+        def set_editor_property(self, n, v, notify_mode=None): self._props[n] = v
+
+    class Actor(Obj):
+        def __init__(self, path, label, comps=(), loc=(0, 0, 0), **props):
+            super().__init__(path, **props)
+            self._label, self._comps, self._loc, self._rot = label, list(comps), Vector(*loc), Rotator()
+        def get_actor_label(self): return self._label
+        def actor_has_tag(self, t): return False
+        def get_component_by_class(self, cls): return next((c for c in self._comps if isinstance(c, cls)), None)
+        def get_components_by_class(self, cls): return [c for c in self._comps if isinstance(c, cls)]
+        def get_actor_location(self): return self._loc
+        def get_actor_rotation(self): return self._rot
+        def set_actor_rotation(self, r, teleport): self._rot = r; return True
+        def get_actor_bounds(self, only_colliding): return self._props["_bounds"]
+        def set_actor_location_and_rotation(self, *a): return True
+        def set_actor_scale3d(self, v): pass
+        def set_actor_hidden_in_game(self, h): pass
+
+    class ActorComponent(Obj):
+        pass
+
+    class SceneComponent(ActorComponent):
+        def get_world_location(self): return Vector(*self._props.get("_loc", (0, 0, 0)))
+        def get_world_rotation(self): return Rotator(*self._props.get("_rot", (0, 0, 0)))
+        def is_visible(self): return True
+        def set_visibility(self, v, p): pass
+
+    class PrimitiveComponent(SceneComponent):
+        def get_material(self, i): return None
+        def get_num_materials(self): return 0
+        def get_material_index(self, n): return -1
+        def set_material(self, i, m): pass
+
+    class MeshComponent(PrimitiveComponent):
+        def get_materials(self): return []
+
+    class StaticMeshComponent(MeshComponent): pass
+    class CameraComponent(SceneComponent): pass
+    class CineCameraComponent(CameraComponent): pass
+
+    class LightComponent(SceneComponent):
+        def set_volumetric_scattering_intensity(self, v): self._props["volumetric_scattering_intensity"] = float(v)
+
+    class LocalLightComponent(LightComponent): pass
+    class RectLightComponent(LocalLightComponent): pass
+
+    class ExponentialHeightFogComponent(SceneComponent):
+        def set_fog_density(self, v): pass
+        def set_second_fog_density(self, v): pass
+        def set_volumetric_fog(self, v): pass
+
+    class LocalFogVolumeComponent(SceneComponent):
+        def set_radial_fog_extinction(self, v): pass
+        def set_height_fog_extinction(self, v): pass
+        def set_height_fog_falloff(self, v): pass
+        def set_height_fog_offset(self, v): pass
+        def set_fog_phase_g(self, v): pass
+
+    class PostProcessVolume(Actor): pass          # AVolume::EncompassesPoint has no UFUNCTION (Volume.h:52)
+    class StaticMeshActor(Actor): pass
+    class ExponentialHeightFog(Actor): pass
+    class CineCameraActor(Actor): pass
+    class InfinityStageShowRoot(Actor): pass
+
+    class Controller(Actor):                       # Controller.h:252-253 UFUNCTION GetViewTarget
+        def get_view_target(self): return self._props["_vt"]
+
+    class PlayerController(Controller): pass
+
+    class PlayerCameraManager(Actor):              # PlayerCameraManager.h:559: GetViewTarget is NOT a UFUNCTION
+        def get_camera_location(self): return Vector(100.0, 0.0, 180.0)
+        def get_camera_rotation(self): return Rotator()
+        def get_fov_angle(self): return 37.5
+
+    class Material(Obj): pass
+    class MaterialInstance(Obj): pass
+
+    class MaterialInstanceConstant(MaterialInstance):
+        def get_scalar_parameter_value(self, n): return self._props["_scalars"][n]
+
+    class MaterialInstanceDynamic(MaterialInstance):
+        def get_scalar_parameter_value(self, n): return self._props["_scalars"][n]
+        def set_scalar_parameter_value(self, n, v): self._props["_scalars"][n] = v
+
+    class PPS(Obj): pass
+
+    fields = {f: 0.0 for f in fb.PP_EXPOSURE + fb.PP_READ_ONLY + tuple(fb.E_PP_OVERRIDE.values()) + tuple(fb.E_PP_OVERRIDE)}
+    world = Obj("/Game/Maps/UEDPIE_0_L.L")
+    cam_comp = CineCameraComponent("/PIE/CineCam.CameraComponent", post_process_settings=PPS("pps", **fields),
+                                   post_process_blend_weight=1.0)
+    cine = CineCameraActor("/PIE/CineCam", "P02 Camera", [cam_comp])
+    ppv_in = PostProcessVolume("/PIE/PPV_In", "PPV In", enabled=True, unbound=False, priority=1.0, blend_weight=1.0,
+                               settings=PPS("s1", **fields), _bounds=(Vector(100, 0, 0), Vector(500, 500, 500)))
+    ppv_out = PostProcessVolume("/PIE/PPV_Out", "PPV Out", enabled=True, unbound=False, priority=2.0, blend_weight=1.0,
+                                settings=PPS("s2", **fields), _bounds=(Vector(90000, 0, 0), Vector(500, 500, 500)))
+    lamp_c = RectLightComponent("/PIE/Lamp.Light", volumetric_scattering_intensity=0.8, intensity=10.0)
+    lamp = Actor("/PIE/Lamp", "P02 SCORE B08 LOOK TOP_L", [lamp_c], loc=(400, 0, 1100))
+    tubes = [RectLightComponent("/PIE/Structure02.StructureUnderpassTubeLight_%d" % i, volumetric_scattering_intensity=1.0,
+                                intensity=1500.0, _loc=(300 * i, 900, 420)) for i in range(3)]
+    structure = Actor("/PIE/Structure02", "Infinity Stage - Structure 02", tubes)
+    pc = PlayerController("/PIE/PC", "PC", _vt=cine if view_target else None)
+    pcm = PlayerCameraManager("/PIE/PCM", "PCM")
+    actors = [cine, ppv_in, ppv_out, lamp, structure, pc, pcm]
+    mic = MaterialInstanceConstant(fb.WALNUT_MAT, _scalars={"Roughness_Low": 0.3, "Roughness_High": 0.8})
+    plain_mi = MaterialInstance("/Game/X/MI_Plain")
+    objects = {o.get_path_name(): o for o in actors + [lamp_c, cam_comp, mic, plain_mi] + tubes}
+
+    class GameplayStatics:
+        @staticmethod
+        def get_all_actors_of_class(w, cls): return [a for a in actors if isinstance(a, cls)]
+        @staticmethod
+        def get_player_controller(w, i): return pc
+        @staticmethod
+        def get_player_camera_manager(w, i): return pcm
+
+    class SystemLibrary:
+        @staticmethod
+        def execute_console_command(w, c): pass
+        @staticmethod
+        def get_component_bounds(c): return Vector(), Vector(), 0.0
+        @staticmethod
+        def get_console_variable_float_value(n): return 0.0
+
+    class MaterialEditingLibrary:
+        @staticmethod
+        def get_scalar_parameter_names(m): return list(m._props.get("_scalars", {"Roughness": 0.5}))
+        @staticmethod
+        def get_material_default_scalar_parameter_value(m, n): return 0.5
+
+    class MaterialLibrary:
+        @staticmethod
+        def create_dynamic_material_instance(w, parent): return MaterialInstanceDynamic("/Transient/MID", _scalars={})
+
+    class Editor:
+        def get_game_world(self): return world
+
+    class EditorLoadingAndSavingUtils:
+        @staticmethod
+        def get_dirty_map_packages(): return []
+        @staticmethod
+        def get_dirty_content_packages(): return []
+
+    for name, val in dict(locals()).items():
+        if isinstance(val, type):
+            setattr(U, name, val)
+    U.Name = str
+    U.PropertyAccessChangeNotifyMode = types.SimpleNamespace(NEVER="NEVER")
+    U.UnrealEditorSubsystem = object
+    U.get_editor_subsystem = lambda cls: Editor()
+    U.find_object = lambda outer, path: objects.get(path)
+    U.load_object = lambda outer, path: objects.get(path)
+    U.log = logs["log"].append
+    U.log_warning = logs["warn"].append
+    U.log_error = logs["err"].append
+    U._logs = logs
+    for dotted in drop:                              # remove a binding to prove the preflight sees it
+        cls, attr = dotted.split(".")
+        delattr(getattr(U, cls), attr)
+    return U
+
+
+SU = strict_unreal()
+SA = fb.make_pie_adapter(SU)
+pcm_live = SU.GameplayStatics.get_player_camera_manager(None, 0)
+try:
+    pcm_live.get_view_target()
+    old_raised = False
+except AttributeError as exc:
+    old_raised = "get_view_target" in str(exc)
+check("- control: the 6 Oct call (PlayerCameraManager.get_view_target) raises AttributeError on the strict fake, as "
+      "it did live (PlayerCameraManager.h:559 is not a UFUNCTION)", old_raised)
+src = SA.pp_sources([100.0, 0.0, 180.0])
+cam_rows = [r for r in src if r["kind"] == "camera"]
+check("+ fixed pp_sources: the camera row comes from PlayerController.get_view_target -> the CineCamera's "
+      "CameraComponent (subclass found by get_component_by_class), weight read, affects",
+      len(cam_rows) == 1 and cam_rows[0]["id"] == "/PIE/CineCam.CameraComponent" and cam_rows[0]["label"] == "P02 Camera"
+      and cam_rows[0]["affects"] and set(cam_rows[0]["fields"]) >= set(fb.PP_EXPOSURE))
+ppv = {r["id"]: r for r in src if r["kind"] == "ppv"}
+check("+ pp_sources: with no encompasses_point binding the bounds box decides: PPV_In affects, PPV_Out does not",
+      ppv["/PIE/PPV_In"]["affects"] and not ppv["/PIE/PPV_Out"]["affects"])
+check("- control: a controller with no view target refuses (no_view_target), never a silent camera-less plan",
+      raises(lambda: fb.make_pie_adapter(strict_unreal(view_target=False)).pp_sources([0.0, 0.0, 0.0]),
+             "reason=no_view_target"))
+check("+ api_missing: the strict fake exposes every binding in PIE_API (nothing missing)", SA.api_missing() == [])
+gone = fb.make_pie_adapter(strict_unreal(drop=("Controller.get_view_target", "LocalFogVolumeComponent.set_fog_phase_g")))
+check("- control: dropping Controller.get_view_target and LocalFogVolumeComponent.set_fog_phase_g is reported",
+      gone.api_missing() == ["Controller.get_view_target", "LocalFogVolumeComponent.set_fog_phase_g"])
+f_api = PieFake([0.0])
+f_api.missing_api = ["Controller.get_view_target"]
+out_api = tmp / "api_out"
+check("+ arm refuses on a missing binding (reason=api_missing) before any write, run dir, or strobe change",
+      raises(lambda: arm_only(f_api, out=out_api), "reason=api_missing|Controller.get_view_target")
+      and not out_api.exists() and not [e for e in f_api.events if isinstance(e, tuple)])
+f_pre = PieFake([0.0])
+
+
+def _boom(loc):
+    raise AttributeError("'PlayerCameraManager' object has no attribute 'get_view_target'")
+
+
+f_pre.pp_sources = _boom
+out_pre = tmp / "pre_out"
+check("+ read preflight: the 6 Oct failure mode (a read raising AttributeError) now refuses at arm with nothing "
+      "changed (no run dir, no write, strobes untouched)",
+      raises(lambda: arm_only(f_pre, out=out_pre), "reason=arm_error|AttributeError") and not out_pre.exists()
+      and not [e for e in f_pre.events if isinstance(e, tuple)] and f_pre.strobes["/PIE/P02_Strobe"] is True)
+wal2 = PieFake([0.0])
+check("- control: a clean fake passes the preflight and logs PREFLIGHT with the camera PP row",
+      not raises(lambda: arm_only(wal2), "FAILED") and any('"pp_camera": 1' in m for m in wal2.logs("P02_FOG_BENCH_PREFLIGHT|")))
+
+# tubes through the real adapter
+rows_l = SA.lights()
+comp_rows = [r for r in rows_l if r["component"]]
+check("+ lights(): the lamp actor (1 light) is one actor row; the Structure's 3 tube rect lights are 3 component rows "
+      "(before 6 Oct the multi-light actor was skipped)",
+      [r["id"] for r in rows_l if not r["component"]] == ["/PIE/Lamp"] and len(comp_rows) == 3
+      and all(r["label"].startswith("Infinity Stage - Structure 02/StructureUnderpassTubeLight_") for r in comp_rows))
+tid = comp_rows[0]["id"]
+SA.write("light", tid, "volumetric_scattering_intensity", 0.0)
+check("+ a tube component's scattering is written and read back through the component",
+      SA.read("light", tid, "volumetric_scattering_intensity") == 0.0
+      and SA.read("light", "/PIE/Lamp", "volumetric_scattering_intensity") == 0.8)
+check("- control: re-aiming a component light is refused (C only aims lamp actors)",
+      raises(lambda: SA.write("light", tid, "rotation", {"roll": 0, "pitch": 0, "yaw": 0}), "LIGHT_COMPONENT_ROTATION"))
+check("+ scalar_params: the walnut MIC's Roughness_Low / Roughness_High via MIC.get_scalar_parameter_value",
+      SA.scalar_params(fb.WALNUT_MAT) == {"Roughness_Low": 0.3, "Roughness_High": 0.8})
+check("- control: a material class with no scalar getter UFUNCTION is refused (logged, {}), not guessed",
+      SA.scalar_params("/Game/X/MI_Plain") == {} and any("SCALARS_UNREAD" in m for m in SU._logs["warn"]))
+
+# tubes in the plans (fake world)
+tube_ids = {l["id"] for l in LIGHTS if l["component"]}
+near_tubes = {l["id"] for l in LIGHTS if l["component"] and fb.dist3(l["location"], POSE8["loc"]) <= P["a_radius_cm"]}
+check("+ A zeroes the scattering of every tube light within the radius (component rows)",
+      near_tubes and near_tubes <= zero_ids and pa["info"]["zeroed_components"] == len(near_tubes))
+check("+ C never re-aims a tube light, even one labelled like a LOW_SIDE score lamp",
+      not (tube_ids & c_ids) and not fb.plan_c([dict(l, label="P02 SCORE B08 LOOK LOW_SIDE_X") for l in LIGHTS
+                                                 if l["component"]], POSE8, 8, P)["ops"])
+check("- control: the same relabelled rows WITHOUT the component flag would be re-aimed",
+      fb.plan_c([dict(l, label="P02 SCORE B08 LOOK LOW_SIDE_X", component=False) for l in LIGHTS if l["component"]],
+                POSE8, 8, P)["ops"])
+
+# settle trend: last night's measured base_ref window
+LAST = [[0.234, 28.563], [0.734, 29.489], [1.797, 29.727], [2.859, 30.664], [3.922, 31.621], [4.969, 32.484]]
+check("+ settle trend: the 6 Oct bay08 base_ref (28.6 -> 32.5 in a line, drift %.2f) now WAITS" % fb.window_drift(LAST),
+      fb.robust_settle(LAST, 4.97, Pg) == "wait" and fb.window_drift(LAST) > 3.0)
+check("- control: the half-median test alone (settle_trend False) called it stable, as it did live",
+      fb.robust_settle(LAST, 4.97, dict(Pg, settle_trend=False)) == "stable")
+check("+ settle trend keeps the stationary flicker stable (dips do not tilt a Theil-Sen slope)",
+      abs(fb.window_drift(flick[-6:])) < 1.0 and fb.robust_settle(flick, 6.0, Pg) == "stable")
+
+# RESTORE scope + stale PREPARE
+sr = tmp / "sessions"
+for name in ("P02FOGPREP-20261006-064231", "P02FOGPREP-20261006-200000"):
+    (sr / "_prepare" / name).mkdir(parents=True)
+    (sr / "_prepare" / name / fb.PREPARE_RECORD_NAME).write_text(
+        json.dumps(dict(prep_disk, run=name)), encoding="utf-8")
+for run_name, prep_run in (("P02FOG-20261006-064243", "P02FOGPREP-20261006-064231"),
+                           ("P02FOG-20261006-200100", "P02FOGPREP-20261006-200000")):
+    (sr / run_name).mkdir()
+    (sr / run_name / fb.ORIGINALS_NAME).write_text(json.dumps({"prepare_run": prep_run}), encoding="utf-8")
+got_sr = [pp.parent.name for pp in fb.session_records(sr, sr / "_prepare")]
+check("+ RESTORE default records: only captures armed on the NEWEST PREPARE (tonight), never last night's",
+      got_sr == ["P02FOG-20261006-200100"])
+check("- control: the old glob would have restored last night's record too (written LAST, so it would win)",
+      len(sorted(sr.glob("P02FOG-*/" + fb.ORIGINALS_NAME))) == 2)
+old_prep = sr / "_prepare" / "P02FOGPREP-20261006-064231" / fb.PREPARE_RECORD_NAME
+new_prep = sr / "_prepare" / "P02FOGPREP-20261006-200000" / fb.PREPARE_RECORD_NAME
+
+
+def _arm_prep(prep, out):
+    return fb.arm(PieFake([0.0]), prep, TEST_P, out_root=out, prepare_root=sr / "_prepare", owner_path=tmp / "o.json",
+                  walnut_record=tmp / "w.json", register=lambda fn: "H", unregister=lambda h: None, store=Store(),
+                  clock=lambda: 0.0)
+
+
+check("+ CAPTURE refuses an explicit PREPARE record that is not the newest (stale_prepare; args pinned last night's)",
+      raises(lambda: _arm_prep(old_prep, tmp / "stale_a"), "reason=stale_prepare"))
+check("- control: the newest PREPARE record arms", not raises(lambda: _arm_prep(new_prep, tmp / "stale_b"), "FAILED"))
+args_disk = json.loads((HERE / "p02_fog_bench_args.json").read_text(encoding="utf-8"))
+check("+ p02_fog_bench_args.json no longer pins a PREPARE record (newest is found)", args_disk.get("prepare_record") is None)
 
 # ======================= source scans =======================
 SAVE = re.compile(r"save_(current_level|packages|dirty|map|asset|loaded_asset|directory|level)|EditorAssetLibrary\.save|"
@@ -849,8 +1175,11 @@ for i, g in enumerate((90, 60, 88)):
     write_png(d3 / ("s%d.png" % i), 8, 6, g)
 idx, lumas, med = pk([d3 / ("s%d.png" % i) for i in range(3)])
 check("+ pick: the still nearest the median luma (88 of 90/60/88), not the flicker dip", idx == 2 and abs(med - 88.0) < 1e-6)
-check("+ tile notes: E ran before the walnut is written on E and ALL tiles",
-      all("E ran BEFORE the walnut floor" in t["notes"] for t in sheet["tiles"] if t["variant"] in ("E", "ALL")))
+sheetW = cs.build_sheet(rW["run_dir"], thumb_w=160)
+check("+ tile notes: E ran before the walnut is written on E and ALL tiles of the old-floor run",
+      all("E ran BEFORE the walnut floor" in t["notes"] for t in sheetW["tiles"] if t["variant"] in ("E", "ALL")))
+check("- control: the walnut run's tiles carry no such note",
+      not any("E ran BEFORE the walnut floor" in t["notes"] for t in sheet["tiles"]))
 gone = pathlib.Path(r1["run_dir"]) / "bay15" / "C_0.png"
 for pth in pathlib.Path(r1["run_dir"]).glob("bay15/C_*.png"):
     pth.unlink()

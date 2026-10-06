@@ -1,0 +1,4966 @@
+{
+  "acknowledged_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P03.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P03.json",
+    "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json"
+  ],
+  "after_target_rows": {
+    "02C239D14E23CD5512F451B69C617737": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "02C239D14E23CD5512F451B69C617737",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 010 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1217.5,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.4000000953674316,
+        "intensity": 177.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.5,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -198.5,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.10691682836698423,
+          -0.22275342215006744,
+          -0.41929853753573876,
+          -0.8735779536783019
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "0F3FD3F846A35A2F05D4B7A32F5D7F01": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "0F3FD3F846A35A2F05D4B7A32F5D7F01",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 009 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1450.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.799999952316284,
+        "intensity": 162.6999969482422,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.0,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          200.2,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.14265263904221495,
+          0.27205925675421333,
+          -0.44192478512146294,
+          0.8428146116934525
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "3A786C61439BB242E0E1D58B42391832": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "3A786C61439BB242E0E1D58B42391832",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 007 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1386.25,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.700000047683716,
+        "intensity": 170.0,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 6.800000190734863,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          192.3,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.15003387297845677,
+          0.32500093367133376,
+          -0.39136191373796697,
+          0.8477618076719434
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "3FACD8E44D4FDFD87CF919AEE2CDC4AB": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "3FACD8E44D4FDFD87CF919AEE2CDC4AB",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 003 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1360.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.0,
+        "intensity": 144.3000030517578,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.400000095367432,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          192.3,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.1359011255604438,
+          0.27401117223655236,
+          -0.4230287783086037,
+          0.8529334172628512
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "4E63D1B24A36ACF14A2C36B32A70B8C0": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "4E63D1B24A36ACF14A2C36B32A70B8C0",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 011 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1313.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.200000047683716,
+        "intensity": 224.5,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.0,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          191.2,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.12192827505999249,
+          0.24279675643333068,
+          -0.43189220922990035,
+          0.8600304357479825
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "52D41212415A6CF53800968117895B89": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "52D41212415A6CF53800968117895B89",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 008 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1335.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.0999999046325684,
+        "intensity": 220.89999389648438,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.699999809265137,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -162.3,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.1416130108219854,
+          -0.3075352271838587,
+          -0.3935607577666161,
+          -0.8546799220486411
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "681420B0499A9FA5BDF4118939AE527C": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "681420B0499A9FA5BDF4118939AE527C",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 020 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1383.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.5999999046325684,
+        "intensity": 192.89999389648438,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 6.5,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -162.3,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.14846024151801207,
+          -0.31664089121673183,
+          -0.39770966510882383,
+          -0.8482482684785828
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "6B830737426981679115C5A0D8B5D984": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "6B830737426981679115C5A0D8B5D984",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 017 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1298.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.200000047683716,
+        "intensity": 161.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.900000095367432,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          191.2,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.13615379223008836,
+          0.2991772637107474,
+          -0.39120025083340665,
+          0.8596030906690572
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "80282D394589898793525A8F3EBA9013": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "80282D394589898793525A8F3EBA9013",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 015 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1378.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.700000047683716,
+        "intensity": 202.89999389648438,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 6.800000190734863,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          200.2,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.14732231195673676,
+          0.31328872451686074,
+          -0.39922732640539993,
+          0.8489781230052494
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "9DA65BFE497AE1CE97A41B9C7938F84C": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "9DA65BFE497AE1CE97A41B9C7938F84C",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 012 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1320.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.200000047683716,
+        "intensity": 167.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.0,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -209.4,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.11995148647475794,
+          -0.23597777118450025,
+          -0.4369701957583824,
+          -0.8596413091622417
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "A9ED0FFA4491A6425BF5E19918B43F13": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "A9ED0FFA4491A6425BF5E19918B43F13",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 002 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1445.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.9000000953674316,
+        "intensity": 250.3000030517578,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.199999809265137,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -207.4,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.14842334000097626,
+          -0.29198978682569376,
+          -0.42813762183622406,
+          -0.8422651917898915
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "C6D207F34C97DD2F19259DB9BB7BE04E": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "C6D207F34C97DD2F19259DB9BB7BE04E",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 004 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1402.5,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.4000000953674316,
+        "intensity": 200.5,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.5,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -198.5,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.13506267746945458,
+          -0.2603398550320162,
+          -0.44025813308865586,
+          -0.8486188834135039
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "D2E6323C4C87C7AC728829BE579DC6ED": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "D2E6323C4C87C7AC728829BE579DC6ED",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 001 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1298.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.799999952316284,
+        "intensity": 131.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.099999904632568,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          159.6,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.12547169014828444,
+          0.2573120672120015,
+          -0.41994924291769964,
+          0.8612142523270677
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "E709499949DB55D6CB6EF1A0A2A46948": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "E709499949DB55D6CB6EF1A0A2A46948",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 016 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1471.25,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.9000000953674316,
+        "intensity": 191.1999969482422,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.099999904632568,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -198.5,
+          1058.0
+        ],
+        "rotation_xyzw": [
+          0.14716061984639664,
+          -0.2808353668778688,
+          -0.44019967065197513,
+          -0.8400592232901735
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    }
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreP03HousingDrop-20261006-125011\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 24382197,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "e7465481e900f262998564f18837edd9da33d371fa4bd373f57a31c4147d1043",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreP03HousingDrop-20261006-125011\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 20237579,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "016c7679df774b0050a3921bc45f9326f48bcb93a864fbfb7e83ecf98f78322b",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreP03HousingDrop-20261006-125011"
+  },
+  "before_target_rows": {
+    "02C239D14E23CD5512F451B69C617737": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "02C239D14E23CD5512F451B69C617737",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 010 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1217.5,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.4000000953674316,
+        "intensity": 177.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.5,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -198.5,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.10691682836698423,
+          -0.22275342215006744,
+          -0.41929853753573876,
+          -0.8735779536783019
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "0F3FD3F846A35A2F05D4B7A32F5D7F01": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "0F3FD3F846A35A2F05D4B7A32F5D7F01",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 009 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1450.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.799999952316284,
+        "intensity": 162.6999969482422,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.0,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          200.2,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.14265263904221495,
+          0.27205925675421333,
+          -0.44192478512146294,
+          0.8428146116934525
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "3A786C61439BB242E0E1D58B42391832": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "3A786C61439BB242E0E1D58B42391832",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 007 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1386.25,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.700000047683716,
+        "intensity": 170.0,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 6.800000190734863,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          192.3,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.15003387297845677,
+          0.32500093367133376,
+          -0.39136191373796697,
+          0.8477618076719434
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "3FACD8E44D4FDFD87CF919AEE2CDC4AB": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "3FACD8E44D4FDFD87CF919AEE2CDC4AB",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 003 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1360.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.0,
+        "intensity": 144.3000030517578,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.400000095367432,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          192.3,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.1359011255604438,
+          0.27401117223655236,
+          -0.4230287783086037,
+          0.8529334172628512
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "4E63D1B24A36ACF14A2C36B32A70B8C0": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "4E63D1B24A36ACF14A2C36B32A70B8C0",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 011 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1313.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.200000047683716,
+        "intensity": 224.5,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.0,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          191.2,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.12192827505999249,
+          0.24279675643333068,
+          -0.43189220922990035,
+          0.8600304357479825
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "52D41212415A6CF53800968117895B89": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "52D41212415A6CF53800968117895B89",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 008 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1335.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.0999999046325684,
+        "intensity": 220.89999389648438,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.699999809265137,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -162.3,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.1416130108219854,
+          -0.3075352271838587,
+          -0.3935607577666161,
+          -0.8546799220486411
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "681420B0499A9FA5BDF4118939AE527C": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "681420B0499A9FA5BDF4118939AE527C",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 020 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1383.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.5999999046325684,
+        "intensity": 192.89999389648438,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 6.5,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -162.3,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.14846024151801207,
+          -0.31664089121673183,
+          -0.39770966510882383,
+          -0.8482482684785828
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "6B830737426981679115C5A0D8B5D984": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "6B830737426981679115C5A0D8B5D984",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 017 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1298.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.200000047683716,
+        "intensity": 161.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.900000095367432,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          191.2,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.13615379223008836,
+          0.2991772637107474,
+          -0.39120025083340665,
+          0.8596030906690572
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "80282D394589898793525A8F3EBA9013": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "80282D394589898793525A8F3EBA9013",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 015 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1378.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.700000047683716,
+        "intensity": 202.89999389648438,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 6.800000190734863,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          200.2,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.14732231195673676,
+          0.31328872451686074,
+          -0.39922732640539993,
+          0.8489781230052494
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "9DA65BFE497AE1CE97A41B9C7938F84C": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "9DA65BFE497AE1CE97A41B9C7938F84C",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 012 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1320.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.200000047683716,
+        "intensity": 167.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.0,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -209.4,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.11995148647475794,
+          -0.23597777118450025,
+          -0.4369701957583824,
+          -0.8596413091622417
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "A9ED0FFA4491A6425BF5E19918B43F13": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "A9ED0FFA4491A6425BF5E19918B43F13",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 002 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1445.0,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.9000000953674316,
+        "intensity": 250.3000030517578,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.199999809265137,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -207.4,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.14842334000097626,
+          -0.29198978682569376,
+          -0.42813762183622406,
+          -0.8422651917898915
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "C6D207F34C97DD2F19259DB9BB7BE04E": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "C6D207F34C97DD2F19259DB9BB7BE04E",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 004 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1402.5,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 3.4000000953674316,
+        "intensity": 200.5,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 8.5,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -198.5,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.13506267746945458,
+          -0.2603398550320162,
+          -0.44025813308865586,
+          -0.8486188834135039
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "D2E6323C4C87C7AC728829BE579DC6ED": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "D2E6323C4C87C7AC728829BE579DC6ED",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 001 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1298.75,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.799999952316284,
+        "intensity": 131.60000610351562,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.099999904632568,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          159.6,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.12547169014828444,
+          0.2573120672120015,
+          -0.41994924291769964,
+          0.8612142523270677
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    },
+    "E709499949DB55D6CB6EF1A0A2A46948": {
+      "actor_class": null,
+      "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+      "effect": {
+        "active_radius_cm": 6000.0,
+        "burn_span_cm": 4000.0,
+        "burn_start_ahead_cm": 3000.0,
+        "burn_u_axis": [
+          0.0,
+          0.0
+        ],
+        "burn_uv_measured_mesh": null,
+        "burn_v_axis": [
+          0.0,
+          0.0
+        ],
+        "feeds_local_medium": true,
+        "flicker_amount": 0.25,
+        "ignition_uv": [
+          0.5,
+          1.0
+        ],
+        "linked_light_attachment_guid": "00000000000000000000000000000000",
+        "medium_density": 0.15000000596046448,
+        "medium_height_falloff": 1000.0,
+        "medium_offset_cm": [
+          250.0,
+          0.0,
+          150.0
+        ],
+        "medium_radius_cm": 400.0,
+        "motes_extent_cm": [
+          250.0,
+          400.0,
+          500.0
+        ],
+        "output": 0.5,
+        "pulse_duty": 0.3499999940395355,
+        "pulse_period_seconds": 6.0,
+        "replicated_from_attachment_guid": "00000000000000000000000000000000",
+        "tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "type": "<InfinityStageEffectType.HAZE: 0>"
+      },
+      "enabled": true,
+      "guid": "E709499949DB55D6CB6EF1A0A2A46948",
+      "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+      "label": "P03 Wing 016 Rig Slash",
+      "lighting": {
+        "affect_global_illumination": true,
+        "affect_reflection": true,
+        "affect_translucent_lighting": true,
+        "attenuation_radius_cm": 1471.25,
+        "cast_shadows": true,
+        "cast_volumetric_shadow": false,
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "diffuse_scale": 1.0,
+        "drama": {
+          "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+          "after_pass_distance_cm": 600.0,
+          "decay_distance_cm": 1500.0,
+          "ignition_stutter": 0.699999988079071,
+          "pan_amplitude_degrees": 6.0,
+          "period_seconds": 14.0,
+          "phase_cycles": 0.0,
+          "phase_from_identity": true,
+          "slow_move": false,
+          "strike_distance_cm": 2200.0,
+          "strike_on_approach": true,
+          "strike_ramp_cm": 200.0,
+          "tilt_amplitude_degrees": 3.0,
+          "unstruck_intensity_scale": 0.0
+        },
+        "force_cached_shadows_for_movable_primitives": false,
+        "ies_brightness_scale": 1.0,
+        "ies_texture": null,
+        "indirect_lighting_intensity": 1.0,
+        "inner_cone_angle_degrees": 2.9000000953674316,
+        "intensity": 191.1999969482422,
+        "intensity_units": "<InfinityStageLightIntensityUnits.CANDELAS: 1>",
+        "inverse_exposure_blend": 0.0,
+        "light_falloff_exponent": 8.0,
+        "light_function_disabled_brightness": 0.0,
+        "light_function_fade_distance_cm": 100000.0,
+        "light_function_material": null,
+        "light_function_scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "lighting_channel0": true,
+        "lighting_channel1": false,
+        "lighting_channel2": false,
+        "max_distance_fade_range_cm": 0.0,
+        "max_draw_distance_cm": 0.0,
+        "outer_cone_angle_degrees": 7.099999904632568,
+        "rect_barn_door_angle_degrees": 88.0,
+        "rect_barn_door_length_cm": 20.0,
+        "rect_source_height_cm": 100.0,
+        "rect_source_texture": null,
+        "rect_source_width_cm": 100.0,
+        "shadow_bias": 0.5,
+        "shadow_slope_bias": 0.5,
+        "soft_source_radius_cm": 0.0,
+        "source_length_cm": 0.0,
+        "source_radius_cm": 0.0,
+        "specular_scale": 1.0,
+        "temperature_kelvin": 3600.0,
+        "transmission": false,
+        "type": "<InfinityStageLightType.SPOT: 0>",
+        "use_ies_brightness": false,
+        "use_inverse_squared_falloff": true,
+        "use_ray_traced_distance_field_shadows": false,
+        "use_temperature": true,
+        "volumetric_scattering_intensity": 2.0
+      },
+      "mesh": null,
+      "relative_transform": {
+        "location": [
+          -40.0,
+          -198.5,
+          1078.0
+        ],
+        "rotation_xyzw": [
+          0.14716061984639664,
+          -0.2808353668778688,
+          -0.44019967065197513,
+          -0.8400592232901735
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "trigger_distance_cm": 800.0
+    }
+  },
+  "export_hash_before": "db25411dbc98f6aa41d614a804778c7f02ad5f1a30ea450488a56b7f4516c499",
+  "live": {
+    "fixture_body_count": 103,
+    "instance_worst_error_cm": 2.2737367544323206e-13,
+    "live_tops": {
+      "02C239D14E23CD5512F451B69C617737": 1093.594,
+      "0F3FD3F846A35A2F05D4B7A32F5D7F01": 1097.291,
+      "3A786C61439BB242E0E1D58B42391832": 1099.981,
+      "3FACD8E44D4FDFD87CF919AEE2CDC4AB": 1097.215,
+      "4E63D1B24A36ACF14A2C36B32A70B8C0": 1095.17,
+      "52D41212415A6CF53800968117895B89": 1099.004,
+      "681420B0499A9FA5BDF4118939AE527C": 1099.573,
+      "6B830737426981679115C5A0D8B5D984": 1098.482,
+      "80282D394589898793525A8F3EBA9013": 1099.396,
+      "9DA65BFE497AE1CE97A41B9C7938F84C": 1094.732,
+      "A9ED0FFA4491A6425BF5E19918B43F13": 1098.42,
+      "C6D207F34C97DD2F19259DB9BB7BE04E": 1096.483,
+      "D2E6323C4C87C7AC728829BE579DC6ED": 1096.064,
+      "E709499949DB55D6CB6EF1A0A2A46948": 1097.846
+    }
+  },
+  "materialized": {
+    "passage": "Passage 03 \u2014 Fixed Wings",
+    "structure": "Infinity Stage - Structure 03"
+  },
+  "outside_before_hash": "88c325bc2fea59d9e16009551b12589b9be37836611a7631436a510a3ba70386",
+  "plan": {
+    "clearance_cm": 5.0,
+    "drop_cm": 20.0,
+    "drop_raw_cm": 19.981338403377322,
+    "instance_worst_error_cm": 2.2737367544323206e-13,
+    "moving_lights_without_housing": 0,
+    "other_housings_in_new_band": [],
+    "passage": "P03",
+    "placements": 103,
+    "target_attachment_guids": [
+      "02C239D14E23CD5512F451B69C617737",
+      "0F3FD3F846A35A2F05D4B7A32F5D7F01",
+      "3A786C61439BB242E0E1D58B42391832",
+      "3FACD8E44D4FDFD87CF919AEE2CDC4AB",
+      "4E63D1B24A36ACF14A2C36B32A70B8C0",
+      "52D41212415A6CF53800968117895B89",
+      "681420B0499A9FA5BDF4118939AE527C",
+      "6B830737426981679115C5A0D8B5D984",
+      "80282D394589898793525A8F3EBA9013",
+      "9DA65BFE497AE1CE97A41B9C7938F84C",
+      "A9ED0FFA4491A6425BF5E19918B43F13",
+      "C6D207F34C97DD2F19259DB9BB7BE04E",
+      "D2E6323C4C87C7AC728829BE579DC6ED",
+      "E709499949DB55D6CB6EF1A0A2A46948"
+    ],
+    "target_cue_guids": [
+      "0780796E60484341D039F5B00A6008FB",
+      "0C81EB2D824B7C77E674BBA604B985A7",
+      "0ED8CD9770436E3F130C8D85C3637BE2",
+      "37A6207F3244F31A88BAEC943AAF31C6",
+      "53675A61CE474C46CE0F42890F785DE0",
+      "5606A2F1DC449E7E3FAC5E866173DD7F",
+      "65711AE75E4F1BB66477C1A75052C245",
+      "686F7D11CA4DC4681D962CBAF664FAD8",
+      "7230D0A9AD4491A8CBFB788DC5A7D95C",
+      "7742F44B2A42B6A7203114874CAD3E5B",
+      "84C1E90ADF41D6E38AB76EADD2179FE6",
+      "8D58B97EDF4136FDBE50549E3625C0DF",
+      "B8AE7B1FDF410C9B9F2A83BDA94DA489",
+      "C82F2CC5BD4EF34E9C3BDFACB10C35CB"
+    ],
+    "targets": [
+      {
+        "attachment_guid": "D2E6323C4C87C7AC728829BE579DC6ED",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 001 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "B8AE7B1FDF410C9B9F2A83BDA94DA489",
+        "cue_label": "P03 Wing 001",
+        "housing_after": {
+          "centre": [
+            198.41551497935598,
+            160174.4221401979,
+            1070.3431652388842
+          ],
+          "top_axis": 1086.3431652388842,
+          "top_box": 1096.0638458389978
+        },
+        "housing_before": {
+          "centre": [
+            198.41551497935598,
+            160174.4221401979,
+            1090.3431652388842
+          ],
+          "top_axis": 1106.3431652388842,
+          "top_box": 1116.0638458389978
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 198.66,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 178.66,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 198.66,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.9884565914667611,
+        "show_index": 76,
+        "station_index": 0,
+        "top_after": 1096.0638458389978,
+        "top_before": 1116.0638458389978,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 159.6,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "3FACD8E44D4FDFD87CF919AEE2CDC4AB",
+        "attachment_index": 11,
+        "attachment_label": "P03 Wing 003 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "0ED8CD9770436E3F130C8D85C3637BE2",
+        "cue_label": "P03 Wing 003",
+        "housing_after": {
+          "centre": [
+            698.9316344366664,
+            160206.8609629642,
+            1071.1041517679234
+          ],
+          "top_axis": 1087.1041517679234,
+          "top_box": 1097.2146639057974
+        },
+        "housing_before": {
+          "centre": [
+            698.9316344366664,
+            160206.8609629642,
+            1091.1041517679234
+          ],
+          "top_axis": 1107.1041517679234,
+          "top_box": 1117.2146639057974
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 197.9,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 177.9,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 197.9,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.6231357890017861,
+        "show_index": 77,
+        "station_index": 1,
+        "top_after": 1097.2146639057974,
+        "top_before": 1117.2146639057974,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 192.3,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "A9ED0FFA4491A6425BF5E19918B43F13",
+        "attachment_index": 11,
+        "attachment_label": "P03 Wing 002 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "C82F2CC5BD4EF34E9C3BDFACB10C35CB",
+        "cue_label": "P03 Wing 002",
+        "housing_after": {
+          "centre": [
+            1199.5852032249004,
+            159778.32297074574,
+            1071.9265302326498
+          ],
+          "top_axis": 1087.9265302326498,
+          "top_box": 1098.4198597143377
+        },
+        "housing_before": {
+          "centre": [
+            1199.5852032249004,
+            159778.32297074574,
+            1091.9265302326498
+          ],
+          "top_axis": 1107.9265302326498,
+          "top_box": 1118.4198597143377
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 197.07,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 177.07,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 197.07,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.2374165259640542,
+        "show_index": 78,
+        "station_index": 2,
+        "top_after": 1098.4198597143377,
+        "top_before": 1118.4198597143377,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -207.4,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "C6D207F34C97DD2F19259DB9BB7BE04E",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 004 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "8D58B97EDF4136FDBE50549E3625C0DF",
+        "cue_label": "P03 Wing 004",
+        "housing_after": {
+          "centre": [
+            1699.2721637318893,
+            159786.26978746508,
+            1070.6176291693082
+          ],
+          "top_axis": 1086.6176291693082,
+          "top_box": 1096.4826577957906
+        },
+        "housing_before": {
+          "centre": [
+            1699.2721637318893,
+            159786.26978746508,
+            1090.6176291693082
+          ],
+          "top_axis": 1106.6176291693082,
+          "top_box": 1116.4826577957906
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 198.38,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 178.38,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 198.38,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.7523059826979974,
+        "show_index": 79,
+        "station_index": 3,
+        "top_after": 1096.4826577957906,
+        "top_before": 1116.4826577957906,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -198.5,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "3A786C61439BB242E0E1D58B42391832",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 007 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "7230D0A9AD4491A8CBFB788DC5A7D95C",
+        "cue_label": "P03 Wing 007",
+        "housing_after": {
+          "centre": [
+            3199.1454336486895,
+            160205.03592405896,
+            1073.040841520539
+          ],
+          "top_axis": 1089.040841520539,
+          "top_box": 1099.9813384033773
+        },
+        "housing_before": {
+          "centre": [
+            3199.1454336486895,
+            160205.03592405896,
+            1093.040841520539
+          ],
+          "top_axis": 1109.040841520539,
+          "top_box": 1119.9813384033773
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 195.96,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 175.96,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 195.96,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 0.8848426363302266,
+        "show_index": 82,
+        "station_index": 6,
+        "top_after": 1099.9813384033773,
+        "top_before": 1119.9813384033773,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 192.3,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "52D41212415A6CF53800968117895B89",
+        "attachment_index": 11,
+        "attachment_label": "P03 Wing 008 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "7742F44B2A42B6A7203114874CAD3E5B",
+        "cue_label": "P03 Wing 008",
+        "housing_after": {
+          "centre": [
+            3698.7260881015973,
+            159824.52321302588,
+            1072.3359878530441
+          ],
+          "top_axis": 1088.3359878530441,
+          "top_box": 1099.0037465607093
+        },
+        "housing_before": {
+          "centre": [
+            3698.7260881015973,
+            159824.52321302588,
+            1092.3359878530441
+          ],
+          "top_axis": 1108.3359878530441,
+          "top_box": 1119.0037465607093
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 196.66,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 176.66,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 196.66,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.215029524073497,
+        "show_index": 83,
+        "station_index": 7,
+        "top_after": 1099.0037465607093,
+        "top_before": 1119.0037465607093,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -162.3,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "0F3FD3F846A35A2F05D4B7A32F5D7F01",
+        "attachment_index": 11,
+        "attachment_label": "P03 Wing 009 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "84C1E90ADF41D6E38AB76EADD2179FE6",
+        "cue_label": "P03 Wing 009",
+        "housing_after": {
+          "centre": [
+            4199.619281731946,
+            160215.21428128483,
+            1071.1551764162593
+          ],
+          "top_axis": 1087.1551764162593,
+          "top_box": 1097.2906403649552
+        },
+        "housing_before": {
+          "centre": [
+            4199.619281731946,
+            160215.21428128483,
+            1091.1551764162593
+          ],
+          "top_axis": 1107.1551764162593,
+          "top_box": 1117.2906403649552
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 197.84,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 177.84,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 197.84,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.5192186526436267,
+        "show_index": 84,
+        "station_index": 8,
+        "top_after": 1097.2906403649552,
+        "top_before": 1117.2906403649552,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 200.2,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "02C239D14E23CD5512F451B69C617737",
+        "attachment_index": 11,
+        "attachment_label": "P03 Wing 010 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "0C81EB2D824B7C77E674BBA604B985A7",
+        "cue_label": "P03 Wing 010",
+        "housing_after": {
+          "centre": [
+            4697.644337072255,
+            159786.08867589515,
+            1068.7740146811018
+          ],
+          "top_axis": 1084.7740146811018,
+          "top_box": 1093.5944199136397
+        },
+        "housing_before": {
+          "centre": [
+            4697.644337072255,
+            159786.08867589515,
+            1088.7740146811018
+          ],
+          "top_axis": 1104.7740146811018,
+          "top_box": 1113.5944199136397
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 200.23,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 180.23,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 200.23,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 2.724209384659119,
+        "show_index": 85,
+        "station_index": 9,
+        "top_after": 1093.5944199136397,
+        "top_before": 1113.5944199136397,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -198.5,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "4E63D1B24A36ACF14A2C36B32A70B8C0",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 011 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "5606A2F1DC449E7E3FAC5E866173DD7F",
+        "cue_label": "P03 Wing 011",
+        "housing_after": {
+          "centre": [
+            5198.5467568632175,
+            160206.58264948393,
+            1069.7662612542563
+          ],
+          "top_axis": 1085.7662612542563,
+          "top_box": 1095.1703858943156
+        },
+        "housing_before": {
+          "centre": [
+            5198.5467568632175,
+            160206.58264948393,
+            1089.7662612542563
+          ],
+          "top_axis": 1105.7662612542563,
+          "top_box": 1115.1703858943156
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 199.23,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 179.23,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 199.23,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 2.1696971919192762,
+        "show_index": 86,
+        "station_index": 10,
+        "top_after": 1095.1703858943156,
+        "top_before": 1115.1703858943156,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 191.2,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "9DA65BFE497AE1CE97A41B9C7938F84C",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 012 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "0780796E60484341D039F5B00A6008FB",
+        "cue_label": "P03 Wing 012",
+        "housing_after": {
+          "centre": [
+            5698.598194575512,
+            159774.9700713977,
+            1069.4872159106278
+          ],
+          "top_axis": 1085.4872159106278,
+          "top_box": 1094.7320680580328
+        },
+        "housing_before": {
+          "centre": [
+            5698.598194575512,
+            159774.9700713977,
+            1089.4872159106278
+          ],
+          "top_axis": 1105.4872159106278,
+          "top_box": 1114.7320680580328
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 199.51,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 179.51,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 199.51,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 2.259695001502127,
+        "show_index": 87,
+        "station_index": 11,
+        "top_after": 1094.7320680580328,
+        "top_before": 1114.7320680580328,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -209.4,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "80282D394589898793525A8F3EBA9013",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 015 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "65711AE75E4F1BB66477C1A75052C245",
+        "cue_label": "P03 Wing 015",
+        "housing_after": {
+          "centre": [
+            7199.088617684071,
+            160213.37513811584,
+            1072.6155664709622
+          ],
+          "top_axis": 1088.6155664709622,
+          "top_box": 1099.3958149096147
+        },
+        "housing_before": {
+          "centre": [
+            7199.088617684071,
+            160213.37513811584,
+            1092.6155664709622
+          ],
+          "top_axis": 1108.6155664709622,
+          "top_box": 1119.3958149096147
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 196.38,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 176.38,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 196.38,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.0480042877904445,
+        "show_index": 90,
+        "station_index": 14,
+        "top_after": 1099.3958149096147,
+        "top_before": 1119.3958149096147,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 200.2,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "E709499949DB55D6CB6EF1A0A2A46948",
+        "attachment_index": 11,
+        "attachment_label": "P03 Wing 016 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "686F7D11CA4DC4681D962CBAF664FAD8",
+        "cue_label": "P03 Wing 016",
+        "housing_after": {
+          "centre": [
+            7699.768790377235,
+            159786.71903509597,
+            1071.5314278452522
+          ],
+          "top_axis": 1087.5314278452522,
+          "top_box": 1097.8460636481682
+        },
+        "housing_before": {
+          "centre": [
+            7699.768790377235,
+            159786.71903509597,
+            1091.5314278452522
+          ],
+          "top_axis": 1107.5314278452522,
+          "top_box": 1117.8460636481682
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 197.47,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 177.47,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 197.47,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.3676805162386465,
+        "show_index": 91,
+        "station_index": 15,
+        "top_after": 1097.8460636481682,
+        "top_before": 1117.8460636481682,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -198.5,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "6B830737426981679115C5A0D8B5D984",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 017 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "53675A61CE474C46CE0F42890F785DE0",
+        "cue_label": "P03 Wing 017",
+        "housing_after": {
+          "centre": [
+            8198.41444321999,
+            160204.49942715577,
+            1071.96966941972
+          ],
+          "top_axis": 1087.96966941972,
+          "top_box": 1098.4819023511175
+        },
+        "housing_before": {
+          "centre": [
+            8198.41444321999,
+            160204.49942715577,
+            1091.96966941972
+          ],
+          "top_axis": 1107.96966941972,
+          "top_box": 1118.4819023511175
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 197.03,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 177.03,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 197.03,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 1.4105162700321827,
+        "show_index": 92,
+        "station_index": 16,
+        "top_after": 1098.4819023511175,
+        "top_before": 1118.4819023511175,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": 191.2,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      },
+      {
+        "attachment_guid": "681420B0499A9FA5BDF4118939AE527C",
+        "attachment_index": 12,
+        "attachment_label": "P03 Wing 020 Rig Slash",
+        "band_lo_cm": 1105.0,
+        "cue_guid": "37A6207F3244F31A88BAEC943AAF31C6",
+        "cue_label": "P03 Wing 020",
+        "housing_after": {
+          "centre": [
+            9699.129233527483,
+            159824.63434217795,
+            1072.7435372288096
+          ],
+          "top_axis": 1088.7435372288096,
+          "top_box": 1099.5734137439515
+        },
+        "housing_before": {
+          "centre": [
+            9699.129233527483,
+            159824.63434217795,
+            1092.7435372288096
+          ],
+          "top_axis": 1108.7435372288096,
+          "top_box": 1119.5734137439515
+        },
+        "line": {
+          "current_depth_after": {
+            "drop_cm": 196.26,
+            "hangs": true
+          },
+          "current_depth_before": {
+            "drop_cm": 176.26,
+            "hangs": true
+          },
+          "new_depth_after": {
+            "drop_cm": 196.26,
+            "hangs": true
+          }
+        },
+        "mapped_from": "dry_point",
+        "route_gap_to_new_cross_beam_cm": 0.9948437523746279,
+        "show_index": 95,
+        "station_index": 19,
+        "top_after": 1099.5734137439515,
+        "top_before": 1119.5734137439515,
+        "world_dxy_per_cm": [
+          0.0,
+          0.0
+        ],
+        "world_dz_per_cm": 1.0,
+        "x_rel": -40.0,
+        "y_rel": -162.3,
+        "z_after": 1058.0,
+        "z_before": 1078.0
+      }
+    ],
+    "top_convention": "BOX"
+  },
+  "run": "20261006-125011",
+  "saved_census": {
+    "content": [],
+    "maps": []
+  },
+  "schema_version": 1,
+  "status": "saved_readback_verified"
+}

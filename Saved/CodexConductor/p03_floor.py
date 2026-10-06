@@ -444,11 +444,26 @@ def overrides(a):
 
 
 def comp_bounds(u, comp):
+    """AABB of the INSTANCE ORIGINS (world), not the component's cached Bounds: MaterializeStructure re-creates the
+    components and the cached Bounds read all-zero in the same Python call (6 Oct 01:47 false LAYERS_OR_WINGS_CHANGED;
+    the log showed every layer rebuilt with identical counts). Returned as (centre, half-extent) like before."""
     try:
-        o, e, _ = u.SystemLibrary.get_component_bounds(comp)
-        return (o.x, o.y, o.z), (e.x, e.y, e.z)
-    except Exception:  # noqa: BLE001  unreadable -> compared by count only
-        return None
+        n = int(comp.get_instance_count())
+        if n == 0:
+            return None
+        xs, ys, zs = [], [], []
+        for i in range(n):
+            t = comp.get_instance_transform(i, True)
+            loc = t.translation
+            xs.append(loc.x); ys.append(loc.y); zs.append(loc.z)
+        lo, hi = (min(xs), min(ys), min(zs)), (max(xs), max(ys), max(zs))
+        return tuple((a + b) / 2 for a, b in zip(lo, hi)), tuple((b - a) / 2 for a, b in zip(lo, hi))
+    except Exception:  # noqa: BLE001  no per-instance API (offline fake) -> the old cached-bounds read
+        try:
+            o, e, _ = u.SystemLibrary.get_component_bounds(comp)
+            return (o.x, o.y, o.z), (e.x, e.y, e.z)
+        except Exception:  # noqa: BLE001  unreadable -> compared by count only
+            return None
 
 
 def layers(u, s, f):
