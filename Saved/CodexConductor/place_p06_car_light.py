@@ -134,7 +134,8 @@ def main():
     bad = {k: v for k, v in applied.items() if isinstance(v, str) and v.startswith("ERR")}
     if bad:
         stop("PROPERTY_NAMES|%s|NOTHING SAVED; Don't-Save restart" % json.dumps(bad))
-    if applied["active_segment_guids"] != [str(segment_guid)]:
+    gs = unreal.GuidLibrary.conv_guid_to_string  # str(Guid) is a repr with a memory address (6 Oct): compare canonically
+    if [gs(g) for g in car.get_editor_property("active_segment_guids")] != [gs(segment_guid)]:
         stop("SEGMENT_GUID_READBACK|%s|NOTHING SAVED; Don't-Save restart" % applied["active_segment_guids"])
     dirty = census()
     if dirty["content"] or dirty["maps"] != [WORLD]:

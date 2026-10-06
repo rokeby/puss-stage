@@ -1,0 +1,10 @@
+{
+ "label": "P04 Strobe (default, Gary to place)",
+ "run": "HALO-20261006-022349",
+ "values": {
+  "peak_intensity": 20000.0,
+  "attenuation_radius_cm": 1500.0,
+  "ghost_max_weight": 1.0
+ },
+ "applied_file": "p04_strobe_halo_applied_HALO-20261006-022349.json"
+}

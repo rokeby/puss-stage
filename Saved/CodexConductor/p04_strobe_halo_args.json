@@ -1,8 +1,16 @@
 {
  "mode": "DRY",
  "confirm": "DRY P04STROBE",
- "expected": {"peak_intensity": 20000.0, "attenuation_radius_cm": 1500.0, "ghost_max_weight": 1.0},
- "target": {"peak_intensity": 3500.0, "attenuation_radius_cm": 450.0, "ghost_max_weight": 0.35},
+ "expected": {
+  "peak_intensity": 20000.0,
+  "attenuation_radius_cm": 1500.0,
+  "ghost_max_weight": 1.0
+ },
+ "target": {
+  "peak_intensity": 3500.0,
+  "attenuation_radius_cm": 450.0,
+  "ghost_max_weight": 0.35
+ },
  "revert_from": null,
  "decided_by": "Gary note 59 (6 Oct ~00:30): P04 strobe 'too strong - more of a local halo than a big wash through the fog'; values are the conductor's proposal, Gary's stills decide"
 }
