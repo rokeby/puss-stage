@@ -1,0 +1,522 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index b1ab874..ddf5cf7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -44,7 +44,10 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
+     Super::SetupInputComponent();
+     InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &AInfinityStageShowPlayerController::BeginRightInput);
+     InputComponent->BindKey(EKeys::Right, IE_Released, this, &AInfinityStageShowPlayerController::EndRightInput);
+-    InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousShowSegment);
++    // Left is tap-or-hold like Right (Gary, 6 Oct): the tap's Previous now fires on
++    // key-up, the hold rewinds.
++    InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::BeginLeftInput);
++    InputComponent->BindKey(EKeys::Left, IE_Released, this, &AInfinityStageShowPlayerController::EndLeftInput);
+     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
+     InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleDirectorHud);
+ }
+@@ -62,6 +65,47 @@ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
+     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+     const float Threshold = Transport ? Transport->HoldThresholdSeconds : 0.30f;
+     ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold));
++    ApplyHoldLeftAction(HoldLeftState.Tick(DeltaTime, Threshold));
++}
++
++void AInfinityStageShowPlayerController::BeginLeftInput()
++{
++    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
++    HoldLeftState.Press(Transport && Transport->IsTransportPlaying());
++}
++
++void AInfinityStageShowPlayerController::EndLeftInput()
++{
++    ApplyHoldLeftAction(HoldLeftState.Release());
++}
++
++void AInfinityStageShowPlayerController::ApplyHoldLeftAction(const EInfinityHoldRightAction Action)
++{
++    // The shared machine's names are Right's: Advance = the tap, FastForward = the hold.
++    if (Action == EInfinityHoldRightAction::None)
++    {
++        return;
++    }
++    if (Action == EInfinityHoldRightAction::Advance)
++    {
++        PreviousShowSegment();
++        return;
++    }
++    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
++    if (Action == EInfinityHoldRightAction::BeginFastForward)
++    {
++        const EInfinityTransportResult Result = Transport
++            ? Transport->BeginRewind()
++            : EInfinityTransportResult::NoPlayer;
++        // A refused rewind is still the whole gesture: its key-up does nothing.
++        HoldLeftState.ResolveFastForwardStart(Result);
++        ReportTransportResult(this, Result);
++        return;
++    }
++    const bool bWasPlaying = Action == EInfinityHoldRightAction::EndFastForwardPlaying;
++    ReportTransportResult(this, Transport
++        ? Transport->EndRewind(bWasPlaying)
++        : EInfinityTransportResult::NoPlayer);
+ }
+ 
+ void AInfinityStageShowPlayerController::BeginRightInput()
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+index ba80afe..4e7ef55 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageTransportController.cpp
+@@ -806,6 +806,18 @@ void UInfinityStageTransportController::TickComponent(
+             TEXT("INFINITY_FAST_FORWARD_INTERLOCK frame=%d segment=%d"),
+             CurrentFrame.Value, FrameSegment);
+     }
++    if (bRewindActive
++        && bPerformanceMode
++        && Segments.IsValidIndex(FrameSegment)
++        && Segments[FrameSegment].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable)
++    {
++        // BeginRewind's target never enters a live-performer segment; if one is
++        // reached anyway, drop the rate change at once (as fast-forward does).
++        StopFastForwardPlayback();
++        UE_LOG(LogInfinityStageTransport, Warning,
++            TEXT("INFINITY_REWIND_INTERLOCK frame=%d segment=%d"),
++            CurrentFrame.Value, FrameSegment);
++    }
+     if (HandleGoHold(CurrentFrame))
+     {
+         return;
+@@ -1049,6 +1061,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
+     SetManagedMasterAudioMuted(false);
+     Player = InPlayer;
+     bFastForwardActive = false;
++    bRewindActive = false;
+     bMasterAudioMutedForFastForward = false;
+     JumpResettleState.bPending = false;
+     ClearTransportRests();
+@@ -1339,6 +1352,92 @@ EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const
+     return PauseTransport();
+ }
+ 
++FFrameNumber UInfinityStageTransportController::ResolveRewindTargetFrame(
++    const TArray<FInfinityTransportSegment>& InSegments,
++    const int32 FromSegmentIndex,
++    const bool bInPerformanceMode)
++{
++    if (InSegments.IsEmpty())
++    {
++        return 0;
++    }
++    if (!InSegments.IsValidIndex(FromSegmentIndex))
++    {
++        return InSegments[0].StartFrame;
++    }
++    int32 Index = FromSegmentIndex;
++    while (Index > 0
++        && !(bInPerformanceMode
++            && InSegments[Index - 1].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable))
++    {
++        --Index;
++    }
++    // In performance mode Index now follows the nearest earlier live-performer
++    // segment: stopping on its start frame is stopping on that segment's END.
++    return InSegments[Index].StartFrame;
++}
++
++EInfinityTransportResult UInfinityStageTransportController::BeginRewind()
++{
++    if (!Player)
++    {
++        return LastResult = EInfinityTransportResult::NoPlayer;
++    }
++    RefreshSelectedSegment();
++    if (!Segments.IsValidIndex(SelectedSegmentIndex))
++    {
++        return LastResult = EInfinityTransportResult::NoSegment;
++    }
++    // Reversing is both a move and a rate change: never inside a live clock.
++    if (IsUnsafeExternalHold())
++    {
++        return LastResult = EInfinityTransportResult::UnsafeExternalClock;
++    }
++    const FFrameNumber Current = GetCurrentMasterFrame();
++    const FFrameNumber Target = ResolveRewindTargetFrame(Segments, SelectedSegmentIndex, bPerformanceMode);
++    if (Target >= Current)
++    {
++        return LastResult = EInfinityTransportResult::NoSegment;
++    }
++
++    const float Rate = FMath::Max(1.0f, RewindRate);
++    JumpResettleState.bPending = false;
++    bFastForwardActive = false;
++    bRewindActive = true;
++    // Reverse audio is noise: mute exactly as fast-forward does, restored at 1x.
++    SetManagedMasterAudioMuted(true);
++    Player->SetPlayRate(Rate);
++    // One PlayTo toward an earlier frame plays in reverse (as PlayReverseToBoundary
++    // does); the tick claims each segment's camera as the playhead crosses back.
++    const EInfinityTransportResult Result = PlayToFrame(Target);
++    if (Result != EInfinityTransportResult::Succeeded)
++    {
++        StopFastForwardPlayback();
++    }
++    UE_LOG(LogInfinityStageTransport, Log,
++        TEXT("INFINITY_REWIND_BEGIN from=%d target=%d rate=%.2f result=%d"),
++        Current.Value, Target.Value, Rate, static_cast<int32>(Result));
++    return Result;
++}
++
++EInfinityTransportResult UInfinityStageTransportController::EndRewind(const bool bWasPlaying)
++{
++    const bool bWasRewinding = bRewindActive;
++    StopFastForwardPlayback();
++    if (!Player)
++    {
++        return LastResult = EInfinityTransportResult::NoPlayer;
++    }
++    UE_LOG(LogInfinityStageTransport, Log,
++        TEXT("INFINITY_REWIND_END frame=%d was_rewinding=%d resume=%d"),
++        GetCurrentMasterFrame().Value, bWasRewinding ? 1 : 0, bWasPlaying ? 1 : 0);
++    if (bWasPlaying)
++    {
++        return PlayForwardToBoundary();
++    }
++    return PauseTransport();
++}
++
+ bool UInfinityStageTransportController::ReleaseActiveVamp()
+ {
+     if (!Player)
+@@ -2424,7 +2523,9 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bM
+ 
+ void UInfinityStageTransportController::StopFastForwardPlayback()
+ {
++    // Ends any rate-changed playback: a fast-forward or a rewind.
+     bFastForwardActive = false;
++    bRewindActive = false;
+     SetManagedMasterAudioMuted(false);
+     if (Player)
+     {
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+index 8d1844d..526d66b 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+@@ -35,9 +35,15 @@ protected:
+ private:
+     FInfinityHoldRightState HoldRightState;
+ 
++    /** The same tap-or-hold machine for Left: tap = Previous, hold = rewind. */
++    FInfinityHoldRightState HoldLeftState;
++
+     void BeginRightInput();
+     void EndRightInput();
+     void ApplyHoldRightAction(EInfinityHoldRightAction Action);
++    void BeginLeftInput();
++    void EndLeftInput();
++    void ApplyHoldLeftAction(EInfinityHoldRightAction Action);
+ };
+ 
+ /**
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+index 6c2e8de..17be826 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTransportController.h
+@@ -475,6 +475,13 @@ public:
+         meta = (ClampMin = "1.0", UIMax = "8.0"))
+     float FastForwardRate = 4.0f;
+ 
++    /** Continuous reverse Master playback rate while Left Arrow is held past the
++     * threshold (Gary, 6 Oct: "Left button hold should take us backwards the same
++     * way right takes us fastforward"). A shorter Left press keeps Previous. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
++        meta = (ClampMin = "1.0", UIMax = "8.0"))
++    float RewindRate = 4.0f;
++
+     /** LEFT restarts the current shot after this many display frames; before
+      * that it steps to the preceding shot. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+@@ -631,6 +638,29 @@ public:
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     EInfinityTransportResult EndFastForward(bool bWasPlaying);
+ 
++    /**
++     * Plays the Master BACKWARDS at RewindRate toward the Show start, muted like
++     * fast-forward, and every seam still claims its camera on the way (the tick
++     * handles reverse crossings). The same interlocks as fast-forward: refused
++     * (UnsafeExternalClock, result=4) inside a DeclaredUnpausable segment in
++     * performance mode, and it never rewinds INTO one - it stops at that segment's
++     * end instead. NoSegment when there is nothing behind the playhead.
++     */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    EInfinityTransportResult BeginRewind();
++
++    /** Restores 1x forward. bWasPlaying: play on to the boundary; else hold where the rewind got to. */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    EInfinityTransportResult EndRewind(bool bWasPlaying);
++
++    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
++    bool IsRewindActive() const { return bRewindActive; }
++
++    /** Pure: where a rewind from FromSegmentIndex stops - the Show start, or in
++     * performance mode the end of the nearest earlier DeclaredUnpausable segment. */
++    static FFrameNumber ResolveRewindTargetFrame(
++        const TArray<FInfinityTransportSegment>& InSegments, int32 FromSegmentIndex, bool bInPerformanceMode);
++
+     /** RIGHT inside an armed vamp consumes that vamp and continues to this segment's end at 1x. */
+     bool ReleaseActiveVamp();
+ 
+@@ -786,6 +816,7 @@ private:
+     TArray<TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>> NestedAudioMutedForFastForward;
+ 
+     bool bFastForwardActive = false;
++    bool bRewindActive = false;
+     bool bMasterAudioMutedForFastForward = false;
+     bool bMasterAudioWasEvalDisabled = false;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHoldLeftRewindTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHoldLeftRewindTests.cpp
+new file mode 100644
+index 0000000..d46a5fc
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageHoldLeftRewindTests.cpp
+@@ -0,0 +1,242 @@
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageTransportController.h"
++
++#include "Engine/World.h"
++#include "GameFramework/Actor.h"
++#include "LevelSequence.h"
++#include "LevelSequenceActor.h"
++#include "LevelSequencePlayer.h"
++#include "Misc/AutomationTest.h"
++#include "MovieScene.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/**
++ * Hold-Left rewind (Gary, 6 Oct: "Left button hold should take us backwards the
++ * same way right takes us fastforward"). Tap = Previous (unchanged), hold = a
++ * muted reverse play at RewindRate, with fast-forward's interlocks.
++ */
++namespace InfinityStageHoldLeftRewindTests
++{
++ULevelSequence* MakeMaster(const FFrameRate Rate, const int32 Duration)
++{
++    ULevelSequence* Sequence = NewObject<ULevelSequence>(GetTransientPackage());
++    Sequence->Initialize();
++    Sequence->GetMovieScene()->SetDisplayRate(Rate);
++    Sequence->GetMovieScene()->SetTickResolutionDirectly(Rate);
++    Sequence->GetMovieScene()->SetPlaybackRange(FFrameNumber(0), Duration);
++    return Sequence;
++}
++
++void AddPassage(UInfinityStageShowAsset& Show)
++{
++    const int32 FirstCueIndex = Show.Cues.Num();
++    for (int32 Index = 0; Index < 2; ++Index)
++    {
++        FInfinityShowCue& Cue = Show.Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.IntervalToNext = 100;
++        Cue.WingPair.GapToNextCm = 500.0;
++    }
++    FInfinityPassageSettings& Settings = Show.PassageSettings.AddDefaulted_GetRef();
++    Settings.PassageGuid = FGuid::NewGuid();
++    Settings.FirstCueGuid = Show.Cues[FirstCueIndex].CueGuid;
++    Settings.LastCueGuid = Show.Cues[FirstCueIndex + 1].CueGuid;
++    Settings.TailFrames = 100;
++    Settings.TailDistanceCm = 500.0;
++}
++
++void AddScene(UInfinityStageShowAsset& Show, const TCHAR* Label, const bool bLiveClock)
++{
++    FInfinityShowCue& Scene = Show.Cues.AddDefaulted_GetRef();
++    Scene.Type = EInfinityCueType::Scene;
++    Scene.CueGuid = FGuid::NewGuid();
++    Scene.Label = FText::FromString(Label);
++    Scene.Scene.DurationFrames = 100;
++    Scene.Scene.bRetainPreviousCamera = true;
++    if (bLiveClock)
++    {
++        Scene.Scene.ExternalSound = EInfinityExternalSoundAuthority::DeclaredUnpausable;
++    }
++}
++
++/** P01, S1 (optionally a live-performer clock), P02, S2. */
++UInfinityStageShowAsset* MakeShow(const bool bLiveS1)
++{
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    Show->DisplayRate = FFrameRate(24, 1);
++    Show->TickResolution = Show->DisplayRate;
++    AddPassage(*Show);
++    AddScene(*Show, TEXT("Scene 1"), bLiveS1);
++    AddPassage(*Show);
++    AddScene(*Show, TEXT("Scene 2"), false);
++    return Show;
++}
++
++struct FRewindFixture
++{
++    UWorld* World = nullptr;
++    UInfinityStageTransportController* Transport = nullptr;
++    ULevelSequencePlayer* Player = nullptr;
++
++    ~FRewindFixture()
++    {
++        if (World)
++        {
++            World->DestroyWorld(false);
++        }
++    }
++
++    bool Initialize(FAutomationTestBase& Test, const bool bLiveS1)
++    {
++        UInfinityStageShowAsset* Show = MakeShow(bLiveS1);
++        World = UWorld::CreateWorld(EWorldType::Game, false);
++        AActor* Host = World ? World->SpawnActor<AActor>() : nullptr;
++        Transport = Host ? NewObject<UInfinityStageTransportController>(Host) : nullptr;
++        if (Host && Transport)
++        {
++            Host->AddInstanceComponent(Transport);
++            Transport->RegisterComponent();
++        }
++        const bool bBuilt = Transport && Transport->BuildSegments(Show);
++        ULevelSequence* Master = MakeMaster(Show->TickResolution,
++            bBuilt ? Transport->Segments.Last().EndFrame.Value : 1);
++        FMovieSceneSequencePlaybackSettings Settings;
++        ALevelSequenceActor* SequenceActor = nullptr;
++        Player = World
++            ? ULevelSequencePlayer::CreateLevelSequencePlayer(World, Master, Settings, SequenceActor)
++            : nullptr;
++        const bool bInitialized = bBuilt && Player && Transport->InitializeTransport(Player, Show);
++        Test.TestTrue(TEXT("Fixture: transport initializes"), bInitialized);
++        return bInitialized && Transport->Segments.Num() == 4;
++    }
++};
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageRewindTargetTest,
++    "InfinityStage.Transport.HoldLeftRewind.TargetRespectsLiveClocks",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageRewindTargetTest::RunTest(const FString& Parameters)
++{
++    TArray<FInfinityTransportSegment> Segments;
++    for (int32 Index = 0; Index < 4; ++Index)
++    {
++        FInfinityTransportSegment& Segment = Segments.AddDefaulted_GetRef();
++        Segment.StartFrame = 100 * Index;
++        Segment.EndFrame = 100 * (Index + 1);
++    }
++    TestEqual(TEXT("Rehearsal: rewinds to the Show start"),
++        UInfinityStageTransportController::ResolveRewindTargetFrame(Segments, 3, false), FFrameNumber(0));
++    TestEqual(TEXT("Performance, no live clocks: the Show start"),
++        UInfinityStageTransportController::ResolveRewindTargetFrame(Segments, 3, true), FFrameNumber(0));
++    Segments[1].ExternalSound = EInfinityExternalSoundAuthority::DeclaredUnpausable;
++    TestEqual(TEXT("Performance: stops at the END of the earlier live segment (= next start)"),
++        UInfinityStageTransportController::ResolveRewindTargetFrame(Segments, 3, true), FFrameNumber(200));
++    TestEqual(TEXT("Rehearsal ignores the live clock, as every other interlock does"),
++        UInfinityStageTransportController::ResolveRewindTargetFrame(Segments, 3, false), FFrameNumber(0));
++    TestEqual(TEXT("Directly after the live segment: nothing behind (its own start)"),
++        UInfinityStageTransportController::ResolveRewindTargetFrame(Segments, 2, true), FFrameNumber(200));
++    TestEqual(TEXT("Empty table: frame 0"),
++        UInfinityStageTransportController::ResolveRewindTargetFrame(TArray<FInfinityTransportSegment>(), 0, true),
++        FFrameNumber(0));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageRewindPlaysBackTest,
++    "InfinityStage.Transport.HoldLeftRewind.PlaysBackwardsAndRestores",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageRewindPlaysBackTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageHoldLeftRewindTests;
++    FRewindFixture Fixture;
++    if (!Fixture.Initialize(*this, false))
++    {
++        return false;
++    }
++    UInfinityStageTransportController& Transport = *Fixture.Transport;
++    Transport.bPerformanceMode = false;
++    TestEqual(TEXT("RewindRate defaults to fast-forward's 4x"), Transport.RewindRate, 4.0f);
++
++    // Control: at the very start there is nothing behind the playhead.
++    Transport.ScrubToMasterFrame(Transport.Segments[0].StartFrame);
++    TestEqual(TEXT("Control: no rewind from the Show start"),
++        Transport.BeginRewind(), EInfinityTransportResult::NoSegment);
++    TestFalse(TEXT("Control: a refused rewind leaves nothing active"), Transport.IsRewindActive());
++
++    const FFrameNumber Middle = Transport.Segments[2].StartFrame + FFrameNumber(30);
++    TestEqual(TEXT("Scrub into P02"), Transport.ScrubToMasterFrame(Middle), EInfinityTransportResult::Succeeded);
++    TestEqual(TEXT("Hold-Left begins a rewind"), Transport.BeginRewind(), EInfinityTransportResult::Succeeded);
++    TestTrue(TEXT("The rewind is active"), Transport.IsRewindActive());
++    TestTrue(TEXT("The Master is playing"), Transport.IsTransportPlaying());
++    TestEqual(TEXT("At RewindRate"), Fixture.Player->GetPlayRate(), 4.0f);
++    const TOptional<FFrameNumber> Target = Transport.GetLastPlayToTargetForTests();
++    TestTrue(TEXT("Toward the Show start (an earlier frame: a reverse play)"),
++        Target.IsSet() && Target.GetValue() == Transport.Segments[0].StartFrame && Target.GetValue() < Middle);
++
++    TestEqual(TEXT("Key-up (was held) ends it"), Transport.EndRewind(false), EInfinityTransportResult::Succeeded);
++    TestFalse(TEXT("No rewind after key-up"), Transport.IsRewindActive());
++    TestEqual(TEXT("1x restored"), Fixture.Player->GetPlayRate(), 1.0f);
++    TestFalse(TEXT("A held start stays held"), Transport.IsTransportPlaying());
++
++    Transport.ScrubToMasterFrame(Middle);
++    Transport.BeginRewind();
++    TestEqual(TEXT("Key-up (was playing) plays forward again"), Transport.EndRewind(true), EInfinityTransportResult::Succeeded);
++    TestTrue(TEXT("Playing again"), Transport.IsTransportPlaying());
++    TestEqual(TEXT("...forward at 1x"), Fixture.Player->GetPlayRate(), 1.0f);
++    TestFalse(TEXT("...not reversed"), Fixture.Player->IsReversed());
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageRewindInterlockTest,
++    "InfinityStage.Transport.HoldLeftRewind.RespectsPerformanceInterlock",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageRewindInterlockTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageHoldLeftRewindTests;
++    FRewindFixture Fixture;
++    if (!Fixture.Initialize(*this, true))
++    {
++        return false;
++    }
++    UInfinityStageTransportController& Transport = *Fixture.Transport;
++    TestEqual(TEXT("Fixture: S1 is a live-performer clock"),
++        Transport.Segments[1].ExternalSound, EInfinityExternalSoundAuthority::DeclaredUnpausable);
++
++    // Inside the live segment in performance mode: refused like fast-forward (result=4).
++    Transport.bPerformanceMode = false;
++    Transport.ScrubToMasterFrame(Transport.Segments[1].StartFrame + FFrameNumber(10));
++    Transport.bPerformanceMode = true;
++    TestEqual(TEXT("Refused inside a live clock"), Transport.BeginRewind(), EInfinityTransportResult::UnsafeExternalClock);
++    TestEqual(TEXT("...exactly as fast-forward is"), Transport.BeginFastForward(), EInfinityTransportResult::UnsafeExternalClock);
++    TestFalse(TEXT("Nothing left active"), Transport.IsRewindActive());
++
++    // From P02: never rewinds INTO S1; it stops on S1's end.
++    Transport.bPerformanceMode = false;
++    Transport.ScrubToMasterFrame(Transport.Segments[2].StartFrame + FFrameNumber(30));
++    Transport.bPerformanceMode = true;
++    TestEqual(TEXT("Allowed from P02"), Transport.BeginRewind(), EInfinityTransportResult::Succeeded);
++    const TOptional<FFrameNumber> Target = Transport.GetLastPlayToTargetForTests();
++    TestTrue(TEXT("Stops at S1's end, not inside it"),
++        Target.IsSet() && Target.GetValue() == Transport.Segments[1].EndFrame);
++    Transport.EndRewind(false);
++
++    // Control: rehearsal mode lifts the interlock, as it does for every other move.
++    Transport.bPerformanceMode = false;
++    Transport.ScrubToMasterFrame(Transport.Segments[2].StartFrame + FFrameNumber(30));
++    TestEqual(TEXT("Rehearsal: allowed"), Transport.BeginRewind(), EInfinityTransportResult::Succeeded);
++    const TOptional<FFrameNumber> RehearsalTarget = Transport.GetLastPlayToTargetForTests();
++    TestTrue(TEXT("Rehearsal: all the way to the start"),
++        RehearsalTarget.IsSet() && RehearsalTarget.GetValue() == Transport.Segments[0].StartFrame);
++    Transport.EndRewind(false);
++    return true;
++}
++
++#endif

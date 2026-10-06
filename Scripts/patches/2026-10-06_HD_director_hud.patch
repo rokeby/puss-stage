@@ -1,0 +1,925 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+index aca3f23..58b8f3b 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+@@ -435,6 +435,7 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+         ShadowFigureRoot->SetWorldRotation(FRotator(0.0, CameraRotation.Yaw, 0.0));
+     }
+ 
++    CurrentCameraDistanceCm = CameraEvaluation.DistanceCm;
+     PassageActor->EvaluateMechanismsAtCameraDistance(MasterFrame, CameraEvaluation.DistanceCm);
+     return true;
+ }
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+new file mode 100644
+index 0000000..7dfeb18
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+@@ -0,0 +1,476 @@
++#include "InfinityStageDirectorHud.h"
++
++#include "Algo/BinarySearch.h"
++#include "CanvasItem.h"
++#include "Debug/DebugDrawService.h"
++#include "Engine/Canvas.h"
++#include "Engine/Engine.h"
++#include "Engine/Font.h"
++#include "Engine/World.h"
++#include "EngineUtils.h"
++#include "GameFramework/PlayerController.h"
++#include "HAL/IConsoleManager.h"
++#include "InfinityStageCameraRig.h"
++#include "InfinityStageCompiler.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "LevelSequence.h"
++#include "LevelSequencePlayer.h"
++#include "MovieScene.h"
++#include "SceneInterface.h"
++#include "SceneView.h"
++#include "Sections/MovieSceneSubSection.h"
++#include "Tracks/MovieSceneSubTrack.h"
++
++namespace
++{
++TAutoConsoleVariable<int32> CVarInfinityStageDirectorHud(
++    TEXT("InfinityStage.DirectorHud"),
++    -1,
++    TEXT("Director's bottom-row HUD (cue, kind, bay, GO, Master/segment time, sub-sequence).\n")
++    TEXT("-1: auto (default) - on in PIE, off in a packaged or standalone game.\n")
++    TEXT("0: off. 1: on in any game world. Key H in the show viewport toggles it."));
++
++/** No Show Root in the world: look again at most this often (never a per-frame actor walk). */
++constexpr double RootSearchIntervalSeconds = 2.0;
++
++void AddSpansFromSequence(
++    const UMovieSceneSequence* Sequence,
++    const FFrameNumber SegmentStart,
++    const FFrameRate ShowTickResolution,
++    TArray<FInfinityHudShotSpan>& OutSpans)
++{
++    const UMovieScene* MovieScene = Sequence ? Sequence->GetMovieScene() : nullptr;
++    if (!MovieScene || !MovieScene->GetTickResolution().IsValid() || !ShowTickResolution.IsValid())
++    {
++        return;
++    }
++    // The cue's sub-section puts its playback start on the segment's first frame
++    // (the same convention the transport's marker and camera-cut lookups use).
++    const FFrameNumber PlaybackStart = MovieScene->GetPlaybackRange().GetLowerBoundValue();
++    const auto ToMaster = [&](const FFrameNumber Local)
++    {
++        return SegmentStart + FFrameRate::TransformTime(
++            FFrameTime(Local - PlaybackStart), MovieScene->GetTickResolution(), ShowTickResolution).RoundToFrame();
++    };
++    for (const UMovieSceneTrack* Track : MovieScene->GetTracks())
++    {
++        const UMovieSceneSubTrack* SubTrack = Cast<UMovieSceneSubTrack>(Track);
++        if (!SubTrack)
++        {
++            continue;
++        }
++        for (const UMovieSceneSection* Section : SubTrack->GetAllSections())
++        {
++            const UMovieSceneSubSection* Sub = Cast<UMovieSceneSubSection>(Section);
++            if (!Sub || !Sub->IsActive() || !Sub->GetSequence()
++                || !Sub->GetRange().HasLowerBound() || !Sub->GetRange().HasUpperBound())
++            {
++                continue;
++            }
++            FInfinityHudShotSpan& Span = OutSpans.AddDefaulted_GetRef();
++            Span.StartFrame = ToMaster(Sub->GetInclusiveStartFrame());
++            Span.EndFrame = ToMaster(Sub->GetExclusiveEndFrame());
++            Span.Name = Sub->GetSequence()->GetName();
++        }
++    }
++    OutSpans.StableSort([](const FInfinityHudShotSpan& A, const FInfinityHudShotSpan& B)
++        { return A.StartFrame < B.StartFrame; });
++}
++}
++
++namespace InfinityStageDirectorHud
++{
++bool IsEnabledFor(const int32 ConsoleValue, const EWorldType::Type WorldType)
++{
++    const bool bGameWorld = WorldType == EWorldType::PIE || WorldType == EWorldType::Game;
++    if (!bGameWorld || ConsoleValue == 0)
++    {
++        return false;
++    }
++    if (ConsoleValue > 0)
++    {
++        return true;
++    }
++    return WorldType == EWorldType::PIE;
++}
++
++bool IsEnabledForWorld(const UWorld* World)
++{
++    return World && IsEnabledFor(CVarInfinityStageDirectorHud.GetValueOnGameThread(), World->WorldType);
++}
++
++void Toggle(const UWorld* World)
++{
++    const bool bNow = IsEnabledForWorld(World);
++    CVarInfinityStageDirectorHud->Set(bNow ? 0 : 1, ECVF_SetByConsole);
++}
++
++int32 NearestBay(const TArray<double>& SortedStationDistancesCm, const double DistanceCm)
++{
++    const int32 Num = SortedStationDistancesCm.Num();
++    if (Num == 0)
++    {
++        return 0;
++    }
++    // First station strictly beyond the camera; the nearest is it or the one before.
++    const int32 Upper = Algo::UpperBound(SortedStationDistancesCm, DistanceCm);
++    if (Upper <= 0)
++    {
++        return 1;
++    }
++    if (Upper >= Num)
++    {
++        return Num;
++    }
++    const double Before = DistanceCm - SortedStationDistancesCm[Upper - 1];
++    const double After = SortedStationDistancesCm[Upper] - DistanceCm;
++    return After <= Before ? Upper + 1 : Upper;
++}
++
++const TCHAR* KindLabel(const EInfinityCueType Type)
++{
++    switch (Type)
++    {
++    case EInfinityCueType::WingPair: return TEXT("Passage");
++    case EInfinityCueType::Scene: return TEXT("Scene");
++    case EInfinityCueType::Sequence: return TEXT("Interaction");
++    default: return TEXT("?");
++    }
++}
++
++FString FormatClock(const double Seconds)
++{
++    const double Clamped = FMath::Max(0.0, Seconds);
++    const int32 Minutes = FMath::FloorToInt32(Clamped / 60.0);
++    const double Rest = Clamped - Minutes * 60.0;
++    return FString::Printf(TEXT("%d:%04.1f"), Minutes, FMath::FloorToDouble(Rest * 10.0) / 10.0);
++}
++
++FString ShotAtFrame(const TArray<FInfinityHudShotSpan>& Spans, const FFrameNumber Frame)
++{
++    FString Found;
++    for (const FInfinityHudShotSpan& Span : Spans)
++    {
++        if (Frame >= Span.StartFrame && Frame < Span.EndFrame)
++        {
++            Found = Span.Name;
++        }
++    }
++    return Found;
++}
++
++void FindGoAround(
++    const TArray<FInfinityGoCue>& Cues,
++    const int32 SegmentIndex,
++    const FFrameNumber Frame,
++    int32& OutLast,
++    int32& OutNext)
++{
++    OutLast = INDEX_NONE;
++    OutNext = INDEX_NONE;
++    for (int32 Index = 0; Index < Cues.Num(); ++Index)
++    {
++        const FInfinityGoCue& Cue = Cues[Index];
++        if (Cue.Frame <= Frame)
++        {
++            if (Cue.SegmentIndex == SegmentIndex)
++            {
++                OutLast = Index;
++            }
++        }
++        else if (OutNext == INDEX_NONE)
++        {
++            OutNext = Index;
++        }
++    }
++}
++
++void FormatLines(const FInfinityDirectorHudState& State, FString& OutTop, FString& OutBottom)
++{
++    if (!State.bHasShow)
++    {
++        OutTop = TEXT("No Show Root driving this world");
++        OutBottom.Reset();
++        return;
++    }
++    if (State.SegmentIndex == INDEX_NONE)
++    {
++        OutTop = FString::Printf(TEXT("Outside every cue   Master %s"), *FormatClock(State.MasterSeconds));
++        OutBottom.Reset();
++        return;
++    }
++
++    OutTop = FString::Printf(TEXT("Cue %d/%d  %s  '%s'"),
++        State.SegmentIndex + 1, State.SegmentCount, KindLabel(State.SegmentType), *State.SegmentLabel);
++    if (State.SegmentType == EInfinityCueType::WingPair && State.BayCount > 0)
++    {
++        OutTop += FString::Printf(TEXT("   BAY %d/%d"), State.Bay, State.BayCount);
++    }
++    if (!State.LastGo.IsEmpty())
++    {
++        OutTop += TEXT("   ") + State.LastGo;
++    }
++    if (!State.NextGo.IsEmpty())
++    {
++        OutTop += TEXT("   next ") + State.NextGo;
++    }
++
++    const TCHAR* Status = State.bHold
++        ? TEXT("HOLD")
++        : (!State.bPlaying ? TEXT("PAUSED") : (State.bReversed ? TEXT("REV") : TEXT("PLAY")));
++    OutBottom = FString::Printf(TEXT("%s"), Status);
++    if (State.bPlaying && !FMath::IsNearlyEqual(State.PlayRate, 1.0f))
++    {
++        OutBottom += FString::Printf(TEXT(" x%.0f"), State.PlayRate);
++    }
++    OutBottom += FString::Printf(TEXT("   Master %s   in cue %s / %s"),
++        *FormatClock(State.MasterSeconds), *FormatClock(State.SegmentSeconds), *FormatClock(State.SegmentLengthSeconds));
++    if (!State.SequenceName.IsEmpty())
++    {
++        OutBottom += TEXT("   Seq ") + State.SequenceName;
++        if (!State.ShotName.IsEmpty())
++        {
++            OutBottom += TEXT(" > ") + State.ShotName;
++        }
++    }
++}
++}
++
++bool UInfinityStageDirectorHudSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
++{
++    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
++}
++
++void UInfinityStageDirectorHudSubsystem::Initialize(FSubsystemCollectionBase& Collection)
++{
++    Super::Initialize(Collection);
++    // The "Game" debug-draw channel draws into game viewports (PIE included). The
++    // delegate is global, so Draw filters on its own world.
++    DrawHandle = UDebugDrawService::Register(
++        TEXT("Game"), FDebugDrawDelegate::CreateUObject(this, &UInfinityStageDirectorHudSubsystem::Draw));
++}
++
++void UInfinityStageDirectorHudSubsystem::Deinitialize()
++{
++    if (DrawHandle.IsValid())
++    {
++        UDebugDrawService::Unregister(DrawHandle);
++        DrawHandle.Reset();
++    }
++    Super::Deinitialize();
++}
++
++AInfinityStageShowRoot* UInfinityStageDirectorHudSubsystem::FindShowRoot()
++{
++    if (AInfinityStageShowRoot* Root = CachedShowRoot.Get())
++    {
++        return Root;
++    }
++    UWorld* World = GetWorld();
++    if (!World)
++    {
++        return nullptr;
++    }
++    const double Now = World->GetRealTimeSeconds();
++    if (Now - LastRootSearchRealSeconds < RootSearchIntervalSeconds && Now >= LastRootSearchRealSeconds)
++    {
++        return nullptr;
++    }
++    LastRootSearchRealSeconds = Now;
++    for (TActorIterator<AInfinityStageShowRoot> It(World); It; ++It)
++    {
++        if (It->Transport && It->ShowAsset)
++        {
++            CachedShowRoot = *It;
++            return *It;
++        }
++    }
++    return nullptr;
++}
++
++void UInfinityStageDirectorHudSubsystem::RebuildSegmentCache(const AInfinityStageShowRoot& Root, const int32 SegmentIndex)
++{
++    ++SegmentCacheBuilds;
++    CachedSegmentIndex = SegmentIndex;
++    CachedSegmentCount = Root.Transport ? Root.Transport->Segments.Num() : -1;
++    CachedSegmentGuid.Invalidate();
++    CachedStationDistancesCm.Reset();
++    CachedShotSpans.Reset();
++    CachedSequenceName.Reset();
++
++    const UInfinityStageTransportController* Transport = Root.Transport;
++    const UInfinityStageShowAsset* Show = Root.ShowAsset;
++    if (!Transport || !Show || !Transport->Segments.IsValidIndex(SegmentIndex))
++    {
++        return;
++    }
++    const FInfinityTransportSegment& Segment = Transport->Segments[SegmentIndex];
++    CachedSegmentGuid = Segment.SegmentGuid;
++
++    if (Segment.Type == EInfinityCueType::WingPair)
++    {
++        // Once per segment change, never per frame (compile ~0.05 ms; memory note).
++        const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
++        if (const FInfinityCompiledPassage* Passage = Compiled.Passages.FindByPredicate(
++            [&Segment](const FInfinityCompiledPassage& Candidate) { return Candidate.PassageGuid == Segment.SegmentGuid; }))
++        {
++            for (const FInfinityCompiledWing& Wing : Passage->Wings)
++            {
++                CachedStationDistancesCm.Add(Wing.DistanceCm);
++            }
++            CachedStationDistancesCm.Sort();
++        }
++        const FInfinityPassageSettings* Settings = Show->PassageSettings.FindByPredicate(
++            [&Segment](const FInfinityPassageSettings& Candidate) { return Candidate.PassageGuid == Segment.SegmentGuid; });
++        if (Settings && !Settings->Choreography.IsNull())
++        {
++            const ULevelSequence* Choreo = Settings->Choreography.Get();
++            CachedSequenceName = Choreo ? Choreo->GetName() : Settings->Choreography.GetAssetName();
++            AddSpansFromSequence(Choreo, Segment.StartFrame, Show->TickResolution, CachedShotSpans);
++        }
++        return;
++    }
++
++    if (Show->Cues.IsValidIndex(Segment.CueIndex))
++    {
++        const FInfinityShowCue& Cue = Show->Cues[Segment.CueIndex];
++        if (!Cue.Scene.Sequence.IsNull())
++        {
++            // The transport already loaded it while compiling segments; Get() never hitches.
++            const ULevelSequence* Sequence = Cue.Scene.Sequence.Get();
++            CachedSequenceName = Sequence ? Sequence->GetName() : Cue.Scene.Sequence.GetAssetName();
++            AddSpansFromSequence(Sequence, Segment.StartFrame, Show->TickResolution, CachedShotSpans);
++        }
++    }
++}
++
++FInfinityDirectorHudState UInfinityStageDirectorHudSubsystem::GatherState()
++{
++    FInfinityDirectorHudState State;
++    AInfinityStageShowRoot* Root = FindShowRoot();
++    UInfinityStageTransportController* Transport = Root ? Root->Transport.Get() : nullptr;
++    const UInfinityStageShowAsset* Show = Root ? Root->ShowAsset.Get() : nullptr;
++    if (!Transport || !Show || !Show->TickResolution.IsValid())
++    {
++        return State;
++    }
++    State.bHasShow = true;
++    const double TickRate = Show->TickResolution.AsDecimal();
++    const FFrameNumber Frame = Transport->GetCurrentMasterFrame();
++    State.MasterSeconds = Frame.Value / TickRate;
++    State.SegmentCount = Transport->Segments.Num();
++    State.bPlaying = Transport->IsTransportPlaying();
++    State.bHold = Transport->IsHoldActive();
++    if (Root->SequencePlayer)
++    {
++        State.bReversed = Root->SequencePlayer->IsReversed();
++        State.PlayRate = Root->SequencePlayer->GetPlayRate();
++    }
++
++    const int32 SegmentIndex = Transport->FindSegmentAtFrame(Frame);
++    State.SegmentIndex = SegmentIndex;
++    if (!Transport->Segments.IsValidIndex(SegmentIndex))
++    {
++        return State;
++    }
++    const FInfinityTransportSegment& Segment = Transport->Segments[SegmentIndex];
++    if (SegmentIndex != CachedSegmentIndex
++        || CachedSegmentCount != Transport->Segments.Num()
++        || CachedSegmentGuid != Segment.SegmentGuid)
++    {
++        RebuildSegmentCache(*Root, SegmentIndex);
++    }
++
++    State.SegmentLabel = Segment.Label.ToString();
++    State.SegmentType = Segment.Type;
++    State.SegmentSeconds = (Frame - Segment.StartFrame).Value / TickRate;
++    State.SegmentLengthSeconds = (Segment.EndFrame - Segment.StartFrame).Value / TickRate;
++
++    if (Segment.Type == EInfinityCueType::WingPair)
++    {
++        State.BayCount = CachedStationDistancesCm.Num();
++        // The rig's own last evaluated station distance (camera offsets included),
++        // the same number its Passage mechanisms are driven by.
++        if (const AInfinityStageCameraRig* Rig = Transport->FindCameraRigForPassage(Segment.SegmentGuid))
++        {
++            State.Bay = InfinityStageDirectorHud::NearestBay(CachedStationDistancesCm, Rig->CurrentCameraDistanceCm);
++        }
++    }
++
++    int32 LastGo = INDEX_NONE;
++    int32 NextGo = INDEX_NONE;
++    InfinityStageDirectorHud::FindGoAround(Transport->GoCues, SegmentIndex, Frame, LastGo, NextGo);
++    const auto DescribeGo = [&Transport](const int32 Index)
++    {
++        const FInfinityGoCue& Cue = Transport->GoCues[Index];
++        return FString::Printf(TEXT("GO %s%s%s"), *Cue.Number, Cue.bHold ? TEXT(" HOLD") : TEXT(""),
++            Cue.Label.IsEmpty() ? TEXT("") : *(TEXT(" '") + Cue.Label + TEXT("'")));
++    };
++    if (Transport->GoCues.IsValidIndex(LastGo))
++    {
++        State.LastGo = DescribeGo(LastGo);
++    }
++    if (Transport->GoCues.IsValidIndex(NextGo))
++    {
++        State.NextGo = DescribeGo(NextGo) + TEXT(" @ ")
++            + InfinityStageDirectorHud::FormatClock(Transport->GoCues[NextGo].Frame.Value / TickRate);
++    }
++
++    State.SequenceName = CachedSequenceName;
++    State.ShotName = InfinityStageDirectorHud::ShotAtFrame(CachedShotSpans, Frame);
++    return State;
++}
++
++void UInfinityStageDirectorHudSubsystem::Draw(UCanvas* Canvas, APlayerController* PlayerController)
++{
++    UWorld* World = GetWorld();
++    if (!Canvas || !World || !InfinityStageDirectorHud::IsEnabledForWorld(World))
++    {
++        return;
++    }
++    // The draw delegate is global: only draw this world's HUD into this world's viewport.
++    const UWorld* ViewWorld = PlayerController ? PlayerController->GetWorld() : nullptr;
++    if (!ViewWorld && Canvas->SceneView && Canvas->SceneView->Family && Canvas->SceneView->Family->Scene)
++    {
++        ViewWorld = Canvas->SceneView->Family->Scene->GetWorld();
++    }
++    if (ViewWorld != World)
++    {
++        return;
++    }
++
++    const FInfinityDirectorHudState State = GatherState();
++    FString Top;
++    FString Bottom;
++    InfinityStageDirectorHud::FormatLines(State, Top, Bottom);
++
++    UFont* Font = GEngine ? GEngine->GetMediumFont() : nullptr;
++    if (!Font)
++    {
++        return;
++    }
++    const float LineHeight = Font->GetMaxCharHeight() + 4.0f;
++    const float Left = 16.0f;
++    const float BottomY = Canvas->ClipY - 12.0f - LineHeight;
++    const float TopY = Bottom.IsEmpty() ? BottomY : BottomY - LineHeight;
++
++    // A dark band behind the text so it reads over a lit stage.
++    FCanvasTileItem Band(
++        FVector2D(0.0f, TopY - 4.0f),
++        FVector2D(Canvas->ClipX, (BottomY - TopY) + LineHeight + 8.0f),
++        FLinearColor(0.0f, 0.0f, 0.0f, 0.55f));
++    Band.BlendMode = SE_BLEND_Translucent;
++    Canvas->DrawItem(Band);
++
++    FCanvasTextItem TopItem(FVector2D(Left, TopY), FText::FromString(Top), Font, FLinearColor(1.0f, 0.86f, 0.35f));
++    TopItem.EnableShadow(FLinearColor::Black);
++    Canvas->DrawItem(TopItem);
++    if (!Bottom.IsEmpty())
++    {
++        FCanvasTextItem BottomItem(FVector2D(Left, BottomY), FText::FromString(Bottom), Font, FLinearColor(0.85f, 0.92f, 1.0f));
++        BottomItem.EnableShadow(FLinearColor::Black);
++        Canvas->DrawItem(BottomItem);
++    }
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index 4d62dfa..b1ab874 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -3,6 +3,7 @@
+ #include "GameFramework/PlayerController.h"
+ #include "Components/InputComponent.h"
+ #include "EngineUtils.h"
++#include "InfinityStageDirectorHud.h"
+ #include "InfinityStageShowRoot.h"
+ #include "InfinityStageTransportController.h"
+ #include "InputCoreTypes.h"
+@@ -45,6 +46,14 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
+     InputComponent->BindKey(EKeys::Right, IE_Released, this, &AInfinityStageShowPlayerController::EndRightInput);
+     InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousShowSegment);
+     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
++    InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleDirectorHud);
++}
++
++void AInfinityStageShowPlayerController::ToggleDirectorHud()
++{
++    InfinityStageDirectorHud::Toggle(GetWorld());
++    UE_LOG(LogTemp, Display, TEXT("INFINITY_DIRECTOR_HUD on=%d"),
++        InfinityStageDirectorHud::IsEnabledForWorld(GetWorld()) ? 1 : 0);
+ }
+ 
+ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+index c9a71db..62dab81 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+@@ -232,6 +232,12 @@ public:
+     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat", meta = (Units = "cm/s"))
+     double CurrentShadowCatCameraSpeedCmPerSecond = 0.0;
+ 
++    /** Route station distance of the camera at the last evaluated master frame (camera
++     * offsets included): the distance the Passage mechanisms were driven by. Read by
++     * the Director's HUD for the bay number. */
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage", meta = (Units = "cm"))
++    double CurrentCameraDistanceCm = 0.0;
++
+     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
+     double CurrentShadowCatPlayRate = 0.0;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h
+new file mode 100644
+index 0000000..630051a
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h
+@@ -0,0 +1,131 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Subsystems/WorldSubsystem.h"
++#include "InfinityStageTypes.h"
++#include "InfinityStageDirectorHud.generated.h"
++
++class AInfinityStageShowRoot;
++class APlayerController;
++class UCanvas;
++struct FInfinityGoCue;
++
++/**
++ * Director's HUD (Gary, 6 Oct: "start showing in the bottom row of the screen what
++ * bay we're in so I can direct more easily"; "current cue on the bottom of screen
++ * HUD"; "where we are in cues and sequences/subsequence").
++ *
++ * A bottom-of-screen text row in PIE: segment (cue) index and label, its kind,
++ * the Passage bay, the last/next GO, Master time and time in the segment, and the
++ * nested shot/sub-sequence under the playhead.
++ *
++ * Console: InfinityStage.DirectorHud  -1 auto (default: on in PIE, off in a
++ * packaged/standalone game), 0 off, 1 on. Key H in the show viewport toggles it.
++ *
++ * Cost: per drawn frame it reads the transport's playhead, scans the segment
++ * table and the GO list, and reads the live rig's cached camera distance. The
++ * Show is compiled only when the segment under the playhead changes.
++ */
++
++/** One nested shot / sub-sequence span, in absolute Master frames. */
++struct INFINITYSTAGE_API FInfinityHudShotSpan
++{
++    FFrameNumber StartFrame = 0;
++    FFrameNumber EndFrame = 0;
++    FString Name;
++};
++
++/** Everything the HUD prints, gathered without drawing (unit-testable). */
++struct INFINITYSTAGE_API FInfinityDirectorHudState
++{
++    bool bHasShow = false;
++    int32 SegmentIndex = INDEX_NONE;
++    int32 SegmentCount = 0;
++    FString SegmentLabel;
++    EInfinityCueType SegmentType = EInfinityCueType::WingPair;
++    /** 1-based nearest wing station in a Passage; 0 when unknown / not a Passage. */
++    int32 Bay = 0;
++    int32 BayCount = 0;
++    double MasterSeconds = 0.0;
++    double SegmentSeconds = 0.0;
++    double SegmentLengthSeconds = 0.0;
++    FString LastGo;
++    FString NextGo;
++    FString SequenceName;
++    FString ShotName;
++    bool bPlaying = false;
++    bool bReversed = false;
++    float PlayRate = 1.0f;
++    bool bHold = false;
++};
++
++namespace InfinityStageDirectorHud
++{
++/** -1 auto: PIE yes, Game no. 0 never. 1 always (game worlds only). */
++INFINITYSTAGE_API bool IsEnabledFor(int32 ConsoleValue, EWorldType::Type WorldType);
++
++/** The effective switch for a world, read from the console variable. */
++INFINITYSTAGE_API bool IsEnabledForWorld(const UWorld* World);
++
++/** Flips the console variable relative to its effective value in this world. */
++INFINITYSTAGE_API void Toggle(const UWorld* World);
++
++/** 1-based index of the station nearest DistanceCm (ties go to the later one); 0 when empty. */
++INFINITYSTAGE_API int32 NearestBay(const TArray<double>& SortedStationDistancesCm, double DistanceCm);
++
++/** "Passage", "Scene" or "Interaction". */
++INFINITYSTAGE_API const TCHAR* KindLabel(EInfinityCueType Type);
++
++/** "m:ss.s" (negative clamps to 0). */
++INFINITYSTAGE_API FString FormatClock(double Seconds);
++
++/** The innermost-listed span containing Frame (last match wins), or empty. */
++INFINITYSTAGE_API FString ShotAtFrame(const TArray<FInfinityHudShotSpan>& Spans, FFrameNumber Frame);
++
++/** Index of the last GO at or before Frame within SegmentIndex, and the first after Frame (any segment). */
++INFINITYSTAGE_API void FindGoAround(
++    const TArray<FInfinityGoCue>& Cues, int32 SegmentIndex, FFrameNumber Frame, int32& OutLast, int32& OutNext);
++
++/** The two printed lines, top then bottom. */
++INFINITYSTAGE_API void FormatLines(const FInfinityDirectorHudState& State, FString& OutTop, FString& OutBottom);
++}
++
++UCLASS()
++class INFINITYSTAGE_API UInfinityStageDirectorHudSubsystem : public UWorldSubsystem
++{
++    GENERATED_BODY()
++
++public:
++    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
++    virtual void Deinitialize() override;
++
++    /** Gathers this frame's state (no drawing). Public for tests and the seam diagnostic. */
++    FInfinityDirectorHudState GatherState();
++
++    /** TEST SEAM: use this root instead of searching the world. */
++    void SetShowRootForTests(AInfinityStageShowRoot* Root) { CachedShowRoot = Root; }
++
++    /** TEST SEAM: how many times the per-segment cache was rebuilt. */
++    int32 GetSegmentCacheBuildsForTests() const { return SegmentCacheBuilds; }
++
++protected:
++    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
++
++private:
++    void Draw(UCanvas* Canvas, APlayerController* PlayerController);
++    AInfinityStageShowRoot* FindShowRoot();
++    void RebuildSegmentCache(const AInfinityStageShowRoot& Root, int32 SegmentIndex);
++
++    FDelegateHandle DrawHandle;
++    TWeakObjectPtr<AInfinityStageShowRoot> CachedShowRoot;
++    double LastRootSearchRealSeconds = -1000.0;
++
++    /** Per-segment cache: rebuilt only when the segment (or the table) changes. */
++    int32 CachedSegmentIndex = INDEX_NONE;
++    int32 CachedSegmentCount = -1;
++    FGuid CachedSegmentGuid;
++    TArray<double> CachedStationDistancesCm;
++    TArray<FInfinityHudShotSpan> CachedShotSpans;
++    FString CachedSequenceName;
++    int32 SegmentCacheBuilds = 0;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+index d4d5493..8d1844d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+@@ -25,6 +25,10 @@ public:
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     void ToggleShowPlayback();
+ 
++    /** H: shows or hides the Director's bottom-row HUD (InfinityStage.DirectorHud). */
++    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
++    void ToggleDirectorHud();
++
+ protected:
+     virtual void SetupInputComponent() override;
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
+new file mode 100644
+index 0000000..4034497
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageDirectorHudTests.cpp
+@@ -0,0 +1,229 @@
++#include "InfinityStageDirectorHud.h"
++
++#include "Engine/World.h"
++#include "HAL/IConsoleManager.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageShowRoot.h"
++#include "InfinityStageTransportController.h"
++#include "Misc/AutomationTest.h"
++#include "UObject/Package.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++/** Sets InfinityStage.DirectorHud for one test and restores it after. */
++struct FScopedDirectorHudCVar
++{
++    IConsoleVariable* Variable = nullptr;
++    int32 Previous = -1;
++
++    explicit FScopedDirectorHudCVar(const int32 Value)
++    {
++        Variable = IConsoleManager::Get().FindConsoleVariable(TEXT("InfinityStage.DirectorHud"));
++        if (Variable)
++        {
++            Previous = Variable->GetInt();
++            Variable->Set(Value, ECVF_SetByConsole);
++        }
++    }
++    ~FScopedDirectorHudCVar()
++    {
++        if (Variable)
++        {
++            Variable->Set(Previous, ECVF_SetByConsole);
++        }
++    }
++};
++
++UInfinityStageShowAsset* MakeHudShow(const int32 WingCount)
++{
++    // The shape the transport boundary tests use (24 fps ticks, explicit Passage settings).
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    Show->DisplayRate = FFrameRate(24, 1);
++    Show->TickResolution = Show->DisplayRate;
++    for (int32 Index = 0; Index < WingCount; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.GapToNextCm = 500.0;
++        Cue.WingPair.IntervalToNext = 100;
++    }
++    FInfinityPassageSettings& Settings = Show->PassageSettings.AddDefaulted_GetRef();
++    Settings.PassageGuid = FGuid::NewGuid();
++    Settings.Label = FText::FromString(TEXT("P01 Test"));
++    Settings.FirstCueGuid = Show->Cues[0].CueGuid;
++    Settings.LastCueGuid = Show->Cues[WingCount - 1].CueGuid;
++    Settings.TailFrames = 100;
++    Settings.TailDistanceCm = 500.0;
++    FInfinityShowCue& Scene = Show->Cues.AddDefaulted_GetRef();
++    Scene.Type = EInfinityCueType::Scene;
++    Scene.CueGuid = FGuid::NewGuid();
++    Scene.Label = FText::FromString(TEXT("S1 Hangar"));
++    Scene.Scene.DurationFrames = 100;
++    Scene.Scene.bRetainPreviousCamera = true;
++    return Show;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageDirectorHudPureTest,
++    "InfinityStage.DirectorHud.PureRules",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageDirectorHudPureTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageDirectorHud;
++
++    // Enable rules: auto is PIE-only; never in editor/preview worlds.
++    TestTrue(TEXT("Auto: on in PIE"), IsEnabledFor(-1, EWorldType::PIE));
++    TestFalse(TEXT("Auto: off in a packaged/standalone game"), IsEnabledFor(-1, EWorldType::Game));
++    TestTrue(TEXT("1: on in a game"), IsEnabledFor(1, EWorldType::Game));
++    TestFalse(TEXT("0: off in PIE"), IsEnabledFor(0, EWorldType::PIE));
++    TestFalse(TEXT("Never in the editor world"), IsEnabledFor(1, EWorldType::Editor));
++    TestFalse(TEXT("Never in a preview world"), IsEnabledFor(1, EWorldType::EditorPreview));
++
++    // Bay: nearest station, 1-based, matching the lighting tools' bay ordinals.
++    const TArray<double> Stations = {500.0, 1000.0, 1500.0, 2000.0};
++    TestEqual(TEXT("No stations: bay 0"), NearestBay(TArray<double>(), 700.0), 0);
++    TestEqual(TEXT("Before the first station: bay 1"), NearestBay(Stations, -300.0), 1);
++    TestEqual(TEXT("On station 2: bay 2"), NearestBay(Stations, 1000.0), 2);
++    TestEqual(TEXT("Just short of halfway 2->3: bay 2"), NearestBay(Stations, 1249.0), 2);
++    TestEqual(TEXT("Halfway: the later bay"), NearestBay(Stations, 1250.0), 3);
++    TestEqual(TEXT("Past the last station: last bay"), NearestBay(Stations, 9000.0), 4);
++
++    TestEqual(TEXT("Kind: Passage"), FString(KindLabel(EInfinityCueType::WingPair)), FString(TEXT("Passage")));
++    TestEqual(TEXT("Kind: Scene"), FString(KindLabel(EInfinityCueType::Scene)), FString(TEXT("Scene")));
++    TestEqual(TEXT("Kind: Sequence prints as Interaction"), FString(KindLabel(EInfinityCueType::Sequence)), FString(TEXT("Interaction")));
++
++    TestEqual(TEXT("Clock 0"), FormatClock(0.0), FString(TEXT("0:00.0")));
++    TestEqual(TEXT("Clock 83.46 s"), FormatClock(83.46), FString(TEXT("1:23.4")));
++    TestEqual(TEXT("Clock clamps negatives"), FormatClock(-4.0), FString(TEXT("0:00.0")));
++
++    TArray<FInfinityHudShotSpan> Spans;
++    Spans.Add({FFrameNumber(0), FFrameNumber(100), TEXT("LS_A")});
++    Spans.Add({FFrameNumber(100), FFrameNumber(200), TEXT("LS_B")});
++    TestEqual(TEXT("Shot at 50"), ShotAtFrame(Spans, 50), FString(TEXT("LS_A")));
++    TestEqual(TEXT("Shot ranges are half-open"), ShotAtFrame(Spans, 100), FString(TEXT("LS_B")));
++    TestEqual(TEXT("No shot past the end"), ShotAtFrame(Spans, 200), FString());
++
++    TArray<FInfinityGoCue> Gos;
++    for (int32 Index = 0; Index < 3; ++Index)
++    {
++        FInfinityGoCue& Cue = Gos.AddDefaulted_GetRef();
++        Cue.Frame = 100 * (Index + 1);
++        Cue.Number = FString::FromInt(Index + 1);
++        Cue.SegmentIndex = Index < 2 ? 0 : 1;
++    }
++    int32 Last = 0;
++    int32 Next = 0;
++    FindGoAround(Gos, 0, 150, Last, Next);
++    TestEqual(TEXT("Last GO at or before the playhead"), Last, 0);
++    TestEqual(TEXT("Next GO after the playhead"), Next, 1);
++    FindGoAround(Gos, 1, 250, Last, Next);
++    TestEqual(TEXT("A GO of another segment is never the 'last' one"), Last, INDEX_NONE);
++    TestEqual(TEXT("Next GO in the next segment is still shown"), Next, 2);
++
++    FInfinityDirectorHudState State;
++    State.bHasShow = true;
++    State.SegmentIndex = 3;
++    State.SegmentCount = 20;
++    State.SegmentLabel = TEXT("P02 Underpass");
++    State.SegmentType = EInfinityCueType::WingPair;
++    State.Bay = 7;
++    State.BayCount = 21;
++    State.MasterSeconds = 754.5;
++    State.SegmentSeconds = 62.3;
++    State.SegmentLengthSeconds = 130.0;
++    State.SequenceName = TEXT("LS_Choreo_P02");
++    State.ShotName = TEXT("LS_Rain");
++    State.bPlaying = true;
++    State.PlayRate = 4.0f;
++    FString Top;
++    FString Bottom;
++    FormatLines(State, Top, Bottom);
++    TestTrue(TEXT("Top: cue index and label"), Top.Contains(TEXT("Cue 4/20  Passage  'P02 Underpass'")));
++    TestTrue(TEXT("Top: bay"), Top.Contains(TEXT("BAY 7/21")));
++    TestTrue(TEXT("Bottom: status and rate"), Bottom.StartsWith(TEXT("PLAY x4")));
++    TestTrue(TEXT("Bottom: Master and in-cue times"), Bottom.Contains(TEXT("Master 12:34.5   in cue 1:02.3 / 2:10.0")));
++    TestTrue(TEXT("Bottom: sequence > sub-sequence"), Bottom.Contains(TEXT("Seq LS_Choreo_P02 > LS_Rain")));
++
++    State.SegmentType = EInfinityCueType::Scene;
++    State.bPlaying = false;
++    FormatLines(State, Top, Bottom);
++    TestFalse(TEXT("A Scene prints no bay"), Top.Contains(TEXT("BAY")));
++    TestTrue(TEXT("Paused prints PAUSED"), Bottom.StartsWith(TEXT("PAUSED")));
++    State.bHold = true;
++    FormatLines(State, Top, Bottom);
++    TestTrue(TEXT("A GO hold prints HOLD"), Bottom.StartsWith(TEXT("HOLD")));
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageDirectorHudGatherTest,
++    "InfinityStage.DirectorHud.GathersFromTransportAndCachesPerSegment",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageDirectorHudGatherTest::RunTest(const FString& Parameters)
++{
++    FScopedDirectorHudCVar CVar(1);
++    UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    TestNull(TEXT("No HUD subsystem in a preview world"),
++        Preview ? Preview->GetSubsystem<UInfinityStageDirectorHudSubsystem>() : nullptr);
++    if (Preview)
++    {
++        Preview->DestroyWorld(false);
++    }
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    UInfinityStageDirectorHudSubsystem* Hud = World ? World->GetSubsystem<UInfinityStageDirectorHudSubsystem>() : nullptr;
++    AInfinityStageShowRoot* Root = World ? World->SpawnActor<AInfinityStageShowRoot>() : nullptr;
++    if (!TestNotNull(TEXT("Game world has the HUD subsystem"), Hud) || !TestNotNull(TEXT("Show Root"), Root)
++        || !TestNotNull(TEXT("Show Root transport"), Root->Transport.Get()))
++    {
++        if (World) { World->DestroyWorld(false); }
++        return false;
++    }
++    TestTrue(TEXT("The cvar makes it enabled in this game world"), InfinityStageDirectorHud::IsEnabledForWorld(World));
++
++    UInfinityStageShowAsset* Show = MakeHudShow(5);
++    Root->ShowAsset = Show;
++    const bool bBuilt = Root->Transport->BuildSegments(Show);
++    TestTrue(TEXT("Fixture: segments build"), bBuilt);
++    Hud->SetShowRootForTests(Root);
++
++    const FInfinityDirectorHudState First = Hud->GatherState();
++    TestTrue(TEXT("Has a show"), First.bHasShow);
++    TestEqual(TEXT("Playhead (no player: frame 0) is in the Passage"), First.SegmentIndex, 0);
++    TestEqual(TEXT("Kind is Passage"), First.SegmentType, EInfinityCueType::WingPair);
++    TestEqual(TEXT("Two segments"), First.SegmentCount, 2);
++    TestEqual(TEXT("Bay count = compiled wing stations"), First.BayCount, 5);
++    TestEqual(TEXT("No rig in the world: bay unknown (0)"), First.Bay, 0);
++    TestEqual(TEXT("One cache build for the first segment"), Hud->GetSegmentCacheBuildsForTests(), 1);
++
++    for (int32 Frame = 0; Frame < 10; ++Frame)
++    {
++        Hud->GatherState();
++    }
++    TestEqual(TEXT("Per-frame gathers never recompile while the segment is unchanged"),
++        Hud->GetSegmentCacheBuildsForTests(), 1);
++
++    // Control: a rebuilt table (new segment GUIDs) is noticed.
++    Root->Transport->BuildSegments(MakeHudShow(3));
++    Root->ShowAsset = Show;
++    const FInfinityDirectorHudState Rebuilt = Hud->GatherState();
++    TestEqual(TEXT("A rebuilt segment table rebuilds the cache"), Hud->GetSegmentCacheBuildsForTests(), 2);
++    TestTrue(TEXT("Still reports a segment after the rebuild"), Rebuilt.SegmentIndex == 0);
++
++    FString Top;
++    FString Bottom;
++    InfinityStageDirectorHud::FormatLines(First, Top, Bottom);
++    TestTrue(TEXT("Formatted top line names the cue"), Top.StartsWith(TEXT("Cue 1/2  Passage")));
++
++    World->DestroyWorld(false);
++    return true;
++}
++
++#endif

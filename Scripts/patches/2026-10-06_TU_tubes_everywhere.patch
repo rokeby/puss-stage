@@ -1,0 +1,781 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+index ea0d6b3..f03dd04 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStructureActor.cpp
+@@ -1,5 +1,7 @@
+ #include "InfinityStageStructureActor.h"
+ 
++#include "TimerManager.h"
++
+ #include "Components/InstancedStaticMeshComponent.h"
+ #include "Components/RectLightComponent.h"
+ #include "Components/SceneComponent.h"
+@@ -449,6 +451,9 @@ void AInfinityStageStructureActor::ClearStructure()
+     UnderpassTubeCount = 0;
+     UnderpassTubeLightCount = 0;
+     UnderpassTubeLightEveryUsed = 0;
++    UnderpassTubeBlinkers.Reset();
++    UnderpassTubeBlinkComponent = nullptr;
++    TubeBlinkLit.Reset();
+     UnderpassFencePanelCount = 0;
+     UnderpassFenceOverlayCount = 0;
+     StationSignature = 0;
+@@ -1913,6 +1918,84 @@ void AInfinityStageStructureActor::BuildUnderpass(
+     Emit(Rails, TEXT("StructureUnderpassCatwalk"), UnderpassCatwalkLayerTag, Catwalk, Underpass.bCatwalkCastShadow, UnderpassCatwalkCount);
+ }
+ 
++bool AInfinityStageStructureActor::IsTubeBlinkOn(
++    const double TimeSeconds,
++    const float Phase,
++    const float RateScale,
++    const double PeriodSeconds,
++    const double DutyOn)
++{
++    const double Period = FMath::Max(0.05, PeriodSeconds) * FMath::Max(0.1, static_cast<double>(RateScale));
++    const double Position = FMath::Frac(TimeSeconds / Period + static_cast<double>(Phase));
++    if (Position < FMath::Clamp(DutyOn, 0.0, 1.0))
++    {
++        return true;
++    }
++    // The strike: a fast stutter over the last 8 % of the cycle before it is lit again.
++    if (Position >= 0.92)
++    {
++        return (FMath::FloorToInt32(Position * 160.0) % 2) == 0;
++    }
++    return false;
++}
++
++int32 AInfinityStageStructureActor::UpdateTubeBlinkers(const double TimeSeconds)
++{
++    if (TubeBlinkLit.Num() != UnderpassTubeBlinkers.Num())
++    {
++        // Everything is built lit: start from that.
++        TubeBlinkLit.Init(1, UnderpassTubeBlinkers.Num());
++    }
++    UInstancedStaticMeshComponent* Component = UnderpassTubeBlinkComponent.Get();
++    int32 Changed = 0;
++    for (int32 Index = 0; Index < UnderpassTubeBlinkers.Num(); ++Index)
++    {
++        const FInfinityStageTubeBlinker& Blinker = UnderpassTubeBlinkers[Index];
++        const bool bLit = IsTubeBlinkOn(TimeSeconds, Blinker.Phase, Blinker.RateScale,
++            Underpass.TubeBlinkPeriodSeconds, Underpass.TubeBlinkDutyOn);
++        if ((TubeBlinkLit[Index] != 0) == bLit)
++        {
++            continue;
++        }
++        TubeBlinkLit[Index] = bLit ? 1 : 0;
++        ++Changed;
++        if (Component && Blinker.InstanceIndex != INDEX_NONE)
++        {
++            Component->SetCustomDataValue(Blinker.InstanceIndex, 3, bLit ? Blinker.OnValue : 0.0f, false);
++        }
++        if (URectLightComponent* Light = Blinker.Light.Get())
++        {
++            Light->SetVisibility(bLit);
++        }
++    }
++    if (Changed > 0 && Component)
++    {
++        Component->MarkRenderStateDirty();
++    }
++    return Changed;
++}
++
++void AInfinityStageStructureActor::BeginPlay()
++{
++    Super::BeginPlay();
++    // Only a game world with blinkers pays anything; the editor never runs it, so
++    // blinking never touches the level at edit time.
++    UWorld* World = GetWorld();
++    if (World && World->IsGameWorld() && !UnderpassTubeBlinkers.IsEmpty())
++    {
++        World->GetTimerManager().SetTimer(
++            TubeBlinkTimer, this, &AInfinityStageStructureActor::OnTubeBlinkTimer, 1.0f / 30.0f, true);
++    }
++}
++
++void AInfinityStageStructureActor::OnTubeBlinkTimer()
++{
++    if (const UWorld* World = GetWorld())
++    {
++        UpdateTubeBlinkers(World->GetTimeSeconds());
++    }
++}
++
+ void AInfinityStageStructureActor::BuildUnderpassTubes(
+     const TArray<FInfinityStructureStation>& Stations,
+     const FInfinityUnderpassPart& Tube,
+@@ -1942,20 +2025,42 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+         int32 Index;
+         int32 StreamKey;
+         double LateralCm;
++        /** Up from the bay's deck line (negative hangs below it). */
++        double VerticalCm;
++        bool bEmitLight;
+     };
+     TArray<FTubeRow> Rows;
+     const int32 CentreRows = FMath::Max(0, Underpass.TubeRowsCentre);
+     const double RowSpacingCm = FMath::Max(0.0, Underpass.TubeCentreRowSpacingCm);
++    const double DeckRowVerticalCm = -Underpass.TubeDropCm;
+     for (int32 Row = 0; Row < CentreRows; ++Row)
+     {
+-        Rows.Add({ Row, Row, (Row - (CentreRows - 1) * 0.5) * RowSpacingCm });
++        Rows.Add({ Row, Row, (Row - (CentreRows - 1) * 0.5) * RowSpacingCm, DeckRowVerticalCm,
++            Underpass.bTubeCentreRowsEmitLight });
+     }
++    int32 NextRowIndex = CentreRows;
+     if (Underpass.bTubeCornerRows)
+     {
+         const double CornerCm = ColumnLineCm - Underpass.TubeCornerInsetCm;
+-        Rows.Add({ CentreRows, 1000, -CornerCm });
+-        Rows.Add({ CentreRows + 1, 1001, CornerCm });
++        Rows.Add({ NextRowIndex++, 1000, -CornerCm, DeckRowVerticalCm, Underpass.bTubeCornerRowsEmitLight });
++        Rows.Add({ NextRowIndex++, 1001, CornerCm, DeckRowVerticalCm, Underpass.bTubeCornerRowsEmitLight });
++    }
++    if (Underpass.bTubeFenceTopRows)
++    {
++        // On the fence line, above the fence's intended top, measured from the
++        // station like the fence; the bays below run at deck height, so offset back.
++        const double FenceLineCm = ColumnLineCm - Underpass.FenceInsetCm;
++        const double FenceTopCm = Ground.FloorHeightCm + Underpass.FenceBaseCm
++            + FMath::Max(1.0, Underpass.FenceHeightCm) + Underpass.TubeFenceTopRaiseCm;
++        const double FenceVerticalCm = FenceTopCm - Underpass.DeckHeightCm;
++        Rows.Add({ NextRowIndex++, 1002, -FenceLineCm, FenceVerticalCm, Underpass.bTubeFenceTopRowsEmitLight });
++        if (Underpass.bFenceBothSides)
++        {
++            Rows.Add({ NextRowIndex++, 1003, FenceLineCm, FenceVerticalCm, Underpass.bTubeFenceTopRowsEmitLight });
++        }
+     }
++    const float GlowLevel = FMath::Clamp(Underpass.TubeGlowLevel, 0.0f, 8.0f);
++    const double BlinkFraction = FMath::Clamp(Underpass.TubeBlinkFraction, 0.0, 1.0);
+ 
+     // The run under the deck's underside: the same straight bays the deck is
+     // built from, station to station, so every tube hangs under a deck bay.
+@@ -2009,10 +2114,13 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+         FVector Up = FVector::ZAxisVector;
+         bool bAlive = false;
+         bool bBuilt = false;
++        int32 BlinkerIndex = INDEX_NONE;
+     };
+     TArray<TArray<FTubeSpot>> Spots;
+     TArray<FTransform> Transforms;
+     TArray<float> Data;
++    TArray<FTransform> BlinkTransforms;
++    TArray<float> BlinkData;
+     const FBox TubeBounds = Tube.Mesh ? Tube.Mesh->GetBoundingBox() : FBox(ForceInit);
+     int32 Trimmed = 0;
+     for (const FTubeRow& Row : Rows)
+@@ -2021,6 +2129,7 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+         int32 BayIndex = 0;
+         int32 StreamBay = INDEX_NONE;
+         FRandomStream Stream;
++        FRandomStream BlinkStream;
+         for (int32 TubeIndex = 0; TubeIndex < PerRow; ++TubeIndex)
+         {
+             const double AlongCm = MarginCm + LengthCm * 0.5 + TubeIndex * PitchCm;
+@@ -2032,12 +2141,19 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+             if (StreamBay != BayIndex)
+             {
+                 Stream = MakeTubeStream(Stations[Bay.Station].CueGuid, Row.StreamKey, Underpass.TubeSeed);
++                BlinkStream = MakeTubeStream(Stations[Bay.Station].CueGuid,
++                    Row.StreamKey + FInfinityStageUnderpassSettings::TubeBlinkStreamKeyOffset, Underpass.TubeSeed);
+                 StreamBay = BayIndex;
+             }
+             // One draw per tube, made whether or not the tube is built.
+             const float Random = Stream.FRand();
++            // The blink stream is separate and drawn in fixed statements (never two
++            // draws in one expression: memory puss-random-draw-order).
++            const float BlinkPick = BlinkStream.FRand();
++            const float BlinkPhase = BlinkStream.FRand();
++            const float BlinkRate = BlinkStream.FRand();
+             FTubeSpot& Spot = RowSpots.AddDefaulted_GetRef();
+-            Spot.Centre = Bay.Start + Bay.Along * (AlongCm - Bay.StartCm) + Bay.Across * Row.LateralCm - Bay.Up * Underpass.TubeDropCm;
++            Spot.Centre = Bay.Start + Bay.Along * (AlongCm - Bay.StartCm) + Bay.Across * Row.LateralCm + Bay.Up * Row.VerticalCm;
+             Spot.Along = Bay.Along;
+             Spot.Up = Bay.Up;
+             Spot.bAlive = Random >= DeadFraction;
+@@ -2049,6 +2165,16 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+                 ++Trimmed;
+                 continue;
+             }
++            const bool bBlinker = Spot.bAlive && BlinkFraction > 0.0 && BlinkPick < BlinkFraction;
++            if (bBlinker)
++            {
++                FInfinityStageTubeBlinker& Blinker = UnderpassTubeBlinkers.AddDefaulted_GetRef();
++                Blinker.InstanceIndex = Tube.Mesh ? BlinkTransforms.Num() : INDEX_NONE;
++                Blinker.OnValue = GlowLevel;
++                Blinker.Phase = BlinkPhase;
++                Blinker.RateScale = 0.6f + 0.8f * BlinkRate;
++                Spot.BlinkerIndex = UnderpassTubeBlinkers.Num() - 1;
++            }
+             if (!Tube.Mesh)
+             {
+                 continue;
+@@ -2059,12 +2185,15 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+             const FVector SizeCm = Underpass.bTubeMeshAlongZ
+                 ? FVector(DiameterCm, DiameterCm, LengthCm)
+                 : FVector(LengthCm, DiameterCm, DiameterCm);
+-            Transforms.Add(FitMeshToTimber(TubeBounds, Spot.Centre, Rotation, SizeCm));
+-            Data.Append({
++            // [3] is the emissive multiplier: the glow level alive (1 = the 5 Oct look), 0 dead.
++            TArray<FTransform>& OutTransforms = bBlinker ? BlinkTransforms : Transforms;
++            TArray<float>& OutData = bBlinker ? BlinkData : Data;
++            OutTransforms.Add(FitMeshToTimber(TubeBounds, Spot.Centre, Rotation, SizeCm));
++            OutData.Append({
+                 static_cast<float>(Row.Index),
+                 static_cast<float>(TubeIndex),
+                 Random,
+-                Spot.bAlive ? 1.0f : 0.0f });
++                Spot.bAlive ? GlowLevel : 0.0f });
+         }
+     }
+     if (Trimmed > 0)
+@@ -2080,18 +2209,40 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+         ApplyInstances(*Component, Transforms, Data);
+         UnderpassTubeCount = Transforms.Num();
+     }
++    if (!BlinkTransforms.IsEmpty())
++    {
++        // Blinkers change custom data at runtime: their own movable component, so
++        // the steady tubes stay a static, cached component.
++        UInstancedStaticMeshComponent* Component = CreateManagedComponent(
++            TEXT("StructureUnderpassTubesBlink"), UnderpassTubeLayerTag, Tube.Mesh, Tube.Material, Underpass.bTubeCastShadow);
++        Component->SetMobility(EComponentMobility::Movable);
++        ApplyInstances(*Component, BlinkTransforms, BlinkData);
++        UnderpassTubeBlinkComponent = Component;
++        UnderpassTubeCount += BlinkTransforms.Num();
++    }
++    if (!UnderpassTubeBlinkers.IsEmpty())
++    {
++        UE_LOG(LogInfinityStageStructure, Display,
++            TEXT("INFINITY_STAGE_STRUCTURE_TUBE_BLINKERS actor='%s' blinkers=%d fraction=%.2f glow=%.2f"),
++            *GetActorNameOrLabel(), UnderpassTubeBlinkers.Num(), BlinkFraction, GlowLevel);
++    }
+ 
+     if (!Underpass.bTubeLights || PerRow == 0)
+     {
+         return;
+     }
+     // One light per group of Every tubes along a row, on the group's middle tube,
+-    // and none where that tube is dead or trimmed.
+-    const auto LitHosts = [&Spots, PerRow](const int32 Every)
++    // and none where that tube is dead or trimmed, nor in a row that emits no light.
++    const auto LitHosts = [&Spots, &Rows, PerRow](const int32 Every)
+     {
+         TArray<const FTubeSpot*> Hosts;
+-        for (const TArray<FTubeSpot>& RowSpots : Spots)
++        for (int32 RowIndex = 0; RowIndex < Spots.Num(); ++RowIndex)
+         {
++            const TArray<FTubeSpot>& RowSpots = Spots[RowIndex];
++            if (!Rows[RowIndex].bEmitLight)
++            {
++                continue;
++            }
+             for (int32 GroupStart = 0; GroupStart < PerRow; GroupStart += Every)
+             {
+                 const int32 GroupSize = FMath::Min(Every, PerRow - GroupStart);
+@@ -2146,6 +2297,10 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
+         Light->SetAttenuationRadius(FMath::Max(0.0f, Underpass.TubeLightAttenuationRadius));
+         Light->SetCastShadows(Underpass.bTubeLightCastShadow);
+         Light->SetLightFunctionMaterial(LightFunction);
++        if (UnderpassTubeBlinkers.IsValidIndex(Host->BlinkerIndex))
++        {
++            UnderpassTubeBlinkers[Host->BlinkerIndex].Light = Light;
++        }
+     }
+     UnderpassTubeLightCount = Hosts.Num();
+     UnderpassTubeLightEveryUsed = Hosts.IsEmpty() ? 0 : Every;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+index 151a487..e11f172 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStructureActor.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "CoreMinimal.h"
++#include "Engine/TimerHandle.h"
+ #include "GameFramework/Actor.h"
+ #include "InfinityStageStructureActor.generated.h"
+ 
+@@ -738,6 +739,61 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
+     bool bTubeLightCastShadow = false;
+ 
++    /** Tubes everywhere (Gary, 6 Oct: "add them everywhere so they can be switched
++     * on or used to blink or atmosphere ... give them a low glow setting and make 20%
++     * of them blink ... other than P02 only give light to the fence-top ones, not the
++     * central rail ones"). Every field below defaults to the 5 Oct behaviour, so a
++     * structure that sets none of them builds exactly what it built before. */
++
++    /** With bTubeLights: whether the centre rows' tubes host lights. Off: they glow, light nothing. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
++    bool bTubeCentreRowsEmitLight = true;
++
++    /** With bTubeLights: whether the top-corner rows' tubes host lights. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
++    bool bTubeCornerRowsEmitLight = true;
++
++    /** A row along the top of each side fence: on the fence line (FenceInsetCm in from
++     * the column line), its centre TubeFenceTopRaiseCm above the fence's intended top
++     * (Ground.FloorHeightCm + FenceBaseCm + FenceHeightCm). Independent of bFence;
++     * bFenceBothSides off builds the -Y row only. Same stretch, pitch and dead share
++     * as the other rows; stream keys 1002 (-Y) and 1003 (+Y), so adding these rows
++     * never re-rolls another row. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
++    bool bTubeFenceTopRows = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (Units = "cm"))
++    double TubeFenceTopRaiseCm = 15.0;
++
++    /** With bTubeLights: whether the fence-top rows' tubes host lights. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
++    bool bTubeFenceTopRowsEmitLight = true;
++
++    /** A live tube's emissive level, written to custom data [3] (M_UP_TubeEmissive
++     * multiplies its emissive by [3]; dead tubes stay 0). 1 is the 5 Oct look; ~0.1-0.2
++     * is a low background glow. It does not scale the rect lights (TubeLightIntensity). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.0", UIMax = "2.0"))
++    float TubeGlowLevel = 1.0f;
++
++    /** Share of the live, built tubes that blink in game. The pick is one draw per tube
++     * from its own per-bay/row stream (key + TubeBlinkStreamKeyOffset), separate from
++     * the dead/alive stream, so blinking never re-rolls which tubes are dead. Blinkers
++     * are built into their own movable component; a blinker that hosts a light blinks
++     * the light with it. 0 (default) builds no blinkers. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.0", ClampMax = "1.0"))
++    double TubeBlinkFraction = 0.0;
++
++    /** One blink cycle (scaled per tube by 0.6-1.4 from its stream). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.05", Units = "s"))
++    double TubeBlinkPeriodSeconds = 3.0;
++
++    /** Share of the cycle a blinker is lit; the last 8 % of the cycle is the
++     * fluorescent stutter as it strikes again. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.0", ClampMax = "1.0"))
++    double TubeBlinkDutyOn = 0.7;
++
++    static constexpr int32 TubeBlinkStreamKeyOffset = 5000;
++
+     /** Fencing in the spaces between the columns (Gary, 5 Oct: "ground to ~3 m:
+      * underpass-style fencing; the upper rig stays open and side light still gets
+      * through. Mostly open chain-link, some half or torn tarp, rare door gaps").
+@@ -809,6 +865,33 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
+     }
+ };
+ 
++/** One blinking underpass tube, as built: driven in game worlds by the structure's tick. */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityStageTubeBlinker
++{
++    GENERATED_BODY()
++
++    /** Instance in UnderpassTubeBlinkComponent, or -1 (no tube mesh: the light alone blinks). */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
++    int32 InstanceIndex = INDEX_NONE;
++
++    /** Custom data [3] while lit (TubeGlowLevel at build). */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
++    float OnValue = 1.0f;
++
++    /** 0..1 offset into the cycle. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
++    float Phase = 0.0f;
++
++    /** Cycle length multiplier, 0.6..1.4. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
++    float RateScale = 1.0f;
++
++    /** The rect light this tube hosts, if any. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
++    TObjectPtr<URectLightComponent> Light;
++};
++
+ /** One underpass part's loaded mesh and material, as MaterializeStructure hands
+  * them to BuildUnderpass. Not reflected; lives only for one build. */
+ struct FInfinityUnderpassPart
+@@ -935,6 +1018,20 @@ public:
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+     int32 UnderpassTubeLightEveryUsed = 0;
+ 
++    /** Blinking tubes (TubeBlinkFraction), driven by Tick in game worlds only. */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
++    TArray<FInfinityStageTubeBlinker> UnderpassTubeBlinkers;
++
++    /** The movable component the blinkers' tube meshes live in (null without blinkers). */
++    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
++    TObjectPtr<UInstancedStaticMeshComponent> UnderpassTubeBlinkComponent;
++
++    /** Pure: whether a blinker is lit at TimeSeconds. */
++    static bool IsTubeBlinkOn(double TimeSeconds, float Phase, float RateScale, double PeriodSeconds, double DutyOn);
++
++    /** Applies the blink state at TimeSeconds (the blink timer's work; public for tests). Returns how many blinkers changed. */
++    int32 UpdateTubeBlinkers(double TimeSeconds);
++
+     /** Fence panels built, every variant together: the tiles, not the gaps. */
+     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+     int32 UnderpassFencePanelCount = 0;
+@@ -969,7 +1066,18 @@ public:
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
+     bool IsStructureCurrent() const;
+ 
++protected:
++    virtual void BeginPlay() override;
++
+ private:
++    /** Last applied lit state per blinker (transient; sized on first update). */
++    TArray<uint8> TubeBlinkLit;
++
++    /** A looping 30 Hz world timer, set only in a game world with blinkers. A timer
++     * rather than an actor tick, so saved instances' tick flags never matter. */
++    FTimerHandle TubeBlinkTimer;
++    void OnTubeBlinkTimer();
++
+     UInstancedStaticMeshComponent* CreateManagedComponent(
+         FName BaseName,
+         FName LayerTag,
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+index 59008fe..b9e8f7e 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStructureTests.cpp
+@@ -3378,4 +3378,341 @@ bool FInfinityStageUnderpassFenceMaterialsTest::RunTest(const FString& Parameter
+     return true;
+ }
+ 
++// ---------------------------------------------------------------------------
++// Tubes everywhere (patch TU, 6 Oct): fence-top rows, per-row light switches, a
++// low-glow level, and a deterministic blinking share. Every new field defaults
++// to the 5 Oct behaviour, which the first test proves byte for byte.
++// ---------------------------------------------------------------------------
++namespace
++{
++struct FEverywhereTube
++{
++    int32 Row = INDEX_NONE;
++    int32 Index = INDEX_NONE;
++    float Random = -1.0f;
++    float Level = -1.0f;
++    FVector Centre = FVector::ZeroVector;
++    bool bBlinkComponent = false;
++};
++
++/** Every tube in every tube-tagged component (the steady one and the blinkers'). */
++TArray<FEverywhereTube> ReadEveryTube(const AInfinityStageStructureActor& Structure)
++{
++    TArray<FEverywhereTube> Tubes;
++    for (const UInstancedStaticMeshComponent* Layer : Structure.ManagedComponents)
++    {
++        if (!Layer || !Layer->ComponentTags.Contains(FName(TubeTag)) || Layer->NumCustomDataFloats < 4)
++        {
++            continue;
++        }
++        const FBox MeshBounds = Layer->GetStaticMesh()->GetBoundingBox();
++        const TArray<FTransform> Instances = ReadInstances(*Layer);
++        for (int32 Instance = 0; Instance < Instances.Num(); ++Instance)
++        {
++            const float* Data = Layer->PerInstanceSMCustomData.GetData() + Instance * Layer->NumCustomDataFloats;
++            FEverywhereTube& Tube = Tubes.AddDefaulted_GetRef();
++            Tube.Row = FMath::RoundToInt32(Data[0]);
++            Tube.Index = FMath::RoundToInt32(Data[1]);
++            Tube.Random = Data[2];
++            Tube.Level = Data[3];
++            Tube.Centre = MeshBounds.TransformBy(Instances[Instance]).GetCenter();
++            Tube.bBlinkComponent = Layer == Structure.UnderpassTubeBlinkComponent.Get();
++        }
++    }
++    Tubes.Sort([](const FEverywhereTube& A, const FEverywhereTube& B)
++        { return A.Row != B.Row ? A.Row < B.Row : A.Index < B.Index; });
++    return Tubes;
++}
++
++bool SameTubeIdentity(const TArray<FEverywhereTube>& A, const TArray<FEverywhereTube>& B, const int32 MaxRow, FString& OutWhy)
++{
++    TArray<const FEverywhereTube*> FA;
++    TArray<const FEverywhereTube*> FB;
++    for (const FEverywhereTube& Tube : A) { if (Tube.Row <= MaxRow) { FA.Add(&Tube); } }
++    for (const FEverywhereTube& Tube : B) { if (Tube.Row <= MaxRow) { FB.Add(&Tube); } }
++    if (FA.Num() != FB.Num())
++    {
++        OutWhy = FString::Printf(TEXT("%d tubes != %d"), FA.Num(), FB.Num());
++        return false;
++    }
++    for (int32 Index = 0; Index < FA.Num(); ++Index)
++    {
++        if (FA[Index]->Row != FB[Index]->Row || FA[Index]->Index != FB[Index]->Index
++            || FA[Index]->Random != FB[Index]->Random || !FA[Index]->Centre.Equals(FB[Index]->Centre, 1.0e-3)
++            || (FA[Index]->Level > 0.0f) != (FB[Index]->Level > 0.0f))
++        {
++            OutWhy = FString::Printf(TEXT("tube row %d index %d differs"), FA[Index]->Row, FA[Index]->Index);
++            return false;
++        }
++    }
++    return true;
++}
++
++void ArmTubesEverywhere(AInfinityStageStructureActor& Structure)
++{
++    ArmTubes(Structure);
++    Structure.Underpass.bTubeLights = true;
++    Structure.Underpass.TubeLightEvery = 1;
++    Structure.Underpass.TubeLightMax = 2000;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageTubesEverywhereDefaultsTest,
++    "InfinityStage.Structure.TubesEverywhere.DefaultsBuildExactlyAsBefore",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageTubesEverywhereDefaultsTest::RunTest(const FString& Parameters)
++{
++    const FInfinityStageUnderpassSettings Defaults;
++    TestTrue(TEXT("Defaults: every row emits light, no fence-top rows, full glow, no blinking"),
++        Defaults.bTubeCentreRowsEmitLight && Defaults.bTubeCornerRowsEmitLight && Defaults.bTubeFenceTopRowsEmitLight
++        && !Defaults.bTubeFenceTopRows && FMath::IsNearlyEqual(Defaults.TubeGlowLevel, 1.0f)
++        && FMath::IsNearlyEqual(Defaults.TubeBlinkFraction, 0.0));
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 6);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmTubes(*Structure);
++    Structure->Underpass.bTubeLights = true;
++    TestTrue(TEXT("Builds with the 5 Oct tube settings"), Structure->MaterializeStructure());
++    const TArray<FBuiltLayer> Before = SnapshotBuild(*Structure);
++    TArray<FVector> LightsBefore;
++    for (const URectLightComponent* Light : TaggedTubeLights(*Structure))
++    {
++        LightsBefore.Add(Light->GetComponentLocation());
++    }
++    const TArray<FTubeRead> TubesBefore = ReadTubes(*Structure);
++    TestTrue(TEXT("Control: tubes and lights exist"), TubesBefore.Num() > 0 && LightsBefore.Num() > 0);
++    TestTrue(TEXT("No blinkers and no blink component by default"),
++        Structure->UnderpassTubeBlinkers.IsEmpty() && Structure->UnderpassTubeBlinkComponent == nullptr);
++    bool bAliveIsOne = true;
++    for (const FTubeRead& Tube : TubesBefore)
++    {
++        bAliveIsOne &= Tube.Alive == 0.0f || Tube.Alive == 1.0f;
++    }
++    TestTrue(TEXT("[3] is still exactly 1 alive / 0 dead at the default glow"), bAliveIsOne);
++
++    // Control: a low glow changes [3] of the live tubes only, and nothing else.
++    Structure->Underpass.TubeGlowLevel = 0.15f;
++    TestTrue(TEXT("Builds at a low glow"), Structure->MaterializeStructure());
++    const TArray<FTubeRead> Glowing = ReadTubes(*Structure);
++    bool bGlowOnlyLevel = Glowing.Num() == TubesBefore.Num();
++    for (int32 Index = 0; bGlowOnlyLevel && Index < Glowing.Num(); ++Index)
++    {
++        bGlowOnlyLevel = Glowing[Index].Transform.Equals(TubesBefore[Index].Transform, 1.0e-4)
++            && Glowing[Index].Random == TubesBefore[Index].Random
++            && Glowing[Index].Alive == (TubesBefore[Index].Alive > 0.5f ? 0.15f : 0.0f);
++    }
++    TestTrue(TEXT("Low glow: [3] = 0.15 alive, 0 dead; transforms and randoms unchanged"), bGlowOnlyLevel);
++    TestEqual(TEXT("Low glow does not change the lights"), TaggedTubeLights(*Structure).Num(), LightsBefore.Num());
++
++    // And back to the default: byte-identical to the first build.
++    Structure->Underpass.TubeGlowLevel = 1.0f;
++    TestTrue(TEXT("Rebuilds at the default glow"), Structure->MaterializeStructure());
++    FString Why;
++    TestTrue(FString::Printf(TEXT("Defaults again: every component identical (%s)"), *Why),
++        SameBuild(Before, SnapshotBuild(*Structure), Why));
++    TArray<URectLightComponent*> LightsAfter = TaggedTubeLights(*Structure);
++    bool bSameLights = LightsAfter.Num() == LightsBefore.Num();
++    for (int32 Index = 0; bSameLights && Index < LightsAfter.Num(); ++Index)
++    {
++        bSameLights = LightsAfter[Index]->GetComponentLocation().Equals(LightsBefore[Index], 1.0e-3);
++    }
++    TestTrue(TEXT("Defaults again: the same lights in the same places"), bSameLights);
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageTubesEverywhereFenceRowsTest,
++    "InfinityStage.Structure.TubesEverywhere.FenceTopRowsAndPerRowLight",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageTubesEverywhereFenceRowsTest::RunTest(const FString& Parameters)
++{
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 6);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmTubesEverywhere(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    TestTrue(TEXT("Builds the deck rows"), Structure->MaterializeStructure());
++    const TArray<FEverywhereTube> DeckOnly = ReadEveryTube(*Structure);
++    const int32 DeckLights = Structure->UnderpassTubeLightCount;
++    double CornerY = 0.0;
++    for (const FEverywhereTube& Tube : DeckOnly)
++    {
++        CornerY = FMath::Max(CornerY, FMath::Abs(Tube.Centre.Y));
++    }
++
++    Underpass.bTubeFenceTopRows = true;
++    TestTrue(TEXT("Builds with fence-top rows"), Structure->MaterializeStructure());
++    const TArray<FEverywhereTube> WithFence = ReadEveryTube(*Structure);
++    const int32 DeckRows = Underpass.TubeRowsCentre + 2;
++    FString Why;
++    TestTrue(FString::Printf(TEXT("Adding fence-top rows re-rolls and moves no deck tube (%s)"), *Why),
++        SameTubeIdentity(DeckOnly, WithFence, DeckRows - 1, Why));
++
++    TArray<FInfinityStructureStation> Stations;
++    FString Error;
++    Structure->GatherStations(Stations, Error);
++    const double StationZ = Stations.IsEmpty() ? 0.0 : Stations[0].StationWorld.GetLocation().Z;
++    const double ExpectedLineY = CornerY - Underpass.FenceInsetCm;
++    const double ExpectedZ = StationZ + Structure->Ground.FloorHeightCm + Underpass.FenceBaseCm
++        + Underpass.FenceHeightCm + Underpass.TubeFenceTopRaiseCm;
++    int32 FenceTubes = 0;
++    bool bOnLine = true;
++    bool bBothSides[2] = { false, false };
++    for (const FEverywhereTube& Tube : WithFence)
++    {
++        if (Tube.Row < DeckRows)
++        {
++            continue;
++        }
++        ++FenceTubes;
++        bOnLine &= FMath::IsNearlyEqual(FMath::Abs(Tube.Centre.Y), ExpectedLineY, 0.5)
++            && FMath::IsNearlyEqual(Tube.Centre.Z, ExpectedZ, 0.5);
++        bBothSides[Tube.Centre.Y > 0.0 ? 1 : 0] = true;
++    }
++    TestTrue(TEXT("Two fence-top rows, as many tubes as a deck row each"),
++        FenceTubes > 0 && FenceTubes * DeckRows == DeckOnly.Num() * 2);
++    TestTrue(TEXT("Fence-top tubes on the fence line, above the fence's top"), bOnLine);
++    TestTrue(TEXT("One row each side"), bBothSides[0] && bBothSides[1]);
++
++    // Only the fence-top rows give light (Gary: all but P02).
++    Underpass.bTubeCentreRowsEmitLight = false;
++    Underpass.bTubeCornerRowsEmitLight = false;
++    TestTrue(TEXT("Builds with only fence-top light"), Structure->MaterializeStructure());
++    const TArray<URectLightComponent*> FenceLights = TaggedTubeLights(*Structure);
++    bool bFenceOnly = !FenceLights.IsEmpty();
++    for (const URectLightComponent* Light : FenceLights)
++    {
++        bFenceOnly &= FMath::IsNearlyEqual(FMath::Abs(Light->GetComponentLocation().Y), ExpectedLineY, 0.5);
++    }
++    TestTrue(TEXT("Every light hangs on a fence-top tube"), bFenceOnly);
++    TestTrue(TEXT("The deck tubes are still built (they glow, they light nothing)"),
++        ReadEveryTube(*Structure).Num() == WithFence.Num());
++
++    // Control: no row emitting builds no light at all.
++    Underpass.bTubeFenceTopRowsEmitLight = false;
++    TestTrue(TEXT("Builds with no row emitting"), Structure->MaterializeStructure());
++    TestEqual(TEXT("No row emitting: no lights"), Structure->UnderpassTubeLightCount, 0);
++    TestTrue(TEXT("Control: the deck rows alone had lights"), DeckLights > 0);
++
++    // One side only, as the fence.
++    Underpass.bFenceBothSides = false;
++    TestTrue(TEXT("Builds with a one-sided fence"), Structure->MaterializeStructure());
++    int32 PlusSide = 0;
++    for (const FEverywhereTube& Tube : ReadEveryTube(*Structure))
++    {
++        PlusSide += Tube.Row >= DeckRows && Tube.Centre.Y > 0.0 ? 1 : 0;
++    }
++    TestEqual(TEXT("bFenceBothSides off: no +Y fence-top row"), PlusSide, 0);
++    World->DestroyWorld(false);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageTubesEverywhereBlinkTest,
++    "InfinityStage.Structure.TubesEverywhere.BlinkShareIsDeterministicAndSeparate",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageTubesEverywhereBlinkTest::RunTest(const FString& Parameters)
++{
++    using T = AInfinityStageStructureActor;
++    TestTrue(TEXT("Pure: lit inside the duty"), T::IsTubeBlinkOn(0.1, 0.0f, 1.0f, 1.0, 0.7));
++    TestFalse(TEXT("Pure: dark after the duty"), T::IsTubeBlinkOn(0.8, 0.0f, 1.0f, 1.0, 0.7));
++    TestTrue(TEXT("Pure: the phase shifts the cycle"), T::IsTubeBlinkOn(0.8, 0.5f, 1.0f, 1.0, 0.7));
++    int32 StutterFlips = 0;
++    bool bPrevious = T::IsTubeBlinkOn(0.92, 0.0f, 1.0f, 1.0, 0.7);
++    for (double Time = 0.921; Time < 0.999; Time += 0.001)
++    {
++        const bool bNow = T::IsTubeBlinkOn(Time, 0.0f, 1.0f, 1.0, 0.7);
++        StutterFlips += bNow != bPrevious ? 1 : 0;
++        bPrevious = bNow;
++    }
++    TestTrue(TEXT("Pure: a stutter before it strikes again"), StutterFlips >= 4);
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 14);
++    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
++    ArmTubesEverywhere(*Structure);
++    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
++    TestTrue(TEXT("Builds without blinking"), Structure->MaterializeStructure());
++    const TArray<FEverywhereTube> Steady = ReadEveryTube(*Structure);
++    int32 Alive = 0;
++    for (const FEverywhereTube& Tube : Steady)
++    {
++        Alive += Tube.Level > 0.0f ? 1 : 0;
++    }
++
++    Underpass.TubeBlinkFraction = 0.2;
++    TestTrue(TEXT("Builds with 20% blinking"), Structure->MaterializeStructure());
++    const TArray<FEverywhereTube> Blinking = ReadEveryTube(*Structure);
++    FString Why;
++    TestTrue(FString::Printf(TEXT("Blinking re-rolls no dead tube and moves none (%s)"), *Why),
++        SameTubeIdentity(Steady, Blinking, MAX_int32, Why));
++    const int32 Blinkers = Structure->UnderpassTubeBlinkers.Num();
++    TestTrue(FString::Printf(TEXT("About a fifth of the %d live tubes blink (%d)"), Alive, Blinkers),
++        Alive >= 40 && Blinkers >= Alive / 20 && Blinkers <= Alive * 2 / 5);
++    TestNotNull(TEXT("Blinkers live in their own component"), Structure->UnderpassTubeBlinkComponent.Get());
++    TestTrue(TEXT("...which is movable"), Structure->UnderpassTubeBlinkComponent
++        && Structure->UnderpassTubeBlinkComponent->Mobility == EComponentMobility::Movable);
++    int32 InBlinkComponent = 0;
++    for (const FEverywhereTube& Tube : Blinking)
++    {
++        InBlinkComponent += Tube.bBlinkComponent ? 1 : 0;
++    }
++    TestEqual(TEXT("One blink instance per blinker"), InBlinkComponent, Blinkers);
++    int32 BlinkingLights = 0;
++    for (const FInfinityStageTubeBlinker& Blinker : Structure->UnderpassTubeBlinkers)
++    {
++        BlinkingLights += Blinker.Light ? 1 : 0;
++    }
++    TestTrue(TEXT("Lights on blinking hosts blink with them"), BlinkingLights > 0);
++
++    // Deterministic: the same build twice picks the same tubes, phases and rates.
++    TArray<FInfinityStageTubeBlinker> First = Structure->UnderpassTubeBlinkers;
++    TestTrue(TEXT("Rebuilds"), Structure->MaterializeStructure());
++    bool bSame = First.Num() == Structure->UnderpassTubeBlinkers.Num();
++    for (int32 Index = 0; bSame && Index < First.Num(); ++Index)
++    {
++        const FInfinityStageTubeBlinker& A = First[Index];
++        const FInfinityStageTubeBlinker& B = Structure->UnderpassTubeBlinkers[Index];
++        bSame = A.InstanceIndex == B.InstanceIndex && A.Phase == B.Phase && A.RateScale == B.RateScale;
++    }
++    TestTrue(TEXT("Deterministic across rebuilds"), bSame);
++
++    // Driving: some blinker goes dark at some time; its [3] and its light follow.
++    UInstancedStaticMeshComponent* BlinkComponent = Structure->UnderpassTubeBlinkComponent.Get();
++    int32 Changed = 0;
++    double When = 0.0;
++    for (double Time = 0.0; Time < 10.0 && Changed == 0; Time += 0.05)
++    {
++        Changed = Structure->UpdateTubeBlinkers(Time);
++        When = Time;
++    }
++    TestTrue(TEXT("Driving the blinkers changes some"), Changed > 0);
++    bool bFollow = true;
++    for (const FInfinityStageTubeBlinker& Blinker : Structure->UnderpassTubeBlinkers)
++    {
++        const bool bLit = T::IsTubeBlinkOn(When, Blinker.Phase, Blinker.RateScale,
++            Underpass.TubeBlinkPeriodSeconds, Underpass.TubeBlinkDutyOn);
++        if (BlinkComponent && Blinker.InstanceIndex != INDEX_NONE)
++        {
++            const float Level = BlinkComponent->PerInstanceSMCustomData[
++                Blinker.InstanceIndex * BlinkComponent->NumCustomDataFloats + 3];
++            bFollow &= bLit ? Level == Blinker.OnValue : Level == 0.0f;
++        }
++        if (Blinker.Light)
++        {
++            bFollow &= Blinker.Light->IsVisible() == bLit;
++        }
++    }
++    TestTrue(TEXT("Each blinker's [3] and light match its state"), bFollow);
++    TestEqual(TEXT("The same time again changes nothing"), Structure->UpdateTubeBlinkers(When), 0);
++    World->DestroyWorld(false);
++    return true;
++}
++
+ #endif

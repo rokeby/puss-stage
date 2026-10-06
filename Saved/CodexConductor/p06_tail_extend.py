@@ -311,7 +311,7 @@ def segment_shift_gate(before, after, label, delta):
     return out
 
 
-MASTER_ROUNDING_TICKS = 4
+MASTER_ROUNDING_TICKS = 8  # really float-seconds READ error (~5.9 ticks/step at ~2100 s), not rebuild rounding
 
 
 def managed_shift_gate(before, after, p06_guid, p06_start, old_end, delta):

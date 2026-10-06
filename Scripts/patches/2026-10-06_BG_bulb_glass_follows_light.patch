@@ -1,0 +1,617 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp
+new file mode 100644
+index 0000000..cbb1209
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageBulbBody.cpp
+@@ -0,0 +1,65 @@
++#include "InfinityStageBulbBody.h"
++
++namespace
++{
++/** 0..1 from a hash of (identity, seed, step, channel). One combine per statement,
++ * so the order is fixed (memory: puss-random-draw-order). */
++float HashUnit(const FGuid& Identity, const int32 Seed, const int64 Step, const uint32 Channel)
++{
++    uint32 Hash = GetTypeHash(Identity);
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Seed));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Step));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Channel));
++    // Finalise (murmur3 fmix32) so neighbouring steps are uncorrelated.
++    Hash ^= Hash >> 16;
++    Hash *= 0x85ebca6bu;
++    Hash ^= Hash >> 13;
++    Hash *= 0xc2b2ae35u;
++    Hash ^= Hash >> 16;
++    return static_cast<float>(Hash & 0xFFFFFFu) / static_cast<float>(0x1000000u);
++}
++}
++
++namespace InfinityStageBulbBody
++{
++float FlickerScale(
++    const FInfinityBulbBodySettings& Settings,
++    const FGuid& Identity,
++    const double ShowSeconds,
++    const double CameraPastLampCm)
++{
++    if (Settings.Flicker == EInfinityBulbBodyFlicker::Stable)
++    {
++        return 1.0f;
++    }
++    const double Rate = FMath::Max(1.0, static_cast<double>(Settings.FlickerRateHz));
++    const int64 Step = static_cast<int64>(FMath::FloorToDouble(ShowSeconds * Rate));
++
++    if (Settings.Flicker == EInfinityBulbBodyFlicker::Slight)
++    {
++        const float Dip = HashUnit(Identity, Settings.Seed, Step, 1u);
++        return 1.0f - FMath::Clamp(Settings.SlightDepth, 0.0f, 1.0f) * Dip * Dip;
++    }
++
++    // Fail: dead from the death point on; before it, worse the nearer it is.
++    if (CameraPastLampCm >= Settings.FailAtCm)
++    {
++        return 0.0f;
++    }
++    const double Window = FMath::Max(1.0, Settings.FailWindowCm);
++    const float Severity = static_cast<float>(FMath::Clamp(
++        (CameraPastLampCm - (Settings.FailAtCm - Window)) / Window, 0.0, 1.0));
++    const float DropRoll = HashUnit(Identity, Settings.Seed, Step, 2u);
++    if (DropRoll < 0.65f * Severity)
++    {
++        return 0.0f;
++    }
++    const float Sag = HashUnit(Identity, Settings.Seed, Step, 3u);
++    return 1.0f - 0.6f * Severity * Sag - 0.04f * Sag;
++}
++
++float BodyIntensity(const float FullIntensity, const float DramaScale, const float Flicker)
++{
++    return FMath::Max(0.0f, FullIntensity) * FMath::Max(0.0f, DramaScale) * FMath::Clamp(Flicker, 0.0f, 1.0f);
++}
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+index 0dbd026..15111cb 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+@@ -11,6 +11,9 @@
+ #include "InfinityStageEffectSource.h"
+ #include "InfinityStageEffectTypes.h"
+ #include "InfinityStageLightDrama.h"
++#include "InfinityStageBulbBody.h"
++#include "Components/StaticMeshComponent.h"
++#include "Materials/MaterialInstanceDynamic.h"
+ #include "Engine/PointLight.h"
+ #include "Engine/RectLight.h"
+ #include "Engine/Scene.h"
+@@ -890,6 +893,7 @@ int32 AInfinityStagePassageActor::MaterializeAttachments()
+         Existing->Destroy();
+     }
+     ManagedAttachmentActors.Reset();
++    BulbBodies.Reset();
+ 
+     int32 Placed = 0;
+     int32 PlacedLights = 0;
+@@ -1659,11 +1663,133 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+                 EvaluatedCameraDistanceCm,
+                 ShowSeconds);
+         }
++        // After the lamps, so a body that also drives its light has the last word.
++        UpdateBulbBodies(*Passage, EvaluatedCameraDistanceCm, ShowSeconds);
+     }
+ 
+     return bAllUpdatesSucceeded;
+ }
+ 
++float AInfinityStagePassageActor::GetBulbBodyLevelForTests(const AActor* Body) const
++{
++    const FBulbBodyRuntime* Runtime = Body ? BulbBodies.Find(FObjectKey(Body)) : nullptr;
++    return Runtime ? Runtime->Level : -1.0f;
++}
++
++void AInfinityStagePassageActor::UpdateBulbBodies(
++    const FInfinityCompiledPassage& Passage,
++    const double CameraDistanceCm,
++    const double ShowSeconds)
++{
++    // Light actors by attachment GUID, built only if some body drives its light.
++    TMap<FGuid, AActor*> LightActors;
++    bool bLightActorsBuilt = false;
++
++    for (AActor* Body : ManagedAttachmentActors)
++    {
++        FGuid CueGuid;
++        FGuid AttachmentGuid;
++        if (!IsValid(Body) || !FindAttachmentByActor(Body, CueGuid, AttachmentGuid))
++        {
++            continue;
++        }
++        const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
++        const FInfinityCueAttachment* Attachment = Cue
++            ? Cue->WingPair.Attachments.FindByPredicate([&AttachmentGuid](const FInfinityCueAttachment& Candidate)
++                { return Candidate.AttachmentGuid == AttachmentGuid; })
++            : nullptr;
++        if (!Attachment || !Attachment->Body.bFollowLight || Attachment->Kind == EInfinityAttachmentKind::Light)
++        {
++            continue;
++        }
++        const FInfinityCompiledWing* Wing = Passage.Wings.FindByPredicate([&CueGuid](const FInfinityCompiledWing& Candidate)
++            { return Candidate.CueGuid == CueGuid; });
++        if (!Wing)
++        {
++            continue;
++        }
++        const FInfinityBulbBodySettings& Settings = Attachment->Body;
++        const FGuid WantedLight = Settings.LightAttachmentGuid;
++        const FInfinityCueAttachment* LightAttachment = Cue->WingPair.Attachments.FindByPredicate(
++            [&WantedLight](const FInfinityCueAttachment& Candidate)
++            {
++                return Candidate.bEnabled && Candidate.Kind == EInfinityAttachmentKind::Light
++                    && (!WantedLight.IsValid() || Candidate.AttachmentGuid == WantedLight);
++            });
++        // The lamp's route position, as the drama loop computes it; the body's own without a light.
++        const FInfinityCueAttachment& Placed = LightAttachment ? *LightAttachment : *Attachment;
++        const double LampCm = Wing->DistanceCm + Placed.RelativeTransform.GetLocation().X;
++        const float DramaScale = LightAttachment && InfinityStageLightDrama::IsActive(LightAttachment->Lighting.Drama)
++            ? InfinityStageLightDrama::Evaluate(LightAttachment->Lighting.Drama, LightAttachment->AttachmentGuid,
++                LampCm, CameraDistanceCm, ShowSeconds).IntensityScale
++            : 1.0f;
++        const float Flicker = InfinityStageBulbBody::FlickerScale(Settings, AttachmentGuid, ShowSeconds, CameraDistanceCm - LampCm);
++
++        FBulbBodyRuntime& Runtime = BulbBodies.FindOrAdd(FObjectKey(Body));
++        if (!Runtime.bPrepared)
++        {
++            Runtime.bPrepared = true;
++            float Authored = 1.0f;
++            UStaticMeshComponent* Mesh = Body->FindComponentByClass<UStaticMeshComponent>();
++            if (Mesh && Mesh->GetNumMaterials() > 0)
++            {
++                if (const UMaterialInterface* Base = Mesh->GetMaterial(0))
++                {
++                    float Read = 0.0f;
++                    if (Base->GetScalarParameterValue(FHashedMaterialParameterInfo(FMaterialParameterInfo(Settings.IntensityParameter)), Read))
++                    {
++                        Authored = Read;
++                    }
++                }
++                // A transient instance on the game-world copy only; the level never sees it.
++                Runtime.Material = Mesh->CreateDynamicMaterialInstance(0);
++            }
++            Runtime.FullIntensity = Settings.FullIntensity > 0.0f ? Settings.FullIntensity : Authored;
++        }
++        const float Level = InfinityStageBulbBody::BodyIntensity(Runtime.FullIntensity, DramaScale, Flicker);
++        if (Level != Runtime.Level)
++        {
++            Runtime.Level = Level;
++            if (UMaterialInstanceDynamic* Material = Runtime.Material.Get())
++            {
++                Material->SetScalarParameterValue(Settings.IntensityParameter, Level);
++            }
++        }
++
++        if (Settings.bFlickerAlsoDrivesLight && LightAttachment)
++        {
++            if (!bLightActorsBuilt)
++            {
++                bLightActorsBuilt = true;
++                for (AActor* Candidate : ManagedAttachmentActors)
++                {
++                    FGuid CandidateCue;
++                    FGuid CandidateAttachment;
++                    if (IsValid(Candidate) && FindAttachmentByActor(Candidate, CandidateCue, CandidateAttachment))
++                    {
++                        LightActors.Add(CandidateAttachment, Candidate);
++                    }
++                }
++            }
++            AActor* const* LightActor = LightActors.Find(LightAttachment->AttachmentGuid);
++            ULightComponent* Light = LightActor && *LightActor ? (*LightActor)->FindComponentByClass<ULightComponent>() : nullptr;
++            if (Light)
++            {
++                const float Scale = DramaScale * Flicker;
++                const bool bLit = Scale > UE_KINDA_SMALL_NUMBER;
++                if (Light->IsVisible() != bLit)
++                {
++                    Light->SetVisibility(bLit);
++                }
++                if (bLit)
++                {
++                    Light->SetIntensity(FMath::Max(0.0f, LightAttachment->Lighting.Intensity) * Scale);
++                }
++            }
++        }
++    }
++}
++
+ bool AInfinityStagePassageActor::GetCuePlacementTransforms(
+     const FGuid CueGuid,
+     FTransform& OutStationWorld,
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h
+new file mode 100644
+index 0000000..e88e253
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageBulbBody.h
+@@ -0,0 +1,107 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "InfinityStageBulbBody.generated.h"
++
++/**
++ * Bulb glass that follows its light (Gary, 6 Oct: "It would be great to have a
++ * flickering and dying bulb, not all bulbs! some should flicker only slightly and
++ * others be stable").
++ *
++ * A bulb's visible glass is a mesh prop attachment (a static mesh actor) with an
++ * emissive material (M_UP_TubeEmissive or an MI of it, scalar "Intensity"). Until
++ * now it glowed steadily whatever its light did. With bFollowLight the glass's
++ * emissive scalar is driven each game frame from the light's EVALUATED drama
++ * brightness (strike on approach, unstruck level, after-pass decay / extinguish),
++ * times a cheap CPU flicker of the glass's own (a light-function flicker such as
++ * MI_LF_Flicker_Hum runs on the GPU and cannot be read back).
++ *
++ * Game worlds only: the editor keeps the authored look, and the level is never
++ * dirtied (the dynamic material is created at first evaluation in the game world).
++ */
++UENUM(BlueprintType)
++enum class EInfinityBulbBodyFlicker : uint8
++{
++    /** Steady: the glass is exactly the light's drama level. */
++    Stable,
++    /** A gentle, irregular shimmer down to (1 - SlightDepth). */
++    Slight,
++    /** Flickers harder as the camera approaches, then dies at FailAtCm past the lamp. */
++    Fail
++};
++
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityBulbBodySettings
++{
++    GENERATED_BODY()
++
++    /** Off (default): the glass glows as authored, exactly as before. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body")
++    bool bFollowLight = false;
++
++    /** The Light attachment ON THE SAME CUE whose drama drives this glass. Unset: the
++     * first enabled Light attachment on the cue. No light: flicker alone. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
++    FGuid LightAttachmentGuid;
++
++    /** The scalar parameter on the glass material (M_UP_TubeEmissive: "Intensity"). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
++    FName IntensityParameter = TEXT("Intensity");
++
++    /** The parameter's value at full brightness. 0 or less: read from the glass's
++     * material when the dynamic instance is made (its authored value). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
++    float FullIntensity = -1.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
++    EInfinityBulbBodyFlicker Flicker = EInfinityBulbBodyFlicker::Stable;
++
++    /** Mixed with the attachment's identity: re-rolls this bulb's flicker. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
++    int32 Seed = 0;
++
++    /** Slight: the deepest dip, as a fraction of the level. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body",
++        meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bFollowLight"))
++    float SlightDepth = 0.12f;
++
++    /** Slight and Fail: flicker steps per second of Master time. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body",
++        meta = (ClampMin = "1.0", UIMax = "60.0", EditCondition = "bFollowLight"))
++    float FlickerRateHz = 14.0f;
++
++    /** Fail: route distance before the death point over which the flicker worsens. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body",
++        meta = (ClampMin = "1.0", Units = "cm", EditCondition = "bFollowLight"))
++    double FailWindowCm = 1500.0;
++
++    /** Fail: where it dies, measured from the lamp along the route (0: as the camera
++     * passes it; negative: before). Distance, not time, so a replay dies identically. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body",
++        meta = (Units = "cm", EditCondition = "bFollowLight"))
++    double FailAtCm = 0.0;
++
++    /** Also apply the glass flicker to the light itself (authored x drama x flicker;
++     * switched off at 0). Off: only the glass flickers. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body", meta = (EditCondition = "bFollowLight"))
++    bool bFlickerAlsoDrivesLight = false;
++};
++
++namespace InfinityStageBulbBody
++{
++/**
++ * Pure and deterministic: the glass's own flicker multiplier, 0..1.
++ *
++ * @param Identity           The body attachment's GUID (mixed with Settings.Seed).
++ * @param ShowSeconds        The Master clock (scrubs replay the same flicker).
++ * @param CameraPastLampCm   Camera route distance minus the lamp's (positive once passed).
++ */
++INFINITYSTAGE_API float FlickerScale(
++    const FInfinityBulbBodySettings& Settings,
++    const FGuid& Identity,
++    double ShowSeconds,
++    double CameraPastLampCm);
++
++/** The emissive parameter value: Full x drama level x flicker, never negative. */
++INFINITYSTAGE_API float BodyIntensity(float FullIntensity, float DramaScale, float FlickerScale);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+index ffe6027..85b6d3f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+@@ -2,6 +2,7 @@
+ 
+ #include "CoreMinimal.h"
+ #include "GameFramework/Actor.h"
++#include "UObject/ObjectKey.h"
+ #include "InfinityStagePassageActor.generated.h"
+ 
+ class UInfinityStageShowAsset;
+@@ -183,7 +184,23 @@ public:
+     /** Resolves the stable Cue to its spline station and occurrence-root world transforms. */
+     bool GetCuePlacementTransforms(FGuid CueGuid, FTransform& OutStationWorld, FTransform& OutPairWorld) const;
+ 
++    /** TEST SEAM: the emissive value last written to a bulb body (Body.bFollowLight), or -1. */
++    float GetBulbBodyLevelForTests(const AActor* Body) const;
++
+ private:
++    /** Per bulb body, made at its first game-world evaluation (never in the editor). */
++    struct FBulbBodyRuntime
++    {
++        TWeakObjectPtr<class UMaterialInstanceDynamic> Material;
++        float FullIntensity = 1.0f;
++        float Level = -1.0f;
++        bool bPrepared = false;
++    };
++    TMap<FObjectKey, FBulbBodyRuntime> BulbBodies;
++
++    /** Drives every Body.bFollowLight glass from its light's drama and its own flicker. */
++    void UpdateBulbBodies(const struct FInfinityCompiledPassage& Passage, double CameraDistanceCm, double ShowSeconds);
++
+     bool EvaluateMechanismsInternal(FFrameNumber MasterFrame, TOptional<double> CameraDistanceCm);
+ 
+     bool AddPanelInstance(
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index 4bddfe7..82d0043 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -8,6 +8,7 @@
+ #include "Sound/SoundBase.h"
+ #include "InfinityStageEffectTypes.h"
+ #include "InfinityStageLightDrama.h"
++#include "InfinityStageBulbBody.h"
+ #include "InfinityStageTypes.generated.h"
+ 
+ class ULevelSequence;
+@@ -474,6 +475,12 @@ struct INFINITYSTAGE_API FInfinityCueAttachment
+         meta = (ClampMin = "0.0", Units = "cm",
+             EditCondition = "Kind == EInfinityAttachmentKind::AnimationTrigger", EditConditionHides))
+     double TriggerDistanceCm = 800.0;
++
++    /** A bulb's glass (a mesh prop) follows its light's evaluated brightness, with
++     * an optional flicker of its own (Stable / Slight / Fail). Off by default, so
++     * existing attachments are unchanged. Game worlds only. See InfinityStageBulbBody.h. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body")
++    FInfinityBulbBodySettings Body;
+ };
+ 
+ USTRUCT(BlueprintType)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
+new file mode 100644
+index 0000000..3d83c4a
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageBulbBodyTests.cpp
+@@ -0,0 +1,210 @@
++#include "InfinityStageBulbBody.h"
++
++#include "Components/LightComponent.h"
++#include "Engine/StaticMesh.h"
++#include "Engine/StaticMeshActor.h"
++#include "Engine/World.h"
++#include "InfinityStageCompiler.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageTypes.h"
++#include "Misc/AutomationTest.h"
++#include "UObject/Package.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/**
++ * Bulb glass follows its light (patch BG, 6 Oct). Off by default; with
++ * Body.bFollowLight the glass's emissive scalar is Full x the light's drama level
++ * x the glass's own flicker (Stable / Slight / Fail), in game worlds only.
++ */
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBulbBodyFlickerTest,
++    "InfinityStage.BulbBody.FlickerModes",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBulbBodyFlickerTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageBulbBody;
++    const FInfinityBulbBodySettings Defaults;
++    TestFalse(TEXT("Off by default"), Defaults.bFollowLight);
++    TestEqual(TEXT("Stable by default"), Defaults.Flicker, EInfinityBulbBodyFlicker::Stable);
++    TestEqual(TEXT("The M_UP_TubeEmissive parameter by default"), Defaults.IntensityParameter, FName(TEXT("Intensity")));
++
++    const FGuid Bulb = FGuid::NewGuid();
++    FInfinityBulbBodySettings Settings;
++    bool bStable = true;
++    for (double Seconds = 0.0; Seconds < 5.0; Seconds += 0.013)
++    {
++        bStable &= FlickerScale(Settings, Bulb, Seconds, -9000.0) == 1.0f;
++    }
++    TestTrue(TEXT("Stable never flickers"), bStable);
++
++    Settings.Flicker = EInfinityBulbBodyFlicker::Slight;
++    float Low = 1.0f;
++    float High = 0.0f;
++    bool bRepeat = true;
++    for (double Seconds = 0.0; Seconds < 5.0; Seconds += 0.013)
++    {
++        const float Value = FlickerScale(Settings, Bulb, Seconds, 0.0);
++        Low = FMath::Min(Low, Value);
++        High = FMath::Max(High, Value);
++        bRepeat &= Value == FlickerScale(Settings, Bulb, Seconds, 0.0);
++    }
++    TestTrue(TEXT("Slight stays within its depth"), Low >= 1.0f - Settings.SlightDepth - 1.0e-5f && High <= 1.0f);
++    TestTrue(TEXT("Slight does move"), High - Low > 0.02f);
++    TestTrue(TEXT("Slight replays identically (Master time)"), bRepeat);
++
++    Settings.Flicker = EInfinityBulbBodyFlicker::Fail;
++    Settings.FailAtCm = 0.0;
++    Settings.FailWindowCm = 1500.0;
++    TestEqual(TEXT("Fail: dead once the camera reaches the death point"), FlickerScale(Settings, Bulb, 1.0, 0.0), 0.0f);
++    TestEqual(TEXT("Fail: stays dead past it"), FlickerScale(Settings, Bulb, 2.0, 5000.0), 0.0f);
++    int32 FarDrops = 0;
++    int32 NearDrops = 0;
++    for (int32 Step = 0; Step < 400; ++Step)
++    {
++        const double Seconds = Step / 14.0 + 0.01;
++        FarDrops += FlickerScale(Settings, Bulb, Seconds, -5000.0) == 0.0f ? 1 : 0;
++        NearDrops += FlickerScale(Settings, Bulb, Seconds, -100.0) == 0.0f ? 1 : 0;
++    }
++    TestEqual(TEXT("Fail: steady (no drop-outs) far before its window"), FarDrops, 0);
++    TestTrue(TEXT("Fail: drops out often just before it dies"), NearDrops > 100);
++
++    Settings.Flicker = EInfinityBulbBodyFlicker::Slight;
++    FInfinityBulbBodySettings Reseeded = Settings;
++    Reseeded.Seed = 7;
++    bool bDiffers = false;
++    for (double Seconds = 0.0; Seconds < 2.0; Seconds += 0.07)
++    {
++        bDiffers |= FlickerScale(Settings, Bulb, Seconds, 0.0) != FlickerScale(Reseeded, Bulb, Seconds, 0.0);
++    }
++    TestTrue(TEXT("The seed re-rolls a bulb's flicker"), bDiffers);
++
++    TestEqual(TEXT("Body = full x drama x flicker"), BodyIntensity(6.0f, 0.5f, 0.5f), 1.5f);
++    TestEqual(TEXT("An unstruck lamp's glass is dark"), BodyIntensity(6.0f, 0.0f, 1.0f), 0.0f);
++    TestEqual(TEXT("Never negative"), BodyIntensity(-1.0f, 1.0f, 1.0f), 0.0f);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageBulbBodyFollowsLightTest,
++    "InfinityStage.BulbBody.GlassFollowsTheStrikeInGameOnly",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageBulbBodyFollowsLightTest::RunTest(const FString& Parameters)
++{
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    for (int32 Index = 0; Index < 3; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.Left.Mesh = Cube;
++        Cue.WingPair.Left.LocalTransform.SetLocation(FVector(0.0, -400.0, 0.0));
++        Cue.WingPair.Right.Mesh = Cube;
++        Cue.WingPair.Right.LocalTransform.SetLocation(FVector(0.0, 400.0, 0.0));
++        Cue.WingPair.GapToNextCm = 500.0;
++        Cue.WingPair.IntervalToNext = 48000;
++    }
++    FInfinityShowCue& Host = Show->Cues[1];
++    FInfinityCueAttachment& Lamp = Host.WingPair.Attachments.AddDefaulted_GetRef();
++    Lamp.AttachmentGuid = FGuid::NewGuid();
++    Lamp.Kind = EInfinityAttachmentKind::Light;
++    Lamp.Lighting.Type = EInfinityStageLightType::Point;
++    Lamp.Lighting.Intensity = 40.0f;
++    Lamp.Lighting.Drama.bStrikeOnApproach = true;
++    Lamp.Lighting.Drama.StrikeDistanceCm = 2500.0;
++    Lamp.Lighting.Drama.StrikeRampCm = 250.0;
++    Lamp.Lighting.Drama.IgnitionStutter = 0.0f;
++    Lamp.RelativeTransform.SetLocation(FVector(0.0, 0.0, 300.0));
++    FInfinityCueAttachment& Glass = Host.WingPair.Attachments.AddDefaulted_GetRef();
++    Glass.AttachmentGuid = FGuid::NewGuid();
++    Glass.Kind = EInfinityAttachmentKind::Prop;
++    Glass.Mesh = Cube;
++    Glass.RelativeTransform.SetLocation(FVector(0.0, 0.0, 300.0));
++    Glass.Body.bFollowLight = true;
++    Glass.Body.LightAttachmentGuid = Lamp.AttachmentGuid;
++    Glass.Body.FullIntensity = 6.0f;
++    FInfinityCueAttachment& Plain = Host.WingPair.Attachments.AddDefaulted_GetRef();
++    Plain.AttachmentGuid = FGuid::NewGuid();
++    Plain.Kind = EInfinityAttachmentKind::Prop;
++    Plain.Mesh = Cube;
++    const FGuid GlassGuid = Glass.AttachmentGuid;
++    const FGuid PlainGuid = Plain.AttachmentGuid;
++    Show->ReconcilePassageSettings();
++
++    const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
++    const double LampCm = Compiled.Passages.Num() == 1 && Compiled.Passages[0].Wings.Num() == 3
++        ? Compiled.Passages[0].Wings[1].DistanceCm
++        : -1.0;
++    if (!TestTrue(TEXT("Fixture compiles to one Passage of three wings"), LampCm >= 0.0))
++    {
++        return false;
++    }
++    const FFrameNumber Frame = Compiled.Passages[0].SegmentStartFrame;
++
++    const auto FindBody = [](const AInfinityStagePassageActor& Passage, const FGuid& Wanted) -> AActor*
++    {
++        for (AActor* Actor : Passage.ManagedAttachmentActors)
++        {
++            FGuid Cue;
++            FGuid Attachment;
++            if (Actor && Passage.FindAttachmentByActor(Actor, Cue, Attachment) && Attachment == Wanted)
++            {
++                return Actor;
++            }
++        }
++        return nullptr;
++    };
++
++    // Editor-type world: nothing is driven (the authored look is kept, no level write).
++    {
++        UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        AInfinityStagePassageActor* Passage = Preview->SpawnActor<AInfinityStagePassageActor>();
++        Passage->ShowAsset = Show;
++        Passage->MaterializePassage();
++        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
++        AActor* Body = FindBody(*Passage, GlassGuid);
++        TestNotNull(TEXT("Preview: the glass is placed"), Body);
++        TestEqual(TEXT("Preview: the glass is never driven"), Passage->GetBulbBodyLevelForTests(Body), -1.0f);
++        Preview->DestroyWorld(false);
++    }
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
++    Passage->ShowAsset = Show;
++    Passage->MaterializePassage();
++    AActor* Body = FindBody(*Passage, GlassGuid);
++    AActor* PlainBody = FindBody(*Passage, PlainGuid);
++    if (!TestNotNull(TEXT("Game: the glass is placed"), Body) || !TestNotNull(TEXT("Game: the plain prop is placed"), PlainBody))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    TestTrue(TEXT("The glass is a static mesh prop"), Body->IsA<AStaticMeshActor>());
++
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
++    TestEqual(TEXT("Unstruck lamp: the glass is dark"), Passage->GetBulbBodyLevelForTests(Body), 0.0f);
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 2375.0);
++    TestTrue(TEXT("Half way up the strike: the glass is half lit"),
++        FMath::IsNearlyEqual(Passage->GetBulbBodyLevelForTests(Body), 3.0f, 0.01f));
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 1000.0);
++    TestEqual(TEXT("Struck: the glass is at full"), Passage->GetBulbBodyLevelForTests(Body), 6.0f);
++    TestEqual(TEXT("A prop without bFollowLight is never touched"), Passage->GetBulbBodyLevelForTests(PlainBody), -1.0f);
++
++    // Fail mode with the light following: dies at the lamp, light switched off.
++    Show->Cues[1].WingPair.Attachments[1].Body.Flicker = EInfinityBulbBodyFlicker::Fail;
++    Show->Cues[1].WingPair.Attachments[1].Body.bFlickerAlsoDrivesLight = true;
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm + 10.0);
++    TestEqual(TEXT("Fail: the glass is dead past the lamp"), Passage->GetBulbBodyLevelForTests(Body), 0.0f);
++    AActor* LampActor = FindBody(*Passage, Show->Cues[1].WingPair.Attachments[0].AttachmentGuid);
++    const ULightComponent* Light = LampActor ? LampActor->FindComponentByClass<ULightComponent>() : nullptr;
++    TestTrue(TEXT("Fail + drives light: the lamp is switched off with its glass"), Light && !Light->IsVisible());
++    World->DestroyWorld(false);
++    return true;
++}
++
++#endif

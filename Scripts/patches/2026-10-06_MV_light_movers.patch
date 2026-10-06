@@ -1,0 +1,501 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightMover.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightMover.cpp
+new file mode 100644
+index 0000000..5705878
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageLightMover.cpp
+@@ -0,0 +1,70 @@
++#include "InfinityStageLightMover.h"
++
++namespace
++{
++/** -1..1 from a hash of (identity, seed, step, channel). One combine per statement,
++ * so the order is fixed (memory: puss-random-draw-order). */
++double HashSigned(const FGuid& Identity, const int32 Seed, const int64 Step, const uint32 Channel)
++{
++    uint32 Hash = GetTypeHash(Identity);
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Seed));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Step));
++    Hash = HashCombineFast(Hash, ::GetTypeHash(Channel));
++    Hash ^= Hash >> 16;
++    Hash *= 0x85ebca6bu;
++    Hash ^= Hash >> 13;
++    Hash *= 0xc2b2ae35u;
++    Hash ^= Hash >> 16;
++    return static_cast<double>(Hash & 0xFFFFFFu) / static_cast<double>(0x800000u) - 1.0;
++}
++}
++
++namespace InfinityStageLightMover
++{
++float ErraticScale(const FInfinityLightMoverSettings& Settings, const double LampRouteDistanceCm, const double CameraRouteDistanceCm)
++{
++    if (!Settings.bEnabled)
++    {
++        return 0.0f;
++    }
++    const double OnsetCm = Settings.Trigger == EInfinityLightMoverTrigger::OnApproach
++        ? LampRouteDistanceCm - FMath::Max(0.0, Settings.ApproachDistanceCm)
++        : 0.0;
++    if (CameraRouteDistanceCm < OnsetCm)
++    {
++        return 0.0f;
++    }
++    const double Ramp = FMath::Clamp((CameraRouteDistanceCm - OnsetCm) / FMath::Max(1.0, Settings.ErraticRampCm), 0.0, 1.0);
++    const float Calm = FMath::Clamp(Settings.CalmScale, 0.0f, 1.0f);
++    return Calm + (1.0f - Calm) * static_cast<float>(Ramp);
++}
++
++FRotator Evaluate(
++    const FInfinityLightMoverSettings& Settings,
++    const FGuid& Identity,
++    const double LampRouteDistanceCm,
++    const double CameraRouteDistanceCm,
++    const double ShowSeconds)
++{
++    const float Scale = ErraticScale(Settings, LampRouteDistanceCm, CameraRouteDistanceCm);
++    if (Scale <= 0.0f)
++    {
++        return FRotator::ZeroRotator;
++    }
++    const double Rate = FMath::Max(0.1, static_cast<double>(Settings.StepsPerSecond));
++    const double StepTime = ShowSeconds * Rate;
++    const int64 Step = static_cast<int64>(FMath::FloorToDouble(StepTime));
++    const double InStep = StepTime - static_cast<double>(Step);
++    // Move fast, then hold: an ease-out cubic over the first EaseFraction of the step.
++    const double Move = FMath::Clamp(InStep / FMath::Clamp(static_cast<double>(Settings.EaseFraction), 0.01, 1.0), 0.0, 1.0);
++    const double Eased = 1.0 - FMath::Pow(1.0 - Move, 3.0);
++
++    const double FromYaw = HashSigned(Identity, Settings.Seed, Step - 1, 1u);
++    const double ToYaw = HashSigned(Identity, Settings.Seed, Step, 1u);
++    const double FromPitch = HashSigned(Identity, Settings.Seed, Step - 1, 2u);
++    const double ToPitch = HashSigned(Identity, Settings.Seed, Step, 2u);
++    const double Yaw = FMath::Lerp(FromYaw, ToYaw, Eased) * Settings.YawAmplitudeDegrees * Scale;
++    const double Pitch = FMath::Lerp(FromPitch, ToPitch, Eased) * Settings.PitchAmplitudeDegrees * Scale;
++    return FRotator(Pitch, Yaw, 0.0);
++}
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+index 15111cb..7120f1f 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStagePassageActor.cpp
+@@ -12,6 +12,7 @@
+ #include "InfinityStageEffectTypes.h"
+ #include "InfinityStageLightDrama.h"
+ #include "InfinityStageBulbBody.h"
++#include "InfinityStageLightMover.h"
+ #include "Components/StaticMeshComponent.h"
+ #include "Materials/MaterialInstanceDynamic.h"
+ #include "Engine/PointLight.h"
+@@ -1663,6 +1664,8 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+                 EvaluatedCameraDistanceCm,
+                 ShowSeconds);
+         }
++        // Movers after Light Drama: a mover owns its lamp's aim while it runs.
++        UpdateLightMovers(*Passage, EvaluatedCameraDistanceCm, ShowSeconds);
+         // After the lamps, so a body that also drives its light has the last word.
+         UpdateBulbBodies(*Passage, EvaluatedCameraDistanceCm, ShowSeconds);
+     }
+@@ -1670,6 +1673,60 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
+     return bAllUpdatesSucceeded;
+ }
+ 
++void AInfinityStagePassageActor::UpdateLightMovers(
++    const FInfinityCompiledPassage& Passage,
++    const double CameraDistanceCm,
++    const double ShowSeconds)
++{
++    if (!Route)
++    {
++        return;
++    }
++    for (AActor* Lamp : ManagedAttachmentActors)
++    {
++        FGuid CueGuid;
++        FGuid AttachmentGuid;
++        if (!IsValid(Lamp) || !FindAttachmentByActor(Lamp, CueGuid, AttachmentGuid))
++        {
++            continue;
++        }
++        const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
++        const FInfinityCueAttachment* Attachment = Cue
++            ? Cue->WingPair.Attachments.FindByPredicate([&AttachmentGuid](const FInfinityCueAttachment& Candidate)
++                { return Candidate.AttachmentGuid == AttachmentGuid; })
++            : nullptr;
++        if (!Attachment || !Attachment->Mover.bEnabled || Attachment->Kind != EInfinityAttachmentKind::Light
++            || Attachment->Anchor != EInfinityAttachmentAnchor::Station)
++        {
++            continue;
++        }
++        const FInfinityCompiledWing* Wing = Passage.Wings.FindByPredicate([&CueGuid](const FInfinityCompiledWing& Candidate)
++            { return Candidate.CueGuid == CueGuid; });
++        if (!Wing)
++        {
++            continue;
++        }
++        const double LampCm = Wing->DistanceCm + Attachment->RelativeTransform.GetLocation().X;
++        const float Scale = InfinityStageLightMover::ErraticScale(Attachment->Mover, LampCm, CameraDistanceCm);
++        if (Scale <= 0.0f && Attachment->Lighting.Drama.bSlowMove)
++        {
++            // Not started yet: Light Drama's slow move keeps the aim.
++            continue;
++        }
++        // The authored pose exactly as the Light Drama pass computes it.
++        const FTransform AuthoredWorld = Attachment->RelativeTransform
++            * Cue->WingPair.OccurrenceOffset
++            * Route->GetTransformAtDistanceAlongSpline(Wing->DistanceCm, ESplineCoordinateSpace::World, true);
++        const FRotator Offset = InfinityStageLightMover::Evaluate(
++            Attachment->Mover, AttachmentGuid, LampCm, CameraDistanceCm, ShowSeconds);
++        const FQuat Wanted = AuthoredWorld.GetRotation() * Offset.Quaternion();
++        if (!Lamp->GetActorQuat().Equals(Wanted, 1.0e-6))
++        {
++            Lamp->SetActorRotation(Wanted, ETeleportType::TeleportPhysics);
++        }
++    }
++}
++
+ float AInfinityStagePassageActor::GetBulbBodyLevelForTests(const AActor* Body) const
+ {
+     const FBulbBodyRuntime* Runtime = Body ? BulbBodies.Find(FObjectKey(Body)) : nullptr;
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightMover.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightMover.h
+new file mode 100644
+index 0000000..192e17d
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageLightMover.h
+@@ -0,0 +1,104 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "InfinityStageLightMover.generated.h"
++
++/**
++ * Club "mover" spots (Gary, P05): spot lights that start focused on the ground
++ * and then "go a bit haywire", with their own repetitive, quite rapid, jolting
++ * rotation routine.
++ *
++ * A Light attachment option (FInfinityCueAttachment::Mover). The routine is a
++ * deterministic sequence of seeded yaw/pitch targets, one per step: each step
++ * moves to its target with a fast ease over EaseFraction of the step, then holds.
++ * Amplitude starts at CalmScale at the onset and rises to full over ErraticRampCm
++ * of camera travel, so it starts calm and becomes erratic. The pose is a function
++ * of the Show's Master clock and the camera's route distance only, so scrubbing,
++ * reversing and replaying show the same moves.
++ *
++ * Runs in game worlds only, in the Passage's per-frame attachment pass (after
++ * Light Drama), so it survives every re-materialize (the data lives in the Show)
++ * and never dirties the level at edit time. Station-anchored lamps only, like
++ * Light Drama's slow move; it turns the lamp in its own frame from the authored aim.
++ *
++ * Python (scores tool): attachment["mover"] fields, snake_case:
++ *   enabled, trigger ("ALWAYS_IN_PASSAGE" | "ON_APPROACH"), approach_distance_cm,
++ *   yaw_amplitude_degrees, pitch_amplitude_degrees, steps_per_second, ease_fraction,
++ *   calm_scale, erratic_ramp_cm, seed.
++ */
++UENUM(BlueprintType)
++enum class EInfinityLightMoverTrigger : uint8
++{
++    /** Moving from the Passage's start (calm at route distance 0, erratic ErraticRampCm on). */
++    AlwaysInPassage,
++    /** Rests on its authored aim until the camera is ApproachDistanceCm from the lamp. */
++    OnApproach
++};
++
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityLightMoverSettings
++{
++    GENERATED_BODY()
++
++    /** Off by default: existing lights are unchanged. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover")
++    bool bEnabled = false;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover", meta = (EditCondition = "bEnabled"))
++    EInfinityLightMoverTrigger Trigger = EInfinityLightMoverTrigger::OnApproach;
++
++    /** OnApproach: how far ahead of the camera, along the route, the routine starts. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "0.0", Units = "cm", EditCondition = "bEnabled"))
++    double ApproachDistanceCm = 2500.0;
++
++    /** Swing either side of the authored aim, at full erraticness. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "0.0", ClampMax = "180.0", Units = "deg", EditCondition = "bEnabled"))
++    float YawAmplitudeDegrees = 35.0f;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "0.0", ClampMax = "89.0", Units = "deg", EditCondition = "bEnabled"))
++    float PitchAmplitudeDegrees = 20.0f;
++
++    /** Moves per second of Master time ("quite rapid"). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "0.1", UIMax = "12.0", EditCondition = "bEnabled"))
++    float StepsPerSecond = 3.0f;
++
++    /** Share of each step spent moving (a fast ease-out); the rest holds. Small = jolting. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "0.01", ClampMax = "1.0", EditCondition = "bEnabled"))
++    float EaseFraction = 0.25f;
++
++    /** Amplitude share at the onset (0 = starts still on its ground focus). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bEnabled"))
++    float CalmScale = 0.15f;
++
++    /** Camera travel after the onset over which it goes from calm to full haywire. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (ClampMin = "1.0", Units = "cm", EditCondition = "bEnabled"))
++    double ErraticRampCm = 1500.0;
++
++    /** Mixed with the attachment's identity: each mover runs its own routine. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover", meta = (EditCondition = "bEnabled"))
++    int32 Seed = 0;
++};
++
++namespace InfinityStageLightMover
++{
++/** 0 before the onset; CalmScale at it; 1 after ErraticRampCm more travel. */
++INFINITYSTAGE_API float ErraticScale(const FInfinityLightMoverSettings& Settings, double LampRouteDistanceCm, double CameraRouteDistanceCm);
++
++/**
++ * Pure and deterministic: the aim offset (pitch, yaw) in the lamp's own frame.
++ * Zero when disabled or before the onset.
++ */
++INFINITYSTAGE_API FRotator Evaluate(
++    const FInfinityLightMoverSettings& Settings,
++    const FGuid& Identity,
++    double LampRouteDistanceCm,
++    double CameraRouteDistanceCm,
++    double ShowSeconds);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+index 85b6d3f..4f4bb5b 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStagePassageActor.h
+@@ -198,6 +198,9 @@ private:
+     };
+     TMap<FObjectKey, FBulbBodyRuntime> BulbBodies;
+ 
++    /** Turns every Mover-enabled lamp by its routine from the authored aim. */
++    void UpdateLightMovers(const struct FInfinityCompiledPassage& Passage, double CameraDistanceCm, double ShowSeconds);
++
+     /** Drives every Body.bFollowLight glass from its light's drama and its own flicker. */
+     void UpdateBulbBodies(const struct FInfinityCompiledPassage& Passage, double CameraDistanceCm, double ShowSeconds);
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+index 82d0043..862d9ba 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageTypes.h
+@@ -9,6 +9,7 @@
+ #include "InfinityStageEffectTypes.h"
+ #include "InfinityStageLightDrama.h"
+ #include "InfinityStageBulbBody.h"
++#include "InfinityStageLightMover.h"
+ #include "InfinityStageTypes.generated.h"
+ 
+ class ULevelSequence;
+@@ -481,6 +482,13 @@ struct INFINITYSTAGE_API FInfinityCueAttachment
+      * existing attachments are unchanged. Game worlds only. See InfinityStageBulbBody.h. */
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body")
+     FInfinityBulbBodySettings Body;
++
++    /** Light attachments: a club "mover" routine - seeded, rapid, jolting yaw/pitch
++     * steps that start calm and turn haywire. Off by default. Game worlds only;
++     * Station anchor only. See InfinityStageLightMover.h. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
++        meta = (EditCondition = "Kind == EInfinityAttachmentKind::Light", EditConditionHides))
++    FInfinityLightMoverSettings Mover;
+ };
+ 
+ USTRUCT(BlueprintType)
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp
+new file mode 100644
+index 0000000..9d85a6b
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightMoverTests.cpp
+@@ -0,0 +1,187 @@
++#include "InfinityStageLightMover.h"
++
++#include "Engine/StaticMesh.h"
++#include "Engine/World.h"
++#include "InfinityStageCompiler.h"
++#include "InfinityStagePassageActor.h"
++#include "InfinityStageShowAsset.h"
++#include "InfinityStageTypes.h"
++#include "Misc/AutomationTest.h"
++#include "UObject/Package.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/**
++ * Club "mover" spots (patch MV, 6 Oct, P05): a seeded, rapid, jolting yaw/pitch
++ * routine that starts calm and turns haywire, triggered by distance or always on.
++ */
++namespace
++{
++FInfinityLightMoverSettings MakeMover()
++{
++    FInfinityLightMoverSettings Mover;
++    Mover.bEnabled = true;
++    Mover.Trigger = EInfinityLightMoverTrigger::OnApproach;
++    Mover.ApproachDistanceCm = 2500.0;
++    Mover.ErraticRampCm = 1500.0;
++    Mover.CalmScale = 0.15f;
++    return Mover;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightMoverRoutineTest,
++    "InfinityStage.LightMover.RoutineIsSeededBoundedAndRamps",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightMoverRoutineTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageLightMover;
++    constexpr double Lamp = 10000.0;
++    const FGuid Identity = FGuid::NewGuid();
++    const FInfinityLightMoverSettings Off;
++    TestFalse(TEXT("Off by default"), Off.bEnabled);
++    TestTrue(TEXT("Off: no offset"), Evaluate(Off, Identity, Lamp, Lamp, 3.3).IsNearlyZero());
++
++    FInfinityLightMoverSettings Mover = MakeMover();
++    TestTrue(TEXT("Before the approach: rests on the authored (ground) focus"),
++        Evaluate(Mover, Identity, Lamp, Lamp - 3000.0, 3.3).IsNearlyZero());
++    TestTrue(TEXT("At the onset: calm"), FMath::IsNearlyEqual(ErraticScale(Mover, Lamp, Lamp - 2500.0), 0.15f, 1.0e-4f));
++    TestTrue(TEXT("After the ramp: full haywire"), FMath::IsNearlyEqual(ErraticScale(Mover, Lamp, Lamp - 500.0), 1.0f, 1.0e-4f));
++
++    bool bBounded = true;
++    bool bRepeat = true;
++    double CalmPeak = 0.0;
++    double WildPeak = 0.0;
++    for (double Seconds = 0.0; Seconds < 20.0; Seconds += 0.01)
++    {
++        const FRotator Wild = Evaluate(Mover, Identity, Lamp, Lamp - 500.0, Seconds);
++        const FRotator Calm = Evaluate(Mover, Identity, Lamp, Lamp - 2499.0, Seconds);
++        bBounded &= FMath::Abs(Wild.Yaw) <= Mover.YawAmplitudeDegrees + 1.0e-3
++            && FMath::Abs(Wild.Pitch) <= Mover.PitchAmplitudeDegrees + 1.0e-3 && Wild.Roll == 0.0;
++        bRepeat &= Wild.Equals(Evaluate(Mover, Identity, Lamp, Lamp - 500.0, Seconds), 0.0);
++        WildPeak = FMath::Max(WildPeak, FMath::Abs(Wild.Yaw));
++        CalmPeak = FMath::Max(CalmPeak, FMath::Abs(Calm.Yaw));
++    }
++    TestTrue(TEXT("Bounded by its amplitudes, no roll"), bBounded);
++    TestTrue(TEXT("Deterministic: the same time and distance give the same aim"), bRepeat);
++    TestTrue(TEXT("Calm is much smaller than haywire"), CalmPeak < WildPeak * 0.3 && WildPeak > 15.0);
++
++    // Jolting: within a step it moves fast, then holds still.
++    const double StepSeconds = 1.0 / Mover.StepsPerSecond;
++    const double StepStart = 7.0 * StepSeconds;
++    const FRotator HoldA = Evaluate(Mover, Identity, Lamp, Lamp - 500.0, StepStart + StepSeconds * 0.5);
++    const FRotator HoldB = Evaluate(Mover, Identity, Lamp, Lamp - 500.0, StepStart + StepSeconds * 0.95);
++    TestTrue(TEXT("Holds after its ease"), HoldA.Equals(HoldB, 1.0e-6));
++    const FRotator Moving = Evaluate(Mover, Identity, Lamp, Lamp - 500.0, StepStart + StepSeconds * 0.05);
++    TestFalse(TEXT("Moves during its ease"), Moving.Equals(HoldA, 1.0e-3));
++
++    FInfinityLightMoverSettings Reseeded = Mover;
++    Reseeded.Seed = 3;
++    TestFalse(TEXT("The seed changes the routine"),
++        Evaluate(Mover, Identity, Lamp, Lamp - 500.0, 2.0).Equals(Evaluate(Reseeded, Identity, Lamp, Lamp - 500.0, 2.0), 1.0e-3));
++    TestFalse(TEXT("Two movers do not move in unison"),
++        Evaluate(Mover, Identity, Lamp, Lamp - 500.0, 2.0).Equals(Evaluate(Mover, FGuid::NewGuid(), Lamp, Lamp - 500.0, 2.0), 1.0e-3));
++
++    Mover.Trigger = EInfinityLightMoverTrigger::AlwaysInPassage;
++    TestTrue(TEXT("Always: moving from the Passage start"), ErraticScale(Mover, Lamp, 0.0) > 0.0f);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageLightMoverPassageTest,
++    "InfinityStage.LightMover.TurnsTheLampInGameOnly",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageLightMoverPassageTest::RunTest(const FString& Parameters)
++{
++    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
++    UInfinityStageShowAsset* Show = NewObject<UInfinityStageShowAsset>(GetTransientPackage());
++    for (int32 Index = 0; Index < 3; ++Index)
++    {
++        FInfinityShowCue& Cue = Show->Cues.AddDefaulted_GetRef();
++        Cue.Type = EInfinityCueType::WingPair;
++        Cue.CueGuid = FGuid::NewGuid();
++        Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
++        Cue.WingPair.Left.Mesh = Cube;
++        Cue.WingPair.Left.LocalTransform.SetLocation(FVector(0.0, -400.0, 0.0));
++        Cue.WingPair.Right.Mesh = Cube;
++        Cue.WingPair.Right.LocalTransform.SetLocation(FVector(0.0, 400.0, 0.0));
++        Cue.WingPair.GapToNextCm = 500.0;
++        Cue.WingPair.IntervalToNext = 48000;
++    }
++    FInfinityCueAttachment& Lamp = Show->Cues[1].WingPair.Attachments.AddDefaulted_GetRef();
++    Lamp.AttachmentGuid = FGuid::NewGuid();
++    Lamp.Kind = EInfinityAttachmentKind::Light;
++    Lamp.Lighting.Type = EInfinityStageLightType::Spot;
++    Lamp.RelativeTransform = FTransform(FRotator(-80.0, 0.0, 0.0), FVector(0.0, 300.0, 50.0));
++    Lamp.Mover = MakeMover();
++    const FGuid LampGuid = Lamp.AttachmentGuid;
++    Show->ReconcilePassageSettings();
++    const FInfinityCompileResult Compiled = FInfinityStageCompiler::Compile(*Show);
++    if (!TestTrue(TEXT("Fixture compiles"), Compiled.Passages.Num() == 1 && Compiled.Passages[0].Wings.Num() == 3))
++    {
++        return false;
++    }
++    const double LampCm = Compiled.Passages[0].Wings[1].DistanceCm;
++    const FFrameNumber Frame = Compiled.Passages[0].SegmentStartFrame;
++
++    const auto FindLamp = [&LampGuid](const AInfinityStagePassageActor& Passage) -> AActor*
++    {
++        for (AActor* Actor : Passage.ManagedAttachmentActors)
++        {
++            FGuid Cue;
++            FGuid Attachment;
++            if (Actor && Passage.FindAttachmentByActor(Actor, Cue, Attachment) && Attachment == LampGuid)
++            {
++                return Actor;
++            }
++        }
++        return nullptr;
++    };
++
++    {
++        UWorld* Preview = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++        AInfinityStagePassageActor* Passage = Preview->SpawnActor<AInfinityStagePassageActor>();
++        Passage->ShowAsset = Show;
++        Passage->MaterializePassage();
++        AActor* Actor = FindLamp(*Passage);
++        const FQuat Before = Actor ? Actor->GetActorQuat() : FQuat::Identity;
++        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
++        TestTrue(TEXT("Editor world: the lamp keeps its authored aim (no level write)"),
++            Actor && Actor->GetActorQuat().Equals(Before, 1.0e-6));
++        Preview->DestroyWorld(false);
++    }
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
++    AInfinityStagePassageActor* Passage = World->SpawnActor<AInfinityStagePassageActor>();
++    Passage->ShowAsset = Show;
++    Passage->MaterializePassage();
++    AActor* Actor = FindLamp(*Passage);
++    if (!TestNotNull(TEXT("The lamp is placed"), Actor))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
++    const FQuat Authored = Actor->GetActorQuat();
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
++    const FQuat Wild = Actor->GetActorQuat();
++    TestFalse(TEXT("Past the approach: the lamp has turned off its ground focus"), Wild.Equals(Authored, 1.0e-4));
++    Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 3000.0);
++    TestTrue(TEXT("Back before the approach (a rewind): exactly the authored aim again"),
++        Actor->GetActorQuat().Equals(Authored, 1.0e-5));
++    // Re-materialize: the mover is Show data, so it is still there.
++    Passage->MaterializePassage();
++    AActor* Again = FindLamp(*Passage);
++    TestNotNull(TEXT("Survives re-materialize"), Again);
++    if (Again)
++    {
++        Passage->EvaluateMechanismsAtCameraDistance(Frame, LampCm - 500.0);
++        TestTrue(TEXT("...and moves the same way"), Again->GetActorQuat().Equals(Wild, 1.0e-4));
++    }
++    World->DestroyWorld(false);
++    return true;
++}
++
++#endif

@@ -343,8 +343,8 @@ def t_world_apply_and_gates():
         check(refused(pt.managed_shift_gate(before["managed"], bad, P06, p["old_start"], p["old_end"], p["delta_ticks"]),
                       "MANAGED_SET_CHANGED"), "control: new managed block" + tag)
         bad = copy.deepcopy(before["managed"])
-        bad["Scene:straddle"] = [p["old_start"] - 5, p["old_start"] + 5]
-        bad2 = dict(after["managed"], **{"Scene:straddle": [p["old_start"] - 5, p["old_start"] + 5]})
+        bad["Scene:straddle"] = [p["old_start"] - 50, p["old_start"] + 50]
+        bad2 = dict(after["managed"], **{"Scene:straddle": [p["old_start"] - 50, p["old_start"] + 50]})
         check(refused(pt.managed_shift_gate(bad, bad2, P06, p["old_start"], p["old_end"], p["delta_ticks"]),
                       "MANAGED_STRADDLES_P06"), "control: straddling block" + tag)
         bad = copy.deepcopy(after["keys"])

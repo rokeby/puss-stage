@@ -447,19 +447,33 @@ def segment_shift_gate(before, after, deltas):
     return out
 
 
+SECTION_READ_TOL_TICKS = 8
+
+
 def managed_shift_gate(before, after, spans):
     """Managed sections {"Kind:GUID": [s, e]} (+ "Playback:master"): each boundary moves by shift_at(boundary)."""
     out = []
     if sorted(before) != sorted(after):
         out.append("MANAGED_SET_CHANGED: gone %r new %r" % (sorted(set(before) - set(after)),
                                                            sorted(set(after) - set(before))))
+    def snap(x):
+        # Section ranges are read as FLOAT seconds (get_*_frame_seconds): ~5.9 ticks per float step near 2100 s
+        # (C++ build agent 6 Oct; float32 round trip reproduces every recorded offset). Snap to a retimed boundary.
+        for sp in spans:
+            for edge in (int(sp[0]), int(sp[1])):
+                if abs(int(x) - edge) <= SECTION_READ_TOL_TICKS:
+                    return edge
+        return int(x)
+
     for key in sorted(set(before) & set(after)):
-        b = before[key]
+        b = [None if x is None else snap(x) for x in before[key]]
         ws = [None if x is None else (None if shift_at(x, spans) is None else int(x) + shift_at(x, spans)) for x in b]
         if any(x is not None and shift_at(x, spans) is None for x in b):
-            out.append("MANAGED_STRADDLES_RETIMED: %s %r" % (key, b))
+            out.append("MANAGED_STRADDLES_RETIMED: %s %r" % (key, before[key]))
             continue
-        if [None if x is None else int(x) for x in after[key]] != ws:
+        got = [None if x is None else int(x) for x in after[key]]
+        if any((g is None) != (w is None) or (g is not None and abs(g - w) > SECTION_READ_TOL_TICKS)
+               for g, w in zip(got, ws)):
             out.append("MANAGED_MOVED_WRONG: %s want %r got %r" % (key, ws, after[key]))
     return out
 
