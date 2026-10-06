@@ -1,0 +1,22 @@
+{
+ "run": "S1NARR-20261006-011855",
+ "plan": {
+  "fps": 25.0,
+  "voices_end_s": 208.62666666666667,
+  "old_frames": [
+   104,
+   979
+  ],
+  "new_frames": [
+   5216,
+   6091
+  ],
+  "new_s": [
+   208.64,
+   243.64
+  ],
+  "scene_end_s": 245.0,
+  "overrun_s": 0.0
+ },
+ "backup": "E:/PussStage/Backups/PreS1NarrationAfterVoices-S1NARR-20261006-011855"
+}
