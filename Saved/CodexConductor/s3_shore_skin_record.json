@@ -1,0 +1,1455 @@
+{
+ "run": "S3SKIN-20261006-134520",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "target": "level",
+ "figures": [
+  "Shore01_M56",
+  "Shore02_F52",
+  "Shore03_M59",
+  "Shore04_F55",
+  "Shore05_M53",
+  "Shore06_F25"
+ ],
+ "args": {
+  "mode": "APPLY",
+  "target": "level",
+  "look_version": "v1",
+  "strength": 1.0,
+  "enable_post_bake_switch": true,
+  "hue_shift_turns": null,
+  "save_map_if_reinstanced": false,
+  "confirm": "APPLY S3SKIN",
+  "decided_by": "Gary 6 Oct: 'detailed skin - pale, white, sallow and aged'"
+ },
+ "plan": {
+  "Shore01_M56": {
+   "knobs": {
+    "P": 0.55,
+    "S": 0.7,
+    "A": 0.85
+   },
+   "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore01_M56_Draped",
+   "children": {
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1": {
+     "part": "body",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Body/Materials/MI_Body_Baked_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.023,
+      "Roughness Global Multiply Post-Bake": 1.085,
+      "Specular Global Multiply Post-Bake": 0.8725,
+      "Scatter Distance Global Multiply Post-Bake": 0.80625,
+      "Normal Global Strength Post-Bake": 1.255,
+      "Micro Skin Normal Strength": 1.14625,
+      "Micro Skin Tiling": 81.9,
+      "Micro Skin Roughess": 1.13925,
+      "Micro Skin Cavity Specular Multiply": 0.498,
+      "Fake SSS Strength": 0.632,
+      "Material AO Power": 1.2125
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.986,
+       0.9618,
+       0.8963,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 70.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": true
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.023,
+      "Roughness Global Multiply Post-Bake": 1.085,
+      "Specular Global Multiply Post-Bake": 0.8725,
+      "Scatter Distance Global Multiply Post-Bake": 0.80625,
+      "Normal Global Strength Post-Bake": 1.255,
+      "Micro Skin Normal Strength": 1.14625,
+      "Micro Skin Tiling": 51.48,
+      "Micro Skin Roughess": 1.13925,
+      "Micro Skin Cavity Specular Multiply": 0.498,
+      "Fake SSS Strength": 0.632,
+      "Material AO Power": 1.2125
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.986,
+       0.9618,
+       0.8963,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.023,
+      "Roughness Global Multiply Post-Bake": 1.085,
+      "Specular Global Multiply Post-Bake": 0.8725,
+      "Scatter Distance Global Multiply Post-Bake": 0.80625,
+      "Normal Global Strength Post-Bake": 1.255,
+      "Micro Skin Normal Strength": 1.14625,
+      "Micro Skin Tiling": 51.48,
+      "Micro Skin Roughess": 1.13925,
+      "Micro Skin Cavity Specular Multiply": 0.498,
+      "Fake SSS Strength": 0.632,
+      "Material AO Power": 1.2125
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.986,
+       0.9618,
+       0.8963,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    }
+   },
+   "components": {
+    "Face": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Face/SKM_MHC_Shore01_M56_FaceMesh",
+     "rows": [
+      {
+       "index": 6,
+       "slot": "head_LOD3_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+       "override_before": null
+      },
+      {
+       "index": 7,
+       "slot": "head_LOD57_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1"
+     ]
+    },
+    "Body": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Body/SKM_MHC_Shore01_M56_BodyMesh",
+     "rows": [
+      {
+       "index": 0,
+       "slot": "body_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore01_M56/MHC_Shore01_M56/Body/Materials/MI_Body_Baked_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1"
+     ]
+    }
+   }
+  },
+  "Shore02_F52": {
+   "knobs": {
+    "P": 0.75,
+    "S": 0.55,
+    "A": 0.7
+   },
+   "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore02_F52_Draped",
+   "children": {
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1": {
+     "part": "body",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Body/Materials/MI_Body_Baked_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0435,
+      "Roughness Global Multiply Post-Bake": 1.07,
+      "Specular Global Multiply Post-Bake": 0.895,
+      "Scatter Distance Global Multiply Post-Bake": 0.84375,
+      "Normal Global Strength Post-Bake": 1.21,
+      "Micro Skin Normal Strength": 1.0675,
+      "Micro Skin Tiling": 79.8,
+      "Micro Skin Roughess": 1.1235,
+      "Micro Skin Cavity Specular Multiply": 0.516,
+      "Fake SSS Strength": 0.668,
+      "Material AO Power": 1.175
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.989,
+       0.97,
+       0.9183,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 70.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": true
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0435,
+      "Roughness Global Multiply Post-Bake": 1.07,
+      "Specular Global Multiply Post-Bake": 0.895,
+      "Scatter Distance Global Multiply Post-Bake": 0.84375,
+      "Normal Global Strength Post-Bake": 1.21,
+      "Micro Skin Normal Strength": 1.0675,
+      "Micro Skin Tiling": 50.16,
+      "Micro Skin Roughess": 1.1235,
+      "Micro Skin Cavity Specular Multiply": 0.516,
+      "Fake SSS Strength": 0.668,
+      "Material AO Power": 1.175
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.989,
+       0.97,
+       0.9183,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0435,
+      "Roughness Global Multiply Post-Bake": 1.07,
+      "Specular Global Multiply Post-Bake": 0.895,
+      "Scatter Distance Global Multiply Post-Bake": 0.84375,
+      "Normal Global Strength Post-Bake": 1.21,
+      "Micro Skin Normal Strength": 1.0675,
+      "Micro Skin Tiling": 50.16,
+      "Micro Skin Roughess": 1.1235,
+      "Micro Skin Cavity Specular Multiply": 0.516,
+      "Fake SSS Strength": 0.668,
+      "Material AO Power": 1.175
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.989,
+       0.97,
+       0.9183,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    }
+   },
+   "components": {
+    "Face": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Face/SKM_MHC_Shore02_F52_FaceMesh",
+     "rows": [
+      {
+       "index": 6,
+       "slot": "head_LOD3_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+       "override_before": null
+      },
+      {
+       "index": 7,
+       "slot": "head_LOD57_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1"
+     ]
+    },
+    "Body": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Body/SKM_MHC_Shore02_F52_BodyMesh",
+     "rows": [
+      {
+       "index": 0,
+       "slot": "body_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore02_F52/MHC_Shore02_F52/Body/Materials/MI_Body_Baked_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1"
+     ]
+    }
+   }
+  },
+  "Shore03_M59": {
+   "knobs": {
+    "P": 0.45,
+    "S": 0.85,
+    "A": 1.0
+   },
+   "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore03_M59_Draped",
+   "children": {
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1": {
+     "part": "body",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Body/Materials/MI_Body_Baked_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0105,
+      "Roughness Global Multiply Post-Bake": 1.1,
+      "Specular Global Multiply Post-Bake": 0.85,
+      "Scatter Distance Global Multiply Post-Bake": 0.76875,
+      "Normal Global Strength Post-Bake": 1.3,
+      "Micro Skin Normal Strength": 1.225,
+      "Micro Skin Tiling": 84.0,
+      "Micro Skin Roughess": 1.155,
+      "Micro Skin Cavity Specular Multiply": 0.48,
+      "Fake SSS Strength": 0.596,
+      "Material AO Power": 1.25
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.983,
+       0.9538,
+       0.8744,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 70.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": true
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0105,
+      "Roughness Global Multiply Post-Bake": 1.1,
+      "Specular Global Multiply Post-Bake": 0.85,
+      "Scatter Distance Global Multiply Post-Bake": 0.76875,
+      "Normal Global Strength Post-Bake": 1.3,
+      "Micro Skin Normal Strength": 1.225,
+      "Micro Skin Tiling": 52.8,
+      "Micro Skin Roughess": 1.155,
+      "Micro Skin Cavity Specular Multiply": 0.48,
+      "Fake SSS Strength": 0.596,
+      "Material AO Power": 1.25
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.983,
+       0.9538,
+       0.8744,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0105,
+      "Roughness Global Multiply Post-Bake": 1.1,
+      "Specular Global Multiply Post-Bake": 0.85,
+      "Scatter Distance Global Multiply Post-Bake": 0.76875,
+      "Normal Global Strength Post-Bake": 1.3,
+      "Micro Skin Normal Strength": 1.225,
+      "Micro Skin Tiling": 52.8,
+      "Micro Skin Roughess": 1.155,
+      "Micro Skin Cavity Specular Multiply": 0.48,
+      "Fake SSS Strength": 0.596,
+      "Material AO Power": 1.25
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.983,
+       0.9538,
+       0.8744,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    }
+   },
+   "components": {
+    "Face": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Face/SKM_MHC_Shore03_M59_FaceMesh",
+     "rows": [
+      {
+       "index": 6,
+       "slot": "head_LOD3_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+       "override_before": null
+      },
+      {
+       "index": 7,
+       "slot": "head_LOD57_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1"
+     ]
+    },
+    "Body": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Body/SKM_MHC_Shore03_M59_BodyMesh",
+     "rows": [
+      {
+       "index": 0,
+       "slot": "body_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore03_M59/MHC_Shore03_M59/Body/Materials/MI_Body_Baked_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1"
+     ]
+    }
+   }
+  },
+  "Shore04_F55": {
+   "knobs": {
+    "P": 0.85,
+    "S": 0.45,
+    "A": 0.8
+   },
+   "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore04_F55_Draped",
+   "children": {
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1": {
+     "part": "body",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Body/Materials/MI_Body_Baked_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0545,
+      "Roughness Global Multiply Post-Bake": 1.08,
+      "Specular Global Multiply Post-Bake": 0.88,
+      "Scatter Distance Global Multiply Post-Bake": 0.84375,
+      "Normal Global Strength Post-Bake": 1.24,
+      "Micro Skin Normal Strength": 1.12,
+      "Micro Skin Tiling": 81.2,
+      "Micro Skin Roughess": 1.134,
+      "Micro Skin Cavity Specular Multiply": 0.504,
+      "Fake SSS Strength": 0.692,
+      "Material AO Power": 1.2
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.991,
+       0.9754,
+       0.933,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 70.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": true
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0545,
+      "Roughness Global Multiply Post-Bake": 1.08,
+      "Specular Global Multiply Post-Bake": 0.88,
+      "Scatter Distance Global Multiply Post-Bake": 0.84375,
+      "Normal Global Strength Post-Bake": 1.24,
+      "Micro Skin Normal Strength": 1.12,
+      "Micro Skin Tiling": 51.04,
+      "Micro Skin Roughess": 1.134,
+      "Micro Skin Cavity Specular Multiply": 0.504,
+      "Fake SSS Strength": 0.692,
+      "Material AO Power": 1.2
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.991,
+       0.9754,
+       0.933,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.0545,
+      "Roughness Global Multiply Post-Bake": 1.08,
+      "Specular Global Multiply Post-Bake": 0.88,
+      "Scatter Distance Global Multiply Post-Bake": 0.84375,
+      "Normal Global Strength Post-Bake": 1.24,
+      "Micro Skin Normal Strength": 1.12,
+      "Micro Skin Tiling": 51.04,
+      "Micro Skin Roughess": 1.134,
+      "Micro Skin Cavity Specular Multiply": 0.504,
+      "Fake SSS Strength": 0.692,
+      "Material AO Power": 1.2
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.991,
+       0.9754,
+       0.933,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    }
+   },
+   "components": {
+    "Face": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Face/SKM_MHC_Shore04_F55_FaceMesh",
+     "rows": [
+      {
+       "index": 6,
+       "slot": "head_LOD3_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+       "override_before": null
+      },
+      {
+       "index": 7,
+       "slot": "head_LOD57_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1"
+     ]
+    },
+    "Body": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Body/SKM_MHC_Shore04_F55_BodyMesh",
+     "rows": [
+      {
+       "index": 0,
+       "slot": "body_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore04_F55/MHC_Shore04_F55/Body/Materials/MI_Body_Baked_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1"
+     ]
+    }
+   }
+  },
+  "Shore05_M53": {
+   "knobs": {
+    "P": 0.5,
+    "S": 0.9,
+    "A": 0.65
+   },
+   "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore05_M53_Draped",
+   "children": {
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1": {
+     "part": "body",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Body/Materials/MI_Body_Baked_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.013,
+      "Roughness Global Multiply Post-Bake": 1.065,
+      "Specular Global Multiply Post-Bake": 0.9025,
+      "Scatter Distance Global Multiply Post-Bake": 0.80625,
+      "Normal Global Strength Post-Bake": 1.195,
+      "Micro Skin Normal Strength": 1.04125,
+      "Micro Skin Tiling": 79.1,
+      "Micro Skin Roughess": 1.11825,
+      "Micro Skin Cavity Specular Multiply": 0.522,
+      "Fake SSS Strength": 0.584,
+      "Material AO Power": 1.1625
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.982,
+       0.9511,
+       0.8671,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 70.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": true
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.013,
+      "Roughness Global Multiply Post-Bake": 1.065,
+      "Specular Global Multiply Post-Bake": 0.9025,
+      "Scatter Distance Global Multiply Post-Bake": 0.80625,
+      "Normal Global Strength Post-Bake": 1.195,
+      "Micro Skin Normal Strength": 1.04125,
+      "Micro Skin Tiling": 49.72,
+      "Micro Skin Roughess": 1.11825,
+      "Micro Skin Cavity Specular Multiply": 0.522,
+      "Fake SSS Strength": 0.584,
+      "Material AO Power": 1.1625
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.982,
+       0.9511,
+       0.8671,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.013,
+      "Roughness Global Multiply Post-Bake": 1.065,
+      "Specular Global Multiply Post-Bake": 0.9025,
+      "Scatter Distance Global Multiply Post-Bake": 0.80625,
+      "Normal Global Strength Post-Bake": 1.195,
+      "Micro Skin Normal Strength": 1.04125,
+      "Micro Skin Tiling": 49.72,
+      "Micro Skin Roughess": 1.11825,
+      "Micro Skin Cavity Specular Multiply": 0.522,
+      "Fake SSS Strength": 0.584,
+      "Material AO Power": 1.1625
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.982,
+       0.9511,
+       0.8671,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    }
+   },
+   "components": {
+    "Face": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/SKM_MHC_Shore05_M53_FaceMesh",
+     "rows": [
+      {
+       "index": 6,
+       "slot": "head_LOD3_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+       "override_before": null
+      },
+      {
+       "index": 7,
+       "slot": "head_LOD57_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1"
+     ]
+    },
+    "Body": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Body/SKM_MHC_Shore05_M53_BodyMesh",
+     "rows": [
+      {
+       "index": 0,
+       "slot": "body_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore05_M53/MHC_Shore05_M53/Body/Materials/MI_Body_Baked_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1"
+     ]
+    }
+   }
+  },
+  "Shore06_F25": {
+   "knobs": {
+    "P": 0.8,
+    "S": 0.5,
+    "A": 0.25
+   },
+   "bp": "/Game/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore06_F25_Draped",
+   "children": {
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1": {
+     "part": "body",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Body/Materials/MI_Body_Baked_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.049,
+      "Roughness Global Multiply Post-Bake": 1.025,
+      "Specular Global Multiply Post-Bake": 0.9625,
+      "Scatter Distance Global Multiply Post-Bake": 0.90625,
+      "Normal Global Strength Post-Bake": 1.075,
+      "Micro Skin Normal Strength": 0.83125,
+      "Micro Skin Tiling": 73.5,
+      "Micro Skin Roughess": 1.07625,
+      "Micro Skin Cavity Specular Multiply": 0.57,
+      "Fake SSS Strength": 0.68,
+      "Material AO Power": 1.0625
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.99,
+       0.9727,
+       0.9257,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 70.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": true
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.049,
+      "Roughness Global Multiply Post-Bake": 1.025,
+      "Specular Global Multiply Post-Bake": 0.9625,
+      "Scatter Distance Global Multiply Post-Bake": 0.90625,
+      "Normal Global Strength Post-Bake": 1.075,
+      "Micro Skin Normal Strength": 0.83125,
+      "Micro Skin Tiling": 46.2,
+      "Micro Skin Roughess": 1.07625,
+      "Micro Skin Cavity Specular Multiply": 0.57,
+      "Fake SSS Strength": 0.68,
+      "Material AO Power": 1.0625
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.99,
+       0.9727,
+       0.9257,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    },
+    "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1": {
+     "part": "face",
+     "parent": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+     "scalars": {
+      "Basecolor Global Value Post-Bake": 1.049,
+      "Roughness Global Multiply Post-Bake": 1.025,
+      "Specular Global Multiply Post-Bake": 0.9625,
+      "Scatter Distance Global Multiply Post-Bake": 0.90625,
+      "Normal Global Strength Post-Bake": 1.075,
+      "Micro Skin Normal Strength": 0.83125,
+      "Micro Skin Tiling": 46.2,
+      "Micro Skin Roughess": 1.07625,
+      "Micro Skin Cavity Specular Multiply": 0.57,
+      "Fake SSS Strength": 0.68,
+      "Material AO Power": 1.0625
+     },
+     "vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       0.99,
+       0.9727,
+       0.9257,
+       1.0
+      ]
+     },
+     "switches": {},
+     "skipped": [
+      "Basecolor Global Saturation Post-Bake|PARENT_ZERO: multiply semantics unclear"
+     ],
+     "parent_scalars": {
+      "Basecolor Global Value Post-Bake": 1.0,
+      "Roughness Global Multiply Post-Bake": 1.0,
+      "Specular Global Multiply Post-Bake": 1.0,
+      "Scatter Distance Global Multiply Post-Bake": 1.0,
+      "Normal Global Strength Post-Bake": 1.0,
+      "Micro Skin Normal Strength": 0.699999988079071,
+      "Micro Skin Tiling": 44.0,
+      "Micro Skin Roughess": 1.0499999523162842,
+      "Micro Skin Cavity Specular Multiply": 0.6000000238418579,
+      "Fake SSS Strength": 0.800000011920929,
+      "Material AO Power": 1.0
+     },
+     "parent_vectors": {
+      "Basecolor Global Multiply Post-Bake": [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     "parent_switches": {
+      "Use Global Adjustments Post-Bake": true,
+      "Use Micro Skin Details": false
+     }
+    }
+   },
+   "components": {
+    "Face": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Face/SKM_MHC_Shore06_F25_FaceMesh",
+     "rows": [
+      {
+       "index": 6,
+       "slot": "head_LOD3_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Face/Materials/MI_Face_Skin_Baked_LOD3_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+       "override_before": null
+      },
+      {
+       "index": 7,
+       "slot": "head_LOD57_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Face/Materials/MI_Face_Skin_Baked_LOD5to7_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1"
+     ]
+    },
+    "Body": {
+     "mesh": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Body/SKM_MHC_Shore06_F25_BodyMesh",
+     "rows": [
+      {
+       "index": 0,
+       "slot": "body_shader_shader",
+       "from": "/Game/Metahuman/ShoreCast_20260910/Assembled/Shore06_F25/MHC_Shore06_F25/Body/Materials/MI_Body_Baked_VT",
+       "to": "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1",
+       "override_before": null
+      }
+     ],
+     "override_before": [],
+     "override_after": [
+      "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1"
+     ]
+    }
+   }
+  }
+ },
+ "saved": true,
+ "created": [
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+  "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1"
+ ],
+ "backup": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520",
+ "backup_files": [
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore01_M56_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\BP_Shore01_M56_Draped.uasset",
+   "bytes": 233450
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore02_F52_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\BP_Shore02_F52_Draped.uasset",
+   "bytes": 229618
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore03_M59_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\BP_Shore03_M59_Draped.uasset",
+   "bytes": 234952
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore04_F55_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\BP_Shore04_F55_Draped.uasset",
+   "bytes": 229816
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore05_M53_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\BP_Shore05_M53_Draped.uasset",
+   "bytes": 233760
+  },
+  {
+   "src": "E:/PussStage/Content/Metahuman/ShoreCast_20260910/SceneCharacters/BP_Shore06_F25_Draped.uasset",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\BP_Shore06_F25_Draped.uasset",
+   "bytes": 230468
+  },
+  {
+   "src": "E:/PussStage/Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.umap",
+   "dst": "E:/PussStage/Backups/PreS3ShoreSkin-S3SKIN-20261006-134520\\L_InfinityStage_V1VerticalSlice.umap",
+   "bytes": 20239166
+  }
+ ],
+ "planned_packages": {
+  "content": [
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1"
+  ],
+  "maps": [
+   "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  ]
+ },
+ "saved_packages": {
+  "content": [
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore01_M56_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore02_F52_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore03_M59_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore04_F55_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore05_M53_Face_Skin_Baked_LOD5to7_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Body_Baked_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD3_VT_v1",
+   "/Game/Metahuman/ShoreCast_20260910/Skin/MI_S3Skin_Shore06_F25_Face_Skin_Baked_LOD5to7_VT_v1"
+  ],
+  "maps": [
+   "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  ]
+ }
+}

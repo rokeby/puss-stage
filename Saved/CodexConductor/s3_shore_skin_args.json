@@ -1,1 +1,10 @@
-{"mode": "DRY", "target": "bp", "look_version": "v1", "strength": 1.0, "enable_post_bake_switch": true, "hue_shift_turns": null, "save_map_if_reinstanced": false}
+{
+ "mode": "DRY",
+ "target": "level",
+ "look_version": "v1",
+ "strength": 1.0,
+ "enable_post_bake_switch": true,
+ "hue_shift_turns": null,
+ "save_map_if_reinstanced": false,
+ "decided_by": "Gary 6 Oct: 'detailed skin - pale, white, sallow and aged'"
+}

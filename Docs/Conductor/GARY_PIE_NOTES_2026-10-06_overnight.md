@@ -114,3 +114,9 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - Held C++ patch GB (Ground.bDrawBoards: boards-only off, keeps forestage/stage front) is available if a passage should keep its stage front.
 - ~13:15 **S3 marble = B** (ambientCG Marble021, warm near-white, Brightness 1.0; tiled ~1.5 m, fixed to the walls; 10 liners;
   stills Saved/CodexFlatV3/handprints/stills/marble_A_vs_B.jpg). Check for bloom in PIE under the S3 daylight; drop Brightness ~0.9 if needed (SWITCH, ~1 min).
+- ~13:45 **S3 shore skin** (Gary: "pale, white, sallow and aged"): 18 create-only child MIs (body + face LOD3/LOD5-7 per figure)
+  on the six placed figures (level overrides; BPs untouched), run S3SKIN-20261006-134520. Paler value, sallow yellow-grey tint,
+  rougher/drier, less SSS warmth, stronger normal + micro-detail (crepe); Shore06 (25) barely aged. Not possible with these
+  materials: visible veins / age spots (no input) — would need new textures + a new material. Saturation skipped (semantics unclear).
+  Check in PIE; tune by REVERT + APPLY look_version v2.
+- **S3 sack**: 2.0 m pinned 20 cm forward for upright figures, Shore02 1.8 m pinned back; sawtooth edge → irregular cut + masked fringe; finals for all six building.
