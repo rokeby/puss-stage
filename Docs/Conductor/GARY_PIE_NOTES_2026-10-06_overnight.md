@@ -61,3 +61,12 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - 02:18 **P01 lighting held**: the score REVERT refuses — the house warmers on P01 Wing 001 differ from the score's record (Opening
   switched them off tonight; cones/intensity/reach had also been hand-changed: inner 12.4, 800 cd, 3467 cm). Needs a morning
   reconciliation before P01's fairy-tale colours can go in. P01 lamp re-hang being restored.
+- 02:23 **Tubes everywhere** applied (all 6 structures; low glow, ~20 % blink; light only from fence-top rows outside P02).
+- 02:23 **P04 strobe → local halo** (20000→3500 cd, reach 1500→450 cm, ghost 1.0→0.35; originals saved).
+- 02:30 **P06 car drive-by** placed on the 68.55 s music change (first attempt stopped on a tool bug, fixed).
+- 02:31 **Lighting drift report** (Docs/Conductor/LIGHTING_DRIFT_2026-10-06.md): hand-tuned lamps P01 4, P02 12, P03 0, P04 1, P05 0, P06 2.
+  **P01/P02/P04/P06 rescoring HELD** — re-scoring would overwrite Gary's hand tuning; decide keep / overwrite / fold-into-score per light.
+- 02:33 **P05 relit** (round 2: sky spots + fills bays 1–6, blink 7–12, all-on 13–18; dim bulbs; movers skipped until the C++ field is wired).
+- 02:35 **P03 relit** (round 1+2: side lights only in bays 4/8/13/18, own-side tops, live practicals, no-cross PASS 46 spots, shadows 54→49).
+  **Regression:** P03's 14 lamp housings could NOT be re-dropped (the housing tool's source DRY predates the girder phase A: beam depth
+  34 vs live 90 → DRY_SOURCE_STALE). They are back at their pre-5-Oct height. Fix in the morning (refresh the housing source).
