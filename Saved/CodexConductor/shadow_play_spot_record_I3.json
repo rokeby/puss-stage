@@ -1,0 +1,3421 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreShadowPlaySpot-I3-SPS-20261006-015457",
+ "backup_files": [
+  "E:/PussStage/Backups\\PreShadowPlaySpot-I3-SPS-20261006-015457\\LS_Interaction_03_ForgetsHisName.uasset"
+ ],
+ "binding_guids": {
+  "Shadow Play Spot (Hangar)": "C16CBA754481D771F712B9B105AAC1EF",
+  "Shadow Play Spot (Mouth)": "DCE54A5F43580B352F33E196EEF40248"
+ },
+ "component_names": {
+  "Shadow Play Spot (Hangar)": "LightComponent0",
+  "Shadow Play Spot (Mouth)": "LightComponent0"
+ },
+ "created_binding_guids": [
+  "C16CBA754481D771F712B9B105AAC1EF",
+  "DCE54A5F43580B352F33E196EEF40248"
+ ],
+ "interaction": 3,
+ "params": {
+  "circle_diameter_cm": 360,
+  "inner_ratio": 0.85
+ },
+ "plan": {
+  "aim_rel": [
+   -41.299999999999955,
+   0.0,
+   510.0
+  ],
+  "azimuth_deg": 0.0,
+  "beats": {
+   "play0": 175,
+   "release": 1675,
+   "sleight": 1250,
+   "strike": 1300
+  },
+  "cone": {
+   "circle_diameter_cm": 360.0,
+   "inner_deg": 2.9185858080829434,
+   "outer_deg": 3.433630362450522
+  },
+  "digest": "81617030bb2ecacceffa",
+  "dir_rel": [
+   0.9396926207859084,
+   0.0,
+   -0.3420201433256687
+  ],
+  "elevation_deg": 20.0,
+  "end": 2238,
+  "fade_out": [
+   1675,
+   1700
+  ],
+  "fps": 25.0,
+  "go": [
+   "GO 30 curtain",
+   1675
+  ],
+  "light": {
+   "attenuation_radius_cm": 4500.0,
+   "cast_shadows": true,
+   "kelvin": 2800.0,
+   "source_radius_cm": 2.0,
+   "units": "CANDELAS"
+  },
+  "loc_rel": [
+   -2860.3778623577255,
+   0.0,
+   1536.0604299770062
+  ],
+  "n": 3,
+  "params": {
+   "azimuth_deg": 0.0,
+   "candela": null,
+   "circle_diameter_cm": 360,
+   "elevation_deg": 20.0,
+   "fade_out_s": 1.0,
+   "fade_up_s": 0.5,
+   "frame_margin_cm": 20.0,
+   "hangar_gain": 1.0,
+   "inner_ratio": 0.85,
+   "kelvin": null,
+   "match_tol_cm": 0.5,
+   "match_tol_deg": 0.05,
+   "radius_factor": 1.5,
+   "ratio_to_lantern": 16.0,
+   "source_radius_cm": 2.0,
+   "spawn_lead_frames": 25,
+   "throw_cm": 3000.0
+  },
+  "photometry": {
+   "cos_incidence": 0.9396926207859084,
+   "hangar_gain": 1.0,
+   "lantern_cd": 116.96479058079333,
+   "lantern_label": "S3 Sleight Twin Lantern",
+   "lantern_lux": 0.4883010945621363,
+   "lantern_throw_cm": 1547.6891032857884,
+   "peak_cd": 7482.804063965048,
+   "ratio": 16.0,
+   "spot_lux": 7.81281751299418
+  },
+  "required_end": 1701,
+  "spots": {
+   "hangar": {
+    "aim_world": [
+     16977.573046875,
+     160000.0,
+     510.0
+    ],
+    "drape_frame": {
+     "loc": [
+      17018.873046875,
+      160000.0,
+      0.0
+     ],
+     "pitch": 0.0,
+     "yaw": 0.0
+    },
+    "intensity_keys": [
+     [
+      0,
+      0.0
+     ],
+     [
+      175,
+      0.0
+     ],
+     [
+      187,
+      7482.804063965048
+     ],
+     [
+      1300,
+      7482.804063965048
+     ],
+     [
+      1301,
+      0.0
+     ]
+    ],
+    "name": "Shadow Play Spot (Hangar)",
+    "peak_cd": 7482.804063965048,
+    "spawn": [
+     [
+      150,
+      true
+     ],
+     [
+      1302,
+      false
+     ]
+    ],
+    "transform_keys": [
+     [
+      0,
+      14158.495184517275,
+      160000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ],
+     [
+      2238,
+      14158.495184517275,
+      160000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "world": {
+     "loc": [
+      14158.495184517275,
+      160000.0,
+      1536.0604299770062
+     ],
+     "pitch": -20.0,
+     "roll": 0.0,
+     "yaw": 0.0
+    }
+   },
+   "mouth": {
+    "aim_world": [
+     -41.299999999999955,
+     240000.0,
+     510.0
+    ],
+    "drape_frame": {
+     "loc": [
+      0.0,
+      240000.0,
+      0.0
+     ],
+     "pitch": 0.0,
+     "yaw": 0.0
+    },
+    "intensity_keys": [
+     [
+      0,
+      0.0
+     ],
+     [
+      175,
+      0.0
+     ],
+     [
+      187,
+      7482.804063965048
+     ],
+     [
+      1675,
+      7482.804063965048
+     ],
+     [
+      1700,
+      0.0
+     ]
+    ],
+    "name": "Shadow Play Spot (Mouth)",
+    "peak_cd": 7482.804063965048,
+    "spawn": [
+     [
+      150,
+      true
+     ],
+     [
+      1701,
+      false
+     ]
+    ],
+    "transform_keys": [
+     [
+      0,
+      -2860.3778623577255,
+      240000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ],
+     [
+      2238,
+      -2860.3778623577255,
+      240000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "world": {
+     "loc": [
+      -2860.3778623577255,
+      240000.0,
+      1536.0604299770062
+     ],
+     "pitch": -20.0,
+     "roll": 0.0,
+     "yaw": 0.0
+    }
+   }
+  },
+  "start": 0,
+  "throw_cm": 3000.0,
+  "up": [
+   175,
+   187
+  ]
+ },
+ "plan_digest": "81617030bb2ecacceffa",
+ "range_before": [
+  0,
+  2238
+ ],
+ "run": "SPS-20261006-015457",
+ "schema_version": 1,
+ "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+ "sleight_plan_digest": "fd958d55b95a8bd1a088",
+ "sleight_run": "CST-20261005-111719",
+ "snapshot_after": {
+  "bindings": [
+   {
+    "guid": "DDA35B7746E792C16B23448BA23A0FCA",
+    "name": "Curtain Rig - Fire Safety Curtain",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneBoolTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainProgress",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "418E0BEA4B60F2C45BA66F8294B116DD",
+    "name": "I3 Sleight Mouth Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A2D7B86F400DBC3D0D1CB2A397232C2D",
+    "name": "I3 Sleight Mouth Camera/CameraComponent",
+    "parent": "418E0BEA4B60F2C45BA66F8294B116DD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "70C0D9FD480F395A032C36A60AA5AE09",
+    "name": "Interaction 3 — Stalls Camera",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3401062C4D21B7DEBF225186DC571D9B",
+    "name": "S3 Daylight Cool Fill",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "23EB5F364A5A6F43918046B37AA88C8B",
+    "name": "S3 Daylight Cool Fill/LightComponent",
+    "parent": "3401062C4D21B7DEBF225186DC571D9B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5A355F9041DF6C60EBD1CBBA06E45367",
+    "name": "S3 Daylight Rake Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "B67FE24145546260BE9AB4AA8DF439BF",
+    "name": "S3 Daylight Rake Key/LightComponent",
+    "parent": "5A355F9041DF6C60EBD1CBBA06E45367",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F3B8BB5B40DB6C6F076C2AA1E6E4B6C0",
+    "name": "S3 Ghost Light",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C4C3E4564C699BBB414800B1916B5A37",
+    "name": "S3 Ghost Light/LightComponent",
+    "parent": "F3B8BB5B40DB6C6F076C2AA1E6E4B6C0",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5AF2ABBA4149DB852A2446B5DBB59B2B",
+    "name": "S3 Lattice Glow 1-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "12774C2F44BB67C02052DF9926449A6F",
+    "name": "S3 Lattice Glow 1-1/LightComponent",
+    "parent": "5AF2ABBA4149DB852A2446B5DBB59B2B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "96E0216E48D63E0284C1DE9AA666920F",
+    "name": "S3 Lattice Glow 1-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "0A2E0D44450E085BF4F1D885C0DA1C24",
+    "name": "S3 Lattice Glow 1-2/LightComponent",
+    "parent": "96E0216E48D63E0284C1DE9AA666920F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6B8949B044211537609BE9AEFF05BBFB",
+    "name": "S3 Lattice Glow 1-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "DE9BD1574AA20CB122D3D9AD744C10D1",
+    "name": "S3 Lattice Glow 1-3/LightComponent",
+    "parent": "6B8949B044211537609BE9AEFF05BBFB",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5C7B238E48BAF8470082F78B12E09598",
+    "name": "S3 Lattice Glow 1-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "21061BB140FECB924229F2BAA3967544",
+    "name": "S3 Lattice Glow 1-4/LightComponent",
+    "parent": "5C7B238E48BAF8470082F78B12E09598",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "35BBE9D4417349AF85F59C8DC4CB9C96",
+    "name": "S3 Lattice Glow 1-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "301419CB412B92C0B5D226AEA038348A",
+    "name": "S3 Lattice Glow 1-5/LightComponent",
+    "parent": "35BBE9D4417349AF85F59C8DC4CB9C96",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CD01EABC45FB2EEB3D039DA6BFF8D41E",
+    "name": "S3 Lattice Glow 1-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E6D029D1405C380875C75BAD35529E18",
+    "name": "S3 Lattice Glow 1-6/LightComponent",
+    "parent": "CD01EABC45FB2EEB3D039DA6BFF8D41E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "95A26D9D42CAC9963606DBA6DC7B4935",
+    "name": "S3 Lattice Glow 1-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7800DE5D425FBF6F5D0E9AA36F128EBA",
+    "name": "S3 Lattice Glow 1-7/LightComponent",
+    "parent": "95A26D9D42CAC9963606DBA6DC7B4935",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F5D932474B6F356FA9C420B8A414CA35",
+    "name": "S3 Lattice Glow 1-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "4D2FE5D84486EDCB5B87A492D71D1E55",
+    "name": "S3 Lattice Glow 1-8/LightComponent",
+    "parent": "F5D932474B6F356FA9C420B8A414CA35",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4977E3C943B8B45F5E9623B3F4BC0760",
+    "name": "S3 Lattice Glow 2-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "24DBF59D4C387F9D38F683B500109B4E",
+    "name": "S3 Lattice Glow 2-1/LightComponent",
+    "parent": "4977E3C943B8B45F5E9623B3F4BC0760",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "404E495C46623203D0BD36A390813AD6",
+    "name": "S3 Lattice Glow 2-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C147EE9C429D1C62907D6DA84D7271C5",
+    "name": "S3 Lattice Glow 2-2/LightComponent",
+    "parent": "404E495C46623203D0BD36A390813AD6",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "31A9B0554400B5C255EE39BB2B0F5212",
+    "name": "S3 Lattice Glow 2-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A79CD95C42804AF2E2D1CF86FB8A9281",
+    "name": "S3 Lattice Glow 2-3/LightComponent",
+    "parent": "31A9B0554400B5C255EE39BB2B0F5212",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "ECE3AC004DE885CEEAA136B10E19C2E9",
+    "name": "S3 Lattice Glow 2-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "1791F4E440E25655B233B3994C795A9A",
+    "name": "S3 Lattice Glow 2-4/LightComponent",
+    "parent": "ECE3AC004DE885CEEAA136B10E19C2E9",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8C7A4C3941A4B38F7DEC96AF55FCBDFD",
+    "name": "S3 Lattice Glow 2-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "DF4476C74A6E43750D2928948FAF8A1D",
+    "name": "S3 Lattice Glow 2-5/LightComponent",
+    "parent": "8C7A4C3941A4B38F7DEC96AF55FCBDFD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "ED06D8C040A28261435A4D8A80321B23",
+    "name": "S3 Lattice Glow 2-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "555A051B4E434ED84E0CEE8BF8AF3A14",
+    "name": "S3 Lattice Glow 2-6/LightComponent",
+    "parent": "ED06D8C040A28261435A4D8A80321B23",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F6473DF94AD158ACCF8749A91EACBA96",
+    "name": "S3 Lattice Glow 2-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "62B7B21D437733CFA1770F8C069577D2",
+    "name": "S3 Lattice Glow 2-7/LightComponent",
+    "parent": "F6473DF94AD158ACCF8749A91EACBA96",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1457B48F44C95879A97B38AAA2F1307D",
+    "name": "S3 Lattice Glow 2-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "2A2AB962439E2579AA5249B67156C23F",
+    "name": "S3 Lattice Glow 2-8/LightComponent",
+    "parent": "1457B48F44C95879A97B38AAA2F1307D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "58EBE30549A9214CE4BEC89B0A4E0D0D",
+    "name": "S3 Lattice Glow 3-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "93F37B334E451200FE765E9EAB1907E6",
+    "name": "S3 Lattice Glow 3-1/LightComponent",
+    "parent": "58EBE30549A9214CE4BEC89B0A4E0D0D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6D42AE88487E2ED6EA659CA32D709EA9",
+    "name": "S3 Lattice Glow 3-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "14BC2C93402B48A39CD8EE9A6FC620F5",
+    "name": "S3 Lattice Glow 3-2/LightComponent",
+    "parent": "6D42AE88487E2ED6EA659CA32D709EA9",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "328155F64CE9748502FD0CB70E7ABA52",
+    "name": "S3 Lattice Glow 3-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CEE9BE8A485D901C9BCB9AAD50347E2F",
+    "name": "S3 Lattice Glow 3-3/LightComponent",
+    "parent": "328155F64CE9748502FD0CB70E7ABA52",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "14EA3B44403D7873412089B2A60E384A",
+    "name": "S3 Lattice Glow 3-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "10C606384C3D0044AB27469212CF0121",
+    "name": "S3 Lattice Glow 3-4/LightComponent",
+    "parent": "14EA3B44403D7873412089B2A60E384A",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B11D7E5A43D6263F63912E8C887D0447",
+    "name": "S3 Lattice Glow 3-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "10432C55450425488B9D9FB58F9E049C",
+    "name": "S3 Lattice Glow 3-5/LightComponent",
+    "parent": "B11D7E5A43D6263F63912E8C887D0447",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A1C99DEE467E99F04523EA9657FCD963",
+    "name": "S3 Lattice Glow 3-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "5675F4C74A0D8E83FD59BD82296D3318",
+    "name": "S3 Lattice Glow 3-6/LightComponent",
+    "parent": "A1C99DEE467E99F04523EA9657FCD963",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6F0CD70942D9FBEB17BA8199E18AACA3",
+    "name": "S3 Lattice Glow 3-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "2A14FC3E4BA9A2195B7550A50E7DAE12",
+    "name": "S3 Lattice Glow 3-7/LightComponent",
+    "parent": "6F0CD70942D9FBEB17BA8199E18AACA3",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "0C73231D4AB3686549FA9590CA578D2C",
+    "name": "S3 Lattice Glow 3-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "75A73A964EE6F5B39BB83CB3B99D71EB",
+    "name": "S3 Lattice Glow 3-8/LightComponent",
+    "parent": "0C73231D4AB3686549FA9590CA578D2C",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4209AFEB44DFAFC395EB6DB74CACBEF1",
+    "name": "S3 Practical L1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "10E772D4418285A7FA6F7A894458ED49",
+    "name": "S3 Practical L1/LightComponent",
+    "parent": "4209AFEB44DFAFC395EB6DB74CACBEF1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9AFBC2364C5688DF0D8C9F8AEFAD6E88",
+    "name": "S3 Practical L2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "43C8D4E84441A0746220AC8BB43B108F",
+    "name": "S3 Practical L2/LightComponent",
+    "parent": "9AFBC2364C5688DF0D8C9F8AEFAD6E88",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "10BCDDD94171BBABE6C720B29DF1887E",
+    "name": "S3 Practical L3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "504BA73F461A44D9F66AA6ABA8E132C4",
+    "name": "S3 Practical L3/LightComponent",
+    "parent": "10BCDDD94171BBABE6C720B29DF1887E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "13848E7F4EF3F79F20AF449F65CCA0C7",
+    "name": "S3 Practical L4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "54206B9849324724206B638AF215BD81",
+    "name": "S3 Practical L4/LightComponent",
+    "parent": "13848E7F4EF3F79F20AF449F65CCA0C7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2E2EC57E450AE32509036097C7B31CFD",
+    "name": "S3 Practical L5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "93FFBDF9496A13CBFC5DF48189E4D2AE",
+    "name": "S3 Practical L5/LightComponent",
+    "parent": "2E2EC57E450AE32509036097C7B31CFD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "3274D75E42CCB347F30C8D9382CB8E5F",
+    "name": "S3 Practical L6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3C83567A4567C9EA3B5D859142CFD123",
+    "name": "S3 Practical L6/LightComponent",
+    "parent": "3274D75E42CCB347F30C8D9382CB8E5F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "36DE659F48F09C49B2CF1D8DE689105C",
+    "name": "S3 Practical L7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "6A3220484A778DB411919AB1FA6C3AEA",
+    "name": "S3 Practical L7/LightComponent",
+    "parent": "36DE659F48F09C49B2CF1D8DE689105C",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "314A9B2F4EE02D01DCA227978F7ABC56",
+    "name": "S3 Practical R1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "83C1BA58467F18828030F98C05548733",
+    "name": "S3 Practical R1/LightComponent",
+    "parent": "314A9B2F4EE02D01DCA227978F7ABC56",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "26A1895547F59F70318E609F667AAE1D",
+    "name": "S3 Practical R2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "1E8188EA4AF078D9A147008E3B843208",
+    "name": "S3 Practical R2/LightComponent",
+    "parent": "26A1895547F59F70318E609F667AAE1D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CA00F8604121EE8C57C64CB65D04D3E2",
+    "name": "S3 Practical R3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "049424AD424160EE3B95978D9DF6CD4A",
+    "name": "S3 Practical R3/LightComponent",
+    "parent": "CA00F8604121EE8C57C64CB65D04D3E2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "03A2813146B2FCC83DAAD292DE097DB6",
+    "name": "S3 Practical R4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A38DA6E3417293FE5EB500815373A154",
+    "name": "S3 Practical R4/LightComponent",
+    "parent": "03A2813146B2FCC83DAAD292DE097DB6",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EABF090644CB6397323FB4B8FC5E0479",
+    "name": "S3 Practical R5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "88B6C2C54E860D67FA1E12AD2306EB42",
+    "name": "S3 Practical R5/LightComponent",
+    "parent": "EABF090644CB6397323FB4B8FC5E0479",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "97432D524CDA4CA3ECE7BF9507D2511A",
+    "name": "S3 Practical R6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "51403DFF4FA7DA2D1CB3A9AFBF818E14",
+    "name": "S3 Practical R6/LightComponent",
+    "parent": "97432D524CDA4CA3ECE7BF9507D2511A",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "132D866D4605D34B20C265BD93EBE4FC",
+    "name": "S3 Practical R7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "ED36BF154E4AD3C1DCA4E1A69D7F6C26",
+    "name": "S3 Practical R7/LightComponent",
+    "parent": "132D866D4605D34B20C265BD93EBE4FC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1F3B3CC94CA6F369C41C7E84FD3D6B78",
+    "name": "S3 Sleight Hangar Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "76EEF5874E42027D8D4BEB94639B3F50",
+    "name": "S3 Sleight Hangar Camera/CameraComponent",
+    "parent": "1F3B3CC94CA6F369C41C7E84FD3D6B78",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "110747A1444A9C3F8449C8AFC014E748",
+    "name": "S3 Sleight Twin Lantern",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "EBAD3DAA48E7D3C3758F9E8F8F85FB2B",
+    "name": "S3 Sleight Twin Lantern/LightComponent",
+    "parent": "110747A1444A9C3F8449C8AFC014E748",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4C0A2476477931A2BAD350B25B554C0E",
+    "name": "S3 Strike Cyc 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "349D62404984B940680201A7E807C505",
+    "name": "S3 Strike Cyc 1/LightComponent",
+    "parent": "4C0A2476477931A2BAD350B25B554C0E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EC42C41542A0173871098BB66C7519E7",
+    "name": "S3 Strike Cyc 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "38B582FB4E2FBC365DAA0496358414B7",
+    "name": "S3 Strike Cyc 2/LightComponent",
+    "parent": "EC42C41542A0173871098BB66C7519E7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "54B8A85F46118D6DFA7721A7926762F3",
+    "name": "S3 Strike Cyc 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BBE1C9CE41FF9305D2B31B87060B9DA6",
+    "name": "S3 Strike Cyc 3/LightComponent",
+    "parent": "54B8A85F46118D6DFA7721A7926762F3",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9B63B60C4135B6EA84CDB98CAB83E92C",
+    "name": "S3 Strike Fill L",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "6DE7C9574962BB514ABD86AA44D24BCB",
+    "name": "S3 Strike Fill L/LightComponent",
+    "parent": "9B63B60C4135B6EA84CDB98CAB83E92C",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DC7835214BECAAAE0078C09C54021F22",
+    "name": "S3 Strike Fill R",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3F41F04645DCB681E997E38B30BBA46B",
+    "name": "S3 Strike Fill R/LightComponent",
+    "parent": "DC7835214BECAAAE0078C09C54021F22",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2A3EFB7D43ACB5257FC1BD9F64188D29",
+    "name": "S3 Strike Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E1B2E0D5409EF086045C92A08F867847",
+    "name": "S3 Strike Key/LightComponent",
+    "parent": "2A3EFB7D43ACB5257FC1BD9F64188D29",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E6E6C85C4EE21F0F4F1091B4F88E6298",
+    "name": "S3 Uplight 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "F368F50E4E7694B7F4B8A6937A8EE5A0",
+    "name": "S3 Uplight 1/LightComponent",
+    "parent": "E6E6C85C4EE21F0F4F1091B4F88E6298",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "766CDFF64910B6B1825A1FBCAF395C02",
+    "name": "S3 Uplight 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "D2E0D9534AB127BA301FFE9B6357AC9C",
+    "name": "S3 Uplight 2/LightComponent",
+    "parent": "766CDFF64910B6B1825A1FBCAF395C02",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "32F6501C4F1A4C789F0D298DDF868A2D",
+    "name": "S3 Uplight 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3DE4DA1D488807DB3269609CC2136F51",
+    "name": "S3 Uplight 3/LightComponent",
+    "parent": "32F6501C4F1A4C789F0D298DDF868A2D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C16CBA754481D771F712B9B105AAC1EF",
+    "name": "Shadow Play Spot (Hangar)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DCE54A5F43580B352F33E196EEF40248",
+    "name": "Shadow Play Spot (Mouth)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "42719CA4401EFBBA94E108B0554021AC",
+    "name": "Sleight Hangar Drape",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        75,
+        1300,
+        23200,
+        240799
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "49AF91614C9B6D024D3146996BD57DFD",
+    "name": "Sleight Hangar Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DE2790E149137EE64DCD7CA2FECAA7A6",
+    "name": "Sleight Mouth Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "053BFA0F4A72F8F9C0E544A649C4542E",
+    "name": "Transition Drape (baked)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1675,
+        23200,
+        240799
+       ],
+       [
+        1675,
+        1925,
+        23200,
+        0
+       ],
+       [
+        1925,
+        2238,
+        263999,
+        0
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [
+   [
+    "1F3B3CC94CA6F369C41C7E84FD3D6B78",
+    0,
+    1250,
+    true
+   ],
+   [
+    "418E0BEA4B60F2C45BA66F8294B116DD",
+    1250,
+    2238,
+    true
+   ]
+  ],
+  "level_labels": [
+   "I3 Sleight Mouth Camera",
+   "S3 Sleight Hangar Camera",
+   "S3 Sleight Twin Lantern"
+  ],
+  "markers": [
+   [
+    "CST curtain hung",
+    175
+   ],
+   [
+    "CST curtain in",
+    75
+   ],
+   [
+    "CST drop",
+    1675
+   ],
+   [
+    "CST fold end",
+    1000
+   ],
+   [
+    "CST fold start",
+    250
+   ],
+   [
+    "CST hangar strike",
+    1300
+   ],
+   [
+    "CST play start",
+    175
+   ],
+   [
+    "CST sleight",
+    1250
+   ],
+   [
+    "CST walk start",
+    1702
+   ],
+   [
+    "CST wide",
+    0
+   ],
+   [
+    "GO 30 curtain",
+    1675
+   ],
+   [
+    "InfinityStage.BoyCatStart",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyDown",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyOpen",
+    500
+   ],
+   [
+    "InfinityStage.CurtainRiseStart",
+    400
+   ],
+   [
+    "InfinityStage.HiddenChangeover",
+    375
+   ]
+  ],
+  "playback": [
+   0,
+   2238
+  ],
+  "root_tracks": []
+ },
+ "snapshot_before": {
+  "bindings": [
+   {
+    "guid": "DDA35B7746E792C16B23448BA23A0FCA",
+    "name": "Curtain Rig - Fire Safety Curtain",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneBoolTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainProgress",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "418E0BEA4B60F2C45BA66F8294B116DD",
+    "name": "I3 Sleight Mouth Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A2D7B86F400DBC3D0D1CB2A397232C2D",
+    "name": "I3 Sleight Mouth Camera/CameraComponent",
+    "parent": "418E0BEA4B60F2C45BA66F8294B116DD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "70C0D9FD480F395A032C36A60AA5AE09",
+    "name": "Interaction 3 — Stalls Camera",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3401062C4D21B7DEBF225186DC571D9B",
+    "name": "S3 Daylight Cool Fill",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "23EB5F364A5A6F43918046B37AA88C8B",
+    "name": "S3 Daylight Cool Fill/LightComponent",
+    "parent": "3401062C4D21B7DEBF225186DC571D9B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5A355F9041DF6C60EBD1CBBA06E45367",
+    "name": "S3 Daylight Rake Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "B67FE24145546260BE9AB4AA8DF439BF",
+    "name": "S3 Daylight Rake Key/LightComponent",
+    "parent": "5A355F9041DF6C60EBD1CBBA06E45367",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F3B8BB5B40DB6C6F076C2AA1E6E4B6C0",
+    "name": "S3 Ghost Light",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C4C3E4564C699BBB414800B1916B5A37",
+    "name": "S3 Ghost Light/LightComponent",
+    "parent": "F3B8BB5B40DB6C6F076C2AA1E6E4B6C0",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5AF2ABBA4149DB852A2446B5DBB59B2B",
+    "name": "S3 Lattice Glow 1-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "12774C2F44BB67C02052DF9926449A6F",
+    "name": "S3 Lattice Glow 1-1/LightComponent",
+    "parent": "5AF2ABBA4149DB852A2446B5DBB59B2B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "96E0216E48D63E0284C1DE9AA666920F",
+    "name": "S3 Lattice Glow 1-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "0A2E0D44450E085BF4F1D885C0DA1C24",
+    "name": "S3 Lattice Glow 1-2/LightComponent",
+    "parent": "96E0216E48D63E0284C1DE9AA666920F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6B8949B044211537609BE9AEFF05BBFB",
+    "name": "S3 Lattice Glow 1-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "DE9BD1574AA20CB122D3D9AD744C10D1",
+    "name": "S3 Lattice Glow 1-3/LightComponent",
+    "parent": "6B8949B044211537609BE9AEFF05BBFB",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5C7B238E48BAF8470082F78B12E09598",
+    "name": "S3 Lattice Glow 1-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "21061BB140FECB924229F2BAA3967544",
+    "name": "S3 Lattice Glow 1-4/LightComponent",
+    "parent": "5C7B238E48BAF8470082F78B12E09598",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "35BBE9D4417349AF85F59C8DC4CB9C96",
+    "name": "S3 Lattice Glow 1-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "301419CB412B92C0B5D226AEA038348A",
+    "name": "S3 Lattice Glow 1-5/LightComponent",
+    "parent": "35BBE9D4417349AF85F59C8DC4CB9C96",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CD01EABC45FB2EEB3D039DA6BFF8D41E",
+    "name": "S3 Lattice Glow 1-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E6D029D1405C380875C75BAD35529E18",
+    "name": "S3 Lattice Glow 1-6/LightComponent",
+    "parent": "CD01EABC45FB2EEB3D039DA6BFF8D41E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "95A26D9D42CAC9963606DBA6DC7B4935",
+    "name": "S3 Lattice Glow 1-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7800DE5D425FBF6F5D0E9AA36F128EBA",
+    "name": "S3 Lattice Glow 1-7/LightComponent",
+    "parent": "95A26D9D42CAC9963606DBA6DC7B4935",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F5D932474B6F356FA9C420B8A414CA35",
+    "name": "S3 Lattice Glow 1-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "4D2FE5D84486EDCB5B87A492D71D1E55",
+    "name": "S3 Lattice Glow 1-8/LightComponent",
+    "parent": "F5D932474B6F356FA9C420B8A414CA35",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4977E3C943B8B45F5E9623B3F4BC0760",
+    "name": "S3 Lattice Glow 2-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "24DBF59D4C387F9D38F683B500109B4E",
+    "name": "S3 Lattice Glow 2-1/LightComponent",
+    "parent": "4977E3C943B8B45F5E9623B3F4BC0760",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "404E495C46623203D0BD36A390813AD6",
+    "name": "S3 Lattice Glow 2-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C147EE9C429D1C62907D6DA84D7271C5",
+    "name": "S3 Lattice Glow 2-2/LightComponent",
+    "parent": "404E495C46623203D0BD36A390813AD6",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "31A9B0554400B5C255EE39BB2B0F5212",
+    "name": "S3 Lattice Glow 2-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A79CD95C42804AF2E2D1CF86FB8A9281",
+    "name": "S3 Lattice Glow 2-3/LightComponent",
+    "parent": "31A9B0554400B5C255EE39BB2B0F5212",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "ECE3AC004DE885CEEAA136B10E19C2E9",
+    "name": "S3 Lattice Glow 2-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "1791F4E440E25655B233B3994C795A9A",
+    "name": "S3 Lattice Glow 2-4/LightComponent",
+    "parent": "ECE3AC004DE885CEEAA136B10E19C2E9",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8C7A4C3941A4B38F7DEC96AF55FCBDFD",
+    "name": "S3 Lattice Glow 2-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "DF4476C74A6E43750D2928948FAF8A1D",
+    "name": "S3 Lattice Glow 2-5/LightComponent",
+    "parent": "8C7A4C3941A4B38F7DEC96AF55FCBDFD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "ED06D8C040A28261435A4D8A80321B23",
+    "name": "S3 Lattice Glow 2-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "555A051B4E434ED84E0CEE8BF8AF3A14",
+    "name": "S3 Lattice Glow 2-6/LightComponent",
+    "parent": "ED06D8C040A28261435A4D8A80321B23",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F6473DF94AD158ACCF8749A91EACBA96",
+    "name": "S3 Lattice Glow 2-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "62B7B21D437733CFA1770F8C069577D2",
+    "name": "S3 Lattice Glow 2-7/LightComponent",
+    "parent": "F6473DF94AD158ACCF8749A91EACBA96",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1457B48F44C95879A97B38AAA2F1307D",
+    "name": "S3 Lattice Glow 2-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "2A2AB962439E2579AA5249B67156C23F",
+    "name": "S3 Lattice Glow 2-8/LightComponent",
+    "parent": "1457B48F44C95879A97B38AAA2F1307D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "58EBE30549A9214CE4BEC89B0A4E0D0D",
+    "name": "S3 Lattice Glow 3-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "93F37B334E451200FE765E9EAB1907E6",
+    "name": "S3 Lattice Glow 3-1/LightComponent",
+    "parent": "58EBE30549A9214CE4BEC89B0A4E0D0D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6D42AE88487E2ED6EA659CA32D709EA9",
+    "name": "S3 Lattice Glow 3-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "14BC2C93402B48A39CD8EE9A6FC620F5",
+    "name": "S3 Lattice Glow 3-2/LightComponent",
+    "parent": "6D42AE88487E2ED6EA659CA32D709EA9",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "328155F64CE9748502FD0CB70E7ABA52",
+    "name": "S3 Lattice Glow 3-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CEE9BE8A485D901C9BCB9AAD50347E2F",
+    "name": "S3 Lattice Glow 3-3/LightComponent",
+    "parent": "328155F64CE9748502FD0CB70E7ABA52",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "14EA3B44403D7873412089B2A60E384A",
+    "name": "S3 Lattice Glow 3-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "10C606384C3D0044AB27469212CF0121",
+    "name": "S3 Lattice Glow 3-4/LightComponent",
+    "parent": "14EA3B44403D7873412089B2A60E384A",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B11D7E5A43D6263F63912E8C887D0447",
+    "name": "S3 Lattice Glow 3-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "10432C55450425488B9D9FB58F9E049C",
+    "name": "S3 Lattice Glow 3-5/LightComponent",
+    "parent": "B11D7E5A43D6263F63912E8C887D0447",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A1C99DEE467E99F04523EA9657FCD963",
+    "name": "S3 Lattice Glow 3-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "5675F4C74A0D8E83FD59BD82296D3318",
+    "name": "S3 Lattice Glow 3-6/LightComponent",
+    "parent": "A1C99DEE467E99F04523EA9657FCD963",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6F0CD70942D9FBEB17BA8199E18AACA3",
+    "name": "S3 Lattice Glow 3-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "2A14FC3E4BA9A2195B7550A50E7DAE12",
+    "name": "S3 Lattice Glow 3-7/LightComponent",
+    "parent": "6F0CD70942D9FBEB17BA8199E18AACA3",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "0C73231D4AB3686549FA9590CA578D2C",
+    "name": "S3 Lattice Glow 3-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "75A73A964EE6F5B39BB83CB3B99D71EB",
+    "name": "S3 Lattice Glow 3-8/LightComponent",
+    "parent": "0C73231D4AB3686549FA9590CA578D2C",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4209AFEB44DFAFC395EB6DB74CACBEF1",
+    "name": "S3 Practical L1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "10E772D4418285A7FA6F7A894458ED49",
+    "name": "S3 Practical L1/LightComponent",
+    "parent": "4209AFEB44DFAFC395EB6DB74CACBEF1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9AFBC2364C5688DF0D8C9F8AEFAD6E88",
+    "name": "S3 Practical L2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "43C8D4E84441A0746220AC8BB43B108F",
+    "name": "S3 Practical L2/LightComponent",
+    "parent": "9AFBC2364C5688DF0D8C9F8AEFAD6E88",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "10BCDDD94171BBABE6C720B29DF1887E",
+    "name": "S3 Practical L3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "504BA73F461A44D9F66AA6ABA8E132C4",
+    "name": "S3 Practical L3/LightComponent",
+    "parent": "10BCDDD94171BBABE6C720B29DF1887E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "13848E7F4EF3F79F20AF449F65CCA0C7",
+    "name": "S3 Practical L4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "54206B9849324724206B638AF215BD81",
+    "name": "S3 Practical L4/LightComponent",
+    "parent": "13848E7F4EF3F79F20AF449F65CCA0C7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2E2EC57E450AE32509036097C7B31CFD",
+    "name": "S3 Practical L5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "93FFBDF9496A13CBFC5DF48189E4D2AE",
+    "name": "S3 Practical L5/LightComponent",
+    "parent": "2E2EC57E450AE32509036097C7B31CFD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "3274D75E42CCB347F30C8D9382CB8E5F",
+    "name": "S3 Practical L6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3C83567A4567C9EA3B5D859142CFD123",
+    "name": "S3 Practical L6/LightComponent",
+    "parent": "3274D75E42CCB347F30C8D9382CB8E5F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "36DE659F48F09C49B2CF1D8DE689105C",
+    "name": "S3 Practical L7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "6A3220484A778DB411919AB1FA6C3AEA",
+    "name": "S3 Practical L7/LightComponent",
+    "parent": "36DE659F48F09C49B2CF1D8DE689105C",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "314A9B2F4EE02D01DCA227978F7ABC56",
+    "name": "S3 Practical R1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "83C1BA58467F18828030F98C05548733",
+    "name": "S3 Practical R1/LightComponent",
+    "parent": "314A9B2F4EE02D01DCA227978F7ABC56",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "26A1895547F59F70318E609F667AAE1D",
+    "name": "S3 Practical R2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "1E8188EA4AF078D9A147008E3B843208",
+    "name": "S3 Practical R2/LightComponent",
+    "parent": "26A1895547F59F70318E609F667AAE1D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CA00F8604121EE8C57C64CB65D04D3E2",
+    "name": "S3 Practical R3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "049424AD424160EE3B95978D9DF6CD4A",
+    "name": "S3 Practical R3/LightComponent",
+    "parent": "CA00F8604121EE8C57C64CB65D04D3E2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "03A2813146B2FCC83DAAD292DE097DB6",
+    "name": "S3 Practical R4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A38DA6E3417293FE5EB500815373A154",
+    "name": "S3 Practical R4/LightComponent",
+    "parent": "03A2813146B2FCC83DAAD292DE097DB6",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EABF090644CB6397323FB4B8FC5E0479",
+    "name": "S3 Practical R5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "88B6C2C54E860D67FA1E12AD2306EB42",
+    "name": "S3 Practical R5/LightComponent",
+    "parent": "EABF090644CB6397323FB4B8FC5E0479",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "97432D524CDA4CA3ECE7BF9507D2511A",
+    "name": "S3 Practical R6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "51403DFF4FA7DA2D1CB3A9AFBF818E14",
+    "name": "S3 Practical R6/LightComponent",
+    "parent": "97432D524CDA4CA3ECE7BF9507D2511A",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "132D866D4605D34B20C265BD93EBE4FC",
+    "name": "S3 Practical R7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "ED36BF154E4AD3C1DCA4E1A69D7F6C26",
+    "name": "S3 Practical R7/LightComponent",
+    "parent": "132D866D4605D34B20C265BD93EBE4FC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1F3B3CC94CA6F369C41C7E84FD3D6B78",
+    "name": "S3 Sleight Hangar Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "76EEF5874E42027D8D4BEB94639B3F50",
+    "name": "S3 Sleight Hangar Camera/CameraComponent",
+    "parent": "1F3B3CC94CA6F369C41C7E84FD3D6B78",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "110747A1444A9C3F8449C8AFC014E748",
+    "name": "S3 Sleight Twin Lantern",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "EBAD3DAA48E7D3C3758F9E8F8F85FB2B",
+    "name": "S3 Sleight Twin Lantern/LightComponent",
+    "parent": "110747A1444A9C3F8449C8AFC014E748",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4C0A2476477931A2BAD350B25B554C0E",
+    "name": "S3 Strike Cyc 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "349D62404984B940680201A7E807C505",
+    "name": "S3 Strike Cyc 1/LightComponent",
+    "parent": "4C0A2476477931A2BAD350B25B554C0E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EC42C41542A0173871098BB66C7519E7",
+    "name": "S3 Strike Cyc 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "38B582FB4E2FBC365DAA0496358414B7",
+    "name": "S3 Strike Cyc 2/LightComponent",
+    "parent": "EC42C41542A0173871098BB66C7519E7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "54B8A85F46118D6DFA7721A7926762F3",
+    "name": "S3 Strike Cyc 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BBE1C9CE41FF9305D2B31B87060B9DA6",
+    "name": "S3 Strike Cyc 3/LightComponent",
+    "parent": "54B8A85F46118D6DFA7721A7926762F3",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9B63B60C4135B6EA84CDB98CAB83E92C",
+    "name": "S3 Strike Fill L",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "6DE7C9574962BB514ABD86AA44D24BCB",
+    "name": "S3 Strike Fill L/LightComponent",
+    "parent": "9B63B60C4135B6EA84CDB98CAB83E92C",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DC7835214BECAAAE0078C09C54021F22",
+    "name": "S3 Strike Fill R",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3F41F04645DCB681E997E38B30BBA46B",
+    "name": "S3 Strike Fill R/LightComponent",
+    "parent": "DC7835214BECAAAE0078C09C54021F22",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2A3EFB7D43ACB5257FC1BD9F64188D29",
+    "name": "S3 Strike Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E1B2E0D5409EF086045C92A08F867847",
+    "name": "S3 Strike Key/LightComponent",
+    "parent": "2A3EFB7D43ACB5257FC1BD9F64188D29",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E6E6C85C4EE21F0F4F1091B4F88E6298",
+    "name": "S3 Uplight 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "F368F50E4E7694B7F4B8A6937A8EE5A0",
+    "name": "S3 Uplight 1/LightComponent",
+    "parent": "E6E6C85C4EE21F0F4F1091B4F88E6298",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "766CDFF64910B6B1825A1FBCAF395C02",
+    "name": "S3 Uplight 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "D2E0D9534AB127BA301FFE9B6357AC9C",
+    "name": "S3 Uplight 2/LightComponent",
+    "parent": "766CDFF64910B6B1825A1FBCAF395C02",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "32F6501C4F1A4C789F0D298DDF868A2D",
+    "name": "S3 Uplight 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3DE4DA1D488807DB3269609CC2136F51",
+    "name": "S3 Uplight 3/LightComponent",
+    "parent": "32F6501C4F1A4C789F0D298DDF868A2D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "42719CA4401EFBBA94E108B0554021AC",
+    "name": "Sleight Hangar Drape",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        75,
+        1300,
+        23200,
+        240799
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "49AF91614C9B6D024D3146996BD57DFD",
+    "name": "Sleight Hangar Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DE2790E149137EE64DCD7CA2FECAA7A6",
+    "name": "Sleight Mouth Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2239
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "053BFA0F4A72F8F9C0E544A649C4542E",
+    "name": "Transition Drape (baked)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1675,
+        23200,
+        240799
+       ],
+       [
+        1675,
+        1925,
+        23200,
+        0
+       ],
+       [
+        1925,
+        2238,
+        263999,
+        0
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2238
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [
+   [
+    "1F3B3CC94CA6F369C41C7E84FD3D6B78",
+    0,
+    1250,
+    true
+   ],
+   [
+    "418E0BEA4B60F2C45BA66F8294B116DD",
+    1250,
+    2238,
+    true
+   ]
+  ],
+  "level_labels": [
+   "I3 Sleight Mouth Camera",
+   "S3 Sleight Hangar Camera",
+   "S3 Sleight Twin Lantern"
+  ],
+  "markers": [
+   [
+    "CST curtain hung",
+    175
+   ],
+   [
+    "CST curtain in",
+    75
+   ],
+   [
+    "CST drop",
+    1675
+   ],
+   [
+    "CST fold end",
+    1000
+   ],
+   [
+    "CST fold start",
+    250
+   ],
+   [
+    "CST hangar strike",
+    1300
+   ],
+   [
+    "CST play start",
+    175
+   ],
+   [
+    "CST sleight",
+    1250
+   ],
+   [
+    "CST walk start",
+    1702
+   ],
+   [
+    "CST wide",
+    0
+   ],
+   [
+    "GO 30 curtain",
+    1675
+   ],
+   [
+    "InfinityStage.BoyCatStart",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyDown",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyOpen",
+    500
+   ],
+   [
+    "InfinityStage.CurtainRiseStart",
+    400
+   ],
+   [
+    "InfinityStage.HiddenChangeover",
+    375
+   ]
+  ],
+  "playback": [
+   0,
+   2238
+  ],
+  "root_tracks": []
+ },
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}

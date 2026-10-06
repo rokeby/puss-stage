@@ -1,0 +1,1167 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreShadowPlaySpot-I2-SPS-20261006-015450",
+ "backup_files": [
+  "E:/PussStage/Backups\\PreShadowPlaySpot-I2-SPS-20261006-015450\\LS_Interaction_02_Turnips.uasset"
+ ],
+ "binding_guids": {
+  "Shadow Play Spot (Hangar)": "562CF91B4AD669E49447619E70ADC9CB",
+  "Shadow Play Spot (Mouth)": "C3077618453206D0F5B255994BD16709"
+ },
+ "component_names": {
+  "Shadow Play Spot (Hangar)": "LightComponent0",
+  "Shadow Play Spot (Mouth)": "LightComponent0"
+ },
+ "created_binding_guids": [
+  "562CF91B4AD669E49447619E70ADC9CB",
+  "C3077618453206D0F5B255994BD16709"
+ ],
+ "interaction": 2,
+ "params": {
+  "circle_diameter_cm": 360,
+  "inner_ratio": 0.85
+ },
+ "plan": {
+  "aim_rel": [
+   -41.299999999999955,
+   0.0,
+   510.0
+  ],
+  "azimuth_deg": 0.0,
+  "beats": {
+   "play0": 175,
+   "release": 1675,
+   "sleight": 1250,
+   "strike": 1300
+  },
+  "cone": {
+   "circle_diameter_cm": 360.0,
+   "inner_deg": 2.9185858080829434,
+   "outer_deg": 3.433630362450522
+  },
+  "digest": "8e6c014612a344ec4da8",
+  "dir_rel": [
+   0.9396926207859084,
+   0.0,
+   -0.3420201433256687
+  ],
+  "elevation_deg": 20.0,
+  "end": 2226,
+  "fade_out": [
+   1675,
+   1700
+  ],
+  "fps": 25.0,
+  "go": [
+   "GO 20 curtain",
+   1675
+  ],
+  "light": {
+   "attenuation_radius_cm": 4500.0,
+   "cast_shadows": true,
+   "kelvin": 2800.0,
+   "source_radius_cm": 2.0,
+   "units": "CANDELAS"
+  },
+  "loc_rel": [
+   -2860.3778623577255,
+   0.0,
+   1536.0604299770062
+  ],
+  "n": 2,
+  "params": {
+   "azimuth_deg": 0.0,
+   "candela": null,
+   "circle_diameter_cm": 360,
+   "elevation_deg": 20.0,
+   "fade_out_s": 1.0,
+   "fade_up_s": 0.5,
+   "frame_margin_cm": 20.0,
+   "hangar_gain": 1.0,
+   "inner_ratio": 0.85,
+   "kelvin": null,
+   "match_tol_cm": 0.5,
+   "match_tol_deg": 0.05,
+   "radius_factor": 1.5,
+   "ratio_to_lantern": 16.0,
+   "source_radius_cm": 2.0,
+   "spawn_lead_frames": 25,
+   "throw_cm": 3000.0
+  },
+  "photometry": {
+   "cos_incidence": 0.9396926207859084,
+   "hangar_gain": 1.0,
+   "lantern_cd": 116.96479058079333,
+   "lantern_label": "S2 Sleight Twin Lantern",
+   "lantern_lux": 0.4883010945621363,
+   "lantern_throw_cm": 1547.6891032857884,
+   "peak_cd": 7482.804063965048,
+   "ratio": 16.0,
+   "spot_lux": 7.81281751299418
+  },
+  "required_end": 1701,
+  "spots": {
+   "hangar": {
+    "aim_world": [
+     15131.739178881979,
+     77122.96694000029,
+     510.0
+    ],
+    "drape_frame": {
+     "loc": [
+      15161.6611328125,
+      77094.5,
+      0.0
+     ],
+     "pitch": 0.0,
+     "yaw": -43.5725212097168
+    },
+    "intensity_keys": [
+     [
+      0,
+      0.0
+     ],
+     [
+      175,
+      0.0
+     ],
+     [
+      187,
+      7482.804063965048
+     ],
+     [
+      1300,
+      7482.804063965048
+     ],
+     [
+      1301,
+      0.0
+     ]
+    ],
+    "name": "Shadow Play Spot (Hangar)",
+    "peak_cd": 7482.804063965048,
+    "spawn": [
+     [
+      150,
+      true
+     ],
+     [
+      1302,
+      false
+     ]
+    ],
+    "transform_keys": [
+     [
+      0,
+      13089.310173457769,
+      79066.07881321739,
+      1536.0604299770062,
+      -20.0,
+      -43.5725212097168,
+      0.0
+     ],
+     [
+      2226,
+      13089.310173457769,
+      79066.07881321739,
+      1536.0604299770062,
+      -20.0,
+      -43.5725212097168,
+      0.0
+     ]
+    ],
+    "world": {
+     "loc": [
+      13089.310173457769,
+      79066.07881321739,
+      1536.0604299770062
+     ],
+     "pitch": -20.0,
+     "roll": 0.0,
+     "yaw": -43.5725212097168
+    }
+   },
+   "mouth": {
+    "aim_world": [
+     -41.299999999999955,
+     160000.0,
+     510.0
+    ],
+    "drape_frame": {
+     "loc": [
+      0.0,
+      160000.0,
+      0.0
+     ],
+     "pitch": 0.0,
+     "yaw": 0.0
+    },
+    "intensity_keys": [
+     [
+      0,
+      0.0
+     ],
+     [
+      175,
+      0.0
+     ],
+     [
+      187,
+      7482.804063965048
+     ],
+     [
+      1675,
+      7482.804063965048
+     ],
+     [
+      1700,
+      0.0
+     ]
+    ],
+    "name": "Shadow Play Spot (Mouth)",
+    "peak_cd": 7482.804063965048,
+    "spawn": [
+     [
+      150,
+      true
+     ],
+     [
+      1701,
+      false
+     ]
+    ],
+    "transform_keys": [
+     [
+      0,
+      -2860.3778623577255,
+      160000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ],
+     [
+      2226,
+      -2860.3778623577255,
+      160000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "world": {
+     "loc": [
+      -2860.3778623577255,
+      160000.0,
+      1536.0604299770062
+     ],
+     "pitch": -20.0,
+     "roll": 0.0,
+     "yaw": 0.0
+    }
+   }
+  },
+  "start": 0,
+  "throw_cm": 3000.0,
+  "up": [
+   175,
+   187
+  ]
+ },
+ "plan_digest": "8e6c014612a344ec4da8",
+ "range_before": [
+  0,
+  2226
+ ],
+ "run": "SPS-20261006-015450",
+ "schema_version": 1,
+ "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+ "sleight_plan_digest": "07b8da725cae1a0c6cb8",
+ "sleight_run": "CST-20261005-111701",
+ "snapshot_after": {
+  "bindings": [
+   {
+    "guid": "CADCDD324D30B60303DE0887AB056510",
+    "name": "Curtain Rig - Fire Safety Curtain",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneBoolTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainProgress",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E6CF63464549232FD6CEA88D81178F0D",
+    "name": "I2 Sleight Mouth Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A4162B8C4B7F601B6D73BF97DB42FD91",
+    "name": "I2 Sleight Mouth Camera/CameraComponent",
+    "parent": "E6CF63464549232FD6CEA88D81178F0D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F1CA7FBB4AF9FF6AF1D4B3BE15F831AB",
+    "name": "Interaction 2 — Stalls Camera",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3A5F777F4AFC41EF78B82F923D660E72",
+    "name": "S2 Ghost Light",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7BFF79AA42ADF8178F96DAA9977D0D5C",
+    "name": "S2 Ghost Light/LightComponent",
+    "parent": "3A5F777F4AFC41EF78B82F923D660E72",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "79E6AD814115D22A888C409AA2F57A77",
+    "name": "S2 Sleight Hangar Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "76C3943B4D1D682FE41D14AC48FE4D7D",
+    "name": "S2 Sleight Hangar Camera/CameraComponent",
+    "parent": "79E6AD814115D22A888C409AA2F57A77",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DD7144EC428B13385BDE3980DCB711D2",
+    "name": "S2 Sleight Twin Lantern",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A2B2A9A34B28D35D2E7D909C9A78CFA9",
+    "name": "S2 Sleight Twin Lantern/LightComponent",
+    "parent": "DD7144EC428B13385BDE3980DCB711D2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "562CF91B4AD669E49447619E70ADC9CB",
+    "name": "Shadow Play Spot (Hangar)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C3077618453206D0F5B255994BD16709",
+    "name": "Shadow Play Spot (Mouth)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2D6DC35E47AA01CE86607AAF286A5C50",
+    "name": "Sleight Hangar Drape",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        75,
+        1300,
+        23200,
+        240799
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C29BE2D045FEBC2A3F174DA1E95DAECA",
+    "name": "Sleight Hangar Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "54B8207347C6C5666DF0C9848A8C10B3",
+    "name": "Sleight Mouth Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D4C22D82489569F31A3C55B2567230CB",
+    "name": "Transition Drape (baked)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1675,
+        23200,
+        240799
+       ],
+       [
+        1675,
+        1925,
+        23200,
+        0
+       ],
+       [
+        1925,
+        2226,
+        263999,
+        0
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [
+   [
+    "79E6AD814115D22A888C409AA2F57A77",
+    0,
+    1250,
+    true
+   ],
+   [
+    "E6CF63464549232FD6CEA88D81178F0D",
+    1250,
+    2226,
+    true
+   ]
+  ],
+  "level_labels": [
+   "I2 Sleight Mouth Camera",
+   "S2 Sleight Hangar Camera",
+   "S2 Sleight Twin Lantern"
+  ],
+  "markers": [
+   [
+    "CST curtain hung",
+    175
+   ],
+   [
+    "CST curtain in",
+    75
+   ],
+   [
+    "CST drop",
+    1675
+   ],
+   [
+    "CST fold end",
+    1000
+   ],
+   [
+    "CST fold start",
+    250
+   ],
+   [
+    "CST hangar strike",
+    1300
+   ],
+   [
+    "CST play start",
+    175
+   ],
+   [
+    "CST sleight",
+    1250
+   ],
+   [
+    "CST walk start",
+    1702
+   ],
+   [
+    "CST wide",
+    0
+   ],
+   [
+    "GO 20 curtain",
+    1675
+   ],
+   [
+    "InfinityStage.BoyCatStart",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyDown",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyOpen",
+    500
+   ],
+   [
+    "InfinityStage.CurtainRiseStart",
+    400
+   ],
+   [
+    "InfinityStage.HiddenChangeover",
+    375
+   ]
+  ],
+  "playback": [
+   0,
+   2226
+  ],
+  "root_tracks": []
+ },
+ "snapshot_before": {
+  "bindings": [
+   {
+    "guid": "CADCDD324D30B60303DE0887AB056510",
+    "name": "Curtain Rig - Fire Safety Curtain",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneBoolTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainProgress",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E6CF63464549232FD6CEA88D81178F0D",
+    "name": "I2 Sleight Mouth Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A4162B8C4B7F601B6D73BF97DB42FD91",
+    "name": "I2 Sleight Mouth Camera/CameraComponent",
+    "parent": "E6CF63464549232FD6CEA88D81178F0D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "F1CA7FBB4AF9FF6AF1D4B3BE15F831AB",
+    "name": "Interaction 2 — Stalls Camera",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3A5F777F4AFC41EF78B82F923D660E72",
+    "name": "S2 Ghost Light",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7BFF79AA42ADF8178F96DAA9977D0D5C",
+    "name": "S2 Ghost Light/LightComponent",
+    "parent": "3A5F777F4AFC41EF78B82F923D660E72",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "79E6AD814115D22A888C409AA2F57A77",
+    "name": "S2 Sleight Hangar Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "76C3943B4D1D682FE41D14AC48FE4D7D",
+    "name": "S2 Sleight Hangar Camera/CameraComponent",
+    "parent": "79E6AD814115D22A888C409AA2F57A77",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "DD7144EC428B13385BDE3980DCB711D2",
+    "name": "S2 Sleight Twin Lantern",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A2B2A9A34B28D35D2E7D909C9A78CFA9",
+    "name": "S2 Sleight Twin Lantern/LightComponent",
+    "parent": "DD7144EC428B13385BDE3980DCB711D2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2D6DC35E47AA01CE86607AAF286A5C50",
+    "name": "Sleight Hangar Drape",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        75,
+        1300,
+        23200,
+        240799
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C29BE2D045FEBC2A3F174DA1E95DAECA",
+    "name": "Sleight Hangar Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "54B8207347C6C5666DF0C9848A8C10B3",
+    "name": "Sleight Mouth Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2227
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D4C22D82489569F31A3C55B2567230CB",
+    "name": "Transition Drape (baked)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1675,
+        23200,
+        240799
+       ],
+       [
+        1675,
+        1925,
+        23200,
+        0
+       ],
+       [
+        1925,
+        2226,
+        263999,
+        0
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        2226
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [
+   [
+    "79E6AD814115D22A888C409AA2F57A77",
+    0,
+    1250,
+    true
+   ],
+   [
+    "E6CF63464549232FD6CEA88D81178F0D",
+    1250,
+    2226,
+    true
+   ]
+  ],
+  "level_labels": [
+   "I2 Sleight Mouth Camera",
+   "S2 Sleight Hangar Camera",
+   "S2 Sleight Twin Lantern"
+  ],
+  "markers": [
+   [
+    "CST curtain hung",
+    175
+   ],
+   [
+    "CST curtain in",
+    75
+   ],
+   [
+    "CST drop",
+    1675
+   ],
+   [
+    "CST fold end",
+    1000
+   ],
+   [
+    "CST fold start",
+    250
+   ],
+   [
+    "CST hangar strike",
+    1300
+   ],
+   [
+    "CST play start",
+    175
+   ],
+   [
+    "CST sleight",
+    1250
+   ],
+   [
+    "CST walk start",
+    1702
+   ],
+   [
+    "CST wide",
+    0
+   ],
+   [
+    "GO 20 curtain",
+    1675
+   ],
+   [
+    "InfinityStage.BoyCatStart",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyDown",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyOpen",
+    500
+   ],
+   [
+    "InfinityStage.CurtainRiseStart",
+    400
+   ],
+   [
+    "InfinityStage.HiddenChangeover",
+    375
+   ]
+  ],
+  "playback": [
+   0,
+   2226
+  ],
+  "root_tracks": []
+ },
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}

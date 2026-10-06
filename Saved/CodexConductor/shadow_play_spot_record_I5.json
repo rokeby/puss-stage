@@ -1,0 +1,1155 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreShadowPlaySpot-I5-SPS-20261006-015519",
+ "backup_files": [
+  "E:/PussStage/Backups\\PreShadowPlaySpot-I5-SPS-20261006-015519\\LS_Interaction_05_BecomesKing.uasset"
+ ],
+ "binding_guids": {
+  "Shadow Play Spot (Hangar)": "8F9FA3A94926AE31FECC069230B552E4",
+  "Shadow Play Spot (Mouth)": "FE4D005948F2080077B23885C1F8FD5F"
+ },
+ "component_names": {
+  "Shadow Play Spot (Hangar)": "LightComponent0",
+  "Shadow Play Spot (Mouth)": "LightComponent0"
+ },
+ "created_binding_guids": [
+  "8F9FA3A94926AE31FECC069230B552E4",
+  "FE4D005948F2080077B23885C1F8FD5F"
+ ],
+ "interaction": 5,
+ "params": {
+  "circle_diameter_cm": 360,
+  "inner_ratio": 0.85
+ },
+ "plan": {
+  "aim_rel": [
+   -41.299999999999955,
+   0.0,
+   510.0
+  ],
+  "azimuth_deg": 0.0,
+  "beats": {
+   "play0": 175,
+   "release": 1675,
+   "sleight": 1250,
+   "strike": 1300
+  },
+  "cone": {
+   "circle_diameter_cm": 360.0,
+   "inner_deg": 2.9185858080829434,
+   "outer_deg": 3.433630362450522
+  },
+  "digest": "824dc7bd02d67f8bcd21",
+  "dir_rel": [
+   0.9396926207859084,
+   0.0,
+   -0.3420201433256687
+  ],
+  "elevation_deg": 20.0,
+  "end": 1837,
+  "fade_out": [
+   1675,
+   1700
+  ],
+  "fps": 25.0,
+  "go": [
+   "GO 50 curtain",
+   1675
+  ],
+  "light": {
+   "attenuation_radius_cm": 4500.0,
+   "cast_shadows": true,
+   "kelvin": 2800.0,
+   "source_radius_cm": 2.0,
+   "units": "CANDELAS"
+  },
+  "loc_rel": [
+   -2860.3778623577255,
+   0.0,
+   1536.0604299770062
+  ],
+  "n": 5,
+  "params": {
+   "azimuth_deg": 0.0,
+   "candela": null,
+   "circle_diameter_cm": 360,
+   "elevation_deg": 20.0,
+   "fade_out_s": 1.0,
+   "fade_up_s": 0.5,
+   "frame_margin_cm": 20.0,
+   "hangar_gain": 1.0,
+   "inner_ratio": 0.85,
+   "kelvin": null,
+   "match_tol_cm": 0.5,
+   "match_tol_deg": 0.05,
+   "radius_factor": 1.5,
+   "ratio_to_lantern": 16.0,
+   "source_radius_cm": 2.0,
+   "spawn_lead_frames": 25,
+   "throw_cm": 3000.0
+  },
+  "photometry": {
+   "cos_incidence": 0.9396926207859084,
+   "hangar_gain": 1.0,
+   "lantern_cd": 210.0,
+   "lantern_label": "S5 Sleight Twin Lantern",
+   "lantern_lux": 0.4883010945621364,
+   "lantern_throw_cm": 2073.794882682038,
+   "peak_cd": 7482.80406396505,
+   "ratio": 16.0,
+   "spot_lux": 7.812817512994182
+  },
+  "required_end": 1701,
+  "spots": {
+   "hangar": {
+    "aim_world": [
+     61649.5515625,
+     320000.0,
+     510.0
+    ],
+    "drape_frame": {
+     "loc": [
+      61690.8515625,
+      320000.0,
+      0.0
+     ],
+     "pitch": 0.0,
+     "yaw": 0.0
+    },
+    "intensity_keys": [
+     [
+      0,
+      0.0
+     ],
+     [
+      175,
+      0.0
+     ],
+     [
+      187,
+      7482.80406396505
+     ],
+     [
+      1300,
+      7482.80406396505
+     ],
+     [
+      1301,
+      0.0
+     ]
+    ],
+    "name": "Shadow Play Spot (Hangar)",
+    "peak_cd": 7482.80406396505,
+    "spawn": [
+     [
+      150,
+      true
+     ],
+     [
+      1302,
+      false
+     ]
+    ],
+    "transform_keys": [
+     [
+      0,
+      58830.473700142276,
+      320000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ],
+     [
+      1837,
+      58830.473700142276,
+      320000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "world": {
+     "loc": [
+      58830.473700142276,
+      320000.0,
+      1536.0604299770062
+     ],
+     "pitch": -20.0,
+     "roll": 0.0,
+     "yaw": 0.0
+    }
+   },
+   "mouth": {
+    "aim_world": [
+     -41.299999999999955,
+     400000.0,
+     510.0
+    ],
+    "drape_frame": {
+     "loc": [
+      0.0,
+      400000.0,
+      0.0
+     ],
+     "pitch": 0.0,
+     "yaw": 0.0
+    },
+    "intensity_keys": [
+     [
+      0,
+      0.0
+     ],
+     [
+      175,
+      0.0
+     ],
+     [
+      187,
+      7482.80406396505
+     ],
+     [
+      1675,
+      7482.80406396505
+     ],
+     [
+      1700,
+      0.0
+     ]
+    ],
+    "name": "Shadow Play Spot (Mouth)",
+    "peak_cd": 7482.80406396505,
+    "spawn": [
+     [
+      150,
+      true
+     ],
+     [
+      1701,
+      false
+     ]
+    ],
+    "transform_keys": [
+     [
+      0,
+      -2860.3778623577255,
+      400000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ],
+     [
+      1837,
+      -2860.3778623577255,
+      400000.0,
+      1536.0604299770062,
+      -20.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "world": {
+     "loc": [
+      -2860.3778623577255,
+      400000.0,
+      1536.0604299770062
+     ],
+     "pitch": -20.0,
+     "roll": 0.0,
+     "yaw": 0.0
+    }
+   }
+  },
+  "start": 0,
+  "throw_cm": 3000.0,
+  "up": [
+   175,
+   187
+  ]
+ },
+ "plan_digest": "824dc7bd02d67f8bcd21",
+ "range_before": [
+  0,
+  1837
+ ],
+ "run": "SPS-20261006-015519",
+ "schema_version": 1,
+ "sequence": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+ "sleight_plan_digest": "8e65a3de85ea5e125a1d",
+ "sleight_run": "CST-20261005-111752",
+ "snapshot_after": {
+  "bindings": [
+   {
+    "guid": "7372EAD4431E44DD761F7FB8F5BD7960",
+    "name": "Curtain Rig - Fire Safety Curtain",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneBoolTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainProgress",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D70946704EFF73BB39763387A8CF08AC",
+    "name": "I5 Sleight Mouth Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A3D228864E152DD6ADC6FAAD12F0E9EF",
+    "name": "I5 Sleight Mouth Camera/CameraComponent",
+    "parent": "D70946704EFF73BB39763387A8CF08AC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E226EE454A28A47AF22570AA77E4CF1D",
+    "name": "Interaction 5 — Stalls Camera",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BD5F0A89471C642B92F64491704D1DBC",
+    "name": "S5 Ghost Light",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "9E102E9A4E5DCBCCC06473B0312BBC32",
+    "name": "S5 Ghost Light/LightComponent",
+    "parent": "BD5F0A89471C642B92F64491704D1DBC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "08BD40DF42145027CFE7A9B6D8A3C9ED",
+    "name": "S5 Sleight Hangar Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "32276EE3436DF68AC26010ADC6D56228",
+    "name": "S5 Sleight Hangar Camera/CameraComponent",
+    "parent": "08BD40DF42145027CFE7A9B6D8A3C9ED",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C530C7EF411E0BF187D604A5E074F60F",
+    "name": "S5 Sleight Twin Lantern",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7244066A42E6D0AF233F7BBD04BF096F",
+    "name": "S5 Sleight Twin Lantern/LightComponent",
+    "parent": "C530C7EF411E0BF187D604A5E074F60F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8F9FA3A94926AE31FECC069230B552E4",
+    "name": "Shadow Play Spot (Hangar)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "FE4D005948F2080077B23885C1F8FD5F",
+    "name": "Shadow Play Spot (Mouth)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "ShadowPlaySpot (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C81F84074A9859700969FC9B524FEF91",
+    "name": "Sleight Hangar Drape",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        75,
+        1300,
+        23200,
+        240799
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "94F0C3564BE3369018A8FFAE2EB658F3",
+    "name": "Sleight Hangar Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4E6A3A3241119FE78080598BFF512EEC",
+    "name": "Sleight Mouth Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EAB951704DF2358AE4FFF7BE301F56C4",
+    "name": "Transition Drape (baked)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1675,
+        23200,
+        240799
+       ],
+       [
+        1675,
+        1837,
+        23200,
+        0
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [
+   [
+    "08BD40DF42145027CFE7A9B6D8A3C9ED",
+    0,
+    1250,
+    true
+   ],
+   [
+    "D70946704EFF73BB39763387A8CF08AC",
+    1250,
+    1837,
+    true
+   ]
+  ],
+  "level_labels": [
+   "I5 Sleight Mouth Camera",
+   "S5 Sleight Hangar Camera",
+   "S5 Sleight Twin Lantern"
+  ],
+  "markers": [
+   [
+    "CST curtain hung",
+    175
+   ],
+   [
+    "CST curtain in",
+    75
+   ],
+   [
+    "CST drop",
+    1675
+   ],
+   [
+    "CST fold end",
+    1000
+   ],
+   [
+    "CST fold start",
+    250
+   ],
+   [
+    "CST hangar strike",
+    1300
+   ],
+   [
+    "CST play start",
+    175
+   ],
+   [
+    "CST sleight",
+    1250
+   ],
+   [
+    "CST walk start",
+    1700
+   ],
+   [
+    "CST wide",
+    0
+   ],
+   [
+    "GO 50 curtain",
+    1675
+   ],
+   [
+    "InfinityStage.BoyCatStart",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyDown",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyOpen",
+    500
+   ],
+   [
+    "InfinityStage.CurtainRiseStart",
+    400
+   ],
+   [
+    "InfinityStage.HiddenChangeover",
+    375
+   ]
+  ],
+  "playback": [
+   0,
+   1837
+  ],
+  "root_tracks": []
+ },
+ "snapshot_before": {
+  "bindings": [
+   {
+    "guid": "7372EAD4431E44DD761F7FB8F5BD7960",
+    "name": "Curtain Rig - Fire Safety Curtain",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneBoolTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainProgress",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D70946704EFF73BB39763387A8CF08AC",
+    "name": "I5 Sleight Mouth Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A3D228864E152DD6ADC6FAAD12F0E9EF",
+    "name": "I5 Sleight Mouth Camera/CameraComponent",
+    "parent": "D70946704EFF73BB39763387A8CF08AC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E226EE454A28A47AF22570AA77E4CF1D",
+    "name": "Interaction 5 — Stalls Camera",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BD5F0A89471C642B92F64491704D1DBC",
+    "name": "S5 Ghost Light",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "9E102E9A4E5DCBCCC06473B0312BBC32",
+    "name": "S5 Ghost Light/LightComponent",
+    "parent": "BD5F0A89471C642B92F64491704D1DBC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "08BD40DF42145027CFE7A9B6D8A3C9ED",
+    "name": "S5 Sleight Hangar Camera",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "32276EE3436DF68AC26010ADC6D56228",
+    "name": "S5 Sleight Hangar Camera/CameraComponent",
+    "parent": "08BD40DF42145027CFE7A9B6D8A3C9ED",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C530C7EF411E0BF187D604A5E074F60F",
+    "name": "S5 Sleight Twin Lantern",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7244066A42E6D0AF233F7BBD04BF096F",
+    "name": "S5 Sleight Twin Lantern/LightComponent",
+    "parent": "C530C7EF411E0BF187D604A5E074F60F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C81F84074A9859700969FC9B524FEF91",
+    "name": "Sleight Hangar Drape",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        75,
+        1300,
+        23200,
+        240799
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "94F0C3564BE3369018A8FFAE2EB658F3",
+    "name": "Sleight Hangar Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4E6A3A3241119FE78080598BFF512EEC",
+    "name": "Sleight Mouth Shadow Card",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "CurtainSleight (Conductor)",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1838
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EAB951704DF2358AE4FFF7BE301F56C4",
+    "name": "Transition Drape (baked)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1675,
+        23200,
+        240799
+       ],
+       [
+        1675,
+        1837,
+        23200,
+        0
+       ]
+      ]
+     },
+     {
+      "class": "MovieSceneSpawnTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        1837
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [
+   [
+    "08BD40DF42145027CFE7A9B6D8A3C9ED",
+    0,
+    1250,
+    true
+   ],
+   [
+    "D70946704EFF73BB39763387A8CF08AC",
+    1250,
+    1837,
+    true
+   ]
+  ],
+  "level_labels": [
+   "I5 Sleight Mouth Camera",
+   "S5 Sleight Hangar Camera",
+   "S5 Sleight Twin Lantern"
+  ],
+  "markers": [
+   [
+    "CST curtain hung",
+    175
+   ],
+   [
+    "CST curtain in",
+    75
+   ],
+   [
+    "CST drop",
+    1675
+   ],
+   [
+    "CST fold end",
+    1000
+   ],
+   [
+    "CST fold start",
+    250
+   ],
+   [
+    "CST hangar strike",
+    1300
+   ],
+   [
+    "CST play start",
+    175
+   ],
+   [
+    "CST sleight",
+    1250
+   ],
+   [
+    "CST walk start",
+    1700
+   ],
+   [
+    "CST wide",
+    0
+   ],
+   [
+    "GO 50 curtain",
+    1675
+   ],
+   [
+    "InfinityStage.BoyCatStart",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyDown",
+    75
+   ],
+   [
+    "InfinityStage.CurtainFullyOpen",
+    500
+   ],
+   [
+    "InfinityStage.CurtainRiseStart",
+    400
+   ],
+   [
+    "InfinityStage.HiddenChangeover",
+    375
+   ]
+  ],
+  "playback": [
+   0,
+   1837
+  ],
+  "root_tracks": []
+ },
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}
