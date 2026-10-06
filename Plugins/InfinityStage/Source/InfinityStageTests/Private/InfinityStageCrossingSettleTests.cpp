@@ -419,7 +419,7 @@ bool FInfinityStageCrossingSettleScrubTest::RunTest(const FString& Parameters)
     // so any real history dependence (a stateful settle would differ by
     // centimetres) still fails. The control below proves the instrument sees
     // a one-display-frame difference far above both tolerances.
-    constexpr double PositionToleranceCm = 1.0e-3;
+    constexpr double SettlePositionToleranceCm = 1.0e-3;
     constexpr double AngleToleranceDeg = 1.0e-4;
     double MaxPositionError = 0.0;
     double MaxAngleError = 0.0;
@@ -446,14 +446,14 @@ bool FInfinityStageCrossingSettleScrubTest::RunTest(const FString& Parameters)
     const double AdjacentPositionCm = FVector::Distance(Adjacent0.GetLocation(), Adjacent1.GetLocation());
     const double AdjacentAngleDeg = AngleDegrees(Adjacent0, Adjacent1);
     TestTrue(FString::Printf(TEXT("Control: adjacent frames differ by %.3f cm, far above the %.0e cm tolerance"),
-            AdjacentPositionCm, PositionToleranceCm),
-        AdjacentPositionCm > 1000.0 * PositionToleranceCm);
+            AdjacentPositionCm, SettlePositionToleranceCm),
+        AdjacentPositionCm > 1000.0 * SettlePositionToleranceCm);
     TestTrue(FString::Printf(TEXT("Control: adjacent frames differ by %.5f deg, far above the %.0e deg tolerance"),
             AdjacentAngleDeg, AngleToleranceDeg),
         AdjacentAngleDeg > 100.0 * AngleToleranceDeg);
     TestTrue(FString::Printf(TEXT("Reverse and scrub give play's position at every frame (max error %.2e cm < %.0e)"),
-            MaxPositionError, PositionToleranceCm),
-        MaxPositionError < PositionToleranceCm);
+            MaxPositionError, SettlePositionToleranceCm),
+        MaxPositionError < SettlePositionToleranceCm);
     TestTrue(FString::Printf(TEXT("Reverse and scrub give play's orientation at every frame (max error %.2e deg < %.0e)"),
             MaxAngleError, AngleToleranceDeg),
         MaxAngleError < AngleToleranceDeg);

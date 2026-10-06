@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "UObject/ObjectKey.h"
 #include "InfinityStagePassageActor.generated.h"
 
 class UInfinityStageShowAsset;
@@ -183,7 +184,26 @@ public:
     /** Resolves the stable Cue to its spline station and occurrence-root world transforms. */
     bool GetCuePlacementTransforms(FGuid CueGuid, FTransform& OutStationWorld, FTransform& OutPairWorld) const;
 
+    /** TEST SEAM: the emissive value last written to a bulb body (Body.bFollowLight), or -1. */
+    float GetBulbBodyLevelForTests(const AActor* Body) const;
+
 private:
+    /** Per bulb body, made at its first game-world evaluation (never in the editor). */
+    struct FBulbBodyRuntime
+    {
+        TWeakObjectPtr<class UMaterialInstanceDynamic> Material;
+        float FullIntensity = 1.0f;
+        float Level = -1.0f;
+        bool bPrepared = false;
+    };
+    TMap<FObjectKey, FBulbBodyRuntime> BulbBodies;
+
+    /** Turns every Mover-enabled lamp by its routine from the authored aim. */
+    void UpdateLightMovers(const struct FInfinityCompiledPassage& Passage, double CameraDistanceCm, double ShowSeconds);
+
+    /** Drives every Body.bFollowLight glass from its light's drama and its own flicker. */
+    void UpdateBulbBodies(const struct FInfinityCompiledPassage& Passage, double CameraDistanceCm, double ShowSeconds);
+
     bool EvaluateMechanismsInternal(FFrameNumber MasterFrame, TOptional<double> CameraDistanceCm);
 
     bool AddPanelInstance(

@@ -12,6 +12,9 @@
 #include "LevelSequencePlayer.h"
 #include "MovieScene.h"
 #include "MovieSceneInfinityAudioTrack.h"
+#include "MovieSceneInfinityPassageTrack.h"
+#include "MovieSceneInfinitySceneTrack.h"
+#include "HAL/IConsoleManager.h"
 #include "MovieSceneSequencePlayer.h"
 #include "Sections/MovieSceneCameraCutSection.h"
 #include "Tracks/MovieSceneCameraCutTrack.h"
@@ -29,6 +32,30 @@ constexpr TCHAR HiddenChangeoverMarker[] = TEXT("InfinityStage.HiddenChangeover"
 constexpr TCHAR VampStartMarker[] = TEXT("InfinityStage.VampStart");
 constexpr TCHAR VampEndMarker[] = TEXT("InfinityStage.VampEnd");
 constexpr int32 JumpResettleMinTicks = 2;
+
+TAutoConsoleVariable<int32> CVarInfinityStageSeamDiag(
+    TEXT("InfinityStage.SeamDiag"),
+    0,
+    TEXT("Seam diagnostic: 1 logs INFINITY_SEAM_DIAG lines (both clocks, segment by compiled table and by Master\n")
+    TEXT("sections, view target/blend, POV step, look offset, rig settle/bob, expected music position) at every\n")
+    TEXT("pause/resume/play/jump/scrub/claim and every tick near a boundary, on a hitch or a view step. 0: off."));
+
+TAutoConsoleVariable<float> CVarInfinityStageSeamDiagWindow(
+    TEXT("InfinityStage.SeamDiag.WindowSeconds"), 1.0f,
+    TEXT("Seam diagnostic: log every tick within this many Master seconds of a segment boundary."));
+
+TAutoConsoleVariable<float> CVarInfinityStageSeamDiagStepCm(
+    TEXT("InfinityStage.SeamDiag.StepCm"), 5.0f,
+    TEXT("Seam diagnostic: also log any tick whose rendered POV moved more than this (cm) since the last tick."));
+
+TAutoConsoleVariable<float> CVarInfinityStageSeamDiagStepDeg(
+    TEXT("InfinityStage.SeamDiag.StepDeg"), 2.0f,
+    TEXT("Seam diagnostic: also log any tick whose rendered POV turned more than this (degrees) since the last tick."));
+
+bool SeamDiagOn()
+{
+    return CVarInfinityStageSeamDiag.GetValueOnGameThread() > 0;
+}
 
 /**
  * One transport per world, so sequence evaluation can find the single camera
@@ -795,6 +822,10 @@ void UInfinityStageTransportController::TickComponent(
     }
     const FFrameNumber CurrentFrame = GetCurrentMasterFrame();
     const int32 FrameSegment = FindSegmentAtFrame(CurrentFrame);
+    if (SeamDiagOn())
+    {
+        TickSeamDiag(CurrentFrame, DeltaTime);
+    }
     if (bFastForwardActive
         && Segments.IsValidIndex(FrameSegment)
         && Segments[FrameSegment].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable)
@@ -804,6 +835,18 @@ void UInfinityStageTransportController::TickComponent(
         StopFastForwardPlayback();
         UE_LOG(LogInfinityStageTransport, Log,
             TEXT("INFINITY_FAST_FORWARD_INTERLOCK frame=%d segment=%d"),
+            CurrentFrame.Value, FrameSegment);
+    }
+    if (bRewindActive
+        && bPerformanceMode
+        && Segments.IsValidIndex(FrameSegment)
+        && Segments[FrameSegment].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable)
+    {
+        // BeginRewind's target never enters a live-performer segment; if one is
+        // reached anyway, drop the rate change at once (as fast-forward does).
+        StopFastForwardPlayback();
+        UE_LOG(LogInfinityStageTransport, Warning,
+            TEXT("INFINITY_REWIND_INTERLOCK frame=%d segment=%d"),
             CurrentFrame.Value, FrameSegment);
     }
     if (HandleGoHold(CurrentFrame))
@@ -1049,6 +1092,7 @@ bool UInfinityStageTransportController::InitializeTransport(ULevelSequencePlayer
     SetManagedMasterAudioMuted(false);
     Player = InPlayer;
     bFastForwardActive = false;
+    bRewindActive = false;
     bMasterAudioMutedForFastForward = false;
     JumpResettleState.bPending = false;
     ClearTransportRests();
@@ -1320,6 +1364,10 @@ EInfinityTransportResult UInfinityStageTransportController::BeginFastForward()
 
 EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const bool bWasPlaying)
 {
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("ff_end"), FString::Printf(TEXT("|was_playing=%d"), bWasPlaying ? 1 : 0));
+    }
     StopFastForwardPlayback();
     if (!Player)
     {
@@ -1335,6 +1383,92 @@ EInfinityTransportResult UInfinityStageTransportController::EndFastForward(const
     {
         Player->Play();
         return LastResult = EInfinityTransportResult::Succeeded;
+    }
+    return PauseTransport();
+}
+
+FFrameNumber UInfinityStageTransportController::ResolveRewindTargetFrame(
+    const TArray<FInfinityTransportSegment>& InSegments,
+    const int32 FromSegmentIndex,
+    const bool bInPerformanceMode)
+{
+    if (InSegments.IsEmpty())
+    {
+        return 0;
+    }
+    if (!InSegments.IsValidIndex(FromSegmentIndex))
+    {
+        return InSegments[0].StartFrame;
+    }
+    int32 Index = FromSegmentIndex;
+    while (Index > 0
+        && !(bInPerformanceMode
+            && InSegments[Index - 1].ExternalSound == EInfinityExternalSoundAuthority::DeclaredUnpausable))
+    {
+        --Index;
+    }
+    // In performance mode Index now follows the nearest earlier live-performer
+    // segment: stopping on its start frame is stopping on that segment's END.
+    return InSegments[Index].StartFrame;
+}
+
+EInfinityTransportResult UInfinityStageTransportController::BeginRewind()
+{
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    RefreshSelectedSegment();
+    if (!Segments.IsValidIndex(SelectedSegmentIndex))
+    {
+        return LastResult = EInfinityTransportResult::NoSegment;
+    }
+    // Reversing is both a move and a rate change: never inside a live clock.
+    if (IsUnsafeExternalHold())
+    {
+        return LastResult = EInfinityTransportResult::UnsafeExternalClock;
+    }
+    const FFrameNumber Current = GetCurrentMasterFrame();
+    const FFrameNumber Target = ResolveRewindTargetFrame(Segments, SelectedSegmentIndex, bPerformanceMode);
+    if (Target >= Current)
+    {
+        return LastResult = EInfinityTransportResult::NoSegment;
+    }
+
+    const float Rate = FMath::Max(1.0f, RewindRate);
+    JumpResettleState.bPending = false;
+    bFastForwardActive = false;
+    bRewindActive = true;
+    // Reverse audio is noise: mute exactly as fast-forward does, restored at 1x.
+    SetManagedMasterAudioMuted(true);
+    Player->SetPlayRate(Rate);
+    // One PlayTo toward an earlier frame plays in reverse (as PlayReverseToBoundary
+    // does); the tick claims each segment's camera as the playhead crosses back.
+    const EInfinityTransportResult Result = PlayToFrame(Target);
+    if (Result != EInfinityTransportResult::Succeeded)
+    {
+        StopFastForwardPlayback();
+    }
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_REWIND_BEGIN from=%d target=%d rate=%.2f result=%d"),
+        Current.Value, Target.Value, Rate, static_cast<int32>(Result));
+    return Result;
+}
+
+EInfinityTransportResult UInfinityStageTransportController::EndRewind(const bool bWasPlaying)
+{
+    const bool bWasRewinding = bRewindActive;
+    StopFastForwardPlayback();
+    if (!Player)
+    {
+        return LastResult = EInfinityTransportResult::NoPlayer;
+    }
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_REWIND_END frame=%d was_rewinding=%d resume=%d"),
+        GetCurrentMasterFrame().Value, bWasRewinding ? 1 : 0, bWasPlaying ? 1 : 0);
+    if (bWasPlaying)
+    {
+        return PlayForwardToBoundary();
     }
     return PauseTransport();
 }
@@ -1442,14 +1576,25 @@ EInfinityTransportResult UInfinityStageTransportController::PauseTransport()
 {
     if (!Player)
     {
-        return LastResult = EInfinityTransportResult::NoPlayer;
+        LastResult = EInfinityTransportResult::NoPlayer;
     }
-    if (IsUnsafeExternalHold())
+    else if (IsUnsafeExternalHold())
     {
-        return LastResult = EInfinityTransportResult::UnsafeExternalClock;
+        LastResult = EInfinityTransportResult::UnsafeExternalClock;
     }
-    Player->Pause();
-    return LastResult = EInfinityTransportResult::Succeeded;
+    else
+    {
+        // Sequencer's own Pause (not a zero play rate): the Master stops; anything
+        // timed by the world (camera-manager blends, the cat's animation, dog/mouse
+        // look) keeps running. The seam diagnostic logs both clocks here.
+        Player->Pause();
+        LastResult = EInfinityTransportResult::Succeeded;
+    }
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("pause"), FString::Printf(TEXT("|result=%d"), static_cast<int32>(LastResult)));
+    }
+    return LastResult;
 }
 
 EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
@@ -1462,6 +1607,10 @@ EInfinityTransportResult UInfinityStageTransportController::ResumeForward()
     ClearTransportRests();
     Player->SetPlayRate(FMath::Max(0.001f, FMath::Abs(Player->GetPlayRate())));
     Player->Play();
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("resume"), FString());
+    }
     return LastResult = EInfinityTransportResult::Succeeded;
 }
 
@@ -1525,6 +1674,10 @@ EInfinityTransportResult UInfinityStageTransportController::ScrubToMasterFrame(c
     SelectedSegmentIndex = TargetIndex;
     bCoveredHandoffActive = IsCoveredHandoffActive(TargetIndex, TargetFrame);
     ClaimSegmentCamera(TargetIndex, TargetFrame);
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("scrub"), FString::Printf(TEXT("|target=%d"), TargetFrame.Value));
+    }
     return LastResult = EInfinityTransportResult::Succeeded;
 }
 
@@ -1645,6 +1798,11 @@ EInfinityTransportResult UInfinityStageTransportController::JumpToMasterFrame(
     // after restoring bounded playback so Geometry Caches still resettle.
     JumpResettleState = {true, TargetFrame, 0.0f, 0};
     ClaimSegmentCamera(SegmentIndex, TargetFrame);
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("jump"), FString::Printf(TEXT("|target=%d|keep_playing=%d"),
+            TargetFrame.Value, bKeepPlaying ? 1 : 0));
+    }
     return LastResult = EInfinityTransportResult::Succeeded;
 }
 
@@ -1791,7 +1949,13 @@ void UInfinityStageTransportController::ClaimSegmentCamera(
         Handover.Frame.Value,
         Handover.Blend.BlendSeconds,
         Handover.bCovered ? 1 : 0);
-    ApplyHandover(Handover);
+    const bool bApplied = ApplyHandover(Handover);
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("claim"), FString::Printf(TEXT("|requested=%d|source=%s|from=%d|at=%d|blend=%.3f|applied=%d"),
+            Handover.RequestedSegmentIndex, LexHandoverSource(Handover.Source), Handover.SegmentIndex,
+            Handover.Frame.Value, Handover.Blend.BlendSeconds, bApplied ? 1 : 0));
+    }
 }
 
 bool UInfinityStageTransportController::ApplyHandover(const FInfinityCameraHandover& Handover)
@@ -2170,7 +2334,203 @@ EInfinityTransportResult UInfinityStageTransportController::PlayToFrame(const FF
     {
         ClaimSegmentCamera(CurrentIndex, CurrentFrame);
     }
+    if (SeamDiagOn())
+    {
+        // A resume from Space/GO arrives here: PlayTo, then a re-claim of the
+        // segment camera at the current frame (a hard cut unless already live).
+        EmitSeamDiag(TEXT("playto"), FString::Printf(TEXT("|target=%d"), TargetFrame.Value));
+    }
     return LastResult = EInfinityTransportResult::Succeeded;
+}
+
+bool UInfinityStageTransportController::ShouldLogSeamFrame(
+    const double SecondsToNearestBoundary,
+    const double WindowSeconds,
+    const double WorldDeltaSeconds,
+    const double StepCm,
+    const double StepDeg,
+    const double StepThresholdCm,
+    const double StepThresholdDeg)
+{
+    return FMath::Abs(SecondsToNearestBoundary) <= FMath::Max(0.0, WindowSeconds)
+        || WorldDeltaSeconds >= 0.25
+        || StepCm > StepThresholdCm
+        || StepDeg > StepThresholdDeg;
+}
+
+int32 UInfinityStageTransportController::FindRangeIndex(
+    const TArray<TRange<FFrameNumber>>& Ranges, const FFrameNumber Frame)
+{
+    int32 Found = INDEX_NONE;
+    for (int32 Index = 0; Index < Ranges.Num(); ++Index)
+    {
+        if (Ranges[Index].Contains(Frame))
+        {
+            Found = Index;
+        }
+    }
+    return Found;
+}
+
+int32 UInfinityStageTransportController::FindMasterSectionSegment(const FFrameNumber Frame) const
+{
+    // The Master's OWN clock: which managed Passage/Scene section the player is
+    // evaluating at this frame, mapped back to the compiled segment by GUID. The
+    // rebuild writes these from the same compile (SequenceBuilderLibrary
+    // MakeSectionRange), so a disagreement here means the Master is stale.
+    const UMovieScene* MovieScene = Player && Player->GetSequence() ? Player->GetSequence()->GetMovieScene() : nullptr;
+    if (!MovieScene)
+    {
+        return INDEX_NONE;
+    }
+    FGuid Found;
+    if (const UMovieSceneInfinityPassageTrack* Track = MovieScene->FindTrack<UMovieSceneInfinityPassageTrack>())
+    {
+        for (const UMovieSceneSection* Section : Track->GetAllSections())
+        {
+            const UMovieSceneInfinityPassageSection* Passage = Cast<UMovieSceneInfinityPassageSection>(Section);
+            if (Passage && Passage->GetRange().Contains(Frame))
+            {
+                Found = Passage->PassageGuid;
+            }
+        }
+    }
+    if (const UMovieSceneInfinitySceneTrack* Track = MovieScene->FindTrack<UMovieSceneInfinitySceneTrack>())
+    {
+        for (const UMovieSceneSection* Section : Track->GetAllSections())
+        {
+            const UMovieSceneInfinitySceneSection* Scene = Cast<UMovieSceneInfinitySceneSection>(Section);
+            if (Scene && Scene->GetRange().Contains(Frame))
+            {
+                Found = Scene->BlockGuid;
+            }
+        }
+    }
+    return Found.IsValid()
+        ? Segments.IndexOfByPredicate([&Found](const FInfinityTransportSegment& Segment) { return Segment.SegmentGuid == Found; })
+        : INDEX_NONE;
+}
+
+void UInfinityStageTransportController::EmitSeamDiag(const TCHAR* Event, const FString& Extra)
+{
+    const UWorld* World = GetWorld();
+    const FFrameNumber Frame = GetCurrentMasterFrame();
+    const double TickRate = ShowAsset && ShowAsset->TickResolution.IsValid() ? ShowAsset->TickResolution.AsDecimal() : 0.0;
+    const int32 Compiled = FindSegmentAtFrame(Frame);
+    const int32 ByMaster = FindMasterSectionSegment(Frame);
+
+    FString View = TEXT("|vt=none");
+    if (const APlayerController* PlayerController = World ? World->GetFirstPlayerController() : nullptr)
+    {
+        const APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager;
+        const AActor* Target = PlayerController->GetViewTarget();
+        double LookOffsetDeg = 0.0;
+        if (Target)
+        {
+            // A dog / mouse look is written onto the camera COMPONENT, so its
+            // angle from the actor is the look offset a hard cut would drop.
+            if (const UCameraComponent* CameraComponent = Target->FindComponentByClass<UCameraComponent>())
+            {
+                LookOffsetDeg = FMath::RadiansToDegrees(
+                    CameraComponent->GetComponentQuat().AngularDistance(Target->GetActorQuat()));
+            }
+        }
+        View = FString::Printf(TEXT("|vt=%s|blend_to_go=%.3f|pov=%s|rot=%s|step_cm=%.2f|step_deg=%.2f|cam_vs_actor_deg=%.2f"),
+            *GetNameSafe(Target),
+            CameraManager ? CameraManager->BlendTimeToGo : -1.0f,
+            CameraManager ? *CameraManager->GetCameraCacheView().Location.ToCompactString() : TEXT("-"),
+            CameraManager ? *CameraManager->GetCameraCacheView().Rotation.ToCompactString() : TEXT("-"),
+            SeamDiagLastStepCm, SeamDiagLastStepDeg, LookOffsetDeg);
+        if (const AInfinityStageCameraRig* Rig = Cast<AInfinityStageCameraRig>(Target))
+        {
+            View += FString::Printf(TEXT("|rig_settle=%.3f|rig_bob_cm=%.2f|rig_walk_w=%.3f|rig_speed=%.1f"),
+                Rig->CurrentCrossingSettleWeight, Rig->CurrentShadowCatCameraBobCm,
+                Rig->CurrentShadowCatBobWalkWeight, Rig->CurrentShadowCatCameraSpeedCmPerSecond);
+        }
+    }
+
+    FString Music = TEXT("|music=none");
+    if (const UMovieScene* MovieScene = Player && Player->GetSequence() ? Player->GetSequence()->GetMovieScene() : nullptr)
+    {
+        if (const UMovieSceneInfinityAudioTrack* MusicTrack = MovieScene->FindTrack<UMovieSceneInfinityAudioTrack>())
+        {
+            for (const UMovieSceneSection* Section : MusicTrack->GetAllSections())
+            {
+                const UMovieSceneInfinityAudioSection* Audio = Cast<UMovieSceneInfinityAudioSection>(Section);
+                if (Audio && Audio->GetRange().Contains(Frame) && Audio->HasStartFrame() && TickRate > 0.0)
+                {
+                    // Where the music SHOULD be by Master time; the real cursor is internal to Sequencer.
+                    Music = FString::Printf(TEXT("|music_block=%s|music_expect_s=%.3f|music_eval_disabled=%d"),
+                        *Audio->BlockGuid.ToString(EGuidFormats::Short),
+                        (Audio->GetStartOffset().Value + (Frame - Audio->GetInclusiveStartFrame()).Value) / TickRate,
+                        MusicTrack->IsEvalDisabled() ? 1 : 0);
+                }
+            }
+        }
+    }
+
+    const FString Line = FString::Printf(
+        TEXT("INFINITY_SEAM_DIAG|ev=%s|frame=%d|master_s=%.4f|seg=%d|seg_by_master=%d|world_s=%.4f|unpaused_s=%.4f|real_s=%.4f|dt=%.4f")
+        TEXT("|playing=%d|rev=%d|rate=%.2f|ff=%d|rw=%d|hold=%d|claimed=%s|claimed_at_world_s=%.3f|claimed_blend=%.3f%s%s%s"),
+        Event, Frame.Value, TickRate > 0.0 ? Frame.Value / TickRate : 0.0, Compiled, ByMaster,
+        World ? World->GetTimeSeconds() : 0.0,
+        World ? World->GetUnpausedTimeSeconds() : 0.0,
+        World ? World->GetRealTimeSeconds() : 0.0,
+        World ? World->GetDeltaSeconds() : 0.0,
+        IsTransportPlaying() ? 1 : 0,
+        Player && Player->IsReversed() ? 1 : 0,
+        Player ? Player->GetPlayRate() : 0.0f,
+        bFastForwardActive ? 1 : 0,
+        bRewindActive ? 1 : 0,
+        GoHoldState.IsActive() ? 1 : 0,
+        *GetNameSafe(ClaimedViewTarget.Get()),
+        ClaimedAtWorldSeconds,
+        ClaimedBlendSeconds,
+        *View, *Music, *Extra);
+    UE_LOG(LogInfinityStageTransport, Display, TEXT("%s"), *Line);
+    if (SeamDiagSinkForTests)
+    {
+        SeamDiagSinkForTests(Line);
+    }
+}
+
+void UInfinityStageTransportController::TickSeamDiag(const FFrameNumber CurrentFrame, const float DeltaTime)
+{
+    const UWorld* World = GetWorld();
+    const APlayerController* PlayerController = World ? World->GetFirstPlayerController() : nullptr;
+    const APlayerCameraManager* CameraManager = PlayerController ? PlayerController->PlayerCameraManager : nullptr;
+    SeamDiagLastStepCm = 0.0;
+    SeamDiagLastStepDeg = 0.0;
+    if (CameraManager)
+    {
+        // The cache is the last view the camera manager produced (the frame
+        // actually rendered last), so consecutive ticks give the on-screen step.
+        const FMinimalViewInfo& Pov = CameraManager->GetCameraCacheView();
+        if (bSeamDiagHasPov)
+        {
+            SeamDiagLastStepCm = FVector::Distance(Pov.Location, SeamDiagLastPov);
+            SeamDiagLastStepDeg = FMath::RadiansToDegrees(
+                Pov.Rotation.Quaternion().AngularDistance(SeamDiagLastRot.Quaternion()));
+        }
+        SeamDiagLastPov = Pov.Location;
+        SeamDiagLastRot = Pov.Rotation;
+        bSeamDiagHasPov = true;
+    }
+    const double TickRate = ShowAsset && ShowAsset->TickResolution.IsValid() ? ShowAsset->TickResolution.AsDecimal() : 0.0;
+    double Nearest = TNumericLimits<double>::Max();
+    if (TickRate > 0.0)
+    {
+        for (const FInfinityTransportSegment& Segment : Segments)
+        {
+            Nearest = FMath::Min(Nearest, FMath::Abs((CurrentFrame - Segment.StartFrame).Value / TickRate));
+        }
+    }
+    if (ShouldLogSeamFrame(Nearest, CVarInfinityStageSeamDiagWindow.GetValueOnGameThread(),
+        DeltaTime, SeamDiagLastStepCm, SeamDiagLastStepDeg,
+        CVarInfinityStageSeamDiagStepCm.GetValueOnGameThread(), CVarInfinityStageSeamDiagStepDeg.GetValueOnGameThread()))
+    {
+        EmitSeamDiag(TEXT("tick"), FString::Printf(TEXT("|to_boundary_s=%.3f|tick_dt=%.4f"), Nearest, DeltaTime));
+    }
 }
 
 bool UInfinityStageTransportController::IsUnsafeExternalHold() const
@@ -2304,6 +2664,10 @@ bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentF
         : FFrameTime(SettleFrame);
     Player->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(HoldDisplayFrame, EUpdatePositionMethod::Jump));
     JumpResettleState = {true, SettleFrame, 0.0f, 0};
+    if (SeamDiagOn())
+    {
+        EmitSeamDiag(TEXT("go_hold"), FString::Printf(TEXT("|go=%s|settle=%d"), *Cue.Number, SettleFrame.Value));
+    }
     UE_LOG(LogInfinityStageTransport, Log,
         TEXT("INFINITY_GO_HOLD number=%s frame=%d crossed_at=%d label='%s'"),
         *Cue.Number, Cue.Frame.Value, CurrentFrame.Value, *Cue.Label);
@@ -2424,7 +2788,9 @@ void UInfinityStageTransportController::SetManagedMasterAudioMuted(const bool bM
 
 void UInfinityStageTransportController::StopFastForwardPlayback()
 {
+    // Ends any rate-changed playback: a fast-forward or a rewind.
     bFastForwardActive = false;
+    bRewindActive = false;
     SetManagedMasterAudioMuted(false);
     if (Player)
     {

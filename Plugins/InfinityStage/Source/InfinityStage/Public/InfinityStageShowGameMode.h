@@ -25,15 +25,25 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     void ToggleShowPlayback();
 
+    /** H: shows or hides the Director's bottom-row HUD (InfinityStage.DirectorHud). */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    void ToggleDirectorHud();
+
 protected:
     virtual void SetupInputComponent() override;
 
 private:
     FInfinityHoldRightState HoldRightState;
 
+    /** The same tap-or-hold machine for Left: tap = Previous, hold = rewind. */
+    FInfinityHoldRightState HoldLeftState;
+
     void BeginRightInput();
     void EndRightInput();
     void ApplyHoldRightAction(EInfinityHoldRightAction Action);
+    void BeginLeftInput();
+    void EndLeftInput();
+    void ApplyHoldLeftAction(EInfinityHoldRightAction Action);
 };
 
 /**

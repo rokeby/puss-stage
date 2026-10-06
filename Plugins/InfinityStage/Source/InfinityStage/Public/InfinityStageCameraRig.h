@@ -232,6 +232,12 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat", meta = (Units = "cm/s"))
     double CurrentShadowCatCameraSpeedCmPerSecond = 0.0;
 
+    /** Route station distance of the camera at the last evaluated master frame (camera
+     * offsets included): the distance the Passage mechanisms were driven by. Read by
+     * the Director's HUD for the bay number. */
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage", meta = (Units = "cm"))
+    double CurrentCameraDistanceCm = 0.0;
+
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Cat")
     double CurrentShadowCatPlayRate = 0.0;
 

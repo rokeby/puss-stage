@@ -8,6 +8,8 @@
 #include "Sound/SoundBase.h"
 #include "InfinityStageEffectTypes.h"
 #include "InfinityStageLightDrama.h"
+#include "InfinityStageBulbBody.h"
+#include "InfinityStageLightMover.h"
 #include "InfinityStageTypes.generated.h"
 
 class ULevelSequence;
@@ -474,6 +476,19 @@ struct INFINITYSTAGE_API FInfinityCueAttachment
         meta = (ClampMin = "0.0", Units = "cm",
             EditCondition = "Kind == EInfinityAttachmentKind::AnimationTrigger", EditConditionHides))
     double TriggerDistanceCm = 800.0;
+
+    /** A bulb's glass (a mesh prop) follows its light's evaluated brightness, with
+     * an optional flicker of its own (Stable / Slight / Fail). Off by default, so
+     * existing attachments are unchanged. Game worlds only. See InfinityStageBulbBody.h. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Bulb Body")
+    FInfinityBulbBodySettings Body;
+
+    /** Light attachments: a club "mover" routine - seeded, rapid, jolting yaw/pitch
+     * steps that start calm and turn haywire. Off by default. Game worlds only;
+     * Station anchor only. See InfinityStageLightMover.h. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Mover",
+        meta = (EditCondition = "Kind == EInfinityAttachmentKind::Light", EditConditionHides))
+    FInfinityLightMoverSettings Mover;
 };
 
 USTRUCT(BlueprintType)

@@ -11,6 +11,10 @@
 #include "InfinityStageEffectSource.h"
 #include "InfinityStageEffectTypes.h"
 #include "InfinityStageLightDrama.h"
+#include "InfinityStageBulbBody.h"
+#include "InfinityStageLightMover.h"
+#include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/PointLight.h"
 #include "Engine/RectLight.h"
 #include "Engine/Scene.h"
@@ -890,6 +894,7 @@ int32 AInfinityStagePassageActor::MaterializeAttachments()
         Existing->Destroy();
     }
     ManagedAttachmentActors.Reset();
+    BulbBodies.Reset();
 
     int32 Placed = 0;
     int32 PlacedLights = 0;
@@ -1659,9 +1664,187 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                 EvaluatedCameraDistanceCm,
                 ShowSeconds);
         }
+        // Movers after Light Drama: a mover owns its lamp's aim while it runs.
+        UpdateLightMovers(*Passage, EvaluatedCameraDistanceCm, ShowSeconds);
+        // After the lamps, so a body that also drives its light has the last word.
+        UpdateBulbBodies(*Passage, EvaluatedCameraDistanceCm, ShowSeconds);
     }
 
     return bAllUpdatesSucceeded;
+}
+
+void AInfinityStagePassageActor::UpdateLightMovers(
+    const FInfinityCompiledPassage& Passage,
+    const double CameraDistanceCm,
+    const double ShowSeconds)
+{
+    if (!Route)
+    {
+        return;
+    }
+    for (AActor* Lamp : ManagedAttachmentActors)
+    {
+        FGuid CueGuid;
+        FGuid AttachmentGuid;
+        if (!IsValid(Lamp) || !FindAttachmentByActor(Lamp, CueGuid, AttachmentGuid))
+        {
+            continue;
+        }
+        const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
+        const FInfinityCueAttachment* Attachment = Cue
+            ? Cue->WingPair.Attachments.FindByPredicate([&AttachmentGuid](const FInfinityCueAttachment& Candidate)
+                { return Candidate.AttachmentGuid == AttachmentGuid; })
+            : nullptr;
+        if (!Attachment || !Attachment->Mover.bEnabled || Attachment->Kind != EInfinityAttachmentKind::Light
+            || Attachment->Anchor != EInfinityAttachmentAnchor::Station)
+        {
+            continue;
+        }
+        const FInfinityCompiledWing* Wing = Passage.Wings.FindByPredicate([&CueGuid](const FInfinityCompiledWing& Candidate)
+            { return Candidate.CueGuid == CueGuid; });
+        if (!Wing)
+        {
+            continue;
+        }
+        const double LampCm = Wing->DistanceCm + Attachment->RelativeTransform.GetLocation().X;
+        const float Scale = InfinityStageLightMover::ErraticScale(Attachment->Mover, LampCm, CameraDistanceCm);
+        if (Scale <= 0.0f && Attachment->Lighting.Drama.bSlowMove)
+        {
+            // Not started yet: Light Drama's slow move keeps the aim.
+            continue;
+        }
+        // The authored pose exactly as the Light Drama pass computes it.
+        const FTransform AuthoredWorld = Attachment->RelativeTransform
+            * Cue->WingPair.OccurrenceOffset
+            * Route->GetTransformAtDistanceAlongSpline(Wing->DistanceCm, ESplineCoordinateSpace::World, true);
+        const FRotator Offset = InfinityStageLightMover::Evaluate(
+            Attachment->Mover, AttachmentGuid, LampCm, CameraDistanceCm, ShowSeconds);
+        const FQuat Wanted = AuthoredWorld.GetRotation() * Offset.Quaternion();
+        if (!Lamp->GetActorQuat().Equals(Wanted, 1.0e-6))
+        {
+            Lamp->SetActorRotation(Wanted, ETeleportType::TeleportPhysics);
+        }
+    }
+}
+
+float AInfinityStagePassageActor::GetBulbBodyLevelForTests(const AActor* Body) const
+{
+    const FBulbBodyRuntime* Runtime = Body ? BulbBodies.Find(FObjectKey(Body)) : nullptr;
+    return Runtime ? Runtime->Level : -1.0f;
+}
+
+void AInfinityStagePassageActor::UpdateBulbBodies(
+    const FInfinityCompiledPassage& Passage,
+    const double CameraDistanceCm,
+    const double ShowSeconds)
+{
+    // Light actors by attachment GUID, built only if some body drives its light.
+    TMap<FGuid, AActor*> LightActors;
+    bool bLightActorsBuilt = false;
+
+    for (AActor* Body : ManagedAttachmentActors)
+    {
+        FGuid CueGuid;
+        FGuid AttachmentGuid;
+        if (!IsValid(Body) || !FindAttachmentByActor(Body, CueGuid, AttachmentGuid))
+        {
+            continue;
+        }
+        const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, CueGuid);
+        const FInfinityCueAttachment* Attachment = Cue
+            ? Cue->WingPair.Attachments.FindByPredicate([&AttachmentGuid](const FInfinityCueAttachment& Candidate)
+                { return Candidate.AttachmentGuid == AttachmentGuid; })
+            : nullptr;
+        if (!Attachment || !Attachment->Body.bFollowLight || Attachment->Kind == EInfinityAttachmentKind::Light)
+        {
+            continue;
+        }
+        const FInfinityCompiledWing* Wing = Passage.Wings.FindByPredicate([&CueGuid](const FInfinityCompiledWing& Candidate)
+            { return Candidate.CueGuid == CueGuid; });
+        if (!Wing)
+        {
+            continue;
+        }
+        const FInfinityBulbBodySettings& Settings = Attachment->Body;
+        const FGuid WantedLight = Settings.LightAttachmentGuid;
+        const FInfinityCueAttachment* LightAttachment = Cue->WingPair.Attachments.FindByPredicate(
+            [&WantedLight](const FInfinityCueAttachment& Candidate)
+            {
+                return Candidate.bEnabled && Candidate.Kind == EInfinityAttachmentKind::Light
+                    && (!WantedLight.IsValid() || Candidate.AttachmentGuid == WantedLight);
+            });
+        // The lamp's route position, as the drama loop computes it; the body's own without a light.
+        const FInfinityCueAttachment& Placed = LightAttachment ? *LightAttachment : *Attachment;
+        const double LampCm = Wing->DistanceCm + Placed.RelativeTransform.GetLocation().X;
+        const float DramaScale = LightAttachment && InfinityStageLightDrama::IsActive(LightAttachment->Lighting.Drama)
+            ? InfinityStageLightDrama::Evaluate(LightAttachment->Lighting.Drama, LightAttachment->AttachmentGuid,
+                LampCm, CameraDistanceCm, ShowSeconds).IntensityScale
+            : 1.0f;
+        const float Flicker = InfinityStageBulbBody::FlickerScale(Settings, AttachmentGuid, ShowSeconds, CameraDistanceCm - LampCm);
+
+        FBulbBodyRuntime& Runtime = BulbBodies.FindOrAdd(FObjectKey(Body));
+        if (!Runtime.bPrepared)
+        {
+            Runtime.bPrepared = true;
+            float Authored = 1.0f;
+            UStaticMeshComponent* Mesh = Body->FindComponentByClass<UStaticMeshComponent>();
+            if (Mesh && Mesh->GetNumMaterials() > 0)
+            {
+                if (const UMaterialInterface* Base = Mesh->GetMaterial(0))
+                {
+                    float Read = 0.0f;
+                    if (Base->GetScalarParameterValue(FHashedMaterialParameterInfo(FMaterialParameterInfo(Settings.IntensityParameter)), Read))
+                    {
+                        Authored = Read;
+                    }
+                }
+                // A transient instance on the game-world copy only; the level never sees it.
+                Runtime.Material = Mesh->CreateDynamicMaterialInstance(0);
+            }
+            Runtime.FullIntensity = Settings.FullIntensity > 0.0f ? Settings.FullIntensity : Authored;
+        }
+        const float Level = InfinityStageBulbBody::BodyIntensity(Runtime.FullIntensity, DramaScale, Flicker);
+        if (Level != Runtime.Level)
+        {
+            Runtime.Level = Level;
+            if (UMaterialInstanceDynamic* Material = Runtime.Material.Get())
+            {
+                Material->SetScalarParameterValue(Settings.IntensityParameter, Level);
+            }
+        }
+
+        if (Settings.bFlickerAlsoDrivesLight && LightAttachment)
+        {
+            if (!bLightActorsBuilt)
+            {
+                bLightActorsBuilt = true;
+                for (AActor* Candidate : ManagedAttachmentActors)
+                {
+                    FGuid CandidateCue;
+                    FGuid CandidateAttachment;
+                    if (IsValid(Candidate) && FindAttachmentByActor(Candidate, CandidateCue, CandidateAttachment))
+                    {
+                        LightActors.Add(CandidateAttachment, Candidate);
+                    }
+                }
+            }
+            AActor* const* LightActor = LightActors.Find(LightAttachment->AttachmentGuid);
+            ULightComponent* Light = LightActor && *LightActor ? (*LightActor)->FindComponentByClass<ULightComponent>() : nullptr;
+            if (Light)
+            {
+                const float Scale = DramaScale * Flicker;
+                const bool bLit = Scale > UE_KINDA_SMALL_NUMBER;
+                if (Light->IsVisible() != bLit)
+                {
+                    Light->SetVisibility(bLit);
+                }
+                if (bLit)
+                {
+                    Light->SetIntensity(FMath::Max(0.0f, LightAttachment->Lighting.Intensity) * Scale);
+                }
+            }
+        }
+    }
 }
 
 bool AInfinityStagePassageActor::GetCuePlacementTransforms(

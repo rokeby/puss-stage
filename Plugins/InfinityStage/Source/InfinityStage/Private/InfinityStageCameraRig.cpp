@@ -435,6 +435,7 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
         ShadowFigureRoot->SetWorldRotation(FRotator(0.0, CameraRotation.Yaw, 0.0));
     }
 
+    CurrentCameraDistanceCm = CameraEvaluation.DistanceCm;
     PassageActor->EvaluateMechanismsAtCameraDistance(MasterFrame, CameraEvaluation.DistanceCm);
     return true;
 }

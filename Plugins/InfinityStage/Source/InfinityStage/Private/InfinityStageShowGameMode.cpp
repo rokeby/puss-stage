@@ -3,6 +3,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
 #include "EngineUtils.h"
+#include "InfinityStageDirectorHud.h"
 #include "InfinityStageShowRoot.h"
 #include "InfinityStageTransportController.h"
 #include "InputCoreTypes.h"
@@ -43,8 +44,19 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
     Super::SetupInputComponent();
     InputComponent->BindKey(EKeys::Right, IE_Pressed, this, &AInfinityStageShowPlayerController::BeginRightInput);
     InputComponent->BindKey(EKeys::Right, IE_Released, this, &AInfinityStageShowPlayerController::EndRightInput);
-    InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousShowSegment);
+    // Left is tap-or-hold like Right (Gary, 6 Oct): the tap's Previous now fires on
+    // key-up, the hold rewinds.
+    InputComponent->BindKey(EKeys::Left, IE_Pressed, this, &AInfinityStageShowPlayerController::BeginLeftInput);
+    InputComponent->BindKey(EKeys::Left, IE_Released, this, &AInfinityStageShowPlayerController::EndLeftInput);
     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
+    InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleDirectorHud);
+}
+
+void AInfinityStageShowPlayerController::ToggleDirectorHud()
+{
+    InfinityStageDirectorHud::Toggle(GetWorld());
+    UE_LOG(LogTemp, Display, TEXT("INFINITY_DIRECTOR_HUD on=%d"),
+        InfinityStageDirectorHud::IsEnabledForWorld(GetWorld()) ? 1 : 0);
 }
 
 void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
@@ -53,6 +65,47 @@ void AInfinityStageShowPlayerController::PlayerTick(const float DeltaTime)
     UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
     const float Threshold = Transport ? Transport->HoldThresholdSeconds : 0.30f;
     ApplyHoldRightAction(HoldRightState.Tick(DeltaTime, Threshold));
+    ApplyHoldLeftAction(HoldLeftState.Tick(DeltaTime, Threshold));
+}
+
+void AInfinityStageShowPlayerController::BeginLeftInput()
+{
+    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    HoldLeftState.Press(Transport && Transport->IsTransportPlaying());
+}
+
+void AInfinityStageShowPlayerController::EndLeftInput()
+{
+    ApplyHoldLeftAction(HoldLeftState.Release());
+}
+
+void AInfinityStageShowPlayerController::ApplyHoldLeftAction(const EInfinityHoldRightAction Action)
+{
+    // The shared machine's names are Right's: Advance = the tap, FastForward = the hold.
+    if (Action == EInfinityHoldRightAction::None)
+    {
+        return;
+    }
+    if (Action == EInfinityHoldRightAction::Advance)
+    {
+        PreviousShowSegment();
+        return;
+    }
+    UInfinityStageTransportController* Transport = FindShowTransport(GetWorld());
+    if (Action == EInfinityHoldRightAction::BeginFastForward)
+    {
+        const EInfinityTransportResult Result = Transport
+            ? Transport->BeginRewind()
+            : EInfinityTransportResult::NoPlayer;
+        // A refused rewind is still the whole gesture: its key-up does nothing.
+        HoldLeftState.ResolveFastForwardStart(Result);
+        ReportTransportResult(this, Result);
+        return;
+    }
+    const bool bWasPlaying = Action == EInfinityHoldRightAction::EndFastForwardPlaying;
+    ReportTransportResult(this, Transport
+        ? Transport->EndRewind(bWasPlaying)
+        : EInfinityTransportResult::NoPlayer);
 }
 
 void AInfinityStageShowPlayerController::BeginRightInput()

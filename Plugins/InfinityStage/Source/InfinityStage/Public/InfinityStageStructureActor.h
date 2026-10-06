@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TimerHandle.h"
 #include "GameFramework/Actor.h"
 #include "InfinityStageStructureActor.generated.h"
 
@@ -738,6 +739,61 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes")
     bool bTubeLightCastShadow = false;
 
+    /** Tubes everywhere (Gary, 6 Oct: "add them everywhere so they can be switched
+     * on or used to blink or atmosphere ... give them a low glow setting and make 20%
+     * of them blink ... other than P02 only give light to the fence-top ones, not the
+     * central rail ones"). Every field below defaults to the 5 Oct behaviour, so a
+     * structure that sets none of them builds exactly what it built before. */
+
+    /** With bTubeLights: whether the centre rows' tubes host lights. Off: they glow, light nothing. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
+    bool bTubeCentreRowsEmitLight = true;
+
+    /** With bTubeLights: whether the top-corner rows' tubes host lights. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
+    bool bTubeCornerRowsEmitLight = true;
+
+    /** A row along the top of each side fence: on the fence line (FenceInsetCm in from
+     * the column line), its centre TubeFenceTopRaiseCm above the fence's intended top
+     * (Ground.FloorHeightCm + FenceBaseCm + FenceHeightCm). Independent of bFence;
+     * bFenceBothSides off builds the -Y row only. Same stretch, pitch and dead share
+     * as the other rows; stream keys 1002 (-Y) and 1003 (+Y), so adding these rows
+     * never re-rolls another row. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
+    bool bTubeFenceTopRows = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (Units = "cm"))
+    double TubeFenceTopRaiseCm = 15.0;
+
+    /** With bTubeLights: whether the fence-top rows' tubes host lights. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere")
+    bool bTubeFenceTopRowsEmitLight = true;
+
+    /** A live tube's emissive level, written to custom data [3] (M_UP_TubeEmissive
+     * multiplies its emissive by [3]; dead tubes stay 0). 1 is the 5 Oct look; ~0.1-0.2
+     * is a low background glow. It does not scale the rect lights (TubeLightIntensity). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.0", UIMax = "2.0"))
+    float TubeGlowLevel = 1.0f;
+
+    /** Share of the live, built tubes that blink in game. The pick is one draw per tube
+     * from its own per-bay/row stream (key + TubeBlinkStreamKeyOffset), separate from
+     * the dead/alive stream, so blinking never re-rolls which tubes are dead. Blinkers
+     * are built into their own movable component; a blinker that hosts a light blinks
+     * the light with it. 0 (default) builds no blinkers. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    double TubeBlinkFraction = 0.0;
+
+    /** One blink cycle (scaled per tube by 0.6-1.4 from its stream). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.05", Units = "s"))
+    double TubeBlinkPeriodSeconds = 3.0;
+
+    /** Share of the cycle a blinker is lit; the last 8 % of the cycle is the
+     * fluorescent stutter as it strikes again. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Tubes|Everywhere", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    double TubeBlinkDutyOn = 0.7;
+
+    static constexpr int32 TubeBlinkStreamKeyOffset = 5000;
+
     /** Fencing in the spaces between the columns (Gary, 5 Oct: "ground to ~3 m:
      * underpass-style fencing; the upper rig stays open and side light still gets
      * through. Mostly open chain-link, some half or torn tarp, rare door gaps").
@@ -807,6 +863,33 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
     {
         return Index == 0 ? FenceVariantA : Index == 1 ? FenceVariantB : Index == 2 ? FenceVariantC : FenceVariantD;
     }
+};
+
+/** One blinking underpass tube, as built: driven in game worlds by the structure's tick. */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityStageTubeBlinker
+{
+    GENERATED_BODY()
+
+    /** Instance in UnderpassTubeBlinkComponent, or -1 (no tube mesh: the light alone blinks). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
+    int32 InstanceIndex = INDEX_NONE;
+
+    /** Custom data [3] while lit (TubeGlowLevel at build). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
+    float OnValue = 1.0f;
+
+    /** 0..1 offset into the cycle. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
+    float Phase = 0.0f;
+
+    /** Cycle length multiplier, 0.6..1.4. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
+    float RateScale = 1.0f;
+
+    /** The rect light this tube hosts, if any. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Underpass|Tubes")
+    TObjectPtr<URectLightComponent> Light;
 };
 
 /** One underpass part's loaded mesh and material, as MaterializeStructure hands
@@ -935,6 +1018,20 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 UnderpassTubeLightEveryUsed = 0;
 
+    /** Blinking tubes (TubeBlinkFraction), driven by Tick in game worlds only. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
+    TArray<FInfinityStageTubeBlinker> UnderpassTubeBlinkers;
+
+    /** The movable component the blinkers' tube meshes live in (null without blinkers). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", AdvancedDisplay)
+    TObjectPtr<UInstancedStaticMeshComponent> UnderpassTubeBlinkComponent;
+
+    /** Pure: whether a blinker is lit at TimeSeconds. */
+    static bool IsTubeBlinkOn(double TimeSeconds, float Phase, float RateScale, double PeriodSeconds, double DutyOn);
+
+    /** Applies the blink state at TimeSeconds (the blink timer's work; public for tests). Returns how many blinkers changed. */
+    int32 UpdateTubeBlinkers(double TimeSeconds);
+
     /** Fence panels built, every variant together: the tiles, not the gaps. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
     int32 UnderpassFencePanelCount = 0;
@@ -969,7 +1066,18 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage")
     bool IsStructureCurrent() const;
 
+protected:
+    virtual void BeginPlay() override;
+
 private:
+    /** Last applied lit state per blinker (transient; sized on first update). */
+    TArray<uint8> TubeBlinkLit;
+
+    /** A looping 30 Hz world timer, set only in a game world with blinkers. A timer
+     * rather than an actor tick, so saved instances' tick flags never matter. */
+    FTimerHandle TubeBlinkTimer;
+    void OnTubeBlinkTimer();
+
     UInstancedStaticMeshComponent* CreateManagedComponent(
         FName BaseName,
         FName LayerTag,

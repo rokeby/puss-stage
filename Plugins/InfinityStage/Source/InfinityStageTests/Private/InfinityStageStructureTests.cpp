@@ -3378,4 +3378,341 @@ bool FInfinityStageUnderpassFenceMaterialsTest::RunTest(const FString& Parameter
     return true;
 }
 
+// ---------------------------------------------------------------------------
+// Tubes everywhere (patch TU, 6 Oct): fence-top rows, per-row light switches, a
+// low-glow level, and a deterministic blinking share. Every new field defaults
+// to the 5 Oct behaviour, which the first test proves byte for byte.
+// ---------------------------------------------------------------------------
+namespace
+{
+struct FEverywhereTube
+{
+    int32 Row = INDEX_NONE;
+    int32 Index = INDEX_NONE;
+    float Random = -1.0f;
+    float Level = -1.0f;
+    FVector Centre = FVector::ZeroVector;
+    bool bBlinkComponent = false;
+};
+
+/** Every tube in every tube-tagged component (the steady one and the blinkers'). */
+TArray<FEverywhereTube> ReadEveryTube(const AInfinityStageStructureActor& Structure)
+{
+    TArray<FEverywhereTube> Tubes;
+    for (const UInstancedStaticMeshComponent* Layer : Structure.ManagedComponents)
+    {
+        if (!Layer || !Layer->ComponentTags.Contains(FName(TubeTag)) || Layer->NumCustomDataFloats < 4)
+        {
+            continue;
+        }
+        const FBox MeshBounds = Layer->GetStaticMesh()->GetBoundingBox();
+        const TArray<FTransform> Instances = ReadInstances(*Layer);
+        for (int32 Instance = 0; Instance < Instances.Num(); ++Instance)
+        {
+            const float* Data = Layer->PerInstanceSMCustomData.GetData() + Instance * Layer->NumCustomDataFloats;
+            FEverywhereTube& Tube = Tubes.AddDefaulted_GetRef();
+            Tube.Row = FMath::RoundToInt32(Data[0]);
+            Tube.Index = FMath::RoundToInt32(Data[1]);
+            Tube.Random = Data[2];
+            Tube.Level = Data[3];
+            Tube.Centre = MeshBounds.TransformBy(Instances[Instance]).GetCenter();
+            Tube.bBlinkComponent = Layer == Structure.UnderpassTubeBlinkComponent.Get();
+        }
+    }
+    Tubes.Sort([](const FEverywhereTube& A, const FEverywhereTube& B)
+        { return A.Row != B.Row ? A.Row < B.Row : A.Index < B.Index; });
+    return Tubes;
+}
+
+bool SameTubeIdentity(const TArray<FEverywhereTube>& A, const TArray<FEverywhereTube>& B, const int32 MaxRow, FString& OutWhy)
+{
+    TArray<const FEverywhereTube*> FA;
+    TArray<const FEverywhereTube*> FB;
+    for (const FEverywhereTube& Tube : A) { if (Tube.Row <= MaxRow) { FA.Add(&Tube); } }
+    for (const FEverywhereTube& Tube : B) { if (Tube.Row <= MaxRow) { FB.Add(&Tube); } }
+    if (FA.Num() != FB.Num())
+    {
+        OutWhy = FString::Printf(TEXT("%d tubes != %d"), FA.Num(), FB.Num());
+        return false;
+    }
+    for (int32 Index = 0; Index < FA.Num(); ++Index)
+    {
+        if (FA[Index]->Row != FB[Index]->Row || FA[Index]->Index != FB[Index]->Index
+            || FA[Index]->Random != FB[Index]->Random || !FA[Index]->Centre.Equals(FB[Index]->Centre, 1.0e-3)
+            || (FA[Index]->Level > 0.0f) != (FB[Index]->Level > 0.0f))
+        {
+            OutWhy = FString::Printf(TEXT("tube row %d index %d differs"), FA[Index]->Row, FA[Index]->Index);
+            return false;
+        }
+    }
+    return true;
+}
+
+void ArmTubesEverywhere(AInfinityStageStructureActor& Structure)
+{
+    ArmTubes(Structure);
+    Structure.Underpass.bTubeLights = true;
+    Structure.Underpass.TubeLightEvery = 1;
+    Structure.Underpass.TubeLightMax = 2000;
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageTubesEverywhereDefaultsTest,
+    "InfinityStage.Structure.TubesEverywhere.DefaultsBuildExactlyAsBefore",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageTubesEverywhereDefaultsTest::RunTest(const FString& Parameters)
+{
+    const FInfinityStageUnderpassSettings Defaults;
+    TestTrue(TEXT("Defaults: every row emits light, no fence-top rows, full glow, no blinking"),
+        Defaults.bTubeCentreRowsEmitLight && Defaults.bTubeCornerRowsEmitLight && Defaults.bTubeFenceTopRowsEmitLight
+        && !Defaults.bTubeFenceTopRows && FMath::IsNearlyEqual(Defaults.TubeGlowLevel, 1.0f)
+        && FMath::IsNearlyEqual(Defaults.TubeBlinkFraction, 0.0));
+
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 6);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    ArmTubes(*Structure);
+    Structure->Underpass.bTubeLights = true;
+    TestTrue(TEXT("Builds with the 5 Oct tube settings"), Structure->MaterializeStructure());
+    const TArray<FBuiltLayer> Before = SnapshotBuild(*Structure);
+    TArray<FVector> LightsBefore;
+    for (const URectLightComponent* Light : TaggedTubeLights(*Structure))
+    {
+        LightsBefore.Add(Light->GetComponentLocation());
+    }
+    const TArray<FTubeRead> TubesBefore = ReadTubes(*Structure);
+    TestTrue(TEXT("Control: tubes and lights exist"), TubesBefore.Num() > 0 && LightsBefore.Num() > 0);
+    TestTrue(TEXT("No blinkers and no blink component by default"),
+        Structure->UnderpassTubeBlinkers.IsEmpty() && Structure->UnderpassTubeBlinkComponent == nullptr);
+    bool bAliveIsOne = true;
+    for (const FTubeRead& Tube : TubesBefore)
+    {
+        bAliveIsOne &= Tube.Alive == 0.0f || Tube.Alive == 1.0f;
+    }
+    TestTrue(TEXT("[3] is still exactly 1 alive / 0 dead at the default glow"), bAliveIsOne);
+
+    // Control: a low glow changes [3] of the live tubes only, and nothing else.
+    Structure->Underpass.TubeGlowLevel = 0.15f;
+    TestTrue(TEXT("Builds at a low glow"), Structure->MaterializeStructure());
+    const TArray<FTubeRead> Glowing = ReadTubes(*Structure);
+    bool bGlowOnlyLevel = Glowing.Num() == TubesBefore.Num();
+    for (int32 Index = 0; bGlowOnlyLevel && Index < Glowing.Num(); ++Index)
+    {
+        bGlowOnlyLevel = Glowing[Index].Transform.Equals(TubesBefore[Index].Transform, 1.0e-4)
+            && Glowing[Index].Random == TubesBefore[Index].Random
+            && Glowing[Index].Alive == (TubesBefore[Index].Alive > 0.5f ? 0.15f : 0.0f);
+    }
+    TestTrue(TEXT("Low glow: [3] = 0.15 alive, 0 dead; transforms and randoms unchanged"), bGlowOnlyLevel);
+    TestEqual(TEXT("Low glow does not change the lights"), TaggedTubeLights(*Structure).Num(), LightsBefore.Num());
+
+    // And back to the default: byte-identical to the first build.
+    Structure->Underpass.TubeGlowLevel = 1.0f;
+    TestTrue(TEXT("Rebuilds at the default glow"), Structure->MaterializeStructure());
+    FString Why;
+    TestTrue(FString::Printf(TEXT("Defaults again: every component identical (%s)"), *Why),
+        SameBuild(Before, SnapshotBuild(*Structure), Why));
+    TArray<URectLightComponent*> LightsAfter = TaggedTubeLights(*Structure);
+    bool bSameLights = LightsAfter.Num() == LightsBefore.Num();
+    for (int32 Index = 0; bSameLights && Index < LightsAfter.Num(); ++Index)
+    {
+        bSameLights = LightsAfter[Index]->GetComponentLocation().Equals(LightsBefore[Index], 1.0e-3);
+    }
+    TestTrue(TEXT("Defaults again: the same lights in the same places"), bSameLights);
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageTubesEverywhereFenceRowsTest,
+    "InfinityStage.Structure.TubesEverywhere.FenceTopRowsAndPerRowLight",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageTubesEverywhereFenceRowsTest::RunTest(const FString& Parameters)
+{
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 6);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    ArmTubesEverywhere(*Structure);
+    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
+    TestTrue(TEXT("Builds the deck rows"), Structure->MaterializeStructure());
+    const TArray<FEverywhereTube> DeckOnly = ReadEveryTube(*Structure);
+    const int32 DeckLights = Structure->UnderpassTubeLightCount;
+    double CornerY = 0.0;
+    for (const FEverywhereTube& Tube : DeckOnly)
+    {
+        CornerY = FMath::Max(CornerY, FMath::Abs(Tube.Centre.Y));
+    }
+
+    Underpass.bTubeFenceTopRows = true;
+    TestTrue(TEXT("Builds with fence-top rows"), Structure->MaterializeStructure());
+    const TArray<FEverywhereTube> WithFence = ReadEveryTube(*Structure);
+    const int32 DeckRows = Underpass.TubeRowsCentre + 2;
+    FString Why;
+    TestTrue(FString::Printf(TEXT("Adding fence-top rows re-rolls and moves no deck tube (%s)"), *Why),
+        SameTubeIdentity(DeckOnly, WithFence, DeckRows - 1, Why));
+
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    Structure->GatherStations(Stations, Error);
+    const double StationZ = Stations.IsEmpty() ? 0.0 : Stations[0].StationWorld.GetLocation().Z;
+    const double ExpectedLineY = CornerY - Underpass.FenceInsetCm;
+    const double ExpectedZ = StationZ + Structure->Ground.FloorHeightCm + Underpass.FenceBaseCm
+        + Underpass.FenceHeightCm + Underpass.TubeFenceTopRaiseCm;
+    int32 FenceTubes = 0;
+    bool bOnLine = true;
+    bool bBothSides[2] = { false, false };
+    for (const FEverywhereTube& Tube : WithFence)
+    {
+        if (Tube.Row < DeckRows)
+        {
+            continue;
+        }
+        ++FenceTubes;
+        bOnLine &= FMath::IsNearlyEqual(FMath::Abs(Tube.Centre.Y), ExpectedLineY, 0.5)
+            && FMath::IsNearlyEqual(Tube.Centre.Z, ExpectedZ, 0.5);
+        bBothSides[Tube.Centre.Y > 0.0 ? 1 : 0] = true;
+    }
+    TestTrue(TEXT("Two fence-top rows, as many tubes as a deck row each"),
+        FenceTubes > 0 && FenceTubes * DeckRows == DeckOnly.Num() * 2);
+    TestTrue(TEXT("Fence-top tubes on the fence line, above the fence's top"), bOnLine);
+    TestTrue(TEXT("One row each side"), bBothSides[0] && bBothSides[1]);
+
+    // Only the fence-top rows give light (Gary: all but P02).
+    Underpass.bTubeCentreRowsEmitLight = false;
+    Underpass.bTubeCornerRowsEmitLight = false;
+    TestTrue(TEXT("Builds with only fence-top light"), Structure->MaterializeStructure());
+    const TArray<URectLightComponent*> FenceLights = TaggedTubeLights(*Structure);
+    bool bFenceOnly = !FenceLights.IsEmpty();
+    for (const URectLightComponent* Light : FenceLights)
+    {
+        bFenceOnly &= FMath::IsNearlyEqual(FMath::Abs(Light->GetComponentLocation().Y), ExpectedLineY, 0.5);
+    }
+    TestTrue(TEXT("Every light hangs on a fence-top tube"), bFenceOnly);
+    TestTrue(TEXT("The deck tubes are still built (they glow, they light nothing)"),
+        ReadEveryTube(*Structure).Num() == WithFence.Num());
+
+    // Control: no row emitting builds no light at all.
+    Underpass.bTubeFenceTopRowsEmitLight = false;
+    TestTrue(TEXT("Builds with no row emitting"), Structure->MaterializeStructure());
+    TestEqual(TEXT("No row emitting: no lights"), Structure->UnderpassTubeLightCount, 0);
+    TestTrue(TEXT("Control: the deck rows alone had lights"), DeckLights > 0);
+
+    // One side only, as the fence.
+    Underpass.bFenceBothSides = false;
+    TestTrue(TEXT("Builds with a one-sided fence"), Structure->MaterializeStructure());
+    int32 PlusSide = 0;
+    for (const FEverywhereTube& Tube : ReadEveryTube(*Structure))
+    {
+        PlusSide += Tube.Row >= DeckRows && Tube.Centre.Y > 0.0 ? 1 : 0;
+    }
+    TestEqual(TEXT("bFenceBothSides off: no +Y fence-top row"), PlusSide, 0);
+    World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageTubesEverywhereBlinkTest,
+    "InfinityStage.Structure.TubesEverywhere.BlinkShareIsDeterministicAndSeparate",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageTubesEverywhereBlinkTest::RunTest(const FString& Parameters)
+{
+    using T = AInfinityStageStructureActor;
+    TestTrue(TEXT("Pure: lit inside the duty"), T::IsTubeBlinkOn(0.1, 0.0f, 1.0f, 1.0, 0.7));
+    TestFalse(TEXT("Pure: dark after the duty"), T::IsTubeBlinkOn(0.8, 0.0f, 1.0f, 1.0, 0.7));
+    TestTrue(TEXT("Pure: the phase shifts the cycle"), T::IsTubeBlinkOn(0.8, 0.5f, 1.0f, 1.0, 0.7));
+    int32 StutterFlips = 0;
+    bool bPrevious = T::IsTubeBlinkOn(0.92, 0.0f, 1.0f, 1.0, 0.7);
+    for (double Time = 0.921; Time < 0.999; Time += 0.001)
+    {
+        const bool bNow = T::IsTubeBlinkOn(Time, 0.0f, 1.0f, 1.0, 0.7);
+        StutterFlips += bNow != bPrevious ? 1 : 0;
+        bPrevious = bNow;
+    }
+    TestTrue(TEXT("Pure: a stutter before it strikes again"), StutterFlips >= 4);
+
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnMaterializedPassage(*World, 14);
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    ArmTubesEverywhere(*Structure);
+    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
+    TestTrue(TEXT("Builds without blinking"), Structure->MaterializeStructure());
+    const TArray<FEverywhereTube> Steady = ReadEveryTube(*Structure);
+    int32 Alive = 0;
+    for (const FEverywhereTube& Tube : Steady)
+    {
+        Alive += Tube.Level > 0.0f ? 1 : 0;
+    }
+
+    Underpass.TubeBlinkFraction = 0.2;
+    TestTrue(TEXT("Builds with 20% blinking"), Structure->MaterializeStructure());
+    const TArray<FEverywhereTube> Blinking = ReadEveryTube(*Structure);
+    FString Why;
+    TestTrue(FString::Printf(TEXT("Blinking re-rolls no dead tube and moves none (%s)"), *Why),
+        SameTubeIdentity(Steady, Blinking, MAX_int32, Why));
+    const int32 Blinkers = Structure->UnderpassTubeBlinkers.Num();
+    TestTrue(FString::Printf(TEXT("About a fifth of the %d live tubes blink (%d)"), Alive, Blinkers),
+        Alive >= 40 && Blinkers >= Alive / 20 && Blinkers <= Alive * 2 / 5);
+    TestNotNull(TEXT("Blinkers live in their own component"), Structure->UnderpassTubeBlinkComponent.Get());
+    TestTrue(TEXT("...which is movable"), Structure->UnderpassTubeBlinkComponent
+        && Structure->UnderpassTubeBlinkComponent->Mobility == EComponentMobility::Movable);
+    int32 InBlinkComponent = 0;
+    for (const FEverywhereTube& Tube : Blinking)
+    {
+        InBlinkComponent += Tube.bBlinkComponent ? 1 : 0;
+    }
+    TestEqual(TEXT("One blink instance per blinker"), InBlinkComponent, Blinkers);
+    int32 BlinkingLights = 0;
+    for (const FInfinityStageTubeBlinker& Blinker : Structure->UnderpassTubeBlinkers)
+    {
+        BlinkingLights += Blinker.Light ? 1 : 0;
+    }
+    TestTrue(TEXT("Lights on blinking hosts blink with them"), BlinkingLights > 0);
+
+    // Deterministic: the same build twice picks the same tubes, phases and rates.
+    TArray<FInfinityStageTubeBlinker> First = Structure->UnderpassTubeBlinkers;
+    TestTrue(TEXT("Rebuilds"), Structure->MaterializeStructure());
+    bool bSame = First.Num() == Structure->UnderpassTubeBlinkers.Num();
+    for (int32 Index = 0; bSame && Index < First.Num(); ++Index)
+    {
+        const FInfinityStageTubeBlinker& A = First[Index];
+        const FInfinityStageTubeBlinker& B = Structure->UnderpassTubeBlinkers[Index];
+        bSame = A.InstanceIndex == B.InstanceIndex && A.Phase == B.Phase && A.RateScale == B.RateScale;
+    }
+    TestTrue(TEXT("Deterministic across rebuilds"), bSame);
+
+    // Driving: some blinker goes dark at some time; its [3] and its light follow.
+    UInstancedStaticMeshComponent* BlinkComponent = Structure->UnderpassTubeBlinkComponent.Get();
+    int32 Changed = 0;
+    double When = 0.0;
+    for (double Time = 0.0; Time < 10.0 && Changed == 0; Time += 0.05)
+    {
+        Changed = Structure->UpdateTubeBlinkers(Time);
+        When = Time;
+    }
+    TestTrue(TEXT("Driving the blinkers changes some"), Changed > 0);
+    bool bFollow = true;
+    for (const FInfinityStageTubeBlinker& Blinker : Structure->UnderpassTubeBlinkers)
+    {
+        const bool bLit = T::IsTubeBlinkOn(When, Blinker.Phase, Blinker.RateScale,
+            Underpass.TubeBlinkPeriodSeconds, Underpass.TubeBlinkDutyOn);
+        if (BlinkComponent && Blinker.InstanceIndex != INDEX_NONE)
+        {
+            const float Level = BlinkComponent->PerInstanceSMCustomData[
+                Blinker.InstanceIndex * BlinkComponent->NumCustomDataFloats + 3];
+            bFollow &= bLit ? Level == Blinker.OnValue : Level == 0.0f;
+        }
+        if (Blinker.Light)
+        {
+            bFollow &= Blinker.Light->IsVisible() == bLit;
+        }
+    }
+    TestTrue(TEXT("Each blinker's [3] and light match its state"), bFollow);
+    TestEqual(TEXT("The same time again changes nothing"), Structure->UpdateTubeBlinkers(When), 0);
+    World->DestroyWorld(false);
+    return true;
+}
+
 #endif

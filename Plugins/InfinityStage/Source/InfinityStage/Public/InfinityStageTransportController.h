@@ -475,6 +475,13 @@ public:
         meta = (ClampMin = "1.0", UIMax = "8.0"))
     float FastForwardRate = 4.0f;
 
+    /** Continuous reverse Master playback rate while Left Arrow is held past the
+     * threshold (Gary, 6 Oct: "Left button hold should take us backwards the same
+     * way right takes us fastforward"). A shorter Left press keeps Previous. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
+        meta = (ClampMin = "1.0", UIMax = "8.0"))
+    float RewindRate = 4.0f;
+
     /** LEFT restarts the current shot after this many display frames; before
      * that it steps to the preceding shot. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
@@ -631,6 +638,29 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
     EInfinityTransportResult EndFastForward(bool bWasPlaying);
 
+    /**
+     * Plays the Master BACKWARDS at RewindRate toward the Show start, muted like
+     * fast-forward, and every seam still claims its camera on the way (the tick
+     * handles reverse crossings). The same interlocks as fast-forward: refused
+     * (UnsafeExternalClock, result=4) inside a DeclaredUnpausable segment in
+     * performance mode, and it never rewinds INTO one - it stops at that segment's
+     * end instead. NoSegment when there is nothing behind the playhead.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    EInfinityTransportResult BeginRewind();
+
+    /** Restores 1x forward. bWasPlaying: play on to the boundary; else hold where the rewind got to. */
+    UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+    EInfinityTransportResult EndRewind(bool bWasPlaying);
+
+    UFUNCTION(BlueprintPure, Category = "Infinity Stage|Transport")
+    bool IsRewindActive() const { return bRewindActive; }
+
+    /** Pure: where a rewind from FromSegmentIndex stops - the Show start, or in
+     * performance mode the end of the nearest earlier DeclaredUnpausable segment. */
+    static FFrameNumber ResolveRewindTargetFrame(
+        const TArray<FInfinityTransportSegment>& InSegments, int32 FromSegmentIndex, bool bInPerformanceMode);
+
     /** RIGHT inside an armed vamp consumes that vamp and continues to this segment's end at 1x. */
     bool ReleaseActiveVamp();
 
@@ -699,6 +729,34 @@ public:
      * its pre-animated view target during SetPlaybackPosition.
      */
     TFunction<void()> JumpResettlePostEvaluationTestSeam;
+
+    /**
+     * Seam diagnostic (6 Oct, Gary: "arriving at the hangar the camera switch
+     * sometimes SNAPS - seems to happen after pausing play"). Off by default.
+     * Console: InfinityStage.SeamDiag 1. Logs INFINITY_SEAM_DIAG lines on
+     * LogInfinityStageTransport at every pause, resume, play-to, jump, scrub,
+     * GO hold, fast-forward/rewind end and camera claim, and every tick within
+     * InfinityStage.SeamDiag.WindowSeconds of a segment boundary, on a hitch
+     * (world dt >= 0.25 s) or on a view step (> StepCm / StepDeg). Each line
+     * carries both clocks (Master frame and seconds; world, unpaused and real
+     * seconds; world dt), the segment by the COMPILED table and by the Master's
+     * OWN section ranges, the player state, the view target and blend, the
+     * transport's claim bookkeeping, the rendered POV and its step, the live
+     * camera component's offset from its actor (a dog/mouse look shows here),
+     * the rig's settle weight / bob / distance, and the expected position in the
+     * managed music section (by Master time; the real audio cursor is not
+     * readable from here).
+     */
+    static bool ShouldLogSeamFrame(
+        double SecondsToNearestBoundary, double WindowSeconds,
+        double WorldDeltaSeconds, double StepCm, double StepDeg,
+        double StepThresholdCm, double StepThresholdDeg);
+
+    /** Pure: the index of the half-open range containing Frame, or INDEX_NONE (last match wins). */
+    static int32 FindRangeIndex(const TArray<TRange<FFrameNumber>>& Ranges, FFrameNumber Frame);
+
+    /** TEST SEAM: receives every seam-diagnostic line. */
+    TFunction<void(const FString& Line)> SeamDiagSinkForTests;
 
     /** TEST ONLY: exercises the ordered tick tail without boundary detection. */
     void RunTickTailForTests(FFrameNumber CurrentFrame, float DeltaTime)
@@ -786,6 +844,7 @@ private:
     TArray<TPair<TWeakObjectPtr<UMovieSceneTrack>, bool>> NestedAudioMutedForFastForward;
 
     bool bFastForwardActive = false;
+    bool bRewindActive = false;
     bool bMasterAudioMutedForFastForward = false;
     bool bMasterAudioWasEvalDisabled = false;
 
@@ -798,6 +857,17 @@ private:
     float ClaimedBlendSeconds = 0.0f;
 
     TMap<FGuid, TWeakObjectPtr<AInfinityStageCameraRig>> CameraRigCache;
+
+    /** Seam diagnostic state (InfinityStage.SeamDiag). */
+    bool bSeamDiagHasPov = false;
+    FVector SeamDiagLastPov = FVector::ZeroVector;
+    FRotator SeamDiagLastRot = FRotator::ZeroRotator;
+    double SeamDiagLastStepCm = 0.0;
+    double SeamDiagLastStepDeg = 0.0;
+    void EmitSeamDiag(const TCHAR* Event, const FString& Extra);
+    void TickSeamDiag(FFrameNumber CurrentFrame, float DeltaTime);
+    /** The segment index whose Master Passage/Scene section range contains Frame (the Master's own clock). */
+    int32 FindMasterSectionSegment(FFrameNumber Frame) const;
 
     EInfinityTransportResult JumpToSegment(int32 SegmentIndex, bool bToEnd);
     EInfinityTransportResult JumpToMasterFrame(int32 SegmentIndex, FFrameNumber TargetFrame, bool bKeepPlaying);

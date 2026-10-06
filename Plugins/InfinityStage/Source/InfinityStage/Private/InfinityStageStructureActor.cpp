@@ -1,5 +1,7 @@
 #include "InfinityStageStructureActor.h"
 
+#include "TimerManager.h"
+
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/RectLightComponent.h"
 #include "Components/SceneComponent.h"
@@ -449,6 +451,9 @@ void AInfinityStageStructureActor::ClearStructure()
     UnderpassTubeCount = 0;
     UnderpassTubeLightCount = 0;
     UnderpassTubeLightEveryUsed = 0;
+    UnderpassTubeBlinkers.Reset();
+    UnderpassTubeBlinkComponent = nullptr;
+    TubeBlinkLit.Reset();
     UnderpassFencePanelCount = 0;
     UnderpassFenceOverlayCount = 0;
     StationSignature = 0;
@@ -1913,6 +1918,84 @@ void AInfinityStageStructureActor::BuildUnderpass(
     Emit(Rails, TEXT("StructureUnderpassCatwalk"), UnderpassCatwalkLayerTag, Catwalk, Underpass.bCatwalkCastShadow, UnderpassCatwalkCount);
 }
 
+bool AInfinityStageStructureActor::IsTubeBlinkOn(
+    const double TimeSeconds,
+    const float Phase,
+    const float RateScale,
+    const double PeriodSeconds,
+    const double DutyOn)
+{
+    const double Period = FMath::Max(0.05, PeriodSeconds) * FMath::Max(0.1, static_cast<double>(RateScale));
+    const double Position = FMath::Frac(TimeSeconds / Period + static_cast<double>(Phase));
+    if (Position < FMath::Clamp(DutyOn, 0.0, 1.0))
+    {
+        return true;
+    }
+    // The strike: a fast stutter over the last 8 % of the cycle before it is lit again.
+    if (Position >= 0.92)
+    {
+        return (FMath::FloorToInt32(Position * 160.0) % 2) == 0;
+    }
+    return false;
+}
+
+int32 AInfinityStageStructureActor::UpdateTubeBlinkers(const double TimeSeconds)
+{
+    if (TubeBlinkLit.Num() != UnderpassTubeBlinkers.Num())
+    {
+        // Everything is built lit: start from that.
+        TubeBlinkLit.Init(1, UnderpassTubeBlinkers.Num());
+    }
+    UInstancedStaticMeshComponent* Component = UnderpassTubeBlinkComponent.Get();
+    int32 Changed = 0;
+    for (int32 Index = 0; Index < UnderpassTubeBlinkers.Num(); ++Index)
+    {
+        const FInfinityStageTubeBlinker& Blinker = UnderpassTubeBlinkers[Index];
+        const bool bLit = IsTubeBlinkOn(TimeSeconds, Blinker.Phase, Blinker.RateScale,
+            Underpass.TubeBlinkPeriodSeconds, Underpass.TubeBlinkDutyOn);
+        if ((TubeBlinkLit[Index] != 0) == bLit)
+        {
+            continue;
+        }
+        TubeBlinkLit[Index] = bLit ? 1 : 0;
+        ++Changed;
+        if (Component && Blinker.InstanceIndex != INDEX_NONE)
+        {
+            Component->SetCustomDataValue(Blinker.InstanceIndex, 3, bLit ? Blinker.OnValue : 0.0f, false);
+        }
+        if (URectLightComponent* Light = Blinker.Light.Get())
+        {
+            Light->SetVisibility(bLit);
+        }
+    }
+    if (Changed > 0 && Component)
+    {
+        Component->MarkRenderStateDirty();
+    }
+    return Changed;
+}
+
+void AInfinityStageStructureActor::BeginPlay()
+{
+    Super::BeginPlay();
+    // Only a game world with blinkers pays anything; the editor never runs it, so
+    // blinking never touches the level at edit time.
+    UWorld* World = GetWorld();
+    if (World && World->IsGameWorld() && !UnderpassTubeBlinkers.IsEmpty())
+    {
+        World->GetTimerManager().SetTimer(
+            TubeBlinkTimer, this, &AInfinityStageStructureActor::OnTubeBlinkTimer, 1.0f / 30.0f, true);
+    }
+}
+
+void AInfinityStageStructureActor::OnTubeBlinkTimer()
+{
+    if (const UWorld* World = GetWorld())
+    {
+        UpdateTubeBlinkers(World->GetTimeSeconds());
+    }
+}
+
 void AInfinityStageStructureActor::BuildUnderpassTubes(
     const TArray<FInfinityStructureStation>& Stations,
     const FInfinityUnderpassPart& Tube,
@@ -1942,20 +2025,42 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
         int32 Index;
         int32 StreamKey;
         double LateralCm;
+        /** Up from the bay's deck line (negative hangs below it). */
+        double VerticalCm;
+        bool bEmitLight;
     };
     TArray<FTubeRow> Rows;
     const int32 CentreRows = FMath::Max(0, Underpass.TubeRowsCentre);
     const double RowSpacingCm = FMath::Max(0.0, Underpass.TubeCentreRowSpacingCm);
+    const double DeckRowVerticalCm = -Underpass.TubeDropCm;
     for (int32 Row = 0; Row < CentreRows; ++Row)
     {
-        Rows.Add({ Row, Row, (Row - (CentreRows - 1) * 0.5) * RowSpacingCm });
+        Rows.Add({ Row, Row, (Row - (CentreRows - 1) * 0.5) * RowSpacingCm, DeckRowVerticalCm,
+            Underpass.bTubeCentreRowsEmitLight });
     }
+    int32 NextRowIndex = CentreRows;
     if (Underpass.bTubeCornerRows)
     {
         const double CornerCm = ColumnLineCm - Underpass.TubeCornerInsetCm;
-        Rows.Add({ CentreRows, 1000, -CornerCm });
-        Rows.Add({ CentreRows + 1, 1001, CornerCm });
+        Rows.Add({ NextRowIndex++, 1000, -CornerCm, DeckRowVerticalCm, Underpass.bTubeCornerRowsEmitLight });
+        Rows.Add({ NextRowIndex++, 1001, CornerCm, DeckRowVerticalCm, Underpass.bTubeCornerRowsEmitLight });
     }
+    if (Underpass.bTubeFenceTopRows)
+    {
+        // On the fence line, above the fence's intended top, measured from the
+        // station like the fence; the bays below run at deck height, so offset back.
+        const double FenceLineCm = ColumnLineCm - Underpass.FenceInsetCm;
+        const double FenceTopCm = Ground.FloorHeightCm + Underpass.FenceBaseCm
+            + FMath::Max(1.0, Underpass.FenceHeightCm) + Underpass.TubeFenceTopRaiseCm;
+        const double FenceVerticalCm = FenceTopCm - Underpass.DeckHeightCm;
+        Rows.Add({ NextRowIndex++, 1002, -FenceLineCm, FenceVerticalCm, Underpass.bTubeFenceTopRowsEmitLight });
+        if (Underpass.bFenceBothSides)
+        {
+            Rows.Add({ NextRowIndex++, 1003, FenceLineCm, FenceVerticalCm, Underpass.bTubeFenceTopRowsEmitLight });
+        }
+    }
+    const float GlowLevel = FMath::Clamp(Underpass.TubeGlowLevel, 0.0f, 8.0f);
+    const double BlinkFraction = FMath::Clamp(Underpass.TubeBlinkFraction, 0.0, 1.0);
 
     // The run under the deck's underside: the same straight bays the deck is
     // built from, station to station, so every tube hangs under a deck bay.
@@ -2009,10 +2114,13 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
         FVector Up = FVector::ZAxisVector;
         bool bAlive = false;
         bool bBuilt = false;
+        int32 BlinkerIndex = INDEX_NONE;
     };
     TArray<TArray<FTubeSpot>> Spots;
     TArray<FTransform> Transforms;
     TArray<float> Data;
+    TArray<FTransform> BlinkTransforms;
+    TArray<float> BlinkData;
     const FBox TubeBounds = Tube.Mesh ? Tube.Mesh->GetBoundingBox() : FBox(ForceInit);
     int32 Trimmed = 0;
     for (const FTubeRow& Row : Rows)
@@ -2021,6 +2129,7 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
         int32 BayIndex = 0;
         int32 StreamBay = INDEX_NONE;
         FRandomStream Stream;
+        FRandomStream BlinkStream;
         for (int32 TubeIndex = 0; TubeIndex < PerRow; ++TubeIndex)
         {
             const double AlongCm = MarginCm + LengthCm * 0.5 + TubeIndex * PitchCm;
@@ -2032,12 +2141,19 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
             if (StreamBay != BayIndex)
             {
                 Stream = MakeTubeStream(Stations[Bay.Station].CueGuid, Row.StreamKey, Underpass.TubeSeed);
+                BlinkStream = MakeTubeStream(Stations[Bay.Station].CueGuid,
+                    Row.StreamKey + FInfinityStageUnderpassSettings::TubeBlinkStreamKeyOffset, Underpass.TubeSeed);
                 StreamBay = BayIndex;
             }
             // One draw per tube, made whether or not the tube is built.
             const float Random = Stream.FRand();
+            // The blink stream is separate and drawn in fixed statements (never two
+            // draws in one expression: memory puss-random-draw-order).
+            const float BlinkPick = BlinkStream.FRand();
+            const float BlinkPhase = BlinkStream.FRand();
+            const float BlinkRate = BlinkStream.FRand();
             FTubeSpot& Spot = RowSpots.AddDefaulted_GetRef();
-            Spot.Centre = Bay.Start + Bay.Along * (AlongCm - Bay.StartCm) + Bay.Across * Row.LateralCm - Bay.Up * Underpass.TubeDropCm;
+            Spot.Centre = Bay.Start + Bay.Along * (AlongCm - Bay.StartCm) + Bay.Across * Row.LateralCm + Bay.Up * Row.VerticalCm;
             Spot.Along = Bay.Along;
             Spot.Up = Bay.Up;
             Spot.bAlive = Random >= DeadFraction;
@@ -2049,6 +2165,16 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
                 ++Trimmed;
                 continue;
             }
+            const bool bBlinker = Spot.bAlive && BlinkFraction > 0.0 && BlinkPick < BlinkFraction;
+            if (bBlinker)
+            {
+                FInfinityStageTubeBlinker& Blinker = UnderpassTubeBlinkers.AddDefaulted_GetRef();
+                Blinker.InstanceIndex = Tube.Mesh ? BlinkTransforms.Num() : INDEX_NONE;
+                Blinker.OnValue = GlowLevel;
+                Blinker.Phase = BlinkPhase;
+                Blinker.RateScale = 0.6f + 0.8f * BlinkRate;
+                Spot.BlinkerIndex = UnderpassTubeBlinkers.Num() - 1;
+            }
             if (!Tube.Mesh)
             {
                 continue;
@@ -2059,12 +2185,15 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
             const FVector SizeCm = Underpass.bTubeMeshAlongZ
                 ? FVector(DiameterCm, DiameterCm, LengthCm)
                 : FVector(LengthCm, DiameterCm, DiameterCm);
-            Transforms.Add(FitMeshToTimber(TubeBounds, Spot.Centre, Rotation, SizeCm));
-            Data.Append({
+            // [3] is the emissive multiplier: the glow level alive (1 = the 5 Oct look), 0 dead.
+            TArray<FTransform>& OutTransforms = bBlinker ? BlinkTransforms : Transforms;
+            TArray<float>& OutData = bBlinker ? BlinkData : Data;
+            OutTransforms.Add(FitMeshToTimber(TubeBounds, Spot.Centre, Rotation, SizeCm));
+            OutData.Append({
                 static_cast<float>(Row.Index),
                 static_cast<float>(TubeIndex),
                 Random,
-                Spot.bAlive ? 1.0f : 0.0f });
+                Spot.bAlive ? GlowLevel : 0.0f });
         }
     }
     if (Trimmed > 0)
@@ -2080,18 +2209,40 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
         ApplyInstances(*Component, Transforms, Data);
         UnderpassTubeCount = Transforms.Num();
     }
+    if (!BlinkTransforms.IsEmpty())
+    {
+        // Blinkers change custom data at runtime: their own movable component, so
+        // the steady tubes stay a static, cached component.
+        UInstancedStaticMeshComponent* Component = CreateManagedComponent(
+            TEXT("StructureUnderpassTubesBlink"), UnderpassTubeLayerTag, Tube.Mesh, Tube.Material, Underpass.bTubeCastShadow);
+        Component->SetMobility(EComponentMobility::Movable);
+        ApplyInstances(*Component, BlinkTransforms, BlinkData);
+        UnderpassTubeBlinkComponent = Component;
+        UnderpassTubeCount += BlinkTransforms.Num();
+    }
+    if (!UnderpassTubeBlinkers.IsEmpty())
+    {
+        UE_LOG(LogInfinityStageStructure, Display,
+            TEXT("INFINITY_STAGE_STRUCTURE_TUBE_BLINKERS actor='%s' blinkers=%d fraction=%.2f glow=%.2f"),
+            *GetActorNameOrLabel(), UnderpassTubeBlinkers.Num(), BlinkFraction, GlowLevel);
+    }
 
     if (!Underpass.bTubeLights || PerRow == 0)
     {
         return;
     }
     // One light per group of Every tubes along a row, on the group's middle tube,
-    // and none where that tube is dead or trimmed.
-    const auto LitHosts = [&Spots, PerRow](const int32 Every)
+    // and none where that tube is dead or trimmed, nor in a row that emits no light.
+    const auto LitHosts = [&Spots, &Rows, PerRow](const int32 Every)
     {
         TArray<const FTubeSpot*> Hosts;
-        for (const TArray<FTubeSpot>& RowSpots : Spots)
+        for (int32 RowIndex = 0; RowIndex < Spots.Num(); ++RowIndex)
         {
+            const TArray<FTubeSpot>& RowSpots = Spots[RowIndex];
+            if (!Rows[RowIndex].bEmitLight)
+            {
+                continue;
+            }
             for (int32 GroupStart = 0; GroupStart < PerRow; GroupStart += Every)
             {
                 const int32 GroupSize = FMath::Min(Every, PerRow - GroupStart);
@@ -2146,6 +2297,10 @@ void AInfinityStageStructureActor::BuildUnderpassTubes(
         Light->SetAttenuationRadius(FMath::Max(0.0f, Underpass.TubeLightAttenuationRadius));
         Light->SetCastShadows(Underpass.bTubeLightCastShadow);
         Light->SetLightFunctionMaterial(LightFunction);
+        if (UnderpassTubeBlinkers.IsValidIndex(Host->BlinkerIndex))
+        {
+            UnderpassTubeBlinkers[Host->BlinkerIndex].Light = Light;
+        }
     }
     UnderpassTubeLightCount = Hosts.Num();
     UnderpassTubeLightEveryUsed = Hosts.IsEmpty() ? 0 : Every;
