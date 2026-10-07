@@ -189,3 +189,9 @@
   offset LS_Clams keys +50 cm / hold); pedestal revealed by a LS_S3_HangarRise visibility track → APPLY hides at
   component level + copies that reveal to the stone (saves LS_S3_HangarRise too); ~1 m clam fits the top with 0
   overhang [meas from FBX: flat ±1.5 cm zone 108×104 cm].
+- **Sky in editor [meas probe_sky]:** Klara's streamed levels each bring a SkyAtmosphere/SkyLight (L_KK_children,
+  L_Animals, Japanese_Alley) besides our Dusk sky; advised Gary: viewport Show>Atmosphere/Fog off, or hide her levels
+  in the Levels panel (never save her levels); keep our Dusk sky.
+- **Sand texture** (S3_SAND_TEXTURE_2026-10-07.md): 4K pjuuz sand + 4K mud already in Content under
+  /Game/EnvironmentPacks/Megascans_4K/Surface/ [bin: Dimensions tag]; CC0 web candidates listed (no downloads);
+  M_S3_ShoreGround_v2 anti-tiling material written (harness 7/7), DRY_V2 → BUILD_MAT_V2 with PJUUZ_4K pending an editor slot.
