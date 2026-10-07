@@ -250,3 +250,10 @@
   band re-plan. Standing stones: all three (A/B/C) — PLACE needs props-tool fixes (lean not applied; guard z≥100 refuses
   buried stones).
 - PearlClam v2 (new interior slots/8K textures, custom normals) → clam tool update running.
+- **PearlClam imports:** meshes Lid/Bottom/Mantle/Pearl OK (S3PROPS-20261007-182307..182414; lid y −2..96 = flip correct;
+  only mantle VC). 4K textures Shell N/Roughness, InteriorBottom/Lid Roughness imported + verified + saved. HALTED: free RAM
+  2.1 → 1.6 GB, Gary's windowed Blender 28.8 GB (mantle texture upgrade) → asked the Blender session to pause/purge.
+  Pending: 8K Shell BC, InteriorBottom/Lid BC + N, Mantle (being re-textured), BUILD_MAT ×5, CLAM_DRY yaw, APPLY.
+- CD1 patch ready from the cueing stream (07308d5, check OK at e094b6a): adds CueSheet + DirectorHud script panel +
+  PageUp/PageDown/F5 bindings → next build window (conductor review of shared HUD/GameMode edits).
+- Directing: S3 sack poke-through backstop (thickness/iterations/capsules → masked copies → shrink) — low priority.
