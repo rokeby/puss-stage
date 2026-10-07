@@ -132,3 +132,8 @@
   EditorAssetLibrary.load_asset=None (unreal.load_asset works); bench PIE needs conductor_pie_begin_bench (ZZ dirt).
   Look: ground = smooth mud bank (Gary via Blender session: "pretty bad", wants naturalistic wild-beach dunes piling
   at the box edges, claustrophobia — HOLD the level apply); strips at 4000 cd blow out to white.
+- **Gary (~19:50 UTC):** restart → "you can do it" (conductor killed the editor, restore data declined-20261007-155318,
+  relaunched; census clean); dunes → "prints can move, take dunes higher" (same answer in the Blender session: move
+  the prints up); strips → 500 cd, softer edges. Dune pass running offline (A/B/C heights + implied print line;
+  previews from the main S3 camera first). Marble C_soft (500 cd + feathered SourceTexture) being added.
+  Hand-print re-placement → the hand-print stream once Gary picks a height.
