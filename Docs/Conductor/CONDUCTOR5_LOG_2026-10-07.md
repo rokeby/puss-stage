@@ -211,3 +211,11 @@
   INCONCLUSIVE: PIE now starts inside S3 → scrubs refused UNSAFE_EXTERNAL_CLOCK. Open: does anything revealed by the
   rise visibility tracks disappear after the 31 s section end (my float hold left 9 visibility tracks unheld)?
 - **Gary waves:** B scroll crests; back foam covers mural feet; + warm side light, foam flicker, sway+bob.
+- **Gary (~17:45): S3 sequence problems** — Right transport "not quite working" and figures disappear halfway through the
+  shots; keep only his camera-timing changes (LS_DevScene_03 saved 17:24). Read-only diagnosis running
+  (S3_SEQUENCE_DIAG_2026-10-07.md): offline diff vs FullSnapshot-20261007-1458; suspects [inf]: figures' reveal in the
+  rise [0,744) not held (visibility NOT OPTED IN in S3FLOATHOLD) → hidden after 31 s; Right refused in S3 by the singer
+  external clock (UNSAFE_EXTERNAL_CLOCK). Hold all S3 writes until diagnosed.
+- **PearlClam exported** (Blender session, DerivedAssets/PearlClam/Export, PearlClam_manifest.json): Bottom/Lid/Mantle/Pearl,
+  bottom base centre origin, lid hinge at Blender (0,47.86,30.02) axis X, open −80° (UE sign TBD), pearl at (0,0,35.64),
+  2 slots on shell parts (Shell 8K/4K + Interior untextured), mantle BreathMask in VC R. Import after the S3 diagnosis.
