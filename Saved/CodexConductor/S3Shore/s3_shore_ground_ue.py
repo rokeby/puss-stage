@@ -857,16 +857,21 @@ def run_bench_pie_apply(run, args):
     """PIE ONLY.  Never saves, never starts/ends PIE, never spawns or destroys.  Returns the applied record."""
     world, editor_world = _pie_worlds()
     _require(world is not None, "NO_PIE_WORLD|start a fresh PIE first (this script never starts PIE)")
-    _require(editor_world is not None and _path(world) != _path(editor_world), "GAME_WORLD_IS_EDITOR_WORLD")
+    # Conductor 7 Oct [meas probe_worlds]: during PIE get_editor_world() returns None; identify PIE by its path.
+    _require("/UEDPIE_" in str(_path(world)) and (editor_world is None or _path(world) != _path(editor_world)),
+             "GAME_WORLD_IS_EDITOR_WORLD|%s" % _path(world))
     _require(WORLD.rsplit("/", 1)[1] in _path(world), "WRONG_PIE_MAP|%s" % _path(world))
-    eal = unreal.EditorAssetLibrary
-    for p in (MESH, MASTER, MI):
-        _require(eal.does_asset_exist(p), "ASSET_MISSING|%s|run IMPORT and BUILD_MAT first" % p)
-    mesh, mi, master = eal.load_asset(MESH), eal.load_asset(MI), eal.load_asset(MASTER)
+    # Conductor 7 Oct [meas probe_worlds]: EditorAssetLibrary returns None during PIE; unreal.load_asset works.
+    mesh, mi, master = unreal.load_asset(MESH), unreal.load_asset(MI), unreal.load_asset(MASTER)
+    for p, o in ((MESH, mesh), (MI, mi), (MASTER, master)):
+        _require(o is not None, "ASSET_MISSING|%s|run IMPORT and BUILD_MAT first" % p)
     _require(isinstance(mesh, unreal.StaticMesh), "MESH_CLASS|%s" % _path(mesh))
     _require(isinstance(mi, unreal.MaterialInterface), "MI_CLASS|%s" % _path(mi))
-    ps = int(unreal.MaterialEditingLibrary.get_statistics(master).get_editor_property("num_pixel_shader_instructions"))
-    _require(ps > 0, "PENDING_COMPILE|M_S3_ShoreGround has 0 pixel-shader instructions; rerun in ~30 s")  # MaterialEditingLibrary.h:609-610
+    try:  # an editor library: may be refused in PIE; BUILD_MAT already compiled + saved it in the editor
+        ps = int(unreal.MaterialEditingLibrary.get_statistics(master).get_editor_property("num_pixel_shader_instructions"))
+    except Exception:  # noqa: BLE001
+        ps = -1
+    _require(ps != 0, "PENDING_COMPILE|M_S3_ShoreGround has 0 pixel-shader instructions; rerun in ~30 s")  # MaterialEditingLibrary.h:609-610
     opath = pie_file("originals", run)
     _require(not os.path.isfile(opath), "RUN_ALREADY_APPLIED|use a new run id")
     stale = [str(a.get_name()) for a in _tagged(world)]
@@ -984,14 +989,14 @@ def run_bench_pie_restore(run, args, check_still=True):
                and before_deck["actor_hidden"] == orig["deck"]["actor_hidden"]
                and before_deck["visible"] == orig["deck"]["visible"] and before_v2 == orig["v2"])
     if check_still and not already:
-        rec["still"] = _still_check(world, dict(orig, mesh_path=_path(unreal.EditorAssetLibrary.load_asset(MESH)),
-                                                mi_path=_path(unreal.EditorAssetLibrary.load_asset(MI))),
+        rec["still"] = _still_check(world, dict(orig, mesh_path=_path(unreal.load_asset(MESH)),
+                                                mi_path=_path(unreal.load_asset(MI))),
                                     deck, v2, root_rows[0])
         write_verified(rpath, rec)                                  # still evidence on disk before restoring
     if not already:
         eal = unreal.EditorAssetLibrary
-        mesh = eal.load_asset(orig["deck"]["mesh"].split(".")[0])
-        mats = [eal.load_asset(m.split(".")[0]) if m else None for m in orig["deck"]["materials"]]
+        mesh = unreal.load_asset(orig["deck"]["mesh"].split(".")[0])
+        mats = [unreal.load_asset(m.split(".")[0]) if m else None for m in orig["deck"]["materials"]]
         _require(mesh is not None and all(m is not None for m, p in zip(mats, orig["deck"]["materials"]) if p),
                  "ORIGINAL_ASSET_LOAD")
         _set_deck(deck, mesh, mats, orig["deck"]["rel"], orig["deck"]["tags"], orig["deck"]["actor_hidden"],

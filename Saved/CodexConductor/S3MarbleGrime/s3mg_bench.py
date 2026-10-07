@@ -345,7 +345,7 @@ class Graph:
 
 def texture_state(asset):
     u = _u()
-    tex = u.EditorAssetLibrary.load_asset(TEX_DIR + "/" + asset)
+    tex = u.load_asset(TEX_DIR + "/" + asset)
     if tex is None:
         return None
     return {"class": tex.get_class().get_name(), "srgb": bool(tex.get_editor_property("srgb")),
@@ -361,7 +361,7 @@ def texture_ok(st, srgb, comp):
 
 def master_state():
     u = _u()
-    m = u.EditorAssetLibrary.load_asset(GREASE_MASTER)
+    m = u.load_asset(GREASE_MASTER)
     if m is None:
         return None
     return {"domain": str(m.get_editor_property("material_domain")), "blend": str(m.get_editor_property("blend_mode")),
@@ -422,8 +422,8 @@ def build_grease_master():
     for pin, name in (("U0", "AtlasU0"), ("V0", "AtlasV0"), ("US", "AtlasUSize"), ("VS", "AtlasVSize"),
                       ("FlipU", "FlipU"), ("GlobalFlipU", "GlobalFlipU"), ("GlobalFlipV", "GlobalFlipV")):
         g.link(p[name], "", auv, pin)
-    grease_tex = u.EditorAssetLibrary.load_asset(TEX_DIR + "/T_S3MG_GreaseAtlas")
-    norm_tex = u.EditorAssetLibrary.load_asset(PRINT_NORMAL)
+    grease_tex = u.load_asset(TEX_DIR + "/T_S3MG_GreaseAtlas")
+    norm_tex = u.load_asset(PRINT_NORMAL)
     require(grease_tex is not None and norm_tex is not None, "MASTER_TEXTURES")
     mask = g.node(u.MaterialExpressionTextureSampleParameter2D, -1000, 0, parameter_name="GreaseMask",
                   texture=grease_tex, sampler_type=ST.SAMPLERTYPE_MASKS, group="S3MG")
@@ -495,7 +495,7 @@ def stage_verify_assets(run, args):
     bad = [ln for ln in log[i:].splitlines() if "M_ZZ_S3MG_GreaseDecal" in ln and
            ("Failed to compile" in ln or "Default Material will be used" in ln)]
     require(not bad, "MASTER_COMPILE_LOG|" + json.dumps(bad[:4]))
-    m = u.EditorAssetLibrary.load_asset(GREASE_MASTER)
+    m = u.load_asset(GREASE_MASTER)
     ps = int(u.MaterialEditingLibrary.get_statistics(m).get_editor_property("num_pixel_shader_instructions"))
     require(ps > 0, "PENDING_COMPILE|rerun verify_assets in ~30 s")
     for f, (a, s, c) in TEXTURES.items():
@@ -578,7 +578,7 @@ def stage_prespawn(run, args):
     write_verified(run_file("prespawn", run), rec)                 # labels on disk BEFORE the first spawn
     u.log("S3MG_PRESPAWN_RECORD|run=%s|path=%s|n=%d" % (run, run_file("prespawn", run), len(specs)))
     actor_sub = u.get_editor_subsystem(u.EditorActorSubsystem)
-    gm = u.EditorAssetLibrary.load_asset(GREASE_MASTER)
+    gm = u.load_asset(GREASE_MASTER)
     spawned = []
 
     def spawn(cls, label, loc, rot):
@@ -727,7 +727,7 @@ def stage_apply(run, args):
         if v["marble"]:
             mid = smc.create_dynamic_material_instance(0, smc.get_material(0))
             for pname, asset in MARBLE_MID["textures"].items():
-                tex = u.EditorAssetLibrary.load_asset(TEX_DIR + "/" + asset)
+                tex = u.load_asset(TEX_DIR + "/" + asset)
                 require(tex is not None, "BENCH_TEXTURE_MISSING|" + asset)
                 mid.set_texture_parameter_value(pname, tex)
                 require(path(mid.get_texture_parameter_value(pname)) == path(tex), "MID_TEX|" + pname)
@@ -762,7 +762,7 @@ def stage_apply(run, args):
                 bmid = gdc.create_dynamic_material_instance()
                 for k, val in list(b["atlas"].items()) + list(b["params"].items()):
                     bmid.set_scalar_parameter_value(k, val)
-                band_tex = u.EditorAssetLibrary.load_asset(TEX_DIR + "/" + b["texture"])
+                band_tex = u.load_asset(TEX_DIR + "/" + b["texture"])
                 bmid.set_texture_parameter_value("GreaseMask", band_tex)
                 require(path(bmid.get_texture_parameter_value("GreaseMask")) == path(band_tex), "BAND_TEX")
                 show(a, gdc, True)
@@ -869,7 +869,7 @@ def stage_restore(run, args, check_pose=True):
         write_verified(run_file("restored", pid), rec)            # evidence on disk before restoring
     liner = find_by_name(world, LINER_NAME)
     smc = liner.static_mesh_component
-    smc.set_material(0, u.EditorAssetLibrary.load_asset(orig["liner"]["slot0"].split(".")[0]))
+    smc.set_material(0, u.load_asset(orig["liner"]["slot0"].split(".")[0]))
     problems = []
     if path(smc.get_material(0)) != orig["liner"]["slot0"]:
         problems.append("LINER|%s" % path(smc.get_material(0)))
@@ -880,7 +880,7 @@ def stage_restore(run, args, check_pose=True):
             problems.append("DECAL_COUNT|%s|%d" % (lab, len(rows)))
             continue
         dc = decal_comp(rows[0])
-        dc.set_decal_material(u.EditorAssetLibrary.load_asset(row["material"].split(".")[0]))
+        dc.set_decal_material(u.load_asset(row["material"].split(".")[0]))
         if path(dc.get_decal_material()) != row["material"]:
             problems.append("DECAL|" + lab)
     pool = pool_map(world)

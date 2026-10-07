@@ -124,3 +124,11 @@
   Structures, top_row = panels/2 everywhere (186/66/60/60/276/160), 2 posts each; saved + read back; census clean;
   SavedMasterMatchesShow + SceneCutBindingsResolve green. P05 still 0.3 = clouds dominate (wire not legible);
   0.6 failed settle (picture still changing). Gary to eyeball in PIE.
+- **S3 combined PIE bench DONE (nothing saved to the level):** shore IMPORT S3SHORE-20261007-193335-IMP (SM_S3_ShoreGround,
+  Nanite, VC, bounds match manifest) + BUILD_MAT 193358 (saved new assets); marble assets/verify/prespawn (64 pool,
+  S3MG-20261007-193429); PIE p2: S3MG_APPLY_OK (63 shown, pose err 0.00) + S3SHORE_BENCH_PIE_APPLY_OK; still
+  PSTILLS-S3-20261007-194207-s3mg_…-p2 (luma 117); restores OK (STILL_STATE_HELD), unspawn 64, census: map + ZZ_Bench
+  dirty → Gary Don't-Save restart. Fixes on the way [meas probe_worlds]: in PIE get_editor_world()=None and
+  EditorAssetLibrary.load_asset=None (unreal.load_asset works); bench PIE needs conductor_pie_begin_bench (ZZ dirt).
+  Look: ground = smooth mud bank (Gary via Blender session: "pretty bad", wants naturalistic wild-beach dunes piling
+  at the box edges, claustrophobia — HOLD the level apply); strips at 4000 cd blow out to white.

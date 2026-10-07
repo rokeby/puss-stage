@@ -192,6 +192,7 @@ def _make_fake(state):
                 Actor=Actor, StaticMeshActor=StaticMeshActor, StaticMesh=StaticMesh, MaterialInterface=MaterialInterface,
                 PrimitiveComponent=PrimitiveComponent, Vector=Vector, Rotator=Rotator, Transform=Transform, Name=str,
                 UnrealEditorSubsystem=object, get_editor_subsystem=lambda c: ed,
+                load_asset=lambda p: state["assets"].get(p.split(".")[0]),   # PIE-safe loader (conductor 7 Oct)
                 log=lambda m: state["log"].append(("log", m)), log_error=lambda m: state["log"].append(("error", m)),
                 GameplayStatics=_Spy("GameplayStatics", names,
                                      get_all_actors_of_class=lambda w, c: [a for a in w.actors if isinstance(a, c)],
