@@ -168,7 +168,7 @@ class Placement(unittest.TestCase):
         self.assertEqual(t["yaw"], 0.0)
         self.assertAlmostEqual(t["loc"][0], 28784.0135 + 3500 + 272, places=4)
         self.assertAlmostEqual(t["loc"][1], 122.0, places=6)
-        self.assertAlmostEqual(t["loc"][2], 150.0, places=6)
+        self.assertAlmostEqual(t["loc"][2], 0.0, places=6)  # 7 Oct: live dock floor top z 0 (args)
 
     def test_s4_fits(self):
         lv = "/Game/L_KK_children"

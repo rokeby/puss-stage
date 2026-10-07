@@ -1,0 +1,816 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreKlaraHookin-Seq-KLARAHOOK-20261006-225606",
+ "decided_by": "Gary 7 Oct (his own answers, relayed by the conductor): (1) shot start 'After the hangar lands' -> land_plus_strike for S1 and S4; (2) S1 narration 'Drop it for now' -> mute (deactivate, never delete); (3) S2 'Import, keep our S2' -> Japanese_Alley streamed for viewing only, LS_DevScene_02 untouched; (4) lighting 'Hers; ours off in her scenes'. Design note 7 Oct: 'bring her dioramas into the hangar itself ... a wide shot ... as the light strikes on a dark hangar, before we go into her cinematic sequences'. NOT Gary's: wide_hold_s 5.0 (proposed), anchor 'center' (proposed), the hers_dark/ours_off windows (proposed, HOOKIN_PLAN.md section 4).",
+ "mode": "APPLY_SEQ",
+ "run": "KLARAHOOK-20261006-225606",
+ "scenes": {
+  "1": {
+   "after": {
+    "hookin_bindings": [
+     {
+      "name": "Klara Hookin - Hers Dark: DirectionalLight",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: PostProcessVolume",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: SkyAtmosphere",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: SkyLight",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: VolumetricCloud",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+      "sections": [
+       [
+        376,
+        5641
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+      "sections": [
+       [
+        376,
+        5641
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+      "sections": [
+       [
+        376,
+        5641
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+      "sections": [
+       [
+        376,
+        5641
+       ]
+      ]
+     }
+    ],
+    "narration": [
+     [
+      5216,
+      6091,
+      false
+     ]
+    ],
+    "target": {
+     "end": 5641,
+     "sequence": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar",
+     "start": 376,
+     "start_offset_tick": 0
+    },
+    "vis_track": [
+     {
+      "levels": [
+       "L_Animals"
+      ],
+      "range": [
+       104,
+       5641
+      ]
+     }
+    ]
+   },
+   "before": {
+    "hookin_bindings": null,
+    "narration": [
+     [
+      5216,
+      6091,
+      true
+     ]
+    ],
+    "target": {
+     "end": 5270,
+     "sequence": "/Game/Scenes/LS_Animals_1",
+     "start": -1,
+     "start_offset_tick": -960
+    },
+    "vis_track": null
+   },
+   "copy": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar",
+   "label": "Scene 1 \u2014 External Sound",
+   "mapped_inner_range": [
+    376,
+    5641
+   ],
+   "plan": {
+    "end_change_s": -19.36,
+    "extend_mode": {
+     "dry_run": true,
+     "new_end_s": 225.64,
+     "scene_label": "Scene 1 \u2014 External Sound"
+    },
+    "fps": 25.0,
+    "her_audio_in_scene": [
+     {
+      "active": true,
+      "end_frame": 4165,
+      "scene_end_s": 164.20666666666665,
+      "scene_start_s": 15.006666666666666,
+      "sound": "/Game/KK_S1_Animals/Animals_Project_CLICK",
+      "start_frame": -311
+     }
+    ],
+    "her_fps": 30.0,
+    "her_span": {
+     "len_s": 210.6,
+     "len_tick": 5054400,
+     "lower_s": -10.333333333333334,
+     "lower_tick": -248000,
+     "ticks_per_frame": 800,
+     "upper_s": 200.26666666666668,
+     "upper_tick": 4806400
+    },
+    "label": "Scene 1 \u2014 External Sound",
+    "length": {
+     "exact": 5265.0,
+     "frames": 5265,
+     "hold_s": 0.0,
+     "on_grid": true
+    },
+    "narration": {
+     "action": "mute",
+     "covers_end": false,
+     "reason": "Gary 7 Oct 'Drop it for now': deactivate, never delete (REVERT re-activates)",
+     "refusals": [],
+     "rule": "mute",
+     "sections": [
+      [
+       5216,
+       6091
+      ]
+     ],
+     "warnings": []
+    },
+    "planned_end": 5641,
+    "planned_end_s": 225.64,
+    "refusals": [],
+    "scene": "1",
+    "section": [
+     376,
+     5641
+    ],
+    "section_s": [
+     15.04,
+     225.64
+    ],
+    "sections_past_end": [
+     {
+      "active": true,
+      "cls": "MovieSceneCameraCutTrack",
+      "end": 6100,
+      "start": 0,
+      "track": "Camera Cuts"
+     },
+     {
+      "active": true,
+      "cls": "MovieSceneCameraCutTrack",
+      "end": 6125,
+      "start": 6100,
+      "track": "Camera Cuts"
+     }
+    ],
+    "start_candidates": {
+     "keep": {
+      "end": 5264,
+      "end_s": 210.56,
+      "start": -1,
+      "start_s": -0.04
+     },
+     "land": {
+      "end": 5494,
+      "end_s": 219.76,
+      "start": 229,
+      "start_s": 9.16
+     },
+     "land_plus_strike": {
+      "end": 5641,
+      "end_s": 225.64,
+      "start": 376,
+      "start_s": 15.04
+     }
+    },
+    "start_offset_tick": 0,
+    "start_option": "land_plus_strike",
+    "start_why": "hangar land + StrikeAfterLandSeconds + wide_hold_s",
+    "timeline": {
+     "cinematic": [
+      376,
+      5641
+     ],
+     "hers_dark": [
+      104,
+      376
+     ],
+     "level_visible": [
+      104,
+      5641
+     ],
+     "ours_off": [
+      376,
+      5641
+     ],
+     "refusals": [],
+     "wide": [
+      104,
+      376
+     ]
+    },
+    "warnings": [
+     "SECTION_PAST_PLANNED_END: MovieSceneCameraCutTrack 'Camera Cuts' [0, 6100) > 5641 (allowed)",
+     "SECTION_PAST_PLANNED_END: MovieSceneCameraCutTrack 'Camera Cuts' [6100, 6125) > 5641 (allowed)"
+    ],
+    "wide_hold_s": 5.0
+   },
+   "playback_before": [
+    0,
+    6125
+   ],
+   "rekey": [
+    {
+     "binding": "CineCameraActor4",
+     "keys": {
+      "x": 0,
+      "y": 1,
+      "z": 4
+     }
+    },
+    {
+     "binding": "Pig_anim_RM",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "Pig_anim_RM",
+     "keys": {
+      "x": 33,
+      "y": 33,
+      "z": 0
+     }
+    },
+    {
+     "binding": "CineCameraActor2",
+     "keys": {
+      "x": 2,
+      "y": 2,
+      "z": 7
+     }
+    },
+    {
+     "binding": "StaticMeshActor",
+     "keys": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+     }
+    },
+    {
+     "binding": "medhue_raccoon",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "medhue_raccoon",
+     "keys": {
+      "x": 23,
+      "y": 23,
+      "z": 0
+     }
+    },
+    {
+     "binding": "RedDeer_Calf_anim_IP",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "RedDeer_Calf_anim_IP",
+     "keys": {
+      "x": 20,
+      "y": 20,
+      "z": 0
+     }
+    },
+    {
+     "binding": "CineCameraActor3",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "CineCameraActor",
+     "keys": {
+      "x": 2,
+      "y": 2,
+      "z": 2
+     }
+    },
+    {
+     "binding": "Floor",
+     "keys": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+     }
+    },
+    {
+     "binding": "CineCameraActor5",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "Pond_Water",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    }
+   ],
+   "row": {
+    "allow_truncate": [
+     "Camera Cuts"
+    ],
+    "current_nested": "/Game/Scenes/LS_Animals_1",
+    "her_sequence": "/Game/KK_S1_Animals/LS_Animals_1",
+    "hers_dark_until_cut": true,
+    "level_packages": [
+     "/Game/KK_S1_Animals/L_Animals"
+    ],
+    "narration_rule": "mute",
+    "narration_track": "Narration (stand-in)",
+    "ours_off": true,
+    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+    "start_option": "land_plus_strike",
+    "tail_s": 0.0,
+    "visible_levels": [
+     "L_Animals"
+    ],
+    "wide_hold_s": 5.0
+   },
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01"
+  },
+  "4": {
+   "after": {
+    "hookin_bindings": [
+     {
+      "name": "Klara Hookin - Hers Dark: DirectionalLight",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: SkyAtmosphere",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: SkyLight",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Hers Dark: VolumetricCloud",
+      "sections": [
+       [
+        104,
+        376
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+      "sections": [
+       [
+        376,
+        4476
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+      "sections": [
+       [
+        376,
+        4476
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+      "sections": [
+       [
+        376,
+        4476
+       ]
+      ]
+     },
+     {
+      "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+      "sections": [
+       [
+        376,
+        4476
+       ]
+      ]
+     }
+    ],
+    "narration": null,
+    "target": {
+     "end": 4476,
+     "sequence": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
+     "start": 376,
+     "start_offset_tick": 0
+    },
+    "vis_track": [
+     {
+      "levels": [
+       "L_KK_children"
+      ],
+      "range": [
+       104,
+       4476
+      ]
+     }
+    ]
+   },
+   "before": {
+    "hookin_bindings": null,
+    "narration": null,
+    "target": {
+     "end": 375,
+     "sequence": "/Game/Scenes/LS_Children",
+     "start": 0,
+     "start_offset_tick": 0
+    },
+    "vis_track": null
+   },
+   "copy": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
+   "label": "Scene 4 \u2014 External Sound",
+   "mapped_inner_range": [
+    376,
+    4476
+   ],
+   "plan": {
+    "end_change_s": 148.04,
+    "extend_mode": {
+     "dry_run": true,
+     "new_end_s": 179.04,
+     "scene_label": "Scene 4 \u2014 External Sound"
+    },
+    "fps": 25.0,
+    "her_audio_in_scene": [
+     {
+      "active": true,
+      "end_frame": 4920,
+      "scene_end_s": 179.04,
+      "scene_start_s": 13.173333333333332,
+      "sound": "/Game/L_K_Children/Children_Project_wFlute_1_",
+      "start_frame": -56
+     },
+     {
+      "active": true,
+      "end_frame": 4920,
+      "scene_end_s": 179.04,
+      "scene_start_s": 13.173333333333332,
+      "sound": "/Game/L_K_Children/Children_Project_CENTRE",
+      "start_frame": -56
+     },
+     {
+      "active": true,
+      "end_frame": 4920,
+      "scene_end_s": 179.04,
+      "scene_start_s": 13.173333333333332,
+      "sound": "/Game/L_K_Children/Children_Project_CLICK",
+      "start_frame": -56
+     }
+    ],
+    "her_fps": 30.0,
+    "her_span": {
+     "len_s": 164.0,
+     "len_tick": 3936000,
+     "lower_s": 0.0,
+     "lower_tick": 0,
+     "ticks_per_frame": 800,
+     "upper_s": 164.0,
+     "upper_tick": 3936000
+    },
+    "label": "Scene 4 \u2014 External Sound",
+    "length": {
+     "exact": 4100.0,
+     "frames": 4100,
+     "hold_s": 0.0,
+     "on_grid": true
+    },
+    "narration": {
+     "action": "none",
+     "reason": "no narration rule for this Scene",
+     "refusals": [],
+     "rule": "none",
+     "warnings": []
+    },
+    "planned_end": 4476,
+    "planned_end_s": 179.04,
+    "refusals": [],
+    "scene": "4",
+    "section": [
+     376,
+     4476
+    ],
+    "section_s": [
+     15.04,
+     179.04
+    ],
+    "sections_past_end": [],
+    "start_candidates": {
+     "keep": {
+      "end": 4100,
+      "end_s": 164.0,
+      "start": 0,
+      "start_s": 0.0
+     },
+     "land": {
+      "end": 4329,
+      "end_s": 173.16,
+      "start": 229,
+      "start_s": 9.16
+     },
+     "land_plus_strike": {
+      "end": 4476,
+      "end_s": 179.04,
+      "start": 376,
+      "start_s": 15.04
+     }
+    },
+    "start_offset_tick": 0,
+    "start_option": "land_plus_strike",
+    "start_why": "hangar land + StrikeAfterLandSeconds + wide_hold_s",
+    "timeline": {
+     "cinematic": [
+      376,
+      4476
+     ],
+     "hers_dark": [
+      104,
+      376
+     ],
+     "level_visible": [
+      104,
+      4476
+     ],
+     "ours_off": [
+      376,
+      4476
+     ],
+     "refusals": [],
+     "wide": [
+      104,
+      376
+     ]
+    },
+    "warnings": [],
+    "wide_hold_s": 5.0
+   },
+   "playback_before": [
+    0,
+    775
+   ],
+   "rekey": [
+    {
+     "binding": "Floor",
+     "keys": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+     }
+    },
+    {
+     "binding": "Paper_Fall_Cagliuso_Handwritten_30fps",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 2
+     }
+    },
+    {
+     "binding": "CineCameraActor",
+     "keys": {
+      "x": 3,
+      "y": 3,
+      "z": 3
+     }
+    },
+    {
+     "binding": "CineCameraActor2",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "BP_MHC_Child",
+     "keys": {
+      "x": 1,
+      "y": 1,
+      "z": 9
+     }
+    },
+    {
+     "binding": "BP_MHC_Child3",
+     "keys": {
+      "x": 1,
+      "y": 2,
+      "z": 4
+     }
+    },
+    {
+     "binding": "GC_Old_Book",
+     "keys": {
+      "x": 1,
+      "y": 1,
+      "z": 2
+     }
+    },
+    {
+     "binding": "BP_MHC_Child2",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 4
+     }
+    },
+    {
+     "binding": "Pendulum",
+     "note": "no level actor: keys shifted as absolute (spawnable/free)"
+    },
+    {
+     "binding": "Pendulum",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+     }
+    },
+    {
+     "binding": "BP_MHC_Child5",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 8
+     }
+    },
+    {
+     "binding": "BP_MHC_Child7",
+     "keys": {
+      "x": 1,
+      "y": 2,
+      "z": 19
+     }
+    },
+    {
+     "binding": "BP_MHC_Child6",
+     "keys": {
+      "x": 0,
+      "y": 0,
+      "z": 10
+     }
+    },
+    {
+     "binding": "CineCameraActor3",
+     "keys": {
+      "x": 5,
+      "y": 5,
+      "z": 5
+     }
+    },
+    {
+     "binding": "BP_MHC_Child4",
+     "keys": {
+      "x": 0,
+      "y": 1,
+      "z": 8
+     }
+    },
+    {
+     "binding": "SK_Pigeon_01",
+     "keys": {
+      "x": 2,
+      "y": 1,
+      "z": 2
+     }
+    }
+   ],
+   "row": {
+    "allow_truncate": [],
+    "current_nested": "/Game/Scenes/LS_Children",
+    "her_sequence": "/Game/LS_Children",
+    "hers_dark_until_cut": true,
+    "level_packages": [
+     "/Game/L_KK_children"
+    ],
+    "narration_rule": "none",
+    "narration_track": "Narration (stand-in)",
+    "ours_off": true,
+    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+    "start_option": "land_plus_strike",
+    "tail_s": 0.0,
+    "visible_levels": [
+     "L_KK_children"
+    ],
+    "wide_hold_s": 5.0
+   },
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04"
+  }
+ },
+ "schema": 2,
+ "tool": "klara_hookin",
+ "written": "2026-10-06T22:56:06"
+}

@@ -1,0 +1,2096 @@
+{
+ "api_table": [
+  {
+   "api": "MovieSceneSubSection.set_sequence",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSubSection.h:161-162"
+  },
+  {
+   "api": "MovieSceneSectionExtensions.get_parent_sequence_frame",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSectionExtensions.h:255"
+  },
+  {
+   "api": "MovieSceneSectionParameters.start_frame_offset",
+   "ok": true,
+   "result": "\"<Struct 'FrameNumber' (0x00000135ABE31880) {value: 0}>\"",
+   "tier": "decl MovieSceneSectionParameters.h:76"
+  },
+  {
+   "api": "SubSection origin override reachable from Python (expected NO)",
+   "ok": false,
+   "result": "Exception: MovieSceneSubSection: Failed to find property 'origin_override_mask' for attribute 'origin_override_mask' on 'MovieSceneSubSection'",
+   "tier": "decl MovieSceneSubSection.h:278-279 bare UPROPERTY; inf: not script-visible"
+  },
+  {
+   "api": "LevelStreaming.level_transform (BlueprintReadWrite)",
+   "ok": true,
+   "result": "\"<Struct 'Transform' (0x0000013269FF1C30) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 0.000000, y: 0.000000, z: 0.000000},",
+   "tier": "decl LevelStreaming.h:226-227"
+  },
+  {
+   "api": "EditorLevelUtils.add_level_to_world_with_transform / remove_level_from_world / get_levels",
+   "ok": true,
+   "result": "[True, True, True]",
+   "tier": "decl EditorLevelUtils.h:276-277, 260-261, 419-420"
+  },
+  {
+   "api": "LevelStreamingDynamic initially_loaded / initially_visible",
+   "ok": true,
+   "result": "[False, False]",
+   "tier": "inf (property names)"
+  },
+  {
+   "api": "MovieSceneLevelVisibilityTrack + section set_level_names/set_visibility",
+   "ok": true,
+   "result": "[True, True]",
+   "tier": "decl MovieSceneLevelVisibilitySection.h:43,49; track class name inf"
+  },
+  {
+   "api": "LevelVisibility.VISIBLE",
+   "ok": true,
+   "result": "'<LevelVisibility.VISIBLE: 0>'",
+   "tier": "inf"
+  },
+  {
+   "api": "MovieSceneVisibilityTrack property name == bHiddenInGame",
+   "ok": true,
+   "result": "True",
+   "tier": "inf; APPLY gates on the live track"
+  },
+  {
+   "api": "MovieSceneCompletionMode.RESTORE_STATE",
+   "ok": true,
+   "result": "'<MovieSceneCompletionMode.RESTORE_STATE: 1>'",
+   "tier": "prec curtain_sleight.py:1875 (KEEP_STATE)"
+  },
+  {
+   "api": "EditorAssetLibrary.duplicate_asset / delete_asset",
+   "ok": true,
+   "result": "[True, True]",
+   "tier": "inf / prec scene_audio_import.py:1066"
+  },
+  {
+   "api": "MovieSceneSection.set_is_active",
+   "ok": true,
+   "result": "True",
+   "tier": "inf (is_active is prec scene_audio_import.py:668)"
+  },
+  {
+   "api": "InfinityStageCelestialRig foreign_lighting_exempt_levels (proposed C++ flag)",
+   "ok": false,
+   "result": "<Array object at 0x00000132674B2C30>",
+   "tier": "NOT IN SOURCE TODAY: CelestialRig.h:95-107 has only bSuppressForeignEnvironmentLighting"
+  },
+  {
+   "api": "InfinityStageCameraPilotLibrary.check_scene_cut_bindings",
+   "ok": true,
+   "result": "True",
+   "tier": "decl CameraPilotLibrary.h:141-146; tuple inf"
+  }
+ ],
+ "apply_ready": true,
+ "args": {
+  "confirm": "",
+  "copy_folder": "/Game/InfinityStage/KlaraHookin",
+  "decided_by": "Gary 7 Oct (his own answers, relayed by the conductor): (1) shot start 'After the hangar lands' -> land_plus_strike for S1 and S4; (2) S1 narration 'Drop it for now' -> mute (deactivate, never delete); (3) S2 'Import, keep our S2' -> Japanese_Alley streamed for viewing only, LS_DevScene_02 untouched; (4) lighting 'Hers; ours off in her scenes'. Design note 7 Oct: 'bring her dioramas into the hangar itself ... a wide shot ... as the light strikes on a dark hangar, before we go into her cinematic sequences'. NOT Gary's: wide_hold_s 5.0 (proposed), anchor 'center' (proposed), the hers_dark/ours_off windows (proposed, HOOKIN_PLAN.md section 4).",
+  "hangars": {
+   "1": {
+    "apron": 500.0,
+    "depth": 6000.0,
+    "dock": {
+     "loc": [
+      28784.0135,
+      0.0,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355",
+    "floor_t": 20.0,
+    "half_w": 1000.0,
+    "height": 3000.0,
+    "lattice_z": 1200.0,
+    "source": "Saved/CodexStructure/hangar_s1_record.json (30 Sep) [meas, stale: DRY checks the live S1 Hangar Apron]"
+   },
+   "2": {
+    "apron": 500.0,
+    "depth": 6000.0,
+    "dock": {
+     "loc": [
+      10742.232211654631,
+      81299.0241181779,
+      0.0
+     ],
+     "yaw": -43.57251940082824
+    },
+    "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355",
+    "floor_t": 20.0,
+    "half_w": 1000.0,
+    "height": 3000.0,
+    "lattice_z": 1200.0,
+    "source": "Saved/CodexStructure/hangar_s2_record.json (30 Sep) [meas, stale]"
+   },
+   "4": {
+    "apron": 500.0,
+    "depth": 6000.0,
+    "dock": {
+     "loc": [
+      10668.4695,
+      240000.0,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355",
+    "floor_t": 20.0,
+    "half_w": 1000.0,
+    "height": 3000.0,
+    "lattice_z": 1200.0,
+    "source": "Saved/CodexStructure/hangar_s4_plan.json [meas, stale]"
+   }
+  },
+  "import_only": {
+   "2": {
+    "level": "/Game/Japanese_Alley/Maps/Japanese_Alley",
+    "note": "Gary 7 Oct 'Import, keep our S2': streamed (hidden) into the S2 hangar for viewing; LS_DevScene_02 untouched"
+   }
+  },
+  "levels": {
+   "/Game/Japanese_Alley/Maps/Japanese_Alley": {
+    "anchor": "center",
+    "floor_z_her": 790.0,
+    "footprint_her": [
+     -2579,
+     811,
+     -1147,
+     1409
+    ],
+    "footprint_note": "as above; her ground is ~790 cm (10th-percentile z) [meas]",
+    "local_yaw_options": [
+     0,
+     180,
+     90,
+     270
+    ],
+    "scene": "2",
+    "z_top_her": 2010.0
+   },
+   "/Game/KK_S1_Animals/L_Animals": {
+    "anchor": "center",
+    "floor_z_her": 0.0,
+    "footprint_her": [
+     -1200,
+     656,
+     -630,
+     386
+    ],
+    "footprint_note": "2-98% component RelativeLocation pivots, offline parse of her .umap [meas]; pivots understate mesh extent - DRY re-measures live bounds once streamed",
+    "local_yaw_options": [
+     0,
+     180,
+     90,
+     270
+    ],
+    "scene": "1",
+    "z_top_her": 554.0
+   },
+   "/Game/L_KK_children": {
+    "anchor": "center",
+    "floor_z_her": 0.0,
+    "footprint_her": [
+     -600,
+     1657,
+     -674,
+     657
+    ],
+    "footprint_note": "as above",
+    "local_yaw_options": [
+     0,
+     180,
+     90,
+     270
+    ],
+    "scene": "4",
+    "z_top_her": 700.0
+   }
+  },
+  "lighting": {
+   "hers_on": true,
+   "note": "hers_on needs the proposed CelestialRig exemption (HOOKIN_PLAN.md section 4); DRY refuses until it is built",
+   "ours_off": true
+  },
+  "margin_cm": 100.0,
+  "mode": "DRY",
+  "run_id": null,
+  "scenes": {
+   "1": {
+    "allow_truncate": [
+     "Camera Cuts"
+    ],
+    "current_nested": "/Game/Scenes/LS_Animals_1",
+    "her_sequence": "/Game/KK_S1_Animals/LS_Animals_1",
+    "hers_dark_until_cut": true,
+    "level_packages": [
+     "/Game/KK_S1_Animals/L_Animals"
+    ],
+    "narration_rule": "mute",
+    "narration_track": "Narration (stand-in)",
+    "ours_off": true,
+    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+    "start_option": "land_plus_strike",
+    "tail_s": 0.0,
+    "visible_levels": [
+     "L_Animals"
+    ],
+    "wide_hold_s": 5.0
+   },
+   "4": {
+    "allow_truncate": [],
+    "current_nested": "/Game/Scenes/LS_Children",
+    "her_sequence": "/Game/LS_Children",
+    "hers_dark_until_cut": true,
+    "level_packages": [
+     "/Game/L_KK_children"
+    ],
+    "narration_rule": "none",
+    "narration_track": "Narration (stand-in)",
+    "ours_off": true,
+    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+    "start_option": "land_plus_strike",
+    "tail_s": 0.0,
+    "visible_levels": [
+     "L_KK_children"
+    ],
+    "wide_hold_s": 5.0
+   }
+  }
+ },
+ "extend_modes": {
+  "1": {
+   "dry_run": true,
+   "new_end_s": 225.64,
+   "scene_label": "Scene 1 \u2014 External Sound"
+  },
+  "4": {
+   "dry_run": true,
+   "new_end_s": 179.04,
+   "scene_label": "Scene 4 \u2014 External Sound"
+  }
+ },
+ "facts": {
+  "1": {
+   "cut_bindings": {
+    "lines": [],
+    "ok": false,
+    "raw_type": "NoneType",
+    "unresolved": null
+   },
+   "fps": 25.0,
+   "her": {
+    "audio": [
+     {
+      "active": true,
+      "end_frame": 4165,
+      "sound": "/Game/KK_S1_Animals/Animals_Project_CLICK",
+      "start_frame": -311
+     }
+    ],
+    "bindings": [
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor4",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "Pig_anim_RM",
+      "tracks": [
+       "MovieScene3DTransformTrack",
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor2",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "StaticMeshActor",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight9",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight2",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "medhue_raccoon",
+      "tracks": [
+       "MovieScene3DTransformTrack",
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight3",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "RedDeer_Calf_anim_IP",
+      "tracks": [
+       "MovieScene3DTransformTrack",
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight5",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "RectLight_Merged2",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight4",
+      "tracks": []
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight6",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight8",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor3",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "Floor",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "RectLight_Merged3",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight10",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor5",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "animals",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight11",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "Pond_Water",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight7",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "RectLight_Merged",
+      "tracks": []
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     }
+    ],
+    "cuts": [
+     [
+      -311,
+      404
+     ],
+     [
+      404,
+      483
+     ],
+     [
+      483,
+      640
+     ],
+     [
+      640,
+      859
+     ],
+     [
+      859,
+      890
+     ],
+     [
+      890,
+      935
+     ],
+     [
+      935,
+      1025
+     ],
+     [
+      1025,
+      1093
+     ],
+     [
+      1093,
+      1208
+     ],
+     [
+      1208,
+      1362
+     ],
+     [
+      1362,
+      1543
+     ],
+     [
+      1543,
+      1584
+     ],
+     [
+      1584,
+      1610
+     ],
+     [
+      1610,
+      1694
+     ],
+     [
+      1694,
+      1759
+     ],
+     [
+      1759,
+      1806
+     ],
+     [
+      1806,
+      1855
+     ],
+     [
+      1855,
+      1896
+     ],
+     [
+      1896,
+      1963
+     ],
+     [
+      1963,
+      2137
+     ],
+     [
+      2137,
+      6008
+     ]
+    ],
+    "exists": true,
+    "fps": 30.0,
+    "lower_frame": -310,
+    "path": "/Game/KK_S1_Animals/LS_Animals_1",
+    "tick": 24000.0,
+    "upper_frame": 6008
+   },
+   "label": "Scene 1 \u2014 External Sound",
+   "land_frame": 104,
+   "land_problems": [],
+   "narration": {
+    "active": true,
+    "cls": "MovieSceneAudioTrack",
+    "end": 6091,
+    "is_narration": true,
+    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
+    "start": 5216,
+    "track": "Narration (stand-in)"
+   },
+   "narration_all": [
+    {
+     "active": true,
+     "cls": "MovieSceneAudioTrack",
+     "end": 6091,
+     "is_narration": true,
+     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
+     "start": 5216,
+     "track": "Narration (stand-in)"
+    }
+   ],
+   "playback": [
+    0,
+    6125
+   ],
+   "root_sections": [
+    {
+     "active": true,
+     "cls": "MovieSceneCinematicShotTrack",
+     "end": 5270,
+     "is_target": true,
+     "sequence": "/Game/Scenes/LS_Animals_1",
+     "start": -1,
+     "start_offset_tick": -960,
+     "track": "Shots"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneSubTrack",
+     "end": 775,
+     "sequence": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise",
+     "start": 0,
+     "start_offset_tick": 0,
+     "track": "Hangar Fold"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneAudioTrack",
+     "end": 6091,
+     "is_narration": true,
+     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
+     "start": 5216,
+     "track": "Narration (stand-in)"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 6100,
+     "start": 0,
+     "track": "Camera Cuts"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 6125,
+     "start": 6100,
+     "track": "Camera Cuts"
+    }
+   ],
+   "scene": "1",
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+   "strike_frame": 251,
+   "target": {
+    "active": true,
+    "cls": "MovieSceneCinematicShotTrack",
+    "count": 1,
+    "end": 5270,
+    "is_target": true,
+    "sequence": "/Game/Scenes/LS_Animals_1",
+    "start": -1,
+    "start_offset_tick": -960,
+    "track": "Shots"
+   },
+   "tick": 24000.0
+  },
+  "4": {
+   "cut_bindings": {
+    "lines": [
+     "LS_DevScene_04 cut [0, 720000) -> 'Scene 4 \u2014 External Sound \u2014 Entry Handoff Camera': resolved: Scene 4 \u2014 External Sound \u2014 Entry Handoff Camera",
+     "LS_DevScene_04 cut [720000, 744000) -> 'Scene 4 \u2014 External Sound \u2014 Exit Handoff Camera': resolved: Scene 4 \u2014 External Sound \u2014 Exit Handoff Camera"
+    ],
+    "ok": false,
+    "raw_type": "tuple:Array,int",
+    "unresolved": 0
+   },
+   "fps": 25.0,
+   "her": {
+    "audio": [
+     {
+      "active": true,
+      "end_frame": 4920,
+      "sound": "/Game/L_K_Children/Children_Project_wFlute_1_",
+      "start_frame": -56
+     },
+     {
+      "active": true,
+      "end_frame": 4920,
+      "sound": "/Game/L_K_Children/Children_Project_CENTRE",
+      "start_frame": -56
+     },
+     {
+      "active": true,
+      "end_frame": 4920,
+      "sound": "/Game/L_K_Children/Children_Project_CLICK",
+      "start_frame": -56
+     }
+    ],
+    "bindings": [
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "Floor",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "Paper_Fall_Cagliuso_Handwritten_30fps",
+      "tracks": [
+       "MovieScene3DTransformTrack",
+       "MovieSceneSkeletalAnimationTrack",
+       "MovieSceneSkeletalAnimationTrack",
+       "MovieSceneVisibilityTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor2",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "Spot_MainLight_window",
+      "tracks": []
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child3",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "GC_Old_Book",
+      "tracks": [
+       "MovieScene3DTransformTrack",
+       "MovieSceneGeometryCacheTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child2",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight4",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight7",
+      "tracks": []
+     },
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "CameraComponent",
+      "tracks": [
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "Pendulum",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "GeometryCacheComponent",
+      "tracks": [
+       "MovieSceneObjectPropertyTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight6",
+      "tracks": []
+     },
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child5",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight3",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child7",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Face",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child6",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "Body",
+      "tracks": [
+       "MovieSceneControlRigParameterTrack",
+       "MovieSceneSkeletalAnimationTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight2",
+      "tracks": []
+     },
+     {
+      "has_parent": false,
+      "name": "CineCameraActor3",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "BP_MHC_Child4",
+      "tracks": [
+       "MovieScene3DTransformTrack"
+      ]
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SpotLight",
+      "tracks": []
+     },
+     {
+      "has_parent": true,
+      "name": "LightComponent0",
+      "tracks": [
+       "MovieSceneColorTrack",
+       "MovieSceneFloatTrack"
+      ]
+     },
+     {
+      "has_parent": false,
+      "name": "SK_Pigeon_01",
+      "tracks": [
+       "MovieScene3DTransformTrack",
+       "MovieSceneSkeletalAnimationTrack",
+       "MovieSceneVisibilityTrack"
+      ]
+     }
+    ],
+    "cuts": [
+     [
+      0,
+      2
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      3,
+      3002
+     ],
+     [
+      3002,
+      3244
+     ],
+     [
+      3244,
+      4920
+     ]
+    ],
+    "exists": true,
+    "fps": 30.0,
+    "lower_frame": 0,
+    "path": "/Game/LS_Children",
+    "tick": 24000.0,
+    "upper_frame": 4920
+   },
+   "label": "Scene 4 \u2014 External Sound",
+   "land_frame": 104,
+   "land_problems": [],
+   "narration": null,
+   "narration_all": [],
+   "playback": [
+    0,
+    775
+   ],
+   "root_sections": [
+    {
+     "active": true,
+     "cls": "MovieSceneCinematicShotTrack",
+     "end": 375,
+     "is_target": true,
+     "sequence": "/Game/Scenes/LS_Children",
+     "start": 0,
+     "start_offset_tick": 0,
+     "track": "Shots"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneSubTrack",
+     "end": 775,
+     "sequence": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+     "start": 0,
+     "start_offset_tick": 0,
+     "track": "Hangar Fold"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 750,
+     "start": 0,
+     "track": "Camera Cuts"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 775,
+     "start": 750,
+     "track": "Camera Cuts"
+    }
+   ],
+   "scene": "4",
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+   "strike_frame": 251,
+   "target": {
+    "active": true,
+    "cls": "MovieSceneCinematicShotTrack",
+    "count": 1,
+    "end": 375,
+    "is_target": true,
+    "sequence": "/Game/Scenes/LS_Children",
+    "start": 0,
+    "start_offset_tick": 0,
+    "track": "Shots"
+   },
+   "tick": 24000.0
+  }
+ },
+ "placements": {
+  "/Game/Japanese_Alley/Maps/Japanese_Alley": {
+   "dock_check": {
+    "err_cm": 5.7183351600542665e-06,
+    "got": [
+     10923.357840774008,
+     81126.70607943526,
+     -10.0
+    ],
+    "ok": true,
+    "want": [
+     10923.357846214272,
+     81126.7060851536,
+     -10.0
+    ],
+    "yaw_err": 1.8088885553879663e-06
+   },
+   "fit": {
+    "anchor": "center",
+    "candidates": [
+     {
+      "fits": false,
+      "footprint_cm": [
+       3390.0,
+       2556.0
+      ],
+      "level_transform": {
+       "loc": [
+        13828.15668998775,
+        78182.34525855433,
+        -790.0
+       ],
+       "yaw": 316.42748059917176
+      },
+      "local_offset": [
+       4384.0,
+       -131.0,
+       -790.0
+      ],
+      "local_yaw": 0.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 378.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       3390.0,
+       2556.0
+      ],
+      "level_transform": {
+       "loc": [
+        12727.82550099145,
+        79590.79805312076,
+        -790.0
+       ],
+       "yaw": 136.42748059917176
+      },
+      "local_offset": [
+       2616.0,
+       131.0000000000001,
+       -790.0
+      ],
+      "local_yaw": 180.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 378.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       2556.0,
+       3390.0
+      ],
+      "level_transform": {
+       "loc": [
+        13982.217492772816,
+        79436.73725033569,
+        -790.0
+       ],
+       "yaw": 46.42748059917176
+      },
+      "local_offset": [
+       3631.0,
+       884.0,
+       -790.0
+      ],
+      "local_yaw": 90.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 795.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       2556.0,
+       3390.0
+      ],
+      "level_transform": {
+       "loc": [
+        12573.764698206383,
+        78336.4060613394,
+        -790.0
+       ],
+       "yaw": 226.42748059917176
+      },
+      "local_offset": [
+       3369.0,
+       -884.0,
+       -790.0
+      ],
+      "local_yaw": 270.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 795.0
+      }
+     }
+    ],
+    "fits": false,
+    "footprint_cm": [
+     3390.0,
+     2556.0
+    ],
+    "interior_cm": [
+     5800.0,
+     1800.0
+    ],
+    "level_transform": {
+     "loc": [
+      13828.15668998775,
+      78182.34525855433,
+      -790.0
+     ],
+     "yaw": 316.42748059917176
+    },
+    "local_offset": [
+     4384.0,
+     -131.0,
+     -790.0
+    ],
+    "local_yaw": 0.0,
+    "margin_cm": 100.0,
+    "overhang_cm": {
+     "far": 0.0,
+     "near": 0.0,
+     "side": 378.0
+    }
+   },
+   "footprint_source": "offline pivots (HOOKIN_PLAN.md section 3)",
+   "height": {
+    "height_cm": 1220.0,
+    "under_lattice": false,
+    "under_roof": true
+   },
+   "level": "/Game/Japanese_Alley/Maps/Japanese_Alley",
+   "refusals": [],
+   "scene": "2",
+   "warnings": [
+    "TALLER_THAN_LATTICE: 1220 cm > lattice 1200.0 cm",
+    "NO_FIT: /Game/Japanese_Alley/Maps/Japanese_Alley 3390 x 2556 cm vs interior 5800 x 1800 cm, overhang {'near': 0.0, 'far': 0.0, 'side': 378.0} - choose which part of her set goes in (scaling breaks MetaHumans/physics)"
+   ]
+  },
+  "/Game/KK_S1_Animals/L_Animals": {
+   "dock_check": {
+    "err_cm": 0.0,
+    "got": [
+     29034.0135,
+     0.0,
+     -10.0
+    ],
+    "ok": true,
+    "want": [
+     29034.0135,
+     0.0,
+     -10.0
+    ],
+    "yaw_err": 0.0
+   },
+   "fit": {
+    "anchor": "center",
+    "candidates": [
+     {
+      "fits": true,
+      "footprint_cm": [
+       1856.0,
+       1016.0
+      ],
+      "level_transform": {
+       "loc": [
+        32556.0135,
+        122.0,
+        0.0
+       ],
+       "yaw": 0.0
+      },
+      "local_offset": [
+       3772.0,
+       122.0,
+       0.0
+      ],
+      "local_yaw": 0.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": true,
+      "footprint_cm": [
+       1856.0,
+       1016.0
+      ],
+      "level_transform": {
+       "loc": [
+        32012.0135,
+        -121.99999999999997,
+        0.0
+       ],
+       "yaw": 180.0
+      },
+      "local_offset": [
+       3228.0,
+       -121.99999999999997,
+       0.0
+      ],
+      "local_yaw": 180.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1016.0,
+       1856.0
+      ],
+      "level_transform": {
+       "loc": [
+        32162.0135,
+        272.0,
+        0.0
+       ],
+       "yaw": 90.0
+      },
+      "local_offset": [
+       3378.0,
+       272.0,
+       0.0
+      ],
+      "local_yaw": 90.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 28.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1016.0,
+       1856.0
+      ],
+      "level_transform": {
+       "loc": [
+        32406.0135,
+        -272.0,
+        0.0
+       ],
+       "yaw": 270.0
+      },
+      "local_offset": [
+       3622.0,
+       -272.0,
+       0.0
+      ],
+      "local_yaw": 270.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 28.0
+      }
+     }
+    ],
+    "fits": true,
+    "footprint_cm": [
+     1856.0,
+     1016.0
+    ],
+    "interior_cm": [
+     5800.0,
+     1800.0
+    ],
+    "level_transform": {
+     "loc": [
+      32556.0135,
+      122.0,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "local_offset": [
+     3772.0,
+     122.0,
+     0.0
+    ],
+    "local_yaw": 0.0,
+    "margin_cm": 100.0,
+    "overhang_cm": {
+     "far": 0.0,
+     "near": 0.0,
+     "side": 0.0
+    }
+   },
+   "footprint_source": "offline pivots (HOOKIN_PLAN.md section 3)",
+   "height": {
+    "height_cm": 554.0,
+    "under_lattice": true,
+    "under_roof": true
+   },
+   "level": "/Game/KK_S1_Animals/L_Animals",
+   "refusals": [],
+   "scene": "1",
+   "warnings": []
+  },
+  "/Game/L_KK_children": {
+   "dock_check": {
+    "err_cm": 1.8189894035458565e-12,
+    "got": [
+     10918.469500000001,
+     240000.0,
+     -10.0
+    ],
+    "ok": true,
+    "want": [
+     10918.4695,
+     240000.0,
+     -10.0
+    ],
+    "yaw_err": 0.0
+   },
+   "fit": {
+    "anchor": "center",
+    "candidates": [
+     {
+      "fits": true,
+      "footprint_cm": [
+       2257.0,
+       1331.0
+      ],
+      "level_transform": {
+       "loc": [
+        13639.9695,
+        240008.5,
+        0.0
+       ],
+       "yaw": 0.0
+      },
+      "local_offset": [
+       2971.5,
+       8.5,
+       0.0
+      ],
+      "local_yaw": 0.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": true,
+      "footprint_cm": [
+       2257.0,
+       1331.0
+      ],
+      "level_transform": {
+       "loc": [
+        14696.9695,
+        239991.5,
+        0.0
+       ],
+       "yaw": 180.0
+      },
+      "local_offset": [
+       4028.5,
+       -8.500000000000064,
+       0.0
+      ],
+      "local_yaw": 180.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1331.0,
+       2257.0
+      ],
+      "level_transform": {
+       "loc": [
+        14159.9695,
+        239471.5,
+        0.0
+       ],
+       "yaw": 90.0
+      },
+      "local_offset": [
+       3491.5,
+       -528.5,
+       0.0
+      ],
+      "local_yaw": 90.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 228.5
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1331.0,
+       2257.0
+      ],
+      "level_transform": {
+       "loc": [
+        14176.9695,
+        240528.5,
+        0.0
+       ],
+       "yaw": 270.0
+      },
+      "local_offset": [
+       3508.5,
+       528.5,
+       0.0
+      ],
+      "local_yaw": 270.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 228.5
+      }
+     }
+    ],
+    "fits": true,
+    "footprint_cm": [
+     2257.0,
+     1331.0
+    ],
+    "interior_cm": [
+     5800.0,
+     1800.0
+    ],
+    "level_transform": {
+     "loc": [
+      13639.9695,
+      240008.5,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "local_offset": [
+     2971.5,
+     8.5,
+     0.0
+    ],
+    "local_yaw": 0.0,
+    "margin_cm": 100.0,
+    "overhang_cm": {
+     "far": 0.0,
+     "near": 0.0,
+     "side": 0.0
+    }
+   },
+   "footprint_source": "offline pivots (HOOKIN_PLAN.md section 3)",
+   "height": {
+    "height_cm": 700.0,
+    "under_lattice": true,
+    "under_roof": true
+   },
+   "level": "/Game/L_KK_children",
+   "refusals": [],
+   "scene": "4",
+   "warnings": []
+  }
+ },
+ "plans": {
+  "1": {
+   "end_change_s": -19.36,
+   "extend_mode": {
+    "dry_run": true,
+    "new_end_s": 225.64,
+    "scene_label": "Scene 1 \u2014 External Sound"
+   },
+   "fps": 25.0,
+   "her_audio_in_scene": [
+    {
+     "active": true,
+     "end_frame": 4165,
+     "scene_end_s": 164.20666666666665,
+     "scene_start_s": 15.006666666666666,
+     "sound": "/Game/KK_S1_Animals/Animals_Project_CLICK",
+     "start_frame": -311
+    }
+   ],
+   "her_fps": 30.0,
+   "her_span": {
+    "len_s": 210.6,
+    "len_tick": 5054400,
+    "lower_s": -10.333333333333334,
+    "lower_tick": -248000,
+    "ticks_per_frame": 800,
+    "upper_s": 200.26666666666668,
+    "upper_tick": 4806400
+   },
+   "label": "Scene 1 \u2014 External Sound",
+   "length": {
+    "exact": 5265.0,
+    "frames": 5265,
+    "hold_s": 0.0,
+    "on_grid": true
+   },
+   "narration": {
+    "action": "mute",
+    "covers_end": false,
+    "reason": "Gary 7 Oct 'Drop it for now': deactivate, never delete (REVERT re-activates)",
+    "refusals": [],
+    "rule": "mute",
+    "sections": [
+     [
+      5216,
+      6091
+     ]
+    ],
+    "warnings": []
+   },
+   "planned_end": 5641,
+   "planned_end_s": 225.64,
+   "refusals": [],
+   "scene": "1",
+   "section": [
+    376,
+    5641
+   ],
+   "section_s": [
+    15.04,
+    225.64
+   ],
+   "sections_past_end": [
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 6100,
+     "start": 0,
+     "track": "Camera Cuts"
+    },
+    {
+     "active": true,
+     "cls": "MovieSceneCameraCutTrack",
+     "end": 6125,
+     "start": 6100,
+     "track": "Camera Cuts"
+    }
+   ],
+   "start_candidates": {
+    "keep": {
+     "end": 5264,
+     "end_s": 210.56,
+     "start": -1,
+     "start_s": -0.04
+    },
+    "land": {
+     "end": 5494,
+     "end_s": 219.76,
+     "start": 229,
+     "start_s": 9.16
+    },
+    "land_plus_strike": {
+     "end": 5641,
+     "end_s": 225.64,
+     "start": 376,
+     "start_s": 15.04
+    }
+   },
+   "start_offset_tick": 0,
+   "start_option": "land_plus_strike",
+   "start_why": "hangar land + StrikeAfterLandSeconds + wide_hold_s",
+   "timeline": {
+    "cinematic": [
+     376,
+     5641
+    ],
+    "hers_dark": [
+     104,
+     376
+    ],
+    "level_visible": [
+     104,
+     5641
+    ],
+    "ours_off": [
+     376,
+     5641
+    ],
+    "refusals": [],
+    "wide": [
+     104,
+     376
+    ]
+   },
+   "warnings": [
+    "SECTION_PAST_PLANNED_END: MovieSceneCameraCutTrack 'Camera Cuts' [0, 6100) > 5641 (allowed)",
+    "SECTION_PAST_PLANNED_END: MovieSceneCameraCutTrack 'Camera Cuts' [6100, 6125) > 5641 (allowed)"
+   ],
+   "wide_hold_s": 5.0
+  },
+  "4": {
+   "end_change_s": 148.04,
+   "extend_mode": {
+    "dry_run": true,
+    "new_end_s": 179.04,
+    "scene_label": "Scene 4 \u2014 External Sound"
+   },
+   "fps": 25.0,
+   "her_audio_in_scene": [
+    {
+     "active": true,
+     "end_frame": 4920,
+     "scene_end_s": 179.04,
+     "scene_start_s": 13.173333333333332,
+     "sound": "/Game/L_K_Children/Children_Project_wFlute_1_",
+     "start_frame": -56
+    },
+    {
+     "active": true,
+     "end_frame": 4920,
+     "scene_end_s": 179.04,
+     "scene_start_s": 13.173333333333332,
+     "sound": "/Game/L_K_Children/Children_Project_CENTRE",
+     "start_frame": -56
+    },
+    {
+     "active": true,
+     "end_frame": 4920,
+     "scene_end_s": 179.04,
+     "scene_start_s": 13.173333333333332,
+     "sound": "/Game/L_K_Children/Children_Project_CLICK",
+     "start_frame": -56
+    }
+   ],
+   "her_fps": 30.0,
+   "her_span": {
+    "len_s": 164.0,
+    "len_tick": 3936000,
+    "lower_s": 0.0,
+    "lower_tick": 0,
+    "ticks_per_frame": 800,
+    "upper_s": 164.0,
+    "upper_tick": 3936000
+   },
+   "label": "Scene 4 \u2014 External Sound",
+   "length": {
+    "exact": 4100.0,
+    "frames": 4100,
+    "hold_s": 0.0,
+    "on_grid": true
+   },
+   "narration": {
+    "action": "none",
+    "reason": "no narration rule for this Scene",
+    "refusals": [],
+    "rule": "none",
+    "warnings": []
+   },
+   "planned_end": 4476,
+   "planned_end_s": 179.04,
+   "refusals": [],
+   "scene": "4",
+   "section": [
+    376,
+    4476
+   ],
+   "section_s": [
+    15.04,
+    179.04
+   ],
+   "sections_past_end": [],
+   "start_candidates": {
+    "keep": {
+     "end": 4100,
+     "end_s": 164.0,
+     "start": 0,
+     "start_s": 0.0
+    },
+    "land": {
+     "end": 4329,
+     "end_s": 173.16,
+     "start": 229,
+     "start_s": 9.16
+    },
+    "land_plus_strike": {
+     "end": 4476,
+     "end_s": 179.04,
+     "start": 376,
+     "start_s": 15.04
+    }
+   },
+   "start_offset_tick": 0,
+   "start_option": "land_plus_strike",
+   "start_why": "hangar land + StrikeAfterLandSeconds + wide_hold_s",
+   "timeline": {
+    "cinematic": [
+     376,
+     4476
+    ],
+    "hers_dark": [
+     104,
+     376
+    ],
+    "level_visible": [
+     104,
+     4476
+    ],
+    "ours_off": [
+     376,
+     4476
+    ],
+    "refusals": [],
+    "wide": [
+     104,
+     376
+    ]
+   },
+   "warnings": [],
+   "wide_hold_s": 5.0
+  }
+ },
+ "refusals": [],
+ "rig": {
+  "exempt_levels": [],
+  "label": "Infinity Stage - Sun Moon Stars Cycle",
+  "ours": [
+   "Infinity Stage - Dusk Sun",
+   "Infinity Stage - Moon",
+   "Infinity Stage - Dusk Skylight",
+   "Infinity Stage - Dusk Height Fog"
+  ],
+  "suppress_foreign": true
+ },
+ "run": "KLARAHOOK-20261006-224701",
+ "streaming_now": [
+  "/Game/Japanese_Alley/Maps/Japanese_Alley",
+  "/Game/KK_S1_Animals/L_Animals",
+  "/Game/L_KK_children"
+ ],
+ "tool": "klara_hookin",
+ "warnings": [
+  "S1 SECTION_PAST_PLANNED_END: MovieSceneCameraCutTrack 'Camera Cuts' [0, 6100) > 5641 (allowed)",
+  "S1 SECTION_PAST_PLANNED_END: MovieSceneCameraCutTrack 'Camera Cuts' [6100, 6125) > 5641 (allowed)",
+  "/Game/Japanese_Alley/Maps/Japanese_Alley TALLER_THAN_LATTICE: 1220 cm > lattice 1200.0 cm",
+  "/Game/Japanese_Alley/Maps/Japanese_Alley NO_FIT: /Game/Japanese_Alley/Maps/Japanese_Alley 3390 x 2556 cm vs interior 5800 x 1800 cm, overhang {'near': 0.0, 'far': 0.0, 'side': 378.0} - choose which part of her set goes in (scaling breaks MetaHumans/physics)"
+ ]
+}

@@ -1,0 +1,517 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreKlaraHookin-Stream-KLARAHOOK-20261006-224510",
+ "decided_by": "Gary 7 Oct (his own answers, relayed by the conductor): (1) shot start 'After the hangar lands' -> land_plus_strike for S1 and S4; (2) S1 narration 'Drop it for now' -> mute (deactivate, never delete); (3) S2 'Import, keep our S2' -> Japanese_Alley streamed for viewing only, LS_DevScene_02 untouched; (4) lighting 'Hers; ours off in her scenes'. Design note 7 Oct: 'bring her dioramas into the hangar itself ... a wide shot ... as the light strikes on a dark hangar, before we go into her cinematic sequences'. NOT Gary's: wide_hold_s 5.0 (proposed), anchor 'center' (proposed), the hers_dark/ours_off windows (proposed, HOOKIN_PLAN.md section 4).",
+ "levels": [
+  "/Game/Japanese_Alley/Maps/Japanese_Alley",
+  "/Game/KK_S1_Animals/L_Animals",
+  "/Game/L_KK_children"
+ ],
+ "levels_before": [],
+ "mode": "APPLY_STREAM",
+ "placements": {
+  "/Game/Japanese_Alley/Maps/Japanese_Alley": {
+   "dock_check": {
+    "err_cm": 5.7183351600542665e-06,
+    "got": [
+     10923.357840774008,
+     81126.70607943526,
+     -10.0
+    ],
+    "ok": true,
+    "want": [
+     10923.357846214272,
+     81126.7060851536,
+     -10.0
+    ],
+    "yaw_err": 1.8088885553879663e-06
+   },
+   "fit": {
+    "anchor": "center",
+    "candidates": [
+     {
+      "fits": false,
+      "footprint_cm": [
+       3390.0,
+       2556.0
+      ],
+      "level_transform": {
+       "loc": [
+        13828.15668998775,
+        78182.34525855433,
+        -790.0
+       ],
+       "yaw": 316.42748059917176
+      },
+      "local_offset": [
+       4384.0,
+       -131.0,
+       -790.0
+      ],
+      "local_yaw": 0.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 378.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       3390.0,
+       2556.0
+      ],
+      "level_transform": {
+       "loc": [
+        12727.82550099145,
+        79590.79805312076,
+        -790.0
+       ],
+       "yaw": 136.42748059917176
+      },
+      "local_offset": [
+       2616.0,
+       131.0000000000001,
+       -790.0
+      ],
+      "local_yaw": 180.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 378.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       2556.0,
+       3390.0
+      ],
+      "level_transform": {
+       "loc": [
+        13982.217492772816,
+        79436.73725033569,
+        -790.0
+       ],
+       "yaw": 46.42748059917176
+      },
+      "local_offset": [
+       3631.0,
+       884.0,
+       -790.0
+      ],
+      "local_yaw": 90.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 795.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       2556.0,
+       3390.0
+      ],
+      "level_transform": {
+       "loc": [
+        12573.764698206383,
+        78336.4060613394,
+        -790.0
+       ],
+       "yaw": 226.42748059917176
+      },
+      "local_offset": [
+       3369.0,
+       -884.0,
+       -790.0
+      ],
+      "local_yaw": 270.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 795.0
+      }
+     }
+    ],
+    "fits": false,
+    "footprint_cm": [
+     3390.0,
+     2556.0
+    ],
+    "interior_cm": [
+     5800.0,
+     1800.0
+    ],
+    "level_transform": {
+     "loc": [
+      13828.15668998775,
+      78182.34525855433,
+      -790.0
+     ],
+     "yaw": 316.42748059917176
+    },
+    "local_offset": [
+     4384.0,
+     -131.0,
+     -790.0
+    ],
+    "local_yaw": 0.0,
+    "margin_cm": 100.0,
+    "overhang_cm": {
+     "far": 0.0,
+     "near": 0.0,
+     "side": 378.0
+    }
+   },
+   "footprint_source": "offline pivots (HOOKIN_PLAN.md section 3)",
+   "height": {
+    "height_cm": 1220.0,
+    "under_lattice": false,
+    "under_roof": true
+   },
+   "level": "/Game/Japanese_Alley/Maps/Japanese_Alley",
+   "refusals": [],
+   "scene": "2",
+   "warnings": [
+    "TALLER_THAN_LATTICE: 1220 cm > lattice 1200.0 cm",
+    "NO_FIT: /Game/Japanese_Alley/Maps/Japanese_Alley 3390 x 2556 cm vs interior 5800 x 1800 cm, overhang {'near': 0.0, 'far': 0.0, 'side': 378.0} - choose which part of her set goes in (scaling breaks MetaHumans/physics)"
+   ]
+  },
+  "/Game/KK_S1_Animals/L_Animals": {
+   "dock_check": {
+    "err_cm": 0.0,
+    "got": [
+     29034.0135,
+     0.0,
+     -10.0
+    ],
+    "ok": true,
+    "want": [
+     29034.0135,
+     0.0,
+     -10.0
+    ],
+    "yaw_err": 0.0
+   },
+   "fit": {
+    "anchor": "center",
+    "candidates": [
+     {
+      "fits": true,
+      "footprint_cm": [
+       1856.0,
+       1016.0
+      ],
+      "level_transform": {
+       "loc": [
+        32556.0135,
+        122.0,
+        0.0
+       ],
+       "yaw": 0.0
+      },
+      "local_offset": [
+       3772.0,
+       122.0,
+       0.0
+      ],
+      "local_yaw": 0.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": true,
+      "footprint_cm": [
+       1856.0,
+       1016.0
+      ],
+      "level_transform": {
+       "loc": [
+        32012.0135,
+        -121.99999999999997,
+        0.0
+       ],
+       "yaw": 180.0
+      },
+      "local_offset": [
+       3228.0,
+       -121.99999999999997,
+       0.0
+      ],
+      "local_yaw": 180.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1016.0,
+       1856.0
+      ],
+      "level_transform": {
+       "loc": [
+        32162.0135,
+        272.0,
+        0.0
+       ],
+       "yaw": 90.0
+      },
+      "local_offset": [
+       3378.0,
+       272.0,
+       0.0
+      ],
+      "local_yaw": 90.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 28.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1016.0,
+       1856.0
+      ],
+      "level_transform": {
+       "loc": [
+        32406.0135,
+        -272.0,
+        0.0
+       ],
+       "yaw": 270.0
+      },
+      "local_offset": [
+       3622.0,
+       -272.0,
+       0.0
+      ],
+      "local_yaw": 270.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 28.0
+      }
+     }
+    ],
+    "fits": true,
+    "footprint_cm": [
+     1856.0,
+     1016.0
+    ],
+    "interior_cm": [
+     5800.0,
+     1800.0
+    ],
+    "level_transform": {
+     "loc": [
+      32556.0135,
+      122.0,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "local_offset": [
+     3772.0,
+     122.0,
+     0.0
+    ],
+    "local_yaw": 0.0,
+    "margin_cm": 100.0,
+    "overhang_cm": {
+     "far": 0.0,
+     "near": 0.0,
+     "side": 0.0
+    }
+   },
+   "footprint_source": "offline pivots (HOOKIN_PLAN.md section 3)",
+   "height": {
+    "height_cm": 554.0,
+    "under_lattice": true,
+    "under_roof": true
+   },
+   "level": "/Game/KK_S1_Animals/L_Animals",
+   "refusals": [],
+   "scene": "1",
+   "warnings": []
+  },
+  "/Game/L_KK_children": {
+   "dock_check": {
+    "err_cm": 1.8189894035458565e-12,
+    "got": [
+     10918.469500000001,
+     240000.0,
+     -10.0
+    ],
+    "ok": true,
+    "want": [
+     10918.4695,
+     240000.0,
+     -10.0
+    ],
+    "yaw_err": 0.0
+   },
+   "fit": {
+    "anchor": "center",
+    "candidates": [
+     {
+      "fits": true,
+      "footprint_cm": [
+       2257.0,
+       1331.0
+      ],
+      "level_transform": {
+       "loc": [
+        13639.9695,
+        240008.5,
+        0.0
+       ],
+       "yaw": 0.0
+      },
+      "local_offset": [
+       2971.5,
+       8.5,
+       0.0
+      ],
+      "local_yaw": 0.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": true,
+      "footprint_cm": [
+       2257.0,
+       1331.0
+      ],
+      "level_transform": {
+       "loc": [
+        14696.9695,
+        239991.5,
+        0.0
+       ],
+       "yaw": 180.0
+      },
+      "local_offset": [
+       4028.5,
+       -8.500000000000064,
+       0.0
+      ],
+      "local_yaw": 180.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 0.0
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1331.0,
+       2257.0
+      ],
+      "level_transform": {
+       "loc": [
+        14159.9695,
+        239471.5,
+        0.0
+       ],
+       "yaw": 90.0
+      },
+      "local_offset": [
+       3491.5,
+       -528.5,
+       0.0
+      ],
+      "local_yaw": 90.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 228.5
+      }
+     },
+     {
+      "fits": false,
+      "footprint_cm": [
+       1331.0,
+       2257.0
+      ],
+      "level_transform": {
+       "loc": [
+        14176.9695,
+        240528.5,
+        0.0
+       ],
+       "yaw": 270.0
+      },
+      "local_offset": [
+       3508.5,
+       528.5,
+       0.0
+      ],
+      "local_yaw": 270.0,
+      "overhang_cm": {
+       "far": 0.0,
+       "near": 0.0,
+       "side": 228.5
+      }
+     }
+    ],
+    "fits": true,
+    "footprint_cm": [
+     2257.0,
+     1331.0
+    ],
+    "interior_cm": [
+     5800.0,
+     1800.0
+    ],
+    "level_transform": {
+     "loc": [
+      13639.9695,
+      240008.5,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "local_offset": [
+     2971.5,
+     8.5,
+     0.0
+    ],
+    "local_yaw": 0.0,
+    "margin_cm": 100.0,
+    "overhang_cm": {
+     "far": 0.0,
+     "near": 0.0,
+     "side": 0.0
+    }
+   },
+   "footprint_source": "offline pivots (HOOKIN_PLAN.md section 3)",
+   "height": {
+    "height_cm": 700.0,
+    "under_lattice": true,
+    "under_roof": true
+   },
+   "level": "/Game/L_KK_children",
+   "refusals": [],
+   "scene": "4",
+   "warnings": []
+  }
+ },
+ "run": "KLARAHOOK-20261006-224510",
+ "schema": 2,
+ "tool": "klara_hookin",
+ "written": "2026-10-06T22:45:10",
+ "note_7oct": "Levels added + map saved in run KLARAHOOK-20261006-224510; the post-save cut-binding verdict crashed (tuple parse, fixed after); applied set by the conductor from the code path (save_map precedes the verdict step)."
+}

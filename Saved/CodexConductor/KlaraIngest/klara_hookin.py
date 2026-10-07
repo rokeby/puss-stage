@@ -623,7 +623,7 @@ def _api_table():
           "decl MovieSceneLevelVisibilitySection.h:43,49; track class name inf",
           lambda: [hasattr(u, "MovieSceneLevelVisibilityTrack"),
                    hasattr(u.MovieSceneLevelVisibilitySection, "set_level_names")])
-    probe("ELevelVisibility.VISIBLE", "inf", lambda: repr(u.ELevelVisibility.VISIBLE))
+    probe("LevelVisibility.VISIBLE", "inf", lambda: repr(u.LevelVisibility.VISIBLE))
     probe("MovieSceneVisibilityTrack property name == bHiddenInGame", "inf; APPLY gates on the live track",
           lambda: hasattr(u, "MovieSceneVisibilityTrack"))
     probe("MovieSceneCompletionMode.RESTORE_STATE", "prec curtain_sleight.py:1875 (KEEP_STATE)",
@@ -646,8 +646,12 @@ def _cut_bindings(show, cue_guid):
     res = unreal.InfinityStageCameraPilotLibrary.check_scene_cut_bindings(show, cue_guid)
     if isinstance(res, tuple):
         vals = list(res)
-        return {"ok": bool(vals[0]) if vals else False, "lines": [str(x) for x in (vals[1] if len(vals) > 1 else [])],
-                "unresolved": int(vals[2]) if len(vals) > 2 else None, "raw_type": "tuple"}
+        # 7 Oct live: the tuple order is not (ok, lines, count) - classify by type instead of position
+        ok = next((bool(v) for v in vals if isinstance(v, bool)), False)
+        ints = [v for v in vals if isinstance(v, int) and not isinstance(v, bool)]
+        seqs = [v for v in vals if not isinstance(v, (bool, int, float, str)) and hasattr(v, "__iter__")]
+        return {"ok": ok, "lines": [str(x) for x in (seqs[0] if seqs else [])],
+                "unresolved": ints[0] if ints else None, "raw_type": "tuple:" + ",".join(type(v).__name__ for v in vals)}
     return {"ok": bool(res), "lines": [], "unresolved": None, "raw_type": type(res).__name__}
 
 
@@ -1076,7 +1080,10 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
     own, other = {}, {}
     for pkg in sorted(args["levels"]):
         for a in _level_actors(world, pkg):
-            (own if pkg in level_pkgs else other).setdefault(str(a.get_actor_label()), []).append(a)
+            bucket = own if pkg in level_pkgs else other
+            bucket.setdefault(str(a.get_actor_label()), []).append(a)
+            if str(a.get_name()) != str(a.get_actor_label()):      # 7 Oct: bindings may carry the object name
+                bucket.setdefault(str(a.get_name()), []).append(a)
     for b in copy.get_bindings():
         parent = b.get_parent()
         if parent is not None and hasattr(parent, "is_valid") and parent.is_valid():
@@ -1090,18 +1097,32 @@ def _make_rekeyed_copy(args, key, row, transform, world, level_pkgs, run):
             # e.g. LS_Children's 5 L_Animals SpotLights [meas]: that level sits in ANOTHER hangar; not moved here
             log.append({"binding": name, "skipped": "cross-level binding (actor lives in another Scene's hangar)"})
             continue
-        if len(actors) != 1:
-            _stop(run, "S%s REKEY_ACTOR_UNRESOLVED|%r matches %d actors in %s|NOTHING SAVED; Don't-Save restart"
+        if len(actors) > 1:
+            _stop(run, "S%s REKEY_ACTOR_AMBIGUOUS|%r matches %d actors in %s|NOTHING SAVED; Don't-Save restart"
                   % (key, name, len(actors), level_pkgs))
-        if actors[0].get_attach_parent_actor() is not None:      # prec curtain_sleight.py:1405
+        if not actors:
+            # 7 Oct live ('Pendulum' in LS_Children): no level actor -> a spawnable or a free binding whose keys are
+            # absolute world positions; shift them with the set (an unbound possessable is unaffected either way)
+            log.append({"binding": name, "note": "no level actor: keys shifted as absolute (spawnable/free)"})
+        elif actors[0].get_attach_parent_actor() is not None:      # prec curtain_sleight.py:1405
             log.append({"binding": name, "skipped": "attached (keys are relative)"})
             continue
         for t in tracks:
             for s in t.get_sections():
-                chans = list(s.get_all_channels())
-                names = [str(c.channel_name) if hasattr(c, "channel_name") else str(c.get_name()) for c in chans[:3]]
-                if not all(n.startswith("Location.%s" % ax) for n, ax in zip(names, "XYZ")):
+                all_chans = list(s.get_all_channels())
+                names = [str(c.channel_name) if hasattr(c, "channel_name") else str(c.get_name()) for c in all_chans]
+                # 7 Oct live: sections can lead with a 'Weight' channel (Pig_anim_RM) - pick Location.X/Y/Z by NAME
+                by_axis = {}
+                for c, n in zip(all_chans, names):
+                    for ax in "XYZ":
+                        if n.startswith("Location.%s" % ax) and ax not in by_axis:
+                            by_axis[ax] = c
+                if not by_axis:
+                    log.append({"binding": name, "skipped": "no Location channels in section", "channels": names})
+                    continue
+                if len(by_axis) != 3:
                     _stop(run, "S%s REKEY_CHANNEL_ORDER|%s|%s" % (key, name, names))   # memory: suffixed names
+                chans = [by_axis[ax] for ax in "XYZ"]
                 before = {ax: {"keys": [[int(k.get_time().frame_number.value), float(k.get_value())] for k in c.get_keys()],
                                "default": float(c.get_default()) if c.has_default() else None}
                           for ax, c in zip("xyz", chans[:3])}
@@ -1124,6 +1145,10 @@ def _add_vis_binding(seq, actor, prefix, frames, hidden):
     b = seq.add_possessable(actor)                                                     # prec scene_exit_block.py:936
     b.set_display_name(prefix + str(actor.get_actor_label()))
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
+    if str(t.get_property_name()) in ("None", ""):
+        # 7 Oct live: a Python-added visibility track has no property bound yet (precedent for bound property tracks:
+        # CodexStructure/hangar_build.py:491 set_property_name_and_path)
+        t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
     if str(t.get_property_name()) != "bHiddenInGame":                                   # [inf] gate: True = hidden
         raise PlanError("VISIBILITY_TRACK_PROPERTY: %r" % str(t.get_property_name()))
     s = t.add_section()
@@ -1189,7 +1214,7 @@ def run_apply_seq(args, run, world):
             track.set_display_name(VIS_TRACK_NAME)
             vs = track.add_section()
             vs.set_range(int(tl["level_visible"][0]), int(tl["level_visible"][1]))
-            vs.set_visibility(unreal.ELevelVisibility.VISIBLE)                          # decl :43
+            vs.set_visibility(unreal.LevelVisibility.VISIBLE)                          # decl :43
             vs.set_level_names([unreal.Name(n) for n in vis_levels])                    # decl :49
         if tl.get("ours_off") and lighting.get("ours_off", True):
             for a in ours:
