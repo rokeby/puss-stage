@@ -159,7 +159,7 @@ HANDLE_NAME = "PUSS_BEAM_TEXTURE_BENCH_HANDLE"
 STATE_NAME = "PUSS_BEAM_TEXTURE_BENCH_STATE"
 MARK = "BEAM_TEXTURE_BENCH"
 RESTART = MARK + "_NEEDS_DONT_SAVE_RESTART"
-ORDER = ("base", "A", "B", "BL", "AB", "D", "G", "GS", "ALL")
+ORDER = ("base", "A", "B", "BL", "AB", "D", "G", "GS", "GB", "GSB", "ALL")
 DEFAULT_VARIANTS = ("base", "A", "B", "D", "ALL")   # the gobo run passes {"variants": ["base", "AB", "G", "GS"]}
 GOBO_VARIANTS = ("G", "GS")
 KINDS = ("light", "fog", "cvar")
@@ -847,7 +847,7 @@ def fog_lf_on(cvars):
 
 
 VARIANT_PARTS = {"base": (), "A": ("A",), "B": ("B",), "BL": ("BL",), "AB": ("A", "B"), "D": ("D",),
-                 "G": ("G",), "GS": ("GS",), "ALL": ("A", "B", "D")}
+                 "G": ("G",), "GS": ("GS",), "GB": ("G", "B"), "GSB": ("GS", "B"), "ALL": ("A", "B", "D")}
 
 
 def variant_plan(name, plans):
@@ -1872,11 +1872,11 @@ def arm(adapter, prepare_path=None, params=None, dry=False, out_root=OUT_ROOT, p
             if pathlib.Path(log_path).is_file() else ""
         errs = compile_errors_since(log_text, prep.get("marker") or "\x00", BENCH_MATERIALS)
         needed = set()
-        if any(v in ("B", "AB", "ALL") for v in p["variants"]):
+        if any(v in ("B", "AB", "GB", "GSB", "ALL") for v in p["variants"]):
             needed.add(MAT_NOISE)
         if any(v in ("A", "AB", "ALL") for v in p["variants"]) and p["a_occluder_policy"] != "never":
             needed.add(MAT_BREAKUP if p["a_occluder"] == "breakup" else MAT_BLACK)
-        needed.update(GOBO_MATERIAL[v] for v in p["variants"] if v in GOBO_VARIANTS)
+        needed.update(GOBO_MATERIAL[pt] for v in p["variants"] for pt in VARIANT_PARTS.get(v, ()) if pt in GOBO_VARIANTS)
         if errs is None and needed:
             raise BenchRefused("compile_unknown", "PREPARE marker %r not in %s: cannot judge the bench materials" % (
                 prep.get("marker"), pathlib.Path(log_path).as_posix()))

@@ -29,7 +29,7 @@ import beam_texture_bench as btb  # noqa: E402
 SHEET_PNG = "beam_texture_bench_contact_sheet.png"
 SHEET_JSON = "beam_texture_bench_contact_sheet.json"
 TITLES = {"base": "unchanged", "A": "vol. shadows + occluder", "B": "noise fog volume",
-          "BL": "fog clumps (LFV)", "D": "finer fog grid, g 0.7", "AB": "A + B (shadows + noise fog)",
+          "BL": "fog clumps (LFV)", "D": "finer fog grid, g 0.7", "AB": "A + B (shadows + noise fog)", "GB": "soft gobo + noise fog", "GSB": "soft slats + noise fog",
           "G": "soft gobo (light function)", "GS": "soft slats (light function)", "ALL": "A + B + D"}
 
 
