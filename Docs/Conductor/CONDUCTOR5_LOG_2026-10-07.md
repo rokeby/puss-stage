@@ -219,3 +219,5 @@
 - **PearlClam exported** (Blender session, DerivedAssets/PearlClam/Export, PearlClam_manifest.json): Bottom/Lid/Mantle/Pearl,
   bottom base centre origin, lid hinge at Blender (0,47.86,30.02) axis X, open −80° (UE sign TBD), pearl at (0,0,35.64),
   2 slots on shell parts (Shell 8K/4K + Interior untextured), mantle BreathMask in VC R. Import after the S3 diagnosis.
+- PearlClam shell BaseColor re-exported PINK (Gary: "more pink like the old clam"; untinted kept as _white.png). Not
+  imported yet, so no reimport needed. Optional: read the Fab clam's base-colour average in the editor for an exact match.
