@@ -1,0 +1,810 @@
+{
+ "census_after": {
+  "content": [],
+  "maps": []
+ },
+ "census_before": {
+  "content": [],
+  "maps": []
+ },
+ "census_unchanged": true,
+ "master_playback_ticks": [
+  0,
+  49572979
+ ],
+ "passages": {
+  "Passage 1": {
+   "cat_play_rate_at_mean": 1.1952,
+   "compiled": {
+    "bay_max_cm_s": 300.0,
+    "bay_min_cm_s": 250.0,
+    "gaps_distinct": [
+     600.0
+    ],
+    "intervals_distinct": [
+     48000
+    ],
+    "length_ticks_from_timing": 2312065,
+    "mean_cm_s": 298.788,
+    "route_cm_compiled": 28784.0135,
+    "tail_cm_s": 250.002,
+    "wing_pairs": 48
+   },
+   "first_cue": 1,
+   "fit_mode": "<InfinityPassageFitMode.MUSIC_LOCKED_DERIVE_COUNT: 0>",
+   "frame_range_ticks": [
+    2312640,
+    4624705
+   ],
+   "guid": "659D5386D64DA7742A351B9499ECCE4C",
+   "label": "Passage 1",
+   "last_cue": 48,
+   "lead": 24000,
+   "lead_cm": 250.0,
+   "length_s": 96.336,
+   "length_ticks": 2312065,
+   "master_channels": {
+    "Wing.CycleRateScale": [
+     [
+      2312640,
+      0.6
+     ],
+     [
+      2393280,
+      2.0
+     ],
+     [
+      2661120,
+      1.0
+     ]
+    ],
+    "Wing.InwardTravelScale": [
+     [
+      2312640,
+      0.5
+     ],
+     [
+      2393280,
+      1.3
+     ],
+     [
+      2661120,
+      1.0
+     ]
+    ],
+    "Wing.PhaseBiasCycles": [
+     [
+      2312640,
+      0.0
+     ],
+     [
+      2393280,
+      1.0
+     ],
+     [
+      2661120,
+      0.0
+     ]
+    ]
+   },
+   "master_in_sync": true,
+   "master_sections": [
+    [
+     2312640,
+     4624705
+    ]
+   ],
+   "master_vs_segment_ticks": [
+    0,
+    0
+   ],
+   "mean_cm_s_route_over_length": 298.788,
+   "measured": {
+    "duration_s": 96.336,
+    "end_xyz": [
+     28784.0,
+     0.0,
+     150.0
+    ],
+    "first10pct_cm_s": 296.375,
+    "last10pct_cm_s": 278.981,
+    "max_window_cm_s": 301.569,
+    "mean_cm_s": 298.788,
+    "mid_cm_s": 301.567,
+    "min_window_cm_s": 96.97,
+    "path_xy_cm": 28784.01,
+    "samples": 121,
+    "start_xyz": [
+     0.0,
+     0.0,
+     150.0
+    ]
+   },
+   "passage_actors": [
+    "Passage 01 \u2014 Fixed Wings"
+   ],
+   "preferred_camera_speed_cm_per_second": 250.0,
+   "rigs": [
+    {
+     "crossing_settle_seconds": 1.0,
+     "current_shadow_cat_play_rate": 0.0,
+     "label": "Passage 01 \u2014 Camera + Shadow Figures",
+     "shadow_cat_animation_speed_multiplier": 1.0,
+     "shadow_cat_force_walk": true,
+     "shadow_cat_max_play_rate": 1.25,
+     "shadow_cat_min_play_rate": 0.0,
+     "shadow_cat_reference_walk_speed_cm_per_second": 250.0,
+     "shadow_cat_use_direct_walk_animation": true
+    }
+   ],
+   "route_cm_used": 28784.0135,
+   "route_current_cm": 28784.014,
+   "route_required_cm": 28784.014,
+   "segment_ticks": [
+    2312640,
+    4624705
+   ],
+   "spline_length_cm": 28784.014,
+   "tail": 32065,
+   "tail_cm": 334.01350000000093
+  },
+  "Passage 2": {
+   "cat_play_rate_at_mean": 0.1582,
+   "compiled": {
+    "bay_max_cm_s": 65.877,
+    "bay_min_cm_s": 65.877,
+    "gaps_distinct": [
+     500.0
+    ],
+    "intervals_distinct": [
+     182158
+    ],
+    "length_ticks_from_timing": 4320000,
+    "mean_cm_s": 65.877,
+    "route_cm_compiled": 11857.8345,
+    "tail_cm_s": 65.877,
+    "wing_pairs": 23
+   },
+   "first_cue": 51,
+   "fit_mode": "<InfinityPassageFitMode.MUSIC_LOCKED_DERIVE_COUNT: 0>",
+   "frame_range_ticks": [
+    12600385,
+    16920385
+   ],
+   "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
+   "label": "Passage 2",
+   "last_cue": 73,
+   "lead": 91079,
+   "lead_cm": 250.0,
+   "length_s": 180.0,
+   "length_ticks": 4320000,
+   "master_channels": {
+    "Camera.FocusDistanceCm": [
+     [
+      7901185,
+      600.0
+     ]
+    ],
+    "Camera.LongitudinalOffsetCm": [
+     [
+      7901185,
+      0.0
+     ]
+    ]
+   },
+   "master_in_sync": true,
+   "master_sections": [
+    [
+     12600385,
+     16920385
+    ]
+   ],
+   "master_vs_segment_ticks": [
+    0,
+    0
+   ],
+   "mean_cm_s_route_over_length": 65.877,
+   "measured": {
+    "duration_s": 180.0,
+    "end_xyz": [
+     10742.2,
+     81299.0,
+     180.0
+    ],
+    "first10pct_cm_s": 66.085,
+    "last10pct_cm_s": 64.64,
+    "max_window_cm_s": 68.391,
+    "mean_cm_s": 65.928,
+    "mid_cm_s": 65.7,
+    "min_window_cm_s": 44.287,
+    "path_xy_cm": 11867.12,
+    "samples": 121,
+    "start_xyz": [
+     0.0,
+     80000.0,
+     180.0
+    ]
+   },
+   "passage_actors": [
+    "Passage 02 \u2014 Fixed Wings"
+   ],
+   "preferred_camera_speed_cm_per_second": 250.0,
+   "rigs": [
+    {
+     "crossing_settle_seconds": 1.0,
+     "current_shadow_cat_play_rate": 0.0,
+     "label": "Passage 02 \u2014 Camera + Shadow Figures",
+     "shadow_cat_animation_speed_multiplier": 0.6,
+     "shadow_cat_force_walk": true,
+     "shadow_cat_max_play_rate": 1.25,
+     "shadow_cat_min_play_rate": 0.0,
+     "shadow_cat_reference_walk_speed_cm_per_second": 250.0,
+     "shadow_cat_use_direct_walk_animation": true
+    }
+   ],
+   "route_cm_used": 11857.834499999999,
+   "route_current_cm": 13582.59,
+   "route_required_cm": 11857.834,
+   "segment_ticks": [
+    12600385,
+    16920385
+   ],
+   "spline_length_cm": 13582.59,
+   "tail": 221445,
+   "tail_cm": 607.834499999999
+  },
+  "Passage 3": {
+   "cat_play_rate_at_mean": 0.6206,
+   "compiled": {
+    "bay_max_cm_s": 261.666,
+    "bay_min_cm_s": 261.666,
+    "gaps_distinct": [
+     500.0
+    ],
+    "intervals_distinct": [
+     45860
+    ],
+    "length_ticks_from_timing": 1013760,
+    "mean_cm_s": 258.569,
+    "route_cm_compiled": 10921.9728,
+    "tail_cm_s": 219.032,
+    "wing_pairs": 21
+   },
+   "first_cue": 76,
+   "fit_mode": "<InfinityPassageFitMode.MUSIC_LOCKED_DERIVE_COUNT: 0>",
+   "frame_range_ticks": [
+    21001345,
+    22015105
+   ],
+   "guid": "49F93D652B46B99C10116EBAE927A3C6",
+   "label": "Passage 3",
+   "last_cue": 96,
+   "lead": 22930,
+   "lead_cm": 250.0,
+   "length_s": 42.24,
+   "length_ticks": 1013760,
+   "master_channels": {
+    "Camera.FocalLengthMm": [
+     [
+      14982145,
+      50.0
+     ],
+     [
+      15102145,
+      50.0
+     ]
+    ]
+   },
+   "master_in_sync": true,
+   "master_sections": [
+    [
+     21001345,
+     22015104
+    ]
+   ],
+   "master_vs_segment_ticks": [
+    0,
+    -1
+   ],
+   "mean_cm_s_route_over_length": 258.569,
+   "measured": {
+    "duration_s": 42.24,
+    "end_xyz": [
+     10922.0,
+     160000.0,
+     180.0
+    ],
+    "first10pct_cm_s": 264.8,
+    "last10pct_cm_s": 202.493,
+    "max_window_cm_s": 264.802,
+    "mean_cm_s": 258.57,
+    "mid_cm_s": 264.802,
+    "min_window_cm_s": 22.656,
+    "path_xy_cm": 10921.97,
+    "samples": 121,
+    "start_xyz": [
+     0.0,
+     160000.0,
+     180.0
+    ]
+   },
+   "passage_actors": [
+    "Passage 03 \u2014 Fixed Wings"
+   ],
+   "preferred_camera_speed_cm_per_second": 250.0,
+   "rigs": [
+    {
+     "crossing_settle_seconds": 1.0,
+     "current_shadow_cat_play_rate": 0.0,
+     "label": "Passage 03 \u2014 Camera + Shadow Figures",
+     "shadow_cat_animation_speed_multiplier": 0.6,
+     "shadow_cat_force_walk": true,
+     "shadow_cat_max_play_rate": 1.25,
+     "shadow_cat_min_play_rate": 0.0,
+     "shadow_cat_reference_walk_speed_cm_per_second": 250.0,
+     "shadow_cat_use_direct_walk_animation": true
+    }
+   ],
+   "route_cm_used": 10921.97275,
+   "route_current_cm": 10921.973,
+   "route_required_cm": 10921.973,
+   "segment_ticks": [
+    21001345,
+    22015105
+   ],
+   "spline_length_cm": 10921.973,
+   "tail": 73630,
+   "tail_cm": 671.9727500000008
+  },
+  "Passage 4": {
+   "cat_play_rate_at_mean": 0.508,
+   "compiled": {
+    "bay_max_cm_s": 213.797,
+    "bay_min_cm_s": 213.797,
+    "gaps_distinct": [
+     500.0
+    ],
+    "intervals_distinct": [
+     56128
+    ],
+    "length_ticks_from_timing": 1209600,
+    "mean_cm_s": 211.676,
+    "route_cm_compiled": 10668.4695,
+    "tail_cm_s": 170.294,
+    "wing_pairs": 21
+   },
+   "first_cue": 99,
+   "fit_mode": "<InfinityPassageFitMode.MUSIC_LOCKED_DERIVE_COUNT: 0>",
+   "frame_range_ticks": [
+    30403585,
+    31613185
+   ],
+   "guid": "0067B5F57142956FB5B80EA31B1210B5",
+   "label": "Passage 4",
+   "last_cue": 119,
+   "lead": 28064,
+   "lead_cm": 250.0,
+   "length_s": 50.4,
+   "length_ticks": 1209600,
+   "master_channels": {},
+   "master_in_sync": true,
+   "master_sections": [
+    [
+     30403585,
+     31613186
+    ]
+   ],
+   "master_vs_segment_ticks": [
+    0,
+    1
+   ],
+   "mean_cm_s_route_over_length": 211.676,
+   "measured": {
+    "duration_s": 50.4,
+    "end_xyz": [
+     10668.5,
+     240000.0,
+     180.0
+    ],
+    "first10pct_cm_s": 215.939,
+    "last10pct_cm_s": 173.308,
+    "max_window_cm_s": 215.942,
+    "mean_cm_s": 211.676,
+    "mid_cm_s": 215.939,
+    "min_window_cm_s": 23.988,
+    "path_xy_cm": 10668.47,
+    "samples": 121,
+    "start_xyz": [
+     0.0,
+     240000.0,
+     180.0
+    ]
+   },
+   "passage_actors": [
+    "Passage 04 \u2014 Fixed Wings"
+   ],
+   "preferred_camera_speed_cm_per_second": 250.0,
+   "rigs": [
+    {
+     "crossing_settle_seconds": 1.0,
+     "current_shadow_cat_play_rate": 0.0,
+     "label": "Passage 04 \u2014 Camera + Shadow Figures",
+     "shadow_cat_animation_speed_multiplier": 0.6,
+     "shadow_cat_force_walk": true,
+     "shadow_cat_max_play_rate": 1.25,
+     "shadow_cat_min_play_rate": 0.0,
+     "shadow_cat_reference_walk_speed_cm_per_second": 250.0,
+     "shadow_cat_use_direct_walk_animation": true
+    }
+   ],
+   "route_cm_used": 10668.469500000001,
+   "route_current_cm": 10668.47,
+   "route_required_cm": 10668.47,
+   "segment_ticks": [
+    30403585,
+    31613185
+   ],
+   "spline_length_cm": 10668.47,
+   "tail": 58976,
+   "tail_cm": 418.46950000000106
+  },
+  "Passage 5": {
+   "cat_play_rate_at_mean": 0.6,
+   "compiled": {
+    "bay_max_cm_s": 250.0,
+    "bay_min_cm_s": 250.0,
+    "gaps_distinct": [
+     500.0
+    ],
+    "intervals_distinct": [
+     48000
+    ],
+    "length_ticks_from_timing": 4472727,
+    "mean_cm_s": 250.0,
+    "route_cm_compiled": 46590.9013,
+    "tail_cm_s": 249.996,
+    "wing_pairs": 93
+   },
+   "first_cue": 122,
+   "fit_mode": "<InfinityPassageFitMode.MUSIC_LOCKED_DERIVE_COUNT: 0>",
+   "frame_range_ticks": [
+    34120705,
+    38593432
+   ],
+   "guid": "3B27C331B54325A469AE8A818B9049F9",
+   "label": "Passage 5",
+   "last_cue": 214,
+   "lead": 24000,
+   "lead_cm": 250.0,
+   "length_s": 186.3636,
+   "length_ticks": 4472727,
+   "master_channels": {},
+   "master_in_sync": true,
+   "master_sections": [
+    [
+     34120705,
+     38593433
+    ]
+   ],
+   "master_vs_segment_ticks": [
+    0,
+    1
+   ],
+   "mean_cm_s_route_over_length": 250.0,
+   "measured": {
+    "duration_s": 186.3636,
+    "end_xyz": [
+     46590.9,
+     320000.0,
+     180.0
+    ],
+    "first10pct_cm_s": 250.673,
+    "last10pct_cm_s": 243.947,
+    "max_window_cm_s": 250.675,
+    "mean_cm_s": 250.0,
+    "mid_cm_s": 250.674,
+    "min_window_cm_s": 169.974,
+    "path_xy_cm": 46590.9,
+    "samples": 121,
+    "start_xyz": [
+     0.0,
+     320000.0,
+     180.0
+    ]
+   },
+   "passage_actors": [
+    "Passage 05 \u2014 Fixed Wings"
+   ],
+   "preferred_camera_speed_cm_per_second": 250.0,
+   "rigs": [
+    {
+     "crossing_settle_seconds": 1.0,
+     "current_shadow_cat_play_rate": 0.0,
+     "label": "Passage 05 \u2014 Camera + Shadow Figures",
+     "shadow_cat_animation_speed_multiplier": 0.6,
+     "shadow_cat_force_walk": true,
+     "shadow_cat_max_play_rate": 1.25,
+     "shadow_cat_min_play_rate": 0.0,
+     "shadow_cat_reference_walk_speed_cm_per_second": 250.0,
+     "shadow_cat_use_direct_walk_animation": true
+    }
+   ],
+   "route_cm_used": 46590.90125,
+   "route_current_cm": 46590.902,
+   "route_required_cm": 46590.901,
+   "segment_ticks": [
+    34120705,
+    38593432
+   ],
+   "spline_length_cm": 46590.902,
+   "tail": 32727,
+   "tail_cm": 340.9012500000026
+  },
+  "Passage 6": {
+   "cat_play_rate_at_mean": 0.5265,
+   "compiled": {
+    "bay_max_cm_s": 250.005,
+    "bay_min_cm_s": 249.999,
+    "gaps_distinct": [
+     428.571
+    ],
+    "intervals_distinct": [
+     41142,
+     41143,
+     48000
+    ],
+    "length_ticks_from_timing": 3024027,
+    "mean_cm_s": 219.365,
+    "route_cm_compiled": 27640.2835,
+    "tail_cm_s": 22.956,
+    "wing_pairs": 64
+   },
+   "first_cue": 217,
+   "fit_mode": "<InfinityPassageFitMode.MUSIC_LOCKED_DERIVE_COUNT: 0>",
+   "frame_range_ticks": [
+    41532952,
+    44556979
+   ],
+   "guid": "9BFC29C45D47911FF7836BB8537230D2",
+   "label": "Passage 6",
+   "last_cue": 280,
+   "lead": 24000,
+   "lead_cm": 250.0,
+   "length_s": 126.0011,
+   "length_ticks": 3024027,
+   "master_channels": {
+    "Camera.SpeedMultiplier": [
+     [
+      32476752,
+      1.0
+     ]
+    ]
+   },
+   "master_in_sync": true,
+   "master_sections": [
+    [
+     41532952,
+     44556979
+    ]
+   ],
+   "master_vs_segment_ticks": [
+    0,
+    0
+   ],
+   "mean_cm_s_route_over_length": 219.365,
+   "measured": {
+    "duration_s": 126.0011,
+    "end_xyz": [
+     27640.3,
+     400000.0,
+     180.0
+    ],
+    "first10pct_cm_s": 250.995,
+    "last10pct_cm_s": 22.133,
+    "max_window_cm_s": 251.002,
+    "mean_cm_s": 219.365,
+    "mid_cm_s": 250.994,
+    "min_window_cm_s": 12.074,
+    "path_xy_cm": 27640.28,
+    "samples": 121,
+    "start_xyz": [
+     0.0,
+     400000.0,
+     180.0
+    ]
+   },
+   "passage_actors": [
+    "Passage 06 \u2014 Fixed Wings"
+   ],
+   "preferred_camera_speed_cm_per_second": 250.0,
+   "rigs": [
+    {
+     "crossing_settle_seconds": 1.0,
+     "current_shadow_cat_play_rate": 0.0,
+     "label": "Passage 06 \u2014 Camera + Shadow Figures",
+     "shadow_cat_animation_speed_multiplier": 0.6,
+     "shadow_cat_force_walk": true,
+     "shadow_cat_max_play_rate": 1.25,
+     "shadow_cat_min_play_rate": 0.0,
+     "shadow_cat_reference_walk_speed_cm_per_second": 250.0,
+     "shadow_cat_use_direct_walk_animation": true
+    }
+   ],
+   "route_cm_used": 27640.283499999983,
+   "route_current_cm": 27640.283,
+   "route_required_cm": 27640.283,
+   "segment_ticks": [
+    41532952,
+    44556979
+   ],
+   "spline_length_cm": 27640.283,
+   "tail": 408027,
+   "tail_cm": 390.28349999999773
+  }
+ },
+ "pie": {
+  "pie": false
+ },
+ "read_errors": [],
+ "retime_record": {
+  "applied": true,
+  "per": {
+   "3": {
+    "master_after_record": [
+     21001345,
+     22015104
+    ],
+    "master_delta_ticks": [
+     0,
+     0
+    ],
+    "master_len_live_vs_record": 0,
+    "master_live": [
+     [
+      21001345,
+      22015104
+     ]
+    ],
+    "master_vs_record": "OK",
+    "status": "RETIME_INTACT",
+    "timing_live": {
+     "intervals_distinct": [
+      45860
+     ],
+     "lead": 22930,
+     "tail": 73630
+    }
+   },
+   "4": {
+    "master_after_record": [
+     30403585,
+     31613186
+    ],
+    "master_delta_ticks": [
+     0,
+     0
+    ],
+    "master_len_live_vs_record": 0,
+    "master_live": [
+     [
+      30403585,
+      31613186
+     ]
+    ],
+    "master_vs_record": "OK",
+    "status": "RETIME_INTACT",
+    "timing_live": {
+     "intervals_distinct": [
+      56128
+     ],
+     "lead": 28064,
+     "tail": 58976
+    }
+   }
+  },
+  "record": "passage_retime_to_music_record_P03-P04.json",
+  "run": "RETIME-20261006-014626",
+  "written": "2026-10-06T01:46:26"
+ },
+ "run": "PSPEED-20261006-223036",
+ "segments": [
+  {
+   "end": 2312640,
+   "label": "Opening \u2014 Curtain",
+   "start": 0
+  },
+  {
+   "end": 4624705,
+   "label": "Passage 1",
+   "start": 2312640
+  },
+  {
+   "end": 10504705,
+   "label": "Scene 1 \u2014 External Sound",
+   "start": 4624705
+  },
+  {
+   "end": 12600385,
+   "label": "Interaction 1 \u2014 Washing the Boy",
+   "start": 10504705
+  },
+  {
+   "end": 16920385,
+   "label": "Passage 2",
+   "start": 12600385
+  },
+  {
+   "end": 18864385,
+   "label": "Scene 2 \u2014 External Sound",
+   "start": 16920385
+  },
+  {
+   "end": 21001345,
+   "label": "Interaction 2 \u2014 Turnips",
+   "start": 18864385
+  },
+  {
+   "end": 22015105,
+   "label": "Passage 3",
+   "start": 21001345
+  },
+  {
+   "end": 28255105,
+   "label": "Scene 3 \u2014 External Sound",
+   "start": 22015105
+  },
+  {
+   "end": 30403585,
+   "label": "Interaction 3 \u2014 Forgets His Name",
+   "start": 28255105
+  },
+  {
+   "end": 31613185,
+   "label": "Passage 4",
+   "start": 30403585
+  },
+  {
+   "end": 32357185,
+   "label": "Scene 4 \u2014 External Sound",
+   "start": 31613185
+  },
+  {
+   "end": 34120705,
+   "label": "Interaction 4 \u2014 Gets a Name",
+   "start": 32357185
+  },
+  {
+   "end": 38593432,
+   "label": "Passage 5",
+   "start": 34120705
+  },
+  {
+   "end": 39769432,
+   "label": "Scene 5 \u2014 External Sound",
+   "start": 38593432
+  },
+  {
+   "end": 41532952,
+   "label": "Interaction 5 \u2014 Becomes King",
+   "start": 39769432
+  },
+  {
+   "end": 44556979,
+   "label": "Passage 6",
+   "start": 41532952
+  },
+  {
+   "end": 49212979,
+   "label": "Scene 6 \u2014 External Sound",
+   "start": 44556979
+  },
+  {
+   "end": 49572979,
+   "label": "Closing \u2014 Sweeping Up",
+   "start": 49212979
+  }
+ ],
+ "tick_rate": 24000.0,
+ "tool": "passage_speed_probe",
+ "written": "2026-10-06T22:30:36"
+}
