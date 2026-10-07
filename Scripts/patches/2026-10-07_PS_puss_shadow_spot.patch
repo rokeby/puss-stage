@@ -1,0 +1,351 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+index 58b8f3b..4996df1 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCameraRig.cpp
+@@ -143,9 +143,86 @@ void AInfinityStageCameraRig::ConfigureFollowLight()
+     }
+     // Driven from properties on construction so Details edits apply live, rather
+     // than only at spawn.
+-    FollowLight->SetRelativeLocation(FollowLightOffset);
+-    FollowLight->SetRelativeRotation(FollowLightRotation);
+-    FollowLight->SetVisibility(bEnableFollowLight && bShadowFiguresLive);
++    ApplyFollowLightState();
++}
++
++double AInfinityStageCameraRig::EvaluateShadowSpot(
++    const TArray<FInfinityShadowSpotCue>& Cues,
++    const double PassageSeconds,
++    float& OutIntensity)
++{
++    double BestWeight = 0.0;
++    OutIntensity = 0.0f;
++    for (const FInfinityShadowSpotCue& Cue : Cues)
++    {
++        const double Attack = FMath::Max(0.0, Cue.AttackSeconds);
++        const double Hold = FMath::Max(0.0, Cue.HoldSeconds);
++        const double Release = FMath::Max(0.0, Cue.ReleaseSeconds);
++        const double Local = PassageSeconds - Cue.PassageSeconds;
++        double Weight = 0.0;
++        if (Local < 0.0 || Local >= Attack + Hold + Release)
++        {
++            Weight = 0.0;
++        }
++        else if (Local < Attack)
++        {
++            Weight = FMath::SmoothStep(0.0, 1.0, Local / Attack);
++        }
++        else if (Local <= Attack + Hold)
++        {
++            Weight = 1.0;
++        }
++        else
++        {
++            Weight = 1.0 - FMath::SmoothStep(0.0, 1.0, (Local - Attack - Hold) / Release);
++        }
++        BestWeight = FMath::Max(BestWeight, Weight);
++        OutIntensity = FMath::Max(
++            OutIntensity,
++            static_cast<float>(Weight) * FMath::Max(0.0f, Cue.Intensity));
++    }
++    return FMath::Clamp(BestWeight, 0.0, 1.0);
++}
++
++bool AInfinityStageCameraRig::ShouldShowFollowLight(
++    const bool bEnableFollowLightIn,
++    const bool bLive,
++    const bool bHasShadowSpotCues,
++    const double ShadowSpotWeight)
++{
++    if (!bLive)
++    {
++        return false;
++    }
++    return bHasShadowSpotCues ? ShadowSpotWeight > 0.0 : bEnableFollowLightIn;
++}
++
++void AInfinityStageCameraRig::ApplyFollowLightState()
++{
++    if (!FollowLight)
++    {
++        return;
++    }
++    const bool bHasCues = !ShadowSpotCues.IsEmpty();
++    if (bHasCues)
++    {
++        // The schedule owns the light's placement, shadows and intensity; its
++        // units, cone, colour and radii stay as set on the component.
++        FollowLight->SetRelativeLocation(ShadowSpotOffset);
++        FollowLight->SetRelativeRotation(ShadowSpotRotation);
++        FollowLight->SetCastShadows(true);
++        if (!FMath::IsNearlyEqual(FollowLight->Intensity, CurrentShadowSpotIntensity))
++        {
++            FollowLight->SetIntensity(CurrentShadowSpotIntensity);
++        }
++    }
++    else
++    {
++        FollowLight->SetRelativeLocation(FollowLightOffset);
++        FollowLight->SetRelativeRotation(FollowLightRotation);
++    }
++    FollowLight->SetVisibility(ShouldShowFollowLight(
++        bEnableFollowLight, bShadowFiguresLive, bHasCues, CurrentShadowSpotWeight));
+ }
+ 
+ void AInfinityStageCameraRig::Tick(const float DeltaSeconds)
+@@ -241,10 +318,7 @@ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
+             CatMesh->SetCastShadow(bShadowCatCastShadow);
+         }
+     }
+-    if (FollowLight)
+-    {
+-        FollowLight->SetVisibility(bEnableFollowLight && bShadowFiguresLive);
+-    }
++    ApplyFollowLightState();
+ }
+ 
+ void AInfinityStageCameraRig::BeginPlay()
+@@ -391,6 +465,20 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
+     const double MasterSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
+         ? static_cast<double>(MasterFrame.Value) / TickRate
+         : 0.0;
++    // Puss shadow spot (PS): Passage-relative, so it travels with the Passage.
++    if (!ShadowSpotCues.IsEmpty())
++    {
++        const double PassageSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
++            ? static_cast<double>(MasterFrame.Value - Passage->SegmentStartFrame.Value) / TickRate
++            : 0.0;
++        CurrentShadowSpotWeight = EvaluateShadowSpot(ShadowSpotCues, PassageSeconds, CurrentShadowSpotIntensity);
++    }
++    else
++    {
++        CurrentShadowSpotWeight = 0.0;
++        CurrentShadowSpotIntensity = 0.0f;
++    }
++    ApplyFollowLightState();
+     const double RawLiftCm = SampleShadowCatGaitLiftCm();
+     // The walk weight already follows speed; the crossing settle weight is the
+     // settle's own share of that speed, a pure function of Master time, so the
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+index 62dab81..960e5f5 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCameraRig.h
+@@ -27,6 +27,40 @@ struct FInfinityGaitBob
+     double RollDeg = 0.0;
+ };
+ 
++/**
++ * One occasional appearance of the Puss shadow spot (PS, Gary 7 Oct: "a Puss
++ * walking shadow spotlight which lights Puss from behind, very occasionally
++ * appearing ... only for a few seconds"). Times are Passage-relative seconds
++ * (0 = this rig's Passage segment start), so a cue travels with its Passage
++ * and its music when a Master rebuild moves the Passage.
++ */
++USTRUCT(BlueprintType)
++struct INFINITYSTAGE_API FInfinityShadowSpotCue
++{
++    GENERATED_BODY()
++
++    /** Start of the attack, in seconds after the Passage segment start. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (Units = "s"))
++    double PassageSeconds = 0.0;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0", Units = "s"))
++    double AttackSeconds = 0.5;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0", Units = "s"))
++    double HoldSeconds = 3.0;
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0", Units = "s"))
++    double ReleaseSeconds = 1.0;
++
++    /** Peak intensity, in the FollowLight component's own Intensity Units (a reference light's value copies as is). */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0"))
++    float Intensity = 15000.0f;
++
++    /** Free text for tools (the musical moment this cue answers). Not evaluated. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot")
++    FString Label;
++};
++
+ UCLASS(BlueprintType)
+ class INFINITYSTAGE_API AInfinityStageCameraRig : public AActor
+ {
+@@ -70,6 +104,46 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Follow Light")
+     FRotator FollowLightRotation = FRotator(-8.0, 0.0, 0.0);
+ 
++    /**
++     * Puss shadow spot schedule. Empty (the default) leaves the follow light
++     * exactly as before. Non-empty, the schedule owns the FollowLight
++     * component: it is placed at ShadowSpotOffset/Rotation, casts shadows, and
++     * is visible only while a cue's envelope is above zero (and the rig is
++     * live), at envelope x Intensity; the component's units, cone, colour and
++     * radii stay as set on it. A pure function of Master time,
++     * so play, pause, scrub and reverse agree.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot")
++    TArray<FInfinityShadowSpotCue> ShadowSpotCues;
++
++    /** Shadow spot position relative to the rig (the camera). Low and behind the cat, for a long shadow. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (Units = "cm"))
++    FVector ShadowSpotOffset = FVector(-600.0, 0.0, 135.0);
++
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot")
++    FRotator ShadowSpotRotation = FRotator(-21.0, 0.0, 0.0);
++
++    /** This master frame's shadow spot envelope, 0..1. */
++    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Spot")
++    double CurrentShadowSpotWeight = 0.0;
++
++    /**
++     * Envelope of a cue list at a Passage-relative time: smoothstep attack,
++     * hold at 1, smoothstep release; overlapping cues take the brightest.
++     * OutIntensity is the brightest weighted cue intensity. Pure.
++     */
++    static double EvaluateShadowSpot(
++        const TArray<FInfinityShadowSpotCue>& Cues,
++        double PassageSeconds,
++        float& OutIntensity);
++
++    /** Whether the FollowLight component is shown. Pure; see ShadowSpotCues. */
++    static bool ShouldShowFollowLight(
++        bool bEnableFollowLight,
++        bool bLive,
++        bool bHasShadowSpotCues,
++        double ShadowSpotWeight);
++
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage")
+     TObjectPtr<AInfinityStagePassageActor> PassageActor;
+ 
+@@ -301,6 +375,10 @@ private:
+      */
+     bool ShouldDrawShadowCatBody() const;
+ 
++    /** Places, lights and shows or hides the FollowLight for the current state. */
++    void ApplyFollowLightState();
++    float CurrentShadowSpotIntensity = 0.0f;
++
+     /** See AreShadowFiguresLive. Starts true so the editor shows the figures; game worlds re-derive it. */
+     bool bShadowFiguresLive = true;
+     void DestroyOrphanedShadowCats();
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowSpotTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowSpotTests.cpp
+new file mode 100644
+index 0000000..497d85a
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageShadowSpotTests.cpp
+@@ -0,0 +1,115 @@
++#include "InfinityStageCameraRig.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++/*
++ * Puss shadow spot (PS, 7 Oct 2026). The rig's FollowLight appears for a few
++ * seconds per cue: smoothstep attack, hold, smoothstep release, evaluated from
++ * Passage-relative Master time. Every name here is unique: the tests module is
++ * a Unity build.
++ */
++namespace InfinityStageShadowSpotTests
++{
++FInfinityShadowSpotCue MakeShadowSpotTestCue(const double Start, const float Candelas)
++{
++    FInfinityShadowSpotCue Cue;
++    Cue.PassageSeconds = Start;
++    Cue.AttackSeconds = 0.5;
++    Cue.HoldSeconds = 3.0;
++    Cue.ReleaseSeconds = 1.0;
++    Cue.Intensity = Candelas;
++    return Cue;
++}
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowSpotEnvelopeTest,
++    "InfinityStage.ShadowSpot.Envelope",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowSpotEnvelopeTest::RunTest(const FString& Parameters)
++{
++    using namespace InfinityStageShadowSpotTests;
++    float Candelas = -1.0f;
++
++    // Empty schedule: exactly nothing.
++    {
++        const TArray<FInfinityShadowSpotCue> Empty;
++        TestEqual(TEXT("Empty schedule weight is 0"), AInfinityStageCameraRig::EvaluateShadowSpot(Empty, 5.0, Candelas), 0.0);
++        TestEqual(TEXT("Empty schedule intensity is 0"), Candelas, 0.0f);
++    }
++
++    TArray<FInfinityShadowSpotCue> Cues;
++    Cues.Add(MakeShadowSpotTestCue(10.0, 15000.0f));
++
++    struct FSample { double Seconds; double Weight; };
++    const FSample Samples[] = {
++        { 9.99, 0.0 },   // before
++        { 10.0, 0.0 },   // attack starts at 0
++        { 10.25, 0.5 },  // smoothstep midpoint
++        { 10.5, 1.0 },   // attack done
++        { 12.0, 1.0 },   // hold
++        { 13.5, 1.0 },   // hold end
++        { 14.0, 0.5 },   // release midpoint
++        { 14.5, 0.0 },   // release done
++        { 20.0, 0.0 },   // after
++    };
++    for (const FSample& Sample : Samples)
++    {
++        const double Weight = AInfinityStageCameraRig::EvaluateShadowSpot(Cues, Sample.Seconds, Candelas);
++        TestEqual(*FString::Printf(TEXT("Weight at %.2f s"), Sample.Seconds), Weight, Sample.Weight, 1.0e-6);
++        TestEqual(*FString::Printf(TEXT("Candelas at %.2f s"), Sample.Seconds),
++            static_cast<double>(Candelas), Sample.Weight * 15000.0, 0.05);
++    }
++
++    // Scrub-safe: the same time gives the same answer whatever was evaluated before.
++    {
++        const double Forward = AInfinityStageCameraRig::EvaluateShadowSpot(Cues, 10.1, Candelas);
++        AInfinityStageCameraRig::EvaluateShadowSpot(Cues, 14.2, Candelas);
++        const double Again = AInfinityStageCameraRig::EvaluateShadowSpot(Cues, 10.1, Candelas);
++        TestEqual(TEXT("Re-evaluating a time after a jump is identical"), Again, Forward);
++        TestTrue(TEXT("Attack is strictly between 0 and 1"), Forward > 0.0 && Forward < 1.0);
++    }
++
++    // Overlapping cues take the brightest.
++    {
++        TArray<FInfinityShadowSpotCue> Overlap = Cues;
++        Overlap.Add(MakeShadowSpotTestCue(13.0, 30000.0f));
++        const double Weight = AInfinityStageCameraRig::EvaluateShadowSpot(Overlap, 13.6, Candelas);
++        TestEqual(TEXT("Overlap weight is the larger"), Weight, 1.0, 1.0e-6);
++        TestEqual(TEXT("Overlap intensity is the brighter cue's"), static_cast<double>(Candelas), 30000.0, 0.05);
++    }
++
++    // Zero attack and zero release are a hard cut, never a divide by zero.
++    {
++        TArray<FInfinityShadowSpotCue> Hard;
++        FInfinityShadowSpotCue& Cue = Hard.Add_GetRef(MakeShadowSpotTestCue(1.0, 1000.0f));
++        Cue.AttackSeconds = 0.0;
++        Cue.ReleaseSeconds = 0.0;
++        TestEqual(TEXT("Hard cue is full at its start"), AInfinityStageCameraRig::EvaluateShadowSpot(Hard, 1.0, Candelas), 1.0);
++        TestEqual(TEXT("Hard cue is off after its hold"), AInfinityStageCameraRig::EvaluateShadowSpot(Hard, 4.0, Candelas), 0.0);
++        TestFalse(TEXT("Hard cue intensity is finite"), FMath::IsNaN(Candelas));
++    }
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageShadowSpotVisibilityTest,
++    "InfinityStage.ShadowSpot.Visibility",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageShadowSpotVisibilityTest::RunTest(const FString& Parameters)
++{
++    // No cues: the legacy rule, bEnableFollowLight && live, is unchanged.
++    TestTrue(TEXT("Legacy: enabled and live shows"), AInfinityStageCameraRig::ShouldShowFollowLight(true, true, false, 0.0));
++    TestFalse(TEXT("Legacy: disabled hides"), AInfinityStageCameraRig::ShouldShowFollowLight(false, true, false, 1.0));
++    TestFalse(TEXT("Legacy: not live hides"), AInfinityStageCameraRig::ShouldShowFollowLight(true, false, false, 0.0));
++    // Cues: the envelope owns visibility, and a rig that is not live never shows it.
++    TestFalse(TEXT("Schedule: weight 0 hides even when enabled"), AInfinityStageCameraRig::ShouldShowFollowLight(true, true, true, 0.0));
++    TestTrue(TEXT("Schedule: weight > 0 shows even when disabled"), AInfinityStageCameraRig::ShouldShowFollowLight(false, true, true, 0.2));
++    TestFalse(TEXT("Schedule: not live hides"), AInfinityStageCameraRig::ShouldShowFollowLight(false, false, true, 1.0));
++    return true;
++}
++
++#endif

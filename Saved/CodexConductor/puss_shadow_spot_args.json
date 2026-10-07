@@ -1,0 +1,63 @@
+{
+ "mode": "DRY",
+ "geometry_source": "reference",
+ "reference_label": "PussFollowSpot",
+ "reference_passage": "Passage 3",
+ "passages": {
+  "Passage 1": {
+   "analysis": "Saved/InfinityStage/MusicAnalysis/P01_P01_Walking1.analysis.json",
+   "notes": "Saved/InfinityStage/MusicAnalysis/P01_notes.json"
+  },
+  "Passage 2": {
+   "analysis": "Saved/InfinityStage/MusicAnalysis/P02_P02_Walking2.analysis.json",
+   "notes": null
+  },
+  "Passage 3": {
+   "analysis": "Saved/InfinityStage/MusicAnalysis/P03_P03_Walking3.analysis.json",
+   "notes": null
+  },
+  "Passage 4": {
+   "analysis": "Saved/InfinityStage/MusicAnalysis/P04_P04_Walking4_pad10.analysis.json",
+   "notes": null
+  },
+  "Passage 5": {
+   "analysis": "Saved/InfinityStage/MusicAnalysis/P05_P05_Walking5.analysis.json",
+   "notes": null
+  },
+  "Passage 6": {
+   "analysis": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P06_P06_Walking6.analysis.json",
+   "notes": null
+  }
+ },
+ "target_tip_ahead_cm": 400.0,
+ "light_x_cm": -600.0,
+ "cat_x_cm": -200.0,
+ "aim_fraction": 0.6,
+ "intensity_cd": 15000.0,
+ "attack_s": 0.5,
+ "hold_s": 3.0,
+ "release_s": 1.0,
+ "min_start_s": 6.0,
+ "end_margin_s": 4.0,
+ "min_spacing_s": 20.0,
+ "two_cue_min_music_s": 60.0,
+ "offline_cat_top_cm": 200.0,
+ "offline_eye_cm": {
+  "Passage 1": 150.0,
+  "Passage 2": 180.0,
+  "Passage 3": 180.0,
+  "Passage 4": 180.0,
+  "Passage 5": 180.0,
+  "Passage 6": 180.0
+ },
+ "offline_passage_start_s": {
+  "Passage 1": 96.36,
+  "Passage 2": 525.016,
+  "Passage 3": 875.056,
+  "Passage 4": 1266.816,
+  "Passage 5": 1421.696,
+  "Passage 6": 1730.54
+ },
+ "offline_provenance": "eyes: CodexCameraPilot/audit_cat_offsets.json camera_offset.z (26 Sep); starts: latest PassageStills manifests segment.start/24000 (P01-P03,P05,P06 6 Oct; P04 7 Oct) - may be stale; P05 eye may become 90 cm (p05_cat_height)",
+ "allow_dirty": []
+}
