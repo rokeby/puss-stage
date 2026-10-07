@@ -9,8 +9,10 @@ import time
 
 import unreal
 
-RUN = "S06REMAT-" + time.strftime("%Y%m%d-%H%M%S")
-LABEL = "Infinity Stage - Structure 06"
+RUN = "SREMAT-" + time.strftime("%Y%m%d-%H%M%S")
+ARGS = json.load(open(os.path.join(unreal.Paths.convert_relative_path_to_full(unreal.Paths.project_saved_dir()), "CodexConductor", "s06_rematerialize_args.json"), encoding="utf-8"))
+NN = "%02d" % int(ARGS.get("structure", 6))
+LABEL = "Infinity Stage - Structure " + NN
 
 
 def stop(why):
@@ -24,9 +26,9 @@ def census():
 
 
 def light_counts(acts):
-    p06 = [a for a in acts if a.get_class().get_name() == "InfinityStagePassageActor" and "06" in str(a.get_actor_label())]
+    p06 = [a for a in acts if a.get_class().get_name() == "InfinityStagePassageActor" and NN in str(a.get_actor_label())]
     if len(p06) != 1:
-        stop("P06_PASSAGES=%d" % len(p06))
+        stop("PASSAGES=%d" % len(p06))
     managed = list(p06[0].get_editor_property("managed_attachment_actors"))
     lights = [a for a in managed if a and a.get_component_by_class(unreal.LightComponent)]
     on = [a for a in lights if a.get_component_by_class(unreal.LightComponent).is_visible()]
