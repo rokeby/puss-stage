@@ -108,3 +108,78 @@ Stages, one MCP call each:
 
 - `Saved/CodexConductor/S3MarbleGrime/`: `s3mg_geometry.py`, `s3mg_build_textures.py`, `s3mg_preview.py`, `s3mg_bench.py` (draft), `s3mg_bench_plan.json`
 - `DerivedAssets/S3Marble/Grime_20261007/`: 6 textures, `masks/`, `geometry.json`, `textures_report.json`, `preview_*.png`, `sheet_ABC.png`, `preview_report.json`
+
+## 7. Bench v2 for Gary's pick C (written 7 Oct, evening; offline, NOT RUN)
+
+Gary picked **C**: grease, scratches and faint grime, plus three 3 × 1.2 m mirror-angle window strips at DiffuseScale 0.1. It is a PIE bench with no save, followed by a Don't-Save restart. Files are in `Saved/CodexConductor/S3MarbleGrime/`:
+
+- `s3mg_bench.py`: the stages.
+- `s3mg_run.py`: the runner. It purges the module cache, puts the run id on every marker, and logs `S3MG_FAILED` on any refusal or exception. `_OK` is logged only after the stage returns.
+- `s3mg_run_<stage>.py`: one wrapper per stage, with a matching `s3mg_<stage>_request.json`.
+- `s3mg_args.json`: holds the run id and variant. The runner refuses the placeholder run id.
+- `test_s3mg_offline.py`: 46/46 PASS [measured]. It covers:
+  - the landed→current rigid mapping, with a negative control on the mock;
+  - Gary's C parameters;
+  - the assets idempotency classes (REUSED / CREATED / PARTIAL / MISMATCH / in-PIE refusal);
+  - runner control flow and the request/wrapper wiring;
+  - that the bench contains no save, end-PIE, node-delete, level-load, `EditorLevelLibrary`, `get_sequence_player` or `k2_` names.
+
+What changed from the draft:
+
+- **API names fixed.** The draft's `k2_get_scalar_parameter_value` / `k2_get_texture_parameter_value` are wrong in Python; the UFUNCTIONs carry `ScriptName="GetScalarParameterValue"` / `"GetTextureParameterValue"` (`MaterialInstanceDynamic.h:56-57,84-85`) [decl]. The draft's `EditorLevelLibrary` spawn targeted the editor world; the bench now uses `GameplayStatics.begin_deferred_actor_spawn_from_class` / `finish_spawning_actor` on the PIE world (`GameplayStatics.h:67,71`).
+- **Pose-independent placement.** The stills scrub into S3 after apply, so PIE may start with the hangar in another pose. Each grease decal is attached to its own print decal with SNAP_TO_TARGET (identity). Lights are mapped LANDED → current through the S3 Hangar Root (landed = (11421.97275, 160000, -120), rotation 0, measured live by the shore stream in `S3Shore/s3_shore_live_reads.json`) and attached KEEP_WORLD to it. The band is mapped through a print-decal anchor (HP_S03 R 0150) and attached to that decal's wall. The anchors' world poses are read live, scale-free.
+- **Restore checks before restoring.** If the root is landed, each light and the band must be within 2 cm of the plan. The liner and decal MIDs must still be in place, i.e. not swapped back by a Show compile or a scrub. Otherwise the stage logs `RESTORED_BUT_STILL_INVALID` → `S3MG_FAILED`, even though the restore itself completed.
+- **Time** uses the shared `scene_stills.py`, which drives the Show Root transport (`InfinityStageShowRoot.transport.scrub_to_master_frame`, `scene_stills.py:618,654`). It takes **one still per fresh PIE** at S3 fraction 0.3 (master frame 20756545, the floathold pose). Its end-of-run scrub back from inside S3 will be refused (UNSAFE_EXTERNAL_CLOCK). That refusal is recorded in its manifest but does not fail the run (`scene_stills.py:514-522`) [decl].
+
+### API verification
+
+No generated stub exists: `Intermediate/PythonStub` is absent, and no large `unreal*.py` was found under the project or `D:/Unreal Engine/UE_5.8` (searched 7 Oct). Each name is checked against the 5.8 headers and/or prior use in Saved/ scripts outside this folder.
+
+| Name(s) used | Evidence | Tier |
+|---|---|---|
+| `DecalComponent.create_dynamic_material_instance()`, `set_decal_material`, `get_decal_material`, `set_sort_order`; props `decal_size`, `sort_order` | `DecalComponent.h:39,82,109,117,121,125` | decl |
+| `ADecalActor.Decal` via `get_editor_property("decal")` (private, BlueprintReadOnly) | `DecalActor.h:29-30`; prior use 3× | decl + prior use |
+| `PrimitiveComponent.create_dynamic_material_instance(i, src)` | `PrimitiveComponent.h:1629` | decl |
+| MID `get_scalar_parameter_value` / `get_texture_parameter_value` (ScriptName), `set_scalar_parameter_value`, `set_texture_parameter_value` | `MaterialInstanceDynamic.h:56-57,84-85` | decl |
+| `KismetMaterialLibrary.create_dynamic_material_instance(world, parent)` | `KismetMaterialLibrary.h:46` | decl |
+| `GameplayStatics.begin_deferred_actor_spawn_from_class`, `finish_spawning_actor`, `get_all_actors_of_class` | `GameplayStatics.h:67,71,98` | decl |
+| `RectLight` prop `rect_light_component` | `RectLight.h:15-16` | decl |
+| `set_source_width/height`, `set_barn_door_angle/length` | `RectLightComponent.h:80-90` (UFUNCTIONs) | decl |
+| `set_intensity`, `set_specular_scale`, `set_diffuse_scale` | `LightComponent.h:286,357,360` | decl |
+| `set_attenuation_radius`, `set_intensity_units` | `LocalLightComponent.h:53,57` | decl |
+| `set_cast_shadows` | `LightComponentBase.h:146` | decl |
+| `UnrealEditorSubsystem.get_editor_world` / `get_game_world` | `UnrealEditorSubsystem.h:49,52` | decl |
+| `MathLibrary.make_rot_from_xz`, `transform_location/direction`, `inverse_transform_location/direction` | `KismetMathLibrary.h:2276,3970,3977,3991,3998`; prior use | decl + prior use |
+| `Texture2D.blueprint_get_size_x/y` | `Texture2D.h:361`; prior use 21× | decl + prior use |
+| `get_statistics(m).get_editor_property("num_pixel_shader_instructions")` | `MaterialEditingLibrary.h:31,610`; prior use | decl + prior use |
+| `get_scalar_parameter_names` / `get_texture_parameter_names` (out-param → returned list) | `MaterialEditingLibrary.h:502,510`; prior use 27× | decl + prior use |
+| `AttachmentRule.SNAP_TO_TARGET` / `KEEP_WORLD`, `attach_to_actor`, `get_attach_parent_actor` | `EngineTypes.h:71`; `curtain_sleight.py:1843`, `scene_exit_block.py:741` | decl + prior use |
+| AssetImportTask fields, `import_asset_tasks`, texture `srgb` / `compression_settings` / `flip_green_channel` | `s3_marble_tiling_material.py:746-758` (ran 6 Oct) | prior use |
+| `get_actor_label()` on PIE copies | `Saved/CodexFlatV3/handprints/hp_test_pie_still.py:145` (PIE) | prior use; that labels survive PIE duplication is [inferred] from that run |
+
+Still [inferred] until the run: that a decal material with BaseColor unconnected writes no DBuffer colour; that scrubs and Show compiles leave PIE MIDs alone (the restore pose check catches it if they don't); that `set_sort_order` on a PIE decal is harmless.
+
+### Coexistence with the shore-ground bench
+
+- **Separate by construction:**
+  - tag `ZZ_S3MG` and label prefix `ZZ_S3MG_` (shore uses `RigAtmos.S3ShoreGround` / `ZZ_S3ShoreGroundBench`);
+  - own originals, applied and restored files, keyed by run id;
+  - restore destroys only `ZZ_S3MG`-tagged actors and resets only the materials in our originals file;
+  - no census-equality gate in apply or restore (census is reported only), so shore dirtiness can't false-fail us;
+  - we never touch S3 Hangar Deck or Beach V2 Sand.
+- **BLOCKER for one shared still [decl, read]:** shore `run_bench` (`s3_shore_ground_ue.py:307-348`) spawns into the EDITOR world (`get_editor_world`, EditorActorSubsystem, `transient=True`) and destroys it in `finally` in the same call. Its stills are a TODO (`:338`). A PIE world is a copy of the editor world taken when PIE starts, so that spawn can never appear in a PIE still. To share our still, the shore stream needs a PIE-world apply/restore split like ours, run between our apply and stills. That is their file, so I have not changed it.
+
+### Exact call sequence (one MCP call per line; wait for the marker before the next)
+
+0. Offline: set `s3mg_args.json` to `{"run": "S3MG-<UTC stamp>", "variant": "C"}`. Run `python Saved/CodexConductor/S3MarbleGrime/test_s3mg_offline.py` and expect 46/46.
+1. Editor up, NO PIE: send `s3mg_assets_request.json` → `S3MG_ASSETS_OK|run=..|mode=CREATED|unsaved=1`.
+2. About 30 s later: `s3mg_verify_assets_request.json` → `S3MG_VERIFY_ASSETS_OK|run=..|ps=N`. If the reason is `PENDING_COMPILE`, wait and resend.
+3. The conductor starts a FRESH PIE (the transport must be outside S3; the bench never starts or ends PIE).
+4. `s3mg_apply_request.json` → `S3MG_BENCH_ORIGINALS|run=..|path=..`, then `S3MG_APPLY_OK|run=..|variant=C|spawned=63|mids=61`.
+5. (Optional) the shore stream's PIE-world apply, once it exists.
+6. `s3mg_stills_request.json` → `S3MG_STILLS_OK|run=..|armed..`, then the async `PASSAGE_STILLS_OK|run=PSTILLS-S3-..-s3mg_..`. The still is `00_f300.png` in that dir. `PASSAGE_STILLS_FAILED` means no valid still.
+7. `s3mg_restore_request.json` (while PIE is still in S3) → `S3MG_RESTORE_OK|run=..|destroyed=63|pose=POSE_OK`. `S3MG_FAILED ... RESTORED_BUT_STILL_INVALID` means the restore happened but the still must be discarded.
+8. (Optional) the shore stream's restore.
+9. The conductor ends PIE. Then send `s3mg_census_request.json` → `S3MG_CENSUS_OK|run=..|editor_clean_of_bench|dirty=..`. The dirty content will list the unsaved `/Game/ZZ_Bench/S3MarbleGrime` assets, which is expected.
+10. For another still (C_phys, C_band, a different intensity): set a new run id and variant, then repeat steps 3-9. Steps 1-2 are REUSED within the same editor session.
+11. Gary: Don't-Save restart, which discards the ZZ_Bench assets.

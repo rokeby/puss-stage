@@ -1,5 +1,19 @@
 {
  "band": {
+  "anchor": {
+   "attach_parent_label": "S3 Hangar Right Wall",
+   "label": "HP_S03 R 0150",
+   "landed_loc": [
+    14957.312,
+    160999.0,
+    235.813
+   ],
+   "landed_rot": {
+    "pitch": -0.0,
+    "roll": 106.99868,
+    "yaw": 90.0
+   }
+  },
   "atlas": {
    "AtlasU0": 0.0,
    "AtlasUSize": 1.9486,
@@ -8,23 +22,6 @@
    "FlipU": 0.0,
    "GlobalFlipU": 0.0,
    "GlobalFlipV": 0.0
-  },
-  "axes": {
-   "x": [
-    -0.0,
-    1.0,
-    -0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "z": [
-    -1.0,
-    0.0,
-    0.0
-   ]
   },
   "decal_size": [
    8.0,
@@ -43,12 +40,17 @@
    "GreaseRoughRange": 0.5,
    "NormalStrength": 0.0
   },
-  "rotation": {
-   "pitch": -0.0,
-   "roll": 90.0,
-   "yaw": 90.0
-  },
-  "texture": "T_S3MG_GrimeBand"
+  "texture": "T_S3MG_GrimeBand",
+  "x": [
+   -0.0,
+   1.0,
+   -0.0
+  ],
+  "z": [
+   -1.0,
+   0.0,
+   0.0
+  ]
  },
  "camera": {
   "aspect": 1.7777777777777777,
@@ -87,13 +89,18 @@
     160999.0,
     245.1
    ],
-   "rotation": {
-    "pitch": 0.0,
-    "roll": 0.0,
-    "yaw": 90.0
-   },
    "source_height": 120.0,
-   "source_width": 300.0
+   "source_width": 300.0,
+   "x": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z": [
+    0.0,
+    0.0,
+    1.0
+   ]
   },
   {
    "attenuation_radius": 3500.0,
@@ -110,13 +117,18 @@
     160999.0,
     245.1
    ],
-   "rotation": {
-    "pitch": 0.0,
-    "roll": 0.0,
-    "yaw": 90.0
-   },
    "source_height": 120.0,
-   "source_width": 300.0
+   "source_width": 300.0,
+   "x": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z": [
+    0.0,
+    0.0,
+    1.0
+   ]
   },
   {
    "attenuation_radius": 3500.0,
@@ -133,13 +145,18 @@
     160999.0,
     245.1
    ],
-   "rotation": {
-    "pitch": 0.0,
-    "roll": 0.0,
-    "yaw": 90.0
-   },
    "source_height": 120.0,
-   "source_width": 300.0
+   "source_width": 300.0,
+   "x": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z": [
+    0.0,
+    0.0,
+    1.0
+   ]
   }
  ],
  "liner": {
@@ -231,14 +248,25 @@
    "HP_S03 R 0174"
   ]
  },
- "stills_args": {
+ "root_landed": {
+  "loc": [
+   11421.97275,
+   160000.0,
+   -120.0
+  ],
+  "rot": [
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "stills": {
   "fractions": [
    0.3
   ],
-  "label": "s3mg_<variant>",
   "passage": "S3"
  },
- "tool": "s3mg_bench.py plan",
+ "tool": "s3mg_bench.py plan v2",
  "variants": {
   "A": {
    "band": false,
@@ -246,14 +274,17 @@
    "marble": true,
    "prints": true
   },
-  "B": {
-   "band": true,
-   "lights": null,
+  "C": {
+   "band": false,
+   "lights": {
+    "diffuse_scale": 0.1,
+    "intensity_cd": 4000.0
+   },
    "marble": true,
    "prints": true
   },
-  "C": {
-   "band": false,
+  "C_band": {
+   "band": true,
    "lights": {
     "diffuse_scale": 0.1,
     "intensity_cd": 4000.0
@@ -270,7 +301,7 @@
    "marble": true,
    "prints": true
   },
-  "base_C": {
+  "lights_only": {
    "band": false,
    "lights": {
     "diffuse_scale": 0.1,
