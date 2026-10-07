@@ -8,6 +8,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/VolumetricCloudComponent.h"
 #include "Engine/DirectionalLight.h"
+#include "Engine/Level.h"
+#include "Engine/LevelStreaming.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Engine/SkyLight.h"
 #include "Engine/StaticMesh.h"
@@ -251,6 +253,28 @@ void AInfinityStageCelestialRig::SetUseManualEditorLighting(const bool bEnabled)
     }
 }
 
+bool AInfinityStageCelestialRig::IsExemptLevelPackage(
+    const FString& LevelPackageName,
+    const FString& StreamingWorldAssetPackage,
+    const TArray<TSoftObjectPtr<UWorld>>& ExemptLevels)
+{
+    const FString SourceLevelPackage = UWorld::RemovePIEPrefix(LevelPackageName);
+    for (const TSoftObjectPtr<UWorld>& ExemptLevel : ExemptLevels)
+    {
+        const FString ExemptPackage = ExemptLevel.ToSoftObjectPath().GetLongPackageName();
+        if (ExemptPackage.IsEmpty())
+        {
+            continue;
+        }
+        if (SourceLevelPackage.Equals(ExemptPackage, ESearchCase::IgnoreCase)
+            || StreamingWorldAssetPackage.Equals(ExemptPackage, ESearchCase::IgnoreCase))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
 {
     if (!Actor)
@@ -266,8 +290,10 @@ bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
             return false;
         }
     }
-    bool bForeign = false;
+    // Find the exterior-lighting components first, without touching anything:
+    // most actors have none, and they leave here before any exemption lookup.
     TInlineComponentArray<UActorComponent*> Components(Actor);
+    TArray<USceneComponent*, TInlineAllocator<4>> ExteriorComponents;
     for (UActorComponent* Component : Components)
     {
         const bool bExteriorLight = Component->IsA<UDirectionalLightComponent>() || Component->IsA<USkyLightComponent>()
@@ -276,15 +302,45 @@ bool AInfinityStageCelestialRig::SuppressIfForeign(AActor* Actor)
             || (Component->IsA<UStaticMeshComponent>() && Actor->GetActorNameOrLabel().Contains(TEXT("SkySphere")));
         if (bExteriorLight)
         {
-            // Lights keep their authored values; a hidden light simply stops
-            // contributing. Re-hiding an already hidden component is a no-op.
-            Cast<USceneComponent>(Component)->SetVisibility(false, true);
-            bForeign = true;
+            ExteriorComponents.Add(Cast<USceneComponent>(Component));
         }
     }
-    if (!bForeign)
+    if (ExteriorComponents.IsEmpty())
     {
         return false;
+    }
+    // Exempt levels (empty by default) keep their own lighting. Checked before
+    // any mutation, and only for actors that carry exterior lighting.
+    if (!ForeignLightingExemptLevels.IsEmpty())
+    {
+        const ULevel* ActorLevel = Actor->GetLevel();
+        FString LevelPackageName;
+        FString StreamingWorldAssetPackage;
+        if (ActorLevel)
+        {
+            LevelPackageName = ActorLevel->GetOutermost()->GetName();
+            if (const UWorld* World = GetWorld())
+            {
+                for (const ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
+                {
+                    if (StreamingLevel && StreamingLevel->GetLoadedLevel() == ActorLevel)
+                    {
+                        StreamingWorldAssetPackage = StreamingLevel->GetWorldAssetPackageFName().ToString();
+                        break;
+                    }
+                }
+            }
+        }
+        if (IsExemptLevelPackage(LevelPackageName, StreamingWorldAssetPackage, ForeignLightingExemptLevels))
+        {
+            return false;
+        }
+    }
+    for (USceneComponent* Component : ExteriorComponents)
+    {
+        // Lights keep their authored values; a hidden light simply stops
+        // contributing. Re-hiding an already hidden component is a no-op.
+        Component->SetVisibility(false, true);
     }
     Actor->SetActorHiddenInGame(true);
     bool bAlreadySuppressed = false;

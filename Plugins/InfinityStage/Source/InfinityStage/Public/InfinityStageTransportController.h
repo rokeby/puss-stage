@@ -290,6 +290,10 @@ struct INFINITYSTAGE_API FInfinityVampPlaybackState
     int32 ActiveVampIndex = INDEX_NONE;
     int32 LoopCount = 0;
 
+    /** Run-Through: no vamp arms, and an active one is released on the next tick,
+     * so its range plays once and the show continues (nobody is there to release it). */
+    bool bPlayOnce = false;
+
     void Reset();
     void OnNavigation(FFrameNumber TargetFrame);
     EInfinityVampPlaybackAction Tick(
@@ -354,6 +358,10 @@ INFINITYSTAGE_API bool ParseMarkerLabel(const FString& Text, FString& OutNumber,
 struct INFINITYSTAGE_API FInfinityGoHoldState
 {
     int32 ActiveIndex = INDEX_NONE;
+
+    /** Run-Through: every HOLD is crossed as a PASS (none arms). A hold that is
+     * already active is left alone; whatever resumes play spends it as usual. */
+    bool bPassAll = false;
 
     /** A hold settles this many ticks BEFORE its GO frame (one display frame), so
      * the held picture is the state before the cue, and the cue's content starts
@@ -464,6 +472,20 @@ public:
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Cues")
     bool bAutoPlaySequenceOnAdvance = false;
+
+    /**
+     * Run-Through, for unattended recordings (Gary, 7 Oct): play once at the start
+     * and the show runs to the end of the Closing.
+     *
+     * When on: every GO HOLD behaves as a PASS; a vamp plays its range once and
+     * continues; Space/GO plays to the end of the Show rather than to the current
+     * segment's end, so Scenes do not hold at their end and each Sequence cue plays
+     * as it is reached; Advance plays whatever it lands on. Off: no change at all.
+     * The live-performer interlock is unaffected (it only refuses holds, rate
+     * changes and backward moves; run-through only plays forward at 1x).
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport")
+    bool bRunThrough = false;
 
     /** A shorter Right Arrow press keeps the existing advance-to-next-cue action. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transport|Viewport Input",
@@ -624,6 +646,12 @@ public:
     {
         return (TargetType == EInfinityCueType::Sequence && bAutoPlaySequence)
             || (TargetType == EInfinityCueType::Scene && bAutoPlayScene);
+    }
+
+    /** Pure: AutoPlaysOnAdvance, except that Run-Through plays every landing. */
+    static bool PlaysOnAdvanceLanding(EInfinityCueType TargetType, bool bAutoPlaySequence, bool bAutoPlayScene, bool bInRunThrough)
+    {
+        return bInRunThrough || AutoPlaysOnAdvance(TargetType, bAutoPlaySequence, bAutoPlayScene);
     }
 
     /** Steps to the next root Camera Cut in a Scene, then falls through to Advance. */

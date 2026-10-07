@@ -6,6 +6,7 @@
 #include "Engine/World.h"
 #include "HAL/PlatformProcess.h"
 #include "Misc/AutomationTest.h"
+#include "UObject/SoftObjectPath.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
@@ -28,6 +29,44 @@ AInfinityStageCelestialRig* SpawnBegunCelestialRig(UWorld& World, int32* OutWalk
     Rig->DispatchBeginPlay();
     return Rig;
 }
+
+TSoftObjectPtr<UWorld> MakeCelestialTestWorldReference(const FString& ObjectPath)
+{
+    return TSoftObjectPtr<UWorld>(FSoftObjectPath(ObjectPath));
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageCelestialExemptPackageTest,
+    "InfinityStage.Celestial.ForeignLightingExemptPackageNames",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageCelestialExemptPackageTest::RunTest(const FString& Parameters)
+{
+    TArray<TSoftObjectPtr<UWorld>> Exempt;
+    Exempt.Add(TSoftObjectPtr<UWorld>()); // Null entries are ignored.
+    Exempt.Add(MakeCelestialTestWorldReference(TEXT("/Game/KK_S1_Animals/L_Animals.L_Animals")));
+
+    TestTrue(TEXT("An exempt long package name matches case-insensitively"),
+        AInfinityStageCelestialRig::IsExemptLevelPackage(
+            TEXT("/game/kk_s1_animals/l_animals"), FString(), Exempt));
+    TestTrue(TEXT("A PIE-prefixed level package resolves to the exempt source package"),
+        AInfinityStageCelestialRig::IsExemptLevelPackage(
+            TEXT("/Game/KK_S1_Animals/UEDPIE_0_L_Animals"), FString(), Exempt));
+    TestTrue(TEXT("A level instance matches through its streaming world asset package"),
+        AInfinityStageCelestialRig::IsExemptLevelPackage(
+            TEXT("/Game/KK_S1_Animals/L_Animals_LevelInstance_1"),
+            TEXT("/Game/KK_S1_Animals/L_Animals"),
+            Exempt));
+    TestFalse(TEXT("A non-exempt package does not match"),
+        AInfinityStageCelestialRig::IsExemptLevelPackage(
+            TEXT("/Game/KK_S4_Children/L_KK_children"), FString(), Exempt));
+    TestFalse(TEXT("An empty exemption list never matches"),
+        AInfinityStageCelestialRig::IsExemptLevelPackage(
+            TEXT("/Game/KK_S1_Animals/L_Animals"),
+            TEXT("/Game/KK_S1_Animals/L_Animals"),
+            TArray<TSoftObjectPtr<UWorld>>()));
+    return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
@@ -52,6 +91,45 @@ bool FInfinityStageCelestialForeignArrivalTest::RunTest(const FString& Parameter
     TestEqual(TEXT("One foreign actor silenced"), Rig->ForeignLightingSuppressedCount, 1);
 
     World->DestroyWorld(false);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageCelestialForeignArrivalExemptionTest,
+    "InfinityStage.Celestial.ForeignSkyRespectsLevelExemption",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageCelestialForeignArrivalExemptionTest::RunTest(const FString& Parameters)
+{
+    // One real level per test world. The arrival fixture runs once with that
+    // level exempt and once with an unrelated package in the exemption list.
+    for (const bool bExempt : {true, false})
+    {
+        UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+        AInfinityStageCelestialRig* Rig = SpawnBegunCelestialRig(*World);
+        if (bExempt)
+        {
+            const FString WorldObjectPath = FString::Printf(
+                TEXT("%s.%s"), *World->GetOutermost()->GetName(), *World->GetName());
+            Rig->ForeignLightingExemptLevels.Add(MakeCelestialTestWorldReference(WorldObjectPath));
+        }
+        else
+        {
+            Rig->ForeignLightingExemptLevels.Add(MakeCelestialTestWorldReference(
+                TEXT("/Game/InfinityStage/Tests/L_Different.L_Different")));
+        }
+
+        ADirectionalLight* Foreign = World->SpawnActor<ADirectionalLight>();
+        const TCHAR* CaseName = bExempt ? TEXT("Exempt") : TEXT("Non-exempt");
+        TestEqual(*FString::Printf(TEXT("%s level: foreign visibility"), CaseName),
+            Foreign->GetLightComponent()->IsVisible(), bExempt);
+        TestEqual(*FString::Printf(TEXT("%s level: actor hidden-in-game"), CaseName),
+            Foreign->IsHidden(), !bExempt);
+        TestEqual(*FString::Printf(TEXT("%s level: suppressed count"), CaseName),
+            Rig->ForeignLightingSuppressedCount, bExempt ? 0 : 1);
+
+        World->DestroyWorld(false);
+    }
     return true;
 }
 

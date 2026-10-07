@@ -10,6 +10,7 @@ class ASkyLight;
 class UInfinityStageShowAsset;
 class USceneComponent;
 class UStaticMeshComponent;
+class UWorld;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
     FInfinityCelestialPhaseEvaluated,
@@ -110,6 +111,15 @@ public:
         meta = (DisplayName = "Suppress Foreign Environment Lighting"))
     bool bSuppressForeignEnvironmentLighting = true;
 
+    /**
+     * Actors in these levels are never treated as foreign. The default is empty,
+     * which means no behaviour change. World-global lights from an exempt level
+     * also light everything else while visible, so hide them via sequence outside
+     * their window.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting")
+    TArray<TSoftObjectPtr<UWorld>> ForeignLightingExemptLevels;
+
     /** The safety-net interval for re-hiding already-silenced actors during phase applies; 0 turns the safety net off. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Celestial|Lighting",
         meta = (ClampMin = "0.0", Units = "s", EditCondition = "bSuppressForeignEnvironmentLighting"))
@@ -118,6 +128,12 @@ public:
     /** Walk the whole world now and silence exterior lighting actors that do not belong to this rig. Returns the number of foreign actors found. */
     UFUNCTION(BlueprintCallable, CallInEditor, Category = "Infinity Stage|Celestial|Lighting")
     int32 SuppressForeignEnvironmentLighting();
+
+    /** Pure package-name test used by foreign-lighting suppression and its automation coverage. */
+    static bool IsExemptLevelPackage(
+        const FString& LevelPackageName,
+        const FString& StreamingWorldAssetPackage,
+        const TArray<TSoftObjectPtr<UWorld>>& ExemptLevels);
 
     /** How many full-world walks the suppression has made: for measurement and tests. */
     UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Infinity Stage|Celestial|Lighting")

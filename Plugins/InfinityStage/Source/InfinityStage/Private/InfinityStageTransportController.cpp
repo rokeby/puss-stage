@@ -472,6 +472,18 @@ EInfinityVampPlaybackAction FInfinityVampPlaybackState::Tick(
         return EInfinityVampPlaybackAction::None;
     }
 
+    if (bPlayOnce)
+    {
+        // Run-Through: release a vamp already looping, arm none; play on through.
+        if (ActiveVampIndex != INDEX_NONE)
+        {
+            ReleasedVamps.Add(ActiveVampIndex);
+            ActiveVampIndex = INDEX_NONE;
+        }
+        PreviousFrame = CurrentFrame;
+        return EInfinityVampPlaybackAction::None;
+    }
+
     if (ActiveVampIndex == INDEX_NONE)
     {
         for (int32 Index = 0; Index < Ranges.Num(); ++Index)
@@ -725,7 +737,9 @@ int32 FInfinityGoHoldState::Tick(
         return INDEX_NONE;
     }
     int32 Hit = INDEX_NONE;
-    if (bPlayingForward && CurrentFrame > PreviousFrame)
+    // Run-Through crosses every HOLD as a PASS; PreviousFrame still advances, so
+    // switching it off mid-show arms only the holds still ahead.
+    if (bPlayingForward && CurrentFrame > PreviousFrame && !bPassAll)
     {
         for (int32 Index = 0; Index < Cues.Num(); ++Index)
         {
@@ -1148,6 +1162,13 @@ EInfinityTransportResult UInfinityStageTransportController::PlayForwardToBoundar
     // Use one uninterrupted PlayTo operation so the nested Scene evaluates on
     // the boundary frame without a pause/restart or a second sequence player.
     const EInfinityTransportResult Result = PlayToFrame(Segments[StopIndex].EndFrame);
+    if (bRunThrough)
+    {
+        UE_LOG(LogInfinityStageTransport, Log,
+            TEXT("INFINITY_RUN_THROUGH_PLAY from_segment=%d frame=%d target=%d result=%d"),
+            SelectedSegmentIndex, GetCurrentMasterFrame().Value, Segments[StopIndex].EndFrame.Value,
+            static_cast<int32>(Result));
+    }
     if (Result == EInfinityTransportResult::Succeeded)
     {
         // The stop frame is also the next segment's first frame. Remember whose
@@ -1163,6 +1184,12 @@ int32 UInfinityStageTransportController::GetForwardStopSegmentIndex(const int32 
     if (!Segments.IsValidIndex(FromSegmentIndex))
     {
         return INDEX_NONE;
+    }
+    if (bRunThrough)
+    {
+        // Run-Through: one PlayTo to the Show's end; the tick still claims every
+        // camera at every seam, and no segment end is an operator stop.
+        return Segments.Num() - 1;
     }
     const int32 NextIndex = FromSegmentIndex + 1;
     if (bAutoPlaySceneAfterPassage
@@ -1256,7 +1283,7 @@ EInfinityTransportResult UInfinityStageTransportController::AdvanceToNextSegment
     // The covered handoff is claimed by the tick as playback crosses it, so it
     // behaves the same whichever key starts the play.
     if (Segments.IsValidIndex(TargetIndex)
-        && AutoPlaysOnAdvance(Segments[TargetIndex].Type, bAutoPlaySequenceOnAdvance, bAutoPlaySceneAfterPassage))
+        && PlaysOnAdvanceLanding(Segments[TargetIndex].Type, bAutoPlaySequenceOnAdvance, bAutoPlaySceneAfterPassage, bRunThrough))
     {
         return PlayForwardToBoundary();
     }
@@ -2571,6 +2598,7 @@ void UInfinityStageTransportController::RefreshSelectedSegment()
 bool UInfinityStageTransportController::HandleVampPlayback(const FFrameNumber CurrentFrame)
 {
     FFrameNumber LoopFrame = CurrentFrame;
+    VampPlaybackState.bPlayOnce = bRunThrough;
     const EInfinityVampPlaybackAction Action = VampPlaybackState.Tick(
         CurrentFrame,
         Player && Player->IsPlaying(),
@@ -2636,6 +2664,7 @@ bool UInfinityStageTransportController::HandleGoHold(const FFrameNumber CurrentF
     {
         return false;
     }
+    GoHoldState.bPassAll = bRunThrough;
     const int32 Hit = GoHoldState.Tick(
         CurrentFrame,
         Player->IsPlaying() && !Player->IsReversed(),
