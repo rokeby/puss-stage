@@ -1,1 +1,1 @@
-{"mode": "DRY", "types": ["SmokePot", "Motes"], "templates": {}}
+{"mode": "APPLY", "confirm": "APPLY FXEFFECTBPS", "types": ["SmokePot", "Motes"], "templates": {}}

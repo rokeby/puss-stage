@@ -1,0 +1,96 @@
+{
+ "run": "FXPROBE-20261007-021533",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "pie_active": false,
+ "census_before": {
+  "content": [],
+  "maps": []
+ },
+ "cascade": [
+  {
+   "path": "/Game/Japanese_Alley/VFX/Rain2",
+   "exists": true,
+   "class": "ParticleSystem",
+   "emitters_reachable": false,
+   "emitters_error": "Exception: ParticleSystem: Property 'Emitters' for attribute 'emitters' on 'ParticleSystem' is protected and cannot be read"
+  },
+  {
+   "path": "/Game/Japanese_Alley/VFX/Humo_Par",
+   "exists": true,
+   "class": "ParticleSystem",
+   "emitters_reachable": false,
+   "emitters_error": "Exception: ParticleSystem: Property 'Emitters' for attribute 'emitters' on 'ParticleSystem' is protected and cannot be read"
+  },
+  {
+   "path": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Smoke",
+   "exists": true,
+   "class": "ParticleSystem",
+   "emitters_reachable": false,
+   "emitters_error": "Exception: ParticleSystem: Property 'Emitters' for attribute 'emitters' on 'ParticleSystem' is protected and cannot be read"
+  },
+  {
+   "path": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Fire",
+   "exists": true,
+   "class": "ParticleSystem",
+   "emitters_reachable": false,
+   "emitters_error": "Exception: ParticleSystem: Property 'Emitters' for attribute 'emitters' on 'ParticleSystem' is protected and cannot be read"
+  },
+  {
+   "path": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Steam_Lit",
+   "exists": true,
+   "class": "ParticleSystem",
+   "emitters_reachable": false,
+   "emitters_error": "Exception: ParticleSystem: Property 'Emitters' for attribute 'emitters' on 'ParticleSystem' is protected and cannot be read"
+  },
+  {
+   "path": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Ambient_Dust",
+   "exists": true,
+   "class": "ParticleSystem",
+   "emitters_reachable": false,
+   "emitters_error": "Exception: ParticleSystem: Property 'Emitters' for attribute 'emitters' on 'ParticleSystem' is protected and cannot be read"
+  }
+ ],
+ "niagara": [
+  {
+   "path": "/Game/FX/NS_BeeSwarm",
+   "exists": true,
+   "class": "NiagaraSystem",
+   "emitter_handles_reachable": false,
+   "emitter_handles": "Exception: NiagaraSystem: Failed to find property 'emitter_handles' for attribute 'emitter_handles' on 'NiagaraSystem'",
+   "warmup_time": 0.0
+  },
+  {
+   "path": "/Game/KK_S2_Shrine/Falling_Leaves/FX/NS_Falling_Leaves",
+   "exists": true,
+   "class": "NiagaraSystem",
+   "emitter_handles_reachable": false,
+   "emitter_handles": "Exception: NiagaraSystem: Failed to find property 'emitter_handles' for attribute 'emitter_handles' on 'NiagaraSystem'",
+   "warmup_time": 0.0
+  },
+  {
+   "path": "/Game/Scenes/Effects/Swarm/NS_BeeSwarm",
+   "exists": false
+  }
+ ],
+ "effect_bps": {
+  "/Game/Scenes/Effects/BP_Effect_HazePot": false,
+  "/Game/Scenes/Effects/BP_Effect_SmokePot": false,
+  "/Game/Scenes/Effects/BP_Effect_SteamKettle": false,
+  "/Game/Scenes/Effects/BP_Effect_FireBasket": false,
+  "/Game/Scenes/Effects/BP_Effect_WingBurn": false,
+  "/Game/Scenes/Effects/BP_Effect_Motes": false,
+  "/Game/Scenes/Effects/BP_Effect_Candle": true
+ },
+ "apis": {
+  "Emitter": true,
+  "GameplayStatics.spawn_emitter_at_location": true,
+  "NiagaraFunctionLibrary.spawn_system_at_location": true,
+  "ParticleSystemComponent.set_float_parameter": true,
+  "NiagaraComponent.set_variable_float": true
+ },
+ "census_after": {
+  "content": [],
+  "maps": []
+ },
+ "census_equal": true
+}

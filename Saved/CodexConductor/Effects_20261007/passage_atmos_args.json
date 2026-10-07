@@ -1,10 +1,23 @@
 {
-  "mode": "DRY",
-  "passage": "P01",
-  "beam_bays": [20],
+  "mode": "APPLY",
+  "confirm": "APPLY P06ATMOS",
+  "passage": "P06",
+  "beam_bays": null,
+  "beam_stride": 4,
+  "beam_phase": 0,
   "max_beams": 8,
   "params": {},
-  "ack_records": [],
-  "expected": {},
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json"
+  ],
+  "expected": {
+    "lf": 5,
+    "lfv": 0,
+    "medium": 0,
+    "noise": 5,
+    "smoke": 0,
+    "vs": 0
+  },
   "reuse_existing_assets": true
 }

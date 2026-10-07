@@ -1,0 +1,52 @@
+{
+ "run": "FXBP-20261007-021606",
+ "args": {
+  "mode": "APPLY",
+  "types": [
+   "SmokePot",
+   "Motes"
+  ],
+  "templates": {},
+  "confirm": "APPLY FXEFFECTBPS"
+ },
+ "rows": [
+  {
+   "type": "SmokePot",
+   "bp": "/Game/Scenes/Effects/BP_Effect_SmokePot",
+   "component": "PlumeFX",
+   "template": "/Game/Japanese_Alley/VFX/Humo_Par",
+   "loc": [
+    0.0,
+    0.0,
+    90.0
+   ]
+  },
+  {
+   "type": "Motes",
+   "bp": "/Game/Scenes/Effects/BP_Effect_Motes",
+   "component": "MotesFX",
+   "template": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Ambient_Dust",
+   "loc": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "created": [
+  "/Game/Scenes/Effects/BP_Effect_SmokePot",
+  "/Game/Scenes/Effects/BP_Effect_Motes"
+ ],
+ "readback": {
+  "/Game/Scenes/Effects/BP_Effect_SmokePot": {
+   "template": "/Game/Japanese_Alley/VFX/Humo_Par",
+   "auto_activate": false,
+   "parent_class": "/Game/Scenes/Effects/BP_Effect_SmokePot"
+  },
+  "/Game/Scenes/Effects/BP_Effect_Motes": {
+   "template": "/Game/KK_S2_Shrine/StarterContent/Particles/P_Ambient_Dust",
+   "auto_activate": false,
+   "parent_class": "/Game/Scenes/Effects/BP_Effect_Motes"
+  }
+ }
+}
