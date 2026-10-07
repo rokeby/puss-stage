@@ -1,0 +1,14 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "",
+ "decided_by_note": "Gary 7 Oct (his words, conductor session): her characters' animation PRE-ROLLS for the WHOLE glide (from the first strike), then a HARD CUT into her first shot where her animation restarts at her frame. APPLY needs decided_by filled by the conductor. preroll_her_start (192) lives in klara_reveal_s4v5_args.json scenes.4.v5 and is PROPOSED, not Gary's.",
+ "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+ "copy": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
+ "dup_path": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Preroll",
+ "track_name": "Klara Preroll - S4",
+ "reveal_record": "klara_reveal_record_S4.json",
+ "her_level": "/Game/L_KK_children",
+ "completion": "RESTORE_STATE"
+}

@@ -1,0 +1,140 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "scene": "4",
+ "decided_by": "",
+ "decided_by_note": "Gary 7 Oct (via the conductor): reposition/resize the HANGAR, never her elements; diorama right in front of the camera leaving the passage; floor in total darkness, ceiling rig glow kept; her lights strike one by one; crossfade, no hard switch; Plan A video slot = Sequencer Media track, her nested cinematic fills it until renders exist; intro ends on her first frame, outro starts on her last. APPLY needs decided_by filled by the conductor. NOT Gary's (proposed): lead_cm 600 (range 400-800, coordinator 7 Oct), glide peak <= 300 cm/s, all timing numbers below, strike order near_to_far, roof 'hide_roof'.",
+ "slot": "nested_cinematic",
+ "roof": "hide_roof",
+ "comfort_cm": 300.0,
+ "placement": {
+  "lead_cm": 600.0,
+  "lead_max_cm": 800.0,
+  "x_min_local": 500.0,
+  "side_margin_cm": 100.0
+ },
+ "hookin_hangars": {
+  "1": {
+   "lattice_z": 1200.0
+  },
+  "4": {
+   "lattice_z": 1700.0,
+   "lattice_z_note": "7 Oct: S4 hangar resize (hangar_resize_s4.py; S4_HANGAR_REBUILD_PLAN.md) - valid only once HANGAR_RESIZE_S4_APPLY_OK; was 1200"
+  }
+ },
+ "intro": {
+  "dark_hold_s": 0.6,
+  "glide_s": 6.0,
+  "glide_min_s": 2.0,
+  "env_settle_s": 0.4,
+  "flicker_window_s": 0.32,
+  "gap_s": [
+   0.6,
+   1.2
+  ],
+  "min_gap_s": 0.25,
+  "order": "near_to_far",
+  "seed": "KLARA-REVEAL-7OCT",
+  "max_glide_speed_cm_s": 300.0,
+  "pre_strike_hold_s": 0.5,
+  "glow_fade_s": 1.5,
+  "env_min_s": 3.0
+ },
+ "outro": {
+  "hold_s": 0.5,
+  "blink_gap_s": [
+   0.3,
+   0.6
+  ],
+  "env_fade_s": 2.0,
+  "flicker_window_s": 0.32,
+  "dark_before_glide_s": 0.6,
+  "glide_s": 4.0,
+  "exit_cut_frames": 25,
+  "rig_glow_back": true,
+  "rig_back_s": 1.5
+ },
+ "scenes": {
+  "1": {
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+   "level": "/Game/KK_S1_Animals/L_Animals",
+   "copy": "/Game/InfinityStage/KlaraHookin/LS_Animals_1_S1Hangar",
+   "entry_camera": "Scene 1 — External Sound — Entry Handoff Camera",
+   "exit_camera": "Scene 1 — External Sound — Exit Handoff Camera",
+   "glide_camera_label": "S1 Reveal Glide Camera",
+   "roof": "keep",
+   "roof_note": "Gary 7 Oct (own answer, conductor session): S1 'Hold it, and keep the roof on too'"
+  },
+  "4": {
+   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+   "level": "/Game/L_KK_children",
+   "other_levels": [
+    "/Game/KK_S1_Animals/L_Animals"
+   ],
+   "copy": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
+   "entry_camera": "Scene 4 — External Sound — Entry Handoff Camera",
+   "exit_camera": "Scene 4 — External Sound — Exit Handoff Camera",
+   "glide_camera_label": "S4 Reveal Glide Camera",
+   "placement": {
+    "lead_max_cm": 1500.0
+   },
+   "placement_decided_by": "Conductor 7 Oct (approved S4_HANGAR_REBUILD_PLAN.md): S4 only, lead_max 800 -> 1500 because her own first camera sits 1459 cm in (her set reaches ~959 cm behind it; a hangar resize cannot change that). Not Gary's number; her camera position is hers.",
+   "reveal_style": "strike_preroll",
+   "reveal_style_note": "v5 7 Oct (Gary): strike_preroll - see klara_reveal.py V5_DEFAULTS and Docs/Conductor/S4_ENTRY_V5_BUILD_2026-10-07.md",
+   "roof": "keep",
+   "roof_note": "Gary 7 Oct (own words, conductor session): 'I don't think the skylight should ever get into the hangar for this scene' -> S4 keeps its roof",
+   "v5": {
+    "glide_end": {
+     "mode": "her_cut_pullback",
+     "pullback_cm": 600.0,
+     "raise_cm": 120.0,
+     "tilt_deg": -10.0,
+     "focal_mm": 24.0,
+     "focus_cm": null
+    },
+    "strike_start_s": 0.0,
+    "hold_after_glide_s": 1.0,
+    "strike_lights": "auto",
+    "subjects": [
+     "BP_MHC_Child",
+     "SK_Pigeon",
+     "Pendulum",
+     "GC_Old_Book",
+     "Paper_Fall"
+    ],
+    "subject_z_cm": [
+     20.0,
+     100.0
+    ],
+    "strike_target": "plateau",
+    "order_from": "glide_end",
+    "preroll_her_start": 192,
+    "preroll_lead_frames": 0,
+    "camera_x_min_local": -600.0,
+    "backcloth": {
+     "label": "P04 Backcloth (baked)",
+     "half_extent_cm": [
+      39.0,
+      500.0
+     ],
+     "z_cm": [
+      20.0,
+      1220.0
+     ],
+     "binding_guids": [
+      "3775D9A84FD0EAB3659ED2B7F2123112"
+     ],
+     "down_cache_s": 9.0,
+     "cache_duration_s": 11.0,
+     "near_margin_cm": 20.0,
+     "side_margin_cm": 100.0
+    }
+   }
+  }
+ },
+ "allow_lattice_overlap": true,
+ "footprint_max_size_cm": 4000.0,
+ "lattice": "cancel",
+ "decided_by_v5_note": "Gary 7 Oct (his own words, conductor session): S4 entry = near-total darkness, faint rig lights showing the rig rising; her lights strike one by one during the glide-in (flicker LIKE S1) on her character lights (children, pigeon, pendulum, by distance from the camera unless the data suggests better); her animation pre-rolls for the whole glide from the first strike; HARD CUT into her first shot (her animation restarts at her frame); a new dark glide-entry view (default framing proposed, Gary judges from stills); backcloth on the floor and kept there. APPLY needs decided_by filled by the conductor. Every v5 number is PROPOSED, not Gary's."
+}

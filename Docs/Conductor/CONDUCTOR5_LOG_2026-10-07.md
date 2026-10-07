@@ -54,3 +54,12 @@
   (HANGAR_HOLD_FLOAT_EXTENSION_2026-10-07.md). Probe bug fixed: scrub phase now FAILS on refusal (in-S3 scrubs refuse
   UNSAFE_EXTERNAL_CLOCK; fresh PIE per sample).
 - Exit/shadow-curtain plan in: SCENE_EXIT_SHADOW_CURTAIN_PLAN_2026-10-07.md (Gary's I4 card removal SAVED 17:05).
+- **S3 white FIXED [meas]:** float hold APPLY S3FLOATHOLD-20261007-132954 (DRY S3FLOATHOLD-20261007-132933: held 50,
+  refused 0, conflicts 0; exposure weight 1.0 + 49 light intensities over [744, 6240)). Census clean; SavedMasterMatchesShow
+  + SceneCutBindingsResolve green. Re-probe: weight 1.0 at +30/+33/+78/+182 s (was 0.0). Still PSTILLS-S3-20261007-173228-floathold
+  00_f300 luma 110 (was 248); 01 failed scrub_refused (in-S3 scrub vs the singer clock; stills-tool limit).
+- Morning build: patches applied to the tree + Backups/PreMorningBuild-20261007-1315; **editor close was blocked by the
+  permission classifier** — waiting for Gary to close the editor (Don't Save).
+- S4 entry v5 tooling in (S4_ENTRY_V5_BUILD_2026-10-07.md): harness v5 27/27, existing 75/75 [meas, conductor re-ran: OK].
+  v5 DRY needs the S4 backcloth/cache hold first; cache hold NOT implemented (headers give no clean last-frame hold;
+  PIEPROBE mode added). Note: backcloth section already ends at S4 +3.0 s KEEP_STATE — "reverts to hanging" UNMEASURED.

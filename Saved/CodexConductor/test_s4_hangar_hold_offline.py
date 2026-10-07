@@ -326,5 +326,367 @@ class S1KlaraCoexistence(unittest.TestCase):
         self.assertEqual(len(H.scene_conflicts(self.LABELS, r, self.HOLD, "S1 Hangar Hold")[0]), 1)
 
 
+# ---------------------------------------------------------------------------------------------------------------------
+# NON-TRANSFORM ("hold": "FLOAT") extension, 7 Oct evening. First: the transform path is bit-identical to 4e1e703.
+# ---------------------------------------------------------------------------------------------------------------------
+import ast         # noqa: E402
+import hashlib     # noqa: E402
+import subprocess  # noqa: E402
+
+FROZEN_COMMIT = "4e1e7035e16cec555d7482888030e1edd9213655"      # last commit of s4_hangar_hold.py before the extension
+# sha256 of transform_fingerprint() computed with the UNEDITED module at FROZEN_COMMIT (7 Oct, before any edit).
+FROZEN_TRANSFORM_SHA = "e40026d86a3decdb6c029c4c77ad5289b569ff51f0c183ba255e84594ed215eb"
+
+
+def transform_fingerprint(mod):
+    """Every transform-path pure output on fixed inputs (the fixtures above), serialised. Frozen above."""
+    out = {}
+    out["plan_s4"] = mod.plan_holds(FOLD, PLAY, TPF, RISE_END, movers())
+    for n, fx in SCENE_FIX.items():
+        f = {"range": fx["fold"], "start_offset_tick": 0, "play_rate": 1.0, "active": True}
+        out["plan_s%d" % n] = mod.plan_holds(f, fx["play"], fx["tpf"], fx["fold"][1] * fx["tpf"],
+                                             scene_movers(n, fx["tpf"], root_z=-120.0 if n == 3 else 0.0))
+    ref = []
+    m = movers(); m[0]["sections"][0]["channels"]["Rotation.Y"]["keys"].append([800 * TPF, 5.0])
+    for args in [(dict(FOLD, range=[5, 775]), PLAY, TPF, RISE_END, movers()),
+                 (FOLD, [0, 775], TPF, RISE_END, movers()), (FOLD, PLAY, TPF, RISE_END, m),
+                 (FOLD, PLAY, TPF, RISE_END + 1, movers())]:
+        try:
+            mod.plan_holds(*args); ref.append(None)
+        except mod.PlanError as e:
+            ref.append(str(e))
+    out["refusals"] = ref
+    rows = S1KlaraCoexistence().rows() + [{"binding": "S1 Hangar Root", "tracks": [
+        {"name": "Transform", "transform": True, "sections": [{"range": [5000, 6000], "blend": "ABSOLUTE"}]}]}]
+    out["conflicts"] = mod.scene_conflicts(S1KlaraCoexistence.LABELS, rows, [775, 6176], "S1 Hangar Hold")
+    out["names"] = [mod.names(n) for n in (1, 2, 3, 4)]
+    out["survey"] = [mod.survey_row(4, PLAY, [{"range": [0, 775]}], 25.0), mod.survey_row(6, PLAY, [], 25.0)]
+    a = {"mode": "APPLY", "scene": 3, "confirm": "APPLY S3HOLD", "completion": "KEEP_STATE", "decided_by": "x"}
+    out["args"] = [mod.validate_args(a), mod.validate_args(dict(a, confirm="APPLY S4HOLD")),
+                   mod.validate_args(dict(a, scene=6))]
+    vals = {c: float(i) for i, c in enumerate(mod.CHANNELS)}
+    out["readback"] = mod.readback_diff({"range": [1, 2], "completion": "KEEP_STATE", "values": vals},
+                                        {"range": [1, 3], "completion": "KEEP_STATE",
+                                         "values": dict(vals, **{"Rotation.Y": 9.0}), "n_keys": 2})
+    out["landed"] = [mod.landed_value([[5, 1.0], [1, 2.0]], None), mod.landed_value([], 3.5)]
+    out["channel_base"] = mod.channel_base("Location.Y_183")
+    out["record_scene"] = [mod.record_scene({}), mod.record_scene({"scene": 2})]
+    return hashlib.sha256(json.dumps(out, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _frozen_source():
+    try:
+        return subprocess.run(["git", "show", FROZEN_COMMIT + ":Saved/CodexConductor/s4_hangar_hold.py"], cwd=HERE,
+                              capture_output=True, check=True).stdout.decode("utf-8")
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _segments(src):
+    t = ast.parse(src)
+    funcs = {n.name: ast.get_source_segment(src, n) for n in t.body if isinstance(n, ast.FunctionDef)}
+    consts = {ast.get_source_segment(src, n) for n in t.body if isinstance(n, (ast.Assign, ast.ClassDef))}
+    return funcs, consts
+
+
+class TransformBitIdentical(unittest.TestCase):
+    def test_frozen_fingerprint(self):
+        self.assertEqual(transform_fingerprint(H), FROZEN_TRANSFORM_SHA)
+
+    def test_fingerprint_can_fail(self):
+        """control: a one-value change in a transform output changes the hash."""
+        orig = H.landed_value
+        try:
+            H.landed_value = lambda keys, default: orig(keys, default) + (1e-9 if keys else 0.0)
+            self.assertNotEqual(transform_fingerprint(H), FROZEN_TRANSFORM_SHA)
+        finally:
+            H.landed_value = orig
+
+    def test_source_identical_to_frozen_commit(self):
+        old = _frozen_source()
+        if old is None:
+            self.skipTest("git show %s unavailable" % FROZEN_COMMIT)
+        with open(os.path.join(HERE, "s4_hangar_hold.py"), encoding="utf-8") as h:
+            new = h.read()
+        of, oc = _segments(old)
+        nf, nc = _segments(new)
+        self.assertEqual(len(of), 33)                                  # 4e1e703 has 33 top-level functions
+        for name, seg in of.items():
+            if name == "main":
+                continue
+            self.assertEqual(nf.get(name), seg, name)                       # every old function, verbatim
+        self.assertEqual(nf["main_transform"].split("\n", 1)[1], of["main"].split("\n", 1)[1])   # old main body
+        self.assertTrue(oc <= nc, oc - nc)                                   # every old constant/class, verbatim
+        # control: the new dispatcher is NOT the old main, and a changed function would be caught
+        self.assertNotEqual(nf["main"], of["main"])
+        self.assertNotEqual(nf["plan_nontransform"], of.get("plan_holds"))
+
+
+# --- float fixtures: S3 numbers [meas scene_exposure_weight_read.json; hangar_light_keys_probe.json]; tick 24000/s
+SEC = 24000
+F3 = {"tpf": 1000, "rise_end": 744000, "hold": [744, 6240]}
+CONST = "RichCurveExtrapolation.RCCE_CONSTANT"
+
+
+def frow(binding, keys, parent=None, prop="Intensity", default=None, rng=(0, 930000), extrap=CONST, cls=None,
+         blend="UNSET", active=True, nsec=1, nch=1):
+    sec = {"range_tick": list(rng), "active": active, "blend": blend, "completion": "RESTORE_STATE",
+           "channels": [{"keys": [list(k) for k in keys], "default": default, "post_extrap": extrap}
+                        for _ in range(nch)]}
+    return {"binding": binding, "parent": parent, "binding_guid": "G-" + binding + (parent or ""),
+            "track_class": cls or "MovieSceneFloatTrack", "property_name": prop, "property_path": prop,
+            "sections": [copy.deepcopy(sec) for _ in range(nsec)]}
+
+
+def s3_rows():
+    return [
+        frow("S3 Hangar Pinned Exposure", [[-176 * 1000, 0.0], [124 * 1000, 1.0]], prop="BlendWeight"),
+        frow("LightComponent0", [[-140800, 0.0], [99200, 20.0]], parent="S3 Lattice Glow 1-1"),
+        frow("LightComponent0", [[0, 0.0], [240000, 0.0], [252000, 10000.0]], parent="S3 Uplight 1"),
+        frow("LightComponent0", [], parent="S3 Practical Unkeyed", default=7.5),
+        {"binding": "P03 End Drape (stand-in)", "parent": None, "binding_guid": "G-drape",
+         "track_class": "MovieSceneGeometryCacheTrack", "property_name": None, "property_path": None,
+         "sections": [{"range_tick": [-168000, 96000], "active": True, "blend": None, "completion": "KEEP_STATE",
+                       "params": {"start_frame_offset": 23200, "end_frame_offset": 0, "play_rate": 1.0,
+                                  "reverse": False}}]},
+        frow("Shore02_F52 Clam", [[0, True], [200000, False]], prop="bHiddenInGame", extrap=None,
+             cls="MovieSceneVisibilityTrack"),
+        frow("Some Light", [[0, 1.0]], prop="LightColor", cls="MovieSceneColorTrack"),
+    ]
+
+
+def plan3(rows=None, kinds=("float",)):
+    return H.plan_nontransform(F3["hold"], F3["rise_end"], s3_rows() if rows is None else rows, list(kinds))
+
+
+class FloatPlan(unittest.TestCase):
+    def test_values_after_last_key(self):
+        p = plan3()
+        v = {t["id"]: t for t in p["targets"]}
+        self.assertEqual(p["range"], [744, 6240])
+        self.assertEqual(len(p["targets"]), 4)
+        self.assertEqual(p["refused"], [])
+        self.assertEqual(v["-/S3 Hangar Pinned Exposure/BlendWeight"]["value"], 1.0)       # the S3 white fault
+        self.assertEqual(v["S3 Lattice Glow 1-1/LightComponent0/Intensity"]["value"], 20.0)
+        self.assertEqual(v["S3 Uplight 1/LightComponent0/Intensity"]["value"], 10000.0)
+        u = v["S3 Practical Unkeyed/LightComponent0/Intensity"]
+        self.assertEqual((u["value"], u["source"], u["last_key_tick"]), (7.5, "default", None))   # no keys -> default
+        # control: the FIRST key (the pre-rise 0.0) would have been the white-out value
+        self.assertNotEqual(v["-/S3 Hangar Pinned Exposure/BlendWeight"]["value"], 0.0)
+
+    def test_unsorted_keys_and_negative_last_key(self):
+        r = s3_rows()[:1]
+        r[0]["sections"][0]["channels"][0]["keys"].reverse()
+        self.assertEqual(plan3(r)["targets"][0]["value"], 1.0)
+        r = [frow("Pre", [[-50000, 0.0], [-10000, 3.0]])]                 # all keys before the fold: held, flagged
+        t = plan3(r)["targets"][0]
+        self.assertEqual((t["value"], t["last_key_before_fold"]), (3.0, True))
+
+    def test_last_key_boundary(self):
+        ok = [frow("L", [[0, 0.0], [F3["rise_end"], 5.0]])]
+        self.assertEqual(plan3(ok)["targets"][0]["value"], 5.0)              # control: AT the fold end is inside
+        late = [frow("L", [[0, 0.0], [F3["rise_end"] + 1, 5.0]])]
+        p = plan3(late)
+        self.assertEqual(p["targets"], [])
+        self.assertIn("LAST_KEY_AFTER_FOLD_END", p["refused"][0]["reason"])
+        self.assertIn("REFUSED_TRACKS|1", H.float_apply_gate(dict(p, conflicts=[], identity_mismatch=[])))
+
+    def test_refusals(self):
+        cases = {
+            "POST_EXTRAP_NOT_CONSTANT": frow("A", [[0, 1.0]], extrap="RichCurveExtrapolation.RCCE_LINEAR"),
+            "POST_EXTRAP_UNREAD": frow("A", [[0, 1.0]], extrap=None),
+            "SECTION_ENDS_BEFORE_FOLD_END": frow("A", [[0, 1.0]], rng=(0, 700000)),
+            "SECTION_STARTS_AFTER_FOLD_END": frow("A", [[0, 1.0]], rng=(744000, None)),
+            "SECTIONS|2": frow("A", [[0, 1.0]], nsec=2),
+            "CHANNELS|2": frow("A", [[0, 1.0]], nch=2),
+            "BLEND_NOT_ABSOLUTE|ADDITIVE": frow("A", [[0, 1.0]], blend="ADDITIVE"),
+            "SECTION_INACTIVE": frow("A", [[0, 1.0]], active=False),
+            "CHANNEL_UNKEYED_NO_DEFAULT": frow("A", [], default=None),
+            "NO_PROPERTY_PATH": frow("A", [[0, 1.0]], prop=None),
+        }
+        for want, row in cases.items():
+            p = plan3([row])
+            self.assertEqual(p["targets"], [], want)
+            self.assertIn(want, p["refused"][0]["reason"], want)
+        # open-ended sections cover the fold end; ABSOLUTE is accepted (controls)
+        self.assertEqual(len(plan3([frow("A", [[0, 1.0]], rng=(None, None), blend="ABSOLUTE")])["targets"]), 1)
+        d = plan3([frow("A", [[0, 1.0]]), frow("A", [[0, 2.0]])])
+        self.assertEqual((len(d["targets"]), d["refused"][0]["reason"]), (1, "DUPLICATE_TARGET"))
+        with self.assertRaises(H.PlanError):
+            plan3(kinds=("float", "colour"))
+        with self.assertRaises(H.PlanError):
+            plan3(kinds=())
+
+    def test_listing_gc_visibility_other(self):
+        p = plan3()
+        lst = {x["id"]: x for x in p["listed"]}
+        gc = lst["-/P03 End Drape (stand-in)/MovieSceneGeometryCacheTrack"]
+        self.assertEqual(gc["kind"], "geometry_cache")
+        self.assertTrue(gc["meaning"].startswith("NOT HELD"))
+        vis = lst["-/Shore02_F52 Clam/bHiddenInGame"]
+        self.assertIn("would hold False", vis["meaning"])
+        self.assertIn("UNSUPPORTED", lst["-/Some Light/LightColor"]["meaning"])
+        self.assertFalse(any(t["kind"] == "geometry_cache" for t in p["targets"]))   # caches are never held
+        # opt-in: visibility is held with its last value; GC still listed
+        q = plan3(kinds=("float", "visibility"))
+        vt = [t for t in q["targets"] if t["kind"] == "visibility"]
+        self.assertEqual((len(vt), vt[0]["value"]), (1, False))
+        self.assertTrue(any(x["kind"] == "geometry_cache" for x in q["listed"]))
+        with self.assertRaises(H.PlanError):
+            plan3(kinds=("geometry_cache",))
+
+    def test_norm_extrap(self):
+        for v in ("RichCurveExtrapolation.RCCE_CONSTANT", "<RichCurveExtrapolation.RCCE_CONSTANT: 3>", "RCCE_Constant"):
+            self.assertEqual(H.norm_extrap(v), "RCCE_CONSTANT", v)
+        self.assertEqual(H.norm_extrap("RCCE_Cycle"), "RCCE_CYCLE")
+        self.assertIsNone(H.norm_extrap(None))
+
+    def test_gate(self):
+        p = dict(plan3(), conflicts=[], identity_mismatch=[])
+        self.assertEqual(H.float_apply_gate(p), [])                                       # control
+        self.assertIn("SCENE_CONFLICTS|1", H.float_apply_gate(dict(p, conflicts=["x"])))
+        self.assertIn("IDENTITY_MISMATCH|1", H.float_apply_gate(dict(p, identity_mismatch=["x"])))
+        self.assertIn("NO_TARGETS", H.float_apply_gate(dict(p, targets=[])))
+
+
+class FloatSceneConflicts(unittest.TestCase):
+    OWN = "S3 Hangar Float Hold"
+
+    def targets(self):
+        return plan3()["targets"]
+
+    def test_conflicts_and_coexisting(self):
+        rows = [
+            {"binding": "LightComponent0", "parent": "S3 Lattice Glow 1-1", "tracks": [
+                {"name": "Intensity", "class": "MovieSceneFloatTrack", "property_path": "Intensity",
+                 "sections": [{"range": [3000, 4000]}]},
+                {"name": "LightColor", "class": "MovieSceneColorTrack", "property_path": "LightColor",
+                 "sections": [{"range": [0, 6240]}]}]},
+            {"binding": "Wave: S3 Hangar Pinned Exposure", "parent": None, "tracks": [
+                {"name": "BlendWeight", "class": "MovieSceneFloatTrack", "property_path": "BlendWeight",
+                 "sections": [{"range": [0, 744]}]}]},                     # ends AT the fold end: no overlap
+            {"binding": "LightComponent0", "parent": "S3 Somebody Else", "tracks": [
+                {"name": "Intensity", "class": "MovieSceneFloatTrack", "property_path": "Intensity",
+                 "sections": [{"range": [0, 9000]}]}]},                    # other parent: not ours
+        ]
+        c, co = H.float_scene_conflicts(self.targets(), rows, [744, 6240], self.OWN)
+        self.assertEqual(len(c), 1)
+        self.assertIn("S3 Lattice Glow 1-1/LightComponent0/Intensity", c[0])
+        self.assertEqual(len(co), 2)                                          # colour + the non-overlapping weight
+        rows[1]["tracks"][0]["sections"][0]["range"] = [0, 745]               # control: one frame of overlap
+        self.assertEqual(len(H.float_scene_conflicts(self.targets(), rows, [744, 6240], self.OWN)[0]), 2)
+
+    def test_own_leftover_is_conflict(self):
+        rows = [{"binding": "S3 Hangar Float Hold: S3 Hangar Pinned Exposure", "parent": None, "tracks": [
+            {"name": self.OWN, "class": "MovieSceneFloatTrack", "property_path": "BlendWeight",
+             "sections": [{"range": [744, 6240]}]}]}]
+        c, _ = H.float_scene_conflicts(self.targets(), rows, [744, 6240], self.OWN)
+        self.assertTrue(c and c[0].startswith("OWN_TRACK_ALREADY_PRESENT"))
+        # control: the transform hold's tracks on the movers never match a float target
+        rows = [{"binding": "S3 Hangar Hold: S3 Hangar Root", "parent": None, "tracks": [
+            {"name": "S3 Hangar Hold", "class": "MovieScene3DTransformTrack", "property_path": "Transform",
+             "sections": [{"range": [744, 6240]}]}]}]
+        self.assertEqual(H.float_scene_conflicts(self.targets(), rows, [744, 6240], self.OWN), ([], []))
+
+
+class FloatSeparateFromTransform(unittest.TestCase):
+    def test_names_disjoint(self):
+        for n in H.SCENES:
+            f, t = H.fnames(n), H.names(n)
+            self.assertTrue(all(f[k] != t[k] for k in t), n)
+            # the transform REVERT's leftover test (startswith bind_prefix; track name) never sees float bindings
+            self.assertFalse((f["bind_prefix"] + "X").startswith(t["bind_prefix"]), n)
+            self.assertFalse((t["bind_prefix"] + "X").startswith(f["bind_prefix"]), n)
+            self.assertNotEqual(f["track"], t["track"])
+        self.assertEqual(H.fnames(3)["record"], "s3_hangar_float_hold_record.json")
+        self.assertFalse(os.path.exists(os.path.join(HERE, H.fnames(3)["record"])))   # nothing applied yet
+
+    def test_args(self):
+        a = {"mode": "APPLY", "scene": 3, "hold": "FLOAT", "confirm": "APPLY S3FLOATHOLD", "completion": "KEEP_STATE",
+             "decided_by": "x"}
+        self.assertEqual(H.validate_float_args(a), [])
+        self.assertIn("CONFIRM", H.validate_float_args(dict(a, confirm="APPLY S3HOLD")))       # transform confirm
+        self.assertIn("CONFIRM", H.validate_args(dict(a, confirm="APPLY S3FLOATHOLD")))        # and vice versa
+        self.assertIn("CONFIRM", H.validate_float_args(dict(a, confirm="APPLY S4FLOATHOLD")))
+        self.assertEqual(H.validate_float_args(dict(a, mode="REVERT", confirm="REVERT S3FLOATHOLD")), [])
+        self.assertIn("DECIDED_BY", H.validate_float_args(dict(a, decided_by=" ")))
+        self.assertIn("HOLD_KINDS", H.validate_float_args(dict(a, hold_kinds=["geometry_cache"])))
+        self.assertIn("HOLD_KINDS", H.validate_float_args(dict(a, hold_kinds=[])))
+        self.assertEqual(H.validate_float_args(dict(a, hold_kinds=["float", "visibility"])), [])
+        pr = {"mode": "PIEPROBE", "scene": 4, "completion": "KEEP_STATE"}
+        self.assertIn("PROBE_PHASE", H.validate_float_args(pr))
+        self.assertIn("MASTER_FRAME", H.validate_float_args(dict(pr, probe_phase="scrub")))
+        self.assertEqual(H.validate_float_args(dict(pr, probe_phase="scrub", master_frame=29226625)), [])
+        self.assertEqual(H.validate_float_args(dict(pr, probe_phase="read")), [])
+        self.assertIn("SCENE_NOT_IN_(1, 2, 3, 4)", H.validate_float_args(dict(a, scene=5)))
+        with open(os.path.join(HERE, "s4_hangar_hold_args.json"), encoding="utf-8") as h:
+            shipped = json.load(h)
+        self.assertEqual((shipped["mode"], shipped["hold"]), ("DRY", "FLOAT"))
+        self.assertEqual(H.validate_float_args(shipped), [])
+
+    def test_dispatch(self):
+        calls = []
+        of, ot = H.main_float, H.main_transform
+        try:
+            H.main_float = lambda a: calls.append("float")
+            H.main_transform = lambda a: calls.append("transform")
+            H.main({"hold": "FLOAT"}); H.main({"hold": "float"}); H.main({}); H.main({"hold": "TRANSFORM"})
+        finally:
+            H.main_float, H.main_transform = of, ot
+        self.assertEqual(calls, ["float", "float", "transform", "transform"])
+
+
+class FloatReadbackAndRevert(unittest.TestCase):
+    def want(self, **o):
+        return dict({"range": [744, 6240], "completion": "KEEP_STATE", "value": 10000.0, "kind": "float",
+                     "property_path": "Intensity", "display": "S3 Hangar Float Hold"}, **o)
+
+    def got(self, **o):
+        return dict({"range": [744, 6240], "completion": "KEEP_STATE", "value": 10000.0004, "kind": "float",
+                     "property_path": "Intensity", "display": "S3 Hangar Float Hold", "n_keys": 0,
+                     "blend": "ABSOLUTE"}, **o)
+
+    def test_diff(self):
+        self.assertEqual(H.float_readback_diff(self.want(), self.got()), [])          # float32 tolerance
+        for bad in (dict(range=[744, 6239]), dict(completion="RESTORE_STATE"), dict(value=10000.5), dict(n_keys=1),
+                    dict(blend="ADDITIVE"), dict(display="Intensity"), dict(property_path="BlendWeight"),
+                    dict(value=None)):
+            self.assertTrue(H.float_readback_diff(self.want(), self.got(**bad)), bad)
+        vw = self.want(kind="visibility", value=False, property_path="bHiddenInGame")
+        self.assertEqual(H.float_readback_diff(vw, self.got(kind="visibility", value=False, blend=None,
+                                                            property_path="bHiddenInGame")), [])
+        self.assertTrue(H.float_readback_diff(vw, self.got(kind="visibility", value=True,
+                                                           property_path="bHiddenInGame")))
+
+    def test_revert_order_children_first(self):
+        created = [{"guid": "P1", "child": False}, {"guid": "C1", "child": True}, {"guid": "A", "child": False},
+                   {"guid": "C2", "child": True}]
+        self.assertEqual(H.revert_order(created), ["C1", "C2", "P1", "A"])
+
+    def test_snake(self):
+        self.assertEqual([H._snake(x) for x in ("BlendWeight", "Intensity", "bHiddenInGame")],
+                         ["blend_weight", "intensity", "hidden_in_game"])
+
+
+class LiveInventory(unittest.TestCase):
+    """[meas] the 7 Oct transform DRY/APPLY outputs list every non-transform rise track; every class must classify."""
+    FILES = {1: "s1_hangar_hold_dry_S1HOLD-20261007-103941.json", 2: "s2_hangar_hold_dry_S2HOLD-20261007-103951.json",
+             3: "s3_hangar_hold_dry_S3HOLD-20261007-104002.json", 4: "s4_hangar_hold_dry_S4HOLD-20261007-102800.json"}
+    WANT = {1: {"float": 42, "geometry_cache": 1}, 2: {"float": 42, "geometry_cache": 1},
+            3: {"float": 50, "visibility": 9, "geometry_cache": 1}, 4: {"float": 42, "geometry_cache": 1}}
+
+    def test_inventory(self):
+        for n, f in self.FILES.items():
+            with open(os.path.join(HERE, f), encoding="utf-8") as h:
+                tracks = json.load(h)["plan"]["not_held_rise_tracks"]
+            got = {}
+            for x in tracks:
+                k = H.track_kind(x.rsplit("/", 1)[1])
+                got[k] = got.get(k, 0) + 1
+            self.assertEqual(got, self.WANT[n], n)
+            self.assertNotIn("other", got, n)
+            print("INVENTORY S%d %s" % (n, got))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

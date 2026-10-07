@@ -1,0 +1,21 @@
+{
+ "mode": "PROBE",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "",
+ "decided_by_note": "Gary 7 Oct (his words, conductor session): turn the pendulum's own Blueprint Tick swing OFF in the show only (her asset untouched), gated behind a read-only PIE probe first. APPLY needs decided_by and confirm 'APPLY KLARAPENDULUM'. PROBE runs only during a PIE run of S4 (Gary's or the conductor's), is read-only and never ends PIE.",
+ "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+ "copy": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
+ "her_level": "/Game/L_KK_children",
+ "actor_name": "BP_Pendulum_C_0",
+ "binding_names": ["Pendulum", "Pendulum_Anchor"],
+ "level_relative_loc": [865.15, 333.32, 456.89],
+ "level_relative_loc_note": "[bytes] PivotRoot RelativeLocation in L_KK_children.umap (S4_ENTRY_INVESTIGATION section C)",
+ "probe_times_s": [10.0, 24.0],
+ "probe_times_note": "10 s = pre-cut; 24 s = in the main slot past her frame 191 (Scene frame >= cut + (191-6)/1.2) for the live v4 cut 405; re-derive for the v5 cut from klara_reveal_record_S4.json",
+ "timeout_s": 600.0,
+ "reveal_record": "klara_reveal_record_S4.json",
+ "function": "Set Actor Tick Enabled",
+ "payload": "False",
+ "probe_file": null
+}

@@ -24,6 +24,9 @@ with open(os.path.join(HERE, "klara_reveal_args.json"), encoding="utf-8") as _h:
     ARGS = json.load(_h)
 ARGS["allow_lattice_overlap"] = False      # the harness pins plan switches; the live args file may differ
 ARGS["lattice"] = "cancel"
+# 7 Oct (v5 session): the live args now carry Gary's S1 roof "keep" (scenes.1.roof); the harness pins the plan switch
+# to the global "hide_roof" its assertions were written for (fixture fault, not a code fault: Plan.test_full_plan).
+ARGS["scenes"]["1"].pop("roof", None)
 TPF = 960                                  # 24000 / 25
 # the rise's lattice lowering [meas hangar_retime_record.json scenes.1.after_keys.lattice_fly_z]: 2800 -> 1200 over
 # 12.6261..16.6261 s; tangents SYNTHETIC (cubic, value/tick)
@@ -788,7 +791,9 @@ LS_CHILDREN_COPY = os.path.join(PROJECT, "Content", "InfinityStage", "KlaraHooki
 L_CHILDREN = os.path.join(PROJECT, "Content", "L_KK_children.umap")
 L_ANIMALS = os.path.join(PROJECT, "Content", "KK_S1_Animals", "L_Animals.umap")
 LS_ANIMALS_COPY = os.path.join(PROJECT, "Content", "InfinityStage", "KlaraHookin", "LS_Animals_1_S1Hangar.uasset")
-S4_LT = [13639.9695, 240008.5, 0.0]        # [meas klara_hookin_stream_record.json placements L_KK_children]
+S4_LT_HOOKIN = [13639.9695, 240008.5, 0.0] # [meas klara_hookin_stream_record.json placements L_KK_children]
+S4_LT = None                               # set below from BYTES: the LT the copy is shifted by NOW (v5 session fix:
+                                           # a live reveal moves the level, so the hookin LT went stale - 4 reds)
 S4_ENTRY = [10668.4695, 240000.0, 180.0]   # [meas Saved/CodexStructure/scene_docks.json "Scene 4" entry camera]
 S4_LCE = (104, 376, 4476)                  # [meas klara_hookin_seq_record.json scenes.4.plan.timeline]
 _BYTES = {}
@@ -976,6 +981,26 @@ def derive_ls(path):
     return out
 
 
+def s4_lt_now():
+    """[meas] the translation the COPY's camera keys carry over her original's = her level transform the copy was
+    re-keyed for (the hookin's LT, or a live reveal's level_transform_after)."""
+    o, c = derive_ls(LS_CHILDREN), derive_ls(LS_CHILDREN_COPY)
+    g = "b28a821d72b7a24ea738eb622365a09c"                                             # CineCameraActor (_0)
+    return [c["camera_channels"][g]["Translation[%d]" % i]["keys"][0]["value"] -
+            o["camera_channels"][g]["Translation[%d]" % i]["keys"][0]["value"] for i in range(3)]
+
+
+def s4_lt_allowed():
+    """The LTs the copy may legitimately carry: the hookin's, or an APPLIED S4 reveal record's level_transform_after."""
+    out = [list(S4_LT_HOOKIN)]
+    rp = os.path.join(HERE, "klara_reveal_record_S4.json")
+    if os.path.exists(rp):
+        rec = R.load_json(rp)
+        if rec.get("applied"):
+            out.append(list(rec["plan"]["level_transform_after"]["loc"]))
+    return out
+
+
 def derive_level_rows(path):
     if path in _BYTES:
         return _BYTES[path]
@@ -1104,6 +1129,9 @@ def s4_facts(style=None, lit_frame=None):
     return f, args
 
 
+S4_LT = s4_lt_now()
+
+
 class S4Bytes(unittest.TestCase):
     """Why HER_CAMERA_BINDING_FIRST was 0, and what else in her S4 bindings is off. [meas] bytes."""
 
@@ -1158,6 +1186,9 @@ class S4Bytes(unittest.TestCase):
                 for ka, kb in zip(a["keys"], b["keys"]):
                     self.assertAlmostEqual(kb["value"] - ka["value"], S4_LT[i], places=3)
         self.assertNotEqual(S4_LT[1], 0.0)                                            # control: a real shift
+        self.assertTrue(any(all(abs(S4_LT[i] - lt[i]) < 0.01 for i in range(3)) for lt in s4_lt_allowed()),
+                        (S4_LT, s4_lt_allowed()))                                      # a KNOWN placement, not drift
+        self.assertFalse(all(abs(S4_LT[i] - [0.0, 0.0, 0.0][i]) < 0.01 for i in range(3)))
 
     def test_her_opening_measured(self):
         """Her opening, her frames at 30 fps (curves CUBIC with stored zero tangents = eased)."""

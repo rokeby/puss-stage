@@ -1,0 +1,1251 @@
+{
+ "run": "S3FLOATHOLD-20261007-132954",
+ "hold": "FLOAT",
+ "plan": {
+  "range": [
+   744,
+   6240
+  ],
+  "kinds": [
+   "float"
+  ],
+  "targets": [
+   {
+    "id": "S3 Lattice Glow 1-3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-3",
+    "binding_guid": "026BC4714148F442A97666B948F6149F",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_164.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_164.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L7/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L7",
+    "binding_guid": "0CE596FF43B1693304A4C89E09E5FF85",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_118.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_118.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-8/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-8",
+    "binding_guid": "13BC6408417CE92B3785ACBDCF16BB5C",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_177.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_177.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Strike Cyc 1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Strike Cyc 1",
+    "binding_guid": "16CA0CE74EA2F05D04149682ECF12CDB",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 600.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_99.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_99.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R4/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R4",
+    "binding_guid": "19201E584038A8DE46AE10AF8B21F60E",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_122.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_122.LightComponent0"
+    ]
+   },
+   {
+    "id": "-/S3 Hangar Pinned Exposure/BlendWeight",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "S3 Hangar Pinned Exposure",
+    "parent": null,
+    "binding_guid": "1FB1AFA2466273919B74C9B4BA3A7C38",
+    "property_name": "BlendWeight",
+    "property_path": "BlendWeight",
+    "value": 1.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_4",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_4"
+    ]
+   },
+   {
+    "id": "S3 Strike Key/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Strike Key",
+    "binding_guid": "1FF417C04B5E3396366762984ACEE1EB",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 1600.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_96.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_96.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-3",
+    "binding_guid": "28BB57374867612C66EF639C31501930",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_172.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_172.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Uplight 1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Uplight 1",
+    "binding_guid": "33B51A514345DD4AFA3F479D80C979A5",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 4000.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_126.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_126.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Daylight Cool Fill/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Daylight Cool Fill",
+    "binding_guid": "35F1FE274CAAC4F9F3651E8F8F86397F",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 450.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_1079.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_1079.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Uplight 2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Uplight 2",
+    "binding_guid": "38DB2BFC4B84290A2AC8E19DF472DDC0",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 4000.0,
+    "source": "last_key",
+    "last_key_tick": 248000,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_127.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_127.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R3",
+    "binding_guid": "3C5EA86843462B6C410AC08203267114",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_121.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_121.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Strike Fill R/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Strike Fill R",
+    "binding_guid": "42F3C2F94B8D603904DB9B999508C36E",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 400.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_98.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_98.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-8/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-8",
+    "binding_guid": "440750F84CFBB90B4276468BEE3E727C",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_185.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_185.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Daylight Rake Key/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Daylight Rake Key",
+    "binding_guid": "4DD8564C4548BA68CD55B78FB7B8B6C3",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 1800.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_1078.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_1078.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-5/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-5",
+    "binding_guid": "51D3FBE143853607577C97BBBE33EC23",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_182.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_182.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-7/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-7",
+    "binding_guid": "5580926D4E22C3E193B9A79EFC539FE6",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_176.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_176.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R5/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R5",
+    "binding_guid": "5FDE923847187F3BB80642B855979141",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_123.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_123.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-7/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-7",
+    "binding_guid": "6DB98FAB4BC9D8FD5A02E782467B67E1",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_184.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_184.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-6/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-6",
+    "binding_guid": "6F77CBBB48097D026B359F941034BBCB",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_175.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_175.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-4/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-4",
+    "binding_guid": "715F32A544980DEF68720BB4FA1806EE",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_181.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_181.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L2",
+    "binding_guid": "742A438E432BAFCB538CBE94B433B140",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_113.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_113.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-4/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-4",
+    "binding_guid": "79B8FED34EA3B1602F34A5B781B053BD",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_165.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_165.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-6/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-6",
+    "binding_guid": "811A345947750807C72E45BED7C6C7EA",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_167.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_167.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-5/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-5",
+    "binding_guid": "82F73A7F4E6AE3984CB1A0B8C3921EE8",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_174.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_174.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R2",
+    "binding_guid": "893649414F6FBD85E17A0086A63AFAD9",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_120.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_120.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-8/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-8",
+    "binding_guid": "8BCBD0B7495A7AE553548B8780A9A6A3",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_169.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_169.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-4/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-4",
+    "binding_guid": "8C4E3D9447E07177083CFDAADE92174E",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_173.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_173.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-1",
+    "binding_guid": "9031258E48A1BD04D4450BA00C0D8FF3",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_170.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_170.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-1",
+    "binding_guid": "93AA7646449D04402DB224AA5F875A7A",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_162.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_162.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L4/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L4",
+    "binding_guid": "94A30B854A628133837FAF877332A77E",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_115.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_115.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L5/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L5",
+    "binding_guid": "96B4CA194F2BF17113BD33BC9794BCDB",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_116.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_116.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Strike Cyc 3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Strike Cyc 3",
+    "binding_guid": "99F8380E42861412E9F03F9A70F6BBA4",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 600.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_101.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_101.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-7/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-7",
+    "binding_guid": "9A42E7E44FCDF52CD9E534A0FC679F1B",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_168.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_168.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L6/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L6",
+    "binding_guid": "9E2937E541577F42B91ED392BDE1D4F2",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_117.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_117.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-5/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-5",
+    "binding_guid": "A648960740B0C25AB59CB28F20C4720F",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_166.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_166.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R6/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R6",
+    "binding_guid": "B0416716423020E5034932B826F3FB5F",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_124.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_124.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Strike Cyc 2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Strike Cyc 2",
+    "binding_guid": "B16CBD8049A7B292BBFBD0A0EA34A47E",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 600.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_100.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_100.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L3",
+    "binding_guid": "B2AF8D7645E9BA3AF2CC209FEFD766B3",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_114.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_114.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Uplight 3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Uplight 3",
+    "binding_guid": "B6581B4C4DD7E2283D18E8B82A9F6FCB",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 4000.0,
+    "source": "last_key",
+    "last_key_tick": 252000,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_128.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_128.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R7/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R7",
+    "binding_guid": "C0C15B2E49C742C07B5349A34531302A",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_125.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_125.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 1-2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 1-2",
+    "binding_guid": "C78C0E5240BC533CB62B58A7E178E475",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_163.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_163.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-1",
+    "binding_guid": "CB6C8DC3491D5B3A500607B29DC44439",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_178.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_178.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Strike Fill L/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Strike Fill L",
+    "binding_guid": "CD241DCF4EE29B6DDC38E7A64BCBC806",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 400.0,
+    "source": "last_key",
+    "last_key_tick": 244800,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_97.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.RectLight_97.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical R1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical R1",
+    "binding_guid": "CD4878A0484571CAEAB0EFA4D0C490FD",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_119.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_119.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-6/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-6",
+    "binding_guid": "D25B59F14AE1A6E56105CF950BADA033",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_183.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_183.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-3/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-3",
+    "binding_guid": "D4C4B4264DF0EE41DF2AE3BF1085B5E1",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_180.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_180.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 3-2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 3-2",
+    "binding_guid": "E31B2BED4923087C44D8478AF744BBE7",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_179.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_179.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Practical L1/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Practical L1",
+    "binding_guid": "E9F423AE4E61CD74E6FB62B4B3DFF7B2",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 160.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_112.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_112.LightComponent0"
+    ]
+   },
+   {
+    "id": "S3 Lattice Glow 2-2/LightComponent0/Intensity",
+    "kind": "float",
+    "track_class": "MovieSceneFloatTrack",
+    "binding": "LightComponent0",
+    "parent": "S3 Lattice Glow 2-2",
+    "binding_guid": "EA7058BE43200F39FE9D1F99543EE15A",
+    "property_name": "Intensity",
+    "property_path": "Intensity",
+    "value": 8.0,
+    "source": "last_key",
+    "last_key_tick": 99200,
+    "last_key_before_fold": false,
+    "rise_section_tick": [
+     0,
+     744000
+    ],
+    "rise_completion": "PROJECT_DEFAULT",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_171.LightComponent0",
+    "rise_located": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_171.LightComponent0"
+    ]
+   }
+  ],
+  "refused": [],
+  "listed": [
+   {
+    "id": "-/P03 End Drape (stand-in)/MovieSceneGeometryCacheTrack",
+    "kind": "geometry_cache",
+    "track_class": "MovieSceneGeometryCacheTrack",
+    "meaning": "NOT HELD: no declaration-proven way to show a cache's last frame over a held range (MovieSceneGeometryCacheSection.h:13-54; mapping body in the absent private .cpp). Rise section(s): [{'range_tick': [-141600, 99200], 'completion': 'KEEP_STATE', 'params': {'geometry_cache_asset': '/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening.GC_CurtainDrop_Opening', 'start_frame_offset': 23200, 'end_frame_offset': 0, 'first_loop_start_frame_offset': 0, 'play_rate': 1.0, 'reverse': False}}]. Decide with PIEPROBE (report)."
+   },
+   {
+    "id": "-/tg0pfjxda_tier_0/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Clam_with_Pearl_Clam_with_Pearl_0/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Shore02_F52 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Shore03_M59 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Shore06_F25 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Shore05_M53 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Shore01_M56 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/Shore04_F55 Clam/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   },
+   {
+    "id": "-/source_Anim/None",
+    "kind": "visibility",
+    "track_class": "MovieSceneVisibilityTrack",
+    "meaning": "NOT OPTED IN; would hold True from last_key (MovieSceneVisibilityTrack channel = bHiddenInGame: True = HIDDEN [prec klara_reveal.py:3131-3139])"
+   }
+  ],
+  "identity_mismatch": [],
+  "conflicts": [],
+  "coexisting_scene_tracks": [],
+  "scene": 3,
+  "fold": {
+   "track": "Hangar Fold",
+   "range": [
+    0,
+    744
+   ],
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+   "active": true,
+   "completion": "KEEP_STATE",
+   "start_offset_tick": 0,
+   "play_rate": 1.0,
+   "play_rate_read": false
+  },
+  "rise_end_tick": 744000,
+  "scene_tpf": 1000,
+  "rise_tpf": 800,
+  "completion": "KEEP_STATE",
+  "transform_hold_record_present": true,
+  "apply_gate": []
+ }
+}

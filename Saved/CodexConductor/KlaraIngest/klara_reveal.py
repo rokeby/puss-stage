@@ -107,7 +107,12 @@ LIT_DEFAULTS = {"enabled": True, "light_fraction": 0.8, "value_fraction": 0.9, "
 #                  that are on there ramp 0 -> value (smoothstep) in the crossfade window, the rest stay 0; her own
 #                  darkness -> light -> camera move then plays from the cut; env ramps only where her value is > 0.
 #   "auto"         her_dark_pan if her opening is DARK (opening_darkness), else strike.
-REVEAL_STYLES = ("strike", "her_dark_pan", "auto")
+#   "strike_preroll" v5 (S4, Gary 7 Oct): glide in near-darkness to a NEW dark glide-end pose (scenes.<n>.v5.glide_end);
+#                  her CHARACTER lights strike one by one DURING the glide (S1's schedule/strike_keys, to their plateau);
+#                  her animation PRE-ROLLS from the first strike (klara_preroll_s4.py, a stripped duplicate); HARD CUT at C
+#                  into her first shot (slot starts at her first bound frame snapped, as her_dark_pan); DRY gates her
+#                  WHOLE camera path against camera_x_min_local and the LIVE backcloth state (build_plan_v5).
+REVEAL_STYLES = ("strike", "her_dark_pan", "auto", "strike_preroll")
 # opening_darkness: proposed numbers, not Gary's. A frustum grid of nx x ny rays from her camera; each sample is the
 # floor hit within far_cm, else the point probe_cm along the ray. A light covers a sample inside its attenuation
 # radius and (spot) outer cone. lit_fraction = sum(cover x value at F) / sum(cover x plateau). DARK if <= max_lit_fraction
@@ -115,6 +120,28 @@ REVEAL_STYLES = ("strike", "her_dark_pan", "auto")
 # until the crossfade)].
 DARK_DEFAULTS = {"max_lit_fraction": 0.1, "nx": 7, "ny": 5, "far_cm": 3000.0, "probe_cm": 1500.0, "fade_dark": 0.95,
                  "default_cone_deg": 44.0, "default_radius_cm": 1000.0}
+# v5 strike_preroll (S4). Every number is PROPOSED (not Gary's) unless the note says [meas]; args scenes.<n>.v5 overrides.
+V5_DEFAULTS = {
+    # glide-end ("dark entry view"): her cut pose (after the level move) pulled back along the dock axis and raised, a
+    # little wider, tilted down - a wide of the same set; Gary judges from stills. mode "explicit" takes loc/rot/focal/focus.
+    "glide_end": {"mode": "her_cut_pullback", "pullback_cm": 600.0, "raise_cm": 120.0, "tilt_deg": -10.0,
+                  "focal_mm": 24.0, "focus_cm": None},
+    "strike_start_s": 0.0,          # first strike this long after the glide starts (0 = the glide's first frame)
+    "hold_after_glide_s": 1.0,      # camera at rest, all struck, then the HARD cut
+    "strike_lights": "auto",        # "auto" = her lights that cover a subject point (light_covers), or an explicit list
+    "subjects": ["BP_MHC_Child", "SK_Pigeon", "Pendulum", "GC_Old_Book", "Paper_Fall"],
+    "subject_z_cm": [20.0, 100.0],  # sample heights above each subject's bounds origin floor (children ~1.2 m tall [inf])
+    "strike_target": "plateau",     # "plateau" (her sustained lit level, find_lit_frame) or "at_cut" (her value there)
+    "order_from": "glide_end",      # distance order from the glide-end pose (the camera rests there while they strike)
+    "preroll_her_start": 192,       # her frame the pre-roll starts at (pendulum keys swing from her frame 191 [meas])
+    "preroll_lead_frames": 0,       # pre-roll starts this many frames BEFORE the first strike (0 = [first strike, cut))
+    "camera_x_min_local": -600.0,   # her/our camera must stay at dock-local x >= this (passage end zone; PROPOSED)
+    "backcloth": {"label": "P04 Backcloth (baked)", "half_extent_cm": [39.0, 500.0], "z_cm": [20.0, 1220.0],
+                  # [meas backcloth_lead_fit_dry.json inputs (6 Oct)]: hang AABB x +-39, y +-500, z 20-1220
+                  "binding_guids": ["3775D9A84FD0EAB3659ED2B7F2123112"],   # [meas p04_backcloth_section_record.json]
+                  "down_cache_s": 9.0, "cache_duration_s": 11.0,           # duration [meas]; 'down' time PROPOSED [inf]
+                  "near_margin_cm": 20.0, "side_margin_cm": 100.0},
+}
 
 
 class PlanError(Exception):
@@ -1027,6 +1054,16 @@ def validate_args(args):
     for k in scenes:
         if reveal_style(args, k) not in REVEAL_STYLES:
             r.append("S%s_REVEAL_STYLE_INVALID: %r" % (k, reveal_style(args, k)))
+        elif reveal_style(args, k) == "strike_preroll":
+            c5 = v5_cfg(args, k)
+            if (c5.get("glide_end") or {}).get("mode") not in ("her_cut_pullback", "explicit"):
+                r.append("S%s_V5_GLIDE_END_MODE_INVALID" % k)
+            if c5.get("strike_target") not in ("plateau", "at_cut"):
+                r.append("S%s_V5_STRIKE_TARGET_INVALID" % k)
+            if c5.get("order_from") not in ("glide_end", "her_cut"):
+                r.append("S%s_V5_ORDER_FROM_INVALID" % k)
+            if int(c5.get("preroll_lead_frames", 0)) < 0:
+                r.append("S%s_V5_PREROLL_LEAD_NEGATIVE" % k)
     return r
 
 
@@ -1750,6 +1787,8 @@ def gather(args, world, run):
     facts["her_env"] = _env_rows(her_actors, sb, her_lo, her_last, tpf)
     _gather_reveal(facts, copy, args, fps)                # v4: S1 (strike) adds nothing
     _gather_lit(facts, copy, cam_pool, args, fps)
+    if (facts.get("reveal") or {}).get("style") == "strike_preroll":   # v5 only (S1 strike / v4 skip it)
+        _gather_v5(facts, seq, copy, world, args, fps)
     facts["her_audio"] = [{"sound": _path(a.get_sound()), "active": bool(a.is_active()),
                            "start_frame": int(a.get_start_frame()), "end_frame": int(a.get_end_frame())}
                           for t in copy.get_tracks() if isinstance(t, unreal.MovieSceneAudioTrack)
@@ -1876,21 +1915,138 @@ def _gather_lit(facts, copy, cam_pool, args, scene_fps):
     apply_lit_values(facts, Lh)
 
 
+def _gc_section_row(gs, scene_f0, scene_f1, clip, fps_inner_tick, source):
+    """A GeometryCache section -> backcloth_down_ranges row. params [decl MovieSceneGeometryCacheSection.h:27-40]:
+    start_frame_offset (ticks of the owning sequence [inf]), play_rate; completion mode [inf, probed]."""
+    prm = gs.get_editor_property("params")
+    off = int(prm.get_editor_property("start_frame_offset").value)
+    rate = float(prm.get_editor_property("play_rate"))
+    try:
+        keep = _enum_name(gs.get_completion_mode()).upper() == "KEEP_STATE"
+    except Exception:  # noqa: BLE001 - unread completion: KeepState NOT assumed
+        keep = False
+    try:
+        rev = bool(prm.get_editor_property("reverse"))
+    except Exception:  # noqa: BLE001
+        rev = None
+    return {"range": [int(scene_f0), int(scene_f1)], "clip": [int(clip[0]), int(clip[1])],
+            "cache_s_at_start": off / float(fps_inner_tick), "rate": -rate if rev else rate, "keep_state": keep,
+            "reverse": rev, "source": source, "active": bool(gs.is_active())}
+
+
+def _is_backcloth_binding(b, bcfg):
+    gs = unreal.GuidLibrary.conv_guid_to_string
+    nm = str(b.get_display_name())
+    return nm == bcfg["label"] or nm.endswith(bcfg["label"]) or gs(b.get_id()) in set(bcfg.get("binding_guids") or [])
+
+
+def _backcloth_state(seq, args, key, fps):
+    """v5 LIVE backcloth facts for the path gate (never assumed): the actor's location, and every GeometryCache section
+    that drives it as seen from the Scene: directly in LS_DevScene_0N (e.g. a hold written by s4_hangar_hold.py, binding
+    '<prefix><label>'), or inside a sub-sequence (LS_S<n>_HangarRise via the 'Hangar Fold' [meas p04_backcloth_section_
+    record.json]) mapped to Scene frames with get_parent_sequence_frame [prec SLOT_MAPPING_READBACK] and clipped to the
+    sub-section. Inactive (muted) sections are reported, not counted."""
+    bcfg = v5_cfg(args, key)["backcloth"]
+    acts = _by_label(bcfg["label"])
+    if len(acts) != 1:
+        return {"error": "BACKCLOTH_ACTOR_COUNT %d for %r" % (len(acts), bcfg["label"])}
+    out = {"label": bcfg["label"], "loc": _v(acts[0].get_actor_location()), "sections": [], "inactive": []}
+    o, e = acts[0].get_actor_bounds(False)
+    out["bounds_now"] = [o.x - e.x, o.x + e.x, o.y - e.y, o.y + e.y, o.z - e.z, o.z + e.z]
+    gc_track = getattr(unreal, "MovieSceneGeometryCacheTrack", None)
+    if gc_track is None:
+        return dict(out, error="MovieSceneGeometryCacheTrack not exposed")
+    s_tick = _rate(seq.get_tick_resolution())
+    end = int(seq.get_playback_end())
+    for b in seq.get_bindings():
+        if not _is_backcloth_binding(b, bcfg):
+            continue
+        for t in b.get_tracks():
+            if isinstance(t, gc_track):
+                for gs in t.get_sections():
+                    row = _gc_section_row(gs, gs.get_start_frame(), gs.get_end_frame(), [0, end], s_tick,
+                                          "%s/%s (Scene)" % (b.get_display_name(), t.get_display_name()))
+                    (out["sections"] if row["active"] else out["inactive"]).append(row)
+    for t in seq.get_tracks():
+        if not isinstance(t, unreal.MovieSceneSubTrack):
+            continue
+        for sub in t.get_sections():
+            inner = sub.get_sequence()
+            if inner is None:
+                continue
+            i_tick = _rate(inner.get_tick_resolution())
+            pf = lambda fr: int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(sub, int(fr), seq))
+            clip = [int(sub.get_start_frame()), int(sub.get_end_frame())]
+            for b in inner.get_bindings():
+                if not _is_backcloth_binding(b, bcfg):
+                    continue
+                for tr in b.get_tracks():
+                    if isinstance(tr, gc_track):
+                        for gs in tr.get_sections():
+                            row = _gc_section_row(gs, pf(gs.get_start_frame()), pf(gs.get_end_frame()), clip, i_tick,
+                                                  "%s via %s/%s" % (_path(inner), t.get_display_name(),
+                                                                    b.get_display_name()))
+                            row["sub_active"] = bool(sub.is_active())
+                            (out["sections"] if (row["active"] and row["sub_active"]) else out["inactive"]).append(row)
+    return out
+
+
+def _gather_v5(facts, seq, copy, world, args, scene_fps):
+    """v5 live facts: subject points (her level actors by label prefix, bounds origin at the floor [inf: level pose;
+    her LS may move them, e.g. the pendulum anchor 5.1 m [bytes]]), every cut's camera Location curves from the copy
+    (pre-move world), and the LIVE backcloth state. Read only."""
+    key = facts["scene"]
+    cfg5 = v5_cfg(args, key)
+    row = args["scenes"][key]
+    v5f = {"subjects": [], "her_cuts": []}
+    for a in _level_actors(world, row["level"]):
+        lab = str(a.get_actor_label())
+        if any(lab.startswith(p) for p in cfg5["subjects"]):
+            o, e = a.get_actor_bounds(False)
+            v5f["subjects"].append({"label": lab, "origin": [float(o.x), float(o.y), float(o.z - e.z)]})
+    tpf = facts["her_tpf"]
+    gs = unreal.GuidLibrary.conv_guid_to_string
+    by = {gs(b.get_id()): b for b in copy.get_bindings()}
+    for t in copy.get_tracks():
+        if not isinstance(t, unreal.MovieSceneCameraCutTrack):
+            continue
+        for s in t.get_sections():
+            g = gs(s.get_camera_binding_id().get_editor_property("guid"))
+            rowc = {"range": [int(s.get_start_frame()), int(s.get_end_frame())], "guid": g, "binding": None,
+                    "curves": None}
+            b = by.get(g)
+            if b is not None:
+                rowc["binding"] = str(b.get_display_name())
+                tr = [x for tt in b.get_tracks() if isinstance(tt, unreal.MovieScene3DTransformTrack)
+                      for x in tt.get_sections()]
+                if len(tr) == 1:
+                    cm = _chan_map(tr[0])
+                    if all(("Location." + a) in cm for a in "XYZ"):
+                        rowc["curves"] = {a.lower(): _ch_curve(cm["Location." + a], tpf) for a in "XYZ"}
+            v5f["her_cuts"].append(rowc)
+    try:
+        v5f["backcloth"] = _backcloth_state(seq, args, key, scene_fps)
+    except Exception as exc:  # noqa: BLE001 - an unread cloth refuses in the gate (BACKCLOTH_STATE_UNREAD)
+        v5f["backcloth"] = {"error": "%s: %s" % (type(exc).__name__, exc)}
+    facts["v5"] = v5f
+
+
 def detect_lit(facts, args, scene_fps):
     """Pure: her lit frame from facts["her_lights"][*]["curves"]["Intensity"], snapped onto our grid."""
     cfg = lit_cfg(args, facts.get("scene"))
     lo, hi = facts["her_range"]
     rv = facts.get("reveal") or {}
-    if rv.get("style") == "her_dark_pan":
+    if rv.get("style") in ("her_dark_pan", "strike_preroll"):
         # v4: the frame is her first BOUND camera frame snapped onto our grid (her dark opening plays from the cut)
+        # v5 strike_preroll: the same frame - the HARD cut lands on her first shot there
         cfg = dict(cfg, frame=int(rv["frame"]), enabled=True)
     if not cfg.get("enabled", True):
         return {"method": "disabled (v2: her first frame)", "frame": lo, "frame_raw": lo, "refusals": [],
                 "warnings": [], "v3": False}
     curves = {r["label"]: (r.get("curves") or {}).get("Intensity") for r in facts["her_lights"]}
     lit = find_lit_frame(curves, lo, hi, facts["her_fps"], cfg)
-    if rv.get("style") == "her_dark_pan":
-        lit["method"] = "her_dark_pan: first bound camera frame %d, snapped" % int(rv["frame"])
+    if rv.get("style") in ("her_dark_pan", "strike_preroll"):
+        lit["method"] = "%s: first bound camera frame %d, snapped" % (rv["style"], int(rv["frame"]))
         lit["refusals"] = [x for x in lit["refusals"] if not x.startswith("LIT_NONE")]
     lit["frame"] = None
     if lit["frame_raw"] is not None:
@@ -1919,6 +2075,8 @@ def apply_lit_values(facts, Lh):
 
 def build_plan(facts, args):
     """facts (plain data) -> the full plan. Pure: the harness drives it with recorded/synthetic facts."""
+    if (facts.get("reveal") or {}).get("style") == "strike_preroll":
+        return build_plan_v5(facts, args)             # v5 only; S1 (no "reveal") and v4 never reach it
     key, fps = facts["scene"], float(facts["fps"])
     refusals, warnings = list(facts.get("refusals") or []), list(facts.get("warnings") or [])
     box, entry = facts["box"], facts["entry_camera"]
@@ -2223,6 +2381,588 @@ def build_plan(facts, args):
                     "media_track_note": "later: a MovieSceneMediaTrack section over the same range replaces the "
                                         "nested copy 1:1 (videos = renders of her LS, Gary 7 Oct)"}
     plan["audio"] = audio_report(facts.get("her_audio"), facts.get("scene_audio"), facts.get("scene_markers"), Lh,
+                                 float(facts.get("her_fps") or fps), tl["cut"], fps, tl["planned_end"])
+    plan["footprint"] = facts.get("footprint")
+    plan["apply_ready"] = not refusals
+    return plan
+
+
+# =====================================================================================================================
+# Pure: v5 strike_preroll (S4, Gary 7 Oct 2026, conductor session). S1 and v4 never reach this block (build_plan
+# dispatches only on facts.reveal.style == "strike_preroll"; S1 facts carry no "reveal").
+# =====================================================================================================================
+
+def v5_cfg(args, key):
+    """V5_DEFAULTS < args scenes.<key>.v5 (dicts merged one level deep)."""
+    c = json.loads(json.dumps(V5_DEFAULTS))
+    row = ((((args.get("scenes") or {}).get(str(key)) or {}).get("v5")) or {})
+    for k, v in row.items():
+        if isinstance(v, dict) and isinstance(c.get(k), dict):
+            c[k].update(v)
+        else:
+            c[k] = v
+    return c
+
+
+def glide_end_pose(ge, her_pose, dock):
+    """The dark glide-end view (Gary: "a new glide entry view showing the scene in darkness"; framing PROPOSED, judged
+    from stills). her_pose = her cut-frame pose AFTER the level move {"loc","rot","focal","focus"}.
+    her_cut_pullback: her position moved pullback_cm back along the dock axis and raise_cm up, her yaw, her pitch +
+    tilt_deg, roll 0, focal focal_mm. explicit: loc/rot/focal(/focus) from args."""
+    mode = ge.get("mode")
+    if mode == "explicit":
+        for k in ("loc", "rot", "focal"):
+            if ge.get(k) is None:
+                raise PlanError("GLIDE_END_EXPLICIT_MISSING: %s" % k)
+        return {"loc": [float(x) for x in ge["loc"]], "rot": [float(x) for x in ge["rot"]], "focal": float(ge["focal"]),
+                "focus": float(ge["focus"]) if ge.get("focus") is not None else float(her_pose["focus"])}
+    if mode != "her_cut_pullback":
+        raise PlanError("GLIDE_END_MODE_INVALID: %r" % mode)
+    lc = to_local(dock, her_pose["loc"])
+    loc = from_local(dock, [lc[0] - float(ge["pullback_cm"]), lc[1], lc[2] + float(ge["raise_cm"])])
+    return {"loc": loc, "rot": [0.0, float(her_pose["rot"][1]) + float(ge["tilt_deg"]), float(her_pose["rot"][2])],
+            "focal": float(ge["focal_mm"]),
+            "focus": float(ge["focus_cm"]) if ge.get("focus_cm") is not None else float(her_pose["focus"])}
+
+
+def character_lights(lights, subjects, z_list, cfg_dark):
+    """{light label: [subject labels it covers]} - light_covers (radius + spot cone; [inf] no occlusion) on sample points
+    at each subject's floor origin + z_list. lights/subjects already in the SAME (moved) world frame."""
+    out = {}
+    for r in lights:
+        hits = []
+        for s in subjects:
+            pts = [[s["origin"][0], s["origin"][1], s["origin"][2] + float(z)] for z in z_list]
+            if any(light_covers(r, p, cfg_dark) for p in pts):
+                hits.append(s["label"])
+        out[r["label"]] = sorted(set(hits))
+    return out
+
+
+def plan_timeline_v5(L, C, E, fps, n_strike, args, cfg5, exit_len, glide_in_s, glide_out_s, skip=0, n_out=None):
+    """v5 (Gary 7 Oct): near-total darkness, faint rig glows while the rig rises [0, L); dark hold; glide [d0, g1] to
+    the dark glide-end pose WHILE her character lights strike one by one from S0 (= d0 + strike_start_s); her animation
+    pre-rolls over [S0 - lead, C); camera at rest hold_after_glide_s; HARD cut at C into her first shot (the slot,
+    starting at her cut frame). The outro is plan_timeline's, unchanged. Same keys as plan_timeline + preroll."""
+    intro, outro = args["intro"], args["outro"]
+    f = lambda s_: int(math.ceil(float(s_) * fps - 1e-6))
+    r = {"refusals": [], "warnings": [], "land": L, "cut_before": C, "slot_before": [C, E], "version": 5,
+         "slot_skip": int(skip)}
+    if L is None or not (0 <= L < C < E):
+        r["refusals"].append("TIMELINE_ORDER: land %r cut %r slot end %r" % (L, C, E))
+        return r
+    if not (0 <= int(skip) < E - C):
+        r["refusals"].append("SKIP_INVALID: %r of a %d-frame slot" % (skip, E - C))
+        return r
+    E = E - int(skip)
+    d0 = L + f(intro["dark_hold_s"])
+    g1 = d0 + f(glide_in_s if glide_in_s is not None else intro["glide_s"])
+    S0 = d0 + f(cfg5.get("strike_start_s", 0.0))
+    settle = f(intro["env_settle_s"])
+    flick = f(intro["flicker_window_s"])
+    gaps = intro["gap_s"]
+    span = f((float(gaps[0]) + float(gaps[1])) / 2.0 * max(0, n_strike - 1))
+    w1 = max(g1, S0 + span) if n_strike > 0 else S0           # strikes in the glide; spill into the hold only if needed
+    need = max(g1 + f(cfg5.get("hold_after_glide_s", 1.0)), w1 + flick + 1 + settle,
+               S0 + f(intro.get("env_min_s", 3.0)) + settle)
+    shift = max(0, need - C)
+    C, E = C + shift, E + shift
+    r.update(cut=C, slot=[C, E], slot_shift=shift, slot_shift_s=shift / float(fps))
+    if shift:
+        r["warnings"].append("CUT_MOVED_LATER: +%d frames (%.2f s): dark glide + strikes, then the hard cut; slot -> "
+                             "[%d, %d)" % (shift, shift / float(fps), C, E))
+    strike_last = min(w1, C - settle - flick - 1)
+    P0 = S0 - int(cfg5.get("preroll_lead_frames", 0))
+    xf = [S0, C - settle]
+    gf0 = max(L, S0 - f(intro.get("glow_fade_s", 1.5)))
+    o0 = E + f(outro["hold_s"])
+    blink_span = f(outro["blink_gap_s"][1]) * max(0, (n_strike if n_out is None else n_out) - 1) + flick + 1
+    env_out = [o0, o0 + f(outro["env_fade_s"])]
+    lights_out = o0 + blink_span
+    go0 = max(env_out[1], lights_out) + f(outro["dark_before_glide_s"])
+    go1 = go0 + f(glide_out_s if glide_out_s is not None else outro["glide_s"])
+    end = go1 + int(exit_len)
+    back = [go0, go0 + f(outro.get("rig_back_s", 1.5))] if outro.get("rig_glow_back", True) else None
+    r.update(dark=[L, d0], glide_in=[d0, g1], first_hold=[g1, C], glow_fade=[gf0, S0],
+             rig_dark=[S0, back[0] if back else end], rig_back=back, strike_window=[S0, strike_last], crossfade=xf,
+             roof_hidden=[g1, env_out[1]], ours_hidden_from=S0, hers_dark=[L, S0], preroll=[P0, C], outro_hold=[E, o0],
+             blink_window=[o0, lights_out], env_out=env_out, glide_out=[go0, go1], exit_cut=[go1, end],
+             planned_end=end, planned_end_s=end / float(fps), outro_s=(end - E) / float(fps),
+             intro_s=(C - L) / float(fps), strikes_in_glide=n_strike > 0 and strike_last <= g1)
+    if S0 > g1:
+        r["refusals"].append("STRIKES_AFTER_GLIDE: first strike %d after the glide end %d (Gary: strike DURING the "
+                             "glide)" % (S0, g1))
+    if n_strike > 0 and strike_last <= S0:
+        r["refusals"].append("STRIKE_WINDOW_EMPTY: [%d, %d]" % (S0, strike_last))
+    if P0 < L:
+        r["refusals"].append("PREROLL_BEFORE_LAND: %d < %d" % (P0, L))
+    if xf[1] <= xf[0]:
+        r["refusals"].append("CROSSFADE_EMPTY: %s" % xf)
+    if g1 > C:
+        r["refusals"].append("GLIDE_PAST_CUT: %d > %d" % (g1, C))
+    if back and back[0] < max(env_out[1], lights_out):
+        r["refusals"].append("RIG_BACK_BEFORE_HER_LIGHTS_OUT: %s" % back)
+    if n_strike > 0 and strike_last > g1:
+        r["warnings"].append("STRIKES_SPILL_PAST_GLIDE: last strike window frame %d > glide end %d (camera at rest)"
+                             % (strike_last, g1))
+    return r
+
+
+def _curve_value(c, frame):
+    """A channel's value at a (her display) frame, strict: keys -> strict_curve_at, no keys -> default."""
+    if c is None:
+        raise PlanError("HER_PATH_CHANNEL_MISSING")
+    if not c.get("keys"):
+        if c.get("default") is None:
+            raise PlanError("HER_PATH_CHANNEL_EMPTY")
+        return float(c["default"])
+    return strict_curve_at(c, frame)
+
+
+def sample_cut_path(cuts, her_lo, her_hi, her_at_cut, cut, slot_end, her_fps, scene_fps, delta):
+    """v5: her WHOLE camera path inside the slot, every cut, every frame AND every key time (not her first frame only).
+    cuts = [{"range": [a, b) her frames, "guid", "binding", "curves": {"x","y","z"} | None (dangling)}], curves in her
+    copy's world frame BEFORE the level move; delta = the planned move. Scene frame = cut + (h - her_at_cut) x
+    scene_fps / her_fps; samples outside [cut, slot_end) are dropped. -> {"samples": [...], "dangling": [...]}."""
+    ratio = float(scene_fps) / float(her_fps)
+    out, dangling = [], []
+    for c in sorted(cuts, key=lambda x: int(x["range"][0])):
+        a, b = max(int(c["range"][0]), int(her_at_cut)), min(int(c["range"][1]), int(her_hi))
+        if a >= b:
+            continue
+        if not c.get("curves"):
+            dangling.append({"range": list(c["range"]), "guid": c.get("guid")})
+            continue
+        frames = set(range(a, b))
+        for ax in "xyz":
+            cv = c["curves"].get(ax) or {}
+            tpf = float(cv.get("tpf") or 1.0)
+            for k in cv.get("keys") or []:
+                hf = k["tick"] / tpf
+                if a <= hf < b:
+                    frames.add(hf)
+        for h in sorted(frames):
+            sf = float(cut) + (float(h) - float(her_at_cut)) * ratio
+            if not (float(cut) - 1e-9 <= sf < float(slot_end)):
+                continue
+            loc = [_curve_value(c["curves"].get(ax), h) + float(delta[i]) for i, ax in enumerate("xyz")]
+            out.append({"scene_frame": sf, "her_frame": h, "binding": c.get("binding"), "loc": loc})
+    return {"samples": out, "dangling": dangling}
+
+
+def backcloth_down_ranges(sections, bc, fps):
+    """Scene frames [f0, f1) in which the backcloth's GeometryCache is ON THE FLOOR: cache time in
+    [down_cache_s, cache_duration_s] under some section. sections = [{"range": [f0, f1) Scene frames (mapped),
+    "clip": [c0, c1) the enclosing sub-section (or the Scene), "cache_s_at_start": s, "rate", "keep_state": bool,
+    "source"}]. KEEP_STATE extends a section that ENDS down to its clip end [inf: KeepState holds the last evaluated
+    frame while the enclosing sequence still evaluates; PIE stills must confirm]. Nothing is assumed outside sections."""
+    lo, hi = float(bc["down_cache_s"]), float(bc["cache_duration_s"])
+    frames = set()
+    for s in sections:
+        f0, f1 = int(s["range"][0]), int(s["range"][1])
+        c0, c1 = (int(s["clip"][0]), int(s["clip"][1])) if s.get("clip") else (f0, f1)
+        t = lambda fr: float(s["cache_s_at_start"]) + (fr - f0) / float(fps) * float(s.get("rate", 1.0))
+        down_at_end = False
+        for fr in range(max(f0, c0), min(f1, c1)):
+            if lo - 1e-9 <= t(fr) <= hi + 1e-9:
+                frames.add(fr)
+                down_at_end = fr == min(f1, c1) - 1
+            else:
+                down_at_end = False
+        if s.get("keep_state") and down_at_end and f1 < c1:
+            frames.update(range(f1, c1))
+    rows = []
+    for fr in sorted(frames):
+        if rows and rows[-1][1] == fr:
+            rows[-1][1] = fr + 1
+        else:
+            rows.append([fr, fr + 1])
+    return rows
+
+
+def _in_ranges(fr, ranges):
+    return any(a <= fr < b for a, b in ranges)
+
+
+def gate_camera_path(her_samples, glide_keys, dock, box, backcloth, cfg5, fps):
+    """v5 DRY gate over our glide keys and her WHOLE slot camera path:
+    - CAMERA_PATH_BEHIND_X_MIN: dock-local x < camera_x_min_local (refusal);
+    - CAMERA_PATH_BEHIND_STANDING_BACKCLOTH: the camera is behind the backcloth's front face (+ near margin) within its
+      y/z span at a Scene frame where the cloth is NOT down (refusal) - the cloth state is the LIVE input `backcloth`
+      ({"loc", "sections"} read at DRY time; None/"error" refuses BACKCLOTH_STATE_UNREAD, never assumed);
+    - behind the plane while down / outside the hangar front: warnings (PIE stills)."""
+    out = {"refusals": [], "warnings": [], "down_ranges": None}
+    if abs(wrap(dock["yaw"])) > 1e-6:
+        out["refusals"].append("PATH_GATE_DOCK_YAW_NONZERO: %r" % dock["yaw"])
+        return out
+    bcfg = cfg5["backcloth"]
+    if not backcloth or backcloth.get("error") or backcloth.get("loc") is None:
+        out["refusals"].append("BACKCLOTH_STATE_UNREAD: %s (the gate never assumes up or down)"
+                               % ((backcloth or {}).get("error") or "no live backcloth facts"))
+        return out
+    down = backcloth_down_ranges(backcloth.get("sections") or [], bcfg, fps)
+    out["down_ranges"] = down
+    bx, by = float(backcloth["loc"][0]), float(backcloth["loc"][1])
+    hx, hy = float(bcfg["half_extent_cm"][0]), float(bcfg["half_extent_cm"][1])
+    z0, z1 = float(bcfg["z_cm"][0]), float(bcfg["z_cm"][1])
+    front = bx + hx
+    out["plane_front_x"] = front
+    xmin = float(cfg5["camera_x_min_local"])
+    rows = [dict(s, source="her") for s in her_samples] + \
+        [{"scene_frame": float(k[0]), "her_frame": None, "binding": "glide", "loc": k[1:4], "source": "glide"}
+         for k in glide_keys]
+    agg = {}
+    for s in rows:
+        x, y, z = s["loc"]
+        lx = to_local(dock, s["loc"])[0]
+        fr = int(math.floor(s["scene_frame"] + 1e-9))
+        behind = x < front + float(bcfg["near_margin_cm"]) and abs(y - by) <= hy + float(bcfg["side_margin_cm"]) \
+            and z0 - float(bcfg["side_margin_cm"]) <= z <= z1
+        kinds = []
+        if lx < xmin:
+            kinds.append("x_min")
+        if behind and not _in_ranges(fr, down):
+            kinds.append("standing")
+        elif behind:
+            kinds.append("behind_down")
+        if lx < float(box["apron"]):
+            kinds.append("outside_front")
+        for kd in kinds:
+            a = agg.setdefault((kd, s["source"], s["binding"]), {"n": 0, "first": fr, "last": fr, "min_local_x": lx})
+            a["n"] += 1
+            a["first"], a["last"] = min(a["first"], fr), max(a["last"], fr)
+            a["min_local_x"] = min(a["min_local_x"], lx)
+    out["hits"] = [dict(v, kind=k[0], source=k[1], binding=k[2]) for k, v in sorted(agg.items(), key=lambda kv: str(kv[0]))]
+    out["n_samples"] = len(rows)
+    for h in out["hits"]:
+        desc = "%s %s: %d samples, Scene frames %d..%d, min dock-local x %.0f" % (h["source"], h["binding"], h["n"],
+                                                                                h["first"], h["last"], h["min_local_x"])
+        if h["kind"] == "x_min":
+            out["refusals"].append("CAMERA_PATH_BEHIND_X_MIN: %s < %.0f" % (desc, xmin))
+        elif h["kind"] == "standing":
+            out["refusals"].append("CAMERA_PATH_BEHIND_STANDING_BACKCLOTH: %s; cloth front x %.0f, down only in %s"
+                                   % (desc, front, down))
+        elif h["kind"] == "behind_down":
+            out["warnings"].append("CAMERA_BEHIND_BACKCLOTH_PLANE_WHILE_DOWN: %s (PIE stills: the pile in frame?)" % desc)
+        else:
+            out["warnings"].append("CAMERA_OUTSIDE_HANGAR_FRONT: %s (apron %.0f)" % (desc, float(box["apron"])))
+    return out
+
+
+def build_plan_v5(facts, args):
+    """v5 strike_preroll plan. Same output keys as build_plan (APPLY is shared) + timeline.preroll, plan.preroll,
+    plan.path_gate, plan.glide_end, plan.v5. Pure."""
+    key, fps = facts["scene"], float(facts["fps"])
+    cfg5 = v5_cfg(args, key)
+    refusals, warnings = list(facts.get("refusals") or []), list(facts.get("warnings") or [])
+    box, entry = facts["box"], facts["entry_camera"]
+    dock = box["dock"]
+    last = facts["her_last"]
+    rv = facts.get("reveal") or {}
+    pl = dict(args["placement"], **(((args.get("scenes") or {}).get(str(key)) or {}).get("placement") or {}))
+    if not facts.get("set_world"):
+        refusals.append("DIORAMA_FOOTPRINT_EMPTY (see footprint.excluded)")
+        return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False, "version": 5}
+    cfg_lit = lit_cfg(args, key)
+    lit = dict(facts.get("lit") or {})
+    her_lo, her_hi = (facts.get("her_range") or [None, None])[:2]
+    refusals += list(lit.get("refusals") or [])
+    warnings += list(lit.get("warnings") or [])
+    anchor = facts.get("her_lit")
+    if lit.get("frame") is None or not anchor:
+        refusals.append("LIT_FRAME_UNKNOWN: frame %r, camera at it %s" % (lit.get("frame"), bool(anchor)))
+        return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False, "lit": lit, "version": 5}
+    if int(anchor.get("frame")) != int(lit["frame"]):
+        refusals.append("LIT_CAMERA_FRAME_MISMATCH: camera read at %r, cut frame %r" % (anchor.get("frame"), lit["frame"]))
+    Hc = int(lit["frame"])                            # her frame at the hard cut (first bound, snapped)
+    place = solve_placement(anchor["loc"], facts["set_world"][:4], facts["set_world"][5] - dock["loc"][2], dock, box,
+                            pl["lead_cm"], pl.get("x_min_local", box["apron"]), pl["side_margin_cm"],
+                            lead_max_cm=pl.get("lead_max_cm"))
+    if not place["checks"]["lead_in_range"]:
+        warnings.append("LEAD_ABOVE_RANGE: her cut camera must sit %.0f cm in (> lead_max %.0f)"
+                        % (place["lead_cm"], pl.get("lead_max_cm")))
+    d = place["delta"]
+    sh = lambda p: [p[0] + d[0], p[1] + d[1], p[2] + d[2]]
+    new_lt = {"loc": sh(facts["level_transform"]["loc"]), "yaw": facts["level_transform"]["yaw"]}
+    if abs(wrap(new_lt["yaw"])) > 1e-6:
+        refusals.append("LEVEL_YAW_NONZERO: %r (translation-only copy shift)" % new_lt["yaw"])
+    set_after = [facts["set_world"][0] + d[0], facts["set_world"][1] + d[0], facts["set_world"][2] + d[1],
+                 facts["set_world"][3] + d[1], facts["set_world"][4], facts["set_world"][5]]
+    proposal = propose_hangar(place["set_local_after"], facts["set_world"][5] - dock["loc"][2],
+                              {"apron": box["apron"], "depth": box["depth"], "half_w": box["half_w"],
+                               "height": box["height"], "lattice_z": box["lattice_z"]}, args.get("comfort_cm", 300.0))
+    ck = place["checks"]
+    if not (ck["near_ok"] and ck["far_ok"] and ck["side_ok"] and ck["under_roof"]):
+        refusals.append("SET_DOES_NOT_FIT_LIVE_BOX: %s -> Structure resize with hangar_proposal.params %s"
+                        % ({k: v for k, v in ck.items() if not v}, proposal["params"]))
+    if not ck["under_lattice"]:
+        msg = "SET_REACHES_LATTICE: top %.0f cm vs lattice %.0f cm" % (facts["set_world"][5] - dock["loc"][2],
+                                                                     box["lattice_z"])
+        if args.get("allow_lattice_overlap"):
+            warnings.append(msg + " (allow_lattice_overlap)")
+        else:
+            refusals.append(msg + " -> set allow_lattice_overlap or resize")
+    her_cam_actor = (facts["her_first"].get("actor") or {})
+    sensor = her_cam_actor.get("sensor") or entry["sensor"]
+
+    def lens_of(cam):
+        lt_ = cam.get("lens_tracks") or {}
+        a = cam.get("actor") or {}
+        return (lt_.get("CurrentFocalLength", a.get("focal")),
+                lt_.get("ManualFocusDistance", lt_.get("FocusSettings.ManualFocusDistance", a.get("focus"))))
+
+    f1, fo1 = lens_of(anchor)
+    fL, foL = lens_of(last)
+    if f1 is None or fL is None:
+        refusals.append("HER_LENS_UNKNOWN: cut %r last %r" % (f1, fL))
+        f1, fL = f1 or 35.0, fL or 35.0
+    start_pose = {"loc": entry["loc"], "rot": entry["rot"], "focal": equiv_focal(entry["focal"], entry["sensor"][0],
+                                                                                  sensor[0]), "focus": entry["focus"]}
+    her_cut_pose = {"loc": sh(anchor["loc"]), "rot": anchor["rot"], "focal": f1, "focus": fo1 or entry["focus"]}
+    try:
+        end_pose = glide_end_pose(cfg5["glide_end"], her_cut_pose, dock)
+    except PlanError as exc:
+        refusals.append(str(exc))
+        return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False, "version": 5}
+    last_pose = {"loc": sh(last["loc"]), "rot": last["rot"], "focal": fL, "focus": foL or entry["focus"]}
+    ex = facts["exit_camera"]
+    exit_pose = {"loc": ex["loc"], "rot": ex["rot"], "focal": equiv_focal(ex["focal"], ex["sensor"][0], sensor[0]),
+                 "focus": ex["focus"]}
+    # her character lights (Gary: "on her character lights (children, pigeon, pendulum)")
+    v5f = facts.get("v5") or {}
+    dcfg = dict(DARK_DEFAULTS)
+    dcfg.update(args.get("dark") or {})
+    moved_lights = [dict(r, loc=sh(r["loc"])) for r in facts["her_lights"]]
+    subjects = [{"label": s["label"], "origin": sh(s["origin"])} for s in v5f.get("subjects") or []]
+    cover = character_lights(moved_lights, subjects, cfg5["subject_z_cm"], dcfg)
+    if cfg5["strike_lights"] == "auto":
+        if not subjects:
+            refusals.append("V5_SUBJECTS_UNREAD: no subject actors (%s) - strike_lights auto needs them"
+                            % cfg5["subjects"])
+        chosen = {lab for lab, hits in cover.items() if hits}
+    else:
+        chosen = set(cfg5["strike_lights"])
+        unknown = sorted(chosen - {r["label"] for r in facts["her_lights"]})
+        if unknown:
+            refusals.append("V5_STRIKE_LIGHTS_UNKNOWN: %s" % unknown)
+    lit_rows = find_lit_frame({r["label"]: (r.get("curves") or {}).get("Intensity") for r in facts["her_lights"]},
+                              her_lo, her_hi, facts["her_fps"], dict(cfg_lit, frame=None))["per_light"]
+    min_v = float(cfg_lit["min_value"])
+
+    def strike_target(r):
+        if cfg5["strike_target"] == "at_cut":
+            return float(r.get("target_lit", r["target_first"]))
+        if cfg5["strike_target"] != "plateau":
+            raise PlanError("V5_STRIKE_TARGET_INVALID: %r" % cfg5["strike_target"])
+        row = lit_rows.get(r["label"]) or {}
+        return float(row["plateau"]) if row.get("keyed") else float(r["intensity"])
+
+    order_pt = end_pose["loc"] if cfg5["order_from"] == "glide_end" else her_cut_pose["loc"]
+    lights = order_lights([{"label": r["label"], "loc": r["loc"], "row": r} for r in moved_lights], order_pt,
+                          args["intro"]["order"])
+    try:
+        targets = {x["label"]: strike_target(x["row"]) for x in lights}
+    except PlanError as exc:
+        refusals.append(str(exc))
+        return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False, "version": 5}
+    strikers = [x for x in lights if x["label"] in chosen and targets[x["label"]] > min_v]
+    exit_len = int(args["outro"].get("exit_cut_frames", 25))
+    vmax = float(args["intro"].get("max_glide_speed_cm_s", 300.0))
+    gin_s, gin_peak = glide_seconds(start_pose, end_pose, fps, [0.0, 0.0, 0.0], vmax, args["intro"]["glide_s"])
+    gout_s, gout_peak = glide_seconds(last_pose, exit_pose, fps, [0.0, 0.0, 0.0], vmax, args["outro"]["glide_s"])
+    if gin_s is None or gout_s is None:
+        refusals.append("GLIDE_TOO_FAST: in %r out %r" % (gin_peak, gout_peak))
+        gin_s, gout_s = gin_s or args["intro"]["glide_s"], gout_s or args["outro"]["glide_s"]
+    sk = slot_skip(her_lo, her_hi, Hc, facts["her_fps"], fps, facts["her_tpf"], facts["E"] - facts["C"])
+    refusals += sk["refusals"]
+    n_out = sum(1 for x in lights if float(x["row"]["target_last"]) > min_v)
+    tl = plan_timeline_v5(facts["L"], facts["C"], facts["E"], fps, len(strikers), args, cfg5, exit_len, gin_s, gout_s,
+                          skip=sk["skip_frames"] if not sk["refusals"] else 0, n_out=n_out)
+    tl["glide_in_s"], tl["glide_out_s"] = gin_s, gout_s
+    refusals += tl["refusals"]
+    warnings += tl["warnings"]
+    plan = {"scene": key, "fps": fps, "version": 5, "placement": place, "level_transform_before": facts["level_transform"],
+            "level_transform_after": new_lt, "set_world_after": set_after, "hangar_proposal": proposal,
+            "timeline": tl, "refusals": refusals, "warnings": warnings, "sensor_mm": sensor,
+            "poses": {"entry": start_pose, "glide_end": end_pose, "her_lit": her_cut_pose, "her_cut": her_cut_pose,
+                      "her_last": last_pose, "exit": exit_pose},
+            "lit": dict(lit, v3=True, camera={k: anchor.get(k) for k in ("binding", "frame", "cut", "loc", "rot",
+                                                                           "lens_tracks", "vel_cm_s", "ang_deg_s")},
+                        camera_after_move=her_cut_pose, slot=sk),
+            "reveal": rv, "glide_end": {"cfg": cfg5["glide_end"], "pose": end_pose},
+            "v5": {"cfg": cfg5, "light_cover": cover, "strike_lights": sorted(x["label"] for x in strikers),
+                   "subjects": subjects}}
+    if tl["refusals"]:
+        plan["apply_ready"] = False
+        return plan
+    # (ii) the glide-end pose: in front of the backcloth's front face and inside the hangar box
+    bc = v5f.get("backcloth") or {}
+    gl = to_local(dock, end_pose["loc"])
+    if bc.get("loc") is not None and end_pose["loc"][0] < float(bc["loc"][0]) + \
+            float(cfg5["backcloth"]["half_extent_cm"][0]) + float(cfg5["backcloth"]["near_margin_cm"]):
+        refusals.append("GLIDE_END_BEHIND_BACKCLOTH: x %.0f" % end_pose["loc"][0])
+    if not (float(box["apron"]) <= gl[0] <= float(box["apron"]) + float(box["depth"]) and
+            abs(gl[1]) <= float(box["half_w"]) - float(pl["side_margin_cm"]) and 0.0 < gl[2] < float(box["lattice_z"])):
+        refusals.append("GLIDE_END_OUTSIDE_HANGAR: dock-local %s (apron %.0f depth %.0f half_w %.0f lattice %.0f)"
+                        % ([round(v) for v in gl], box["apron"], box["depth"], box["half_w"], box["lattice_z"]))
+    seed = "%s|S%s" % (args["intro"]["seed"], key)
+    sch = schedule(len(strikers), tl["strike_window"][0], tl["strike_window"][1], fps, seed, args["intro"]["gap_s"],
+                   args["intro"]["min_gap_s"])
+    refusals += sch["refusals"]
+    warnings += sch["warnings"]
+    rows = []
+    i_strike = 0
+    for lt_row in lights:
+        r = lt_row["row"]
+        strikes = lt_row in strikers
+        target = targets[r["label"]] if strikes else 0.0
+        f_in = None
+        if strikes:
+            f_in = sch["frames"][i_strike] if i_strike < len(sch["frames"]) else None
+            i_strike += 1
+            intro = None if f_in is None else dedupe_keys([[tl["land"], 0.0]] + strike_keys(
+                target, f_in, seed, r["label"], fps, args["intro"]["flicker_window_s"]))
+        else:
+            intro = [[tl["land"], 0.0]]                # not a character light (or dark): held 0 until the hard cut
+        color_lit = r.get("color_lit")
+        rows.append({"label": r["label"], "class": r["class"], "dist_cm": math.dist(lt_row["loc"], order_pt),
+                     "strike_frame": f_in, "strike_s": None if f_in is None else f_in / fps, "strikes": strikes,
+                     "target_intro": target, "target_first": r["target_first"], "target_lit": r.get("target_lit"),
+                     "target_last": r["target_last"], "her_keys": sorted(r["keyed"]),
+                     "covers": cover.get(r["label"]), "color_first": r["first"].get("LightColor"),
+                     "color_last": r["last"].get("LightColor"), "color_lit": color_lit,
+                     "intro_color": None if color_lit is None else {"range": [tl["land"], tl["cut"]], "rgba": color_lit},
+                     "intro_keys": intro, "warn_hidden": r["hidden_in_game"] or not r["visible"],
+                     "drop_at_cut": None if not strikes else target - float(r.get("target_lit", target))})
+    if not strikers:
+        refusals.append("V5_NO_CHARACTER_LIGHT_STRIKES (strike_lights %r; covers %s)" % (cfg5["strike_lights"], cover))
+    drops = [(x["label"], round(x["drop_at_cut"], 3)) for x in rows if x["strikes"] and x["drop_at_cut"] > min_v]
+    if drops:
+        warnings.append("V5_LIGHT_DROP_AT_HARD_CUT: struck to plateau, her own value at her cut frame %d is lower: %s "
+                        "(her dark opening; Gary's look call)" % (Hc, drops))
+    out_sch = schedule(len(rows), tl["blink_window"][0],
+                       tl["blink_window"][1] - int(math.ceil(args["outro"]["flicker_window_s"] * fps)) - 1, fps,
+                       seed + "|out", args["outro"]["blink_gap_s"], 1.0 / fps)
+    refusals += out_sch["refusals"]
+    for j, r in enumerate(reversed(rows)):
+        f_out = out_sch["frames"][j] if j < len(out_sch["frames"]) else None
+        r["blink_frame"] = f_out
+        r["outro_keys"] = None if f_out is None else dedupe_keys(
+            [[tl["slot"][1], r["target_last"]]] + blink_out_keys(r["target_last"], f_out, seed, r["label"], fps,
+                                                              args["outro"]["flicker_window_s"]))
+    plan["her_lights"] = rows
+    plan["strike_schedule"] = sch
+    env = []
+    for e in facts["her_env"]:
+        if e.get("property") is None:
+            env.append(dict(e, action="visible_from_S0 (no intensity)"))
+            continue
+        v = e["value"]
+        v_in = float(e.get("value_lit", v))
+        if v_in <= EPS and v <= EPS:
+            env.append(dict(e, action="none_needed (0 at her cut frame and in her level)", target_intro=v_in))
+            continue
+        env.append(dict(e, action="ramp", target_intro=v_in,
+                        intro=ramp_keys(0.0, v_in, tl["crossfade"][0], tl["crossfade"][1]),
+                        outro=ramp_keys(v, 0.0, tl["env_out"][0], tl["env_out"][1])))
+        if e["class"] == "PostProcessVolume":
+            if not any(e["exposure_overrides"].values()):
+                warnings.append("HER_PPV_NO_EXPOSURE_OVERRIDE: %s" % e["label"])
+            if not e["unbound"]:
+                warnings.append("HER_PPV_BOUNDED: %s" % e["label"])
+            for o in facts.get("our_ppv") or []:
+                if e["priority"] <= o["priority"]:
+                    warnings.append("PPV_PRIORITY: hers %.1f <= ours %.1f (%s)" % (e["priority"], o["priority"],
+                                                                                  o["label"]))
+    plan["her_env"] = env
+    hl = []
+    for h in facts["hangar_lights"]:
+        if h["role"] == "ceiling":
+            c = list(h.get("color") or [1.0, 1.0, 1.0, 1.0])
+            keys = [[tl["glow_fade"][0], c], [tl["glow_fade"][1], [0.0, 0.0, 0.0, c[3]]]]
+            if tl["rig_back"]:
+                keys += [[tl["rig_back"][0], [0.0, 0.0, 0.0, c[3]]], [tl["rig_back"][1], c]]
+            rng = [tl["glow_fade"][0], (tl["rig_back"][1] + 1) if tl["rig_back"] else tl["planned_end"]]
+            hl.append(dict(h, action="fade_color", range=rng, color_keys=keys))
+        else:
+            hl.append(dict(h, action="black_color", range=[0, tl["planned_end"]]))
+    plan["hangar_lights"] = hl
+    bulbs = list(facts.get("rig_bulbs") or [])
+    plan["rig_bulbs_hidden"] = {"labels": bulbs, "range": tl["rig_dark"]}
+    if bulbs:
+        warnings.append("BULB_EMISSIVE_POPS: %d bulb meshes hide at frame %d" % (len(bulbs), tl["rig_dark"][0]))
+    lat = facts.get("lattice") or {}
+    mode = args.get("lattice", "cancel")
+    plan["lattice"] = {"mode": mode, "facts": {k: v for k, v in lat.items() if k != "keys"}}
+    if mode == "cancel":
+        if lat.get("error"):
+            refusals.append("LATTICE_CANCEL_UNAVAILABLE: %s" % lat["error"])
+        elif lat.get("keys"):
+            try:
+                ckl = cancel_keys(lat["keys"], lat["offset_ticks"])
+                plan["lattice"].update(cancel=ckl, range=[0, tl["planned_end"]])
+            except PlanError as exc:
+                refusals.append(str(exc))
+        else:
+            refusals.append("LATTICE_FACTS_MISSING")
+    elif mode == "hide":
+        plan["lattice"]["hide"] = {"labels": list(facts.get("lattice_pieces") or []) + bulbs,
+                                   "range": [tl["rig_dark"][0], tl["planned_end"]]}
+    gi = plan_glide(start_pose, end_pose, tl["glide_in"][0], tl["glide_in"][1], fps, v0=[0.0] * 3, v1=[0.0] * 3)
+    go = plan_glide(last_pose, exit_pose, tl["glide_out"][0], tl["glide_out"][1], fps, v0=[0.0] * 3, v1=[0.0] * 3)
+    keys = dedupe_keys(gi["keys"] + hold_keys(end_pose, [tl["cut"], tl["slot"][1] - 1]) +
+                       hold_keys(last_pose, [tl["slot"][1], tl["glide_out"][0] - 1]) + go["keys"])
+    plan["glide"] = {"in": gi["report"], "out": go["report"], "keys": keys,
+                     "camera_label": args["scenes"][key]["glide_camera_label"]}
+    for g, nm in ((gi["report"], "in"), (go["report"], "out")):
+        if g["overshoot"]:
+            warnings.append("GLIDE_%s_OVERSHOOT: %s" % (nm.upper(), g["overshoot"]))
+    # (i) her WHOLE camera path + our glide, against x_min and the LIVE backcloth state
+    path = sample_cut_path(v5f.get("her_cuts") or [], her_lo, her_hi, Hc, tl["cut"], tl["slot"][1],
+                           facts["her_fps"], fps, d)
+    if not v5f.get("her_cuts"):
+        refusals.append("HER_CUT_PATHS_UNREAD (the whole-path gate needs every cut's camera curves)")
+    gate = gate_camera_path(path["samples"], gi["keys"], dock, box, v5f.get("backcloth"), cfg5, fps)
+    refusals += gate["refusals"]
+    warnings += gate["warnings"]
+    plan["path_gate"] = dict(gate, n_her_samples=len(path["samples"]), dangling=path["dangling"],
+                             cuts=[{"range": c["range"], "binding": c.get("binding")} for c in v5f.get("her_cuts") or []])
+    sl = place["set_local_after"]
+    setb = [sl[0], sl[1], sl[2], sl[3], 0.0, facts["set_world"][5] - dock["loc"][2]]
+    for nm, pose in (("first_frame_sees", her_cut_pose), ("glide_end_sees", end_pose)):
+        plan[nm] = surfaces_seen(to_local(dock, pose["loc"]), [pose["rot"][0], pose["rot"][1],
+                                                               wrap(pose["rot"][2] - dock["yaw"])],
+                                 hfov_deg(pose["focal"], sensor[0]), sensor[0] / sensor[1], box, setb)
+    roof = (args.get("scenes", {}).get(key, {}) or {}).get("roof", args["roof"])
+    hide = [x % key for x in ROOF_LABELS] if roof in ("hide_roof", "hide_roof_and_seen_walls") else []
+    if any(plan["glide_end_sees"].get(w) for w in ("left_wall", "right_wall", "far_wall")):
+        warnings.append("GLIDE_END_SEES_WALLS: %s" % plan["glide_end_sees"])
+    plan["hide"] = {"labels": hide, "range": tl["roof_hidden"]}
+    plan["cuts_after"] = [["entry", [0, tl["glide_in"][0]]], ["glide", [tl["glide_in"][0], tl["exit_cut"][0]]],
+                          ["exit", tl["exit_cut"]]]
+    plan["hookin_edits"] = {"hers_dark_range": tl["hers_dark"], "ours_off_range": [tl["ours_hidden_from"],
+                                                                                    tl["planned_end"]],
+                            "level_visible_range": [tl["land"], tl["planned_end"]]}
+    plan["extend_mode"] = {"scene_label": facts.get("label"), "new_end_s": round(tl["planned_end"] / fps, 6),
+                           "dry_run": True}
+    if facts["playback"][1] != tl["planned_end"]:
+        plan["relength_first"] = True
+    plan["slot"] = {"mode": args["slot"], "range": tl["slot"], "range_before": tl["slot_before"],
+                    "shift": tl["slot_shift"], "skip_frames": tl["slot_skip"], "her_frame_at_cut": Hc,
+                    "start_offset_ticks": sk["offset_ticks"], "her_range": [her_lo, her_hi],
+                    "media_track_note": "later: a MovieSceneMediaTrack section over the same range"}
+    h0 = int(cfg5["preroll_her_start"])
+    pr_len = tl["preroll"][1] - tl["preroll"][0]
+    h_end = h0 + pr_len * float(facts["her_fps"]) / fps
+    plan["preroll"] = {"range": list(tl["preroll"]), "her_frame_start": h0, "her_frame_end": h_end,
+                       "start_offset_ticks": (h0 - int(her_lo)) * int(round(float(facts["her_tpf"]))),
+                       "first_strike": sch["frames"][0] if sch["frames"] else None,
+                       "note": "klara_preroll_s4.py writes it (own record); main slot keeps her frame %d at the cut" % Hc}
+    if not (int(her_lo) <= h0 and h_end <= int(her_hi)):
+        refusals.append("PREROLL_OUTSIDE_HER_RANGE: her [%d, %.1f) vs [%d, %d)" % (h0, h_end, her_lo, her_hi))
+    if sch["frames"] and tl["preroll"][0] > sch["frames"][0]:
+        refusals.append("PREROLL_AFTER_FIRST_STRIKE: %d > %d" % (tl["preroll"][0], sch["frames"][0]))
+    plan["audio"] = audio_report(facts.get("her_audio"), facts.get("scene_audio"), facts.get("scene_markers"), Hc,
                                  float(facts.get("her_fps") or fps), tl["cut"], fps, tl["planned_end"])
     plan["footprint"] = facts.get("footprint")
     plan["apply_ready"] = not refusals
@@ -2550,6 +3290,19 @@ def run_dry(args, run, world):
                fpr.get("kept_count", 0), json.dumps(fpr.get("excluded"))[:3000]))
     unreal.log("KLARAREVEAL_SEES|run=%s|S%s|%s|hide=%s" % (run, key, p.get("first_frame_sees"), p.get("hide")))
     unreal.log("KLARAREVEAL_UNRESOLVED|run=%s|S%s|%s" % (run, key, facts["copy_bindings_unresolved"]))
+    if p.get("version") == 5:                                                # v5 only (S1 logs nothing new)
+        pg = p.get("path_gate") or {}
+        unreal.log("KLARAREVEAL_V5_GATE|run=%s|S%s|samples=%s|plane_front_x=%s|down_ranges=%s|hits=%s"
+                   % (run, key, pg.get("n_samples"), pg.get("plane_front_x"), pg.get("down_ranges"),
+                      json.dumps(pg.get("hits"), default=str)[:3000]))
+        bc = (facts.get("v5") or {}).get("backcloth") or {}
+        unreal.log("KLARAREVEAL_V5_BACKCLOTH|run=%s|S%s|%s" % (run, key, json.dumps(bc, default=str)[:3000]))
+        unreal.log("KLARAREVEAL_V5_GLIDE_END|run=%s|S%s|%s|sees=%s" % (run, key, json.dumps(p.get("glide_end"), default=str),
+                                                                       p.get("glide_end_sees")))
+        unreal.log("KLARAREVEAL_V5_STRIKES|run=%s|S%s|lights=%s|cover=%s|frames=%s" % (
+            run, key, (p.get("v5") or {}).get("strike_lights"), json.dumps((p.get("v5") or {}).get("light_cover")),
+            (p.get("strike_schedule") or {}).get("frames")))
+        unreal.log("KLARAREVEAL_V5_PREROLL|run=%s|S%s|%s" % (run, key, json.dumps(p.get("preroll"), default=str)))
     unreal.log("KLARAREVEAL_EXTEND_FIRST|run=%s|S%s|extend_scene_playback_mode=%s"
                % (run, key, json.dumps(p.get("extend_mode"), ensure_ascii=False)))
     for t in p["refusals"]:
@@ -2773,7 +3526,7 @@ def run_apply(args, run, world):
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DIRTY_AFTER_SAVE|%s" % json.dumps(_census()))
     rec.update(applied=True, cuts_after=after_cuts, hookin_after=_hookin_bindings(seq), glide_camera=plan["glide"]["camera_label"],
-               version=3)
+               version=5 if plan.get("version") == 5 else 3)
     update_record(rpath, rec)
     unreal.log("KLARAREVEAL_APPLY_OK|run=%s|scene=S%s|backup=%s|record=%s|next=rebuild_managed_master + "
                "SavedMasterMatchesShow + SceneCutBindingsResolve + live check_scene_cut_bindings" % (run, key, folder, rpath))
@@ -2811,6 +3564,9 @@ def run_revert(args, run, world):
     row = args["scenes"][key]
     rpath = os.path.join(_here(), "klara_reveal_record_S%s.json" % key)
     rec = load_json(rpath)
+    pre = os.path.join(_here(), "klara_preroll_record_S%s.json" % key)          # v5: the pre-roll goes first
+    if os.path.exists(pre) and load_json(pre).get("applied"):
+        _stop(run, "PREROLL_APPLIED|%s|nothing changed: run klara_preroll_s4.py REVERT first" % pre)
     seq = unreal.load_asset(row["scene_sequence"])
     copy = unreal.load_asset(row["copy"])
     if _hookin_bindings(seq) != rec["hookin_after"]:
