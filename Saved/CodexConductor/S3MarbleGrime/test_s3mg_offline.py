@@ -161,19 +161,101 @@ check("runner_single_ok_after_stage", src.count("_OK|") == 1 and src.index("_OK|
       and "except Exception" in src)
 check("runner_rejects_placeholder_run", '"REPLACE" in run' in src)
 check("runner_purges_cache", "purge_saved_module_cache.py" in src)
-for st in ("assets", "verify_assets", "apply", "stills", "restore", "census"):
+for st in ("assets", "verify_assets", "prespawn", "apply", "stills", "restore", "unspawn", "census"):
     req = json.load(open(HERE + "s3mg_%s_request.json" % st))
     check("request_" + st, req["arguments"]["tool_name"] == "ExecuteProjectPythonFile" and
           req["arguments"]["arguments"]["relativeSavedPath"] == "CodexConductor/S3MarbleGrime/s3mg_run_%s.py" % st)
     w = open(HERE + "s3mg_run_%s.py" % st, encoding="utf-8").read()
     check("wrapper_" + st, '"S3MG_STAGE": "%s"' % st in w)
 
-# 8) forbidden calls absent from the bench
-bsrc = open(HERE + "s3mg_bench.py", encoding="utf-8").read()
-for bad in ("save_asset", "save_packages", "save_current_level", "save_map", "end_play", "request_end_play",
-            "delete_material_expression", "delete_all_material_expressions", "load_map", "quit_editor",
-            "EditorLevelLibrary", "set_level_viewport", "get_sequence_player", "k2_get_"):
-    check("no_" + bad, bad not in bsrc)
+# 8) forbidden calls absent from the bench CODE (docstring excluded: it names the APIs it avoids)
+import ast
+full = open(HERE + "s3mg_bench.py", encoding="utf-8").read()
+bsrc = full.split('"""', 2)[2]
+
+
+def code_names(text):
+    """Every attribute / name identifier used in code (strings and comments do not count)."""
+    out = set()
+    for n in ast.walk(ast.parse(text)):
+        if isinstance(n, ast.Attribute):
+            out.add(n.attr)
+        elif isinstance(n, ast.Name):
+            out.add(n.id)
+    return out
+
+
+names_all = code_names(full)
+FORBIDDEN = ("save_asset", "save_packages", "save_current_level", "save_map", "save_dirty_packages", "end_play",
+             "request_end_play", "delete_material_expression", "delete_all_material_expressions", "load_map",
+             "quit_editor", "EditorLevelLibrary", "set_level_viewport_camera_info", "get_sequence_player",
+             "k2_get_scalar_parameter_value", "k2_get_texture_parameter_value",
+             "begin_deferred_actor_spawn_from_class", "finish_spawning_actor")
+for bad in FORBIDDEN:
+    check("no_" + bad, bad not in names_all)
+# + control: the detector does see a forbidden call when one is present
+doctored = full + "\n\ndef _x(u, w, c, t):\n    return u.GameplayStatics.begin_deferred_actor_spawn_from_class(w, c, t)\n"
+check("control_detector_sees_begin_deferred", "begin_deferred_actor_spawn_from_class" in code_names(doctored))
+# - control: a docstring/comment mention alone is NOT a hit
+check("control_docstring_mention_not_a_hit", "begin_deferred_actor_spawn_from_class" in full.split('"""', 2)[1]
+      and "begin_deferred_actor_spawn_from_class" not in names_all)
+
+# 9) PIE region: no spawn / destroy / label / editor-subsystem names between the PIE markers
+PIE_FORBIDDEN = ("spawn_actor_from_class", "destroy_actor", "EditorActorSubsystem", "set_actor_label",
+                 "spawn_actor_from_object", "attach_to_actor")
+
+
+def pie_region_hits(text):
+    a, b = text.index("# ---- PIE BEGIN"), text.index("# ---- PIE END")
+    region = text[a:b]
+    names = code_names("\n".join(l for l in region.splitlines() if not l.startswith("# ----")))
+    return sorted(n for n in PIE_FORBIDDEN if n in names)
+
+
+check("pie_region_clean", pie_region_hits(full) == [], pie_region_hits(full))
+bad_pie = full.replace("# ---- PIE END ----", "def _y(s, c):\n    return s.spawn_actor_from_class(c, 0, 0)\n# ---- PIE END ----")
+check("control_pie_region_detects_spawn", pie_region_hits(bad_pie) == ["spawn_actor_from_class"], pie_region_hits(bad_pie))
+check("pie_stages_inside_region", all(full.index("# ---- PIE BEGIN") < full.index("def " + f) < full.index("# ---- PIE END")
+                                      for f in ("stage_apply", "stage_stills", "stage_restore", "pose_check")))
+check("editor_spawn_only_in_prespawn", "spawn_actor_from_class" in full[full.index("def stage_prespawn"):
+                                                                       full.index("# ---- PIE BEGIN")])
+
+# 10) pool plan: 3 strips + 60 grease + 1 band, unique labels, all ZZ_S3MG_ prefixed
+specs = B["pool_specs"](plan)
+labels = [s["label"] for s in specs]
+check("pool_count_64", len(specs) == 3 + plan["prints"]["count"] + 1 and plan["prints"]["count"] == 60, len(specs))
+check("pool_labels_unique_prefixed", len(set(labels)) == len(labels) and all(l.startswith("ZZ_S3MG_") for l in labels))
+
+# 11) prespawn refusals (mocked probes); + control: a clean editor passes the census gates and stops at the assets gate
+g = B["stage_prespawn"].__globals__
+names = ("_u", "pie_world_or_none", "editor_world", "census", "tagged")
+saved = {k: g[k] for k in names}
+try:
+    def pre(token, name, **over):
+        g.update(_u=lambda: types.SimpleNamespace(log=lambda *a: None), pie_world_or_none=lambda: None,
+                 editor_world=lambda: object(), census=lambda: {"maps": [], "content": []}, tagged=lambda w: [])
+        g.update(**over)
+        try:
+            B["stage_prespawn"]("S3MG-TESTPRE", {})
+            check(name, False, "no raise")
+        except Exception as e:
+            check(name, token in str(e), e)
+
+    pre("PIE_RUNNING", "prespawn_refuses_in_pie", pie_world_or_none=lambda: object())
+    pre("MAP_ALREADY_DIRTY", "prespawn_refuses_dirty_map", census=lambda: {"maps": ["/Game/X"], "content": []})
+    pre("FOREIGN_DIRTY_CONTENT", "prespawn_refuses_foreign_content",
+        census=lambda: {"maps": [], "content": ["/Game/Someone/Else"]})
+    pre("POOL_EXISTS", "prespawn_refuses_existing_pool",
+        tagged=lambda w: [types.SimpleNamespace(get_actor_label=lambda: "ZZ_S3MG_Strip_0")])
+    import os as _os
+    last = HERE + "s3mg_assets_last.json"
+    if not _os.path.isfile(last):
+        pre("ASSETS_NOT_VERIFIED", "control_clean_editor_passes_census_gates",
+            census=lambda: {"maps": [], "content": [B["ASSET_DIR"] + "/Textures/T_S3MG_GreaseAtlas"]})
+    else:
+        check("control_clean_editor_passes_census_gates", True)
+finally:
+    g.update(saved)
 
 print("SUMMARY %d passed, %d failed" % (len(passes), len(fails)))
 json.dump({"passed": len(passes), "failed": fails}, open(HERE + "test_s3mg_offline_report.json", "w"), indent=1)

@@ -183,3 +183,67 @@ Still [inferred] until the run: that a decal material with BaseColor unconnected
 9. The conductor ends PIE. Then send `s3mg_census_request.json` → `S3MG_CENSUS_OK|run=..|editor_clean_of_bench|dirty=..`. The dirty content will list the unsaved `/Game/ZZ_Bench/S3MarbleGrime` assets, which is expected.
 10. For another still (C_phys, C_band, a different intensity): set a new run id and variant, then repeat steps 3-9. Steps 1-2 are REUSED within the same editor session.
 11. Gary: Don't-Save restart, which discards the ZZ_Bench assets.
+
+## 8. Bench v3: editor-world POOL (supersedes the spawn route and the call sequence of section 7)
+
+**Why** [measured by the conductor]: UE 5.8 Python has no way to spawn an actor into a running PIE world.
+- `GameplayStatics.begin_deferred_actor_spawn_from_class` and `finish_spawning_actor` raised AttributeError in this editor twice: `Saved/CodexFlatV3/swapkit/stills/before/FV3STB-20261003-02/st_pie_first_check_runtime.json` and `Saved/CodexConductor/LookBench/20261005-044136/look_bench_result.json`.
+- `GameplayStatics.h:66-67,70-71` marks both BlueprintInternalUseOnly [decl].
+- `look_bench.py:5-10` reached the same conclusion and built a pool.
+
+v3 follows that pattern. A new `prespawn` stage runs in the EDITOR world before PIE, using `EditorActorSubsystem.spawn_actor_from_class` (`EditorActorSubsystem.h:227-228`). It spawns a hidden pool of 64 actors, all labelled `ZZ_S3MG_*` and tagged `ZZ_S3MG`:
+- 3 RectLights (`ZZ_S3MG_Strip_0..2`): 300×120 cm, 0 cd, attached KEEP_WORLD to S3 Hangar Root at the plan's LANDED positions;
+- 60 grease decals (`ZZ_S3MG_Grease_<print>`): SNAP_TO_TARGET onto their print decal, with the grease master as their material;
+- 1 band decal (`ZZ_S3MG_Band`): attached to the anchor print's wall, shown only by the `*_band` variants.
+
+PIE copies the pool. In PIE, `apply` only makes MIDs, swaps materials, shows actors and sets intensities on the PIE copies. It first checks that every copy exists, is still hidden, and sits within 2 cm of the plan for the current hangar pose. `restore` hides the copies again and restores the liner and print materials; it never spawns or destroys anything in PIE. After PIE ends, a new `unspawn` stage destroys the editor-world pool by reference. It refuses to delete any ZZ_S3MG actor that is not in the prespawn record, and it never saves. The map stays dirty, so a Don't-Save restart follows; saves would refuse on ZZ_ actors anyway (memory puss-benches-are-level-activity).
+
+Gates added in v3:
+- `prespawn` refuses while PIE runs.
+- It refuses if the MAP is already dirty, because the Don't-Save restart would throw away someone else's level work.
+- It refuses if any dirty content is not our ZZ_Bench assets, if a ZZ_S3MG actor already exists, if the run was already prespawned, or if the editor root is not LANDED (±1 cm, rotation 0).
+- It writes the pool labels to `s3mg_prespawn_<run>.json` BEFORE the first spawn. On any failure it destroys that call's spawns by reference.
+- Each fresh PIE in a run gets its own `"pie": N` in `s3mg_args.json`. Its files are `s3mg_{originals,applied,restored}_<run>-p<N>.json`.
+
+API additions [decl]:
+- `EditorActorSubsystem.spawn_actor_from_class` / `destroy_actor` (`EditorActorSubsystem.h:227-236`);
+- `Actor.set_actor_hidden_in_game` (`Actor.h:1921-1922`) and `set_actor_enable_collision` (`:1925-1926`);
+- `SceneComponent.is_visible` (`SceneComponent.h:852-853`). It is used instead of `AActor::IsHidden`, which is not a UFUNCTION (`Actor.h:4523`).
+- `set_actor_label(label, False)` and `set_visibility(False, True)`: as used in `look_bench.py:1337-1363`.
+
+Harness `test_s3mg_offline.py`: **67/67 PASS** [measured]. New since v2:
+- an AST scan of the bench CODE: none of `begin_deferred_actor_spawn_from_class`, `finish_spawning_actor`, `k2_get_*`, `EditorLevelLibrary`, save, end-PIE, node-delete or level-load names appear;
+  - **+ control:** a doctored copy containing a `begin_deferred_*` call is detected;
+  - **− control:** the docstring's mention alone is not counted.
+- a scan of the PIE region (apply, stills, restore): no `spawn_actor_from_class`, `destroy_actor`, `EditorActorSubsystem`, `set_actor_label`, `attach_to_actor`;
+  - **+ control:** a doctored spawn in that region is detected.
+- `spawn_actor_from_class` appears only in `stage_prespawn`;
+- the pool is 64 unique `ZZ_S3MG_` labels;
+- `prespawn` refusals are mocked: in PIE, dirty map, foreign dirty content, existing pool;
+  - **+ control:** a clean editor passes the census gates and stops at the assets gate;
+- request files and wrappers exist for all 8 stages.
+
+Coexistence with the shore bench:
+- The shore PIE bench now BORROWS the PIE deck copy and spawns nothing: tag `ZZ_S3ShoreGroundBench`; `BEGIN_BENCH_PIE` section at `s3_shore_ground_ue.py:720-1021`, with `run_bench_pie_apply` at :856 and `run_bench_pie_restore` at :953. Its editor-world `run_bench` is at :586-704 (the citation was corrected in our docstring). The section-7 BLOCKER no longer applies.
+- Tags never collide (exact-match, `ZZ_S3MG` vs `ZZ_S3ShoreGroundBench`).
+- Its PIE apply has no clean-census gate, so our prespawn dirt does not block it [decl, read :856-930]. Our prespawn, however, needs a CLEAN map, so it must run before anything else dirties the level.
+
+### Updated interleaved call sequence (one MCP call per line; wait for the marker)
+
+0. Offline: set `s3mg_args.json` to `{"run":"S3MG-<UTC>","variant":"C","pie":1}`. Run `test_s3mg_offline.py` and expect 67/67.
+1. Editor, no PIE, CLEAN map: `s3mg_assets_request.json` → `S3MG_ASSETS_OK|run=..|mode=CREATED|unsaved=1`.
+2. About 30 s later: `s3mg_verify_assets_request.json` → `S3MG_VERIFY_ASSETS_OK|run=..|ps=N`. If the reason is `PENDING_COMPILE`, resend.
+3. `s3mg_prespawn_request.json` → `S3MG_PRESPAWN_RECORD|..|n=64`, then `S3MG_PRESPAWN_OK|run=..|pool=64|hidden|map_dirty_expected|NEEDS_DONT_SAVE_RESTART`.
+4. (Shore) any editor-side shore prep that needs no clean map.
+5. The conductor starts a FRESH PIE (transport outside S3).
+6. `s3mg_apply_request.json` → `S3MG_BENCH_ORIGINALS|..|pie=<run>-p1`, then `S3MG_APPLY_OK|run=..|pie=..-p1|variant=C|shown=63|mids=61|max_pose_err_cm=..`.
+7. (Shore) its PIE apply (`run_bench_pie_apply`) → its own OK marker.
+8. `s3mg_stills_request.json` → `S3MG_STILLS_OK|..|armed`, then async `PASSAGE_STILLS_OK|run=PSTILLS-S3-..-s3mg_..-p1`. This is ONE still with both benches applied.
+9. `s3mg_restore_request.json` (PIE still in S3) → `S3MG_RESTORE_OK|run=..|pie=..-p1|hidden=64|pose=POSE_OK`. `RESTORED_BUT_STILL_INVALID` means discard the still.
+10. (Shore) its PIE restore (`run_bench_pie_restore`).
+11. For another still: the conductor ends PIE, sets `"pie": 2` (and the variant if needed), then repeat steps 5-10. The pool persists in the editor world.
+12. The conductor ends PIE. Then `s3mg_unspawn_request.json` → `S3MG_UNSPAWN_OK|run=..|destroyed=64|not_saved|NEEDS_DONT_SAVE_RESTART`.
+13. `s3mg_census_request.json` → `S3MG_CENSUS_OK|run=..|editor_clean_of_bench|dirty=..` (the map is dirty, as expected).
+14. Gary: Don't-Save restart, which discards the map dirt and the unsaved ZZ_Bench assets.
+
+Any `S3MG_FAILED|run=..|stage=..|reason=..` stops the sequence. If it fails at prespawn, the stage has already destroyed that call's spawns; check `s3mg_prespawn_<run>.json`.

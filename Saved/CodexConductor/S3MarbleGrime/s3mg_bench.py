@@ -1,52 +1,66 @@
-"""S3 MARBLE GRIME BENCH v2 -- PREPARED, NOT RUN (offline, 7 Oct). Gary picked variant C (grease + scratches +
-faint grime + three 3 x 1.2 m mirror-angle window strips, DiffuseScale ~0.1). GO for a PIE bench, NO SAVE; Gary
-does a Don't-Save restart afterwards.
+"""S3 MARBLE GRIME BENCH v3 (editor-world POOL) -- PREPARED, NOT RUN (offline, 7 Oct). Gary picked variant C (grease +
+scratches + faint grime + three 3 x 1.2 m mirror-angle window strips, DiffuseScale ~0.1). GO for a PIE bench, NO SAVE;
+Gary does a Don't-Save restart afterwards in any case.
+
+WHY A POOL (v3, 7 Oct): UE 5.8 Python has NO route that spawns into a running PIE world.
+GameplayStatics.begin_deferred_actor_spawn_from_class / finish_spawning_actor raise AttributeError in this editor
+[measured twice: Saved/CodexFlatV3/swapkit/stills/before/FV3STB-20261003-02/st_pie_first_check_runtime.json,
+Saved/CodexConductor/LookBench/20261005-044136/look_bench_result.json; GameplayStatics.h:66-67,70-71 mark them
+BlueprintInternalUseOnly]. Same answer as look_bench.py:5-10: spawn a hidden POOL into the EDITOR world before PIE
+(EditorActorSubsystem.spawn_actor_from_class), let PIE duplicate it, and only set properties on the PIE copies.
 
 Driven ONLY through s3mg_run.py (one ExecuteProjectPythonFile per stage via the s3mg_run_<stage>.py wrappers and
-s3mg_<stage>_request.json). Args: S3MarbleGrime/s3mg_args.json {"run": "S3MG-...", "variant": "C"}.
+s3mg_<stage>_request.json). Args: S3MarbleGrime/s3mg_args.json {"run": "S3MG-...", "variant": "C", "pie": 1}
+("run" spans prespawn..unspawn; "pie" numbers each fresh PIE session of that run, one still each).
 
 STAGES
-  plan           offline: s3mg_bench_plan.json from geometry.json (already written; rerun is harmless).
-  assets         EDITOR, refuses while PIE runs. Imports 6 textures (<= 2048) to /Game/ZZ_Bench/S3MarbleGrime/Textures
-                 and builds create-only M_ZZ_S3MG_GreaseDecal (Deferred Decal, Translucent; Opacity/Roughness/Normal,
-                 NO BaseColor). IDEMPOTENT-SAFE: all 7 assets present with matching settings -> REUSED (no change);
-                 none present -> CREATED; any other mix -> FAILED (PARTIAL), nothing touched. Never saves, never
-                 deletes a node, never edits a pre-existing asset. GC after each half.
-  verify_assets  EDITOR. FAILS on "Failed to compile"/"Default Material" for the master since this run's START
-                 marker; PENDING (FAILED reason=pending, rerun later) while PS instructions are 0.
-  apply          PIE ONLY, in a FRESH PIE (transport outside S3). Originals JSON written + path logged BEFORE any
-                 change. PIE-world copies only:
-                   liner StaticMeshActor_350: MID of its own R0 MI + new textures + Min/Max Roughness;
-                   60 in-frame print decals: MID of their own v3 MI with OpacityGain 0.22;
-                   per print: a ZZ_S3MG grease decal ATTACHED to that print decal at relative identity (rides along
-                     with the hangar rise / wall hinge whatever pose PIE starts in);
-                   B/C-family: band decal / three RectLights, positioned from the LANDED plan through the CURRENT
-                     transform of their anchor (lights: S3 Hangar Root; band: a print decal on the R wall) and
-                     attached KEEP_WORLD (lights to the root, band to the wall), so they land correctly when the
-                     stills scrub into S3.
+  plan           offline: s3mg_bench_plan.json from geometry.json (rerun is harmless).
+  assets         EDITOR, refuses while PIE runs. 6 textures (<= 2048) + create-only M_ZZ_S3MG_GreaseDecal (Deferred
+                 Decal, Translucent; Opacity/Roughness/Normal, NO BaseColor) under /Game/ZZ_Bench/S3MarbleGrime.
+                 IDEMPOTENT-SAFE: all 7 present + matching -> REUSED; none -> CREATED; any other mix -> FAILED.
+  verify_assets  EDITOR. FAILS on compile errors since this run's START marker; PENDING while PS instructions are 0.
+  prespawn       EDITOR, PIE NOT running. Refuses if the MAP is already dirty (a Don't-Save restart would discard
+                 someone else's level work), if dirty content is anything but our unsaved ZZ_Bench assets, if any
+                 ZZ_S3MG actor exists, or if S3 Hangar Root is not LANDED (+-1 cm, rot 0). Writes the pool labels +
+                 census to s3mg_prespawn_<run>.json BEFORE the first spawn, then spawns into the EDITOR world, labelled
+                 ZZ_S3MG_*, tagged ZZ_S3MG, every one HIDDEN (component invisible + hidden in game; lights 0 cd):
+                   3 RectLights ZZ_S3MG_Strip_0..2 at the plan's LANDED positions, attached KEEP_WORLD to S3 Hangar Root;
+                   60 grease decals ZZ_S3MG_Grease_<print> SNAP_TO_TARGET-attached to their print decal, material =
+                     the grease master asset (MIDs are made in PIE), decal size copied, sort order +1;
+                   1 band decal ZZ_S3MG_Band at its landed pose, attached KEEP_WORLD to the anchor print's wall.
+                 Reads every spawn back (world, label, tag, parent, position). Any failure -> destroys THIS call's spawns
+                 by reference -> FAILED. It dirties the map: expected, NEVER saved (saves refuse on ZZ_ actors anyway).
+  apply          PIE ONLY, FRESH PIE (transport outside S3). Originals (liner + print materials + pool copy state) to
+                 s3mg_originals_<run>-p<pie>.json BEFORE any change. Finds every pool copy by label + tag (refuses if
+                 any is missing, duplicated or already shown) and checks it sits where the plan says for the CURRENT
+                 hangar pose (landed->now rigid map through the root / the anchor print; grease = on its print).
+                 Then only sets MIDs / swaps materials / shows / sets intensities on PIE copies:
+                   liner StaticMeshActor_350: MID of R0 + new textures + Min/Max Roughness;
+                   60 print decals: MID of their own v3 MI with OpacityGain 0.22;
+                   grease decals: MID of the master with the print's atlas rect + grease params, shown;
+                   variant lights: intensity + DiffuseScale set and read back, shown; band only for *_band variants.
                  Every change read back. Any exception -> restore in the same call -> FAILED.
-  stills         PIE: refuses unless this run's apply record is complete and its ZZ_S3MG actors are present, then
-                 arms the shared scene_stills.py (Show Root transport scrub_to_master_frame) for S3 fraction 0.3 ONLY
-                 (a scrub from inside S3 is refused, UNSAFE_EXTERNAL_CLOCK; one still per fresh PIE). Its own async
-                 markers follow: PASSAGE_STILLS_OK|run=<stills run> / PASSAGE_STILLS_FAILED.
-  restore        PIE: FIRST reads the bench actors' world poses and, if the hangar root is LANDED, checks them against
-                 the plan (POSE_OK / POSE_MISMATCH -> the still is invalid -> FAILED). Then restores every PIE material
-                 from the originals file, destroys only actors tagged ZZ_S3MG (by reference), verifies per object.
-                 If PIE already ended: nothing to restore (PIE copies died); reported as pie=gone.
-  census         EDITOR world: liner slot 0 is still MI_S3_Marble_Tiling_Daylight_R0; no ZZ_S3MG actor; report dirty.
+  stills         PIE: refuses unless this pie's apply record is complete and the shown pool copies are present; arms
+                 the shared scene_stills.py (Show Root transport scrub_to_master_frame) for S3 fraction 0.3 ONLY.
+                 Async markers: PASSAGE_STILLS_OK|run=<stills run> / PASSAGE_STILLS_FAILED.
+  restore        PIE: FIRST checks (root LANDED) that the shown pool copies are within 2 cm of the plan and that our
+                 MIDs are still applied (else the still is invalid -> FAILED after restoring). Then restores the liner +
+                 print materials from the originals file and HIDES the pool copies (lights 0 cd). No PIE spawn/destroy.
+                 PIE already ended: nothing to restore (copies died with PIE): pie=gone.
+  unspawn        EDITOR, PIE NOT running: destroys the editor-world ZZ_S3MG actors listed in the prespawn record (by
+                 reference, EditorActorSubsystem.destroy_actor), verifies none left. Does NOT save; the map stays dirty
+                 -> Don't-Save restart.
+  census         EDITOR: liner slot 0 still MI_S3_Marble_Tiling_Daylight_R0; no ZZ_S3MG actor; report dirty packages.
 
-COEXISTENCE with the S3 shore-ground bench (Saved/CodexConductor/S3Shore/s3_shore_ground_ue.py):
-  own tag ZZ_S3MG and label prefix ZZ_S3MG_ (shore: tag RigAtmos.S3ShoreGround, label ZZ_S3ShoreGroundBench);
-  own originals/applied files; restore touches only objects in our originals file + our tag; no census EQUALITY
-  gate in apply/restore (another stream's dirt is not ours) -- census is reported, map dirtiness from US is checked
-  per object (PIE copies only). We do not touch S3 Hangar Deck / Beach V2 Sand (shore's objects).
-  NOTE (read 7 Oct): shore run_bench works on the EDITOR world and destroys its spawn in `finally` in the same call
-  (s3_shore_ground_ue.py:307-348), so as written it can NOT be in a PIE still: PIE is a duplicate of the editor world
-  taken at PIE start. To share one still, the shore bench needs a PIE-world apply/restore split like this one.
+COEXISTENCE with the S3 shore-ground bench (Saved/CodexConductor/S3Shore/s3_shore_ground_ue.py): its PIE bench now
+BORROWS the PIE deck copy (tag ZZ_S3ShoreGroundBench; BEGIN_BENCH_PIE section ~720-1021: run_bench_pie_apply :856,
+run_bench_pie_restore :953) and spawns nothing; its older editor-world run_bench is ~586-704. Our tag ZZ_S3MG and label
+prefix ZZ_S3MG_ never match theirs (exact-match tags); separate files; our restore touches only our originals + our
+tag; no census-equality gate in apply/restore (their dirt is not ours). We never touch S3 Hangar Deck / Beach V2 Sand.
+Our prespawn must run BEFORE PIE starts and needs a CLEAN map; their PIE apply needs only a running PIE.
 
-API names: each one is checked against UE 5.8 headers (D:/Unreal Engine/UE_5.8) and/or prior use in this project's
-Saved/ scripts; no generated stub exists (Intermediate/PythonStub absent, searched 7 Oct). Table in
-Docs/Conductor/S3_MARBLE_GRIME_PREP_2026-10-07.md section 7. Markers carry run=<id>:
+API names: each one is checked against UE 5.8 headers (D:/Unreal Engine/UE_5.8) and/or prior use in Saved/ scripts;
+no generated stub exists. Table: Docs/Conductor/S3_MARBLE_GRIME_PREP_2026-10-07.md section 8. Markers carry run=<id>:
   S3MG_<STAGE>_START|run=  S3MG_<STAGE>_OK|run=  S3MG_FAILED|run=|stage=|reason=
 """
 import json
@@ -282,16 +296,6 @@ def landed_to_now(u, anchor_landed, anchor_now, loc, x_axis, z_axis):
     return p, r
 
 
-def spawn_pie(u, world, cls, loc, rot):
-    t = u.Transform(loc, rot, u.Vector(1.0, 1.0, 1.0))
-    a = u.GameplayStatics.begin_deferred_actor_spawn_from_class(world, cls, t)
-    require(a is not None, "SPAWN_BEGIN|" + cls.__name__)
-    a = u.GameplayStatics.finish_spawning_actor(a, t)
-    require(a is not None and a.get_world() == world, "SPAWN_WORLD|" + cls.__name__)
-    a.tags = [u.Name(TAG)]
-    return a
-
-
 def attach(u, child, parent, rule):
     r = getattr(u.AttachmentRule, rule)
     child.attach_to_actor(parent, u.Name("None"), r, r, r, False)
@@ -503,42 +507,223 @@ def stage_verify_assets(run, args):
     return "ps=%d" % ps
 
 
-# ------------------------------------------------------------------------------------------- stage: apply (PIE)
+# ------------------------------------------------------------------------------------------- pool plan (shared)
+def pool_specs(plan):
+    """Every editor-world pool actor any variant can need (band always spawned, shown only by *_band variants)."""
+    specs = []
+    for i, L in enumerate(plan["lights"]):
+        specs.append({"label": "%sStrip_%d" % (PREFIX, i), "kind": "light", "plan": L})
+    for lab in plan["prints"]["labels"]:
+        specs.append({"label": PREFIX + "Grease_" + lab.replace(" ", "_"), "kind": "grease", "print": lab})
+    specs.append({"label": PREFIX + "Band", "kind": "band", "plan": plan["band"]})
+    return specs
+
+
+def pool_map(world):
+    out = {}
+    for a in tagged(world):
+        lab = str(a.get_actor_label())
+        require(lab not in out, "POOL_DUPLICATE|" + lab)
+        out[lab] = a
+    return out
+
+
+def comp_of(actor):
+    u = _u()
+    if isinstance(actor, u.RectLight):
+        return actor.get_editor_property("rect_light_component")
+    return decal_comp(actor)
+
+
+def is_shown(actor):
+    """USceneComponent::IsVisible (UFUNCTION) on the pool actor's main component; AActor::IsHidden is not a UFUNCTION."""
+    return bool(comp_of(actor).is_visible())
+
+
+def show(actor, comp, on):
+    comp.set_visibility(bool(on), True)
+    actor.set_actor_hidden_in_game(not on)
+
+
+def own_content_dirt(c):
+    return [p for p in c["content"] if not p.startswith(ASSET_DIR)]
+
+
+# ------------------------------------------------------------------------------------------- stage: prespawn (EDITOR)
+def stage_prespawn(run, args):
+    u = _u()
+    require(pie_world_or_none() is None, "PIE_RUNNING|prespawn runs in the editor world before PIE")
+    world = editor_world()
+    c0 = census()
+    require(not c0["maps"], "MAP_ALREADY_DIRTY|%s|a Don't-Save restart would discard it; save/settle first" % c0["maps"])
+    require(not own_content_dirt(c0), "FOREIGN_DIRTY_CONTENT|%s" % own_content_dirt(c0)[:6])
+    require(not tagged(world), "POOL_EXISTS|%s|run unspawn (or Don't-Save restart) first"
+            % [str(a.get_actor_label()) for a in tagged(world)][:6])
+    require(not os.path.isfile(run_file("prespawn", run)), "RUN_ALREADY_PRESPAWNED|use a new run id")
+    last = HERE + "/s3mg_assets_last.json"
+    arec = json.load(open(last)) if os.path.isfile(last) else {}
+    require(arec.get("verified"), "ASSETS_NOT_VERIFIED|run assets + verify_assets in this editor session")
+    require(master_ok(master_state()), "ASSETS_GONE|master")
+    plan = json.load(open(PLAN))
+    labels_tbl = by_label(world)
+    root = one(labels_tbl, ROOT_LABEL)
+    rl, rr = vec(root.get_actor_location()), root.get_actor_rotation()
+    require(max(abs(a - b) for a, b in zip(rl, ROOT_LANDED["loc"])) <= 1.0
+            and max(abs(rr.roll), abs(rr.pitch), abs(rr.yaw)) <= 0.01,
+            "ROOT_NOT_LANDED|%s|%s" % (rl, (rr.roll, rr.pitch, rr.yaw)))
+    dtbl = by_label(world, u.DecalActor)
+    specs = pool_specs(plan)
+    rec = {"run": run, "world": world.get_path_name(), "census_before": c0, "labels": [s["label"] for s in specs],
+           "spawned": [], "complete": False}
+    write_verified(run_file("prespawn", run), rec)                 # labels on disk BEFORE the first spawn
+    u.log("S3MG_PRESPAWN_RECORD|run=%s|path=%s|n=%d" % (run, run_file("prespawn", run), len(specs)))
+    actor_sub = u.get_editor_subsystem(u.EditorActorSubsystem)
+    gm = u.EditorAssetLibrary.load_asset(GREASE_MASTER)
+    spawned = []
+
+    def spawn(cls, label, loc, rot):
+        a = actor_sub.spawn_actor_from_class(cls, loc, rot)
+        require(a is not None, "SPAWN_FAILED|" + label)
+        spawned.append(a)
+        rec["spawned"].append({"label": label, "path": a.get_path_name()})
+        require(a.get_world() == world, "SPAWN_NOT_IN_EDITOR_WORLD|" + label)
+        a.set_actor_label(label, False)
+        a.set_editor_property("tags", [u.Name(TAG)])
+        a.set_actor_enable_collision(False)
+        a.get_editor_property("root_component").set_mobility(u.ComponentMobility.MOVABLE)
+        return a
+
+    try:
+        for s in specs:
+            if s["kind"] == "light":
+                L = s["plan"]
+                a = spawn(u.RectLight, s["label"], u.Vector(*L["location"]),
+                          u.MathLibrary.make_rot_from_xz(u.Vector(*L["x"]), u.Vector(*L["z"])))
+                c = a.get_editor_property("rect_light_component")
+                c.set_mobility(u.ComponentMobility.MOVABLE)
+                c.set_intensity_units(u.LightUnits.CANDELAS)
+                c.set_intensity(0.0)
+                c.set_source_width(L["source_width"])
+                c.set_source_height(L["source_height"])
+                c.set_barn_door_angle(L["barn_door_angle"])
+                c.set_barn_door_length(L["barn_door_length"])
+                c.set_attenuation_radius(L["attenuation_radius"])
+                c.set_specular_scale(1.0)
+                c.set_cast_shadows(False)
+                attach(u, a, root, "KEEP_WORLD")
+                show(a, c, False)
+                want = L["location"]
+            elif s["kind"] == "grease":
+                p = one(dtbl, s["print"])
+                pdc = decal_comp(p)
+                a = spawn(u.DecalActor, s["label"], p.get_actor_location(), p.get_actor_rotation())
+                attach(u, a, p, "SNAP_TO_TARGET")
+                c = decal_comp(a)
+                c.set_editor_property("decal_size", pdc.get_editor_property("decal_size"))
+                c.set_sort_order(int(pdc.get_editor_property("sort_order")) + 1)
+                c.set_decal_material(gm)
+                require(c.get_decal_material() == gm, "GREASE_MATERIAL|" + s["label"])
+                show(a, c, False)
+                want = vec(p.get_actor_location())
+            else:
+                b = s["plan"]
+                anc = one(dtbl, b["anchor"]["label"])
+                wall = anc.get_attach_parent_actor()
+                require(wall is not None and str(wall.get_actor_label()) == b["anchor"]["attach_parent_label"],
+                        "BAND_WALL|%s" % (wall and wall.get_actor_label()))
+                a = spawn(u.DecalActor, s["label"], u.Vector(*b["location"]),
+                          u.MathLibrary.make_rot_from_xz(u.Vector(*b["x"]), u.Vector(*b["z"])))
+                attach(u, a, wall, "KEEP_WORLD")
+                c = decal_comp(a)
+                c.set_editor_property("decal_size", u.Vector(*b["decal_size"]))
+                c.set_decal_material(gm)
+                show(a, c, False)
+                want = b["location"]
+            got = vec(a.get_actor_location())
+            require(max(abs(x - y) for x, y in zip(got, want)) <= 1.0, "SPAWN_POSE|%s|%s|%s" % (s["label"], got, want))
+        require(len(pool_map(world)) == len(specs), "POOL_COUNT|%d/%d" % (len(pool_map(world)), len(specs)))
+        rec["complete"] = True
+        rec["census_after"] = census()
+        write_verified(run_file("prespawn", run), rec)
+        return "pool=%d|hidden|map_dirty_expected|NEEDS_DONT_SAVE_RESTART" % len(specs)
+    except Exception:
+        rec["error"] = traceback.format_exc()
+        for a in reversed(spawned):                                 # this call's spawns, by reference
+            try:
+                actor_sub.destroy_actor(a)
+            except Exception:
+                pass
+        rec["destroyed_after_error"] = len(spawned)
+        write_verified(run_file("prespawn", run), rec)
+        raise
+
+
+# ---- PIE BEGIN (apply / stills / restore: no spawn, no destroy, no editor-actor API in this region) ----
 def stage_apply(run, args):
     u = _u()
     variant = args.get("variant", "C")
     require(variant in VARIANTS, "VARIANT|%s" % variant)
     v = VARIANTS[variant]
-    require(os.path.isfile(PLAN), "NO_PLAN")
+    pid = "%s-p%d" % (run, int(args.get("pie", 1)))
+    pre = json.load(open(run_file("prespawn", run))) if os.path.isfile(run_file("prespawn", run)) else {}
+    require(pre.get("complete"), "NOT_PRESPAWNED|run prespawn (editor, before PIE) for this run")
+    require(not os.path.isfile(run_file("originals", pid)), "PIE_ALREADY_APPLIED|bump args.pie for a fresh PIE")
     plan = json.load(open(PLAN))
-    last = HERE + "/s3mg_assets_last.json"           # any run's verified assets (unsaved => same editor session)
-    arec = json.load(open(last)) if os.path.isfile(last) else {}
-    require(arec.get("verified"), "ASSETS_NOT_VERIFIED|run assets + verify_assets in this editor session")
-    require(master_ok(master_state()), "ASSETS_GONE|master (editor restarted? rerun assets + verify_assets)")
-    for f_, (a_, s_, c_) in TEXTURES.items():
-        require(texture_ok(texture_state(a_), s_, c_), "ASSETS_GONE|" + a_)
-    require(not os.path.isfile(run_file("originals", run)), "RUN_ALREADY_APPLIED|use a new run id (fresh PIE)")
     world = pie_world()
-    require(not tagged(world), "STALE_BENCH_ACTORS|%s" % [a.get_name() for a in tagged(world)])
+    require(world.get_path_name() != pre["world"], "GAME_WORLD_IS_EDITOR_WORLD")
     mel = u.MaterialEditingLibrary
+    pool = pool_map(world)
+    missing = [l for l in pre["labels"] if l not in pool]
+    require(not missing, "POOL_COPY_MISSING|%s|was PIE started after prespawn?" % missing[:5])
     liner = find_by_name(world, LINER_NAME)
     require(str(liner.get_actor_label()) == LINER_LABEL, "LINER_LABEL|%s" % liner.get_actor_label())
     smc = liner.static_mesh_component
-    decals_by = by_label(world, u.DecalActor)
-    decals = {lab: one(decals_by, lab) for lab in plan["prints"]["labels"]}
+    dtbl = by_label(world, u.DecalActor)
+    decals = {lab: one(dtbl, lab) for lab in plan["prints"]["labels"]}
     root = one(by_label(world), ROOT_LABEL)
-    # ---- ORIGINALS FIRST (file, read back, path logged) -- nothing has been changed yet
-    orig = {"run": run, "variant": variant, "world": world.get_path_name(), "utc": utc(), "census": census(),
+    specs = pool_specs(plan)
+    # ---- ORIGINALS FIRST
+    orig = {"run": run, "pie": pid, "variant": variant, "world": world.get_path_name(), "utc": utc(), "census": census(),
             "liner": {"name": liner.get_name(), "slot0": path(smc.get_material(0))},
             "decals": {lab: {"name": a.get_name(), "material": path(decal_comp(a).get_decal_material())}
                        for lab, a in sorted(decals.items())},
-            "root_now": {"loc": vec(root.get_actor_location())}}
+            "pool": {}}
+    for s in specs:
+        a = pool[s["label"]]
+        orig["pool"][s["label"]] = {"shown": is_shown(a)}
     require(orig["liner"]["slot0"] and orig["liner"]["slot0"].split(".")[0] == LINER_MI,
             "LINER_NOT_R0|%s" % orig["liner"]["slot0"])
-    write_verified(run_file("originals", run), orig)
-    u.log("S3MG_BENCH_ORIGINALS|run=%s|path=%s" % (run, run_file("originals", run)))
-    applied = {"run": run, "variant": variant, "spawned": [], "mids": [], "complete": False}
+    shown = [l for l, r in orig["pool"].items() if r["shown"]]
+    require(not shown, "POOL_ALREADY_SHOWN|%s" % shown[:5])
+    write_verified(run_file("originals", pid), orig)
+    u.log("S3MG_BENCH_ORIGINALS|run=%s|pie=%s|path=%s" % (run, pid, run_file("originals", pid)))
+    applied = {"run": run, "pie": pid, "variant": variant, "shown": [], "mids": [], "positions": {}, "complete": False}
     try:
+        # positions of the PIE copies for the CURRENT hangar pose (PIE may start un-landed)
+        root_landed = u.Transform(u.Vector(*ROOT_LANDED["loc"]), u.Rotator(roll=0.0, pitch=0.0, yaw=0.0),
+                                  u.Vector(1, 1, 1))
+        for s in specs:
+            a = pool[s["label"]]
+            if s["kind"] == "light":
+                want, _r = landed_to_now(u, root_landed, rigid(u, root), s["plan"]["location"], s["plan"]["x"],
+                                         s["plan"]["z"])
+                want = vec(want)
+            elif s["kind"] == "grease":
+                p = decals[s["print"]]
+                require(a.get_attach_parent_actor() == p, "GREASE_PARENT|" + s["label"])
+                want = vec(p.get_actor_location())
+            else:
+                b = s["plan"]
+                anc = one(dtbl, b["anchor"]["label"])
+                r = b["anchor"]["landed_rot"]
+                al = u.Transform(u.Vector(*b["anchor"]["landed_loc"]),
+                                 u.Rotator(roll=r["roll"], pitch=r["pitch"], yaw=r["yaw"]), u.Vector(1, 1, 1))
+                want, _r = landed_to_now(u, al, rigid(u, anc), b["location"], b["x"], b["z"])
+                want = vec(want)
+            got = vec(a.get_actor_location())
+            err = max(abs(x - y) for x, y in zip(got, want))
+            applied["positions"][s["label"]] = round(err, 3)
+            require(err <= POSE_TOL_CM, "POOL_COPY_POSE|%s|err=%.2f cm" % (s["label"], err))
         if v["marble"]:
             mid = smc.create_dynamic_material_instance(0, smc.get_material(0))
             for pname, asset in MARBLE_MID["textures"].items():
@@ -551,73 +736,43 @@ def stage_apply(run, args):
                 require(abs(mid.get_scalar_parameter_value(k) - val) < 1e-5, "MID_SCALAR|" + k)
             require(smc.get_material(0) == mid, "LINER_MID_NOT_APPLIED")
             applied["mids"].append(LINER_NAME)
-        if v["prints"]:
-            gm = u.EditorAssetLibrary.load_asset(GREASE_MASTER)
-            require(gm is not None, "GREASE_MASTER_MISSING")
-            for lab, a in sorted(decals.items()):
-                dc = decal_comp(a)
-                src_mi = dc.get_decal_material()
+        for s in specs:
+            a = pool[s["label"]]
+            if s["kind"] == "grease" and v["prints"]:
+                p = decals[s["print"]]
+                pdc = decal_comp(p)
+                src_mi = pdc.get_decal_material()
                 atlas = {k: float(mel.get_material_instance_scalar_parameter_value(src_mi, k)) for k in ATLAS_PARAMS}
-                cmid = dc.create_dynamic_material_instance()
+                cmid = pdc.create_dynamic_material_instance()
                 cmid.set_scalar_parameter_value("OpacityGain", PRINT_COLOUR_GAIN)
-                require(abs(cmid.get_scalar_parameter_value("OpacityGain") - PRINT_COLOUR_GAIN) < 1e-5, "GAIN|" + lab)
-                applied["mids"].append(lab)
-                g = spawn_pie(u, world, u.DecalActor, a.get_actor_location(), a.get_actor_rotation())
-                applied["spawned"].append(g.get_name())                # recorded before anything else can fail
-                attach(u, g, a, "SNAP_TO_TARGET")                      # identity relative to the print decal
-                gdc = decal_comp(g)
-                gdc.set_editor_property("decal_size", dc.get_editor_property("decal_size"))
-                gdc.set_sort_order(int(dc.get_editor_property("sort_order")) + 1)
-                gmid = u.KismetMaterialLibrary.create_dynamic_material_instance(world, gm)
+                require(abs(cmid.get_scalar_parameter_value("OpacityGain") - PRINT_COLOUR_GAIN) < 1e-5,
+                        "GAIN|" + s["print"])
+                applied["mids"].append(s["print"])
+                gdc = decal_comp(a)
+                gmid = gdc.create_dynamic_material_instance()       # parent = the grease master set at prespawn
                 for k, val in list(atlas.items()) + list(GREASE.items()):
                     gmid.set_scalar_parameter_value(k, val)
-                    require(abs(gmid.get_scalar_parameter_value(k) - val) < 1e-5, "GREASE_PARAM|%s|%s" % (lab, k))
-                gdc.set_decal_material(gmid)
-                require(gdc.get_decal_material() == gmid, "GREASE_MID|" + lab)
-        anchor_root = (u.Transform(u.Vector(*ROOT_LANDED["loc"]), u.Rotator(roll=0.0, pitch=0.0, yaw=0.0), u.Vector(1, 1, 1)),
-                       rigid(u, root))
-        if v["band"]:
-            b = plan["band"]
-            anc = one(decals_by, b["anchor"]["label"])
-            r = b["anchor"]["landed_rot"]
-            landed = u.Transform(u.Vector(*b["anchor"]["landed_loc"]),
-                                 u.Rotator(roll=r["roll"], pitch=r["pitch"], yaw=r["yaw"]), u.Vector(1, 1, 1))
-            loc, rot = landed_to_now(u, landed, rigid(u, anc), b["location"], b["x"], b["z"])
-            g = spawn_pie(u, world, u.DecalActor, loc, rot)
-            applied["spawned"].append(g.get_name())
-            parent = anc.get_attach_parent_actor()
-            require(parent is not None and str(parent.get_actor_label()) == b["anchor"]["attach_parent_label"],
-                    "BAND_PARENT|%s" % (parent and parent.get_actor_label()))
-            attach(u, g, parent, "KEEP_WORLD")
-            gdc = decal_comp(g)
-            gdc.set_editor_property("decal_size", u.Vector(*b["decal_size"]))
-            bmid = u.KismetMaterialLibrary.create_dynamic_material_instance(world, u.EditorAssetLibrary.load_asset(GREASE_MASTER))
-            for k, val in list(b["atlas"].items()) + list(b["params"].items()):
-                bmid.set_scalar_parameter_value(k, val)
-            band_tex = u.EditorAssetLibrary.load_asset(TEX_DIR + "/" + b["texture"])
-            bmid.set_texture_parameter_value("GreaseMask", band_tex)
-            require(path(bmid.get_texture_parameter_value("GreaseMask")) == path(band_tex), "BAND_TEX")
-            gdc.set_decal_material(bmid)
-            applied["band"] = {"name": g.get_name(), "anchor": b["anchor"]["label"]}
-        if v["lights"]:
-            applied["lights"] = []
-            for L in plan["lights"]:
-                loc, rot = landed_to_now(u, anchor_root[0], anchor_root[1], L["location"], L["x"], L["z"])
-                g = spawn_pie(u, world, u.RectLight, loc, rot)
-                applied["spawned"].append(g.get_name())
-                attach(u, g, root, "KEEP_WORLD")
-                c = g.get_editor_property("rect_light_component")
-                c.set_mobility(u.ComponentMobility.MOVABLE)
-                c.set_intensity_units(u.LightUnits.CANDELAS)
-                c.set_intensity(v["lights"]["intensity_cd"])           # UFUNCTION setters (no Modify)
-                c.set_source_width(L["source_width"])
-                c.set_source_height(L["source_height"])
-                c.set_barn_door_angle(L["barn_door_angle"])
-                c.set_barn_door_length(L["barn_door_length"])
-                c.set_attenuation_radius(L["attenuation_radius"])
+                    require(abs(gmid.get_scalar_parameter_value(k) - val) < 1e-5, "GREASE_PARAM|%s|%s" % (s["label"], k))
+                require(gdc.get_decal_material() == gmid, "GREASE_MID|" + s["label"])
+                show(a, gdc, True)
+                applied["shown"].append(s["label"])
+            elif s["kind"] == "band" and v["band"]:
+                b = s["plan"]
+                gdc = decal_comp(a)
+                bmid = gdc.create_dynamic_material_instance()
+                for k, val in list(b["atlas"].items()) + list(b["params"].items()):
+                    bmid.set_scalar_parameter_value(k, val)
+                band_tex = u.EditorAssetLibrary.load_asset(TEX_DIR + "/" + b["texture"])
+                bmid.set_texture_parameter_value("GreaseMask", band_tex)
+                require(path(bmid.get_texture_parameter_value("GreaseMask")) == path(band_tex), "BAND_TEX")
+                show(a, gdc, True)
+                applied["shown"].append(s["label"])
+            elif s["kind"] == "light" and v["lights"]:
+                c = a.get_editor_property("rect_light_component")
+                c.set_intensity(v["lights"]["intensity_cd"])
                 c.set_diffuse_scale(v["lights"]["diffuse_scale"])
-                c.set_specular_scale(1.0)
-                c.set_cast_shadows(False)
+                show(a, c, True)
+                L = s["plan"]
                 got = {"units": str(c.get_editor_property("intensity_units")),
                        "intensity": float(c.get_editor_property("intensity")),
                        "w": float(c.get_editor_property("source_width")), "h": float(c.get_editor_property("source_height")),
@@ -625,14 +780,16 @@ def stage_apply(run, args):
                 require("CANDELAS" in got["units"] and abs(got["intensity"] - v["lights"]["intensity_cd"]) < 1e-3
                         and abs(got["w"] - L["source_width"]) < 1e-3 and abs(got["h"] - L["source_height"]) < 1e-3
                         and abs(got["diffuse_scale"] - v["lights"]["diffuse_scale"]) < 1e-5, "LIGHT_READBACK|%s" % got)
-                applied["lights"].append({"name": g.get_name(), "plan": L["name"], **got})
+                applied["shown"].append(s["label"])
+                applied.setdefault("lights", []).append(dict(got, label=s["label"]))
         applied["census_after"] = census()
         applied["complete"] = True
-        write_verified(run_file("applied", run), applied)
-        return "variant=%s|spawned=%d|mids=%d" % (variant, len(applied["spawned"]), len(applied["mids"]))
+        write_verified(run_file("applied", pid), applied)
+        return "pie=%s|variant=%s|shown=%d|mids=%d|max_pose_err_cm=%.2f" % (
+            pid, variant, len(applied["shown"]), len(applied["mids"]), max(applied["positions"].values()))
     except Exception:
         applied["error"] = traceback.format_exc()
-        write_verified(run_file("applied", run), applied)
+        write_verified(run_file("applied", pid), applied)
         try:
             stage_restore(run, args, check_pose=False)
         except Exception:
@@ -641,94 +798,84 @@ def stage_apply(run, args):
         raise
 
 
-# ------------------------------------------------------------------------------------------- stage: stills (PIE)
 def stage_stills(run, args):
-    u = _u()
-    applied = json.load(open(run_file("applied", run)))
-    require(applied.get("complete"), "APPLY_NOT_COMPLETE")
+    pid = "%s-p%d" % (run, int(args.get("pie", 1)))
+    applied = json.load(open(run_file("applied", pid)))
+    require(applied.get("complete"), "APPLY_NOT_COMPLETE|" + pid)
     world = pie_world()
-    names = {a.get_name() for a in tagged(world)}
-    missing = [n for n in applied["spawned"] if n not in names]
-    require(not missing, "BENCH_ACTORS_MISSING|%s" % missing[:5])
+    pool = pool_map(world)
+    missing = [l for l in applied["shown"] if l not in pool or not is_shown(pool[l])]
+    require(not missing, "SHOWN_POOL_MISSING_OR_HIDDEN|%s" % missing[:5])
     import runpy
-    label = "s3mg_%s%s" % (run.split("-", 1)[-1], args.get("stills_label_suffix", ""))
+    label = "s3mg_%s" % pid.split("-", 1)[-1]
     runpy.run_path(ROOT + "/Saved/CodexConductor/scene_stills.py", init_globals={
         "STILLS_PASSAGE": STILLS["passage"], "STILLS_FRACTIONS": list(STILLS["fractions"]),
         "STILLS_LABEL": label, "STILLS_PARAMS": {}})
-    return "armed|label=%s|watch=PASSAGE_STILLS_OK" % label
+    return "armed|pie=%s|label=%s|watch=PASSAGE_STILLS_OK" % (pid, label)
 
 
-# ------------------------------------------------------------------------------------------- stage: restore (PIE)
-def pose_check(u, world, run):
-    """Before restoring: where did our actors end up? Valid only if the hangar root is LANDED now."""
+def pose_check(u, world, pid):
+    """Before restoring: did the still show what we set? Pose verdict only if the hangar root is LANDED now."""
     plan = json.load(open(PLAN))
-    applied = json.load(open(run_file("applied", run)))
+    applied = json.load(open(run_file("applied", pid)))
     root = one(by_label(world), ROOT_LABEL)
     rl = vec(root.get_actor_location())
     landed = max(abs(a - b) for a, b in zip(rl, ROOT_LANDED["loc"])) <= 1.0
-    out = {"root_now": rl, "root_landed": landed, "lights": []}
-    # did anything (Show compile, Sequencer, scrub) swap our PIE materials back before the still? -> still invalid
+    out = {"root_now": rl, "root_landed": landed, "poses": {}}
     held = []
     if LINER_NAME in applied.get("mids", []):
         m = find_by_name(world, LINER_NAME).static_mesh_component.get_material(0)
         held.append(("liner", isinstance(m, u.MaterialInstanceDynamic)))
-    dby = by_label(world, u.DecalActor)
+    dtbl = by_label(world, u.DecalActor)
     for lab in [x for x in applied.get("mids", []) if x != LINER_NAME]:
-        rows = dby.get(lab, [])
+        rows = dtbl.get(lab, [])
         held.append((lab, len(rows) == 1 and isinstance(decal_comp(rows[0]).get_decal_material(),
                                                         u.MaterialInstanceDynamic)))
+    pool = pool_map(world)
+    for lab in applied.get("shown", []):
+        held.append((lab, lab in pool and is_shown(pool[lab])))
     lost = [k for k, ok in held if not ok]
-    out["materials_held"] = {"checked": len(held), "lost": lost[:10]}
+    out["held"] = {"checked": len(held), "lost": lost[:10]}
     if lost:
-        out["verdict"] = "POSE_MISMATCH|materials_lost=%d" % len(lost)
+        out["verdict"] = "POSE_MISMATCH|lost=%d" % len(lost)
         return out
     if not landed:
         out["verdict"] = "ROOT_NOT_LANDED"
         return out
-    by_name = {a.get_name(): a for a in tagged(world)}
+    want = {s["label"]: s["plan"]["location"] for s in pool_specs(plan) if s["kind"] in ("light", "band")}
     errs = []
-    for row, L in zip(applied.get("lights", []), plan["lights"]):
-        a = by_name.get(row["name"])
-        if a is None:
-            errs.append(row["name"])
-            continue
-        p = vec(a.get_actor_location())
-        d = max(abs(x - y) for x, y in zip(p, L["location"]))
-        out["lights"].append({"name": row["name"], "now": p, "plan": L["location"], "max_err_cm": round(d, 2)})
-        if d > POSE_TOL_CM:
-            errs.append(row["name"])
-    if applied.get("band"):
-        a = by_name.get(applied["band"]["name"])
-        p = vec(a.get_actor_location()) if a else None
-        d = max(abs(x - y) for x, y in zip(p, plan["band"]["location"])) if p else 1e9
-        out["band"] = {"now": p, "plan": plan["band"]["location"], "max_err_cm": round(d, 2)}
-        if d > POSE_TOL_CM:
-            errs.append("band")
+    for lab in applied.get("shown", []):
+        if lab in want:
+            d = max(abs(x - y) for x, y in zip(vec(pool[lab].get_actor_location()), want[lab]))
+            out["poses"][lab] = round(d, 2)
+            if d > POSE_TOL_CM:
+                errs.append(lab)
     out["verdict"] = "POSE_OK" if not errs else "POSE_MISMATCH|%s" % errs
     return out
 
 
 def stage_restore(run, args, check_pose=True):
     u = _u()
-    orig = json.load(open(run_file("originals", run)))
-    require(orig["run"] == run, "RUN_MISMATCH|%s" % orig["run"])
+    pid = "%s-p%d" % (run, int(args.get("pie", 1)))
+    orig = json.load(open(run_file("originals", pid)))
+    require(orig["pie"] == pid, "RUN_MISMATCH|%s" % orig["pie"])
     world = pie_world_or_none()
     if world is None or world.get_path_name() != orig["world"]:
-        write_verified(run_file("restored", run), {"run": run, "pie": "gone", "census": census()})
+        write_verified(run_file("restored", pid), {"pie": pid, "state": "pie=gone", "census": census()})
         return "pie=gone|nothing to restore (PIE copies died with PIE)"
-    rec = {"run": run, "pie": "live"}
+    rec = {"pie": pid, "state": "pie=live"}
     if check_pose:
-        rec["pose"] = pose_check(u, world, run)
-        write_verified(run_file("restored", run), rec)              # pose evidence on disk before restoring
+        rec["pose"] = pose_check(u, world, pid)
+        write_verified(run_file("restored", pid), rec)            # evidence on disk before restoring
     liner = find_by_name(world, LINER_NAME)
     smc = liner.static_mesh_component
     smc.set_material(0, u.EditorAssetLibrary.load_asset(orig["liner"]["slot0"].split(".")[0]))
     problems = []
     if path(smc.get_material(0)) != orig["liner"]["slot0"]:
         problems.append("LINER|%s" % path(smc.get_material(0)))
-    dby = by_label(world, u.DecalActor)
+    dtbl = by_label(world, u.DecalActor)
     for lab, row in orig["decals"].items():
-        rows = dby.get(lab, [])
+        rows = dtbl.get(lab, [])
         if len(rows) != 1:
             problems.append("DECAL_COUNT|%s|%d" % (lab, len(rows)))
             continue
@@ -736,19 +883,52 @@ def stage_restore(run, args, check_pose=True):
         dc.set_decal_material(u.EditorAssetLibrary.load_asset(row["material"].split(".")[0]))
         if path(dc.get_decal_material()) != row["material"]:
             problems.append("DECAL|" + lab)
-    killed = []
-    for a in tagged(world):                                        # our tag only; shore's bench is untouched
-        killed.append(a.get_name())
-        a.destroy_actor()
-    left = [a.get_name() for a in tagged(world)]
-    if left:
-        problems.append("BENCH_ACTORS_LEFT|%s" % left)
-    rec.update(destroyed=killed, problems=problems, census=census())
-    write_verified(run_file("restored", run), rec)
+    pool = pool_map(world)
+    for lab in orig["pool"]:
+        a = pool.get(lab)
+        if a is None:
+            problems.append("POOL_GONE|" + lab)
+            continue
+        if isinstance(a, u.RectLight):
+            c = a.get_editor_property("rect_light_component")
+            c.set_intensity(0.0)
+        else:
+            c = decal_comp(a)
+        show(a, c, False)
+        if is_shown(a):
+            problems.append("POOL_STILL_SHOWN|" + lab)
+    rec.update(problems=problems, census=census())
+    write_verified(run_file("restored", pid), rec)
     require(not problems, "RESTORE|" + json.dumps(problems[:10]))
     verdict = rec.get("pose", {}).get("verdict", "unchecked")
     require(not verdict.startswith("POSE_MISMATCH"), "RESTORED_BUT_STILL_INVALID|" + verdict)
-    return "destroyed=%d|pose=%s" % (len(killed), verdict)
+    return "pie=%s|hidden=%d|pose=%s" % (pid, len(orig["pool"]), verdict)
+# ---- PIE END ----
+
+
+# ------------------------------------------------------------------------------------------- stage: unspawn (EDITOR)
+def stage_unspawn(run, args):
+    u = _u()
+    require(pie_world_or_none() is None, "PIE_RUNNING|unspawn after PIE has ended")
+    world = editor_world()
+    pre = json.load(open(run_file("prespawn", run)))
+    actor_sub = u.get_editor_subsystem(u.EditorActorSubsystem)
+    pool = pool_map(world)
+    listed = {r["label"] for r in pre.get("spawned", [])}
+    stray = sorted(set(pool) - listed)
+    require(not stray, "UNLISTED_ZZ_S3MG_ACTORS|%s|not ours to delete" % stray[:5])
+    destroyed = []
+    for lab in sorted(listed):
+        a = pool.get(lab)
+        if a is None:
+            continue
+        require(actor_sub.destroy_actor(a), "DESTROY_FAILED|" + lab)
+        destroyed.append(lab)
+    left = [str(a.get_actor_label()) for a in tagged(world)]
+    require(not left, "POOL_LEFT|%s" % left[:5])
+    pre["unspawned"] = {"destroyed": len(destroyed), "census": census()}
+    write_verified(run_file("prespawn", run), pre)
+    return "destroyed=%d|not_saved|NEEDS_DONT_SAVE_RESTART" % len(destroyed)
 
 
 def stage_census(run, args):
@@ -756,13 +936,14 @@ def stage_census(run, args):
     liner = find_by_name(w, LINER_NAME)
     slot0 = path(liner.static_mesh_component.get_material(0))
     require(slot0 and slot0.split(".")[0] == LINER_MI, "EDITOR_LINER_CHANGED|%s" % slot0)
-    zz = [a.get_name() for a in tagged(w)]
-    require(not zz, "EDITOR_HAS_BENCH_ACTORS|%s" % zz)
+    zz = [str(a.get_actor_label()) for a in tagged(w)]
+    require(not zz, "EDITOR_HAS_BENCH_ACTORS|%s" % zz[:5])
     return "editor_clean_of_bench|dirty=%s" % json.dumps(census())
 
 
-STAGES = {"assets": stage_assets, "verify_assets": stage_verify_assets, "apply": stage_apply,
-          "stills": stage_stills, "restore": stage_restore, "census": stage_census}
+STAGES = {"assets": stage_assets, "verify_assets": stage_verify_assets, "prespawn": stage_prespawn,
+          "apply": stage_apply, "stills": stage_stills, "restore": stage_restore, "unspawn": stage_unspawn,
+          "census": stage_census}
 
 
 def run_stage(stage, run, args):
@@ -774,4 +955,4 @@ def run_stage(stage, run, args):
 if __name__ == "__main__":         # offline: python s3mg_bench.py  -> plan only
     p = make_plan()
     print(json.dumps({"plan": PLAN, "prints": p["prints"]["count"], "lights": len(p["lights"]),
-                      "band_anchor": p["band"]["anchor"]["label"]}))
+                      "band_anchor": p["band"]["anchor"]["label"], "pool": len(pool_specs(p))}))
