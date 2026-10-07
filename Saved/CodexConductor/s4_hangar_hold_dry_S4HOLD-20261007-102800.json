@@ -1,0 +1,317 @@
+{
+ "run": "S4HOLD-20261007-102800",
+ "survey": [
+  {
+   "scene": 1,
+   "playback": [
+    0,
+    6176
+   ],
+   "playback_s": 247.04,
+   "folds": [
+    {
+     "track": "Hangar Fold",
+     "range": [
+      0,
+      775
+     ],
+     "rise": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise",
+     "active": true,
+     "completion": "KEEP_STATE",
+     "start_offset_tick": 0,
+     "play_rate": 1.0,
+     "play_rate_read": false
+    }
+   ],
+   "fold_end": 775,
+   "uncovered_frames": 5401,
+   "uncovered_s": 216.04,
+   "verdict": "SHORT"
+  },
+  {
+   "scene": 2,
+   "playback": [
+    0,
+    2025
+   ],
+   "playback_s": 81.0,
+   "folds": [
+    {
+     "track": "Hangar Fold",
+     "range": [
+      0,
+      775
+     ],
+     "rise": "/Game/InfinityStage/RigAtmos/LS_S2_HangarRise",
+     "active": true,
+     "completion": "KEEP_STATE",
+     "start_offset_tick": 0,
+     "play_rate": 1.0,
+     "play_rate_read": false
+    }
+   ],
+   "fold_end": 775,
+   "uncovered_frames": 1250,
+   "uncovered_s": 50.0,
+   "verdict": "SHORT"
+  },
+  {
+   "scene": 3,
+   "playback": [
+    0,
+    6240
+   ],
+   "playback_s": 260.0,
+   "folds": [
+    {
+     "track": "Hangar Fold",
+     "range": [
+      0,
+      744
+     ],
+     "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+     "active": true,
+     "completion": "KEEP_STATE",
+     "start_offset_tick": 0,
+     "play_rate": 1.0,
+     "play_rate_read": false
+    }
+   ],
+   "fold_end": 744,
+   "uncovered_frames": 5496,
+   "uncovered_s": 229.0,
+   "verdict": "SHORT"
+  },
+  {
+   "scene": 4,
+   "playback": [
+    0,
+    4890
+   ],
+   "playback_s": 195.6,
+   "folds": [
+    {
+     "track": "Hangar Fold",
+     "range": [
+      0,
+      775
+     ],
+     "rise": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+     "active": true,
+     "completion": "KEEP_STATE",
+     "start_offset_tick": 0,
+     "play_rate": 1.0,
+     "play_rate_read": false
+    }
+   ],
+   "fold_end": 775,
+   "uncovered_frames": 4115,
+   "uncovered_s": 164.6,
+   "verdict": "SHORT"
+  },
+  {
+   "scene": 5,
+   "playback": [
+    0,
+    1225
+   ],
+   "playback_s": 49.0,
+   "folds": [
+    {
+     "track": "Hangar Fold",
+     "range": [
+      0,
+      1225
+     ],
+     "rise": "/Game/InfinityStage/RigAtmos/LS_S5_HangarRise",
+     "active": true,
+     "completion": "KEEP_STATE",
+     "start_offset_tick": 0,
+     "play_rate": 1.0,
+     "play_rate_read": false
+    }
+   ],
+   "fold_end": 1225,
+   "uncovered_frames": 0,
+   "uncovered_s": 0.0,
+   "verdict": "COVERS"
+  },
+  {
+   "scene": 6,
+   "playback": [
+    0,
+    5489
+   ],
+   "playback_s": 219.56,
+   "folds": [
+    {
+     "track": "Hangar Fold",
+     "range": [
+      0,
+      775
+     ],
+     "rise": "/Game/InfinityStage/RigAtmos/LS_S6_HangarRise",
+     "active": false,
+     "completion": "KEEP_STATE",
+     "start_offset_tick": 0,
+     "play_rate": 1.0,
+     "play_rate_read": false
+    }
+   ],
+   "fold_end": 775,
+   "uncovered_frames": 4714,
+   "uncovered_s": 188.56,
+   "verdict": "SHORT"
+  }
+ ],
+ "plan": {
+  "range": [
+   775,
+   4890
+  ],
+  "targets": [
+   {
+    "binding": "S4 Hangar Roof Hinge",
+    "values": {
+     "Location.X": 0.0,
+     "Location.Y": 0.0,
+     "Location.Z": 3000.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_54",
+    "editor_relative": {
+     "loc": [
+      0.0,
+      0.0,
+      3000.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S4 Hangar Lattice Fly",
+    "values": {
+     "Location.X": 2999.999999999998,
+     "Location.Y": 0.0,
+     "Location.Z": 1700.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_76",
+    "editor_relative": {
+     "loc": [
+      3000.0,
+      0.0,
+      1700.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S4 Hangar Root",
+    "values": {
+     "Location.X": 11168.469500000001,
+     "Location.Y": 240000.0,
+     "Location.Z": 0.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_30",
+    "editor_relative": {
+     "loc": [
+      11168.469500000001,
+      240000.0,
+      0.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "fold": {
+   "track": "Hangar Fold",
+   "range": [
+    0,
+    775
+   ],
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+   "active": true,
+   "completion": "KEEP_STATE",
+   "start_offset_tick": 0,
+   "play_rate": 1.0,
+   "play_rate_read": false
+  },
+  "rise_end_tick": 744000,
+  "scene_tpf": 960,
+  "not_held_rise_tracks": [
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "S4 Hangar Pinned Exposure/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "P04 Backcloth (baked)/MovieSceneGeometryCacheTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack"
+  ],
+  "completion": "KEEP_STATE"
+ }
+}

@@ -1,0 +1,1702 @@
+{
+ "run": "S4SKYPIE-20261007-100515",
+ "args": {
+  "scrub_s4_frame": 978
+ },
+ "errors": [],
+ "scrub": {
+  "target_master": 29421505,
+  "result": "<InfinityTransportResult.SUCCEEDED: 0>"
+ },
+ "master_frame": 29421505,
+ "s4_frame": 978.0,
+ "hangar": [
+  {
+   "label": "S4 Hangar Apron",
+   "loc": [
+    10918.5,
+    240000.0,
+    -10.0
+   ],
+   "rot": {
+    "pitch": 0.0,
+    "yaw": 0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    250.0,
+    0.0,
+    -10.0
+   ],
+   "ext": [
+    250.0,
+    1400.0,
+    10.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Exit Black",
+   "loc": [
+    11393.5,
+    240000.0,
+    -6052.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    725.0,
+    0.0,
+    -6052.0
+   ],
+   "ext": [
+    225.0,
+    150.0,
+    1.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Exit Door Leaf",
+   "loc": [
+    11393.5,
+    240000.0,
+    -6025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    725.0,
+    0.0,
+    -6025.0
+   ],
+   "ext": [
+    224.5,
+    149.5,
+    25.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Far Wall Above Exit",
+   "loc": [
+    12893.5,
+    240000.0,
+    -6025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    2225.0,
+    0.0,
+    -6025.0
+   ],
+   "ext": [
+    1275.0,
+    1450.0,
+    25.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Far Wall Hinge",
+   "loc": [
+    11168.5,
+    240000.0,
+    -6025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    0.0,
+    -6025.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Far Wall Left of Exit",
+   "loc": [
+    11393.5,
+    239200.0,
+    -6025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    725.0,
+    -800.0,
+    -6025.0
+   ],
+   "ext": [
+    225.0,
+    650.0,
+    25.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Far Wall Right of Exit",
+   "loc": [
+    11393.5,
+    240800.0,
+    -6025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    725.0,
+    800.0,
+    -6025.0
+   ],
+   "ext": [
+    225.0,
+    650.0,
+    25.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Floor 1",
+   "loc": [
+    11158.5,
+    240000.0,
+    -1000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    490.0,
+    0.0,
+    -1000.0
+   ],
+   "ext": [
+    10.0,
+    1400.0,
+    1000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Floor 1 Hinge",
+   "loc": [
+    11168.5,
+    240000.0,
+    0.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Floor 2",
+   "loc": [
+    11158.5,
+    240000.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    490.0,
+    0.0,
+    -3000.0
+   ],
+   "ext": [
+    10.0,
+    1400.0,
+    1000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Floor 2 Hinge",
+   "loc": [
+    11168.5,
+    240000.0,
+    -2000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    0.0,
+    -2000.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Floor 3",
+   "loc": [
+    11158.5,
+    240000.0,
+    -5000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    490.0,
+    0.0,
+    -5000.0
+   ],
+   "ext": [
+    10.0,
+    1400.0,
+    1000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Floor 3 Hinge",
+   "loc": [
+    11168.5,
+    240000.0,
+    -4000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    0.0,
+    -4000.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 01",
+   "loc": [
+    14068.5,
+    240000.0,
+    -400.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -400.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 02",
+   "loc": [
+    14068.5,
+    240000.0,
+    -800.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -800.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 03",
+   "loc": [
+    14068.5,
+    240000.0,
+    -1200.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -1200.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 04",
+   "loc": [
+    14068.5,
+    240000.0,
+    -1600.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -1600.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 05",
+   "loc": [
+    14068.5,
+    240000.0,
+    -2000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -2000.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 06",
+   "loc": [
+    14068.5,
+    240000.0,
+    -2400.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -2400.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 07",
+   "loc": [
+    14068.5,
+    240000.0,
+    -2800.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -2800.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 08",
+   "loc": [
+    14068.5,
+    240000.0,
+    -3200.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -3200.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 09",
+   "loc": [
+    14068.5,
+    240000.0,
+    -3600.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -3600.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 10",
+   "loc": [
+    14068.5,
+    240000.0,
+    -4000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -4000.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 11",
+   "loc": [
+    14068.5,
+    240000.0,
+    -4400.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -4400.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 12",
+   "loc": [
+    14068.5,
+    240000.0,
+    -4800.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -4800.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 13",
+   "loc": [
+    14068.5,
+    240000.0,
+    -5200.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -5200.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Beam 14",
+   "loc": [
+    14068.5,
+    240000.0,
+    -5600.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -5600.0
+   ],
+   "ext": [
+    17.0,
+    1400.0,
+    13.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Fly",
+   "loc": [
+    14068.5,
+    240000.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3400.0,
+    0.0,
+    -3000.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Rail 1",
+   "loc": [
+    14102.5,
+    238900.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3434.0,
+    -1100.0,
+    -3000.0
+   ],
+   "ext": [
+    17.0,
+    13.0,
+    3000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Rail 2",
+   "loc": [
+    14102.5,
+    240000.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3434.0,
+    0.0,
+    -3000.0
+   ],
+   "ext": [
+    17.0,
+    13.0,
+    3000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Lattice Rail 3",
+   "loc": [
+    14102.5,
+    241100.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3434.0,
+    1100.0,
+    -3000.0
+   ],
+   "ext": [
+    17.0,
+    13.0,
+    3000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Left Wall",
+   "loc": [
+    12668.5,
+    238575.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    2000.0,
+    -1425.0,
+    -3000.0
+   ],
+   "ext": [
+    1500.0,
+    25.0,
+    3000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Left Wall Hinge",
+   "loc": [
+    11168.5,
+    238575.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    -1425.0,
+    -3000.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Pinned Exposure",
+   "loc": [
+    13668.5,
+    240000.0,
+    1500.0
+   ],
+   "rot": {
+    "pitch": 0.0,
+    "yaw": 0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3000.0,
+    0.0,
+    1500.0
+   ],
+   "ext": [
+    3100.0,
+    1500.0,
+    1600.0
+   ],
+   "hidden": false,
+   "root_visible": false
+  },
+  {
+   "label": "S4 Hangar Right Wall",
+   "loc": [
+    12668.5,
+    241425.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    2000.0,
+    1425.0,
+    -3000.0
+   ],
+   "ext": [
+    1500.0,
+    25.0,
+    3000.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Right Wall Hinge",
+   "loc": [
+    11168.5,
+    241425.0,
+    -3000.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    1425.0,
+    -3000.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Roof",
+   "loc": [
+    14193.5,
+    240000.0,
+    -3025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3525.0,
+    0.0,
+    -3025.0
+   ],
+   "ext": [
+    25.0,
+    1450.0,
+    3025.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Roof Hinge",
+   "loc": [
+    14168.5,
+    240000.0,
+    -6025.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": -0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    3500.0,
+    0.0,
+    -6025.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  },
+  {
+   "label": "S4 Hangar Root",
+   "loc": [
+    11168.5,
+    240000.0,
+    0.0
+   ],
+   "rot": {
+    "pitch": -90.0,
+    "yaw": 0.0,
+    "roll": 0.0
+   },
+   "bounds_c_local": [
+    500.0,
+    0.0,
+    0.0
+   ],
+   "ext": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "hidden": false,
+   "root_visible": true
+  }
+ ],
+ "arrival_s4": [
+  {
+   "arrival": "S4 Arrival",
+   "motion": "<Object '/Game/InfinityStage/RigAtmos/LS_S4_HangarRise.LS_S4_HangarRise' (0x000001DA023BBE00) Class 'LevelSequence'>",
+   "driven": "S4 Hangar Root",
+   "driven_rot": {
+    "pitch": -90.0,
+    "yaw": 0.0,
+    "roll": 0.0
+   },
+   "driven_loc": [
+    11168.5,
+    240000.0,
+    0.0
+   ],
+   "rest_pose_pitch_m90": true
+  }
+ ],
+ "walls_landed": {
+  "S4 Hangar Far Wall Above Exit": false,
+  "S4 Hangar Far Wall Left of Exit": false,
+  "S4 Hangar Far Wall Right of Exit": false,
+  "S4 Hangar Left Wall": false,
+  "S4 Hangar Right Wall": false,
+  "S4 Hangar Roof": false
+ },
+ "sky": [
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Sky Atmosphere",
+   "cls": "SkyAtmosphereComponent",
+   "visible": false,
+   "actor_hidden": true
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Sun",
+   "cls": "DirectionalLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 0.0
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Skylight",
+   "cls": "SkyLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 0.0
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Height Fog",
+   "cls": "ExponentialHeightFogComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Volumetric Clouds",
+   "cls": "VolumetricCloudComponent",
+   "visible": false,
+   "actor_hidden": true
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Moon",
+   "cls": "DirectionalLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 0.0
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B01 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B01 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B02 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B02 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B03 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B03 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B04 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B04 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B05 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B05 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B06 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B06 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B07 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B07 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B08 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B08 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B09 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B09 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B10 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B10 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B11 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B11 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B12 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B12 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "DirectionalLight",
+   "cls": "DirectionalLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 4.879
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "ExponentialHeightFog",
+   "cls": "ExponentialHeightFogComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "SkyAtmosphere",
+   "cls": "SkyAtmosphereComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "SkyLight",
+   "cls": "SkyLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 1.0
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "SM_SkySphere",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "VolumetricCloud",
+   "cls": "VolumetricCloudComponent",
+   "visible": true,
+   "actor_hidden": false
+  }
+ ],
+ "sky_visible": [
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Sun",
+   "cls": "DirectionalLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 0.0
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Skylight",
+   "cls": "SkyLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 0.0
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Dusk Height Fog",
+   "cls": "ExponentialHeightFogComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "Infinity Stage - Moon",
+   "cls": "DirectionalLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 0.0
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B01 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B01 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B02 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B02 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B03 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B03 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B04 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B04 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B05 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B05 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B06 P05_SKY_APPROACH PRACTICAL_CLAMP_B",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B06 P05_SKY_APPROACH PRACTICAL_BULB_DE",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B07 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B07 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B08 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B08 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B09 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B09 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B10 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B10 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B11 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B11 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B12 P05_SKY_CUT_BLINK PRACTICAL_CLAMP_",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_InfinityStage_V1VerticalSlice",
+   "actor": "P05 SCORE B12 P05_SKY_CUT_BLINK PRACTICAL_BULB_D",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "DirectionalLight",
+   "cls": "DirectionalLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 4.879
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "ExponentialHeightFog",
+   "cls": "ExponentialHeightFogComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "SkyAtmosphere",
+   "cls": "SkyAtmosphereComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "SkyLight",
+   "cls": "SkyLightComponent",
+   "visible": true,
+   "actor_hidden": false,
+   "intensity": 1.0
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "SM_SkySphere",
+   "cls": "StaticMeshComponent",
+   "visible": true,
+   "actor_hidden": false
+  },
+  {
+   "level": "UEDPIE_0_L_KK_children",
+   "actor": "VolumetricCloud",
+   "cls": "VolumetricCloudComponent",
+   "visible": true,
+   "actor_hidden": false
+  }
+ ],
+ "camera": {
+  "view_target": "S4 Reveal Glide Camera",
+  "loc": [
+   12127.7,
+   240046.2,
+   91.0
+  ],
+  "rot": {
+   "pitch": 6.0,
+   "yaw": 5.0,
+   "roll": -0.0
+  },
+  "fov": 37.5,
+  "local": [
+   1459.0,
+   46.0,
+   91.0
+  ],
+  "inside_landed_box": true,
+  "in_front_of_mouth_cm": 0
+ },
+ "rays": [
+  {
+   "row": 0,
+   "col": 0,
+   "hit": {
+    "actor": "SM_L_Children_Wing1",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 846.0
+   }
+  },
+  {
+   "row": 0,
+   "col": 1,
+   "hit": {
+    "actor": "Floor",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 1407.0
+   }
+  },
+  {
+   "row": 0,
+   "col": 2,
+   "hit": {
+    "actor": "polySurface9",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 704.0
+   }
+  },
+  {
+   "row": 0,
+   "col": 3,
+   "hit": {
+    "actor": "Floor",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 1407.0
+   }
+  },
+  {
+   "row": 0,
+   "col": 4,
+   "hit": {
+    "actor": "Floor",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 1407.0
+   }
+  },
+  {
+   "row": 1,
+   "col": 0,
+   "hit": {
+    "actor": "SM_L_Children_Wing1",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 848.0
+   }
+  },
+  {
+   "row": 1,
+   "col": 1,
+   "hit": "NO_HIT"
+  },
+  {
+   "row": 1,
+   "col": 2,
+   "hit": {
+    "actor": "polySurface9",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 707.0
+   }
+  },
+  {
+   "row": 1,
+   "col": 3,
+   "hit": {
+    "actor": "SM_R_Children_Wing3",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 1770.0
+   }
+  },
+  {
+   "row": 1,
+   "col": 4,
+   "hit": "NO_HIT"
+  },
+  {
+   "row": 2,
+   "col": 0,
+   "hit": {
+    "actor": "SM_L_Children_Wing1",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 877.0
+   }
+  },
+  {
+   "row": 2,
+   "col": 1,
+   "hit": "NO_HIT"
+  },
+  {
+   "row": 2,
+   "col": 2,
+   "hit": {
+    "actor": "polySurface9",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 730.0
+   }
+  },
+  {
+   "row": 2,
+   "col": 3,
+   "hit": {
+    "actor": "SM_R_Children_Wing3",
+    "level": "/Game/UEDPIE_0_L_KK_children",
+    "dist": 1829.0
+   }
+  },
+  {
+   "row": 2,
+   "col": 4,
+   "hit": "NO_HIT"
+  }
+ ],
+ "rays_no_hit": 4,
+ "scene_playback": [
+  0,
+  4890
+ ],
+ "hangar_fold_sections": [
+  {
+   "track": "Hangar Fold",
+   "range": [
+    0,
+    775
+   ],
+   "active": true,
+   "completion": "<MovieSceneCompletionMode.KEEP_STATE: 0>"
+  }
+ ],
+ "rise_playback": [
+  0,
+  930
+ ],
+ "rise_transform_sections": [
+  {
+   "binding": "S4 Hangar Roof Hinge",
+   "start": 0,
+   "end": 930,
+   "completion": "<MovieSceneCompletionMode.PROJECT_DEFAULT: 2>"
+  },
+  {
+   "binding": "S4 Hangar Lattice Fly",
+   "start": 0,
+   "end": 930,
+   "completion": "<MovieSceneCompletionMode.PROJECT_DEFAULT: 2>"
+  },
+  {
+   "binding": "S4 Hangar Root",
+   "start": 0,
+   "end": 930,
+   "completion": "<MovieSceneCompletionMode.PROJECT_DEFAULT: 2>"
+  }
+ ]
+}

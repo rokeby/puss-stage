@@ -1,0 +1,9 @@
+{
+ "mode": "APPLY",
+ "scene": 4,
+ "confirm": "APPLY S4HOLD",
+ "run_id": null,
+ "completion": "KEEP_STATE",
+ "completion_note": "KEEP_STATE matches the Fold section and the pre-relength behaviour (hangar stays landed after S4 ends). Proposed, not Gary's.",
+ "decided_by": "Gary 7 Oct (own words, conductor session): the skylight should never get into the S4 hangar; hold it landed (measured: hangar returns to REST past frame 775)"
+}

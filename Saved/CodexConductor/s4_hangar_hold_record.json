@@ -1,0 +1,179 @@
+{
+ "schema": 1,
+ "tool": "s4_hangar_hold",
+ "run": "S4HOLD-20261007-102817",
+ "applied": true,
+ "decided_by": "Gary 7 Oct (own words, conductor session): the skylight should never get into the S4 hangar; hold it landed (measured: hangar returns to REST past frame 775)",
+ "plan": {
+  "range": [
+   775,
+   4890
+  ],
+  "targets": [
+   {
+    "binding": "S4 Hangar Roof Hinge",
+    "values": {
+     "Location.X": 0.0,
+     "Location.Y": 0.0,
+     "Location.Z": 3000.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_54",
+    "editor_relative": {
+     "loc": [
+      0.0,
+      0.0,
+      3000.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S4 Hangar Lattice Fly",
+    "values": {
+     "Location.X": 2999.999999999998,
+     "Location.Y": 0.0,
+     "Location.Z": 1700.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_76",
+    "editor_relative": {
+     "loc": [
+      3000.0,
+      0.0,
+      1700.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S4 Hangar Root",
+    "values": {
+     "Location.X": 11168.469500000001,
+     "Location.Y": 240000.0,
+     "Location.Z": 0.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_30",
+    "editor_relative": {
+     "loc": [
+      11168.469500000001,
+      240000.0,
+      0.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "fold": {
+   "track": "Hangar Fold",
+   "range": [
+    0,
+    775
+   ],
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+   "active": true,
+   "completion": "KEEP_STATE",
+   "start_offset_tick": 0,
+   "play_rate": 1.0,
+   "play_rate_read": false
+  },
+  "rise_end_tick": 744000,
+  "scene_tpf": 960,
+  "not_held_rise_tracks": [
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "S4 Hangar Pinned Exposure/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "P04 Backcloth (baked)/MovieSceneGeometryCacheTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack"
+  ],
+  "completion": "KEEP_STATE"
+ },
+ "backup": "E:/PussStage/Backups\\PreS4HangarHold-S4HOLD-20261007-102817",
+ "source_sha256": "92f66f41423c2f751ddad7524ca41005785406bd3e58eb418806629643ea3920",
+ "written": "2026-10-07T10:28:17.772888",
+ "bindings": [
+  {
+   "binding": "S4 Hangar Roof Hinge",
+   "guid": "F95A35BE476A0A042038C58315FFF74A",
+   "created": true
+  },
+  {
+   "binding": "S4 Hangar Lattice Fly",
+   "guid": "36BFDCCB418424845D8C4BADD8120CE0",
+   "created": false
+  },
+  {
+   "binding": "S4 Hangar Root",
+   "guid": "39247CC646C81591FF7602BFA8FA6BB7",
+   "created": true
+  }
+ ],
+ "applied_at": "2026-10-07T10:28:17.939162",
+ "saved_sha256": "584c15c96b3088f51b0cd02b6c5c13e109aff4ed7df3c7f95251a4fa27d69aa5"
+}
