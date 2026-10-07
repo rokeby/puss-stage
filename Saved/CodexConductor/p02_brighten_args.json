@@ -7,11 +7,19 @@
     "top_scale": 4.0,
     "top_floor_cd": 300.0,
     "top_max_cd": 800.0,
-    "top_units": "CANDELAS"
+    "top_units": "CANDELAS",
+    "drama": true,
+    "strike_distance_cm": 2500.0,
+    "strike_ramp_cm": 600.0,
+    "after_pass_override": "HOLD",
+    "drama_skip_roles": [
+      "BEAM_R"
+    ]
   },
-  "expected_targets": 32,
+  "expected_targets": 165,
   "expected_bays": null,
   "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
     "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
     "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
     "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json"

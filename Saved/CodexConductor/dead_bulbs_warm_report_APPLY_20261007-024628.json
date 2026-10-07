@@ -1,0 +1,6461 @@
+{
+  "active_record": null,
+  "args": {
+    "ack_records": [
+      "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p04_atmos_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p02_brighten_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json"
+    ],
+    "allow_dirty": [],
+    "confirm": "APPLY DEADBULBSWARM",
+    "expected_per_passage": null,
+    "expected_targets": 77,
+    "mode": "APPLY",
+    "params": {
+      "cool_kelvin": 4000.0,
+      "dead_below_lm": 40.0,
+      "glow_floor_lm": 40.0,
+      "include_protected": false,
+      "passages": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06"
+      ],
+      "seed": 20261007,
+      "skip_labels": [],
+      "units": "LUMENS"
+    }
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreDeadBulbsWarm-20261007-024628\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25217320,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "990eeee452cca54320bfe454cba02ebf35bf677b5daa00b437413d37b45eacae",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreDeadBulbsWarm-20261007-024628\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 19494880,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "5b2dc990958943f08282909e965831754944586a1be03c06443955c39da53746",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreDeadBulbsWarm-20261007-024628"
+  },
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project_ok": true,
+    "sequencer_open": false,
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "world_ok": true,
+    "zz_actors": []
+  },
+  "foreign_records": [
+    {
+      "guids": [
+        "3F2A46984399FB68A5B5789198E998C5",
+        "9254BBC54F8CB2ABEBF72D8126EDD7F5",
+        "C53D806F49CC3DF11E3DFC88346551D1",
+        "E35602AF46562DEFEEBE30B1950BFBCB",
+        "E7024A044418DAEF1071DE96AAB17573",
+        "EC3B1FFB43CFF47B0BE2ABAA403635C0"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p04_atmos_record.json",
+      "sha256": "bcf5758d856a276bd48510fc5e19a3b82170cc50391b66012818608f0d254069",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "078C4C0642A1A3203D7D51B04564B393",
+        "0A95577548828506FBCCE0BC1BD17028",
+        "10603FFD44762A48AB1480B6C710D484",
+        "12EE7F364D4E07600B20E1BE955C75AA",
+        "20762B0B457AF47007B4239E1F5818E5",
+        "2462C5E64A9E77C8E2E51892B9A95C8F",
+        "2ABEC5AA416F5AE2C7521DAD687F9418",
+        "3248FE51445DB95EBAECFAABF9578B6E",
+        "33ACC00647C5F9417F39758AD3B8B3D9",
+        "36B6233A47ACDD0E1CAC70B75DECAFE8",
+        "37BEB6284B7E94631DB97999D26959BC",
+        "3F6BAC8D40E70891B5D17F82CDDE9B20",
+        "41919889410FEFAFBC72C1AD8483CB23",
+        "48841B0D46519E25A98E638CEB53AE48",
+        "5487A895421E9E5B64F55B87F2E2F7C3",
+        "5A8F2EC64859A6FD926ACCB41FA3040A",
+        "5D0BE5BE465FBFF84139CAB9E6FE4BD2",
+        "6247BCF146FF09A00045429274DFD746",
+        "6705DDF147CED3E4D94DFA82A5F8F1CD",
+        "6779820D408E268DEB6E62A9D4E2ECA5",
+        "6AC8480F44057C89124D3582D7A16094",
+        "6D01C288438A1D8707218B8B08EE2EA2",
+        "6ED6248948435A50EA6E0AADE26FFD88",
+        "7295480242AC792950DEFC91AA075583",
+        "73E1EF9143A33476D104FA998C6FDA9E",
+        "78238D8C455ED1014EF4438F639F2790",
+        "7C9106DB47C0D02E2BC3FEAF19410D7C",
+        "7FE182864882A381AC918BA8FD692B6C",
+        "8393D2C242EAC695566AF7A05D6C436F",
+        "858C2F2841CEDDA910378196117D3CD8",
+        "91D886954C29A2A48793E7A5B7A2F456",
+        "98B2E0664A2ADCDB248A85A6FC627EFF",
+        "9DE1767443ECD737D76771A76C8EC501",
+        "A2025497499FE8F4454700BCBEE99CEA",
+        "AB85DE67404E7A585B9633BCE172B316",
+        "AFAFBEEC40E1C54F3267DDA22C128598",
+        "B7058948443B3F00533B0686AFA6061B",
+        "B79F54CA41EB93CBA9E61B9CA0F18ACC",
+        "B8834AC34DC18FA5A1400E8B93D8AA22",
+        "BD6D09EE4E3B481F78A1FBB1FB915800",
+        "CCFC03FE45F44886F97EA2B7EDA9D5A2",
+        "CF9F6CE64BC1846068AF29AA1F3C9789",
+        "D03DA22F42725789AF03899ECC281DEC",
+        "D9F1C03C4B4230EBD2F4798CD183C971",
+        "DE9D1CD04BAB62FDBAD0F4B6F3493579",
+        "E2A07C4D48960F3BE7CA528D41DF142C",
+        "E3BEBFC7456975165CBF42B613DEB1F4",
+        "E60052154EDA40AD4EED2A800F298F80",
+        "E78A8E4D4602702FF5A3538DF13755D2",
+        "F33A80554370D03828657D995714BF49",
+        "F3E7643C417C028A66CB5098EA2E2DCF",
+        "F9F7B9514EF03BFECC4F3A957CE2AFA4",
+        "FA2BB3FF4490BBC223778486656745D4"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+      "sha256": "b3c7ae7b8b22ccaaff6d69dddb1579ab750e669c6d663956471297e8457ff71e",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "C53D806F49CC3DF11E3DFC88346551D1",
+        "E35602AF46562DEFEEBE30B1950BFBCB"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "sha256": "6544e9f1b6894ab36f87575e58850f449b05fcd323e6cbdfb468d419a7593286",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "0607BD6B4AC4E9A2762EA686E6D66C82",
+        "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
+        "1D3B48684A42C71DF67E738117F99074",
+        "4021CD8645255D75EA97C387F497C9C1",
+        "51503AD640972B7F9EA74FBBC0C9344B",
+        "5503F4D0487874467E96848A02E753C1",
+        "670B7ED34F511D7585FD7B87EF232973",
+        "85D0FAEE4D2F5446CEAFF6916DB9C926",
+        "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
+        "8F613D9E49041855D1209FB2443D2743",
+        "91FAEB9049CF6821A47BD8856E37DBDF",
+        "A87FA13848C841365AF646A4DA39E256",
+        "AD435FD3486207A103B3A79E98284E4D",
+        "B38648B94A1458CA951F4CB999B2E243",
+        "BBD1D07E4E4233257330409CB6AE39BA",
+        "C04A51914DFCB65D9D468A8F9C0962A2",
+        "CD3ECFB44B51505673E474B43484CED7",
+        "CD5BF0444F5A14E6628409B5E919E490"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
+      "sha256": "f9fdd12c4cc38961f5e90e06519ccd883b3cfce10a4227ae5309a953dc6fd57b",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "3F2A46984399FB68A5B5789198E998C5",
+        "9254BBC54F8CB2ABEBF72D8126EDD7F5",
+        "E7024A044418DAEF1071DE96AAB17573",
+        "EC3B1FFB43CFF47B0BE2ABAA403635C0"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "sha256": "aa2cdce1095b073e4a2ec2219bdf9dff94b180feb353a332e8e833066963dc72",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "078C4C0642A1A3203D7D51B04564B393",
+        "0A95577548828506FBCCE0BC1BD17028",
+        "10603FFD44762A48AB1480B6C710D484",
+        "12EE7F364D4E07600B20E1BE955C75AA",
+        "20762B0B457AF47007B4239E1F5818E5",
+        "2462C5E64A9E77C8E2E51892B9A95C8F",
+        "2ABEC5AA416F5AE2C7521DAD687F9418",
+        "3248FE51445DB95EBAECFAABF9578B6E",
+        "33ACC00647C5F9417F39758AD3B8B3D9",
+        "36B6233A47ACDD0E1CAC70B75DECAFE8",
+        "37BEB6284B7E94631DB97999D26959BC",
+        "3F6BAC8D40E70891B5D17F82CDDE9B20",
+        "41919889410FEFAFBC72C1AD8483CB23",
+        "48841B0D46519E25A98E638CEB53AE48",
+        "5487A895421E9E5B64F55B87F2E2F7C3",
+        "5A8F2EC64859A6FD926ACCB41FA3040A",
+        "5D0BE5BE465FBFF84139CAB9E6FE4BD2",
+        "6247BCF146FF09A00045429274DFD746",
+        "6705DDF147CED3E4D94DFA82A5F8F1CD",
+        "6779820D408E268DEB6E62A9D4E2ECA5",
+        "6AC8480F44057C89124D3582D7A16094",
+        "6D01C288438A1D8707218B8B08EE2EA2",
+        "6ED6248948435A50EA6E0AADE26FFD88",
+        "7295480242AC792950DEFC91AA075583",
+        "73E1EF9143A33476D104FA998C6FDA9E",
+        "78238D8C455ED1014EF4438F639F2790",
+        "7C9106DB47C0D02E2BC3FEAF19410D7C",
+        "7FE182864882A381AC918BA8FD692B6C",
+        "8393D2C242EAC695566AF7A05D6C436F",
+        "858C2F2841CEDDA910378196117D3CD8",
+        "91D886954C29A2A48793E7A5B7A2F456",
+        "98B2E0664A2ADCDB248A85A6FC627EFF",
+        "9DE1767443ECD737D76771A76C8EC501",
+        "A2025497499FE8F4454700BCBEE99CEA",
+        "AB85DE67404E7A585B9633BCE172B316",
+        "AFAFBEEC40E1C54F3267DDA22C128598",
+        "B7058948443B3F00533B0686AFA6061B",
+        "B79F54CA41EB93CBA9E61B9CA0F18ACC",
+        "B8834AC34DC18FA5A1400E8B93D8AA22",
+        "BD6D09EE4E3B481F78A1FBB1FB915800",
+        "CCFC03FE45F44886F97EA2B7EDA9D5A2",
+        "CF9F6CE64BC1846068AF29AA1F3C9789",
+        "D03DA22F42725789AF03899ECC281DEC",
+        "D9F1C03C4B4230EBD2F4798CD183C971",
+        "DE9D1CD04BAB62FDBAD0F4B6F3493579",
+        "E2A07C4D48960F3BE7CA528D41DF142C",
+        "E3BEBFC7456975165CBF42B613DEB1F4",
+        "E60052154EDA40AD4EED2A800F298F80",
+        "E78A8E4D4602702FF5A3538DF13755D2",
+        "F33A80554370D03828657D995714BF49",
+        "F3E7643C417C028A66CB5098EA2E2DCF",
+        "F9F7B9514EF03BFECC4F3A957CE2AFA4",
+        "FA2BB3FF4490BBC223778486656745D4"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+      "sha256": "46010d0be1853166663f23bc39c06f5cc0c9c483c0154fb5c851cd218acad4d4",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "0607BD6B4AC4E9A2762EA686E6D66C82",
+        "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
+        "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
+        "91FAEB9049CF6821A47BD8856E37DBDF",
+        "A87FA13848C841365AF646A4DA39E256",
+        "AD435FD3486207A103B3A79E98284E4D",
+        "B38648B94A1458CA951F4CB999B2E243",
+        "BBD1D07E4E4233257330409CB6AE39BA"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p02_brighten_record.json",
+      "sha256": "045c866b402ab8737696131317d4580c2aebcf46a519851418cc57ca52e528d0",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "0607BD6B4AC4E9A2762EA686E6D66C82",
+        "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
+        "1D3B48684A42C71DF67E738117F99074",
+        "4021CD8645255D75EA97C387F497C9C1",
+        "51503AD640972B7F9EA74FBBC0C9344B",
+        "5503F4D0487874467E96848A02E753C1",
+        "670B7ED34F511D7585FD7B87EF232973",
+        "85D0FAEE4D2F5446CEAFF6916DB9C926",
+        "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
+        "8F613D9E49041855D1209FB2443D2743",
+        "91FAEB9049CF6821A47BD8856E37DBDF",
+        "A87FA13848C841365AF646A4DA39E256",
+        "AD435FD3486207A103B3A79E98284E4D",
+        "B38648B94A1458CA951F4CB999B2E243",
+        "BBD1D07E4E4233257330409CB6AE39BA",
+        "C04A51914DFCB65D9D468A8F9C0962A2",
+        "CD3ECFB44B51505673E474B43484CED7",
+        "CD5BF0444F5A14E6628409B5E919E490"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
+      "sha256": "5db3d9605acde37a5565ac2d17e1819bf1d4d5c48b3f6a019169de90e1e6185d",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "3F2A46984399FB68A5B5789198E998C5",
+        "9254BBC54F8CB2ABEBF72D8126EDD7F5",
+        "E7024A044418DAEF1071DE96AAB17573",
+        "EC3B1FFB43CFF47B0BE2ABAA403635C0"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "sha256": "06b97ff7bb966a83fd60f19367dbb692491e8d95f02d70f0076b50e6f4bee652",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "E7024A044418DAEF1071DE96AAB17573"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+      "sha256": "fbd69c43487f557e36c636a92bce181c0667be7e27bfc1846094d889fb54df4c",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "078C4C0642A1A3203D7D51B04564B393",
+        "12EE7F364D4E07600B20E1BE955C75AA",
+        "20762B0B457AF47007B4239E1F5818E5",
+        "2462C5E64A9E77C8E2E51892B9A95C8F",
+        "2ABEC5AA416F5AE2C7521DAD687F9418",
+        "3248FE51445DB95EBAECFAABF9578B6E",
+        "33ACC00647C5F9417F39758AD3B8B3D9",
+        "36B6233A47ACDD0E1CAC70B75DECAFE8",
+        "37BEB6284B7E94631DB97999D26959BC",
+        "3F6BAC8D40E70891B5D17F82CDDE9B20",
+        "41919889410FEFAFBC72C1AD8483CB23",
+        "5487A895421E9E5B64F55B87F2E2F7C3",
+        "5A8F2EC64859A6FD926ACCB41FA3040A",
+        "5D0BE5BE465FBFF84139CAB9E6FE4BD2",
+        "6247BCF146FF09A00045429274DFD746",
+        "6705DDF147CED3E4D94DFA82A5F8F1CD",
+        "6779820D408E268DEB6E62A9D4E2ECA5",
+        "6AC8480F44057C89124D3582D7A16094",
+        "6D01C288438A1D8707218B8B08EE2EA2",
+        "6ED6248948435A50EA6E0AADE26FFD88",
+        "7295480242AC792950DEFC91AA075583",
+        "73E1EF9143A33476D104FA998C6FDA9E",
+        "78238D8C455ED1014EF4438F639F2790",
+        "7FE182864882A381AC918BA8FD692B6C",
+        "858C2F2841CEDDA910378196117D3CD8",
+        "91D886954C29A2A48793E7A5B7A2F456",
+        "98B2E0664A2ADCDB248A85A6FC627EFF",
+        "A2025497499FE8F4454700BCBEE99CEA",
+        "B7058948443B3F00533B0686AFA6061B",
+        "B79F54CA41EB93CBA9E61B9CA0F18ACC",
+        "B8834AC34DC18FA5A1400E8B93D8AA22",
+        "CCFC03FE45F44886F97EA2B7EDA9D5A2",
+        "CF9F6CE64BC1846068AF29AA1F3C9789",
+        "D9F1C03C4B4230EBD2F4798CD183C971",
+        "DE9D1CD04BAB62FDBAD0F4B6F3493579",
+        "E2A07C4D48960F3BE7CA528D41DF142C",
+        "E3BEBFC7456975165CBF42B613DEB1F4",
+        "E60052154EDA40AD4EED2A800F298F80",
+        "F33A80554370D03828657D995714BF49",
+        "F3E7643C417C028A66CB5098EA2E2DCF"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json",
+      "sha256": "5cacb61b09033b8b5f59527e0e8f3cadf886acf0e78f8ded0508382b593821ba",
+      "status": "saved_readback_verified"
+    }
+  ],
+  "inferred": [
+    "live rows still equal the last records (scores/rig_pattern/p02_brighten); hand edits after them change the plan",
+    "P05 passage names (label 'Passage 5', actor 'Passage 05', 'Infinity Stage - Structure 05') follow the P01-P06 format (p01_rig_pattern.passage_config excludes P05; label read from lighting_scores_record_P05.json)",
+    "ExportText spells the fields Intensity / Color=(R=,G=,B=,A=) / bUseTemperature / TemperatureKelvin and omits defaults (0 or 1 occurrence per Lighting group)",
+    "use_temperature True multiplies the colour by the blackbody tint, so white + 2200 K reads orange on screen",
+    "a strike-on-approach bulb (unstruck_intensity_scale 0) only shows its glow floor once struck",
+    "materialize carries the new Show colour/intensity to the spawned lights (not read back from components)",
+    "40 lm on a point light is a visible glow at the camera's exposure (not measured; a PIE still decides)"
+  ],
+  "materialized": [
+    {
+      "passage": "Passage 02 \u2014 Fixed Wings",
+      "structure": "Infinity Stage - Structure 02"
+    },
+    {
+      "passage": "Passage 04 \u2014 Fixed Wings",
+      "structure": "Infinity Stage - Structure 04"
+    },
+    {
+      "passage": "Passage 06 \u2014 Fixed Wings",
+      "structure": "Infinity Stage - Structure 06"
+    }
+  ],
+  "mode": "APPLY",
+  "ok": true,
+  "p02_brighten_overlap": [
+    {
+      "label": "P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "temperature_kelvin"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "use_temperature"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "use_temperature"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "temperature_kelvin"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "temperature_kelvin"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "temperature_kelvin"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "use_temperature"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    },
+    {
+      "label": "P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+      "our_fields": [
+        "color",
+        "use_temperature"
+      ],
+      "their_after": 800.0,
+      "their_fields": [
+        "lighting.intensity"
+      ]
+    }
+  ],
+  "passage_actor_counts": {
+    "P02": 1,
+    "P04": 1,
+    "P06": 1
+  },
+  "passage_guids": {
+    "P01": "659D5386D64DA7742A351B9499ECCE4C",
+    "P02": "7FF34BBDA744E406C264A7B7E4DD61D9",
+    "P03": "49F93D652B46B99C10116EBAE927A3C6",
+    "P04": "0067B5F57142956FB5B80EA31B1210B5",
+    "P05": "3B27C331B54325A469AE8A818B9049F9",
+    "P06": "9BFC29C45D47911FF7836BB8537230D2"
+  },
+  "plan": {
+    "affected_passages": [
+      "P02",
+      "P04",
+      "P06"
+    ],
+    "counts": {
+      "glow_floor": 68,
+      "palette": {
+        "orange": 28,
+        "pink": 18,
+        "warm_white": 31
+      },
+      "struck_only": 77,
+      "targets": 77,
+      "untouched_listed": 181
+    },
+    "inferred": [
+      "live rows still equal the last records (scores/rig_pattern/p02_brighten); hand edits after them change the plan",
+      "P05 passage names (label 'Passage 5', actor 'Passage 05', 'Infinity Stage - Structure 05') follow the P01-P06 format (p01_rig_pattern.passage_config excludes P05; label read from lighting_scores_record_P05.json)",
+      "ExportText spells the fields Intensity / Color=(R=,G=,B=,A=) / bUseTemperature / TemperatureKelvin and omits defaults (0 or 1 occurrence per Lighting group)",
+      "use_temperature True multiplies the colour by the blackbody tint, so white + 2200 K reads orange on screen",
+      "a strike-on-approach bulb (unstruck_intensity_scale 0) only shows its glow floor once struck",
+      "materialize carries the new Show colour/intensity to the spawned lights (not read back from components)",
+      "40 lm on a point light is a visible glow at the camera's exposure (not measured; a PIE still decides)"
+    ],
+    "params": {
+      "cool_kelvin": 4000.0,
+      "dead_below_lm": 40.0,
+      "glow_floor_lm": 40.0,
+      "include_protected": false,
+      "passages": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06"
+      ],
+      "seed": 20261007,
+      "skip_labels": [],
+      "units": "LUMENS"
+    },
+    "per_passage": {
+      "P01": {
+        "already_warm": 48,
+        "bays": 48,
+        "glow_floor": 0,
+        "palette": {
+          "orange": 0,
+          "pink": 0,
+          "warm_white": 0
+        },
+        "targets": 0
+      },
+      "P02": {
+        "already_warm": 2,
+        "bays": 23,
+        "glow_floor": 10,
+        "palette": {
+          "orange": 3,
+          "pink": 7,
+          "warm_white": 8
+        },
+        "targets": 18
+      },
+      "P03": {
+        "already_warm": 21,
+        "bays": 21,
+        "glow_floor": 0,
+        "palette": {
+          "orange": 0,
+          "pink": 0,
+          "warm_white": 0
+        },
+        "targets": 0
+      },
+      "P04": {
+        "already_warm": 15,
+        "bays": 21,
+        "glow_floor": 5,
+        "palette": {
+          "orange": 1,
+          "pink": 0,
+          "warm_white": 5
+        },
+        "targets": 6
+      },
+      "P05": {
+        "already_warm": 93,
+        "bays": 93,
+        "glow_floor": 0,
+        "palette": {
+          "orange": 0,
+          "pink": 0,
+          "warm_white": 0
+        },
+        "targets": 0
+      },
+      "P06": {
+        "already_warm": 2,
+        "bays": 64,
+        "glow_floor": 53,
+        "palette": {
+          "orange": 24,
+          "pink": 11,
+          "warm_white": 18
+        },
+        "targets": 53
+      }
+    },
+    "target_attachment_guids": [
+      "0607BD6B4AC4E9A2762EA686E6D66C82",
+      "078C4C0642A1A3203D7D51B04564B393",
+      "0A95577548828506FBCCE0BC1BD17028",
+      "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
+      "10603FFD44762A48AB1480B6C710D484",
+      "12EE7F364D4E07600B20E1BE955C75AA",
+      "1D3B48684A42C71DF67E738117F99074",
+      "20762B0B457AF47007B4239E1F5818E5",
+      "2462C5E64A9E77C8E2E51892B9A95C8F",
+      "2ABEC5AA416F5AE2C7521DAD687F9418",
+      "3248FE51445DB95EBAECFAABF9578B6E",
+      "33ACC00647C5F9417F39758AD3B8B3D9",
+      "36B6233A47ACDD0E1CAC70B75DECAFE8",
+      "37BEB6284B7E94631DB97999D26959BC",
+      "3F2A46984399FB68A5B5789198E998C5",
+      "3F6BAC8D40E70891B5D17F82CDDE9B20",
+      "4021CD8645255D75EA97C387F497C9C1",
+      "41919889410FEFAFBC72C1AD8483CB23",
+      "48841B0D46519E25A98E638CEB53AE48",
+      "51503AD640972B7F9EA74FBBC0C9344B",
+      "5487A895421E9E5B64F55B87F2E2F7C3",
+      "5503F4D0487874467E96848A02E753C1",
+      "5A8F2EC64859A6FD926ACCB41FA3040A",
+      "5D0BE5BE465FBFF84139CAB9E6FE4BD2",
+      "6247BCF146FF09A00045429274DFD746",
+      "6705DDF147CED3E4D94DFA82A5F8F1CD",
+      "670B7ED34F511D7585FD7B87EF232973",
+      "6779820D408E268DEB6E62A9D4E2ECA5",
+      "6AC8480F44057C89124D3582D7A16094",
+      "6D01C288438A1D8707218B8B08EE2EA2",
+      "6ED6248948435A50EA6E0AADE26FFD88",
+      "7295480242AC792950DEFC91AA075583",
+      "73E1EF9143A33476D104FA998C6FDA9E",
+      "78238D8C455ED1014EF4438F639F2790",
+      "7C9106DB47C0D02E2BC3FEAF19410D7C",
+      "7FE182864882A381AC918BA8FD692B6C",
+      "8393D2C242EAC695566AF7A05D6C436F",
+      "858C2F2841CEDDA910378196117D3CD8",
+      "85D0FAEE4D2F5446CEAFF6916DB9C926",
+      "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
+      "8F613D9E49041855D1209FB2443D2743",
+      "91D886954C29A2A48793E7A5B7A2F456",
+      "91FAEB9049CF6821A47BD8856E37DBDF",
+      "9254BBC54F8CB2ABEBF72D8126EDD7F5",
+      "98B2E0664A2ADCDB248A85A6FC627EFF",
+      "9DE1767443ECD737D76771A76C8EC501",
+      "A2025497499FE8F4454700BCBEE99CEA",
+      "A87FA13848C841365AF646A4DA39E256",
+      "AB85DE67404E7A585B9633BCE172B316",
+      "AD435FD3486207A103B3A79E98284E4D",
+      "AFAFBEEC40E1C54F3267DDA22C128598",
+      "B38648B94A1458CA951F4CB999B2E243",
+      "B7058948443B3F00533B0686AFA6061B",
+      "B79F54CA41EB93CBA9E61B9CA0F18ACC",
+      "B8834AC34DC18FA5A1400E8B93D8AA22",
+      "BBD1D07E4E4233257330409CB6AE39BA",
+      "BD6D09EE4E3B481F78A1FBB1FB915800",
+      "C04A51914DFCB65D9D468A8F9C0962A2",
+      "C53D806F49CC3DF11E3DFC88346551D1",
+      "CCFC03FE45F44886F97EA2B7EDA9D5A2",
+      "CD3ECFB44B51505673E474B43484CED7",
+      "CD5BF0444F5A14E6628409B5E919E490",
+      "CF9F6CE64BC1846068AF29AA1F3C9789",
+      "D03DA22F42725789AF03899ECC281DEC",
+      "D9F1C03C4B4230EBD2F4798CD183C971",
+      "DE9D1CD04BAB62FDBAD0F4B6F3493579",
+      "E2A07C4D48960F3BE7CA528D41DF142C",
+      "E35602AF46562DEFEEBE30B1950BFBCB",
+      "E3BEBFC7456975165CBF42B613DEB1F4",
+      "E60052154EDA40AD4EED2A800F298F80",
+      "E7024A044418DAEF1071DE96AAB17573",
+      "E78A8E4D4602702FF5A3538DF13755D2",
+      "EC3B1FFB43CFF47B0BE2ABAA403635C0",
+      "F33A80554370D03828657D995714BF49",
+      "F3E7643C417C028A66CB5098EA2E2DCF",
+      "F9F7B9514EF03BFECC4F3A957CE2AFA4",
+      "FA2BB3FF4490BBC223778486656745D4"
+    ],
+    "target_cue_guids": [
+      "008D989B20485276BC8D0493439D39EA",
+      "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+      "0B80F8886249E85D99B0C691DC6466D5",
+      "10B44993A14BC573BF46F798F81446BA",
+      "11F403689E45D226B3298AAF16790170",
+      "13573EEB014C3B1D81278EB2DC5C0193",
+      "1C61F7124C4E4CDB9D572CBF37EA2AB2",
+      "1D2D86BCE74A910A13CC588B0D451795",
+      "1E888ABDB94B07483942B9940A58A9F3",
+      "2796DA1CE44CBA0E7E495AB35D6E5B85",
+      "2942C431AE4CD0359827E3B7F76825D1",
+      "2C9C4A30466204C2890815B6C777DACF",
+      "2E61E4EFB44E91322594CBB220A9ECAE",
+      "30450225EE4DB0B28CEF8FA67FD430D4",
+      "3119DC428E496FD0DA1AB98693C2805E",
+      "32BA67E93346CDC7558A6DA92615B584",
+      "34E33BCD364FAB686BC453A3BC754B26",
+      "395419D3704C85D2103E78A2C1906E9D",
+      "3A2A4913A048011774400A8BC6A2F500",
+      "3C63FFF5804AE7B1625AF08713E09CF9",
+      "3F1CEC91DE4164DCF2F0698A885CBD14",
+      "4927CDF2454CE3EC567E4C8BBB58AFB0",
+      "4A4AF0A1426128C090A9F7B826ECF09B",
+      "4AA16A12224559F4375C89AF372F0857",
+      "52B14342BC4BB350B0D04EB5BD9E01CC",
+      "5402B53F574D697047770BADEF9DEB68",
+      "558DB23EDF4A7397BB76A0AC085D42C3",
+      "5B41C0FB3E4C9AC222DEE59261CAEF8F",
+      "5E04659B6B44E1921B1E819E21742E1B",
+      "6408185AE84BF6527CC2189329A5AEE7",
+      "6B1127A3FF4E37BDC6C305A0046F0079",
+      "6C060F41144F94D9214DF3BF039C7E99",
+      "6CC8A7516C4A865FFE302CB5F30AE295",
+      "6DB7C86FE7463FB8ED5143833DF28400",
+      "7047FD13244F1332C1188693318733B7",
+      "735A7090BC4094A56E9818B65CD531B7",
+      "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+      "75C71EC74F44A8D5F4668384501E418C",
+      "78635468B24CDF406695CF839F3897AD",
+      "78637673714BEC7DDCEB73A3EF2407EF",
+      "821E817A714533C8BFDB38B63581F33F",
+      "84958F43DA441BCC978C7BBE1E154DF6",
+      "884761C04271AFF58AF47B8B8AE5CD64",
+      "88A3B6EF6F43524F0A057A84271187B7",
+      "8A031613E5403585466CB590FF23399E",
+      "90164D3E95408753DDFC94A1803A4A1D",
+      "9659E889E6430907286165AFF40F8783",
+      "973A6AE0454E4045F75F6E824218157D",
+      "99989C90A9496E4ED6A87983B249CBD7",
+      "A209A617494F70ADCE550E9313D75BDF",
+      "A27BB54D3745D5C95040249F8CD3A765",
+      "A61B03738649090E65DB85A69BB234FF",
+      "A6729B4EEE401372716AEFAC08AD9D4A",
+      "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+      "AA62A3AC5C432FCBE3A672B23443FA6A",
+      "AB6DC06E459ADC3BFAEF319BFC28D978",
+      "AF6EB4EB57431F88F4BFC0957DA0E395",
+      "B1691382624D3538595DA68FDEB2FFB7",
+      "B33756C20D448A5615012AABA066A78A",
+      "BE2D60C103428B378B3B3E9AF5E65068",
+      "BE5E3873F44ACC7A85BA089503191E1C",
+      "C01B9F971440183FDC7BEAB4535ED9A4",
+      "C246AD5EDE47F562A24B8298810B3BC1",
+      "C4B5270CD0443E523ED803A0A81EAFFF",
+      "C7C77C36F04E62E5764E5BA7BE04060C",
+      "C8406F55D14E2B9D12D75CB414E57524",
+      "CC3403E5418809B2A1D9328EFC64C048",
+      "CDAAF6956541BC4D6DB96CA3F6B1E642",
+      "CDF8F937C64C300A9B8F3A99112AEAE0",
+      "DCE0D5544F4CA7339CCF7FA2CA1668D1",
+      "DFD138DA78440386500FEC8E57AE3BA9",
+      "E1003C888E4519BEDE5F5B9ECC222345",
+      "E9850E1D8D4473A298BEA0A87E7AC60A",
+      "F060763E471ABBB50FE986831AFBAC59",
+      "F179007A6A49C7557B5BCAAE9C1F6633",
+      "F2A13CF80B447B1AA10EA4881F10C821",
+      "FD2F56C90948D06111C1859046612353"
+    ],
+    "targets": [
+      {
+        "attachment_guid": "5503F4D0487874467E96848A02E753C1",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B01 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "01",
+        "cue_guid": "2796DA1CE44CBA0E7E495AB35D6E5B85",
+        "cue_label": "P02 Wing 001",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 51,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.2622506618499756,
+              0.4507857859134674,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "670B7ED34F511D7585FD7B87EF232973",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B02 P02_LURID_POP PRACTICAL_BULB_DEAD",
+        "bay_token": "02",
+        "cue_guid": "973A6AE0454E4045F75F6E824218157D",
+        "cue_label": "P02 Wing 002",
+        "glow_floor": true,
+        "look": "P02_LURID_POP",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 52,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "1D3B48684A42C71DF67E738117F99074",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B03 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "03",
+        "cue_guid": "34E33BCD364FAB686BC453A3BC754B26",
+        "cue_label": "P02 Wing 004",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 53,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "51503AD640972B7F9EA74FBBC0C9344B",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B04 P02_LURID_POP PRACTICAL_BULB_DEAD",
+        "bay_token": "04",
+        "cue_guid": "F2A13CF80B447B1AA10EA4881F10C821",
+        "cue_label": "P02 Wing 005",
+        "glow_floor": true,
+        "look": "P02_LURID_POP",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 54,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "C04A51914DFCB65D9D468A8F9C0962A2",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B05 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "05",
+        "cue_guid": "6408185AE84BF6527CC2189329A5AEE7",
+        "cue_label": "P02 Wing 006",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 55,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "85D0FAEE4D2F5446CEAFF6916DB9C926",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B07 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "07",
+        "cue_guid": "1E888ABDB94B07483942B9940A58A9F3",
+        "cue_label": "P02 Wing 008",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 57,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "8F613D9E49041855D1209FB2443D2743",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B08 P02_LURID_POP PRACTICAL_BULB_DEAD",
+        "bay_token": "08",
+        "cue_guid": "3C63FFF5804AE7B1625AF08713E09CF9",
+        "cue_label": "P02 Wing 009",
+        "glow_floor": true,
+        "look": "P02_LURID_POP",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 58,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "CD3ECFB44B51505673E474B43484CED7",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B09 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "09",
+        "cue_guid": "BE5E3873F44ACC7A85BA089503191E1C",
+        "cue_label": "P02 Wing 010",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 59,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "4021CD8645255D75EA97C387F497C9C1",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B10 P02_LURID_POP PRACTICAL_BULB_DEAD",
+        "bay_token": "10",
+        "cue_guid": "0B80F8886249E85D99B0C691DC6466D5",
+        "cue_label": "P02 Wing 011",
+        "glow_floor": true,
+        "look": "P02_LURID_POP",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 60,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "CD5BF0444F5A14E6628409B5E919E490",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B11 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "11",
+        "cue_guid": "C7C77C36F04E62E5764E5BA7BE04060C",
+        "cue_label": "P02 Wing 012",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 61,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "B38648B94A1458CA951F4CB999B2E243",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B12 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "12",
+        "cue_guid": "FD2F56C90948D06111C1859046612353",
+        "cue_label": "P02 Wing 013",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 62,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "0B7A7FF040D3BE75C44ADF93EE8A2BCB",
+        "attachment_index": 13,
+        "attachment_label": "P02 SCORE B13 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "13",
+        "cue_guid": "75C71EC74F44A8D5F4668384501E418C",
+        "cue_label": "P02 Wing 014",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 63,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "91FAEB9049CF6821A47BD8856E37DBDF",
+        "attachment_index": 12,
+        "attachment_label": "P02 SCORE B14 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "14",
+        "cue_guid": "B33756C20D448A5615012AABA066A78A",
+        "cue_label": "P02 Wing 003",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 64,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "0607BD6B4AC4E9A2762EA686E6D66C82",
+        "attachment_index": 11,
+        "attachment_label": "P02 SCORE B15 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "15",
+        "cue_guid": "C8406F55D14E2B9D12D75CB414E57524",
+        "cue_label": "P02 Wing 015",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 65,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "865E9D3E45EE1EDE1EA24BB8C77F6DD3",
+        "attachment_index": 10,
+        "attachment_label": "P02 SCORE B16 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "16",
+        "cue_guid": "1C61F7124C4E4CDB9D572CBF37EA2AB2",
+        "cue_label": "P02 Wing 016",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 66,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "A87FA13848C841365AF646A4DA39E256",
+        "attachment_index": 10,
+        "attachment_label": "P02 SCORE B17 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "17",
+        "cue_guid": "3A2A4913A048011774400A8BC6A2F500",
+        "cue_label": "P02 Wing 017",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 67,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "AD435FD3486207A103B3A79E98284E4D",
+        "attachment_index": 9,
+        "attachment_label": "P02 SCORE B18 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "18",
+        "cue_guid": "C01B9F971440183FDC7BEAB4535ED9A4",
+        "cue_label": "P02 Wing 018",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 68,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "BBD1D07E4E4233257330409CB6AE39BA",
+        "attachment_index": 11,
+        "attachment_label": "P02 SCORE B19 P02_FAILING_STAGE PRACTICAL_BULB_DEAD",
+        "bay_token": "19",
+        "cue_guid": "A27BB54D3745D5C95040249F8CD3A765",
+        "cue_label": "P02 Wing 019",
+        "glow_floor": false,
+        "look": "P02_FAILING_STAGE",
+        "passage": "P02",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 69,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "E35602AF46562DEFEEBE30B1950BFBCB",
+        "attachment_index": 25,
+        "attachment_label": "P04 LOOK B05 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "05",
+        "cue_guid": "558DB23EDF4A7397BB76A0AC085D42C3",
+        "cue_label": "P04 Wing 005",
+        "glow_floor": false,
+        "look": "THEATRICAL",
+        "passage": "P04",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 103,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.44999998807907104,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "C53D806F49CC3DF11E3DFC88346551D1",
+        "attachment_index": 28,
+        "attachment_label": "P04 LOOK B06 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "06",
+        "cue_guid": "7047FD13244F1332C1188693318733B7",
+        "cue_label": "P04 Wing 006",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P04",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 104,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "EC3B1FFB43CFF47B0BE2ABAA403635C0",
+        "attachment_index": 17,
+        "attachment_label": "P04 SCORE B11 P04_COLD_BREAK PRACTICAL_BULB_DEAD",
+        "bay_token": "11",
+        "cue_guid": "84958F43DA441BCC978C7BBE1E154DF6",
+        "cue_label": "P04 Wing 011",
+        "glow_floor": true,
+        "look": "P04_COLD_BREAK",
+        "passage": "P04",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 109,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "3F2A46984399FB68A5B5789198E998C5",
+        "attachment_index": 17,
+        "attachment_label": "P04 SCORE B15 P04_COLD_BREAK PRACTICAL_BULB_DEAD",
+        "bay_token": "15",
+        "cue_guid": "32BA67E93346CDC7558A6DA92615B584",
+        "cue_label": "P04 Wing 015",
+        "glow_floor": true,
+        "look": "P04_COLD_BREAK",
+        "passage": "P04",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 113,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "9254BBC54F8CB2ABEBF72D8126EDD7F5",
+        "attachment_index": 17,
+        "attachment_label": "P04 SCORE B18 THEATRICAL PRACTICAL_BULB_DEAD",
+        "bay_token": "18",
+        "cue_guid": "CDF8F937C64C300A9B8F3A99112AEAE0",
+        "cue_label": "P04 Wing 018",
+        "glow_floor": true,
+        "look": "THEATRICAL",
+        "passage": "P04",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 116,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "E7024A044418DAEF1071DE96AAB17573",
+        "attachment_index": 17,
+        "attachment_label": "P04 SCORE B20 P04_COLD_BREAK PRACTICAL_BULB_DEAD",
+        "bay_token": "20",
+        "cue_guid": "A6729B4EEE401372716AEFAC08AD9D4A",
+        "cue_label": "P04 Wing 020",
+        "glow_floor": true,
+        "look": "P04_COLD_BREAK",
+        "passage": "P04",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 118,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "D9F1C03C4B4230EBD2F4798CD183C971",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B01 P06_GRAND_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "01",
+        "cue_guid": "DFD138DA78440386500FEC8E57AE3BA9",
+        "cue_label": "P06 Wing 001",
+        "glow_floor": true,
+        "look": "P06_GRAND_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 217,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "98B2E0664A2ADCDB248A85A6FC627EFF",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B11 P06_GRAND_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "11",
+        "cue_guid": "A209A617494F70ADCE550E9313D75BDF",
+        "cue_label": "P06 Wing 006",
+        "glow_floor": true,
+        "look": "P06_GRAND_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 227,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "B8834AC34DC18FA5A1400E8B93D8AA22",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B13 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "13",
+        "cue_guid": "6DB7C86FE7463FB8ED5143833DF28400",
+        "cue_label": "P06 Wing 007",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 229,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "3248FE51445DB95EBAECFAABF9578B6E",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B14 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "14",
+        "cue_guid": "A9E0E66B074D5EA45E23BE93ADA0F8CE",
+        "cue_label": "P06 Wing 033",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 230,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "F33A80554370D03828657D995714BF49",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B15 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "15",
+        "cue_guid": "10B44993A14BC573BF46F798F81446BA",
+        "cue_label": "P06 Wing 008",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 231,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "5D0BE5BE465FBFF84139CAB9E6FE4BD2",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B16 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "16",
+        "cue_guid": "A61B03738649090E65DB85A69BB234FF",
+        "cue_label": "P06 Wing 034",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 232,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "3F6BAC8D40E70891B5D17F82CDDE9B20",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B17 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "17",
+        "cue_guid": "CDAAF6956541BC4D6DB96CA3F6B1E642",
+        "cue_label": "P06 Wing 009",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 233,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "6D01C288438A1D8707218B8B08EE2EA2",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B18 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "18",
+        "cue_guid": "884761C04271AFF58AF47B8B8AE5CD64",
+        "cue_label": "P06 OLD 09 - bamboo_scaffold",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 234,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "37BEB6284B7E94631DB97999D26959BC",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B19 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "19",
+        "cue_guid": "5B41C0FB3E4C9AC222DEE59261CAEF8F",
+        "cue_label": "P06 Wing 010",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 235,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "7295480242AC792950DEFC91AA075583",
+        "attachment_index": 17,
+        "attachment_label": "P06 SCORE B20 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "20",
+        "cue_guid": "0A53E28D7C44CCD4B5F79EA1FC64B0E7",
+        "cue_label": "P06 Wing 041",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 236,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "33ACC00647C5F9417F39758AD3B8B3D9",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B21 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "21",
+        "cue_guid": "C4B5270CD0443E523ED803A0A81EAFFF",
+        "cue_label": "P06 Wing 011",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 237,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "5A8F2EC64859A6FD926ACCB41FA3040A",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B22 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "22",
+        "cue_guid": "008D989B20485276BC8D0493439D39EA",
+        "cue_label": "P06 Wing 047",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 238,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "7FE182864882A381AC918BA8FD692B6C",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B23 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "23",
+        "cue_guid": "1D2D86BCE74A910A13CC588B0D451795",
+        "cue_label": "P06 Wing 012",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 239,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "E2A07C4D48960F3BE7CA528D41DF142C",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B24 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "24",
+        "cue_guid": "395419D3704C85D2103E78A2C1906E9D",
+        "cue_label": "P06 Wing 035",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 240,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "A2025497499FE8F4454700BCBEE99CEA",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B25 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "25",
+        "cue_guid": "3119DC428E496FD0DA1AB98693C2805E",
+        "cue_label": "P06 Wing 013",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 241,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "E3BEBFC7456975165CBF42B613DEB1F4",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B26 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "26",
+        "cue_guid": "F060763E471ABBB50FE986831AFBAC59",
+        "cue_label": "P06 OLD 13 - covered_pillar",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 242,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "CCFC03FE45F44886F97EA2B7EDA9D5A2",
+        "attachment_index": 16,
+        "attachment_label": "P06 SCORE B27 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "27",
+        "cue_guid": "E9850E1D8D4473A298BEA0A87E7AC60A",
+        "cue_label": "P06 Wing 014",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 243,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "2462C5E64A9E77C8E2E51892B9A95C8F",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B28 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "28",
+        "cue_guid": "3F1CEC91DE4164DCF2F0698A885CBD14",
+        "cue_label": "P06 Wing 045",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 244,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "E60052154EDA40AD4EED2A800F298F80",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B29 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "29",
+        "cue_guid": "E1003C888E4519BEDE5F5B9ECC222345",
+        "cue_label": "P06 Wing 015",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 245,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "6779820D408E268DEB6E62A9D4E2ECA5",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B30 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "30",
+        "cue_guid": "6CC8A7516C4A865FFE302CB5F30AE295",
+        "cue_label": "P06 Wing 042",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 246,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "5487A895421E9E5B64F55B87F2E2F7C3",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B31 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "31",
+        "cue_guid": "88A3B6EF6F43524F0A057A84271187B7",
+        "cue_label": "P06 Wing 016",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 247,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "CF9F6CE64BC1846068AF29AA1F3C9789",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B32 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "32",
+        "cue_guid": "4A4AF0A1426128C090A9F7B826ECF09B",
+        "cue_label": "P06 OLD 16 - mutated_pelt_flora_plus_ceramic_totem",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 248,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "78238D8C455ED1014EF4438F639F2790",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B33 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "33",
+        "cue_guid": "90164D3E95408753DDFC94A1803A4A1D",
+        "cue_label": "P06 Wing 017",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 249,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "6AC8480F44057C89124D3582D7A16094",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B34 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "34",
+        "cue_guid": "4927CDF2454CE3EC567E4C8BBB58AFB0",
+        "cue_label": "P06 Wing 046",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 250,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "F3E7643C417C028A66CB5098EA2E2DCF",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B35 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "35",
+        "cue_guid": "2E61E4EFB44E91322594CBB220A9ECAE",
+        "cue_label": "P06 Wing 018",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 251,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "6705DDF147CED3E4D94DFA82A5F8F1CD",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B36 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "36",
+        "cue_guid": "735A7090BC4094A56E9818B65CD531B7",
+        "cue_label": "P06 Wing 040",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 252,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "6247BCF146FF09A00045429274DFD746",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B37 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "37",
+        "cue_guid": "52B14342BC4BB350B0D04EB5BD9E01CC",
+        "cue_label": "P06 Wing 019",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 253,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "6ED6248948435A50EA6E0AADE26FFD88",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B38 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "38",
+        "cue_guid": "2C9C4A30466204C2890815B6C777DACF",
+        "cue_label": "P06 OLD 19 - ceramic_totem",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 254,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "41919889410FEFAFBC72C1AD8483CB23",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B39 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "39",
+        "cue_guid": "6B1127A3FF4E37BDC6C305A0046F0079",
+        "cue_label": "P06 Wing 020",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 255,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "DE9D1CD04BAB62FDBAD0F4B6F3493579",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B40 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "40",
+        "cue_guid": "6C060F41144F94D9214DF3BF039C7E99",
+        "cue_label": "P06 Wing 053",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 256,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "91D886954C29A2A48793E7A5B7A2F456",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B41 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "41",
+        "cue_guid": "BE2D60C103428B378B3B3E9AF5E65068",
+        "cue_label": "P06 Wing 021",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 257,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "B7058948443B3F00533B0686AFA6061B",
+        "attachment_index": 14,
+        "attachment_label": "P06 SCORE B42 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "42",
+        "cue_guid": "821E817A714533C8BFDB38B63581F33F",
+        "cue_label": "P06 Wing 048",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 258,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "B79F54CA41EB93CBA9E61B9CA0F18ACC",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B43 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "43",
+        "cue_guid": "4AA16A12224559F4375C89AF372F0857",
+        "cue_label": "P06 Wing 022",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 259,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "12EE7F364D4E07600B20E1BE955C75AA",
+        "attachment_index": 15,
+        "attachment_label": "P06 SCORE B44 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "44",
+        "cue_guid": "AF6EB4EB57431F88F4BFC0957DA0E395",
+        "cue_label": "P06 Wing 044",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 260,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "858C2F2841CEDDA910378196117D3CD8",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B45 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "45",
+        "cue_guid": "9659E889E6430907286165AFF40F8783",
+        "cue_label": "P06 Wing 023",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 261,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "36B6233A47ACDD0E1CAC70B75DECAFE8",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B46 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "46",
+        "cue_guid": "CC3403E5418809B2A1D9328EFC64C048",
+        "cue_label": "P06 OLD 23 - steel_scaffold",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 262,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "078C4C0642A1A3203D7D51B04564B393",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B47 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "47",
+        "cue_guid": "5E04659B6B44E1921B1E819E21742E1B",
+        "cue_label": "P06 Wing 024",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 263,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "73E1EF9143A33476D104FA998C6FDA9E",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B48 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "48",
+        "cue_guid": "78635468B24CDF406695CF839F3897AD",
+        "cue_label": "P06 Wing 043",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 264,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "2ABEC5AA416F5AE2C7521DAD687F9418",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B49 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "49",
+        "cue_guid": "73AFD9FE4A43CBCDC34ED08FC4D4CA21",
+        "cue_label": "P06 Wing 025",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 265,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "20762B0B457AF47007B4239E1F5818E5",
+        "attachment_index": 13,
+        "attachment_label": "P06 SCORE B50 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "50",
+        "cue_guid": "30450225EE4DB0B28CEF8FA67FD430D4",
+        "cue_label": "P06 Wing 049",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 266,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "9DE1767443ECD737D76771A76C8EC501",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B51 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "51",
+        "cue_guid": "13573EEB014C3B1D81278EB2DC5C0193",
+        "cue_label": "P06 Wing 026",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 267,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "FA2BB3FF4490BBC223778486656745D4",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B52 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "52",
+        "cue_guid": "DCE0D5544F4CA7339CCF7FA2CA1668D1",
+        "cue_label": "P06 OLD 26 - exposed_biomech_plus_steel_scaffold",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 268,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "8393D2C242EAC695566AF7A05D6C436F",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B53 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "53",
+        "cue_guid": "8A031613E5403585466CB590FF23399E",
+        "cue_label": "P06 Wing 027",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 269,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "48841B0D46519E25A98E638CEB53AE48",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B54 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "54",
+        "cue_guid": "AA62A3AC5C432FCBE3A672B23443FA6A",
+        "cue_label": "P06 Wing 050",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 270,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "AFAFBEEC40E1C54F3267DDA22C128598",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B55 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "55",
+        "cue_guid": "78637673714BEC7DDCEB73A3EF2407EF",
+        "cue_label": "P06 Wing 028",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 271,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "D03DA22F42725789AF03899ECC281DEC",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B56 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "56",
+        "cue_guid": "11F403689E45D226B3298AAF16790170",
+        "cue_label": "P06 Wing 052",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 272,
+        "struck_only": true,
+        "swatch": "pink",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.550000011920929,
+              0.699999988079071,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "use_temperature": [
+            true,
+            false
+          ]
+        }
+      },
+      {
+        "attachment_guid": "0A95577548828506FBCCE0BC1BD17028",
+        "attachment_index": 12,
+        "attachment_label": "P06 SCORE B57 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "57",
+        "cue_guid": "C246AD5EDE47F562A24B8298810B3BC1",
+        "cue_label": "P06 Wing 029",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 273,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "AB85DE67404E7A585B9633BCE172B316",
+        "attachment_index": 10,
+        "attachment_label": "P06 SCORE B58 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "58",
+        "cue_guid": "F179007A6A49C7557B5BCAAE9C1F6633",
+        "cue_label": "P06 Wing 051",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 274,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "F9F7B9514EF03BFECC4F3A957CE2AFA4",
+        "attachment_index": 10,
+        "attachment_label": "P06 SCORE B59 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "59",
+        "cue_guid": "5402B53F574D697047770BADEF9DEB68",
+        "cue_label": "P06 Wing 030",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 275,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "10603FFD44762A48AB1480B6C710D484",
+        "attachment_index": 10,
+        "attachment_label": "P06 SCORE B60 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "60",
+        "cue_guid": "AB6DC06E459ADC3BFAEF319BFC28D978",
+        "cue_label": "P06 OLD 30 - salt_formation",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 276,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "E78A8E4D4602702FF5A3538DF13755D2",
+        "attachment_index": 10,
+        "attachment_label": "P06 SCORE B61 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "61",
+        "cue_guid": "2942C431AE4CD0359827E3B7F76825D1",
+        "cue_label": "P06 Wing 031",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 277,
+        "struck_only": true,
+        "swatch": "warm_white",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2900.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "BD6D09EE4E3B481F78A1FBB1FB915800",
+        "attachment_index": 10,
+        "attachment_label": "P06 SCORE B62 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "62",
+        "cue_guid": "99989C90A9496E4ED6A87983B249CBD7",
+        "cue_label": "P06 Wing 054",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 278,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      },
+      {
+        "attachment_guid": "7C9106DB47C0D02E2BC3FEAF19410D7C",
+        "attachment_index": 10,
+        "attachment_label": "P06 SCORE B63 P06_FAILING_GOLD PRACTICAL_BULB_DEAD",
+        "bay_token": "63",
+        "cue_guid": "B1691382624D3538595DA68FDEB2FFB7",
+        "cue_label": "P06 Wing 032",
+        "glow_floor": true,
+        "look": "P06_FAILING_GOLD",
+        "passage": "P06",
+        "role": "PRACTICAL_BULB_DEAD",
+        "show_index": 279,
+        "struck_only": true,
+        "swatch": "orange",
+        "writes": {
+          "color": [
+            [
+              0.550000011920929,
+              0.699999988079071,
+              1.0,
+              1.0
+            ],
+            [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "intensity": [
+            0.0,
+            40.0
+          ],
+          "temperature_kelvin": [
+            6500.0,
+            2200.0
+          ]
+        }
+      }
+    ],
+    "untouched": [
+      {
+        "color": [
+          1.0,
+          0.4793201684951782,
+          0.13286831974983215,
+          1.0
+        ],
+        "cue_label": "P01 Wing 001",
+        "intensity": 0.0,
+        "label": "P01 SCORE B01 VOID PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 002",
+        "intensity": 0.0,
+        "label": "P01 SCORE B02 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 003",
+        "intensity": 0.0,
+        "label": "P01 SCORE B03 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.4507857859134674,
+          0.13286831974983215,
+          1.0
+        ],
+        "cue_label": "P01 Wing 004",
+        "intensity": 300.0,
+        "label": "P01 SCORE B04 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 005",
+        "intensity": 0.0,
+        "label": "P01 SCORE B05 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 006",
+        "intensity": 0.0,
+        "label": "P01 SCORE B06 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 007",
+        "intensity": 0.0,
+        "label": "P01 SCORE B07 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 008",
+        "intensity": 0.0,
+        "label": "P01 SCORE B08 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 009",
+        "intensity": 0.0,
+        "label": "P01 SCORE B09 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 011",
+        "intensity": 0.0,
+        "label": "P01 SCORE B10 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 012",
+        "intensity": 0.0,
+        "label": "P01 SCORE B11 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 010",
+        "intensity": 0.0,
+        "label": "P01 SCORE B12 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 013",
+        "intensity": 0.0,
+        "label": "P01 SCORE B13 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 014",
+        "intensity": 0.0,
+        "label": "P01 SCORE B14 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 015",
+        "intensity": 0.0,
+        "label": "P01 SCORE B15 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 016",
+        "intensity": 0.0,
+        "label": "P01 SCORE B16 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 017",
+        "intensity": 0.0,
+        "label": "P01 SCORE B17 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 018",
+        "intensity": 0.0,
+        "label": "P01 SCORE B18 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 019",
+        "intensity": 0.0,
+        "label": "P01 SCORE B19 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 020",
+        "intensity": 0.0,
+        "label": "P01 SCORE B20 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 021",
+        "intensity": 0.0,
+        "label": "P01 SCORE B21 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 022",
+        "intensity": 0.0,
+        "label": "P01 SCORE B22 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 023",
+        "intensity": 0.0,
+        "label": "P01 SCORE B23 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 024",
+        "intensity": 0.0,
+        "label": "P01 SCORE B24 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 025",
+        "intensity": 0.0,
+        "label": "P01 SCORE B25 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 026",
+        "intensity": 0.0,
+        "label": "P01 SCORE B26 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 027",
+        "intensity": 0.0,
+        "label": "P01 SCORE B27 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 028",
+        "intensity": 0.0,
+        "label": "P01 SCORE B28 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 029",
+        "intensity": 0.0,
+        "label": "P01 SCORE B29 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 030",
+        "intensity": 0.0,
+        "label": "P01 SCORE B30 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 031",
+        "intensity": 0.0,
+        "label": "P01 SCORE B31 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 032",
+        "intensity": 0.0,
+        "label": "P01 SCORE B32 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 033",
+        "intensity": 0.0,
+        "label": "P01 SCORE B33 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 034",
+        "intensity": 0.0,
+        "label": "P01 SCORE B34 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 035",
+        "intensity": 0.0,
+        "label": "P01 SCORE B35 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 036",
+        "intensity": 0.0,
+        "label": "P01 SCORE B36 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 037",
+        "intensity": 0.0,
+        "label": "P01 SCORE B37 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 038",
+        "intensity": 0.0,
+        "label": "P01 SCORE B38 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 039",
+        "intensity": 0.0,
+        "label": "P01 SCORE B39 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P01 Wing 040",
+        "intensity": 0.0,
+        "label": "P01 SCORE B40 P01_CANDLE_MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 041",
+        "intensity": 0.0,
+        "label": "P01 SCORE B41 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 042",
+        "intensity": 0.0,
+        "label": "P01 SCORE B42 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 043",
+        "intensity": 0.0,
+        "label": "P01 SCORE B43 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 044",
+        "intensity": 0.0,
+        "label": "P01 SCORE B44 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 045",
+        "intensity": 0.0,
+        "label": "P01 SCORE B45 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 046",
+        "intensity": 0.0,
+        "label": "P01 SCORE B46 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 047",
+        "intensity": 0.0,
+        "label": "P01 SCORE B47 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.699999988079071,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P01 Wing 048",
+        "intensity": 0.0,
+        "label": "P01 SCORE B48 P01_WARM_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P02 Wing 007",
+        "intensity": 0.0,
+        "label": "P02 SCORE B06 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P02 Wing 022",
+        "intensity": 800.0,
+        "label": "P02 SCORE B22 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 001",
+        "intensity": 18.0,
+        "label": "P03 SCORE B01 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 003",
+        "intensity": 18.0,
+        "label": "P03 SCORE B02 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 002",
+        "intensity": 18.0,
+        "label": "P03 SCORE B03 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 004",
+        "intensity": 18.0,
+        "label": "P03 SCORE B04 P03_STIFF_BRIGHT_SIDES PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 005",
+        "intensity": 18.0,
+        "label": "P03 SCORE B05 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 006",
+        "intensity": 18.0,
+        "label": "P03 SCORE B06 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 007",
+        "intensity": 18.0,
+        "label": "P03 SCORE B07 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 008",
+        "intensity": 18.0,
+        "label": "P03 SCORE B08 P03_PYRE_SIDES PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 009",
+        "intensity": 18.0,
+        "label": "P03 SCORE B09 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 010",
+        "intensity": 18.0,
+        "label": "P03 SCORE B10 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 011",
+        "intensity": 18.0,
+        "label": "P03 SCORE B11 P03_PYRE PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 012",
+        "intensity": 18.0,
+        "label": "P03 SCORE B12 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 013",
+        "intensity": 18.0,
+        "label": "P03 SCORE B13 P03_PYRE_SIDES PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 014",
+        "intensity": 18.0,
+        "label": "P03 SCORE B14 P03_PYRE PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 015",
+        "intensity": 18.0,
+        "label": "P03 SCORE B15 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 016",
+        "intensity": 18.0,
+        "label": "P03 SCORE B16 P03_STIFF_BRIGHT PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 017",
+        "intensity": 18.0,
+        "label": "P03 SCORE B17 P03_PYRE PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 018",
+        "intensity": 18.0,
+        "label": "P03 SCORE B18 P03_PYRE_SIDES PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 019",
+        "intensity": 18.0,
+        "label": "P03 SCORE B19 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P03 Wing 020",
+        "intensity": 18.0,
+        "label": "P03 SCORE B20 P03_PYRE PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.5,
+          0.18000000715255737,
+          1.0
+        ],
+        "cue_label": "P03 Wing 021",
+        "intensity": 18.0,
+        "label": "P03 SCORE B21 P03_PYRE PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 2200.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 001",
+        "intensity": 0.0,
+        "label": "P04 LOOK B01 MOODY PRACTICAL_L",
+        "role": "PRACTICAL_L",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 002",
+        "intensity": 0.800000011920929,
+        "label": "P04 LOOK B02 MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.3799999952316284,
+          1.0
+        ],
+        "cue_label": "P04 Wing 003",
+        "intensity": 0.0,
+        "label": "P04 LOOK B03 INDUSTRIAL PRACTICAL_CAGE_DEAD",
+        "role": "PRACTICAL_CAGE_DEAD",
+        "temperature_kelvin": 2600.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.3799999952316284,
+          1.0
+        ],
+        "cue_label": "P04 Wing 004",
+        "intensity": 560.0,
+        "label": "P04 LOOK B04 INDUSTRIAL PRACTICAL_CAGE_DEAD",
+        "role": "PRACTICAL_CAGE_DEAD",
+        "temperature_kelvin": 2600.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P04 Wing 007",
+        "intensity": 0.0,
+        "label": "P04 SCORE B07 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 008",
+        "intensity": 0.0,
+        "label": "P04 SCORE B08 MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 009",
+        "intensity": 0.0,
+        "label": "P04 SCORE B09 MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P04 Wing 010",
+        "intensity": 0.0,
+        "label": "P04 SCORE B10 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.3799999952316284,
+          1.0
+        ],
+        "cue_label": "P04 Wing 012",
+        "intensity": 0.0,
+        "label": "P04 SCORE B12 INDUSTRIAL PRACTICAL_CAGE_DEAD",
+        "role": "PRACTICAL_CAGE_DEAD",
+        "temperature_kelvin": 2600.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P04 Wing 013",
+        "intensity": 0.0,
+        "label": "P04 SCORE B13 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P04 Wing 014",
+        "intensity": 0.0,
+        "label": "P04 SCORE B14 VOID PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 016",
+        "intensity": 0.0,
+        "label": "P04 SCORE B16 MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 017",
+        "intensity": 0.0,
+        "label": "P04 SCORE B17 MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P04 Wing 019",
+        "intensity": 0.0,
+        "label": "P04 SCORE B19 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6800000071525574,
+          0.3400000035762787,
+          1.0
+        ],
+        "cue_label": "P04 Wing 021",
+        "intensity": 0.0,
+        "label": "P04 SCORE B21 MOODY PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B01 P05_SKY_APPROACH PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B02 P05_SKY_APPROACH PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B03 P05_SKY_APPROACH PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B04 P05_SKY_APPROACH PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B05 P05_SKY_APPROACH PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B06 P05_SKY_APPROACH PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B07 P05_SKY_CUT_BLINK PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B08 P05_SKY_CUT_BLINK PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B09 P05_SKY_CUT_BLINK PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B10 P05_SKY_CUT_BLINK PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B11 P05_SKY_CUT_BLINK PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B12 P05_SKY_CUT_BLINK PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B13 P05_ALL_ON PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B14 P05_ALL_ON PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B15 P05_ALL_ON PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B16 P05_ALL_ON PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B17 P05_ALL_ON PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B18 P05_ALL_ON PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B19 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B20 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B21 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B22 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B23 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B24 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B25 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B26 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B27 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B28 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B29 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B30 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B31 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B32 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B33 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B34 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B35 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B36 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B37 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B38 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B39 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B40 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B41 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B42 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B43 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B44 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B45 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B46 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B47 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B48 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B49 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B50 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B51 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B52 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B53 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B54 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B55 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B56 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B57 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B58 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B59 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B60 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B61 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B62 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B63 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B64 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B65 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B66 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B67 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B68 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B69 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B70 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B71 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B72 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B73 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B74 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B75 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B76 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B77 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B78 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B79 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B80 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B81 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B82 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B83 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B84 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B85 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 006",
+        "intensity": 18.0,
+        "label": "P05 SCORE B86 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 007",
+        "intensity": 18.0,
+        "label": "P05 SCORE B87 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 008",
+        "intensity": 18.0,
+        "label": "P05 SCORE B88 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 001",
+        "intensity": 18.0,
+        "label": "P05 SCORE B89 P05_COOL_THEATRICAL PRACTICAL_BULB_DEAD",
+        "role": "PRACTICAL_BULB_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.9399999976158142,
+          0.8600000143051147,
+          1.0
+        ],
+        "cue_label": "P05 Wing 002",
+        "intensity": 18.0,
+        "label": "P05 SCORE B90 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3300.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 003",
+        "intensity": 18.0,
+        "label": "P05 SCORE B91 P05_SOFT_POOL PRACTICAL_R",
+        "role": "PRACTICAL_R",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 004",
+        "intensity": 18.0,
+        "label": "P05 SCORE B92 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.6000000238418579,
+          0.7400000095367432,
+          1.0
+        ],
+        "cue_label": "P05 Wing 005",
+        "intensity": 18.0,
+        "label": "P05 SCORE B93 VOID PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 3400.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P06 OLD 06 - gauze_lattice",
+        "intensity": 0.0,
+        "label": "P06 SCORE B12 GAP PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      },
+      {
+        "color": [
+          1.0,
+          0.7200000286102295,
+          0.4000000059604645,
+          1.0
+        ],
+        "cue_label": "P06 Wing 055",
+        "intensity": 0.0,
+        "label": "P06 SCORE B64 VOID PRACTICAL_DEAD",
+        "role": "PRACTICAL_DEAD",
+        "temperature_kelvin": 2700.0,
+        "use_temperature": true,
+        "why": "ALREADY_WARM"
+      }
+    ],
+    "warnings": []
+  },
+  "protected_cue_guids": [
+    "C1CDC6C8BB4116B5D3BB67B4103FF047",
+    "7B0D67932249C38B1F010C93D74A38F2",
+    "ABFFBA7B47F22FE2F67C52A63EE441F7",
+    "B2FC9042424C7D641731A3B689A710D2",
+    "84D6E0B0E64D490C8BAEC7955AED56C2",
+    "0C51D6BAF747CFFA8E12ADA9D3FD83F1",
+    "8BF2AF7F824A6CA03EE18D9C4AAE4397",
+    "97946A25174493CA6D23E39FA6BDCE81",
+    "D91F56E8454AED2CB9594D868F53ADFD"
+  ],
+  "record": "E:\\PussStage\\Saved\\CodexConductor\\dead_bulbs_warm_record.json",
+  "run": "20261007-024628",
+  "saved": true,
+  "sources": {
+    "rig_pattern_sha256": "59c960d530eae92d895b865305ad08d2bf206fb69f9d6147c9d8efad07443f01",
+    "scores_sha256": "f62f5271c5ec807611fdeaf44ceaa45670f268e3644361723f97c8c7cb36e1a3"
+  },
+  "unacknowledged_foreign_records": []
+}

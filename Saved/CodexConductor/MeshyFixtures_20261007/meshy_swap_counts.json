@@ -1,0 +1,318 @@
+{
+  "inferred": "offline snapshots, sphere bounds assumed -50..50; the live DRY re-reads every row and mesh",
+  "passages": {
+    "P01": {
+      "bulb_scale_range": [
+        1.9694,
+        4.0
+      ],
+      "counts": {
+        "anchor_warnings": 26,
+        "bulbs": 38,
+        "caps": 0,
+        "cues": 38,
+        "skipped": 38
+      },
+      "derived_meshes": 0,
+      "housing": {
+        "body_material": null,
+        "body_size_cm": [
+          30.28,
+          23.8,
+          49.27
+        ],
+        "chosen_by": "majority:TOP=76",
+        "housed_role_counts": {
+          "BEAM": 26,
+          "LOW_SIDE": 76,
+          "OTHER": 1,
+          "PRACTICAL": 76,
+          "TOP": 76
+        },
+        "lantern": "SM_Lantern_Fresnel",
+        "lens_offset_cm": [
+          -2.38,
+          0.0,
+          -6.415
+        ],
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "mode": "STRUCTURE",
+        "practical_bulbs_that_get_a_lantern": 76
+      },
+      "skipped_by_reason": {
+        "NOT_A_SPHERE_BULB": 38
+      },
+      "source": "p01_rig_pattern_record.json (run 20261006-184409, status saved_readback_verified)",
+      "variants": {
+        "SM_Bulb_A60_Clear": 5,
+        "SM_Bulb_A60_Frost": 5,
+        "SM_Bulb_A60_Opal": 9,
+        "SM_Bulb_A60_Worn": 8,
+        "SM_Bulb_C35_Clear": 1,
+        "SM_Bulb_G95_Clear": 6,
+        "SM_Bulb_ST64_Cage": 4
+      }
+    },
+    "P02": {
+      "bulb_scale_range": [
+        1.9694,
+        4.0
+      ],
+      "counts": {
+        "anchor_warnings": 18,
+        "bulbs": 21,
+        "caps": 0,
+        "cues": 21,
+        "skipped": 21
+      },
+      "derived_meshes": 0,
+      "housing": {
+        "body_material": null,
+        "body_size_cm": [
+          40.0,
+          30.94,
+          44.72
+        ],
+        "chosen_by": "majority:LOW_SIDE=40",
+        "housed_role_counts": {
+          "BEAM": 12,
+          "LOW_SIDE": 40,
+          "OTHER": 1,
+          "PRACTICAL": 42,
+          "TOP": 33
+        },
+        "lantern": "SM_Lantern_ParCan",
+        "lens_offset_cm": [
+          -2.88,
+          0.01,
+          -7.45
+        ],
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "mode": "STRUCTURE",
+        "practical_bulbs_that_get_a_lantern": 42
+      },
+      "skipped_by_reason": {
+        "NOT_A_SPHERE_BULB": 21
+      },
+      "source": "p02_rig_pattern_record.json (run 20261006-223825, status saved_readback_verified)",
+      "variants": {
+        "SM_Bulb_A60_Clear": 4,
+        "SM_Bulb_A60_Frost": 3,
+        "SM_Bulb_A60_Opal": 4,
+        "SM_Bulb_A60_Worn": 2,
+        "SM_Bulb_C35_Clear": 2,
+        "SM_Bulb_G95_Clear": 2,
+        "SM_Bulb_ST64_Cage": 4
+      }
+    },
+    "P03": {
+      "bulb_scale_range": [
+        1.9694,
+        4.0
+      ],
+      "counts": {
+        "anchor_warnings": 17,
+        "bulbs": 17,
+        "caps": 17,
+        "cues": 17,
+        "skipped": 17
+      },
+      "derived_meshes": 12,
+      "housing": {
+        "body_material": null,
+        "body_size_cm": [
+          30.28,
+          23.8,
+          49.27
+        ],
+        "chosen_by": "majority:TOP=34",
+        "housed_role_counts": {
+          "BEAM": 4,
+          "LOW_SIDE": 8,
+          "OTHER": 12,
+          "PRACTICAL": 34,
+          "TOP": 34
+        },
+        "lantern": "SM_Lantern_Fresnel",
+        "lens_offset_cm": [
+          -2.38,
+          0.0,
+          -6.415
+        ],
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "mode": "STRUCTURE",
+        "practical_bulbs_that_get_a_lantern": 34
+      },
+      "skipped_by_reason": {
+        "NOT_A_SPHERE_BULB": 17
+      },
+      "source": "p03_rig_pattern_record.json (run 20261006-223839, status saved_readback_verified)",
+      "variants": {
+        "SM_Bulb_A60_Clear": 2,
+        "SM_Bulb_A60_Frost": 2,
+        "SM_Bulb_A60_Opal": 2,
+        "SM_Bulb_A60_Worn": 3,
+        "SM_Bulb_C35_Clear": 3,
+        "SM_Bulb_G95_Clear": 2,
+        "SM_Bulb_ST64_Cage": 3
+      }
+    },
+    "P04": {
+      "bulb_scale_range": [
+        2.7397,
+        4.0
+      ],
+      "counts": {
+        "anchor_warnings": 4,
+        "bulbs": 10,
+        "caps": 0,
+        "cues": 10,
+        "skipped": 10
+      },
+      "derived_meshes": 0,
+      "housing": {
+        "body_material": null,
+        "body_size_cm": [
+          30.28,
+          23.8,
+          49.27
+        ],
+        "chosen_by": "majority:TOP=20",
+        "housed_role_counts": {
+          "BEAM": 5,
+          "LOW_SIDE": 20,
+          "OTHER": 2,
+          "PRACTICAL": 20,
+          "TOP": 20
+        },
+        "lantern": "SM_Lantern_Fresnel",
+        "lens_offset_cm": [
+          -2.38,
+          0.0,
+          -6.415
+        ],
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "mode": "STRUCTURE",
+        "practical_bulbs_that_get_a_lantern": 20
+      },
+      "skipped_by_reason": {
+        "NOT_A_SPHERE_BULB": 10
+      },
+      "source": "p04_rig_pattern_record.json (run 20261006-223856, status saved_readback_verified)",
+      "variants": {
+        "SM_Bulb_A60_Clear": 2,
+        "SM_Bulb_A60_Frost": 1,
+        "SM_Bulb_A60_Opal": 1,
+        "SM_Bulb_A60_Worn": 2,
+        "SM_Bulb_C35_Clear": 1,
+        "SM_Bulb_ST64_Cage": 3
+      }
+    },
+    "P05": {
+      "bulb_scale_range": [
+        1.9694,
+        4.0
+      ],
+      "counts": {
+        "anchor_warnings": 0,
+        "bulbs": 93,
+        "caps": 93,
+        "cues": 93,
+        "skipped": 92
+      },
+      "derived_meshes": 13,
+      "housing": {
+        "body_material": null,
+        "body_size_cm": [
+          30.28,
+          23.8,
+          49.27
+        ],
+        "chosen_by": "majority:TOP=156",
+        "housed_role_counts": {
+          "BEAM": 51,
+          "FILL": 24,
+          "LOW_SIDE": 144,
+          "OTHER": 2,
+          "PRACTICAL": 185,
+          "TOP": 156,
+          "UPLIGHT": 36
+        },
+        "lantern": "SM_Lantern_Fresnel",
+        "lens_offset_cm": [
+          -2.38,
+          0.0,
+          -6.415
+        ],
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "mode": "STRUCTURE",
+        "practical_bulbs_that_get_a_lantern": 185
+      },
+      "skipped_by_reason": {
+        "NOT_A_SPHERE_BULB": 92
+      },
+      "source": "lighting_scores_record_P05.json (run 20261006-023248, status saved_readback_verified)",
+      "variants": {
+        "SM_Bulb_A60_Clear": 6,
+        "SM_Bulb_A60_Frost": 21,
+        "SM_Bulb_A60_Opal": 13,
+        "SM_Bulb_A60_Worn": 15,
+        "SM_Bulb_C35_Clear": 16,
+        "SM_Bulb_G95_Clear": 6,
+        "SM_Bulb_ST64_Cage": 16
+      }
+    },
+    "P06": {
+      "bulb_scale_range": [
+        1.9694,
+        4.0
+      ],
+      "counts": {
+        "anchor_warnings": 40,
+        "bulbs": 40,
+        "caps": 0,
+        "cues": 40,
+        "skipped": 40
+      },
+      "derived_meshes": 0,
+      "housing": {
+        "body_material": null,
+        "body_size_cm": [
+          40.0,
+          30.94,
+          44.72
+        ],
+        "chosen_by": "majority:LOW_SIDE=72",
+        "housed_role_counts": {
+          "BEAM": 17,
+          "LOW_SIDE": 72,
+          "OTHER": 1,
+          "PRACTICAL": 80,
+          "TOP": 35
+        },
+        "lantern": "SM_Lantern_ParCan",
+        "lens_offset_cm": [
+          -2.88,
+          0.01,
+          -7.45
+        ],
+        "mesh": "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "mode": "STRUCTURE",
+        "practical_bulbs_that_get_a_lantern": 80
+      },
+      "skipped_by_reason": {
+        "NOT_A_SPHERE_BULB": 40
+      },
+      "source": "p06_rig_pattern_record.json (run 20261006-223913, status saved_readback_verified)",
+      "variants": {
+        "SM_Bulb_A60_Clear": 6,
+        "SM_Bulb_A60_Frost": 7,
+        "SM_Bulb_A60_Opal": 4,
+        "SM_Bulb_A60_Worn": 5,
+        "SM_Bulb_C35_Clear": 8,
+        "SM_Bulb_G95_Clear": 6,
+        "SM_Bulb_ST64_Cage": 4
+      }
+    }
+  }
+}

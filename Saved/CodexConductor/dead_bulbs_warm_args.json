@@ -1,0 +1,21 @@
+{
+  "mode": "APPLY",
+  "params": {},
+  "expected_targets": 77,
+  "expected_per_passage": null,
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p04_atmos_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\Effects_20261007\\p06_atmos_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P06.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p02_brighten_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p06_rig_pattern_record.json"
+  ],
+  "allow_dirty": [],
+  "confirm": "APPLY DEADBULBSWARM"
+}

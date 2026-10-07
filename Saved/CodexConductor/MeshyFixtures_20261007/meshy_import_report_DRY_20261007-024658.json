@@ -1,0 +1,125 @@
+{
+  "args": {
+    "ack_records": [],
+    "batch": "next",
+    "bulb_glow": {
+      "colour": [
+        1.0,
+        0.62,
+        0.3
+      ],
+      "intensity": 1.5
+    },
+    "confirm": null,
+    "glass": {
+      "opacity": 0.22,
+      "roughness": 0.06,
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "lens_glow": {
+      "colour": [
+        1.0,
+        0.85,
+        0.65
+      ],
+      "intensity": 0.6
+    },
+    "max_texture_size": {
+      "bulb": 1024,
+      "housing": 2048
+    },
+    "mode": "DRY"
+  },
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project": "e:\\pussstage",
+    "project_ok": true
+  },
+  "masters_exist": {
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass": false,
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow": false,
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit": false
+  },
+  "mode": "DRY",
+  "mutated": false,
+  "next": "SM_Lantern_Fresnel",
+  "ok": true,
+  "record": null,
+  "run": "20261007-024658",
+  "status": {
+    "SM_Bulb_A60_Clear": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Bulb_A60_Frost": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Bulb_A60_Opal": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Bulb_A60_Worn": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Bulb_C35_Clear": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Bulb_G95_Clear": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Bulb_ST64_Cage": {
+      "existing": [],
+      "lens_sign_provable": null,
+      "recorded": false
+    },
+    "SM_Lantern_1950s": {
+      "existing": [],
+      "lens_sign_provable": true,
+      "recorded": false
+    },
+    "SM_Lantern_Birdie": {
+      "existing": [],
+      "lens_sign_provable": true,
+      "recorded": false
+    },
+    "SM_Lantern_Fresnel": {
+      "existing": [],
+      "lens_sign_provable": true,
+      "recorded": false
+    },
+    "SM_Lantern_FresnelDoors": {
+      "existing": [],
+      "lens_sign_provable": true,
+      "recorded": false
+    },
+    "SM_Lantern_ParCan": {
+      "existing": [],
+      "lens_sign_provable": true,
+      "recorded": false
+    },
+    "SM_Lantern_Profile": {
+      "existing": [],
+      "lens_sign_provable": true,
+      "recorded": false
+    }
+  },
+  "unrecorded_existing": {}
+}

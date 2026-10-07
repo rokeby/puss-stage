@@ -1,0 +1,61 @@
+{
+  "args": {
+    "ack_records": [],
+    "batch": "next",
+    "bulb_glow": {
+      "colour": [
+        1.0,
+        0.62,
+        0.3
+      ],
+      "intensity": 1.5
+    },
+    "confirm": "APPLY MESHYIMPORT",
+    "glass": {
+      "opacity": 0.22,
+      "roughness": 0.06,
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "lens_glow": {
+      "colour": [
+        1.0,
+        0.85,
+        0.65
+      ],
+      "intensity": 0.6
+    },
+    "max_texture_size": {
+      "bulb": 1024,
+      "housing": 2048
+    },
+    "mode": "APPLY"
+  },
+  "asset": "SM_Lantern_Profile",
+  "batch": "SM_Lantern_Profile",
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project": "e:\\pussstage",
+    "project_ok": true
+  },
+  "created": [
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+  ],
+  "mode": "APPLY",
+  "ok": true,
+  "remaining": "SM_Lantern_ParCan",
+  "run": "20261007-024735"
+}

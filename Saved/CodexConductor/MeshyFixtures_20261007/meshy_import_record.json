@@ -1,0 +1,1226 @@
+{
+  "args": {
+    "ack_records": [],
+    "batch": "next",
+    "bulb_glow": {
+      "colour": [
+        1.0,
+        0.62,
+        0.3
+      ],
+      "intensity": 1.5
+    },
+    "confirm": "APPLY MESHYIMPORT",
+    "glass": {
+      "opacity": 0.22,
+      "roughness": 0.06,
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "lens_glow": {
+      "colour": [
+        1.0,
+        0.85,
+        0.65
+      ],
+      "intensity": 0.6
+    },
+    "max_texture_size": {
+      "bulb": 1024,
+      "housing": 2048
+    },
+    "mode": "APPLY"
+  },
+  "created_all": [
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glass",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glow",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Glow",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+  ],
+  "dest_root": "/Game/InfinityStage/Lighting/Fixtures",
+  "first_run": "20261007-024705",
+  "fixtures": {
+    "SM_Bulb_A60_Clear": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glass",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness"
+      ],
+      "masters_built": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass": {
+          "compile_errors_returned": [],
+          "terminals": {
+            "MP_BASE_COLOR": "MaterialExpressionMultiply_0",
+            "MP_OPACITY": "MaterialExpressionScalarParameter_0",
+            "MP_ROUGHNESS": "MaterialExpressionScalarParameter_1"
+          }
+        }
+      },
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glass": {
+          "scalars": {
+            "Opacity": 0.2199999988079071,
+            "Roughness": 0.05999999865889549
+          },
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor"
+          },
+          "vectors": {
+            "Tint": [
+              1.0,
+              1.0,
+              1.0
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glow": {
+          "scalars": {
+            "Intensity": 1.5
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.6200000047683716,
+              0.30000001192092896
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glass",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass"
+      ],
+      "readback": {
+        "bounds_max": [
+          3.0850377082824707,
+          3.1020114421844482,
+          0.0
+        ],
+        "bounds_min": [
+          -3.094158887863159,
+          -3.0557007789611816,
+          -10.999999046325684
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness"
+        ],
+        "num_lods": 1,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Bulb_A60_Clear_Glow",
+          "M_SM_Bulb_A60_Clear_Metal",
+          "M_SM_Bulb_A60_Clear_Glass"
+        ]
+      },
+      "run": "20261007-024825",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glass",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Clear",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Clear_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Clear_Glass"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 1024,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 1024,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 1024,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 1024,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Bulb_A60_Frost": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness"
+      ],
+      "masters_built": {},
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Glow": {
+          "scalars": {
+            "Intensity": 1.5
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.6200000047683716,
+              0.30000001192092896
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Metal"
+      ],
+      "readback": {
+        "bounds_max": [
+          2.93741774559021,
+          2.9764256477355957,
+          0.0
+        ],
+        "bounds_min": [
+          -3.021758794784546,
+          -2.971123218536377,
+          -11.0
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness"
+        ],
+        "num_lods": 1,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Bulb_A60_Frost_Glow",
+          "M_SM_Bulb_A60_Frost_Metal"
+        ]
+      },
+      "run": "20261007-024842",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Frost",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Frost_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_A60_Frost_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 1024,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 1024,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 1024,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 1024,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Lantern_1950s": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness"
+      ],
+      "masters_built": {},
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Lens": {
+          "scalars": {
+            "Intensity": 0.6000000238418579
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.8500000238418579,
+              0.6499999761581421
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Metal"
+      ],
+      "readback": {
+        "bounds_max": [
+          17.77321434020996,
+          19.693084716796875,
+          37.9805793762207
+        ],
+        "bounds_min": [
+          -17.226783752441406,
+          -19.69287109375,
+          -22.806930541992188
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness"
+        ],
+        "num_lods": 2,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Lantern_1950s_Lens",
+          "M_SM_Lantern_1950s_Metal"
+        ]
+      },
+      "run": "20261007-024813",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_1950s",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_1950s_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_1950s_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 2048,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Lantern_Birdie": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness"
+      ],
+      "masters_built": {},
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Lens": {
+          "scalars": {
+            "Intensity": 0.6000000238418579
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.8500000238418579,
+              0.6499999761581421
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Metal"
+      ],
+      "readback": {
+        "bounds_max": [
+          5.471714019775391,
+          5.4667158126831055,
+          14.33769416809082
+        ],
+        "bounds_min": [
+          -6.5363078117370605,
+          -5.450952053070068,
+          -5.254597187042236
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness"
+        ],
+        "num_lods": 2,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Lantern_Birdie_Lens",
+          "M_SM_Lantern_Birdie_Metal"
+        ]
+      },
+      "run": "20261007-024800",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Birdie",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Birdie_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Birdie_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 2048,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Lantern_Fresnel": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness"
+      ],
+      "masters_built": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow": {
+          "compile_errors_returned": [],
+          "terminals": {
+            "MP_EMISSIVE_COLOR": "MaterialExpressionMultiply_0"
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit": {
+          "compile_errors_returned": [],
+          "terminals": {
+            "MP_BASE_COLOR": "MaterialExpressionTextureSampleParameter2D_0",
+            "MP_METALLIC": "MaterialExpressionTextureSampleParameter2D_3",
+            "MP_NORMAL": "MaterialExpressionTextureSampleParameter2D_1",
+            "MP_ROUGHNESS": "MaterialExpressionTextureSampleParameter2D_2"
+          }
+        }
+      },
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Lens": {
+          "scalars": {
+            "Intensity": 0.6000000238418579
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.8500000238418579,
+              0.6499999761581421
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit"
+      ],
+      "readback": {
+        "bounds_max": [
+          17.079185485839844,
+          11.897184371948242,
+          31.54977798461914
+        ],
+        "bounds_min": [
+          -13.200056076049805,
+          -11.901470184326172,
+          -17.724143981933594
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness"
+        ],
+        "num_lods": 2,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Lantern_Fresnel_Lens",
+          "M_SM_Lantern_Fresnel_Metal"
+        ]
+      },
+      "run": "20261007-024705",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Fresnel",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Fresnel_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Fresnel_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 2048,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Lantern_FresnelDoors": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness"
+      ],
+      "masters_built": {},
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Lens": {
+          "scalars": {
+            "Intensity": 0.6000000238418579
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.8500000238418579,
+              0.6499999761581421
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Metal"
+      ],
+      "readback": {
+        "bounds_max": [
+          28.46531105041504,
+          14.619633674621582,
+          28.502994537353516
+        ],
+        "bounds_min": [
+          -12.61971664428711,
+          -14.626211166381836,
+          -20.049285888671875
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness"
+        ],
+        "num_lods": 2,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Lantern_FresnelDoors_Lens",
+          "M_SM_Lantern_FresnelDoors_Metal"
+        ]
+      },
+      "run": "20261007-024723",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_FresnelDoors",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_FresnelDoors_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_FresnelDoors_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 2048,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Lantern_ParCan": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness"
+      ],
+      "masters_built": {},
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Lens": {
+          "scalars": {
+            "Intensity": 0.6000000238418579
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.8500000238418579,
+              0.6499999761581421
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Metal"
+      ],
+      "readback": {
+        "bounds_max": [
+          21.480192184448242,
+          15.483345031738281,
+          27.612457275390625
+        ],
+        "bounds_min": [
+          -18.519805908203125,
+          -15.461647033691406,
+          -17.108396530151367
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness"
+        ],
+        "num_lods": 2,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Lantern_ParCan_Lens",
+          "M_SM_Lantern_ParCan_Metal"
+        ]
+      },
+      "run": "20261007-024748",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_ParCan",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_ParCan_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_ParCan_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 2048,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        }
+      }
+    },
+    "SM_Lantern_Profile": {
+      "created": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+      ],
+      "imported": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+      ],
+      "masters_built": {},
+      "mis": {
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens": {
+          "scalars": {
+            "Intensity": 0.6000000238418579
+          },
+          "textures": {},
+          "vectors": {
+            "Colour": [
+              1.0,
+              0.8500000238418579,
+              0.6499999761581421
+            ]
+          }
+        },
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal": {
+          "scalars": {},
+          "textures": {
+            "BaseColor": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+            "Metallic": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+            "Normal": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+            "Roughness": "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+          },
+          "vectors": {}
+        }
+      },
+      "new_assets": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+      ],
+      "planned": [
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal"
+      ],
+      "readback": {
+        "bounds_max": [
+          36.472259521484375,
+          12.7891845703125,
+          24.896461486816406
+        ],
+        "bounds_min": [
+          -23.786338806152344,
+          -12.897412300109863,
+          -12.64315414428711
+        ],
+        "class": "StaticMesh",
+        "nanite_enabled": false,
+        "new_assets": [
+          "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+          "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+        ],
+        "num_lods": 2,
+        "slot_materials": [
+          "/Engine/EngineMaterials/WorldGridMaterial",
+          "/Engine/EngineMaterials/WorldGridMaterial"
+        ],
+        "slot_names": [
+          "M_SM_Lantern_Profile_Lens",
+          "M_SM_Lantern_Profile_Metal"
+        ]
+      },
+      "run": "20261007-024735",
+      "saved": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal",
+        "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Lantern_Profile",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_BaseColor",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Metallic",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Normal",
+        "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Lantern_Profile_Roughness"
+      ],
+      "slots": [
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Lens",
+        "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Lantern_Profile_Metal"
+      ],
+      "status": "saved_readback_verified",
+      "strays": [],
+      "strays_deleted": [],
+      "strays_kept": [],
+      "textures": {
+        "BaseColor": {
+          "compression": "TC_DEFAULT",
+          "max_texture_size": 2048,
+          "srgb": true
+        },
+        "Metallic": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Normal": {
+          "compression": "TC_NORMALMAP",
+          "max_texture_size": 2048,
+          "srgb": false
+        },
+        "Roughness": {
+          "compression": "TC_GRAYSCALE",
+          "max_texture_size": 2048,
+          "srgb": false
+        }
+      }
+    }
+  },
+  "masters": {
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glass": {
+      "compile_errors_returned": [],
+      "terminals": {
+        "MP_BASE_COLOR": "MaterialExpressionMultiply_0",
+        "MP_OPACITY": "MaterialExpressionScalarParameter_0",
+        "MP_ROUGHNESS": "MaterialExpressionScalarParameter_1"
+      }
+    },
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Glow": {
+      "compile_errors_returned": [],
+      "terminals": {
+        "MP_EMISSIVE_COLOR": "MaterialExpressionMultiply_0"
+      }
+    },
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/M_Fixture_Lit": {
+      "compile_errors_returned": [],
+      "terminals": {
+        "MP_BASE_COLOR": "MaterialExpressionTextureSampleParameter2D_0",
+        "MP_METALLIC": "MaterialExpressionTextureSampleParameter2D_3",
+        "MP_NORMAL": "MaterialExpressionTextureSampleParameter2D_1",
+        "MP_ROUGHNESS": "MaterialExpressionTextureSampleParameter2D_2"
+      }
+    }
+  },
+  "schema_version": 1,
+  "status": "importing"
+}

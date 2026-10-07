@@ -1,5 +1,29 @@
 """P02 brighten second half: DRY / APPLY / REVERT. Raise dead practicals to a low glow and lift the TOP lights of the
-P02 bays in the second half of the route. Intensity ONLY.
+P02 bays in the second half of the route (INTENSITY SET), and -- schema 2, 7 Oct -- make every SCORE lamp in those bays
+strike earlier and stay lit behind the camera (DRAMA SET).
+
+SCHEMA 2 (7 Oct, after APPLY 20261007-022814 had no measurable effect): the 6 Oct rig pattern keys P02 SCORE lamps with
+Drama StrikeDistanceCm 650 / StrikeRampCm 150 / UnstruckIntensityScale 0 and AfterPass DECAY (B15-B17) or EXTINGUISH
+(B18-B19) (p02_rig_pattern_record.json after_cue_rows, offline read 7 Oct). EvaluateStrike returns the unstruck level
+until the camera is within StrikeDistanceCm and drops back to it after the pass for Extinguish/Decay
+(InfinityStageLightDrama.cpp:23-57; declaration-proven from source); per the header the unstruck lamp is switched off,
+not dimmed (InfinityStageLightDrama.h:30). So the camera sees at most ~6.5 m of lit lamps ahead; raising intensity
+alone could not show. DRAMA SET (params "drama": true by default), for the SAME selected bays:
+  * every enabled LIGHT row "P02 SCORE B## <look> <role>" (not *_BODY; minus params.drama_skip_roles, default none --
+    so BEAM_R and LOW_SIDE_* ARE included) whose Drama.bStrikeOnApproach is true:
+      lighting.drama.strike_distance_cm -> max(before, params.strike_distance_cm 2500)  (never shortened)
+      lighting.drama.strike_ramp_cm     -> params.strike_ramp_cm 600
+      lighting.drama.after_pass         -> params.after_pass_override "HOLD" when before is DECAY/EXTINGUISH (null = off)
+    UnstruckIntensityScale, AfterPassDistanceCm, DecayDistanceCm, IgnitionStutter, bStrikeOnApproach are NEVER written.
+  * a field already at its target is not written (no-op fields are not targets). Each (row, field) is one TARGET with
+    its own before/after; plan.counts.targets counts FIELDS (intensity + drama), plan.counts.rows counts attachments.
+Field names: FInfinityStageLightDrama bStrikeOnApproach/StrikeDistanceCm/StrikeRampCm/UnstruckIntensityScale/AfterPass
+(InfinityStageLightDrama.h:39,44,49,61,65), enum EInfinityLightAfterPass Hold/Decay/Extinguish (:10-18), Lighting.Drama
+(InfinityStageTypes.h:364) -- declaration-proven. Python names strike_distance_cm / strike_ramp_cm / after_pass and
+unreal.InfinityLightAfterPass are measured by earlier live writers (lighting_looks_apply.py:1533-1551,
+lighting_events_apply.py:970-986) and the plain-state reader (_infinity_attachment_state.py DRAMA_FIELDS).
+ORDER while the schema-1 record of APPLY 20261007-022814 is active: REVERT (restores its 32 intensities; works on a
+schema-1 record) -> DRY -> APPLY (both sets, expected_targets = the DRY's plan.counts.targets).
 
 Gary, 7 Oct (P02, after the straighten + retime to 47.52 s): "Brighten second half". Earlier notes this honours:
 dead bulbs must glow minimally (GARY_PIE_NOTES_2026-10-05.md:255), light the wings lurid "from above" / with the
@@ -7,8 +31,8 @@ practicals and NO light shooting through L to R (GARY_PIE_NOTES_2026-10-05.md:22
 rows are never written. A live probe at the 60 % still (probe_p02_view.py) read B18-B19 practicals at 0.0 and
 88-209 cd and B20-21 (P02_MYSTIC) TOP_L/TOP_R at 0.0.
 
-WHAT IT WRITES (lighting.intensity of existing Show attachments, nothing else: no colour, cone, drama, transform,
-enabled; no row added or removed):
+INTENSITY SET (lighting.intensity of existing Show attachments; with the DRAMA SET above these four fields are all
+this tool writes: no colour, cone, other drama field, transform, enabled; no row added or removed):
   * selection: P02 bays whose LIVE station distance / LIVE route length >= params.from_fraction (0.45); station
     distances from Structure 02's GatherStations, route length from the Passage actor's GetRouteLengthStatus.
   * practicals: enabled LIGHT rows "P02 SCORE B## <look> PRACTICAL..." (not *_BODY) with intensity < practical_floor
@@ -59,7 +83,10 @@ Proof tiers (AGENTS.md), per claim:
 
 Args (p02_brighten_args.json via p02_brighten_run.py):
   {"mode": "DRY"|"APPLY"|"REVERT", "confirm": "<MODE> P02BRIGHTEN", "params": {...DEFAULTS overrides},
-   "expected_targets": null|int, "expected_bays": null|[labels], "ack_records": [...], "allow_dirty": []}
+   "expected_targets": null|int (= DRY plan.counts.targets, which counts FIELDS: intensity + drama), "expected_bays":
+   null|[labels], "ack_records": [...], "allow_dirty": []}
+  drama params: "drama" true, "strike_distance_cm" 2500, "strike_ramp_cm" 600, "after_pass_override" "HOLD"|null,
+  "drama_skip_roles" [] (e.g. ["BEAM_R"]).
 Markers: P02BRIGHTEN_DRY_OK / _APPLY_OK / _REVERT_OK |run=<id>|...; any stop P02BRIGHTEN_STOPPED|run=<id>|<reason>.
 """
 from __future__ import annotations
@@ -88,7 +115,15 @@ CONFIRM_TOKEN = "P02BRIGHTEN"
 VALID_MODES = ("DRY", "APPLY", "REVERT")
 PASSAGE = "P02"
 BACKUP_STEM = "PreP02Brighten"
+SCHEMA_VERSION = 2
 FIELD = "lighting.intensity"
+P_STRIKE = "lighting.drama.strike_distance_cm"
+P_RAMP = "lighting.drama.strike_ramp_cm"
+P_AFTER = "lighting.drama.after_pass"
+PATHS = (FIELD, P_STRIKE, P_RAMP, P_AFTER)          # the ONLY fields this tool may write
+ENUM_PATHS = (P_AFTER,)
+AFTER_PASS_NAMES = ("HOLD", "DECAY", "EXTINGUISH")  # InfinityStageLightDrama.h:10-18
+EXPORT_NAMES = {P_STRIKE: "StrikeDistanceCm", P_RAMP: "StrikeRampCm", P_AFTER: "AfterPass"}  # inside Drama=(..)
 UNIT_NAMES = ("UNITLESS", "CANDELAS", "LUMENS", "EV", "NITS")   # InfinityStageTypes.h:174-181
 SCORE_RE = re.compile(r"^P02 SCORE B(\d{2}) (\S+) (\S+)$")
 DEFAULTS = {
@@ -102,9 +137,16 @@ DEFAULTS = {
     "practical_role_re": r"^PRACTICAL(_[A-Z]+)*$",
     "top_roles": ["TOP_L", "TOP_R"],
     "skip_labels": [],
+    # DRAMA SET (schema 2)
+    "drama": True,
+    "strike_distance_cm": 2500.0,   # never shortens a longer strike
+    "strike_ramp_cm": 600.0,
+    "after_pass_override": "HOLD",  # DECAY/EXTINGUISH -> HOLD; null leaves AfterPass alone
+    "drama_skip_roles": [],         # e.g. ["BEAM_R"] to keep a role's keying as it is
 }
 PARAM_RANGES = {"from_fraction": (0.0, 0.99), "practical_floor": (1.0, 1000.0), "top_scale": (1.0, 4.0),
-                "top_floor_cd": (0.0, 500.0), "top_max_cd": (1.0, 1000.0)}
+                "top_floor_cd": (0.0, 500.0), "top_max_cd": (1.0, 1000.0),
+                "strike_distance_cm": (0.0, 6000.0), "strike_ramp_cm": (1.0, 3000.0)}
 REL_TOL = 1.0e-6
 INFERRED = [
     "station n at 250 + 500 (n-1) cm (uniform intervals, passage_slow_walk_P02_latest.json) -> cut between B11/B12",
@@ -112,6 +154,9 @@ INFERRED = [
     "Intensity appears 0/1 times inside each target's Lighting=(..) export group",
     "a raised strike-on-approach lamp (unstruck_intensity_scale 0) only glows once struck",
     "materialize carries the new Show intensity to the spawned light (not read back from components here)",
+    "ExportText nests Drama as Drama=(..) inside Lighting=(..) and omits default-valued fields (HOLD, 2500 are "
+    "defaults); a missing Drama group refuses EXPORT_NO_DRAMA, so the DRY proves or refutes it",
+    "with strike 2500 + HOLD the second-half lamps read as lit from ~25 m ahead and stay lit behind; not rendered here",
 ]
 
 
@@ -136,6 +181,12 @@ def _enum_name(value):
     text = str(value)
     match = re.search(r"\.([A-Za-z0-9_]+)\s*:", text)
     return (match.group(1) if match else text).upper()
+
+
+def _short(value):
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return "%.4g" % value
+    return _enum_name(value)
 
 
 def report_path(mode, run, folder=None):
@@ -222,6 +273,12 @@ def check_params(raw):
             and len(set(tops)) == len(tops), "PARAM_TOP_ROLES|%r (TOP_L/TOP_R only)" % (tops,))
     skip = p["skip_labels"]
     require(isinstance(skip, list) and all(isinstance(s, str) and s for s in skip), "PARAM_SKIP_LABELS|%r" % (skip,))
+    require(isinstance(p["drama"], bool), "PARAM_DRAMA_NOT_BOOL|%r" % (p["drama"],))
+    ov = p["after_pass_override"]
+    require(ov is None or ov == "HOLD", "PARAM_AFTER_PASS_OVERRIDE|%r (HOLD or null only)" % (ov,))
+    dskip = p["drama_skip_roles"]
+    require(isinstance(dskip, list) and all(isinstance(s, str) and s for s in dskip),
+            "PARAM_DRAMA_SKIP_ROLES|%r" % (dskip,))
     return p
 
 
@@ -306,7 +363,7 @@ def build_plan(plain, stations, route_length_cm, params, forbidden=None):
     require(selected, "NO_BAYS_SELECTED|from_fraction=%s" % p["from_fraction"])
     by_cue = {c["guid"]: c for c in plain["cues"]}
     all_guids = [r["guid"] for c in plain["cues"] for r in c["attachments"]]
-    targets, untouched, warnings = [], [], []
+    targets, untouched, warnings, drama_untouched = [], [], [], []
     for bay in selected:
         cue = by_cue[bay["cue_guid"]]
         has_top = False
@@ -365,19 +422,87 @@ def build_plan(plain, stations, route_length_cm, params, forbidden=None):
         if not has_top:
             warnings.append("BAY_HAS_NO_TOP_ROWS|%s|B%s (only practicals can brighten it)"
                             % (cue["label"], bay["bay_token"]))
+        if p["drama"]:
+            _plan_drama(cue, bay, p, skip, forbidden, all_guids, targets, drama_untouched)
     require(targets, "ZERO_TARGETS")
-    targets.sort(key=lambda t: (t["show_index"], t["attachment_index"]))
-    counts = {"targets": len(targets), "practical": sum(1 for t in targets if t["kind"] == "practical"),
-              "top": sum(1 for t in targets if t["kind"] == "top"), "bays_selected": len(selected),
-              "bays_total": len(bays), "untouched_listed": len(untouched),
-              "struck_only": sum(1 for t in targets if t.get("struck_only"))}
-    return {"passage": PASSAGE, "params": copy.deepcopy(p), "route_length_cm": float(route_length_cm),
+    order = {path: i for i, path in enumerate(PATHS)}
+    targets.sort(key=lambda t: (t["show_index"], t["attachment_index"], order[t["path"]]))
+    keys = [(t["attachment_guid"], t["path"]) for t in targets]
+    require(len(keys) == len(set(keys)), "TARGET_FIELD_DUPLICATE")
+    inten = [t for t in targets if t["path"] == FIELD]
+    drama = [t for t in targets if t["path"] != FIELD]
+    counts = {"targets": len(targets), "intensity_rows": len(inten),
+              "practical": sum(1 for t in inten if t["kind"] == "practical"),
+              "top": sum(1 for t in inten if t["kind"] == "top"),
+              "drama_rows": len({t["attachment_guid"] for t in drama}), "drama_fields": len(drama),
+              "strike_fields": sum(1 for t in drama if t["path"] == P_STRIKE),
+              "ramp_fields": sum(1 for t in drama if t["path"] == P_RAMP),
+              "after_pass_fields": sum(1 for t in drama if t["path"] == P_AFTER),
+              "rows": len({t["attachment_guid"] for t in targets}),
+              "bays_selected": len(selected), "bays_total": len(bays), "untouched_listed": len(untouched),
+              "drama_untouched_listed": len(drama_untouched),
+              "struck_only": sum(1 for t in inten if t.get("struck_only"))}
+    return {"passage": PASSAGE, "schema_version": SCHEMA_VERSION, "params": copy.deepcopy(p),
+            "route_length_cm": float(route_length_cm),
             "bays": bays, "selected_bays": [b["cue_label"] for b in selected],
             "first_selected": {k: selected[0][k] for k in ("cue_label", "bay_token", "distance_cm", "fraction")},
-            "targets": targets, "untouched": untouched, "warnings": warnings, "counts": counts,
+            "targets": targets, "untouched": untouched, "drama_untouched": drama_untouched,
+            "warnings": warnings, "counts": counts,
             "target_cue_guids": sorted({t["cue_guid"] for t in targets}),
             "target_attachment_guids": sorted({t["attachment_guid"] for t in targets}),
             "inferred": list(INFERRED)}
+
+
+def _plan_drama(cue, bay, p, skip, forbidden, all_guids, targets, untouched):
+    """DRAMA SET for one selected bay: strike distance / ramp / after-pass of every enabled SCORE light that strikes."""
+    dskip = set(p["drama_skip_roles"])
+    for index, row in enumerate(cue["attachments"]):
+        m = SCORE_RE.match(str(row["label"]))
+        if not m:
+            continue
+        look, role = m.group(2), m.group(3)
+        if role.endswith("_BODY"):
+            continue
+        drama = (row.get("lighting") or {}).get("drama") or {}
+        why = None
+        if _enum_name(row["kind"]) != "LIGHT":
+            why = "NOT_A_LIGHT"
+        elif role in dskip:
+            why = "DRAMA_SKIP_ROLE"
+        elif row["label"] in skip:
+            why = "SKIP_LABEL"
+        elif forbidden is not None and forbidden.search(str(row["label"])):
+            why = "FORBIDDEN_LABEL"
+        elif not row.get("enabled", True):
+            why = "DISABLED"
+        elif not drama.get("strike_on_approach"):
+            why = "NOT_STRIKE_ON_APPROACH"
+        fields = []
+        if why is None:
+            s0 = _finite(drama["strike_distance_cm"], "STRIKE_BEFORE")
+            r0 = _finite(drama["strike_ramp_cm"], "RAMP_BEFORE")
+            a0 = drama["after_pass"]
+            a0n = _enum_name(a0)
+            require(a0n in AFTER_PASS_NAMES, "AFTER_PASS_UNKNOWN|%s|%r" % (row["label"], a0))
+            s1 = max(s0, float(p["strike_distance_cm"]))
+            if s1 != s0:
+                fields.append((P_STRIKE, s0, s1))
+            if float(p["strike_ramp_cm"]) != r0:
+                fields.append((P_RAMP, r0, float(p["strike_ramp_cm"])))
+            ov = p["after_pass_override"]
+            if ov is not None and a0n in ("DECAY", "EXTINGUISH") and a0n != ov:
+                fields.append((P_AFTER, a0, ov))
+            if not fields:
+                why = "DRAMA_AT_TARGET"
+        if why is not None:
+            untouched.append({"cue_label": cue["label"], "label": row["label"], "role": role, "why": why})
+            continue
+        require(all_guids.count(row["guid"]) == 1, "TARGET_GUID_NOT_UNIQUE|" + row["guid"])
+        for path, before, after in fields:
+            t = _target(cue, bay, row, index, role, look, "drama", before, after)
+            t["path"] = path
+            t["unstruck_intensity_scale"] = drama.get("unstruck_intensity_scale")
+            targets.append(t)
 
 
 def check_expected(plan, expected_targets, expected_bays):
@@ -398,20 +523,63 @@ def _row(all_rows, t):
     return hits[0]
 
 
+def _path_of(t):
+    path = t.get("path", FIELD)                      # schema-1 records carry path lighting.intensity
+    require(path in PATHS, "TARGET_PATH_NOT_ALLOWED|%r" % (path,))
+    return path
+
+
+def _container(row, path):
+    """(dict, key) holding the field at path inside a plain row."""
+    parts = path.split(".")
+    node = row
+    for part in parts[:-1]:
+        require(isinstance(node, dict) and part in node, "ROW_PATH_MISSING|%s" % path)
+        node = node[part]
+    require(isinstance(node, dict) and parts[-1] in node, "ROW_PATH_MISSING|%s" % path)
+    return node, parts[-1]
+
+
+def get_field(row, path):
+    node, key = _container(row, path)
+    return node[key]
+
+
+def set_field(row, path, value):
+    node, key = _container(row, path)
+    node[key] = value
+
+
+def same_value(path, a, b):
+    """Enums compare by member name (plain reads '<InfinityLightAfterPass.HOLD: 0>', plans write 'HOLD')."""
+    if path in ENUM_PATHS:
+        return _enum_name(a) == _enum_name(b)
+    return close(a, b)
+
+
+def exact_value(path, a, b):
+    if path in ENUM_PATHS:
+        return _enum_name(a) == _enum_name(b)
+    return float(a) == float(b)
+
+
 def apply_rows(all_rows, targets, side):
     require(side in ("before", "after"), "SIDE_INVALID|%s" % side)
     out = copy.deepcopy(all_rows)
     for t in targets:
-        _row(out, t)["lighting"]["intensity"] = t[side]
+        set_field(_row(out, t), _path_of(t), t[side])
     return out
 
 
 def scope_problems(base_all, live_all, targets, side, diff):
-    """[] iff live == base with exactly the targets' lighting.intensity at their side value."""
+    """[] iff live == base with exactly the targets' (row, field) at their side value; every other field of every row
+    of every cue unchanged."""
     if set(base_all) != set(live_all):
         return [{"cue": "*", "problem": "CUE_SET_CHANGED"}]
     want_all = apply_rows(base_all, targets, side)
-    written = {t["attachment_guid"] for t in targets}
+    written = {}
+    for t in targets:
+        written.setdefault(t["attachment_guid"], []).append(_path_of(t))
     problems = []
     for cue_guid in sorted(base_all):
         want, got = want_all[cue_guid], live_all[cue_guid]
@@ -420,11 +588,12 @@ def scope_problems(base_all, live_all, targets, side, diff):
             continue
         for w, g in zip(want, got):
             w2, g2 = copy.deepcopy(w), copy.deepcopy(g)
-            if w["guid"] in written:
-                if not close(g2["lighting"]["intensity"], w2["lighting"]["intensity"]):
-                    problems.append({"cue": cue_guid, "guid": w["guid"], "path": FIELD,
-                                     "want": w2["lighting"]["intensity"], "got": g2["lighting"]["intensity"]})
-                w2["lighting"]["intensity"] = g2["lighting"]["intensity"] = None
+            for path in written.get(w["guid"], []):
+                wv, gv = get_field(w2, path), get_field(g2, path)
+                if not same_value(path, gv, wv):
+                    problems.append({"cue": cue_guid, "guid": w["guid"], "path": path, "want": wv, "got": gv})
+                set_field(w2, path, None)
+                set_field(g2, path, None)
             d = diff(w2, g2)
             if d:
                 problems.append({"cue": cue_guid, "guid": w["guid"], "label": w["label"], "differences": d})
@@ -432,23 +601,29 @@ def scope_problems(base_all, live_all, targets, side, diff):
 
 
 def field_drifts(all_rows, targets, side="after"):
-    """Every target whose live intensity != its side value (all of them, not the first)."""
+    """Every target field whose live value != its side value (all of them, not the first)."""
     out = []
     for t in targets:
         hits = [r for r in all_rows.get(t["cue_guid"], []) if r["guid"] == t["attachment_guid"]]
         if len(hits) != 1:
-            out.append({"guid": t["attachment_guid"], "label": t["attachment_label"], "live": "count=%d" % len(hits)})
+            out.append({"guid": t["attachment_guid"], "label": t["attachment_label"], "path": _path_of(t),
+                        "live": "count=%d" % len(hits)})
             continue
-        live = hits[0]["lighting"]["intensity"]
-        if not close(live, t[side]):
-            out.append({"guid": t["attachment_guid"], "label": t["attachment_label"], "record": t[side], "live": live})
+        live = get_field(hits[0], _path_of(t))
+        if not same_value(_path_of(t), live, t[side]):
+            out.append({"guid": t["attachment_guid"], "label": t["attachment_label"], "path": _path_of(t),
+                        "record": t[side], "live": live})
     return out
 
 
 def exact_problems(all_rows, targets, side):
-    """Bit-exact check (REVERT restores the recorded float32 exactly)."""
-    return [{"label": t["attachment_label"], "want": t[side], "got": _row(all_rows, t)["lighting"]["intensity"]}
-            for t in targets if float(_row(all_rows, t)["lighting"]["intensity"]) != float(t[side])]
+    """Bit-exact check (REVERT restores the recorded float32/double exactly; enums by member name)."""
+    out = []
+    for t in targets:
+        got = get_field(_row(all_rows, t), _path_of(t))
+        if not exact_value(_path_of(t), got, t[side]):
+            out.append({"label": t["attachment_label"], "path": _path_of(t), "want": t[side], "got": got})
+    return out
 
 
 def check_record(record):
@@ -456,25 +631,102 @@ def check_record(record):
             "RECORD_PASSAGE_MISMATCH|%s" % record.get("passage"))
     require(record.get("status") == "saved_readback_verified", "REVERT_RECORD_STATUS|%s" % record.get("status"))
     require(record["plan"].get("targets"), "RECORD_NO_TARGETS")
+    require(record.get("schema_version") in (1, SCHEMA_VERSION), "RECORD_SCHEMA|%r" % record.get("schema_version"))
+    for t in record["plan"]["targets"]:
+        _path_of(t)
+        require("before" in t and "after" in t, "RECORD_TARGET_NO_ORIGINAL|%s" % t.get("attachment_label"))
+        if _path_of(t) in ENUM_PATHS:
+            require(_enum_name(t["before"]) in AFTER_PASS_NAMES and _enum_name(t["after"]) in AFTER_PASS_NAMES,
+                    "RECORD_ENUM|%s" % t.get("attachment_label"))
 
 
 # --------------------------------------------------------------------------
 # Export text scope: mask only the targets' Intensity inside their Lighting=(..) group.
 # --------------------------------------------------------------------------
-def normalize_export(rp, texts, target_guids):
-    wanted = {g.upper() for g in target_guids}
-    seen = {g: 0 for g in wanted}
+_LIGHTING_OPEN = re.compile(r"(?<![A-Za-z])Lighting=\(")
+_DRAMA_OPEN = re.compile(r"(?<![A-Za-z])Drama=\(")
+
+
+def _close_paren(text, open_index):
+    depth = 0
+    for i in range(open_index, len(text)):
+        if text[i] == "(":
+            depth += 1
+        elif text[i] == ")":
+            depth -= 1
+            if depth == 0:
+                return i
+    raise P02BrightenError("EXPORT_UNBALANCED")
+
+
+def _top_level_items(inner):
+    items, depth, start = [], 0, 0
+    for i, ch in enumerate(inner):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            items.append(inner[start:i])
+            start = i + 1
+    items.append(inner[start:])
+    return [x for x in items if x != ""]
+
+
+def mask_drama(segment, guid, names):
+    """Remove the top-level <name>=.. items of the Drama=(..) group that sits at the top level of the segment's first
+    Lighting=(..) group. Items are split and re-joined, so a field omitted at its default (AfterPass=Hold,
+    StrikeDistanceCm=2500) and a field present normalise to the same text wherever it sat in the group."""
+    found = list(_LIGHTING_OPEN.finditer(segment))
+    require(found, "EXPORT_NO_LIGHTING|guid=" + guid)
+    l_open = found[0].end() - 1
+    l_close = _close_paren(segment, l_open)
+    inner = segment[l_open + 1:l_close]
+    drama = [m for m in _DRAMA_OPEN.finditer(inner) if inner[:m.start()].count("(") == inner[:m.start()].count(")")]
+    require(len(drama) == 1, "EXPORT_NO_DRAMA|guid=%s|count=%d" % (guid, len(drama)))
+    d_open = drama[0].end() - 1
+    d_close = _close_paren(inner, d_open)
+    items = _top_level_items(inner[d_open + 1:d_close])
+    kept = []
+    for name in names:
+        n = sum(1 for x in items if x.split("=", 1)[0] == name)
+        require(n <= 1, "EXPORT_%s_COUNT|guid=%s|count=%d" % (name.upper(), guid, n))
+    for item in items:
+        if item.split("=", 1)[0] not in names:
+            kept.append(item)
+    new_inner = inner[:d_open + 1] + ",".join(kept) + inner[d_close:]
+    return segment[:l_open + 1] + new_inner + segment[l_close:]
+
+
+def _paths_by_guid(targets):
+    out = {}
+    for t in targets:
+        out.setdefault(t["attachment_guid"].upper(), set()).add(_path_of(t))
+    return out
+
+
+def normalize_export(rp, texts, targets):
+    """Mask exactly each target's written fields: Lighting.Intensity (rp._mask_intensity, as schema 1) and
+    Lighting.Drama.StrikeDistanceCm/StrikeRampCm/AfterPass (mask_drama). Everything else stays in the hash."""
+    paths = _paths_by_guid(targets)
+    seen = {g: 0 for g in paths}
     out = []
     for text in texts:
         marks = list(rp._OWN_GUID.finditer(text))
         pieces, cursor = [], 0
         for index, match in enumerate(marks):
             guid = match.group(1).upper()
-            if guid not in wanted:
+            if guid not in paths:
                 continue
             end = marks[index + 1].start() if index + 1 < len(marks) else len(text)
             pieces.append(text[cursor:match.start()])
-            pieces.append(rp._mask_intensity(text[match.start():end], guid, "Intensity"))
+            segment = text[match.start():end]
+            if FIELD in paths[guid]:
+                segment = rp._mask_intensity(segment, guid, "Intensity")
+            names = [EXPORT_NAMES[p] for p in PATHS if p in paths[guid] and p in EXPORT_NAMES]
+            if names:
+                segment = mask_drama(segment, guid, names)
+            pieces.append(segment)
             cursor = end
             seen[guid] += 1
         pieces.append(text[cursor:])
@@ -484,8 +736,8 @@ def normalize_export(rp, texts, target_guids):
     return out
 
 
-def export_hash(rp, texts, target_guids):
-    return _sha256_text("\n".join(normalize_export(rp, texts, target_guids)))
+def export_hash(rp, texts, targets):
+    return _sha256_text("\n".join(normalize_export(rp, texts, targets)))
 
 
 def unacked_records(foreign, acks):
@@ -549,8 +801,28 @@ def _route_length(passage):
     return float(res), spline
 
 
-def _write_intensity(tool, show, targets, side, check_side=None):
-    """p03_atmos.py:1282-1306 (_write_fields) for the one field lighting.intensity."""
+def _enum_member(enum_type, name):
+    """lighting_events_apply.py:770-774."""
+    for candidate in (name, name.upper(), name.title().replace("_", "")):
+        if hasattr(enum_type, candidate):
+            return getattr(enum_type, candidate)
+    raise P02BrightenError("ENUM_MEMBER_MISSING|enum=%s|name=%s" % (enum_type, name))
+
+
+def _live_field(lighting, drama, path):
+    if path == FIELD:
+        return float(lighting.get_editor_property("intensity"))
+    if path == P_STRIKE:
+        return float(drama.get_editor_property("strike_distance_cm"))
+    if path == P_RAMP:
+        return float(drama.get_editor_property("strike_ramp_cm"))
+    require(path == P_AFTER, "TARGET_PATH_NOT_ALLOWED|" + path)
+    return str(drama.get_editor_property("after_pass"))
+
+
+def _write_fields(tool, show, targets, side, check_side=None):
+    """p03_atmos.py:1282-1306 (_write_fields) for the four PATHS. Drama is a nested struct copy: read it, set the
+    fields, set it back on the lighting copy, set lighting back on the attachment (lighting_looks_apply.py:1531-1552)."""
     cues = list(show.get_editor_property("cues"))
     by_cue = {}
     for t in targets:
@@ -561,19 +833,39 @@ def _write_intensity(tool, show, targets, side, check_side=None):
         index = matches[0]
         require(str(cues[index].get_editor_property("label")) == items[0]["cue_label"], "TARGET_LABEL_DRIFT|" + cue_guid)
         attachments = tool._pair_attachments(cues[index])
+        by_row = {}
         for t in items:
-            hits = [a for a in attachments
-                    if tool._guid_text(a.get_editor_property("attachment_guid")) == t["attachment_guid"]]
-            require(len(hits) == 1, "TARGET_ATTACHMENT_RESOLVE|" + t["attachment_guid"])
+            by_row.setdefault(t["attachment_guid"], []).append(t)
+        for row_guid, row_targets in sorted(by_row.items()):
+            hits = [a for a in attachments if tool._guid_text(a.get_editor_property("attachment_guid")) == row_guid]
+            require(len(hits) == 1, "TARGET_ATTACHMENT_RESOLVE|" + row_guid)
             attachment = hits[0]
-            require(str(attachment.get_editor_property("label")) == t["attachment_label"],
-                    "TARGET_ATTACHMENT_LABEL_DRIFT|" + t["attachment_guid"])
+            require(str(attachment.get_editor_property("label")) == row_targets[0]["attachment_label"],
+                    "TARGET_ATTACHMENT_LABEL_DRIFT|" + row_guid)
             lighting = attachment.get_editor_property("lighting")
-            if check_side is not None:
-                live = float(lighting.get_editor_property("intensity"))
-                require(close(live, t[check_side]), "TARGET_INTENSITY_DRIFT|%s|live=%r|want=%r"
-                        % (t["attachment_label"], live, t[check_side]))
-            lighting.set_editor_property("intensity", float(t[side]))
+            drama = lighting.get_editor_property("drama")
+            touched_drama = False
+            for t in row_targets:
+                path = _path_of(t)
+                if check_side is not None:
+                    live = _live_field(lighting, drama, path)
+                    require(same_value(path, live, t[check_side]), "TARGET_FIELD_DRIFT|%s|%s|live=%r|want=%r"
+                            % (t["attachment_label"], path, live, t[check_side]))
+                if path == FIELD:
+                    lighting.set_editor_property("intensity", float(t[side]))
+                elif path == P_STRIKE:
+                    drama.set_editor_property("strike_distance_cm", float(t[side]))
+                    touched_drama = True
+                elif path == P_RAMP:
+                    drama.set_editor_property("strike_ramp_cm", float(t[side]))
+                    touched_drama = True
+                else:
+                    name = _enum_name(t[side])
+                    require(name in AFTER_PASS_NAMES, "AFTER_PASS_UNKNOWN|%r" % (t[side],))
+                    drama.set_editor_property("after_pass", _enum_member(unreal.InfinityLightAfterPass, name))
+                    touched_drama = True
+            if touched_drama:
+                lighting.set_editor_property("drama", drama)
             attachment.set_editor_property("lighting", lighting)
         tool._set_pair_attachments(show, index, attachments)
 
@@ -628,7 +920,7 @@ def _run(args):
         problems = scope_problems(before_all, apply_rows(before_all, plan["targets"], "after"), plan["targets"],
                                   "after", diff)
         require(not problems, "MODEL_SELF_CHECK|%s" % _canonical(problems)[:2000])
-        texts_hash = export_hash(rp, rp._export_texts(show), plan["target_attachment_guids"])
+        texts_hash = export_hash(rp, rp._export_texts(show), plan["targets"])
         foreign = _scan_foreign(scores, plan["target_attachment_guids"])
         unacked = unacked_records(foreign, args["ack_records"])
         report.update({"plan": plan, "passage_guid": g["plain"]["passage_guid"],
@@ -641,9 +933,9 @@ def _run(args):
                 _log("%s_DRY_BAY|run=%s|%s|B%s|d=%.1f|frac=%.4f|selected=%d"
                      % (MARK, run, b["cue_label"], b["bay_token"], b["distance_cm"], b["fraction"], int(b["selected"])))
             for t in plan["targets"]:
-                _log("%s_DRY_ROW|run=%s|%s|%s|%.4g->%.4g|frac=%.3f%s"
-                     % (MARK, run, t["attachment_label"], t["kind"], t["before"], t["after"], t["fraction"],
-                        "|struck_only" if t.get("struck_only") else ""))
+                _log("%s_DRY_ROW|run=%s|%s|%s|%s|%s->%s|frac=%.3f%s"
+                     % (MARK, run, t["attachment_label"], t["kind"], t["path"], _short(t["before"]),
+                        _short(t["after"]), t["fraction"], "|struck_only" if t.get("struck_only") else ""))
             for w in plan["warnings"]:
                 _log("%s_WARNING|run=%s|%s" % (MARK, run, w))
             census_after = tool._dirty_census()
@@ -665,7 +957,7 @@ def _run(args):
         require(not os.path.exists(RECORD_PATH), "ACTIVE_RECORD_EXISTS|" + RECORD_PATH)
         require(not unacked, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacked))
         backup = tool._backup(BACKUP_STEM + "-", run)
-        record = {"schema_version": 1, "status": "prepared", "run": run, "passage": PASSAGE, "backup": backup,
+        record = {"schema_version": SCHEMA_VERSION, "status": "prepared", "run": run, "passage": PASSAGE, "backup": backup,
                   "args": args, "plan": plan,
                   "outside_before_hash": tool._outside_hash(before_all, plan["target_cue_guids"]),
                   "export_hash_before": texts_hash,
@@ -674,16 +966,16 @@ def _run(args):
         tool._write_json(RECORD_PATH, record, exclusive=True)              # fsynced before any change
         _log("%s_RECORD_WRITTEN|run=%s|path=%s|rows=%d" % (MARK, run, RECORD_PATH, len(plan["targets"])))
         try:
-            _write_intensity(tool, show, plan["targets"], "after", check_side="before")
+            _write_fields(tool, show, plan["targets"], "after", check_side="before")
             after_all = _plain_again(rp, tool, show, g, cfg)
             problems = scope_problems(before_all, after_all, plan["targets"], "after", diff)
             require(not problems, "SCOPE_CHANGED|%s" % _canonical(problems)[:3000])
             require(tool._outside_hash(after_all, plan["target_cue_guids"]) == record["outside_before_hash"],
                     "OUTSIDE_HASH_CHANGED")
-            require(export_hash(rp, rp._export_texts(show), plan["target_attachment_guids"]) == texts_hash,
+            require(export_hash(rp, rp._export_texts(show), plan["targets"]) == texts_hash,
                     "EXPORT_OUTSIDE_SCOPE_CHANGED")
         except Exception:
-            _write_intensity(tool, show, plan["targets"], "before")
+            _write_fields(tool, show, plan["targets"], "before")
             restored = _plain_again(rp, tool, show, g, cfg)
             require(not scope_problems(before_all, restored, plan["targets"], "before", diff), "ROLLBACK_SCOPE")
             record["status"] = "failed_rolled_back_in_memory"
@@ -699,20 +991,22 @@ def _run(args):
         read_all = _plain_again(rp, tool, readback, g, cfg)
         problems = scope_problems(before_all, read_all, plan["targets"], "after", diff)
         require(not problems, "READBACK_SCOPE|%s" % _canonical(problems)[:3000])
-        require(export_hash(rp, rp._export_texts(readback), plan["target_attachment_guids"]) == texts_hash,
+        require(export_hash(rp, rp._export_texts(readback), plan["targets"]) == texts_hash,
                 "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
         saved_census = tool._dirty_census()
         require(saved_census == {"content": [], "maps": []}, "POST_SAVE_DIRTY|%s" % _canonical(saved_census))
         record.update({"status": "saved_readback_verified", "materialized": materialized,
-                       "after_intensity_live": {t["attachment_guid"]: _row(read_all, t)["lighting"]["intensity"]
-                                                for t in plan["targets"]},
+                       "after_live": [{"attachment_guid": t["attachment_guid"], "path": t["path"],
+                                       "value": get_field(_row(read_all, t), t["path"])} for t in plan["targets"]],
                        "saved_census": saved_census})
         tool._write_json(RECORD_PATH, record)
         report.update({"ok": True, "backup": backup, "record": RECORD_PATH, "materialized": materialized})
         tool._write_json(report_path(mode, run), report)
-        _log("%s_APPLY_OK|run=%s|rows=%d|practical=%d|top=%d|bays=%d|show_saved=1|level_saved=1|readback=1|record=%s"
-             % (MARK, run, plan["counts"]["targets"], plan["counts"]["practical"], plan["counts"]["top"],
-                plan["counts"]["bays_selected"], RECORD_PATH))
+        c = plan["counts"]
+        _log("%s_APPLY_OK|run=%s|targets=%d|rows=%d|intensity=%d|practical=%d|top=%d|drama_rows=%d|strike=%d|ramp=%d"
+             "|after_pass=%d|bays=%d|show_saved=1|level_saved=1|readback=1|record=%s"
+             % (MARK, run, c["targets"], c["rows"], c["intensity_rows"], c["practical"], c["top"], c["drama_rows"],
+                c["strike_fields"], c["ramp_fields"], c["after_pass_fields"], c["bays_selected"], RECORD_PATH))
         return report
     except Exception as error:  # noqa: BLE001 - a report and a marker for every stop
         report["error"] = "%s: %s" % (type(error).__name__, error)
@@ -739,19 +1033,19 @@ def _revert(args, run, report, rp, scores, tool, cfg, g, live_all):
     drifts = field_drifts(live_all, targets, "after")
     report["revert_drifts"] = drifts
     require(not drifts, "REVERT_DRIFT|count=%d|%s" % (len(drifts), _canonical(drifts)[:4000]))
-    texts_hash = export_hash(rp, rp._export_texts(show), plan["target_attachment_guids"])
+    texts_hash = export_hash(rp, rp._export_texts(show), plan["targets"])
     backup = tool._backup(BACKUP_STEM + "Revert-", run)
     try:
-        _write_intensity(tool, show, targets, "before", check_side="after")
+        _write_fields(tool, show, targets, "before", check_side="after")
         after_all = _plain_again(rp, tool, show, g, cfg)
         problems = scope_problems(live_all, after_all, targets, "before", diff)
         require(not problems, "REVERT_SCOPE|%s" % _canonical(problems)[:3000])
         exact = exact_problems(after_all, targets, "before")
         require(not exact, "REVERT_NOT_EXACT|%s" % _canonical(exact)[:2000])
-        require(export_hash(rp, rp._export_texts(show), plan["target_attachment_guids"]) == texts_hash,
+        require(export_hash(rp, rp._export_texts(show), plan["targets"]) == texts_hash,
                 "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED")
     except Exception:
-        _write_intensity(tool, show, targets, "after")
+        _write_fields(tool, show, targets, "after")
         raise
     materialized = rp._materialize(scores, show, cfg)
     tool._save_narrow()
@@ -770,7 +1064,7 @@ def _revert(args, run, report, rp, scores, tool, cfg, g, live_all):
     os.rename(RECORD_PATH, archived)
     report.update({"ok": True, "backup": backup, "record_archived": archived, "materialized": materialized})
     tool._write_json(report_path("REVERT", run), report)
-    _log("%s_REVERT_OK|run=%s|rows=%d|exact=1|show_saved=1|level_saved=1|readback=1|archived=%s"
+    _log("%s_REVERT_OK|run=%s|targets=%d|exact=1|show_saved=1|level_saved=1|readback=1|archived=%s"
          % (MARK, run, len(targets), archived))
     return report
 

@@ -1,0 +1,62 @@
+{
+  "args": {
+    "ack_records": [],
+    "batch": "next",
+    "bulb_glow": {
+      "colour": [
+        1.0,
+        0.62,
+        0.3
+      ],
+      "intensity": 1.5
+    },
+    "confirm": "APPLY MESHYIMPORT",
+    "glass": {
+      "opacity": 0.22,
+      "roughness": 0.06,
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "lens_glow": {
+      "colour": [
+        1.0,
+        0.85,
+        0.65
+      ],
+      "intensity": 0.6
+    },
+    "max_texture_size": {
+      "bulb": 1024,
+      "housing": 2048
+    },
+    "mode": "APPLY"
+  },
+  "batch": "SM_Bulb_A60_Opal",
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project": "e:\\pussstage",
+    "project_ok": true
+  },
+  "error": "MeshyError: IMPORT_GATES|SM_Bulb_A60_Opal|BOUNDS_MIN|want=[-3.1, -3.19, -11.0]|got=[-3.095762014389038, -2.869434356689453, -11.0];BOUNDS_MAX|want=[2.98, 2.87, 0.0]|got=[2.9768362045288086, 3.1943347454071045, 0.0]",
+  "mode": "APPLY",
+  "ok": false,
+  "rolled_back_unsaved": {
+    "deleted": [
+      "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_A60_Opal",
+      "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Opal_BaseColor",
+      "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Opal_Metallic",
+      "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Opal_Normal",
+      "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_A60_Opal_Roughness"
+    ],
+    "kept": []
+  },
+  "run": "20261007-024853",
+  "saved_count": 0
+}
