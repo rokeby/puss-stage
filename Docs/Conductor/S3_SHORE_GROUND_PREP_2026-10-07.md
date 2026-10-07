@@ -1,5 +1,133 @@
 # S3 shore ground: offline prep (7 Oct 2026)
 
+> **Read §0 first.** Gary's answers (7 Oct, evening) superseded §3's "cast island preserved / pads", §6's open
+> decisions, and the §4 runner scope. §1–§2 still stand, with the live-read corrections in §0.
+
+## 0. Update after Gary's answers and the DRY live read (S3SHORE-20261007-181646)
+
+**Gary's decisions (relayed by Directing):**
+1. Mud toward the mouth, sand toward the waves.
+2. Drift caps of ~128 cm on the sides and ~105 cm at the back.
+3. **Re-sculpt the cast area:** the same field as everywhere else, with no beach-v2 preservation and no pads. Objects
+   are **not** moved; Gary re-arranges them himself.
+4. No drifts at the wave rows. Hide the oak deck and the v2 sand rather than delete them.
+
+**What changed [meas-here]:**
+- `s3_shore_field.py` now has `PARAMS.preserve_v2_cast=False` and `use_pads=False`. The old behaviour can still be
+  switched on, but only the harness's negative control does so. A new check, `CAST_STILL_V2`, fails if the cast area
+  still matches v2.
+- Under the old v2 footprint, the new surface now differs from v2 by a mean of 11.9 cm and a maximum of 17.4 cm. The
+  fraction of points within 0.5 cm of v2 is 0.000. The new ground is **lower** there, because the v2 dome is gone.
+- `PARAMS.wave_notch=True` keeps the surface exactly at floor top under all three rows across the full width. Max |h|
+  under the flats = 0.000 cm.
+- Drifts and the deepest dip are unchanged:
+
+  | Drift | Max (cm) | Note |
+  |---|---|---|
+  | Left | 128.2 | |
+  | Right | 127.5 | |
+  | Back | 105.3 | 1.6 at the door |
+
+  The deepest dip is −8.1 cm.
+- Lowest vertical camera clearance is 108.6 cm (B11). This uses the 1 Oct shot poses, so it is **[decl]**.
+- **Rebuilt FBX:**
+  - same topology: 218,952 vertices, 217,880 quads;
+  - bounds (0, −1012, 95)..(6012, 1008, 243.19);
+  - sha256 `55cb8078…ec966`, recorded in the manifest.
+- Previews were re-rendered, plus a new `cam_EntryHandoff`. Proxies now come from the **live** AABBs.
+
+**Live-read corrections [meas, DRY 18:16 UTC]:**
+- The root is still at its landed pose.
+- The deck is MOVABLE and parented to the root.
+- **All six figures have parent = None.** They are not attached to `S3 Hangar Root`, so they do not rise with the box,
+  before or after this change.
+- `Clam_Pedastal`: parent None, STATIC, `hidden` = **true**.
+- Shore03_M59's foot is at dock z 10.45, down from 12.03. The footprint has been updated from the live reads.
+- **No level CineCameraActor exists for S3 Shot B02–B12.** They are `LS_DevScene_03` spawnable templates. The level
+  cameras are the Entry/Exit Handoff camera and the Sleight Hangar camera, all at local (−500, 0, 300), rpy 0 [meas].
+
+**Seat report** (`Saved/CodexConductor/S3Shore/s3_shore_seat_report.json`) [meas-here]:
+- Each object's **live** base is compared with the new surface under its **live XY AABB**. For a draped figure that
+  AABB includes the drape.
+- The surface is sampled every 5 cm from the mesh grid.
+- Verdict, on the mean surface: **FLOATING** if base − mean > 2 cm; **BURIED** if mean − base > 2 cm; otherwise OK.
+- Result: **12 FLOATING, 3 OK, 0 BURIED.**
+
+| Object | Kind | Base z | Surface min / max / mean | Gap vs mean (cm) | Verdict |
+|---|---|---|---|---|---|
+| Shore01_M56 Clam | figure | 129.58 | 114.53 / 117.22 / 115.83 | +13.75 | **FLOATING** |
+| Shore02_F52 Clam | figure | 128.49 | 116.85 / 120.20 / 118.61 | +9.88 | **FLOATING** |
+| Shore03_M59 Clam | figure | 130.45 | 115.37 / 119.38 / 117.75 | +12.71 | **FLOATING** |
+| Shore04_F55 Clam | figure | 127.34 | 114.54 / 117.00 / 115.55 | +11.79 | **FLOATING** |
+| Shore05_M53 Clam | figure | 128.74 | 114.96 / 119.09 / 117.46 | +11.28 | **FLOATING** |
+| Shore06_F25 Clam | figure | 128.70 | 114.92 / 117.39 / 116.28 | +12.42 | **FLOATING** |
+| Clam_Pedastal | pedestal | 121.38 | 115.75 / 117.07 / 116.42 | +4.96 | **FLOATING** |
+| S3 Beach V2 Rock 01 | rock | 121.14 | 115.24 / 117.35 / 116.31 | +4.83 | **FLOATING** |
+| S3 Beach V2 Rock 02 | rock | 115.17 | 114.14 / 115.42 / 114.82 | +0.35 | **OK** |
+| S3 Beach V2 Rock 03 | rock | 119.14 | 115.39 / 116.80 / 116.09 | +3.06 | **FLOATING** |
+| S3 Beach V2 Rock 04 | rock | 123.80 | 114.10 / 115.32 / 114.69 | +9.10 | **FLOATING** |
+| S3 Beach V2 Rock 05 | rock | 115.65 | 114.37 / 115.65 / 115.13 | +0.52 | **OK** |
+| S3 Beach V2 Seaweed 01 | seaweed | 116.90 | 115.62 / 117.12 / 116.42 | +0.48 | **OK** |
+| S3 Beach V2 Seaweed 02 | seaweed | 126.22 | 114.32 / 115.65 / 114.98 | +11.24 | **FLOATING** |
+| S3 Beach V2 Seaweed 03 | seaweed | 121.24 | 114.78 / 116.05 / 115.48 | +5.75 | **FLOATING** |
+
+All z values are root-local cm; floor top is 115.
+- **[inf]** The figures float by about 10–14 cm because they stood on the v2 dome, which the re-sculpt removes.
+- **[inf]** The pedestal float of 5 cm uses its AABB minimum. Its actual base contact shape was not read.
+- Rocks were embedded in the v2 sand by design, so their "OK" or "FLOATING" verdicts mean they now sit on top of the
+  surface, or above it, rather than in it.
+
+**Harness:** `test_s3_shore_offline.py` passes **19/19** [meas-here].
+- **New + control:** v2 cast preservation is absent from the shipped field.
+- **New − control:** switching preservation back on **is** detected.
+- **Seat-report controls:** a synthetic floating object is flagged FLOATING; a synthetic buried one is flagged BURIED;
+  a synthetic seated one is OK.
+- The seat report matches the live run: 15 objects, Shore03 foot at 130.454.
+- The wave-notch negative control was **re-based** onto `wave_notch=False`. The old control had only failed because
+  of the v2 island.
+- **Material graph:** the spec has no problems, and removing an edge is detected.
+- **Runner:**
+  - confirm strings must equal `"<MODE> S3SHORE"`;
+  - APPLY and REVERT are refused;
+  - there is no save call in the BENCH path.
+
+**Editor side (still not run):**
+- `s3_shore_ground_ue.py` now implements:
+  - **IMPORT**, gated on: LOD count, Nanite, bounds/mirror, `has_vertex_colors`, no strays, exact census;
+  - **BUILD_MAT**, create-only: master graph from `graph_spec()` (Custom nodes, as in the sack material), MI read-back,
+    exact-census save, then GC;
+  - **BENCH**: originals written to a file first; a transient spawn; deck and v2 sand hidden through `set_visibility`;
+    slate-tick stills of B02, B04, B09 and the Entry Handoff from the `LS_DevScene_03` templates (the pattern of
+    `s3_beach_marble_stills.py`, which ran on 3 Oct); restore on finish or failure; no save;
+  - **BENCH_RESTORE** for out-of-band recovery.
+- `s3_shore_ground_run.py` dispatches DRY, IMPORT, BUILD_MAT, BENCH and BENCH_RESTORE, each with its confirm string.
+  APPLY, REVERT and VERIFY are refused.
+- Two deviations to note:
+  - The BENCH actor lives across slate ticks inside one run, rather than "same call". It is held by reference, and
+    BENCH_RESTORE is the backstop.
+  - Moss uses albedo only. The MW `_nrm` may be RG-packed, since the pack ships `MF_MW_RG2Nrm` [bin+inf].
+
+**UE 5.8 API names used, and what they were checked against.** No `unreal.py` stub exists: `Intermediate/PythonStub`
+is absent and none was found under `D:\Unreal Engine\UE_5.8`. Names were checked against the headers (**[decl]**) or
+against earlier project runs (**[run]**).
+
+| Name | Proof |
+|---|---|
+| `mesh_pipeline.build_nanite / import_static_meshes / import_skeletal_meshes / collision` | [decl] `Plugins/Interchange/Runtime/Source/Pipelines/Public/InterchangeGenericMeshPipeline.h:134/73/204/101` |
+| `common_meshes_properties.import_lods / recompute_normals / vertex_color_import_option` | [decl] `InterchangeGenericAssetsPipelineSharedSettings.h:95/127/111`. The default is already `IVCIO_Replace`, so it is only read back (the Python enum spelling is [inf]). |
+| `material_pipeline.import_materials`, `texture_pipeline.import_textures`, `asset_name`, `import_offset_*`, `InterchangePipelineStackOverride.add_pipeline` | [run] `s3_beach_v2.py:666-699` (4 Oct); [decl] `InterchangeGenericMaterialPipeline.h:85`, `InterchangeGenericTexturePipeline.h:32` |
+| `StaticMesh.get_num_lods`, `get_bounding_box`, `nanite_settings.enabled`, `static_materials` | [decl] `Engine/Classes/Engine/StaticMesh.h:2176-2177, 2203-2204, 746, 1096`; `EngineTypes.h:3285` |
+| `StaticMeshEditorSubsystem.has_vertex_colors` | [decl] `Editor/StaticMeshEditor/Public/StaticMeshEditorSubsystem.h:468-470` |
+| Reading vertex-colour **values** | **Not exposed.** `StaticMeshDescription.h:77-78` has only the C++ accessor, so the calibration bytes stay UNREAD. |
+| `EditorActorSubsystem.spawn_actor_from_class(..., transient)` | [decl] `EditorActorSubsystem.h:227-228` |
+| `SceneComponent.set_visibility / set_mobility / set_relative_transform`, `Actor.attach_to_actor / destroy_actor`, `PrimitiveComponent.set_material`, `StaticMeshComponent.set_static_mesh` | [decl] `SceneComponent.h:916, 1295, 459`; `Actor.h:2041, 1933`; `PrimitiveComponent.h:1599`; `StaticMeshComponent.h:449` |
+| `Material.used_with_nanite` | [decl] `Engine/Public/Materials/Material.h:863` |
+| `MaterialExpressionVertexColor` | [decl] class exists (`MaterialExpressionVertexColor.h:12`). The name of its **output pin "" = RGB is [inf]**, because the .cpp is not in the install; `recompile_material` errors would expose a wrong name. |
+| `MaterialEditingLibrary.create_material_expression / connect_material_expressions / connect_material_property / recompile_material / get_material_expression_input_names / set_material_instance_parent / update_material_instance / get_material_instance_scalar_parameter_value`, `MaterialExpressionCustom` + `CustomInput` + `CMOT_FLOAT1/2/3`, `MaterialExpressionTextureCoordinate`, `TextureSampleParameter2D` pins `UVs/RGB/R` | [run] `s3_sack_install.py` BUILD_MAT (6 Oct, saved); [decl] `MaterialEditingLibrary.h:232, 325, 408`; `MaterialExpressionCustom.h:19` |
+| `LevelSequence.get_spawnables`, `binding.get_object_template`, `EditorLevelLibrary.get/set_level_viewport_camera_info`, `register_slate_post_tick_callback`, `HighResShot` | [run] `s3_beach_marble_stills.py` (3 Oct). `EditorLevelLibrary` is the deprecated wrapper; `UnrealEditorSubsystem.h:32` is the successor. |
+| `GameplayStatics.get_all_actors_of_class`, `get_actor_bounds`, `get_attach_parent_actor`, `get_cine_camera_component` | [run] DRY S3SHORE-20261007-181646 |
+| Post-destroy listing: whether `get_all_actors_of_class` still returns a just-destroyed actor | [inf] UNVERIFIED. If it does, `_restore_from_originals` could false-fail `BENCH_ACTOR_SURVIVED`. |
+
 Brief (Gary, relayed by Directing): replace the flat oak-herringbone deck in Scene 3 with a sculpted
 shore-ground **mesh** (not a landscape, which was retired 30 Sep: `DECISIONS_FOR_GARY_2026-09-30.md:374-389`, `:734-750`).
 Wet sand toward the wave flats, darker mud and moss behind. The whole floor covered. Drifts banking 0.5–1.5 m up the

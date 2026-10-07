@@ -1,0 +1,427 @@
+{
+ "schema": "s3_shore_seat_report/1",
+ "live_reads_run": "S3SHORE-20261007-181646",
+ "frame": "S3 Hangar Root local cm, LANDED; floor top z 115",
+ "rule": "verdict on mean surface under the live XY AABB: FLOATING base-mean>2, BURIED mean-base>2, else OK",
+ "params": {
+  "preserve_v2_cast": false,
+  "use_pads": false,
+  "grid_cm": 7.5,
+  "seed": 3307
+ },
+ "counts": {
+  "OK": 3,
+  "FLOATING": 12,
+  "BURIED": 0
+ },
+ "rows": [
+  {
+   "label": "Shore01_M56 Clam",
+   "kind": "figure",
+   "base_local_z": 129.576,
+   "pivot_local_xy": [
+    3149.130123451272,
+    -212.97953151512775
+   ],
+   "parent": null,
+   "footprint_local_xy": [
+    [
+     2983.0,
+     -349.0
+    ],
+    [
+     3269.1,
+     -62.4
+    ]
+   ],
+   "footprint_samples": 3481,
+   "surface_local_z": {
+    "min": 114.528,
+    "max": 117.223,
+    "mean": 115.827
+   },
+   "gap_vs_mean_cm": 13.749,
+   "gap_vs_max_cm": 12.353,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "Shore02_F52 Clam",
+   "kind": "figure",
+   "base_local_z": 128.491,
+   "pivot_local_xy": [
+    2699.2986113485094,
+    109.44644586421782
+   ],
+   "parent": null,
+   "footprint_local_xy": [
+    [
+     2569.8,
+     0.9
+    ],
+    [
+     2838.4,
+     267.5
+    ]
+   ],
+   "footprint_samples": 3025,
+   "surface_local_z": {
+    "min": 116.846,
+    "max": 120.199,
+    "mean": 118.607
+   },
+   "gap_vs_mean_cm": 9.884,
+   "gap_vs_max_cm": 8.291,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "Shore03_M59 Clam",
+   "kind": "figure",
+   "base_local_z": 130.454,
+   "pivot_local_xy": [
+    2890.553804135785,
+    300.7016386514879
+   ],
+   "parent": null,
+   "footprint_local_xy": [
+    [
+     2713.0,
+     123.1
+    ],
+    [
+     3035.5,
+     445.3
+    ]
+   ],
+   "footprint_samples": 4356,
+   "surface_local_z": {
+    "min": 115.368,
+    "max": 119.375,
+    "mean": 117.747
+   },
+   "gap_vs_mean_cm": 12.708,
+   "gap_vs_max_cm": 11.079,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "Shore04_F55 Clam",
+   "kind": "figure",
+   "base_local_z": 127.342,
+   "pivot_local_xy": [
+    3183.5447096323333,
+    262.1286541724694
+   ],
+   "parent": null,
+   "footprint_local_xy": [
+    [
+     3029.4,
+     103.1
+    ],
+    [
+     3289.2,
+     370.0
+    ]
+   ],
+   "footprint_samples": 2915,
+   "surface_local_z": {
+    "min": 114.544,
+    "max": 116.999,
+    "mean": 115.554
+   },
+   "gap_vs_mean_cm": 11.789,
+   "gap_vs_max_cm": 10.344,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "Shore05_M53 Clam",
+   "kind": "figure",
+   "base_local_z": 128.742,
+   "pivot_local_xy": [
+    2911.075012735326,
+    -244.320081404323
+   ],
+   "parent": null,
+   "footprint_local_xy": [
+    [
+     2738.0,
+     -323.2
+    ],
+    [
+     3034.6,
+     -11.9
+    ]
+   ],
+   "footprint_samples": 3904,
+   "surface_local_z": {
+    "min": 114.96,
+    "max": 119.095,
+    "mean": 117.458
+   },
+   "gap_vs_mean_cm": 11.284,
+   "gap_vs_max_cm": 9.647,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "Shore06_F25 Clam",
+   "kind": "figure",
+   "base_local_z": 128.697,
+   "pivot_local_xy": [
+    3260.000249999999,
+    0.0
+   ],
+   "parent": null,
+   "footprint_local_xy": [
+    [
+     3084.9,
+     -121.2
+    ],
+    [
+     3355.2,
+     144.0
+    ]
+   ],
+   "footprint_samples": 3080,
+   "surface_local_z": {
+    "min": 114.919,
+    "max": 117.389,
+    "mean": 116.281
+   },
+   "gap_vs_mean_cm": 12.416,
+   "gap_vs_max_cm": 11.308,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "Clam_Pedastal",
+   "kind": "pedestal",
+   "base_local_z": 121.379,
+   "parent": null,
+   "hidden_in_game": true,
+   "footprint_local_xy": [
+    [
+     2969.3,
+     -32.2
+    ],
+    [
+     3030.4,
+     30.9
+    ]
+   ],
+   "footprint_samples": 196,
+   "surface_local_z": {
+    "min": 115.753,
+    "max": 117.073,
+    "mean": 116.418
+   },
+   "gap_vs_mean_cm": 4.961,
+   "gap_vs_max_cm": 4.305,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "S3 Beach V2 Rock 01",
+   "kind": "rock",
+   "base_local_z": 121.137,
+   "footprint_local_xy": [
+    [
+     3267.0,
+     -439.7
+    ],
+    [
+     3372.8,
+     -321.3
+    ]
+   ],
+   "footprint_samples": 575,
+   "surface_local_z": {
+    "min": 115.242,
+    "max": 117.354,
+    "mean": 116.308
+   },
+   "gap_vs_mean_cm": 4.829,
+   "gap_vs_max_cm": 3.783,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "S3 Beach V2 Rock 02",
+   "kind": "rock",
+   "base_local_z": 115.17,
+   "footprint_local_xy": [
+    [
+     3272.5,
+     285.7
+    ],
+    [
+     3367.0,
+     378.0
+    ]
+   ],
+   "footprint_samples": 400,
+   "surface_local_z": {
+    "min": 114.139,
+    "max": 115.425,
+    "mean": 114.818
+   },
+   "gap_vs_mean_cm": 0.352,
+   "gap_vs_max_cm": -0.256,
+   "touches_somewhere": true,
+   "verdict": "OK"
+  },
+  {
+   "label": "S3 Beach V2 Rock 03",
+   "kind": "rock",
+   "base_local_z": 119.142,
+   "footprint_local_xy": [
+    [
+     3203.3,
+     -344.9
+    ],
+    [
+     3274.8,
+     -272.3
+    ]
+   ],
+   "footprint_samples": 256,
+   "surface_local_z": {
+    "min": 115.388,
+    "max": 116.796,
+    "mean": 116.086
+   },
+   "gap_vs_mean_cm": 3.055,
+   "gap_vs_max_cm": 2.346,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "S3 Beach V2 Rock 04",
+   "kind": "rock",
+   "base_local_z": 123.795,
+   "footprint_local_xy": [
+    [
+     3319.2,
+     195.2
+    ],
+    [
+     3402.2,
+     277.7
+    ]
+   ],
+   "footprint_samples": 324,
+   "surface_local_z": {
+    "min": 114.101,
+    "max": 115.323,
+    "mean": 114.695
+   },
+   "gap_vs_mean_cm": 9.1,
+   "gap_vs_max_cm": 8.472,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "S3 Beach V2 Rock 05",
+   "kind": "rock",
+   "base_local_z": 115.648,
+   "footprint_local_xy": [
+    [
+     3462.3,
+     -110.5
+    ],
+    [
+     3516.7,
+     -70.8
+    ]
+   ],
+   "footprint_samples": 108,
+   "surface_local_z": {
+    "min": 114.373,
+    "max": 115.65,
+    "mean": 115.133
+   },
+   "gap_vs_mean_cm": 0.515,
+   "gap_vs_max_cm": -0.002,
+   "touches_somewhere": true,
+   "verdict": "OK"
+  },
+  {
+   "label": "S3 Beach V2 Seaweed 01",
+   "kind": "seaweed",
+   "base_local_z": 116.901,
+   "footprint_local_xy": [
+    [
+     3308.4,
+     -429.5
+    ],
+    [
+     3382.1,
+     -372.1
+    ]
+   ],
+   "footprint_samples": 208,
+   "surface_local_z": {
+    "min": 115.622,
+    "max": 117.121,
+    "mean": 116.42
+   },
+   "gap_vs_mean_cm": 0.481,
+   "gap_vs_max_cm": -0.22,
+   "touches_somewhere": true,
+   "verdict": "OK"
+  },
+  {
+   "label": "S3 Beach V2 Seaweed 02",
+   "kind": "seaweed",
+   "base_local_z": 126.223,
+   "footprint_local_xy": [
+    [
+     3253.2,
+     400.4
+    ],
+    [
+     3346.1,
+     494.6
+    ]
+   ],
+   "footprint_samples": 400,
+   "surface_local_z": {
+    "min": 114.323,
+    "max": 115.647,
+    "mean": 114.977
+   },
+   "gap_vs_mean_cm": 11.245,
+   "gap_vs_max_cm": 10.576,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  },
+  {
+   "label": "S3 Beach V2 Seaweed 03",
+   "kind": "seaweed",
+   "base_local_z": 121.236,
+   "footprint_local_xy": [
+    [
+     3167.9,
+     432.3
+    ],
+    [
+     3226.8,
+     500.7
+    ]
+   ],
+   "footprint_samples": 195,
+   "surface_local_z": {
+    "min": 114.782,
+    "max": 116.052,
+    "mean": 115.485
+   },
+   "gap_vs_mean_cm": 5.75,
+   "gap_vs_max_cm": 5.184,
+   "touches_somewhere": false,
+   "verdict": "FLOATING"
+  }
+ ],
+ "note": "Objects are not moved; Gary re-arranges them. Rocks/seaweed were deliberately embedded 12-40% in v2 sand (s3_beach_v2.py:80-89), so BURIED there may be intended; figures and the pedestal stand ON the ground."
+}

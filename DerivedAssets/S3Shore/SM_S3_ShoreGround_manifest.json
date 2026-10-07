@@ -1,10 +1,10 @@
 {
  "schema": "s3_shore_ground_manifest/1",
- "built_utc": "2026-10-07T18:14:18Z",
+ "built_utc": "2026-10-07T18:29:46Z",
  "blender": "4.4.0",
  "fbx": "E:\\PussStage\\DerivedAssets\\S3Shore\\SM_S3_ShoreGround.fbx",
- "fbx_sha256": "392029e8c2f8a29f28590f78f2c609b4d29e9d880b007d19fc64e73cb885da44",
- "fbx_bytes": 12347180,
+ "fbx_sha256": "55cb80782c875143f68753637de3e7b5b57ce8215fdd65b1abbe78c47faec966",
+ "fbx_bytes": 12371836,
  "frame": "S3 Hangar Root LOCAL cm; attach at RELATIVE IDENTITY",
  "params": {
   "seed": 3307,
@@ -60,6 +60,7 @@
    180.0,
    380.0
   ],
+  "wave_notch": true,
   "wave_notch_halfwidth_cm": 45.0,
   "wave_notch_blend_cm": 90.0,
   "pools": [
@@ -192,6 +193,8 @@
     3.5
    ]
   ],
+  "preserve_v2_cast": false,
+  "use_pads": false,
   "cast_blend_metric": [
    0.85,
    1.2
@@ -199,7 +202,7 @@
   "pad_blend_cm": 40.0,
   "camera_min_vertical_clearance_cm": 80.0
  },
- "footprint_sha256": "b868560cda53e9a0715b2442ec05d25c3cf5089e4588c525cdf3f40b7fe9da54",
+ "footprint_sha256": "4db37399ddf7ae0f676cfbaac063a4e18403726c3082cafb15dbbef04a6aab2e",
  "vertex_count": 218952,
  "face_count_quads": 217880,
  "triangles_expected": 435760,
@@ -279,174 +282,13 @@
  "material_slot": "MI_S3_ShoreGround",
  "checks_failures": [],
  "checks": {
-  "pads": [
-   {
-    "label": "Shore01_M56 Clam",
-    "kind": "figure",
-    "local_xy": [
-     3149.13,
-     -212.98
-    ],
-    "pad_h_cm": 14.576,
-    "pad_local_z": 129.576,
-    "max_dev_in_pad_cm": 0.0998
-   },
-   {
-    "label": "Shore02_F52 Clam",
-    "kind": "figure",
-    "local_xy": [
-     2699.3,
-     109.45
-    ],
-    "pad_h_cm": 13.491,
-    "pad_local_z": 128.491,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "Shore03_M59 Clam",
-    "kind": "figure",
-    "local_xy": [
-     2890.55,
-     300.7
-    ],
-    "pad_h_cm": 17.027,
-    "pad_local_z": 132.027,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "Shore04_F55 Clam",
-    "kind": "figure",
-    "local_xy": [
-     3183.54,
-     262.13
-    ],
-    "pad_h_cm": 12.342,
-    "pad_local_z": 127.342,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "Shore05_M53 Clam",
-    "kind": "figure",
-    "local_xy": [
-     2911.07,
-     -244.32
-    ],
-    "pad_h_cm": 13.742,
-    "pad_local_z": 128.742,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "Shore06_F25 Clam",
-    "kind": "figure",
-    "local_xy": [
-     3260.0,
-     0.0
-    ],
-    "pad_h_cm": 13.697,
-    "pad_local_z": 128.697,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "Clam_Pedastal",
-    "kind": "pedestal",
-    "local_xy": [
-     2999.82,
-     -0.66
-    ],
-    "pad_h_cm": 15.011,
-    "pad_local_z": 130.011,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Rock 01",
-    "kind": "prop",
-    "local_xy": [
-     3320.0,
-     -380.0
-    ],
-    "pad_h_cm": 13.907,
-    "pad_local_z": 128.907,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Rock 02",
-    "kind": "prop",
-    "local_xy": [
-     3320.0,
-     330.0
-    ],
-    "pad_h_cm": 13.061,
-    "pad_local_z": 128.061,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Rock 03",
-    "kind": "prop",
-    "local_xy": [
-     3240.0,
-     -310.0
-    ],
-    "pad_h_cm": 13.88,
-    "pad_local_z": 128.88,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Rock 04",
-    "kind": "prop",
-    "local_xy": [
-     3360.0,
-     235.0
-    ],
-    "pad_h_cm": 16.17,
-    "pad_local_z": 131.17,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Rock 05",
-    "kind": "prop",
-    "local_xy": [
-     3490.0,
-     -90.0
-    ],
-    "pad_h_cm": 9.998,
-    "pad_local_z": 124.998,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Seaweed 01",
-    "kind": "prop",
-    "local_xy": [
-     3350.0,
-     -400.0
-    ],
-    "pad_h_cm": 9.036,
-    "pad_local_z": 124.036,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Seaweed 02",
-    "kind": "prop",
-    "local_xy": [
-     3300.0,
-     450.0
-    ],
-    "pad_h_cm": 15.752,
-    "pad_local_z": 130.752,
-    "max_dev_in_pad_cm": 0.0
-   },
-   {
-    "label": "S3 Beach V2 Seaweed 03",
-    "kind": "prop",
-    "local_xy": [
-     3200.0,
-     470.0
-    ],
-    "pad_h_cm": 12.691,
-    "pad_local_z": 127.691,
-    "max_dev_in_pad_cm": 0.0
-   }
-  ],
-  "pedestal_embed_cm": 8.631,
+  "cast_area_vs_v2": {
+   "samples": 2506,
+   "fraction_within_0p5cm_of_v2": 0.0,
+   "mean_abs_diff_cm": 11.92,
+   "max_abs_diff_cm": 17.418
+  },
+  "pads": [],
   "cameras": [
    {
     "label": "S3 Shot B02",
@@ -455,33 +297,33 @@
    },
    {
     "label": "S3 Shot B03",
-    "vertical_clearance_cm": 163.13,
-    "min_3d_distance_within_150cm_cm": 162.32
+    "vertical_clearance_cm": 160.39,
+    "min_3d_distance_within_150cm_cm": 160.39
    },
    {
     "label": "S3 Shot B04",
-    "vertical_clearance_cm": 116.26,
-    "min_3d_distance_within_150cm_cm": 115.04
+    "vertical_clearance_cm": 110.32,
+    "min_3d_distance_within_150cm_cm": 109.75
    },
    {
     "label": "S3 Shot B05",
-    "vertical_clearance_cm": 129.14,
-    "min_3d_distance_within_150cm_cm": 129.05
+    "vertical_clearance_cm": 140.97,
+    "min_3d_distance_within_150cm_cm": 140.97
    },
    {
     "label": "S3 Shot B06",
-    "vertical_clearance_cm": 110.67,
-    "min_3d_distance_within_150cm_cm": 110.67
+    "vertical_clearance_cm": 117.88,
+    "min_3d_distance_within_150cm_cm": 117.88
    },
    {
     "label": "S3 Shot B07",
-    "vertical_clearance_cm": 114.07,
-    "min_3d_distance_within_150cm_cm": 113.88
+    "vertical_clearance_cm": 122.38,
+    "min_3d_distance_within_150cm_cm": 122.38
    },
    {
     "label": "S3 Shot B08",
-    "vertical_clearance_cm": 104.65,
-    "min_3d_distance_within_150cm_cm": 104.5
+    "vertical_clearance_cm": 113.17,
+    "min_3d_distance_within_150cm_cm": 113.17
    },
    {
     "label": "S3 Shot B09",
@@ -490,8 +332,8 @@
    },
    {
     "label": "S3 Shot B11",
-    "vertical_clearance_cm": 98.64,
-    "min_3d_distance_within_150cm_cm": 97.42
+    "vertical_clearance_cm": 108.6,
+    "min_3d_distance_within_150cm_cm": 108.6
    }
   ],
   "wave_rows": [
@@ -527,7 +369,7 @@
    "verts": 216810,
    "h_min_cm": -8.08,
    "h_max_cm": 128.19,
-   "r_mean": 0.343,
+   "r_mean": 0.345,
    "g_mean": 0.406,
    "b_mean": 0.099
   }
@@ -538,11 +380,21 @@
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\drift_left_wall.png",
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\back_wall_drifts_door.png",
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\mud_front_low.png",
+  "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_EntryHandoff.png",
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_B02.png",
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_B04.png",
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\cam_B09.png",
   "E:\\PussStage\\DerivedAssets\\S3Shore\\previews\\plan_vertex_colour_RGB.png"
  ],
  "render_engine": "BLENDER_EEVEE_NEXT",
- "seconds": 7.1
+ "seat_report": {
+  "path": "E:\\PussStage\\Saved\\CodexConductor\\S3Shore\\s3_shore_seat_report.json",
+  "counts": {
+   "OK": 3,
+   "FLOATING": 12,
+   "BURIED": 0
+  },
+  "live_reads_run": "S3SHORE-20261007-181646"
+ },
+ "seconds": 8.3
 }

@@ -50,6 +50,7 @@ PARAMS = {
     "drift_lambda_factor": 1.15,        # e-fold distance = factor * local drift height
     "drift_front_taper_x": [150.0, 700.0],
     "door_gap_y": [180.0, 380.0],       # back drift 0 for |y|<180, full by 380
+    "wave_notch": True,                 # Gary 7 Oct: no drifts at the wave rows (surface flush under the flats)
     "wave_notch_halfwidth_cm": 45.0, "wave_notch_blend_cm": 90.0,
     # Pools / runnels: (x, y, rx, ry, depth_cm, rot_deg)
     "pools": [
@@ -69,8 +70,12 @@ PARAMS = {
         [1120.0, -360.0, 55.0, 6.0], [1580.0, 820.0, 50.0, 6.0], [1720.0, -560.0, 40.0, 4.0],
         [640.0, -180.0, 30.0, 3.0], [1980.0, -840.0, 48.0, 5.0], [220.0, 120.0, 35.0, 3.5],
     ],
-    "cast_blend_metric": [0.85, 1.20],  # v2 shape metric: exact v2 inside 0.85, new terrain past 1.20
-    "pad_blend_cm": 40.0,
+    # Gary 7 Oct ("Resculpt, the figures need arranging"): the cast area is the SAME field as the rest,
+    # no beach-v2 preservation, no pads.  The old behaviour stays reachable only as a harness control.
+    "preserve_v2_cast": False,
+    "use_pads": False,
+    "cast_blend_metric": [0.85, 1.20],  # (only if preserve_v2_cast) exact v2 inside 0.85, new terrain past 1.20
+    "pad_blend_cm": 40.0,               # (only if use_pads)
     "camera_min_vertical_clearance_cm": 80.0,
 }
 
@@ -237,12 +242,15 @@ def field(x, y, fp=None, p=PARAMS):
     # cast island: reproduce beach v2 exactly where things are seated on it
     xd = x + 500.0
     metric = v2_metric(xd, y)
-    w_cast = 1.0 - smoothstep(p["cast_blend_metric"][0], p["cast_blend_metric"][1], metric)
-    h = w_cast * v2_h(x, y) + (1.0 - w_cast) * h
+    if p.get("preserve_v2_cast", False):
+        w_cast = 1.0 - smoothstep(p["cast_blend_metric"][0], p["cast_blend_metric"][1], metric)
+        h = w_cast * v2_h(x, y) + (1.0 - w_cast) * h
+    else:
+        w_cast = np.zeros_like(x)
 
     # wave-row notches: surface exactly at floor top under each flat (all Y; flats slide)
     notch_w = np.zeros_like(x)
-    for row in fp["wave_rows"]["rows"]:
+    for row in (fp["wave_rows"]["rows"] if p.get("wave_notch", True) else []):
         cx = 0.5 * (row["x"][0] + row["x"][1])
         half = max(p["wave_notch_halfwidth_cm"], 0.5 * (row["x"][1] - row["x"][0]) + 10.0)
         d = np.abs(x - cx)
@@ -254,7 +262,7 @@ def field(x, y, fp=None, p=PARAMS):
     # embed fractions are unchanged even where pads overlap.
     pad_w_total = np.zeros_like(x)
     v2_here = v2_h(x, y)
-    for label, px, py, pr, ph, kind in pads(fp, p):
+    for label, px, py, pr, ph, kind in (pads(fp, p) if p.get("use_pads", False) else []):
         d = np.hypot(x - px, y - py)
         w = 1.0 - smoothstep(pr, pr + p["pad_blend_cm"], d)
         target = v2_here if kind == "prop" else ph
@@ -305,9 +313,20 @@ def checks(fp=None, p=PARAMS, grid=None):
     if fp is None:
         fp = load_footprint()
     failures, report = [], {}
-    # pads
+    # cast area: must be re-sculpted (not the beach-v2 surface) unless preservation is switched on
+    xs_c = np.linspace(2600.0, 3500.0, 61)
+    ys_c = np.linspace(-650.0, 650.0, 61)
+    Xc, Yc = np.meshgrid(xs_c, ys_c, indexing="ij")
+    inside = v2_metric(Xc + 500.0, Yc) < 0.85
+    dv = np.abs(field(Xc, Yc, fp, p)["h"] - v2_h(Xc, Yc))[inside]
+    same_frac = float((dv < 0.5).mean())
+    report["cast_area_vs_v2"] = {"samples": int(inside.sum()), "fraction_within_0p5cm_of_v2": round(same_frac, 4),
+                                 "mean_abs_diff_cm": round(float(dv.mean()), 3), "max_abs_diff_cm": round(float(dv.max()), 3)}
+    if not p.get("preserve_v2_cast", False) and same_frac > 0.5:
+        failures.append("CAST_STILL_V2 fraction=%.3f" % same_frac)
+    # pads (only when use_pads)
     pad_rows = []
-    for label, px, py, pr, ph, kind in pads(fp, p):
+    for label, px, py, pr, ph, kind in (pads(fp, p) if p.get("use_pads", False) else []):
         ring = [(px + rr * math.cos(t), py + rr * math.sin(t))
                 for rr in (0.0, 0.5 * max(pr, 30.0), max(pr, 30.0)) for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
         qx = np.array([q[0] for q in ring]); qy = np.array([q[1] for q in ring])
@@ -320,9 +339,6 @@ def checks(fp=None, p=PARAMS, grid=None):
         if dev > 0.25:
             failures.append(f"PAD_NOT_FLAT {label} dev={dev:.3f}")
     report["pads"] = pad_rows
-    ped = fp["pedestal"]
-    ph = [r for r in pad_rows if r["kind"] == "pedestal"][0]["pad_h_cm"]
-    report["pedestal_embed_cm"] = round(ph - (ped["base_dock_z"] + 5.0), 3)
     # cameras
     cam_rows = []
     for cam in fp["cameras"]["rows"]:

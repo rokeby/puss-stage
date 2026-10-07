@@ -211,13 +211,18 @@ def context_proxies(fp):
     for row in fp["wave_rows"]["rows"]:
         top = {"Row1": 235, "Row2": 295, "Row3": 375}[row["name"]]
         box("Wave " + row["name"], (row["x"][0] + 30, -1000, 115), (row["x"][0] + 42, 1000, top), (0.20, 0.38, 0.52, 1))
-    for label, px, py, pr, ph, kind in F.pads(fp):
-        if kind == "figure":
-            box("Fig " + label[:7], (px - 22, py - 22, 115 + ph), (px + 22, py + 22, 115 + ph + 165), (0.85, 0.83, 0.80, 1))
-        elif kind == "pedestal":
-            box("Pedestal", (px - 30, py - 31, 121.4), (px + 30, py + 31, 218.7), marble)
-        elif "Rock" in label:
-            box(label, (px - pr * 0.7, py - pr * 0.6, 115 + ph - 8), (px + pr * 0.7, py + pr * 0.6, 115 + ph + 22), (0.25, 0.24, 0.22, 1))
+    live = json.load(open(os.path.join(HERE, "s3_shore_live_reads.json"), encoding="utf-8"))
+    for label, f in live["figures"].items():   # LIVE positions (DRY S3SHORE-20261007-181646); not re-seated
+        px, py = f["local"]
+        box("Fig " + label[:7], (px - 22, py - 22, f["foot_local_z"]), (px + 22, py + 22, f["local_aabb"]["max"][2]),
+            (0.85, 0.83, 0.80, 1))
+    for label, a in live["actors"].items():
+        if label == "Clam_Pedastal":
+            box("Pedestal", tuple(a["local_aabb"]["min"]), tuple(a["local_aabb"]["max"]), marble)
+        elif label.startswith("S3 Beach V2 Rock"):
+            box(label, tuple(a["local_aabb"]["min"]), tuple(a["local_aabb"]["max"]), (0.25, 0.24, 0.22, 1))
+        elif label.startswith("S3 Beach V2 Seaweed"):
+            box(label, tuple(a["local_aabb"]["min"]), tuple(a["local_aabb"]["max"]), (0.15, 0.25, 0.10, 1))
     # print band (where the hand prints start) as a thin dark line on each side wall
     box("PrintBand L", (0, -998.5, 115 + 160), (6000, -998, 115 + 163), (0.3, 0.05, 0.05, 1))
     box("PrintBand R", (0, 998, 115 + 160), (6000, 998.5, 115 + 163), (0.3, 0.05, 0.05, 1))
@@ -304,6 +309,9 @@ def main():
     if failures:
         raise SystemExit("S3SHORE_FIELD_CHECKS_FAILED " + json.dumps(failures))
     ob, corners, nquads = build_mesh(grid)
+    import s3_shore_seat_report as SR
+    seat = SR.build(grid=grid)
+    seat_summary = {"path": SR.OUT, "counts": seat["counts"], "live_reads_run": seat["live_reads_run"]}
     me = ob.data
     co = np.zeros(len(me.vertices) * 3, dtype=np.float32)
     me.vertices.foreach_get("co", co)
@@ -344,6 +352,7 @@ def main():
             ("back_wall_drifts_door", add_camera("OV_Back", (3900, 0, 330), (0, -9, 0), 20)),
             ("mud_front_low", add_camera("OV_Mud", (200, 600, 190), (0, -10, -25), 24)),
         ]
+        shots.append(("cam_EntryHandoff", add_camera("Entry Handoff", (-500.0, 0.0, 300.0), (0, 0, 0), 50.0)))
         for lab in ("S3 Shot B02", "S3 Shot B04", "S3 Shot B09"):
             c = cams[lab]
             shots.append(("cam_" + lab.split()[-1], add_camera(lab, c["local"], c["rpy"], c["lens_mm"])))
@@ -389,6 +398,7 @@ def main():
         "material_slot": SLOT,
         "checks_failures": failures, "checks": report,
         "renders": renders, "render_engine": engine,
+        "seat_report": seat_summary,
         "seconds": round(time.time() - t0, 1),
     }
     with open(os.path.join(OUT, NAME + "_manifest.json"), "w", encoding="utf-8") as handle:
