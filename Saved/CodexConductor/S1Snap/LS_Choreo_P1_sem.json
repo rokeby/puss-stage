@@ -1,0 +1,526 @@
+{
+ "file": "E:/PussStage/Content/InfinityStage/Choreo/LS_Choreo_Passage_1.uasset",
+ "sha256": "ca24296d70d562fd84886f5d00551fcfa81bfb3ed2e141229ff63174ba7adcca",
+ "movie": {
+  "PlaybackRange": [
+   0,
+   3032065
+  ],
+  "TickResolution": {
+   "Numerator": 24000
+  },
+  "DisplayRate": {
+   "Numerator": 25
+  },
+  "EvaluationType": null,
+  "ClockSource": null
+ },
+ "bindings": {},
+ "marked": [
+  {
+   "FrameNumber": 0,
+   "Label": "bar 1",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 75790,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 84706,
+   "Label": "bar 2",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 169414,
+   "Label": "bar 3",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 254119,
+   "Label": "bar 4",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 276410,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 338825,
+   "Label": "bar 5",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 423533,
+   "Label": "bar 6",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 508238,
+   "Label": "bar 7",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 592944,
+   "Label": "bar 8",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 677652,
+   "Label": "bar 9",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 730034,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 762358,
+   "Label": "bar 10",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 847063,
+   "Label": "bar 11",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 917280,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 931771,
+   "Label": "bar 12",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1016477,
+   "Label": "bar 13",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1101182,
+   "Label": "bar 14",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1107871,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1185890,
+   "Label": "bar 15",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1270596,
+   "Label": "bar 16",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1327438,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1355302,
+   "Label": "bar 17",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1440010,
+   "Label": "bar 18",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1510226,
+   "Label": "\u00a7 Major change suggestion",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1524715,
+   "Label": "bar 19",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1609421,
+   "Label": "bar 20",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  },
+  {
+   "FrameNumber": 1694129,
+   "Label": "bar 21",
+   "Comment": "",
+   "CustomColor": {
+    "err": "error('unpack_from requires a buffer of at least 20 bytes for unpacking 4 bytes ",
+    "opaque": "821de6b48297"
+   },
+   "bUseCustomColor": {
+    "boolflags": 0
+   },
+   "bIsDeterminismFence": {
+    "boolflags": 0
+   },
+   "bIsInclusiveTime": {
+    "boolflags": 0
+   }
+  }
+ ],
+ "tracks": []
+}

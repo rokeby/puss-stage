@@ -1,0 +1,2542 @@
+{
+ "file": "E:/PussStage/Content/InfinityStage/RigAtmos/LS_S1_HangarRise.uasset",
+ "sha256": "4f6de37553981d356f24dbf1cff44536d4db48a0b670967e7646d2d17bdb1579",
+ "movie": {
+  "PlaybackRange": [
+   0,
+   744000
+  ],
+  "TickResolution": {
+   "Numerator": 24000
+  },
+  "DisplayRate": {
+   "Numerator": 30
+  },
+  "EvaluationType": null,
+  "ClockSource": null
+ },
+ "bindings": {
+  "adac8801758b0c4995331a21fbccab7a": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "029aca4febadb849ad2cf0ea681e605b",
+   "full": "S1 Lattice Glow 3-4/LightComponent0"
+  },
+  "f8552b0467669b4e92d8559c0c08de5a": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "c83f01d441a37c40b86e4972ed0acc25",
+   "full": "S1 Lattice Glow 2-5/LightComponent0"
+  },
+  "60fcaf098173b246ad9ea984362c1e28": {
+   "name": "S1 Lattice Glow 2-7",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-7"
+  },
+  "6fdeac0dafcd164d8b53420ae15bbe99": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "74417f3d0917114f845c51fb8a87c04c",
+   "full": "S1 Lattice Glow 2-2/LightComponent0"
+  },
+  "7d867b0eaad5e14fae0f38feb6aee556": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "6fe2c47f2c5baf48a94b8ddfe74c6726",
+   "full": "S1 Practical L7/LightComponent0"
+  },
+  "61e4b00e198a2843a9c4d949a5f41d4b": {
+   "name": "S1 Practical L4",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L4"
+  },
+  "c16a50101cb03d489b8c0d4b1ed47c39": {
+   "name": "S1 Lattice Glow 3-1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-1"
+  },
+  "2ca3a41220fb3a4da8660e3ab23e8828": {
+   "name": "S1 Uplight 3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Uplight 3"
+  },
+  "7c03f815eab52c4298d747f546253236": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "2ca3a41220fb3a4da8660e3ab23e8828",
+   "full": "S1 Uplight 3/LightComponent0"
+  },
+  "18f4511a229a154abee347b5dbcbc87e": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "8468f8497ac8ac44bd4dc674d20f617f",
+   "full": "S1 Practical L5/LightComponent0"
+  },
+  "da4fd11da42cd345bbb4a79b6bc5867e": {
+   "name": "S1 Lattice Glow 3-7",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-7"
+  },
+  "78f7a922fb98814c97fa720a3a0d75df": {
+   "name": "S1 Uplight 1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Uplight 1"
+  },
+  "1ed649253ffb03479cac270f6a8b015c": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "58b73a8cb19b5948b24c939d9c2f41a3",
+   "full": "S1 Uplight 2/LightComponent0"
+  },
+  "7a240426fa46124da51ca85a054e20d8": {
+   "name": "S1 Lattice Glow 2-1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-1"
+  },
+  "eeb3f7272783e4468f0bdef2cd9176df": {
+   "name": "S1 Practical R5",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R5"
+  },
+  "4315af29dc887e48a43417965d6c5018": {
+   "name": "S1 Practical L2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L2"
+  },
+  "028ec32a3a091746904214ae37b67a89": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "41903a384eff7e49b3a7c35aff370995",
+   "full": "S1 Lattice Glow 1-3/LightComponent0"
+  },
+  "161be42bfaa88049abbb2e80893b5723": {
+   "name": "S1 Lattice Glow 3-8",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-8"
+  },
+  "bc78a62d097aee4dac461469ebd8ff60": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "161be42bfaa88049abbb2e80893b5723",
+   "full": "S1 Lattice Glow 3-8/LightComponent0"
+  },
+  "59551a30b48cbe4ebe5b8c904a0d9ee2": {
+   "name": "S1 Hangar Pinned Exposure",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Hangar Pinned Exposure"
+  },
+  "cd863b3112dd0244a798ac9829f6449d": {
+   "name": "S1 Lattice Glow 1-2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-2"
+  },
+  "06944c32d767c043923eda15682dd195": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "8e3f63addc8cd54994f0be5d8b96e12f",
+   "full": "S1 Practical R7/LightComponent0"
+  },
+  "41903a384eff7e49b3a7c35aff370995": {
+   "name": "S1 Lattice Glow 1-3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-3"
+  },
+  "c24ecb3a0c92e94395038acfc9e6411e": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "b823a7469bb66744946d14fbace38d8b",
+   "full": "S1 Practical R4/LightComponent0"
+  },
+  "cac1113d61b7944ea94a7764cc203f99": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "e9359e9b7c94e64ebc1353a5ade2e026",
+   "full": "S1 Practical R6/LightComponent0"
+  },
+  "74417f3d0917114f845c51fb8a87c04c": {
+   "name": "S1 Lattice Glow 2-2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-2"
+  },
+  "b823a7469bb66744946d14fbace38d8b": {
+   "name": "S1 Practical R4",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R4"
+  },
+  "6766ec46153eca41b49b7cfa524a3ad3": {
+   "name": "S1 Lattice Glow 2-8",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-8"
+  },
+  "72d0da48764520408d42c2bb4f5546b1": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "61e4b00e198a2843a9c4d949a5f41d4b",
+   "full": "S1 Practical L4/LightComponent0"
+  },
+  "d6c1df488e17d04bb4bfbeb8b3424225": {
+   "name": "S1 Lattice Glow 3-5",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-5"
+  },
+  "8468f8497ac8ac44bd4dc674d20f617f": {
+   "name": "S1 Practical L5",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L5"
+  },
+  "029aca4febadb849ad2cf0ea681e605b": {
+   "name": "S1 Lattice Glow 3-4",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-4"
+  },
+  "00c556546113b1498ffe58ec9b9e8928": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "b2c62257d0b19f4c8421c280cd6deef9",
+   "full": "S1 Practical R2/LightComponent0"
+  },
+  "a36922551d21a24b8fea80d9aec3fcd5": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "b4a1a6bec7aab5439564fe6a1d083073",
+   "full": "S1 Lattice Glow 3-2/LightComponent0"
+  },
+  "b2c62257d0b19f4c8421c280cd6deef9": {
+   "name": "S1 Practical R2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R2"
+  },
+  "5da9635c98ad1d4abaa581b2fbcea4c1": {
+   "name": "S1 Practical L3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L3"
+  },
+  "9783016030f7c848a02842d80b3114fb": {
+   "name": "S1 Hangar Roof Hinge",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Hangar Roof Hinge"
+  },
+  "ed9de4604887ee41a6ad4f875d9d89c9": {
+   "name": "P01 End Drape (stand-in)",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "P01 End Drape (stand-in)"
+  },
+  "e18da2679eaa304fbb707f42d0e8e7f8": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "56ac5e7aae823944acfc83f7d1205e96",
+   "full": "S1 Lattice Glow 1-4/LightComponent0"
+  },
+  "147171697f641440b5c6558b5a98dd8b": {
+   "name": "S1 Lattice Glow 1-7",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-7"
+  },
+  "d8d3a96aee508343b2c89f6708e0598f": {
+   "name": "S1 Lattice Glow 1-5",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-5"
+  },
+  "3fd8606ea897a64085829456ce1e8862": {
+   "name": "S1 Lattice Glow 2-6",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-6"
+  },
+  "56a13f6f52160949adf0774137e4710f": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "3e174cb812ae484f9a09c33c4ca47257",
+   "full": "S1 Lattice Glow 2-3/LightComponent0"
+  },
+  "e29d1b7589353f44b5faa114cfde52d2": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "b5afaaededc5f04c9e1e71c279f32cf2",
+   "full": "S1 Lattice Glow 1-6/LightComponent0"
+  },
+  "56ac5e7aae823944acfc83f7d1205e96": {
+   "name": "S1 Lattice Glow 1-4",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-4"
+  },
+  "2e54237dc2a61c49b219c8f2b1e9c70c": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "441cbfcc18b6ce4781a0ddc82b33c6ab",
+   "full": "S1 Lattice Glow 3-6/LightComponent0"
+  },
+  "231c7e7d075da8429384c60575484591": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "a70cd6c15735054c85be79bc3e5d21b9",
+   "full": "S1 Lattice Glow 1-1/LightComponent0"
+  },
+  "6fe2c47f2c5baf48a94b8ddfe74c6726": {
+   "name": "S1 Practical L7",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L7"
+  },
+  "95c48a8648f7c947864322599750bde2": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "4315af29dc887e48a43417965d6c5018",
+   "full": "S1 Practical L2/LightComponent0"
+  },
+  "58b73a8cb19b5948b24c939d9c2f41a3": {
+   "name": "S1 Uplight 2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Uplight 2"
+  },
+  "d380698dca26ba479c33a0b039de9165": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "eeb3f7272783e4468f0bdef2cd9176df",
+   "full": "S1 Practical R5/LightComponent0"
+  },
+  "6c14eb90744287478a94b918731deeeb": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "d8d3a96aee508343b2c89f6708e0598f",
+   "full": "S1 Lattice Glow 1-5/LightComponent0"
+  },
+  "bce2809a5bd1b74cafeb456ad6e9b108": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "6766ec46153eca41b49b7cfa524a3ad3",
+   "full": "S1 Lattice Glow 2-8/LightComponent0"
+  },
+  "e9359e9b7c94e64ebc1353a5ade2e026": {
+   "name": "S1 Practical R6",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R6"
+  },
+  "269482a1b19d8a439b7a0c1988c24b3a": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "07b6a8ed9b0630419de2eaded6ea679a",
+   "full": "S1 Practical R3/LightComponent0"
+  },
+  "baf2e5a5dce75a44ba0222f461d10bb0": {
+   "name": "S1 Lattice Glow 1-8",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-8"
+  },
+  "8cd42daa2c42d14fa50a37565121a767": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "d6c1df488e17d04bb4bfbeb8b3424225",
+   "full": "S1 Lattice Glow 3-5/LightComponent0"
+  },
+  "af46c1acc84bce4ebb537b9d967ff08a": {
+   "name": "S1 Practical L1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L1"
+  },
+  "1249c5ac3024814eb6361089b72305e8": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "c16a50101cb03d489b8c0d4b1ed47c39",
+   "full": "S1 Lattice Glow 3-1/LightComponent0"
+  },
+  "8e3f63addc8cd54994f0be5d8b96e12f": {
+   "name": "S1 Practical R7",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R7"
+  },
+  "3e174cb812ae484f9a09c33c4ca47257": {
+   "name": "S1 Lattice Glow 2-3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-3"
+  },
+  "41efc7bc243cb340b2a5b367ee48f013": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "8cf39bc03102a44f9f01aec66c2899f0",
+   "full": "S1 Lattice Glow 2-4/LightComponent0"
+  },
+  "e2c0f9bd1f813945a243c936569069cf": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "78f7a922fb98814c97fa720a3a0d75df",
+   "full": "S1 Uplight 1/LightComponent0"
+  },
+  "b4a1a6bec7aab5439564fe6a1d083073": {
+   "name": "S1 Lattice Glow 3-2",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-2"
+  },
+  "642fb9bed1dd7e4c8e5833768a572b98": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "cd863b3112dd0244a798ac9829f6449d",
+   "full": "S1 Lattice Glow 1-2/LightComponent0"
+  },
+  "b9ab0dbf0006d147b7090ce3108c88d9": {
+   "name": "S1 Practical L6",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical L6"
+  },
+  "8cf39bc03102a44f9f01aec66c2899f0": {
+   "name": "S1 Lattice Glow 2-4",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-4"
+  },
+  "a70cd6c15735054c85be79bc3e5d21b9": {
+   "name": "S1 Lattice Glow 1-1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-1"
+  },
+  "07ca83c6dcc64b4991bee4b74a19455e": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "af46c1acc84bce4ebb537b9d967ff08a",
+   "full": "S1 Practical L1/LightComponent0"
+  },
+  "5551bfc8b9a7a14e8f4e7b7bdfa7a4bc": {
+   "name": "S1 Hangar Lattice Fly",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Hangar Lattice Fly"
+  },
+  "441cbfcc18b6ce4781a0ddc82b33c6ab": {
+   "name": "S1 Lattice Glow 3-6",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-6"
+  },
+  "ac07facf2d245740a552459650235d85": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "baf2e5a5dce75a44ba0222f461d10bb0",
+   "full": "S1 Lattice Glow 1-8/LightComponent0"
+  },
+  "9cc699d0b15d3145848bd4728f48f724": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "7575d4e631694247a25ca5181e660812",
+   "full": "S1 Lattice Glow 3-3/LightComponent0"
+  },
+  "c83f01d441a37c40b86e4972ed0acc25": {
+   "name": "S1 Lattice Glow 2-5",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 2-5"
+  },
+  "821e7fd995aeab47b4cd478be48b5e5a": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "60fcaf098173b246ad9ea984362c1e28",
+   "full": "S1 Lattice Glow 2-7/LightComponent0"
+  },
+  "7d4ac1daefa30744a941a9102ca41586": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "3fd8606ea897a64085829456ce1e8862",
+   "full": "S1 Lattice Glow 2-6/LightComponent0"
+  },
+  "7575d4e631694247a25ca5181e660812": {
+   "name": "S1 Lattice Glow 3-3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 3-3"
+  },
+  "07b6a8ed9b0630419de2eaded6ea679a": {
+   "name": "S1 Practical R3",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R3"
+  },
+  "b5afaaededc5f04c9e1e71c279f32cf2": {
+   "name": "S1 Lattice Glow 1-6",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Lattice Glow 1-6"
+  },
+  "cce9b5edc1ebd9438359df0f5e4595b1": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "b9ab0dbf0006d147b7090ce3108c88d9",
+   "full": "S1 Practical L6/LightComponent0"
+  },
+  "1e481eee1653f042bce3e02c30fe0b0a": {
+   "name": "S1 Hangar Root",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Hangar Root"
+  },
+  "b738f3f29b97494db1f2b55abb639253": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "7a240426fa46124da51ca85a054e20d8",
+   "full": "S1 Lattice Glow 2-1/LightComponent0"
+  },
+  "a520ddf38eeeb44cb78a94d530e45490": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "5da9635c98ad1d4abaa581b2fbcea4c1",
+   "full": "S1 Practical L3/LightComponent0"
+  },
+  "ef7ae5f629194c4f9b4eeb287d0459e8": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "da4fd11da42cd345bbb4a79b6bc5867e",
+   "full": "S1 Lattice Glow 3-7/LightComponent0"
+  },
+  "074820f8c90e3c468ae9a720cede2d2c": {
+   "name": "S1 Practical R1",
+   "kind": "poss",
+   "parent": "00000000000000000000000000000000",
+   "full": "S1 Practical R1"
+  },
+  "e3805efc47402048bda69822d9395a72": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "074820f8c90e3c468ae9a720cede2d2c",
+   "full": "S1 Practical R1/LightComponent0"
+  },
+  "e7b2fffed3e6ee4f86c2d44d477a7b66": {
+   "name": "LightComponent0",
+   "kind": "poss",
+   "parent": "147171697f641440b5c6558b5a98dd8b",
+   "full": "S1 Lattice Glow 1-7/LightComponent0"
+  }
+ },
+ "marked": null,
+ "tracks": [
+  {
+   "owner": "S1 Lattice Glow 3-4/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_73.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_73",
+   "track_props": {},
+   "guid": "adac8801758b0c4995331a21fbccab7a"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-5/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_59.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_59",
+   "track_props": {},
+   "guid": "f8552b0467669b4e92d8559c0c08de5a"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-2/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_53.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_53",
+   "track_props": {},
+   "guid": "6fdeac0dafcd164d8b53420ae15bbe99"
+  },
+  {
+   "owner": "S1 Practical L7/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_25.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_25",
+   "track_props": {},
+   "guid": "7d867b0eaad5e14fae0f38feb6aee556"
+  },
+  {
+   "owner": "S1 Uplight 3/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 3,
+        "t": [
+         0,
+         252001
+        ],
+        "times_h": "39c79f3d15c0",
+        "vals_h": "7e79e3f71aed",
+        "first": 0.0,
+        "last": 10000.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         0,
+         247201,
+         252001
+        ],
+        "vals": [
+         0.0,
+         0.0,
+         10000.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_33.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_33",
+   "track_props": {},
+   "guid": "7c03f815eab52c4298d747f546253236"
+  },
+  {
+   "owner": "S1 Practical L5/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_17.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_17",
+   "track_props": {},
+   "guid": "18f4511a229a154abee347b5dbcbc87e"
+  },
+  {
+   "owner": "S1 Uplight 2/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 3,
+        "t": [
+         0,
+         248001
+        ],
+        "times_h": "75efaae9ab6f",
+        "vals_h": "7e79e3f71aed",
+        "first": 0.0,
+        "last": 10000.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         0,
+         243201,
+         248001
+        ],
+        "vals": [
+         0.0,
+         0.0,
+         10000.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_31.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_31",
+   "track_props": {},
+   "guid": "1ed649253ffb03479cac270f6a8b015c"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-3/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_39.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_39",
+   "track_props": {},
+   "guid": "028ec32a3a091746904214ae37b67a89"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-8/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_81.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_81",
+   "track_props": {},
+   "guid": "bc78a62d097aee4dac461469ebd8ff60"
+  },
+  {
+   "owner": "S1 Hangar Pinned Exposure",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "BlendWeight",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "9976abc7c551",
+        "first": 0.0,
+        "last": 1.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         1.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_2.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_2",
+   "track_props": {},
+   "guid": "59551a30b48cbe4ebe5b8c904a0d9ee2"
+  },
+  {
+   "owner": "S1 Practical R7/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_27.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_27",
+   "track_props": {},
+   "guid": "06944c32d767c043923eda15682dd195"
+  },
+  {
+   "owner": "S1 Practical R4/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_15.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_15",
+   "track_props": {},
+   "guid": "c24ecb3a0c92e94395038acfc9e6411e"
+  },
+  {
+   "owner": "S1 Practical R6/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_23.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_23",
+   "track_props": {},
+   "guid": "cac1113d61b7944ea94a7764cc203f99"
+  },
+  {
+   "owner": "S1 Practical L4/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_13.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_13",
+   "track_props": {},
+   "guid": "72d0da48764520408d42c2bb4f5546b1"
+  },
+  {
+   "owner": "S1 Practical R2/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_7.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_7",
+   "track_props": {},
+   "guid": "00c556546113b1498ffe58ec9b9e8928"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-2/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_69.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_69",
+   "track_props": {},
+   "guid": "a36922551d21a24b8fea80d9aec3fcd5"
+  },
+  {
+   "owner": "S1 Hangar Roof Hinge",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "Translation[2]": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000070a7400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 3,
+        "t": [
+         0,
+         207200
+        ],
+        "times_h": "2b455b0f7990",
+        "vals_h": "41a099ce939e",
+        "first": -90.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": [
+         0,
+         99200,
+         207200
+        ],
+        "vals": [
+         -90.0,
+         -90.0,
+         0.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieScene3DTransformTrack_3",
+   "track_props": {},
+   "guid": "9783016030f7c848a02842d80b3114fb"
+  },
+  {
+   "owner": "P01 End Drape (stand-in)",
+   "cls": "MovieSceneGeometryCacheTrack",
+   "prop": null,
+   "sections": [],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1",
+   "track_props": {
+    "AnimationSections": [
+     "LS_S1_HangarRise.MovieScene_0.MovieSceneGeometryCacheTrack_1.MovieSceneGeometryCacheSection_0"
+    ]
+   },
+   "guid": "ed9de4604887ee41a6ad4f875d9d89c9"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-4/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_41.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_41",
+   "track_props": {},
+   "guid": "e18da2679eaa304fbb707f42d0e8e7f8"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-3/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_55.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_55",
+   "track_props": {},
+   "guid": "56a13f6f52160949adf0774137e4710f"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-6/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_45.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_45",
+   "track_props": {},
+   "guid": "e29d1b7589353f44b5faa114cfde52d2"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-6/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_77.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_77",
+   "track_props": {},
+   "guid": "2e54237dc2a61c49b219c8f2b1e9c70c"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-1/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_35.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_35",
+   "track_props": {},
+   "guid": "231c7e7d075da8429384c60575484591"
+  },
+  {
+   "owner": "S1 Practical L2/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_5.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_5",
+   "track_props": {},
+   "guid": "95c48a8648f7c947864322599750bde2"
+  },
+  {
+   "owner": "S1 Practical R5/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_19.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_19",
+   "track_props": {},
+   "guid": "d380698dca26ba479c33a0b039de9165"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-5/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_43.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_43",
+   "track_props": {},
+   "guid": "6c14eb90744287478a94b918731deeeb"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-8/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_65.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_65",
+   "track_props": {},
+   "guid": "bce2809a5bd1b74cafeb456ad6e9b108"
+  },
+  {
+   "owner": "S1 Practical R3/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_11.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_11",
+   "track_props": {},
+   "guid": "269482a1b19d8a439b7a0c1988c24b3a"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-5/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_75.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_75",
+   "track_props": {},
+   "guid": "8cd42daa2c42d14fa50a37565121a767"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-1/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_67.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_67",
+   "track_props": {},
+   "guid": "1249c5ac3024814eb6361089b72305e8"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-4/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_57.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_57",
+   "track_props": {},
+   "guid": "41efc7bc243cb340b2a5b367ee48f013"
+  },
+  {
+   "owner": "S1 Uplight 1/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 3,
+        "t": [
+         0,
+         244801
+        ],
+        "times_h": "4727424b1b95",
+        "vals_h": "7e79e3f71aed",
+        "first": 0.0,
+        "last": 10000.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         0,
+         240001,
+         244801
+        ],
+        "vals": [
+         0.0,
+         0.0,
+         10000.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_29.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_29",
+   "track_props": {},
+   "guid": "e2c0f9bd1f813945a243c936569069cf"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-2/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_37.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_37",
+   "track_props": {},
+   "guid": "642fb9bed1dd7e4c8e5833768a572b98"
+  },
+  {
+   "owner": "S1 Practical L1/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_1.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_1",
+   "track_props": {},
+   "guid": "07ca83c6dcc64b4991bee4b74a19455e"
+  },
+  {
+   "owner": "S1 Hangar Lattice Fly",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000070a7400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Translation[2]": {
+       "chan": {
+        "n": 3,
+        "t": [
+         0,
+         303200
+        ],
+        "times_h": "72f568d9d6aa",
+        "vals_h": "30725c5a68e5",
+        "first": 2800.0,
+        "last": 1200.0,
+        "tail": "0000000000e0a5400100000060ea00000100000000000000",
+        "times": [
+         0,
+         207200,
+         303200
+        ],
+        "vals": [
+         2800.0,
+         2800.0,
+         1200.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieScene3DTransformTrack_5",
+   "track_props": {},
+   "guid": "5551bfc8b9a7a14e8f4e7b7bdfa7a4bc"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-8/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_49.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_49",
+   "track_props": {},
+   "guid": "ac07facf2d245740a552459650235d85"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-3/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_71.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_71",
+   "track_props": {},
+   "guid": "9cc699d0b15d3145848bd4728f48f724"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-7/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_63.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_63",
+   "track_props": {},
+   "guid": "821e7fd995aeab47b4cd478be48b5e5a"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-6/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_61.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_61",
+   "track_props": {},
+   "guid": "7d4ac1daefa30744a941a9102ca41586"
+  },
+  {
+   "owner": "S1 Practical L6/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_21.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_21",
+   "track_props": {},
+   "guid": "cce9b5edc1ebd9438359df0f5e4595b1"
+  },
+  {
+   "owner": "S1 Hangar Root",
+   "cls": "MovieScene3DTransformTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieScene3DTransformSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "Translation": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "a01a2fdd0099dc400100000060ea00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Rotation[1]": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "fd6b479b7b8c",
+        "first": -90.0,
+        "last": 0.0,
+        "tail": "00000000000000000100000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         -90.0,
+         0.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1.MovieScene3DTransformSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieScene3DTransformTrack_1",
+   "track_props": {},
+   "guid": "1e481eee1653f042bce3e02c30fe0b0a"
+  },
+  {
+   "owner": "S1 Lattice Glow 2-1/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_51.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_51",
+   "track_props": {},
+   "guid": "b738f3f29b97494db1f2b55abb639253"
+  },
+  {
+   "owner": "S1 Practical L3/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_9.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_9",
+   "track_props": {},
+   "guid": "a520ddf38eeeb44cb78a94d530e45490"
+  },
+  {
+   "owner": "S1 Lattice Glow 3-7/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_79.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_79",
+   "track_props": {},
+   "guid": "ef7ae5f629194c4f9b4eeb287d0459e8"
+  },
+  {
+   "owner": "S1 Practical R1/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "987e7447d7cd",
+        "first": 0.0,
+        "last": 400.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         400.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_3.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_3",
+   "track_props": {},
+   "guid": "e3805efc47402048bda69822d9395a72"
+  },
+  {
+   "owner": "S1 Lattice Glow 1-7/LightComponent0",
+   "cls": "MovieSceneFloatTrack",
+   "prop": "Intensity",
+   "sections": [
+    {
+     "cls": "MovieSceneFloatSection",
+     "range": [
+      0,
+      744000
+     ],
+     "props": {
+      "FloatCurve": {
+       "chan": {
+        "n": 2,
+        "t": [
+         -140800,
+         99200
+        ],
+        "times_h": "3cd603421d24",
+        "vals_h": "f47cfe5b9137",
+        "first": 0.0,
+        "last": 20.0,
+        "tail": "000000000000000060ea00000100000000000000",
+        "times": [
+         -140800,
+         99200
+        ],
+        "vals": [
+         0.0,
+         20.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_47.MovieSceneFloatSection_0"
+    }
+   ],
+   "export": "LS_S1_HangarRise.MovieScene_0.MovieSceneFloatTrack_47",
+   "track_props": {},
+   "guid": "e7b2fffed3e6ee4f86c2d44d477a7b66"
+  }
+ ]
+}

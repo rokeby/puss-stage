@@ -1,0 +1,8 @@
+{
+ "run": "S1SNAP-REPLACE-ME",
+ "phase": "arm",
+ "pre_s": 2.0,
+ "post_s": 5.0,
+ "seam_diag": true,
+ "note": "Set run to a fresh id (S1SNAP-YYYYMMDD-HHMMSS) every run; the probe refuses a reused id. arm = scrub to P01 end - pre_s and play; watch = log only while the operator plays across; stop = unregister + report; report = re-analyse. PIE must already be running; the probe never starts or ends PIE and saves nothing."
+}

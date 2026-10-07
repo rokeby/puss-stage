@@ -1,0 +1,1617 @@
+{
+ "file": "E:/PussStage/Content/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master.uasset",
+ "sha256": "b4be9edebcdbafeaa79108cd0e5073fcf8fb7a0d905f3f1b4303ccb3527d1a84",
+ "movie": {
+  "PlaybackRange": [
+   0,
+   51006259
+  ],
+  "TickResolution": {
+   "Numerator": 24000
+  },
+  "DisplayRate": {
+   "Numerator": 25
+  },
+  "EvaluationType": null,
+  "ClockSource": null
+ },
+ "bindings": {},
+ "marked": null,
+ "tracks": [
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneInfinityPassageTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneInfinityPassageSection",
+     "range": [
+      2312640,
+      4624705
+     ],
+     "props": {
+      "PassageGuid": "86539d6574a74dd6941b352a4cceec99",
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "86539d6574a74dd6941b352a4cceec99",
+      "SpeedMultiplier": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LongitudinalOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LateralOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "HeightOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "PitchDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "YawDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "RollDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LookAheadDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocalLengthMm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000394001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocusDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "0000000000c0824001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingInwardTravelScale": {
+       "chan": {
+        "n": 3,
+        "t": [
+         2312640,
+         2661120
+        ],
+        "times_h": "d2102a79758e",
+        "vals_h": "6c65a771ae4f",
+        "first": 0.5,
+        "last": 1.0,
+        "tail": "cdccccccccccf43f01000000c05d00000100000000000000",
+        "times": [
+         2312640,
+         2393280,
+         2661120
+        ],
+        "vals": [
+         0.5,
+         1.3,
+         1.0
+        ]
+       }
+      },
+      "WingCycleRateScale": {
+       "chan": {
+        "n": 3,
+        "t": [
+         2312640,
+         2661120
+        ],
+        "times_h": "d2102a79758e",
+        "vals_h": "51ca41d82770",
+        "first": 0.6,
+        "last": 1.0,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [
+         2312640,
+         2393280,
+         2661120
+        ],
+        "vals": [
+         0.6,
+         2.0,
+         1.0
+        ]
+       }
+      },
+      "WingPhaseBiasCycles": {
+       "chan": {
+        "n": 3,
+        "t": [
+         2312640,
+         2661120
+        ],
+        "times_h": "d2102a79758e",
+        "vals_h": "c94047323967",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [
+         2312640,
+         2393280,
+         2661120
+        ],
+        "vals": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0.MovieSceneInfinityPassageSection_6"
+    },
+    {
+     "cls": "MovieSceneInfinityPassageSection",
+     "range": [
+      12649345,
+      13789825
+     ],
+     "props": {
+      "PassageGuid": "bd4bf37f06e444a7b7a764c2d961dde4",
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "bd4bf37f06e444a7b7a764c2d961dde4",
+      "SpeedMultiplier": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LongitudinalOffsetCm": {
+       "chan": {
+        "n": 1,
+        "t": [
+         7950145,
+         7950145
+        ],
+        "times_h": "386956d43910",
+        "vals_h": "3454bbbafed6",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [
+         7950145
+        ],
+        "vals": [
+         0.0
+        ]
+       }
+      },
+      "LateralOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "HeightOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "PitchDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "YawDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "RollDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LookAheadDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocalLengthMm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000080414001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocusDistanceCm": {
+       "chan": {
+        "n": 1,
+        "t": [
+         7950145,
+         7950145
+        ],
+        "times_h": "386956d43910",
+        "vals_h": "ab5ed8c8300b",
+        "first": 600.0,
+        "last": 600.0,
+        "tail": "00000000006af84001000000c05d00000100000000000000",
+        "times": [
+         7950145
+        ],
+        "vals": [
+         600.0
+        ]
+       }
+      },
+      "WingInwardTravelScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingCycleRateScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingPhaseBiasCycles": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0.MovieSceneInfinityPassageSection_7"
+    },
+    {
+     "cls": "MovieSceneInfinityPassageSection",
+     "range": [
+      17870785,
+      18884545
+     ],
+     "props": {
+      "PassageGuid": "653df9499cb9462bba6e1110c6a327e9",
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "653df9499cb9462bba6e1110c6a327e9",
+      "SpeedMultiplier": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LongitudinalOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LateralOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "HeightOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "PitchDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "YawDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "RollDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LookAheadDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocalLengthMm": {
+       "chan": {
+        "n": 2,
+        "t": [
+         11851585,
+         11971585
+        ],
+        "times_h": "02575fb1a27b",
+        "vals_h": "7b7a48d0c24c",
+        "first": 50.0,
+        "last": 50.0,
+        "tail": "000000000080414001000000c05d00000100000000000000",
+        "times": [
+         11851585,
+         11971585
+        ],
+        "vals": [
+         50.0,
+         50.0
+        ]
+       }
+      },
+      "FocusDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "00000000006af84001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingInwardTravelScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingCycleRateScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingPhaseBiasCycles": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0.MovieSceneInfinityPassageSection_8"
+    },
+    {
+     "cls": "MovieSceneInfinityPassageSection",
+     "range": [
+      27273025,
+      28482625
+     ],
+     "props": {
+      "PassageGuid": "f5b567006f954271a30eb8b5b510121b",
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "f5b567006f954271a30eb8b5b510121b",
+      "SpeedMultiplier": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LongitudinalOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LateralOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "HeightOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "PitchDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "YawDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "RollDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LookAheadDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocalLengthMm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000080414001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocusDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "00000000006af84001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingInwardTravelScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingCycleRateScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingPhaseBiasCycles": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0.MovieSceneInfinityPassageSection_9"
+    },
+    {
+     "cls": "MovieSceneInfinityPassageSection",
+     "range": [
+      34940545,
+      39413272
+     ],
+     "props": {
+      "PassageGuid": "31c3273ba42543b5818aae69f949908b",
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "31c3273ba42543b5818aae69f949908b",
+      "SpeedMultiplier": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LongitudinalOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LateralOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "HeightOffsetCm": {
+       "chan": {
+        "n": 4,
+        "t": [
+         34940545,
+         39413272
+        ],
+        "times_h": "fbc5b6177673",
+        "vals_h": "c4602db35c34",
+        "first": 0.0,
+        "last": 0.0,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [
+         34940545,
+         34976545,
+         39377272,
+         39413272
+        ],
+        "vals": [
+         0.0,
+         -90.0,
+         -90.0,
+         0.0
+        ]
+       }
+      },
+      "PitchDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "YawDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "RollDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LookAheadDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocalLengthMm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000080414001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocusDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "00000000006af84001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingInwardTravelScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingCycleRateScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingPhaseBiasCycles": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0.MovieSceneInfinityPassageSection_10"
+    },
+    {
+     "cls": "MovieSceneInfinityPassageSection",
+     "range": [
+      42352792,
+      45376819
+     ],
+     "props": {
+      "PassageGuid": "c429fc9b1f91475db86b83f7d2307253",
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "c429fc9b1f91475db86b83f7d2307253",
+      "SpeedMultiplier": {
+       "chan": {
+        "n": 1,
+        "t": [
+         33296592,
+         33296592
+        ],
+        "times_h": "3a1a2dcc2976",
+        "vals_h": "304dbdffe094",
+        "first": 1.0,
+        "last": 1.0,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [
+         33296592
+        ],
+        "vals": [
+         1.0
+        ]
+       }
+      },
+      "LongitudinalOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LateralOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "HeightOffsetCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "PitchDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "YawDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "RollDegrees": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "LookAheadDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocalLengthMm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000080414001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "FocusDistanceCm": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "00000000006af84001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingInwardTravelScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingCycleRateScale": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000f03f01000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "WingPhaseBiasCycles": {
+       "chan": {
+        "n": 0,
+        "t": null,
+        "times_h": "da39a3ee5e6b",
+        "vals_h": "97d170e1550e",
+        "first": null,
+        "last": null,
+        "tail": "000000000000000001000000c05d00000100000000000000",
+        "times": [],
+        "vals": []
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0.MovieSceneInfinityPassageSection_11"
+    }
+   ],
+   "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityPassageTrack_0",
+   "track_props": {
+    "OwnerGuid": "d262227967a54357b36f0289bef90827"
+   },
+   "guid": "master"
+  },
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneInfinitySceneTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      4624705,
+      10553665
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "270a0391efeb4521a03bd32539874516",
+      "SubSequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01.LS_DevScene_01",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_5"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      13789825,
+      15733825
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "94f5d242f77a4816b6ae8d01bbc93926",
+      "SubSequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02.LS_DevScene_02",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_6"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      18884545,
+      25124545
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "9d1df6d8601e4ff9908dcc80d349ee28",
+      "SubSequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03.LS_DevScene_03",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_7"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      28482625,
+      33177025
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "0c0c965cfe2b467a936fc8a48d55f5ad",
+      "SubSequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04.LS_DevScene_04",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_8"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      39413272,
+      40589272
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "26670d73dc5d429f862ac7451742a07b",
+      "SubSequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_05.LS_DevScene_05",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_9"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      45376819,
+      50646259
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "35353b67aeeb4d888c3b72997b87bec6",
+      "SubSequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06.LS_DevScene_06",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_0"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      0,
+      2312640
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "13d17456e6ffc04e8e581528fff9881e",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked.LS_Opening_Curtain_Baked",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_1"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      10553665,
+      12649345
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "eb9994e427c27a41a70b474509b65fc8",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy.LS_Interaction_01_WashingTheBoy",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_2"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      15733825,
+      17870785
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "1a3182e0a7cf654182869994e533089b",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips.LS_Interaction_02_Turnips",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_3"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      25124545,
+      27273025
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "5bf8037a68ae7f4e8d74f9072d820268",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName.LS_Interaction_03_ForgetsHisName",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_4"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      33177025,
+      34940545
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "3ea0961174ae164e851a81ea9b4ec866",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName.LS_Interaction_04_GetsAName",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_10"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      40589272,
+      42352792
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "58b209fb219c7044a3778a70969b2efb",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing.LS_Interaction_05_BecomesKing",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_11"
+    },
+    {
+     "cls": "MovieSceneInfinitySceneSection",
+     "range": [
+      50646259,
+      51006259
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "f6bace86f29f3a4eb01a6579b479e2d2",
+      "SubSequence": "/Game/InfinityStage/Interactions/LS_Closing_Curtain.LS_Closing_Curtain",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0.MovieSceneInfinitySceneSection_12"
+    }
+   ],
+   "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinitySceneTrack_0",
+   "track_props": {
+    "OwnerGuid": "d262227967a54357b36f0289bef90827"
+   },
+   "guid": "master"
+  },
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneInfinityAudioTrack",
+   "prop": null,
+   "sections": [],
+   "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0",
+   "track_props": {
+    "OwnerGuid": "d262227967a54357b36f0289bef90827",
+    "AudioSections": [
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_7",
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_8",
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_9",
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_10",
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_11",
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_0",
+     "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityAudioTrack_0.MovieSceneInfinityAudioSection_1"
+    ],
+    "DisplayName": {
+     "opaque": "07e50f13ca10",
+     "type": "TextProperty"
+    }
+   },
+   "guid": "master"
+  },
+  {
+   "owner": "<master>",
+   "cls": "MovieSceneInfinityChoreoTrack",
+   "prop": null,
+   "sections": [
+    {
+     "cls": "MovieSceneInfinityChoreoSection",
+     "range": [
+      2312640,
+      4624705
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "86539d6574a74dd6941b352a4cceec99",
+      "SubSequence": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_1.LS_Choreo_Passage_1",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0.MovieSceneInfinityChoreoSection_0"
+    },
+    {
+     "cls": "MovieSceneInfinityChoreoSection",
+     "range": [
+      12649345,
+      13789825
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "bd4bf37f06e444a7b7a764c2d961dde4",
+      "SubSequence": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_2.LS_Choreo_Passage_2",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0.MovieSceneInfinityChoreoSection_1"
+    },
+    {
+     "cls": "MovieSceneInfinityChoreoSection",
+     "range": [
+      17870785,
+      18884545
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "653df9499cb9462bba6e1110c6a327e9",
+      "SubSequence": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_3.LS_Choreo_Passage_3",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0.MovieSceneInfinityChoreoSection_2"
+    },
+    {
+     "cls": "MovieSceneInfinityChoreoSection",
+     "range": [
+      27273025,
+      28482625
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "f5b567006f954271a30eb8b5b510121b",
+      "SubSequence": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_4.LS_Choreo_Passage_4",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0.MovieSceneInfinityChoreoSection_3"
+    },
+    {
+     "cls": "MovieSceneInfinityChoreoSection",
+     "range": [
+      34940545,
+      39413272
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "31c3273ba42543b5818aae69f949908b",
+      "SubSequence": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_5.LS_Choreo_Passage_5",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0.MovieSceneInfinityChoreoSection_4"
+    },
+    {
+     "cls": "MovieSceneInfinityChoreoSection",
+     "range": [
+      42352792,
+      45376819
+     ],
+     "props": {
+      "OwnerGuid": "d262227967a54357b36f0289bef90827",
+      "BlockGuid": "c429fc9b1f91475db86b83f7d2307253",
+      "SubSequence": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_6.LS_Choreo_Passage_6",
+      "BlendType": {
+       "bIsValid": {
+        "boolflags": 16
+       }
+      },
+      "Easing": {}
+     },
+     "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0.MovieSceneInfinityChoreoSection_5"
+    }
+   ],
+   "export": "LS_InfinityStage_V1Master.MovieScene_0.MovieSceneInfinityChoreoTrack_0",
+   "track_props": {
+    "OwnerGuid": "d262227967a54357b36f0289bef90827"
+   },
+   "guid": "master"
+  }
+ ]
+}
