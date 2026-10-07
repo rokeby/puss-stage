@@ -1,0 +1,49 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY S1REDOCK",
+ "run_id": null,
+ "scene": 1,
+ "hangar": {
+  "root_label": "S1 Hangar Root",
+  "tag": "RigAtmos.Scene1Hangar",
+  "apron_cm": 500.0, "hinge_z_cm": 0.0, "depth_cm": 6000.0, "half_w_cm": 1000.0, "height_cm": 3000.0,
+  "wall_t_cm": 50.0, "floor_t_cm": 20.0,
+  "source": "Saved/CodexStructure/hangar_s1_record.json hangar (30 Sep) [meas]; root/dock are NEVER taken from it - the tool reads the LIVE root"
+ },
+ "lattice_fly_cm": 1600.0,
+ "passage_label": "Passage 1",
+ "passage_guid": "659D5386D64DA7742A351B9499ECCE4C",
+ "scene_label_prefix": "Scene 1 ",
+ "rise_sequence": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise",
+ "rise_root_binding_guid": "EE1E481E42F053162CE0E3BC0A0BFE30",
+ "rise_root_binding_source": "Saved/CodexStructure/arrivals_record.json scenes[1].binding (the S1 Arrival's MotionBindingGuid) [meas 30 Sep]",
+ "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
+ "interaction_sequence": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+ "handled_spawnables": [
+  {"sequence": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy", "binding": "Sleight Hangar Drape"},
+  {"sequence": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy", "binding": "Sleight Hangar Shadow Card"}
+ ],
+ "handled_note": "World keys at the S1 hangar (x 34883.96 / 34841.16) [meas curtain_sleight_record_I1.json plan.hangar_drape/hangar_card]",
+ "acked_bindings": [],
+ "extra_move_labels": [
+  "S1 Pit Liner Floor", "S1 Pit Liner Far Wall", "S1 Pit Liner Left Wall", "S1 Pit Liner Right Wall", "S1 Pit Liner Near Wall",
+  "Passage 01 - Opening Floor - Pit Strip Left", "Passage 01 - Opening Floor - Pit Strip Right", "Passage 01 - Opening Floor - Pit Strip Far"
+ ],
+ "extra_move_note": "World-space pit pieces laid against the S1 hinge x 29284.01 [meas Saved/CodexStructure/plane_pitliner_record.json, plane_pithole_record.json, 30 Sep]. Translated rigidly: the strips' far ends retract 69149.96 -> ~65549.96 (a 36 m band far past the far wall becomes uncovered [inf, not rendered]).",
+ "trim_slab_label": "Passage 01 - Opening Floor",
+ "trim_note": "Far edge = the hinge [meas plane_trim_record.json far 29284.01; floor_dark_wet_record.json scale.x 294.340135]. Near edge -150 kept. The MI tiling may compress ~12% in x if it is UV- not world-mapped [inf].",
+ "region": {"before_cm": 1000.0, "past_cm": 15000.0, "half_width_cm": 5000.0},
+ "leave_in_place": [],
+ "leave_in_place_note": "Labels the DRY lists as UNKNOWN that a reviewer decides stay put (or add them to extra_move_labels). APPLY refuses while any UNKNOWN remains.",
+ "predicted_removed_cm": 3600.0,
+ "predicted_note": "Only for a DRY run BEFORE p01_shorten APPLY (6 bays x 600 cm [inf]); APPLY uses the live end view and checks it against p01_shorten_record.json plan.removed_cm.",
+ "delta_tol_cm": 5.0,
+ "yaw_tol_deg": 0.01,
+ "z_tol_cm": 1.0,
+ "match_handoff": true,
+ "rebuild_master": true,
+ "approved_by": "",
+ "approved_note": "Non-creative, reversible, backed up: conductor may approve (memory puss-conductor-write-delegation); the creative call (drop N) is Gary's and lives in p01_shorten_args.json decided_by.",
+ "expected": null,
+ "expected_note": "APPLY needs expected = the DRY's expected_for_apply_args (delta, top, carried, rekey_spawnables)."
+}
