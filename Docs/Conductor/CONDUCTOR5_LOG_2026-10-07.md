@@ -221,3 +221,8 @@
   2 slots on shell parts (Shell 8K/4K + Interior untextured), mantle BreathMask in VC R. Import after the S3 diagnosis.
 - PearlClam shell BaseColor re-exported PINK (Gary: "more pink like the old clam"; untinted kept as _white.png). Not
   imported yet, so no reimport needed. Optional: read the Fab clam's base-colour average in the editor for an exact match.
+- **PearlClam approved as exported** (Gary via Directing, incl. thin mantle slit); hinge away from B05/B06 so the lid
+  opens toward them [inf]. Import/placement tool being written (extends s3_props_ue.py; CLAM_APPLY hides the Fab stand-ins).
+- **Standing stones (Gary):** "the standing stones go in the sand half buried" — pivot ≈ surface − 135 cm (165 cm above
+  sand; hole stays ~70 cm above), sample the dune over the 144×103 footprint; plural → vary yaw/burial/lean per copy;
+  count/positions pending from Gary. PLACE after the dunes land.
