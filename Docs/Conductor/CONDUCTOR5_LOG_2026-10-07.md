@@ -287,3 +287,9 @@
 - **S2 ceiling wings (Gary: wrong direction down the alley)** [meas]: SM_S2_ceiling_wing ×6 in Japanese_Alley, yaw −43.6,
   span across the alley, back facing her camera (yaw 134.4) [inf] → s2_ceiling_flip.py (180°, her map saved behind
   backup + exact census) DRY OK; APPLY waits for a clean census (next restart).
+- **Prints = grease sheen** (6b5fe14; 1034 roughness-only decals, irregular): Gary "Yes, build it" → master asset + MIs +
+  placer being written; applies after the dune ground.
+- **S1 entry snap** (e12425b, offline): cue 2→3 = P01→S1; no pose/cut/tick fault [meas]; candidate = live look zeroed
+  at the 0-blend cut (bResetLookAtCut) [decl+inf]; PIE probe ready (S1Snap/).
+- Glimmer removal (Gary via cueing: "Practical Glimmer Body type hanging lamps can be removed"; via finishing-touches:
+  bare bulb in each spot) → folded into the fixtures plan; confirm scope before APPLY.
