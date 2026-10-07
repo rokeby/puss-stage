@@ -88,6 +88,26 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strobe")
     bool bPreviewInEditor = true;
 
+    /**
+     * Let the flash cast shadows (Gary, 7 Oct: P04 strobes should throw the wings' shadows).
+     * Off by default: a strobe pays for no shadow map unless asked. Saved here, on the actor,
+     * because the light component itself is transient; synced onto the light every frame.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe|Shadows")
+    bool bCastShadows = false;
+
+    /**
+     * Source size while casting shadows. 0 = a point: the crispest wing edges. Larger values
+     * soften the penumbra (and widen highlights). Used only while Cast Shadows is on; with it
+     * off the light keeps its original source radius, so today's look is unchanged.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe|Shadows", meta = (ClampMin = "0.0", ClampMax = "10000.0", Units = "cm"))
+    float ShadowSourceRadiusCm = 0.0f;
+
+    /** Also shadow the volumetric fog (light shafts through the wings). Needs Cast Shadows. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe|Shadows")
+    bool bCastVolumetricShadow = false;
+
     UPROPERTY(VisibleInstanceOnly, Transient, Category = "Strobe|Debug")
     float CurrentLevel = 0.0f;
 
@@ -101,6 +121,10 @@ public:
 private:
     TWeakObjectPtr<AInfinityStageShowRoot> CachedShowRoot;
     void ApplyLevel(float Level);
+    /** Pushes the saved shadow settings onto the transient light; setters only on change. */
+    void SyncShadowSettings();
+    /** The light's own source radius at construction, restored while shadows are off. */
+    float UnshadowedSourceRadius = 0.0f;
 };
 
 namespace InfinityStageStrobe

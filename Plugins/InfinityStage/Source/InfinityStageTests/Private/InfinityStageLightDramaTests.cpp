@@ -169,4 +169,43 @@ bool FInfinityStageLightDramaApplyTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageLightDramaFlashTest,
+    "InfinityStage.LightDrama.FlashIsBriefAndKeyedToDistance",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageLightDramaFlashTest::RunTest(const FString& Parameters)
+{
+    const FGuid Lamp = FGuid::NewGuid();
+    FInfinityStageLightDrama Drama;
+    Drama.bFlash = true;
+    Drama.FlashCameraOffsetsCm = { -400.0f, -100.0f };
+    Drama.FlashAttackCm = 3.0f;
+    Drama.FlashDecayCm = 18.0f;
+    TestTrue(TEXT("Flash makes drama active"), InfinityStageLightDrama::IsActive(Drama));
+
+    const auto At = [&](const double CameraPastLampCm)
+    {
+        return InfinityStageLightDrama::Evaluate(Drama, Lamp, DramaLampCm, DramaLampCm + CameraPastLampCm, 0.0).IntensityScale;
+    };
+    TestEqual(TEXT("Dark before the first flash"), At(-500.0), 0.0f);
+    TestEqual(TEXT("Dark just before the attack"), At(-403.5), 0.0f);
+    TestTrue(TEXT("Peak while the camera is still 4 m short of the lamp"), FMath::IsNearlyEqual(At(-400.0), 1.0f, 1.0e-4f));
+    TestTrue(TEXT("Cubic fall: under an eighth by half the decay"), At(-391.0) < 0.126f);
+    TestEqual(TEXT("Dark again after the decay"), At(-381.0), 0.0f);
+    TestTrue(TEXT("The second flash fires"), FMath::IsNearlyEqual(At(-100.0), 1.0f, 1.0e-4f));
+    TestEqual(TEXT("Dark once both have passed"), At(0.0), 0.0f);
+
+    Drama.FlashRestScale = 0.02f;
+    TestTrue(TEXT("Rest scale is the floor between flashes"), FMath::IsNearlyEqual(At(-250.0), 0.02f, 1.0e-6f));
+
+    Drama.bStrikeOnApproach = true;
+    Drama.StrikeDistanceCm = 50.0;
+    Drama.StrikeRampCm = 10.0;
+    Drama.IgnitionStutter = 0.0f;
+    TestTrue(TEXT("A strike lamp still flashes before it strikes (max)"), FMath::IsNearlyEqual(At(-400.0), 1.0f, 1.0e-4f));
+    TestTrue(TEXT("Before the strike it rests at the flash floor"), At(-250.0) < 0.03f);
+    return true;
+}
+
 #endif

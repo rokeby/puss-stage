@@ -143,9 +143,86 @@ void AInfinityStageCameraRig::ConfigureFollowLight()
     }
     // Driven from properties on construction so Details edits apply live, rather
     // than only at spawn.
-    FollowLight->SetRelativeLocation(FollowLightOffset);
-    FollowLight->SetRelativeRotation(FollowLightRotation);
-    FollowLight->SetVisibility(bEnableFollowLight && bShadowFiguresLive);
+    ApplyFollowLightState();
+}
+
+double AInfinityStageCameraRig::EvaluateShadowSpot(
+    const TArray<FInfinityShadowSpotCue>& Cues,
+    const double PassageSeconds,
+    float& OutIntensity)
+{
+    double BestWeight = 0.0;
+    OutIntensity = 0.0f;
+    for (const FInfinityShadowSpotCue& Cue : Cues)
+    {
+        const double Attack = FMath::Max(0.0, Cue.AttackSeconds);
+        const double Hold = FMath::Max(0.0, Cue.HoldSeconds);
+        const double Release = FMath::Max(0.0, Cue.ReleaseSeconds);
+        const double Local = PassageSeconds - Cue.PassageSeconds;
+        double Weight = 0.0;
+        if (Local < 0.0 || Local >= Attack + Hold + Release)
+        {
+            Weight = 0.0;
+        }
+        else if (Local < Attack)
+        {
+            Weight = FMath::SmoothStep(0.0, 1.0, Local / Attack);
+        }
+        else if (Local <= Attack + Hold)
+        {
+            Weight = 1.0;
+        }
+        else
+        {
+            Weight = 1.0 - FMath::SmoothStep(0.0, 1.0, (Local - Attack - Hold) / Release);
+        }
+        BestWeight = FMath::Max(BestWeight, Weight);
+        OutIntensity = FMath::Max(
+            OutIntensity,
+            static_cast<float>(Weight) * FMath::Max(0.0f, Cue.Intensity));
+    }
+    return FMath::Clamp(BestWeight, 0.0, 1.0);
+}
+
+bool AInfinityStageCameraRig::ShouldShowFollowLight(
+    const bool bEnableFollowLightIn,
+    const bool bLive,
+    const bool bHasShadowSpotCues,
+    const double ShadowSpotWeight)
+{
+    if (!bLive)
+    {
+        return false;
+    }
+    return bHasShadowSpotCues ? ShadowSpotWeight > 0.0 : bEnableFollowLightIn;
+}
+
+void AInfinityStageCameraRig::ApplyFollowLightState()
+{
+    if (!FollowLight)
+    {
+        return;
+    }
+    const bool bHasCues = !ShadowSpotCues.IsEmpty();
+    if (bHasCues)
+    {
+        // The schedule owns the light's placement, shadows and intensity; its
+        // units, cone, colour and radii stay as set on the component.
+        FollowLight->SetRelativeLocation(ShadowSpotOffset);
+        FollowLight->SetRelativeRotation(ShadowSpotRotation);
+        FollowLight->SetCastShadows(true);
+        if (!FMath::IsNearlyEqual(FollowLight->Intensity, CurrentShadowSpotIntensity))
+        {
+            FollowLight->SetIntensity(CurrentShadowSpotIntensity);
+        }
+    }
+    else
+    {
+        FollowLight->SetRelativeLocation(FollowLightOffset);
+        FollowLight->SetRelativeRotation(FollowLightRotation);
+    }
+    FollowLight->SetVisibility(ShouldShowFollowLight(
+        bEnableFollowLight, bShadowFiguresLive, bHasCues, CurrentShadowSpotWeight));
 }
 
 void AInfinityStageCameraRig::Tick(const float DeltaSeconds)
@@ -241,10 +318,7 @@ void AInfinityStageCameraRig::ApplyShadowFigureVisibility()
             CatMesh->SetCastShadow(bShadowCatCastShadow);
         }
     }
-    if (FollowLight)
-    {
-        FollowLight->SetVisibility(bEnableFollowLight && bShadowFiguresLive);
-    }
+    ApplyFollowLightState();
 }
 
 void AInfinityStageCameraRig::BeginPlay()
@@ -391,6 +465,20 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
     const double MasterSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
         ? static_cast<double>(MasterFrame.Value) / TickRate
         : 0.0;
+    // Puss shadow spot (PS): Passage-relative, so it travels with the Passage.
+    if (!ShadowSpotCues.IsEmpty())
+    {
+        const double PassageSeconds = TickRate > UE_DOUBLE_SMALL_NUMBER
+            ? static_cast<double>(MasterFrame.Value - Passage->SegmentStartFrame.Value) / TickRate
+            : 0.0;
+        CurrentShadowSpotWeight = EvaluateShadowSpot(ShadowSpotCues, PassageSeconds, CurrentShadowSpotIntensity);
+    }
+    else
+    {
+        CurrentShadowSpotWeight = 0.0;
+        CurrentShadowSpotIntensity = 0.0f;
+    }
+    ApplyFollowLightState();
     const double RawLiftCm = SampleShadowCatGaitLiftCm();
     // The walk weight already follows speed; the crossing settle weight is the
     // settle's own share of that speed, a pure function of Master time, so the
@@ -424,10 +512,13 @@ bool AInfinityStageCameraRig::EvaluateAtMasterFrame(const FFrameNumber MasterFra
     Camera->FocusSettings.FocusMethod = ECameraFocusMethod::Manual;
     Camera->FocusSettings.ManualFocusDistance = static_cast<float>(CameraEvaluation.FocusDistanceCm);
 
-    // The cat rides the rig, so counter the lift here or it would bob twice.
+    // The cat rides the rig, so counter the lift here or it would bob twice,
+    // and counter the keyed eye height (Camera.HeightOffsetCm) or a lowered
+    // eye would sink the cat into the floor.
     const FVector ShadowFigureWorldOffset = GetActorTransform().TransformVectorNoScale(ShadowFigureOffset);
     ShadowFigureRoot->SetWorldLocation(
-        GetActorLocation() + ShadowFigureWorldOffset - FVector(0.0, 0.0, CurrentShadowCatCameraBobCm));
+        GetActorLocation() + ShadowFigureWorldOffset - FVector(0.0, 0.0, CurrentShadowCatCameraBobCm)
+        - CameraEvaluation.HeightOffsetWorldCm);
     ShadowFigureRoot->SetWorldScale3D(FVector::OneVector);
     if (bKeepShadowFiguresWorldUpright)
     {
@@ -837,6 +928,8 @@ bool AInfinityStageCameraRig::GetCameraStateForCompiledPassage(
         ESplineCoordinateSpace::World,
         true);
     RouteTransform.AddToTranslation(RouteTransform.TransformVectorNoScale(CameraOffset + OutEvaluation.LocalOffsetCm));
+    OutEvaluation.HeightOffsetWorldCm =
+        RouteTransform.TransformVectorNoScale(FVector(0.0, 0.0, OutEvaluation.LocalOffsetCm.Z));
     FQuat RouteRotation = RouteTransform.GetRotation();
     if (OutEvaluation.LookAheadDistanceCm > UE_DOUBLE_SMALL_NUMBER)
     {

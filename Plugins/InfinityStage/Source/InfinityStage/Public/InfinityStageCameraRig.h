@@ -27,6 +27,40 @@ struct FInfinityGaitBob
     double RollDeg = 0.0;
 };
 
+/**
+ * One occasional appearance of the Puss shadow spot (PS, Gary 7 Oct: "a Puss
+ * walking shadow spotlight which lights Puss from behind, very occasionally
+ * appearing ... only for a few seconds"). Times are Passage-relative seconds
+ * (0 = this rig's Passage segment start), so a cue travels with its Passage
+ * and its music when a Master rebuild moves the Passage.
+ */
+USTRUCT(BlueprintType)
+struct INFINITYSTAGE_API FInfinityShadowSpotCue
+{
+    GENERATED_BODY()
+
+    /** Start of the attack, in seconds after the Passage segment start. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (Units = "s"))
+    double PassageSeconds = 0.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0", Units = "s"))
+    double AttackSeconds = 0.5;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0", Units = "s"))
+    double HoldSeconds = 3.0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0", Units = "s"))
+    double ReleaseSeconds = 1.0;
+
+    /** Peak intensity, in the FollowLight component's own Intensity Units (a reference light's value copies as is). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (ClampMin = "0.0"))
+    float Intensity = 15000.0f;
+
+    /** Free text for tools (the musical moment this cue answers). Not evaluated. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot")
+    FString Label;
+};
+
 UCLASS(BlueprintType)
 class INFINITYSTAGE_API AInfinityStageCameraRig : public AActor
 {
@@ -69,6 +103,46 @@ public:
     /** Aim relative to the rig. Default looks slightly down the route ahead. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Follow Light")
     FRotator FollowLightRotation = FRotator(-8.0, 0.0, 0.0);
+
+    /**
+     * Puss shadow spot schedule. Empty (the default) leaves the follow light
+     * exactly as before. Non-empty, the schedule owns the FollowLight
+     * component: it is placed at ShadowSpotOffset/Rotation, casts shadows, and
+     * is visible only while a cue's envelope is above zero (and the rig is
+     * live), at envelope x Intensity; the component's units, cone, colour and
+     * radii stay as set on it. A pure function of Master time,
+     * so play, pause, scrub and reverse agree.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot")
+    TArray<FInfinityShadowSpotCue> ShadowSpotCues;
+
+    /** Shadow spot position relative to the rig (the camera). Low and behind the cat, for a long shadow. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot", meta = (Units = "cm"))
+    FVector ShadowSpotOffset = FVector(-600.0, 0.0, 135.0);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage|Shadow Spot")
+    FRotator ShadowSpotRotation = FRotator(-21.0, 0.0, 0.0);
+
+    /** This master frame's shadow spot envelope, 0..1. */
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category = "Infinity Stage|Shadow Spot")
+    double CurrentShadowSpotWeight = 0.0;
+
+    /**
+     * Envelope of a cue list at a Passage-relative time: smoothstep attack,
+     * hold at 1, smoothstep release; overlapping cues take the brightest.
+     * OutIntensity is the brightest weighted cue intensity. Pure.
+     */
+    static double EvaluateShadowSpot(
+        const TArray<FInfinityShadowSpotCue>& Cues,
+        double PassageSeconds,
+        float& OutIntensity);
+
+    /** Whether the FollowLight component is shown. Pure; see ShadowSpotCues. */
+    static bool ShouldShowFollowLight(
+        bool bEnableFollowLight,
+        bool bLive,
+        bool bHasShadowSpotCues,
+        double ShadowSpotWeight);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Infinity Stage")
     TObjectPtr<AInfinityStagePassageActor> PassageActor;
@@ -300,6 +374,10 @@ private:
      * editor keeps the body (per bShadowCatRenderInMainPass) for authoring.
      */
     bool ShouldDrawShadowCatBody() const;
+
+    /** Places, lights and shows or hides the FollowLight for the current state. */
+    void ApplyFollowLightState();
+    float CurrentShadowSpotIntensity = 0.0f;
 
     /** See AreShadowFiguresLive. Starts true so the editor shows the figures; game worlds re-derive it. */
     bool bShadowFiguresLive = true;

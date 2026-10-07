@@ -59,6 +59,29 @@ float EvaluateStrike(const FInfinityStageLightDrama& Drama, const FGuid& Identit
     return Level;
 }
 
+float EvaluateFlash(const FInfinityStageLightDrama& Drama, const double CameraPastLampCm)
+{
+    float Level = FMath::Clamp(Drama.FlashRestScale, 0.0f, 1.0f);
+    const double Attack = FMath::Max(0.1, static_cast<double>(Drama.FlashAttackCm));
+    const double Decay = FMath::Max(0.1, static_cast<double>(Drama.FlashDecayCm));
+    for (const float Offset : Drama.FlashCameraOffsetsCm)
+    {
+        const double D = CameraPastLampCm - static_cast<double>(Offset);
+        double Pulse = 0.0;
+        if (D >= -Attack && D < 0.0)
+        {
+            Pulse = (D + Attack) / Attack;
+        }
+        else if (D >= 0.0 && D <= Decay)
+        {
+            const double Remaining = 1.0 - D / Decay;
+            Pulse = Remaining * Remaining * Remaining;
+        }
+        Level = FMath::Max(Level, static_cast<float>(Pulse));
+    }
+    return Level;
+}
+
 FRotator EvaluateSlowMove(const FInfinityStageLightDrama& Drama, const FGuid& Identity, const double ShowSeconds)
 {
     const double Phase = Drama.PhaseCycles + (Drama.bPhaseFromIdentity ? Noise01(Identity, PhaseSalt, 0) : 0.0);
@@ -75,7 +98,7 @@ namespace InfinityStageLightDrama
 {
 bool IsActive(const FInfinityStageLightDrama& Drama)
 {
-    return Drama.bStrikeOnApproach || Drama.bSlowMove;
+    return Drama.bStrikeOnApproach || Drama.bSlowMove || Drama.bFlash;
 }
 
 FInfinityLightDramaPose Evaluate(
@@ -89,6 +112,13 @@ FInfinityLightDramaPose Evaluate(
     if (Drama.bStrikeOnApproach)
     {
         Pose.IntensityScale = EvaluateStrike(Drama, Identity, LampRouteDistanceCm - CameraRouteDistanceCm);
+    }
+    if (Drama.bFlash)
+    {
+        // Flash and strike combine by MAX (Gary 7 Oct): a distant lamp answers a note before it strikes,
+        // then strikes as usual. Without a strike the flash alone sets the level.
+        const float Flash = EvaluateFlash(Drama, CameraRouteDistanceCm - LampRouteDistanceCm);
+        Pose.IntensityScale = Drama.bStrikeOnApproach ? FMath::Max(Pose.IntensityScale, Flash) : Flash;
     }
     if (Drama.bSlowMove)
     {
@@ -109,7 +139,7 @@ void ApplyToLamp(
 {
     const FInfinityLightDramaPose Pose =
         Evaluate(Drama, Identity, LampRouteDistanceCm, CameraRouteDistanceCm, ShowSeconds);
-    if (Drama.bStrikeOnApproach)
+    if (Drama.bStrikeOnApproach || Drama.bFlash)
     {
         if (ULightComponent* Light = Lamp.FindComponentByClass<ULightComponent>())
         {

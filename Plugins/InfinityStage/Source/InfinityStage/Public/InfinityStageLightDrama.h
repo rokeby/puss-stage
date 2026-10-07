@@ -102,6 +102,34 @@ struct INFINITYSTAGE_API FInfinityStageLightDrama
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Slow Move",
         meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bSlowMove"))
     float PhaseCycles = 0.0f;
+
+    /** Brief bursts keyed to camera distance, like a strike, so a scrub replays them
+     * exactly. Each entry fires once; between them the lamp rests at Flash Rest Scale
+     * (zero switches it off, costing no shadow map). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash")
+    bool bFlash = false;
+
+    /** Where the camera is, relative to this lamp along the route, at each flash's
+     * peak. Negative fires while the camera is still approaching, so a lamp deep in
+     * a bay can flash for a camera two bays away, and one lamp can blink many times. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
+        meta = (EditCondition = "bFlash"))
+    TArray<float> FlashCameraOffsetsCm;
+
+    /** Camera travel from dark to peak. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
+        meta = (ClampMin = "0.1", Units = "cm", EditCondition = "bFlash"))
+    float FlashAttackCm = 3.0f;
+
+    /** Camera travel from peak to dark. The fall is cubic, so most of the light is
+     * gone in the first fifth of it, as a flash tube's is. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
+        meta = (ClampMin = "0.1", Units = "cm", EditCondition = "bFlash"))
+    float FlashDecayCm = 18.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Light|Drama|Flash",
+        meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bFlash"))
+    float FlashRestScale = 0.0f;
 };
 
 /** What drama does to a lamp at one moment: a brightness scale on the authored

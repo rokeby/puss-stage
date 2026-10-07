@@ -58,6 +58,8 @@ AInfinityStageStrobeLight::AInfinityStageStrobeLight()
     Light->SetIntensityUnits(ELightUnits::Candelas);
     Light->SetCastShadows(false);   // cost: a strobe in an area should not pay for a shadow map
     Light->SetAttenuationRadius(AttenuationRadiusCm);
+    UnshadowedSourceRadius = Light->SourceRadius;
+    SyncShadowSettings();   // class defaults: shadows off, so this changes nothing
 }
 
 void AInfinityStageStrobeLight::PostRegisterAllComponents()
@@ -68,6 +70,30 @@ void AInfinityStageStrobeLight::PostRegisterAllComponents()
     if (Light)
     {
         Light->SetFlags(RF_Transient);
+    }
+    // The instance's saved shadow settings are loaded by now; apply them before the first tick.
+    SyncShadowSettings();
+}
+
+void AInfinityStageStrobeLight::SyncShadowSettings()
+{
+    if (!Light)
+    {
+        return;
+    }
+    // Runtime setters only, and only on change: each one re-creates the light's render state.
+    if (static_cast<bool>(Light->CastShadows) != bCastShadows)
+    {
+        Light->SetCastShadows(bCastShadows);
+    }
+    if (static_cast<bool>(Light->bCastVolumetricShadow) != bCastVolumetricShadow)
+    {
+        Light->SetCastVolumetricShadow(bCastVolumetricShadow);
+    }
+    const float WantedSourceRadius = bCastShadows ? FMath::Max(0.0f, ShadowSourceRadiusCm) : UnshadowedSourceRadius;
+    if (!FMath::IsNearlyEqual(Light->SourceRadius, WantedSourceRadius))
+    {
+        Light->SetSourceRadius(WantedSourceRadius);
     }
 }
 
@@ -143,6 +169,7 @@ void AInfinityStageStrobeLight::ApplyLevel(const float Level)
     {
         Light->SetAttenuationRadius(AttenuationRadiusCm);
     }
+    SyncShadowSettings();   // saved on the actor, so they may be keyed or edited at any time
     // Switched off rather than set to zero between flashes, as Light Drama does.
     const bool bLit = Level > UE_KINDA_SMALL_NUMBER;
     if (Light->IsVisible() != bLit)

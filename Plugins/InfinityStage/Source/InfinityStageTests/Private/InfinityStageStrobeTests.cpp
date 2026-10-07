@@ -116,4 +116,48 @@ bool FInfinityStageStrobeEditorPreviewTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageStrobeCastShadowsToggleTest,
+    "InfinityStage.Strobe.CastShadowsToggle",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+// Gary (7 Oct): P04 strobes should throw the wings' shadows. The light is transient, so the
+// switch lives on the actor and is synced each frame; off by default keeps today's cost.
+bool FInfinityStageStrobeCastShadowsToggleTest::RunTest(const FString& Parameters)
+{
+    const FProperty* CastProperty = AInfinityStageStrobeLight::StaticClass()->FindPropertyByName(TEXT("bCastShadows"));
+    TestTrue(TEXT("The shadow switch is a saved actor property"),
+        CastProperty && !CastProperty->HasAnyPropertyFlags(CPF_Transient));
+
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStageStrobeLight* Strobe = World->SpawnActor<AInfinityStageStrobeLight>();
+    if (!TestNotNull(TEXT("Strobe spawned"), Strobe) || !TestNotNull(TEXT("Strobe light"), Strobe->Light.Get()))
+    {
+        World->DestroyWorld(false);
+        return false;
+    }
+    const float OriginalSourceRadius = Strobe->Light->SourceRadius;
+    Strobe->Tick(0.016f);
+    TestFalse(TEXT("Default: the light casts no shadows"), static_cast<bool>(Strobe->Light->CastShadows));
+    TestFalse(TEXT("Default: no volumetric shadow"), static_cast<bool>(Strobe->Light->bCastVolumetricShadow));
+
+    Strobe->bCastShadows = true;
+    Strobe->bCastVolumetricShadow = true;
+    Strobe->ShadowSourceRadiusCm = 7.5f;
+    TestFalse(TEXT("Control: before the sync the light is unchanged"), static_cast<bool>(Strobe->Light->CastShadows));
+    Strobe->Tick(0.016f);
+    TestTrue(TEXT("After the sync the light casts shadows"), static_cast<bool>(Strobe->Light->CastShadows));
+    TestTrue(TEXT("...and volumetric shadows"), static_cast<bool>(Strobe->Light->bCastVolumetricShadow));
+    TestEqual(TEXT("...with the shadow source radius"), Strobe->Light->SourceRadius, 7.5f);
+
+    Strobe->bCastShadows = false;
+    Strobe->bCastVolumetricShadow = false;
+    Strobe->Tick(0.016f);
+    TestFalse(TEXT("Toggled back: no shadows"), static_cast<bool>(Strobe->Light->CastShadows));
+    TestFalse(TEXT("Toggled back: no volumetric shadow"), static_cast<bool>(Strobe->Light->bCastVolumetricShadow));
+    TestEqual(TEXT("Toggled back: the original source radius returns"), Strobe->Light->SourceRadius, OriginalSourceRadius);
+    World->DestroyWorld(false);
+    return true;
+}
+
 #endif

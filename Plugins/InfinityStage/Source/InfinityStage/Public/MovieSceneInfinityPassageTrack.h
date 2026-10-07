@@ -75,6 +75,13 @@ struct INFINITYSTAGE_API FInfinityPassageCameraEvaluation
      * of the walk there. 1 whenever no settle was requested.
      */
     double SettleWeight = 1.0;
+    /**
+     * World-space displacement the Camera.HeightOffsetCm channel added to the
+     * camera position (route up axis times LocalOffsetCm.Z). Filled by the
+     * camera rig; the shadow cat subtracts it so it stays on the floor
+     * whatever the eye height. Zero when the channel evaluates to 0.
+     */
+    FVector HeightOffsetWorldCm = FVector::ZeroVector;
 };
 
 UCLASS(BlueprintType)

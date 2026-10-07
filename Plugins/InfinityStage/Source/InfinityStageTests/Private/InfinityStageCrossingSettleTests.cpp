@@ -29,7 +29,7 @@ constexpr double TickRate = 24000.0;            // UInfinityStageShowAsset defau
 constexpr int32 DisplayStepTicks = 960;         // one 25 fps display frame
 constexpr int32 HitchLastFrameTicks = 3200;     // 0.133 s: the measured last rig frame
 constexpr int32 SettleTicks = 24000;            // the 1.0 s default
-const double GapsCm[SettleWingCount - 1] = {312.5, 437.5, 312.5, 437.5, 312.5};
+const double SettleGapsCm[SettleWingCount - 1] = {312.5, 437.5, 312.5, 437.5, 312.5};
 
 struct FShowFixture
 {
@@ -48,7 +48,7 @@ struct FShowFixture
             Cue.CueGuid = FGuid::NewGuid();
             Cue.WingPair.OccurrenceGuid = FGuid::NewGuid();
             Cue.WingPair.IntervalToNext = FFrameNumber(IntervalTicks);
-            Cue.WingPair.GapToNextCm = GapsCm[FMath::Min(Index, SettleWingCount - 2)];
+            Cue.WingPair.GapToNextCm = SettleGapsCm[FMath::Min(Index, SettleWingCount - 2)];
         }
         Show->EnsureStableIds();
         Show->ReconcilePassageSettings();
