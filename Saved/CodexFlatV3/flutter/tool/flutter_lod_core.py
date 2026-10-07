@@ -238,9 +238,9 @@ def materials_of_rows(rows, meshes):
 # --------------------------------------------------------------------------------------------- referencers
 def referencer_closure(start, get_refs, get_class, depth, benign_meshes, benign_mis, allow):
     """BFS from `start` over referencers. Meshes/MIs are expanded (their users matter); a map other than the
-    show level, or any other asset class except the Show, is FOREIGN. Returns {foreign:[...], unused:[...],
+    show level, or any other asset class except the Show, is FOREIGN. Returns {foreign:[...], non_target_meshes:[...],
     errors:[...], visited:n}."""
-    foreign, unused, errors = [], [], []
+    foreign, non_target, errors = [], [], []
     seen, frontier = {start}, [(start, 0)]
     while frontier:
         node, d = frontier.pop(0)
@@ -263,7 +263,7 @@ def referencer_closure(start, get_refs, get_class, depth, benign_meshes, benign_
             if cls == "StaticMesh":
                 if r in benign_meshes:
                     continue
-                unused.append(r)
+                non_target.append(r)
             elif cls.startswith("MaterialInstance") or cls == "Material":
                 if r in benign_mis:
                     continue
@@ -277,7 +277,7 @@ def referencer_closure(start, get_refs, get_class, depth, benign_meshes, benign_
                 frontier.append((r, d + 1))
             else:
                 foreign.append("%s (%s, depth limit: users unknown)" % (r, cls))
-    return {"foreign": foreign, "unused_in_show": unused, "errors": errors, "visited": len(seen) - 1}
+    return {"foreign": foreign, "non_target_meshes": non_target, "errors": errors, "visited": len(seen) - 1}
 
 
 # --------------------------------------------------------------------------------------------- plan
@@ -349,7 +349,7 @@ def build_plan(show, meshes, mis, chains, refs, args, master_wpo=None):
         row = {"path": path, "uses": cand_mi[path]["uses"], "sources": sorted(cand_mi[path]["sources"]),
                "parent_chain": info.get("parent_chain"), "effective": eff,
                "overrides": {n: info.get("overrides", {}).get(n) for n in FLUTTER_NAMES},
-               "unused_mesh_referencers": ref.get("unused_in_show", [])}
+               "non_target_mesh_referencers": ref.get("non_target_meshes", [])}
         if reasons:
             mi_refused.append(dict(row, reasons=reasons))
         elif all(close(eff.get(k), v) for k, v in vals.items()):
