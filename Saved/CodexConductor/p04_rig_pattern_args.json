@@ -1,0 +1,30 @@
+{
+  "mode": "DRY",
+  "target_passage": "P04",
+  "template_passage": "P01",
+  "template_cues": {
+    "-": "P01 Wing 003",
+    "+": "P01 Wing 004"
+  },
+  "jitter": {
+    "loc_cm": 25,
+    "rot_deg": 3,
+    "seed": 20261006
+  },
+  "skip": [],
+  "exclude_cues": [],
+  "roles": [
+    "TOP_L",
+    "TOP_R",
+    "LOW_SIDE_L_KEY",
+    "LOW_SIDE_R_FILL",
+    "BEAM_R",
+    "PRACTICAL_CLAMP",
+    "PRACTICAL_BULB_DEAD"
+  ],
+  "no_parity_template": "-",
+  "expected_targets": null,
+  "ack_records": [],
+  "allow_dirty": [],
+  "intensity_scale": null
+}

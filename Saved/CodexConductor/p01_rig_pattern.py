@@ -48,6 +48,23 @@ Args (p01_rig_pattern_args.json via p01_rig_pattern_run.py):
    "jitter": {"loc_cm": 25, "rot_deg": 3, "seed": 20261006}, "skip": [["P01 Wing 005", "BEAM_R"]],
    "roles": [...], "expected_targets": null|int, "ack_records": [...], "allow_dirty": []}
 Markers: P01RIGPATTERN_DRY_OK / _APPLY_OK / _REVERT_OK |run=<id>|...; any stop P01RIGPATTERN_STOPPED|run=<id>|<reason>.
+
+Other passages (7 Oct, Gary: P02 and P03 "hard reset" to P01's positions, own colours). Extra args
+  "target_passage": "P01"|"P02"|"P03" (default P01), "template_passage" (default P01),
+  "template_cues" (alias of "templates", default {"-": "P01 Wing 003", "+": "P01 Wing 004"}),
+  "no_parity_template": null|"-"|"+" (off-P01 only; default null = bays with no parity role are reported, not moved).
+Target P01 is exactly the 6 Oct tool: same record p01_rig_pattern_record.json, marker/confirm P01RIGPATTERN, backup
+PreP01RigPattern-, excludes B01/B02, skip B05 BEAM_R, strict LOW_SIDE_L_KEY parity (passage_config("P01") returns the
+module constants). Target P0N: record p0N_rig_pattern_record.json, reports p0N_rig_pattern_report_*, marker and
+confirm P0NRIGPATTERN, backup PreP0NRigPattern-, no excludes/skips by default; every P0N score cue is a candidate;
+templates are resolved LIVE among the template passage's cues (plain["template_bay_guids"]); parity per bay is the
+sign of LOW_SIDE_L_KEY y, else LOW_SIDE_R_FILL y inverted, else BEAM_R y (warning PARITY_FALLBACK), else the bay is
+NO_PARITY (warning, untouched) unless "no_parity_template" names a template. Missing roles are listed per bay
+(missing_roles) and counted per role (plan.role_counts). PANEL_BAND stays advisory, reading the target passage's own
+lighting_scores_record_P0N.json aims (P0N panel widths may differ from P01's).
+Frame: STATION-anchored rows are composed RelativeTransform * (OccurrenceOffset * spline transform at the wing's
+DistanceCm) (declaration-proven, InfinityStagePassageActor.cpp:1881-1885, :1921, :1999), so the stored relative values
+do not depend on the route's shape; a route change (P02 straightening) moves the station frames, not these values.
 """
 from __future__ import annotations
 
@@ -60,6 +77,7 @@ import math
 import os
 import random
 import re
+import struct
 import types
 
 try:
@@ -93,6 +111,47 @@ LOC_TOL_CM = 1.0e-6                               # written fields only; everyth
 ROT_TOL = 1.0e-6                                   # unreal.Quat round-trips through float32 (measured 6 Oct: ~1e-8)
 WRITTEN = ("location", "rotation_xyzw")
 
+# --------------------------------------------------------------------------
+# Generalisation (7 Oct, Gary: "P02's lights need a hard reset ... same positions (albeit diff colours) to what
+# we have P01 as now"; P03 the same). target_passage P01 keeps every P01 constant above exactly (record path,
+# marker, confirm token, backup prefix, excludes, skip, strict parity), so the live P01 record and its REVERT are
+# unaffected. Any other target gets its own record/report/marker/confirm/backup names and reads the templates LIVE
+# from the template passage's cues (default P01 Wing 003 / 004).
+# --------------------------------------------------------------------------
+VALID_PASSAGES = ("P01", "P02", "P03", "P04")
+# Off-P01 belt and braces (Gary 7 Oct: P04's moonlight key, strobe and p04_strobe_halo*/opening rows are his):
+# a target row's label must match "<P0N> SCORE B## <look> <ROLE>" (score_label) AND must not name any of these.
+FORBIDDEN_TARGET_LABEL = re.compile(r"strobe|moon|halo|opening|walkin|flare", re.IGNORECASE)
+INTENSITY_SCALE_MAX = 4.0
+INTENSITY_REL_TOL = 1.0e-6                         # FInfinityStageLightSettings::Intensity is float (InfinityStageTypes.h:204)
+PARITY_FALLBACK = (("LOW_SIDE_L_KEY", 1.0), ("LOW_SIDE_R_FILL", -1.0), ("BEAM_R", 1.0))   # role, sign factor
+
+
+def passage_config(key):
+    """Per-passage names. P01 returns the module constants verbatim (live record compatibility)."""
+    require(key in VALID_PASSAGES, "PASSAGE_INVALID|%r|valid=%s" % (key, ",".join(VALID_PASSAGES)))
+    number = int(key[1:])
+    if key == PASSAGE_KEY:
+        return {"key": key, "label": PASSAGE_LABEL, "actor_prefix": PASSAGE_ACTOR_PREFIX,
+                "structure_label": STRUCTURE_LABEL, "score_label": SCORE_LABEL, "record_path": RECORD_PATH,
+                "scores_record": SCORES_RECORD_P01, "mark": MARK, "confirm_token": CONFIRM_TOKEN,
+                "file_stem": "p01_rig_pattern", "backup_stem": "PreP01RigPattern"}
+    # "Passage %d" plan.passage_label measured in lighting_scores_record_P02/P03.json; actor prefix and structure
+    # label formats from rig_lamp_drop.py:79-80 (live-applied on P02/P03, 5-6 Oct).
+    return {"key": key, "label": "Passage %d" % number, "actor_prefix": "Passage %02d" % number,
+            "structure_label": "Infinity Stage - Structure %02d" % number,
+            "score_label": re.compile(r"^%s SCORE B(\d{2}) \S+ (\S+)$" % key),
+            "record_path": os.path.join(HERE, "p%02d_rig_pattern_record.json" % number),
+            "scores_record": os.path.join(HERE, "lighting_scores_record_%s.json" % key),
+            "mark": "%sRIGPATTERN" % key, "confirm_token": "%sRIGPATTERN" % key,
+            "file_stem": "p%02d_rig_pattern" % number, "backup_stem": "Pre%sRigPattern" % key}
+
+
+def mark_for_raw(raw):
+    """Marker prefix for a stop before check_args has run (falls back to the P01 marker)."""
+    key = (raw or {}).get("target_passage", PASSAGE_KEY) if isinstance(raw, dict) else PASSAGE_KEY
+    return "%sRIGPATTERN" % key if key in VALID_PASSAGES else MARK
+
 
 class P01RigPatternError(RuntimeError):
     """Deliberate fail-closed stop."""
@@ -117,12 +176,13 @@ def _enum_name(value):
     return (match.group(1) if match else text).upper()
 
 
-def report_path(mode, run, folder=None):
-    return os.path.join(folder or HERE, "p01_rig_pattern_report_%s_%s.json" % (mode, run))
+def report_path(mode, run, folder=None, passage=PASSAGE_KEY):
+    stem = passage_config(passage)["file_stem"] if passage in VALID_PASSAGES else "p01_rig_pattern"
+    return os.path.join(folder or HERE, "%s_report_%s_%s.json" % (stem, mode, run))
 
 
-def backup_prefix(revert=False):
-    return "PreP01RigPattern%s-" % ("Revert" if revert else "")
+def backup_prefix(revert=False, passage=PASSAGE_KEY):
+    return "%s%s-" % (passage_config(passage)["backup_stem"], "Revert" if revert else "")
 
 
 # --------------------------------------------------------------------------
@@ -178,9 +238,15 @@ def check_args(args):
     args = dict(args or {})
     mode = str(args.get("mode", "DRY")).upper()
     require(mode in VALID_MODES, "MODE_INVALID|" + mode)
+    target = args.get("target_passage", PASSAGE_KEY)
+    template_passage = args.get("template_passage", PASSAGE_KEY)
+    cfg = passage_config(target)
+    passage_config(template_passage)
+    token = cfg["confirm_token"]
     if mode != "DRY":
-        require(args.get("confirm") == "%s %s" % (mode, CONFIRM_TOKEN),
-                "CONFIRM_MISSING|mode=%s|need='%s %s'" % (mode, mode, CONFIRM_TOKEN))
+        require(args.get("confirm") == "%s %s" % (mode, token),
+                "CONFIRM_MISSING|mode=%s|need='%s %s'" % (mode, mode, token))
+    p01 = target == PASSAGE_KEY
     jitter = dict(DEFAULT_JITTER)
     jitter.update(args.get("jitter") or {})
     loc = _finite(jitter["loc_cm"], "JITTER_LOC")
@@ -191,22 +257,43 @@ def check_args(args):
     roles = args.get("roles", list(DEFAULT_ROLES))
     require(isinstance(roles, list) and roles and all(isinstance(r, str) and r for r in roles)
             and len(set(roles)) == len(roles), "ROLES_INVALID|%r" % (roles,))
-    skip = args.get("skip", [list(s) for s in DEFAULT_SKIP])
+    # P01-specific defaults (B05 beam skip, B01/B02 exclusion) only apply when the target is P01.
+    skip = args.get("skip", [list(s) for s in DEFAULT_SKIP] if p01 else [])
     require(isinstance(skip, list) and all(isinstance(s, (list, tuple)) and len(s) == 2
                                            and all(isinstance(x, str) for x in s) for s in skip),
             "SKIP_INVALID|%r" % (skip,))
-    templates = dict(args.get("templates", DEFAULT_TEMPLATES))
+    # "template_cues" (7 Oct name) and "templates" (6 Oct name, kept for the P01 args/record) are aliases.
+    given = [args[k] for k in ("templates", "template_cues") if k in args]
+    require(len(given) < 2 or dict(given[0]) == dict(given[1]), "TEMPLATE_CUES_CONFLICT|%r" % (given,))
+    templates = dict(given[0] if given else DEFAULT_TEMPLATES)
     require(set(templates) == {"-", "+"} and templates["-"] != templates["+"], "TEMPLATES_INVALID|%r" % templates)
-    exclude = list(args.get("exclude_cues", list(DEFAULT_EXCLUDE)))
+    require(all(str(v).startswith(template_passage + " ") for v in templates.values()),
+            "TEMPLATE_CUE_NOT_IN_TEMPLATE_PASSAGE|passage=%s|%r" % (template_passage, templates))
+    exclude = list(args.get("exclude_cues", list(DEFAULT_EXCLUDE) if p01 else []))
     expected = args.get("expected_targets")
     require(expected is None or (isinstance(expected, int) and not isinstance(expected, bool)),
             "EXPECTED_TARGETS_INVALID|%r" % (expected,))
+    no_parity = args.get("no_parity_template")
+    require(no_parity in (None, "-", "+"), "NO_PARITY_TEMPLATE_INVALID|%r" % (no_parity,))
+    require(not (p01 and no_parity is not None), "NO_PARITY_TEMPLATE_NOT_FOR_P01")
+    scale = args.get("intensity_scale")
+    if scale is not None:
+        require(not p01, "INTENSITY_SCALE_NOT_FOR_P01")
+        require(not isinstance(scale, bool), "INTENSITY_SCALE_INVALID|%r" % (scale,))
+        scale = _finite(scale, "INTENSITY_SCALE")
+        require(0.0 < scale <= INTENSITY_SCALE_MAX, "INTENSITY_SCALE_RANGE|%s" % scale)
     allow_dirty = list(args.get("allow_dirty", []) or [])
-    return {"mode": mode, "confirm": args.get("confirm"),
-            "jitter": {"loc_cm": loc, "rot_deg": rot, "seed": seed},
-            "roles": list(roles), "skip": [list(s) for s in skip], "templates": templates,
-            "exclude_cues": exclude, "expected_targets": expected,
-            "ack_records": list(args.get("ack_records", []) or []), "allow_dirty": allow_dirty}
+    out = {"mode": mode, "confirm": args.get("confirm"),
+           "jitter": {"loc_cm": loc, "rot_deg": rot, "seed": seed},
+           "roles": list(roles), "skip": [list(s) for s in skip], "templates": templates,
+           "exclude_cues": exclude, "expected_targets": expected,
+           "ack_records": list(args.get("ack_records", []) or []), "allow_dirty": allow_dirty,
+           "target_passage": target, "template_passage": template_passage}
+    if not p01:
+        # Parity fallback (LOW_SIDE_R_FILL inverted, then BEAM_R) and the optional template for bays with no
+        # parity role exist only off P01, so a P01 plan is identical to the one applied on 6 Oct.
+        out.update({"parity_fallback": True, "no_parity_template": no_parity, "intensity_scale": scale})
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -235,11 +322,11 @@ def jitter_for(jitter, cue_label, role):
     return out
 
 
-def score_roles(cue):
-    """{role: (attachment_index, row)} for the cue's P01 SCORE rows; duplicate roles stop."""
+def score_roles(cue, pattern=SCORE_LABEL):
+    """{role: (attachment_index, row)} for the cue's <passage> SCORE rows; duplicate roles stop."""
     out, bays = {}, set()
     for index, row in enumerate(cue["attachments"]):
-        match = SCORE_LABEL.match(str(row["label"]))
+        match = pattern.match(str(row["label"]))
         if not match:
             continue
         bays.add(match.group(1))
@@ -256,6 +343,18 @@ def parity_of(roles, cue_label):
     y = float(roles[PARITY_ROLE][1]["relative_transform"]["location"][1])
     require(y != 0.0, "PARITY_ZERO|cue=" + cue_label)
     return "-" if y < 0.0 else "+"
+
+
+def parity_with_fallback(roles, cue_label):
+    """(parity, source_role): LOW_SIDE_L_KEY sign; else LOW_SIDE_R_FILL sign inverted; else BEAM_R sign.
+
+    (None, None) when the bay has none of the three. Off-P01 targets only."""
+    for role, factor in PARITY_FALLBACK:
+        if role in roles:
+            y = float(roles[role][1]["relative_transform"]["location"][1]) * factor
+            require(y != 0.0, "PARITY_ZERO|cue=%s|role=%s" % (cue_label, role))
+            return ("-" if y < 0.0 else "+"), role
+    return None, None
 
 
 def panel_abs_y(aims, y):
@@ -276,18 +375,31 @@ def build_plan(plain, options, aims_by_cue=None):
     require(bay_guids, "NO_P01_BAYS")
     missing = [g for g in bay_guids if g not in by_guid]
     require(not missing, "BAY_GUID_UNRESOLVED|%s" % missing)
+    target_key = opts.get("target_passage", PASSAGE_KEY)
+    template_key = opts.get("template_passage", PASSAGE_KEY)
+    target_cfg, template_cfg = passage_config(target_key), passage_config(template_key)
+    fallback = bool(opts.get("parity_fallback")) and target_key != PASSAGE_KEY
+    no_parity_template = opts.get("no_parity_template") if fallback else None
+    intensity_scale = opts.get("intensity_scale") if fallback else None
     bays = sorted((by_guid[g] for g in bay_guids), key=lambda c: c["show_index"])
-    wrong = [c["label"] for c in bays if not str(c["label"]).startswith(PASSAGE_KEY + " ")]
-    require(not wrong, "BAY_NOT_P01|%s" % wrong)
+    wrong = [c["label"] for c in bays if not str(c["label"]).startswith(target_key + " ")]
+    require(not wrong, "BAY_NOT_%s|%s" % (target_key, wrong))
     all_att = [row["guid"] for c in cues for row in c["attachments"]]
 
-    # Templates, read live, parity asserted.
+    # Templates, read live, parity asserted (strict LOW_SIDE_L_KEY parity, never the fallback).
+    if template_key == target_key:
+        template_pool = bays
+    else:
+        pool_guids = plain.get("template_bay_guids")
+        template_pool = ([by_guid[g] for g in pool_guids if g in by_guid] if pool_guids is not None else cues)
     templates = {}
     for sign in ("-", "+"):
         label = opts["templates"][sign]
-        hits = [c for c in bays if c["label"] == label]
+        hits = [c for c in template_pool if c["label"] == label]
         require(len(hits) == 1, "TEMPLATE_CUE_COUNT|label=%s|count=%d" % (label, len(hits)))
-        roles, bay_token = score_roles(hits[0])
+        require(hits[0]["guid"] not in bay_guids or template_key == target_key,
+                "TEMPLATE_IS_TARGET|label=" + label)
+        roles, bay_token = score_roles(hits[0], template_cfg["score_label"])
         parity = parity_of(roles, label)
         require(parity == sign, "TEMPLATE_PARITY_WRONG|cue=%s|expected=%s|live=%s" % (label, sign, parity))
         templates[sign] = {"cue_label": label, "cue_guid": hits[0]["guid"], "bay_token": bay_token,
@@ -301,26 +413,52 @@ def build_plan(plain, options, aims_by_cue=None):
     skip = {(s[0], s[1]) for s in opts["skip"]}
     jitter = opts["jitter"]
     targets, untouched, skipped, no_template, warnings, bay_rows = [], [], [], [], [], []
+    role_counts = {role: {"present": 0, "moved": 0, "skipped": 0} for role in opts["roles"]}
     for cue in bays:
-        roles, bay_token = score_roles(cue)
-        parity = parity_of(roles, cue["label"])
+        roles, bay_token = score_roles(cue, target_cfg["score_label"])
+        parity_source = PARITY_ROLE
+        if fallback:
+            parity, parity_source = parity_with_fallback(roles, cue["label"])
+        else:
+            parity = parity_of(roles, cue["label"])
+        planned_roles = [r for r in opts["roles"] if r in roles]
         info = {"cue_label": cue["label"], "cue_guid": cue["guid"], "show_index": cue["show_index"],
                 "bay_token": bay_token, "parity": parity, "rows": []}
+        if fallback:
+            info["parity_source"] = parity_source
         if cue["label"] in template_labels:
             info["status"] = "TEMPLATE"
         elif cue["label"] in opts["exclude_cues"]:
             info["status"] = "EXCLUDED"
         elif not roles:
             info["status"] = "NO_SCORE_ROWS"
+        elif parity is None and fallback and planned_roles and no_parity_template is not None:
+            parity, info["parity"], info["parity_source"] = no_parity_template, no_parity_template, "NO_PARITY_TEMPLATE"
+            info["status"] = "TARGET"
+            warnings.append("NO_PARITY_TEMPLATE_USED|cue=%s|template=%s|roles=%s"
+                            % (cue["label"], no_parity_template, ",".join(planned_roles)))
+        elif parity is None and fallback and planned_roles:
+            info["status"] = "NO_PARITY"
+            warnings.append("NO_PARITY|cue=%s|roles=%s" % (cue["label"], ",".join(planned_roles)))
         elif parity is None:
             info["status"] = "PRACTICAL_ONLY"
         else:
             info["status"] = "TARGET"
+        if fallback and parity_source not in (None, PARITY_ROLE, "NO_PARITY_TEMPLATE"):
+            warnings.append("PARITY_FALLBACK|cue=%s|via=%s|parity=%s" % (cue["label"], parity_source, parity))
+        if fallback and PARITY_ROLE in roles and "LOW_SIDE_R_FILL" in roles:
+            key_y = float(roles[PARITY_ROLE][1]["relative_transform"]["location"][1])
+            fill_y = float(roles["LOW_SIDE_R_FILL"][1]["relative_transform"]["location"][1])
+            if (key_y < 0.0) == (fill_y < 0.0):
+                warnings.append("SIDE_PARITY_CONFLICT|cue=%s|key_y=%.1f|fill_y=%.1f" % (cue["label"], key_y, fill_y))
         if info["status"] != "TARGET":
             untouched.append({k: info[k] for k in ("cue_label", "status", "bay_token", "parity")})
             bay_rows.append(info)
             continue
         template = templates[parity]
+        info["missing_roles"] = [r for r in opts["roles"] if r not in roles and r in template["roles"]]
+        for r in planned_roles:
+            role_counts[r]["present"] += 1
         beam = roles.get("BEAM_R")
         if beam is not None:
             beam_sign = "-" if float(beam[1]["relative_transform"]["location"][1]) < 0.0 else "+"
@@ -332,12 +470,17 @@ def build_plan(plain, options, aims_by_cue=None):
             index, row = roles[role]
             if (cue["label"], role) in skip or (cue["label"], "*") in skip:
                 skipped.append({"cue_label": cue["label"], "role": role, "guid": row["guid"]})
+                role_counts[role]["skipped"] += 1
                 continue
             src = template["roles"].get(role)
             if src is None:
                 no_template.append({"cue_label": cue["label"], "role": role, "parity": parity})
                 continue
             require(all_att.count(row["guid"]) == 1, "TARGET_GUID_NOT_UNIQUE|guid=" + row["guid"])
+            if fallback:
+                require(target_cfg["score_label"].match(str(row["label"]))
+                        and not FORBIDDEN_TARGET_LABEL.search(str(row["label"])),
+                        "FORBIDDEN_TARGET_LABEL|cue=%s|label=%s" % (cue["label"], row["label"]))
             require(_enum_name(row["kind"]) == src["kind"], "KIND_MISMATCH|cue=%s|role=%s|%s!=%s"
                     % (cue["label"], role, _enum_name(row["kind"]), src["kind"]))
             require(_enum_name(row["anchor"]) == src["anchor"], "ANCHOR_MISMATCH|cue=%s|role=%s|%s!=%s"
@@ -369,10 +512,16 @@ def build_plan(plain, options, aims_by_cue=None):
                 "unchanged": (list(before["location"]) == loc_after
                               and quat_close(before["rotation_xyzw"], rot_after, 0.0)),
             }
+            if intensity_scale is not None and src["kind"] == "LIGHT":
+                before_i = _finite(row["lighting"]["intensity"], "INTENSITY_BEFORE")
+                target["intensity_before"] = before_i
+                target["intensity_after"] = f32(before_i * intensity_scale)
+                target["unchanged"] = target["unchanged"] and target["intensity_after"] == before_i
             if inside and src["kind"] == "LIGHT":
                 warnings.append("PANEL_BAND|cue=%s|role=%s|abs_y=%.1f|panel=%.1f"
                                 % (cue["label"], role, abs(loc_after[1]), panel))
             targets.append(target)
+            role_counts[role]["moved"] += 1
             info["rows"].append({"role": role, "abs_y": [round(target["abs_y_before"], 1), round(target["abs_y_after"], 1)],
                                  "z": [round(target["z_before"], 1), round(target["z_after"], 1)],
                                  "inside_panel_band": inside})
@@ -384,7 +533,10 @@ def build_plan(plain, options, aims_by_cue=None):
         require(int(expected) == len(targets), "EXPECTED_TARGETS|expected=%s|planned=%d" % (expected, len(targets)))
     targets.sort(key=lambda t: (t["show_index"], t["attachment_index"]))
     return {
-        "passage": PASSAGE_KEY, "roles": list(opts["roles"]), "jitter": dict(jitter),
+        "passage": target_key, "template_passage": template_key, "parity_fallback": fallback,
+        "no_parity_template": no_parity_template, "role_counts": role_counts, "intensity_scale": intensity_scale,
+        "intensity_guids": sorted(t["attachment_guid"] for t in targets if "intensity_after" in t),
+        "roles": list(opts["roles"]), "jitter": dict(jitter),
         "skip": [list(s) for s in sorted(skip)], "exclude_cues": list(opts["exclude_cues"]),
         "templates": templates, "targets": targets,
         "target_cue_guids": sorted({t["cue_guid"] for t in targets}),
@@ -398,6 +550,20 @@ def build_plan(plain, options, aims_by_cue=None):
 # --------------------------------------------------------------------------
 # Scope guards, offline mutation model, revert model.
 # --------------------------------------------------------------------------
+def f32(value):
+    """Round to the float32 the Show stores (FInfinityStageLightSettings::Intensity, InfinityStageTypes.h:204)."""
+    return struct.unpack("<f", struct.pack("<f", float(value)))[0]
+
+
+def intensity_close(a, b):
+    a, b = float(a), float(b)
+    return abs(a - b) <= INTENSITY_REL_TOL * max(abs(a), abs(b), 1.0e-3)
+
+
+def plan_intensity_guids(plan):
+    return list(plan.get("intensity_guids") or [])
+
+
 def _side_values(target, side):
     require(side in ("before", "after"), "SIDE_INVALID|" + str(side))
     return target["location_" + side], target["rotation_" + side]
@@ -412,6 +578,8 @@ def expected_rows(rows, plan, side):
             loc, rot = _side_values(target, side)
             row["relative_transform"]["location"] = list(loc)
             row["relative_transform"]["rotation_xyzw"] = list(rot)
+            if "intensity_" + side in target:
+                row["lighting"]["intensity"] = target["intensity_" + side]
     return out
 
 
@@ -422,12 +590,17 @@ def apply_plain(all_rows, plan, side="after"):
     return result
 
 
-def row_differences(tool, want, got, written):
-    """Exact field differences, except a written row's location/rotation (tolerance; q ~ -q)."""
+def row_differences(tool, want, got, written, intensity=False):
+    """Exact field differences, except a written row's location/rotation (tolerance; q ~ -q) and, when the plan
+    scales it, lighting.intensity (float32 relative tolerance)."""
     if not written:
         return tool._state_differences(want, got)
     a, b = copy.deepcopy(want), copy.deepcopy(got)
     out = []
+    if intensity:
+        ia, ib = a["lighting"].pop("intensity"), b["lighting"].pop("intensity")
+        if not intensity_close(ia, ib):
+            out.append({"path": "lighting.intensity", "before": ia, "after": ib})
     la, lb = a["relative_transform"].pop("location"), b["relative_transform"].pop("location")
     ra, rb = a["relative_transform"].pop("rotation_xyzw"), b["relative_transform"].pop("rotation_xyzw")
     if len(la) != 3 or len(lb) != 3 or max(abs(float(x) - float(y)) for x, y in zip(la, lb)) > LOC_TOL_CM:
@@ -445,13 +618,14 @@ def scope_differences(tool, base_all, live_all, plan, side):
     if tool._outside_hash(base_all, plan["target_cue_guids"]) != tool._outside_hash(live_all, plan["target_cue_guids"]):
         problems.append({"cue": "*", "problem": "OUTSIDE_TARGET_SCOPE_CHANGED"})
     targets = set(plan["target_attachment_guids"])
+    scaled = set(plan_intensity_guids(plan))
     for cue_guid in plan["target_cue_guids"]:
         want, got = expected_rows(base_all[cue_guid], plan, side), live_all[cue_guid]
         if [r["guid"] for r in want] != [r["guid"] for r in got]:
             problems.append({"cue": cue_guid, "problem": "ROW_SET_OR_ORDER_CHANGED"})
             continue
         for w, g in zip(want, got):
-            diffs = row_differences(tool, w, g, w["guid"] in targets)
+            diffs = row_differences(tool, w, g, w["guid"] in targets, w["guid"] in scaled)
             if diffs:
                 problems.append({"cue": cue_guid, "guid": w["guid"], "label": w["label"], "differences": diffs})
     return problems
@@ -492,6 +666,10 @@ def revert_drifts(all_rows, record):
             drifts.append({"guid": target["attachment_guid"], "label": target["attachment_label"],
                            "field": "relative_transform.rotation_xyzw", "record_after": rot,
                            "live": live["rotation_xyzw"]})
+        if "intensity_after" in target and not intensity_close(hits[0]["lighting"]["intensity"], target["intensity_after"]):
+            drifts.append({"guid": target["attachment_guid"], "label": target["attachment_label"],
+                           "field": "lighting.intensity", "record_after": target["intensity_after"],
+                           "live": hits[0]["lighting"]["intensity"]})
     return drifts
 
 
@@ -505,16 +683,19 @@ def revert_plain(tool, all_rows, record):
     result = apply_plain(all_rows, record["plan"], "before")
     restored = target_rows(result, record["plan"])
     before = record["before_target_rows"]
+    scaled = set(plan_intensity_guids(record["plan"]))
     for guid, row in restored.items():
-        diffs = [d for d in row_differences(tool, before[guid], row, True)]
-        # Only location/rotation are restored; other fields keep any later (hand) value.
-        diffs = [d for d in diffs if d["path"] in ("relative_transform.location", "relative_transform.rotation_xyzw")]
+        diffs = [d for d in row_differences(tool, before[guid], row, True, guid in scaled)]
+        # Only location/rotation (and a scaled intensity) are restored; other fields keep any later (hand) value.
+        restored_paths = ("relative_transform.location", "relative_transform.rotation_xyzw") + (
+            ("lighting.intensity",) if guid in scaled else ())
+        diffs = [d for d in diffs if d["path"] in restored_paths]
         require(not diffs, "REVERT_NOT_EXACT|guid=%s|%s" % (guid, _canonical(diffs)))
     return result
 
 
-def check_record(record):
-    require(record.get("passage") == PASSAGE_KEY and record.get("plan", {}).get("passage") == PASSAGE_KEY,
+def check_record(record, passage=PASSAGE_KEY):
+    require(record.get("passage") == passage and record.get("plan", {}).get("passage") == passage,
             "RECORD_PASSAGE_MISMATCH|%s" % record.get("passage"))
     require(record.get("status") == "saved_readback_verified", "REVERT_RECORD_STATUS|" + str(record.get("status")))
 
@@ -528,6 +709,9 @@ def readback_rows(read_all, plan, side):
         loc, rot = _side_values(target, side)
         ok = (max(abs(float(x) - float(y)) for x, y in zip(live["location"], loc)) <= LOC_TOL_CM
               and quat_close(live["rotation_xyzw"], rot))
+        if "intensity_" + side in target:
+            ok = ok and intensity_close(rows[target["attachment_guid"]]["lighting"]["intensity"],
+                                        target["intensity_" + side])
         out.append({"guid": target["attachment_guid"], "label": target["attachment_label"], "ok": ok})
     bad = [r for r in out if not r["ok"]]
     require(not bad, "READBACK_ROWS|side=%s|bad=%d|%s" % (side, len(bad), _canonical(bad)[:2000]))
@@ -539,6 +723,22 @@ def readback_rows(read_all, plan, side):
 # --------------------------------------------------------------------------
 _OWN_GUID = re.compile(r"[(,]AttachmentGuid=([0-9A-Fa-f]{32})")
 _ROT_OR_TRANS = re.compile(r"(?<![A-Za-z])(Rotation|Translation)=\([^()]*\),?")
+_LIGHTING_OPEN = re.compile(r"(?<![A-Za-z])Lighting=\(")
+_INTENSITY = re.compile(r"(?<![A-Za-z])Intensity=[^,()]*,?")
+
+
+def _mask_intensity(segment, guid):
+    """Mask the one top-level Intensity= inside the segment's Lighting=(..) group (nested groups untouched)."""
+    found = list(_LIGHTING_OPEN.finditer(segment))
+    require(len(found) >= 1, "EXPORT_NO_LIGHTING|guid=" + guid)
+    open_at = found[0].end() - 1
+    close_at = _close_paren(segment, open_at)
+    inner = segment[open_at + 1:close_at]
+    hits = [m for m in _INTENSITY.finditer(inner)
+            if inner[:m.start()].count("(") == inner[:m.start()].count(")")]
+    require(len(hits) == 1, "EXPORT_INTENSITY_COUNT|guid=%s|count=%d" % (guid, len(hits)))
+    m = hits[0]
+    return segment[:open_at + 1] + inner[:m.start()] + "<I>" + inner[m.end():] + segment[close_at:]
 
 
 def _close_paren(text, open_index):
@@ -553,8 +753,10 @@ def _close_paren(text, open_index):
     raise P01RigPatternError("EXPORT_UNBALANCED")
 
 
-def normalize_export(texts, target_guids):
+def normalize_export(texts, target_guids, intensity_guids=()):
     wanted = {g.upper() for g in target_guids}
+    scaled = {g.upper() for g in intensity_guids}
+    require(scaled <= wanted, "EXPORT_INTENSITY_NOT_TARGET")
     seen = {g: 0 for g in wanted}
     out = []
     for text in texts:
@@ -575,6 +777,10 @@ def normalize_export(texts, target_guids):
             pieces.append(text[cursor:open_at + 1])
             pieces.append("<RT>" + masked)
             cursor = close_at
+            if guid in scaled:
+                # the rest of this attachment's segment, Intensity masked; appended verbatim otherwise
+                pieces.append(_mask_intensity(text[close_at:end], guid))
+                cursor = end
             seen[guid] += 1
         pieces.append(text[cursor:])
         out.append("".join(pieces))
@@ -583,8 +789,8 @@ def normalize_export(texts, target_guids):
     return out
 
 
-def export_hash(texts, target_guids):
-    return _sha256_text("\n".join(normalize_export(texts, target_guids)))
+def export_hash(texts, target_guids, intensity_guids=()):
+    return _sha256_text("\n".join(normalize_export(texts, target_guids, intensity_guids)))
 
 
 # --------------------------------------------------------------------------
@@ -697,10 +903,10 @@ def load_modules():
     return scores, tool
 
 
-def scan_foreign(scores, plan, saved_dir=None):
+def scan_foreign(scores, plan, saved_dir=None, record_path=RECORD_PATH):
     saved = saved_dir or os.path.dirname(HERE)
     roots = [os.path.join(saved, n) for n in sorted(os.listdir(saved)) if n.startswith("Codex")]
-    return scores.scan_foreign_records(roots, plan["target_attachment_guids"], exclude=[RECORD_PATH])
+    return scores.scan_foreign_records(roots, plan["target_attachment_guids"], exclude=[record_path])
 
 
 # --------------------------------------------------------------------------
@@ -726,10 +932,10 @@ def _ctx_facts(tool):
             "zz_actors": sorted(a.get_actor_label() for a in actors if a.get_actor_label().startswith("ZZ_"))}
 
 
-def _bay_guids(tool, show, record_passage_guid):
+def _bay_guids(tool, show, record_passage_guid, passage_label=PASSAGE_LABEL):
     rows = [s for s in show.get_editor_property("passage_settings")
-            if str(s.get_editor_property("label")) == PASSAGE_LABEL]
-    require(len(rows) == 1, "PASSAGE_ROW_COUNT|label=%s|count=%d" % (PASSAGE_LABEL, len(rows)))
+            if str(s.get_editor_property("label")) == passage_label]
+    require(len(rows) == 1, "PASSAGE_ROW_COUNT|label=%s|count=%d" % (passage_label, len(rows)))
     guid_value = rows[0].get_editor_property("passage_guid")
     guid = tool._guid_text(guid_value)
     if record_passage_guid:
@@ -737,14 +943,20 @@ def _bay_guids(tool, show, record_passage_guid):
     return guid, [tool._guid_text(g) for g in show.get_wing_pair_cue_guids_in_passage(guid_value)]
 
 
-def _runtime_plain(tool, show, record_passage_guid):
+def _runtime_plain(tool, show, record_passage_guid, cfg=None, template=None):
+    """template: None (templates inside the target passage) or (template_cfg, template_record_passage_guid)."""
+    cfg = cfg or passage_config(PASSAGE_KEY)
     cues = []
     for index, cue in enumerate(show.get_editor_property("cues")):
         cues.append({"show_index": index, "guid": tool._guid_text(cue.get_editor_property("cue_guid")),
                      "label": str(cue.get_editor_property("label")),
                      "attachments": tool._attachment_rows(tool._pair_attachments(cue))})
-    passage_guid, bays = _bay_guids(tool, show, record_passage_guid)
-    return {"cues": cues, "bay_guids": bays, "passage_guid": passage_guid}
+    passage_guid, bays = _bay_guids(tool, show, record_passage_guid, cfg["label"])
+    plain = {"cues": cues, "bay_guids": bays, "passage_guid": passage_guid}
+    if template is not None:
+        template_guid, template_bays = _bay_guids(tool, show, template[1], template[0]["label"])
+        plain.update({"template_bay_guids": template_bays, "template_passage_guid": template_guid})
+    return plain
 
 
 def _all_rows(plain):
@@ -789,17 +1001,29 @@ def _write_transforms(tool, show, plan, side, check_side=None):
             transform.set_editor_property("rotation", unreal.Quat(float(rot[0]), float(rot[1]),
                                                                   float(rot[2]), float(rot[3])))
             attachment.set_editor_property("relative_transform", transform)
+            if "intensity_" + side in item:
+                # FInfinityCueAttachment::Lighting (InfinityStageTypes.h:466), set as lighting_looks_apply.py:1509
+                lighting = attachment.get_editor_property("lighting")
+                if check_side is not None:
+                    live_i = float(lighting.get_editor_property("intensity"))
+                    require(intensity_close(live_i, item["intensity_" + check_side]),
+                            "TARGET_INTENSITY_DRIFT|guid=%s|live=%s" % (item["attachment_guid"], live_i))
+                lighting.set_editor_property("intensity", float(item["intensity_" + side]))
+                attachment.set_editor_property("lighting", lighting)
         tool._set_pair_attachments(show, index, attachments)
 
 
-def _materialize(scores, show):
-    require(scores._count_passage_actors(show, PASSAGE_ACTOR_PREFIX) == 1, "PASSAGE_ACTOR_COUNT|" + PASSAGE_ACTOR_PREFIX)
-    materialized = scores._materialize_passage(show, PASSAGE_ACTOR_PREFIX)
-    require(materialized.get("structure") == STRUCTURE_LABEL, "STRUCTURE_NOT_REFIT|%s" % materialized)
+def _materialize(scores, show, cfg=None):
+    cfg = cfg or passage_config(PASSAGE_KEY)
+    prefix = cfg["actor_prefix"]
+    require(scores._count_passage_actors(show, prefix) == 1, "PASSAGE_ACTOR_COUNT|" + prefix)
+    materialized = scores._materialize_passage(show, prefix)
+    require(materialized.get("structure") == cfg["structure_label"], "STRUCTURE_NOT_REFIT|%s" % materialized)
     return materialized
 
 
-def _dry_rows_log(run, plan):
+def _dry_rows_log(run, plan, mark=MARK):
+    MARK = mark  # noqa: N806 - per-passage marker, same format
     for t in plan["targets"]:
         _log("%s_DRY_ROW|run=%s|cue=%s|role=%s|guid=%s|parity=%s|loc=%s->%s|absy=%.1f->%.1f|z=%.1f->%.1f|panel=%s|inside=%d"
              % (MARK, run, t["cue_label"], t["role"], t["attachment_guid"], t["parity"],
@@ -815,6 +1039,12 @@ def _run(args):
     mode = args["mode"]
     report = {"ok": False, "mode": mode, "run": run, "args": args, "saved": False}
     tool = None
+    cfg = passage_config(args.get("target_passage", PASSAGE_KEY))
+    template_key = args.get("template_passage", PASSAGE_KEY)
+    MARK = cfg["mark"]  # noqa: N806 - P01 keeps P01RIGPATTERN; P02 -> P02RIGPATTERN, P03 -> P03RIGPATTERN
+    RECORD_PATH = cfg["record_path"]  # noqa: N806 - P01 keeps p01_rig_pattern_record.json
+    passage = cfg["key"]
+    report["passage"] = passage
     try:
         scores, tool = load_modules()
         report["sources"] = {"scores_sha256": scores.SOURCE_SHA256, "p04_tool_sha256": tool.SCORES_SOURCE_SHA256}
@@ -822,30 +1052,38 @@ def _run(args):
         report["context"] = ctx
         check_context(ctx, mode, args["allow_dirty"], tool.SHOW_PATH, tool.EXPECTED_WORLD)
         census_before = ctx["census"]
-        aims, record_passage_guid = load_aims()
+        aims, record_passage_guid = load_aims(cfg["scores_record"])
+        template = None
+        if template_key != passage:
+            template_cfg = passage_config(template_key)
+            template = (template_cfg, load_aims(template_cfg["scores_record"])[1])
         show = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
         require(show is not None, "SHOW_ASSET_MISSING")
-        plain = _runtime_plain(tool, show, record_passage_guid)
+        plain = _runtime_plain(tool, show, record_passage_guid, cfg, template)
         before_all = _all_rows(plain)
 
         if mode in ("DRY", "APPLY"):
             plan = build_plan(plain, args, aims)
             check_scope(tool, before_all, apply_plain(before_all, plan, "after"), plan, "after")   # model self-check
-            texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"])
-            foreign = scan_foreign(scores, plan)
+            texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan))
+            foreign = scan_foreign(scores, plan, record_path=RECORD_PATH)
             unacked = sorted({h["path"] for h in foreign} - set(args["ack_records"]))
             report.update({"plan": plan, "passage_guid": plain["passage_guid"], "foreign_records": foreign,
                            "unacknowledged_foreign_records": unacked,
                            "active_record": RECORD_PATH if os.path.exists(RECORD_PATH) else None})
             if mode == "DRY":
-                _dry_rows_log(run, plan)
+                _dry_rows_log(run, plan, MARK)
+                _log("%s_ROLE_COUNTS|run=%s|target=%s|template=%s|no_parity_bays=%d|%s"
+                     % (MARK, run, passage, plan["template_passage"],
+                        sum(1 for u in plan["untouched_bays"] if u["status"] == "NO_PARITY"),
+                        _canonical(plan["role_counts"])))
                 census_after = tool._dirty_census()
                 require(census_after == census_before, "DRY_CENSUS_CHANGED|before=%s|after=%s"
                         % (_canonical(census_before), _canonical(census_after)))
-                require(tool._outside_hash(_all_rows(_runtime_plain(tool, show, record_passage_guid)), [])
+                require(tool._outside_hash(_all_rows(_runtime_plain(tool, show, record_passage_guid, cfg, template)), [])
                         == tool._outside_hash(before_all, []), "DRY_SHOW_ROWS_CHANGED")
                 report.update({"ok": True, "mutated": False, "census_after": census_after})
-                path = report_path(mode, run)
+                path = report_path(mode, run, passage=passage)
                 tool._write_json(path, report)
                 _log("%s_DRY_OK|run=%s|bays=%d|rows=%d|skipped=%d|no_template=%d|untouched_bays=%d|warnings=%d"
                      "|panel_band=%d|jitter=%s|foreign=%d|unacked=%d|census_equal=1|mutated=0|report=%s"
@@ -855,9 +1093,9 @@ def _run(args):
                         len(foreign), len(unacked), path))
                 return report
 
-            check_apply_gate(unacked)
-            backup = tool._backup(backup_prefix(), run)
-            record = {"schema_version": 1, "status": "prepared", "run": run, "passage": PASSAGE_KEY,
+            check_apply_gate(unacked, RECORD_PATH)
+            backup = tool._backup(backup_prefix(passage=passage), run)
+            record = {"schema_version": 1, "status": "prepared", "run": run, "passage": passage,
                       "backup": backup, "args": args, "plan": plan,
                       "outside_before_hash": tool._outside_hash(before_all, plan["target_cue_guids"]),
                       "export_hash_before": texts_hash,
@@ -871,13 +1109,13 @@ def _run(args):
             _log("%s_RECORD_WRITTEN|run=%s|path=%s|rows=%d" % (MARK, run, RECORD_PATH, len(plan["targets"])))
             try:
                 _write_transforms(tool, show, plan, "after", check_side="before")
-                after_all = _all_rows(_runtime_plain(tool, show, record_passage_guid))
+                after_all = _all_rows(_runtime_plain(tool, show, record_passage_guid, cfg, template))
                 check_scope(tool, before_all, after_all, plan, "after")
-                require(export_hash(_export_texts(show), plan["target_attachment_guids"]) == texts_hash,
+                require(export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan)) == texts_hash,
                         "EXPORT_OUTSIDE_SCOPE_CHANGED")
             except Exception:
                 _write_transforms(tool, show, plan, "before")
-                restored = _all_rows(_runtime_plain(tool, show, record_passage_guid))
+                restored = _all_rows(_runtime_plain(tool, show, record_passage_guid, cfg, template))
                 check_scope(tool, before_all, restored, plan, "before")
                 record["status"] = "failed_rolled_back_in_memory"
                 tool._write_json(RECORD_PATH, record)
@@ -885,14 +1123,14 @@ def _run(args):
                 raise
             record["status"] = "mutated_verified"
             tool._write_json(RECORD_PATH, record)
-            materialized = _materialize(scores, show)
+            materialized = _materialize(scores, show, cfg)
             tool._save_narrow()
             report["saved"] = True
             readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
-            read_all = _all_rows(_runtime_plain(tool, readback, record_passage_guid))
+            read_all = _all_rows(_runtime_plain(tool, readback, record_passage_guid, cfg, template))
             check_scope(tool, before_all, read_all, plan, "after")
             rows_ok = readback_rows(read_all, plan, "after")
-            require(export_hash(_export_texts(readback), plan["target_attachment_guids"]) == texts_hash,
+            require(export_hash(_export_texts(readback), plan["target_attachment_guids"], plan_intensity_guids(plan)) == texts_hash,
                     "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
             record.update({"status": "saved_readback_verified", "materialized": materialized,
                            "after_target_rows_live": target_rows(read_all, plan),
@@ -900,7 +1138,7 @@ def _run(args):
             tool._write_json(RECORD_PATH, record)
             report.update({"ok": True, "backup": backup, "record": RECORD_PATH, "materialized": materialized,
                            "readback_rows": rows_ok})
-            tool._write_json(report_path(mode, run), report)
+            tool._write_json(report_path(mode, run, passage=passage), report)
             _log("%s_APPLY_OK|run=%s|rows=%d|bays=%d|show_saved=1|level_saved=1|readback=1|record=%s"
                  % (MARK, run, len(plan["targets"]), len(plan["target_bays"]), RECORD_PATH))
             return report
@@ -908,29 +1146,29 @@ def _run(args):
         # REVERT
         require(os.path.isfile(RECORD_PATH), "REVERT_RECORD_ABSENT|" + RECORD_PATH)
         record = tool._read_json(RECORD_PATH)
-        check_record(record)
+        check_record(record, passage)
         plan = record["plan"]
         drifts = revert_drifts(before_all, record)
         report["revert_drifts"] = drifts
         require(not drifts, "REVERT_DRIFT|count=%d|%s" % (len(drifts), _canonical(drifts)[:4000]))
         reverted_model = revert_plain(tool, before_all, record)
-        texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"])
-        backup = tool._backup(backup_prefix(revert=True), run)
+        texts_hash = export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan))
+        backup = tool._backup(backup_prefix(revert=True, passage=passage), run)
         try:
             _write_transforms(tool, show, plan, "before", check_side="after")
-            after_all = _all_rows(_runtime_plain(tool, show, record_passage_guid))
+            after_all = _all_rows(_runtime_plain(tool, show, record_passage_guid, cfg, template))
             check_scope(tool, before_all, after_all, plan, "before")
             require(not scope_differences(tool, reverted_model, after_all, plan, "before"), "REVERT_MODEL_MISMATCH")
-            require(export_hash(_export_texts(show), plan["target_attachment_guids"]) == texts_hash,
+            require(export_hash(_export_texts(show), plan["target_attachment_guids"], plan_intensity_guids(plan)) == texts_hash,
                     "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED")
         except Exception:
             _write_transforms(tool, show, plan, "after")
             raise
-        materialized = _materialize(scores, show)
+        materialized = _materialize(scores, show, cfg)
         tool._save_narrow()
         report["saved"] = True
         readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
-        read_all = _all_rows(_runtime_plain(tool, readback, record_passage_guid))
+        read_all = _all_rows(_runtime_plain(tool, readback, record_passage_guid, cfg, template))
         check_scope(tool, before_all, read_all, plan, "before")
         rows_ok = readback_rows(read_all, plan, "before")
         archived = RECORD_PATH + ".reverted-" + run
@@ -939,7 +1177,7 @@ def _run(args):
         os.rename(RECORD_PATH, archived)
         report.update({"ok": True, "backup": backup, "record_archived": archived, "materialized": materialized,
                        "readback_rows": rows_ok})
-        tool._write_json(report_path(mode, run), report)
+        tool._write_json(report_path(mode, run, passage=passage), report)
         _log("%s_REVERT_OK|run=%s|rows=%d|show_saved=1|level_saved=1|readback=1|archived=%s"
              % (MARK, run, len(plan["targets"]), archived))
         return report
@@ -950,7 +1188,7 @@ def _run(args):
                 report["census"] = tool._dirty_census()
             except Exception:  # noqa: BLE001
                 pass
-        with open(report_path(mode, run), "w", encoding="utf-8") as handle:
+        with open(report_path(mode, run, passage=passage), "w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=2, sort_keys=True, default=str)
         unreal.log_error("%s_STOPPED|run=%s|mode=%s|saved=%d|%s%s"
                          % (MARK, run, mode, int(report["saved"]), report["error"][:1500],
@@ -960,10 +1198,11 @@ def _run(args):
 
 def main():
     require(unreal is not None, "UNREAL_REQUIRED")
+    raw = globals().get("P01RIGPATTERN_ARGS")   # the runner global keeps its 6 Oct name for every passage
     try:
-        args = check_args(globals().get("P01RIGPATTERN_ARGS"))
+        args = check_args(raw)
     except Exception as error:  # noqa: BLE001 - args refusals get the same stop marker
-        unreal.log_error("%s_STOPPED|run=none|ARGS|%s: %s|NOTHING SAVED" % (MARK, type(error).__name__, error))
+        unreal.log_error("%s_STOPPED|run=none|ARGS|%s: %s|NOTHING SAVED" % (mark_for_raw(raw), type(error).__name__, error))
         raise
     return _run(args)
 
