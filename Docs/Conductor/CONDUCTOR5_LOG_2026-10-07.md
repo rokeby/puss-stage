@@ -277,3 +277,6 @@
   tier: PIE-match set first, 8-sample cinematic where time allows (he read "8" as clip count — still only the six Scenes).
 - Tools ready (offline): shore IMPORT _B + APPLY/REVERT (79/79), waves ADOPT + screen-size fix (108/108), pearl v2 swap
   (459/0), MRQ fallbacks (31/31). Editor: Gary's unsaved level edit + my partial L5 wave MIs → next restart.
+- **Editor sky (Gary):** our Dusk Sun/Moon/Skylight are already 0 in the level [meas probe_sun]; the editor's daytime sky comes
+  from Klara's levels (suns 17.4/4.9/1.0, Japanese_Alley skylight 40) + sky atmospheres/clouds. editor_sky_toggle.py hid 14
+  sky actors with set_is_temporarily_hidden_in_editor (transient, census unchanged) — re-run after each editor restart.
