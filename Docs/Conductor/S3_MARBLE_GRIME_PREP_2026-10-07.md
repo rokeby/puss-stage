@@ -247,3 +247,39 @@ Coexistence with the shore bench:
 14. Gary: Don't-Save restart, which discards the map dirt and the unsaved ZZ_Bench assets.
 
 Any `S3MG_FAILED|run=..|stage=..|reason=..` stops the sequence. If it fails at prespawn, the stage has already destroyed that call's spawns; check `s3mg_prespawn_<run>.json`.
+
+## 9. Variant C_soft (7 Oct, after the live C still; offline, NOT RUN)
+
+**Live result.** Run S3MG-20261007-193429, PIE p2: at 4000 cd the strips blow out to hard white rectangles. 42,479 wall pixels sit at a minimum channel of 0.97 or above [measured on `PassageStills/PSTILLS-S3-20261007-194207-s3mg_20261007-193429-p2/00_f300.png`]. Gary: "500 cd, softer edges". C is unchanged.
+
+- **New variant `C_soft`:** 500 cd, DiffuseScale 0.10, RectLight **SourceTexture** `T_S3MG_StripFeather`.
+  - The property is `URectLightComponent::SourceTexture` (UPROPERTY, BlueprintReadOnly, `RectLightComponent.h:61-63`), set with the UFUNCTION `SetSourceTexture` (`:77-78`) [decl]. In Python that is `set_source_texture(tex)`, read back with `get_editor_property("source_texture")`.
+  - `apply` reads the texture back and FAILS on a mismatch. `restore` puts back the original from the originals file (None) and verifies it.
+  - The PIE stages load the texture with `unreal.load_asset`, not `EditorAssetLibrary`, which returns None in PIE [measured by the conductor].
+- **Texture** (`s3mg_build_feather.py`): `DerivedAssets/S3Marble/Grime_20261007/T_S3MG_StripFeather.png` [measured].
+  - 1024×512 grey RGB, intended LINEAR (sRGB off), TC_DEFAULT.
+  - Profile `smoothstep(0,0.22,u)·smoothstep(0,0.22,1-u)` × the same in v: 22 % feather per side, centre 1, edges 0, mean 0.608.
+  - A textured strip should emit roughly mean × the energy of an untextured one [inferred: renderer .cpp not installed].
+- **Assets stage:** the feather texture is an ADD-ON. If an editor session already holds the original six textures plus the master, `assets` imports only the feather texture (`mode=REUSED+ADDED`). Otherwise the classes are unchanged. It is create-only, unsaved, under `/Game/ZZ_Bench/S3MarbleGrime/Textures`.
+- **Preview** (`s3mg_preview_soft.py`; `sheet_C_soft.png`, `preview_C_soft.png`). It is calibrated on the live C still [measured]:
+  - Strip radiance at 4000 cd is fitted until the preview's blown area equals the live still's (42,479 px).
+  - The white diffuse spill is fitted on the calm live wall (target luma 0.680).
+  - C_soft then uses radiance × 500/4000, spill × 1/8 × 0.608, and the same feather profile.
+  - Result: 0 blown pixels; the highlight peak luma falls from 0.999 to 0.908; wall p99 0.898.
+  - The calibrated C re-render differs from the live still by a mean of 0.045 on wall pixels.
+  - This remains a fake-specular sketch: the GGX-like blur, Fresnel and uniform room term are [inferred].
+- **Harness:** 83/83 [measured]. The C_soft checks:
+  - the C_soft config, and C unchanged;
+  - the texture is in the table as linear and is an add-on;
+  - the PNG is a power of two ≤ 1024, centre 1 / edges 0, with a 18-25 % ramp;
+  - the add-on-only import path, plus a refusal when the master is missing;
+  - a behavioural mock of apply → restore: C_soft sets 500 cd, the feather texture and DiffuseScale 0.1, and restore puts back None and 0 cd;
+    - **− control:** C keeps 4000 cd and no texture;
+    - **+ control:** a setter that silently ignores the texture makes apply FAIL (`SOURCE_TEXTURE_READBACK`);
+  - the PIE region contains no `EditorAssetLibrary`.
+
+**Run C_soft:**
+1. Editor, no PIE: `s3mg_assets_request.json` → `mode=REUSED+ADDED` (or `CREATED` after a restart), then `s3mg_verify_assets_request.json`.
+2. If the pool is gone, `s3mg_prespawn_request.json` with a new run id.
+3. Fresh PIE (via `conductor_pie_begin_bench`), with `s3mg_args.json` `{"run":..,"variant":"C_soft","pie":N}`.
+4. apply → stills → restore, then unspawn after PIE, then census, then the Don't-Save restart.

@@ -96,7 +96,12 @@ TEXTURES = {   # source file -> (asset name, srgb, compression)
     "T_S3MG_GreaseAtlas.png": ("T_S3MG_GreaseAtlas", False, "TC_MASKS"),
     "T_S3MG_GrimeBand.png": ("T_S3MG_GrimeBand", False, "TC_MASKS"),
     "T_S3MG_SeamStrip.png": ("T_S3MG_SeamStrip", False, "TC_MASKS"),
+    # C_soft (Gary 7 Oct "500 cd, softer edges"): RectLight SourceTexture, feathered rectangle, LINEAR grey
+    # (s3mg_build_feather.py; RectLightComponent.h:61-63 SourceTexture, setter SetSourceTexture :77-78)
+    "T_S3MG_StripFeather.png": ("T_S3MG_StripFeather", False, "TC_DEFAULT"),
 }
+# textures added AFTER a session may already hold the original six (unsaved): importable on their own
+ADDON_TEXTURES = ("T_S3MG_StripFeather",)
 MARBLE_MID = {
     "textures": {"RoughnessTexture": "T_S3MG_Marble021_RoughGrime",
                  "NormalTexture": "T_S3MG_Marble021_NormalDX_Scratch",
@@ -110,6 +115,9 @@ VARIANTS = {   # C = Gary's pick (7 Oct)
     "C": {"marble": True, "prints": True, "band": False, "lights": {"intensity_cd": 4000.0, "diffuse_scale": 0.10}},
     "C_band": {"marble": True, "prints": True, "band": True, "lights": {"intensity_cd": 4000.0, "diffuse_scale": 0.10}},
     "C_phys": {"marble": True, "prints": True, "band": False, "lights": {"intensity_cd": 1500.0, "diffuse_scale": 1.0}},
+    # Gary 7 Oct after the live C still (PIE p2, S3MG-20261007-193429: hard white rectangles): "500 cd, softer edges"
+    "C_soft": {"marble": True, "prints": True, "band": False,
+               "lights": {"intensity_cd": 500.0, "diffuse_scale": 0.10, "source_texture": "T_S3MG_StripFeather"}},
     "A": {"marble": True, "prints": True, "band": False, "lights": None},
     "lights_only": {"marble": False, "prints": False, "band": False,
                     "lights": {"intensity_cd": 4000.0, "diffuse_scale": 0.10}},
@@ -374,11 +382,12 @@ def master_ok(st):
             and sorted(MASTER_SCALARS) == st["scalars"] and st["textures"] == ["GreaseMask", "PrintNormal"])
 
 
-def import_textures():
+def import_textures(only=None):
     u = _u()
     eal = u.EditorAssetLibrary
     tasks = []
-    for fname, (asset, _s, _c) in TEXTURES.items():
+    rows = {f: r for f, r in TEXTURES.items() if only is None or r[0] in only}
+    for fname, (asset, _s, _c) in rows.items():
         require(os.path.isfile(SRC + "/" + fname), "SOURCE_MISSING|" + fname)
         t = u.AssetImportTask()
         for k, v in (("filename", SRC + "/" + fname), ("destination_path", TEX_DIR), ("destination_name", asset),
@@ -387,7 +396,7 @@ def import_textures():
         tasks.append(t)
     u.AssetToolsHelpers.get_asset_tools().import_asset_tasks(tasks)
     out = {}
-    for fname, (asset, srgb, comp) in TEXTURES.items():
+    for fname, (asset, srgb, comp) in rows.items():
         tex = eal.load_asset(TEX_DIR + "/" + asset)
         require(isinstance(tex, u.Texture2D), "IMPORT_FAILED|" + asset)
         tex.modify()
@@ -469,6 +478,15 @@ def stage_assets(run, args):
         bad = [a for f, (a, s, c) in TEXTURES.items() if not texture_ok(tex_states[a], s, c)]
         require(not bad and master_ok(mst), "REUSE_MISMATCH|tex=%s|master_ok=%s" % (bad, master_ok(mst)))
         rec.update(mode="REUSED", textures=tex_states, master=mst)
+    elif (mst is not None and set(tex_states) - set(present) <= set(ADDON_TEXTURES)):
+        # session already holds the master + the original textures; only add-on textures are missing -> add them
+        bad = [a for f, (a, s, c) in TEXTURES.items() if tex_states[a] is not None and not texture_ok(tex_states[a], s, c)]
+        require(not bad and master_ok(mst), "REUSE_MISMATCH|tex=%s|master_ok=%s" % (bad, master_ok(mst)))
+        missing = sorted(set(tex_states) - set(present))
+        write_verified(run_file("assets", run), dict(rec, mode="ADDING", adding=missing))
+        rec["textures_added"] = import_textures(only=set(missing))
+        u.SystemLibrary.collect_garbage()
+        rec.update(mode="REUSED+ADDED", textures=tex_states, master=mst)
     elif not present:
         write_verified(run_file("assets", run), dict(rec, mode="CREATING"))
         rec["textures"] = import_textures()
@@ -691,6 +709,9 @@ def stage_apply(run, args):
     for s in specs:
         a = pool[s["label"]]
         orig["pool"][s["label"]] = {"shown": is_shown(a)}
+        if s["kind"] == "light":
+            orig["pool"][s["label"]]["source_texture"] = path(
+                a.get_editor_property("rect_light_component").get_editor_property("source_texture"))
     require(orig["liner"]["slot0"] and orig["liner"]["slot0"].split(".")[0] == LINER_MI,
             "LINER_NOT_R0|%s" % orig["liner"]["slot0"])
     shown = [l for l, r in orig["pool"].items() if r["shown"]]
@@ -771,12 +792,19 @@ def stage_apply(run, args):
                 c = a.get_editor_property("rect_light_component")
                 c.set_intensity(v["lights"]["intensity_cd"])
                 c.set_diffuse_scale(v["lights"]["diffuse_scale"])
+                want_tex = None
+                if v["lights"].get("source_texture"):
+                    want_tex = u.load_asset(TEX_DIR + "/" + v["lights"]["source_texture"])   # PIE-safe (not EAL)
+                    require(want_tex is not None, "SOURCE_TEXTURE_MISSING|" + v["lights"]["source_texture"])
+                    c.set_source_texture(want_tex)
+                got_tex = path(c.get_editor_property("source_texture"))
+                require(got_tex == path(want_tex), "SOURCE_TEXTURE_READBACK|%s|want=%s" % (got_tex, path(want_tex)))
                 show(a, c, True)
                 L = s["plan"]
                 got = {"units": str(c.get_editor_property("intensity_units")),
                        "intensity": float(c.get_editor_property("intensity")),
                        "w": float(c.get_editor_property("source_width")), "h": float(c.get_editor_property("source_height")),
-                       "diffuse_scale": float(c.get_editor_property("diffuse_scale"))}
+                       "diffuse_scale": float(c.get_editor_property("diffuse_scale")), "source_texture": got_tex}
                 require("CANDELAS" in got["units"] and abs(got["intensity"] - v["lights"]["intensity_cd"]) < 1e-3
                         and abs(got["w"] - L["source_width"]) < 1e-3 and abs(got["h"] - L["source_height"]) < 1e-3
                         and abs(got["diffuse_scale"] - v["lights"]["diffuse_scale"]) < 1e-5, "LIGHT_READBACK|%s" % got)
@@ -892,6 +920,10 @@ def stage_restore(run, args, check_pose=True):
         if isinstance(a, u.RectLight):
             c = a.get_editor_property("rect_light_component")
             c.set_intensity(0.0)
+            o_tex = orig["pool"][lab].get("source_texture")
+            c.set_source_texture(u.load_asset(o_tex.split(".")[0]) if o_tex else None)
+            if path(c.get_editor_property("source_texture")) != o_tex:
+                problems.append("SOURCE_TEXTURE_NOT_RESTORED|%s|%s" % (lab, path(c.get_editor_property("source_texture"))))
         else:
             c = decal_comp(a)
         show(a, c, False)

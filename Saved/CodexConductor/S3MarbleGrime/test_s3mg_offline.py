@@ -152,6 +152,15 @@ try:
     expect_raise("assets_wrong_srgb_refused", "REUSE_MISMATCH",
                  texture_state=lambda a: dict(good_tex[a], srgb=not good_tex[a]["srgb"]), master_state=lambda: good_master)
     expect_raise("assets_refuse_in_pie", "PIE_RUNNING", pie_world_or_none=lambda: object())
+    # session that already holds the original six + master (live run 7 Oct) and lacks only the feather texture
+    added = []
+    g.update(pie_world_or_none=lambda: None,
+             texture_state=lambda a: None if a == "T_S3MG_StripFeather" else good_tex[a], master_state=lambda: good_master,
+             import_textures=lambda only=None: added.append(sorted(only)) or {})
+    res = B["stage_assets"]("S3MG-T6", {})
+    check("assets_addon_only_feather", "REUSED+ADDED" in res and added == [["T_S3MG_StripFeather"]], (res, added))
+    expect_raise("assets_addon_but_master_missing_refused", "PARTIAL_ASSETS",
+                 texture_state=lambda a: None if a == "T_S3MG_StripFeather" else good_tex[a], master_state=lambda: None)
 finally:
     g.update(saved)
 
@@ -256,6 +265,156 @@ try:
         check("control_clean_editor_passes_census_gates", True)
 finally:
     g.update(saved)
+
+# 12) C_soft (Gary 7 Oct "500 cd, softer edges"): config, texture file, and a behavioural mock of apply -> restore
+V_ = B["VARIANTS"]
+check("C_soft_config", V_["C_soft"]["lights"] == {"intensity_cd": 500.0, "diffuse_scale": 0.10,
+                                                   "source_texture": "T_S3MG_StripFeather"}, V_.get("C_soft"))
+check("C_unchanged", V_["C"]["lights"] == {"intensity_cd": 4000.0, "diffuse_scale": 0.10}
+      and V_["C"]["marble"] and V_["C"]["prints"] and not V_["C"]["band"], V_["C"])
+row = [r for f, r in B["TEXTURES"].items() if r[0] == "T_S3MG_StripFeather"]
+check("feather_in_textures_linear", row == [("T_S3MG_StripFeather", False, "TC_DEFAULT")], row)
+check("feather_is_addon", "T_S3MG_StripFeather" in B["ADDON_TEXTURES"])
+from PIL import Image as _Im
+fimg = _Im.open("E:/PussStage/DerivedAssets/S3Marble/Grime_20261007/T_S3MG_StripFeather.png")
+fa = np.asarray(fimg.convert("L")).astype(float) / 255
+pow2 = lambda n: n & (n - 1) == 0
+check("feather_pow2_le_1024", all(pow2(n) and n <= 1024 for n in fimg.size), fimg.size)
+check("feather_profile_centre1_edge0", fa[fa.shape[0] // 2, fa.shape[1] // 2] > 0.99 and fa[:, 0].max() < 0.01
+      and fa[0, :].max() < 0.01 and 0.15 < float(np.mean(fa[fa.shape[0] // 2, :] < 0.99)) * 0.5 / 0.5 < 0.6)
+fw = fa[fa.shape[0] // 2]
+ramp = int(np.argmax(fw > 0.99)) / fa.shape[1]
+check("feather_ramp_20_25pct", 0.18 <= ramp <= 0.25, ramp)
+
+# behavioural mock: apply (variants T_soft = C_soft lights, T_C = C lights; marble/prints off to keep the mock small)
+import tempfile, os as _os
+tmp = tempfile.mkdtemp(prefix="s3mg_mock_")
+
+
+class Tex:
+    def __init__(self, p): self.p = p
+    def get_path_name(self): return self.p
+
+
+class LightComp:
+    def __init__(self):
+        self.props = {"intensity": 0.0, "diffuse_scale": 1.0, "source_texture": None, "source_width": 300.0,
+                      "source_height": 120.0, "intensity_units": "LightUnits.CANDELAS"}
+        self.vis = False
+    def get_editor_property(self, k): return self.props[k]
+    def set_intensity(self, v): self.props["intensity"] = float(v)
+    def set_diffuse_scale(self, v): self.props["diffuse_scale"] = float(v)
+    def set_source_texture(self, t): self.props["source_texture"] = t
+    def set_visibility(self, on, prop): self.vis = bool(on)
+    def is_visible(self): return self.vis
+
+
+class DecComp(LightComp):
+    def __init__(self, mat=None):
+        super().__init__()
+        self.mat = mat
+    def get_decal_material(self): return self.mat
+    def set_decal_material(self, m): self.mat = m
+
+
+class Act:
+    def __init__(self, label, loc, rot=None, comp=None, parent=None):
+        self.label, self.loc, self.rot, self.comp, self.parent = label, loc, rot or Rot(), comp, parent
+        self.name = label.replace(" ", "_")
+    def get_actor_label(self): return self.label
+    def get_name(self): return self.name
+    def get_actor_location(self): return V(*self.loc)
+    def get_actor_rotation(self): return self.rot
+    def get_attach_parent_actor(self): return self.parent
+    def set_actor_hidden_in_game(self, h): pass
+    def get_editor_property(self, k): return self.comp
+
+
+class RectL(Act):
+    pass
+
+
+class World:
+    def get_path_name(self): return "/Temp/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+
+
+plan_ = json.load(open(HERE + "s3mg_bench_plan.json"))
+pl_by = {d["label"]: d for d in json.load(open("E:/PussStage/DerivedAssets/FlatV3/HandPrints/placement_S03.json"))["decals"]}
+prints = {}
+for lab in plan_["prints"]["labels"]:
+    d = pl_by[lab]
+    prints[lab] = Act(lab, d["location"], Rot(d["rotation"]["roll"], d["rotation"]["pitch"], d["rotation"]["yaw"]),
+                      DecComp(Tex("/Game/X/MI_{0}.MI_{0}".format(lab.replace(" ", "_")))))
+root_a = Act(B["ROOT_LABEL"], list(B["ROOT_LANDED"]["loc"]))
+pool = {}
+for s_ in B["pool_specs"](plan_):
+    if s_["kind"] == "light":
+        pool[s_["label"]] = RectL(s_["label"], s_["plan"]["location"], comp=LightComp())
+    elif s_["kind"] == "grease":
+        p_ = prints[s_["print"]]
+        pool[s_["label"]] = Act(s_["label"], p_.loc, p_.rot, DecComp(), parent=p_)
+    else:
+        pool[s_["label"]] = Act(s_["label"], s_["plan"]["location"], comp=DecComp())
+
+
+class Liner:
+    static_mesh_component = types.SimpleNamespace(get_material=lambda i: Tex(B["LINER_MI"] + ".x"),
+                                                  set_material=lambda i, m: None)
+    def get_actor_label(self): return B["LINER_LABEL"]
+    def get_name(self): return B["LINER_NAME"]
+
+
+world = World()
+U2 = types.SimpleNamespace(MathLibrary=ML, Vector=V, Rotator=Rot, Transform=T, RectLight=RectL, DecalActor=Act,
+                           MaterialInstanceDynamic=type("MID", (), {}), log=lambda *a: None, MaterialEditingLibrary=None,
+                           load_asset=lambda p_: Tex(p_ + "." + p_.rsplit("/", 1)[1]))
+gA = B["stage_apply"].__globals__
+over = {"_u": lambda: U2, "pie_world": lambda: world, "pie_world_or_none": lambda: world,
+        "pool_map": lambda w: pool, "find_by_name": lambda w, n: Liner(),
+        "by_label": lambda w, cls=None: dict({k: [v] for k, v in prints.items()}, **{B["ROOT_LABEL"]: [root_a]}),
+        "census": lambda: {"maps": [], "content": []}, "decal_comp": lambda a: a.comp,
+        "run_file": lambda kind, r: _os.path.join(tmp, "%s_%s.json" % (kind, r)),
+        "VARIANTS": dict(B["VARIANTS"], T_soft=dict(B["VARIANTS"]["C_soft"], marble=False, prints=False),
+                         T_C=dict(B["VARIANTS"]["C"], marble=False, prints=False))}
+savedA = {k: gA[k] for k in over}
+try:
+    gA.update(over)
+    json.dump({"complete": True, "world": "/Game/L_editor", "labels": [s_["label"] for s_ in B["pool_specs"](plan_)]},
+              open(gA["run_file"]("prespawn", "S3MG-MOCK"), "w"))
+    lights = [a for a in pool.values() if isinstance(a, RectL)]
+    # --- T_soft
+    out = B["stage_apply"]("S3MG-MOCK", {"variant": "T_soft", "pie": 1})
+    tex_paths = {a.comp.props["source_texture"].get_path_name() if a.comp.props["source_texture"] else None for a in lights}
+    check("mock_C_soft_sets_500cd", all(a.comp.props["intensity"] == 500.0 for a in lights),
+          [a.comp.props["intensity"] for a in lights])
+    check("mock_C_soft_sets_feather_texture", tex_paths == {B["TEX_DIR"] + "/T_S3MG_StripFeather.T_S3MG_StripFeather"},
+          tex_paths)
+    check("mock_C_soft_diffuse_0p1", all(abs(a.comp.props["diffuse_scale"] - 0.1) < 1e-9 for a in lights))
+    B["stage_restore"]("S3MG-MOCK", {"pie": 1})
+    check("mock_restore_puts_none_back", all(a.comp.props["source_texture"] is None and a.comp.props["intensity"] == 0.0
+                                             and not a.comp.vis for a in lights))
+    # --- T_C (- control: C must not touch the source texture and keeps 4000 cd)
+    out = B["stage_apply"]("S3MG-MOCK", {"variant": "T_C", "pie": 2})
+    check("mock_C_keeps_4000_no_texture", all(a.comp.props["intensity"] == 4000.0 and a.comp.props["source_texture"] is None
+                                              for a in lights))
+    B["stage_restore"]("S3MG-MOCK", {"pie": 2})
+    # --- + control for the readback gate: a setter that silently ignores the texture must FAIL apply
+    orig_set = LightComp.set_source_texture
+    LightComp.set_source_texture = lambda self, t: None
+    try:
+        B["stage_apply"]("S3MG-MOCK", {"variant": "T_soft", "pie": 3})
+        check("control_source_texture_readback_gate", False, "no raise")
+    except Exception as e:
+        check("control_source_texture_readback_gate", "SOURCE_TEXTURE_READBACK" in str(e), e)
+    finally:
+        LightComp.set_source_texture = orig_set
+finally:
+    gA.update(savedA)
+    import shutil
+    shutil.rmtree(tmp, ignore_errors=True)
+check("pie_region_no_EditorAssetLibrary", "EditorAssetLibrary" not in code_names(
+    "\n".join(l for l in full[full.index("# ---- PIE BEGIN"):full.index("# ---- PIE END")].splitlines()
+              if not l.startswith("# ----"))))
 
 print("SUMMARY %d passed, %d failed" % (len(passes), len(fails)))
 json.dump({"passed": len(passes), "failed": fails}, open(HERE + "test_s3mg_offline_report.json", "w"), indent=1)
