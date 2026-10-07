@@ -46,8 +46,10 @@ CUT_MESH_TOKENS = ("SM_FlatV3_P06_grand_pavilion_", "SM_FlatV3_P06_bronze_tree_"
                    "SM_MutatedPeltFlora_01_L_v2")
 IND_TOKEN = "SM_FlatV3_P02_IND_"      # 3D fence / shutter pieces, ~72-97 cm thick [meas topple_measurements.json]
 
-# Realism import convention: rz_build_one.py:249/:296 target "/Game/Scenes/Wings/FlatV3/Realism/T5I|T5J/SM_FlatV3_<asset>"
-# [decl]; T5P (the HF rebuild suffix, rz_hf.py:14) by analogy [inf]. Not yet imported: parameterised in the args.
+# Realism import convention: rz_build_one.py:296 / p06_build_one_v2.py:306 target
+# "/Game/Scenes/Wings/FlatV3/Realism/T5J/SM_FlatV3_<asset>" [decl]; T5P by the same pattern [inf].  These are exactly
+# the folders the import kit creates (Saved/CodexFlatV3/p06import/p06_import_core.MESH_FOLDERS); make_plan simulates
+# existence from that kit's plan and the harness asserts every DESIGNS path equals a kit destination.
 DEFAULT_MESH_ROOTS = {"t5p": "/Game/Scenes/Wings/FlatV3/Realism/T5P", "t5j": "/Game/Scenes/Wings/FlatV3/Realism/T5J"}
 DEFAULT_VARIANTS = ("t5p", "t5j")
 KEEP = "KEEP"
@@ -70,35 +72,38 @@ def sha(obj):
 # Design table (P06 realism picks).  side = the side the art was BUILT for (never flipped).
 # =====================================================================================================================
 
-# [meas] DerivedAssets/FlatV3/Realism_20261007/P06_backrooms/<slug>/RZ_BUILD_REPORT.json status + RZ_HF_REPORT.json;
-# widths from builds_t5j/.../validation.json dimensions_m[1]; bounds Z -1.0..10.2 m, depth 0.1985 m, SOCKET_Hinge at
-# the origin (validation socket_contract) for every built one. Failed ones keep their pick number so a rebuild that
-# lands later resolves automatically IF it is built for the slot's side.
+# v2 builds (7 Oct, run FV3RZ-P06-20261007-02) [meas] P06_IMPORT_MANIFEST_v2.json + P06_BUILD_REPORT_v2.json: 15 PASS,
+# ONE variant each (the one the import kit imports); width = validation.json dimensions_m[1] of that FBX; bounds Z
+# -100..1020, depth 19.85 cm, SOCKET_Hinge at the origin for all 15 [meas: p06_import_core.build_plan reads them].
+# Pick 10's owner is P06_real_10_building_under_construct_R (slug changed from the v1 '..._construction').
+# Unavailable (not built in v2): 4, 5, 29 (subject touches the image edge), 11, 12 (NOT_BUILDABLE_NO_STILE); they keep
+# their pick number so a later rebuild resolves automatically IF it is built for the slot's side.
 DESIGNS = {
-    "1":  {"slug": "1_stone_building_under", "side": "L", "pick": "80 BambooScaffold_01_L", "width_cm": 478.0, "built": ["t5p", "t5j"]},
-    "2":  {"slug": "2_pink_silk_structure", "side": "R", "pick": "80 GauzeLattice_01_L (pink)", "width_cm": 425.0, "built": ["t5p", "t5j"]},
-    "3":  {"slug": "3_orange_sail_structure", "side": "L", "pick": "80 GauzeLattice_01_R (orange)", "width_cm": 423.0, "built": ["t5p", "t5j"]},
+    "1":  {"slug": "1_stone_building_under", "side": "L", "pick": "80 BambooScaffold_01_L", "width_cm": 639.4, "built": ["t5p"]},
+    "2":  {"slug": "2_pink_silk_structure", "side": "R", "pick": "80 GauzeLattice_01_L (pink)", "width_cm": 396.9, "built": ["t5p"]},
+    "3":  {"slug": "3_orange_sail_structure", "side": "L", "pick": "80 GauzeLattice_01_R (orange)", "width_cm": 393.7, "built": ["t5p"]},
     "4":  {"slug": "4_qfefqz_fwvsvb", "side": None, "pick": "80 CoveredBiomech_rococo", "width_cm": None, "built": []},
     "5":  {"slug": "5_draped_architectural_sculpture", "side": None, "pick": "80 CoveredBiomech_exposed", "width_cm": None, "built": []},
-    "6":  {"slug": "6_rock_formation_sculpture", "side": "L", "pick": "80 SaltFormation_01_L_v2", "width_cm": None, "built": []},
-    "7":  {"slug": "7_draped_marble_statue", "side": "L", "pick": "80 CoveredPillar_01_L", "width_cm": 633.0, "built": ["t5j"]},
-    "8":  {"slug": "8_rock_formation_sculpture", "side": "R", "pick": "80 SaltFormation_01_R", "width_cm": 645.0, "built": ["t5p", "t5j"]},
-    "9":  {"slug": "9_draped_column_statue", "side": "R", "pick": "80 CoveredPillar_01_R", "width_cm": 670.0, "built": ["t5p", "t5j"]},
-    "10": {"slug": "10_building_under_construction", "side": None, "pick": "80 BambooScaffold_01_R", "width_cm": None, "built": []},
+    "6":  {"slug": "6_rock_formation_sculpture", "side": "L", "pick": "80 SaltFormation_01_L_v2", "width_cm": 696.3, "built": ["t5p"]},
+    "7":  {"slug": "7_draped_marble_statue", "side": "L", "pick": "80 CoveredPillar_01_L", "width_cm": 631.3, "built": ["t5p"]},
+    "8":  {"slug": "8_rock_formation_sculpture", "side": "R", "pick": "80 SaltFormation_01_R", "width_cm": 643.4, "built": ["t5p"]},
+    "9":  {"slug": "9_draped_column_statue", "side": "R", "pick": "80 CoveredPillar_01_R", "width_cm": 664.6, "built": ["t5p"]},
+    "10": {"slug": "10_building_under_construct", "side": "R", "pick": "80 BambooScaffold_01_R", "width_cm": 689.6, "built": ["t5j"]},
     "11": {"slug": "11_metal_scaffolding_structure", "side": None, "pick": "80 SteelScaffold_01_L", "width_cm": None, "built": []},
     "12": {"slug": "12_metal_scaffolding_structure", "side": None, "pick": "80 SteelScaffold_01_R", "width_cm": None, "built": []},
-    "25": {"slug": "25_concrete_wall_with", "side": "L", "pick": "81i plastered wall", "width_cm": 356.0, "built": ["t5p", "t5j"]},
-    "26": {"slug": "26_concrete_panel_wood", "side": "L", "pick": "81c partition", "width_cm": 327.0, "built": ["t5p", "t5j"]},
+    "25": {"slug": "25_concrete_wall_with", "side": "L", "pick": "81i plastered wall", "width_cm": 356.6, "built": ["t5p"]},
+    "26": {"slug": "26_concrete_panel_wood", "side": "L", "pick": "81c partition", "width_cm": 326.3, "built": ["t5p"]},
     "29": {"slug": "29_metal_panel_with", "side": None, "pick": "81k/l falling panel veil", "width_cm": None, "built": []},
-    "30": {"slug": "30_rusty_metal_door", "side": "L", "pick": "81k/l falling panel door", "width_cm": 429.0, "built": ["t5p", "t5j"]},
-    "33": {"slug": "33_burnt_furniture_ruin", "side": "L", "pick": "81m-o burnt flats+furniture", "width_cm": 671.0, "built": ["t5p", "t5j"]},
-    "35": {"slug": "35_metal_frame_door", "side": "L", "pick": "81d doorway plastic", "width_cm": 332.0, "built": ["t5p", "t5j"]},
-    "38": {"slug": "38_burnt_wood_concrete", "side": None, "pick": "81m-o burnt partition", "width_cm": None, "built": []},
-    "39": {"slug": "39_burnt_metal_door", "side": "L", "pick": "81m-o burnt door", "width_cm": 432.0, "built": ["t5p", "t5j"]},
+    "30": {"slug": "30_rusty_metal_door", "side": "L", "pick": "81k/l falling panel door", "width_cm": 428.0, "built": ["t5j"]},
+    "33": {"slug": "33_burnt_furniture_ruin", "side": "L", "pick": "81m-o burnt flats+furniture", "width_cm": 671.6, "built": ["t5j"]},
+    "35": {"slug": "35_metal_frame_door", "side": "L", "pick": "81d doorway plastic", "width_cm": 331.4, "built": ["t5p"]},
+    "38": {"slug": "38_burnt_wood_concrete", "side": "L", "pick": "81m-o burnt partition", "width_cm": 365.1, "built": ["t5j"]},
+    "39": {"slug": "39_burnt_metal_door", "side": "L", "pick": "81m-o burnt door", "width_cm": 428.0, "built": ["t5j"]},
 }
-REALISM_HEIGHT_BOUNDS_CM = 1120.0     # bounds Z -100..1020 [meas validation.json bounds_m]
+REALISM_HEIGHT_BOUNDS_CM = 1120.0     # bounds Z -100..1020 [meas v2 validation.json bounds_m, all 15]
 REALISM_HEIGHT_SOCKET_CM = 1020.0     # topple height = maxZ - hinge Z; hinge socket at Z 0 if Interchange keeps it [inf]
-REALISM_THICK_CM = 19.85              # [meas validation depth 0.1985 m]
+REALISM_THICK_CM = 19.85              # [meas v2 validation depth 0.1985 m, all 15]
+VARIETY_MAX = 3                       # caller 7 Oct: no design more than 3x, never in adjacent rows on one side
 
 
 def asset_name(design_key, side, variant):
@@ -141,40 +146,48 @@ def resolve_slot(spec, side, exists, roots=None, variants=DEFAULT_VARIANTS):
 # =====================================================================================================================
 
 LAYOUT = [
-    # --- A. daylight gallery (1-28 s): covered statues, scaffolds, colourful tarps; one construction fence
+    # --- A. daylight gallery (1-38 s): the v2 statues / sails / scaffolds.  V2 cards fill R where the R-built V3
+    #        designs run out: only 2, 8, 9, 10 are R-built = 12 R sides at <= 3 each, and 8 of those are forced (the
+    #        mouth, the last row and the 6 chain rows stand on cut designs on R).
     {"station_cm": 250,   "cue": "DFD138DA78440386500FEC8E57AE3BA9", "role": "mouth",   "L": ["7"],        "R": ["9"]},
     {"station_cm": 1050,  "cue": "C1CDC6C8BB4116B5D3BB67B4103FF047", "role": "gallery", "L": ["1"],        "R": ["10", KEEP]},
     {"station_cm": 1950,  "cue": "D92313E04C50AB918446E1A5C1A766D6", "role": "gallery", "L": ["3"],        "R": ["2"]},
     {"station_cm": 2950,  "cue": "0A53E28D7C44CCD4B5F79EA1FC64B0E7", "role": "gallery", "L": ["6", KEEP],  "R": ["8"]},
     {"station_cm": 4050,  "cue": "E9850E1D8D4473A298BEA0A87E7AC60A", "role": "fence",   "L": [KEEP],       "R": [KEEP]},
     {"station_cm": 5150,  "cue": "A9E0E66B074D5EA45E23BE93ADA0F8CE", "role": "gallery", "L": ["11", KEEP], "R": ["12", KEEP]},
-    {"station_cm": 6250,  "cue": "ABFFBA7B47F22FE2F67C52A63EE441F7", "role": "gallery", "L": ["4", KEEP],  "R": ["9"]},
-    {"station_cm": 7350,  "cue": "735A7090BC4094A56E9818B65CD531B7", "role": "gallery", "L": ["3"],        "R": ["2"]},
+    {"station_cm": 6250,  "cue": "ABFFBA7B47F22FE2F67C52A63EE441F7", "role": "gallery", "L": ["4", KEEP],  "R": [KEEP]},
+    {"station_cm": 7350,  "cue": "735A7090BC4094A56E9818B65CD531B7", "role": "gallery", "L": ["1"],        "R": [KEEP]},
     {"station_cm": 8450,  "cue": "F060763E471ABBB50FE986831AFBAC59", "role": "gallery", "L": ["7"],        "R": ["9"]},
-    {"station_cm": 9450,  "cue": "884761C04271AFF58AF47B8B8AE5CD64", "role": "approach", "L": ["1"],       "R": ["10", KEEP]},
-    # --- B. the chain: 6 thin V3 slabs on L at 5.0 m, falling away; partitions / doors / plaster (falling-panel picks)
+    {"station_cm": 9450,  "cue": "884761C04271AFF58AF47B8B8AE5CD64", "role": "approach", "L": ["3"],       "R": [KEEP]},
+    # --- B. the chain: 6 thin V3 slabs on L at 5.0 m, falling away -- six DIFFERENT designs: partition, rusty door,
+    #        plaster wall, doorway, burnt partition (or the veil 29 if it is ever rebuilt L), burnt door
     {"station_cm": 10450, "cue": "7B0D67932249C38B1F010C93D74A38F2", "role": "chain1",  "L": ["26"],       "R": ["8"]},
-    {"station_cm": 10950, "cue": "84D6E0B0E64D490C8BAEC7955AED56C2", "role": "chain2",  "L": ["30"],       "R": ["9"]},
-    {"station_cm": 11450, "cue": "008D989B20485276BC8D0493439D39EA", "role": "chain3",  "L": ["25"],       "R": ["2"]},
+    {"station_cm": 10950, "cue": "84D6E0B0E64D490C8BAEC7955AED56C2", "role": "chain2",  "L": ["30"],       "R": ["2"]},
+    {"station_cm": 11450, "cue": "008D989B20485276BC8D0493439D39EA", "role": "chain3",  "L": ["25"],       "R": ["10"]},
     {"station_cm": 11950, "cue": "2C9C4A30466204C2890815B6C777DACF", "role": "chain4",  "L": ["35"],       "R": ["8"]},
-    {"station_cm": 12450, "cue": "AA62A3AC5C432FCBE3A672B23443FA6A", "role": "chain5",  "L": ["29", "26"], "R": ["9"]},
-    {"station_cm": 12950, "cue": "6DB7C86FE7463FB8ED5143833DF28400", "role": "chain6",  "L": ["30"],       "R": ["2"]},
+    {"station_cm": 12450, "cue": "AA62A3AC5C432FCBE3A672B23443FA6A", "role": "chain5",  "L": ["29", "38"], "R": ["2"]},
+    {"station_cm": 12950, "cue": "6DB7C86FE7463FB8ED5143833DF28400", "role": "chain6",  "L": ["39"],       "R": ["10"]},
     # --- the brace: the construction fence the 6th slab slams into (kept IND FenceTarp pair, 13 m, 97 cm)
     {"station_cm": 13450, "cue": "1D2D86BCE74A910A13CC588B0D451795", "role": "brace",   "L": [KEEP],       "R": [KEEP]},
     # --- the keeper, untouched (still sliding, towards the back)
     {"station_cm": 13950, "cue": KEEPER_GUID,                         "role": "keeper",  "L": [KEEP],       "R": [KEEP]},
-    # --- C. the dark (after ~52 s): burnt rooms, shutters, sparse 12 m bays
-    {"station_cm": 15150, "cue": "10B44993A14BC573BF46F798F81446BA", "role": "dark",    "L": ["33"],       "R": ["8"]},
+    # --- C. the dark (after ~52 s): burnt rooms on L; R = kept V2 cards.  The seven dark rows now name cues whose R
+    #        card is a non-cut V2 (the old dark cues all stood on cut designs on R: bronze_tree / grand_pavilion /
+    #        CeramicTotem), each with the light-attachment count of the cue it replaces, +-2 [meas
+    #        Saved/CodexConductor/p06_rig_pattern_record.json after_cue_rows, written 6 Oct 22:39; the DRY re-reads
+    #        the live attachments]: W008 19 -> W046 17, W019 16 -> W053 16, W027 0 -> W052 0, W021 16 -> W048 16,
+    #        W023 15 -> OLD 23 15, W015 17 -> W044 17, W043 15 -> W049 15.
+    {"station_cm": 15150, "cue": "4927CDF2454CE3EC567E4C8BBB58AFB0", "role": "dark",    "L": ["33"],       "R": [KEEP]},
     {"station_cm": 16350, "cue": "88A3B6EF6F43524F0A057A84271187B7", "role": "fence",   "L": [KEEP],       "R": [KEEP]},
-    {"station_cm": 17550, "cue": "52B14342BC4BB350B0D04EB5BD9E01CC", "role": "dark",    "L": ["39"],       "R": ["9"]},
-    {"station_cm": 18750, "cue": "8A031613E5403585466CB590FF23399E", "role": "dark",    "L": ["38", "33"], "R": ["8"]},
+    {"station_cm": 17550, "cue": "6C060F41144F94D9214DF3BF039C7E99", "role": "dark",    "L": ["39"],       "R": [KEEP]},
+    {"station_cm": 18750, "cue": "11F403689E45D226B3298AAF16790170", "role": "dark",    "L": ["38"],       "R": [KEEP]},
     {"station_cm": 19950, "cue": "4AA16A12224559F4375C89AF372F0857", "role": "fence",   "L": [KEEP],       "R": [KEEP]},
-    {"station_cm": 21150, "cue": "BE2D60C103428B378B3B3E9AF5E65068", "role": "dark",    "L": ["25"],       "R": ["9"]},
-    {"station_cm": 22350, "cue": "9659E889E6430907286165AFF40F8783", "role": "dark",    "L": ["33"],       "R": ["8"]},
+    {"station_cm": 21150, "cue": "821E817A714533C8BFDB38B63581F33F", "role": "dark",    "L": ["33"],       "R": [KEEP]},
+    {"station_cm": 22350, "cue": "CC3403E5418809B2A1D9328EFC64C048", "role": "dark",    "L": ["30"],       "R": [KEEP]},
     {"station_cm": 23550, "cue": "73AFD9FE4A43CBCDC34ED08FC4D4CA21", "role": "fence",   "L": [KEEP],       "R": [KEEP]},
-    {"station_cm": 24750, "cue": "E1003C888E4519BEDE5F5B9ECC222345", "role": "dark",    "L": ["39"],       "R": ["9"]},
-    {"station_cm": 25950, "cue": "78635468B24CDF406695CF839F3897AD", "role": "dark",    "L": ["35"],       "R": ["8"]},
-    {"station_cm": 27250, "cue": "07E24048F24647AA7D5992AB6A8A0770", "role": "last",    "L": ["38", "39"], "R": ["9"]},
+    {"station_cm": 24750, "cue": "AF6EB4EB57431F88F4BFC0957DA0E395", "role": "dark",    "L": ["26"],       "R": [KEEP]},
+    {"station_cm": 25950, "cue": "30450225EE4DB0B28CEF8FA67FD430D4", "role": "dark",    "L": ["33"],       "R": [KEEP]},
+    {"station_cm": 27250, "cue": "07E24048F24647AA7D5992AB6A8A0770", "role": "last",    "L": ["39"],       "R": ["9"]},
 ]
 CHAIN_ROLES = ("chain1", "chain2", "chain3", "chain4", "chain5", "chain6")
 
@@ -189,6 +202,36 @@ def is_cut(mesh):
 
 def is_ind(mesh):
     return bool(mesh) and IND_TOKEN in mesh
+
+
+def side_identity(side_doc):
+    """What a viewer sees on one side: the V3 design key, or the kept card's mesh name (V2 card or IND piece)."""
+    if side_doc.get("action") == "swap":
+        return "V3:" + str(side_doc["design"])
+    mesh = side_doc.get("mesh")
+    return None if mesh is None else str(mesh).rsplit("/", 1)[-1].split(".", 1)[0]
+
+
+def variety_counts(out_rows):
+    counts = {}
+    for r in out_rows:
+        for side in ("L", "R"):
+            ident = side_identity(r["sides"][side])
+            if ident is not None:
+                counts[ident] = counts.get(ident, 0) + 1
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
+def variety_refusals(out_rows, limit=VARIETY_MAX):
+    """Gate on the RESOLVED rows (so a fallback can never quietly break it): every identity (V3 design, kept V2
+    card, IND piece) at most `limit` times in the passage, and never on the same side of two consecutive rows."""
+    ref = ["VARIETY_OVER_%d %s x%d" % (limit, i, n) for i, n in sorted(variety_counts(out_rows).items()) if n > limit]
+    for a, b in zip(out_rows[:-1], out_rows[1:]):
+        for side in ("L", "R"):
+            ia, ib = side_identity(a["sides"][side]), side_identity(b["sides"][side])
+            if ia is not None and ia == ib:
+                ref.append("VARIETY_ADJACENT %s rows %d/%d %s" % (side, a["new_ordinal"] + 1, b["new_ordinal"] + 1, ia))
+    return ref
 
 
 def old_law(rows, lead_frames, lead_cm, tail_frames, tail_cm):
@@ -291,6 +334,7 @@ def build_plan(rows, settings, layout=LAYOUT, exists=lambda p: False, roots=None
         out_rows.append(row)
     if cut_left:
         ref.append("CUT_DESIGN_STILL_STANDING %s" % cut_left)
+    ref += variety_refusals(out_rows)
     # chain gates (layout-level; the topple DRY re-measures them live)
     chain = [r for r in out_rows if r["role"] in CHAIN_ROLES]
     if [r["role"] for r in chain] != list(CHAIN_ROLES):
@@ -318,7 +362,7 @@ def build_plan(rows, settings, layout=LAYOUT, exists=lambda p: False, roots=None
             "first_show_index": rows[0]["show_index"], "swaps": len(swaps),
             "settings_before": settings, "law_old_points": old, "law_new_points": new_pts,
             "camera_law_max_dev_cm": dev, "segment_end_rel": seg_end,
-            "duration_s": seg_end / 24000.0, "refusals": ref}
+            "duration_s": seg_end / 24000.0, "refusals": ref, "variety_counts": variety_counts(out_rows)}
     plan["inputs"] = {"rows": [[r["cue_guid"], r["text_outside_mechanism_sha"]] for r in rows], "settings": settings,
                       "layout": layout, "resolved": [[r["cue_guid"], {s: r["sides"][s].get("mesh") for s in ("L", "R")}]
                                                     for r in out_rows]}

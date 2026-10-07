@@ -3,8 +3,9 @@
   python make_plan.py [--slam-s 37] [--out relayout_plan_offline.json] [--png p06_relayout_contact_sheet.png]
 
 Inputs [meas]: ../topple/topple_measurements.json (DRY TOPPLE-20261007-024310, the pre-STILL live P06),
-Saved/CodexConductor/p06_sunset_dry.json (daylight timeline). Asset existence is SIMULATED from the realism build
-reports (relayout_core.DESIGNS "built"); the live DRY resolves against the editor instead.
+Saved/CodexConductor/p06_sunset_dry.json (daylight timeline). Asset existence is SIMULATED as "exactly the meshes the
+v2 import kit creates" (../p06import/p06_import_core.build_plan destinations, 7 Oct refresh); the live DRY resolves
+against the editor instead, after the kit's batches are applied.
 
 It then proves, offline, that the existing topple tool will find the chain window on the planned layout: it builds a
 synthetic topple measurement (relayout_core.synth_topple_rows) and runs topple_core.eligible_windows and
@@ -31,17 +32,16 @@ def _load(name, path):
 
 
 rc = _load("relayout_core_offline", os.path.join(HERE, "relayout_core.py"))
+ikc = _load("p06_import_core_rl", os.path.join(PROJECT, "Saved", "CodexFlatV3", "p06import", "p06_import_core.py"))
+IMPORT_PLAN = ikc.build_plan(PROJECT)
+KIT_MESHES = set(ikc.relayout_mesh_paths(IMPORT_PLAN).values())
 tcore = _load("topple_core_rl", os.path.join(TOPPLE, "topple_core.py"))
 mk = _load("make_keys_rl", os.path.join(TOPPLE, "make_keys.py"))
 
 
 def sim_exists(path):
-    name = path.rsplit("/", 1)[-1]
-    for key, d in rc.DESIGNS.items():
-        for v in d["built"]:
-            if d["side"] and name == rc.asset_name(key, d["side"], v) and path.startswith(rc.DEFAULT_MESH_ROOTS[v]):
-                return True
-    return False
+    """A realism mesh 'exists' iff the v2 import kit creates it (create-only, 15 meshes)."""
+    return path in KIT_MESHES
 
 
 def rows_from_meas(meas):
@@ -124,6 +124,7 @@ def contact_sheet(plan, check, sunset, path):
             s = r["sides"][side]
             mesh = s.get("mesh") or "?"
             name = mesh.rsplit("/", 1)[-1].replace("SM_FlatV3_P06_real_", "").replace("SM_FlatV3_P02_IND_", "IND ")
+            name = name.replace("_t5p", "").replace("_t5j", "")
             col = colours.get(s["action"], "red")
             if rc.is_ind(mesh):
                 col = "#b7791f"
@@ -152,9 +153,10 @@ def contact_sheet(plan, check, sunset, path):
         pass
     ax.set_ylim(-1500, 1550)
     ax.set_ylabel("lateral (cm, L negative)")
-    ax.set_title("P06 relayout: %d -> %d rows, duration %.1f s unchanged; red = chain slabs, amber = IND fence/shutter "
-                 "(kept), green = keeper (Wing 045, untouched), blue = V3 realism swap, grey = kept panel"
-                 % (plan["count_old"], plan["count_new"], plan["duration_s"]), fontsize=11)
+    ax.set_title("P06 relayout (v2 realism, 7 Oct): %d -> %d rows, duration %.1f s unchanged; red = chain slabs, amber = IND "
+                 "fence/shutter (kept), green = keeper (Wing 045, untouched), blue = V3 realism swap, grey = kept V2 card; "
+                 "no design > %d x, no same-side neighbours"
+                 % (plan["count_old"], plan["count_new"], plan["duration_s"], rc.VARIETY_MAX), fontsize=10)
     if sunset:
         xs = [p["t"] * 2.5 for p in sunset]
         axd.plot(xs, [p["daylight"] for p in sunset], color="#c05621")
@@ -189,6 +191,8 @@ def main(argv=None):
     plan["source_measurement_run"] = meas["run_id"]
     plan["slam_target_s"] = a.slam_s
     plan["gates_ok"] = not plan["refusals"]
+    plan["import_kit"] = {"plan_hash": IMPORT_PLAN["inputs_hash"], "gates_ok": IMPORT_PLAN["gates_ok"],
+                          "meshes": sorted(KIT_MESHES), "batches": [b["picks"] for b in IMPORT_PLAN["batches"]]}
     with open(a.out, "w", encoding="utf-8") as fh:
         json.dump(plan, fh, indent=1)
     contact_sheet(plan, checks["socket"], sunset, a.png)
@@ -196,6 +200,7 @@ def main(argv=None):
         plan["count_old"], plan["count_new"], plan["gates_ok"], plan["camera_law_max_dev_cm"], plan["duration_s"], a.out))
     for x in plan["refusals"]:
         print("  REFUSAL " + x)
+    print("  VARIETY (max %d, no same-side neighbours): %s" % (rc.VARIETY_MAX, json.dumps(plan["variety_counts"])))
     for r in plan["rows"]:
         print("  %2d %-10s %6d cm %6.2f s %-38s L:%-6s %-44s R:%-6s %s" % (
             r["new_ordinal"] + 1, r["role"], r["station_cm"], r["pass_s"], r["label"][:38], r["sides"]["L"]["action"],

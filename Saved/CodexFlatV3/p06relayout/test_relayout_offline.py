@@ -410,12 +410,61 @@ def main():
     p2 = core.build_plan(rows, sd, layout=lay, exists=mp.sim_exists)
     check("T2 NEG chain order broken / not consecutive refused", any("CHAIN" in x or "STATIONS" in x for x in p2["refusals"]),
           p2["refusals"])
-    only_j = lambda p: "/T5J/" in p and mp.sim_exists(p.replace("_t5j", "_t5p").replace("/T5J/", "/T5P/")) or \
-        (p.endswith("_t5j") and "7_draped_marble" in p)
     p2 = core.build_plan(rows, sd, exists=lambda p: mp.sim_exists(p) and "/T5J/" in p)
-    check("T2 POS t5j fallback resolves when only T5J was imported", not p2["refusals"] and all(
-        "/T5J/" in r["sides"][s]["mesh"] for r in p2["rows"] for s in ("L", "R") if r["sides"][s]["action"] == "swap"),
-        p2["refusals"])
+    check("T2 NEG only the T5J meshes imported -> every T5P design refuses NO_ASSET (no stale v1 build is ever picked)",
+          any("NO_ASSET" in x and "7_draped_marble" in x for x in p2["refusals"]) and not any(
+              "30_rusty" in x for x in p2["refusals"] if "NO_ASSET" in x), p2["refusals"][:3])
+    # ---- T2b v2 import kit <-> relayout consistency (Part A creates exactly what this plan resolves)
+    kit = mp.ikc.relayout_mesh_paths(mp.IMPORT_PLAN)
+    kitw = {w["owner"]: w for w in mp.IMPORT_PLAN["wings"].values()}
+    built = {k: d for k, d in core.DESIGNS.items() if d["built"]}
+    check("T2b POS 15 built designs = the 15 kit wings, each resolving to exactly ONE kit mesh (its v2 variant)",
+          len(built) == 15 and all(len([p for p in core.asset_paths(k, d["side"]) if p in kit.values()]) == 1
+                                   for k, d in built.items()), sorted(built))
+    check("T2b POS DESIGNS widths / variants / sides = the kit's measured ones (validation dimensions_m[1])", all(
+        abs(kitw["P06_real_%s_%s" % (d["slug"], d["side"])]["width_cm"] - d["width_cm"]) < 0.11 and
+        kitw["P06_real_%s_%s" % (d["slug"], d["side"])]["variant"] == d["built"][0] for d in built.values()))
+    check("T2b POS pick 10 resolves as P06_real_10_building_under_construct_R_t5j (renamed owner)",
+          any(r["sides"]["R"].get("mesh", "").endswith("SM_FlatV3_P06_real_10_building_under_construct_R_t5j")
+              for r in plan["rows"]))
+    check("T2b POS newly available 6 (L), 10 (R), 38 (L) all stand in the plan", {"6", "10", "38"} <= {
+        r["sides"][s].get("design") for r in plan["rows"] for s in ("L", "R")})
+    check("T2b POS still-unavailable 4 5 11 12 29 stand nowhere", not ({"4", "5", "11", "12", "29"} & {
+        r["sides"][s].get("design") for r in plan["rows"] for s in ("L", "R")}))
+    # ---- T2c variety
+    vc = plan["variety_counts"]
+    check("T2c POS no identity (V3 design, V2 card or IND piece) more than 3x", max(vc.values()) <= 3, vc)
+    check("T2c POS never the same identity on one side of two consecutive rows",
+          not [x for x in plan["refusals"] if "VARIETY" in x] and not core.variety_refusals(plan["rows"]))
+    check("T2c POS the chain is six different designs", len({r["sides"]["L"]["design"] for r in plan["rows"]
+                                                             if r["role"] in core.CHAIN_ROLES}) == 6)
+    lay = copy.deepcopy(core.LAYOUT)
+    lay[6]["L"] = ["33"]
+    p2 = core.build_plan(rows, sd, layout=lay, exists=mp.sim_exists)
+    check("T2c NEG a 4th burnt furniture (33) -> VARIETY_OVER_3", any("VARIETY_OVER_3 V3:33 x4" in x for x in p2["refusals"]),
+          p2["refusals"])
+    lay = copy.deepcopy(core.LAYOUT)
+    lay[8]["L"] = ["1"]
+    p2 = core.build_plan(rows, sd, layout=lay, exists=mp.sim_exists)
+    check("T2c NEG the same design on L of rows 8 and 9 -> VARIETY_ADJACENT", any(
+        "VARIETY_ADJACENT L rows 8/9 V3:1" in x for x in p2["refusals"]), p2["refusals"])
+    p2 = core.build_plan(rows, sd, exists=lambda p: mp.sim_exists(p) and "10_building" not in p)
+    check("T2c NEG a fallback that breaks variety is caught (10 missing -> row 2 KEEPs a 4th Bamboo_R)",
+          any("VARIETY_OVER_3 SM_BambooScaffold_01_R x4" in x for x in p2["refusals"]), p2["refusals"][:4])
+    rig = os.path.normpath(os.path.join(HERE, "..", "..", "CodexConductor", "p06_rig_pattern_record.json"))
+    if os.path.exists(rig):
+        att = mp.json.load(open(rig, encoding="utf-8"))["after_cue_rows"]
+        n = lambda g: len(att.get(g, []))
+        old_dark = ["10B44993A14BC573BF46F798F81446BA", "52B14342BC4BB350B0D04EB5BD9E01CC", "8A031613E5403585466CB590FF23399E",
+                    "BE2D60C103428B378B3B3E9AF5E65068", "9659E889E6430907286165AFF40F8783", "E1003C888E4519BEDE5F5B9ECC222345",
+                    "78635468B24CDF406695CF839F3897AD"]
+        new_dark = [x["cue"] for x in core.LAYOUT if x["role"] == "dark"]
+        check("T2d MEAS the 7 replacement dark cues carry the replaced cues' light counts +-2 (rig record 6 Oct)",
+              len(new_dark) == 7 and all(abs(n(a) - n(b)) <= 2 for a, b in zip(old_dark, new_dark)),
+              [(n(a), n(b)) for a, b in zip(old_dark, new_dark)])
+    check("T2d POS every dark row's R is a kept non-cut V2 card", all(
+        r["sides"]["R"]["action"] == "keep" and not core.is_cut(r["sides"]["R"]["mesh"]) and not core.is_ind(r["sides"]["R"]["mesh"])
+        for r in plan["rows"] if r["role"] == "dark"))
     check("T2 POS a later rebuild of 29 (veil) is taken in chain5 if it lands L",
           core.build_plan(rows, sd, exists=lambda p: mp.sim_exists(p) or p.endswith("29_metal_panel_with_L_t5p")
                           )["rows"][14]["sides"]["L"]["design"] == "29")
