@@ -1,0 +1,10323 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreKlaraReveal-S1-KLARAREVEAL-20261007-004756",
+ "before": {
+  "cuts": [
+   {
+    "active": true,
+    "camera": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+    "guid": "5264B448384A9D11181911B00EF0B9D7",
+    "range": [
+     0,
+     6241
+    ]
+   },
+   {
+    "active": true,
+    "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
+    "guid": "609D24C3A94564B50497A0B55008EAC9",
+    "range": [
+     6241,
+     6266
+    ]
+   }
+  ],
+  "hookin_bindings": [
+   {
+    "name": "Klara Hookin - Hers Dark: DirectionalLight",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: PostProcessVolume",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: SkyAtmosphere",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: SkyLight",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: VolumetricCloud",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+    "range": [
+     376,
+     5641
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+    "range": [
+     376,
+     5641
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+    "range": [
+     376,
+     5641
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+    "range": [
+     376,
+     5641
+    ]
+   },
+   {
+    "name": "Klara Levels (hookin)",
+    "range": [
+     104,
+     5641
+    ]
+   }
+  ],
+  "level_transform": {
+   "loc": [
+    32556.0135,
+    122.0,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "playback": [
+   0,
+   6266
+  ]
+ },
+ "copy_shift": [
+  {
+   "binding": "CineCameraActor4",
+   "keys": {
+    "x": 0,
+    "y": 1,
+    "z": 4
+   }
+  },
+  {
+   "binding": "Pig_anim_RM",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "Pig_anim_RM",
+   "keys": {
+    "x": 33,
+    "y": 33,
+    "z": 0
+   }
+  },
+  {
+   "binding": "CineCameraActor2",
+   "keys": {
+    "x": 2,
+    "y": 2,
+    "z": 7
+   }
+  },
+  {
+   "binding": "StaticMeshActor",
+   "keys": {
+    "x": 1,
+    "y": 1,
+    "z": 1
+   }
+  },
+  {
+   "binding": "medhue_raccoon",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "medhue_raccoon",
+   "keys": {
+    "x": 23,
+    "y": 23,
+    "z": 0
+   }
+  },
+  {
+   "binding": "RedDeer_Calf_anim_IP",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "RedDeer_Calf_anim_IP",
+   "keys": {
+    "x": 20,
+    "y": 20,
+    "z": 0
+   }
+  },
+  {
+   "binding": "CineCameraActor3",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "CineCameraActor",
+   "keys": {
+    "x": 2,
+    "y": 2,
+    "z": 2
+   }
+  },
+  {
+   "binding": "Floor",
+   "keys": {
+    "x": 1,
+    "y": 1,
+    "z": 1
+   }
+  },
+  {
+   "binding": "CineCameraActor5",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "Pond_Water",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  }
+ ],
+ "cuts_after": [
+  {
+   "active": true,
+   "camera": "Scene 1 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "guid": "5264B448384A9D11181911B00EF0B9D7",
+   "range": [
+    0,
+    119
+   ]
+  },
+  {
+   "active": true,
+   "camera": "Klara Reveal - S1 Reveal Glide Camera",
+   "guid": "3CCA6B0E40F18B8FA5A3BEA43CEBB252",
+   "range": [
+    119,
+    6241
+   ]
+  },
+  {
+   "active": true,
+   "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
+   "guid": "609D24C3A94564B50497A0B55008EAC9",
+   "range": [
+    6241,
+    6266
+   ]
+  }
+ ],
+ "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills).",
+ "glide_camera": "S1 Reveal Glide Camera",
+ "glide_report": {
+  "distance_cm": 604.4245196879425,
+  "end_speed_cm_s": 0.0,
+  "frames": [
+   119,
+   269
+  ],
+  "overshoot": [],
+  "peak_speed_cm_s": 151.10612992198563,
+  "seconds": 6.0,
+  "start_speed_cm_s": 0.0,
+  "turn_deg": [
+   4.279735609956023e-15,
+   3.0,
+   0.0
+  ],
+  "want_end_speed_cm_s": 0.0,
+  "want_start_speed_cm_s": 0.0
+ },
+ "hookin_after": [
+  {
+   "name": "Klara Hookin - Hers Dark: SkyAtmosphere",
+   "range": [
+    104,
+    282
+   ]
+  },
+  {
+   "name": "Klara Hookin - Hers Dark: VolumetricCloud",
+   "range": [
+    104,
+    282
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+   "range": [
+    269,
+    6266
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+   "range": [
+    269,
+    6266
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+   "range": [
+    269,
+    6266
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+   "range": [
+    269,
+    6266
+   ]
+  },
+  {
+   "name": "Klara Levels (hookin)",
+   "range": [
+    104,
+    6266
+   ]
+  }
+ ],
+ "lattice_cancel": [
+  {
+   "arrive": 0.0,
+   "leave": 0.0,
+   "tick": 0,
+   "value": 0.0
+  },
+  {
+   "arrive": 0.0,
+   "leave": 0.0,
+   "tick": 207200,
+   "value": 0.0
+  },
+  {
+   "arrive": 0.0,
+   "leave": 0.0,
+   "tick": 303200,
+   "value": 1600.0
+  }
+ ],
+ "level_move": {
+  "probe_after": {
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.Floor_0": [
+    30135.0135,
+    2.0,
+    -0.5
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_0": [
+    30135.0135,
+    2.0,
+    0.0
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_1": [
+    30149.0135,
+    6.0,
+    2.0
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_3": [
+    30415.0135,
+    -58.0,
+    2.0
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_5": [
+    30035.0135,
+    -8.0,
+    0.0
+   ]
+  },
+  "probe_before": {
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.Floor_0": [
+    32556.0135,
+    122.0,
+    -0.5
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_0": [
+    32556.0135,
+    122.0,
+    0.0
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_1": [
+    32570.0135,
+    126.0,
+    2.0
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_3": [
+    32836.0135,
+    62.0,
+    2.0
+   ],
+   "/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.StaticMeshActor_5": [
+    32456.0135,
+    112.0,
+    0.0
+   ]
+  }
+ },
+ "manifest": [
+  {
+   "sha256": "a494a8fe79c0262168f2abb38edb21ab4112cf3176794c8319262b5e7d15bbd2",
+   "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+  },
+  {
+   "sha256": "80e378e329d24057696c1c89aab14e8a88407ff2409c2e6574c02f53cd138be1",
+   "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_01.uasset"
+  },
+  {
+   "sha256": "cb1a627dbbb4208d72fce0110605a6cbb954d7f944298a82740764518bb7d903",
+   "source": "E:/PussStage/Content\\InfinityStage\\KlaraHookin\\LS_Animals_1_S1Hangar.uasset"
+  }
+ ],
+ "plan": {
+  "apply_ready": true,
+  "cuts_after": [
+   [
+    "entry",
+    [
+     0,
+     119
+    ]
+   ],
+   [
+    "glide",
+    [
+     119,
+     6241
+    ]
+   ],
+   [
+    "exit",
+    [
+     6241,
+     6266
+    ]
+   ]
+  ],
+  "extend_mode": {
+   "dry_run": true,
+   "new_end_s": 250.64,
+   "scene_label": "Scene 1 \u2014 External Sound"
+  },
+  "first_frame_sees": {
+   "far_wall": 0,
+   "floor": 0,
+   "left_wall": 0,
+   "open": 0,
+   "right_wall": 0,
+   "roof": 0,
+   "set": 45
+  },
+  "footprint": {
+   "box": [
+    32114.513516126783,
+    33586.11178186035,
+    -761.5539208318161,
+    850.1574719525499,
+    -76.03359985351562,
+    1255.4145275974001
+   ],
+   "excluded": [
+    {
+     "class": "DirectionalLight",
+     "label": "DirectionalLight",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SkyAtmosphere",
+     "label": "SkyAtmosphere",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SkyLight",
+     "label": "SkyLight",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "ExponentialHeightFog",
+     "label": "ExponentialHeightFog",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "VolumetricCloud",
+     "label": "VolumetricCloud",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "PlayerStart",
+     "label": "PlayerStart",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_SkySphere",
+     "why": "size 32768 m > 40 m"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Floor",
+     "why": "size 80 m > 40 m"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R_Wing_1_Animals",
+     "why": "zero bounds"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Wing_1_Animals",
+     "why": "zero bounds"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "StaticMeshActor",
+     "why": "zero bounds"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "StaticMeshActor2",
+     "why": "zero bounds"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor2",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor3",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor4",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "animals",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "PostProcessVolume",
+     "label": "PostProcessVolume",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "WindDirectionalSource",
+     "label": "WindSource_Atmosphere",
+     "why": "no mesh/cache/Niagara component"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight2",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight3",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight4",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight5",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight6",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight7",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight8",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight9",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight10",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor5",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "RectLight",
+     "label": "RectLight_Merged",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "RectLight",
+     "label": "RectLight_Merged2",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "RectLight",
+     "label": "RectLight_Merged3",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight11",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "LevelSequenceActor",
+     "label": "LS_Animals_1",
+     "why": "no mesh/cache/Niagara component"
+    }
+   ],
+   "kept": [
+    {
+     "class": "SkeletalMeshActor",
+     "label": "subway_train1"
+    },
+    {
+     "class": "SkeletalMeshActor",
+     "label": "subway_train2"
+    },
+    {
+     "class": "SkeletalMeshActor",
+     "label": "medhue_raccoon"
+    },
+    {
+     "class": "SkeletalMeshActor",
+     "label": "Pig_anim_RM"
+    },
+    {
+     "class": "SkeletalMeshActor",
+     "label": "RedDeer_Calf_anim_IP"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Cauldron"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Plane"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Wing_2_Animals2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Celing_Animals_Wing_Final4"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R__Wing_2_Animals2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "play-dig"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "play-dig2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "flower_02_03"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "flower_05_05"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "play-dig3"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "flower_05_6"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "flower_09_06"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "flower_02_01"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "flower_02_04"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "play-dig4"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_03"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Wing_2_Animals3"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Celing_Animals_Wing_Final5"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R__Wing_2_Animals3"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Wing_2_Animals4"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Celing_Animals_Wing_Final6"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R__Wing_2_Animals4"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Wing_2_Animals5"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Celing_Animals_Wing_Final7"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R__Wing_2_Animals5"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_04"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Twisted_01"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_03"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_01"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Twisted_02"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Twisted_04"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Wing_2_Animals6"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_05"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Branches_05"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_4"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Twisted_05"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Twisted_2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Branches_04"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_5"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_05"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Branches_01"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_6"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_7"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Celing_Animals_Wing_Final8"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_01"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_Raw_3"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_Tree_8"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Pond_Water"
+    }
+   ],
+   "kept_count": 54
+  },
+  "fps": 25.0,
+  "hangar_lights": [
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Sleight Twin Lantern",
+    "loc": [
+     33689.859799564576,
+     -970.1999984120724,
+     357.07980611377593
+    ],
+    "radius": 4500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Ghost Light",
+    "loc": [
+     31784.0135,
+     -400.0,
+     188.0
+    ],
+    "radius": 1500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L1",
+    "loc": [
+     30284.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L2",
+    "loc": [
+     31084.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L3",
+    "loc": [
+     31884.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L4",
+    "loc": [
+     32684.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L5",
+    "loc": [
+     33484.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L6",
+    "loc": [
+     34284.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical L7",
+    "loc": [
+     35084.0135,
+     -960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R1",
+    "loc": [
+     30284.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R2",
+    "loc": [
+     31084.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R3",
+    "loc": [
+     31884.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R4",
+    "loc": [
+     32684.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R5",
+    "loc": [
+     33484.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R6",
+    "loc": [
+     34284.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Practical R7",
+    "loc": [
+     35084.0135,
+     960.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Uplight 1",
+    "loc": [
+     35134.0135,
+     -600.0,
+     30.0
+    ],
+    "radius": 9500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Uplight 2",
+    "loc": [
+     35134.0135,
+     0.0,
+     30.0
+    ],
+    "radius": 9500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S1 Uplight 3",
+    "loc": [
+     35134.0135,
+     600.0,
+     30.0
+    ],
+    "radius": 9500.0,
+    "range": [
+     0,
+     6266
+    ],
+    "role": "black"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-1",
+    "loc": [
+     29659.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-2",
+    "loc": [
+     30409.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-3",
+    "loc": [
+     31159.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-4",
+    "loc": [
+     31909.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-5",
+    "loc": [
+     32659.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-6",
+    "loc": [
+     33409.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-7",
+    "loc": [
+     34159.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 1-8",
+    "loc": [
+     34909.0135,
+     -800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-1",
+    "loc": [
+     29659.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-2",
+    "loc": [
+     30409.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-3",
+    "loc": [
+     31159.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-4",
+    "loc": [
+     31909.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-5",
+    "loc": [
+     32659.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-6",
+    "loc": [
+     33409.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-7",
+    "loc": [
+     34159.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 2-8",
+    "loc": [
+     34909.0135,
+     0.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-1",
+    "loc": [
+     29659.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-2",
+    "loc": [
+     30409.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-3",
+    "loc": [
+     31159.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-4",
+    "loc": [
+     31909.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-5",
+    "loc": [
+     32659.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-6",
+    "loc": [
+     33409.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-7",
+    "loc": [
+     34159.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      244,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      282,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6091,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      6129,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S1 Lattice Glow 3-8",
+    "loc": [
+     34909.0135,
+     800.0,
+     1211.0
+    ],
+    "radius": 800.0,
+    "range": [
+     244,
+     6130
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1211.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   }
+  ],
+  "hangar_proposal": {
+   "encloses": true,
+   "k_new": 1.0,
+   "k_now": 1.0,
+   "params": {
+    "apron": 500.0,
+    "depth": 4000.0,
+    "half_w": 1500.0,
+    "height": 3000.0,
+    "lattice_z": 1600.0
+   },
+   "timing_changes": false
+  },
+  "her_env": [
+   {
+    "action": "ramp",
+    "class": "DirectionalLight",
+    "her_keyed": false,
+    "intro": [
+     [
+      282,
+      0.0
+     ],
+     [
+      283,
+      0.000570154369181186
+     ],
+     [
+      284,
+      0.0022755718628381847
+     ],
+     [
+      285,
+      0.005108684060141158
+     ],
+     [
+      286,
+      0.009061922540260265
+     ],
+     [
+      287,
+      0.014127718882365673
+     ],
+     [
+      288,
+      0.02029850466562753
+     ],
+     [
+      289,
+      0.027566711469216014
+     ],
+     [
+      290,
+      0.035924770872301275
+     ],
+     [
+      291,
+      0.04536511445405347
+     ],
+     [
+      292,
+      0.055880173793642796
+     ],
+     [
+      293,
+      0.06746238047023935
+     ],
+     [
+      294,
+      0.08010416606301335
+     ],
+     [
+      295,
+      0.09379796215113491
+     ],
+     [
+      296,
+      0.10853620031377427
+     ],
+     [
+      297,
+      0.12431131213010148
+     ],
+     [
+      298,
+      0.1411157291792868
+     ],
+     [
+      299,
+      0.15894188304050036
+     ],
+     [
+      300,
+      0.17778220529291228
+     ],
+     [
+      301,
+      0.19762912751569278
+     ],
+     [
+      302,
+      0.21847508128801202
+     ],
+     [
+      303,
+      0.24031249818904002
+     ],
+     [
+      304,
+      0.26313380979794715
+     ],
+     [
+      305,
+      0.2869314476939035
+     ],
+     [
+      306,
+      0.3116978434560792
+     ],
+     [
+      307,
+      0.3374254286636444
+     ],
+     [
+      308,
+      0.3641066348957692
+     ],
+     [
+      309,
+      0.39173389373162393
+     ],
+     [
+      310,
+      0.4202996367503787
+     ],
+     [
+      311,
+      0.44979629553120365
+     ],
+     [
+      312,
+      0.4802163016532687
+     ],
+     [
+      313,
+      0.5115520866957445
+     ],
+     [
+      314,
+      0.543796082237801
+     ],
+     [
+      315,
+      0.5769407198586081
+     ],
+     [
+      316,
+      0.6109784311373363
+     ],
+     [
+      317,
+      0.6459016476531554
+     ],
+     [
+      318,
+      0.6817028009852361
+     ],
+     [
+      319,
+      0.718374322712748
+     ],
+     [
+      320,
+      0.7559086444148618
+     ],
+     [
+      321,
+      0.794298197670747
+     ],
+     [
+      322,
+      0.8335354140595747
+     ],
+     [
+      323,
+      0.873612725160514
+     ],
+     [
+      324,
+      0.9145225625527357
+     ],
+     [
+      325,
+      0.95625735781541
+     ],
+     [
+      326,
+      0.9988095425277065
+     ],
+     [
+      327,
+      1.0421715482687963
+     ],
+     [
+      328,
+      1.0863358066178486
+     ],
+     [
+      329,
+      1.131294749154034
+     ],
+     [
+      330,
+      1.1770408074565228
+     ],
+     [
+      331,
+      1.2235664131044846
+     ],
+     [
+      332,
+      1.2708639976770906
+     ],
+     [
+      333,
+      1.3189259927535095
+     ],
+     [
+      334,
+      1.367744829912913
+     ],
+     [
+      335,
+      1.4173129407344707
+     ],
+     [
+      336,
+      1.4676227567973517
+     ],
+     [
+      337,
+      1.5186667096807276
+     ],
+     [
+      338,
+      1.570437230963768
+     ],
+     [
+      339,
+      1.6229267522256428
+     ],
+     [
+      340,
+      1.6761277050455228
+     ],
+     [
+      341,
+      1.7300325210025778
+     ],
+     [
+      342,
+      1.7846336316759774
+     ],
+     [
+      343,
+      1.839923468644893
+     ],
+     [
+      344,
+      1.895894463488494
+     ],
+     [
+      345,
+      1.9525390477859503
+     ],
+     [
+      346,
+      2.009849653116433
+     ],
+     [
+      347,
+      2.0678187110591106
+     ],
+     [
+      348,
+      2.1264386531931554
+     ],
+     [
+      349,
+      2.1857019110977363
+     ],
+     [
+      350,
+      2.2456009163520236
+     ],
+     [
+      351,
+      2.3061281005351875
+     ],
+     [
+      352,
+      2.3672758952263973
+     ],
+     [
+      353,
+      2.429036732004825
+     ],
+     [
+      354,
+      2.49140304244964
+     ],
+     [
+      355,
+      2.5543672581400116
+     ],
+     [
+      356,
+      2.6179218106551105
+     ],
+     [
+      357,
+      2.6820591315741074
+     ],
+     [
+      358,
+      2.7467716524761725
+     ],
+     [
+      359,
+      2.8120518049404755
+     ],
+     [
+      360,
+      2.8778920205461853
+     ],
+     [
+      361,
+      2.9442847308724738
+     ],
+     [
+      362,
+      3.011222367498512
+     ],
+     [
+      363,
+      3.0786973620034668
+     ],
+     [
+      364,
+      3.146702145966511
+     ],
+     [
+      365,
+      3.215229150966816
+     ],
+     [
+      366,
+      3.284270808583547
+     ],
+     [
+      367,
+      3.3538195503958788
+     ],
+     [
+      368,
+      3.42386780798298
+     ],
+     [
+      369,
+      3.49440801292402
+     ],
+     [
+      370,
+      3.5654325967981704
+     ],
+     [
+      371,
+      3.6369339911846
+     ],
+     [
+      372,
+      3.7089046276624806
+     ],
+     [
+      373,
+      3.781336937810981
+     ],
+     [
+      374,
+      3.854223353209271
+     ],
+     [
+      375,
+      3.9275563054365215
+     ],
+     [
+      376,
+      4.0013282260719025
+     ],
+     [
+      377,
+      4.075531546694586
+     ],
+     [
+      378,
+      4.150158698883739
+     ],
+     [
+      379,
+      4.225202114218534
+     ],
+     [
+      380,
+      4.300654224278138
+     ],
+     [
+      381,
+      4.376507460641727
+     ],
+     [
+      382,
+      4.452754254888466
+     ],
+     [
+      383,
+      4.529387038597526
+     ],
+     [
+      384,
+      4.606398243348079
+     ],
+     [
+      385,
+      4.6837803007192935
+     ],
+     [
+      386,
+      4.76152564229034
+     ],
+     [
+      387,
+      4.83962669964039
+     ],
+     [
+      388,
+      4.918075904348613
+     ],
+     [
+      389,
+      4.996865687994177
+     ],
+     [
+      390,
+      5.075988482156253
+     ],
+     [
+      391,
+      5.155436718414015
+     ],
+     [
+      392,
+      5.235202828346629
+     ],
+     [
+      393,
+      5.315279243533266
+     ],
+     [
+      394,
+      5.395658395553097
+     ],
+     [
+      395,
+      5.476332715985292
+     ],
+     [
+      396,
+      5.5572946364090186
+     ],
+     [
+      397,
+      5.638536588403452
+     ],
+     [
+      398,
+      5.72005100354776
+     ],
+     [
+      399,
+      5.801830313421108
+     ],
+     [
+      400,
+      5.883866949602675
+     ],
+     [
+      401,
+      5.9661533436716265
+     ],
+     [
+      402,
+      6.048681927207129
+     ],
+     [
+      403,
+      6.131445131788361
+     ],
+     [
+      404,
+      6.214435388994485
+     ],
+     [
+      405,
+      6.297645130404677
+     ],
+     [
+      406,
+      6.381066787598103
+     ],
+     [
+      407,
+      6.464692792153934
+     ],
+     [
+      408,
+      6.548515575651341
+     ],
+     [
+      409,
+      6.632527569669493
+     ],
+     [
+      410,
+      6.7167212057875645
+     ],
+     [
+      411,
+      6.80108891558472
+     ],
+     [
+      412,
+      6.885623130640132
+     ],
+     [
+      413,
+      6.97031628253297
+     ],
+     [
+      414,
+      7.055160802842407
+     ],
+     [
+      415,
+      7.1401491231476095
+     ],
+     [
+      416,
+      7.225273675027748
+     ],
+     [
+      417,
+      7.310526890061996
+     ],
+     [
+      418,
+      7.395901199829521
+     ],
+     [
+      419,
+      7.481389035909492
+     ],
+     [
+      420,
+      7.566982829881083
+     ],
+     [
+      421,
+      7.652675013323461
+     ],
+     [
+      422,
+      7.738458017815796
+     ],
+     [
+      423,
+      7.824324274937259
+     ],
+     [
+      424,
+      7.910266216267023
+     ],
+     [
+      425,
+      7.996276273384253
+     ],
+     [
+      426,
+      8.082346877868122
+     ],
+     [
+      427,
+      8.168470461297801
+     ],
+     [
+      428,
+      8.254639455252459
+     ],
+     [
+      429,
+      8.340846291311264
+     ],
+     [
+      430,
+      8.42708340105339
+     ],
+     [
+      431,
+      8.513343216058008
+     ],
+     [
+      432,
+      8.59961816790428
+     ],
+     [
+      433,
+      8.685900688171387
+     ],
+     [
+      434,
+      8.772183208438493
+     ],
+     [
+      435,
+      8.858458160284767
+     ],
+     [
+      436,
+      8.944717975289384
+     ],
+     [
+      437,
+      9.03095508503151
+     ],
+     [
+      438,
+      9.117161921090315
+     ],
+     [
+      439,
+      9.20333091504497
+     ],
+     [
+      440,
+      9.289454498474651
+     ],
+     [
+      441,
+      9.375525102958521
+     ],
+     [
+      442,
+      9.461535160075753
+     ],
+     [
+      443,
+      9.547477101405512
+     ],
+     [
+      444,
+      9.633343358526975
+     ],
+     [
+      445,
+      9.719126363019313
+     ],
+     [
+      446,
+      9.804818546461691
+     ],
+     [
+      447,
+      9.890412340433281
+     ],
+     [
+      448,
+      9.975900176513255
+     ],
+     [
+      449,
+      10.061274486280778
+     ],
+     [
+      450,
+      10.146527701315025
+     ],
+     [
+      451,
+      10.231652253195161
+     ],
+     [
+      452,
+      10.316640573500369
+     ],
+     [
+      453,
+      10.401485093809804
+     ],
+     [
+      454,
+      10.486178245702641
+     ],
+     [
+      455,
+      10.570712460758056
+     ],
+     [
+      456,
+      10.655080170555207
+     ],
+     [
+      457,
+      10.739273806673278
+     ],
+     [
+      458,
+      10.82328580069143
+     ],
+     [
+      459,
+      10.90710858418884
+     ],
+     [
+      460,
+      10.99073458874467
+     ],
+     [
+      461,
+      11.074156245938099
+     ],
+     [
+      462,
+      11.157365987348289
+     ],
+     [
+      463,
+      11.24035624455441
+     ],
+     [
+      464,
+      11.323119449135643
+     ],
+     [
+      465,
+      11.405648032671149
+     ],
+     [
+      466,
+      11.487934426740098
+     ],
+     [
+      467,
+      11.569971062921665
+     ],
+     [
+      468,
+      11.651750372795016
+     ],
+     [
+      469,
+      11.733264787939323
+     ],
+     [
+      470,
+      11.814506739933753
+     ],
+     [
+      471,
+      11.89546866035748
+     ],
+     [
+      472,
+      11.976142980789678
+     ],
+     [
+      473,
+      12.056522132809508
+     ],
+     [
+      474,
+      12.136598547996144
+     ],
+     [
+      475,
+      12.21636465792876
+     ],
+     [
+      476,
+      12.295812894186518
+     ],
+     [
+      477,
+      12.374935688348597
+     ],
+     [
+      478,
+      12.453725471994161
+     ],
+     [
+      479,
+      12.532174676702384
+     ],
+     [
+      480,
+      12.610275734052433
+     ],
+     [
+      481,
+      12.688021075623482
+     ],
+     [
+      482,
+      12.765403132994695
+     ],
+     [
+      483,
+      12.842414337745245
+     ],
+     [
+      484,
+      12.919047121454307
+     ],
+     [
+      485,
+      12.995293915701046
+     ],
+     [
+      486,
+      13.071147152064633
+     ],
+     [
+      487,
+      13.14659926212424
+     ],
+     [
+      488,
+      13.221642677459034
+     ],
+     [
+      489,
+      13.296269829648187
+     ],
+     [
+      490,
+      13.37047315027087
+     ],
+     [
+      491,
+      13.444245070906252
+     ],
+     [
+      492,
+      13.517578023133503
+     ],
+     [
+      493,
+      13.590464438531793
+     ],
+     [
+      494,
+      13.662896748680295
+     ],
+     [
+      495,
+      13.734867385158173
+     ],
+     [
+      496,
+      13.806368779544604
+     ],
+     [
+      497,
+      13.877393363418754
+     ],
+     [
+      498,
+      13.947933568359794
+     ],
+     [
+      499,
+      14.017981825946894
+     ],
+     [
+      500,
+      14.087530567759227
+     ],
+     [
+      501,
+      14.15657222537596
+     ],
+     [
+      502,
+      14.22509923037626
+     ],
+     [
+      503,
+      14.293104014339304
+     ],
+     [
+      504,
+      14.36057900884426
+     ],
+     [
+      505,
+      14.427516645470302
+     ],
+     [
+      506,
+      14.493909355796589
+     ],
+     [
+      507,
+      14.5597495714023
+     ],
+     [
+      508,
+      14.625029723866602
+     ],
+     [
+      509,
+      14.689742244768665
+     ],
+     [
+      510,
+      14.753879565687662
+     ],
+     [
+      511,
+      14.817434118202764
+     ],
+     [
+      512,
+      14.880398333893135
+     ],
+     [
+      513,
+      14.942764644337947
+     ],
+     [
+      514,
+      15.004525481116376
+     ],
+     [
+      515,
+      15.065673275807589
+     ],
+     [
+      516,
+      15.12620045999075
+     ],
+     [
+      517,
+      15.186099465245038
+     ],
+     [
+      518,
+      15.245362723149618
+     ],
+     [
+      519,
+      15.303982665283662
+     ],
+     [
+      520,
+      15.361951723226342
+     ],
+     [
+      521,
+      15.419262328556826
+     ],
+     [
+      522,
+      15.475906912854278
+     ],
+     [
+      523,
+      15.531877907697881
+     ],
+     [
+      524,
+      15.587167744666795
+     ],
+     [
+      525,
+      15.641768855340196
+     ],
+     [
+      526,
+      15.69567367129725
+     ],
+     [
+      527,
+      15.748874624117132
+     ],
+     [
+      528,
+      15.801364145379006
+     ],
+     [
+      529,
+      15.853134666662045
+     ],
+     [
+      530,
+      15.904178619545423
+     ],
+     [
+      531,
+      15.954488435608305
+     ],
+     [
+      532,
+      16.00405654642986
+     ],
+     [
+      533,
+      16.052875383589264
+     ],
+     [
+      534,
+      16.100937378665684
+     ],
+     [
+      535,
+      16.148234963238288
+     ],
+     [
+      536,
+      16.19476056888625
+     ],
+     [
+      537,
+      16.24050662718874
+     ],
+     [
+      538,
+      16.285465569724924
+     ],
+     [
+      539,
+      16.32962982807398
+     ],
+     [
+      540,
+      16.372991833815064
+     ],
+     [
+      541,
+      16.415544018527363
+     ],
+     [
+      542,
+      16.457278813790037
+     ],
+     [
+      543,
+      16.498188651182257
+     ],
+     [
+      544,
+      16.538265962283198
+     ],
+     [
+      545,
+      16.577503178672025
+     ],
+     [
+      546,
+      16.61589273192791
+     ],
+     [
+      547,
+      16.653427053630026
+     ],
+     [
+      548,
+      16.69009857535754
+     ],
+     [
+      549,
+      16.725899728689615
+     ],
+     [
+      550,
+      16.760822945205437
+     ],
+     [
+      551,
+      16.794860656484165
+     ],
+     [
+      552,
+      16.828005294104972
+     ],
+     [
+      553,
+      16.86024928964703
+     ],
+     [
+      554,
+      16.891585074689505
+     ],
+     [
+      555,
+      16.92200508081157
+     ],
+     [
+      556,
+      16.951501739592395
+     ],
+     [
+      557,
+      16.980067482611148
+     ],
+     [
+      558,
+      17.007694741447004
+     ],
+     [
+      559,
+      17.03437594767913
+     ],
+     [
+      560,
+      17.060103532886696
+     ],
+     [
+      561,
+      17.08486992864887
+     ],
+     [
+      562,
+      17.108667566544824
+     ],
+     [
+      563,
+      17.131488878153732
+     ],
+     [
+      564,
+      17.15332629505476
+     ],
+     [
+      565,
+      17.17417224882708
+     ],
+     [
+      566,
+      17.19401917104986
+     ],
+     [
+      567,
+      17.212859493302275
+     ],
+     [
+      568,
+      17.230685647163487
+     ],
+     [
+      569,
+      17.247490064212673
+     ],
+     [
+      570,
+      17.263265176028998
+     ],
+     [
+      571,
+      17.278003414191637
+     ],
+     [
+      572,
+      17.29169721027976
+     ],
+     [
+      573,
+      17.304338995872534
+     ],
+     [
+      574,
+      17.31592120254913
+     ],
+     [
+      575,
+      17.32643626188872
+     ],
+     [
+      576,
+      17.33587660547047
+     ],
+     [
+      577,
+      17.344234664873557
+     ],
+     [
+      578,
+      17.351502871677145
+     ],
+     [
+      579,
+      17.357673657460406
+     ],
+     [
+      580,
+      17.362739453802515
+     ],
+     [
+      581,
+      17.36669269228263
+     ],
+     [
+      582,
+      17.369525804479935
+     ],
+     [
+      583,
+      17.37123122197359
+     ],
+     [
+      584,
+      17.371801376342773
+     ]
+    ],
+    "label": "DirectionalLight",
+    "outro": [
+     [
+      5872,
+      17.371801376342773
+     ],
+     [
+      5873,
+      17.351233163513182
+     ],
+     [
+      5874,
+      17.2906403203125
+     ],
+     [
+      5875,
+      17.19169053967285
+     ],
+     [
+      5876,
+      17.056051514526366
+     ],
+     [
+      5877,
+      16.885390937805177
+     ],
+     [
+      5878,
+      16.681376502441406
+     ],
+     [
+      5879,
+      16.44567590136719
+     ],
+     [
+      5880,
+      16.179956827514648
+     ],
+     [
+      5881,
+      15.885886973815918
+     ],
+     [
+      5882,
+      15.565134033203124
+     ],
+     [
+      5883,
+      15.2193656986084
+     ],
+     [
+      5884,
+      14.850249662963867
+     ],
+     [
+      5885,
+      14.45945361920166
+     ],
+     [
+      5886,
+      14.048645260253906
+     ],
+     [
+      5887,
+      13.619492279052734
+     ],
+     [
+      5888,
+      13.173662368530273
+     ],
+     [
+      5889,
+      12.712823221618653
+     ],
+     [
+      5890,
+      12.23864253125
+     ],
+     [
+      5891,
+      11.752787990356445
+     ],
+     [
+      5892,
+      11.256927291870117
+     ],
+     [
+      5893,
+      10.752728128723145
+     ],
+     [
+      5894,
+      10.241858193847655
+     ],
+     [
+      5895,
+      9.72598518017578
+     ],
+     [
+      5896,
+      9.206776780639649
+     ],
+     [
+      5897,
+      8.685900688171387
+     ],
+     [
+      5898,
+      8.165024595703125
+     ],
+     [
+      5899,
+      7.645816196166992
+     ],
+     [
+      5900,
+      7.129943182495115
+     ],
+     [
+      5901,
+      6.61907324761963
+     ],
+     [
+      5902,
+      6.114874084472655
+     ],
+     [
+      5903,
+      5.619013385986328
+     ],
+     [
+      5904,
+      5.1331588450927725
+     ],
+     [
+      5905,
+      4.658978154724121
+     ],
+     [
+      5906,
+      4.1981390078124985
+     ],
+     [
+      5907,
+      3.7523090972900413
+     ],
+     [
+      5908,
+      3.3231561160888674
+     ],
+     [
+      5909,
+      2.912347757141113
+     ],
+     [
+      5910,
+      2.5215517133789067
+     ],
+     [
+      5911,
+      2.152435677734374
+     ],
+     [
+      5912,
+      1.8066673431396456
+     ],
+     [
+      5913,
+      1.4859144025268556
+     ],
+     [
+      5914,
+      1.1918445488281257
+     ],
+     [
+      5915,
+      0.926125474975585
+     ],
+     [
+      5916,
+      0.6904248739013674
+     ],
+     [
+      5917,
+      0.4864104385375967
+     ],
+     [
+      5918,
+      0.31574986181640696
+     ],
+     [
+      5919,
+      0.18011083666992178
+     ],
+     [
+      5920,
+      0.08116105603027535
+     ],
+     [
+      5921,
+      0.020568212829591204
+     ],
+     [
+      5922,
+      0.0
+     ]
+    ],
+    "property": "Intensity",
+    "value": 17.371801376342773
+   },
+   {
+    "action": "visible_from_G0 (no intensity)",
+    "class": "SkyAtmosphere",
+    "label": "SkyAtmosphere",
+    "note": "no intensity: lit by her sun, which ramps from 0 [inf]",
+    "property": null
+   },
+   {
+    "action": "ramp",
+    "class": "SkyLight",
+    "her_keyed": false,
+    "intro": [
+     [
+      282,
+      0.0
+     ],
+     [
+      283,
+      2.6256546011565362e-05
+     ],
+     [
+      284,
+      0.00010479382523199981
+     ],
+     [
+      285,
+      0.0002352632994399109
+     ],
+     [
+      286,
+      0.0004173164304139061
+     ],
+     [
+      287,
+      0.0006506046799325931
+     ],
+     [
+      288,
+      0.0009347795097745792
+     ],
+     [
+      289,
+      0.0012694923817184723
+     ],
+     [
+      290,
+      0.0016543947575428793
+     ],
+     [
+      291,
+      0.002089138099026408
+     ],
+     [
+      292,
+      0.0025733738679476676
+     ],
+     [
+      293,
+      0.003106753526085262
+     ],
+     [
+      294,
+      0.003688928535217802
+     ],
+     [
+      295,
+      0.004319550357123894
+     ],
+     [
+      296,
+      0.004998270453582147
+     ],
+     [
+      297,
+      0.005724740286371164
+     ],
+     [
+      298,
+      0.0064986113172695575
+     ],
+     [
+      299,
+      0.007319535008055934
+     ],
+     [
+      300,
+      0.008187162820508898
+     ],
+     [
+      301,
+      0.009101146216407062
+     ],
+     [
+      302,
+      0.010061136657529031
+     ],
+     [
+      303,
+      0.011066785605653407
+     ],
+     [
+      304,
+      0.012117744522558807
+     ],
+     [
+      305,
+      0.013213664870023834
+     ],
+     [
+      306,
+      0.014354198109827096
+     ],
+     [
+      307,
+      0.015538995703747201
+     ],
+     [
+      308,
+      0.01676770911356275
+     ],
+     [
+      309,
+      0.018039989801052366
+     ],
+     [
+      310,
+      0.019355489227994644
+     ],
+     [
+      311,
+      0.020713858856168194
+     ],
+     [
+      312,
+      0.022114750147351616
+     ],
+     [
+      313,
+      0.02355781456332354
+     ],
+     [
+      314,
+      0.025042703565862554
+     ],
+     [
+      315,
+      0.02656906861674727
+     ],
+     [
+      316,
+      0.028136561177756297
+     ],
+     [
+      317,
+      0.029744832710668235
+     ],
+     [
+      318,
+      0.031393534677261706
+     ],
+     [
+      319,
+      0.03308231853931531
+     ],
+     [
+      320,
+      0.034810835758607654
+     ],
+     [
+      321,
+      0.03657873779691734
+     ],
+     [
+      322,
+      0.038385676116023
+     ],
+     [
+      323,
+      0.040231302177703196
+     ],
+     [
+      324,
+      0.04211526744373657
+     ],
+     [
+      325,
+      0.04403722337590174
+     ],
+     [
+      326,
+      0.045996821435977275
+     ],
+     [
+      327,
+      0.047993713085741824
+     ],
+     [
+      328,
+      0.050027549786973956
+     ],
+     [
+      329,
+      0.0520979830014523
+     ],
+     [
+      330,
+      0.05420466419095547
+     ],
+     [
+      331,
+      0.05634724481726204
+     ],
+     [
+      332,
+      0.05852537634215067
+     ],
+     [
+      333,
+      0.06073871022739991
+     ],
+     [
+      334,
+      0.06298689793478843
+     ],
+     [
+      335,
+      0.0652695909260948
+     ],
+     [
+      336,
+      0.06758644066309759
+     ],
+     [
+      337,
+      0.06993709860757548
+     ],
+     [
+      338,
+      0.07232121622130705
+     ],
+     [
+      339,
+      0.07473844496607088
+     ],
+     [
+      340,
+      0.07718843630364562
+     ],
+     [
+      341,
+      0.07967084169580986
+     ],
+     [
+      342,
+      0.08218531260434218
+     ],
+     [
+      343,
+      0.08473150049102125
+     ],
+     [
+      344,
+      0.08730905681762564
+     ],
+     [
+      345,
+      0.08991763304593393
+     ],
+     [
+      346,
+      0.09255688063772478
+     ],
+     [
+      347,
+      0.09522645105477676
+     ],
+     [
+      348,
+      0.0979259957588685
+     ],
+     [
+      349,
+      0.1006551662117786
+     ],
+     [
+      350,
+      0.10341361387528568
+     ],
+     [
+      351,
+      0.10620099021116831
+     ],
+     [
+      352,
+      0.10901694668120511
+     ],
+     [
+      353,
+      0.11186113474717473
+     ],
+     [
+      354,
+      0.11473320587085574
+     ],
+     [
+      355,
+      0.11763281151402674
+     ],
+     [
+      356,
+      0.12055960313846636
+     ],
+     [
+      357,
+      0.1235132322059532
+     ],
+     [
+      358,
+      0.12649335017826588
+     ],
+     [
+      359,
+      0.129499608517183
+     ],
+     [
+      360,
+      0.1325316586844831
+     ],
+     [
+      361,
+      0.1355891521419449
+     ],
+     [
+      362,
+      0.138671740351347
+     ],
+     [
+      363,
+      0.14177907477446788
+     ],
+     [
+      364,
+      0.14491080687308625
+     ],
+     [
+      365,
+      0.1480665881089808
+     ],
+     [
+      366,
+      0.1512460699439299
+     ],
+     [
+      367,
+      0.15444890383971235
+     ],
+     [
+      368,
+      0.1576747412581067
+     ],
+     [
+      369,
+      0.16092323366089156
+     ],
+     [
+      370,
+      0.16419403250984554
+     ],
+     [
+      371,
+      0.16748678926674726
+     ],
+     [
+      372,
+      0.17080115539337531
+     ],
+     [
+      373,
+      0.17413678235150828
+     ],
+     [
+      374,
+      0.1774933216029248
+     ],
+     [
+      375,
+      0.18087042460940347
+     ],
+     [
+      376,
+      0.1842677428327229
+     ],
+     [
+      377,
+      0.18768492773466175
+     ],
+     [
+      378,
+      0.1911216307769985
+     ],
+     [
+      379,
+      0.1945775034215119
+     ],
+     [
+      380,
+      0.19805219712998043
+     ],
+     [
+      381,
+      0.20154536336418283
+     ],
+     [
+      382,
+      0.20505665358589767
+     ],
+     [
+      383,
+      0.2085857192569034
+     ],
+     [
+      384,
+      0.21213221183897882
+     ],
+     [
+      385,
+      0.2156957827939025
+     ],
+     [
+      386,
+      0.21927608358345296
+     ],
+     [
+      387,
+      0.22287276566940892
+     ],
+     [
+      388,
+      0.22648548051354891
+     ],
+     [
+      389,
+      0.23011387957765153
+     ],
+     [
+      390,
+      0.23375761432349543
+     ],
+     [
+      391,
+      0.23741633621285926
+     ],
+     [
+      392,
+      0.24108969670752153
+     ],
+     [
+      393,
+      0.24477734726926084
+     ],
+     [
+      394,
+      0.24847893935985593
+     ],
+     [
+      395,
+      0.2521941244410853
+     ],
+     [
+      396,
+      0.2559225539747275
+     ],
+     [
+      397,
+      0.2596638794225614
+     ],
+     [
+      398,
+      0.2634177522463654
+     ],
+     [
+      399,
+      0.26718382390791795
+     ],
+     [
+      400,
+      0.27096174586899796
+     ],
+     [
+      401,
+      0.274751169591384
+     ],
+     [
+      402,
+      0.27855174653685444
+     ],
+     [
+      403,
+      0.28236312816718817
+     ],
+     [
+      404,
+      0.2861849659441636
+     ],
+     [
+      405,
+      0.2900169113295595
+     ],
+     [
+      406,
+      0.2938586157851543
+     ],
+     [
+      407,
+      0.2977097307727267
+     ],
+     [
+      408,
+      0.30156990775405534
+     ],
+     [
+      409,
+      0.30543879819091874
+     ],
+     [
+      410,
+      0.30931605354509567
+     ],
+     [
+      411,
+      0.31320132527836453
+     ],
+     [
+      412,
+      0.317094264852504
+     ],
+     [
+      413,
+      0.32099452372929277
+     ],
+     [
+      414,
+      0.3249017533705094
+     ],
+     [
+      415,
+      0.3288156052379325
+     ],
+     [
+      416,
+      0.33273573079334057
+     ],
+     [
+      417,
+      0.33666178149851245
+     ],
+     [
+      418,
+      0.3405934088152266
+     ],
+     [
+      419,
+      0.3445302642052615
+     ],
+     [
+      420,
+      0.348471999130396
+     ],
+     [
+      421,
+      0.3524182650524086
+     ],
+     [
+      422,
+      0.3563687134330778
+     ],
+     [
+      423,
+      0.36032299573418236
+     ],
+     [
+      424,
+      0.364280763417501
+     ],
+     [
+      425,
+      0.368241667944812
+     ],
+     [
+      426,
+      0.3722053607778942
+     ],
+     [
+      427,
+      0.3761714933785261
+     ],
+     [
+      428,
+      0.38013971720848644
+     ],
+     [
+      429,
+      0.3841096837295537
+     ],
+     [
+      430,
+      0.3880810444035065
+     ],
+     [
+      431,
+      0.3920534506921236
+     ],
+     [
+      432,
+      0.39602655405718323
+     ],
+     [
+      433,
+      0.4000000059604645
+     ],
+     [
+      434,
+      0.40397345786374567
+     ],
+     [
+      435,
+      0.40794656122880546
+     ],
+     [
+      436,
+      0.4119189675174225
+     ],
+     [
+      437,
+      0.4158903281913753
+     ],
+     [
+      438,
+      0.41986029471244246
+     ],
+     [
+      439,
+      0.4238285185424028
+     ],
+     [
+      440,
+      0.4277946511430348
+     ],
+     [
+      441,
+      0.43175834397611695
+     ],
+     [
+      442,
+      0.4357192485034281
+     ],
+     [
+      443,
+      0.4396770161867465
+     ],
+     [
+      444,
+      0.44363129848785104
+     ],
+     [
+      445,
+      0.4475817468685204
+     ],
+     [
+      446,
+      0.45152801279053295
+     ],
+     [
+      447,
+      0.45546974771566745
+     ],
+     [
+      448,
+      0.4594066031057025
+     ],
+     [
+      449,
+      0.46333823042241656
+     ],
+     [
+      450,
+      0.46726428112758833
+     ],
+     [
+      451,
+      0.4711844066829963
+     ],
+     [
+      452,
+      0.4750982585504196
+     ],
+     [
+      453,
+      0.4790054881916362
+     ],
+     [
+      454,
+      0.4829057470684249
+     ],
+     [
+      455,
+      0.4867986866425645
+     ],
+     [
+      456,
+      0.49068395837583323
+     ],
+     [
+      457,
+      0.49456121373001016
+     ],
+     [
+      458,
+      0.49843010416687356
+     ],
+     [
+      459,
+      0.5022902811482023
+     ],
+     [
+      460,
+      0.5061413961357746
+     ],
+     [
+      461,
+      0.5099831005913695
+     ],
+     [
+      462,
+      0.5138150459767653
+     ],
+     [
+      463,
+      0.5176368837537407
+     ],
+     [
+      464,
+      0.5214482653840745
+     ],
+     [
+      465,
+      0.525248842329545
+     ],
+     [
+      466,
+      0.5290382660519309
+     ],
+     [
+      467,
+      0.532816188013011
+     ],
+     [
+      468,
+      0.5365822596745637
+     ],
+     [
+      469,
+      0.5403361324983676
+     ],
+     [
+      470,
+      0.5440774579462013
+     ],
+     [
+      471,
+      0.5478058874798436
+     ],
+     [
+      472,
+      0.5515210725610731
+     ],
+     [
+      473,
+      0.5552226646516681
+     ],
+     [
+      474,
+      0.5589103152134074
+     ],
+     [
+      475,
+      0.5625836757080698
+     ],
+     [
+      476,
+      0.5662423975974334
+     ],
+     [
+      477,
+      0.5698861323432773
+     ],
+     [
+      478,
+      0.5735145314073801
+     ],
+     [
+      479,
+      0.5771272462515201
+     ],
+     [
+      480,
+      0.580723928337476
+     ],
+     [
+      481,
+      0.5843042291270265
+     ],
+     [
+      482,
+      0.5878678000819502
+     ],
+     [
+      483,
+      0.5914142926640255
+     ],
+     [
+      484,
+      0.5949433583350313
+     ],
+     [
+      485,
+      0.598454648556746
+     ],
+     [
+      486,
+      0.6019478147909485
+     ],
+     [
+      487,
+      0.6054225084994171
+     ],
+     [
+      488,
+      0.6088783811439304
+     ],
+     [
+      489,
+      0.6123150841862671
+     ],
+     [
+      490,
+      0.615732269088206
+     ],
+     [
+      491,
+      0.6191295873115255
+     ],
+     [
+      492,
+      0.6225066903180041
+     ],
+     [
+      493,
+      0.6258632295694206
+     ],
+     [
+      494,
+      0.6291988565275537
+     ],
+     [
+      495,
+      0.6325132226541818
+     ],
+     [
+      496,
+      0.6358059794110835
+     ],
+     [
+      497,
+      0.6390767782600374
+     ],
+     [
+      498,
+      0.6423252706628223
+     ],
+     [
+      499,
+      0.6455511080812165
+     ],
+     [
+      500,
+      0.6487539419769991
+     ],
+     [
+      501,
+      0.6519334238119483
+     ],
+     [
+      502,
+      0.6550892050478426
+     ],
+     [
+      503,
+      0.658220937146461
+     ],
+     [
+      504,
+      0.6613282715695818
+     ],
+     [
+      505,
+      0.6644108597789842
+     ],
+     [
+      506,
+      0.6674683532364459
+     ],
+     [
+      507,
+      0.670500403403746
+     ],
+     [
+      508,
+      0.6735066617426632
+     ],
+     [
+      509,
+      0.6764867797149757
+     ],
+     [
+      510,
+      0.6794404087824625
+     ],
+     [
+      511,
+      0.6823672004069024
+     ],
+     [
+      512,
+      0.6852668060500733
+     ],
+     [
+      513,
+      0.6881388771737542
+     ],
+     [
+      514,
+      0.6909830652397239
+     ],
+     [
+      515,
+      0.6937990217097607
+     ],
+     [
+      516,
+      0.6965863980456433
+     ],
+     [
+      517,
+      0.6993448457091503
+     ],
+     [
+      518,
+      0.7020740161620604
+     ],
+     [
+      519,
+      0.7047735608661522
+     ],
+     [
+      520,
+      0.7074431312832042
+     ],
+     [
+      521,
+      0.7100823788749951
+     ],
+     [
+      522,
+      0.7126909551033033
+     ],
+     [
+      523,
+      0.7152685114299077
+     ],
+     [
+      524,
+      0.7178146993165867
+     ],
+     [
+      525,
+      0.7203291702251191
+     ],
+     [
+      526,
+      0.7228115756172833
+     ],
+     [
+      527,
+      0.7252615669548581
+     ],
+     [
+      528,
+      0.7276787956996219
+     ],
+     [
+      529,
+      0.7300629133133534
+     ],
+     [
+      530,
+      0.7324135712578314
+     ],
+     [
+      531,
+      0.7347304209948342
+     ],
+     [
+      532,
+      0.7370131139861406
+     ],
+     [
+      533,
+      0.7392613016935291
+     ],
+     [
+      534,
+      0.7414746355787782
+     ],
+     [
+      535,
+      0.7436527671036669
+     ],
+     [
+      536,
+      0.7457953477299735
+     ],
+     [
+      537,
+      0.7479020289194767
+     ],
+     [
+      538,
+      0.749972462133955
+     ],
+     [
+      539,
+      0.7520062988351872
+     ],
+     [
+      540,
+      0.7540031904849516
+     ],
+     [
+      541,
+      0.7559627885450272
+     ],
+     [
+      542,
+      0.7578847444771923
+     ],
+     [
+      543,
+      0.7597687097432257
+     ],
+     [
+      544,
+      0.7616143358049059
+     ],
+     [
+      545,
+      0.7634212741240115
+     ],
+     [
+      546,
+      0.7651891761623213
+     ],
+     [
+      547,
+      0.7669176933816136
+     ],
+     [
+      548,
+      0.7686064772436673
+     ],
+     [
+      549,
+      0.7702551792102607
+     ],
+     [
+      550,
+      0.7718634507431726
+     ],
+     [
+      551,
+      0.7734309433041817
+     ],
+     [
+      552,
+      0.7749573083550664
+     ],
+     [
+      553,
+      0.7764421973576053
+     ],
+     [
+      554,
+      0.7778852617735774
+     ],
+     [
+      555,
+      0.7792861530647608
+     ],
+     [
+      556,
+      0.7806445226929343
+     ],
+     [
+      557,
+      0.7819600221198766
+     ],
+     [
+      558,
+      0.7832323028073661
+     ],
+     [
+      559,
+      0.7844610162171818
+     ],
+     [
+      560,
+      0.7856458138111019
+     ],
+     [
+      561,
+      0.7867863470509051
+     ],
+     [
+      562,
+      0.7878822673983701
+     ],
+     [
+      563,
+      0.7889332263152755
+     ],
+     [
+      564,
+      0.7899388752633999
+     ],
+     [
+      565,
+      0.790898865704522
+     ],
+     [
+      566,
+      0.79181284910042
+     ],
+     [
+      567,
+      0.7926804769128731
+     ],
+     [
+      568,
+      0.7935014006036594
+     ],
+     [
+      569,
+      0.7942752716345578
+     ],
+     [
+      570,
+      0.7950017414673468
+     ],
+     [
+      571,
+      0.795680461563805
+     ],
+     [
+      572,
+      0.7963110833857111
+     ],
+     [
+      573,
+      0.7968932583948437
+     ],
+     [
+      574,
+      0.7974266380529813
+     ],
+     [
+      575,
+      0.7979108738219025
+     ],
+     [
+      576,
+      0.798345617163386
+     ],
+     [
+      577,
+      0.7987305195392105
+     ],
+     [
+      578,
+      0.7990652324111543
+     ],
+     [
+      579,
+      0.7993494072409963
+     ],
+     [
+      580,
+      0.7995826954905151
+     ],
+     [
+      581,
+      0.7997647486214889
+     ],
+     [
+      582,
+      0.799895218095697
+     ],
+     [
+      583,
+      0.7999737553749174
+     ],
+     [
+      584,
+      0.800000011920929
+     ]
+    ],
+    "label": "SkyLight",
+    "outro": [
+     [
+      5872,
+      0.800000011920929
+     ],
+     [
+      5873,
+      0.7990528119068145
+     ],
+     [
+      5874,
+      0.7962624118652344
+     ],
+     [
+      5875,
+      0.7917056117973328
+     ],
+     [
+      5876,
+      0.7854592117042541
+     ],
+     [
+      5877,
+      0.777600011587143
+     ],
+     [
+      5878,
+      0.7682048114471436
+     ],
+     [
+      5879,
+      0.7573504112854004
+     ],
+     [
+      5880,
+      0.7451136111030578
+     ],
+     [
+      5881,
+      0.7315712109012604
+     ],
+     [
+      5882,
+      0.7168000106811523
+     ],
+     [
+      5883,
+      0.7008768104438782
+     ],
+     [
+      5884,
+      0.6838784101905823
+     ],
+     [
+      5885,
+      0.6658816099224091
+     ],
+     [
+      5886,
+      0.6469632096405029
+     ],
+     [
+      5887,
+      0.6272000093460083
+     ],
+     [
+      5888,
+      0.6066688090400696
+     ],
+     [
+      5889,
+      0.5854464087238311
+     ],
+     [
+      5890,
+      0.5636096083984374
+     ],
+     [
+      5891,
+      0.5412352080650329
+     ],
+     [
+      5892,
+      0.5184000077247619
+     ],
+     [
+      5893,
+      0.49518080737876896
+     ],
+     [
+      5894,
+      0.4716544070281982
+     ],
+     [
+      5895,
+      0.4478976066741943
+     ],
+     [
+      5896,
+      0.4239872063179016
+     ],
+     [
+      5897,
+      0.4000000059604645
+     ],
+     [
+      5898,
+      0.37601280560302736
+     ],
+     [
+      5899,
+      0.3521024052467346
+     ],
+     [
+      5900,
+      0.3283456048927306
+     ],
+     [
+      5901,
+      0.30481920454216005
+     ],
+     [
+      5902,
+      0.28160000419616693
+     ],
+     [
+      5903,
+      0.25876480385589595
+     ],
+     [
+      5904,
+      0.2363904035224914
+     ],
+     [
+      5905,
+      0.21455360319709782
+     ],
+     [
+      5906,
+      0.19333120288085925
+     ],
+     [
+      5907,
+      0.17280000257492067
+     ],
+     [
+      5908,
+      0.15303680228042604
+     ],
+     [
+      5909,
+      0.13411840199851988
+     ],
+     [
+      5910,
+      0.11612160173034669
+     ],
+     [
+      5911,
+      0.09912320147705067
+     ],
+     [
+      5912,
+      0.08320000123977656
+     ],
+     [
+      5913,
+      0.06842880101966864
+     ],
+     [
+      5914,
+      0.05488640081787122
+     ],
+     [
+      5915,
+      0.042649600635528584
+     ],
+     [
+      5916,
+      0.03179520047378537
+     ],
+     [
+      5917,
+      0.022400000333786085
+     ],
+     [
+      5918,
+      0.01454080021667481
+     ],
+     [
+      5919,
+      0.008294400123596168
+     ],
+     [
+      5920,
+      0.0037376000556945677
+     ],
+     [
+      5921,
+      0.0009472000141144132
+     ],
+     [
+      5922,
+      0.0
+     ]
+    ],
+    "property": "Intensity",
+    "value": 0.800000011920929
+   },
+   {
+    "action": "ramp",
+    "class": "ExponentialHeightFog",
+    "her_keyed": false,
+    "intro": [
+     [
+      282,
+      0.0
+     ],
+     [
+      283,
+      2.461551249717537e-06
+     ],
+     [
+      284,
+      9.824421359492116e-06
+     ],
+     [
+      285,
+      2.2055934870256693e-05
+     ],
+     [
+      286,
+      3.9123416322944216e-05
+     ],
+     [
+      287,
+      6.0994190258487654e-05
+     ],
+     [
+      288,
+      8.763558121781991e-05
+     ],
+     [
+      289,
+      0.00011901491374187402
+     ],
+     [
+      290,
+      0.00015509951237158284
+     ],
+     [
+      291,
+      0.0001958567016478794
+     ],
+     [
+      292,
+      0.00024125380611169668
+     ],
+     [
+      293,
+      0.00029125815030396743
+     ],
+     [
+      294,
+      0.0003458370587656249
+     ],
+     [
+      295,
+      0.00040495785603760176
+     ],
+     [
+      296,
+      0.00046858786666083133
+     ],
+     [
+      297,
+      0.000536694415176246
+     ],
+     [
+      298,
+      0.0006092448261247794
+     ],
+     [
+      299,
+      0.000686206424047364
+     ],
+     [
+      300,
+      0.0007675465334849328
+     ],
+     [
+      301,
+      0.0008532324789784191
+     ],
+     [
+      302,
+      0.0009432315850687555
+     ],
+     [
+      303,
+      0.0010375111762968745
+     ],
+     [
+      304,
+      0.0011360385772037102
+     ],
+     [
+      305,
+      0.0012387811123301948
+     ],
+     [
+      306,
+      0.0013457061062172617
+     ],
+     [
+      307,
+      0.0014567808834058432
+     ],
+     [
+      308,
+      0.0015719727684368725
+     ],
+     [
+      309,
+      0.001691249085851283
+     ],
+     [
+      310,
+      0.0018145771601900073
+     ],
+     [
+      311,
+      0.0019419243159939784
+     ],
+     [
+      312,
+      0.0020732578778041282
+     ],
+     [
+      313,
+      0.0022085451701613925
+     ],
+     [
+      314,
+      0.0023477535176067016
+     ],
+     [
+      315,
+      0.0024908502446809888
+     ],
+     [
+      316,
+      0.0026378026759251885
+     ],
+     [
+      317,
+      0.0027885781358802314
+     ],
+     [
+      318,
+      0.002943143949087053
+     ],
+     [
+      319,
+      0.003101467440086584
+     ],
+     [
+      320,
+      0.0032635159334197597
+     ],
+     [
+      321,
+      0.0034292567536275097
+     ],
+     [
+      322,
+      0.003598657225250771
+     ],
+     [
+      323,
+      0.003771684672830473
+     ],
+     [
+      324,
+      0.0039483064209075505
+     ],
+     [
+      325,
+      0.004128489794022937
+     ],
+     [
+      326,
+      0.004312202116717563
+     ],
+     [
+      327,
+      0.004499410713532365
+     ],
+     [
+      328,
+      0.004690082909008272
+     ],
+     [
+      329,
+      0.00488418602768622
+     ],
+     [
+      330,
+      0.005081687394107142
+     ],
+     [
+      331,
+      0.005282554332811967
+     ],
+     [
+      332,
+      0.005486754168341634
+     ],
+     [
+      333,
+      0.00569425422523707
+     ],
+     [
+      334,
+      0.005905021828039213
+     ],
+     [
+      335,
+      0.006119024301288994
+     ],
+     [
+      336,
+      0.006336228969527341
+     ],
+     [
+      337,
+      0.006556603157295195
+     ],
+     [
+      338,
+      0.006780114189133486
+     ],
+     [
+      339,
+      0.007006729389583144
+     ],
+     [
+      340,
+      0.007236416083185108
+     ],
+     [
+      341,
+      0.007469141594480305
+     ],
+     [
+      342,
+      0.007704873248009669
+     ],
+     [
+      343,
+      0.007943578368314138
+     ],
+     [
+      344,
+      0.00818522427993464
+     ],
+     [
+      345,
+      0.008429778307412107
+     ],
+     [
+      346,
+      0.008677207775287476
+     ],
+     [
+      347,
+      0.008927480008101675
+     ],
+     [
+      348,
+      0.009180562330395645
+     ],
+     [
+      349,
+      0.009436422066710312
+     ],
+     [
+      350,
+      0.009695026541586611
+     ],
+     [
+      351,
+      0.009956343079565475
+     ],
+     [
+      352,
+      0.010220339005187833
+     ],
+     [
+      353,
+      0.010486981642994627
+     ],
+     [
+      354,
+      0.010756238317526782
+     ],
+     [
+      355,
+      0.011028076353325235
+     ],
+     [
+      356,
+      0.011302463074930918
+     ],
+     [
+      357,
+      0.011579365806884762
+     ],
+     [
+      358,
+      0.011858751873727704
+     ],
+     [
+      359,
+      0.012140588600000675
+     ],
+     [
+      360,
+      0.012424843310244602
+     ],
+     [
+      361,
+      0.012711483329000425
+     ],
+     [
+      362,
+      0.013000475980809082
+     ],
+     [
+      363,
+      0.013291788590211491
+     ],
+     [
+      364,
+      0.013585388481748596
+     ],
+     [
+      365,
+      0.013881242979961333
+     ],
+     [
+      366,
+      0.01417931940939062
+     ],
+     [
+      367,
+      0.014479585094577405
+     ],
+     [
+      368,
+      0.014782007360062615
+     ],
+     [
+      369,
+      0.015086553530387178
+     ],
+     [
+      370,
+      0.015393190930092037
+     ],
+     [
+      371,
+      0.015701886883718118
+     ],
+     [
+      372,
+      0.01601260871580636
+     ],
+     [
+      373,
+      0.016325323750897687
+     ],
+     [
+      374,
+      0.016639999313533035
+     ],
+     [
+      375,
+      0.016956602728253344
+     ],
+     [
+      376,
+      0.017275101319599535
+     ],
+     [
+      377,
+      0.01759546241211256
+     ],
+     [
+      378,
+      0.01791765333033333
+     ],
+     [
+      379,
+      0.018241641398802785
+     ],
+     [
+      380,
+      0.018567393942061864
+     ],
+     [
+      381,
+      0.0188948782846515
+     ],
+     [
+      382,
+      0.019224061751112628
+     ],
+     [
+      383,
+      0.01955491166598616
+     ],
+     [
+      384,
+      0.01988739535381305
+     ],
+     [
+      385,
+      0.020221480139134232
+     ],
+     [
+      386,
+      0.020557133346490623
+     ],
+     [
+      387,
+      0.020894322300423172
+     ],
+     [
+      388,
+      0.021233014325472806
+     ],
+     [
+      389,
+      0.02157317674618045
+     ],
+     [
+      390,
+      0.021914776887087047
+     ],
+     [
+      391,
+      0.02225778207273353
+     ],
+     [
+      392,
+      0.022602159627660826
+     ],
+     [
+      393,
+      0.02294787687640987
+     ],
+     [
+      394,
+      0.0232949011435216
+     ],
+     [
+      395,
+      0.023643199753536945
+     ],
+     [
+      396,
+      0.02399274003099683
+     ],
+     [
+      397,
+      0.024343489300442205
+     ],
+     [
+      398,
+      0.02469541488641399
+     ],
+     [
+      399,
+      0.025048484113453114
+     ],
+     [
+      400,
+      0.02540266430610053
+     ],
+     [
+      401,
+      0.02575792278889716
+     ],
+     [
+      402,
+      0.026114226886383915
+     ],
+     [
+      403,
+      0.026471543923101772
+     ],
+     [
+      404,
+      0.026829841223591624
+     ],
+     [
+      405,
+      0.027189086112394435
+     ],
+     [
+      406,
+      0.027549245914051116
+     ],
+     [
+      407,
+      0.027910287953102603
+     ],
+     [
+      408,
+      0.028272179554089834
+     ],
+     [
+      409,
+      0.02863488804155374
+     ],
+     [
+      410,
+      0.028998380740035266
+     ],
+     [
+      411,
+      0.029362624974075324
+     ],
+     [
+      412,
+      0.02972758806821486
+     ],
+     [
+      413,
+      0.0300932373469948
+     ],
+     [
+      414,
+      0.03045954013495609
+     ],
+     [
+      415,
+      0.030826463756639652
+     ],
+     [
+      416,
+      0.031193975536586413
+     ],
+     [
+      417,
+      0.031562042799337324
+     ],
+     [
+      418,
+      0.031930632869433304
+     ],
+     [
+      419,
+      0.032299713071415284
+     ],
+     [
+      420,
+      0.03266925072982421
+     ],
+     [
+      421,
+      0.03303921316920101
+     ],
+     [
+      422,
+      0.033409567714086603
+     ],
+     [
+      423,
+      0.03378028168902193
+     ],
+     [
+      424,
+      0.03415132241854795
+     ],
+     [
+      425,
+      0.03452265722720556
+     ],
+     [
+      426,
+      0.0348942534395357
+     ],
+     [
+      427,
+      0.03526607838007932
+     ],
+     [
+      428,
+      0.03563809937337734
+     ],
+     [
+      429,
+      0.036010283743970695
+     ],
+     [
+      430,
+      0.03638259881640031
+     ],
+     [
+      431,
+      0.03675501191520714
+     ],
+     [
+      432,
+      0.03712749036493209
+     ],
+     [
+      433,
+      0.03750000149011612
+     ],
+     [
+      434,
+      0.03787251261530015
+     ],
+     [
+      435,
+      0.0382449910650251
+     ],
+     [
+      436,
+      0.03861740416383193
+     ],
+     [
+      437,
+      0.038989719236261544
+     ],
+     [
+      438,
+      0.039361903606854896
+     ],
+     [
+      439,
+      0.03973392460015291
+     ],
+     [
+      440,
+      0.04010574954069653
+     ],
+     [
+      441,
+      0.04047734575302668
+     ],
+     [
+      442,
+      0.0408486805616843
+     ],
+     [
+      443,
+      0.04121972129121029
+     ],
+     [
+      444,
+      0.04159043526614563
+     ],
+     [
+      445,
+      0.041960789811031234
+     ],
+     [
+      446,
+      0.04233075225040803
+     ],
+     [
+      447,
+      0.042700289908816955
+     ],
+     [
+      448,
+      0.04306937011079895
+     ],
+     [
+      449,
+      0.04343796018089492
+     ],
+     [
+      450,
+      0.04380602744364582
+     ],
+     [
+      451,
+      0.04417353922359258
+     ],
+     [
+      452,
+      0.04454046284527615
+     ],
+     [
+      453,
+      0.044906765633237436
+     ],
+     [
+      454,
+      0.045272414912017375
+     ],
+     [
+      455,
+      0.04563737800615692
+     ],
+     [
+      456,
+      0.046001622240196965
+     ],
+     [
+      457,
+      0.04636511493867849
+     ],
+     [
+      458,
+      0.046727823426142394
+     ],
+     [
+      459,
+      0.047089715027129636
+     ],
+     [
+      460,
+      0.047450757066181126
+     ],
+     [
+      461,
+      0.04781091686783781
+     ],
+     [
+      462,
+      0.048170161756640614
+     ],
+     [
+      463,
+      0.04852845905713046
+     ],
+     [
+      464,
+      0.04888577609384832
+     ],
+     [
+      465,
+      0.04924208019133509
+     ],
+     [
+      466,
+      0.049597338674131713
+     ],
+     [
+      467,
+      0.04995151886677913
+     ],
+     [
+      468,
+      0.050304588093818256
+     ],
+     [
+      469,
+      0.050656513679790044
+     ],
+     [
+      470,
+      0.0510072629492354
+     ],
+     [
+      471,
+      0.051356803226695294
+     ],
+     [
+      472,
+      0.05170510183671064
+     ],
+     [
+      473,
+      0.05205212610382237
+     ],
+     [
+      474,
+      0.05239784335257141
+     ],
+     [
+      475,
+      0.05274222090749872
+     ],
+     [
+      476,
+      0.053085226093145185
+     ],
+     [
+      477,
+      0.05342682623405178
+     ],
+     [
+      478,
+      0.053766988654759436
+     ],
+     [
+      479,
+      0.05410568067980907
+     ],
+     [
+      480,
+      0.05444286963374161
+     ],
+     [
+      481,
+      0.054778522841098014
+     ],
+     [
+      482,
+      0.05511260762641919
+     ],
+     [
+      483,
+      0.05544509131424607
+     ],
+     [
+      484,
+      0.055775941229119615
+     ],
+     [
+      485,
+      0.05610512469558073
+     ],
+     [
+      486,
+      0.05643260903817037
+     ],
+     [
+      487,
+      0.05675836158142945
+     ],
+     [
+      488,
+      0.05708234964989891
+     ],
+     [
+      489,
+      0.05740454056811968
+     ],
+     [
+      490,
+      0.057724901660632696
+     ],
+     [
+      491,
+      0.05804340025197889
+     ],
+     [
+      492,
+      0.0583600036666992
+     ],
+     [
+      493,
+      0.05867467922933455
+     ],
+     [
+      494,
+      0.05898739426442588
+     ],
+     [
+      495,
+      0.05929811609651412
+     ],
+     [
+      496,
+      0.05960681205014021
+     ],
+     [
+      497,
+      0.05991344944984506
+     ],
+     [
+      498,
+      0.06021799562016963
+     ],
+     [
+      499,
+      0.06052041788565483
+     ],
+     [
+      500,
+      0.06082068357084162
+     ],
+     [
+      501,
+      0.061118760000270916
+     ],
+     [
+      502,
+      0.061414614498483636
+     ],
+     [
+      503,
+      0.061708214390020735
+     ],
+     [
+      504,
+      0.06199952699942315
+     ],
+     [
+      505,
+      0.06228851965123182
+     ],
+     [
+      506,
+      0.06257515966998764
+     ],
+     [
+      507,
+      0.06285941438023157
+     ],
+     [
+      508,
+      0.06314125110650454
+     ],
+     [
+      509,
+      0.06342063717334748
+     ],
+     [
+      510,
+      0.06369753990530132
+     ],
+     [
+      511,
+      0.06397192662690701
+     ],
+     [
+      512,
+      0.06424376466270545
+     ],
+     [
+      513,
+      0.0645130213372376
+     ],
+     [
+      514,
+      0.06477966397504441
+     ],
+     [
+      515,
+      0.06504365990066677
+     ],
+     [
+      516,
+      0.06530497643864563
+     ],
+     [
+      517,
+      0.06556358091352193
+     ],
+     [
+      518,
+      0.0658194406498366
+     ],
+     [
+      519,
+      0.06607252297213057
+     ],
+     [
+      520,
+      0.06632279520494477
+     ],
+     [
+      521,
+      0.06657022467282014
+     ],
+     [
+      522,
+      0.06681477870029759
+     ],
+     [
+      523,
+      0.0670564246119181
+     ],
+     [
+      524,
+      0.06729512973222257
+     ],
+     [
+      525,
+      0.06753086138575193
+     ],
+     [
+      526,
+      0.06776358689704713
+     ],
+     [
+      527,
+      0.0679932735906491
+     ],
+     [
+      528,
+      0.06821988879109875
+     ],
+     [
+      529,
+      0.06844339982293704
+     ],
+     [
+      530,
+      0.06866377401070489
+     ],
+     [
+      531,
+      0.06888097867894326
+     ],
+     [
+      532,
+      0.06909498115219304
+     ],
+     [
+      533,
+      0.06930574875499518
+     ],
+     [
+      534,
+      0.06951324881189061
+     ],
+     [
+      535,
+      0.06971744864742027
+     ],
+     [
+      536,
+      0.06991831558612509
+     ],
+     [
+      537,
+      0.07011581695254603
+     ],
+     [
+      538,
+      0.07030992007122397
+     ],
+     [
+      539,
+      0.07050059226669989
+     ],
+     [
+      540,
+      0.07068780086351467
+     ],
+     [
+      541,
+      0.0708715131862093
+     ],
+     [
+      542,
+      0.07105169655932468
+     ],
+     [
+      543,
+      0.07122831830740176
+     ],
+     [
+      544,
+      0.07140134575498146
+     ],
+     [
+      545,
+      0.07157074622660473
+     ],
+     [
+      546,
+      0.07173648704681247
+     ],
+     [
+      547,
+      0.07189853554014565
+     ],
+     [
+      548,
+      0.07205685903114518
+     ],
+     [
+      549,
+      0.072211424844352
+     ],
+     [
+      550,
+      0.07236220030430704
+     ],
+     [
+      551,
+      0.07250915273555125
+     ],
+     [
+      552,
+      0.07265224946262554
+     ],
+     [
+      553,
+      0.07279145781007085
+     ],
+     [
+      554,
+      0.07292674510242811
+     ],
+     [
+      555,
+      0.07305807866423826
+     ],
+     [
+      556,
+      0.07318542582004223
+     ],
+     [
+      557,
+      0.07330875389438095
+     ],
+     [
+      558,
+      0.07342803021179536
+     ],
+     [
+      559,
+      0.0735432220968264
+     ],
+     [
+      560,
+      0.07365429687401498
+     ],
+     [
+      561,
+      0.07376122186790204
+     ],
+     [
+      562,
+      0.07386396440302853
+     ],
+     [
+      563,
+      0.07396249180393537
+     ],
+     [
+      564,
+      0.07405677139516348
+     ],
+     [
+      565,
+      0.07414677050125382
+     ],
+     [
+      566,
+      0.07423245644674731
+     ],
+     [
+      567,
+      0.07431379655618488
+     ],
+     [
+      568,
+      0.07439075815410745
+     ],
+     [
+      569,
+      0.074463308565056
+     ],
+     [
+      570,
+      0.0745314151135714
+     ],
+     [
+      571,
+      0.07459504512419464
+     ],
+     [
+      572,
+      0.0746541659214666
+     ],
+     [
+      573,
+      0.07470874482992827
+     ],
+     [
+      574,
+      0.07475874917412054
+     ],
+     [
+      575,
+      0.07480414627858435
+     ],
+     [
+      576,
+      0.07484490346786066
+     ],
+     [
+      577,
+      0.07488098806649036
+     ],
+     [
+      578,
+      0.07491236739901441
+     ],
+     [
+      579,
+      0.07493900878997374
+     ],
+     [
+      580,
+      0.07496087956390929
+     ],
+     [
+      581,
+      0.07497794704536198
+     ],
+     [
+      582,
+      0.07499017855887274
+     ],
+     [
+      583,
+      0.07499754142898252
+     ],
+     [
+      584,
+      0.07500000298023224
+     ]
+    ],
+    "label": "ExponentialHeightFog",
+    "outro": [
+     [
+      5872,
+      0.07500000298023224
+     ],
+     [
+      5873,
+      0.07491120297670364
+     ],
+     [
+      5874,
+      0.0746496029663086
+     ],
+     [
+      5875,
+      0.07422240294933319
+     ],
+     [
+      5876,
+      0.07363680292606353
+     ],
+     [
+      5877,
+      0.07290000289678573
+     ],
+     [
+      5878,
+      0.07201920286178588
+     ],
+     [
+      5879,
+      0.0710016028213501
+     ],
+     [
+      5880,
+      0.06985440277576446
+     ],
+     [
+      5881,
+      0.0685848027253151
+     ],
+     [
+      5882,
+      0.06720000267028808
+     ],
+     [
+      5883,
+      0.06570720261096955
+     ],
+     [
+      5884,
+      0.06411360254764557
+     ],
+     [
+      5885,
+      0.062426402480602265
+     ],
+     [
+      5886,
+      0.06065280241012573
+     ],
+     [
+      5887,
+      0.05880000233650208
+     ],
+     [
+      5888,
+      0.056875202260017396
+     ],
+     [
+      5889,
+      0.054885602180957796
+     ],
+     [
+      5890,
+      0.05283840209960937
+     ],
+     [
+      5891,
+      0.05074080201625824
+     ],
+     [
+      5892,
+      0.04860000193119048
+     ],
+     [
+      5893,
+      0.04642320184469223
+     ],
+     [
+      5894,
+      0.04421760175704956
+     ],
+     [
+      5895,
+      0.04199040166854858
+     ],
+     [
+      5896,
+      0.039748801579475405
+     ],
+     [
+      5897,
+      0.03750000149011612
+     ],
+     [
+      5898,
+      0.03525120140075683
+     ],
+     [
+      5899,
+      0.03300960131168365
+     ],
+     [
+      5900,
+      0.030782401223182675
+     ],
+     [
+      5901,
+      0.02857680113554001
+     ],
+     [
+      5902,
+      0.02640000104904175
+     ],
+     [
+      5903,
+      0.024259200963974
+     ],
+     [
+      5904,
+      0.022161600880622863
+     ],
+     [
+      5905,
+      0.020114400799274443
+     ],
+     [
+      5906,
+      0.018124800720214836
+     ],
+     [
+      5907,
+      0.016200000643730172
+     ],
+     [
+      5908,
+      0.014347200570106508
+     ],
+     [
+      5909,
+      0.012573600499629974
+     ],
+     [
+      5910,
+      0.01088640043258668
+     ],
+     [
+      5911,
+      0.009292800369262694
+     ],
+     [
+      5912,
+      0.007800000309944141
+     ],
+     [
+      5913,
+      0.006415200254917153
+     ],
+     [
+      5914,
+      0.005145600204467776
+     ],
+     [
+      5915,
+      0.003998400158882143
+     ],
+     [
+      5916,
+      0.0029808001184463556
+     ],
+     [
+      5917,
+      0.0021000000834465044
+     ],
+     [
+      5918,
+      0.0013632000541686923
+     ],
+     [
+      5919,
+      0.0007776000308990366
+     ],
+     [
+      5920,
+      0.00035040001392364073
+     ],
+     [
+      5921,
+      8.880000352859407e-05
+     ],
+     [
+      5922,
+      0.0
+     ]
+    ],
+    "property": "FogDensity",
+    "value": 0.07500000298023224
+   },
+   {
+    "action": "visible_from_G0 (no intensity)",
+    "class": "VolumetricCloud",
+    "label": "VolumetricCloud",
+    "note": "no intensity: lit by her sun, which ramps from 0 [inf]",
+    "property": null
+   },
+   {
+    "action": "ramp",
+    "class": "PostProcessVolume",
+    "enabled": true,
+    "exposure_overrides": {
+     "auto_exposure_bias": true,
+     "auto_exposure_max_brightness": false,
+     "auto_exposure_method": false,
+     "auto_exposure_min_brightness": false
+    },
+    "intro": [
+     [
+      282,
+      0.0
+     ],
+     [
+      283,
+      3.282068202539043e-05
+     ],
+     [
+      284,
+      0.00013099227958806269
+     ],
+     [
+      285,
+      0.00029407911991776825
+     ],
+     [
+      286,
+      0.0005216455302442585
+     ],
+     [
+      287,
+      0.0008132558377972851
+     ],
+     [
+      288,
+      0.001168474369806599
+     ],
+     [
+      289,
+      0.0015868654535019524
+     ],
+     [
+      290,
+      0.002067993416113096
+     ],
+     [
+      291,
+      0.0026114225848697815
+     ],
+     [
+      292,
+      0.0032167172870017618
+     ],
+     [
+      293,
+      0.0038834418497387846
+     ],
+     [
+      294,
+      0.0046111606003106055
+     ],
+     [
+      295,
+      0.005399437865946973
+     ],
+     [
+      296,
+      0.006247837973877643
+     ],
+     [
+      297,
+      0.007155925251332359
+     ],
+     [
+      298,
+      0.00812326402554088
+     ],
+     [
+      299,
+      0.009149418623732955
+     ],
+     [
+      300,
+      0.010233953373138333
+     ],
+     [
+      301,
+      0.011376432600986771
+     ],
+     [
+      302,
+      0.012576420634508017
+     ],
+     [
+      303,
+      0.013833481800931816
+     ],
+     [
+      304,
+      0.01514718042748793
+     ],
+     [
+      305,
+      0.016517080841406108
+     ],
+     [
+      306,
+      0.0179427473699161
+     ],
+     [
+      307,
+      0.019423744340247656
+     ],
+     [
+      308,
+      0.020959636079630525
+     ],
+     [
+      309,
+      0.022549986915294466
+     ],
+     [
+      310,
+      0.02419436117446923
+     ],
+     [
+      311,
+      0.02589232318438456
+     ],
+     [
+      312,
+      0.027643437272270206
+     ],
+     [
+      313,
+      0.02944726776535594
+     ],
+     [
+      314,
+      0.031303378990871496
+     ],
+     [
+      315,
+      0.033211335276046625
+     ],
+     [
+      316,
+      0.03517070094811109
+     ],
+     [
+      317,
+      0.03718104033429462
+     ],
+     [
+      318,
+      0.03924191776182699
+     ],
+     [
+      319,
+      0.04135289755793794
+     ],
+     [
+      320,
+      0.04351354404985724
+     ],
+     [
+      321,
+      0.0457234215648146
+     ],
+     [
+      322,
+      0.04798209443003982
+     ],
+     [
+      323,
+      0.05028912697276261
+     ],
+     [
+      324,
+      0.05264408352021274
+     ],
+     [
+      325,
+      0.05504652839961998
+     ],
+     [
+      326,
+      0.05749602593821404
+     ],
+     [
+      327,
+      0.05999214046322472
+     ],
+     [
+      328,
+      0.06253443630188173
+     ],
+     [
+      329,
+      0.06512247778141483
+     ],
+     [
+      330,
+      0.06775582922905381
+     ],
+     [
+      331,
+      0.07043405497202834
+     ],
+     [
+      332,
+      0.07315671933756827
+     ],
+     [
+      333,
+      0.07592338665290327
+     ],
+     [
+      334,
+      0.07873362124526315
+     ],
+     [
+      335,
+      0.08158698744187765
+     ],
+     [
+      336,
+      0.08448304956997645
+     ],
+     [
+      337,
+      0.0874213719567894
+     ],
+     [
+      338,
+      0.0904015189295462
+     ],
+     [
+      339,
+      0.0934230548154766
+     ],
+     [
+      340,
+      0.09648554394181039
+     ],
+     [
+      341,
+      0.09958855063577728
+     ],
+     [
+      342,
+      0.10273163922460701
+     ],
+     [
+      343,
+      0.1059143740355294
+     ],
+     [
+      344,
+      0.10913631939577416
+     ],
+     [
+      345,
+      0.11239703963257101
+     ],
+     [
+      346,
+      0.11569609907314976
+     ],
+     [
+      347,
+      0.1190330620447401
+     ],
+     [
+      348,
+      0.12240749287457184
+     ],
+     [
+      349,
+      0.1258189558898747
+     ],
+     [
+      350,
+      0.12926701541787847
+     ],
+     [
+      351,
+      0.13275123578581283
+     ],
+     [
+      352,
+      0.13627118132090754
+     ],
+     [
+      353,
+      0.13982641635039245
+     ],
+     [
+      354,
+      0.1434165052014972
+     ],
+     [
+      355,
+      0.1470410122014516
+     ],
+     [
+      356,
+      0.1506995016774854
+     ],
+     [
+      357,
+      0.1543915379568283
+     ],
+     [
+      358,
+      0.15811668536671014
+     ],
+     [
+      359,
+      0.16187450823436061
+     ],
+     [
+      360,
+      0.16566457088700942
+     ],
+     [
+      361,
+      0.1694864376518864
+     ],
+     [
+      362,
+      0.17333967285622134
+     ],
+     [
+      363,
+      0.17722384082724382
+     ],
+     [
+      364,
+      0.18113850589218375
+     ],
+     [
+      365,
+      0.1850832323782709
+     ],
+     [
+      366,
+      0.1890575846127348
+     ],
+     [
+      367,
+      0.19306112692280547
+     ],
+     [
+      368,
+      0.19709342363571253
+     ],
+     [
+      369,
+      0.20115403907868568
+     ],
+     [
+      370,
+      0.2052425375789548
+     ],
+     [
+      371,
+      0.20935848346374955
+     ],
+     [
+      372,
+      0.21350144106029975
+     ],
+     [
+      373,
+      0.21767097469583507
+     ],
+     [
+      374,
+      0.2218666486975853
+     ],
+     [
+      375,
+      0.2260880273927802
+     ],
+     [
+      376,
+      0.2303346751086495
+     ],
+     [
+      377,
+      0.23460615617242303
+     ],
+     [
+      378,
+      0.2389020349113304
+     ],
+     [
+      379,
+      0.24322187565260148
+     ],
+     [
+      380,
+      0.24756524272346594
+     ],
+     [
+      381,
+      0.25193170045115365
+     ],
+     [
+      382,
+      0.25632081316289435
+     ],
+     [
+      383,
+      0.26073214518591753
+     ],
+     [
+      384,
+      0.26516526084745323
+     ],
+     [
+      385,
+      0.26961972447473115
+     ],
+     [
+      386,
+      0.2740951003949809
+     ],
+     [
+      387,
+      0.27859095293543246
+     ],
+     [
+      388,
+      0.2831068464233154
+     ],
+     [
+      389,
+      0.28764234518585946
+     ],
+     [
+      390,
+      0.2921970135502945
+     ],
+     [
+      391,
+      0.2967704158438503
+     ],
+     [
+      392,
+      0.30136211639375643
+     ],
+     [
+      393,
+      0.30597167952724275
+     ],
+     [
+      394,
+      0.3105986695715391
+     ],
+     [
+      395,
+      0.3152426508538751
+     ],
+     [
+      396,
+      0.31990318770148046
+     ],
+     [
+      397,
+      0.32457984444158516
+     ],
+     [
+      398,
+      0.3292721854014188
+     ],
+     [
+      399,
+      0.33397977490821096
+     ],
+     [
+      400,
+      0.3387021772891917
+     ],
+     [
+      401,
+      0.34343895687159076
+     ],
+     [
+      402,
+      0.3481896779826375
+     ],
+     [
+      403,
+      0.3529539049495622
+     ],
+     [
+      404,
+      0.3577312020995942
+     ],
+     [
+      405,
+      0.36252113375996353
+     ],
+     [
+      406,
+      0.36732326425789974
+     ],
+     [
+      407,
+      0.3721371579206326
+     ],
+     [
+      408,
+      0.376962379075392
+     ],
+     [
+      409,
+      0.3817984920494075
+     ],
+     [
+      410,
+      0.3866450611699092
+     ],
+     [
+      411,
+      0.39150165076412646
+     ],
+     [
+      412,
+      0.3963678251592892
+     ],
+     [
+      413,
+      0.4012431486826271
+     ],
+     [
+      414,
+      0.4061271856613701
+     ],
+     [
+      415,
+      0.4110195004227478
+     ],
+     [
+      416,
+      0.4159196572939899
+     ],
+     [
+      417,
+      0.4208272206023263
+     ],
+     [
+      418,
+      0.4257417546749867
+     ],
+     [
+      419,
+      0.43066282383920074
+     ],
+     [
+      420,
+      0.4355899924221983
+     ],
+     [
+      421,
+      0.44052282475120913
+     ],
+     [
+      422,
+      0.4454608851534628
+     ],
+     [
+      423,
+      0.45040373795618927
+     ],
+     [
+      424,
+      0.45535094748661836
+     ],
+     [
+      425,
+      0.46030207807197954
+     ],
+     [
+      426,
+      0.4652566940395027
+     ],
+     [
+      427,
+      0.4702143597164177
+     ],
+     [
+      428,
+      0.47517463942995414
+     ],
+     [
+      429,
+      0.4801370975073418
+     ],
+     [
+      430,
+      0.48510129827581044
+     ],
+     [
+      431,
+      0.49006680606259
+     ],
+     [
+      432,
+      0.49503318519490974
+     ],
+     [
+      433,
+      0.5
+     ],
+     [
+      434,
+      0.5049668148050902
+     ],
+     [
+      435,
+      0.5099331939374101
+     ],
+     [
+      436,
+      0.5148987017241896
+     ],
+     [
+      437,
+      0.5198629024926582
+     ],
+     [
+      438,
+      0.5248253605700458
+     ],
+     [
+      439,
+      0.5297856402835822
+     ],
+     [
+      440,
+      0.5347433059604972
+     ],
+     [
+      441,
+      0.5396979219280205
+     ],
+     [
+      442,
+      0.5446490525133818
+     ],
+     [
+      443,
+      0.5495962620438106
+     ],
+     [
+      444,
+      0.5545391148465371
+     ],
+     [
+      445,
+      0.5594771752487909
+     ],
+     [
+      446,
+      0.5644100075778017
+     ],
+     [
+      447,
+      0.5693371761607993
+     ],
+     [
+      448,
+      0.5742582453250135
+     ],
+     [
+      449,
+      0.5791727793976738
+     ],
+     [
+      450,
+      0.5840803427060101
+     ],
+     [
+      451,
+      0.5889804995772521
+     ],
+     [
+      452,
+      0.5938728143386299
+     ],
+     [
+      453,
+      0.5987568513173729
+     ],
+     [
+      454,
+      0.6036321748407107
+     ],
+     [
+      455,
+      0.6084983492358736
+     ],
+     [
+      456,
+      0.6133549388300907
+     ],
+     [
+      457,
+      0.6182015079505924
+     ],
+     [
+      458,
+      0.6230376209246079
+     ],
+     [
+      459,
+      0.6278628420793674
+     ],
+     [
+      460,
+      0.6326767357421003
+     ],
+     [
+      461,
+      0.6374788662400366
+     ],
+     [
+      462,
+      0.6422687979004058
+     ],
+     [
+      463,
+      0.6470460950504378
+     ],
+     [
+      464,
+      0.6518103220173624
+     ],
+     [
+      465,
+      0.6565610431284093
+     ],
+     [
+      466,
+      0.6612978227108083
+     ],
+     [
+      467,
+      0.666020225091789
+     ],
+     [
+      468,
+      0.6707278145985813
+     ],
+     [
+      469,
+      0.675420155558415
+     ],
+     [
+      470,
+      0.6800968122985195
+     ],
+     [
+      471,
+      0.6847573491461248
+     ],
+     [
+      472,
+      0.689401330428461
+     ],
+     [
+      473,
+      0.6940283204727573
+     ],
+     [
+      474,
+      0.6986378836062436
+     ],
+     [
+      475,
+      0.7032295841561499
+     ],
+     [
+      476,
+      0.7078029864497054
+     ],
+     [
+      477,
+      0.7123576548141405
+     ],
+     [
+      478,
+      0.7168931535766846
+     ],
+     [
+      479,
+      0.7214090470645677
+     ],
+     [
+      480,
+      0.725904899605019
+     ],
+     [
+      481,
+      0.730380275525269
+     ],
+     [
+      482,
+      0.7348347391525468
+     ],
+     [
+      483,
+      0.7392678548140823
+     ],
+     [
+      484,
+      0.7436791868371057
+     ],
+     [
+      485,
+      0.7480682995488462
+     ],
+     [
+      486,
+      0.752434757276534
+     ],
+     [
+      487,
+      0.7567781243473986
+     ],
+     [
+      488,
+      0.7610979650886696
+     ],
+     [
+      489,
+      0.7653938438275769
+     ],
+     [
+      490,
+      0.7696653248913504
+     ],
+     [
+      491,
+      0.7739119726072198
+     ],
+     [
+      492,
+      0.7781333513024147
+     ],
+     [
+      493,
+      0.7823290253041649
+     ],
+     [
+      494,
+      0.7864985589397003
+     ],
+     [
+      495,
+      0.7906415165362505
+     ],
+     [
+      496,
+      0.7947574624210453
+     ],
+     [
+      497,
+      0.7988459609213143
+     ],
+     [
+      498,
+      0.8029065763642875
+     ],
+     [
+      499,
+      0.8069388730771945
+     ],
+     [
+      500,
+      0.8109424153872652
+     ],
+     [
+      501,
+      0.8149167676217293
+     ],
+     [
+      502,
+      0.8188614941078162
+     ],
+     [
+      503,
+      0.822776159172756
+     ],
+     [
+      504,
+      0.8266603271437786
+     ],
+     [
+      505,
+      0.8305135623481137
+     ],
+     [
+      506,
+      0.8343354291129906
+     ],
+     [
+      507,
+      0.8381254917656394
+     ],
+     [
+      508,
+      0.8418833146332899
+     ],
+     [
+      509,
+      0.8456084620431716
+     ],
+     [
+      510,
+      0.8493004983225145
+     ],
+     [
+      511,
+      0.8529589877985485
+     ],
+     [
+      512,
+      0.8565834947985028
+     ],
+     [
+      513,
+      0.8601735836496075
+     ],
+     [
+      514,
+      0.8637288186790925
+     ],
+     [
+      515,
+      0.8672487642141873
+     ],
+     [
+      516,
+      0.8707329845821216
+     ],
+     [
+      517,
+      0.8741810441101253
+     ],
+     [
+      518,
+      0.8775925071254281
+     ],
+     [
+      519,
+      0.8809669379552599
+     ],
+     [
+      520,
+      0.8843039009268503
+     ],
+     [
+      521,
+      0.8876029603674291
+     ],
+     [
+      522,
+      0.8908636806042257
+     ],
+     [
+      523,
+      0.8940856259644706
+     ],
+     [
+      524,
+      0.897268360775393
+     ],
+     [
+      525,
+      0.9004114493642227
+     ],
+     [
+      526,
+      0.9035144560581896
+     ],
+     [
+      527,
+      0.9065769451845235
+     ],
+     [
+      528,
+      0.9095984810704538
+     ],
+     [
+      529,
+      0.9125786280432105
+     ],
+     [
+      530,
+      0.9155169504300236
+     ],
+     [
+      531,
+      0.9184130125581225
+     ],
+     [
+      532,
+      0.9212663787547369
+     ],
+     [
+      533,
+      0.9240766133470968
+     ],
+     [
+      534,
+      0.9268432806624317
+     ],
+     [
+      535,
+      0.9295659450279716
+     ],
+     [
+      536,
+      0.9322441707709461
+     ],
+     [
+      537,
+      0.9348775222185852
+     ],
+     [
+      538,
+      0.9374655636981183
+     ],
+     [
+      539,
+      0.9400078595367753
+     ],
+     [
+      540,
+      0.9425039740617859
+     ],
+     [
+      541,
+      0.94495347160038
+     ],
+     [
+      542,
+      0.9473559164797872
+     ],
+     [
+      543,
+      0.9497108730272373
+     ],
+     [
+      544,
+      0.9520179055699601
+     ],
+     [
+      545,
+      0.9542765784351853
+     ],
+     [
+      546,
+      0.9564864559501427
+     ],
+     [
+      547,
+      0.9586471024420621
+     ],
+     [
+      548,
+      0.960758082238173
+     ],
+     [
+      549,
+      0.9628189596657053
+     ],
+     [
+      550,
+      0.9648292990518889
+     ],
+     [
+      551,
+      0.9667886647239534
+     ],
+     [
+      552,
+      0.9686966210091285
+     ],
+     [
+      553,
+      0.970552732234644
+     ],
+     [
+      554,
+      0.9723565627277299
+     ],
+     [
+      555,
+      0.9741076768156155
+     ],
+     [
+      556,
+      0.9758056388255307
+     ],
+     [
+      557,
+      0.9774500130847055
+     ],
+     [
+      558,
+      0.9790403639203694
+     ],
+     [
+      559,
+      0.9805762556597524
+     ],
+     [
+      560,
+      0.9820572526300839
+     ],
+     [
+      561,
+      0.9834829191585939
+     ],
+     [
+      562,
+      0.984852819572512
+     ],
+     [
+      563,
+      0.9861665181990682
+     ],
+     [
+      564,
+      0.987423579365492
+     ],
+     [
+      565,
+      0.9886235673990132
+     ],
+     [
+      566,
+      0.9897660466268616
+     ],
+     [
+      567,
+      0.9908505813762671
+     ],
+     [
+      568,
+      0.991876735974459
+     ],
+     [
+      569,
+      0.9928440747486676
+     ],
+     [
+      570,
+      0.9937521620261224
+     ],
+     [
+      571,
+      0.994600562134053
+     ],
+     [
+      572,
+      0.9953888393996894
+     ],
+     [
+      573,
+      0.9961165581502612
+     ],
+     [
+      574,
+      0.9967832827129982
+     ],
+     [
+      575,
+      0.9973885774151302
+     ],
+     [
+      576,
+      0.9979320065838869
+     ],
+     [
+      577,
+      0.998413134546498
+     ],
+     [
+      578,
+      0.9988315256301934
+     ],
+     [
+      579,
+      0.9991867441622027
+     ],
+     [
+      580,
+      0.9994783544697557
+     ],
+     [
+      581,
+      0.9997059208800821
+     ],
+     [
+      582,
+      0.999869007720412
+     ],
+     [
+      583,
+      0.9999671793179746
+     ],
+     [
+      584,
+      1.0
+     ]
+    ],
+    "label": "PostProcessVolume",
+    "outro": [
+     [
+      5872,
+      1.0
+     ],
+     [
+      5873,
+      0.998816
+     ],
+     [
+      5874,
+      0.995328
+     ],
+     [
+      5875,
+      0.989632
+     ],
+     [
+      5876,
+      0.981824
+     ],
+     [
+      5877,
+      0.972
+     ],
+     [
+      5878,
+      0.960256
+     ],
+     [
+      5879,
+      0.946688
+     ],
+     [
+      5880,
+      0.931392
+     ],
+     [
+      5881,
+      0.9144639999999999
+     ],
+     [
+      5882,
+      0.896
+     ],
+     [
+      5883,
+      0.876096
+     ],
+     [
+      5884,
+      0.854848
+     ],
+     [
+      5885,
+      0.832352
+     ],
+     [
+      5886,
+      0.808704
+     ],
+     [
+      5887,
+      0.784
+     ],
+     [
+      5888,
+      0.758336
+     ],
+     [
+      5889,
+      0.731808
+     ],
+     [
+      5890,
+      0.704512
+     ],
+     [
+      5891,
+      0.676544
+     ],
+     [
+      5892,
+      0.6479999999999999
+     ],
+     [
+      5893,
+      0.618976
+     ],
+     [
+      5894,
+      0.589568
+     ],
+     [
+      5895,
+      0.5598719999999999
+     ],
+     [
+      5896,
+      0.529984
+     ],
+     [
+      5897,
+      0.5
+     ],
+     [
+      5898,
+      0.470016
+     ],
+     [
+      5899,
+      0.44012799999999996
+     ],
+     [
+      5900,
+      0.4104319999999999
+     ],
+     [
+      5901,
+      0.38102400000000003
+     ],
+     [
+      5902,
+      0.352
+     ],
+     [
+      5903,
+      0.32345599999999997
+     ],
+     [
+      5904,
+      0.295488
+     ],
+     [
+      5905,
+      0.268192
+     ],
+     [
+      5906,
+      0.24166399999999988
+     ],
+     [
+      5907,
+      0.21600000000000008
+     ],
+     [
+      5908,
+      0.19129600000000002
+     ],
+     [
+      5909,
+      0.16764800000000002
+     ],
+     [
+      5910,
+      0.14515200000000006
+     ],
+     [
+      5911,
+      0.1239039999999999
+     ],
+     [
+      5912,
+      0.10399999999999987
+     ],
+     [
+      5913,
+      0.08553600000000006
+     ],
+     [
+      5914,
+      0.06860800000000011
+     ],
+     [
+      5915,
+      0.053312000000000026
+     ],
+     [
+      5916,
+      0.039744
+     ],
+     [
+      5917,
+      0.028000000000000025
+     ],
+     [
+      5918,
+      0.01817599999999997
+     ],
+     [
+      5919,
+      0.010367999999999933
+     ],
+     [
+      5920,
+      0.0046720000000000095
+     ],
+     [
+      5921,
+      0.0011840000000000739
+     ],
+     [
+      5922,
+      0.0
+     ]
+    ],
+    "priority": 0.0,
+    "property": "BlendWeight",
+    "unbound": false,
+    "value": 1.0
+   }
+  ],
+  "her_lights": [
+   {
+    "blink_frame": 6017,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 658.6417842803477,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      281,
+      0.0
+     ],
+     [
+      282,
+      0.0
+     ],
+     [
+      283,
+      0.0
+     ],
+     [
+      284,
+      0.0
+     ],
+     [
+      285,
+      0.0
+     ],
+     [
+      286,
+      0.0
+     ],
+     [
+      287,
+      0.0
+     ],
+     [
+      288,
+      0.0
+     ],
+     [
+      289,
+      0.0
+     ],
+     [
+      290,
+      0.0
+     ]
+    ],
+    "label": "SpotLight7",
+    "outro_keys": [
+     [
+      5859,
+      8.0
+     ],
+     [
+      6016,
+      8.0
+     ],
+     [
+      6017,
+      0.0
+     ],
+     [
+      6018,
+      1.885796378645514
+     ],
+     [
+      6019,
+      0.0
+     ],
+     [
+      6020,
+      1.8915414931981673
+     ],
+     [
+      6021,
+      0.0
+     ]
+    ],
+    "strike_frame": 282,
+    "strike_s": 11.28,
+    "target_first": 0.0,
+    "target_last": 8.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 6007,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 677.7093772407167,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      305,
+      0.0
+     ],
+     [
+      306,
+      0.0
+     ],
+     [
+      307,
+      0.0
+     ],
+     [
+      308,
+      0.0
+     ],
+     [
+      309,
+      0.0
+     ],
+     [
+      310,
+      0.0
+     ],
+     [
+      311,
+      0.0
+     ],
+     [
+      312,
+      0.0
+     ]
+    ],
+    "label": "SpotLight8",
+    "outro_keys": [
+     [
+      5859,
+      8.548399925231934
+     ],
+     [
+      6006,
+      8.548399925231934
+     ],
+     [
+      6007,
+      0.0
+     ],
+     [
+      6008,
+      3.3128182870147485
+     ],
+     [
+      6009,
+      0.0
+     ],
+     [
+      6010,
+      3.684800335233139
+     ],
+     [
+      6011,
+      0.0
+     ],
+     [
+      6012,
+      6.144209525496042
+     ],
+     [
+      6013,
+      0.0
+     ],
+     [
+      6014,
+      2.038433591802159
+     ],
+     [
+      6015,
+      0.0
+     ]
+    ],
+    "strike_frame": 306,
+    "strike_s": 12.24,
+    "target_first": 0.0,
+    "target_last": 8.548399925231934,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5996,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 693.2546429703879,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      325,
+      0.0
+     ],
+     [
+      326,
+      0.0
+     ],
+     [
+      327,
+      0.0
+     ],
+     [
+      328,
+      0.0
+     ],
+     [
+      329,
+      0.0
+     ],
+     [
+      330,
+      0.0
+     ],
+     [
+      331,
+      0.0
+     ],
+     [
+      332,
+      0.0
+     ]
+    ],
+    "label": "SpotLight11",
+    "outro_keys": [
+     [
+      5859,
+      0.0
+     ],
+     [
+      5995,
+      0.0
+     ],
+     [
+      5996,
+      0.0
+     ],
+     [
+      5997,
+      0.0
+     ],
+     [
+      5998,
+      0.0
+     ],
+     [
+      5999,
+      0.0
+     ],
+     [
+      6000,
+      0.0
+     ]
+    ],
+    "strike_frame": 326,
+    "strike_s": 13.04,
+    "target_first": 0.0,
+    "target_last": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5984,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 769.7940948795805,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      341,
+      0.0
+     ],
+     [
+      342,
+      0.0
+     ],
+     [
+      343,
+      0.0
+     ],
+     [
+      344,
+      0.0
+     ],
+     [
+      345,
+      0.0
+     ],
+     [
+      346,
+      0.0
+     ],
+     [
+      347,
+      0.0
+     ],
+     [
+      348,
+      0.0
+     ]
+    ],
+    "label": "animals",
+    "outro_keys": [
+     [
+      5859,
+      0.0
+     ],
+     [
+      5983,
+      0.0
+     ],
+     [
+      5984,
+      0.0
+     ],
+     [
+      5985,
+      0.0
+     ],
+     [
+      5986,
+      0.0
+     ],
+     [
+      5987,
+      0.0
+     ],
+     [
+      5988,
+      0.0
+     ]
+    ],
+    "strike_frame": 342,
+    "strike_s": 13.68,
+    "target_first": 0.0,
+    "target_last": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5974,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 773.9301780712265,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      363,
+      0.0
+     ],
+     [
+      364,
+      0.0
+     ],
+     [
+      365,
+      0.0
+     ],
+     [
+      366,
+      0.0
+     ],
+     [
+      367,
+      0.0
+     ],
+     [
+      368,
+      0.0
+     ]
+    ],
+    "label": "SpotLight5",
+    "outro_keys": [
+     [
+      5859,
+      8.0
+     ],
+     [
+      5973,
+      8.0
+     ],
+     [
+      5974,
+      0.0
+     ],
+     [
+      5975,
+      4.9419762035219374
+     ],
+     [
+      5976,
+      0.0
+     ],
+     [
+      5977,
+      2.9465850713511728
+     ],
+     [
+      5978,
+      0.0
+     ]
+    ],
+    "strike_frame": 364,
+    "strike_s": 14.56,
+    "target_first": 0.0,
+    "target_last": 8.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5964,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 777.0353404162805,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      390,
+      0.0
+     ],
+     [
+      391,
+      0.0
+     ],
+     [
+      392,
+      0.0
+     ],
+     [
+      393,
+      0.0
+     ],
+     [
+      394,
+      0.0
+     ],
+     [
+      395,
+      0.0
+     ]
+    ],
+    "label": "SpotLight2",
+    "outro_keys": [
+     [
+      5859,
+      8.0
+     ],
+     [
+      5963,
+      8.0
+     ],
+     [
+      5964,
+      0.0
+     ],
+     [
+      5965,
+      4.70420031985064
+     ],
+     [
+      5966,
+      0.0
+     ],
+     [
+      5967,
+      3.399397654122491
+     ],
+     [
+      5968,
+      0.0
+     ]
+    ],
+    "strike_frame": 391,
+    "strike_s": 15.64,
+    "target_first": 0.0,
+    "target_last": 8.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5954,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 891.5806189010616,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      410,
+      0.0
+     ],
+     [
+      411,
+      0.0
+     ],
+     [
+      412,
+      0.0
+     ],
+     [
+      413,
+      0.0
+     ],
+     [
+      414,
+      0.0
+     ],
+     [
+      415,
+      0.0
+     ],
+     [
+      416,
+      0.0
+     ],
+     [
+      417,
+      0.0
+     ],
+     [
+      418,
+      0.0
+     ],
+     [
+      419,
+      0.0
+     ]
+    ],
+    "label": "SpotLight6",
+    "outro_keys": [
+     [
+      5859,
+      8.548399925231934
+     ],
+     [
+      5953,
+      8.548399925231934
+     ],
+     [
+      5954,
+      0.0
+     ],
+     [
+      5955,
+      2.06925591205697
+     ],
+     [
+      5956,
+      0.0
+     ],
+     [
+      5957,
+      2.712360003023055
+     ],
+     [
+      5958,
+      0.0
+     ],
+     [
+      5959,
+      4.541776514081389
+     ],
+     [
+      5960,
+      0.0
+     ],
+     [
+      5961,
+      1.7922549004960364
+     ],
+     [
+      5962,
+      0.0
+     ]
+    ],
+    "strike_frame": 411,
+    "strike_s": 16.44,
+    "target_first": 0.0,
+    "target_last": 8.548399925231934,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5941,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 893.8743439945872,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      436,
+      0.0
+     ],
+     [
+      437,
+      0.0
+     ],
+     [
+      438,
+      0.0
+     ],
+     [
+      439,
+      0.0
+     ],
+     [
+      440,
+      0.0
+     ],
+     [
+      441,
+      0.0
+     ]
+    ],
+    "label": "SpotLight10",
+    "outro_keys": [
+     [
+      5859,
+      0.0
+     ],
+     [
+      5940,
+      0.0
+     ],
+     [
+      5941,
+      0.0
+     ],
+     [
+      5942,
+      0.0
+     ],
+     [
+      5943,
+      0.0
+     ],
+     [
+      5944,
+      0.0
+     ],
+     [
+      5945,
+      0.0
+     ],
+     [
+      5946,
+      0.0
+     ],
+     [
+      5947,
+      0.0
+     ],
+     [
+      5948,
+      0.0
+     ],
+     [
+      5949,
+      0.0
+     ]
+    ],
+    "strike_frame": 437,
+    "strike_s": 17.48,
+    "target_first": 0.0,
+    "target_last": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5927,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 893.8743442075088,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      463,
+      0.0
+     ],
+     [
+      464,
+      0.0
+     ],
+     [
+      465,
+      0.0
+     ],
+     [
+      466,
+      0.0
+     ],
+     [
+      467,
+      0.0
+     ],
+     [
+      468,
+      0.0
+     ],
+     [
+      469,
+      0.0
+     ],
+     [
+      470,
+      0.0
+     ]
+    ],
+    "label": "SpotLight9",
+    "outro_keys": [
+     [
+      5859,
+      0.0
+     ],
+     [
+      5926,
+      0.0
+     ],
+     [
+      5927,
+      0.0
+     ],
+     [
+      5928,
+      0.0
+     ],
+     [
+      5929,
+      0.0
+     ],
+     [
+      5930,
+      0.0
+     ],
+     [
+      5931,
+      0.0
+     ]
+    ],
+    "strike_frame": 464,
+    "strike_s": 18.56,
+    "target_first": 0.0,
+    "target_last": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5918,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 907.2342586124049,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      480,
+      0.0
+     ],
+     [
+      481,
+      0.0
+     ],
+     [
+      482,
+      0.0
+     ],
+     [
+      483,
+      0.0
+     ],
+     [
+      484,
+      0.0
+     ],
+     [
+      485,
+      0.0
+     ],
+     [
+      486,
+      0.0
+     ],
+     [
+      487,
+      0.0
+     ],
+     [
+      488,
+      0.0
+     ],
+     [
+      489,
+      0.0
+     ]
+    ],
+    "label": "SpotLight3",
+    "outro_keys": [
+     [
+      5859,
+      8.0
+     ],
+     [
+      5917,
+      8.0
+     ],
+     [
+      5918,
+      0.0
+     ],
+     [
+      5919,
+      6.128043282573778
+     ],
+     [
+      5920,
+      0.0
+     ],
+     [
+      5921,
+      4.865750526014775
+     ],
+     [
+      5922,
+      0.0
+     ]
+    ],
+    "strike_frame": 481,
+    "strike_s": 19.24,
+    "target_first": 0.0,
+    "target_last": 8.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5907,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "dist_cm": 950.780731819908,
+    "her_keys": [
+     "Intensity"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      501,
+      0.0
+     ],
+     [
+      502,
+      0.0
+     ],
+     [
+      503,
+      0.0
+     ],
+     [
+      504,
+      0.0
+     ],
+     [
+      505,
+      0.0
+     ],
+     [
+      506,
+      0.0
+     ]
+    ],
+    "label": "SpotLight4",
+    "outro_keys": [
+     [
+      5859,
+      8.0
+     ],
+     [
+      5906,
+      8.0
+     ],
+     [
+      5907,
+      0.0
+     ],
+     [
+      5908,
+      6.063561413715661
+     ],
+     [
+      5909,
+      0.0
+     ],
+     [
+      5910,
+      2.9252664070786416
+     ],
+     [
+      5911,
+      0.0
+     ],
+     [
+      5912,
+      4.189872970149707
+     ],
+     [
+      5913,
+      0.0
+     ]
+    ],
+    "strike_frame": 502,
+    "strike_s": 20.08,
+    "target_first": 0.0,
+    "target_last": 8.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5896,
+    "class": "RectLight",
+    "color_first": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "color_last": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "dist_cm": 1155.7690080634625,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      528,
+      0.0
+     ],
+     [
+      529,
+      0.0
+     ],
+     [
+      530,
+      0.0
+     ],
+     [
+      531,
+      0.0
+     ],
+     [
+      532,
+      0.0
+     ],
+     [
+      533,
+      0.0
+     ],
+     [
+      534,
+      0.0
+     ],
+     [
+      535,
+      0.0
+     ]
+    ],
+    "label": "RectLight_Merged3",
+    "outro_keys": [
+     [
+      5859,
+      0.0
+     ],
+     [
+      5895,
+      0.0
+     ],
+     [
+      5896,
+      0.0
+     ],
+     [
+      5897,
+      0.0
+     ],
+     [
+      5898,
+      0.0
+     ],
+     [
+      5899,
+      0.0
+     ],
+     [
+      5900,
+      0.0
+     ],
+     [
+      5901,
+      0.0
+     ],
+     [
+      5902,
+      0.0
+     ],
+     [
+      5903,
+      0.0
+     ],
+     [
+      5904,
+      0.0
+     ]
+    ],
+    "strike_frame": 529,
+    "strike_s": 21.16,
+    "target_first": 0.0,
+    "target_last": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5884,
+    "class": "RectLight",
+    "color_first": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "color_last": [
+     0.3028864860534668,
+     0.02889428101480007,
+     0.03809389844536781,
+     16.52132797241211
+    ],
+    "dist_cm": 1302.1405454097496,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      550,
+      0.0
+     ],
+     [
+      551,
+      0.0
+     ],
+     [
+      552,
+      0.0
+     ],
+     [
+      553,
+      0.0
+     ],
+     [
+      554,
+      0.0
+     ],
+     [
+      555,
+      0.0
+     ]
+    ],
+    "label": "RectLight_Merged2",
+    "outro_keys": [
+     [
+      5859,
+      552.0
+     ],
+     [
+      5883,
+      552.0
+     ],
+     [
+      5884,
+      0.0
+     ],
+     [
+      5885,
+      301.60102891998434
+     ],
+     [
+      5886,
+      0.0
+     ],
+     [
+      5887,
+      369.54081151300454
+     ],
+     [
+      5888,
+      0.0
+     ],
+     [
+      5889,
+      214.86735285677213
+     ],
+     [
+      5890,
+      0.0
+     ]
+    ],
+    "strike_frame": 551,
+    "strike_s": 22.04,
+    "target_first": 0.0,
+    "target_last": 552.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 5872,
+    "class": "RectLight",
+    "color_first": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "color_last": [
+     0.5028864741325378,
+     0.07889427989721298,
+     -0.0415218323469162,
+     1.0
+    ],
+    "dist_cm": 1456.6241793956326,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      574,
+      0.0
+     ],
+     [
+      575,
+      0.0
+     ],
+     [
+      576,
+      0.0
+     ],
+     [
+      577,
+      0.0
+     ],
+     [
+      578,
+      0.0
+     ],
+     [
+      579,
+      0.0
+     ]
+    ],
+    "label": "RectLight_Merged",
+    "outro_keys": [
+     [
+      5859,
+      300.0
+     ],
+     [
+      5871,
+      300.0
+     ],
+     [
+      5872,
+      0.0
+     ],
+     [
+      5873,
+      87.95915245731634
+     ],
+     [
+      5874,
+      0.0
+     ],
+     [
+      5875,
+      148.57540025899632
+     ],
+     [
+      5876,
+      0.0
+     ],
+     [
+      5877,
+      75.06655900176114
+     ],
+     [
+      5878,
+      0.0
+     ],
+     [
+      5879,
+      126.31551426055059
+     ],
+     [
+      5880,
+      0.0
+     ]
+    ],
+    "strike_frame": 575,
+    "strike_s": 23.0,
+    "target_first": 0.0,
+    "target_last": 300.0,
+    "warn_hidden": false
+   }
+  ],
+  "hide": {
+   "labels": [
+    "S1 Hangar Roof"
+   ],
+   "range": [
+    269,
+    5922
+   ]
+  },
+  "hookin_edits": {
+   "hers_dark_range": [
+    104,
+    282
+   ],
+   "level_visible_range": [
+    104,
+    6266
+   ],
+   "ours_off_range": [
+    269,
+    6266
+   ]
+  },
+  "lattice": {
+   "cancel": {
+    "hold": 2800.0,
+    "keys": [
+     {
+      "arrive": -0.0,
+      "arrive_w": 0.0,
+      "interp": "cubic",
+      "leave": -0.0,
+      "leave_w": 0.0,
+      "tick": 0,
+      "value": 0.0,
+      "weighted": false
+     },
+     {
+      "arrive": -0.0,
+      "arrive_w": 0.0,
+      "interp": "cubic",
+      "leave": -0.0,
+      "leave_w": 0.0,
+      "tick": 207200,
+      "value": 0.0,
+      "weighted": false
+     },
+     {
+      "arrive": -0.0,
+      "arrive_w": 0.0,
+      "interp": "cubic",
+      "leave": -0.0,
+      "leave_w": 0.0,
+      "tick": 303200,
+      "value": 1600.0,
+      "weighted": false
+     }
+    ],
+    "lowers_cm": 1600.0,
+    "span_ticks": [
+     0,
+     303200
+    ]
+   },
+   "facts": {
+    "offset_ticks": 0,
+    "play_rate": 1.0,
+    "rise": "/Game/InfinityStage/RigAtmos/LS_S1_HangarRise",
+    "rise_lower_tick": 0,
+    "rise_tick": 24000.0,
+    "section": [
+     0,
+     775
+    ],
+    "section_active": true,
+    "start_offset_tick": 0
+   },
+   "lowers_scene_frames": [
+    0.0,
+    315.8333333333333
+   ],
+   "mode": "cancel",
+   "range": [
+    0,
+    6266
+   ]
+  },
+  "level_transform_after": {
+   "loc": [
+    30135.0135,
+    2.0,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "level_transform_before": {
+   "loc": [
+    32556.0135,
+    122.0,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "placement": {
+   "checks": {
+    "far_ok": true,
+    "lead_in_range": true,
+    "near_ok": true,
+    "side_ok": true,
+    "under_lattice": false,
+    "under_roof": true
+   },
+   "delta": [
+    -2421.0,
+    -120.0,
+    0.0
+   ],
+   "fits": true,
+   "her_cam_local_after": [
+    600.0,
+    0.0,
+    77.0
+   ],
+   "lateral_cm": 0.0,
+   "lead_cm": 600.0,
+   "lead_needed_cm": 190.4999838732183,
+   "lead_wanted_cm": 600.0,
+   "set_local_after": [
+    909.5000161267817,
+    2381.0982818603516,
+    -881.5539208318161,
+    730.1574719525499
+   ]
+  },
+  "poses": {
+   "entry": {
+    "focal": 25.0,
+    "focus": 600.0,
+    "loc": [
+     28784.0135,
+     0.0,
+     150.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "exit": {
+    "focal": 25.0,
+    "focus": 600.0,
+    "loc": [
+     28784.0135,
+     0.0,
+     150.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "her_first": {
+    "focal": 23.884634017944336,
+    "focus": 427.3858337402344,
+    "loc": [
+     29384.0135,
+     0.0,
+     77.0
+    ],
+    "rot": [
+     4.279735609956023e-15,
+     3.0,
+     0.0
+    ]
+   },
+   "her_last": {
+    "focal": 23.884634017944336,
+    "focus": 427.3858337402344,
+    "loc": [
+     29944.0135,
+     -21.0,
+     38.0
+    ],
+    "rot": [
+     4.304617626298092e-15,
+     3.0,
+     3.0
+    ]
+   }
+  },
+  "refusals": [],
+  "rig_bulbs_hidden": {
+   "labels": [
+    "S1 Lattice Bulb 1-1",
+    "S1 Lattice Bulb 1-2",
+    "S1 Lattice Bulb 1-3",
+    "S1 Lattice Bulb 1-4",
+    "S1 Lattice Bulb 1-5",
+    "S1 Lattice Bulb 1-6",
+    "S1 Lattice Bulb 1-7",
+    "S1 Lattice Bulb 1-8",
+    "S1 Lattice Bulb 2-1",
+    "S1 Lattice Bulb 2-2",
+    "S1 Lattice Bulb 2-3",
+    "S1 Lattice Bulb 2-4",
+    "S1 Lattice Bulb 2-5",
+    "S1 Lattice Bulb 2-6",
+    "S1 Lattice Bulb 2-7",
+    "S1 Lattice Bulb 2-8",
+    "S1 Lattice Bulb 3-1",
+    "S1 Lattice Bulb 3-2",
+    "S1 Lattice Bulb 3-3",
+    "S1 Lattice Bulb 3-4",
+    "S1 Lattice Bulb 3-5",
+    "S1 Lattice Bulb 3-6",
+    "S1 Lattice Bulb 3-7",
+    "S1 Lattice Bulb 3-8"
+   ],
+   "range": [
+    282,
+    6091
+   ]
+  },
+  "scene": "1",
+  "sensor_mm": [
+   23.760000228881836,
+   13.364999771118164
+  ],
+  "set_world_after": [
+   29693.513516126783,
+   31165.111781860352,
+   -881.5539208318161,
+   730.1574719525499,
+   -76.03359985351562,
+   1255.4145275974001
+  ],
+  "slot": {
+   "media_track_note": "later: a MovieSceneMediaTrack section over the same range replaces the nested copy 1:1 (videos = renders of her LS, Gary 7 Oct)",
+   "mode": "nested_cinematic",
+   "range": [
+    594,
+    5859
+   ],
+   "range_before": [
+    376,
+    5641
+   ],
+   "shift": 218
+  },
+  "strike_schedule": {
+   "frames": [
+    282,
+    306,
+    326,
+    342,
+    364,
+    391,
+    411,
+    437,
+    464,
+    481,
+    502,
+    529,
+    551,
+    575
+   ],
+   "gaps_s": [
+    0.9725757554093397,
+    0.7803106537543063,
+    0.6393042276067963,
+    0.8795524926477258,
+    1.100011000177263,
+    0.7848845572927873,
+    1.0361524135272908,
+    1.0885255831527043,
+    0.6660499648787818,
+    0.863131290560473,
+    1.0614941813339207,
+    0.8726757048620357,
+    0.9753321747965732
+   ],
+   "refusals": [],
+   "scale": 0.9876071322389748,
+   "warnings": [
+    "GAPS_COMPRESSED: 14 strikes need 11.87 s, window 11.72 s (x0.99)"
+   ]
+  },
+  "timeline": {
+   "blink_window": [
+    5872,
+    6076
+   ],
+   "crossfade": [
+    282,
+    584
+   ],
+   "cut": 594,
+   "cut_before": 376,
+   "dark": [
+    104,
+    119
+   ],
+   "env_out": [
+    5872,
+    5922
+   ],
+   "exit_cut": [
+    6241,
+    6266
+   ],
+   "first_hold": [
+    269,
+    282
+   ],
+   "glide_in": [
+    119,
+    269
+   ],
+   "glide_in_s": 6.0,
+   "glide_out": [
+    6091,
+    6241
+   ],
+   "glide_out_s": 6.0,
+   "glow_fade": [
+    244,
+    282
+   ],
+   "hers_dark": [
+    104,
+    282
+   ],
+   "intro_s": 19.6,
+   "land": 104,
+   "ours_hidden_from": 269,
+   "outro_hold": [
+    5859,
+    5872
+   ],
+   "outro_s": 16.28,
+   "planned_end": 6266,
+   "planned_end_s": 250.64,
+   "refusals": [],
+   "rig_back": [
+    6091,
+    6129
+   ],
+   "rig_dark": [
+    282,
+    6091
+   ],
+   "roof_hidden": [
+    269,
+    5922
+   ],
+   "slot": [
+    594,
+    5859
+   ],
+   "slot_before": [
+    376,
+    5641
+   ],
+   "slot_shift": 218,
+   "slot_shift_s": 8.72,
+   "strike_window": [
+    282,
+    575
+   ],
+   "version": 2,
+   "warnings": [
+    "CUT_MOVED_LATER: +218 frames (8.72 s): glide in the dark, then strikes; slot -> [594, 5859)"
+   ]
+  },
+  "warnings": [
+   "SET_REACHES_LATTICE: top 1255 cm vs lattice 1200 cm (allow_lattice_overlap)",
+   "CUT_MOVED_LATER: +218 frames (8.72 s): glide in the dark, then strikes; slot -> [594, 5859)",
+   "GAPS_COMPRESSED: 14 strikes need 11.87 s, window 11.72 s (x0.99)",
+   "HER_PPV_BOUNDED: PostProcessVolume - only applies inside its own box",
+   "PPV_PRIORITY: hers 0.0 <= ours 0.0 (S1 Hangar Pinned Exposure) - Look decision",
+   "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 282 (glows already at 0; emissive cannot fade without a material track)"
+  ]
+ },
+ "run": "KLARAREVEAL-20261007-004756",
+ "scene": "1",
+ "schema": 1,
+ "slot_moved": {
+  "after": [
+   594,
+   5859
+  ],
+  "before": [
+   376,
+   5641
+  ]
+ },
+ "tool": "klara_reveal",
+ "written": "2026-10-07T00:47:56"
+}

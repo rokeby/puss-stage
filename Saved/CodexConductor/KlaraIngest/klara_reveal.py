@@ -33,6 +33,16 @@ PLACEMENT: her streamed level is moved by a translation DELTA so her first camer
   FLevelUtils::SetEditorTransform, LevelUtils.h:181, is C++-only [decl]). The hangar box is NOT rebuilt here: DRY
   emits snug HANGAR_PARAMS for Structure's hangar_build.py and checks the set against the LIVE box.
 
+v3 (Gary 7 Oct: "Strike to her lit look; skip her dark opening"; REVEAL_PLAN.md section 9): her LS keys every local
+  light at 0 on its first frame and fades them up later, so v2's strikes went to 0. v3 finds her LIT FRAME Lh in her
+  copy (find_lit_frame: earliest frame by which >= 80% of her ever-lit lights hold >= 90% of their sustained plateau,
+  snapped up to a frame that lands on our grid), strikes each light to its value AT Lh, crossfades the env to its
+  values at Lh, glides to HER CAMERA AT Lh, and starts the slot INTO her copy at Lh (sub-section start_frame_offset),
+  so her dark opening [her start, Lh) never plays and the Scene shortens by that much. Outro unchanged.
+  Also fixed: add_possessable on an actor the hookin already binds returns THAT binding [meas: both live records
+  lack the four env "Hers Dark" names in hookin_after]; v1/v2 renamed it, so APPLY missed those Hers Dark windows and
+  REVERT deleted them (REVERT_READBACK). _possess never renames a shared binding; REVERT renames legacy ones back.
+
 Modes (klara_reveal_run.py <- klara_reveal_args.json; confirm "<MODE> KLARAREVEAL"; one Scene per run):
   DRY    read-only -> klara_reveal_dry_S<n>.json; KLARAREVEAL_DRY_OK|run=..|scene=..|apply_ready=..
   APPLY  gates -> backups -> exclusive record -> level move + copy shift -> glide camera -> Scene tracks -> cut split
@@ -81,6 +91,10 @@ LATTICE_MODES = ("cancel", "hide", "allow")
 WALL_LABELS = {"left_wall": "S%s Hangar Left Wall", "right_wall": "S%s Hangar Right Wall",
                "far_wall": "S%s Hangar Far Wall"}   # hangar_build.py:110, 113
 EPS = 1.0e-9
+# v3 lit-frame detection (REVEAL_PLAN.md section 9). All proposed numbers, not Gary's; args "lit" overrides any field.
+# frame: an explicit her display frame (overrides detection); enabled False = v2 behaviour (her first frame).
+LIT_DEFAULTS = {"enabled": True, "light_fraction": 0.8, "value_fraction": 0.9, "hold_s": 1.0, "search_s": 60.0,
+                "min_value": 1.0e-3, "sum_fraction": 0.75, "disagree_warn_s": 2.0, "frame": None}
 
 
 class PlanError(Exception):
@@ -525,10 +539,164 @@ def rise_offset_ticks(section_start_frame, scene_fps, scene_tick, rise_lower_tic
 
 
 # =====================================================================================================================
+# Pure: v3 her lit frame, the slot start offset, audio report
+# =====================================================================================================================
+
+def lit_cfg(args):
+    c = dict(LIT_DEFAULTS)
+    c.update(args.get("lit") or {})
+    return c
+
+
+def curve_at(curve, frame):
+    """curve = {"tpf": ticks per display frame, "keys": [{"tick","value","interp","arrive","leave"}], "default"}.
+    Value at a (display) frame: curve_eval in tick space (exact at keys, linear/constant exact, cubic = unweighted
+    Hermite from the read tangents [inf: UE stores computed auto tangents on the key]); no keys -> default."""
+    keys = curve.get("keys") or []
+    if not keys:
+        return curve.get("default")
+    return curve_eval(keys, float(frame) * float(curve["tpf"]))
+
+
+def _sustained(vals, hold):
+    """m[i] = min(vals[i .. i+hold]) (truncated at the end): the level a curve HOLDS from frame i for `hold` frames."""
+    n = len(vals)
+    return [min(vals[i:min(n, i + hold + 1)]) for i in range(n)]
+
+
+def snap_her_frame(frame, her_lo, her_fps, scene_fps):
+    """Round a her-frame UP to the next frame that lands exactly on our Scene grid (S1: 30 -> 25 fps = every 6 of
+    hers), so the skipped opening and her remaining length are whole Scene frames. -> (frame, step) or PlanError."""
+    hf, sf = float(her_fps), float(scene_fps)
+    if abs(hf - round(hf)) > 1e-9 or abs(sf - round(sf)) > 1e-9:
+        raise PlanError("FPS_NOT_INTEGER: her %r scene %r" % (her_fps, scene_fps))
+    step = int(round(hf)) // math.gcd(int(round(hf)), int(round(sf)))
+    k = int(math.ceil((int(frame) - int(her_lo)) / float(step) - 1e-9))
+    return int(her_lo) + max(0, k) * step, step
+
+
+def find_lit_frame(curves, her_lo, her_hi, her_fps, cfg):
+    """Her LIT frame from her lights' Intensity curves {label: curve} (her display frames, [her_lo, her_hi)).
+    Per light, over the search window [her_lo, her_lo + search_s]: plateau = the highest level it HOLDS for hold_s
+    (max of _sustained); lit_at = the first frame from which it holds >= value_fraction x plateau. A light whose
+    plateau <= min_value is never lit in the window (no strike). frame_raw = the earliest frame by which
+    light_fraction of the ever-lit lights are lit (the ceil(f x n)-th lit_at). Cross-check: the normalised sum
+    (each light / its plateau) first holding >= sum_fraction of its own plateau; disagreement > disagree_warn_s
+    warns. cfg["frame"] overrides (an explicit her frame). Unkeyed lights do not vote (they are lit throughout)."""
+    out = {"refusals": [], "warnings": [], "per_light": {}, "method": "detected"}
+    fps = float(her_fps)
+    w1 = min(int(her_hi) - 1, int(her_lo) + int(math.ceil(float(cfg["search_s"]) * fps - 1e-9)))
+    frames = list(range(int(her_lo), w1 + 1))
+    out["window"] = [int(her_lo), w1]
+    hold = max(0, int(round(float(cfg["hold_s"]) * fps)))
+    vf, mv = float(cfg["value_fraction"]), float(cfg["min_value"])
+    norm = [0.0] * len(frames)
+    ever = []
+    for label in sorted(curves):
+        c = curves[label]
+        if not c or not c.get("keys"):
+            out["per_light"][label] = {"keyed": False}
+            continue
+        vals = [float(curve_at(c, f)) for f in frames]
+        sus = _sustained(vals, hold)
+        ref = max(sus)
+        tpf = float(c["tpf"])
+        row = {"keyed": True, "plateau": ref, "first_value": vals[0], "n_keys": len(c["keys"]),
+               "keys": [[round(k["tick"] / tpf, 3), float(k["value"])] for k in sorted(c["keys"], key=lambda k: k["tick"])
+                        if frames[0] * tpf <= k["tick"] <= frames[-1] * tpf][:60]}
+        if ref <= mv:
+            row["ever_lit"] = False
+        else:
+            i = next(j for j, s_ in enumerate(sus) if s_ >= vf * ref * (1.0 - 1e-6))
+            row.update(ever_lit=True, lit_at=frames[i], lit_at_s_into_her=i / fps)
+            ever.append(frames[i])
+            for j, v in enumerate(vals):
+                norm[j] += v / ref
+        out["per_light"][label] = row
+    out["n_ever_lit"] = len(ever)
+    if ever:
+        need = max(1, int(math.ceil(float(cfg["light_fraction"]) * len(ever) - 1e-9)))
+        out["n_needed"] = need
+        out["frame_votes"] = sorted(ever)[need - 1]
+        ssus = _sustained(norm, hold)
+        splat = max(ssus)
+        out["sum_frame"] = frames[next(j for j, s_ in enumerate(ssus) if s_ >= float(cfg["sum_fraction"]) * splat *
+                                       (1.0 - 1e-6))]
+        if abs(out["sum_frame"] - out["frame_votes"]) / fps > float(cfg["disagree_warn_s"]):
+            out["warnings"].append("LIT_METRICS_DISAGREE: votes %d vs normalised sum %d (%.2f s apart) - check "
+                                   "per_light" % (out["frame_votes"], out["sum_frame"],
+                                                  abs(out["sum_frame"] - out["frame_votes"]) / fps))
+    if cfg.get("frame") is not None:
+        out["method"] = "args lit.frame"
+        out["frame_raw"] = int(cfg["frame"])
+    elif ever:
+        out["frame_raw"] = out["frame_votes"]
+    else:
+        out["frame_raw"] = None
+        out["refusals"].append("LIT_NONE: no keyed light of hers holds > %g within %.0f s of her start (set "
+                               "lit.frame or lit.enabled false)" % (mv, float(cfg["search_s"])))
+    return out
+
+
+def slot_skip(her_lo, her_hi, her_frame, her_fps, scene_fps, her_tpf, slot_len_scene):
+    """The slot starts INTO her copy at her_frame: start_frame_offset (her TICKS [inf: StartFrameOffset is stored in
+    the inner tick resolution, as klara_hookin.inner_to_scene_s and scene_audio_import.py:235-241 treat it; the header
+    comment says display rate, MovieSceneSectionParameters.h:74-76 - APPLY's parent-frame read-back decides]) and the
+    Scene frames skipped / remaining. Refuses off-grid values and a slot whose length is not her full length."""
+    r = {"refusals": [], "her_frame": int(her_frame)}
+    ratio = float(scene_fps) / float(her_fps)
+    total = (int(her_hi) - int(her_lo)) * ratio
+    skip = (int(her_frame) - int(her_lo)) * ratio
+    rem = (int(her_hi) - int(her_frame)) * ratio
+    if not (int(her_lo) <= int(her_frame) < int(her_hi)):
+        r["refusals"].append("LIT_FRAME_OUTSIDE_HER_RANGE: %d not in [%d, %d)" % (her_frame, her_lo, her_hi))
+    for nm, v in (("skip", skip), ("remaining", rem)):
+        if abs(v - round(v)) > 1e-6:
+            r["refusals"].append("SLOT_%s_OFF_GRID: %.6f Scene frames" % (nm.upper(), v))
+    if abs(total - float(slot_len_scene)) > 1e-6:
+        r["refusals"].append("SLOT_LENGTH_MISMATCH: her %.3f Scene frames vs slot %d" % (total, slot_len_scene))
+    tpf = float(her_tpf)
+    if abs(tpf - round(tpf)) > 1e-9:
+        r["refusals"].append("HER_TICKS_PER_FRAME_NOT_WHOLE: %r" % her_tpf)
+    r.update(skip_frames=int(round(skip)), remaining_frames=int(round(rem)), skip_s=skip / float(scene_fps),
+             remaining_s=rem / float(scene_fps), offset_ticks=(int(her_frame) - int(her_lo)) * int(round(tpf)))
+    return r
+
+
+def scene_frame_of_her(her_frame, cut, lit_frame, her_fps, scene_fps):
+    """Which Scene frame plays her frame `her_frame` once the slot starts at `cut` with her `lit_frame`."""
+    return float(cut) + (float(her_frame) - float(lit_frame)) * float(scene_fps) / float(her_fps)
+
+
+def audio_report(her_audio, scene_audio, scene_markers, lit_frame, her_fps, cut, scene_fps, planned_end):
+    """What moves. Her copy's audio plays INSIDE the slot, so the skip shifts it; Scene-level audio and markers are
+    absolute (nothing here moves them): report what now falls past the new end."""
+    her = []
+    for a in her_audio or []:
+        s0, s1 = int(a["start_frame"]), int(a["end_frame"])
+        row = dict(a)
+        if s1 <= lit_frame:
+            row["after_skip"] = "never plays (ends before her lit frame)"
+        elif s0 < lit_frame:
+            row["after_skip"] = "joins mid-sound at the cut: its first %.2f s are skipped" % ((lit_frame - s0) / her_fps)
+            row["scene_start_frame"] = int(cut)
+        else:
+            row["after_skip"] = "starts inside the slot"
+            row["scene_start_frame"] = scene_frame_of_her(s0, cut, lit_frame, her_fps, scene_fps)
+        row["scene_end_frame"] = scene_frame_of_her(s1, cut, lit_frame, her_fps, scene_fps)
+        her.append(row)
+    past = [dict(s, why="ends past the new end %d" % planned_end) for s in scene_audio or []
+            if int(s["range"][1]) > planned_end]
+    marks = [dict(m, why="past the new end %d" % planned_end) for m in scene_markers or [] if int(m["frame"]) >= planned_end]
+    return {"her_audio": her, "scene_audio_past_end": past, "scene_markers_past_end": marks,
+            "scene_audio_all": list(scene_audio or []), "scene_markers_all": list(scene_markers or [])}
+
+
+# =====================================================================================================================
 # Pure: the timeline
 # =====================================================================================================================
 
-def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len, glide_in_s=None, glide_out_s=None):
+def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len, glide_in_s=None, glide_out_s=None, skip=0):
     """v2 (Gary 7 Oct): "while we're in the dark, we should already have moved into the final position for S1's wide
     intro and then it lights up, and then we start it without any external lighting interference".
       [L, d0)        dark hold (rig glows still on: "the grid of faint lights showing the rig come up is good")
@@ -537,13 +705,20 @@ def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len, glide_in_s=None, glide_
       [S0, ...)      her lights strike one by one; her env crossfades 0 -> hers over [S0, C - settle]
       [C, E)         her cinematic (slot); the cut moves later when the intro needs it (slot keeps its length)
       outro          hold; her lights blink out; env out; roof back; rig glows back with the glide out; Exit cut.
-    -> dict (+ refusals). glide_in_s / glide_out_s from glide_seconds."""
+    -> dict (+ refusals). glide_in_s / glide_out_s from glide_seconds.
+    v3: `skip` = Scene frames of her opening that never play (slot_skip); the slot is her REMAINING length, so
+    everything after the slot (outro, exit, end) comes `skip` frames earlier. n_lights = lights that STRIKE."""
     intro, outro = cfg["intro"], cfg["outro"]
     f = lambda s_: int(math.ceil(float(s_) * fps - 1e-6))
-    r = {"refusals": [], "warnings": [], "land": L, "cut_before": C, "slot_before": [C, E], "version": 2}
+    r = {"refusals": [], "warnings": [], "land": L, "cut_before": C, "slot_before": [C, E], "version": 3,
+         "slot_skip": int(skip)}
     if L is None or not (0 <= L < C < E):
         r["refusals"].append("TIMELINE_ORDER: land %r cut %r slot end %r" % (L, C, E))
         return r
+    if not (0 <= int(skip) < E - C):
+        r["refusals"].append("SKIP_INVALID: %r of a %d-frame slot" % (skip, E - C))
+        return r
+    E = E - int(skip)
     d0 = L + f(intro["dark_hold_s"])
     g1 = d0 + f(glide_in_s if glide_in_s is not None else intro["glide_s"])
     S0 = g1 + f(intro.get("pre_strike_hold_s", 0.5))
@@ -693,6 +868,36 @@ def census_gate(census, want_content, want_maps):
     return out
 
 
+def revert_actions(bindings, before_names, shared_guids):
+    """Pure REVERT plan over binding rows [{"guid", "name", "parent", "tracks": [{"name", "cls"}]}].
+    - shared (record shared_bindings): keep, strip OUR tracks (display name PREFIX...);
+    - legacy (v1/v2 records have no shared list): a 'Klara Reveal - X' binding whose 'Klara Hookin - Hers Dark: X'
+      (or Ours Off) is in the record's before-names but missing now, AND that still carries a Visibility track not
+      named by us (the hookin's own track), is the hookin binding we renamed: rename back + strip;
+    - every other 'Klara Reveal -' binding: remove (children before parents).
+    unrecoverable = hookin names in before that are neither present nor recoverable (then restore from backup)."""
+    shared = set(shared_guids or [])
+    current = {b["name"] for b in bindings}
+    rename, strip, remove = [], set(shared), []
+    for b in bindings:
+        if b["guid"] in shared or not b["name"].startswith(PREFIX):
+            continue
+        tail = b["name"][len(PREFIX):]
+        hook = [hp + tail for hp in (HOOK_HERS, HOOK_OURS) if hp + tail in before_names and hp + tail not in current]
+        foreign_vis = [t for t in b.get("tracks") or [] if not t["name"].startswith(PREFIX)
+                       and t["cls"] == "MovieSceneVisibilityTrack"]
+        if hook and foreign_vis:
+            rename.append([b["guid"], hook[0]])
+            strip.add(b["guid"])
+        else:
+            remove.append(b)
+    remove.sort(key=lambda b: (b.get("parent") is None, b["name"]))
+    renamed = {r[1] for r in rename}
+    lost = sorted(n for n in before_names if n.startswith((HOOK_HERS, HOOK_OURS)) and n not in current
+                  and n not in renamed)
+    return {"rename": rename, "strip": sorted(strip), "remove": [b["guid"] for b in remove], "unrecoverable": lost}
+
+
 def write_record_exclusive(path, data):          # klara_hookin.py:526-531 [prec]
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
     with os.fdopen(fd, "w", encoding="utf-8") as h:
@@ -817,6 +1022,14 @@ def _api_table():
                    ("get_arrive_tangent", "set_arrive_tangent", "get_leave_tangent", "set_leave_tangent",
                     "get_interpolation_mode", "set_tangent_mode", "get_tangent_weight_mode")] +
           [repr(u.RichCurveTangentMode.RCTM_USER)])
+    probe("MovieSceneScriptingFloatKey get_time/get_interpolation_mode/tangents (v3 her light curves)", "inf",
+          lambda: [hasattr(u.MovieSceneScriptingFloatKey, n) for n in
+                   ("get_time", "get_interpolation_mode", "get_arrive_tangent", "get_leave_tangent")])
+    probe("MovieSceneBindingProxy.remove_track (v3 REVERT strips OUR tracks off shared bindings)", "inf; memory: "
+          "returns None, read back", lambda: hasattr(u.MovieSceneBindingProxy, "remove_track"))
+    probe("MovieSceneSectionParameters.start_frame_offset (v3 slot offset)", "decl MovieSceneSectionParameters.h:76; "
+          "units inf (ticks), decided by APPLY's parent-frame read-back",
+          lambda: repr(u.MovieSceneSectionParameters().get_editor_property("start_frame_offset")))
     probe("MovieSceneCompletionMode.RESTORE_STATE", "prec klara_hookin.py:1156",
           lambda: repr(u.MovieSceneCompletionMode.RESTORE_STATE))
     probe("InfinityStageCelestialRig foreign_lighting_exempt_levels", "commit e0e04ed (built)",
@@ -834,14 +1047,37 @@ def _ch_keys(ch):
     return [[int(k.get_time().frame_number.value), float(k.get_value())] for k in ch.get_keys()]
 
 
-def _ch_eval(ch, frame):
-    """Channel value at a DISPLAY frame: channel.evaluate when the build exposes it [inf, probed], else eval_keys."""
+def _ch_curve(ch, tpf):
+    """Keys with TICK times, interpolation and tangents (MovieSceneScriptingFloat/DoubleKey getters [inf, probed in
+    api_table; the Double getters are live-proven by _lattice_facts]) -> a curve for curve_at."""
+    keys = []
+    for k in ch.get_keys():
+        row = {"tick": int(k.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value),
+               "value": float(k.get_value())}
+        try:
+            row["interp"] = _INTERP.get(_enum_name(k.get_interpolation_mode()), "cubic")
+        except Exception:  # noqa: BLE001 - recorded; cubic with zero tangents is the conservative read
+            row["interp"], row["interp_unread"] = "cubic", True
+        try:
+            row["arrive"], row["leave"] = float(k.get_arrive_tangent()), float(k.get_leave_tangent())
+        except Exception:  # noqa: BLE001
+            row["arrive"], row["leave"], row["tangent_unread"] = 0.0, 0.0, True
+        keys.append(row)
+    return {"tpf": float(tpf), "keys": keys, "default": float(ch.get_default()) if ch.has_default() else None}
+
+
+def _ch_eval(ch, frame, tpf=None):
+    """Channel value at a DISPLAY frame: channel.evaluate when the build exposes it [inf, probed; live 7 Oct: absent],
+    else an exact key / constant extrapolation (eval_keys), else (v3, tpf given) the key curve (curve_at)."""
     try:
         if hasattr(ch, "evaluate"):
             return float(ch.evaluate(unreal.FrameTime(unreal.FrameNumber(int(frame)))))
     except Exception:  # noqa: BLE001 - fall back to exact keys
         pass
-    return eval_keys(_ch_keys(ch), float(ch.get_default()) if ch.has_default() else None, int(frame))
+    v = eval_keys(_ch_keys(ch), float(ch.get_default()) if ch.has_default() else None, int(frame))
+    if v is None and tpf:
+        v = curve_at(_ch_curve(ch, tpf), int(frame))
+    return v
 
 
 def _bindings_by_name(seq):
@@ -869,11 +1105,12 @@ def _prop(t):
         return t.get_class().get_name()
 
 
-def _her_camera(copy, which):
-    """Her FIRST ('first') or LAST ('last') cut camera pose + lens, from the re-keyed COPY (world positions now).
-    Last = playback_end - 1 (memory ue58-sequencer-read-traps: the end frame is the restored REST pose)."""
+def _her_camera(copy, which, at_frame=None, tpf=None):
+    """Her FIRST ('first'), LAST ('last') or LIT ('lit', at_frame) cut camera pose + lens, from the re-keyed COPY
+    (world positions now). Last = playback_end - 1 (memory ue58-sequencer-read-traps: the end frame is the restored
+    REST pose). 'lit' evaluates between keys through the key curve (tpf) and reports which cut covers the frame."""
     lo, hi = int(copy.get_playback_start()), int(copy.get_playback_end())
-    frame = lo if which == "first" else hi - 1
+    frame = int(at_frame) if which == "lit" else (lo if which == "first" else hi - 1)
     cuts = [s for t in copy.get_tracks() if isinstance(t, unreal.MovieSceneCameraCutTrack) for s in t.get_sections()]
     hit = [s for s in cuts if s.get_start_frame() <= frame < s.get_end_frame()]
     if len(hit) != 1:
@@ -884,7 +1121,8 @@ def _her_camera(copy, which):
     if len(b) != 1:
         raise PlanError("HER_CAMERA_BINDING_%s: %d" % (which.upper(), len(b)))
     b = b[0]
-    pose = {"binding": str(b.get_display_name()), "frame": frame, "fps": _rate(copy.get_display_rate())}
+    pose = {"binding": str(b.get_display_name()), "frame": frame, "fps": _rate(copy.get_display_rate()),
+            "cut": [int(hit[0].get_start_frame()), int(hit[0].get_end_frame())]}
     tr = [s for t in b.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack) for s in t.get_sections()]
     if len(tr) != 1:
         raise PlanError("HER_CAMERA_TRANSFORM_SECTIONS: %d" % len(tr))
@@ -893,12 +1131,12 @@ def _her_camera(copy, which):
     for n in ("Location.X", "Location.Y", "Location.Z", "Rotation.X", "Rotation.Y", "Rotation.Z"):
         if n not in cm:
             raise PlanError("HER_CAMERA_CHANNEL_MISSING: %s" % n)
-        v = _ch_eval(cm[n], frame)
-        v2 = _ch_eval(cm[n], frame + (1 if which == "first" else -1))
+        v = _ch_eval(cm[n], frame, tpf)
+        v2 = _ch_eval(cm[n], frame + (-1 if which == "last" else 1), tpf)
         if v is None or v2 is None:
             raise PlanError("HER_CAMERA_EVAL: %s between keys and no evaluate()" % n)
         vals[n] = (v, v2)
-    sign = 1.0 if which == "first" else -1.0
+    sign = -1.0 if which == "last" else 1.0
     pose["loc"] = [vals["Location." + a][0] for a in "XYZ"]
     pose["rot"] = [vals["Rotation." + a][0] for a in "XYZ"]          # roll, pitch, yaw (memory: roll-pitch-yaw)
     pose["vel_cm_s"] = [sign * (vals["Location." + a][1] - vals["Location." + a][0]) * pose["fps"] for a in "XYZ"]
@@ -910,7 +1148,7 @@ def _her_camera(copy, which):
             for s in t.get_sections():
                 chans = list(s.get_all_channels())
                 if len(chans) == 1:
-                    lens[p] = _ch_eval(chans[0], frame)
+                    lens[p] = _ch_eval(chans[0], frame, tpf)
     # the camera actor itself (filmback, unkeyed lens) - lives in her streamed level
     pose["lens_tracks"] = lens
     pose["binding_guid"] = unreal.GuidLibrary.conv_guid_to_string(guid)
@@ -929,7 +1167,7 @@ def _camera_actor_facts(actor):
             "sensor": [float(fb.get_editor_property("sensor_width")), float(fb.get_editor_property("sensor_height"))]}
 
 
-def _light_rows(actors, seq_bindings, her_lo, her_hi_last):
+def _light_rows(actors, seq_bindings, her_lo, her_hi_last, tpf=None):
     """Her LOCAL lights with their authored (level) values and her LS's own values at her first / last frame
     for any property her copy keys (Intensity / LightColor) - the intro settles to the FIRST, the outro starts at
     the LAST, so the cut into and out of her section is value-continuous."""
@@ -944,7 +1182,7 @@ def _light_rows(actors, seq_bindings, her_lo, her_hi_last):
                "intensity": float(comp.get_editor_property("intensity")),
                "color": [lc.r / 255.0, lc.g / 255.0, lc.b / 255.0, lc.a / 255.0],
                "visible": bool(comp.get_editor_property("visible")), "hidden_in_game": bool(a.get_editor_property("hidden")),
-               "keyed": {}, "first": {}, "last": {}}
+               "keyed": {}, "first": {}, "last": {}, "curves": {}}
         for nm in {row["label"], row["name"]}:
             for b in seq_bindings.get(nm, []):
                 for child, t in _binding_tracks(b):
@@ -955,16 +1193,35 @@ def _light_rows(actors, seq_bindings, her_lo, her_hi_last):
                         if p == "Intensity" and len(chans) == 1:
                             row["first"]["Intensity"] = _ch_eval(chans[0], her_lo)
                             row["last"]["Intensity"] = _ch_eval(chans[0], her_hi_last)
+                            if tpf:
+                                row["curves"]["Intensity"] = _ch_curve(chans[0], tpf)
                         elif p == "LightColor" and len(chans) >= 3:
                             row["first"]["LightColor"] = [_ch_eval(c, her_lo) for c in chans]
                             row["last"]["LightColor"] = [_ch_eval(c, her_hi_last) for c in chans]
+                            if tpf:
+                                row["curves"]["LightColor"] = [_ch_curve(c, tpf) for c in chans]
         row["target_first"] = row["first"].get("Intensity", row["intensity"])
         row["target_last"] = row["last"].get("Intensity", row["intensity"])
         rows.append(row)
     return rows
 
 
-def _env_rows(actors, seq_bindings, her_lo, her_hi_last):
+def _her_prop_curve(seq_bindings, actor, prop, tpf):
+    """(her copy keys `prop` on this actor or its components?, its key curve when exactly one channel) [v3]."""
+    keyed, curve = False, None
+    for nm in {str(actor.get_actor_label()), str(actor.get_name())}:
+        for b in seq_bindings.get(nm, []):
+            for _c, t in _binding_tracks(b):
+                if _prop(t) == prop:
+                    keyed = True
+                    ch = [c for sct in t.get_sections() for c in sct.get_all_channels()]
+                    if len(ch) == 1 and tpf:
+                        curve = _ch_curve(ch[0], tpf)
+    return keyed, curve
+
+
+def _env_rows(actors, seq_bindings, her_lo, her_hi_last, tpf=None):
+    """Her environment actors. v3: when her copy keys the ramped property, its key curve is kept (value at Lh)."""
     rows = []
     for a in actors:
         cls = a.get_class().get_name()
@@ -973,9 +1230,9 @@ def _env_rows(actors, seq_bindings, her_lo, her_hi_last):
                                             else unreal.LightComponentBase)
             prop = ENV_INTENSITY[cls]
             val = float(comp.get_editor_property("fog_density" if prop == "FogDensity" else "intensity"))
-            rows.append({"label": str(a.get_actor_label()), "class": cls, "property": prop, "value": val,
-                         "her_keyed": any(_prop(t) == prop for b in seq_bindings.get(str(a.get_actor_label()), [])
-                                          for _c, t in _binding_tracks(b))})
+            row = {"label": str(a.get_actor_label()), "class": cls, "property": prop, "value": val}
+            row["her_keyed"], row["curve"] = _her_prop_curve(seq_bindings, a, prop, tpf)
+            rows.append(row)
         elif cls == "PostProcessVolume":
             st = a.get_editor_property("settings")
             exp = {n: bool(st.get_editor_property("override_" + n)) for n in
@@ -986,6 +1243,7 @@ def _env_rows(actors, seq_bindings, her_lo, her_hi_last):
                          "unbound": bool(a.get_editor_property("unbound")),
                          "priority": float(a.get_editor_property("priority")), "exposure_overrides": exp,
                          "enabled": bool(a.get_editor_property("enabled"))})
+            rows[-1]["her_keyed"], rows[-1]["curve"] = _her_prop_curve(seq_bindings, a, "BlendWeight", tpf)
         elif cls in ("SkyAtmosphere", "VolumetricCloud"):
             rows.append({"label": str(a.get_actor_label()), "class": cls, "property": None,
                          "note": "no intensity: lit by her sun, which ramps from 0 [inf]"})
@@ -1200,9 +1458,11 @@ def gather(args, world, run):
     if len(sub) != 1:
         raise PlanError("SLOT_SECTION_COUNT: %d" % len(sub))
     facts["slot_live"] = [int(sub[0].get_start_frame()), int(sub[0].get_end_frame()), bool(sub[0].is_active())]
-    if facts["slot_live"][:2] != [C, E]:
-        raise PlanError("SLOT_DRIFT: live %s vs hookin record [%d, %d] (a reveal still applied? REVERT it first)"
-                        % (facts["slot_live"], C, E))
+    facts["slot_offset_tick_live"] = int(sub[0].get_editor_property("parameters")
+                                         .get_editor_property("start_frame_offset").value)
+    if facts["slot_live"][:2] != [C, E] or facts["slot_offset_tick_live"] != 0:
+        raise PlanError("SLOT_DRIFT: live %s offset %d vs hookin record [%d, %d] offset 0 (a reveal still applied? "
+                        "REVERT it first)" % (facts["slot_live"], facts["slot_offset_tick_live"], C, E))
     facts["arrival"] = _land(seq, key)
     box, entry = _live_box(key, args)
     facts["box"], facts["entry_camera"] = box, entry
@@ -1229,8 +1489,27 @@ def gather(args, world, run):
     sb = _bindings_by_name(copy)
     her_lo, her_last = int(copy.get_playback_start()), int(copy.get_playback_end()) - 1
     facts["her_range"] = [her_lo, her_last + 1]
-    facts["her_lights"] = _light_rows(her_actors, sb, her_lo, her_last)
-    facts["her_env"] = _env_rows(her_actors, sb, her_lo, her_last)
+    her_fps = _rate(copy.get_display_rate())
+    tpf = _rate(copy.get_tick_resolution()) / her_fps
+    facts["her_fps"], facts["her_tpf"] = her_fps, tpf
+    facts["her_lights"] = _light_rows(her_actors, sb, her_lo, her_last, tpf)
+    facts["her_env"] = _env_rows(her_actors, sb, her_lo, her_last, tpf)
+    _gather_lit(facts, copy, cam_pool, args, fps)
+    facts["her_audio"] = [{"sound": _path(a.get_sound()), "active": bool(a.is_active()),
+                           "start_frame": int(a.get_start_frame()), "end_frame": int(a.get_end_frame())}
+                          for t in copy.get_tracks() if isinstance(t, unreal.MovieSceneAudioTrack)
+                          for a in t.get_sections()]                                  # klara_hookin.py:718-720 [prec]
+    facts["scene_audio"] = [{"track": str(t.get_display_name()), "sound": _path(a.get_sound()),
+                             "active": bool(a.is_active()), "range": [int(a.get_start_frame()), int(a.get_end_frame())]}
+                            for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneAudioTrack)
+                            for a in t.get_sections()]
+    try:                                                                              # curtain_sleight.py:1297-1299 [prec]
+        facts["scene_markers"] = [{"label": str(m.get_editor_property("label")),
+                                   "frame": int(m.get_editor_property("frame_number").value)}
+                                  for m in seq.get_marked_frames_from_sequence(unreal.MovieSceneTimeUnit.DISPLAY_RATE)]
+    except Exception as exc:  # noqa: BLE001 - reported, not a refusal
+        facts["scene_markers"] = []
+        facts["scene_markers_error"] = "%s: %s" % (type(exc).__name__, exc)
     facts["hangar_lights"] = _hangar_lights(key, box, None)
     facts["rig_bulbs"] = sorted(str(a.get_actor_label()) for a in _actors()
                                 if str(a.get_actor_label()).startswith(BULB_PREFIX % key))
@@ -1261,6 +1540,61 @@ def gather(args, world, run):
     return facts, seq, copy
 
 
+def _gather_lit(facts, copy, cam_pool, args, scene_fps):
+    """v3: her lit frame (pure find_lit_frame + snap) and every value the plan needs AT it: camera pose + lens (the cut
+    covering it), each light's Intensity / LightColor, each env property. Detection problems become refusals."""
+    lit = detect_lit(facts, args, scene_fps)
+    facts["lit"] = lit
+    Lh = lit["frame"]
+    if Lh is None or not lit.get("v3", True):
+        return
+    try:
+        facts["her_lit"] = _her_camera(copy, "lit", Lh, facts["her_tpf"])
+    except PlanError as exc:
+        lit["refusals"].append(str(exc))
+        return
+    cams = [a for a in cam_pool if str(a.get_actor_label()) == facts["her_lit"]["binding"]
+            or str(a.get_name()) == facts["her_lit"]["binding"]]
+    facts["her_lit"]["actor"] = _camera_actor_facts(cams[0]) if len(cams) == 1 else None
+    if len(cams) != 1:
+        lit["refusals"].append("HER_CAMERA_ACTOR_LIT: %d match %r" % (len(cams), facts["her_lit"]["binding"]))
+    apply_lit_values(facts, Lh)
+
+
+def detect_lit(facts, args, scene_fps):
+    """Pure: her lit frame from facts["her_lights"][*]["curves"]["Intensity"], snapped onto our grid."""
+    cfg = lit_cfg(args)
+    lo, hi = facts["her_range"]
+    if not cfg.get("enabled", True):
+        return {"method": "disabled (v2: her first frame)", "frame": lo, "frame_raw": lo, "refusals": [],
+                "warnings": [], "v3": False}
+    curves = {r["label"]: (r.get("curves") or {}).get("Intensity") for r in facts["her_lights"]}
+    lit = find_lit_frame(curves, lo, hi, facts["her_fps"], cfg)
+    lit["frame"] = None
+    if lit["frame_raw"] is not None:
+        try:
+            lit["frame"], lit["snap_step"] = snap_her_frame(lit["frame_raw"], lo, facts["her_fps"], scene_fps)
+        except PlanError as exc:
+            lit["refusals"].append(str(exc))
+    if lit["frame"] is not None:
+        lit["s_into_her"] = (lit["frame"] - lo) / float(facts["her_fps"])
+        lit["her_time_s"] = lit["frame"] / float(facts["her_fps"])
+    return lit
+
+
+def apply_lit_values(facts, Lh):
+    """Pure: every light's / env row's value at her lit frame Lh from its kept curve (unkeyed -> level value)."""
+    for r in facts["her_lights"]:
+        c = (r.get("curves") or {}).get("Intensity")
+        r["target_lit"] = float(curve_at(c, Lh)) if c and c.get("keys") else float(r["intensity"])
+        cc = (r.get("curves") or {}).get("LightColor")
+        r["color_lit"] = [float(curve_at(x, Lh)) for x in cc] if cc else None
+    for e in facts["her_env"]:
+        c = e.get("curve")
+        if e.get("property") is not None:
+            e["value_lit"] = float(curve_at(c, Lh)) if c and c.get("keys") else float(e["value"])
+
+
 def build_plan(facts, args):
     """facts (plain data) -> the full plan. Pure: the harness drives it with recorded/synthetic facts."""
     key, fps = facts["scene"], float(facts["fps"])
@@ -1272,7 +1606,30 @@ def build_plan(facts, args):
     if not facts.get("set_world"):
         refusals.append("DIORAMA_FOOTPRINT_EMPTY (see footprint.excluded)")
         return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False}
-    place = solve_placement(first["loc"], facts["set_world"][:4], facts["set_world"][5] - dock["loc"][2], dock, box,
+    # v3: everything the intro settles to is HER LIT FRAME Lh (Gary 7 Oct "Strike to her lit look; skip her dark
+    # opening"); lit.enabled false = v2 (her first frame, no skip)
+    cfg_lit = lit_cfg(args)
+    v3 = bool(cfg_lit.get("enabled", True))
+    lit = dict(facts.get("lit") or {})
+    her_lo, her_hi = (facts.get("her_range") or [None, None])[:2]
+    refusals += list(lit.get("refusals") or [])
+    warnings += list(lit.get("warnings") or [])
+    if v3:
+        anchor = facts.get("her_lit")
+        if lit.get("frame") is None or not anchor:
+            refusals.append("LIT_FRAME_UNKNOWN: frame %r, camera at it %s" % (lit.get("frame"), bool(anchor)))
+            return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False, "lit": lit}
+        if int(anchor.get("frame")) != int(lit["frame"]):
+            refusals.append("LIT_CAMERA_FRAME_MISMATCH: camera read at %r, lit frame %r" % (anchor.get("frame"),
+                                                                                         lit["frame"]))
+        missing = [r["label"] for r in facts["her_lights"] if "target_lit" not in r]
+        if missing:
+            refusals.append("LIT_VALUES_MISSING: %s (apply_lit_values not run)" % missing)
+        Lh = int(lit["frame"])
+    else:
+        anchor = first
+        Lh = her_lo
+    place = solve_placement(anchor["loc"], facts["set_world"][:4], facts["set_world"][5] - dock["loc"][2], dock, box,
                             pl["lead_cm"], pl.get("x_min_local", box["apron"]), pl["side_margin_cm"],
                             lead_max_cm=pl.get("lead_max_cm"))
     if not place["checks"]["lead_in_range"]:
@@ -1314,14 +1671,15 @@ def build_plan(facts, args):
         return (lt.get("CurrentFocalLength", a.get("focal")),
                 lt.get("ManualFocusDistance", lt.get("FocusSettings.ManualFocusDistance", a.get("focus"))))
 
-    f1, fo1 = lens_of(first)
+    f1, fo1 = lens_of(anchor)
     fL, foL = lens_of(last)
     if f1 is None or fL is None:
         refusals.append("HER_LENS_UNKNOWN: first %r last %r" % (f1, fL))
         f1, fL = f1 or 35.0, fL or 35.0
     start_pose = {"loc": entry["loc"], "rot": entry["rot"], "focal": equiv_focal(entry["focal"], entry["sensor"][0], sensor[0]),
                   "focus": entry["focus"]}
-    first_pose = {"loc": sh(first["loc"]), "rot": first["rot"], "focal": f1, "focus": fo1 or entry["focus"]}
+    first_pose = {"loc": sh(anchor["loc"]), "rot": anchor["rot"], "focal": f1, "focus": fo1 or entry["focus"]}
+    # (v3: first_pose IS her pose at Lh - the glide's end and the held frame until the cut)
     last_pose = {"loc": sh(last["loc"]), "rot": last["rot"], "focal": fL, "focus": foL or entry["focus"]}
     ex = facts["exit_camera"]
     exit_pose = {"loc": ex["loc"], "rot": ex["rot"], "focal": equiv_focal(ex["focal"], ex["sensor"][0], sensor[0]),
@@ -1332,43 +1690,74 @@ def build_plan(facts, args):
     vmax = float(args["intro"].get("max_glide_speed_cm_s", 300.0))
     # v2: the glide ends in the DARK and holds on her first pose before anything lights, so it ends at rest
     gin_s, gin_peak = glide_seconds(start_pose, first_pose, fps, [0.0, 0.0, 0.0], vmax, args["intro"]["glide_s"])
-    her_v = math.sqrt(sum(v * v for v in first["vel_cm_s"]))
+    her_v = math.sqrt(sum(v * v for v in anchor["vel_cm_s"]))
     if her_v > 5.0:
-        warnings.append("HER_FIRST_FRAME_MOVES: %.1f cm/s - the held camera steps into her motion at the cut" % her_v)
+        warnings.append("HER_%s_FRAME_MOVES: %.1f cm/s - the held camera steps into her motion at the cut"
+                        % ("LIT" if v3 else "FIRST", her_v))
+    # the slot starts INTO her copy at Lh (v3); her opening never plays and everything after the slot comes earlier
+    if v3:
+        sk = slot_skip(her_lo, her_hi, Lh, facts["her_fps"], fps, facts["her_tpf"], facts["E"] - facts["C"])
+        refusals += sk["refusals"]
+    else:
+        sk = {"skip_frames": 0, "offset_ticks": 0, "her_frame": her_lo, "refusals": []}
+    tgt = (lambda r: r.get("target_lit", r["target_first"])) if v3 else (lambda r: r["target_first"])
+    min_v = float(cfg_lit["min_value"])
     gout_s, gout_peak = glide_seconds(last_pose, exit_pose, fps, [0.0, 0.0, 0.0], vmax, args["outro"]["glide_s"])
     if gin_s is None or gout_s is None:
         refusals.append("GLIDE_TOO_FAST: no glide <= 40 s keeps peak <= %.0f cm/s (in %r, out %r)" % (vmax, gin_peak,
                                                                                                         gout_peak))
         gin_s, gout_s = gin_s or args["intro"]["glide_s"], gout_s or args["outro"]["glide_s"]
-    tl = plan_timeline(facts["L"], facts["C"], facts["E"], fps, len(lights), args, exit_len, gin_s, gout_s)
+    n_strike = sum(1 for x in lights if tgt(x["row"]) > min_v)
+    tl = plan_timeline(facts["L"], facts["C"], facts["E"], fps, n_strike, args, exit_len, gin_s, gout_s,
+                       skip=sk["skip_frames"] if not sk["refusals"] else 0)
     tl["glide_in_s"], tl["glide_out_s"] = gin_s, gout_s
     refusals += tl["refusals"]
     warnings += tl["warnings"]
     plan = {"scene": key, "fps": fps, "placement": place, "level_transform_before": facts["level_transform"],
             "level_transform_after": new_lt, "set_world_after": set_after, "hangar_proposal": proposal,
             "timeline": tl, "refusals": refusals, "warnings": warnings, "sensor_mm": sensor,
-            "poses": {"entry": start_pose, "her_first": first_pose, "her_last": last_pose, "exit": exit_pose}}
+            "poses": {"entry": start_pose, "her_lit": first_pose, "her_first": first_pose if not v3 else
+                      {"loc": sh(first["loc"]), "rot": first["rot"], "focal": lens_of(first)[0],
+                       "focus": lens_of(first)[1]}, "her_last": last_pose, "exit": exit_pose},
+            "lit": dict(lit, v3=v3, camera={k: anchor.get(k) for k in ("binding", "frame", "cut", "loc", "rot",
+                                                                         "lens_tracks", "vel_cm_s", "ang_deg_s")},
+                        camera_after_move=first_pose, slot=sk)}
     if tl["refusals"]:
         return plan
     seed = "%s|S%s" % (args["intro"]["seed"], key)
-    sch = schedule(len(lights), tl["strike_window"][0], tl["strike_window"][1], fps, seed, args["intro"]["gap_s"],
+    sch = schedule(n_strike, tl["strike_window"][0], tl["strike_window"][1], fps, seed, args["intro"]["gap_s"],
                    args["intro"]["min_gap_s"])
     refusals += sch["refusals"]
     warnings += sch["warnings"]
     rows = []
-    for i, lt_row in enumerate(lights):
+    i_strike = 0
+    for lt_row in lights:
         r = lt_row["row"]
-        f_in = sch["frames"][i] if i < len(sch["frames"]) else None
-        # outro: reverse order, gaps from the outro range (own generator)
+        target = float(tgt(r))
+        strikes = target > min_v
+        f_in = None
+        if strikes:
+            f_in = sch["frames"][i_strike] if i_strike < len(sch["frames"]) else None
+            i_strike += 1
+        # v3: a light that is dark at Lh is held at 0 over [land, cut) (no strike; her copy takes it from the cut)
+        if not strikes:
+            intro = [[tl["land"], 0.0]]
+        elif f_in is None:
+            intro = None
+        else:
+            intro = dedupe_keys([[tl["land"], 0.0]] + strike_keys(target, f_in, seed, r["label"], fps,
+                                                                  args["intro"]["flicker_window_s"]))
+        color_lit = r.get("color_lit") if v3 else None
         rows.append({"label": r["label"], "class": r["class"], "dist_cm": math.dist(lt_row["loc"], first_pose["loc"]),
                      "strike_frame": f_in, "strike_s": None if f_in is None else f_in / fps,
-                     "target_first": r["target_first"], "target_last": r["target_last"],
+                     "strikes": strikes, "target_intro": target, "target_first": r["target_first"],
+                     "target_lit": r.get("target_lit"), "target_last": r["target_last"],
                      "her_keys": sorted(r["keyed"]), "color_first": r["first"].get("LightColor"),
-                     "color_last": r["last"].get("LightColor"),
-                     "intro_keys": None if f_in is None else
-                     dedupe_keys([[tl["land"], 0.0]] + strike_keys(r["target_first"], f_in, seed, r["label"], fps,
-                                                                   args["intro"]["flicker_window_s"])),
-                     "warn_hidden": r["hidden_in_game"] or not r["visible"]})
+                     "color_last": r["last"].get("LightColor"), "color_lit": color_lit,
+                     "intro_color": None if color_lit is None else {"range": [tl["land"], tl["cut"]], "rgba": color_lit},
+                     "intro_keys": intro, "warn_hidden": r["hidden_in_game"] or not r["visible"]})
+    if v3 and n_strike == 0:
+        refusals.append("NO_LIGHT_LIT_AT_LIT_FRAME: %d (detection must be wrong; see lit.per_light)" % Lh)
     out_sch = schedule(len(rows), tl["blink_window"][0],
                        tl["blink_window"][1] - int(math.ceil(args["outro"]["flicker_window_s"] * fps)) - 1, fps,
                        seed + "|out", args["outro"]["blink_gap_s"], 1.0 / fps)
@@ -1388,11 +1777,14 @@ def build_plan(facts, args):
             env.append(dict(e, action="visible_from_G0 (no intensity)"))
             continue
         v = e["value"]
-        env.append(dict(e, action="ramp", intro=ramp_keys(0.0, v, tl["crossfade"][0], tl["crossfade"][1]),
+        v_in = float(e.get("value_lit", v)) if v3 else v
+        env.append(dict(e, action="ramp", target_intro=v_in,
+                        intro=ramp_keys(0.0, v_in, tl["crossfade"][0], tl["crossfade"][1]),
                         outro=ramp_keys(v, 0.0, tl["env_out"][0], tl["env_out"][1])))
         if e.get("her_keyed"):
-            warnings.append("ENV_KEYED_BY_HER: %s %s (crossfade targets the LEVEL value; check her first-frame value)"
-                            % (e["label"], e["property"]))
+            warnings.append("ENV_KEYED_BY_HER: %s %s (crossfade targets %s; the outro still fades from the LEVEL value)"
+                            % (e["label"], e["property"], "her value at Lh %.4g" % v_in if (v3 and e.get("curve"))
+                               else "the LEVEL value - her curve was not readable"))
         if e["class"] == "PostProcessVolume":
             ours = [h for h in facts.get("our_ppv") or []]
             if not any(e["exposure_overrides"].values()):
@@ -1482,9 +1874,12 @@ def build_plan(facts, args):
     if facts["playback"][1] != tl["planned_end"]:
         plan["relength_first"] = True
     plan["slot"] = {"mode": args["slot"], "range": tl["slot"], "range_before": tl["slot_before"],
-                    "shift": tl["slot_shift"],
+                    "shift": tl["slot_shift"], "skip_frames": tl["slot_skip"], "her_frame_at_cut": Lh,
+                    "start_offset_ticks": sk["offset_ticks"], "her_range": [her_lo, her_hi],
                     "media_track_note": "later: a MovieSceneMediaTrack section over the same range replaces the "
                                         "nested copy 1:1 (videos = renders of her LS, Gary 7 Oct)"}
+    plan["audio"] = audio_report(facts.get("her_audio"), facts.get("scene_audio"), facts.get("scene_markers"), Lh,
+                                 float(facts.get("her_fps") or fps), tl["cut"], fps, tl["planned_end"])
     plan["footprint"] = facts.get("footprint")
     plan["apply_ready"] = not refusals
     return plan
@@ -1516,18 +1911,35 @@ def _add_float(binding, prop, path, sections, interp, run, label):          # pr
     return t
 
 
-def _bind_component(seq, actor, comp, label):                 # prec curtain_sleight.py:1918-1928
-    b = seq.add_possessable(actor)
-    b.set_display_name(PREFIX + label)
-    kb = seq.add_possessable(comp)
-    kb.set_parent(b)
-    kb.set_display_name(PREFIX + label + "/Component")
+def _possess(seq, obj, name, shared):
+    """add_possessable, but NEVER rename a binding someone else owns. 7 Oct [meas]: both live records' hookin_after
+    lack the four env 'Hers Dark' names that their 'before' has, and no APPLY step removes a binding, so
+    add_possessable on an actor the hookin already binds returned THAT binding and set_display_name renamed it
+    [inf: the only explanation the records allow; MovieSceneSequenceExtensions.h:403-411 says 'new binding'].
+    A reused binding is listed in `shared` (guid + its own name) and keeps its name; REVERT removes only OUR tracks
+    (display name PREFIX...) and OUR child bindings from it."""
+    gs = unreal.GuidLibrary.conv_guid_to_string
+    before = {gs(b.get_id()) for b in seq.get_bindings()}
+    b = seq.add_possessable(obj)
+    g = gs(b.get_id())
+    if g in before:
+        shared.append({"guid": g, "name": str(b.get_display_name()), "wanted": name})
+        return b
+    b.set_display_name(name)
+    return b
+
+
+def _bind_component(seq, actor, comp, label, shared):          # prec curtain_sleight.py:1918-1928
+    b = _possess(seq, actor, PREFIX + label, shared)
+    kb = _possess(seq, comp, PREFIX + label + "/Component", shared)
+    if not any(x["guid"] == unreal.GuidLibrary.conv_guid_to_string(kb.get_id()) for x in shared):
+        kb.set_parent(b)
     return b, kb
 
 
-def _add_color_black(seq, actor, label, rng, run):
+def _add_color_black(seq, actor, label, rng, run, shared):
     comp = actor.get_component_by_class(unreal.LightComponent)
-    _b, kb = _bind_component(seq, actor, comp, label)
+    _b, kb = _bind_component(seq, actor, comp, label, shared)
     t = kb.add_track(unreal.MovieSceneColorTrack)
     t.set_property_name_and_path(unreal.Name("LightColor"), "LightColor")
     t.set_display_name(PREFIX + "LightColor")
@@ -1542,11 +1954,31 @@ def _add_color_black(seq, actor, label, rng, run):
     return s
 
 
-def _add_color_keys(seq, actor, label, rng, keys, run):
+def _add_color_const(kb, label, rng, rgba, run):
+    """v3: her LightColor at Lh held over [land, cut) on OUR component binding (her copy keys LightColor from the cut,
+    so the colour is continuous across it [inf: same property, same value at Lh])."""
+    t = kb.add_track(unreal.MovieSceneColorTrack)
+    t.set_property_name_and_path(unreal.Name("LightColor"), "LightColor")
+    t.set_display_name(PREFIX + "LightColor")
+    s = t.add_section()
+    s.set_range(int(rng[0]), int(rng[1]))
+    s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+    chans = list(s.get_all_channels())
+    if len(chans) != len(rgba) or len(chans) != 4:
+        _stop(run, "COLOR_CHANNELS|%s|%d vs %d|NOTHING SAVED; Don't-Save restart" % (label, len(chans), len(rgba)))
+    for c, v in zip(chans, rgba):
+        c.set_default(float(v))
+    got = [float(c.get_default()) for c in chans]
+    if any(abs(g - float(w)) > max(1e-3, 1e-6 * abs(float(w))) for g, w in zip(got, rgba)):
+        _stop(run, "COLOR_READBACK|%s|%s|NOTHING SAVED; Don't-Save restart" % (label, got))
+    return s
+
+
+def _add_color_keys(seq, actor, label, rng, keys, run, shared):
     """LightColor keyed (LINEAR) - fades a ceiling glow out/in on top of the rise's Intensity keys (multiplicative,
     so nothing fights the Arrival/rise owner, InfinityStageArrival.cpp:282-289)."""
     comp = actor.get_component_by_class(unreal.LightComponent)
-    _b, kb = _bind_component(seq, actor, comp, label)
+    _b, kb = _bind_component(seq, actor, comp, label, shared)
     t = kb.add_track(unreal.MovieSceneColorTrack)
     t.set_property_name_and_path(unreal.Name("LightColor"), "LightColor")
     t.set_display_name(PREFIX + "LightColor")
@@ -1567,11 +1999,10 @@ def _add_color_keys(seq, actor, label, rng, keys, run):
     return sc
 
 
-def _add_lattice_cancel(seq, actor, plan_lat, run):
+def _add_lattice_cancel(seq, actor, plan_lat, run, shared):
     """ADDITIVE transform section on the Lattice Fly in OUR Scene: Location.Z = cancel_keys, all else 0 [inf: the
     Scene's additive adds onto the rise's absolute; PIE stills over the old lowering window must confirm]."""
-    b = seq.add_possessable(actor)
-    b.set_display_name(PREFIX + "Lattice Hold: " + str(actor.get_actor_label()))
+    b = _possess(seq, actor, PREFIX + "Lattice Hold: " + str(actor.get_actor_label()), shared)
     t = b.add_track(unreal.MovieScene3DTransformTrack)
     t.set_display_name(PREFIX + "Lattice Hold")
     sc = t.add_section()
@@ -1611,14 +2042,14 @@ def _add_lattice_cancel(seq, actor, plan_lat, run):
     return got
 
 
-def _add_visibility(seq, actor, label, rng, hidden):          # prec klara_hookin.py:1143-1159
-    b = seq.add_possessable(actor)
-    b.set_display_name(PREFIX + "Hide: " + label)
+def _add_visibility(seq, actor, label, rng, hidden, shared):  # prec klara_hookin.py:1143-1159
+    b = _possess(seq, actor, PREFIX + "Hide: " + label, shared)
     t = b.add_track(unreal.MovieSceneVisibilityTrack)
     if str(t.get_property_name()) in ("None", ""):
         t.set_property_name_and_path("bHiddenInGame", "bHiddenInGame")
     if str(t.get_property_name()) != "bHiddenInGame":
         raise PlanError("VISIBILITY_TRACK_PROPERTY: %r" % str(t.get_property_name()))
+    t.set_display_name(PREFIX + "Visibility")          # v3: REVERT finds OUR tracks on a shared binding by name
     s = t.add_section()
     s.set_range(int(rng[0]), int(rng[1]))
     s.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
@@ -1729,14 +2160,27 @@ def run_dry(args, run, world):
     if p.get("glide"):
         unreal.log("KLARAREVEAL_GLIDE|run=%s|S%s|in=%s|out=%s" % (run, key, json.dumps(p["glide"]["in"]),
                                                                   json.dumps(p["glide"]["out"])))
+    lit = p.get("lit") or {}
+    unreal.log("KLARAREVEAL_LIT|run=%s|S%s|v3=%s|method=%s|frame=%s|raw=%s|s_into_her=%s|her_time_s=%s|ever_lit=%s|needed=%s|"
+               "sum_frame=%s|window=%s" % (run, key, lit.get("v3"), lit.get("method"), lit.get("frame"), lit.get("frame_raw"),
+                                           lit.get("s_into_her"), lit.get("her_time_s"), lit.get("n_ever_lit"),
+                                           lit.get("n_needed"), lit.get("sum_frame"), lit.get("window")))
+    for lab, row in sorted((lit.get("per_light") or {}).items()):
+        unreal.log("KLARAREVEAL_LIT_LIGHT|run=%s|S%s|%s|%s" % (run, key, lab, json.dumps(row)[:1500]))
+    unreal.log("KLARAREVEAL_LIT_CAMERA|run=%s|S%s|%s" % (run, key, json.dumps(lit.get("camera"), default=str)))
+    unreal.log("KLARAREVEAL_SLOT|run=%s|S%s|%s" % (run, key, json.dumps(p.get("slot"), default=str)))
+    unreal.log("KLARAREVEAL_AUDIO|run=%s|S%s|%s" % (run, key, json.dumps(
+        {k: v for k, v in (p.get("audio") or {}).items() if k != "scene_audio_all"}, default=str)[:3000]))
     for r in p.get("her_lights") or []:
-        unreal.log("KLARAREVEAL_LIGHT|run=%s|S%s|%s|%s|strike_s=%s|target=%s|blink=%s|her_keys=%s"
-                   % (run, key, r["label"], r["class"], r["strike_s"], r["target_first"], r["blink_frame"], r["her_keys"]))
+        unreal.log("KLARAREVEAL_LIGHT|run=%s|S%s|%s|%s|strikes=%s|strike_s=%s|target=%s|first=%s|blink=%s|her_keys=%s|"
+                   "colour=%s" % (run, key, r["label"], r["class"], r.get("strikes"), r["strike_s"], r.get("target_intro"),
+                                  r["target_first"], r["blink_frame"], r["her_keys"], r.get("color_lit")))
     for h in p.get("hangar_lights") or []:
         unreal.log("KLARAREVEAL_HANGAR_LIGHT|run=%s|S%s|%s|%s|%s" % (run, key, h["label"], h["action"], h.get("reach")))
     for e in p.get("her_env") or []:
-        unreal.log("KLARAREVEAL_ENV|run=%s|S%s|%s|%s|%s|%s" % (run, key, e["label"], e["class"], e.get("property"),
-                                                               e.get("value")))
+        unreal.log("KLARAREVEAL_ENV|run=%s|S%s|%s|%s|%s|level=%s|at_lit=%s|her_keyed=%s"
+                   % (run, key, e["label"], e["class"], e.get("property"), e.get("value"), e.get("target_intro"),
+                      e.get("her_keyed")))
     lat = p.get("lattice") or {}
     unreal.log("KLARAREVEAL_LATTICE|run=%s|S%s|mode=%s|facts=%s|lowers_cm=%s|lowers_scene_frames=%s"
                % (run, key, lat.get("mode"), json.dumps(lat.get("facts"), default=str)[:1500],
@@ -1788,7 +2232,9 @@ def run_apply(args, run, world):
     rec = {"schema": 1, "tool": TOOL, "run": run, "scene": key, "applied": False, "backup": folder, "manifest": manifest,
            "decided_by": args.get("decided_by"), "written": datetime.datetime.now().isoformat(timespec="seconds"),
            "before": {"level_transform": facts["level_transform"], "cuts": facts["cuts"], "playback": facts["playback"],
-                      "hookin_bindings": facts["hookin_bindings"]},
+                      "hookin_bindings": facts["hookin_bindings"],
+                      "slot": {"range": facts["slot_live"][:2], "offset_tick": facts["slot_offset_tick_live"]}},
+           "shared_bindings": [],
            "plan": {k: v for k, v in plan.items() if k != "glide"}, "glide_report": plan["glide"]["in"]}
     write_record_exclusive(rpath, rec)
     # 1. level + copy (same delta)
@@ -1796,6 +2242,7 @@ def run_apply(args, run, world):
     rec["copy_shift"] = _shift_copy(copy, world, row["level"], plan["placement"]["delta"], run)
     update_record(rpath, rec)
     # 2. glide camera (a level actor, unattached, world keys) [prec curtain_sleight.py:1837-1852]
+    shared = rec["shared_bindings"]                     # filled by _possess; saved with the record below
     sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
     k0 = plan["glide"]["keys"][0]
     cam = sub.spawn_actor_from_class(unreal.CineCameraActor, unreal.Vector(*k0[1:4]),
@@ -1810,11 +2257,11 @@ def run_apply(args, run, world):
     fs = comp.get_editor_property("focus_settings")
     fs.set_editor_property("focus_method", unreal.CameraFocusMethod.MANUAL)
     comp.set_editor_property("focus_settings", fs)
-    cb = seq.add_possessable(cam)
-    cb.set_display_name(PREFIX + plan["glide"]["camera_label"])
-    kb = seq.add_possessable(comp)
+    cb = _possess(seq, cam, PREFIX + plan["glide"]["camera_label"], shared)
+    kb = _possess(seq, comp, PREFIX + plan["glide"]["camera_label"] + "/CameraComponent", shared)
+    if shared:
+        _stop(run, "GLIDE_CAMERA_ALREADY_BOUND|%s|NOTHING SAVED; Don't-Save restart" % shared)
     kb.set_parent(cb)
-    kb.set_display_name(PREFIX + plan["glide"]["camera_label"] + "/CameraComponent")
     tr = cb.add_track(unreal.MovieScene3DTransformTrack)
     tr.set_display_name(PREFIX + "Glide")
     ts = tr.add_section()
@@ -1840,23 +2287,23 @@ def run_apply(args, run, world):
         a = her.get(r["label"])
         if a is None:
             _stop(run, "HER_LIGHT_GONE|%s|NOTHING SAVED; Don't-Save restart" % r["label"])
-        _b, lkb = _bind_component(seq, a, a.get_component_by_class(unreal.LightComponent), r["label"])
+        _b, lkb = _bind_component(seq, a, a.get_component_by_class(unreal.LightComponent), r["label"], shared)
         _add_float(lkb, "Intensity", "Intensity", [([tl["land"], tl["cut"]], r["intro_keys"]),
                                                    ([tl["slot"][1], tl["planned_end"]], r["outro_keys"])],
                    const, run, r["label"])
+        if r.get("intro_color"):                       # v3: her LightColor at Lh over [land, cut)
+            _add_color_const(lkb, r["label"], r["intro_color"]["range"], r["intro_color"]["rgba"], run)
     # 4. her environment: crossfade in [G0, C), fade out [E, end)
     for e in plan["her_env"]:
         if e.get("action") != "ramp":
             continue
         a = her.get(e["label"])
         if e["class"] == "PostProcessVolume":
-            b = seq.add_possessable(a)
-            b.set_display_name(PREFIX + e["label"])
-            tgt = b
+            tgt = _possess(seq, a, PREFIX + e["label"], shared)
         else:
             comp_e = a.get_component_by_class(unreal.ExponentialHeightFogComponent if e["class"] == "ExponentialHeightFog"
                                               else unreal.LightComponentBase)
-            _b, tgt = _bind_component(seq, a, comp_e, e["label"])
+            _b, tgt = _bind_component(seq, a, comp_e, e["label"], shared)
         _add_float(tgt, e["property"], e["property"],
                    [([tl["crossfade"][0], tl["cut"]], e["intro"]),
                     ([tl["env_out"][0], tl["planned_end"]], dedupe_keys(e["outro"] + [[tl["planned_end"] - 1, 0.0]]))],
@@ -1865,26 +2312,26 @@ def run_apply(args, run, world):
     for h in plan["hangar_lights"]:
         a = _one(h["label"], run)
         if h["action"] == "black_color":
-            _add_color_black(seq, a, h["label"], h["range"], run)
+            _add_color_black(seq, a, h["label"], h["range"], run, shared)
         elif h["action"] == "fade_color":
-            _add_color_keys(seq, a, h["label"], h["range"], h["color_keys"], run)
+            _add_color_keys(seq, a, h["label"], h["range"], h["color_keys"], run, shared)
         elif h["action"] == "clamp_radius":
-            _b, hk = _bind_component(seq, a, a.get_component_by_class(unreal.LightComponent), h["label"])
+            _b, hk = _bind_component(seq, a, a.get_component_by_class(unreal.LightComponent), h["label"], shared)
             _add_float(hk, "AttenuationRadius", "AttenuationRadius", [([0, tl["planned_end"]], [[0, h["clamp_cm"]]])],
                        const, run, h["label"])
     # 6. roof (+ seen walls) hidden; rig bulbs hidden while the rig is dark
     for lab in plan["hide"]["labels"]:
-        _add_visibility(seq, _one(lab, run), lab, plan["hide"]["range"], True)
+        _add_visibility(seq, _one(lab, run), lab, plan["hide"]["range"], True, shared)
     for lab in plan["rig_bulbs_hidden"]["labels"]:
-        _add_visibility(seq, _one(lab, run), lab, plan["rig_bulbs_hidden"]["range"], True)
+        _add_visibility(seq, _one(lab, run), lab, plan["rig_bulbs_hidden"]["range"], True, shared)
     # 6b. the ceiling rig does not lower
     lat = plan["lattice"]
     if lat["mode"] == "cancel":
-        rec["lattice_cancel"] = _add_lattice_cancel(seq, _one(LATTICE_FLY % key, run), lat, run)
+        rec["lattice_cancel"] = _add_lattice_cancel(seq, _one(LATTICE_FLY % key, run), lat, run, shared)
     elif lat["mode"] == "hide":
         for lab in lat["hide"]["labels"]:
             if lab not in plan["rig_bulbs_hidden"]["labels"]:
-                _add_visibility(seq, _one(lab, run), lab, lat["hide"]["range"], True)
+                _add_visibility(seq, _one(lab, run), lab, lat["hide"]["range"], True, shared)
     # 7. hookin windows: Hers Dark [L, C) -> [L, G0); Ours Off [C, E) -> [G0, end); her level visible [L, E) -> [L, end)
     he = plan["hookin_edits"]
     for b in seq.get_bindings():
@@ -1899,19 +2346,38 @@ def run_apply(args, run, world):
     if len(vis) != 1:
         _stop(run, "HOOKIN_VIS_SECTIONS|%d|NOTHING SAVED; Don't-Save restart" % len(vis))
     vis[0].set_range(int(he["level_visible_range"][0]), int(he["level_visible_range"][1]))
-    # 7b. slot: the nested copy moves with the cut (same length, start offset 0) [prec klara_hookin.py:1058-1068, 1199-1204]
-    if plan["slot"]["shift"]:
+    # v3 read-back: EVERY hookin window the record had is still there under its own name, at the planned range
+    got_h = {r["name"]: r["range"] for r in _hookin_bindings(seq)}
+    for r in facts["hookin_bindings"]:
+        n = r["name"]
+        want = he["hers_dark_range"] if n.startswith(HOOK_HERS) else he["ours_off_range"] if n.startswith(HOOK_OURS) \
+            else he["level_visible_range"]
+        if got_h.get(n) != [int(want[0]), int(want[1])]:
+            _stop(run, "HOOKIN_WINDOW_READBACK|%s|%s vs %s|NOTHING SAVED; Don't-Save restart" % (n, got_h.get(n), want))
+    # 7b. slot: moves with the cut and (v3) starts INTO her copy at Lh: start_frame_offset = (Lh - her start) in her
+    # ticks [prec klara_hookin.py:1058-1068 set_editor_property("parameters"); units inf, decided by the read-back:
+    # the cut frame must play her Lh and the section end her playback end]
+    if plan["slot"]["shift"] or plan["slot"]["start_offset_ticks"]:
         subs = [x for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for x in t.get_sections()
                 if x.get_sequence() is not None and _path(x.get_sequence()) == row["copy"]]
         if len(subs) != 1:
             _stop(run, "SLOT_SECTION_COUNT|%d|NOTHING SAVED; Don't-Save restart" % len(subs))
         subs[0].set_range(int(plan["slot"]["range"][0]), int(plan["slot"]["range"][1]))
+        prm = subs[0].get_editor_property("parameters")
+        prm.set_editor_property("start_frame_offset", unreal.FrameNumber(int(plan["slot"]["start_offset_ticks"])))
+        subs[0].set_editor_property("parameters", prm)
+        off = int(subs[0].get_editor_property("parameters").get_editor_property("start_frame_offset").value)
         child = subs[0].get_sequence()
-        mapped = [int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(subs[0], int(child.get_playback_start()), seq)),
-                  int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(subs[0], int(child.get_playback_end()), seq))]
-        if mapped != list(plan["slot"]["range"]):
-            _stop(run, "SLOT_MAPPING_READBACK|%s vs %s|NOTHING SAVED; Don't-Save restart" % (mapped, plan["slot"]["range"]))
-        rec["slot_moved"] = {"before": plan["slot"]["range_before"], "after": mapped}
+        pf = lambda f: int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(subs[0], int(f), seq))
+        mapped = [pf(plan["slot"]["her_frame_at_cut"]), pf(child.get_playback_end())]
+        got_rng = [int(subs[0].get_start_frame()), int(subs[0].get_end_frame())]
+        if off != int(plan["slot"]["start_offset_ticks"]) or mapped != list(plan["slot"]["range"]) or \
+                got_rng != list(plan["slot"]["range"]):
+            _stop(run, "SLOT_MAPPING_READBACK|offset %d want %d|her %d->%s, end->%s; range %s vs %s|NOTHING SAVED; "
+                       "Don't-Save restart" % (off, plan["slot"]["start_offset_ticks"], plan["slot"]["her_frame_at_cut"],
+                                               mapped[0], mapped[1], got_rng, plan["slot"]["range"]))
+        rec["slot_moved"] = {"before": plan["slot"]["range_before"], "after": mapped,
+                             "offset_before": facts["slot_offset_tick_live"], "offset_after": off}
     # 8. cuts: Entry | Glide | Exit
     cuts, ct = _cuts(seq)
     entry_guid = [c["guid"] for c in cuts if c["camera"] and "Entry Handoff" in c["camera"]]
@@ -1946,13 +2412,41 @@ def run_apply(args, run, world):
         _stop(run, "SAVE_MAP_FAILED")
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DIRTY_AFTER_SAVE|%s" % json.dumps(_census()))
-    rec.update(applied=True, cuts_after=after_cuts, hookin_after=_hookin_bindings(seq), glide_camera=plan["glide"]["camera_label"])
+    rec.update(applied=True, cuts_after=after_cuts, hookin_after=_hookin_bindings(seq), glide_camera=plan["glide"]["camera_label"],
+               version=3)
     update_record(rpath, rec)
     unreal.log("KLARAREVEAL_APPLY_OK|run=%s|scene=S%s|backup=%s|record=%s|next=rebuild_managed_master + "
                "SavedMasterMatchesShow + SceneCutBindingsResolve + live check_scene_cut_bindings" % (run, key, folder, rpath))
 
 
+def _binding_rows(seq):
+    gs = unreal.GuidLibrary.conv_guid_to_string
+    rows = []
+    for b in seq.get_bindings():
+        par = b.get_parent()
+        pg = gs(par.get_id()) if (par is not None and hasattr(par, "is_valid") and par.is_valid()) else None
+        rows.append({"guid": gs(b.get_id()), "name": str(b.get_display_name()), "parent": pg,
+                     "tracks": [{"name": str(t.get_display_name()), "cls": t.get_class().get_name()}
+                                for t in b.get_tracks()]})
+    return rows
+
+
+def _slot_now(seq, copy_path):
+    subs = [x for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for x in t.get_sections()
+            if x.get_sequence() is not None and _path(x.get_sequence()) == copy_path]
+    if len(subs) != 1:
+        raise PlanError("SLOT_SECTION_COUNT: %d" % len(subs))
+    return subs[0], {"range": [int(subs[0].get_start_frame()), int(subs[0].get_end_frame())],
+                     "offset_tick": int(subs[0].get_editor_property("parameters")
+                                        .get_editor_property("start_frame_offset").value)}
+
+
 def run_revert(args, run, world):
+    """v3 REVERT. Fixes the 7 Oct REVERT_READBACK: v1/v2 APPLY renamed the hookin's four env 'Hers Dark' bindings
+    (add_possessable reuse, see _possess), so removing every 'Klara Reveal -' binding deleted them. revert_actions
+    renames such legacy bindings back and strips only OUR tracks from shared ones. Read-back covers hookin windows,
+    leftovers, cuts (range AND camera) and the slot (range AND start offset). Restore-from-backup stays the fallback
+    (REVEAL_PLAN.md section 9.6)."""
     key = str(args["scene"])
     row = args["scenes"][key]
     rpath = os.path.join(_here(), "klara_reveal_record_S%s.json" % key)
@@ -1961,41 +2455,80 @@ def run_revert(args, run, world):
     copy = unreal.load_asset(row["copy"])
     if _hookin_bindings(seq) != rec["hookin_after"]:
         _stop(run, "STATE_DRIFTED|hookin bindings|nothing changed")
-    for b in list(seq.get_bindings()):
-        if str(b.get_display_name()).startswith(PREFIX):
+    before_names = {r["name"] for r in rec["before"]["hookin_bindings"]}
+    act = revert_actions(_binding_rows(seq), before_names, [x["guid"] for x in rec.get("shared_bindings") or []])
+    unreal.log("KLARAREVEAL_REVERT_PLAN|run=%s|%s" % (run, json.dumps(act)))
+    if act["unrecoverable"]:
+        _stop(run, "REVERT_UNRECOVERABLE|%s|nothing changed: restore from %s" % (act["unrecoverable"], rec.get("backup")))
+    gs = unreal.GuidLibrary.conv_guid_to_string
+    by = lambda: {gs(b.get_id()): b for b in seq.get_bindings()}
+    for g, name in act["rename"]:
+        by()[g].set_display_name(name)
+    for g in act["strip"]:
+        b = by().get(g)
+        if b is None:
+            _stop(run, "SHARED_BINDING_GONE|%s|NOTHING SAVED; Don't-Save restart" % g)
+        for t in list(b.get_tracks()):
+            if str(t.get_display_name()).startswith(PREFIX):
+                b.remove_track(t)                     # returns None [memory puss-python-api-gotchas]: read back below
+    for g in act["remove"]:
+        b = by().get(g)
+        if b is not None:
             b.remove()                                                    # prec klara_hookin.py:1282
     before = {r["name"]: r["range"] for r in rec["before"]["hookin_bindings"]}
     for b in seq.get_bindings():
         n = str(b.get_display_name())
         if n in before:
             for t in b.get_tracks():
-                for s in t.get_sections():
-                    s.set_range(int(before[n][0]), int(before[n][1]))
+                for sct in t.get_sections():
+                    sct.set_range(int(before[n][0]), int(before[n][1]))
     for t in seq.get_tracks():
         if str(t.get_display_name()) == HOOK_VIS:
-            for s in t.get_sections():
-                s.set_range(int(before[HOOK_VIS][0]), int(before[HOOK_VIS][1]))
+            for sct in t.get_sections():
+                sct.set_range(int(before[HOOK_VIS][0]), int(before[HOOK_VIS][1]))
     cuts, ct = _cuts(seq)
-    by_guid = {unreal.GuidLibrary.conv_guid_to_string(b.get_id()): b for b in seq.get_bindings()}
-    for s in list(ct.get_sections()):
-        ct.remove_section(s)
+    bg = by()
+    for sct in list(ct.get_sections()):
+        ct.remove_section(sct)
     for c in rec["before"]["cuts"]:
-        s = ct.add_section()
-        s.set_camera_binding_id(seq.get_binding_id(by_guid[c["guid"]]))
-        s.set_range(int(c["range"][0]), int(c["range"][1]))
-    if rec.get("slot_moved"):
-        subs = [x for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for x in t.get_sections()
-                if x.get_sequence() is not None and _path(x.get_sequence()) == row["copy"]]
-        if len(subs) != 1:
-            _stop(run, "SLOT_SECTION_COUNT|%d|nothing saved" % len(subs))
-        subs[0].set_range(int(rec["slot_moved"]["before"][0]), int(rec["slot_moved"]["before"][1]))
+        if c["guid"] not in bg:
+            _stop(run, "CUT_CAMERA_GONE|%s|NOTHING SAVED; Don't-Save restart" % c)
+        sct = ct.add_section()
+        sct.set_camera_binding_id(seq.get_binding_id(bg[c["guid"]]))
+        sct.set_range(int(c["range"][0]), int(c["range"][1]))
+    seqrec = load_json(os.path.join(_here(), "klara_hookin_seq_record.json"))["scenes"][key]["plan"]["timeline"]
+    slot_before = (rec["before"].get("slot") or
+                   {"range": [int(seqrec["cinematic"][0]), int(seqrec["cinematic"][1])], "offset_tick": 0})
+    sub, _now = _slot_now(seq, row["copy"])
+    sub.set_range(int(slot_before["range"][0]), int(slot_before["range"][1]))
+    prm = sub.get_editor_property("parameters")
+    prm.set_editor_property("start_frame_offset", unreal.FrameNumber(int(slot_before["offset_tick"])))
+    sub.set_editor_property("parameters", prm)
     _shift_copy(copy, world, row["level"], rec["plan"]["placement"]["delta"], run, sign=-1.0)
     _move_level(world, row["level"], rec["before"]["level_transform"], run)
     for a in _by_label(rec["glide_camera"]):
         unreal.get_editor_subsystem(unreal.EditorActorSubsystem).destroy_actor(a)
-    if _hookin_bindings(seq) != rec["before"]["hookin_bindings"] or \
-            [c["range"] for c in _cuts(seq)[0]] != [c["range"] for c in rec["before"]["cuts"]]:
-        _stop(run, "REVERT_READBACK|NOTHING SAVED; Don't-Save restart")
+    # read-back: every check names itself (7 Oct: one combined REVERT_READBACK could not say which part failed)
+    bad = []
+    hb = _hookin_bindings(seq)
+    if hb != rec["before"]["hookin_bindings"]:
+        bad.append("hookin %s vs %s" % (hb, rec["before"]["hookin_bindings"]))
+    left = [r["name"] for r in _binding_rows(seq) if r["name"].startswith(PREFIX)] + \
+        ["%s/%s" % (r["name"], t["name"]) for r in _binding_rows(seq) for t in r["tracks"] if t["name"].startswith(PREFIX)]
+    if left:
+        bad.append("leftovers %s" % left)
+    got_cuts = [[c["guid"], c["range"]] for c in _cuts(seq)[0]]
+    want_cuts = [[c["guid"], c["range"]] for c in rec["before"]["cuts"]]
+    if got_cuts != want_cuts:
+        bad.append("cuts %s vs %s" % (got_cuts, want_cuts))
+    _sub, slot_got = _slot_now(seq, row["copy"])
+    if slot_got != {"range": list(slot_before["range"]), "offset_tick": int(slot_before["offset_tick"])}:
+        bad.append("slot %s vs %s" % (slot_got, slot_before))
+    if _by_label(rec["glide_camera"]):
+        bad.append("glide camera still in the level")
+    if bad:
+        _stop(run, "REVERT_READBACK|%s|NOTHING SAVED; Don't-Save restart (or restore from %s)"
+              % (" || ".join(bad), rec.get("backup")))
     her_maps = sorted(m for m in _census()["maps"] if m != EXPECTED_WORLD and m in set(HER_LEVELS))
     gate = census_gate(_census(), [row["scene_sequence"], row["copy"]], [EXPECTED_WORLD] + her_maps)
     if gate:
@@ -2006,16 +2539,17 @@ def run_revert(args, run, world):
             [_file(m, ".umap") for m in her_maps]:
         if os.path.exists(src):
             shutil.copy2(src, folder)
-    for p in [row["scene_sequence"], row["copy"]] + her_maps:
-        if not unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False):
-            _stop(run, "SAVE_FAILED|%s" % p)
+    for pth in [row["scene_sequence"], row["copy"]] + her_maps:
+        if not unreal.EditorAssetLibrary.save_asset(pth, only_if_is_dirty=False):
+            _stop(run, "SAVE_FAILED|%s" % pth)
     if not unreal.EditorLoadingAndSavingUtils.save_map(world, EXPECTED_WORLD):
         _stop(run, "SAVE_MAP_FAILED")
     if _census() != {"content": [], "maps": []}:
         _stop(run, "DIRTY_AFTER_SAVE|%s" % json.dumps(_census()))
     os.rename(rpath, rpath + ".reverted-" + run)
-    unreal.log("KLARAREVEAL_REVERT_OK|run=%s|scene=S%s|next=extend_scene_playback back to %s, rebuild, tests"
-               % (run, key, rec["before"].get("playback")))
+    unreal.log("KLARAREVEAL_REVERT_OK|run=%s|scene=S%s|renamed_back=%d|stripped=%d|removed=%d|next=extend_scene_playback "
+               "to the next APPLY's planned end (or back to %s), rebuild, tests"
+               % (run, key, len(act["rename"]), len(act["strip"]), len(act["remove"]), rec["before"].get("playback")))
 
 
 def main():

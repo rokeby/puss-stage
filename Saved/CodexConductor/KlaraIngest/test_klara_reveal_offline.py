@@ -4,6 +4,9 @@ Run: python Saved/CodexConductor/KlaraIngest/test_klara_reveal_offline.py
 Numbers: S1 land/cut/slot 104 / 376 / 5641 [meas klara_hookin_seq_record.json timeline]; dock (28784.0135, 0, 0) yaw 0
 [meas klara_hookin_args.json]; box apron 500 depth 6000 half_w 1000 height 3000 lattice 1200 [decl hangar_build.py:61];
 her S1 set 18.6 x 10.2 m, top 554 cm [meas klara_hookin_stream_record.json]. Camera/light values are SYNTHETIC.
+v3 (lit frame): her copy range [-310, 6008) at 30 fps, 800 ticks/frame [meas klara_reveal_dry_S1.json her_range,
+her_first.fps; klara_hookin_seq_record.json her_span.ticks_per_frame]; her light CURVES are SYNTHETIC (her real keys
+were never read - the v2 DRY kept only first/last values).
 """
 import copy
 import json
@@ -32,6 +35,22 @@ BOX = {"dock": DOCK, "dock_z": 0.0, "apron": 500.0, "depth": 6000.0, "half_w": 1
        "lattice_z": 1200.0}
 
 
+HER_LO, HER_HI, HER_FPS, HER_TPF = -310, 6008, 30.0, 800
+
+
+def ramp_curve(t0, t1, v, extra=None):
+    """Synthetic her Intensity: 0 at her start, 0 until t0, LINEAR up to v at t1 (her display frames)."""
+    keys = [{"tick": HER_LO * HER_TPF, "value": 0.0, "interp": "linear", "arrive": 0.0, "leave": 0.0},
+            {"tick": t0 * HER_TPF, "value": 0.0, "interp": "linear", "arrive": 0.0, "leave": 0.0},
+            {"tick": t1 * HER_TPF, "value": float(v), "interp": "linear", "arrive": 0.0, "leave": 0.0}]
+    keys += extra or []
+    return {"tpf": float(HER_TPF), "keys": sorted(keys, key=lambda k: k["tick"]), "default": 0.0}
+
+
+# lit at (ramp end): 120, 150, 180, 200, 210, 222, 227, 900(late) -> 7 of 8 ever lit by 227; 80% of 8 = 7th = 227
+RAMPS = [(60, 120), (90, 150), (120, 180), (150, 200), (160, 210), (170, 222), (180, 227), (850, 900)]
+
+
 def facts(n_lights=8, her_set=None, first_loc=None):
     # her set after the hookin: LevelTransform (32556, 122, 0), footprint centre at dock-local x 3772 [meas]
     her_set = her_set or [28784.0135 + 3772 - 928, 28784.0135 + 3772 + 928, 122 - 508, 122 + 508, 0.0, 554.0]
@@ -39,7 +58,9 @@ def facts(n_lights=8, her_set=None, first_loc=None):
     lights = [{"label": "SpotLight%d" % i, "name": "SpotLight_%d" % i, "class": "SpotLight",
                "loc": [her_set[0] + 200.0 * i, -300.0 + 80.0 * i, 400.0], "intensity": 1000.0 + i,
                "color": [1, 1, 1, 1], "visible": True, "hidden_in_game": False, "keyed": {}, "first": {}, "last": {},
-               "target_first": 1000.0 + i, "target_last": 900.0 + i} for i in range(n_lights)]
+               "target_first": 0.0, "target_last": 900.0 + i,
+               "curves": {"Intensity": ramp_curve(RAMPS[i % len(RAMPS)][0], RAMPS[i % len(RAMPS)][1], 1000.0 + i)}}
+              for i in range(n_lights)]
     return {"scene": "1", "fps": FPS, "playback": [0, 0], "L": 104, "C": 376, "E": 5641, "box": BOX,
             "entry_camera": {"label": "Entry", "loc": [28784.0135, 0.0, 150.0], "rot": [0.0, 0.0, 0.0], "focal": 35.0,
                              "focus": 1000.0, "aperture": 2.8, "sensor": [36.0, 20.25]},
@@ -54,7 +75,7 @@ def facts(n_lights=8, her_set=None, first_loc=None):
                          "lens_tracks": {"CurrentFocalLength": 24.0}, "actor": {"sensor": [36.0, 20.25], "focal": 24.0,
                                                                                 "focus": 300.0}},
             "set_world": her_set, "level_transform": {"loc": [32556.0135, 122.0, 0.0], "yaw": 0.0},
-            "her_lights": lights,
+            "her_lights": lights, "her_range": [HER_LO, HER_HI], "her_fps": HER_FPS, "her_tpf": HER_TPF,
             "her_env": [{"label": "DirectionalLight", "class": "DirectionalLight", "property": "Intensity",
                          "value": 6.0, "her_keyed": False},
                         {"label": "PostProcessVolume", "class": "PostProcessVolume", "property": "BlendWeight",
@@ -69,6 +90,24 @@ def facts(n_lights=8, her_set=None, first_loc=None):
             "tick": 24000.0, "rig_bulbs": ["S1 Lattice Bulb 1-1"],
             "lattice_pieces": ["S1 Hangar Lattice Fly", "S1 Hangar Lattice Beam 01", "S1 Lattice Glow 1-1"],
             "lattice": {"keys": RISE_KEYS, "offset_ticks": 0, "section": [0, 775], "play_rate": 1.0}}
+
+
+def her_lit_pose(f, frame):
+    p = dict(copy.deepcopy(f["her_first"]))
+    p.update(frame=frame, cut=[HER_LO, HER_HI], loc=[f["her_first"]["loc"][0] + 100.0, 60.0, 160.0],
+             rot=[0.0, -2.0, 4.0], vel_cm_s=[0.0, 0.0, 0.0], lens_tracks={"CurrentFocalLength": 40.0,
+                                                                          "ManualFocusDistance": 500.0})
+    return p
+
+
+def v3facts(args=None, **kw):
+    """What gather does, minus Unreal: detect + snap the lit frame, read her camera AT it, values AT it."""
+    f = facts(**kw)
+    f["lit"] = R.detect_lit(f, args or ARGS, FPS)
+    if f["lit"]["frame"] is not None:
+        f["her_lit"] = her_lit_pose(f, f["lit"]["frame"])
+        R.apply_lit_values(f, f["lit"]["frame"])
+    return f
 
 
 class Maths(unittest.TestCase):
@@ -404,20 +443,21 @@ class Lattice(unittest.TestCase):
 
 class Plan(unittest.TestCase):
     def test_full_plan(self):
-        p = R.build_plan(facts(), ARGS)
+        p = R.build_plan(v3facts(), ARGS)
         self.assertEqual(p["refusals"], [], p["refusals"])
         tl = p["timeline"]
         keys = {k[0]: k for k in p["glide"]["keys"]}
-        first, last = p["poses"]["her_first"], p["poses"]["her_last"]
+        first, last = p["poses"]["her_lit"], p["poses"]["her_last"]           # v3: the intro ends on her LIT pose
+        self.assertNotEqual(first["loc"], p["poses"]["her_first"]["loc"])
         self.assertEqual(keys[tl["cut"]][1:7], first["loc"] + first["rot"])          # intro ends ON her first frame
         held = [k for f, k in sorted(keys.items()) if tl["glide_in"][1] <= f <= tl["cut"]]   # LINEAR keys: equal
         self.assertGreaterEqual(len(held), 2)                                          # ends => at rest between
         for k in held:
             self.assertEqual(k[1:8], first["loc"] + first["rot"] + [first["focal"]])
         self.assertEqual(keys[tl["glide_in"][1]][1:7], first["loc"] + first["rot"])   # there BEFORE the first strike
-        self.assertLess(tl["glide_in"][1], min(r["strike_frame"] for r in p["her_lights"]))
+        self.assertLess(tl["glide_in"][1], min(r["strike_frame"] for r in p["her_lights"] if r["strikes"]))
         self.assertEqual(keys[tl["slot"][1]][1:7], last["loc"] + last["rot"])        # outro starts ON her last frame
-        self.assertEqual(keys[tl["cut"]][7], 50.0)                                    # her lens, exact
+        self.assertEqual(keys[tl["cut"]][7], 40.0)                                    # her lens AT Lh, exact
         self.assertEqual(keys[tl["glide_in"][0]][1:4], [28784.0135, 0.0, 150.0])      # from the Entry pose
         self.assertEqual(keys[0][1:4], [28784.0135, 0.0, 150.0]) if 0 in keys else None
         cuts = p["cuts_after"]
@@ -425,7 +465,7 @@ class Plan(unittest.TestCase):
         self.assertTrue(all(cuts[i][1][1] == cuts[i + 1][1][0] for i in range(len(cuts) - 1)))
         self.assertEqual(cuts[-1][1][1], tl["planned_end"])
         for r in p["her_lights"]:
-            self.assertEqual(r["intro_keys"][-1][1], r["target_first"])
+            self.assertEqual(r["intro_keys"][-1][1], r["target_lit"])
             self.assertLess(r["intro_keys"][-1][0], tl["cut"])
             self.assertEqual(r["outro_keys"][0], [tl["slot"][1], r["target_last"]])
             self.assertEqual(r["outro_keys"][-1][1], 0.0)
@@ -434,7 +474,7 @@ class Plan(unittest.TestCase):
         self.assertEqual(acts, {"S1 Practical L1": "black_color", "S1 Lattice Glow 1-1": "fade_color"})
         glow = [h for h in p["hangar_lights"] if h["action"] == "fade_color"][0]
         ck = {k[0]: k[1] for k in glow["color_keys"]}
-        S0 = min(r["strike_frame"] for r in p["her_lights"])
+        S0 = min(r["strike_frame"] for r in p["her_lights"] if r["strikes"])
         self.assertEqual(ck[tl["glow_fade"][1]][:3], [0.0, 0.0, 0.0])                 # black by the first strike
         self.assertLessEqual(tl["glow_fade"][1], S0)
         self.assertEqual(ck[tl["rig_back"][0]][:3], [0.0, 0.0, 0.0])                 # still black until rig back
@@ -451,14 +491,14 @@ class Plan(unittest.TestCase):
         self.assertTrue(any("PPV_PRIORITY" in w for w in p["warnings"]))
 
     def test_plan_refuses_when_set_too_wide(self):
-        f = facts(her_set=[30000.0, 31000.0, -1500.0, 1500.0, 0.0, 300.0])           # control: 30 m wide
+        f = v3facts(her_set=[30000.0, 31000.0, -1500.0, 1500.0, 0.0, 300.0])           # control: 30 m wide
         p = R.build_plan(f, ARGS)
         self.assertTrue(any("SET_DOES_NOT_FIT_LIVE_BOX" in r for r in p["refusals"]))
         self.assertFalse(p["apply_ready"])
 
     def test_lattice_flag(self):
-        f = facts(her_set=[28784.0135 + 900, 28784.0135 + 2500, -400.0, 400.0, 0.0, 1300.0],
-                  first_loc=[28784.0135 + 800, 0.0, 140.0])
+        f = v3facts(her_set=[28784.0135 + 900, 28784.0135 + 2500, -400.0, 400.0, 0.0, 1300.0],
+                    first_loc=[28784.0135 + 800, 0.0, 140.0])
         p = R.build_plan(f, ARGS)
         self.assertTrue(any("SET_REACHES_LATTICE" in r for r in p["refusals"]))
         self.assertIn("params", json.dumps(p["refusals"]))
@@ -469,23 +509,23 @@ class Plan(unittest.TestCase):
         self.assertTrue(any("allow_lattice_overlap" in w for w in p2["warnings"]))
 
     def test_lead_in_range(self):
-        p = R.build_plan(facts(), ARGS)
-        cam = p["poses"]["her_first"]["loc"]
+        p = R.build_plan(v3facts(), ARGS)
+        cam = p["poses"]["her_lit"]["loc"]
         self.assertAlmostEqual(cam[0] - 28784.0135, p["placement"]["lead_cm"], places=6)
         self.assertFalse(any("LEAD_ABOVE_RANGE" in w for w in p["warnings"]))
-        f = facts(first_loc=[28784.0135 + 3772 + 900, 0.0, 140.0])                   # control: camera far past her set
+        f = v3facts(first_loc=[28784.0135 + 3772 + 900, 0.0, 140.0])                 # control: camera far past her set
         p2 = R.build_plan(f, ARGS)
         self.assertTrue(any("LEAD_ABOVE_RANGE" in w for w in p2["warnings"]))
 
     def test_long_glide_speed_bounded(self):
-        f = facts(first_loc=[28784.0135 + 3772 + 900, 0.0, 140.0])                   # set far down the box
+        f = v3facts(first_loc=[28784.0135 + 3772 + 900, 0.0, 140.0])                 # set far down the box
         p = R.build_plan(f, ARGS)
         self.assertGreater(p["glide"]["in"]["distance_cm"], 2000.0)
         self.assertLessEqual(p["glide"]["in"]["peak_speed_cm_s"], 300.0)
         self.assertGreater(p["timeline"]["glide_in_s"], 6.0)
 
     def test_lattice_modes(self):
-        f = facts()
+        f = v3facts()
         f["lattice"] = {"error": "AttributeError: no get_arrive_tangent"}
         p = R.build_plan(f, ARGS)
         self.assertTrue(any("LATTICE_CANCEL_UNAVAILABLE" in r for r in p["refusals"]))
@@ -499,9 +539,231 @@ class Plan(unittest.TestCase):
         self.assertTrue(any("LATTICE_MODE" in e for e in R.validate_args(a3)))
 
     def test_plan_refuses_on_order(self):
-        f = facts()
+        f = v3facts()
         f["L"] = 500
         self.assertTrue(R.build_plan(f, ARGS)["refusals"])
+
+
+class LitFrame(unittest.TestCase):
+    """v3: her lit frame. Synthetic curves (RAMPS): 7 of 8 lights lit by her frame 227, one at 900."""
+
+    def curves(self, n=8):
+        return {r["label"]: r["curves"]["Intensity"] for r in facts(n_lights=n)["her_lights"]}
+
+    def test_votes_frame(self):
+        lit = R.find_lit_frame(self.curves(), HER_LO, HER_HI, HER_FPS, R.lit_cfg(ARGS))
+        self.assertEqual(lit["refusals"], [])
+        self.assertEqual(lit["n_ever_lit"], 8)
+        self.assertEqual(lit["n_needed"], 7)                                          # ceil(0.8 x 8)
+        # value_fraction 0.9 of a linear ramp (t0 -> t1) is reached at t0 + 0.9 (t1 - t0); the 7th is light 6 (180->227)
+        self.assertEqual(lit["frame_raw"], 180 + int(math.ceil(0.9 * 47)))
+        self.assertEqual(lit["per_light"]["SpotLight7"]["lit_at"], 850 + 45)            # the late one, reported
+        lo = R.find_lit_frame(self.curves(), HER_LO, HER_HI, HER_FPS, R.lit_cfg(dict(ARGS, lit={"light_fraction": 0.5})))
+        self.assertLess(lo["frame_raw"], lit["frame_raw"])                             # control: fraction matters
+        allx = R.find_lit_frame(self.curves(), HER_LO, HER_HI, HER_FPS, R.lit_cfg(dict(ARGS, lit={"light_fraction": 1.0})))
+        self.assertEqual(allx["frame_raw"], 895)                                       # control: 100% waits for the late one
+
+    def test_flash_is_not_lit(self):
+        c = self.curves()
+        flash = [{"tick": (HER_LO + 5) * HER_TPF, "value": 0.0, "interp": "constant", "arrive": 0.0, "leave": 0.0},
+                 {"tick": (HER_LO + 6) * HER_TPF, "value": 5000.0, "interp": "constant", "arrive": 0.0, "leave": 0.0},
+                 {"tick": (HER_LO + 7) * HER_TPF, "value": 0.0, "interp": "linear", "arrive": 0.0, "leave": 0.0}]
+        for k in list(c)[:7]:
+            i = int(k[len("SpotLight"):])
+            c[k] = ramp_curve(RAMPS[i][0], RAMPS[i][1], 1000.0, extra=flash)
+        held = R.find_lit_frame(c, HER_LO, HER_HI, HER_FPS, R.lit_cfg(ARGS))
+        self.assertGreater(held["frame_raw"], 200)                                     # a 1-frame flash does not count
+        raw = R.find_lit_frame(c, HER_LO, HER_HI, HER_FPS, R.lit_cfg(dict(ARGS, lit={"hold_s": 0.0})))
+        self.assertLess(raw["frame_raw"], HER_LO + 10)                                 # control: no hold -> fooled
+
+    def test_snap_onto_scene_grid(self):
+        self.assertEqual(R.snap_her_frame(227, HER_LO, 30.0, 25.0), (230, 6))           # 537 -> 540 = 90 x 6
+        self.assertEqual(R.snap_her_frame(230, HER_LO, 30.0, 25.0), (230, 6))           # control: on grid stays
+        self.assertEqual(R.snap_her_frame(5, 0, 25.0, 25.0), (5, 1))
+        with self.assertRaises(R.PlanError):
+            R.snap_her_frame(5, 0, 29.97, 25.0)
+
+    def test_none_and_override(self):
+        dark = {"a": ramp_curve(100, 200, 0.0)}
+        lit = R.find_lit_frame(dark, HER_LO, HER_HI, HER_FPS, R.lit_cfg(ARGS))
+        self.assertTrue(any("LIT_NONE" in r for r in lit["refusals"]))
+        over = R.find_lit_frame(dark, HER_LO, HER_HI, HER_FPS, R.lit_cfg(dict(ARGS, lit={"frame": 400})))
+        self.assertEqual((over["frame_raw"], over["refusals"]), (400, []))             # control: explicit frame
+        late = R.find_lit_frame({"a": ramp_curve(3000, 3100, 5.0)}, HER_LO, HER_HI, HER_FPS, R.lit_cfg(ARGS))
+        self.assertTrue(late["refusals"])                                              # past the 60 s search window
+
+    def test_sum_crosscheck_warns(self):
+        c = self.curves(8)
+        ok = R.find_lit_frame(c, HER_LO, HER_HI, HER_FPS, R.lit_cfg(ARGS))
+        self.assertFalse(any("DISAGREE" in w for w in ok["warnings"]), ok.get("sum_frame"))
+        c2 = dict(c)
+        for i in range(8, 14):                                                        # control: many late lights
+            c2["Late%d" % i] = ramp_curve(1400, 1450, 100.0)
+        bad = R.find_lit_frame(c2, HER_LO, HER_HI, HER_FPS, R.lit_cfg(dict(ARGS, lit={"light_fraction": 0.5})))
+        self.assertTrue(any("DISAGREE" in w for w in bad["warnings"]))
+
+    def test_curve_at_interpolates(self):
+        c = ramp_curve(0, 100, 10.0)
+        self.assertAlmostEqual(R.curve_at(c, 50), 5.0, places=9)
+        self.assertEqual(R.curve_at(c, 100), 10.0)
+        self.assertEqual(R.curve_at(c, 5000), 10.0)                                     # constant after the last key
+        self.assertIsNone(R.eval_keys([[0, 0.0], [100, 10.0]], None, 50))               # control: v2 reader could not
+
+
+class StrikeTargets(unittest.TestCase):
+    def test_strikes_go_to_value_at_lit_frame(self):
+        f = v3facts()
+        Lh = f["lit"]["frame"]
+        self.assertEqual((f["lit"]["frame_raw"], Lh), (223, 224))                    # 223 snapped up onto the 6-grid
+        p = R.build_plan(f, ARGS)
+        self.assertEqual(p["refusals"], [], p["refusals"])
+        by = {r["label"]: r for r in p["her_lights"]}
+        for r in f["her_lights"]:
+            want = R.curve_at(r["curves"]["Intensity"], Lh)
+            row = by[r["label"]]
+            if want > 1e-3:
+                self.assertTrue(row["strikes"])
+                self.assertEqual(row["intro_keys"][-1][1], want)                       # settles at her value AT Lh
+                self.assertNotEqual(row["intro_keys"][-1][1], r["target_first"])       # control: not her first frame (0)
+            else:
+                self.assertFalse(row["strikes"])                                       # dark at Lh: held at 0, no strike
+                self.assertEqual(row["intro_keys"], [[p["timeline"]["land"], 0.0]])
+        self.assertEqual(sum(1 for r in p["her_lights"] if r["strikes"]), 7)           # SpotLight7 is the late one
+
+    def test_v2_mode_control(self):
+        a2 = copy.deepcopy(ARGS)
+        a2["lit"] = {"enabled": False}
+        f = v3facts(args=a2)
+        p = R.build_plan(f, a2)
+        self.assertEqual(p["slot"]["skip_frames"], 0)
+        self.assertEqual(p["poses"]["her_lit"]["loc"][0] - p["poses"]["her_first"]["loc"][0], 0.0)
+        self.assertTrue(all(r["intro_keys"][-1][1] == 0.0 for r in p["her_lights"]))  # v2 would strike to 0
+
+    def test_env_and_colour_at_lit(self):
+        f = facts()
+        f["her_env"][0].update(her_keyed=True, curve=ramp_curve(0, 300, 6.0))
+        f["her_lights"][0]["curves"]["LightColor"] = [ramp_curve(0, 300, 1.0), ramp_curve(0, 300, 0.5),
+                                                      ramp_curve(0, 300, 0.25), {"tpf": 800.0, "keys": [], "default": 1.0}]
+        f["lit"] = R.detect_lit(f, ARGS, FPS)
+        f["her_lit"] = her_lit_pose(f, f["lit"]["frame"])
+        R.apply_lit_values(f, f["lit"]["frame"])
+        p = R.build_plan(f, ARGS)
+        env = {e["label"]: e for e in p["her_env"]}
+        Lh = f["lit"]["frame"]
+        self.assertAlmostEqual(env["DirectionalLight"]["target_intro"], 6.0 * Lh / 300.0, places=9)
+        self.assertEqual(env["DirectionalLight"]["intro"][-1][1], env["DirectionalLight"]["target_intro"])
+        self.assertEqual(env["PostProcessVolume"]["target_intro"], 1.0)               # control: unkeyed = level value
+        col = [r for r in p["her_lights"] if r["label"] == "SpotLight0"][0]["intro_color"]
+        self.assertAlmostEqual(col["rgba"][1], 0.5 * Lh / 300.0, places=9)
+        self.assertEqual(col["rgba"][3], 1.0)
+        self.assertEqual(col["range"], [p["timeline"]["land"], p["timeline"]["cut"]])
+
+
+class SlotOffset(unittest.TestCase):
+    def test_skip_maths(self):
+        sk = R.slot_skip(HER_LO, HER_HI, 230, 30.0, 25.0, 800, 5265)
+        self.assertEqual(sk["refusals"], [])
+        self.assertEqual((sk["skip_frames"], sk["remaining_frames"]), (450, 4815))     # 540 x 25/30, 5778 x 25/30
+        self.assertEqual(sk["offset_ticks"], 540 * 800)
+        self.assertAlmostEqual(sk["skip_s"], 18.0, places=9)
+        self.assertEqual(R.scene_frame_of_her(230, 594, 230, 30.0, 25.0), 594)         # the cut plays her Lh
+        self.assertEqual(R.scene_frame_of_her(HER_HI, 594, 230, 30.0, 25.0), 594 + 4815)
+        self.assertEqual(R.scene_frame_of_her(HER_HI, 594, HER_LO, 30.0, 25.0), 594 + 5265)   # control: no skip
+        self.assertTrue(any("OFF_GRID" in r for r in R.slot_skip(HER_LO, HER_HI, 231, 30.0, 25.0, 800, 5265)["refusals"]))
+        self.assertTrue(any("LENGTH_MISMATCH" in r for r in R.slot_skip(HER_LO, HER_HI, 230, 30.0, 25.0, 800, 5264)["refusals"]))
+        self.assertTrue(R.slot_skip(HER_LO, HER_HI, HER_HI, 30.0, 25.0, 800, 5265)["refusals"])
+
+    def test_plan_slot(self):
+        f = v3facts()
+        p = R.build_plan(f, ARGS)
+        sl, Lh = p["slot"], f["lit"]["frame"]
+        self.assertEqual(sl["her_frame_at_cut"], Lh)
+        self.assertEqual(sl["start_offset_ticks"], (Lh - HER_LO) * 800)
+        self.assertEqual(sl["skip_frames"], (Lh - HER_LO) * 25 // 30)
+        self.assertEqual(sl["range"][1] - sl["range"][0], 5265 - sl["skip_frames"])
+        self.assertEqual(R.scene_frame_of_her(Lh, sl["range"][0], Lh, 30.0, 25.0), sl["range"][0])
+        self.assertEqual(sl["range_before"], [376, 5641])
+
+    def test_audio_report(self):
+        her = [{"sound": "CLICK", "start_frame": -311, "end_frame": 4165}, {"sound": "early", "start_frame": -300,
+                                                                            "end_frame": 100},
+               {"sound": "late", "start_frame": 2000, "end_frame": 2100}]
+        a = R.audio_report(her, [{"track": "Narr", "range": [5216, 6091]}], [{"label": "m", "frame": 6000}], 230, 30.0,
+                           594, 25.0, 5816)
+        rows = {r["sound"]: r for r in a["her_audio"]}
+        self.assertIn("first 18.03 s are skipped", rows["CLICK"]["after_skip"])
+        self.assertIn("never plays", rows["early"]["after_skip"])
+        self.assertAlmostEqual(rows["late"]["scene_start_frame"], 594 + (2000 - 230) * 25 / 30.0, places=9)
+        self.assertEqual(len(a["scene_audio_past_end"]), 1)
+        self.assertEqual(len(a["scene_markers_past_end"]), 1)
+        b = R.audio_report(her, [{"track": "Narr", "range": [5216, 6091]}], [], 230, 30.0, 594, 25.0, 6266)
+        self.assertEqual(b["scene_audio_past_end"], [])                               # control: v2 end keeps it
+
+
+class SceneLength(unittest.TestCase):
+    def test_skip_shortens_scene(self):
+        t0 = R.plan_timeline(104, 376, 5641, FPS, 14, ARGS, 25, glide_in_s=6.0, glide_out_s=6.0)
+        t1 = R.plan_timeline(104, 376, 5641, FPS, 14, ARGS, 25, glide_in_s=6.0, glide_out_s=6.0, skip=450)
+        self.assertEqual(t0["planned_end"], 6266)                                      # v2 live end [meas dry/record]
+        self.assertEqual(t1["cut"], t0["cut"])                                         # the intro is unchanged
+        self.assertEqual(t1["planned_end"], t0["planned_end"] - 450)
+        self.assertEqual(t1["slot"][1] - t1["slot"][0], 5265 - 450)
+        self.assertEqual(t1["outro_s"], t0["outro_s"])                                 # outro unchanged
+        self.assertTrue(R.plan_timeline(104, 376, 5641, FPS, 14, ARGS, 25, skip=5265)["refusals"])   # control
+        t2 = R.plan_timeline(104, 376, 5641, FPS, 7, ARGS, 25, glide_in_s=6.0, glide_out_s=6.0, skip=450)
+        self.assertLess(t2["cut"], t1["cut"])                                          # fewer strikes, earlier cut
+
+    def test_plan_extend_mode(self):
+        p = R.build_plan(v3facts(), ARGS)
+        self.assertEqual(p["extend_mode"]["new_end_s"], round(p["timeline"]["planned_end"] / FPS, 6))
+        self.assertTrue(p["relength_first"])
+
+
+class Revert(unittest.TestCase):
+    P = R.PREFIX
+    HOOK = "Klara Hookin - Hers Dark: DirectionalLight"
+    BEFORE = {HOOK, "Klara Hookin - Hers Dark: SkyAtmosphere", "Klara Levels (hookin)"}
+
+    def rows(self, with_hookin_track=True):
+        vis = [{"name": "Visibility", "cls": "MovieSceneVisibilityTrack"}] if with_hookin_track else []
+        return [{"guid": "A", "name": self.P + "DirectionalLight", "parent": None, "tracks": vis},
+                {"guid": "B", "name": self.P + "DirectionalLight/Component", "parent": "A",
+                 "tracks": [{"name": self.P + "Intensity", "cls": "MovieSceneFloatTrack"}]},
+                {"guid": "C", "name": self.P + "Hide: S1 Hangar Roof", "parent": None,
+                 "tracks": [{"name": "Visibility", "cls": "MovieSceneVisibilityTrack"}]},
+                {"guid": "D", "name": "Klara Hookin - Hers Dark: SkyAtmosphere", "parent": None,
+                 "tracks": [{"name": "Visibility", "cls": "MovieSceneVisibilityTrack"}]},
+                {"guid": "E", "name": "Scene 1 Entry", "parent": None, "tracks": []}]
+
+    def test_legacy_v2_renamed_hookin_binding_is_restored(self):
+        a = R.revert_actions(self.rows(), self.BEFORE, [])
+        self.assertEqual(a["rename"], [["A", self.HOOK]])
+        self.assertEqual(a["strip"], ["A"])
+        self.assertEqual(a["remove"], ["B", "C"])                                      # child first; D, E untouched
+        self.assertEqual(a["unrecoverable"], [])
+        b = R.revert_actions(self.rows(with_hookin_track=False), self.BEFORE, [])     # control: no hookin track left
+        self.assertIn("A", b["remove"])
+        self.assertEqual(b["unrecoverable"], [self.HOOK])
+
+    def test_v3_shared_binding_is_stripped_not_removed(self):
+        rows = self.rows()
+        rows[0]["name"] = self.HOOK                                                   # v3 never renames
+        rows[0]["tracks"].append({"name": self.P + "BlendWeight", "cls": "MovieSceneFloatTrack"})
+        a = R.revert_actions(rows, self.BEFORE, ["A"])
+        self.assertEqual((a["rename"], a["strip"], a["remove"], a["unrecoverable"]), ([], ["A"], ["B", "C"], []))
+
+    def test_measured_records_show_the_rename(self):
+        """[meas] both live records: the hookin names that vanished between 'before' and 'hookin_after' are exactly
+        the env actors the reveal ramps (and so re-possessed)."""
+        for name in ("klara_reveal_record_S1.json", "klara_reveal_record_S1.json.restored-from-backup"):
+            path = os.path.join(HERE, name)
+            if not os.path.exists(path):
+                self.skipTest("record absent: " + name)
+            rec = R.load_json(path)
+            gone = {r["name"] for r in rec["before"]["hookin_bindings"]} - {r["name"] for r in rec["hookin_after"]}
+            ramped = {"Klara Hookin - Hers Dark: " + e["label"] for e in rec["plan"]["her_env"] if e.get("action") == "ramp"}
+            self.assertEqual(gone, ramped)
+            self.assertEqual(len(gone), 4)
 
 
 class Args(unittest.TestCase):

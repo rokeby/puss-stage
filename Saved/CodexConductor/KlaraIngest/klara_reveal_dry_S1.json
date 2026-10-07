@@ -45,7 +45,7 @@
   {
    "api": "CineCameraComponent filmback",
    "ok": true,
-   "result": "\"<Struct 'CameraFilmbackSettings' (0x000002159A70A58C) {sensor_width: 23.760000, sensor_height: 13.365000, sensor_horizontal_offset: 0.000000, sensor_vertical_o",
+   "result": "\"<Struct 'CameraFilmbackSettings' (0x000002C9E942C18C) {sensor_width: 23.760000, sensor_height: 13.365000, sensor_horizontal_offset: 0.000000, sensor_vertical_o",
    "tier": "prec curtain_sleight.py:1614"
   },
   {
@@ -61,6 +61,24 @@
    "tier": "inf"
   },
   {
+   "api": "MovieSceneScriptingFloatKey get_time/get_interpolation_mode/tangents (v3 her light curves)",
+   "ok": true,
+   "result": "[True, True, True, True]",
+   "tier": "inf"
+  },
+  {
+   "api": "MovieSceneBindingProxy.remove_track (v3 REVERT strips OUR tracks off shared bindings)",
+   "ok": true,
+   "result": "True",
+   "tier": "inf; memory: returns None, read back"
+  },
+  {
+   "api": "MovieSceneSectionParameters.start_frame_offset (v3 slot offset)",
+   "ok": true,
+   "result": "\"<Struct 'FrameNumber' (0x000002CC75E03A80) {value: 0}>\"",
+   "tier": "decl MovieSceneSectionParameters.h:76; units inf (ticks), decided by APPLY's parent-frame read-back"
+  },
+  {
    "api": "MovieSceneCompletionMode.RESTORE_STATE",
    "ok": true,
    "result": "'<MovieSceneCompletionMode.RESTORE_STATE: 1>'",
@@ -69,14 +87,14 @@
   {
    "api": "InfinityStageCelestialRig foreign_lighting_exempt_levels",
    "ok": true,
-   "result": "<Array object at 0x0000021953F107F0>",
+   "result": "<Array object at 0x000002C6D4B3D930>",
    "tier": "commit e0e04ed (built)"
   }
  ],
  "args": {
   "allow_lattice_overlap": true,
   "comfort_cm": 300.0,
-  "confirm": "",
+  "confirm": "DRY KLARAREVEAL",
   "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills).",
   "decided_by_note": "Gary 7 Oct (via the conductor): reposition/resize the HANGAR, never her elements; diorama right in front of the camera leaving the passage; floor in total darkness, ceiling rig glow kept; her lights strike one by one; crossfade, no hard switch; Plan A video slot = Sequencer Media track, her nested cinematic fills it until renders exist; intro ends on her first frame, outro starts on her last. APPLY needs decided_by filled by the conductor. NOT Gary's (proposed): lead_cm 600 (range 400-800, coordinator 7 Oct), glide peak <= 300 cm/s, all timing numbers below, strike order near_to_far, roof 'hide_roof'.",
   "footprint_max_size_cm": 4000.0,
@@ -166,45 +184,45 @@
   "arrival": {
    "land_s_transient": 4.1261,
    "pre_scene_float_drives": [
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_22.LightComponent0' (0x00000219A8D83700) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_23.LightComponent0' (0x00000219A8D85F00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_24.LightComponent0' (0x00000219A8D86900) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_25.LightComponent0' (0x00000219A8D89B00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_26.LightComponent0' (0x00000219A8DD1400) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_27.LightComponent0' (0x00000219A8BE0A00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_28.LightComponent0' (0x00000219A8C50000) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_29.LightComponent0' (0x00000219A8F1F500) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_30.LightComponent0' (0x00000219A8FE1400) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_31.LightComponent0' (0x00000219A8FE1E00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_32.LightComponent0' (0x00000219A8FE2800) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_33.LightComponent0' (0x00000219A8FE3200) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_34.LightComponent0' (0x00000219A8FE3C00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_35.LightComponent0' (0x00000219A8FE4600) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_26.LightComponent0' (0x00000219A9509600) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_27.LightComponent0' (0x00000219A9510500) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_28.LightComponent0' (0x00000219A9517300) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_29.LightComponent0' (0x00000219A951E100) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_30.LightComponent0' (0x00000219A9525A00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_31.LightComponent0' (0x00000219A952C800) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_32.LightComponent0' (0x00000219A9533700) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_33.LightComponent0' (0x00000219A953A500) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_34.LightComponent0' (0x00000219A9540000) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_35.LightComponent0' (0x00000219A9542800) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_36.LightComponent0' (0x00000219A9549600) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_37.LightComponent0' (0x00000219A9550500) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_38.LightComponent0' (0x00000219A9557300) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_39.LightComponent0' (0x00000219A955E100) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_40.LightComponent0' (0x00000219A9565A00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_41.LightComponent0' (0x00000219A956C800) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_42.LightComponent0' (0x00000219A9573700) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_43.LightComponent0' (0x00000219A957A500) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_44.LightComponent0' (0x00000219A9581400) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_45.LightComponent0' (0x00000219A9583200) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_46.LightComponent0' (0x00000219A9583C00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_47.LightComponent0' (0x00000219A9584600) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_48.LightComponent0' (0x00000219A9585000) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_49.LightComponent0' (0x00000219A9585A00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_1' (0x00000219A86A7E00) Class 'PostProcessVolume'>"
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_22.LightComponent0' (0x000002CB72845F00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_23.LightComponent0' (0x000002CB72848700) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_24.LightComponent0' (0x000002CB72849100) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_25.LightComponent0' (0x000002CB7284C300) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_26.LightComponent0' (0x000002CB72893C00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_27.LightComponent0' (0x000002CB72683200) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_28.LightComponent0' (0x000002CB726F2800) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_29.LightComponent0' (0x000002CB729E1E00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_30.LightComponent0' (0x000002CB72A93C00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_31.LightComponent0' (0x000002CB72A94600) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_32.LightComponent0' (0x000002CB72A95000) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_33.LightComponent0' (0x000002CB72A95A00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_34.LightComponent0' (0x000002CB72A96400) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_35.LightComponent0' (0x000002CB72A96E00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_26.LightComponent0' (0x000002CB72A1BE00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_27.LightComponent0' (0x000002CB72A22D00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_28.LightComponent0' (0x000002CB72A29B00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_29.LightComponent0' (0x000002CB72A30A00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_30.LightComponent0' (0x000002CB72A38200) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_31.LightComponent0' (0x000002CB72A3F000) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_32.LightComponent0' (0x000002CB72A45F00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_33.LightComponent0' (0x000002CB72A4CD00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_34.LightComponent0' (0x000002CB72A52800) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_35.LightComponent0' (0x000002CB72A55000) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_36.LightComponent0' (0x000002CB72A5BE00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_37.LightComponent0' (0x000002CB72A62D00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_38.LightComponent0' (0x000002CB72A69B00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_39.LightComponent0' (0x000002CB73010A00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_40.LightComponent0' (0x000002CB73018200) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_41.LightComponent0' (0x000002CB7301F000) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_42.LightComponent0' (0x000002CB73025F00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_43.LightComponent0' (0x000002CB7302CD00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_44.LightComponent0' (0x000002CB73033C00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_45.LightComponent0' (0x000002CB73035A00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_46.LightComponent0' (0x000002CB73036400) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_47.LightComponent0' (0x000002CB73036E00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_48.LightComponent0' (0x000002CB73037800) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_49.LightComponent0' (0x000002CB73038200) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_1' (0x000002CB720E9A00) Class 'PostProcessVolume'>"
    ],
    "strike_after_land_s": 5.8667083333333325
   },
@@ -276,7 +294,7 @@
     "guid": "5264B448384A9D11181911B00EF0B9D7",
     "range": [
      0,
-     6078
+     6241
     ]
    },
    {
@@ -284,8 +302,8 @@
     "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
     "guid": "609D24C3A94564B50497A0B55008EAC9",
     "range": [
-     6078,
-     6103
+     6241,
+     6266
     ]
    }
   ],
@@ -1632,13 +1650,23 @@
     "role": "ceiling"
    }
   ],
+  "her_audio": [
+   {
+    "active": true,
+    "end_frame": 4165,
+    "sound": "/Game/KK_S1_Animals/Animals_Project_CLICK",
+    "start_frame": -311
+   }
+  ],
   "her_env": [
    {
     "class": "DirectionalLight",
+    "curve": null,
     "her_keyed": false,
     "label": "DirectionalLight",
     "property": "Intensity",
-    "value": 17.371801376342773
+    "value": 17.371801376342773,
+    "value_lit": 17.371801376342773
    },
    {
     "class": "SkyAtmosphere",
@@ -1648,17 +1676,21 @@
    },
    {
     "class": "SkyLight",
+    "curve": null,
     "her_keyed": false,
     "label": "SkyLight",
     "property": "Intensity",
-    "value": 0.800000011920929
+    "value": 0.800000011920929,
+    "value_lit": 0.800000011920929
    },
    {
     "class": "ExponentialHeightFog",
+    "curve": null,
     "her_keyed": false,
     "label": "ExponentialHeightFog",
     "property": "FogDensity",
-    "value": 0.07500000298023224
+    "value": 0.07500000298023224,
+    "value_lit": 0.07500000298023224
    },
    {
     "class": "VolumetricCloud",
@@ -1668,6 +1700,7 @@
    },
    {
     "class": "PostProcessVolume",
+    "curve": null,
     "enabled": true,
     "exposure_overrides": {
      "auto_exposure_bias": true,
@@ -1675,11 +1708,13 @@
      "auto_exposure_method": false,
      "auto_exposure_min_brightness": false
     },
+    "her_keyed": false,
     "label": "PostProcessVolume",
     "priority": 0.0,
     "property": "BlendWeight",
     "unbound": false,
-    "value": 1.0
+    "value": 1.0,
+    "value_lit": 1.0
    }
   ],
   "her_first": {
@@ -1710,6 +1745,10 @@
    ],
    "binding": "CineCameraActor",
    "binding_guid": "9DC04E2B624ACE65EC0AD7A0F2AA7CD5",
+   "cut": [
+    -311,
+    404
+   ],
    "fps": 30.0,
    "frame": -310,
    "lens_tracks": {
@@ -1733,6 +1772,7 @@
     0.0
    ]
   },
+  "her_fps": 30.0,
   "her_last": {
    "actor": {
     "aperture": 2.799999952316284,
@@ -1761,6 +1801,10 @@
    ],
    "binding": "CineCameraActor",
    "binding_guid": "9DC04E2B624ACE65EC0AD7A0F2AA7CD5",
+   "cut": [
+    2137,
+    6008
+   ],
    "fps": 30.0,
    "frame": 6007,
    "lens_tracks": {
@@ -1793,6 +1837,50 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -248000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -228000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -226400,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 2772000,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 2840000,
+        "value": 0.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1813,6 +1901,7 @@
     "name": "SpotLight_8",
     "target_first": 0.0,
     "target_last": 0.0,
+    "target_lit": 8.0,
     "visible": true
    },
    {
@@ -1823,6 +1912,36 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -220800,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -218400,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -204800,
+        "value": 8.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1843,6 +1962,7 @@
     "name": "SpotLight_11",
     "target_first": 0.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "visible": true
    },
    {
@@ -1853,6 +1973,36 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -208000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -197600,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -189600,
+        "value": 8.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1873,6 +2023,7 @@
     "name": "SpotLight_13",
     "target_first": 0.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "visible": true
    },
    {
@@ -1883,6 +2034,50 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -227200,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -196000,
+        "value": 4.800000190734863
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -188800,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -180800,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -172800,
+        "value": 8.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1903,6 +2098,7 @@
     "name": "SpotLight_15",
     "target_first": 0.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "visible": true
    },
    {
@@ -1913,6 +2109,36 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -227200,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -205600,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -199200,
+        "value": 8.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1933,6 +2159,7 @@
     "name": "SpotLight_17",
     "target_first": 0.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "visible": true
    },
    {
@@ -1943,6 +2170,50 @@
      0.6705882352941176,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -227200,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -220000,
+        "value": 7.26609992980957
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -217600,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -210400,
+        "value": 8.548399925231934
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -181600,
+        "value": 8.548399925231934
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1963,6 +2234,7 @@
     "name": "SpotLight_18",
     "target_first": 0.0,
     "target_last": 8.548399925231934,
+    "target_lit": 8.548399925231934,
     "visible": true
    },
    {
@@ -1973,6 +2245,50 @@
      0.47058823529411764,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -205600,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -197600,
+        "value": 4.800000190734863
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -189600,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -177600,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -168800,
+        "value": 8.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -1993,6 +2309,7 @@
     "name": "SpotLight_19",
     "target_first": 0.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "visible": true
    },
    {
@@ -2003,6 +2320,36 @@
      0.6705882352941176,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": null,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -221600,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -217600,
+        "value": 8.548399925231934
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -198400,
+        "value": 8.548399925231934
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -2023,6 +2370,7 @@
     "name": "SpotLight_20",
     "target_first": 0.0,
     "target_last": 8.548399925231934,
+    "target_lit": 8.548399925231934,
     "visible": true
    },
    {
@@ -2033,6 +2381,50 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -228000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -212000,
+        "value": 19.920000076293945
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -204000,
+        "value": 19.920000076293945
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": 3020000,
+        "value": 19.920000076293945
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": 3068800,
+        "value": 0.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -2053,6 +2445,7 @@
     "name": "SpotLight_22",
     "target_first": 0.0,
     "target_last": 0.0,
+    "target_lit": 19.920000076293945,
     "visible": true
    },
    {
@@ -2063,6 +2456,64 @@
      0.8392156862745098,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -228000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -225600,
+        "value": 16.93199920654297
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -222400,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -219200,
+        "value": 19.920000076293945
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -200000,
+        "value": 19.920000076293945
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": 2791200,
+        "value": 19.920000076293945
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": 3083200,
+        "value": 0.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -2083,6 +2534,7 @@
     "name": "SpotLight_23",
     "target_first": 0.0,
     "target_last": 0.0,
+    "target_lit": 19.920000076293945,
     "visible": true
    },
    {
@@ -2093,6 +2545,172 @@
      0.2901960784313726,
      1.0
     ],
+    "color_lit": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "curves": {
+     "Intensity": {
+      "default": 300.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -236000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -162400,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -160800,
+        "value": 552.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 0,
+        "value": 552.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 2737600,
+        "value": 552.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 3083200,
+        "value": 300.0
+       }
+      ],
+      "tpf": 800.0
+     },
+     "LightColor": [
+      {
+       "default": 0.5028864741325378,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 0,
+         "value": 0.5028864741325378
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2737600,
+         "value": 0.5028864741325378
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 3083200,
+         "value": 0.5028864741325378
+        }
+       ],
+       "tpf": 800.0
+      },
+      {
+       "default": 0.07889427989721298,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 0,
+         "value": 0.2788942754268646
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2737600,
+         "value": 0.2788942754268646
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 3083200,
+         "value": 0.07889427989721298
+        }
+       ],
+       "tpf": 800.0
+      },
+      {
+       "default": -0.0415218323469162,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 0,
+         "value": 0.06847816705703735
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2737600,
+         "value": 0.06847816705703735
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 3083200,
+         "value": -0.0415218323469162
+        }
+       ],
+       "tpf": 800.0
+      },
+      {
+       "default": 1.0,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 0,
+         "value": 1.0
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2737600,
+         "value": 1.0
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 3083200,
+         "value": 1.0
+        }
+       ],
+       "tpf": 800.0
+      }
+     ]
+    },
     "first": {
      "Intensity": 0.0,
      "LightColor": [
@@ -2126,6 +2744,7 @@
     "name": "RectLight_14",
     "target_first": 0.0,
     "target_last": 300.0,
+    "target_lit": 276.0,
     "visible": true
    },
    {
@@ -2136,6 +2755,116 @@
      0.2901960784313726,
      1.0
     ],
+    "color_lit": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "curves": {
+     "Intensity": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -164000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -156000,
+        "value": 552.0
+       }
+      ],
+      "tpf": 800.0
+     },
+     "LightColor": [
+      {
+       "default": 0.3028864860534668,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2749600,
+         "value": 0.5028864741325378
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2859200,
+         "value": 0.3028864860534668
+        }
+       ],
+       "tpf": 800.0
+      },
+      {
+       "default": 0.02889428101480007,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2749600,
+         "value": 0.2788942754268646
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2859200,
+         "value": 0.02889428101480007
+        }
+       ],
+       "tpf": 800.0
+      },
+      {
+       "default": 0.03809389844536781,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2749600,
+         "value": 0.06847816705703735
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2859200,
+         "value": 0.03809389844536781
+        }
+       ],
+       "tpf": 800.0
+      },
+      {
+       "default": 16.52132797241211,
+       "keys": [
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2749600,
+         "value": 1.0
+        },
+        {
+         "arrive": 0.0,
+         "interp": "cubic",
+         "leave": 0.0,
+         "tick": 2859200,
+         "value": 16.52132797241211
+        }
+       ],
+       "tpf": 800.0
+      }
+     ]
+    },
     "first": {
      "Intensity": 0.0,
      "LightColor": [
@@ -2169,6 +2898,7 @@
     "name": "RectLight_15",
     "target_first": 0.0,
     "target_last": 552.0,
+    "target_lit": 119.23200000000001,
     "visible": true
    },
    {
@@ -2179,6 +2909,70 @@
      0.2901960784313726,
      1.0
     ],
+    "color_lit": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
+    "curves": {
+     "Intensity": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -175200,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": -159200,
+        "value": 552.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 2940000,
+        "value": 552.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "cubic",
+        "leave": 0.0,
+        "tick": 2945600,
+        "value": 0.0
+       }
+      ],
+      "tpf": 800.0
+     },
+     "LightColor": [
+      {
+       "default": 0.5028864741325378,
+       "keys": [],
+       "tpf": 800.0
+      },
+      {
+       "default": 0.2788942754268646,
+       "keys": [],
+       "tpf": 800.0
+      },
+      {
+       "default": 0.06847816705703735,
+       "keys": [],
+       "tpf": 800.0
+      },
+      {
+       "default": 1.0,
+       "keys": [],
+       "tpf": 800.0
+      }
+     ]
+    },
     "first": {
      "Intensity": 0.0,
      "LightColor": [
@@ -2212,6 +3006,7 @@
     "name": "RectLight_16",
     "target_first": 0.0,
     "target_last": 0.0,
+    "target_lit": 518.4659999999998,
     "visible": true
    },
    {
@@ -2222,6 +3017,64 @@
      1.0,
      1.0
     ],
+    "color_lit": null,
+    "curves": {
+     "Intensity": {
+      "default": 0.0,
+      "keys": [
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -228000,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -210400,
+        "value": 0.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -204000,
+        "value": 4.800000190734863
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -186400,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": -179200,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": 2791200,
+        "value": 8.0
+       },
+       {
+        "arrive": 0.0,
+        "interp": "constant",
+        "leave": 0.0,
+        "tick": 3083200,
+        "value": 0.0
+       }
+      ],
+      "tpf": 800.0
+     }
+    },
     "first": {
      "Intensity": 0.0
     },
@@ -2242,13 +3095,70 @@
     "name": "SpotLight_1",
     "target_first": 0.0,
     "target_last": 0.0,
+    "target_lit": 8.0,
     "visible": true
    }
   ],
+  "her_lit": {
+   "actor": {
+    "aperture": 2.799999952316284,
+    "focal": 35.0,
+    "focus": 100000.0,
+    "label": "CineCameraActor",
+    "loc": [
+     32748.0135,
+     404.0,
+     -16.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "sensor": [
+     23.760000228881836,
+     13.364999771118164
+    ]
+   },
+   "ang_deg_s": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "binding": "CineCameraActor",
+   "binding_guid": "9DC04E2B624ACE65EC0AD7A0F2AA7CD5",
+   "cut": [
+    -311,
+    404
+   ],
+   "fps": 30.0,
+   "frame": -202,
+   "lens_tracks": {
+    "CurrentAperture": 2.799999952316284,
+    "CurrentFocalLength": 23.884634017944336,
+    "ManualFocusDistance": 427.3858337402344
+   },
+   "loc": [
+    31805.0135,
+    120.0,
+    77.0
+   ],
+   "rot": [
+    4.279735609956023e-15,
+    3.0,
+    0.0
+   ],
+   "vel_cm_s": [
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
   "her_range": [
    -310,
    6008
   ],
+  "her_tpf": 800.0,
   "hookin_bindings": [
    {
     "name": "Klara Hookin - Hers Dark: DirectionalLight",
@@ -2452,6 +3362,384 @@
    ],
    "yaw": 0.0
   },
+  "lit": {
+   "frame": -202,
+   "frame_raw": -202,
+   "frame_votes": -202,
+   "her_time_s": -6.733333333333333,
+   "method": "detected",
+   "n_ever_lit": 14,
+   "n_needed": 12,
+   "per_light": {
+    "RectLight_Merged": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -295.0,
+       0.0
+      ],
+      [
+       -203.0,
+       0.0
+      ],
+      [
+       -201.0,
+       552.0
+      ],
+      [
+       0.0,
+       552.0
+      ]
+     ],
+     "lit_at": -201,
+     "lit_at_s_into_her": 3.6333333333333333,
+     "n_keys": 6,
+     "plateau": 552.0
+    },
+    "RectLight_Merged2": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -205.0,
+       0.0
+      ],
+      [
+       -195.0,
+       552.0
+      ]
+     ],
+     "lit_at": -196,
+     "lit_at_s_into_her": 3.8,
+     "n_keys": 2,
+     "plateau": 552.0
+    },
+    "RectLight_Merged3": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -219.0,
+       0.0
+      ],
+      [
+       -199.0,
+       552.0
+      ]
+     ],
+     "lit_at": -202,
+     "lit_at_s_into_her": 3.6,
+     "n_keys": 4,
+     "plateau": 552.0
+    },
+    "SpotLight10": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -282.0,
+       16.93199920654297
+      ],
+      [
+       -278.0,
+       0.0
+      ],
+      [
+       -274.0,
+       19.920000076293945
+      ],
+      [
+       -250.0,
+       19.920000076293945
+      ]
+     ],
+     "lit_at": -274,
+     "lit_at_s_into_her": 1.2,
+     "n_keys": 7,
+     "plateau": 19.920000076293945
+    },
+    "SpotLight11": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -263.0,
+       0.0
+      ],
+      [
+       -255.0,
+       4.800000190734863
+      ],
+      [
+       -233.0,
+       8.0
+      ],
+      [
+       -224.0,
+       8.0
+      ]
+     ],
+     "lit_at": -233,
+     "lit_at_s_into_her": 2.566666666666667,
+     "n_keys": 7,
+     "plateau": 8.0
+    },
+    "SpotLight2": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -276.0,
+       0.0
+      ],
+      [
+       -273.0,
+       8.0
+      ],
+      [
+       -256.0,
+       8.0
+      ]
+     ],
+     "lit_at": -273,
+     "lit_at_s_into_her": 1.2333333333333334,
+     "n_keys": 3,
+     "plateau": 8.0
+    },
+    "SpotLight3": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -260.0,
+       0.0
+      ],
+      [
+       -247.0,
+       8.0
+      ],
+      [
+       -237.0,
+       8.0
+      ]
+     ],
+     "lit_at": -247,
+     "lit_at_s_into_her": 2.1,
+     "n_keys": 3,
+     "plateau": 8.0
+    },
+    "SpotLight4": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -284.0,
+       0.0
+      ],
+      [
+       -245.0,
+       4.800000190734863
+      ],
+      [
+       -236.0,
+       0.0
+      ],
+      [
+       -226.0,
+       8.0
+      ],
+      [
+       -216.0,
+       8.0
+      ]
+     ],
+     "lit_at": -226,
+     "lit_at_s_into_her": 2.8,
+     "n_keys": 5,
+     "plateau": 8.0
+    },
+    "SpotLight5": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -284.0,
+       0.0
+      ],
+      [
+       -257.0,
+       8.0
+      ],
+      [
+       -249.0,
+       8.0
+      ]
+     ],
+     "lit_at": -257,
+     "lit_at_s_into_her": 1.7666666666666666,
+     "n_keys": 3,
+     "plateau": 8.0
+    },
+    "SpotLight6": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -284.0,
+       0.0
+      ],
+      [
+       -275.0,
+       7.26609992980957
+      ],
+      [
+       -272.0,
+       0.0
+      ],
+      [
+       -263.0,
+       8.548399925231934
+      ],
+      [
+       -227.0,
+       8.548399925231934
+      ]
+     ],
+     "lit_at": -263,
+     "lit_at_s_into_her": 1.5666666666666667,
+     "n_keys": 5,
+     "plateau": 8.548399925231934
+    },
+    "SpotLight7": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -257.0,
+       0.0
+      ],
+      [
+       -247.0,
+       4.800000190734863
+      ],
+      [
+       -237.0,
+       0.0
+      ],
+      [
+       -222.0,
+       8.0
+      ],
+      [
+       -211.0,
+       8.0
+      ]
+     ],
+     "lit_at": -222,
+     "lit_at_s_into_her": 2.933333333333333,
+     "n_keys": 5,
+     "plateau": 8.0
+    },
+    "SpotLight8": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -277.0,
+       0.0
+      ],
+      [
+       -272.0,
+       8.548399925231934
+      ],
+      [
+       -248.0,
+       8.548399925231934
+      ]
+     ],
+     "lit_at": -272,
+     "lit_at_s_into_her": 1.2666666666666666,
+     "n_keys": 3,
+     "plateau": 8.548399925231934
+    },
+    "SpotLight9": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -265.0,
+       19.920000076293945
+      ],
+      [
+       -255.0,
+       19.920000076293945
+      ]
+     ],
+     "lit_at": -265,
+     "lit_at_s_into_her": 1.5,
+     "n_keys": 5,
+     "plateau": 19.920000076293945
+    },
+    "animals": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -310.0,
+       0.0
+      ],
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -283.0,
+       8.0
+      ]
+     ],
+     "lit_at": -283,
+     "lit_at_s_into_her": 0.9,
+     "n_keys": 5,
+     "plateau": 8.0
+    }
+   },
+   "refusals": [],
+   "s_into_her": 3.6,
+   "snap_step": 6,
+   "sum_frame": -222,
+   "warnings": [],
+   "window": [
+    -310,
+    1490
+   ]
+  },
   "our_ppv": [
    {
     "label": "S1 Hangar Pinned Exposure",
@@ -2460,7 +3748,7 @@
   ],
   "playback": [
    0,
-   6103
+   6266
   ],
   "rig_bulbs": [
    "S1 Lattice Bulb 1-1",
@@ -2489,11 +3777,23 @@
    "S1 Lattice Bulb 3-8"
   ],
   "rig_exempt": [
-   "<Object '/Game/KK_S1_Animals/L_Animals.L_Animals' (0x000002198F2D9A00) Class 'World'>",
-   "<Object '/Game/L_KK_children.L_KK_children' (0x0000021A3382D200) Class 'World'>",
-   "<Object '/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley' (0x0000021AC6FA0E00) Class 'World'>"
+   "<Object '/Game/KK_S1_Animals/L_Animals.L_Animals' (0x000002CC1D63B600) Class 'World'>",
+   "<Object '/Game/L_KK_children.L_KK_children' (0x000002CC01270000) Class 'World'>",
+   "<Object '/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley' (0x000002CC8DE13800) Class 'World'>"
   ],
   "scene": "1",
+  "scene_audio": [
+   {
+    "active": false,
+    "range": [
+     5216,
+     6091
+    ],
+    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
+    "track": "Narration (stand-in)"
+   }
+  ],
+  "scene_markers": [],
   "set_world": [
    32114.513516126783,
    33586.11178186035,
@@ -2507,10 +3807,38 @@
    5641,
    true
   ],
+  "slot_offset_tick_live": 0,
   "tick": 24000.0
  },
  "plan": {
   "apply_ready": true,
+  "audio": {
+   "her_audio": [
+    {
+     "active": true,
+     "after_skip": "joins mid-sound at the cut: its first 3.63 s are skipped",
+     "end_frame": 4165,
+     "scene_end_frame": 4233.166666666666,
+     "scene_start_frame": 594,
+     "sound": "/Game/KK_S1_Animals/Animals_Project_CLICK",
+     "start_frame": -311
+    }
+   ],
+   "scene_audio_all": [
+    {
+     "active": false,
+     "range": [
+      5216,
+      6091
+     ],
+     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
+     "track": "Narration (stand-in)"
+    }
+   ],
+   "scene_audio_past_end": [],
+   "scene_markers_all": [],
+   "scene_markers_past_end": []
+  },
   "cuts_after": [
    [
     "entry",
@@ -2523,20 +3851,20 @@
     "glide",
     [
      119,
-     6241
+     6151
     ]
    ],
    [
     "exit",
     [
-     6241,
-     6266
+     6151,
+     6176
     ]
    ]
   ],
   "extend_mode": {
    "dry_run": true,
-   "new_end_s": 250.64,
+   "new_end_s": 247.04,
    "scene_label": "Scene 1 \u2014 External Sound"
   },
   "first_frame_sees": {
@@ -4645,7 +5973,7 @@
      427.3858337402344
     ],
     [
-     5858,
+     5768,
      29384.0135,
      0.0,
      77.0,
@@ -4656,7 +5984,7 @@
      427.3858337402344
     ],
     [
-     5859,
+     5769,
      29944.0135,
      -21.0,
      38.0,
@@ -4667,7 +5995,7 @@
      427.3858337402344
     ],
     [
-     6090,
+     6000,
      29944.0135,
      -21.0,
      38.0,
@@ -4678,7 +6006,7 @@
      427.3858337402344
     ],
     [
-     6091,
+     6001,
      29944.0135,
      -21.0,
      38.0,
@@ -4689,7 +6017,7 @@
      427.3858337402344
     ],
     [
-     6092,
+     6002,
      29943.85952074074,
      -20.997212444444443,
      38.01486696296296,
@@ -4700,7 +6028,7 @@
      427.40874667252604
     ],
     [
-     6093,
+     6003,
      29943.40033259259,
      -20.988899555555555,
      38.05920237037037,
@@ -4711,7 +6039,7 @@
      427.4770763098958
     ],
     [
-     6094,
+     6004,
      29942.64006,
      -20.975136,
      38.132608,
@@ -4722,7 +6050,7 @@
      427.590208913086
     ],
     [
-     6095,
+     6005,
      29941.58282740741,
      -20.955996444444445,
      38.234685629629624,
@@ -4733,7 +6061,7 @@
      427.74753074283853
     ],
     [
-     6096,
+     6006,
      29940.23275925926,
      -20.931555555555555,
      38.365037037037034,
@@ -4744,7 +6072,7 @@
      427.94842805989583
     ],
     [
-     6097,
+     6007,
      29938.59398,
      -20.901888,
      38.523264,
@@ -4755,7 +6083,7 @@
      428.192287125
     ],
     [
-     6098,
+     6008,
      29936.670614074075,
      -20.867068444444445,
      38.7089682962963,
@@ -4766,7 +6094,7 @@
      428.4784941988932
     ],
     [
-     6099,
+     6009,
      29934.466785925924,
      -20.827171555555555,
      38.921751703703706,
@@ -4777,7 +6105,7 @@
      428.8064355423177
     ],
     [
-     6100,
+     6010,
      29931.98662,
      -20.782272,
      39.161215999999996,
@@ -4788,7 +6116,7 @@
      429.1754974160156
     ],
     [
-     6101,
+     6011,
      29929.23424074074,
      -20.732444444444447,
      39.42696296296296,
@@ -4799,7 +6127,7 @@
      429.5850660807292
     ],
     [
-     6102,
+     6012,
      29926.213772592593,
      -20.677763555555558,
      39.71859437037037,
@@ -4810,7 +6138,7 @@
      430.03452779720055
     ],
     [
-     6103,
+     6013,
      29922.929340000002,
      -20.618304000000002,
      40.035712,
@@ -4821,7 +6149,7 @@
      430.5232688261719
     ],
     [
-     6104,
+     6014,
      29919.38506740741,
      -20.554140444444446,
      40.377917629629636,
@@ -4832,7 +6160,7 @@
      431.05067542838543
     ],
     [
-     6105,
+     6015,
      29915.58507925926,
      -20.485347555555556,
      40.74481303703704,
@@ -4843,7 +6171,7 @@
      431.61613386458333
     ],
     [
-     6106,
+     6016,
      29911.5335,
      -20.412,
      41.136,
@@ -4854,7 +6182,7 @@
      432.2190303955078
     ],
     [
-     6107,
+     6017,
      29907.234454074074,
      -20.334172444444444,
      41.55108029629629,
@@ -4865,7 +6193,7 @@
      432.85875128190105
     ],
     [
-     6108,
+     6018,
      29902.692065925927,
      -20.251939555555555,
      41.989655703703704,
@@ -4876,7 +6204,7 @@
      433.5346827845052
     ],
     [
-     6109,
+     6019,
      29897.910460000003,
      -20.165376,
      42.451328000000004,
@@ -4887,7 +6215,7 @@
      434.2462111640625
     ],
     [
-     6110,
+     6020,
      29892.893760740742,
      -20.074556444444443,
      42.93569896296297,
@@ -4898,7 +6226,7 @@
      434.9927226813151
     ],
     [
-     6111,
+     6021,
      29887.64609259259,
      -19.979555555555553,
      43.44237037037037,
@@ -4909,7 +6237,7 @@
      435.7736035970052
     ],
     [
-     6112,
+     6022,
      29882.171580000002,
      -19.880448,
      43.970943999999996,
@@ -4920,7 +6248,7 @@
      436.588240171875
     ],
     [
-     6113,
+     6023,
      29876.47434740741,
      -19.777308444444444,
      44.52102162962963,
@@ -4931,7 +6259,7 @@
      437.43601866666666
     ],
     [
-     6114,
+     6024,
      29870.558519259263,
      -19.670211555555557,
      45.09220503703704,
@@ -4942,7 +6270,7 @@
      438.3163253421224
     ],
     [
-     6115,
+     6025,
      29864.428219999998,
      -19.559232,
      45.684096,
@@ -4953,7 +6281,7 @@
      439.2285464589844
     ],
     [
-     6116,
+     6026,
      29858.087574074074,
      -19.444444444444443,
      46.29629629629629,
@@ -4964,7 +6292,7 @@
      440.1720682779948
     ],
     [
-     6117,
+     6027,
      29851.540705925927,
      -19.325923555555555,
      46.928407703703705,
@@ -4975,7 +6303,7 @@
      441.14627705989585
     ],
     [
-     6118,
+     6028,
      29844.79174,
      -19.203744,
      47.580032,
@@ -4986,7 +6314,7 @@
      442.15055906542966
     ],
     [
-     6119,
+     6029,
      29837.844800740746,
      -19.077980444444446,
      48.25077096296297,
@@ -4997,7 +6325,7 @@
      443.18430055533855
     ],
     [
-     6120,
+     6030,
      29830.704012592592,
      -18.948707555555558,
      48.94022637037037,
@@ -5008,7 +6336,7 @@
      444.2468877903646
     ],
     [
-     6121,
+     6031,
      29823.3735,
      -18.816,
      49.648,
@@ -5019,7 +6347,7 @@
      445.33770703125003
     ],
     [
-     6122,
+     6032,
      29815.85738740741,
      -18.679932444444447,
      50.37369362962963,
@@ -5030,7 +6358,7 @@
      446.45614453873696
     ],
     [
-     6123,
+     6033,
      29808.15979925926,
      -18.540579555555556,
      51.11690903703705,
@@ -5041,7 +6369,7 @@
      447.6015865735677
     ],
     [
-     6124,
+     6034,
      29800.284860000003,
      -18.398016,
      51.877248,
@@ -5052,7 +6380,7 @@
      448.77341939648437
     ],
     [
-     6125,
+     6035,
      29792.236694074072,
      -18.252316444444443,
      52.65431229629629,
@@ -5063,7 +6391,7 @@
      449.97102926822913
     ],
     [
-     6126,
+     6036,
      29784.01942592593,
      -18.103555555555555,
      53.44770370370371,
@@ -5074,7 +6402,7 @@
      451.19380244954425
     ],
     [
-     6127,
+     6037,
      29775.637180000005,
      -17.951808,
      54.257024,
@@ -5085,7 +6413,7 @@
      452.44112520117193
     ],
     [
-     6128,
+     6038,
      29767.094080740742,
      -17.797148444444446,
      55.08187496296297,
@@ -5096,7 +6424,7 @@
      453.7123837838542
     ],
     [
-     6129,
+     6039,
      29758.394252592592,
      -17.639651555555552,
      55.92185837037037,
@@ -5107,7 +6435,7 @@
      455.0069644583333
     ],
     [
-     6130,
+     6040,
      29749.541820000002,
      -17.479392,
      56.776576000000006,
@@ -5118,7 +6446,7 @@
      456.32425348535156
     ],
     [
-     6131,
+     6041,
      29740.540907407405,
      -17.316444444444443,
      57.645629629629624,
@@ -5129,7 +6457,7 @@
      457.663637125651
     ],
     [
-     6132,
+     6042,
      29731.39563925926,
      -17.150883555555556,
      58.528621037037034,
@@ -5140,7 +6468,7 @@
      459.02450163997395
     ],
     [
-     6133,
+     6043,
      29722.11014,
      -16.982784,
      59.425152,
@@ -5151,7 +6479,7 @@
      460.40623328906247
     ],
     [
-     6134,
+     6044,
      29712.688534074077,
      -16.812220444444446,
      60.3348242962963,
@@ -5162,7 +6490,7 @@
      461.80821833365883
     ],
     [
-     6135,
+     6045,
      29703.134945925925,
      -16.639267555555556,
      61.2572397037037,
@@ -5173,7 +6501,7 @@
      463.22984303450517
     ],
     [
-     6136,
+     6046,
      29693.453500000003,
      -16.464000000000002,
      62.19200000000001,
@@ -5184,7 +6512,7 @@
      464.6704936523438
     ],
     [
-     6137,
+     6047,
      29683.648320740744,
      -16.286492444444445,
      63.13870696296296,
@@ -5195,7 +6523,7 @@
      466.1295564479167
     ],
     [
-     6138,
+     6048,
      29673.723532592594,
      -16.106819555555553,
      64.09696237037036,
@@ -5206,7 +6534,7 @@
      467.60641768196615
     ],
     [
-     6139,
+     6049,
      29663.68326,
      -15.925056,
      65.066368,
@@ -5217,7 +6545,7 @@
      469.1004636152344
     ],
     [
-     6140,
+     6050,
      29653.531627407407,
      -15.741276444444445,
      66.04652562962963,
@@ -5228,7 +6556,7 @@
      470.61108050846354
     ],
     [
-     6141,
+     6051,
      29643.272759259256,
      -15.555555555555555,
      67.03703703703704,
@@ -5239,7 +6567,7 @@
      472.1376546223958
     ],
     [
-     6142,
+     6052,
      29632.910780000006,
      -15.367968000000001,
      68.03750400000001,
@@ -5250,7 +6578,7 @@
      473.67957221777345
     ],
     [
-     6143,
+     6053,
      29622.449814074072,
      -15.178588444444443,
      69.04752829629629,
@@ -5261,7 +6589,7 @@
      475.2362195553385
     ],
     [
-     6144,
+     6054,
      29611.893985925926,
      -14.987491555555557,
      70.0667117037037,
@@ -5272,7 +6600,7 @@
      476.80698289583336
     ],
     [
-     6145,
+     6055,
      29601.24742,
      -14.794752,
      71.09465599999999,
@@ -5283,7 +6611,7 @@
      478.39124849999996
     ],
     [
-     6146,
+     6056,
      29590.51424074074,
      -14.600444444444443,
      72.13096296296297,
@@ -5294,7 +6622,7 @@
      479.98840262858073
     ],
     [
-     6147,
+     6057,
      29579.69857259259,
      -14.404643555555554,
      73.17523437037036,
@@ -5305,7 +6633,7 @@
      481.59783154231764
     ],
     [
-     6148,
+     6058,
      29568.80454,
      -14.207424000000001,
      74.22707199999999,
@@ -5316,7 +6644,7 @@
      483.21892150195316
     ],
     [
-     6149,
+     6059,
      29557.83626740741,
      -14.008860444444446,
      75.28607762962963,
@@ -5327,7 +6655,7 @@
      484.85105876822917
     ],
     [
-     6150,
+     6060,
      29546.797879259262,
      -13.809027555555556,
      76.35185303703703,
@@ -5338,7 +6666,7 @@
      486.49362960188796
     ],
     [
-     6151,
+     6061,
      29535.6935,
      -13.607999999999999,
      77.424,
@@ -5349,7 +6677,7 @@
      488.14602026367186
     ],
     [
-     6152,
+     6062,
      29524.527254074077,
      -13.405852444444443,
      78.5021202962963,
@@ -5360,7 +6688,7 @@
      489.80761701432294
     ],
     [
-     6153,
+     6063,
      29513.303265925926,
      -13.202659555555556,
      79.5858157037037,
@@ -5371,7 +6699,7 @@
      491.47780611458336
     ],
     [
-     6154,
+     6064,
      29502.02566,
      -12.998496000000001,
      80.67468799999999,
@@ -5382,7 +6710,7 @@
      493.15597382519536
     ],
     [
-     6155,
+     6065,
      29490.69856074074,
      -12.793436444444442,
      81.76833896296297,
@@ -5393,7 +6721,7 @@
      494.84150640690103
     ],
     [
-     6156,
+     6066,
      29479.326092592593,
      -12.587555555555555,
      82.86637037037036,
@@ -5404,7 +6732,7 @@
      496.5337901204427
     ],
     [
-     6157,
+     6067,
      29467.91238,
      -12.380927999999999,
      83.968384,
@@ -5415,7 +6743,7 @@
      498.2322112265625
     ],
     [
-     6158,
+     6068,
      29456.46154740741,
      -12.173628444444443,
      85.07398162962963,
@@ -5426,7 +6754,7 @@
      499.93615598600263
     ],
     [
-     6159,
+     6069,
      29444.97771925926,
      -11.965731555555555,
      86.18276503703703,
@@ -5437,7 +6765,7 @@
      501.64501065950515
     ],
     [
-     6160,
+     6070,
      29433.465019999996,
      -11.757311999999999,
      87.29433599999999,
@@ -5448,7 +6776,7 @@
      503.3581615078125
     ],
     [
-     6161,
+     6071,
      29421.927574074078,
      -11.548444444444444,
      88.4082962962963,
@@ -5459,7 +6787,7 @@
      505.07499479166665
     ],
     [
-     6162,
+     6072,
      29410.369505925926,
      -11.339203555555557,
      89.52424770370371,
@@ -5470,7 +6798,7 @@
      506.79489677180993
     ],
     [
-     6163,
+     6073,
      29398.794940000003,
      -11.129664,
      90.64179200000001,
@@ -5481,7 +6809,7 @@
      508.5172537089844
     ],
     [
-     6164,
+     6074,
      29387.208000740742,
      -10.919900444444442,
      91.76053096296297,
@@ -5492,7 +6820,7 @@
      510.2414518639323
     ],
     [
-     6165,
+     6075,
      29375.612812592593,
      -10.709987555555553,
      92.88006637037037,
@@ -5503,7 +6831,7 @@
      511.96687749739584
     ],
     [
-     6166,
+     6076,
      29364.0135,
      -10.5,
      94.0,
@@ -5514,7 +6842,7 @@
      513.6929168701172
     ],
     [
-     6167,
+     6077,
      29352.41418740741,
      -10.290012444444441,
      95.11993362962964,
@@ -5525,7 +6853,7 @@
      515.4189562428386
     ],
     [
-     6168,
+     6078,
      29340.81899925926,
      -10.080099555555556,
      96.23946903703703,
@@ -5536,7 +6864,7 @@
      517.1443818763021
     ],
     [
-     6169,
+     6079,
      29329.232060000002,
      -9.870335999999998,
      97.35820800000002,
@@ -5547,7 +6875,7 @@
      518.8685800312501
     ],
     [
-     6170,
+     6080,
      29317.657494074076,
      -9.660796444444445,
      98.47575229629629,
@@ -5558,7 +6886,7 @@
      520.5909369684244
     ],
     [
-     6171,
+     6081,
      29306.099425925924,
      -9.451555555555556,
      99.5917037037037,
@@ -5569,7 +6897,7 @@
      522.3108389485677
     ],
     [
-     6172,
+     6082,
      29294.561980000002,
      -9.242688000000001,
      100.70566399999998,
@@ -5580,7 +6908,7 @@
      524.0276722324219
     ],
     [
-     6173,
+     6083,
      29283.049280740743,
      -9.034268444444445,
      101.81723496296296,
@@ -5591,7 +6919,7 @@
      525.7408230807291
     ],
     [
-     6174,
+     6084,
      29271.565452592593,
      -8.826371555555557,
      102.92601837037036,
@@ -5602,7 +6930,7 @@
      527.4496777542317
     ],
     [
-     6175,
+     6085,
      29260.11462,
      -8.619072000000001,
      104.031616,
@@ -5613,7 +6941,7 @@
      529.1536225136718
     ],
     [
-     6176,
+     6086,
      29248.70090740741,
      -8.412444444444446,
      105.13362962962962,
@@ -5624,7 +6952,7 @@
      530.8520436197916
     ],
     [
-     6177,
+     6087,
      29237.328439259258,
      -8.206563555555556,
      106.23166103703704,
@@ -5635,7 +6963,7 @@
      532.5443273333333
     ],
     [
-     6178,
+     6088,
      29226.001340000003,
      -8.001504,
      107.325312,
@@ -5646,7 +6974,7 @@
      534.229859915039
     ],
     [
-     6179,
+     6089,
      29214.723734074076,
      -7.797340444444447,
      108.41418429629628,
@@ -5657,7 +6985,7 @@
      535.908027625651
     ],
     [
-     6180,
+     6090,
      29203.499745925925,
      -7.594147555555558,
      109.49787970370369,
@@ -5668,7 +6996,7 @@
      537.5782167259115
     ],
     [
-     6181,
+     6091,
      29192.3335,
      -7.391999999999998,
      110.57600000000001,
@@ -5679,7 +7007,7 @@
      539.2398134765625
     ],
     [
-     6182,
+     6092,
      29181.22912074074,
      -7.190972444444443,
      111.64814696296297,
@@ -5690,7 +7018,7 @@
      540.8922041383463
     ],
     [
-     6183,
+     6093,
      29170.190732592593,
      -6.991139555555558,
      112.71392237037035,
@@ -5701,7 +7029,7 @@
      542.5347749720052
     ],
     [
-     6184,
+     6094,
      29159.222459999997,
      -6.7925759999999995,
      113.772928,
@@ -5712,7 +7040,7 @@
      544.1669122382813
     ],
     [
-     6185,
+     6095,
      29148.328427407407,
      -6.595356444444444,
      114.82476562962964,
@@ -5723,7 +7051,7 @@
      545.7880021979167
     ],
     [
-     6186,
+     6096,
      29137.51275925926,
      -6.399555555555558,
      115.86903703703702,
@@ -5734,7 +7062,7 @@
      547.3974311116535
     ],
     [
-     6187,
+     6097,
      29126.77958,
      -6.205247999999999,
      116.905344,
@@ -5745,7 +7073,7 @@
      548.9945852402343
     ],
     [
-     6188,
+     6098,
      29116.133014074076,
      -6.012508444444448,
      117.93328829629628,
@@ -5756,7 +7084,7 @@
      550.578850844401
     ],
     [
-     6189,
+     6099,
      29105.57718592593,
      -5.821411555555555,
      118.95247170370371,
@@ -5767,7 +7095,7 @@
      552.1496141848959
     ],
     [
-     6190,
+     6100,
      29095.11622,
      -5.632031999999997,
      119.96249600000002,
@@ -5778,7 +7106,7 @@
      553.706261522461
     ],
     [
-     6191,
+     6101,
      29084.75424074074,
      -5.4444444444444455,
      120.96296296296295,
@@ -5789,7 +7117,7 @@
      555.2481791178385
     ],
     [
-     6192,
+     6102,
      29074.495372592595,
      -5.258723555555558,
      121.95347437037036,
@@ -5800,7 +7128,7 @@
      556.7747532317708
     ],
     [
-     6193,
+     6103,
      29064.34374,
      -5.0749439999999995,
      122.933632,
@@ -5811,7 +7139,7 @@
      558.285370125
     ],
     [
-     6194,
+     6104,
      29054.303467407408,
      -4.893180444444441,
      123.90303762962964,
@@ -5822,7 +7150,7 @@
      559.7794160582682
     ],
     [
-     6195,
+     6105,
      29044.37867925926,
      -4.7135075555555535,
      124.86129303703704,
@@ -5833,7 +7161,7 @@
      561.2562772923177
     ],
     [
-     6196,
+     6106,
      29034.573500000002,
      -4.536000000000001,
      125.80799999999999,
@@ -5844,7 +7172,7 @@
      562.7153400878906
     ],
     [
-     6197,
+     6107,
      29024.892054074073,
      -4.360732444444444,
      126.7427602962963,
@@ -5855,7 +7183,7 @@
      564.1559907057291
     ],
     [
-     6198,
+     6108,
      29015.338465925928,
      -4.187779555555556,
      127.66517570370371,
@@ -5866,7 +7194,7 @@
      565.5776154065755
     ],
     [
-     6199,
+     6109,
      29005.916859999998,
      -4.017216,
      128.574848,
@@ -5877,7 +7205,7 @@
      566.9796004511719
     ],
     [
-     6200,
+     6110,
      28996.631360740743,
      -3.849116444444442,
      129.47137896296297,
@@ -5888,7 +7216,7 @@
      568.3613321002605
     ],
     [
-     6201,
+     6111,
      28987.486092592593,
      -3.6835555555555564,
      130.35437037037036,
@@ -5899,7 +7227,7 @@
      569.7221966145834
     ],
     [
-     6202,
+     6112,
      28978.48518,
      -3.520608000000003,
      131.22342399999997,
@@ -5910,7 +7238,7 @@
      571.0615802548828
     ],
     [
-     6203,
+     6113,
      28969.632747407406,
      -3.3603484444444445,
      132.07814162962964,
@@ -5921,7 +7249,7 @@
      572.3788692819011
     ],
     [
-     6204,
+     6114,
      28960.93291925926,
      -3.2028515555555552,
      132.91812503703704,
@@ -5932,7 +7260,7 @@
      573.6734499563802
     ],
     [
-     6205,
+     6115,
      28952.38982,
      -3.048191999999999,
      133.742976,
@@ -5943,7 +7271,7 @@
      574.9447085390625
     ],
     [
-     6206,
+     6116,
      28944.007574074076,
      -2.8964444444444415,
      134.5522962962963,
@@ -5954,7 +7282,7 @@
      576.1920312906901
     ],
     [
-     6207,
+     6117,
      28935.790305925926,
      -2.7476835555555565,
      135.3456877037037,
@@ -5965,7 +7293,7 @@
      577.4148044720052
     ],
     [
-     6208,
+     6118,
      28927.742140000002,
      -2.601983999999998,
      136.122752,
@@ -5976,7 +7304,7 @@
      578.61241434375
     ],
     [
-     6209,
+     6119,
      28919.86720074074,
      -2.4594204444444467,
      136.88309096296297,
@@ -5987,7 +7315,7 @@
      579.7842471666667
     ],
     [
-     6210,
+     6120,
      28912.169612592596,
      -2.3200675555555543,
      137.6263063703704,
@@ -5998,7 +7326,7 @@
      580.9296892014975
     ],
     [
-     6211,
+     6121,
      28904.6535,
      -2.1839999999999975,
      138.352,
@@ -6009,7 +7337,7 @@
      582.0481267089843
     ],
     [
-     6212,
+     6122,
      28897.32298740741,
      -2.051292444444448,
      139.0597736296296,
@@ -6020,7 +7348,7 @@
      583.1389459498697
     ],
     [
-     6213,
+     6123,
      28890.18219925926,
      -1.9220195555555544,
      139.74922903703705,
@@ -6031,7 +7359,7 @@
      584.2015331848959
     ],
     [
-     6214,
+     6124,
      28883.23526,
      -1.7962559999999965,
      140.419968,
@@ -6042,7 +7370,7 @@
      585.2352746748047
     ],
     [
-     6215,
+     6125,
      28876.486294074075,
      -1.6740764444444454,
      141.0715922962963,
@@ -6053,7 +7381,7 @@
      586.2395566803385
     ],
     [
-     6216,
+     6126,
      28869.939425925928,
      -1.5555555555555578,
      141.7037037037037,
@@ -6064,7 +7392,7 @@
      587.2137654622396
     ],
     [
-     6217,
+     6127,
      28863.59878,
      -1.4407680000000047,
      142.315904,
@@ -6075,7 +7403,7 @@
      588.15728728125
     ],
     [
-     6218,
+     6128,
      28857.468480740743,
      -1.329788444444443,
      142.90779496296295,
@@ -6086,7 +7414,7 @@
      589.0695083981119
     ],
     [
-     6219,
+     6129,
      28851.552652592592,
      -1.2226915555555529,
      143.47897837037038,
@@ -6097,7 +7425,7 @@
      589.9498150735677
     ],
     [
-     6220,
+     6130,
      28845.85542,
      -1.1195520000000005,
      144.029056,
@@ -6108,7 +7436,7 @@
      590.7975935683594
     ],
     [
-     6221,
+     6131,
      28840.38090740741,
      -1.0204444444444476,
      144.55762962962962,
@@ -6119,7 +7447,7 @@
      591.6122301432291
     ],
     [
-     6222,
+     6132,
      28835.13323925926,
      -0.9254435555555556,
      145.06430103703704,
@@ -6130,7 +7458,7 @@
      592.3931110589192
     ],
     [
-     6223,
+     6133,
      28830.11654,
      -0.834624,
      145.54867199999998,
@@ -6141,7 +7469,7 @@
      593.1396225761719
     ],
     [
-     6224,
+     6134,
      28825.334934074075,
      -0.7480604444444379,
      146.01034429629632,
@@ -6152,7 +7480,7 @@
      593.8511509557292
     ],
     [
-     6225,
+     6135,
      28820.792545925928,
      -0.665827555555554,
      146.44891970370372,
@@ -6163,7 +7491,7 @@
      594.5270824583334
     ],
     [
-     6226,
+     6136,
      28816.4935,
      -0.5880000000000005,
      146.86399999999998,
@@ -6174,7 +7502,7 @@
      595.1668033447265
     ],
     [
-     6227,
+     6137,
      28812.44192074074,
      -0.5146524444444438,
      147.25518696296297,
@@ -6185,7 +7513,7 @@
      595.769699875651
     ],
     [
-     6228,
+     6138,
      28808.641932592596,
      -0.4458595555555547,
      147.62208237037038,
@@ -6196,7 +7524,7 @@
      596.3351583118489
     ],
     [
-     6229,
+     6139,
      28805.09766,
      -0.38169599999999937,
      147.964288,
@@ -6207,7 +7535,7 @@
      596.8625649140625
     ],
     [
-     6230,
+     6140,
      28801.813227407405,
      -0.32223644444443944,
      148.28140562962966,
@@ -6218,7 +7546,7 @@
      597.3513059430338
     ],
     [
-     6231,
+     6141,
      28798.79275925926,
      -0.26755555555555977,
      148.573037037037,
@@ -6229,7 +7557,7 @@
      597.8007676595051
     ],
     [
-     6232,
+     6142,
      28796.04038,
      -0.2177279999999986,
      148.838784,
@@ -6240,7 +7568,7 @@
      598.2103363242188
     ],
     [
-     6233,
+     6143,
      28793.560214074078,
      -0.1728284444444501,
      149.07824829629627,
@@ -6251,7 +7579,7 @@
      598.5793981979166
     ],
     [
-     6234,
+     6144,
      28791.356385925927,
      -0.13293155555555725,
      149.2910317037037,
@@ -6262,7 +7590,7 @@
      598.9073395413411
     ],
     [
-     6235,
+     6145,
      28789.43302,
      -0.09811199999999554,
      149.47673600000005,
@@ -6273,7 +7601,7 @@
      599.1935466152345
     ],
     [
-     6236,
+     6146,
      28787.79424074074,
      -0.0684444444444452,
      149.63496296296296,
@@ -6284,7 +7612,7 @@
      599.4374056803385
     ],
     [
-     6237,
+     6147,
      28786.444172592594,
      -0.044003555555549134,
      149.7653143703704,
@@ -6295,7 +7623,7 @@
      599.6383029973958
     ],
     [
-     6238,
+     6148,
      28785.38694,
      -0.02486400000000155,
      149.867392,
@@ -6306,7 +7634,7 @@
      599.7956248271485
     ],
     [
-     6239,
+     6149,
      28784.626667407407,
      -0.011100444444445356,
      149.94079762962963,
@@ -6317,7 +7645,7 @@
      599.9087574303385
     ],
     [
-     6240,
+     6150,
      28784.16747925926,
      -0.002787555555560761,
      149.985133037037,
@@ -6328,7 +7656,7 @@
      599.9770870677082
     ],
     [
-     6241,
+     6151,
      28784.0135,
      0.0,
      150.0,
@@ -6343,8 +7671,8 @@
     "distance_cm": 1165.5835448392363,
     "end_speed_cm_s": 0.0,
     "frames": [
-     6091,
-     6241
+     6001,
+     6151
     ],
     "overshoot": [],
     "peak_speed_cm_s": 291.3958862098091,
@@ -6378,7 +7706,7 @@
     "radius": 4500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6400,7 +7728,7 @@
     "radius": 1500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6422,7 +7750,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6444,7 +7772,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6466,7 +7794,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6488,7 +7816,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6510,7 +7838,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6532,7 +7860,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6554,7 +7882,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6576,7 +7904,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6598,7 +7926,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6620,7 +7948,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6642,7 +7970,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6664,7 +7992,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6686,7 +8014,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6708,7 +8036,7 @@
     "radius": 2500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6730,7 +8058,7 @@
     "radius": 9500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6752,7 +8080,7 @@
     "radius": 9500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6774,7 +8102,7 @@
     "radius": 9500.0,
     "range": [
      0,
-     6266
+     6176
     ],
     "role": "black"
    },
@@ -6807,7 +8135,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -6816,7 +8144,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -6834,7 +8162,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -6874,7 +8202,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -6883,7 +8211,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -6901,7 +8229,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -6941,7 +8269,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -6950,7 +8278,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -6968,7 +8296,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7008,7 +8336,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7017,7 +8345,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7035,7 +8363,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7075,7 +8403,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7084,7 +8412,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7102,7 +8430,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7142,7 +8470,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7151,7 +8479,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7169,7 +8497,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7209,7 +8537,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7218,7 +8546,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7236,7 +8564,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7276,7 +8604,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7285,7 +8613,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7303,7 +8631,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7343,7 +8671,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7352,7 +8680,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7370,7 +8698,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7410,7 +8738,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7419,7 +8747,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7437,7 +8765,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7477,7 +8805,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7486,7 +8814,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7504,7 +8832,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7544,7 +8872,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7553,7 +8881,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7571,7 +8899,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7611,7 +8939,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7620,7 +8948,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7638,7 +8966,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7678,7 +9006,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7687,7 +9015,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7705,7 +9033,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7745,7 +9073,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7754,7 +9082,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7772,7 +9100,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7812,7 +9140,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7821,7 +9149,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7839,7 +9167,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7879,7 +9207,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7888,7 +9216,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7906,7 +9234,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -7946,7 +9274,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -7955,7 +9283,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -7973,7 +9301,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8013,7 +9341,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -8022,7 +9350,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -8040,7 +9368,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8080,7 +9408,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -8089,7 +9417,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -8107,7 +9435,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8147,7 +9475,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -8156,7 +9484,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -8174,7 +9502,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8214,7 +9542,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -8223,7 +9551,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -8241,7 +9569,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8281,7 +9609,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -8290,7 +9618,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -8308,7 +9636,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8348,7 +9676,7 @@
       ]
      ],
      [
-      6091,
+      6001,
       [
        0.0,
        0.0,
@@ -8357,7 +9685,7 @@
       ]
      ],
      [
-      6129,
+      6039,
       [
        1.0,
        1.0,
@@ -8375,7 +9703,7 @@
     "radius": 800.0,
     "range": [
      244,
-     6130
+     6040
     ],
     "reach": {
      "clamp_cm": null,
@@ -8404,6 +9732,7 @@
    {
     "action": "ramp",
     "class": "DirectionalLight",
+    "curve": null,
     "her_keyed": false,
     "intro": [
      [
@@ -9622,212 +10951,214 @@
     "label": "DirectionalLight",
     "outro": [
      [
-      5872,
+      5782,
       17.371801376342773
      ],
      [
-      5873,
+      5783,
       17.351233163513182
      ],
      [
-      5874,
+      5784,
       17.2906403203125
      ],
      [
-      5875,
+      5785,
       17.19169053967285
      ],
      [
-      5876,
+      5786,
       17.056051514526366
      ],
      [
-      5877,
+      5787,
       16.885390937805177
      ],
      [
-      5878,
+      5788,
       16.681376502441406
      ],
      [
-      5879,
+      5789,
       16.44567590136719
      ],
      [
-      5880,
+      5790,
       16.179956827514648
      ],
      [
-      5881,
+      5791,
       15.885886973815918
      ],
      [
-      5882,
+      5792,
       15.565134033203124
      ],
      [
-      5883,
+      5793,
       15.2193656986084
      ],
      [
-      5884,
+      5794,
       14.850249662963867
      ],
      [
-      5885,
+      5795,
       14.45945361920166
      ],
      [
-      5886,
+      5796,
       14.048645260253906
      ],
      [
-      5887,
+      5797,
       13.619492279052734
      ],
      [
-      5888,
+      5798,
       13.173662368530273
      ],
      [
-      5889,
+      5799,
       12.712823221618653
      ],
      [
-      5890,
+      5800,
       12.23864253125
      ],
      [
-      5891,
+      5801,
       11.752787990356445
      ],
      [
-      5892,
+      5802,
       11.256927291870117
      ],
      [
-      5893,
+      5803,
       10.752728128723145
      ],
      [
-      5894,
+      5804,
       10.241858193847655
      ],
      [
-      5895,
+      5805,
       9.72598518017578
      ],
      [
-      5896,
+      5806,
       9.206776780639649
      ],
      [
-      5897,
+      5807,
       8.685900688171387
      ],
      [
-      5898,
+      5808,
       8.165024595703125
      ],
      [
-      5899,
+      5809,
       7.645816196166992
      ],
      [
-      5900,
+      5810,
       7.129943182495115
      ],
      [
-      5901,
+      5811,
       6.61907324761963
      ],
      [
-      5902,
+      5812,
       6.114874084472655
      ],
      [
-      5903,
+      5813,
       5.619013385986328
      ],
      [
-      5904,
+      5814,
       5.1331588450927725
      ],
      [
-      5905,
+      5815,
       4.658978154724121
      ],
      [
-      5906,
+      5816,
       4.1981390078124985
      ],
      [
-      5907,
+      5817,
       3.7523090972900413
      ],
      [
-      5908,
+      5818,
       3.3231561160888674
      ],
      [
-      5909,
+      5819,
       2.912347757141113
      ],
      [
-      5910,
+      5820,
       2.5215517133789067
      ],
      [
-      5911,
+      5821,
       2.152435677734374
      ],
      [
-      5912,
+      5822,
       1.8066673431396456
      ],
      [
-      5913,
+      5823,
       1.4859144025268556
      ],
      [
-      5914,
+      5824,
       1.1918445488281257
      ],
      [
-      5915,
+      5825,
       0.926125474975585
      ],
      [
-      5916,
+      5826,
       0.6904248739013674
      ],
      [
-      5917,
+      5827,
       0.4864104385375967
      ],
      [
-      5918,
+      5828,
       0.31574986181640696
      ],
      [
-      5919,
+      5829,
       0.18011083666992178
      ],
      [
-      5920,
+      5830,
       0.08116105603027535
      ],
      [
-      5921,
+      5831,
       0.020568212829591204
      ],
      [
-      5922,
+      5832,
       0.0
      ]
     ],
     "property": "Intensity",
-    "value": 17.371801376342773
+    "target_intro": 17.371801376342773,
+    "value": 17.371801376342773,
+    "value_lit": 17.371801376342773
    },
    {
     "action": "visible_from_G0 (no intensity)",
@@ -9839,6 +11170,7 @@
    {
     "action": "ramp",
     "class": "SkyLight",
+    "curve": null,
     "her_keyed": false,
     "intro": [
      [
@@ -11057,216 +12389,219 @@
     "label": "SkyLight",
     "outro": [
      [
-      5872,
+      5782,
       0.800000011920929
      ],
      [
-      5873,
+      5783,
       0.7990528119068145
      ],
      [
-      5874,
+      5784,
       0.7962624118652344
      ],
      [
-      5875,
+      5785,
       0.7917056117973328
      ],
      [
-      5876,
+      5786,
       0.7854592117042541
      ],
      [
-      5877,
+      5787,
       0.777600011587143
      ],
      [
-      5878,
+      5788,
       0.7682048114471436
      ],
      [
-      5879,
+      5789,
       0.7573504112854004
      ],
      [
-      5880,
+      5790,
       0.7451136111030578
      ],
      [
-      5881,
+      5791,
       0.7315712109012604
      ],
      [
-      5882,
+      5792,
       0.7168000106811523
      ],
      [
-      5883,
+      5793,
       0.7008768104438782
      ],
      [
-      5884,
+      5794,
       0.6838784101905823
      ],
      [
-      5885,
+      5795,
       0.6658816099224091
      ],
      [
-      5886,
+      5796,
       0.6469632096405029
      ],
      [
-      5887,
+      5797,
       0.6272000093460083
      ],
      [
-      5888,
+      5798,
       0.6066688090400696
      ],
      [
-      5889,
+      5799,
       0.5854464087238311
      ],
      [
-      5890,
+      5800,
       0.5636096083984374
      ],
      [
-      5891,
+      5801,
       0.5412352080650329
      ],
      [
-      5892,
+      5802,
       0.5184000077247619
      ],
      [
-      5893,
+      5803,
       0.49518080737876896
      ],
      [
-      5894,
+      5804,
       0.4716544070281982
      ],
      [
-      5895,
+      5805,
       0.4478976066741943
      ],
      [
-      5896,
+      5806,
       0.4239872063179016
      ],
      [
-      5897,
+      5807,
       0.4000000059604645
      ],
      [
-      5898,
+      5808,
       0.37601280560302736
      ],
      [
-      5899,
+      5809,
       0.3521024052467346
      ],
      [
-      5900,
+      5810,
       0.3283456048927306
      ],
      [
-      5901,
+      5811,
       0.30481920454216005
      ],
      [
-      5902,
+      5812,
       0.28160000419616693
      ],
      [
-      5903,
+      5813,
       0.25876480385589595
      ],
      [
-      5904,
+      5814,
       0.2363904035224914
      ],
      [
-      5905,
+      5815,
       0.21455360319709782
      ],
      [
-      5906,
+      5816,
       0.19333120288085925
      ],
      [
-      5907,
+      5817,
       0.17280000257492067
      ],
      [
-      5908,
+      5818,
       0.15303680228042604
      ],
      [
-      5909,
+      5819,
       0.13411840199851988
      ],
      [
-      5910,
+      5820,
       0.11612160173034669
      ],
      [
-      5911,
+      5821,
       0.09912320147705067
      ],
      [
-      5912,
+      5822,
       0.08320000123977656
      ],
      [
-      5913,
+      5823,
       0.06842880101966864
      ],
      [
-      5914,
+      5824,
       0.05488640081787122
      ],
      [
-      5915,
+      5825,
       0.042649600635528584
      ],
      [
-      5916,
+      5826,
       0.03179520047378537
      ],
      [
-      5917,
+      5827,
       0.022400000333786085
      ],
      [
-      5918,
+      5828,
       0.01454080021667481
      ],
      [
-      5919,
+      5829,
       0.008294400123596168
      ],
      [
-      5920,
+      5830,
       0.0037376000556945677
      ],
      [
-      5921,
+      5831,
       0.0009472000141144132
      ],
      [
-      5922,
+      5832,
       0.0
      ]
     ],
     "property": "Intensity",
-    "value": 0.800000011920929
+    "target_intro": 0.800000011920929,
+    "value": 0.800000011920929,
+    "value_lit": 0.800000011920929
    },
    {
     "action": "ramp",
     "class": "ExponentialHeightFog",
+    "curve": null,
     "her_keyed": false,
     "intro": [
      [
@@ -12485,212 +13820,214 @@
     "label": "ExponentialHeightFog",
     "outro": [
      [
-      5872,
+      5782,
       0.07500000298023224
      ],
      [
-      5873,
+      5783,
       0.07491120297670364
      ],
      [
-      5874,
+      5784,
       0.0746496029663086
      ],
      [
-      5875,
+      5785,
       0.07422240294933319
      ],
      [
-      5876,
+      5786,
       0.07363680292606353
      ],
      [
-      5877,
+      5787,
       0.07290000289678573
      ],
      [
-      5878,
+      5788,
       0.07201920286178588
      ],
      [
-      5879,
+      5789,
       0.0710016028213501
      ],
      [
-      5880,
+      5790,
       0.06985440277576446
      ],
      [
-      5881,
+      5791,
       0.0685848027253151
      ],
      [
-      5882,
+      5792,
       0.06720000267028808
      ],
      [
-      5883,
+      5793,
       0.06570720261096955
      ],
      [
-      5884,
+      5794,
       0.06411360254764557
      ],
      [
-      5885,
+      5795,
       0.062426402480602265
      ],
      [
-      5886,
+      5796,
       0.06065280241012573
      ],
      [
-      5887,
+      5797,
       0.05880000233650208
      ],
      [
-      5888,
+      5798,
       0.056875202260017396
      ],
      [
-      5889,
+      5799,
       0.054885602180957796
      ],
      [
-      5890,
+      5800,
       0.05283840209960937
      ],
      [
-      5891,
+      5801,
       0.05074080201625824
      ],
      [
-      5892,
+      5802,
       0.04860000193119048
      ],
      [
-      5893,
+      5803,
       0.04642320184469223
      ],
      [
-      5894,
+      5804,
       0.04421760175704956
      ],
      [
-      5895,
+      5805,
       0.04199040166854858
      ],
      [
-      5896,
+      5806,
       0.039748801579475405
      ],
      [
-      5897,
+      5807,
       0.03750000149011612
      ],
      [
-      5898,
+      5808,
       0.03525120140075683
      ],
      [
-      5899,
+      5809,
       0.03300960131168365
      ],
      [
-      5900,
+      5810,
       0.030782401223182675
      ],
      [
-      5901,
+      5811,
       0.02857680113554001
      ],
      [
-      5902,
+      5812,
       0.02640000104904175
      ],
      [
-      5903,
+      5813,
       0.024259200963974
      ],
      [
-      5904,
+      5814,
       0.022161600880622863
      ],
      [
-      5905,
+      5815,
       0.020114400799274443
      ],
      [
-      5906,
+      5816,
       0.018124800720214836
      ],
      [
-      5907,
+      5817,
       0.016200000643730172
      ],
      [
-      5908,
+      5818,
       0.014347200570106508
      ],
      [
-      5909,
+      5819,
       0.012573600499629974
      ],
      [
-      5910,
+      5820,
       0.01088640043258668
      ],
      [
-      5911,
+      5821,
       0.009292800369262694
      ],
      [
-      5912,
+      5822,
       0.007800000309944141
      ],
      [
-      5913,
+      5823,
       0.006415200254917153
      ],
      [
-      5914,
+      5824,
       0.005145600204467776
      ],
      [
-      5915,
+      5825,
       0.003998400158882143
      ],
      [
-      5916,
+      5826,
       0.0029808001184463556
      ],
      [
-      5917,
+      5827,
       0.0021000000834465044
      ],
      [
-      5918,
+      5828,
       0.0013632000541686923
      ],
      [
-      5919,
+      5829,
       0.0007776000308990366
      ],
      [
-      5920,
+      5830,
       0.00035040001392364073
      ],
      [
-      5921,
+      5831,
       8.880000352859407e-05
      ],
      [
-      5922,
+      5832,
       0.0
      ]
     ],
     "property": "FogDensity",
-    "value": 0.07500000298023224
+    "target_intro": 0.07500000298023224,
+    "value": 0.07500000298023224,
+    "value_lit": 0.07500000298023224
    },
    {
     "action": "visible_from_G0 (no intensity)",
@@ -12702,6 +14039,7 @@
    {
     "action": "ramp",
     "class": "PostProcessVolume",
+    "curve": null,
     "enabled": true,
     "exposure_overrides": {
      "auto_exposure_bias": true,
@@ -12709,6 +14047,7 @@
      "auto_exposure_method": false,
      "auto_exposure_min_brightness": false
     },
+    "her_keyed": false,
     "intro": [
      [
       282,
@@ -13926,226 +15265,230 @@
     "label": "PostProcessVolume",
     "outro": [
      [
-      5872,
+      5782,
       1.0
      ],
      [
-      5873,
+      5783,
       0.998816
      ],
      [
-      5874,
+      5784,
       0.995328
      ],
      [
-      5875,
+      5785,
       0.989632
      ],
      [
-      5876,
+      5786,
       0.981824
      ],
      [
-      5877,
+      5787,
       0.972
      ],
      [
-      5878,
+      5788,
       0.960256
      ],
      [
-      5879,
+      5789,
       0.946688
      ],
      [
-      5880,
+      5790,
       0.931392
      ],
      [
-      5881,
+      5791,
       0.9144639999999999
      ],
      [
-      5882,
+      5792,
       0.896
      ],
      [
-      5883,
+      5793,
       0.876096
      ],
      [
-      5884,
+      5794,
       0.854848
      ],
      [
-      5885,
+      5795,
       0.832352
      ],
      [
-      5886,
+      5796,
       0.808704
      ],
      [
-      5887,
+      5797,
       0.784
      ],
      [
-      5888,
+      5798,
       0.758336
      ],
      [
-      5889,
+      5799,
       0.731808
      ],
      [
-      5890,
+      5800,
       0.704512
      ],
      [
-      5891,
+      5801,
       0.676544
      ],
      [
-      5892,
+      5802,
       0.6479999999999999
      ],
      [
-      5893,
+      5803,
       0.618976
      ],
      [
-      5894,
+      5804,
       0.589568
      ],
      [
-      5895,
+      5805,
       0.5598719999999999
      ],
      [
-      5896,
+      5806,
       0.529984
      ],
      [
-      5897,
+      5807,
       0.5
      ],
      [
-      5898,
+      5808,
       0.470016
      ],
      [
-      5899,
+      5809,
       0.44012799999999996
      ],
      [
-      5900,
+      5810,
       0.4104319999999999
      ],
      [
-      5901,
+      5811,
       0.38102400000000003
      ],
      [
-      5902,
+      5812,
       0.352
      ],
      [
-      5903,
+      5813,
       0.32345599999999997
      ],
      [
-      5904,
+      5814,
       0.295488
      ],
      [
-      5905,
+      5815,
       0.268192
      ],
      [
-      5906,
+      5816,
       0.24166399999999988
      ],
      [
-      5907,
+      5817,
       0.21600000000000008
      ],
      [
-      5908,
+      5818,
       0.19129600000000002
      ],
      [
-      5909,
+      5819,
       0.16764800000000002
      ],
      [
-      5910,
+      5820,
       0.14515200000000006
      ],
      [
-      5911,
+      5821,
       0.1239039999999999
      ],
      [
-      5912,
+      5822,
       0.10399999999999987
      ],
      [
-      5913,
+      5823,
       0.08553600000000006
      ],
      [
-      5914,
+      5824,
       0.06860800000000011
      ],
      [
-      5915,
+      5825,
       0.053312000000000026
      ],
      [
-      5916,
+      5826,
       0.039744
      ],
      [
-      5917,
+      5827,
       0.028000000000000025
      ],
      [
-      5918,
+      5828,
       0.01817599999999997
      ],
      [
-      5919,
+      5829,
       0.010367999999999933
      ],
      [
-      5920,
+      5830,
       0.0046720000000000095
      ],
      [
-      5921,
+      5831,
       0.0011840000000000739
      ],
      [
-      5922,
+      5832,
       0.0
      ]
     ],
     "priority": 0.0,
     "property": "BlendWeight",
+    "target_intro": 1.0,
     "unbound": false,
-    "value": 1.0
+    "value": 1.0,
+    "value_lit": 1.0
    }
   ],
   "her_lights": [
    {
-    "blink_frame": 6017,
+    "blink_frame": 5927,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 658.6417842803477,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14157,7 +15500,7 @@
      ],
      [
       282,
-      0.0
+      4.553193229612298
      ],
      [
       283,
@@ -14165,7 +15508,7 @@
      ],
      [
       284,
-      0.0
+      3.7567300858081327
      ],
      [
       285,
@@ -14173,7 +15516,7 @@
      ],
      [
       286,
-      0.0
+      5.397490135249685
      ],
      [
       287,
@@ -14181,7 +15524,7 @@
      ],
      [
       288,
-      0.0
+      3.0040271552733047
      ],
      [
       289,
@@ -14189,55 +15532,60 @@
      ],
      [
       290,
-      0.0
+      8.0
      ]
     ],
     "label": "SpotLight7",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.0
      ],
      [
-      6016,
+      5926,
       8.0
      ],
      [
-      6017,
+      5927,
       0.0
      ],
      [
-      6018,
+      5928,
       1.885796378645514
      ],
      [
-      6019,
+      5929,
       0.0
      ],
      [
-      6020,
+      5930,
       1.8915414931981673
      ],
      [
-      6021,
+      5931,
       0.0
      ]
     ],
     "strike_frame": 282,
     "strike_s": 11.28,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 6007,
+    "blink_frame": 5917,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 677.7093772407167,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14249,7 +15597,7 @@
      ],
      [
       306,
-      0.0
+      6.647076186341582
      ],
      [
       307,
@@ -14257,7 +15605,7 @@
      ],
      [
       308,
-      0.0
+      5.683482554297862
      ],
      [
       309,
@@ -14265,7 +15613,7 @@
      ],
      [
       310,
-      0.0
+      3.104284083533057
      ],
      [
       311,
@@ -14273,71 +15621,76 @@
      ],
      [
       312,
-      0.0
+      8.548399925231934
      ]
     ],
     "label": "SpotLight8",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.548399925231934
      ],
      [
-      6006,
+      5916,
       8.548399925231934
      ],
      [
-      6007,
+      5917,
       0.0
      ],
      [
-      6008,
+      5918,
       3.3128182870147485
      ],
      [
-      6009,
+      5919,
       0.0
      ],
      [
-      6010,
+      5920,
       3.684800335233139
      ],
      [
-      6011,
+      5921,
       0.0
      ],
      [
-      6012,
+      5922,
       6.144209525496042
      ],
      [
-      6013,
+      5923,
       0.0
      ],
      [
-      6014,
+      5924,
       2.038433591802159
      ],
      [
-      6015,
+      5925,
       0.0
      ]
     ],
     "strike_frame": 306,
     "strike_s": 12.24,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.548399925231934,
     "target_last": 8.548399925231934,
+    "target_lit": 8.548399925231934,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5996,
+    "blink_frame": 5906,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 693.2546429703879,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14349,7 +15702,7 @@
      ],
      [
       326,
-      0.0
+      7.966934867547284
      ],
      [
       327,
@@ -14357,7 +15710,7 @@
      ],
      [
       328,
-      0.0
+      6.408682645413651
      ],
      [
       329,
@@ -14365,7 +15718,7 @@
      ],
      [
       330,
-      0.0
+      2.940414470374183
      ],
      [
       331,
@@ -14373,55 +15726,60 @@
      ],
      [
       332,
-      0.0
+      8.0
      ]
     ],
     "label": "SpotLight11",
     "outro_keys": [
      [
-      5859,
+      5769,
       0.0
      ],
      [
-      5995,
+      5905,
       0.0
      ],
      [
-      5996,
+      5906,
       0.0
      ],
      [
-      5997,
+      5907,
       0.0
      ],
      [
-      5998,
+      5908,
       0.0
      ],
      [
-      5999,
+      5909,
       0.0
      ],
      [
-      6000,
+      5910,
       0.0
      ]
     ],
     "strike_frame": 326,
     "strike_s": 13.04,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 0.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5984,
+    "blink_frame": 5894,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 769.7940948795805,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14433,7 +15791,7 @@
      ],
      [
       342,
-      0.0
+      6.252653709073579
      ],
      [
       343,
@@ -14441,7 +15799,7 @@
      ],
      [
       344,
-      0.0
+      3.5515362936315915
      ],
      [
       345,
@@ -14449,7 +15807,7 @@
      ],
      [
       346,
-      0.0
+      7.993100045549572
      ],
      [
       347,
@@ -14457,55 +15815,60 @@
      ],
      [
       348,
-      0.0
+      8.0
      ]
     ],
     "label": "animals",
     "outro_keys": [
      [
-      5859,
+      5769,
       0.0
      ],
      [
-      5983,
+      5893,
       0.0
      ],
      [
-      5984,
+      5894,
       0.0
      ],
      [
-      5985,
+      5895,
       0.0
      ],
      [
-      5986,
+      5896,
       0.0
      ],
      [
-      5987,
+      5897,
       0.0
      ],
      [
-      5988,
+      5898,
       0.0
      ]
     ],
     "strike_frame": 342,
     "strike_s": 13.68,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 0.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5974,
+    "blink_frame": 5884,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 773.9301780712265,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14517,7 +15880,7 @@
      ],
      [
       364,
-      0.0
+      6.950870579425436
      ],
      [
       365,
@@ -14525,7 +15888,7 @@
      ],
      [
       366,
-      0.0
+      3.4008557071856553
      ],
      [
       367,
@@ -14533,55 +15896,60 @@
      ],
      [
       368,
-      0.0
+      8.0
      ]
     ],
     "label": "SpotLight5",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.0
      ],
      [
-      5973,
+      5883,
       8.0
      ],
      [
-      5974,
+      5884,
       0.0
      ],
      [
-      5975,
+      5885,
       4.9419762035219374
      ],
      [
-      5976,
+      5886,
       0.0
      ],
      [
-      5977,
+      5887,
       2.9465850713511728
      ],
      [
-      5978,
+      5888,
       0.0
      ]
     ],
     "strike_frame": 364,
     "strike_s": 14.56,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5964,
+    "blink_frame": 5874,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 777.0353404162805,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14593,7 +15961,7 @@
      ],
      [
       391,
-      0.0
+      6.169153821969127
      ],
      [
       392,
@@ -14601,7 +15969,7 @@
      ],
      [
       393,
-      0.0
+      6.3879675316548905
      ],
      [
       394,
@@ -14609,55 +15977,60 @@
      ],
      [
       395,
-      0.0
+      8.0
      ]
     ],
     "label": "SpotLight2",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.0
      ],
      [
-      5963,
+      5873,
       8.0
      ],
      [
-      5964,
+      5874,
       0.0
      ],
      [
-      5965,
+      5875,
       4.70420031985064
      ],
      [
-      5966,
+      5876,
       0.0
      ],
      [
-      5967,
+      5877,
       3.399397654122491
      ],
      [
-      5968,
+      5878,
       0.0
      ]
     ],
     "strike_frame": 391,
     "strike_s": 15.64,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5954,
+    "blink_frame": 5864,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 891.5806189010616,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14669,7 +16042,7 @@
      ],
      [
       411,
-      0.0
+      6.021869798959027
      ],
      [
       412,
@@ -14677,7 +16050,7 @@
      ],
      [
       413,
-      0.0
+      4.505769423785369
      ],
      [
       414,
@@ -14685,7 +16058,7 @@
      ],
      [
       415,
-      0.0
+      6.167032186004824
      ],
      [
       416,
@@ -14693,7 +16066,7 @@
      ],
      [
       417,
-      0.0
+      5.551349224972595
      ],
      [
       418,
@@ -14701,71 +16074,76 @@
      ],
      [
       419,
-      0.0
+      8.548399925231934
      ]
     ],
     "label": "SpotLight6",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.548399925231934
      ],
      [
-      5953,
+      5863,
       8.548399925231934
      ],
      [
-      5954,
+      5864,
       0.0
      ],
      [
-      5955,
+      5865,
       2.06925591205697
      ],
      [
-      5956,
+      5866,
       0.0
      ],
      [
-      5957,
+      5867,
       2.712360003023055
      ],
      [
-      5958,
+      5868,
       0.0
      ],
      [
-      5959,
+      5869,
       4.541776514081389
      ],
      [
-      5960,
+      5870,
       0.0
      ],
      [
-      5961,
+      5871,
       1.7922549004960364
      ],
      [
-      5962,
+      5872,
       0.0
      ]
     ],
     "strike_frame": 411,
     "strike_s": 16.44,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.548399925231934,
     "target_last": 8.548399925231934,
+    "target_lit": 8.548399925231934,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5941,
+    "blink_frame": 5851,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 893.8743439945872,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14777,7 +16155,7 @@
      ],
      [
       437,
-      0.0
+      15.601649457337512
      ],
      [
       438,
@@ -14785,7 +16163,7 @@
      ],
      [
       439,
-      0.0
+      10.264769898356532
      ],
      [
       440,
@@ -14793,71 +16171,76 @@
      ],
      [
       441,
-      0.0
+      19.920000076293945
      ]
     ],
     "label": "SpotLight10",
     "outro_keys": [
      [
+      5769,
+      0.0
+     ],
+     [
+      5850,
+      0.0
+     ],
+     [
+      5851,
+      0.0
+     ],
+     [
+      5852,
+      0.0
+     ],
+     [
+      5853,
+      0.0
+     ],
+     [
+      5854,
+      0.0
+     ],
+     [
+      5855,
+      0.0
+     ],
+     [
+      5856,
+      0.0
+     ],
+     [
+      5857,
+      0.0
+     ],
+     [
+      5858,
+      0.0
+     ],
+     [
       5859,
-      0.0
-     ],
-     [
-      5940,
-      0.0
-     ],
-     [
-      5941,
-      0.0
-     ],
-     [
-      5942,
-      0.0
-     ],
-     [
-      5943,
-      0.0
-     ],
-     [
-      5944,
-      0.0
-     ],
-     [
-      5945,
-      0.0
-     ],
-     [
-      5946,
-      0.0
-     ],
-     [
-      5947,
-      0.0
-     ],
-     [
-      5948,
-      0.0
-     ],
-     [
-      5949,
       0.0
      ]
     ],
     "strike_frame": 437,
     "strike_s": 17.48,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 19.920000076293945,
     "target_last": 0.0,
+    "target_lit": 19.920000076293945,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5927,
+    "blink_frame": 5837,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 893.8743442075088,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14869,7 +16252,7 @@
      ],
      [
       464,
-      0.0
+      8.099910041219031
      ],
      [
       465,
@@ -14877,7 +16260,7 @@
      ],
      [
       466,
-      0.0
+      10.47572561414213
      ],
      [
       467,
@@ -14885,7 +16268,7 @@
      ],
      [
       468,
-      0.0
+      11.708821851882265
      ],
      [
       469,
@@ -14893,55 +16276,60 @@
      ],
      [
       470,
-      0.0
+      19.920000076293945
      ]
     ],
     "label": "SpotLight9",
     "outro_keys": [
      [
-      5859,
+      5769,
       0.0
      ],
      [
-      5926,
+      5836,
       0.0
      ],
      [
-      5927,
+      5837,
       0.0
      ],
      [
-      5928,
+      5838,
       0.0
      ],
      [
-      5929,
+      5839,
       0.0
      ],
      [
-      5930,
+      5840,
       0.0
      ],
      [
-      5931,
+      5841,
       0.0
      ]
     ],
     "strike_frame": 464,
     "strike_s": 18.56,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 19.920000076293945,
     "target_last": 0.0,
+    "target_lit": 19.920000076293945,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5918,
+    "blink_frame": 5828,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 907.2342586124049,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -14953,7 +16341,7 @@
      ],
      [
       481,
-      0.0
+      3.79898651811887
      ],
      [
       482,
@@ -14961,7 +16349,7 @@
      ],
      [
       483,
-      0.0
+      7.485864287250165
      ],
      [
       484,
@@ -14969,7 +16357,7 @@
      ],
      [
       485,
-      0.0
+      4.748948435057411
      ],
      [
       486,
@@ -14977,7 +16365,7 @@
      ],
      [
       487,
-      0.0
+      7.342373220089281
      ],
      [
       488,
@@ -14985,55 +16373,60 @@
      ],
      [
       489,
-      0.0
+      8.0
      ]
     ],
     "label": "SpotLight3",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.0
      ],
      [
-      5917,
+      5827,
       8.0
      ],
      [
-      5918,
+      5828,
       0.0
      ],
      [
-      5919,
+      5829,
       6.128043282573778
      ],
      [
-      5920,
+      5830,
       0.0
      ],
      [
-      5921,
+      5831,
       4.865750526014775
      ],
      [
-      5922,
+      5832,
       0.0
      ]
     ],
     "strike_frame": 481,
     "strike_s": 19.24,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5907,
+    "blink_frame": 5817,
     "class": "SpotLight",
     "color_first": null,
     "color_last": null,
+    "color_lit": null,
     "dist_cm": 950.780731819908,
     "her_keys": [
      "Intensity"
     ],
+    "intro_color": null,
     "intro_keys": [
      [
       104,
@@ -15045,7 +16438,7 @@
      ],
      [
       502,
-      0.0
+      6.680268318476609
      ],
      [
       503,
@@ -15053,7 +16446,7 @@
      ],
      [
       504,
-      0.0
+      6.542424928789217
      ],
      [
       505,
@@ -15061,56 +16454,59 @@
      ],
      [
       506,
-      0.0
+      8.0
      ]
     ],
     "label": "SpotLight4",
     "outro_keys": [
      [
-      5859,
+      5769,
       8.0
      ],
      [
-      5906,
+      5816,
       8.0
      ],
      [
-      5907,
+      5817,
       0.0
      ],
      [
-      5908,
+      5818,
       6.063561413715661
      ],
      [
-      5909,
+      5819,
       0.0
      ],
      [
-      5910,
+      5820,
       2.9252664070786416
      ],
      [
-      5911,
+      5821,
       0.0
      ],
      [
-      5912,
+      5822,
       4.189872970149707
      ],
      [
-      5913,
+      5823,
       0.0
      ]
     ],
     "strike_frame": 502,
     "strike_s": 20.08,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 8.0,
     "target_last": 8.0,
+    "target_lit": 8.0,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5896,
+    "blink_frame": 5806,
     "class": "RectLight",
     "color_first": [
      0.5028864741325378,
@@ -15124,11 +16520,29 @@
      0.06847816705703735,
      1.0
     ],
+    "color_lit": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
     "dist_cm": 1155.7690080634625,
     "her_keys": [
      "Intensity",
      "LightColor"
     ],
+    "intro_color": {
+     "range": [
+      104,
+      594
+     ],
+     "rgba": [
+      0.5028864741325378,
+      0.2788942754268646,
+      0.06847816705703735,
+      1.0
+     ]
+    },
     "intro_keys": [
      [
       104,
@@ -15140,7 +16554,7 @@
      ],
      [
       529,
-      0.0
+      300.6174397916137
      ],
      [
       530,
@@ -15148,7 +16562,7 @@
      ],
      [
       531,
-      0.0
+      190.6357124879881
      ],
      [
       532,
@@ -15156,7 +16570,7 @@
      ],
      [
       533,
-      0.0
+      220.72763234168315
      ],
      [
       534,
@@ -15164,64 +16578,67 @@
      ],
      [
       535,
-      0.0
+      518.4659999999998
      ]
     ],
     "label": "RectLight_Merged3",
     "outro_keys": [
      [
-      5859,
+      5769,
       0.0
      ],
      [
-      5895,
+      5805,
       0.0
      ],
      [
-      5896,
+      5806,
       0.0
      ],
      [
-      5897,
+      5807,
       0.0
      ],
      [
-      5898,
+      5808,
       0.0
      ],
      [
-      5899,
+      5809,
       0.0
      ],
      [
-      5900,
+      5810,
       0.0
      ],
      [
-      5901,
+      5811,
       0.0
      ],
      [
-      5902,
+      5812,
       0.0
      ],
      [
-      5903,
+      5813,
       0.0
      ],
      [
-      5904,
+      5814,
       0.0
      ]
     ],
     "strike_frame": 529,
     "strike_s": 21.16,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 518.4659999999998,
     "target_last": 0.0,
+    "target_lit": 518.4659999999998,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5884,
+    "blink_frame": 5794,
     "class": "RectLight",
     "color_first": [
      0.5028864741325378,
@@ -15235,11 +16652,29 @@
      0.03809389844536781,
      16.52132797241211
     ],
+    "color_lit": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
     "dist_cm": 1302.1405454097496,
     "her_keys": [
      "Intensity",
      "LightColor"
     ],
+    "intro_color": {
+     "range": [
+      104,
+      594
+     ],
+     "rgba": [
+      0.5028864741325378,
+      0.2788942754268646,
+      0.06847816705703735,
+      1.0
+     ]
+    },
     "intro_keys": [
      [
       104,
@@ -15251,7 +16686,7 @@
      ],
      [
       551,
-      0.0
+      50.38988176870337
      ],
      [
       552,
@@ -15259,7 +16694,7 @@
      ],
      [
       553,
-      0.0
+      83.51664988875208
      ],
      [
       554,
@@ -15267,56 +16702,59 @@
      ],
      [
       555,
-      0.0
+      119.23200000000001
      ]
     ],
     "label": "RectLight_Merged2",
     "outro_keys": [
      [
-      5859,
+      5769,
       552.0
      ],
      [
-      5883,
+      5793,
       552.0
      ],
      [
-      5884,
+      5794,
       0.0
      ],
      [
-      5885,
+      5795,
       301.60102891998434
      ],
      [
-      5886,
+      5796,
       0.0
      ],
      [
-      5887,
+      5797,
       369.54081151300454
      ],
      [
-      5888,
+      5798,
       0.0
      ],
      [
-      5889,
+      5799,
       214.86735285677213
      ],
      [
-      5890,
+      5800,
       0.0
      ]
     ],
     "strike_frame": 551,
     "strike_s": 22.04,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 119.23200000000001,
     "target_last": 552.0,
+    "target_lit": 119.23200000000001,
     "warn_hidden": false
    },
    {
-    "blink_frame": 5872,
+    "blink_frame": 5782,
     "class": "RectLight",
     "color_first": [
      0.5028864741325378,
@@ -15330,11 +16768,29 @@
      -0.0415218323469162,
      1.0
     ],
+    "color_lit": [
+     0.5028864741325378,
+     0.2788942754268646,
+     0.06847816705703735,
+     1.0
+    ],
     "dist_cm": 1456.6241793956326,
     "her_keys": [
      "Intensity",
      "LightColor"
     ],
+    "intro_color": {
+     "range": [
+      104,
+      594
+     ],
+     "rgba": [
+      0.5028864741325378,
+      0.2788942754268646,
+      0.06847816705703735,
+      1.0
+     ]
+    },
     "intro_keys": [
      [
       104,
@@ -15346,7 +16802,7 @@
      ],
      [
       575,
-      0.0
+      245.59508410254782
      ],
      [
       576,
@@ -15354,7 +16810,7 @@
      ],
      [
       577,
-      0.0
+      106.74006287994534
      ],
      [
       578,
@@ -15362,60 +16818,63 @@
      ],
      [
       579,
-      0.0
+      276.0
      ]
     ],
     "label": "RectLight_Merged",
     "outro_keys": [
      [
-      5859,
+      5769,
       300.0
      ],
      [
-      5871,
+      5781,
       300.0
      ],
      [
-      5872,
+      5782,
       0.0
      ],
      [
-      5873,
+      5783,
       87.95915245731634
      ],
      [
-      5874,
+      5784,
       0.0
      ],
      [
-      5875,
+      5785,
       148.57540025899632
      ],
      [
-      5876,
+      5786,
       0.0
      ],
      [
-      5877,
+      5787,
       75.06655900176114
      ],
      [
-      5878,
+      5788,
       0.0
      ],
      [
-      5879,
+      5789,
       126.31551426055059
      ],
      [
-      5880,
+      5790,
       0.0
      ]
     ],
     "strike_frame": 575,
     "strike_s": 23.0,
+    "strikes": true,
     "target_first": 0.0,
+    "target_intro": 276.0,
     "target_last": 300.0,
+    "target_lit": 276.0,
     "warn_hidden": false
    }
   ],
@@ -15425,7 +16884,7 @@
    ],
    "range": [
     269,
-    5922
+    5832
    ]
   },
   "hookin_edits": {
@@ -15435,11 +16894,11 @@
    ],
    "level_visible_range": [
     104,
-    6266
+    6176
    ],
    "ours_off_range": [
     269,
-    6266
+    6176
    ]
   },
   "lattice": {
@@ -15503,7 +16962,7 @@
    "mode": "cancel",
    "range": [
     0,
-    6266
+    6176
    ]
   },
   "level_transform_after": {
@@ -15521,6 +16980,441 @@
     0.0
    ],
    "yaw": 0.0
+  },
+  "lit": {
+   "camera": {
+    "ang_deg_s": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "binding": "CineCameraActor",
+    "cut": [
+     -311,
+     404
+    ],
+    "frame": -202,
+    "lens_tracks": {
+     "CurrentAperture": 2.799999952316284,
+     "CurrentFocalLength": 23.884634017944336,
+     "ManualFocusDistance": 427.3858337402344
+    },
+    "loc": [
+     31805.0135,
+     120.0,
+     77.0
+    ],
+    "rot": [
+     4.279735609956023e-15,
+     3.0,
+     0.0
+    ],
+    "vel_cm_s": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "camera_after_move": {
+    "focal": 23.884634017944336,
+    "focus": 427.3858337402344,
+    "loc": [
+     29384.0135,
+     0.0,
+     77.0
+    ],
+    "rot": [
+     4.279735609956023e-15,
+     3.0,
+     0.0
+    ]
+   },
+   "frame": -202,
+   "frame_raw": -202,
+   "frame_votes": -202,
+   "her_time_s": -6.733333333333333,
+   "method": "detected",
+   "n_ever_lit": 14,
+   "n_needed": 12,
+   "per_light": {
+    "RectLight_Merged": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -295.0,
+       0.0
+      ],
+      [
+       -203.0,
+       0.0
+      ],
+      [
+       -201.0,
+       552.0
+      ],
+      [
+       0.0,
+       552.0
+      ]
+     ],
+     "lit_at": -201,
+     "lit_at_s_into_her": 3.6333333333333333,
+     "n_keys": 6,
+     "plateau": 552.0
+    },
+    "RectLight_Merged2": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -205.0,
+       0.0
+      ],
+      [
+       -195.0,
+       552.0
+      ]
+     ],
+     "lit_at": -196,
+     "lit_at_s_into_her": 3.8,
+     "n_keys": 2,
+     "plateau": 552.0
+    },
+    "RectLight_Merged3": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -219.0,
+       0.0
+      ],
+      [
+       -199.0,
+       552.0
+      ]
+     ],
+     "lit_at": -202,
+     "lit_at_s_into_her": 3.6,
+     "n_keys": 4,
+     "plateau": 552.0
+    },
+    "SpotLight10": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -282.0,
+       16.93199920654297
+      ],
+      [
+       -278.0,
+       0.0
+      ],
+      [
+       -274.0,
+       19.920000076293945
+      ],
+      [
+       -250.0,
+       19.920000076293945
+      ]
+     ],
+     "lit_at": -274,
+     "lit_at_s_into_her": 1.2,
+     "n_keys": 7,
+     "plateau": 19.920000076293945
+    },
+    "SpotLight11": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -263.0,
+       0.0
+      ],
+      [
+       -255.0,
+       4.800000190734863
+      ],
+      [
+       -233.0,
+       8.0
+      ],
+      [
+       -224.0,
+       8.0
+      ]
+     ],
+     "lit_at": -233,
+     "lit_at_s_into_her": 2.566666666666667,
+     "n_keys": 7,
+     "plateau": 8.0
+    },
+    "SpotLight2": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -276.0,
+       0.0
+      ],
+      [
+       -273.0,
+       8.0
+      ],
+      [
+       -256.0,
+       8.0
+      ]
+     ],
+     "lit_at": -273,
+     "lit_at_s_into_her": 1.2333333333333334,
+     "n_keys": 3,
+     "plateau": 8.0
+    },
+    "SpotLight3": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -260.0,
+       0.0
+      ],
+      [
+       -247.0,
+       8.0
+      ],
+      [
+       -237.0,
+       8.0
+      ]
+     ],
+     "lit_at": -247,
+     "lit_at_s_into_her": 2.1,
+     "n_keys": 3,
+     "plateau": 8.0
+    },
+    "SpotLight4": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -284.0,
+       0.0
+      ],
+      [
+       -245.0,
+       4.800000190734863
+      ],
+      [
+       -236.0,
+       0.0
+      ],
+      [
+       -226.0,
+       8.0
+      ],
+      [
+       -216.0,
+       8.0
+      ]
+     ],
+     "lit_at": -226,
+     "lit_at_s_into_her": 2.8,
+     "n_keys": 5,
+     "plateau": 8.0
+    },
+    "SpotLight5": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -284.0,
+       0.0
+      ],
+      [
+       -257.0,
+       8.0
+      ],
+      [
+       -249.0,
+       8.0
+      ]
+     ],
+     "lit_at": -257,
+     "lit_at_s_into_her": 1.7666666666666666,
+     "n_keys": 3,
+     "plateau": 8.0
+    },
+    "SpotLight6": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -284.0,
+       0.0
+      ],
+      [
+       -275.0,
+       7.26609992980957
+      ],
+      [
+       -272.0,
+       0.0
+      ],
+      [
+       -263.0,
+       8.548399925231934
+      ],
+      [
+       -227.0,
+       8.548399925231934
+      ]
+     ],
+     "lit_at": -263,
+     "lit_at_s_into_her": 1.5666666666666667,
+     "n_keys": 5,
+     "plateau": 8.548399925231934
+    },
+    "SpotLight7": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -257.0,
+       0.0
+      ],
+      [
+       -247.0,
+       4.800000190734863
+      ],
+      [
+       -237.0,
+       0.0
+      ],
+      [
+       -222.0,
+       8.0
+      ],
+      [
+       -211.0,
+       8.0
+      ]
+     ],
+     "lit_at": -222,
+     "lit_at_s_into_her": 2.933333333333333,
+     "n_keys": 5,
+     "plateau": 8.0
+    },
+    "SpotLight8": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -277.0,
+       0.0
+      ],
+      [
+       -272.0,
+       8.548399925231934
+      ],
+      [
+       -248.0,
+       8.548399925231934
+      ]
+     ],
+     "lit_at": -272,
+     "lit_at_s_into_her": 1.2666666666666666,
+     "n_keys": 3,
+     "plateau": 8.548399925231934
+    },
+    "SpotLight9": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -265.0,
+       19.920000076293945
+      ],
+      [
+       -255.0,
+       19.920000076293945
+      ]
+     ],
+     "lit_at": -265,
+     "lit_at_s_into_her": 1.5,
+     "n_keys": 5,
+     "plateau": 19.920000076293945
+    },
+    "animals": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       -310.0,
+       0.0
+      ],
+      [
+       -285.0,
+       0.0
+      ],
+      [
+       -283.0,
+       8.0
+      ]
+     ],
+     "lit_at": -283,
+     "lit_at_s_into_her": 0.9,
+     "n_keys": 5,
+     "plateau": 8.0
+    }
+   },
+   "refusals": [],
+   "s_into_her": 3.6,
+   "slot": {
+    "her_frame": -202,
+    "offset_ticks": 86400,
+    "refusals": [],
+    "remaining_frames": 5175,
+    "remaining_s": 207.0,
+    "skip_frames": 90,
+    "skip_s": 3.6
+   },
+   "snap_step": 6,
+   "sum_frame": -222,
+   "v3": true,
+   "warnings": [],
+   "window": [
+    -310,
+    1490
+   ]
   },
   "placement": {
    "checks": {
@@ -15609,6 +17503,20 @@
      3.0,
      3.0
     ]
+   },
+   "her_lit": {
+    "focal": 23.884634017944336,
+    "focus": 427.3858337402344,
+    "loc": [
+     29384.0135,
+     0.0,
+     77.0
+    ],
+    "rot": [
+     4.279735609956023e-15,
+     3.0,
+     0.0
+    ]
    }
   },
   "refusals": [],
@@ -15642,7 +17550,7 @@
    ],
    "range": [
     282,
-    6091
+    6001
    ]
   },
   "scene": "1",
@@ -15659,17 +17567,24 @@
    1255.4145275974001
   ],
   "slot": {
+   "her_frame_at_cut": -202,
+   "her_range": [
+    -310,
+    6008
+   ],
    "media_track_note": "later: a MovieSceneMediaTrack section over the same range replaces the nested copy 1:1 (videos = renders of her LS, Gary 7 Oct)",
    "mode": "nested_cinematic",
    "range": [
     594,
-    5859
+    5769
    ],
    "range_before": [
     376,
     5641
    ],
-   "shift": 218
+   "shift": 218,
+   "skip_frames": 90,
+   "start_offset_ticks": 86400
   },
   "strike_schedule": {
    "frames": [
@@ -15711,8 +17626,8 @@
   },
   "timeline": {
    "blink_window": [
-    5872,
-    6076
+    5782,
+    5986
    ],
    "crossfade": [
     282,
@@ -15725,12 +17640,12 @@
     119
    ],
    "env_out": [
-    5872,
-    5922
+    5782,
+    5832
    ],
    "exit_cut": [
-    6241,
-    6266
+    6151,
+    6176
    ],
    "first_hold": [
     269,
@@ -15742,8 +17657,8 @@
    ],
    "glide_in_s": 6.0,
    "glide_out": [
-    6091,
-    6241
+    6001,
+    6151
    ],
    "glide_out_s": 6.0,
    "glow_fade": [
@@ -15758,28 +17673,28 @@
    "land": 104,
    "ours_hidden_from": 269,
    "outro_hold": [
-    5859,
-    5872
+    5769,
+    5782
    ],
    "outro_s": 16.28,
-   "planned_end": 6266,
-   "planned_end_s": 250.64,
+   "planned_end": 6176,
+   "planned_end_s": 247.04,
    "refusals": [],
    "rig_back": [
-    6091,
-    6129
+    6001,
+    6039
    ],
    "rig_dark": [
     282,
-    6091
+    6001
    ],
    "roof_hidden": [
     269,
-    5922
+    5832
    ],
    "slot": [
     594,
-    5859
+    5769
    ],
    "slot_before": [
     376,
@@ -15787,24 +17702,25 @@
    ],
    "slot_shift": 218,
    "slot_shift_s": 8.72,
+   "slot_skip": 90,
    "strike_window": [
     282,
     575
    ],
-   "version": 2,
+   "version": 3,
    "warnings": [
-    "CUT_MOVED_LATER: +218 frames (8.72 s): glide in the dark, then strikes; slot -> [594, 5859)"
+    "CUT_MOVED_LATER: +218 frames (8.72 s): glide in the dark, then strikes; slot -> [594, 5769)"
    ]
   },
   "warnings": [
    "SET_REACHES_LATTICE: top 1255 cm vs lattice 1200 cm (allow_lattice_overlap)",
-   "CUT_MOVED_LATER: +218 frames (8.72 s): glide in the dark, then strikes; slot -> [594, 5859)",
+   "CUT_MOVED_LATER: +218 frames (8.72 s): glide in the dark, then strikes; slot -> [594, 5769)",
    "GAPS_COMPRESSED: 14 strikes need 11.87 s, window 11.72 s (x0.99)",
    "HER_PPV_BOUNDED: PostProcessVolume - only applies inside its own box",
    "PPV_PRIORITY: hers 0.0 <= ours 0.0 (S1 Hangar Pinned Exposure) - Look decision",
    "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 282 (glows already at 0; emissive cannot fade without a material track)"
   ]
  },
- "run": "KLARAREVEAL-20261007-004410",
+ "run": "KLARAREVEAL-20261007-011442",
  "tool": "klara_reveal"
 }

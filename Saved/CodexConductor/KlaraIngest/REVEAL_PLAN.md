@@ -7,7 +7,7 @@ Offline only. Nothing was run in Unreal or over MCP, nothing was built or commit
 | `klara_reveal.py` | The tool (DRY / APPLY / REVERT, one Scene per run) |
 | `klara_reveal_run.py`, `klara_reveal_request.json` | Runner and MCP request |
 | `klara_reveal_args.json` | Arguments: mode DRY, scene 1 |
-| `test_klara_reveal_offline.py` | Harness: 43/43 pass; 22/22 seeded mutations caught |
+| `test_klara_reveal_offline.py` | Harness: 60/60 pass (v3, §9); v2: 22/22 seeded mutations caught; v3: 18/18 |
 
 Proof tiers per claim: **[decl]** source or header read (file:line), **[prec]** in-repo precedent call,
 **[meas]** a record or bytes read, **[inf]** inferred (the reason is given). Every [inf] API is probed in the DRY's
@@ -320,3 +320,138 @@ ceiling rig now to lower".
 
 An in-place UPDATE would need its own drift checks across 20+ bindings. REVERT + APPLY reuses paths that have both
 been proven live.
+
+## 9. v3: strike to her lit look, skip her dark opening (Gary, 7 Oct)
+
+Gary's decision: "Strike to her lit look; skip her dark opening". Offline only. Nothing was run in Unreal, nothing
+was built or committed. Harness: 60/60 pass. 18/18 seeded mutations of the v3 code are caught.
+
+### 9.1 Why v2 stayed dark
+
+- **Her lights.** Every light row in the v2 DRY has `target_first` 0.0 [meas `klara_reveal_dry_S1.json`
+  facts.her_lights]. So all 14 strikes went to 0. Nine lights are above 0 at her last frame [meas same rows].
+- **Her environment (a second fault, found now).** Both live records' `hookin_after` are missing four names that
+  their `before` has: `Hers Dark: DirectionalLight`, `ExponentialHeightFog`, `PostProcessVolume` and `SkyLight`
+  [meas `klara_reveal_record_S1.json` and `.restored-from-backup`]. Those are exactly the four env actors the reveal
+  ramps (the harness checks this: `Revert.test_measured_records_show_the_rename`).
+  - No APPLY step removes a binding. So `add_possessable` on an actor the hookin already binds returned the
+    hookin's binding, and `set_display_name` renamed it [inf: the only explanation the records allow; the header
+    `MovieSceneSequenceExtensions.h:403-411` says "new binding"].
+  - Effect in v2: APPLY step 7 looks bindings up by name, so it missed these four. Their "Hers Dark" visibility
+    stayed [104, 376) [inf from the record's before ranges]. Her sun, sky, fog and PPV were hidden until 15.04 s,
+    while the crossfade ran from 282.
+  - Effect on REVERT: it removed every `Klara Reveal -` binding, which deleted those four hookin bindings. That is
+    the live `REVERT_READBACK` [inf: it matches the record diff].
+
+### 9.2 Her lit frame Lh
+
+`find_lit_frame` (`klara_reveal.py:578`) and `snap_her_frame` (`:567`); defaults are in `LIT_DEFAULTS` (`:96`). All
+numbers are proposed, not Gary's.
+
+- **Inputs.** Each of her lights' Intensity key curve from the copy: tick times, interpolation and tangents
+  (`_ch_curve`). It is evaluated per frame by `curve_at`, which is exact for linear and constant keys; cubic is an
+  unweighted Hermite [inf].
+- **Per light.** The window is her start + 60 s.
+  - plateau = the highest level the light **holds** for 1 s (a one-frame flash does not count);
+  - `lit_at` = the first frame from which it holds at least 90% of that plateau;
+  - a plateau of 0.001 or less means the light is never lit in the window.
+- **Lh.** The earliest frame by which 80% of the ever-lit lights are lit (ceil(0.8 n)-th `lit_at`).
+  - Cross-check: the normalised sum (each light divided by its plateau) first holding 75% of its plateau. If the two
+    differ by more than 2 s, it warns `LIT_METRICS_DISAGREE`.
+  - Snapped up so it lands on our grid. 30 to 25 fps gives a step of 6 of her frames.
+- **Overrides.** `lit.frame` sets an explicit her frame. `lit.enabled: false` gives v2 behaviour.
+- **Refusals.** `LIT_NONE` and `NO_LIGHT_LIT_AT_LIT_FRAME`.
+- **Unkeyed lights.** Lights her LS does not key do not vote. They strike to their level value.
+- **What DRY logs.** `KLARAREVEAL_LIT` (frame, raw frame, seconds into her sequence, votes, sum frame) and one
+  `KLARAREVEAL_LIT_LIGHT` per light, with its plateau, `lit_at` and keys in the window, so Lh can be checked by hand.
+  `KLARAREVEAL_LIT_CAMERA` gives the cut covering Lh, the binding, pose, lens and velocity.
+  `KLARAREVEAL_ENV` gives the level value, the value at Lh and `her_keyed` for sun, sky, fog and PPV.
+
+### 9.3 What changes at Lh
+
+- **Strikes.** Each light is struck to its value at Lh (`target_intro`). A light that is dark at Lh is held at 0
+  over [land, cut) with no strike. Fewer strikes can bring the cut earlier.
+- **Colour.** Where her LS keys LightColor, her colour at Lh is held over [land, cut) (`_add_color_const`, `:1957`).
+- **Environment.** The env crossfade targets her value at Lh where her copy keys it, otherwise the level value.
+- **Glide and placement.** The glide ends, and the placement anchors, on **her camera at Lh**.
+  - `_her_camera(copy, "lit", Lh)` reads the cut covering Lh, its binding, its pose and lens interpolated at Lh,
+    and its velocity.
+  - If her camera moves at Lh, DRY warns `HER_LIT_FRAME_MOVES`.
+- **Slot.** The slot section starts **into** her copy at Lh: `slot_skip` (`:641`).
+  - start_frame_offset = (Lh − her start) × 800 ticks.
+  - skip = (Lh − her start) × 25/30 Scene frames.
+  - The slot is her remaining length.
+  - Unit [inf]: `MovieSceneSectionParameters.h:74-76` says "display rate", but the hookin and audio precedents use
+    ticks. APPLY settles it: it reads back `get_parent_sequence_frame(slot, Lh) == cut` and that her end maps to the
+    slot end (`SLOT_MAPPING_READBACK`, `:2376`), and refuses before any save.
+- **Timeline.** `plan_timeline(..., skip)` (`:699`): the intro is unchanged, and the outro, exit and end all come
+  `skip` frames earlier.
+- **Audio.**
+  - Her copy's audio moves with her. Her S1 `Animals_Project_CLICK` section [−311, 4165) would join mid-sound at the
+    cut, with its first (Lh + 311)/30 s skipped [meas `klara_hookin_seq_record.json` her_audio_in_scene].
+  - Scene-level audio and markers do not move. DRY lists those past the new end (`plan.audio`). The hookin's muted
+    narration section [5216, 6091) would then run past the end. It is muted [meas hookin record narration].
+- **Outro.** Unchanged: her last frame.
+
+### 9.4 S1 projection (not a live run)
+
+The v2 DRY kept only first and last values, so it **cannot** give Lh; her per-light keys were never read. The
+projection assumes Gary's PIE observation that the lights "kick in" about 18 s into her sequence [inf: his estimate].
+With her start at −310 that is her frame 230, which is on the grid.
+
+| Quantity | Value |
+|---|---|
+| Lh | her frame 230 (7.67 s her time; 18.0 s in) |
+| Offset | 432000 ticks |
+| Skip | 450 Scene frames (18.0 s) |
+| Slot | 4815 frames (192.6 s) |
+
+| Strikes | Cut | Slot | End |
+|---|---|---|---|
+| 14 | 594 | [594, 5409) | 5816 (232.64 s) |
+| 9 (lit at her last frame) | 481 | | 5628 (225.12 s) |
+
+v2's end was 6266 (250.64 s). **S1 shortens**, so `extend_scene_playback` runs with the DRY's printed
+`new_end_s`; Scene cues may be shortened [decl `extend_scene_playback.py:344-346`].
+
+### 9.5 Bindings fix and REVERT
+
+- **`_possess` (`:1914`).**
+  - A binding that already existed is never renamed. It is listed in `record.shared_bindings`.
+  - Our tracks on it are named with the `Klara Reveal -` prefix, now including Visibility tracks.
+  - APPLY reads back every hookin window at its planned range (`HOOKIN_WINDOW_READBACK`, `:2356`).
+- **`revert_actions` (`:871`, pure, tested).**
+  - Shared bindings: strip our tracks only.
+  - Legacy v1/v2 bindings: a `Klara Reveal - X` binding whose `Hers Dark: X` is in the record's before-list, is
+    missing now, and still carries the hookin's own Visibility track is **renamed back** and stripped.
+  - Every other `Klara Reveal -` binding is removed, children first.
+  - It refuses (`REVERT_UNRECOVERABLE`, nothing changed) if a hookin name cannot be recovered.
+- **REVERT read-back (`run_revert`, `:2444`).** Each check is named: hookin windows, leftover prefixed bindings and
+  tracks, cuts (range **and** camera GUID), slot (range **and** offset), glide camera gone. It also restores the slot
+  offset.
+- **Not live-proven.** `remove_track` on a binding [inf; probed in `api_table`; memory: it returns None, so it is
+  read back].
+
+### 9.6 Apply order
+
+**Recommended undo for v2: restore from backup.** It is proven live tonight for v1 [meas
+`klara_reveal_record_S1.json.restored-from-backup`]. The fixed REVERT is the alternative.
+
+1. **Restore from backup** [inf: the procedure is as tonight's v1 restore].
+   - Editor closed with Don't-Save.
+   - Copy `Backups/PreKlaraReveal-S1-KLARAREVEAL-20261007-004756/` {`LS_Animals_1_S1Hangar`, `LS_DevScene_01`,
+     `L_Animals.umap`, `L_InfinityStage_V1VerticalSlice.umap`} back over Content.
+   - The v2 APPLY copied `L_Animals.umap` before saving, so it is pre-v2 [inf from the code order].
+   - Rename `klara_reveal_record_S1.json` to `.restored-from-backup-v2`.
+   - The restored `LS_DevScene_01` is 250.64 s, the hookin slot is [376, 5641) with offset 0, and there is no glide
+     camera.
+   - **Or REVERT** with this code and the v2 record (set the args file mode to REVERT; it is APPLY now). It should rename the four
+     bindings back.
+2. **DRY.** It refuses `SLOT_DRIFT` if anything is still applied. Read `KLARAREVEAL_LIT*`: check Lh and the
+   per-light curves. Gary or the conductor can pin `lit.frame`.
+3. **`extend_scene_playback`** with the printed mode. This **shortens** the Scene to the planned end (≈ 222–233 s for
+   S1).
+4. **APPLY.**
+5. `rebuild_managed_master`, then SavedMasterMatchesShow, then SceneCutBindingsResolve, then live cut bindings.
+6. **PIE stills** at about 11.3, 14, 18, cut − 0.1 s and cut + 0.1 s. Check that the lights are lit **before** the
+   cut and that nothing changes across it.
