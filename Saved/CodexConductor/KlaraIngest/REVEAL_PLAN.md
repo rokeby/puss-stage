@@ -7,7 +7,7 @@ Offline only. Nothing was run in Unreal or over MCP, nothing was built or commit
 | `klara_reveal.py` | The tool (DRY / APPLY / REVERT, one Scene per run) |
 | `klara_reveal_run.py`, `klara_reveal_request.json` | Runner and MCP request |
 | `klara_reveal_args.json` | Arguments: mode DRY, scene 1 |
-| `test_klara_reveal_offline.py` | Harness: 60/60 pass (v3, §9); v2: 22/22 seeded mutations caught; v3: 18/18 |
+| `test_klara_reveal_offline.py` | Harness: 71/71 pass (v4, §10; S4 facts re-read from bytes); v4: 12/12 seeded mutations caught in-harness; v2: 22/22; v3: 18/18 |
 
 Proof tiers per claim: **[decl]** source or header read (file:line), **[prec]** in-repo precedent call,
 **[meas]** a record or bytes read, **[inf]** inferred (the reason is given). Every [inf] API is probed in the DRY's
@@ -455,3 +455,54 @@ v2's end was 6266 (250.64 s). **S1 shortens**, so `extend_scene_playback` runs w
 5. `rebuild_managed_master`, then SavedMasterMatchesShow, then SceneCutBindingsResolve, then live cut bindings.
 6. **PIE stills** at about 11.3, 14, 18, cut − 0.1 s and cut + 0.1 s. Check that the lights are lit **before** the
    cut and that nothing changes across it.
+
+## 10. v4: S4 (Gary 7 Oct: adapt her dark opening + pan, or strike as in S1)
+
+Offline only. Tiers per claim. Bytes = `Content/LS_Children.uasset` (her original), `InfinityStage/KlaraHookin/
+LS_Children_S4Hangar.uasset` (our copy), `L_KK_children.umap`, `KK_S1_Animals/L_Animals.umap`, read by the harness
+(`S4Bytes`), extending the S6 reader with the soft-object-path table and UniversalObjectLocator fragments.
+
+### 10.1 Why the live DRY stopped `HER_CAMERA_BINDING_FIRST: 0`
+- Her first camera-cut section [0, 2) (her frames, 30 fps) binds GUID `c6fa8837...`, which has no possessable, no
+  spawnable and no binding reference, in the original and in the copy [meas]. It is a dangling cut (a deleted camera).
+  Every later cut binds a CineCamera in `/Game/L_KK_children` (locators `CineCameraActor_0/_1/_5`) [meas]. The binding
+  IDs carry no sequence ID or space (root, local) [meas: only Guid + ResolveParentIndex 0 serialised]. Not a spawnable,
+  not a sub-sequence (no sub tracks), not L_Animals.
+- Fix: `first_bound_cut` reads her first camera at the first bound frame (2) and reports `dangling_cuts`. S1's first
+  cut is bound, so its path is unchanged [meas: replay below].
+
+### 10.2 Why the bindings look "very off"
+- 5 `LightComponent0` possessables have parents with no possessable; the parents' binding references point at
+  `L_Animals` SpotLight_1/17/20/22/23 (S1's level, in the S1 hangar) [meas]. They key constant Intensity 8-19.9.
+  Whether they resolve without a parent possessable is [inf: engine private code absent]; if they do, S4 drives S1's
+  lights. Not fixed here (the copy is the hookin's): propose deleting those 5 bindings from the copy.
+- `L_Animals` has actors labelled `CineCameraActor`, `CineCameraActor2`, `CineCameraActor3`, `SpotLight2/3/4/6/7` and
+  `Floor`, the same labels as her S4 bindings [meas]. Sequencer resolves by path, so playback is fine; our label
+  match was ambiguous. Fix: `pick_camera_actor` prefers her own level.
+- The copy's keys are shifted by exactly her LevelTransform (13639.97, 240008.5, 0) [meas].
+
+### 10.3 Her opening [meas bytes; curves are CUBIC with stored zero tangents, i.e. eased]
+- Playback [0, 4920) at 30 fps (164 s); 3 audio sections from -1.87 s; markers D 11.6 s, C 36.2 s; no fade track.
+- 0-0.07 s: dangling cut (no camera). 0.07-11.7 s: CineCameraActor at (692, 293, 91), pitch 6, yaw 5, no rotation keys:
+  a 60 cm sideways drift, not a pan. 11.7-26.5 s: an eased dolly back 18.9 m and 4.6 m sideways to the wide on the
+  children; the pigeon drops 23.1-26.1 s and lands (landing anim from 26 s).
+- Lights at 0 s: SpotLight and SpotLight2 are 0 and rise to 160 cd over 6.5-12.8 s and 5.5-13.1 s; window and
+  SpotLight3 hold 160, SpotLight7 17, SpotLight6 0.64; SpotLight4 0 until 22 s.
+- `opening_darkness` at her frame 6: only SpotLight and SpotLight2 cover her framed view (27 and 35 of 35 samples),
+  both 0, so lit fraction 0.0: DARK [inf: cone/radius proxy, no occlusion or bounce]. Unweighted, 45 % of her light
+  is on: the "total darkness" is what her camera frames.
+
+### 10.4 The two styles (projection: S4 L/C/E 104/376/4476 [meas hookin record]; box, footprint and exit pose are
+stale or SYNTHETIC [inf], so the live DRY decides)
+
+| | her_dark_pan (auto default) | strike |
+|---|---|---|
+| her frame at the cut | 6 (0.2 s; first bound 2, snapped) | 354 (11.8 s, detected) |
+| glide in the dark | [119, 357], 9.5 s, peak 287 cm/s | same |
+| lights | no strikes; window/SpotLight3/5/6/7 ramp to their values over [370, 445]; SpotLight, SpotLight2, SpotLight4 stay 0 | 7 strikes [370, 485], to values at 354 |
+| cut, slot | 455 (+79), [455, 4550) | 524 (+148), [524, 4329) |
+| her audio | joins 2.07 s in | joins 13.67 s in |
+| end | 4977 = 199.08 s | 4756 = 190.24 s |
+
+Both warn `LEAD_ABOVE_RANGE` (her camera sits 13 m inside her set: lead 1792 cm). Strike also warns
+`HER_LIT_FRAME_MOVES` 6.7 cm/s (her dolly is easing in).

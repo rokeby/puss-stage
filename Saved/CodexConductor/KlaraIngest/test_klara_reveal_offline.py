@@ -12,6 +12,7 @@ import copy
 import json
 import math
 import os
+import struct
 import sys
 import unittest
 
@@ -753,9 +754,12 @@ class Revert(unittest.TestCase):
         self.assertEqual((a["rename"], a["strip"], a["remove"], a["unrecoverable"]), ([], ["A"], ["B", "C"], []))
 
     def test_measured_records_show_the_rename(self):
-        """[meas] both live records: the hookin names that vanished between 'before' and 'hookin_after' are exactly
-        the env actors the reveal ramps (and so re-possessed)."""
-        for name in ("klara_reveal_record_S1.json", "klara_reveal_record_S1.json.restored-from-backup"):
+        """[meas] the v1 and v2 live records: the hookin names that vanished between 'before' and 'hookin_after' are
+        exactly the env actors the reveal ramps (and so re-possessed). v4 note: the v3 APPLY (KLARAREVEAL-20261007-
+        011535) replaced klara_reveal_record_S1.json, and the v2 record now lives at .reverted-...-011426; the v3 record
+        is the CONTROL - its _possess never renames, so nothing vanished."""
+        for name in ("klara_reveal_record_S1.json.reverted-KLARAREVEAL-20261007-011426",
+                     "klara_reveal_record_S1.json.restored-from-backup"):
             path = os.path.join(HERE, name)
             if not os.path.exists(path):
                 self.skipTest("record absent: " + name)
@@ -764,6 +768,686 @@ class Revert(unittest.TestCase):
             ramped = {"Klara Hookin - Hers Dark: " + e["label"] for e in rec["plan"]["her_env"] if e.get("action") == "ramp"}
             self.assertEqual(gone, ramped)
             self.assertEqual(len(gone), 4)
+        v3 = os.path.join(HERE, "klara_reveal_record_S1.json")
+        if os.path.exists(v3):
+            rec = R.load_json(v3)
+            if rec.get("version") == 3 and rec.get("applied"):
+                gone = {r["name"] for r in rec["before"]["hookin_bindings"]} - {r["name"] for r in rec["hookin_after"]}
+                self.assertEqual(gone, set())                                          # control: v3 renamed nothing
+
+
+# =====================================================================================================================
+# v4 (S4, 7 Oct): her ORIGINAL LS_Children, our copy, L_KK_children and L_Animals, re-read from BYTES (UE5 1018 reader
+# from test_klara_void_s6_offline.py [prec], extended with the soft-object-path table and UniversalObjectLocator
+# fragments). Every S4 number below is [meas] from these bytes unless marked.
+# =====================================================================================================================
+
+PROJECT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+LS_CHILDREN = os.path.join(PROJECT, "Content", "LS_Children.uasset")
+LS_CHILDREN_COPY = os.path.join(PROJECT, "Content", "InfinityStage", "KlaraHookin", "LS_Children_S4Hangar.uasset")
+L_CHILDREN = os.path.join(PROJECT, "Content", "L_KK_children.umap")
+L_ANIMALS = os.path.join(PROJECT, "Content", "KK_S1_Animals", "L_Animals.umap")
+LS_ANIMALS_COPY = os.path.join(PROJECT, "Content", "InfinityStage", "KlaraHookin", "LS_Animals_1_S1Hangar.uasset")
+S4_LT = [13639.9695, 240008.5, 0.0]        # [meas klara_hookin_stream_record.json placements L_KK_children]
+S4_ENTRY = [10668.4695, 240000.0, 180.0]   # [meas Saved/CodexStructure/scene_docks.json "Scene 4" entry camera]
+S4_LCE = (104, 376, 4476)                  # [meas klara_hookin_seq_record.json scenes.4.plan.timeline]
+_BYTES = {}
+
+
+def _reader():
+    import test_klara_void_s6_offline as V                  # noqa: E402 - sibling harness, its minimal reader
+    return V
+
+
+def _tag(p, r):
+    nm = p.fname(r)
+    if nm == "None":
+        return None
+    t = p.typename(r)
+    size = r.i32()
+    fl = r.raw(1)[0]
+    if fl & 1:
+        r.i32()
+    if fl & 2:
+        r.raw(16)
+    if fl & 4:
+        ext = r.raw(1)[0]
+        if ext & 2:
+            r.raw(2)
+    return nm, t, r.raw(size)
+
+
+def _struct_array(p, data):
+    V = _reader()
+    n = struct.unpack_from("<i", data, 0)[0]
+    r = V.R(data, 4)
+    rows = []
+    for _ in range(n):
+        row = {}
+        while True:
+            tg = _tag(p, r)
+            if tg is None:
+                break
+            row[tg[0]] = tg
+        rows.append(row)
+    return rows
+
+
+def _tags(p, data):
+    V = _reader()
+    r, out = V.R(data), {}
+    while r.o < len(data):
+        tg = _tag(p, r)
+        if tg is None:
+            break
+        out[tg[0]] = tg
+    return out
+
+
+def _soft_paths(p):
+    """FPackageFileSummary: after NameCount/NameOffset come SoftObjectPathsCount/Offset (UE5 >= 1008); each entry is
+    package FName, asset FName, sub-path as a length-prefixed UTF-8 string WITHOUT a terminator [meas]."""
+    V = _reader()
+    r = V.R(p.b)
+    r.u32(), r.i32(), r.i32(), r.i32(), r.i32(), r.i32()
+    r.raw(20)
+    r.i32()
+    n = r.i32()
+    r.raw(20 * n)
+    r.fstr()
+    r.u32(), r.i32(), r.i32()
+    sc, so = r.i32(), r.i32()
+    rr, out = V.R(p.b, so), []
+    for _ in range(sc):
+        pk, an = p.fname(rr), p.fname(rr)
+        ln = rr.i32()
+        sub = rr.raw(ln).decode("utf-8") if ln >= 0 else rr.raw(-2 * ln).decode("utf-16le")
+        out.append("%s.%s%s" % (pk, an, (":" + sub) if sub else ""))
+    return out
+
+
+def _locator(p, v, soft):
+    """UniversalObjectLocator: Fragments[] of (fragment type FName, tagged payload) [meas]."""
+    V = _reader()
+    data = _tag(p, V.R(v))[2]
+    n = struct.unpack_from("<i", data, 0)[0]
+    r, frags = V.R(data, 4), []
+    for _ in range(n):
+        ft = p.fname(r)
+        pay = {}
+        while True:
+            tg = _tag(p, r)
+            if tg is None:
+                break
+            nm, t, val = tg
+            pay[nm] = soft[struct.unpack("<i", val[:4])[0]] if "SoftObjectPath" in t else (
+                V.R(val).fstr() if t == "StrProperty" else val.hex())
+        frags.append([ft, pay])
+    return frags
+
+
+def _key_curve(v, double):
+    """Channel -> a klara_reveal curve {"tpf", "keys": [{"tick","value","interp","arrive","leave"}], "default"}.
+    Key layout [meas]: value (float 4 / double 8), tangent data (arrive, leave, arrive w, leave w: 4 floats, weight
+    mode u8, padded to 20), interp u8, tangent mode u8. NOTE the S6 reader's dchan reads interp at +24, which is the
+    weight-mode byte for doubles (it labels every key LINEAR); S4's keys are all CUBIC/AUTO with stored tangents."""
+    V = _reader()
+    r = V.R(v, 2)
+    r.i32()
+    nt = r.i32()
+    times = [r.i32() for _ in range(nt)]
+    es, nv = r.i32(), r.i32()
+    vs = 8 if double else 4
+    keys = []
+    for t in times[:nv]:
+        st = r.o
+        val = struct.unpack_from("<d" if double else "<f", v, st)[0]
+        at, lt = struct.unpack_from("<ff", v, st + vs)
+        keys.append({"tick": t, "value": float(val), "arrive": float(at), "leave": float(lt),
+                     "interp": {0: "linear", 1: "constant", 2: "cubic"}.get(v[st + vs + 20], "?%d" % v[st + vs + 20])})
+        r.o = st + es
+    d = struct.unpack_from("<d" if double else "<f", v, r.o)[0]
+    has = struct.unpack_from("<i", v, r.o + vs)[0]
+    return {"tpf": 800.0, "keys": keys, "default": float(d) if has else None}
+
+
+def derive_ls(path):
+    """Bindings (possessables + reference locators), tracks, cuts, light Intensity curves, camera transforms."""
+    if path in _BYTES:
+        return _BYTES[path]
+    V = _reader()
+    p = V.Package(path)
+    soft = _soft_paths(p)
+    n = len(p.exports)
+    ls = [i for i in range(1, n + 1) if p.cls(i) == "LevelSequence"][0]
+    ms = [i for i in range(1, n + 1) if p.cls(i) == "MovieScene"][0]
+    lsp = {t["name"]: t for t in p.props(ls)}
+    msp = {t["name"]: t for t in p.props(ms)}
+    refs = {}
+    for row in _struct_array(p, _tags(p, lsp["BindingReferences"]["value"])["SortedReferences"][2]):
+        refs[row["ID"][2][:16].hex()] = _locator(p, row["Locator"][2], soft)
+    poss = {}
+    for row in _struct_array(p, msp["Possessables"]["value"]):
+        g = row["Guid"][2].hex()
+        par = row["ParentGuid"][2].hex() if "ParentGuid" in row else None
+        poss[g] = {"guid": g, "name": V.R(row["Name"][2]).fstr(), "parent": None if par in (None, "00" * 16) else par,
+                   "class": soft[struct.unpack("<i", row["PossessedObjectClass"][2])[0]]
+                   if "PossessedObjectClass" in row else None}
+    tracks = {}
+    for row in _struct_array(p, msp["ObjectBindings"]["value"]):
+        v = row["Tracks"][2]
+        tracks[row["ObjectGuid"][2].hex()] = [struct.unpack_from("<i", v, 4 + 4 * k)[0]
+                                              for k in range(struct.unpack_from("<i", v, 0)[0])]
+    cuts, audio = [], []
+    fades = 0
+    for i in range(1, n + 1):
+        c = p.cls(i)
+        if c == "MovieSceneCameraCutSection":
+            pr = {t["name"]: t for t in p.props(i)}
+            g = _tags(p, pr["CameraBindingID"]["value"])["Guid"][2].hex()
+            cuts.append({"range": [x // 800 for x in V.frange(pr["SectionRange"]["value"])], "guid": g})
+        elif c == "MovieSceneAudioSection":
+            pr = {t["name"]: t for t in p.props(i)}
+            audio.append({"sound": p.path(struct.unpack_from("<i", pr["Sound"]["value"], 0)[0]).split(".")[0],
+                          "range_tick": V.frange(pr["SectionRange"]["value"])})
+        elif c in ("MovieSceneFadeTrack", "MovieSceneFadeSection"):
+            fades += 1
+    cuts.sort(key=lambda c: c["range"][0])
+    curves, cams = {}, {}
+    for g, trk in tracks.items():
+        b = poss.get(g)
+        for ti in trk:
+            secs = [j for j in range(1, n + 1) if p.exports[j - 1]["outer"] == ti and p.cls(j).endswith("Section")]
+            tp = {t["name"]: t for t in p.props(ti)}
+            prop = None
+            if "PropertyBinding" in tp:
+                prop = p.fname(V.R(_tags(p, tp["PropertyBinding"]["value"])["PropertyName"][2]))
+            if p.cls(ti) == "MovieSceneFloatTrack" and prop == "Intensity" and b and b["parent"]:
+                ch = [t for t in p.props(secs[0]) if "FloatChannel" in t["type"]][0]
+                curves[b["parent"]] = _key_curve(ch["value"], False)
+            elif p.cls(ti) == "MovieScene3DTransformTrack" and b and "CineCamera" in (b["class"] or ""):
+                ch = {"%s[%d]" % (t["name"], t["index"]): _key_curve(t["value"], True)
+                      for t in p.props(secs[0]) if "DoubleChannel" in t["type"]}
+                cams[g] = ch
+    pr = V.frange(msp["PlaybackRange"]["value"])
+    out = {"refs": refs, "poss": poss, "tracks": tracks, "cuts": cuts, "audio": audio, "fades": fades,
+           "intensity_by_parent_guid": curves, "camera_channels": cams, "playback": [pr[0] // 800, pr[1] // 800]}
+    _BYTES[path] = out
+    return out
+
+
+def derive_level_rows(path):
+    if path in _BYTES:
+        return _BYTES[path]
+    V = _reader()
+    p = V.Package(path)
+    rows = {}
+    for i in range(1, len(p.exports) + 1):
+        parts = p.path(i).split(".")
+        if len(parts) < 3 or parts[1] != "PersistentLevel":
+            continue
+        a = rows.setdefault(parts[2], {"name": parts[2], "comps": {}})
+        if len(parts) == 3:
+            a["class"] = p.cls(i)
+            for t in p.props(i):
+                if t["name"] == "ActorLabel":
+                    a["label"] = V.R(t["value"]).fstr()
+        elif len(parts) == 4:
+            c = a["comps"].setdefault(parts[3], {"class": p.cls(i)})
+            for t in p.props(i):
+                v = t["value"]
+                if t["name"] == "RelativeLocation":
+                    c["loc"] = V.vec3(v)
+                elif t["name"] == "RelativeRotation":
+                    pit, yaw, rol = V.vec3(v)
+                    c["rot"] = [rol, pit, yaw]
+                elif t["name"] in ("Intensity", "OuterConeAngle", "AttenuationRadius") and len(v) == 4:
+                    c[t["name"]] = struct.unpack("<f", v)[0]
+    _BYTES[path] = rows
+    return rows
+
+
+def _cam_pose(chans, frame, lt=(0.0, 0.0, 0.0)):
+    ax = lambda nm, f: R.curve_at(chans[nm], f) if chans[nm]["keys"] else chans[nm]["default"]
+    loc = [ax("Translation[%d]" % i, frame) + lt[i] for i in range(3)]
+    rot = [ax("Rotation[%d]" % i, frame) for i in range(3)]
+    nxt = [ax("Translation[%d]" % i, frame + 1) + lt[i] for i in range(3)]
+    return {"loc": loc, "rot": rot, "vel_cm_s": [(nxt[i] - loc[i]) * 30.0 for i in range(3)],
+            "ang_deg_s": [0.0, 0.0, 0.0]}
+
+
+def s4_facts(style=None, lit_frame=None):
+    """What gather() would assemble for S4, from bytes + records (the box / entry / hangar lights / rise keys are the
+    hookin's stale 30 Sep values or SYNTHETIC, so placement numbers are a projection [inf])."""
+    her = derive_ls(LS_CHILDREN_COPY)
+    lvl = derive_level_rows(L_CHILDREN)
+    by_name = {r["name"]: r for r in lvl.values()}
+    # her copy's camera bindings resolve to actors by their locator path [meas]
+    loc_actor = lambda g: (her["refs"].get(g) or [[None, {}]])[0][1].get("Path", "").split(".")[-1]
+    bound = [g for g in her["poss"]]
+    fb = R.first_bound_cut(her["cuts"], bound, her["playback"][0])
+
+    def cam_at(frame):
+        cut = [c for c in her["cuts"] if c["range"][0] <= frame < c["range"][1]][0]
+        g = cut["guid"]
+        pose = _cam_pose(her["camera_channels"][g], frame)          # the copy's keys are already shifted [meas]
+        pose.update(binding=her["poss"][g]["name"], frame=frame, fps=30.0, cut=cut["range"],
+                    lens_tracks={"CurrentFocalLength": 35.0, "ManualFocusDistance": 100000.0, "CurrentAperture": 2.8},
+                    actor={"label": her["poss"][g]["name"], "sensor": [23.76, 13.365], "focal": 35.0,
+                           "focus": 100000.0, "actor_name": loc_actor(g)})
+        return pose
+
+    lights = []
+    curves = {her["poss"][g]["name"]: c for g, c in her["intensity_by_parent_guid"].items() if g in her["poss"]}
+    for a in lvl.values():
+        if a.get("class") != "SpotLight":
+            continue
+        comp = a["comps"]["LightComponent0"]
+        lab = a.get("label", a["name"])
+        lights.append({"label": lab, "name": a["name"], "class": "SpotLight",
+                       "loc": [comp["loc"][i] + S4_LT[i] for i in range(3)], "rot": comp.get("rot", [0.0, 0.0, 0.0]),
+                       "cone_deg": comp.get("OuterConeAngle"), "radius": comp.get("AttenuationRadius"),
+                       "intensity": float(comp.get("Intensity", 5000.0)), "color": [1, 1, 1, 1], "visible": True,
+                       "hidden_in_game": False, "keyed": {"Intensity": "LightComponent0"} if lab in curves else {},
+                       "first": {}, "last": {}, "curves": {"Intensity": curves[lab]} if lab in curves else {}})
+    for r in lights:
+        c = (r["curves"] or {}).get("Intensity")
+        r["target_first"] = R.curve_at(c, 0) if c else r["intensity"]
+        r["target_last"] = R.curve_at(c, her["playback"][1] - 1) if c else r["intensity"]
+    f = facts()
+    f.update(scene="4", L=S4_LCE[0], C=S4_LCE[1], E=S4_LCE[2], label="Scene 4 — External Sound",
+             box=dict(BOX, dock={"loc": [S4_ENTRY[0], S4_ENTRY[1], 0.0], "yaw": 0.0}),
+             entry_camera=dict(f["entry_camera"], loc=list(S4_ENTRY), sensor=[23.76, 13.365]),
+             exit_camera=dict(f["exit_camera"], loc=list(S4_ENTRY), sensor=[23.76, 13.365]),
+             her_first=dict(cam_at(fb["frame"]), dangling_cuts=[{"range": c["range"], "guid": c["guid"]}
+                                                                for c in fb["dangling"]]),
+             her_last=cam_at(her["playback"][1] - 1), her_range=list(her["playback"]), her_fps=30.0, her_tpf=800,
+             level_transform={"loc": list(S4_LT), "yaw": 0.0},
+             # pivot footprint [meas klara_hookin_args.json scenes.4 footprint_her, z_top 700] + LT
+             set_world=[-600 + S4_LT[0], 1657 + S4_LT[0], -674 + S4_LT[1], 657 + S4_LT[1], 0.0, 700.0],
+             her_lights=lights,
+             her_env=[{"label": "DirectionalLight", "class": "DirectionalLight", "property": "Intensity",
+                       "value": float(by_name["DirectionalLight_0"]["comps"]["LightComponent0"]["Intensity"]),
+                       "her_keyed": False},
+                      {"label": "SkyLight", "class": "SkyLight", "property": "Intensity", "value": 1.0,
+                       "her_keyed": False},                              # unserialised = class default 1.0 [inf]
+                      {"label": "SkyAtmosphere", "class": "SkyAtmosphere", "property": None}],
+             hangar_lights=[{"label": "S4 Practical L1", "role": "black", "class": "SpotLight", "loc": [0, 0, 0],
+                             "radius": 2500.0}],
+             rig_bulbs=["S4 Lattice Bulb 1-1"], lattice_pieces=["S4 Hangar Lattice Fly"], our_ppv=[],
+             her_audio=[{"sound": a["sound"], "active": True, "start_frame": a["range_tick"][0] // 800,
+                         "end_frame": -(-a["range_tick"][1] // 800)} for a in her["audio"]])
+    args = copy.deepcopy(ARGS)
+    args["scene"] = "4"
+    if style:
+        args["scenes"]["4"]["reveal_style"] = style
+    if lit_frame is not None:
+        args["scenes"]["4"]["lit"] = {"frame": lit_frame}
+    # _gather_reveal, minus Unreal
+    st = R.reveal_style(args, "4")
+    if st != "strike":
+        F, step = R.snap_her_frame(f["her_first"]["frame"], f["her_range"][0], 30.0, FPS)
+        cam = cam_at(F)
+        plat = {k: v["plateau"] for k, v in R.find_lit_frame(
+            {r["label"]: (r["curves"] or {}).get("Intensity") for r in lights}, f["her_range"][0], f["her_range"][1],
+            30.0, R.lit_cfg(args, "4"))["per_light"].items() if v.get("keyed")}
+        dk = R.opening_darkness(lights, {"loc": cam["loc"], "rot": cam["rot"], "focal": 35.0, "sensor": [23.76, 13.365]},
+                                F, plat, [], dict(R.DARK_DEFAULTS))
+        rv = {"requested": st, "frame": F, "frame_first_bound": f["her_first"]["frame"], "snap_step": step,
+              "darkness": dk, "dangling_cuts": f["her_first"]["dangling_cuts"]}
+        rv["style"], rv["why"] = R.resolve_reveal(st, dk)
+        f["reveal"] = rv
+    f["lit"] = R.detect_lit(f, args, FPS)
+    if f["lit"]["frame"] is not None:
+        f["her_lit"] = cam_at(f["lit"]["frame"])
+        R.apply_lit_values(f, f["lit"]["frame"])
+    return f, args
+
+
+class S4Bytes(unittest.TestCase):
+    """Why HER_CAMERA_BINDING_FIRST was 0, and what else in her S4 bindings is off. [meas] bytes."""
+
+    def test_first_cut_is_dangling(self):
+        for path in (LS_CHILDREN, LS_CHILDREN_COPY):
+            b = derive_ls(path)
+            first = b["cuts"][0]
+            self.assertEqual(first["range"], [0, 2])
+            self.assertEqual(first["guid"], "c6fa88373d73334ea4f018e65c4f2735")
+            self.assertNotIn(first["guid"], b["poss"])                    # no possessable ...
+            self.assertNotIn(first["guid"], b["refs"])                    # ... and no binding reference
+            self.assertEqual(b["fades"], 0)                               # no fade track in her LS
+            for c in b["cuts"][1:]:
+                self.assertIn(c["guid"], b["poss"])                       # control: every later cut is bound
+            fb = R.first_bound_cut(b["cuts"], list(b["poss"]), b["playback"][0])
+            self.assertEqual((fb["frame"], len(fb["dangling"])), (2, 1))
+        s1 = derive_ls(LS_ANIMALS_COPY)                                   # control: S1's first cut IS bound
+        self.assertIn(s1["cuts"][0]["guid"], s1["poss"])
+
+    def test_cameras_resolve_into_her_level_and_l_animals_repeats_labels(self):
+        b = derive_ls(LS_CHILDREN)
+        cam_paths = sorted(b["refs"][c["guid"]][0][1]["Path"] for c in b["cuts"][1:])
+        self.assertTrue(all(p.startswith("/Game/L_KK_children.L_KK_children:PersistentLevel.CineCameraActor_")
+                            for p in cam_paths), cam_paths)
+        anim = {r.get("label") for r in derive_level_rows(L_ANIMALS).values()}
+        mine = {r.get("label") for r in derive_level_rows(L_CHILDREN).values()}
+        clash = sorted(x for x in {"CineCameraActor", "CineCameraActor2", "CineCameraActor3"} if x in anim and x in mine)
+        self.assertEqual(clash, ["CineCameraActor", "CineCameraActor2", "CineCameraActor3"])
+        own = [{"label": "CineCameraActor", "name": "CineCameraActor_0", "lvl": "children"}]
+        other = [{"label": "CineCameraActor", "name": "CineCameraActor_0", "lvl": "animals"}]
+        self.assertEqual([x["lvl"] for x in R.pick_camera_actor(own, other, "CineCameraActor")], ["children"])
+        self.assertEqual(len([a for a in own + other if a["label"] == "CineCameraActor"]), 2)   # control: v3 pool
+        self.assertEqual([x["lvl"] for x in R.pick_camera_actor([], other, "CineCameraActor")], ["animals"])
+
+    def test_orphan_light_components_point_into_l_animals(self):
+        b = derive_ls(LS_CHILDREN)
+        orphans = [p for p in b["poss"].values() if p["parent"] and p["parent"] not in b["poss"]]
+        self.assertEqual(len(orphans), 5)
+        self.assertTrue(all(o["name"] == "LightComponent0" for o in orphans))
+        tgt = sorted(b["refs"][o["parent"]][0][1]["Path"].split(".")[-1] for o in orphans)
+        self.assertEqual(tgt, ["SpotLight_1", "SpotLight_17", "SpotLight_20", "SpotLight_22", "SpotLight_23"])
+        self.assertTrue(all(b["refs"][o["parent"]][0][1]["Path"].startswith("/Game/KK_S1_Animals/L_Animals.")
+                            for o in orphans))
+        parented = [p for p in b["poss"].values() if p["parent"] and p["parent"] in b["poss"]]
+        self.assertGreater(len(parented), 20)                                          # control: the rest are whole
+
+    def test_copy_shift_equals_level_transform(self):
+        o, c = derive_ls(LS_CHILDREN), derive_ls(LS_CHILDREN_COPY)
+        for g, ch in o["camera_channels"].items():
+            for i in range(3):
+                a, b = ch["Translation[%d]" % i], c["camera_channels"][g]["Translation[%d]" % i]
+                for ka, kb in zip(a["keys"], b["keys"]):
+                    self.assertAlmostEqual(kb["value"] - ka["value"], S4_LT[i], places=3)
+        self.assertNotEqual(S4_LT[1], 0.0)                                            # control: a real shift
+
+    def test_her_opening_measured(self):
+        """Her opening, her frames at 30 fps (curves CUBIC with stored zero tangents = eased)."""
+        b = derive_ls(LS_CHILDREN)
+        cam = b["camera_channels"]["b28a821d72b7a24ea738eb622365a09c"]               # CineCameraActor (_0)
+        self.assertEqual([k["tick"] // 800 for k in cam["Translation[0]"]["keys"]], [2, 351, 795])
+        self.assertEqual([k["value"] for k in cam["Translation[0]"]["keys"]], [692.0, 692.0, -1195.0])
+        self.assertTrue(all(k["interp"] == "cubic" for k in cam["Translation[0]"]["keys"]))
+        self.assertEqual(cam["Rotation[2]"]["keys"], [])                               # no pan: yaw is a default
+        self.assertEqual((cam["Rotation[1]"]["default"], cam["Rotation[2]"]["default"]), (6.000000000000003, 5.0))
+        p6, p351 = _cam_pose(cam, 6), _cam_pose(cam, 351)
+        self.assertLess(math.dist(p6["loc"], p351["loc"]), 61.0)                       # static-ish until 11.7 s
+        self.assertGreater(math.dist(p351["loc"], _cam_pose(cam, 795)["loc"]), 1900.0)   # then an 19 m dolly back
+        lv = {r.get("label"): r for r in derive_level_rows(L_CHILDREN).values()}
+        guid_of = {p["name"]: g for g, p in b["poss"].items()}
+        curve = lambda lab: b["intensity_by_parent_guid"][guid_of[lab]]
+        self.assertEqual(R.curve_at(curve("SpotLight"), 0), 0.0)
+        self.assertEqual(R.curve_at(curve("SpotLight2"), 0), 0.0)
+        self.assertEqual(R.curve_at(curve("Spot_MainLight_window"), 0), 160.0)        # constant (one key)
+        self.assertAlmostEqual(R.curve_at(curve("SpotLight"), 384), 160.0, places=3)
+        self.assertGreater(lv["SpotLight"]["comps"]["LightComponent0"]["OuterConeAngle"], 79.0)
+
+
+class S4Reveal(unittest.TestCase):
+    def test_darkness_at_her_first_frame(self):
+        f, _a = s4_facts(style="auto")
+        rv = f["reveal"]
+        self.assertEqual((rv["frame_first_bound"], rv["frame"]), (2, 6))             # snapped up onto the 6-grid
+        dk = rv["darkness"]
+        self.assertTrue(dk["dark"], dk)
+        self.assertEqual(dk["lit_fraction"], 0.0)
+        covering = sorted(k for k, v in dk["cover"].items() if v["samples"])
+        self.assertEqual(covering, ["SpotLight", "SpotLight2"])                        # only the two that ramp up
+        self.assertGreater(dk["all_lights_fraction"], 0.3)                             # control: unweighted says lit
+        self.assertEqual(rv["style"], "her_dark_pan")
+        lights = copy.deepcopy(f["her_lights"])                                        # control: lit at Lh -> strike
+        F = 354
+        cam = _cam_pose(derive_ls(LS_CHILDREN_COPY)["camera_channels"]["b28a821d72b7a24ea738eb622365a09c"], F)
+        dk2 = R.opening_darkness(lights, {"loc": cam["loc"], "rot": cam["rot"], "focal": 35.0,
+                                          "sensor": [23.76, 13.365]}, F, {}, [], dict(R.DARK_DEFAULTS))
+        self.assertFalse(dk2["dark"], dk2)
+        self.assertEqual(R.resolve_reveal("auto", dk2)[0], "strike")
+        self.assertTrue(R.opening_darkness(lights, {"loc": cam["loc"], "rot": cam["rot"], "focal": 35.0,
+                                                    "sensor": [23.76, 13.365]}, F, {}, [1.0], dict(R.DARK_DEFAULTS))["dark"])
+        with self.assertRaises(R.PlanError):
+            R.resolve_reveal("sideways", dk2)
+
+    def test_dark_pan_plan(self):
+        f, a = s4_facts(style="auto")
+        p = R.build_plan(f, a)
+        self.assertEqual(p["refusals"], [], p["refusals"])
+        tl = p["timeline"]
+        self.assertEqual(p["reveal"]["style"], "her_dark_pan")
+        self.assertEqual(p["slot"]["her_frame_at_cut"], 6)
+        self.assertEqual(p["slot"]["skip_frames"], 5)                                 # 6 her frames = 5 of ours
+        self.assertEqual(p["slot"]["start_offset_ticks"], 6 * 800)
+        self.assertEqual(tl["slot"][1] - tl["slot"][0], (4476 - 376) - 5)
+        self.assertFalse(any(r["strikes"] for r in p["her_lights"]))
+        self.assertEqual(p["strike_schedule"]["frames"], [])
+        by = {r["label"]: r for r in p["her_lights"]}
+        for r in f["her_lights"]:
+            want = R.curve_at(r["curves"]["Intensity"], 6) if r["curves"] else r["intensity"]
+            row = by[r["label"]]
+            self.assertEqual(row["intro_keys"][-1][1], want if want > 1e-3 else 0.0)   # continuous at the cut
+            self.assertLess(row["intro_keys"][-1][0], tl["cut"])
+            if want > 1e-3:
+                self.assertEqual(row["ramp"], tl["crossfade"])
+                steps = [b[1] - a_[1] for a_, b in zip(row["intro_keys"][1:], row["intro_keys"][2:])]
+                self.assertTrue(all(s_ >= -1e-9 for s_ in steps))                     # a ramp, never a flicker
+                self.assertLess(max(steps), 0.1 * want)
+            else:
+                self.assertEqual(row["intro_keys"], [[tl["land"], 0.0]])
+        self.assertEqual(by["SpotLight"]["intro_keys"], [[tl["land"], 0.0]])          # the framed lights stay dark
+        self.assertEqual(by["SpotLight2"]["intro_keys"], [[tl["land"], 0.0]])
+        keys = {k[0]: k for k in p["glide"]["keys"]}
+        first = p["poses"]["her_lit"]
+        self.assertEqual(keys[tl["cut"]][1:7], first["loc"] + first["rot"])           # lands ON her frame-6 pose
+        self.assertTrue(any("HER_FIRST_CUT_DANGLING" in w for w in p["warnings"]) or f["her_first"]["dangling_cuts"])
+        self.assertFalse(any("HER_LIT_FRAME_MOVES" in w for w in p["warnings"]))      # 0.36 cm/s at her frame 6
+        st, _a2 = s4_facts(style="strike")                                             # control: strike style
+        ps = R.build_plan(st, _a2)
+        self.assertEqual(ps["refusals"], [], ps["refusals"])
+        self.assertNotIn("reveal", ps)
+        self.assertEqual(ps["lit"]["frame"], 354)
+        self.assertGreater(sum(1 for r in ps["her_lights"] if r["strikes"]), 4)
+        self.assertGreater(ps["slot"]["skip_frames"], 250)
+        self.assertGreater(tl["planned_end"], ps["timeline"]["planned_end"])           # dark pan keeps her opening
+
+    def test_scene_lit_override(self):
+        f, a = s4_facts(style="strike", lit_frame=798)
+        self.assertEqual((f["lit"]["frame"], f["lit"]["method"]), (798, "args lit.frame"))
+        self.assertEqual(R.lit_cfg(a, "4")["frame"], 798)
+        self.assertIsNone(R.lit_cfg(a, "1")["frame"])                                 # control: S1 unaffected
+        self.assertIsNone(R.lit_cfg(a)["frame"])
+
+    def test_env_only_if_needed(self):
+        f, a = s4_facts(style="her_dark_pan")
+        f["her_env"].append({"label": "Fog0", "class": "ExponentialHeightFog", "property": "FogDensity", "value": 0.0,
+                             "her_keyed": False})
+        R.apply_lit_values(f, f["lit"]["frame"])
+        p = R.build_plan(f, a)
+        acts = {e["label"]: e["action"] for e in p["her_env"]}
+        self.assertEqual(acts["DirectionalLight"], "ramp")
+        self.assertTrue(acts["Fog0"].startswith("none_needed"))
+        f2, a2 = s4_facts(style="strike")                                              # control: strike ramps all
+        f2["her_env"].append(dict(f["her_env"][-1]))
+        R.apply_lit_values(f2, f2["lit"]["frame"])
+        self.assertEqual({e["label"]: e["action"] for e in R.build_plan(f2, a2)["her_env"]}["Fog0"], "ramp")
+
+    def test_s1_replay_of_the_live_v3_dry(self):
+        """[meas] klara_reveal_dry_S1.json (KLARAREVEAL-20261007-011442, the v3 DRY that preceded the live S1 APPLY):
+        this code re-plans its facts to the recorded plan (floats to 1e-12 relative: the live Python's random.uniform
+        differs in the last ulp). Control: the same facts forced to her_dark_pan give a different plan."""
+        path = os.path.join(HERE, "klara_reveal_dry_S1.json")
+        if not os.path.exists(path):
+            self.skipTest("S1 DRY absent")
+        d = R.load_json(path)
+        got = json.loads(json.dumps(R.build_plan(copy.deepcopy(d["facts"]), d["args"]), sort_keys=True, default=str))
+        want = json.loads(json.dumps(d["plan"], sort_keys=True, default=str))
+
+        def same(x, y):
+            if isinstance(x, float) or isinstance(y, float):
+                return isinstance(x, (int, float)) and isinstance(y, (int, float)) and \
+                    abs(x - y) <= 1e-12 * max(1.0, abs(x), abs(y))
+            if isinstance(x, dict):
+                return isinstance(y, dict) and set(x) == set(y) and all(same(x[k], y[k]) for k in x)
+            if isinstance(x, list):
+                return isinstance(y, list) and len(x) == len(y) and all(same(a, b) for a, b in zip(x, y))
+            return x == y
+        self.assertTrue(same(got, want))
+        self.assertTrue(same(json.loads(json.dumps(R.build_plan(copy.deepcopy(d["facts"]), dict(d["args"])),
+                                                   sort_keys=True, default=str)), want))
+        live_args = copy.deepcopy(ARGS)
+        live_args["scene"] = "1"
+        self.assertEqual(R.reveal_style(live_args, "1"), "strike")                     # S1 stays strike
+        fx = copy.deepcopy(d["facts"])
+        fx["reveal"] = {"style": "her_dark_pan", "frame": fx["her_range"][0]}
+        fx["lit"] = R.detect_lit(fx, d["args"], 25.0)
+        self.assertFalse(same(json.loads(json.dumps(R.build_plan(fx, d["args"]), sort_keys=True, default=str)), want))
+
+
+def bezier_ref(k0, k1, t):
+    """INDEPENDENT reference for UE's cubic channel segment: de Casteljau on P0..P3 with P1 = v0 + leave*dt/3,
+    P2 = v1 - arrive*dt/3 (time is linear in the parameter for unweighted tangents)."""
+    dt = float(k1["tick"] - k0["tick"])
+    u = (t - k0["tick"]) / dt
+    pts = [k0["value"], k0["value"] + k0["leave"] * dt / 3.0, k1["value"] - k1["arrive"] * dt / 3.0, k1["value"]]
+    while len(pts) > 1:
+        pts = [a_ + (b_ - a_) * u for a_, b_ in zip(pts, pts[1:])]
+    return pts[0]
+
+
+class StrictEval(unittest.TestCase):
+    """v4b: the live S4 DRY stopped HER_CAMERA_EVAL (her frame 2 is a key, frame 3 is between keys 2 and 351)."""
+    CAM = "b28a821d72b7a24ea738eb622365a09c"
+
+    def test_key_exact_and_bytes_cubic_vs_reference(self):
+        ch = derive_ls(LS_CHILDREN_COPY)["camera_channels"][self.CAM]
+        x = ch["Translation[0]"]
+        self.assertEqual(R.strict_curve_at(x, 2), x["keys"][0]["value"])              # on a key: the key value
+        y = ch["Translation[1]"]
+        worst = 0.0
+        for fr in (3, 6, 100, 200, 346):
+            t = fr * 800.0
+            worst = max(worst, abs(R.strict_curve_at(y, fr) - bezier_ref(y["keys"][0], y["keys"][1], t)))
+        self.assertLess(worst, 0.01)
+        self.assertGreater(abs(R.strict_curve_at(y, 200) - (293 + 60 * 198 / 345.0)), 1.0)   # control: not linear
+        rot = derive_ls(LS_CHILDREN_COPY)["camera_channels"]["77a718f00c13674e821008824866da35"]["Rotation[2]"]
+        k0, k1 = rot["keys"][0], rot["keys"][1]
+        for fr in (3600, 3700, 3900):
+            self.assertLess(abs(R.strict_curve_at(rot, fr) - bezier_ref(k0, k1, fr * 800.0)), 0.001)
+        bent = copy.deepcopy(y)                                                        # control: tangents matter
+        bent["keys"][0]["leave"] = 0.0005
+        self.assertGreater(abs(R.strict_curve_at(bent, 100) - R.strict_curve_at(y, 100)), 0.01)
+        self.assertGreater(abs(bezier_ref(bent["keys"][0], bent["keys"][1], 80000.0) -
+                               bezier_ref(y["keys"][0], y["keys"][1], 80000.0)), 0.01)
+
+    def test_nonzero_tangent_matches_reference(self):
+        k = [{"tick": 0, "value": 10.0, "interp": "cubic", "interp_raw": "RCIM_CUBIC", "arrive": 0.0, "leave": 0.002,
+              "weight_mode": "RCTWM_WEIGHTED_NONE"},
+             {"tick": 24000, "value": 50.0, "interp": "cubic", "interp_raw": "RCIM_CUBIC", "arrive": -0.001, "leave": 0.0,
+              "weight_mode": "RCTWM_WEIGHTED_NONE"}]
+        c = {"tpf": 800.0, "keys": k, "default": None}
+        for fr in (1, 7, 15, 29):
+            self.assertLess(abs(R.strict_curve_at(c, fr) - bezier_ref(k[0], k[1], fr * 800.0)), 0.01)
+        lin = copy.deepcopy(c)
+        for x in lin["keys"]:
+            x["interp"], x["interp_raw"] = "linear", "RCIM_LINEAR"
+        self.assertAlmostEqual(R.strict_curve_at(lin, 15), 30.0, places=9)
+        cst = copy.deepcopy(c)
+        cst["keys"][0]["interp"], cst["keys"][0]["interp_raw"] = "constant", "RCIM_CONSTANT"
+        self.assertEqual(R.strict_curve_at(cst, 15), 10.0)
+
+    def test_unsupported_refuses(self):
+        y = copy.deepcopy(derive_ls(LS_CHILDREN_COPY)["camera_channels"][self.CAM]["Translation[1]"])
+        for k in y["keys"]:
+            k.update(interp_raw="RCIM_CUBIC", weight_mode="RCTWM_WEIGHTED_NONE")
+        self.assertIsNotNone(R.strict_curve_at(y, 6))                                 # control: supported passes
+        for mut in ({"weight_mode": "RCTWM_WEIGHTED_BOTH"}, {"weight_unread": True}, {"interp_raw": "RCIM_NONE"},
+                    {"interp_unread": True}, {"tangent_unread": True}):
+            bad = copy.deepcopy(y)
+            bad["keys"][0].update(mut)
+            with self.assertRaises(R.PlanError) as cm:
+                R.strict_curve_at(bad, 6)
+            self.assertIn("HER_CURVE_UNSUPPORTED", str(cm.exception))
+        self.assertEqual(R.strict_curve_at(dict(y, keys=y["keys"]), 2), y["keys"][0]["value"])   # key: no refusal path
+
+    def test_live_channel_path_uses_strict(self):
+        """_ch_eval_strict with a fake scripting channel: exact keys go through eval_keys (S1's path, unchanged),
+        between keys through strict_curve_at - never None, never a snapped key."""
+        class _N:
+            def __init__(s_, v): s_.value = v
+        class _T:
+            def __init__(s_, v): s_.frame_number = _N(v)
+        class _K:
+            def __init__(s_, f, v): s_.f, s_.v = f, v
+            def get_time(s_, time_unit=None): return _T(s_.f)
+            def get_value(s_): return s_.v
+        class _C:
+            def __init__(s_, keys): s_.k = keys
+            def get_keys(s_): return s_.k
+            def has_default(s_): return False
+            def get_default(s_): return 0.0
+        y = derive_ls(LS_CHILDREN_COPY)["camera_channels"][self.CAM]["Translation[1]"]
+        fake = _C([_K(k["tick"] // 800, k["value"]) for k in y["keys"]])
+        self.assertEqual(R._ch_eval_strict(fake, y, 2), y["keys"][0]["value"])
+        v3 = R._ch_eval_strict(fake, y, 3)
+        self.assertIsNotNone(v3)
+        self.assertNotIn(v3, [k["value"] for k in y["keys"]])                          # control: not snapped
+        self.assertIsNone(R.eval_keys([[k["tick"] // 800, k["value"]] for k in y["keys"]], None, 3))   # the old stop
+
+
+# Seeded mutations of the v4 code: each must make at least one v4 test fail (proves the tests can fail).
+V4_MUTATIONS = [
+    ("strikes = target > min_v and not dark_pan", "strikes = target > min_v"),
+    ("    n_strike = 0 if dark_pan else sum(", "    n_strike = 0 if False else sum("),
+    ("intro = dedupe_keys(intro + ramp_keys(0.0, target, tl[\"crossfade\"][0], tl[\"crossfade\"][1]))",
+     "intro = dedupe_keys(intro + ramp_keys(0.0, target * 0.5, tl[\"crossfade\"][0], tl[\"crossfade\"][1]))"),
+    ("        if c[\"guid\"] in bound:\n", "        if True:\n"),
+    ("    return hit if hit else [a for a in other", "    return (hit + [a for a in other] if hit else [a for a in other]) or [a for a in other"),
+    ("    if light.get(\"class\") != \"SpotLight\":\n        return True", "    if True:\n        return True"),
+    ("    dark = (frac is not None and frac <= float(cfg[\"max_lit_fraction\"]))",
+     "    dark = (frac is not None and frac >= float(cfg[\"max_lit_fraction\"]))"),
+    ("    return (\"her_dark_pan\" if darkness[\"dark\"] else \"strike\")", "    return (\"strike\" if darkness[\"dark\"] else \"strike\")"),
+    ("        cfg = dict(cfg, frame=int(rv[\"frame\"]), enabled=True)", "        cfg = dict(cfg, enabled=True)"),
+    ("        if dark_pan and v_in <= EPS and v <= EPS:", "        if False:"),
+    ("            if d[2] < -EPS:\n                t = -float(cam_loc[2]) / d[2]", "            if d[2] < -EPS:\n                t = 10.0"),
+    ("        c.update(((args.get(\"scenes\") or {}).get(str(key)) or {}).get(\"lit\") or {})", "        pass"),
+]
+V4_MUTATIONS += [
+    ("                    if k.get(\"weight_unread\") or k.get(\"weight_mode\", \"RCTWM_WEIGHTED_NONE\") not in STRICT_WEIGHT_OK:",
+     "                    if False:"),
+    ("                if k.get(\"interp_unread\") or raw not in STRICT_INTERP_RAW:", "                if False:"),
+    ("    return v if v is not None else strict_curve_at(curve, frame)", "    return v"),
+]
+V4_TESTS = ("S4Bytes", "S4Reveal", "StrictEval")
+
+
+def run_v4_mutations():
+    src = open(R.__file__, encoding="utf-8").read()
+    caught = []
+    for old, new in V4_MUTATIONS:
+        if src.count(old) != 1:
+            caught.append((old[:50], "ANCHOR_MISSING"))
+            continue
+        mod = type(R)("klara_reveal_mut")
+        mod.__dict__["__file__"] = R.__file__
+        exec(compile(src.replace(old, new), R.__file__, "exec"), mod.__dict__)
+        g = globals()
+        saved = g["R"]
+        g["R"] = mod
+        try:
+            suite = unittest.TestSuite()
+            for cls in V4_TESTS:
+                suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(g[cls]))
+            _BYTES.clear()
+            res = unittest.TextTestRunner(stream=open(os.devnull, "w"), verbosity=0).run(suite)
+            caught.append((old[:50], "CAUGHT" if (res.failures or res.errors) else "SURVIVED"))
+        finally:
+            g["R"] = saved
+            _BYTES.clear()
+    return caught
+
+
+class V4Mutations(unittest.TestCase):
+    def test_every_mutation_is_caught(self):
+        rows = run_v4_mutations()
+        bad = [r for r in rows if r[1] != "CAUGHT"]
+        self.assertEqual(bad, [], rows)
+        self.assertEqual(len(rows), len(V4_MUTATIONS))
 
 
 class Args(unittest.TestCase):

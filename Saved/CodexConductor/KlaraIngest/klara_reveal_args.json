@@ -1,8 +1,8 @@
 {
- "mode": "APPLY",
- "confirm": "APPLY KLARAREVEAL",
+ "mode": "DRY",
+ "confirm": "DRY KLARAREVEAL",
  "run_id": null,
- "scene": "1",
+ "scene": "4",
  "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills).",
  "decided_by_note": "Gary 7 Oct (via the conductor): reposition/resize the HANGAR, never her elements; diorama right in front of the camera leaving the passage; floor in total darkness, ceiling rig glow kept; her lights strike one by one; crossfade, no hard switch; Plan A video slot = Sequencer Media track, her nested cinematic fills it until renders exist; intro ends on her first frame, outro starts on her last. APPLY needs decided_by filled by the conductor. NOT Gary's (proposed): lead_cm 600 (range 400-800, coordinator 7 Oct), glide peak <= 300 cm/s, all timing numbers below, strike order near_to_far, roof 'hide_roof'.",
  "slot": "nested_cinematic",
@@ -72,7 +72,9 @@
    "copy": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
    "entry_camera": "Scene 4 — External Sound — Entry Handoff Camera",
    "exit_camera": "Scene 4 — External Sound — Exit Handoff Camera",
-   "glide_camera_label": "S4 Reveal Glide Camera"
+   "glide_camera_label": "S4 Reveal Glide Camera",
+   "reveal_style": "auto",
+   "reveal_style_note": "v4 7 Oct (Gary: adapt her dark opening + pan, or S1-style strike). auto = her_dark_pan when opening_darkness says her first framed view is dark (offline projection: lit fraction 0.0, only SpotLight + SpotLight2 cover her first frame and both are 0 until 5.5-6.5 s), else strike. Set 'her_dark_pan' or 'strike' to force; for strike, scenes.4.lit.frame (her display frame, on the 6-frame grid) pins her lit frame - detection projects 354 (her dolly-back eases in from 351, so the camera is ~6 cm/s there). REVEAL_PLAN.md section 10."
   }
  },
  "allow_lattice_overlap": true,
