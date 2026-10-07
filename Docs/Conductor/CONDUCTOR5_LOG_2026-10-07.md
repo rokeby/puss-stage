@@ -30,3 +30,8 @@
     holdable to ~0.5–1.5 cm via the rzswap REMAP method on live bounds; needs a new actor-level tool (rzswap/swapkit
     only write Show panels). Low value now (Plan A = her cinematic as video, REVEAL_PLAN.md:22). Recommendation:
     not now. Spot-checked: klara_reveal.py:2758-2771 saves her maps (backup + allow-list) [decl]; REVEAL_PLAN.md:22 [decl].
+- **S4 entry report in** (S4_ENTRY_INVESTIGATION_2026-10-07.md): curtain = HER first shot dollies back to x 10241,
+  209 cm behind the P04 backcloth (x 10450) from her frame ~780; glide itself ends in front. Pendulum = BP_Pendulum_C_0
+  with its own Tick rotating PivotRoot (fights her LS keys, which start at her frame 191). Plan: klara_reveal v5
+  `strike_preroll` + klara_preroll_s4.py; DRY gate on her whole camera path. Spot-checked klara_reveal.py:237 and
+  args reveal_style_note [decl].
