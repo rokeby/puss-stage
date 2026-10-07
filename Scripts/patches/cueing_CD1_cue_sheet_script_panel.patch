@@ -1,0 +1,951 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
+new file mode 100644
+index 0000000..98b5f11
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageCueSheet.cpp
+@@ -0,0 +1,371 @@
++#include "InfinityStageCueSheet.h"
++
++#include "HAL/IConsoleManager.h"
++#include "Misc/FileHelper.h"
++#include "Misc/Paths.h"
++
++DEFINE_LOG_CATEGORY_STATIC(LogInfinityStageCueSheet, Log, All);
++
++namespace
++{
++TAutoConsoleVariable<FString> CVarCueSheetPath(
++    TEXT("InfinityStage.CueSheet.Path"),
++    TEXT(""),
++    TEXT("CSV export of the master cue sheet. Empty: Content/InfinityStage/CueSheet/Puss_Master_cue_sheet.csv"));
++
++FString Clean(const FString& Cell)
++{
++    FString Out = Cell;
++    Out.ReplaceInline(TEXT("\r"), TEXT(""));
++    Out.TrimStartAndEndInline();
++    return Out;
++}
++
++enum class ERole : uint8 { None, Number, Light, SoundTech, Action, SoundCue, VideoCue, Speaker, Beat, Notes };
++
++ERole RoleOf(const FString& Header, const int32 Column)
++{
++    const FString H = Header.ToLower();
++    if (H == TEXT("light")) { return ERole::Light; }
++    if (H.StartsWith(TEXT("sound tech"))) { return ERole::SoundTech; }
++    if (H == TEXT("action")) { return ERole::Action; }
++    if (H.StartsWith(TEXT("sound cue"))) { return ERole::SoundCue; }
++    if (H.StartsWith(TEXT("video"))) { return ERole::VideoCue; }
++    if (H.StartsWith(TEXT("speaker"))) { return ERole::Speaker; }
++    if (H.StartsWith(TEXT("beat"))) { return ERole::Beat; }
++    if (H.StartsWith(TEXT("note"))) { return ERole::Notes; }
++    return Column == 0 ? ERole::Number : ERole::None;
++}
++}
++
++bool FInfinityCueSheetRow::IsBlank() const
++{
++    return Number.IsEmpty() && !HasContent() && VideoCue.IsEmpty();
++}
++
++bool FInfinityCueSheetRow::HasContent() const
++{
++    return !Light.IsEmpty() || !SoundTech.IsEmpty() || !Action.IsEmpty() || !SoundCue.IsEmpty()
++        || !Beat.IsEmpty() || !Notes.IsEmpty() || !Lines.IsEmpty() || !VideoCue.IsEmpty();
++}
++
++void FInfinityCueSheet::ParseCsv(const FString& Text, TArray<TArray<FString>>& OutTable)
++{
++    OutTable.Reset();
++    TArray<FString> Row;
++    FString Cell;
++    bool bQuoted = false;
++    const int32 Length = Text.Len();
++    for (int32 Index = 0; Index < Length; ++Index)
++    {
++        const TCHAR Char = Text[Index];
++        if (bQuoted)
++        {
++            if (Char == TEXT('"'))
++            {
++                if (Index + 1 < Length && Text[Index + 1] == TEXT('"'))
++                {
++                    Cell.AppendChar(TEXT('"'));
++                    ++Index;
++                }
++                else
++                {
++                    bQuoted = false;
++                }
++            }
++            else
++            {
++                Cell.AppendChar(Char);
++            }
++            continue;
++        }
++        if (Char == TEXT('"'))
++        {
++            bQuoted = true;
++        }
++        else if (Char == TEXT(','))
++        {
++            Row.Add(Cell);
++            Cell.Reset();
++        }
++        else if (Char == TEXT('\n'))
++        {
++            Row.Add(Cell);
++            Cell.Reset();
++            OutTable.Add(MoveTemp(Row));
++            Row.Reset();
++        }
++        else if (Char != TEXT('\r'))
++        {
++            Cell.AppendChar(Char);
++        }
++    }
++    if (!Cell.IsEmpty() || !Row.IsEmpty())
++    {
++        Row.Add(Cell);
++        OutTable.Add(MoveTemp(Row));
++    }
++}
++
++bool FInfinityCueSheet::LoadFromCsvText(const FString& Text)
++{
++    Rows.Reset();
++    SegmentLabels.Reset();
++    SegmentStartRows.Reset();
++    Speakers.Reset();
++    Warnings.Reset();
++
++    TArray<TArray<FString>> Table;
++    ParseCsv(Text, Table);
++
++    int32 HeaderRow = INDEX_NONE;
++    for (int32 R = 0; R < Table.Num() && HeaderRow == INDEX_NONE; ++R)
++    {
++        for (const FString& Cell : Table[R])
++        {
++            if (Clean(Cell).Equals(TEXT("Light"), ESearchCase::IgnoreCase))
++            {
++                HeaderRow = R;
++                break;
++            }
++        }
++    }
++    if (HeaderRow == INDEX_NONE)
++    {
++        Warnings.Add(TEXT("No header row (no cell reading 'Light'): is this the master cue sheet?"));
++        return false;
++    }
++
++    const TArray<FString>& Header = Table[HeaderRow];
++    TArray<ERole> Roles;
++    TArray<FString> SpeakerOfColumn;
++    for (int32 C = 0; C < Header.Num(); ++C)
++    {
++        Roles.Add(RoleOf(Clean(Header[C]), C));
++        SpeakerOfColumn.Add(FString());
++    }
++    // The row under the header names the speakers ("Klara", "Gary", "Cameron").
++    int32 FirstDataRow = HeaderRow + 1;
++    if (Table.IsValidIndex(HeaderRow + 1))
++    {
++        bool bNamesRow = false;
++        for (int32 C = 0; C < Roles.Num(); ++C)
++        {
++            if (Roles[C] == ERole::Speaker && Table[HeaderRow + 1].IsValidIndex(C) && !Clean(Table[HeaderRow + 1][C]).IsEmpty())
++            {
++                SpeakerOfColumn[C] = Clean(Table[HeaderRow + 1][C]);
++                Speakers.AddUnique(SpeakerOfColumn[C]);
++                bNamesRow = true;
++            }
++        }
++        if (bNamesRow)
++        {
++            FirstDataRow = HeaderRow + 2;
++        }
++    }
++    for (int32 C = 0; C < Roles.Num(); ++C)
++    {
++        if (Roles[C] == ERole::Speaker && SpeakerOfColumn[C].IsEmpty())
++        {
++            SpeakerOfColumn[C] = FString::Printf(TEXT("Speaker %d"), C + 1);
++            Warnings.Add(FString::Printf(TEXT("Speaker column %d has no name under it"), C + 1));
++        }
++    }
++
++    FString CurrentSegment;
++    int32 CurrentOrdinal = INDEX_NONE;
++    for (int32 R = FirstDataRow; R < Table.Num(); ++R)
++    {
++        FInfinityCueSheetRow Row;
++        Row.SourceRow = R + 1;
++        const TArray<FString>& Cells = Table[R];
++        for (int32 C = 0; C < Cells.Num() && C < Roles.Num(); ++C)
++        {
++            const FString Value = Clean(Cells[C]);
++            if (Value.IsEmpty())
++            {
++                continue;
++            }
++            switch (Roles[C])
++            {
++            case ERole::Number: Row.Number = Value; break;
++            case ERole::Light: Row.Light = Value; break;
++            case ERole::SoundTech: Row.SoundTech = Value; break;
++            case ERole::Action: Row.Action = Value; break;
++            case ERole::SoundCue: Row.SoundCue = Value; break;
++            case ERole::VideoCue: Row.VideoCue = Value; break;
++            case ERole::Beat: Row.Beat = Value; break;
++            case ERole::Notes: Row.Notes = Value; break;
++            case ERole::Speaker: Row.Lines.Add({SpeakerOfColumn[C], Value}); break;
++            default: break;
++            }
++        }
++        if (!Row.VideoCue.IsEmpty())
++        {
++            CurrentSegment = Row.VideoCue;
++            CurrentOrdinal = SegmentLabels.Add(Row.VideoCue);
++            SegmentStartRows.Add(Rows.Num());
++        }
++        Row.Segment = CurrentSegment;
++        Row.SegmentOrdinal = CurrentOrdinal;
++        if (!Row.IsBlank())
++        {
++            Rows.Add(MoveTemp(Row));
++        }
++    }
++    UE_LOG(LogInfinityStageCueSheet, Log, TEXT("INFINITY_CUESHEET_LOADED rows=%d segments=%d speakers=%s warnings=%d source=%s"),
++        Rows.Num(), SegmentLabels.Num(), *FString::Join(Speakers, TEXT(",")), Warnings.Num(), *SourcePath);
++    return true;
++}
++
++bool FInfinityCueSheet::LoadFromFile(const FString& Path)
++{
++    SourcePath = Path;
++    FString Text;
++    if (!FFileHelper::LoadFileToString(Text, *Path))
++    {
++        Rows.Reset();
++        Warnings.Reset();
++        Warnings.Add(FString::Printf(TEXT("Cue sheet not found: %s (File > Download > CSV from the Google Sheet)"), *Path));
++        UE_LOG(LogInfinityStageCueSheet, Warning, TEXT("INFINITY_CUESHEET_MISSING path=%s"), *Path);
++        return false;
++    }
++    return LoadFromCsvText(Text);
++}
++
++int32 FInfinityCueSheet::SegmentStartRow(const int32 SegmentOrdinal) const
++{
++    return SegmentStartRows.IsValidIndex(SegmentOrdinal) ? SegmentStartRows[SegmentOrdinal] : INDEX_NONE;
++}
++
++bool FInfinityScriptCursor::Next(const FInfinityCueSheet& Sheet)
++{
++    for (int32 R = Row + 1; R < Sheet.Rows.Num(); ++R)
++    {
++        if (Sheet.Rows[R].HasContent())
++        {
++            Row = R;
++            return true;
++        }
++    }
++    return false;
++}
++
++bool FInfinityScriptCursor::Prev(const FInfinityCueSheet& Sheet)
++{
++    for (int32 R = FMath::Min(Row, Sheet.Rows.Num()) - 1; R >= 0; --R)
++    {
++        if (Sheet.Rows[R].HasContent())
++        {
++            Row = R;
++            return true;
++        }
++    }
++    return false;
++}
++
++void FInfinityScriptCursor::SyncToSegment(const FInfinityCueSheet& Sheet, const int32 SegmentOrdinal)
++{
++    if (SegmentOrdinal == LastSyncedSegment)
++    {
++        return;
++    }
++    LastSyncedSegment = SegmentOrdinal;
++    const int32 Start = Sheet.SegmentStartRow(SegmentOrdinal);
++    if (Start != INDEX_NONE && Start > Row)
++    {
++        Row = Start;
++    }
++}
++
++namespace InfinityStageCueSheet
++{
++FString ResolvePath()
++{
++    const FString Override = CVarCueSheetPath.GetValueOnGameThread();
++    if (!Override.IsEmpty())
++    {
++        return Override;
++    }
++    return FPaths::Combine(FPaths::ProjectContentDir(), TEXT("InfinityStage/CueSheet/Puss_Master_cue_sheet.csv"));
++}
++
++TArray<FString> DescribeLines(const FInfinityCueSheetRow& Row)
++{
++    TArray<FString> Out;
++    for (const FInfinityCueSheetLine& Line : Row.Lines)
++    {
++        Out.Add(FString::Printf(TEXT("%s: %s"), *Line.Speaker.ToUpper(), *Line.Text));
++    }
++    return Out;
++}
++
++FString DescribeActions(const FInfinityCueSheetRow& Row)
++{
++    TArray<FString> Parts;
++    const auto Add = [&Parts](const TCHAR* Tag, const FString& Value)
++    {
++        if (!Value.IsEmpty())
++        {
++            Parts.Add(FString::Printf(TEXT("%s: %s"), Tag, *Value.Replace(TEXT("\n"), TEXT(" / "))));
++        }
++    };
++    Add(TEXT("LX"), Row.Light);
++    Add(TEXT("SND"), Row.SoundTech);
++    Add(TEXT("DO"), Row.Action);
++    Add(TEXT("UE SOUND"), Row.SoundCue);
++    Add(TEXT("STAGE"), Row.VideoCue);
++    Add(TEXT("BEAT"), Row.Beat);
++    Add(TEXT("NOTE"), Row.Notes);
++    return FString::Join(Parts, TEXT("  |  "));
++}
++
++int32 NextStandbyRow(const FInfinityCueSheet& Sheet, const int32 From)
++{
++    for (int32 R = From + 1; R < Sheet.Rows.Num(); ++R)
++    {
++        const FInfinityCueSheetRow& Row = Sheet.Rows[R];
++        if (!Row.Number.IsEmpty() || !Row.VideoCue.IsEmpty() || !Row.Beat.IsEmpty() || !Row.Light.IsEmpty())
++        {
++            return R;
++        }
++    }
++    return INDEX_NONE;
++}
++}
++
++bool UInfinityStageCueDirectorSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
++{
++    return WorldType == EWorldType::Game || WorldType == EWorldType::PIE;
++}
++
++void UInfinityStageCueDirectorSubsystem::Initialize(FSubsystemCollectionBase& Collection)
++{
++    Super::Initialize(Collection);
++    Reload();
++}
++
++bool UInfinityStageCueDirectorSubsystem::Reload()
++{
++    const int32 KeepRow = Cursor.Row;
++    const bool bOk = Sheet.LoadFromFile(InfinityStageCueSheet::ResolvePath());
++    Cursor.Row = Sheet.Rows.IsEmpty() ? 0 : FMath::Clamp(KeepRow, 0, Sheet.Rows.Num() - 1);
++    for (const FString& Warning : Sheet.Warnings)
++    {
++        UE_LOG(LogInfinityStageCueSheet, Warning, TEXT("INFINITY_CUESHEET_WARNING %s"), *Warning);
++    }
++    return bOk;
++}
++
++void UInfinityStageCueDirectorSubsystem::StepLine(const int32 Delta)
++{
++    for (int32 Step = 0; Step < FMath::Abs(Delta); ++Step)
++    {
++        if (!(Delta > 0 ? Cursor.Next(Sheet) : Cursor.Prev(Sheet)))
++        {
++            break;
++        }
++    }
++    UE_LOG(LogInfinityStageCueSheet, Log, TEXT("INFINITY_CUESHEET_CURSOR row=%d sheet_row=%d"),
++        Cursor.Row, Sheet.Rows.IsValidIndex(Cursor.Row) ? Sheet.Rows[Cursor.Row].SourceRow : -1);
++}
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+index 4cdff85..d449a31 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageDirectorHud.cpp
+@@ -18,6 +18,7 @@
+ #include "LevelSequence.h"
+ #include "LevelSequencePlayer.h"
+ #include "MovieScene.h"
++#include "InfinityStageCueSheet.h"
+ #include "SceneInterface.h"
+ #include "SceneView.h"
+ #include "Sections/MovieSceneSubSection.h"
+@@ -32,6 +33,11 @@ TAutoConsoleVariable<int32> CVarInfinityStageDirectorHud(
+     TEXT("-1: auto (default) - on in PIE, off in a packaged or standalone game.\n")
+     TEXT("0: off. 1: on in any game world. Key H in the show viewport toggles it."));
+ 
++TAutoConsoleVariable<int32> CVarInfinityStageDirectorHudScript(
++    TEXT("InfinityStage.DirectorHudScript"),
++    0,
++    TEXT("1: show the script panel (current line, next lines, standby) above the Director HUD strip. H cycles it."));
++
+ /** No Show Root in the world: look again at most this often (never a per-frame actor walk). */
+ constexpr double RootSearchIntervalSeconds = 2.0;
+ 
+@@ -101,10 +107,59 @@ bool IsEnabledForWorld(const UWorld* World)
+     return World && IsEnabledFor(CVarInfinityStageDirectorHud.GetValueOnGameThread(), World->WorldType);
+ }
+ 
++void NextMode(const bool bStripOn, const bool bScriptOn, bool& bOutStripOn, bool& bOutScriptOn)
++{
++    if (!bStripOn)
++    {
++        bOutStripOn = true;
++        bOutScriptOn = false;
++    }
++    else if (!bScriptOn)
++    {
++        bOutStripOn = true;
++        bOutScriptOn = true;
++    }
++    else
++    {
++        bOutStripOn = false;
++        bOutScriptOn = false;
++    }
++}
++
++bool IsScriptPanelEnabledForWorld(const UWorld* World)
++{
++    return IsEnabledForWorld(World) && CVarInfinityStageDirectorHudScript.GetValueOnGameThread() > 0;
++}
++
+ void Toggle(const UWorld* World)
+ {
+-    const bool bNow = IsEnabledForWorld(World);
+-    CVarInfinityStageDirectorHud->Set(bNow ? 0 : 1, ECVF_SetByConsole);
++    bool bStrip = false;
++    bool bScript = false;
++    NextMode(IsEnabledForWorld(World), IsScriptPanelEnabledForWorld(World), bStrip, bScript);
++    CVarInfinityStageDirectorHud->Set(bStrip ? 1 : 0, ECVF_SetByConsole);
++    CVarInfinityStageDirectorHudScript->Set(bScript ? 1 : 0, ECVF_SetByConsole);
++}
++
++TArray<FString> WrapText(const FString& Text, const int32 MaxChars)
++{
++    TArray<FString> Out;
++    TArray<FString> Words;
++    Text.Replace(TEXT("\n"), TEXT(" ")).ParseIntoArrayWS(Words);
++    FString Line;
++    for (const FString& Word : Words)
++    {
++        if (!Line.IsEmpty() && Line.Len() + 1 + Word.Len() > FMath::Max(8, MaxChars))
++        {
++            Out.Add(Line);
++            Line.Reset();
++        }
++        Line += Line.IsEmpty() ? Word : TEXT(" ") + Word;
++    }
++    if (!Line.IsEmpty())
++    {
++        Out.Add(Line);
++    }
++    return Out;
+ }
+ 
+ int32 NearestBay(const TArray<double>& SortedStationDistancesCm, const double DistanceCm)
+@@ -468,6 +523,11 @@ void UInfinityStageDirectorHudSubsystem::Draw(UCanvas* Canvas, APlayerController
+     Band.BlendMode = SE_BLEND_Translucent;
+     Canvas->DrawItem(Band);
+ 
++    if (InfinityStageDirectorHud::IsScriptPanelEnabledForWorld(World))
++    {
++        DrawScriptPanel(Canvas, Font, TopY - 8.0f, State);
++    }
++
+     FCanvasTextItem TopItem(FVector2D(Left, TopY), FText::FromString(Top), Font, FLinearColor(1.0f, 0.86f, 0.35f));
+     TopItem.EnableShadow(FLinearColor::Black);
+     Canvas->DrawItem(TopItem);
+@@ -478,3 +538,105 @@ void UInfinityStageDirectorHudSubsystem::Draw(UCanvas* Canvas, APlayerController
+         Canvas->DrawItem(BottomItem);
+     }
+ }
++
++void UInfinityStageDirectorHudSubsystem::DrawScriptPanel(
++    UCanvas* Canvas,
++    UFont* Font,
++    const float BottomOfPanel,
++    const FInfinityDirectorHudState& State)
++{
++    UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr;
++    if (!Director)
++    {
++        return;
++    }
++    // Sheet segment k is the stage's segment k (Opening, P1, S1, I1, P2 ...): the stage moving on
++    // pulls the script cursor forward; it never pulls it back.
++    if (State.SegmentIndex != INDEX_NONE)
++    {
++        Director->SyncToSegment(State.SegmentIndex);
++    }
++    const FInfinityCueSheet& Sheet = Director->GetSheet();
++    struct FPanelLine
++    {
++        FString Text;
++        FLinearColor Color;
++    };
++    TArray<FPanelLine> Lines;
++    float CharWidth = 0.0f;
++    float CharHeight = 0.0f;
++    Canvas->StrLen(Font, TEXT("M"), CharWidth, CharHeight);
++    const int32 MaxChars = FMath::Max(40, FMath::FloorToInt32((Canvas->ClipX - 40.0f) / FMath::Max(1.0f, CharWidth * 0.62f)));
++    const FLinearColor Amber(1.0f, 0.62f, 0.2f);
++    const FLinearColor White(1.0f, 1.0f, 1.0f);
++    const FLinearColor Dim(0.62f, 0.66f, 0.72f);
++    const FLinearColor Cyan(0.45f, 0.9f, 1.0f);
++    const auto Add = [&Lines, MaxChars](const FString& Text, const FLinearColor& Color)
++    {
++        for (const FString& Wrapped : InfinityStageDirectorHud::WrapText(Text, MaxChars))
++        {
++            Lines.Add({Wrapped, Color});
++        }
++    };
++
++    if (Sheet.Rows.IsEmpty())
++    {
++        Add(Sheet.Warnings.IsEmpty() ? FString(TEXT("Cue sheet: no rows")) : Sheet.Warnings[0], Amber);
++    }
++    else
++    {
++        const int32 Current = FMath::Clamp(Director->GetCursor().Row, 0, Sheet.Rows.Num() - 1);
++        const FInfinityCueSheetRow& Row = Sheet.Rows[Current];
++        const FString StageLabel = State.SegmentLabel;
++        const FString SheetLabel = Row.Segment.IsEmpty() ? FString(TEXT("(pre-show)")) : Row.Segment;
++        const bool bAgree = Row.SegmentOrdinal == State.SegmentIndex;
++        Add(FString::Printf(TEXT("SCRIPT  sheet row %d%s   sheet: %s   stage: %s%s"),
++            Row.SourceRow, Row.Number.IsEmpty() ? TEXT("") : *FString::Printf(TEXT("  [cue %s]"), *Row.Number),
++            *SheetLabel, *StageLabel, bAgree ? TEXT("") : TEXT("   (script and stage differ)")),
++            bAgree ? Dim : Amber);
++        const FString Actions = InfinityStageCueSheet::DescribeActions(Row);
++        if (!Actions.IsEmpty())
++        {
++            Add(TEXT("> ") + Actions, Cyan);
++        }
++        for (const FString& Spoken : InfinityStageCueSheet::DescribeLines(Row))
++        {
++            Add(TEXT("> ") + Spoken, White);
++        }
++        int32 Shown = 0;
++        for (int32 R = Current + 1; R < Sheet.Rows.Num() && Shown < 2; ++R)
++        {
++            if (!Sheet.Rows[R].HasContent())
++            {
++                continue;
++            }
++            ++Shown;
++            const TArray<FString> Spoken = InfinityStageCueSheet::DescribeLines(Sheet.Rows[R]);
++            Add(TEXT("  next: ") + (Spoken.IsEmpty() ? InfinityStageCueSheet::DescribeActions(Sheet.Rows[R]) : Spoken[0]), Dim);
++        }
++        const int32 Standby = InfinityStageCueSheet::NextStandbyRow(Sheet, Current);
++        if (Standby != INDEX_NONE)
++        {
++            const FInfinityCueSheetRow& Next = Sheet.Rows[Standby];
++            Add(FString::Printf(TEXT("STANDBY%s  %s"),
++                Next.Number.IsEmpty() ? TEXT("") : *FString::Printf(TEXT(" [cue %s]"), *Next.Number),
++                *InfinityStageCueSheet::DescribeActions(Next)), Amber);
++        }
++    }
++
++    const float LineHeight = Font->GetMaxCharHeight() + 3.0f;
++    const float Height = Lines.Num() * LineHeight + 10.0f;
++    const float Top = BottomOfPanel - Height;
++    FCanvasTileItem Band(FVector2D(0.0f, Top), FVector2D(Canvas->ClipX, Height), FLinearColor(0.0f, 0.0f, 0.0f, 0.7f));
++    Band.BlendMode = SE_BLEND_Translucent;
++    Canvas->DrawItem(Band);
++    float Y = Top + 5.0f;
++    for (const FPanelLine& Line : Lines)
++    {
++        FCanvasTextItem Item(FVector2D(16.0f, Y), FText::FromString(Line.Text), Font, Line.Color);
++        Item.EnableShadow(FLinearColor::Black);
++        Canvas->DrawItem(Item);
++        Y += LineHeight;
++    }
++}
++
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+index ddf5cf7..5399dc2 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageShowGameMode.cpp
+@@ -1,4 +1,5 @@
+ #include "InfinityStageShowGameMode.h"
++#include "InfinityStageCueSheet.h"
+ 
+ #include "GameFramework/PlayerController.h"
+ #include "Components/InputComponent.h"
+@@ -50,6 +51,34 @@ void AInfinityStageShowPlayerController::SetupInputComponent()
+     InputComponent->BindKey(EKeys::Left, IE_Released, this, &AInfinityStageShowPlayerController::EndLeftInput);
+     InputComponent->BindKey(EKeys::SpaceBar, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleShowPlayback);
+     InputComponent->BindKey(EKeys::H, IE_Pressed, this, &AInfinityStageShowPlayerController::ToggleDirectorHud);
++    // Script cursor (Cue Director): a presentation clicker sends PageDown / PageUp.
++    InputComponent->BindKey(EKeys::PageDown, IE_Pressed, this, &AInfinityStageShowPlayerController::NextScriptLine);
++    InputComponent->BindKey(EKeys::PageUp, IE_Pressed, this, &AInfinityStageShowPlayerController::PreviousScriptLine);
++    InputComponent->BindKey(EKeys::F5, IE_Pressed, this, &AInfinityStageShowPlayerController::ReloadCueSheet);
++}
++
++void AInfinityStageShowPlayerController::NextScriptLine()
++{
++    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
++    {
++        Director->StepLine(1);
++    }
++}
++
++void AInfinityStageShowPlayerController::PreviousScriptLine()
++{
++    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
++    {
++        Director->StepLine(-1);
++    }
++}
++
++void AInfinityStageShowPlayerController::ReloadCueSheet()
++{
++    if (UInfinityStageCueDirectorSubsystem* Director = GetWorld() ? GetWorld()->GetSubsystem<UInfinityStageCueDirectorSubsystem>() : nullptr)
++    {
++        UE_LOG(LogTemp, Display, TEXT("INFINITY_CUESHEET_RELOAD ok=%d"), Director->Reload() ? 1 : 0);
++    }
+ }
+ 
+ void AInfinityStageShowPlayerController::ToggleDirectorHud()
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
+new file mode 100644
+index 0000000..dc0d258
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageCueSheet.h
+@@ -0,0 +1,126 @@
++#pragma once
++
++#include "CoreMinimal.h"
++#include "Subsystems/WorldSubsystem.h"
++#include "InfinityStageCueSheet.generated.h"
++
++/**
++ * Puss Cue Director, CD1: the performance cue sheet (Gary, 7 Oct).
++ *
++ * Gary's Google Sheet "Puss_Master_cue_sheet" is the source of truth for the ORDER
++ * of the show: script lines (one column per speaker), department actions (Light,
++ * Sound tech, Action, Sound cue), the digital segment a row starts (Video Cue),
++ * Scene beats and notes. It is exported to CSV and read here; nothing is written
++ * to the Show or the level. Discrepancies with the UE stage are reported, never
++ * blocking ("my UE stage and cameron's sound ... might not be fully consistent").
++ */
++
++/** One spoken line in a row: who says it, and what. */
++struct INFINITYSTAGE_API FInfinityCueSheetLine
++{
++    FString Speaker;
++    FString Text;
++};
++
++/** One sheet row, already sorted into roles. */
++struct INFINITYSTAGE_API FInfinityCueSheetRow
++{
++    /** 1-based row in the CSV, for "see the sheet, row 37". */
++    int32 SourceRow = 0;
++    /** Column A: the show-wide cue number ("3", "12.5"), or empty. */
++    FString Number;
++    FString Light;
++    FString SoundTech;
++    FString Action;
++    FString SoundCue;
++    /** Non-empty where a digital segment starts (Opening, Passage 1, S1 Animals ...). */
++    FString VideoCue;
++    FString Beat;
++    FString Notes;
++    TArray<FInfinityCueSheetLine> Lines;
++    /** The Video Cue in force at this row (carried down), and its 0-based order. -1 before the first. */
++    FString Segment;
++    int32 SegmentOrdinal = INDEX_NONE;
++
++    bool IsBlank() const;
++    /** Anything for a person to do or say (not just a number or a segment label). */
++    bool HasContent() const;
++};
++
++struct INFINITYSTAGE_API FInfinityCueSheet
++{
++    TArray<FInfinityCueSheetRow> Rows;
++    /** Each Video Cue label, in order; index = segment ordinal. */
++    TArray<FString> SegmentLabels;
++    /** First row index of each segment ordinal. */
++    TArray<int32> SegmentStartRows;
++    TArray<FString> Speakers;
++    TArray<FString> Warnings;
++    FString SourcePath;
++
++    /** RFC-4180 CSV: quoted cells may hold commas, quotes ("") and newlines. */
++    static void ParseCsv(const FString& Text, TArray<TArray<FString>>& OutTable);
++
++    /** Finds the header row (a cell "Light"), names the speaker columns from the row below it. */
++    bool LoadFromCsvText(const FString& Text);
++    bool LoadFromFile(const FString& Path);
++
++    int32 SegmentStartRow(int32 SegmentOrdinal) const;
++};
++
++/**
++ * Where we are in the script. Moves forward by itself only when the stage reaches a
++ * new segment; otherwise the operator (Klara) steps it. It never steps back by itself.
++ */
++struct INFINITYSTAGE_API FInfinityScriptCursor
++{
++    int32 Row = 0;
++    int32 LastSyncedSegment = INDEX_NONE;
++
++    /** Next / previous row that has content. Return false at either end. */
++    bool Next(const FInfinityCueSheet& Sheet);
++    bool Prev(const FInfinityCueSheet& Sheet);
++    /** The stage is in this segment ordinal: move up to its first row if behind; never back. */
++    void SyncToSegment(const FInfinityCueSheet& Sheet, int32 SegmentOrdinal);
++};
++
++namespace InfinityStageCueSheet
++{
++/** Project default: Content/InfinityStage/CueSheet/Puss_Master_cue_sheet.csv (console InfinityStage.CueSheet.Path overrides). */
++INFINITYSTAGE_API FString ResolvePath();
++
++/** "KLARA: Once upon a time ..." lines of a row, one per speaker. */
++INFINITYSTAGE_API TArray<FString> DescribeLines(const FInfinityCueSheetRow& Row);
++
++/** "LX: ... | SND: ... | DO: ... | CUE: ... | NOTE: ..." for a row; empty parts left out. */
++INFINITYSTAGE_API FString DescribeActions(const FInfinityCueSheetRow& Row);
++
++/** The next row after From that is a "standby" moment: a cue number, a Video Cue or a beat. */
++INFINITYSTAGE_API int32 NextStandbyRow(const FInfinityCueSheet& Sheet, int32 From);
++}
++
++/** Holds the sheet and the script cursor for one game world (PIE or the show). */
++UCLASS()
++class INFINITYSTAGE_API UInfinityStageCueDirectorSubsystem : public UWorldSubsystem
++{
++    GENERATED_BODY()
++
++public:
++    virtual void Initialize(FSubsystemCollectionBase& Collection) override;
++
++    /** Re-reads the CSV (F5 in the show viewport): Gary exports a new sheet mid-rehearsal. */
++    bool Reload();
++
++    void StepLine(int32 Delta);
++    void SyncToSegment(int32 SegmentOrdinal) { Cursor.SyncToSegment(Sheet, SegmentOrdinal); }
++
++    const FInfinityCueSheet& GetSheet() const { return Sheet; }
++    const FInfinityScriptCursor& GetCursor() const { return Cursor; }
++
++protected:
++    virtual bool DoesSupportWorldType(const EWorldType::Type WorldType) const override;
++
++private:
++    FInfinityCueSheet Sheet;
++    FInfinityScriptCursor Cursor;
++};
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h
+index 630051a..85d5d9a 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageDirectorHud.h
+@@ -67,9 +67,18 @@ INFINITYSTAGE_API bool IsEnabledFor(int32 ConsoleValue, EWorldType::Type WorldTy
+ /** The effective switch for a world, read from the console variable. */
+ INFINITYSTAGE_API bool IsEnabledForWorld(const UWorld* World);
+ 
+-/** Flips the console variable relative to its effective value in this world. */
++/** H cycles: off -> strip -> strip + script panel -> off (Gary, 7 Oct: "press H twice to see script"). */
+ INFINITYSTAGE_API void Toggle(const UWorld* World);
+ 
++/** The pure cycle behind Toggle. */
++INFINITYSTAGE_API void NextMode(bool bStripOn, bool bScriptOn, bool& bOutStripOn, bool& bOutScriptOn);
++
++/** The script panel is shown (only ever with the strip). */
++INFINITYSTAGE_API bool IsScriptPanelEnabledForWorld(const UWorld* World);
++
++/** Greedy word wrap to MaxChars per line (no measuring: the panel uses a fixed-width budget). */
++INFINITYSTAGE_API TArray<FString> WrapText(const FString& Text, int32 MaxChars);
++
+ /** 1-based index of the station nearest DistanceCm (ties go to the later one); 0 when empty. */
+ INFINITYSTAGE_API int32 NearestBay(const TArray<double>& SortedStationDistancesCm, double DistanceCm);
+ 
+@@ -113,6 +122,7 @@ protected:
+ 
+ private:
+     void Draw(UCanvas* Canvas, APlayerController* PlayerController);
++    void DrawScriptPanel(UCanvas* Canvas, UFont* Font, float BottomOfPanel, const FInfinityDirectorHudState& State);
+     AInfinityStageShowRoot* FindShowRoot();
+     void RebuildSegmentCache(const AInfinityStageShowRoot& Root, int32 SegmentIndex);
+ 
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+index 526d66b..e5e001d 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageShowGameMode.h
+@@ -28,6 +28,9 @@ public:
+     /** H: shows or hides the Director's bottom-row HUD (InfinityStage.DirectorHud). */
+     UFUNCTION(BlueprintCallable, Category = "Infinity Stage|Transport")
+     void ToggleDirectorHud();
++    void NextScriptLine();
++    void PreviousScriptLine();
++    void ReloadCueSheet();
+ 
+ protected:
+     virtual void SetupInputComponent() override;
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
+new file mode 100644
+index 0000000..4265fd6
+--- /dev/null
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageCueSheetTests.cpp
+@@ -0,0 +1,141 @@
++#include "InfinityStageCueSheet.h"
++#include "InfinityStageDirectorHud.h"
++#include "Misc/AutomationTest.h"
++
++#if WITH_DEV_AUTOMATION_TESTS
++
++namespace
++{
++// The shape of Gary's Puss_Master_cue_sheet (7 Oct): a blank first row, the header row,
++// speaker names under the Speaker columns, number-only separator rows, a multi-line cell.
++const TCHAR* SheetCsv =
++    TEXT(",,,,,,,,,,\n")
++    TEXT(",Light,Sound tech,Action,Sound cue,Video Cue,Speaker,Speaker,Speaker,Beats,Notes\n")
++    TEXT(",,,,,,Klara,Gary,Cameron,,\n")
++    TEXT("1,Black out / lamps on table on,,,,,,,,,\n")
++    TEXT(",,,world elements,,,\"Once upon a time, there lived an old man.\",,,,\n")
++    TEXT(",,\"Lav mic 2 (GZZ) off\nGZZ mic on table on\",Cameron passes control of the dog to Gary,,,,,,,\n")
++    TEXT(",,,,,,,\"here my boy, take this \"\"cat\"\"\",,,\n")
++    TEXT("3,,,,,,,,,,\n")
++    TEXT(",,,,Opening,Curtain opening to fully lit stage/passage,,,,,\n")
++    TEXT(",(State 2) warm from the sides,,,,Passage 1,,,,,Klara needs sound cue\n")
++    TEXT(",,,,,,Puss walked for four days,,,,\n")
++    TEXT(",(State 3) green and yellow,,,,S1 Animals,,,,,\n")
++    TEXT(",,,,,,,,,B1: establish,\n")
++    TEXT(",,,,,,,,whimper,,\n");
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCueSheetCsvTest,
++    "InfinityStage.CueDirector.CsvParses",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageCueSheetCsvTest::RunTest(const FString& Parameters)
++{
++    TArray<TArray<FString>> Table;
++    FInfinityCueSheet::ParseCsv(TEXT("a,\"b, c\",\"say \"\"hi\"\"\"\r\nx,\"two\nlines\",z"), Table);
++    TestEqual(TEXT("Two records (a quoted newline is not a record break)"), Table.Num(), 2);
++    if (Table.Num() == 2)
++    {
++        TestEqual(TEXT("Quoted comma stays in the cell"), Table[0][1], FString(TEXT("b, c")));
++        TestEqual(TEXT("Doubled quotes become one"), Table[0][2], FString(TEXT("say \"hi\"")));
++        TestEqual(TEXT("CRLF does not leak into the last cell"), Table[0].Last(), FString(TEXT("say \"hi\"")));
++        TestEqual(TEXT("Quoted newline kept inside the cell"), Table[1][1], FString(TEXT("two\nlines")));
++    }
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageCueSheetLoadTest,
++    "InfinityStage.CueDirector.SheetMapsRolesSpeakersSegments",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageCueSheetLoadTest::RunTest(const FString& Parameters)
++{
++    FInfinityCueSheet Sheet;
++    TestTrue(TEXT("The sheet loads"), Sheet.LoadFromCsvText(SheetCsv));
++    TestEqual(TEXT("Speakers come from the row under the header"), FString::Join(Sheet.Speakers, TEXT(",")), FString(TEXT("Klara,Gary,Cameron")));
++    TestEqual(TEXT("Three digital segments (Video Cue rows)"), Sheet.SegmentLabels.Num(), 3);
++    TestEqual(TEXT("Segment 1 is Passage 1"), Sheet.SegmentLabels.IsValidIndex(1) ? Sheet.SegmentLabels[1] : FString(), FString(TEXT("Passage 1")));
++    TestEqual(TEXT("Blank rows are dropped; number-only rows kept"), Sheet.Rows.Num(), 11);
++    if (Sheet.Rows.Num() == 11)
++    {
++        TestEqual(TEXT("Column A is the cue number"), Sheet.Rows[0].Number, FString(TEXT("1")));
++        TestEqual(TEXT("Light column"), Sheet.Rows[0].Light, FString(TEXT("Black out / lamps on table on")));
++        TestEqual(TEXT("Klara's line is attributed to Klara"),
++            Sheet.Rows[1].Lines.Num() == 1 ? Sheet.Rows[1].Lines[0].Speaker : FString(), FString(TEXT("Klara")));
++        TestTrue(TEXT("A multi-line Sound tech cell survives"), Sheet.Rows[2].SoundTech.Contains(TEXT("\n")));
++        TestEqual(TEXT("Gary's quoted line keeps its quotes"),
++            Sheet.Rows[3].Lines.Num() == 1 ? Sheet.Rows[3].Lines[0].Text : FString(), FString(TEXT("here my boy, take this \"cat\"")));
++        TestEqual(TEXT("Rows before the first Video Cue are pre-show"), Sheet.Rows[3].SegmentOrdinal, int32(INDEX_NONE));
++        TestEqual(TEXT("A Video Cue row starts its segment"), Sheet.Rows[5].SegmentOrdinal, 0);
++        TestEqual(TEXT("Rows carry the segment in force"), Sheet.Rows[7].Segment, FString(TEXT("Passage 1")));
++        TestEqual(TEXT("Cameron's whimper is in S1"), Sheet.Rows[10].SegmentOrdinal, 2);
++        TestEqual(TEXT("Segment starts point at their rows"), Sheet.SegmentStartRow(2), 8);
++    }
++
++    FInfinityCueSheet NotASheet;
++    TestFalse(TEXT("Control: a CSV without the header row is refused"), NotASheet.LoadFromCsvText(TEXT("a,b\nc,d\n")));
++    TestEqual(TEXT("...with one warning saying why"), NotASheet.Warnings.Num(), 1);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageScriptCursorTest,
++    "InfinityStage.CueDirector.CursorStepsAndNeverRunsBackByItself",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageScriptCursorTest::RunTest(const FString& Parameters)
++{
++    FInfinityCueSheet Sheet;
++    Sheet.LoadFromCsvText(SheetCsv);
++    FInfinityScriptCursor Cursor;
++    TestTrue(TEXT("Next steps forward"), Cursor.Next(Sheet));
++    TestEqual(TEXT("...to the next row with content"), Cursor.Row, 1);
++    Cursor.Row = 3;
++    Cursor.Next(Sheet);
++    TestEqual(TEXT("Number-only separator rows are skipped"), Cursor.Row, 5);
++
++    Cursor.SyncToSegment(Sheet, 2);
++    TestEqual(TEXT("The stage reaching S1 pulls the script cursor forward"), Cursor.Row, 8);
++    Cursor.SyncToSegment(Sheet, 1);
++    TestEqual(TEXT("The stage going back does NOT pull the cursor back"), Cursor.Row, 8);
++    TestTrue(TEXT("The operator can step back"), Cursor.Prev(Sheet));
++    TestEqual(TEXT("...to the previous row with content"), Cursor.Row, 7);
++    Cursor.Row = 9;
++    Cursor.SyncToSegment(Sheet, 2);
++    TestEqual(TEXT("Control: re-syncing the same segment never moves the operator's place"), Cursor.Row, 9);
++    return true;
++}
++
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageDirectorHudCycleTest,
++    "InfinityStage.CueDirector.HCyclesStripScriptOff",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++bool FInfinityStageDirectorHudCycleTest::RunTest(const FString& Parameters)
++{
++    bool bStrip = false;
++    bool bScript = false;
++    InfinityStageDirectorHud::NextMode(false, false, bStrip, bScript);
++    TestTrue(TEXT("Off -> strip"), bStrip && !bScript);
++    InfinityStageDirectorHud::NextMode(true, false, bStrip, bScript);
++    TestTrue(TEXT("Strip -> strip + script (H twice)"), bStrip && bScript);
++    InfinityStageDirectorHud::NextMode(true, true, bStrip, bScript);
++    TestTrue(TEXT("Script -> off (H a third time)"), !bStrip && !bScript);
++
++    const TArray<FString> Wrapped = InfinityStageDirectorHud::WrapText(TEXT("one two three four five six seven"), 10);
++    TestTrue(TEXT("Wrapping keeps every line within the budget"),
++        Wrapped.Num() > 1 && Wrapped.FindByPredicate([](const FString& L) { return L.Len() > 10; }) == nullptr);
++    TestEqual(TEXT("...and loses no words"), FString::Join(Wrapped, TEXT(" ")), FString(TEXT("one two three four five six seven")));
++
++    FInfinityCueSheet Sheet;
++    Sheet.LoadFromCsvText(SheetCsv);
++    TestEqual(TEXT("Standby after the opening finds the next numbered or staged row"),
++        InfinityStageCueSheet::NextStandbyRow(Sheet, 0), 4);
++    TestTrue(TEXT("Actions are tagged by department"),
++        InfinityStageCueSheet::DescribeActions(Sheet.Rows[2]).Contains(TEXT("SND: Lav mic 2 (GZZ) off / GZZ mic on table on")));
++    return true;
++}
++
++#endif
