@@ -1,5 +1,7 @@
 # S3 hand prints: "clamber" layout over the set-B dunes (7 Oct 2026)
 
+> **SUPERSEDED (7 Oct, later the same evening) by section 6, GREASE SHEEN.** Gary, on the v1 composite: "these clamber patterns are much too regular, think of the smear, we're talking reflective smear from earlier, the sheen not the stain". **Do not run the v1 APPLY in section 5.** The v1 `clamber` placer mode and its table are left in place: the mode is additive and pinned, and it is harmless unless someone runs it.
+
 Gary (7 Oct, his words): dunes set B (~2.4 m at the walls) "seems fine, but prints can go up higher than only 20cm
 more, since the implication should be that people are trying to clamber out desperately".
 
@@ -101,3 +103,113 @@ The backup is at `hp_place_decals.py.bak-20261007-preclamber`. Harness test 11 p
 - The umap snapshots are `Backups/PreHPS03Revert-*` and `Backups/PreHPS03Clamber-*`.
 
 **Approval:** steps 1 and 3 are level writes. They are reversible and backed up. The layout is a look decision, and Gary's own words ask for it. Show these previews first.
+
+
+## 6. GREASE SHEEN layer (v2: replaces the stain layout)
+
+The redo is OFFLINE only: no MCP call and no commit. Tiers are as above.
+
+### What it is
+
+Every row is a **grease decal for the grime stream's roughness-led master**. That master is the graph of `M_ZZ_S3MG_GreaseDecal`, built in `s3mg_bench.py:413-465`:
+
+- Opacity = GreaseAtlas.R × GreaseGain;
+- Roughness = 0.30 + 0.25 × GreaseAtlas.G;
+- Normal = print normal × 0.25;
+- **no BaseColor** [decl].
+
+The prints therefore read only where they break the marble's reflection.
+
+**Files**, all in `Saved/CodexFlatV3/handprints/clamber/`:
+
+| File | Role |
+|---|---|
+| `hp_grease_config.json` | Seed 20261008 and every knob |
+| `hp_grease_layout.py` | The generator. It reuses v1's floor rule, envelope, frame and exclusions |
+| `placement_S03_grease.json` | sha256 `850851ea6633e072f0b0a2b410a0c4c38fc190e38bbaa33c6adcd4c5e11fbf60`. The schema is `hp_grease_placement/1`, deliberately **not** `hp_placement/1`, so the v3 stain placer refuses it (`hp_place_decals.py` schema gate). Labels are `HP_S03G <wall> <nnnn>` |
+| `hp_grease_preview.py` → `previews_grease/` | Previews |
+| `test_hp_grease.py` → `test_hp_grease_report.json` | **6/6 PASS** [meas]. The v1 harness also still passes 11/11 |
+
+### Layout [meas unless marked]
+
+**Totals.** 1034 decals: L 490, R 544.
+
+- 52 % are smears. Smear lengths are 16 / 80 / 231 cm (min / median / max), stretched anisotropically ×1.1–2.6 along and ×0.8–1.35 across.
+- 83 % of the palm prints are **partial**: fingers, tips, heel, or the left/right half of a hand. Each partial is a fixed sub-rect of an atlas element.
+- Decals by kind: zone (dense scrabble) 290, cloud 289, drag 287, wipe arc 119, stray 37, stray_high 12.
+
+**Irregularity, against v1 as the − control:**
+
+| Measure | Grease (v2) | v1 clamber |
+|---|---|---|
+| Climb "ladders" (≥4 same-element steps of 15–45 cm) | 0 | 36 |
+| Mirrored hand pairs 38–60 cm apart | 2 | 40 |
+| Circular SD of print roll | 77° | 29° |
+
+No event places anything at a fixed step:
+
+- **Scrabble zones** are a union of 3–6 gaussian blobs over every per-metre dune peak ≥ 0.6 × the wall max, plus 1–3 random ones. Each holds 30–70 overlapping partials and short drags rising 60–260 cm from the dune line.
+- **Clouds** are 4–12 partials in a gaussian blob.
+- **Drags** are 2–5 overlapping smears, vertical ±12° or diagonal 25–60°, pointing either way.
+- **Wipes** are 4–9 smear or heel pieces along a circular arc, each piece's long axis on the tangent.
+- **Strays** are single decals. 25 % of them are high outliers: L 2 and R 10, up to 7.6–7.9 m, with ceilings 760–880.
+
+**Floor rule** (unchanged in spirit):
+
+- A decal is REJECTED, not clamped, if its lowest rotated extent is below the per-metre set-B dune max + 20 + a 4 cm face-strip allowance. Clamping would have piled decals into a line.
+- The allowance comes from the grid: the sand rises up to 3.84 cm (R) / 2.39 cm (L) within the 10 cm the decal box reaches into the room. v2's first build failed the fine-grid check by 0.29 cm on one decal, and that is how the allowance was found.
+- Result: 0 violations at the face and 0 against the built grid. Minimum margin 24.1 cm. + control: a decal lowered to 10 cm above the dune is caught.
+
+**Envelope** (unchanged): non-outliers stay ≤ top(a), which runs 3.6–7.2 m. Above 4.5 m there are 56 decals per wall. + control: a decal raised 500 cm is caught.
+
+**Rules carried over:** 0 keep-out (mural/door) violations, 0 lamp/wave hits, and the drip rule (±30°) holds. Same seed + same inputs gives identical bytes, seed+1 differs, and the one-draw lint is clean.
+
+**Opacity varies widely** through 3 GreaseGain levels baked into the pool. Counts by gain: 0.60 → 452, 0.85 → 298, 1.0 → 284. On top of that come the atlas's own feathered R and the overlaps. Per-decal opacity would need one MI per decal.
+
+### Material instances (the pool)
+
+The pool is **144 entries; 142 are used**: 104 print and 40 smear entries, each a unique (element, crop, flip, gain). They are built by seeded draws, and a crop with grease mean R < 0.05 is redrawn. The proposed names are `MI_HP_S03_g1_<element>_<crop>_F<flip>_G<gain×100>` under `/Game/Scenes/Scene3/HandPrints/Materials/Grease` (the table's `mi_pool` lists each one's element, crop and gain).
+
+- **Cheaper option [inf]:** if the bench shows that a `DecalColor` material node works, crop and gain could ride on DecalColor and the pool would shrink to about 50. The v2 stain master's DecalColor selection "rendered nothing" on 6 Oct, with the cause unknown, so this is not assumed.
+- Any import must be batched at ≤ 20 per call with GC, per the 213-MI OOM lesson.
+
+### Albedo: proposed NONE (pure sheen)
+
+On the non-Substrate DBuffer, one opacity drives colour, normal and roughness together (`DecalCommon.ush:108-113`, per the grime prep doc) [decl]. Any colour a grease decal writes is therefore stamped at full grease opacity.
+
+The **faint option** is shown in `main_cam_faint.png`: albedo × (1 − 0.06 × B). It can only be done approximately, as BaseColor = marble mean × (1 − 0.06·B), which is valid only because Marble021 is near-white [inf]. My recommendation is none. Choosing between the two is Gary's call.
+
+### Previews (`Saved/CodexFlatV3/handprints/clamber/previews_grease/`)
+
+**Main camera** (same pose as v1). The dunes are ray-marched, and the R wall is re-shaded with the **C_soft model of `s3mg_preview_soft.py`**: 500 cd strips with feathered SourceTexture and DiffuseScale 0.1. Ls and spill are read from its calibrated report, and exposure is re-fitted on the floathold still the same way. It is a fake-specular sketch [inf for the real render].
+
+| File | What it shows |
+|---|---|
+| `main_cam_sheen.png` | Proposed: strips + grease, no albedo |
+| `main_cam_faint.png` | The faint-albedo option |
+| `main_cam_room_only.png` | No strips |
+| `sheet_main_cam.png` | All of the above on one sheet |
+
+[meas] Within the strip highlights, grease pixels have median luma 0.80 against 0.87 for clean ones (2561 grease pixels in the highlights). **With room light only, the grease nearly vanishes:** outside the highlights, clean vs grease medians are 0.58 vs 0.60. This is the grime stream's earlier finding: the sheen needs something to reflect.
+
+**Elevations:**
+
+- `sheen_L.png` / `sheen_R.png` (1 px = 1 cm): lit by a REVIEW light of 3 rows of feathered panels. This is not the show lighting; it is only there so the grease is visible everywhere.
+- `mask_L.png` / `mask_R.png`: the grease opacity alone, which is the easiest way to judge the distribution.
+- `sheen_both_small.png`: both walls at reduced size.
+
+**Placement versus the strips [meas].** In the main frame the C_soft strips reflect at wall x 14493–15368, z 222–269. With dune-weighted placement (v2 first build, along weight base 0.25) that band held **no** grease, because the dunes there are low, at 21–70 cm. I raised the base weight to 0.7, since people were everywhere and not only on the dunes. **Whatever cue lights the walls decides where the sheen reads.** The strips and this layout should be designed together.
+
+### One unified grease layer (proposal for the grime stream and the conductor)
+
+1. This table becomes **the** S3 hand-print layer. The 449 v3 stain decals are reverted (`hp_revert_decals_request.json`), and the grime bench's 60 per-print grease decals, which SNAP onto old print decals, are retired. Prints and grease are no longer two layers.
+2. **Bench (PIE, no save).** `s3mg_bench.py` prespawns its pool from the in-frame rows of `placement_S03_grease.json` instead of `geometry.json`'s 60 print labels. Each row becomes a grease decal at the row's world transform, attached KEEP_WORLD to its wall actor. Its MID gets AtlasU0/V0/USize/VSize = `grease_uv_rect`, FlipU = `flip`, GreaseGain = `gain`.
+
+   In the current frame that is 89 R-wall decals inside the strip window (x 14000–15850). This is a change to the grime stream's file, so it is theirs to make. Its PIE apply/restore logic is otherwise unchanged.
+3. **APPLY (later, after Gary picks).** In order:
+   - (a) save the grease master as a real asset, `M_HP_S03_Grease`, with the same graph as the bench;
+   - (b) create the 142 MIs in batches of ≤ 20, with GC between them;
+   - (c) add a new placer mode, or a sibling of `hp_place_decals.py`, that reads `hp_grease_placement/1`, resolves `material_instance` from `material.mi_dir`, and uses tag `HP_S03G` and label prefix `HP_S03G `. Everything else follows the v3 placer pattern: backup, record first, read back, a ZZ_ guard before the save, a level-only save, and a clean census.
+
+   The revert is then the same pattern under its own tag. **None of (a)–(c) is written yet.** They need Gary's look approval and the grime stream's agreement on the master.
+4. **Knock-on effects (section 4) still apply.** In particular, `s3_marble_tiling_apply.py` hard-codes `HP_EXPECTED = 449` (`:66`) and will fail its verify once the stain decals are reverted.

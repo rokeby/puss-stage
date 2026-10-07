@@ -1,0 +1,76 @@
+{
+ "ran": 6,
+ "failures": 0,
+ "errors": 0,
+ "results": {
+  "determinism": {
+   "table_sha256": "850851ea6633e072f0b0a2b410a0c4c38fc190e38bbaa33c6adcd4c5e11fbf60",
+   "identical": true,
+   "other_seed_differs": true,
+   "lint": 0
+  },
+  "floor": {
+   "violations": 0,
+   "fine_grid_violations": 0,
+   "min_margin_cm": 24.12
+  },
+  "envelope": {
+   "L": {
+    "max_cm": 755.0,
+    "above_450": 56,
+    "high_outliers": 2
+   },
+   "R": {
+    "max_cm": 791.4,
+    "above_450": 56,
+    "high_outliers": 10
+   }
+  },
+  "irregularity": {
+   "ladders_grease_vs_v1": [
+    0,
+    36
+   ],
+   "mirror_pairs_grease_vs_v1": [
+    2,
+    40
+   ],
+   "print_roll_circular_sd_deg_grease_vs_v1": [
+    77.3,
+    28.7
+   ],
+   "smear_share": 0.52,
+   "partial_share_of_prints": 0.831,
+   "smear_length_cm_min_p50_max": [
+    16.2,
+    79.7,
+    230.8
+   ],
+   "gains": {
+    "0.6": 452,
+    "0.85": 298,
+    "1.0": 284
+   },
+   "decals_by_kind": {
+    "cloud": 289,
+    "wipe": 119,
+    "drag": 287,
+    "stray": 37,
+    "zone": 290,
+    "stray_high": 12
+   }
+  },
+  "keepout_exclusions_drips": {
+   "violations": 0
+  },
+  "pool": {
+   "pool": 144,
+   "used": 142,
+   "count": 1034,
+   "per_wall": {
+    "L": 490,
+    "R": 544
+   }
+  }
+ }
+}

@@ -49,6 +49,7 @@ REPEAT_CM = 150.0
 SEAM_Z = 605.0                     # base liner top: world 600 = 605 above the floor top
 STAIN_GAIN = 0.9                   # sketch opacity on the atlas alpha (live OpacityGain not read)
 STAIN_RGB = (62.0, 46.0, 36.0)     # sketch stain colour, eyeballed from the old prints in the 17:32 still
+LAST = {}
 
 
 def sha(p: Path) -> str:
@@ -294,6 +295,8 @@ def composite(doc, walls, layers, boxes_all, res=(1600, 900)):
     base = np.array([0.80, 0.70, 0.54])[None] * (1 - mudw[:, None]) + np.array([0.45, 0.39, 0.32])[None] * mudw[:, None]
     out[is_dune] = base * (0.38 + 0.62 * lam)[:, None]
     out[is_wave] = still.reshape(-1, 3)[is_wave]
+    LAST.update(ground=out.copy(), is_dune=is_dune, is_wave=is_wave, is_wall=is_wall, which=which, t_wall=t_wall,
+                D=D2, C=C, res=res, still=still)          # reused by hp_grease_preview.py
     # walls
     marble = np.asarray(Image.open(MARBLE).convert("L"), np.float32) / 255.0
     mmean = marble.mean()

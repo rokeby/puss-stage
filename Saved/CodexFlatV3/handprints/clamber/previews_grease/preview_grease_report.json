@@ -1,0 +1,43 @@
+{
+ "placement_sha256": "850851ea6633e072f0b0a2b410a0c4c38fc190e38bbaa33c6adcd4c5e11fbf60",
+ "walls": {
+  "L": {
+   "mean_grease_opacity_on_wall_0_950": 0.0084,
+   "decals": 490
+  },
+  "R": {
+   "mean_grease_opacity_on_wall_0_950": 0.0103,
+   "decals": 544
+  }
+ },
+ "main_cam": {
+  "wall_px": 425189,
+  "decals_rasterised": 89,
+  "highlight_px": 29956,
+  "lum_highlight_clean_p50": 0.8662,
+  "lum_highlight_grease_p50": 0.7952,
+  "grease_px_in_highlight": 2561,
+  "lum_outside_highlight_clean_vs_grease_p50": [
+   0.5811,
+   0.6024
+  ],
+  "Ls_500": 79.795,
+  "spill_500": 0.037226475,
+  "exposure_k": [
+   0.2219,
+   0.175,
+   0.1464
+  ]
+ },
+ "outputs": {
+  "sheen_L.png": "4bd4b4ab0e9b57c54a9091c33b0eabb0296f31f172e28a71fcc16a19106ccdcc",
+  "mask_L.png": "6cb93041d7b25533de3a488e3f2214042027ebef4338c13800ac21662e059d23",
+  "sheen_R.png": "2cedd8e145ccf1b7fe533ed25f6bcdd758b7ef5b2e935dcd2be843ba955b1247",
+  "mask_R.png": "bd7a6e85a0ec998c123dd6d426693828be84b6f1e0c2644549b04d82a4098800",
+  "sheen_both_small.png": "6fb3e157d64737010ee67356ca989ed9c215af0341e8a5b9f894b834b5c06cfb",
+  "main_cam_sheen.png": "d538b36c3310693b9e444d16e7aa4d4ce6f110477559b886308372459ff03478",
+  "main_cam_faint.png": "28843de4c4bc12c760d441ed287c8eed36bd9273dd0baa2a899bc22aed456151",
+  "main_cam_room_only.png": "2687b189da2836d28b7d3f86b502f303daba9b1d02bc5a27878da71bb6c58aa2",
+  "sheet_main_cam.png": "d4c72819de02b426f492a4476789f3659cd2e7a746246d63a14d59fe253ab13c"
+ }
+}
