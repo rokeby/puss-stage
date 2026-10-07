@@ -180,3 +180,12 @@
   wind ripples "a bit too regular" (→ varying wavelength/direction, bifurcations, patchy); stair-step terracing in the
   big heaps flagged by conductor → fix. Sand texture: "hi res search and 2k fallback" → search (disk + CC0/Fab, list
   only, no downloads) + anti-tiling M_S3_ShoreGround_v2 (create-only) being written (S3_SAND_TEXTURE_2026-10-07.md).
+- Editor handed to Gary (clean) for camera angles.
+- **Waves (Gary):** current sawtooth too simple, rows don't work together; moody/cool (Whistler backdrop) but with
+  contrast; front "wave-pattern shaped" flats, staggered rolling-ocean rows behind, foam rows at back; + better art,
+  motion, lighting/depth → offline redesign running (S3_WAVES_REDESIGN_2026-10-07.md), previews first.
+- **Props tool** 19ae8af (135/135, not run). Findings: Fab clam transform KEYED in LS_Clams → APPLY skips re-seat, so the
+  stand-in clam would sit ~45–53 cm INSIDE the stone [inf, floor assumed] until the Tridacna lands (options: accept /
+  offset LS_Clams keys +50 cm / hold); pedestal revealed by a LS_S3_HangarRise visibility track → APPLY hides at
+  component level + copies that reveal to the stone (saves LS_S3_HangarRise too); ~1 m clam fits the top with 0
+  overhang [meas from FBX: flat ±1.5 cm zone 108×104 cm].
