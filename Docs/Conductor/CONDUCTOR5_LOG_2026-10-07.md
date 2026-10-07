@@ -145,3 +145,11 @@
   (s3_mural_lower.py; keeps the exit-door mimic consistent). Dunes: "expected a more differentiated pile up against
   wall" → passed to the dune pass. After the next step is placed Gary will look at waves + directional lighting himself
   (manual).
+- Gary Q: do the S3 wave flats have V3 textures? → YES as built (DerivedAssets/FlatV3/Scene3/waves/REPORT.md:6-13:
+  Front/Flap/Timber/Edge slots, SkinColor/Mask/Normal, flaps, LOD1, colour sampled from the built backdrop skin);
+  live actors "S3 Wave Split Row*" on SM_FlatV3_S3_WaveRow*_A/B [meas probe_waves.json 5 Oct]; MI per slot not
+  re-read since. Extended 14.3 m _v2 meshes still parked (FlatV3Status.md:229).
+- Directing (Gary, new): (1) the "table rock thing we made" REPLACES the clam pedestal (old: tg0pfjxda_tier_0 /
+  Clam_Pedastal) — identify actor live, check clam seating, keep it seated in the shore re-sculpt; (2) PEARL: separate
+  pearl from the Fab "Clam with Pearl V2" in Blender (export static+skeletal from UE → split loose parts → NEW
+  SM_S3_Pearl + SM/SK Clam_NoPearl on the same skeleton; no in-place reimport), glow param for B07; preview first.
