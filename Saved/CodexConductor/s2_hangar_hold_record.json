@@ -1,0 +1,182 @@
+{
+ "schema": 1,
+ "tool": "s4_hangar_hold",
+ "scene": 2,
+ "run": "S2HOLD-20261007-103955",
+ "applied": true,
+ "decided_by": "Gary 7 Oct (own answers, conductor session): hold S1 (+roof on) / 'Yes, hold S2 and S3 too' - hangar stays landed for the whole Scene",
+ "plan": {
+  "range": [
+   775,
+   2025
+  ],
+  "targets": [
+   {
+    "binding": "S2 Hangar Root",
+    "values": {
+     "Location.X": 11104.483469893386,
+     "Location.Y": 80954.38804069262,
+     "Location.Z": 0.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": -43.57251940082824,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_255",
+    "editor_relative": {
+     "loc": [
+      11104.483469893386,
+      80954.38804069262,
+      0.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      -43.57252120971681
+     ]
+    }
+   },
+   {
+    "binding": "S2 Hangar Roof Hinge",
+    "values": {
+     "Location.X": 0.0,
+     "Location.Y": 0.0,
+     "Location.Z": 3000.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_268",
+    "editor_relative": {
+     "loc": [
+      0.0,
+      0.0,
+      3000.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S2 Hangar Lattice Fly",
+    "values": {
+     "Location.X": 2999.9999999999955,
+     "Location.Y": 4.774847184307873e-12,
+     "Location.Z": 1200.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_270",
+    "editor_relative": {
+     "loc": [
+      2999.9999999999955,
+      4.774847184307873e-12,
+      1200.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "scene": 2,
+  "coexisting_scene_tracks": [],
+  "fold": {
+   "track": "Hangar Fold",
+   "range": [
+    0,
+    775
+   ],
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S2_HangarRise",
+   "active": true,
+   "completion": "KEEP_STATE",
+   "start_offset_tick": 0,
+   "play_rate": 1.0,
+   "play_rate_read": false
+  },
+  "rise_end_tick": 744000,
+  "scene_tpf": 960,
+  "not_held_rise_tracks": [
+   "LightComponent0/MovieSceneFloatTrack",
+   "S2 Hangar Pinned Exposure/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "P02 End Drape (stand-in)/MovieSceneGeometryCacheTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack"
+  ],
+  "completion": "KEEP_STATE"
+ },
+ "backup": "E:/PussStage/Backups\\PreS2HangarHold-S2HOLD-20261007-103955",
+ "source_sha256": "3df53cb67dc9a6e51ec30d1cc2de7e5c813b7fc4470a6039a72e3707bb3f8a23",
+ "written": "2026-10-07T10:39:55.593066",
+ "bindings": [
+  {
+   "binding": "S2 Hangar Root",
+   "guid": "F1E6740F4A220E3BC804BF8726F4F294",
+   "created": true
+  },
+  {
+   "binding": "S2 Hangar Roof Hinge",
+   "guid": "806D4E504832E5AB1D7372A6FCFD2307",
+   "created": true
+  },
+  {
+   "binding": "S2 Hangar Lattice Fly",
+   "guid": "CF7928DF44B8FF7569A71C8B6DF4B6EC",
+   "created": true
+  }
+ ],
+ "applied_at": "2026-10-07T10:39:55.754832",
+ "saved_sha256": "74dc0725391538d82110aeacf50f18c1012f1d4ef0dbee235899b23e7989d40e"
+}

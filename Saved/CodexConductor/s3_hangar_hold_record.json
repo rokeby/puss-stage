@@ -1,0 +1,199 @@
+{
+ "schema": 1,
+ "tool": "s4_hangar_hold",
+ "scene": 3,
+ "run": "S3HOLD-20261007-104009",
+ "applied": true,
+ "decided_by": "Gary 7 Oct (own answers, conductor session): hold S1 (+roof on) / 'Yes, hold S2 and S3 too' - hangar stays landed for the whole Scene",
+ "plan": {
+  "range": [
+   744,
+   6240
+  ],
+  "targets": [
+   {
+    "binding": "S3 Hangar Lattice Fly",
+    "values": {
+     "Location.X": 3000.0,
+     "Location.Y": 0.0,
+     "Location.Z": 1200.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_601",
+    "editor_relative": {
+     "loc": [
+      3000.0,
+      0.0,
+      1200.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S3 Hangar Roof Hinge",
+    "values": {
+     "Location.X": 0.0,
+     "Location.Y": 0.0,
+     "Location.Z": 3000.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_599",
+    "editor_relative": {
+     "loc": [
+      0.0,
+      0.0,
+      3000.000000000001
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   },
+   {
+    "binding": "S3 Hangar Root",
+    "values": {
+     "Location.X": 11421.97275,
+     "Location.Y": 160000.0,
+     "Location.Z": -120.0,
+     "Rotation.X": 0.0,
+     "Rotation.Y": 0.0,
+     "Rotation.Z": 0.0,
+     "Scale.X": 1.0,
+     "Scale.Y": 1.0,
+     "Scale.Z": 1.0
+    },
+    "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_589",
+    "editor_relative": {
+     "loc": [
+      11421.97275,
+      160000.0,
+      -120.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   }
+  ],
+  "scene": 3,
+  "coexisting_scene_tracks": [],
+  "fold": {
+   "track": "Hangar Fold",
+   "range": [
+    0,
+    744
+   ],
+   "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+   "active": true,
+   "completion": "KEEP_STATE",
+   "start_offset_tick": 0,
+   "play_rate": 1.0,
+   "play_rate_read": false
+  },
+  "rise_end_tick": 744000,
+  "scene_tpf": 1000,
+  "not_held_rise_tracks": [
+   "LightComponent0/MovieSceneFloatTrack",
+   "P03 End Drape (stand-in)/MovieSceneGeometryCacheTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "S3 Hangar Pinned Exposure/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "tg0pfjxda_tier_0/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "Clam_with_Pearl_Clam_with_Pearl_0/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "Shore02_F52 Clam/MovieSceneVisibilityTrack",
+   "Shore03_M59 Clam/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "Shore06_F25 Clam/MovieSceneVisibilityTrack",
+   "Shore05_M53 Clam/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "Shore01_M56 Clam/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "Shore04_F55 Clam/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "source_Anim/MovieSceneVisibilityTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack",
+   "LightComponent0/MovieSceneFloatTrack"
+  ],
+  "completion": "KEEP_STATE"
+ },
+ "backup": "E:/PussStage/Backups\\PreS3HangarHold-S3HOLD-20261007-104009",
+ "source_sha256": "174bd0a4b39573961f533ec895e469c2a5ab07ea25d857fe258395180d07c198",
+ "written": "2026-10-07T10:40:09.384976",
+ "bindings": [
+  {
+   "binding": "S3 Hangar Lattice Fly",
+   "guid": "5BE0947441BEFC6E809FE198A6566434",
+   "created": true
+  },
+  {
+   "binding": "S3 Hangar Roof Hinge",
+   "guid": "475FF1CC4AFCAADA32701B87DED7E120",
+   "created": true
+  },
+  {
+   "binding": "S3 Hangar Root",
+   "guid": "E2BFE245433CDA785E2FB4A5E5CE8871",
+   "created": true
+  }
+ ],
+ "applied_at": "2026-10-07T10:40:09.554346",
+ "saved_sha256": "776c2cc5946b87b8a4f2e078a03f701e3772ce22cdc982cee2eeb6d0dd24dc56"
+}

@@ -1,9 +1,10 @@
 {
  "mode": "APPLY",
- "scene": 4,
- "confirm": "APPLY S4HOLD",
+ "scene": 3,
+ "confirm": "APPLY S3HOLD",
  "run_id": null,
  "completion": "KEEP_STATE",
- "completion_note": "KEEP_STATE matches the Fold section and the pre-relength behaviour (hangar stays landed after S4 ends). Proposed, not Gary's.",
- "decided_by": "Gary 7 Oct (own words, conductor session): the skylight should never get into the S4 hangar; hold it landed (measured: hangar returns to REST past frame 775)"
+ "completion_note": "KEEP_STATE matches the Fold section and the S4 hold (APPLIED S4HOLD-20261007-102817). Proposed, not Gary's.",
+ "scene_note": "scene in {1,2,3,4}; confirm '<MODE> S<n>HOLD'; S4 already APPLIED (s4_hangar_hold_record.json) - re-APPLY refuses RECORD_EXISTS",
+ "decided_by": "Gary 7 Oct (own answers, conductor session): hold S1 (+roof on) / 'Yes, hold S2 and S3 too' - hangar stays landed for the whole Scene"
 }

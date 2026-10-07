@@ -45,7 +45,7 @@
   {
    "api": "CineCameraComponent filmback",
    "ok": true,
-   "result": "\"<Struct 'CameraFilmbackSettings' (0x000002C9E942C18C) {sensor_width: 23.760000, sensor_height: 13.365000, sensor_horizontal_offset: 0.000000, sensor_vertical_o",
+   "result": "\"<Struct 'CameraFilmbackSettings' (0x000001C3312F358C) {sensor_width: 23.760000, sensor_height: 13.365000, sensor_horizontal_offset: 0.000000, sensor_vertical_o",
    "tier": "prec curtain_sleight.py:1614"
   },
   {
@@ -75,7 +75,7 @@
   {
    "api": "MovieSceneSectionParameters.start_frame_offset (v3 slot offset)",
    "ok": true,
-   "result": "\"<Struct 'FrameNumber' (0x000002CC75E03A80) {value: 0}>\"",
+   "result": "\"<Struct 'FrameNumber' (0x000001C858F91500) {value: 0}>\"",
    "tier": "decl MovieSceneSectionParameters.h:76; units inf (ticks), decided by APPLY's parent-frame read-back"
   },
   {
@@ -85,9 +85,21 @@
    "tier": "prec klara_hookin.py:1156"
   },
   {
+   "api": "SceneComponent.get_world_rotation + SpotLightComponent outer_cone_angle (v4 opening_darkness)",
+   "ok": true,
+   "result": "[True, 44.0]",
+   "tier": "inf"
+  },
+  {
+   "api": "MovieSceneFadeTrack (v4 fade at her frame)",
+   "ok": true,
+   "result": "True",
+   "tier": "inf"
+  },
+  {
    "api": "InfinityStageCelestialRig foreign_lighting_exempt_levels",
    "ok": true,
-   "result": "<Array object at 0x000002C6D4B3D930>",
+   "result": "<Array object at 0x000001C2B0A2E470>",
    "tier": "commit e0e04ed (built)"
   }
  ],
@@ -95,7 +107,7 @@
   "allow_lattice_overlap": true,
   "comfort_cm": 300.0,
   "confirm": "DRY KLARAREVEAL",
-  "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills).",
+  "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills). | S4 (Gary 7 Oct, conductor session): adapt her dark opening / glide in the dark (reveal_style auto -> her_dark_pan); 'Rebuild the S4 hangar bigger' (resized in place HANGARRESIZES4-20261007-092739).",
   "decided_by_note": "Gary 7 Oct (via the conductor): reposition/resize the HANGAR, never her elements; diorama right in front of the camera leaving the passage; floor in total darkness, ceiling rig glow kept; her lights strike one by one; crossfade, no hard switch; Plan A video slot = Sequencer Media track, her nested cinematic fills it until renders exist; intro ends on her first frame, outro starts on her last. APPLY needs decided_by filled by the conductor. NOT Gary's (proposed): lead_cm 600 (range 400-800, coordinator 7 Oct), glide peak <= 300 cm/s, all timing numbers below, strike order near_to_far, roof 'hide_roof'.",
   "footprint_max_size_cm": 4000.0,
   "hookin_hangars": {
@@ -103,7 +115,8 @@
     "lattice_z": 1200.0
    },
    "4": {
-    "lattice_z": 1200.0
+    "lattice_z": 1700.0,
+    "lattice_z_note": "7 Oct: S4 hangar resize (hangar_resize_s4.py; S4_HANGAR_REBUILD_PLAN.md) - valid only once HANGAR_RESIZE_S4_APPLY_OK; was 1200"
    }
   },
   "intro": {
@@ -156,6 +169,8 @@
     "exit_camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
     "glide_camera_label": "S1 Reveal Glide Camera",
     "level": "/Game/KK_S1_Animals/L_Animals",
+    "roof": "keep",
+    "roof_note": "Gary 7 Oct (own answer, conductor session): S1 'Hold it, and keep the roof on too'",
     "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01"
    },
    "4": {
@@ -167,6 +182,14 @@
     "other_levels": [
      "/Game/KK_S1_Animals/L_Animals"
     ],
+    "placement": {
+     "lead_max_cm": 1500.0
+    },
+    "placement_decided_by": "Conductor 7 Oct (approved S4_HANGAR_REBUILD_PLAN.md): S4 only, lead_max 800 -> 1500 because her own first camera sits 1459 cm in (her set reaches ~959 cm behind it; a hangar resize cannot change that). Not Gary's number; her camera position is hers.",
+    "reveal_style": "auto",
+    "reveal_style_note": "v4 7 Oct (Gary: adapt her dark opening + pan, or S1-style strike). auto = her_dark_pan when opening_darkness says her first framed view is dark (offline projection: lit fraction 0.0, only SpotLight + SpotLight2 cover her first frame and both are 0 until 5.5-6.5 s), else strike. Set 'her_dark_pan' or 'strike' to force; for strike, scenes.4.lit.frame (her display frame, on the 6-frame grid) pins her lit frame - detection projects 354 (her dolly-back eases in from 351, so the camera is ~6 cm/s there). REVEAL_PLAN.md section 10.",
+    "roof": "keep",
+    "roof_note": "Gary 7 Oct (own words, conductor session): 'I don't think the skylight should ever get into the hangar for this scene' -> S4 keeps its roof",
     "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04"
    }
   },
@@ -184,45 +207,45 @@
   "arrival": {
    "land_s_transient": 4.1261,
    "pre_scene_float_drives": [
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_22.LightComponent0' (0x000002CB72845F00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_23.LightComponent0' (0x000002CB72848700) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_24.LightComponent0' (0x000002CB72849100) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_25.LightComponent0' (0x000002CB7284C300) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_26.LightComponent0' (0x000002CB72893C00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_27.LightComponent0' (0x000002CB72683200) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_28.LightComponent0' (0x000002CB726F2800) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_29.LightComponent0' (0x000002CB729E1E00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_30.LightComponent0' (0x000002CB72A93C00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_31.LightComponent0' (0x000002CB72A94600) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_32.LightComponent0' (0x000002CB72A95000) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_33.LightComponent0' (0x000002CB72A95A00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_34.LightComponent0' (0x000002CB72A96400) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_35.LightComponent0' (0x000002CB72A96E00) Class 'SpotLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_26.LightComponent0' (0x000002CB72A1BE00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_27.LightComponent0' (0x000002CB72A22D00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_28.LightComponent0' (0x000002CB72A29B00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_29.LightComponent0' (0x000002CB72A30A00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_30.LightComponent0' (0x000002CB72A38200) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_31.LightComponent0' (0x000002CB72A3F000) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_32.LightComponent0' (0x000002CB72A45F00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_33.LightComponent0' (0x000002CB72A4CD00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_34.LightComponent0' (0x000002CB72A52800) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_35.LightComponent0' (0x000002CB72A55000) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_36.LightComponent0' (0x000002CB72A5BE00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_37.LightComponent0' (0x000002CB72A62D00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_38.LightComponent0' (0x000002CB72A69B00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_39.LightComponent0' (0x000002CB73010A00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_40.LightComponent0' (0x000002CB73018200) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_41.LightComponent0' (0x000002CB7301F000) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_42.LightComponent0' (0x000002CB73025F00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_43.LightComponent0' (0x000002CB7302CD00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_44.LightComponent0' (0x000002CB73033C00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_45.LightComponent0' (0x000002CB73035A00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_46.LightComponent0' (0x000002CB73036400) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_47.LightComponent0' (0x000002CB73036E00) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_48.LightComponent0' (0x000002CB73037800) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_49.LightComponent0' (0x000002CB73038200) Class 'PointLightComponent'>",
-    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_1' (0x000002CB720E9A00) Class 'PostProcessVolume'>"
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_22.LightComponent0' (0x000001C6BD58F500) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_23.LightComponent0' (0x000001C6BD5A0000) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_24.LightComponent0' (0x000001C6BD5A0A00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_25.LightComponent0' (0x000001C6BD5A3C00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_26.LightComponent0' (0x000001C6BD5A5000) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_27.LightComponent0' (0x000001C6BD5A5A00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_28.LightComponent0' (0x000001C6BD5A6400) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_29.LightComponent0' (0x000001C6BD5A6E00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_30.LightComponent0' (0x000001C6BD5A8200) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_31.LightComponent0' (0x000001C6BD5A8C00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_32.LightComponent0' (0x000001C6BD5A9600) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_33.LightComponent0' (0x000001C6BD5B9100) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_34.LightComponent0' (0x000001C6BD5D8700) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_35.LightComponent0' (0x000001C6BD681E00) Class 'SpotLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_26.LightComponent0' (0x000001C68CCEE600) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_27.LightComponent0' (0x000001C68CDB4100) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_28.LightComponent0' (0x000001C68CDEB400) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_29.LightComponent0' (0x000001C68CE10F00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_30.LightComponent0' (0x000001C68CE18700) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_31.LightComponent0' (0x000001C68CE1F500) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_32.LightComponent0' (0x000001C68CE26400) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_33.LightComponent0' (0x000001C68CE2D200) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_34.LightComponent0' (0x000001C68CE32D00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_35.LightComponent0' (0x000001C68CE33700) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_36.LightComponent0' (0x000001C68CE34100) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_37.LightComponent0' (0x000001C68CE34B00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_38.LightComponent0' (0x000001C68CE35500) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_39.LightComponent0' (0x000001C68CE35F00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_40.LightComponent0' (0x000001C68CE37300) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_41.LightComponent0' (0x000001C68CE37D00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_42.LightComponent0' (0x000001C68CE38700) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_43.LightComponent0' (0x000001C68CE39100) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_44.LightComponent0' (0x000001C68CE39B00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_45.LightComponent0' (0x000001C68CE3A500) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_46.LightComponent0' (0x000001C68CE3AF00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_47.LightComponent0' (0x000001C68CE3B900) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_48.LightComponent0' (0x000001C68CE3C300) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PointLight_49.LightComponent0' (0x000001C68CE3CD00) Class 'PointLightComponent'>",
+    "<Object '/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.PostProcessVolume_1' (0x000001C6BD155400) Class 'PostProcessVolume'>"
    ],
    "strike_after_land_s": 5.8667083333333325
   },
@@ -294,7 +317,7 @@
     "guid": "5264B448384A9D11181911B00EF0B9D7",
     "range": [
      0,
-     6241
+     6151
     ]
    },
    {
@@ -302,8 +325,8 @@
     "camera": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
     "guid": "609D24C3A94564B50497A0B55008EAC9",
     "range": [
-     6241,
-     6266
+     6151,
+     6176
     ]
    }
   ],
@@ -329,8 +352,8 @@
   },
   "exit_camera": {
    "aperture": 2.799999952316284,
-   "focal": 25.0,
-   "focus": 600.0,
+   "focal": 35.0,
+   "focus": 100000.0,
    "label": "Scene 1 \u2014 External Sound \u2014 Exit Handoff Camera",
    "loc": [
     28784.0135,
@@ -1749,6 +1772,38 @@
     -311,
     404
    ],
+   "eval": {
+    "Location.X": {
+     "interp_at": null,
+     "nearest_key_frames": 2350.0,
+     "value": 31805.0135
+    },
+    "Location.Y": {
+     "interp_at": null,
+     "nearest_key_frames": 2350.0,
+     "value": 120.0
+    },
+    "Location.Z": {
+     "interp_at": null,
+     "nearest_key_frames": 2350.0,
+     "value": 77.0
+    },
+    "Rotation.X": {
+     "interp_at": null,
+     "nearest_key_frames": 2347.0,
+     "value": 4.279735609956023e-15
+    },
+    "Rotation.Y": {
+     "interp_at": null,
+     "nearest_key_frames": 2347.0,
+     "value": 3.0
+    },
+    "Rotation.Z": {
+     "interp_at": null,
+     "nearest_key_frames": 2347.0,
+     "value": 0.0
+    }
+   },
    "fps": 30.0,
    "frame": -310,
    "lens_tracks": {
@@ -1805,6 +1860,38 @@
     2137,
     6008
    ],
+   "eval": {
+    "Location.X": {
+     "interp_at": null,
+     "nearest_key_frames": 3898.0,
+     "value": 32365.0135
+    },
+    "Location.Y": {
+     "interp_at": null,
+     "nearest_key_frames": 3898.0,
+     "value": 99.0
+    },
+    "Location.Z": {
+     "interp_at": null,
+     "nearest_key_frames": 3898.0,
+     "value": 38.0
+    },
+    "Rotation.X": {
+     "interp_at": null,
+     "nearest_key_frames": 3898.0,
+     "value": 4.304617626298092e-15
+    },
+    "Rotation.Y": {
+     "interp_at": null,
+     "nearest_key_frames": 3898.0,
+     "value": 3.0
+    },
+    "Rotation.Z": {
+     "interp_at": null,
+     "nearest_key_frames": 3898.0,
+     "value": 3.0
+    }
+   },
    "fps": 30.0,
    "frame": 6007,
    "lens_tracks": {
@@ -1838,6 +1925,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": 0.0,
@@ -1845,37 +1933,47 @@
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -248000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -228000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -226400,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 2772000,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 2840000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -1899,6 +1997,12 @@
      140.0000069313969
     ],
     "name": "SpotLight_8",
+    "radius": 1000.0,
+    "rot": [
+     0.0,
+     -90.0,
+     0.0
+    ],
     "target_first": 0.0,
     "target_last": 0.0,
     "target_lit": 8.0,
@@ -1913,6 +2017,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": null,
@@ -1920,23 +2025,29 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -220800,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -218400,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -204800,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -1960,6 +2071,12 @@
      225.0
     ],
     "name": "SpotLight_11",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999988,
+     -60.99999999999992,
+     42.99999999999994
+    ],
     "target_first": 0.0,
     "target_last": 8.0,
     "target_lit": 8.0,
@@ -1974,6 +2091,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": null,
@@ -1981,23 +2099,29 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -208000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -197600,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -189600,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2021,6 +2145,12 @@
      225.0
     ],
     "name": "SpotLight_13",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999988,
+     -60.99999999999992,
+     42.99999999999994
+    ],
     "target_first": 0.0,
     "target_last": 8.0,
     "target_lit": 8.0,
@@ -2035,6 +2165,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": null,
@@ -2042,37 +2173,47 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -227200,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -196000,
-        "value": 4.800000190734863
+        "value": 4.800000190734863,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -188800,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -180800,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -172800,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2096,6 +2237,12 @@
      225.0
     ],
     "name": "SpotLight_15",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999988,
+     -60.99999999999992,
+     42.99999999999994
+    ],
     "target_first": 0.0,
     "target_last": 8.0,
     "target_lit": 8.0,
@@ -2110,6 +2257,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": null,
@@ -2117,23 +2265,29 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -227200,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -205600,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -199200,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2157,6 +2311,12 @@
      225.0
     ],
     "name": "SpotLight_17",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999986,
+     -52.999999999999915,
+     -49.999999999999915
+    ],
     "target_first": 0.0,
     "target_last": 8.0,
     "target_lit": 8.0,
@@ -2171,6 +2331,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 66.09600067138672,
     "curves": {
      "Intensity": {
       "default": null,
@@ -2178,37 +2339,47 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -227200,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -220000,
-        "value": 7.26609992980957
+        "value": 7.26609992980957,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -217600,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -210400,
-        "value": 8.548399925231934
+        "value": 8.548399925231934,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -181600,
-        "value": 8.548399925231934
+        "value": 8.548399925231934,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2232,6 +2403,12 @@
      193.0
     ],
     "name": "SpotLight_18",
+    "radius": 1000.0,
+    "rot": [
+     -13.000000000000002,
+     -26.0,
+     -34.0
+    ],
     "target_first": 0.0,
     "target_last": 8.548399925231934,
     "target_lit": 8.548399925231934,
@@ -2246,6 +2423,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 80.0,
     "curves": {
      "Intensity": {
       "default": null,
@@ -2253,37 +2431,47 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -205600,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -197600,
-        "value": 4.800000190734863
+        "value": 4.800000190734863,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -189600,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -177600,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -168800,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2307,6 +2495,12 @@
      -45.0
     ],
     "name": "SpotLight_19",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999998,
+     30.999999999999993,
+     6.0
+    ],
     "target_first": 0.0,
     "target_last": 8.0,
     "target_lit": 8.0,
@@ -2321,6 +2515,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": null,
@@ -2328,23 +2523,29 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -221600,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -217600,
-        "value": 8.548399925231934
+        "value": 8.548399925231934,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -198400,
-        "value": 8.548399925231934
+        "value": 8.548399925231934,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2368,6 +2569,12 @@
      193.0
     ],
     "name": "SpotLight_20",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999998,
+     -46.99999999999999,
+     -26.999999999999982
+    ],
     "target_first": 0.0,
     "target_last": 8.548399925231934,
     "target_lit": 8.548399925231934,
@@ -2382,6 +2589,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": 0.0,
@@ -2389,37 +2597,47 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -228000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -212000,
-        "value": 19.920000076293945
+        "value": 19.920000076293945,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -204000,
-        "value": 19.920000076293945
+        "value": 19.920000076293945,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": 3020000,
-        "value": 19.920000076293945
+        "value": 19.920000076293945,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": 3068800,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2443,6 +2661,12 @@
      141.0
     ],
     "name": "SpotLight_22",
+    "radius": 1000.0,
+    "rot": [
+     -0.0,
+     -68.0,
+     -112.0
+    ],
     "target_first": 0.0,
     "target_last": 0.0,
     "target_lit": 19.920000076293945,
@@ -2457,6 +2681,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": 0.0,
@@ -2464,51 +2689,65 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -228000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -225600,
-        "value": 16.93199920654297
+        "value": 16.93199920654297,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -222400,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -219200,
-        "value": 19.920000076293945
+        "value": 19.920000076293945,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -200000,
-        "value": 19.920000076293945
+        "value": 19.920000076293945,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": 2791200,
-        "value": 19.920000076293945
+        "value": 19.920000076293945,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": 3083200,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2532,6 +2771,12 @@
      141.0
     ],
     "name": "SpotLight_23",
+    "radius": 1000.0,
+    "rot": [
+     180.0,
+     -56.999999999999964,
+     67.99999999999997
+    ],
     "target_first": 0.0,
     "target_last": 0.0,
     "target_lit": 19.920000076293945,
@@ -2551,6 +2796,7 @@
      0.06847816705703735,
      1.0
     ],
+    "cone_deg": null,
     "curves": {
      "Intensity": {
       "default": 300.0,
@@ -2558,44 +2804,56 @@
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -236000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -162400,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -160800,
-        "value": 552.0
+        "value": 552.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 0,
-        "value": 552.0
+        "value": 552.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 2737600,
-        "value": 552.0
+        "value": 552.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 3083200,
-        "value": 300.0
+        "value": 300.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2607,23 +2865,29 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 0,
-         "value": 0.5028864741325378
+         "value": 0.5028864741325378,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2737600,
-         "value": 0.5028864741325378
+         "value": 0.5028864741325378,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 3083200,
-         "value": 0.5028864741325378
+         "value": 0.5028864741325378,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2634,23 +2898,29 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 0,
-         "value": 0.2788942754268646
+         "value": 0.2788942754268646,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2737600,
-         "value": 0.2788942754268646
+         "value": 0.2788942754268646,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 3083200,
-         "value": 0.07889427989721298
+         "value": 0.07889427989721298,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2661,23 +2931,29 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 0,
-         "value": 0.06847816705703735
+         "value": 0.06847816705703735,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2737600,
-         "value": 0.06847816705703735
+         "value": 0.06847816705703735,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 3083200,
-         "value": -0.0415218323469162
+         "value": -0.0415218323469162,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2688,23 +2964,29 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 0,
-         "value": 1.0
+         "value": 1.0,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2737600,
-         "value": 1.0
+         "value": 1.0,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 3083200,
-         "value": 1.0
+         "value": 1.0,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2742,6 +3024,12 @@
      80.0
     ],
     "name": "RectLight_14",
+    "radius": 1000.0,
+    "rot": [
+     0.0,
+     0.0,
+     -170.0
+    ],
     "target_first": 0.0,
     "target_last": 300.0,
     "target_lit": 276.0,
@@ -2761,6 +3049,7 @@
      0.06847816705703735,
      1.0
     ],
+    "cone_deg": null,
     "curves": {
      "Intensity": {
       "default": 0.0,
@@ -2768,16 +3057,20 @@
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -164000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -156000,
-        "value": 552.0
+        "value": 552.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -2789,16 +3082,20 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2749600,
-         "value": 0.5028864741325378
+         "value": 0.5028864741325378,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2859200,
-         "value": 0.3028864860534668
+         "value": 0.3028864860534668,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2809,16 +3106,20 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2749600,
-         "value": 0.2788942754268646
+         "value": 0.2788942754268646,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2859200,
-         "value": 0.02889428101480007
+         "value": 0.02889428101480007,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2829,16 +3130,20 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2749600,
-         "value": 0.06847816705703735
+         "value": 0.06847816705703735,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2859200,
-         "value": 0.03809389844536781
+         "value": 0.03809389844536781,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2849,16 +3154,20 @@
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2749600,
-         "value": 1.0
+         "value": 1.0,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         },
         {
          "arrive": 0.0,
          "interp": "cubic",
+         "interp_raw": "RCIM_CUBIC",
          "leave": 0.0,
          "tick": 2859200,
-         "value": 16.52132797241211
+         "value": 16.52132797241211,
+         "weight_mode": "RCTWM_WEIGHTED_NONE"
         }
        ],
        "tpf": 800.0
@@ -2896,6 +3205,12 @@
      352.0
     ],
     "name": "RectLight_15",
+    "radius": 1000.0,
+    "rot": [
+     -0.0,
+     0.0,
+     60.999999999999986
+    ],
     "target_first": 0.0,
     "target_last": 552.0,
     "target_lit": 119.23200000000001,
@@ -2915,6 +3230,7 @@
      0.06847816705703735,
      1.0
     ],
+    "cone_deg": null,
     "curves": {
      "Intensity": {
       "default": 0.0,
@@ -2922,30 +3238,38 @@
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -175200,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": -159200,
-        "value": 552.0
+        "value": 552.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 2940000,
-        "value": 552.0
+        "value": 552.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "cubic",
+        "interp_raw": "RCIM_CUBIC",
         "leave": 0.0,
         "tick": 2945600,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -3004,6 +3328,12 @@
      554.0
     ],
     "name": "RectLight_16",
+    "radius": 1000.0,
+    "rot": [
+     -0.0,
+     -31.999999999999993,
+     -170.0
+    ],
     "target_first": 0.0,
     "target_last": 0.0,
     "target_lit": 518.4659999999998,
@@ -3018,6 +3348,7 @@
      1.0
     ],
     "color_lit": null,
+    "cone_deg": 44.0,
     "curves": {
      "Intensity": {
       "default": 0.0,
@@ -3025,51 +3356,65 @@
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -228000,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -210400,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -204000,
-        "value": 4.800000190734863
+        "value": 4.800000190734863,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -186400,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": -179200,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": 2791200,
-        "value": 8.0
+        "value": 8.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        },
        {
         "arrive": 0.0,
         "interp": "constant",
+        "interp_raw": "RCIM_CONSTANT",
         "leave": 0.0,
         "tick": 3083200,
-        "value": 0.0
+        "value": 0.0,
+        "weight_mode": "RCTWM_WEIGHTED_NONE"
        }
       ],
       "tpf": 800.0
@@ -3093,6 +3438,12 @@
      212.0
     ],
     "name": "SpotLight_1",
+    "radius": 1000.0,
+    "rot": [
+     -12.999999999999988,
+     -60.99999999999992,
+     42.99999999999994
+    ],
     "target_first": 0.0,
     "target_last": 0.0,
     "target_lit": 8.0,
@@ -3131,6 +3482,38 @@
     -311,
     404
    ],
+   "eval": {
+    "Location.X": {
+     "interp_at": null,
+     "nearest_key_frames": 2242.0,
+     "value": 31805.0135
+    },
+    "Location.Y": {
+     "interp_at": null,
+     "nearest_key_frames": 2242.0,
+     "value": 120.0
+    },
+    "Location.Z": {
+     "interp_at": null,
+     "nearest_key_frames": 2242.0,
+     "value": 77.0
+    },
+    "Rotation.X": {
+     "interp_at": null,
+     "nearest_key_frames": 2239.0,
+     "value": 4.279735609956023e-15
+    },
+    "Rotation.Y": {
+     "interp_at": null,
+     "nearest_key_frames": 2239.0,
+     "value": 3.0
+    },
+    "Rotation.Z": {
+     "interp_at": null,
+     "nearest_key_frames": 2239.0,
+     "value": 0.0
+    }
+   },
    "fps": 30.0,
    "frame": -202,
    "lens_tracks": {
@@ -3748,7 +4131,7 @@
   ],
   "playback": [
    0,
-   6266
+   6176
   ],
   "rig_bulbs": [
    "S1 Lattice Bulb 1-1",
@@ -3777,22 +4160,12 @@
    "S1 Lattice Bulb 3-8"
   ],
   "rig_exempt": [
-   "<Object '/Game/KK_S1_Animals/L_Animals.L_Animals' (0x000002CC1D63B600) Class 'World'>",
-   "<Object '/Game/L_KK_children.L_KK_children' (0x000002CC01270000) Class 'World'>",
-   "<Object '/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley' (0x000002CC8DE13800) Class 'World'>"
+   "<Object '/Game/KK_S1_Animals/L_Animals.L_Animals' (0x000001C7E74E5400) Class 'World'>",
+   "<Object '/Game/L_KK_children.L_KK_children' (0x000001C7C02C8C00) Class 'World'>",
+   "<Object '/Game/Japanese_Alley/Maps/Japanese_Alley.Japanese_Alley' (0x000001C7F1162A00) Class 'World'>"
   ],
   "scene": "1",
-  "scene_audio": [
-   {
-    "active": false,
-    "range": [
-     5216,
-     6091
-    ],
-    "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
-    "track": "Narration (stand-in)"
-   }
-  ],
+  "scene_audio": [],
   "scene_markers": [],
   "set_world": [
    32114.513516126783,
@@ -3824,17 +4197,7 @@
      "start_frame": -311
     }
    ],
-   "scene_audio_all": [
-    {
-     "active": false,
-     "range": [
-      5216,
-      6091
-     ],
-     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
-     "track": "Narration (stand-in)"
-    }
-   ],
+   "scene_audio_all": [],
    "scene_audio_past_end": [],
    "scene_markers_all": [],
    "scene_markers_past_end": []
@@ -6024,8 +6387,8 @@
      4.3040462281657715e-15,
      2.9996017777777775,
      2.9996017777777775,
-     23.884782072450992,
-     427.40874667252604
+     23.886109479858398,
+     440.60317630215565
     ],
     [
      6003,
@@ -6035,8 +6398,8 @@
      4.3023422373068865e-15,
      2.9984142222222223,
      2.9984142222222223,
-     23.88522359214048,
-     427.4770763098958
+     23.890509518066406,
+     480.0191800135995
     ],
     [
      6004,
@@ -6046,8 +6409,8 @@
      4.299520959028555e-15,
      2.996448,
      2.996448,
-     23.88595461126709,
-     427.590208913086
+     23.89779461126709,
+     545.279808913086
     ],
     [
      6005,
@@ -6057,8 +6420,8 @@
      4.29559769863789e-15,
      2.993713777777778,
      2.993713777777778,
-     23.886971164085104,
-     427.74753074283853
+     23.90792523815918,
+     636.0310270391349
     ],
     [
      6006,
@@ -6068,8 +6431,8 @@
      4.290587761442009e-15,
      2.990222222222222,
      2.990222222222222,
-     23.888269284848814,
-     427.94842805989583
+     23.920861877441407,
+     751.9187984302662
     ],
     [
      6007,
@@ -6079,8 +6442,8 @@
      4.284506452748027e-15,
      2.985984,
      2.985984,
-     23.8898450078125,
-     428.192287125
+     23.936565007812497,
+     892.5890871250001
     ],
     [
      6008,
@@ -6090,8 +6453,8 @@
      4.27736907786306e-15,
      2.981009777777778,
      2.981009777777778,
-     23.89169436723045,
-     428.4784941988932
+     23.95499510797119,
+     1057.6878571618563
     ],
     [
      6009,
@@ -6101,8 +6464,8 @@
      4.269190942094223e-15,
      2.9753102222222223,
      2.9753102222222223,
-     23.89381339735695,
-     428.8064355423177
+     23.97611265661621,
+     1246.861072579355
     ],
     [
      6010,
@@ -6112,8 +6475,8 @@
      4.259987350748633e-15,
      2.968896,
      2.968896,
-     23.896198132446287,
-     429.1754974160156
+     23.999878132446288,
+     1459.7546974160155
     ],
     [
      6011,
@@ -6123,8 +6486,8 @@
      4.249773609133405e-15,
      2.961777777777778,
      2.961777777777778,
-     23.89884460675275,
-     429.5850660807292
+     24.026252014160157,
+     1696.0146957103586
     ],
     [
      6012,
@@ -6134,8 +6497,8 @@
      4.2385650225556544e-15,
      2.9539662222222223,
      2.9539662222222223,
-     23.90174885453062,
-     430.03452779720055
+     24.055194780456546,
+     1955.287031500904
     ],
     [
      6013,
@@ -6145,8 +6508,8 @@
      4.226376896322497e-15,
      2.945472,
      2.945472,
-     23.904906910034182,
-     430.5232688261719
+     24.086666910034182,
+     2237.217668826172
     ],
     [
      6014,
@@ -6156,8 +6519,8 @@
      4.21322453574105e-15,
      2.936305777777778,
      2.936305777777778,
-     23.908314807517723,
-     431.05067542838543
+     24.1206288815918,
+     2541.452571724682
     ],
     [
      6015,
@@ -6167,8 +6530,8 @@
      4.199123246118427e-15,
      2.9264782222222223,
      2.9264782222222223,
-     23.91196858123553,
-     431.61613386458333
+     24.157041173828123,
+     2867.6377042349536
     ],
     [
      6016,
@@ -6178,8 +6541,8 @@
      4.184088332761745e-15,
      2.916,
      2.916,
-     23.915864265441893,
-     432.2190303955078
+     24.195864265441895,
+     3215.4190303955083
     ],
     [
      6017,
@@ -6189,8 +6552,8 @@
      4.16813510097812e-15,
      2.904881777777778,
      2.904881777777778,
-     23.91999789439109,
-     432.85875128190105
+     24.237058635131834,
+     3584.4425142448645
     ],
     [
      6018,
@@ -6200,8 +6563,8 @@
      4.151278856074666e-15,
      2.8931342222222223,
      2.8931342222222223,
-     23.92436550233742,
-     433.5346827845052
+     24.28058476159668,
+     3974.354119821542
     ],
     [
      6019,
@@ -6211,8 +6574,8 @@
      4.1335349033585e-15,
      2.8807679999999998,
      2.8807679999999998,
-     23.92896312353516,
-     434.2462111640625
+     24.326403123535158,
+     4384.799811164063
     ],
     [
      6020,
@@ -6222,8 +6585,8 @@
      4.114918548136739e-15,
      2.867793777777778,
      2.867793777777778,
-     23.93378679223859,
-     434.9927226813151
+     24.374474199645995,
+     4815.425552310947
     ],
     [
      6021,
@@ -6233,8 +6596,8 @@
      4.0954450957164956e-15,
      2.854222222222222,
      2.854222222222222,
-     23.938832542702002,
-     435.7736035970052
+     24.424758468627928,
+     5265.877307300709
     ],
     [
      6022,
@@ -6244,8 +6607,8 @@
      4.0751298514048876e-15,
      2.840064,
      2.840064,
-     23.944096409179686,
-     436.588240171875
+     24.477216409179686,
+     5735.801040171876
     ],
     [
      6023,
@@ -6255,8 +6618,8 @@
      4.053988120509031e-15,
      2.8253297777777777,
      2.8253297777777777,
-     23.949574425925928,
-     437.43601866666666
+     24.5318085,
+     6224.842714962962
     ],
     [
      6024,
@@ -6266,8 +6629,8 @@
      4.032035208336041e-15,
      2.810030222222222,
      2.810030222222222,
-     23.955262627195008,
-     438.3163253421224
+     24.5884952197876,
+     6732.648295712492
     ],
     [
      6025,
@@ -6277,8 +6640,8 @@
      4.009286420193032e-15,
      2.794176,
      2.794176,
-     23.961157047241212,
-     439.2285464589844
+     24.647237047241212,
+     7258.863746458985
     ],
     [
      6026,
@@ -6288,8 +6651,8 @@
      3.985757061387122e-15,
      2.7777777777777777,
      2.7777777777777777,
-     23.96725372031883,
-     440.1720682779948
+     24.70799446105957,
+     7803.135031240958
     ],
     [
      6027,
@@ -6299,8 +6662,8 @@
      3.961462437225425e-15,
      2.760846222222222,
      2.760846222222222,
-     23.973548680682146,
-     441.14627705989585
+     24.770727939941406,
+     8365.108114096935
     ],
     [
      6028,
@@ -6310,8 +6673,8 @@
      3.936417853015058e-15,
      2.743392,
      2.743392,
-     23.98003796258545,
-     442.15055906542966
+     24.835397962585446,
+     8944.42895906543
     ],
     [
      6029,
@@ -6321,8 +6684,8 @@
      3.9106386140631364e-15,
      2.7254257777777777,
      2.7254257777777777,
-     23.986717600283026,
-     443.18430055533855
+     24.901965007690432,
+     9540.74353018497
     ],
     [
      6030,
@@ -6332,8 +6695,8 @@
      3.884140025676775e-15,
      2.706958222222222,
      2.706958222222222,
-     23.993583628029153,
-     444.2468877903646
+     24.97038955395508,
+     10153.697791494067
     ],
     [
      6031,
@@ -6343,8 +6706,8 @@
      3.8569373931630904e-15,
      2.688,
      2.688,
-     24.000632080078127,
-     445.33770703125003
+     25.040632080078126,
+     10782.937707031251
     ],
     [
      6032,
@@ -6354,8 +6717,8 @@
      3.829046021829198e-15,
      2.6685617777777777,
      2.6685617777777777,
-     24.007858990684227,
-     446.45614453873696
+     25.1126530647583,
+     11428.109240835032
     ],
     [
      6033,
@@ -6365,8 +6728,8 @@
      3.800481216982214e-15,
      2.6486542222222225,
      2.6486542222222225,
-     24.015260394101745,
-     447.6015865735677
+     25.186412986694336,
+     12088.85835694394
     ],
     [
      6034,
@@ -6376,8 +6739,8 @@
      3.771258283929253e-15,
      2.628288,
      2.628288,
-     24.02283232458496,
-     448.77341939648437
+     25.26187232458496,
+     12764.831019396484
     ],
     [
      6035,
@@ -6387,8 +6750,8 @@
      3.741392527977432e-15,
      2.607473777777778,
      2.607473777777778,
-     24.030570816388163,
-     449.97102926822913
+     25.338991557128903,
+     13455.67319223119
     ],
     [
      6036,
@@ -6398,8 +6761,8 @@
      3.710899254433866e-15,
      2.586222222222222,
      2.586222222222222,
-     24.038471903765647,
-     451.19380244954425
+     25.417731163024904,
+     14161.030839486582
     ],
     [
      6037,
@@ -6409,8 +6772,8 @@
      3.679793768605672e-15,
      2.564544,
      2.564544,
-     24.046531620971678,
-     452.44112520117193
+     25.49805162097168,
+     14880.549925201172
     ],
     [
      6038,
@@ -6420,8 +6783,8 @@
      3.648091375799963e-15,
      2.5424497777777777,
      2.5424497777777777,
-     24.05474600226056,
-     453.7123837838542
+     25.57991340966797,
+     15613.876413413485
     ],
     [
      6039,
@@ -6431,8 +6794,8 @@
      3.6158073813238565e-15,
      2.5199502222222216,
      2.5199502222222216,
-     24.063111081886575,
-     455.0069644583333
+     25.6632770078125,
+     16360.656268162043
     ],
     [
      6040,
@@ -6442,8 +6805,8 @@
      3.582957090484469e-15,
      2.4970559999999997,
      2.4970559999999997,
-     24.071622894104003,
-     456.32425348535156
+     25.748102894104004,
+     17120.535453485354
     ],
     [
      6041,
@@ -6453,8 +6816,8 @@
      3.549555808588915e-15,
      2.4737777777777774,
      2.4737777777777774,
-     24.080277473167136,
-     457.663637125651
+     25.83435154724121,
+     17893.159933421946
     ],
     [
      6042,
@@ -6464,8 +6827,8 @@
      3.515618840944311e-15,
      2.450126222222222,
      2.450126222222222,
-     24.08907085333026,
-     459.02450163997395
+     25.92198344592285,
+     18678.175672010344
     ],
     [
      6043,
@@ -6475,8 +6838,8 @@
      3.4811614928577718e-15,
      2.426112,
      2.426112,
-     24.097999068847656,
-     460.40623328906247
+     26.010959068847658,
+     19475.228633289065
     ],
     [
      6044,
@@ -6486,8 +6849,8 @@
      3.446199069636414e-15,
      2.4017457777777778,
      2.4017457777777778,
-     24.107058153973615,
-     461.80821833365883
+     26.101238894714356,
+     20283.96478129662
     ],
     [
      6045,
@@ -6497,8 +6860,8 @@
      3.410746876587353e-15,
      2.377038222222222,
      2.377038222222222,
-     24.11624414296242,
-     463.22984303450517
+     26.19278340222168,
+     21104.03008007154
     ],
     [
      6046,
@@ -6508,8 +6871,8 @@
      3.374820219017704e-15,
      2.3520000000000003,
      2.3520000000000003,
-     24.125553070068364,
-     464.6704936523438
+     26.28555307006836,
+     21935.070493652347
     ],
     [
      6047,
@@ -6519,8 +6882,8 @@
      3.3384344022345835e-15,
      2.3266417777777777,
      2.3266417777777777,
-     24.134980969545715,
-     466.1295564479167
+     26.379508376953126,
+     22776.731986077542
     ],
     [
      6048,
@@ -6530,8 +6893,8 @@
      3.3016047315451065e-15,
      2.300974222222222,
      2.300974222222222,
-     24.14452387564878,
-     467.60641768196615
+     26.474609801574708,
+     23628.66052138567
     ],
     [
      6049,
@@ -6541,8 +6904,8 @@
      3.2643465122563896e-15,
      2.275008,
      2.275008,
-     24.154177822631837,
-     469.1004636152344
+     26.570817822631835,
+     24490.502063615237
     ],
     [
      6050,
@@ -6552,8 +6915,8 @@
      3.226675049675548e-15,
      2.248753777777778,
      2.248753777777778,
-     24.16393884474917,
-     470.61108050846354
+     26.66809291882324,
+     25361.90257680476
     ],
     [
      6051,
@@ -6563,8 +6926,8 @@
      3.1886056491096975e-15,
      2.2222222222222223,
      2.2222222222222223,
-     24.17380297625506,
-     472.1376546223958
+     26.766395568847656,
+     26242.508024992763
     ],
     [
      6052,
@@ -6574,8 +6937,8 @@
      3.1501536158659538e-15,
      2.195424,
      2.195424,
-     24.18376625140381,
-     473.67957221777345
+     26.865686251403808,
+     27131.96437221778
     ],
     [
      6053,
@@ -6585,8 +6948,8 @@
      3.1113342552514325e-15,
      2.1683697777777775,
      2.1683697777777775,
-     24.19382470444969,
-     475.2362195553385
+     26.96592544519043,
+     28029.917582518305
     ],
     [
      6054,
@@ -6596,8 +6959,8 @@
      3.07216287257325e-15,
      2.1410702222222224,
      2.1410702222222224,
-     24.203974369646993,
-     476.80698289583336
+     27.06707362890625,
+     28936.01361993287
     ],
     [
      6055,
@@ -6607,8 +6970,8 @@
      3.0326547731385214e-15,
      2.113536,
      2.113536,
-     24.21421128125,
-     478.39124849999996
+     27.16909128125,
+     29849.898448499996
     ],
     [
      6056,
@@ -6618,8 +6981,8 @@
      2.992825262254362e-15,
      2.0857777777777775,
      2.0857777777777775,
-     24.224531473513,
-     479.98840262858073
+     27.27193888092041,
+     30771.218032258206
     ],
     [
      6057,
@@ -6629,8 +6992,8 @@
      2.952689645227888e-15,
      2.057806222222222,
      2.057806222222222,
-     24.234930980690283,
-     481.59783154231764
+     27.37557690661621,
+     31699.618335246025
     ],
     [
      6058,
@@ -6640,8 +7003,8 @@
      2.9122632273662162e-15,
      2.0296320000000003,
      2.0296320000000003,
-     24.245405837036134,
-     483.21892150195316
+     27.479965837036133,
+     32634.745321501956
     ],
     [
      6059,
@@ -6651,8 +7014,8 @@
      2.871561313976461e-15,
      2.0012657777777783,
      2.0012657777777783,
-     24.25595207680483,
-     484.85105876822917
+     27.58506615087891,
+     33576.244955064525
     ],
     [
      6060,
@@ -6662,8 +7025,8 @@
      2.830599210365738e-15,
      1.9727182222222224,
      1.9727182222222224,
-     24.26656573425067,
-     486.49362960188796
+     27.69083832684326,
+     34523.76319997226
     ],
     [
      6061,
@@ -6673,8 +7036,8 @@
      2.789392221841163e-15,
      1.9439999999999997,
      1.9439999999999997,
-     24.27724284362793,
-     488.14602026367186
+     27.79724284362793,
+     35476.94602026368
     ],
     [
      6062,
@@ -6684,8 +7047,8 @@
      2.747955653709853e-15,
      1.9151217777777778,
      1.9151217777777778,
-     24.2879794391909,
-     489.80761701432294
+     27.90424017993164,
+     36435.439379977295
     ],
     [
      6063,
@@ -6695,8 +7058,8 @@
      2.7063048112789227e-15,
      1.8860942222222223,
      1.8860942222222223,
-     24.298771555193866,
-     491.47780611458336
+     28.011790814453125,
+     37398.889243151614
     ],
     [
      6064,
@@ -6706,8 +7069,8 @@
      2.664454999855488e-15,
      1.8569280000000004,
      1.8569280000000004,
-     24.309615225891115,
-     493.15597382519536
+     28.119855225891115,
+     38366.94157382519
     ],
     [
      6065,
@@ -6717,8 +7080,8 @@
      2.6224215247466635e-15,
      1.8276337777777774,
      1.8276337777777774,
-     24.320506485536924,
-     494.84150640690103
+     28.228393892944336,
+     39339.24233603654
     ],
     [
      6066,
@@ -6728,8 +7091,8 @@
      2.580219691259567e-15,
      1.7982222222222222,
      1.7982222222222222,
-     24.331441368385597,
-     496.5337901204427
+     28.337367294311523,
+     40315.43749382415
     ],
     [
      6067,
@@ -6739,8 +7102,8 @@
      2.5378648047013133e-15,
      1.768704,
      1.768704,
-     24.342415908691407,
-     498.2322112265625
+     28.44673590869141,
+     41295.173011226565
     ],
     [
      6068,
@@ -6750,8 +7113,8 @@
      2.4953721703790175e-15,
      1.7390897777777776,
      1.7390897777777776,
-     24.353426140708642,
-     499.93615598600263
+     28.556460214782717,
+     42278.0948522823
     ],
     [
      6069,
@@ -6761,8 +7124,8 @@
      2.4527570935997965e-15,
      1.7093902222222221,
      1.7093902222222221,
-     24.364468098691585,
-     501.64501065950515
+     28.666500691284178,
+     43263.84898102987
     ],
     [
      6070,
@@ -6772,8 +7135,8 @@
      2.4100348796707647e-15,
      1.6796159999999998,
      1.6796159999999998,
-     24.37553781689453,
-     503.3581615078125
+     28.77681781689453,
+     44252.081361507815
     ],
     [
      6071,
@@ -6783,8 +7146,8 @@
      2.3672208338990394e-15,
      1.6497777777777778,
      1.6497777777777778,
-     24.38663132957176,
-     505.07499479166665
+     28.8873720703125,
+     45242.43795775463
     ],
     [
      6072,
@@ -6794,8 +7157,8 @@
      2.3243302615917355e-15,
      1.6198862222222226,
      1.6198862222222226,
-     24.397744670977556,
-     506.79489677180993
+     28.998123930236815,
+     46234.564733808846
     ],
     [
      6073,
@@ -6805,8 +7168,8 @@
      2.2813784680559678e-15,
      1.589952,
      1.589952,
-     24.40887387536621,
-     508.5172537089844
+     29.109033875366215,
+     47228.10765370899
     ],
     [
      6074,
@@ -6816,8 +7179,8 @@
      2.238380758598853e-15,
      1.5599857777777775,
      1.5599857777777775,
-     24.420014976992007,
-     510.2414518639323
+     29.22006238439942,
+     48222.71268149357
     ],
     [
      6075,
@@ -6827,8 +7190,8 @@
      2.195352438527507e-15,
      1.529998222222222,
      1.529998222222222,
-     24.43116401010923,
-     511.96687749739584
+     29.33116993603516,
+     49218.025781201104
     ],
     [
      6076,
@@ -6838,8 +7201,8 @@
      2.152308813149046e-15,
      1.5,
      1.5,
-     24.442317008972168,
-     513.6929168701172
+     29.442317008972168,
+     50213.69291687012
     ],
     [
      6077,
@@ -6849,8 +7212,8 @@
      2.1092651877705834e-15,
      1.4700017777777772,
      1.4700017777777772,
-     24.453470007835104,
-     515.4189562428386
+     29.55346408190918,
+     51209.36005253915
     ],
     [
      6078,
@@ -6860,8 +7223,8 @@
      2.0662368676992383e-15,
      1.440014222222222,
      1.440014222222222,
-     24.46461904095233,
-     517.1443818763021
+     29.664571633544924,
+     52204.67315224667
     ],
     [
      6079,
@@ -6871,8 +7234,8 @@
      2.0232391582421235e-15,
      1.4100479999999997,
      1.4100479999999997,
-     24.475760142578125,
-     518.8685800312501
+     29.775600142578128,
+     53199.27818003126
     ],
     [
      6080,
@@ -6882,8 +7245,8 @@
      1.9802873647063565e-15,
      1.3801137777777779,
      1.3801137777777779,
-     24.486889346966777,
-     520.5909369684244
+     29.886510087707517,
+     54192.82109993138
     ],
     [
      6081,
@@ -6893,8 +7256,8 @@
      1.9373967923990523e-15,
      1.3502222222222222,
      1.3502222222222222,
-     24.498002688372576,
-     522.3108389485677
+     29.997261947631834,
+     55184.94787598561
     ],
     [
      6082,
@@ -6904,8 +7267,8 @@
      1.894582746627327e-15,
      1.3203840000000002,
      1.3203840000000002,
-     24.509096201049807,
-     524.0276722324219
+     30.107816201049804,
+     56175.30447223241
     ],
     [
      6083,
@@ -6915,8 +7278,8 @@
      1.851860532698295e-15,
      1.2906097777777779,
      1.2906097777777779,
-     24.520165919252747,
-     525.7408230807291
+     30.21813332666016,
+     57163.53685271036
     ],
     [
      6084,
@@ -6926,8 +7289,8 @@
      1.8092454559190742e-15,
      1.2609102222222224,
      1.2609102222222224,
-     24.531207877235694,
-     527.4496777542317
+     30.32817380316162,
+     58149.29098145793
     ],
     [
      6085,
@@ -6937,8 +7300,8 @@
      1.7667528215967784e-15,
      1.231296,
      1.231296,
-     24.54221810925293,
-     529.1536225136718
+     30.437898109252927,
+     59132.21282251367
     ],
     [
      6086,
@@ -6948,8 +7311,8 @@
      1.724397935038525e-15,
      1.201777777777778,
      1.201777777777778,
-     24.55319264955874,
-     530.8520436197916
+     30.54726672363281,
+     60111.948339916074
     ],
     [
      6087,
@@ -6959,8 +7322,8 @@
      1.6821961015514278e-15,
      1.1723662222222222,
      1.1723662222222222,
-     24.564127532407404,
-     532.5443273333333
+     30.656240124999997,
+     61088.1434977037
     ],
     [
      6088,
@@ -6970,8 +7333,8 @@
      1.6401626264426043e-15,
      1.143072,
      1.143072,
-     24.57501879205322,
-     534.229859915039
+     30.76477879205322,
+     62060.444259915035
     ],
     [
      6089,
@@ -6981,8 +7344,8 @@
      1.5983128150191695e-15,
      1.113905777777778,
      1.113905777777778,
-     24.58586246275047,
-     535.908027625651
+     30.87284320349121,
+     63028.496590588606
     ],
     [
      6090,
@@ -6992,8 +7355,8 @@
      1.5566619725882392e-15,
      1.0848782222222226,
      1.0848782222222226,
-     24.596654578753437,
-     537.5782167259115
+     30.980393838012695,
+     63991.94645376294
     ],
     [
      6091,
@@ -7003,8 +7366,8 @@
      1.5152254044569277e-15,
      1.0559999999999996,
      1.0559999999999996,
-     24.607391174316405,
-     539.2398134765625
+     31.08739117431641,
+     64950.43981347658
     ],
     [
      6092,
@@ -7014,8 +7377,8 @@
      1.4740184159323536e-15,
      1.0272817777777776,
      1.0272817777777776,
-     24.618068283693667,
-     540.8922041383463
+     31.193795691101077,
+     65903.62263376798
     ],
     [
      6093,
@@ -7025,8 +7388,8 @@
      1.4330563123216316e-15,
      0.9987342222222226,
      0.9987342222222226,
-     24.628681941139504,
-     542.5347749720052
+     31.299567867065427,
+     66851.1408786757
     ],
     [
      6094,
@@ -7036,8 +7399,8 @@
      1.3923543989318755e-15,
      0.9703679999999999,
      0.9703679999999999,
-     24.639228180908205,
-     544.1669122382813
+     31.404668180908203,
+     67792.64051223829
     ],
     [
      6095,
@@ -7047,8 +7410,8 @@
      1.351927981070203e-15,
      0.9421937777777777,
      0.9421937777777777,
-     24.649703037254053,
-     545.7880021979167
+     31.509057111328126,
+     68727.76749849421
     ],
     [
      6096,
@@ -7058,8 +7421,8 @@
      1.3117923640437301e-15,
      0.9142222222222226,
      0.9142222222222226,
-     24.660102544431332,
-     547.3974311116535
+     31.612695137023927,
+     69656.167801482
     ],
     [
      6097,
@@ -7069,8 +7432,8 @@
      1.2719628531595705e-15,
      0.8864639999999999,
      0.8864639999999999,
-     24.670422736694334,
-     548.9945852402343
+     31.715542736694335,
+     70577.48738524024
     ],
     [
      6098,
@@ -7080,8 +7443,8 @@
      1.2324547537248423e-15,
      0.8589297777777782,
      0.8589297777777782,
-     24.680659648297347,
-     550.578850844401
+     31.817560389038086,
+     71491.37221380735
     ],
     [
      6099,
@@ -7091,8 +7454,8 @@
      1.1932833710466588e-15,
      0.8316302222222222,
      0.8316302222222222,
-     24.690809313494647,
-     552.1496141848959
+     31.918708572753907,
+     72397.46825122193
     ],
     [
      6100,
@@ -7102,8 +7465,8 @@
      1.1544640104321373e-15,
      0.8045759999999996,
      0.8045759999999996,
-     24.70086776654053,
-     553.706261522461
+     32.01894776654053,
+     73295.42146152248
     ],
     [
      6101,
@@ -7113,8 +7476,8 @@
      1.1160119771883942e-15,
      0.7777777777777779,
      0.7777777777777779,
-     24.710831041689275,
-     555.2481791178385
+     32.11823844909668,
+     74184.87780874746
     ],
     [
      6102,
@@ -7124,8 +7487,8 @@
      1.0779425766225441e-15,
      0.7512462222222226,
      0.7512462222222226,
-     24.720695173195168,
-     556.7747532317708
+     32.216541099121095,
+     75065.48325693546
     ],
     [
      6103,
@@ -7135,8 +7498,8 @@
      1.040271114041702e-15,
      0.724992,
      0.724992,
-     24.7304561953125,
-     558.285370125
+     32.3138161953125,
+     75936.883770125
     ],
     [
      6104,
@@ -7146,8 +7509,8 @@
      1.0030128947529844e-15,
      0.6990257777777773,
      0.6990257777777773,
-     24.740110142295556,
-     559.7794160582682
+     32.41002421636963,
+     76798.72531235458
     ],
     [
      6105,
@@ -7157,8 +7520,8 @@
      9.661832240635078e-16,
      0.6733582222222219,
      0.6733582222222219,
-     24.749653048398617,
-     561.2562772923177
+     32.50512564099121,
+     77650.6538476627
     ],
     [
      6106,
@@ -7168,8 +7531,8 @@
      9.297974072803881e-16,
      0.6480000000000002,
      0.6480000000000002,
-     24.759080947875976,
-     562.7153400878906
+     32.599080947875976,
+     78492.31534008788
     ],
     [
      6107,
@@ -7179,8 +7542,8 @@
      8.93870749710739e-16,
      0.6229617777777777,
      0.6229617777777777,
-     24.768389874981914,
-     564.1559907057291
+     32.69185061572266,
+     79323.3557536687
     ],
     [
      6108,
@@ -7190,8 +7553,8 @@
      8.584185566616778e-16,
      0.5982542222222222,
      0.5982542222222222,
-     24.77757586397072,
-     565.5776154065755
+     32.78339512322998,
+     80143.4210524436
     ],
     [
      6109,
@@ -7201,8 +7564,8 @@
      8.234561334403198e-16,
      0.5738880000000001,
      0.5738880000000001,
-     24.78663494909668,
-     566.9796004511719
+     32.87367494909668,
+     80952.15720045117
     ],
     [
      6110,
@@ -7212,8 +7575,8 @@
      7.889987853537803e-16,
      0.5498737777777775,
      0.5498737777777775,
-     24.795563164614077,
-     568.3613321002605
+     32.96265057202149,
+     81749.2101617299
     ],
     [
      6111,
@@ -7223,8 +7586,8 @@
      7.550618177091766e-16,
      0.5262222222222224,
      0.5262222222222224,
-     24.8043565447772,
-     569.7221966145834
+     33.050282470703124,
+     82534.22590031828
     ],
     [
      6112,
@@ -7234,8 +7597,8 @@
      7.21660535813623e-16,
      0.5029440000000004,
      0.5029440000000004,
-     24.813011123840333,
-     571.0615802548828
+     33.13653112384033,
+     83306.85038025487
     ],
     [
      6113,
@@ -7245,8 +7608,8 @@
      6.888102449742347e-16,
      0.4800497777777778,
      0.4800497777777778,
-     24.82152293605776,
-     572.3788692819011
+     33.22135701013183,
+     84066.72956557819
     ],
     [
      6114,
@@ -7256,8 +7619,8 @@
      6.565262504981288e-16,
      0.4575502222222222,
      0.4575502222222222,
-     24.829888015683775,
-     573.6734499563802
+     33.30472060827637,
+     84813.50942032675
     ],
     [
      6115,
@@ -7267,8 +7630,8 @@
      6.248238576924204e-16,
      0.43545599999999984,
      0.43545599999999984,
-     24.83810239697266,
-     574.9447085390625
+     33.386582396972656,
+     85546.83590853907
     ],
     [
      6116,
@@ -7278,8 +7641,8 @@
      5.937183718642251e-16,
      0.41377777777777736,
      0.41377777777777736,
-     24.846162114178693,
-     576.1920312906901
+     33.46690285491943,
+     86266.35499425366
     ],
     [
      6117,
@@ -7289,8 +7652,8 @@
      5.6322509832066e-16,
      0.39252622222222233,
      0.39252622222222233,
-     24.854063201556173,
-     577.4148044720052
+     33.54564246081543,
+     86971.71264150905
     ],
     [
      6118,
@@ -7300,8 +7663,8 @@
      5.333593423688383e-16,
      0.3717119999999997,
      0.3717119999999997,
-     24.861801693359375,
-     578.61241434375
+     33.62276169335938,
+     87662.55481434376
     ],
     [
      6119,
@@ -7311,8 +7674,8 @@
      5.041364093158786e-16,
      0.3513457777777781,
      0.3513457777777781,
-     24.86937362384259,
-     579.7842471666667
+     33.69822103125,
+     88338.52747679628
     ],
     [
      6120,
@@ -7322,8 +7685,8 @@
      4.755716044688936e-16,
      0.3314382222222221,
      0.3314382222222221,
-     24.87677502726011,
-     580.9296892014975
+     33.77198095318604,
+     88999.2765929052
     ],
     [
      6121,
@@ -7333,8 +7696,8 @@
      4.476802331350009e-16,
      0.3119999999999996,
      0.3119999999999996,
-     24.88400193786621,
-     582.0481267089843
+     33.84400193786621,
+     89644.448126709
     ],
     [
      6122,
@@ -7344,8 +7707,8 @@
      4.204776006213176e-16,
      0.2930417777777783,
      0.2930417777777783,
-     24.891050389915183,
-     583.1389459498697
+     33.914244463989256,
+     90273.68804224615
     ],
     [
      6123,
@@ -7355,8 +7718,8 @@
      3.9397901223495543e-16,
      0.27457422222222205,
      0.27457422222222205,
-     24.897916417661314,
-     584.2015331848959
+     33.98266901025391,
+     90886.64230355527
     ],
     [
      6124,
@@ -7366,8 +7729,8 @@
      3.6819977328303284e-16,
      0.2566079999999995,
      0.2566079999999995,
-     24.904596055358887,
-     585.2352746748047
+     34.04923605535889,
+     91482.95687467483
     ],
     [
      6125,
@@ -7377,8 +7740,8 @@
      3.4315518907266656e-16,
      0.2391537777777779,
      0.2391537777777779,
-     24.91108533726219,
-     586.2395566803385
+     34.11390607800293,
+     92062.2777196433
     ],
     [
      6126,
@@ -7388,8 +7751,8 @@
      3.188605649109702e-16,
      0.22222222222222254,
      0.22222222222222254,
-     24.917380297625506,
-     587.2137654622396
+     34.176639556884766,
+     92624.25080249927
     ],
     [
      6127,
@@ -7399,8 +7762,8 @@
      2.9533120610506045e-16,
      0.20582400000000067,
      0.20582400000000067,
-     24.923476970703124,
-     588.15728728125
+     34.237396970703124,
+     93168.52208728124
     ],
     [
      6128,
@@ -7410,8 +7773,8 @@
      2.7258241796205096e-16,
      0.18996977777777757,
      0.18996977777777757,
-     24.92937139074933,
-     589.0695083981119
+     34.29613879815674,
+     93694.73753802775
     ],
     [
      6129,
@@ -7421,8 +7784,8 @@
      2.5062950578906027e-16,
      0.17467022222222184,
      0.17467022222222184,
-     24.935059592018412,
-     589.9498150735677
+     34.35282551794434,
+     94202.54311877729
     ],
     [
      6130,
@@ -7432,8 +7795,8 @@
      2.2948777489320398e-16,
      0.15993600000000008,
      0.15993600000000008,
-     24.94053760876465,
-     590.7975935683594
+     34.407417608764646,
+     94691.58479356836
     ],
     [
      6131,
@@ -7443,8 +7806,8 @@
      2.0917253058159682e-16,
      0.14577777777777823,
      0.14577777777777823,
-     24.94580147524233,
-     591.6122301432291
+     34.4598755493164,
+     95161.50852643952
     ],
     [
      6132,
@@ -7454,8 +7817,8 @@
      1.8969907816135342e-16,
      0.13220622222222222,
      0.13220622222222222,
-     24.95084722570575,
-     592.3931110589192
+     34.51015981829834,
+     95611.96028142929
     ],
     [
      6133,
@@ -7465,8 +7828,8 @@
      1.7108272293959137e-16,
      0.119232,
      0.119232,
-     24.955670894409177,
-     593.1396225761719
+     34.558230894409185,
+     96042.58602257617
     ],
     [
      6134,
@@ -7476,8 +7839,8 @@
      1.5333877022342436e-16,
      0.10686577777777684,
      0.10686577777777684,
-     24.960268515606913,
-     593.8511509557292
+     34.60404925634766,
+     96453.03171391872
     ],
     [
      6135,
@@ -7487,8 +7850,8 @@
      1.3648252531997188e-16,
      0.095118222222222,
      0.095118222222222,
-     24.96463612355324,
-     594.5270824583334
+     34.647575382812505,
+     96842.94331949537
     ],
     [
      6136,
@@ -7498,8 +7861,8 @@
      1.2052929353634667e-16,
      0.08400000000000007,
      0.08400000000000007,
-     24.968769752502443,
-     595.1668033447265
+     34.68876975250244,
+     97211.96680334472
     ],
     [
      6137,
@@ -7509,8 +7872,8 @@
      1.0549438017966439e-16,
      0.07352177777777769,
      0.07352177777777769,
-     24.972665436708805,
-     595.769699875651
+     34.72759284411621,
+     97559.74812950527
     ],
     [
      6138,
@@ -7520,8 +7883,8 @@
      9.139309055704162e-17,
      0.0636942222222221,
      0.0636942222222221,
-     24.976319210426613,
-     596.3351583118489
+     34.76400513635254,
+     97885.93326201556
     ],
     [
      6139,
@@ -7531,8 +7894,8 @@
      7.824072997559398e-17,
      0.05452799999999991,
      0.05452799999999991,
-     24.979727107910154,
-     596.8625649140625
+     34.79796710791016,
+     98190.16816491407
     ],
     [
      6140,
@@ -7542,8 +7905,8 @@
      6.605260374243618e-17,
      0.04603377777777706,
      0.04603377777777706,
-     24.98288516341372,
-     597.3513059430338
+     34.82943923748779,
+     98472.09880223936
     ],
     [
      6141,
@@ -7553,8 +7916,8 @@
      5.4844017164687664e-17,
      0.038222222222222824,
      0.038222222222222824,
-     24.985789411191586,
-     597.8007676595051
+     34.85838200378418,
+     98731.37113802986
     ],
     [
      6142,
@@ -7564,8 +7927,8 @@
      4.4630275549458326e-17,
      0.0311039999999998,
      0.0311039999999998,
-     24.988435885498046,
-     598.2103363242188
+     34.884755885498045,
+     98967.63113632423
     ],
     [
      6143,
@@ -7575,8 +7938,8 @@
      3.5426684203869547e-17,
      0.024689777777778588,
      0.024689777777778588,
-     24.990820620587385,
-     598.5793981979166
+     34.90852136132812,
+     99180.52476116085
     ],
     [
      6144,
@@ -7586,8 +7949,8 @@
      2.7248548435032177e-17,
      0.018990222222222464,
      0.018990222222222464,
-     24.992939650713883,
-     598.9073395413411
+     34.92963890997314,
+     99369.69797657836
     ],
     [
      6145,
@@ -7597,8 +7960,8 @@
      2.011117355006377e-17,
      0.014015999999999362,
      0.014015999999999362,
-     24.994789010131836,
-     599.1935466152345
+     34.94806901013184,
+     99534.79674661525
     ],
     [
      6146,
@@ -7608,8 +7971,8 @@
      1.4029864856082823e-17,
      0.009777777777777885,
      0.009777777777777885,
-     24.996364733095522,
-     599.4374056803385
+     34.96377214050293,
+     99675.46703530996
     ],
     [
      6147,
@@ -7619,8 +7982,8 @@
      9.019927660200197e-18,
      0.006286222222221305,
      0.006286222222221305,
-     24.997662853859232,
-     599.6383029973958
+     34.976708779785156,
+     99791.35480670114
     ],
     [
      6148,
@@ -7630,8 +7993,8 @@
      5.096667269537258e-18,
      0.0035520000000002216,
      0.0035520000000002216,
-     24.998679406677248,
-     599.7956248271485
+     34.98683940667725,
+     99882.10602482714
     ],
     [
      6149,
@@ -7641,8 +8004,8 @@
      2.275388991204867e-18,
      0.001585777777777908,
      0.001585777777777908,
-     24.999410425803855,
-     599.9087574303385
+     34.99412449987793,
+     99947.36665372664
     ],
     [
      6150,
@@ -7652,8 +8015,8 @@
      5.713981323215249e-19,
      0.0003982222222229659,
      0.0003982222222229659,
-     24.999851945493344,
-     599.9770870677082
+     34.99852453808593,
+     99986.78265743806
     ],
     [
      6151,
@@ -7663,8 +8026,8 @@
      0.0,
      0.0,
      0.0,
-     25.0,
-     600.0
+     35.0,
+     100000.0
     ]
    ],
    "out": {
@@ -16879,9 +17242,7 @@
    }
   ],
   "hide": {
-   "labels": [
-    "S1 Hangar Roof"
-   ],
+   "labels": [],
    "range": [
     269,
     5832
@@ -17463,8 +17824,8 @@
     ]
    },
    "exit": {
-    "focal": 25.0,
-    "focus": 600.0,
+    "focal": 35.0,
+    "focus": 100000.0,
     "loc": [
      28784.0135,
      0.0,
@@ -17520,7 +17881,6 @@
    }
   },
   "refusals": [],
-  "relength_first": true,
   "rig_bulbs_hidden": {
    "labels": [
     "S1 Lattice Bulb 1-1",
@@ -17721,6 +18081,6 @@
    "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 282 (glows already at 0; emissive cannot fade without a material track)"
   ]
  },
- "run": "KLARAREVEAL-20261007-011442",
+ "run": "KLARAREVEAL-20261007-104035",
  "tool": "klara_reveal"
 }

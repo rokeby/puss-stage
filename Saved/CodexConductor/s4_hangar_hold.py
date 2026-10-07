@@ -1,4 +1,27 @@
-"""S4 hangar HOLD (7 Oct, offline-written, NOT RUN). Keeps the S4 hangar LANDED for the part of Scene 4 that its rise
+"""Hangar HOLD for Scenes 1-4 (7 Oct). Keeps a Scene's hangar LANDED for the part of the Scene that its rise
+no longer covers. Written for S4 (APPLIED S4HOLD-20261007-102817, verified in PIE); generalised the same day, offline
+and NOT RUN for S1/S2/S3, to a `scene` arg in {1, 2, 3, 4} (Gary 7 Oct, own answers: "Yes, hold S2 and S3 too"; S1
+"Hold it, and keep the roof on too" - the roof part belongs to klara_reveal, not here). S5 covers; S6's hangar is
+hidden (fold inactive) and is refused.
+
+PER-SCENE NAMES (names(n); for n=4 they are the S4 tool's original strings, so the S4 record and REVERT still work):
+  confirm "<MODE> S<n>HOLD", record s<n>_hangar_hold_record.json, track "S<n> Hangar Hold", binding prefix
+  "S<n> Hangar Hold: ", backup Backups/PreS<n>HangarHold-<run>, markers S<n>HOLD_*, outputs s<n>_hangar_hold_<mode>_<run>.json.
+
+SCENE TRAPS (handled generically, because every held value is READ from LS_S<n>_HangarRise live, never assumed):
+  - S3: hinge_z -120 (Saved/CodexStructure/hangar_s3_record.json hangar.hinge_z) -> the Root's held Location.Z is the
+    rise's own value, whatever it is. Pit deck / liner / wave actors are attached to S3 Hangar Root and are NOT rise
+    movers; the wave slides key them in LS_DevScene_03 (s3_wave_slides_apply.py:9-13) - untouched here.
+  - S1: klara_reveal v3 hides "S1 Hangar Roof" over [269, 5832] with a visibility track and adds an ADDITIVE Lattice
+    Hold on the Lattice Fly. This tool only ever adds ONE ABSOLUTE 3D-transform track per rise mover (Root, Roof
+    Hinge, Lattice Fly - hangar_build.py:498-501); the Roof is not a mover. scene_conflicts() refuses any existing
+    non-additive transform section on a mover's Scene binding that overlaps the hold; additive sections and
+    non-transform tracks (visibility) are reported as coexisting, not refused.
+  - [inf] Non-transform rise tracks (light intensities, S3's cast-reveal visibility in the rise) are NOT held and
+    may also revert past the fold end, as the transforms did in S4; they are listed in plan.not_held_rise_tracks.
+
+(Original S4 notes follow.)
+S4 hangar HOLD (7 Oct, offline-written, NOT RUN). Keeps the S4 hangar LANDED for the part of Scene 4 that its rise
 no longer covers. S4 was relengthed to 4890 frames (eca8a5d), but LS_DevScene_04's 'Hangar Fold' sub-section still
 plays LS_S4_HangarRise over [0, 775) only.
 
@@ -47,11 +70,10 @@ except ImportError:  # offline harness
 TOOL = "s4_hangar_hold"
 SCENE = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_%02d"
 RISE = "/Game/InfinityStage/RigAtmos/LS_S%d_HangarRise"
-TRACK_NAME = "S4 Hangar Hold"
-BIND_PREFIX = "S4 Hangar Hold: "
 CHANNELS = ("Location.X", "Location.Y", "Location.Z", "Rotation.X", "Rotation.Y", "Rotation.Z",
             "Scale.X", "Scale.Y", "Scale.Z")
-RECORD = "s4_hangar_hold_record.json"
+SCENES = (1, 2, 3, 4)             # S5 covers; S6 hangar hidden (fold inactive) - Gary 7 Oct scope
+_MARK = ["S4HOLD"]                # plain str in a list (no UE wrapper); set by main() from the scene
 
 
 class PlanError(Exception):
@@ -61,6 +83,47 @@ class PlanError(Exception):
 # =====================================================================================================================
 # Pure (offline-testable)
 # =====================================================================================================================
+
+def names(scene):
+    """Every per-scene string. names(4) reproduces the S4 tool's original constants exactly (harness-proven)."""
+    n = int(scene)
+    return {"mark": "S%dHOLD" % n, "track": "S%d Hangar Hold" % n, "bind_prefix": "S%d Hangar Hold: " % n,
+            "record": "s%d_hangar_hold_record.json" % n, "backup_prefix": "PreS%dHangarHold-" % n,
+            "out_prefix": "s%d_hangar_hold_" % n}
+
+
+def _overlaps(r, hold):
+    """r [s|None, e|None) vs hold [s, e): None is an open bound."""
+    s, e = r
+    return (s is None or int(s) < int(hold[1])) and (e is None or int(e) > int(hold[0]))
+
+
+def scene_conflicts(labels, scene_rows, hold_range, own_track):
+    """labels: mover actor labels; scene_rows [{"binding": name, "tracks": [{"name", "transform": bool, "sections":
+    [{"range": [s, e], "blend": str|None}]}]}] read from the SCENE sequence. A binding belongs to a mover when its name
+    is the label or ends with ': <label>' (prefixed bindings: klara_reveal PREFIX, ours). -> (conflicts, coexisting):
+    conflicts = non-additive transform sections (not ours) overlapping the hold, which an ABSOLUTE hold would fight;
+    coexisting = everything else on those bindings (additive transforms, visibility, ...), reported only."""
+    conflicts, coexisting = [], []
+    for row in scene_rows:
+        name = str(row["binding"])
+        hit = [l for l in labels if name == l or name.endswith(": " + l)]
+        if not hit:
+            continue
+        for t in row["tracks"]:
+            if str(t["name"]) == own_track:
+                continue
+            if not t.get("transform"):
+                coexisting.append("%s/%s" % (name, t["name"]))
+                continue
+            for sec in t.get("sections", []):
+                blend = str(sec.get("blend") or "UNSET").upper()
+                tag = "%s/%s/%s/%s" % (name, t["name"], blend, list(sec["range"]))
+                if blend != "ADDITIVE" and _overlaps(sec["range"], hold_range):
+                    conflicts.append(tag)
+                else:
+                    coexisting.append(tag)
+    return conflicts, coexisting
 
 def channel_base(name):
     """'Location.Y_183' -> 'Location.Y' (memory ue58-sequencer-read-traps)."""
@@ -98,6 +161,8 @@ def plan_holds(fold, scene_playback, scene_tpf, rise_end_tick, movers):
     [{"blend": str|None, "channels": {base: {"keys": [[tick, v]], "default": v|None}}}]}] ->
     {"range": [fold_end, scene_end], "targets": [{"binding", "values": {base: v}}]}. Refuses anything not 1:1."""
     s, e = int(fold["range"][0]), int(fold["range"][1])
+    if fold.get("active") is False:                      # S6: hangar hidden, its fold inactive [meas survey]
+        raise PlanError("FOLD_INACTIVE")
     if s != 0:
         raise PlanError("FOLD_NOT_AT_ZERO|%d" % s)
     if int(fold.get("start_offset_tick", 0)) != 0:
@@ -143,9 +208,13 @@ def validate_args(a):
     r = []
     if a.get("mode") not in ("SURVEY", "DRY", "APPLY", "REVERT"):
         r.append("MODE")
-    if int(a.get("scene", 0)) != 4:
-        r.append("SCENE_NOT_4 (S4-only tool)")
-    if a.get("mode") in ("APPLY", "REVERT") and a.get("confirm") != "%s S4HOLD" % a.get("mode"):
+    try:
+        scene = int(a.get("scene"))
+    except (TypeError, ValueError):
+        scene = None
+    if scene not in SCENES:
+        r.append("SCENE_NOT_IN_%s" % (SCENES,))
+    elif a.get("mode") in ("APPLY", "REVERT") and a.get("confirm") != "%s %s" % (a.get("mode"), names(scene)["mark"]):
         r.append("CONFIRM")
     if a.get("mode") == "APPLY" and not str(a.get("decided_by") or "").strip():
         r.append("DECIDED_BY")
@@ -170,6 +239,11 @@ def readback_diff(want, got, tol=1e-4):
     return d
 
 
+def record_scene(rec):
+    """Scene a record belongs to. The S4 record (S4HOLD-20261007-102817) predates the field -> 4."""
+    return int(rec.get("scene", 4))
+
+
 # =====================================================================================================================
 # Live (Unreal). Every unreal handle is a local (memory: UE wrappers in module globals crash the editor).
 # =====================================================================================================================
@@ -187,7 +261,7 @@ def _file(path):
 
 
 def _stop(run, reason):
-    unreal.log_error("S4HOLD_STOPPED|run=%s|reason=%s" % (run, reason))
+    unreal.log_error("%s_STOPPED|run=%s|reason=%s" % (_MARK[0], run, reason))
     raise RuntimeError(reason)
 
 
@@ -306,9 +380,35 @@ def _actor(label, run):
     return acts[0]
 
 
-def _our_tracks(b):
+def _our_tracks(b, track):
     return [t for t in b.get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack)
-            and str(t.get_display_name()) == TRACK_NAME]
+            and str(t.get_display_name()) == track]
+
+
+def _sec_range(s):
+    """[start|None, end|None]: None for an open bound."""
+    st = s.get_start_frame() if s.has_start_frame() else None
+    en = s.get_end_frame() if s.has_end_frame() else None
+    return [st, en]
+
+
+def _binding_tracks(b):
+    rows = []
+    for t in b.get_tracks():
+        tf = isinstance(t, unreal.MovieScene3DTransformTrack)
+        secs = []
+        for s in t.get_sections():
+            try:
+                blend = _enum(s.get_blend_type()) if tf else None
+            except Exception:  # noqa: BLE001 - None -> treated as UNSET (non-additive) by scene_conflicts
+                blend = None
+            secs.append({"range": _sec_range(s), "blend": blend})
+        rows.append({"name": str(t.get_display_name()), "transform": tf, "sections": secs})
+    return rows
+
+
+def _scene_rows(seq):
+    return [{"binding": str(b.get_display_name()), "tracks": _binding_tracks(b)} for b in seq.get_bindings()]
 
 
 def _read_section(s):
@@ -321,11 +421,11 @@ def _read_section(s):
             "values": vals, "n_keys": n, "blend": _enum(s.get_blend_type())}
 
 
-def _plan(args, run):
-    seq, rise = unreal.load_asset(SCENE % 4), unreal.load_asset(RISE % 4)
+def _plan(args, run, scene):
+    seq, rise = unreal.load_asset(SCENE % scene), unreal.load_asset(RISE % scene)
     if seq is None or rise is None:
         _stop(run, "ASSET_MISSING")
-    folds = [f for f in _folds(seq) if f["rise"] == RISE % 4]
+    folds = [f for f in _folds(seq) if f["rise"] == RISE % scene]
     if len(folds) != 1:
         _stop(run, "FOLD_COUNT|%d" % len(folds))
     scene_tpf = int(round(_rate(seq.get_tick_resolution()) / _rate(seq.get_display_rate())))
@@ -349,6 +449,12 @@ def _plan(args, run):
                                                           rc.relative_location.z)],
                                 "rot": [float(rc.relative_rotation.roll), float(rc.relative_rotation.pitch),
                                         float(rc.relative_rotation.yaw)]}
+    conflicts, coexisting = scene_conflicts([t["binding"] for t in plan["targets"]], _scene_rows(seq), plan["range"],
+                                            names(scene)["track"])
+    if conflicts:
+        _stop(run, "SCENE_TRANSFORM_CONFLICT|%s" % conflicts)
+    plan["scene"] = scene
+    plan["coexisting_scene_tracks"] = coexisting
     plan["fold"] = folds[0]
     plan["rise_end_tick"] = rise_end_tick
     plan["scene_tpf"] = scene_tpf
@@ -357,18 +463,19 @@ def _plan(args, run):
     return plan
 
 
-def run_apply(args, run, plan):
+def run_apply(args, run, plan, scene):
+    nm = names(scene)
     here = _here()
-    rec_path = os.path.join(here, RECORD)
+    rec_path = os.path.join(here, nm["record"])
     if os.path.exists(rec_path):
         _stop(run, "RECORD_EXISTS (REVERT first)")
-    scene_path = SCENE % 4
+    scene_path = SCENE % scene
     census0 = _census()
     if census0:
         _stop(run, "DIRTY_BEFORE|%s" % census0)
     src = _file(scene_path)
-    folder = os.path.join(_project(), "Backups", "PreS4HangarHold-%s" % run)
-    rec = {"schema": 1, "tool": TOOL, "run": run, "applied": False, "decided_by": args["decided_by"],
+    folder = os.path.join(_project(), "Backups", nm["backup_prefix"] + run)
+    rec = {"schema": 1, "tool": TOOL, "scene": scene, "run": run, "applied": False, "decided_by": args["decided_by"],
            "plan": plan, "backup": folder, "source_sha256": _sha(src), "written": datetime.datetime.now().isoformat()}
     fd = os.open(rec_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
     with os.fdopen(fd, "w", encoding="utf-8") as h:
@@ -391,11 +498,15 @@ def run_apply(args, run, plan):
         g = _gs(b.get_id())
         created = g not in gs_before
         if created:
-            b.set_display_name(BIND_PREFIX + t["binding"])
-        if _our_tracks(b):
+            b.set_display_name(nm["bind_prefix"] + t["binding"])
+        clash, _ = scene_conflicts([t["binding"]], [{"binding": t["binding"], "tracks": _binding_tracks(b)}],
+                                   plan["range"], nm["track"])
+        if clash:
+            _stop(run, "BINDING_TRANSFORM_CONFLICT|%s|NOTHING SAVED; Don't-Save restart" % clash)
+        if _our_tracks(b, nm["track"]):
             _stop(run, "TRACK_ALREADY_PRESENT|%s|NOTHING SAVED; Don't-Save restart" % t["binding"])
         tr = b.add_track(unreal.MovieScene3DTransformTrack)
-        tr.set_display_name(TRACK_NAME)
+        tr.set_display_name(nm["track"])
         s = tr.add_section()
         s.set_range(int(plan["range"][0]), int(plan["range"][1]))
         s.set_completion_mode(mode)
@@ -416,7 +527,7 @@ def run_apply(args, run, plan):
     seq = unreal.load_asset(scene_path)
     by = {_gs(b.get_id()): b for b in seq.get_bindings()}
     for r, t in zip(rows, plan["targets"]):
-        tracks = _our_tracks(by[r["guid"]]) if r["guid"] in by else []
+        tracks = _our_tracks(by[r["guid"]], nm["track"]) if r["guid"] in by else []
         if len(tracks) != 1 or len(tracks[0].get_sections()) != 1:
             _stop(run, "POST_SAVE_TRACKS|%s" % t["binding"])
         d = readback_diff({"range": plan["range"], "completion": args["completion"], "values": t["values"]},
@@ -431,19 +542,22 @@ def run_apply(args, run, plan):
     with open(tmp, "w", encoding="utf-8") as h:
         json.dump(rec, h, indent=1, default=str)
     os.replace(tmp, rec_path)
-    unreal.log("S4HOLD_APPLY_OK|run=%s|range=%s|movers=%d|%s" % (run, plan["range"], len(rows),
-                                                                 [r["binding"] for r in rows]))
+    unreal.log("%s_APPLY_OK|run=%s|range=%s|movers=%d|%s" % (nm["mark"], run, plan["range"], len(rows),
+                                                             [r["binding"] for r in rows]))
 
 
-def run_revert(args, run):
-    rec_path = os.path.join(_here(), RECORD)
+def run_revert(args, run, scene):
+    nm = names(scene)
+    rec_path = os.path.join(_here(), nm["record"])
     if not os.path.exists(rec_path):
         _stop(run, "NO_RECORD")
     with open(rec_path, encoding="utf-8") as h:
         rec = json.load(h)
+    if record_scene(rec) != scene:
+        _stop(run, "RECORD_SCENE|%s!=%s" % (record_scene(rec), scene))
     if not rec.get("applied"):
         _stop(run, "RECORD_NOT_APPLIED (partial APPLY: restore the backup %s with the editor closed)" % rec.get("backup"))
-    scene_path = SCENE % 4
+    scene_path = SCENE % scene
     if _census():
         _stop(run, "DIRTY_BEFORE|%s" % _census())
     seq = unreal.load_asset(scene_path)
@@ -452,11 +566,11 @@ def run_revert(args, run):
         b = by.get(r["guid"])
         if b is None:
             _stop(run, "BINDING_GONE|%s" % r["binding"])
-        ours = _our_tracks(b)
+        ours = _our_tracks(b, nm["track"])
         if len(ours) != 1:
             _stop(run, "OUR_TRACKS|%s|%d" % (r["binding"], len(ours)))
         b.remove_track(ours[0])  # returns None (memory): read back below
-        if _our_tracks(b):
+        if _our_tracks(b, nm["track"]):
             _stop(run, "REMOVE_TRACK_READBACK|%s|NOTHING SAVED; Don't-Save restart" % r["binding"])
         if r["created"]:
             if list(b.get_tracks()) or list(b.get_child_possessables()):
@@ -464,7 +578,7 @@ def run_revert(args, run):
             b.remove()
     seq = unreal.load_asset(scene_path)
     left = [str(b.get_display_name()) for b in seq.get_bindings()
-            if _our_tracks(b) or str(b.get_display_name()).startswith(BIND_PREFIX)]
+            if _our_tracks(b, nm["track"]) or str(b.get_display_name()).startswith(nm["bind_prefix"])]
     if left:
         _stop(run, "REVERT_LEFTOVERS|%s|NOTHING SAVED; Don't-Save restart" % left)
     if _census() != [scene_path]:
@@ -474,14 +588,20 @@ def run_revert(args, run):
     if _census():
         _stop(run, "DIRTY_AFTER|%s" % _census())
     os.replace(rec_path, rec_path + ".reverted-" + run)
-    unreal.log("S4HOLD_REVERT_OK|run=%s|removed=%d" % (run, len(rec["bindings"])))
+    unreal.log("%s_REVERT_OK|run=%s|removed=%d" % (nm["mark"], run, len(rec["bindings"])))
 
 
 def main(args):
-    run = args.get("run_id") or "S4HOLD-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    try:
+        scene = int(args.get("scene"))
+    except (TypeError, ValueError):
+        scene = None
+    _MARK[0] = names(scene)["mark"] if scene in SCENES else "HANGARHOLD"
+    run = args.get("run_id") or _MARK[0] + "-" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     bad = validate_args(args)
     if bad:
         _stop(run, "ARGS|%s" % bad)
+    nm = names(scene)
     ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     if args["mode"] in ("APPLY", "REVERT"):
         if ed.get_game_world() is not None:
@@ -490,21 +610,21 @@ def main(args):
         if cur is not None:
             _stop(run, "SEQUENCER_OPEN|%s" % cur.get_path_name())
     if args["mode"] == "REVERT":
-        run_revert(args, run)
+        run_revert(args, run, scene)
         return
     sv = survey()
     out = {"run": run, "survey": sv}
     if args["mode"] != "SURVEY":
-        out["plan"] = _plan(args, run)
-    path = os.path.join(_here(), "s4_hangar_hold_%s_%s.json" % (args["mode"].lower(), run))
+        out["plan"] = _plan(args, run, scene)
+    path = os.path.join(_here(), "%s%s_%s.json" % (nm["out_prefix"], args["mode"].lower(), run))
     with open(path, "w", encoding="utf-8") as h:
         json.dump(out, h, indent=1, default=str)
     short = ["S%s:%s" % (r["scene"], r.get("uncovered_s")) for r in sv if r.get("verdict") == "SHORT"]
     if args["mode"] == "APPLY":
-        run_apply(args, run, out["plan"])
+        run_apply(args, run, out["plan"], scene)
         return
-    unreal.log("S4HOLD_%s_OK|run=%s|short=%s|plan=%s|%s" % (
-        args["mode"], run, short,
+    unreal.log("%s_%s_OK|run=%s|short=%s|plan=%s|%s" % (
+        nm["mark"], args["mode"], run, short,
         None if "plan" not in out else {"range": out["plan"]["range"],
                                         "movers": [t["binding"] for t in out["plan"]["targets"]]}, path))
 

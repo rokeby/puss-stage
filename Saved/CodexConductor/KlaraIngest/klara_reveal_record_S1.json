@@ -1,6 +1,6 @@
 {
  "applied": true,
- "backup": "E:/PussStage/Backups\\PreKlaraReveal-S1-KLARAREVEAL-20261007-011535",
+ "backup": "E:/PussStage/Backups\\PreKlaraReveal-S1-KLARAREVEAL-20261007-104054",
  "before": {
   "cuts": [
    {
@@ -248,7 +248,7 @@
   {
    "active": true,
    "camera": "Klara Reveal - S1 Reveal Glide Camera",
-   "guid": "B422BD1C4C83C4A2EB9EF8AE2F949BC8",
+   "guid": "97D6134A4431DFDD6B37FF8EBDECCEEC",
    "range": [
     119,
     6151
@@ -264,7 +264,7 @@
    ]
   }
  ],
- "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills).",
+ "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills). | S4 (Gary 7 Oct, conductor session): adapt her dark opening / glide in the dark (reveal_style auto -> her_dark_pan); 'Rebuild the S4 hangar bigger' (resized in place HANGARRESIZES4-20261007-092739).",
  "glide_camera": "S1 Reveal Glide Camera",
  "glide_report": {
   "distance_cm": 604.4245196879425,
@@ -456,15 +456,15 @@
  },
  "manifest": [
   {
-   "sha256": "b0954bf5158c7f12c07a6dc1d15d55681bdd9aebcdf102a9c3d16f7574faf31f",
+   "sha256": "884e817120451be5027c291146f2bbce95380d97f1192da0755d9c3b3df361de",
    "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
   },
   {
-   "sha256": "cd0f6c7b2d219752e8167ebacd1cd02a7b48067ea69a8ab480e3c10ab09fd06a",
+   "sha256": "418b5f9156b7ee282a264fb5b51dccb345d6178ed9dc45ffe5d7452507aef329",
    "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_01.uasset"
   },
   {
-   "sha256": "900cf066c0366763d3d0b15492a8406c2daea7a12c14fd91fdc92f3a251147d2",
+   "sha256": "a78c2f1766d38ad29133f5e54f9350f91a02fa1685c3d80c2647c68e7047be50",
    "source": "E:/PussStage/Content\\InfinityStage\\KlaraHookin\\LS_Animals_1_S1Hangar.uasset"
   }
  ],
@@ -482,17 +482,7 @@
      "start_frame": -311
     }
    ],
-   "scene_audio_all": [
-    {
-     "active": false,
-     "range": [
-      5216,
-      6091
-     ],
-     "sound": "/Game/InfinityStage/Audio/ScenesAudio/Narration/SW_S1_Animals_Narration_Standin",
-     "track": "Narration (stand-in)"
-    }
-   ],
+   "scene_audio_all": [],
    "scene_audio_past_end": [],
    "scene_markers_all": [],
    "scene_markers_past_end": []
@@ -10128,9 +10118,7 @@
    }
   ],
   "hide": {
-   "labels": [
-    "S1 Hangar Roof"
-   ],
+   "labels": [],
    "range": [
     269,
     5832
@@ -10712,8 +10700,8 @@
     ]
    },
    "exit": {
-    "focal": 25.0,
-    "focus": 600.0,
+    "focal": 35.0,
+    "focus": 100000.0,
     "loc": [
      28784.0135,
      0.0,
@@ -10969,7 +10957,7 @@
    "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 282 (glows already at 0; emissive cannot fade without a material track)"
   ]
  },
- "run": "KLARAREVEAL-20261007-011535",
+ "run": "KLARAREVEAL-20261007-104054",
  "scene": "1",
  "schema": 1,
  "shared_bindings": [
@@ -11008,5 +10996,5 @@
  },
  "tool": "klara_reveal",
  "version": 3,
- "written": "2026-10-07T01:15:36"
+ "written": "2026-10-07T10:40:54"
 }
