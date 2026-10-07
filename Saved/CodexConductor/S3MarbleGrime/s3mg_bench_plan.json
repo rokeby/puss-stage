@@ -1,0 +1,284 @@
+{
+ "band": {
+  "atlas": {
+   "AtlasU0": 0.0,
+   "AtlasUSize": 1.9486,
+   "AtlasV0": 0.0,
+   "AtlasVSize": 1.0,
+   "FlipU": 0.0,
+   "GlobalFlipU": 0.0,
+   "GlobalFlipV": 0.0
+  },
+  "axes": {
+   "x": [
+    -0.0,
+    1.0,
+    -0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "z": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  "decal_size": [
+   8.0,
+   100.0,
+   779.4
+  ],
+  "location": [
+   14930.3,
+   160999.0,
+   95.0
+  ],
+  "name": "ZZ_S3MG_Band",
+  "params": {
+   "GreaseGain": 0.85,
+   "GreaseRoughMin": 0.2,
+   "GreaseRoughRange": 0.5,
+   "NormalStrength": 0.0
+  },
+  "rotation": {
+   "pitch": -0.0,
+   "roll": 90.0,
+   "yaw": 90.0
+  },
+  "texture": "T_S3MG_GrimeBand"
+ },
+ "camera": {
+  "aspect": 1.7777777777777777,
+  "file_exists": true,
+  "fov_deg": 37.49735641479492,
+  "fov_read": 37.49735641479492,
+  "fraction": 0.3,
+  "i": 0,
+  "loc": [
+   14421.973,
+   159250.0,
+   120.0
+  ],
+  "luma": 110.323,
+  "rot": {
+   "pitch": -5.464179515838624,
+   "roll": -0.0,
+   "yaw": 75.45720672607422
+  },
+  "run": "PSTILLS-S3-20261007-173228-floathold",
+  "seconds_into_passage": 78.0
+ },
+ "lights": [
+  {
+   "attenuation_radius": 3500.0,
+   "barn_door_angle": 20.0,
+   "barn_door_length": 40.0,
+   "location": [
+    14697.6,
+    159060.0,
+    383.8
+   ],
+   "name": "ZZ_S3MG_MirrorStrip_0",
+   "reflects_at_wall_cm": [
+    14552.7,
+    160999.0,
+    245.1
+   ],
+   "rotation": {
+    "pitch": 0.0,
+    "roll": 0.0,
+    "yaw": 90.0
+   },
+   "source_height": 120.0,
+   "source_width": 300.0
+  },
+  {
+   "attenuation_radius": 3500.0,
+   "barn_door_angle": 20.0,
+   "barn_door_length": 40.0,
+   "location": [
+    15494.0,
+    159060.0,
+    383.8
+   ],
+   "name": "ZZ_S3MG_MirrorStrip_1",
+   "reflects_at_wall_cm": [
+    14930.4,
+    160999.0,
+    245.1
+   ],
+   "rotation": {
+    "pitch": 0.0,
+    "roll": 0.0,
+    "yaw": 90.0
+   },
+   "source_height": 120.0,
+   "source_width": 300.0
+  },
+  {
+   "attenuation_radius": 3500.0,
+   "barn_door_angle": 20.0,
+   "barn_door_length": 40.0,
+   "location": [
+    16290.3,
+    159060.0,
+    383.8
+   ],
+   "name": "ZZ_S3MG_MirrorStrip_2",
+   "reflects_at_wall_cm": [
+    15308.0,
+    160999.0,
+    245.1
+   ],
+   "rotation": {
+    "pitch": 0.0,
+    "roll": 0.0,
+    "yaw": 90.0
+   },
+   "source_height": 120.0,
+   "source_width": 300.0
+  }
+ ],
+ "liner": {
+  "label": "S3 Marble Inner Wall Right",
+  "mi": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R0",
+  "mid": {
+   "scalars": {
+    "Max Roughness": 0.6,
+    "Min Roughness": 0.04,
+    "RoughnessTextureWeight": 1.0
+   },
+   "textures": {
+    "BaseColorTexture": "T_S3MG_Marble021_Color_Grime",
+    "NormalTexture": "T_S3MG_Marble021_NormalDX_Scratch",
+    "RoughnessTexture": "T_S3MG_Marble021_RoughGrime"
+   }
+  },
+  "name": "StaticMeshActor_350"
+ },
+ "prints": {
+  "colour_gain": 0.22,
+  "count": 60,
+  "grease": {
+   "GreaseGain": 1.0,
+   "GreaseRoughMin": 0.3,
+   "GreaseRoughRange": 0.25,
+   "NormalStrength": 0.25
+  },
+  "labels": [
+   "HP_S03 R 0106",
+   "HP_S03 R 0107",
+   "HP_S03 R 0108",
+   "HP_S03 R 0109",
+   "HP_S03 R 0110",
+   "HP_S03 R 0111",
+   "HP_S03 R 0112",
+   "HP_S03 R 0113",
+   "HP_S03 R 0114",
+   "HP_S03 R 0115",
+   "HP_S03 R 0116",
+   "HP_S03 R 0117",
+   "HP_S03 R 0118",
+   "HP_S03 R 0119",
+   "HP_S03 R 0120",
+   "HP_S03 R 0121",
+   "HP_S03 R 0122",
+   "HP_S03 R 0125",
+   "HP_S03 R 0127",
+   "HP_S03 R 0130",
+   "HP_S03 R 0132",
+   "HP_S03 R 0133",
+   "HP_S03 R 0134",
+   "HP_S03 R 0135",
+   "HP_S03 R 0136",
+   "HP_S03 R 0137",
+   "HP_S03 R 0138",
+   "HP_S03 R 0139",
+   "HP_S03 R 0140",
+   "HP_S03 R 0141",
+   "HP_S03 R 0142",
+   "HP_S03 R 0143",
+   "HP_S03 R 0144",
+   "HP_S03 R 0145",
+   "HP_S03 R 0146",
+   "HP_S03 R 0147",
+   "HP_S03 R 0148",
+   "HP_S03 R 0149",
+   "HP_S03 R 0150",
+   "HP_S03 R 0151",
+   "HP_S03 R 0153",
+   "HP_S03 R 0154",
+   "HP_S03 R 0155",
+   "HP_S03 R 0156",
+   "HP_S03 R 0157",
+   "HP_S03 R 0158",
+   "HP_S03 R 0159",
+   "HP_S03 R 0160",
+   "HP_S03 R 0162",
+   "HP_S03 R 0163",
+   "HP_S03 R 0164",
+   "HP_S03 R 0165",
+   "HP_S03 R 0166",
+   "HP_S03 R 0167",
+   "HP_S03 R 0168",
+   "HP_S03 R 0169",
+   "HP_S03 R 0170",
+   "HP_S03 R 0171",
+   "HP_S03 R 0173",
+   "HP_S03 R 0174"
+  ]
+ },
+ "stills_args": {
+  "fractions": [
+   0.3
+  ],
+  "label": "s3mg_<variant>",
+  "passage": "S3"
+ },
+ "tool": "s3mg_bench.py plan",
+ "variants": {
+  "A": {
+   "band": false,
+   "lights": null,
+   "marble": true,
+   "prints": true
+  },
+  "B": {
+   "band": true,
+   "lights": null,
+   "marble": true,
+   "prints": true
+  },
+  "C": {
+   "band": false,
+   "lights": {
+    "diffuse_scale": 0.1,
+    "intensity_cd": 4000.0
+   },
+   "marble": true,
+   "prints": true
+  },
+  "C_phys": {
+   "band": false,
+   "lights": {
+    "diffuse_scale": 1.0,
+    "intensity_cd": 1500.0
+   },
+   "marble": true,
+   "prints": true
+  },
+  "base_C": {
+   "band": false,
+   "lights": {
+    "diffuse_scale": 0.1,
+    "intensity_cd": 4000.0
+   },
+   "marble": false,
+   "prints": false
+  }
+ },
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}

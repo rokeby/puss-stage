@@ -1,0 +1,1650 @@
+{
+ "tool": "s3mg_geometry.py",
+ "main_pose": {
+  "run": "PSTILLS-S3-20261007-173228-floathold",
+  "i": 0,
+  "fraction": 0.3,
+  "seconds_into_passage": 78.0,
+  "file_exists": true,
+  "luma": 110.323,
+  "aspect": 1.7777777777777777,
+  "fov_deg": 37.49735641479492,
+  "fov_read": 37.49735641479492,
+  "loc": [
+   14421.973,
+   159250.0,
+   120.0
+  ],
+  "rot": {
+   "pitch": -5.464179515838624,
+   "roll": -0.0,
+   "yaw": 75.45720672607422
+  }
+ },
+ "all_poses": [
+  {
+   "run": "PSTILLS-S3-20261007-173228-floathold",
+   "i": 0,
+   "fraction": 0.3,
+   "seconds_into_passage": 78.0,
+   "file_exists": true,
+   "luma": 110.323,
+   "aspect": 1.7777777777777777,
+   "fov_deg": 37.49735641479492,
+   "fov_read": 37.49735641479492,
+   "loc": [
+    14421.973,
+    159250.0,
+    120.0
+   ],
+   "rot": {
+    "pitch": -5.464179515838624,
+    "roll": -0.0,
+    "yaw": 75.45720672607422
+   }
+  },
+  {
+   "run": "PSTILLS-S3-20261007-144232-held",
+   "i": 0,
+   "fraction": 0.3,
+   "seconds_into_passage": 78.0,
+   "file_exists": true,
+   "luma": 247.673,
+   "aspect": 1.7777777777777777,
+   "fov_deg": 37.49735641479492,
+   "fov_read": 37.49735641479492,
+   "loc": [
+    14421.973,
+    159250.0,
+    120.0
+   ],
+   "rot": {
+    "pitch": -5.464179515838624,
+    "roll": -0.0,
+    "yaw": 75.45720672607422
+   }
+  },
+  {
+   "run": "PSTILLS-S3-20261007-144232-held",
+   "i": 1,
+   "fraction": 0.7,
+   "seconds_into_passage": 182.0,
+   "file_exists": true,
+   "luma": 245.196,
+   "aspect": 1.7777777777777777,
+   "fov_deg": 26.73128318786621,
+   "fov_read": 26.73128318786621,
+   "loc": [
+    14281.973,
+    159960.0,
+    110.0
+   ],
+   "rot": {
+    "pitch": -15.322317123413079,
+    "roll": 4.1222194355903493e-16,
+    "yaw": 15.94539546966552
+   }
+  }
+ ],
+ "wall": {
+  "id": "R",
+  "plane_y_cm": 160999.0,
+  "inward_normal": [
+   0.0,
+   -1.0,
+   0.0
+  ],
+  "floor_z_cm": -5.0,
+  "liner_actor": "S3 Marble Inner Wall Right (StaticMeshActor_350)",
+  "liner_mi": "/Game/InfinityStage/Dev/Materials/MI_S3_Marble_Tiling_Daylight_R0",
+  "attach_actor": "S3 Hangar Right Wall"
+ },
+ "frame_on_wall": {
+  "tl": {
+   "px": [
+    0,
+    0
+   ],
+   "wall_xz": [
+    15559.8,
+    304.7
+   ],
+   "dist_cm": 2094.7
+  },
+  "tr": {
+   "px": [
+    1599,
+    0
+   ],
+   "wall_xz": [
+    14300.9,
+    275.2
+   ],
+   "dist_cm": 1760.0
+  },
+  "bl": {
+   "px": [
+    0,
+    899
+   ],
+   "wall_xz": [
+    15587.7,
+    -459.2
+   ],
+   "dist_cm": 2180.2
+  },
+  "br": {
+   "px": [
+    1599,
+    899
+   ],
+   "wall_xz": [
+    14281.3,
+    -363.5
+   ],
+   "dist_cm": 1820.1
+  },
+  "c": {
+   "px": [
+    800,
+    450
+   ],
+   "wall_xz": [
+    14875.3,
+    -53.2
+   ],
+   "dist_cm": 1815.1
+  },
+  "top_c": {
+   "px": [
+    800,
+    0
+   ],
+   "wall_xz": [
+    14875.3,
+    288.7
+   ],
+   "dist_cm": 1814.7
+  }
+ },
+ "check_junction_row_px": 387.5,
+ "check_liner_top_row_px": -424.3,
+ "visible_R_decals": 60,
+ "decals": [
+  {
+   "id": "HP_S03_R_0106",
+   "label": "HP_S03 R 0106",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P080_F1",
+   "element": "P080",
+   "flip": true,
+   "loc": [
+    14280.245,
+    160999.0,
+    274.676
+   ],
+   "size_cm": [
+    20.41,
+    22.86
+   ],
+   "roll_on_wall_deg": -9.7999,
+   "px": [
+    1630.3,
+    0.1
+   ]
+  },
+  {
+   "id": "HP_S03_R_0107",
+   "label": "HP_S03 R 0107",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P005_F0",
+   "element": "P005",
+   "flip": false,
+   "loc": [
+    14285.46,
+    160999.0,
+    222.811
+   ],
+   "size_cm": [
+    19.719,
+    22.816
+   ],
+   "roll_on_wall_deg": -1.7452,
+   "px": [
+    1619.9,
+    75.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0108",
+   "label": "HP_S03 R 0108",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P005_F1",
+   "element": "P005",
+   "flip": true,
+   "loc": [
+    14300.445,
+    160999.0,
+    244.006
+   ],
+   "size_cm": [
+    19.16,
+    22.169
+   ],
+   "roll_on_wall_deg": -27.1913,
+   "px": [
+    1598.2,
+    45.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0109",
+   "label": "HP_S03 R 0109",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S013_F0",
+   "element": "S013",
+   "flip": false,
+   "loc": [
+    14302.05,
+    160999.0,
+    247.025
+   ],
+   "size_cm": [
+    19.152,
+    76.853
+   ],
+   "roll_on_wall_deg": -23.3301,
+   "px": [
+    1595.9,
+    41.0
+   ]
+  },
+  {
+   "id": "HP_S03_R_0110",
+   "label": "HP_S03 R 0110",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P005_F0",
+   "element": "P005",
+   "flip": false,
+   "loc": [
+    14304.224,
+    160999.0,
+    265.83
+   ],
+   "size_cm": [
+    19.003,
+    21.988
+   ],
+   "roll_on_wall_deg": 32.7195,
+   "px": [
+    1593.5,
+    13.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0111",
+   "label": "HP_S03 R 0111",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P061_F1",
+   "element": "P061",
+   "flip": true,
+   "loc": [
+    14311.747,
+    160999.0,
+    169.598
+   ],
+   "size_cm": [
+    19.446,
+    21.67
+   ],
+   "roll_on_wall_deg": 23.6989,
+   "px": [
+    1577.8,
+    153.0
+   ]
+  },
+  {
+   "id": "HP_S03_R_0112",
+   "label": "HP_S03 R 0112",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P061_F1",
+   "element": "P061",
+   "flip": true,
+   "loc": [
+    14320.918,
+    160999.0,
+    227.507
+   ],
+   "size_cm": [
+    19.207,
+    21.404
+   ],
+   "roll_on_wall_deg": -20.0269,
+   "px": [
+    1566.7,
+    69.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0113",
+   "label": "HP_S03 R 0113",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P061_F0",
+   "element": "P061",
+   "flip": false,
+   "loc": [
+    14324.421,
+    160999.0,
+    248.023
+   ],
+   "size_cm": [
+    19.571,
+    21.81
+   ],
+   "roll_on_wall_deg": -7.4808,
+   "px": [
+    1562.3,
+    40.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0114",
+   "label": "HP_S03 R 0114",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P061_F0",
+   "element": "P061",
+   "flip": false,
+   "loc": [
+    14334.881,
+    160999.0,
+    201.703
+   ],
+   "size_cm": [
+    19.267,
+    21.471
+   ],
+   "roll_on_wall_deg": 34.3338,
+   "px": [
+    1544.7,
+    107.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0115",
+   "label": "HP_S03 R 0115",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P011_F0",
+   "element": "P011",
+   "flip": false,
+   "loc": [
+    14346.277,
+    160999.0,
+    242.182
+   ],
+   "size_cm": [
+    18.186,
+    20.053
+   ],
+   "roll_on_wall_deg": -11.245,
+   "px": [
+    1529.4,
+    49.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0116",
+   "label": "HP_S03 R 0116",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P011_F1",
+   "element": "P011",
+   "flip": true,
+   "loc": [
+    14396.646,
+    160999.0,
+    249.433
+   ],
+   "size_cm": [
+    18.186,
+    20.053
+   ],
+   "roll_on_wall_deg": 11.245,
+   "px": [
+    1455.3,
+    40.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0117",
+   "label": "HP_S03 R 0117",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P056_F0",
+   "element": "P056",
+   "flip": false,
+   "loc": [
+    14418.563,
+    160999.0,
+    246.171
+   ],
+   "size_cm": [
+    18.96,
+    21.195
+   ],
+   "roll_on_wall_deg": 23.0118,
+   "px": [
+    1423.1,
+    45.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0118",
+   "label": "HP_S03 R 0118",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S031_F0",
+   "element": "S031",
+   "flip": false,
+   "loc": [
+    14426.56,
+    160999.0,
+    212.832
+   ],
+   "size_cm": [
+    21.379,
+    82.438
+   ],
+   "roll_on_wall_deg": 110.6482,
+   "px": [
+    1410.3,
+    93.0
+   ]
+  },
+  {
+   "id": "HP_S03_R_0119",
+   "label": "HP_S03 R 0119",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    14452.412,
+    160999.0,
+    191.128
+   ],
+   "size_cm": [
+    20.178,
+    21.833
+   ],
+   "roll_on_wall_deg": 24.1487,
+   "px": [
+    1372.2,
+    124.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0120",
+   "label": "HP_S03 R 0120",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    14467.797,
+    160999.0,
+    228.297
+   ],
+   "size_cm": [
+    18.444,
+    19.957
+   ],
+   "roll_on_wall_deg": -26.3567,
+   "px": [
+    1351.3,
+    72.0
+   ]
+  },
+  {
+   "id": "HP_S03_R_0121",
+   "label": "HP_S03 R 0121",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F1",
+   "element": "P046",
+   "flip": true,
+   "loc": [
+    14476.969,
+    160999.0,
+    206.646
+   ],
+   "size_cm": [
+    21.468,
+    23.23
+   ],
+   "roll_on_wall_deg": 34.2495,
+   "px": [
+    1337.5,
+    102.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0122",
+   "label": "HP_S03 R 0122",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F1",
+   "element": "P046",
+   "flip": true,
+   "loc": [
+    14480.474,
+    160999.0,
+    255.142
+   ],
+   "size_cm": [
+    19.046,
+    20.608
+   ],
+   "roll_on_wall_deg": -6.0841,
+   "px": [
+    1334.0,
+    34.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0125",
+   "label": "HP_S03 R 0125",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    14489.715,
+    160999.0,
+    286.484
+   ],
+   "size_cm": [
+    19.288,
+    20.87
+   ],
+   "roll_on_wall_deg": -10.7058,
+   "px": [
+    1321.7,
+    -9.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0127",
+   "label": "HP_S03 R 0127",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S027_F0",
+   "element": "S027",
+   "flip": false,
+   "loc": [
+    14538.322,
+    160999.0,
+    222.031
+   ],
+   "size_cm": [
+    14.29,
+    87.728
+   ],
+   "roll_on_wall_deg": -6.0563,
+   "px": [
+    1251.0,
+    82.3
+   ]
+  },
+  {
+   "id": "HP_S03_R_0130",
+   "label": "HP_S03 R 0130",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P050_F0",
+   "element": "P050",
+   "flip": false,
+   "loc": [
+    14581.053,
+    160999.0,
+    287.188
+   ],
+   "size_cm": [
+    20.283,
+    22.306
+   ],
+   "roll_on_wall_deg": -6.596,
+   "px": [
+    1192.8,
+    -7.6
+   ]
+  },
+  {
+   "id": "HP_S03_R_0132",
+   "label": "HP_S03 R 0132",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P050_F1",
+   "element": "P050",
+   "flip": true,
+   "loc": [
+    14599.42,
+    160999.0,
+    304.039
+   ],
+   "size_cm": [
+    20.828,
+    22.906
+   ],
+   "roll_on_wall_deg": 26.4724,
+   "px": [
+    1167.6,
+    -30.5
+   ]
+  },
+  {
+   "id": "HP_S03_R_0133",
+   "label": "HP_S03 R 0133",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P050_F1",
+   "element": "P050",
+   "flip": true,
+   "loc": [
+    14602.047,
+    160999.0,
+    253.356
+   ],
+   "size_cm": [
+    20.81,
+    22.886
+   ],
+   "roll_on_wall_deg": 31.3414,
+   "px": [
+    1163.0,
+    40.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0134",
+   "label": "HP_S03 R 0134",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S030_F0",
+   "element": "S030",
+   "flip": false,
+   "loc": [
+    14610.466,
+    160999.0,
+    273.434
+   ],
+   "size_cm": [
+    14.515,
+    82.092
+   ],
+   "roll_on_wall_deg": -165.271,
+   "px": [
+    1151.7,
+    12.6
+   ]
+  },
+  {
+   "id": "HP_S03_R_0135",
+   "label": "HP_S03 R 0135",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S001_F0",
+   "element": "S001",
+   "flip": false,
+   "loc": [
+    14625.926,
+    160999.0,
+    271.506
+   ],
+   "size_cm": [
+    20.772,
+    82.375
+   ],
+   "roll_on_wall_deg": 7.5082,
+   "px": [
+    1130.4,
+    15.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0136",
+   "label": "HP_S03 R 0136",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S008_F0",
+   "element": "S008",
+   "flip": false,
+   "loc": [
+    14638.671,
+    160999.0,
+    213.493
+   ],
+   "size_cm": [
+    28.878,
+    98.594
+   ],
+   "roll_on_wall_deg": 124.9923,
+   "px": [
+    1112.0,
+    96.1
+   ]
+  },
+  {
+   "id": "HP_S03_R_0137",
+   "label": "HP_S03 R 0137",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P059_F0",
+   "element": "P059",
+   "flip": false,
+   "loc": [
+    14712.549,
+    160999.0,
+    265.707
+   ],
+   "size_cm": [
+    18.503,
+    21.381
+   ],
+   "roll_on_wall_deg": 7.2785,
+   "px": [
+    1012.9,
+    26.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0138",
+   "label": "HP_S03 R 0138",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P059_F1",
+   "element": "P059",
+   "flip": true,
+   "loc": [
+    14721.173,
+    160999.0,
+    241.887
+   ],
+   "size_cm": [
+    18.135,
+    20.956
+   ],
+   "roll_on_wall_deg": 9.1814,
+   "px": [
+    1001.1,
+    59.0
+   ]
+  },
+  {
+   "id": "HP_S03_R_0139",
+   "label": "HP_S03 R 0139",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P059_F0",
+   "element": "P059",
+   "flip": false,
+   "loc": [
+    14735.6,
+    160999.0,
+    210.313
+   ],
+   "size_cm": [
+    18.944,
+    21.891
+   ],
+   "roll_on_wall_deg": -4.2558,
+   "px": [
+    981.6,
+    102.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0140",
+   "label": "HP_S03 R 0140",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P059_F1",
+   "element": "P059",
+   "flip": true,
+   "loc": [
+    14738.211,
+    160999.0,
+    194.659
+   ],
+   "size_cm": [
+    19.804,
+    22.886
+   ],
+   "roll_on_wall_deg": -6.5826,
+   "px": [
+    978.0,
+    123.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0141",
+   "label": "HP_S03 R 0141",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P059_F0",
+   "element": "P059",
+   "flip": false,
+   "loc": [
+    14741.915,
+    160999.0,
+    169.767
+   ],
+   "size_cm": [
+    19.597,
+    22.646
+   ],
+   "roll_on_wall_deg": -1.9774,
+   "px": [
+    972.9,
+    157.1
+   ]
+  },
+  {
+   "id": "HP_S03_R_0142",
+   "label": "HP_S03 R 0142",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P064_F1",
+   "element": "P064",
+   "flip": true,
+   "loc": [
+    14777.643,
+    160999.0,
+    254.355
+   ],
+   "size_cm": [
+    19.623,
+    22.252
+   ],
+   "roll_on_wall_deg": 5.6673,
+   "px": [
+    926.5,
+    43.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0143",
+   "label": "HP_S03 R 0143",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F1",
+   "element": "P067",
+   "flip": true,
+   "loc": [
+    14811.592,
+    160999.0,
+    209.133
+   ],
+   "size_cm": [
+    18.631,
+    20.485
+   ],
+   "roll_on_wall_deg": 26.0094,
+   "px": [
+    881.9,
+    105.1
+   ]
+  },
+  {
+   "id": "HP_S03_R_0144",
+   "label": "HP_S03 R 0144",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F1",
+   "element": "P046",
+   "flip": true,
+   "loc": [
+    14811.899,
+    160999.0,
+    234.149
+   ],
+   "size_cm": [
+    18.533,
+    20.053
+   ],
+   "roll_on_wall_deg": 34.3067,
+   "px": [
+    881.6,
+    71.5
+   ]
+  },
+  {
+   "id": "HP_S03_R_0145",
+   "label": "HP_S03 R 0145",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F1",
+   "element": "P046",
+   "flip": true,
+   "loc": [
+    14824.503,
+    160999.0,
+    287.161
+   ],
+   "size_cm": [
+    19.71,
+    21.327
+   ],
+   "roll_on_wall_deg": -34.7237,
+   "px": [
+    865.5,
+    0.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0146",
+   "label": "HP_S03 R 0146",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    14828.921,
+    160999.0,
+    312.828
+   ],
+   "size_cm": [
+    20.044,
+    21.688
+   ],
+   "roll_on_wall_deg": -1.0736,
+   "px": [
+    859.8,
+    -34.1
+   ]
+  },
+  {
+   "id": "HP_S03_R_0147",
+   "label": "HP_S03 R 0147",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    14833.221,
+    160999.0,
+    206.712
+   ],
+   "size_cm": [
+    20.102,
+    21.751
+   ],
+   "roll_on_wall_deg": -9.5189,
+   "px": [
+    853.9,
+    108.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0148",
+   "label": "HP_S03 R 0148",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    14833.228,
+    160999.0,
+    257.604
+   ],
+   "size_cm": [
+    20.167,
+    21.821
+   ],
+   "roll_on_wall_deg": -10.6179,
+   "px": [
+    854.1,
+    40.5
+   ]
+  },
+  {
+   "id": "HP_S03_R_0149",
+   "label": "HP_S03 R 0149",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P066_F0",
+   "element": "P066",
+   "flip": false,
+   "loc": [
+    14894.52,
+    160999.0,
+    184.003
+   ],
+   "size_cm": [
+    17.943,
+    20.113
+   ],
+   "roll_on_wall_deg": -40.7475,
+   "px": [
+    775.6,
+    139.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0150",
+   "label": "HP_S03 R 0150",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P065_F1",
+   "element": "P065",
+   "flip": true,
+   "loc": [
+    14957.312,
+    160999.0,
+    235.813
+   ],
+   "size_cm": [
+    18.445,
+    20.956
+   ],
+   "roll_on_wall_deg": -16.9987,
+   "px": [
+    696.5,
+    72.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0151",
+   "label": "HP_S03 R 0151",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P070_F0",
+   "element": "P070",
+   "flip": false,
+   "loc": [
+    14970.724,
+    160999.0,
+    253.199
+   ],
+   "size_cm": [
+    18.691,
+    18.691
+   ],
+   "roll_on_wall_deg": 28.731,
+   "px": [
+    679.7,
+    49.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0153",
+   "label": "HP_S03 R 0153",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P046_F0",
+   "element": "P046",
+   "flip": false,
+   "loc": [
+    15166.352,
+    160999.0,
+    202.11
+   ],
+   "size_cm": [
+    21.019,
+    22.744
+   ],
+   "roll_on_wall_deg": 1.4323,
+   "px": [
+    443.7,
+    119.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0154",
+   "label": "HP_S03 R 0154",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F0",
+   "element": "P067",
+   "flip": false,
+   "loc": [
+    15312.109,
+    160999.0,
+    229.013
+   ],
+   "size_cm": [
+    18.69,
+    20.55
+   ],
+   "roll_on_wall_deg": 28.7868,
+   "px": [
+    274.8,
+    88.0
+   ]
+  },
+  {
+   "id": "HP_S03_R_0155",
+   "label": "HP_S03 R 0155",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F1",
+   "element": "P067",
+   "flip": true,
+   "loc": [
+    15328.34,
+    160999.0,
+    255.392
+   ],
+   "size_cm": [
+    18.915,
+    20.797
+   ],
+   "roll_on_wall_deg": 18.965,
+   "px": [
+    255.7,
+    55.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0156",
+   "label": "HP_S03 R 0156",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F1",
+   "element": "P067",
+   "flip": true,
+   "loc": [
+    15330.253,
+    160999.0,
+    166.323
+   ],
+   "size_cm": [
+    19.965,
+    21.951
+   ],
+   "roll_on_wall_deg": 1.9702,
+   "px": [
+    255.9,
+    166.6
+   ]
+  },
+  {
+   "id": "HP_S03_R_0157",
+   "label": "HP_S03 R 0157",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F1",
+   "element": "P067",
+   "flip": true,
+   "loc": [
+    15330.884,
+    160999.0,
+    196.288
+   ],
+   "size_cm": [
+    19.071,
+    20.968
+   ],
+   "roll_on_wall_deg": -11.3581,
+   "px": [
+    254.4,
+    129.2
+   ]
+  },
+  {
+   "id": "HP_S03_R_0158",
+   "label": "HP_S03 R 0158",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P080_F0",
+   "element": "P080",
+   "flip": false,
+   "loc": [
+    15336.791,
+    160999.0,
+    333.085
+   ],
+   "size_cm": [
+    18.568,
+    20.796
+   ],
+   "roll_on_wall_deg": -17.8741,
+   "px": [
+    244.0,
+    -42.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0159",
+   "label": "HP_S03 R 0159",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F0",
+   "element": "P067",
+   "flip": false,
+   "loc": [
+    15337.795,
+    160999.0,
+    175.853
+   ],
+   "size_cm": [
+    19.523,
+    21.465
+   ],
+   "roll_on_wall_deg": -17.5745,
+   "px": [
+    247.2,
+    154.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0160",
+   "label": "HP_S03 R 0160",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F0",
+   "element": "P067",
+   "flip": false,
+   "loc": [
+    15345.295,
+    160999.0,
+    287.919
+   ],
+   "size_cm": [
+    20.581,
+    22.629
+   ],
+   "roll_on_wall_deg": -13.8716,
+   "px": [
+    235.7,
+    14.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0162",
+   "label": "HP_S03 R 0162",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P072_F0",
+   "element": "P072",
+   "flip": false,
+   "loc": [
+    15363.999,
+    160999.0,
+    180.091
+   ],
+   "size_cm": [
+    16.648,
+    18.113
+   ],
+   "roll_on_wall_deg": -21.9055,
+   "px": [
+    217.8,
+    149.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0163",
+   "label": "HP_S03 R 0163",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P067_F1",
+   "element": "P067",
+   "flip": true,
+   "loc": [
+    15367.054,
+    160999.0,
+    308.85
+   ],
+   "size_cm": [
+    18.373,
+    20.201
+   ],
+   "roll_on_wall_deg": -24.8493,
+   "px": [
+    210.6,
+    -10.9
+   ]
+  },
+  {
+   "id": "HP_S03_R_0164",
+   "label": "HP_S03 R 0164",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P072_F1",
+   "element": "P072",
+   "flip": true,
+   "loc": [
+    15368.478,
+    160999.0,
+    208.358
+   ],
+   "size_cm": [
+    18.805,
+    20.46
+   ],
+   "roll_on_wall_deg": -25.0709,
+   "px": [
+    212.0,
+    114.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0165",
+   "label": "HP_S03 R 0165",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P080_F0",
+   "element": "P080",
+   "flip": false,
+   "loc": [
+    15368.943,
+    160999.0,
+    235.494
+   ],
+   "size_cm": [
+    18.968,
+    21.244
+   ],
+   "roll_on_wall_deg": 5.2571,
+   "px": [
+    210.6,
+    80.9
+   ]
+  },
+  {
+   "id": "HP_S03_R_0166",
+   "label": "HP_S03 R 0166",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P080_F1",
+   "element": "P080",
+   "flip": true,
+   "loc": [
+    15377.5,
+    160999.0,
+    268.613
+   ],
+   "size_cm": [
+    18.378,
+    20.584
+   ],
+   "roll_on_wall_deg": -34.734,
+   "px": [
+    200.1,
+    39.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0167",
+   "label": "HP_S03 R 0167",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P072_F0",
+   "element": "P072",
+   "flip": false,
+   "loc": [
+    15379.019,
+    160999.0,
+    234.119
+   ],
+   "size_cm": [
+    18.824,
+    20.48
+   ],
+   "roll_on_wall_deg": -5.4318,
+   "px": [
+    199.4,
+    82.8
+   ]
+  },
+  {
+   "id": "HP_S03_R_0168",
+   "label": "HP_S03 R 0168",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P080_F1",
+   "element": "P080",
+   "flip": true,
+   "loc": [
+    15386.213,
+    160999.0,
+    337.604
+   ],
+   "size_cm": [
+    18.568,
+    20.796
+   ],
+   "roll_on_wall_deg": 17.8741,
+   "px": [
+    188.3,
+    -46.3
+   ]
+  },
+  {
+   "id": "HP_S03_R_0169",
+   "label": "HP_S03 R 0169",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P072_F0",
+   "element": "P072",
+   "flip": false,
+   "loc": [
+    15389.467,
+    160999.0,
+    299.611
+   ],
+   "size_cm": [
+    16.975,
+    18.468
+   ],
+   "roll_on_wall_deg": 34.0633,
+   "px": [
+    185.8,
+    1.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0170",
+   "label": "HP_S03 R 0170",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P072_F1",
+   "element": "P072",
+   "flip": true,
+   "loc": [
+    15393.613,
+    160999.0,
+    266.047
+   ],
+   "size_cm": [
+    17.721,
+    19.28
+   ],
+   "roll_on_wall_deg": -6.6174,
+   "px": [
+    182.2,
+    43.4
+   ]
+  },
+  {
+   "id": "HP_S03_R_0171",
+   "label": "HP_S03 R 0171",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P080_F0",
+   "element": "P080",
+   "flip": false,
+   "loc": [
+    15396.208,
+    160999.0,
+    301.334
+   ],
+   "size_cm": [
+    19.358,
+    21.681
+   ],
+   "roll_on_wall_deg": 34.6547,
+   "px": [
+    178.3,
+    -0.6
+   ]
+  },
+  {
+   "id": "HP_S03_R_0173",
+   "label": "HP_S03 R 0173",
+   "kind": "print",
+   "mi": "MI_HP_S03_v3_P074_F0",
+   "element": "P074",
+   "flip": false,
+   "loc": [
+    15432.307,
+    160999.0,
+    250.4
+   ],
+   "size_cm": [
+    19.809,
+    21.799
+   ],
+   "roll_on_wall_deg": 32.847,
+   "px": [
+    140.0,
+    63.7
+   ]
+  },
+  {
+   "id": "HP_S03_R_0174",
+   "label": "HP_S03 R 0174",
+   "kind": "smear",
+   "mi": "MI_HP_S03_v3_S031_F0",
+   "element": "S031",
+   "flip": false,
+   "loc": [
+    15435.443,
+    160999.0,
+    256.395
+   ],
+   "size_cm": [
+    24.234,
+    93.448
+   ],
+   "roll_on_wall_deg": -158.5553,
+   "px": [
+    136.3,
+    56.3
+   ]
+  }
+ ],
+ "bench_patch_cm": {
+  "x": [
+   14230.245,
+   15485.443
+  ],
+  "z": [
+   116.32300000000001,
+   387.604
+  ]
+ },
+ "mirror_light": {
+  "type": "RectLight",
+  "location_cm": [
+   15341.1,
+   159060.0,
+   383.8
+  ],
+  "rotation": {
+   "pitch": 0.0,
+   "yaw": 90.0,
+   "roll": 0.0
+  },
+  "source_width_cm": 2000.0,
+  "source_height_cm": 120.0,
+  "barn_door_angle_deg": 20.0,
+  "barn_door_length_cm": 40.0,
+  "diffuse_scale_proposal": 0.15,
+  "specular_scale": 1.0,
+  "mirror_rect_full_cm": [
+   2646.8,
+   572.0
+  ],
+  "mirror_rect_corners_cm": [
+   [
+    14017.7,
+    159060.0,
+    112.2
+   ],
+   [
+    14017.7,
+    159060.0,
+    684.3
+   ],
+   [
+    16664.4,
+    159060.0,
+    112.2
+   ],
+   [
+    16664.4,
+    159060.0,
+    684.3
+   ]
+  ],
+  "projected_px": [
+   -101743.4,
+   -28762.6
+  ],
+  "outside_frame": true,
+  "strips_proposal": [
+   {
+    "name": "ZZ_S3MG_MirrorStrip_0",
+    "reflects_at_wall_cm": [
+     14552.7,
+     160999.0,
+     245.1
+    ],
+    "location_cm": [
+     14697.6,
+     159060.0,
+     383.8
+    ],
+    "rotation": {
+     "pitch": 0.0,
+     "yaw": 90.0,
+     "roll": 0.0
+    },
+    "source_width_cm": 300.0,
+    "source_height_cm": 120.0,
+    "reflection_size_on_wall_cm": [
+     142.3,
+     56.9
+    ],
+    "outside_frame_px": [
+     6120.6,
+     4707.2
+    ]
+   },
+   {
+    "name": "ZZ_S3MG_MirrorStrip_1",
+    "reflects_at_wall_cm": [
+     14930.4,
+     160999.0,
+     245.1
+    ],
+    "location_cm": [
+     15494.0,
+     159060.0,
+     383.8
+    ],
+    "rotation": {
+     "pitch": 0.0,
+     "yaw": 90.0,
+     "roll": 0.0
+    },
+    "source_width_cm": 300.0,
+    "source_height_cm": 120.0,
+    "reflection_size_on_wall_cm": [
+     142.3,
+     56.9
+    ],
+    "outside_frame_px": [
+     -42005.2,
+     -10226.0
+    ]
+   },
+   {
+    "name": "ZZ_S3MG_MirrorStrip_2",
+    "reflects_at_wall_cm": [
+     15308.0,
+     160999.0,
+     245.1
+    ],
+    "location_cm": [
+     16290.3,
+     159060.0,
+     383.8
+    ],
+    "rotation": {
+     "pitch": 0.0,
+     "yaw": 90.0,
+     "roll": 0.0
+    },
+    "source_width_cm": 300.0,
+    "source_height_cm": 120.0,
+    "reflection_size_on_wall_cm": [
+     142.3,
+     56.9
+    ],
+    "outside_frame_px": [
+     -16103.5,
+     -2188.8
+    ]
+   }
+  ],
+  "incidence_deg_at_band_centre": 14.54,
+  "band_centre_on_wall_cm": [
+   14857.8,
+   160999.0,
+   245.1
+  ],
+  "dist_light_to_wall_cm": 1939.0,
+  "dist_camera_to_wall_cm": 1749.0,
+  "magnification_wall_to_light": 2.109
+ }
+}

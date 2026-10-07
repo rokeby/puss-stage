@@ -1,0 +1,128 @@
+{
+ "tool": "s3mg_build_textures.py",
+ "seed": 20261007,
+ "photo_px_per_cm_inferred": 21.466666666666665,
+ "tex_px_per_cm": 13.653333333333334,
+ "outputs": {
+  "T_S3MG_Marble021_RoughGrime.png": {
+   "path": "E:/PussStage/DerivedAssets/S3Marble/Grime_20261007\\T_S3MG_Marble021_RoughGrime.png",
+   "linear": true,
+   "compression": "TC_GRAYSCALE",
+   "mi_scalars": {
+    "Min Roughness": 0.04,
+    "Max Roughness": 0.6,
+    "RoughnessTextureWeight": 1.0
+   },
+   "roughness_pcts_p5_p50_p95_p99": [
+    0.054,
+    0.077,
+    0.139,
+    0.177
+   ],
+   "tile": {
+    "u_wrap": 0.01611,
+    "u_interior_mean_p99": [
+     0.01354,
+     0.01998
+    ],
+    "v_wrap": 0.01655,
+    "v_interior_mean_p99": [
+     0.01374,
+     0.02051
+    ],
+    "seamless_u": true,
+    "seamless_v": true
+   },
+   "sha256": "a6e7b09e0ffe4c2dc83868f3410406746290369f6a14b8bf7069a5beeaa2af3f"
+  },
+  "T_S3MG_Marble021_NormalDX_Scratch.png": {
+   "path": "E:/PussStage/DerivedAssets/S3Marble/Grime_20261007\\T_S3MG_Marble021_NormalDX_Scratch.png",
+   "linear": true,
+   "compression": "TC_NORMALMAP",
+   "flip_green": false,
+   "tile": {
+    "u_wrap": 0.04545,
+    "u_interior_mean_p99": [
+     0.03427,
+     0.05051
+    ],
+    "v_wrap": 0.02861,
+    "v_interior_mean_p99": [
+     0.02617,
+     0.03943
+    ],
+    "seamless_u": true,
+    "seamless_v": true
+   },
+   "sha256": "9260ab5389d5555f01584d30f1d1131cb4a68b7ffa078902de95d2addc7bff35"
+  },
+  "T_S3MG_Marble021_Color_Grime_sRGB.png": {
+   "path": "E:/PussStage/DerivedAssets/S3Marble/Grime_20261007\\T_S3MG_Marble021_Color_Grime_sRGB.png",
+   "linear": false,
+   "compression": "TC_DEFAULT",
+   "max_darkening": 0.07,
+   "sha256": "f1b74daf2e7a0c19b3ca7cc0b130f13ddc8e70527a06f94a67a44f48739925b4"
+  },
+  "T_S3MG_GreaseAtlas.png": {
+   "path": "E:/PussStage/DerivedAssets/S3Marble/Grime_20261007\\T_S3MG_GreaseAtlas.png",
+   "linear": true,
+   "compression": "TC_MASKS",
+   "uv_layout": "identical normalized uv_rect to atlas_job24d/atlas.json (4096 -> 2048 resample)",
+   "channels": {
+    "R": "grease opacity (feathered)",
+    "G": "smear height for normal",
+    "B": "albedo weight (faint)"
+   },
+   "sha256": "8f85307b26db11725f31c8427381af46b5b4ea5507f6f50473d052333a553599"
+  },
+  "T_S3MG_GrimeBand.png": {
+   "path": "E:/PussStage/DerivedAssets/S3Marble/Grime_20261007\\T_S3MG_GrimeBand.png",
+   "linear": true,
+   "compression": "TC_MASKS",
+   "size": [
+    2048,
+    512
+   ],
+   "covers_cm": [
+    800,
+    200
+   ],
+   "tileable": "U only",
+   "tile": {
+    "u_wrap": 0.01351,
+    "u_interior_mean_p99": [
+     0.01125,
+     0.02592
+    ],
+    "v_wrap": 0.37109,
+    "v_interior_mean_p99": [
+     0.0116,
+     0.0387
+    ],
+    "seamless_u": true,
+    "seamless_v": false
+   },
+   "sha256": "5c37946bc04e1805952dfa5c803abb8bfb2d0392ce5aedbe813ffe2202ad59b1"
+  },
+  "T_S3MG_SeamStrip.png": {
+   "path": "E:/PussStage/DerivedAssets/S3Marble/Grime_20261007\\T_S3MG_SeamStrip.png",
+   "linear": true,
+   "compression": "TC_MASKS",
+   "size": [
+    512,
+    2048
+   ],
+   "covers_cm": [
+    100,
+    400
+   ],
+   "tileable": "V only",
+   "sha256": "7830dafc4b65f4b4b42a4befc1ee0c03f808b46c07fcf0f4664fd3f837c69a02"
+  }
+ },
+ "live_effective_roughness_p5_p50_p95": [
+  0.0563,
+  0.058,
+  0.0602
+ ]
+}

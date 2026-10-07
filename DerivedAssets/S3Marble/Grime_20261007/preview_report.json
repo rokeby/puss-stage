@@ -1,0 +1,55 @@
+{
+ "tool": "s3mg_preview.py",
+ "exposure_k_rgb": [
+  0.2219,
+  0.175,
+  0.1464
+ ],
+ "clean_wall_target_srgb": [
+  0.6274999976158142,
+  0.5608000159263611,
+  0.5098000168800354
+ ],
+ "visible_decals_rendered": 86,
+ "sigma_cm_per_alpha": 1838.8,
+ "variants": {
+  "baseline": {
+   "wall_mean_srgb": 0.5536,
+   "wall_p1_p99_luma": [
+    0.2461,
+    0.566
+   ],
+   "decal_px_mean_rough": 0.627,
+   "clean_px_mean_rough": 0.058
+  },
+  "A": {
+   "wall_mean_srgb": 0.5596,
+   "wall_p1_p99_luma": [
+    0.4879,
+    0.566
+   ],
+   "decal_px_mean_rough": 0.289,
+   "clean_px_mean_rough": 0.084
+  },
+  "B": {
+   "wall_mean_srgb": 0.5569,
+   "wall_p1_p99_luma": [
+    0.4859,
+    0.566
+   ],
+   "decal_px_mean_rough": 0.289,
+   "clean_px_mean_rough": 0.101
+  },
+  "C": {
+   "wall_mean_srgb": 0.5745,
+   "wall_p1_p99_luma": [
+    0.4965,
+    0.7376
+   ],
+   "decal_px_mean_rough": 0.289,
+   "clean_px_mean_rough": 0.084
+  }
+ },
+ "strip_radiance_rel": 18.0,
+ "baseline_vs_still_mean_abs_srgb": 0.0368
+}

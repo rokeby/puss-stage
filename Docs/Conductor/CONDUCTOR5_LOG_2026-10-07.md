@@ -87,3 +87,8 @@
   Live DRY S3SHORE-20261007-181646 [meas]: landed=True, 33 actors, 6 figures, census clean; footprint diff vs records:
   only Shore03_M59 foot 12.03 → 10.45 cm (cast area keeps beach-v2 sand, so no rebuild). Next: IMPORT (new asset
   write) + BENCH stills → needs Gary's go (look write).
+- **S3 marble grime** prep in (S3_MARBLE_GRIME_PREP_2026-10-07.md): clean roughness ~0.056–0.060 everywhere + albedo
+  clipped to 1.0 = uniform white mirror with nothing to reflect [decl s3_marble_tiling_material.py:385-396]; prints are
+  colour stamps with roughness that never shows (no highlight). Variant C = three rect strips at the mirror angle from
+  the main S3 camera (computed). Bench drafted (PIE copies + unsaved ZZ_Bench assets → needs Don't-Save after, i.e.
+  Gary closing the editor; conductor can't kill it). Sheet: DerivedAssets/S3Marble/Grime_20261007/sheet_ABC.png.
