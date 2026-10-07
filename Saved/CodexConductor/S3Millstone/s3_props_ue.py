@@ -66,6 +66,20 @@ Modes (every write mode: confirm string, no PIE, editor world = the show level, 
   PEARL_SWAP   record first, backup, set "S3 PearlClam Pearl" mesh -> v2 and material 0 -> MI v2, relative
                transform kept, map-only save, read back.  Marker S3PEARL_SWAP_OK.  PEARL_UNSWAP restores exactly
                (S3PEARL_UNSWAP_OK).  CLAM_REVERT refuses while a swap record exists.
+  --- 7 Oct evening: clam looks (Gary: pearl "subcutaneous shine/glaze", shell "mussel gloss + roughness", mantle
+      "oysterlike sliminess and wetness"; written OFFLINE, never run) ---
+  BUILD_MAT    prop "PearlClam" material "Pearl_v3" | "Shell_v2" | "Mantle_v2": create-only NEW master + NEW MI (refuses
+               if EITHER exists).  Pearl_v3 / Mantle_v2 are MSM_SUBSURFACE (SubsurfaceColor + Opacity pins); Shell_v2
+               DefaultLit.  Breathing WPO subgraphs are byte-identical to M_PearlClam_Pearl_v2 / M_S3PropBreathe, and the
+               new MI COPIES BreathAmp/BreathPeriod from the MI it replaces (read at build time, recorded).  Connected
+               material properties are read back (GetMaterialPropertyInputNode) and the tool fails closed on a mismatch.
+  CLAM_LOOK_MAT_CHECK  read-only, a LATER call: "material" = one of the three; params vs the build record + log scan.
+  CLAM_LOOK_SWAP   "look" = one of the three, ONE look per call (one record per look; the three touch disjoint slots,
+               so each can be A/B'd and unswapped alone).  Record first, backup, set ONLY the look's slot(s) (Pearl_v3:
+               Pearl slot 0, mesh stays SM_PearlClam_Pearl_v2 -> needs the PEARL_SWAP record; Shell_v2: Bottom slot 0
+               AND Lid slot 0; Mantle_v2: Mantle slot 0), map-only save, read back.  S3CLAMLOOK_SWAP_OK.
+  CLAM_LOOK_UNSWAP exact restore of that look (drift since the swap -> refuse).  S3CLAMLOOK_UNSWAP_OK.  CLAM_REVERT,
+               PEARL_SWAP and PEARL_UNSWAP refuse while a look record that touches them exists.
   The tool refuses PIE.  In PIE get_editor_world() is None and EditorAssetLibrary.load_asset returns None
   [meas 7 Oct]: every load here is unreal.load_asset, and any future PIE path must keep it so.
 
@@ -249,6 +263,42 @@ CLAM_EXTRA_MATERIALS = {
 PEARL_SWAP_RECORD = HERE + "s3_pearl_swap_record.json"
 BACKUP_ROOT_PEARL = PROJECT + "Backups/PreS3PearlSwap-"
 
+# ------------------------------------------------------------------ Clam looks (Gary 7 Oct evening).  Same isolation as
+# Pearl v2: CLAM_PARTS / CLAM_MATERIALS / SLOT_TO_MATERIAL (CLAM_APPLY) are not touched.  Every new look is a NEW master
+# + NEW MI (create-only; no node on an existing asset is edited or deleted).
+PEARL_V3, SHELL_V2, MANTLE_V2 = "Pearl_v3", "Shell_v2", "Mantle_v2"
+CLAM_LOOK_MATERIALS = (PEARL_V3, SHELL_V2, MANTLE_V2)
+PEARL_V3_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl_v3"
+SHELL_V2_MASTER = CLAM_FOLDER + "/M_PearlClam_Shell_v2"
+MANTLE_V2_MASTER = CLAM_FOLDER + "/M_PearlClam_Mantle_v2"
+BREATH_PARAMS = ("BreathAmp", "BreathPeriod")
+CLAM_EXTRA_MATERIALS.update({
+    # "breath_from": the MI this look replaces; its BreathAmp/BreathPeriod are COPIED into the new MI at BUILD_MAT so the
+    # breathing continues unchanged (mi_scalars_apply ClamBreath may have changed them since the BUILD_MAT defaults).
+    PEARL_V3: {"mi": "MI_PearlClam_Pearl_v3", "master": PEARL_V3_MASTER, "tex_set": "Pearl",
+               "scalars": {"Glow": 0.1}, "vectors": {}, "breath_from": PEARL_V2, "master_create_only": True},
+    SHELL_V2: {"mi": "MI_PearlClam_Shell_v2", "master": SHELL_V2_MASTER, "tex_set": "Shell",
+               "scalars": {}, "vectors": {}, "breath_from": None, "master_create_only": True},
+    MANTLE_V2: {"mi": "MI_PearlClam_Mantle_v2", "master": MANTLE_V2_MASTER, "tex_set": "Mantle",
+                "scalars": {}, "vectors": {}, "breath_from": "Mantle", "master_create_only": True},
+})
+# look -> {part: slot index}, the slot NAME that index must carry on the live mesh, the material (key) it replaces and
+# the mesh (part key) each target must carry.  Slot indices == CLAM_PARTS slots (lint: look_table_problems).
+CLAM_LOOKS = {
+    PEARL_V3: {"targets": {"Pearl": 0}, "slot_name": "M_PearlClam_Pearl", "from_material": PEARL_V2,
+               "mesh_part": {"Pearl": PEARL_V2}, "breathes": True},
+    SHELL_V2: {"targets": {"Bottom": 0, "Lid": 0}, "slot_name": "M_PearlClam_Shell", "from_material": "Shell",
+               "mesh_part": {"Bottom": "Bottom", "Lid": "Lid"}, "breathes": False},
+    MANTLE_V2: {"targets": {"Mantle": 0}, "slot_name": "M_PearlClam_Mantle", "from_material": "Mantle",
+                "mesh_part": {"Mantle": "Mantle"}, "breathes": True},
+}
+BACKUP_ROOT_LOOK = PROJECT + "Backups/PreS3ClamLook-"
+
+
+def look_record_path(look):
+    _req(look in CLAM_LOOKS, "LOOK|%r" % look)
+    return HERE + "s3_clam_look_swap_%s.json" % look
+
 
 def clam_part_row(part):
     _req(part in CLAM_PARTS or part in CLAM_EXTRA_PARTS, "CLAM_PART|%r" % part)
@@ -341,7 +391,7 @@ def tex_source_check(name, role):
     return {"file": p["file"], "w": w, "h": h, "depth": depth, "colour_type": ctype}
 
 
-READ_ONLY_MODES = ("DRY", "CLAM_DRY", "PEARL_MAT_CHECK")
+READ_ONLY_MODES = ("DRY", "CLAM_DRY", "PEARL_MAT_CHECK", "CLAM_LOOK_MAT_CHECK")
 
 
 def gate_census(census, mode, pending_asset=None):
@@ -357,11 +407,13 @@ def gate_census(census, mode, pending_asset=None):
 
 
 MODES = ("DRY", "IMPORT_MESH", "IMPORT_TEX", "VERIFY_TEX", "BUILD_MAT", "APPLY", "REVERT", "PLACE", "UNPLACE",
-         "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT", "PEARL_MAT_CHECK", "PEARL_SWAP", "PEARL_UNSWAP")
+         "CLAM_DRY", "CLAM_APPLY", "CLAM_REVERT", "PEARL_MAT_CHECK", "PEARL_SWAP", "PEARL_UNSWAP",
+         "CLAM_LOOK_MAT_CHECK", "CLAM_LOOK_SWAP", "CLAM_LOOK_UNSWAP")
 
 
 def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exists=False, clam_record_exists=False,
-               pearl_swap_exists=False):
+               pearl_swap_exists=False, look_swaps=()):
+    """look_swaps: the looks whose CLAM_LOOK_SWAP record exists on disk (main() lists them)."""
     mode = str(args.get("mode", "DRY")).upper()
     _req(mode in MODES, "MODE|%s" % mode)
     if mode not in READ_ONLY_MODES:
@@ -393,6 +445,23 @@ def check_mode(args, apply_record_exists, place_record_exists, tex_pending_exist
     _req(not (mode == "PEARL_SWAP" and pearl_swap_exists), "PEARL_ALREADY_SWAPPED|" + PEARL_SWAP_RECORD)
     _req(not (mode == "PEARL_UNSWAP" and not pearl_swap_exists), "NO_PEARL_SWAP_RECORD")
     _req(not (mode == "CLAM_REVERT" and pearl_swap_exists), "PEARL_SWAPPED|run PEARL_UNSWAP before CLAM_REVERT")
+    look_swaps = sorted(look_swaps or ())
+    _req(set(look_swaps) <= set(CLAM_LOOKS), "LOOK_RECORDS_UNKNOWN|%s" % look_swaps)
+    _req(not (mode == "CLAM_REVERT" and look_swaps), "LOOK_SWAPPED|%s: run CLAM_LOOK_UNSWAP first" % look_swaps)
+    _req(not (mode in ("PEARL_SWAP", "PEARL_UNSWAP") and PEARL_V3 in look_swaps),
+         "PEARL_LOOK_SWAPPED|CLAM_LOOK_UNSWAP %s first" % PEARL_V3)
+    if mode == "CLAM_LOOK_MAT_CHECK":
+        _req(args.get("material") in CLAM_LOOK_MATERIALS, "LOOK_MATERIAL|%r" % args.get("material"))
+    if mode in ("CLAM_LOOK_SWAP", "CLAM_LOOK_UNSWAP"):
+        look = args.get("look")
+        _req(look in CLAM_LOOKS, "LOOK|%r (one of %s)" % (look, list(CLAM_LOOKS)))
+        _req(clam_record_exists, "NO_CLAM_RECORD|the clam must be applied before a look swap")
+        if mode == "CLAM_LOOK_SWAP":
+            _req(look not in look_swaps, "LOOK_ALREADY_SWAPPED|%s" % look)
+            _req(not (look == PEARL_V3 and not pearl_swap_exists),
+                 "PEARL_V3_NEEDS_V2|the v3 MI goes on SM_PearlClam_Pearl_v2: PEARL_SWAP first")
+        else:
+            _req(look in look_swaps, "NO_LOOK_SWAP_RECORD|%s" % look)
     _req(not (mode == "APPLY" and apply_record_exists), "ALREADY_APPLIED|" + APPLY_RECORD)
     _req(not (mode == "REVERT" and not apply_record_exists), "NO_APPLY_RECORD")
     _req(not (mode == "PLACE" and place_record_exists), "ALREADY_PLACED|" + PLACE_RECORD)
@@ -733,6 +802,29 @@ IRID_COLOR_CODE = ("float3 pal = saturate(PA.rgb + PB.rgb * cos(6.2831853 * (PC.
                    "return lerp(B.rgb, pal, saturate(S));")
 IRID_GLOW_CODE = "return G * lerp(GC.rgb, I, saturate(K));"
 IRID_ROUGH_CODE = "return saturate(R + (N - %.2f) * V);" % NACRE_MEDIAN
+# ---- clam looks (7 Oct evening).  Pearl v3: the v2 palette moves from BaseColor into MP_SUBSURFACE_COLOR (the colour
+# lives in transmitted light); the surface keeps a faint copy (IridStrength 0.1); an inner glow weighted by
+# (1 - fresnel)^K lights the centre from beneath and leaves the rim cool.  Same Parameters.* reads as IRID_PHASE_CODE,
+# which compiled in M_PearlClam_Pearl_v2 [meas: s3_pearl_v2_mat_check_S3PROPS-20261007-192645.json, named_errors 0].
+INNER_GLOW_CODE = ("float f = pow(1.0 - saturate(dot(normalize(Parameters.WorldNormal), "
+                   "normalize(Parameters.CameraVector))), max(E, 0.01)); float w = pow(saturate(1.0 - f), max(K, 0.01)); "
+                   "return G * w * lerp(GC.rgb, I, saturate(M));")
+# Shell v2: two-level roughness.  The shell roughness map is compressed into 0.84..0.95 (p5..p95 excluding the 1.0
+# gutter) [meas offline, PIL, T_PearlClam_Shell_Roughness.png], so a contrast/threshold remap splits it into wet
+# periostracum (G) vs chalky worn ridges (H); ridges from the tangent normal (1 - N.z; Z is reconstructed by
+# UnpackNormalMap, Engine/Shaders/Private/Common.ush:1698-1711 [decl]) push toward rough.
+SHELL_ROUGH_CODE = ("float m = saturate((R - T) * C + 0.5); float ridge = saturate((1.0 - saturate(NM.z)) * K); "
+                    "return lerp(G, H, saturate(m + ridge));")
+# Mantle v2: wet flesh.  Colour slightly darker + more saturated; roughness pulled toward a wet film, with a slow
+# world-space glisten (no new texture).  WorldPosition is an LWC value; that a Custom input demotes it to float is [inf]
+# (proven only by BUILD_MAT + CLAM_LOOK_MAT_CHECK).  Precision at ~1.6e5 cm is ~0.01 cm, ample for a 0.15/cm noise.
+MANTLE_COLOR_CODE = ("float l = dot(B.rgb, float3(0.2126, 0.7152, 0.0722)); "
+                     "return saturate(lerp(float3(l, l, l), B.rgb, 1.0 + S) * (1.0 - saturate(D)));")
+MANTLE_ROUGH_CODE = ("float3 p = WP * GS; float t = T * GV; "
+                     "float n = 0.5 + 0.25 * (sin(p.x + 1.7 * sin(p.y * 1.3 + t)) + sin(p.y * 1.1 + 1.9 * sin(p.z * 0.9 - 0.8 * t))); "
+                     "float r = lerp(R, WR, saturate(WA)); return saturate(r * (1.0 + saturate(GA) * (2.0 * n - 1.0)));")
+SUBSURFACE_PROPS = {"MP_SUBSURFACE_COLOR", "MP_OPACITY"}
+SHADING_MODELS = ("MSM_DEFAULT_LIT", "MSM_SUBSURFACE")      # never MSM_CLEAR_COAT (no ClearCoat pins in 5.8 Python)
 
 
 def material_specs():
@@ -805,7 +897,107 @@ def material_specs():
                 "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR", "MP_EMISSIVE_COLOR",
                                "MP_WORLD_POSITION_OFFSET"},
                 "tex_params": {"Nacre": "Nacre"}, "scalars": v2s, "vectors": v2v, "max_wpo": MAX_WPO_CM}
-    return {MASTER: base, MASTER_BREATHE: breathe, PEARL_MASTER: pearl, PEARL_V2_MASTER: pearl_v2}
+    out = {MASTER: base, MASTER_BREATHE: breathe, PEARL_MASTER: pearl, PEARL_V2_MASTER: pearl_v2}
+    out.update(look_specs(pearl_v2, breathe))
+    return out
+
+
+def _subgraph(spec, sink):
+    """(nodes feeding `sink` incl. itself, edges into them) -- used to prove the breathing WPO is copied verbatim."""
+    keep, todo = set(), [sink]
+    while todo:
+        k = todo.pop()
+        if k in keep:
+            continue
+        keep.add(k)
+        todo += [e[0] for e in spec["edges"] if e[2] == k]
+    return ({k: spec["nodes"][k] for k in sorted(keep)},
+            sorted(e for e in spec["edges"] if e[2] in keep))
+
+
+def look_specs(pearl_v2, breathe):
+    """Pearl_v3 / Shell_v2 / Mantle_v2 masters (create-only).  The breathing subgraphs are COPIED from the v2 pearl and
+    M_S3PropBreathe specs (not retyped), and the harness asserts node + edge + default equality."""
+    pwpo_nodes, pwpo_edges = _subgraph(pearl_v2, "PearlWPO")
+    v3v = {"BaseColor": [0.90, 0.87, 0.82, 1.0], "SubsurfaceBase": [0.95, 0.86, 0.80, 1.0],
+           "PaletteA": [0.78, 0.78, 0.78, 1.0], "PaletteB": [0.22, 0.22, 0.22, 1.0], "PaletteC": [1.0, 1.0, 1.0, 1.0],
+           "PaletteD": [0.0, 0.33, 0.67, 1.0], "GlowColor": [1.0, 0.92, 0.85, 1.0]}
+    v3s = {"IridStrength": 0.1, "SubsurfaceIrid": 0.85, "IridScale": 1.2, "NacreScale": 0.5, "FresnelExponent": 1.5,
+           "Roughness": 0.1, "RoughnessNacre": 0.05, "Specular": 0.6, "SubsurfaceAmount": 0.6, "Glow": 0.0,
+           "GlowFresnelExponent": 2.0, "GlowFalloff": 2.0, "GlowIrid": 0.6,
+           "BreathAmp": pearl_v2["scalars"]["BreathAmp"], "BreathPeriod": pearl_v2["scalars"]["BreathPeriod"]}
+    pn = {k: ("vector", v) for k, v in v3v.items()}
+    pn.update({k: ("scalar", v) for k, v in v3s.items()})
+    pn.update(pwpo_nodes)
+    pal = [("PaletteA", "PA"), ("PaletteB", "PB"), ("PaletteC", "PC"), ("PaletteD", "PD")]
+    pn.update({"Nacre": ("texture", "Nacre"),
+               "IridPhase": ("custom", (IRID_PHASE_CODE, ["E", "S", "N", "K"], "F1")),
+               "IridSurface": ("custom", (IRID_COLOR_CODE, ["B", "PA", "PB", "PC", "PD", "P", "S"], "F3")),
+               "IridSubsurface": ("custom", (IRID_COLOR_CODE, ["B", "PA", "PB", "PC", "PD", "P", "S"], "F3")),
+               "InnerGlow": ("custom", (INNER_GLOW_CODE, ["E", "K", "G", "GC", "I", "M"], "F3")),
+               "PearlRough": ("custom", (IRID_ROUGH_CODE, ["R", "N", "V"], "F1"))})
+    pearl_v3 = {"nodes": pn, "shading_model": "MSM_SUBSURFACE", "prop_readback": True,
+                "edges": [("FresnelExponent", "", "IridPhase", "E"), ("IridScale", "", "IridPhase", "S"),
+                          ("Nacre", "R", "IridPhase", "N"), ("NacreScale", "", "IridPhase", "K"),
+                          ("BaseColor", "", "IridSurface", "B")] + [(s, "", "IridSurface", d) for s, d in pal] +
+                         [("IridPhase", "", "IridSurface", "P"), ("IridStrength", "", "IridSurface", "S"),
+                          ("SubsurfaceBase", "", "IridSubsurface", "B")] + [(s, "", "IridSubsurface", d) for s, d in pal] +
+                         [("IridPhase", "", "IridSubsurface", "P"), ("SubsurfaceIrid", "", "IridSubsurface", "S"),
+                          ("GlowFresnelExponent", "", "InnerGlow", "E"), ("GlowFalloff", "", "InnerGlow", "K"),
+                          ("Glow", "", "InnerGlow", "G"), ("GlowColor", "", "InnerGlow", "GC"),
+                          ("IridSubsurface", "", "InnerGlow", "I"), ("GlowIrid", "", "InnerGlow", "M"),
+                          ("Roughness", "", "PearlRough", "R"), ("Nacre", "R", "PearlRough", "N"),
+                          ("RoughnessNacre", "", "PearlRough", "V")] + list(pwpo_edges),
+                "props": [("IridSurface", "", "MP_BASE_COLOR"), ("PearlRough", "", "MP_ROUGHNESS"),
+                          ("Specular", "", "MP_SPECULAR"), ("InnerGlow", "", "MP_EMISSIVE_COLOR"),
+                          ("IridSubsurface", "", "MP_SUBSURFACE_COLOR"), ("SubsurfaceAmount", "", "MP_OPACITY"),
+                          ("PearlWPO", "", "MP_WORLD_POSITION_OFFSET")],
+                "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR", "MP_EMISSIVE_COLOR", "MP_SUBSURFACE_COLOR",
+                               "MP_OPACITY", "MP_WORLD_POSITION_OFFSET"},
+                "tex_params": {"Nacre": "Nacre"}, "scalars": v3s, "vectors": v3v, "max_wpo": pearl_v2["max_wpo"]}
+    # Shell v2 (DefaultLit).  Same three texture parameter names as M_S3Prop, so the MI takes the Shell textures.
+    shs = {"GlossRough": 0.12, "RidgeRough": 0.75, "ShellThreshold": 0.90, "ShellContrast": 15.0,
+           "RidgeFromNormal": 25.0, "Specular": 0.6}
+    sn = {"BaseColor": ("texture", "BaseColor"), "Normal": ("texture", "N"), "Roughness": ("texture", "Roughness")}
+    sn.update({k: ("scalar", v) for k, v in shs.items()})
+    sn["ShellRough"] = ("custom", (SHELL_ROUGH_CODE, ["R", "NM", "T", "C", "K", "G", "H"], "F1"))
+    shell_v2 = {"nodes": sn, "shading_model": "MSM_DEFAULT_LIT", "prop_readback": True,
+                "edges": [("Roughness", "R", "ShellRough", "R"), ("Normal", "RGB", "ShellRough", "NM"),
+                          ("ShellThreshold", "", "ShellRough", "T"), ("ShellContrast", "", "ShellRough", "C"),
+                          ("RidgeFromNormal", "", "ShellRough", "K"), ("GlossRough", "", "ShellRough", "G"),
+                          ("RidgeRough", "", "ShellRough", "H")],
+                "props": [("BaseColor", "RGB", "MP_BASE_COLOR"), ("Normal", "RGB", "MP_NORMAL"),
+                          ("ShellRough", "", "MP_ROUGHNESS"), ("Specular", "", "MP_SPECULAR")],
+                "want_props": {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS", "MP_SPECULAR"},
+                "tex_params": dict(MASTER_TEX_PARAMS), "scalars": shs, "vectors": {}, "max_wpo": None}
+    # Mantle v2 (Subsurface flesh).  BreathWPO subgraph copied from M_S3PropBreathe (VertexColor.R mask).
+    bwpo_nodes, bwpo_edges = _subgraph(breathe, "BreathWPO")
+    mv = {"SubsurfaceColor": [0.72, 0.52, 0.54, 1.0]}
+    ms = {"SubsurfaceAmount": 0.5, "Specular": 0.7, "WetRough": 0.05, "WetAmount": 0.75, "GlistenAmount": 0.5,
+          "GlistenScale": 0.15, "GlistenSpeed": 0.25, "WetDarken": 0.15, "WetSaturation": 0.2,
+          "BreathAmp": breathe["scalars"]["BreathAmp"], "BreathPeriod": breathe["scalars"]["BreathPeriod"]}
+    mn = {"BaseColor": ("texture", "BaseColor"), "Normal": ("texture", "N"), "Roughness": ("texture", "Roughness")}
+    mn.update({k: ("vector", v) for k, v in mv.items()})
+    mn.update({k: ("scalar", v) for k, v in ms.items()})
+    mn.update(bwpo_nodes)
+    mn.update({"WorldPos": ("worldpos", None),
+               "WetColor": ("custom", (MANTLE_COLOR_CODE, ["B", "D", "S"], "F3")),
+               "WetRoughCalc": ("custom", (MANTLE_ROUGH_CODE, ["R", "WR", "WA", "GA", "GS", "GV", "WP", "T"], "F1"))})
+    mantle_v2 = {"nodes": mn, "shading_model": "MSM_SUBSURFACE", "prop_readback": True,
+                 "edges": [("BaseColor", "RGB", "WetColor", "B"), ("WetDarken", "", "WetColor", "D"),
+                           ("WetSaturation", "", "WetColor", "S"),
+                           ("Roughness", "R", "WetRoughCalc", "R"), ("WetRough", "", "WetRoughCalc", "WR"),
+                           ("WetAmount", "", "WetRoughCalc", "WA"), ("GlistenAmount", "", "WetRoughCalc", "GA"),
+                           ("GlistenScale", "", "WetRoughCalc", "GS"), ("GlistenSpeed", "", "WetRoughCalc", "GV"),
+                           ("WorldPos", "", "WetRoughCalc", "WP"), ("Time", "", "WetRoughCalc", "T")] + list(bwpo_edges),
+                 "props": [("WetColor", "", "MP_BASE_COLOR"), ("Normal", "RGB", "MP_NORMAL"),
+                           ("WetRoughCalc", "", "MP_ROUGHNESS"), ("Specular", "", "MP_SPECULAR"),
+                           ("SubsurfaceColor", "", "MP_SUBSURFACE_COLOR"), ("SubsurfaceAmount", "", "MP_OPACITY"),
+                           ("BreathWPO", "", "MP_WORLD_POSITION_OFFSET")],
+                 "want_props": {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS", "MP_SPECULAR", "MP_SUBSURFACE_COLOR",
+                                "MP_OPACITY", "MP_WORLD_POSITION_OFFSET"},
+                 "tex_params": dict(MASTER_TEX_PARAMS), "scalars": ms, "vectors": mv, "max_wpo": breathe["max_wpo"]}
+    return {PEARL_V3_MASTER: pearl_v3, SHELL_V2_MASTER: shell_v2, MANTLE_V2_MASTER: mantle_v2}
 
 
 def material_problems(specs=None):
@@ -820,6 +1012,14 @@ def material_problems(specs=None):
             p.append("VECTOR_TABLE")
         if ("MP_WORLD_POSITION_OFFSET" in s["want_props"]) != (s["max_wpo"] is not None):
             p.append("MAX_WPO_TABLE")
+        sm = s.get("shading_model", "MSM_DEFAULT_LIT")
+        if sm not in SHADING_MODELS:
+            p.append("SHADING_MODEL|%s" % sm)
+        if (sm == "MSM_SUBSURFACE" and not SUBSURFACE_PROPS <= set(s["want_props"])) or \
+                (sm != "MSM_SUBSURFACE" and SUBSURFACE_PROPS & set(s["want_props"])):
+            p.append("SUBSURFACE_PINS|%s|%s" % (sm, sorted(SUBSURFACE_PROPS & set(s["want_props"]))))
+        if any("CUSTOM_DATA" in x[2] or "CLEAR" in x[2] for x in s["props"]):
+            p.append("CLEARCOAT_PIN")
         if p:
             out[path] = p
     for key, m in list(CLAM_MATERIALS.items()) + list(CLAM_EXTRA_MATERIALS.items()):
@@ -874,6 +1074,223 @@ def irid_color_eval(base, a, b, c, d, phase, strength):
 def irid_rough_eval(r, n, v):
     """Python mirror of IRID_ROUGH_CODE."""
     return _sat(r + (n - NACRE_MEDIAN) * v)
+
+
+def inner_glow_eval(ndotv, e, k, g, gc, inner, m):
+    """Python mirror of INNER_GLOW_CODE."""
+    f = (1.0 - _sat(ndotv)) ** max(e, 0.01)
+    w = _sat(1.0 - f) ** max(k, 0.01)
+    mm = _sat(m)
+    return [g * w * (gc[i] + (inner[i] - gc[i]) * mm) for i in range(3)]
+
+
+def shell_rough_eval(r, nz, t, c, k, g, h):
+    """Python mirror of SHELL_ROUGH_CODE (nz = reconstructed tangent normal z)."""
+    m = _sat((r - t) * c + 0.5)
+    ridge = _sat((1.0 - _sat(nz)) * k)
+    return g + (h - g) * _sat(m + ridge)
+
+
+def mantle_color_eval(b, d, s):
+    """Python mirror of MANTLE_COLOR_CODE."""
+    lum = 0.2126 * b[0] + 0.7152 * b[1] + 0.0722 * b[2]
+    return [_sat((lum + (b[i] - lum) * (1.0 + s)) * (1.0 - _sat(d))) for i in range(3)]
+
+
+def glisten_noise_eval(wp, gs, t, gv):
+    """The noise term n of MANTLE_ROUGH_CODE, in [0, 1]."""
+    p = [x * gs for x in wp]
+    tt = t * gv
+    return 0.5 + 0.25 * (math.sin(p[0] + 1.7 * math.sin(p[1] * 1.3 + tt)) +
+                         math.sin(p[1] * 1.1 + 1.9 * math.sin(p[2] * 0.9 - 0.8 * tt)))
+
+
+def mantle_rough_eval(r, wr, wa, ga, gs, gv, wp, t):
+    """Python mirror of MANTLE_ROUGH_CODE."""
+    n = glisten_noise_eval(wp, gs, t, gv)
+    base = r + (wr - r) * _sat(wa)
+    return _sat(base * (1.0 + _sat(ga) * (2.0 * n - 1.0)))
+
+
+def look_mi_scalars(key, source_breath=None):
+    """The explicit scalars BUILD_MAT writes on a look MI: the row's scalars + (breathing looks) BreathAmp/BreathPeriod
+    COPIED from the MI being replaced.  Refuses unreadable / out-of-range source values."""
+    m = clam_material_row(key)
+    out = dict(m["scalars"])
+    if m.get("breath_from"):
+        b = source_breath or {}
+        _req(sorted(b) == sorted(BREATH_PARAMS), "BREATH_SOURCE_UNREAD|%s|%s" % (m["breath_from"], b))
+        amp, per = float(b["BreathAmp"]), float(b["BreathPeriod"])
+        _req(math.isfinite(amp) and math.isfinite(per) and 0.0 <= amp <= MAX_WPO_CM and 0.5 <= per <= 60.0,
+             "BREATH_SOURCE_RANGE|amp=%s|period=%s" % (amp, per))
+        out.update(BreathAmp=amp, BreathPeriod=per)
+    else:
+        _req(not source_breath, "BREATH_NOT_EXPECTED|%s" % key)
+    return out
+
+
+def look_table_problems():
+    """Static lint of CLAM_LOOKS against the clam tables and the look specs."""
+    probs = []
+    specs = material_specs()
+    for look, row in CLAM_LOOKS.items():
+        m = CLAM_EXTRA_MATERIALS.get(look)
+        if not m or not m.get("master_create_only"):
+            probs.append("LOOK_MATERIAL_ROW|%s" % look)
+            continue
+        s = specs.get(m["master"], {})
+        if row["breathes"] != bool(m.get("breath_from")) or row["breathes"] != ("BreathAmp" in s.get("scalars", {})):
+            probs.append("LOOK_BREATH_TABLE|%s" % look)
+        if m.get("breath_from") and m["breath_from"] != row["from_material"]:
+            probs.append("LOOK_BREATH_SOURCE|%s" % look)
+        for part, slot in row["targets"].items():
+            mesh_row = clam_part_row(row["mesh_part"][part])
+            if not (0 <= slot < len(mesh_row["slots"])) or mesh_row["slots"][slot] != row["slot_name"]:
+                probs.append("LOOK_SLOT_INDEX|%s|%s|%s" % (look, part, slot))
+            if part not in CLAM_LABELS:
+                probs.append("LOOK_PART|%s|%s" % (look, part))
+        if row["from_material"] == look:
+            probs.append("LOOK_REPLACES_ITSELF|%s" % look)
+    return probs
+
+
+# ------------------------------------------------------------------------------- clam look swap (pure; harness-checkable)
+def _breath_close(a, b):
+    return all(abs(float(a[k]) - float(b[k])) < 1e-4 for k in BREATH_PARAMS)
+
+
+def clam_look_swap_plan(look, clam_record, live, args_swap=None):
+    """live = {"actors": {part: state as _look_actor_live}, "assets": {path: bool}, "mesh_slots": {mesh: [names]},
+    "breath": {mi: {BreathAmp, BreathPeriod}}}.  Refuses unless each target actor is exactly the CLAM_APPLY actor,
+    carries the expected mesh, the look's slot index names the look's slot, that slot holds the replaced MI as an
+    explicit override, no sequence keys a material on it, and (breathing looks) the new MI breathes like the old one."""
+    a = dict({"allow_material_tracks": False, "allow_breath_change": False}, **(args_swap or {}))
+    _req(look in CLAM_LOOKS, "LOOK|%r" % look)
+    row = CLAM_LOOKS[look]
+    _req(clam_record.get("applied") and clam_record.get("saved"), "CLAM_RECORD_NOT_APPLIED")
+    paths = clam_record.get("actor_paths") or {}
+    old_mi, new_mi = clam_mi_path(row["from_material"]), clam_mi_path(look)
+    master = clam_material_row(look)["master"]
+    _req(live["assets"].get(new_mi) and live["assets"].get(master), "LOOK_ASSETS_MISSING|%s" % live["assets"])
+    targets = []
+    for part, slot in sorted(row["targets"].items()):
+        L = (live.get("actors") or {}).get(part) or {}
+        _req(L.get("count") == 1, "LOOK_COUNT|%s|%s" % (part, L.get("count")))
+        _req(L["label"] == CLAM_LABELS[part], "LOOK_LABEL|%s|%s" % (part, L["label"]))
+        _req(L["object_path"] == paths.get(part), "LOOK_PATH|%s|%s vs record %s" % (part, L["object_path"], paths.get(part)))
+        parent = CLAM_PARTS[part]["parent"]
+        want_parent = paths.get(parent) if parent else None
+        _req(L["parent_path"] == want_parent, "LOOK_PARENT|%s|%s" % (part, L["parent_path"]))
+        mesh = clam_mesh_path(row["mesh_part"][part])
+        _req(L["mesh"] == mesh, "LOOK_MESH|%s|%s want %s" % (part, L["mesh"], mesh))
+        slots = (live.get("mesh_slots") or {}).get(mesh)
+        _req(isinstance(slots, list) and isinstance(slot, int) and 0 <= slot < len(slots) and
+             slots[slot] == row["slot_name"], "LOOK_SLOT_INDEX|%s|slot %s|mesh slots %s|want %s" % (
+                 part, slot, slots, row["slot_name"]))
+        _req(len(L["materials"]) == len(slots), "LOOK_SLOT_COUNT|%s|%s" % (part, L["materials"]))
+        _req(L["materials"][slot] == old_mi, "LOOK_MATERIAL_NOT_CURRENT|%s|slot %d|%s want %s" % (
+            part, slot, L["materials"][slot], old_mi))
+        ov = L["override_materials"]
+        _req(len(ov) > slot and ov[slot] == old_mi, "LOOK_OVERRIDE|%s|%s (an exact unswap needs an explicit override)" % (
+            part, ov))
+        _req(new_mi not in L["materials"], "LOOK_ALREADY_ON|%s" % part)
+        if row["breathes"]:
+            _req(L["wpo_eval"] is True, "LOOK_WPO_EVAL_OFF|%s" % part)
+        tracks = (live.get("tracks") or {}).get(part)
+        _req(isinstance(tracks, dict) and tracks and not any(v == "UNREAD" for v in tracks.values()),
+             "LOOK_TRACKS_UNREAD|%s|%s" % (part, tracks))
+        mat_tracks = sorted({t for v in tracks.values() if v for t in v if "Material" in t})
+        _req(not mat_tracks or a["allow_material_tracks"], "LOOK_MATERIAL_TRACKS|%s|%s" % (part, mat_tracks))
+        before = {k: json.loads(json.dumps(L[k])) for k in PEARL_STATE_KEYS}
+        after = json.loads(json.dumps(before))
+        after["materials"][slot] = new_mi
+        after["override_materials"][slot] = new_mi
+        targets.append({"part": part, "slot": slot, "object_path": L["object_path"], "before": before, "after": after,
+                        "tracks": tracks, "material_tracks": mat_tracks})
+    breath = None
+    if row["breathes"]:
+        ob, nb = (live.get("breath") or {}).get(old_mi), (live.get("breath") or {}).get(new_mi)
+        _req(ob and nb and sorted(ob) == sorted(BREATH_PARAMS) and sorted(nb) == sorted(BREATH_PARAMS),
+             "LOOK_BREATH_UNREAD|%s|%s" % (ob, nb))
+        _req(_breath_close(ob, nb) or a["allow_breath_change"],
+             "LOOK_BREATH_MISMATCH|old %s|new %s (set the new MI or allow_breath_change)" % (ob, nb))
+        breath = {"old": ob, "new": nb}
+    return {"look": look, "old_mi": old_mi, "new_mi": new_mi, "master": master, "targets": targets, "breath": breath,
+            "args": a}
+
+
+def clam_look_swap_ops(plan):
+    return [{"op": "set_slot_material", "part": t["part"], "object_path": t["object_path"], "slot": t["slot"],
+             "material": t["after"]["materials"][t["slot"]]} for t in plan["targets"]]
+
+
+def clam_look_unswap_ops(record):
+    ops = []
+    for t in record["plan"]["targets"]:
+        b = t["before"]
+        _req(b["materials"][t["slot"]] == b["override_materials"][t["slot"]], "UNSWAP_OVERRIDE|%s" % t["part"])
+        _req(t["after"]["materials"][t["slot"]] == record["plan"]["new_mi"], "UNSWAP_RECORD_AFTER|%s" % t["part"])
+        ops.append({"op": "set_slot_material", "part": t["part"], "object_path": t["object_path"], "slot": t["slot"],
+                    "material": b["materials"][t["slot"]]})
+    return ops
+
+
+def clam_look_simulate(world, ops):
+    """world = {object_path: state}.  set_slot_material sets the slot's material AND its explicit override."""
+    w = json.loads(json.dumps(world))
+    for op in ops:
+        _req(op["op"] == "set_slot_material" and op["object_path"] in w, "SIM_LOOK_TARGET|%s" % op.get("object_path"))
+        s = w[op["object_path"]]
+        _req(s.get("label") == CLAM_LABELS.get(op["part"]), "SIM_LOOK_LABEL|%s" % s.get("label"))
+        _req(0 <= op["slot"] < len(s["materials"]), "SIM_LOOK_SLOT|%s" % op["slot"])
+        s["materials"][op["slot"]] = op["material"]
+        while len(s["override_materials"]) <= op["slot"]:
+            s["override_materials"].append(None)
+        s["override_materials"][op["slot"]] = op["material"]
+    return w
+
+
+def clam_look_state_problems(live_actors, targets, which):
+    """[] when every target actor equals targets[i][which] ("before" | "after")."""
+    probs = []
+    for t in targets:
+        L = (live_actors or {}).get(t["part"])
+        if not L or L.get("count") != 1:
+            probs.append("COUNT|%s|%s" % (t["part"], (L or {}).get("count")))
+            continue
+        probs += ["%s|%s" % (t["part"], p) for p in pearl_state_problems(L, t[which])]
+    return probs
+
+
+def prop_readback_problems(rows, spec, made_paths=None, allow_unavailable=False):
+    """rows = _read_props output.  Every spec property must read back to the node the spec wired (exact node path
+    when made_paths is known, i.e. inside BUILD_MAT; else the node's parameter name / Custom code), with the spec's
+    output pin when one is named.  ALL properties unreadable = the API answered nothing: refused unless
+    allow_unavailable (then the connect bools + the MAT_CHECK compile scan are the only proof)."""
+    probs = []
+    rows = rows or {}
+    got = {p[2]: rows.get(p[2]) or {} for p in spec["props"]}
+    if all(r.get("path") is None for r in got.values()):
+        return [] if allow_unavailable else [
+            "PROP_READBACK_UNAVAILABLE|GetMaterialPropertyInputNode answered nothing (%s)" %
+            sorted({str(r.get("error")) for r in got.values()})[:2]]
+    for s, o, prop in spec["props"]:
+        r = got[prop]
+        if r.get("path") is None:
+            probs.append("PROP_UNCONNECTED|%s" % prop)
+            continue
+        if made_paths is not None and r["path"] != made_paths.get(s):
+            probs.append("PROP_NODE|%s|got %s|want %s" % (prop, r["path"], made_paths.get(s)))
+        kind, v = spec["nodes"][s]
+        if kind in ("scalar", "vector", "texture") and r.get("param") != s:
+            probs.append("PROP_PARAM|%s|got %s|want %s" % (prop, r.get("param"), s))
+        if kind == "custom" and (r.get("class") != "MaterialExpressionCustom" or r.get("code") != v[0]):
+            probs.append("PROP_CUSTOM|%s|%s" % (prop, r.get("class")))
+        # a texture's first output may be unnamed ("RGB" in the editor UI) [inf]: accept "", "None" or "RGB" for it
+        ok_out = (r.get("output") in ("", "None", "RGB")) if o == "RGB" else (not o or r.get("output") == o)
+        if not ok_out:
+            probs.append("PROP_OUTPUT|%s|got %s|want %s" % (prop, r.get("output"), o))
+    return probs
 
 
 # ============================================================================================ PearlClam (pure)
@@ -1531,7 +1948,7 @@ def compile_log_problems(lines, names):
     plus unattributed 'Failed to compile' lines (reported, not gated: [inf] UE names the material on that line)."""
     named, unattributed = [], []
     for ln in lines:
-        if "S3PROPS_" in ln or "S3PEARL_" in ln:
+        if "S3PROPS_" in ln or "S3PEARL_" in ln or "S3CLAMLOOK_" in ln:
             continue
         bad = "Failed to compile" in ln or re.search(r"\berror\b", ln, re.I) is not None
         if not bad:
@@ -2300,7 +2717,10 @@ def _build_material(path, spec, textures):
     _req(mat is not None, "MATERIAL_CREATE|%s" % path)
     mat.modify()
     mat.set_editor_property("blend_mode", unreal.BlendMode.BLEND_OPAQUE)
-    mat.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_DEFAULT_LIT)
+    # EngineTypes.h:707-711 [decl] MSM_DefaultLit / MSM_Subsurface; Python name MSM_SUBSURFACE by the same mangling as
+    # the MSM_DEFAULT_LIT already used here [inf until the first Subsurface BUILD_MAT; read back by _verify_material]
+    mat.set_editor_property("shading_model", getattr(unreal.MaterialShadingModel,
+                                                     spec.get("shading_model", "MSM_DEFAULT_LIT")))
     mat.set_editor_property("used_with_nanite", True)
     if spec["max_wpo"] is not None:
         mat.set_editor_property("max_world_position_offset_displacement", float(spec["max_wpo"]))
@@ -2327,6 +2747,8 @@ def _build_material(path, spec, textures):
             n = mel.create_material_expression(mat, unreal.MaterialExpressionTime, x, y)
         elif kind == "vcolor":
             n = mel.create_material_expression(mat, unreal.MaterialExpressionVertexColor, x, y)
+        elif kind == "worldpos":                                  # MaterialExpressionWorldPosition.h:31 [decl]
+            n = mel.create_material_expression(mat, unreal.MaterialExpressionWorldPosition, x, y)
         elif kind == "fresnel":
             n = mel.create_material_expression(mat, unreal.MaterialExpressionFresnel, x, y)
             _req(n is not None, "NODE|" + key)
@@ -2352,9 +2774,42 @@ def _build_material(path, spec, textures):
         _req(mel.connect_material_expressions(made[s], o, made[d], pin), "LINK|%s.%s->%s.%s" % (s, o, d, pin))
     for s, o, prop in spec["props"]:
         _req(mel.connect_material_property(made[s], o, getattr(unreal.MaterialProperty, prop)), "PROP|" + prop)
+    if spec.get("prop_readback"):
+        # MP_SUBSURFACE_COLOR / MP_OPACITY: SceneTypes.h:150,164 [decl]; that ConnectMaterialProperty reaches them is
+        # [inf] -> read every connected property back before the recompile (fail closed, named marker)
+        rb = prop_readback_problems(_read_props(mat, spec), spec, {k: _path(v) for k, v in made.items()},
+                                    bool(spec.get("allow_prop_readback_unavailable")))
+        _req(not rb, "PROP_READBACK|%s" % rb)
     errors = [str(e) for e in (mel.recompile_material(mat) or [])]
     _req(not errors, "RECOMPILE|%s" % errors)
     return mat
+
+
+def _read_props(mat, spec):
+    """{MP_*: {path, output, class, param, code}} via GetMaterialPropertyInputNode (+OutputName)
+    (MaterialEditingLibrary.h:317,321 [decl]; that it answers outside an open material editor is [inf]).
+    An exception or None reads as path None (prop_readback_problems decides)."""
+    mel = unreal.MaterialEditingLibrary
+    out = {}
+    for _s, _o, prop in spec["props"]:
+        row = {"path": None, "output": None, "class": None, "param": None, "code": None}
+        try:
+            mp = getattr(unreal.MaterialProperty, prop)
+            node = mel.get_material_property_input_node(mat, mp)
+            if node is not None:
+                row.update(path=_path(node), output=str(mel.get_material_property_input_node_output_name(mat, mp)),
+                           **{"class": str(node.get_class().get_name())})
+                if isinstance(node, unreal.MaterialExpressionCustom):
+                    row["code"] = str(node.get_editor_property("code"))
+                else:
+                    try:
+                        row["param"] = str(node.get_editor_property("parameter_name"))
+                    except Exception:  # noqa: BLE001  (not a parameter node)
+                        row["param"] = None
+        except Exception as exc:  # noqa: BLE001
+            row["error"] = str(exc)[:200]
+        out[prop] = row
+    return out
 
 
 def _verify_material(mat, spec):
@@ -2366,6 +2821,9 @@ def _verify_material(mat, spec):
     _req(sp == sorted(spec["scalars"]), "MASTER_SCALARS|%s" % sp)
     _req(vp == sorted(spec["vectors"]), "MASTER_VECTORS|%s" % vp)
     _req(bool(mat.get_editor_property("used_with_nanite")), "MASTER_NANITE_USAGE")
+    if "shading_model" in spec:                         # look masters only (older specs never declared one)
+        sm = _enum_name(mat.get_editor_property("shading_model"))
+        _req(sm == spec["shading_model"], "MASTER_SHADING_MODEL|%s|want %s" % (sm, spec["shading_model"]))
     if spec["max_wpo"] is not None:
         got = float(mat.get_editor_property("max_world_position_offset_displacement"))
         _req(abs(got - spec["max_wpo"]) < 1e-4, "MASTER_MAX_WPO|%s" % got)
@@ -2424,8 +2882,10 @@ def run_build_mat(run, name):
     return rec
 
 
-def run_build_clam_mat(run, key):
-    """One clam MI per call (Shell | InteriorBottom | InteriorLid | Mantle | Pearl); its master is created first if missing."""
+def run_build_clam_mat(run, key, args=None):
+    """One clam MI per call (Shell | InteriorBottom | InteriorLid | Mantle | Pearl); its master is created first if missing.
+    Look materials (Pearl_v3 | Shell_v2 | Mantle_v2): master AND MI must both be new; breathing scalars copied from the
+    MI being replaced; connected properties read back."""
     eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
     probs = material_problems()
     _req(not probs, "GRAPH|%s" % probs)
@@ -2433,6 +2893,19 @@ def run_build_clam_mat(run, key):
     spec = material_specs()[m["master"]]
     mi_path = clam_mi_path(key)
     _req(not eal.does_asset_exist(mi_path), "MI_EXISTS|%s" % mi_path)
+    breath_src = None
+    if m.get("master_create_only"):
+        _req(not look_table_problems(), "LOOK_TABLE|%s" % look_table_problems())
+        _req(not eal.does_asset_exist(m["master"]), "LOOK_MASTER_EXISTS|%s (create-only: never edit an existing master)"
+             % m["master"])
+        spec = dict(spec, allow_prop_readback_unavailable=bool((args or {}).get("allow_prop_readback_unavailable")))
+        if m.get("breath_from"):
+            src_path = clam_mi_path(m["breath_from"])
+            src = unreal.load_asset(src_path)
+            _req(src is not None, "BREATH_SOURCE_LOAD|%s" % src_path)
+            breath_src = {k: float(mel.get_material_instance_scalar_parameter_value(src, k)) for k in BREATH_PARAMS}
+            src = None
+    mi_scal = look_mi_scalars(key, breath_src) if m.get("master_create_only") else m["scalars"]
     textures = {}
     if m["tex_set"]:
         for r in CLAM_TEX[m["tex_set"]]:
@@ -2462,7 +2935,7 @@ def run_build_clam_mat(run, key):
     mel.set_material_instance_parent(mi, mat)
     for param, role in spec["tex_params"].items():
         mel.set_material_instance_texture_parameter_value(mi, param, textures[role])      # bool lies: read back
-    for k, v in m["scalars"].items():
+    for k, v in mi_scal.items():
         mel.set_material_instance_scalar_parameter_value(mi, k, float(v))
     for k, v in m["vectors"].items():
         mel.set_material_instance_vector_parameter_value(mi, k, unreal.LinearColor(*[float(c) for c in v]))
@@ -2472,7 +2945,7 @@ def run_build_clam_mat(run, key):
         got = mel.get_material_instance_texture_parameter_value(mi, param)
         _req(_path(got) == _path(textures[role]), "MI_TEX|%s|%s" % (param, _path(got)))
     scal = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in spec["scalars"]}
-    want = dict(spec["scalars"], **m["scalars"])
+    want = dict(spec["scalars"], **mi_scal)
     _req(all(abs(scal[k] - want[k]) < 1e-4 for k in want), "MI_SCALARS|%s" % scal)
     vec = {}
     for k in spec["vectors"]:
@@ -2488,6 +2961,10 @@ def run_build_clam_mat(run, key):
     unreal.SystemLibrary.collect_garbage()
     rec = {"run": run, "prop": CLAM, "material": key, "mi": mi_path, "master": m["master"],
            "master_created": created_master, "scalars": scal, "vectors": vec, "saved": True}
+    if m.get("master_create_only"):
+        rec.update(mi_explicit_scalars=mi_scal, breath_source=(clam_mi_path(m["breath_from"]) if m.get("breath_from")
+                                                               else None), breath_inherited=breath_src,
+                   shading_model=spec.get("shading_model"))
     _write(HERE + "s3_props_build_mat_PearlClam_%s.json" % key, rec)
     return rec
 
@@ -2935,6 +3412,169 @@ def run_pearl_mat_check(run):
     return rec
 
 
+# ------------------------------------------------------------------------------------------- clam look glue
+def run_clam_look_mat_check(run, key):
+    """Read-only, a LATER call than BUILD_MAT <key>: master spec + shading model + connected properties read back, MI
+    parent / textures / scalars vs the BUILD_MAT record, then the editor log scanned for compile failures."""
+    mel = unreal.MaterialEditingLibrary
+    _req(key in CLAM_LOOK_MATERIALS, "LOOK_MATERIAL|%r" % key)
+    m = clam_material_row(key)
+    spec = material_specs()[m["master"]]
+    build_path = HERE + "s3_props_build_mat_PearlClam_%s.json" % key
+    _req(os.path.exists(build_path), "NO_BUILD_RECORD|%s" % build_path)
+    with open(build_path, encoding="utf-8") as h:
+        built_rec = json.load(h)
+    mat, mi = unreal.load_asset(m["master"]), unreal.load_asset(clam_mi_path(key))
+    _req(isinstance(mat, unreal.Material) and mi is not None, "LOOK_MATERIAL_LOAD|%s" % key)
+    _verify_material(mat, spec)
+    rows = _read_props(mat, spec)
+    rb = prop_readback_problems(rows, spec, None, False)
+    _req(not rb or rb[0].startswith("PROP_READBACK_UNAVAILABLE"), "PROP_READBACK|%s" % rb)
+    _req(_path(mi.get_editor_property("parent")) == _path(mat), "MI_PARENT")
+    for param, role in spec["tex_params"].items():
+        want_tex = tex_target(CLAM, m["tex_set"], role)["asset"]
+        got = _asset_path(mel.get_material_instance_texture_parameter_value(mi, param))
+        _req(got == want_tex, "MI_TEX|%s|%s want %s" % (param, got, want_tex))
+    scal = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in spec["scalars"]}
+    _req(all(abs(scal[k] - float(built_rec["scalars"][k])) < 1e-4 for k in spec["scalars"]),
+         "MI_SCALARS_VS_BUILD|%s|%s" % (scal, built_rec["scalars"]))
+    stats = {}
+    try:                                    # [inf] MaterialEditingLibrary.get_statistics (MaterialEditingLibrary.h:610)
+        s = mel.get_statistics(mat)
+        stats = {"ps": int(s.get_editor_property("num_pixel_shader_instructions")),
+                 "vs": int(s.get_editor_property("num_vertex_shader_instructions"))}
+    except Exception as exc:  # noqa: BLE001
+        stats = {"error": str(exc)[:200]}
+    mat, mi = None, None
+    log, lines = _current_log_lines()
+    names = [m["master"].rsplit("/", 1)[1], m["mi"]]
+    named, unattributed = compile_log_problems(lines, names)
+    _req(not named, "COMPILE_ERRORS|%s" % named[:5])
+    built = [ln for ln in lines if "S3PROPS_BUILD_MAT_OK" in ln and m["mi"] in ln]
+    rec = {"run": run, "material": key, "log": log, "build_marker_in_log": bool(built), "named_errors": named,
+           "unattributed_failed_to_compile": unattributed[-10:], "stats": stats, "scalars": scal,
+           "prop_readback": rows, "prop_readback_unavailable": bool(rb), "shading_model": spec.get("shading_model")}
+    _write(HERE + "s3_clam_look_mat_check_%s_%s.json" % (key, run), rec)
+    return rec
+
+
+def _look_actor_live(world, idx, part, with_tracks=True):
+    rows = idx.get(CLAM_LABELS[part], [])
+    out = {"count": len(rows)}
+    if len(rows) != 1:
+        return out
+    a = rows[0]
+    c = _smc(a)
+    out.update({"label": str(a.get_actor_label()), "object_path": _path(a),
+                "parent_path": _path(a.get_attach_parent_actor()),
+                "mesh": _asset_path(c.get_editor_property("static_mesh")),
+                "materials": [_asset_path(c.get_material(i)) for i in range(int(c.get_num_materials()))],
+                "override_materials": [_asset_path(m) for m in c.get_editor_property("override_materials")],
+                "rel": {"location": _v(c.get_editor_property("relative_location")),
+                        "rotation": _r(c.get_editor_property("relative_rotation")),
+                        "scale": _v(c.get_editor_property("relative_scale3d"))},
+                "world": _world_tf(a), "hidden": bool(a.get_editor_property("hidden")),
+                "wpo_eval": bool(c.get_editor_property("evaluate_world_position_offset"))})
+    if with_tracks:
+        out["tracks"] = {p: _sequence_tracks(unreal.load_asset(p), world, a) for p in CLAM_SEQUENCES}
+    return out
+
+
+def _look_live(world, look, with_tracks=True):
+    row = CLAM_LOOKS[look]
+    mel, eal = unreal.MaterialEditingLibrary, unreal.EditorAssetLibrary
+    idx = _index(world)
+    actors = {p: _look_actor_live(world, idx, p, with_tracks) for p in row["targets"]}
+    idx = None
+    old_mi, new_mi = clam_mi_path(row["from_material"]), clam_mi_path(look)
+    master = clam_material_row(look)["master"]
+    live = {"actors": {p: {k: v for k, v in s.items() if k != "tracks"} for p, s in actors.items()},
+            "tracks": {p: s.get("tracks") for p, s in actors.items()},
+            "assets": {p: bool(eal.does_asset_exist(p)) for p in (old_mi, new_mi, master)}, "mesh_slots": {}, "breath": {}}
+    for part in row["targets"]:
+        mesh = clam_mesh_path(row["mesh_part"][part])
+        if mesh not in live["mesh_slots"] and eal.does_asset_exist(mesh):
+            sm = unreal.load_asset(mesh)
+            _req(isinstance(sm, unreal.StaticMesh), "LOOK_MESH_LOAD|%s" % mesh)
+            live["mesh_slots"][mesh] = [str(s.get_editor_property("material_slot_name"))
+                                        for s in sm.get_editor_property("static_materials")]
+    if row["breathes"]:
+        for p in (old_mi, new_mi):
+            if live["assets"][p]:
+                mi = unreal.load_asset(p)
+                _req(mi is not None, "LOOK_MI_LOAD|%s" % p)
+                live["breath"][p] = {k: float(mel.get_material_instance_scalar_parameter_value(mi, k)) for k in BREATH_PARAMS}
+    return live
+
+
+def _set_slot_material(world, op):
+    a = _by_path(world, op["object_path"])
+    _req(a is not None and str(a.get_actor_label()) == CLAM_LABELS[op["part"]], "LOOK_TARGET|%s" % op["object_path"])
+    c = _smc(a)
+    mi = unreal.load_asset(op["material"])
+    _req(mi is not None, "ASSET_LOAD|%s" % op["material"])
+    _req(0 <= int(op["slot"]) < int(c.get_num_materials()), "LOOK_SLOT_RANGE|%s|%s" % (op["part"], op["slot"]))
+    a.modify()
+    c.modify()
+    c.set_material(int(op["slot"]), mi)             # return value not trusted: read back by the caller
+
+
+def _look_check(world, look, targets, which):
+    idx = _index(world)
+    actors = {t["part"]: _look_actor_live(world, idx, t["part"], with_tracks=False) for t in targets}
+    idx = None
+    probs = clam_look_state_problems(actors, targets, which)
+    _req(not probs, "LOOK_READBACK|%s|%s|%s" % (look, which, ";".join(probs)))
+    return actors
+
+
+def run_clam_look_swap(run, args, world):
+    look = args["look"]
+    path = look_record_path(look)
+    with open(CLAM_RECORD, encoding="utf-8") as h:
+        clam = json.load(h)
+    live = _look_live(world, look)
+    plan = clam_look_swap_plan(look, clam, live, args.get("look_swap"))
+    record = {"run": run, "world": WORLD, "look": look, "plan": plan, "clam_record_run": clam.get("run"),
+              "census_before": _census(), "saved": False, "applied": False}
+    _write(path, record, exclusive=True)                               # RECORD FIRST (old MI per slot)
+    unreal.log("S3CLAMLOOK_RECORD|run=%s|look=%s|path=%s|old_mi=%s|slots=%s" % (
+        run, look, path, plan["old_mi"], [(t["part"], t["slot"]) for t in plan["targets"]]))
+    record["backup"] = _backup(BACKUP_ROOT_LOOK, run, (path,))
+    _write(path, record)
+    for op in clam_look_swap_ops(plan):
+        _set_slot_material(world, op)
+    _look_check(world, look, plan["targets"], "after")
+    _save(world, [])                                                   # map only (census-exact)
+    record["saved"] = True
+    _write(path, record)
+    got = _look_check(world, look, plan["targets"], "after")           # fresh lookup after the save
+    record["applied"], record["after_readback"] = True, got
+    _write(path, record)
+    return {"look": look, "mi": plan["new_mi"], "targets": [(t["part"], t["slot"]) for t in plan["targets"]],
+            "breath": plan["breath"], "backup": record["backup"]}
+
+
+def run_clam_look_unswap(run, args, world):
+    look = args["look"]
+    path = look_record_path(look)
+    with open(path, encoding="utf-8") as h:
+        record = json.load(h)
+    _req(record.get("saved") and record.get("applied") and record.get("look") == look, "LOOK_RECORD_INVALID|%s" % path)
+    plan = record["plan"]
+    _look_check(world, look, plan["targets"], "after")                 # drift since the swap -> refuse before mutating
+    ops = clam_look_unswap_ops(record)
+    backup = _backup(BACKUP_ROOT_LOOK, run + "-UNSWAP", (path,))
+    for op in ops:
+        _set_slot_material(world, op)
+    _look_check(world, look, plan["targets"], "before")
+    _save(world, [])
+    _look_check(world, look, plan["targets"], "before")
+    os.replace(path, path + ".unswapped-" + run)
+    return {"look": look, "restored_mi": plan["old_mi"], "targets": [(t["part"], t["slot"]) for t in plan["targets"]],
+            "backup": backup}
+
+
 def run_clam_dry(run, args, world, census):
     a = dict(CLAM_DEFAULTS, **(args.get("apply_clam") or {}))
     man = json.load(open(CLAM_MANIFEST, encoding="utf-8"))
@@ -2983,8 +3623,9 @@ def main():
         if os.path.exists(TEX_PENDING):
             with open(TEX_PENDING, encoding="utf-8") as h:
                 pending = json.load(h)
+        look_swaps = [lk for lk in CLAM_LOOKS if os.path.exists(look_record_path(lk))]
         mode = check_mode(args, os.path.exists(APPLY_RECORD), os.path.exists(PLACE_RECORD), pending is not None,
-                          os.path.exists(CLAM_RECORD), os.path.exists(PEARL_SWAP_RECORD))
+                          os.path.exists(CLAM_RECORD), os.path.exists(PEARL_SWAP_RECORD), look_swaps)
         unreal.log("S3PROPS_START|run=%s|mode=%s|prop=%s" % (run, mode, args.get("prop")))
         ed = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
         _req(ed.get_game_world() is None, "PIE_ACTIVE")
@@ -3003,6 +3644,13 @@ def main():
             r = run_pearl_mat_check(run)
             unreal.log("S3PEARL_MAT_CHECK_OK|run=%s|mutated=0|named_errors=0|unattributed=%d|build_marker=%s|stats=%s" % (
                 run, len(r["unattributed_failed_to_compile"]), r["build_marker_in_log"], json.dumps(r["stats"])))
+            return
+        if mode == "CLAM_LOOK_MAT_CHECK":
+            r = run_clam_look_mat_check(run, args["material"])
+            unreal.log("S3CLAMLOOK_MAT_CHECK_OK|run=%s|material=%s|mutated=0|named_errors=0|unattributed=%d|"
+                       "build_marker=%s|prop_readback_unavailable=%s|shading=%s|stats=%s" % (
+                           run, r["material"], len(r["unattributed_failed_to_compile"]), r["build_marker_in_log"],
+                           r["prop_readback_unavailable"], r["shading_model"], json.dumps(r["stats"])))
             return
         if mode == "DRY":
             out, path = run_dry(run, args, world, census)
@@ -3026,7 +3674,7 @@ def main():
             unreal.log("S3PROPS_VERIFY_TEX_OK|run=%s|asset=%s|size=%s|saved=1|sha256=%s" % (
                 run, r["asset"], r["verified"]["size"], r["source"]["sha256"]))
         elif mode == "BUILD_MAT" and args["prop"] == CLAM:
-            r = run_build_clam_mat(run, args["material"])
+            r = run_build_clam_mat(run, args["material"], args)
             unreal.log("S3PROPS_BUILD_MAT_OK|run=%s|mi=%s|master=%s|master_created=%s|scalars=%s|vectors=%s" % (
                 run, r["mi"], r["master"], r["master_created"], json.dumps(r["scalars"]), json.dumps(r["vectors"])))
         elif mode == "CLAM_APPLY":
@@ -3054,6 +3702,23 @@ def main():
         elif mode == "PEARL_UNSWAP":
             r = run_pearl_unswap(run, world)
             unreal.log("S3PEARL_UNSWAP_OK|run=%s|level_saved=1|dirty_after=0+0|%s" % (run, json.dumps(r)))
+        elif mode == "CLAM_LOOK_SWAP":
+            lpath = look_record_path(args["look"])
+            try:
+                r = run_clam_look_swap(run, args, world)
+            except Exception:
+                if os.path.exists(lpath):
+                    with open(lpath, encoding="utf-8") as h:
+                        saved = json.load(h).get("saved")
+                    if not saved:
+                        os.replace(lpath, lpath + ".failed-" + run)
+                raise
+            unreal.log("S3CLAMLOOK_SWAP_OK|run=%s|look=%s|level_saved=1|dirty_after=0+0|%s" % (
+                run, args["look"], json.dumps(r)))
+        elif mode == "CLAM_LOOK_UNSWAP":
+            r = run_clam_look_unswap(run, args, world)
+            unreal.log("S3CLAMLOOK_UNSWAP_OK|run=%s|look=%s|level_saved=1|dirty_after=0+0|%s" % (
+                run, args["look"], json.dumps(r)))
         elif mode == "CLAM_REVERT":
             r = run_clam_revert(run, world)
             unreal.log("S3CLAM_REVERT_OK|run=%s|%s" % (run, json.dumps(r)))
