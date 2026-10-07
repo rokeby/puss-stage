@@ -1,0 +1,21 @@
+{
+ "src": "E:/PussStage/DerivedAssets/GraniteMillstone/Export/T_GraniteMillstone_BaseColor.png",
+ "dst": "E:/PussStage/DerivedAssets/GraniteMillstone/Export/8K/T_GraniteMillstone_BaseColor.png",
+ "src_size": [
+  12288,
+  12288
+ ],
+ "dst_size": [
+  8192,
+  8192
+ ],
+ "mode": "RGB",
+ "chunks": {
+  "srgb": null,
+  "gamma": null,
+  "icc_profile": false
+ },
+ "dst_sha256": "d97bbfaecade9d9421d37bdd2138738d7c2b2fb5cd0b5a0d3fd4d0585ae96ec5",
+ "dst_bytes": 67991360,
+ "utc": "2026-10-07T21:28:11.784759Z"
+}
