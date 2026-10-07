@@ -293,3 +293,11 @@
   at the 0-blend cut (bResetLookAtCut) [decl+inf]; PIE probe ready (S1Snap/).
 - Glimmer removal (Gary via cueing: "Practical Glimmer Body type hanging lamps can be removed"; via finishing-touches:
   bare bulb in each spot) → folded into the fixtures plan; confirm scope before APPLY.
+
+## 19:41–19:55 UTC — grease prints live, tests green
+
+- Grease prints (Gary "Yes, build it" / "Apply, with the dunes"): texture SUCCESS 194127 (2048², linear masks), master SUCCESS 194423 (369 PS instr, 0 log failures), MIs 142/142 verified 194842, place DRY 194856 → APPLY HP_S03G_APPLY_SUCCESS 194912: removed 449 stain decals, spawned 1034 grease, saved, backup Backups/PreHPS03Grease-20261007-194912 [measured: log markers].
+- tests2.sh after the S2 flip / shore / roots / pearl / waves / grease writes: SavedMasterMatchesShow + SceneCutBindingsResolve both Success [measured]. Also covers finishing-touches' steel-gloss write.
+- QUEUED (Gary, later, not now): dunes 2× (peaks ~4.8 m, reach 6–8 m, centre lane/millstone/waves clear; prints re-placed above the new print line afterwards). [inferred geometry: 30.5° repose × 20 m box; 3× would close the box.]
+- QUEUED (Gary, "not priority"): waves flats thicker (~5 cm like V3 wings) and more widely spaced.
+- Finishing touches: clam looks v3 held patch 8ccc288 received; ordering = ClamBreath MI run BEFORE BUILD_MAT Pearl_v3/Mantle_v2.

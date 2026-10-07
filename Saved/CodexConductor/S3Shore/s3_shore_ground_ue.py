@@ -1370,6 +1370,9 @@ def run_apply(run, args):
         smc.set_mobility(unreal.ComponentMobility.MOVABLE)
         _set_mesh(smc, mesh)
         smc.set_material(0, mi)
+        # Conductor 7 Oct [meas APPLY S3SHORE-20261007-2007: read back QUERY_AND_PHYSICS]: in the editor world
+        # set_collision_enabled alone does not persist; the profile drives the saved BodyInstance setting.
+        smc.set_collision_profile_name("NoCollision")
         smc.set_collision_enabled(unreal.CollisionEnabled.NO_COLLISION)          # PrimitiveComponent.h:2025-2026
         a.set_editor_property("tags", [unreal.Name(TAG)])
         if folder:

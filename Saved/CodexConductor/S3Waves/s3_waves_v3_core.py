@@ -124,13 +124,17 @@ def screen_sizes_ok(current, want=SCREEN_SIZES, tol=1e-4):
     return len(cur) == len(want) and all(abs(a - b) <= tol for a, b in zip(cur, want))
 
 
-def adopt_check(row, mesh_exists, tex_exist, import_record):
-    """ADOPT preconditions (pure): mesh + 3 textures saved in /Game, no import record yet."""
+def adopt_check(row, mesh_exists, tex_exist, import_record, n_pieces=1):
+    """ADOPT preconditions (pure): mesh saved in /Game, no import record yet.  Missing skin textures are allowed
+    (live 7 Oct: the L6 IMPORTs stopped at the screen-size step BEFORE their textures were imported) and returned for
+    ADOPT to import -- but then only ONE piece per call (same batching as IMPORT).  -> sorted list of missing kinds."""
     req(mesh_exists, "ADOPT_NO_MESH|%s (IMPORT it)" % row["suffix"])
-    missing = sorted(k for k, v in tex_exist.items() if not v)
-    req(not missing, "ADOPT_TEXTURES_MISSING|%s|%s" % (row["suffix"], missing))
     req(not (import_record or {}).get("saved"), "ADOPT_ALREADY_RECORDED|%s" % row["suffix"])
-    return True
+    req(set(tex_exist) == set(TEX_KINDS), "ADOPT_TEXTURE_KINDS|%s" % sorted(tex_exist))
+    missing = sorted(k for k, v in tex_exist.items() if not v)
+    req(not missing or n_pieces == 1, "ADOPT_TEXTURE_IMPORT_ONE_PIECE|%s misses %s: ADOPT it alone" %
+        (row["suffix"], missing))
+    return missing
 
 
 # ----------------------------------------------------------------------------------------------- piece table
@@ -199,6 +203,49 @@ def root_is_landed(root_tf):
             near(root_tf["scale"], [1, 1, 1], 1e-4))
 
 
+LANDED_ROOT_TF = {"location": list(ROOT_LANDED_WORLD), "rotation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0]}
+ROOT_POSES = ("landed", "relative")
+REL_TOL_CM = 0.01
+
+
+def root_pose_check(root_tf, root_pose="landed", ack=False):
+    """'landed' (default): the live root must read LANDED (rotation 0).  'relative' (live 7 Oct: the editor root read
+    its REST pose, pitch -90, at the landed LOCATION): placement is purely root-local -- KEEP_RELATIVE attach + relative
+    transforms from the plan, read back +-0.01 cm, world checks composed with the KNOWN landed root (LANDED_ROOT_TF),
+    never the live pose.  Needs the root at the landed location / scale 1 (only the rotation may differ) and an explicit
+    ack, because the narrow map save writes whatever pose the root has in memory."""
+    req(root_pose in ROOT_POSES, "ROOT_POSE_ARG|%r" % root_pose)
+    landed = root_is_landed(root_tf)
+    if root_pose == "landed":
+        req(landed, "ROOT_NOT_LANDED|%s (root_pose 'relative' places root-locally)" % json.dumps(root_tf))
+    else:
+        req(near(root_tf["location"], ROOT_LANDED_WORLD, 1.0) and near(root_tf["scale"], [1, 1, 1], 1e-4),
+            "ROOT_UNEXPECTED_POSE|%s (relative path needs the landed location and scale 1)" % json.dumps(root_tf))
+        req(ack is True, "ROOT_POSE_ACK_MISSING (set root_pose_ack true: the map save will store the root as it is now, "
+                         "%s)" % json.dumps(root_tf["rotation"]))
+    return {"mode": root_pose, "live": root_tf, "live_is_landed": landed}
+
+
+def relative_ok(rel, want_rel, tol=REL_TOL_CM):
+    return (near(rel["location"], want_rel["location"], tol) and near(rel["rotation"], want_rel["rotation"], 1e-3)
+            and near(rel["scale"], want_rel["scale"], 1e-5))
+
+
+def landed_world_box(local_box):
+    """World AABB of a root-local box under the KNOWN landed root (rotation 0, scale 1)."""
+    pts = [tf_point(LANDED_ROOT_TF, [local_box["max"][0] if i & 1 else local_box["min"][0],
+                                     local_box["max"][1] if i & 2 else local_box["min"][1],
+                                     local_box["max"][2] if i & 4 else local_box["min"][2]]) for i in range(8)]
+    return {"min": [min(p[i] for p in pts) for i in range(3)], "max": [max(p[i] for p in pts) for i in range(3)]}
+
+
+def readback_local_box(spawn, rel):
+    """Root-local box of a placed piece from its READ-BACK relative location (rotation 0, scale 1 asserted first)."""
+    d = [rel["location"][i] - spawn["relative"]["location"][i] for i in range(3)]
+    b = spawn["local_box"]
+    return {"min": [b["min"][i] + d[i] for i in range(3)], "max": [b["max"][i] + d[i] for i in range(3)]}
+
+
 def box_local(root_tf, box):
     pts = [tf_inv_point(root_tf, [box["max"][0] if i & 1 else box["min"][0], box["max"][1] if i & 2 else box["min"][1],
                                   box["max"][2] if i & 4 else box["min"][2]]) for i in range(8)]
@@ -233,10 +280,10 @@ def reveal_decision(split_rows):
                                                    "copied per new actor (the millstone reveal pattern)"}
 
 
-def plan_apply(state, rows):
+def plan_apply(state, rows, root_pose="landed", ack=False):
     """state: live read (see s3_waves_v3_ue.live_state).  rows: piece_table()."""
     req(not state.get("temp_actors"), "TEMP_ACTORS_PRESENT|%s" % (state.get("temp_actors") or [])[:5])
-    req(root_is_landed(state["root"]["world"]), "ROOT_NOT_LANDED|%s" % json.dumps(state["root"]["world"]))
+    pose = root_pose_check(state["root"]["world"], root_pose, ack)
     req(state["root"].get("attached_count_ok", True), "ROOT_IDENTITY")
     for r in rows:
         req(state["label_count"].get(r["label"], 0) == 0, "LABEL_EXISTS|%s" % r["label"])
@@ -244,6 +291,8 @@ def plan_apply(state, rows):
         req(a.get("verified"), "ASSETS_NOT_VERIFIED|%s (IMPORT, BUILD_MAT, then VERIFY)" % r["suffix"])
         box = piece_local_box(r)
         req(box_inside(box, WAVE_GUARD_LOCAL), "GUARD_LOCAL_BOX|%s|%s" % (r["suffix"], json.dumps(box)))
+        back = box_local(LANDED_ROOT_TF, landed_world_box(box))          # composed with the KNOWN landed root
+        req(box_inside(back, WAVE_GUARD_LOCAL), "GUARD_LANDED_COMPOSE|%s" % r["suffix"])
     split = state["split"]
     req(sorted(s["label"] for s in split) == sorted(SPLIT_LABELS), "SPLIT_PIECES|%s" % [s["label"] for s in split])
     for s in split:
@@ -261,7 +310,10 @@ def plan_apply(state, rows):
     saves = []                                   # APPLY touches no sequence unless a reveal is copied
     if reveal["mode"] == "copy":
         saves.append(RISE)
-    return {"spawns": spawns, "hides": hides, "reveal": reveal, "content_saves": saves, "map": WORLD}
+    for s in spawns:
+        s["landed_world_box"] = landed_world_box(s["local_box"])
+    return {"spawns": spawns, "hides": hides, "reveal": reveal, "content_saves": saves, "map": WORLD,
+            "root_pose": pose}
 
 
 def apply_ops(plan):
@@ -520,9 +572,10 @@ def light_keys(strike_frame, fps, end_frame, intensity):
     return keys
 
 
-def plan_light(state, ehf_rule="in_s3"):
-    """state: fps, playback, strike, rake {...}, ehf [...], label_count, root."""
-    req(root_is_landed(state["root"]["world"]), "ROOT_NOT_LANDED")
+def plan_light(state, ehf_rule="in_s3", root_pose="landed", ack=False):
+    """state: fps, playback, strike, rake {...}, ehf [...], label_count, root.  Lights are placed root-locally (relative
+    transforms) in both root_pose modes; 'relative' only relaxes the live-rotation check (see root_pose_check)."""
+    pose = root_pose_check(state["root"]["world"], root_pose, ack)
     fps = float(state["fps"])
     req(abs(fps - EXPECTED_FPS) < 1e-6, "FPS|%s" % fps)
     playback = tuple(int(v) for v in state["playback"])
@@ -560,7 +613,7 @@ def plan_light(state, ehf_rule="in_s3"):
                      "after": {"use_temperature": True, "temperature": RAKE_TEMPERATURE_K},
                      "intensity": "UNCHANGED (keyed in the rise + held by S3FLOATHOLD; the -30 % is a separate "
                                   "decision, not done here)"},
-            "lights": specs, "haze": haze, "track": LIGHT_TRACK, "saves": [ROOT_SEQ], "map": WORLD}
+            "lights": specs, "haze": haze, "track": LIGHT_TRACK, "saves": [ROOT_SEQ], "map": WORLD, "root_pose": pose}
 
 
 # ----------------------------------------------------------------------------------------------- readiness

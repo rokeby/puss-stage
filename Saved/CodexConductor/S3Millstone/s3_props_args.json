@@ -1,7 +1,7 @@
 {
  "mode": "DRY",
  "confirm": "",
- "run": "S3PROPS-20261007-183441",
+ "run": "S3PROPS-20261007-192708",
  "prop": "PearlClam",
  "textures": null,
  "apply": {
@@ -22,8 +22,8 @@
   "reveal": "rise_track"
  },
  "placements_file": "s3_props_placements.json",
- "decided_by": "Gary 7 Oct: PearlClam approved as exported; seated on the millstone, hinge away from B05/B06 (computed yaw 42.7 from CLAM_DRY S3PROPS-20261007-183419); Fab stand-ins hidden",
- "part": "Pearl",
- "tex_set": "Mantle",
- "material": "Mantle"
+ "decided_by": "Gary 7 Oct (own words): pearl more iridescent, slightly less perfectly spherical",
+ "part": "Pearl_v2",
+ "tex_set": "Pearl",
+ "material": "Pearl_v2"
 }

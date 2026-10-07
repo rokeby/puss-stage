@@ -213,3 +213,105 @@ The **faint option** is shown in `main_cam_faint.png`: albedo × (1 − 0.06 × 
 
    The revert is then the same pattern under its own tag. **None of (a)–(c) is written yet.** They need Gary's look approval and the grime stream's agreement on the master.
 4. **Knock-on effects (section 4) still apply.** In particular, `s3_marble_tiling_apply.py` hard-codes `HP_EXPECTED = 449` (`:66`) and will fail its verify once the stain decals are reverted.
+
+
+## 7. BUILD: the grease layer, ready to run (Gary, conductor session, 7 Oct: "Yes, build it")
+
+Decisions: grease sheen, **no albedo**, and **one unified layer** that replaces both the 449 stain prints and the grime bench's grease decals.
+
+Everything here was written and tested OFFLINE: no MCP call and no commit. The working tree's `s3_marble_tiling_apply.py` is untouched.
+
+### Files (`Saved/CodexFlatV3/handprints/grease/`)
+
+| File | What it does |
+|---|---|
+| `hp_grease_assets.py` | One stage per call: `texture`, `texture_verify`, `master`, `master_verify`, `mi_batch`, `mi_verify`. Every create-call has a matching later verify call; create-calls never print SUCCESS. Details below. |
+| `hp_grease_worklist.py` → `hp_grease_mi_worklist.json` | 142 material instances in 8 fixed batches of ≤ 20. sha256 `9d9c19a4…`, pinned in the assets script. |
+| `hp_place_grease.py` | Modes `DRY`, `APPLY`, `REVERT_DRY`, `GREASE_REVERT`. APPLY and GREASE_REVERT need a confirm string. |
+| `s3_marble_tiling_apply_hp_layer.patch` | For the marble/grime owner. Details below. |
+| `test_hp_grease_build.py` → `test_hp_grease_build_report.json` | Harness: **11/11 PASS** [meas]. |
+| 13 wrappers, each with a `_request.json` | One per stage or mode. |
+| `fake_unreal.py` | A fake of the editor API, used only by the harness. |
+
+**`hp_grease_assets.py` stages**
+
+- **`texture`** imports the grease atlas once, as `T_HP_S03_GreaseAtlas` (linear, TC_MASKS, source sha pinned), and saves it.
+- **`master`** creates `/Game/Scenes/Scene3/HandPrints/Materials/Grease/M_HP_S03_Grease`. It is the bench graph ported 1:1:
+  - the custom nodes and defaults are identical to `s3mg_bench.py`, checked by the harness;
+  - blend is set before domain;
+  - only Opacity, Roughness and Normal are connected;
+  - **there is no BaseColor**.
+- **`mi_batch`** creates the next ≤ 20 instances, saves them, and runs GC. It needs ≥ 8 GB free RAM and can resume an interrupted batch.
+- **The three verify stages** run in later calls and read only through `unreal.load_asset`:
+  - `texture_verify` checks for a 2048² texture; while it is still a 32² placeholder it reports PENDING.
+  - `master_verify` checks the log for compile failures since the build marker, requires pixel-shader instructions > 0, and requires BaseColor unconnected via `get_material_property_input_node` (`MaterialEditingLibrary.h:317`).
+  - `mi_verify` checks each instance's parent, its 6 scalars, and that the master defaults are not overridden.
+
+**`hp_place_grease.py` APPLY** is one call and one transaction:
+
+1. **Gates.** The pinned tables, walls in place, the box rule, all instances verified, and EXACTLY the 449 stain decals of the pinned stain table.
+2. **Before any change:** snapshot every stain decal (label, folder, tags, transform, parent, material, size, sort order, fade), back up the level map, and write the record.
+3. **Swap.** Destroy the 449 stain decals; this is the "recorded step" (the existing `hp_revert_decals.py` is not used, because it would save a stain-less level on its own). Spawn the 1034 grease decals, attached KEEP_WORLD to the walls exactly as the stains were, and read every one back.
+4. **Save.** Refuse if any ZZ_/TEMP actor exists, save the level only, require a clean census, and recount.
+5. **On a failure before the save:** nothing is saved, the spawned grease is removed, and the editor needs a Don't-Save restart.
+
+**`GREASE_REVERT`** re-spawns the 449 stain decals from the snapshot and reads every field back against it. Labels, tags (including the original run tag), transforms and materials come back exactly. Unreal assigns new object names; those cannot be kept.
+
+**The marble patch** fixes `s3_marble_tiling_apply.py`'s hard-coded 449 decals (lines 66, 384 and 705-711):
+
+- The live hand-print layer is read from the grease placer's record. The script refuses a mixed layer.
+- The verify step accepts the swap through the grease record's `stain_digest_before`, and a revert through `stain_digest_after_restore`.
+- `git apply --check` passes against HEAD.
+
+### Harness results [meas, against the fake]
+
+The harness runs the REAL placer against a fake editor that holds the 449 stain decals and the wall actors.
+
+| Case | Result |
+|---|---|
+| DRY | Changes nothing. |
+| Missing confirm string | Refused. |
+| APPLY | 449 → 1034 decals, one save, the backup is written, parent/folder/material are correct. |
+| GREASE_REVERT | Restores every stain field exactly; second save; the record is archived. |
+| **+ controls** | A lossy restore stops on RESTORE_READBACK with no save. A failed destroy leaves nothing saved and archives the record as `.failed`. A ZZ_ actor makes the save refuse. 448 stains are refused. A wall moved 3 cm is refused. |
+| Static checks | Graph identical to the bench, and only the three outputs. No reload, delete, save-all or end-PIE calls. The record is written before the first change. Markers come after the last assert. One import per call. |
+| Marble patch | Switches between layers. Refuses a foreign layer. Accepts the restore chain, and refuses a wrong one as the control. The digest is byte-identical to the tiling tool's. |
+
+### Inferred, to be confirmed by the real run [inf]
+
+- That a decal material with BaseColor unconnected writes no colour to the DBuffer. That is the grime prep's open question 10; the first still answers it.
+- That `get_material_property_input_node` returns None for an unconnected pin.
+- That 1034 decals in one call stay within editor time and memory. The 449-decal APPLY on 6 Oct went fine; this is about 2.3× that.
+
+### Knock-on effects
+
+- `s3mg_bench.py` prespawns from the 60 HP_S03 labels in `geometry.json`. After APPLY those labels are gone, so its prespawn will refuse.
+- Per the unified-layer decision, the bench should instead show the live HP_S03G decals. Its liner MID and strips are unaffected.
+- That is the grime stream's file, so I did not change it.
+- Apply the marble patch **before** the next `s3_marble_tiling_apply` verify or revert.
+
+### Run order (right after the dune-ground APPLY; one MCP call each via `Saved/CodexMocap/mcp_request.py`; wait for each marker)
+
+1. **Offline:**
+   - `python Saved/CodexFlatV3/handprints/grease/test_hp_grease_build.py` → `ran=11|fail=0`.
+   - Optionally also `clamber/test_hp_grease.py` → 6/0.
+2. `grease/hp_grease_texture_dry_request.json` → `HP_GREASE_TEXTURE_DRY_RUN_OK`.
+3. `grease/hp_grease_texture_request.json` → `HP_GREASE_TEXTURE_IMPORTED|…|NOT_YET_VERIFIED`.
+4. `grease/hp_grease_texture_verify_request.json` → `HP_GREASE_TEXTURE_SUCCESS|size=[2048, 2048]`. On `_PENDING`, resend.
+5. `grease/hp_grease_master_dry_request.json`, then `grease/hp_grease_master_request.json` → `HP_GREASE_MASTER_BUILT`.
+6. About 30 s later: `grease/hp_grease_master_verify_request.json` → `HP_GREASE_MASTER_SUCCESS|ps_instructions=N|base_color=none`. On `_PENDING`, resend.
+7. `grease/hp_grease_mi_batch_dry_request.json`, then `grease/hp_grease_mi_batch_request.json` **× 8**:
+   - each call → `HP_GREASE_MI_BATCH_DONE|batch=k|…|remaining=…`;
+   - the 9th call → `NOTHING_TO_DO`.
+8. `grease/hp_grease_mi_verify_request.json` → `HP_GREASE_MI_SUCCESS|verified=142`.
+9. `grease/hp_grease_place_dry_request.json` → `HP_S03G_DRY_OK|stain=449|grease=1034|mis=142|mutated=0`.
+10. `grease/hp_grease_place_apply_request.json` → `HP_S03G_APPLY_SUCCESS|removed=449|spawned=1034|saved=1|backup=Backups/PreHPS03Grease-<run>`.
+11. Marble owner: `git apply Saved/CodexFlatV3/handprints/grease/s3_marble_tiling_apply_hp_layer.patch` (their commit).
+12. Fresh PIE + still, with the C_soft strips if the lighting cue carries them. Gary judges the sheen.
+
+**REVERT:**
+- `grease/hp_grease_revert_dry_request.json` → `HP_S03G_REVERT_DRY_OK`.
+- Then `grease/hp_grease_revert_request.json` → `HP_S03G_REVERT_SUCCESS|removed=1034|restored=449|saved=1`.
+- The assets (texture, master, 142 instances) stay. They are create-only and unreferenced after a revert; delete them by hand if wanted.
+
+**Any `_STOPPED` / `_ERROR` stops the sequence.** If the map is dirty after an APPLY failure, do a Don't-Save restart.

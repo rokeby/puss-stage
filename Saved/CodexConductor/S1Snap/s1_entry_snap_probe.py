@@ -125,6 +125,7 @@ def _find_paths(world):
             paths["exit"] = cam.get_path_name()
         elif "S1 Reveal Glide Camera" in lab:
             paths["glide"] = cam.get_path_name()
+    paths["ppvs"] = [v.get_path_name() for v in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.PostProcessVolume)]
     for a in unreal.GameplayStatics.get_all_actors_of_class(world, unreal.StaticMeshActor):
         if str(a.get_actor_label()) == "S1 Hangar Root":
             paths["hangar_root"] = a.get_path_name()
@@ -132,10 +133,73 @@ def _find_paths(world):
     return paths
 
 
+PP_FIELDS = ("auto_exposure_method", "auto_exposure_bias", "auto_exposure_min_brightness",
+             "auto_exposure_max_brightness", "auto_exposure_apply_physical_camera_exposure",
+             "depth_of_field_fstop", "depth_of_field_focal_distance", "depth_of_field_sensor_width",
+             "depth_of_field_min_fstop", "camera_iso", "camera_shutter_speed")
+
+
+def _pp(settings):
+    """Overridden PP fields only ({field: value}); unknown names are skipped (5.8 renames must not kill the logger)."""
+    out = {}
+    for f in PP_FIELDS:
+        try:
+            if settings.get_editor_property("override_" + f):
+                v = settings.get_editor_property(f)
+                out[f] = round(float(v), 4) if isinstance(v, (int, float, bool)) else str(v)
+        except Exception:
+            continue
+    return out
+
+
+def _attach_chain(actor):
+    chain, a, n = [], actor, 0
+    while a is not None and n < 8:
+        try:
+            a = a.get_attach_parent_actor()
+        except Exception:
+            break
+        if a is None:
+            break
+        chain.append({"label": str(a.get_actor_label()), "loc": _vec(a.get_actor_location()),
+                      "rot": _rot(a.get_actor_rotation())})
+        n += 1
+    return chain
+
+
+def _ppv_rows(world, paths, cam_loc):
+    import unreal
+    rows = []
+    for p in paths:
+        v = unreal.find_object(None, p)
+        if v is None:
+            continue
+        r = {"label": str(v.get_actor_label())}
+        for k in ("blend_weight", "enabled", "unbound", "priority", "blend_radius"):
+            try:
+                val = v.get_editor_property(k)
+                r[k] = round(float(val), 4) if not isinstance(val, bool) else val
+            except Exception:
+                pass
+        try:
+            origin, ext = v.get_actor_bounds(False)
+            o, e = _vec(origin), _vec(ext)
+            r["inside"] = bool(cam_loc) and all(abs(cam_loc[i] - o[i]) <= e[i] for i in range(3))  # AABB approx [inf]
+        except Exception:
+            r["inside"] = None
+        try:
+            r["pp"] = _pp(v.get_editor_property("settings"))
+        except Exception as exc:
+            r["pp"] = "ERR %r" % (exc,)
+        rows.append(r)
+    return rows
+
+
 def _cam_row(actor):
     import unreal
     row = {"actor": actor.get_name(), "label": str(actor.get_actor_label()), "cls": actor.get_class().get_name(),
-           "actor_loc": _vec(actor.get_actor_location()), "actor_rot": _rot(actor.get_actor_rotation())}
+           "actor_loc": _vec(actor.get_actor_location()), "actor_rot": _rot(actor.get_actor_rotation()),
+           "attach_chain": _attach_chain(actor)}
     comp = actor.get_component_by_class(unreal.CineCameraComponent)
     if comp is not None:
         fb = comp.get_editor_property("filmback")
@@ -153,6 +217,15 @@ def _cam_row(actor):
             "constrain_aspect": bool(comp.get_editor_property("constrain_aspect_ratio")),
             "pp_weight": round(float(comp.get_editor_property("post_process_blend_weight")), 4),
         })
+        try:
+            row["pp"] = _pp(comp.get_editor_property("post_process_settings"))
+        except Exception as exc:
+            row["pp"] = "ERR %r" % (exc,)
+        try:
+            ap = comp.get_attach_parent()
+            row["comp_parent"] = ap.get_name() if ap is not None else None
+        except Exception:
+            row["comp_parent"] = "ERR"
         row["cam_vs_actor_deg"] = round(_ang_deg(row["comp_rot"], row["actor_rot"]), 4)
     if isinstance(actor, unreal.InfinityStageCameraRig):
         for k in ("current_crossing_settle_weight", "current_shadow_cat_camera_bob_cm",
@@ -237,6 +310,7 @@ def _tick_body(st, delta):
         row["pov_fov"] = round(float(pcm.get_fov_angle()), 4)
     if vt is not None:
         row["vt"] = _cam_row(vt)
+    row["ppvs"] = _ppv_rows(world, st["paths"].get("ppvs", []), row.get("pov_loc"))
     for key in ("entry", "glide", "hangar_root"):
         p = st["paths"].get(key)
         obj = unreal.find_object(None, p) if p else None
@@ -245,6 +319,7 @@ def _tick_body(st, delta):
         if key == "hangar_root":
             row["hangar_root_rot"] = _rot(obj.get_actor_rotation())
             row["hangar_root_loc"] = _vec(obj.get_actor_location())
+            row["hangar_root_scale"] = _vec(obj.get_actor_scale3d())
         elif key == "entry" or (vt is not None and obj.get_name() != vt.get_name()):
             row[key] = _cam_row(obj)
     prev = st.get("prev")
@@ -441,10 +516,68 @@ def report(path, run, s1_index=2):
         flags.append("STALL")
     if any((r.get("step_cm") or 0) > 1.0 or (r.get("step_deg") or 0) > 0.2 for r in g0):
         flags.append("GLIDE_CUT_STEP")
+    # largest frame-to-frame delta per quantity (Gary 7 Oct: "a diff camera with maybe a diff position or focal")
+    def ev_proxy(r):
+        """Weighted sum of overridden auto_exposure_bias (camera PP x its weight + each enabled PPV the camera is
+        inside or that is unbound x blend_weight). A PROXY [inf]: the engine's blend order/priority is not modelled."""
+        tot = 0.0
+        vt = r.get("vt") or {}
+        if isinstance(vt.get("pp"), dict):
+            tot += float(vt["pp"].get("auto_exposure_bias", 0.0)) * float(vt.get("pp_weight") or 0.0)
+        for v in r.get("ppvs") or []:
+            if v.get("enabled", True) and (v.get("unbound") or v.get("inside")) and isinstance(v.get("pp"), dict):
+                tot += float(v["pp"].get("auto_exposure_bias", 0.0)) * float(v.get("blend_weight") or 0.0)
+        return tot
+
+    def exposure_key(r):
+        vt = r.get("vt") or {}
+        cam = vt.get("pp") if isinstance(vt.get("pp"), dict) else {}
+        vols = sorted((v["label"], v.get("blend_weight"), v.get("inside"), v.get("unbound"),
+                       json.dumps(v.get("pp"), sort_keys=True)) for v in r.get("ppvs") or [] if v.get("enabled", True))
+        return json.dumps([cam, vt.get("pp_weight"), vols], sort_keys=True)
+
+    qty = {"position_cm": [], "rotation_deg": [], "fov_deg": [], "exposure_ev_proxy": [], "focus_cm": [],
+           "focal_mm": [], "aperture": [], "sensor_mm": []}
+    exp_changes = []
+    for a, b in zip(rows, rows[1:]):
+        va, vb = a.get("vt") or {}, b.get("vt") or {}
+        where = {"master": b["master"], "to_boundary_s": b.get("to_boundary_s"), "vt": vb.get("label"),
+                 "vt_before": va.get("label")}
+        if a.get("pov_loc") and b.get("pov_loc"):
+            qty["position_cm"].append((_dist(a["pov_loc"], b["pov_loc"]), where))
+            qty["rotation_deg"].append((_ang_deg(a["pov_rot"], b["pov_rot"]), where))
+        if a.get("pov_fov") is not None and b.get("pov_fov") is not None:
+            qty["fov_deg"].append((abs(b["pov_fov"] - a["pov_fov"]), where))
+        qty["exposure_ev_proxy"].append((abs(ev_proxy(b) - ev_proxy(a)), where))
+        for k, f in (("focus_cm", "focus_cm"), ("focal_mm", "focal"), ("aperture", "aperture")):
+            if isinstance(va.get(f), (int, float)) and isinstance(vb.get(f), (int, float)):
+                qty[k].append((abs(vb[f] - va[f]), where))
+        if va.get("sensor") and vb.get("sensor"):
+            qty["sensor_mm"].append((max(abs(x - y) for x, y in zip(va["sensor"], vb["sensor"])), where))
+        if exposure_key(a) != exposure_key(b):
+            exp_changes.append(dict(where, before=exposure_key(a)[:400], after=exposure_key(b)[:400]))
+    out["largest_delta"] = {}
+    for k, lst in qty.items():
+        if lst:
+            v, w = max(lst, key=lambda t: t[0])
+            out["largest_delta"][k] = dict(w, value=round(v, 4))
+    out["exposure_setting_changes"] = exp_changes[:10]
+    thresholds = {"position_cm": (c.get("walk_step_cm_before") or 0.0) + 1.0, "rotation_deg": 0.2, "fov_deg": 0.1,
+                  "exposure_ev_proxy": 0.05, "focus_cm": 1.0, "focal_mm": 0.05, "aperture": 0.01, "sensor_mm": 0.01}
+    big = sorted(((k, d["value"] / thresholds[k]) for k, d in out["largest_delta"].items() if d["value"] > thresholds[k]),
+                 key=lambda t: -t[1])
+    out["largest_delta_verdict"] = [k for k, _ in big] or ["NONE_ABOVE_THRESHOLD"]
+    for k, _ in big:
+        flags.append("STEP_" + k.upper())
+    if exp_changes:
+        flags.append("EXPOSURE_SETTINGS_CHANGE")
     out["flags"] = flags or ["NO_STEP_FOUND"]
     rep = path.replace(".jsonl", "_report.json")
     with open(rep, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1)
+    for k, d in out["largest_delta"].items():
+        emit("S1SNAP_LARGEST|run=%s|qty=%s|value=%s|master=%s|to_boundary_s=%s|vt=%s->%s"
+             % (run, k, d["value"], d["master"], d["to_boundary_s"], d["vt_before"], d["vt"]))
     emit("S1SNAP_VERDICT|run=%s|flags=%s|delta_cm=%s|delta_deg=%s|delta_fov=%s|look_deg=%s|vt=%s->%s|report=%s"
          % (run, ",".join(out["flags"]), c.get("delta_cm"), c.get("delta_deg"), c.get("delta_fov"),
             c["last_p01"].get("look_deg"), c["last_p01"].get("vt"), c["first_s1"].get("vt"), rep))

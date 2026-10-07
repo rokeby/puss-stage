@@ -501,3 +501,7 @@ Lumen.
   meshes it changed, then writes the import record with `adopted: true`. BUILD_MAT now checks every piece's
   preconditions before creating anything. Harness 108/108 **[meas]**. Why the L6 meshes read [0, 0] is **UNCLEAR**
   (L1 carries the same 6 flaps and read [2.0, 0.3]; nothing in the tool differs between them).
+- **ADOPT, second live refusal (~19:25 UTC) [meas, conductor]:** ADOPT_TEXTURES_MISSING for both L6 pieces. The
+  original IMPORT had stopped before its textures, so only the meshes exist. ADOPT now imports EXACTLY the missing
+  skin textures (IMPORT's settings plus a stray-asset diff; size left to VERIFY). When it has to import, it takes one
+  piece per call. It records `textures_imported`. Harness 114/114 **[meas]**; still NOT RUN in Unreal.

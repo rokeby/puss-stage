@@ -1,5 +1,5 @@
 {
- "total": 86,
+ "total": 135,
  "failed": 0,
  "results": [
   {
@@ -105,7 +105,7 @@
   {
    "test": "apply- root not landed (sunk REST pose)",
    "pass": true,
-   "detail": "refused with ROOT_NOT_LANDED|{\"location\": [11421.97, 160000, -3620], \"rotation\": [0, -90, 0], \"scale\": [1, 1, 1]}"
+   "detail": "refused with ROOT_NOT_LANDED|{\"location\": [11421.97, 160000, -3620], \"rotation\": [0, -90, 0], \"scale\": [1, 1, 1]} (root_pose 'relative' places root-locally)"
   },
   {
    "test": "apply- label exists",
@@ -391,6 +391,251 @@
    "test": "static- the call scan sees a real call",
    "pass": true,
    "detail": ""
+  },
+  {
+   "test": "adopt+ mode with confirm, 2 pieces",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "adopt- 3 pieces in one call",
+   "pass": true,
+   "detail": "refused with BATCH|ADOPT takes 1..2 pieces, got 3"
+  },
+  {
+   "test": "adopt- without confirm",
+   "pass": true,
+   "detail": "refused with CONFIRM_MISSING|need 'ADOPT S3WAVESV3'"
+  },
+  {
+   "test": "adopt- in PIE",
+   "pass": true,
+   "detail": "refused with PIE_ACTIVE|ADOPT refused in PIE (editor world is None there)"
+  },
+  {
+   "test": "sizes+ [2.0, 0.3] -> KEEP",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "sizes+ live L6 read [0, 0] -> SET",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "sizes+ conductor's [1.0, 0.3] -> SET to [2.0, 0.3]",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "sizes- a one-LOD mesh is refused",
+   "pass": true,
+   "detail": "refused with SCREEN_SIZES_LOD_COUNT|[2.0]"
+  },
+  {
+   "test": "verify+ [2.0, 0.3] ok",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "verify- [1.0, 0.3] not ok (VERIFY flags it)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "verify- [0, 0] not ok",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "adopt+ saved mesh + textures, no record -> nothing to import",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "adopt- mesh missing",
+   "pass": true,
+   "detail": "refused with ADOPT_NO_MESH|S3_WaveV3_L6Foam_P2 (IMPORT it)"
+  },
+  {
+   "test": "adopt+ live L6 case: mesh only -> import all 3 textures",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "adopt+ one texture missing -> import exactly that one",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "adopt- texture import with 2 pieces in the call",
+   "pass": true,
+   "detail": "refused with ADOPT_TEXTURE_IMPORT_ONE_PIECE|S3_WaveV3_L6Foam_P2 misses ['SkinColor', 'SkinMask', 'SkinNormal']: ADOPT it alone"
+  },
+  {
+   "test": "adopt+ 2 pieces fine when nothing to import",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "adopt- unknown texture kind table",
+   "pass": true,
+   "detail": "refused with ADOPT_TEXTURE_KINDS|['SkinColor']"
+  },
+  {
+   "test": "adopt- record already written",
+   "pass": true,
+   "detail": "refused with ADOPT_ALREADY_RECORDED|S3_WaveV3_L6Foam_P2"
+  },
+  {
+   "test": "static+ IMPORT no longer sets screen sizes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static- the scan would catch a set in IMPORT",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ run_adopt sets screen sizes on the saved mesh",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ run_build_mat sets screen sizes on the saved mesh",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ BUILD_MAT checks EVERY piece before its first create_asset",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ ADOPT writes records only after the save, adopted=true",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ ADOPT runs the IMPORT mesh gates",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ ADOPT imports textures with IMPORT's settings + stray diff, records textures_imported",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ ADOPT imports only the MISSING kinds (no blanket TEX_KINDS import loop)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "pose+ landed root, default mode",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "pose- REST root in landed mode (the live DRY refusal)",
+   "pass": true,
+   "detail": "refused with ROOT_NOT_LANDED|{\"location\": [11421.97275, 160000.0, -120.0], \"rotation\": [0.0, -90.0, 0.0], \"scale\": [1.0, 1.0, 1.0]} (root_pose 'relative' places root-locally)"
+  },
+  {
+   "test": "pose+ REST root accepted in relative mode with ack",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "pose- relative without ack",
+   "pass": true,
+   "detail": "refused with ROOT_POSE_ACK_MISSING (set root_pose_ack true: the map save will store the root as it is now, [0.0, -90.0, 0.0])"
+  },
+  {
+   "test": "pose- relative with the root moved off the landed location",
+   "pass": true,
+   "detail": "refused with ROOT_UNEXPECTED_POSE|{\"location\": [11421.97, 160000.0, -3620.0], \"rotation\": [0.0, -90.0, 0.0], \"scale\": [1.0, 1.0, 1.0]} (relative path needs the landed location and scale 1)"
+  },
+  {
+   "test": "pose- unknown root_pose arg",
+   "pass": true,
+   "detail": "refused with ROOT_POSE_ARG|'world'"
+  },
+  {
+   "test": "rel+ relative path places identically to the landed path (landed root)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel+ ... and identically with the root at REST (no live-pose composition)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel+ hides identical in both paths",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel+ world box = KNOWN landed root + local",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel+ read-back equal to plan passes",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel+ 0.009 cm read-back drift passes (+-0.01)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel- 0.029 cm read-back drift refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel- a rotated read-back refused",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel+ landed-composed guard passes the planned placement",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "rel- landed-composed guard catches a piece placed 30 m off",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "motion+ keys are ROOT-RELATIVE (rest key = plan mount, no root pose input)",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ relative guard composes with LANDED_ROOT_TF, not the live root",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "static+ APPLY/DRY/LIGHT pass root_pose + ack from args",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "light+ relative mode with the root at REST",
+   "pass": true,
+   "detail": ""
+  },
+  {
+   "test": "light- REST root in landed mode",
+   "pass": true,
+   "detail": "refused with ROOT_NOT_LANDED|{\"location\": [11421.97275, 160000.0, -120.0], \"rotation\": [0.0, -90.0, 0.0], \"scale\": [1.0, 1.0, 1.0]} (root_pose 'relative' places root-locally)"
   },
   {
    "test": "determinism+ two builds byte-identical (96 deliverables, 12 pieces)",

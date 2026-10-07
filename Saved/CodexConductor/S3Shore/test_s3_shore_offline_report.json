@@ -1,6 +1,6 @@
 {
- "passed": 41,
- "total": 41,
+ "passed": 79,
+ "total": 79,
  "results": [
   {
    "case": "shipped params pass",
@@ -8,13 +8,12 @@
    "failures": []
   },
   {
-   "case": "NEG drift over prints",
+   "case": "NEG drift over the (proposed) print line",
    "ok": true,
    "failures": [
-    "CAMERA_LOW S3 Shot B04 79.5",
-    "DRIFT_HITS_PRINTS left 171.3",
-    "DRIFT_HITS_PRINTS right 171.3",
-    "DRIFT_HITS_PRINTS back 158.1"
+    "DRIFT_HITS_PRINTS left 226.3 > 160.0",
+    "DRIFT_HITS_PRINTS right 212.8 > 160.0",
+    "DRIFT_HITS_PRINTS back 243.4 > 160.0"
    ]
   },
   {
@@ -28,19 +27,123 @@
    "case": "NEG wave notch off -> drifts/relief under the flats detected",
    "ok": true,
    "failures": [
-    "WAVE_BASE_NOT_FLUSH Row1 86.465",
-    "WAVE_BASE_NOT_FLUSH Row2 129.907",
-    "WAVE_BASE_NOT_FLUSH Row3 99.748"
+    "WAVE_BASE_NOT_FLUSH Row1 164.931",
+    "WAVE_BASE_NOT_FLUSH Row2 151.180",
+    "WAVE_BASE_NOT_FLUSH Row3 186.435"
    ]
+  },
+  {
+   "case": "NEG slip faces over the angle of repose (clamp off, 40 deg talus)",
+   "ok": true,
+   "failures": [
+    "DRIFT_HITS_PRINTS left 251.7 > 245.0",
+    "SLOPE_OVER_REPOSE 42.93",
+    "NO_WIND_ASYMMETRY lee 33.0 vs windward 26.1 deg, steep lee share 0.53",
+    "TERRACING rms 5.50 deg"
+   ]
+  },
+  {
+   "case": "NEG wind ripples removed",
+   "ok": true,
+   "failures": [
+    "DRIFT_HITS_PRINTS back 245.2 > 245.0",
+    "RIPPLES_ABSENT ripple-band rms 0.206 cm"
+   ]
+  },
+  {
+   "case": "NEG no wind transport (talus only) -> no lee/windward asymmetry",
+   "ok": true,
+   "failures": [
+    "DRIFT_HITS_PRINTS left 245.8 > 245.0",
+    "NO_WIND_ASYMMETRY lee 27.6 vs windward 27.8 deg, steep lee share 0.54"
+   ]
+  },
+  {
+   "case": "NEG regular single-sinusoid ripples (the 7 Oct field) -> too regular",
+   "ok": true,
+   "failures": [
+    "DRIFT_HITS_PRINTS back 247.1 > 245.0",
+    "RIPPLES_TOO_REGULAR peak share 0.693"
+   ]
+  },
+  {
+   "case": "NEG the 7 Oct pipeline (no de-terrace blur, ripples before talus) -> terracing",
+   "ok": true,
+   "failures": [
+    "DRIFT_HITS_PRINTS back 245.6 > 245.0",
+    "TERRACING rms 4.29 deg"
+   ]
+  },
+  {
+   "case": "NEG the 17:04 field (pools printed into dunes, punched sheet hollows) -> pits on dunes",
+   "ok": true,
+   "failures": [
+    "PITS_ON_DUNES 11.42 m2"
+   ]
+  },
+  {
+   "case": "NEG millstone seat not built -> seat not level",
+   "ok": true,
+   "failures": [
+    "SEAT_NOT_LEVEL range=6.25"
+   ]
+  },
+  {
+   "case": "+ determinism: two fresh field builds byte-identical",
+   "ok": true,
+   "sha": "4e77818239ec54d44dae54abcf97e4370229026d1c37a17b37a440c64981344a"
+  },
+  {
+   "case": "- control: a seed change changes the grid hash",
+   "ok": true
+  },
+  {
+   "case": "standing stones: on this field, keep-outs clear, buried on the low side, hole reads from the main camera",
+   "ok": true,
+   "info": [
+    [
+     "S3 Standing Stone A",
+     true,
+     true
+    ],
+    [
+     "S3 Standing Stone B",
+     true,
+     false
+    ],
+    [
+     "S3 Standing Stone C",
+     true,
+     false
+    ]
+   ]
+  },
+  {
+   "case": "height-set JSON: A/B/C clean, within 10% of target, print lines consistent, matches field",
+   "ok": true,
+   "info": {
+    "A": [
+     193.1,
+     215.0
+    ],
+    "B": [
+     243.4,
+     265.0
+    ],
+    "C": [
+     307.0,
+     330.0
+    ]
+   }
   },
   {
    "case": "+ v2 cast preservation ABSENT in shipped field",
    "ok": true,
    "info": {
     "samples": 2506,
-    "fraction_within_0p5cm_of_v2": 0.0,
-    "mean_abs_diff_cm": 11.92,
-    "max_abs_diff_cm": 17.418
+    "fraction_within_0p5cm_of_v2": 0.0563,
+    "mean_abs_diff_cm": 14.969,
+    "max_abs_diff_cm": 151.045
    }
   },
   {
@@ -49,8 +152,8 @@
    "info": {
     "samples": 2506,
     "fraction_within_0p5cm_of_v2": 0.8815,
-    "mean_abs_diff_cm": 0.173,
-    "max_abs_diff_cm": 3.855
+    "mean_abs_diff_cm": 0.18,
+    "max_abs_diff_cm": 3.77
    }
   },
   {
@@ -69,21 +172,21 @@
    "case": "seat report from LIVE reads (run, 15 objects, Shore03 foot 130.454 local = 10.45 dock)",
    "ok": true,
    "counts": {
-    "OK": 3,
-    "FLOATING": 12,
-    "BURIED": 0
+    "OK": 5,
+    "FLOATING": 0,
+    "BURIED": 10
    }
   },
   {
    "case": "NEG camera clearance",
    "ok": true,
    "failures": [
-    "CAMERA_LOW S3 Shot B02 169.1",
-    "CAMERA_LOW S3 Shot B03 160.4",
-    "CAMERA_LOW S3 Shot B04 110.3",
-    "CAMERA_LOW S3 Shot B05 141.0",
-    "CAMERA_LOW S3 Shot B06 117.9",
-    "CAMERA_LOW S3 Shot B07 122.4"
+    "CAMERA_LOW S3 Shot B02 163.6",
+    "CAMERA_LOW S3 Shot B03 154.2",
+    "CAMERA_LOW S3 Shot B04 103.3",
+    "CAMERA_LOW S3 Shot B05 136.0",
+    "CAMERA_LOW S3 Shot B06 110.7",
+    "CAMERA_LOW S3 Shot B07 114.9"
    ]
   },
   {
@@ -100,7 +203,7 @@
    ]
   },
   {
-   "case": "runner: IMPORT/BUILD_MAT/BENCH(+RESTORE)/BENCH_PIE_* need '<MODE> S3SHORE'; APPLY/REVERT/VERIFY refused",
+   "case": "runner: IMPORT/BUILD_MAT/BENCH(+RESTORE)/BENCH_PIE_*/APPLY/REVERT need '<MODE> S3SHORE'; VERIFY refused",
    "ok": true,
    "info": {
     "enabled": {
@@ -110,11 +213,11 @@
      "BENCH": "BENCH S3SHORE",
      "BENCH_RESTORE": "BENCH_RESTORE S3SHORE",
      "BENCH_PIE_APPLY": "BENCH_PIE_APPLY S3SHORE",
-     "BENCH_PIE_RESTORE": "BENCH_PIE_RESTORE S3SHORE"
+     "BENCH_PIE_RESTORE": "BENCH_PIE_RESTORE S3SHORE",
+     "APPLY": "APPLY S3SHORE",
+     "REVERT": "REVERT S3SHORE"
     },
     "refused": [
-     "APPLY",
-     "REVERT",
      "VERIFY"
     ]
    }
@@ -201,7 +304,7 @@
     "restored": true,
     "still": "STILL_STATE_HELD",
     "root_landed": false,
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T1.json"
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T1.json"
    }
   },
   {
@@ -240,7 +343,7 @@
    "ok": true,
    "info": {
     "noop": "already_restored (state equals the originals file)",
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T1.json"
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T1.json"
    }
   },
   {
@@ -283,7 +386,7 @@
    "ok": true,
    "info": {
     "noop": "pie=gone (PIE copies died with PIE; editor world was never touched)",
-    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T6.json"
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T6.json"
    }
   },
   {
@@ -312,16 +415,16 @@
    "ok": true,
    "info": [
     "S3SHORE_START|run=T10|mode=BENCH_PIE_APPLY",
-    "S3SHORE_BENCH_PIE_ORIGINALS|run=T10|path=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_originals_T10.json",
+    "S3SHORE_BENCH_PIE_ORIGINALS|run=T10|path=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_originals_T10.json",
     "S3SHORE_BENCH_PIE_APPLY_OK|run=T10|borrowed=StaticMeshActor_77|hidden=StaticMeshActor_88|census_after={\"content\": [\"x\"], \"maps\": []}",
     "S3SHORE_START|run=T10R|mode=BENCH_PIE_RESTORE",
-    "S3SHORE_BENCH_PIE_RESTORE_OK|run=T10R|bench_run=T10|still=STILL_STATE_HELD|root_landed=False|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T10.json",
+    "S3SHORE_BENCH_PIE_RESTORE_OK|run=T10R|bench_run=T10|still=STILL_STATE_HELD|root_landed=False|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T10.json",
     "S3SHORE_START|run=T10R2|mode=BENCH_PIE_RESTORE",
-    "S3SHORE_BENCH_PIE_RESTORE_NOOP|run=T10R2|bench_run=T10|reason=already_restored (state equals the originals file)|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_4i032m0h/s3_shore_pie_bench_restored_T10.json"
+    "S3SHORE_BENCH_PIE_RESTORE_NOOP|run=T10R2|bench_run=T10|reason=already_restored (state equals the originals file)|record=C:/Users/Administrator/AppData/Local/Temp/s3shore_pie_mock_ieb9o6xg/s3_shore_pie_bench_restored_T10.json"
    ]
   },
   {
-   "case": "BENCH_PIE: - runner: APPLY still refused",
+   "case": "BENCH_PIE: - runner: VERIFY still refused (APPLY/REVERT enabled 7 Oct evening)",
    "ok": true,
    "info": null
   },
@@ -332,6 +435,195 @@
   },
   {
    "case": "- control: the same scan flags a planted save + destroy",
+   "ok": true
+  },
+  {
+   "case": "APPLY: + apply: 'S3 Shore Ground' on the root at relative identity, mesh _B, MI v2, tag, MOVABLE, no collision",
+   "ok": true,
+   "info": {
+    "actor": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_1",
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Shore/SM_S3_ShoreGround_B",
+    "mi": "/Game/InfinityStage/Dev/Generated/S3Shore/MI_S3_ShoreGround_v2",
+    "reveal_guid": null,
+    "float_hold_reapply_needed": false,
+    "reveal_report": {
+     "S3 Hangar Deck": {
+      "rise": [],
+      "scene": []
+     },
+     "S3 Beach V2 Sand Floor": {
+      "rise": [],
+      "scene": []
+     }
+    },
+    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A1",
+    "local_box": {
+     "min": [
+      0.0,
+      -1012.0,
+      95.0
+     ],
+     "max": [
+      6012.0,
+      1008.0,
+      362.35
+     ]
+    }
+   }
+  },
+  {
+   "case": "APPLY: + apply: deck + v2 sand hidden (actor + every component off + hidden in game); census clean; record saved+applied; backup umap+rise+record",
+   "ok": true,
+   "info": {
+    "dir": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A1",
+    "sha256": {
+     "L_InfinityStage_V1VerticalSlice.umap": "9ad63846ab07fc8c252e9ef05e4e2dae92f6df22032bca882d91264c4861bd23",
+     "LS_S3_HangarRise.uasset": "eaf79154aaa1fe31e7326b3bd51819e6776c6db6c341a0d7f6da955f02b58a2b",
+     "s3_shore_ground_record.json": "1be269d72336fbda583936b5d0149abbdd31e18946ecde85dc43c885a2ed0d8e"
+    }
+   }
+  },
+  {
+   "case": "APPLY: + apply: record existed before EVERY mutation; exactly one save (the map), no sequence saved",
+   "ok": true,
+   "info": [
+    [
+     "save_map",
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+     true
+    ]
+   ]
+  },
+  {
+   "case": "APPLY: + revert: actor destroyed, deck/v2 flags EXACTLY as before (incl. Skirt hidden_in_game), census clean, record -> .reverted",
+   "ok": true,
+   "info": {
+    "done": [
+     "actor_destroyed",
+     "restored|S3 Hangar Deck",
+     "restored|S3 Beach V2 Sand Floor"
+    ],
+    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A1R-REVERT",
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/s3_shore_ground_record.json.reverted-A1R"
+   }
+  },
+  {
+   "case": "APPLY: - apply refuses on a dirty census (no record, no mutation)",
+   "ok": true,
+   "info": "DIRTY_EDITOR|{\"content\": [\"/Game/Klara/SomeLevel\"], \"maps\": []}"
+  },
+  {
+   "case": "APPLY: - revert refuses on a dirty census",
+   "ok": true,
+   "info": "DIRTY_EDITOR|{\"content\": [], \"maps\": [\"/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice\"]}"
+  },
+  {
+   "case": "APPLY: - apply refuses when s3_shore_ground_record.json exists (file untouched, no mutation)",
+   "ok": true,
+   "info": "RECORD_EXISTS|C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/s3_shore_ground_record.json|REVERT first or move it"
+  },
+  {
+   "case": "APPLY: - apply refuses when SM_S3_ShoreGround_B is missing",
+   "ok": true,
+   "info": "MESH_MISSING|/Game/InfinityStage/Dev/Generated/S3Shore/SM_S3_ShoreGround_B|run IMPORT first"
+  },
+  {
+   "case": "APPLY: + deck reveal: copied to the new actor (keys/mode), actor hidden in game, rise + map saved, float hold flagged",
+   "ok": true,
+   "info": [
+    [
+     "save_asset",
+     "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise"
+    ],
+    [
+     "save_map",
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+    ]
+   ]
+  },
+  {
+   "case": "APPLY: + revert after a reveal copy: binding removed, pedestal + deck bindings kept, flags exact",
+   "ok": true,
+   "info": {
+    "done": [
+     "reveal_removed",
+     "actor_destroyed",
+     "restored|S3 Hangar Deck",
+     "restored|S3 Beach V2 Sand Floor"
+    ],
+    "backup": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/Backups/PreS3ShoreGround-A5R-REVERT",
+    "record": "C:/Users/Administrator/AppData/Local/Temp/s3shore_apply_mock_untfht2b/s3_shore_ground_record.json.reverted-A5R"
+   }
+  },
+  {
+   "case": "APPLY: - deck visibility track in LS_DevScene_03 -> refused (no record, no mutation)",
+   "ok": true,
+   "info": "DECK_REVEAL_IN_SCENE_SEQUENCE_UNSUPPORTED|['SCENEGUID']"
+  },
+  {
+   "case": "APPLY: - foreign package dirtied mid-apply -> DIRTY_SCOPE, nothing saved, auto-undo (actor gone, flags exact), record -> .failed",
+   "ok": true,
+   "info": "DIRTY_SCOPE|{\"content\": [\"/Game/Klara/AlleyLevel\"], \"maps\": [\"/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice\"]}"
+  },
+  {
+   "case": "APPLY: - revert refuses on drift since APPLY (no mutation, actor kept)",
+   "ok": true,
+   "info": "READBACK_HIDDEN|S3 Hangar Deck|{\"path\": \"/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_243\", \"label\": \"S3 Hangar Deck\", \"actor_hidden\": true, \"components\": {\"Sta"
+  },
+  {
+   "case": "APPLY: - apply refuses while PIE runs",
+   "ok": true,
+   "info": "PIE_ACTIVE|APPLY/REVERT are editor-world only"
+  },
+  {
+   "case": "APPLY: + mesh_name default unchanged (SM_S3_ShoreGround, v1 path, v1 import record path)",
+   "ok": true,
+   "info": null
+  },
+  {
+   "case": "APPLY: + mesh_name B -> new asset path + its own import record",
+   "ok": true,
+   "info": null
+  },
+  {
+   "case": "APPLY: - mesh_name with a path / foreign prefix refused",
+   "ok": true,
+   "info": "MESH_NAME|'../SM_S3_ShoreGround'"
+  },
+  {
+   "case": "APPLY: - IMPORT mesh_name=_B refuses when _B already exists (create-only, never reimport)",
+   "ok": true,
+   "info": "MESH_EXISTS|/Game/InfinityStage/Dev/Generated/S3Shore/SM_S3_ShoreGround_B"
+  },
+  {
+   "case": "APPLY: - IMPORT refuses on a dirty census",
+   "ok": true,
+   "info": "DIRTY_EDITOR|{'content': [], 'maps': ['/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice']}"
+  },
+  {
+   "case": "APPLY: - runner: APPLY with the wrong confirm -> FAILED, no record, no mutation",
+   "ok": true,
+   "info": [
+    "S3SHORE_START|run=R1|mode=APPLY",
+    "S3SHORE_FAILED|run=R1|mode=APPLY|RuntimeError(\"CONFIRM_MISSING|APPLY needs confirm='APPLY S3SHORE'\")"
+   ]
+  },
+  {
+   "case": "APPLY: + runner: APPLY_OK -> REVERT_OK (once each, in order), then VERIFY refused",
+   "ok": true,
+   "info": [
+    "S3SHORE_APPLY_OK",
+    "S3SHORE_REVERT_OK",
+    "S3SHORE_FAILED"
+   ]
+  },
+  {
+   "case": "APPLY section: no EditorAssetLibrary.load_asset / reload / Save-All / reimport / GetBoundObjects / PIE end",
+   "ok": true,
+   "info": []
+  },
+  {
+   "case": "- control: the same scan flags planted calls",
    "ok": true
   },
   {
@@ -350,7 +642,7 @@
     "max": [
      6012.0,
      1008.0,
-     243.19
+     362.35
     ]
    }
   },
@@ -364,6 +656,55 @@
   },
   {
    "case": "manifest built with no field failures",
+   "ok": true
+  },
+  {
+   "case": "Blender-built heights == harness heights (max |dh| <= 0.05 cm; exact sha reported)",
+   "ok": true,
+   "info": {
+    "blender_numpy": "1.26.4",
+    "max_abs_dh_cm": 3.943512183468556e-13,
+    "sha_equal": false
+   }
+  },
+  {
+   "case": "manifest records the millstone seat (level within its radius)",
+   "ok": true,
+   "info": {
+    "local_xy": [
+     2995.03,
+     0.0
+    ],
+    "radius_cm": 80.0,
+    "h_mean_cm": 9.574,
+    "local_z": 124.574,
+    "range_within_radius_cm": 0.027
+   }
+  },
+  {
+   "case": "+ determinism: the last two Blender builds of the same params wrote byte-identical FBX",
+   "ok": true,
+   "info": [
+    {
+     "built_utc": "2026-10-07T21:43:07Z",
+     "height_set": "B",
+     "params_sha256": "0f31fb8b7b8404e0ea8d619b4781cbbc53ab131cd2f5d2c9bf4d8eb2063a6e07",
+     "grid_sha256": "0c97d7a63db33c3b4ad6f5987a53da7e3d8d88e2d7b2a82ff7a0078cf840405f",
+     "fbx_sha256": "eec3648b634af1d26881993b5d4d40e3287014f01c0873a0d2c95fa7be809071",
+     "render": false
+    },
+    {
+     "built_utc": "2026-10-07T21:43:51Z",
+     "height_set": "B",
+     "params_sha256": "0f31fb8b7b8404e0ea8d619b4781cbbc53ab131cd2f5d2c9bf4d8eb2063a6e07",
+     "grid_sha256": "0c97d7a63db33c3b4ad6f5987a53da7e3d8d88e2d7b2a82ff7a0078cf840405f",
+     "fbx_sha256": "eec3648b634af1d26881993b5d4d40e3287014f01c0873a0d2c95fa7be809071",
+     "render": false
+    }
+   ]
+  },
+  {
+   "case": "- control: a differing FBX hash in the log is caught",
    "ok": true
   }
  ]

@@ -17,7 +17,7 @@ except ImportError:
 S1 = 4624705
 
 
-def rows(look_deg=0.0, jump_cm=0.0, fov_jump=0.0, wrong_vt=False, stall=False):
+def rows(look_deg=0.0, jump_cm=0.0, fov_jump=0.0, wrong_vt=False, stall=False, exp_jump=0.0, focal_jump=0.0):
     out = [{"header": True, "p01_end_vs_s1_start_ticks": 0}]
     prev = None
     for k in range(-50, 126):                    # 2 s before .. 5 s after at 25 fps
@@ -38,10 +38,13 @@ def rows(look_deg=0.0, jump_cm=0.0, fov_jump=0.0, wrong_vt=False, stall=False):
                 lab = "CineCameraActor (hers)"
             vt = {"label": lab, "cam_vs_actor_deg": 0.0, "aperture": 2.8, "pp_weight": 1.0, "focal": 25.0}
             x += jump_cm
+            vt["focal"] = 25.0 + focal_jump
             exp = name
         r = {"tick": k + 60, "dt": 0.04 if not (stall and k == 0) else 0.3, "master": m, "seg": seg, "scene_frame": sf,
              "playing": True, "expected_owner": exp, "pov_loc": [x, 0.0, 150.0], "pov_rot": rot,
-             "pov_fov": 50.8 + (fov_jump if seg == 2 else 0.0), "vt": vt}
+             "pov_fov": 50.8 + (fov_jump if seg == 2 else 0.0), "vt": vt,
+             "ppvs": [{"label": "S1 Hangar Pinned Exposure", "enabled": True, "unbound": False, "inside": True,
+                       "blend_weight": 1.0, "pp": {"auto_exposure_bias": 0.5 + (exp_jump if seg == 2 else 0.0)}}]}
         if prev:
             r["step_cm"] = P._dist(r["pov_loc"], prev["pov_loc"])
             r["step_deg"] = P._ang_deg(r["pov_rot"], prev["pov_rot"])
@@ -71,6 +74,8 @@ results = [
     run("fov_jump", rows(fov_jump=2.0), ["CROSSING_FOV_STEP"]),
     run("wrong_owner", rows(wrong_vt=True), ["CUT_OWNER_MISMATCH"]),
     run("stall", rows(stall=True), ["STALL"]),
+    run("exposure_jump", rows(exp_jump=1.5), ["STEP_EXPOSURE_EV_PROXY", "EXPOSURE_SETTINGS_CHANGE"], ["STEP_POSITION_CM"]),
+    run("focal_jump", rows(focal_jump=10.0), ["STEP_FOCAL_MM"], ["STEP_POSITION_CM", "EXPOSURE_SETTINGS_CHANGE"]),
 ]
 print("%d/%d" % (sum(results), len(results)))
 sys.exit(0 if all(results) else 1)

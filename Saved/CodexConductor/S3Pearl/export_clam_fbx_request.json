@@ -1,0 +1,1 @@
+{"name":"call_tool","arguments":{"toolset_name":"MCPBlueprintsGenerator.MCPBlueprintsGeneratorToolset","tool_name":"ExecuteProjectPythonFile","arguments":{"relativeSavedPath":"CodexConductor/S3Pearl/export_clam_fbx.py"}}}

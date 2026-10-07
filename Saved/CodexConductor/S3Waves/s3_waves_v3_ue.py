@@ -10,8 +10,9 @@
                 LOD screen sizes are NOT set here (L6 read [0,0] in the import call, live 7 Oct): BUILD_MAT or
                 ADOPT sets [2.0, 0.3] in a later call; VERIFY requires it.
                 Texture SIZE is NOT gated here (first-load sizes read 32x32): VERIFY does it in a later call.
-  ADOPT         1..2 pieces already imported + saved but unrecorded (IMPORT stopped late): IMPORT's mesh gates,
-                texture settings, LOD screen sizes -> [2.0, 0.3] (modify, read back), save ONLY the changed meshes,
+  ADOPT         1..2 pieces already imported + saved but unrecorded (IMPORT stopped late).  If a piece's skin
+                textures are missing (L6, live 7 Oct) it imports EXACTLY those, IMPORT's settings, size check left
+                to VERIFY -- one piece per call then.  Then IMPORT's mesh gates, texture settings, LOD screen sizes -> [2.0, 0.3] (modify, read back), save ONLY the changed meshes,
                 write the import record with adopted=true.  Marker S3WAVESV3_ADOPT_OK.
   VERIFY        read-only, PIE-safe (unreal.load_asset only): every piece's mesh/texture/MI state incl. texture sizes
                 == the PNG headers.  Writes s3_waves_v3_verify.json (APPLY needs it newer than every import/mat run).
@@ -571,16 +572,38 @@ def run_adopt(C, run, args, world):
     the meshes that changed, then write the import record with adopted=true."""
     pilot = _pilot()
     rows = _pick(_rows(C), args["pieces"])
+    missing_by = {}
     for row in rows:                                                          # all preconditions before any write
         rec_path = os.path.join(HERE, "s3_waves_v3_import_%s.json" % row["suffix"])
-        C.adopt_check(row, _exists(row["mesh"]), {k: _exists(row["tex"][k]) for k in C.TEX_KINDS}, _read(rec_path))
-        val = _read(_piece_files(row["suffix"])["validation"])
+        missing_by[row["suffix"]] = C.adopt_check(row, _exists(row["mesh"]),
+                                                  {k: _exists(row["tex"][k]) for k in C.TEX_KINDS}, _read(rec_path),
+                                                  n_pieces=len(rows))
+        files = _piece_files(row["suffix"])
+        val = _read(files["validation"])
         if not val or not val.get("pass"):
             raise RuntimeError("VALIDATION_NOT_PASS|%s" % row["suffix"])
+        for k in missing_by[row["suffix"]]:
+            if not os.path.isfile(files["tex"][k]):
+                raise RuntimeError("SOURCE_MISSING|%s" % files["tex"][k])
     out, changed = [], []
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
     for row in rows:
         files = _piece_files(row["suffix"])
         val = _read(files["validation"])
+        imported = []
+        missing = missing_by[row["suffix"]]
+        if missing:                       # exactly the missing textures, IMPORT's settings; size -> VERIFY
+            folder = row["tex"][missing[0]].rsplit("/", 1)[0]
+            before = _folder_assets(folder)
+            for k in missing:
+                tools.import_asset_tasks([pilot.import_task(files["tex"][k], row["tex"][k])])
+                _configure_texture(pilot, _load(row["tex"][k], unreal.Texture2D), k, C)
+                imported.append(k)
+            new = sorted(_folder_assets(folder) - before)
+            if new != sorted(row["tex"][k] for k in missing):
+                raise RuntimeError("STRAY_OR_MISSING|new=%s|want=%s (never saved: Don't-Save restart)" % (
+                    new, sorted(row["tex"][k] for k in missing)))
+            changed.extend(row["tex"][k] for k in missing)
         mesh = _load(row["mesh"], unreal.StaticMesh)
         gate = _mesh_gate(pilot, C, mesh, row, val)
         tex_state = {}
@@ -594,7 +617,8 @@ def run_adopt(C, run, args, world):
             changed.append(row["mesh"])
         out.append({"run": run, "suffix": row["suffix"], "packages": [row["mesh"]] + [row["tex"][k] for k in C.TEX_KINDS],
                     "mesh_gate": gate, "textures": tex_state, "fbx_sha256": _sha(files["fbx"]), "screen_sizes": ss,
-                    "saved": True, "adopted": True, "utc": datetime.datetime.utcnow().isoformat() + "Z"})
+                    "saved": True, "adopted": True, "textures_imported": imported,
+                    "utc": datetime.datetime.utcnow().isoformat() + "Z"})
     if changed:
         _save(C, world, sorted(changed), map_expected=False)
     elif _census() != {"content": [], "maps": []}:
@@ -603,6 +627,7 @@ def run_adopt(C, run, args, world):
     for rec in out:                                                          # records only after the save
         _write(os.path.join(HERE, "s3_waves_v3_import_%s.json" % rec["suffix"]), rec)
     return {"adopted": [r["suffix"] for r in out], "saved": sorted(changed),
+            "textures_imported": {r["suffix"]: r["textures_imported"] for r in out},
             "screen_sizes": {r["suffix"]: r["screen_sizes"] for r in out}}
 
 
@@ -778,12 +803,12 @@ def live_state(C, world, rows):
             "verify_report_mtime": (verify or {}).get("written_mtime"), "newest_asset_write": newest}
 
 
-def run_dry(C, run, world, census):
+def run_dry(C, run, world, census, args):
     rows = _rows(C)
     st = live_state(C, world, rows)
-    out = {"run": run, "census": census, "state": st}
+    out = {"run": run, "census": census, "state": st, "root_pose_arg": args.get("root_pose", "landed")}
     try:
-        out["apply_plan"] = C.plan_apply(st, rows)
+        out["apply_plan"] = C.plan_apply(st, rows, args.get("root_pose", "landed"), args.get("root_pose_ack") is True)
         out["apply"] = "would_apply"
     except C.PlanError as exc:
         out["apply"] = "APPLY_WOULD_REFUSE|%s" % exc
@@ -822,7 +847,7 @@ def _spawn(C, world, root, s):
     return a
 
 
-def _verify_spawned(C, world, path, s, root_path):
+def _verify_spawned(C, world, path, s, root_path, root_pose="landed"):
     a = _by_path(world, path)
     if a is None:
         raise RuntimeError("SPAWNED_MISSING|%s" % s["label"])
@@ -830,21 +855,24 @@ def _verify_spawned(C, world, path, s, root_path):
     if p is None or _path(p) != root_path:
         raise RuntimeError("SPAWNED_PARENT|%s|%s" % (s["label"], _path(p)))
     rel = _rel_tf(a)
-    if not (C.near(rel["location"], s["relative"]["location"], 0.05) and C.near(rel["rotation"], [0, 0, 0], 0.01)
-            and C.near(rel["scale"], [1, 1, 1], 1e-5)):
-        raise RuntimeError("SPAWNED_RELATIVE|%s|%s" % (s["label"], rel))
+    if not C.relative_ok(rel, s["relative"]):                              # plan +-0.01 cm, rotation 0, scale 1
+        raise RuntimeError("SPAWNED_RELATIVE|%s|%s|want=%s" % (s["label"], rel, s["relative"]))
     if _pkg(_smc(a).get_editor_property("static_mesh")) != s["mesh"]:
         raise RuntimeError("SPAWNED_MESH|%s" % s["label"])
     if _enum(_smc(a).get_editor_property("mobility")) != "MOVABLE":
         raise RuntimeError("SPAWNED_MOBILITY|%s" % s["label"])
     if C.TAG not in [str(t) for t in a.tags]:
         raise RuntimeError("SPAWNED_TAG|%s" % s["label"])
-    # landed guard against the LIVE root (memory puss-level-saved-landed-frame-trap)
-    root = _by_path(world, root_path)
-    local = C.box_local(_world_tf(root), _bounds(a))
+    if root_pose == "relative":
+        # the live root may sit at REST (pitch -90): compose the READ-BACK relative placement with the KNOWN landed
+        # root instead of the live pose
+        local = C.box_local(C.LANDED_ROOT_TF, C.landed_world_box(C.readback_local_box(s, rel)))
+    else:
+        # landed guard against the LIVE root (memory puss-level-saved-landed-frame-trap)
+        local = C.box_local(_world_tf(_by_path(world, root_path)), _bounds(a))
     if not C.box_inside(local, C.WAVE_GUARD_LOCAL, tol=2.0):
         raise RuntimeError("OUTSIDE_LANDED_WAVE_BOX|%s|%s" % (s["label"], json.dumps(local)))
-    return {"world_box_local": local}
+    return {"world_box_local": local, "root_pose": root_pose}
 
 
 def _add_reveal(C, world, actor, section):
@@ -884,17 +912,17 @@ def _verify_apply(C, world, record):
     plan = record["plan"]
     for c in record["created"]:
         s = next(x for x in plan["spawns"] if x["label"] == c["label"])
-        _verify_spawned(C, world, c["actor_path"], s, record["root_path"])
+        _verify_spawned(C, world, c["actor_path"], s, record["root_path"], plan.get("root_pose", {}).get("mode", "landed"))
     for h in plan["hides"]:
         a = _by_path(world, h["object_path"])
         if a is None or _flags(a) != h["after"]:
             raise RuntimeError("SPLIT_FLAGS|%s|%s" % (h["label"], _flags(a) if a else None))
 
 
-def run_apply(C, run, world):
+def run_apply(C, run, world, args):
     rows = _rows(C)
     st = live_state(C, world, rows)
-    plan = C.plan_apply(st, rows)
+    plan = C.plan_apply(st, rows, args.get("root_pose", "landed"), args.get("root_pose_ack") is True)
     record = {"run": run, "world": C.WORLD, "plan": plan, "root_path": st["root"]["object_path"],
               "root_world": st["root"]["world"], "created": [], "saved": False, "applied": False}
     _write(APPLY_RECORD, record, exclusive=True)                         # RECORD FIRST
@@ -909,7 +937,7 @@ def run_apply(C, run, world):
         row = {"label": s["label"], "actor_path": _path(a), "reveal_guid": None}
         record["created"].append(row)
         _write(APPLY_RECORD, record)
-        _verify_spawned(C, world, row["actor_path"], s, record["root_path"])
+        _verify_spawned(C, world, row["actor_path"], s, record["root_path"], plan["root_pose"]["mode"])
         if plan["reveal"]["mode"] == "copy":
             row["reveal_guid"] = _add_reveal(C, world, a, plan["reveal"]["section"])
             _write(APPLY_RECORD, record)
@@ -1146,11 +1174,11 @@ def _light_state(C, world):
                       **seqst}
 
 
-def run_light_dry(C, run, world, census):
+def run_light_dry(C, run, world, census, args):
     _rs, st = _light_state(C, world)
     out = {"run": run, "census": census, "state": st}
     try:
-        out["plan"] = C.plan_light(st)
+        out["plan"] = C.plan_light(st, root_pose=args.get("root_pose", "landed"), ack=args.get("root_pose_ack") is True)
         out["light"] = "would_apply"
     except C.PlanError as exc:
         out["light"] = "LIGHT_WOULD_REFUSE|%s" % exc
@@ -1190,7 +1218,9 @@ def _spawn_rect(C, root, spec):
     got = {"intensity": float(c.get_editor_property("intensity")), "temperature": float(c.get_editor_property("temperature")),
            "shadows": bool(c.get_editor_property("cast_shadows")), "rel": _rel_tf(a)}
     if (abs(got["intensity"] - spec["intensity_cd"]) > 1e-3 or abs(got["temperature"] - spec["temperature_k"]) > 1e-3
-            or got["shadows"] != bool(spec["shadows"]) or not C.near(got["rel"]["location"], spec["location"], 0.05)):
+            or got["shadows"] != bool(spec["shadows"]) or
+            not C.relative_ok(got["rel"], {"location": spec["location"], "rotation": spec["rotation"],
+                                           "scale": [1.0, 1.0, 1.0]})):
         raise RuntimeError("LIGHT_READBACK|%s|%s" % (spec["label"], got))
     return a, c
 
@@ -1214,9 +1244,9 @@ def _add_intensity_track(C, seq, comp, keys):
     return b
 
 
-def run_light_apply(C, run, world):
+def run_light_apply(C, run, world, args):
     root_seq, st = _light_state(C, world)
-    plan = C.plan_light(st)
+    plan = C.plan_light(st, root_pose=args.get("root_pose", "landed"), ack=args.get("root_pose_ack") is True)
     gs_before = {_guid(b.get_id()) for b in root_seq.get_bindings()}
     rec = {"run": run, "plan": plan, "created": [], "created_bindings": [], "rake_done": False, "saved": False}
     _write(LIGHT_RECORD, rec, exclusive=True)
@@ -1335,7 +1365,7 @@ def main():
         world = _editor_world()
         census = _guard(C, world, need_clean=mode not in C.READ_ONLY)
         if mode == "DRY":
-            out, path = run_dry(C, run, world, census)
+            out, path = run_dry(C, run, world, census, args)
             unreal.log("%s_DRY_OK|run=%s|mutated=0|apply=%s|out=%s" % (C.MARK, run, out["apply"], path))
         elif mode == "IMPORT":
             r = run_import(C, run, args, world)
@@ -1349,7 +1379,7 @@ def main():
             unreal.log("%s_BUILD_MAT_OK|run=%s|%s" % (C.MARK, run, json.dumps(r)))
         elif mode == "APPLY":
             try:
-                r = run_apply(C, run, world)
+                r = run_apply(C, run, world, args)
             except Exception:
                 rec = _read(APPLY_RECORD)
                 if rec is not None and not rec.get("saved"):
@@ -1376,11 +1406,11 @@ def main():
             r = run_motion_revert(C, run, world)
             unreal.log("%s_MOTION_REVERT_OK|run=%s|%s" % (C.MARK, run, json.dumps(r)))
         elif mode == "LIGHT_DRY":
-            out, path = run_light_dry(C, run, world, census)
+            out, path = run_light_dry(C, run, world, census, args)
             unreal.log("%s_LIGHT_DRY_OK|run=%s|mutated=0|light=%s|out=%s" % (C.MARK, run, out["light"], path))
         elif mode == "LIGHT_APPLY":
             try:
-                r = run_light_apply(C, run, world)
+                r = run_light_apply(C, run, world, args)
             except Exception:
                 rec = _read(LIGHT_RECORD)
                 if rec is not None and not rec.get("saved"):

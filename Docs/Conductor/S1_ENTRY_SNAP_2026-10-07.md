@@ -233,3 +233,29 @@ bash Saved/CodexConductor/conductor_helpers/mcprun.sh S1Snap/s1_entry_snap_probe
 - Tracks in `LS_Choreo_Passage_1`.
 - Any record of the P01 rig camera's aperture or PP settings, or the glide camera's.
 - A Python-visible way to read Sequencer's active cut offline. The probe infers the owner from the view target.
+
+## 7. Probe v2, after Gary's note that he was hands off (7 Oct evening)
+
+Gary was hands off at the P01 end, so (e) is unlikely. He saw "a diff camera with maybe a diff position or focal
+length". The authored poses match (§4), so the cause must be a **runtime** difference.
+
+**Defaults.** The args now default to a window of ±1 s (`pre_s` = `post_s` = 1.0).
+
+**New per-tick fields:**
+- the view target's attach-parent actor chain, with the world transform of each parent;
+- the camera component's attach parent;
+- the camera's PostProcessSettings **overrides**: exposure method, bias, min and max, physical exposure, DOF
+  f-stop, focal distance and sensor width, ISO and shutter;
+- every PostProcessVolume: blend weight, enabled, unbound, priority, its overrides, and `inside`. `inside` is a
+  bounds-box test of the camera position, an approximation **[inf]**;
+- the hangar root's world location, rotation and scale.
+
+Per tick it already logged the camera manager's FOV, filmback, aspect constraint, focal length, focus and aperture.
+
+**New verdict.** The probe now reports `largest_delta` per quantity: position cm, rotation °, FOV °, an
+exposure-EV proxy, focus, focal, aperture and sensor. It logs one `S1SNAP_LARGEST` line per quantity, adds a
+`STEP_<QTY>` flag for each delta above its threshold, and lists every frame where the exposure settings changed
+(`EXPOSURE_SETTINGS_CHANGE`). The EV proxy is the weighted sum of overridden `auto_exposure_bias` values. It does
+not model the engine's priority or blend order **[inf]**.
+
+**Harness:** 8/8, adding exposure-jump and focal-jump controls.

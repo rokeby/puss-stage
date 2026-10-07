@@ -533,6 +533,10 @@ def _make_editor_fake(U, state):
             mark("set_collision_enabled", self.owner.name)
             self.collision = c
 
+        def set_collision_profile_name(self, n):
+            mark("set_collision_profile_name", self.owner.name)
+            self.profile = n
+
         def get_collision_enabled(self):
             return self.collision
 

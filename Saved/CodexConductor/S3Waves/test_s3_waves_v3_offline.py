@@ -388,10 +388,18 @@ def t_adopt():
     check("verify- [0, 0] not ok", not C.screen_sizes_ok([0.0, 0.0]))
     row = ROWS[-1]
     tex = {k: True for k in C.TEX_KINDS}
-    check("adopt+ saved mesh + textures, no record", C.adopt_check(row, True, tex, None) is True)
+    check("adopt+ saved mesh + textures, no record -> nothing to import", C.adopt_check(row, True, tex, None) == [])
     refuses("adopt- mesh missing", lambda: C.adopt_check(row, False, tex, None), "ADOPT_NO_MESH")
-    refuses("adopt- a texture missing", lambda: C.adopt_check(row, True, dict(tex, SkinMask=False), None),
-            "ADOPT_TEXTURES_MISSING")
+    none = {k: False for k in C.TEX_KINDS}
+    check("adopt+ live L6 case: mesh only -> import all 3 textures",
+          C.adopt_check(row, True, none, None) == sorted(C.TEX_KINDS))
+    check("adopt+ one texture missing -> import exactly that one",
+          C.adopt_check(row, True, dict(tex, SkinMask=False), None) == ["SkinMask"])
+    refuses("adopt- texture import with 2 pieces in the call", lambda: C.adopt_check(row, True, none, None, n_pieces=2),
+            "ADOPT_TEXTURE_IMPORT_ONE_PIECE")
+    check("adopt+ 2 pieces fine when nothing to import", C.adopt_check(row, True, tex, None, n_pieces=2) == [])
+    refuses("adopt- unknown texture kind table", lambda: C.adopt_check(row, True, {"SkinColor": True}, None),
+            "ADOPT_TEXTURE_KINDS")
     refuses("adopt- record already written", lambda: C.adopt_check(row, True, tex, {"saved": True}),
             "ADOPT_ALREADY_RECORDED")
     src = open(os.path.join(HERE, "s3_waves_v3_ue.py"), encoding="utf-8").read()
@@ -410,10 +418,70 @@ def t_adopt():
     check("static+ ADOPT writes records only after the save, adopted=true",
           '"adopted": True' in ad and ad.find("_save(") < ad.rfind("_write("))
     check("static+ ADOPT runs the IMPORT mesh gates", "_mesh_gate(pilot, C, mesh, row, val)" in ad)
+    check("static+ ADOPT imports textures with IMPORT's settings + stray diff, records textures_imported",
+          "_configure_texture(pilot" in ad and "STRAY_OR_MISSING" in ad and '"textures_imported"' in ad and
+          0 < ad.find("import_asset_tasks") < ad.find("_save("))
+    check("static+ ADOPT imports only the MISSING kinds (no blanket TEX_KINDS import loop)",
+          "for k in missing:" in ad and "for k in C.TEX_KINDS:\n                tools.import_asset_tasks" not in ad)
+
+
+# ------------------------------------------------------------------------------------------------ root_pose "relative" (7 Oct live: root at REST)
+REST = {"location": list(C.ROOT_LANDED_WORLD), "rotation": [0.0, -90.0, 0.0], "scale": [1.0, 1.0, 1.0]}
+
+
+def t_relative():
+    check("pose+ landed root, default mode", C.root_pose_check(LANDED)["mode"] == "landed")
+    refuses("pose- REST root in landed mode (the live DRY refusal)", lambda: C.root_pose_check(REST), "ROOT_NOT_LANDED")
+    r = C.root_pose_check(REST, "relative", True)
+    check("pose+ REST root accepted in relative mode with ack", r["mode"] == "relative" and not r["live_is_landed"])
+    refuses("pose- relative without ack", lambda: C.root_pose_check(REST, "relative", False), "ROOT_POSE_ACK_MISSING")
+    sunk = dict(REST, location=[11421.97, 160000.0, -3620.0])
+    refuses("pose- relative with the root moved off the landed location", lambda: C.root_pose_check(sunk, "relative", True),
+            "ROOT_UNEXPECTED_POSE")
+    refuses("pose- unknown root_pose arg", lambda: C.root_pose_check(LANDED, "world", True), "ROOT_POSE_ARG")
+    pl = C.plan_apply(apply_state(), ROWS)
+    pr = C.plan_apply(apply_state(), ROWS, "relative", True)
+    prr = C.plan_apply(apply_state(root={"world": copy.deepcopy(REST), "object_path": "P.Root"}), ROWS, "relative", True)
+    key = lambda p: [(x["label"], x["relative"], x["local_box"], x["landed_world_box"]) for x in p["spawns"]]  # noqa: E731
+    check("rel+ relative path places identically to the landed path (landed root)", key(pl) == key(pr))
+    check("rel+ ... and identically with the root at REST (no live-pose composition)", key(pl) == key(prr))
+    check("rel+ hides identical in both paths", pl["hides"] == prr["hides"])
+    w = pl["spawns"][0]
+    want = [C.ROOT_LANDED_WORLD[i] + w["local_box"]["min"][i] for i in range(3)]
+    check("rel+ world box = KNOWN landed root + local", C.near(w["landed_world_box"]["min"], want, 1e-6))
+    rel = copy.deepcopy(w["relative"])
+    check("rel+ read-back equal to plan passes", C.relative_ok(rel, w["relative"]))
+    rel["location"][1] += 0.009
+    check("rel+ 0.009 cm read-back drift passes (+-0.01)", C.relative_ok(rel, w["relative"]))
+    rel["location"][1] += 0.02
+    check("rel- 0.029 cm read-back drift refused", not C.relative_ok(rel, w["relative"]))
+    rr = copy.deepcopy(w["relative"])
+    rr["rotation"] = [0.0, -90.0, 0.0]
+    check("rel- a rotated read-back refused", not C.relative_ok(rr, w["relative"]))
+    ok_box = C.box_local(C.LANDED_ROOT_TF, C.landed_world_box(C.readback_local_box(w, w["relative"])))
+    check("rel+ landed-composed guard passes the planned placement", C.box_inside(ok_box, C.WAVE_GUARD_LOCAL, 2.0))
+    far = copy.deepcopy(w["relative"])
+    far["location"][0] += 3000.0
+    bad_box = C.box_local(C.LANDED_ROOT_TF, C.landed_world_box(C.readback_local_box(w, far)))
+    check("rel- landed-composed guard catches a piece placed 30 m off", not C.box_inside(bad_box, C.WAVE_GUARD_LOCAL, 2.0))
+    mp = C.plan_motion(SEQ, ROWS, MOTION)
+    check("motion+ keys are ROOT-RELATIVE (rest key = plan mount, no root pose input)",
+          all(C.near(p["keys"][0]["location"], r["mount_local"], 1e-9) for p, r in zip(mp["pieces"], ROWS)))
+    src = open(os.path.join(HERE, "s3_waves_v3_ue.py"), encoding="utf-8").read()
+    vs = fn_body(src, "_verify_spawned")
+    relb = vs[vs.find('if root_pose == "relative"'):vs.find("else:", vs.find('if root_pose == "relative"'))]
+    check("static+ relative guard composes with LANDED_ROOT_TF, not the live root",
+          "C.LANDED_ROOT_TF" in relb and "_world_tf" not in relb and "C.relative_ok(rel" in vs)
+    check("static+ APPLY/DRY/LIGHT pass root_pose + ack from args",
+          src.count('args.get("root_pose", "landed")') >= 4 and src.count('args.get("root_pose_ack") is True') >= 4)
+    lp = C.plan_light(light_state(root={"world": copy.deepcopy(REST)}), root_pose="relative", ack=True)
+    check("light+ relative mode with the root at REST", lp["root_pose"]["mode"] == "relative")
+    refuses("light- REST root in landed mode", lambda: C.plan_light(light_state(root={"world": copy.deepcopy(REST)})),
+            "ROOT_NOT_LANDED")
 
 
 def main():
-    for t in (t_modes, t_table, t_apply, t_motion, t_light, t_ready, t_static, t_adopt, t_build):
+    for t in (t_modes, t_table, t_apply, t_motion, t_light, t_ready, t_static, t_adopt, t_relative, t_build):
         try:
             t()
         except Exception as exc:  # noqa: BLE001
