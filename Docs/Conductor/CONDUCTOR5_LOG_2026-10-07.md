@@ -176,3 +176,7 @@
   (lid rotates up about a horizontal back axis); parts Bottom / Lid (pivot on hinge) / Mantle / Pearl (~18 cm), shared
   assembly frame. Asked for: hinge origin+axis in the assembly frame, open angle, seal clearance, contact footprint,
   pearl rest position, slots/texture sizes.
+- **Gary on dunes/sand (~20:45 UTC):** sand should flow over most of the soil (tongues/sheets, soil only in patches);
+  wind ripples "a bit too regular" (→ varying wavelength/direction, bifurcations, patchy); stair-step terracing in the
+  big heaps flagged by conductor → fix. Sand texture: "hi res search and 2k fallback" → search (disk + CC0/Fab, list
+  only, no downloads) + anti-tiling M_S3_ShoreGround_v2 (create-only) being written (S3_SAND_TEXTURE_2026-10-07.md).
