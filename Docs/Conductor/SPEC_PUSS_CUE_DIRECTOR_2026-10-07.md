@@ -108,3 +108,19 @@
 - **Cursor:** it never goes backwards on its own, reaching an anchor syncs it, and BACK moves it.
 - **Lockout:** two GOs within 0.5 s produce one fire; the control is two GOs 0.6 s apart, which fire twice.
 - **Trims:** they are not saved unless "keep" is pressed. The editor preview never dirties the level (the strobe lesson).
+
+## 6. Gary's answers (7 Oct, second questionnaire, his words)
+
+- **Sheet:** "sheet stays the source and shd be source of truth for the order of things but there may be discrepancies as my UE stage and cameron's sound and other things might not be fully consistent either".
+  - So the importer **tolerates and flags** mismatches. A Video cue label that doesn't match a segment, or an anchor whose order disagrees with the sheet, is shown in amber, never blocked. The sheet decides the order; the stage decides the timing.
+- **Build first:** the script panel plus the cue list (CD1, then CD2).
+- **Deadline: "This sunday lunchtime actually. The first rehearsal is Tuesday and the show is saturday".**
+  - Sun 11 Oct is the video fallbacks.
+  - Tue 13 Oct is the first rehearsal.
+  - Sat 17 Oct is the show.
+  - **The video renders (CD4) are therefore on the critical path NOW and run in parallel** with CD1. They are an editor/render job for the conductor; they don't depend on the Cue Director code.
+- **GO:** "Klara — and we need most things to run on and not need pressing go, we need to define where Go should be pressed, since the cellist during S3 might be one of the main human performance parts … if Klara's narration goes faster or slower maybe she can press GO or even pause or sth".
+  - **Default mode is FOLLOW/PASS** (run on). HOLD only at rows marked "GO (Klara)".
+  - Every HOLD row shows **who** presses GO. The default is Klara, and the sheet can name another person.
+  - **Klara's pause/resume:** one key (or an operator-window button) that pauses or resumes anywhere outside Scene 3. Scene 3 follows the cellist (DeclaredUnpausable).
+  - **A "Where GO is pressed" view:** a filtered list of the HOLD rows only, as Klara's own crib sheet.
