@@ -1,0 +1,917 @@
+{
+ "apply_ready": true,
+ "args": {
+  "aim_fraction": 0.6,
+  "allow_dirty": [],
+  "attack_s": 0.5,
+  "cat_x_cm": -200.0,
+  "confirm": null,
+  "end_margin_s": 4.0,
+  "geometry_source": "reference",
+  "hold_s": 3.0,
+  "intensity_cd": 15000.0,
+  "light_x_cm": -600.0,
+  "min_spacing_s": 20.0,
+  "min_start_s": 6.0,
+  "mode": "DRY",
+  "offline_cat_top_cm": 200.0,
+  "offline_eye_cm": {
+   "Passage 1": 150.0,
+   "Passage 2": 180.0,
+   "Passage 3": 180.0,
+   "Passage 4": 180.0,
+   "Passage 5": 180.0,
+   "Passage 6": 180.0
+  },
+  "offline_passage_start_s": {
+   "Passage 1": 96.36,
+   "Passage 2": 525.016,
+   "Passage 3": 875.056,
+   "Passage 4": 1266.816,
+   "Passage 5": 1421.696,
+   "Passage 6": 1730.54
+  },
+  "passages": {
+   "Passage 1": {
+    "analysis": "Saved/InfinityStage/MusicAnalysis/P01_P01_Walking1.analysis.json",
+    "notes": "Saved/InfinityStage/MusicAnalysis/P01_notes.json"
+   },
+   "Passage 2": {
+    "analysis": "Saved/InfinityStage/MusicAnalysis/P02_P02_Walking2.analysis.json",
+    "notes": null
+   },
+   "Passage 3": {
+    "analysis": "Saved/InfinityStage/MusicAnalysis/P03_P03_Walking3.analysis.json",
+    "notes": null
+   },
+   "Passage 4": {
+    "analysis": "Saved/InfinityStage/MusicAnalysis/P04_P04_Walking4_pad10.analysis.json",
+    "notes": null
+   },
+   "Passage 5": {
+    "analysis": "Saved/InfinityStage/MusicAnalysis/P05_P05_Walking5.analysis.json",
+    "notes": null
+   },
+   "Passage 6": {
+    "analysis": "Saved/InfinityStage/MusicAnalysis/Cameron_20261005/P06_P06_Walking6.analysis.json",
+    "notes": null
+   }
+  },
+  "reference_label": "PussFollowSpot",
+  "reference_passage": "Passage 3",
+  "release_s": 1.0,
+  "target_tip_ahead_cm": 400.0,
+  "two_cue_min_music_s": 60.0
+ },
+ "ok": true,
+ "patch_built": true,
+ "plans": [
+  {
+   "aim_illuminance_lux": 18.0,
+   "before": {
+    "cues": [],
+    "offset": [
+     -600.0,
+     0.0,
+     135.0
+    ],
+    "rotation": [
+     -21.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cues": [
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P01_Walking1.wav change 11.52s (sustained, str 0.82) snapped 11.604s",
+     "passage_s": 11.104,
+     "release_s": 1.0,
+     "score": 0.7078,
+     "section_after": "sustained",
+     "snapped_to_note": true,
+     "song_change_s": 11.5171,
+     "song_moment_s": 11.604,
+     "strength": 0.8155
+    },
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P01_Walking1.wav change 38.22s (building, str 0.71)",
+     "passage_s": 37.72,
+     "release_s": 1.0,
+     "score": 0.5587,
+     "section_after": "building",
+     "snapped_to_note": false,
+     "song_change_s": 38.22,
+     "song_moment_s": 38.22,
+     "strength": 0.7137
+    }
+   ],
+   "geometry": {
+    "cat_top_cm": 303.3072196304454,
+    "computed_cross_check": {
+     "cat_top_cm": 303.3072196304454,
+     "eye_cm": 167.735626,
+     "light_floor_height_cm": 505.51,
+     "light_to_aim_cm": 912.8,
+     "offset": [
+      -600.0,
+      0.0,
+      337.78
+     ],
+     "pitch_deg": -33.63,
+     "rotation": [
+      -33.63,
+      0.0,
+      0.0
+     ],
+     "shadow_from_cat_cm": 600.0,
+     "source": "computed",
+     "tip_ahead_of_camera_cm": 400.0
+    },
+    "eye_cm": 167.735626,
+    "implied_tip": {
+     "light_floor_height_cm": 564.0,
+     "shadow_len_from_cat_cm": 506.7,
+     "x_ahead_cm": 306.1,
+     "y_cm": 24.0
+    },
+    "light_floor_height_cm": 564.01,
+    "light_to_aim_cm": 912.8,
+    "offset": [
+     -635.024,
+     -20.607,
+     396.278
+    ],
+    "rotation": [
+     -32.8811,
+     0.9039,
+     -0.2382
+    ],
+    "source": "reference"
+   },
+   "light_before": {
+    "attenuation_radius": 6000.0,
+    "cast_shadows": true,
+    "inner_cone_angle": 18.0,
+    "intensity": 4579.90771484375,
+    "intensity_units": "<LightUnits.UNITLESS: 0>",
+    "light_color": [
+     255,
+     255,
+     255,
+     255
+    ],
+    "outer_cone_angle": 42.0,
+    "soft_source_radius": 0.0,
+    "source_length": 0.0,
+    "source_radius": 0.0,
+    "temperature": 6500.0,
+    "use_temperature": false
+   },
+   "measured": {
+    "cat_top_cm": 303.3072196304454,
+    "eyes_cm": [
+     167.735626,
+     167.735626
+    ],
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P01_Walking1_Cameron.SW_P01_Walking1_Cameron"
+   },
+   "music_offset_s": 0.0,
+   "passage": "Passage 1",
+   "refusals": [],
+   "rig_label": "Passage 01 \u2014 Camera + Shadow Figures",
+   "segment": [
+    2312640,
+    4624705
+   ],
+   "show_times": [
+    {
+     "attack_start_show_s": 107.464,
+     "full_show_s": 107.964,
+     "off_show_s": 111.964
+    },
+    {
+     "attack_start_show_s": 134.08,
+     "full_show_s": 134.58,
+     "off_show_s": 138.58
+    }
+   ],
+   "tip_ahead_sensitivity_cm": {
+    "-20": 203.71131238167567,
+    "0": 265.3685997525575,
+    "20": 337.2720982018852
+   }
+  },
+  {
+   "aim_illuminance_lux": 18.0,
+   "before": {
+    "cues": [],
+    "offset": [
+     -600.0,
+     0.0,
+     135.0
+    ],
+    "rotation": [
+     -21.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cues": [
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P02_Walking2.wav change 16.81s (building, str 1.00)",
+     "passage_s": 16.3112,
+     "release_s": 1.0,
+     "score": 0.6254,
+     "section_after": "building",
+     "snapped_to_note": false,
+     "song_change_s": 16.8112,
+     "song_moment_s": 16.8112,
+     "strength": 1.0
+    }
+   ],
+   "geometry": {
+    "cat_top_cm": 303.3072196304454,
+    "computed_cross_check": {
+     "cat_top_cm": 303.3072196304454,
+     "eye_cm": 188.133635,
+     "light_floor_height_cm": 505.51,
+     "light_to_aim_cm": 912.8,
+     "offset": [
+      -600.0,
+      0.0,
+      317.38
+     ],
+     "pitch_deg": -33.63,
+     "rotation": [
+      -33.63,
+      0.0,
+      0.0
+     ],
+     "shadow_from_cat_cm": 600.0,
+     "source": "computed",
+     "tip_ahead_of_camera_cm": 400.0
+    },
+    "eye_cm": 188.133635,
+    "implied_tip": {
+     "light_floor_height_cm": 564.0,
+     "shadow_len_from_cat_cm": 506.7,
+     "x_ahead_cm": 306.1,
+     "y_cm": 24.0
+    },
+    "light_floor_height_cm": 564.01,
+    "light_to_aim_cm": 912.8,
+    "offset": [
+     -635.024,
+     -20.607,
+     375.88
+    ],
+    "rotation": [
+     -32.8811,
+     0.9039,
+     -0.2382
+    ],
+    "source": "reference"
+   },
+   "light_before": {
+    "attenuation_radius": 6000.0,
+    "cast_shadows": true,
+    "inner_cone_angle": 18.0,
+    "intensity": 5000.0,
+    "intensity_units": "<LightUnits.UNITLESS: 0>",
+    "light_color": [
+     255,
+     255,
+     255,
+     255
+    ],
+    "outer_cone_angle": 42.0,
+    "soft_source_radius": 0.0,
+    "source_length": 0.0,
+    "source_radius": 0.0,
+    "temperature": 6500.0,
+    "use_temperature": false
+   },
+   "measured": {
+    "cat_top_cm": 303.3072196304454,
+    "eyes_cm": [
+     188.133635
+    ],
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P02_Walking2_Cameron.SW_P02_Walking2_Cameron"
+   },
+   "music_offset_s": 0.0,
+   "passage": "Passage 2",
+   "refusals": [],
+   "rig_label": "Passage 02 \u2014 Camera + Shadow Figures",
+   "segment": [
+    12649345,
+    16969345
+   ],
+   "show_times": [
+    {
+     "attack_start_show_s": 543.367,
+     "full_show_s": 543.867,
+     "off_show_s": 547.867
+    }
+   ],
+   "tip_ahead_sensitivity_cm": {
+    "-20": 203.71131238167567,
+    "0": 265.3685997525575,
+    "20": 337.2720982018852
+   }
+  },
+  {
+   "aim_illuminance_lux": 18.0,
+   "before": {
+    "cues": [],
+    "offset": [
+     -600.0,
+     0.0,
+     135.0
+    ],
+    "rotation": [
+     -21.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cues": [
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P03_Walking3.wav change 23.13s (quiet, str 0.78)",
+     "passage_s": 22.6271,
+     "release_s": 1.0,
+     "score": 0.5047,
+     "section_after": "quiet",
+     "snapped_to_note": false,
+     "song_change_s": 23.1271,
+     "song_moment_s": 23.1271,
+     "strength": 0.7778
+    }
+   ],
+   "geometry": {
+    "cat_top_cm": 303.3072196304454,
+    "computed_cross_check": {
+     "cat_top_cm": 303.3072196304454,
+     "eye_cm": 188.133635,
+     "light_floor_height_cm": 505.51,
+     "light_to_aim_cm": 912.8,
+     "offset": [
+      -600.0,
+      0.0,
+      317.38
+     ],
+     "pitch_deg": -33.63,
+     "rotation": [
+      -33.63,
+      0.0,
+      0.0
+     ],
+     "shadow_from_cat_cm": 600.0,
+     "source": "computed",
+     "tip_ahead_of_camera_cm": 400.0
+    },
+    "eye_cm": 188.133635,
+    "implied_tip": {
+     "light_floor_height_cm": 564.0,
+     "shadow_len_from_cat_cm": 506.7,
+     "x_ahead_cm": 306.1,
+     "y_cm": 24.0
+    },
+    "light_floor_height_cm": 564.01,
+    "light_to_aim_cm": 912.8,
+    "offset": [
+     -635.024,
+     -20.607,
+     375.88
+    ],
+    "rotation": [
+     -32.8811,
+     0.9039,
+     -0.2382
+    ],
+    "source": "reference"
+   },
+   "light_before": {
+    "attenuation_radius": 6000.0,
+    "cast_shadows": true,
+    "inner_cone_angle": 18.0,
+    "intensity": 5000.0,
+    "intensity_units": "<LightUnits.UNITLESS: 0>",
+    "light_color": [
+     255,
+     255,
+     255,
+     255
+    ],
+    "outer_cone_angle": 42.0,
+    "soft_source_radius": 0.0,
+    "source_length": 0.0,
+    "source_radius": 0.0,
+    "temperature": 6500.0,
+    "use_temperature": false
+   },
+   "measured": {
+    "cat_top_cm": 303.3072196304454,
+    "eyes_cm": [
+     188.133635
+    ],
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P03_Walking3_Cameron.SW_P03_Walking3_Cameron"
+   },
+   "music_offset_s": 0.0,
+   "passage": "Passage 3",
+   "refusals": [],
+   "rig_label": "Passage 03 \u2014 Camera + Shadow Figures",
+   "segment": [
+    21050305,
+    22064065
+   ],
+   "show_times": [
+    {
+     "attack_start_show_s": 899.723,
+     "full_show_s": 900.223,
+     "off_show_s": 904.223
+    }
+   ],
+   "tip_ahead_sensitivity_cm": {
+    "-20": 203.71131238167567,
+    "0": 265.3685997525575,
+    "20": 337.2720982018852
+   }
+  },
+  {
+   "aim_illuminance_lux": 18.0,
+   "before": {
+    "cues": [],
+    "offset": [
+     -600.0,
+     0.0,
+     135.0
+    ],
+    "rotation": [
+     -21.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cues": [
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P04_Walking4_pad10.wav change 18.58s (releasing, str 0.43)",
+     "passage_s": 18.076,
+     "release_s": 1.0,
+     "score": 0.3797,
+     "section_after": "releasing",
+     "snapped_to_note": false,
+     "song_change_s": 18.576,
+     "song_moment_s": 18.576,
+     "strength": 0.4275
+    }
+   ],
+   "geometry": {
+    "cat_top_cm": 303.3072196304454,
+    "computed_cross_check": {
+     "cat_top_cm": 303.3072196304454,
+     "eye_cm": 188.133635,
+     "light_floor_height_cm": 505.51,
+     "light_to_aim_cm": 912.8,
+     "offset": [
+      -600.0,
+      0.0,
+      317.38
+     ],
+     "pitch_deg": -33.63,
+     "rotation": [
+      -33.63,
+      0.0,
+      0.0
+     ],
+     "shadow_from_cat_cm": 600.0,
+     "source": "computed",
+     "tip_ahead_of_camera_cm": 400.0
+    },
+    "eye_cm": 188.133635,
+    "implied_tip": {
+     "light_floor_height_cm": 564.0,
+     "shadow_len_from_cat_cm": 506.7,
+     "x_ahead_cm": 306.1,
+     "y_cm": 24.0
+    },
+    "light_floor_height_cm": 564.01,
+    "light_to_aim_cm": 912.8,
+    "offset": [
+     -635.024,
+     -20.607,
+     375.88
+    ],
+    "rotation": [
+     -32.8811,
+     0.9039,
+     -0.2382
+    ],
+    "source": "reference"
+   },
+   "light_before": {
+    "attenuation_radius": 6000.0,
+    "cast_shadows": true,
+    "inner_cone_angle": 18.0,
+    "intensity": 5000.0,
+    "intensity_units": "<LightUnits.UNITLESS: 0>",
+    "light_color": [
+     255,
+     255,
+     255,
+     255
+    ],
+    "outer_cone_angle": 42.0,
+    "soft_source_radius": 0.0,
+    "source_length": 0.0,
+    "source_radius": 0.0,
+    "temperature": 6500.0,
+    "use_temperature": false
+   },
+   "measured": {
+    "cat_top_cm": 303.3072196304454,
+    "eyes_cm": [
+     188.133635
+    ],
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P04_Walking4_pad10_Cameron.SW_P04_Walking4_pad10_Cameron"
+   },
+   "music_offset_s": 0.0,
+   "passage": "Passage 4",
+   "refusals": [],
+   "rig_label": "Passage 04 \u2014 Camera + Shadow Figures",
+   "segment": [
+    30452545,
+    31662145
+   ],
+   "show_times": [
+    {
+     "attack_start_show_s": 1286.932,
+     "full_show_s": 1287.432,
+     "off_show_s": 1291.432
+    }
+   ],
+   "tip_ahead_sensitivity_cm": {
+    "-20": 203.71131238167567,
+    "0": 265.3685997525575,
+    "20": 337.2720982018852
+   }
+  },
+  {
+   "aim_illuminance_lux": 18.0,
+   "before": {
+    "cues": [],
+    "offset": [
+     -600.0,
+     0.0,
+     135.0
+    ],
+    "rotation": [
+     -21.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cues": [
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P05_Walking5.wav change 26.61s (releasing, str 0.86)",
+     "passage_s": 26.1101,
+     "release_s": 1.0,
+     "score": 0.5538,
+     "section_after": "releasing",
+     "snapped_to_note": false,
+     "song_change_s": 26.6101,
+     "song_moment_s": 26.6101,
+     "strength": 0.8642
+    }
+   ],
+   "geometry": {
+    "cat_top_cm": 303.3072196304454,
+    "computed_cross_check": {
+     "cat_top_cm": 303.3072196304454,
+     "eye_cm": 188.133635,
+     "light_floor_height_cm": 505.51,
+     "light_to_aim_cm": 912.8,
+     "offset": [
+      -600.0,
+      0.0,
+      317.38
+     ],
+     "pitch_deg": -33.63,
+     "rotation": [
+      -33.63,
+      0.0,
+      0.0
+     ],
+     "shadow_from_cat_cm": 600.0,
+     "source": "computed",
+     "tip_ahead_of_camera_cm": 400.0
+    },
+    "eye_cm": 188.133635,
+    "implied_tip": {
+     "light_floor_height_cm": 564.0,
+     "shadow_len_from_cat_cm": 506.7,
+     "x_ahead_cm": 306.1,
+     "y_cm": 24.0
+    },
+    "light_floor_height_cm": 564.01,
+    "light_to_aim_cm": 912.8,
+    "offset": [
+     -635.024,
+     -20.607,
+     375.88
+    ],
+    "rotation": [
+     -32.8811,
+     0.9039,
+     -0.2382
+    ],
+    "source": "reference"
+   },
+   "light_before": {
+    "attenuation_radius": 6000.0,
+    "cast_shadows": true,
+    "inner_cone_angle": 18.0,
+    "intensity": 5000.0,
+    "intensity_units": "<LightUnits.UNITLESS: 0>",
+    "light_color": [
+     255,
+     255,
+     255,
+     255
+    ],
+    "outer_cone_angle": 42.0,
+    "soft_source_radius": 0.0,
+    "source_length": 0.0,
+    "source_radius": 0.0,
+    "temperature": 6500.0,
+    "use_temperature": false
+   },
+   "measured": {
+    "cat_top_cm": 303.3072196304454,
+    "eyes_cm": [
+     188.133635
+    ],
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P05_Walking5_Cameron.SW_P05_Walking5_Cameron"
+   },
+   "music_offset_s": 0.0,
+   "passage": "Passage 5",
+   "refusals": [],
+   "rig_label": "Passage 05 \u2014 Camera + Shadow Figures",
+   "segment": [
+    34169665,
+    38642392
+   ],
+   "show_times": [
+    {
+     "attack_start_show_s": 1449.846,
+     "full_show_s": 1450.346,
+     "off_show_s": 1454.346
+    }
+   ],
+   "tip_ahead_sensitivity_cm": {
+    "-20": 203.71131238167567,
+    "0": 265.3685997525575,
+    "20": 337.2720982018852
+   }
+  },
+  {
+   "aim_illuminance_lux": 18.0,
+   "before": {
+    "cues": [],
+    "offset": [
+     -600.0,
+     0.0,
+     135.0
+    ],
+    "rotation": [
+     -21.0,
+     0.0,
+     0.0
+    ]
+   },
+   "cues": [
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P06_Walking6.wav change 36.50s (sustained, str 0.40)",
+     "passage_s": 36.0018,
+     "release_s": 1.0,
+     "score": 0.3337,
+     "section_after": "sustained",
+     "snapped_to_note": false,
+     "song_change_s": 36.5018,
+     "song_moment_s": 36.5018,
+     "strength": 0.3996
+    },
+    {
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "intensity_cd": 1500.0,
+     "label": "PS P06_Walking6.wav change 68.92s (releasing, str 1.00)",
+     "passage_s": 68.4168,
+     "release_s": 1.0,
+     "score": 0.8602,
+     "section_after": "releasing",
+     "snapped_to_note": false,
+     "song_change_s": 68.9168,
+     "song_moment_s": 68.9168,
+     "strength": 1.0
+    }
+   ],
+   "geometry": {
+    "cat_top_cm": 303.3072196304454,
+    "computed_cross_check": {
+     "cat_top_cm": 303.3072196304454,
+     "eye_cm": 188.13,
+     "light_floor_height_cm": 505.51,
+     "light_to_aim_cm": 912.8,
+     "offset": [
+      -600.0,
+      0.0,
+      317.38
+     ],
+     "pitch_deg": -33.63,
+     "rotation": [
+      -33.63,
+      0.0,
+      0.0
+     ],
+     "shadow_from_cat_cm": 600.0,
+     "source": "computed",
+     "tip_ahead_of_camera_cm": 400.0
+    },
+    "eye_cm": 188.13,
+    "implied_tip": {
+     "light_floor_height_cm": 564.0,
+     "shadow_len_from_cat_cm": 506.7,
+     "x_ahead_cm": 306.1,
+     "y_cm": 24.0
+    },
+    "light_floor_height_cm": 564.01,
+    "light_to_aim_cm": 912.8,
+    "offset": [
+     -635.024,
+     -20.607,
+     375.884
+    ],
+    "rotation": [
+     -32.8811,
+     0.9039,
+     -0.2382
+    ],
+    "source": "reference"
+   },
+   "light_before": {
+    "attenuation_radius": 6000.0,
+    "cast_shadows": true,
+    "inner_cone_angle": 18.0,
+    "intensity": 5000.0,
+    "intensity_units": "<LightUnits.UNITLESS: 0>",
+    "light_color": [
+     255,
+     255,
+     255,
+     255
+    ],
+    "outer_cone_angle": 42.0,
+    "soft_source_radius": 0.0,
+    "source_length": 0.0,
+    "source_radius": 0.0,
+    "temperature": 6500.0,
+    "use_temperature": false
+   },
+   "measured": {
+    "cat_top_cm": 303.3072196304454,
+    "eyes_cm": [
+     188.13,
+     188.13
+    ],
+    "sound": "/Game/InfinityStage/Audio/Passages/SW_P06_IntoVoid.SW_P06_IntoVoid"
+   },
+   "music_offset_s": 0.0,
+   "passage": "Passage 6",
+   "refusals": [],
+   "rig_label": "Passage 06 \u2014 Camera + Shadow Figures",
+   "segment": [
+    41581912,
+    44605939
+   ],
+   "show_times": [
+    {
+     "attack_start_show_s": 1768.581,
+     "full_show_s": 1769.081,
+     "off_show_s": 1773.081
+    },
+    {
+     "attack_start_show_s": 1800.996,
+     "full_show_s": 1801.496,
+     "off_show_s": 1805.496
+    }
+   ],
+   "tip_ahead_sensitivity_cm": {
+    "-20": 203.71131238167567,
+    "0": 265.3685997525575,
+    "20": 337.2720982018852
+   }
+  }
+ ],
+ "reference": {
+  "actor_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SpotLight_252",
+  "attach_parent": null,
+  "cat_rel": [
+   -200.00000447034844,
+   0.0,
+   -175.88363893130568
+  ],
+  "cat_rel_xy": [
+   -200.00000447034844,
+   0.0
+  ],
+  "cat_top_cm": 303.3072196304454,
+  "cat_world_location": [
+   908.7855114474933,
+   160000.0,
+   -10.975595161388384
+  ],
+  "eye_cm": 188.133635,
+  "floor_z": -23.225595161388384,
+  "hidden_in_game": false,
+  "implied_tip_at_reference": {
+   "light_floor_height_cm": 564.0,
+   "shadow_len_from_cat_cm": 506.7,
+   "x_ahead_cm": 306.1,
+   "y_cm": 24.0
+  },
+  "label": "PussFollowSpot",
+  "light": {
+   "attenuation_radius": 2196.96484375,
+   "cast_shadows": true,
+   "inner_cone_angle": 18.696001052856445,
+   "intensity": 1500.0,
+   "intensity_units": "<LightUnits.CANDELAS: 1>",
+   "light_color": [
+    255,
+    255,
+    255,
+    255
+   ],
+   "outer_cone_angle": 22.488000869750977,
+   "soft_source_radius": 0.0,
+   "source_length": 0.0,
+   "source_radius": 0.0,
+   "temperature": 6500.0,
+   "use_temperature": false
+  },
+  "offset": [
+   -635.024,
+   -20.607,
+   375.88
+  ],
+  "rig_label": "Passage 03 \u2014 Camera + Shadow Figures",
+  "rig_world_location": [
+   1108.7855114474933,
+   160000.0,
+   164.90803983861161
+  ],
+  "rig_world_rotation": [
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "rotation": [
+   -32.8811,
+   0.9039,
+   -0.2382
+  ],
+  "visible": true,
+  "world_location": [
+   473.7615090900608,
+   159979.39330140429,
+   540.7881498217677
+  ],
+  "world_rotation": [
+   -32.88109227610978,
+   0.9039156051726983,
+   -0.2382281656192619
+  ]
+ },
+ "run": "PSS-20261007-014710"
+}

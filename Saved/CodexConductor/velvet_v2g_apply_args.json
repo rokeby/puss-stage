@@ -1,8 +1,8 @@
 {
- "mode": "DRY",
+ "mode": "VERIFY",
  "confirm": null,
- "dry_digest": null,
- "decided_by": "Gary 7 Oct: velvet variant V2G for the house curtain (relayed by the Conductor)",
+ "dry_digest": "98774203d1d844c4",
+ "decided_by": "Gary 7 Oct: velvet V2G (bench V2F vs V2G); confirmed in his own answer in the conductor session questionnaire ~05:40 UTC ('Run them all' incl. velvet V2G)",
  "run_id": null,
  "ignore_referencers": {},
  "allow_missing": {}

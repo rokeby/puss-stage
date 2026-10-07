@@ -1,0 +1,155 @@
+{
+ "after_cat_offset_z": -175.883635,
+ "args": {
+  "allow_dirty": [],
+  "blend_s": 1.5,
+  "cat_mode": "none",
+  "confirm": "APPLY P05CATHEIGHT",
+  "expected_base_eye_cm": 180.0,
+  "mode": "APPLY",
+  "passage_label": "Passage 5",
+  "pitch_up_deg": 0.0,
+  "target_eye_cm": 90.0
+ },
+ "backup": {
+  "packages": [
+   {
+    "backup": "E:/PussStage/Backups\\PreP05CatHeight-P05CH-20261007-014954\\InfinityStage\\Dev\\Sequences\\LS_InfinityStage_V1Master.uasset",
+    "package": "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+    "sha256": "106fd861da686ebd9c348141e036e0edcd79e7121033381ff5046ae1f83e0c7a",
+    "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Sequences\\LS_InfinityStage_V1Master.uasset"
+   },
+   {
+    "backup": "E:/PussStage/Backups\\PreP05CatHeight-P05CH-20261007-014954\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+    "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "sha256": "8d8b83fa88b674e5a91d5c0701863a8e23bbe275598945eae2f9ab14c1908543",
+    "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+   }
+  ],
+  "root": "E:/PussStage/Backups\\PreP05CatHeight-P05CH-20261007-014954"
+ },
+ "before": {
+  "cat_offset_z": -175.883635,
+  "cat_world_z_mid": 4.116365000000002,
+  "height": {
+   "default": 0.0,
+   "keys": []
+  },
+  "pitch": {
+   "default": 0.0,
+   "keys": []
+  },
+  "poses": {
+   "34169665": [
+    0.0,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "34178665": [
+    94.00220355220459,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "34187665": [
+    188.00440710440918,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "34205665": [
+    376.00881420881836,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "36406028": [
+    23358.11439989008,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "38606392": [
+    46340.22948823497,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "38624392": [
+    46524.799506870884,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "38633392": [
+    46580.15135092624,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ],
+   "38642392": [
+    46590.90125,
+    320000.0,
+    180.0,
+    0.0,
+    0.0,
+    -0.0
+   ]
+  }
+ },
+ "plan": {
+  "base_eye_cm": 180.0,
+  "blend_ticks": 36000,
+  "delta_cm": -90.0,
+  "height_keys": [
+   [
+    34169665,
+    0.0
+   ],
+   [
+    34205665,
+    -90.0
+   ],
+   [
+    38606392,
+    -90.0
+   ],
+   [
+    38642392,
+    0.0
+   ]
+  ],
+  "pitch_keys": [],
+  "pitch_up_deg": 0.0,
+  "scale": 0.5,
+  "seg_end": 38642392,
+  "seg_start": 34169665,
+  "target_eye_cm": 90.0,
+  "tick_rate": 24000.0
+ },
+ "rig_label": "Passage 05 \u2014 Camera + Shadow Figures",
+ "run": "P05CH-20261007-014954",
+ "segment": [
+  34169665,
+  38642392
+ ],
+ "status": "WRITING",
+ "version": 1
+}

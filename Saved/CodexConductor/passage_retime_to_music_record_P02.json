@@ -1,0 +1,918 @@
+{
+ "after": {
+  "keys": {
+   "0067B5F57142956FB5B80EA31B1210B5": {
+    "channels": {},
+    "pins_rel": [],
+    "start": 27273026,
+    "wing_pins": []
+   },
+   "3B27C331B54325A469AE8A818B9049F9": {
+    "channels": {
+     "Camera.HeightOffsetCm": [
+      [
+       30990145,
+       0.0
+      ],
+      [
+       31026145,
+       -90.0
+      ],
+      [
+       35426872,
+       -90.0
+      ],
+      [
+       35462872,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 30990144,
+    "wing_pins": []
+   },
+   "49F93D652B46B99C10116EBAE927A3C6": {
+    "channels": {
+     "Camera.FocalLengthMm": [
+      [
+       11851585,
+       50.0
+      ],
+      [
+       11971585,
+       50.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 17870785,
+    "wing_pins": []
+   },
+   "659D5386D64DA7742A351B9499ECCE4C": {
+    "channels": {
+     "Wing.CycleRateScale": [
+      [
+       2312640,
+       0.6
+      ],
+      [
+       2393280,
+       2.0
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.InwardTravelScale": [
+      [
+       2312640,
+       0.5
+      ],
+      [
+       2393280,
+       1.3
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.PhaseBiasCycles": [
+      [
+       2312640,
+       0.0
+      ],
+      [
+       2393280,
+       1.0
+      ],
+      [
+       2661120,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 2312640,
+    "wing_pins": []
+   },
+   "7FF34BBDA744E406C264A7B7E4DD61D9": {
+    "channels": {
+     "Camera.FocusDistanceCm": [
+      [
+       7950145,
+       600.0
+      ]
+     ],
+     "Camera.LongitudinalOffsetCm": [
+      [
+       7950145,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 12649345,
+    "wing_pins": []
+   },
+   "9BFC29C45D47911FF7836BB8537230D2": {
+    "channels": {
+     "Camera.SpeedMultiplier": [
+      [
+       29346192,
+       1.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 38402391,
+    "wing_pins": []
+   }
+  },
+  "managed": {
+   "Choreo:0067B5F57142956FB5B80EA31B1210B5": [
+    27273026,
+    28482624
+   ],
+   "Choreo:3B27C331B54325A469AE8A818B9049F9": [
+    30990144,
+    35462871
+   ],
+   "Choreo:49F93D652B46B99C10116EBAE927A3C6": [
+    17870785,
+    18884544
+   ],
+   "Choreo:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Choreo:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12649345,
+    13789825
+   ],
+   "Choreo:9BFC29C45D47911FF7836BB8537230D2": [
+    38402391,
+    41426420
+   ],
+   "Music:0067B5F57142956FB5B80EA31B1210B5": [
+    27273026,
+    28482624
+   ],
+   "Music:3B27C331B54325A469AE8A818B9049F9": [
+    30990144,
+    35462871
+   ],
+   "Music:49F93D652B46B99C10116EBAE927A3C6": [
+    17870785,
+    18884544
+   ],
+   "Music:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Music:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Music:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12649345,
+    13789825
+   ],
+   "Music:9BFC29C45D47911FF7836BB8537230D2": [
+    38402391,
+    41426420
+   ],
+   "Passage:0067B5F57142956FB5B80EA31B1210B5": [
+    27273026,
+    28482624
+   ],
+   "Passage:3B27C331B54325A469AE8A818B9049F9": [
+    30990144,
+    35462871
+   ],
+   "Passage:49F93D652B46B99C10116EBAE927A3C6": [
+    17870785,
+    18884544
+   ],
+   "Passage:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Passage:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12649345,
+    13789825
+   ],
+   "Passage:9BFC29C45D47911FF7836BB8537230D2": [
+    38402391,
+    41426420
+   ],
+   "Playback:master": [
+    0,
+    47055858
+   ],
+   "Scene:1196A03E4E16AE74EA811A8566C84E9B": [
+    29226624,
+    30990144
+   ],
+   "Scene:42D2F59416487AF7018DAEB62639C9BB": [
+    13789825,
+    15733825
+   ],
+   "Scene:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Scene:5C960C0C7A462BFEA4C86F93ADF5558D": [
+    28482624,
+    29226624
+   ],
+   "Scene:673B3535884DEBAE99723B8CC6BE877B": [
+    41426420,
+    46695858
+   ],
+   "Scene:730D67269F425DDC45C72A867BA04217": [
+    35462871,
+    36638871
+   ],
+   "Scene:7A03F85B4E7FAE6807F9748D6802822D": [
+    25124546,
+    27273026
+   ],
+   "Scene:86CEBAF64E3A9FF279651AB0D2E279B4": [
+    46695858,
+    47055858
+   ],
+   "Scene:91030A272145EBEF25D33BA016458739": [
+    4624705,
+    10553665
+   ],
+   "Scene:D8F61D9DF94F1E6080CC8D9028EE49D3": [
+    18884544,
+    25124546
+   ],
+   "Scene:E082311A4165CFA7949986829B0833E5": [
+    15733825,
+    17870785
+   ],
+   "Scene:E49499EB417AC22745470BA7C85FB609": [
+    10553665,
+    12649345
+   ],
+   "Scene:FB09B25844709C21708A77A3FB2E9B96": [
+    36638871,
+    38402391
+   ]
+  },
+  "segments": [
+   {
+    "end": 2312640,
+    "label": "Opening — Curtain",
+    "start": 0
+   },
+   {
+    "end": 4624705,
+    "label": "Passage 1",
+    "start": 2312640
+   },
+   {
+    "end": 10553665,
+    "label": "Scene 1 — External Sound",
+    "start": 4624705
+   },
+   {
+    "end": 12649345,
+    "label": "Interaction 1 — Washing the Boy",
+    "start": 10553665
+   },
+   {
+    "end": 13789825,
+    "label": "Passage 2",
+    "start": 12649345
+   },
+   {
+    "end": 15733825,
+    "label": "Scene 2 — External Sound",
+    "start": 13789825
+   },
+   {
+    "end": 17870785,
+    "label": "Interaction 2 — Turnips",
+    "start": 15733825
+   },
+   {
+    "end": 18884545,
+    "label": "Passage 3",
+    "start": 17870785
+   },
+   {
+    "end": 25124545,
+    "label": "Scene 3 — External Sound",
+    "start": 18884545
+   },
+   {
+    "end": 27273025,
+    "label": "Interaction 3 — Forgets His Name",
+    "start": 25124545
+   },
+   {
+    "end": 28482625,
+    "label": "Passage 4",
+    "start": 27273025
+   },
+   {
+    "end": 29226625,
+    "label": "Scene 4 — External Sound",
+    "start": 28482625
+   },
+   {
+    "end": 30990145,
+    "label": "Interaction 4 — Gets a Name",
+    "start": 29226625
+   },
+   {
+    "end": 35462872,
+    "label": "Passage 5",
+    "start": 30990145
+   },
+   {
+    "end": 36638872,
+    "label": "Scene 5 — External Sound",
+    "start": 35462872
+   },
+   {
+    "end": 38402392,
+    "label": "Interaction 5 — Becomes King",
+    "start": 36638872
+   },
+   {
+    "end": 41426419,
+    "label": "Passage 6",
+    "start": 38402392
+   },
+   {
+    "end": 46695859,
+    "label": "Scene 6 — External Sound",
+    "start": 41426419
+   },
+   {
+    "end": 47055859,
+    "label": "Closing — Sweeping Up",
+    "start": 46695859
+   }
+  ],
+  "timing": {
+   "2": {
+    "intervals": [
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584,
+     47584
+    ],
+    "lead": 23792,
+    "tail": 69840
+   }
+  }
+ },
+ "applied": true,
+ "args": {
+  "allow_stale_song_markers": false,
+  "confirm": "APPLY RETIME",
+  "crossing_settle_note": "fallback only: the DRY reads CrossingSettleSeconds from the level's camera rig (default 1.0 s, InfinityStageCameraRig.h:209)",
+  "crossing_settle_s": 1.0,
+  "decided_by": "Gary 5 Oct ~15:25 questionnaire: 'P02-P05, P02 after straightening' and 'Song + short tail for the crossing' (supersedes the earlier keep-the-lengths call); P04 keeps its +10 s pad | conflict with his 14:20 'keep lengths' (directing session) resolved: he re-confirmed 'Cut to song + 2 s' for P02-P05 in the directing session ~17:00 (relayed); his own answer in this session (15:25) stands",
+  "expected_note": "APPLY needs per_passage.N.expected = {old_len_ticks, new_len_ticks, route_cm} copied from the DRY's expected_for_apply_args.",
+  "max_speed_cm_s": 400.0,
+  "mode": "APPLY",
+  "p01_v_end_cm_s": 251.30432046098213,
+  "p01_v_end_source": "opening_timing.json v_end_cm_s (re-measured 5 Oct after the crossing settle)",
+  "passages": [
+   "2"
+  ],
+  "passages_note": "Gary 5 Oct: retime P02-P05 in one run; P02 waits for p02_straighten. Split runs also work: [\"3\",\"4\",\"5\"] first, then [\"2\"] (own record each, LIFO revert).",
+  "per_passage": {
+   "1": {
+    "expected": null,
+    "guid": "659D5386D64DA7742A351B9499ECCE4C",
+    "note": "7 Oct: run ONLY after p01_shorten APPLY (prerequisite below); guid lighting_scores_record_P01.json plan.passage_guid, song walking_music_swap_record_P01.json passages.1.import.duration_s (73.51603174603174 s)",
+    "song_s": 73.516032,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P01_Walking1_Cameron"
+   },
+   "2": {
+    "expected": {
+     "new_len_ticks": 1140480,
+     "old_len_ticks": 4320000,
+     "route_cm": 11857.8345
+    },
+    "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
+    "song_s": 45.51424,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P02_Walking2_Cameron"
+   },
+   "3": {
+    "expected": {
+     "new_len_ticks": 1013760,
+     "old_len_ticks": 4320000,
+     "route_cm": 10921.9728
+    },
+    "guid": "49F93D652B46B99C10116EBAE927A3C6",
+    "song_s": 40.217914,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P03_Walking3_Cameron"
+   },
+   "4": {
+    "expected": {
+     "new_len_ticks": 1209600,
+     "old_len_ticks": 4320000,
+     "route_cm": 10668.4695
+    },
+    "guid": "0067B5F57142956FB5B80EA31B1210B5",
+    "note": "padded +10 s silence kept (Gary 5 Oct)",
+    "song_s": 48.397664,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P04_Walking4_pad10_Cameron"
+   },
+   "5": {
+    "expected": null,
+    "guid": "3B27C331B54325A469AE8A818B9049F9",
+    "song_s": 42.022472,
+    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P05_Walking5_Cameron"
+   }
+  },
+  "per_passage_source": "guids: walking_music_swap_dry.json rows.N.passage.guid (WALK-20261005-144953); song_s/sound: walking_music_swap_record_P02-P03-P04-P05.json passages.N.import / rail_after.sound (WALK-20261005-143843)",
+  "prerequisite_note": "APPLY refuses P02 until this record exists here with applied=true. Confirm the real record name once p02_straighten.py lands; set to null only on Gary's word.",
+  "prerequisite_records": {
+   "1": "p01_shorten_record.json",
+   "2": "p02_straighten_record.json"
+  },
+  "run_id": null,
+  "settle_compensation": true,
+  "settle_compensation_note": "scale the walk to (target - settle/2), add settle/2 to the tail: no speed surge before the crossing settle (offline P02: 252 cm/s throughout vs a 314 cm/s surge uncompensated).",
+  "tail_note": "song + 2.0 s: 1 s of walking on after the last note + the 1 s crossing settle into the Scene docking; the 1 s music fade-out must start after the song (tail >= fade-out, else SONG_INSIDE_FADE_OUT).",
+  "tail_s": 2.0
+ },
+ "backup": "E:/PussStage/Backups\\PrePassageRetime-RETIME-20261007-021031",
+ "before": {
+  "keys": {
+   "0067B5F57142956FB5B80EA31B1210B5": {
+    "channels": {},
+    "pins_rel": [],
+    "start": 30452546,
+    "wing_pins": []
+   },
+   "3B27C331B54325A469AE8A818B9049F9": {
+    "channels": {
+     "Camera.HeightOffsetCm": [
+      [
+       34169665,
+       0.0
+      ],
+      [
+       34205665,
+       -90.0
+      ],
+      [
+       38606392,
+       -90.0
+      ],
+      [
+       38642392,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 34169666,
+    "wing_pins": []
+   },
+   "49F93D652B46B99C10116EBAE927A3C6": {
+    "channels": {
+     "Camera.FocalLengthMm": [
+      [
+       15031105,
+       50.0
+      ],
+      [
+       15151105,
+       50.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 21050306,
+    "wing_pins": []
+   },
+   "659D5386D64DA7742A351B9499ECCE4C": {
+    "channels": {
+     "Wing.CycleRateScale": [
+      [
+       2312640,
+       0.6
+      ],
+      [
+       2393280,
+       2.0
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.InwardTravelScale": [
+      [
+       2312640,
+       0.5
+      ],
+      [
+       2393280,
+       1.3
+      ],
+      [
+       2661120,
+       1.0
+      ]
+     ],
+     "Wing.PhaseBiasCycles": [
+      [
+       2312640,
+       0.0
+      ],
+      [
+       2393280,
+       1.0
+      ],
+      [
+       2661120,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 2312640,
+    "wing_pins": []
+   },
+   "7FF34BBDA744E406C264A7B7E4DD61D9": {
+    "channels": {
+     "Camera.FocusDistanceCm": [
+      [
+       7950145,
+       600.0
+      ]
+     ],
+     "Camera.LongitudinalOffsetCm": [
+      [
+       7950145,
+       0.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 12649345,
+    "wing_pins": []
+   },
+   "9BFC29C45D47911FF7836BB8537230D2": {
+    "channels": {
+     "Camera.SpeedMultiplier": [
+      [
+       32525712,
+       1.0
+      ]
+     ]
+    },
+    "pins_rel": [],
+    "start": 41581913,
+    "wing_pins": []
+   }
+  },
+  "managed": {
+   "Choreo:0067B5F57142956FB5B80EA31B1210B5": [
+    30452546,
+    31662144
+   ],
+   "Choreo:3B27C331B54325A469AE8A818B9049F9": [
+    34169666,
+    38642391
+   ],
+   "Choreo:49F93D652B46B99C10116EBAE927A3C6": [
+    21050306,
+    22064065
+   ],
+   "Choreo:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Choreo:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12649345,
+    16969345
+   ],
+   "Choreo:9BFC29C45D47911FF7836BB8537230D2": [
+    41581913,
+    44605939
+   ],
+   "Music:0067B5F57142956FB5B80EA31B1210B5": [
+    30452546,
+    31662144
+   ],
+   "Music:3B27C331B54325A469AE8A818B9049F9": [
+    34169666,
+    38642391
+   ],
+   "Music:49F93D652B46B99C10116EBAE927A3C6": [
+    21050306,
+    22064065
+   ],
+   "Music:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Music:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Music:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12649345,
+    16969345
+   ],
+   "Music:9BFC29C45D47911FF7836BB8537230D2": [
+    41581913,
+    44605939
+   ],
+   "Passage:0067B5F57142956FB5B80EA31B1210B5": [
+    30452546,
+    31662144
+   ],
+   "Passage:3B27C331B54325A469AE8A818B9049F9": [
+    34169666,
+    38642391
+   ],
+   "Passage:49F93D652B46B99C10116EBAE927A3C6": [
+    21050306,
+    22064065
+   ],
+   "Passage:659D5386D64DA7742A351B9499ECCE4C": [
+    2312640,
+    4624705
+   ],
+   "Passage:7FF34BBDA744E406C264A7B7E4DD61D9": [
+    12649345,
+    16969345
+   ],
+   "Passage:9BFC29C45D47911FF7836BB8537230D2": [
+    41581913,
+    44605939
+   ],
+   "Playback:master": [
+    0,
+    50235381
+   ],
+   "Scene:1196A03E4E16AE74EA811A8566C84E9B": [
+    32406144,
+    34169666
+   ],
+   "Scene:42D2F59416487AF7018DAEB62639C9BB": [
+    16969345,
+    18913345
+   ],
+   "Scene:5674D1134EC0FFE62815588E1E88F9FF": [
+    0,
+    2312640
+   ],
+   "Scene:5C960C0C7A462BFEA4C86F93ADF5558D": [
+    31662144,
+    32406144
+   ],
+   "Scene:673B3535884DEBAE99723B8CC6BE877B": [
+    44605939,
+    49875381
+   ],
+   "Scene:730D67269F425DDC45C72A867BA04217": [
+    38642391,
+    39818391
+   ],
+   "Scene:7A03F85B4E7FAE6807F9748D6802822D": [
+    28304065,
+    30452546
+   ],
+   "Scene:86CEBAF64E3A9FF279651AB0D2E279B4": [
+    49875381,
+    50235381
+   ],
+   "Scene:91030A272145EBEF25D33BA016458739": [
+    4624705,
+    10553665
+   ],
+   "Scene:D8F61D9DF94F1E6080CC8D9028EE49D3": [
+    22064065,
+    28304065
+   ],
+   "Scene:E082311A4165CFA7949986829B0833E5": [
+    18913345,
+    21050306
+   ],
+   "Scene:E49499EB417AC22745470BA7C85FB609": [
+    10553665,
+    12649345
+   ],
+   "Scene:FB09B25844709C21708A77A3FB2E9B96": [
+    39818391,
+    41581913
+   ]
+  },
+  "segments": [
+   {
+    "end": 2312640,
+    "label": "Opening — Curtain",
+    "start": 0
+   },
+   {
+    "end": 4624705,
+    "label": "Passage 1",
+    "start": 2312640
+   },
+   {
+    "end": 10553665,
+    "label": "Scene 1 — External Sound",
+    "start": 4624705
+   },
+   {
+    "end": 12649345,
+    "label": "Interaction 1 — Washing the Boy",
+    "start": 10553665
+   },
+   {
+    "end": 16969345,
+    "label": "Passage 2",
+    "start": 12649345
+   },
+   {
+    "end": 18913345,
+    "label": "Scene 2 — External Sound",
+    "start": 16969345
+   },
+   {
+    "end": 21050305,
+    "label": "Interaction 2 — Turnips",
+    "start": 18913345
+   },
+   {
+    "end": 22064065,
+    "label": "Passage 3",
+    "start": 21050305
+   },
+   {
+    "end": 28304065,
+    "label": "Scene 3 — External Sound",
+    "start": 22064065
+   },
+   {
+    "end": 30452545,
+    "label": "Interaction 3 — Forgets His Name",
+    "start": 28304065
+   },
+   {
+    "end": 31662145,
+    "label": "Passage 4",
+    "start": 30452545
+   },
+   {
+    "end": 32406145,
+    "label": "Scene 4 — External Sound",
+    "start": 31662145
+   },
+   {
+    "end": 34169665,
+    "label": "Interaction 4 — Gets a Name",
+    "start": 32406145
+   },
+   {
+    "end": 38642392,
+    "label": "Passage 5",
+    "start": 34169665
+   },
+   {
+    "end": 39818392,
+    "label": "Scene 5 — External Sound",
+    "start": 38642392
+   },
+   {
+    "end": 41581912,
+    "label": "Interaction 5 — Becomes King",
+    "start": 39818392
+   },
+   {
+    "end": 44605939,
+    "label": "Passage 6",
+    "start": 41581912
+   },
+   {
+    "end": 49875379,
+    "label": "Scene 6 — External Sound",
+    "start": 44605939
+   },
+   {
+    "end": 50235379,
+    "label": "Closing — Sweeping Up",
+    "start": 49875379
+   }
+  ],
+  "timing": {
+   "2": {
+    "intervals": [
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158,
+     182158
+    ],
+    "lead": 91079,
+    "tail": 221445
+   }
+  }
+ },
+ "decided_by": "Gary 5 Oct ~15:25 questionnaire: 'P02-P05, P02 after straightening' and 'Song + short tail for the crossing' (supersedes the earlier keep-the-lengths call); P04 keeps its +10 s pad | conflict with his 14:20 'keep lengths' (directing session) resolved: he re-confirmed 'Cut to song + 2 s' for P02-P05 in the directing session ~17:00 (relayed); his own answer in this session (15:25) stands",
+ "deltas": {
+  "Passage 2": -3179520
+ },
+ "passages": [
+  "2"
+ ],
+ "planned_timing": {
+  "2": {
+   "intervals": [
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584,
+    47584
+   ],
+   "lead": 23792,
+   "tail": 69840
+  }
+ },
+ "rebuild_report": "Rebuilt 6 Passage, 13 Scene, and 7 music section(s); 0 Scene cue(s) lack a sequence and 0 music binding(s) lack a rail/sound.",
+ "rows_by_key": {
+  "2": {
+   "first": 51,
+   "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
+   "index": 1
+  }
+ },
+ "run": "RETIME-20261007-021031",
+ "schema": 1,
+ "tool": "passage_retime_to_music",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "written": "2026-10-07T02:10:31"
+}

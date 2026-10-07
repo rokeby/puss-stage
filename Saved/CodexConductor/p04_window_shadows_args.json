@@ -1,3 +1,14 @@
 {
- "mode": "PLAN"
+ "mode": "APPLY",
+ "confirm": "APPLY P04WINSHADOW",
+ "plan_sha256": "a5415a25f6090afaed3fb47ccd7283f28c8c181e76b04e8c57862263b4a05d0b",
+ "ack_records": [
+  "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P04.json",
+  "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json"
+ ]
 }

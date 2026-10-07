@@ -1,0 +1,10 @@
+{
+  "mode": "DRY",
+  "passage": "P01",
+  "beam_bays": [20],
+  "max_beams": 8,
+  "params": {},
+  "ack_records": [],
+  "expected": {},
+  "reuse_existing_assets": true
+}

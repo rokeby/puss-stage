@@ -1,0 +1,420 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155",
+ "backup_files": [
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\L_InfinityStage_V1VerticalSlice.umap",
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\LS_Interaction_01_WashingTheBoy.uasset",
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\LS_Interaction_02_Turnips.uasset",
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\LS_Interaction_03_ForgetsHisName.uasset",
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\LS_Interaction_04_GetsAName.uasset",
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\LS_Interaction_05_BecomesKing.uasset",
+  "E:/PussStage/Backups\\PreVelvetV2G-VV2G-20261007-015155\\LS_Opening_Curtain_Baked.uasset"
+ ],
+ "decided_by": "Gary 7 Oct: velvet V2G (bench V2F vs V2G); confirmed in his own answer in the conductor session questionnaire ~05:40 UTC ('Run them all' incl. velvet V2G)",
+ "digest": "98774203d1d844c4",
+ "mi": "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G",
+ "mi_created": true,
+ "mi_parent": "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_DeepRed",
+ "run": "VV2G-20261007-015155",
+ "saves": {
+  "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy": true,
+  "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips": true,
+  "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName": true,
+  "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName": true,
+  "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing": true,
+  "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked": true,
+  "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G": true
+ },
+ "schema_version": 1,
+ "skipped_already": [],
+ "snapshot_after": {
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy|DA56984749551687879A0B916BCB8B1E|GeometryCacheComponent": {
+   "binding": "Sleight Hangar Drape",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "DA56984749551687879A0B916BCB8B1E",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy|DAE24BA94D71D46E28195A843ED82859|GeometryCacheComponent": {
+   "binding": "Transition Drape (baked)",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "DAE24BA94D71D46E28195A843ED82859",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips|2D6DC35E47AA01CE86607AAF286A5C50|GeometryCacheComponent": {
+   "binding": "Sleight Hangar Drape",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "2D6DC35E47AA01CE86607AAF286A5C50",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips|D4C22D82489569F31A3C55B2567230CB|GeometryCacheComponent": {
+   "binding": "Transition Drape (baked)",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "D4C22D82489569F31A3C55B2567230CB",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName|053BFA0F4A72F8F9C0E544A649C4542E|GeometryCacheComponent": {
+   "binding": "Transition Drape (baked)",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "053BFA0F4A72F8F9C0E544A649C4542E",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName|42719CA4401EFBBA94E108B0554021AC|GeometryCacheComponent": {
+   "binding": "Sleight Hangar Drape",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "42719CA4401EFBBA94E108B0554021AC",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName|AF9EC0514031A5D8E352FEA1378F3DB1|GeometryCacheComponent": {
+   "binding": "Transition Drape (baked)",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "AF9EC0514031A5D8E352FEA1378F3DB1",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName|EB28EF914C27D1560B5151A7EAA96FCD|GeometryCacheComponent": {
+   "binding": "Sleight Hangar Drape",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "EB28EF914C27D1560B5151A7EAA96FCD",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing|C81F84074A9859700969FC9B524FEF91|GeometryCacheComponent": {
+   "binding": "Sleight Hangar Drape",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "C81F84074A9859700969FC9B524FEF91",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing|EAB951704DF2358AE4FFF7BE301F56C4|GeometryCacheComponent": {
+   "binding": "Transition Drape (baked)",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "EAB951704DF2358AE4FFF7BE301F56C4",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  },
+  "template|/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked|24D21E064C8A9687991CE1AE903F6EAB|GeometryCacheComponent": {
+   "binding": "Opening Drape (baked)",
+   "cache": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "component": "GeometryCacheComponent",
+   "component_num_materials": 1,
+   "effective": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "guid": "24D21E064C8A9687991CE1AE903F6EAB",
+   "kind": "template",
+   "overrides": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "package": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
+   "slots": 1,
+   "template_class": "GeometryCacheActor"
+  }
+ },
+ "targets": [
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Sleight Hangar Drape",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "DA56984749551687879A0B916BCB8B1E",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy|DA56984749551687879A0B916BCB8B1E|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Transition Drape (baked)",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "DAE24BA94D71D46E28195A843ED82859",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy|DAE24BA94D71D46E28195A843ED82859|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_01_WashingTheBoy",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Sleight Hangar Drape",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "2D6DC35E47AA01CE86607AAF286A5C50",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips|2D6DC35E47AA01CE86607AAF286A5C50|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Transition Drape (baked)",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "D4C22D82489569F31A3C55B2567230CB",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips|D4C22D82489569F31A3C55B2567230CB|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_02_Turnips",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Transition Drape (baked)",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "053BFA0F4A72F8F9C0E544A649C4542E",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName|053BFA0F4A72F8F9C0E544A649C4542E|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Sleight Hangar Drape",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "42719CA4401EFBBA94E108B0554021AC",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName|42719CA4401EFBBA94E108B0554021AC|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_03_ForgetsHisName",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Transition Drape (baked)",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "AF9EC0514031A5D8E352FEA1378F3DB1",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName|AF9EC0514031A5D8E352FEA1378F3DB1|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Sleight Hangar Drape",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "EB28EF914C27D1560B5151A7EAA96FCD",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName|EB28EF914C27D1560B5151A7EAA96FCD|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_04_GetsAName",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Sleight Hangar Drape",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "C81F84074A9859700969FC9B524FEF91",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing|C81F84074A9859700969FC9B524FEF91|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Transition Drape (baked)",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "EAB951704DF2358AE4FFF7BE301F56C4",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing|EAB951704DF2358AE4FFF7BE301F56C4|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Interaction_05_BecomesKing",
+   "slots": 1
+  },
+  {
+   "actor_label": null,
+   "actor_path": null,
+   "after": [
+    "/Game/Scenes/Curtain/Chaos/Materials/MI_CurtainVelvet_v2_V2G"
+   ],
+   "before": [],
+   "binding": "Opening Drape (baked)",
+   "component": "GeometryCacheComponent",
+   "effective_before": [
+    "/Game/Scenes/Curtain/Baked/MI_CurtainVelvet_DeepRed_Drop"
+   ],
+   "guid": "24D21E064C8A9687991CE1AE903F6EAB",
+   "key": "template|/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked|24D21E064C8A9687991CE1AE903F6EAB|GeometryCacheComponent",
+   "kind": "template",
+   "package": "/Game/InfinityStage/Interactions/LS_Opening_Curtain_Baked",
+   "slots": 1
+  }
+ ],
+ "tool": "VV2G"
+}

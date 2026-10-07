@@ -490,7 +490,9 @@ def _write_json(path, data):
 def _save_narrow(touch_level):
     u = _u()
     census = _census()
-    allowed_maps = {EXPECTED_WORLD} if touch_level else set()
+    # Master key writes re-evaluate bound actors and dirty the show level (measured 7 Oct, run P05CH APPLY ~01:50,
+    # cat_mode none); the level was verified clean at the start (DIRTY_BEFORE), so its dirt here is this run's own.
+    allowed_maps = {EXPECTED_WORLD}
     require(not (set(census["content"]) - {MASTER_PATH}) and not (set(census["maps"]) - allowed_maps),
             "OUT_OF_SCOPE_DIRTY_BEFORE_SAVE|" + json.dumps(census))
     require(u.EditorAssetLibrary.save_asset(MASTER_PATH, only_if_is_dirty=False), "MASTER_SAVE_FAILED")

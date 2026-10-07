@@ -115,6 +115,16 @@ def wrap(deg):
     return (deg + 180.0) % 360.0 - 180.0
 
 
+def _persistent_actors():
+    """Only actors in the open persistent level. Klara's streamed levels (Japanese_Alley, L_Animals, L_KK_children)
+    sit on/near the route and must never travel with P02 (measured 7 Oct: 198 'unclassified' route actors, all in
+    /Game/Japanese_Alley/Maps/Japanese_Alley; probe_p02_unclassified_levels.py)."""
+    world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
+    persistent = world.get_outermost().get_name()
+    return [a for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+            if a.get_outermost().get_name() == persistent]
+
+
 def xf(loc, yaw):
     return {"loc": [float(loc[0]), float(loc[1]), float(loc[2])], "yaw": float(yaw)}
 
@@ -474,7 +484,7 @@ def read_world():
     if unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence():   # landscape_floors_apply.py:108
         stop("SEQUENCER_OPEN")
     show = unreal.EditorAssetLibrary.load_asset(SHOW)
-    acts = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+    acts = _persistent_actors()
     if any(str(a.get_actor_label()).startswith("ZZ_") for a in acts):
         stop("ZZ_ACTORS_PRESENT")
     passages = [a for a in acts if a.get_class().get_name() == "InfinityStagePassageActor"
@@ -814,7 +824,7 @@ def finish(ed, world, by, seq, rec, side, mode):
         stop("LEVEL_SAVE_FAILED")
     if census() != {"content": [], "maps": []}:
         stop("POST_SAVE_DIRTY|" + json.dumps(census()))
-    live, _ = live_state(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors(),
+    live, _ = live_state(_persistent_actors(),
                          unreal.load_asset(I1_SEQ), list(rec["actors"]))
     off = drift(live, rec, side)
     if off:

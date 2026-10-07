@@ -1,10 +1,9 @@
 {
- "mode": "DRY",
- "confirm": "DRY RETIME",
+ "mode": "APPLY",
+ "confirm": "APPLY RETIME",
  "run_id": null,
  "passages": [
-  "3",
-  "4"
+  "2"
  ],
  "passages_note": "Gary 5 Oct: retime P02-P05 in one run; P02 waits for p02_straighten. Split runs also work: [\"3\",\"4\",\"5\"] first, then [\"2\"] (own record each, LIFO revert).",
  "tail_s": 2.0,
@@ -34,7 +33,11 @@
    "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
    "song_s": 45.51424,
    "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P02_Walking2_Cameron",
-   "expected": null
+   "expected": {
+    "new_len_ticks": 1140480,
+    "old_len_ticks": 4320000,
+    "route_cm": 11857.8345
+   }
   },
   "3": {
    "guid": "49F93D652B46B99C10116EBAE927A3C6",

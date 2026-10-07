@@ -1,0 +1,1661 @@
+{
+  "active_record": null,
+  "args": {
+    "ack_records": [
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P04.json",
+      "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json"
+    ],
+    "after_pass": "EXTINGUISH",
+    "after_pass_distance_cm": 0.0,
+    "allow_dirty": [],
+    "attenuation_pad": 1.35,
+    "avoid_scratch_cues": [],
+    "camera_aspect": 1.7777777777777777,
+    "camera_hfov_deg": 37.497,
+    "camera_speed_cm_s": 215.94,
+    "camera_z_cm": 180.0,
+    "color_rgb": [
+      0.55,
+      0.68,
+      1.0
+    ],
+    "cone_margin_deg": 1.0,
+    "confirm": "APPLY P04WINSHADOW",
+    "flash_attack_cm": 15.0,
+    "flash_decay_cm": 70.0,
+    "flash_every_n_strobes": 2,
+    "flash_rest_scale": 0.0,
+    "floor_setback_cm": 320.0,
+    "floor_target_y_cm": -120.0,
+    "intensity_cd": 220.0,
+    "light_above_window_cm": 150.0,
+    "light_function": null,
+    "light_setback_cm": 400.0,
+    "max_cone_leak": 0.05,
+    "max_frame_disagreement_cm": 5.0,
+    "max_light_setback_cm": 440.0,
+    "max_light_z_cm": 1150.0,
+    "max_lights_per_wing": 1,
+    "max_lit_together": 3,
+    "max_patch_length_cm": 700.0,
+    "min_light_y_cm": -1350.0,
+    "min_window_m2": 0.5,
+    "mode": "APPLY",
+    "panel_height_cm": 1000.0,
+    "passage_seconds": 50.4,
+    "passage_start_ticks": 30403585,
+    "passage_world_offset_cm": [
+      0.0,
+      240000.0,
+      0.0
+    ],
+    "plan_path": null,
+    "plan_sha256": "a5415a25f6090afaed3fb47ccd7283f28c8c181e76b04e8c57862263b4a05d0b",
+    "soft_source_radius_cm": 0.0,
+    "source_light_label": "P04 SCORE B09 MOODY TOP_L",
+    "source_radius_cm": 2.0,
+    "station_pitch_cm": 500.0,
+    "station_x0_cm": 250.0,
+    "strike_lead_cm": 150.0,
+    "strike_patch_ahead_cm": 1500.0,
+    "strike_ramp_cm": 260.0,
+    "strike_stutter": 0.0,
+    "strobe_decay_s": 0.33,
+    "strobe_flash_s": 0.04,
+    "strobe_local_cm": [
+      2000.0,
+      650.0,
+      60.0
+    ],
+    "strobe_period_s": 1.0,
+    "strobe_phase_cycles": 0.0,
+    "strobe_radius_cm": 450.0,
+    "tick_rate": 24000.0,
+    "variant": "A",
+    "vis_max_cm": 2500.0,
+    "vis_min_fraction": 0.3,
+    "volumetric_scattering": 0.6,
+    "wing_count": 21,
+    "wing_plane_dx_cm": -7.5,
+    "wings": null
+  },
+  "backup": {
+    "packages": [
+      {
+        "backup": "E:/PussStage/Backups\\PreP04WindowShadowApply-20261007-014208\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset",
+        "bytes": 25142228,
+        "package": "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show",
+        "sha256": "4670f5cdb421d84d025fe374f68dd94a6e6452b3ec7808df6cf9954b1b020559",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\DA_InfinityStage_V1Show.uasset"
+      },
+      {
+        "backup": "E:/PussStage/Backups\\PreP04WindowShadowApply-20261007-014208\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap",
+        "bytes": 19298549,
+        "package": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+        "sha256": "b43496792e7b59caa346d8edd6b769a71de1446d72ccb8df4af807bf40550cbc",
+        "source": "E:\\PussStage\\Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+      }
+    ],
+    "root": "E:/PussStage/Backups\\PreP04WindowShadowApply-20261007-014208"
+  },
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project_ok": true,
+    "sequencer_open": false,
+    "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+    "world_ok": true,
+    "zz_actors": []
+  },
+  "editor_plan": {
+    "scratch": {
+      "cue_guid": "8EB9785B5A4911719CF9A0A0EF3A2379",
+      "cue_label": "P04 Wing 007",
+      "light_count": 12,
+      "show_index": 105
+    },
+    "source": {
+      "cue_guid": "D84BDBAEDF4EE4A952894D82ECD2841F",
+      "cue_label": "P04 Wing 009",
+      "guid": "521D6C924E760110D56A4BACD03B9C3E",
+      "label": "P04 SCORE B09 MOODY TOP_L"
+    },
+    "targets": [
+      {
+        "before_count": 18,
+        "cue_guid": "60F88644FE4C5E6BB5B57395AA2516EC",
+        "cue_label": "P04 Wing 008",
+        "frames": [
+          {
+            "computed_cm": [
+              392.4998561249222,
+              -1060.2200000000012,
+              465.41
+            ],
+            "disagreement_cm": 0.005002069576494081,
+            "label": "P04 WINDOW SHADOW W008",
+            "nominal_cm": [
+              392.5,
+              -1060.216,
+              465.413
+            ]
+          }
+        ],
+        "light_count": 16,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W008>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W008",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 1717.7,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2345.8,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 5.972,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 7.026,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                392.4998561249222,
+                -1060.2200000000012,
+                465.41
+              ],
+              "rotation_xyzw": [
+                0.166903848,
+                -0.082408883,
+                -0.880986686,
+                -0.434987747
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 106
+      },
+      {
+        "before_count": 20,
+        "cue_guid": "D84BDBAEDF4EE4A952894D82ECD2841F",
+        "cue_label": "P04 Wing 009",
+        "frames": [
+          {
+            "computed_cm": [
+              305.94992172695675,
+              -871.3500000000058,
+              1150.0
+            ],
+            "disagreement_cm": 0.005763973993835008,
+            "label": "P04 WINDOW SHADOW W009",
+            "nominal_cm": [
+              305.945,
+              -871.353,
+              1150.0
+            ]
+          }
+        ],
+        "light_count": 17,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W009>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W009",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 2042.2,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2253.6,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 5.111,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 6.013,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                305.94992172695675,
+                -871.3500000000058,
+                1150.0
+              ],
+              "rotation_xyzw": [
+                0.379526165,
+                -0.176438727,
+                -0.8235557,
+                -0.382864564
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 107
+      },
+      {
+        "before_count": 19,
+        "cue_guid": "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "cue_label": "P04 Wing 012",
+        "frames": [
+          {
+            "computed_cm": [
+              392.4998005878915,
+              -1060.2200000000012,
+              465.41
+            ],
+            "disagreement_cm": 0.005003974939893644,
+            "label": "P04 WINDOW SHADOW W012",
+            "nominal_cm": [
+              392.5,
+              -1060.216,
+              465.413
+            ]
+          }
+        ],
+        "light_count": 17,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W012>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W012",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 1717.7,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2345.8,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 5.972,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 7.026,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                392.4998005878915,
+                -1060.2200000000012,
+                465.41
+              ],
+              "rotation_xyzw": [
+                0.166903848,
+                -0.082408883,
+                -0.880986686,
+                -0.434987747
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 110
+      },
+      {
+        "before_count": 14,
+        "cue_guid": "9D804A48624083D26A5686843F704E51",
+        "cue_label": "P04 Wing 013",
+        "frames": [
+          {
+            "computed_cm": [
+              305.94986618992607,
+              -871.3500000000058,
+              1150.0
+            ],
+            "disagreement_cm": 0.005716625259839426,
+            "label": "P04 WINDOW SHADOW W013",
+            "nominal_cm": [
+              305.945,
+              -871.353,
+              1150.0
+            ]
+          }
+        ],
+        "light_count": 12,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W013>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W013",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 2042.2,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2253.6,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 5.111,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 6.013,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                305.94986618992607,
+                -871.3500000000058,
+                1150.0
+              ],
+              "rotation_xyzw": [
+                0.379526165,
+                -0.176438727,
+                -0.8235557,
+                -0.382864564
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 111
+      },
+      {
+        "before_count": 18,
+        "cue_guid": "4B9A3DDEF84C3119562E01AB624237AA",
+        "cue_label": "P04 Wing 016",
+        "frames": [
+          {
+            "computed_cm": [
+              392.50006299602865,
+              -961.1900000000023,
+              465.41
+            ],
+            "disagreement_cm": 0.003606101564051748,
+            "label": "P04 WINDOW SHADOW W016",
+            "nominal_cm": [
+              392.5,
+              -961.192,
+              465.413
+            ]
+          }
+        ],
+        "light_count": 16,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W016>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W016",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 1621.5,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2345.8,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 6.297,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 7.408,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                392.50006299602865,
+                -961.1900000000023,
+                465.41
+              ],
+              "rotation_xyzw": [
+                0.179534144,
+                -0.082650203,
+                -0.890447765,
+                -0.409925862
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 114
+      },
+      {
+        "before_count": 19,
+        "cue_guid": "A6729B4EEE401372716AEFAC08AD9D4A",
+        "cue_label": "P04 Wing 020",
+        "frames": [
+          {
+            "computed_cm": [
+              392.499689513832,
+              -1112.6199999999953,
+              465.41
+            ],
+            "disagreement_cm": 0.0036188950858054986,
+            "label": "P04 WINDOW SHADOW W020",
+            "nominal_cm": [
+              392.5,
+              -1112.618,
+              465.413
+            ]
+          }
+        ],
+        "light_count": 17,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W020>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W020",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 1770.7,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2345.8,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 5.806,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 6.831,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                392.499689513832,
+                -1112.6199999999953,
+                465.41
+              ],
+              "rotation_xyzw": [
+                0.160688024,
+                -0.081953405,
+                -0.876217511,
+                -0.446884629
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 118
+      },
+      {
+        "before_count": 18,
+        "cue_guid": "7245B7F6604BD9C95E74BF9DFD673085",
+        "cue_label": "P04 Wing 021",
+        "frames": [
+          {
+            "computed_cm": [
+              305.9497551158656,
+              -882.8299999999872,
+              1150.0
+            ],
+            "disagreement_cm": 0.005158597381731606,
+            "label": "P04 WINDOW SHADOW W021",
+            "nominal_cm": [
+              305.945,
+              -882.832,
+              1150.0
+            ]
+          }
+        ],
+        "light_count": 16,
+        "planned_rows": [
+          {
+            "actor_class": null,
+            "anchor": "<InfinityAttachmentAnchor.STATION: 0>",
+            "effect": {
+              "active_radius_cm": 6000.0,
+              "burn_span_cm": 4000.0,
+              "burn_start_ahead_cm": 3000.0,
+              "burn_u_axis": [
+                0.0,
+                0.0
+              ],
+              "burn_uv_measured_mesh": null,
+              "burn_v_axis": [
+                0.0,
+                0.0
+              ],
+              "feeds_local_medium": true,
+              "flicker_amount": 0.25,
+              "ignition_uv": [
+                0.5,
+                1.0
+              ],
+              "linked_light_attachment_guid": "00000000000000000000000000000000",
+              "medium_density": 0.15000000596046448,
+              "medium_height_falloff": 1000.0,
+              "medium_offset_cm": [
+                250.0,
+                0.0,
+                150.0
+              ],
+              "medium_radius_cm": 400.0,
+              "motes_extent_cm": [
+                250.0,
+                400.0,
+                500.0
+              ],
+              "output": 0.5,
+              "pulse_duty": 0.3499999940395355,
+              "pulse_period_seconds": 6.0,
+              "replicated_from_attachment_guid": "00000000000000000000000000000000",
+              "tint": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "type": "<InfinityStageEffectType.HAZE: 0>"
+            },
+            "enabled": true,
+            "ext": {
+              "body": {
+                "fail_at_cm": 0.0,
+                "fail_window_cm": 1500.0,
+                "flicker": "STABLE",
+                "flicker_also_drives_light": false,
+                "flicker_rate_hz": 14.0,
+                "follow_light": false,
+                "full_intensity": -1.0,
+                "intensity_parameter": "Intensity",
+                "light_attachment_guid": "00000000000000000000000000000000",
+                "seed": 0,
+                "slight_depth": 0.11999999731779099
+              },
+              "mover": {
+                "approach_distance_cm": 2500.0,
+                "calm_scale": 0.15000000596046448,
+                "ease_fraction": 0.25,
+                "enabled": false,
+                "erratic_ramp_cm": 1500.0,
+                "pitch_amplitude_degrees": 20.0,
+                "seed": 0,
+                "steps_per_second": 3.0,
+                "trigger": "ON_APPROACH",
+                "yaw_amplitude_degrees": 35.0
+              }
+            },
+            "guid": "<MINT:P04 WINDOW SHADOW W021>",
+            "kind": "<InfinityAttachmentKind.LIGHT: 1>",
+            "label": "P04 WINDOW SHADOW W021",
+            "lighting": {
+              "affect_global_illumination": true,
+              "affect_reflection": true,
+              "affect_translucent_lighting": true,
+              "attenuation_radius_cm": 2049.9,
+              "cast_shadows": true,
+              "cast_volumetric_shadow": true,
+              "color": [
+                0.55,
+                0.68,
+                1.0,
+                1.0
+              ],
+              "diffuse_scale": 1.0,
+              "drama": {
+                "after_pass": "EXTINGUISH",
+                "after_pass_distance_cm": 0.0,
+                "decay_distance_cm": 600.0,
+                "ignition_stutter": 0.0,
+                "pan_amplitude_degrees": 6.0,
+                "period_seconds": 14.0,
+                "phase_cycles": 0.0,
+                "phase_from_identity": true,
+                "slow_move": false,
+                "strike_distance_cm": 2253.6,
+                "strike_on_approach": true,
+                "strike_ramp_cm": 260.0,
+                "tilt_amplitude_degrees": 3.0,
+                "unstruck_intensity_scale": 0.0
+              },
+              "force_cached_shadows_for_movable_primitives": false,
+              "ies_brightness_scale": 1.0,
+              "ies_texture": null,
+              "indirect_lighting_intensity": 1.0,
+              "inner_cone_angle_degrees": 5.113,
+              "intensity": 220.0,
+              "intensity_units": "CANDELAS",
+              "inverse_exposure_blend": 0.0,
+              "light_falloff_exponent": 8.0,
+              "light_function_disabled_brightness": 0.0,
+              "light_function_fade_distance_cm": 100000.0,
+              "light_function_material": null,
+              "light_function_scale": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "lighting_channel0": true,
+              "lighting_channel1": false,
+              "lighting_channel2": false,
+              "max_distance_fade_range_cm": 0.0,
+              "max_draw_distance_cm": 0.0,
+              "outer_cone_angle_degrees": 6.016,
+              "rect_barn_door_angle_degrees": 88.0,
+              "rect_barn_door_length_cm": 20.0,
+              "rect_source_height_cm": 100.0,
+              "rect_source_texture": null,
+              "rect_source_width_cm": 100.0,
+              "shadow_bias": 0.5,
+              "shadow_slope_bias": 0.5,
+              "soft_source_radius_cm": 0.0,
+              "source_length_cm": 0.0,
+              "source_radius_cm": 2.0,
+              "specular_scale": 1.0,
+              "temperature_kelvin": 7600.0,
+              "transmission": false,
+              "type": "<InfinityStageLightType.SPOT: 0>",
+              "use_ies_brightness": false,
+              "use_inverse_squared_falloff": true,
+              "use_ray_traced_distance_field_shadows": false,
+              "use_temperature": false,
+              "volumetric_scattering_intensity": 0.6
+            },
+            "mesh": null,
+            "relative_transform": {
+              "location": [
+                305.9497551158656,
+                -882.8299999999872,
+                1150.0
+              ],
+              "rotation_xyzw": [
+                0.377052444,
+                -0.177002549,
+                -0.822954453,
+                -0.386325665
+              ],
+              "scale": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "trigger_distance_cm": 800.0
+          }
+        ],
+        "show_index": 119
+      }
+    ]
+  },
+  "foreign_records": [
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "9D804A48624083D26A5686843F704E51",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+      "sha256": "6544e9f1b6894ab36f87575e58850f449b05fcd323e6cbdfb468d419a7593286",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "9D804A48624083D26A5686843F704E51",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+      "sha256": "aa2cdce1095b073e4a2ec2219bdf9dff94b180feb353a332e8e833066963dc72",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "9D804A48624083D26A5686843F704E51",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+      "sha256": "f52bcfc834ab9c9402c81430e870f1806e12a5a22112798f2410bbcf10a4b7d4",
+      "status": null
+    },
+    {
+      "guids": [
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_glint_practical_record.json",
+      "sha256": "ff1bf488f2f277e2a52c8ba17eb5bee2581904538ebcb906e424982e74e418c8",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "9D804A48624083D26A5686843F704E51",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\p04_rig_pattern_record.json",
+      "sha256": "06b97ff7bb966a83fd60f19367dbb692491e8d95f02d70f0076b50e6f4bee652",
+      "status": "saved_readback_verified"
+    },
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "9D804A48624083D26A5686843F704E51",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P04.json",
+      "sha256": "ab18fd30bfd5b48c5f13c26a4c83675190984b0b0d89543ca8426a80b8dd51a7",
+      "status": null
+    },
+    {
+      "guids": [
+        "4B9A3DDEF84C3119562E01AB624237AA",
+        "60F88644FE4C5E6BB5B57395AA2516EC",
+        "7245B7F6604BD9C95E74BF9DFD673085",
+        "7653CC8FAD4BB39F6E4F2FAFBE53BC34",
+        "A6729B4EEE401372716AEFAC08AD9D4A",
+        "D84BDBAEDF4EE4A952894D82ECD2841F"
+      ],
+      "path": "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json",
+      "sha256": "7959360fc3077cea722d834dd3b753937fb7b7fac2407a0a5b32552d5c92d8cf",
+      "status": "saved_readback_verified"
+    }
+  ],
+  "minted_by_cue": {
+    "4B9A3DDEF84C3119562E01AB624237AA": [
+      "3FE276DE4540486FF0364A9470503751"
+    ],
+    "60F88644FE4C5E6BB5B57395AA2516EC": [
+      "C5800D0540991233995B3692BAF2361B"
+    ],
+    "7245B7F6604BD9C95E74BF9DFD673085": [
+      "2BD33CB04C88FE793093B6BC3E033DA4"
+    ],
+    "7653CC8FAD4BB39F6E4F2FAFBE53BC34": [
+      "C84087A5491B494979E77195459A2861"
+    ],
+    "9D804A48624083D26A5686843F704E51": [
+      "1DB824044EB0238EFA8EA6B9F6786428"
+    ],
+    "A6729B4EEE401372716AEFAC08AD9D4A": [
+      "2B1DB43D4F698A76D14C368D2EEED167"
+    ],
+    "D84BDBAEDF4EE4A952894D82ECD2841F": [
+      "033FB85F45BE1C99475FB49AB71C949E"
+    ]
+  },
+  "mode": "APPLY",
+  "ok": true,
+  "plan_path": "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_plan.json",
+  "plan_sha256": "a5415a25f6090afaed3fb47ccd7283f28c8c181e76b04e8c57862263b4a05d0b",
+  "record": "E:\\PussStage\\Saved\\CodexConductor\\p04_window_shadows_record.json",
+  "run": "20261007-014208",
+  "saved": true,
+  "strobe_readonly": [
+    {
+      "attenuation_radius_cm": 450.0,
+      "decay_seconds": 0.33000001311302185,
+      "flash_seconds": 0.03999999910593033,
+      "label": "P04 Strobe (default, Gary to place)",
+      "peak_intensity": 3500.0,
+      "period_seconds": 1.0,
+      "phase_cycles": 0.0,
+      "world_cm": [
+        2000.0,
+        240650.0,
+        60.0
+      ]
+    }
+  ],
+  "unacknowledged_foreign_records": []
+}

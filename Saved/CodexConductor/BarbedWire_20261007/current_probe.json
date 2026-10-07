@@ -1,0 +1,126 @@
+{
+ "SM_FenceBay_short_open": {
+  "SM_FenceBay_short_open_LOD0": {
+   "tris": 3298,
+   "min": [
+    -1.6799999475479126,
+    -0.0928683876991272,
+    3.258413538986815e-09
+   ],
+   "max": [
+    1.6799999475479126,
+    0.08637472242116928,
+    3.026763439178467
+   ],
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "parent": "SM_FenceBay_short_open_LODGroup"
+  },
+  "SM_FenceBay_short_open_LOD1": {
+   "tris": 1386,
+   "min": [
+    -1.6799999475479126,
+    -0.08683186769485474,
+    3.258413538986815e-09
+   ],
+   "max": [
+    1.6799999475479126,
+    0.08823800086975098,
+    3.0304596424102783
+   ],
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "parent": "SM_FenceBay_short_open_LODGroup"
+  },
+  "SM_FenceBay_short_open_LODGroup": {
+   "type": "EMPTY",
+   "props": {}
+  }
+ },
+ "SM_FenceBay_short_door_gap": {
+  "SM_FenceBay_short_door_gap_LOD0": {
+   "tris": 3326,
+   "min": [
+    -1.6799999475479126,
+    -0.0928683876991272,
+    3.258413538986815e-09
+   ],
+   "max": [
+    1.6799999475479126,
+    0.08637472242116928,
+    3.026763439178467
+   ],
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "parent": "SM_FenceBay_short_door_gap_LODGroup"
+  },
+  "SM_FenceBay_short_door_gap_LOD1": {
+   "tris": 1414,
+   "min": [
+    -1.6799999475479126,
+    -0.08683186769485474,
+    3.258413538986815e-09
+   ],
+   "max": [
+    1.6799999475479126,
+    0.08823800086975098,
+    3.0304596424102783
+   ],
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "parent": "SM_FenceBay_short_door_gap_LODGroup"
+  },
+  "SM_FenceBay_short_door_gap_LODGroup": {
+   "type": "EMPTY",
+   "props": {}
+  }
+ },
+ "SM_FencePost_short": {
+  "SM_FencePost_short_LOD0": {
+   "tris": 80,
+   "min": [
+    -0.10000000149011612,
+    -0.16499999165534973,
+    -1.6292068139023286e-08
+   ],
+   "max": [
+    0.10000000149011612,
+    0.1483803391456604,
+    2.869999885559082
+   ],
+   "slots": [
+    "M_FenceMetal"
+   ],
+   "parent": "SM_FencePost_short_LODGroup"
+  },
+  "SM_FencePost_short_LOD1": {
+   "tris": 64,
+   "min": [
+    -0.10000000149011612,
+    -0.16499999165534973,
+    -1.6292068139023286e-08
+   ],
+   "max": [
+    0.10000000149011612,
+    0.1483803391456604,
+    2.869999885559082
+   ],
+   "slots": [
+    "M_FenceMetal"
+   ],
+   "parent": "SM_FencePost_short_LODGroup"
+  },
+  "SM_FencePost_short_LODGroup": {
+   "type": "EMPTY",
+   "props": {}
+  }
+ }
+}

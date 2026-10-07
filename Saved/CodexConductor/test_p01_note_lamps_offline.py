@@ -15,7 +15,8 @@ import types
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROJECT = os.path.dirname(os.path.dirname(HERE))
-spec = importlib.util.spec_from_file_location("p01_note_lamps_under_test", os.path.join(HERE, "p01_note_lamps.py"))
+# P01_NOTE_LAMPS_MODULE: run the harness against another copy (negative controls on a pre-fix file)
+spec = importlib.util.spec_from_file_location("p01_note_lamps_under_test", os.environ.get("P01_NOTE_LAMPS_MODULE") or os.path.join(HERE, "p01_note_lamps.py"))
 M = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(M)
 
@@ -226,6 +227,93 @@ t1 = text.replace("bStrikeOnApproach=True,bFlash=False,FlashCameraOffsetsCm=(),F
 check("export_mask_target_flash_change_invisible", M.export_hash([t1], [g_t]) == h)
 check("export_mask_target_intensity_change_visible", M.export_hash([text.replace("Intensity=5.0", "Intensity=6.0")], [g_t]) != h)
 check("export_mask_nontarget_flash_change_visible", M.export_hash([text.replace("Intensity=7.0,Drama=(bFlash=False)", "Intensity=7.0,Drama=(bFlash=True)")], [g_t]) != h)
+
+# ---- export self-diagnosis (7 Oct live APPLY 20261007-014342: bare EXPORT_OUTSIDE_SCOPE_CHANGED, nothing named).
+# Stub show: per-cue export_text in the full-export form measured on 4 Oct (light_guid_audit_20261004-121338.json:
+# AttachmentGuid first, every field exported incl. defaults) plus the flash fields and Body/Mover, which the
+# check_scope rows (_infinity_attachment_state.py:104-128) do not cover.
+def _att(guid, label, strike, flash, offsets, attack, seed=0):
+    return ('(AttachmentGuid=%s,Label=INVTEXT("%s"),Kind=Light,bEnabled=True,RelativeTransform=(Rotation=(X=0.0,Y=0.0,'
+            'Z=0.0,W=1.0)),Lighting=(Intensity=2.1,Drama=(bStrikeOnApproach=%s,StrikeDistanceCm=2500.000000,'
+            'PhaseCycles=0.000000,bFlash=%s,FlashCameraOffsetsCm=%s,FlashAttackCm=%s,FlashDecayCm=18.000000,'
+            'FlashRestScale=0.000000)),Body=(bFollowLight=False,LightAttachmentGuid=%s,Seed=0),'
+            'Mover=(bEnabled=False,Seed=%d),TriggerDistanceCm=800.000000)'
+            % (guid, label, strike, flash, offsets, attack, "0" * 32, seed))
+
+
+class _StubCue:
+    def __init__(self, label, atts, tail="Tags=()"):
+        self.label, self.atts, self.tail = label, atts, tail
+
+    def export_text(self):
+        return '(CueGuid=%s,Label=INVTEXT("%s"),WingPair=(Attachments=(%s)),%s)' % (
+            "C" * 32, self.label, ",".join(_att(*a) for a in self.atts), self.tail)
+
+
+class _StubShow:
+    def __init__(self):
+        self.cues = [_StubCue("P01 Wing 007 (bay)", [[g_t, "TARGET (clamp, L)", "True", "False", "()", "3.000000"],
+                                                     [g_o, "Other lamp", "False", "False", "()", "3.000000"]])]
+
+    def texts(self):   # rig._export_texts shape: one string per cue (+ passage settings)
+        return [c.export_text() for c in self.cues]
+
+
+def _write_target(show):
+    show.cues[0].atts[0][2:6] = ["False", "True", "(-3781.773438)", "15.000000"]
+
+
+def _raise_msg(fn):
+    try:
+        fn()
+    except M.P01NoteLampsError as error:
+        return str(error)
+    return ""
+
+
+has_diag = hasattr(M, "check_export_unchanged") and hasattr(M, "export_changes")
+check("export_diag_functions_present", has_diag)
+stub = _StubShow()
+before_texts = stub.texts()
+_write_target(stub)
+after_texts = stub.texts()
+if has_diag:
+    check("export_diag_target_only_write_passes", M.check_export_unchanged(before_texts, after_texts, [g_t], "X") == [])
+    # (a') a non-row field of a NON-target attachment changes alongside the target write
+    stub.cues[0].atts[1].append(7)   # Mover.Seed 0 -> 7 on the other lamp
+    logged = []
+    msg = _raise_msg(lambda: M.check_export_unchanged(before_texts, stub.texts(), [g_t],
+                                                      "EXPORT_OUTSIDE_SCOPE_CHANGED", logged.append))
+    check("export_diag_nontarget_change_named", msg.startswith("EXPORT_OUTSIDE_SCOPE_CHANGED|count=1|")
+          and g_o in msg and "Other lamp" in msg and '"is_target":false' in msg and "Seed=7" in msg, msg[:400])
+    check("export_diag_logs_one_line_per_change", len(logged) == 1 and logged[0].startswith("P01NOTELAMPS_EXPORT_DIFF|"),
+          logged)
+    stub.cues[0].atts[1].pop()
+    # a cue-level field after the attachments is the OWNER's, not the last attachment's
+    stub.cues[0].tail = "Tags=(Changed)"
+    ch = M.export_changes(before_texts, stub.texts(), [g_t])
+    check("export_diag_cue_level_attributed_to_owner", len(ch) == 1 and ch[0]["guid"] == "<owner>"
+          and ch[0]["owner"] == "P01 Wing 007 (bay)", ch)
+    stub.cues[0].tail = "Tags=()"
+    # a non-writable field of the TARGET itself is still caught and named as the target
+    stub.cues[0].atts[0].append(3)
+    ch = M.export_changes(before_texts, stub.texts(), [g_t])
+    check("export_diag_target_nonwritable_named", len(ch) == 1 and ch[0]["guid"] == g_t and ch[0]["is_target"]
+          and ch[0]["label"] == "TARGET (clamp, L)", ch)
+    stub.cues[0].atts[0].pop()
+    # (d) two exports with no write that differ -> EXPORT_NONDETERMINISTIC, named
+    jitter = [t.replace("StrikeDistanceCm=2500.000000", "StrikeDistanceCm=2500.000001", 1) for t in before_texts]
+    msg = _raise_msg(lambda: M.check_export_unchanged(before_texts, jitter, [g_t], "EXPORT_NONDETERMINISTIC"))
+    check("export_diag_nondeterminism_named", msg.startswith("EXPORT_NONDETERMINISTIC|count=1|") and g_t in msg, msg[:300])
+    # _run uses the diagnosing check at every export comparison (no bare hash compare left)
+    src = open(os.path.join(HERE, "p01_note_lamps.py"), encoding="utf-8").read()
+    run_src = src[src.index("def _run(args):"):src.index("def _swap_sides(")]
+    check("export_diag_wired_into_run", run_src.count("check_export_unchanged(") == 5
+          and "== texts_hash" not in run_src and '"EXPORT_NONDETERMINISTIC"' in run_src, run_src.count("check_export_unchanged("))
+else:   # negative control: the pre-fix tool can neither name nor self-check, so every diagnosis check fails
+    for name in ("target_only_write_passes", "nontarget_change_named", "logs_one_line_per_change",
+                 "cue_level_attributed_to_owner", "target_nonwritable_named", "nondeterminism_named", "wired_into_run"):
+        check("export_diag_" + name, False, "pre-fix module")
 
 # ---- engine lacks flash: pure gate, then the real _run path with a fake editor (no backup, no record, marker)
 ok, msg = raises(lambda: M.check_engine({"drama_flash": False}), "ENGINE_LACKS_FLASH")

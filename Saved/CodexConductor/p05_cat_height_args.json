@@ -1,10 +1,11 @@
 {
-  "mode": "DRY",
+  "mode": "APPLY",
   "passage_label": "Passage 5",
   "target_eye_cm": 90.0,
   "blend_s": 1.5,
   "cat_mode": "none",
   "expected_base_eye_cm": 180.0,
   "allow_dirty": [],
-  "note": "cat_mode none: requires the CH patch (2026-10-07_CH_cat_counters_height_offset) built first; the C++ counters HeightOffsetCm so the cat stays on the floor"
+  "note": "cat_mode none: requires the CH patch (2026-10-07_CH_cat_counters_height_offset) built first; the C++ counters HeightOffsetCm so the cat stays on the floor",
+  "confirm": "APPLY P05CATHEIGHT"
 }

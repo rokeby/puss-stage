@@ -97,7 +97,7 @@ def _finite(value, label):
 DEFAULTS = {
     "target_tip_ahead_cm": 400.0, "light_x_cm": -600.0, "cat_x_cm": -200.0, "aim_fraction": 0.6,
     "intensity_cd": 15000.0, "attack_s": 0.5, "hold_s": 3.0, "release_s": 1.0,
-    "min_start_s": 6.0, "end_margin_s": 4.0, "min_spacing_s": 20.0, "two_cue_min_music_s": 60.0,
+    "min_start_s": 6.0, "end_margin_s": 4.0, "min_spacing_s": 20.0, "two_cue_min_music_s": 60.0, "latest_cue_end_s": {},
     "offline_cat_top_cm": 200.0, "offline_eye_cm": {}, "offline_passage_start_s": {},
 }
 GEOMETRY_SOURCES = ("reference", "computed")
@@ -187,8 +187,9 @@ def snap_to_note(t, notes):
     return float(best["song_s"]), best
 
 
-def choose_cues(analysis, notes, music_offset_s, args):
-    """Passage-relative cues. The light reaches full at the musical moment (attack ends there)."""
+def choose_cues(analysis, notes, music_offset_s, args, latest_end_s=None):
+    """Passage-relative cues. The light reaches full at the musical moment (attack ends there).
+    latest_end_s: a cue must be fully released by this passage time (args latest_cue_end_s per passage; P06 dark 7 Oct)."""
     duration = float(analysis["durationSeconds"])
     want = 2 if duration >= args["two_cue_min_music_s"] else 1
     total = args["attack_s"] + args["hold_s"] + args["release_s"]
@@ -199,6 +200,8 @@ def choose_cues(analysis, notes, music_offset_s, args):
         moment, note = snap_to_note(t, notes)
         start = moment - args["attack_s"]
         if start < args["min_start_s"] or start + total > duration - args["end_margin_s"]:
+            continue
+        if latest_end_s is not None and start - music_offset_s + total > float(latest_end_s):
             continue
         if any(abs(moment - c["song_moment_s"]) < args["min_spacing_s"] for c in chosen):
             continue
@@ -260,7 +263,7 @@ def tip_ahead(light_h, cat_top_cm, args):
 
 
 def plan_passage(label, analysis, notes, music_offset_s, eye_cm, cat_top_cm, args, reference=None):
-    cues = choose_cues(analysis, notes, music_offset_s, args)
+    cues = choose_cues(analysis, notes, music_offset_s, args, (args.get("latest_cue_end_s") or {}).get(label))
     geo = spot_geometry(eye_cm, cat_top_cm, args)
     geo["source"] = "computed"
     geo["rotation"] = [geo["pitch_deg"], 0.0, 0.0]
@@ -499,10 +502,10 @@ def _measure(ctx, tick_rate, plan_cues):
             require(cat is not None, "NO_CAT_ACTOR")
             meshes = cat.get_components_by_class(u.SkeletalMeshComponent)
             require(meshes, "NO_CAT_MESH")
-            b = meshes[0].bounds
-            floor = float(b.origin.z - b.box_extent.z)
+            b_origin, b_extent, _r = u.SystemLibrary.get_component_bounds(meshes[0])   # no .bounds in Python
+            floor = float(b_origin.z - b_extent.z)
             eyes.append(float(rig.get_actor_location().z) - floor)
-            top = max(top or 0.0, float(2.0 * b.box_extent.z))
+            top = max(top or 0.0, float(2.0 * b_extent.z))
     finally:
         rig.set_actor_transform(restore, False, False)
     return eyes, top
@@ -547,9 +550,10 @@ def _read_reference(args, show):
     require(cat is not None, "NO_CAT_ACTOR")
     mesh = cat.get_components_by_class(u.SkeletalMeshComponent)
     require(mesh, "NO_CAT_MESH")
-    b = mesh[0].bounds
-    floor = float(b.origin.z - b.box_extent.z)
-    top = float(2.0 * b.box_extent.z)
+    # SkeletalMeshComponent has no .bounds in Python (live AttributeError 7 Oct); SystemLibrary returns (origin, extent, r)
+    b_origin, b_extent, _r = u.SystemLibrary.get_component_bounds(mesh[0])
+    floor = float(b_origin.z - b_extent.z)
+    top = float(2.0 * b_extent.z)
     cat_rel = u.MathLibrary.inverse_transform_location(rig_tf, cat.get_actor_location())
     parent = spot.get_attach_parent_actor()
     eye = float(rig_tf.translation.z) - floor
@@ -625,6 +629,26 @@ def _save_narrow():
     require(_census() == {"content": [], "maps": []}, "DIRTY_AFTER_SAVE|" + json.dumps(_census()))
 
 
+def _same_wav_by_swap_record(root, analysis_sha, rail_sound_path):
+    """True only when a walking_music_swap record says the rail's asset was imported from a WAV whose sha256 equals the
+    analysis source sha256 (the analyses predate the 5 Oct Cameron swap and still carry the old asset path; measured
+    7 Oct: walking_music_swap_record_P01.json passages.1 sha256 == P01 analysis source.sha256)."""
+    if not analysis_sha or not rail_sound_path:
+        return False
+    asset = rail_sound_path.split(".")[-1].split("/")[-1]
+    folder = os.path.join(root, "Saved", "CodexConductor")
+    for name in ("walking_music_swap_record_P01.json", "walking_music_swap_record_P02-P03-P04-P05.json"):
+        path = os.path.join(folder, name)
+        if not os.path.exists(path):
+            continue
+        rec = load_json(path, root)
+        rows = ((rec.get("args") or {}).get("passages") or rec.get("passages") or {})
+        for row in (rows.values() if isinstance(rows, dict) else []):
+            if isinstance(row, dict) and row.get("asset_name") == asset and row.get("sha256") == analysis_sha:
+                return True
+    return False
+
+
 def _live_plans(args, show, tick_rate, reference):
     root = _project()
     plans = []
@@ -634,10 +658,11 @@ def _live_plans(args, show, tick_rate, reference):
         notes = load_json(src["notes"], root) if src.get("notes") else None
         want_sound = (analysis.get("source") or {}).get("unrealSoundPath")
         refusals = []
-        if want_sound and want_sound.split(".")[0] != ctx["sound_path"].split(".")[0]:
+        if (want_sound and want_sound.split(".")[0] != ctx["sound_path"].split(".")[0]
+                and not _same_wav_by_swap_record(root, (analysis.get("source") or {}).get("sha256"), ctx["sound_path"])):
             refusals.append("ANALYSIS_SOUND_MISMATCH|analysis=%s|rail=%s" % (want_sound, ctx["sound_path"]))
         offset_s = ctx["music_frames"] / tick_rate
-        draft = choose_cues(analysis, notes, offset_s, args)
+        draft = choose_cues(analysis, notes, offset_s, args, (args.get("latest_cue_end_s") or {}).get(label))
         eyes, top = _measure(ctx, tick_rate, draft)
         if max(eyes) - min(eyes) > EYE_SPREAD_TOL_CM:
             refusals.append("EYE_VARIES_ACROSS_CUES|%s" % eyes)

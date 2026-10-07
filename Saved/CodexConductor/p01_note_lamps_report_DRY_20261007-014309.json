@@ -1,0 +1,17 @@
+{
+ "args": {
+  "ack_records": [],
+  "allow_dirty": [],
+  "allow_route_channels": false,
+  "config_overrides": {},
+  "confirm": null,
+  "expected_plan_sha256": null,
+  "mode": "DRY",
+  "preview": true
+ },
+ "error": "NameError: name 'ast' is not defined",
+ "mode": "DRY",
+ "ok": false,
+ "run": "20261007-014309",
+ "saved": false
+}

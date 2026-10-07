@@ -1,0 +1,78 @@
+{
+ "results": [
+  {
+   "name": "window_detected",
+   "ok": true
+  },
+  {
+   "name": "window_negatives",
+   "ok": true
+  },
+  {
+   "name": "alpha_channel",
+   "ok": true
+  },
+  {
+   "name": "anisotropic_scale",
+   "ok": true
+  },
+  {
+   "name": "handedness",
+   "ok": true
+  },
+  {
+   "name": "aim_quat_live_row",
+   "ok": true
+  },
+  {
+   "name": "projection",
+   "ok": true
+  },
+  {
+   "name": "place_light_behind",
+   "ok": true
+  },
+  {
+   "name": "strobe_times",
+   "ok": true
+  },
+  {
+   "name": "args",
+   "ok": true
+  },
+  {
+   "name": "real_plan_shape",
+   "ok": true
+  },
+  {
+   "name": "real_plan_cross_checks",
+   "ok": true
+  },
+  {
+   "name": "editor_plan_and_scope",
+   "ok": true
+  },
+  {
+   "name": "planned_row_fields",
+   "ok": true
+  },
+  {
+   "name": "labels_and_refusals",
+   "ok": true
+  },
+  {
+   "name": "minted_and_context",
+   "ok": true
+  },
+  {
+   "name": "variant_b",
+   "ok": true
+  },
+  {
+   "name": "ast_parse",
+   "ok": true
+  }
+ ],
+ "passed": 18,
+ "failed": 0
+}

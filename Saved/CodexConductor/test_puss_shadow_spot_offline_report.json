@@ -1,0 +1,398 @@
+{
+ "inferred": "offline: eye/cat top/music offset/passage starts assumed (see each plan's 'inferred')",
+ "provenance": "eyes: CodexCameraPilot/audit_cat_offsets.json camera_offset.z (26 Sep); starts: latest PassageStills manifests segment.start/24000 (P01-P03,P05,P06 6 Oct; P04 7 Oct) - may be stale; P05 eye may become 90 cm (p05_cat_height)",
+ "plans": [
+  {
+   "passage": "Passage 1",
+   "cues": [
+    {
+     "song_change_s": 11.5171,
+     "song_moment_s": 11.604,
+     "snapped_to_note": true,
+     "passage_s": 11.104,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.7078,
+     "strength": 0.8155,
+     "section_after": "sustained",
+     "label": "PS P01_Walking1.wav change 11.52s (sustained, str 0.82) snapped 11.604s"
+    },
+    {
+     "song_change_s": 38.22,
+     "song_moment_s": 38.22,
+     "snapped_to_note": false,
+     "passage_s": 37.72,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.5587,
+     "strength": 0.7137,
+     "section_after": "building",
+     "label": "PS P01_Walking1.wav change 38.22s (building, str 0.71)"
+    }
+   ],
+   "geometry": {
+    "offset": [
+     -600.0,
+     0.0,
+     183.33
+    ],
+    "pitch_deg": -23.68,
+    "light_floor_height_cm": 333.33,
+    "shadow_from_cat_cm": 600.0,
+    "tip_ahead_of_camera_cm": 400.0,
+    "cat_top_cm": 200.0,
+    "eye_cm": 150.0,
+    "light_to_aim_cm": 829.9,
+    "source": "computed",
+    "rotation": [
+     -23.68,
+     0.0,
+     0.0
+    ]
+   },
+   "tip_ahead_sensitivity_cm": {
+    "-20": 269.5754255527294,
+    "0": 400.01500037500944,
+    "20": 576.4934262772435
+   },
+   "aim_illuminance_lux": 217.8,
+   "music_offset_s": 0.0,
+   "show_times": [
+    {
+     "attack_start_show_s": 107.464,
+     "full_show_s": 107.964,
+     "off_show_s": 111.964
+    },
+    {
+     "attack_start_show_s": 134.08,
+     "full_show_s": 134.58,
+     "off_show_s": 138.58
+    }
+   ],
+   "inferred": [
+    "music_offset_s assumed 0",
+    "eye 150 cm assumed",
+    "cat top 200 cm assumed",
+    "passage start from args offline_passage_start_s (may be stale)"
+   ]
+  },
+  {
+   "passage": "Passage 2",
+   "cues": [
+    {
+     "song_change_s": 16.8112,
+     "song_moment_s": 16.8112,
+     "snapped_to_note": false,
+     "passage_s": 16.3112,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.6254,
+     "strength": 1.0,
+     "section_after": "building",
+     "label": "PS P02_Walking2.wav change 16.81s (building, str 1.00)"
+    }
+   ],
+   "geometry": {
+    "offset": [
+     -600.0,
+     0.0,
+     153.33
+    ],
+    "pitch_deg": -23.68,
+    "light_floor_height_cm": 333.33,
+    "shadow_from_cat_cm": 600.0,
+    "tip_ahead_of_camera_cm": 400.0,
+    "cat_top_cm": 200.0,
+    "eye_cm": 180.0,
+    "light_to_aim_cm": 829.9,
+    "source": "computed",
+    "rotation": [
+     -23.68,
+     0.0,
+     0.0
+    ]
+   },
+   "tip_ahead_sensitivity_cm": {
+    "-20": 269.5754255527294,
+    "0": 400.01500037500944,
+    "20": 576.4934262772435
+   },
+   "aim_illuminance_lux": 217.8,
+   "music_offset_s": 0.0,
+   "show_times": [
+    {
+     "attack_start_show_s": 541.327,
+     "full_show_s": 541.827,
+     "off_show_s": 545.827
+    }
+   ],
+   "inferred": [
+    "music_offset_s assumed 0",
+    "eye 180 cm assumed",
+    "cat top 200 cm assumed",
+    "passage start from args offline_passage_start_s (may be stale)"
+   ]
+  },
+  {
+   "passage": "Passage 3",
+   "cues": [
+    {
+     "song_change_s": 23.1271,
+     "song_moment_s": 23.1271,
+     "snapped_to_note": false,
+     "passage_s": 22.6271,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.5047,
+     "strength": 0.7778,
+     "section_after": "quiet",
+     "label": "PS P03_Walking3.wav change 23.13s (quiet, str 0.78)"
+    }
+   ],
+   "geometry": {
+    "offset": [
+     -600.0,
+     0.0,
+     153.33
+    ],
+    "pitch_deg": -23.68,
+    "light_floor_height_cm": 333.33,
+    "shadow_from_cat_cm": 600.0,
+    "tip_ahead_of_camera_cm": 400.0,
+    "cat_top_cm": 200.0,
+    "eye_cm": 180.0,
+    "light_to_aim_cm": 829.9,
+    "source": "computed",
+    "rotation": [
+     -23.68,
+     0.0,
+     0.0
+    ]
+   },
+   "tip_ahead_sensitivity_cm": {
+    "-20": 269.5754255527294,
+    "0": 400.01500037500944,
+    "20": 576.4934262772435
+   },
+   "aim_illuminance_lux": 217.8,
+   "music_offset_s": 0.0,
+   "show_times": [
+    {
+     "attack_start_show_s": 897.683,
+     "full_show_s": 898.183,
+     "off_show_s": 902.183
+    }
+   ],
+   "inferred": [
+    "music_offset_s assumed 0",
+    "eye 180 cm assumed",
+    "cat top 200 cm assumed",
+    "passage start from args offline_passage_start_s (may be stale)"
+   ]
+  },
+  {
+   "passage": "Passage 4",
+   "cues": [
+    {
+     "song_change_s": 18.576,
+     "song_moment_s": 18.576,
+     "snapped_to_note": false,
+     "passage_s": 18.076,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.3797,
+     "strength": 0.4275,
+     "section_after": "releasing",
+     "label": "PS P04_Walking4_pad10.wav change 18.58s (releasing, str 0.43)"
+    }
+   ],
+   "geometry": {
+    "offset": [
+     -600.0,
+     0.0,
+     153.33
+    ],
+    "pitch_deg": -23.68,
+    "light_floor_height_cm": 333.33,
+    "shadow_from_cat_cm": 600.0,
+    "tip_ahead_of_camera_cm": 400.0,
+    "cat_top_cm": 200.0,
+    "eye_cm": 180.0,
+    "light_to_aim_cm": 829.9,
+    "source": "computed",
+    "rotation": [
+     -23.68,
+     0.0,
+     0.0
+    ]
+   },
+   "tip_ahead_sensitivity_cm": {
+    "-20": 269.5754255527294,
+    "0": 400.01500037500944,
+    "20": 576.4934262772435
+   },
+   "aim_illuminance_lux": 217.8,
+   "music_offset_s": 0.0,
+   "show_times": [
+    {
+     "attack_start_show_s": 1284.892,
+     "full_show_s": 1285.392,
+     "off_show_s": 1289.392
+    }
+   ],
+   "inferred": [
+    "music_offset_s assumed 0",
+    "eye 180 cm assumed",
+    "cat top 200 cm assumed",
+    "passage start from args offline_passage_start_s (may be stale)"
+   ]
+  },
+  {
+   "passage": "Passage 5",
+   "cues": [
+    {
+     "song_change_s": 26.6101,
+     "song_moment_s": 26.6101,
+     "snapped_to_note": false,
+     "passage_s": 26.1101,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.5538,
+     "strength": 0.8642,
+     "section_after": "releasing",
+     "label": "PS P05_Walking5.wav change 26.61s (releasing, str 0.86)"
+    }
+   ],
+   "geometry": {
+    "offset": [
+     -600.0,
+     0.0,
+     153.33
+    ],
+    "pitch_deg": -23.68,
+    "light_floor_height_cm": 333.33,
+    "shadow_from_cat_cm": 600.0,
+    "tip_ahead_of_camera_cm": 400.0,
+    "cat_top_cm": 200.0,
+    "eye_cm": 180.0,
+    "light_to_aim_cm": 829.9,
+    "source": "computed",
+    "rotation": [
+     -23.68,
+     0.0,
+     0.0
+    ]
+   },
+   "tip_ahead_sensitivity_cm": {
+    "-20": 269.5754255527294,
+    "0": 400.01500037500944,
+    "20": 576.4934262772435
+   },
+   "aim_illuminance_lux": 217.8,
+   "music_offset_s": 0.0,
+   "show_times": [
+    {
+     "attack_start_show_s": 1447.806,
+     "full_show_s": 1448.306,
+     "off_show_s": 1452.306
+    }
+   ],
+   "inferred": [
+    "music_offset_s assumed 0",
+    "eye 180 cm assumed",
+    "cat top 200 cm assumed",
+    "passage start from args offline_passage_start_s (may be stale)"
+   ]
+  },
+  {
+   "passage": "Passage 6",
+   "cues": [
+    {
+     "song_change_s": 36.5018,
+     "song_moment_s": 36.5018,
+     "snapped_to_note": false,
+     "passage_s": 36.0018,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.3337,
+     "strength": 0.3996,
+     "section_after": "sustained",
+     "label": "PS P06_Walking6.wav change 36.50s (sustained, str 0.40)"
+    },
+    {
+     "song_change_s": 68.9168,
+     "song_moment_s": 68.9168,
+     "snapped_to_note": false,
+     "passage_s": 68.4168,
+     "attack_s": 0.5,
+     "hold_s": 3.0,
+     "release_s": 1.0,
+     "intensity_cd": 15000.0,
+     "score": 0.8602,
+     "strength": 1.0,
+     "section_after": "releasing",
+     "label": "PS P06_Walking6.wav change 68.92s (releasing, str 1.00)"
+    }
+   ],
+   "geometry": {
+    "offset": [
+     -600.0,
+     0.0,
+     153.33
+    ],
+    "pitch_deg": -23.68,
+    "light_floor_height_cm": 333.33,
+    "shadow_from_cat_cm": 600.0,
+    "tip_ahead_of_camera_cm": 400.0,
+    "cat_top_cm": 200.0,
+    "eye_cm": 180.0,
+    "light_to_aim_cm": 829.9,
+    "source": "computed",
+    "rotation": [
+     -23.68,
+     0.0,
+     0.0
+    ]
+   },
+   "tip_ahead_sensitivity_cm": {
+    "-20": 269.5754255527294,
+    "0": 400.01500037500944,
+    "20": 576.4934262772435
+   },
+   "aim_illuminance_lux": 217.8,
+   "music_offset_s": 0.0,
+   "show_times": [
+    {
+     "attack_start_show_s": 1766.542,
+     "full_show_s": 1767.042,
+     "off_show_s": 1771.042
+    },
+    {
+     "attack_start_show_s": 1798.957,
+     "full_show_s": 1799.457,
+     "off_show_s": 1803.457
+    }
+   ],
+   "inferred": [
+    "music_offset_s assumed 0",
+    "eye 180 cm assumed",
+    "cat top 200 cm assumed",
+    "passage start from args offline_passage_start_s (may be stale)"
+   ]
+  }
+ ]
+}

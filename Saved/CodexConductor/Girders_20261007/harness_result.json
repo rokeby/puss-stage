@@ -1,0 +1,356 @@
+{
+ "status": "PASS",
+ "v3": {
+  "SM_UP_LacedColumn_v3": {
+   "bounds_cm": [
+    1880.0,
+    60.0,
+    40.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 4376,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 2824,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 314,
+    "components": 1,
+    "unattached": 0,
+    "touch_only": 0,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": 0.3,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 0,
+    "status": "PASS"
+   },
+   "problems": [],
+   "status": "PASS"
+  },
+  "SM_UP_PlateGirder_v3": {
+   "bounds_cm": [
+    100.0,
+    40.0,
+    90.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 116,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 80,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 7,
+    "components": 1,
+    "unattached": 0,
+    "touch_only": 0,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": 0.3,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 0,
+    "status": "PASS"
+   },
+   "problems": [],
+   "status": "PASS"
+  },
+  "SM_UP_KneeBracket_v3": {
+   "bounds_cm": [
+    120.0,
+    20.0,
+    120.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 360,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 184,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 19,
+    "components": 1,
+    "unattached": 0,
+    "touch_only": 0,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": 0.3,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 0,
+    "status": "PASS"
+   },
+   "problems": [],
+   "status": "PASS"
+  }
+ },
+ "negative_controls": {
+  "lifted_lacing": {
+   "bounds_cm": [
+    1880.0,
+    60.0,
+    50.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 4376,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 2824,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 314,
+    "components": 7,
+    "unattached": 0,
+    "touch_only": 0,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": 0.3,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 0,
+    "status": "FAIL"
+   },
+   "problems": [
+    "contact {'islands': 314, 'components': 7, 'unattached': 0, 'touch_only': 0, 'max_gap_cm': 0.0, 'min_embed_cm': 0.3, 'inverted_islands': 0, 'open_islands': 0, 'inconsistent_edges': 0, 'status': 'FAIL'}"
+   ],
+   "status": "FAIL"
+  },
+  "girder_long_vflip": {
+   "bounds_cm": [
+    101.0,
+    40.0,
+    90.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 116,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 0,
+   "v_up_faces": 80,
+   "u_rule_max_err": 0.005,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 7,
+    "components": 1,
+    "unattached": 0,
+    "touch_only": 0,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": 0.3,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 0,
+    "status": "PASS"
+   },
+   "problems": [
+    "bounds [101.0, 40.0, 90.0] != [100.0, 40.0, 90.0]",
+    "uv_v_sign down=0 up=80",
+    "u_rule_err 0.0050"
+   ],
+   "status": "FAIL"
+  }
+ },
+ "negatives_failed_as_expected": true,
+ "v1_measured": {
+  "SM_UP_LacedColumn": {
+   "bounds_cm": [
+    500.0,
+    60.0,
+    40.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 584,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 392,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 46,
+    "components": 26,
+    "unattached": 8,
+    "touch_only": 8,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": 17.812,
+    "inverted_islands": 20,
+    "open_islands": 0,
+    "inconsistent_edges": 270,
+    "status": "FAIL"
+   },
+   "problems": [
+    "contact {'islands': 46, 'components': 26, 'unattached': 8, 'touch_only': 8, 'max_gap_cm': 0.0, 'min_embed_cm': 17.812, 'inverted_islands': 20, 'open_islands': 0, 'inconsistent_edges': 270, 'status': 'FAIL'}"
+   ],
+   "status": "FAIL"
+  },
+  "SM_UP_PlateGirder": {
+   "bounds_cm": [
+    100.0,
+    40.0,
+    90.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 60,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 48,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 1,
+    "components": 1,
+    "unattached": 1,
+    "touch_only": 0,
+    "max_gap_cm": Infinity,
+    "min_embed_cm": null,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 0,
+    "status": "PASS"
+   },
+   "problems": [],
+   "status": "PASS"
+  },
+  "SM_UP_KneeBracket": {
+   "bounds_cm": [
+    120.0,
+    10.0,
+    120.0
+   ],
+   "centre_cm": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "tris": 20,
+   "slots": [
+    "MAT_Steel"
+   ],
+   "uv_layers": [
+    "UV0",
+    "UV1"
+   ],
+   "v_down_faces": 10,
+   "v_up_faces": 0,
+   "u_rule_max_err": 0.0,
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "contact": {
+    "islands": 2,
+    "components": 2,
+    "unattached": 2,
+    "touch_only": 2,
+    "max_gap_cm": 0.0,
+    "min_embed_cm": null,
+    "inverted_islands": 0,
+    "open_islands": 0,
+    "inconsistent_edges": 4,
+    "status": "FAIL"
+   },
+   "problems": [
+    "contact {'islands': 2, 'components': 2, 'unattached': 2, 'touch_only': 2, 'max_gap_cm': 0.0, 'min_embed_cm': None, 'inverted_islands': 0, 'open_islands': 0, 'inconsistent_edges': 4, 'status': 'FAIL'}"
+   ],
+   "status": "FAIL"
+  }
+ }
+}

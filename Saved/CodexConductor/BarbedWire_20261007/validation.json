@@ -1,0 +1,362 @@
+{
+ "status": "PASS",
+ "blender": "4.4.0",
+ "assets": [
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_open_bw.fbx",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "lod_reduces": true,
+    "lod1_inside_lod0": true,
+    "lod2_inside_lod0": true,
+    "slots": true,
+    "bounds_x": true,
+    "bottom_z": true,
+    "top_z": true,
+    "y_centre": true,
+    "chain_unchanged": true,
+    "chain_uv_physical": true,
+    "one_post": true,
+    "post_radius": true,
+    "post_on_joint": true,
+    "post_uv_v_runs_with_z": true,
+    "strand_count": true,
+    "wire_gauge": true,
+    "strand_tiles_seamlessly": true,
+    "barb_spacing": true
+   },
+   "metrics": {
+    "tris": [
+     28902,
+     2978,
+     70
+    ],
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.2953965365886688,
+      -7.747363639509786e-09
+     ],
+     [
+      1.6799999475479126,
+      0.2889038324356079,
+      3.026763439178467
+     ]
+    ],
+    "slots": [
+     "M_FenceChain_Masked",
+     "M_FenceMetal",
+     "M_BarbedWire"
+    ],
+    "post_radius_m": 0.05079996585845947,
+    "straight_strands": 4,
+    "straight_wires": 8,
+    "wire_radius_m": 0.004999991448584694,
+    "barb_spacing_m": [
+     0.11179903149604792,
+     0.11238788564999902
+    ]
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_FenceBay_short_open_bw",
+   "sha256_matches_build": true
+  },
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_door_gap_bw.fbx",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "lod_reduces": true,
+    "lod1_inside_lod0": true,
+    "lod2_inside_lod0": true,
+    "slots": true,
+    "bounds_x": true,
+    "bottom_z": true,
+    "top_z": true,
+    "y_centre": true,
+    "chain_unchanged": true,
+    "chain_uv_physical": true,
+    "one_post": true,
+    "post_radius": true,
+    "post_on_joint": true,
+    "post_uv_v_runs_with_z": true,
+    "strand_count": true,
+    "wire_gauge": true,
+    "strand_tiles_seamlessly": true,
+    "barb_spacing": true
+   },
+   "metrics": {
+    "tris": [
+     28954,
+     3006,
+     98
+    ],
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.2953965365886688,
+      -7.747363639509786e-09
+     ],
+     [
+      1.6799999475479126,
+      0.2889038324356079,
+      3.026763439178467
+     ]
+    ],
+    "slots": [
+     "M_FenceChain_Masked",
+     "M_FenceMetal",
+     "M_BarbedWire"
+    ],
+    "post_radius_m": 0.05079996585845947,
+    "straight_strands": 4,
+    "straight_wires": 8,
+    "wire_radius_m": 0.004999991448584694,
+    "barb_spacing_m": [
+     0.11179903149604792,
+     0.11238788564999902
+    ]
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_FenceBay_short_door_gap_bw",
+   "sha256_matches_build": true
+  },
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_open_bwc.fbx",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "lod_reduces": true,
+    "lod1_inside_lod0": true,
+    "lod2_inside_lod0": true,
+    "slots": true,
+    "bounds_x": true,
+    "bottom_z": true,
+    "top_z": true,
+    "y_centre": true,
+    "chain_unchanged": true,
+    "chain_uv_physical": true,
+    "one_post": true,
+    "post_radius": true,
+    "post_on_joint": true,
+    "post_uv_v_runs_with_z": true,
+    "strand_count": true,
+    "wire_gauge": true,
+    "strand_tiles_seamlessly": true,
+    "barb_spacing": true
+   },
+   "metrics": {
+    "tris": [
+     29350,
+     7062,
+     1402
+    ],
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.2953965365886688,
+      -7.747363639509786e-09
+     ],
+     [
+      1.6799999475479126,
+      0.2889038324356079,
+      3.026763439178467
+     ]
+    ],
+    "slots": [
+     "M_FenceChain_Masked",
+     "M_FenceMetal",
+     "M_BarbedWire"
+    ],
+    "post_radius_m": 0.05079996585845947,
+    "straight_strands": 2,
+    "straight_wires": 4,
+    "wire_radius_m": 0.004999991209188386,
+    "barb_spacing_m": [
+     0.11179903149604792,
+     0.11238788564999902
+    ]
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_FenceBay_short_open_bwc",
+   "sha256_matches_build": true
+  },
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FencePost_short_bw.fbx",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "lod_reduces": true,
+    "lod1_inside_lod0": true,
+    "lod2_inside_lod0": true,
+    "slots": true,
+    "pivot_base": true,
+    "pivot_axis_matches_SM_FencePost_short": true,
+    "post_radius": true
+   },
+   "metrics": {
+    "tris": [
+     84,
+     48,
+     36
+    ],
+    "bounds_lod0": [
+     [
+      -0.05079999938607216,
+      -0.3363132178783417,
+      2.3134734128404943e-09
+     ],
+     [
+      0.05079999938607216,
+      0.20631417632102966,
+      2.979926824569702
+     ]
+    ],
+    "slots": [
+     "M_FenceMetal"
+    ],
+    "post_axis": [
+     0.0,
+     -0.06499977177008986
+    ],
+    "post_radius_m": 0.05079999938607216
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_FencePost_short_bw",
+   "sha256_matches_build": true
+  },
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_BarbedWire_Strand_336.fbx",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "lod_reduces": true,
+    "lod1_inside_lod0": true,
+    "lod2_inside_lod0": true,
+    "slots": true,
+    "bounds_x": true,
+    "axis_at_origin": true
+   },
+   "metrics": {
+    "tris": [
+     7200,
+     730,
+     6
+    ],
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.03214997798204422,
+      -0.03215017914772034
+     ],
+     [
+      1.6799999475479126,
+      0.032150380313396454,
+      0.03215017914772034
+     ]
+    ],
+    "slots": [
+     "M_BarbedWire"
+    ]
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_BarbedWire_Strand_336",
+   "sha256_matches_build": true
+  },
+  {
+   "path": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_BarbedWire_Concertina_336.fbx",
+   "checks": {
+    "lod_count": true,
+    "triangulated": true,
+    "lod_reduces": true,
+    "lod1_inside_lod0": true,
+    "lod2_inside_lod0": true,
+    "slots": true,
+    "bounds_x": true,
+    "axis_at_origin": true
+   },
+   "metrics": {
+    "tris": [
+     14848,
+     5544,
+     1344
+    ],
+    "bounds_lod0": [
+     [
+      -1.6799999475479126,
+      -0.18813572824001312,
+      -0.18831725418567657
+     ],
+     [
+      1.6799999475479126,
+      0.19120240211486816,
+      0.18641622364521027
+     ]
+    ],
+    "slots": [
+     "M_BarbedWire"
+    ]
+   },
+   "status": "PASS",
+   "failed": [],
+   "asset": "SM_BarbedWire_Concertina_336",
+   "sha256_matches_build": true
+  }
+ ],
+ "negative_control": {
+  "expected_failures": [
+   "barb_spacing",
+   "lod_count",
+   "post_radius",
+   "top_z"
+  ],
+  "observed_failures": [
+   "lod_count",
+   "top_z",
+   "post_radius",
+   "barb_spacing"
+  ],
+  "ok": true
+ },
+ "current_short_open_reference": {
+  "failed": [
+   "lod_count",
+   "slots",
+   "one_post",
+   "strand_count",
+   "strand_tiles_seamlessly",
+   "barb_spacing"
+  ],
+  "metrics": {
+   "tris": [
+    3298,
+    1386
+   ],
+   "bounds_lod0": [
+    [
+     -1.6799999475479126,
+     -0.0928683876991272,
+     3.258413538986815e-09
+    ],
+    [
+     1.6799999475479126,
+     0.08637472242116928,
+     3.026763439178467
+    ]
+   ],
+   "slots": [
+    "M_FenceChain_Masked",
+    "M_FenceMetal"
+   ],
+   "straight_strands": 0,
+   "straight_wires": 0,
+   "barb_spacing_m": null
+  }
+ }
+}

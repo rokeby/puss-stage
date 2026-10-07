@@ -1,0 +1,347 @@
+{
+ "run": "P02STR-20261007-015540",
+ "status": "saved",
+ "anchor": "DOCK",
+ "floor_step": false,
+ "backup": "E:/PussStage/Backups/PreP02Straighten-P02STR-20261007-015540",
+ "before": {
+  "auto_fit": false,
+  "spline": {
+   "points": [
+    {
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "arrive": [
+      6953.233881010924,
+      2938.26708984375,
+      0.0
+     ],
+     "leave": [
+      6953.233881010924,
+      2938.26708984375,
+      0.0
+     ],
+     "type": "CURVE",
+     "rot": [
+      -0.0,
+      0.0,
+      22.907733944627438
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "loc": [
+      6953.233881010924,
+      2938.26708984375,
+      0.0
+     ],
+     "arrive": [
+      8638.178583159362,
+      512.9417419433594,
+      0.0
+     ],
+     "leave": [
+      8638.178583159362,
+      512.9417419433594,
+      0.0
+     ],
+     "type": "CURVE_CUSTOM_TANGENT",
+     "rot": [
+      -0.0,
+      0.0,
+      3.3982773656610195
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "loc": [
+      11857.834499999999,
+      0.0,
+      0.0
+     ],
+     "arrive": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "leave": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "type": "LINEAR",
+     "rot": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "closed": false,
+   "length_cm": 13582.58984375
+  },
+  "actor": {
+   "loc": [
+    0.0,
+    80000.0,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "actor_rot": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "ground_text": "(bEnabled=False,FloorHeightCm=0.000000,BoardWidthCm=24.000000,BoardGapCm=0.800000,BoardThicknessCm=5.000000,MinBoardLengthCm=240.000000,MaxBoardLengthCm=480.000000,ApronCm=400.000000,bCutChariotSlots=True,SlotWidthCm=16.000000,SlotInboardCm=150.000000,CatClearanceCm=120.000000,bSteelGrooves=True,GroovePlateCm=0.500000,bUnderstage=True,UnderstageDepthCm=250.000000,BoardMesh=\"/Engine/BasicShapes/Cube.Cube\",BoardMaterial=\"/Game/Scenes/Wings/PaintedSurface/Kit/MI_Kit_WalnutPlank.MI_Kit_WalnutPlank\",UnderstageMesh=\"/Engine/BasicShapes/Cube.Cube\",UnderstageMaterial=None,GrooveMaterial=\"/Game/Scenes/Wings/PaintedSurface/Kit/MI_Kit_SteelGroove.MI_Kit_SteelGroove\")",
+  "ground": {
+   "enabled": false,
+   "floor_height_cm": 0.0,
+   "apron_cm": 400.0,
+   "cut_chariot_slots": true
+  },
+  "slabs": {
+   "Passage 02 - Floor Near": {
+    "label": "Passage 02 - Floor Near",
+    "loc": [
+     5996.18,
+     95225.6,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     270.7546,
+     712.5424,
+     0.01
+    ],
+    "hidden": false,
+    "hidden_in_editor": false,
+    "materials": [
+     "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+    ],
+    "mesh": "/Engine/BasicShapes/Cube.Cube"
+   },
+   "Passage 02 - Floor Left": {
+    "label": "Passage 02 - Floor Left",
+    "loc": [
+     16774.87,
+     54867.19,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     441.7878,
+     276.336,
+     0.01
+    ],
+    "hidden": false,
+    "hidden_in_editor": false,
+    "materials": [
+     "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+    ],
+    "mesh": "/Engine/BasicShapes/Cube.Cube"
+   },
+   "Passage 02 - Floor Right": {
+    "label": "Passage 02 - Floor Right",
+    "loc": [
+     42141.55,
+     81530.42,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     441.7878,
+     412.7064,
+     0.01
+    ],
+    "hidden": false,
+    "hidden_in_editor": false,
+    "materials": [
+     "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+    ],
+    "mesh": "/Engine/BasicShapes/Cube.Cube"
+   },
+   "Passage 02 - Floor Far": {
+    "label": "Passage 02 - Floor Far",
+    "loc": [
+     31094.52,
+     61936.41,
+     0.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     -43.57249832153321
+    ],
+    "scale": [
+     331.7478,
+     23.5,
+     0.01
+    ],
+    "hidden": false,
+    "hidden_in_editor": false,
+    "materials": [
+     "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+    ],
+    "mesh": "/Engine/BasicShapes/Cube.Cube"
+   }
+  }
+ },
+ "plan": {
+  "actor": {
+   "loc": [
+    2151.20101839181,
+    89472.29898604915,
+    0.0
+   ],
+   "yaw": -43.57251940082824
+  },
+  "route": {
+   "start": {
+    "loc": [
+     2151.20101839181,
+     89472.29898604915,
+     0.0
+    ],
+    "yaw": -43.57251940082824
+   },
+   "end": {
+    "loc": [
+     10742.232211654604,
+     81299.0241181779,
+     0.0
+    ],
+    "yaw": -43.57251940082824
+   },
+   "length_cm": 11857.834499999999
+  },
+  "cam_end_pred": {
+   "loc": [
+    10742.232211654631,
+    81299.0241181779,
+    180.0
+   ],
+   "yaw": -43.57251940082824
+  },
+  "slabs": {},
+  "floor_material": "KEEP"
+ },
+ "followons": [
+  "MATCH_HANDOFFS",
+  "ROUTE_ACTORS"
+ ],
+ "after": {
+  "spline": {
+   "points": [
+    {
+     "loc": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "arrive": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "leave": [
+      11857.834499999999,
+      0.0,
+      0.0
+     ],
+     "type": "LINEAR",
+     "rot": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    {
+     "loc": [
+      11857.834499999999,
+      0.0,
+      0.0
+     ],
+     "arrive": [
+      11857.834499999999,
+      0.0,
+      0.0
+     ],
+     "leave": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "type": "LINEAR",
+     "rot": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   ],
+   "closed": false,
+   "length_cm": 11857.8349609375
+  },
+  "actor": {
+   "loc": [
+    2151.20101839181,
+    89472.29898604915,
+    0.0
+   ],
+   "yaw": -43.5725212097168
+  },
+  "end_view": {
+   "loc": [
+    10742.23195361564,
+    81299.02384694993,
+    180.0
+   ],
+   "yaw": -43.57252120971681
+  }
+ },
+ "saved_census": {
+  "content": [],
+  "maps": [
+   "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+  ]
+ }
+}

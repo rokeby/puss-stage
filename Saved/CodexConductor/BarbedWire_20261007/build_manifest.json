@@ -1,0 +1,138 @@
+{
+ "frame": "short family; X +-1.68 m, Z up, walkway = Blender -Y",
+ "params": {
+  "post_r": 0.0508,
+  "arm_r": 0.016,
+  "arm_spread": 0.26,
+  "arm_rise": 0.26,
+  "wire_r": 0.005,
+  "twist_p": 0.084,
+  "barb_sp": 0.112,
+  "barb_l": 0.032,
+  "barb_r": 0.0035,
+  "coil_r": 0.15,
+  "coil_loops": 28,
+  "top_offset": 0.0,
+  "lods": 3
+ },
+ "assets": [
+  {
+   "asset": "SM_FenceBay_short_open_bw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_open_bw.fbx",
+   "tris": [
+    28902,
+    2978,
+    70
+   ],
+   "sha256": "371ea2f470229bfb44b4698a460c711672396a728d9a465a2039b905671eac14",
+   "apex_z": 2.7086131095886232,
+   "dy": -1.8998980522155762e-07,
+   "bounds_lod0": [
+    [
+     -1.68,
+     -0.295397013425827,
+     0.0
+    ],
+    [
+     1.68,
+     0.2889033555984497,
+     3.026763439178467
+    ]
+   ]
+  },
+  {
+   "asset": "SM_FenceBay_short_door_gap_bw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_door_gap_bw.fbx",
+   "tris": [
+    28954,
+    3006,
+    98
+   ],
+   "sha256": "720c83dc7f699b5aff4967c62d48e9861cabb6edc46e2a6aa4735b945e0ea258",
+   "apex_z": 2.7086131095886232,
+   "dy": -1.8998980522155762e-07,
+   "bounds_lod0": [
+    [
+     -1.68,
+     -0.295397013425827,
+     0.0
+    ],
+    [
+     1.68,
+     0.2889033555984497,
+     3.026763439178467
+    ]
+   ]
+  },
+  {
+   "asset": "SM_FenceBay_short_open_bwc",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FenceBay_short_open_bwc.fbx",
+   "tris": [
+    29350,
+    7062,
+    1402
+   ],
+   "sha256": "56a29ffe60302ec044c1895d6fe7fb1ee59966e0067299acd0d715cabac6bb1b",
+   "apex_z": 2.7086131095886232,
+   "dy": -1.8998980522155762e-07,
+   "bounds_lod0": [
+    [
+     -1.68,
+     -0.295397013425827,
+     0.0
+    ],
+    [
+     1.68,
+     0.2889033555984497,
+     3.026763439178467
+    ]
+   ]
+  },
+  {
+   "asset": "SM_FencePost_short_bw",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_FencePost_short_bw.fbx",
+   "tris": [
+    84,
+    48,
+    36
+   ],
+   "sha256": "b1717e5d1cc75a97a7e201a6c959e314545d69fd6a70e05e2258a8909a0fd768",
+   "apex_z": 2.7086131095886232
+  },
+  {
+   "asset": "SM_BarbedWire_Strand_336",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_BarbedWire_Strand_336.fbx",
+   "tris": [
+    7200,
+    730,
+    6
+   ],
+   "sha256": "d8cf651423b80dcb58c4c5ba94c961d53ec0d0ca62874a1f07d7732d994f880b"
+  },
+  {
+   "asset": "SM_BarbedWire_Concertina_336",
+   "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx\\SM_BarbedWire_Concertina_336.fbx",
+   "tris": [
+    14848,
+    5544,
+    1344
+   ],
+   "sha256": "4ad4da2262dfd9c405fc7d77e8dedaf72d79a0bd4612c429c2d4cfc0b565625e"
+  }
+ ],
+ "negative_control": {
+  "asset": "SM_FenceBay_short_open_bw",
+  "fbx": "E:\\PussStage\\Saved\\CodexConductor\\BarbedWire_20261007\\fbx_negctl\\SM_FenceBay_short_open_bw.fbx",
+  "tris": [
+   26342,
+   2210
+  ],
+  "sha256": "b06a80f5b06eb11aeaabb904b21b87a46e23b0212de24e0e3fb63afb1a2eed90",
+  "mutations": {
+   "barb_sp": 0.15,
+   "top_offset": 0.04,
+   "post_r": 0.03,
+   "lods": 2
+  }
+ }
+}

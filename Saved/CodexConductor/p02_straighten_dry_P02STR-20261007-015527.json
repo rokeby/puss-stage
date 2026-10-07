@@ -1,0 +1,513 @@
+{
+ "required_cm": 11857.834499999999,
+ "length_short": false,
+ "frames": [
+  12649345,
+  16969345
+ ],
+ "end_frame_used": 16969345,
+ "auto_fit": false,
+ "spline": {
+  "points": [
+   {
+    "loc": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "arrive": [
+     6953.233881010924,
+     2938.26708984375,
+     0.0
+    ],
+    "leave": [
+     6953.233881010924,
+     2938.26708984375,
+     0.0
+    ],
+    "type": "CURVE",
+    "rot": [
+     -0.0,
+     0.0,
+     22.907733944627438
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   {
+    "loc": [
+     6953.233881010924,
+     2938.26708984375,
+     0.0
+    ],
+    "arrive": [
+     8638.178583159362,
+     512.9417419433594,
+     0.0
+    ],
+    "leave": [
+     8638.178583159362,
+     512.9417419433594,
+     0.0
+    ],
+    "type": "CURVE_CUSTOM_TANGENT",
+    "rot": [
+     -0.0,
+     0.0,
+     3.3982773656610195
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   {
+    "loc": [
+     11857.834499999999,
+     0.0,
+     0.0
+    ],
+    "arrive": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "leave": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "type": "LINEAR",
+    "rot": [
+     -0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  ],
+  "closed": false,
+  "length_cm": 13582.58984375
+ },
+ "actor": {
+  "loc": [
+   0.0,
+   80000.0,
+   0.0
+  ],
+  "yaw": 0.0
+ },
+ "route_rel": {
+  "loc": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "yaw": 0.0
+ },
+ "cam_end": {
+  "loc": [
+   10742.232211654631,
+   81299.0241181779,
+   180.0
+  ],
+  "yaw": -43.5725194008282
+ },
+ "cam_start": {
+  "loc": [
+   0.0,
+   80000.0,
+   180.0
+  ],
+  "yaw": 22.90773394462745
+ },
+ "s2_entry": {
+  "loc": [
+   10742.232211654631,
+   81299.0241181779,
+   180.0
+  ],
+  "yaw": -43.57251940082824
+ },
+ "s1_exit": {
+  "loc": [
+   28784.0135,
+   0.0,
+   150.0
+  ],
+  "yaw": 0.0
+ },
+ "dock": {
+  "loc": [
+   10742.232211654631,
+   81299.0241181779,
+   180.0
+  ],
+  "yaw": -43.57251940082824
+ },
+ "cam_end_vs_s2_entry": {
+  "xy_cm": 0.0,
+  "z_cm": 0.0,
+  "yaw_deg": 5.684341886080802e-14
+ },
+ "cam_end_vs_dock": {
+  "xy_cm": 0.0,
+  "z_cm": 0.0,
+  "yaw_deg": 5.684341886080802e-14
+ },
+ "rel_end": {
+  "loc": [
+   2.1827872842550278e-11,
+   1.4551915228366852e-11,
+   180.0
+  ],
+  "yaw": 0.0
+ },
+ "rel_start": {
+  "loc": [
+   0.0,
+   0.0,
+   180.0
+  ],
+  "yaw": 0.0
+ },
+ "preds": {
+  "START": {
+   "actor": {
+    "loc": [
+     0.0,
+     80000.0,
+     0.0
+    ],
+    "yaw": 0.0
+   },
+   "route": {
+    "start": {
+     "loc": [
+      0.0,
+      80000.0,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "end": {
+     "loc": [
+      11857.834499999999,
+      80000.0,
+      0.0
+     ],
+     "yaw": 0.0
+    },
+    "length_cm": 11857.834499999999
+   },
+   "cam_end": {
+    "loc": [
+     11857.83450000002,
+     80000.00000000001,
+     180.0
+    ],
+    "yaw": 0.0
+   },
+   "cam_start": {
+    "loc": [
+     0.0,
+     80000.0,
+     180.0
+    ],
+    "yaw": 0.0
+   }
+  },
+  "DOCK": {
+   "actor": {
+    "loc": [
+     2151.20101839181,
+     89472.29898604915,
+     0.0
+    ],
+    "yaw": -43.57251940082824
+   },
+   "route": {
+    "start": {
+     "loc": [
+      2151.20101839181,
+      89472.29898604915,
+      0.0
+     ],
+     "yaw": -43.57251940082824
+    },
+    "end": {
+     "loc": [
+      10742.232211654604,
+      81299.0241181779,
+      0.0
+     ],
+     "yaw": -43.57251940082824
+    },
+    "length_cm": 11857.834499999999
+   },
+   "cam_end": {
+    "loc": [
+     10742.232211654631,
+     81299.0241181779,
+     180.0
+    ],
+    "yaw": -43.57251940082824
+   },
+   "cam_start": {
+    "loc": [
+     2151.20101839181,
+     89472.29898604915,
+     180.0
+    ],
+    "yaw": -43.57251940082824
+   }
+  }
+ },
+ "dock_delta": {
+  "START": {
+   "xy_cm": 1712.3177641341279,
+   "z_cm": 0.0,
+   "yaw_deg": 43.57251940082824
+  },
+  "DOCK": {
+   "xy_cm": 0.0,
+   "z_cm": 0.0,
+   "yaw_deg": 0.0
+  }
+ },
+ "start_delta": {
+  "START": {
+   "xy_cm": 0.0,
+   "z_cm": 0.0,
+   "yaw_deg": -22.907733944627438
+  },
+  "DOCK": {
+   "xy_cm": 9713.50162931153,
+   "z_cm": 0.0,
+   "yaw_deg": -66.4802533454557
+  }
+ },
+ "end_route_delta": {
+  "START": {
+   "xy_cm": 0.0,
+   "z_cm": 0.0,
+   "yaw_deg": 0.0
+  },
+  "DOCK": {
+   "xy_cm": 1712.3177641341424,
+   "z_cm": 0.0,
+   "yaw_deg": -43.57251940082824
+  }
+ },
+ "half_wing_cm": 2030.6973207845401,
+ "hole": {
+  "x0": 500.0155824929643,
+  "x1": 11504.004045545567,
+  "half_y": 1174.9934953360812
+ },
+ "floor": {
+  "START": {
+   "coverage": {
+    "samples": 1144,
+    "covered": 1078,
+    "in_pit": 66,
+    "gaps": [],
+    "pit_max_d_cm": 12257.8,
+    "pit_min_d_cm": 10520.5
+   },
+   "moves": {},
+   "refusal": null
+  },
+  "DOCK": {
+   "coverage": {
+    "samples": 1144,
+    "covered": 1144,
+    "in_pit": 0,
+    "gaps": [],
+    "pit_max_d_cm": null,
+    "pit_min_d_cm": null
+   },
+   "moves": {},
+   "refusal": null
+  }
+ },
+ "mouth_actors": [
+  "I1 Sleight Mouth Camera",
+  "Interaction 1 \u2014 Stalls Camera",
+  "P02 Car Light (trial, Gary to tune)",
+  "S02 Mouth Lantern",
+  "S2 Pit Liner Near Wall",
+  "Scene 2 \u2014 External Sound \u2014 Entry Handoff Camera",
+  "Scene 2 \u2014 External Sound \u2014 Exit Handoff Camera"
+ ],
+ "ground": {
+  "enabled": false,
+  "floor_height_cm": 0.0,
+  "apron_cm": 400.0,
+  "cut_chariot_slots": true
+ },
+ "slabs": {
+  "Passage 02 - Floor Near": {
+   "label": "Passage 02 - Floor Near",
+   "loc": [
+    5996.18,
+    95225.6,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    -43.57249832153321
+   ],
+   "scale": [
+    270.7546,
+    712.5424,
+    0.01
+   ],
+   "hidden": false,
+   "hidden_in_editor": false,
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  },
+  "Passage 02 - Floor Left": {
+   "label": "Passage 02 - Floor Left",
+   "loc": [
+    16774.87,
+    54867.19,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    -43.57249832153321
+   ],
+   "scale": [
+    441.7878,
+    276.336,
+    0.01
+   ],
+   "hidden": false,
+   "hidden_in_editor": false,
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  },
+  "Passage 02 - Floor Right": {
+   "label": "Passage 02 - Floor Right",
+   "loc": [
+    42141.55,
+    81530.42,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    -43.57249832153321
+   ],
+   "scale": [
+    441.7878,
+    412.7064,
+    0.01
+   ],
+   "hidden": false,
+   "hidden_in_editor": false,
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  },
+  "Passage 02 - Floor Far": {
+   "label": "Passage 02 - Floor Far",
+   "loc": [
+    31094.52,
+    61936.41,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    -43.57249832153321
+   ],
+   "scale": [
+    331.7478,
+    23.5,
+    0.01
+   ],
+   "hidden": false,
+   "hidden_in_editor": false,
+   "materials": [
+    "/Game/EnvironmentPacks/4K_WoodFlooring_Vol_02/Materials/M_Walnut_Hrrngbn_02_Mat_Inst_Dup.M_Walnut_Hrrngbn_02_Mat_Inst_Dup"
+   ],
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  },
+  "Passage 01 - Opening Floor": {
+   "label": "Passage 01 - Opening Floor",
+   "loc": [
+    11233.41528881836,
+    0.0,
+    0.0
+   ],
+   "rot": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": [
+    351.8771389972259,
+    200.0,
+    0.01
+   ],
+   "hidden": false,
+   "hidden_in_editor": false,
+   "materials": [
+    "/Game/InfinityStage/RigAtmos/MI_Floor_DarkWet.MI_Floor_DarkWet"
+   ],
+   "mesh": "/Engine/BasicShapes/Cube.Cube"
+  }
+ },
+ "already_straight": false,
+ "record_exists": false,
+ "already_reverted": false,
+ "census": {
+  "content": [],
+  "maps": []
+ },
+ "followons": {
+  "START": [
+   [
+    "S2_REDOCK",
+    "re-dock the S2 hangar at the new Entry camera: E:/PussStage/Saved/CodexStructure/s2_hangar_redock_after_p02.py"
+   ],
+   [
+    "MATCH_HANDOFFS",
+    "MatchNamedSceneHandoffs(show, [Scene 1, Scene 2], 2) (InfinityStageCameraPilotLibrary.h:115); writes the level and those Scenes' sequences, so it is its own run"
+   ],
+   [
+    "ROUTE_ACTORS",
+    "re-place the hand-placed actors along P02's old route (listed in the DRY: mouth lantern, stalls camera, car light...); they were composed against the curve and do not follow it"
+   ]
+  ],
+  "DOCK": [
+   [
+    "MATCH_HANDOFFS",
+    "MatchNamedSceneHandoffs(show, [Scene 1, Scene 2], 2) (InfinityStageCameraPilotLibrary.h:115); writes the level and those Scenes' sequences, so it is its own run"
+   ],
+   [
+    "ROUTE_ACTORS",
+    "re-place the hand-placed actors along P02's old route (listed in the DRY: mouth lantern, stalls camera, car light...); they were composed against the curve and do not follow it"
+   ]
+  ]
+ },
+ "redock_registered": false
+}

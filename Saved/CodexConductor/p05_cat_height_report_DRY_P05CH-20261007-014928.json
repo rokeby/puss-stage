@@ -1,0 +1,180 @@
+{
+ "apply_ready": true,
+ "args": {
+  "allow_dirty": [],
+  "blend_s": 1.5,
+  "cat_mode": "none",
+  "confirm": null,
+  "expected_base_eye_cm": 180.0,
+  "mode": "DRY",
+  "passage_label": "Passage 5",
+  "pitch_up_deg": 0.0,
+  "target_eye_cm": 90.0
+ },
+ "before_channels": {
+  "Camera.HeightOffsetCm": {
+   "default": 0.0,
+   "keys": []
+  },
+  "Camera.LookAheadDistanceCm": {
+   "default": 0.0,
+   "keys": []
+  },
+  "Camera.PitchDegrees": {
+   "default": 0.0,
+   "keys": []
+  }
+ },
+ "cat": {
+  "float_cm_at_samples": {
+   "34169665": 0.0,
+   "34178665": -14.0625,
+   "34187665": -45.0,
+   "34205665": -90.0,
+   "36406028": -90.0,
+   "38606392": -90.0,
+   "38624392": -45.0,
+   "38633392": -14.0625,
+   "38642392": 0.0
+  },
+  "new_offset_z": -175.883635,
+  "old_offset_z": -175.883635,
+  "pitch_shift_cm": 0.0
+ },
+ "go1": "receiver adds look rotation only (Go1RemoteReceiverComponent.cpp:155-164); no location read",
+ "handoff_stale_before": [],
+ "master_tick": "<Struct 'FrameRate' (0x000002B9CE5193C8) {numerator: 24000, denominator: 1}>",
+ "ok": true,
+ "plan": {
+  "base_eye_cm": 180.0,
+  "blend_ticks": 36000,
+  "delta_cm": -90.0,
+  "height_keys": [
+   [
+    34169665,
+    0.0
+   ],
+   [
+    34205665,
+    -90.0
+   ],
+   [
+    38606392,
+    -90.0
+   ],
+   [
+    38642392,
+    0.0
+   ]
+  ],
+  "pitch_keys": [],
+  "pitch_up_deg": 0.0,
+  "scale": 0.5,
+  "seg_end": 38642392,
+  "seg_start": 34169665,
+  "target_eye_cm": 90.0,
+  "tick_rate": 24000.0
+ },
+ "poses_before": {
+  "34169665": [
+   0.0,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "34178665": [
+   94.00220355220459,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "34187665": [
+   188.00440710440918,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "34205665": [
+   376.00881420881836,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "36406028": [
+   23358.11439989008,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "38606392": [
+   46340.22948823497,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "38624392": [
+   46524.799506870884,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "38633392": [
+   46580.15135092624,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ],
+  "38642392": [
+   46590.90125,
+   320000.0,
+   180.0,
+   0.0,
+   0.0,
+   -0.0
+  ]
+ },
+ "refusals": [],
+ "rig": {
+  "camera_bob": true,
+  "camera_offset": [
+   0.0,
+   0.0,
+   180.0
+  ],
+  "cat_position_offset": [
+   0.0,
+   0.0,
+   -175.883635
+  ],
+  "cat_scale": 7.0,
+  "crossing_settle_s": 1.0,
+  "follow_light": false,
+  "label": "Passage 05 \u2014 Camera + Shadow Figures",
+  "shadow_figure_offset": [
+   -200.0,
+   0.0,
+   0.0
+  ]
+ },
+ "run": "P05CH-20261007-014928",
+ "segment": [
+  34169665,
+  38642392
+ ]
+}

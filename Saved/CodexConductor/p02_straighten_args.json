@@ -1,8 +1,13 @@
 {
-  "mode": "DRY",
+  "mode": "APPLY",
   "floor_step": false,
   "floor_material": "KEEP",
   "floor_margin_cm": 500,
   "anchor": "DOCK",
-  "decided_by": "Gary 5 Oct ~16:05 questionnaire: 'Keep the Scene 2 hangar end' (anchor DOCK) and 'Remove them too' (boards + stage front/forestage off); 'straighten that passage'; waxed floor = walnut herringbone (P02 note 5 Oct)"
+  "decided_by": "Gary 5 Oct ~16:05 questionnaire: 'Keep the Scene 2 hangar end' (anchor DOCK) and 'Remove them too' (boards + stage front/forestage off); 'straighten that passage'; waxed floor = walnut herringbone (P02 note 5 Oct)",
+  "confirm": "APPLY P02STRAIGHT",
+  "followons_ack": [
+    "MATCH_HANDOFFS",
+    "ROUTE_ACTORS"
+  ]
 }

@@ -1,0 +1,10 @@
+{
+ "run": "P04STROBESHADOW-20261007-014248",
+ "strobes": [
+  {
+   "label": "P04 Strobe (default, Gary to place)",
+   "path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.InfinityStageStrobeLight_0",
+   "cast_shadows": false
+  }
+ ]
+}

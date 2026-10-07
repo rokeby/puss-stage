@@ -828,6 +828,104 @@ def export_hash(texts, target_guids):
     return _sha256_text("\n".join(normalize_export(texts, target_guids)))
 
 
+# Self-diagnosing export comparison (7 Oct: live APPLY 20261007-014342 stopped on a bare
+# EXPORT_OUTSIDE_SCOPE_CHANGED that named nothing). Pure; the texts are the rig._export_texts list.
+_QUOTED = re.compile(r'"((?:[^"\\]|\\.)*)"')
+
+
+def _close_paren_quoted(text, open_at):
+    """Index of the ')' matching text[open_at] == '(', skipping quoted strings (labels may hold parens)."""
+    depth, i, n = 0, open_at, len(text)
+    while i < n:
+        c = text[i]
+        if c == '"':
+            i += 1
+            while i < n and text[i] != '"':
+                i += 2 if text[i] == "\\" else 1
+        elif c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return n - 1
+
+
+def _first_label(segment):
+    at = segment.find("Label=")
+    if at < 0:
+        return None
+    m = None
+    for m in _QUOTED.finditer(segment, at, min(len(segment), at + 400)):
+        if segment[m.end():m.end() + 1] == ")":
+            break
+    return m.group(1) if m else None
+
+
+def _export_segments(text):
+    """[(key, segment)]: '<owner>' (the cue/passage text outside attachments) and one per AttachmentGuid.
+    An attachment segment ends at its own closing paren when AttachmentGuid opens the struct
+    (FInfinityCueAttachment, InfinityStageTypes.h:434), so trailing cue fields stay with the owner."""
+    pieces, owner, cursor = [], [], 0
+    for m in _OWN_GUID.finditer(text):
+        if m.start() < cursor:
+            continue
+        if text[m.start()] == "(":
+            end = _close_paren_quoted(text, m.start()) + 1
+        else:
+            nxt = _OWN_GUID.search(text, m.end())
+            end = nxt.start() if nxt else len(text)
+        owner.append(text[cursor:m.start()])
+        pieces.append((m.group(1).upper(), text[m.start():end]))
+        cursor = end
+    owner.append(text[cursor:])
+    return [("<owner>", "\x1f".join(owner))] + pieces
+
+
+def export_changes(before_texts, after_texts, target_guids, context=60):
+    """Every attachment/owner whose export differs once the targets' writable drama keys are masked.
+    [] iff export_hash(before) == export_hash(after)."""
+    wanted = {g.upper() for g in target_guids}
+    nb, na = normalize_export(before_texts, target_guids), normalize_export(after_texts, target_guids)
+    if len(nb) != len(na):
+        return [{"text_index": "*", "problem": "TEXT_COUNT_CHANGED", "before": len(nb), "after": len(na)}]
+    changes = []
+    for index, (b, a) in enumerate(zip(nb, na)):
+        if b == a:
+            continue
+        sb, sa = _export_segments(b), _export_segments(a)
+        owner = _first_label(sb[0][1]) or _first_label(sa[0][1])
+        db, da = dict(sb), dict(sa)
+        if [k for k, _ in sb] != [k for k, _ in sa]:
+            changes.append({"text_index": index, "owner": owner, "problem": "ATTACHMENT_SET_OR_ORDER_CHANGED",
+                            "only_before": sorted(set(db) - set(da)), "only_after": sorted(set(da) - set(db))})
+        for key, seg_b in sb:
+            seg_a = da.get(key)
+            if seg_a is None or seg_a == seg_b:
+                continue
+            at = next((i for i, (x, y) in enumerate(zip(seg_b, seg_a)) if x != y), min(len(seg_b), len(seg_a)))
+            lo = max(0, at - context)
+            changes.append({"text_index": index, "owner": owner, "guid": key,
+                            "label": owner if key == "<owner>" else _first_label(seg_b),
+                            "is_target": key in wanted, "offset": at,
+                            "before": seg_b[lo:at + context], "after": seg_a[lo:at + context]})
+    if not changes:   # differs only in the joins; never report a mismatch as clean
+        changes.append({"text_index": "*", "problem": "UNATTRIBUTED_DIFFERENCE"})
+    return changes
+
+
+def check_export_unchanged(before_texts, after_texts, target_guids, token, log=None, limit=20):
+    """Raise <token>|count=..|<first changes> when the masked exports differ; log one line per change."""
+    if export_hash(after_texts, target_guids) == export_hash(before_texts, target_guids):
+        return []
+    changes = export_changes(before_texts, after_texts, target_guids)
+    if log is not None:
+        for c in changes[:limit]:
+            log("%s_EXPORT_DIFF|%s|%s" % (MARK, token, _canonical(c)))
+    raise P01NoteLampsError("%s|count=%d|%s" % (token, len(changes), _canonical(changes[:3])[:2500]))
+
+
 # --------------------------------------------------------------------------
 # Args.
 # --------------------------------------------------------------------------
@@ -901,6 +999,7 @@ def _load_rig_module():
     probe = types.ModuleType("_p01_rig_guard_probe")
     guard_src = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in ("_dotted", "_is_main_guard")]
     require(len(guard_src) == 2, "RIG_TOOL_GUARD_FUNCS_MISSING")
+    probe.__dict__["ast"] = ast   # the copied helpers use ast (NameError live, 7 Oct DRY)
     exec(compile(ast.Module(body=guard_src, type_ignores=[]), RIG_TOOL_PATH, "exec"), probe.__dict__)  # noqa: S102
     require(tree.body and probe._is_main_guard(tree.body[-1])
             and sum(1 for n in tree.body if probe._is_main_guard(n)) == 1, "RIG_TOOL_GUARD_SHAPE")
@@ -1088,6 +1187,13 @@ def _run(args):
             unacked = sorted({h["path"] for h in foreign} - set(args["ack_records"]))
             report.update({"plan": plan, "plan_sha256": plan["plan_sha256"], "foreign_records": foreign,
                            "unacknowledged_foreign_records": unacked})
+            # Two exports, no write between: the DRY now exercises the export path the APPLY relies on
+            # (before 7 Oct it never exported, so EXPORT_* failures could only surface mid-APPLY).
+            export_a = _export_texts(rig, show)
+            check_export_unchanged(export_a, _export_texts(rig, show), plan["target_attachment_guids"],
+                                   "EXPORT_NONDETERMINISTIC", _log)
+            report["export_selfcheck"] = {"texts": len(export_a), "deterministic": True,
+                                          "hash": export_hash(export_a, plan["target_attachment_guids"])}
             if mode == "DRY":
                 census_after = tool._dirty_census()
                 require(census_after == census_before, "DRY_CENSUS_CHANGED")
@@ -1102,7 +1208,8 @@ def _run(args):
                     % (args["expected_plan_sha256"], plan["plan_sha256"]))
             require(not os.path.exists(RECORD_PATH), "ACTIVE_RECORD_EXISTS|" + RECORD_PATH)
             require(not unacked, "FOREIGN_ACTIVE_RECORDS_OVERLAP|" + ";".join(unacked))
-            texts_hash = export_hash(_export_texts(rig, show), plan["target_attachment_guids"])
+            export_before = export_a
+            texts_hash = export_hash(export_before, plan["target_attachment_guids"])
             backup = tool._backup("PreP01NoteLamps-", run)
             record = {"schema_version": 1, "status": "prepared", "run": run, "passage": PASSAGE_KEY,
                       "backup": backup, "args": args, "plan": plan, "export_hash_before": texts_hash,
@@ -1112,8 +1219,8 @@ def _run(args):
             try:
                 _write_drama(tool, show, plan, "after", check_side="before")
                 check_scope(before_all, _all_rows(_runtime_plain(tool, show, True)), plan, "after")
-                require(export_hash(_export_texts(rig, show), plan["target_attachment_guids"]) == texts_hash,
-                        "EXPORT_OUTSIDE_SCOPE_CHANGED")
+                check_export_unchanged(export_before, _export_texts(rig, show), plan["target_attachment_guids"],
+                                       "EXPORT_OUTSIDE_SCOPE_CHANGED", _log)
             except Exception:
                 _write_drama(tool, show, plan, "before")
                 check_scope(before_all, _all_rows(_runtime_plain(tool, show, True)), plan, "before")
@@ -1128,8 +1235,8 @@ def _run(args):
             report["saved"] = True
             readback = unreal.EditorAssetLibrary.load_asset(tool.SHOW_PATH)
             check_scope(before_all, _all_rows(_runtime_plain(tool, readback, True)), plan, "after")
-            require(export_hash(_export_texts(rig, readback), plan["target_attachment_guids"]) == texts_hash,
-                    "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED")
+            check_export_unchanged(export_before, _export_texts(rig, readback), plan["target_attachment_guids"],
+                                   "READBACK_EXPORT_OUTSIDE_SCOPE_CHANGED", _log)
             record.update({"status": "saved_readback_verified", "materialized": materialized,
                            "saved_census": tool._dirty_census()})
             tool._write_json(RECORD_PATH, record)
@@ -1147,13 +1254,15 @@ def _run(args):
         drifts = revert_drifts(before_all, record)
         report["revert_drifts"] = drifts
         require(not drifts, "REVERT_DRIFT|count=%d|%s" % (len(drifts), _canonical(drifts)[:4000]))
-        texts_hash = export_hash(_export_texts(rig, show), plan["target_attachment_guids"])
+        export_before = _export_texts(rig, show)
+        check_export_unchanged(export_before, _export_texts(rig, show), plan["target_attachment_guids"],
+                               "EXPORT_NONDETERMINISTIC", _log)
         backup = tool._backup("PreP01NoteLampsRevert-", run)
         try:
             _write_drama(tool, show, plan, "before", check_side="after")
             check_scope(before_all, _all_rows(_runtime_plain(tool, show, True)), _swap_sides(plan), "after")
-            require(export_hash(_export_texts(rig, show), plan["target_attachment_guids"]) == texts_hash,
-                    "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED")
+            check_export_unchanged(export_before, _export_texts(rig, show), plan["target_attachment_guids"],
+                                   "REVERT_EXPORT_OUTSIDE_SCOPE_CHANGED", _log)
         except Exception:
             _write_drama(tool, show, plan, "after")
             raise

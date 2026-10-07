@@ -88,6 +88,16 @@ def wrap(deg):
     return (deg + 180.0) % 360.0 - 180.0
 
 
+def _persistent_actors():
+    """Only actors in the open persistent level. Klara's streamed levels (Japanese_Alley, L_Animals, L_KK_children)
+    sit on/near the route and must never travel with P02 (measured 7 Oct: 198 'unclassified' route actors, all in
+    /Game/Japanese_Alley/Maps/Japanese_Alley; probe_p02_unclassified_levels.py)."""
+    world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
+    persistent = world.get_outermost().get_name()
+    return [a for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+            if a.get_outermost().get_name() == persistent]
+
+
 def xf(loc, yaw):
     return {"loc": [float(loc[0]), float(loc[1]), float(loc[2])], "yaw": float(yaw)}
 
@@ -469,7 +479,7 @@ def read_world(args):
     if not world.get_path_name().startswith(WORLD + "."):
         stop("WRONG_WORLD|" + world.get_path_name())
     show = unreal.EditorAssetLibrary.load_asset(SHOW)
-    acts = unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()
+    acts = _persistent_actors()
     passages = [a for a in acts if a.get_class().get_name() == "InfinityStagePassageActor"
                 and str(a.get_actor_label()).startswith(PASSAGE_PREFIX) and a.get_editor_property("show_asset") == show]
     structs = [a for a in acts if a.get_class().get_name() == "InfinityStageStructureActor"
