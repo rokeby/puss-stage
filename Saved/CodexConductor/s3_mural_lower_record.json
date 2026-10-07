@@ -1,0 +1,325 @@
+{
+ "run": "S3MURAL-20261007-162359",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "applied": true,
+ "saved": true,
+ "args": {
+  "mode": "APPLY",
+  "confirm": "APPLY S3MURAL",
+  "drop_cm": 150,
+  "top_gap_policy": "accept",
+  "expect_bottom_local_z": 115.0,
+  "decided_by": "Gary 7 Oct (own words, conductor session): lower the S3 mural ~1.5 m cropping the lower part; 35 cm top band: 'accept the band, we never really look up'"
+ },
+ "plan": {
+  "drop_cm": 150.0,
+  "root_world": {
+   "location": [
+    11421.97275,
+    160000.0,
+    -120.0
+   ],
+   "rotation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  "before": {
+   "world": {
+    "location": [
+     17418.973,
+     160000.0,
+     -5.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "relative": {
+    "location": [
+     -55.99949999999808,
+     0.0,
+     -68.72427983539094
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     2.0,
+     0.047619047619047616,
+     0.0411522633744856
+    ]
+   },
+   "aabb_world": {
+    "min": [
+     17418.97283707932,
+     159000.0,
+     -5.0
+    ],
+    "max": [
+     17418.973162920684,
+     161000.0,
+     2995.0
+    ]
+   },
+   "aabb_local": {
+    "min": [
+     5997.000087079319,
+     -1000.0,
+     115.0
+    ],
+    "max": [
+     5997.000412920683,
+     1000.0,
+     3115.0
+    ]
+   }
+  },
+  "target": {
+   "world_location": [
+    17418.973,
+    160000.0,
+    -155.0
+   ],
+   "relative_location": [
+    -55.99949999999808,
+    0.0,
+    -74.89711934156378
+   ],
+   "aabb_world": {
+    "min": [
+     17418.97283707932,
+     159000.0,
+     -155.0
+    ],
+    "max": [
+     17418.973162920684,
+     161000.0,
+     2845.0
+    ]
+   },
+   "aabb_local": {
+    "min": [
+     5997.000087079319,
+     -1000.0,
+     -35.0
+    ],
+    "max": [
+     5997.000412920683,
+     1000.0,
+     2965.0
+    ]
+   },
+   "local_location": [
+    5997.000250000001,
+    0.0,
+    -35.0
+   ]
+  },
+  "parent_world": {
+   "location": [
+    17446.97275,
+    160000.0,
+    1665.0
+   ],
+   "rotation": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "scale": [
+    0.5,
+    21.0,
+    24.3
+   ]
+  },
+  "guard_local": {
+   "min": [
+    5990.0,
+    -1001.0,
+    -60.0
+   ],
+   "max": [
+    6000.0,
+    1001.0,
+    3120.0
+   ]
+  },
+  "bottom": {
+   "cropped_band_local_z": [
+    -35.0,
+    115.0
+   ],
+   "floor_covers": [
+    {
+     "label": "S3 Hangar Deck",
+     "top_local_z": 115.0,
+     "x_local": [
+      0.0,
+      6000.0
+     ]
+    }
+   ],
+   "below_hangar_base_cm": 35.0
+  },
+  "top": {
+   "top_local_z_before": 3115.0,
+   "top_local_z_after": 2965.0,
+   "cover_local_z": 3000.000000000001,
+   "cover_by": "S3 Hangar Roof underside",
+   "gap_cm": 35.0,
+   "bare_band_local_z": [
+    2965.0,
+    3000.000000000001
+   ],
+   "max_flush_drop_cm": 115.0,
+   "overhead_listed_only": [
+    {
+     "label": "S3 Hangar Pinned Exposure",
+     "hidden": false,
+     "aabb_local": {
+      "min": [
+       -600.0,
+       -1100.0,
+       20.0
+      ],
+      "max": [
+       6100.0,
+       1100.0,
+       3220.0
+      ]
+     }
+    },
+    {
+     "label": "S3 Hangar Roof Hinge",
+     "hidden": false,
+     "aabb_local": {
+      "min": [
+       6025.0,
+       0.0,
+       3000.000000000001
+      ],
+      "max": [
+       6025.0,
+       0.0,
+       3000.000000000001
+      ]
+     }
+    },
+    {
+     "label": "S3 Hangar Roof",
+     "hidden": false,
+     "aabb_local": {
+      "min": [
+       0.0,
+       -1050.0,
+       3000.000000000001
+      ],
+      "max": [
+       6050.0,
+       1050.0,
+       3050.000000000001
+      ]
+     }
+    },
+    {
+     "label": "S3 Marble Inner Wall Left Upper 4",
+     "hidden": false,
+     "aabb_local": {
+      "min": [
+       0.0,
+       -1000.0,
+       2430.0
+      ],
+      "max": [
+       6000.0,
+       -999.0,
+       3000.0
+      ]
+     }
+    },
+    {
+     "label": "S3 Marble Inner Wall Right Upper 4",
+     "hidden": false,
+     "aabb_local": {
+      "min": [
+       0.0,
+       999.0,
+       2430.0
+      ],
+      "max": [
+       6000.0,
+       1000.0,
+       3000.0
+      ]
+     }
+    }
+   ],
+   "apply_allowed": true
+  },
+  "door_mimic": {
+   "strategy": "cropped_texture_child_mi (baked; not world-sampled)",
+   "leaf_hidden": true,
+   "black_hidden": true,
+   "fills_visible": [
+    "S3 Hangar Far Wall Exit Fill (door closed)"
+   ],
+   "leaf_local_box": {
+    "min": [
+     5996.950225643355,
+     -149.5,
+     120.50001525878906
+    ],
+    "max": [
+     5996.950274356641,
+     149.5,
+     569.4999847412109
+    ]
+   },
+   "uv_rect_live_now": [
+    0.42525,
+    0.848500005086263,
+    0.57475,
+    0.9981666615804037
+   ],
+   "uv_rect_needed_after": [
+    0.42525,
+    0.798500005086263,
+    0.57475,
+    0.9481666615804036
+   ],
+   "uv_rect_baked_manifest": [
+    0.42525,
+    0.8485,
+    0.57475,
+    0.9981666666666666
+   ],
+   "baked_matches_now": true,
+   "baked_matches_after": false,
+   "dv_shift": -0.050000000000000044,
+   "recrop_note": "re-crop needs BACKDROP_BOTTOM_Z_CM=-155.000 in Tools/FlatV3/build_s3_exit_door_crop.py:27 and UV1 v range shifted by 1.500 m in build_s3_exit_door_mesh.py:41-43, then a texture + mesh reimport",
+   "action": "none: leaf + black hidden since S3DOOR-20261005-104600 (Gary 'Close the wall')"
+  }
+ },
+ "backdrop_object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_334",
+ "backup": "E:/PussStage/Backups/PreS3MuralLower-S3MURAL-20261007-162359",
+ "post_save_census": {
+  "content": [],
+  "maps": []
+ }
+}

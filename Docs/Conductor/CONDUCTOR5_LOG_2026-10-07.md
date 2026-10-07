@@ -157,3 +157,6 @@
   z≈99) hidden, clams (static + source_Anim) hidden by default, sit on it; clam/pedestal/figures NOT attached to S3 Hangar
   Root. [inf] the "table rock" = GraniteMillstone from the Blender/Rodin session, not imported yet. Pearl split: offline
   investigation running (S3_PEARL_SPLIT_2026-10-07.md).
+- **S3 mural lowered 150 cm** S3MURAL-20261007-162359 (Gary: "accept the band, we never really look up"): backdrop
+  root-local z −35..2965 (35 cm bare band under the roof at 3000), level saved, backup Backups/PreS3MuralLower-…;
+  door mimic hidden (baked crop not re-made; new crop rect in the record for whoever reopens the door).

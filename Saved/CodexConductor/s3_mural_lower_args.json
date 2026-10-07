@@ -1,0 +1,8 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "drop_cm": 150,
+ "top_gap_policy": "accept",
+ "expect_bottom_local_z": 115.0,
+ "decided_by": "Gary 7 Oct (own words, conductor session): lower the S3 mural ~1.5 m cropping the lower part; 35 cm top band: 'accept the band, we never really look up'"
+}
