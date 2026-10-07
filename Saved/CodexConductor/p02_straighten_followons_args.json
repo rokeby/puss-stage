@@ -1,0 +1,8 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "predicted_route_start": {"loc": [2151.20101839181, 89472.29898604915, 0.0], "yaw": -43.57251940082824},
+ "predicted_route_start_source": "p02_straighten_dry_P02STR-20261006-014311.json preds.DOCK.route.start (used by DRY only while the route is still curved; ignored once it is straight)",
+ "modes_note": "CAPTURE (before p02_straighten APPLY) -> DRY -> APPLY (confirm 'APPLY P02FOLLOW') ; REVERT (confirm 'REVERT P02FOLLOW') runs BEFORE p02_straighten REVERT",
+ "decided_by": "Gary 5 Oct: anchor DOCK (keep the S2 hangar end view); Gary 7 Oct: 'P02 is still extremely slow walking speed and not straightened'"
+}
