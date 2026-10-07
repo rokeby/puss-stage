@@ -1,0 +1,2396 @@
+{
+ "generated": "2026-10-06T21:39:42",
+ "script": "Tools/MeshyFixtures/build_meshy_fixtures.py (+ compose_contact_sheet.py)",
+ "spec": "Docs/Conductor/MESHY_PROMPTS_BULB_HOUSING_2026-10-06.md (After Meshy)",
+ "units": "cm in UE (Blender metres x 100); FBX_SCALE_UNITS, axis_forward=-X, axis_up=Z, Z up",
+ "assets": {
+  "SM_Bulb_A60_Clear": {
+   "asset": "SM_Bulb_A60_Clear",
+   "source_uuid": "db0af9e8-cd1d-40bd-9b91-c30abdfb0405",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\db0af9e8-cd1d-40bd-9b91-c30abdfb0405",
+   "warnings": [
+    "72396 source faces lay OUTSIDE the glass (diag renders show a stem/filament assembly displaced beside the bulb); deleted, not relocated"
+   ],
+   "textures": [
+    "T_SM_Bulb_A60_Clear_BaseColor.png",
+    "T_SM_Bulb_A60_Clear_Normal.png",
+    "T_SM_Bulb_A60_Clear_Roughness.png",
+    "T_SM_Bulb_A60_Clear_Metallic.png"
+   ],
+   "source_tris": 234422,
+   "artifact_faces_removed_source": {
+    "outside_shell": 72396,
+    "small_islands": 383,
+    "of_source_faces": 234422
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.014762161058629202,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -3.3,
+    "r_cap_cm": 1.38,
+    "cap_height_cm": 3.3,
+    "metallic_map_mean_above_cut": 0.754,
+    "metallic_map_mean_below_cut": 0.382
+   },
+   "synthetic_filament": {
+    "kind": "coil",
+    "slot0_tris": 452,
+    "support_wire_tris_slot1": 28,
+    "xy_fit_factor": 1.0,
+    "inside_glass_check": "all sweep points r <= 0.75 x shell(z)",
+    "z_above_glass_bottom": true,
+    "note": "NOT from Meshy. Meshy's own filament is either only painted into the base colour (no interior geometry; diag_interior.py) or was generated OUTSIDE the glass (see warnings) and deleted. A procedural filament is the slot-0 part."
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.754 vs below 0.382",
+   "target_cm": {
+    "height": 11.0,
+    "width": 6.0
+   },
+   "uniform_scale_from_source": 0.0577452600931343,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.1484999891370535,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5013684630393982,
+      0.8431324362754822
+     ],
+     "x_tip": [
+      0.6017131209373474,
+      0.8009417653083801
+     ],
+     "z_tip": [
+      0.5013684034347534,
+      0.9356961846351624
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_A60_Clear\\SM_Bulb_A60_Clear.fbx",
+   "fbx_sha256": "1592cf348f1c9b73d9a73d7f060eda2312d0594c3dfb95f188c70e15e0b9e5f2",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_A60_Clear",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2866,
+      "bounds_cm": [
+       [
+        -3.09,
+        -3.1,
+        -11.0
+       ],
+       [
+        3.09,
+        3.06,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       6.18,
+       6.16,
+       11.0
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_A60_Clear_Glow",
+        "faces": 452
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_A60_Clear_Metal",
+        "faces": 1281
+       },
+       {
+        "index": 2,
+        "name": "M_SM_Bulb_A60_Clear_Glass",
+        "faces": 1133
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -3.09,
+     -3.1,
+     -11.0
+    ],
+    [
+     3.09,
+     3.06,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    6.18,
+    6.16,
+    11.0
+   ],
+   "tris": 2866,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_A60_Clear_Glow",
+     "faces": 452
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_A60_Clear_Metal",
+     "faces": 1281
+    },
+    {
+     "index": 2,
+     "name": "M_SM_Bulb_A60_Clear_Glass",
+     "faces": 1133
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Bulb_A60_Frost": {
+   "asset": "SM_Bulb_A60_Frost",
+   "source_uuid": "68b48253-281f-430a-80d5-40a92da232a6",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\68b48253-281f-430a-80d5-40a92da232a6",
+   "warnings": [],
+   "textures": [
+    "T_SM_Bulb_A60_Frost_BaseColor.png",
+    "T_SM_Bulb_A60_Frost_Normal.png",
+    "T_SM_Bulb_A60_Frost_Roughness.png",
+    "T_SM_Bulb_A60_Frost_Metallic.png"
+   ],
+   "source_tris": 129540,
+   "artifact_faces_removed_source": {
+    "outside_shell": 0,
+    "small_islands": 0,
+    "of_source_faces": 129540
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.022314343060058667,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -2.93,
+    "r_cap_cm": 1.26,
+    "cap_height_cm": 2.93,
+    "metallic_map_mean_above_cut": 0.716,
+    "metallic_map_mean_below_cut": 0.0
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.716 vs below 0.0",
+   "target_cm": {
+    "height": 11.0,
+    "width": 6.0
+   },
+   "uniform_scale_from_source": 0.05781837968385286,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.1484999991953373,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5020363330841064,
+      0.8420700430870056
+     ],
+     "x_tip": [
+      0.6023810505867004,
+      0.7998794317245483
+     ],
+     "z_tip": [
+      0.5020363330841064,
+      0.9346338510513306
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_A60_Frost\\SM_Bulb_A60_Frost.fbx",
+   "fbx_sha256": "00fcca39ae0bfb15c0e87307b4fe9b26afff4a5149aeea636b01e967d2750f99",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_A60_Frost",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2890,
+      "bounds_cm": [
+       [
+        -3.02,
+        -2.98,
+        -11.0
+       ],
+       [
+        2.94,
+        2.97,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       5.96,
+       5.95,
+       11.0
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_A60_Frost_Glow",
+        "faces": 1050
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_A60_Frost_Metal",
+        "faces": 1840
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -3.02,
+     -2.98,
+     -11.0
+    ],
+    [
+     2.94,
+     2.97,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    5.96,
+    5.95,
+    11.0
+   ],
+   "tris": 2890,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_A60_Frost_Glow",
+     "faces": 1050
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_A60_Frost_Metal",
+     "faces": 1840
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Bulb_A60_Opal": {
+   "asset": "SM_Bulb_A60_Opal",
+   "source_uuid": "689fb672-d9b3-4a85-aa43-12ae6ae90bec",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\689fb672-d9b3-4a85-aa43-12ae6ae90bec",
+   "warnings": [],
+   "textures": [
+    "T_SM_Bulb_A60_Opal_BaseColor.png",
+    "T_SM_Bulb_A60_Opal_Normal.png",
+    "T_SM_Bulb_A60_Opal_Roughness.png",
+    "T_SM_Bulb_A60_Opal_Metallic.png"
+   ],
+   "source_tris": 145924,
+   "artifact_faces_removed_source": {
+    "outside_shell": 201,
+    "small_islands": 0,
+    "of_source_faces": 145924
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.019836264693974183,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -2.75,
+    "r_cap_cm": 1.32,
+    "cap_height_cm": 2.75,
+    "metallic_map_mean_above_cut": 0.808,
+    "metallic_map_mean_below_cut": 0.25
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.808 vs below 0.25",
+   "target_cm": {
+    "height": 11.0,
+    "width": 6.0
+   },
+   "uniform_scale_from_source": 0.05775654602481521,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.1484999991953373,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5108136534690857,
+      0.8444668054580688
+     ],
+     "x_tip": [
+      0.6111583709716797,
+      0.8022761344909668
+     ],
+     "z_tip": [
+      0.5108136534690857,
+      0.937030553817749
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_A60_Opal\\SM_Bulb_A60_Opal.fbx",
+   "fbx_sha256": "a0ab2d2ab7a0ea94332284f74fba2d8aa66ea40423b13d03ab549fcdb307017d",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_A60_Opal",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2889,
+      "bounds_cm": [
+       [
+        -3.1,
+        -3.19,
+        -11.0
+       ],
+       [
+        2.98,
+        2.87,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       6.07,
+       6.06,
+       11.0
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_A60_Opal_Glow",
+        "faces": 1372
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_A60_Opal_Metal",
+        "faces": 1517
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -3.1,
+     -3.19,
+     -11.0
+    ],
+    [
+     2.98,
+     2.87,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    6.07,
+    6.06,
+    11.0
+   ],
+   "tris": 2889,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_A60_Opal_Glow",
+     "faces": 1372
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_A60_Opal_Metal",
+     "faces": 1517
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Bulb_A60_Worn": {
+   "asset": "SM_Bulb_A60_Worn",
+   "source_uuid": "8e7a595b-f1de-41ec-b411-64a5ff1b5e01",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\8e7a595b-f1de-41ec-b411-64a5ff1b5e01",
+   "warnings": [],
+   "textures": [
+    "T_SM_Bulb_A60_Worn_BaseColor.png",
+    "T_SM_Bulb_A60_Worn_Normal.png",
+    "T_SM_Bulb_A60_Worn_Roughness.png",
+    "T_SM_Bulb_A60_Worn_Metallic.png"
+   ],
+   "source_tris": 187482,
+   "artifact_faces_removed_source": {
+    "outside_shell": 0,
+    "small_islands": 0,
+    "of_source_faces": 187482
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.012727621851697762,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -3.12,
+    "r_cap_cm": 1.36,
+    "cap_height_cm": 3.12,
+    "metallic_map_mean_above_cut": 0.602,
+    "metallic_map_mean_below_cut": 0.361
+   },
+   "synthetic_filament": {
+    "kind": "coil",
+    "slot0_tris": 452,
+    "support_wire_tris_slot1": 28,
+    "xy_fit_factor": 1.0,
+    "inside_glass_check": "all sweep points r <= 0.75 x shell(z)",
+    "z_above_glass_bottom": true,
+    "note": "NOT from Meshy. Meshy's own filament is either only painted into the base colour (no interior geometry; diag_interior.py) or was generated OUTSIDE the glass (see warnings) and deleted. A procedural filament is the slot-0 part."
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.602 vs below 0.361",
+   "target_cm": {
+    "height": 11.0,
+    "width": 6.0
+   },
+   "uniform_scale_from_source": 0.05779121933121101,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.1484999891370535,
+    "pivot_marker_uv": {
+     "origin": [
+      0.4974910616874695,
+      0.8432570695877075
+     ],
+     "x_tip": [
+      0.5978357195854187,
+      0.8010664582252502
+     ],
+     "z_tip": [
+      0.4974910616874695,
+      0.9358208179473877
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_A60_Worn\\SM_Bulb_A60_Worn.fbx",
+   "fbx_sha256": "fea37b296a36bd742a0762af543dcf997834151b6865cf12b65c9f8db2330d35",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_A60_Worn",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2866,
+      "bounds_cm": [
+       [
+        -3.07,
+        -3.11,
+        -11.0
+       ],
+       [
+        3.14,
+        3.14,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       6.21,
+       6.25,
+       11.0
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_A60_Worn_Glow",
+        "faces": 452
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_A60_Worn_Metal",
+        "faces": 1309
+       },
+       {
+        "index": 2,
+        "name": "M_SM_Bulb_A60_Worn_Glass",
+        "faces": 1105
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -3.07,
+     -3.11,
+     -11.0
+    ],
+    [
+     3.14,
+     3.14,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    6.21,
+    6.25,
+    11.0
+   ],
+   "tris": 2866,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_A60_Worn_Glow",
+     "faces": 452
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_A60_Worn_Metal",
+     "faces": 1309
+    },
+    {
+     "index": 2,
+     "name": "M_SM_Bulb_A60_Worn_Glass",
+     "faces": 1105
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Bulb_C35_Clear": {
+   "asset": "SM_Bulb_C35_Clear",
+   "source_uuid": "d9a60edb-56aa-4836-8326-6e8aa3fb2851",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\d9a60edb-56aa-4836-8326-6e8aa3fb2851",
+   "warnings": [],
+   "textures": [
+    "T_SM_Bulb_C35_Clear_BaseColor.png",
+    "T_SM_Bulb_C35_Clear_Normal.png",
+    "T_SM_Bulb_C35_Clear_Roughness.png",
+    "T_SM_Bulb_C35_Clear_Metallic.png"
+   ],
+   "source_tris": 185072,
+   "artifact_faces_removed_source": {
+    "outside_shell": 11,
+    "small_islands": 0,
+    "of_source_faces": 185072
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.013523108596624896,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -2.83,
+    "r_cap_cm": 1.14,
+    "cap_height_cm": 2.83,
+    "metallic_map_mean_above_cut": 0.752,
+    "metallic_map_mean_below_cut": 0.53
+   },
+   "synthetic_filament": {
+    "kind": "coil_small",
+    "slot0_tris": 324,
+    "support_wire_tris_slot1": 28,
+    "xy_fit_factor": 1.0,
+    "inside_glass_check": "all sweep points r <= 0.75 x shell(z)",
+    "z_above_glass_bottom": true,
+    "note": "NOT from Meshy. Meshy's own filament is either only painted into the base colour (no interior geometry; diag_interior.py) or was generated OUTSIDE the glass (see warnings) and deleted. A procedural filament is the slot-0 part."
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.752 vs below 0.53",
+   "target_cm": {
+    "height": 10.0,
+    "width": 3.5
+   },
+   "uniform_scale_from_source": 0.05247474491884801,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.14,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5029085278511047,
+      0.8302575945854187
+     ],
+     "x_tip": [
+      0.6032532453536987,
+      0.7880669832229614
+     ],
+     "z_tip": [
+      0.5029085278511047,
+      0.9228213429450989
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_C35_Clear\\SM_Bulb_C35_Clear.fbx",
+   "fbx_sha256": "e5918a514e90d9ff1985522514a29d4fe44466fa127d35ab6c358a951a40afa5",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_C35_Clear",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2854,
+      "bounds_cm": [
+       [
+        -1.82,
+        -1.82,
+        -10.0
+       ],
+       [
+        1.75,
+        1.77,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       3.57,
+       3.59,
+       10.0
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_C35_Clear_Glow",
+        "faces": 324
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_C35_Clear_Metal",
+        "faces": 1518
+       },
+       {
+        "index": 2,
+        "name": "M_SM_Bulb_C35_Clear_Glass",
+        "faces": 1012
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -1.82,
+     -1.82,
+     -10.0
+    ],
+    [
+     1.75,
+     1.77,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    3.57,
+    3.59,
+    10.0
+   ],
+   "tris": 2854,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_C35_Clear_Glow",
+     "faces": 324
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_C35_Clear_Metal",
+     "faces": 1518
+    },
+    {
+     "index": 2,
+     "name": "M_SM_Bulb_C35_Clear_Glass",
+     "faces": 1012
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Bulb_G95_Clear": {
+   "asset": "SM_Bulb_G95_Clear",
+   "source_uuid": "4a179c8d-5c43-450b-90b3-579ed35d3b2f",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\4a179c8d-5c43-450b-90b3-579ed35d3b2f",
+   "warnings": [],
+   "textures": [
+    "T_SM_Bulb_G95_Clear_BaseColor.png",
+    "T_SM_Bulb_G95_Clear_Normal.png",
+    "T_SM_Bulb_G95_Clear_Roughness.png",
+    "T_SM_Bulb_G95_Clear_Metallic.png"
+   ],
+   "source_tris": 143756,
+   "artifact_faces_removed_source": {
+    "outside_shell": 0,
+    "small_islands": 0,
+    "of_source_faces": 143756
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.01835332090486658,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -3.15,
+    "r_cap_cm": 1.29,
+    "cap_height_cm": 3.15,
+    "metallic_map_mean_above_cut": 0.589,
+    "metallic_map_mean_below_cut": 0.06
+   },
+   "synthetic_filament": {
+    "kind": "loop",
+    "slot0_tris": 196,
+    "support_wire_tris_slot1": 28,
+    "xy_fit_factor": 1.0,
+    "inside_glass_check": "all sweep points r <= 0.75 x shell(z)",
+    "z_above_glass_bottom": true,
+    "note": "NOT from Meshy. Meshy's own filament is either only painted into the base colour (no interior geometry; diag_interior.py) or was generated OUTSIDE the glass (see warnings) and deleted. A procedural filament is the slot-0 part."
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.589 vs below 0.06",
+   "target_cm": {
+    "height": 13.5,
+    "width": 9.5
+   },
+   "uniform_scale_from_source": 0.07087533468594495,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.18225000724196436,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5039184093475342,
+      0.8436490297317505
+     ],
+     "x_tip": [
+      0.6042630672454834,
+      0.8014583587646484
+     ],
+     "z_tip": [
+      0.5039184093475342,
+      0.9362127780914307
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_G95_Clear\\SM_Bulb_G95_Clear.fbx",
+   "fbx_sha256": "07b4b72b2d9e326c74792397067d972044717b63c42df509a5f786a7772d6d7c",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_G95_Clear",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2862,
+      "bounds_cm": [
+       [
+        -4.59,
+        -4.65,
+        -13.5
+       ],
+       [
+        4.55,
+        4.49,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       9.14,
+       9.13,
+       13.5
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_G95_Clear_Glow",
+        "faces": 196
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_G95_Clear_Metal",
+        "faces": 1326
+       },
+       {
+        "index": 2,
+        "name": "M_SM_Bulb_G95_Clear_Glass",
+        "faces": 1340
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -4.59,
+     -4.65,
+     -13.5
+    ],
+    [
+     4.55,
+     4.49,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    9.14,
+    9.13,
+    13.5
+   ],
+   "tris": 2862,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_G95_Clear_Glow",
+     "faces": 196
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_G95_Clear_Metal",
+     "faces": 1326
+    },
+    {
+     "index": 2,
+     "name": "M_SM_Bulb_G95_Clear_Glass",
+     "faces": 1340
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Bulb_ST64_Cage": {
+   "asset": "SM_Bulb_ST64_Cage",
+   "source_uuid": "74f7cd8a-47d6-4f8f-a2d6-56fa6a2adb5e",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\74f7cd8a-47d6-4f8f-a2d6-56fa6a2adb5e",
+   "warnings": [
+    "175834 source faces lay OUTSIDE the glass (diag renders show a stem/filament assembly displaced beside the bulb); deleted, not relocated"
+   ],
+   "textures": [
+    "T_SM_Bulb_ST64_Cage_BaseColor.png",
+    "T_SM_Bulb_ST64_Cage_Normal.png",
+    "T_SM_Bulb_ST64_Cage_Roughness.png",
+    "T_SM_Bulb_ST64_Cage_Metallic.png"
+   ],
+   "source_tris": 398140,
+   "artifact_faces_removed_source": {
+    "outside_shell": 175834,
+    "small_islands": 38,
+    "of_source_faces": 398140
+   },
+   "artifact_rule": "delete faces with centroid radius > 1.10 x shell radius + 0.5 % H below 85 % height (shell = per-z-bin median of 16 sector maxima), then islands < 0.5 % of faces",
+   "decimate_ratio": 0.009950150269044578,
+   "classification": {
+    "rule": "metal = face centroid above z_cut (first bin, scanning down from 90 % height, with median radius > 1.12 x r_cap)",
+    "z_cut_cm": -2.8,
+    "r_cap_cm": 1.32,
+    "cap_height_cm": 2.8,
+    "metallic_map_mean_above_cut": 0.478,
+    "metallic_map_mean_below_cut": 0.092
+   },
+   "synthetic_filament": {
+    "kind": "cage",
+    "slot0_tris": 496,
+    "support_wire_tris_slot1": 28,
+    "xy_fit_factor": 1.0,
+    "inside_glass_check": "all sweep points r <= 0.75 x shell(z)",
+    "z_above_glass_bottom": true,
+    "note": "NOT from Meshy. Meshy's own filament is either only painted into the base colour (no interior geometry; diag_interior.py) or was generated OUTSIDE the glass (see warnings) and deleted. A procedural filament is the slot-0 part."
+   },
+   "class": "bulb",
+   "pivot": "screw-cap tip at origin; cap +Z; glass hangs in -Z",
+   "orientation_evidence": "source already cap-up: raw 6-view renders show the screw base at +Z; metallic map mean above z_cut 0.478 vs below 0.092",
+   "target_cm": {
+    "height": 14.0,
+    "width": 6.4
+   },
+   "uniform_scale_from_source": 0.0733043485723925,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.18900000080466273,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5025853514671326,
+      0.8478560447692871
+     ],
+     "x_tip": [
+      0.6029300093650818,
+      0.8056654334068298
+     ],
+     "z_tip": [
+      0.5025853514671326,
+      0.9404198527336121
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Bulb_ST64_Cage\\SM_Bulb_ST64_Cage.fbx",
+   "fbx_sha256": "00689d9a150fb4c402cc8ca77bd0e598b3d29216eae4e699d0e72e4e3cd3baac",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Bulb_ST64_Cage",
+      "type": "MESH",
+      "parent": null,
+      "fbx_type": null,
+      "tris": 2735,
+      "bounds_cm": [
+       [
+        -2.86,
+        -3.49,
+        -14.0
+       ],
+       [
+        3.17,
+        3.08,
+        0.0
+       ]
+      ],
+      "size_cm": [
+       6.04,
+       6.58,
+       14.0
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Bulb_ST64_Cage_Glow",
+        "faces": 496
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Bulb_ST64_Cage_Metal",
+        "faces": 600
+       },
+       {
+        "index": 2,
+        "name": "M_SM_Bulb_ST64_Cage_Glass",
+        "faces": 1639
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -2.86,
+     -3.49,
+     -14.0
+    ],
+    [
+     3.17,
+     3.08,
+     0.0
+    ]
+   ],
+   "final_size_cm": [
+    6.04,
+    6.58,
+    14.0
+   ],
+   "tris": 2735,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Bulb_ST64_Cage_Glow",
+     "faces": 496
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Bulb_ST64_Cage_Metal",
+     "faces": 600
+    },
+    {
+     "index": 2,
+     "name": "M_SM_Bulb_ST64_Cage_Glass",
+     "faces": 1639
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Lantern_1950s": {
+   "asset": "SM_Lantern_1950s",
+   "source_uuid": "862adcd6-2bcf-4fc9-9cca-d884e288428a",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\862adcd6-2bcf-4fc9-9cca-d884e288428a",
+   "warnings": [
+    "UNCLEAR front: both ends of this Meshy model carry a lens-like disc; front chosen by the higher front-cap luminance score (diag_axes.py). The rear disc stays in slot 1."
+   ],
+   "textures": [
+    "T_SM_Lantern_1950s_BaseColor.png",
+    "T_SM_Lantern_1950s_Normal.png",
+    "T_SM_Lantern_1950s_Roughness.png",
+    "T_SM_Lantern_1950s_Metallic.png"
+   ],
+   "source_tris": 434452,
+   "decimate_ratio_lod0": 0.02612256359735943,
+   "classification": {
+    "rule": "lens seed = largest edge-connected region of forward-facing (n.x>0.5) faces in the front 45 % whose base-colour texel luminance >= 0.15 and that covers its own centre (a -X ray through its area centroid first hits it); lens = all forward faces within the seed's 95th-pct radius and x-range +/-5 % L",
+    "seed_lum_filter": 0.15,
+    "lens_mean_lum": 0.633,
+    "other_front_faces_mean_lum": 0.192,
+    "lens_faces_lod0": 707,
+    "lens_seed_faces": 685,
+    "lens_diameter_cm": 25.9,
+    "lens_centroid_cm": [
+     16.2,
+     -0.0,
+     -1.7
+    ],
+    "lens_area_fraction": 0.0795
+   },
+   "scale_rule": "x extent of vertices within 1.35 x lens radius of the beam axis = 35.0 cm (target 35.0)",
+   "pivot_rule": "tilt axis: median (x,z) of the most lateral 7 % of vertices on each side, middle 70 % of length, below top 15 %",
+   "pivot_evidence": [
+    {
+     "side": "+Y",
+     "x_cm": 0.07,
+     "z_cm": 0.06,
+     "verts": 39,
+     "half_width_cm": 19.7
+    },
+    {
+     "side": "-Y",
+     "x_cm": -0.07,
+     "z_cm": -0.06,
+     "verts": 40,
+     "half_width_cm": 19.7
+    }
+   ],
+   "decimate_ratio_lod1": 0.2521589707437434,
+   "class": "housing",
+   "pivot": "yoke tilt axis at origin (heuristic, see pivot_evidence); beam +X; yoke/clamp +Z",
+   "orientation_evidence": "source beam axis -Y (raw 6-view renders + front-cap luminance score, diag_axes.py); rotated 90 deg about Z",
+   "target_cm": {
+    "length": 35.0
+   },
+   "uniform_scale_from_source": 0.3196726461849506,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.8206313967704774,
+    "pivot_marker_uv": {
+     "origin": [
+      0.4977746605873108,
+      0.4153597950935364
+     ],
+     "x_tip": [
+      0.59811931848526,
+      0.3731691539287567
+     ],
+     "z_tip": [
+      0.4977746605873108,
+      0.5079235434532166
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Lantern_1950s\\SM_Lantern_1950s.fbx",
+   "fbx_sha256": "2d1a2fe00077f67c7afad24936af90061492c4eb914264304fa4e98631fa9cd7",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Lantern_1950s_LOD0",
+      "type": "MESH",
+      "parent": "SM_Lantern_1950s_LODGroup",
+      "fbx_type": null,
+      "tris": 11348,
+      "bounds_cm": [
+       [
+        -17.23,
+        -19.69,
+        -22.81
+       ],
+       [
+        17.77,
+        19.69,
+        37.98
+       ]
+      ],
+      "size_cm": [
+       35.0,
+       39.39,
+       60.79
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_1950s_Lens",
+        "faces": 707
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_1950s_Metal",
+        "faces": 10641
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_1950s_LOD1",
+      "type": "MESH",
+      "parent": "SM_Lantern_1950s_LODGroup",
+      "fbx_type": null,
+      "tris": 2860,
+      "bounds_cm": [
+       [
+        -17.23,
+        -19.71,
+        -22.67
+       ],
+       [
+        17.83,
+        19.71,
+        38.02
+       ]
+      ],
+      "size_cm": [
+       35.06,
+       39.42,
+       60.69
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_1950s_Lens",
+        "faces": 141
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_1950s_Metal",
+        "faces": 2719
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_1950s_LODGroup",
+      "type": "EMPTY",
+      "parent": null,
+      "fbx_type": "LodGroup"
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -17.23,
+     -19.69,
+     -22.81
+    ],
+    [
+     17.77,
+     19.69,
+     37.98
+    ]
+   ],
+   "final_size_cm": [
+    35.0,
+    39.39,
+    60.79
+   ],
+   "tris": 11348,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_1950s_Lens",
+     "faces": 707
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_1950s_Metal",
+     "faces": 10641
+    }
+   ],
+   "lod1_tris": 2860,
+   "lod1_slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_1950s_Lens",
+     "faces": 141
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_1950s_Metal",
+     "faces": 2719
+    }
+   ],
+   "lodgroup_readback": [
+    {
+     "name": "SM_Lantern_1950s_LODGroup",
+     "fbx_type": "LodGroup"
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Lantern_Birdie": {
+   "asset": "SM_Lantern_Birdie",
+   "source_uuid": "0b828f21-845c-43e4-b983-3389d18b0036",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\0b828f21-845c-43e4-b983-3389d18b0036",
+   "warnings": [
+    "UNCLEAR front: both ends of this Meshy model carry a lens-like disc; front chosen by the higher front-cap luminance score (diag_axes.py). The rear disc stays in slot 1."
+   ],
+   "textures": [
+    "T_SM_Lantern_Birdie_BaseColor.png",
+    "T_SM_Lantern_Birdie_Normal.png",
+    "T_SM_Lantern_Birdie_Roughness.png",
+    "T_SM_Lantern_Birdie_Metallic.png"
+   ],
+   "source_tris": 505614,
+   "decimate_ratio_lod0": 0.022445976575015725,
+   "classification": {
+    "rule": "lens seed = largest edge-connected region of forward-facing (n.x>0.5) faces in the front 45 % whose base-colour texel luminance >= 0.15 and that covers its own centre (a -X ray through its area centroid first hits it); lens = all forward faces within the seed's 95th-pct radius and x-range +/-5 % L",
+    "seed_lum_filter": 0.15,
+    "lens_mean_lum": 0.395,
+    "other_front_faces_mean_lum": 0.173,
+    "lens_faces_lod0": 198,
+    "lens_seed_faces": 202,
+    "lens_diameter_cm": 6.6,
+    "lens_centroid_cm": [
+     5.0,
+     0.0,
+     -0.3
+    ],
+    "lens_area_fraction": 0.0422
+   },
+   "scale_rule": "x extent of vertices within 1.35 x lens radius of the beam axis = 12.0 cm (target 12.0)",
+   "pivot_rule": "tilt axis: median (x,z) of the most lateral 7 % of vertices on each side, middle 70 % of length, below top 15 %",
+   "pivot_evidence": [
+    {
+     "side": "+Y",
+     "x_cm": 0.02,
+     "z_cm": 0.08,
+     "verts": 75,
+     "half_width_cm": 5.5
+    },
+    {
+     "side": "-Y",
+     "x_cm": -0.02,
+     "z_cm": -0.08,
+     "verts": 78,
+     "half_width_cm": 5.5
+    }
+   ],
+   "decimate_ratio_lod1": 0.2521589707437434,
+   "class": "housing",
+   "pivot": "yoke tilt axis at origin (heuristic, see pivot_evidence); beam +X; yoke/clamp +Z",
+   "orientation_evidence": "source beam axis +Y (raw 6-view renders + front-cap luminance score, diag_axes.py); rotated -90 deg about Z",
+   "target_cm": {
+    "length": 12.0
+   },
+   "uniform_scale_from_source": 0.10300490127033342,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.2644959401339293,
+    "pivot_marker_uv": {
+     "origin": [
+      0.5136862397193909,
+      0.3354749083518982
+     ],
+     "x_tip": [
+      0.6140308976173401,
+      0.2932842969894409
+     ],
+     "z_tip": [
+      0.5136862397193909,
+      0.42803868651390076
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Lantern_Birdie\\SM_Lantern_Birdie.fbx",
+   "fbx_sha256": "6fa37c66f435a34715250cb0a9e40518e34c8bbae0d32a168ddb44426e105b70",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Lantern_Birdie_LOD0",
+      "type": "MESH",
+      "parent": "SM_Lantern_Birdie_LODGroup",
+      "fbx_type": null,
+      "tris": 11348,
+      "bounds_cm": [
+       [
+        -6.54,
+        -5.47,
+        -5.25
+       ],
+       [
+        5.47,
+        5.45,
+        14.34
+       ]
+      ],
+      "size_cm": [
+       12.01,
+       10.92,
+       19.59
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_Birdie_Lens",
+        "faces": 198
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_Birdie_Metal",
+        "faces": 11150
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_Birdie_LOD1",
+      "type": "MESH",
+      "parent": "SM_Lantern_Birdie_LODGroup",
+      "fbx_type": null,
+      "tris": 2860,
+      "bounds_cm": [
+       [
+        -6.53,
+        -5.41,
+        -5.27
+       ],
+       [
+        5.47,
+        5.41,
+        14.32
+       ]
+      ],
+      "size_cm": [
+       12.0,
+       10.83,
+       19.58
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_Birdie_Lens",
+        "faces": 29
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_Birdie_Metal",
+        "faces": 2831
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_Birdie_LODGroup",
+      "type": "EMPTY",
+      "parent": null,
+      "fbx_type": "LodGroup"
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -6.54,
+     -5.47,
+     -5.25
+    ],
+    [
+     5.47,
+     5.45,
+     14.34
+    ]
+   ],
+   "final_size_cm": [
+    12.01,
+    10.92,
+    19.59
+   ],
+   "tris": 11348,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_Birdie_Lens",
+     "faces": 198
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_Birdie_Metal",
+     "faces": 11150
+    }
+   ],
+   "lod1_tris": 2860,
+   "lod1_slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_Birdie_Lens",
+     "faces": 29
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_Birdie_Metal",
+     "faces": 2831
+    }
+   ],
+   "lodgroup_readback": [
+    {
+     "name": "SM_Lantern_Birdie_LODGroup",
+     "fbx_type": "LodGroup"
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Lantern_Fresnel": {
+   "asset": "SM_Lantern_Fresnel",
+   "source_uuid": "da03ec91-4673-4a27-a1bf-d936114f4719",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\da03ec91-4673-4a27-a1bf-d936114f4719",
+   "warnings": [],
+   "textures": [
+    "T_SM_Lantern_Fresnel_BaseColor.png",
+    "T_SM_Lantern_Fresnel_Normal.png",
+    "T_SM_Lantern_Fresnel_Roughness.png",
+    "T_SM_Lantern_Fresnel_Metallic.png"
+   ],
+   "source_tris": 648738,
+   "decimate_ratio_lod0": 0.017493965206292834,
+   "classification": {
+    "rule": "lens seed = largest edge-connected region of forward-facing (n.x>0.5) faces in the front 45 % whose base-colour texel luminance >= 0.15 and that covers its own centre (a -X ray through its area centroid first hits it); lens = all forward faces within the seed's 95th-pct radius and x-range +/-5 % L",
+    "seed_lum_filter": 0.15,
+    "lens_mean_lum": 0.672,
+    "other_front_faces_mean_lum": 0.153,
+    "lens_faces_lod0": 123,
+    "lens_seed_faces": 127,
+    "lens_diameter_cm": 14.6,
+    "lens_centroid_cm": [
+     14.7,
+     0.0,
+     0.5
+    ],
+    "lens_area_fraction": 0.0211
+   },
+   "scale_rule": "x extent of vertices within 1.35 x lens radius of the beam axis = 30.0 cm (target 30.0)",
+   "pivot_rule": "tilt axis: median (x,z) of the most lateral 7 % of vertices on each side, middle 70 % of length, below top 15 %",
+   "pivot_evidence": [
+    {
+     "side": "+Y",
+     "x_cm": 0.02,
+     "z_cm": -0.04,
+     "verts": 23,
+     "half_width_cm": 11.9
+    },
+    {
+     "side": "-Y",
+     "x_cm": -0.02,
+     "z_cm": 0.04,
+     "verts": 22,
+     "half_width_cm": 11.9
+    }
+   ],
+   "decimate_ratio_lod1": 0.2521589707437434,
+   "class": "housing",
+   "pivot": "yoke tilt axis at origin (heuristic, see pivot_evidence); beam +X; yoke/clamp +Z",
+   "orientation_evidence": "source beam axis -Y (raw 6-view renders + front-cap luminance score, diag_axes.py); rotated 90 deg about Z",
+   "target_cm": {
+    "length": 30.0,
+    "lens_d": 15.0
+   },
+   "uniform_scale_from_source": 0.25900843311667154,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.6651979610323906,
+    "pivot_marker_uv": {
+     "origin": [
+      0.48047158122062683,
+      0.4119986891746521
+     ],
+     "x_tip": [
+      0.5808162689208984,
+      0.36980804800987244
+     ],
+     "z_tip": [
+      0.48047155141830444,
+      0.5045624375343323
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Lantern_Fresnel\\SM_Lantern_Fresnel.fbx",
+   "fbx_sha256": "5aa66ad99ed1e9a544bd57726f6e440e51ca8c3a85f8c0c6f14e6014f556332c",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Lantern_Fresnel_LOD0",
+      "type": "MESH",
+      "parent": "SM_Lantern_Fresnel_LODGroup",
+      "fbx_type": null,
+      "tris": 11348,
+      "bounds_cm": [
+       [
+        -13.2,
+        -11.9,
+        -17.72
+       ],
+       [
+        17.08,
+        11.9,
+        31.55
+       ]
+      ],
+      "size_cm": [
+       30.28,
+       23.8,
+       49.27
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_Fresnel_Lens",
+        "faces": 123
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_Fresnel_Metal",
+        "faces": 11225
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_Fresnel_LOD1",
+      "type": "MESH",
+      "parent": "SM_Lantern_Fresnel_LODGroup",
+      "fbx_type": null,
+      "tris": 2860,
+      "bounds_cm": [
+       [
+        -13.17,
+        -11.95,
+        -17.83
+       ],
+       [
+        17.02,
+        11.8,
+        31.49
+       ]
+      ],
+      "size_cm": [
+       30.19,
+       23.75,
+       49.32
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_Fresnel_Lens",
+        "faces": 11
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_Fresnel_Metal",
+        "faces": 2849
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_Fresnel_LODGroup",
+      "type": "EMPTY",
+      "parent": null,
+      "fbx_type": "LodGroup"
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -13.2,
+     -11.9,
+     -17.72
+    ],
+    [
+     17.08,
+     11.9,
+     31.55
+    ]
+   ],
+   "final_size_cm": [
+    30.28,
+    23.8,
+    49.27
+   ],
+   "tris": 11348,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_Fresnel_Lens",
+     "faces": 123
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_Fresnel_Metal",
+     "faces": 11225
+    }
+   ],
+   "lod1_tris": 2860,
+   "lod1_slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_Fresnel_Lens",
+     "faces": 11
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_Fresnel_Metal",
+     "faces": 2849
+    }
+   ],
+   "lodgroup_readback": [
+    {
+     "name": "SM_Lantern_Fresnel_LODGroup",
+     "fbx_type": "LodGroup"
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Lantern_FresnelDoors": {
+   "asset": "SM_Lantern_FresnelDoors",
+   "source_uuid": "319352ed-3f30-4bfb-8d5f-6b18e82fb024",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\319352ed-3f30-4bfb-8d5f-6b18e82fb024",
+   "warnings": [],
+   "textures": [
+    "T_SM_Lantern_FresnelDoors_BaseColor.png",
+    "T_SM_Lantern_FresnelDoors_Normal.png",
+    "T_SM_Lantern_FresnelDoors_Roughness.png",
+    "T_SM_Lantern_FresnelDoors_Metallic.png"
+   ],
+   "source_tris": 765292,
+   "decimate_ratio_lod0": 0.014829633656173067,
+   "classification": {
+    "rule": "lens seed = largest edge-connected region of forward-facing (n.x>0.5) faces in the front 45 % whose base-colour texel luminance >= 0.15 and that covers its own centre (a -X ray through its area centroid first hits it); lens = all forward faces within the seed's 95th-pct radius and x-range +/-5 % L",
+    "seed_lum_filter": 0.15,
+    "lens_mean_lum": 0.621,
+    "other_front_faces_mean_lum": 0.159,
+    "lens_faces_lod0": 963,
+    "lens_seed_faces": 1012,
+    "lens_diameter_cm": 15.5,
+    "lens_centroid_cm": [
+     13.9,
+     0.0,
+     -2.6
+    ],
+    "lens_area_fraction": 0.0308
+   },
+   "scale_rule": "x extent of vertices within 1.35 x lens radius of the beam axis = 30.0 cm (target 30.0)",
+   "pivot_rule": "tilt axis: median (x,z) of the most lateral 7 % of vertices on each side, middle 70 % of length, below top 15 %",
+   "pivot_evidence": [
+    {
+     "side": "+Y",
+     "x_cm": -0.01,
+     "z_cm": 2.17,
+     "verts": 62,
+     "half_width_cm": 14.6
+    },
+    {
+     "side": "-Y",
+     "x_cm": 0.01,
+     "z_cm": -2.17,
+     "verts": 29,
+     "half_width_cm": 14.0
+    }
+   ],
+   "decimate_ratio_lod1": 0.2521589707437434,
+   "class": "housing",
+   "pivot": "yoke tilt axis at origin (heuristic, see pivot_evidence); beam +X; yoke/clamp +Z",
+   "orientation_evidence": "source beam axis -Y (raw 6-view renders + front-cap luminance score, diag_axes.py); rotated 90 deg about Z",
+   "target_cm": {
+    "length": 30.0
+   },
+   "uniform_scale_from_source": 0.2554008132826199,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.6554557889699937,
+    "pivot_marker_uv": {
+     "origin": [
+      0.41910290718078613,
+      0.47429296374320984
+     ],
+     "x_tip": [
+      0.5194476246833801,
+      0.4321023225784302
+     ],
+     "z_tip": [
+      0.41910290718078613,
+      0.5668567419052124
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Lantern_FresnelDoors\\SM_Lantern_FresnelDoors.fbx",
+   "fbx_sha256": "28f2b9e0c4903e430972f23a385777bdb23c34edf9097da6dbdf9331ae3f51c5",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Lantern_FresnelDoors_LOD0",
+      "type": "MESH",
+      "parent": "SM_Lantern_FresnelDoors_LODGroup",
+      "fbx_type": null,
+      "tris": 11348,
+      "bounds_cm": [
+       [
+        -12.62,
+        -14.62,
+        -20.05
+       ],
+       [
+        28.47,
+        14.63,
+        28.5
+       ]
+      ],
+      "size_cm": [
+       41.09,
+       29.25,
+       48.55
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_FresnelDoors_Lens",
+        "faces": 963
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_FresnelDoors_Metal",
+        "faces": 10385
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_FresnelDoors_LOD1",
+      "type": "MESH",
+      "parent": "SM_Lantern_FresnelDoors_LODGroup",
+      "fbx_type": null,
+      "tris": 2860,
+      "bounds_cm": [
+       [
+        -12.63,
+        -14.54,
+        -20.01
+       ],
+       [
+        28.37,
+        14.59,
+        28.48
+       ]
+      ],
+      "size_cm": [
+       41.0,
+       29.13,
+       48.49
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_FresnelDoors_Lens",
+        "faces": 237
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_FresnelDoors_Metal",
+        "faces": 2623
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_FresnelDoors_LODGroup",
+      "type": "EMPTY",
+      "parent": null,
+      "fbx_type": "LodGroup"
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -12.62,
+     -14.62,
+     -20.05
+    ],
+    [
+     28.47,
+     14.63,
+     28.5
+    ]
+   ],
+   "final_size_cm": [
+    41.09,
+    29.25,
+    48.55
+   ],
+   "tris": 11348,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_FresnelDoors_Lens",
+     "faces": 963
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_FresnelDoors_Metal",
+     "faces": 10385
+    }
+   ],
+   "lod1_tris": 2860,
+   "lod1_slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_FresnelDoors_Lens",
+     "faces": 237
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_FresnelDoors_Metal",
+     "faces": 2623
+    }
+   ],
+   "lodgroup_readback": [
+    {
+     "name": "SM_Lantern_FresnelDoors_LODGroup",
+     "fbx_type": "LodGroup"
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Lantern_ParCan": {
+   "asset": "SM_Lantern_ParCan",
+   "source_uuid": "8c426d43-a850-469f-8705-9c2315cc97c5",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\8c426d43-a850-469f-8705-9c2315cc97c5",
+   "warnings": [
+    "check: can cross-section min(Y,Z) extent 30.94 cm incl. yoke vs prompt dia 22.0"
+   ],
+   "textures": [
+    "T_SM_Lantern_ParCan_BaseColor.png",
+    "T_SM_Lantern_ParCan_Normal.png",
+    "T_SM_Lantern_ParCan_Roughness.png",
+    "T_SM_Lantern_ParCan_Metallic.png"
+   ],
+   "source_tris": 536864,
+   "decimate_ratio_lod0": 0.021139431960422006,
+   "classification": {
+    "rule": "lens seed = largest edge-connected region of forward-facing (n.x>0.5) faces in the front 45 % whose base-colour texel luminance >= 0.15 and that covers its own centre (a -X ray through its area centroid first hits it); lens = all forward faces within the seed's 95th-pct radius and x-range +/-5 % L",
+    "seed_lum_filter": 0.15,
+    "lens_mean_lum": 0.313,
+    "other_front_faces_mean_lum": 0.218,
+    "lens_faces_lod0": 201,
+    "lens_seed_faces": 117,
+    "lens_diameter_cm": 19.3,
+    "lens_centroid_cm": [
+     18.6,
+     0.0,
+     -2.2
+    ],
+    "lens_area_fraction": 0.0448
+   },
+   "scale_rule": "x extent of vertices within 1.35 x lens radius of the beam axis = 40.0 cm (target 40.0)",
+   "pivot_rule": "tilt axis: median (x,z) of the most lateral 7 % of vertices on each side, middle 70 % of length, below top 15 %",
+   "pivot_evidence": [
+    {
+     "side": "+Y",
+     "x_cm": -0.15,
+     "z_cm": 0.01,
+     "verts": 148,
+     "half_width_cm": 15.5
+    },
+    {
+     "side": "-Y",
+     "x_cm": 0.15,
+     "z_cm": -0.01,
+     "verts": 146,
+     "half_width_cm": 15.5
+    }
+   ],
+   "decimate_ratio_lod1": 0.2521589707437434,
+   "class": "housing",
+   "pivot": "yoke tilt axis at origin (heuristic, see pivot_evidence); beam +X; yoke/clamp +Z",
+   "orientation_evidence": "source beam axis -Y (raw 6-view renders + front-cap luminance score, diag_axes.py); rotated 90 deg about Z",
+   "target_cm": {
+    "length": 40.0,
+    "body_d": 22.0
+   },
+   "uniform_scale_from_source": 0.23514239653086388,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.603731507062912,
+    "pivot_marker_uv": {
+     "origin": [
+      0.48373329639434814,
+      0.42641669511795044
+     ],
+     "x_tip": [
+      0.5840779542922974,
+      0.3842260539531708
+     ],
+     "z_tip": [
+      0.48373326659202576,
+      0.5189804434776306
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Lantern_ParCan\\SM_Lantern_ParCan.fbx",
+   "fbx_sha256": "48b678a9f8d963e35106694547323c7f19575f015ec8e28fec0339a786d7cd09",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Lantern_ParCan_LOD0",
+      "type": "MESH",
+      "parent": "SM_Lantern_ParCan_LODGroup",
+      "fbx_type": null,
+      "tris": 11348,
+      "bounds_cm": [
+       [
+        -18.52,
+        -15.48,
+        -17.11
+       ],
+       [
+        21.48,
+        15.46,
+        27.61
+       ]
+      ],
+      "size_cm": [
+       40.0,
+       30.94,
+       44.72
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_ParCan_Lens",
+        "faces": 201
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_ParCan_Metal",
+        "faces": 11147
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_ParCan_LOD1",
+      "type": "MESH",
+      "parent": "SM_Lantern_ParCan_LODGroup",
+      "fbx_type": null,
+      "tris": 2860,
+      "bounds_cm": [
+       [
+        -18.51,
+        -15.42,
+        -17.08
+       ],
+       [
+        21.42,
+        15.41,
+        27.62
+       ]
+      ],
+      "size_cm": [
+       39.93,
+       30.82,
+       44.7
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_ParCan_Lens",
+        "faces": 27
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_ParCan_Metal",
+        "faces": 2833
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_ParCan_LODGroup",
+      "type": "EMPTY",
+      "parent": null,
+      "fbx_type": "LodGroup"
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -18.52,
+     -15.48,
+     -17.11
+    ],
+    [
+     21.48,
+     15.46,
+     27.61
+    ]
+   ],
+   "final_size_cm": [
+    40.0,
+    30.94,
+    44.72
+   ],
+   "tris": 11348,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_ParCan_Lens",
+     "faces": 201
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_ParCan_Metal",
+     "faces": 11147
+    }
+   ],
+   "lod1_tris": 2860,
+   "lod1_slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_ParCan_Lens",
+     "faces": 27
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_ParCan_Metal",
+     "faces": 2833
+    }
+   ],
+   "lodgroup_readback": [
+    {
+     "name": "SM_Lantern_ParCan_LODGroup",
+     "fbx_type": "LodGroup"
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  },
+  "SM_Lantern_Profile": {
+   "asset": "SM_Lantern_Profile",
+   "source_uuid": "7c3bcd6b-2fd2-48d2-875b-8d3674a216ab",
+   "source_dir": "E:\\PussStage\\DerivedAssets\\Lighting\\Meshy\\7c3bcd6b-2fd2-48d2-875b-8d3674a216ab",
+   "warnings": [
+    "UNCLEAR lens: no bright (texel lum >= 0.15) forward region covers its own centre; the lens was picked on geometry alone (luminance filter off) - check the slot map"
+   ],
+   "textures": [
+    "T_SM_Lantern_Profile_BaseColor.png",
+    "T_SM_Lantern_Profile_Normal.png",
+    "T_SM_Lantern_Profile_Roughness.png",
+    "T_SM_Lantern_Profile_Metallic.png"
+   ],
+   "source_tris": 492946,
+   "decimate_ratio_lod0": 0.023022805743428288,
+   "classification": {
+    "rule": "lens seed = largest edge-connected region of forward-facing (n.x>0.5) faces in the front 45 % whose base-colour texel luminance >= 0.15 and that covers its own centre (a -X ray through its area centroid first hits it); lens = all forward faces within the seed's 95th-pct radius and x-range +/-5 % L",
+    "seed_lum_filter": 0.0,
+    "lens_mean_lum": 0.055,
+    "other_front_faces_mean_lum": 0.181,
+    "lens_faces_lod0": 126,
+    "lens_seed_faces": 125,
+    "lens_diameter_cm": 9.6,
+    "lens_centroid_cm": [
+     33.2,
+     0.0,
+     -0.9
+    ],
+    "lens_area_fraction": 0.0166
+   },
+   "scale_rule": "x extent of vertices within 1.35 x lens radius of the beam axis = 60.0 cm (target 60.0)",
+   "pivot_rule": "tilt axis: median (x,z) of the most lateral 7 % of vertices on each side, middle 70 % of length, below top 15 %",
+   "pivot_evidence": [
+    {
+     "side": "+Y",
+     "x_cm": -0.13,
+     "z_cm": 0.09,
+     "verts": 67,
+     "half_width_cm": 12.9
+    },
+    {
+     "side": "-Y",
+     "x_cm": 0.13,
+     "z_cm": -0.09,
+     "verts": 66,
+     "half_width_cm": 12.8
+    }
+   ],
+   "decimate_ratio_lod1": 0.2521589707437434,
+   "class": "housing",
+   "pivot": "yoke tilt axis at origin (heuristic, see pivot_evidence); beam +X; yoke/clamp +Z",
+   "orientation_evidence": "source beam axis -X (raw 6-view renders + front-cap luminance score, diag_axes.py); rotated 180 deg about Z",
+   "target_cm": {
+    "length": 60.0
+   },
+   "uniform_scale_from_source": 0.3169285497180889,
+   "renders": {
+    "view_dir": [
+     0.6880209445953369,
+     -0.6192188262939453,
+     0.37841153144836426
+    ],
+    "ortho_span_m": 0.8134911015629769,
+    "pivot_marker_uv": {
+     "origin": [
+      0.4473457634449005,
+      0.45204946398735046
+     ],
+     "x_tip": [
+      0.5476904511451721,
+      0.4098588228225708
+     ],
+     "z_tip": [
+      0.4473457336425781,
+      0.544613242149353
+     ]
+    }
+   },
+   "fbx": "E:\\PussStage\\DerivedAssets\\Lighting\\MeshyClean\\SM_Lantern_Profile\\SM_Lantern_Profile.fbx",
+   "fbx_sha256": "7a6d1f41257f0569c462b239406517b97d303d089ab4ae6f2bc95ed442673413",
+   "readback": {
+    "objects": [
+     {
+      "name": "SM_Lantern_Profile_LOD0",
+      "type": "MESH",
+      "parent": "SM_Lantern_Profile_LODGroup",
+      "fbx_type": null,
+      "tris": 11348,
+      "bounds_cm": [
+       [
+        -23.79,
+        -12.79,
+        -12.64
+       ],
+       [
+        36.47,
+        12.9,
+        24.9
+       ]
+      ],
+      "size_cm": [
+       60.26,
+       25.69,
+       37.54
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_Profile_Lens",
+        "faces": 126
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_Profile_Metal",
+        "faces": 11222
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_Profile_LOD1",
+      "type": "MESH",
+      "parent": "SM_Lantern_Profile_LODGroup",
+      "fbx_type": null,
+      "tris": 2860,
+      "bounds_cm": [
+       [
+        -23.72,
+        -12.89,
+        -12.78
+       ],
+       [
+        36.48,
+        12.93,
+        24.89
+       ]
+      ],
+      "size_cm": [
+       60.2,
+       25.82,
+       37.66
+      ],
+      "slots": [
+       {
+        "index": 0,
+        "name": "M_SM_Lantern_Profile_Lens",
+        "faces": 23
+       },
+       {
+        "index": 1,
+        "name": "M_SM_Lantern_Profile_Metal",
+        "faces": 2837
+       }
+      ],
+      "uv_layers": [
+       "UVMap"
+      ]
+     },
+     {
+      "name": "SM_Lantern_Profile_LODGroup",
+      "type": "EMPTY",
+      "parent": null,
+      "fbx_type": "LodGroup"
+     }
+    ]
+   },
+   "final_bounds_cm": [
+    [
+     -23.79,
+     -12.79,
+     -12.64
+    ],
+    [
+     36.47,
+     12.9,
+     24.9
+    ]
+   ],
+   "final_size_cm": [
+    60.26,
+    25.69,
+    37.54
+   ],
+   "tris": 11348,
+   "slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_Profile_Lens",
+     "faces": 126
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_Profile_Metal",
+     "faces": 11222
+    }
+   ],
+   "lod1_tris": 2860,
+   "lod1_slots": [
+    {
+     "index": 0,
+     "name": "M_SM_Lantern_Profile_Lens",
+     "faces": 23
+    },
+    {
+     "index": 1,
+     "name": "M_SM_Lantern_Profile_Metal",
+     "faces": 2837
+    }
+   ],
+   "lodgroup_readback": [
+    {
+     "name": "SM_Lantern_Profile_LODGroup",
+     "fbx_type": "LodGroup"
+    }
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "uv_note": "Meshy UV0 kept as authored (decimation interpolates it); the textures were made for these UVs, so no V flip was applied. The wing 'V runs down' rule concerns planar-projected wings, not baked atlases."
+  }
+ }
+}
