@@ -280,3 +280,10 @@
 - **Editor sky (Gary):** our Dusk Sun/Moon/Skylight are already 0 in the level [meas probe_sun]; the editor's daytime sky comes
   from Klara's levels (suns 17.4/4.9/1.0, Japanese_Alley skylight 40) + sky atmospheres/clouds. editor_sky_toggle.py hid 14
   sky actors with set_is_temporarily_hidden_in_editor (transient, census unchanged) — re-run after each editor restart.
+- **Fixtures (Gary):** bare bulbs OUT of the cans, placed on the ground + hanging for reflections; bulbs and parcans ×3;
+  Gary will aim lights by hand (as P01 yesterday) and wants a tool to point parcans/lanterns to match → investigation +
+  FOLLOW/SCALE/RELOCATE tools (FIXTURES_FOLLOW_SCALE_BULBS_2026-10-07.md). Bulbs status [decl swap records]: 225 swapped
+  to Meshy meshes at real size, most inside lantern housings (one housing per Structure incl. practicals).
+- **S2 ceiling wings (Gary: wrong direction down the alley)** [meas]: SM_S2_ceiling_wing ×6 in Japanese_Alley, yaw −43.6,
+  span across the alley, back facing her camera (yaw 134.4) [inf] → s2_ceiling_flip.py (180°, her map saved behind
+  backup + exact census) DRY OK; APPLY waits for a clean census (next restart).
