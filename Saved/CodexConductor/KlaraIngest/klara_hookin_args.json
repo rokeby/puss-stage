@@ -2,48 +2,67 @@
  "mode": "DRY",
  "confirm": "",
  "run_id": null,
- "decided_by": "",
- "decided_by_note": "Fill before any APPLY: Gary 6 Oct chose the three LSs and approved relengthing; the START OPTION per Scene and the S1/S2 narration conflicts are NOT yet decided (HOOKIN_PLAN.md section 5).",
- "levels": [
-  "/Game/KK_S1_Animals/L_Animals",
-  "/Game/Japanese_Alley/Maps/Japanese_Alley",
-  "/Game/L_KK_children"
- ],
- "initially_visible": false,
+ "decided_by": "Gary 7 Oct (his own answers, relayed by the conductor): (1) shot start 'After the hangar lands' -> land_plus_strike for S1 and S4; (2) S1 narration 'Drop it for now' -> mute (deactivate, never delete); (3) S2 'Import, keep our S2' -> Japanese_Alley streamed for viewing only, LS_DevScene_02 untouched; (4) lighting 'Hers; ours off in her scenes'. Design note 7 Oct: 'bring her dioramas into the hangar itself ... a wide shot ... as the light strikes on a dark hangar, before we go into her cinematic sequences'. NOT Gary's: wide_hold_s 5.0 (proposed), anchor 'center' (proposed), the hers_dark/ours_off windows (proposed, HOOKIN_PLAN.md section 4).",
+ "copy_folder": "/Game/InfinityStage/KlaraHookin",
+ "margin_cm": 100.0,
+ "hangars": {
+  "1": {"source": "Saved/CodexStructure/hangar_s1_record.json (30 Sep) [meas, stale: DRY checks the live S1 Hangar Apron]",
+        "dock": {"loc": [28784.0135, 0.0, 150.0], "yaw": 0.0},
+        "apron": 500.0, "depth": 6000.0, "half_w": 1000.0, "height": 3000.0, "lattice_z": 1200.0, "floor_t": 20.0},
+  "2": {"source": "Saved/CodexStructure/hangar_s2_record.json (30 Sep) [meas, stale]",
+        "dock": {"loc": [10742.232211654631, 81299.0241181779, 180.0], "yaw": -43.57251940082824},
+        "apron": 500.0, "depth": 6000.0, "half_w": 1000.0, "height": 3000.0, "lattice_z": 1200.0, "floor_t": 20.0},
+  "4": {"source": "Saved/CodexStructure/hangar_s4_plan.json [meas, stale]",
+        "dock": {"loc": [10668.4695, 240000.0, 180.0], "yaw": 0.0},
+        "apron": 500.0, "depth": 6000.0, "half_w": 1000.0, "height": 3000.0, "lattice_z": 1200.0, "floor_t": 20.0}
+ },
+ "levels": {
+  "/Game/KK_S1_Animals/L_Animals": {"scene": "1", "footprint_her": [-1200, 656, -630, 386], "floor_z_her": 0.0,
+                                    "z_top_her": 554.0, "anchor": "center", "local_yaw_options": [0, 180, 90, 270],
+                                    "footprint_note": "2-98% component RelativeLocation pivots, offline parse of her .umap [meas]; pivots understate mesh extent - DRY re-measures live bounds once streamed"},
+  "/Game/Japanese_Alley/Maps/Japanese_Alley": {"scene": "2", "footprint_her": [-2579, 811, -1147, 1409], "floor_z_her": 790.0,
+                                    "z_top_her": 2010.0, "anchor": "center", "local_yaw_options": [0, 180, 90, 270],
+                                    "footprint_note": "as above; her ground is ~790 cm (10th-percentile z) [meas]"},
+  "/Game/L_KK_children": {"scene": "4", "footprint_her": [-600, 1657, -674, 657], "floor_z_her": 0.0,
+                          "z_top_her": 700.0, "anchor": "center", "local_yaw_options": [0, 180, 90, 270],
+                          "footprint_note": "as above"}
+ },
+ "lighting": {"ours_off": true, "hers_on": true,
+              "note": "hers_on needs the proposed CelestialRig exemption (HOOKIN_PLAN.md section 4); DRY refuses until it is built"},
+ "import_only": {
+  "2": {"level": "/Game/Japanese_Alley/Maps/Japanese_Alley",
+        "note": "Gary 7 Oct 'Import, keep our S2': streamed (hidden) into the S2 hangar for viewing; LS_DevScene_02 untouched"}
+ },
  "scenes": {
   "1": {
    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_01",
    "current_nested": "/Game/Scenes/LS_Animals_1",
    "her_sequence": "/Game/KK_S1_Animals/LS_Animals_1",
-   "start_option": "keep",
-   "narration_rule": "after_voices",
-   "narration_track": "Narration (stand-in)",
-   "voices_pattern": "Animal_Voices",
-   "tail_s": 0.0,
-   "allow_truncate": [],
-   "visible_levels": ["L_Animals"]
-  },
-  "2": {
-   "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_02",
-   "current_nested": "/Game/Scenes/LS_Shrine",
-   "her_sequence": "/Game/KK_S2_Shrine/LS_NEW_SHRINE",
-   "start_option": "keep",
-   "narration_rule": "inside_shot",
+   "level_packages": ["/Game/KK_S1_Animals/L_Animals"],
+   "visible_levels": ["L_Animals"],
+   "start_option": "land_plus_strike",
+   "wide_hold_s": 5.0,
+   "narration_rule": "mute",
    "narration_track": "Narration (stand-in)",
    "tail_s": 0.0,
    "allow_truncate": [],
-   "visible_levels": ["Japanese_Alley"]
+   "ours_off": true,
+   "hers_dark_until_cut": true
   },
   "4": {
    "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
    "current_nested": "/Game/Scenes/LS_Children",
    "her_sequence": "/Game/LS_Children",
-   "start_option": "keep",
+   "level_packages": ["/Game/L_KK_children"],
+   "visible_levels": ["L_KK_children"],
+   "start_option": "land_plus_strike",
+   "wide_hold_s": 5.0,
    "narration_rule": "none",
    "narration_track": "Narration (stand-in)",
    "tail_s": 0.0,
    "allow_truncate": [],
-   "visible_levels": ["L_KK_children", "L_Animals"]
+   "ours_off": true,
+   "hers_dark_until_cut": true
   }
  }
 }

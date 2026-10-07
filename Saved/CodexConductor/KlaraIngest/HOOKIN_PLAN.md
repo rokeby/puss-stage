@@ -1,155 +1,154 @@
-# Klara hook-in plan: S1 / S2 / S4 (6 Oct, offline)
+# Klara hook-in plan v2: her dioramas inside our hangars (7 Oct, offline)
 
-Offline only: no Unreal, no MCP, nothing copied into Content, no commit. The tool is
-`klara_hookin.py` (with `_run.py`, `_args.json` (DRY), `_request.json`). The harness is
-`test_klara_hookin_offline.py`: 21 tests pass, and 6 of 6 seeded mutations are caught.
+This is offline work only: nothing was run in Unreal or over MCP, nothing was copied into Content, and nothing was
+committed.
 
-Tiers per claim:
-- **[decl]**: a header or source we can read.
-- **[bin]**: none used here.
-- **[meas]**: bytes read or a record read back today.
-- **[inf]**: inferred, with the reason stated.
+| File | Role |
+|---|---|
+| `klara_hookin.py` | The tool |
+| `klara_hookin_run.py` | Runner |
+| `klara_hookin_args.json` | Arguments, mode DRY |
+| `klara_hookin_request.json` | MCP request |
+| `test_klara_hookin_offline.py` | Offline harness |
 
-## 1. How a Scene plays today
+The harness passes 28 of 28 tests, and 12 of 12 seeded mutations are caught.
 
-- A Scene cue plays one sequence, `LS_DevScene_0N`. The Master nests that per cue
-  (`extend_scene_playback.py:300-320, 390` [decl]).
-- `LS_DevScene_0N` nests three things:
-  - `LS_S<n>_HangarRise`;
-  - a "shot" sub-section (S1 `/Game/Scenes/LS_Animals_1`, S2 `LS_Shrine`, S4 `LS_Children`);
-  - the root track "Narration (stand-in)".
+Proof tiers, marked per claim:
+- **[decl]** — stated by a header, signature or source we can read.
+- **[prec]** — follows an in-repo precedent (cited).
+- **[meas]** — bytes, or a record, read back.
+- **[inf]** — inferred; the reason is given.
 
-  Source: byte scan of the `.uasset` files [meas]. The `_1` suffix is an FName number, so the
-  exact name is [inf]; DRY checks it.
-- S1's narration is at frames 5216-6091 at 25 fps (208.64-243.64 s), and S1 ends at 245.0 s
-  (`s1_narration_after_voices_record.json` [meas]). S2's narration is 104-1973 (4.16-78.92 s,
-  74.752 s long) (`scene_narration_standin_record.json` [meas]).
-- **No Scene streams a level today.**
-  - The show `.umap` (single-file, not OFPA) contains no `LevelStreaming`, `LevelInstance`,
-    `WorldPartition` or `bIsPartitioned` strings, ASCII or UTF-16 [meas].
-  - `scene_scale_audit.json:95` lists `level_instances: []` [meas, 26 Sep].
-  - The orphan folder `Content/__ExternalActors__/KK_S1_Animals/LI_KKS1Animals` holds 0 files [meas].
-- Today's shot cameras never resolve: "LS_Animals_1 … no actor in the show level carries those
-  labels" (`Docs/SceneImportCameras_2026-09-30.md` §1 [meas, 30 Sep]).
+## 1. Gary's decisions, encoded in `decided_by`
 
-## 2. The key question: how do her bindings resolve?
+**7 Oct, his own answers:**
+1. The shot starts "After the hangar lands" (`land_plus_strike`).
+2. S1 narration: "Drop it for now". The tool **mutes** it (`set_is_active(False)`, never deleted). REVERT
+   re-activates it.
+3. S2: "Import, keep our S2". The S2 level is **streamed only**. `LS_DevScene_02` is untouched. It appears in
+   `import_only`.
+4. Lighting: "Hers; ours off in her scenes".
 
-**Her bindings are full paths into her maps** [meas]. I decoded each LS's soft-object-path table
-(package FName, asset FName, sub-path):
-- S1 has 25 bindings, e.g. `/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.CineCameraActor_7`.
-- S2 has 1 binding, `/Game/Japanese_Alley/Maps/Japanese_Alley…:PersistentLevel.CineCameraActor_1`.
-- S4 has 21 bindings in `/Game/L_KK_children` and **5 SpotLights in `/Game/KK_S1_Animals/L_Animals`**.
+**7 Oct design note:** her dioramas sit inside the hangar. We see a wide shot as the light strikes on a dark hangar,
+then go into her cinematics.
 
-Her `L_KK_children.umap` holds no LevelStreaming names [meas]. So in her own project those 5
-lights probably never resolved [inf].
+**Not Gary's, proposed by me:**
+- `wide_hold_s` = 5 s;
+- `anchor` = `center`;
+- the lighting windows in section 4.
 
-### Options
+## 2. Mechanism, with evidence
 
-**(a) RECOMMENDED: plain streaming sublevels at IDENTITY, plus retargeting the existing shot sections.**
-- The locator stores a `FSoftObjectPath` (`ActorLocatorFragment.h:39-40` [decl]).
-- A non-instanced streaming level loads under its real package name. So the full path should find
-  the actor in the editor world, which is what `CheckSceneCutBindings` resolves against
-  (`InfinityStageCameraPilotLibrary.cpp:691, 777` [decl]). That this resolves is [inf]: the engine
-  has headers only, no `.cpp`.
-- PIE needs a PIE-prefix fixup. That is [inf] and must be **measured** in PIE.
-- The show world is not World Partition [meas: the strings are absent], so classic sublevels are
-  allowed [inf].
+**Placement: streaming sublevel + LevelTransform.**
+- Use a non-instanced streaming sublevel whose `LevelTransform` is the landed dock frame composed with a fitted local
+  offset. `LevelTransform` is "Transform applied to actors after loading", `BlueprintReadWrite` [decl
+  `LevelStreaming.h:226-227`].
+- Non-instanced streaming keeps her package name. Her bindings are full paths, e.g.
+  `/Game/KK_S1_Animals/L_Animals.L_Animals:PersistentLevel.CineCameraActor_7` [meas: decoded soft-object-path table].
+  So they should still resolve [inf]. This is **measured** at APPLY_STREAM through the live `CheckSceneCutBindings`
+  verdicts (`CameraPilotLibrary.cpp:691,777`) [decl].
+- LevelInstance is rejected: an instanced package is renamed (our code matches `"_LevelInstance_"`,
+  `suppress_foreign_sky_stage1.py:10`) [meas]. Resolution would then need a per-player
+  `SetSourceActorContext(StreamingWorld, ContainerID, SourceAssetPath)` (`LevelSequencePlayer.h:93`) [decl], which our
+  single Master player does not supply [inf].
 
-**Why not a LevelInstance.** Instances load under an instanced package name: our own code matches
-`"_LevelInstance_"` (`suppress_foreign_sky_stage1.py:10` [meas]). Resolution then needs a per-player
-`SetSourceActorContext(StreamingWorld, ContainerID, SourceAssetPath)`
-(`LevelSequencePlayer.h:93, 180-186` [decl]). Our single Master player in the persistent level
-does not supply that for nested Scenes [inf].
+**Keys: a re-keyed COPY of her LS, translation-only. Her original is never edited.**
+- **Sub-section transform origin.** It exists:
+  - per-section `Translation[3]`/`Rotation[3]` with an `OriginOverrideMask` (`MovieSceneSubSection.h:278-285`) [decl];
+  - composed by nesting depth (`MovieSceneTransformOriginSystem.h:13-35`) [decl].
 
-**Why IDENTITY placement.**
-- Her keyed cameras (3DTransform tracks in S1/S2/S4 [meas]) are absolute. A level transform would
-  move the actors but not the keys [inf: standard Sequencer behaviour].
-- Gary's architecture is "the lights strike, then we **cut** into the scene's sequence"
-  (`SCENE_ARCHITECTURE_2026-09-30.md` [decl]). So her set never has to sit inside the hangar.
+  But the mask is a bare `UPROPERTY()` and `SetMask` is not a `UFUNCTION` (`:168-175, 278-279`) [decl]. So Python
+  cannot turn it on [inf; DRY probes `origin_override_mask`]. It would be the better route if a small C++ setter were
+  approved.
+- **Actor-level `TransformOrigin`.** It lives on the actor's instance data (`DefaultLevelSequenceInstanceData.h:31-39`)
+  [decl], so it would move the whole Master. Rejected.
+- **The copy.**
+  - It shifts every top-level, unattached `3DTransform` Location key and default by the same transform.
+  - This is exact for cubic keys, because a constant offset leaves tangents unchanged [inf, standard Bezier algebra].
+  - A test checks that a keyed point ends where the LevelTransform puts a static actor at the same point.
+  - S1 and S4 docks have yaw 0 [meas: `hangar_s1_record.json` dock.yaw 0; `hangar_s4_plan.json` yaw 0]. Local yaw 0
+    therefore gives a pure translation. Any non-zero world yaw refuses.
+  - Channels are picked by order and their names verified (memory: names are suffixed, `Location.X_183`).
 
-**(b) Re-binding to our actors** means copying her level contents into the show map (S4: 7
-MetaHuman BPs, 3.6 GB closure [meas census]). It is heavy and it mutates the map. Rejected.
+## 3. Fit: what was measured offline, and the result
 
-**(c) Spawnables** means editing her LS, and the transforms stay absolute anyway. MetaHumans would
-spawn at the cut. Rejected [inf].
+- **Hangar interior** in dock-local coordinates: x in [500, 6500], y ±1000, floor top z = 0, lattice at 1200, height
+  3000 [decl `hangar_build.py:211,229,435-440`; meas records]. With a 1 m margin this gives **58 × 18 m**.
+- **Her sets**, as 2–98 % component pivots from her `.umap` files [meas; pivots understate mesh extent]:
 
-### Overlap: one set visible at a time
+| Level | Footprint | Ground | Top | Fits? |
+|---|---|---|---|---|
+| L_Animals (S1) | 18.6 × 10.2 m | 0 | 5.5 m | **Yes**, yaw 0. LevelTransform ≈ (32556, 122, 150) |
+| L_KK_children (S4) | 22.6 × 13.3 m | 0 | 7 m | **Yes**, yaw 0 |
+| Japanese_Alley (S2) | 33.9 × 25.6 m | ~7.9 m | 12.2 m above ground | **No** |
 
-Her three sets all sit roughly within ±60 m of the origin [meas]. Method: an offline parse of
-`RelativeLocation`, 5-95th percentile:
-- L_Animals: x -129..535, y -381..270;
-- Japanese_Alley: x -2449..600;
-- L_KK_children: x -430..1630.
+- **Japanese_Alley detail.** It overhangs **3.8 m per side** and its top is above the 12 m lattice. S2 is import-only,
+  so this is reported as a warning. Gary or Klara must choose which part goes in; scaling is not proposed.
+- **Live check.** The tool re-measures live bounds once the levels are streamed. It checks each dock against the
+  world-fixed `S<n> Hangar Apron` (`hangar_build.py:432-441`) [decl], because the dock records are from 30 Sep
+  [meas, stale].
+- **One level, one placement.** S4's 5 SpotLight bindings into L_Animals [meas] resolve to S1-hangar lights. Those
+  are hidden during S4, so S4 loses them. A second copy of L_Animals would need rebinding, which is not mechanical.
+  This is a decision.
 
-So they **overlap each other**, which means each Scene needs a Level Visibility track:
-- Levels are added as `LevelStreamingDynamic`, initially loaded and initially **hidden**.
-- Each Scene shows only its own levels during its shot:
-  `MovieSceneLevelVisibilitySection.SetLevelNames / SetVisibility`
-  (`MovieSceneLevelVisibilitySection.h:43, 49` [decl]).
-- Level names are short names [inf].
+## 4. Timeline and lighting, encoded in each `LS_DevScene_0N`
 
-Overlap with our own content near the origin (the dev grid) is UNMEASURED.
+```
+[0, land)    dark hangar; her level hidden
+[land, cut)  Level Visibility track shows her level; OUR strike lights reveal the diorama (wide shot on our root
+             cuts); HER sun/sky/fog/atmosphere/cloud/PPV hidden (Visibility tracks, RESTORE_STATE)
+[cut, end)   her re-keyed cinematic; her environment visible; OUR rig's sun/moon/sky light/height fog hidden
+cut = land + StrikeAfterLandSeconds + wide_hold_s;  end = cut + her length  (S1 = 255 + 5265 = 5520 f at the
+measured land 104 + 26 strike frames: harness numbers, live values come from DRY)
+```
 
-## 3. Per-scene steps (in order)
+Every window is a section in the Scene's own sequence: the Master stays the authority, and scrubbing out of a window
+restores state [inf: RESTORE_STATE semantics].
 
-0. **Prerequisites.**
-   - Klara's copy has landed.
-   - Take a `Backups/` snapshot. The tool also takes per-file sha-checked backups.
-   - Run DRY and read its `api_table`: every row marked [inf] must be `ok=1`.
-1. **APPLY_STREAM** (map write, Gary). Adds the 3 levels at identity and saves **only** the show map.
-   - It records the `check_scene_cut_bindings` lines for each cue. This is the real binding gate.
-   - The automation test `SceneCutBindingsResolve` builds its **own** preview world
-     (`InfinityStageCutBindingTests.cpp:31` [decl]). It proves the function works, not our data.
-2. **APPLY_SEQ** (writes the Scene sequences only). For each Scene, on the existing shot
-   sub-section in `LS_DevScene_01/02/04`:
-   - `set_sequence(her LS)`;
-   - range `[start, start + ceil(len × 25))`;
-   - `StartFrameOffset = 0`.
-   - Read-back: `get_parent_sequence_frame` must map her playback start and end onto exactly that
-     range (`MovieSceneSectionExtensions.h:255` [decl]). This proves the time scale is 1 and the
-     offset is 0.
-   - **Her negative start needs nothing extra.** The section start plays her lower bound
-     (`inner_to_scene_s`, harnessed; port of `scene_audio_import.py:235-241` [prec]).
-   - Lengths: S1 210.6 s = **5265 f**, S2 5 s = **125 f**, S4 164 s = **4100 f**, all on the
-     25 fps grid [meas census + harness]. At 24 fps, 5054.4 would be ceiled to 5055 and flagged.
-   - Narration is handled per §4. The tool adds the visibility track and saves only the sequences.
-3. **Relength** each Scene with `Saved/CodexSoftGoods/extend_scene_playback.py`, using the
-   `extend_mode` body DRY prints (`new_end_s`). That tool sets the end (`:371`), runs
-   **MatchNamedSceneHandoffs** (`:373`), gates root cut coverage (`:383`), rebuilds the Master
-   (`:390`), checks that Passage keys are carried, and saves exactly.
-4. **Verify.**
-   - Run `InfinityStage.Editor.SavedMasterMatchesShow` (`run_saved_master_test.py`).
-   - Run DRY again: `cut_bindings.ok=1` per cue.
-   - Run `SceneCutBindingsResolve`.
-   - Do a **PIE** play-through into each Scene (`scene1_tail_view_pie.py`): her camera must take
-     the view.
-5. **REVERT.** `REVERT_SEQ`, then extend back to `playback_before`, then `REVERT_STREAM`.
+**OUR lighting** is the rig's four bound actors (`CelestialRig.h:42-52`) [decl]. Hiding them is not fought:
+- the rig never ticks (`CelestialRig.cpp:49`) [decl];
+- `ApplyCyclePhase` writes only intensity, colour and rotation, never their visibility (`:362-528`) [decl];
+- it runs only from Passage sections (`MovieSceneInfinityPassageTrack.cpp:228-236`) [decl].
 
-## 4. Decisions needed before APPLY (the tool refuses until they are made)
+The Visibility track's property must read `bHiddenInGame`; APPLY gates on that [inf until run].
 
-- **Start option.** The default is `keep` (the current shot start). DRY prints `keep`, `land` and
-  `land_plus_strike`. Nested cuts outrank root cuts (memory, measured 30 Sep), so with `keep` at
-  frame 0 **her cameras hide the hangar rise**. Gary's "rise, strike, then cut" points to
-  `land_plus_strike`.
-- **S1 narration (D57).** Her LS_Animals_1 holds only `Animals_Project_CLICK` (149.2 s). Its name
-  table has no `Animal_Voices` [meas], so the rule says **REPORT**.
-  - The narration (208.64-243.64 s) would then run past her shot end (210.6 s from start), and the
-    tool refuses with `NARRATION_PAST_HER_END`.
-  - Directing must give `narration_override_start_s` or a `tail_s`.
-  - Also check whether "CLICK" is a click track rather than audience audio [inf from the name].
-- **S2 narration cannot fit.** 74.75 s of narration does not fit a 5 s shot (`NARRATION_NOT_INSIDE_SHOT`).
-  The S2 hangar-rise section (31 s on 30 Sep [meas, stale]) would also pass a 5 s end
-  (`SECTION_PAST_PLANNED_END`).
-- **S4** binds the 5 L_Animals SpotLights. With L_Animals visible in S4 they will animate, which
-  Klara may never have seen [inf]. Visibility is set per args (`["L_KK_children","L_Animals"]`).
+**HER lighting is silenced by the rig today.** `bSuppressForeignEnvironmentLighting` defaults to true
+(`CelestialRig.h:95-107`). It hides every foreign directional light, sky light, atmosphere, fog and cloud (component
+visibility plus hidden-in-game, `cpp:254-298`):
+- at BeginPlay (`:91-110`);
+- on every level add (`:352-359`);
+- every 2 s during phase applies (`:320-340, 362-386`) [decl].
 
-## 5. Risks
+A Visibility track only toggles hidden-in-game [inf], so it cannot undo this.
 
-- Her levels carry DirectionalLight, SkyLight, Fog, PostProcessVolume and Atmosphere actors, and a
-  LevelSequenceActor [meas: name tables]. There is no `bAutoPlay`/`PlaybackSettings` override in
-  them, so they will not autoplay [inf].
-- While a level is visible, her sky doubles ours (see the `suppress_foreign_sky` precedent). This
-  is the lighting stream's call.
-- Memory: the S1 + S4 closures are 1.45 GB and 3.59 GB, kept resident while "initially loaded".
-- Adding a level may dirty her packages. The census gate then stops with nothing saved.
-- Saving the map persists evaluated state. The tool refuses while Sequencer is open.
+**Narrow fix (a C++ patch, held for the Rig & atmosphere owner; not written into the source).** Add
+`TArray<TSoftObjectPtr<UWorld>> ForeignLightingExemptLevels`. In `SuppressIfForeign`, return false when
+`UWorld::RemovePIEPrefix(Actor->GetLevel()->GetOutermost()->GetName())` names an exempt level. Test with one exempt and
+one non-exempt level. Until it is built, DRY refuses `RIG_SUPPRESSES_HER_LIGHTING` (or set `lighting.hers_on` false).
+
+**Risks of her environment inside our hangar** [inf]:
+- A directional light, sky light and height fog are **world-global**. While visible they also light the passages and
+  other hangars, but only during [cut, end), when we are in her cinematic.
+- Our hangar **roof and walls occlude her sun and sky**, so her set will be darker than she authored it. Proposal:
+  hide the S<n> roof and lattice during [cut, end). This is Look & camera / Gary's call and is not implemented.
+- Her cameras may sit outside our 20 m-wide box and see walls. This is **UNMEASURED**: read the re-keyed camera keys
+  against the box (`inside_box_local`) after APPLY_SEQ.
+- An unbound PPV of hers may fight the hangar's pinned exposure.
+
+## 5. Steps
+
+0. Klara's copy lands, then take a `Backups/` snapshot. Run DRY: every API row must be ok, the dock checks must pass,
+   and there must be no refusals.
+1. **APPLY_STREAM.** Adds all 3 levels with their LevelTransforms, initially loaded and hidden. Saves only the map.
+   Records the cut-binding verdicts.
+2. **APPLY_SEQ** (S1, S4). Duplicates and re-keys her LS. Retargets the shot section to the copy, with
+   `get_parent_sequence_frame` read-back (`MovieSceneSectionExtensions.h:255`) [decl]. Mutes the narration, adds the
+   visibility and lighting tracks, and saves only the Scene sequences and the copies.
+3. **Relength** with `extend_scene_playback.py`, using the printed `new_end_s` (it rematches handoffs, gates coverage
+   and rebuilds the Master).
+4. **Verify.** Run `SavedMasterMatchesShow`, live `check_scene_cut_bindings` per cue, and a PIE play-through (wide
+   shot, then cut).
+
+   Note that the `SceneCutBindingsResolve` test uses its own preview world (`InfinityStageCutBindingTests.cpp:31`)
+   [decl], so it does not check our data.
+5. **REVERT.** `REVERT_SEQ`, then extend back, then `REVERT_STREAM`.
