@@ -18,10 +18,18 @@
  "p01_v_end_source": "opening_timing.json v_end_cm_s (re-measured 5 Oct after the crossing settle)",
  "allow_stale_song_markers": false,
  "prerequisite_records": {
-  "2": "p02_straighten_record.json"
+  "2": "p02_straighten_record.json",
+  "1": "p01_shorten_record.json"
  },
  "prerequisite_note": "APPLY refuses P02 until this record exists here with applied=true. Confirm the real record name once p02_straighten.py lands; set to null only on Gary's word.",
  "per_passage": {
+  "1": {
+   "guid": "659D5386D64DA7742A351B9499ECCE4C",
+   "song_s": 73.516032,
+   "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P01_Walking1_Cameron",
+   "expected": null,
+   "note": "7 Oct: run ONLY after p01_shorten APPLY (prerequisite below); guid lighting_scores_record_P01.json plan.passage_guid, song walking_music_swap_record_P01.json passages.1.import.duration_s (73.51603174603174 s)"
+  },
   "2": {
    "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
    "song_s": 45.51424,

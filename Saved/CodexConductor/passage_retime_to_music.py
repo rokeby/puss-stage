@@ -81,7 +81,10 @@ THE END OF A PASSAGE (why the default tail is 2.0 s)
     (P02 offline ~252 cm/s, P01 v_end 251.3). Same total length either way.
 
 MULTI-PASSAGE AND SPLIT RUNS
-  * One run may retime any subset of P02-P05 (default all four). Every value is read live, so P03-P05 first and P02
+  * P01 (key "1", added 7 Oct, P01_SHORTEN_PLAN.md): same maths; run it AFTER p01_shorten.py (args
+    prerequisite_records "1": "p01_shorten_record.json"). Extra for P01 only: ENTRY_SPEED_STEP warning (the Opening
+    walk-in eases into P01's lead-in speed; re-ease it with opening_sequence_apply.py afterwards).
+  * One run may retime any subset of P01-P05 (default P02-P05). Every value is read live, so P03-P05 first and P02
     later (after p02_straighten) is equally exact: segment j moves its start by the sum of the deltas of retimed
     Passages ending at or before its start, and its end by the sum ending at or before its end (shift_at()).
   * Each APPLY writes its own record passage_retime_to_music_record_<P..>.json; APPLY refuses a passage covered by an
@@ -124,7 +127,7 @@ EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
 ARGS_NAME = "passage_retime_to_music_args.json"
 DRY_NAME = "passage_retime_to_music_dry.json"
 RECORD_PREFIX = "passage_retime_to_music_record_"
-VALID_KEYS = ("2", "3", "4", "5")
+VALID_KEYS = ("1", "2", "3", "4", "5")    # "1" added 7 Oct for P01 (p01_shorten.py / P01_SHORTEN_PLAN.md)
 SONG_MARKER_PREFIXES = ("bar ", "§ ")     # choreo_tool.py:110,117 (p06_tail_extend.py:91)
 MANAGED_CLASSES = {"MovieSceneInfinityPassageTrack": "Passage", "MovieSceneInfinitySceneTrack": "Scene",
                    "MovieSceneInfinityChoreoTrack": "Choreo", "MovieSceneInfinityAudioTrack": "Music"}
@@ -697,6 +700,21 @@ def unwrap(result, count):
     return result
 
 
+def entry_speed_warnings(key, lead_cm, old_lead, new_lead, tick, walkin_v_end):
+    """P01 only (7 Oct): the Opening's walk-in (LS_Opening_Curtain_Baked, its own sequence) eases INTO P01's lead-in
+    speed, measured live by opening_sequence_apply.py:341-358 [decl]. Scaling P01 changes that speed, so the walk-in
+    must be re-eased (re-run opening_sequence_apply DRY -> APPLY after the retime) or the step accepted. Reported, never
+    refused: the walk-in belongs to another tool. Other Passages: no entry walk-in, nothing reported."""
+    if str(key) != "1" or walkin_v_end is None or int(new_lead) <= 0 or float(lead_cm) <= 0.0:
+        return []
+    old_v = float(lead_cm) / (int(old_lead) / float(tick)) if int(old_lead) > 0 else None
+    new_v = float(lead_cm) / (int(new_lead) / float(tick))
+    step = (new_v / float(walkin_v_end) - 1.0) * 100.0
+    return ["P%s ENTRY_SPEED_STEP: Opening walk-in ends at %.1f cm/s; P01 lead-in %s -> %.1f cm/s (%+.1f%% at the cut). "
+            "Re-ease the walk-in: opening_sequence_apply.py re-measures v_end live (:341-358)" % (
+                key, float(walkin_v_end), "%.1f" % old_v if old_v is not None else "n/a", new_v, step)]
+
+
 def plan_passage(key, live, tick, fps, args):
     """All per-Passage planning from plain live facts. live: lead, intervals, tail, lead_cm, gaps, tail_cm, music,
     segment {start,end}, channels, pins_rel, origins, choreo, settle_s. Returns (row, refusals, warnings)."""
@@ -742,6 +760,7 @@ def plan_passage(key, live, tick, fps, args):
         days_new = plan["new_ticks"] / tick / max(float(cel["cycle_s"]), 1e-6) * float(cel["rate"])
         w.append("P%s CELESTIAL_SECONDS_BASED: %.2f -> %.2f day/night cycles over the Passage" % (key, days_old, days_new))
     r += expected_refusals(key, plan, per.get("expected") or {}, str(args.get("mode")).upper())
+    w += entry_speed_warnings(key, live["lead_cm"], live["lead"], plan["lead_frames"], tick, args.get("p01_v_end_cm_s"))
     row = {"key": key, "label": label_of(key), "segment": seg, "plan": plan, "speeds_old": old_v, "speeds_new": new_v,
            "vs_p01_v_end": {"p01_v_end_cm_s": args.get("p01_v_end_cm_s"),
                             "new_tail_pre_settle_cm_s": new_v["tail_pre_settle"], "new_mean_cm_s": new_v["mean"]},
@@ -1484,5 +1503,7 @@ def main():
         _stop(run, "PLAN_REFUSED|" + str(exc))
 
 
-if unreal is not None:
+# RETIME_IMPORT_ONLY (7 Oct): p01_shorten.py loads this module for its pure gates and live readers without running
+# main(); the shipped runner never sets it, so existing runs behave exactly as before.
+if unreal is not None and not globals().get("RETIME_IMPORT_ONLY"):
     main()

@@ -124,13 +124,17 @@ def t_fixture_consistency():
 @test
 def t_validate_args():
     check(rt.validate_args(ARGS) == [], "shipped args valid: %r" % rt.validate_args(ARGS))
-    check(ARGS["passages"] == ["2", "3", "4", "5"], "default passages P02-P05")
+    # 7 Oct: the shipped args file is edited between runs (it held ["3", "4"] after RETIME-20261006-014626), so the old
+    # "== P02-P05" check failed on a correct file; check a valid non-empty subset instead.
+    check(bool(ARGS["passages"]) and set(ARGS["passages"]) <= set(rt.VALID_KEYS), "shipped passages a valid subset")
     check(any("MODE" in x for x in rt.validate_args(args_with(mode="GO"))), "control: bad mode")
     check(any("PASSAGES" in x for x in rt.validate_args(args_with(passages=["6"]))), "control: P06 refused")
     check(any("PASSAGES" in x for x in rt.validate_args(args_with(passages=["2", "2"]))), "control: repeat")
     check(any("PASSAGES" in x for x in rt.validate_args(args_with(passages=[]))), "control: empty")
     check(any("TAIL" in x for x in rt.validate_args(args_with(tail_s=-1))), "control: negative tail")
-    a = args_with(mode="APPLY")
+    a = args_with(mode="APPLY", passages=["2", "3", "4", "5"])
+    for k in a["passages"]:
+        a["per_passage"][k]["expected"] = None
     check(any("EXPECTED_OLD_LEN" in x for x in rt.validate_args(a)), "control: APPLY without DRY numbers")
     a = args_with(mode="APPLY")
     for k in a["passages"]:
@@ -506,6 +510,137 @@ def t_drift_revert_census_handoff():
           "sync gate + control")
     check(rt.unwrap((True, "x"), 1) == ("x",) and rt.unwrap((False, "x"), 1) is None and rt.unwrap(None, 1) is None,
           "unwrap")
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# P01 (key "1", added 7 Oct with p01_shorten.py). INFERRED fixture - the live DRY reads the real values:
+#   segment 2312640..4624705 (2312065 ticks = 96.336 s) [meas walking_music_swap_record_P01.json segments_before];
+#   48 pairs at 48000 ticks / 600 cm [inf: 300.0 cm/s measured between PSTILLS-P01-20261005-070532 stills at 9.634 s and
+#   86.702 s; 600 cm = p456_baseline_plan.json p01_spacing]; lead 19008 ticks / 198 cm [inf: ~250 cm/s at the P01 start,
+#   opening_walkin_probe.json next_frame_pose 10 cm in 1/25 s, + the stills' intercept]; tail closes the measured length
+#   and the measured route 28784.0135 cm [meas probe_routes.json, hangar_s1_record.json dock].
+P01_SEG = {"label": "Passage 1", "start": 2312640, "end": 4624705}
+P01_FIX = {"lead": 19008, "intervals": [48000] * 48, "tail": 2312065 - 19008 - 47 * 48000,
+           "lead_cm": 198.0, "gaps": [600.0] * 48, "tail_cm": 28784.0135 - 198.0 - 47 * 600.0}
+with open(os.path.join(HERE, "walking_music_swap_record_P01.json"), encoding="utf-8") as _h:
+    P01_RAIL = dict(json.load(_h)["passages"]["1"]["rail_after"], mode="<InfinityMusicBindingMode.START: 0>", offset=0)
+P01_PER = {"guid": "659D5386D64DA7742A351B9499ECCE4C", "song_s": 73.516032, "expected": None,
+           "sound": "/Game/InfinityStage/Audio/PassageMusic/Cameron_20261005/SW_P01_Walking1_Cameron"}
+
+
+def p01_live(drop=6, **over):
+    kept = 48 - drop
+    f = P01_FIX
+    length = rt.compiled_length(f["lead"], f["intervals"][:kept], f["tail"])
+    live = {"lead": f["lead"], "intervals": f["intervals"][:kept], "tail": f["tail"], "lead_cm": f["lead_cm"],
+            "gaps": f["gaps"][:kept], "tail_cm": f["tail_cm"],
+            "segment": {"label": "Passage 1", "start": P01_SEG["start"], "end": P01_SEG["start"] + length},
+            "music": dict(P01_RAIL), "channels": {}, "pins_rel": [], "origins": [], "choreo": None, "settle_s": 1.0,
+            "celestial": None}
+    live.update(over)
+    return live
+
+
+def p01_args(**over):
+    a = args_with(passages=["1"])
+    a["per_passage"]["1"] = dict(P01_PER)
+    a.update(over)
+    return a
+
+
+@test
+def t_p01_key_and_fixture():
+    check("1" in rt.VALID_KEYS and rt.label_of("1") == "Passage 1", "P01 key accepted, label Passage 1")
+    check(rt.validate_args(p01_args()) == [], "P01-only args valid: %r" % rt.validate_args(p01_args()))
+    check(any("PASSAGES" in x for x in rt.validate_args(args_with(passages=["0"]))), "control: key 0 refused")
+    check(any("PASSAGES" in x for x in rt.validate_args(args_with(passages=["6"]))), "control: key 6 still refused")
+    f = P01_FIX
+    check(rt.compiled_length(f["lead"], f["intervals"], f["tail"]) == P01_SEG["end"] - P01_SEG["start"],
+          "P01 fixture sums to the measured 96.336 s")
+    v = rt.speeds(f["lead"], f["intervals"], f["tail"], f["lead_cm"], f["gaps"], f["tail_cm"], TICK, 1.0)
+    check(abs(v["route_cm"] - 28784.0135) < 1e-6 and abs(v["bay_max"] - 300.0) < 1e-9, "P01 fixture route/speed")
+    check(rt.record_name(["1"]) == "passage_retime_to_music_record_P01.json", "P01 record name")
+
+
+@test
+def t_p01_plan_after_shorten():
+    row, r, w = rt.plan_passage("1", p01_live(6), TICK, FPS, p01_args())
+    check(r == [], "P01 (42 bays) retime has no refusals: %r" % r)
+    tgt = rt.target_ticks(73.516032, 2.0, TICK, *FPS)
+    check(tgt == 1812480 and row["plan"]["new_ticks"] == tgt, "P01 new length = song + 2 s on a 25 fps frame")
+    check(abs(row["speeds_new"]["bay_max"] - 337.25) < 0.05, "P01 bays ~337 cm/s after drop 6: %r" % row["speeds_new"])
+    check(any("ENTRY_SPEED_STEP" in x for x in w), "P01 reports the walk-in speed step")
+    _r2, _r, w2 = rt.plan_passage("2", live_for("2"), TICK, FPS, args_with())
+    check(not any("ENTRY_SPEED_STEP" in x for x in w2), "control: P02 has no entry-speed warning")
+    check(rt.entry_speed_warnings("1", 198.0, 19008, 16000, TICK, None) == [], "control: no v_end -> no warning")
+    check(rt.entry_speed_warnings("1", 0.0, 0, 0, TICK, 251.3) == [], "control: no lead-in -> no warning")
+    check(rt.entry_speed_warnings("2", 198.0, 19008, 16000, TICK, 251.3) == [], "control: other key -> no warning")
+    row0, r0, _w = rt.plan_passage("1", p01_live(0), TICK, FPS, p01_args())
+    check(r0 == [] and row0["speeds_new"]["bay_max"] > 380.0, "control: no drop -> ~385 cm/s (+28%)")
+    _row, rf, _w = rt.plan_passage("1", p01_live(6), TICK, FPS, p01_args(max_speed_cm_s=330.0))
+    check(any("TOO_FAST" in x for x in rf), "control: max_speed_cm_s below the new speed refuses")
+    _row, rs, _w = rt.plan_passage("1", p01_live(30), TICK, FPS, p01_args())
+    check(any("SONG_OVERRUNS" in x for x in rs) is False and rs == [], "drop 30 still retimes (it slows the walk)")
+
+
+@test
+def t_p01_prerequisite():
+    tmp = tempfile.mkdtemp()
+    try:
+        pre = {"1": "p01_shorten_record.json"}
+        check(rt.prerequisites_missing(tmp, ["1"], pre), "control: P01 refused without the shorten record")
+        with open(os.path.join(tmp, "p01_shorten_record.json"), "w", encoding="utf-8") as h:
+            json.dump({"applied": False}, h)
+        check(rt.prerequisites_missing(tmp, ["1"], pre), "control: unapplied shorten record refused")
+        with open(os.path.join(tmp, "p01_shorten_record.json"), "w", encoding="utf-8") as h:
+            json.dump({"applied": True}, h)
+        check(rt.prerequisites_missing(tmp, ["1"], pre) == [], "applied shorten record satisfies P01")
+        check(ARGS["prerequisite_records"].get("1") == "p01_shorten_record.json", "shipped args gate P01 on the shorten")
+    finally:
+        shutil.rmtree(tmp)
+
+
+@test
+def t_import_only_guard():
+    """With a stand-in `unreal` importable, the module runs main() unless RETIME_IMPORT_ONLY is set."""
+    import types
+
+    class Boom(Exception):
+        pass
+
+    def _boom(*_a, **_k):
+        raise Boom()
+
+    fake = types.ModuleType("unreal")
+    fake.__getattr__ = lambda name: _boom
+    saved = sys.modules.get("unreal")
+    sys.modules["unreal"] = fake
+    try:
+        path = os.path.join(HERE, "passage_retime_to_music.py")
+        spec = importlib.util.spec_from_file_location("rt_guard", path)
+        mod = importlib.util.module_from_spec(spec)
+        mod.RETIME_IMPORT_ONLY = True
+        mod.RETIME_ARGS = {"mode": "BAD"}
+        ok = True
+        try:
+            spec.loader.exec_module(mod)
+        except Exception:  # noqa: BLE001 - anything raised means main() ran
+            ok = False
+        check(ok and mod.unreal is fake, "RETIME_IMPORT_ONLY loads without running main()")
+        spec2 = importlib.util.spec_from_file_location("rt_guard2", path)
+        mod2 = importlib.util.module_from_spec(spec2)
+        mod2.RETIME_ARGS = {"mode": "BAD"}
+        ran = False
+        try:
+            spec2.loader.exec_module(mod2)
+        except Exception:  # noqa: BLE001 - any failure inside main() proves it ran
+            ran = True
+        check(ran, "control: without the flag main() runs on import inside Unreal (unchanged behaviour)")
+    finally:
+        if saved is None:
+            sys.modules.pop("unreal", None)
+        else:
+            sys.modules["unreal"] = saved
 
 
 def offline_table():
