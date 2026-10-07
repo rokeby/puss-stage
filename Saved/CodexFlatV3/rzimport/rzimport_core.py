@@ -289,6 +289,9 @@ def _wing(project, mi, entry, record_hashes, refusals):
     side = str(entry.get("side"))
     mount = str(entry.get("mount") or "wing")
     passage = str(entry.get("intended_passage") or "")
+    # the v2 valance manifest writes "VAL (upper wing / valance; passage chosen at placement)": key on the token
+    if passage.split(" ", 1)[0] == "VAL":
+        passage = "VAL"
     if mount not in MOUNTS:
         refusals.append("MOUNT_UNKNOWN %s %s" % (tag, mount))
         return None
