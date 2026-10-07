@@ -172,3 +172,7 @@
   30 cm root; position TBD by Gary), HominidRibcage 21×22×10.5, HominidLegBone 28×8.5×4.2 (roughness too glossy → MI
   ~0.78), HominidJaw 7.8×8×4.2 — all 4K, same spec. Folded into the millstone tool (generic per-prop import, one per
   call; PLACE mode later). PearlClam: Rodin closed clam → cut into two valves, mantle, ~18 cm pearl, hinge keyed.
+- **PearlClam** submitted to Rodin (Blender session): seam horizontal → bottom bowl on the rock, LID hinged at the BACK
+  (lid rotates up about a horizontal back axis); parts Bottom / Lid (pivot on hinge) / Mantle / Pearl (~18 cm), shared
+  assembly frame. Asked for: hinge origin+axis in the assembly frame, open angle, seal clearance, contact footprint,
+  pearl rest position, slots/texture sizes.
