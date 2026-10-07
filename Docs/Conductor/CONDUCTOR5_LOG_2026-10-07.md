@@ -141,3 +141,7 @@
   The two earlier failures (014342, 155531) were a tool bug [meas diff]: normalize_export stripped an owned last field
   but left its leading comma ("Stutter=0.45,)" vs "Stutter=0.45)") on all 29 targets → false EXPORT_OUTSIDE_SCOPE_CHANGED.
   Fixed (_TRAILING_COMMA, +/- control; harness 78/0). One more Don't-Save restart by the conductor after 155531.
+- **Gary (~20:15 UTC):** S3 mural ("S3 Backdrop") lower ~1.5 m, cropping the lower part → tool being written
+  (s3_mural_lower.py; keeps the exit-door mimic consistent). Dunes: "expected a more differentiated pile up against
+  wall" → passed to the dune pass. After the next step is placed Gary will look at waves + directional lighting himself
+  (manual).
