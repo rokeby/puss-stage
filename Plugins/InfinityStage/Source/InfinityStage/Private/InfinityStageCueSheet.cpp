@@ -1,6 +1,7 @@
 #include "InfinityStageCueSheet.h"
 
 #include "HAL/IConsoleManager.h"
+#include "InfinityStageTransportController.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 
@@ -12,6 +13,11 @@ TAutoConsoleVariable<FString> CVarCueSheetPath(
     TEXT("InfinityStage.CueSheet.Path"),
     TEXT(""),
     TEXT("CSV export of the master cue sheet. Empty: Content/InfinityStage/CueSheet/Puss_Master_cue_sheet.csv"));
+
+TAutoConsoleVariable<FString> CVarCueDirectorSettingsPath(
+    TEXT("InfinityStage.CueDirector.SettingsPath"),
+    TEXT(""),
+    TEXT("Cue Director run settings. Empty: Content/InfinityStage/CueSheet/cue_director.txt"));
 
 FString Clean(const FString& Cell)
 {
@@ -278,8 +284,88 @@ void FInfinityScriptCursor::SyncToSegment(const FInfinityCueSheet& Sheet, const 
     }
 }
 
+void FInfinityCueDirectorSettings::Parse(const FString& Text, TArray<FString>& OutWarnings)
+{
+    bRunThrough = false;
+    StopAfterSegments.Reset();
+    HoldGoNumbers.Reset();
+    TArray<FString> Lines;
+    Text.ParseIntoArrayLines(Lines);
+    for (int32 LineIndex = 0; LineIndex < Lines.Num(); ++LineIndex)
+    {
+        FString Line = Lines[LineIndex];
+        int32 Hash = INDEX_NONE;
+        if (Line.FindChar(TEXT('#'), Hash))
+        {
+            Line.LeftInline(Hash);
+        }
+        Line.TrimStartAndEndInline();
+        if (Line.IsEmpty())
+        {
+            continue;
+        }
+        FString Key;
+        FString Value;
+        if (!Line.Split(TEXT("="), &Key, &Value))
+        {
+            OutWarnings.Add(FString::Printf(TEXT("line %d: no '=' in '%s'"), LineIndex + 1, *Line));
+            continue;
+        }
+        Key.TrimStartAndEndInline();
+        Value.TrimStartAndEndInline();
+        if (Key.Equals(TEXT("run_through"), ESearchCase::IgnoreCase))
+        {
+            bRunThrough = Value.ToBool();
+        }
+        else if (Key.Equals(TEXT("stop_after"), ESearchCase::IgnoreCase))
+        {
+            FGuid Guid;
+            if (FGuid::Parse(Value, Guid))
+            {
+                StopAfterSegments.AddUnique(Guid);
+            }
+            else
+            {
+                OutWarnings.Add(FString::Printf(TEXT("line %d: stop_after needs a segment GUID, got '%s'"), LineIndex + 1, *Value));
+            }
+        }
+        else if (Key.Equals(TEXT("hold_go"), ESearchCase::IgnoreCase))
+        {
+            HoldGoNumbers.AddUnique(Value);
+        }
+        else
+        {
+            OutWarnings.Add(FString::Printf(TEXT("line %d: unknown key '%s'"), LineIndex + 1, *Key));
+        }
+    }
+}
+
+FString FInfinityCueDirectorSettings::Serialize(TFunctionRef<FString(const FGuid&)> LabelOf) const
+{
+    FString Out = TEXT("# Puss Cue Director: how the show runs in performance. Written by the Cue Desk panel;\n")
+        TEXT("# safe to edit by hand. Applied in PIE at start and on F5.\n");
+    Out += FString::Printf(TEXT("run_through = %s\n"), bRunThrough ? TEXT("true") : TEXT("false"));
+    for (const FGuid& Guid : StopAfterSegments)
+    {
+        Out += FString::Printf(TEXT("stop_after = %s   # %s\n"), *Guid.ToString(EGuidFormats::Digits), *LabelOf(Guid));
+    }
+    for (const FString& Number : HoldGoNumbers)
+    {
+        Out += FString::Printf(TEXT("hold_go = %s\n"), *Number);
+    }
+    return Out;
+}
+
 namespace InfinityStageCueSheet
 {
+FString ResolveSettingsPath()
+{
+    const FString Override = CVarCueDirectorSettingsPath.GetValueOnGameThread();
+    return Override.IsEmpty()
+        ? FPaths::Combine(FPaths::ProjectContentDir(), TEXT("InfinityStage/CueSheet/cue_director.txt"))
+        : Override;
+}
+
 FString ResolvePath()
 {
     const FString Override = CVarCueSheetPath.GetValueOnGameThread();
@@ -345,9 +431,53 @@ void UInfinityStageCueDirectorSubsystem::Initialize(FSubsystemCollectionBase& Co
     Reload();
 }
 
+void UInfinityStageCueDirectorSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+    Super::OnWorldBeginPlay(InWorld);
+    bSettingsApplied = ApplyToTransport();
+}
+
+void UInfinityStageCueDirectorSubsystem::Tick(const float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+    if (!bSettingsApplied)
+    {
+        bSettingsApplied = ApplyToTransport();
+    }
+}
+
+bool UInfinityStageCueDirectorSubsystem::ApplyToTransport()
+{
+    UInfinityStageTransportController* Transport = UInfinityStageTransportController::FindForWorld(GetWorld());
+    if (!Transport || Transport->Segments.IsEmpty())
+    {
+        return false;   // retried every tick until the Show transport exists
+    }
+    Transport->ApplyCueDirector(Settings.bRunThrough, Settings.StopAfterSegments, Settings.HoldGoNumbers);
+    return true;
+}
+
 bool UInfinityStageCueDirectorSubsystem::Reload()
 {
     const int32 KeepRow = Cursor.Row;
+    {
+        FString SettingsText;
+        TArray<FString> SettingsWarnings;
+        const FString SettingsPath = InfinityStageCueSheet::ResolveSettingsPath();
+        if (FFileHelper::LoadFileToString(SettingsText, *SettingsPath))
+        {
+            Settings.Parse(SettingsText, SettingsWarnings);
+        }
+        else
+        {
+            Settings = FInfinityCueDirectorSettings();
+        }
+        for (const FString& Warning : SettingsWarnings)
+        {
+            UE_LOG(LogInfinityStageCueSheet, Warning, TEXT("INFINITY_CUE_DIRECTOR_SETTINGS_WARNING %s: %s"), *SettingsPath, *Warning);
+        }
+        bSettingsApplied = ApplyToTransport();
+    }
     const bool bOk = Sheet.LoadFromFile(InfinityStageCueSheet::ResolvePath());
     Cursor.Row = Sheet.Rows.IsEmpty() ? 0 : FMath::Clamp(KeepRow, 0, Sheet.Rows.Num() - 1);
     for (const FString& Warning : Sheet.Warnings)

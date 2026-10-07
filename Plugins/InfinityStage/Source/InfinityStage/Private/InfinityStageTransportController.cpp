@@ -739,12 +739,13 @@ int32 FInfinityGoHoldState::Tick(
     int32 Hit = INDEX_NONE;
     // Run-Through crosses every HOLD as a PASS; PreviousFrame still advances, so
     // switching it off mid-show arms only the holds still ahead.
-    if (bPlayingForward && CurrentFrame > PreviousFrame && !bPassAll)
+    if (bPlayingForward && CurrentFrame > PreviousFrame && (!bPassAll || !KeepNumbers.IsEmpty()))
     {
         for (int32 Index = 0; Index < Cues.Num(); ++Index)
         {
             const FInfinityGoCue& Cue = Cues[Index];
-            if (Cue.bHold && Cue.Frame > PreviousFrame && Cue.Frame <= CurrentFrame && !Released.Contains(Index))
+            if (Cue.bHold && (!bPassAll || KeepNumbers.Contains(Cue.Number))
+                && Cue.Frame > PreviousFrame && Cue.Frame <= CurrentFrame && !Released.Contains(Index))
             {
                 Hit = Index;
                 break;
@@ -1187,9 +1188,9 @@ int32 UInfinityStageTransportController::GetForwardStopSegmentIndex(const int32 
     }
     if (bRunThrough)
     {
-        // Run-Through: one PlayTo to the Show's end; the tick still claims every
-        // camera at every seam, and no segment end is an operator stop.
-        return Segments.Num() - 1;
+        // Run-Through: one PlayTo to the Show's end, or to the end of the next segment
+        // the Cue Director marks as a stop; the tick still claims every camera at every seam.
+        return RunThroughStopIndex(Segments, FromSegmentIndex, RunThroughStopAfter);
     }
     const int32 NextIndex = FromSegmentIndex + 1;
     if (bAutoPlaySceneAfterPassage
@@ -1201,6 +1202,50 @@ int32 UInfinityStageTransportController::GetForwardStopSegmentIndex(const int32 
         return NextIndex;
     }
     return FromSegmentIndex;
+}
+
+int32 UInfinityStageTransportController::RunThroughStopIndex(
+    const TArray<FInfinityTransportSegment>& InSegments,
+    const int32 From,
+    const TArray<FGuid>& StopAfter)
+{
+    if (!InSegments.IsValidIndex(From))
+    {
+        return INDEX_NONE;
+    }
+    for (int32 Index = From; Index < InSegments.Num(); ++Index)
+    {
+        if (StopAfter.Contains(InSegments[Index].SegmentGuid))
+        {
+            return Index;
+        }
+    }
+    return InSegments.Num() - 1;
+}
+
+void UInfinityStageTransportController::ApplyCueDirector(
+    const bool bInRunThrough,
+    const TArray<FGuid>& StopAfter,
+    const TArray<FString>& HoldGoNumbers)
+{
+    bRunThrough = bInRunThrough;
+    RunThroughStopAfter = StopAfter;
+    RunThroughHoldGoNumbers = HoldGoNumbers;
+    GoHoldState.KeepNumbers = TSet<FString>(HoldGoNumbers);
+    int32 Matched = 0;
+    for (const FInfinityTransportSegment& Segment : Segments)
+    {
+        Matched += StopAfter.Contains(Segment.SegmentGuid) ? 1 : 0;
+    }
+    UE_LOG(LogInfinityStageTransport, Log,
+        TEXT("INFINITY_CUE_DIRECTOR_APPLIED run_through=%d stops=%d matched=%d hold_go=%d"),
+        bRunThrough ? 1 : 0, StopAfter.Num(), Matched, HoldGoNumbers.Num());
+    if (Matched != StopAfter.Num())
+    {
+        UE_LOG(LogInfinityStageTransport, Warning,
+            TEXT("INFINITY_CUE_DIRECTOR_STOP_UNMATCHED %d stop(s) name no segment in this Show (re-save the Cue Director panel)"),
+            StopAfter.Num() - Matched);
+    }
 }
 
 EInfinityTransportResult UInfinityStageTransportController::PlayForwardThroughBoundaries()

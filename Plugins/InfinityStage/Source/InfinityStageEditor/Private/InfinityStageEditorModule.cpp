@@ -13,6 +13,7 @@
 
 #include "SInfinityStageCueDesk.h"
 #include "SInfinityStageWingAudit.h"
+#include "SInfinityStageCueDirectorPanel.h"
 #include "InfinityStageDevFixtureBuilder.h"
 #include "InfinityStageCameraRig.h"
 #include "InfinityStagePassageActor.h"
@@ -33,6 +34,7 @@ namespace
 {
 const FName InfinityStageCueDeskTabName(TEXT("InfinityStageCueDesk"));
 const FName InfinityStageWingAuditTabName(TEXT("InfinityStageWingAudit"));
+const FName InfinityStageCueDirectorTabName(TEXT("InfinityStageCueDirector"));
 
 void CleanupEditorShadowCatChildren(const TCHAR* Reason)
 {
@@ -116,6 +118,15 @@ public:
             FOnSpawnTab::CreateRaw(this, &FInfinityStageEditorModule::SpawnCueDeskTab))
             .SetDisplayName(NSLOCTEXT("InfinityStage", "CueDeskTabTitle", "Infinity Stage Cue Desk"))
             .SetTooltipText(NSLOCTEXT("InfinityStage", "CueDeskTabTooltip", "Open the finite, music-led show cue list."))
+            .SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), TEXT("LevelEditor.Tabs.Sequencer")));
+        FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
+            InfinityStageCueDirectorTabName,
+            FOnSpawnTab::CreateLambda([](const FSpawnTabArgs&)
+            {
+                return SNew(SDockTab).TabRole(ETabRole::NomadTab)[SNew(SInfinityStageCueDirectorPanel)];
+            }))
+            .SetDisplayName(NSLOCTEXT("InfinityStage", "CueDirectorTabTitle", "Puss Cue Director"))
+            .SetTooltipText(NSLOCTEXT("InfinityStage", "CueDirectorTabTooltip", "Run-through and where the show stops for Klara's GO."))
             .SetIcon(FSlateIcon(FAppStyle::GetAppStyleSetName(), TEXT("LevelEditor.Tabs.Sequencer")));
         FGlobalTabmanager::Get()->RegisterNomadTabSpawner(
             InfinityStageWingAuditTabName,
@@ -208,6 +219,7 @@ public:
         UToolMenus::UnregisterOwner(this);
         FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(InfinityStageCueDeskTabName);
         FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(InfinityStageWingAuditTabName);
+        FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(InfinityStageCueDirectorTabName);
         ApplyWingCorrectionsCommand.Reset();
         AuditWingAssetsCommand.Reset();
         OpenCueDeskCommand.Reset();

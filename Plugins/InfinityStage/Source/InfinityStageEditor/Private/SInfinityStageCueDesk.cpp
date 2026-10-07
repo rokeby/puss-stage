@@ -3051,6 +3051,16 @@ TSharedRef<SWidget> SInfinityStageCueDesk::BuildViewMenu()
         NAME_None,
         EUserInterfaceActionType::ToggleButton);
     MenuBuilder.AddMenuEntry(
+        NSLOCTEXT("InfinityStage", "OpenCueDirector", "Puss Cue Director: where the show stops for GO..."),
+        NSLOCTEXT("InfinityStage", "OpenCueDirectorTip",
+            "Run-through and Klara's GO points: tick the segments the show stops after (e.g. lights out after a Scene) "
+            "and the GO markers that still hold. Writes Content/InfinityStage/CueSheet/cue_director.txt only."),
+        FSlateIcon(),
+        FUIAction(FExecuteAction::CreateLambda([]()
+        {
+            FGlobalTabmanager::Get()->TryInvokeTab(FName(TEXT("InfinityStageCueDirector")));
+        })));
+    MenuBuilder.AddMenuEntry(
         NSLOCTEXT("InfinityStage", "RehearsalTransport", "Rehearsal Transport (ignore external sound locks)"),
         NSLOCTEXT(
             "InfinityStage",
