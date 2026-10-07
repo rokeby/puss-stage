@@ -61,3 +61,7 @@ approved AND has a clean DRY with no open look question; hold the rest here.
 - **P02 dark explained** [record + code]: P02 SCORE lamps strike at 650 cm with unstruck scale 0 (SetVisibility false),
   B18-19 EXTINGUISH after passing -> everything ahead in view is off. Fix in progress: strike 2500 cm + HOLD for B12+.
 - W&T has the slot for P06 topple variant (6-wing domino at ~37 s + one sliding wing), end drapes P01/02/03/05 + picture ASSIGN.
+- **End drapes NOT placed** (W&T DRYs PED-20261007-DRY-S1/S2/S3/S5, apply_ready=0, nothing written). Gary's look call:
+  S1/S2/S5 hem hangs ~20 cm above the floor (bake hangs from z 20; lowering sinks the pile) — accept gap / sink pile /
+  re-bake lower? S3 floor top is 120.5 cm vs drape support 0 — site decision. 44–46 % of the hinge opening still visible
+  at release (S1–S3). Pictures ready in MI_CurtainImage_P01/02/03/05.
