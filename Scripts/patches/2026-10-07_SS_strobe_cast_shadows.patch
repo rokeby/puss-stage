@@ -1,0 +1,147 @@
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp
+index 5a10b61..fd995b7 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStage/Private/InfinityStageStrobeLight.cpp
+@@ -58,6 +58,8 @@ AInfinityStageStrobeLight::AInfinityStageStrobeLight()
+     Light->SetIntensityUnits(ELightUnits::Candelas);
+     Light->SetCastShadows(false);   // cost: a strobe in an area should not pay for a shadow map
+     Light->SetAttenuationRadius(AttenuationRadiusCm);
++    UnshadowedSourceRadius = Light->SourceRadius;
++    SyncShadowSettings();   // class defaults: shadows off, so this changes nothing
+ }
+ 
+ void AInfinityStageStrobeLight::PostRegisterAllComponents()
+@@ -69,6 +71,30 @@ void AInfinityStageStrobeLight::PostRegisterAllComponents()
+     {
+         Light->SetFlags(RF_Transient);
+     }
++    // The instance's saved shadow settings are loaded by now; apply them before the first tick.
++    SyncShadowSettings();
++}
++
++void AInfinityStageStrobeLight::SyncShadowSettings()
++{
++    if (!Light)
++    {
++        return;
++    }
++    // Runtime setters only, and only on change: each one re-creates the light's render state.
++    if (static_cast<bool>(Light->CastShadows) != bCastShadows)
++    {
++        Light->SetCastShadows(bCastShadows);
++    }
++    if (static_cast<bool>(Light->bCastVolumetricShadow) != bCastVolumetricShadow)
++    {
++        Light->SetCastVolumetricShadow(bCastVolumetricShadow);
++    }
++    const float WantedSourceRadius = bCastShadows ? FMath::Max(0.0f, ShadowSourceRadiusCm) : UnshadowedSourceRadius;
++    if (!FMath::IsNearlyEqual(Light->SourceRadius, WantedSourceRadius))
++    {
++        Light->SetSourceRadius(WantedSourceRadius);
++    }
+ }
+ 
+ void AInfinityStageStrobeLight::Tick(const float DeltaSeconds)
+@@ -143,6 +169,7 @@ void AInfinityStageStrobeLight::ApplyLevel(const float Level)
+     {
+         Light->SetAttenuationRadius(AttenuationRadiusCm);
+     }
++    SyncShadowSettings();   // saved on the actor, so they may be keyed or edited at any time
+     // Switched off rather than set to zero between flashes, as Light Drama does.
+     const bool bLit = Level > UE_KINDA_SMALL_NUMBER;
+     if (Light->IsVisible() != bLit)
+diff --git a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h
+index cd6a680..58b8f44 100644
+--- a/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h
++++ b/Plugins/InfinityStage/Source/InfinityStage/Public/InfinityStageStrobeLight.h
+@@ -88,6 +88,26 @@ public:
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strobe")
+     bool bPreviewInEditor = true;
+ 
++    /**
++     * Let the flash cast shadows (Gary, 7 Oct: P04 strobes should throw the wings' shadows).
++     * Off by default: a strobe pays for no shadow map unless asked. Saved here, on the actor,
++     * because the light component itself is transient; synced onto the light every frame.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe|Shadows")
++    bool bCastShadows = false;
++
++    /**
++     * Source size while casting shadows. 0 = a point: the crispest wing edges. Larger values
++     * soften the penumbra (and widen highlights). Used only while Cast Shadows is on; with it
++     * off the light keeps its original source radius, so today's look is unchanged.
++     */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe|Shadows", meta = (ClampMin = "0.0", ClampMax = "10000.0", Units = "cm"))
++    float ShadowSourceRadiusCm = 0.0f;
++
++    /** Also shadow the volumetric fog (light shafts through the wings). Needs Cast Shadows. */
++    UPROPERTY(EditAnywhere, BlueprintReadWrite, Interp, Category = "Strobe|Shadows")
++    bool bCastVolumetricShadow = false;
++
+     UPROPERTY(VisibleInstanceOnly, Transient, Category = "Strobe|Debug")
+     float CurrentLevel = 0.0f;
+ 
+@@ -101,6 +121,10 @@ public:
+ private:
+     TWeakObjectPtr<AInfinityStageShowRoot> CachedShowRoot;
+     void ApplyLevel(float Level);
++    /** Pushes the saved shadow settings onto the transient light; setters only on change. */
++    void SyncShadowSettings();
++    /** The light's own source radius at construction, restored while shadows are off. */
++    float UnshadowedSourceRadius = 0.0f;
+ };
+ 
+ namespace InfinityStageStrobe
+diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp
+index 7cb74ad..d30aea9 100644
+--- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp
++++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageStrobeTests.cpp
+@@ -116,4 +116,48 @@ bool FInfinityStageStrobeEditorPreviewTest::RunTest(const FString& Parameters)
+     return true;
+ }
+ 
++IMPLEMENT_SIMPLE_AUTOMATION_TEST(
++    FInfinityStageStrobeCastShadowsToggleTest,
++    "InfinityStage.Strobe.CastShadowsToggle",
++    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
++
++// Gary (7 Oct): P04 strobes should throw the wings' shadows. The light is transient, so the
++// switch lives on the actor and is synced each frame; off by default keeps today's cost.
++bool FInfinityStageStrobeCastShadowsToggleTest::RunTest(const FString& Parameters)
++{
++    const FProperty* CastProperty = AInfinityStageStrobeLight::StaticClass()->FindPropertyByName(TEXT("bCastShadows"));
++    TestTrue(TEXT("The shadow switch is a saved actor property"),
++        CastProperty && !CastProperty->HasAnyPropertyFlags(CPF_Transient));
++
++    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
++    AInfinityStageStrobeLight* Strobe = World->SpawnActor<AInfinityStageStrobeLight>();
++    if (!TestNotNull(TEXT("Strobe spawned"), Strobe) || !TestNotNull(TEXT("Strobe light"), Strobe->Light.Get()))
++    {
++        World->DestroyWorld(false);
++        return false;
++    }
++    const float OriginalSourceRadius = Strobe->Light->SourceRadius;
++    Strobe->Tick(0.016f);
++    TestFalse(TEXT("Default: the light casts no shadows"), static_cast<bool>(Strobe->Light->CastShadows));
++    TestFalse(TEXT("Default: no volumetric shadow"), static_cast<bool>(Strobe->Light->bCastVolumetricShadow));
++
++    Strobe->bCastShadows = true;
++    Strobe->bCastVolumetricShadow = true;
++    Strobe->ShadowSourceRadiusCm = 7.5f;
++    TestFalse(TEXT("Control: before the sync the light is unchanged"), static_cast<bool>(Strobe->Light->CastShadows));
++    Strobe->Tick(0.016f);
++    TestTrue(TEXT("After the sync the light casts shadows"), static_cast<bool>(Strobe->Light->CastShadows));
++    TestTrue(TEXT("...and volumetric shadows"), static_cast<bool>(Strobe->Light->bCastVolumetricShadow));
++    TestEqual(TEXT("...with the shadow source radius"), Strobe->Light->SourceRadius, 7.5f);
++
++    Strobe->bCastShadows = false;
++    Strobe->bCastVolumetricShadow = false;
++    Strobe->Tick(0.016f);
++    TestFalse(TEXT("Toggled back: no shadows"), static_cast<bool>(Strobe->Light->CastShadows));
++    TestFalse(TEXT("Toggled back: no volumetric shadow"), static_cast<bool>(Strobe->Light->bCastVolumetricShadow));
++    TestEqual(TEXT("Toggled back: the original source radius returns"), Strobe->Light->SourceRadius, OriginalSourceRadius);
++    World->DestroyWorld(false);
++    return true;
++}
++
+ #endif
