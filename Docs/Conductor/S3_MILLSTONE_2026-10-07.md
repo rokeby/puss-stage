@@ -291,7 +291,7 @@ after editing `S3Millstone/s3_props_args.json`. After every call, grep `Saved/Lo
 ## 5. PearlClam extension (7 Oct evening): written OFFLINE, never run in Unreal
 
 Gary approved importing the PearlClam AS DELIVERED, including the thin mantle slit. The same tool now covers it.
-Harness: 293 checks, 0 failed (`test_s3_props.py`, sections I1–I10). Tiers per claim: **[decl]** header,
+Harness: 364 checks, 0 failed after the v2 update (`test_s3_props.py`, sections I1–I11). Tiers per claim: **[decl]** header,
 **[meas]** read from a file here, **[inf]** not verified, with the reason.
 
 **Live-run lessons folded in**
@@ -362,7 +362,7 @@ The BUILD_MAT materials:
 |---|---|---|
 | Shell | M_S3Prop | the existing master |
 | Mantle | M_S3PropBreathe (create-only) | M_S3Prop graph + WPO Z = BreathAmp·VC.R·(0.5−0.5cos 2πt/BreathPeriod); Amp 0 (off), Period 5; MaxWPO 5 cm (Material.h:1214-1220 **[decl]**, which also clamps per axis) |
-| Interior | M_S3PropSolid (create-only) | BaseColorTint linear (0.855, 0.578, 0.539) = sRGB (238, 200, 194), Roughness 0.25, Specular 0.5 |
+| ~~Interior~~ | RETIRED in v2 (see 5b) | |
 | Pearl | PearlClam/M_PearlClam_Pearl (create-only) | DefaultLit; base (0.86, 0.83, 0.78); Fresnel(exp 3) lerps WarmTint→CoolTint × base by TintAmount 0.6; Roughness 0.18; Specular 0.55; Glow emissive (0); the same breathing WPO with R = 1 so the pearl rides the flesh |
 
 There are no clear-coat pins. Gary sets BreathAmp on BOTH the mantle and the pearl MIs, and they share `Time`.
@@ -401,29 +401,76 @@ The lid is NOT keyed. Its relative Roll is the hinge, so Sequencer keys Rotation
 - WPO on Nanite (manifest risk note);
 - the Fresnel / VertexColor / Time pin names (`""` and `"R"`).
 
-**Run order (one MCP call each, same request file; grep the marker WITH the run id):**
+### 5b. PearlClam v2 (manifest 7 Oct 18:16): what changed
 
-0. Offline: `python Saved/CodexConductor/S3Millstone/test_s3_props.py` → `TOTAL 293 FAILED 0`.
-1. `{"mode":"CLAM_DRY","run":"<id>"}` → `S3CLAM_DRY_OK`. Read `s3_pearlclam_dry_<run>.json`:
-   - `state.cameras` (the B05/B06 poses);
-   - `plan.yaw` and `camera_check`;
-   - the stand-in components.
-   It refuses ASSETS_MISSING until step 9; that is expected.
-2. IMPORT_MESH ×4, in this order: `{"mode":"IMPORT_MESH","confirm":"IMPORT_MESH S3PROPS","prop":"PearlClam","part":"Lid"}`
-   (Lid first: it is the Y-flip discriminator), then Bottom, Mantle, Pearl → `S3PROPS_IMPORT_MESH_OK` each.
-3. IMPORT_TEX `{"prop":"PearlClam","tex_set":"Shell","textures":["BaseColor"]}` → `S3PROPS_IMPORT_TEX_PENDING`.
-   Then VERIFY_TEX (`{"mode":"VERIFY_TEX","confirm":"VERIFY_TEX S3PROPS"}`) → `S3PROPS_VERIFY_TEX_OK`.
-4. Repeat 3 for Shell N, Shell Roughness, Mantle BaseColor, Mantle N and Mantle Roughness: 6 IMPORT_TEX + 6
-   VERIFY_TEX in all.
-5. BUILD_MAT `"material":"Shell"`.
-6. BUILD_MAT `"Mantle"` (creates M_S3PropBreathe).
-7. BUILD_MAT `"Interior"` (creates M_S3PropSolid).
-8. BUILD_MAT `"Pearl"` (creates M_PearlClam_Pearl). After each of 5–8, wait about 20 s and grep "Failed to compile".
-9. CLAM_DRY again: `apply` = would_apply. Show the yaw to Directing/Gary. If it is not right, set
-   `"apply_clam":{"yaw_deg":<deg>}`.
-10. CLAM_APPLY (`"confirm":"CLAM_APPLY S3PROPS"`) → `S3CLAM_APPLY_OK`. Then PIE past the landing:
-    - the clam appears with the stone;
-    - the stand-ins stay unseen;
-    - check the lid's Roll −80 by eye in Sequencer (do not save).
-    Then queue `SavedMasterMatchesShow` + `SceneCutBindingsResolve` after a run-id marker.
-11. Undo: CLAM_REVERT (`"confirm":"CLAM_REVERT S3PROPS"`). The assets stay.
+- **Slots.**
+  - Bottom = [M_PearlClam_Shell, M_PearlClam_InteriorBottom].
+  - Lid = [M_PearlClam_Shell, M_PearlClam_InteriorLid].
+  - Mantle and Pearl are unchanged.
+  - The table, the manifest `slots`, and `validation_reexport` agree **[meas]**.
+  - IMPORT_MESH refuses any other slot list. CLAM_DRY/APPLY refuse a live mesh whose slots differ (harness I11:
+    v1 names, swapped order and the wrong part's interior are each refused).
+  - The untextured interior master (M_S3PropSolid) and its blush values are removed.
+- **Geometry.** The re-exported Bottom/Lid have the same vertex count, bounds and centroids as v1 **[meas, FBX
+  parse]**. So the Y-flip, centroid and assembly gates are unchanged.
+- **Normals come from the FBX.**
+  - The FBX carries per-corner normals (`LayerElementNormal`, ByPolygonVertex) on Bottom and Lid **[meas]**.
+  - The Interchange option is `common_meshes_properties.recompute_normals = False`
+    (InterchangeGenericAssetsPipelineSharedSettings.h:125-127: "normals in the imported mesh are ignored and
+    recomputed" when true) **[decl]**. Tangents are rebuilt: `recompute_tangents = True`, `use_mikk_t_space = True`
+    (:129-135), matching Blender's MikkTSpace bake. **[inf]** that Interchange keeps split normals exactly.
+  - The millstone import already set `recompute_normals = False`; its pipeline is unchanged (harness asserts).
+  - The settings are a pure spec (`pipeline_wanted`, `pipeline_problems`) and are read back.
+  - After import, `StaticMeshEditorSubsystem.get_lod_build_settings(mesh, 0).recompute_normals` must be False
+    (StaticMeshEditorSubsystem.h:80-81; EngineTypes.h:2948-2956 **[decl]**). The out-param-as-return is
+    **[inf]**. If it is unreadable, the import refuses unless `"allow_unreadable_normals": true` (then the pipeline
+    read-back is the only evidence).
+- **NEW FINDING: the v2 Bottom/Lid FBX carry an undeclared vertex-colour layer "LipGrad"** (R 0.69–0.97, G
+  0.12–0.93; a bake leftover) **[meas]**. The manifest does not list it.
+  - These parts now import with `vertex_color_import_option = IVCIO_IGNORE` (header :43: "Ignore vertex colors from
+    the translated source") **[decl]**. Only the Mantle uses REPLACE.
+  - No material reads vertex colour on the shell/interior, so this only avoids storing dead data.
+  - If the Blender side meant LipGrad to be used, say so and flip `clam_vc_option`.
+- **Textures.**
+  - InteriorBottom and InteriorLid each have BaseColor 8192 (sRGB), N 8192 (DirectX) and Roughness 4096 (linear)
+    **[meas IHDR]**.
+  - `ALLOW_8K` (`s3_props_ue.py:182`) is the only route above 4096: millstone BaseColor, Shell BaseColor, and the
+    two interiors' BaseColor and N. Any other 8K is refused `TEX_8K_NOT_ALLOWED` (− controls on Roughness and
+    Shell N).
+  - One texture per call as before. The memory note on bulk imports (ue58-bulk-import-oom-crash) is honoured by one
+    8K per call, with GC after VERIFY_TEX.
+  - Shell BaseColor is the final crimson grade, overwritten in place. IMPORT_TEX records the sha256 of whatever is on
+    disk.
+- **Interior MIs** MI_PearlClam_InteriorBottom / InteriorLid are on the shared textured **M_S3Prop**. Roughness comes
+  from the map (multiplier 1, override −1 = off): porcelain 0.20, lip 0.40. The interior faces share UV0 with the
+  shell in their own 0–1 islands (manifest).
+
+**Run order v2 (one MCP call each, same request file; grep the marker WITH the run id):**
+
+0. Offline: `python Saved/CodexConductor/S3Millstone/test_s3_props.py` → `TOTAL 364 FAILED 0`.
+1. CLAM_DRY `{"mode":"CLAM_DRY","run":"<id>"}` → `S3CLAM_DRY_OK`. Read the camera poses and the yaw. It refuses
+   ASSETS_MISSING until step 6.
+2. IMPORT_MESH, `"confirm":"IMPORT_MESH S3PROPS","prop":"PearlClam"`, with `"part"` = Lid, then Bottom, then Mantle,
+   then Pearl (4 calls) → `S3PROPS_IMPORT_MESH_OK`. Check the record's `normals.recompute_normals = false` on
+   Bottom/Lid.
+3. Textures: IMPORT_TEX → `S3PROPS_IMPORT_TEX_PENDING`, then VERIFY_TEX → `S3PROPS_VERIFY_TEX_OK`, one pair per
+   texture (`"textures":[<role>]`, `"tex_set":<set>`). 12 pairs in this order:
+   - Shell: BaseColor (8K), N, Roughness;
+   - InteriorBottom: BaseColor (8K), N (8K), Roughness;
+   - InteriorLid: BaseColor (8K), N (8K), Roughness;
+   - Mantle: BaseColor, N, Roughness.
+
+   If VERIFY_TEX fails on size, nothing is saved; repeat VERIFY_TEX. If an MCP call returns 10054, check the log for a
+   crash before retrying.
+4. BUILD_MAT `"prop":"PearlClam"`, `"material"` = Shell, then InteriorBottom, then InteriorLid (all three on
+   M_S3Prop), then Mantle (creates M_S3PropBreathe), then Pearl (creates M_PearlClam_Pearl). That is 5 calls. After
+   each, wait about 20 s and grep "Failed to compile".
+5. (No interior-solid step: retired.)
+6. CLAM_DRY again → would_apply. Get the yaw approved by Directing/Gary, or set `"apply_clam":{"yaw_deg":<deg>}`.
+7. CLAM_APPLY `"confirm":"CLAM_APPLY S3PROPS"` → `S3CLAM_APPLY_OK`. Then:
+   - PIE past the landing: the clam appears with the stone, and the stand-ins are unseen;
+   - in Sequencer, check lid Roll −80 by eye (do not save);
+   - look at the interior shading close up (custom normals);
+   - then queue SavedMasterMatchesShow + SceneCutBindingsResolve after a run-id marker.
+8. Undo: CLAM_REVERT `"confirm":"CLAM_REVERT S3PROPS"` → `S3CLAM_REVERT_OK`. Assets stay. Zero any keyed lid roll
+   before reverting.

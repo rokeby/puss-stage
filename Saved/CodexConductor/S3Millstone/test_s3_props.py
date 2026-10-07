@@ -381,8 +381,12 @@ def fbx_has_colors(path):
 
 for part in T["CLAM_PART_ORDER"]:
     cols = fbx_has_colors(T["CLAM_DIR"] + "SM_PearlClam_%s.fbx" % part)
-    ok = (bool(cols) and cols[0][0] == 0.0 and cols[0][1] > 0.99 and cols[0][2] == 0.0) if CP[part]["vc"] else not cols
-    check("I1.fbx_vertex_colours_%s|%s" % ("BreathMask_R" if CP[part]["vc"] else "absent", part), ok, cols)
+    if CP[part]["vc"]:
+        check("I1.fbx_vertex_colours_BreathMask_R|" + part, bool(cols) and cols[0][0] == 0.0 and cols[0][1] > 0.99 and
+              cols[0][2] == 0.0, cols)
+    else:
+        check("I1.fbx_colours_%s_imported_IGNORE|%s" % ("LipGrad_present(info)" if cols else "absent", part),
+              T["clam_vc_option"](part) == "IVCIO_IGNORE", cols)
 fp = man["measured"]["bottom_footprint"]
 vb = M["parse"](T["CLAM_DIR"] + "SM_PearlClam_Bottom.fbx")["geometries"][0]["vertices"] * 100.0
 low = vb[vb[:, 2] <= 3.0]
@@ -545,7 +549,8 @@ check("I7.children_rel_and_parent", all(pl["parts"][p]["parent"] == "Bottom" and
 for p in ("Lid", "Mantle", "Pearl"):
     want = T["tf_point"]({"location": pl["root_location"], "rotation": [0, 0, pl["yaw"]], "scale": [1, 1, 1]}, rel[p]["location"])
     check("I7.child_world_eq_root_times_rel|" + p, T["near"](pl["parts"][p]["world_location"], want, 1e-9))
-check("I7.slot_materials", pl["parts"]["Bottom"]["mis"] == {0: T["clam_mi_path"]("Shell"), 1: T["clam_mi_path"]("Interior")} and
+check("I7.slot_materials", pl["parts"]["Bottom"]["mis"] == {0: T["clam_mi_path"]("Shell"), 1: T["clam_mi_path"]("InteriorBottom")} and
+      pl["parts"]["Lid"]["mis"] == {0: T["clam_mi_path"]("Shell"), 1: T["clam_mi_path"]("InteriorLid")} and
       pl["parts"]["Mantle"]["mis"] == {0: T["clam_mi_path"]("Mantle")} and pl["parts"]["Pearl"]["mis"] == {0: T["clam_mi_path"]("Pearl")})
 check("I7.reveal_all_four_hidden", pl["reveal"]["targets"] == list(T["CLAM_PART_ORDER"]) and
       all(pl["parts"][p]["actor_hidden_in_game"] for p in CP) and pl["reveal"]["section"] == REVEAL_SEC)
@@ -753,8 +758,8 @@ bad[T["PEARL_MASTER"]]["nodes"]["Orphan"] = ("scalar", 1.0)
 bad[T["PEARL_MASTER"]]["scalars"]["Orphan"] = 1.0
 check("I10.pearl_orphan_detected(-)", any("UNUSED_NODE|Orphan" in x for x in T["material_problems"](bad).get(T["PEARL_MASTER"], [])))
 bad = copy.deepcopy(specs)
-bad[T["MASTER_SOLID"]]["props"].append(("Roughness", "", "MP_ROUGHNESS"))
-check("I10.prop_set_twice_detected(-)", any("PROP_SET_TWICE" in x for x in T["material_problems"](bad).get(T["MASTER_SOLID"], [])))
+bad[T["MASTER"]]["props"].append(("RoughCalc", "", "MP_ROUGHNESS"))
+check("I10.prop_set_twice_detected(-)", any("PROP_SET_TWICE" in x for x in T["material_problems"](bad).get(T["MASTER"], [])))
 check("I10.no_clearcoat_pins", not any(p[2].startswith("MP_CUSTOM") or "CLEAR" in p[2] for s in specs.values() for p in s["props"]))
 check("I10.m_s3prop_spec_unchanged", specs[T["MASTER"]]["props"] == T["graph_spec"]()[2] and specs[T["MASTER"]]["max_wpo"] is None)
 be = T["breath_eval"]
@@ -771,13 +776,108 @@ check("I10.pearl_facing_warm_grazing_cool", c0[0] > c0[2] and c1[2] > c1[0] and
       T["pearl_color_eval"](pv["BaseColor"], pv["WarmTint"], pv["CoolTint"], 0.7, 0.0) == pv["BaseColor"][:3], (c0, c1))
 check("I10.pearl_defaults", pv["BaseColor"][:3] == [0.86, 0.83, 0.78] and specs[T["PEARL_MASTER"]]["scalars"]["Roughness"] == 0.18
       and specs[T["PEARL_MASTER"]]["scalars"]["Specular"] == 0.55 and specs[T["PEARL_MASTER"]]["scalars"]["Glow"] == 0.0)
-check("I10.interior_blush_defaults", T["CLAM_MATERIALS"]["Interior"]["vectors"]["BaseColorTint"] == [0.855, 0.578, 0.539, 1.0]
-      and T["CLAM_MATERIALS"]["Interior"]["scalars"]["Roughness"] == 0.25 and
-      specs[T["MASTER_SOLID"]]["vectors"]["BaseColorTint"] == [0.855, 0.578, 0.539, 1.0])
-srgb = [238 / 255.0, 200 / 255.0, 194 / 255.0]
-lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in srgb]
-check("I10.interior_linear_is_srgb_238_200_194", T["near"](lin, [0.855, 0.578, 0.539], 0.001), lin)
+for k in ("InteriorBottom", "InteriorLid"):
+    m = T["CLAM_MATERIALS"][k]
+    check("I10.v2_interior_on_textured_master_roughness_from_map|" + k, m["master"] == T["MASTER"] and m["tex_set"] == k and
+          T["rough_eval"](0.20, m["scalars"]["RoughnessMultiplier"], m["scalars"]["RoughnessOverride"]) == 0.20 and
+          T["rough_eval"](0.40, m["scalars"]["RoughnessMultiplier"], m["scalars"]["RoughnessOverride"]) == 0.40)
+check("I10.v2_untextured_interior_retired", "Interior" not in T["CLAM_MATERIALS"] and "MASTER_SOLID" not in T and
+      "M_PearlClam_Interior" not in T["SLOT_TO_MATERIAL"])
 check("I10.slot_map_covers_all_slots", {s for p in CP.values() for s in p["slots"]} == set(T["SLOT_TO_MATERIAL"]))
+
+# I11. v2 (7 Oct 18:16): slot names per part, normals from the file, 8K allow-list
+want_slots = {"Bottom": ["M_PearlClam_Shell", "M_PearlClam_InteriorBottom"], "Lid": ["M_PearlClam_Shell", "M_PearlClam_InteriorLid"],
+              "Mantle": ["M_PearlClam_Mantle"], "Pearl": ["M_PearlClam_Pearl"]}
+for part, sl in want_slots.items():
+    check("I11.slot_table_v2|" + part, CP[part]["slots"] == sl and man["parts"]["SM_PearlClam_" + part]["slots"] == sl, CP[part]["slots"])
+    st = clam_state()
+    st["meshes"] = {p2: {"bounds": boxes[p2], "slots": want_slots[p2]} for p2 in CP}
+    check("I11.live_slots_v2_pass(+)|" + part, T["plan_clam"](st, {}, man)["parts"][part]["slots"] == sl)
+    wrongs = ([[x.replace("InteriorBottom", "Interior").replace("InteriorLid", "Interior") for x in sl], sl[::-1]]
+              if len(sl) > 1 else [["M_Other"]])
+    for wrong in wrongs:
+        st = clam_state()
+        st["meshes"] = {p2: {"bounds": boxes[p2], "slots": want_slots[p2]} for p2 in CP}
+        st["meshes"][part]["slots"] = wrong
+        ok, msg = refuses(lambda st=st: T["plan_clam"](st, {}, man), "MESH_SLOTS")
+        check("I11.live_slots_wrong_refused(-)|%s|%s" % (part, wrong), ok, msg)
+st = clam_state()
+st["meshes"] = {p2: {"bounds": boxes[p2], "slots": want_slots[p2]} for p2 in CP}
+st["meshes"]["Lid"]["slots"] = list(want_slots["Bottom"])          # bottom's interior on the lid
+ok, msg = refuses(lambda: T["plan_clam"](st, {}, man), "MESH_SLOTS")
+check("I11.lid_with_bottom_interior_refused(-)", ok, msg)
+bad_man = copy.deepcopy(man)
+bad_man["parts"]["SM_PearlClam_Lid"]["slots"] = ["M_PearlClam_Shell", "M_PearlClam_Interior"]
+check("I11.manifest_v1_slots_refused(-)", any("SLOTS|Lid" in x for x in T["clam_manifest_problems"](bad_man)))
+bad_man = copy.deepcopy(man)
+bad_man["validation_reexport"]["SM_PearlClam_Bottom"]["custom_normals"] = False
+check("I11.manifest_custom_normals_missing_refused(-)",
+      any("CUSTOM_NORMALS_UNDECLARED|Bottom" in x for x in T["clam_manifest_problems"](bad_man)))
+
+
+def fbx_normals_layer(path):
+    buf = memoryview(open(path, "rb").read())
+    wide = struct.unpack_from("<I", buf, 23)[0] >= 7500
+    out = []
+
+    def walk(a, b, names):
+        for n, p, (x, y) in _nodes(buf, a, b, wide):
+            if names and names[-1] == "LayerElementNormal" and n == "MappingInformationType":
+                out.append(p[0].decode())
+            if n in ("Objects", "Geometry", "LayerElementNormal"):
+                walk(x, y, names + [n])
+    walk(27, len(buf), [])
+    return out
+
+
+for part in ("Bottom", "Lid"):
+    lay = fbx_normals_layer(T["CLAM_DIR"] + "SM_PearlClam_%s.fbx" % part)
+    check("I11.fbx_has_per_corner_normals|" + part, lay == ["ByPolygonVertex"], lay)
+for part in T["CLAM_PART_ORDER"]:
+    rows = T["pipeline_wanted"](T["clam_vc_option"](part), CP[part]["custom_normals"])
+    check("I11.pipeline_plan_clean(+)|" + part, T["pipeline_problems"](rows, part) == [], T["pipeline_problems"](rows, part))
+    d = {(r[0], r[1]): r[2] for r in rows}
+    if CP[part]["custom_normals"]:
+        check("I11.normals_from_file_set|" + part, d[("common", "recompute_normals")] is False and
+              d[("common", "use_mikk_t_space")] is True and d[("common", "recompute_tangents")] is True, d)
+        bad_rows = [r if r[1] != "recompute_normals" else (r[0], r[1], True) for r in rows]
+        check("I11.recompute_normals_on_refused(-)|" + part,
+              any("RECOMPUTE_NORMALS_ON" in x for x in T["pipeline_problems"](bad_rows, part)))
+        check("I11.normals_gate_pass(+)|" + part, T["normals_gate"](part, {"readable": True, "recompute_normals": False}) == [])
+        check("I11.normals_gate_recomputed_refused(-)|" + part,
+              bool(T["normals_gate"](part, {"readable": True, "recompute_normals": True})))
+        check("I11.normals_gate_unreadable_refused(-)|" + part, bool(T["normals_gate"](part, {"readable": False, "error": "x"})))
+        check("I11.normals_gate_unreadable_allowed_by_arg(+)|" + part,
+              T["normals_gate"](part, {"readable": False}, allow_unreadable=True) == [])
+    vc_bad = [r if r[1] != "vertex_color_import_option" else (r[0], r[1], "IVCIO_IGNORE" if CP[part]["vc"] else "IVCIO_REPLACE")
+              for r in rows]
+    check("I11.wrong_vc_option_refused(-)|" + part, any("VC_OPTION" in x for x in T["pipeline_problems"](vc_bad, part)))
+check("I11.millstone_pipeline_unchanged", T["pipeline_wanted"]() == T["BASE_PIPELINE"] and
+      ("common", "recompute_normals", False) in T["BASE_PIPELINE"])
+ok, msg = refuses(lambda: T["pipeline_wanted"]("IVCIO_OVERRIDE"), "VC_OPTION")
+check("I11.vc_override_refused(-)", ok, msg)
+# 8K allow-list
+for s_, roles in T["CLAM_TEX"].items():
+    for role, dim in roles.items():
+        t = T["tex_target"]("PearlClam", s_, role)
+        allowed = ("PearlClam", t["label"]) in T["ALLOW_8K"]
+        check("I11.dim_vs_allowlist|%s" % t["label"], (dim == 8192) == allowed, (dim, allowed))
+for s_ in ("InteriorBottom", "InteriorLid"):
+    for role in T["TEX_ROLES"]:
+        t = T["tex_target"]("PearlClam", s_, role)
+        r = T["tex_source_gate"](t)
+        check("I11.v2_interior_tex_ok|%s" % t["label"], r["w"] == T["CLAM_TEX"][s_][role], r)
+t = dict(T["tex_target"]("PearlClam", "InteriorBottom", "Roughness"))
+t.update(file=T["CLAM_DIR"] + "T_PearlClam_InteriorBottom_N.png", dim=8192)      # an 8K file on a 4K-only role
+ok, msg = refuses(lambda: T["tex_source_gate"](t), "TEX_8K_NOT_ALLOWED")
+check("I11.8k_on_roughness_refused(-)", ok, msg)
+t = dict(T["tex_target"]("PearlClam", "Shell", "N"))
+t.update(file=T["CLAM_DIR"] + "T_PearlClam_InteriorLid_N.png", dim=8192)
+ok, msg = refuses(lambda: T["tex_source_gate"](t), "TEX_8K_NOT_ALLOWED")
+check("I11.8k_on_shell_N_refused(-)", ok, msg)
+check("I11.millstone_8k_still_allowed(+)", T["tex_source_gate"](T["tex_target"]("GraniteMillstone", None, "BaseColor"))["w"] == 8192)
+check("I11.shell_basecolor_final_on_disk_8192", T["tex_source_gate"](T["tex_target"]("PearlClam", "Shell", "BaseColor"))["w"] == 8192)
+check("I11.material_keys", sorted(T["CLAM_MATERIALS"]) == ["InteriorBottom", "InteriorLid", "Mantle", "Pearl", "Shell"])
 
 # ------------------------------------------------------------------ report
 fails = [r for r in RESULTS if not r["ok"]]

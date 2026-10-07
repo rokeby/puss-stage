@@ -42,10 +42,13 @@ Modes (every write mode: confirm string, no PIE, editor world = the show level, 
                back), slot names == manifest, bounds == the Blender bounds with Y FLIPPED (the lid is the
                discriminator; an unflipped import names Y_NOT_FLIPPED), vertex-centroid handedness gate
                (X_MIRRORED), mantle must report vertex colours.
-  BUILD_MAT    prop "PearlClam" + "material" Shell|Interior|Mantle|Pearl (one MI per call).  Create-only masters:
-               M_S3PropBreathe (M_S3Prop + breathing WPO masked by VertexColor.R, BreathAmp default 0 = off),
-               M_S3PropSolid (constant colour; interior blush pink), PearlClam/M_PearlClam_Pearl (DefaultLit,
-               Fresnel warm->cool tint, Glow emissive default 0, breathing WPO with R=1).
+  BUILD_MAT    prop "PearlClam" + "material" Shell|InteriorBottom|InteriorLid|Mantle|Pearl (one MI per call).
+               Shell + both interiors are MIs of the shared textured M_S3Prop (v2, 7 Oct 18:16: the untextured blush
+               interior is RETIRED).  Create-only masters: M_S3PropBreathe (M_S3Prop + breathing WPO masked by
+               VertexColor.R, BreathAmp default 0 = off), PearlClam/M_PearlClam_Pearl (DefaultLit, Fresnel
+               warm->cool tint, Glow emissive default 0, breathing WPO with R=1).
+  v2 meshes    Bottom/Lid carry CUSTOM NORMALS: imported with normals FROM THE FBX (recompute_normals False,
+               tangents MikkTSpace-recomputed; read back), gated after import on the LOD0 build settings.
   CLAM_DRY     read-only: stone, B05/B06 camera poses from LS_DevScene_03, assets, the full CLAM_APPLY plan.
   CLAM_APPLY   4 actors as an assembly on the stone (root "S3 PearlClam" = Bottom; Lid/Mantle/Pearl attached at
                the manifest relative transforms), yaw from the cameras (hinge away) or explicit "yaw_deg"; each
@@ -155,13 +158,15 @@ CLAM_MANIFEST = CLAM_DIR + "PearlClam_manifest.json"
 CLAM_FOLDER = ASSET_ROOT + "/PearlClam"
 CLAM_PARTS = {
     "Bottom": {"min_b": [-48.94, -49.864, 0.0], "max_b": [49.17, 49.711, 44.301], "centroid_b": [1.084, -1.692, 17.751],
-               "slots": ["M_PearlClam_Shell", "M_PearlClam_Interior"], "vc": False, "parent": None},
+               "slots": ["M_PearlClam_Shell", "M_PearlClam_InteriorBottom"], "vc": False, "parent": None,
+               "custom_normals": True},
     "Lid": {"min_b": [-50.0, -96.445, -0.909], "max_b": [50.0, 2.0, 36.854], "centroid_b": [-1.146, -51.231, 18.819],
-            "slots": ["M_PearlClam_Shell", "M_PearlClam_Interior"], "vc": False, "parent": "Bottom"},
+            "slots": ["M_PearlClam_Shell", "M_PearlClam_InteriorLid"], "vc": False, "parent": "Bottom",
+            "custom_normals": True},
     "Mantle": {"min_b": [-37.878, -36.652, 15.0], "max_b": [37.878, 36.652, 38.903], "centroid_b": [1.232, -0.141, 28.113],
-               "slots": ["M_PearlClam_Mantle"], "vc": True, "parent": "Bottom"},
+               "slots": ["M_PearlClam_Mantle"], "vc": True, "parent": "Bottom", "custom_normals": False},
     "Pearl": {"min_b": [-9.003, -8.998, 0.0], "max_b": [8.997, 8.992, 18.001], "centroid_b": [0.0, 0.001, 8.979],
-              "slots": ["M_PearlClam_Pearl"], "vc": False, "parent": "Bottom"},
+              "slots": ["M_PearlClam_Pearl"], "vc": False, "parent": "Bottom", "custom_normals": False},
 }
 CLAM_PART_ORDER = ("Bottom", "Lid", "Mantle", "Pearl")
 CLAM_LABELS = {"Bottom": "S3 PearlClam", "Lid": "S3 PearlClam Lid", "Mantle": "S3 PearlClam Mantle",
@@ -169,21 +174,29 @@ CLAM_LABELS = {"Bottom": "S3 PearlClam", "Lid": "S3 PearlClam Lid", "Mantle": "S
 CENTROID_TOL_CM = 0.6        # x signal is ~1.1 cm (mirror = 2.2 cm apart); stride sample error 0.07 cm [meas offline]
 CENTROID_STRIDE_TARGET = 20000
 CLAM_TEX = {"Shell": {"BaseColor": 8192, "N": 4096, "Roughness": 4096},
-            "Mantle": {"BaseColor": 4096, "N": 4096, "Roughness": 4096}}
+            "Mantle": {"BaseColor": 4096, "N": 4096, "Roughness": 4096},
+            # v2: 8K BaseColor + N kept on purpose (finest speckle ~0.5 mm, coordinator 7 Oct)
+            "InteriorBottom": {"BaseColor": 8192, "N": 8192, "Roughness": 4096},
+            "InteriorLid": {"BaseColor": 8192, "N": 8192, "Roughness": 4096}}
+# The ONLY textures allowed above 4096 (anything else at 8K is refused by tex_source_gate, - control in the harness)
+ALLOW_8K = {("GraniteMillstone", "BaseColor"), (CLAM, "Shell_BaseColor"), (CLAM, "InteriorBottom_BaseColor"),
+            (CLAM, "InteriorBottom_N"), (CLAM, "InteriorLid_BaseColor"), (CLAM, "InteriorLid_N")}
 MASTER_BREATHE = ASSET_ROOT + "/M_S3PropBreathe"
-MASTER_SOLID = ASSET_ROOT + "/M_S3PropSolid"
 PEARL_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl"
-INTERIOR_LINEAR = [0.855, 0.578, 0.539, 1.0]   # Gary 7 Oct (coordinator relay): sRGB (238,200,194) blush, not white
 CLAM_MATERIALS = {   # material key -> MI on a master; scalars/vectors are the MI's explicit values (read back)
     "Shell": {"mi": "MI_PearlClam_Shell", "master": MASTER, "tex_set": "Shell", "scalars": {}, "vectors": {}},
     "Mantle": {"mi": "MI_PearlClam_Mantle", "master": MASTER_BREATHE, "tex_set": "Mantle",
                "scalars": {"BreathAmp": 0.0, "BreathPeriod": 5.0}, "vectors": {}},
-    "Interior": {"mi": "MI_PearlClam_Interior", "master": MASTER_SOLID, "tex_set": None,
-                 "scalars": {"Roughness": 0.25, "Specular": 0.5}, "vectors": {"BaseColorTint": INTERIOR_LINEAR}},
+    # roughness straight from the map (porcelain 0.20, lip 0.40, speckles +0.06): multiplier 1, override off
+    "InteriorBottom": {"mi": "MI_PearlClam_InteriorBottom", "master": MASTER, "tex_set": "InteriorBottom",
+                       "scalars": {"RoughnessMultiplier": 1.0, "RoughnessOverride": -1.0}, "vectors": {}},
+    "InteriorLid": {"mi": "MI_PearlClam_InteriorLid", "master": MASTER, "tex_set": "InteriorLid",
+                    "scalars": {"RoughnessMultiplier": 1.0, "RoughnessOverride": -1.0}, "vectors": {}},
     "Pearl": {"mi": "MI_PearlClam_Pearl", "master": PEARL_MASTER, "tex_set": None,
               "scalars": {"Glow": 0.0, "BreathAmp": 0.0, "BreathPeriod": 5.0}, "vectors": {}},
 }
-SLOT_TO_MATERIAL = {"M_PearlClam_Shell": "Shell", "M_PearlClam_Interior": "Interior",
+SLOT_TO_MATERIAL = {"M_PearlClam_Shell": "Shell", "M_PearlClam_InteriorBottom": "InteriorBottom",
+                    "M_PearlClam_InteriorLid": "InteriorLid",
                     "M_PearlClam_Mantle": "Mantle", "M_PearlClam_Pearl": "Pearl"}
 SCENE3 = "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03"
 CLAM_RECORD = HERE + "s3_pearlclam_apply_record.json"
@@ -653,7 +666,6 @@ def graph_problems():
 BREATH_CODE = "return float3(0.0, 0.0, A * M * (0.5 - 0.5 * cos(6.2831853 * T / max(P, 0.01))));"
 PEARL_BREATH_CODE = "return float3(0.0, 0.0, A * (0.5 - 0.5 * cos(6.2831853 * T / max(P, 0.01))));"
 PEARL_COLOR_CODE = "return lerp(B.rgb, B.rgb * lerp(W.rgb, C.rgb, F), saturate(K));"
-SOLID_CODE = "return C.rgb;"
 GLOW_CODE = "return G * GC.rgb;"
 MAX_WPO_CM = 5.0     # Material.h:1214-1220 [decl]: clamps WPO per axis AND extends Nanite culling bounds
 
@@ -672,14 +684,6 @@ def material_specs():
                "want_props": {"MP_BASE_COLOR", "MP_NORMAL", "MP_ROUGHNESS", "MP_WORLD_POSITION_OFFSET"},
                "tex_params": dict(MASTER_TEX_PARAMS),
                "scalars": dict(MASTER_SCALARS, BreathAmp=0.0, BreathPeriod=5.0), "vectors": {}, "max_wpo": MAX_WPO_CM}
-    solid = {"nodes": {"BaseColorTint": ("vector", list(INTERIOR_LINEAR)), "Roughness": ("scalar", 0.25),
-                       "Specular": ("scalar", 0.5), "SolidColor": ("custom", (SOLID_CODE, ["C"], "F3"))},
-             "edges": [("BaseColorTint", "", "SolidColor", "C")],
-             "props": [("SolidColor", "", "MP_BASE_COLOR"), ("Roughness", "", "MP_ROUGHNESS"),
-                       ("Specular", "", "MP_SPECULAR")],
-             "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR"}, "tex_params": {},
-             "scalars": {"Roughness": 0.25, "Specular": 0.5}, "vectors": {"BaseColorTint": list(INTERIOR_LINEAR)},
-             "max_wpo": None}
     pv = {"BaseColor": [0.86, 0.83, 0.78, 1.0], "WarmTint": [1.0, 0.90, 0.90, 1.0], "CoolTint": [0.88, 0.98, 1.0, 1.0],
           "GlowColor": [1.0, 0.93, 0.88, 1.0]}
     ps = {"TintAmount": 0.6, "Roughness": 0.18, "Specular": 0.55, "Glow": 0.0, "BreathAmp": 0.0, "BreathPeriod": 5.0}
@@ -701,7 +705,7 @@ def material_specs():
              "want_props": {"MP_BASE_COLOR", "MP_ROUGHNESS", "MP_SPECULAR", "MP_EMISSIVE_COLOR",
                             "MP_WORLD_POSITION_OFFSET"},
              "tex_params": {}, "scalars": ps, "vectors": pv, "max_wpo": MAX_WPO_CM}
-    return {MASTER: base, MASTER_BREATHE: breathe, MASTER_SOLID: solid, PEARL_MASTER: pearl}
+    return {MASTER: base, MASTER_BREATHE: breathe, PEARL_MASTER: pearl}
 
 
 def material_problems(specs=None):
@@ -761,9 +765,9 @@ def tex_target(prop, tex_set, role):
         _req(tex_set in CLAM_TEX, "CLAM_TEX_SET|%r" % tex_set)
         name = "T_PearlClam_%s%s" % (tex_set, TEX_ROLES[role][0])
         return {"file": CLAM_DIR + name + ".png", "asset": CLAM_FOLDER + "/" + name, "name": name,
-                "folder": CLAM_FOLDER, "dim": CLAM_TEX[tex_set][role], "label": "%s_%s" % (tex_set, role)}
+                "folder": CLAM_FOLDER, "dim": CLAM_TEX[tex_set][role], "label": "%s_%s" % (tex_set, role), "prop": CLAM}
     p = prop_paths(prop)["tex"][role]
-    return dict(p, folder=prop_paths(prop)["folder"], dim=PROPS[prop]["tex_dim"][role], label=role)
+    return dict(p, folder=prop_paths(prop)["folder"], dim=PROPS[prop]["tex_dim"][role], label=role, prop=prop)
 
 
 def tex_source_gate(t):
@@ -771,8 +775,58 @@ def tex_source_gate(t):
     _req(os.path.isfile(t["file"]), "TEX_SOURCE_MISSING|%s" % t["file"])
     w, h, depth, ctype = png_ihdr(t["file"])
     _req(w == h == t["dim"], "TEX_DIM|%s|%dx%d|want %d" % (t["file"], w, h, t["dim"]))
+    _req(w <= 4096 or (t.get("prop"), t["label"]) in ALLOW_8K, "TEX_8K_NOT_ALLOWED|%s|%s" % (t.get("prop"), t["label"]))
     _req(depth == 8, "TEX_DEPTH|%s|%d" % (t["file"], depth))
     return {"file": t["file"], "w": w, "h": h, "depth": depth, "colour_type": ctype}
+
+
+# Interchange override as data (sub-object key, property, value).  Header lines [decl]:
+#   InterchangeGenericAssetsPipelineSharedSettings.h:94-95 bImportLods, :109-111 VertexColorImportOption,
+#   :125-127 bRecomputeNormals ("normals in the imported mesh are ignored and recomputed"), :129-131 bRecomputeTangents,
+#   :133-135 bUseMikkTSpace; InterchangeGenericMeshPipeline.h:134 bBuildNanite.
+BASE_PIPELINE = [("mat", "import_materials", False), ("tex", "import_textures", False),
+                 ("mesh", "import_static_meshes", True), ("mesh", "import_skeletal_meshes", False),
+                 ("mesh", "build_nanite", True), ("mesh", "collision", False),
+                 ("common", "import_lods", False), ("common", "recompute_normals", False)]
+NORMALS_FROM_FILE = [("common", "recompute_normals", False), ("common", "recompute_tangents", True),
+                     ("common", "use_mikk_t_space", True)]
+
+
+def pipeline_wanted(vc_option=None, normals_from_file=False):
+    """The exact settings the import writes and reads back.  normals_from_file = keep the FBX's (custom) normals;
+    tangents are rebuilt with MikkTSpace (the FBX exports normals, not tangents [meas: LayerElementNormal only])."""
+    rows = list(BASE_PIPELINE)
+    if normals_from_file:
+        drop = {n[1] for n in NORMALS_FROM_FILE}
+        rows = [r for r in rows if r[1] not in drop] + list(NORMALS_FROM_FILE)
+    if vc_option is not None:
+        _req(vc_option in ("IVCIO_REPLACE", "IVCIO_IGNORE"), "VC_OPTION|%r" % vc_option)
+        rows.append(("common", "vertex_color_import_option", vc_option))
+    keys = [(r[0], r[1]) for r in rows]
+    _req(len(keys) == len(set(keys)), "PIPELINE_DUP|%s" % keys)
+    return rows
+
+
+def clam_vc_option(part):
+    """Mantle: REPLACE (BreathMask R).  Others IGNORE: the v2 Bottom/Lid FBX carry an undeclared 'LipGrad' colour
+    layer [meas: FBX LayerElementColor, 7 Oct 18:15] that no material reads (header: Ignore = drop source colours)."""
+    return "IVCIO_REPLACE" if CLAM_PARTS[part]["vc"] else "IVCIO_IGNORE"
+
+
+def pipeline_problems(rows, part):
+    """Gate the planned settings for a clam part (harness +/-): custom-normal parts must keep the file's normals."""
+    d = {(r[0], r[1]): r[2] for r in rows}
+    probs = []
+    if d.get(("common", "recompute_normals")) is not False:
+        probs.append("RECOMPUTE_NORMALS_ON|%s" % part)
+    if CLAM_PARTS[part]["custom_normals"] and d.get(("common", "use_mikk_t_space")) is not True:
+        probs.append("MIKKT_OFF|%s" % part)
+    if d.get(("common", "vertex_color_import_option")) != clam_vc_option(part):
+        probs.append("VC_OPTION|%s|%s" % (part, d.get(("common", "vertex_color_import_option"))))
+    if (d.get(("mesh", "build_nanite")) is not True or d.get(("mat", "import_materials")) is not False or
+            d.get(("tex", "import_textures")) is not False):
+        probs.append("BASE|%s" % part)
+    return probs
 
 
 def flip_y(v):
@@ -829,6 +883,16 @@ def clam_centroid_check(part, got):
     return f
 
 
+def normals_gate(part, normals, allow_unreadable=False):
+    """After import: a custom-normal part must read recompute_normals False (else the FBX normals were discarded).
+    Unreadable settings refuse unless allow_unreadable (then the pipeline read-back is the only evidence)."""
+    if not CLAM_PARTS[part]["custom_normals"]:
+        return []
+    if not normals.get("readable"):
+        return [] if allow_unreadable else ["NORMALS_UNREADABLE|%s|%s" % (part, normals.get("error"))]
+    return [] if normals.get("recompute_normals") is False else ["NORMALS_RECOMPUTED|%s|%s" % (part, normals)]
+
+
 def centroid_discriminates(part):
     """True when the expected centroid differs from its X-mirror / Y-unflipped twin by > 2 x tolerance."""
     e = clam_expected_ue(part)["centroid"]
@@ -862,6 +926,16 @@ def clam_manifest_problems(man):
             probs.append("DIAMETER|%s" % part)
         if bool(m.get("breathing")) != row["vc"]:
             probs.append("VC_FLAG|%s" % part)
+    vr = man.get("validation_reexport", {})
+    for part, row in CLAM_PARTS.items():
+        if row["custom_normals"]:
+            v = vr.get("SM_PearlClam_" + part)
+            if not v or v.get("custom_normals") is not True:
+                probs.append("CUSTOM_NORMALS_UNDECLARED|%s" % part)
+            elif list(v.get("slots", [])) != row["slots"]:
+                probs.append("REEXPORT_SLOTS|%s|%s" % (part, v.get("slots")))
+            elif not (near(v["min_cm"], row["min_b"], 0.011) and near(v["max_cm"], row["max_b"], 0.011)):
+                probs.append("REEXPORT_BOUNDS|%s" % part)
     lid = parts.get("SM_PearlClam_Lid", {})
     if lid.get("hinge_axis_unit_blender") != [1, 0, 0]:
         probs.append("HINGE_AXIS|%s" % lid.get("hinge_axis_unit_blender"))
@@ -1746,7 +1820,7 @@ def run_unplace(run, world):
 
 
 # ------------------------------------------------------------------------------------------- import / material
-def _pipeline(asset_name, vc_replace=False):
+def _pipeline(asset_name, vc_option=None, normals_from_file=False):
     """Same Interchange override as S3Shore/s3_shore_ground_ue.py _pipeline (header lines cited there).
     vc_replace: common_meshes_properties.vertex_color_import_option = IVCIO_Replace
     (InterchangeGenericAssetsPipelineSharedSettings.h:109-111 [decl]; Replace is also the declared default)."""
@@ -1757,20 +1831,17 @@ def _pipeline(asset_name, vc_replace=False):
     tex = mat.get_editor_property("texture_pipeline") if mat else None
     _req(all(x is not None for x in (common, mesh, mat, tex)), "PIPELINE_SUBOBJECTS")
     p.set_editor_property("asset_name", asset_name)
-    wanted = [(mat, "import_materials", False), (tex, "import_textures", False),
-              (mesh, "import_static_meshes", True), (mesh, "import_skeletal_meshes", False),
-              (mesh, "build_nanite", True), (mesh, "collision", False),
-              (common, "import_lods", False), (common, "recompute_normals", False)]
-    for obj, prop, val in wanted:
-        obj.set_editor_property(prop, val)
+    objs = {"mat": mat, "tex": tex, "mesh": mesh, "common": common}
+    wanted = pipeline_wanted(vc_option, normals_from_file)
+    for key, prop, val in wanted:
+        if prop == "vertex_color_import_option":
+            val = getattr(unreal.InterchangeVertexColorImportOption, val)
+        objs[key].set_editor_property(prop, val)
     got = {}
-    for obj, prop, val in wanted:
-        got[prop] = obj.get_editor_property(prop)
+    for key, prop, val in wanted:
+        g = objs[key].get_editor_property(prop)
+        got[prop] = _enum_name(g) if prop == "vertex_color_import_option" else g
         _req(got[prop] == val, "PIPELINE_READBACK|%s=%s" % (prop, got[prop]))
-    if vc_replace:
-        common.set_editor_property("vertex_color_import_option", unreal.InterchangeVertexColorImportOption.IVCIO_REPLACE)
-        got["vertex_color_import_option"] = _enum_name(common.get_editor_property("vertex_color_import_option"))
-        _req(got["vertex_color_import_option"] == "IVCIO_REPLACE", "PIPELINE_READBACK|vc=%s" % got["vertex_color_import_option"])
     ov = unreal.InterchangePipelineStackOverride()
     ov.add_pipeline(p)
     return ov, got
@@ -1912,7 +1983,9 @@ def run_import_clam_part(run, part, args):
     for k, v in (("filename", fbx), ("destination_path", CLAM_FOLDER), ("destination_name", name),
                  ("automated", True), ("replace_existing", False), ("save", False)):
         task.set_editor_property(k, v)
-    ov, settings = _pipeline(name, vc_replace=True)
+    plan_rows = pipeline_wanted(clam_vc_option(part), CLAM_PARTS[part]["custom_normals"])
+    _req(not pipeline_problems(plan_rows, part), "PIPELINE_PLAN|%s" % pipeline_problems(plan_rows, part))
+    ov, settings = _pipeline(name, vc_option=clam_vc_option(part), normals_from_file=CLAM_PARTS[part]["custom_normals"])
     task.set_editor_property("options", ov)
     unreal.AssetToolsHelpers.get_asset_tools().import_asset_tasks([task])
     mesh = unreal.load_asset(path)
@@ -1927,7 +2000,21 @@ def run_import_clam_part(run, part, args):
     got = {"min": _v(bb.min), "max": _v(bb.max)}
     fails = clam_bounds_check(part, got)
     _req(not fails, "BOUNDS|%s" % ";".join(fails))
-    has_vc = bool(unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem).has_vertex_colors(mesh))
+    sme = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
+    has_vc = bool(sme.has_vertex_colors(mesh))
+    # LOD0 build settings: StaticMeshEditorSubsystem.h:80-81 GetLodBuildSettings (out-param, returned in Python [inf]);
+    # FMeshBuildSettings EngineTypes.h:2948-2956 bRecomputeNormals / bRecomputeTangents [decl]
+    normals = {"readable": False}
+    try:
+        bs = sme.get_lod_build_settings(mesh, 0)
+        normals = {"readable": True, "recompute_normals": bool(bs.get_editor_property("recompute_normals")),
+                   "recompute_tangents": bool(bs.get_editor_property("recompute_tangents")),
+                   "use_mikk_t_space": bool(bs.get_editor_property("use_mikk_t_space"))}
+        bs = None
+    except Exception as exc:  # noqa: BLE001  (recorded; only the custom-normal parts insist)
+        normals["error"] = str(exc)[:200]
+    _req(normals_gate(part, normals, bool(args.get("allow_unreadable_normals"))) == [],
+         "NORMALS|%s" % normals_gate(part, normals, bool(args.get("allow_unreadable_normals"))))
     if CLAM_PARTS[part]["vc"]:
         _req(has_vc, "VERTEX_COLORS_MISSING|%s (BreathMask R must survive the import)" % part)
     centroid = None
@@ -1943,7 +2030,7 @@ def run_import_clam_part(run, part, args):
     unreal.SystemLibrary.collect_garbage()
     rec = {"run": run, "prop": CLAM, "part": part, "mesh": path, "bounds": got, "expected": clam_expected_ue(part),
            "y_flip": "VERIFIED_BY_BOUNDS" if part == "Lid" else "CONSISTENT (part near-symmetric in Y)",
-           "slots": slots, "has_vertex_colors": has_vc, "centroid": centroid,
+           "slots": slots, "has_vertex_colors": has_vc, "normals": normals, "centroid": centroid,
            "centroid_gate": bool(args.get("centroid_gate", True)), "pipeline": settings,
            "fbx_sha256": sha256_file(fbx), "saved": True}
     _write(HERE + "s3_props_import_mesh_PearlClam_%s.json" % part, rec)
@@ -2085,7 +2172,7 @@ def run_build_mat(run, name):
 
 
 def run_build_clam_mat(run, key):
-    """One clam MI per call (Shell | Interior | Mantle | Pearl); its master is created first if missing."""
+    """One clam MI per call (Shell | InteriorBottom | InteriorLid | Mantle | Pearl); its master is created first if missing."""
     eal, mel = unreal.EditorAssetLibrary, unreal.MaterialEditingLibrary
     probs = material_problems()
     _req(not probs, "GRAPH|%s" % probs)
