@@ -73,6 +73,11 @@ ENV_INTENSITY = {"DirectionalLight": "Intensity", "SkyLight": "Intensity", "Expo
 CEILING_PREFIX = "S%s Lattice Glow "            # hangar_build.py:140 (glows ride the bulbs on the Lattice Fly)
 HANGAR_TAG = "RigAtmos.Scene%sHangar"           # hangar_build.py:179, 365
 ROOF_LABELS = ("S%s Hangar Roof",)              # hangar_build.py:118
+BULB_PREFIX = "S%s Lattice Bulb "               # hangar_build.py:137-138 (emissive work bulbs on the Lattice Fly)
+LATTICE_PREFIX = "S%s Hangar Lattice "          # hangar_build.py:120-129 (Fly, Beams, Rails)
+LATTICE_FLY = "S%s Hangar Lattice Fly"          # hangar_build.py:120; lowered by LS_S<n>_HangarRise Location.Z (:501)
+RISE_MARK = "HangarRise"                        # klara_hookin.py:674 [prec]
+LATTICE_MODES = ("cancel", "hide", "allow")
 WALL_LABELS = {"left_wall": "S%s Hangar Left Wall", "right_wall": "S%s Hangar Right Wall",
                "far_wall": "S%s Hangar Far Wall"}   # hangar_build.py:110, 113
 EPS = 1.0e-9
@@ -460,51 +465,124 @@ def ramp_keys(v0, v1, f0, f1):
 
 
 # =====================================================================================================================
+# Pure: the ceiling rig must not lower (Gary 7 Oct: "no need for the ceiling rig now to lower")
+# =====================================================================================================================
+
+def cancel_keys(rise_keys, offset_ticks, hold_value=None):
+    """ADDITIVE keys for OUR Scene that cancel the rise's lattice Location.Z motion exactly.
+    rise_keys = [{"tick", "value", "interp" ('cubic'|'linear'|'constant'), "arrive", "leave", ("arrive_w", "leave_w",
+    "weighted")}] in the RISE's tick space; offset_ticks maps rise tick -> Scene tick (same tick resolution, rate 1).
+    Each additive key = hold - value with NEGATED tangents and the same interpolation, so rise(t) + add(t) = hold for
+    every t: a Hermite/Bezier segment is linear in its end values and tangents [inf: standard curve algebra; weighted
+    tangents keep their weights, the negated slope flips the handle]. Constant extrapolation on both sides cancels
+    too (rise holds its first/last value, the additive holds hold - first/last). hold defaults to the FIRST key value
+    (the rig flown up, hangar_build.py:501)."""
+    if not rise_keys:
+        raise PlanError("LATTICE_NO_KEYS")
+    rows = sorted(rise_keys, key=lambda k: int(k["tick"]))
+    hold = float(rows[0]["value"]) if hold_value is None else float(hold_value)
+    out = []
+    for k in rows:
+        if k.get("interp") not in ("cubic", "linear", "constant"):
+            raise PlanError("LATTICE_INTERP_UNKNOWN: %r" % k.get("interp"))
+        out.append({"tick": int(k["tick"]) + int(offset_ticks), "value": hold - float(k["value"]), "interp": k["interp"],
+                    "arrive": -float(k.get("arrive") or 0.0), "leave": -float(k.get("leave") or 0.0),
+                    "arrive_w": k.get("arrive_w"), "leave_w": k.get("leave_w"), "weighted": k.get("weighted")})
+    return {"hold": hold, "keys": out, "lowers_cm": hold - min(float(k["value"]) for k in rows),
+            "span_ticks": [out[0]["tick"], out[-1]["tick"]]}
+
+
+def curve_eval(keys, tick):
+    """Unweighted Hermite evaluation of a key list (ticks; tangents in value/tick) - the harness's reference curve."""
+    ks = sorted(keys, key=lambda k: k["tick"])
+    if tick <= ks[0]["tick"]:
+        return float(ks[0]["value"])
+    if tick >= ks[-1]["tick"]:
+        return float(ks[-1]["value"])
+    for a, b in zip(ks, ks[1:]):
+        if a["tick"] <= tick <= b["tick"]:
+            if a["interp"] == "constant":
+                return float(a["value"]) if tick < b["tick"] else float(b["value"])
+            dt = float(b["tick"] - a["tick"])
+            s_ = (tick - a["tick"]) / dt
+            if a["interp"] == "linear":
+                return float(a["value"]) + (float(b["value"]) - float(a["value"])) * s_
+            return hermite(float(a["value"]), float(b["value"]), float(a["leave"]), float(b["arrive"]), dt, s_)
+    raise PlanError("CURVE_EVAL")
+
+
+def rise_offset_ticks(section_start_frame, scene_fps, scene_tick, rise_lower_tick, start_offset_tick, rise_tick,
+                      play_rate=1.0):
+    """Rise tick -> Scene tick for a rate-1 sub-section (klara_hookin.py:122-128 [prec]); refuses other cases."""
+    if abs(float(scene_tick) - float(rise_tick)) > 1e-9:
+        raise PlanError("RISE_TICK_RESOLUTION_DIFFERS: scene %r rise %r" % (scene_tick, rise_tick))
+    if abs(float(play_rate) - 1.0) > 1e-9:
+        raise PlanError("RISE_PLAY_RATE_NOT_1: %r" % play_rate)
+    tpf = float(scene_tick) / float(scene_fps)
+    if abs(tpf - round(tpf)) > 1e-9:
+        raise PlanError("SCENE_TICKS_PER_FRAME_NOT_WHOLE: %r" % tpf)
+    return int(section_start_frame) * int(round(tpf)) - int(rise_lower_tick) - int(start_offset_tick)
+
+
+# =====================================================================================================================
 # Pure: the timeline
 # =====================================================================================================================
 
 def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len, glide_in_s=None, glide_out_s=None):
-    """Scene-frame windows for intro | slot | outro. cfg = args intro/outro blocks. glide_in_s / glide_out_s: the speed-
-    bounded glide lengths (glide_seconds); when the intro needs more time than [L, C) gives, the CUT MOVES LATER (and the
-    slot with it, same length): C' = max(C, d0 + glide, d0 + strikes + settle). -> dict (+ refusals)."""
+    """v2 (Gary 7 Oct): "while we're in the dark, we should already have moved into the final position for S1's wide
+    intro and then it lights up, and then we start it without any external lighting interference".
+      [L, d0)        dark hold (rig glows still on: "the grid of faint lights showing the rig come up is good")
+      [d0, g1]       glide ENTIRELY in the dark: Entry pose -> her first pose (speed-bounded length)
+      [g1, S0)       hold on her first frame, still dark; roof hidden from g1; ceiling glows fade OUT over [gf0, S0]
+      [S0, ...)      her lights strike one by one; her env crossfades 0 -> hers over [S0, C - settle]
+      [C, E)         her cinematic (slot); the cut moves later when the intro needs it (slot keeps its length)
+      outro          hold; her lights blink out; env out; roof back; rig glows back with the glide out; Exit cut.
+    -> dict (+ refusals). glide_in_s / glide_out_s from glide_seconds."""
     intro, outro = cfg["intro"], cfg["outro"]
-    f = lambda s: int(math.ceil(float(s) * fps - 1e-6))
-    r = {"refusals": [], "warnings": [], "land": L, "cut_before": C, "slot_before": [C, E]}
+    f = lambda s_: int(math.ceil(float(s_) * fps - 1e-6))
+    r = {"refusals": [], "warnings": [], "land": L, "cut_before": C, "slot_before": [C, E], "version": 2}
     if L is None or not (0 <= L < C < E):
         r["refusals"].append("TIMELINE_ORDER: land %r cut %r slot end %r" % (L, C, E))
         return r
     d0 = L + f(intro["dark_hold_s"])
-    gin = f(glide_in_s if glide_in_s is not None else intro["glide_s"])
+    g1 = d0 + f(glide_in_s if glide_in_s is not None else intro["glide_s"])
+    S0 = g1 + f(intro.get("pre_strike_hold_s", 0.5))
+    gf0 = max(d0, S0 - f(intro.get("glow_fade_s", 1.5)))
     settle = f(intro["env_settle_s"])
+    flick = f(intro["flicker_window_s"])
     gaps = intro["gap_s"]
-    strikes = f((float(gaps[0]) + float(gaps[1])) / 2.0 * max(0, n_lights - 1)) + f(intro["flicker_window_s"]) + 1
-    need = max(C, d0 + gin, d0 + strikes + settle)
-    shift = need - C
+    span = f((float(gaps[0]) + float(gaps[1])) / 2.0 * max(0, n_lights - 1))
+    need = max(S0 + span + flick + 1 + settle, S0 + f(intro.get("env_min_s", 3.0)) + settle)
+    shift = max(0, need - C)
     C, E = C + shift, E + shift
     r.update(cut=C, slot=[C, E], slot_shift=shift, slot_shift_s=shift / float(fps))
     if shift:
-        r["warnings"].append("CUT_MOVED_LATER: +%d frames (%.2f s) for the glide/strikes; slot -> [%d, %d)" % (shift,
-                             shift / float(fps), C, E))
-    g0 = max(d0, C - gin)
-    if C - g0 < f(intro.get("glide_min_s", 2.0)):
-        r["warnings"].append("GLIDE_SHORT: %.2f s (land %d, cut %d)" % ((C - g0) / fps, L, C))
-    strike_last = C - settle - f(intro["flicker_window_s"]) - 1
-    xf = [g0, C - settle]
-    if xf[1] <= xf[0]:
-        r["refusals"].append("CROSSFADE_EMPTY: %s" % xf)
+        r["warnings"].append("CUT_MOVED_LATER: +%d frames (%.2f s): glide in the dark, then strikes; slot -> [%d, %d)"
+                             % (shift, shift / float(fps), C, E))
+    strike_last = C - settle - flick - 1
+    xf = [S0, C - settle]
     o0 = E + f(outro["hold_s"])
-    blink_span = f(outro["blink_gap_s"][1]) * max(0, n_lights - 1) + f(outro["flicker_window_s"]) + 1
+    blink_span = f(outro["blink_gap_s"][1]) * max(0, n_lights - 1) + flick + 1
     env_out = [o0, o0 + f(outro["env_fade_s"])]
     lights_out = o0 + blink_span
-    g1_0 = max(env_out[1], lights_out) + f(outro["dark_before_glide_s"])
-    g1_1 = g1_0 + f(glide_out_s if glide_out_s is not None else outro["glide_s"])
-    end = g1_1 + int(exit_len)
-    r.update(dark=[L, d0], strike_window=[d0, strike_last], glide_in=[g0, C], crossfade=xf, roof_hidden=[g0, env_out[1]],
-             ours_hidden_from=g0, hers_dark=[L, g0], outro_hold=[E, o0], blink_window=[o0, lights_out],
-             env_out=env_out, glide_out=[g1_0, g1_1], exit_cut=[g1_1, end], planned_end=end,
-             planned_end_s=end / float(fps), outro_s=(end - E) / float(fps))
-    if strike_last <= d0:
-        r["refusals"].append("STRIKE_WINDOW_EMPTY: [%d, %d]" % (d0, strike_last))
+    go0 = max(env_out[1], lights_out) + f(outro["dark_before_glide_s"])
+    go1 = go0 + f(glide_out_s if glide_out_s is not None else outro["glide_s"])
+    end = go1 + int(exit_len)
+    back = [go0, go0 + f(outro.get("rig_back_s", 1.5))] if outro.get("rig_glow_back", True) else None
+    r.update(dark=[L, d0], glide_in=[d0, g1], first_hold=[g1, S0], glow_fade=[gf0, S0],
+             rig_dark=[S0, back[0] if back else end], rig_back=back, strike_window=[S0, strike_last], crossfade=xf,
+             roof_hidden=[g1, env_out[1]], ours_hidden_from=g1, hers_dark=[L, S0], outro_hold=[E, o0],
+             blink_window=[o0, lights_out], env_out=env_out, glide_out=[go0, go1], exit_cut=[go1, end],
+             planned_end=end, planned_end_s=end / float(fps), outro_s=(end - E) / float(fps),
+             intro_s=(C - L) / float(fps))
+    if strike_last <= S0:
+        r["refusals"].append("STRIKE_WINDOW_EMPTY: [%d, %d]" % (S0, strike_last))
+    if xf[1] <= xf[0]:
+        r["refusals"].append("CROSSFADE_EMPTY: %s" % xf)
+    if not (d0 <= g1 <= gf0 or gf0 < S0) or g1 > S0:
+        r["refusals"].append("GLIDE_NOT_IN_DARK: glide end %d, first strike %d" % (g1, S0))
+    if back and back[0] < max(env_out[1], lights_out):
+        r["refusals"].append("RIG_BACK_BEFORE_HER_LIGHTS_OUT: %s" % back)
     return r
 
 
@@ -574,6 +652,8 @@ def validate_args(args):
         r.append("LEAD_NEGATIVE")
     if args.get("roof") not in ("hide_roof", "hide_roof_and_seen_walls", "keep"):
         r.append("ROOF_OPTION_INVALID: %r" % args.get("roof"))
+    if args.get("lattice", "cancel") not in LATTICE_MODES:
+        r.append("LATTICE_MODE_INVALID: %r" % args.get("lattice"))
     if args.get("slot") not in ("nested_cinematic", "media_track"):
         r.append("SLOT_INVALID: %r" % args.get("slot"))
     return r
@@ -730,6 +810,13 @@ def _api_table():
           "pussstage_effective_plugins.json [meas]", lambda: hasattr(u, "MovieSceneMediaTrack"))
     probe("CineCameraComponent filmback", "prec curtain_sleight.py:1614",
           lambda: repr(u.CineCameraComponent.get_default_object().get_editor_property("filmback")))
+    probe("MovieSceneSection.set_blend_type + MovieSceneBlendType.ADDITIVE (lattice cancel)", "inf",
+          lambda: [hasattr(u.MovieSceneSection, "set_blend_type"), repr(u.MovieSceneBlendType.ADDITIVE)])
+    probe("MovieSceneScriptingDoubleKey tangent get/set + RichCurveTangentMode.RCTM_USER", "inf",
+          lambda: [hasattr(u.MovieSceneScriptingDoubleKey, n) for n in
+                   ("get_arrive_tangent", "set_arrive_tangent", "get_leave_tangent", "set_leave_tangent",
+                    "get_interpolation_mode", "set_tangent_mode", "get_tangent_weight_mode")] +
+          [repr(u.RichCurveTangentMode.RCTM_USER)])
     probe("MovieSceneCompletionMode.RESTORE_STATE", "prec klara_hookin.py:1156",
           lambda: repr(u.MovieSceneCompletionMode.RESTORE_STATE))
     probe("InfinityStageCelestialRig foreign_lighting_exempt_levels", "commit e0e04ed (built)",
@@ -1041,6 +1128,60 @@ def _land(seq, key):
             "pre_scene_float_drives": drives}
 
 
+_INTERP = {"RCIM_CUBIC": "cubic", "RCIM_LINEAR": "linear", "RCIM_CONSTANT": "constant"}
+
+
+def _enum_name(v):
+    return str(getattr(v, "name", v)).split(".")[-1]
+
+
+def _lattice_facts(seq, key, fps):
+    """The rise sub-section in the Scene + the rise's S<n> Hangar Lattice Fly Location.Z keys WITH tangents
+    (MovieSceneScriptingDoubleKey get_* [inf, probed]). Read only."""
+    hits = [sct for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for sct in t.get_sections()
+            if sct.get_sequence() is not None and RISE_MARK in _path(sct.get_sequence())]
+    if len(hits) != 1:
+        raise PlanError("RISE_SUBSECTION_COUNT: %d" % len(hits))
+    sec = hits[0]
+    rise = sec.get_sequence()
+    prm = sec.get_editor_property("parameters")
+    off = int(prm.get_editor_property("start_frame_offset").value)
+    rate = 1.0
+    try:
+        ts = prm.get_editor_property("time_scale")
+        rate = float(ts) if isinstance(ts, (int, float)) else float(ts.get_editor_property("play_rate"))
+    except Exception:  # noqa: BLE001 - 5.8 time-warp struct: reported, rate assumed 1 [inf]
+        rate = 1.0
+    rres, rfps = _rate(rise.get_tick_resolution()), _rate(rise.get_display_rate())
+    lower = int(round(rise.get_playback_start() * rres / rfps))
+    b = [x for x in rise.get_bindings() if str(x.get_display_name()) == LATTICE_FLY % key]
+    if len(b) != 1:
+        raise PlanError("LATTICE_BINDING_COUNT: %d" % len(b))
+    secs = [x for t in b[0].get_tracks() if isinstance(t, unreal.MovieScene3DTransformTrack) for x in t.get_sections()]
+    if len(secs) != 1:
+        raise PlanError("LATTICE_SECTIONS: %d" % len(secs))
+    z = _chan_map(secs[0]).get("Location.Z")
+    if z is None:
+        raise PlanError("LATTICE_NO_LOCATION_Z")
+    keys = []
+    for k in z.get_keys():
+        row = {"tick": int(k.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value),
+               "value": float(k.get_value()), "interp": _INTERP.get(_enum_name(k.get_interpolation_mode()))}
+        row["tangent_mode"] = _enum_name(k.get_tangent_mode())
+        row["arrive"], row["leave"] = float(k.get_arrive_tangent()), float(k.get_leave_tangent())
+        try:
+            row["weighted"] = _enum_name(k.get_tangent_weight_mode()) != "RCTWM_WEIGHTED_NONE"
+            row["arrive_w"], row["leave_w"] = float(k.get_arrive_tangent_weight()), float(k.get_leave_tangent_weight())
+        except Exception:  # noqa: BLE001
+            row["weighted"] = None
+        keys.append(row)
+    return {"rise": _path(rise), "section": [int(sec.get_start_frame()), int(sec.get_end_frame())],
+            "start_offset_tick": off, "play_rate": rate, "rise_tick": rres, "rise_lower_tick": lower,
+            "offset_ticks": rise_offset_ticks(sec.get_start_frame(), fps, _rate(seq.get_tick_resolution()), lower, off,
+                                              rres, rate),
+            "keys": keys, "section_active": bool(sec.is_active())}
+
+
 def gather(args, world, run):
     key = str(args["scene"])
     row = args["scenes"][key]
@@ -1060,7 +1201,8 @@ def gather(args, world, run):
         raise PlanError("SLOT_SECTION_COUNT: %d" % len(sub))
     facts["slot_live"] = [int(sub[0].get_start_frame()), int(sub[0].get_end_frame()), bool(sub[0].is_active())]
     if facts["slot_live"][:2] != [C, E]:
-        raise PlanError("SLOT_DRIFT: live %s vs hookin record [%d, %d]" % (facts["slot_live"], C, E))
+        raise PlanError("SLOT_DRIFT: live %s vs hookin record [%d, %d] (a reveal still applied? REVERT it first)"
+                        % (facts["slot_live"], C, E))
     facts["arrival"] = _land(seq, key)
     box, entry = _live_box(key, args)
     facts["box"], facts["entry_camera"] = box, entry
@@ -1090,6 +1232,16 @@ def gather(args, world, run):
     facts["her_lights"] = _light_rows(her_actors, sb, her_lo, her_last)
     facts["her_env"] = _env_rows(her_actors, sb, her_lo, her_last)
     facts["hangar_lights"] = _hangar_lights(key, box, None)
+    facts["rig_bulbs"] = sorted(str(a.get_actor_label()) for a in _actors()
+                                if str(a.get_actor_label()).startswith(BULB_PREFIX % key))
+    facts["lattice_pieces"] = sorted(str(a.get_actor_label()) for a in _actors()
+                                     if str(a.get_actor_label()).startswith(LATTICE_PREFIX % key)
+                                     or str(a.get_actor_label()).startswith(CEILING_PREFIX % key))
+    facts["tick"] = _rate(seq.get_tick_resolution())
+    try:
+        facts["lattice"] = _lattice_facts(seq, key, fps)
+    except Exception as exc:  # noqa: BLE001 - a missing API / shape is a finding, the plan refuses on it
+        facts["lattice"] = {"error": "%s: %s" % (type(exc).__name__, exc)}
     facts["hookin_bindings"] = _hookin_bindings(seq)
     facts["cuts"], _t = _cuts(seq)
     facts["copy_bindings_unresolved"] = []
@@ -1178,7 +1330,11 @@ def build_plan(facts, args):
                           first_pose["loc"], args["intro"]["order"])
     exit_len = int(args["outro"].get("exit_cut_frames", 25))
     vmax = float(args["intro"].get("max_glide_speed_cm_s", 300.0))
-    gin_s, gin_peak = glide_seconds(start_pose, first_pose, fps, first["vel_cm_s"], vmax, args["intro"]["glide_s"])
+    # v2: the glide ends in the DARK and holds on her first pose before anything lights, so it ends at rest
+    gin_s, gin_peak = glide_seconds(start_pose, first_pose, fps, [0.0, 0.0, 0.0], vmax, args["intro"]["glide_s"])
+    her_v = math.sqrt(sum(v * v for v in first["vel_cm_s"]))
+    if her_v > 5.0:
+        warnings.append("HER_FIRST_FRAME_MOVES: %.1f cm/s - the held camera steps into her motion at the cut" % her_v)
     gout_s, gout_peak = glide_seconds(last_pose, exit_pose, fps, [0.0, 0.0, 0.0], vmax, args["outro"]["glide_s"])
     if gin_s is None or gout_s is None:
         refusals.append("GLIDE_TOO_FAST: no glide <= 40 s keeps peak <= %.0f cm/s (in %r, out %r)" % (vmax, gin_peak,
@@ -1249,21 +1405,52 @@ def build_plan(facts, args):
                     warnings.append("PPV_PRIORITY: hers %.1f <= ours %.1f (%s) - Look decision" % (e["priority"],
                                                                                                  o["priority"], o["label"]))
     plan["her_env"] = env
-    # our hangar lights
+    # our hangar lights: non-ceiling black all Scene; ceiling glows fade OUT before her first strike, stay out through
+    # the slot, and (outro) come back only after her lights and env are out (Gary 7 Oct)
     hl = []
     for h in facts["hangar_lights"]:
         if h["role"] == "ceiling":
-            clamp = (h.get("reach") or {}).get("clamp_cm")
-            hl.append(dict(h, action="clamp_radius" if clamp else "keep", clamp_cm=clamp))
+            c = list(h.get("color") or [1.0, 1.0, 1.0, 1.0])
+            keys = [[tl["glow_fade"][0], c], [tl["glow_fade"][1], [0.0, 0.0, 0.0, c[3]]]]
+            if tl["rig_back"]:
+                keys += [[tl["rig_back"][0], [0.0, 0.0, 0.0, c[3]]], [tl["rig_back"][1], c]]
+            rng = [tl["glow_fade"][0], (tl["rig_back"][1] + 1) if tl["rig_back"] else tl["planned_end"]]
+            hl.append(dict(h, action="fade_color", range=rng, color_keys=keys))
         else:
             hl.append(dict(h, action="black_color", range=[0, tl["planned_end"]]))
     plan["hangar_lights"] = hl
+    bulbs = list(facts.get("rig_bulbs") or [])
+    plan["rig_bulbs_hidden"] = {"labels": bulbs, "range": tl["rig_dark"]}
+    if bulbs:
+        warnings.append("BULB_EMISSIVE_POPS: %d bulb meshes hide at frame %d (glows already at 0; emissive cannot fade "
+                        "without a material track)" % (len(bulbs), tl["rig_dark"][0]))
+    # the ceiling rig must not lower (Gary 7 Oct)
+    lat = facts.get("lattice") or {}
+    mode = args.get("lattice", "cancel")
+    plan["lattice"] = {"mode": mode, "facts": {k: v for k, v in lat.items() if k != "keys"}}
+    if mode == "cancel":
+        if lat.get("error"):
+            refusals.append("LATTICE_CANCEL_UNAVAILABLE: %s (set lattice 'hide' or decide)" % lat["error"])
+        elif lat.get("keys"):
+            try:
+                ck = cancel_keys(lat["keys"], lat["offset_ticks"])
+                plan["lattice"].update(cancel=ck, range=[0, tl["planned_end"]])
+                tpf = float(facts.get("tick", 24000.0)) / fps
+                plan["lattice"]["lowers_scene_frames"] = [ck["span_ticks"][0] / tpf, ck["span_ticks"][1] / tpf]
+            except PlanError as exc:
+                refusals.append(str(exc))
+        else:
+            refusals.append("LATTICE_FACTS_MISSING")
+    elif mode == "hide":
+        plan["lattice"]["hide"] = {"labels": list(facts.get("lattice_pieces") or []) + bulbs,
+                                   "range": [tl["rig_dark"][0], tl["planned_end"]]}
+        warnings.append("LATTICE_HIDE: the rig still lowers, unseen; no rig glow in the outro")
     # glide camera keys
     gi = plan_glide(start_pose, first_pose, tl["glide_in"][0], tl["glide_in"][1], fps,
-                    v0=[0.0, 0.0, 0.0], v1=first["vel_cm_s"], w1=first["ang_deg_s"])
+                    v0=[0.0, 0.0, 0.0], v1=[0.0, 0.0, 0.0])
     go = plan_glide(last_pose, exit_pose, tl["glide_out"][0], tl["glide_out"][1], fps,
                     v0=[0.0, 0.0, 0.0], v1=[0.0, 0.0, 0.0])
-    keys = dedupe_keys(gi["keys"] + hold_keys(first_pose, [tl["cut"] + 1, tl["slot"][1] - 1]) +
+    keys = dedupe_keys(gi["keys"] + hold_keys(first_pose, [tl["cut"], tl["slot"][1] - 1]) +
                        hold_keys(last_pose, [tl["slot"][1], tl["glide_out"][0] - 1]) + go["keys"])
     plan["glide"] = {"in": gi["report"], "out": go["report"], "keys": keys,
                      "camera_label": args["scenes"][key]["glide_camera_label"]}
@@ -1285,7 +1472,7 @@ def build_plan(facts, args):
     elif any(seen.get(w) for w in ("left_wall", "right_wall", "far_wall")):
         warnings.append("FIRST_FRAME_SEES_WALLS: %s (roof option %r keeps them)" % (seen, args["roof"]))
     plan["hide"] = {"labels": hide, "range": tl["roof_hidden"]}
-    # cuts: Entry [s, G0) | Glide [G0, X) | Exit [X, end) (X = glide_out end; relength FIRST)
+    # cuts: Entry [0, d0) | Glide [d0, X) | Exit [X, end) (X = glide_out end; relength FIRST)
     plan["cuts_after"] = [["entry", [0, tl["glide_in"][0]]], ["glide", [tl["glide_in"][0], tl["exit_cut"][0]]],
                           ["exit", tl["exit_cut"]]]
     plan["hookin_edits"] = {"hers_dark_range": tl["hers_dark"], "ours_off_range": [tl["ours_hidden_from"], tl["planned_end"]],
@@ -1353,6 +1540,75 @@ def _add_color_black(seq, actor, label, rng, run):
     for c, v in zip(chans, (0.0, 0.0, 0.0, 1.0)):
         c.set_default(v)
     return s
+
+
+def _add_color_keys(seq, actor, label, rng, keys, run):
+    """LightColor keyed (LINEAR) - fades a ceiling glow out/in on top of the rise's Intensity keys (multiplicative,
+    so nothing fights the Arrival/rise owner, InfinityStageArrival.cpp:282-289)."""
+    comp = actor.get_component_by_class(unreal.LightComponent)
+    _b, kb = _bind_component(seq, actor, comp, label)
+    t = kb.add_track(unreal.MovieSceneColorTrack)
+    t.set_property_name_and_path(unreal.Name("LightColor"), "LightColor")
+    t.set_display_name(PREFIX + "LightColor")
+    sc = t.add_section()
+    sc.set_range(int(rng[0]), int(rng[1]))
+    sc.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+    chans = list(sc.get_all_channels())
+    if len(chans) != 4:
+        _stop(run, "COLOR_CHANNELS|%s|%d" % (label, len(chans)))
+    lin = unreal.MovieSceneKeyInterpolation.LINEAR
+    for f, rgba in keys:
+        for c, v in zip(chans, rgba):
+            c.add_key(unreal.FrameNumber(int(f)), float(v), time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE,
+                      interpolation=lin)
+    got = [len(_ch_keys(c)) for c in chans]
+    if got != [len(keys)] * 4:
+        _stop(run, "COLOR_KEY_READBACK|%s|%s|NOTHING SAVED; Don't-Save restart" % (label, got))
+    return sc
+
+
+def _add_lattice_cancel(seq, actor, plan_lat, run):
+    """ADDITIVE transform section on the Lattice Fly in OUR Scene: Location.Z = cancel_keys, all else 0 [inf: the
+    Scene's additive adds onto the rise's absolute; PIE stills over the old lowering window must confirm]."""
+    b = seq.add_possessable(actor)
+    b.set_display_name(PREFIX + "Lattice Hold: " + str(actor.get_actor_label()))
+    t = b.add_track(unreal.MovieScene3DTransformTrack)
+    t.set_display_name(PREFIX + "Lattice Hold")
+    sc = t.add_section()
+    sc.set_blend_type(unreal.MovieSceneBlendType.ADDITIVE)                     # [inf] probed
+    sc.set_range(int(plan_lat["range"][0]), int(plan_lat["range"][1]))
+    sc.set_completion_mode(unreal.MovieSceneCompletionMode.RESTORE_STATE)
+    cm = _chan_map(sc)
+    for n, c in cm.items():
+        c.set_default(0.0)
+    z = cm["Location.Z"]
+    interp = {"cubic": unreal.MovieSceneKeyInterpolation.USER, "linear": unreal.MovieSceneKeyInterpolation.LINEAR,
+              "constant": unreal.MovieSceneKeyInterpolation.CONSTANT}
+    for k in plan_lat["cancel"]["keys"]:
+        key = z.add_key(unreal.FrameNumber(int(k["tick"])), float(k["value"]), 0.0,
+                        time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION, interpolation=interp[k["interp"]])
+        if k["interp"] == "cubic":
+            key.set_tangent_mode(unreal.RichCurveTangentMode.RCTM_USER)
+            key.set_arrive_tangent(float(k["arrive"]))
+            key.set_leave_tangent(float(k["leave"]))
+            if k.get("weighted") and k.get("arrive_w") is not None:
+                key.set_tangent_weight_mode(unreal.RichCurveTangentWeightMode.RCTWM_WEIGHTED_BOTH)
+                key.set_arrive_tangent_weight(float(k["arrive_w"]))
+                key.set_leave_tangent_weight(float(k["leave_w"]))
+    got = [{"tick": int(k.get_time(time_unit=unreal.MovieSceneTimeUnit.TICK_RESOLUTION).frame_number.value),
+            "value": float(k.get_value()), "arrive": float(k.get_arrive_tangent()), "leave": float(k.get_leave_tangent())}
+           for k in z.get_keys()]
+    want = plan_lat["cancel"]["keys"]
+    if len(got) != len(want) or any(g["tick"] != w["tick"] or abs(g["value"] - w["value"]) > 1e-3 or
+                                    (w["interp"] == "cubic" and (abs(g["arrive"] - w["arrive"]) > 1e-6 or
+                                                                 abs(g["leave"] - w["leave"]) > 1e-6))
+                                    for g, w in zip(got, want)):
+        _stop(run, "LATTICE_CANCEL_READBACK|%s|NOTHING SAVED; Don't-Save restart" % got)
+    _bt = sc.get_blend_type()          # 7 Oct live: an OptionalMovieSceneBlendType struct {blend_type, is_valid}
+    _bt = _bt.get_editor_property("blend_type") if hasattr(_bt, "get_editor_property") else _bt
+    if _enum_name(_bt).upper() not in ("ADDITIVE",):
+        _stop(run, "LATTICE_BLEND_TYPE_READBACK|%s|NOTHING SAVED; Don't-Save restart" % sc.get_blend_type())
+    return got
 
 
 def _add_visibility(seq, actor, label, rng, hidden):          # prec klara_hookin.py:1143-1159
@@ -1481,6 +1737,10 @@ def run_dry(args, run, world):
     for e in p.get("her_env") or []:
         unreal.log("KLARAREVEAL_ENV|run=%s|S%s|%s|%s|%s|%s" % (run, key, e["label"], e["class"], e.get("property"),
                                                                e.get("value")))
+    lat = p.get("lattice") or {}
+    unreal.log("KLARAREVEAL_LATTICE|run=%s|S%s|mode=%s|facts=%s|lowers_cm=%s|lowers_scene_frames=%s"
+               % (run, key, lat.get("mode"), json.dumps(lat.get("facts"), default=str)[:1500],
+                  (lat.get("cancel") or {}).get("lowers_cm"), lat.get("lowers_scene_frames")))
     fpr = facts.get("footprint") or {}
     unreal.log("KLARAREVEAL_FOOTPRINT|run=%s|S%s|box=%s|kept=%d|excluded=%s" % (run, key, fpr.get("box"),
                fpr.get("kept_count", 0), json.dumps(fpr.get("excluded"))[:3000]))
@@ -1601,18 +1861,30 @@ def run_apply(args, run, world):
                    [([tl["crossfade"][0], tl["cut"]], e["intro"]),
                     ([tl["env_out"][0], tl["planned_end"]], dedupe_keys(e["outro"] + [[tl["planned_end"] - 1, 0.0]]))],
                    lin, run, e["label"])
-    # 5. our hangar lights
+    # 5. our hangar lights (non-ceiling black; ceiling glows fade out before her lights, back in the outro)
     for h in plan["hangar_lights"]:
         a = _one(h["label"], run)
         if h["action"] == "black_color":
             _add_color_black(seq, a, h["label"], h["range"], run)
+        elif h["action"] == "fade_color":
+            _add_color_keys(seq, a, h["label"], h["range"], h["color_keys"], run)
         elif h["action"] == "clamp_radius":
             _b, hk = _bind_component(seq, a, a.get_component_by_class(unreal.LightComponent), h["label"])
             _add_float(hk, "AttenuationRadius", "AttenuationRadius", [([0, tl["planned_end"]], [[0, h["clamp_cm"]]])],
                        const, run, h["label"])
-    # 6. roof (+ seen walls) hidden
+    # 6. roof (+ seen walls) hidden; rig bulbs hidden while the rig is dark
     for lab in plan["hide"]["labels"]:
         _add_visibility(seq, _one(lab, run), lab, plan["hide"]["range"], True)
+    for lab in plan["rig_bulbs_hidden"]["labels"]:
+        _add_visibility(seq, _one(lab, run), lab, plan["rig_bulbs_hidden"]["range"], True)
+    # 6b. the ceiling rig does not lower
+    lat = plan["lattice"]
+    if lat["mode"] == "cancel":
+        rec["lattice_cancel"] = _add_lattice_cancel(seq, _one(LATTICE_FLY % key, run), lat, run)
+    elif lat["mode"] == "hide":
+        for lab in lat["hide"]["labels"]:
+            if lab not in plan["rig_bulbs_hidden"]["labels"]:
+                _add_visibility(seq, _one(lab, run), lab, lat["hide"]["range"], True)
     # 7. hookin windows: Hers Dark [L, C) -> [L, G0); Ours Off [C, E) -> [G0, end); her level visible [L, E) -> [L, end)
     he = plan["hookin_edits"]
     for b in seq.get_bindings():
@@ -1724,14 +1996,23 @@ def run_revert(args, run, world):
     if _hookin_bindings(seq) != rec["before"]["hookin_bindings"] or \
             [c["range"] for c in _cuts(seq)[0]] != [c["range"] for c in rec["before"]["cuts"]]:
         _stop(run, "REVERT_READBACK|NOTHING SAVED; Don't-Save restart")
-    gate = census_gate(_census(), [row["scene_sequence"], row["copy"]], [EXPECTED_WORLD])
+    her_maps = sorted(m for m in _census()["maps"] if m != EXPECTED_WORLD and m in set(HER_LEVELS))
+    gate = census_gate(_census(), [row["scene_sequence"], row["copy"]], [EXPECTED_WORLD] + her_maps)
     if gate:
         _stop(run, "CENSUS|%s|NOTHING SAVED; Don't-Save restart" % gate)
-    for p in (row["scene_sequence"], row["copy"]):
+    folder = os.path.join(_project(), "Backups", "PreKlaraRevealRevert-S%s-%s" % (key, run))
+    os.makedirs(folder, exist_ok=False)
+    for src in [_file(EXPECTED_WORLD, ".umap"), _file(row["scene_sequence"], ".uasset"), _file(row["copy"], ".uasset")] + \
+            [_file(m, ".umap") for m in her_maps]:
+        if os.path.exists(src):
+            shutil.copy2(src, folder)
+    for p in [row["scene_sequence"], row["copy"]] + her_maps:
         if not unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False):
             _stop(run, "SAVE_FAILED|%s" % p)
     if not unreal.EditorLoadingAndSavingUtils.save_map(world, EXPECTED_WORLD):
         _stop(run, "SAVE_MAP_FAILED")
+    if _census() != {"content": [], "maps": []}:
+        _stop(run, "DIRTY_AFTER_SAVE|%s" % json.dumps(_census()))
     os.rename(rpath, rpath + ".reverted-" + run)
     unreal.log("KLARAREVEAL_REVERT_OK|run=%s|scene=S%s|next=extend_scene_playback back to %s, rebuild, tests"
                % (run, key, rec["before"].get("playback")))

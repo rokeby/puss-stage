@@ -35,7 +35,10 @@
   "min_gap_s": 0.25,
   "order": "near_to_far",
   "seed": "KLARA-REVEAL-7OCT",
-  "max_glide_speed_cm_s": 300.0
+  "max_glide_speed_cm_s": 300.0,
+  "pre_strike_hold_s": 0.5,
+  "glow_fade_s": 1.5,
+  "env_min_s": 3.0
  },
  "outro": {
   "hold_s": 0.5,
@@ -47,7 +50,9 @@
   "flicker_window_s": 0.32,
   "dark_before_glide_s": 0.6,
   "glide_s": 4.0,
-  "exit_cut_frames": 25
+  "exit_cut_frames": 25,
+  "rig_glow_back": true,
+  "rig_back_s": 1.5
  },
  "scenes": {
   "1": {
@@ -71,5 +76,7 @@
   }
  },
  "allow_lattice_overlap": true,
- "footprint_max_size_cm": 4000.0
+ "footprint_max_size_cm": 4000.0,
+ "lattice": "cancel",
+ "v2_note": "7 Oct v2 (Gary: glide in the dark to the wide-intro pose, THEN light up, no external light; the ceiling rig must not lower). Order: REVERT (this file, v1 record) -> DRY -> extend_scene_playback with the printed mode -> APPLY -> rebuild + tests."
 }

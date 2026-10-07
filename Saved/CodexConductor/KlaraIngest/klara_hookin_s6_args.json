@@ -1,0 +1,37 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "Gary 7 Oct (relayed by the conductor): 'import void - there's no hangar to worry about so we just arrive to it. It goes where our current audio is, replacing it. It is incomplete and needs work.' Conductor brief 7 Oct: stream L_KK_Void (no hangar), first camera pose on the S6 Entry Handoff pose, re-keyed copy LS_Void_S6 from the P06 arrival, her audio replaces ours (mute, never delete; markers kept), S6 length = her LS length, her lighting via the exempt list + ours off, Klara levels on demand with REVERT, Japanese_Alley not loaded. NOT Gary's (proposed): placement match_entry_yaw (falls back to match_entry_translation if DRY refuses), hangar_rule hide (reading of 'no hangar'), end_rule her_playback, level visible from scene start.",
+ "hangar_tag": "RigAtmos.Scene6Hangar",
+ "hangar_rule": "hide",
+ "lighting": {"ours_off": true, "hers_on": true},
+ "scene": {
+  "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_06",
+  "current_nested": "/Game/Scenes/LS_Void",
+  "her_sequence": "/Game/Void_content/LS_Void",
+  "copy_path": "/Game/InfinityStage/KlaraHookin/LS_Void_S6",
+  "level_package": "/Game/L_KK_Void",
+  "initially_loaded": false,
+  "placement": "match_entry_yaw",
+  "lead_cm": 0.0,
+  "start_option": "scene_start",
+  "end_rule": "her_playback",
+  "tail_s": 0.0,
+  "level_visible_from": "scene_start",
+  "mute_sounds": ["/Game/InfinityStage/Audio/ScenesAudio/Score/SW_S6_The_Void_Live"],
+  "marker_track_s": {
+   "S6 score in (land)": 0.0,
+   "S6 swell 0:50": 50.8,
+   "S6 trough 2:00": 115.9605,
+   "S6 climax 2:35": 155.8523,
+   "S6 drop 2:54": 173.7781
+  },
+  "marker_source": "Saved/CodexConductor/scene_audio_import_S6_record.json args_row.markers[].track_s [meas] (run SCENEAUDIO-20261006-172057)",
+  "allow_past_end": []
+ },
+ "on_demand": {
+  "levels": ["/Game/KK_S1_Animals/L_Animals", "/Game/L_KK_children", "/Game/Japanese_Alley/Maps/Japanese_Alley"],
+  "note": "APPLY_LOAD sets initially_loaded False + initially_visible False on these; L_KK_Void gets it at APPLY_STREAM (scene.initially_loaded). S1/S4 load via their Level Visibility tracks at land [inf]; Japanese_Alley has no track, so it never loads at runtime [inf]."
+ }
+}

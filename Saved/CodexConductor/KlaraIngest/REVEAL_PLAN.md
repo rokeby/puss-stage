@@ -7,7 +7,7 @@ Offline only. Nothing was run in Unreal or over MCP, nothing was built or commit
 | `klara_reveal.py` | The tool (DRY / APPLY / REVERT, one Scene per run) |
 | `klara_reveal_run.py`, `klara_reveal_request.json` | Runner and MCP request |
 | `klara_reveal_args.json` | Arguments: mode DRY, scene 1 |
-| `test_klara_reveal_offline.py` | Harness: 33/33 pass; 12/12 seeded mutations caught |
+| `test_klara_reveal_offline.py` | Harness: 43/43 pass; 22/22 seeded mutations caught |
 
 Proof tiers per claim: **[decl]** source or header read (file:line), **[prec]** in-repo precedent call,
 **[meas]** a record or bytes read, **[inf]** inferred (the reason is given). Every [inf] API is probed in the DRY's
@@ -194,3 +194,129 @@ Proof tiers per claim: **[decl]** source or header read (file:line), **[prec]** 
   `extra_move_labels`. Its STATE_FILES list should also include `klara_reveal_record_S1.json`.
 - **S4.** `LS_Children` binds 5 SpotLights in L_Animals [meas hookin plan §3]. Moving L_Animals for S1 moves them. DRY
   lists every copy binding that does not resolve (`copy_bindings_unresolved`); the rest are listed, not fixed.
+
+## 7. Revision after the first live S1 DRY (KLARAREVEAL-20261006-233359)
+
+**The conductor's live fixes are kept:**
+- the far wall is a union of the exit-door pieces;
+- GUIDs are compared with `GuidLibrary.conv_guid_to_string`.
+
+**Footprint.**
+- **What went wrong.** The DRY reported an 80 × 80 m set [meas]. That came from the environment actors.
+- **The fix.** `footprint_from_rows` keeps only actors that pass all three tests:
+  - the class is not Sky, Atmosphere, Landscape, Fog, PostProcess, Light, Volume, Cloud, Camera, Reflection, Decal or
+    Audio;
+  - the actor owns a StaticMesh, ISM/HISM, SkeletalMesh, GeometryCache or Niagara component;
+  - the actor is no larger than `footprint_max_size_cm` (4000) on any axis.
+- **What is logged.** Every excluded actor is listed with the reason (`KLARAREVEAL_FOOTPRINT`).
+
+**Fit.**
+- **Footprint outside the live box:** refuses with `hangar_proposal.params` in the message.
+- **Set reaching the lattice:** refuses unless `allow_lattice_overlap` is set, in which case it is a warning.
+- **The hangar is never rebuilt here.**
+
+**Lead.**
+- Target is 600 cm and the maximum is 800 cm.
+- If her camera stands inside her own set, the lead needed to keep her set past the hinge can exceed 800. DRY then
+  warns `LEAD_ABOVE_RANGE`; it does not refuse.
+
+**Glide.**
+- `glide_seconds` finds the shortest glide, in 0.5 s steps, whose keys keep peak speed at or below
+  `max_glide_speed_cm_s` (300). The outro is checked the same way.
+- If the intro then needs more time than [L, C) gives, the **cut moves later**:
+  - the new cut is the latest of: the old cut, the glide's end, and the strikes' end plus the settle time;
+  - APPLY moves the nested slot section by the same shift, with a parent-frame read-back;
+  - REVERT moves it back.
+- **This is a hookin-owned edit.** The hookin's REVERT_SEQ drift check would refuse while it is applied, so the reveal
+  must be reverted first.
+
+**`evaluate()`.**
+- The probe was False on the live build [meas]. `_ch_eval` therefore uses `eval_keys`: an exact key, or the
+  constant value before the first or after the last key.
+- A sample between keys returns None, and the DRY refuses `HER_CAMERA_EVAL`.
+- The live DRY did not refuse, so both her first-frame samples were outside her key range, or on a key. That makes
+  her first-camera velocity of 0 genuine, not a fallback artefact [inf].
+
+**Projection for S1.** This is not a live run. It uses the live DRY facts plus the offline pivot footprint
+[meas hookin args]:
+
+| Quantity | Value |
+|---|---|
+| Lead | 949 cm (`LEAD_ABOVE_RANGE`: her camera sits about 4.5 m inside her set's near edge) |
+| Delta | (−2072, −120, 0) |
+| Set, dock-local x | 500..2356 |
+| Set, dock-local y | −628..388 |
+| Fits the live box | Yes |
+| Glide in | 6.0 s, 9.5 m, peak 238 cm/s |
+| Glide out | 8.0 s, 15.1 m, peak 284 cm/s |
+| Cut | 376 → 431 (+2.2 s, driven by the 14 strikes) |
+| Planned end | 6153 (246.12 s) |
+| Hangar proposal | depth 4000, same K |
+| First frame sees | the set only (45/45 rays) |
+
+## 8. v2 after Gary's review of the applied S1 (7 Oct)
+
+Gary's words: "while we're in the dark, we should already have moved into the final position for S1's wide intro
+and then it lights up, and then we start it without any external lighting interference"; and "no need for the
+ceiling rig now to lower".
+
+**What lowers the rig.**
+- `LS_S1_HangarRise` keys `S1 Hangar Lattice Fly` Location.Z from 2800 to 1200 [decl `hangar_build.py:121, 501`].
+  After the retime this runs over 12.63–16.63 s of rise time [meas `hangar_retime_record.json`
+  scenes.1.after_keys.lattice_fly_z].
+- The rise plays inside `LS_DevScene_01` as the "Hangar Fold" sub-section [0, 775) [meas `klara_hookin_dry.json`].
+- The Arrival's pre-Scene drive moves only the root rotation and float drives [decl
+  `InfinityStageArrival.h:142-198`]. Its initial-pose drive acts at game start only [decl `:160-166`]. So the lowering
+  happens inside the Scene, where Sequencer evaluates it.
+
+**How v2 stops it, without touching Structure's rise asset.**
+- In OUR Scene, an **additive** 3D-transform section on the Lattice Fly holds it up. Location.Z gets `cancel_keys`:
+  1. value = 2800 − rise value;
+  2. **negated** tangents;
+  3. the same interpolation;
+  4. key times mapped through the sub-section;
+  5. every other channel 0.
+- So rise + additive = 2800 at every instant. A Hermite segment is linear in its end values and tangents [inf]. The
+  harness proves the sum is constant on a reference curve; un-negated tangents or a wrong time offset fail it.
+- **To confirm live:** that additive blending applies across the sub-sequence boundary [inf]. DRY probes
+  `set_blend_type` and the key tangent getters and setters; APPLY reads back keys, tangents and blend type. PIE stills
+  at 12–17 s must show the rig not moving.
+- **Fallback, `lattice: "hide"`.** Hide every lattice piece from S0. The rig still lowers, unseen, and there is no rig
+  in the outro.
+
+**New intro order.** The S1 projection uses the v1 record's footprint; the DRY recomputes it.
+
+| Window | Frames | Seconds |
+|---|---|---|
+| Rise, glows on | [0, 104) | 0–4.16 |
+| Dark hold | [104, 119) | |
+| Glide in the dark | [119, 269] | 4.76–10.76 s, peak 151 cm/s, 600 cm lead |
+| Hold on her first frame | [269, 282) | |
+| Glow fade-out; bulbs hidden at 282 | [244, 282] | |
+| 14 strikes; env crossfade [282, 584] | [282, 575] | 11.28–23.0 |
+| Cut | 594 | 23.76 (was 431) |
+| Slot | [594, 5859) | |
+| Outro: blink-out, then env out | [5872, 6076] | |
+| Rig glows back with the glide out (peak 291 cm/s) | 6091 | |
+| Exit cut | [6241, 6266) | |
+| End | 6266 | 250.64 s (was 6103, 244.12 s): +6.52 s, relength needed |
+
+**Other v2 changes.**
+- **Glows.** The 24 ceiling glows get a LightColor fade, white → 0, which multiplies the rise's Intensity keys rather
+  than fighting them. They come back only after her lights and env are out.
+- **Bulbs.** The 24 bulb meshes hide while the rig is dark. Their emissive pops off, but the glows are already at 0.
+- **Glide.** It ends at rest, because she starts static (vel 0, [meas] DRY).
+- **REVERT fixes.** It now also allows and backs up her dirtied map package, which APPLY needed live. It checks for a
+  clean census after saving.
+
+**Apply order (REVERT then APPLY; no UPDATE path).**
+1. REVERT with this code and the v1 record. The args file is now set to REVERT. This undoes the level move, the copy
+   shift, all `Klara Reveal -` bindings, the cuts, the hookin windows and the slot.
+2. DRY. It refuses while the reveal is applied (SLOT_DRIFT).
+3. `extend_scene_playback` with the printed mode (≈250.64 s).
+4. APPLY.
+5. `rebuild_managed_master`, then SavedMasterMatchesShow, then SceneCutBindingsResolve, then live cut bindings.
+6. PIE stills at about 4, 10.8, 11.3, 14, 23.7 and 24 s.
+
+An in-place UPDATE would need its own drift checks across 20+ bindings. REVERT + APPLY reuses paths that have both
+been proven live.

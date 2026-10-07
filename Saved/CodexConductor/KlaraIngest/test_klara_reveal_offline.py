@@ -18,6 +18,14 @@ import klara_reveal as R  # noqa: E402  (importing without unreal must run nothi
 
 with open(os.path.join(HERE, "klara_reveal_args.json"), encoding="utf-8") as _h:
     ARGS = json.load(_h)
+ARGS["allow_lattice_overlap"] = False      # the harness pins plan switches; the live args file may differ
+ARGS["lattice"] = "cancel"
+TPF = 960                                  # 24000 / 25
+# the rise's lattice lowering [meas hangar_retime_record.json scenes.1.after_keys.lattice_fly_z]: 2800 -> 1200 over
+# 12.6261..16.6261 s; tangents SYNTHETIC (cubic, value/tick)
+RISE_KEYS = [{"tick": 0, "value": 2800.0, "interp": "cubic", "arrive": 0.0, "leave": 0.0},
+             {"tick": int(12.6261 * 24000), "value": 2800.0, "interp": "cubic", "arrive": 0.0, "leave": -0.002},
+             {"tick": int(16.6261 * 24000), "value": 1200.0, "interp": "cubic", "arrive": -0.004, "leave": 0.0}]
 FPS = 25.0
 DOCK = {"loc": [28784.0135, 0.0, 0.0], "yaw": 0.0}
 BOX = {"dock": DOCK, "dock_z": 0.0, "apron": 500.0, "depth": 6000.0, "half_w": 1000.0, "height": 3000.0,
@@ -55,8 +63,12 @@ def facts(n_lights=8, her_set=None, first_loc=None):
             "hangar_lights": [{"label": "S1 Practical L1", "role": "black", "class": "SpotLight", "loc": [0, 0, 0],
                                "radius": 2500.0},
                               {"label": "S1 Lattice Glow 1-1", "role": "ceiling", "class": "PointLight", "loc": [0, 0, 0],
+                               "color": [1.0, 1.0, 1.0, 1.0],
                                "radius": 800.0, "reach": R.glow_reach({"x": 0, "y": 0, "z": 1211}, 800.0, 0.0)}],
-            "our_ppv": [{"label": "S1 Hangar Pinned Exposure", "priority": 0.0}], "label": "Scene 1 — External Sound"}
+            "our_ppv": [{"label": "S1 Hangar Pinned Exposure", "priority": 0.0}], "label": "Scene 1 — External Sound",
+            "tick": 24000.0, "rig_bulbs": ["S1 Lattice Bulb 1-1"],
+            "lattice_pieces": ["S1 Hangar Lattice Fly", "S1 Hangar Lattice Beam 01", "S1 Lattice Glow 1-1"],
+            "lattice": {"keys": RISE_KEYS, "offset_ticks": 0, "section": [0, 775], "play_rate": 1.0}}
 
 
 class Maths(unittest.TestCase):
@@ -275,22 +287,119 @@ class Lights(unittest.TestCase):
             R.ramp_keys(0, 1, 5, 5)
 
 
+class Footprint(unittest.TestCase):
+    ROWS = [
+        {"label": "Floor", "class": "StaticMeshActor", "components": ["StaticMeshComponent"],
+         "bounds": [100.0, 0.0, -5.0, 900.0, 500.0, 5.0]},
+        {"label": "Pig", "class": "SkeletalMeshActor", "components": ["SkeletalMeshComponent"],
+         "bounds": [200.0, 100.0, 50.0, 60.0, 30.0, 50.0]},
+        {"label": "SkySphere", "class": "StaticMeshActor", "components": ["StaticMeshComponent"],
+         "bounds": [0.0, 0.0, 0.0, 400000.0, 400000.0, 400000.0]},
+        {"label": "SkyAtmosphere", "class": "SkyAtmosphere", "components": ["SkyAtmosphereComponent"],
+         "bounds": [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]},
+        {"label": "Fog", "class": "ExponentialHeightFog", "components": ["ExponentialHeightFogComponent"],
+         "bounds": [0.0, 0.0, -1026.0, 4000.0, 4000.0, 50.0]},
+        {"label": "SpotLight2", "class": "SpotLight", "components": ["DrawFrustumComponent"],
+         "bounds": [3000.0, 0.0, 400.0, 2000.0, 2000.0, 2000.0]},
+        {"label": "PPV", "class": "PostProcessVolume", "components": ["BrushComponent"],
+         "bounds": [0.0, 0.0, 0.0, 4000.0, 4000.0, 4000.0]},
+        {"label": "BP_Empty", "class": "BP_Marker_C", "components": ["BillboardComponent"],
+         "bounds": [9000.0, 0.0, 0.0, 10.0, 10.0, 10.0]},
+        {"label": "Backdrop", "class": "StaticMeshActor", "components": ["StaticMeshComponent"],
+         "bounds": [0.0, 3000.0, 0.0, 2500.0, 10.0, 800.0]},
+    ]
+
+    def test_only_diorama_meshes(self):
+        fp = R.footprint_from_rows(self.ROWS)
+        self.assertEqual(sorted(k["label"] for k in fp["kept"]), ["Floor", "Pig"])
+        self.assertEqual(fp["box"], [-800.0, 1000.0, -500.0, 500.0, -10.0, 100.0])
+        why = {e["label"]: e["why"] for e in fp["excluded"]}
+        self.assertIn("size", why["SkySphere"])
+        self.assertIn("size", why["Backdrop"])
+        self.assertIn("class", why["SpotLight2"])
+        self.assertIn("component", why["BP_Empty"])
+        loose = R.footprint_from_rows(self.ROWS, max_size_cm=1e9)                     # control: no size cap
+        self.assertGreater(loose["box"][1] - loose["box"][0], 100000.0)
+
+    def test_empty(self):
+        self.assertIsNone(R.footprint_from_rows(self.ROWS[3:7])["box"])
+
+
+class GlideLength(unittest.TestCase):
+    def test_peak_bounded(self):
+        a = {"loc": [0.0, 0.0, 150.0], "rot": [0, 0, 0], "focal": 35.0, "focus": 1000.0}
+        b = {"loc": [3700.0, 0.0, 80.0], "rot": [0, 0, 0], "focal": 24.0, "focus": 430.0}
+        t, peak = R.glide_seconds(a, b, FPS, [0.0, 0.0, 0.0], 300.0, 6.0)
+        self.assertLessEqual(peak, 300.0)
+        self.assertGreater(t, 6.0)
+        g = R.plan_glide(a, b, 0, int(round((t - 0.5) * FPS)), FPS)                    # control: 0.5 s shorter is too fast
+        self.assertGreater(g["report"]["peak_speed_cm_s"], 300.0)
+        short = {"loc": [600.0, 0.0, 150.0], "rot": [0, 0, 0], "focal": 35.0, "focus": 1000.0}
+        self.assertEqual(R.glide_seconds(a, short, FPS, [0.0, 0.0, 0.0], 300.0, 6.0)[0], 6.0)
+
+
 class Timeline(unittest.TestCase):
-    def test_order(self):
-        t = R.plan_timeline(104, 376, 5641, FPS, 8, ARGS, 25)
+    def test_v2_order_glide_in_dark_then_light(self):
+        t = R.plan_timeline(104, 376, 5641, FPS, 14, ARGS, 25, glide_in_s=6.0, glide_out_s=8.0)
         self.assertEqual(t["refusals"], [])
-        self.assertTrue(t["land"] <= t["dark"][1] <= t["glide_in"][0] < t["cut"])
-        self.assertTrue(t["glide_in"][0] <= t["crossfade"][0] < t["crossfade"][1] < t["cut"])
-        self.assertEqual(t["hers_dark"], [104, t["glide_in"][0]])
-        self.assertTrue(5641 < t["blink_window"][0] < t["glide_out"][0] < t["glide_out"][1] == t["exit_cut"][0])
+        d0, g1, S0 = t["dark"][1], t["glide_in"][1], t["strike_window"][0]
+        self.assertEqual(t["glide_in"][0], d0)
+        self.assertLess(g1, S0)                                                       # glide ends BEFORE any light
+        self.assertEqual(t["glow_fade"][1], S0)                                       # rig glows out by the first strike
+        self.assertGreaterEqual(t["glow_fade"][0], d0)
+        self.assertEqual(t["glow_fade"][1] - t["glow_fade"][0], math.ceil(1.5 * FPS))   # a FADE, not a cut
+        self.assertEqual(t["crossfade"][0], S0)                                       # her env starts with her lights
+        self.assertEqual(t["hers_dark"], [104, S0])
+        self.assertEqual(t["roof_hidden"][0], g1)                                     # roof goes while still dark
+        self.assertEqual(t["rig_dark"][0], S0)
+        self.assertGreaterEqual(t["rig_back"][0], max(t["env_out"][1], t["blink_window"][1]))
+        self.assertEqual(t["rig_dark"][1], t["rig_back"][0])
+        self.assertTrue(S0 < t["strike_window"][1] < t["crossfade"][1] < t["cut"])
+        self.assertEqual(t["slot"][1] - t["slot"][0], 5641 - 376)                     # slot keeps her length
+        self.assertTrue(t["slot"][1] < t["blink_window"][0] < t["glide_out"][0] < t["glide_out"][1] == t["exit_cut"][0])
         self.assertEqual(t["planned_end"], t["exit_cut"][1])
-        self.assertGreaterEqual(t["glide_out"][0], t["env_out"][1])
-        bad = R.plan_timeline(400, 376, 5641, FPS, 8, ARGS, 25)                        # control
+        bad = R.plan_timeline(400, 376, 5641, FPS, 8, ARGS, 25)                        # control: land after cut
         self.assertTrue(bad["refusals"])
 
-    def test_short_glide_warns(self):
-        t = R.plan_timeline(330, 376, 5641, FPS, 2, ARGS, 25)
-        self.assertTrue(any("GLIDE_SHORT" in w for w in t["warnings"]))
+    def test_cut_moves_for_strikes(self):
+        t = R.plan_timeline(104, 376, 5641, FPS, 14, ARGS, 25, glide_in_s=6.0)
+        self.assertGreater(t["slot_shift"], 0)
+        self.assertGreaterEqual(t["strike_window"][1] - t["strike_window"][0], int(0.9 * 13 * FPS) - 2)
+        t2 = R.plan_timeline(104, 2000, 7265, FPS, 2, ARGS, 25, glide_in_s=6.0)       # control: room enough
+        self.assertEqual(t2["slot_shift"], 0)
+
+    def test_no_rig_back(self):
+        a2 = copy.deepcopy(ARGS)
+        a2["outro"]["rig_glow_back"] = False
+        t = R.plan_timeline(104, 376, 5641, FPS, 4, a2, 25)
+        self.assertIsNone(t["rig_back"])
+        self.assertEqual(t["rig_dark"][1], t["planned_end"])
+
+
+class Lattice(unittest.TestCase):
+    def test_cancel_is_exact(self):
+        c = R.cancel_keys(RISE_KEYS, 0)
+        self.assertEqual(c["hold"], 2800.0)
+        self.assertEqual(c["lowers_cm"], 1600.0)
+        for tick in range(0, int(18 * 24000), 997):
+            self.assertAlmostEqual(R.curve_eval(RISE_KEYS, tick) + R.curve_eval(c["keys"], tick), 2800.0, places=6)
+        bad = [dict(k, arrive=-k["arrive"], leave=-k["leave"]) for k in c["keys"]]    # control: tangents not negated
+        worst = max(abs(R.curve_eval(RISE_KEYS, t) + R.curve_eval(bad, t) - 2800.0) for t in range(0, 420000, 997))
+        self.assertGreater(worst, 1.0)
+        moved = R.cancel_keys(RISE_KEYS, 960)                                          # control: wrong offset
+        worst = max(abs(R.curve_eval(RISE_KEYS, t) + R.curve_eval(moved["keys"], t) - 2800.0)
+                    for t in range(0, 420000, 997))
+        self.assertGreater(worst, 1.0)
+
+    def test_offset(self):
+        self.assertEqual(R.rise_offset_ticks(0, 25.0, 24000.0, 0, 0, 24000.0), 0)
+        self.assertEqual(R.rise_offset_ticks(10, 25.0, 24000.0, -4800, 960, 24000.0), 9600 + 4800 - 960)
+        with self.assertRaises(R.PlanError):
+            R.rise_offset_ticks(0, 25.0, 24000.0, 0, 0, 30000.0)
+        with self.assertRaises(R.PlanError):
+            R.rise_offset_ticks(0, 25.0, 24000.0, 0, 0, 24000.0, play_rate=1.5)
+        with self.assertRaises(R.PlanError):
+            R.cancel_keys([dict(RISE_KEYS[0], interp="smart")], 0)
 
 
 class Plan(unittest.TestCase):
@@ -301,9 +410,16 @@ class Plan(unittest.TestCase):
         keys = {k[0]: k for k in p["glide"]["keys"]}
         first, last = p["poses"]["her_first"], p["poses"]["her_last"]
         self.assertEqual(keys[tl["cut"]][1:7], first["loc"] + first["rot"])          # intro ends ON her first frame
+        held = [k for f, k in sorted(keys.items()) if tl["glide_in"][1] <= f <= tl["cut"]]   # LINEAR keys: equal
+        self.assertGreaterEqual(len(held), 2)                                          # ends => at rest between
+        for k in held:
+            self.assertEqual(k[1:8], first["loc"] + first["rot"] + [first["focal"]])
+        self.assertEqual(keys[tl["glide_in"][1]][1:7], first["loc"] + first["rot"])   # there BEFORE the first strike
+        self.assertLess(tl["glide_in"][1], min(r["strike_frame"] for r in p["her_lights"]))
         self.assertEqual(keys[tl["slot"][1]][1:7], last["loc"] + last["rot"])        # outro starts ON her last frame
         self.assertEqual(keys[tl["cut"]][7], 50.0)                                    # her lens, exact
         self.assertEqual(keys[tl["glide_in"][0]][1:4], [28784.0135, 0.0, 150.0])      # from the Entry pose
+        self.assertEqual(keys[0][1:4], [28784.0135, 0.0, 150.0]) if 0 in keys else None
         cuts = p["cuts_after"]
         self.assertEqual(cuts[0][1][0], 0)
         self.assertTrue(all(cuts[i][1][1] == cuts[i + 1][1][0] for i in range(len(cuts) - 1)))
@@ -315,9 +431,22 @@ class Plan(unittest.TestCase):
             self.assertEqual(r["outro_keys"][-1][1], 0.0)
             self.assertLess(r["outro_keys"][-1][0], tl["glide_out"][0])
         acts = {h["label"]: h["action"] for h in p["hangar_lights"]}
-        self.assertEqual(acts, {"S1 Practical L1": "black_color", "S1 Lattice Glow 1-1": "keep"})
+        self.assertEqual(acts, {"S1 Practical L1": "black_color", "S1 Lattice Glow 1-1": "fade_color"})
+        glow = [h for h in p["hangar_lights"] if h["action"] == "fade_color"][0]
+        ck = {k[0]: k[1] for k in glow["color_keys"]}
+        S0 = min(r["strike_frame"] for r in p["her_lights"])
+        self.assertEqual(ck[tl["glow_fade"][1]][:3], [0.0, 0.0, 0.0])                 # black by the first strike
+        self.assertLessEqual(tl["glow_fade"][1], S0)
+        self.assertEqual(ck[tl["rig_back"][0]][:3], [0.0, 0.0, 0.0])                 # still black until rig back
+        self.assertGreater(tl["rig_back"][0], max(r["outro_keys"][-1][0] for r in p["her_lights"]))
+        self.assertEqual(p["rig_bulbs_hidden"], {"labels": ["S1 Lattice Bulb 1-1"], "range": tl["rig_dark"]})
+        self.assertEqual(p["lattice"]["mode"], "cancel")
+        self.assertEqual(p["lattice"]["cancel"]["lowers_cm"], 1600.0)
         self.assertEqual(p["hide"]["labels"], ["S1 Hangar Roof"])
         self.assertTrue(p["relength_first"])
+        self.assertLessEqual(p["glide"]["in"]["peak_speed_cm_s"], 300.0)
+        self.assertLessEqual(p["glide"]["out"]["peak_speed_cm_s"], 300.0)
+        self.assertTrue(400.0 - 1e-6 <= p["placement"]["lead_cm"] <= 800.0)
         self.assertTrue(any("HER_PPV_NO_EXPOSURE_OVERRIDE" in w for w in p["warnings"]))
         self.assertTrue(any("PPV_PRIORITY" in w for w in p["warnings"]))
 
@@ -326,6 +455,48 @@ class Plan(unittest.TestCase):
         p = R.build_plan(f, ARGS)
         self.assertTrue(any("SET_DOES_NOT_FIT_LIVE_BOX" in r for r in p["refusals"]))
         self.assertFalse(p["apply_ready"])
+
+    def test_lattice_flag(self):
+        f = facts(her_set=[28784.0135 + 900, 28784.0135 + 2500, -400.0, 400.0, 0.0, 1300.0],
+                  first_loc=[28784.0135 + 800, 0.0, 140.0])
+        p = R.build_plan(f, ARGS)
+        self.assertTrue(any("SET_REACHES_LATTICE" in r for r in p["refusals"]))
+        self.assertIn("params", json.dumps(p["refusals"]))
+        a2 = copy.deepcopy(ARGS)
+        a2["allow_lattice_overlap"] = True
+        p2 = R.build_plan(f, a2)
+        self.assertFalse(any("SET_REACHES_LATTICE" in r for r in p2["refusals"]))
+        self.assertTrue(any("allow_lattice_overlap" in w for w in p2["warnings"]))
+
+    def test_lead_in_range(self):
+        p = R.build_plan(facts(), ARGS)
+        cam = p["poses"]["her_first"]["loc"]
+        self.assertAlmostEqual(cam[0] - 28784.0135, p["placement"]["lead_cm"], places=6)
+        self.assertFalse(any("LEAD_ABOVE_RANGE" in w for w in p["warnings"]))
+        f = facts(first_loc=[28784.0135 + 3772 + 900, 0.0, 140.0])                   # control: camera far past her set
+        p2 = R.build_plan(f, ARGS)
+        self.assertTrue(any("LEAD_ABOVE_RANGE" in w for w in p2["warnings"]))
+
+    def test_long_glide_speed_bounded(self):
+        f = facts(first_loc=[28784.0135 + 3772 + 900, 0.0, 140.0])                   # set far down the box
+        p = R.build_plan(f, ARGS)
+        self.assertGreater(p["glide"]["in"]["distance_cm"], 2000.0)
+        self.assertLessEqual(p["glide"]["in"]["peak_speed_cm_s"], 300.0)
+        self.assertGreater(p["timeline"]["glide_in_s"], 6.0)
+
+    def test_lattice_modes(self):
+        f = facts()
+        f["lattice"] = {"error": "AttributeError: no get_arrive_tangent"}
+        p = R.build_plan(f, ARGS)
+        self.assertTrue(any("LATTICE_CANCEL_UNAVAILABLE" in r for r in p["refusals"]))
+        a2 = copy.deepcopy(ARGS)
+        a2["lattice"] = "hide"
+        p2 = R.build_plan(f, a2)                                                      # control: hide needs no keys
+        self.assertFalse(any("LATTICE" in r for r in p2["refusals"]), p2["refusals"])
+        self.assertIn("S1 Hangar Lattice Beam 01", p2["lattice"]["hide"]["labels"])
+        a3 = copy.deepcopy(ARGS)
+        a3["lattice"] = "maybe"
+        self.assertTrue(any("LATTICE_MODE" in e for e in R.validate_args(a3)))
 
     def test_plan_refuses_on_order(self):
         f = facts()
