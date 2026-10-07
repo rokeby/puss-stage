@@ -160,3 +160,7 @@
 - **S3 mural lowered 150 cm** S3MURAL-20261007-162359 (Gary: "accept the band, we never really look up"): backdrop
   root-local z −35..2965 (35 cm bare band under the roof at 3000), level saved, backup Backups/PreS3MuralLower-…;
   door mimic hidden (baked crop not re-made; new crop rect in the record for whoever reopens the door).
+- **Gary (via Directing):** GraniteMillstone (Blender MCP Hyper3D session) IS the S3 "table rock": import as NEW, place
+  under the clam at root-local ≈(2995,0) on the landed floor, seat clam (static + source_Anim) on its top, keep it seated
+  in the dune re-sculpt (dune agent told: level ~1.6 m seat there); hide Clam_Pedastal (don't delete). Attaching
+  clam/rock/figures to the hangar root NOT wanted (revealed after landing). Waiting for the file path/size/pivot.
