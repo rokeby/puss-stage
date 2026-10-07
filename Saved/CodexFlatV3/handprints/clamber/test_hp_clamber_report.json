@@ -1,0 +1,114 @@
+{
+ "ran": 11,
+ "failures": 0,
+ "errors": 0,
+ "table_sha256": "f0dd01f9d4bc2128ebdf62ba26499ae0f1f8d7b79b04884cdc7123a47e966620",
+ "results": {
+  "provenance": {
+   "table_sha256": "f0dd01f9d4bc2128ebdf62ba26499ae0f1f8d7b79b04884cdc7123a47e966620",
+   "pinned": true,
+   "rebuild_identical": true
+  },
+  "determinism": {
+   "identical_twice": true,
+   "other_seed_differs": true,
+   "one_draw_lint": 0
+  },
+  "dune_profile": {
+   "per_metre_equals_grid_npy": true
+  },
+  "floor_rule": {
+   "violations": 0,
+   "fine_grid_violations": 0,
+   "min_margin_cm": 20.01,
+   "plus_control_caught": true,
+   "scramble_160_table_violations": 21
+  },
+  "follows_dunes": {
+   "L": {
+    "metres_with_prints": 37,
+    "corr_lowest_vs_dune": 0.751,
+    "lowest_minus_dune_median_cm": 38.9,
+    "lowest_spread_sd_cm": 59.5,
+    "scramble_160_table_corr": 0.123
+   },
+   "R": {
+    "metres_with_prints": 26,
+    "corr_lowest_vs_dune": 0.801,
+    "lowest_minus_dune_median_cm": 34.6,
+    "lowest_spread_sd_cm": 69.9,
+    "scramble_160_table_corr": 0.191
+   }
+  },
+  "envelope": {
+   "L": {
+    "count": 400,
+    "above_300": 133,
+    "above_500": 29,
+    "above_700": 5,
+    "max_cm": 827.1,
+    "envelope_min_max_cm": [
+     360.0,
+     720.0
+    ],
+    "outlier_climbs": 2,
+    "highest_extent_by_150cm_band": [
+     53,
+     214,
+     85,
+     37,
+     8
+    ]
+   },
+   "R": {
+    "count": 352,
+    "above_300": 142,
+    "above_500": 41,
+    "above_700": 8,
+    "max_cm": 856.3,
+    "envelope_min_max_cm": [
+     360.0,
+     641.5
+    ],
+    "outlier_climbs": 3,
+    "highest_extent_by_150cm_band": [
+     40,
+     170,
+     85,
+     38,
+     14
+    ]
+   }
+  },
+  "door_mural_keepout": {
+   "violations": 0,
+   "nearest_box_to_backdrop_plane_cm": 141.8,
+   "walls": [
+    "L",
+    "R"
+   ]
+  },
+  "exclusions": {
+   "hits": 0
+  },
+  "placer_compat": {
+   "mis_needed": 149,
+   "mis_missing": 0,
+   "labels_unique": true,
+   "box_ok": true,
+   "count": 752
+  },
+  "smears": {
+   "violations": 0,
+   "directions": {
+    "diagonal": 17,
+    "down_drips": 6,
+    "up": 39
+   }
+  },
+  "placer_edit": {
+   "additive": true,
+   "wrappers_ok": true
+  }
+ }
+}
