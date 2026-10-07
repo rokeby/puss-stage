@@ -63,3 +63,9 @@
 - S4 entry v5 tooling in (S4_ENTRY_V5_BUILD_2026-10-07.md): harness v5 27/27, existing 75/75 [meas, conductor re-ran: OK].
   v5 DRY needs the S4 backcloth/cache hold first; cache hold NOT implemented (headers give no clean last-frame hold;
   PIEPROBE mode added). Note: backcloth section already ends at S4 +3.0 s KEEP_STATE — "reverts to hanging" UNMEASURED.
+- **Pendulum PROBE [meas]** KLARAPENDULUM-20261007-134048 (own PIE, played S4 from +3 s): verdict tick_wins. t10s: at
+  level loc (12300.8, 240040.3), pitch 2.6→1.2 per tick, tick on. t24s (her frame 240): LS location (12810.8, 240090.3)
+  but rotation yaw 0 / pitch 10.7→9.0 from the tick vs LS-predicted yaw 130 / pitch −1.6. Fixes: probe used
+  LevelSequenceActor.get_sequence_player (absent in 5.8 Python) → transport time; v5 harness baseline pinned to 8cb2830
+  (HEAD-compare skipped after ae84495 and a v4→v5 routing mutation survived). Harnesses OK again. Pendulum APPLY waits
+  for the v5 order (after reveal v5 + pre-roll).

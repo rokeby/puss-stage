@@ -129,16 +129,17 @@ _HEAD = {}
 
 
 def head_module():
-    """klara_reveal.py as committed at HEAD (before v5), imported with unreal = None."""
+    """klara_reveal.py as committed BEFORE v5 (pinned: 8cb2830, the last commit before ae84495 added v5; was HEAD,
+    which skipped once v5 was committed and let a v4->v5 routing mutation survive), imported with unreal = None."""
     if "m" not in _HEAD:
         root = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-        src = subprocess.run(["git", "show", "HEAD:Saved/CodexConductor/KlaraIngest/klara_reveal.py"], cwd=root,
+        src = subprocess.run(["git", "show", "8cb2830:Saved/CodexConductor/KlaraIngest/klara_reveal.py"], cwd=root,
                              capture_output=True, check=True).stdout.decode("utf-8")
         m = types.ModuleType("klara_reveal_head")
         m.__file__ = os.path.join(HERE, "klara_reveal_head.py")
         exec(compile(src, m.__file__, "exec"), m.__dict__)
         if "strike_preroll" in src:
-            raise unittest.SkipTest("HEAD already carries v5; the old-vs-new proof needs the pre-v5 commit")
+            raise AssertionError("pinned pre-v5 commit carries v5")
         _HEAD["m"] = m
     return _HEAD["m"]
 

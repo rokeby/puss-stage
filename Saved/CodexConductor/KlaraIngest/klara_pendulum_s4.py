@@ -324,19 +324,19 @@ def run_probe(args, run):
                       verdict.get("apply_recommended"), verdict.get("binding_resolves"), st["out"]))
 
     def scene_frame(world):
-        acts = unreal.GameplayStatics.get_all_actors_of_class(world, unreal.LevelSequenceActor)
-        for a in acts:
-            sq = a.get_sequence()
-            if sq is None or _path(sq) != MASTER:
-                continue
-            q = a.get_sequence_player().get_current_time()          # [inf] FQualifiedFrameTime, display rate
-            mf = float(q.time.frame_number.value) + float(q.time.sub_frame)
-            subs = [s for t in sq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for s in t.get_sections()
-                    if s.get_sequence() is not None and _path(s.get_sequence()) == args["scene_sequence"]]
-            if len(subs) != 1:
-                return None, "S4_SECTIONS_IN_MASTER_%d" % len(subs)
-            return mf - float(subs[0].get_start_frame()), None
-        return None, "MASTER_PLAYER_NOT_FOUND (%d LevelSequenceActors)" % len(acts)
+        # Conductor 7 Oct: LevelSequenceActor has no get_sequence_player() in UE 5.8 Python [meas: AttributeError,
+        # KLARAPENDULUM-20261007-133444]. Use the Show Root transport (Master ticks, 24000/s) and the Scene 4 segment
+        # start, as scene_stills.py's PIE adapter does; return Scene-4 frames at 25 fps.
+        roots = list(unreal.GameplayStatics.get_all_actors_of_class(world, unreal.InfinityStageShowRoot))
+        if len(roots) != 1:
+            return None, "SHOW_ROOTS_%d" % len(roots)
+        tr = roots[0].transport
+        segs = [g for g in list(tr.segments) if g.type == unreal.InfinityCueType.SCENE
+                and (str(g.label) == "Scene 4" or str(g.label).startswith("Scene 4 "))]
+        if len(segs) != 1:
+            return None, "S4_SEGMENTS_%d" % len(segs)
+        mf = float(tr.get_current_master_frame().value)
+        return (mf - float(segs[0].start_frame.value)) / 24000.0 * 25.0, None
 
     def tick(_dt):
         try:

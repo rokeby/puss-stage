@@ -1,0 +1,266 @@
+{
+ "args": {
+  "actor_name": "BP_Pendulum_C_0",
+  "binding_names": [
+   "Pendulum",
+   "Pendulum_Anchor"
+  ],
+  "confirm": "",
+  "copy": "/Game/InfinityStage/KlaraHookin/LS_Children_S4Hangar",
+  "decided_by": "",
+  "decided_by_note": "Gary 7 Oct (his words, conductor session): turn the pendulum's own Blueprint Tick swing OFF in the show only (her asset untouched), gated behind a read-only PIE probe first. APPLY needs decided_by and confirm 'APPLY KLARAPENDULUM'. PROBE runs only during a PIE run of S4 (Gary's or the conductor's), is read-only and never ends PIE.",
+  "function": "Set Actor Tick Enabled",
+  "her_level": "/Game/L_KK_children",
+  "level_relative_loc": [
+   865.15,
+   333.32,
+   456.89
+  ],
+  "level_relative_loc_note": "[bytes] PivotRoot RelativeLocation in L_KK_children.umap (S4_ENTRY_INVESTIGATION section C)",
+  "mode": "PROBE",
+  "payload": "False",
+  "probe_file": null,
+  "probe_times_note": "10 s = pre-cut; 24 s = in the main slot past her frame 191 (Scene frame >= cut + (191-6)/1.2) for the live v4 cut 405; re-derive for the v5 cut from klara_reveal_record_S4.json",
+  "probe_times_s": [
+   10.0,
+   24.0
+  ],
+  "reveal_record": "klara_reveal_record_S4.json",
+  "run_id": null,
+  "scene_sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+  "timeout_s": 600.0
+ },
+ "mapping": [
+  {
+   "her_start": 6,
+   "range": [
+    405,
+    4500
+   ],
+   "ratio": 1.2,
+   "what": "slot"
+  }
+ ],
+ "pred_level": {
+  "loc": [
+   12300.816958091558,
+   240040.2959904295,
+   456.89
+  ]
+ },
+ "run": "KLARAPENDULUM-20261007-134048",
+ "samples": [
+  {
+   "her_frame": null,
+   "her_section": null,
+   "loc": [
+    12300.816958091558,
+    240040.2959904295,
+    456.89
+   ],
+   "pred_level": {
+    "loc": [
+     12300.816958091558,
+     240040.2959904295,
+     456.89
+    ]
+   },
+   "pred_ls": null,
+   "rot": [
+    -0.0,
+    2.5637400150299072,
+    0.0
+   ],
+   "scene_frame": 268.18645833333335,
+   "tick_enabled": true,
+   "window": "t10s"
+  },
+  {
+   "her_frame": null,
+   "her_section": null,
+   "loc": [
+    12300.816958091558,
+    240040.2959904295,
+    456.89
+   ],
+   "pred_level": {
+    "loc": [
+     12300.816958091558,
+     240040.2959904295,
+     456.89
+    ]
+   },
+   "pred_ls": null,
+   "rot": [
+    -0.0,
+    1.8967572450637824,
+    0.0
+   ],
+   "scene_frame": 268.7197916666667,
+   "tick_enabled": true,
+   "window": "t10s"
+  },
+  {
+   "her_frame": null,
+   "her_section": null,
+   "loc": [
+    12300.816958091558,
+    240040.2959904295,
+    456.89
+   ],
+   "pred_level": {
+    "loc": [
+     12300.816958091558,
+     240040.2959904295,
+     456.89
+    ]
+   },
+   "pred_ls": null,
+   "rot": [
+    -0.0,
+    1.247781872749329,
+    0.0
+   ],
+   "scene_frame": 269.159375,
+   "tick_enabled": true,
+   "window": "t10s"
+  },
+  {
+   "her_frame": 240.0,
+   "her_section": "slot",
+   "loc": [
+    12810.816982505621,
+    240090.2959977537,
+    456.8900146484375
+   ],
+   "pred_level": {
+    "loc": [
+     12300.816958091558,
+     240040.2959904295,
+     456.89
+    ]
+   },
+   "pred_ls": {
+    "loc": [
+     12810.816982505621,
+     240090.2959977537,
+     456.8900146484375
+    ],
+    "rot": [
+     0.0,
+     -1.6446750963531478,
+     130.0
+    ]
+   },
+   "rot": [
+    -0.0,
+    10.71292209625244,
+    0.0
+   ],
+   "scene_frame": 600.0989583333334,
+   "tick_enabled": true,
+   "window": "t24s"
+  },
+  {
+   "her_frame": 240.0,
+   "her_section": "slot",
+   "loc": [
+    12810.816982505621,
+    240090.2959977537,
+    456.8900146484375
+   ],
+   "pred_level": {
+    "loc": [
+     12300.816958091558,
+     240040.2959904295,
+     456.89
+    ]
+   },
+   "pred_ls": {
+    "loc": [
+     12810.816982505621,
+     240090.2959977537,
+     456.8900146484375
+    ],
+    "rot": [
+     0.0,
+     -1.6446750963531478,
+     130.0
+    ]
+   },
+   "rot": [
+    -0.0,
+    9.857346534729004,
+    0.0
+   ],
+   "scene_frame": 600.5541666666667,
+   "tick_enabled": true,
+   "window": "t24s"
+  },
+  {
+   "her_frame": 241.2,
+   "her_section": "slot",
+   "loc": [
+    12810.816982505621,
+    240090.2959977537,
+    456.8900146484375
+   ],
+   "pred_level": {
+    "loc": [
+     12300.816958091558,
+     240040.2959904295,
+     456.89
+    ]
+   },
+   "pred_ls": {
+    "loc": [
+     12810.816982505621,
+     240090.2959977537,
+     456.8900146484375
+    ],
+    "rot": [
+     0.0,
+     -2.321748739092196,
+     130.0
+    ]
+   },
+   "rot": [
+    -0.0,
+    8.96959972381592,
+    0.0
+   ],
+   "scene_frame": 601.0364583333334,
+   "tick_enabled": true,
+   "window": "t24s"
+  }
+ ],
+ "status": "complete",
+ "tool": "klara_pendulum_s4",
+ "verdict": {
+  "apply_recommended": true,
+  "binding_resolves": true,
+  "tick_enabled_any": true,
+  "verdict": "tick_wins",
+  "why": "BP tick enabled and its signature seen",
+  "windows": {
+   "t10s": {
+    "binding_resolves": null,
+    "n": 3,
+    "tick_enabled": true,
+    "where": [
+     "level"
+    ],
+    "who": "tick"
+   },
+   "t24s": {
+    "binding_resolves": true,
+    "n": 3,
+    "tick_enabled": true,
+    "where": [
+     "ls"
+    ],
+    "who": "tick"
+   }
+  }
+ }
+}
