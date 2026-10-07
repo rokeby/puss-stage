@@ -1,0 +1,9 @@
+{
+  "mode": "DRY",
+  "params": {},
+  "expected": {},
+  "ack_records": [],
+  "allow_dirty": [],
+  "reuse_existing_assets": false,
+  "remove_assets": false
+}
