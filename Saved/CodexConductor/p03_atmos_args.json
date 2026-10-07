@@ -1,9 +1,18 @@
 {
-  "mode": "DRY",
-  "params": {},
+  "mode": "APPLY",
+  "params": {
+    "smoke_floor_spread_max_cm": 500.0
+  },
   "expected": {},
-  "ack_records": [],
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P03.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p03_housing_drop_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p03_rig_pattern_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P03.json",
+    "E:\\PussStage\\Saved\\CodexStructure\\blink_spots_revert_record.json"
+  ],
   "allow_dirty": [],
   "reuse_existing_assets": false,
-  "remove_assets": false
+  "remove_assets": false,
+  "confirm": "APPLY P03ATMOS"
 }

@@ -195,7 +195,8 @@ def hold_keys(pose, frames):
 # Pure: placement and hangar fit
 # =====================================================================================================================
 
-def solve_placement(her_cam, fp_world, top_cm, dock, box, lead_cm, x_min_local, side_margin_cm, top_clear_cm=100.0):
+def solve_placement(her_cam, fp_world, top_cm, dock, box, lead_cm, x_min_local, side_margin_cm, top_clear_cm=100.0,
+                    lead_max_cm=None):
     """Translate her level so her FIRST camera sits `lead` cm ahead of the dock camera on the dock axis (lateral 0
     unless her set would cross a side wall). Her floor stays on our floor (delta z = 0: the hookin set it [meas
     klara_hookin_stream_record.json level z 0]).
@@ -212,6 +213,7 @@ def solve_placement(her_cam, fp_world, top_cm, dock, box, lead_cm, x_min_local, 
     rel_y = [p[1] - cam_l[1] for p in loc]
     need = float(x_min_local) - min(rel_x)            # lead that puts her near edge on x_min_local
     lead = max(float(lead_cm), need)
+    lead_over = lead_max_cm is not None and lead > float(lead_max_cm) + EPS
     iy = float(box["half_w"]) - float(side_margin_cm)
     lateral = 0.0
     if max(rel_y) > iy or min(rel_y) < -iy:
@@ -224,11 +226,62 @@ def solve_placement(her_cam, fp_world, top_cm, dock, box, lead_cm, x_min_local, 
     checks = {"near_ok": min(xs) >= float(x_min_local) - 1e-6, "far_ok": max(xs) <= far_limit,
               "side_ok": max(ys) <= iy + 1e-6 and min(ys) >= -iy - 1e-6,
               "under_lattice": float(top_cm) + top_clear_cm <= float(box["lattice_z"]),
-              "under_roof": float(top_cm) <= float(box["height"])}
+              "under_roof": float(top_cm) <= float(box["height"]), "lead_in_range": not lead_over}
     return {"delta": delta, "lead_cm": lead, "lead_wanted_cm": float(lead_cm), "lead_needed_cm": need,
             "lateral_cm": lateral, "her_cam_local_after": [lead, lateral, cam_l[2]],
             "set_local_after": [min(xs), max(xs), min(ys), max(ys)], "checks": checks,
             "fits": all(checks[k] for k in ("near_ok", "far_ok", "side_ok", "under_roof"))}
+
+
+FOOTPRINT_COMPONENTS = ("StaticMeshComponent", "InstancedStaticMeshComponent", "HierarchicalInstancedStaticMeshComponent",
+                        "SkeletalMeshComponent", "GeometryCacheComponent", "NiagaraComponent")
+FOOTPRINT_EXCLUDE = re.compile(r"Sky|Atmosphere|Landscape|Fog|PostProcess|Light|Volume|Cloud|Camera|Reflection|Decal|"
+                               r"Audio|Sound|Note|Player|WorldSettings|Brush")
+
+
+def footprint_from_rows(rows, max_size_cm=4000.0):
+    """The DIORAMA footprint (coordinator 7 Oct: the live DRY's actor-bounds union came out ~80 x 80 m from environment
+    actors). rows = [{"label", "class", "components": [class names], "bounds": [ox, oy, oz, ex, ey, ez]}].
+    Kept: an actor whose class is not environment-like (FOOTPRINT_EXCLUDE) AND that owns a renderable mesh / cache /
+    Niagara component AND whose full size is <= max_size_cm on every axis. -> {"box": [x0,x1,y0,y1,z0,z1] | None,
+    "kept": [...], "excluded": [{"label", "class", "why"}]}."""
+    kept, excluded = [], []
+    for r in rows:
+        cls = str(r["class"])
+        e = r["bounds"][3:6]
+        if FOOTPRINT_EXCLUDE.search(cls):
+            excluded.append({"label": r["label"], "class": cls, "why": "environment/light/volume class"})
+        elif not any(c in FOOTPRINT_COMPONENTS for c in r.get("components") or []):
+            excluded.append({"label": r["label"], "class": cls, "why": "no mesh/cache/Niagara component"})
+        elif max(e) * 2.0 > float(max_size_cm):
+            excluded.append({"label": r["label"], "class": cls, "why": "size %.0f m > %.0f m" % (max(e) * 2.0 / 100.0,
+                                                                                               max_size_cm / 100.0)})
+        elif max(e) <= 0.5:
+            excluded.append({"label": r["label"], "class": cls, "why": "zero bounds"})
+        else:
+            kept.append(r)
+    if not kept:
+        return {"box": None, "kept": [], "excluded": excluded}
+    o = lambda r, i: r["bounds"][i]
+    box = [min(o(r, 0) - o(r, 3) for r in kept), max(o(r, 0) + o(r, 3) for r in kept),
+           min(o(r, 1) - o(r, 4) for r in kept), max(o(r, 1) + o(r, 4) for r in kept),
+           min(o(r, 2) - o(r, 5) for r in kept), max(o(r, 2) + o(r, 5) for r in kept)]
+    return {"box": box, "kept": [{"label": r["label"], "class": r["class"]} for r in kept], "excluded": excluded}
+
+
+def glide_seconds(start, end, fps, v1, max_speed_cm_s, min_s, step_s=0.5, max_s=40.0):
+    """Shortest glide (multiple of step_s, >= min_s) whose peak speed is <= max_speed (Gary/coordinator: <= ~3 m/s).
+    Uses plan_glide itself, so the bound holds for the keys actually written. -> (seconds, peak) or (None, peak)."""
+    t = float(min_s)
+    peak = None
+    while t <= max_s + EPS:
+        f1 = int(round(t * fps))
+        g = plan_glide(start, end, 0, f1, fps, v1=v1)
+        peak = g["report"]["peak_speed_cm_s"]
+        if peak <= max_speed_cm_s:
+            return t, peak
+        t += step_s
+    return None, peak
 
 
 def propose_hangar(set_local, top_cm, current, comfort_cm=300.0, depth_step=2000.0, width_step=500.0):
@@ -409,19 +462,31 @@ def ramp_keys(v0, v1, f0, f1):
 # Pure: the timeline
 # =====================================================================================================================
 
-def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len):
-    """Scene-frame windows for intro | slot | outro. cfg = args intro/outro blocks. -> dict (+ refusals)."""
+def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len, glide_in_s=None, glide_out_s=None):
+    """Scene-frame windows for intro | slot | outro. cfg = args intro/outro blocks. glide_in_s / glide_out_s: the speed-
+    bounded glide lengths (glide_seconds); when the intro needs more time than [L, C) gives, the CUT MOVES LATER (and the
+    slot with it, same length): C' = max(C, d0 + glide, d0 + strikes + settle). -> dict (+ refusals)."""
     intro, outro = cfg["intro"], cfg["outro"]
     f = lambda s: int(math.ceil(float(s) * fps - 1e-6))
-    r = {"refusals": [], "warnings": [], "land": L, "cut": C, "slot": [C, E]}
+    r = {"refusals": [], "warnings": [], "land": L, "cut_before": C, "slot_before": [C, E]}
     if L is None or not (0 <= L < C < E):
         r["refusals"].append("TIMELINE_ORDER: land %r cut %r slot end %r" % (L, C, E))
         return r
     d0 = L + f(intro["dark_hold_s"])
-    g0 = max(d0, C - f(intro["glide_s"]))
+    gin = f(glide_in_s if glide_in_s is not None else intro["glide_s"])
+    settle = f(intro["env_settle_s"])
+    gaps = intro["gap_s"]
+    strikes = f((float(gaps[0]) + float(gaps[1])) / 2.0 * max(0, n_lights - 1)) + f(intro["flicker_window_s"]) + 1
+    need = max(C, d0 + gin, d0 + strikes + settle)
+    shift = need - C
+    C, E = C + shift, E + shift
+    r.update(cut=C, slot=[C, E], slot_shift=shift, slot_shift_s=shift / float(fps))
+    if shift:
+        r["warnings"].append("CUT_MOVED_LATER: +%d frames (%.2f s) for the glide/strikes; slot -> [%d, %d)" % (shift,
+                             shift / float(fps), C, E))
+    g0 = max(d0, C - gin)
     if C - g0 < f(intro.get("glide_min_s", 2.0)):
         r["warnings"].append("GLIDE_SHORT: %.2f s (land %d, cut %d)" % ((C - g0) / fps, L, C))
-    settle = f(intro["env_settle_s"])
     strike_last = C - settle - f(intro["flicker_window_s"]) - 1
     xf = [g0, C - settle]
     if xf[1] <= xf[0]:
@@ -431,7 +496,7 @@ def plan_timeline(L, C, E, fps, n_lights, cfg, exit_len):
     env_out = [o0, o0 + f(outro["env_fade_s"])]
     lights_out = o0 + blink_span
     g1_0 = max(env_out[1], lights_out) + f(outro["dark_before_glide_s"])
-    g1_1 = g1_0 + f(outro["glide_s"])
+    g1_1 = g1_0 + f(glide_out_s if glide_out_s is not None else outro["glide_s"])
     end = g1_1 + int(exit_len)
     r.update(dark=[L, d0], strike_window=[d0, strike_last], glide_in=[g0, C], crossfade=xf, roof_hidden=[g0, env_out[1]],
              ours_hidden_from=g0, hers_dark=[L, g0], outro_hold=[E, o0], blink_window=[o0, lights_out],
@@ -649,7 +714,8 @@ def _api_table():
             rows.append({"api": api, "tier": tier, "ok": False, "result": "%s: %s" % (type(exc).__name__, exc)})
 
     u = unreal
-    probe("MovieSceneScriptingFloatChannel.evaluate", "inf (else exact-key fallback, eval_keys)",
+    probe("MovieSceneScriptingFloatChannel.evaluate", "inf; live 7 Oct: False -> exact-key fallback eval_keys "
+          "(a first/last frame BETWEEN keys refuses HER_CAMERA_EVAL)",
           lambda: hasattr(u.MovieSceneScriptingFloatChannel, "evaluate"))
     probe("MovieSceneScriptingDoubleChannel.evaluate", "inf", lambda: hasattr(u.MovieSceneScriptingDoubleChannel, "evaluate"))
     probe("GameplayStatics.get_streaming_level", "inf", lambda: hasattr(u.GameplayStatics, "get_streaming_level"))
@@ -725,7 +791,8 @@ def _her_camera(copy, which):
     if len(hit) != 1:
         raise PlanError("HER_CUT_AT_%s: %d sections cover frame %d" % (which.upper(), len(hit), frame))
     guid = hit[0].get_camera_binding_id().get_editor_property("guid")
-    b = [x for x in copy.get_bindings() if str(x.get_id()) == str(guid)]
+    gs = unreal.GuidLibrary.conv_guid_to_string      # memory: str(Guid) carries a memory address
+    b = [x for x in copy.get_bindings() if gs(x.get_id()) == gs(guid)]
     if len(b) != 1:
         raise PlanError("HER_CAMERA_BINDING_%s: %d" % (which.upper(), len(b)))
     b = b[0]
@@ -758,7 +825,7 @@ def _her_camera(copy, which):
                     lens[p] = _ch_eval(chans[0], frame)
     # the camera actor itself (filmback, unkeyed lens) - lives in her streamed level
     pose["lens_tracks"] = lens
-    pose["binding_guid"] = str(guid)
+    pose["binding_guid"] = unreal.GuidLibrary.conv_guid_to_string(guid)
     return pose
 
 
@@ -890,6 +957,18 @@ def _live_box(key, args):
         if len(w) == 1:
             o, e = w[0].get_actor_bounds(False)
             walls[k2] = [to_local(dock, [o.x - e.x, o.y - e.y, o.z - e.z]), to_local(dock, [o.x + e.x, o.y + e.y, o.z + e.z])]
+    if "far_wall" not in walls:
+        # 7 Oct live: hangar_exit_doors.py split the far wall into Left/Right of Exit + Above Exit (+ Exit Door Leaf)
+        parts = []
+        for lab in ("S%s Hangar Far Wall Left of Exit", "S%s Hangar Far Wall Right of Exit",
+                    "S%s Hangar Far Wall Above Exit", "S%s Hangar Exit Door Leaf"):
+            for w in _by_label(lab % key):
+                o, e = w.get_actor_bounds(False)
+                parts.append([to_local(dock, [o.x - e.x, o.y - e.y, o.z - e.z]),
+                              to_local(dock, [o.x + e.x, o.y + e.y, o.z + e.z])])
+        if parts:
+            walls["far_wall"] = [[min(p[0][i] for p in parts) for i in range(3)],
+                                 [max(p[1][i] for p in parts) for i in range(3)]]
     if set(walls) != set(WALL_LABELS):
         raise PlanError("BOX_WALLS: found %s" % sorted(walls))
     # dock yaw is 0 for S1/S4 [meas klara_hookin_args.json]; bounds are axis-aligned, so only yaw 0 is exact here
@@ -910,19 +989,14 @@ def _streaming_level(world, pkg):
     return ls
 
 
-def _set_world_bounds(world, pkg):
-    xs, ys, zs = [], [], []
+def _footprint_rows(world, pkg):
+    rows = []
     for a in _level_actors(world, pkg):
-        if a.get_class().get_name() in tuple(ENV_INTENSITY) + ("SkyAtmosphere", "VolumetricCloud", "PostProcessVolume"):
-            continue
         o, e = a.get_actor_bounds(False)
-        if max(e.x, e.y) < 5000.0 and e.length() > 1.0:       # sky spheres / landscapes excluded (klara_hookin.py:858)
-            xs += [o.x - e.x, o.x + e.x]
-            ys += [o.y - e.y, o.y + e.y]
-            zs += [o.z - e.z, o.z + e.z]
-    if not xs:
-        raise PlanError("HER_SET_BOUNDS_EMPTY: %s" % pkg)
-    return [min(xs), max(xs), min(ys), max(ys), min(zs), max(zs)]
+        comps = sorted({c.get_class().get_name() for c in a.get_components_by_class(unreal.PrimitiveComponent)})
+        rows.append({"label": str(a.get_actor_label()), "class": a.get_class().get_name(), "components": comps,
+                     "bounds": [o.x, o.y, o.z, e.x, e.y, e.z]})
+    return rows
 
 
 def _hookin_bindings(seq):
@@ -946,8 +1020,8 @@ def _cuts(seq):
         raise PlanError("ROOT_CUT_TRACKS: %d" % len(tracks))
     rows = []
     for s in tracks[0].get_sections():
-        guid = str(s.get_camera_binding_id().get_editor_property("guid"))
-        name = [str(b.get_display_name()) for b in seq.get_bindings() if str(b.get_id()) == guid]
+        guid = unreal.GuidLibrary.conv_guid_to_string(s.get_camera_binding_id().get_editor_property("guid"))
+        name = [str(b.get_display_name()) for b in seq.get_bindings() if unreal.GuidLibrary.conv_guid_to_string(b.get_id()) == guid]
         rows.append({"guid": guid, "camera": name[0] if name else None, "range": [int(s.get_start_frame()),
                                                                                     int(s.get_end_frame())],
                      "active": bool(s.is_active())})
@@ -1003,7 +1077,9 @@ def gather(args, world, run):
         if len(cams) != 1:
             facts.setdefault("refusals", []).append("HER_CAMERA_ACTOR_%s: %d match %r" % (which.upper(), len(cams),
                                                                                         facts[which]["binding"]))
-    facts["set_world"] = _set_world_bounds(world, row["level"])
+    fp = footprint_from_rows(_footprint_rows(world, row["level"]), float(args.get("footprint_max_size_cm", 4000.0)))
+    facts["footprint"] = {"box": fp["box"], "kept_count": len(fp["kept"]), "kept": fp["kept"], "excluded": fp["excluded"]}
+    facts["set_world"] = fp["box"]
     ls = _streaming_level(world, row["level"])
     lt = ls.get_editor_property("level_transform")
     facts["level_transform"] = {"loc": _v(lt.translation), "yaw": float(lt.rotation.rotator().yaw)}
@@ -1040,13 +1116,15 @@ def build_plan(facts, args):
     dock = box["dock"]
     first, last = facts["her_first"], facts["her_last"]
     pl = args["placement"]
+    if not facts.get("set_world"):
+        refusals.append("DIORAMA_FOOTPRINT_EMPTY (see footprint.excluded)")
+        return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False}
     place = solve_placement(first["loc"], facts["set_world"][:4], facts["set_world"][5] - dock["loc"][2], dock, box,
-                            pl["lead_cm"], pl.get("x_min_local", box["apron"]), pl["side_margin_cm"])
-    if not place["fits"]:
-        refusals.append("SET_DOES_NOT_FIT_LIVE_BOX: %s (Structure resize: see hangar_proposal)" % place["checks"])
-    if not place["checks"]["under_lattice"]:
-        warnings.append("SET_REACHES_LATTICE: top %.0f cm vs lattice %.0f cm" % (facts["set_world"][5] - dock["loc"][2],
-                                                                                box["lattice_z"]))
+                            pl["lead_cm"], pl.get("x_min_local", box["apron"]), pl["side_margin_cm"],
+                            lead_max_cm=pl.get("lead_max_cm"))
+    if not place["checks"]["lead_in_range"]:
+        warnings.append("LEAD_ABOVE_RANGE: her first camera must sit %.0f cm in (> lead_max %.0f) to keep her set past "
+                        "the hinge x %.0f" % (place["lead_cm"], pl.get("lead_max_cm"), pl.get("x_min_local", box["apron"])))
     d = place["delta"]
     sh = lambda p: [p[0] + d[0], p[1] + d[1], p[2] + d[2]]
     new_lt = {"loc": sh(facts["level_transform"]["loc"]), "yaw": facts["level_transform"]["yaw"]}
@@ -1057,6 +1135,19 @@ def build_plan(facts, args):
     proposal = propose_hangar(place["set_local_after"], facts["set_world"][5] - dock["loc"][2],
                               {"apron": box["apron"], "depth": box["depth"], "half_w": box["half_w"],
                                "height": box["height"], "lattice_z": box["lattice_z"]}, args.get("comfort_cm", 300.0))
+    # Gary 7 Oct: the hangar is arbitrary. Plan footprint must fit the LIVE box (else STOP with the proposal); a set
+    # reaching the lattice proceeds only under allow_lattice_overlap.
+    ck = place["checks"]
+    if not (ck["near_ok"] and ck["far_ok"] and ck["side_ok"] and ck["under_roof"]):
+        refusals.append("SET_DOES_NOT_FIT_LIVE_BOX: %s -> Structure resize with hangar_proposal.params %s"
+                        % ({k: v for k, v in ck.items() if not v}, proposal["params"]))
+    if not ck["under_lattice"]:
+        msg = "SET_REACHES_LATTICE: top %.0f cm vs lattice %.0f cm" % (facts["set_world"][5] - dock["loc"][2],
+                                                                     box["lattice_z"])
+        if args.get("allow_lattice_overlap"):
+            warnings.append(msg + " (allow_lattice_overlap)")
+        else:
+            refusals.append(msg + " -> set allow_lattice_overlap or resize (hangar_proposal.params %s)" % proposal["params"])
     # lenses: the glide camera takes HER filmback, so its end frame is hers; its start focal matches the Entry HFOV
     her_cam_actor = first.get("actor") or {}
     sensor = her_cam_actor.get("sensor") or entry["sensor"]
@@ -1085,7 +1176,15 @@ def build_plan(facts, args):
     lights = order_lights([{"label": r["label"], "loc": sh(r["loc"]), "row": r} for r in facts["her_lights"]],
                           first_pose["loc"], args["intro"]["order"])
     exit_len = int(args["outro"].get("exit_cut_frames", 25))
-    tl = plan_timeline(facts["L"], facts["C"], facts["E"], fps, len(lights), args, exit_len)
+    vmax = float(args["intro"].get("max_glide_speed_cm_s", 300.0))
+    gin_s, gin_peak = glide_seconds(start_pose, first_pose, fps, first["vel_cm_s"], vmax, args["intro"]["glide_s"])
+    gout_s, gout_peak = glide_seconds(last_pose, exit_pose, fps, [0.0, 0.0, 0.0], vmax, args["outro"]["glide_s"])
+    if gin_s is None or gout_s is None:
+        refusals.append("GLIDE_TOO_FAST: no glide <= 40 s keeps peak <= %.0f cm/s (in %r, out %r)" % (vmax, gin_peak,
+                                                                                                        gout_peak))
+        gin_s, gout_s = gin_s or args["intro"]["glide_s"], gout_s or args["outro"]["glide_s"]
+    tl = plan_timeline(facts["L"], facts["C"], facts["E"], fps, len(lights), args, exit_len, gin_s, gout_s)
+    tl["glide_in_s"], tl["glide_out_s"] = gin_s, gout_s
     refusals += tl["refusals"]
     warnings += tl["warnings"]
     plan = {"scene": key, "fps": fps, "placement": place, "level_transform_before": facts["level_transform"],
@@ -1121,7 +1220,7 @@ def build_plan(facts, args):
         f_out = out_sch["frames"][j] if j < len(out_sch["frames"]) else None
         r["blink_frame"] = f_out
         r["outro_keys"] = None if f_out is None else dedupe_keys(
-            [[facts["E"], r["target_last"]]] + blink_out_keys(r["target_last"], f_out, seed, r["label"], fps,
+            [[tl["slot"][1], r["target_last"]]] + blink_out_keys(r["target_last"], f_out, seed, r["label"], fps,
                                                               args["outro"]["flicker_window_s"]))
     plan["her_lights"] = rows
     plan["strike_schedule"] = sch
@@ -1194,9 +1293,11 @@ def build_plan(facts, args):
                            "dry_run": True}
     if facts["playback"][1] != tl["planned_end"]:
         plan["relength_first"] = True
-    plan["slot"] = {"mode": args["slot"], "range": tl["slot"],
+    plan["slot"] = {"mode": args["slot"], "range": tl["slot"], "range_before": tl["slot_before"],
+                    "shift": tl["slot_shift"],
                     "media_track_note": "later: a MovieSceneMediaTrack section over the same range replaces the "
                                         "nested copy 1:1 (videos = renders of her LS, Gary 7 Oct)"}
+    plan["footprint"] = facts.get("footprint")
     plan["apply_ready"] = not refusals
     return plan
 
@@ -1376,6 +1477,9 @@ def run_dry(args, run, world):
     for e in p.get("her_env") or []:
         unreal.log("KLARAREVEAL_ENV|run=%s|S%s|%s|%s|%s|%s" % (run, key, e["label"], e["class"], e.get("property"),
                                                                e.get("value")))
+    fpr = facts.get("footprint") or {}
+    unreal.log("KLARAREVEAL_FOOTPRINT|run=%s|S%s|box=%s|kept=%d|excluded=%s" % (run, key, fpr.get("box"),
+               fpr.get("kept_count", 0), json.dumps(fpr.get("excluded"))[:3000]))
     unreal.log("KLARAREVEAL_SEES|run=%s|S%s|%s|hide=%s" % (run, key, p.get("first_frame_sees"), p.get("hide")))
     unreal.log("KLARAREVEAL_UNRESOLVED|run=%s|S%s|%s" % (run, key, facts["copy_bindings_unresolved"]))
     unreal.log("KLARAREVEAL_EXTEND_FIRST|run=%s|S%s|extend_scene_playback_mode=%s"
@@ -1519,13 +1623,26 @@ def run_apply(args, run, world):
     if len(vis) != 1:
         _stop(run, "HOOKIN_VIS_SECTIONS|%d|NOTHING SAVED; Don't-Save restart" % len(vis))
     vis[0].set_range(int(he["level_visible_range"][0]), int(he["level_visible_range"][1]))
+    # 7b. slot: the nested copy moves with the cut (same length, start offset 0) [prec klara_hookin.py:1058-1068, 1199-1204]
+    if plan["slot"]["shift"]:
+        subs = [x for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for x in t.get_sections()
+                if x.get_sequence() is not None and _path(x.get_sequence()) == row["copy"]]
+        if len(subs) != 1:
+            _stop(run, "SLOT_SECTION_COUNT|%d|NOTHING SAVED; Don't-Save restart" % len(subs))
+        subs[0].set_range(int(plan["slot"]["range"][0]), int(plan["slot"]["range"][1]))
+        child = subs[0].get_sequence()
+        mapped = [int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(subs[0], int(child.get_playback_start()), seq)),
+                  int(unreal.MovieSceneSectionExtensions.get_parent_sequence_frame(subs[0], int(child.get_playback_end()), seq))]
+        if mapped != list(plan["slot"]["range"]):
+            _stop(run, "SLOT_MAPPING_READBACK|%s vs %s|NOTHING SAVED; Don't-Save restart" % (mapped, plan["slot"]["range"]))
+        rec["slot_moved"] = {"before": plan["slot"]["range_before"], "after": mapped}
     # 8. cuts: Entry | Glide | Exit
     cuts, ct = _cuts(seq)
     entry_guid = [c["guid"] for c in cuts if c["camera"] and "Entry Handoff" in c["camera"]]
     exit_guid = [c["guid"] for c in cuts if c["camera"] and "Exit Handoff" in c["camera"]]
     if len(set(entry_guid)) != 1 or len(set(exit_guid)) != 1:
         _stop(run, "CUT_CAMERAS|entry %s exit %s|NOTHING SAVED; Don't-Save restart" % (entry_guid, exit_guid))
-    by_guid = {str(b.get_id()): b for b in seq.get_bindings()}
+    by_guid = {unreal.GuidLibrary.conv_guid_to_string(b.get_id()): b for b in seq.get_bindings()}
     for s in list(ct.get_sections()):
         ct.remove_section(s)
     for which, rng in plan["cuts_after"]:
@@ -1576,13 +1693,19 @@ def run_revert(args, run, world):
             for s in t.get_sections():
                 s.set_range(int(before[HOOK_VIS][0]), int(before[HOOK_VIS][1]))
     cuts, ct = _cuts(seq)
-    by_guid = {str(b.get_id()): b for b in seq.get_bindings()}
+    by_guid = {unreal.GuidLibrary.conv_guid_to_string(b.get_id()): b for b in seq.get_bindings()}
     for s in list(ct.get_sections()):
         ct.remove_section(s)
     for c in rec["before"]["cuts"]:
         s = ct.add_section()
         s.set_camera_binding_id(seq.get_binding_id(by_guid[c["guid"]]))
         s.set_range(int(c["range"][0]), int(c["range"][1]))
+    if rec.get("slot_moved"):
+        subs = [x for t in seq.get_tracks() if isinstance(t, unreal.MovieSceneSubTrack) for x in t.get_sections()
+                if x.get_sequence() is not None and _path(x.get_sequence()) == row["copy"]]
+        if len(subs) != 1:
+            _stop(run, "SLOT_SECTION_COUNT|%d|nothing saved" % len(subs))
+        subs[0].set_range(int(rec["slot_moved"]["before"][0]), int(rec["slot_moved"]["before"][1]))
     _shift_copy(copy, world, row["level"], rec["plan"]["placement"]["delta"], run, sign=-1.0)
     _move_level(world, row["level"], rec["before"]["level_transform"], run)
     for a in _by_label(rec["glide_camera"]):
