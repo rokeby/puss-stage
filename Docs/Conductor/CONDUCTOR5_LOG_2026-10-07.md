@@ -243,3 +243,10 @@
     B07 orbit loops again and Right releases it. For rehearsal stepping set bPerformanceMode=False.
 - PearlClam tool (CLAM_* modes in s3_props_ue.py; harness 293/293; not run). Yaw from B05/B06 is a compromise (~26°,
   B05 63° off) → Directing/Gary to approve CLAM_DRY yaw.
+- **HARD DATES (Gary, via cueing stream; SPEC_PUSS_CUE_DIRECTOR_2026-10-07.md):** scene VIDEO FALLBACKS ("those scenes
+  as videos ready to trigger") by **Sun 11 Oct lunchtime**; first rehearsal **Tue 13 Oct**; show **Sat 17 Oct**. MRQ
+  render track = conductor's, critical path; Cue Director CD1–CD4 by the cueing stream (held patches).
+- **Dunes:** Gary picks B (~2.4 m) but prints go MUCH higher ("people are trying to clamber out desperately") → print
+  band re-plan. Standing stones: all three (A/B/C) — PLACE needs props-tool fixes (lean not applied; guard z≥100 refuses
+  buried stones).
+- PearlClam v2 (new interior slots/8K textures, custom normals) → clam tool update running.
