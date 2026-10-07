@@ -168,3 +168,7 @@
   nothing imported); new ~1 m Tridacna PearlClam (Blender session) replaces the Fab clam, which stays as stand-in.
   Millstone: import BaseColor at 8K; clam on top at ~1.3 m; size rock placement for a ~1 m clam. Millstone tool being
   written (S3_MILLSTONE_2026-10-07.md).
+- **S3 Rodin props exported** (Blender session [their meas]): HoledStandingStone 143.7×102.7×330 cm (pivot at sand line,
+  30 cm root; position TBD by Gary), HominidRibcage 21×22×10.5, HominidLegBone 28×8.5×4.2 (roughness too glossy → MI
+  ~0.78), HominidJaw 7.8×8×4.2 — all 4K, same spec. Folded into the millstone tool (generic per-prop import, one per
+  call; PLACE mode later). PearlClam: Rodin closed clam → cut into two valves, mantle, ~18 cm pearl, hinge keyed.
