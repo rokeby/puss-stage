@@ -1,0 +1,92 @@
+{
+ "status": "PASS",
+ "imported": {
+  "SM_UP_LacedColumn_v3": {
+   "lods": 1,
+   "bounds_cm": [
+    1880.0,
+    60.0,
+    40.0
+   ],
+   "tris": 4376,
+   "uv0": {
+    "down": 2824,
+    "up": 0,
+    "ok": true
+   },
+   "imported_slots": [
+    {
+     "name": "MAT_Steel",
+     "material": "/Engine/EngineMaterials/WorldGridMaterial"
+    }
+   ],
+   "path": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn_v3",
+   "slots": [
+    {
+     "name": "MAT_Steel",
+     "material": "/Engine/EngineMaterials/WorldGridMaterial"
+    }
+   ],
+   "nanite": false
+  },
+  "SM_UP_PlateGirder_v3": {
+   "lods": 1,
+   "bounds_cm": [
+    100.0,
+    40.0,
+    90.0
+   ],
+   "tris": 116,
+   "uv0": {
+    "down": 80,
+    "up": 0,
+    "ok": true
+   },
+   "imported_slots": [
+    {
+     "name": "MAT_Steel",
+     "material": "/Engine/EngineMaterials/WorldGridMaterial"
+    }
+   ],
+   "path": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder_v3",
+   "slots": [
+    {
+     "name": "MAT_Steel",
+     "material": "/Engine/EngineMaterials/WorldGridMaterial"
+    }
+   ],
+   "nanite": false
+  },
+  "SM_UP_KneeBracket_v3": {
+   "lods": 1,
+   "bounds_cm": [
+    120.0,
+    20.0,
+    120.0
+   ],
+   "tris": 360,
+   "uv0": {
+    "down": 184,
+    "up": 0,
+    "ok": true
+   },
+   "imported_slots": [
+    {
+     "name": "MAT_Steel",
+     "material": "/Engine/EngineMaterials/WorldGridMaterial"
+    }
+   ],
+   "path": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket_v3",
+   "slots": [
+    {
+     "name": "MAT_Steel",
+     "material": "/Engine/EngineMaterials/WorldGridMaterial"
+    }
+   ],
+   "nanite": false
+  }
+ },
+ "runs": [
+  "GV3I-20261007-023001"
+ ]
+}

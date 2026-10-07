@@ -1,0 +1,94 @@
+{
+ "run": "GV3I-20261007-022943",
+ "mode": "DRY",
+ "modules": {
+  "SM_UP_LacedColumn_v3": {
+   "fbx_exists": true,
+   "sha_ok": true,
+   "target_exists": false,
+   "expect": {
+    "fbx": "SM_UP_LacedColumn_v3.fbx",
+    "sha256": "c56dbb2688eaee3901968d10c01d9c706413e29edcc9e928cf6d01716d535ee6",
+    "tris": 4376,
+    "bounds_cm": [
+     1880.0,
+     60.0,
+     40.0
+    ]
+   },
+   "v1": {
+    "path": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_LacedColumn",
+    "slots": [
+     {
+      "name": "MAT_Steel",
+      "material": "/Engine/EngineMaterials/WorldGridMaterial"
+     }
+    ]
+   },
+   "v1_uv_control": {
+    "down": 392,
+    "up": 0,
+    "ok": true
+   }
+  },
+  "SM_UP_PlateGirder_v3": {
+   "fbx_exists": true,
+   "sha_ok": true,
+   "target_exists": false,
+   "expect": {
+    "fbx": "SM_UP_PlateGirder_v3.fbx",
+    "sha256": "0f52665c0b3f9e7bd5007ad48455dd41ded79d3125af53cfe89289a6ccf8ed11",
+    "tris": 116,
+    "bounds_cm": [
+     100.0,
+     40.0,
+     90.0
+    ]
+   },
+   "v1": {
+    "path": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_PlateGirder",
+    "slots": [
+     {
+      "name": "MAT_Steel",
+      "material": "/Engine/EngineMaterials/WorldGridMaterial"
+     }
+    ]
+   },
+   "v1_uv_control": {
+    "down": 48,
+    "up": 0,
+    "ok": true
+   }
+  },
+  "SM_UP_KneeBracket_v3": {
+   "fbx_exists": true,
+   "sha_ok": true,
+   "target_exists": false,
+   "expect": {
+    "fbx": "SM_UP_KneeBracket_v3.fbx",
+    "sha256": "5c9ba7903c490b7117680b99f4bae1f53b7811e17c019d4c4f1c1af8744baafa",
+    "tris": 360,
+    "bounds_cm": [
+     120.0,
+     20.0,
+     120.0
+    ]
+   },
+   "v1": {
+    "path": "/Game/InfinityStage/RigAtmos/Underpass/Meshes/SM_UP_KneeBracket",
+    "slots": [
+     {
+      "name": "MAT_Steel",
+      "material": "/Engine/EngineMaterials/WorldGridMaterial"
+     }
+    ]
+   },
+   "v1_uv_control": {
+    "down": 10,
+    "up": 0,
+    "ok": true
+   }
+  }
+ },
+ "mutated": 0
+}

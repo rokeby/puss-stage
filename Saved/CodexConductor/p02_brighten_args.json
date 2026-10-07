@@ -1,0 +1,21 @@
+{
+  "mode": "APPLY",
+  "params": {
+    "from_fraction": 0.45,
+    "practical_floor": 800.0,
+    "practical_units": "LUMENS",
+    "top_scale": 4.0,
+    "top_floor_cd": 300.0,
+    "top_max_cd": 800.0,
+    "top_units": "CANDELAS"
+  },
+  "expected_targets": 32,
+  "expected_bays": null,
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P02.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\p02_rig_pattern_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P02.json"
+  ],
+  "allow_dirty": [],
+  "confirm": "APPLY P02BRIGHTEN"
+}

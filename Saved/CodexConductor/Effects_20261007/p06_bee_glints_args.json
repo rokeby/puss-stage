@@ -1,0 +1,42 @@
+{
+ "mode": "DRY",
+ "confirm": "",
+ "run_id": null,
+ "decided_by": "",
+ "decided_by_note": "Fill on Gary's go. GARY 7 Oct (own words): 'an earlier appearance of the bees in smaller volumes' -> approved 'Bees glimmer in P06's dark'. NOT Gary's (conductor proposal): times 80/100/118 s, lives 2.5/3/4 s, scales 0.2/0.3/0.45 of her swarm, 15 m ahead on the route, 60 cm above the eye, long axis across the view.",
+ "attach": "choreo_subtrack",
+ "attach_note": "choreo_subtrack (recommended: travels with P06 on every rebuild) needs cueing_ack - LS_Choreo_Passage_6 is the cueing stream's file. master_bindings needs no ack but does NOT travel: re-run DRY after any Master rebuild (drift report) and REVERT + APPLY if drifted. master_subtrack is refused (fails SavedMasterMatchesShow).",
+ "cueing_ack": "",
+ "passage_label": "Passage 6",
+ "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+ "expected_length_s": 126.0011,
+ "length_tol_s": 0.05,
+ "length_source": "passage_speed_probe_PSPEED-20261006-223036.json Passage 6 length_s [meas]; p06_tail_extend_record.json [meas]. DRY re-reads the live segment.",
+ "glints_sequence": "/Game/InfinityStage/Effects/LS_P06_BeeGlints",
+ "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_6",
+ "master": "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+ "system": "/Game/FX/NS_BeeSwarm",
+ "her_scale": [6.375, 1.5, 3.375],
+ "her_scale_source": "KlaraIngest/klara_void_s6_args.json her_offline_facts.swarm.scale [meas bytes]",
+ "basis": "route",
+ "limits": {
+  "life_min_s": 2.0,
+  "life_max_s": 4.0,
+  "scale_max": 0.6,
+  "dark_from_s": 52.1,
+  "dark_source": "p06_sunset_record.json probe: daylight 7.2e-05 at 52 s, 0 at 90 s [meas, run P06SUN-20261007-010204]",
+  "end_margin_s": 1.0,
+  "min_clear_cm": 500.0,
+  "fov_fraction": 0.8,
+  "sensor_width_mm_default": 20.25,
+  "sensor_note": "the cone check uses the SMALLER filmback side; 20.25 mm = 36 mm x 9/16 [inf]; DRY reads the rig's filmback",
+  "max_lateral_cm": 300.0,
+  "eye_min_cm": 50.0,
+  "eye_max_cm": 400.0
+ },
+ "bursts": [
+  {"t_s": 80.0, "life_s": 2.5, "scale": 0.2, "ahead_cm": 1500.0, "up_cm": 60.0, "side_cm": 0.0, "yaw_offset_deg": 90.0},
+  {"t_s": 100.0, "life_s": 3.0, "scale": 0.3, "ahead_cm": 1500.0, "up_cm": 60.0, "side_cm": 0.0, "yaw_offset_deg": 90.0},
+  {"t_s": 118.0, "life_s": 4.0, "scale": 0.45, "ahead_cm": 1500.0, "up_cm": 60.0, "side_cm": 0.0, "yaw_offset_deg": 90.0}
+ ]
+}

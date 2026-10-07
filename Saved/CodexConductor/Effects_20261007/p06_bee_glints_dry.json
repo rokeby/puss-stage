@@ -1,0 +1,616 @@
+{
+ "api_table": [
+  {
+   "api": "InfinityStageCameraRig.get_camera_view_at_master_frame",
+   "ok": true,
+   "result": "True",
+   "tier": "decl InfinityStageCameraRig.h:355-360; prec passage_speed_probe.py:233"
+  },
+  {
+   "api": "LevelSequence.add_spawnable_from_class",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSequenceExtensions.h:435; prec klara_void_s6.py:1343"
+  },
+  {
+   "api": "NiagaraComponent.set_asset",
+   "ok": true,
+   "result": "True",
+   "tier": "prec klara_void_s6.py:1351 (DRY-probed there, not yet run)"
+  },
+  {
+   "api": "MovieSceneSpawnTrack",
+   "ok": true,
+   "result": "True",
+   "tier": "prec klara_void_s6.py:1114"
+  },
+  {
+   "api": "MovieSceneSubTrack",
+   "ok": true,
+   "result": "True",
+   "tier": "prec CodexCameraPilot/key_scene4_score.py:148"
+  },
+  {
+   "api": "LevelSequence.remove_track",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSequenceExtensions.h:89 (return value LIES: read back)"
+  },
+  {
+   "api": "LevelSequence.set_playback_end",
+   "ok": true,
+   "result": "True",
+   "tier": "decl MovieSceneSequenceExtensions.h:228"
+  },
+  {
+   "api": "LevelSequenceFactoryNew",
+   "ok": true,
+   "result": "True",
+   "tier": "prec CodexCueing/choreo_tool.py:180"
+  },
+  {
+   "api": "MovieSceneTimeUnit.DISPLAY_RATE",
+   "ok": true,
+   "result": "'<MovieSceneTimeUnit.DISPLAY_RATE: 0>'",
+   "tier": "prec klara_void_s6.py:1125"
+  }
+ ],
+ "applied_record": false,
+ "apply_ready": true,
+ "args": {
+  "attach": "choreo_subtrack",
+  "attach_note": "choreo_subtrack (recommended: travels with P06 on every rebuild) needs cueing_ack - LS_Choreo_Passage_6 is the cueing stream's file. master_bindings needs no ack but does NOT travel: re-run DRY after any Master rebuild (drift report) and REVERT + APPLY if drifted. master_subtrack is refused (fails SavedMasterMatchesShow).",
+  "basis": "route",
+  "bursts": [
+   {
+    "ahead_cm": 1500.0,
+    "life_s": 2.5,
+    "scale": 0.2,
+    "side_cm": 0.0,
+    "t_s": 80.0,
+    "up_cm": 60.0,
+    "yaw_offset_deg": 90.0
+   },
+   {
+    "ahead_cm": 1500.0,
+    "life_s": 3.0,
+    "scale": 0.3,
+    "side_cm": 0.0,
+    "t_s": 100.0,
+    "up_cm": 60.0,
+    "yaw_offset_deg": 90.0
+   },
+   {
+    "ahead_cm": 1500.0,
+    "life_s": 4.0,
+    "scale": 0.45,
+    "side_cm": 0.0,
+    "t_s": 118.0,
+    "up_cm": 60.0,
+    "yaw_offset_deg": 90.0
+   }
+  ],
+  "choreo": "/Game/InfinityStage/Choreo/LS_Choreo_Passage_6",
+  "confirm": "",
+  "cueing_ack": "",
+  "decided_by": "",
+  "decided_by_note": "Fill on Gary's go. GARY 7 Oct (own words): 'an earlier appearance of the bees in smaller volumes' -> approved 'Bees glimmer in P06's dark'. NOT Gary's (conductor proposal): times 80/100/118 s, lives 2.5/3/4 s, scales 0.2/0.3/0.45 of her swarm, 15 m ahead on the route, 60 cm above the eye, long axis across the view.",
+  "expected_length_s": 126.0011,
+  "glints_sequence": "/Game/InfinityStage/Effects/LS_P06_BeeGlints",
+  "her_scale": [
+   6.375,
+   1.5,
+   3.375
+  ],
+  "her_scale_source": "KlaraIngest/klara_void_s6_args.json her_offline_facts.swarm.scale [meas bytes]",
+  "length_source": "passage_speed_probe_PSPEED-20261006-223036.json Passage 6 length_s [meas]; p06_tail_extend_record.json [meas]. DRY re-reads the live segment.",
+  "length_tol_s": 0.05,
+  "limits": {
+   "dark_from_s": 52.1,
+   "dark_source": "p06_sunset_record.json probe: daylight 7.2e-05 at 52 s, 0 at 90 s [meas, run P06SUN-20261007-010204]",
+   "end_margin_s": 1.0,
+   "eye_max_cm": 400.0,
+   "eye_min_cm": 50.0,
+   "fov_fraction": 0.8,
+   "life_max_s": 4.0,
+   "life_min_s": 2.0,
+   "max_lateral_cm": 300.0,
+   "min_clear_cm": 500.0,
+   "scale_max": 0.6,
+   "sensor_note": "the cone check uses the SMALLER filmback side; 20.25 mm = 36 mm x 9/16 [inf]; DRY reads the rig's filmback",
+   "sensor_width_mm_default": 20.25
+  },
+  "master": "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master",
+  "mode": "DRY",
+  "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+  "passage_label": "Passage 6",
+  "run_id": null,
+  "system": "/Game/FX/NS_BeeSwarm"
+ },
+ "blockers": [],
+ "census_after": {
+  "content": [],
+  "maps": []
+ },
+ "census_before": {
+  "content": [],
+  "maps": []
+ },
+ "choreo": {
+  "bindings": 0,
+  "fps": 25.0,
+  "playback": [
+   0.0,
+   140.56117248535156
+  ],
+  "tick": 24000.0,
+  "tracks": []
+ },
+ "choreo_subtrack": [],
+ "drift": null,
+ "expected_after": {
+  "glints": [
+   {
+    "loc": [
+     21579.6,
+     400000.0,
+     240.0
+    ],
+    "name": "P06 Bee Glint 1 @80.0s",
+    "rot": [
+     0.0,
+     0.0,
+     90.0
+    ],
+    "scale": [
+     1.275,
+     0.3,
+     0.675
+    ],
+    "spawn_keys": [
+     [
+      2000,
+      true
+     ],
+     [
+      2062,
+      false
+     ]
+    ],
+    "system": "/Game/FX/NS_BeeSwarm"
+   },
+   {
+    "loc": [
+     26599.6,
+     400000.0,
+     240.0
+    ],
+    "name": "P06 Bee Glint 2 @100.0s",
+    "rot": [
+     0.0,
+     0.0,
+     90.0
+    ],
+    "scale": [
+     1.9125,
+     0.45,
+     1.0125
+    ],
+    "spawn_keys": [
+     [
+      2500,
+      true
+     ],
+     [
+      2575,
+      false
+     ]
+    ],
+    "system": "/Game/FX/NS_BeeSwarm"
+   },
+   {
+    "loc": [
+     28967.4,
+     400000.0,
+     240.0
+    ],
+    "name": "P06 Bee Glint 3 @118.0s",
+    "rot": [
+     0.0,
+     0.0,
+     90.0
+    ],
+    "scale": [
+     2.8687,
+     0.675,
+     1.5188
+    ],
+    "spawn_keys": [
+     [
+      2950,
+      true
+     ],
+     [
+      3050,
+      false
+     ]
+    ],
+    "system": "/Game/FX/NS_BeeSwarm"
+   }
+  ],
+  "subtrack": {
+   "name": "P06 Bee Glints (Effects)",
+   "range": [
+    0,
+    3150
+   ],
+   "sequence": "/Game/InfinityStage/Effects/LS_P06_BeeGlints"
+  }
+ },
+ "glints_exists": false,
+ "loads": {
+  "/Game/FX/NS_BeeSwarm": true
+ },
+ "master_ours": [],
+ "mode": "DRY",
+ "passage_actor": "Passage 06 \u2014 Fixed Wings",
+ "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+ "plan": {
+  "attach": "choreo_subtrack",
+  "bursts": [
+   {
+    "camera_at_start": {
+     "focal": 35.0,
+     "loc": [
+      20079.61,
+      400000.0,
+      180.0
+     ],
+     "rot": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "route": {
+      "eye_cm": 180.0,
+      "lateral_cm": 0.0,
+      "station_cm": 20079.61251856493
+     }
+    },
+    "checks": [
+     {
+      "angle_deg": 2.29,
+      "dist_cm": 1501.2,
+      "limit_deg": 8.65,
+      "t_s": 80.0
+     },
+     {
+      "angle_deg": 2.42,
+      "dist_cm": 1422.8,
+      "limit_deg": 8.65,
+      "t_s": 80.3125
+     },
+     {
+      "angle_deg": 2.56,
+      "dist_cm": 1344.5,
+      "limit_deg": 8.65,
+      "t_s": 80.625
+     },
+     {
+      "angle_deg": 2.72,
+      "dist_cm": 1266.1,
+      "limit_deg": 8.65,
+      "t_s": 80.9375
+     },
+     {
+      "angle_deg": 2.9,
+      "dist_cm": 1187.8,
+      "limit_deg": 8.65,
+      "t_s": 81.25
+     },
+     {
+      "angle_deg": 3.1,
+      "dist_cm": 1109.4,
+      "limit_deg": 8.65,
+      "t_s": 81.5625
+     },
+     {
+      "angle_deg": 3.34,
+      "dist_cm": 1031.1,
+      "limit_deg": 8.65,
+      "t_s": 81.875
+     },
+     {
+      "angle_deg": 3.61,
+      "dist_cm": 952.8,
+      "limit_deg": 8.65,
+      "t_s": 82.1875
+     },
+     {
+      "angle_deg": 3.93,
+      "dist_cm": 874.6,
+      "limit_deg": 8.65,
+      "t_s": 82.5
+     }
+    ],
+    "end_s": 82.5,
+    "frame_err_s": 0.02,
+    "frames": [
+     2000,
+     2062
+    ],
+    "index": 0,
+    "life_s": 2.5,
+    "name": "P06 Bee Glint 1 @80.0s",
+    "pose": {
+     "loc": [
+      21579.61251856493,
+      400000.0,
+      240.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      90.0
+     ],
+     "route_yaw": 0.0,
+     "scale": [
+      1.2750000000000001,
+      0.30000000000000004,
+      0.675
+     ],
+     "station_cm": 20079.61251856493
+    },
+    "rel_ticks": [
+     1920000,
+     1980000
+    ],
+    "t_s": 80.0
+   },
+   {
+    "camera_at_start": {
+     "focal": 35.0,
+     "loc": [
+      25099.56,
+      400000.0,
+      180.0
+     ],
+     "rot": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "route": {
+      "eye_cm": 180.0,
+      "lateral_cm": 0.0,
+      "station_cm": 25099.556835438147
+     }
+    },
+    "checks": [
+     {
+      "angle_deg": 2.29,
+      "dist_cm": 1501.2,
+      "limit_deg": 8.65,
+      "t_s": 100.0
+     },
+     {
+      "angle_deg": 2.44,
+      "dist_cm": 1407.2,
+      "limit_deg": 8.65,
+      "t_s": 100.375
+     },
+     {
+      "angle_deg": 2.62,
+      "dist_cm": 1313.1,
+      "limit_deg": 8.65,
+      "t_s": 100.75
+     },
+     {
+      "angle_deg": 2.82,
+      "dist_cm": 1219.1,
+      "limit_deg": 8.65,
+      "t_s": 101.125
+     },
+     {
+      "angle_deg": 3.06,
+      "dist_cm": 1125.1,
+      "limit_deg": 8.65,
+      "t_s": 101.5
+     },
+     {
+      "angle_deg": 3.34,
+      "dist_cm": 1031.1,
+      "limit_deg": 8.65,
+      "t_s": 101.875
+     },
+     {
+      "angle_deg": 3.67,
+      "dist_cm": 937.2,
+      "limit_deg": 8.65,
+      "t_s": 102.25
+     },
+     {
+      "angle_deg": 4.08,
+      "dist_cm": 843.3,
+      "limit_deg": 8.65,
+      "t_s": 102.625
+     },
+     {
+      "angle_deg": 4.59,
+      "dist_cm": 749.4,
+      "limit_deg": 8.65,
+      "t_s": 103.0
+     }
+    ],
+    "end_s": 103.0,
+    "frame_err_s": 0.0,
+    "frames": [
+     2500,
+     2575
+    ],
+    "index": 1,
+    "life_s": 3.0,
+    "name": "P06 Bee Glint 2 @100.0s",
+    "pose": {
+     "loc": [
+      26599.556835438147,
+      400000.0,
+      240.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      90.0
+     ],
+     "route_yaw": 0.0,
+     "scale": [
+      1.9124999999999999,
+      0.44999999999999996,
+      1.0125
+     ],
+     "station_cm": 25099.556835438147
+    },
+    "rel_ticks": [
+     2400000,
+     2472000
+    ],
+    "t_s": 100.0
+   },
+   {
+    "camera_at_start": {
+     "focal": 35.0,
+     "loc": [
+      27467.4,
+      400000.0,
+      180.0
+     ],
+     "rot": [
+      -0.0,
+      0.0,
+      0.0
+     ],
+     "route": {
+      "eye_cm": 180.0,
+      "lateral_cm": 0.0,
+      "station_cm": 27467.399269986912
+     }
+    },
+    "checks": [
+     {
+      "angle_deg": 2.29,
+      "dist_cm": 1501.2,
+      "limit_deg": 8.65,
+      "t_s": 118.0
+     },
+     {
+      "angle_deg": 2.31,
+      "dist_cm": 1489.7,
+      "limit_deg": 8.65,
+      "t_s": 118.5
+     },
+     {
+      "angle_deg": 2.33,
+      "dist_cm": 1478.2,
+      "limit_deg": 8.65,
+      "t_s": 119.0
+     },
+     {
+      "angle_deg": 2.34,
+      "dist_cm": 1466.7,
+      "limit_deg": 8.65,
+      "t_s": 119.5
+     },
+     {
+      "angle_deg": 2.36,
+      "dist_cm": 1455.1,
+      "limit_deg": 8.65,
+      "t_s": 120.0
+     },
+     {
+      "angle_deg": 2.38,
+      "dist_cm": 1443.6,
+      "limit_deg": 8.65,
+      "t_s": 120.5
+     },
+     {
+      "angle_deg": 2.4,
+      "dist_cm": 1432.1,
+      "limit_deg": 8.65,
+      "t_s": 121.0
+     },
+     {
+      "angle_deg": 2.42,
+      "dist_cm": 1420.6,
+      "limit_deg": 8.65,
+      "t_s": 121.5
+     },
+     {
+      "angle_deg": 2.44,
+      "dist_cm": 1409.1,
+      "limit_deg": 8.65,
+      "t_s": 122.0
+     }
+    ],
+    "end_s": 122.0,
+    "frame_err_s": 0.0,
+    "frames": [
+     2950,
+     3050
+    ],
+    "index": 2,
+    "life_s": 4.0,
+    "name": "P06 Bee Glint 3 @118.0s",
+    "pose": {
+     "loc": [
+      28967.399269986912,
+      400000.0,
+      240.0
+     ],
+     "rot": [
+      0.0,
+      0.0,
+      90.0
+     ],
+     "route_yaw": 0.0,
+     "scale": [
+      2.86875,
+      0.675,
+      1.51875
+     ],
+     "station_cm": 27467.399269986912
+    },
+    "rel_ticks": [
+     2832000,
+     2928000
+    ],
+    "t_s": 118.0
+   }
+  ],
+  "length_s": 126.0011,
+  "rates": {
+   "fps": 25.0,
+   "tick": 24000.0
+  },
+  "refusals": [],
+  "segment": [
+   38402392,
+   41426419
+  ],
+  "sensor_mm": 13.364999771118164,
+  "span_frames": [
+   0,
+   3150
+  ],
+  "warnings": []
+ },
+ "rig": "Passage 06 \u2014 Camera + Shadow Figures",
+ "route_len_cm": 27640.283203125,
+ "run": "P06BEEGLINTS-20261007-023031",
+ "segment": {
+  "end": 41426419,
+  "label": "Passage 6",
+  "start": 38402392
+ },
+ "sensor_mm_live": 13.364999771118164,
+ "tool": "p06_bee_glints"
+}
