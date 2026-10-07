@@ -1,0 +1,55 @@
+{
+ "run": "S3SHOREMAT2-20261007-172706",
+ "master": "/Game/InfinityStage/Dev/Generated/S3Shore/M_S3_ShoreGround_v2",
+ "mi": "/Game/InfinityStage/Dev/Generated/S3Shore/MI_S3_ShoreGround_v2",
+ "nodes": 48,
+ "edges": 66,
+ "scalars": {
+  "SandTileM": 1.5,
+  "MudTileM": 2.0,
+  "MossTileM": 1.2000000476837158,
+  "MudBlendContrast": 4.0,
+  "MossStrength": 1.0,
+  "WetDarken": 0.550000011920929,
+  "WetRoughness": 0.11999999731779099,
+  "PuddleRoughness": 0.03999999910593033,
+  "PuddleFromG": 0.8500000238418579,
+  "NormalStrength": 1.0,
+  "Specular": 0.5,
+  "SandTileM2": 4.699999809265137,
+  "SandRot2Deg": 37.0,
+  "SandOffX2": 0.3700000047683716,
+  "SandOffY2": 0.6100000143051147,
+  "BlendNoiseM": 9.0,
+  "BlendContrast": 2.0,
+  "MacroNoiseM": 14.0,
+  "MacroAlbedoAmp": 0.10000000149011612,
+  "MacroRoughAmp": 0.07999999821186066,
+  "DetailTileM": 0.3499999940395355,
+  "DetailNormalStrength": 0.4000000059604645
+ },
+ "mi_texture_set": "PJUUZ_4K",
+ "mi_textures": {
+  "SandAlbedo": "/Game/EnvironmentPacks/Megascans_4K/Surface/02_Soil_Sand_pjuuz0/pjuuz_4K_Albedo.pjuuz_4K_Albedo",
+  "SandNormalT": "/Game/EnvironmentPacks/Megascans_4K/Surface/02_Soil_Sand_pjuuz0/pjuuz_4K_Normal.pjuuz_4K_Normal",
+  "SandRoughT": "/Game/EnvironmentPacks/Megascans_4K/Surface/02_Soil_Sand_pjuuz0/pjuuz_4K_Roughness.pjuuz_4K_Roughness",
+  "MudAlbedo": "/Game/EnvironmentPacks/Megascans_4K/Surface/12_Soil_Mud_pkbc30/pkbc3_4K_Albedo.pkbc3_4K_Albedo",
+  "MudNormalT": "/Game/EnvironmentPacks/Megascans_4K/Surface/12_Soil_Mud_pkbc30/pkbc3_4K_Normal.pkbc3_4K_Normal",
+  "MudRoughT": "/Game/EnvironmentPacks/Megascans_4K/Surface/12_Soil_Mud_pkbc30/pkbc3_4K_Roughness.pkbc3_4K_Roughness",
+  "MossAlbedo": "/Game/EnvironmentPacks/MWMeadowWetlands/Textures/Grounds/TEX_MWL_GroundMoss_col.TEX_MWL_GroundMoss_col"
+ },
+ "samplers": {
+  "SandAlbedo": "SAMPLERTYPE_COLOR",
+  "SandNormalT": "SAMPLERTYPE_NORMAL",
+  "SandRoughT": "SAMPLERTYPE_LINEAR_GRAYSCALE",
+  "MudAlbedo": "SAMPLERTYPE_COLOR",
+  "MudNormalT": "SAMPLERTYPE_NORMAL",
+  "MudRoughT": "SAMPLERTYPE_LINEAR_GRAYSCALE",
+  "MossAlbedo": "SAMPLERTYPE_COLOR"
+ },
+ "v1_sha256": {
+  "E:/PussStage/Content/InfinityStage/Dev/Generated/S3Shore/M_S3_ShoreGround.uasset": "da4a8912ecc8b411b8f8be5bfbe4718532d7a2445ac976a22cd422680fbc2f31",
+  "E:/PussStage/Content/InfinityStage/Dev/Generated/S3Shore/MI_S3_ShoreGround.uasset": "626c5ffbcf47c432e80d9e6c2456de5410375a76c7064a4dc563d25eb871ff03"
+ },
+ "saved": true
+}

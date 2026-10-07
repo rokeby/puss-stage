@@ -1,0 +1,588 @@
+{
+ "schema": "s3_waves_v3_design/1",
+ "variant": "B",
+ "res_px_per_cm": 3.2768,
+ "frame": "S3 Hangar Root local cm (LANDED); u = local Y, v = height above floor top (local z 115)",
+ "palette_anchors_measured": {
+  "paper": [
+   224.0,
+   216.0,
+   205.0
+  ],
+  "coolest_sky": [
+   198.0,
+   197.0,
+   193.0
+  ],
+  "horizon_sea": [
+   187.0,
+   182.0,
+   165.0
+  ],
+  "sand": [
+   198.0,
+   186.0,
+   162.0
+  ],
+  "figure_shadow": [
+   132.0,
+   123.0,
+   111.0
+  ],
+  "coolest_sky_B_minus_R": -4.5
+ },
+ "palette_derived": {
+  "trough": [
+   41,
+   52,
+   56
+  ],
+  "body": [
+   73,
+   93,
+   91
+  ],
+  "light": [
+   111,
+   135,
+   126
+  ],
+  "glow": [
+   157,
+   172,
+   161
+  ],
+  "line": [
+   30,
+   39,
+   43
+  ],
+  "foam": [
+   224.0,
+   216.0,
+   205.0
+  ],
+  "foam_shadow": [
+   181,
+   185,
+   175
+  ],
+  "hue_deg": 176.0,
+  "sat": 0.12
+ },
+ "layers": [
+  {
+   "id": "L1_Breakers",
+   "kind": "breaker",
+   "x": 3650,
+   "peak": 106,
+   "trough": 40,
+   "period": [
+    250,
+    310
+   ],
+   "seed": 72001,
+   "curl": 1,
+   "scroll": true,
+   "variant": "B",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     176.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    642
+   ],
+   "max_height_cm": 114.0,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 8,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 9,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.05410144697335323,
+    "strokes": 3401,
+    "mean_luma_inside": 0.26222924474809645
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L1_Breakers_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L1_Breakers_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L1_Breakers_rgba.png"
+   },
+   "sha256": {
+    "mask": "505b1d1dd5f4d87b0692db35e3dfad4a189b021351a84de4ce33484bc58e20d1",
+    "art": "3586e10c79868e2bc03fe07e6c9cbd64d93f77e359cc6cf35c8dd628433f7381",
+    "rgba": "95b9ed7bb865f58e65a863f7aa66a81710e40e40330a8ede602c9d27cb87bac9"
+   }
+  },
+  {
+   "id": "L2_SwellNear",
+   "kind": "swell",
+   "x": 3695,
+   "peak": 130,
+   "trough": 80,
+   "period": [
+    420,
+    520
+   ],
+   "seed": 72002,
+   "caps": 0.3,
+   "phase": 0.55,
+   "variant": "B",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     200.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    721
+   ],
+   "max_height_cm": 131.9,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 0,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 0,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.013332402626890831,
+    "strokes": 4719,
+    "mean_luma_inside": 0.221620990710016
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L2_SwellNear_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L2_SwellNear_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L2_SwellNear_rgba.png"
+   },
+   "sha256": {
+    "mask": "e3b4ddea9277b8083c434fced7b9c26b043c8e143181f950958fdfcf5f1f2e96",
+    "art": "387f0afb8a7f37df6691ee367a5c56ffad59ee4ef96e08d6a027c75313d34511",
+    "rgba": "828ff6e1db314f5e1eb94bb41339b45a3cb842a9dac93f5a7626847e2ff554fb"
+   }
+  },
+  {
+   "id": "L3_SwellMid",
+   "kind": "swell",
+   "x": 4450,
+   "peak": 160,
+   "trough": 105,
+   "period": [
+    500,
+    620
+   ],
+   "seed": 72003,
+   "caps": 0.25,
+   "phase": 0.05,
+   "variant": "B",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     230.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    819
+   ],
+   "max_height_cm": 156.5,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 0,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 1,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.01225382881149189,
+    "strokes": 5825,
+    "mean_luma_inside": 0.2437067149827701
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L3_SwellMid_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L3_SwellMid_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L3_SwellMid_rgba.png"
+   },
+   "sha256": {
+    "mask": "30ae2ae00083fda30be6b0fdb628cb5524948d8cf8b68affe6bc08f08af6180a",
+    "art": "9825d8c49370edc48d57cc52cb5e70a29fc9afecd0cdf07eaa59ba8d8f29dd82",
+    "rgba": "6b59978d79be1a0089c3728f9053344fad522991d2cd77e591b7da4d394f3d01"
+   }
+  },
+  {
+   "id": "L4_SwellFar",
+   "kind": "swell",
+   "x": 4495,
+   "peak": 178,
+   "trough": 122,
+   "period": [
+    580,
+    720
+   ],
+   "seed": 72004,
+   "caps": 0.25,
+   "phase": 0.62,
+   "variant": "B",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     248.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    878
+   ],
+   "max_height_cm": 166.8,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 0,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 0,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.007299101622428298,
+    "strokes": 6356,
+    "mean_luma_inside": 0.2380407544426097
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L4_SwellFar_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L4_SwellFar_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L4_SwellFar_rgba.png"
+   },
+   "sha256": {
+    "mask": "d28d47e2066a0a28fce1db9b8fc87c44c5f6c30a13220ff82524957a00e002a0",
+    "art": "c8bfbea7c95f8994ff76dd170ab753889da60be344eda30017a013e09b0e8868",
+    "rgba": "96d56f0409425ffc2e8e0e30bc7339688acc71dacf168ee03b6ade00148c040c"
+   }
+  },
+  {
+   "id": "L5_Rollers",
+   "kind": "breaker",
+   "x": 5250,
+   "peak": 218,
+   "trough": 152,
+   "period": [
+    460,
+    580
+   ],
+   "seed": 72005,
+   "curl": -1,
+   "small": true,
+   "scroll": true,
+   "variant": "B",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     288.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    1009
+   ],
+   "max_height_cm": 226.4,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 4,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 2,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.010518683814500277,
+    "strokes": 7696,
+    "mean_luma_inside": 0.26647616295546844
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L5_Rollers_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L5_Rollers_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L5_Rollers_rgba.png"
+   },
+   "sha256": {
+    "mask": "d9af4d102cbe22afb77b39f744abad360193c75b2ebbb94f1a9d5544e9afbc6e",
+    "art": "f4378befbee5f40615537c3fb1a5db0283fdbc2d0bf050c6ff2f47be3d131fca",
+    "rgba": "83a68c529d445f2416fa59779f1875698c7359d1de868d958464ddb9e125a041"
+   }
+  },
+  {
+   "id": "L6_Foam",
+   "kind": "foam",
+   "x": 5295,
+   "peak": 262,
+   "trough": 180,
+   "period": [
+    280,
+    400
+   ],
+   "seed": 72006,
+   "variant": "B",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     332.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    1153
+   ],
+   "max_height_cm": 265.2,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 27,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 22,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.12976316975489027,
+    "strokes": 9165,
+    "mean_luma_inside": 0.3276726679611482
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L6_Foam_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L6_Foam_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\B\\L6_Foam_rgba.png"
+   },
+   "sha256": {
+    "mask": "1c687142f45fc336aadcd55f240644b800624b3d8c6dd60f1c1d9f6514c1e4cd",
+    "art": "380b5f5116a7dfb16966429519e14bef78b9b2216e761362a9bb5dd7edb0b5d2",
+    "rgba": "f9ac8038abf34cac90acc74b10551cb049b4237067f66840b5b19efe57c4c2ec"
+   }
+  }
+ ],
+ "sightlines": [
+  {
+   "id": "L1_Breakers",
+   "x": 3650,
+   "max_height_cm": 114.0,
+   "shots": {
+    "B04": {
+     "elev_deg": -0.97,
+     "clears_front_by_deg": null
+    },
+    "B05": {
+     "elev_deg": -1.87,
+     "clears_front_by_deg": null
+    },
+    "B06": {
+     "elev_deg": -0.45,
+     "clears_front_by_deg": null
+    },
+    "B07": {
+     "elev_deg": -0.74,
+     "clears_front_by_deg": null
+    },
+    "B09": {
+     "elev_deg": -2.25,
+     "clears_front_by_deg": null
+    },
+    "B11": {
+     "elev_deg": 0.31,
+     "clears_front_by_deg": null
+    }
+   }
+  },
+  {
+   "id": "L2_SwellNear",
+   "x": 3695,
+   "max_height_cm": 131.9,
+   "shots": {
+    "B04": {
+     "elev_deg": 0.57,
+     "clears_front_by_deg": 1.54
+    },
+    "B05": {
+     "elev_deg": -0.75,
+     "clears_front_by_deg": 1.11
+    },
+    "B06": {
+     "elev_deg": 0.84,
+     "clears_front_by_deg": 1.28
+    },
+    "B07": {
+     "elev_deg": 0.44,
+     "clears_front_by_deg": 1.18
+    },
+    "B09": {
+     "elev_deg": -1.55,
+     "clears_front_by_deg": 0.71
+    },
+    "B11": {
+     "elev_deg": 1.62,
+     "clears_front_by_deg": 1.3
+    }
+   }
+  },
+  {
+   "id": "L3_SwellMid",
+   "x": 4450,
+   "max_height_cm": 156.5,
+   "shots": {
+    "B04": {
+     "elev_deg": 1.24,
+     "clears_front_by_deg": 0.68
+    },
+    "B05": {
+     "elev_deg": 0.38,
+     "clears_front_by_deg": 1.13
+    },
+    "B06": {
+     "elev_deg": 1.33,
+     "clears_front_by_deg": 0.5
+    },
+    "B07": {
+     "elev_deg": 1.09,
+     "clears_front_by_deg": 0.65
+    },
+    "B09": {
+     "elev_deg": -0.45,
+     "clears_front_by_deg": 1.1
+    },
+    "B11": {
+     "elev_deg": 1.74,
+     "clears_front_by_deg": 0.12
+    }
+   }
+  },
+  {
+   "id": "L4_SwellFar",
+   "x": 4495,
+   "max_height_cm": 166.8,
+   "shots": {
+    "B04": {
+     "elev_deg": 1.6,
+     "clears_front_by_deg": 0.36
+    },
+    "B05": {
+     "elev_deg": 0.7,
+     "clears_front_by_deg": 0.32
+    },
+    "B06": {
+     "elev_deg": 1.66,
+     "clears_front_by_deg": 0.33
+    },
+    "B07": {
+     "elev_deg": 1.41,
+     "clears_front_by_deg": 0.32
+    },
+    "B09": {
+     "elev_deg": -0.2,
+     "clears_front_by_deg": 0.25
+    },
+    "B11": {
+     "elev_deg": 2.07,
+     "clears_front_by_deg": 0.32
+    }
+   }
+  },
+  {
+   "id": "L5_Rollers",
+   "x": 5250,
+   "max_height_cm": 226.4,
+   "shots": {
+    "B04": {
+     "elev_deg": 2.58,
+     "clears_front_by_deg": 0.98
+    },
+    "B05": {
+     "elev_deg": 1.83,
+     "clears_front_by_deg": 1.13
+    },
+    "B06": {
+     "elev_deg": 2.57,
+     "clears_front_by_deg": 0.91
+    },
+    "B07": {
+     "elev_deg": 2.37,
+     "clears_front_by_deg": 0.96
+    },
+    "B09": {
+     "elev_deg": 0.93,
+     "clears_front_by_deg": 1.13
+    },
+    "B11": {
+     "elev_deg": 2.86,
+     "clears_front_by_deg": 0.79
+    }
+   }
+  },
+  {
+   "id": "L6_Foam",
+   "x": 5295,
+   "max_height_cm": 265.2,
+   "shots": {
+    "B04": {
+     "elev_deg": 3.5,
+     "clears_front_by_deg": 0.92
+    },
+    "B05": {
+     "elev_deg": 2.65,
+     "clears_front_by_deg": 0.82
+    },
+    "B06": {
+     "elev_deg": 3.44,
+     "clears_front_by_deg": 0.87
+    },
+    "B07": {
+     "elev_deg": 3.22,
+     "clears_front_by_deg": 0.85
+    },
+    "B09": {
+     "elev_deg": 1.62,
+     "clears_front_by_deg": 0.68
+    },
+    "B11": {
+     "elev_deg": 3.74,
+     "clears_front_by_deg": 0.88
+    }
+   }
+  }
+ ],
+ "generator": "Saved\\CodexConductor\\S3Waves\\s3_waves_v3_design.py",
+ "generator_sha256": "db23876ec556f4119ec7d300a32784f15addf1f38fef948046726d13f331fe36"
+}

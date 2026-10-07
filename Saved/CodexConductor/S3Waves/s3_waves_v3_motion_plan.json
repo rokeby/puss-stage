@@ -1,0 +1,23 @@
+{
+ "schema": "s3_waves_v3_motion/1 (SPEC ONLY - no keys written)",
+ "sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03 (same asset the S3.WaveSplit tool keys; re-read fps/playback/vamp live first)",
+ "gate": "start at the uplight strike (+10 s in the 24 fps root), as s3_wave_split_apply.py:28,84-89 does",
+ "key_step_frames": 3, "interpolation": "LINEAR (as _add_track, s3_wave_split_apply.py:432-449)",
+ "loop_rule": "every period must divide the vamp length (VAMP_RANGE 3480..4200 = 720 f = 30 s, s3_wave_split_apply.py:36) so the vamp seam is identical at both ends; recompute if Klara's relength moved the vamp",
+ "pieces_rule": "P1 and P2 of a layer get IDENTICAL Y/Z offsets; roll is about the LAYER centre (u=0), so each piece also gets dZ = u_centre*sin(roll)",
+ "layers": [
+  {"id": "L1_Breakers",  "period_s": 7.5, "sway_y_cm": 45,  "dir": 1,  "phase": 0.00, "bob_z_cm": 6,  "roll_deg": 0.35, "flicker": "claw flaps (Flap WPO)"},
+  {"id": "L2_SwellNear", "period_s": 10,  "sway_y_cm": 70,  "dir": -1, "phase": 0.21, "bob_z_cm": 8,  "roll_deg": 0.35},
+  {"id": "L3_SwellMid",  "period_s": 15,  "sway_y_cm": 85,  "dir": 1,  "phase": 0.47, "bob_z_cm": 9,  "roll_deg": 0.30},
+  {"id": "L4_SwellFar",  "period_s": 10,  "sway_y_cm": 95,  "dir": -1, "phase": 0.66, "bob_z_cm": 10, "roll_deg": 0.30},
+  {"id": "L5_Rollers",   "period_s": 15,  "sway_y_cm": 110, "dir": 1,  "phase": 0.13, "bob_z_cm": 10, "roll_deg": 0.25},
+  {"id": "L6_Foam",      "period_s": 6,   "sway_y_cm": 35,  "dir": -1, "phase": 0.38, "bob_z_cm": 4,  "roll_deg": 0.0, "flicker": "froth/spray flaps (Flap WPO)"}
+ ],
+ "formulas": {
+  "y": "y_rest + dir*A*sin(2*pi*(t/T + phase))",
+  "z": "z_rest - B*(1 - cos(4*pi*(t/T + phase)))/2   (down only, 0..-B; two dips per sway = it rolls at each turnaround; skirt 20 cm hides it)",
+  "roll_x_deg": "R*sin(2*pi*(t/T + phase) - pi/2)   (quarter-period lag behind the sway)"
+ },
+ "limits": {"max_y_overhang_cm": "100 strip overhang + 110 sway = 210 into/behind the side walls (split tool allowed 200: MAX_CONTROLLED_OVERHANG_CM, s3_wave_split_apply.py:44) -> clamp L5 to 100 if that rule stands",
+            "roll_end_lift_cm": "u_end 1100 * sin(0.35 deg) = 6.7 < 20 cm skirt"}
+}

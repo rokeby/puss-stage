@@ -1,0 +1,393 @@
+{
+ "variant": "A",
+ "res_px_per_cm": 3.2768,
+ "pieces": [
+  {
+   "layer": "L1_Breakers",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L1Breakers_P1",
+   "u_range_cm": [
+    -1100.0,
+    189.1
+   ],
+   "cut_u_cm": 39.1,
+   "width_cm": 1289.1,
+   "height_cm_incl_skirt": 132.1,
+   "px_cols": [
+    0,
+    4224
+   ],
+   "mount_local": [
+    3650.0,
+    -455.5,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710011,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\Aged --stencil-text \"PUSS S3 _L1Breakers_P1\" --height-cm 132.1 --width-cm 1289.1 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L1Breakers_P1 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1 --seed 710011 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\T_S3_WaveV3_L1Breakers_P1_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\T_S3_WaveV3_L1Breakers_P1_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\T_S3_WaveV3_L1Breakers_P1_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\S3_WaveV3_L1Breakers_P1_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\Aged --height-cm 132.1 --side L --name S3_WaveV3_L1Breakers_P1 --asset-name S3_WaveV3_L1Breakers_P1 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\SM_FlatV3_S3_WaveV3_L1Breakers_P1.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\T_S3_WaveV3_L1Breakers_P1_SkinColor.png --expected-height-cm 132.1 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P1\\SM_FlatV3_S3_WaveV3_L1Breakers_P1_validation.json"
+   ]
+  },
+  {
+   "layer": "L1_Breakers",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L1Breakers_P2",
+   "u_range_cm": [
+    -110.9,
+    1100.0
+   ],
+   "cut_u_cm": 39.1,
+   "width_cm": 1210.9,
+   "height_cm_incl_skirt": 131.5,
+   "px_cols": [
+    3241,
+    7209
+   ],
+   "mount_local": [
+    3665.0,
+    494.5,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710012,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\Aged --stencil-text \"PUSS S3 _L1Breakers_P2\" --height-cm 131.5 --width-cm 1210.9 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L1Breakers_P2 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2 --seed 710012 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\T_S3_WaveV3_L1Breakers_P2_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\T_S3_WaveV3_L1Breakers_P2_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\T_S3_WaveV3_L1Breakers_P2_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\S3_WaveV3_L1Breakers_P2_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\Aged --height-cm 131.5 --side L --name S3_WaveV3_L1Breakers_P2 --asset-name S3_WaveV3_L1Breakers_P2 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\SM_FlatV3_S3_WaveV3_L1Breakers_P2.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\T_S3_WaveV3_L1Breakers_P2_SkinColor.png --expected-height-cm 131.5 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L1Breakers_P2\\SM_FlatV3_S3_WaveV3_L1Breakers_P2_validation.json"
+   ]
+  },
+  {
+   "layer": "L2_SwellNear",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L2SwellNear_P1",
+   "u_range_cm": [
+    -1100.0,
+    148.2
+   ],
+   "cut_u_cm": -1.8,
+   "width_cm": 1248.2,
+   "height_cm_incl_skirt": 139.2,
+   "px_cols": [
+    0,
+    4090
+   ],
+   "mount_local": [
+    3695.0,
+    -475.9,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710021,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\Aged --stencil-text \"PUSS S3 L2SwellNear_P1\" --height-cm 139.2 --width-cm 1248.2 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L2SwellNear_P1 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1 --seed 710021 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\T_S3_WaveV3_L2SwellNear_P1_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\T_S3_WaveV3_L2SwellNear_P1_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\T_S3_WaveV3_L2SwellNear_P1_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\S3_WaveV3_L2SwellNear_P1_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\Aged --height-cm 139.2 --side L --name S3_WaveV3_L2SwellNear_P1 --asset-name S3_WaveV3_L2SwellNear_P1 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\SM_FlatV3_S3_WaveV3_L2SwellNear_P1.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\T_S3_WaveV3_L2SwellNear_P1_SkinColor.png --expected-height-cm 139.2 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P1\\SM_FlatV3_S3_WaveV3_L2SwellNear_P1_validation.json"
+   ]
+  },
+  {
+   "layer": "L2_SwellNear",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L2SwellNear_P2",
+   "u_range_cm": [
+    -151.8,
+    1100.0
+   ],
+   "cut_u_cm": -1.8,
+   "width_cm": 1251.8,
+   "height_cm_incl_skirt": 139.2,
+   "px_cols": [
+    3107,
+    7209
+   ],
+   "mount_local": [
+    3710.0,
+    474.1,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710022,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\Aged --stencil-text \"PUSS S3 L2SwellNear_P2\" --height-cm 139.2 --width-cm 1251.8 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L2SwellNear_P2 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2 --seed 710022 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\T_S3_WaveV3_L2SwellNear_P2_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\T_S3_WaveV3_L2SwellNear_P2_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\T_S3_WaveV3_L2SwellNear_P2_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\S3_WaveV3_L2SwellNear_P2_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\Aged --height-cm 139.2 --side L --name S3_WaveV3_L2SwellNear_P2 --asset-name S3_WaveV3_L2SwellNear_P2 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\SM_FlatV3_S3_WaveV3_L2SwellNear_P2.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\T_S3_WaveV3_L2SwellNear_P2_SkinColor.png --expected-height-cm 139.2 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L2SwellNear_P2\\SM_FlatV3_S3_WaveV3_L2SwellNear_P2_validation.json"
+   ]
+  },
+  {
+   "layer": "L3_SwellMid",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L3SwellMid_P1",
+   "u_range_cm": [
+    -1100.0,
+    40.8
+   ],
+   "cut_u_cm": -109.2,
+   "width_cm": 1140.8,
+   "height_cm_incl_skirt": 146.2,
+   "px_cols": [
+    0,
+    3738
+   ],
+   "mount_local": [
+    4450.0,
+    -529.6,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710031,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\Aged --stencil-text \"PUSS S3 _L3SwellMid_P1\" --height-cm 146.2 --width-cm 1140.8 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L3SwellMid_P1 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1 --seed 710031 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\T_S3_WaveV3_L3SwellMid_P1_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\T_S3_WaveV3_L3SwellMid_P1_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\T_S3_WaveV3_L3SwellMid_P1_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\S3_WaveV3_L3SwellMid_P1_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\Aged --height-cm 146.2 --side L --name S3_WaveV3_L3SwellMid_P1 --asset-name S3_WaveV3_L3SwellMid_P1 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\SM_FlatV3_S3_WaveV3_L3SwellMid_P1.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\T_S3_WaveV3_L3SwellMid_P1_SkinColor.png --expected-height-cm 146.2 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P1\\SM_FlatV3_S3_WaveV3_L3SwellMid_P1_validation.json"
+   ]
+  },
+  {
+   "layer": "L3_SwellMid",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L3SwellMid_P2",
+   "u_range_cm": [
+    -259.2,
+    1100.0
+   ],
+   "cut_u_cm": -109.2,
+   "width_cm": 1359.2,
+   "height_cm_incl_skirt": 156.2,
+   "px_cols": [
+    2755,
+    7209
+   ],
+   "mount_local": [
+    4465.0,
+    420.4,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710032,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\Aged --stencil-text \"PUSS S3 _L3SwellMid_P2\" --height-cm 156.2 --width-cm 1359.2 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L3SwellMid_P2 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2 --seed 710032 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\T_S3_WaveV3_L3SwellMid_P2_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\T_S3_WaveV3_L3SwellMid_P2_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\T_S3_WaveV3_L3SwellMid_P2_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\S3_WaveV3_L3SwellMid_P2_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\Aged --height-cm 156.2 --side L --name S3_WaveV3_L3SwellMid_P2 --asset-name S3_WaveV3_L3SwellMid_P2 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\SM_FlatV3_S3_WaveV3_L3SwellMid_P2.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\T_S3_WaveV3_L3SwellMid_P2_SkinColor.png --expected-height-cm 156.2 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L3SwellMid_P2\\SM_FlatV3_S3_WaveV3_L3SwellMid_P2_validation.json"
+   ]
+  },
+  {
+   "layer": "L4_SwellFar",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L4SwellFar_P1",
+   "u_range_cm": [
+    -1100.0,
+    269.6
+   ],
+   "cut_u_cm": 119.6,
+   "width_cm": 1369.6,
+   "height_cm_incl_skirt": 157.2,
+   "px_cols": [
+    0,
+    4488
+   ],
+   "mount_local": [
+    4495.0,
+    -415.2,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710041,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\Aged --stencil-text \"PUSS S3 _L4SwellFar_P1\" --height-cm 157.2 --width-cm 1369.6 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L4SwellFar_P1 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1 --seed 710041 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\T_S3_WaveV3_L4SwellFar_P1_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\T_S3_WaveV3_L4SwellFar_P1_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\T_S3_WaveV3_L4SwellFar_P1_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\S3_WaveV3_L4SwellFar_P1_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\Aged --height-cm 157.2 --side L --name S3_WaveV3_L4SwellFar_P1 --asset-name S3_WaveV3_L4SwellFar_P1 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\SM_FlatV3_S3_WaveV3_L4SwellFar_P1.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\T_S3_WaveV3_L4SwellFar_P1_SkinColor.png --expected-height-cm 157.2 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P1\\SM_FlatV3_S3_WaveV3_L4SwellFar_P1_validation.json"
+   ]
+  },
+  {
+   "layer": "L4_SwellFar",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L4SwellFar_P2",
+   "u_range_cm": [
+    -30.4,
+    1100.0
+   ],
+   "cut_u_cm": 119.6,
+   "width_cm": 1130.4,
+   "height_cm_incl_skirt": 164.2,
+   "px_cols": [
+    3505,
+    7209
+   ],
+   "mount_local": [
+    4510.0,
+    534.8,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710042,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\Aged --stencil-text \"PUSS S3 _L4SwellFar_P2\" --height-cm 164.2 --width-cm 1130.4 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L4SwellFar_P2 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2 --seed 710042 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\T_S3_WaveV3_L4SwellFar_P2_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\T_S3_WaveV3_L4SwellFar_P2_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\T_S3_WaveV3_L4SwellFar_P2_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\S3_WaveV3_L4SwellFar_P2_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\Aged --height-cm 164.2 --side L --name S3_WaveV3_L4SwellFar_P2 --asset-name S3_WaveV3_L4SwellFar_P2 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\SM_FlatV3_S3_WaveV3_L4SwellFar_P2.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\T_S3_WaveV3_L4SwellFar_P2_SkinColor.png --expected-height-cm 164.2 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L4SwellFar_P2\\SM_FlatV3_S3_WaveV3_L4SwellFar_P2_validation.json"
+   ]
+  },
+  {
+   "layer": "L5_Rollers",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L5Rollers_P1",
+   "u_range_cm": [
+    -1100.0,
+    153.7
+   ],
+   "cut_u_cm": 3.7,
+   "width_cm": 1253.7,
+   "height_cm_incl_skirt": 198.1,
+   "px_cols": [
+    0,
+    4108
+   ],
+   "mount_local": [
+    5250.0,
+    -473.2,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710051,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\Aged --stencil-text \"PUSS S3 3_L5Rollers_P1\" --height-cm 198.1 --width-cm 1253.7 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L5Rollers_P1 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1 --seed 710051 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\T_S3_WaveV3_L5Rollers_P1_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\T_S3_WaveV3_L5Rollers_P1_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\T_S3_WaveV3_L5Rollers_P1_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\S3_WaveV3_L5Rollers_P1_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\Aged --height-cm 198.1 --side L --name S3_WaveV3_L5Rollers_P1 --asset-name S3_WaveV3_L5Rollers_P1 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\SM_FlatV3_S3_WaveV3_L5Rollers_P1.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\T_S3_WaveV3_L5Rollers_P1_SkinColor.png --expected-height-cm 198.1 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P1\\SM_FlatV3_S3_WaveV3_L5Rollers_P1_validation.json"
+   ]
+  },
+  {
+   "layer": "L5_Rollers",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L5Rollers_P2",
+   "u_range_cm": [
+    -146.3,
+    1100.0
+   ],
+   "cut_u_cm": 3.7,
+   "width_cm": 1246.3,
+   "height_cm_incl_skirt": 200.5,
+   "px_cols": [
+    3125,
+    7209
+   ],
+   "mount_local": [
+    5265.0,
+    476.8,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710052,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\Aged --stencil-text \"PUSS S3 3_L5Rollers_P2\" --height-cm 200.5 --width-cm 1246.3 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L5Rollers_P2 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2 --seed 710052 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\T_S3_WaveV3_L5Rollers_P2_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\T_S3_WaveV3_L5Rollers_P2_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\T_S3_WaveV3_L5Rollers_P2_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\S3_WaveV3_L5Rollers_P2_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\Aged --height-cm 200.5 --side L --name S3_WaveV3_L5Rollers_P2 --asset-name S3_WaveV3_L5Rollers_P2 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\SM_FlatV3_S3_WaveV3_L5Rollers_P2.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\T_S3_WaveV3_L5Rollers_P2_SkinColor.png --expected-height-cm 200.5 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L5Rollers_P2\\SM_FlatV3_S3_WaveV3_L5Rollers_P2_validation.json"
+   ]
+  },
+  {
+   "layer": "L6_Foam",
+   "piece": "P1",
+   "asset": "SM_FlatV3_S3_WaveV3_L6Foam_P1",
+   "u_range_cm": [
+    -1100.0,
+    152.4
+   ],
+   "cut_u_cm": 2.4,
+   "width_cm": 1252.4,
+   "height_cm_incl_skirt": 215.8,
+   "px_cols": [
+    0,
+    4104
+   ],
+   "mount_local": [
+    5295.0,
+    -473.8,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710061,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\Aged --stencil-text \"PUSS S3 veV3_L6Foam_P1\" --height-cm 215.8 --width-cm 1252.4 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L6Foam_P1 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1 --seed 710061 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\T_S3_WaveV3_L6Foam_P1_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\T_S3_WaveV3_L6Foam_P1_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\T_S3_WaveV3_L6Foam_P1_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\S3_WaveV3_L6Foam_P1_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\Aged --height-cm 215.8 --side L --name S3_WaveV3_L6Foam_P1 --asset-name S3_WaveV3_L6Foam_P1 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\SM_FlatV3_S3_WaveV3_L6Foam_P1.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\T_S3_WaveV3_L6Foam_P1_SkinColor.png --expected-height-cm 215.8 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P1\\SM_FlatV3_S3_WaveV3_L6Foam_P1_validation.json"
+   ]
+  },
+  {
+   "layer": "L6_Foam",
+   "piece": "P2",
+   "asset": "SM_FlatV3_S3_WaveV3_L6Foam_P2",
+   "u_range_cm": [
+    -147.6,
+    1100.0
+   ],
+   "cut_u_cm": 2.4,
+   "width_cm": 1247.6,
+   "height_cm_incl_skirt": 220.9,
+   "px_cols": [
+    3121,
+    7209
+   ],
+   "mount_local": [
+    5310.0,
+    476.2,
+    95.0
+   ],
+   "color_px": [
+    4096,
+    1024
+   ],
+   "seed": 710062,
+   "commands": [
+    "D:\\PussStageTools\\FlatV3\\venv\\Scripts\\python.exe E:\\PussStage\\Tools\\FlatV3\\build_skin.py --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\art.png --older-poster D:\\PussStageSources\\FlatV3\\P04\\met_377854\\original.jpg --paper-displacement E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Displacement.jpg --paper-roughness E:\\PussStage\\DerivedAssets\\TextureLibrary\\Paper\\Paper003\\Paper003_4K-JPG_Roughness.jpg --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary --aged-output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\Aged --stencil-text \"PUSS S3 veV3_L6Foam_P2\" --height-cm 220.9 --width-cm 1247.6 --color-width 4096 --color-height 1024 --asset-name S3_WaveV3_L6Foam_P2 --output E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2 --seed 710062 --peel-percent 1.0 --peel-profile bottom-heavy",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\mask.png --art E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\T_S3_WaveV3_L6Foam_P2_SkinColor.png --skin-mask E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\T_S3_WaveV3_L6Foam_P2_SkinMask.png --skin-normal E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\T_S3_WaveV3_L6Foam_P2_SkinNormal.png --flaps E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\S3_WaveV3_L6Foam_P2_flaps.json --aged-texture-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\Aged --height-cm 220.9 --side L --name S3_WaveV3_L6Foam_P2 --asset-name S3_WaveV3_L6Foam_P2 --mount wave-row --deterministic-triangulation --triangulate-export --output-dir E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2 --texture-root E:\\PussStage\\DerivedAssets\\TextureLibrary",
+    "\"C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe\" --background --factory-startup --python E:\\PussStage\\Tools\\FlatV3\\build_v3_flat.py -- --validate-fbx E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\SM_FlatV3_S3_WaveV3_L6Foam_P2.fbx --kind wave --skin-color E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\T_S3_WaveV3_L6Foam_P2_SkinColor.png --expected-height-cm 220.9 --minimum-width-m 12.0 --validation-out E:\\PussStage\\DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\pieces\\S3_WaveV3_L6Foam_P2\\SM_FlatV3_S3_WaveV3_L6Foam_P2_validation.json"
+   ]
+  }
+ ],
+ "rules": {
+  "mount_z_local": 95.0,
+  "why_z": "mask bottom = skirt bottom (20 cm below floor top); origin is bottom-centre",
+  "rotation": [
+   0,
+   0,
+   0
+  ],
+  "scale": [
+   1,
+   1,
+   1
+  ],
+  "front_faces": "-X (toward the cameras)"
+ }
+}

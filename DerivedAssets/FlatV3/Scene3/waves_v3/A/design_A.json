@@ -1,0 +1,586 @@
+{
+ "schema": "s3_waves_v3_design/1",
+ "variant": "A",
+ "res_px_per_cm": 3.2768,
+ "frame": "S3 Hangar Root local cm (LANDED); u = local Y, v = height above floor top (local z 115)",
+ "palette_anchors_measured": {
+  "paper": [
+   224.0,
+   216.0,
+   205.0
+  ],
+  "coolest_sky": [
+   198.0,
+   197.0,
+   193.0
+  ],
+  "horizon_sea": [
+   187.0,
+   182.0,
+   165.0
+  ],
+  "sand": [
+   198.0,
+   186.0,
+   162.0
+  ],
+  "figure_shadow": [
+   132.0,
+   123.0,
+   111.0
+  ],
+  "coolest_sky_B_minus_R": -4.5
+ },
+ "palette_derived": {
+  "trough": [
+   31,
+   45,
+   56
+  ],
+  "body": [
+   59,
+   76,
+   92
+  ],
+  "light": [
+   97,
+   126,
+   135
+  ],
+  "glow": [
+   144,
+   168,
+   168
+  ],
+  "line": [
+   20,
+   28,
+   38
+  ],
+  "foam": [
+   224.0,
+   216.0,
+   205.0
+  ],
+  "foam_shadow": [
+   176,
+   182,
+   178
+  ],
+  "hue_deg": 208.0,
+  "sat": 0.22
+ },
+ "layers": [
+  {
+   "id": "L1_Breakers",
+   "kind": "breaker",
+   "x": 3650,
+   "peak": 100,
+   "trough": 40,
+   "period": [
+    230,
+    290
+   ],
+   "seed": 71001,
+   "curl": 1,
+   "variant": "A",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     170.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    623
+   ],
+   "max_height_cm": 112.0,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 11,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 51,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.05217031627828008,
+    "strokes": 3357,
+    "mean_luma_inside": 0.23206704228807146
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L1_Breakers_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L1_Breakers_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L1_Breakers_rgba.png"
+   },
+   "sha256": {
+    "mask": "cbfecc335823cf97f2615d7bf9443831bea7d3316691fce1abd2f580dde51954",
+    "art": "a35fc2268ce59e3c9f48b81adca6e9d37a5436c4135a530464e76e0d6e84910b",
+    "rgba": "87aa8dbc30d3a1a2e587063c0540427a5630e06bd013792f483ef605c1806be5"
+   }
+  },
+  {
+   "id": "L2_SwellNear",
+   "kind": "swell",
+   "x": 3695,
+   "peak": 120,
+   "trough": 76,
+   "period": [
+    380,
+    460
+   ],
+   "seed": 71002,
+   "caps": 0.45,
+   "phase": 0.31,
+   "variant": "A",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     190.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    688
+   ],
+   "max_height_cm": 119.2,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 0,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 0,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.010575675190831269,
+    "strokes": 4329,
+    "mean_luma_inside": 0.1876378627879156
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L2_SwellNear_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L2_SwellNear_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L2_SwellNear_rgba.png"
+   },
+   "sha256": {
+    "mask": "01ee91433119676c13d77ebfffb8e6faa9ac4ef6b0e27c03ffa4f5303d1ad9af",
+    "art": "8eb0b06aabd449e42a876ae0bd459ff2fb19140bc73f347c95eb8e9c29d95e80",
+    "rgba": "d9a0b086709b11e1c5ab32e907a35fb7ef24cbbe3ab09701afde8dd3899943a3"
+   }
+  },
+  {
+   "id": "L3_SwellMid",
+   "kind": "swell",
+   "x": 4450,
+   "peak": 138,
+   "trough": 94,
+   "period": [
+    460,
+    580
+   ],
+   "seed": 71003,
+   "caps": 0.35,
+   "phase": 0.77,
+   "variant": "A",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     208.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    747
+   ],
+   "max_height_cm": 136.3,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 0,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 1,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.010617764658385872,
+    "strokes": 5025,
+    "mean_luma_inside": 0.20910891935948012
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L3_SwellMid_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L3_SwellMid_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L3_SwellMid_rgba.png"
+   },
+   "sha256": {
+    "mask": "3748d05cb14ac6dde7531bae2d44713f09ef6c3b41a861cc3dad7ee8452d1d94",
+    "art": "e4a1bd3007b0f5ce062ea4f11e8af9a29e20397b5d886ade159b50264166d551",
+    "rgba": "451590e64d1d37d81ea82b4be6f6b3b34240b145aa33ae11c68aed68afc66480"
+   }
+  },
+  {
+   "id": "L4_SwellFar",
+   "kind": "swell",
+   "x": 4495,
+   "peak": 152,
+   "trough": 106,
+   "period": [
+    540,
+    660
+   ],
+   "seed": 71004,
+   "caps": 0.3,
+   "phase": 0.12,
+   "variant": "A",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     222.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    793
+   ],
+   "max_height_cm": 144.2,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 0,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 0,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.011001712345029961,
+    "strokes": 5634,
+    "mean_luma_inside": 0.21148350292586318
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L4_SwellFar_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L4_SwellFar_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L4_SwellFar_rgba.png"
+   },
+   "sha256": {
+    "mask": "398fad548932093449b25d4b043ac6782641b969e6ffd9df3d8121b4a64fe123",
+    "art": "04aec68f375b147865a8ee9e9ae1b9ec6bc74408c71c5fe90c4bfe220a30bbdb",
+    "rgba": "9d9b4c942bd2be212f3dca48f66ad8225e4ba74c1d2bd62f79d995db0e4beed4"
+   }
+  },
+  {
+   "id": "L5_Rollers",
+   "kind": "breaker",
+   "x": 5250,
+   "peak": 172,
+   "trough": 126,
+   "period": [
+    400,
+    520
+   ],
+   "seed": 71005,
+   "curl": -1,
+   "small": true,
+   "variant": "A",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     242.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    859
+   ],
+   "max_height_cm": 180.4,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 5,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 3,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.012247826432177495,
+    "strokes": 6428,
+    "mean_luma_inside": 0.23698397928387516
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L5_Rollers_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L5_Rollers_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L5_Rollers_rgba.png"
+   },
+   "sha256": {
+    "mask": "06cf264d09e213491d117e87bc351d579023259d54781c0d851f00b7808a74d2",
+    "art": "9c073537fa7741b65ca0ec1520ffa953efe092a31ab93495c46c7f3efa7fec3e",
+    "rgba": "22c01aa5d34f9ba28f23d427174c7af339a7ca337c0c1a2bd7c7b113d66a2758"
+   }
+  },
+  {
+   "id": "L6_Foam",
+   "kind": "foam",
+   "x": 5295,
+   "peak": 200,
+   "trough": 142,
+   "period": [
+    260,
+    380
+   ],
+   "seed": 71006,
+   "variant": "A",
+   "canvas_cm": {
+    "u": [
+     -1100.0,
+     1100.0
+    ],
+    "v": [
+     -20.0,
+     270.0
+    ]
+   },
+   "res_px_per_cm": 3.2768,
+   "size_px": [
+    7209,
+    950
+   ],
+   "max_height_cm": 201.0,
+   "cut_gates": {
+    "components": 1,
+    "holes_kept": 24,
+    "sub3cm_holes_filled": 0,
+    "open_close_kernel_px": 11,
+    "erode_dilate_px_lost": 37,
+    "pass": true
+   },
+   "paint": {
+    "foam_coverage": 0.1629543487478615,
+    "strokes": 7425,
+    "mean_luma_inside": 0.32020798419422586
+   },
+   "files": {
+    "mask": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L6_Foam_mask.png",
+    "art": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L6_Foam_art.png",
+    "rgba": "DerivedAssets\\FlatV3\\Scene3\\waves_v3\\A\\L6_Foam_rgba.png"
+   },
+   "sha256": {
+    "mask": "d1eb57df70b45e6c599f6638ed872e2910e527bb69234189d918fc46de586e5f",
+    "art": "6a4e388d6dc3c04381c892fb5ab43338fd0d85ab68c85a191d39b22a0db3b7b2",
+    "rgba": "e4dd07dce10fdb8251292d62cef7eddedf0c3dff90988236823bcc6fd4d44138"
+   }
+  }
+ ],
+ "sightlines": [
+  {
+   "id": "L1_Breakers",
+   "x": 3650,
+   "max_height_cm": 112.0,
+   "shots": {
+    "B04": {
+     "elev_deg": -1.15,
+     "clears_front_by_deg": null
+    },
+    "B05": {
+     "elev_deg": -1.99,
+     "clears_front_by_deg": null
+    },
+    "B06": {
+     "elev_deg": -0.6,
+     "clears_front_by_deg": null
+    },
+    "B07": {
+     "elev_deg": -0.88,
+     "clears_front_by_deg": null
+    },
+    "B09": {
+     "elev_deg": -2.33,
+     "clears_front_by_deg": null
+    },
+    "B11": {
+     "elev_deg": 0.16,
+     "clears_front_by_deg": null
+    }
+   }
+  },
+  {
+   "id": "L2_SwellNear",
+   "x": 3695,
+   "max_height_cm": 119.2,
+   "shots": {
+    "B04": {
+     "elev_deg": -0.48,
+     "clears_front_by_deg": 0.67
+    },
+    "B05": {
+     "elev_deg": -1.49,
+     "clears_front_by_deg": 0.5
+    },
+    "B06": {
+     "elev_deg": -0.06,
+     "clears_front_by_deg": 0.54
+    },
+    "B07": {
+     "elev_deg": -0.37,
+     "clears_front_by_deg": 0.5
+    },
+    "B09": {
+     "elev_deg": -2.0,
+     "clears_front_by_deg": 0.32
+    },
+    "B11": {
+     "elev_deg": 0.68,
+     "clears_front_by_deg": 0.52
+    }
+   }
+  },
+  {
+   "id": "L3_SwellMid",
+   "x": 4450,
+   "max_height_cm": 136.3,
+   "shots": {
+    "B04": {
+     "elev_deg": 0.45,
+     "clears_front_by_deg": 0.92
+    },
+    "B05": {
+     "elev_deg": -0.28,
+     "clears_front_by_deg": 1.2
+    },
+    "B06": {
+     "elev_deg": 0.59,
+     "clears_front_by_deg": 0.65
+    },
+    "B07": {
+     "elev_deg": 0.39,
+     "clears_front_by_deg": 0.76
+    },
+    "B09": {
+     "elev_deg": -0.94,
+     "clears_front_by_deg": 1.06
+    },
+    "B11": {
+     "elev_deg": 0.98,
+     "clears_front_by_deg": 0.3
+    }
+   }
+  },
+  {
+   "id": "L4_SwellFar",
+   "x": 4495,
+   "max_height_cm": 144.2,
+   "shots": {
+    "B04": {
+     "elev_deg": 0.74,
+     "clears_front_by_deg": 0.29
+    },
+    "B05": {
+     "elev_deg": -0.03,
+     "clears_front_by_deg": 0.26
+    },
+    "B06": {
+     "elev_deg": 0.86,
+     "clears_front_by_deg": 0.26
+    },
+    "B07": {
+     "elev_deg": 0.65,
+     "clears_front_by_deg": 0.26
+    },
+    "B09": {
+     "elev_deg": -0.74,
+     "clears_front_by_deg": 0.21
+    },
+    "B11": {
+     "elev_deg": 1.24,
+     "clears_front_by_deg": 0.26
+    }
+   }
+  },
+  {
+   "id": "L5_Rollers",
+   "x": 5250,
+   "max_height_cm": 180.4,
+   "shots": {
+    "B04": {
+     "elev_deg": 1.41,
+     "clears_front_by_deg": 0.67
+    },
+    "B05": {
+     "elev_deg": 0.8,
+     "clears_front_by_deg": 0.82
+    },
+    "B06": {
+     "elev_deg": 1.46,
+     "clears_front_by_deg": 0.6
+    },
+    "B07": {
+     "elev_deg": 1.3,
+     "clears_front_by_deg": 0.65
+    },
+    "B09": {
+     "elev_deg": 0.1,
+     "clears_front_by_deg": 0.84
+    },
+    "B11": {
+     "elev_deg": 1.73,
+     "clears_front_by_deg": 0.49
+    }
+   }
+  },
+  {
+   "id": "L6_Foam",
+   "x": 5295,
+   "max_height_cm": 201.0,
+   "shots": {
+    "B04": {
+     "elev_deg": 1.9,
+     "clears_front_by_deg": 0.49
+    },
+    "B05": {
+     "elev_deg": 1.24,
+     "clears_front_by_deg": 0.44
+    },
+    "B06": {
+     "elev_deg": 1.92,
+     "clears_front_by_deg": 0.46
+    },
+    "B07": {
+     "elev_deg": 1.74,
+     "clears_front_by_deg": 0.45
+    },
+    "B09": {
+     "elev_deg": 0.47,
+     "clears_front_by_deg": 0.37
+    },
+    "B11": {
+     "elev_deg": 2.19,
+     "clears_front_by_deg": 0.46
+    }
+   }
+  }
+ ],
+ "generator": "Saved\\CodexConductor\\S3Waves\\s3_waves_v3_design.py",
+ "generator_sha256": "db23876ec556f4119ec7d300a32784f15addf1f38fef948046726d13f331fe36"
+}
