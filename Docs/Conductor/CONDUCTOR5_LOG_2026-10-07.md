@@ -69,3 +69,13 @@
   LevelSequenceActor.get_sequence_player (absent in 5.8 Python) → transport time; v5 harness baseline pinned to 8cb2830
   (HEAD-compare skipped after ae84495 and a v4→v5 routing mutation survived). Harnesses OK again. Pendulum APPLY waits
   for the v5 order (after reveal v5 + pre-roll).
+- **Gary (~18:00 UTC):** closing the editor himself for the build; S1/S2/S4 float hold → measure, then show him
+  before/after stills before anything is saved; S4 entry → stills first, then apply; at-cut drop of SpotLight/2/4 →
+  "maybe we don't strike up, we just arrive in the dark?" → v5 preview with NO strikes (glide in the dark, hard cut
+  into her shot which opens dark and lights per her keys). Pre-roll kept unless the stills say otherwise.
+- **S1/S2/S4 exposure measured [meas]** (own PIE, EXPW-S<n>-<t>): own pinned weight S1 1.0@20 s → 0.0@40/150 s;
+  S2 1.0@20 → 0.0@40/75; S4 1.0@20 → 0.629@40/150 (camera outside at 40 s). No camera PP overrides; no PPV in her
+  levels. PIE-only bench (pie_exposure_bench.py, no save): S1 60 s luma now 136 vs pinned 35; S1 150 s 113 vs 31;
+  S2 60 s 32 vs 3. Her daylight cinematic reads right with today's (global) exposure; pinned crushes it.
+  Recommendation to Gary: DON'T hold exposure in S1/S2 (S3 fix is ours only). Stills EXPBENCH-20261007/.
+- Directing relayed Gary: "the editor is free, conductor can have it now" — but it is still OPEN, so the build waits.

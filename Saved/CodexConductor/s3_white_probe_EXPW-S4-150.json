@@ -1,0 +1,811 @@
+{
+ "run": "EXPW-S4-150",
+ "frame": 32163889,
+ "camera": [
+  11627.302961781133,
+  239730.4217822619,
+  100.0
+ ],
+ "view_target": "CineCameraActor3",
+ "ppv": [
+  {
+   "label": "PostProcessVolume",
+   "enabled": true,
+   "unbound": true,
+   "priority": 0.0,
+   "blend_weight": 1.0,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": true,
+    "auto_exposure_bias": "0.0",
+    "override_auto_exposure_bias": true,
+    "auto_exposure_min_brightness": "-3.0",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "-3.0",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "False",
+    "override_auto_exposure_apply_physical_camera_exposure": true,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "S4 Hangar Pinned Exposure",
+   "enabled": true,
+   "unbound": false,
+   "priority": 0.0,
+   "blend_weight": 0.6286980509757996,
+   "hidden": false,
+   "bounds_contains_camera": true,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "1.0",
+    "override_auto_exposure_bias": false,
+    "auto_exposure_min_brightness": "0.5",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "0.5",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "S1 Hangar Pinned Exposure",
+   "enabled": true,
+   "unbound": false,
+   "priority": 0.0,
+   "blend_weight": 0.0,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "1.0",
+    "override_auto_exposure_bias": false,
+    "auto_exposure_min_brightness": "0.5",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "0.5",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "S6 Hangar Pinned Exposure",
+   "enabled": true,
+   "unbound": false,
+   "priority": 0.0,
+   "blend_weight": 0.0,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "1.0",
+    "override_auto_exposure_bias": false,
+    "auto_exposure_min_brightness": "0.5",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "0.5",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "S5 Hangar Pinned Exposure",
+   "enabled": true,
+   "unbound": false,
+   "priority": 0.0,
+   "blend_weight": 1.0,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "1.0",
+    "override_auto_exposure_bias": false,
+    "auto_exposure_min_brightness": "0.5",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "0.5",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "S2 Hangar Pinned Exposure",
+   "enabled": true,
+   "unbound": false,
+   "priority": 0.0,
+   "blend_weight": 0.0,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "1.0",
+    "override_auto_exposure_bias": false,
+    "auto_exposure_min_brightness": "0.5",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "0.5",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "S3 Hangar Pinned Exposure",
+   "enabled": true,
+   "unbound": false,
+   "priority": 0.0,
+   "blend_weight": 0.0,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "1.0",
+    "override_auto_exposure_bias": false,
+    "auto_exposure_min_brightness": "3.0",
+    "override_auto_exposure_min_brightness": true,
+    "auto_exposure_max_brightness": "3.0",
+    "override_auto_exposure_max_brightness": true,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "0.675000011920929",
+    "override_bloom_intensity": false
+   }
+  },
+  {
+   "label": "P04 Strobe Ghost Volume (PPV_StrobeGhost_Subtle)",
+   "enabled": true,
+   "unbound": false,
+   "priority": 10.0,
+   "blend_weight": 0.06386338919401169,
+   "hidden": false,
+   "bounds_contains_camera": false,
+   "fields": {
+    "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+    "override_auto_exposure_method": false,
+    "auto_exposure_bias": "0.4000000059604645",
+    "override_auto_exposure_bias": true,
+    "auto_exposure_min_brightness": "-10.0",
+    "override_auto_exposure_min_brightness": false,
+    "auto_exposure_max_brightness": "20.0",
+    "override_auto_exposure_max_brightness": false,
+    "auto_exposure_apply_physical_camera_exposure": "True",
+    "override_auto_exposure_apply_physical_camera_exposure": false,
+    "camera_iso": "100.0",
+    "override_camera_iso": false,
+    "camera_shutter_speed": "60.0",
+    "override_camera_shutter_speed": false,
+    "depth_of_field_fstop": "4.0",
+    "override_depth_of_field_fstop": false,
+    "bloom_intensity": "2.0",
+    "override_bloom_intensity": true
+   }
+  }
+ ],
+ "camera_pp": {
+  "comp": "CameraComponent",
+  "weight": 1.0,
+  "fields": {
+   "auto_exposure_method": "<AutoExposureMethod.AEM_HISTOGRAM: 0>",
+   "override_auto_exposure_method": false,
+   "auto_exposure_bias": "1.0",
+   "override_auto_exposure_bias": false,
+   "auto_exposure_min_brightness": "-10.0",
+   "override_auto_exposure_min_brightness": false,
+   "auto_exposure_max_brightness": "20.0",
+   "override_auto_exposure_max_brightness": false,
+   "auto_exposure_apply_physical_camera_exposure": "True",
+   "override_auto_exposure_apply_physical_camera_exposure": false,
+   "camera_iso": "100.0",
+   "override_camera_iso": false,
+   "camera_shutter_speed": "60.0",
+   "override_camera_shutter_speed": false,
+   "depth_of_field_fstop": "4.0",
+   "override_depth_of_field_fstop": false,
+   "bloom_intensity": "0.675000011920929",
+   "override_bloom_intensity": false
+  }
+ },
+ "lights": [
+  {
+   "actor": "P04 SCORE B15 P04_COLD_BREAK BEAM_R",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 12000.0,
+   "visible": true,
+   "dist_cm": 5075,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B20 P04_COLD_BREAK BEAM_R",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 10800.0,
+   "visible": true,
+   "dist_cm": 2647,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL BEAM_R",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 6930.0,
+   "visible": true,
+   "dist_cm": 3622,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 Wing 017 Blink Spot",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 1738.5,
+   "visible": true,
+   "dist_cm": 4391,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B12 INDUSTRIAL PRACTICAL_TUBE",
+   "comp": "LightComponent0",
+   "class": "RectLightComponent",
+   "intensity": 1320.0,
+   "visible": true,
+   "dist_cm": 5993,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B16 MOODY PRACTICAL_L",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 1200.0,
+   "visible": true,
+   "dist_cm": 3921,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B21 MOODY PRACTICAL_L",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 1200.0,
+   "visible": true,
+   "dist_cm": 1463,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B17 MOODY PRACTICAL_L",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 1050.0,
+   "visible": true,
+   "dist_cm": 3425,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL PRACTICAL_CLAMP",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 990.0,
+   "visible": true,
+   "dist_cm": 3005,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B16 MOODY LOW_SIDE_L_KEY",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 720.0,
+   "visible": true,
+   "dist_cm": 4535,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B21 MOODY LOW_SIDE_L_KEY",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 720.0,
+   "visible": true,
+   "dist_cm": 2392,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B15 P04_COLD_BREAK PRACTICAL_CLAMP",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 700.0,
+   "visible": true,
+   "dist_cm": 4473,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B17 MOODY LOW_SIDE_L_KEY",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 630.0,
+   "visible": true,
+   "dist_cm": 4172,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B20 P04_COLD_BREAK PRACTICAL_CLAMP",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 630.0,
+   "visible": true,
+   "dist_cm": 2010,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL LOW_SIDE_L_KEY",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 576.0,
+   "visible": true,
+   "dist_cm": 3596,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B15 P04_COLD_BREAK LOW_SIDE_L_KEY",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 520.0,
+   "visible": true,
+   "dist_cm": 5034,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B20 P04_COLD_BREAK LOW_SIDE_L_KEY",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 468.0,
+   "visible": true,
+   "dist_cm": 2667,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L1",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 1353,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L2",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 1826,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L3",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 2474,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L4",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 3192,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L5",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 3941,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L6",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 4707,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical L7",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 5483,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R1",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 1816,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R2",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 2191,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R3",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 2755,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R4",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 3414,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R5",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 4123,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R6",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 4861,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Practical R7",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 234.6666717529297,
+   "visible": true,
+   "dist_cm": 5615,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B13 GAP PRACTICAL_GLIMMER",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 160.0,
+   "visible": true,
+   "dist_cm": 5415,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B19 GAP PRACTICAL_GLIMMER",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 160.0,
+   "visible": true,
+   "dist_cm": 2436,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "SpotLight",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 160.0,
+   "visible": true,
+   "dist_cm": 1077,
+   "level": "/Game/UEDPIE_0_L_KK_children"
+  },
+  {
+   "actor": "SpotLight2",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 160.0,
+   "visible": true,
+   "dist_cm": 1903,
+   "level": "/Game/UEDPIE_0_L_KK_children"
+  },
+  {
+   "actor": "SpotLight3",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 160.0,
+   "visible": true,
+   "dist_cm": 609,
+   "level": "/Game/UEDPIE_0_L_KK_children"
+  },
+  {
+   "actor": "Spot_MainLight_window",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 160.0,
+   "visible": true,
+   "dist_cm": 717,
+   "level": "/Game/UEDPIE_0_L_KK_children"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL LOW_SIDE_R_FILL",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 144.0,
+   "visible": true,
+   "dist_cm": 3775,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B15 P04_COLD_BREAK LOW_SIDE_R_FILL",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 130.0,
+   "visible": true,
+   "dist_cm": 5165,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B20 P04_COLD_BREAK LOW_SIDE_R_FILL",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 117.0,
+   "visible": true,
+   "dist_cm": 2909,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B12 INDUSTRIAL LOW_SIDE_L",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 114.0,
+   "visible": true,
+   "dist_cm": 5863,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "Infinity Stage - Structure 04",
+   "comp": "StructureUnderpassTubeLight_61",
+   "class": "RectLightComponent",
+   "intensity": 112.5,
+   "visible": true,
+   "dist_cm": 3310,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "Infinity Stage - Structure 04",
+   "comp": "StructureUnderpassTubeLight_62",
+   "class": "RectLightComponent",
+   "intensity": 112.5,
+   "visible": true,
+   "dist_cm": 2439,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "Infinity Stage - Structure 04",
+   "comp": "StructureUnderpassTubeLight_68",
+   "class": "RectLightComponent",
+   "intensity": 112.5,
+   "visible": true,
+   "dist_cm": 4432,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "Infinity Stage - Structure 04",
+   "comp": "StructureUnderpassTubeLight_69",
+   "class": "RectLightComponent",
+   "intensity": 112.5,
+   "visible": true,
+   "dist_cm": 2763,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "SpotLight4",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 108.40155792236328,
+   "visible": true,
+   "dist_cm": 888,
+   "level": "/Game/UEDPIE_0_L_KK_children"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL TOP_L",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 99.0,
+   "visible": true,
+   "dist_cm": 3743,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B15 P04_COLD_BREAK TOP_L",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 90.0,
+   "visible": true,
+   "dist_cm": 5123,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B20 P04_COLD_BREAK TOP_L",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 81.0,
+   "visible": true,
+   "dist_cm": 2911,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B12 INDUSTRIAL LOW_SIDE_R",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 78.0,
+   "visible": true,
+   "dist_cm": 5938,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL TOP_R",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 72.0,
+   "visible": true,
+   "dist_cm": 3761,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "S4 Ghost Light",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 60.0,
+   "visible": true,
+   "dist_cm": 3045,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B16 MOODY LOW_SIDE_R_FILL",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 45.0,
+   "visible": true,
+   "dist_cm": 4692,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B21 MOODY LOW_SIDE_R_FILL",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 45.0,
+   "visible": true,
+   "dist_cm": 2170,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B15 P04_COLD_BREAK PRACTICAL_BULB_DEAD",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 40.0,
+   "visible": true,
+   "dist_cm": 4520,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B18 THEATRICAL PRACTICAL_BULB_DEAD",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 40.0,
+   "visible": true,
+   "dist_cm": 3078,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B20 P04_COLD_BREAK PRACTICAL_BULB_DEAD",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 40.0,
+   "visible": true,
+   "dist_cm": 2119,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "P04 SCORE B17 MOODY LOW_SIDE_R_FILL",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 39.375,
+   "visible": true,
+   "dist_cm": 4060,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  },
+  {
+   "actor": "SpotLight7",
+   "comp": "LightComponent0",
+   "class": "SpotLightComponent",
+   "intensity": 17.02589988708496,
+   "visible": true,
+   "dist_cm": 2434,
+   "level": "/Game/UEDPIE_0_L_KK_children"
+  },
+  {
+   "actor": "S4 Lattice Glow 1-1",
+   "comp": "LightComponent0",
+   "class": "PointLightComponent",
+   "intensity": 11.733333587646484,
+   "visible": true,
+   "dist_cm": 2932,
+   "level": "/Game/InfinityStage/Dev/Maps/UEDPIE_0_L_InfinityStage_V1VerticalSlice"
+  }
+ ],
+ "light_count_considered": 115
+}
