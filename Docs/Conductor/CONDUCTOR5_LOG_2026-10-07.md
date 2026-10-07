@@ -106,3 +106,10 @@
   4 h: no other zero-fill. git fsck clean. Lost: W&T curtain production bake (background Blender), shore PIE-split
   agent (re-dispatched), a suite run (which logged UnderpassFenceVariantsAreSeededAndWeighted red, share 0.547 —
   UNEXPLAINED, passed before and after). **Suite after repair: 223/0** (SuiteAfterBuild-20261007-Rerun2.log).
+- **Full snapshot** D:\PussStageBackups\FullSnapshot-20261007-1458 (robocopy exit 1 = copied, 88,413 files, 0 failed,
+  129.5 GB; excl. Intermediate/DerivedDataCache/Saved/Logs/.claude/worktrees). **D: now 2 GB free** — asked Gary to delete
+  a superseded snapshot (rec. FullSnapshot-20260925-1853, 63 GB); conductor does not delete.
+- Barbed wire: import nw DRY BWIMP-20261007-145848 clean; apply DRY refused IMPORT_NW_NOT_DONE (expected), mutated=0.
+  Import refused DIRTY_AT_START: Gary editing the level (his, keep) → waiting for his save.
+- Shore PIE bench (7a8c9d4, 41/41) borrows the PIE deck copy; marble bench reworked to an editor-world pool
+  (009efb6, 67/67) — begin_deferred_actor_spawn_from_class absent in 5.8 Python [meas, 3 + 5 Oct AttributeErrors].
