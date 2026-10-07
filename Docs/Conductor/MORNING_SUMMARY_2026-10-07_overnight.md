@@ -46,3 +46,18 @@ approved AND has a clean DRY with no open look question; hold the rest here.
 - Morning build: W&T mechanism sound patch a7c89c5 (no Passage would sound — MechanismSound disabled everywhere,
   TOPPLE-20261007-022206) + the fence patch when ready.
 - W&T: curtain unfurl bake (offline Blender), P06 topple variant C, P06 flats import.
+
+## Update ~06:40 UTC (after Gary's last three answers)
+- Gary: girders apply tonight (lamps may overlap); bees into the Choreo; dead bulbs -> warm orange/white/pink mix, all passages.
+- **Girders apply STOPPED** (GV3A-20261007-023402): Structure 02 hanging lines 35 -> 50 vs predicted [32,32]; rolled back in
+  memory, Don't-Save restart, nothing saved. Predictor is off even for the before-count; agent fixing it. Meshes are imported.
+- **P06 bee glints APPLIED** (P06BEEGLINTS-20261007-023505) as a sub-track in LS_Choreo_Passage_6 — **tell the cueing stream**
+  (Gary's OK, they were offline).
+- **Smoke pots x9 APPLIED** (FXSMOKE 20261007-023816): P03 bays 8/13/18, 3 each in P01/P04. Plume visible in P03 stills.
+  BP still carries the greybox Apparatus cube.
+- **P04 rain**: Rain2 RENDERS in UE5.8 (P04RAINPIE-20261007-063520, controls valid). Not placed yet (needs a placement call).
+- **Barbed wire meshes imported** (BWIMP-20261007-023744); held C++ patch Scripts/patches/2026-10-07_fence_top_row_wire_and_posts.patch
+  for the morning build, then barbed_apply.py.
+- **P02 dark explained** [record + code]: P02 SCORE lamps strike at 650 cm with unstruck scale 0 (SetVisibility false),
+  B18-19 EXTINGUISH after passing -> everything ahead in view is off. Fix in progress: strike 2500 cm + HOLD for B12+.
+- W&T has the slot for P06 topple variant (6-wing domino at ~37 s + one sliding wing), end drapes P01/02/03/05 + picture ASSIGN.
