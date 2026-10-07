@@ -1,5 +1,5 @@
 {
-  "mode": "DRY",
+  "mode": "ADD",
   "cue_label": "P04 Wing 009",
   "target_local_cm": [
     4290.0,
@@ -14,9 +14,9 @@
   "wing_number": 9,
   "max_frame_disagreement_cm": 5.0,
   "source_light_regex": "^P04 SCORE B\\d{2} \\S+ PRACTICAL_L$",
-  "intensity_cd": 1200.0,
+  "intensity_cd": 80.0,
   "intensity_units": "LUMENS",
-  "attenuation_cm": 1500.0,
+  "attenuation_cm": 600.0,
   "source_radius_cm": 3.0,
   "cast_shadows": false,
   "color_rgb": [
@@ -30,7 +30,14 @@
     0.0,
     1.0
   ],
-  "ack_records": [],
+  "ack_records": [
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_looks_revert_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\lighting_scores_record_P04.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\opening_own_rail_record.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\passage_slow_walk_record_P04.json",
+    "E:\\PussStage\\Saved\\CodexConductor\\rig_lamp_drop_record_P04.json"
+  ],
   "allow_dirty": [],
-  "steady": true
+  "steady": true,
+  "confirm": "ADD P04GLINT"
 }
