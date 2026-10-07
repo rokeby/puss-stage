@@ -100,6 +100,46 @@ def t_import_gates():
     check("gate.lens_sign_provable_all_lanterns", all(C.lens_sign_provable(TABLE[n]) for n in C.LANTERNS))
     sym = dict(TABLE["SM_Lantern_Fresnel"], bounds_min=[-15.0, -1, -1], bounds_max=[15.0, 1, 1])
     check("gate.NEG_symmetric_not_provable", not C.lens_sign_provable(sym))
+    t_import_gates_ue_frame()
+
+
+# LIVE readbacks of 7 Oct (measured; meshy_import_record.json fixtures/*/readback and the Opal batch-9 error line).
+LIVE_READBACK = {
+    "SM_Bulb_A60_Clear": ([-3.094158887863159, -3.0557007789611816, -10.999999046325684], [3.0850377082824707, 3.1020114421844482, 0.0]),
+    "SM_Bulb_A60_Frost": ([-3.021758794784546, -2.971123218536377, -11.0], [2.93741774559021, 2.9764256477355957, 0.0]),
+    "SM_Bulb_A60_Opal": ([-3.095762014389038, -2.869434356689453, -11.0], [2.9768362045288086, 3.1943347454071045, 0.0]),
+    "SM_Lantern_1950s": ([-17.226783752441406, -19.69287109375, -22.806930541992188], [17.77321434020996, 19.693084716796875, 37.9805793762207]),
+    "SM_Lantern_Birdie": ([-6.5363078117370605, -5.450952053070068, -5.254597187042236], [5.471714019775391, 5.4667158126831055, 14.33769416809082]),
+    "SM_Lantern_Fresnel": ([-13.200056076049805, -11.901470184326172, -17.724143981933594], [17.079185485839844, 11.897184371948242, 31.54977798461914]),
+    "SM_Lantern_FresnelDoors": ([-12.61971664428711, -14.626211166381836, -20.049285888671875], [28.46531105041504, 14.619633674621582, 28.502994537353516]),
+    "SM_Lantern_ParCan": ([-18.519805908203125, -15.461647033691406, -17.108396530151367], [21.480192184448242, 15.483345031738281, 27.612457275390625]),
+    "SM_Lantern_Profile": ([-23.786338806152344, -12.897412300109863, -12.64315414428711], [36.472259521484375, 12.7891845703125, 24.896461486816406]),
+}
+
+
+def t_import_gates_ue_frame():
+    """Fixture bounds are UE frame (Y negated from the Blender report). Replays every live readback; a mesh that is
+    really mirrored in Y in UE (readback == raw Blender bounds) must still fail where the Y range is asymmetric."""
+    for name, (lo, hi) in LIVE_READBACK.items():
+        rb = dict(good_rb(TABLE[name]), bounds_min=list(lo), bounds_max=list(hi))
+        check("gate.POS_live_readback_%s" % name, C.check_import_readback(TABLE[name], rb) == [],
+              str(C.check_import_readback(TABLE[name], rb)))
+    raw = C.load_fixture_table(check_files=False)   # same table; recover the Blender frame by inverting the map
+    opal = TABLE["SM_Bulb_A60_Opal"]
+    blo, bhi = C.blender_to_ue_bounds(opal["bounds_min"], opal["bounds_max"])   # involution: back to Blender frame
+    check("gate.ue_frame_is_involution", C.blender_to_ue_bounds(blo, bhi) == (opal["bounds_min"], opal["bounds_max"])
+          and raw["SM_Bulb_A60_Opal"]["bounds_min"] == opal["bounds_min"])
+    check("gate.opal_ue_y_matches_negated_report", opal["bounds_min"][1] == -2.87 and opal["bounds_max"][1] == 3.19)
+    rb = dict(good_rb(opal), bounds_min=blo, bounds_max=bhi)   # what a genuinely Y-mirrored UE mesh reads back
+    check("gate.NEG_opal_y_mirrored_fails", any(x.startswith("BOUNDS") for x in C.check_import_readback(opal, rb)))
+    cage = TABLE["SM_Bulb_ST64_Cage"]
+    clo, chi = C.blender_to_ue_bounds(cage["bounds_min"], cage["bounds_max"])
+    rb = dict(good_rb(cage), bounds_min=clo, bounds_max=chi)
+    check("gate.NEG_cage_y_mirrored_fails", any(x.startswith("BOUNDS") for x in C.check_import_readback(cage, rb)))
+    f = TABLE["SM_Lantern_Profile"]; lo, hi = LIVE_READBACK["SM_Lantern_Profile"]
+    rb = dict(good_rb(f), bounds_min=[-hi[0], lo[1], lo[2]], bounds_max=[-lo[0], hi[1], hi[2]])
+    check("gate.NEG_live_profile_x_flipped_fails", any(x.startswith("BOUNDS") for x in C.check_import_readback(f, rb)))
+    check("gate.lens_centroid_y_zero_all_lanterns", all(abs(TABLE[n]["lens_centroid"][1]) < 1e-9 for n in C.LANTERNS))
 
 
 def t_import_plan():

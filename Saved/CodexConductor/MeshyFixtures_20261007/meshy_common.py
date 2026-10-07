@@ -138,6 +138,16 @@ def mi_path(name, part):
     return "%s/MI_%s_%s" % (MAT_DIR, name, part)
 
 
+def blender_to_ue_point(p):
+    """Blender (right-handed) -> UE FBX import (left-handed): Y negated, X and Z unchanged."""
+    return [float(p[0]), -float(p[1]), float(p[2])]
+
+
+def blender_to_ue_bounds(lo, hi):
+    """Bounds under the Y negation: min/max swap on Y only."""
+    return [float(lo[0]), -float(hi[1]), float(lo[2])], [float(hi[0]), -float(lo[1]), float(hi[2])]
+
+
 def load_fixture_table(report_path=REPORT_PATH, check_files=True):
     """{name: fixture} for exactly the 13 cleaned assets. check_files: every FBX matches its recorded sha256 and every
     texture exists (a re-export after the report is a refusal, not a silent import)."""
@@ -158,7 +168,12 @@ def load_fixture_table(report_path=REPORT_PATH, check_files=True):
             require(sha256_file(fbx) == rec["fbx_sha256"], "FBX_SHA_MISMATCH|" + name)
             for path in textures.values():
                 require(os.path.isfile(path), "TEXTURE_MISSING|" + path)
+        # The report is in BLENDER frame; UE's FBX import negates Y (right- to left-handed, X and Z unchanged), so a
+        # Blender Y range [a, b] reads back in UE as [-b, -a]. Measured 7 Oct: SM_Bulb_A60_Opal (Y sum -0.32 cm)
+        # read back Y [-2.869, 3.194] against Blender [-3.19, 2.87]; the 8 earlier imports passed only because their
+        # |Y sum| <= 0.04 cm, under the 0.2 cm tolerance. Every fixture coordinate below is therefore UE frame.
         lo, hi = [list(map(float, v)) for v in rec["final_bounds_cm"]]
+        lo, hi = blender_to_ue_bounds(lo, hi)
         size = [float(v) for v in rec["final_size_cm"]]
         slots = [s["name"] for s in sorted(rec["slots"], key=lambda s: s["index"])]
         fixture = {"name": name, "class": cls, "fbx": fbx, "fbx_sha256": rec["fbx_sha256"], "textures": textures,
@@ -176,7 +191,7 @@ def load_fixture_table(report_path=REPORT_PATH, check_files=True):
                 fixture["mis"]["Glass"] = mi_path(name, "Glass")
         else:
             lens = [float(v) for v in rec["classification"]["lens_centroid_cm"]]
-            fixture["lens_centroid"] = lens
+            fixture["lens_centroid"] = blender_to_ue_point(lens)
             fixture["lens_diameter"] = float(rec["classification"]["lens_diameter_cm"])
             fixture["mis"] = {"Lens": mi_path(name, "Lens"), "Metal": mi_path(name, "Metal")}
         expected_suffixes = (["_Glow", "_Metal"] + (["_Glass"] if len(slots) == 3 else [])) if cls == "bulb" \

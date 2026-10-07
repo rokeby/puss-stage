@@ -1,0 +1,62 @@
+{
+  "args": {
+    "ack_records": [],
+    "batch": "next",
+    "bulb_glow": {
+      "colour": [
+        1.0,
+        0.62,
+        0.3
+      ],
+      "intensity": 1.5
+    },
+    "confirm": "APPLY MESHYIMPORT",
+    "glass": {
+      "opacity": 0.22,
+      "roughness": 0.06,
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "lens_glow": {
+      "colour": [
+        1.0,
+        0.85,
+        0.65
+      ],
+      "intensity": 0.6
+    },
+    "max_texture_size": {
+      "bulb": 1024,
+      "housing": 2048
+    },
+    "mode": "APPLY"
+  },
+  "asset": "SM_Bulb_C35_Clear",
+  "batch": "SM_Bulb_C35_Clear",
+  "context": {
+    "census": {
+      "content": [],
+      "maps": []
+    },
+    "pie": false,
+    "project": "e:\\pussstage",
+    "project_ok": true
+  },
+  "created": [
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_C35_Clear_Glass",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_C35_Clear_Glow",
+    "/Game/InfinityStage/Lighting/Fixtures/Materials/MI_SM_Bulb_C35_Clear_Metal",
+    "/Game/InfinityStage/Lighting/Fixtures/Meshes/SM_Bulb_C35_Clear",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_C35_Clear_BaseColor",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_C35_Clear_Metallic",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_C35_Clear_Normal",
+    "/Game/InfinityStage/Lighting/Fixtures/Textures/T_SM_Bulb_C35_Clear_Roughness"
+  ],
+  "mode": "APPLY",
+  "ok": true,
+  "remaining": "SM_Bulb_G95_Clear",
+  "run": "20261007-080326"
+}

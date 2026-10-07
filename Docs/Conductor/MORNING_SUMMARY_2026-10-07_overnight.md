@@ -73,3 +73,12 @@ approved AND has a clean DRY with no open look question; hold the rest here.
   sizes makes bulbs 2–4× real; bodies sit up to 14.3 m from their lights in P06 (6 Oct rig-pattern moves didn't carry
   them) — placing bulbs ON their lights visibly moves them; P05 would get lanterns behind 185 practicals.
   Questions: bulb size (real vs old), move bodies onto lights?, lantern per passage OK or wait for C++?
+- **P02 second half FIXED** (P02BRIGHTEN 20261007-025331): strike 650→2500 cm, ramp 600, DECAY/EXTINGUISH→HOLD on 57 rows
+  B12+ (BEAM_R skipped per Gary's no-L-R note) + the intensity set; luma 60 % 3→29, 80 % 0.05→5.1 [meas].
+- **Dead bulbs warm** (DEADBULBSWARM 20261007-024628): 77 rows P02 18 / P04 6 / P06 53 (orange 28, warm white 31, pink 18).
+- **P03 end drape HUNG** (PED-20261007-080249): the floor was never high — S3's hangar hinge sits at −120 (box rises from
+  below); drape offset 120 cm to the real floor. Picture ASSIGN P03 asked of W&T in their slot.
+- **Meshy: all 13 fixtures imported** (MESHYIMPORT 20261007-080344; the Opal stop was a Y-frame error in the gate, fixed).
+  Gary 7 Oct: swap = REAL size, ONTO their lights, ONE lantern per passage. Swap runs after W&T's P06 slot (P06 last).
+- W&T long slot (from ~08:05 UTC): P06 V3 wing import (15), topple REVERT, relayout 64→29 rows (6-slab chain slamming
+  37.0 s against a kept FenceTarp brace), topple still+chain. Then conductor: re-materialize Structure 06, Meshy swap.

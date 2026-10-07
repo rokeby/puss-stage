@@ -1,0 +1,2949 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PrePassageEndDrape-S3-PED-20261007-080249",
+ "backup_files": [
+  {
+   "backup": "E:/PussStage/Backups\\PrePassageEndDrape-S3-PED-20261007-080249\\LS_S3_HangarRise.uasset",
+   "sha256": "9130a497df8f863246b19fda08cf4048f2e81a139bc22f295b48b95fa1bea0a7",
+   "source": "E:/PussStage/Content\\InfinityStage\\RigAtmos\\LS_S3_HangarRise.uasset"
+  },
+  {
+   "backup": "E:/PussStage/Backups\\PrePassageEndDrape-S3-PED-20261007-080249\\L_InfinityStage_V1VerticalSlice.umap",
+   "sha256": "da158709be4a073a1ee94378a5d3cdaacc504755a8c94b978d86d0198a56fb9f",
+   "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+  }
+ ],
+ "binding_guid": "0BA7FDA04F4C7D5C213C06A9EBF4C793",
+ "cue_guid": "D8F61D9DF94F1E6080CC8D9028EE49D3",
+ "decided_by": "Gary 7 Oct (own answer, conductor session): hang the P03 end drape offset to the real floor (S3 hinge at -120)",
+ "gc_row": [
+  -177,
+  124,
+  23200,
+  0
+ ],
+ "plan": {
+  "boxes_landed": {
+   "hang": [
+    [
+     -528.5999999999985,
+     -940.0,
+     140.0
+    ],
+    [
+     -448.1999999999989,
+     940.0,
+     1140.0
+    ]
+   ],
+   "pile": [
+    [
+     -677.7999999999993,
+     -1084.8999999999942,
+     48.7
+    ],
+    [
+     -20.0,
+     1084.8999999999942,
+     219.1
+    ]
+   ]
+  },
+  "cache": {
+   "bake_id": "final13_opening_a06_w188",
+   "duration_s": 11.0,
+   "path": "/Game/Scenes/Curtain/Baked/GC_CurtainDrop_Opening",
+   "release_in_cache_s": 1.0
+  },
+  "camera": {
+   "at_release_landed": [
+    -1790.2995325202646,
+    0.0,
+    300.0
+   ],
+   "coverage_at_release": {
+    "crossing_hidden": 0.47298623440720233,
+    "distance_cm": 1261.699532520266,
+    "frame_h_cm": 337.25227926706503,
+    "frame_w_cm": 599.5596236292325,
+    "horizontal": 1.0,
+    "vertical_above_floor": 0.9744222940397044
+   },
+   "focal_at_release": 50.0,
+   "stop_landed": [
+    -500.0,
+    0.0,
+    300.0
+   ],
+   "yaw_at_release": 0.0
+  },
+  "digest": "3eb3c4b7f3757235ce87",
+  "drape_world": {
+   "loc": [
+    10934.672750000002,
+    160000.0,
+    0.0
+   ],
+   "pitch": 0.0,
+   "roll": 0.0,
+   "yaw": 0.0
+  },
+  "floor": {
+   "floor_top_z": 0.5,
+   "hem_drop_cm": 0.0,
+   "hem_drop_window_cm": [
+    0.0,
+    0.5
+   ],
+   "hem_gap_cm": 19.5,
+   "hem_z": 20.0,
+   "pile_height_cm": 99.1,
+   "pile_sunk_cm": 0.5,
+   "support_z": 0.0
+  },
+  "frame_local": [
+   -487.3,
+   0.0,
+   120.0
+  ],
+  "label": "P03 End Drape (stand-in)",
+  "line_x_cm": -487.3,
+  "n": 3,
+  "params": {
+   "apron_cm": 500.0,
+   "back_limit_cm": 1500.0,
+   "clear_margin_s": 0.5,
+   "entry_tol_cm": 25.0,
+   "floor_offset_cm": 120.0,
+   "floor_tol_cm": 10.0,
+   "hem_drop_cm": 0.0,
+   "hem_tol_cm": 21.0,
+   "hinge_margin_cm": 20.0,
+   "landed_after_release_s": 2.5,
+   "lead_s": 0.0,
+   "line_x_cm": null,
+   "max_lead_s": 1.0,
+   "min_eye_over_pile_cm": 30.0,
+   "min_view_cm": 300.0,
+   "pile_lateral_allow_cm": 150.0,
+   "pile_sink_tol_cm": 1.0,
+   "root_tol_cm": 0.5,
+   "root_tol_deg": 0.05,
+   "route_end_tol_cm": 60.0,
+   "sample_step_s": 0.1,
+   "yaw_tol_deg": 0.5
+  },
+  "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+  "section": {
+   "completion": "KeepState",
+   "end_offset_ticks": 0,
+   "end_s": 4.133333333333334,
+   "length_s": 10.033333333333333,
+   "offset_s": 0.9666666666666667,
+   "offset_ticks": 23200,
+   "play_rate": 1.0,
+   "start_s": -5.8999999999999995
+  },
+  "tags": [
+   "PassageEndDrape",
+   "PassageEndDrape.S3"
+  ],
+  "timing": {
+   "camera_reaches_hang_front_scene_s": -0.5613568048231379,
+   "landed_scene_s": -3.3666666666666663,
+   "release_motion_s": -5.866666666666666,
+   "release_scene_s": -5.866666666666666,
+   "rise_land_motion_s": 4.133333333333334,
+   "rise_start_motion_s": -5.866666666666666,
+   "rise_start_scene_s": -5.866666666666666
+  }
+ },
+ "plan_digest": "3eb3c4b7f3757235ce87",
+ "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+ "run": "PED-20261007-080249",
+ "saves": {
+  "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice": true,
+  "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise": true
+ },
+ "scene": 3,
+ "schema_version": 1,
+ "snapshot_after": {
+  "arrival": {
+   "backcloth_actor": "P03 End Drape (stand-in)",
+   "backcloth_guid": "0BA7FDA04F4C7D5C213C06A9EBF4C793"
+  },
+  "bindings": [
+   {
+    "guid": "3866095E48A820A6398FB996348DBC50",
+    "name": "Clam_with_Pearl_Clam_with_Pearl_0",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "026BC4714148F442A97666B948F6149F",
+    "name": "LightComponent0",
+    "parent": "6E7326174B4D8896A3F4C8833D17D490",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "0CE596FF43B1693304A4C89E09E5FF85",
+    "name": "LightComponent0",
+    "parent": "C5A32DEC4730874C8DF76C961F9F93D9",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "13BC6408417CE92B3785ACBDCF16BB5C",
+    "name": "LightComponent0",
+    "parent": "2A4E85FD471BA44D3987A8B115058CDD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "16CA0CE74EA2F05D04149682ECF12CDB",
+    "name": "LightComponent0",
+    "parent": "40ABD4BB40643F15908891910A849856",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "19201E584038A8DE46AE10AF8B21F60E",
+    "name": "LightComponent0",
+    "parent": "83CD5D8349F3CF9EE0212880A8D835EF",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1FF417C04B5E3396366762984ACEE1EB",
+    "name": "LightComponent0",
+    "parent": "E09914F94BEC9C818EB68B89C61B4995",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "28BB57374867612C66EF639C31501930",
+    "name": "LightComponent0",
+    "parent": "FA01A5E84F66792515C9ED9FD9B57D4A",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "33B51A514345DD4AFA3F479D80C979A5",
+    "name": "LightComponent0",
+    "parent": "F23476044612E4988D7711B78817F37E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "35F1FE274CAAC4F9F3651E8F8F86397F",
+    "name": "LightComponent0",
+    "parent": "3CB8B99646F7DEB0D981DB9146E219B1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "38DB2BFC4B84290A2AC8E19DF472DDC0",
+    "name": "LightComponent0",
+    "parent": "46FD48104D9BE0225C934D97BAD97381",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "3C5EA86843462B6C410AC08203267114",
+    "name": "LightComponent0",
+    "parent": "BE87653C4F869450A92631BA8796314E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "42F3C2F94B8D603904DB9B999508C36E",
+    "name": "LightComponent0",
+    "parent": "3D173A9547ADD7B6DC26488335D2B51B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "440750F84CFBB90B4276468BEE3E727C",
+    "name": "LightComponent0",
+    "parent": "3957AD2946377EE976A11297A62DA291",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4DD8564C4548BA68CD55B78FB7B8B6C3",
+    "name": "LightComponent0",
+    "parent": "8C6DA0A14B5C09C93D990BB8824F0AE3",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "51D3FBE143853607577C97BBBE33EC23",
+    "name": "LightComponent0",
+    "parent": "4F31A76247791AE3C79720A76213A035",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5580926D4E22C3E193B9A79EFC539FE6",
+    "name": "LightComponent0",
+    "parent": "E92284E34710385ADA7C56AC8ACE4AF0",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5FDE923847187F3BB80642B855979141",
+    "name": "LightComponent0",
+    "parent": "4B505B34458C8DEE8BE865910DA59D72",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6DB98FAB4BC9D8FD5A02E782467B67E1",
+    "name": "LightComponent0",
+    "parent": "C54E19AB41AE5CCCAF634DA65D10E122",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6F77CBBB48097D026B359F941034BBCB",
+    "name": "LightComponent0",
+    "parent": "55C4EB464B88BA337BB45596863F4FF2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "715F32A544980DEF68720BB4FA1806EE",
+    "name": "LightComponent0",
+    "parent": "11950EE748271DE021E5E2BAC332A0A6",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "742A438E432BAFCB538CBE94B433B140",
+    "name": "LightComponent0",
+    "parent": "75D269D04A646669E2181FBD2DEF2EE1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "79B8FED34EA3B1602F34A5B781B053BD",
+    "name": "LightComponent0",
+    "parent": "67945BEA4E347CD5AF6F468D0C1949FC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "811A345947750807C72E45BED7C6C7EA",
+    "name": "LightComponent0",
+    "parent": "7C6A024E44DA9B4B1CA112ABF882694E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "82F73A7F4E6AE3984CB1A0B8C3921EE8",
+    "name": "LightComponent0",
+    "parent": "1F36610F4472C9E7DCB837BE01B7DF12",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "893649414F6FBD85E17A0086A63AFAD9",
+    "name": "LightComponent0",
+    "parent": "BC515316479D27EF23897BA28B66E6AE",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8BCBD0B7495A7AE553548B8780A9A6A3",
+    "name": "LightComponent0",
+    "parent": "CBCE6DE74701AF3BE7E3E6A87D32716D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8C4E3D9447E07177083CFDAADE92174E",
+    "name": "LightComponent0",
+    "parent": "570273C841F7BA8D44CFFA8DC766FFF1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9031258E48A1BD04D4450BA00C0D8FF3",
+    "name": "LightComponent0",
+    "parent": "CE28529448E9F3B1DF9502810227E2D2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "93AA7646449D04402DB224AA5F875A7A",
+    "name": "LightComponent0",
+    "parent": "74B89BC642DEE48AE08CE29C7C61CF39",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "94A30B854A628133837FAF877332A77E",
+    "name": "LightComponent0",
+    "parent": "0F7077F94B3F483D5DFB4896C5D191FB",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "96B4CA194F2BF17113BD33BC9794BCDB",
+    "name": "LightComponent0",
+    "parent": "5AB35AE8432312F4737090B291203692",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "99F8380E42861412E9F03F9A70F6BBA4",
+    "name": "LightComponent0",
+    "parent": "D38C50C3431B3FD3A3CBFE8FABABFF24",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9A42E7E44FCDF52CD9E534A0FC679F1B",
+    "name": "LightComponent0",
+    "parent": "23408BDC417A38D6A58306A774068DC7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9E2937E541577F42B91ED392BDE1D4F2",
+    "name": "LightComponent0",
+    "parent": "B71E59A84F794431DD05ED806E9CB404",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A648960740B0C25AB59CB28F20C4720F",
+    "name": "LightComponent0",
+    "parent": "A2F0E3E3468786D722BFD491B891157B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B0416716423020E5034932B826F3FB5F",
+    "name": "LightComponent0",
+    "parent": "7F3FDEC143BC9E6174CAFFB28A13FDE7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B16CBD8049A7B292BBFBD0A0EA34A47E",
+    "name": "LightComponent0",
+    "parent": "5072E57542C2A77AABD2F3B1CF6FF4D8",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B2AF8D7645E9BA3AF2CC209FEFD766B3",
+    "name": "LightComponent0",
+    "parent": "D9A3962E436F681F705A8CA977EB9C2D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B6581B4C4DD7E2283D18E8B82A9F6FCB",
+    "name": "LightComponent0",
+    "parent": "31AE6D9B4A6A539E38C1F39BA3C6E27F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C0C15B2E49C742C07B5349A34531302A",
+    "name": "LightComponent0",
+    "parent": "EA88C33C47B5DFE2C3367E92AB2A2897",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C78C0E5240BC533CB62B58A7E178E475",
+    "name": "LightComponent0",
+    "parent": "A493D46F452BADE91528CD8F0105AC7F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CB6C8DC3491D5B3A500607B29DC44439",
+    "name": "LightComponent0",
+    "parent": "68777F6A4443F8DFF55D8CB7818ACC88",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CD241DCF4EE29B6DDC38E7A64BCBC806",
+    "name": "LightComponent0",
+    "parent": "08816FFA471B04F7A3B502A608F872DA",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CD4878A0484571CAEAB0EFA4D0C490FD",
+    "name": "LightComponent0",
+    "parent": "EB7FCC5245DCB423D0689F9B0AB8F962",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D25B59F14AE1A6E56105CF950BADA033",
+    "name": "LightComponent0",
+    "parent": "3071A85B4A0EB9D67684EBAA636EC430",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D4C4B4264DF0EE41DF2AE3BF1085B5E1",
+    "name": "LightComponent0",
+    "parent": "FD9C8C1D4D420633651CF78B9E7DE8CF",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E31B2BED4923087C44D8478AF744BBE7",
+    "name": "LightComponent0",
+    "parent": "C5751939435D276CA5C79FA390AFFB5D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E9F423AE4E61CD74E6FB62B4B3DFF7B2",
+    "name": "LightComponent0",
+    "parent": "CC03577E4D5164F9E44846BA6C8B39FA",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EA7058BE43200F39FE9D1F99543EE15A",
+    "name": "LightComponent0",
+    "parent": "95FA9CC94C43149C518235870280F550",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "0BA7FDA04F4C7D5C213C06A9EBF4C793",
+    "name": "P03 End Drape (stand-in)",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneGeometryCacheTrack",
+      "name": "",
+      "sections": [
+       [
+        -177,
+        124,
+        23200,
+        0
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "3CB8B99646F7DEB0D981DB9146E219B1",
+    "name": "S3 Daylight Cool Fill",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "8C6DA0A14B5C09C93D990BB8824F0AE3",
+    "name": "S3 Daylight Rake Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "089B8A9D49AFE4E40F87BE867392D0D4",
+    "name": "S3 Hangar Lattice Fly",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "Transform",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1FB1AFA2466273919B74C9B4BA3A7C38",
+    "name": "S3 Hangar Pinned Exposure",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "BlendWeight",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "245DB6024EFF3A4C43A1CE8E4731CA37",
+    "name": "S3 Hangar Roof Hinge",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "Transform",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6C1D0756467FE897A79DC0B061D14115",
+    "name": "S3 Hangar Root",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "Transform",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "74B89BC642DEE48AE08CE29C7C61CF39",
+    "name": "S3 Lattice Glow 1-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A493D46F452BADE91528CD8F0105AC7F",
+    "name": "S3 Lattice Glow 1-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "6E7326174B4D8896A3F4C8833D17D490",
+    "name": "S3 Lattice Glow 1-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "67945BEA4E347CD5AF6F468D0C1949FC",
+    "name": "S3 Lattice Glow 1-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A2F0E3E3468786D722BFD491B891157B",
+    "name": "S3 Lattice Glow 1-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7C6A024E44DA9B4B1CA112ABF882694E",
+    "name": "S3 Lattice Glow 1-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "23408BDC417A38D6A58306A774068DC7",
+    "name": "S3 Lattice Glow 1-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CBCE6DE74701AF3BE7E3E6A87D32716D",
+    "name": "S3 Lattice Glow 1-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CE28529448E9F3B1DF9502810227E2D2",
+    "name": "S3 Lattice Glow 2-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "95FA9CC94C43149C518235870280F550",
+    "name": "S3 Lattice Glow 2-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "FA01A5E84F66792515C9ED9FD9B57D4A",
+    "name": "S3 Lattice Glow 2-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "570273C841F7BA8D44CFFA8DC766FFF1",
+    "name": "S3 Lattice Glow 2-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "1F36610F4472C9E7DCB837BE01B7DF12",
+    "name": "S3 Lattice Glow 2-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "55C4EB464B88BA337BB45596863F4FF2",
+    "name": "S3 Lattice Glow 2-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E92284E34710385ADA7C56AC8ACE4AF0",
+    "name": "S3 Lattice Glow 2-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "2A4E85FD471BA44D3987A8B115058CDD",
+    "name": "S3 Lattice Glow 2-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "68777F6A4443F8DFF55D8CB7818ACC88",
+    "name": "S3 Lattice Glow 3-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C5751939435D276CA5C79FA390AFFB5D",
+    "name": "S3 Lattice Glow 3-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "FD9C8C1D4D420633651CF78B9E7DE8CF",
+    "name": "S3 Lattice Glow 3-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "11950EE748271DE021E5E2BAC332A0A6",
+    "name": "S3 Lattice Glow 3-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "4F31A76247791AE3C79720A76213A035",
+    "name": "S3 Lattice Glow 3-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3071A85B4A0EB9D67684EBAA636EC430",
+    "name": "S3 Lattice Glow 3-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C54E19AB41AE5CCCAF634DA65D10E122",
+    "name": "S3 Lattice Glow 3-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3957AD2946377EE976A11297A62DA291",
+    "name": "S3 Lattice Glow 3-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CC03577E4D5164F9E44846BA6C8B39FA",
+    "name": "S3 Practical L1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "75D269D04A646669E2181FBD2DEF2EE1",
+    "name": "S3 Practical L2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "D9A3962E436F681F705A8CA977EB9C2D",
+    "name": "S3 Practical L3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "0F7077F94B3F483D5DFB4896C5D191FB",
+    "name": "S3 Practical L4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "5AB35AE8432312F4737090B291203692",
+    "name": "S3 Practical L5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "B71E59A84F794431DD05ED806E9CB404",
+    "name": "S3 Practical L6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C5A32DEC4730874C8DF76C961F9F93D9",
+    "name": "S3 Practical L7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "EB7FCC5245DCB423D0689F9B0AB8F962",
+    "name": "S3 Practical R1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BC515316479D27EF23897BA28B66E6AE",
+    "name": "S3 Practical R2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BE87653C4F869450A92631BA8796314E",
+    "name": "S3 Practical R3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "83CD5D8349F3CF9EE0212880A8D835EF",
+    "name": "S3 Practical R4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "4B505B34458C8DEE8BE865910DA59D72",
+    "name": "S3 Practical R5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7F3FDEC143BC9E6174CAFFB28A13FDE7",
+    "name": "S3 Practical R6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "EA88C33C47B5DFE2C3367E92AB2A2897",
+    "name": "S3 Practical R7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "40ABD4BB40643F15908891910A849856",
+    "name": "S3 Strike Cyc 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "5072E57542C2A77AABD2F3B1CF6FF4D8",
+    "name": "S3 Strike Cyc 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "D38C50C3431B3FD3A3CBFE8FABABFF24",
+    "name": "S3 Strike Cyc 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "08816FFA471B04F7A3B502A608F872DA",
+    "name": "S3 Strike Fill L",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3D173A9547ADD7B6DC26488335D2B51B",
+    "name": "S3 Strike Fill R",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E09914F94BEC9C818EB68B89C61B4995",
+    "name": "S3 Strike Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "F23476044612E4988D7711B78817F37E",
+    "name": "S3 Uplight 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "46FD48104D9BE0225C934D97BAD97381",
+    "name": "S3 Uplight 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "31AE6D9B4A6A539E38C1F39BA3C6E27F",
+    "name": "S3 Uplight 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A836B04D414059A033D2BE9EFD9263D2",
+    "name": "Shore01_M56 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "7F73B5C84FC9B6FA9CBE8882FBB2D1BE",
+    "name": "Shore02_F52 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8006A4374465299E304DF9900593A22D",
+    "name": "Shore03_M59 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B1E9DED14F12FF34E82F659B3AF6A61F",
+    "name": "Shore04_F55 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "856B3A91457CFDEF5F63A38FD937BACF",
+    "name": "Shore05_M53 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "846861984B25A645F7158F81BE9D7213",
+    "name": "Shore06_F25 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D3A383644B63D81E3EB52DAA534DE6A9",
+    "name": "source_Anim",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2425E62E4F7051520E7154A094123BE3",
+    "name": "tg0pfjxda_tier_0",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [],
+  "drape_actors": {
+   "P03 End Drape (stand-in)": [
+    10934.7,
+    160000.0,
+    0.0,
+    0.0
+   ]
+  },
+  "level_labels": [
+   "P03 End Drape (stand-in)"
+  ],
+  "markers": [],
+  "playback": [
+   0,
+   930
+  ],
+  "ranges": {
+   "rise": [
+    0,
+    930
+   ],
+   "scene": [
+    0,
+    6240
+   ]
+  },
+  "root_tracks": []
+ },
+ "snapshot_before": {
+  "arrival": {
+   "backcloth_actor": "",
+   "backcloth_guid": "00000000000000000000000000000000"
+  },
+  "bindings": [
+   {
+    "guid": "3866095E48A820A6398FB996348DBC50",
+    "name": "Clam_with_Pearl_Clam_with_Pearl_0",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "026BC4714148F442A97666B948F6149F",
+    "name": "LightComponent0",
+    "parent": "6E7326174B4D8896A3F4C8833D17D490",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "0CE596FF43B1693304A4C89E09E5FF85",
+    "name": "LightComponent0",
+    "parent": "C5A32DEC4730874C8DF76C961F9F93D9",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "13BC6408417CE92B3785ACBDCF16BB5C",
+    "name": "LightComponent0",
+    "parent": "2A4E85FD471BA44D3987A8B115058CDD",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "16CA0CE74EA2F05D04149682ECF12CDB",
+    "name": "LightComponent0",
+    "parent": "40ABD4BB40643F15908891910A849856",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "19201E584038A8DE46AE10AF8B21F60E",
+    "name": "LightComponent0",
+    "parent": "83CD5D8349F3CF9EE0212880A8D835EF",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1FF417C04B5E3396366762984ACEE1EB",
+    "name": "LightComponent0",
+    "parent": "E09914F94BEC9C818EB68B89C61B4995",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "28BB57374867612C66EF639C31501930",
+    "name": "LightComponent0",
+    "parent": "FA01A5E84F66792515C9ED9FD9B57D4A",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "33B51A514345DD4AFA3F479D80C979A5",
+    "name": "LightComponent0",
+    "parent": "F23476044612E4988D7711B78817F37E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "35F1FE274CAAC4F9F3651E8F8F86397F",
+    "name": "LightComponent0",
+    "parent": "3CB8B99646F7DEB0D981DB9146E219B1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "38DB2BFC4B84290A2AC8E19DF472DDC0",
+    "name": "LightComponent0",
+    "parent": "46FD48104D9BE0225C934D97BAD97381",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "3C5EA86843462B6C410AC08203267114",
+    "name": "LightComponent0",
+    "parent": "BE87653C4F869450A92631BA8796314E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "42F3C2F94B8D603904DB9B999508C36E",
+    "name": "LightComponent0",
+    "parent": "3D173A9547ADD7B6DC26488335D2B51B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "440750F84CFBB90B4276468BEE3E727C",
+    "name": "LightComponent0",
+    "parent": "3957AD2946377EE976A11297A62DA291",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "4DD8564C4548BA68CD55B78FB7B8B6C3",
+    "name": "LightComponent0",
+    "parent": "8C6DA0A14B5C09C93D990BB8824F0AE3",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "51D3FBE143853607577C97BBBE33EC23",
+    "name": "LightComponent0",
+    "parent": "4F31A76247791AE3C79720A76213A035",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5580926D4E22C3E193B9A79EFC539FE6",
+    "name": "LightComponent0",
+    "parent": "E92284E34710385ADA7C56AC8ACE4AF0",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "5FDE923847187F3BB80642B855979141",
+    "name": "LightComponent0",
+    "parent": "4B505B34458C8DEE8BE865910DA59D72",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6DB98FAB4BC9D8FD5A02E782467B67E1",
+    "name": "LightComponent0",
+    "parent": "C54E19AB41AE5CCCAF634DA65D10E122",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6F77CBBB48097D026B359F941034BBCB",
+    "name": "LightComponent0",
+    "parent": "55C4EB464B88BA337BB45596863F4FF2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "715F32A544980DEF68720BB4FA1806EE",
+    "name": "LightComponent0",
+    "parent": "11950EE748271DE021E5E2BAC332A0A6",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "742A438E432BAFCB538CBE94B433B140",
+    "name": "LightComponent0",
+    "parent": "75D269D04A646669E2181FBD2DEF2EE1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "79B8FED34EA3B1602F34A5B781B053BD",
+    "name": "LightComponent0",
+    "parent": "67945BEA4E347CD5AF6F468D0C1949FC",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "811A345947750807C72E45BED7C6C7EA",
+    "name": "LightComponent0",
+    "parent": "7C6A024E44DA9B4B1CA112ABF882694E",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "82F73A7F4E6AE3984CB1A0B8C3921EE8",
+    "name": "LightComponent0",
+    "parent": "1F36610F4472C9E7DCB837BE01B7DF12",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "893649414F6FBD85E17A0086A63AFAD9",
+    "name": "LightComponent0",
+    "parent": "BC515316479D27EF23897BA28B66E6AE",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8BCBD0B7495A7AE553548B8780A9A6A3",
+    "name": "LightComponent0",
+    "parent": "CBCE6DE74701AF3BE7E3E6A87D32716D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8C4E3D9447E07177083CFDAADE92174E",
+    "name": "LightComponent0",
+    "parent": "570273C841F7BA8D44CFFA8DC766FFF1",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9031258E48A1BD04D4450BA00C0D8FF3",
+    "name": "LightComponent0",
+    "parent": "CE28529448E9F3B1DF9502810227E2D2",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "93AA7646449D04402DB224AA5F875A7A",
+    "name": "LightComponent0",
+    "parent": "74B89BC642DEE48AE08CE29C7C61CF39",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "94A30B854A628133837FAF877332A77E",
+    "name": "LightComponent0",
+    "parent": "0F7077F94B3F483D5DFB4896C5D191FB",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "96B4CA194F2BF17113BD33BC9794BCDB",
+    "name": "LightComponent0",
+    "parent": "5AB35AE8432312F4737090B291203692",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "99F8380E42861412E9F03F9A70F6BBA4",
+    "name": "LightComponent0",
+    "parent": "D38C50C3431B3FD3A3CBFE8FABABFF24",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9A42E7E44FCDF52CD9E534A0FC679F1B",
+    "name": "LightComponent0",
+    "parent": "23408BDC417A38D6A58306A774068DC7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "9E2937E541577F42B91ED392BDE1D4F2",
+    "name": "LightComponent0",
+    "parent": "B71E59A84F794431DD05ED806E9CB404",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "A648960740B0C25AB59CB28F20C4720F",
+    "name": "LightComponent0",
+    "parent": "A2F0E3E3468786D722BFD491B891157B",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B0416716423020E5034932B826F3FB5F",
+    "name": "LightComponent0",
+    "parent": "7F3FDEC143BC9E6174CAFFB28A13FDE7",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B16CBD8049A7B292BBFBD0A0EA34A47E",
+    "name": "LightComponent0",
+    "parent": "5072E57542C2A77AABD2F3B1CF6FF4D8",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B2AF8D7645E9BA3AF2CC209FEFD766B3",
+    "name": "LightComponent0",
+    "parent": "D9A3962E436F681F705A8CA977EB9C2D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B6581B4C4DD7E2283D18E8B82A9F6FCB",
+    "name": "LightComponent0",
+    "parent": "31AE6D9B4A6A539E38C1F39BA3C6E27F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C0C15B2E49C742C07B5349A34531302A",
+    "name": "LightComponent0",
+    "parent": "EA88C33C47B5DFE2C3367E92AB2A2897",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "C78C0E5240BC533CB62B58A7E178E475",
+    "name": "LightComponent0",
+    "parent": "A493D46F452BADE91528CD8F0105AC7F",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CB6C8DC3491D5B3A500607B29DC44439",
+    "name": "LightComponent0",
+    "parent": "68777F6A4443F8DFF55D8CB7818ACC88",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CD241DCF4EE29B6DDC38E7A64BCBC806",
+    "name": "LightComponent0",
+    "parent": "08816FFA471B04F7A3B502A608F872DA",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "CD4878A0484571CAEAB0EFA4D0C490FD",
+    "name": "LightComponent0",
+    "parent": "EB7FCC5245DCB423D0689F9B0AB8F962",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D25B59F14AE1A6E56105CF950BADA033",
+    "name": "LightComponent0",
+    "parent": "3071A85B4A0EB9D67684EBAA636EC430",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D4C4B4264DF0EE41DF2AE3BF1085B5E1",
+    "name": "LightComponent0",
+    "parent": "FD9C8C1D4D420633651CF78B9E7DE8CF",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E31B2BED4923087C44D8478AF744BBE7",
+    "name": "LightComponent0",
+    "parent": "C5751939435D276CA5C79FA390AFFB5D",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "E9F423AE4E61CD74E6FB62B4B3DFF7B2",
+    "name": "LightComponent0",
+    "parent": "CC03577E4D5164F9E44846BA6C8B39FA",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "EA7058BE43200F39FE9D1F99543EE15A",
+    "name": "LightComponent0",
+    "parent": "95FA9CC94C43149C518235870280F550",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "Intensity",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "3CB8B99646F7DEB0D981DB9146E219B1",
+    "name": "S3 Daylight Cool Fill",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "8C6DA0A14B5C09C93D990BB8824F0AE3",
+    "name": "S3 Daylight Rake Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "089B8A9D49AFE4E40F87BE867392D0D4",
+    "name": "S3 Hangar Lattice Fly",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "Transform",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "1FB1AFA2466273919B74C9B4BA3A7C38",
+    "name": "S3 Hangar Pinned Exposure",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneFloatTrack",
+      "name": "BlendWeight",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "245DB6024EFF3A4C43A1CE8E4731CA37",
+    "name": "S3 Hangar Roof Hinge",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "Transform",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "6C1D0756467FE897A79DC0B061D14115",
+    "name": "S3 Hangar Root",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieScene3DTransformTrack",
+      "name": "Transform",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "74B89BC642DEE48AE08CE29C7C61CF39",
+    "name": "S3 Lattice Glow 1-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A493D46F452BADE91528CD8F0105AC7F",
+    "name": "S3 Lattice Glow 1-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "6E7326174B4D8896A3F4C8833D17D490",
+    "name": "S3 Lattice Glow 1-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "67945BEA4E347CD5AF6F468D0C1949FC",
+    "name": "S3 Lattice Glow 1-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A2F0E3E3468786D722BFD491B891157B",
+    "name": "S3 Lattice Glow 1-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7C6A024E44DA9B4B1CA112ABF882694E",
+    "name": "S3 Lattice Glow 1-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "23408BDC417A38D6A58306A774068DC7",
+    "name": "S3 Lattice Glow 1-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CBCE6DE74701AF3BE7E3E6A87D32716D",
+    "name": "S3 Lattice Glow 1-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CE28529448E9F3B1DF9502810227E2D2",
+    "name": "S3 Lattice Glow 2-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "95FA9CC94C43149C518235870280F550",
+    "name": "S3 Lattice Glow 2-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "FA01A5E84F66792515C9ED9FD9B57D4A",
+    "name": "S3 Lattice Glow 2-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "570273C841F7BA8D44CFFA8DC766FFF1",
+    "name": "S3 Lattice Glow 2-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "1F36610F4472C9E7DCB837BE01B7DF12",
+    "name": "S3 Lattice Glow 2-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "55C4EB464B88BA337BB45596863F4FF2",
+    "name": "S3 Lattice Glow 2-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E92284E34710385ADA7C56AC8ACE4AF0",
+    "name": "S3 Lattice Glow 2-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "2A4E85FD471BA44D3987A8B115058CDD",
+    "name": "S3 Lattice Glow 2-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "68777F6A4443F8DFF55D8CB7818ACC88",
+    "name": "S3 Lattice Glow 3-1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C5751939435D276CA5C79FA390AFFB5D",
+    "name": "S3 Lattice Glow 3-2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "FD9C8C1D4D420633651CF78B9E7DE8CF",
+    "name": "S3 Lattice Glow 3-3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "11950EE748271DE021E5E2BAC332A0A6",
+    "name": "S3 Lattice Glow 3-4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "4F31A76247791AE3C79720A76213A035",
+    "name": "S3 Lattice Glow 3-5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3071A85B4A0EB9D67684EBAA636EC430",
+    "name": "S3 Lattice Glow 3-6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C54E19AB41AE5CCCAF634DA65D10E122",
+    "name": "S3 Lattice Glow 3-7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3957AD2946377EE976A11297A62DA291",
+    "name": "S3 Lattice Glow 3-8",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "CC03577E4D5164F9E44846BA6C8B39FA",
+    "name": "S3 Practical L1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "75D269D04A646669E2181FBD2DEF2EE1",
+    "name": "S3 Practical L2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "D9A3962E436F681F705A8CA977EB9C2D",
+    "name": "S3 Practical L3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "0F7077F94B3F483D5DFB4896C5D191FB",
+    "name": "S3 Practical L4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "5AB35AE8432312F4737090B291203692",
+    "name": "S3 Practical L5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "B71E59A84F794431DD05ED806E9CB404",
+    "name": "S3 Practical L6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "C5A32DEC4730874C8DF76C961F9F93D9",
+    "name": "S3 Practical L7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "EB7FCC5245DCB423D0689F9B0AB8F962",
+    "name": "S3 Practical R1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BC515316479D27EF23897BA28B66E6AE",
+    "name": "S3 Practical R2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "BE87653C4F869450A92631BA8796314E",
+    "name": "S3 Practical R3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "83CD5D8349F3CF9EE0212880A8D835EF",
+    "name": "S3 Practical R4",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "4B505B34458C8DEE8BE865910DA59D72",
+    "name": "S3 Practical R5",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "7F3FDEC143BC9E6174CAFFB28A13FDE7",
+    "name": "S3 Practical R6",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "EA88C33C47B5DFE2C3367E92AB2A2897",
+    "name": "S3 Practical R7",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "40ABD4BB40643F15908891910A849856",
+    "name": "S3 Strike Cyc 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "5072E57542C2A77AABD2F3B1CF6FF4D8",
+    "name": "S3 Strike Cyc 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "D38C50C3431B3FD3A3CBFE8FABABFF24",
+    "name": "S3 Strike Cyc 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "08816FFA471B04F7A3B502A608F872DA",
+    "name": "S3 Strike Fill L",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "3D173A9547ADD7B6DC26488335D2B51B",
+    "name": "S3 Strike Fill R",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "E09914F94BEC9C818EB68B89C61B4995",
+    "name": "S3 Strike Key",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "F23476044612E4988D7711B78817F37E",
+    "name": "S3 Uplight 1",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "46FD48104D9BE0225C934D97BAD97381",
+    "name": "S3 Uplight 2",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "31AE6D9B4A6A539E38C1F39BA3C6E27F",
+    "name": "S3 Uplight 3",
+    "parent": "",
+    "tracks": []
+   },
+   {
+    "guid": "A836B04D414059A033D2BE9EFD9263D2",
+    "name": "Shore01_M56 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "7F73B5C84FC9B6FA9CBE8882FBB2D1BE",
+    "name": "Shore02_F52 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "8006A4374465299E304DF9900593A22D",
+    "name": "Shore03_M59 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "B1E9DED14F12FF34E82F659B3AF6A61F",
+    "name": "Shore04_F55 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "856B3A91457CFDEF5F63A38FD937BACF",
+    "name": "Shore05_M53 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "846861984B25A645F7158F81BE9D7213",
+    "name": "Shore06_F25 Clam",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "D3A383644B63D81E3EB52DAA534DE6A9",
+    "name": "source_Anim",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   },
+   {
+    "guid": "2425E62E4F7051520E7154A094123BE3",
+    "name": "tg0pfjxda_tier_0",
+    "parent": "",
+    "tracks": [
+     {
+      "class": "MovieSceneVisibilityTrack",
+      "name": "",
+      "sections": [
+       [
+        0,
+        930
+       ]
+      ]
+     }
+    ]
+   }
+  ],
+  "cuts": [],
+  "drape_actors": {},
+  "level_labels": [],
+  "markers": [],
+  "playback": [
+   0,
+   930
+  ],
+  "ranges": {
+   "rise": [
+    0,
+    930
+   ],
+   "scene": [
+    0,
+    6240
+   ]
+  },
+  "root_tracks": []
+ },
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
+}
