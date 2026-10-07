@@ -58,6 +58,7 @@ except ModuleNotFoundError:  # Offline harness.
 
 TOOL = "klara_reveal"
 CONFIRM_WORD = "KLARAREVEAL"
+HER_LEVELS = ("/Game/KK_S1_Animals/L_Animals", "/Game/L_KK_children", "/Game/Japanese_Alley/Maps/Japanese_Alley")
 SHOW_PATH = "/Game/InfinityStage/Dev/DA_InfinityStage_V1Show"                   # extend_scene_playback.py:44
 MASTER = "/Game/InfinityStage/Dev/Sequences/LS_InfinityStage_V1Master"
 EXPECTED_WORLD = "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice"
@@ -1319,9 +1320,11 @@ def _add_float(binding, prop, path, sections, interp, run, label):          # pr
         for f, v in keys:
             ch[0].add_key(unreal.FrameNumber(int(f)), float(v), time_unit=unreal.MovieSceneTimeUnit.DISPLAY_RATE,
                           interpolation=interp)
-        got = _ch_keys(ch[0])
-        want = sorted([[int(f), round(float(v), 4)] for f, v in keys])
-        if sorted([[t2, round(v2, 4)] for t2, v2 in got]) != want:
+        got = sorted(_ch_keys(ch[0]))
+        want = sorted([[int(f), float(v)] for f, v in keys])
+        # float channels store float32 (7 Oct live: ManualFocusDistance ~600 cm failed a 4-decimal compare)
+        if len(got) != len(want) or any(g[0] != w[0] or abs(float(g[1]) - w[1]) > max(1e-3, 1e-6 * abs(w[1]))
+                                        for g, w in zip(got, want)):
             _stop(run, "KEY_READBACK|%s|%s|NOTHING SAVED; Don't-Save restart" % (label, prop))
     return t
 
@@ -1405,7 +1408,8 @@ def _shift_copy(copy, world, level_pkg, delta, run, sign=1.0):
                     if want[ax]["default"] is not None:
                         c.set_default(want[ax]["default"])
                 got = {ax: [[t2, round(v2, 4)] for t2, v2 in _ch_keys(c)] for ax, c in chans.items()}
-                if any(got[ax] != [[t2, round(v2, 4)] for t2, v2 in want[ax]["keys"]] for ax in "xyz"):
+                if any(len(got[ax]) != len(want[ax]["keys"]) or any(g[0] != w[0] or abs(g[1] - w[1]) > 1e-2
+                       for g, w in zip(got[ax], want[ax]["keys"])) for ax in "xyz"):   # float32-tolerant (7 Oct)
                     _stop(run, "SHIFT_READBACK|%s|NOTHING SAVED; Don't-Save restart" % nm)
                 log.append({"binding": nm, "keys": {ax: len(before[ax]["keys"]) for ax in "xyz"}})
     return log
@@ -1653,10 +1657,17 @@ def run_apply(args, run, world):
     after_cuts, _t = _cuts(seq)
     if [c["range"] for c in after_cuts] != [r for _w, r in plan["cuts_after"]]:
         _stop(run, "CUT_READBACK|%s|NOTHING SAVED; Don't-Save restart" % after_cuts)
-    gate = census_gate(_census(), [row["scene_sequence"], row["copy"]], [EXPECTED_WORLD])
+    # 7 Oct live: re-adding her streamed level / binding her lights also dirties HER map package; allow exactly her
+    # streamed levels (KK hookin levels), back the .umap up first, and save it with the rest.
+    her_maps = sorted(m for m in _census()["maps"] if m != EXPECTED_WORLD and m in set(HER_LEVELS))
+    gate = census_gate(_census(), [row["scene_sequence"], row["copy"]], [EXPECTED_WORLD] + her_maps)
     if gate:
         _stop(run, "CENSUS|%s|NOTHING SAVED; Don't-Save restart (backup %s)" % (gate, folder))
-    for p in (row["scene_sequence"], row["copy"]):
+    for m in her_maps:
+        src = os.path.join("E:/PussStage/Content", m[len("/Game/"):] + ".umap")
+        if os.path.exists(src):
+            shutil.copy2(src, folder)
+    for p in [row["scene_sequence"], row["copy"]] + her_maps:
         if not unreal.EditorAssetLibrary.save_asset(p, only_if_is_dirty=False):
             _stop(run, "SAVE_FAILED|%s" % p)
     if not unreal.EditorLoadingAndSavingUtils.save_map(world, EXPECTED_WORLD):

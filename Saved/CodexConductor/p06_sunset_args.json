@@ -1,0 +1,29 @@
+{
+ "mode": "DRY",
+ "confirm": "DRY P06SUNSET",
+ "passage_guid": "9BFC29C45D47911FF7836BB8537230D2",
+ "passage_guid_source": "p06_tail_extend_args.json (walking_music_swap_dry.json rows.6, run WALK-20261005-143830)",
+ "passage_actor_prefix": "Passage 06",
+ "start_elev_deg": 7.0,
+ "horizon_s": 37.0,
+ "twilight_band": 0.05,
+ "dark_by_s": 60.0,
+ "sun_lux": 2.0,
+ "sun_offset_from_route_deg": 0.0,
+ "max_off_axis_deg": 50.0,
+ "start_elev_min": 5.0,
+ "start_elev_max": 8.0,
+ "horizon_min_s": 35.0,
+ "horizon_max_s": 40.0,
+ "probe": true,
+ "probe_seconds": [
+  0.0,
+  20.0,
+  37.0,
+  52.0,
+  90.0,
+  125.9
+ ],
+ "decided_by": "Gary 7 Oct (his own answers, conductor session): P06 sunset from the start, ~40 s, then total darkness; 'dead ahead is interesting, actually. let's try that' (sun dead ahead down the corridor); plan values: +7 deg start, horizon 37 s, band 0.12->0.05, 2 lux.",
+ "notes": "sun_lux, sun_offset_from_route_deg and twilight_band are LOOK values: Gary's own yes before APPLY (memory puss-gary-word-means-gary)."
+}
