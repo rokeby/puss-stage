@@ -96,3 +96,13 @@
   Via Directing (his clicks): ground — mud→mouth, drifts capped, RESCULPT cast area (he arranges figures; report
   float/buried), deck hidden; marble — C, three 3×1.2 m strips, DiffuseScale ~0.1, GO PIE bench (no save), one
   Don't-Save restart after a combined ground+marble bench.
+- **Morning build DONE [meas]:** patches a7c89c5 (mechanism sound) + fence top-row wire/posts applied (backup
+  Backups/PreMorningBuild-20261007-1315); DLL markers 0 → present; no hot-reload DLLs. Suite 222/1: SavedFixturePIE
+  expected 270 vs 235 = test counted DISABLED cues (P06 relayout keeps 35 dropped rows bEnabled=false,
+  relayout_apply.py:24; compiler skips them, InfinityStageCompiler.cpp:202) → test now counts enabled only.
+- **Machine crash (~18:37 UTC):** zero-filled 4 Win64 UnrealEditor.modules (project, Go1Input, InfinityStage,
+  MCPBlueprintsGenerator) → Go1Input "module could not be found"; moved aside (.nulled-postcrash, copies in
+  Backups/PostCrashModules-20261007), rebuild rewrote them (BuildId 55116800). Scan of 701 files written in the last
+  4 h: no other zero-fill. git fsck clean. Lost: W&T curtain production bake (background Blender), shore PIE-split
+  agent (re-dispatched), a suite run (which logged UnderpassFenceVariantsAreSeededAndWeighted red, share 0.547 —
+  UNEXPLAINED, passed before and after). **Suite after repair: 223/0** (SuiteAfterBuild-20261007-Rerun2.log).

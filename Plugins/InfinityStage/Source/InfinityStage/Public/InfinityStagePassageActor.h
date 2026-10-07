@@ -3,11 +3,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "UObject/ObjectKey.h"
+#include "UObject/SoftObjectPtr.h"
 #include "InfinityStagePassageActor.generated.h"
 
 class UInfinityStageShowAsset;
 struct FInfinityStageLightSettings;
 class UInstancedStaticMeshComponent;
+class USoundAttenuation;
+class USoundBase;
 class USceneComponent;
 class USplineComponent;
 
@@ -187,7 +190,47 @@ public:
     /** TEST SEAM: the emissive value last written to a bulb body (Body.bFollowLight), or -1. */
     float GetBulbBodyLevelForTests(const AActor* Body) const;
 
+    /** TEST SEAM: with dry run on, mechanism sounds that would play are recorded
+     * (by cue Label; the movement set's start sound as "MovementStart") instead of
+     * loaded and played. The record is cleared when dry run is switched on. */
+    void SetMechanismSoundDryRunForTests(bool bDryRun);
+    const TArray<FName>& GetFiredMechanismSoundsForTests() const { return FiredMechanismSoundsForTests; }
+
 private:
+    /** Mechanism sound history, per (cue, panel side): the phase and travel at the
+     * last game-world evaluation. Runtime only; never serialized. */
+    struct FMechanismSoundHistory
+    {
+        double Phase = 0.0;
+        double Travel = 0.0;
+    };
+    TMap<TPair<FGuid, uint8>, FMechanismSoundHistory> MechanismSoundHistory;
+    bool bMechanismSoundHistoryValid = false;
+    double LastMechanismSoundMasterFrame = 0.0;
+    double LastMechanismSoundWorldSeconds = 0.0;
+    bool bMechanismSoundDryRunForTests = false;
+    TArray<FName> FiredMechanismSoundsForTests;
+
+    /** Hard references to the sounds and attenuations this Passage may play, loaded
+     * once when a game-world Passage first evaluates, so a cue never loads mid-show. */
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UObject>> PreloadedMechanismSoundAssets;
+
+    /** Fallback spherical attenuation over the Passage set's Audible Radius. */
+    UPROPERTY(Transient)
+    TObjectPtr<USoundAttenuation> MechanismSoundFallbackAttenuation;
+
+    void ResetMechanismSoundHistory();
+    void PreloadMechanismSounds(const struct FInfinityCompiledPassage& Passage);
+    void PlayMechanismSound(
+        const TSoftObjectPtr<USoundBase>& Sound,
+        const TSoftObjectPtr<USoundAttenuation>& AttenuationOverride,
+        FName Label,
+        const FVector& Location,
+        float VolumeMultiplier,
+        float PitchMultiplier,
+        double AudibleRadiusCm);
+
     /** Per bulb body, made at its first game-world evaluation (never in the editor). */
     struct FBulbBodyRuntime
     {

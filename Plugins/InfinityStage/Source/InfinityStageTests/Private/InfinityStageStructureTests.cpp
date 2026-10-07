@@ -4000,4 +4000,317 @@ bool FInfinityStageFenceStackRowsTest::RunTest(const FString& Parameters)
     return true;
 }
 
+// ---------------------------------------------------------------------------
+// Fence top row and posts (patch BW, 7 Oct; Gary: "Coil + strands", barbed wire on
+// the top row only, thicker posts): a variant's TopRowMesh is drawn on the top row
+// alone, with the very same variant choices; posts stand at tile joints on the top
+// row. Every new field at its default builds exactly as before.
+// ---------------------------------------------------------------------------
+namespace
+{
+const TCHAR* const FenceTopRowTag = TEXT("InfinityStage.Structure.Underpass.FenceTopRow");
+const TCHAR* const FencePostTag = TEXT("InfinityStage.Structure.Underpass.FencePosts");
+
+/** Every panel of every variant layer, top-row layers included (ReadFence reads one component per tag). */
+struct FTopRowPanel
+{
+    int32 Variant = INDEX_NONE;
+    bool bTopRowLayer = false;
+    const UStaticMesh* Mesh = nullptr;
+    FTransform Transform;
+    FBox Box = FBox(ForceInit);
+};
+
+TArray<FTopRowPanel> ReadAllPanels(const AInfinityStageStructureActor& Structure)
+{
+    TArray<FTopRowPanel> Panels;
+    for (const UInstancedStaticMeshComponent* Component : Structure.ManagedComponents)
+    {
+        if (!Component)
+        {
+            continue;
+        }
+        int32 Variant = INDEX_NONE;
+        for (int32 Index = 0; Index < FenceVariantTotal; ++Index)
+        {
+            Variant = Component->ComponentTags.Contains(FName(FenceVariantTags[Index])) ? Index : Variant;
+        }
+        if (Variant == INDEX_NONE)
+        {
+            continue;
+        }
+        const FBox MeshBounds = Component->GetStaticMesh()->GetBoundingBox();
+        for (const FTransform& Instance : ReadInstances(*Component))
+        {
+            FTopRowPanel& Panel = Panels.AddDefaulted_GetRef();
+            Panel.Variant = Variant;
+            Panel.bTopRowLayer = Component->ComponentTags.Contains(FName(FenceTopRowTag));
+            Panel.Mesh = Component->GetStaticMesh();
+            Panel.Transform = Instance;
+            Panel.Box = MeshBounds.TransformBy(Instance);
+        }
+    }
+    return Panels;
+}
+
+TMap<FIntVector, int32> AllPanelChoices(const TArray<FTopRowPanel>& Panels, const double BaseCm, const double RowCm)
+{
+    TMap<FIntVector, int32> Choices;
+    for (const FTopRowPanel& Panel : Panels)
+    {
+        const FVector Centre = Panel.Box.GetCenter();
+        Choices.Add(FIntVector(FMath::RoundToInt32(Centre.X), FMath::RoundToInt32(Centre.Y),
+            FMath::RoundToInt32((Panel.Box.Min.Z - BaseCm) / RowCm)), Panel.Variant);
+    }
+    return Choices;
+}
+
+/** Each post's foot (its location less the rotated offset, the offset's Z scaled with the post) and its transform. */
+TArray<TPair<FVector, FTransform>> ReadPosts(const AInfinityStageStructureActor& Structure, const FVector& OffsetCm)
+{
+    TArray<TPair<FVector, FTransform>> Posts;
+    if (const UInstancedStaticMeshComponent* Layer = FindLayer(Structure, FencePostTag))
+    {
+        for (const FTransform& Instance : ReadInstances(*Layer))
+        {
+            const FVector Scaled(OffsetCm.X, OffsetCm.Y, OffsetCm.Z * Instance.GetScale3D().Z);
+            Posts.Emplace(Instance.GetLocation() - Instance.GetRotation().RotateVector(Scaled), Instance);
+        }
+    }
+    return Posts;
+}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+    FInfinityStageFenceTopRowAndPostsTest,
+    "InfinityStage.Structure.FenceTopRow.WireOnTheTopRowOnlyAndPostsAtJoints",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FInfinityStageFenceTopRowAndPostsTest::RunTest(const FString& Parameters)
+{
+    const FInfinityStageUnderpassSettings Defaults;
+    TestTrue(TEXT("Defaults: no top-row mesh on any variant, no posts, no post mesh, material or offset"),
+        Defaults.FenceVariantA.TopRowMesh.IsNull() && Defaults.FenceVariantB.TopRowMesh.IsNull()
+        && Defaults.FenceVariantC.TopRowMesh.IsNull() && Defaults.FenceVariantD.TopRowMesh.IsNull()
+        && Defaults.FencePostJoints == EInfinityFencePostJoints::None && Defaults.FencePostMesh.IsNull()
+        && Defaults.FencePostMaterial.IsNull() && Defaults.FencePostOffsetCm.IsZero());
+
+    const TSoftObjectPtr<UStaticMesh> Cube(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube")));
+    const TSoftObjectPtr<UStaticMesh> Cylinder(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cylinder.Cylinder")));
+    const TSoftObjectPtr<UStaticMesh> Cone(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cone.Cone")));
+    if (!Cube.LoadSynchronous() || !Cylinder.LoadSynchronous() || !Cone.LoadSynchronous())
+    {
+        AddError(TEXT("Fixture: the engine cube, cylinder or cone does not load."));
+        return false;
+    }
+
+    // Long gaps, a column on every station, every variant drawn; three whole 100 cm rows.
+    UWorld* World = UWorld::CreateWorld(EWorldType::EditorPreview, false);
+    AInfinityStagePassageActor* Passage = SpawnSpacedPassage(*World, { 1000.0, 1000.0, 1000.0, 1000.0 });
+    AInfinityStageStructureActor* Structure = SpawnMachinedStructure(*World, *Passage);
+    ArmFence(*Structure);
+    FInfinityStageUnderpassSettings& Underpass = Structure->Underpass;
+    Underpass.ColumnEvery = 1;
+    Underpass.FenceBaseCm = 20.0;
+    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Stack;
+    Underpass.FenceHeightCm = 300.0;
+    Underpass.FenceVariantB.OverlayMesh = Cube;
+    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
+    {
+        FenceVariant(Underpass, Variant).Weight = 0.25;
+    }
+    TestTrue(TEXT("Builds the plain stack"), Structure->MaterializeStructure());
+    const TArray<FBuiltLayer> Plain = SnapshotBuild(*Structure);
+    const TArray<FTopRowPanel> PlainPanels = ReadAllPanels(*Structure);
+    TestEqual(TEXT("Plain: three rows"), Structure->UnderpassFenceRowCount, 3);
+    TestTrue(TEXT("Plain: no top-row panels or posts counted"),
+        Structure->UnderpassFenceTopRowPanelCount == 0 && Structure->UnderpassFencePostCount == 0);
+    TArray<FInfinityStructureStation> Stations;
+    FString Error;
+    Structure->GatherStations(Stations, Error);
+    const double StationZ = Stations.IsEmpty() ? 0.0 : Stations[0].StationWorld.GetLocation().Z;
+    const double BaseCm = StationZ + Structure->Ground.FloorHeightCm + Underpass.FenceBaseCm;
+    const TMap<FIntVector, int32> PlainChoices = AllPanelChoices(PlainPanels, BaseCm, EngineShapeCm);
+
+    // The post fields do nothing while FencePostJoints is None; a post mode with no
+    // mesh does nothing either.
+    Underpass.FencePostMesh = Cone;
+    Underpass.FencePostOffsetCm = FVector(-5.0, -6.5, 0.0);
+    TestTrue(TEXT("Builds with a post mesh and offset but no joints"), Structure->MaterializeStructure());
+    FString Why;
+    TestTrue(FString::Printf(TEXT("Joints None: every component identical to the plain stack (%s)"), *Why),
+        SameBuild(Plain, SnapshotBuild(*Structure), Why));
+    Underpass.FencePostMesh = nullptr;
+    Underpass.FencePostJoints = EInfinityFencePostJoints::LineEnd;
+    TestTrue(TEXT("Builds with joints but no post mesh"), Structure->MaterializeStructure());
+    TestTrue(FString::Printf(TEXT("No post mesh: every component identical to the plain stack (%s)"), *Why),
+        SameBuild(Plain, SnapshotBuild(*Structure), Why));
+    Underpass.FencePostJoints = EInfinityFencePostJoints::None;
+
+    // A top-row mesh on every variant: the cylinder on the top row, the cube below.
+    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
+    {
+        FenceVariant(Underpass, Variant).TopRowMesh = Cylinder;
+    }
+    TestTrue(TEXT("Builds with top-row meshes"), Structure->MaterializeStructure());
+    const TArray<FTopRowPanel> Panels = ReadAllPanels(*Structure);
+    TestEqual(TEXT("As many panels as the plain stack"), Panels.Num(), PlainPanels.Num());
+    int32 TopRow = 0;
+    bool bPlaced = !Panels.IsEmpty();
+    for (const FTopRowPanel& Panel : Panels)
+    {
+        const int32 Row = FMath::RoundToInt32((Panel.Box.Min.Z - BaseCm) / EngineShapeCm);
+        const bool bTop = Row == 2;
+        TopRow += bTop ? 1 : 0;
+        bPlaced &= bTop == Panel.bTopRowLayer && Panel.Mesh == (bTop ? Cylinder.Get() : Cube.Get())
+            && FMath::IsNearlyEqual(Panel.Box.Min.Z, BaseCm + Row * EngineShapeCm, 0.1)
+            && FMath::IsNearlyEqual(Panel.Box.Max.Z, BaseCm + (Row + 1) * EngineShapeCm, 0.1);
+    }
+    TestTrue(TEXT("The top row is the cylinder in top-row layers; rows 0 and 1 the cube; every panel in its row"), bPlaced);
+    TestEqual(TEXT("One row of top-row panels"), TopRow * 3, Panels.Num());
+    TestEqual(TEXT("The top-row count is reported"), Structure->UnderpassFenceTopRowPanelCount, TopRow);
+    TestEqual(TEXT("Panels counted with the top row"), Structure->UnderpassFencePanelCount, Panels.Num());
+    TestTrue(TEXT("Every variant's choice is the plain stack's, tile for tile and row for row"),
+        AllPanelChoices(Panels, BaseCm, EngineShapeCm).OrderIndependentCompareEqual(PlainChoices));
+    int32 BPanels = 0;
+    for (const FTopRowPanel& Panel : Panels)
+    {
+        BPanels += Panel.Variant == 1 ? 1 : 0;
+    }
+    TestEqual(TEXT("B's overlay rides every B panel, top row included"), Structure->UnderpassFenceOverlayCount, BPanels);
+    const TArray<FBuiltLayer> Topped = SnapshotBuild(*Structure);
+    TestTrue(TEXT("Rebuilds"), Structure->MaterializeStructure());
+    TestTrue(FString::Printf(TEXT("A rebuild is identical (%s)"), *Why), SameBuild(Topped, SnapshotBuild(*Structure), Why));
+    TestFalse(TEXT("Control: the top row does change the build"), SameBuild(Plain, Topped, Why));
+
+    // LineEnd: one post per side, at the fence line's far end in the bays' +X, on the top row.
+    const FVector OffsetCm(-5.0, -6.5, 0.0);
+    Underpass.FencePostMesh = Cone;
+    Underpass.FencePostOffsetCm = OffsetCm;
+    Underpass.FencePostJoints = EInfinityFencePostJoints::LineEnd;
+    TestTrue(TEXT("Builds with line-end posts"), Structure->MaterializeStructure());
+    const int32 Runs = (ColumnCentreX(*Structure).Num() - 1) * 2;
+    const TArray<TPair<FVector, FTransform>> EndPosts = ReadPosts(*Structure, OffsetCm);
+    TestTrue(FString::Printf(TEXT("Fixture: several runs (%d)"), Runs), Runs >= 4);
+    TestEqual(TEXT("LineEnd: one post per side"), EndPosts.Num(), 2);
+    TestEqual(TEXT("LineEnd: the post count is reported"), Structure->UnderpassFencePostCount, 2);
+    TArray<FTopRowPanel> TopPanels = ReadAllPanels(*Structure).FilterByPredicate([](const FTopRowPanel& Panel) { return Panel.bTopRowLayer; });
+    // -Y side: the bays' +X is world +X, so the line's +X end is the largest max X;
+    // +Y side: their +X is world -X, so it is the smallest min X.
+    double MaxMinusY = -TNumericLimits<double>::Max();
+    double MinPlusY = TNumericLimits<double>::Max();
+    double LineYMinus = 0.0;
+    double LineYPlus = 0.0;
+    for (const FTopRowPanel& Panel : TopPanels)
+    {
+        const FVector Centre = Panel.Box.GetCenter();
+        if (Centre.Y < 0.0 && Panel.Box.Max.X > MaxMinusY)
+        {
+            MaxMinusY = Panel.Box.Max.X;
+            LineYMinus = Centre.Y;
+        }
+        if (Centre.Y > 0.0 && Panel.Box.Min.X < MinPlusY)
+        {
+            MinPlusY = Panel.Box.Min.X;
+            LineYPlus = Centre.Y;
+        }
+    }
+    int32 MinusYEnds = 0;
+    int32 PlusYEnds = 0;
+    bool bEnds = EndPosts.Num() == 2;
+    for (const TPair<FVector, FTransform>& Post : EndPosts)
+    {
+        const FVector Foot = Post.Key;
+        const bool bMinusY = Foot.Y < 0.0;
+        const bool bAtEnd = bMinusY
+            ? FMath::IsNearlyEqual(Foot.X, MaxMinusY, 0.1) && FMath::IsNearlyEqual(Foot.Y, LineYMinus, 0.1)
+            : FMath::IsNearlyEqual(Foot.X, MinPlusY, 0.1) && FMath::IsNearlyEqual(Foot.Y, LineYPlus, 0.1);
+        (bMinusY ? MinusYEnds : PlusYEnds) += bAtEnd ? 1 : 0;
+        bEnds &= bAtEnd && FMath::IsNearlyEqual(Foot.Z, BaseCm + 2.0 * EngineShapeCm, 0.1)
+            && Post.Value.GetScale3D().Equals(FVector::OneVector, 1.0e-6)
+            && FMath::IsNearlyEqual(Post.Value.GetRotation().GetAxisX().X, bMinusY ? 1.0 : -1.0, 1.0e-6);
+    }
+    TestTrue(TEXT("LineEnd: each foot on its side's line end, on the top row's bottom, unscaled, in the bays' frame"),
+        bEnds && MinusYEnds == 1 && PlusYEnds == 1);
+    TestTrue(TEXT("Posts change no panel"),
+        AllPanelChoices(ReadAllPanels(*Structure), BaseCm, EngineShapeCm).OrderIndependentCompareEqual(PlainChoices));
+    // Control: read without the offset, no foot lands on a joint (so the offset is applied, and bEnds can fail).
+    bool bAnyRawOnJoint = false;
+    for (const TPair<FVector, FTransform>& Post : ReadPosts(*Structure, FVector::ZeroVector))
+    {
+        for (const FTopRowPanel& Panel : TopPanels)
+        {
+            bAnyRawOnJoint |= FMath::IsNearlyEqual(Post.Key.Y, Panel.Box.GetCenter().Y, 0.1)
+                && (FMath::IsNearlyEqual(Post.Key.X, Panel.Box.Max.X, 0.1) || FMath::IsNearlyEqual(Post.Key.X, Panel.Box.Min.X, 0.1));
+        }
+    }
+    TestFalse(TEXT("Control: unoffset, no post foot is on a joint"), bAnyRawOnJoint);
+
+    // Every joint: tiles + 1 per run, so exactly one more per run than the top row's tiles.
+    Underpass.FencePostJoints = EInfinityFencePostJoints::Every;
+    TestTrue(TEXT("Builds with posts at every joint"), Structure->MaterializeStructure());
+    TestEqual(TEXT("Every: top-row tiles + one per run"), ReadPosts(*Structure, OffsetCm).Num(), TopRow + Runs);
+
+    // A cut top row Z-scales the top-row panels and the posts together, and says so.
+    Underpass.FencePostJoints = EInfinityFencePostJoints::LineEnd;
+    Underpass.FenceHeightCm = 250.0;
+    AddExpectedMessagePlain(TEXT("INFINITY_STAGE_STRUCTURE_FENCE_TOP_ROW_SCALED"), ELogVerbosity::Warning,
+        EAutomationExpectedMessageFlags::Contains, 1);
+    TestTrue(TEXT("Builds a cut 250 cm stack"), Structure->MaterializeStructure());
+    bool bCut = true;
+    int32 CutTop = 0;
+    for (const FTopRowPanel& Panel : ReadAllPanels(*Structure))
+    {
+        if (Panel.bTopRowLayer)
+        {
+            ++CutTop;
+            bCut &= FMath::IsNearlyEqual(Panel.Transform.GetScale3D().Z, 0.5, 1.0e-4)
+                && FMath::IsNearlyEqual(Panel.Box.Max.Z, BaseCm + 250.0, 0.1);
+        }
+    }
+    for (const TPair<FVector, FTransform>& Post : ReadPosts(*Structure, OffsetCm))
+    {
+        bCut &= FMath::IsNearlyEqual(Post.Value.GetScale3D().Z, 0.5, 1.0e-6)
+            && FMath::IsNearlyEqual(Post.Key.Z, BaseCm + 2.0 * EngineShapeCm, 0.1);
+    }
+    TestTrue(TEXT("Cut: the top-row panels and the posts are scaled 0.5 and stand on the third row"), bCut && CutTop == TopRow);
+
+    // Native, one row: the one row is the top row, so it is all cylinder; posts at Z scale 1 on the base.
+    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Native;
+    Underpass.FenceHeightCm = EngineShapeCm;
+    TestTrue(TEXT("Builds Native"), Structure->MaterializeStructure());
+    const TArray<FTopRowPanel> NativePanels = ReadAllPanels(*Structure);
+    bool bAllTop = !NativePanels.IsEmpty();
+    for (const FTopRowPanel& Panel : NativePanels)
+    {
+        bAllTop &= Panel.bTopRowLayer && Panel.Mesh == Cylinder.Get();
+    }
+    TestTrue(TEXT("Native: the one row is the top row"), bAllTop);
+    bool bNativePosts = Structure->UnderpassFencePostCount == 2;
+    for (const TPair<FVector, FTransform>& Post : ReadPosts(*Structure, OffsetCm))
+    {
+        bNativePosts &= FMath::IsNearlyEqual(Post.Key.Z, BaseCm, 0.1) && FMath::IsNearlyEqual(Post.Value.GetScale3D().Z, 1.0, 1.0e-6);
+    }
+    TestTrue(TEXT("Native: the two line-end posts on the fence base, unscaled"), bNativePosts);
+
+    // Everything back to default: identical to the plain stack.
+    Underpass.FenceHeightMode = EInfinityFenceHeightMode::Stack;
+    Underpass.FenceHeightCm = 300.0;
+    Underpass.FencePostJoints = EInfinityFencePostJoints::None;
+    Underpass.FencePostMesh = nullptr;
+    Underpass.FencePostOffsetCm = FVector::ZeroVector;
+    for (int32 Variant = 0; Variant < FenceVariantTotal; ++Variant)
+    {
+        FenceVariant(Underpass, Variant).TopRowMesh = nullptr;
+    }
+    TestTrue(TEXT("Rebuilds plain"), Structure->MaterializeStructure());
+    TestTrue(FString::Printf(TEXT("Back to default: every component identical to the plain stack (%s)"), *Why),
+        SameBuild(Plain, SnapshotBuild(*Structure), Why));
+    TestTrue(TEXT("Back to default: no top-row panels or posts counted"),
+        Structure->UnderpassFenceTopRowPanelCount == 0 && Structure->UnderpassFencePostCount == 0);
+    TestTrue(TEXT("The structure is current"), Structure->IsStructureCurrent());
+    World->DestroyWorld(false);
+    return true;
+}
+
 #endif

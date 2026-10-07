@@ -448,6 +448,23 @@ enum class EInfinityFenceHeightMode : uint8
     Stack
 };
 
+/** Which tile joints of each fenced column gap get a post (FencePostMesh). */
+UENUM(BlueprintType)
+enum class EInfinityFencePostJoints : uint8
+{
+    /** No posts: the fence as before posts existed. */
+    None,
+    /** Every joint of every run: tiles + 1 posts per gap and side. For bays that
+     * carry no post of their own. */
+    Every,
+    /** One post per side: the joint at the fence line's far end in the bays' own
+     * +X (the -Y side's last joint, the +Y side's first). For bays that carry their
+     * own post at their local -X end (the barbed-wire kit, SM_FenceBay_short_*_bw*):
+     * the line is continuous across the column gaps, so that end is the only joint
+     * no bay covers. */
+    LineEnd
+};
+
 /**
  * How a Stack fence is divided into rows: pure, from the intended height and the
  * native row height (AInfinityStageStructureActor::PlanFenceStack). Not a USTRUCT:
@@ -521,6 +538,15 @@ struct INFINITYSTAGE_API FInfinityStageFenceVariant
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
     TSoftObjectPtr<UStaticMesh> OverlayMesh;
+
+    /** Drawn instead of Mesh on the fence's top row: in Stack mode the last row,
+     * in Native and Fit the one row (Gary 7 Oct: barbed wire on the top row only,
+     * plain chain-link below). Fitted to the tile by its own bounds as Mesh is,
+     * wears Material on slot 0, carries the overlay, and is in the variant's own
+     * layer tag (plus the top-row tag). It never sets the Stack row height (Mesh
+     * does). Null (the default): Mesh on every row, the fence exactly as before. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UStaticMesh> TopRowMesh;
 
     /** Replaces the overlay's slot 0 only. Null: the overlay mesh's own. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
@@ -903,6 +929,29 @@ struct INFINITYSTAGE_API FInfinityStageUnderpassSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
     int32 FenceSeed = 0;
 
+    /** Which tile joints get a FencePostMesh, on the fence's top row only (Stack:
+     * the last row's bottom; Native and Fit: the fence base). None (the default)
+     * places no post: the fence exactly as before. See EInfinityFencePostJoints. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    EInfinityFencePostJoints FencePostJoints = EInfinityFencePostJoints::None;
+
+    /** The post: placed by its pivot (not fitted by its bounds), in the bays' own
+     * frame (local X along the run, +Y to the walkway, Z up), X and Y scale 1, Z
+     * scaled with the top row (a cut Stack row, or Fit's stretch). Intended:
+     * SM_FencePost_short_bw (Gary 7 Oct, "Coil + strands"). Null: no posts. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UStaticMesh> FencePostMesh;
+
+    /** Every slot of the post. Null: the mesh's own. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence")
+    TSoftObjectPtr<UMaterialInterface> FencePostMaterial;
+
+    /** Added to each post's joint in the bays' frame (X along the bays' +X, Y to
+     * the walkway), the Z part scaled with the post: puts the post's axis
+     * where the bays carry theirs (SM_FencePost_short_bw's axis is off its pivot). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Underpass|Fence", meta = (Units = "cm"))
+    FVector FencePostOffsetCm = FVector::ZeroVector;
+
     static constexpr int32 FenceVariantCount = 4;
 
     /** Variants A..D by index; any other index is D. */
@@ -1095,6 +1144,14 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization", meta = (Units = "cm"))
     double UnderpassFenceStackTopCm = 0.0;
 
+    /** Of UnderpassFencePanelCount, the panels drawn with a variant's TopRowMesh. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassFenceTopRowPanelCount = 0;
+
+    /** Fence posts built (FencePostJoints, FencePostMesh). */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Materialization")
+    int32 UnderpassFencePostCount = 0;
+
     /** Pure: how a Stack fence of IntendedCm divides into rows of RowCm (see the plan struct). */
     static FInfinityStageFenceStackPlan PlanFenceStack(double IntendedCm, double RowCm, bool bCutTopRow);
 
@@ -1199,12 +1256,15 @@ private:
         double FenceTopAboveBaseCm);
 
     /** Fence panels, one entry per variant A..D in each array. A null panel mesh
-     * skips its variant; a null overlay mesh builds the panel alone. StackPlan is read
-     * only in Stack height mode. */
+     * skips its variant; a null overlay mesh builds the panel alone; a null top-row
+     * mesh draws the panel on the top row too. StackPlan is read only in Stack
+     * height mode. A null Post.Mesh builds no posts. */
     void BuildUnderpassFence(
         const TArray<FInfinityStructureStation>& Stations,
         const TArray<FInfinityUnderpassPart>& Panels,
         const TArray<FInfinityUnderpassPart>& Overlays,
+        const TArray<FInfinityUnderpassPart>& TopRowPanels,
+        const FInfinityUnderpassPart& Post,
         const FInfinityStageFenceStackPlan& StackPlan);
 
     URectLightComponent* CreateManagedLight(FName BaseName, FName LayerTag);

@@ -783,11 +783,13 @@ bool FInfinityStageSavedFixturePIETest::RunTest(const FString& Parameters)
             if (GInfinityStageFixtureWingPairsExpected == INDEX_NONE && It->ShowAsset)
             {
                 // Expected = the saved Show's authored Wing Pair cues (was a literal 261, which went
-                // stale when 9 P06 cues were restored on 4 Oct 2026).
+                // stale when 9 P06 cues were restored on 4 Oct 2026). Only ENABLED cues: the compiler skips
+                // disabled ones (InfinityStageCompiler.cpp:202), and the 7 Oct P06 relayout keeps its 35 dropped
+                // rows in the Show with bEnabled=false (relayout_apply.py:24), so counting them expected 270 vs 235.
                 int32 Authored = 0;
                 for (const FInfinityShowCue& Cue : It->ShowAsset->Cues)
                 {
-                    Authored += Cue.Type == EInfinityCueType::WingPair ? 1 : 0;
+                    Authored += (Cue.bEnabled && Cue.Type == EInfinityCueType::WingPair) ? 1 : 0;
                 }
                 GInfinityStageFixtureWingPairsExpected = Authored;
             }

@@ -10,6 +10,7 @@
 #include "InfinityStageLightDrama.h"
 #include "InfinityStageBulbBody.h"
 #include "InfinityStageLightMover.h"
+#include "InfinityStageMechanismSound.h"
 #include "InfinityStageTypes.generated.h"
 
 class ULevelSequence;
@@ -423,6 +424,11 @@ struct INFINITYSTAGE_API FInfinityMechanismSoundSet
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism Sound",
         meta = (ClampMin = "0.001", ClampMax = "1.0"))
     double MovementThreshold = 0.02;
+
+    /** Silence every pair's authored phase Sound Cues (Mechanism > Sound Cues)
+     * in this Passage, independently of the movement set above. Off by default. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism Sound")
+    bool bMuteSoundCues = false;
 };
 
 USTRUCT(BlueprintType)
@@ -695,6 +701,16 @@ struct INFINITYSTAGE_API FInfinityMechanismMotion
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism",
         meta = (DisplayName = "Top Follows Wing Movement"))
     bool bTopFollowsMechanism = true;
+
+    /**
+     * Sounds placed on this motion's phase (0..1 of the OneShot, or of each loop
+     * cycle), e.g. a slam where a toppling wing meets the floor or its neighbour.
+     * Because they ride the phase, a re-time moves them with the motion; they are
+     * never Master keys. Game/PIE worlds only, forward playback only. Empty by
+     * default, which leaves the pair silent. See InfinityStageMechanismSound.h.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mechanism Sound")
+    TArray<FInfinityMechanismSoundCue> SoundCues;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Gust / Fan Reveal",
         meta = (ShowOnlyInnerProperties, EditCondition = "PlaybackMode == EInfinityMotionPlaybackMode::CameraGust", EditConditionHides))

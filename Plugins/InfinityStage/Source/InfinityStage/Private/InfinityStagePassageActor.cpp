@@ -13,7 +13,12 @@
 #include "InfinityStageLightDrama.h"
 #include "InfinityStageBulbBody.h"
 #include "InfinityStageLightMover.h"
+#include "InfinityStageMechanismSound.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundAttenuation.h"
+#include "Sound/SoundBase.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/PointLight.h"
 #include "Engine/RectLight.h"
@@ -43,6 +48,24 @@ static TAutoConsoleVariable<int32> CVarInfinityStageMechanismMarkRenderStateDirt
     TEXT("1: preserve existing behaviour with a separate MarkRenderStateDirty call (default).\n")
     TEXT("2: mark only the last contiguous batch dirty through BatchUpdateInstancesTransforms.\n")
     TEXT("Compare 1 vs 2 for the in-motion smudge; use 0 only as a freeze diagnostic."));
+
+static TAutoConsoleVariable<int32> CVarInfinityStageMechanismSoundEnable(
+    TEXT("InfinityStage.MechanismSound.Enable"),
+    1,
+    TEXT("Wing mechanism sounds (phase Sound Cues and the Passage movement set) in game/PIE worlds.\n")
+    TEXT("0: off (kill switch). 1: on (default). Never plays in editor worlds."));
+
+static TAutoConsoleVariable<float> CVarInfinityStageMechanismSoundMaxRateRatio(
+    TEXT("InfinityStage.MechanismSound.MaxRateRatio"),
+    1.5f,
+    TEXT("A step counts as forward playback, and may fire mechanism sounds, only when Show time advanced\n")
+    TEXT("by at most this multiple of the real time that passed (plus one 60 Hz frame). 1.5 keeps 1x playback\n")
+    TEXT("and silences the 4x hold-right fast-forward, scrubs and jumps."));
+
+static TAutoConsoleVariable<float> CVarInfinityStageMechanismSoundMaxStepSeconds(
+    TEXT("InfinityStage.MechanismSound.MaxStepSeconds"),
+    0.25f,
+    TEXT("Largest single Show-time step, in seconds, that can still fire mechanism sounds."));
 
 namespace
 {
@@ -84,6 +107,24 @@ const FInfinityShowCue* FindCueByGuid(const UInfinityStageShowAsset& Show, const
         return Cue.CueGuid == CueGuid;
     });
 }
+
+EInfinityMechanismSoundCueSide ToMechanismSoundCueSide(const EInfinityPanelSide Side)
+{
+    switch (Side)
+    {
+    case EInfinityPanelSide::Right:
+        return EInfinityMechanismSoundCueSide::Right;
+    case EInfinityPanelSide::Top:
+        return EInfinityMechanismSoundCueSide::Top;
+    case EInfinityPanelSide::Left:
+    default:
+        return EInfinityMechanismSoundCueSide::Left;
+    }
+}
+
+/** History key for pair-level sound (Side = Pair and the movement set): one past
+ * every EInfinityPanelSide value, so it never collides with a panel's key. */
+constexpr uint8 MechanismSoundPairKey = 0xFF;
 
 FString MakeRenderKey(const FInfinityPanelDesign& Panel)
 {
@@ -1271,6 +1312,9 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
     });
     if (!Passage || MasterFrame < Passage->SegmentStartFrame || MasterFrame > Passage->SegmentEndFrame)
     {
+        // Wings freeze outside their Passage, and so do their sounds: forget the
+        // history so re-entering (forwards or by a jump) never fires on arrival.
+        ResetMechanismSoundHistory();
         return false;
     }
 
@@ -1326,6 +1370,78 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
         FTransform NewWorldTransform = FTransform::Identity;
     };
     TMap<UInstancedStaticMeshComponent*, TArray<FPendingMechanismInstanceTransform>> PendingUpdatesByComponent;
+
+    // Mechanism sound (InfinityStageMechanismSound.h). Game/PIE worlds only: the
+    // editor's authoring scrubs and the Cue Desk preview never make a sound.
+    UWorld* SoundWorld = GetWorld();
+    const bool bVoiceMechanisms = SoundWorld
+        && SoundWorld->IsGameWorld()
+        && Route
+        && CVarInfinityStageMechanismSoundEnable.GetValueOnGameThread() != 0;
+    bool bForwardSoundStep = false;
+    double SoundWorldSeconds = 0.0;
+    FVector SoundCameraLocation = FVector::ZeroVector;
+    const FInfinityMechanismSoundSet* SoundSet = PassageSettings ? &PassageSettings->MechanismSound : nullptr;
+    const double SoundAudibleRadiusCm = SoundSet ? SoundSet->AudibleRadiusCm : 4000.0;
+    TSet<FGuid> SoundPairsVoiced;
+    TArray<int32> CrossedSoundCues;
+    if (!bVoiceMechanisms)
+    {
+        if (bMechanismSoundHistoryValid)
+        {
+            ResetMechanismSoundHistory();
+        }
+    }
+    else
+    {
+        SoundWorldSeconds = SoundWorld->GetTimeSeconds();
+        SoundCameraLocation = Route->GetLocationAtDistanceAlongSpline(
+            static_cast<float>(EvaluatedCameraDistanceCm),
+            ESplineCoordinateSpace::World);
+        if (!bMechanismSoundHistoryValid)
+        {
+            // First evaluation in this Passage: load everything it may play now,
+            // not at a cue. This step only records history; it fires nothing.
+            PreloadMechanismSounds(*Passage);
+        }
+        else
+        {
+            const double TicksPerSecond = ShowAsset->TickResolution.AsDecimal();
+            const double ShowDeltaSeconds = TicksPerSecond > UE_DOUBLE_SMALL_NUMBER
+                ? (MasterFrame.Value - LastMechanismSoundMasterFrame) / TicksPerSecond
+                : 0.0;
+            const double RealElapsedSeconds = SoundWorldSeconds - LastMechanismSoundWorldSeconds;
+            bForwardSoundStep = InfinityStageMechanismSound::IsForwardPlaybackStep(
+                ShowDeltaSeconds,
+                RealElapsedSeconds,
+                CVarInfinityStageMechanismSoundMaxRateRatio.GetValueOnGameThread(),
+                CVarInfinityStageMechanismSoundMaxStepSeconds.GetValueOnGameThread());
+        }
+    }
+    const auto VoiceMechanismSound = [&](
+        const TSoftObjectPtr<USoundBase>& Sound,
+        const TSoftObjectPtr<USoundAttenuation>& AttenuationOverride,
+        const FName Label,
+        const FVector& Location,
+        const float VolumeMultiplier,
+        const float PitchMultiplier)
+    {
+        // Only wings near the camera are voiced (FInfinityMechanismSoundSet::AudibleRadiusCm).
+        if (SoundAudibleRadiusCm > 0.0
+            && FVector::DistSquared(Location, SoundCameraLocation) > FMath::Square(SoundAudibleRadiusCm))
+        {
+            return;
+        }
+        PlayMechanismSound(
+            Sound,
+            AttenuationOverride,
+            Label,
+            Location,
+            VolumeMultiplier,
+            PitchMultiplier,
+            SoundAudibleRadiusCm);
+    };
+
     for (const FInfinityMaterializedPanelRef& Ref : MaterializedPanels)
     {
         if (!IsValid(Ref.Component) || Ref.InstanceIndex == INDEX_NONE)
@@ -1344,6 +1460,8 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
 
         const FInfinityMechanismMotion& Motion = Cue->WingPair.Mechanism;
         double Phase = 0.0;
+        double SoundPhase = 0.0;
+        bool bLoopingSoundPhase = false;
         if (Motion.PlaybackMode == EInfinityMotionPlaybackMode::CameraGust)
         {
             const FInfinityCameraGustSettings& Gust = Motion.CameraGust;
@@ -1432,8 +1550,16 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
             }
             else
             {
+                // Loops: sound cues read the UNWRAPPED phase, so a cue repeats
+                // every cycle and a cue near 0 still fires across the wrap.
+                SoundPhase = Phase;
+                bLoopingSoundPhase = true;
                 Phase = Phase - FMath::Floor(Phase);
             }
+        }
+        if (!bLoopingSoundPhase)
+        {
+            SoundPhase = Phase;
         }
 
         const FRuntimeFloatCurve* Curve = &Motion.LeftNormalizedCurve;
@@ -1516,6 +1642,92 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
                 InwardWorldDirection * NormalizedTravel * Motion.InwardTravelCm * TravelScale);
         }
 
+        if (bVoiceMechanisms)
+        {
+            const bool bSoundCuesMuted = Cue->WingPair.bMuteMechanismSound
+                || (SoundSet && SoundSet->bMuteSoundCues);
+            const auto VoiceCrossedCues = [&](
+                const EInfinityMechanismSoundCueSide CueSide,
+                const double PreviousPhase,
+                const FTransform& Frame)
+            {
+                InfinityStageMechanismSound::CollectCrossedCues(
+                    Motion.SoundCues,
+                    CueSide,
+                    PreviousPhase,
+                    SoundPhase,
+                    bLoopingSoundPhase,
+                    bSoundCuesMuted,
+                    CrossedSoundCues);
+                for (const int32 CueIndex : CrossedSoundCues)
+                {
+                    const FInfinityMechanismSoundCue& SoundCue = Motion.SoundCues[CueIndex];
+                    VoiceMechanismSound(
+                        SoundCue.Sound,
+                        SoundCue.AttenuationOverride,
+                        SoundCue.Label,
+                        Frame.TransformPosition(SoundCue.LocalOffsetCm),
+                        SoundCue.VolumeMultiplier,
+                        SoundCue.PitchMultiplier);
+                }
+            };
+
+            // Panel-side cues, at the panel's evaluated pose.
+            const TPair<FGuid, uint8> PanelKey(Ref.CueGuid, static_cast<uint8>(Ref.Side));
+            if (const FMechanismSoundHistory* History = MechanismSoundHistory.Find(PanelKey);
+                History && bForwardSoundStep)
+            {
+                VoiceCrossedCues(ToMechanismSoundCueSide(Ref.Side), History->Phase, NewWorldTransform);
+            }
+            FMechanismSoundHistory& PanelHistory = MechanismSoundHistory.FindOrAdd(PanelKey);
+            PanelHistory.Phase = SoundPhase;
+            PanelHistory.Travel = NormalizedTravel;
+
+            // Pair-level sound once per pair, on its first panel in materialization
+            // order (the Left, which AddPanelInstance places first).
+            bool bPairAlreadyVoiced = false;
+            SoundPairsVoiced.Add(Ref.CueGuid, &bPairAlreadyVoiced);
+            if (!bPairAlreadyVoiced)
+            {
+                const TPair<FGuid, uint8> PairKey(Ref.CueGuid, MechanismSoundPairKey);
+                const FMechanismSoundHistory* PairHistory = MechanismSoundHistory.Find(PairKey);
+                if (PairHistory && bForwardSoundStep)
+                {
+                    const FTransform PairWorld = Cue->WingPair.OccurrenceOffset
+                        * Route->GetTransformAtDistanceAlongSpline(
+                            static_cast<float>(CompiledWing->DistanceCm),
+                            ESplineCoordinateSpace::World,
+                            true);
+                    VoiceCrossedCues(EInfinityMechanismSoundCueSide::Pair, PairHistory->Phase, PairWorld);
+
+                    // The Passage movement set: its sound starts when this pair's
+                    // travel first passes Movement Threshold (magnitude, upward).
+                    if (SoundSet
+                        && SoundSet->bEnabled
+                        && InfinityStageMechanismSound::CrossesThresholdUpward(
+                            PairHistory->Travel,
+                            NormalizedTravel,
+                            SoundSet->MovementThreshold))
+                    {
+                        const int32 SetIndex = GetMechanismSoundIndexForCue(Ref.CueGuid);
+                        if (SoundSet->Sounds.IsValidIndex(SetIndex))
+                        {
+                            VoiceMechanismSound(
+                                SoundSet->Sounds[SetIndex],
+                                TSoftObjectPtr<USoundAttenuation>(),
+                                FName(TEXT("MovementStart")),
+                                PairWorld.GetLocation(),
+                                SoundSet->Gain,
+                                1.0f);
+                        }
+                    }
+                }
+                FMechanismSoundHistory& StoredPairHistory = MechanismSoundHistory.FindOrAdd(PairKey);
+                StoredPairHistory.Phase = SoundPhase;
+                StoredPairHistory.Travel = NormalizedTravel;
+            }
+        }
+
         FTransform PreviousWorldTransform;
         if (!Ref.Component->GetInstanceTransform(Ref.InstanceIndex, PreviousWorldTransform, true))
         {
@@ -1533,6 +1745,12 @@ bool AInfinityStagePassageActor::EvaluateMechanismsInternal(
         Pending.InstanceIndex = Ref.InstanceIndex;
         Pending.PreviousWorldTransform = PreviousWorldTransform;
         Pending.NewWorldTransform = NewWorldTransform;
+    }
+    if (bVoiceMechanisms)
+    {
+        LastMechanismSoundMasterFrame = static_cast<double>(MasterFrame.Value);
+        LastMechanismSoundWorldSeconds = SoundWorldSeconds;
+        bMechanismSoundHistoryValid = true;
     }
 
     bool bAllUpdatesSucceeded = true;
@@ -2095,4 +2313,139 @@ int32 AInfinityStagePassageActor::GetMechanismSoundIndexForCue(const FGuid CueGu
         return static_cast<int32>(Seed % static_cast<uint32>(Set.Sounds.Num()));
     }
     }
+}
+
+void AInfinityStagePassageActor::SetMechanismSoundDryRunForTests(const bool bDryRun)
+{
+    bMechanismSoundDryRunForTests = bDryRun;
+    if (bDryRun)
+    {
+        FiredMechanismSoundsForTests.Reset();
+    }
+}
+
+void AInfinityStagePassageActor::ResetMechanismSoundHistory()
+{
+    MechanismSoundHistory.Reset();
+    bMechanismSoundHistoryValid = false;
+}
+
+void AInfinityStagePassageActor::PreloadMechanismSounds(const FInfinityCompiledPassage& Passage)
+{
+    if (!ShowAsset || bMechanismSoundDryRunForTests)
+    {
+        return;
+    }
+    const auto Keep = [this](UObject* Loaded)
+    {
+        if (Loaded)
+        {
+            PreloadedMechanismSoundAssets.AddUnique(Loaded);
+        }
+    };
+    for (const FInfinityCompiledWing& Wing : Passage.Wings)
+    {
+        const FInfinityShowCue* Cue = FindCueByGuid(*ShowAsset, Wing.CueGuid);
+        if (!Cue)
+        {
+            continue;
+        }
+        for (const FInfinityMechanismSoundCue& SoundCue : Cue->WingPair.Mechanism.SoundCues)
+        {
+            if (!SoundCue.Sound.IsNull())
+            {
+                Keep(SoundCue.Sound.LoadSynchronous());
+            }
+            if (!SoundCue.AttenuationOverride.IsNull())
+            {
+                Keep(SoundCue.AttenuationOverride.LoadSynchronous());
+            }
+        }
+    }
+    const FInfinityPassageSettings* Settings = ShowAsset->PassageSettings.FindByPredicate(
+        [this](const FInfinityPassageSettings& Candidate)
+        { return Candidate.PassageGuid == PassageGuid; });
+    if (Settings && Settings->MechanismSound.bEnabled)
+    {
+        for (const TSoftObjectPtr<USoundBase>& Sound : Settings->MechanismSound.Sounds)
+        {
+            if (!Sound.IsNull())
+            {
+                Keep(Sound.LoadSynchronous());
+            }
+        }
+    }
+}
+
+void AInfinityStagePassageActor::PlayMechanismSound(
+    const TSoftObjectPtr<USoundBase>& Sound,
+    const TSoftObjectPtr<USoundAttenuation>& AttenuationOverride,
+    const FName Label,
+    const FVector& Location,
+    const float VolumeMultiplier,
+    const float PitchMultiplier,
+    const double AudibleRadiusCm)
+{
+    if (Sound.IsNull())
+    {
+        return;
+    }
+    if (bMechanismSoundDryRunForTests)
+    {
+        FiredMechanismSoundsForTests.Add(Label);
+        return;
+    }
+    // Normally already loaded by PreloadMechanismSounds; a Show edited in PIE
+    // after the Passage started can still reach here unloaded.
+    USoundBase* Loaded = Sound.Get();
+    if (!Loaded)
+    {
+        Loaded = Sound.LoadSynchronous();
+    }
+    if (!Loaded)
+    {
+        return;
+    }
+    USoundAttenuation* Attenuation = AttenuationOverride.IsNull()
+        ? nullptr
+        : AttenuationOverride.LoadSynchronous();
+    if (!Attenuation)
+    {
+        // Spherical, linear falloff over the Passage set's Audible Radius, so a
+        // cue is always spatialised at its panel. Rebuilt only if the radius changes.
+        constexpr float InnerRadius = 200.0f;
+        const float Falloff = FMath::Max(1.0f, static_cast<float>(FMath::Max(100.0, AudibleRadiusCm)) - InnerRadius);
+        if (!MechanismSoundFallbackAttenuation
+            || !FMath::IsNearlyEqual(MechanismSoundFallbackAttenuation->Attenuation.FalloffDistance, Falloff))
+        {
+            MechanismSoundFallbackAttenuation = NewObject<USoundAttenuation>(this, NAME_None, RF_Transient);
+            FSoundAttenuationSettings& Settings = MechanismSoundFallbackAttenuation->Attenuation;
+            Settings.bAttenuate = true;
+            Settings.bSpatialize = true;
+            Settings.DistanceAlgorithm = EAttenuationDistanceModel::Linear;
+            Settings.AttenuationShape = EAttenuationShape::Sphere;
+            Settings.AttenuationShapeExtents = FVector(InnerRadius, 0.0, 0.0);
+            Settings.FalloffDistance = Falloff;
+        }
+        Attenuation = MechanismSoundFallbackAttenuation;
+    }
+    UE_LOG(
+        LogInfinityStageMaterialization,
+        Verbose,
+        TEXT("INFINITY_STAGE_MECHANISM_SOUND actor='%s' label='%s' sound='%s' at=%s"),
+        *GetActorNameOrLabel(),
+        *Label.ToString(),
+        *Loaded->GetName(),
+        *Location.ToCompactString());
+    UGameplayStatics::PlaySoundAtLocation(
+        this,
+        Loaded,
+        Location,
+        FRotator::ZeroRotator,
+        VolumeMultiplier,
+        PitchMultiplier,
+        0.0f,
+        Attenuation,
+        nullptr,
+        this);
 }
