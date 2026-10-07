@@ -1,0 +1,7249 @@
+{
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreKlaraReveal-S4-KLARAREVEAL-20261007-092823",
+ "before": {
+  "cuts": [
+   {
+    "active": true,
+    "camera": "Scene 4 \u2014 External Sound \u2014 Entry Handoff Camera",
+    "guid": "EAE7B91EB8494A09208793B0C0262B55",
+    "range": [
+     0,
+     4865
+    ]
+   },
+   {
+    "active": true,
+    "camera": "Scene 4 \u2014 External Sound \u2014 Exit Handoff Camera",
+    "guid": "188D6B52914A98F82DB52AB23339C29C",
+    "range": [
+     4865,
+     4890
+    ]
+   }
+  ],
+  "hookin_bindings": [
+   {
+    "name": "Klara Hookin - Hers Dark: DirectionalLight",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: SkyAtmosphere",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: SkyLight",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Hers Dark: VolumetricCloud",
+    "range": [
+     104,
+     376
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+    "range": [
+     376,
+     4476
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+    "range": [
+     376,
+     4476
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+    "range": [
+     376,
+     4476
+    ]
+   },
+   {
+    "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+    "range": [
+     376,
+     4476
+    ]
+   },
+   {
+    "name": "Klara Levels (hookin)",
+    "range": [
+     104,
+     4476
+    ]
+   }
+  ],
+  "level_transform": {
+   "loc": [
+    13639.9695,
+    240008.5,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "playback": [
+   0,
+   4890
+  ],
+  "slot": {
+   "offset_tick": 0,
+   "range": [
+    376,
+    4476
+   ]
+  }
+ },
+ "copy_shift": [
+  {
+   "binding": "Floor",
+   "keys": {
+    "x": 1,
+    "y": 1,
+    "z": 1
+   }
+  },
+  {
+   "binding": "Paper_Fall_Cagliuso_Handwritten_30fps",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 2
+   }
+  },
+  {
+   "binding": "CineCameraActor",
+   "keys": {
+    "x": 3,
+    "y": 3,
+    "z": 3
+   }
+  },
+  {
+   "binding": "CineCameraActor2",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "BP_MHC_Child",
+   "keys": {
+    "x": 1,
+    "y": 1,
+    "z": 9
+   }
+  },
+  {
+   "binding": "BP_MHC_Child3",
+   "keys": {
+    "x": 1,
+    "y": 2,
+    "z": 4
+   }
+  },
+  {
+   "binding": "GC_Old_Book",
+   "keys": {
+    "x": 1,
+    "y": 1,
+    "z": 2
+   }
+  },
+  {
+   "binding": "BP_MHC_Child2",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 4
+   }
+  },
+  {
+   "binding": "Pendulum",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+   }
+  },
+  {
+   "binding": "BP_MHC_Child5",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 8
+   }
+  },
+  {
+   "binding": "BP_MHC_Child7",
+   "keys": {
+    "x": 1,
+    "y": 2,
+    "z": 19
+   }
+  },
+  {
+   "binding": "BP_MHC_Child6",
+   "keys": {
+    "x": 0,
+    "y": 0,
+    "z": 10
+   }
+  },
+  {
+   "binding": "CineCameraActor3",
+   "keys": {
+    "x": 5,
+    "y": 5,
+    "z": 5
+   }
+  },
+  {
+   "binding": "BP_MHC_Child4",
+   "keys": {
+    "x": 0,
+    "y": 1,
+    "z": 8
+   }
+  },
+  {
+   "binding": "SK_Pigeon_01",
+   "keys": {
+    "x": 2,
+    "y": 1,
+    "z": 2
+   }
+  }
+ ],
+ "cuts_after": [
+  {
+   "active": true,
+   "camera": "Scene 4 \u2014 External Sound \u2014 Entry Handoff Camera",
+   "guid": "EAE7B91EB8494A09208793B0C0262B55",
+   "range": [
+    0,
+    119
+   ]
+  },
+  {
+   "active": true,
+   "camera": "Klara Reveal - S4 Reveal Glide Camera",
+   "guid": "DB2119854BFC4D77CE25DF97413B8600",
+   "range": [
+    119,
+    4865
+   ]
+  },
+  {
+   "active": true,
+   "camera": "Scene 4 \u2014 External Sound \u2014 Exit Handoff Camera",
+   "guid": "188D6B52914A98F82DB52AB23339C29C",
+   "range": [
+    4865,
+    4890
+   ]
+  }
+ ],
+ "decided_by": "Gary 7 Oct (his own words, conductor session): don't rescale Klara, fit the hangar around her diorama in front of the camera; camera glides in the dark to her first frame; hangar lights structure-only, floor dark; her lights strike one by one; crossfade into her lighting (no hard switch). Conductor: allow_lattice_overlap (trees 1255 cm vs lattice 1200, check in stills). | S4 (Gary 7 Oct, conductor session): adapt her dark opening / glide in the dark (reveal_style auto -> her_dark_pan); 'Rebuild the S4 hangar bigger' (resized in place HANGARRESIZES4-20261007-092739).",
+ "glide_camera": "S4 Reveal Glide Camera",
+ "glide_report": {
+  "distance_cm": 1461.9091017231074,
+  "end_speed_cm_s": 0.0,
+  "frames": [
+   119,
+   307
+  ],
+  "overshoot": [],
+  "peak_speed_cm_s": 291.6042091203003,
+  "seconds": 7.52,
+  "start_speed_cm_s": 0.0,
+  "turn_deg": [
+   0.0,
+   6.000000000000003,
+   5.0
+  ],
+  "want_end_speed_cm_s": 0.0,
+  "want_start_speed_cm_s": 0.0
+ },
+ "hookin_after": [
+  {
+   "name": "Klara Hookin - Hers Dark: DirectionalLight",
+   "range": [
+    104,
+    320
+   ]
+  },
+  {
+   "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+   "range": [
+    104,
+    320
+   ]
+  },
+  {
+   "name": "Klara Hookin - Hers Dark: SkyAtmosphere",
+   "range": [
+    104,
+    320
+   ]
+  },
+  {
+   "name": "Klara Hookin - Hers Dark: SkyLight",
+   "range": [
+    104,
+    320
+   ]
+  },
+  {
+   "name": "Klara Hookin - Hers Dark: VolumetricCloud",
+   "range": [
+    104,
+    320
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Height Fog",
+   "range": [
+    307,
+    4890
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Skylight",
+   "range": [
+    307,
+    4890
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Dusk Sun",
+   "range": [
+    307,
+    4890
+   ]
+  },
+  {
+   "name": "Klara Hookin - Ours Off: Infinity Stage - Moon",
+   "range": [
+    307,
+    4890
+   ]
+  },
+  {
+   "name": "Klara Levels (hookin)",
+   "range": [
+    104,
+    4890
+   ]
+  }
+ ],
+ "lattice_cancel": [
+  {
+   "arrive": 0.0,
+   "leave": 0.0,
+   "tick": 0,
+   "value": 0.0
+  },
+  {
+   "arrive": 0.0,
+   "leave": 0.0,
+   "tick": 207200,
+   "value": 0.0
+  },
+  {
+   "arrive": 0.0,
+   "leave": 0.0,
+   "tick": 303200,
+   "value": 1200.0
+  }
+ ],
+ "level_move": {
+  "probe_after": {
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.Floor_0": [
+    11435.666958091559,
+    239706.9759904295,
+    -0.5
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_0": [
+    11448.666958091559,
+    239706.9759904295,
+    0.0
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_3": [
+    12829.39954109156,
+    240097.55977842948,
+    13.4375
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_4": [
+    13065.666958091559,
+    239737.9759904295,
+    -52.0
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_5": [
+    11809.666958091559,
+    239293.9759904295,
+    -26.0
+   ]
+  },
+  "probe_before": {
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.Floor_0": [
+    13639.9695,
+    240008.5,
+    -0.5
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_0": [
+    13652.9695,
+    240008.5,
+    0.0
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_3": [
+    15033.702083,
+    240399.083788,
+    13.4375
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_4": [
+    15269.9695,
+    240039.5,
+    -52.0
+   ],
+   "/Game/L_KK_children.L_KK_children:PersistentLevel.StaticMeshActor_5": [
+    14013.9695,
+    239595.5,
+    -26.0
+   ]
+  }
+ },
+ "manifest": [
+  {
+   "sha256": "9d8eb7dd2b105e1806b6b08e67c457f396bdb2c9a97e9f8068f774c7ae18190a",
+   "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Maps\\L_InfinityStage_V1VerticalSlice.umap"
+  },
+  {
+   "sha256": "f8ba797cdb59e8456d953ff5ad6e18066787be413f8615c38915416d77c4a782",
+   "source": "E:/PussStage/Content\\InfinityStage\\Dev\\Sequences\\LS_DevScene_04.uasset"
+  },
+  {
+   "sha256": "8958a0583fc7c94a5cb10c2f04cba3981efe7a9a126296d0ae308b0c669067ea",
+   "source": "E:/PussStage/Content\\InfinityStage\\KlaraHookin\\LS_Children_S4Hangar.uasset"
+  }
+ ],
+ "plan": {
+  "apply_ready": true,
+  "audio": {
+   "her_audio": [
+    {
+     "active": true,
+     "after_skip": "joins mid-sound at the cut: its first 2.07 s are skipped",
+     "end_frame": 4920,
+     "scene_end_frame": 4500.0,
+     "scene_start_frame": 405,
+     "sound": "/Game/L_K_Children/Children_Project_wFlute_1_",
+     "start_frame": -56
+    },
+    {
+     "active": true,
+     "after_skip": "joins mid-sound at the cut: its first 2.07 s are skipped",
+     "end_frame": 4920,
+     "scene_end_frame": 4500.0,
+     "scene_start_frame": 405,
+     "sound": "/Game/L_K_Children/Children_Project_CENTRE",
+     "start_frame": -56
+    },
+    {
+     "active": true,
+     "after_skip": "joins mid-sound at the cut: its first 2.07 s are skipped",
+     "end_frame": 4920,
+     "scene_end_frame": 4500.0,
+     "scene_start_frame": 405,
+     "sound": "/Game/L_K_Children/Children_Project_CLICK",
+     "start_frame": -56
+    }
+   ],
+   "scene_audio_all": [],
+   "scene_audio_past_end": [],
+   "scene_markers_all": [],
+   "scene_markers_past_end": []
+  },
+  "cuts_after": [
+   [
+    "entry",
+    [
+     0,
+     119
+    ]
+   ],
+   [
+    "glide",
+    [
+     119,
+     4865
+    ]
+   ],
+   [
+    "exit",
+    [
+     4865,
+     4890
+    ]
+   ]
+  ],
+  "extend_mode": {
+   "dry_run": true,
+   "new_end_s": 195.6,
+   "scene_label": "Scene 4 \u2014 External Sound"
+  },
+  "first_frame_sees": {
+   "far_wall": 0,
+   "floor": 0,
+   "left_wall": 0,
+   "open": 0,
+   "right_wall": 0,
+   "roof": 0,
+   "set": 45
+  },
+  "footprint": {
+   "box": [
+    13372.772041908442,
+    16055.469531948089,
+    239426.1591731902,
+    241289.07825279696,
+    -81.81555219066774,
+    1354.9234914184754
+   ],
+   "excluded": [
+    {
+     "class": "DirectionalLight",
+     "label": "DirectionalLight",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "ExponentialHeightFog",
+     "label": "ExponentialHeightFog",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SkyAtmosphere",
+     "label": "SkyAtmosphere",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SkyLight",
+     "label": "SkyLight",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_SkySphere",
+     "why": "size 32768 m > 40 m"
+    },
+    {
+     "class": "VolumetricCloud",
+     "label": "VolumetricCloud",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor2",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Floor",
+     "why": "size 80 m > 40 m"
+    },
+    {
+     "class": "PlayerStart",
+     "label": "PlayerStart",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight2",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight3",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight4",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight6",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "Spot_MainLight_window",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "Actor",
+     "label": "Diorama_Origin_children",
+     "why": "no mesh/cache/Niagara component"
+    },
+    {
+     "class": "BP_Pendulum_C",
+     "label": "Pendulum_Anchor",
+     "why": "no mesh/cache/Niagara component"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child5",
+     "why": "size 2409 m > 40 m"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child6",
+     "why": "size 2412 m > 40 m"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child7",
+     "why": "size 2409 m > 40 m"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child",
+     "why": "size 2410 m > 40 m"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child2",
+     "why": "size 2411 m > 40 m"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child3",
+     "why": "size 2409 m > 40 m"
+    },
+    {
+     "class": "BP_MHC_Child_C",
+     "label": "BP_MHC_Child4",
+     "why": "size 2412 m > 40 m"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight7",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "CineCameraActor",
+     "label": "CineCameraActor3",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "SpotLight",
+     "label": "SpotLight5",
+     "why": "environment/light/volume class"
+    },
+    {
+     "class": "LevelSequenceActor",
+     "label": "LS_Children",
+     "why": "no mesh/cache/Niagara component"
+    }
+   ],
+   "kept": [
+    {
+     "class": "GeometryCacheActor",
+     "label": "GC_Old_Book"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "polySurface9"
+    },
+    {
+     "class": "SkeletalMeshActor",
+     "label": "SK_Pigeon_01"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Children_Wing1"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Children_Wing2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Children_Wing3"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_L_Children_Wing4"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R_Children_Wing2"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "SM_R_Children_Wing3"
+    },
+    {
+     "class": "SkeletalMeshActor",
+     "label": "Paper_Fall_Cagliuso_Handwritten_30fps"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Pendulum_String"
+    },
+    {
+     "class": "StaticMeshActor",
+     "label": "Pendulum_ball"
+    }
+   ],
+   "kept_count": 12
+  },
+  "fps": 25.0,
+  "hangar_lights": [
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Sleight Twin Lantern",
+    "loc": [
+     15574.32716910628,
+     239029.80000161333,
+     357.0807691844484
+    ],
+    "radius": 4500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Ghost Light",
+    "loc": [
+     14668.469500000001,
+     239600.0,
+     188.0
+    ],
+    "radius": 1500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L1",
+    "loc": [
+     12168.469500000003,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L2",
+    "loc": [
+     12968.469500000003,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L3",
+    "loc": [
+     13768.469500000003,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L4",
+    "loc": [
+     14568.469500000003,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L5",
+    "loc": [
+     15368.469500000003,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L6",
+    "loc": [
+     16168.469500000003,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical L7",
+    "loc": [
+     16968.4695,
+     238640.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R1",
+    "loc": [
+     12168.469500000003,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R2",
+    "loc": [
+     12968.469500000003,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R3",
+    "loc": [
+     13768.469500000003,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R4",
+    "loc": [
+     14568.469500000003,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R5",
+    "loc": [
+     15368.469500000003,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R6",
+    "loc": [
+     16168.469500000003,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Practical R7",
+    "loc": [
+     16968.4695,
+     241360.0,
+     690.0
+    ],
+    "radius": 2500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Uplight 1",
+    "loc": [
+     17018.4695,
+     239100.0,
+     30.0
+    ],
+    "radius": 9500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Uplight 2",
+    "loc": [
+     17018.4695,
+     240000.0,
+     29.99999999999997
+    ],
+    "radius": 9500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "black_color",
+    "class": "SpotLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "label": "S4 Uplight 3",
+    "loc": [
+     17018.4695,
+     240900.0,
+     30.0
+    ],
+    "radius": 9500.0,
+    "range": [
+     0,
+     4890
+    ],
+    "role": "black"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-1",
+    "loc": [
+     11543.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-2",
+    "loc": [
+     12293.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-3",
+    "loc": [
+     13043.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-4",
+    "loc": [
+     13793.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-5",
+    "loc": [
+     14543.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-6",
+    "loc": [
+     15293.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-7",
+    "loc": [
+     16043.469500000001,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 1-8",
+    "loc": [
+     16793.4695,
+     238900.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-1",
+    "loc": [
+     11543.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-2",
+    "loc": [
+     12293.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-3",
+    "loc": [
+     13043.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-4",
+    "loc": [
+     13793.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-5",
+    "loc": [
+     14543.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-6",
+    "loc": [
+     15293.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-7",
+    "loc": [
+     16043.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 2-8",
+    "loc": [
+     16793.469500000003,
+     240000.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-1",
+    "loc": [
+     11543.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-2",
+    "loc": [
+     12293.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-3",
+    "loc": [
+     13043.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-4",
+    "loc": [
+     13793.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-5",
+    "loc": [
+     14543.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-6",
+    "loc": [
+     15293.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-7",
+    "loc": [
+     16043.469500000001,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   },
+   {
+    "action": "fade_color",
+    "class": "PointLight",
+    "color": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_keys": [
+     [
+      282,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ],
+     [
+      320,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4627,
+      [
+       0.0,
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     [
+      4665,
+      [
+       1.0,
+       1.0,
+       1.0,
+       1.0
+      ]
+     ]
+    ],
+    "label": "S4 Lattice Glow 3-8",
+    "loc": [
+     16793.4695,
+     241100.0,
+     1711.0
+    ],
+    "radius": 800.0,
+    "range": [
+     282,
+     4666
+    ],
+    "reach": {
+     "clamp_cm": null,
+     "floor_gap_cm": 1711.0,
+     "radius_cm": 800.0,
+     "reaches_floor": false,
+     "reaches_set": false
+    },
+    "role": "ceiling"
+   }
+  ],
+  "hangar_proposal": {
+   "encloses": true,
+   "k_new": 1.0,
+   "k_now": 1.0,
+   "params": {
+    "apron": 500.0,
+    "depth": 4000.0,
+    "half_w": 1500.0,
+    "height": 3000.0,
+    "lattice_z": 1700.0
+   },
+   "timing_changes": false
+  },
+  "her_env": [
+   {
+    "action": "ramp",
+    "class": "DirectionalLight",
+    "curve": null,
+    "her_keyed": false,
+    "intro": [
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.0025792163425021703
+     ],
+     [
+      322,
+      0.010224337429470489
+     ],
+     [
+      323,
+      0.022796571350097657
+     ],
+     [
+      324,
+      0.0401571261935764
+     ],
+     [
+      325,
+      0.0621672100490994
+     ],
+     [
+      326,
+      0.08868803100585938
+     ],
+     [
+      327,
+      0.11958079715304906
+     ],
+     [
+      328,
+      0.15470671657986115
+     ],
+     [
+      329,
+      0.19392699737548824
+     ],
+     [
+      330,
+      0.2371028476291233
+     ],
+     [
+      331,
+      0.2840954754299588
+     ],
+     [
+      332,
+      0.3347660888671875
+     ],
+     [
+      333,
+      0.38897589603000216
+     ],
+     [
+      334,
+      0.4465861050075955
+     ],
+     [
+      335,
+      0.5074579238891602
+     ],
+     [
+      336,
+      0.571452560763889
+     ],
+     [
+      337,
+      0.6384312237209744
+     ],
+     [
+      338,
+      0.7082551208496094
+     ],
+     [
+      339,
+      0.7807854602389868
+     ],
+     [
+      340,
+      0.8558834499782987
+     ],
+     [
+      341,
+      0.9334102981567384
+     ],
+     [
+      342,
+      1.0132272128634983
+     ],
+     [
+      343,
+      1.095195402187771
+     ],
+     [
+      344,
+      1.17917607421875
+     ],
+     [
+      345,
+      1.2650304370456271
+     ],
+     [
+      346,
+      1.3526196987575956
+     ],
+     [
+      347,
+      1.4418050674438478
+     ],
+     [
+      348,
+      1.5324477511935766
+     ],
+     [
+      349,
+      1.6244089580959742
+     ],
+     [
+      350,
+      1.717549896240235
+     ],
+     [
+      351,
+      1.811731773715549
+     ],
+     [
+      352,
+      1.9068157986111112
+     ],
+     [
+      353,
+      2.0026631790161136
+     ],
+     [
+      354,
+      2.0991351230197477
+     ],
+     [
+      355,
+      2.1960928387112086
+     ],
+     [
+      356,
+      2.2933975341796873
+     ],
+     [
+      357,
+      2.390910417514377
+     ],
+     [
+      358,
+      2.488492696804471
+     ],
+     [
+      359,
+      2.5860055801391604
+     ],
+     [
+      360,
+      2.683310275607639
+     ],
+     [
+      361,
+      2.780267991299099
+     ],
+     [
+      362,
+      2.876739935302735
+     ],
+     [
+      363,
+      2.9725873157077363
+     ],
+     [
+      364,
+      3.0676713406032987
+     ],
+     [
+      365,
+      3.161853218078613
+     ],
+     [
+      366,
+      3.2549941562228732
+     ],
+     [
+      367,
+      3.3469553631252715
+     ],
+     [
+      368,
+      3.4375980468750003
+     ],
+     [
+      369,
+      3.5267834155612516
+     ],
+     [
+      370,
+      3.61437267727322
+     ],
+     [
+      371,
+      3.7002270401000983
+     ],
+     [
+      372,
+      3.7842077121310767
+     ],
+     [
+      373,
+      3.8661759014553496
+     ],
+     [
+      374,
+      3.9459928161621094
+     ],
+     [
+      375,
+      4.023519664340549
+     ],
+     [
+      376,
+      4.098617654079861
+     ],
+     [
+      377,
+      4.171147993469238
+     ],
+     [
+      378,
+      4.240971890597873
+     ],
+     [
+      379,
+      4.307950553554959
+     ],
+     [
+      380,
+      4.371945190429688
+     ],
+     [
+      381,
+      4.432817009311252
+     ],
+     [
+      382,
+      4.490427218288845
+     ],
+     [
+      383,
+      4.544637025451659
+     ],
+     [
+      384,
+      4.595307638888889
+     ],
+     [
+      385,
+      4.642300266689725
+     ],
+     [
+      386,
+      4.685476116943359
+     ],
+     [
+      387,
+      4.724696397738987
+     ],
+     [
+      388,
+      4.759822317165798
+     ],
+     [
+      389,
+      4.790715083312988
+     ],
+     [
+      390,
+      4.817235904269748
+     ],
+     [
+      391,
+      4.839245988125271
+     ],
+     [
+      392,
+      4.85660654296875
+     ],
+     [
+      393,
+      4.869178776889377
+     ],
+     [
+      394,
+      4.876823897976346
+     ],
+     [
+      395,
+      4.879403114318848
+     ]
+    ],
+    "label": "DirectionalLight",
+    "outro": [
+     [
+      4513,
+      4.879403114318848
+     ],
+     [
+      4514,
+      4.873625901031494
+     ],
+     [
+      4515,
+      4.85660654296875
+     ],
+     [
+      4516,
+      4.82881346282959
+     ],
+     [
+      4517,
+      4.790715083312988
+     ],
+     [
+      4518,
+      4.74277982711792
+     ],
+     [
+      4519,
+      4.685476116943359
+     ],
+     [
+      4520,
+      4.619272375488281
+     ],
+     [
+      4521,
+      4.54463702545166
+     ],
+     [
+      4522,
+      4.46203848953247
+     ],
+     [
+      4523,
+      4.371945190429687
+     ],
+     [
+      4524,
+      4.274825550842285
+     ],
+     [
+      4525,
+      4.171147993469238
+     ],
+     [
+      4526,
+      4.061380941009522
+     ],
+     [
+      4527,
+      3.9459928161621094
+     ],
+     [
+      4528,
+      3.8254520416259767
+     ],
+     [
+      4529,
+      3.7002270401000974
+     ],
+     [
+      4530,
+      3.570786234283447
+     ],
+     [
+      4531,
+      3.437598046875
+     ],
+     [
+      4532,
+      3.3011309005737304
+     ],
+     [
+      4533,
+      3.1618532180786127
+     ],
+     [
+      4534,
+      3.020233422088623
+     ],
+     [
+      4535,
+      2.876739935302734
+     ],
+     [
+      4536,
+      2.731841180419922
+     ],
+     [
+      4537,
+      2.5860055801391604
+     ],
+     [
+      4538,
+      2.439701557159424
+     ],
+     [
+      4539,
+      2.2933975341796873
+     ],
+     [
+      4540,
+      2.147561933898926
+     ],
+     [
+      4541,
+      2.0026631790161127
+     ],
+     [
+      4542,
+      1.8591696922302248
+     ],
+     [
+      4543,
+      1.7175498962402345
+     ],
+     [
+      4544,
+      1.5782722137451168
+     ],
+     [
+      4545,
+      1.4418050674438474
+     ],
+     [
+      4546,
+      1.3086168800354003
+     ],
+     [
+      4547,
+      1.1791760742187494
+     ],
+     [
+      4548,
+      1.0539510726928714
+     ],
+     [
+      4549,
+      0.9334102981567383
+     ],
+     [
+      4550,
+      0.818022173309326
+     ],
+     [
+      4551,
+      0.7082551208496097
+     ],
+     [
+      4552,
+      0.6045775634765622
+     ],
+     [
+      4553,
+      0.5074579238891594
+     ],
+     [
+      4554,
+      0.41736462478637737
+     ],
+     [
+      4555,
+      0.3347660888671884
+     ],
+     [
+      4556,
+      0.2601307388305667
+     ],
+     [
+      4557,
+      0.19392699737548824
+     ],
+     [
+      4558,
+      0.1366232872009281
+     ],
+     [
+      4559,
+      0.08868803100585954
+     ],
+     [
+      4560,
+      0.05058965148925765
+     ],
+     [
+      4561,
+      0.022796571350097494
+     ],
+     [
+      4562,
+      0.005777213287354144
+     ],
+     [
+      4563,
+      0.0
+     ]
+    ],
+    "property": "Intensity",
+    "target_intro": 4.879403114318848,
+    "value": 4.879403114318848,
+    "value_lit": 4.879403114318848
+   },
+   {
+    "action": "ramp",
+    "class": "ExponentialHeightFog",
+    "curve": null,
+    "her_keyed": false,
+    "intro": [
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      2.3046637270185684e-05
+     ],
+     [
+      322,
+      9.135976388719348e-05
+     ],
+     [
+      323,
+      0.00020369920206069947
+     ],
+     [
+      324,
+      0.0003588247740003799
+     ],
+     [
+      325,
+      0.0005554963019159105
+     ],
+     [
+      326,
+      0.0007924736080169679
+     ],
+     [
+      327,
+      0.0010685165145132279
+     ],
+     [
+      328,
+      0.0013823848436143667
+     ],
+     [
+      329,
+      0.0017328384175300596
+     ],
+     [
+      330,
+      0.0021186370584699845
+     ],
+     [
+      331,
+      0.002538540588643816
+     ],
+     [
+      332,
+      0.0029913088302612307
+     ],
+     [
+      333,
+      0.0034757016055319044
+     ],
+     [
+      334,
+      0.003990478736665514
+     ],
+     [
+      335,
+      0.004534400045871735
+     ],
+     [
+      336,
+      0.005106225355360244
+     ],
+     [
+      337,
+      0.005704714487340716
+     ],
+     [
+      338,
+      0.006328627264022827
+     ],
+     [
+      339,
+      0.006976723507616256
+     ],
+     [
+      340,
+      0.0076477630403306756
+     ],
+     [
+      341,
+      0.008340505684375764
+     ],
+     [
+      342,
+      0.009053711261961195
+     ],
+     [
+      343,
+      0.009786139595296646
+     ],
+     [
+      344,
+      0.010536550506591797
+     ],
+     [
+      345,
+      0.011303703818056317
+     ],
+     [
+      346,
+      0.01208635935189989
+     ],
+     [
+      347,
+      0.012883276930332185
+     ],
+     [
+      348,
+      0.01369321637556288
+     ],
+     [
+      349,
+      0.014514937509801651
+     ],
+     [
+      350,
+      0.015347200155258183
+     ],
+     [
+      351,
+      0.016188764134142133
+     ],
+     [
+      352,
+      0.017038389268663197
+     ],
+     [
+      353,
+      0.017894835381031038
+     ],
+     [
+      354,
+      0.018756862293455332
+     ],
+     [
+      355,
+      0.01962322982814577
+     ],
+     [
+      356,
+      0.02049269780731201
+     ],
+     [
+      357,
+      0.021364026053163742
+     ],
+     [
+      358,
+      0.022235974387910633
+     ],
+     [
+      359,
+      0.023107302633762362
+     ],
+     [
+      360,
+      0.0239767706129286
+     ],
+     [
+      361,
+      0.024843138147619036
+     ],
+     [
+      362,
+      0.02570516506004334
+     ],
+     [
+      363,
+      0.026561611172411174
+     ],
+     [
+      364,
+      0.02741123630693224
+     ],
+     [
+      365,
+      0.028252800285816195
+     ],
+     [
+      366,
+      0.029085062931272717
+     ],
+     [
+      367,
+      0.029906784065511494
+     ],
+     [
+      368,
+      0.03071672351074219
+     ],
+     [
+      369,
+      0.031513641089174475
+     ],
+     [
+      370,
+      0.03229629662301805
+     ],
+     [
+      371,
+      0.033063449934482576
+     ],
+     [
+      372,
+      0.03381386084577773
+     ],
+     [
+      373,
+      0.03454628917911318
+     ],
+     [
+      374,
+      0.03525949475669861
+     ],
+     [
+      375,
+      0.03595223740074369
+     ],
+     [
+      376,
+      0.03662327693345812
+     ],
+     [
+      377,
+      0.037271373177051544
+     ],
+     [
+      378,
+      0.037895285953733655
+     ],
+     [
+      379,
+      0.03849377508571413
+     ],
+     [
+      380,
+      0.03906560039520264
+     ],
+     [
+      381,
+      0.03960952170440886
+     ],
+     [
+      382,
+      0.040124298835542464
+     ],
+     [
+      383,
+      0.04060869161081314
+     ],
+     [
+      384,
+      0.04106145985243056
+     ],
+     [
+      385,
+      0.04148136338260439
+     ],
+     [
+      386,
+      0.04186716202354431
+     ],
+     [
+      387,
+      0.042217615597460005
+     ],
+     [
+      388,
+      0.04253148392656114
+     ],
+     [
+      389,
+      0.042807526833057406
+     ],
+     [
+      390,
+      0.04304450413915846
+     ],
+     [
+      391,
+      0.043241175667073986
+     ],
+     [
+      392,
+      0.04339630123901367
+     ],
+     [
+      393,
+      0.043508640677187176
+     ],
+     [
+      394,
+      0.04357695380380419
+     ],
+     [
+      395,
+      0.04360000044107437
+     ]
+    ],
+    "label": "ExponentialHeightFog",
+    "outro": [
+     [
+      4513,
+      0.04360000044107437
+     ],
+     [
+      4514,
+      0.04354837804055214
+     ],
+     [
+      4515,
+      0.043396301239013675
+     ],
+     [
+      4516,
+      0.04314795563650131
+     ],
+     [
+      4517,
+      0.042807526833057406
+     ],
+     [
+      4518,
+      0.04237920042872429
+     ],
+     [
+      4519,
+      0.04186716202354431
+     ],
+     [
+      4520,
+      0.041275597217559815
+     ],
+     [
+      4521,
+      0.04060869161081314
+     ],
+     [
+      4522,
+      0.039870630803346636
+     ],
+     [
+      4523,
+      0.03906560039520263
+     ],
+     [
+      4524,
+      0.03819778598642349
+     ],
+     [
+      4525,
+      0.037271373177051544
+     ],
+     [
+      4526,
+      0.036290547567129135
+     ],
+     [
+      4527,
+      0.03525949475669861
+     ],
+     [
+      4528,
+      0.034182400345802305
+     ],
+     [
+      4529,
+      0.033063449934482576
+     ],
+     [
+      4530,
+      0.031906829122781755
+     ],
+     [
+      4531,
+      0.030716723510742186
+     ],
+     [
+      4532,
+      0.029497318698406216
+     ],
+     [
+      4533,
+      0.028252800285816188
+     ],
+     [
+      4534,
+      0.02698735387301445
+     ],
+     [
+      4535,
+      0.025705165060043333
+     ],
+     [
+      4536,
+      0.02441041944694519
+     ],
+     [
+      4537,
+      0.023107302633762362
+     ],
+     [
+      4538,
+      0.021800000220537186
+     ],
+     [
+      4539,
+      0.02049269780731201
+     ],
+     [
+      4540,
+      0.01918958099412918
+     ],
+     [
+      4541,
+      0.01789483538103103
+     ],
+     [
+      4542,
+      0.016612646568059924
+     ],
+     [
+      4543,
+      0.015347200155258176
+     ],
+     [
+      4544,
+      0.014102681742668152
+     ],
+     [
+      4545,
+      0.012883276930332182
+     ],
+     [
+      4546,
+      0.011693171318292617
+     ],
+     [
+      4547,
+      0.010536550506591795
+     ],
+     [
+      4548,
+      0.009417600095272066
+     ],
+     [
+      4549,
+      0.008340505684375762
+     ],
+     [
+      4550,
+      0.007309452873945237
+     ],
+     [
+      4551,
+      0.006328627264022828
+     ],
+     [
+      4552,
+      0.005402214454650875
+     ],
+     [
+      4553,
+      0.004534400045871731
+     ],
+     [
+      4554,
+      0.003729369637727742
+     ],
+     [
+      4555,
+      0.002991308830261233
+     ],
+     [
+      4556,
+      0.0023244032235145567
+     ],
+     [
+      4557,
+      0.0017328384175300596
+     ],
+     [
+      4558,
+      0.0012208000123500803
+     ],
+     [
+      4559,
+      0.000792473608016965
+     ],
+     [
+      4560,
+      0.0004520448045730596
+     ],
+     [
+      4561,
+      0.00020369920206070313
+     ],
+     [
+      4562,
+      5.16224005222346e-05
+     ],
+     [
+      4563,
+      0.0
+     ]
+    ],
+    "property": "FogDensity",
+    "target_intro": 0.04360000044107437,
+    "value": 0.04360000044107437,
+    "value_lit": 0.04360000044107437
+   },
+   {
+    "action": "visible_from_G0 (no intensity)",
+    "class": "SkyAtmosphere",
+    "label": "SkyAtmosphere",
+    "note": "no intensity: lit by her sun, which ramps from 0 [inf]",
+    "property": null
+   },
+   {
+    "action": "ramp",
+    "class": "SkyLight",
+    "curve": null,
+    "her_keyed": false,
+    "intro": [
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.0005285925925925927
+     ],
+     [
+      322,
+      0.002095407407407408
+     ],
+     [
+      323,
+      0.004672
+     ],
+     [
+      324,
+      0.008229925925925929
+     ],
+     [
+      325,
+      0.012740740740740742
+     ],
+     [
+      326,
+      0.018176
+     ],
+     [
+      327,
+      0.024507259259259263
+     ],
+     [
+      328,
+      0.03170607407407408
+     ],
+     [
+      329,
+      0.039743999999999995
+     ],
+     [
+      330,
+      0.0485925925925926
+     ],
+     [
+      331,
+      0.05822340740740741
+     ],
+     [
+      332,
+      0.068608
+     ],
+     [
+      333,
+      0.07971792592592593
+     ],
+     [
+      334,
+      0.09152474074074074
+     ],
+     [
+      335,
+      0.10400000000000002
+     ],
+     [
+      336,
+      0.11711525925925928
+     ],
+     [
+      337,
+      0.13084207407407408
+     ],
+     [
+      338,
+      0.145152
+     ],
+     [
+      339,
+      0.16001659259259263
+     ],
+     [
+      340,
+      0.17540740740740743
+     ],
+     [
+      341,
+      0.19129600000000002
+     ],
+     [
+      342,
+      0.20765392592592594
+     ],
+     [
+      343,
+      0.2244527407407407
+     ],
+     [
+      344,
+      0.241664
+     ],
+     [
+      345,
+      0.25925925925925924
+     ],
+     [
+      346,
+      0.2772100740740741
+     ],
+     [
+      347,
+      0.29548800000000003
+     ],
+     [
+      348,
+      0.3140645925925926
+     ],
+     [
+      349,
+      0.3329114074074074
+     ],
+     [
+      350,
+      0.3520000000000001
+     ],
+     [
+      351,
+      0.3713019259259259
+     ],
+     [
+      352,
+      0.39078874074074077
+     ],
+     [
+      353,
+      0.410432
+     ],
+     [
+      354,
+      0.4302032592592592
+     ],
+     [
+      355,
+      0.45007407407407407
+     ],
+     [
+      356,
+      0.470016
+     ],
+     [
+      357,
+      0.4900005925925926
+     ],
+     [
+      358,
+      0.5099994074074075
+     ],
+     [
+      359,
+      0.529984
+     ],
+     [
+      360,
+      0.5499259259259259
+     ],
+     [
+      361,
+      0.5697967407407407
+     ],
+     [
+      362,
+      0.5895680000000001
+     ],
+     [
+      363,
+      0.6092112592592592
+     ],
+     [
+      364,
+      0.6286980740740741
+     ],
+     [
+      365,
+      0.648
+     ],
+     [
+      366,
+      0.6670885925925926
+     ],
+     [
+      367,
+      0.6859354074074074
+     ],
+     [
+      368,
+      0.704512
+     ],
+     [
+      369,
+      0.7227899259259258
+     ],
+     [
+      370,
+      0.7407407407407407
+     ],
+     [
+      371,
+      0.7583360000000001
+     ],
+     [
+      372,
+      0.7755472592592593
+     ],
+     [
+      373,
+      0.7923460740740741
+     ],
+     [
+      374,
+      0.808704
+     ],
+     [
+      375,
+      0.8245925925925925
+     ],
+     [
+      376,
+      0.8399834074074075
+     ],
+     [
+      377,
+      0.8548479999999999
+     ],
+     [
+      378,
+      0.8691579259259259
+     ],
+     [
+      379,
+      0.8828847407407407
+     ],
+     [
+      380,
+      0.8960000000000001
+     ],
+     [
+      381,
+      0.9084752592592593
+     ],
+     [
+      382,
+      0.920282074074074
+     ],
+     [
+      383,
+      0.9313919999999999
+     ],
+     [
+      384,
+      0.9417765925925927
+     ],
+     [
+      385,
+      0.9514074074074075
+     ],
+     [
+      386,
+      0.960256
+     ],
+     [
+      387,
+      0.968293925925926
+     ],
+     [
+      388,
+      0.9754927407407407
+     ],
+     [
+      389,
+      0.981824
+     ],
+     [
+      390,
+      0.9872592592592593
+     ],
+     [
+      391,
+      0.991770074074074
+     ],
+     [
+      392,
+      0.995328
+     ],
+     [
+      393,
+      0.9979045925925926
+     ],
+     [
+      394,
+      0.9994714074074075
+     ],
+     [
+      395,
+      1.0
+     ]
+    ],
+    "label": "SkyLight",
+    "outro": [
+     [
+      4513,
+      1.0
+     ],
+     [
+      4514,
+      0.998816
+     ],
+     [
+      4515,
+      0.995328
+     ],
+     [
+      4516,
+      0.989632
+     ],
+     [
+      4517,
+      0.981824
+     ],
+     [
+      4518,
+      0.972
+     ],
+     [
+      4519,
+      0.960256
+     ],
+     [
+      4520,
+      0.946688
+     ],
+     [
+      4521,
+      0.931392
+     ],
+     [
+      4522,
+      0.9144639999999999
+     ],
+     [
+      4523,
+      0.896
+     ],
+     [
+      4524,
+      0.876096
+     ],
+     [
+      4525,
+      0.854848
+     ],
+     [
+      4526,
+      0.832352
+     ],
+     [
+      4527,
+      0.808704
+     ],
+     [
+      4528,
+      0.784
+     ],
+     [
+      4529,
+      0.758336
+     ],
+     [
+      4530,
+      0.731808
+     ],
+     [
+      4531,
+      0.704512
+     ],
+     [
+      4532,
+      0.676544
+     ],
+     [
+      4533,
+      0.6479999999999999
+     ],
+     [
+      4534,
+      0.618976
+     ],
+     [
+      4535,
+      0.589568
+     ],
+     [
+      4536,
+      0.5598719999999999
+     ],
+     [
+      4537,
+      0.529984
+     ],
+     [
+      4538,
+      0.5
+     ],
+     [
+      4539,
+      0.470016
+     ],
+     [
+      4540,
+      0.44012799999999996
+     ],
+     [
+      4541,
+      0.4104319999999999
+     ],
+     [
+      4542,
+      0.38102400000000003
+     ],
+     [
+      4543,
+      0.352
+     ],
+     [
+      4544,
+      0.32345599999999997
+     ],
+     [
+      4545,
+      0.295488
+     ],
+     [
+      4546,
+      0.268192
+     ],
+     [
+      4547,
+      0.24166399999999988
+     ],
+     [
+      4548,
+      0.21600000000000008
+     ],
+     [
+      4549,
+      0.19129600000000002
+     ],
+     [
+      4550,
+      0.16764800000000002
+     ],
+     [
+      4551,
+      0.14515200000000006
+     ],
+     [
+      4552,
+      0.1239039999999999
+     ],
+     [
+      4553,
+      0.10399999999999987
+     ],
+     [
+      4554,
+      0.08553600000000006
+     ],
+     [
+      4555,
+      0.06860800000000011
+     ],
+     [
+      4556,
+      0.053312000000000026
+     ],
+     [
+      4557,
+      0.039744
+     ],
+     [
+      4558,
+      0.028000000000000025
+     ],
+     [
+      4559,
+      0.01817599999999997
+     ],
+     [
+      4560,
+      0.010367999999999933
+     ],
+     [
+      4561,
+      0.0046720000000000095
+     ],
+     [
+      4562,
+      0.0011840000000000739
+     ],
+     [
+      4563,
+      0.0
+     ]
+    ],
+    "property": "Intensity",
+    "target_intro": 1.0,
+    "value": 1.0,
+    "value_lit": 1.0
+   },
+   {
+    "action": "visible_from_G0 (no intensity)",
+    "class": "VolumetricCloud",
+    "label": "VolumetricCloud",
+    "note": "no intensity: lit by her sun, which ramps from 0 [inf]",
+    "property": null
+   }
+  ],
+  "her_lights": [
+   {
+    "blink_frame": 4585,
+    "class": "SpotLight",
+    "color_first": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_last": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_lit": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "dist_cm": 663.2700480174105,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.08457481481481482
+     ],
+     [
+      322,
+      0.3352651851851852
+     ],
+     [
+      323,
+      0.74752
+     ],
+     [
+      324,
+      1.3167881481481487
+     ],
+     [
+      325,
+      2.0385185185185186
+     ],
+     [
+      326,
+      2.90816
+     ],
+     [
+      327,
+      3.921161481481482
+     ],
+     [
+      328,
+      5.072971851851853
+     ],
+     [
+      329,
+      6.359039999999999
+     ],
+     [
+      330,
+      7.774814814814816
+     ],
+     [
+      331,
+      9.315745185185186
+     ],
+     [
+      332,
+      10.97728
+     ],
+     [
+      333,
+      12.754868148148148
+     ],
+     [
+      334,
+      14.643958518518518
+     ],
+     [
+      335,
+      16.640000000000004
+     ],
+     [
+      336,
+      18.738441481481484
+     ],
+     [
+      337,
+      20.934731851851854
+     ],
+     [
+      338,
+      23.22432
+     ],
+     [
+      339,
+      25.60265481481482
+     ],
+     [
+      340,
+      28.06518518518519
+     ],
+     [
+      341,
+      30.607360000000003
+     ],
+     [
+      342,
+      33.22462814814815
+     ],
+     [
+      343,
+      35.91243851851851
+     ],
+     [
+      344,
+      38.66624
+     ],
+     [
+      345,
+      41.48148148148148
+     ],
+     [
+      346,
+      44.35361185185186
+     ],
+     [
+      347,
+      47.27808
+     ],
+     [
+      348,
+      50.25033481481482
+     ],
+     [
+      349,
+      53.26582518518518
+     ],
+     [
+      350,
+      56.320000000000014
+     ],
+     [
+      351,
+      59.40830814814815
+     ],
+     [
+      352,
+      62.52619851851853
+     ],
+     [
+      353,
+      65.66912
+     ],
+     [
+      354,
+      68.83252148148146
+     ],
+     [
+      355,
+      72.01185185185184
+     ],
+     [
+      356,
+      75.20256
+     ],
+     [
+      357,
+      78.40009481481482
+     ],
+     [
+      358,
+      81.5999051851852
+     ],
+     [
+      359,
+      84.79744
+     ],
+     [
+      360,
+      87.98814814814816
+     ],
+     [
+      361,
+      91.16747851851852
+     ],
+     [
+      362,
+      94.33088000000001
+     ],
+     [
+      363,
+      97.47380148148147
+     ],
+     [
+      364,
+      100.59169185185185
+     ],
+     [
+      365,
+      103.68
+     ],
+     [
+      366,
+      106.7341748148148
+     ],
+     [
+      367,
+      109.7496651851852
+     ],
+     [
+      368,
+      112.72192000000001
+     ],
+     [
+      369,
+      115.64638814814813
+     ],
+     [
+      370,
+      118.5185185185185
+     ],
+     [
+      371,
+      121.33376000000001
+     ],
+     [
+      372,
+      124.08756148148149
+     ],
+     [
+      373,
+      126.77537185185186
+     ],
+     [
+      374,
+      129.39264
+     ],
+     [
+      375,
+      131.9348148148148
+     ],
+     [
+      376,
+      134.3973451851852
+     ],
+     [
+      377,
+      136.77568
+     ],
+     [
+      378,
+      139.06526814814814
+     ],
+     [
+      379,
+      141.2615585185185
+     ],
+     [
+      380,
+      143.36
+     ],
+     [
+      381,
+      145.3560414814815
+     ],
+     [
+      382,
+      147.24513185185185
+     ],
+     [
+      383,
+      149.02272
+     ],
+     [
+      384,
+      150.68425481481484
+     ],
+     [
+      385,
+      152.22518518518518
+     ],
+     [
+      386,
+      153.64096
+     ],
+     [
+      387,
+      154.92702814814817
+     ],
+     [
+      388,
+      156.0788385185185
+     ],
+     [
+      389,
+      157.09184
+     ],
+     [
+      390,
+      157.96148148148148
+     ],
+     [
+      391,
+      158.68321185185184
+     ],
+     [
+      392,
+      159.25248
+     ],
+     [
+      393,
+      159.6647348148148
+     ],
+     [
+      394,
+      159.9154251851852
+     ],
+     [
+      395,
+      160.0
+     ]
+    ],
+    "label": "Spot_MainLight_window",
+    "outro_keys": [
+     [
+      4500,
+      160.0
+     ],
+     [
+      4584,
+      160.0
+     ],
+     [
+      4585,
+      0.0
+     ],
+     [
+      4586,
+      68.84583614929038
+     ],
+     [
+      4587,
+      0.0
+     ],
+     [
+      4588,
+      110.35349682654615
+     ],
+     [
+      4589,
+      0.0
+     ]
+    ],
+    "ramp": [
+     320,
+     395
+    ],
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 160.0,
+    "target_intro": 160.0,
+    "target_last": 160.0,
+    "target_lit": 160.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4575,
+    "class": "SpotLight",
+    "color_first": [
+     1.0,
+     0.8227857351303101,
+     0.7379103899002075,
+     1.0
+    ],
+    "color_last": [
+     1.0,
+     0.8227857351303101,
+     0.7379103899002075,
+     1.0
+    ],
+    "color_lit": [
+     1.0,
+     0.8227857351303101,
+     0.7379103899002075,
+     1.0
+    ],
+    "dist_cm": 671.997668217342,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      1.0,
+      0.8227857351303101,
+      0.7379103899002075,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.0003389806128607856
+     ],
+     [
+      322,
+      0.0013437617119683163
+     ],
+     [
+      323,
+      0.0029961021881103516
+     ],
+     [
+      324,
+      0.005277760932074655
+     ],
+     [
+      325,
+      0.008170496834648981
+     ],
+     [
+      326,
+      0.011656068786621095
+     ],
+     [
+      327,
+      0.015716235678778757
+     ],
+     [
+      328,
+      0.020332756401909728
+     ],
+     [
+      329,
+      0.025487389846801753
+     ],
+     [
+      330,
+      0.031161894904242624
+     ],
+     [
+      331,
+      0.03733803046502008
+     ],
+     [
+      332,
+      0.043997555419921876
+     ],
+     [
+      333,
+      0.051122228659735786
+     ],
+     [
+      334,
+      0.05869380907524956
+     ],
+     [
+      335,
+      0.066694055557251
+     ],
+     [
+      336,
+      0.07510472699652779
+     ],
+     [
+      337,
+      0.08390758228386773
+     ],
+     [
+      338,
+      0.0930843803100586
+     ],
+     [
+      339,
+      0.10261687996588816
+     ],
+     [
+      340,
+      0.1124868401421441
+     ],
+     [
+      341,
+      0.12267601972961427
+     ],
+     [
+      342,
+      0.1331661776190864
+     ],
+     [
+      343,
+      0.14393907270134818
+     ],
+     [
+      344,
+      0.1549764638671875
+     ],
+     [
+      345,
+      0.16626011000739202
+     ],
+     [
+      346,
+      0.17777177001274957
+     ],
+     [
+      347,
+      0.18949320277404788
+     ],
+     [
+      348,
+      0.20140616718207466
+     ],
+     [
+      349,
+      0.2134924221276177
+     ],
+     [
+      350,
+      0.2257337265014649
+     ],
+     [
+      351,
+      0.23811183919440376
+     ],
+     [
+      352,
+      0.25060851909722226
+     ],
+     [
+      353,
+      0.263205525100708
+     ],
+     [
+      354,
+      0.2758846160956488
+     ],
+     [
+      355,
+      0.28862755097283255
+     ],
+     [
+      356,
+      0.30141608862304686
+     ],
+     [
+      357,
+      0.3142319879370795
+     ],
+     [
+      358,
+      0.32705700780571834
+     ],
+     [
+      359,
+      0.339872907119751
+     ],
+     [
+      360,
+      0.3526614447699653
+     ],
+     [
+      361,
+      0.36540437964714895
+     ],
+     [
+      362,
+      0.3780834706420899
+     ],
+     [
+      363,
+      0.3906804766455756
+     ],
+     [
+      364,
+      0.4031771565483941
+     ],
+     [
+      365,
+      0.415555269241333
+     ],
+     [
+      366,
+      0.4277965736151801
+     ],
+     [
+      367,
+      0.4398828285607232
+     ],
+     [
+      368,
+      0.45179579296875
+     ],
+     [
+      369,
+      0.4635172257300482
+     ],
+     [
+      370,
+      0.4750288857354058
+     ],
+     [
+      371,
+      0.4863125318756104
+     ],
+     [
+      372,
+      0.49734992304144965
+     ],
+     [
+      373,
+      0.5081228181237115
+     ],
+     [
+      374,
+      0.5186129760131836
+     ],
+     [
+      375,
+      0.5288021556006537
+     ],
+     [
+      376,
+      0.5386721157769098
+     ],
+     [
+      377,
+      0.5482046154327392
+     ],
+     [
+      378,
+      0.5573814134589301
+     ],
+     [
+      379,
+      0.56618426874627
+     ],
+     [
+      380,
+      0.5745949401855469
+     ],
+     [
+      381,
+      0.5825951866675483
+     ],
+     [
+      382,
+      0.590166767083062
+     ],
+     [
+      383,
+      0.597291440322876
+     ],
+     [
+      384,
+      0.6039509652777778
+     ],
+     [
+      385,
+      0.6101271008385553
+     ],
+     [
+      386,
+      0.6158016058959961
+     ],
+     [
+      387,
+      0.6209562393408882
+     ],
+     [
+      388,
+      0.6255727600640191
+     ],
+     [
+      389,
+      0.6296329269561768
+     ],
+     [
+      390,
+      0.6331184989081489
+     ],
+     [
+      391,
+      0.6360112348107232
+     ],
+     [
+      392,
+      0.6382928935546875
+     ],
+     [
+      393,
+      0.6399452340308295
+     ],
+     [
+      394,
+      0.6409500151299371
+     ],
+     [
+      395,
+      0.6412889957427979
+     ]
+    ],
+    "label": "SpotLight6",
+    "outro_keys": [
+     [
+      4500,
+      0.6412889957427979
+     ],
+     [
+      4574,
+      0.6412889957427979
+     ],
+     [
+      4575,
+      0.0
+     ],
+     [
+      4576,
+      0.3407182248635528
+     ],
+     [
+      4577,
+      0.0
+     ],
+     [
+      4578,
+      0.37282313421898683
+     ],
+     [
+      4579,
+      0.0
+     ]
+    ],
+    "ramp": [
+     320,
+     395
+    ],
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 0.6412889957427979,
+    "target_intro": 0.6412889957427979,
+    "target_last": 0.6412889957427979,
+    "target_lit": 0.6412889957427979,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4564,
+    "class": "SpotLight",
+    "color_first": [
+     0.19120168685913086,
+     0.41788506507873535,
+     0.3324515223503113,
+     1.0
+    ],
+    "color_last": [
+     0.19120168685913086,
+     0.41788506507873535,
+     0.3324515223503113,
+     1.0
+    ],
+    "color_lit": [
+     0.19120168685913086,
+     0.41788506507873535,
+     0.3324515223503113,
+     1.0
+    ],
+    "dist_cm": 790.0833237280344,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      0.19120168685913086,
+      0.41788506507873535,
+      0.3324515223503113,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.08457481481481482
+     ],
+     [
+      322,
+      0.3352651851851852
+     ],
+     [
+      323,
+      0.74752
+     ],
+     [
+      324,
+      1.3167881481481487
+     ],
+     [
+      325,
+      2.0385185185185186
+     ],
+     [
+      326,
+      2.90816
+     ],
+     [
+      327,
+      3.921161481481482
+     ],
+     [
+      328,
+      5.072971851851853
+     ],
+     [
+      329,
+      6.359039999999999
+     ],
+     [
+      330,
+      7.774814814814816
+     ],
+     [
+      331,
+      9.315745185185186
+     ],
+     [
+      332,
+      10.97728
+     ],
+     [
+      333,
+      12.754868148148148
+     ],
+     [
+      334,
+      14.643958518518518
+     ],
+     [
+      335,
+      16.640000000000004
+     ],
+     [
+      336,
+      18.738441481481484
+     ],
+     [
+      337,
+      20.934731851851854
+     ],
+     [
+      338,
+      23.22432
+     ],
+     [
+      339,
+      25.60265481481482
+     ],
+     [
+      340,
+      28.06518518518519
+     ],
+     [
+      341,
+      30.607360000000003
+     ],
+     [
+      342,
+      33.22462814814815
+     ],
+     [
+      343,
+      35.91243851851851
+     ],
+     [
+      344,
+      38.66624
+     ],
+     [
+      345,
+      41.48148148148148
+     ],
+     [
+      346,
+      44.35361185185186
+     ],
+     [
+      347,
+      47.27808
+     ],
+     [
+      348,
+      50.25033481481482
+     ],
+     [
+      349,
+      53.26582518518518
+     ],
+     [
+      350,
+      56.320000000000014
+     ],
+     [
+      351,
+      59.40830814814815
+     ],
+     [
+      352,
+      62.52619851851853
+     ],
+     [
+      353,
+      65.66912
+     ],
+     [
+      354,
+      68.83252148148146
+     ],
+     [
+      355,
+      72.01185185185184
+     ],
+     [
+      356,
+      75.20256
+     ],
+     [
+      357,
+      78.40009481481482
+     ],
+     [
+      358,
+      81.5999051851852
+     ],
+     [
+      359,
+      84.79744
+     ],
+     [
+      360,
+      87.98814814814816
+     ],
+     [
+      361,
+      91.16747851851852
+     ],
+     [
+      362,
+      94.33088000000001
+     ],
+     [
+      363,
+      97.47380148148147
+     ],
+     [
+      364,
+      100.59169185185185
+     ],
+     [
+      365,
+      103.68
+     ],
+     [
+      366,
+      106.7341748148148
+     ],
+     [
+      367,
+      109.7496651851852
+     ],
+     [
+      368,
+      112.72192000000001
+     ],
+     [
+      369,
+      115.64638814814813
+     ],
+     [
+      370,
+      118.5185185185185
+     ],
+     [
+      371,
+      121.33376000000001
+     ],
+     [
+      372,
+      124.08756148148149
+     ],
+     [
+      373,
+      126.77537185185186
+     ],
+     [
+      374,
+      129.39264
+     ],
+     [
+      375,
+      131.9348148148148
+     ],
+     [
+      376,
+      134.3973451851852
+     ],
+     [
+      377,
+      136.77568
+     ],
+     [
+      378,
+      139.06526814814814
+     ],
+     [
+      379,
+      141.2615585185185
+     ],
+     [
+      380,
+      143.36
+     ],
+     [
+      381,
+      145.3560414814815
+     ],
+     [
+      382,
+      147.24513185185185
+     ],
+     [
+      383,
+      149.02272
+     ],
+     [
+      384,
+      150.68425481481484
+     ],
+     [
+      385,
+      152.22518518518518
+     ],
+     [
+      386,
+      153.64096
+     ],
+     [
+      387,
+      154.92702814814817
+     ],
+     [
+      388,
+      156.0788385185185
+     ],
+     [
+      389,
+      157.09184
+     ],
+     [
+      390,
+      157.96148148148148
+     ],
+     [
+      391,
+      158.68321185185184
+     ],
+     [
+      392,
+      159.25248
+     ],
+     [
+      393,
+      159.6647348148148
+     ],
+     [
+      394,
+      159.9154251851852
+     ],
+     [
+      395,
+      160.0
+     ]
+    ],
+    "label": "SpotLight3",
+    "outro_keys": [
+     [
+      4500,
+      160.0
+     ],
+     [
+      4563,
+      160.0
+     ],
+     [
+      4564,
+      0.0
+     ],
+     [
+      4565,
+      97.10878744770903
+     ],
+     [
+      4566,
+      0.0
+     ],
+     [
+      4567,
+      89.56031188997842
+     ],
+     [
+      4568,
+      0.0
+     ]
+    ],
+    "ramp": [
+     320,
+     395
+    ],
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 160.0,
+    "target_intro": 160.0,
+    "target_last": 160.0,
+    "target_lit": 160.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4555,
+    "class": "SpotLight",
+    "color_first": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_last": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_lit": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "dist_cm": 1113.5027773139243,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ]
+    ],
+    "label": "SpotLight",
+    "outro_keys": [
+     [
+      4500,
+      0.0
+     ],
+     [
+      4554,
+      0.0
+     ],
+     [
+      4555,
+      0.0
+     ],
+     [
+      4556,
+      0.0
+     ],
+     [
+      4557,
+      0.0
+     ],
+     [
+      4558,
+      0.0
+     ],
+     [
+      4559,
+      0.0
+     ]
+    ],
+    "ramp": null,
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 0.0,
+    "target_intro": 0.0,
+    "target_last": 0.0,
+    "target_lit": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4546,
+    "class": "SpotLight",
+    "color_first": null,
+    "color_last": null,
+    "color_lit": null,
+    "dist_cm": 1235.2382710945528,
+    "her_keys": [],
+    "intro_color": null,
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.004228740740740741
+     ],
+     [
+      322,
+      0.016763259259259262
+     ],
+     [
+      323,
+      0.037376
+     ],
+     [
+      324,
+      0.06583940740740743
+     ],
+     [
+      325,
+      0.10192592592592593
+     ],
+     [
+      326,
+      0.145408
+     ],
+     [
+      327,
+      0.1960580740740741
+     ],
+     [
+      328,
+      0.25364859259259265
+     ],
+     [
+      329,
+      0.31795199999999996
+     ],
+     [
+      330,
+      0.3887407407407408
+     ],
+     [
+      331,
+      0.4657872592592593
+     ],
+     [
+      332,
+      0.548864
+     ],
+     [
+      333,
+      0.6377434074074074
+     ],
+     [
+      334,
+      0.7321979259259259
+     ],
+     [
+      335,
+      0.8320000000000002
+     ],
+     [
+      336,
+      0.9369220740740742
+     ],
+     [
+      337,
+      1.0467365925925927
+     ],
+     [
+      338,
+      1.161216
+     ],
+     [
+      339,
+      1.280132740740741
+     ],
+     [
+      340,
+      1.4032592592592594
+     ],
+     [
+      341,
+      1.5303680000000002
+     ],
+     [
+      342,
+      1.6612314074074075
+     ],
+     [
+      343,
+      1.7956219259259256
+     ],
+     [
+      344,
+      1.933312
+     ],
+     [
+      345,
+      2.074074074074074
+     ],
+     [
+      346,
+      2.217680592592593
+     ],
+     [
+      347,
+      2.3639040000000002
+     ],
+     [
+      348,
+      2.512516740740741
+     ],
+     [
+      349,
+      2.663291259259259
+     ],
+     [
+      350,
+      2.8160000000000007
+     ],
+     [
+      351,
+      2.9704154074074074
+     ],
+     [
+      352,
+      3.126309925925926
+     ],
+     [
+      353,
+      3.283456
+     ],
+     [
+      354,
+      3.4416260740740734
+     ],
+     [
+      355,
+      3.6005925925925926
+     ],
+     [
+      356,
+      3.760128
+     ],
+     [
+      357,
+      3.920004740740741
+     ],
+     [
+      358,
+      4.07999525925926
+     ],
+     [
+      359,
+      4.239872
+     ],
+     [
+      360,
+      4.399407407407407
+     ],
+     [
+      361,
+      4.558373925925926
+     ],
+     [
+      362,
+      4.716544000000001
+     ],
+     [
+      363,
+      4.873690074074074
+     ],
+     [
+      364,
+      5.029584592592593
+     ],
+     [
+      365,
+      5.184
+     ],
+     [
+      366,
+      5.3367087407407405
+     ],
+     [
+      367,
+      5.4874832592592595
+     ],
+     [
+      368,
+      5.636096
+     ],
+     [
+      369,
+      5.782319407407407
+     ],
+     [
+      370,
+      5.925925925925926
+     ],
+     [
+      371,
+      6.066688000000001
+     ],
+     [
+      372,
+      6.204378074074074
+     ],
+     [
+      373,
+      6.338768592592593
+     ],
+     [
+      374,
+      6.469632
+     ],
+     [
+      375,
+      6.59674074074074
+     ],
+     [
+      376,
+      6.71986725925926
+     ],
+     [
+      377,
+      6.8387839999999995
+     ],
+     [
+      378,
+      6.953263407407407
+     ],
+     [
+      379,
+      7.063077925925926
+     ],
+     [
+      380,
+      7.168000000000001
+     ],
+     [
+      381,
+      7.2678020740740745
+     ],
+     [
+      382,
+      7.362256592592592
+     ],
+     [
+      383,
+      7.451135999999999
+     ],
+     [
+      384,
+      7.534212740740742
+     ],
+     [
+      385,
+      7.61125925925926
+     ],
+     [
+      386,
+      7.682048
+     ],
+     [
+      387,
+      7.746351407407408
+     ],
+     [
+      388,
+      7.803941925925925
+     ],
+     [
+      389,
+      7.854592
+     ],
+     [
+      390,
+      7.898074074074074
+     ],
+     [
+      391,
+      7.934160592592592
+     ],
+     [
+      392,
+      7.962624
+     ],
+     [
+      393,
+      7.9832367407407405
+     ],
+     [
+      394,
+      7.99577125925926
+     ],
+     [
+      395,
+      8.0
+     ]
+    ],
+    "label": "SpotLight5",
+    "outro_keys": [
+     [
+      4500,
+      8.0
+     ],
+     [
+      4545,
+      8.0
+     ],
+     [
+      4546,
+      0.0
+     ],
+     [
+      4547,
+      5.477594499518595
+     ],
+     [
+      4548,
+      0.0
+     ],
+     [
+      4549,
+      3.880178891879805
+     ],
+     [
+      4550,
+      0.0
+     ],
+     [
+      4551,
+      3.1436784337368118
+     ],
+     [
+      4552,
+      0.0
+     ]
+    ],
+    "ramp": [
+     320,
+     395
+    ],
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 8.0,
+    "target_intro": 8.0,
+    "target_last": 8.0,
+    "target_lit": 8.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4538,
+    "class": "SpotLight",
+    "color_first": [
+     0.44520118832588196,
+     0.44520118832588196,
+     0.42869049310684204,
+     1.0
+    ],
+    "color_last": [
+     0.44520118832588196,
+     0.44520118832588196,
+     0.42869049310684204,
+     1.0
+    ],
+    "color_lit": [
+     0.44520118832588196,
+     0.44520118832588196,
+     0.42869049310684204,
+     1.0
+    ],
+    "dist_cm": 1243.7209194965308,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      0.44520118832588196,
+      0.44520118832588196,
+      0.42869049310684204,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ]
+    ],
+    "label": "SpotLight4",
+    "outro_keys": [
+     [
+      4500,
+      108.40155792236328
+     ],
+     [
+      4537,
+      108.40155792236328
+     ],
+     [
+      4538,
+      0.0
+     ],
+     [
+      4539,
+      71.97769927540072
+     ],
+     [
+      4540,
+      0.0
+     ],
+     [
+      4541,
+      28.227663601205656
+     ],
+     [
+      4542,
+      0.0
+     ]
+    ],
+    "ramp": null,
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 0.0,
+    "target_intro": 0.0,
+    "target_last": 108.40155792236328,
+    "target_lit": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4527,
+    "class": "SpotLight",
+    "color_first": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_last": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_lit": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "dist_cm": 1694.214990810146,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ]
+    ],
+    "label": "SpotLight2",
+    "outro_keys": [
+     [
+      4500,
+      160.0
+     ],
+     [
+      4526,
+      160.0
+     ],
+     [
+      4527,
+      0.0
+     ],
+     [
+      4528,
+      84.98420947464083
+     ],
+     [
+      4529,
+      0.0
+     ],
+     [
+      4530,
+      124.25976935311806
+     ],
+     [
+      4531,
+      0.0
+     ]
+    ],
+    "ramp": null,
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 0.0,
+    "target_intro": 0.0,
+    "target_last": 160.0,
+    "target_lit": 0.0,
+    "warn_hidden": false
+   },
+   {
+    "blink_frame": 4513,
+    "class": "SpotLight",
+    "color_first": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_last": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "color_lit": [
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ],
+    "dist_cm": 1921.0296966591106,
+    "her_keys": [
+     "Intensity",
+     "LightColor"
+    ],
+    "intro_color": {
+     "range": [
+      104,
+      405
+     ],
+     "rgba": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "intro_keys": [
+     [
+      104,
+      0.0
+     ],
+     [
+      320,
+      0.0
+     ],
+     [
+      321,
+      0.00899976456253617
+     ],
+     [
+      322,
+      0.035676196741174775
+     ],
+     [
+      323,
+      0.07954500427246093
+     ],
+     [
+      324,
+      0.14012189489293986
+     ],
+     [
+      325,
+      0.21692257633915654
+     ],
+     [
+      326,
+      0.30946275634765624
+     ],
+     [
+      327,
+      0.4172581426549842
+     ],
+     [
+      328,
+      0.5398244429976853
+     ],
+     [
+      329,
+      0.6766773651123046
+     ],
+     [
+      330,
+      0.8273326167353878
+     ],
+     [
+      331,
+      0.9913059056034795
+     ],
+     [
+      332,
+      1.168112939453125
+     ],
+     [
+      333,
+      1.3572694260208695
+     ],
+     [
+      334,
+      1.558291073043258
+     ],
+     [
+      335,
+      1.7706935882568364
+     ],
+     [
+      336,
+      1.9939926793981484
+     ],
+     [
+      337,
+      2.22770405420374
+     ],
+     [
+      338,
+      2.471343420410156
+     ],
+     [
+      339,
+      2.724426485753943
+     ],
+     [
+      340,
+      2.9864689579716437
+     ],
+     [
+      341,
+      3.256986544799805
+     ],
+     [
+      342,
+      3.5354949539749714
+     ],
+     [
+      343,
+      3.8215098932336873
+     ],
+     [
+      344,
+      4.1145470703125
+     ],
+     [
+      345,
+      4.414122192947953
+     ],
+     [
+      346,
+      4.719750968876592
+     ],
+     [
+      347,
+      5.030949105834962
+     ],
+     [
+      348,
+      5.3472323115596065
+     ],
+     [
+      349,
+      5.668116293787072
+     ],
+     [
+      350,
+      5.9931167602539075
+     ],
+     [
+      351,
+      6.32174941869665
+     ],
+     [
+      352,
+      6.6535299768518525
+     ],
+     [
+      353,
+      6.987974142456055
+     ],
+     [
+      354,
+      7.324597623245803
+     ],
+     [
+      355,
+      7.662916126957646
+     ],
+     [
+      356,
+      8.002445361328125
+     ],
+     [
+      357,
+      8.342701034093785
+     ],
+     [
+      358,
+      8.683198852991175
+     ],
+     [
+      359,
+      9.023454525756836
+     ],
+     [
+      360,
+      9.362983760127316
+     ],
+     [
+      361,
+      9.701302263839157
+     ],
+     [
+      362,
+      10.037925744628907
+     ],
+     [
+      363,
+      10.37236991023311
+     ],
+     [
+      364,
+      10.70415046838831
+     ],
+     [
+      365,
+      11.032783126831054
+     ],
+     [
+      366,
+      11.357783593297887
+     ],
+     [
+      367,
+      11.678667575525354
+     ],
+     [
+      368,
+      11.994950781250001
+     ],
+     [
+      369,
+      12.306148918208368
+     ],
+     [
+      370,
+      12.611777694137007
+     ],
+     [
+      371,
+      12.911352816772464
+     ],
+     [
+      372,
+      13.204389993851274
+     ],
+     [
+      373,
+      13.490404933109991
+     ],
+     [
+      374,
+      13.768913342285156
+     ],
+     [
+      375,
+      14.039430929113317
+     ],
+     [
+      376,
+      14.30147340133102
+     ],
+     [
+      377,
+      14.554556466674804
+     ],
+     [
+      378,
+      14.79819583288122
+     ],
+     [
+      379,
+      15.031907207686812
+     ],
+     [
+      380,
+      15.255206298828128
+     ],
+     [
+      381,
+      15.467608814041704
+     ],
+     [
+      382,
+      15.66863046106409
+     ],
+     [
+      383,
+      15.857786947631833
+     ],
+     [
+      384,
+      16.034593981481482
+     ],
+     [
+      385,
+      16.198567270349574
+     ],
+     [
+      386,
+      16.349222521972656
+     ],
+     [
+      387,
+      16.486075444087277
+     ],
+     [
+      388,
+      16.608641744429974
+     ],
+     [
+      389,
+      16.716437130737305
+     ],
+     [
+      390,
+      16.808977310745806
+     ],
+     [
+      391,
+      16.885777992192022
+     ],
+     [
+      392,
+      16.9463548828125
+     ],
+     [
+      393,
+      16.990223690343786
+     ],
+     [
+      394,
+      17.016900122522426
+     ],
+     [
+      395,
+      17.02589988708496
+     ]
+    ],
+    "label": "SpotLight7",
+    "outro_keys": [
+     [
+      4500,
+      17.02589988708496
+     ],
+     [
+      4512,
+      17.02589988708496
+     ],
+     [
+      4513,
+      0.0
+     ],
+     [
+      4514,
+      6.191603875652242
+     ],
+     [
+      4515,
+      0.0
+     ],
+     [
+      4516,
+      8.276436681421082
+     ],
+     [
+      4517,
+      0.0
+     ],
+     [
+      4518,
+      7.3752032787698205
+     ],
+     [
+      4519,
+      0.0
+     ]
+    ],
+    "ramp": [
+     320,
+     395
+    ],
+    "strike_frame": null,
+    "strike_s": null,
+    "strikes": false,
+    "target_first": 17.02589988708496,
+    "target_intro": 17.02589988708496,
+    "target_last": 17.02589988708496,
+    "target_lit": 17.02589988708496,
+    "warn_hidden": false
+   }
+  ],
+  "hide": {
+   "labels": [
+    "S4 Hangar Roof"
+   ],
+   "range": [
+    307,
+    4563
+   ]
+  },
+  "hookin_edits": {
+   "hers_dark_range": [
+    104,
+    320
+   ],
+   "level_visible_range": [
+    104,
+    4890
+   ],
+   "ours_off_range": [
+    307,
+    4890
+   ]
+  },
+  "lattice": {
+   "cancel": {
+    "hold": 2900.0,
+    "keys": [
+     {
+      "arrive": -0.0,
+      "arrive_w": 0.0,
+      "interp": "cubic",
+      "leave": -0.0,
+      "leave_w": 0.0,
+      "tick": 0,
+      "value": 0.0,
+      "weighted": false
+     },
+     {
+      "arrive": -0.0,
+      "arrive_w": 0.0,
+      "interp": "cubic",
+      "leave": -0.0,
+      "leave_w": 0.0,
+      "tick": 207200,
+      "value": 0.0,
+      "weighted": false
+     },
+     {
+      "arrive": -0.0,
+      "arrive_w": 0.0,
+      "interp": "cubic",
+      "leave": -0.0,
+      "leave_w": 0.0,
+      "tick": 303200,
+      "value": 1200.0,
+      "weighted": false
+     }
+    ],
+    "lowers_cm": 1200.0,
+    "span_ticks": [
+     0,
+     303200
+    ]
+   },
+   "facts": {
+    "offset_ticks": 0,
+    "play_rate": 1.0,
+    "rise": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+    "rise_lower_tick": 0,
+    "rise_tick": 24000.0,
+    "section": [
+     0,
+     775
+    ],
+    "section_active": true,
+    "start_offset_tick": 0
+   },
+   "lowers_scene_frames": [
+    0.0,
+    315.8333333333333
+   ],
+   "mode": "cancel",
+   "range": [
+    0,
+    4890
+   ]
+  },
+  "level_transform_after": {
+   "loc": [
+    11435.666958091559,
+    239706.9759904295,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "level_transform_before": {
+   "loc": [
+    13639.9695,
+    240008.5,
+    0.0
+   ],
+   "yaw": 0.0
+  },
+  "lit": {
+   "camera": {
+    "ang_deg_s": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "binding": "CineCameraActor",
+    "cut": [
+     3,
+     3002
+    ],
+    "frame": 6,
+    "lens_tracks": {
+     "CurrentAperture": 2.799999952316284,
+     "CurrentFocalLength": 35.0,
+     "ManualFocusDistance": 100000.0
+    },
+    "loc": [
+     14331.9695,
+     240301.5240095705,
+     91.0
+    ],
+    "rot": [
+     -0.0,
+     6.000000000000003,
+     5.0
+    ],
+    "vel_cm_s": [
+     0.0,
+     0.40296978171681985,
+     4.263256414560601e-13
+    ]
+   },
+   "camera_after_move": {
+    "focal": 35.0,
+    "focus": 100000.0,
+    "loc": [
+     12127.666958091559,
+     240000.0,
+     91.0
+    ],
+    "rot": [
+     -0.0,
+     6.000000000000003,
+     5.0
+    ]
+   },
+   "frame": 6,
+   "frame_raw": 6,
+   "frame_votes": 349,
+   "her_time_s": 0.2,
+   "method": "her_dark_pan: first bound camera frame 6, snapped",
+   "n_ever_lit": 7,
+   "n_needed": 6,
+   "per_light": {
+    "SpotLight": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       196.0,
+       0.0
+      ],
+      [
+       384.0,
+       160.0
+      ],
+      [
+       1550.0,
+       160.0
+      ]
+     ],
+     "lit_at": 348,
+     "lit_at_s_into_her": 11.6,
+     "n_keys": 5,
+     "plateau": 160.0
+    },
+    "SpotLight2": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       165.0,
+       0.0
+      ],
+      [
+       393.0,
+       160.0
+      ],
+      [
+       1550.0,
+       160.0
+      ]
+     ],
+     "lit_at": 349,
+     "lit_at_s_into_her": 11.633333333333333,
+     "n_keys": 3,
+     "plateau": 160.0
+    },
+    "SpotLight3": {
+     "ever_lit": true,
+     "first_value": 160.0,
+     "keyed": true,
+     "keys": [
+      [
+       1550.0,
+       160.0
+      ]
+     ],
+     "lit_at": 0,
+     "lit_at_s_into_her": 0.0,
+     "n_keys": 1,
+     "plateau": 160.0
+    },
+    "SpotLight4": {
+     "ever_lit": true,
+     "first_value": 0.0,
+     "keyed": true,
+     "keys": [
+      [
+       503.0,
+       0.0
+      ],
+      [
+       660.0,
+       0.0
+      ],
+      [
+       1550.0,
+       108.40155792236328
+      ]
+     ],
+     "lit_at": 1376,
+     "lit_at_s_into_her": 45.86666666666667,
+     "n_keys": 3,
+     "plateau": 108.40155792236328
+    },
+    "SpotLight5": {
+     "keyed": false
+    },
+    "SpotLight6": {
+     "ever_lit": true,
+     "first_value": 0.6412889957427979,
+     "keyed": true,
+     "keys": [
+      [
+       1550.0,
+       0.6412889957427979
+      ]
+     ],
+     "lit_at": 0,
+     "lit_at_s_into_her": 0.0,
+     "n_keys": 1,
+     "plateau": 0.6412889957427979
+    },
+    "SpotLight7": {
+     "ever_lit": true,
+     "first_value": 17.02589988708496,
+     "keyed": true,
+     "keys": [
+      [
+       1550.0,
+       17.02589988708496
+      ]
+     ],
+     "lit_at": 0,
+     "lit_at_s_into_her": 0.0,
+     "n_keys": 1,
+     "plateau": 17.02589988708496
+    },
+    "Spot_MainLight_window": {
+     "ever_lit": true,
+     "first_value": 160.0,
+     "keyed": true,
+     "keys": [
+      [
+       1550.0,
+       160.0
+      ]
+     ],
+     "lit_at": 0,
+     "lit_at_s_into_her": 0.0,
+     "n_keys": 1,
+     "plateau": 160.0
+    }
+   },
+   "refusals": [],
+   "s_into_her": 0.2,
+   "slot": {
+    "her_frame": 6,
+    "offset_ticks": 4800,
+    "refusals": [],
+    "remaining_frames": 4095,
+    "remaining_s": 163.8,
+    "skip_frames": 5,
+    "skip_s": 0.2
+   },
+   "snap_step": 6,
+   "sum_frame": 303,
+   "v3": true,
+   "warnings": [],
+   "window": [
+    0,
+    1800
+   ]
+  },
+  "placement": {
+   "checks": {
+    "far_ok": true,
+    "lead_in_range": true,
+    "near_ok": true,
+    "side_ok": true,
+    "under_lattice": true,
+    "under_roof": true
+   },
+   "delta": [
+    -2204.3025419084406,
+    -301.5240095705085,
+    0.0
+   ],
+   "fits": true,
+   "her_cam_local_after": [
+    1459.1974580915576,
+    0.0,
+    91.0
+   ],
+   "lateral_cm": 0.0,
+   "lead_cm": 1459.1974580915576,
+   "lead_needed_cm": 1459.1974580915576,
+   "lead_wanted_cm": 600.0,
+   "set_local_after": [
+    500.0,
+    3182.697490039647,
+    -875.3648363803222,
+    987.5542432264483
+   ]
+  },
+  "poses": {
+   "entry": {
+    "focal": 35.0,
+    "focus": 100000.0,
+    "loc": [
+     10668.469500000001,
+     240000.0,
+     180.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "exit": {
+    "focal": 35.0,
+    "focus": 100000.0,
+    "loc": [
+     10668.469500000001,
+     240000.0,
+     180.0
+    ],
+    "rot": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "her_first": {
+    "focal": 35.0,
+    "focus": 100000.0,
+    "loc": [
+     12127.666958091559,
+     239999.9759904295,
+     91.0
+    ],
+    "rot": [
+     -0.0,
+     6.000000000000003,
+     5.0
+    ]
+   },
+   "her_last": {
+    "focal": 35.0,
+    "focus": 100000.0,
+    "loc": [
+     12513.666958091559,
+     239916.9759904295,
+     100.0
+    ],
+    "rot": [
+     -0.0,
+     -0.0,
+     12.0
+    ]
+   },
+   "her_lit": {
+    "focal": 35.0,
+    "focus": 100000.0,
+    "loc": [
+     12127.666958091559,
+     240000.0,
+     91.0
+    ],
+    "rot": [
+     -0.0,
+     6.000000000000003,
+     5.0
+    ]
+   }
+  },
+  "refusals": [],
+  "reveal": {
+   "dangling_cuts": [
+    {
+     "guid": "3788FAC64E33733DE618F0A435274F5C",
+     "range": [
+      0,
+      2
+     ]
+    }
+   ],
+   "darkness": {
+    "all_lights_fraction": 0.44655877182678894,
+    "cover": {
+     "SpotLight": {
+      "plateau": 160.0,
+      "samples": 27,
+      "value": 0.0
+     },
+     "SpotLight2": {
+      "plateau": 160.0,
+      "samples": 35,
+      "value": 0.0
+     },
+     "SpotLight3": {
+      "plateau": 160.0,
+      "samples": 0,
+      "value": 160.0
+     },
+     "SpotLight4": {
+      "plateau": 108.40155792236328,
+      "samples": 0,
+      "value": 0.0
+     },
+     "SpotLight5": {
+      "plateau": 8.0,
+      "samples": 0,
+      "value": 8.0
+     },
+     "SpotLight6": {
+      "plateau": 0.6412889957427979,
+      "samples": 0,
+      "value": 0.6412889957427979
+     },
+     "SpotLight7": {
+      "plateau": 17.02589988708496,
+      "samples": 17,
+      "value": 17.02589988708496
+     },
+     "Spot_MainLight_window": {
+      "plateau": 160.0,
+      "samples": 0,
+      "value": 160.0
+     }
+    },
+    "dark": true,
+    "fade_max": 0.0,
+    "frame": 6,
+    "lit_fraction": 0.028350261094613017,
+    "samples": 35,
+    "why": "view-weighted lit fraction 0.028 <= 0.100"
+   },
+   "frame": 6,
+   "frame_first_bound": 2,
+   "requested": "auto",
+   "snap_step": 6,
+   "style": "her_dark_pan",
+   "why": "auto: view-weighted lit fraction 0.028 <= 0.100"
+  },
+  "rig_bulbs_hidden": {
+   "labels": [
+    "S4 Lattice Bulb 1-1",
+    "S4 Lattice Bulb 1-2",
+    "S4 Lattice Bulb 1-3",
+    "S4 Lattice Bulb 1-4",
+    "S4 Lattice Bulb 1-5",
+    "S4 Lattice Bulb 1-6",
+    "S4 Lattice Bulb 1-7",
+    "S4 Lattice Bulb 1-8",
+    "S4 Lattice Bulb 2-1",
+    "S4 Lattice Bulb 2-2",
+    "S4 Lattice Bulb 2-3",
+    "S4 Lattice Bulb 2-4",
+    "S4 Lattice Bulb 2-5",
+    "S4 Lattice Bulb 2-6",
+    "S4 Lattice Bulb 2-7",
+    "S4 Lattice Bulb 2-8",
+    "S4 Lattice Bulb 3-1",
+    "S4 Lattice Bulb 3-2",
+    "S4 Lattice Bulb 3-3",
+    "S4 Lattice Bulb 3-4",
+    "S4 Lattice Bulb 3-5",
+    "S4 Lattice Bulb 3-6",
+    "S4 Lattice Bulb 3-7",
+    "S4 Lattice Bulb 3-8"
+   ],
+   "range": [
+    320,
+    4627
+   ]
+  },
+  "scene": "4",
+  "sensor_mm": [
+   23.760000228881836,
+   13.364999771118164
+  ],
+  "set_world_after": [
+   11168.469500000001,
+   13851.166990039648,
+   239124.63516361968,
+   240987.55424322645,
+   -81.81555219066774,
+   1354.9234914184754
+  ],
+  "slot": {
+   "her_frame_at_cut": 6,
+   "her_range": [
+    0,
+    4920
+   ],
+   "media_track_note": "later: a MovieSceneMediaTrack section over the same range replaces the nested copy 1:1 (videos = renders of her LS, Gary 7 Oct)",
+   "mode": "nested_cinematic",
+   "range": [
+    405,
+    4500
+   ],
+   "range_before": [
+    376,
+    4476
+   ],
+   "shift": 29,
+   "skip_frames": 5,
+   "start_offset_ticks": 4800
+  },
+  "strike_schedule": {
+   "frames": [],
+   "gaps_s": [],
+   "refusals": [],
+   "scale": 1.0,
+   "warnings": []
+  },
+  "timeline": {
+   "blink_window": [
+    4513,
+    4612
+   ],
+   "crossfade": [
+    320,
+    395
+   ],
+   "cut": 405,
+   "cut_before": 376,
+   "dark": [
+    104,
+    119
+   ],
+   "env_out": [
+    4513,
+    4563
+   ],
+   "exit_cut": [
+    4865,
+    4890
+   ],
+   "first_hold": [
+    307,
+    320
+   ],
+   "glide_in": [
+    119,
+    307
+   ],
+   "glide_in_s": 7.5,
+   "glide_out": [
+    4627,
+    4865
+   ],
+   "glide_out_s": 9.5,
+   "glow_fade": [
+    282,
+    320
+   ],
+   "hers_dark": [
+    104,
+    320
+   ],
+   "intro_s": 12.04,
+   "land": 104,
+   "ours_hidden_from": 307,
+   "outro_hold": [
+    4500,
+    4513
+   ],
+   "outro_s": 15.6,
+   "planned_end": 4890,
+   "planned_end_s": 195.6,
+   "refusals": [],
+   "rig_back": [
+    4627,
+    4665
+   ],
+   "rig_dark": [
+    320,
+    4627
+   ],
+   "roof_hidden": [
+    307,
+    4563
+   ],
+   "slot": [
+    405,
+    4500
+   ],
+   "slot_before": [
+    376,
+    4476
+   ],
+   "slot_shift": 29,
+   "slot_shift_s": 1.16,
+   "slot_skip": 5,
+   "strike_window": [
+    320,
+    386
+   ],
+   "version": 3,
+   "warnings": [
+    "CUT_MOVED_LATER: +29 frames (1.16 s): glide in the dark, then strikes; slot -> [405, 4500)"
+   ]
+  },
+  "warnings": [
+   "HER_FIRST_CUT_DANGLING: [{'range': [0, 2], 'guid': '3788FAC64E33733DE618F0A435274F5C'}] bind(s) no camera in her copy; her first camera is read at her frame 2",
+   "CUT_MOVED_LATER: +29 frames (1.16 s): glide in the dark, then strikes; slot -> [405, 4500)",
+   "BULB_EMISSIVE_POPS: 24 bulb meshes hide at frame 320 (glows already at 0; emissive cannot fade without a material track)"
+  ]
+ },
+ "run": "KLARAREVEAL-20261007-092823",
+ "scene": "4",
+ "schema": 1,
+ "shared_bindings": [
+  {
+   "guid": "6DA2FFE1405A0A3D3A8CD3BDB9038375",
+   "name": "Klara Hookin - Hers Dark: DirectionalLight",
+   "wanted": "Klara Reveal - DirectionalLight"
+  },
+  {
+   "guid": "B0AFEB3B44E6F2A8900C20830170F0C4",
+   "name": "Klara Hookin - Hers Dark: ExponentialHeightFog",
+   "wanted": "Klara Reveal - ExponentialHeightFog"
+  },
+  {
+   "guid": "11E354EC45E6A26428C4DD98254D50D8",
+   "name": "Klara Hookin - Hers Dark: SkyLight",
+   "wanted": "Klara Reveal - SkyLight"
+  }
+ ],
+ "slot_moved": {
+  "after": [
+   405,
+   4500
+  ],
+  "before": [
+   376,
+   4476
+  ],
+  "offset_after": 4800,
+  "offset_before": 0
+ },
+ "tool": "klara_reveal",
+ "version": 3,
+ "written": "2026-10-07T09:28:23"
+}

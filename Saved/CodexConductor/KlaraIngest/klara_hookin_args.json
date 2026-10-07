@@ -1,6 +1,6 @@
 {
- "mode": "APPLY_SEQ",
- "confirm": "APPLY_SEQ KLARAHOOK",
+ "mode": "DRY",
+ "confirm": "",
  "run_id": null,
  "decided_by": "Gary 7 Oct (his own answers, relayed by the conductor): (1) shot start 'After the hangar lands' -> land_plus_strike for S1 and S4; (2) S1 narration 'Drop it for now' -> mute (deactivate, never delete); (3) S2 'Import, keep our S2' -> Japanese_Alley streamed for viewing only, LS_DevScene_02 untouched; (4) lighting 'Hers; ours off in her scenes'. Design note 7 Oct: 'bring her dioramas into the hangar itself ... a wide shot ... as the light strikes on a dark hangar, before we go into her cinematic sequences'. NOT Gary's: wide_hold_s 5.0 (proposed), anchor 'center' (proposed), the hers_dark/ours_off windows (proposed, HOOKIN_PLAN.md section 4).",
  "copy_folder": "/Game/InfinityStage/KlaraHookin",
@@ -43,7 +43,7 @@
    "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355"
   },
   "4": {
-   "source": "Saved/CodexStructure/hangar_s4_plan.json [meas, stale]",
+   "source": "Saved/CodexStructure/hangar_resize_s4_args.json new (7 Oct S4 resize; valid once HANGAR_RESIZE_S4_APPLY_OK; was hangar_s4_plan.json half_w 1000 / lattice_z 1200)",
    "dock": {
     "loc": [
      10668.4695,
@@ -54,9 +54,9 @@
    },
    "apron": 500.0,
    "depth": 6000.0,
-   "half_w": 1000.0,
+   "half_w": 1400.0,
    "height": 3000.0,
-   "lattice_z": 1200.0,
+   "lattice_z": 1700.0,
    "floor_t": 20.0,
    "dock_z_note": "7 Oct live: apron centre z -10 with floor_t 20 => floor top z 0 (the 30 Sep record z 140/150/170 was stale); measured by DRY KLARAHOOK-20261006-224355"
   }

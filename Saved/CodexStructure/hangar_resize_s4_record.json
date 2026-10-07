@@ -1,0 +1,9249 @@
+{
+ "tool": "hangar_resize_s4",
+ "run": "HANGARRESIZES4-20261007-092739",
+ "written": "2026-10-07T09:27:39",
+ "applied": true,
+ "approved_by": "Gary 7 Oct (own answer, conductor session): 'Rebuild the S4 hangar bigger'; conductor approved in-place resize params (half_w 1400, lattice 1700, fly 1200, ghost_x 3500)",
+ "backup": "E:/PussStage/Backups\\PreHangarResizeS4-HANGARRESIZES4-20261007-092739",
+ "backup_files": [
+  {
+   "asset": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+   "sha256": "ac7dd593291a58482edcaa1d9b69d87dee136c8b0366ca317b34bc530fff02af"
+  },
+  {
+   "asset": "/Game/InfinityStage/RigAtmos/LS_S4_HangarRise",
+   "sha256": "8016756f521105002ad78eb6675a0febc52d3a48a0c796f609e45f2ebc2d3217"
+  },
+  {
+   "asset": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_04",
+   "sha256": "fa5f0804fe84784413b000f22c0f48acf414d8bb7b97f3ed9c1fe11cbb308cd2"
+  }
+ ],
+ "root": {
+  "loc": [
+   11168.469500000001,
+   240000.0,
+   0.0
+  ],
+  "rot": [
+   -0.0,
+   0.0,
+   0.0
+  ],
+  "scale": [
+   1.0,
+   1.0,
+   1.0
+  ]
+ },
+ "plan_sha256": "5f0c84a7d9fb155b99dcbf6f49c5cbe5561c9817ae670fd88d3fe60a399348a7",
+ "actor_plan": {
+  "fly": {
+   "state": "landed",
+   "off_old": -1600.0,
+   "off_new": -1200.0
+  },
+  "roof": "flat",
+  "writes": [
+   {
+    "label": "S4 Hangar Far Wall Above Exit",
+    "kind": "door_piece",
+    "depth": 1,
+    "rel_before": [
+     6024.999999999998,
+     0.0,
+     1725.0
+    ],
+    "rel_after": [
+     6025.0,
+     0.0,
+     1725.0
+    ],
+    "scale_before": [
+     0.5,
+     21.0,
+     25.5
+    ],
+    "scale_after": [
+     0.5,
+     29.0,
+     25.5
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Left of Exit",
+    "kind": "door_piece",
+    "depth": 1,
+    "rel_before": [
+     6024.999999999998,
+     -600.0,
+     225.0
+    ],
+    "rel_after": [
+     6025.0,
+     -800.0,
+     225.0
+    ],
+    "scale_before": [
+     0.5,
+     9.0,
+     4.5
+    ],
+    "scale_after": [
+     0.5,
+     13.0,
+     4.5
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Right of Exit",
+    "kind": "door_piece",
+    "depth": 1,
+    "rel_before": [
+     6024.999999999998,
+     600.0,
+     225.0
+    ],
+    "rel_after": [
+     6025.0,
+     800.0,
+     225.0
+    ],
+    "scale_before": [
+     0.5,
+     9.0,
+     4.5
+    ],
+    "scale_after": [
+     0.5,
+     13.0,
+     4.5
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Fly",
+    "kind": "hinge",
+    "depth": 1,
+    "rel_before": [
+     2999.999999999998,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     3000.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Left Wall Hinge",
+    "kind": "hinge",
+    "depth": 1,
+    "rel_before": [
+     2999.999999999998,
+     -1025.0,
+     0.0
+    ],
+    "rel_after": [
+     3000.0,
+     -1425.0,
+     0.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Right Wall Hinge",
+    "kind": "hinge",
+    "depth": 1,
+    "rel_before": [
+     2999.999999999998,
+     1025.0,
+     0.0
+    ],
+    "rel_after": [
+     3000.0,
+     1425.0,
+     0.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Ghost Light",
+    "kind": "ghost",
+    "depth": 2,
+    "rel_before": [
+     2500.0,
+     -400.0,
+     188.0
+    ],
+    "rel_after": [
+     3500.0,
+     -400.0,
+     188.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Ghost Light Bulb",
+    "kind": "sphere",
+    "depth": 2,
+    "rel_before": [
+     2500.0,
+     -400.0,
+     188.0
+    ],
+    "rel_after": [
+     3500.0,
+     -400.0,
+     188.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Ghost Light Stand",
+    "kind": "stand",
+    "depth": 2,
+    "rel_before": [
+     2500.0,
+     -400.0,
+     90.0
+    ],
+    "rel_after": [
+     3500.0,
+     -400.0,
+     90.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Floor 1",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1000.0,
+     0.0,
+     -10.0
+    ],
+    "rel_after": [
+     1000.0,
+     0.0,
+     -10.0
+    ],
+    "scale_before": [
+     20.0,
+     20.0,
+     0.2
+    ],
+    "scale_after": [
+     20.0,
+     28.0,
+     0.2
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 2",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     3000.0,
+     0.0,
+     -10.0
+    ],
+    "rel_after": [
+     3000.0,
+     0.0,
+     -10.0
+    ],
+    "scale_before": [
+     20.0,
+     20.0,
+     0.2
+    ],
+    "scale_after": [
+     20.0,
+     28.0,
+     0.2
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 3",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5000.0,
+     0.0,
+     -10.0
+    ],
+    "rel_after": [
+     5000.0,
+     0.0,
+     -10.0
+    ],
+    "scale_before": [
+     20.0,
+     20.0,
+     0.2
+    ],
+    "scale_after": [
+     20.0,
+     28.0,
+     0.2
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 01",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     400.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     400.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 02",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     800.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     800.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 03",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1200.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     1200.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 04",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1600.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     1600.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 05",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2000.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     2000.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 06",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2400.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     2400.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 07",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2800.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     2800.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 08",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     3200.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     3200.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 09",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     3600.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     3600.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 10",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     4000.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     4000.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 11",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     4400.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     4400.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 12",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     4800.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     4800.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 13",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5200.0,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     5200.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 14",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5599.999999999998,
+     0.0,
+     1200.0
+    ],
+    "rel_after": [
+     5600.0,
+     0.0,
+     1700.0
+    ],
+    "scale_before": [
+     0.26,
+     20.0,
+     0.34
+    ],
+    "scale_after": [
+     0.26,
+     28.0,
+     0.34
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 1",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2999.999999999998,
+     -800.0,
+     1234.0
+    ],
+    "rel_after": [
+     3000.0,
+     -1100.0,
+     1734.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 2",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2999.999999999998,
+     0.0,
+     1234.0
+    ],
+    "rel_after": [
+     3000.0,
+     0.0,
+     1734.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 3",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2999.999999999998,
+     800.0,
+     1234.0
+    ],
+    "rel_after": [
+     3000.0,
+     1100.0,
+     1734.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Left Wall",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2999.999999999998,
+     -1025.0,
+     1500.0
+    ],
+    "rel_after": [
+     3000.0,
+     -1425.0,
+     1500.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Right Wall",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2999.999999999998,
+     1025.0,
+     1500.0
+    ],
+    "rel_after": [
+     3000.0,
+     1425.0,
+     1500.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-1",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     375.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     375.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-2",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     1125.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1125.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-3",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     1875.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1875.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-4",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     2625.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     2625.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-5",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     3375.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     3375.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-6",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     4125.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4125.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-7",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     4875.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4875.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-8",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     5624.999999999998,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     5625.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-1",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     375.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     375.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-2",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     1125.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     1125.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-3",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     1875.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     1875.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-4",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     2625.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     2625.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-5",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     3375.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     3375.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-6",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     4125.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     4125.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-7",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     4875.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     4875.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 2-8",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     5624.999999999998,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     5625.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-1",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     375.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     375.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-2",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     1125.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1125.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-3",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     1875.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1875.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-4",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     2625.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     2625.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-5",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     3375.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     3375.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-6",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     4125.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4125.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-7",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     4875.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4875.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Bulb 3-8",
+    "kind": "bulb",
+    "depth": 2,
+    "rel_before": [
+     5624.999999999998,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     5625.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L1",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     1000.0,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     1000.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L1 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1000.0,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     1000.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L2",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     1800.0,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     1800.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L2 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1800.0,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     1800.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L3",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     2600.0,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     2600.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L3 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2600.0,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     2600.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L4",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     3400.0,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     3400.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L4 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     3400.0,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     3400.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L5",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     4200.0,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     4200.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L5 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     4200.0,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     4200.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L6",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     5000.0,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     5000.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L6 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5000.0,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     5000.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L7",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     5799.999999999998,
+     -960.0,
+     690.0
+    ],
+    "rel_after": [
+     5800.0,
+     -1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical L7 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5799.999999999998,
+     -985.0,
+     700.0
+    ],
+    "rel_after": [
+     5800.0,
+     -1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R1",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     1000.0,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     1000.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R1 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1000.0,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     1000.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R2",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     1800.0,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     1800.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R2 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     1800.0,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     1800.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R3",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     2600.0,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     2600.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R3 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     2600.0,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     2600.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R4",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     3400.0,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     3400.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R4 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     3400.0,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     3400.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R5",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     4200.0,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     4200.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R5 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     4200.0,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     4200.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R6",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     5000.0,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     5000.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R6 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5000.0,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     5000.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R7",
+    "kind": "practical",
+    "depth": 2,
+    "rel_before": [
+     5799.999999999998,
+     960.0,
+     690.0
+    ],
+    "rel_after": [
+     5800.0,
+     1360.0,
+     690.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Practical R7 Body",
+    "kind": "slab",
+    "depth": 2,
+    "rel_before": [
+     5799.999999999998,
+     985.0,
+     700.0
+    ],
+    "rel_after": [
+     5800.0,
+     1385.0,
+     700.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Uplight 1",
+    "kind": "uplight",
+    "depth": 2,
+    "rel_before": [
+     5849.999999999998,
+     -600.0,
+     29.99999999999997
+    ],
+    "rel_after": [
+     5850.0,
+     -900.0,
+     30.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Uplight 3",
+    "kind": "uplight",
+    "depth": 2,
+    "rel_before": [
+     5849.999999999998,
+     600.0,
+     29.99999999999997
+    ],
+    "rel_after": [
+     5850.0,
+     900.0,
+     30.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Hangar Roof",
+    "kind": "slab",
+    "depth": 3,
+    "rel_before": [
+     3024.999999999998,
+     0.0,
+     3025.0
+    ],
+    "rel_after": [
+     3025.0,
+     0.0,
+     3025.0
+    ],
+    "scale_before": [
+     60.49999999999998,
+     21.0,
+     0.5
+    ],
+    "scale_after": [
+     60.5,
+     29.0,
+     0.5
+    ]
+   },
+   {
+    "label": "S4 Lattice Glow 1-1",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     375.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     375.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-2",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     1125.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1125.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-3",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     1875.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1875.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-4",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     2625.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     2625.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-5",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     3375.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     3375.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-6",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     4125.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4125.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-7",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     4875.0,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4875.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-8",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     5624.999999999998,
+     -800.0,
+     1211.0
+    ],
+    "rel_after": [
+     5625.0,
+     -1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-1",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     375.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     375.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-2",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     1125.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     1125.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-3",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     1875.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     1875.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-4",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     2625.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     2625.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-5",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     3375.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     3375.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-6",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     4125.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     4125.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-7",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     4875.0,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     4875.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-8",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     5624.999999999998,
+     0.0,
+     1211.0
+    ],
+    "rel_after": [
+     5625.0,
+     0.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-1",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     375.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     375.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-2",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     1125.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1125.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-3",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     1875.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     1875.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-4",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     2625.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     2625.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-5",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     3375.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     3375.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-6",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     4125.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4125.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-7",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     4875.0,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     4875.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-8",
+    "kind": "glow",
+    "depth": 3,
+    "rel_before": [
+     5624.999999999998,
+     800.0,
+     1211.0
+    ],
+    "rel_after": [
+     5625.0,
+     1100.0,
+     1711.0
+    ],
+    "scale_before": null,
+    "scale_after": null
+   }
+  ],
+  "all_after": {
+   "S4 Ghost Light": [
+    3500.0,
+    -400.0,
+    188.0
+   ],
+   "S4 Ghost Light Bulb": [
+    3500.0,
+    -400.0,
+    188.0
+   ],
+   "S4 Ghost Light Stand": [
+    3500.0,
+    -400.0,
+    90.0
+   ],
+   "S4 Hangar Far Wall Hinge": [
+    6025.0,
+    0.0,
+    0.0
+   ],
+   "S4 Hangar Floor 1": [
+    1000.0,
+    0.0,
+    -10.0
+   ],
+   "S4 Hangar Floor 1 Hinge": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "S4 Hangar Floor 2": [
+    3000.0,
+    0.0,
+    -10.0
+   ],
+   "S4 Hangar Floor 2 Hinge": [
+    2000.0,
+    0.0,
+    0.0
+   ],
+   "S4 Hangar Floor 3": [
+    5000.0,
+    0.0,
+    -10.0
+   ],
+   "S4 Hangar Floor 3 Hinge": [
+    4000.0,
+    0.0,
+    0.0
+   ],
+   "S4 Hangar Lattice Beam 01": [
+    400.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 02": [
+    800.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 03": [
+    1200.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 04": [
+    1600.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 05": [
+    2000.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 06": [
+    2400.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 07": [
+    2800.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 08": [
+    3200.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 09": [
+    3600.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 10": [
+    4000.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 11": [
+    4400.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 12": [
+    4800.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 13": [
+    5200.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Beam 14": [
+    5600.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Fly": [
+    3000.0,
+    0.0,
+    1700.0
+   ],
+   "S4 Hangar Lattice Rail 1": [
+    3000.0,
+    -1100.0,
+    1734.0
+   ],
+   "S4 Hangar Lattice Rail 2": [
+    3000.0,
+    0.0,
+    1734.0
+   ],
+   "S4 Hangar Lattice Rail 3": [
+    3000.0,
+    1100.0,
+    1734.0
+   ],
+   "S4 Hangar Left Wall": [
+    3000.0,
+    -1425.0,
+    1500.0
+   ],
+   "S4 Hangar Left Wall Hinge": [
+    3000.0,
+    -1425.0,
+    0.0
+   ],
+   "S4 Hangar Right Wall": [
+    3000.0,
+    1425.0,
+    1500.0
+   ],
+   "S4 Hangar Right Wall Hinge": [
+    3000.0,
+    1425.0,
+    0.0
+   ],
+   "S4 Hangar Roof": [
+    3025.0,
+    0.0,
+    3025.0
+   ],
+   "S4 Hangar Roof Hinge": [
+    6025.0,
+    0.0,
+    3000.0
+   ],
+   "S4 Hangar Root": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "S4 Lattice Bulb 1-1": [
+    375.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-2": [
+    1125.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-3": [
+    1875.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-4": [
+    2625.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-5": [
+    3375.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-6": [
+    4125.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-7": [
+    4875.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 1-8": [
+    5625.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-1": [
+    375.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-2": [
+    1125.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-3": [
+    1875.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-4": [
+    2625.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-5": [
+    3375.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-6": [
+    4125.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-7": [
+    4875.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 2-8": [
+    5625.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-1": [
+    375.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-2": [
+    1125.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-3": [
+    1875.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-4": [
+    2625.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-5": [
+    3375.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-6": [
+    4125.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-7": [
+    4875.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Bulb 3-8": [
+    5625.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-1": [
+    375.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-2": [
+    1125.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-3": [
+    1875.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-4": [
+    2625.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-5": [
+    3375.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-6": [
+    4125.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-7": [
+    4875.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 1-8": [
+    5625.0,
+    -1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-1": [
+    375.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-2": [
+    1125.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-3": [
+    1875.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-4": [
+    2625.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-5": [
+    3375.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-6": [
+    4125.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-7": [
+    4875.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 2-8": [
+    5625.0,
+    0.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-1": [
+    375.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-2": [
+    1125.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-3": [
+    1875.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-4": [
+    2625.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-5": [
+    3375.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-6": [
+    4125.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-7": [
+    4875.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Lattice Glow 3-8": [
+    5625.0,
+    1100.0,
+    1711.0
+   ],
+   "S4 Practical L1": [
+    1000.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L1 Body": [
+    1000.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical L2": [
+    1800.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L2 Body": [
+    1800.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical L3": [
+    2600.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L3 Body": [
+    2600.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical L4": [
+    3400.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L4 Body": [
+    3400.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical L5": [
+    4200.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L5 Body": [
+    4200.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical L6": [
+    5000.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L6 Body": [
+    5000.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical L7": [
+    5800.0,
+    -1360.0,
+    690.0
+   ],
+   "S4 Practical L7 Body": [
+    5800.0,
+    -1385.0,
+    700.0
+   ],
+   "S4 Practical R1": [
+    1000.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R1 Body": [
+    1000.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Practical R2": [
+    1800.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R2 Body": [
+    1800.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Practical R3": [
+    2600.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R3 Body": [
+    2600.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Practical R4": [
+    3400.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R4 Body": [
+    3400.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Practical R5": [
+    4200.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R5 Body": [
+    4200.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Practical R6": [
+    5000.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R6 Body": [
+    5000.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Practical R7": [
+    5800.0,
+    1360.0,
+    690.0
+   ],
+   "S4 Practical R7 Body": [
+    5800.0,
+    1385.0,
+    700.0
+   ],
+   "S4 Uplight 1": [
+    5850.0,
+    -900.0,
+    30.0
+   ],
+   "S4 Uplight 2": [
+    5850.0,
+    0.0,
+    30.0
+   ],
+   "S4 Uplight 3": [
+    5850.0,
+    900.0,
+    30.0
+   ],
+   "S4 Hangar Exit Black": [
+    6052.0,
+    0.0,
+    225.0
+   ],
+   "S4 Hangar Exit Door Leaf": [
+    6024.95,
+    0.0,
+    225.0
+   ],
+   "S4 Hangar Far Wall Above Exit": [
+    6025.0,
+    0.0,
+    1725.0
+   ],
+   "S4 Hangar Far Wall Left of Exit": [
+    6025.0,
+    -800.0,
+    225.0
+   ],
+   "S4 Hangar Far Wall Right of Exit": [
+    6025.0,
+    800.0,
+    225.0
+   ]
+  },
+  "world_fixed": [
+   {
+    "label": "S4 Hangar Apron",
+    "scale_before": [
+     5.0,
+     20.0,
+     0.2
+    ],
+    "scale_after": [
+     5.0,
+     28.0,
+     0.2
+    ]
+   },
+   {
+    "label": "S4 Hangar Pinned Exposure",
+    "scale_before": [
+     30.99999999999999,
+     11.0,
+     16.0
+    ],
+    "scale_after": [
+     30.99999999999999,
+     15.0,
+     16.0
+    ]
+   }
+  ],
+  "drift": [],
+  "refusals": []
+ },
+ "key_plan": {
+  "keys_before": [
+   [
+    0,
+    2800.0
+   ],
+   [
+    259,
+    2800.0
+   ],
+   [
+    379,
+    1200.0
+   ]
+  ],
+  "keys_after": [
+   [
+    0,
+    2900.0
+   ],
+   [
+    259,
+    2900.0
+   ],
+   [
+    379,
+    1700.0
+   ]
+  ],
+  "default_before": 2800.0,
+  "default_after": 2900.0,
+  "refusals": []
+ },
+ "targets": {
+  "tool": "hangar_resize_s4_plan",
+  "frame": "S4 Hangar Root, ASSEMBLED pose (hangar_build.py plan_for); +x into the box",
+  "old_params": {
+   "scene": 4,
+   "depth": 6000.0,
+   "half_w": 1000.0,
+   "height": 3000.0,
+   "apron": 500.0,
+   "lattice_z": 1200.0,
+   "lattice_fly": 1600.0,
+   "ghost_x": 2500.0,
+   "ghost_y": -400.0,
+   "rail_pitch": 800.0,
+   "uplight_pitch": 600.0
+  },
+  "new_params": {
+   "scene": 4,
+   "depth": 6000.0,
+   "half_w": 1400.0,
+   "height": 3000.0,
+   "apron": 500.0,
+   "lattice_z": 1700.0,
+   "lattice_fly": 1200.0,
+   "ghost_x": 3500.0,
+   "ghost_y": -400.0,
+   "rail_pitch": 1100.0,
+   "uplight_pitch": 900.0
+  },
+  "k_old": 1.0,
+  "k_new": 1.0,
+  "counts_old": {
+   "rows": 3,
+   "cols": 1,
+   "beams": 14,
+   "rails": 3,
+   "bulbs": 24,
+   "glows": 24,
+   "practicals": 14,
+   "uplights": 3
+  },
+  "counts_new": {
+   "rows": 3,
+   "cols": 1,
+   "beams": 14,
+   "rails": 3,
+   "bulbs": 24,
+   "glows": 24,
+   "practicals": 14,
+   "uplights": 3
+  },
+  "labels": 115,
+  "unchanged_labels": 7,
+  "moves": [
+   {
+    "label": "S4 Ghost Light",
+    "kind": "ghost",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "loc_old": [
+     2500.0,
+     -400.0,
+     188.0
+    ],
+    "loc_new": [
+     3500.0,
+     -400.0,
+     188.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Ghost Light Bulb",
+    "kind": "sphere",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "loc_old": [
+     2500.0,
+     -400.0,
+     188.0
+    ],
+    "loc_new": [
+     3500.0,
+     -400.0,
+     188.0
+    ],
+    "size_old": [
+     12.0,
+     12.0,
+     12.0
+    ],
+    "size_new": [
+     12.0,
+     12.0,
+     12.0
+    ]
+   },
+   {
+    "label": "S4 Ghost Light Stand",
+    "kind": "stand",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "loc_old": [
+     2500.0,
+     -400.0,
+     90.0
+    ],
+    "loc_new": [
+     3500.0,
+     -400.0,
+     90.0
+    ],
+    "size_old": [
+     4.0,
+     4.0,
+     180.0
+    ],
+    "size_new": [
+     4.0,
+     4.0,
+     180.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall",
+    "kind": "slab",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "loc_old": [
+     6025.0,
+     0.0,
+     1500.0
+    ],
+    "loc_new": [
+     6025.0,
+     0.0,
+     1500.0
+    ],
+    "size_old": [
+     50.0,
+     2100.0,
+     3000.0
+    ],
+    "size_new": [
+     50.0,
+     2900.0,
+     3000.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 1",
+    "kind": "slab",
+    "parent": "S4 Hangar Floor 1 Hinge",
+    "loc_old": [
+     1000.0,
+     0.0,
+     -10.0
+    ],
+    "loc_new": [
+     1000.0,
+     0.0,
+     -10.0
+    ],
+    "size_old": [
+     2000.0,
+     2000.0,
+     20.0
+    ],
+    "size_new": [
+     2000.0,
+     2800.0,
+     20.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 2",
+    "kind": "slab",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "loc_old": [
+     3000.0,
+     0.0,
+     -10.0
+    ],
+    "loc_new": [
+     3000.0,
+     0.0,
+     -10.0
+    ],
+    "size_old": [
+     2000.0,
+     2000.0,
+     20.0
+    ],
+    "size_new": [
+     2000.0,
+     2800.0,
+     20.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 3",
+    "kind": "slab",
+    "parent": "S4 Hangar Floor 3 Hinge",
+    "loc_old": [
+     5000.0,
+     0.0,
+     -10.0
+    ],
+    "loc_new": [
+     5000.0,
+     0.0,
+     -10.0
+    ],
+    "size_old": [
+     2000.0,
+     2000.0,
+     20.0
+    ],
+    "size_new": [
+     2000.0,
+     2800.0,
+     20.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 01",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     400.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     400.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 02",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     800.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     800.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 03",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1200.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     1200.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 04",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1600.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     1600.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 05",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     2000.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     2000.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 06",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     2400.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     2400.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 07",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     2800.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     2800.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 08",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3200.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     3200.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 09",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3600.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     3600.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 10",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4000.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     4000.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 11",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4400.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     4400.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 12",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4800.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     4800.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 13",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     5200.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     5200.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 14",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     5600.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     5600.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Fly",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     3000.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     3000.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 1",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3000.0,
+     -800.0,
+     2834.0
+    ],
+    "loc_new": [
+     3000.0,
+     -1100.0,
+     2934.0
+    ],
+    "size_old": [
+     6000.0,
+     26.0,
+     34.0
+    ],
+    "size_new": [
+     6000.0,
+     26.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 2",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3000.0,
+     0.0,
+     2834.0
+    ],
+    "loc_new": [
+     3000.0,
+     0.0,
+     2934.0
+    ],
+    "size_old": [
+     6000.0,
+     26.0,
+     34.0
+    ],
+    "size_new": [
+     6000.0,
+     26.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 3",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3000.0,
+     800.0,
+     2834.0
+    ],
+    "loc_new": [
+     3000.0,
+     1100.0,
+     2934.0
+    ],
+    "size_old": [
+     6000.0,
+     26.0,
+     34.0
+    ],
+    "size_new": [
+     6000.0,
+     26.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Left Wall",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     3000.0,
+     -1025.0,
+     1500.0
+    ],
+    "loc_new": [
+     3000.0,
+     -1425.0,
+     1500.0
+    ],
+    "size_old": [
+     6000.0,
+     50.0,
+     3000.0
+    ],
+    "size_new": [
+     6000.0,
+     50.0,
+     3000.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Left Wall Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     3000.0,
+     -1025.0,
+     0.0
+    ],
+    "loc_new": [
+     3000.0,
+     -1425.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Right Wall",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     3000.0,
+     1025.0,
+     1500.0
+    ],
+    "loc_new": [
+     3000.0,
+     1425.0,
+     1500.0
+    ],
+    "size_old": [
+     6000.0,
+     50.0,
+     3000.0
+    ],
+    "size_new": [
+     6000.0,
+     50.0,
+     3000.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Right Wall Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     3000.0,
+     1025.0,
+     0.0
+    ],
+    "loc_new": [
+     3000.0,
+     1425.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Roof",
+    "kind": "slab",
+    "parent": "S4 Hangar Roof Hinge",
+    "loc_old": [
+     3025.0,
+     0.0,
+     3025.0
+    ],
+    "loc_new": [
+     3025.0,
+     0.0,
+     3025.0
+    ],
+    "size_old": [
+     6050.0,
+     2100.0,
+     50.0
+    ],
+    "size_new": [
+     6050.0,
+     2900.0,
+     50.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-1",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-2",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-3",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-4",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     2625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-5",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-6",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-7",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-8",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     5625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-1",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-2",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-3",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-4",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     2625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-5",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-6",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-7",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-8",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     5625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-1",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-2",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-3",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     1875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-4",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     2625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-5",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     3375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-6",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-7",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     4875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-8",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "loc_old": [
+     5625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Glow 1-1",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-1",
+    "loc_old": [
+     375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-2",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-2",
+    "loc_old": [
+     1125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-3",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-3",
+    "loc_old": [
+     1875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-4",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-4",
+    "loc_old": [
+     2625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-5",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-5",
+    "loc_old": [
+     3375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-6",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-6",
+    "loc_old": [
+     4125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-7",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-7",
+    "loc_old": [
+     4875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-8",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-8",
+    "loc_old": [
+     5625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-1",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-1",
+    "loc_old": [
+     375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-2",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-2",
+    "loc_old": [
+     1125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-3",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-3",
+    "loc_old": [
+     1875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-4",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-4",
+    "loc_old": [
+     2625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-5",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-5",
+    "loc_old": [
+     3375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-6",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-6",
+    "loc_old": [
+     4125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-7",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-7",
+    "loc_old": [
+     4875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-8",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-8",
+    "loc_old": [
+     5625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-1",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-1",
+    "loc_old": [
+     375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-2",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-2",
+    "loc_old": [
+     1125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-3",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-3",
+    "loc_old": [
+     1875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-4",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-4",
+    "loc_old": [
+     2625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-5",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-5",
+    "loc_old": [
+     3375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-6",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-6",
+    "loc_old": [
+     4125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-7",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-7",
+    "loc_old": [
+     4875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-8",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-8",
+    "loc_old": [
+     5625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L1",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     1000.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     1000.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L1 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     1000.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     1000.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L2",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     1800.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     1800.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L2 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     1800.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     1800.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L3",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     2600.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     2600.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L3 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     2600.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     2600.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L4",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     3400.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     3400.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L4 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     3400.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     3400.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L5",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     4200.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     4200.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L5 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     4200.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     4200.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L6",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     5000.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     5000.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L6 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     5000.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     5000.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L7",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     5800.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     5800.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L7 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "loc_old": [
+     5800.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     5800.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R1",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     1000.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     1000.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R1 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     1000.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     1000.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R2",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     1800.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     1800.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R2 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     1800.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     1800.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R3",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     2600.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     2600.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R3 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     2600.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     2600.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R4",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     3400.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     3400.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R4 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     3400.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     3400.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R5",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     4200.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     4200.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R5 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     4200.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     4200.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R6",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     5000.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     5000.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R6 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     5000.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     5000.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R7",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     5800.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     5800.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R7 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "loc_old": [
+     5800.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     5800.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Uplight 1",
+    "kind": "uplight",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "loc_old": [
+     5850.0,
+     -600.0,
+     30.0
+    ],
+    "loc_new": [
+     5850.0,
+     -900.0,
+     30.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Uplight 3",
+    "kind": "uplight",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "loc_old": [
+     5850.0,
+     600.0,
+     30.0
+    ],
+    "loc_new": [
+     5850.0,
+     900.0,
+     30.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Exit Black",
+    "kind": "door_piece",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     6052.0,
+     0.0,
+     225.0
+    ],
+    "loc_new": [
+     6052.0,
+     0.0,
+     225.0
+    ],
+    "size_old": [
+     2.0,
+     300.0,
+     450.0
+    ],
+    "size_new": [
+     2.0,
+     300.0,
+     450.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Exit Door Leaf",
+    "kind": "door_piece",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     6024.95,
+     0.0,
+     225.0
+    ],
+    "loc_new": [
+     6024.95,
+     0.0,
+     225.0
+    ],
+    "size_old": [
+     50.0,
+     299.0,
+     449.0
+    ],
+    "size_new": [
+     50.0,
+     299.0,
+     449.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Above Exit",
+    "kind": "door_piece",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     6025.0,
+     0.0,
+     1725.0
+    ],
+    "loc_new": [
+     6025.0,
+     0.0,
+     1725.0
+    ],
+    "size_old": [
+     50.0,
+     2100.0,
+     2550.0
+    ],
+    "size_new": [
+     50.0,
+     2900.0,
+     2550.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Left of Exit",
+    "kind": "door_piece",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     6025.0,
+     -600.0,
+     225.0
+    ],
+    "loc_new": [
+     6025.0,
+     -800.0,
+     225.0
+    ],
+    "size_old": [
+     50.0,
+     900.0,
+     450.0
+    ],
+    "size_new": [
+     50.0,
+     1300.0,
+     450.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Right of Exit",
+    "kind": "door_piece",
+    "parent": "S4 Hangar Root",
+    "loc_old": [
+     6025.0,
+     600.0,
+     225.0
+    ],
+    "loc_new": [
+     6025.0,
+     800.0,
+     225.0
+    ],
+    "size_old": [
+     50.0,
+     900.0,
+     450.0
+    ],
+    "size_new": [
+     50.0,
+     1300.0,
+     450.0
+    ]
+   }
+  ],
+  "pieces": [
+   {
+    "label": "S4 Ghost Light",
+    "kind": "ghost",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "ancestors": [
+     "S4 Hangar Floor 2 Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2500.0,
+     -400.0,
+     188.0
+    ],
+    "loc_new": [
+     3500.0,
+     -400.0,
+     188.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Ghost Light Bulb",
+    "kind": "sphere",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "ancestors": [
+     "S4 Hangar Floor 2 Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2500.0,
+     -400.0,
+     188.0
+    ],
+    "loc_new": [
+     3500.0,
+     -400.0,
+     188.0
+    ],
+    "size_old": [
+     12.0,
+     12.0,
+     12.0
+    ],
+    "size_new": [
+     12.0,
+     12.0,
+     12.0
+    ]
+   },
+   {
+    "label": "S4 Ghost Light Stand",
+    "kind": "stand",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "ancestors": [
+     "S4 Hangar Floor 2 Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2500.0,
+     -400.0,
+     90.0
+    ],
+    "loc_new": [
+     3500.0,
+     -400.0,
+     90.0
+    ],
+    "size_old": [
+     4.0,
+     4.0,
+     180.0
+    ],
+    "size_new": [
+     4.0,
+     4.0,
+     180.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6025.0,
+     0.0,
+     0.0
+    ],
+    "loc_new": [
+     6025.0,
+     0.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Floor 1",
+    "kind": "slab",
+    "parent": "S4 Hangar Floor 1 Hinge",
+    "ancestors": [
+     "S4 Hangar Floor 1 Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1000.0,
+     0.0,
+     -10.0
+    ],
+    "loc_new": [
+     1000.0,
+     0.0,
+     -10.0
+    ],
+    "size_old": [
+     2000.0,
+     2000.0,
+     20.0
+    ],
+    "size_new": [
+     2000.0,
+     2800.0,
+     20.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 1 Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "loc_new": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Floor 2",
+    "kind": "slab",
+    "parent": "S4 Hangar Floor 2 Hinge",
+    "ancestors": [
+     "S4 Hangar Floor 2 Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     0.0,
+     -10.0
+    ],
+    "loc_new": [
+     3000.0,
+     0.0,
+     -10.0
+    ],
+    "size_old": [
+     2000.0,
+     2000.0,
+     20.0
+    ],
+    "size_new": [
+     2000.0,
+     2800.0,
+     20.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 2 Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2000.0,
+     0.0,
+     0.0
+    ],
+    "loc_new": [
+     2000.0,
+     0.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Floor 3",
+    "kind": "slab",
+    "parent": "S4 Hangar Floor 3 Hinge",
+    "ancestors": [
+     "S4 Hangar Floor 3 Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5000.0,
+     0.0,
+     -10.0
+    ],
+    "loc_new": [
+     5000.0,
+     0.0,
+     -10.0
+    ],
+    "size_old": [
+     2000.0,
+     2000.0,
+     20.0
+    ],
+    "size_new": [
+     2000.0,
+     2800.0,
+     20.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Floor 3 Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     4000.0,
+     0.0,
+     0.0
+    ],
+    "loc_new": [
+     4000.0,
+     0.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 01",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     400.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     400.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 02",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     800.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     800.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 03",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1200.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     1200.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 04",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1600.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     1600.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 05",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2000.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     2000.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 06",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2400.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     2400.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 07",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2800.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     2800.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 08",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3200.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     3200.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 09",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3600.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     3600.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 10",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4000.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     4000.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 11",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4400.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     4400.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 12",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4800.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     4800.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 13",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5200.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     5200.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Beam 14",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5600.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     5600.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": [
+     26.0,
+     2000.0,
+     34.0
+    ],
+    "size_new": [
+     26.0,
+     2800.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Fly",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     0.0,
+     2800.0
+    ],
+    "loc_new": [
+     3000.0,
+     0.0,
+     2900.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 1",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     -800.0,
+     2834.0
+    ],
+    "loc_new": [
+     3000.0,
+     -1100.0,
+     2934.0
+    ],
+    "size_old": [
+     6000.0,
+     26.0,
+     34.0
+    ],
+    "size_new": [
+     6000.0,
+     26.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 2",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     0.0,
+     2834.0
+    ],
+    "loc_new": [
+     3000.0,
+     0.0,
+     2934.0
+    ],
+    "size_old": [
+     6000.0,
+     26.0,
+     34.0
+    ],
+    "size_new": [
+     6000.0,
+     26.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Lattice Rail 3",
+    "kind": "slab",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     800.0,
+     2834.0
+    ],
+    "loc_new": [
+     3000.0,
+     1100.0,
+     2934.0
+    ],
+    "size_old": [
+     6000.0,
+     26.0,
+     34.0
+    ],
+    "size_new": [
+     6000.0,
+     26.0,
+     34.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Left Wall",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     -1025.0,
+     1500.0
+    ],
+    "loc_new": [
+     3000.0,
+     -1425.0,
+     1500.0
+    ],
+    "size_old": [
+     6000.0,
+     50.0,
+     3000.0
+    ],
+    "size_new": [
+     6000.0,
+     50.0,
+     3000.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Left Wall Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     -1025.0,
+     0.0
+    ],
+    "loc_new": [
+     3000.0,
+     -1425.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Right Wall",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     1025.0,
+     1500.0
+    ],
+    "loc_new": [
+     3000.0,
+     1425.0,
+     1500.0
+    ],
+    "size_old": [
+     6000.0,
+     50.0,
+     3000.0
+    ],
+    "size_new": [
+     6000.0,
+     50.0,
+     3000.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Right Wall Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Root",
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3000.0,
+     1025.0,
+     0.0
+    ],
+    "loc_new": [
+     3000.0,
+     1425.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Roof",
+    "kind": "slab",
+    "parent": "S4 Hangar Roof Hinge",
+    "ancestors": [
+     "S4 Hangar Roof Hinge",
+     "S4 Hangar Far Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": true,
+    "loc_old": [
+     3025.0,
+     0.0,
+     3025.0
+    ],
+    "loc_new": [
+     3025.0,
+     0.0,
+     3025.0
+    ],
+    "size_old": [
+     6050.0,
+     2100.0,
+     50.0
+    ],
+    "size_new": [
+     6050.0,
+     2900.0,
+     50.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Roof Hinge",
+    "kind": "hinge",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Far Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6025.0,
+     0.0,
+     3000.0
+    ],
+    "loc_new": [
+     6025.0,
+     0.0,
+     3000.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Root",
+    "kind": "hinge",
+    "parent": null,
+    "ancestors": [],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "loc_new": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Bulb 1-1",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-2",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-3",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-4",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-5",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-6",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-7",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 1-8",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-1",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-2",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-3",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-4",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-5",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-6",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-7",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 2-8",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-1",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-2",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-3",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-4",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-5",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-6",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-7",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Bulb 3-8",
+    "kind": "bulb",
+    "parent": "S4 Hangar Lattice Fly",
+    "ancestors": [
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": [
+     6.0,
+     6.0,
+     6.0
+    ],
+    "size_new": [
+     6.0,
+     6.0,
+     6.0
+    ]
+   },
+   {
+    "label": "S4 Lattice Glow 1-1",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-1",
+    "ancestors": [
+     "S4 Lattice Bulb 1-1",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-2",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-2",
+    "ancestors": [
+     "S4 Lattice Bulb 1-2",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-3",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-3",
+    "ancestors": [
+     "S4 Lattice Bulb 1-3",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-4",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-4",
+    "ancestors": [
+     "S4 Lattice Bulb 1-4",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-5",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-5",
+    "ancestors": [
+     "S4 Lattice Bulb 1-5",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3375.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-6",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-6",
+    "ancestors": [
+     "S4 Lattice Bulb 1-6",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4125.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-7",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-7",
+    "ancestors": [
+     "S4 Lattice Bulb 1-7",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4875.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 1-8",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 1-8",
+    "ancestors": [
+     "S4 Lattice Bulb 1-8",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5625.0,
+     -800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     -1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-1",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-1",
+    "ancestors": [
+     "S4 Lattice Bulb 2-1",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-2",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-2",
+    "ancestors": [
+     "S4 Lattice Bulb 2-2",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-3",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-3",
+    "ancestors": [
+     "S4 Lattice Bulb 2-3",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-4",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-4",
+    "ancestors": [
+     "S4 Lattice Bulb 2-4",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-5",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-5",
+    "ancestors": [
+     "S4 Lattice Bulb 2-5",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3375.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-6",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-6",
+    "ancestors": [
+     "S4 Lattice Bulb 2-6",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4125.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-7",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-7",
+    "ancestors": [
+     "S4 Lattice Bulb 2-7",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4875.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 2-8",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 2-8",
+    "ancestors": [
+     "S4 Lattice Bulb 2-8",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5625.0,
+     0.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     0.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-1",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-1",
+    "ancestors": [
+     "S4 Lattice Bulb 3-1",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-2",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-2",
+    "ancestors": [
+     "S4 Lattice Bulb 3-2",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-3",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-3",
+    "ancestors": [
+     "S4 Lattice Bulb 3-3",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     1875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     1875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-4",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-4",
+    "ancestors": [
+     "S4 Lattice Bulb 3-4",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     2625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     2625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-5",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-5",
+    "ancestors": [
+     "S4 Lattice Bulb 3-5",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     3375.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     3375.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-6",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-6",
+    "ancestors": [
+     "S4 Lattice Bulb 3-6",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4125.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4125.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-7",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-7",
+    "ancestors": [
+     "S4 Lattice Bulb 3-7",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     4875.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     4875.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Lattice Glow 3-8",
+    "kind": "glow",
+    "parent": "S4 Lattice Bulb 3-8",
+    "ancestors": [
+     "S4 Lattice Bulb 3-8",
+     "S4 Hangar Lattice Fly",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": true,
+    "roof_subtree": false,
+    "loc_old": [
+     5625.0,
+     800.0,
+     2811.0
+    ],
+    "loc_new": [
+     5625.0,
+     1100.0,
+     2911.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L1",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1000.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     1000.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L1 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1000.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     1000.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L2",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1800.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     1800.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L2 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1800.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     1800.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L3",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2600.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     2600.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L3 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2600.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     2600.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L4",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3400.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     3400.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L4 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3400.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     3400.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L5",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     4200.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     4200.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L5 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     4200.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     4200.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L6",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5000.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     5000.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L6 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5000.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     5000.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical L7",
+    "kind": "practical",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5800.0,
+     -960.0,
+     690.0
+    ],
+    "loc_new": [
+     5800.0,
+     -1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical L7 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Left Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Left Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5800.0,
+     -985.0,
+     700.0
+    ],
+    "loc_new": [
+     5800.0,
+     -1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R1",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1000.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     1000.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R1 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1000.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     1000.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R2",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1800.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     1800.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R2 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     1800.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     1800.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R3",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2600.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     2600.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R3 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     2600.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     2600.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R4",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3400.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     3400.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R4 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     3400.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     3400.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R5",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     4200.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     4200.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R5 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     4200.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     4200.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R6",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5000.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     5000.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R6 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5000.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     5000.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Practical R7",
+    "kind": "practical",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5800.0,
+     960.0,
+     690.0
+    ],
+    "loc_new": [
+     5800.0,
+     1360.0,
+     690.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Practical R7 Body",
+    "kind": "slab",
+    "parent": "S4 Hangar Right Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Right Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5800.0,
+     985.0,
+     700.0
+    ],
+    "loc_new": [
+     5800.0,
+     1385.0,
+     700.0
+    ],
+    "size_old": [
+     30.0,
+     30.0,
+     22.0
+    ],
+    "size_new": [
+     30.0,
+     30.0,
+     22.0
+    ]
+   },
+   {
+    "label": "S4 Uplight 1",
+    "kind": "uplight",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Far Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5850.0,
+     -600.0,
+     30.0
+    ],
+    "loc_new": [
+     5850.0,
+     -900.0,
+     30.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Uplight 2",
+    "kind": "uplight",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Far Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5850.0,
+     0.0,
+     30.0
+    ],
+    "loc_new": [
+     5850.0,
+     0.0,
+     30.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Uplight 3",
+    "kind": "uplight",
+    "parent": "S4 Hangar Far Wall Hinge",
+    "ancestors": [
+     "S4 Hangar Far Wall Hinge",
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     5850.0,
+     600.0,
+     30.0
+    ],
+    "loc_new": [
+     5850.0,
+     900.0,
+     30.0
+    ],
+    "size_old": null,
+    "size_new": null
+   },
+   {
+    "label": "S4 Hangar Exit Black",
+    "kind": "door_piece",
+    "parent": null,
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6052.0,
+     0.0,
+     225.0
+    ],
+    "loc_new": [
+     6052.0,
+     0.0,
+     225.0
+    ],
+    "size_old": [
+     2.0,
+     300.0,
+     450.0
+    ],
+    "size_new": [
+     2.0,
+     300.0,
+     450.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Exit Door Leaf",
+    "kind": "door_piece",
+    "parent": null,
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6024.95,
+     0.0,
+     225.0
+    ],
+    "loc_new": [
+     6024.95,
+     0.0,
+     225.0
+    ],
+    "size_old": [
+     50.0,
+     299.0,
+     449.0
+    ],
+    "size_new": [
+     50.0,
+     299.0,
+     449.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Above Exit",
+    "kind": "door_piece",
+    "parent": null,
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6025.0,
+     0.0,
+     1725.0
+    ],
+    "loc_new": [
+     6025.0,
+     0.0,
+     1725.0
+    ],
+    "size_old": [
+     50.0,
+     2100.0,
+     2550.0
+    ],
+    "size_new": [
+     50.0,
+     2900.0,
+     2550.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Left of Exit",
+    "kind": "door_piece",
+    "parent": null,
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6025.0,
+     -600.0,
+     225.0
+    ],
+    "loc_new": [
+     6025.0,
+     -800.0,
+     225.0
+    ],
+    "size_old": [
+     50.0,
+     900.0,
+     450.0
+    ],
+    "size_new": [
+     50.0,
+     1300.0,
+     450.0
+    ]
+   },
+   {
+    "label": "S4 Hangar Far Wall Right of Exit",
+    "kind": "door_piece",
+    "parent": null,
+    "ancestors": [
+     "S4 Hangar Root"
+    ],
+    "fly_subtree": false,
+    "roof_subtree": false,
+    "loc_old": [
+     6025.0,
+     600.0,
+     225.0
+    ],
+    "loc_new": [
+     6025.0,
+     800.0,
+     225.0
+    ],
+    "size_old": [
+     50.0,
+     900.0,
+     450.0
+    ],
+    "size_new": [
+     50.0,
+     1300.0,
+     450.0
+    ]
+   }
+  ],
+  "roof_hinge_loc": [
+   6025.0,
+   0.0,
+   3000.0
+  ],
+  "cube_cm": 100.0,
+  "world_fixed": {
+   "S4 Hangar Apron": {
+    "dock_loc": [
+     250.0,
+     0.0,
+     -10.0
+    ],
+    "scale_old": [
+     5.0,
+     20.0,
+     0.2
+    ],
+    "scale_new": [
+     5.0,
+     28.0,
+     0.2
+    ]
+   },
+   "S4 Hangar Pinned Exposure": {
+    "note": "scale Y only; its X/Z are the 5 m-nearer live values (hangar_build.py:27-29)",
+    "scale_y_old": 11.0,
+    "scale_y_new": 15.0
+   }
+  },
+  "lattice_fly": {
+   "rest_z_old": 2800.0,
+   "rest_z_new": 2900.0,
+   "landed_z_old": 1200.0,
+   "landed_z_new": 1700.0,
+   "keys_live": [
+    [
+     0.0,
+     2800.0
+    ],
+    [
+     12.6261,
+     2800.0
+    ],
+    [
+     16.6261,
+     1200.0
+    ]
+   ],
+   "keys_new": [
+    [
+     0.0,
+     2900.0
+    ],
+    [
+     12.6261,
+     2900.0
+    ],
+    [
+     16.6261,
+     1700.0
+    ]
+   ],
+   "rail_top_at_rest_cm": 2951.0,
+   "roof_underside_cm": 3000.0
+  },
+  "klara_checks": {
+   "near_ok": true,
+   "far_ok": true,
+   "side_ok": true,
+   "side_comfort_ok": true,
+   "under_lattice": true,
+   "under_roof": true
+  },
+  "ghost_was_inside_set": true,
+  "fails": []
+ },
+ "all_before": {
+  "S4 Ghost Light": [
+   2500.0,
+   -400.0,
+   188.0
+  ],
+  "S4 Ghost Light Bulb": [
+   2500.0,
+   -400.0,
+   188.0
+  ],
+  "S4 Ghost Light Stand": [
+   2500.0,
+   -400.0,
+   90.0
+  ],
+  "S4 Hangar Far Wall Hinge": [
+   6024.999999999998,
+   0.0,
+   0.0
+  ],
+  "S4 Hangar Floor 1": [
+   1000.0,
+   0.0,
+   -10.0
+  ],
+  "S4 Hangar Floor 1 Hinge": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "S4 Hangar Floor 2": [
+   3000.0,
+   0.0,
+   -10.0
+  ],
+  "S4 Hangar Floor 2 Hinge": [
+   2000.0,
+   0.0,
+   0.0
+  ],
+  "S4 Hangar Floor 3": [
+   5000.0,
+   0.0,
+   -10.0
+  ],
+  "S4 Hangar Floor 3 Hinge": [
+   4000.0,
+   0.0,
+   0.0
+  ],
+  "S4 Hangar Lattice Beam 01": [
+   400.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 02": [
+   800.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 03": [
+   1200.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 04": [
+   1600.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 05": [
+   2000.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 06": [
+   2400.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 07": [
+   2800.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 08": [
+   3200.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 09": [
+   3600.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 10": [
+   4000.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 11": [
+   4400.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 12": [
+   4800.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 13": [
+   5200.0,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Beam 14": [
+   5599.999999999998,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Fly": [
+   2999.999999999998,
+   0.0,
+   1200.0
+  ],
+  "S4 Hangar Lattice Rail 1": [
+   2999.999999999998,
+   -800.0,
+   1234.0
+  ],
+  "S4 Hangar Lattice Rail 2": [
+   2999.999999999998,
+   0.0,
+   1234.0
+  ],
+  "S4 Hangar Lattice Rail 3": [
+   2999.999999999998,
+   800.0,
+   1234.0
+  ],
+  "S4 Hangar Left Wall": [
+   2999.999999999998,
+   -1025.0,
+   1500.0
+  ],
+  "S4 Hangar Left Wall Hinge": [
+   2999.999999999998,
+   -1025.0,
+   0.0
+  ],
+  "S4 Hangar Right Wall": [
+   2999.999999999998,
+   1025.0,
+   1500.0
+  ],
+  "S4 Hangar Right Wall Hinge": [
+   2999.999999999998,
+   1025.0,
+   0.0
+  ],
+  "S4 Hangar Roof": [
+   3024.999999999998,
+   0.0,
+   3025.0
+  ],
+  "S4 Hangar Roof Hinge": [
+   6024.999999999998,
+   0.0,
+   3000.0
+  ],
+  "S4 Hangar Root": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "S4 Lattice Bulb 1-1": [
+   375.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-2": [
+   1125.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-3": [
+   1875.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-4": [
+   2625.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-5": [
+   3375.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-6": [
+   4125.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-7": [
+   4875.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 1-8": [
+   5624.999999999998,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-1": [
+   375.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-2": [
+   1125.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-3": [
+   1875.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-4": [
+   2625.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-5": [
+   3375.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-6": [
+   4125.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-7": [
+   4875.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 2-8": [
+   5624.999999999998,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-1": [
+   375.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-2": [
+   1125.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-3": [
+   1875.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-4": [
+   2625.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-5": [
+   3375.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-6": [
+   4125.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-7": [
+   4875.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Bulb 3-8": [
+   5624.999999999998,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-1": [
+   375.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-2": [
+   1125.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-3": [
+   1875.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-4": [
+   2625.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-5": [
+   3375.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-6": [
+   4125.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-7": [
+   4875.0,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 1-8": [
+   5624.999999999998,
+   -800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-1": [
+   375.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-2": [
+   1125.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-3": [
+   1875.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-4": [
+   2625.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-5": [
+   3375.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-6": [
+   4125.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-7": [
+   4875.0,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 2-8": [
+   5624.999999999998,
+   0.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-1": [
+   375.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-2": [
+   1125.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-3": [
+   1875.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-4": [
+   2625.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-5": [
+   3375.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-6": [
+   4125.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-7": [
+   4875.0,
+   800.0,
+   1211.0
+  ],
+  "S4 Lattice Glow 3-8": [
+   5624.999999999998,
+   800.0,
+   1211.0
+  ],
+  "S4 Practical L1": [
+   1000.0,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L1 Body": [
+   1000.0,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical L2": [
+   1800.0,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L2 Body": [
+   1800.0,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical L3": [
+   2600.0,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L3 Body": [
+   2600.0,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical L4": [
+   3400.0,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L4 Body": [
+   3400.0,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical L5": [
+   4200.0,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L5 Body": [
+   4200.0,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical L6": [
+   5000.0,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L6 Body": [
+   5000.0,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical L7": [
+   5799.999999999998,
+   -960.0,
+   690.0
+  ],
+  "S4 Practical L7 Body": [
+   5799.999999999998,
+   -985.0,
+   700.0
+  ],
+  "S4 Practical R1": [
+   1000.0,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R1 Body": [
+   1000.0,
+   985.0,
+   700.0
+  ],
+  "S4 Practical R2": [
+   1800.0,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R2 Body": [
+   1800.0,
+   985.0,
+   700.0
+  ],
+  "S4 Practical R3": [
+   2600.0,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R3 Body": [
+   2600.0,
+   985.0,
+   700.0
+  ],
+  "S4 Practical R4": [
+   3400.0,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R4 Body": [
+   3400.0,
+   985.0,
+   700.0
+  ],
+  "S4 Practical R5": [
+   4200.0,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R5 Body": [
+   4200.0,
+   985.0,
+   700.0
+  ],
+  "S4 Practical R6": [
+   5000.0,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R6 Body": [
+   5000.0,
+   985.0,
+   700.0
+  ],
+  "S4 Practical R7": [
+   5799.999999999998,
+   960.0,
+   690.0
+  ],
+  "S4 Practical R7 Body": [
+   5799.999999999998,
+   985.0,
+   700.0
+  ],
+  "S4 Uplight 1": [
+   5849.999999999998,
+   -600.0,
+   29.99999999999997
+  ],
+  "S4 Uplight 2": [
+   5849.999999999998,
+   0.0,
+   29.99999999999997
+  ],
+  "S4 Uplight 3": [
+   5849.999999999998,
+   600.0,
+   29.99999999999997
+  ],
+  "S4 Hangar Exit Black": [
+   6051.999999999998,
+   0.0,
+   225.0
+  ],
+  "S4 Hangar Exit Door Leaf": [
+   6024.949999999999,
+   0.0,
+   225.0
+  ],
+  "S4 Hangar Far Wall Above Exit": [
+   6024.999999999998,
+   0.0,
+   1725.0
+  ],
+  "S4 Hangar Far Wall Left of Exit": [
+   6024.999999999998,
+   -600.0,
+   225.0
+  ],
+  "S4 Hangar Far Wall Right of Exit": [
+   6024.999999999998,
+   600.0,
+   225.0
+  ]
+ },
+ "stale_references": [
+  "s4_rekey_window_record.json after.lattice_fly_z (2800/1200): never REVERT it while this resize is applied",
+  "hangar_s4_plan.json (30 Sep): history",
+  "hangar_exit_doors_record.json S4 pieces (half_w 1000): its all-scene REVERT would restore the old far wall - never run it while applied"
+ ],
+ "applied_at": "2026-10-07T09:27:40"
+}

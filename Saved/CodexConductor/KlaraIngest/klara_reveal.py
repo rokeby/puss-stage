@@ -1924,7 +1924,9 @@ def build_plan(facts, args):
     box, entry = facts["box"], facts["entry_camera"]
     dock = box["dock"]
     first, last = facts["her_first"], facts["her_last"]
-    pl = args["placement"]
+    # 7 Oct (conductor): scenes.<n>.placement overrides the global placement for that Scene only (S4 lead_max);
+    # a Scene without one (S1) gets the global dict unchanged.
+    pl = dict(args["placement"], **(((args.get("scenes") or {}).get(str(key)) or {}).get("placement") or {}))
     if not facts.get("set_world"):
         refusals.append("DIORAMA_FOOTPRINT_EMPTY (see footprint.excluded)")
         return {"scene": key, "refusals": refusals, "warnings": warnings, "apply_ready": False}

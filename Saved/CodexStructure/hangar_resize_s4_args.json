@@ -1,0 +1,73 @@
+{
+ "mode": "APPLY",
+ "confirm": "APPLY HANGARRESIZES4",
+ "run_id": null,
+ "plan_sha256": "5f0c84a7d9fb155b99dcbf6f49c5cbe5561c9817ae670fd88d3fe60a399348a7",
+ "plan_sha256_note": "APPLY: paste the DRY's plan_sha256 (hangar_resize_s4_dry.json); any live change re-hashes and APPLY refuses",
+ "approved_by": "Gary 7 Oct (own answer, conductor session): 'Rebuild the S4 hangar bigger'; conductor approved in-place resize params (half_w 1400, lattice 1700, fly 1200, ghost_x 3500)",
+ "approved_note": "Conductor 7 Oct approved S4_HANGAR_REBUILD_PLAN.md (non-creative layout under Gary's own 'Rebuild the S4 hangar bigger'); fill at APPLY time",
+ "allow_extra_labels": [
+  "S4 Arrival"
+ ],
+ "allow_extra_note": "Owned = label prefix S4 Hangar/S4 Lattice/S4 Practical/S4 Uplight/S4 Ghost or tag RigAtmos.Scene4Hangar. The DRY lists extras; add one here only after review (it will NOT be moved).",
+ "drift_tol_cm": 1.0,
+ "readback_tol_cm": 0.05,
+ "scale_tol": 0.0001,
+ "key_tol": 0.01,
+ "tool": "hangar_resize_s4",
+ "decided_by": "Gary 7 Oct (his own answer): \"Rebuild the S4 hangar bigger\" - resize the hangar, never Klara's set.",
+ "not_gary": "half_w 1400 (not the reveal DRY's 1500), depth kept 6000 (not 4000), lattice_fly 1200 and ghost_x 3500 are PROPOSED by the S4 rebuild plan (S4_HANGAR_REBUILD_PLAN.md), conductor to approve.",
+ "old": {
+  "scene": 4,
+  "depth": 6000.0,
+  "half_w": 1000.0,
+  "height": 3000.0,
+  "apron": 500.0,
+  "lattice_z": 1200.0,
+  "lattice_fly": 1600.0,
+  "ghost_x": 2500.0,
+  "ghost_y": -400.0,
+  "rail_pitch": 800.0,
+  "uplight_pitch": 600.0
+ },
+ "new": {
+  "scene": 4,
+  "depth": 6000.0,
+  "half_w": 1400.0,
+  "height": 3000.0,
+  "apron": 500.0,
+  "lattice_z": 1700.0,
+  "lattice_fly": 1200.0,
+  "ghost_x": 3500.0,
+  "ghost_y": -400.0,
+  "rail_pitch": 1100.0,
+  "uplight_pitch": 900.0
+ },
+ "klara_s4": {
+  "source": "KlaraIngest/klara_reveal_dry_S4.json run KLARAREVEAL-20261007-085659 plan.placement / footprint",
+  "set_box_local_dock_after": [
+   500.0,
+   3182.697490039647,
+   -931.4595398033853,
+   931.4595398033853
+  ],
+  "set_top_cm": 1354.9234914184754,
+  "side_margin_cm": 100.0,
+  "comfort_cm": 300.0
+ },
+ "lattice_fly_z_keys_live": [
+  [
+   0.0,
+   2800.0
+  ],
+  [
+   12.6261,
+   2800.0
+  ],
+  [
+   16.6261,
+   1200.0
+  ]
+ ],
+ "lattice_fly_z_keys_source": "s4_rekey_window_record.json after.lattice_fly_z [meas 1 Oct]; the APPLY must re-read them live"
+}
