@@ -4,6 +4,10 @@ rzswap_protect.json -> rzswap_plan_<P>.json (what APPLY applies; its hash is in 
 
   python make_swap_plan.py P02 [--dry rzswap_dry_P02_LATEST.json] [--manifests a.json b.json] [--pair-mode side|row]
                                [--max-swaps N] [--end-rows 1] [--exclude "P02 Wing 007|L" ...]
+  python make_swap_plan.py P06 --remap p06_remap_v2_to_v3.json [--dry ..] [--manifests ..] [--verify ..]
+                               REMAP (7 Oct): deterministic 1:1 old->new mesh on every side showing an old mesh, same
+                               side, same inner-edge placement, no scoring; declared front-growth allowance instead of
+                               a depth gate (rzswap_core.make_remap_plan).
   python make_swap_plan.py P02 --preview-gap-audit      PREVIEW ONLY from the 6 Oct 21:54 GAP_AUDIT snapshot (no live
                                bounds / pass times / mechanisms; designs assumed imported): never appliable.
 
@@ -268,13 +272,30 @@ def main(argv=None):
     ap.add_argument("--out-dir", default=HERE)
     ap.add_argument("--preview-gap-audit", action="store_true")
     ap.add_argument("--no-sheet", action="store_true")
+    ap.add_argument("--remap", help="JSON {old mesh path: new mesh path} (or {\"remap\": {...}}): deterministic 1:1 "
+                                    "REMAP plan -- every side showing an old mesh gets its new mesh; no scoring")
     a = ap.parse_args(argv)
     P = a.passage
     protect = jload(a.protect)
     opts = {"pair_mode": a.pair_mode, "end_rows": a.end_rows, "exclude": sorted(a.exclude)}
     if a.max_swaps is not None:
         opts["max_swaps"] = a.max_swaps
-    if a.preview_gap_audit:
+    if a.remap:
+        core.require(not a.preview_gap_audit, "REMAP_NEEDS_A_LIVE_DRY (no --preview-gap-audit)")
+        core.require(a.pair_mode == "side" and a.max_swaps is None and not a.exclude,
+                     "REMAP_OPTION_NOT_SUPPORTED (--pair-mode/--max-swaps/--exclude; edit the remap instead)")
+        dry_path = a.dry or os.path.join(HERE, "rzswap_dry_%s_LATEST.json" % P)
+        dry = jload(dry_path)
+        core.require(dry.get("passage") == P, "DRY_IS_FOR %s" % dry.get("passage"))
+        manifests = a.manifests or dry.get("manifests") or []
+        verify = a.verify if a.verify is not None else glob.glob(os.path.join(HERE, "..", "rzimport", "rzimport_verify_*_LATEST.json"))
+        designs = designs_for(P, manifests, dry, imported_owners(verify))
+        remap_path = _abs(a.remap)
+        plan = core.make_remap_plan(dry, jload(remap_path), designs, protect, {})
+        plan["remap_file"] = {"path": os.path.relpath(remap_path, PROJECT).replace("\\", "/"),
+                              "sha256": rzc.sha_file(remap_path)}
+        tag = P          # rzswap_plan_<P>.json = the file APPLY reads by default (rzswap.py main)
+    elif a.preview_gap_audit:
         dry = preview_dry(P)
         manifests = a.manifests or sorted(glob.glob(os.path.join(PROJECT, "DerivedAssets", "FlatV3", "Realism_20261007", "**",
                                                                  "IMPORT_MANIFEST*.json"), recursive=True))
@@ -312,9 +333,10 @@ def main(argv=None):
     print("RZSWAP_PLAN|passage=%s|swaps=%d|gates_ok=%s|hash=%s|confirm=%s|plan=%s|sheet=%s" % (
         P, len(plan["swaps"]), plan["gates_ok"], plan["hash8"], plan["confirm"], out_json, sheet))
     for s in plan["swaps"]:
-        print("  %-14s %s  %-28s -> %-44s score %4d  y %.1f" % (s["label"], s["side"], (core.mesh_name(s["old_panel"]["mesh"]) or "")[:28],
-                                                                s["new_owner"], s["score"],
-                                                                s["planned_panel"]["local_transform"]["location"][1]))
+        extra = (" front+%.2f dy %.3f" % (s["geometry"]["front_growth_cm"], s["local_y_shift_cm"])) if "geometry" in s else ""
+        print("  %-14s %s  %-28s -> %-44s score %4d  y %.1f%s" % (s["label"], s["side"], (core.mesh_name(s["old_panel"]["mesh"]) or "")[:28],
+                                                                  s["new_owner"], s["score"],
+                                                                  s["planned_panel"]["local_transform"]["location"][1], extra))
     for x in plan["flags"]:
         print("  FLAG " + x[:300])
     for x in plan["refusals"]:

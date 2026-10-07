@@ -110,10 +110,14 @@ class FakeShow:
 
     def cue_text(self, c):
         wp = c["WingPair"]
+        # Attachments (with their Lighting blocks) only when a test sets them: the default fixture text is unchanged
+        att = (",Attachments=(%s)" % ",".join("(Label=\"%s\",Lighting=(Intensity=%.6f,Color=(R=1.0,G=0.8,B=0.6,A=1.0)))"
+                                               % (a["Label"], a["Intensity"]) for a in wp["Attachments"])
+               if wp.get("Attachments") else "")
         return ('(CueGuid=%s,Label=NSLOCTEXT("", "K%s", "%s, (a \\"quoted\\" label)"),bEnabled=True,'
-                "WingPair=(bHasTop=%s,GapToNextCm=%.1f,Mechanism=%s,LocalOverrideMask=%d))") % (
+                "WingPair=(bHasTop=%s,GapToNextCm=%.1f,Mechanism=%s,LocalOverrideMask=%d%s))") % (
             c["CueGuid"], c["CueGuid"][:4], c["Label"], wp["bHasTop"], wp["GapToNextCm"],
-            self.mech_text(wp["Mechanism"]), wp["LocalOverrideMask"])
+            self.mech_text(wp["Mechanism"]), wp["LocalOverrideMask"], att)
 
 
 ENUM = {"OneShot": "ONE_SHOT", "Static": "STATIC", "ContinuousLoop": "CONTINUOUS_LOOP",
@@ -135,6 +139,7 @@ class FakeOps:
         self.extra_dirty_on_materialize = None
         self.snapshots = {}
         self.posed = None
+        self.restore_also = None      # harness fault: restore_rows also edits "attachment" (a target) or "nontarget"
 
     def log(self, m):
         self.logs.append(m)
@@ -250,6 +255,13 @@ class FakeOps:
             c = self._cue(r["cue_guid"])
             c["WingPair"]["Mechanism"] = copy.deepcopy(self.snapshots[r["mech_text"]])
             c["WingPair"]["LocalOverrideMask"] = r["mask"]
+        if self.restore_also == "attachment":     # a whole-cue restore would do this: put back an old attachment
+            c = self._cue(rows[0]["cue_guid"])
+            c["WingPair"]["Attachments"] = [{"Label": "Bulb", "Intensity": 1.0}]
+        elif self.restore_also == "nontarget":
+            targets = {r["cue_guid"] for r in rows}
+            c = [x for x in self.show.cues if x["CueGuid"] not in targets][0]
+            c["WingPair"]["GapToNextCm"] += 1.0
         self.dirty["content"] = sorted(set(self.dirty["content"]) | {core.SHOW_PATH})
 
     def materialize(self):
@@ -703,6 +715,84 @@ def t_revert_drift():
     check(raises(lambda: app.run_revert(ops2, core, {}, orig, "R", here), "DRIFT_SINCE_APPLY"),
           "-control REVERT refuses a row edited after APPLY")
     check("restore" not in ops2.calls, "drift: nothing restored")
+    shutil.rmtree(here, ignore_errors=True)
+
+
+def _applied_with_foreign_edits(tag, run):
+    """APPLY, then another stream's edits between APPLY and REVERT (what happened 7 Oct 08:0x-08:29): light
+    intensities on a target and on the keeper, a new bulb fixture Attachment on a chain row, and a reorder of two
+    cues (a relayout moves rows; REVERT must find targets by CueGuid)."""
+    here, show = fresh(tag)
+    dry_and_plan(here, show)
+    ops, _ = _apply(here, show, run=run)
+    plan = json.load(open(os.path.join(here, app.PLAN_NAME)))
+    keeper = plan["keeper"]["cue_guid"]
+    still_g = [x["cue_guid"] for x in plan["still"] if x["action"] == "still"][3]
+    chain_g = plan["chain"]["rows"][1]["cue_guid"]
+    cue = lambda g: next(x for x in show.cues if x["CueGuid"] == g)
+    cue(still_g)["WingPair"]["Attachments"] = [{"Label": "Bulb", "Intensity": 7.5}]
+    cue(keeper)["WingPair"]["Attachments"] = [{"Label": "Bulb", "Intensity": 3.25}]
+    cue(chain_g)["WingPair"]["Attachments"] = [{"Label": "MeshyBulbFixture", "Intensity": 0.0}]
+    show.cues[0], show.cues[1] = show.cues[1], show.cues[0]
+    orig = json.load(open(json.load(open(os.path.join(here, app.ACTIVE_NAME)))["originals"]))
+    ops2 = FakeOps(show, here)
+    ops2.snapshots = ops.snapshots
+    return here, show, plan, orig, ops2, {"still": still_g, "chain": chain_g, "keeper": keeper}
+
+
+@test
+def t_revert_field_scoped_foreign_edits():
+    """(a) +control: foreign Attachments/Lighting edits between APPLY and REVERT -> REVERT succeeds, edits survive."""
+    here, show, plan, orig, ops2, g = _applied_with_foreign_edits("tp_fs_pos", "FSAPPLY")
+    foreign = {k: [x for x in show.cues if x["CueGuid"] == v][0]["WingPair"]["Attachments"] for k, v in g.items()}
+    app.run_revert(ops2, core, {}, orig, "FSREVERT", here)
+    check(any("_REVERT_OK|run=FSREVERT" in m for m in ops2.logs) and not ops2.errors,
+          "+control (a) REVERT succeeds after foreign light/attachment edits: %s" % ops2.errors)
+    check(any("foreign_edits_kept=2" in m for m in ops2.logs if "_REVERT_OK" in m),
+          "REVERT_OK reports the 2 target rows whose foreign edits were kept")
+    for k, v in g.items():
+        check([x for x in show.cues if x["CueGuid"] == v][0]["WingPair"]["Attachments"] == foreign[k],
+              "(a) foreign edit on the %s row survives REVERT" % k)
+    by = {x["CueGuid"]: x for x in show.cues}
+    check(all(show.mech_text(by[r["cue_guid"]]["WingPair"]["Mechanism"]) == r["mech_text"] and
+              by[r["cue_guid"]]["WingPair"]["LocalOverrideMask"] == r["mask"] for r in orig["rows"]),
+          "(a) every target's mechanism + mask == originals")
+    check(ops2.calls.count("save_show") == 1 and not os.path.exists(os.path.join(here, app.ACTIVE_NAME)),
+          "(a) saved once, originals retired")
+    shutil.rmtree(here, ignore_errors=True)
+    # legacy APPLY record (no after_mask, like TOPPLE-20261007-081114): mask derived from the originals
+    here, show, plan, orig, ops2, g = _applied_with_foreign_edits("tp_fs_legacy", "FSLEGACY")
+    rec_path = os.path.join(here, "topple_apply_FSLEGACY.json")
+    rec = json.load(open(rec_path))
+    check("after_mask" in rec, "APPLY record now carries after_mask")
+    rec.pop("after_mask")
+    json.dump(rec, open(rec_path, "w"))
+    app.run_revert(ops2, core, {}, orig, "FSLEGACYREV", here)
+    check(any("_REVERT_OK|run=FSLEGACYREV" in m for m in ops2.logs), "+control legacy record (no after_mask) reverts")
+    shutil.rmtree(here, ignore_errors=True)
+
+
+@test
+def t_revert_field_scoped_negatives():
+    """(b) a restore that also changes an attachment / a non-target -> stops, nothing saved; (c) mask drift."""
+    for fault, token in (("attachment", "TARGET_CHANGED_OUTSIDE_MECHANISM"), ("nontarget", "NONTARGET_CUE_CHANGED")):
+        here, show, plan, orig, ops2, g = _applied_with_foreign_edits("tp_fs_neg", "FSNEG")
+        ops2.restore_also = fault
+        check(raises(lambda: app.run_revert(ops2, core, {}, orig, "FSNEGREV", here), token),
+              "-control (b) restore that also changes %s -> %s: %s" % (fault, token, ops2.errors))
+        check("save_show" not in ops2.calls and os.path.exists(os.path.join(here, app.ACTIVE_NAME)),
+              "(b) %s: nothing saved, originals kept ACTIVE" % fault)
+        shutil.rmtree(here, ignore_errors=True)
+    here, show, plan, orig, ops2, g = _applied_with_foreign_edits("tp_fs_mask", "FSMASK")
+    next(x for x in show.cues if x["CueGuid"] == g["still"])["WingPair"]["LocalOverrideMask"] |= 4
+    check(raises(lambda: app.run_revert(ops2, core, {}, orig, "FSMASKREV", here), "DRIFT_SINCE_APPLY"),
+          "-control (c) LocalOverrideMask edited after APPLY -> DRIFT refuse")
+    check("restore" not in ops2.calls and "backup" not in ops2.calls, "(c) mask drift: nothing backed up or restored")
+    shutil.rmtree(here, ignore_errors=True)
+    here, show, plan, orig, ops2, g = _applied_with_foreign_edits("tp_fs_gone", "FSGONE")
+    show.cues = [x for x in show.cues if x["CueGuid"] != g["chain"]]
+    check(raises(lambda: app.run_revert(ops2, core, {}, orig, "FSGONEREV", here), "TARGET_CUE_GONE"),
+          "-control a target cue deleted after APPLY -> TARGET_CUE_GONE")
     shutil.rmtree(here, ignore_errors=True)
 
 

@@ -3,7 +3,8 @@
   python test_relayout_offline.py            -> prints PASS/FAIL per check, writes test_relayout_offline_report.json
 
 A FakeOps stands in for UnrealOps. It holds a fake Show (217 foreign cues, the 64 recorded P06 rows from
-../topple/topple_measurements.json, 3 trailing scene cues), emulates the compiler's run rule (maximal ENABLED run,
+../topple/topple_dry_TOPPLE-20261007-024310.json -- the pre-relayout live P06; topple_measurements.json now holds the
+post-relayout 29-row DRY TOPPLE-20261007-081102 -- and 3 trailing scene cues), emulates the compiler's run rule (maximal ENABLED run,
 settings matched by exact First/Last guid -- InfinityStageCompiler.cpp:81-89, :200-246) and exports struct-like text
 that topple_core.fields parses. Every gate gets a NEGATIVE control (a fault injected -> the named refusal) next to the
 POSITIVE run. What this harness cannot prove [inf]: that the Unreal Python property names / import_text / set_panel
@@ -34,6 +35,7 @@ ra = _load("rl_apply_t", os.path.join(HERE, "relayout_apply.py"))
 mp = _load("rl_make_plan_t", os.path.join(HERE, "make_plan.py"))
 
 RESULTS = []
+FIXTURE = "topple_dry_TOPPLE-20261007-024310.json"   # pre-relayout live P06, 64 rows (make_plan.py docstring)
 
 
 def check(name, cond, detail=""):
@@ -80,6 +82,7 @@ class FakeOps:
         self.pie = False
         self.zz = []
         self.topple = None
+        self.rzswap = []
         self.pins = {"wing_pins": [], "relative_pins": []}
         self.exists_fn = exists or mp.sim_exists
         self.bug = None
@@ -163,6 +166,9 @@ class FakeOps:
 
     def topple_active(self):
         return self.topple
+
+    def rzswap_active(self):
+        return copy.deepcopy(self.rzswap)
 
     # ---- compiler emulation
     def _runs(self):
@@ -303,6 +309,27 @@ class FakeOps:
         self.settings = [copy.deepcopy(self.texts[t]) for t in originals["settings_texts"]]
         self.dirty = {"content": [core.SHOW_PATH], "maps": []}
 
+    def restore_fields(self, originals, first):
+        n = len(originals["p06_cue_texts"])
+        live = {c["guid"]: c for c in self.cues[first:first + n]}
+        out = []
+        for t in originals["p06_cue_texts"]:
+            o = self.texts[t]
+            if self.bug == "restore_whole":      # the old whole-cue restore: clobbers later foreign edits
+                c = copy.deepcopy(o)
+            else:
+                c = live[o["guid"]]
+                c["enabled"] = o["enabled"]
+                for k in ("interval", "gap", "L", "R"):
+                    c[k] = copy.deepcopy(o[k])
+                if self.bug == "restore_attachment":
+                    c["atts"] = list(o["atts"])
+            out.append(c)
+        self.cues = self.cues[:first] + out + self.cues[first + n:]
+        osi = ra.p06_settings_index(tc, core, originals["settings_texts"])
+        self.settings[1]["last"] = self.texts[originals["settings_texts"][osi]]["last"]
+        self.dirty = {"content": [core.SHOW_PATH], "maps": []}
+
     def materialize(self):
         i, j = self._p06_run()
         self.materialized = j - i + 1
@@ -346,8 +373,138 @@ def apply_args(plan, **kw):
     return a
 
 
+def _applied(meas):
+    ops, d = fresh(meas)
+    before = ops.cue_texts()
+    before_set = ops.settings_texts()
+    p = dry(ops, d)
+    ra.run_apply(ops, core, tc, apply_args(p), p, "P06RL-TEST-APPLY", d)
+    orig = ra._read_json(ra._read_json(os.path.join(d, ra.ACTIVE_NAME))["originals"])
+    ops.saved = []
+    return ops, d, p, orig, before, before_set
+
+
+def _foreign_edits(ops, p):
+    """What other streams did between APPLY and REVERT on 7 Oct: light/attachment edits on kept and dropped P06 cues, a
+    mechanism change (a topple APPLY already REVERTED leaves the post-relayout mechanism -- a foreign STILL is used
+    here to prove mechanisms are not relayout-owned), a label edit, and a light edit on a non-P06 cue."""
+    by = {c["guid"]: c for c in ops.cues}
+    kept_g, drop_g = p["rows"][4]["cue_guid"], p["dropped"][2]["cue_guid"]
+    by[kept_g]["atts"] = by[kept_g]["atts"] + ["MeshyBulbFixture 08:16"]
+    by[drop_g]["atts"] = ["Light intensity 08:03"]
+    by[p["rows"][7]["cue_guid"]]["mech"] += "STILL"
+    by[p["rows"][9]["cue_guid"]]["label"] += " (renamed)"
+    ops.cues[5]["label"] = "Other 5 relit"
+    return {g: copy.deepcopy(by[g]) for g in (kept_g, drop_g, p["rows"][7]["cue_guid"], p["rows"][9]["cue_guid"])}
+
+
+def t8_field_scoped_revert(meas):
+    # (+) foreign edits survive; owned fields restored; order restored; a disjoint rzswap ACTIVE is ignored
+    ops, d, p, orig, before, before_set = _applied(meas)
+    kept = _foreign_edits(ops, p)
+    other5 = copy.deepcopy(ops.cues[5])
+    ops.rzswap = [{"pointer": "rzswap_originals_P02_ACTIVE.json", "run_id": "RZSW-P02", "passage": "P02",
+                   "cue_guids": ["34E33BCD364FAB686BC453A3BC754B26"]}]
+    ra.run_revert(ops, core, tc, {}, orig, "R8", d)
+    by = {c["guid"]: c for c in ops.cues}
+    check("T8 POS REVERT succeeds after foreign light/attachment/mechanism/label edits (+ disjoint rzswap ACTIVE)",
+          any("REVERT_OK|run=R8" in m for m in ops.logs) and not ops.errors, ops.errors)
+    check("T8 POS every foreign edit survives REVERT", all(
+        by[g]["atts"] == v["atts"] and by[g]["mech"] == v["mech"] and by[g]["label"] == v["label"] for g, v in kept.items())
+        and ops.cues[5] == other5)
+    check("T8 POS original order + owned fields restored (texts equal the pre-APPLY texts once foreign edits are undone)",
+          [c["guid"] for c in ops.cues] == [ra.cue_guid(tc, t) for t in before] and all(
+              ra.owned_fields(tc, a) == ra.owned_fields(tc, b) for a, b in zip(ops.cue_texts(), before)))
+    check("T8 POS settings back (LastCueGuid original), segments as before APPLY", ops.settings_texts() == before_set)
+    check("T8 POS foreign edits counted in the marker", any("foreign_edits_kept=4" in m for m in ops.logs
+                                                           if "REVERT_OK" in m), [m for m in ops.logs if "REVERT_OK" in m])
+    # (-) an rzswap ACTIVE that wrote panels on a P06 cue -> refuse; an unreadable pointer -> refuse
+    for rz, name in (([{"pointer": "rzswap_originals_P06_ACTIVE.json", "run_id": "RZSW-P06", "passage": "P06",
+                        "cue_guids": [p["rows"][0]["cue_guid"]]}], "rzswap ACTIVE on a P06 cue"),
+                     ([{"pointer": "rzswap_originals_PX_ACTIVE.json", "error": "JSONDecodeError"}], "unreadable pointer")):
+        ops, d, p, orig, before, _ = _applied(meas)
+        ops.rzswap = rz
+        expect_stop("T8 NEG %s -> RZSWAP_ACTIVE_ON_P06" % name, lambda: ra.run_revert(ops, core, tc, {}, orig, "R", d),
+                    "RZSWAP_ACTIVE_ON_P06")
+        check("T8 NEG %s: nothing written" % name, ops.saved == [] and os.path.exists(os.path.join(d, ra.ACTIVE_NAME)))
+    # (-) owned-field drift: a swapped panel re-written (rzswap retired by hand), a kept panel, dropped row re-enabled
+    for what in ("swapped", "kept", "enabled"):
+        ops, d, p, orig, before, _ = _applied(meas)
+        r = next(x for x in p["rows"] if x["sides"]["L"]["action"] == ("swap" if what == "swapped" else "keep"))
+        c = next(x for x in ops.cues if x["guid"] == (p["dropped"][0]["cue_guid"] if what == "enabled" else r["cue_guid"]))
+        if what == "enabled":
+            c["enabled"] = True
+        else:
+            c["L"] = dict(c["L"], mesh="/Game/Other/SM_Swapped_Later")
+        expect_stop("T8 NEG %s owned-field drift -> DRIFT_SINCE_APPLY_OWNED" % what,
+                    lambda: ra.run_revert(ops, core, tc, {}, orig, "R", d), "DRIFT_SINCE_APPLY_OWNED")
+        check("T8 NEG %s drift: nothing written" % what, ops.saved == [])
+    # (-) restore faults: a whole-cue restore (old behaviour) or one that also restores attachments -> stop, unsaved
+    for bug in ("restore_whole", "restore_attachment"):
+        ops, d, p, orig, before, _ = _applied(meas)
+        _foreign_edits(ops, p)
+        ops.bug = bug
+        expect_stop("T8 NEG '%s' clobbers a foreign edit -> REVERT_READBACK CHANGED_OUTSIDE_OWNED_FIELDS" % bug,
+                    lambda: ra.run_revert(ops, core, tc, {}, orig, "R", d), "CHANGED_OUTSIDE_OWNED_FIELDS")
+        check("T8 NEG '%s': nothing saved, originals still ACTIVE" % bug,
+              ops.saved == [] and os.path.exists(os.path.join(d, ra.ACTIVE_NAME)))
+    # (+/-) the P06 block located by CueGuid: a cue inserted BEFORE it is fine, one inserted INSIDE it refuses
+    ops, d, p, orig, before, _ = _applied(meas)
+    ops.cues.insert(3, {"guid": "B%031d" % 1, "label": "New cue", "enabled": True, "wp": False})
+    ra.run_revert(ops, core, tc, {}, orig, "RSHIFT", d)
+    check("T8 POS a cue inserted before P06 (block shifted by 1) -> REVERT still succeeds",
+          any("REVERT_OK|run=RSHIFT" in m for m in ops.logs) and [c["guid"] for c in ops.cues[218:282]] ==
+          [ra.cue_guid(tc, t) for t in orig["p06_cue_texts"]], ops.errors)
+    ops, d, p, orig, before, _ = _applied(meas)
+    ops.cues.insert(217 + 40, {"guid": "B%031d" % 2, "label": "Inside", "enabled": False, "wp": False})
+    expect_stop("T8 NEG a cue inserted INSIDE the P06 block -> P06_RANGE_NOT_CONTIGUOUS",
+                lambda: ra.run_revert(ops, core, tc, {}, orig, "R", d), "P06_RANGE_NOT_CONTIGUOUS")
+    # LEGACY record (P06RL-20261007-081048 has only a whole-text sha): after-state re-derived from the hash-matched plan
+    ops, d, p, orig, before, _ = _applied(meas)
+    ap = os.path.join(d, "relayout_apply_P06RL-TEST-APPLY.json")
+    rec = ra._read_json(ap)
+    check("T8 POS APPLY record carries after_owned / after_order / after_last_cue_guid",
+          {"after_owned", "after_order", "after_last_cue_guid"} <= set(rec) and len(rec["after_order"]) == 64)
+    for k in ("after_owned", "after_order", "after_last_cue_guid"):
+        rec.pop(k)
+    ra._write_json(ap, rec)
+    kept = _foreign_edits(ops, p)
+    ra.run_revert(ops, core, tc, {}, orig, "RLEG", d)
+    check("T8 POS legacy record + foreign edits -> REVERT via the plan (drift_basis=legacy_plan), edits survive",
+          any("REVERT_OK|run=RLEG|reverted=P06RL-TEST-APPLY|drift_basis=legacy_plan" in m for m in ops.logs) and all(
+              next(c for c in ops.cues if c["guid"] == g)["atts"] == v["atts"] for g, v in kept.items()), ops.errors)
+    for fault in ("panel", "plan"):
+        ops, d, p, orig, before, _ = _applied(meas)
+        ap = os.path.join(d, "relayout_apply_P06RL-TEST-APPLY.json")
+        rec = ra._read_json(ap)
+        rec.pop("after_owned")
+        ra._write_json(ap, rec)
+        if fault == "panel":
+            r = next(x for x in p["rows"] if x["sides"]["R"]["action"] == "swap")
+            c = next(x for x in ops.cues if x["guid"] == r["cue_guid"])
+            c["R"] = dict(c["R"], local_transform=dict(c["R"]["local_transform"], location=[0.0, 1.0, 0.0]))
+            token = "DRIFT_SINCE_APPLY_OWNED"
+        else:
+            pl = ra._read_json(os.path.join(d, ra.PLAN_NAME))
+            pl["inputs_hash"] = "0" * 64
+            ra._write_json(os.path.join(d, ra.PLAN_NAME), pl)
+            token = "LEGACY_PLAN_UNAVAILABLE"
+        expect_stop("T8 NEG legacy record, %s -> %s" % (fault, token),
+                    lambda: ra.run_revert(ops, core, tc, {}, orig, "R", d), token)
+    # rzswap pointer reader (pure file read)
+    rz = tempfile.mkdtemp(prefix="rz_")
+    o = os.path.join(rz, "rzswap_originals_P06_RZSW-T.json")
+    ra._write_json(o, {"run_id": "RZSW-T", "passage": "P06", "swaps": [{"cue_guid": "ab-cd"}]})
+    ra._write_json(os.path.join(rz, "rzswap_originals_P06_ACTIVE.json"), {"run_id": "RZSW-T", "originals": o})
+    with open(os.path.join(rz, "rzswap_originals_P03_ACTIVE.json"), "w") as fh:
+        fh.write("{not json")
+    got = ra.rzswap_active_records(rz)
+    check("T8 POS rzswap_active_records reads a pointer -> run id + normalised guids; NEG a corrupt pointer -> error",
+          [x.get("cue_guids") for x in got if "error" not in x] == [["ABCD"]] and sum("error" in x for x in got) == 1, got)
+
+
 def main():
-    with open(os.path.join(TOPPLE, "topple_measurements.json"), "r", encoding="utf-8") as fh:
+    with open(os.path.join(TOPPLE, FIXTURE), "r", encoding="utf-8") as fh:
         meas = json.load(fh)
 
     # ---- T1 compiler facts the design rests on (fake compiler mirrors InfinityStageCompiler.cpp:200-246)
@@ -568,16 +725,18 @@ def main():
     expect_stop("T6 NEG REVERT refused while topple ACTIVE", lambda: ra.run_revert(ops, core, tc, {}, orig, "R1", d),
                 "TOPPLE_ACTIVE_PRESENT")
     ops.topple = None
-    ops.cues[217 + 3]["label"] = "drift"
-    expect_stop("T6 NEG REVERT refused on drift since APPLY", lambda: ra.run_revert(ops, core, tc, {}, orig, "R2", d),
-                "DRIFT_SINCE_APPLY")
-    ops.cues[217 + 3]["label"] = [x for x in p["rows"] if x["new_ordinal"] == 3][0]["label"]
+    ops.cues[217 + 3]["gap"] += 1.0       # (was: a label edit; labels are not relayout-owned since 7 Oct)
+    expect_stop("T6 NEG REVERT refused on drift since APPLY (owned field GapToNextCm)",
+                lambda: ra.run_revert(ops, core, tc, {}, orig, "R2", d), "DRIFT_SINCE_APPLY_OWNED")
+    ops.cues[217 + 3]["gap"] -= 1.0
     ops.saved = []
     ra.run_revert(ops, core, tc, {}, orig, "R3", d)
     check("T6 POS REVERT restores every cue text and settings exactly", ops.cue_texts() == before and
           ops.settings_texts() == before_set and ops.segments() == seg_before)
     check("T6 POS REVERT marker, ACTIVE removed", any("REVERT_OK" in m for m in ops.logs) and
           not os.path.exists(os.path.join(d, ra.ACTIVE_NAME)))
+
+    t8_field_scoped_revert(meas)
 
     # ---- T7 topple will find the chain on the planned layout (offline, both height readings)
     offline = mp.json.load(open(os.path.join(HERE, "relayout_plan_offline.json"), encoding="utf-8")) \

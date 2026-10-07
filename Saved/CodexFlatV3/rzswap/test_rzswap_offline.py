@@ -393,6 +393,241 @@ V3 = "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/T5P/SM_FlatV3_P02_SET%02d
 IND = "/Game/Scenes/Wings/FlatV3/Passage02/StaticMeshes/SM_FlatV3_P02_IND_FenceTarp_%s"
 
 
+# =====================================================================================================================
+# REMAP mode (7 Oct): P06 1:1 v2 -> v3 swaps
+# =====================================================================================================================
+
+RZ = core.REALISM_ROOT
+OLD_L1, NEW_L1 = RZ + "T5P/SM_FlatV3_P06_real_25_concrete_wall_with_L_t5p", RZ + "T5P/SM_FlatV3_P06_rf_25_concrete_wall_with_L_t5p"
+OLD_L2, NEW_L2 = RZ + "T5J/SM_FlatV3_P06_real_39_burnt_metal_door_L_t5j", RZ + "T5J/SM_FlatV3_P06_rf_39_burnt_metal_door_L_t5j"
+OLD_R1, NEW_R1 = RZ + "T5P/SM_FlatV3_P06_real_8_rock_formation_sculpture_R_t5p", RZ + "T5P/SM_FlatV3_P06_rf_8_rock_formation_sculpture_R_t5p"
+REMAP06 = {OLD_L1: NEW_L1, OLD_L2: NEW_L2, OLD_R1: NEW_R1}
+PROTECT06 = {"P06": {"sides": [], "families": []}}
+TOPPLE = {"kind": "InfinityMechanismKind.TOPPLE", "playback_mode": "InfinityMotionPlaybackMode.ONE_SHOT"}
+
+
+def box06(mesh, front=None, back=3.8, ztop=1020.0, zb=None):
+    """Static-mesh box (cm) like P06_V3_VS_V2.json [meas]: v2 front x -16.05, v3 (12 flaps) -21.10, back +3.8."""
+    zb = zb or zero_bounds(mesh)
+    if front is None:
+        front = -21.1 if "_rf_" in mesh else -16.05
+    return {"min": [front, zb["min_y_cm"], -100.0], "max": [back, zb["max_y_cm"], ztop]}
+
+
+def syn_dry06(rows_spec, new_boxes=None, same_width=True):
+    """Pure P06 DRY: rows_spec = [(L_mesh, R_mesh), ...]; old panels canonical at y 0; new meshes live."""
+    d = synth_dry(rows_spec)
+    d["passage"], d["passage_guid"] = "P06", core.PASSAGES["P06"]["guid"]
+    for r in d["rows"]:
+        r["label"] = r["label"].replace("P02", "P06")
+        for s in ("L", "R"):
+            m = r["sides"][s]["panel"]["mesh"]
+            r["sides"][s]["box_cm"] = box06(m) if m else None
+    cands = {}
+    for old, new in REMAP06.items():
+        zb = zero_bounds(old) if same_width else zero_bounds(new)
+        cands[new] = {"exists": True, "zero_bounds": zb, "box_cm": (new_boxes or {}).get(new) or box06(new, zb=zb)}
+    d["candidates"] = cands
+    return d
+
+
+def designs06(dry, imported=True):
+    return [{"owner": m.rsplit("/", 1)[-1][len("SM_FlatV3_"):-4], "side": core.built_side(m), "mount": "wing",
+             "passage": "P06", "mesh": m, "height_cm": 1000.0, "width_cm": 400.0, "skin_png": None, "imported": imported,
+             "exists": dry["candidates"].get(m, {}).get("exists", False),
+             "zero_bounds": dry["candidates"].get(m, {}).get("zero_bounds")} for m in REMAP06.values()]
+
+
+class FakeOps06(FakeOps):
+    """The P02 fake re-labelled P06: real cue texts, old v2 realism meshes placed canonically on some sides, boxes."""
+
+    def __init__(self, placements):
+        FakeOps.__init__(self)
+        self.settings = ["(PassageGuid=%s,Label=P06,FirstCueGuid=A,LastCueGuid=B)" % core.PASSAGES["P06"]["guid"]]
+        self.meshes |= set(REMAP06.values())
+        for (o, s), m in placements.items():
+            i = FIRST + o
+            pt = core.panel_text(tc, self.texts[i], s)
+            self.texts[i] = self._set_panel_text(self.texts[i], s, text_from_plain(
+                pt, core.planned_panel(m, plain_from_text(pt)["local_transform"]["location"][1])))
+
+    def measure(self, P_, cand):
+        m = FakeOps.measure(self, P_, cand)
+        for r in m["rows"]:
+            for s in ("L", "R"):
+                mesh = r["sides"][s]["panel"]["mesh"]
+                r["sides"][s]["box_cm"] = box06(mesh) if mesh else None
+        for k, c in m["candidates"].items():
+            c["box_cm"] = box06(k) if c["exists"] else None
+        return m
+
+    def write_panels(self, panels):
+        FakeOps.write_panels(self, panels)
+        if self.fault in ("touch_mechanism", "touch_mask"):
+            i = self.index()[sorted(panels)[0].split("|")[0]]
+            wp = tc.get_field(self.texts[i], "WingPair")
+            if self.fault == "touch_mechanism":
+                wp = tc.replace_field(wp, "Mechanism", tc.replace_field(tc.get_field(wp, "Mechanism"), "PhaseOffsetCycles", "0.123000"))
+            else:
+                wp = tc.replace_field(wp, "LocalOverrideMask", "7")
+            self.texts[i] = tc.replace_field(self.texts[i], "WingPair", wp)
+
+
+PLACE06 = {(1, "L"): OLD_L1, (3, "L"): OLD_L2, (3, "R"): OLD_R1, (6, "L"): OLD_L2, (0, "R"): OLD_R1, (13, "L"): OLD_L1}
+
+
+def remap_flow(tmp, fault=None, placements=None, run="RZSW-T-RM"):
+    ops = FakeOps06(placements or PLACE06)
+    ops.mech = {3: dict(TOPPLE), 6: dict(TOPPLE)}
+    d = tempfile.mkdtemp(prefix="rzsw06_", dir=tmp)
+    dry = app.run_dry(ops, core, {"mode": "DRY", "passage": "P06", "confirm": "DRY RZSWAP P06", "manifests": []},
+                      run + "-DRY", d, {m: m.rsplit("/", 1)[-1] for m in REMAP06.values()})
+    plan = core.make_remap_plan(dry, {"remap": REMAP06}, designs06(dry), PROTECT06)
+    with open(os.path.join(d, "rzswap_plan_P06.json"), "w", encoding="utf-8") as fh:
+        json.dump(plan, fh)
+    ops.fault = fault
+    return ops, d, dry, plan
+
+
+def remap_checks(tmp):
+    # ---- pure plan
+    spec = [(V3 % (1, "L"), OLD_R1), (OLD_L1, V3 % (2, "R")), (V3 % (3, "L"), V3 % (3, "R")), (OLD_L2, OLD_R1),
+            (V3 % (5, "L"), V3 % (5, "R")), (OLD_L1, V3 % (6, "R"))]
+    dry = syn_dry06(spec)
+    dry["rows"][3]["mechanism"] = dict(TOPPLE)
+    dry["rows"][3]["master_pinned"] = True
+    p = core.make_remap_plan(dry, {"remap": REMAP06}, designs06(dry), PROTECT06)
+    keys = {s["key"] for s in p["swaps"]}
+    want = {"G00|R", "G01|L", "G03|L", "G03|R", "G05|L"}
+    check("RM1 POS remap plan: exactly the sides showing an old mesh (incl. end rows, a topple + pinned row), no others",
+          p["gates_ok"] and keys == want, (p["refusals"], sorted(keys)))
+    check("RM2 POS each swap = its remap target, same side, inner edge held, local y shift 0 (identical Y extents)",
+          all(REMAP06[s["old_panel"]["mesh"]] == s["new_mesh"] and abs(s["new_inner_cm"] - s["old_inner_cm"]) < 1e-9 and
+              abs(s["local_y_shift_cm"]) < 1e-9 and s["planned_panel"]["facing_policy"] == "PRESERVE_ASSET" for s in p["swaps"]))
+    check("RM3 POS declared DEPTH_GROWTH_FRONT flag (5.05 cm, <= 6), waived scoring protections + mechanism rows listed",
+          any(f.startswith("DEPTH_GROWTH_FRONT") and "5.05" in f for f in p["flags"]) and
+          any("SCORING_PROTECTIONS_WAIVED" in f and "END_ROW" in f and "MASTER_PIN" in f for f in p["flags"]) and
+          any("MECHANISM_ROWS" in f and "P06 Wing 004" in f for f in p["flags"]), p["flags"])
+    p2 = core.make_remap_plan(copy.deepcopy(dry), {"remap": dict(REMAP06)}, designs06(dry), PROTECT06)
+    check("RM4 POS deterministic: same inputs -> same hash; confirm carries it",
+          p2["inputs_hash"] == p["inputs_hash"] and p["confirm"] == "APPLY RZSWAP P06 #%s" % p["hash8"])
+    check("RM5 POS the remap is in the hash (a different mapping re-hashes)",
+          core.make_remap_plan(dry, {"remap": {OLD_L1: NEW_L1, OLD_L2: NEW_L2, OLD_R1: NEW_R1 + "x"}}, designs06(dry),
+                               PROTECT06)["inputs_hash"] != p["inputs_hash"])
+
+    def refusal(name, dry_, remap=None, designs=None, protect=None, token=""):
+        q = core.make_remap_plan(dry_, {"remap": remap or REMAP06}, designs if designs is not None else designs06(dry_),
+                                 protect or PROTECT06)
+        check(name, not q["gates_ok"] and any(token in r for r in q["refusals"]), q["refusals"][:4])
+
+    refusal("RM6 NEG front growth 7 cm -> REMAP_DEPTH_GROWTH_OVER",
+            syn_dry06(spec, {NEW_L1: box06(NEW_L1, front=-23.05, zb=zero_bounds(OLD_L1))}), token="REMAP_DEPTH_GROWTH_OVER")
+    refusal("RM7 NEG back face moved 1 cm -> REMAP_BACK_FACE_MOVED",
+            syn_dry06(spec, {NEW_L1: box06(NEW_L1, back=4.8, zb=zero_bounds(OLD_L1))}), token="REMAP_BACK_FACE_MOVED")
+    refusal("RM8 NEG height changed 20 cm -> REMAP_HEIGHT_CHANGED",
+            syn_dry06(spec, {NEW_R1: box06(NEW_R1, ztop=1040.0, zb=zero_bounds(OLD_R1))}), token="REMAP_HEIGHT_CHANGED")
+    refusal("RM9 NEG new mesh built for the other side -> REMAP_NEW_BUILT_FOR_R",
+            dry, remap={OLD_L1: NEW_R1, OLD_L2: NEW_L2, OLD_R1: NEW_L1}, token="REMAP_NEW_BUILT_FOR_R")
+    refusal("RM10 NEG an old mesh standing nowhere -> REMAP_OLD_NOT_STANDING",
+            dry, remap=dict(REMAP06, **{RZ + "T5P/SM_FlatV3_P06_real_99_x_L_t5p": RZ + "T5P/SM_FlatV3_P06_rf_99_x_L_t5p"}),
+            token="REMAP_OLD_NOT_STANDING")
+    refusal("RM11 NEG new mesh not verified-imported -> NOT_VERIFIED_IMPORTED", dry, designs=designs06(dry, imported=False),
+            token="NOT_VERIFIED_IMPORTED")
+    refusal("RM12 NEG two olds -> one new -> REMAP_NOT_ONE_TO_ONE", dry, remap={OLD_L1: NEW_L1, OLD_L2: NEW_L1, OLD_R1: NEW_R1},
+            token="REMAP_NOT_ONE_TO_ONE")
+    refusal("RM13 NEG chained remap -> REMAP_CHAINED", dry, remap={OLD_L1: NEW_L1, NEW_L1: NEW_L2, OLD_R1: NEW_R1},
+            token="REMAP_CHAINED")
+    dx = copy.deepcopy(dry)
+    dx["rows"][1]["sides"]["L"]["attachment_refs_mesh"] = True
+    refusal("RM14 NEG an attachment names the old mesh -> REMAP_ATTACHMENT_NAMES_OLD_MESH", dx, token="REMAP_ATTACHMENT_NAMES_OLD_MESH")
+    dx = copy.deepcopy(dry)
+    dx["rows"][1]["sides"]["L"]["panel"]["local_transform"]["rotation"][2] = 4.0
+    refusal("RM15 NEG old local transform not plain -> OLD_LOCAL_TRANSFORM_NOT_PLAIN", dx, token="OLD_LOCAL_TRANSFORM_NOT_PLAIN")
+    dx = copy.deepcopy(dry)
+    dx["rows"][1]["sides"]["L"]["panel"]["material_overrides"] = ["/Game/MI_X"]
+    refusal("RM16 NEG old panel carries MaterialOverrides -> REMAP_OLD_HAS_MATERIAL_OVERRIDES", dx,
+            token="REMAP_OLD_HAS_MATERIAL_OVERRIDES")
+    dx = copy.deepcopy(dry)
+    dx["rows"][5]["enabled"] = False
+    refusal("RM17 NEG disabled row -> REMAP_ROW_DISABLED", dx, token="REMAP_ROW_DISABLED")
+    refusal("RM18 NEG protect-record side -> RECORD_KEEP", dry,
+            protect={"P06": {"sides": [{"cue_guid": "G01", "side": "L", "label": "P06 Wing 002", "reason": "k", "source": "r"}]}},
+            token="RECORD_KEEP")
+    dw = syn_dry06(spec, same_width=False)
+    pw = core.make_remap_plan(dw, {"remap": REMAP06}, designs06(dw), PROTECT06)
+    check("RM19 POS different width: inner edge still held, outer shift + LOCAL_Y_SHIFT/WIDTH flags, not a refusal",
+          pw["gates_ok"] and all(abs(s["new_inner_cm"] - s["old_inner_cm"]) < 1e-9 for s in pw["swaps"]) and
+          any("WIDTH_CHANGED" in f for f in pw["flags"]), (pw["refusals"][:3], pw["flags"]))
+    expect_stop("RM20 NEG remap with --exclude-style options -> REMAP_OPTION_NOT_SUPPORTED",
+                lambda: core.make_remap_plan(dry, {"remap": REMAP06}, designs06(dry), PROTECT06, {"exclude": ["x|L"]}),
+                "REMAP_OPTION_NOT_SUPPORTED")
+    expect_stop("RM21 NEG scoring mode on P06 -> PASSAGE_UNSUPPORTED (P06 only via REMAP)",
+                lambda: core.make_plan(dry, designs06(dry), PROTECT06), "PASSAGE_UNSUPPORTED")
+    check("RM22 NEG the shipped P06 remap file loads 1:1 (15 pairs, sides match, no refusals)",
+          (lambda r: len(r[0]) == 15 and not r[1] and all(core.built_side(o) == core.built_side(n) for o, n in r[0].items()))(
+              core.load_remap(json.load(open(os.path.join(HERE, "p06_remap_v2_to_v3.json"), encoding="utf-8")))))
+    # ---- mechanism drift (real texts)
+    t = list(REAL)
+    check("MD0 MEAS every real cue text carries WingPair.Mechanism + LocalOverrideMask",
+          all(core.mechanism_fields(tc, x) and all(v is not None for v in core.mechanism_fields(tc, x)) for x in t))
+    t_mesh = list(t)
+    t_mesh[3] = tc.replace_field(t[3], "WingPair", tc.replace_field(tc.get_field(t[3], "WingPair"), "Left", tc.replace_field(
+        core.panel_text(tc, t[3], "L"), "Mesh", '"/Game/X.X"')))
+    check("MD1 POS a panel mesh change -> no mechanism drift", core.mechanism_drift(tc, t, t_mesh) == [])
+    t_m = list(t)
+    wp = tc.get_field(t[5], "WingPair")
+    t_m[5] = tc.replace_field(t[5], "WingPair", tc.replace_field(wp, "Mechanism", tc.replace_field(
+        tc.get_field(wp, "Mechanism"), "PhaseOffsetCycles", "0.123000")))
+    t_k = list(t)
+    t_k[9] = tc.replace_field(t[9], "WingPair", tc.replace_field(tc.get_field(t[9], "WingPair"), "LocalOverrideMask", "7"))
+    check("MD2 NEG a mechanism field / the override mask changed -> MECHANISM_CHANGED at that index",
+          core.mechanism_drift(tc, t, t_m) == ["MECHANISM_CHANGED index 5"] and
+          core.mechanism_drift(tc, t, t_k) == ["MECHANISM_CHANGED index 9"])
+    # ---- orchestration on the fake (real P06 texts)
+    ops, d, dry6, plan6 = remap_flow(tmp)
+    check("RO1 POS DRY + remap plan on the fake: 6 sides (old meshes placed), gates ok",
+          plan6["gates_ok"] and len(plan6["swaps"]) == 6, (plan6["refusals"][:4], len(plan6["swaps"])))
+    before = list(ops.texts)
+    rec = app.run_apply(ops, core, tc, {"mode": "APPLY", "passage": "P06", "confirm": plan6["confirm"], "decided_by": "Gary test"},
+                        plan6, "RZSW-T-RM-APPLY", d)
+    tg = {}
+    for s in plan6["swaps"]:
+        tg.setdefault(s["ordinal"] + FIRST, []).append(s["side"])
+    check("RO2 POS APPLY_OK; only the remapped panels changed; every cue's mechanism text identical",
+          any(m.startswith("FLATV3_RZSWAP_APPLY_OK|run=RZSW-T-RM-APPLY|passage=P06|swaps=6") for m in ops.logs) and
+          core.verify_texts(tc, before, ops.texts, tg) == [] and core.mechanism_drift(tc, before, ops.texts) == [] and
+          rec["mechanisms_unchanged"]["drift"] == [] and rec["plan_mode"] == "REMAP", ops.errors[-1:])
+    check("RO3 POS every target side now shows its new mesh; world inner edges unchanged (swapped + controls)",
+          all(plain_from_text(core.panel_text(tc, ops.texts[s["ordinal"] + FIRST], s["side"]))["mesh"] == s["new_mesh"]
+              for s in plan6["swaps"]) and max(abs(x["inner_delta_cm"]) for x in rec["edge_probe"]) < 1e-6)
+    args_r = {"mode": "REVERT", "passage": "P06", "confirm": "REVERT RZSWAP P06 RZSW-T-RM-APPLY"}
+    orig = app._read_json(app._read_json(os.path.join(d, app.active_name("P06")))["originals"])
+    core.validate_args(args_r, None, orig)
+    app.run_revert(ops, core, tc, args_r, orig, "RZSW-T-RM-REV", d)
+    check("RO4 POS REVERT restores the v2 panels; texts == pre-APPLY", ops.texts == before and
+          any(m.startswith("FLATV3_RZSWAP_REVERT_OK|run=RZSW-T-RM-REV|passage=P06") for m in ops.logs))
+    for fault in ("touch_mechanism", "touch_mask"):
+        ops, d, dry6, plan6 = remap_flow(tmp, fault=fault)
+        before = list(ops.texts)
+        expect_stop("RO5 NEG the write also changed a %s -> READBACK_FAILED naming MECHANISM_CHANGED" % fault.split("_")[1],
+                    lambda: app.run_apply(ops, core, tc, {"mode": "APPLY", "passage": "P06", "confirm": plan6["confirm"],
+                                                          "decided_by": "Gary test"}, plan6, "RZSW-T-RM-APPLY", d),
+                    "MECHANISM_CHANGED")
+        check("RO5 NEG ... nothing saved, in-memory restore exact", not ops.saved and ops.texts == before)
+    ops, d, dry6, plan6 = remap_flow(tmp)
+    i = FIRST + 2
+    ops.texts[i] = ops._set_panel_text(ops.texts[i], "L", text_from_plain(core.panel_text(tc, ops.texts[i], "L"), core.planned_panel(
+        OLD_L1, plain_from_text(core.panel_text(tc, ops.texts[i], "L"))["local_transform"]["location"][1])))
+    expect_stop("RO6 NEG another side gets an old mesh after the DRY -> PLAN_STALE (the remap plan is exact)",
+                lambda: app.run_apply(ops, core, tc, {"mode": "APPLY", "passage": "P06", "confirm": plan6["confirm"],
+                                                      "decided_by": "Gary test"}, plan6, "RZSW-T-RM-APPLY", d), "PLAN_STALE")
+    ops, d, dry6, plan6 = remap_flow(tmp)
+    ops.mech[3] = {"kind": "InfinityMechanismKind.SLIDE", "playback_mode": "InfinityMotionPlaybackMode.CONTINUOUS_LOOP"}
+    expect_stop("RO7 NEG a mechanism changed between DRY and APPLY (e.g. topple re-applied) -> PLAN_STALE",
+                lambda: app.run_apply(ops, core, tc, {"mode": "APPLY", "passage": "P06", "confirm": plan6["confirm"],
+                                                      "decided_by": "Gary test"}, plan6, "RZSW-T-RM-APPLY", d), "PLAN_STALE")
+
+
 def main():
     tmp = tempfile.mkdtemp(prefix="rzswap_t_").replace("\\", "/")
     try:
@@ -526,8 +761,8 @@ def _main(tmp):
     check("S21 realism already standing counts toward 2x (fern stands twice -> no more fern)", not p_st["swaps"])
     check("S22 plan hash depends on the DRY state (a panel change re-hashes)", core.state_hash(dry) != core.state_hash(dry_pin))
     # ---------------------------------------------------------------- A: args
-    expect_stop("A1 NEG passage P06", lambda: core.validate_args({"mode": "DRY", "passage": "P06", "confirm": "x", "manifests": []}),
-                "PASSAGE_INVALID")
+    expect_stop("A1 NEG passage P05 (P06 became valid 7 Oct for REMAP)", lambda: core.validate_args(
+        {"mode": "DRY", "passage": "P05", "confirm": "x", "manifests": []}), "PASSAGE_INVALID")
     expect_stop("A2 NEG APPLY without decided_by", lambda: core.validate_args(
         {"mode": "APPLY", "passage": P, "confirm": plan["confirm"]}, plan), "NOT_DECIDED")
     expect_stop("A3 NEG APPLY with an old plan's confirm", lambda: core.validate_args(
@@ -694,6 +929,7 @@ def _main(tmp):
     check("P4 PREVIEW P03: the 4 kept convent rows (7 sides) and the 3 pyre families protected by record",
           sum(1 for f in pv3["facts"] if any("RECORD_KEEP" in p for p in f["protected"])) == 7 and
           all(any("RECORD_FAMILY" in p for p in f["protected"]) for f in pv3["facts"] if (f["family"] or "").startswith("P03_pyre")))
+    remap_checks(tmp)
     # ---------------------------------------------------------------- static
     import ast
     src = open(os.path.join(HERE, "rzswap.py"), encoding="utf-8").read()

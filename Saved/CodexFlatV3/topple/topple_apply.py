@@ -12,6 +12,7 @@ Run only through topple_run.py (purges cached Saved modules, then runs this file
   APPLY   {"mode": "APPLY", "confirm": "APPLY TOPPLE <token>", "decided_by": "Gary ..."} (+ "pose_probe": false to
           skip the in-editor pose probe; + "ack_next_row_intersection": true for --end floor)   Show + level write
   REVERT  {"mode": "REVERT", "confirm": "REVERT TOPPLE <apply run id>"}   restores every written row from the originals
+          (FIELD-SCOPED since 7 Oct: only Mechanism + LocalOverrideMask are restored and compared; see run_revert)
 One APPLY carries both parts (make_keys --parts still,chain | still | chain); a second APPLY is refused until REVERT,
 so REVERT always undoes exactly one APPLY.
 Markers: FLATV3_TOPPLE_<MODE>_OK|run=<id>|..  /  FLATV3_TOPPLE_STOPPED|run=<id>|reason=..   (parse by run id)
@@ -899,9 +900,11 @@ def run_apply(ops, core, args, plan, run, here):
     if bad:
         _stop(ops, core, run, "POST_SAVE_READBACK %s" % bad[:6])
     after = {g: _sha(ops.read_row(g)["mech_text"]) for g in guids}
+    after_mask = {g: int(ops.read_row(g)["mask"]) for g in guids}   # REVERT's DRIFT check (field-scoped, 7 Oct)
     _write_json(os.path.join(here, "topple_apply_%s.json" % run),
                 {"run_id": run, "originals": orig_path, "backup_dir": backup_dir, "parts": plan["parts"],
-                 "rows": [r["label"] for r in write], "after_mech_sha": after, "census_after": cen,
+                 "rows": [r["label"] for r in write], "after_mech_sha": after, "after_mask": after_mask,
+                 "census_after": cen,
                  "pose_probe": pose, "rest_after_materialize": rest,
                  "chain_timing": (c or {}).get("timing"), "saved": [core.SHOW_PATH, core.WORLD_PATH]})
     ops.log("%s_APPLY_OK|run=%s|parts=%s|still=%d|chain=%s|saved=show,level|census=clean|originals=%s" % (
@@ -910,7 +913,62 @@ def run_apply(ops, core, args, plan, run, here):
     return after
 
 
+def _cue_guid_of(core, cue_text):
+    return str(core.get_field(cue_text, "CueGuid") or "").replace("-", "").upper()
+
+
+def _guid_index(ops, core, run, texts):
+    index = {}
+    for i, t in enumerate(texts):
+        g = _cue_guid_of(core, t)
+        if g in index:
+            _stop(ops, core, run, "CUE_GUID_NOT_UNIQUE %s (indices %d, %d)" % (g, index[g], i))
+        index[g] = i
+    return index
+
+
+def _expected_after_mask(orig_doc, applied, row):
+    """APPLY's after-state mask: recorded since 7 Oct ("after_mask"); for older records derived from what APPLY
+    writes (still rows: mask untouched; chain rows: mask | override_bits -- write_rows above)."""
+    rec = applied.get("after_mask")
+    if rec is not None:
+        return rec.get(row["cue_guid"])
+    bits = int(orig_doc.get("override_bits") or 0)
+    return int(row["mask"]) | (bits if row.get("action") == "chain" else 0)
+
+
+def _revert_scope_check(ops, core, orig_doc, pre_texts, pre_index, now_texts):
+    """FIELD-SCOPED read-back (7 Oct, after TOPPLE-20261007-080745 stopped on a whole-text compare): per target row
+    mechanism text + mask == the originals AND the cue text outside WingPair.Mechanism/LocalOverrideMask == its
+    PRE-REVERT text (only the restored fields changed; other streams' later edits -- lights, attachments -- survive);
+    every non-target cue byte-identical to its pre-revert text; same cue count and order. [] = good."""
+    if len(now_texts) != len(pre_texts):
+        return ["CUE_COUNT_CHANGED %d -> %d" % (len(pre_texts), len(now_texts))]
+    if [_cue_guid_of(core, t) for t in now_texts] != [_cue_guid_of(core, t) for t in pre_texts]:
+        return ["CUE_ORDER_CHANGED"]
+    bad = []
+    targets = {pre_index[r["cue_guid"]]: r for r in orig_doc["rows"]}
+    for i, (a, b) in enumerate(zip(pre_texts, now_texts)):
+        if i in targets:
+            if core.cue_text_outside_mechanism(a) != core.cue_text_outside_mechanism(b):
+                bad.append("TARGET_CHANGED_OUTSIDE_MECHANISM %s index %d" % (targets[i]["label"], i))
+        elif a != b:
+            bad.append("NONTARGET_CUE_CHANGED index %d" % i)
+    for r in orig_doc["rows"]:
+        live = ops.read_row(r["cue_guid"])
+        if live["mech_text"] != r["mech_text"]:
+            bad.append("TARGET_MECHANISM_NOT_RESTORED %s" % r["label"])
+        if int(live["mask"]) != int(r["mask"]):
+            bad.append("TARGET_MASK_NOT_RESTORED %s %d want %d" % (r["label"], int(live["mask"]), int(r["mask"])))
+    return bad
+
+
 def run_revert(ops, core, args, orig_doc, run, here):
+    """FIELD-SCOPED REVERT (7 Oct). Refuses: DRIFT_SINCE_APPLY (a target's mechanism text or mask differs from APPLY's
+    after-state), TARGET_CUE_GONE / CUE_GUID_NOT_UNIQUE, REVERT_READBACK (anything other than a target's mechanism +
+    mask changed, or the restore did not land). Accepts: any later edit OUTSIDE the targets' WingPair.Mechanism /
+    LocalOverrideMask (lights, attachments, panels, cue order by another tool): kept as it is in memory now. Rows are
+    found by CueGuid, never by the originals' show_index (a relayout may have moved them)."""
     _guard_start(ops, core, run)
     if ops.zz_actors():
         _stop(ops, core, run, "ZZ_OR_TEMP_ACTORS_IN_LEVEL %s" % ops.zz_actors())
@@ -918,26 +976,30 @@ def run_revert(ops, core, args, orig_doc, run, here):
     if not os.path.exists(apply_path):
         _stop(ops, core, run, "NO_APPLY_RECORD %s (apply never finished: compare the live rows by hand)" % apply_path)
     applied = _read_json(apply_path)
+    pre_texts = ops.cue_texts()                     # in-memory snapshot BEFORE anything is written
+    pre_index = _guid_index(ops, core, run, pre_texts)
     for row in orig_doc["rows"]:
-        live = _sha(ops.read_row(row["cue_guid"])["mech_text"])
-        if live != applied["after_mech_sha"].get(row["cue_guid"]):
-            _stop(ops, core, run, "DRIFT_SINCE_APPLY %s (someone edited the row after APPLY; refused)" % row["label"])
-    texts_before = ops.cue_texts()
+        if row["cue_guid"] not in pre_index:
+            _stop(ops, core, run, "TARGET_CUE_GONE %s %s" % (row["label"], row["cue_guid"]))
+        live = ops.read_row(row["cue_guid"])
+        if _sha(live["mech_text"]) != applied["after_mech_sha"].get(row["cue_guid"]):
+            _stop(ops, core, run, "DRIFT_SINCE_APPLY %s mechanism (someone edited the row's mechanism after APPLY; "
+                                  "refused)" % row["label"])
+        want_mask = _expected_after_mask(orig_doc, applied, row)
+        if want_mask is None or int(live["mask"]) != int(want_mask):
+            _stop(ops, core, run, "DRIFT_SINCE_APPLY %s LocalOverrideMask %d want %s (refused)" % (
+                row["label"], int(live["mask"]), want_mask))
+        core.cue_text_outside_mechanism(pre_texts[pre_index[row["cue_guid"]]])   # computable BEFORE any write
+    foreign = [r["label"] for r in orig_doc["rows"] if "cue_text" in r and core.cue_text_outside_mechanism(
+        r["cue_text"]) != core.cue_text_outside_mechanism(pre_texts[pre_index[r["cue_guid"]]])]
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     backup_dir, _ = ops.backup("PreP06ToppleRevert-%s" % stamp)
-    ops.log("%s_REVERT_BACKUP|run=%s|backup=%s" % (core.MARK, run, backup_dir))
+    ops.log("%s_REVERT_BACKUP|run=%s|backup=%s|foreign_edits_kept=%d%s" % (
+        core.MARK, run, backup_dir, len(foreign), ("|rows=" + ",".join(foreign[:8])) if foreign else ""))
     ops.restore_rows(orig_doc["rows"])
-    texts_after = ops.cue_texts()
-    targets = {r["show_index"]: r for r in orig_doc["rows"]}
-    bad = []
-    for i, (a, b) in enumerate(zip(texts_before, texts_after)):
-        if i in targets:
-            if b != targets[i]["cue_text"]:
-                bad.append("TARGET_NOT_RESTORED index %d" % i)
-        elif a != b:
-            bad.append("NONTARGET_CUE_CHANGED index %d" % i)
-    if bad or len(texts_after) != len(texts_before):
-        _stop(ops, core, run, "REVERT_READBACK %s (Show dirty, unsaved)" % bad[:6])
+    bad = _revert_scope_check(ops, core, orig_doc, pre_texts, pre_index, ops.cue_texts())
+    if bad:
+        _stop(ops, core, run, "REVERT_READBACK %s (Show dirty, unsaved: relaunch with Don't Save)" % bad[:6])
     if not ops.materialize():
         _stop(ops, core, run, "MATERIALIZE_FAILED")
     c = ops.census()
@@ -947,16 +1009,16 @@ def run_revert(ops, core, args, orig_doc, run, here):
         _stop(ops, core, run, "SAVE_FALSE")
     if ops.census() != {"content": [], "maps": []}:
         _stop(ops, core, run, "DIRTY_AFTER_SAVE")
-    final = ops.cue_texts()
-    if any(final[i] != r["cue_text"] for i, r in targets.items()):
-        _stop(ops, core, run, "POST_SAVE_REVERT_READBACK")
+    bad = _revert_scope_check(ops, core, orig_doc, pre_texts, pre_index, ops.cue_texts())
+    if bad:
+        _stop(ops, core, run, "POST_SAVE_REVERT_READBACK %s" % bad[:6])
     orig_path = os.path.join(here, "topple_originals_%s.json" % orig_doc["run_id"])
     os.replace(orig_path, orig_path.replace(".json", "_reverted.json"))
     active = os.path.join(here, ACTIVE_NAME)
     if os.path.exists(active):
         os.remove(active)
-    ops.log("%s_REVERT_OK|run=%s|reverted=%s|rows=%d|saved=show,level|census=clean" % (
-        core.MARK, run, orig_doc["run_id"], len(orig_doc["rows"])))
+    ops.log("%s_REVERT_OK|run=%s|reverted=%s|rows=%d|foreign_edits_kept=%d|saved=show,level|census=clean" % (
+        core.MARK, run, orig_doc["run_id"], len(orig_doc["rows"]), len(foreign)))
 
 
 def main():

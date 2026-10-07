@@ -1,6 +1,10 @@
 """RZSWAP -- realism mesh swaps onto EXISTING P02 / P03 pair-cue rows: pure core (7 Oct, offline-written, NEVER RUN IN
 UNREAL).  No `unreal` import.
 
+7 Oct (later): REMAP mode (make_remap_plan, below the scoring code) -- a deterministic 1:1 {old mesh -> new mesh} swap
+for any passage in PASSAGES (P06 added for the 12-flap v3 rebuilds); scoring (make_plan) stays P02/P03 only.  Every
+cue's mechanism text is asserted unchanged by rzswap.py in BOTH modes (mechanism_drift).
+
 SCOPE (caller 7 Oct): mesh swaps ONLY -- the L/R panel of an existing row gets a realism mesh and its placement.  No
 gaps, no row count, no timing, no mechanisms, no lights, no Top panels (P02 was straightened + retimed by the conductor
 tonight).  The ONLY fields ever written: WingPair.Left / WingPair.Right -> Mesh, MaterialOverrides, LocalTransform,
@@ -65,7 +69,12 @@ UMAP_FILE_REL = "Content/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.
 # Passage GUIDs [meas Saved/CodexConductor/dead_bulbs_warm_record.json, a live read 7 Oct 02:46]; actor label prefix
 # [prec swapkit/run_p02.json / run_p03.json passage_actor_label_prefix]; the DRY asserts both live.
 PASSAGES = {"P02": {"guid": "7FF34BBDA744E406C264A7B7E4DD61D9", "actor_prefix": "Passage 02"},
-            "P03": {"guid": "49F93D652B46B99C10116EBAE927A3C6", "actor_prefix": "Passage 03"}}
+            "P03": {"guid": "49F93D652B46B99C10116EBAE927A3C6", "actor_prefix": "Passage 03"},
+            # P06 (added 7 Oct for REMAP mode): guid = relayout_core.py:39 P06_GUID [decl; ran in P06RL-20261007-081048];
+            # actor label prefix = swapkit/run_p06.json passage_actor_label_prefix [prec]; the DRY asserts both live.
+            "P06": {"guid": "9BFC29C45D47911FF7836BB8537230D2", "actor_prefix": "Passage 06"}}
+
+SCORING_PASSAGES = ("P02", "P03")          # make_plan (scored) stays where it was reviewed; P06 only via make_remap_plan
 
 WRITTEN_PANEL_FIELDS = ("Mesh", "MaterialOverrides", "LocalTransform", "FacingPolicy", "bFlipImageHorizontally")
 SIDE_FIELD = {"L": "Left", "R": "Right"}
@@ -344,7 +353,7 @@ def make_plan(dry, designs, protect, opts=None):
     refusals = []
     require(dry.get("mode") == "DRY" and dry.get("status") == "PASS", "DRY_NOT_PASSING (%s)" % dry.get("status"))
     P = dry["passage"]
-    require(P in PASSAGES, "PASSAGE_UNSUPPORTED %s" % P)
+    require(P in SCORING_PASSAGES, "PASSAGE_UNSUPPORTED %s (scoring mode is P02/P03 only; P06 = --remap)" % P)
     pair_mode = opts.get("pair_mode", "side")
     require(pair_mode in ("side", "row"), "PAIR_MODE %r" % pair_mode)
     excl = set(opts.get("exclude") or [])
@@ -474,6 +483,230 @@ def make_plan(dry, designs, protect, opts=None):
 
 
 # =====================================================================================================================
+# REMAP mode (7 Oct): deterministic 1:1 mesh replacement, no scoring
+# =====================================================================================================================
+# A remap {old mesh path: new mesh path} swaps EVERY side of the passage whose panel currently shows an old mesh to its
+# new mesh: same side, same placement rule (planned_panel + inner_edge_y, i.e. the slot-D inner edge in the Unreal
+# frame), nothing else.  The scoring-mode protections (end rows, Master pins, special mechanisms, EFFECT sides, realism
+# already standing, MAX_USES) are WAIVED -- a 1:1 rebuild of the same design keeps every one of those decisions -- and
+# listed per swap as "scoring_protections_waived".  What still REFUSES (the swap would change more than the mesh, or
+# could not be verified): disabled row, old local transform not plain, old panel not the canonical planned panel
+# (MaterialOverrides / FacingPolicy / flip), no old bounds / no world-edge baseline, an attachment naming the old mesh,
+# a protect-record side or family, a new mesh not verified-imported / not live / built for the other side, an old
+# mesh standing nowhere, and the geometry gates below.  Mechanisms are never written by this tool (WRITTEN_PANEL_FIELDS)
+# and rzswap.py asserts every cue's WingPair.Mechanism + LocalOverrideMask text unchanged (mechanism_drift).
+# DEPTH: instead of the swapkit tk_core depth gate, a declared FRONT-growth allowance: the new box may extend further
+# toward -X (the front/art face, FRONT_X = -15 per rzimport_core.py:99 / edge_rollout_core.py:50 [prec]) by at most
+# REMAP_FRONT_GROWTH_MAX_CM (Gary approved more flaps on P06, 7 Oct; the 12-flap v3 rebuilds grow 4.9-5.05 cm,
+# P06_V3_VS_V2.json [meas]); the back face (+X) must not move and height (Z) must not change.
+
+REMAP_FRONT_GROWTH_MAX_CM = 6.0
+REMAP_BACK_TOL_CM = 0.5
+REMAP_Z_TOL_CM = 1.5            # rzimport BOUNDS_TOL_CM [prec]
+REMAP_WIDTH_TOL_CM = 1.5
+REMAP_Y_SHIFT_FLAG_CM = 0.5
+_SIDE_SUFFIX = re.compile(r"_([LR])(_t5[pij])?$")
+
+
+def built_side(mesh):
+    m = _SIDE_SUFFIX.search(mesh_name(mesh) or "")
+    return m.group(1) if m else None
+
+
+def load_remap(doc):
+    """{"remap": {old: new}} or a flat {old: new}.  Returns (remap, refusals).  1:1, no chains, /Game paths."""
+    raw = doc.get("remap", doc) if isinstance(doc, dict) else None
+    ref = []
+    if not isinstance(raw, dict) or not raw:
+        return {}, ["REMAP_EMPTY_OR_NOT_A_MAPPING"]
+    out = {}
+    for old, new in sorted(raw.items()):
+        if not isinstance(old, str) or not isinstance(new, str) or not old.startswith("/Game/") or not new.startswith("/Game/"):
+            ref.append("REMAP_ENTRY_NOT_GAME_PATHS %r -> %r" % (old, new))
+            continue
+        if "." in old.rsplit("/", 1)[-1] or "." in new.rsplit("/", 1)[-1]:
+            ref.append("REMAP_ENTRY_HAS_OBJECT_SUFFIX %s (package paths only)" % old)
+            continue
+        if old == new:
+            ref.append("REMAP_IDENTITY %s" % old)
+            continue
+        out[old] = new
+    vals = list(out.values())
+    if len(vals) != len(set(vals)):
+        ref.append("REMAP_NOT_ONE_TO_ONE (two old meshes map to one new mesh)")
+    chain = sorted(set(out) & set(vals))
+    if chain:
+        ref.append("REMAP_CHAINED %s (a new mesh is also an old one)" % chain[:3])
+    return out, ref
+
+
+def remap_geometry(side, old_box, new_box):
+    """Pure.  Boxes in the static-mesh frame {min:[x,y,z], max:[x,y,z]} (cm).  Returns (facts, refusal_reasons)."""
+    if not old_box or not new_box:
+        return {}, ["REMAP_NO_BOX (old %s, new %s)" % (bool(old_box), bool(new_box))]
+    f = {"front_growth_cm": round(float(old_box["min"][0]) - float(new_box["min"][0]), 3),
+         "back_delta_cm": round(float(new_box["max"][0]) - float(old_box["max"][0]), 3),
+         "z_delta_cm": [round(float(new_box["min"][2]) - float(old_box["min"][2]), 3),
+                        round(float(new_box["max"][2]) - float(old_box["max"][2]), 3)],
+         "width_delta_cm": round((float(new_box["max"][1]) - float(new_box["min"][1])) -
+                                 (float(old_box["max"][1]) - float(old_box["min"][1])), 3)}
+    bad = []
+    if f["front_growth_cm"] > REMAP_FRONT_GROWTH_MAX_CM + 1e-6:
+        bad.append("REMAP_DEPTH_GROWTH_OVER %.2f cm > %.1f (front face)" % (f["front_growth_cm"], REMAP_FRONT_GROWTH_MAX_CM))
+    if abs(f["back_delta_cm"]) > REMAP_BACK_TOL_CM:
+        bad.append("REMAP_BACK_FACE_MOVED %.2f cm (growth must be on the front/art side only)" % f["back_delta_cm"])
+    if max(abs(z) for z in f["z_delta_cm"]) > REMAP_Z_TOL_CM:
+        bad.append("REMAP_HEIGHT_CHANGED %s cm" % f["z_delta_cm"])
+    return f, bad
+
+
+def mechanism_fields(tc, cue_text):
+    """The mechanism-owned text of one cue: [WingPair.Mechanism, WingPair.LocalOverrideMask] (the two fields topple
+    writes, topple_core.cue_text_outside_mechanism [prec]).  None for a cue text without WingPair."""
+    wp = tc.get_field(cue_text, "WingPair")
+    if wp is None:
+        return None
+    return [tc.get_field(wp, "Mechanism"), tc.get_field(wp, "LocalOverrideMask")]
+
+
+def mechanism_drift(tc, before, after):
+    """Every cue's mechanism text identical before/after (the swap must never touch a mechanism)."""
+    if len(before) != len(after):
+        return ["CUE_COUNT_CHANGED %d -> %d" % (len(before), len(after))]
+    return ["MECHANISM_CHANGED index %d" % i for i, (a, b) in enumerate(zip(before, after))
+            if mechanism_fields(tc, a) != mechanism_fields(tc, b)]
+
+
+def make_remap_plan(dry, remap_doc, designs, protect, opts=None):
+    """REMAP plan.  dry: a DRY doc (rows[].sides[].box_cm + candidates[].box_cm/zero_bounds); remap_doc: see load_remap;
+    designs: as make_plan (imported / exists / zero_bounds per new mesh); protect: rzswap_protect.json.  Returns the plan
+    (same swap schema as make_plan, mode "REMAP"; refusals empty = appliable)."""
+    opts = dict(opts or {})
+    require(dry.get("mode") == "DRY" and dry.get("status") == "PASS", "DRY_NOT_PASSING (%s)" % dry.get("status"))
+    P = dry["passage"]
+    require(P in PASSAGES, "PASSAGE_UNSUPPORTED %s" % P)
+    for k in ("pair_mode", "max_swaps", "exclude"):
+        require(not opts.get(k) or (k == "pair_mode" and opts[k] == "side"),
+                "REMAP_OPTION_NOT_SUPPORTED %s (a remap swaps every standing old mesh; edit the remap instead)" % k)
+    remap, refusals = load_remap(remap_doc)
+    flags = []
+    facts = side_facts(dry, protect, {"end_rows": 1})
+    by_key = {f["key"]: f for f in facts}
+    by_design = {d["mesh"]: d for d in designs}
+    cands = dry.get("candidates") or {}
+    standing = {}
+    swaps = []
+    WAIVABLE = ("END_ROW", "MASTER_PIN", "SPECIAL_", "EFFECT_ATTACHMENT", "REALISM_ALREADY", "IND_3D",
+                "LEGACY_THICK_OR_UNMEASURED")
+    for r in dry["rows"]:
+        for s in ("L", "R"):
+            sd = r["sides"][s]
+            old = sd["panel"]["mesh"]
+            if old not in remap:
+                continue
+            new = remap[old]
+            key = "%s|%s" % (r["cue_guid"], s)
+            standing[old] = standing.get(old, 0) + 1
+            tag = "%s %s" % (r["label"], s)
+            why = []
+            if not r["enabled"]:
+                why.append("REMAP_ROW_DISABLED")
+            if built_side(old) != s:
+                why.append("REMAP_OLD_BUILT_FOR_%s" % built_side(old))
+            if built_side(new) != s:
+                why.append("REMAP_NEW_BUILT_FOR_%s" % built_side(new))
+            pl = sd["panel"]
+            if not plain_transform(pl["local_transform"]):
+                why.append("OLD_LOCAL_TRANSFORM_NOT_PLAIN %s" % pl["local_transform"])
+            if pl.get("material_overrides"):
+                why.append("REMAP_OLD_HAS_MATERIAL_OVERRIDES (the planned panel writes none)")
+            if "PRESERVE_ASSET" not in str(pl.get("facing_policy")) or bool(pl.get("flip_image_horizontally")):
+                why.append("REMAP_OLD_PANEL_NOT_CANONICAL facing %s flip %s" % (pl.get("facing_policy"),
+                                                                              pl.get("flip_image_horizontally")))
+            if not sd.get("old_bounds"):
+                why.append("NO_OLD_BOUNDS")
+            if not sd.get("edge_baseline"):
+                why.append("NO_WORLD_EDGE_BASELINE (not materialized?)")
+            if sd.get("attachment_refs_mesh"):
+                why.append("REMAP_ATTACHMENT_NAMES_OLD_MESH")
+            f = by_key[key]
+            why += [p for p in f["protected"] if p.startswith(("RECORD_KEEP", "RECORD_FAMILY", "PROTECT_RECORD_STALE"))]
+            d = by_design.get(new)
+            if d is None:
+                why.append("REMAP_NEW_NOT_A_DESIGN %s (not in the DRY's manifests for %s)" % (new, P))
+            else:
+                if not d.get("imported"):
+                    why.append("NOT_VERIFIED_IMPORTED %s" % new)
+                if not d.get("exists") or not d.get("zero_bounds"):
+                    why.append("NOT_IN_EDITOR_OR_NO_LIVE_BOUNDS (DRY) %s" % new)
+                if d.get("mount", "wing") != "wing" or d.get("passage") != P:
+                    why.append("REMAP_NEW_MOUNT_OR_PASSAGE %s %s" % (d.get("mount"), d.get("passage")))
+            geom, gbad = remap_geometry(s, sd.get("box_cm"), (cands.get(new) or {}).get("box_cm"))
+            why += gbad
+            if why:
+                refusals += ["%s %s" % (w, tag) for w in why]
+                continue
+            y = inner_edge_y(s, sd["old_bounds"], d["zero_bounds"])
+            k_in = "max_y_cm" if s == "L" else "min_y_cm"
+            k_out = "min_y_cm" if s == "L" else "max_y_cm"
+            nb = {"min_y_cm": d["zero_bounds"]["min_y_cm"] + y, "max_y_cm": d["zero_bounds"]["max_y_cm"] + y}
+            if abs(nb[k_in] - sd["old_bounds"][k_in]) > PLACE_TOL_CM:
+                refusals.append("INNER_EDGE_PLAN_FAIL %s" % tag)
+            y_shift = y - float(pl["local_transform"]["location"][1])
+            swaps.append({"key": key, "cue_guid": r["cue_guid"], "label": r["label"], "ordinal": r["ordinal"], "side": s,
+                          "pass_s": r.get("pass_s"), "score": 0, "class": f["class"], "family": f["family"],
+                          "family_rows": f["family_rows"], "adjacent_same_family": f["adjacent_same_family"],
+                          "old_panel": pl, "old_height_cm": sd.get("height_cm"), "old_thickness_cm": sd.get("thickness_cm"),
+                          "new_owner": d.get("owner"), "new_mesh": new, "new_height_cm": d.get("height_cm"),
+                          "new_width_cm": d.get("width_cm"), "new_skin_png": d.get("skin_png"),
+                          "planned_panel": planned_panel(new, y), "old_inner_cm": sd["old_bounds"][k_in],
+                          "new_inner_cm": nb[k_in], "local_y_shift_cm": round(y_shift, 4),
+                          "outer_edge_onstage_shift_cm": round((nb[k_out] - sd["old_bounds"][k_out]) * (1.0 if s == "L" else -1.0), 3),
+                          "geometry": geom, "mechanism_at_dry": r["mechanism"],
+                          "scoring_protections_waived": [p for p in f["protected"] if p.startswith(WAIVABLE)]})
+    for old in sorted(set(remap) - set(standing)):
+        refusals.append("REMAP_OLD_NOT_STANDING %s (no side of %s shows it; fix the remap)" % (old, P))
+    swaps.sort(key=lambda x: (x["ordinal"], x["side"]))
+    if not swaps:
+        refusals.append("NO_SWAPS (no side shows a remapped mesh)")
+    growth = [x["geometry"]["front_growth_cm"] for x in swaps]
+    if growth:
+        flags.append("DEPTH_GROWTH_FRONT declared: %d sides grow %.2f..%.2f cm toward the front/art face (allowed <= %.1f "
+                     "cm, Gary approved more flaps on %s 7 Oct; replaces the swapkit tk_core depth gate); back face moved "
+                     "<= %.2f cm" % (len(swaps), min(growth), max(growth), REMAP_FRONT_GROWTH_MAX_CM, P,
+                                     max(abs(x["geometry"]["back_delta_cm"]) for x in swaps)))
+    shifted = ["%s %s %.3f" % (x["label"], x["side"], x["local_y_shift_cm"]) for x in swaps
+               if abs(x["local_y_shift_cm"]) > REMAP_Y_SHIFT_FLAG_CM]
+    if shifted:
+        flags.append("LOCAL_Y_SHIFT > %.1f cm (new Y extents differ from old): %s" % (REMAP_Y_SHIFT_FLAG_CM, shifted))
+    wide = ["%s %s %.2f" % (x["label"], x["side"], x["geometry"]["width_delta_cm"]) for x in swaps
+            if abs(x["geometry"]["width_delta_cm"]) > REMAP_WIDTH_TOL_CM]
+    if wide:
+        flags.append("WIDTH_CHANGED (outer edge moves; inner edge held): %s" % wide)
+    waived = sorted({p.split(" ")[0] for x in swaps for p in x["scoring_protections_waived"]})
+    if waived:
+        flags.append("SCORING_PROTECTIONS_WAIVED for a 1:1 rebuild (recorded per swap): %s" % waived)
+    mech_rows = sorted({x["label"] for x in swaps if special_mechanism(x["mechanism_at_dry"])})
+    if mech_rows:
+        flags.append("MECHANISM_ROWS (not written; rzswap.py asserts every cue's mechanism text unchanged): %s" % mech_rows)
+    inputs = {"passage": P, "mode": "REMAP", "dry_run_id": dry["run_id"], "dry_state_hash": state_hash(dry),
+              "remap": remap, "swaps": [[x["key"], x["new_mesh"], x["planned_panel"]] for x in swaps], "opts": opts}
+    h = sha(inputs)
+    plan = {"mark": MARK, "mode": "REMAP", "passage": P, "passage_guid": dry["passage_guid"], "dry_run_id": dry["run_id"],
+            "dry_state_hash": inputs["dry_state_hash"], "opts": opts, "pair_mode": "remap", "remap": remap,
+            "remap_standing": standing,
+            "limits": {"front_growth_max_cm": REMAP_FRONT_GROWTH_MAX_CM, "back_tol_cm": REMAP_BACK_TOL_CM,
+                       "z_tol_cm": REMAP_Z_TOL_CM, "place_tol_cm": PLACE_TOL_CM},
+            "swaps": swaps, "facts": facts, "designs_usable": sorted(d["owner"] for d in designs if d["mesh"] in remap.values()),
+            "designs_unusable": {}, "design_uses": {}, "flags": flags, "refusals": refusals,
+            "mechanisms_at_dry": {r["cue_guid"]: r["mechanism"] for r in dry["rows"]},
+            "inputs_hash": h, "hash8": h[:8]}
+    plan["confirm"] = confirm_for("APPLY", P, plan)
+    plan["gates_ok"] = not refusals
+    return plan
+
+
+# =====================================================================================================================
 # Args / tokens
 # =====================================================================================================================
 
@@ -493,7 +726,7 @@ def validate_args(args, plan=None, originals=None):
     mode = str(args.get("mode") or "").upper()
     require(mode in ("DRY", "APPLY", "REVERT"), "MODE_INVALID %r" % (mode,))
     P = str(args.get("passage") or "")
-    require(P in PASSAGES, "PASSAGE_INVALID %r (P02 or P03)" % P)
+    require(P in PASSAGES, "PASSAGE_INVALID %r (%s)" % (P, " / ".join(sorted(PASSAGES))))
     if mode == "DRY":
         require(isinstance(args.get("manifests"), list), "MANIFESTS_MISSING (DRY measures the candidate meshes)")
     if mode == "APPLY":

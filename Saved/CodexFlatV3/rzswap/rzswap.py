@@ -1,5 +1,8 @@
 """RZSWAP -- DRY / APPLY / REVERT for P02 / P03 realism mesh swaps (7 Oct, offline-written, NEVER RUN IN UNREAL BY ITS
 AUTHOR).  Pure decisions live in rzswap_core.py; the plan is made OFFLINE by make_swap_plan.py from a DRY.
+7 Oct (later): P06 accepted; REMAP plans (make_swap_plan.py P06 --remap <json>) apply through the SAME APPLY/REVERT
+path.  APPLY and REVERT additionally assert every cue's WingPair.Mechanism + LocalOverrideMask text unchanged
+(core.mechanism_drift) after the write and again after the save.
 
 Run ONLY through rzswap_run.py (purges cached Saved modules, then runs this file) with rzswap_args.json:
   DRY     {"mode": "DRY", "passage": "P02", "confirm": "DRY RZSWAP P02", "manifests": [<IMPORT_MANIFEST_v2_*.json>]}
@@ -585,6 +588,7 @@ def run_apply(ops, core, tc, args, plan, run, here):
     try:
         after_texts = ops.cue_texts()
         bad = core.verify_texts(tc, before_texts, after_texts, targets)
+        bad += core.mechanism_drift(tc, before_texts, after_texts)     # every cue, explicit (topple rows on P06)
         live = ops.live_panels(sorted(swapped))
         for s in plan["swaps"]:
             if not live.get(s["key"]) or not core.panel_matches(live[s["key"]], s["planned_panel"]):
@@ -627,10 +631,16 @@ def run_apply(ops, core, tc, args, plan, run, here):
     cen = ops.census()
     if cen != CLEAN:
         _stop(ops, core, run, P, "DIRTY_AFTER_SAVE %s" % json.dumps(cen))
-    if ops.cue_texts() != after_texts:
+    final_texts = ops.cue_texts()
+    if final_texts != after_texts:
         _stop(ops, core, run, P, "POST_SAVE_READBACK_DIFFERS")
+    mech_bad = core.mechanism_drift(tc, before_texts, final_texts)
+    if mech_bad:
+        _stop(ops, core, run, P, "POST_SAVE_MECHANISM_DRIFT %s (saved: run REVERT)" % mech_bad[:6])
     rec = {"run_id": run, "passage": P, "originals": orig_path, "backup_dir": backup_dir, "plan_hash": plan["inputs_hash"],
+           "plan_mode": plan.get("mode", "SCORED"),
            "written": {s["key"]: s["planned_panel"] for s in plan["swaps"]}, "edge_probe": probe, "census_after": cen,
+           "mechanisms_unchanged": {"cues": len(final_texts), "drift": []},
            "saved": [core.SHOW_PATH, core.WORLD_PATH], "decided_by": args.get("decided_by")}
     _write_json(os.path.join(here, "rzswap_apply_%s_%s.json" % (P, run)), rec, fsync=True)
     ops.log("%s_APPLY_OK|run=%s|passage=%s|swaps=%d|edge_probe=%d sides (%d controls, max swapped delta %.4f cm)|"
@@ -671,6 +681,7 @@ def run_revert(ops, core, tc, args, orig, run, here):
         ops.write_panels({s["key"]: s["original_panel"] for s in orig["swaps"]})
         after_texts = ops.cue_texts()
         bad = core.verify_texts(tc, before_texts, after_texts, targets)
+        bad += core.mechanism_drift(tc, before_texts, after_texts)
         now = ops.live_panels(keys)
         for s in orig["swaps"]:
             if not now.get(s["key"]) or not core.panel_matches(now[s["key"]], s["original_panel"]):

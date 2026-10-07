@@ -8,8 +8,10 @@ Run ONLY through relayout_run.py (purges cached Saved modules, then runs this fi
   APPLY   {"mode": "APPLY", "confirm": "APPLY P06RELAYOUT <token>", "decided_by": "Gary ...",
            "attachments_ack": "DROPPED_ROWS_GO_DARK_KEPT_ROWS_MOVE", "structure_ack": "STRUCTURE_06_LEFT_STALE"}
           Show + level write. FLATV3_P06RELAYOUT_APPLY_OK|run=..
-  REVERT  {"mode": "REVERT", "confirm": "REVERT P06RELAYOUT <apply run id>"}   exact restore of every P06 cue text and
-          order + P06 settings. FLATV3_P06RELAYOUT_REVERT_OK|run=..
+  REVERT  {"mode": "REVERT", "confirm": "REVERT P06RELAYOUT <apply run id>"}   FIELD-SCOPED (7 Oct): restores ONLY the
+          fields APPLY writes -- P06 cue order, bEnabled, WingPair.IntervalToNext / GapToNextCm / Left / Right, and P06
+          PassageSettings.LastCueGuid -- from the originals; everything else (lights, attachments, mechanisms, labels)
+          is kept as it is live. FLATV3_P06RELAYOUT_REVERT_OK|run=..  Rules: see run_revert.
 Markers: FLATV3_P06RELAYOUT_<MODE>_OK|run=<id>  /  FLATV3_P06RELAYOUT_STOPPED|run=<id>|reason=..  (parse by run id).
 
 WHAT APPLY WRITES (only Show.Cues[first .. first+63] and P06's PassageSettings.LastCueGuid):
@@ -30,8 +32,8 @@ NOT DONE (flagged): no Master rebuild (segment frames are asserted unchanged; th
   re-materializes it -- structure_ack); no topple write.
 
 SAFETY: no PIE (never ends it); expected world; census CLEAN at start; no ZZ_/TEMP actors; topple's
-  topple_originals_ACTIVE.json must be ABSENT (its STILL REVERT compares whole cue texts by index and would fail after a
-  relayout -- topple_apply.py:930-938; override "topple_active_ack" only if the topple owner retires it by hand);
+  topple_originals_ACTIVE.json must be ABSENT (topple's plan -- keeper, STILL set, chain rows, inputs_hash -- is
+  measured on the layout it was applied to; override "topple_active_ack" only if the topple owner retires it by hand);
   live plan inputs_hash == DRY plan; originals JSON (every P06 cue text + order + settings text) fsynced BEFORE any
   change; Backups/PreP06Relayout-<stamp> copies of the Show .uasset + level .umap (sha256-verified); read-back of every
   written field + every unwritten one by text; materialize ONLY the P06 Passage actor; dirty set within {Show, level};
@@ -56,6 +58,7 @@ ARGS_NAME = "relayout_args.json"
 PLAN_NAME = "relayout_plan.json"
 ACTIVE_NAME = "relayout_originals_ACTIVE.json"
 TOPPLE_ACTIVE_REL = os.path.join("..", "topple", "topple_originals_ACTIVE.json")
+RZSWAP_DIR_REL = os.path.join("..", "rzswap")
 EDGE_TOL_CM = 1.0
 CONTROL_TOL_CM = 0.05
 
@@ -112,6 +115,60 @@ def text_outside_mechanism(tc, cue_text):
     return tc.cue_text_outside_mechanism(cue_text)
 
 
+# The fields APPLY writes (write_layout) = the only fields REVERT restores and compares (field-scoped, 7 Oct).
+OWNED_CUE_FIELDS = ("bEnabled",)
+OWNED_PAIR_FIELDS = ("IntervalToNext", "GapToNextCm", "Left", "Right")
+
+
+def norm_guid(g):
+    return str(g or "").replace("-", "").upper()
+
+
+def cue_guid(tc, cue_text):
+    return norm_guid(tc.get_field(cue_text, "CueGuid"))
+
+
+def owned_fields(tc, cue_text):
+    """{field: export text} of every relayout-owned field of one cue (None = absent from the export)."""
+    wp = tc.get_field(cue_text, "WingPair")
+    out = {k: tc.get_field(cue_text, k) for k in OWNED_CUE_FIELDS}
+    out.update({k: (tc.get_field(wp, k) if wp is not None else None) for k in OWNED_PAIR_FIELDS})
+    return out
+
+
+def outside_owned(tc, cue_text):
+    """The cue text with every relayout-owned field removed: what REVERT may not change."""
+    wp = tc.get_field(cue_text, "WingPair")
+    t = tc.replace_field(cue_text, "WingPair", tc.without_fields(wp, OWNED_PAIR_FIELDS)) if wp is not None else cue_text
+    return tc.without_fields(t, OWNED_CUE_FIELDS)
+
+
+def p06_settings_index(tc, core, settings_texts):
+    idx = [i for i, t in enumerate(settings_texts) if norm_guid(tc.get_field(t, "PassageGuid")) == core.P06_GUID]
+    if len(idx) != 1:
+        raise core.PlanError("P06_SETTINGS_COUNT %d" % len(idx))
+    return idx[0]
+
+
+def rzswap_active_records(rz_dir):
+    """Every rzswap ACTIVE pointer (rzswap.py active_name: rzswap_originals_<P>_ACTIVE.json) -> {run_id, passage,
+    cue_guids}. An unreadable pointer is returned with "error" (the caller refuses on it)."""
+    out = []
+    if not os.path.isdir(rz_dir):
+        return out
+    for name in sorted(os.listdir(rz_dir)):
+        if not (name.startswith("rzswap_originals_") and name.endswith("_ACTIVE.json")):
+            continue
+        try:
+            ptr = _read_json(os.path.join(rz_dir, name))
+            orig = _read_json(ptr["originals"])
+            out.append({"pointer": name, "run_id": orig.get("run_id"), "passage": orig.get("passage"),
+                        "cue_guids": sorted({norm_guid(x["cue_guid"]) for x in orig.get("swaps", [])})})
+        except Exception as exc:  # noqa: BLE001  -- reported, and refused by the caller
+            out.append({"pointer": name, "error": "%s: %s" % (type(exc).__name__, exc)})
+    return out
+
+
 # =====================================================================================================================
 # Unreal access (everything that touches `unreal`; the harness replaces this class)
 # =====================================================================================================================
@@ -157,6 +214,9 @@ class UnrealOps:
     def topple_active(self):
         p = os.path.normpath(os.path.join(self.here, TOPPLE_ACTIVE_REL))
         return _read_json(p) if os.path.exists(p) else None
+
+    def rzswap_active(self):
+        return rzswap_active_records(os.path.normpath(os.path.join(self.here, RZSWAP_DIR_REL)))
 
     # ---- helpers
     def _guid(self, g):
@@ -405,6 +465,46 @@ class UnrealOps:
         show.set_editor_property("cues", new)
         show.set_editor_property("passage_settings", sts)
 
+    def restore_fields(self, originals, first):
+        """FIELD-SCOPED REVERT write (7 Oct): the P06 range is rebuilt in ORIGINAL order from the LIVE cue objects;
+        on each only bEnabled and WingPair.IntervalToNext / GapToNextCm / Left / Right are copied from the original
+        (imported from its export text, round trip asserted); P06 PassageSettings.LastCueGuid is set from the
+        original P06 settings. Every other field stays as it is live. Property names as write_layout above."""
+        show = self._show()
+        cues = list(show.get_editor_property("cues"))
+        n = len(originals["p06_cue_texts"])
+        live = {self._guid(c.get_editor_property("cue_guid")): c for c in cues[first:first + n]}
+        restored = []
+        for text in originals["p06_cue_texts"]:
+            o = unreal.InfinityShowCue()
+            if not o.import_text(text) or o.export_text() != text:
+                raise self.core.PlanError("ORIGINAL_CUE_IMPORT_MISMATCH")
+            g = self._guid(o.get_editor_property("cue_guid"))
+            if g not in live:
+                raise self.core.PlanError("CUE_NOT_IN_LIVE_RANGE %s" % g)
+            cue = live[g]
+            cue.set_editor_property("enabled", bool(o.get_editor_property("enabled")))
+            pair = cue.get_editor_property("wing_pair")
+            opair = o.get_editor_property("wing_pair")
+            for prop in ("interval_to_next", "gap_to_next_cm", "left", "right"):
+                pair.set_editor_property(prop, opair.get_editor_property(prop))
+            cue.set_editor_property("wing_pair", pair)
+            restored.append(cue)
+        new = cues[:first] + restored + cues[first + n:]
+        if len(new) != len(cues):
+            raise self.core.PlanError("CUE_COUNT_WOULD_CHANGE")
+        osi = p06_settings_index(self.tc, self.core, originals["settings_texts"])
+        o = unreal.InfinityPassageSettings()
+        if not o.import_text(originals["settings_texts"][osi]) or o.export_text() != originals["settings_texts"][osi]:
+            raise self.core.PlanError("ORIGINAL_SETTINGS_IMPORT_MISMATCH")
+        settings, si = self._p06_settings(show)
+        st = settings[si]
+        st.set_editor_property("last_cue_guid", o.get_editor_property("last_cue_guid"))
+        settings[si] = st
+        show.modify()
+        show.set_editor_property("cues", new)
+        show.set_editor_property("passage_settings", settings)
+
     def materialize(self):
         return bool(self._p06_actor().materialize_passage())
 
@@ -485,8 +585,8 @@ def run_dry(ops, core, args, run, here):
         doc["relative_pins_note"] = "relative pins are frame-based and the P06 length is unchanged: unaffected [inf]"
     topple = ops.topple_active()
     if topple and args.get("topple_active_ack") != "TOPPLE_ACTIVE_RETIRED_BY_ITS_OWNER":
-        ref.append("TOPPLE_ACTIVE_PRESENT %s: REVERT topple first (its REVERT reads whole cue texts by show index and "
-                   "cannot run after a relayout); re-apply STILL + chain afterwards" % topple.get("run_id"))
+        ref.append("TOPPLE_ACTIVE_PRESENT %s: REVERT topple first (its STILL/CHAIN plan is "
+                   "measured on the current layout); re-apply STILL + chain afterwards" % topple.get("run_id"))
     plan["attachments"] = {"kept": {r["cue_guid"]: next(x["attachments"] for x in rows if x["cue_guid"] == r["cue_guid"])
                                     for r in plan.get("rows", [])},
                            "dropped": {d["cue_guid"]: next(x["attachments"] for x in rows if x["cue_guid"] == d["cue_guid"])
@@ -694,9 +794,16 @@ def run_apply(ops, core, tc, args, plan, run, here):
         _stop(ops, core, run, "DIRTY_AFTER_SAVE %s" % json.dumps(cen))
     if ops.cue_texts() != after_texts:
         _stop(ops, core, run, "POST_SAVE_READBACK_DIFFERS")
+    st_final = ops.settings_texts()
     _write_json(os.path.join(here, "relayout_apply_%s.json" % run),
                 {"run_id": run, "originals": orig_path, "backup_dir": backup_dir, "after_p06_texts_sha": _sha(
-                    "\n".join(after_texts[first:first + n])), "edge_probe": probe, "census_after": cen,
+                    "\n".join(after_texts[first:first + n])),
+                 # field-scoped REVERT's drift check (7 Oct): the after-state of exactly the fields APPLY wrote
+                 "after_order": [cue_guid(tc, t) for t in after_texts[first:first + n]],
+                 "after_owned": {cue_guid(tc, t): owned_fields(tc, t) for t in after_texts[first:first + n]},
+                 "after_last_cue_guid": norm_guid(tc.get_field(st_final[p06_settings_index(tc, core, st_final)],
+                                                               "LastCueGuid")),
+                 "edge_probe": probe, "census_after": cen,
                  "structure_06": ops.structure_06(), "saved": [core.SHOW_PATH, core.WORLD_PATH]})
     ops.log("%s_APPLY_OK|run=%s|rows=%d->%d|swaps=%d|edge_probe=%d sides (%d controls)|saved=show,level|census=clean|"
             "originals=%s" % (core.MARK, run, plan["count_old"], plan["count_new"], plan["swaps"], len(probe),
@@ -704,27 +811,182 @@ def run_apply(ops, core, tc, args, plan, run, here):
     return probe
 
 
+def _locate_range(ops, core, tc, run, orig, texts):
+    """The live index block holding the original P06 guids (found by CueGuid, not by the stored first index: a
+    cue inserted or removed before P06 moves it). Refuses if a guid is gone or the block is not contiguous."""
+    guids = [cue_guid(tc, t) for t in orig["p06_cue_texts"]]
+    index = {}
+    for i, t in enumerate(texts):
+        index.setdefault(cue_guid(tc, t), []).append(i)
+    gone = [g for g in guids if len(index.get(g, [])) != 1]
+    if gone:
+        _stop(ops, core, run, "P06_CUE_GONE_OR_DUPLICATED %s" % gone[:4])
+    idx = sorted(index[g][0] for g in guids)
+    if idx != list(range(idx[0], idx[0] + len(guids))):
+        _stop(ops, core, run, "P06_RANGE_NOT_CONTIGUOUS (cues inserted inside the P06 block since APPLY; compare by hand)")
+    return idx[0], guids
+
+
+def _owned_drift_from_record(tc, applied, live_range, live_last):
+    bad = []
+    order = [cue_guid(tc, t) for t in live_range]
+    if order != applied["after_order"]:
+        bad.append("ORDER (P06 cue order differs from APPLY's)")
+    for t in live_range:
+        g = cue_guid(tc, t)
+        want = applied["after_owned"].get(g)
+        got = owned_fields(tc, t)
+        if want is None:
+            bad.append("UNKNOWN_CUE %s" % g)
+            continue
+        bad += ["%s %s" % (g[:8], k) for k in sorted(got) if got[k] != want.get(k)]
+    if live_last != applied["after_last_cue_guid"]:
+        bad.append("LastCueGuid %s want %s" % (live_last, applied["after_last_cue_guid"]))
+    return bad
+
+
+def _owned_drift_from_plan(ops, tc, plan, orig, live_range, live_last):
+    """LEGACY records (APPLY before 7 Oct field-scoping, e.g. P06RL-20261007-081048, carry only a whole-text sha):
+    the after-state is re-derived from the APPLY plan -- order = plan rows + dropped; dropped rows bEnabled False;
+    kept rows bEnabled as original; planned IntervalToNext/GapToNextCm (numeric); swapped sides == the plan's
+    placement (typed, ops_panel_matches, like the APPLY read-back); every other owned field == its original text."""
+    bad = []
+    orig_by = {cue_guid(tc, t): t for t in orig["p06_cue_texts"]}
+    want_order = [r["cue_guid"] for r in plan["rows"]] + [d["cue_guid"] for d in plan["dropped"]]
+    if [cue_guid(tc, t) for t in live_range] != want_order:
+        return ["ORDER (P06 cue order differs from the APPLY plan's)"]
+    live_rows = {r["cue_guid"]: r for r in ops.read_p06()[0]}
+    rows = {r["cue_guid"]: r for r in plan["rows"]}
+    for t in live_range:
+        g = cue_guid(tc, t)
+        got, was = owned_fields(tc, t), owned_fields(tc, orig_by[g])
+        r = rows.get(g)
+        if r is None:                                    # dropped row
+            if str(got["bEnabled"]).strip().lower() != "false":
+                bad.append("%s bEnabled (dropped row enabled)" % g[:8])
+            bad += ["%s %s" % (g[:8], k) for k in OWNED_PAIR_FIELDS if got[k] != was[k]]
+            continue
+        if got["bEnabled"] != was["bEnabled"]:
+            bad.append("%s bEnabled" % g[:8])
+        if r["interval_ticks"] is None:
+            bad += ["%s %s" % (g[:8], k) for k in ("IntervalToNext", "GapToNextCm") if got[k] != was[k]]
+        else:
+            try:
+                iv = int(tc.get_field(got["IntervalToNext"], "Value"))
+                gap = float(got["GapToNextCm"])
+            except Exception:  # noqa: BLE001
+                iv, gap = None, None
+            if iv != int(r["interval_ticks"]) or gap is None or abs(gap - float(r["gap_cm"])) > 1e-4 * max(
+                    1.0, abs(float(r["gap_cm"]))):
+                bad.append("%s IntervalToNext/GapToNextCm %s/%s" % (g[:8], got["IntervalToNext"], got["GapToNextCm"]))
+        for side, field in (("L", "Left"), ("R", "Right")):
+            if r["sides"][side]["action"] == "swap":
+                live = live_rows.get(g)
+                want = plan["placements"]["%s|%s" % (g, side)]["panel"]
+                if live is None or not ops_panel_matches(ops, live[side + "_panel"], want):
+                    bad.append("%s %s (swapped panel differs from APPLY's placement)" % (g[:8], field))
+            elif got[field] != was[field]:
+                bad.append("%s %s (kept panel differs from original)" % (g[:8], field))
+    if live_last != plan["rows"][-1]["cue_guid"]:
+        bad.append("LastCueGuid %s want %s" % (live_last, plan["rows"][-1]["cue_guid"]))
+    return bad
+
+
+def _revert_check(core, tc, orig, first, pre_texts, pre_settings, now_texts, now_settings):
+    """FIELD-SCOPED read-back. [] = good: same cue count; every cue outside the P06 block byte-identical to its
+    PRE-REVERT text; the block in ORIGINAL order; per P06 cue every owned field == the original's text and the rest of
+    the cue == its pre-revert text (foreign edits survive, nothing else changed); passage settings: non-P06
+    byte-identical to pre-revert, P06 LastCueGuid == original, the rest of P06 settings == pre-revert."""
+    n = len(orig["p06_cue_texts"])
+    if len(now_texts) != len(pre_texts):
+        return ["CUE_COUNT_CHANGED"]
+    bad = ["NON_P06_CUE_CHANGED index %d" % i for i, (a, b) in enumerate(zip(pre_texts, now_texts))
+           if (i < first or i >= first + n) and a != b]
+    pre_by = {cue_guid(tc, t): t for t in pre_texts[first:first + n]}
+    for k, (o, t) in enumerate(zip(orig["p06_cue_texts"], now_texts[first:first + n])):
+        g = cue_guid(tc, o)
+        if cue_guid(tc, t) != g:
+            bad.append("ORDER index %d is %s want %s" % (first + k, cue_guid(tc, t), g))
+            continue
+        if owned_fields(tc, t) != owned_fields(tc, o):
+            bad.append("OWNED_FIELD_NOT_RESTORED %s %s" % (g[:8], sorted(
+                f for f, v in owned_fields(tc, t).items() if v != owned_fields(tc, o)[f])))
+        if outside_owned(tc, t) != outside_owned(tc, pre_by[g]):
+            bad.append("CHANGED_OUTSIDE_OWNED_FIELDS %s" % g[:8])
+    if len(now_settings) != len(pre_settings):
+        return bad + ["PASSAGE_SETTINGS_COUNT_CHANGED"]
+    si = p06_settings_index(tc, core, pre_settings)
+    for i, (a, b) in enumerate(zip(pre_settings, now_settings)):
+        if i == si:
+            if tc.without_fields(a, ("LastCueGuid",)) != tc.without_fields(b, ("LastCueGuid",)):
+                bad.append("P06_SETTINGS_CHANGED_BEYOND_LAST_CUE")
+            want = norm_guid(tc.get_field(orig["settings_texts"][p06_settings_index(tc, core, orig["settings_texts"])],
+                                          "LastCueGuid"))
+            if norm_guid(tc.get_field(b, "LastCueGuid")) != want:
+                bad.append("LAST_CUE_GUID_NOT_RESTORED %s want %s" % (tc.get_field(b, "LastCueGuid"), want))
+        elif a != b:
+            bad.append("OTHER_PASSAGE_SETTINGS_CHANGED index %d" % i)
+    return bad
+
+
 def run_revert(ops, core, tc, args, orig, run, here):
+    """FIELD-SCOPED REVERT (7 Oct; whole-text compares failed the topple REVERT that morning on other streams' light
+    edits). Owned fields = what APPLY writes: P06 cue order, bEnabled, WingPair.IntervalToNext / GapToNextCm / Left /
+    Right, P06 LastCueGuid.
+    REFUSES (nothing written):
+      TOPPLE_ACTIVE_PRESENT   topple's STILL/CHAIN plan was measured on this layout: REVERT topple first.
+      RZSWAP_ACTIVE_ON_P06    an unreverted rzswap record wrote panels on these cues (or an ACTIVE pointer is
+                              unreadable): REVERT it first -- its panels are relayout-owned fields.
+      P06_CUE_GONE_OR_DUPLICATED / P06_RANGE_NOT_CONTIGUOUS   the block cannot be located by CueGuid.
+      DRIFT_SINCE_APPLY_OWNED  any owned field differs from APPLY's after-state (record: after_owned; legacy record:
+                              re-derived from the plan, which must hash-match the originals) -- names cue + field.
+      LEGACY_PLAN_UNAVAILABLE  legacy record and no hash-matching relayout_plan.json.
+    ACCEPTS: any later edit outside the owned fields (lights, attachments, mechanisms incl. a REVERTED topple, labels,
+      tags, other passages) -- kept exactly as it is live; topple / rzswap records already _reverted.
+    After the write: _revert_check (above); the same check again after save."""
     _guard_start(ops, core, run)
     topple = ops.topple_active()
     if topple:
-        _stop(ops, core, run, "TOPPLE_ACTIVE_PRESENT %s (REVERT the chain/STILL first: this REVERT restores whole cue "
-                              "texts, mechanisms included)" % topple.get("run_id"))
+        _stop(ops, core, run, "TOPPLE_ACTIVE_PRESENT %s (REVERT topple first: its STILL/CHAIN plan was measured on "
+                              "this layout)" % topple.get("run_id"))
     apply_path = os.path.join(here, "relayout_apply_%s.json" % orig["run_id"])
     if not os.path.exists(apply_path):
         _stop(ops, core, run, "NO_APPLY_RECORD %s" % apply_path)
     applied = _read_json(apply_path)
-    texts = ops.cue_texts()
-    first, n = int(orig["first_show_index"]), len(orig["p06_cue_texts"])
-    if _sha("\n".join(texts[first:first + n])) != applied["after_p06_texts_sha"]:
-        _stop(ops, core, run, "DRIFT_SINCE_APPLY (P06 cues edited after APPLY; refused -- compare by hand)")
+    orig_guids = {cue_guid(tc, t) for t in orig["p06_cue_texts"]}
+    rz = [x for x in ops.rzswap_active() if "error" in x or x.get("passage") == "P06" or set(x["cue_guids"]) & orig_guids]
+    if rz:
+        _stop(ops, core, run, "RZSWAP_ACTIVE_ON_P06 %s (REVERT those rzswap records first; their panels are fields "
+                              "this REVERT restores)" % [(x["pointer"], x.get("run_id"), x.get("error")) for x in rz])
+    pre_texts = ops.cue_texts()                  # in-memory snapshot BEFORE anything is written
+    pre_settings = ops.settings_texts()
+    first, _ = _locate_range(ops, core, tc, run, orig, pre_texts)
+    n = len(orig["p06_cue_texts"])
+    live_range = pre_texts[first:first + n]
+    live_last = norm_guid(tc.get_field(pre_settings[p06_settings_index(tc, core, pre_settings)], "LastCueGuid"))
+    if "after_owned" in applied:
+        drift = _owned_drift_from_record(tc, applied, live_range, live_last)
+        basis = "record"
+    else:
+        plan = _legacy_plan(here, orig)
+        if plan is None:
+            _stop(ops, core, run, "LEGACY_PLAN_UNAVAILABLE (APPLY record has no after_owned and no %s with inputs_hash "
+                                  "%s: compare by hand)" % (PLAN_NAME, orig.get("plan_inputs_hash")))
+        drift = _owned_drift_from_plan(ops, tc, plan, orig, live_range, live_last)
+        basis = "legacy_plan"
+    if drift:
+        _stop(ops, core, run, "DRIFT_SINCE_APPLY_OWNED %s (a relayout-owned field was edited after APPLY; refused -- "
+                              "compare by hand)" % drift[:6])
+    foreign = sum(1 for o in orig["p06_cue_texts"] for t in live_range
+                  if cue_guid(tc, t) == cue_guid(tc, o) and outside_owned(tc, t) != outside_owned(tc, o))
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     backup_dir, _ = ops.backup("PreP06RelayoutRevert-%s" % stamp)
-    ops.log("%s_REVERT_BACKUP|run=%s|backup=%s" % (core.MARK, run, backup_dir))
-    ops.restore(orig)
-    now = ops.cue_texts()
-    if _sha("\n".join(now)) != orig["all_cue_texts_sha"] or ops.settings_texts() != orig["settings_texts"]:
-        _stop(ops, core, run, "REVERT_READBACK (Show dirty, unsaved: relaunch with Don't Save)")
+    ops.log("%s_REVERT_BACKUP|run=%s|backup=%s|drift_basis=%s|foreign_edits_kept=%d" % (
+        core.MARK, run, backup_dir, basis, foreign))
+    ops.restore_fields(orig, first)
+    bad = _revert_check(core, tc, orig, first, pre_texts, pre_settings, ops.cue_texts(), ops.settings_texts())
+    if bad:
+        _stop(ops, core, run, "REVERT_READBACK %s (Show dirty, unsaved: relaunch with Don't Save)" % bad[:6])
     if not ops.materialize():
         _stop(ops, core, run, "MATERIALIZE_FAILED")
     c = ops.census()
@@ -734,14 +996,24 @@ def run_revert(ops, core, tc, args, orig, run, here):
         _stop(ops, core, run, "SAVE_FALSE")
     if ops.census() != {"content": [], "maps": []}:
         _stop(ops, core, run, "DIRTY_AFTER_SAVE")
-    if _sha("\n".join(ops.cue_texts())) != orig["all_cue_texts_sha"]:
-        _stop(ops, core, run, "POST_SAVE_REVERT_READBACK")
+    bad = _revert_check(core, tc, orig, first, pre_texts, pre_settings, ops.cue_texts(), ops.settings_texts())
+    if bad:
+        _stop(ops, core, run, "POST_SAVE_REVERT_READBACK %s" % bad[:6])
     op = os.path.join(here, "relayout_originals_%s.json" % orig["run_id"])
     os.replace(op, op.replace(".json", "_reverted.json"))
     act = os.path.join(here, ACTIVE_NAME)
     if os.path.exists(act):
         os.remove(act)
-    ops.log("%s_REVERT_OK|run=%s|reverted=%s|saved=show,level|census=clean" % (core.MARK, run, orig["run_id"]))
+    ops.log("%s_REVERT_OK|run=%s|reverted=%s|drift_basis=%s|foreign_edits_kept=%d|saved=show,level|census=clean" % (
+        core.MARK, run, orig["run_id"], basis, foreign))
+
+
+def _legacy_plan(here, orig):
+    p = os.path.join(here, PLAN_NAME)
+    if not os.path.exists(p):
+        return None
+    plan = _read_json(p)
+    return plan if plan.get("inputs_hash") == orig.get("plan_inputs_hash") and plan.get("placements") is not None else None
 
 
 def main():
