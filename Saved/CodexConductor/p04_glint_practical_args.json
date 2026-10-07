@@ -1,0 +1,36 @@
+{
+  "mode": "DRY",
+  "cue_label": "P04 Wing 009",
+  "target_local_cm": [
+    4290.0,
+    383.0,
+    200.0
+  ],
+  "passage_world_offset_cm": [
+    0.0,
+    240000.0,
+    0.0
+  ],
+  "wing_number": 9,
+  "max_frame_disagreement_cm": 5.0,
+  "source_light_regex": "^P04 SCORE B\\d{2} \\S+ PRACTICAL_L$",
+  "intensity_cd": 1200.0,
+  "intensity_units": "LUMENS",
+  "attenuation_cm": 1500.0,
+  "source_radius_cm": 3.0,
+  "cast_shadows": false,
+  "color_rgb": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "rotation_xyzw": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "ack_records": [],
+  "allow_dirty": [],
+  "steady": true
+}

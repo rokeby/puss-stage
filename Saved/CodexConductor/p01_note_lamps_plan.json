@@ -1,0 +1,5084 @@
+{
+ "behaviour_counts": {
+  "bloom": 10,
+  "glint": 13,
+  "stay": 7
+ },
+ "config": {
+  "_doc": "Easy knobs for p01_note_lamps.py (Gary 7 Oct: distant P01 lamps answer notable harp notes, a MIX of glint / bloom / stay). Edit, then rerun PLAN: python Saved/CodexConductor/p01_note_lamps.py",
+  "_strike_policy_doc": "The held patch MULTIPLIES flash by the strike level (patch hunk Evaluate: 'Gated by any strike'). Every P01 score lamp strikes at 6.5-47 m, so a lamp 15-45 m ahead is unstruck and its flash would be invisible. flash_owns writes strike_on_approach=false on the chosen lamps (lighting_events_apply.py phase_b_drama precedent); keep leaves strike on and the plan REFUSES any flash beyond the lamp's strike distance (FLASH_GATED_BY_STRIKE).",
+  "allow_gary_bays": false,
+  "bay_repeat_weight": 0.5,
+  "behaviour_weights": {
+   "bloom": 0.35,
+   "glint": 0.5,
+   "stay": 0.15
+  },
+  "behaviours": {
+   "bloom": {
+    "attack_s": 0.35,
+    "decay_s": 4.0,
+    "max_notes_per_lamp": 2
+   },
+   "glint": {
+    "attack_s": 0.06,
+    "decay_s": 0.8,
+    "max_notes_per_lamp": 2
+   },
+   "stay": {
+    "attack_s": 0.5,
+    "hold_level_at_pass": 0.5,
+    "max_notes_per_lamp": 1,
+    "pass_margin_m": 2.0
+   }
+  },
+  "exclude_cues": [
+   "P01 Wing 003",
+   "P01 Wing 004"
+  ],
+  "exclude_show_s": [],
+  "exclude_tolerance_s": 0.15,
+  "lookahead_m": [
+   15.0,
+   45.0
+  ],
+  "max_flashes_per_lamp": 2,
+  "min_intensity": 1.0,
+  "min_note_gap_s": 0.3,
+  "min_same_lamp_gap_s": 3.0,
+  "must_include_show_s": [
+   101.0,
+   102.5,
+   103.2,
+   109.0,
+   112.0,
+   [
+    143.0,
+    145.0
+   ]
+  ],
+  "must_include_tolerance_s": 0.75,
+  "must_range_max_notes": 2,
+  "must_range_pad_s": 0.25,
+  "notable_only": true,
+  "notes_path": "../InfinityStage/MusicAnalysis/P01_notes.json",
+  "rest_scale": 0.0,
+  "role_weights": {
+   "PRACTICAL_CLAMP": 1.0,
+   "PRACTICAL_GLIMMER": 0.8,
+   "PRACTICAL_L": 1.0,
+   "TOP_L": 0.8,
+   "TOP_R": 0.8
+  },
+  "roles": [
+   "TOP_L",
+   "TOP_R",
+   "PRACTICAL_CLAMP",
+   "PRACTICAL_L",
+   "PRACTICAL_GLIMMER"
+  ],
+  "route_model": {
+   "_basis": "INFERRED offline model, used only in PLAN mode; DRY/APPLY rebuild the compiled route law live. Segment ticks 2312640..4624705 @24000 (walking_music_swap_record_P01.json segments_before, measured); 48 bays (lighting_scores_record_P01.json); nominal spacing 600 cm (Saved/CodexStructure/p456_baseline_plan.json p01_spacing); lead-in/tail and a CONSTANT speed are assumptions (opening_walkin_probe.json measured 250 cm/s at entry, 3 Oct, which this model does not reproduce).",
+   "bay_count": 48,
+   "bay_spacing_cm": 600.0,
+   "first_station_cm": 0.0,
+   "segment_end_s": 192.69604166666667,
+   "segment_start_s": 96.36,
+   "tail_cm": 600.0
+  },
+  "same_side_weight": 0.35,
+  "schema_version": 1,
+  "score": {
+   "melodic_peak": 1.0,
+   "run_start": 1.0,
+   "salience": 1.0
+  },
+  "seed": 20261007,
+  "strike_policy": "flash_owns",
+  "target_count": 30
+ },
+ "dropped": [],
+ "eligible_lamps": [
+  {
+   "guid": "07C6C4424357A9334CDFE89FE9705D69",
+   "label": "P01 SCORE B02 GAP PRACTICAL_GLIMMER",
+   "ordinal": 2,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 580.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "CCD03E624363DC9349FDCD9362F4A4CE",
+   "label": "P01 SCORE B05 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 5,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 2331.750091334111,
+   "side": "L",
+   "y_cm": -813.0195026070783
+  },
+  {
+   "guid": "18A2724248DB7B2F46ABDA9744D7E2A0",
+   "label": "P01 SCORE B05 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 5,
+   "role": "TOP_L",
+   "route_cm": 1954.5664710335766,
+   "side": "L",
+   "y_cm": -1418.0282911449929
+  },
+  {
+   "guid": "5F4F423043BD96E5CD72BEAC204B510E",
+   "label": "P01 SCORE B05 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 5,
+   "role": "TOP_R",
+   "route_cm": 2079.5450757489793,
+   "side": "R",
+   "y_cm": 1362.8359265576437
+  },
+  {
+   "guid": "48F047734412015811AEAA830F91B05B",
+   "label": "P01 SCORE B06 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 6,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 2895.834431577693,
+   "side": "L",
+   "y_cm": -725.2857477131297
+  },
+  {
+   "guid": "3D0DB3FB4E035D765ADB2F976DE483CE",
+   "label": "P01 SCORE B06 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 6,
+   "role": "TOP_L",
+   "route_cm": 2508.422057634956,
+   "side": "L",
+   "y_cm": -1310.3314106761945
+  },
+  {
+   "guid": "DD4CC24B409782D6477B558E1AFE84E3",
+   "label": "P01 SCORE B06 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 6,
+   "role": "TOP_R",
+   "route_cm": 2495.524690723332,
+   "side": "R",
+   "y_cm": 1333.9084765544394
+  },
+  {
+   "guid": "687289AE4AE29F520729AF9347B2D9BC",
+   "label": "P01 SCORE B07 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 7,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 3539.023509502117,
+   "side": "L",
+   "y_cm": -817.929619799368
+  },
+  {
+   "guid": "0DD49AC64498AAF1F7BC8387BA4EB68D",
+   "label": "P01 SCORE B07 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 7,
+   "role": "TOP_L",
+   "route_cm": 3170.651648038306,
+   "side": "L",
+   "y_cm": -1378.7589352781613
+  },
+  {
+   "guid": "B844A90F4B754738B7A522853CFCE668",
+   "label": "P01 SCORE B07 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 7,
+   "role": "TOP_R",
+   "route_cm": 3289.3058714548115,
+   "side": "R",
+   "y_cm": 1358.5819572773162
+  },
+  {
+   "guid": "A1D1D15D4FE4ADEE49A71191DAA38186",
+   "label": "P01 SCORE B08 GAP PRACTICAL_GLIMMER",
+   "ordinal": 8,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 4180.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "D0C40D41497DA497E74D2392C3C930F0",
+   "label": "P01 SCORE B09 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 9,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 4742.59995095491,
+   "side": "L",
+   "y_cm": -716.9608787617649
+  },
+  {
+   "guid": "D645CBD747EE01C577669787C3F01A34",
+   "label": "P01 SCORE B09 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 9,
+   "role": "TOP_L",
+   "route_cm": 4314.290752610631,
+   "side": "L",
+   "y_cm": -1331.653033281517
+  },
+  {
+   "guid": "609FF2544E0D680D378C409B0DD25B49",
+   "label": "P01 SCORE B09 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 9,
+   "role": "TOP_R",
+   "route_cm": 4313.9418912680385,
+   "side": "R",
+   "y_cm": 1345.6024688771747
+  },
+  {
+   "guid": "211C8C2F4C5C26B5DE3B29BF3CA5232C",
+   "label": "P01 SCORE B10 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 10,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 5354.447657329712,
+   "side": "L",
+   "y_cm": -815.161020624669
+  },
+  {
+   "guid": "739E4A81425DC23C9841A8B2BEF99490",
+   "label": "P01 SCORE B10 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 10,
+   "role": "TOP_L",
+   "route_cm": 4930.797407346412,
+   "side": "L",
+   "y_cm": -1389.1083150108034
+  },
+  {
+   "guid": "D264A8194882D662997E179D9C1C2637",
+   "label": "P01 SCORE B10 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 10,
+   "role": "TOP_R",
+   "route_cm": 5062.039211511595,
+   "side": "R",
+   "y_cm": 1376.2735924300925
+  },
+  {
+   "guid": "71C5CECF49A857514A07C88F9FA6C28D",
+   "label": "P01 SCORE B11 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 11,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 5901.26281399363,
+   "side": "L",
+   "y_cm": -712.5227710862544
+  },
+  {
+   "guid": "6BCB3CB743B38C36BDB761B405420318",
+   "label": "P01 SCORE B11 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 11,
+   "role": "TOP_L",
+   "route_cm": 5533.1881639288285,
+   "side": "L",
+   "y_cm": -1293.5042680270715
+  },
+  {
+   "guid": "C4687DF64F60646971E229935215A046",
+   "label": "P01 SCORE B11 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 11,
+   "role": "TOP_R",
+   "route_cm": 5513.285490690043,
+   "side": "R",
+   "y_cm": 1321.3196645331986
+  },
+  {
+   "guid": "094B2758404B6C095825CD972D561029",
+   "label": "P01 SCORE B12 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 12,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 6518.340154021891,
+   "side": "L",
+   "y_cm": -803.882097924628
+  },
+  {
+   "guid": "2E57DCDB471EA76EBACAFA82FA872719",
+   "label": "P01 SCORE B12 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 12,
+   "role": "TOP_L",
+   "route_cm": 6133.307288422646,
+   "side": "L",
+   "y_cm": -1383.0586684926977
+  },
+  {
+   "guid": "6C32DA524C92EAEDB78000ABE79C8873",
+   "label": "P01 SCORE B12 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 12,
+   "role": "TOP_R",
+   "route_cm": 6286.904517007526,
+   "side": "R",
+   "y_cm": 1348.0011981861296
+  },
+  {
+   "guid": "A99E4FB94D0E5E27B4537E858F09942D",
+   "label": "P01 SCORE B13 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 13,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 7150.631658612821,
+   "side": "L",
+   "y_cm": -804.2387240092091
+  },
+  {
+   "guid": "1B398BB9436E66B3E1B81E91C7DD052B",
+   "label": "P01 SCORE B13 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 13,
+   "role": "TOP_L",
+   "route_cm": 6738.621282979416,
+   "side": "L",
+   "y_cm": -1376.9282541058988
+  },
+  {
+   "guid": "63F70A1A4362403E9962D292D16CFDE6",
+   "label": "P01 SCORE B13 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 13,
+   "role": "TOP_R",
+   "route_cm": 6862.192364863431,
+   "side": "R",
+   "y_cm": 1346.4520432604945
+  },
+  {
+   "guid": "53271C244C3E43BF21754298EA34848C",
+   "label": "P01 SCORE B14 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 14,
+   "role": "PRACTICAL_L",
+   "route_cm": 7780.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "AF906FBF40F207D147415CBB9EA5F5C4",
+   "label": "P01 SCORE B15 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 15,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 8336.873627660294,
+   "side": "L",
+   "y_cm": -736.5708698918236
+  },
+  {
+   "guid": "D11A77A04B1A35F7FEBA7495841064E4",
+   "label": "P01 SCORE B15 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 15,
+   "role": "TOP_L",
+   "route_cm": 7915.197980955269,
+   "side": "L",
+   "y_cm": -1318.959399470064
+  },
+  {
+   "guid": "461BFDE54373EBD150773D9383A33797",
+   "label": "P01 SCORE B15 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 15,
+   "role": "TOP_R",
+   "route_cm": 7924.07798335175,
+   "side": "R",
+   "y_cm": 1339.0589613511584
+  },
+  {
+   "guid": "EB38A1F046BDB3ACC47881A7BB9CE7FB",
+   "label": "P01 SCORE B16 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 16,
+   "role": "PRACTICAL_L",
+   "route_cm": 8980.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "004FA2164F0E970C46A12FB3F3D4B71D",
+   "label": "P01 SCORE B17 GAP PRACTICAL_GLIMMER",
+   "ordinal": 17,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 9580.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "FFCB596149F980296635FEB91DEA4A50",
+   "label": "P01 SCORE B18 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 18,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 10120.470915929009,
+   "side": "L",
+   "y_cm": -794.6766925374191
+  },
+  {
+   "guid": "9C7A98C54B1D5774CB6CCFA2450E53AA",
+   "label": "P01 SCORE B18 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 18,
+   "role": "TOP_L",
+   "route_cm": 9770.561256840223,
+   "side": "L",
+   "y_cm": -1407.5232033337252
+  },
+  {
+   "guid": "428070EE42955DFDE6477C821621B35D",
+   "label": "P01 SCORE B18 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 18,
+   "role": "TOP_R",
+   "route_cm": 9873.98695204445,
+   "side": "R",
+   "y_cm": 1335.3347217721127
+  },
+  {
+   "guid": "C2746FFC45AA6A1E025AC290C24F6D1E",
+   "label": "P01 SCORE B19 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 19,
+   "role": "PRACTICAL_L",
+   "route_cm": 10780.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "BDF4BF5F4B5DA5DF18171F92FD928A5E",
+   "label": "P01 SCORE B20 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 20,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 11341.563930185792,
+   "side": "L",
+   "y_cm": -803.6319133290464
+  },
+  {
+   "guid": "51833BEF4D65BD38BDF2B1B4195DBEA8",
+   "label": "P01 SCORE B20 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 20,
+   "role": "TOP_L",
+   "route_cm": 10967.01287512525,
+   "side": "L",
+   "y_cm": -1388.7672703120265
+  },
+  {
+   "guid": "A51D3588489077DAAA0C5AA4373D6B8F",
+   "label": "P01 SCORE B20 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 20,
+   "role": "TOP_R",
+   "route_cm": 11094.175794935303,
+   "side": "R",
+   "y_cm": 1351.8293000983695
+  },
+  {
+   "guid": "880601374C82F521D41BB0AAD054736D",
+   "label": "P01 SCORE B21 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 21,
+   "role": "PRACTICAL_L",
+   "route_cm": 11980.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "18D7497C4787F95043ED14862E38F2F2",
+   "label": "P01 SCORE B22 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 22,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 12539.333575547531,
+   "side": "L",
+   "y_cm": -719.1818211507226
+  },
+  {
+   "guid": "C6AF2B2C4293580F733945A874FB7A49",
+   "label": "P01 SCORE B22 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 22,
+   "role": "TOP_L",
+   "route_cm": 12110.020484032024,
+   "side": "L",
+   "y_cm": -1298.3189843977707
+  },
+  {
+   "guid": "CD89D60F4EFAE7BC062D51975B43FBF4",
+   "label": "P01 SCORE B22 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 22,
+   "role": "TOP_R",
+   "route_cm": 12100.436160167785,
+   "side": "R",
+   "y_cm": 1324.533251162208
+  },
+  {
+   "guid": "D51B462649C1111E7E270785AC73E8B7",
+   "label": "P01 SCORE B23 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 23,
+   "role": "PRACTICAL_L",
+   "route_cm": 13180.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "018DFE69422093E054846DAAA6F21FD2",
+   "label": "P01 SCORE B24 GAP PRACTICAL_GLIMMER",
+   "ordinal": 24,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 13780.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "7EC39A434F74CBBB07D6368E33450FC2",
+   "label": "P01 SCORE B25 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 25,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 14332.650387559388,
+   "side": "L",
+   "y_cm": -796.5443958982693
+  },
+  {
+   "guid": "5CA0B61C48C2701B6706479AAD891096",
+   "label": "P01 SCORE B25 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 25,
+   "role": "TOP_L",
+   "route_cm": 13971.404777981059,
+   "side": "L",
+   "y_cm": -1403.0115324689848
+  },
+  {
+   "guid": "BBDFA72A40E4931E0C5C64BF988B4B7B",
+   "label": "P01 SCORE B25 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 25,
+   "role": "TOP_R",
+   "route_cm": 14064.748560116577,
+   "side": "R",
+   "y_cm": 1360.4471371351256
+  },
+  {
+   "guid": "7C1AD8D1428BCCC64FA336853D86038E",
+   "label": "P01 SCORE B26 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 26,
+   "role": "PRACTICAL_L",
+   "route_cm": 14980.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "EBBB83EE4C042DB9550F549A08EBAB77",
+   "label": "P01 SCORE B27 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 27,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 15566.685052560104,
+   "side": "L",
+   "y_cm": -820.4319381122107
+  },
+  {
+   "guid": "3193D17A4CC0A53705F2DF8945E1E119",
+   "label": "P01 SCORE B27 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 27,
+   "role": "TOP_L",
+   "route_cm": 15141.038057413649,
+   "side": "L",
+   "y_cm": -1407.8758567617372
+  },
+  {
+   "guid": "C3A8C8BD43F59BD4980B569438D3C0CB",
+   "label": "P01 SCORE B27 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 27,
+   "role": "TOP_R",
+   "route_cm": 15311.509010992044,
+   "side": "R",
+   "y_cm": 1365.3089646357744
+  },
+  {
+   "guid": "A23CD8864A562C5A0CD00FB73193CB8D",
+   "label": "P01 SCORE B28 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 28,
+   "role": "PRACTICAL_L",
+   "route_cm": 16180.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "29BB7B2C44546DBCC9C80DA5336D68C8",
+   "label": "P01 SCORE B29 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 29,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 16709.176523633258,
+   "side": "L",
+   "y_cm": -714.6515326950057
+  },
+  {
+   "guid": "BDCE64B84651D7BE64A2CCA22AEF7696",
+   "label": "P01 SCORE B29 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 29,
+   "role": "TOP_L",
+   "route_cm": 16318.13186872374,
+   "side": "L",
+   "y_cm": -1296.0202914096449
+  },
+  {
+   "guid": "45715B2846C1DBFC5A8828B0D99C585B",
+   "label": "P01 SCORE B29 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 29,
+   "role": "TOP_R",
+   "route_cm": 16327.94757344763,
+   "side": "R",
+   "y_cm": 1333.7909091390723
+  },
+  {
+   "guid": "984BAC3D45861936A31F33AB5FA50E82",
+   "label": "P01 SCORE B30 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 30,
+   "role": "PRACTICAL_L",
+   "route_cm": 17380.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "EA1ABA8046A3C41FB5806490FC35B9B8",
+   "label": "P01 SCORE B31 GAP PRACTICAL_GLIMMER",
+   "ordinal": 31,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 17980.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "CAE6EC0D46B62B27969D638FB077DAE5",
+   "label": "P01 SCORE B32 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 32,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 18555.583816289312,
+   "side": "L",
+   "y_cm": -814.7174400303495
+  },
+  {
+   "guid": "64381B1E412EBA1A8A011C964ADD9186",
+   "label": "P01 SCORE B32 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 32,
+   "role": "TOP_L",
+   "route_cm": 18169.501074516476,
+   "side": "L",
+   "y_cm": -1372.6493867424194
+  },
+  {
+   "guid": "10958F7440ED78E84B0E038A46917145",
+   "label": "P01 SCORE B32 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 32,
+   "role": "TOP_R",
+   "route_cm": 18275.593016744286,
+   "side": "R",
+   "y_cm": 1336.4599109615717
+  },
+  {
+   "guid": "1DF5300042F5848C4E564D8C4A1155F0",
+   "label": "P01 SCORE B33 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 33,
+   "role": "PRACTICAL_L",
+   "route_cm": 19180.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "508547A743FF2A2D499B40B00B7B8E0B",
+   "label": "P01 SCORE B34 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 34,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 19740.886850906518,
+   "side": "L",
+   "y_cm": -787.814106197853
+  },
+  {
+   "guid": "BEDC82B84DEEEDEC811A2AB4363C2841",
+   "label": "P01 SCORE B34 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 34,
+   "role": "TOP_L",
+   "route_cm": 19358.15658574774,
+   "side": "L",
+   "y_cm": -1381.0354982993435
+  },
+  {
+   "guid": "4B4A5C054C98787433CF0DBA7303B3EA",
+   "label": "P01 SCORE B34 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 34,
+   "role": "TOP_R",
+   "route_cm": 19510.413251616494,
+   "side": "R",
+   "y_cm": 1366.838369500824
+  },
+  {
+   "guid": "A5D532D84ABD2A34DFB06DBC9260B770",
+   "label": "P01 SCORE B35 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 35,
+   "role": "PRACTICAL_L",
+   "route_cm": 20380.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "656AE7DA49BF1F31D7CEACAACD42A8C3",
+   "label": "P01 SCORE B36 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 36,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 20908.104759914473,
+   "side": "L",
+   "y_cm": -708.9767157836066
+  },
+  {
+   "guid": "987D939A4439B5DEBA18538CA7B8C28C",
+   "label": "P01 SCORE B36 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 36,
+   "role": "TOP_L",
+   "route_cm": 20491.02308558729,
+   "side": "L",
+   "y_cm": -1332.935930076302
+  },
+  {
+   "guid": "B900FDDC40DAA3CDFC0735A6EA1159D6",
+   "label": "P01 SCORE B36 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 36,
+   "role": "TOP_R",
+   "route_cm": 20487.421794816695,
+   "side": "R",
+   "y_cm": 1321.2603396807335
+  },
+  {
+   "guid": "59A61CC941CE05B93E4A29BDE3310D2F",
+   "label": "P01 SCORE B37 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 37,
+   "role": "PRACTICAL_L",
+   "route_cm": 21580.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "BB51E8BF4924A92DB6281B81CDB3868D",
+   "label": "P01 SCORE B38 GAP PRACTICAL_GLIMMER",
+   "ordinal": 38,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 22180.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "B079879844A20B47A9E4B28D8F8D6329",
+   "label": "P01 SCORE B39 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 39,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 22722.211564318466,
+   "side": "L",
+   "y_cm": -786.6236135299089
+  },
+  {
+   "guid": "2B38AC4F43FD16F68A20E8AF5AAD503C",
+   "label": "P01 SCORE B39 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 39,
+   "role": "TOP_L",
+   "route_cm": 22330.82036140967,
+   "side": "L",
+   "y_cm": -1399.1906944061343
+  },
+  {
+   "guid": "067AAEB54636B5802883A0B558E29D18",
+   "label": "P01 SCORE B39 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 39,
+   "role": "TOP_R",
+   "route_cm": 22484.370153091244,
+   "side": "R",
+   "y_cm": 1352.2610722694183
+  },
+  {
+   "guid": "4D03703A40BC9636988C8EB9211530D5",
+   "label": "P01 SCORE B40 P01_CANDLE_MOODY PRACTICAL_L",
+   "ordinal": 40,
+   "role": "PRACTICAL_L",
+   "route_cm": 23380.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "3C9EED1B4439277792F194ABD1998DFC",
+   "label": "P01 SCORE B41 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 41,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 23959.646876781546,
+   "side": "L",
+   "y_cm": -792.3659035312485
+  },
+  {
+   "guid": "066E8491451C8FE5B86F85A9ECA6A2F1",
+   "label": "P01 SCORE B41 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 41,
+   "role": "TOP_L",
+   "route_cm": 23557.10759339203,
+   "side": "L",
+   "y_cm": -1379.9915638235138
+  },
+  {
+   "guid": "47A9B31D4918ED599A4855B6DD40D532",
+   "label": "P01 SCORE B41 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 41,
+   "role": "TOP_R",
+   "route_cm": 23680.96056368324,
+   "side": "R",
+   "y_cm": 1357.4784551682337
+  },
+  {
+   "guid": "B28B0B544F72251EA328F6AF2F44E2CB",
+   "label": "P01 SCORE B42 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 42,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 24530.926148496343,
+   "side": "L",
+   "y_cm": -802.5610827507383
+  },
+  {
+   "guid": "8E1B9FCF47279480ABC09E9B8AAC65B4",
+   "label": "P01 SCORE B42 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 42,
+   "role": "TOP_L",
+   "route_cm": 24156.24646790396,
+   "side": "L",
+   "y_cm": -1392.3131474102775
+  },
+  {
+   "guid": "EE00773F4D191F79E4576EB02F092A37",
+   "label": "P01 SCORE B42 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 42,
+   "role": "TOP_R",
+   "route_cm": 24302.881377419748,
+   "side": "R",
+   "y_cm": 1348.1003817448293
+  },
+  {
+   "guid": "64FD3E8F4AC81F48BE7A2B994C047DD9",
+   "label": "P01 SCORE B43 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 43,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 25119.01317379106,
+   "side": "L",
+   "y_cm": -729.9811536660767
+  },
+  {
+   "guid": "24EA43644CE354CEB343B194527AA898",
+   "label": "P01 SCORE B43 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 43,
+   "role": "TOP_L",
+   "route_cm": 24699.91305260365,
+   "side": "L",
+   "y_cm": -1294.039701874335
+  },
+  {
+   "guid": "3F2D522145147D8F1A9E63BAACAE7106",
+   "label": "P01 SCORE B43 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 43,
+   "role": "TOP_R",
+   "route_cm": 24715.7196055556,
+   "side": "R",
+   "y_cm": 1322.676843791724
+  },
+  {
+   "guid": "AF0A1D63449177E73B7A9982AA5B9E9C",
+   "label": "P01 SCORE B44 GAP PRACTICAL_GLIMMER",
+   "ordinal": 44,
+   "role": "PRACTICAL_GLIMMER",
+   "route_cm": 25780.0,
+   "side": "L",
+   "y_cm": -700.0
+  },
+  {
+   "guid": "8114F24844545D84551430A7360F664B",
+   "label": "P01 SCORE B45 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 45,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 26362.146041124233,
+   "side": "L",
+   "y_cm": -811.3176231089908
+  },
+  {
+   "guid": "CC8F55314B9BF9AAC8DD30964DD85F26",
+   "label": "P01 SCORE B45 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 45,
+   "role": "TOP_L",
+   "route_cm": 25961.441937362542,
+   "side": "L",
+   "y_cm": -1391.7468633204437
+  },
+  {
+   "guid": "DB8768A74BCC66DA62E643B61488854D",
+   "label": "P01 SCORE B45 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 45,
+   "role": "TOP_R",
+   "route_cm": 26065.841677403176,
+   "side": "R",
+   "y_cm": 1346.1974410193002
+  },
+  {
+   "guid": "14CF3594413FB50590E7488AF97AB57A",
+   "label": "P01 SCORE B46 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 46,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 26920.87124478923,
+   "side": "L",
+   "y_cm": -727.6765892459385
+  },
+  {
+   "guid": "9AC9F28D46E1485CF0951FBFD5619A44",
+   "label": "P01 SCORE B46 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 46,
+   "role": "TOP_L",
+   "route_cm": 26508.702219624163,
+   "side": "L",
+   "y_cm": -1291.0597936419672
+  },
+  {
+   "guid": "7FFFBD3A452CBC3F1FB3DAA7A47C4ACA",
+   "label": "P01 SCORE B46 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 46,
+   "role": "TOP_R",
+   "route_cm": 26526.465746437218,
+   "side": "R",
+   "y_cm": 1359.4567069471348
+  },
+  {
+   "guid": "FE2068A84C07545DC361C1898322A2F5",
+   "label": "P01 SCORE B47 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 47,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 27559.37758956695,
+   "side": "L",
+   "y_cm": -827.1011562339638
+  },
+  {
+   "guid": "8F731ADC457D69E3DAE3CC950E0BEE80",
+   "label": "P01 SCORE B47 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 47,
+   "role": "TOP_L",
+   "route_cm": 27163.952178987445,
+   "side": "L",
+   "y_cm": -1376.697794976158
+  },
+  {
+   "guid": "8B39FB314E0170338F462C8A2BBA9BA5",
+   "label": "P01 SCORE B47 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 47,
+   "role": "TOP_R",
+   "route_cm": 27266.998983738147,
+   "side": "R",
+   "y_cm": 1373.8550938066312
+  },
+  {
+   "guid": "AD2A09B64A48088A69DC67B9F1F7F2F5",
+   "label": "P01 SCORE B48 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "ordinal": 48,
+   "role": "PRACTICAL_CLAMP",
+   "route_cm": 28104.393062042465,
+   "side": "L",
+   "y_cm": -708.4925193416443
+  },
+  {
+   "guid": "B71F97014BE179BE24469AA4305E9326",
+   "label": "P01 SCORE B48 P01_WARM_THEATRICAL TOP_L",
+   "ordinal": 48,
+   "role": "TOP_L",
+   "route_cm": 27719.96445226201,
+   "side": "L",
+   "y_cm": -1330.3372837207196
+  },
+  {
+   "guid": "8F08EAE7473DC642357AF29D2D4CD0FB",
+   "label": "P01 SCORE B48 P01_WARM_THEATRICAL TOP_R",
+   "ordinal": 48,
+   "role": "TOP_R",
+   "route_cm": 27710.29285110564,
+   "side": "R",
+   "y_cm": 1330.9917269308628
+  }
+ ],
+ "events": [
+  {
+   "ahead_cm": 3161.9819955847647,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 8.669652453541522,
+   "cue_label": "P01 Wing 007",
+   "lamp_guid": "0DD49AC64498AAF1F7BC8387BA4EB68D",
+   "lamp_label": "P01 SCORE B07 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 3170.651648038306,
+   "melodic_peak": false,
+   "midi": 58,
+   "offset_cm": -3161.9819955847647,
+   "ordinal": 7,
+   "role": "TOP_L",
+   "salience": 2.34,
+   "show_s": 96.389,
+   "side": "L",
+   "song_s": 0.029,
+   "speed_cm_s": 298.9535328807797
+  },
+  {
+   "ahead_cm": 4112.86174461512,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 949.1774668964746,
+   "cue_label": "P01 Wing 011",
+   "lamp_guid": "D264A8194882D662997E179D9C1C2637",
+   "lamp_label": "P01 SCORE B10 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 5062.039211511595,
+   "melodic_peak": false,
+   "midi": 69,
+   "offset_cm": -4112.86174461512,
+   "ordinal": 10,
+   "role": "TOP_R",
+   "salience": 2.14,
+   "show_s": 99.535,
+   "side": "R",
+   "song_s": 3.175,
+   "speed_cm_s": 298.95353288077894
+  },
+  {
+   "ahead_cm": 2963.5580747081067,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 1216.4419252918933,
+   "cue_label": "P01 Wing 008",
+   "lamp_guid": "A1D1D15D4FE4ADEE49A71191DAA38186",
+   "lamp_label": "P01 SCORE B08 GAP PRACTICAL_GLIMMER",
+   "lamp_route_cm": 4180.0,
+   "melodic_peak": false,
+   "midi": 72,
+   "offset_cm": -2963.5580747081067,
+   "ordinal": 8,
+   "role": "PRACTICAL_GLIMMER",
+   "salience": 1.66,
+   "show_s": 100.429,
+   "side": "L",
+   "song_s": 4.069,
+   "speed_cm_s": 298.95353288077894
+  },
+  {
+   "ahead_cm": 3136.478302995974,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 1794.319104350438,
+   "cue_label": "P01 Wing 011",
+   "lamp_guid": "739E4A81425DC23C9841A8B2BEF99490",
+   "lamp_label": "P01 SCORE B10 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 4930.797407346412,
+   "melodic_peak": false,
+   "midi": 50,
+   "offset_cm": -3136.478302995974,
+   "ordinal": 10,
+   "role": "TOP_L",
+   "salience": 2.04,
+   "show_s": 102.362,
+   "side": "L",
+   "song_s": 6.002,
+   "speed_cm_s": 298.95353288077894
+  },
+  {
+   "ahead_cm": 3560.0948469156847,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 1973.093317013144,
+   "cue_label": "P01 Wing 012",
+   "lamp_guid": "6BCB3CB743B38C36BDB761B405420318",
+   "lamp_label": "P01 SCORE B11 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 5533.1881639288285,
+   "melodic_peak": false,
+   "midi": 67,
+   "offset_cm": -3560.0948469156847,
+   "ordinal": 11,
+   "role": "TOP_L",
+   "salience": 1.75,
+   "show_s": 102.96,
+   "side": "L",
+   "song_s": 6.6,
+   "speed_cm_s": 298.9535328807812
+  },
+  {
+   "ahead_cm": 4135.036987331672,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 2151.8675296758543,
+   "cue_label": "P01 Wing 010",
+   "lamp_guid": "6C32DA524C92EAEDB78000ABE79C8873",
+   "lamp_label": "P01 SCORE B12 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 6286.904517007526,
+   "melodic_peak": false,
+   "midi": 63,
+   "offset_cm": -4135.036987331672,
+   "ordinal": 12,
+   "role": "TOP_R",
+   "salience": 4.56,
+   "show_s": 103.558,
+   "side": "R",
+   "song_s": 7.198,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 2226.308064697387,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 2516.291886257523,
+   "cue_label": "P01 Wing 009",
+   "lamp_guid": "D0C40D41497DA497E74D2392C3C930F0",
+   "lamp_label": "P01 SCORE B09 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 4742.59995095491,
+   "melodic_peak": false,
+   "midi": 41,
+   "offset_cm": -2226.308064697387,
+   "ordinal": 9,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 4.3,
+   "show_s": 104.777,
+   "side": "L",
+   "song_s": 8.417,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 3488.4653830263896,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 2644.841905396256,
+   "cue_label": "P01 Wing 010",
+   "lamp_guid": "2E57DCDB471EA76EBACAFA82FA872719",
+   "lamp_label": "P01 SCORE B12 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 6133.307288422646,
+   "melodic_peak": true,
+   "midi": 72,
+   "offset_cm": -3488.4653830263896,
+   "ordinal": 12,
+   "role": "TOP_L",
+   "salience": 1.24,
+   "show_s": 105.207,
+   "side": "L",
+   "song_s": 8.847,
+   "speed_cm_s": 298.9535328807812
+  },
+  {
+   "ahead_cm": 3862.9872501991963,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 2875.6340327802195,
+   "cue_label": "P01 Wing 013",
+   "lamp_guid": "1B398BB9436E66B3E1B81E91C7DD052B",
+   "lamp_label": "P01 SCORE B13 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 6738.621282979416,
+   "melodic_peak": false,
+   "midi": 56,
+   "offset_cm": -3862.9872501991963,
+   "ordinal": 13,
+   "role": "TOP_L",
+   "salience": 5.06,
+   "show_s": 105.979,
+   "side": "L",
+   "song_s": 9.619,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 3915.9544328427833,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 3234.677225770038,
+   "cue_label": "P01 Wing 013",
+   "lamp_guid": "A99E4FB94D0E5E27B4537E858F09942D",
+   "lamp_label": "P01 SCORE B13 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 7150.631658612821,
+   "melodic_peak": false,
+   "midi": 55,
+   "offset_cm": -3915.9544328427833,
+   "ordinal": 13,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 2.29,
+   "show_s": 107.18,
+   "side": "L",
+   "song_s": 10.82,
+   "speed_cm_s": 298.9535328807812
+  },
+  {
+   "ahead_cm": 1650.207938804609,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 3863.077551885434,
+   "cue_label": "P01 Wing 012",
+   "lamp_guid": "C4687DF64F60646971E229935215A046",
+   "lamp_label": "P01 SCORE B11 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 5513.285490690043,
+   "melodic_peak": false,
+   "midi": 36,
+   "offset_cm": -1650.207938804609,
+   "ordinal": 11,
+   "role": "TOP_R",
+   "salience": 2.35,
+   "show_s": 109.282,
+   "side": "R",
+   "song_s": 12.922,
+   "speed_cm_s": 298.9535328807812
+  },
+  {
+   "ahead_cm": 4112.959161587756,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 4223.914466072538,
+   "cue_label": "P01 Wing 015",
+   "lamp_guid": "AF906FBF40F207D147415CBB9EA5F5C4",
+   "lamp_label": "P01 SCORE B15 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 8336.873627660294,
+   "melodic_peak": false,
+   "midi": 36,
+   "offset_cm": -4112.959161587756,
+   "ordinal": 15,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 2.29,
+   "show_s": 110.489,
+   "side": "L",
+   "song_s": 14.129,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 3099.583489218512,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 4680.416510781488,
+   "cue_label": "P01 Wing 014",
+   "lamp_guid": "53271C244C3E43BF21754298EA34848C",
+   "lamp_label": "P01 SCORE B14 P01_CANDLE_MOODY PRACTICAL_L",
+   "lamp_route_cm": 7780.0,
+   "melodic_peak": true,
+   "midi": 70,
+   "offset_cm": -3099.583489218512,
+   "ordinal": 14,
+   "role": "PRACTICAL_L",
+   "salience": 0.47,
+   "show_s": 112.016,
+   "side": "L",
+   "song_s": 15.656,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 3387.140494855209,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 6733.3304210738,
+   "cue_label": "P01 Wing 018",
+   "lamp_guid": "FFCB596149F980296635FEB91DEA4A50",
+   "lamp_label": "P01 SCORE B18 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 10120.470915929009,
+   "melodic_peak": true,
+   "midi": 70,
+   "offset_cm": -3387.140494855209,
+   "ordinal": 18,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 1.69,
+   "show_s": 118.883,
+   "side": "L",
+   "song_s": 22.523,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 3406.3111114955673,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 7373.688888504433,
+   "cue_label": "P01 Wing 019",
+   "lamp_guid": "C2746FFC45AA6A1E025AC290C24F6D1E",
+   "lamp_label": "P01 SCORE B19 P01_CANDLE_MOODY PRACTICAL_L",
+   "lamp_route_cm": 10780.0,
+   "melodic_peak": true,
+   "midi": 70,
+   "offset_cm": -3406.3111114955673,
+   "ordinal": 19,
+   "role": "PRACTICAL_L",
+   "salience": 0.94,
+   "show_s": 121.025,
+   "side": "L",
+   "song_s": 24.665,
+   "speed_cm_s": 298.95353288077666
+  },
+  {
+   "ahead_cm": 4012.1765254491092,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 10320.473862110279,
+   "cue_label": "P01 Wing 025",
+   "lamp_guid": "7EC39A434F74CBBB07D6368E33450FC2",
+   "lamp_label": "P01 SCORE B25 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 14332.650387559388,
+   "melodic_peak": false,
+   "midi": 55,
+   "offset_cm": -4012.1765254491092,
+   "ordinal": 25,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 2.33,
+   "show_s": 130.882,
+   "side": "L",
+   "song_s": 34.522,
+   "speed_cm_s": 298.9535328807917
+  },
+  {
+   "ahead_cm": 4322.90445986596,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 10657.09554013404,
+   "cue_label": "P01 Wing 026",
+   "lamp_guid": "7C1AD8D1428BCCC64FA336853D86038E",
+   "lamp_label": "P01 SCORE B26 P01_CANDLE_MOODY PRACTICAL_L",
+   "lamp_route_cm": 14980.0,
+   "melodic_peak": false,
+   "midi": 70,
+   "offset_cm": -4322.90445986596,
+   "ordinal": 26,
+   "role": "PRACTICAL_L",
+   "salience": 2.49,
+   "show_s": 132.008,
+   "side": "L",
+   "song_s": 35.648,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4347.048966295881,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 13928.544050448405,
+   "cue_label": "P01 Wing 032",
+   "lamp_guid": "10958F7440ED78E84B0E038A46917145",
+   "lamp_label": "P01 SCORE B32 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 18275.593016744286,
+   "melodic_peak": false,
+   "midi": 61,
+   "offset_cm": -4347.048966295881,
+   "ordinal": 32,
+   "role": "TOP_R",
+   "salience": 1.69,
+   "show_s": 142.951,
+   "side": "R",
+   "song_s": 46.591,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 1853.2651802872097,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 14464.86668843653,
+   "cue_label": "P01 Wing 029",
+   "lamp_guid": "BDCE64B84651D7BE64A2CCA22AEF7696",
+   "lamp_label": "P01 SCORE B29 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 16318.13186872374,
+   "melodic_peak": true,
+   "midi": 69,
+   "offset_cm": -1853.2651802872097,
+   "ordinal": 29,
+   "role": "TOP_L",
+   "salience": 1.04,
+   "show_s": 144.745,
+   "side": "L",
+   "song_s": 48.385,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 3450.9284187938865,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 16059.484832822607,
+   "cue_label": "P01 Wing 034",
+   "lamp_guid": "4B4A5C054C98787433CF0DBA7303B3EA",
+   "lamp_label": "P01 SCORE B34 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 19510.413251616494,
+   "melodic_peak": false,
+   "midi": 72,
+   "offset_cm": -3450.9284187938865,
+   "ordinal": 34,
+   "role": "TOP_R",
+   "salience": 4.21,
+   "show_s": 150.079,
+   "side": "R",
+   "song_s": 53.719,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 2962.717725038514,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 16778.169125868004,
+   "cue_label": "P01 Wing 034",
+   "lamp_guid": "508547A743FF2A2D499B40B00B7B8E0B",
+   "lamp_label": "P01 SCORE B34 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 19740.886850906518,
+   "melodic_peak": false,
+   "midi": 55,
+   "offset_cm": -2962.717725038514,
+   "ordinal": 34,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 2.26,
+   "show_s": 152.483,
+   "side": "L",
+   "song_s": 56.123,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 3365.956536689064,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 17014.043463310936,
+   "cue_label": "P01 Wing 035",
+   "lamp_guid": "A5D532D84ABD2A34DFB06DBC9260B770",
+   "lamp_label": "P01 SCORE B35 P01_CANDLE_MOODY PRACTICAL_L",
+   "lamp_route_cm": 20380.0,
+   "melodic_peak": true,
+   "midi": 79,
+   "offset_cm": -3365.956536689064,
+   "ordinal": 35,
+   "role": "PRACTICAL_L",
+   "salience": 1.26,
+   "show_s": 153.272,
+   "side": "L",
+   "song_s": 56.912,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4140.844612932593,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 17439.155387067407,
+   "cue_label": "P01 Wing 037",
+   "lamp_guid": "59A61CC941CE05B93E4A29BDE3310D2F",
+   "lamp_label": "P01 SCORE B37 P01_CANDLE_MOODY PRACTICAL_L",
+   "lamp_route_cm": 21580.0,
+   "melodic_peak": true,
+   "midi": 79,
+   "offset_cm": -4140.844612932593,
+   "ordinal": 37,
+   "role": "PRACTICAL_L",
+   "salience": 1.4,
+   "show_s": 154.694,
+   "side": "L",
+   "song_s": 58.334,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 2812.093116773467,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 17675.328678043228,
+   "cue_label": "P01 Wing 036",
+   "lamp_guid": "B900FDDC40DAA3CDFC0735A6EA1159D6",
+   "lamp_label": "P01 SCORE B36 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 20487.421794816695,
+   "melodic_peak": false,
+   "midi": 36,
+   "offset_cm": -2812.093116773467,
+   "ordinal": 36,
+   "role": "TOP_R",
+   "salience": 2.99,
+   "show_s": 155.484,
+   "side": "R",
+   "song_s": 59.124,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4330.2912679600195,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 18391.920296358447,
+   "cue_label": "P01 Wing 039",
+   "lamp_guid": "B079879844A20B47A9E4B28D8F8D6329",
+   "lamp_label": "P01 SCORE B39 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 22722.211564318466,
+   "melodic_peak": false,
+   "midi": 55,
+   "offset_cm": -4330.2912679600195,
+   "ordinal": 39,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 4.65,
+   "show_s": 157.881,
+   "side": "L",
+   "song_s": 61.521,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4002.1658898028036,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 18482.20426328844,
+   "cue_label": "P01 Wing 039",
+   "lamp_guid": "067AAEB54636B5802883A0B558E29D18",
+   "lamp_label": "P01 SCORE B39 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 22484.370153091244,
+   "melodic_peak": true,
+   "midi": 81,
+   "offset_cm": -4002.1658898028036,
+   "ordinal": 39,
+   "role": "TOP_R",
+   "salience": 2.16,
+   "show_s": 158.183,
+   "side": "R",
+   "song_s": 61.823,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4092.4149191307297,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 19287.58508086927,
+   "cue_label": "P01 Wing 040",
+   "lamp_guid": "4D03703A40BC9636988C8EB9211530D5",
+   "lamp_label": "P01 SCORE B40 P01_CANDLE_MOODY PRACTICAL_L",
+   "lamp_route_cm": 23380.0,
+   "melodic_peak": false,
+   "midi": 48,
+   "offset_cm": -4092.4149191307297,
+   "ordinal": 40,
+   "role": "PRACTICAL_L",
+   "salience": 4.71,
+   "show_s": 160.877,
+   "side": "L",
+   "song_s": 64.517,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4486.411651993316,
+   "behaviour": "stay",
+   "behaviour_drawn": "stay",
+   "camera_cm": 19473.23522478823,
+   "cue_label": "P01 Wing 041",
+   "lamp_guid": "3C9EED1B4439277792F194ABD1998DFC",
+   "lamp_label": "P01 SCORE B41 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "lamp_route_cm": 23959.646876781546,
+   "melodic_peak": false,
+   "midi": 60,
+   "offset_cm": -4486.411651993316,
+   "ordinal": 41,
+   "role": "PRACTICAL_CLAMP",
+   "salience": 3.58,
+   "show_s": 161.498,
+   "side": "L",
+   "song_s": 65.138,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4417.540505917594,
+   "behaviour": "bloom",
+   "behaviour_drawn": "bloom",
+   "camera_cm": 19738.705961986365,
+   "cue_label": "P01 Wing 042",
+   "lamp_guid": "8E1B9FCF47279480ABC09E9B8AAC65B4",
+   "lamp_label": "P01 SCORE B42 P01_WARM_THEATRICAL TOP_L",
+   "lamp_route_cm": 24156.24646790396,
+   "melodic_peak": false,
+   "midi": 60,
+   "offset_cm": -4417.540505917594,
+   "ordinal": 42,
+   "role": "TOP_L",
+   "salience": 2.15,
+   "show_s": 162.386,
+   "side": "L",
+   "song_s": 66.026,
+   "speed_cm_s": 298.95353288077354
+  },
+  {
+   "ahead_cm": 4484.0392678488315,
+   "behaviour": "glint",
+   "behaviour_drawn": "glint",
+   "camera_cm": 20231.68033770677,
+   "cue_label": "P01 Wing 043",
+   "lamp_guid": "3F2D522145147D8F1A9E63BAACAE7106",
+   "lamp_label": "P01 SCORE B43 P01_WARM_THEATRICAL TOP_R",
+   "lamp_route_cm": 24715.7196055556,
+   "melodic_peak": true,
+   "midi": 69,
+   "offset_cm": -4484.0392678488315,
+   "ordinal": 43,
+   "role": "TOP_R",
+   "salience": 2.17,
+   "show_s": 164.035,
+   "side": "R",
+   "song_s": 67.675,
+   "speed_cm_s": 298.95353288077354
+  }
+ ],
+ "lamp_behaviour_counts": {
+  "bloom": 10,
+  "glint": 13,
+  "stay": 7
+ },
+ "lamp_source": "RECORDS (lighting_scores_record_P01 5 Oct + p01_rig_pattern_record 6 Oct); the DRY re-reads the live Show",
+ "mode": "PLAN",
+ "must": [
+  {
+   "mark": 101.0,
+   "notable": true,
+   "show_s": 100.429
+  },
+  {
+   "mark": 102.5,
+   "notable": true,
+   "show_s": 102.362
+  },
+  {
+   "mark": 103.2,
+   "notable": true,
+   "show_s": 102.96
+  },
+  {
+   "mark": 109.0,
+   "notable": true,
+   "show_s": 109.282
+  },
+  {
+   "mark": 112.0,
+   "notable": true,
+   "show_s": 112.016
+  },
+  {
+   "mark": [
+    143.0,
+    145.0
+   ],
+   "notable": true,
+   "show_s": 142.951
+  },
+  {
+   "mark": [
+    143.0,
+    145.0
+   ],
+   "notable": true,
+   "show_s": 144.745
+  }
+ ],
+ "notes": [
+  {
+   "melodic_peak": false,
+   "midi": 58,
+   "notable": true,
+   "salience": 2.34,
+   "show_s": 96.389
+  },
+  {
+   "melodic_peak": false,
+   "midi": 58,
+   "notable": false,
+   "salience": 0.83,
+   "show_s": 96.441
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 0.62,
+   "show_s": 97.295
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 1.31,
+   "show_s": 97.318
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": true,
+   "salience": 2.09,
+   "show_s": 98.183
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 0.92,
+   "show_s": 98.235
+  },
+  {
+   "melodic_peak": false,
+   "midi": 44,
+   "notable": false,
+   "salience": 0.62,
+   "show_s": 98.932
+  },
+  {
+   "melodic_peak": false,
+   "midi": 51,
+   "notable": false,
+   "salience": 0.61,
+   "show_s": 99.083
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.44,
+   "show_s": 99.245
+  },
+  {
+   "melodic_peak": false,
+   "midi": 63,
+   "notable": false,
+   "salience": 1.44,
+   "show_s": 99.396
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": true,
+   "salience": 2.14,
+   "show_s": 99.535
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": false,
+   "salience": 0.79,
+   "show_s": 99.68
+  },
+  {
+   "melodic_peak": false,
+   "midi": 58,
+   "notable": false,
+   "salience": 1.21,
+   "show_s": 99.837
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 1.5,
+   "show_s": 99.988
+  },
+  {
+   "melodic_peak": false,
+   "midi": 43,
+   "notable": true,
+   "salience": 1.82,
+   "show_s": 100.284
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": true,
+   "salience": 1.66,
+   "show_s": 100.429
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 1.02,
+   "show_s": 100.586
+  },
+  {
+   "melodic_peak": false,
+   "midi": 41,
+   "notable": false,
+   "salience": 0.58,
+   "show_s": 100.882
+  },
+  {
+   "melodic_peak": false,
+   "midi": 67,
+   "notable": false,
+   "salience": 0.88,
+   "show_s": 101.178
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.54,
+   "show_s": 101.329
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 0.78,
+   "show_s": 101.48
+  },
+  {
+   "melodic_peak": true,
+   "midi": 75,
+   "notable": true,
+   "salience": 1.0,
+   "show_s": 101.631
+  },
+  {
+   "melodic_peak": false,
+   "midi": 46,
+   "notable": false,
+   "salience": 0.67,
+   "show_s": 101.788
+  },
+  {
+   "melodic_peak": false,
+   "midi": 38,
+   "notable": false,
+   "salience": 0.92,
+   "show_s": 102.09
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": true,
+   "salience": 2.04,
+   "show_s": 102.362
+  },
+  {
+   "melodic_peak": false,
+   "midi": 67,
+   "notable": true,
+   "salience": 1.75,
+   "show_s": 102.96
+  },
+  {
+   "melodic_peak": false,
+   "midi": 63,
+   "notable": true,
+   "salience": 4.56,
+   "show_s": 103.558
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 0.76,
+   "show_s": 104.156
+  },
+  {
+   "melodic_peak": false,
+   "midi": 41,
+   "notable": true,
+   "salience": 4.3,
+   "show_s": 104.777
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": false,
+   "salience": 0.5,
+   "show_s": 105.079
+  },
+  {
+   "melodic_peak": true,
+   "midi": 72,
+   "notable": true,
+   "salience": 1.24,
+   "show_s": 105.207
+  },
+  {
+   "melodic_peak": false,
+   "midi": 46,
+   "notable": false,
+   "salience": 0.48,
+   "show_s": 105.41
+  },
+  {
+   "melodic_peak": false,
+   "midi": 56,
+   "notable": true,
+   "salience": 5.06,
+   "show_s": 105.979
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.66,
+   "show_s": 106.287
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 1.39,
+   "show_s": 106.583
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": true,
+   "salience": 2.29,
+   "show_s": 107.18
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 1.11,
+   "show_s": 107.227
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.87,
+   "show_s": 107.517
+  },
+  {
+   "melodic_peak": false,
+   "midi": 43,
+   "notable": false,
+   "salience": 0.9,
+   "show_s": 107.784
+  },
+  {
+   "melodic_peak": false,
+   "midi": 59,
+   "notable": false,
+   "salience": 1.11,
+   "show_s": 107.819
+  },
+  {
+   "melodic_peak": true,
+   "midi": 75,
+   "notable": true,
+   "salience": 1.01,
+   "show_s": 107.964
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 0.65,
+   "show_s": 108.086
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 0.74,
+   "show_s": 108.115
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 0.57,
+   "show_s": 108.394
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 0.8,
+   "show_s": 108.423
+  },
+  {
+   "melodic_peak": false,
+   "midi": 70,
+   "notable": false,
+   "salience": 1.08,
+   "show_s": 108.725
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": true,
+   "salience": 2.35,
+   "show_s": 109.282
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": true,
+   "salience": 1.93,
+   "show_s": 109.578
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 1.04,
+   "show_s": 109.88
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": true,
+   "salience": 2.29,
+   "show_s": 110.489
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 111.383
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.38,
+   "show_s": 111.534
+  },
+  {
+   "melodic_peak": true,
+   "midi": 70,
+   "notable": true,
+   "salience": 0.47,
+   "show_s": 112.016
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 0.61,
+   "show_s": 112.289
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 1.01,
+   "show_s": 112.33
+  },
+  {
+   "melodic_peak": false,
+   "midi": 58,
+   "notable": true,
+   "salience": 1.69,
+   "show_s": 112.881
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 1.42,
+   "show_s": 113.183
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 1.1,
+   "show_s": 113.485
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": true,
+   "salience": 1.74,
+   "show_s": 114.083
+  },
+  {
+   "melodic_peak": false,
+   "midi": 63,
+   "notable": false,
+   "salience": 0.92,
+   "show_s": 114.384
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 1.57,
+   "show_s": 114.982
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.44,
+   "show_s": 115.139
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 0.6,
+   "show_s": 115.592
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 0.98,
+   "show_s": 115.627
+  },
+  {
+   "melodic_peak": false,
+   "midi": 46,
+   "notable": false,
+   "salience": 1.46,
+   "show_s": 115.882
+  },
+  {
+   "melodic_peak": false,
+   "midi": 43,
+   "notable": true,
+   "salience": 1.94,
+   "show_s": 116.184
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 1.32,
+   "show_s": 116.782
+  },
+  {
+   "melodic_peak": true,
+   "midi": 69,
+   "notable": true,
+   "salience": 0.63,
+   "show_s": 116.939
+  },
+  {
+   "melodic_peak": false,
+   "midi": 46,
+   "notable": false,
+   "salience": 0.74,
+   "show_s": 117.084
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 0.91,
+   "show_s": 117.241
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 0.63,
+   "show_s": 117.386
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": false,
+   "salience": 0.79,
+   "show_s": 117.531
+  },
+  {
+   "melodic_peak": false,
+   "midi": 43,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 117.682
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 0.87,
+   "show_s": 118.28
+  },
+  {
+   "melodic_peak": false,
+   "midi": 51,
+   "notable": false,
+   "salience": 1.44,
+   "show_s": 118.581
+  },
+  {
+   "melodic_peak": true,
+   "midi": 70,
+   "notable": true,
+   "salience": 1.69,
+   "show_s": 118.883
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": true,
+   "salience": 2.02,
+   "show_s": 119.481
+  },
+  {
+   "melodic_peak": false,
+   "midi": 63,
+   "notable": false,
+   "salience": 0.6,
+   "show_s": 119.789
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.89,
+   "show_s": 120.381
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.66,
+   "show_s": 120.544
+  },
+  {
+   "melodic_peak": true,
+   "midi": 70,
+   "notable": true,
+   "salience": 0.94,
+   "show_s": 121.025
+  },
+  {
+   "melodic_peak": true,
+   "midi": 70,
+   "notable": true,
+   "salience": 1.01,
+   "show_s": 121.287
+  },
+  {
+   "melodic_peak": true,
+   "midi": 70,
+   "notable": true,
+   "salience": 1.05,
+   "show_s": 121.333
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 1.11,
+   "show_s": 121.879
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": false,
+   "salience": 0.93,
+   "show_s": 122.175
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 1.51,
+   "show_s": 122.482
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 1.22,
+   "show_s": 123.08
+  },
+  {
+   "melodic_peak": false,
+   "midi": 63,
+   "notable": false,
+   "salience": 0.87,
+   "show_s": 123.388
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": true,
+   "salience": 2.05,
+   "show_s": 123.986
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.7,
+   "show_s": 124.143
+  },
+  {
+   "melodic_peak": true,
+   "midi": 70,
+   "notable": true,
+   "salience": 0.85,
+   "show_s": 124.619
+  },
+  {
+   "melodic_peak": false,
+   "midi": 46,
+   "notable": false,
+   "salience": 0.87,
+   "show_s": 124.886
+  },
+  {
+   "melodic_peak": false,
+   "midi": 43,
+   "notable": false,
+   "salience": 1.14,
+   "show_s": 125.182
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 1.11,
+   "show_s": 125.78
+  },
+  {
+   "melodic_peak": false,
+   "midi": 46,
+   "notable": false,
+   "salience": 0.94,
+   "show_s": 126.087
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.69,
+   "show_s": 126.25
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 0.81,
+   "show_s": 126.389
+  },
+  {
+   "melodic_peak": false,
+   "midi": 75,
+   "notable": false,
+   "salience": 1.59,
+   "show_s": 126.54
+  },
+  {
+   "melodic_peak": false,
+   "midi": 44,
+   "notable": false,
+   "salience": 1.17,
+   "show_s": 126.691
+  },
+  {
+   "melodic_peak": false,
+   "midi": 74,
+   "notable": false,
+   "salience": 1.1,
+   "show_s": 126.749
+  },
+  {
+   "melodic_peak": true,
+   "midi": 84,
+   "notable": true,
+   "salience": 0.87,
+   "show_s": 127.318
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": false,
+   "salience": 1.34,
+   "show_s": 127.579
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.88,
+   "show_s": 127.643
+  },
+  {
+   "melodic_peak": false,
+   "midi": 75,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 128.537
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 0.5,
+   "show_s": 129.118
+  },
+  {
+   "melodic_peak": false,
+   "midi": 38,
+   "notable": false,
+   "salience": 1.02,
+   "show_s": 129.379
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 0.93,
+   "show_s": 129.994
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 130.279
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 0.96,
+   "show_s": 130.325
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": true,
+   "salience": 2.33,
+   "show_s": 130.882
+  },
+  {
+   "melodic_peak": false,
+   "midi": 38,
+   "notable": true,
+   "salience": 1.61,
+   "show_s": 131.178
+  },
+  {
+   "melodic_peak": false,
+   "midi": 70,
+   "notable": true,
+   "salience": 2.49,
+   "show_s": 132.008
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 1.55,
+   "show_s": 132.078
+  },
+  {
+   "melodic_peak": false,
+   "midi": 74,
+   "notable": false,
+   "salience": 0.91,
+   "show_s": 132.159
+  },
+  {
+   "melodic_peak": false,
+   "midi": 73,
+   "notable": false,
+   "salience": 0.74,
+   "show_s": 132.322
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.72,
+   "show_s": 132.577
+  },
+  {
+   "melodic_peak": true,
+   "midi": 82,
+   "notable": true,
+   "salience": 0.81,
+   "show_s": 132.693
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": false,
+   "salience": 1.44,
+   "show_s": 132.984
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.87,
+   "show_s": 133.053
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 1.16,
+   "show_s": 133.912
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 133.953
+  },
+  {
+   "melodic_peak": false,
+   "midi": 41,
+   "notable": false,
+   "salience": 0.69,
+   "show_s": 134.51
+  },
+  {
+   "melodic_peak": false,
+   "midi": 38,
+   "notable": false,
+   "salience": 1.37,
+   "show_s": 134.783
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 0.84,
+   "show_s": 135.381
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 0.61,
+   "show_s": 135.718
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 0.99,
+   "show_s": 136.281
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 1.04,
+   "show_s": 136.565
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 1.56,
+   "show_s": 136.594
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 1.03,
+   "show_s": 136.629
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": true,
+   "salience": 2.06,
+   "show_s": 137.407
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 0.79,
+   "show_s": 137.512
+  },
+  {
+   "melodic_peak": true,
+   "midi": 74,
+   "notable": true,
+   "salience": 0.8,
+   "show_s": 137.552
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": false,
+   "salience": 1.2,
+   "show_s": 138.377
+  },
+  {
+   "melodic_peak": true,
+   "midi": 75,
+   "notable": true,
+   "salience": 0.98,
+   "show_s": 139.34
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 0.66,
+   "show_s": 139.613
+  },
+  {
+   "melodic_peak": false,
+   "midi": 41,
+   "notable": false,
+   "salience": 0.78,
+   "show_s": 139.909
+  },
+  {
+   "melodic_peak": false,
+   "midi": 49,
+   "notable": false,
+   "salience": 1.37,
+   "show_s": 140.164
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": false,
+   "salience": 1.19,
+   "show_s": 140.78
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": true,
+   "salience": 1.71,
+   "show_s": 141.087
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.85,
+   "show_s": 141.383
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 0.89,
+   "show_s": 141.68
+  },
+  {
+   "melodic_peak": false,
+   "midi": 67,
+   "notable": false,
+   "salience": 1.21,
+   "show_s": 141.987
+  },
+  {
+   "melodic_peak": true,
+   "midi": 72,
+   "notable": true,
+   "salience": 0.9,
+   "show_s": 142.028
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 142.916
+  },
+  {
+   "melodic_peak": false,
+   "midi": 61,
+   "notable": true,
+   "salience": 1.69,
+   "show_s": 142.951
+  },
+  {
+   "melodic_peak": false,
+   "midi": 37,
+   "notable": false,
+   "salience": 0.9,
+   "show_s": 143.711
+  },
+  {
+   "melodic_peak": false,
+   "midi": 51,
+   "notable": false,
+   "salience": 0.81,
+   "show_s": 143.822
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 1.1,
+   "show_s": 143.851
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 144.698
+  },
+  {
+   "melodic_peak": true,
+   "midi": 69,
+   "notable": true,
+   "salience": 1.04,
+   "show_s": 144.745
+  },
+  {
+   "melodic_peak": false,
+   "midi": 53,
+   "notable": false,
+   "salience": 0.67,
+   "show_s": 145.296
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": false,
+   "salience": 0.67,
+   "show_s": 145.505
+  },
+  {
+   "melodic_peak": false,
+   "midi": 66,
+   "notable": false,
+   "salience": 0.79,
+   "show_s": 145.668
+  },
+  {
+   "melodic_peak": false,
+   "midi": 58,
+   "notable": false,
+   "salience": 1.22,
+   "show_s": 146.184
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 146.782
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 1.5,
+   "show_s": 147.084
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 147.392
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 1.12,
+   "show_s": 147.426
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 0.86,
+   "show_s": 148.344
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 0.7,
+   "show_s": 148.628
+  },
+  {
+   "melodic_peak": false,
+   "midi": 79,
+   "notable": false,
+   "salience": 1.09,
+   "show_s": 148.744
+  },
+  {
+   "melodic_peak": false,
+   "midi": 82,
+   "notable": false,
+   "salience": 1.06,
+   "show_s": 148.808
+  },
+  {
+   "melodic_peak": true,
+   "midi": 84,
+   "notable": true,
+   "salience": 0.8,
+   "show_s": 148.878
+  },
+  {
+   "melodic_peak": false,
+   "midi": 79,
+   "notable": false,
+   "salience": 1.28,
+   "show_s": 149.249
+  },
+  {
+   "melodic_peak": false,
+   "midi": 79,
+   "notable": false,
+   "salience": 1.1,
+   "show_s": 149.29
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": true,
+   "salience": 4.21,
+   "show_s": 150.079
+  },
+  {
+   "melodic_peak": false,
+   "midi": 75,
+   "notable": false,
+   "salience": 1.38,
+   "show_s": 150.155
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": true,
+   "salience": 2.09,
+   "show_s": 150.7
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": false,
+   "salience": 0.67,
+   "show_s": 150.991
+  },
+  {
+   "melodic_peak": false,
+   "midi": 66,
+   "notable": false,
+   "salience": 0.92,
+   "show_s": 151.031
+  },
+  {
+   "melodic_peak": false,
+   "midi": 66,
+   "notable": false,
+   "salience": 0.91,
+   "show_s": 151.066
+  },
+  {
+   "melodic_peak": false,
+   "midi": 70,
+   "notable": false,
+   "salience": 0.85,
+   "show_s": 151.589
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": false,
+   "salience": 0.93,
+   "show_s": 151.891
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.81,
+   "show_s": 152.187
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": true,
+   "salience": 2.26,
+   "show_s": 152.483
+  },
+  {
+   "melodic_peak": false,
+   "midi": 37,
+   "notable": false,
+   "salience": 1.1,
+   "show_s": 152.784
+  },
+  {
+   "melodic_peak": false,
+   "midi": 70,
+   "notable": true,
+   "salience": 2.04,
+   "show_s": 152.825
+  },
+  {
+   "melodic_peak": true,
+   "midi": 79,
+   "notable": true,
+   "salience": 0.76,
+   "show_s": 153.243
+  },
+  {
+   "melodic_peak": true,
+   "midi": 79,
+   "notable": true,
+   "salience": 1.26,
+   "show_s": 153.272
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.72,
+   "show_s": 153.719
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.93,
+   "show_s": 153.742
+  },
+  {
+   "melodic_peak": false,
+   "midi": 52,
+   "notable": false,
+   "salience": 1.14,
+   "show_s": 154.578
+  },
+  {
+   "melodic_peak": false,
+   "midi": 67,
+   "notable": true,
+   "salience": 1.85,
+   "show_s": 154.654
+  },
+  {
+   "melodic_peak": true,
+   "midi": 79,
+   "notable": true,
+   "salience": 1.4,
+   "show_s": 154.694
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 0.62,
+   "show_s": 155.077
+  },
+  {
+   "melodic_peak": false,
+   "midi": 36,
+   "notable": true,
+   "salience": 2.99,
+   "show_s": 155.484
+  },
+  {
+   "melodic_peak": false,
+   "midi": 75,
+   "notable": false,
+   "salience": 0.82,
+   "show_s": 155.548
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 0.8,
+   "show_s": 156.099
+  },
+  {
+   "melodic_peak": false,
+   "midi": 38,
+   "notable": false,
+   "salience": 0.46,
+   "show_s": 156.43
+  },
+  {
+   "melodic_peak": false,
+   "midi": 66,
+   "notable": false,
+   "salience": 0.54,
+   "show_s": 156.465
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": false,
+   "salience": 0.7,
+   "show_s": 156.981
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": false,
+   "salience": 1.02,
+   "show_s": 157.283
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 1.13,
+   "show_s": 157.579
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": true,
+   "salience": 4.65,
+   "show_s": 157.881
+  },
+  {
+   "melodic_peak": true,
+   "midi": 81,
+   "notable": true,
+   "salience": 2.16,
+   "show_s": 158.183
+  },
+  {
+   "melodic_peak": true,
+   "midi": 81,
+   "notable": true,
+   "salience": 1.61,
+   "show_s": 158.224
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 1.35,
+   "show_s": 158.642
+  },
+  {
+   "melodic_peak": false,
+   "midi": 79,
+   "notable": false,
+   "salience": 1.21,
+   "show_s": 158.677
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.57,
+   "show_s": 159.112
+  },
+  {
+   "melodic_peak": false,
+   "midi": 65,
+   "notable": false,
+   "salience": 0.72,
+   "show_s": 159.147
+  },
+  {
+   "melodic_peak": false,
+   "midi": 39,
+   "notable": false,
+   "salience": 0.84,
+   "show_s": 159.988
+  },
+  {
+   "melodic_peak": false,
+   "midi": 69,
+   "notable": false,
+   "salience": 0.69,
+   "show_s": 160.052
+  },
+  {
+   "melodic_peak": false,
+   "midi": 75,
+   "notable": false,
+   "salience": 0.83,
+   "show_s": 160.099
+  },
+  {
+   "melodic_peak": false,
+   "midi": 48,
+   "notable": true,
+   "salience": 4.71,
+   "show_s": 160.877
+  },
+  {
+   "melodic_peak": true,
+   "midi": 75,
+   "notable": true,
+   "salience": 1.19,
+   "show_s": 160.952
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": true,
+   "salience": 3.58,
+   "show_s": 161.498
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": false,
+   "salience": 0.62,
+   "show_s": 161.782
+  },
+  {
+   "melodic_peak": false,
+   "midi": 62,
+   "notable": false,
+   "salience": 0.8,
+   "show_s": 161.863
+  },
+  {
+   "melodic_peak": false,
+   "midi": 60,
+   "notable": true,
+   "salience": 2.15,
+   "show_s": 162.386
+  },
+  {
+   "melodic_peak": false,
+   "midi": 50,
+   "notable": false,
+   "salience": 0.86,
+   "show_s": 162.682
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 0.63,
+   "show_s": 162.984
+  },
+  {
+   "melodic_peak": false,
+   "midi": 55,
+   "notable": false,
+   "salience": 1.32,
+   "show_s": 163.28
+  },
+  {
+   "melodic_peak": false,
+   "midi": 41,
+   "notable": false,
+   "salience": 1.56,
+   "show_s": 163.582
+  },
+  {
+   "melodic_peak": false,
+   "midi": 38,
+   "notable": true,
+   "salience": 1.66,
+   "show_s": 163.628
+  },
+  {
+   "melodic_peak": true,
+   "midi": 69,
+   "notable": true,
+   "salience": 2.17,
+   "show_s": 164.035
+  },
+  {
+   "melodic_peak": false,
+   "midi": 70,
+   "notable": false,
+   "salience": 0.66,
+   "show_s": 165.602
+  },
+  {
+   "melodic_peak": false,
+   "midi": 73,
+   "notable": false,
+   "salience": 0.64,
+   "show_s": 165.689
+  },
+  {
+   "melodic_peak": false,
+   "midi": 52,
+   "notable": false,
+   "salience": 1.28,
+   "show_s": 166.293
+  },
+  {
+   "melodic_peak": false,
+   "midi": 51,
+   "notable": false,
+   "salience": 1.24,
+   "show_s": 166.374
+  },
+  {
+   "melodic_peak": false,
+   "midi": 56,
+   "notable": false,
+   "salience": 1.0,
+   "show_s": 166.507
+  },
+  {
+   "melodic_peak": false,
+   "midi": 72,
+   "notable": false,
+   "salience": 0.94,
+   "show_s": 166.583
+  },
+  {
+   "melodic_peak": false,
+   "midi": 79,
+   "notable": false,
+   "salience": 0.83,
+   "show_s": 166.699
+  },
+  {
+   "melodic_peak": false,
+   "midi": 84,
+   "notable": false,
+   "salience": 0.9,
+   "show_s": 166.74
+  },
+  {
+   "melodic_peak": false,
+   "midi": 70,
+   "notable": false,
+   "salience": 1.16,
+   "show_s": 166.775
+  },
+  {
+   "melodic_peak": false,
+   "midi": 57,
+   "notable": false,
+   "salience": 1.03,
+   "show_s": 166.827
+  },
+  {
+   "melodic_peak": true,
+   "midi": 89,
+   "notable": true,
+   "salience": 0.58,
+   "show_s": 166.937
+  }
+ ],
+ "passage": "P01",
+ "plan_sha256": "43c860b40f9476a2fea42947491adaf304a137807239e8a490431771c323ed19",
+ "requested_count": 30,
+ "route": {
+  "basis": "INFERRED_MODEL_CONSTANT_SPEED",
+  "first_pass_cm": 0.0,
+  "first_pass_s": 96.36,
+  "last_pass_cm": 28200.0,
+  "last_pass_s": 190.68904079861113,
+  "model_speed_cm_s": 298.95353288077973,
+  "segment_end_s": 192.69604166666667,
+  "segment_start_s": 96.36,
+  "total_cm": 28800.0,
+  "wings": [
+   {
+    "cue_guid": "3DD6B12A2F4F82BFEE2B478E31CF2B03",
+    "cue_label": "P01 Wing 001",
+    "distance_cm": 0.0,
+    "pass_s": 96.36
+   },
+   {
+    "cue_guid": "689197196949E5685EBA6BB13F0145AE",
+    "cue_label": "P01 Wing 002",
+    "distance_cm": 600.0,
+    "pass_s": 98.36700086805556
+   },
+   {
+    "cue_guid": "54FB44427F44F3E243866688A94369DB",
+    "cue_label": "P01 Wing 003",
+    "distance_cm": 1200.0,
+    "pass_s": 100.37400173611111
+   },
+   {
+    "cue_guid": "6D96AB33644C548B767464A73983D524",
+    "cue_label": "P01 Wing 004",
+    "distance_cm": 1800.0,
+    "pass_s": 102.38100260416667
+   },
+   {
+    "cue_guid": "B20613548749509CA9D74A8443F13DE6",
+    "cue_label": "P01 Wing 005",
+    "distance_cm": 2400.0,
+    "pass_s": 104.38800347222222
+   },
+   {
+    "cue_guid": "E69F45D12E4A9143EF42408EFCADF107",
+    "cue_label": "P01 Wing 006",
+    "distance_cm": 3000.0,
+    "pass_s": 106.39500434027778
+   },
+   {
+    "cue_guid": "A2822E388642760A944E499E4EBA687A",
+    "cue_label": "P01 Wing 007",
+    "distance_cm": 3600.0,
+    "pass_s": 108.40200520833334
+   },
+   {
+    "cue_guid": "33B1C2599447449716FC4CA38D0D4B05",
+    "cue_label": "P01 Wing 008",
+    "distance_cm": 4200.0,
+    "pass_s": 110.40900607638889
+   },
+   {
+    "cue_guid": "8ED7907CA54D333F0D7BFDA27C421316",
+    "cue_label": "P01 Wing 009",
+    "distance_cm": 4800.0,
+    "pass_s": 112.41600694444445
+   },
+   {
+    "cue_guid": "38E3726FE14AF0607B3D20A6733F3F57",
+    "cue_label": "P01 Wing 011",
+    "distance_cm": 5400.0,
+    "pass_s": 114.4230078125
+   },
+   {
+    "cue_guid": "D0093A664D457A71EDF769BE515F3A1E",
+    "cue_label": "P01 Wing 012",
+    "distance_cm": 6000.0,
+    "pass_s": 116.43000868055556
+   },
+   {
+    "cue_guid": "A66EAF93DC422FC8D33EE19F7FEB4E7F",
+    "cue_label": "P01 Wing 010",
+    "distance_cm": 6600.0,
+    "pass_s": 118.43700954861112
+   },
+   {
+    "cue_guid": "F6B4352A6242A6286F52E8A9525AF5B3",
+    "cue_label": "P01 Wing 013",
+    "distance_cm": 7200.0,
+    "pass_s": 120.44401041666667
+   },
+   {
+    "cue_guid": "7474F6B50244055AF3E0D48173E39097",
+    "cue_label": "P01 Wing 014",
+    "distance_cm": 7800.0,
+    "pass_s": 122.45101128472223
+   },
+   {
+    "cue_guid": "CD63F5BDCF4E77B960EB4ABBFDFC82C4",
+    "cue_label": "P01 Wing 015",
+    "distance_cm": 8400.0,
+    "pass_s": 124.45801215277777
+   },
+   {
+    "cue_guid": "71B887E5D64976281B24F7990D8507BF",
+    "cue_label": "P01 Wing 016",
+    "distance_cm": 9000.0,
+    "pass_s": 126.46501302083334
+   },
+   {
+    "cue_guid": "BB27302F854E5070E22BEC950A486D2B",
+    "cue_label": "P01 Wing 017",
+    "distance_cm": 9600.0,
+    "pass_s": 128.47201388888888
+   },
+   {
+    "cue_guid": "BFB3F908C146F1FB49F4088444680629",
+    "cue_label": "P01 Wing 018",
+    "distance_cm": 10200.0,
+    "pass_s": 130.47901475694445
+   },
+   {
+    "cue_guid": "AD39123A1E4B49E8B29987A70813B586",
+    "cue_label": "P01 Wing 019",
+    "distance_cm": 10800.0,
+    "pass_s": 132.486015625
+   },
+   {
+    "cue_guid": "31E7560084433A1C0E35B69B4E9444D8",
+    "cue_label": "P01 Wing 020",
+    "distance_cm": 11400.0,
+    "pass_s": 134.49301649305556
+   },
+   {
+    "cue_guid": "0932A130154A8407A4534DB6E9CC0504",
+    "cue_label": "P01 Wing 021",
+    "distance_cm": 12000.0,
+    "pass_s": 136.5000173611111
+   },
+   {
+    "cue_guid": "B8C2A159F442D6A93CE1E18BAF12C8FD",
+    "cue_label": "P01 Wing 022",
+    "distance_cm": 12600.0,
+    "pass_s": 138.50701822916668
+   },
+   {
+    "cue_guid": "565DCF4F884E815087FC55BCFD22C370",
+    "cue_label": "P01 Wing 023",
+    "distance_cm": 13200.0,
+    "pass_s": 140.51401909722222
+   },
+   {
+    "cue_guid": "9C970C03AF4A6446DA728BA6BFE2C30A",
+    "cue_label": "P01 Wing 024",
+    "distance_cm": 13800.0,
+    "pass_s": 142.5210199652778
+   },
+   {
+    "cue_guid": "1D653482314A6193547A83BA8A763F74",
+    "cue_label": "P01 Wing 025",
+    "distance_cm": 14400.0,
+    "pass_s": 144.52802083333333
+   },
+   {
+    "cue_guid": "B210AB51B148F45A9816748404B7CC50",
+    "cue_label": "P01 Wing 026",
+    "distance_cm": 15000.0,
+    "pass_s": 146.5350217013889
+   },
+   {
+    "cue_guid": "4ED8461CD14B497F9480A58E6299A0A6",
+    "cue_label": "P01 Wing 027",
+    "distance_cm": 15600.0,
+    "pass_s": 148.54202256944444
+   },
+   {
+    "cue_guid": "2881DEA59244E693AFBD5981DEA07830",
+    "cue_label": "P01 Wing 028",
+    "distance_cm": 16200.0,
+    "pass_s": 150.5490234375
+   },
+   {
+    "cue_guid": "E69116F6D74A3A42F2C8DB8FE2146075",
+    "cue_label": "P01 Wing 029",
+    "distance_cm": 16800.0,
+    "pass_s": 152.55602430555555
+   },
+   {
+    "cue_guid": "E9195D76B94ECE66549343BBE2FFE971",
+    "cue_label": "P01 Wing 030",
+    "distance_cm": 17400.0,
+    "pass_s": 154.5630251736111
+   },
+   {
+    "cue_guid": "6E00D93ED04413882BF20AAA6352E457",
+    "cue_label": "P01 Wing 031",
+    "distance_cm": 18000.0,
+    "pass_s": 156.57002604166667
+   },
+   {
+    "cue_guid": "97E66368154AF5FDA18E048AD9020173",
+    "cue_label": "P01 Wing 032",
+    "distance_cm": 18600.0,
+    "pass_s": 158.57702690972224
+   },
+   {
+    "cue_guid": "5FE158D80843228E2051BD82F89F3257",
+    "cue_label": "P01 Wing 033",
+    "distance_cm": 19200.0,
+    "pass_s": 160.58402777777778
+   },
+   {
+    "cue_guid": "CAE56F082A4A5C31D23E8AACDC3525CF",
+    "cue_label": "P01 Wing 034",
+    "distance_cm": 19800.0,
+    "pass_s": 162.59102864583332
+   },
+   {
+    "cue_guid": "0671E1DC6F4A3EC342EBA09CF88DBDA4",
+    "cue_label": "P01 Wing 035",
+    "distance_cm": 20400.0,
+    "pass_s": 164.5980295138889
+   },
+   {
+    "cue_guid": "71678173E94A56C20625E4A07EA1D424",
+    "cue_label": "P01 Wing 036",
+    "distance_cm": 21000.0,
+    "pass_s": 166.60503038194446
+   },
+   {
+    "cue_guid": "0E14D4BCD14FD612186849A3527A9806",
+    "cue_label": "P01 Wing 037",
+    "distance_cm": 21600.0,
+    "pass_s": 168.61203125
+   },
+   {
+    "cue_guid": "AF102D868A45CDCEA2E50D950AB3AEE7",
+    "cue_label": "P01 Wing 038",
+    "distance_cm": 22200.0,
+    "pass_s": 170.61903211805554
+   },
+   {
+    "cue_guid": "DEB9AB9941473AAB1F43D592ADAFD766",
+    "cue_label": "P01 Wing 039",
+    "distance_cm": 22800.0,
+    "pass_s": 172.6260329861111
+   },
+   {
+    "cue_guid": "728582A0834161546564F088F0EAD1A2",
+    "cue_label": "P01 Wing 040",
+    "distance_cm": 23400.0,
+    "pass_s": 174.63303385416668
+   },
+   {
+    "cue_guid": "BEEB9F25C24E6BE2E5F59480F0F03755",
+    "cue_label": "P01 Wing 041",
+    "distance_cm": 24000.0,
+    "pass_s": 176.64003472222223
+   },
+   {
+    "cue_guid": "B198C7F004497AB3F87E92BDD9780FD6",
+    "cue_label": "P01 Wing 042",
+    "distance_cm": 24600.0,
+    "pass_s": 178.64703559027777
+   },
+   {
+    "cue_guid": "C870A0FB9F47DDBDCA253CB9896E6815",
+    "cue_label": "P01 Wing 043",
+    "distance_cm": 25200.0,
+    "pass_s": 180.65403645833334
+   },
+   {
+    "cue_guid": "B653804F99489807C42ED7A3320DF7C7",
+    "cue_label": "P01 Wing 044",
+    "distance_cm": 25800.0,
+    "pass_s": 182.6610373263889
+   },
+   {
+    "cue_guid": "C94E3D2CAC43C601212DDBAB0C1468D1",
+    "cue_label": "P01 Wing 045",
+    "distance_cm": 26400.0,
+    "pass_s": 184.66803819444445
+   },
+   {
+    "cue_guid": "5ECBBB37B5484EB0CDFB49B2B76295CB",
+    "cue_label": "P01 Wing 046",
+    "distance_cm": 27000.0,
+    "pass_s": 186.6750390625
+   },
+   {
+    "cue_guid": "455D184CDE4E4DDD2ABC96935F35CF85",
+    "cue_label": "P01 Wing 047",
+    "distance_cm": 27600.0,
+    "pass_s": 188.68203993055556
+   },
+   {
+    "cue_guid": "10D28FD6C64C2D8B7D6CE586A94C8402",
+    "cue_label": "P01 Wing 048",
+    "distance_cm": 28200.0,
+    "pass_s": 190.68904079861113
+   }
+  ]
+ },
+ "route_basis": "INFERRED_MODEL_CONSTANT_SPEED",
+ "run": "20261006-212451",
+ "selected_count": 30,
+ "target_attachment_guids": [
+  "067AAEB54636B5802883A0B558E29D18",
+  "0DD49AC64498AAF1F7BC8387BA4EB68D",
+  "10958F7440ED78E84B0E038A46917145",
+  "1B398BB9436E66B3E1B81E91C7DD052B",
+  "2E57DCDB471EA76EBACAFA82FA872719",
+  "3C9EED1B4439277792F194ABD1998DFC",
+  "3F2D522145147D8F1A9E63BAACAE7106",
+  "4B4A5C054C98787433CF0DBA7303B3EA",
+  "4D03703A40BC9636988C8EB9211530D5",
+  "508547A743FF2A2D499B40B00B7B8E0B",
+  "53271C244C3E43BF21754298EA34848C",
+  "59A61CC941CE05B93E4A29BDE3310D2F",
+  "6BCB3CB743B38C36BDB761B405420318",
+  "6C32DA524C92EAEDB78000ABE79C8873",
+  "739E4A81425DC23C9841A8B2BEF99490",
+  "7C1AD8D1428BCCC64FA336853D86038E",
+  "7EC39A434F74CBBB07D6368E33450FC2",
+  "8E1B9FCF47279480ABC09E9B8AAC65B4",
+  "A1D1D15D4FE4ADEE49A71191DAA38186",
+  "A5D532D84ABD2A34DFB06DBC9260B770",
+  "A99E4FB94D0E5E27B4537E858F09942D",
+  "AF906FBF40F207D147415CBB9EA5F5C4",
+  "B079879844A20B47A9E4B28D8F8D6329",
+  "B900FDDC40DAA3CDFC0735A6EA1159D6",
+  "BDCE64B84651D7BE64A2CCA22AEF7696",
+  "C2746FFC45AA6A1E025AC290C24F6D1E",
+  "C4687DF64F60646971E229935215A046",
+  "D0C40D41497DA497E74D2392C3C930F0",
+  "D264A8194882D662997E179D9C1C2637",
+  "FFCB596149F980296635FEB91DEA4A50"
+ ],
+ "target_cue_guids": [
+  "0671E1DC6F4A3EC342EBA09CF88DBDA4",
+  "0E14D4BCD14FD612186849A3527A9806",
+  "1D653482314A6193547A83BA8A763F74",
+  "33B1C2599447449716FC4CA38D0D4B05",
+  "38E3726FE14AF0607B3D20A6733F3F57",
+  "71678173E94A56C20625E4A07EA1D424",
+  "728582A0834161546564F088F0EAD1A2",
+  "7474F6B50244055AF3E0D48173E39097",
+  "8ED7907CA54D333F0D7BFDA27C421316",
+  "97E66368154AF5FDA18E048AD9020173",
+  "A2822E388642760A944E499E4EBA687A",
+  "A66EAF93DC422FC8D33EE19F7FEB4E7F",
+  "AD39123A1E4B49E8B29987A70813B586",
+  "B198C7F004497AB3F87E92BDD9780FD6",
+  "B210AB51B148F45A9816748404B7CC50",
+  "BEEB9F25C24E6BE2E5F59480F0F03755",
+  "BFB3F908C146F1FB49F4088444680629",
+  "C870A0FB9F47DDBDCA253CB9896E6815",
+  "CAE56F082A4A5C31D23E8AACDC3525CF",
+  "CD63F5BDCF4E77B960EB4ABBFDFC82C4",
+  "D0093A664D457A71EDF769BE515F3A1E",
+  "DEB9AB9941473AAB1F43D592ADAFD766",
+  "E69116F6D74A3A42F2C8DB8FE2146075",
+  "F6B4352A6242A6286F52E8A9525AF5B3"
+ ],
+ "targets": [
+  {
+   "attachment_guid": "0DD49AC64498AAF1F7BC8387BA4EB68D",
+   "attachment_label": "P01 SCORE B07 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.060000000058569855
+   ],
+   "behaviour": "glint",
+   "cue_guid": "A2822E388642760A944E499E4EBA687A",
+   "cue_label": "P01 Wing 007",
+   "decay_s_at_notes": [
+    0.8000000007809314
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -3161.98193359375
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 2450.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 49.5,
+   "lamp_route_cm": 3170.651648038306,
+   "notes_show_s": [
+    96.389
+   ],
+   "ordinal": 7,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.9535328807797,
+   "x_cm": -429.34835196169394,
+   "y_cm": -1378.7589352781613
+  },
+  {
+   "attachment_guid": "A1D1D15D4FE4ADEE49A71191DAA38186",
+   "attachment_label": "P01 SCORE B08 GAP PRACTICAL_GLIMMER",
+   "attack_s_at_notes": [
+    0.06000000005857
+   ],
+   "behaviour": "glint",
+   "cue_guid": "33B1C2599447449716FC4CA38D0D4B05",
+   "cue_label": "P01 Wing 008",
+   "decay_s_at_notes": [
+    0.8000000007809334
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -2963.55810546875
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 2900.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 160.0,
+   "lamp_route_cm": 4180.0,
+   "notes_show_s": [
+    100.429
+   ],
+   "ordinal": 8,
+   "role": "PRACTICAL_GLIMMER",
+   "side": "L",
+   "speed_cm_s": 298.95353288077894,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "D0C40D41497DA497E74D2392C3C930F0",
+   "attachment_label": "P01 SCORE B09 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.34999999715161906
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "8ED7907CA54D333F0D7BFDA27C421316",
+   "cue_label": "P01 Wing 009",
+   "decay_s_at_notes": [
+    3.999999850782683
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -2226.30810546875
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 3350.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 910.0,
+   "lamp_route_cm": 4742.59995095491,
+   "notes_show_s": [
+    104.777
+   ],
+   "ordinal": 9,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -57.40004904508977,
+   "y_cm": -716.9608787617649
+  },
+  {
+   "attachment_guid": "739E4A81425DC23C9841A8B2BEF99490",
+   "attachment_label": "P01 SCORE B10 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.3499999971516164
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "38E3726FE14AF0607B3D20A6733F3F57",
+   "cue_label": "P01 Wing 011",
+   "decay_s_at_notes": [
+    3.999999850782652
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -3136.478271484375
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 3800.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 60.5,
+   "lamp_route_cm": 4930.797407346412,
+   "notes_show_s": [
+    102.362
+   ],
+   "ordinal": 10,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077894,
+   "x_cm": -469.2025926535883,
+   "y_cm": -1389.1083150108034
+  },
+  {
+   "attachment_guid": "D264A8194882D662997E179D9C1C2637",
+   "attachment_label": "P01 SCORE B10 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.3499999971516164
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "38E3726FE14AF0607B3D20A6733F3F57",
+   "cue_label": "P01 Wing 011",
+   "decay_s_at_notes": [
+    3.999999850782652
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -4112.86181640625
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 3800.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 38.5,
+   "lamp_route_cm": 5062.039211511595,
+   "notes_show_s": [
+    99.535
+   ],
+   "ordinal": 10,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077894,
+   "x_cm": -337.96078848840574,
+   "y_cm": 1376.2735924300925
+  },
+  {
+   "attachment_guid": "6BCB3CB743B38C36BDB761B405420318",
+   "attachment_label": "P01 SCORE B11 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.06000000005856954
+   ],
+   "behaviour": "glint",
+   "cue_guid": "D0093A664D457A71EDF769BE515F3A1E",
+   "cue_label": "P01 Wing 012",
+   "decay_s_at_notes": [
+    0.8000000007809273
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -3560.0947265625
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 4250.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 44.0,
+   "lamp_route_cm": 5533.1881639288285,
+   "notes_show_s": [
+    102.96
+   ],
+   "ordinal": 11,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.9535328807812,
+   "x_cm": -466.8118360711712,
+   "y_cm": -1293.5042680270715
+  },
+  {
+   "attachment_guid": "C4687DF64F60646971E229935215A046",
+   "attachment_label": "P01 SCORE B11 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.49999998134782775
+   ],
+   "behaviour": "stay",
+   "cue_guid": "D0093A664D457A71EDF769BE515F3A1E",
+   "cue_label": "P01 Wing 012",
+   "decay_s_at_notes": [
+    29.999825138423912
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -1650.2078857421875
+    ],
+    "flash_decay_cm": 8968.5537109375,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 4250.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 28.0,
+   "lamp_route_cm": 5513.285490690043,
+   "notes_show_s": [
+    109.282
+   ],
+   "ordinal": 11,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.9535328807812,
+   "x_cm": -486.71450930995746,
+   "y_cm": 1321.3196645331986
+  },
+  {
+   "attachment_guid": "2E57DCDB471EA76EBACAFA82FA872719",
+   "attachment_label": "P01 SCORE B12 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.06000000005856954
+   ],
+   "behaviour": "glint",
+   "cue_guid": "A66EAF93DC422FC8D33EE19F7FEB4E7F",
+   "cue_label": "P01 Wing 010",
+   "decay_s_at_notes": [
+    0.8000000007809273
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -3488.46533203125
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 4700.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 77.0,
+   "lamp_route_cm": 6133.307288422646,
+   "notes_show_s": [
+    105.207
+   ],
+   "ordinal": 12,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.9535328807812,
+   "x_cm": -466.6927115773543,
+   "y_cm": -1383.0586684926977
+  },
+  {
+   "attachment_guid": "6C32DA524C92EAEDB78000ABE79C8873",
+   "attachment_label": "P01 SCORE B12 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.49999998134783535
+   ],
+   "behaviour": "stay",
+   "cue_guid": "A66EAF93DC422FC8D33EE19F7FEB4E7F",
+   "cue_label": "P01 Wing 010",
+   "decay_s_at_notes": [
+    70.28958684652895
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -4135.037109375
+    ],
+    "flash_decay_cm": 21013.3203125,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 4700.0,
+    "strike_ramp_cm": 40.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 49.0,
+   "lamp_route_cm": 6286.904517007526,
+   "notes_show_s": [
+    103.558
+   ],
+   "ordinal": 12,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -313.09548299247376,
+   "y_cm": 1348.0011981861296
+  },
+  {
+   "attachment_guid": "A99E4FB94D0E5E27B4537E858F09942D",
+   "attachment_label": "P01 SCORE B13 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.49999998134782775
+   ],
+   "behaviour": "stay",
+   "cue_guid": "F6B4352A6242A6286F52E8A9525AF5B3",
+   "cue_label": "P01 Wing 013",
+   "decay_s_at_notes": [
+    66.73731944098263
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -3915.954345703125
+    ],
+    "flash_decay_cm": 19951.357421875,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 910.0,
+   "lamp_route_cm": 7150.631658612821,
+   "notes_show_s": [
+    107.18
+   ],
+   "ordinal": 13,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.9535328807812,
+   "x_cm": -49.36834138717851,
+   "y_cm": -804.2387240092091
+  },
+  {
+   "attachment_guid": "1B398BB9436E66B3E1B81E91C7DD052B",
+   "attachment_label": "P01 SCORE B13 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.34999999715161906
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "F6B4352A6242A6286F52E8A9525AF5B3",
+   "cue_label": "P01 Wing 013",
+   "decay_s_at_notes": [
+    3.999999850782683
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -3862.9873046875
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 77.0,
+   "lamp_route_cm": 6738.621282979416,
+   "notes_show_s": [
+    105.979
+   ],
+   "ordinal": 13,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -461.37871702058385,
+   "y_cm": -1376.9282541058988
+  },
+  {
+   "attachment_guid": "53271C244C3E43BF21754298EA34848C",
+   "attachment_label": "P01 SCORE B14 P01_CANDLE_MOODY PRACTICAL_L",
+   "attack_s_at_notes": [
+    0.49999998134783535
+   ],
+   "behaviour": "stay",
+   "cue_guid": "7474F6B50244055AF3E0D48173E39097",
+   "cue_label": "P01 Wing 014",
+   "decay_s_at_notes": [
+    53.500433330105515
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -3099.58349609375
+    ],
+    "flash_decay_cm": 15994.1435546875,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 1440.0,
+   "lamp_route_cm": 7780.0,
+   "notes_show_s": [
+    112.016
+   ],
+   "ordinal": 14,
+   "role": "PRACTICAL_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "AF906FBF40F207D147415CBB9EA5F5C4",
+   "attachment_label": "P01 SCORE B15 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.06000000005857046
+   ],
+   "behaviour": "glint",
+   "cue_guid": "CD63F5BDCF4E77B960EB4ABBFDFC82C4",
+   "cue_label": "P01 Wing 015",
+   "decay_s_at_notes": [
+    0.8000000007809395
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -4112.958984375
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 715.0,
+   "lamp_route_cm": 8336.873627660294,
+   "notes_show_s": [
+    110.489
+   ],
+   "ordinal": 15,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -63.12637233970572,
+   "y_cm": -736.5708698918236
+  },
+  {
+   "attachment_guid": "FFCB596149F980296635FEB91DEA4A50",
+   "attachment_label": "P01 SCORE B18 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.06000000005857046
+   ],
+   "behaviour": "glint",
+   "cue_guid": "BFB3F908C146F1FB49F4088444680629",
+   "cue_label": "P01 Wing 018",
+   "decay_s_at_notes": [
+    0.8000000007809395
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -3387.140380859375
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 780.0,
+   "lamp_route_cm": 10120.470915929009,
+   "notes_show_s": [
+    118.883
+   ],
+   "ordinal": 18,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -79.52908407099218,
+   "y_cm": -794.6766925374191
+  },
+  {
+   "attachment_guid": "C2746FFC45AA6A1E025AC290C24F6D1E",
+   "attachment_label": "P01 SCORE B19 P01_CANDLE_MOODY PRACTICAL_L",
+   "attack_s_at_notes": [
+    0.06000000005857046
+   ],
+   "behaviour": "glint",
+   "cue_guid": "AD39123A1E4B49E8B29987A70813B586",
+   "cue_label": "P01 Wing 019",
+   "decay_s_at_notes": [
+    0.8000000007809395
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -3406.31103515625
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 1260.0,
+   "lamp_route_cm": 10780.0,
+   "notes_show_s": [
+    121.025
+   ],
+   "ordinal": 19,
+   "role": "PRACTICAL_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077666,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "7EC39A434F74CBBB07D6368E33450FC2",
+   "attachment_label": "P01 SCORE B25 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.3499999971516014
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "1D653482314A6193547A83BA8A763F74",
+   "cue_label": "P01 Wing 025",
+   "decay_s_at_notes": [
+    3.999999850782481
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -4012.176513671875
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 780.0,
+   "lamp_route_cm": 14332.650387559388,
+   "notes_show_s": [
+    130.882
+   ],
+   "ordinal": 25,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.9535328807917,
+   "x_cm": -67.3496124406119,
+   "y_cm": -796.5443958982693
+  },
+  {
+   "attachment_guid": "7C1AD8D1428BCCC64FA336853D86038E",
+   "attachment_label": "P01 SCORE B26 P01_CANDLE_MOODY PRACTICAL_L",
+   "attack_s_at_notes": [
+    0.3499999971516227
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "B210AB51B148F45A9816748404B7CC50",
+   "cue_label": "P01 Wing 026",
+   "decay_s_at_notes": [
+    3.9999998507827246
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -4322.904296875
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 1260.0,
+   "lamp_route_cm": 14980.0,
+   "notes_show_s": [
+    132.008
+   ],
+   "ordinal": 26,
+   "role": "PRACTICAL_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "BDCE64B84651D7BE64A2CCA22AEF7696",
+   "attachment_label": "P01 SCORE B29 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.3499999971516227
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "E69116F6D74A3A42F2C8DB8FE2146075",
+   "cue_label": "P01 Wing 029",
+   "decay_s_at_notes": [
+    3.9999998507827246
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -1853.26513671875
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 60.5,
+   "lamp_route_cm": 16318.13186872374,
+   "notes_show_s": [
+    144.745
+   ],
+   "ordinal": 29,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -481.86813127626056,
+   "y_cm": -1296.0202914096449
+  },
+  {
+   "attachment_guid": "10958F7440ED78E84B0E038A46917145",
+   "attachment_label": "P01 SCORE B32 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.49999998134784057
+   ],
+   "behaviour": "stay",
+   "cue_guid": "97E66368154AF5FDA18E048AD9020173",
+   "cue_label": "P01 Wing 032",
+   "decay_s_at_notes": [
+    73.72721608725807
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -4347.048828125
+    ],
+    "flash_decay_cm": 22041.01171875,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 42.0,
+   "lamp_route_cm": 18275.593016744286,
+   "notes_show_s": [
+    142.951
+   ],
+   "ordinal": 32,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -324.40698325571566,
+   "y_cm": 1336.4599109615717
+  },
+  {
+   "attachment_guid": "508547A743FF2A2D499B40B00B7B8E0B",
+   "attachment_label": "P01 SCORE B34 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.3499999971516227
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "CAE56F082A4A5C31D23E8AACDC3525CF",
+   "cue_label": "P01 Wing 034",
+   "decay_s_at_notes": [
+    3.9999998507827246
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -2962.7177734375
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 910.0,
+   "lamp_route_cm": 19740.886850906518,
+   "notes_show_s": [
+    152.483
+   ],
+   "ordinal": 34,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -59.11314909348064,
+   "y_cm": -787.814106197853
+  },
+  {
+   "attachment_guid": "4B4A5C054C98787433CF0DBA7303B3EA",
+   "attachment_label": "P01 SCORE B34 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.3499999971516227
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "CAE56F082A4A5C31D23E8AACDC3525CF",
+   "cue_label": "P01 Wing 034",
+   "decay_s_at_notes": [
+    3.9999998507827246
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -3450.928466796875
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 49.0,
+   "lamp_route_cm": 19510.413251616494,
+   "notes_show_s": [
+    150.079
+   ],
+   "ordinal": 34,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -289.58674838350646,
+   "y_cm": 1366.838369500824
+  },
+  {
+   "attachment_guid": "A5D532D84ABD2A34DFB06DBC9260B770",
+   "attachment_label": "P01 SCORE B35 P01_CANDLE_MOODY PRACTICAL_L",
+   "attack_s_at_notes": [
+    0.49999998134784057
+   ],
+   "behaviour": "stay",
+   "cue_guid": "0671E1DC6F4A3EC342EBA09CF88DBDA4",
+   "cue_label": "P01 Wing 035",
+   "decay_s_at_notes": [
+    57.81948678507042
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -3365.95654296875
+    ],
+    "flash_decay_cm": 17285.33984375,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 1440.0,
+   "lamp_route_cm": 20380.0,
+   "notes_show_s": [
+    153.272
+   ],
+   "ordinal": 35,
+   "role": "PRACTICAL_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "B900FDDC40DAA3CDFC0735A6EA1159D6",
+   "attachment_label": "P01 SCORE B36 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.06000000005857108
+   ],
+   "behaviour": "glint",
+   "cue_guid": "71678173E94A56C20625E4A07EA1D424",
+   "cue_label": "P01 Wing 036",
+   "decay_s_at_notes": [
+    0.8000000007809478
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -2812.093017578125
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 38.5,
+   "lamp_route_cm": 20487.421794816695,
+   "notes_show_s": [
+    155.484
+   ],
+   "ordinal": 36,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -512.5782051833037,
+   "y_cm": 1321.2603396807335
+  },
+  {
+   "attachment_guid": "59A61CC941CE05B93E4A29BDE3310D2F",
+   "attachment_label": "P01 SCORE B37 P01_CANDLE_MOODY PRACTICAL_L",
+   "attack_s_at_notes": [
+    0.06000000005857108
+   ],
+   "behaviour": "glint",
+   "cue_guid": "0E14D4BCD14FD612186849A3527A9806",
+   "cue_label": "P01 Wing 037",
+   "decay_s_at_notes": [
+    0.8000000007809478
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -4140.8447265625
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 1440.0,
+   "lamp_route_cm": 21580.0,
+   "notes_show_s": [
+    154.694
+   ],
+   "ordinal": 37,
+   "role": "PRACTICAL_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "B079879844A20B47A9E4B28D8F8D6329",
+   "attachment_label": "P01 SCORE B39 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.06000000005857108
+   ],
+   "behaviour": "glint",
+   "cue_guid": "DEB9AB9941473AAB1F43D592ADAFD766",
+   "cue_label": "P01 Wing 039",
+   "decay_s_at_notes": [
+    0.8000000007809478
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -4330.29150390625
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 780.0,
+   "lamp_route_cm": 22722.211564318466,
+   "notes_show_s": [
+    157.881
+   ],
+   "ordinal": 39,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -77.78843568153479,
+   "y_cm": -786.6236135299089
+  },
+  {
+   "attachment_guid": "067AAEB54636B5802883A0B558E29D18",
+   "attachment_label": "P01 SCORE B39 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.06000000005857108
+   ],
+   "behaviour": "glint",
+   "cue_guid": "DEB9AB9941473AAB1F43D592ADAFD766",
+   "cue_label": "P01 Wing 039",
+   "decay_s_at_notes": [
+    0.8000000007809478
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -4002.165771484375
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 42.0,
+   "lamp_route_cm": 22484.370153091244,
+   "notes_show_s": [
+    158.183
+   ],
+   "ordinal": 39,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -315.62984690875726,
+   "y_cm": 1352.2610722694183
+  },
+  {
+   "attachment_guid": "4D03703A40BC9636988C8EB9211530D5",
+   "attachment_label": "P01 SCORE B40 P01_CANDLE_MOODY PRACTICAL_L",
+   "attack_s_at_notes": [
+    0.06000000005857108
+   ],
+   "behaviour": "glint",
+   "cue_guid": "728582A0834161546564F088F0EAD1A2",
+   "cue_label": "P01 Wing 040",
+   "decay_s_at_notes": [
+    0.8000000007809478
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -4092.4150390625
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 1260.0,
+   "lamp_route_cm": 23380.0,
+   "notes_show_s": [
+    160.877
+   ],
+   "ordinal": 40,
+   "role": "PRACTICAL_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -20.0,
+   "y_cm": -700.0
+  },
+  {
+   "attachment_guid": "3C9EED1B4439277792F194ABD1998DFC",
+   "attachment_label": "P01 SCORE B41 P01_WARM_THEATRICAL PRACTICAL_CLAMP",
+   "attack_s_at_notes": [
+    0.49999998134784057
+   ],
+   "behaviour": "stay",
+   "cue_guid": "BEEB9F25C24E6BE2E5F59480F0F03755",
+   "cue_label": "P01 Wing 041",
+   "decay_s_at_notes": [
+    75.9868821622511
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 149.4767608642578,
+    "flash_camera_offsets_cm": [
+     -4486.41162109375
+    ],
+    "flash_decay_cm": 22716.546875,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 650.0,
+   "lamp_route_cm": 23959.646876781546,
+   "notes_show_s": [
+    161.498
+   ],
+   "ordinal": 41,
+   "role": "PRACTICAL_CLAMP",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -40.353123218454606,
+   "y_cm": -792.3659035312485
+  },
+  {
+   "attachment_guid": "8E1B9FCF47279480ABC09E9B8AAC65B4",
+   "attachment_label": "P01 SCORE B42 P01_WARM_THEATRICAL TOP_L",
+   "attack_s_at_notes": [
+    0.3499999971516227
+   ],
+   "behaviour": "bloom",
+   "cue_guid": "B198C7F004497AB3F87E92BDD9780FD6",
+   "cue_label": "P01 Wing 042",
+   "decay_s_at_notes": [
+    3.9999998507827246
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 104.63373565673828,
+    "flash_camera_offsets_cm": [
+     -4417.54052734375
+    ],
+    "flash_decay_cm": 1195.8140869140625,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 82.5,
+   "lamp_route_cm": 24156.24646790396,
+   "notes_show_s": [
+    162.386
+   ],
+   "ordinal": 42,
+   "role": "TOP_L",
+   "side": "L",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -443.7535320960408,
+   "y_cm": -1392.3131474102775
+  },
+  {
+   "attachment_guid": "3F2D522145147D8F1A9E63BAACAE7106",
+   "attachment_label": "P01 SCORE B43 P01_WARM_THEATRICAL TOP_R",
+   "attack_s_at_notes": [
+    0.06000000005857108
+   ],
+   "behaviour": "glint",
+   "cue_guid": "C870A0FB9F47DDBDCA253CB9896E6815",
+   "cue_label": "P01 Wing 043",
+   "decay_s_at_notes": [
+    0.8000000007809478
+   ],
+   "drama_after": {
+    "flash": true,
+    "flash_attack_cm": 17.937211990356445,
+    "flash_camera_offsets_cm": [
+     -4484.0390625
+    ],
+    "flash_decay_cm": 239.16282653808594,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": false
+   },
+   "drama_before": {
+    "flash": false,
+    "flash_attack_cm": 3.0,
+    "flash_camera_offsets_cm": [],
+    "flash_decay_cm": 18.0,
+    "flash_rest_scale": 0.0,
+    "strike_on_approach": true
+   },
+   "drama_context": {
+    "after_pass": "<InfinityLightAfterPass.HOLD: 0>",
+    "after_pass_distance_cm": 600.0,
+    "decay_distance_cm": 1500.0,
+    "strike_distance_cm": 650.0,
+    "strike_ramp_cm": 150.0,
+    "unstruck_intensity_scale": 0.0
+   },
+   "intensity": 59.5,
+   "lamp_route_cm": 24715.7196055556,
+   "notes_show_s": [
+    164.035
+   ],
+   "ordinal": 43,
+   "role": "TOP_R",
+   "side": "R",
+   "speed_cm_s": 298.95353288077354,
+   "x_cm": -484.2803944443985,
+   "y_cm": 1322.676843791724
+  }
+ ],
+ "warnings": [],
+ "window_s": [
+  96.36,
+  169.87603174603174
+ ]
+}

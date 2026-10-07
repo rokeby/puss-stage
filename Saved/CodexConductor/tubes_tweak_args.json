@@ -1,0 +1,6 @@
+{"mode": "DRY",
+ "structures": ["Infinity Stage - Structure 01", "Infinity Stage - Structure 02", "Infinity Stage - Structure 03",
+                "Infinity Stage - Structure 04", "Infinity Stage - Structure 05", "Infinity Stage - Structure 06"],
+ "set": {},
+ "per_structure": {"Infinity Stage - Structure 01": {"tube_dead_fraction": 0.9, "tube_blink_fraction": 0.35}},
+ "glow_scale": 4.0, "light_scale": 0.3}

@@ -41,19 +41,21 @@ index 14e315a..008fca1 100644
  }
  
  FInfinityLightDramaPose Evaluate(
-@@ -90,6 +113,11 @@ FInfinityLightDramaPose Evaluate(
+@@ -90,6 +113,13 @@ FInfinityLightDramaPose Evaluate(
      {
          Pose.IntensityScale = EvaluateStrike(Drama, Identity, LampRouteDistanceCm - CameraRouteDistanceCm);
      }
 +    if (Drama.bFlash)
 +    {
-+        // Gated by any strike: an unstruck lamp stays dark through its flashes.
-+        Pose.IntensityScale *= EvaluateFlash(Drama, CameraRouteDistanceCm - LampRouteDistanceCm);
++        // Flash and strike combine by MAX (Gary 7 Oct): a distant lamp answers a note before it strikes,
++        // then strikes as usual. Without a strike the flash alone sets the level.
++        const float Flash = EvaluateFlash(Drama, CameraRouteDistanceCm - LampRouteDistanceCm);
++        Pose.IntensityScale = Drama.bStrikeOnApproach ? FMath::Max(Pose.IntensityScale, Flash) : Flash;
 +    }
      if (Drama.bSlowMove)
      {
          Pose.AimOffset = EvaluateSlowMove(Drama, Identity, ShowSeconds);
-@@ -109,7 +137,7 @@ void ApplyToLamp(
+@@ -109,7 +139,7 @@ void ApplyToLamp(
  {
      const FInfinityLightDramaPose Pose =
          Evaluate(Drama, Identity, LampRouteDistanceCm, CameraRouteDistanceCm, ShowSeconds);
@@ -105,7 +107,7 @@ diff --git a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinitySta
 index 66bf497..9628141 100644
 --- a/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightDramaTests.cpp
 +++ b/Plugins/InfinityStage/Source/InfinityStageTests/Private/InfinityStageLightDramaTests.cpp
-@@ -169,4 +169,42 @@ bool FInfinityStageLightDramaApplyTest::RunTest(const FString& Parameters)
+@@ -169,4 +169,43 @@ bool FInfinityStageLightDramaApplyTest::RunTest(const FString& Parameters)
      return true;
  }
  
@@ -143,7 +145,8 @@ index 66bf497..9628141 100644
 +    Drama.StrikeDistanceCm = 50.0;
 +    Drama.StrikeRampCm = 10.0;
 +    Drama.IgnitionStutter = 0.0f;
-+    TestTrue(TEXT("An unstruck lamp stays dark through its flashes"), At(-400.0) < 1.0e-6f);
++    TestTrue(TEXT("A strike lamp still flashes before it strikes (max)"), FMath::IsNearlyEqual(At(-400.0), 1.0f, 1.0e-4f));
++    TestTrue(TEXT("Before the strike it rests at the flash floor"), At(-250.0) < 0.03f);
 +    return true;
 +}
 +
