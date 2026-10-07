@@ -268,3 +268,8 @@
   written. Shore B import + APPLY being written (mesh_name SM_S3_ShoreGround_B, MI v2).
 - **Hand prints clamber** (6fe04ad, 752 decals, offline 11/11): Gary "Apply, with the dunes". Known follow-ups:
   s3_marble_tiling_apply.py hard-codes 449 decals; grime bench geometry reads the old table.
+- **Prints:** Gary: clamber "much too regular … the sheen not the stain" → HOLD apply; layout being redone as roughness-led
+  grease smears (unified with marble C grease), irregular.
+- **Waves import:** 12 pieces imported (S3WAVESV3-20261007-184749..184949); L6Foam_P1/P2 failed only on a same-call LOD
+  screen-size read [0,0] → recovered in a later call (fix_l6p1_lod.py: set [1.0, 0.3], saved). BUILD_MAT + VERIFY running.
+- Directing: S1 entry "camera view snap" as it comes into view → read-only frame-log probe queued (after S3).
