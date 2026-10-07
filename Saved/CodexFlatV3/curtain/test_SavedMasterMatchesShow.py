@@ -1,7 +1,7 @@
 """Queue exactly the one Phase 2 acceptance automation test in the live editor."""
 import unreal
 
-RUN = "P06SLOT-TEST-SavedMasterMatchesShow"
+RUN = "FLUTTER-TEST-SavedMasterMatchesShow"
 TEST = "InfinityStage.Editor.SavedMasterMatchesShow"
 
 editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
