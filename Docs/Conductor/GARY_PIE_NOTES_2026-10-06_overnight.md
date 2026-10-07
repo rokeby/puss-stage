@@ -159,3 +159,8 @@ Editor order: S3 backdrop+marble -> S1 extend 245 s + narration after voices -> 
 - ~17:45 **Beam texture** (Gary): beams "lack texture" — approved an A/B bench "especially for the big beams": (a) volumetric shadows +
   occluders, (b) noise-density fog volume, (c) dust motes (Niagara session), (d) finer fog grid + anisotropy. **Queued ~18:45** (in an hour);
   tool being written. Gary first has "a few things"; then his P01(?) bay-lighting hand pass to replicate with variation.
+
+## 7 Oct ~00:30–01:30 — Gary's PIE notes (conductor session), queued
+- **P05 eye height:** Puss at ~50% (≈90 cm) so he crawls around the low wings and looks up at the clouds; **no pitch-up** ("the tilt will come from me controlling the dog angle"). Tool: p05_cat_height.py (offline).
+- **Overnight (not now):** (1) P05 **blue-sky curtains over the fence** — already decided 5 Oct (#268) / 6 Oct: cascade starts at P05's beginning, moves with the walk, completes in HALF the walk time, full fence height; needs the bunched drop-curtain bake. (2) **Thicken/develop the metal struts** so they read real (P05 highly visible; 5 Oct #7 "twice as thick and heavy", #25 X-bars float → SM_UP_LacedColumn_v2). (3) **Better velvet** — Docs/CurtainFabricPlan_2026-10-06.md (velvet v2 V2B first; bench plan).
+- P02/P03 slow walk + P02 straighten; rig layouts P02/P03/P04 to P01's; P03 fog cut + gobo/noise beams + smoke-puff test; P04 left window shadows; P01 note lamps (flash patch, strike+flash by max); tubes all six (P01 90% off); wings ≤1 cm off the floor (W&T); Klara S1/S2/S4 ingest (her versions win; audio as set; her lengths set the scene lengths).
