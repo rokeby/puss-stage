@@ -1,0 +1,100 @@
+{
+ "after": {
+  "cycle": {
+   "animate": true,
+   "cycle_duration_seconds": 1902.8571428571427,
+   "cycle_rate_multiplier": 1.0,
+   "entry_phase_offset_cycles": 0.7305555555555555
+  },
+  "rig": {
+   "apply_manual_lighting_in_game": false,
+   "maximum_sun_intensity": 2.0,
+   "sun_azimuth_degrees": 0.0,
+   "twilight_altitude_band": 0.05
+  }
+ },
+ "applied": true,
+ "backup": "E:/PussStage/Backups\\PreP06Sunset-P06SUN-20261007-010204",
+ "before": {
+  "cycle": {
+   "animate": false,
+   "cycle_duration_seconds": 20.0,
+   "cycle_rate_multiplier": 1.0,
+   "entry_phase_offset_cycles": 0.0
+  },
+  "rig": {
+   "apply_manual_lighting_in_game": true,
+   "maximum_sun_intensity": 0.0,
+   "sun_azimuth_degrees": 278.8086242675781,
+   "twilight_altitude_band": 0.11999999731779099
+  }
+ },
+ "decided_by": "Gary 7 Oct (his own answers, conductor session): P06 sunset from the start, ~40 s, then total darkness; 'dead ahead is interesting, actually. let's try that' (sun dead ahead down the corridor); plan values: +7 deg start, horizon 37 s, band 0.12->0.05, 2 lux.",
+ "plan": {
+  "animate": true,
+  "band_elev_deg": 2.8659839825988622,
+  "cycle_duration_seconds": 1902.8571428571427,
+  "cycle_rate_multiplier": 1.0,
+  "dark_s": 52.148772479451125,
+  "dark_tail_s": 73.85235252054888,
+  "deg_per_s": 0.1891891891891892,
+  "end_elev_deg": -16.838050675675678,
+  "entry_phase_offset_cycles": 0.7305555555555555,
+  "fade_start_s": 21.851227520548868,
+  "next_sunrise_s": 988.4285714285713,
+  "phase0": 0.7305555555555555
+ },
+ "prior_phase": 0.0,
+ "probe": [
+  {
+   "daylight": 1.0,
+   "phase": 0.7305555555555555,
+   "sun_az": 360.0,
+   "sun_elev": 6.999999999999997,
+   "sun_lux": 2.0,
+   "t": 0.0
+  },
+  {
+   "daylight": 1.0,
+   "phase": 0.7410660660660661,
+   "sun_az": 360.0,
+   "sun_elev": 3.2162170410156246,
+   "sun_lux": 2.0,
+   "t": 20.0
+  },
+  {
+   "daylight": 0.4999980330467224,
+   "phase": 0.75,
+   "sun_az": 360.0,
+   "sun_elev": -7.84067264101324e-47,
+   "sun_lux": 0.9999960660934448,
+   "t": 37.0
+  },
+  {
+   "daylight": 7.194150384748355e-05,
+   "phase": 0.7578828828828829,
+   "sun_az": 360.0,
+   "sun_elev": -2.837829589843747,
+   "sun_lux": 0.0001438830076949671,
+   "t": 52.0
+  },
+  {
+   "daylight": 0.0,
+   "phase": 0.7778528528528528,
+   "sun_az": 360.0,
+   "sun_elev": -10.027038574218738,
+   "sun_lux": 0.0,
+   "t": 90.0
+  },
+  {
+   "daylight": 0.0,
+   "phase": 0.7967192192192192,
+   "sun_az": 360.0,
+   "sun_elev": -16.818908691406254,
+   "sun_lux": 0.0,
+   "t": 125.9
+  }
+ ],
+ "route_yaw": 0.0,
+ "run": "P06SUN-20261007-010204"
+}

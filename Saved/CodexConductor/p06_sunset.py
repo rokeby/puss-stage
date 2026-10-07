@@ -426,12 +426,12 @@ def _context(rig):
                                                           "auto_exposure_max_brightness", "auto_exposure_bias")}})
     fog = rig.get_editor_property("height_fog_actor")
     if fog is not None:
-        c = fog.get_component()
+        c = fog.get_editor_property("component")
         out["fog"] = {k: safe(c, k) for k in ("fog_density", "enable_volumetric_fog", "volumetric_fog_scattering_distribution",
                                               "directional_inscattering_exponent", "directional_inscattering_start_distance")}
     sun = rig.get_editor_property("sun_light_actor")
     if sun is not None:
-        c = sun.get_light_component()
+        c = sun.get_editor_property("light_component")
         out["sun_light"] = {"label": str(sun.get_actor_label()),
                             **{k: safe(c, k) for k in ("intensity", "cast_shadows", "volumetric_scattering_intensity",
                                                        "light_source_angle")}}
@@ -507,7 +507,7 @@ def _sun_state(rig):
     sun = rig.get_editor_property("sun_light_actor")
     r = sun.get_actor_rotation()
     return {"pitch": float(r.pitch), "yaw": float(r.yaw), "roll": float(r.roll),
-            "intensity": float(sun.get_light_component().get_editor_property("intensity"))}
+            "intensity": float(sun.get_editor_property("light_component").get_editor_property("intensity"))}
 
 
 def _probe(g, args, run):

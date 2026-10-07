@@ -1,0 +1,675 @@
+{
+ "context": {
+  "fog": {
+   "directional_inscattering_exponent": 9.951998710632324,
+   "directional_inscattering_start_distance": 10000.0,
+   "enable_volumetric_fog": true,
+   "fog_density": 0.02199999988079071,
+   "volumetric_fog_scattering_distribution": 0.550000011920929
+  },
+  "ppv": [
+   {
+    "auto_exposure_bias": 0.0,
+    "auto_exposure_max_brightness": -3.0,
+    "auto_exposure_min_brightness": -3.0,
+    "label": "PostProcessVolume",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": true
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 0.5,
+    "auto_exposure_min_brightness": 0.5,
+    "label": "S4 Hangar Pinned Exposure",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 0.5,
+    "auto_exposure_min_brightness": 0.5,
+    "label": "S1 Hangar Pinned Exposure",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 0.5,
+    "auto_exposure_min_brightness": 0.5,
+    "label": "S6 Hangar Pinned Exposure",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 0.5,
+    "auto_exposure_min_brightness": 0.5,
+    "label": "S5 Hangar Pinned Exposure",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 0.5,
+    "auto_exposure_min_brightness": 0.5,
+    "label": "S2 Hangar Pinned Exposure",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 3.0,
+    "auto_exposure_min_brightness": 3.0,
+    "label": "S3 Hangar Pinned Exposure",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 0.4000000059604645,
+    "auto_exposure_max_brightness": 20.0,
+    "auto_exposure_min_brightness": -10.0,
+    "label": "P04 Strobe Ghost Volume (PPV_StrobeGhost_Subtle)",
+    "override_auto_exposure_max_brightness": false,
+    "override_auto_exposure_min_brightness": false,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": -0.6000000238418579,
+    "auto_exposure_max_brightness": 20.0,
+    "auto_exposure_min_brightness": -10.0,
+    "label": "PostProcessVolume",
+    "override_auto_exposure_max_brightness": false,
+    "override_auto_exposure_min_brightness": false,
+    "unbound": false
+   },
+   {
+    "auto_exposure_bias": 1.0,
+    "auto_exposure_max_brightness": 1.0,
+    "auto_exposure_min_brightness": 1.0,
+    "label": "PostProcessVolume",
+    "override_auto_exposure_max_brightness": true,
+    "override_auto_exposure_min_brightness": true,
+    "unbound": true
+   }
+  ],
+  "sun_light": {
+   "cast_shadows": true,
+   "intensity": 0.0,
+   "label": "Infinity Stage - Dusk Sun",
+   "light_source_angle": 1.2200000286102295,
+   "volumetric_scattering_intensity": 1.0
+  },
+  "zz_actors": []
+ },
+ "cycle_target": {
+  "animate": true,
+  "cycle_duration_seconds": 1902.8571428571427,
+  "cycle_rate_multiplier": 1.0,
+  "entry_phase_offset_cycles": 0.7305555555555555
+ },
+ "p06": 5,
+ "pin_phase": 0.0,
+ "plan": {
+  "animate": true,
+  "band_elev_deg": 2.8659839825988622,
+  "cycle_duration_seconds": 1902.8571428571427,
+  "cycle_rate_multiplier": 1.0,
+  "dark_s": 52.148772479451125,
+  "dark_tail_s": 73.85235252054888,
+  "deg_per_s": 0.1891891891891892,
+  "end_elev_deg": -16.838050675675678,
+  "entry_phase_offset_cycles": 0.7305555555555555,
+  "fade_start_s": 21.851227520548868,
+  "next_sunrise_s": 988.4285714285713,
+  "phase0": 0.7305555555555555
+ },
+ "prior": 0.0,
+ "refusals": [],
+ "rig_live": {
+  "apply_manual_lighting_in_game": true,
+  "day_sky_light_intensity": 0.0,
+  "editor_preview_time_hours": 0.0,
+  "initial_phase_cycles": 0.0,
+  "maximum_moon_intensity": 0.0,
+  "maximum_sun_intensity": 0.0,
+  "night_sky_light_intensity": 0.0,
+  "show_built_in_stars": false,
+  "sun_azimuth_degrees": 278.8086242675781,
+  "twilight_altitude_band": 0.11999999731779099,
+  "use_manual_editor_lighting": true
+ },
+ "rig_target": {
+  "apply_manual_lighting_in_game": false,
+  "maximum_sun_intensity": 2.0,
+  "sun_azimuth_degrees": 0.0,
+  "twilight_altitude_band": 0.05
+ },
+ "route_yaw": 0.0,
+ "rows": [
+  {
+   "animate": false,
+   "cycle_duration_seconds": 120.0,
+   "cycle_rate_multiplier": 1.0,
+   "end_tick": 4624705,
+   "entry_phase_offset_cycles": 0.0,
+   "guid": "659D5386D64DA7742A351B9499ECCE4C",
+   "label": "Passage 1",
+   "seconds": 96.33604166666667,
+   "start_tick": 2312640
+  },
+  {
+   "animate": false,
+   "cycle_duration_seconds": 20.0,
+   "cycle_rate_multiplier": 1.0,
+   "end_tick": 16899265,
+   "entry_phase_offset_cycles": 0.0,
+   "guid": "7FF34BBDA744E406C264A7B7E4DD61D9",
+   "label": "Passage 2",
+   "seconds": 180.0,
+   "start_tick": 12579265
+  },
+  {
+   "animate": false,
+   "cycle_duration_seconds": 20.0,
+   "cycle_rate_multiplier": 1.0,
+   "end_tick": 21993985,
+   "entry_phase_offset_cycles": 0.0,
+   "guid": "49F93D652B46B99C10116EBAE927A3C6",
+   "label": "Passage 3",
+   "seconds": 42.24,
+   "start_tick": 20980225
+  },
+  {
+   "animate": false,
+   "cycle_duration_seconds": 20.0,
+   "cycle_rate_multiplier": 1.0,
+   "end_tick": 31592065,
+   "entry_phase_offset_cycles": 0.0,
+   "guid": "0067B5F57142956FB5B80EA31B1210B5",
+   "label": "Passage 4",
+   "seconds": 50.4,
+   "start_tick": 30382465
+  },
+  {
+   "animate": false,
+   "cycle_duration_seconds": 20.0,
+   "cycle_rate_multiplier": 1.0,
+   "end_tick": 38572312,
+   "entry_phase_offset_cycles": 0.0,
+   "guid": "3B27C331B54325A469AE8A818B9049F9",
+   "label": "Passage 5",
+   "seconds": 186.363625,
+   "start_tick": 34099585
+  },
+  {
+   "animate": false,
+   "cycle_duration_seconds": 20.0,
+   "cycle_rate_multiplier": 1.0,
+   "end_tick": 44535859,
+   "entry_phase_offset_cycles": 0.0,
+   "guid": "9BFC29C45D47911FF7836BB8537230D2",
+   "label": "Passage 6",
+   "seconds": 126.001125,
+   "start_tick": 41511832
+  }
+ ],
+ "run": "P06SUN-20261007-003457",
+ "tick": 24000.0,
+ "timeline": [
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 7.000000000000004,
+   "phase": 0.7305555555555555,
+   "t": 0.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 6.621621621621626,
+   "phase": 0.7316066066066066,
+   "t": 2.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 6.243243243243223,
+   "phase": 0.7326576576576577,
+   "t": 4.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 5.864864864864897,
+   "phase": 0.7337087087087086,
+   "t": 6.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 5.48648648648652,
+   "phase": 0.7347597597597597,
+   "t": 8.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 5.108108108108142,
+   "phase": 0.7358108108108108,
+   "t": 10.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 4.729729729729739,
+   "phase": 0.7368618618618619,
+   "t": 12.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 4.3513513513513615,
+   "phase": 0.7379129129129128,
+   "t": 14.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 3.972972972972983,
+   "phase": 0.7389639639639639,
+   "t": 16.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 3.594594594594581,
+   "phase": 0.740015015015015,
+   "t": 18.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 1.0,
+   "elev": 3.2162162162162033,
+   "phase": 0.7410660660660661,
+   "t": 20.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.9999280195573206,
+   "elev": 2.837837837837877,
+   "phase": 0.742117117117117,
+   "t": 22.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.985642187960954,
+   "elev": 2.459459459459474,
+   "phase": 0.7431681681681681,
+   "t": 24.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.9489330710874703,
+   "elev": 2.0810810810810962,
+   "phase": 0.7442192192192192,
+   "t": 26.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.8932338471519815,
+   "elev": 1.7027027027027188,
+   "phase": 0.7452702702702703,
+   "t": 28.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.821985968429497,
+   "elev": 1.324324324324392,
+   "phase": 0.7463213213213212,
+   "t": 30.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.7386376613622073,
+   "elev": 0.945945945945989,
+   "phase": 0.7473723723723723,
+   "t": 32.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.6466424239786939,
+   "elev": 0.5675675675676114,
+   "phase": 0.7484234234234234,
+   "t": 34.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.5494575212213035,
+   "elev": 0.18918918918923397,
+   "phase": 0.7494744744744745,
+   "t": 36.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.45054247877870207,
+   "elev": -0.18918918918921993,
+   "phase": 0.7505255255255255,
+   "t": 38.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.3533575760213241,
+   "elev": -0.5675675675675466,
+   "phase": 0.7515765765765765,
+   "t": 40.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.2613623386378093,
+   "elev": -0.9459459459459242,
+   "phase": 0.7526276276276276,
+   "t": 42.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.17801403157050727,
+   "elev": -1.324324324324327,
+   "phase": 0.7536786786786787,
+   "t": 44.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.10676615284802199,
+   "elev": -1.7027027027027046,
+   "phase": 0.7547297297297297,
+   "t": 46.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.05106692891253867,
+   "elev": -2.0810810810810314,
+   "phase": 0.7557807807807807,
+   "t": 48.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.014357812039050927,
+   "elev": -2.4594594594594086,
+   "phase": 0.7568318318318318,
+   "t": 50.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 7.198044267952685e-05,
+   "elev": -2.837837837837812,
+   "phase": 0.7578828828828829,
+   "t": 52.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -3.216216216216189,
+   "phase": 0.7589339339339339,
+   "t": 54.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -3.5945945945945668,
+   "phase": 0.7599849849849849,
+   "t": 56.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -3.9729729729729697,
+   "phase": 0.761036036036036,
+   "t": 58.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -4.351351351351347,
+   "phase": 0.7620870870870871,
+   "t": 60.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -4.7297297297297245,
+   "phase": 0.7631381381381381,
+   "t": 62.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -5.108108108108078,
+   "phase": 0.7641891891891891,
+   "t": 64.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -5.486486486486454,
+   "phase": 0.7652402402402402,
+   "t": 66.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -5.864864864864832,
+   "phase": 0.7662912912912913,
+   "t": 68.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -6.243243243243235,
+   "phase": 0.7673423423423423,
+   "t": 70.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -6.621621621621613,
+   "phase": 0.7683933933933933,
+   "t": 72.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -6.99999999999999,
+   "phase": 0.7694444444444444,
+   "t": 74.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -7.378378378378392,
+   "phase": 0.7704954954954955,
+   "t": 76.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -7.7567567567567695,
+   "phase": 0.7715465465465465,
+   "t": 78.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -8.135135135135148,
+   "phase": 0.7725975975975976,
+   "t": 80.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -8.513513513513475,
+   "phase": 0.7736486486486486,
+   "t": 82.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -8.891891891891879,
+   "phase": 0.7746996996996997,
+   "t": 84.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -9.270270270270256,
+   "phase": 0.7757507507507507,
+   "t": 86.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -9.648648648648631,
+   "phase": 0.7768018018018018,
+   "t": 88.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -10.02702702702696,
+   "phase": 0.7778528528528528,
+   "t": 90.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -10.40540540540536,
+   "phase": 0.7789039039039038,
+   "t": 92.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -10.783783783783742,
+   "phase": 0.7799549549549549,
+   "t": 94.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -11.162162162162193,
+   "phase": 0.781006006006006,
+   "t": 96.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -11.54054054054052,
+   "phase": 0.782057057057057,
+   "t": 98.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -11.918918918918898,
+   "phase": 0.783108108108108,
+   "t": 100.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -12.297297297297275,
+   "phase": 0.7841591591591591,
+   "t": 102.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -12.675675675675679,
+   "phase": 0.7852102102102102,
+   "t": 104.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -13.054054054054005,
+   "phase": 0.7862612612612612,
+   "t": 106.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -13.432432432432382,
+   "phase": 0.7873123123123122,
+   "t": 108.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -13.810810810810786,
+   "phase": 0.7883633633633633,
+   "t": 110.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -14.189189189189165,
+   "phase": 0.7894144144144144,
+   "t": 112.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -14.567567567567542,
+   "phase": 0.7904654654654655,
+   "t": 114.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -14.945945945945944,
+   "phase": 0.7915165165165164,
+   "t": 116.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -15.32432432432432,
+   "phase": 0.7925675675675675,
+   "t": 118.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -15.7027027027027,
+   "phase": 0.7936186186186186,
+   "t": 120.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -16.0810810810811,
+   "phase": 0.7946696696696697,
+   "t": 122.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -16.459459459459428,
+   "phase": 0.7957207207207206,
+   "t": 124.0
+  },
+  {
+   "az": 0.0,
+   "daylight": 0.0,
+   "elev": -16.837837837837807,
+   "phase": 0.7967717717717717,
+   "t": 126.0
+  }
+ ]
+}
