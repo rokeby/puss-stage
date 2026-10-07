@@ -1,0 +1,204 @@
+{
+ "run": "S3PROPS-20261007-172846",
+ "census": {
+  "content": [],
+  "maps": []
+ },
+ "state": {
+  "root": {
+   "world": {
+    "location": [
+     11421.97275,
+     160000.0,
+     -120.0
+    ],
+    "rotation": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "scale": [
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  "pedestal": {
+   "label": "Clam_Pedastal",
+   "object_name": "StaticMeshActor_4",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_4",
+   "parent": null,
+   "aabb_world": {
+    "min": [
+     14391.253330657959,
+     159967.80099487305,
+     1.3787389059237967
+    ],
+    "max": [
+     14452.33138317871,
+     160030.88626670837,
+     98.67459433867259
+    ]
+   },
+   "mobility": "STATIC",
+   "actor_hidden": true,
+   "comp_visible": true,
+   "comp_hidden_in_game": false
+  },
+  "temp_actors": [],
+  "label_count": {
+   "S3 Granite Millstone": 0
+  },
+  "assets": {
+   "mesh": false,
+   "mi": false
+  },
+  "clams": [
+   {
+    "label": "source_Anim",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SkeletalMeshActor_1",
+    "class": "SkeletalMeshActor",
+    "location": [
+     14417.886965217189,
+     159997.27592951845,
+     92.54729693263062
+    ],
+    "aabb_world": {
+     "min": [
+      14379.837943950459,
+      159965.82389160595,
+      107.5914167675305
+     ],
+     "max": [
+      14454.017805341982,
+      160034.46149863896,
+      123.33404581873903
+     ]
+    },
+    "parent": null,
+    "tracks": {
+     "/Game/Scenes/LS_Clams": [
+      "MovieScene3DTransformTrack",
+      "MovieSceneSkeletalAnimationTrack"
+     ],
+     "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03": null,
+     "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise": [
+      "MovieSceneVisibilityTrack"
+     ]
+    },
+    "keyed_verdict": "KEYED"
+   },
+   {
+    "label": "Clam_with_Pearl_Clam_with_Pearl_0",
+    "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_6",
+    "class": "StaticMeshActor",
+    "location": [
+     14415.795818568313,
+     159988.5084684951,
+     97.38904842496483
+    ],
+    "aabb_world": {
+     "min": [
+      14379.985086046394,
+      159965.96791568873,
+      92.6472786343154
+     ],
+     "max": [
+      14453.69301039132,
+      160033.55106910583,
+      113.91839679837793
+     ]
+    },
+    "parent": null,
+    "tracks": {
+     "/Game/Scenes/LS_Clams": [
+      "MovieScene3DTransformTrack"
+     ],
+     "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03": null,
+     "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise": [
+      "MovieSceneVisibilityTrack"
+     ]
+    },
+    "keyed_verdict": "KEYED"
+   }
+  ],
+  "rise": {
+   "fps": 30.0,
+   "pedestal_binding": {
+    "guid": "2425E62E4F7051520E7154A094123BE3",
+    "resolved": [
+     "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_4"
+    ],
+    "visibility_sections": [
+     {
+      "range_s": [
+       0.0,
+       31.000041961669922
+      ],
+      "completion_mode": "PROJECT_DEFAULT",
+      "channels": 1,
+      "keys": [
+       [
+        0,
+        false
+       ],
+       [
+        139,
+        true
+       ]
+      ],
+      "fps": 30.0
+     }
+    ]
+   },
+   "pedestal_bindings_found": 1
+  },
+  "floors": [
+   {
+    "label": "S3 Beach V2 Sand Floor",
+    "visible": true,
+    "kind": "mesh",
+    "samples_z": [],
+    "vertices": 749,
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Beach/SM_S3_BeachV2_SandFloor.SM_S3_BeachV2_SandFloor"
+   },
+   {
+    "label": "S3 Hangar Deck",
+    "visible": true,
+    "kind": "box",
+    "samples_z": [
+     -5.0
+    ]
+   }
+  ],
+  "target_xy": [
+   14421.792356918335,
+   159999.3436307907
+  ]
+ },
+ "assets": {
+  "GraniteMillstone": {
+   "mesh": false,
+   "mi": false
+  },
+  "HoledStandingStone": {
+   "mesh": false,
+   "mi": false
+  },
+  "HominidRibcage": {
+   "mesh": false,
+   "mi": false
+  },
+  "HominidLegBone": {
+   "mesh": false,
+   "mi": false
+  },
+  "HominidJaw": {
+   "mesh": false,
+   "mi": false
+  }
+ },
+ "master_exists": false,
+ "apply": "APPLY_WOULD_REFUSE|ASSETS_MISSING|{'mesh': False, 'mi': False}"
+}

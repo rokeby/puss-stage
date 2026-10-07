@@ -1,6 +1,25 @@
-{"mode": "DRY", "confirm": "", "run": "S3PROPS-DRY-a", "prop": "GraniteMillstone", "textures": null,
- "apply": {"prop": "GraniteMillstone", "label": "S3 Granite Millstone", "xy_world": null, "yaw_deg": 0.0,
-           "burial_cm": 2.0, "top_offset_cm": 128.6, "floor_radius_cm": 45.0, "max_floor_spread_cm": 8.0,
-           "accept_floor_spread": false, "clam_labels": ["source_Anim", "Clam_with_Pearl_Clam_with_Pearl_0"],
-           "reseat_clams": "auto", "reveal": "rise_track"},
- "placements_file": "s3_props_placements.json"}
+{
+ "mode": "BUILD_MAT",
+ "confirm": "BUILD_MAT S3PROPS",
+ "run": "S3PROPS-20261007-173036",
+ "prop": "GraniteMillstone",
+ "textures": null,
+ "apply": {
+  "prop": "GraniteMillstone",
+  "label": "S3 Granite Millstone",
+  "xy_world": null,
+  "yaw_deg": 0.0,
+  "burial_cm": 2.0,
+  "top_offset_cm": 128.6,
+  "floor_radius_cm": 45.0,
+  "max_floor_spread_cm": 8.0,
+  "accept_floor_spread": false,
+  "clam_labels": [
+   "source_Anim",
+   "Clam_with_Pearl_Clam_with_Pearl_0"
+  ],
+  "reseat_clams": "auto",
+  "reveal": "rise_track"
+ },
+ "placements_file": "s3_props_placements.json"
+}

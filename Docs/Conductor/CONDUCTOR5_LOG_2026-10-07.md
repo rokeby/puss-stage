@@ -195,3 +195,12 @@
 - **Sand texture** (S3_SAND_TEXTURE_2026-10-07.md): 4K pjuuz sand + 4K mud already in Content under
   /Game/EnvironmentPacks/Megascans_4K/Surface/ [bin: Dimensions tag]; CC0 web candidates listed (no downloads);
   M_S3_ShoreGround_v2 anti-tiling material written (harness 7/7), DRY_V2 → BUILD_MAT_V2 with PJUUZ_4K pending an editor slot.
+- **Gary done with S3 cameras (first pass); no more lights until assets are in.**
+- **Shore material v2 BUILT** S3SHOREMAT2-20261007-172706 (PJUUZ_4K; 48 nodes; no compile errors; census clean). First DRY
+  read the 4K textures as 32×32 (first-load placeholder); second read 4096 [meas].
+- **Millstone assets imported** (no level change): mesh S3PROPS-20261007-172901 (bounds = manifest), BaseColor 8K
+  172951, N/Roughness imported 173000 but the tool's same-call size gate read 32×32 → refused before save; verified in
+  a later call (4096) and saved exactly those two (verify_save_tex.py, S3PROPS_TEXSAVE_OK). Tool bug: move the size
+  gate to a separate VERIFY call. BUILD_MAT 173036 (M_S3Prop + MI_GraniteMillstone). APPLY waits on Gary (stand-in
+  clam keyed → sits inside the stone).
+- **Waves v3** A/B board sent (S3_WAVES_REDESIGN_2026-10-07.md); questions to Gary pending.
