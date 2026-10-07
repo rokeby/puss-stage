@@ -174,13 +174,14 @@ CLAM_LABELS = {"Bottom": "S3 PearlClam", "Lid": "S3 PearlClam Lid", "Mantle": "S
 CENTROID_TOL_CM = 0.6        # x signal is ~1.1 cm (mirror = 2.2 cm apart); stride sample error 0.07 cm [meas offline]
 CENTROID_STRIDE_TARGET = 20000
 CLAM_TEX = {"Shell": {"BaseColor": 8192, "N": 4096, "Roughness": 4096},
-            "Mantle": {"BaseColor": 4096, "N": 4096, "Roughness": 4096},
+            "Mantle": {"BaseColor": 8192, "N": 8192, "Roughness": 4096},   # mantle v2 (Blender session 7 Oct): 8K BC/N
             # v2: 8K BaseColor + N kept on purpose (finest speckle ~0.5 mm, coordinator 7 Oct)
             "InteriorBottom": {"BaseColor": 8192, "N": 8192, "Roughness": 4096},
             "InteriorLid": {"BaseColor": 8192, "N": 8192, "Roughness": 4096}}
 # The ONLY textures allowed above 4096 (anything else at 8K is refused by tex_source_gate, - control in the harness)
 ALLOW_8K = {("GraniteMillstone", "BaseColor"), (CLAM, "Shell_BaseColor"), (CLAM, "InteriorBottom_BaseColor"),
-            (CLAM, "InteriorBottom_N"), (CLAM, "InteriorLid_BaseColor"), (CLAM, "InteriorLid_N")}
+            (CLAM, "InteriorBottom_N"), (CLAM, "InteriorLid_BaseColor"), (CLAM, "InteriorLid_N"),
+            (CLAM, "Mantle_BaseColor"), (CLAM, "Mantle_N")}
 MASTER_BREATHE = ASSET_ROOT + "/M_S3PropBreathe"
 PEARL_MASTER = CLAM_FOLDER + "/M_PearlClam_Pearl"
 CLAM_MATERIALS = {   # material key -> MI on a master; scalars/vectors are the MI's explicit values (read back)

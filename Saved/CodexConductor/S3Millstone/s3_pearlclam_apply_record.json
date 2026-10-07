@@ -1,0 +1,591 @@
+{
+ "run": "S3PROPS-20261007-183435",
+ "world": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice",
+ "rise": "/Game/InfinityStage/RigAtmos/LS_S3_HangarRise",
+ "plan": {
+  "yaw": 42.693457772456185,
+  "yaw_source": "cameras",
+  "camera_check": {
+   "bearings_deg": [
+    179.87456738683653,
+    179.87456738683653,
+    179.87456738683653,
+    109.40636167434278,
+    70.2837826569752,
+    65.92809857168578
+   ],
+   "mean_bearing_deg": 132.69345777245618,
+   "off_front_deg": [
+    47.18110961438035,
+    47.18110961438035,
+    47.18110961438035,
+    23.28709609811341,
+    62.40967511548098,
+    66.7653592007704
+   ]
+  },
+  "cameras": {
+   "ok": true,
+   "sequence": "/Game/InfinityStage/Dev/Sequences/LS_DevScene_03",
+   "rows": [
+    {
+     "beat": "B05",
+     "frame": 2880,
+     "cut_range": [
+      2880,
+      3000
+     ],
+     "binding": "S3 Shot B05",
+     "guid": "B379DEB24218A774C2D8009A480F3FF3",
+     "spawnable": true,
+     "marker": [
+      "S3 5 Chorus / Puss takes the song (narration)"
+     ],
+     "samples": [
+      {
+       "frame": 2880,
+       "location": [
+        14121.973,
+        160000.0,
+        140.0
+       ],
+       "rotation": [
+        0.0,
+        -7.098018169403076,
+        -0.0467333123087883
+       ],
+       "source": "template",
+       "channels": null
+      },
+      {
+       "frame": 2940,
+       "location": [
+        14121.973,
+        160000.0,
+        140.0
+       ],
+       "rotation": [
+        0.0,
+        -7.098018169403076,
+        -0.0467333123087883
+       ],
+       "source": "template",
+       "channels": null
+      },
+      {
+       "frame": 2999,
+       "location": [
+        14121.973,
+        160000.0,
+        140.0
+       ],
+       "rotation": [
+        0.0,
+        -7.098018169403076,
+        -0.0467333123087883
+       ],
+       "source": "template",
+       "channels": null
+      }
+     ]
+    },
+    {
+     "beat": "B06",
+     "frame": 3000,
+     "cut_range": [
+      3000,
+      3480
+     ],
+     "binding": "S3 Shot B06",
+     "guid": "DAA328FC48E4FBA2D83878BD48A59C5B",
+     "spawnable": true,
+     "marker": [],
+     "samples": [
+      {
+       "frame": 3000,
+       "location": [
+        14072.5888671875,
+        160990.609375,
+        220.17555236816406
+       ],
+       "rotation": [
+        3.626965264583171e-14,
+        -2.624422550201416,
+        -0.9199660420417786
+       ],
+       "source": "track",
+       "channels": [
+        "Location.X_6",
+        "Location.Y_6",
+        "Location.Z_6",
+        "Rotation.X_6",
+        "Rotation.Y_6",
+        "Rotation.Z_6"
+       ]
+      },
+      {
+       "frame": 3240,
+       "location": [
+        14772.540949089152,
+        160978.07347740655,
+        206.66039871519578
+       ],
+       "rotation": [
+        3.8886505238579284e-14,
+        -2.7521254223163565,
+        7.47661017725712
+       ],
+       "source": "track",
+       "channels": [
+        "Location.X_7",
+        "Location.Y_7",
+        "Location.Z_7",
+        "Rotation.X_7",
+        "Rotation.Y_7",
+        "Rotation.Z_7"
+       ]
+      },
+      {
+       "frame": 3479,
+       "location": [
+        14866.15234375,
+        160994.03125,
+        188.8662109375
+       ],
+       "rotation": [
+        4.3238233360474304e-14,
+        -0.6244224309921265,
+        -43.719966888427734
+       ],
+       "source": "track",
+       "channels": [
+        "Location.X_8",
+        "Location.Y_8",
+        "Location.Z_8",
+        "Rotation.X_8",
+        "Rotation.Y_8",
+        "Rotation.Z_8"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  "root_location": [
+   14424.391811279645,
+   159997.11588820606,
+   121.97009139959124
+  ],
+  "seat_top_offset_cm": 128.97009139959124,
+  "seat_radius_cm": 32.36703569992161,
+  "footprint_centre_ue": [
+   -0.4,
+   3.4
+  ],
+  "footprint_world": [
+   14421.792356918335,
+   159999.3436307907,
+   121.97009139959124
+  ],
+  "stone": {
+   "label": "S3 Granite Millstone",
+   "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_510",
+   "location": [
+    14421.792356918335,
+    159999.3436307907,
+    -7.0
+   ]
+  },
+  "parts": {
+   "Bottom": {
+    "label": "S3 PearlClam",
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/SM_PearlClam_Bottom",
+    "mis": {
+     "0": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Shell",
+     "1": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_InteriorBottom"
+    },
+    "slots": [
+     "M_PearlClam_Shell",
+     "M_PearlClam_InteriorBottom"
+    ],
+    "parent": null,
+    "rel": {
+     "location": [
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "world_location": [
+     14424.391811279645,
+     159997.11588820606,
+     121.97009139959124
+    ],
+    "world_rotation": [
+     0.0,
+     0.0,
+     42.693457772456185
+    ],
+    "tags": [
+     "RigAtmos.S3Props",
+     "S3Props.PearlClam",
+     "S3Props.PearlClam.Bottom"
+    ],
+    "actor_hidden_in_game": true
+   },
+   "Lid": {
+    "label": "S3 PearlClam Lid",
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/SM_PearlClam_Lid",
+    "mis": {
+     "0": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Shell",
+     "1": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_InteriorLid"
+    },
+    "slots": [
+     "M_PearlClam_Shell",
+     "M_PearlClam_InteriorLid"
+    ],
+    "parent": "Bottom",
+    "rel": {
+     "location": [
+      0.0,
+      -47.86,
+      30.02
+     ],
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "world_location": [
+     14456.84451669341,
+     159961.93916989226,
+     151.99009139959125
+    ],
+    "world_rotation": [
+     0.0,
+     0.0,
+     42.693457772456185
+    ],
+    "tags": [
+     "RigAtmos.S3Props",
+     "S3Props.PearlClam",
+     "S3Props.PearlClam.Lid"
+    ],
+    "actor_hidden_in_game": true
+   },
+   "Mantle": {
+    "label": "S3 PearlClam Mantle",
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/SM_PearlClam_Mantle",
+    "mis": {
+     "0": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Mantle"
+    },
+    "slots": [
+     "M_PearlClam_Mantle"
+    ],
+    "parent": "Bottom",
+    "rel": {
+     "location": [
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "world_location": [
+     14424.391811279645,
+     159997.11588820606,
+     121.97009139959124
+    ],
+    "world_rotation": [
+     0.0,
+     0.0,
+     42.693457772456185
+    ],
+    "tags": [
+     "RigAtmos.S3Props",
+     "S3Props.PearlClam",
+     "S3Props.PearlClam.Mantle"
+    ],
+    "actor_hidden_in_game": true
+   },
+   "Pearl": {
+    "label": "S3 PearlClam Pearl",
+    "mesh": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/SM_PearlClam_Pearl",
+    "mis": {
+     "0": "/Game/InfinityStage/Dev/Generated/S3Props/PearlClam/MI_PearlClam_Pearl"
+    },
+    "slots": [
+     "M_PearlClam_Pearl"
+    ],
+    "parent": "Bottom",
+    "rel": {
+     "location": [
+      0.0,
+      -0.0,
+      35.64
+     ],
+     "rotation": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "scale": [
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "world_location": [
+     14424.391811279645,
+     159997.11588820606,
+     157.61009139959123
+    ],
+    "world_rotation": [
+     0.0,
+     0.0,
+     42.693457772456185
+    ],
+    "tags": [
+     "RigAtmos.S3Props",
+     "S3Props.PearlClam",
+     "S3Props.PearlClam.Pearl"
+    ],
+    "actor_hidden_in_game": true
+   }
+  },
+  "boxes_local": {
+   "Bottom": {
+    "min": [
+     -48.93989181518555,
+     -49.71141815185547,
+     2.8370025120239006e-06
+    ],
+    "max": [
+     49.16954040527344,
+     49.86400604248047,
+     44.30111312866211
+    ]
+   },
+   "Lid": {
+    "min": [
+     -50.0,
+     -2.000002145767212,
+     -0.9088538885116577
+    ],
+    "max": [
+     50.0,
+     96.44512176513672,
+     36.85391616821289
+    ]
+   },
+   "Mantle": {
+    "min": [
+     -37.877906799316406,
+     -36.65231704711914,
+     15.00000286102295
+    ],
+    "max": [
+     37.87790298461914,
+     36.65230941772461,
+     38.903236389160156
+    ]
+   },
+   "Pearl": {
+    "min": [
+     -9.002585411071777,
+     -8.991920471191406,
+     0.0
+    ],
+    "max": [
+     8.996665954589844,
+     8.997774124145508,
+     18.000808715820312
+    ]
+   }
+  },
+  "mobility": "MOVABLE",
+  "folder": "RigAtmos/S3Props",
+  "lid": {
+   "front_sign": 1,
+   "open_relative_rotation_rpy": [
+    -80.0,
+    0.0,
+    0.0
+   ],
+   "tip_closed_z": 169.96262253944184,
+   "tip_open_z": 250.09089233460156,
+   "keyed": false
+  },
+  "world_box_closed": {
+   "min": [
+    14354.609807779087,
+    159926.56539674566,
+    121.97009423659375
+   ],
+   "max": [
+    14494.950270896352,
+    160067.10620798575,
+    188.8440075678041
+   ]
+  },
+  "world_box_open": {
+   "min": [
+    14354.609807779087,
+    159901.1043050513,
+    121.97009423659375
+   ],
+   "max": [
+    14518.439707884161,
+    160067.10620798575,
+    253.36961043660432
+   ]
+  },
+  "reveal": {
+   "mode": "rise_track",
+   "targets": [
+    "Bottom",
+    "Lid",
+    "Mantle",
+    "Pearl"
+   ],
+   "copy_from_guid": "6D566E9244625AD25C58329AC95FBC5A",
+   "section": {
+    "range_s": [
+     0.0,
+     31.000083923339844
+    ],
+    "completion_mode": "PROJECT_DEFAULT",
+    "channels": 1,
+    "keys": [
+     [
+      0,
+      false
+     ],
+     [
+      139,
+      true
+     ]
+    ],
+    "fps": 30.0
+   },
+   "overrides": {}
+  },
+  "standins": {
+   "action": "HIDE",
+   "rows": [
+    {
+     "label": "source_Anim",
+     "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.SkeletalMeshActor_1",
+     "class": "SkeletalMeshActor",
+     "before": {
+      "actor_hidden": true,
+      "components": {
+       "SkeletalMeshComponent0": {
+        "visible": true,
+        "hidden_in_game": false
+       }
+      }
+     },
+     "after": {
+      "actor_hidden": true,
+      "components": {
+       "SkeletalMeshComponent0": {
+        "visible": false,
+        "hidden_in_game": true
+       }
+      }
+     }
+    },
+    {
+     "label": "Clam_with_Pearl_Clam_with_Pearl_0",
+     "object_path": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_6",
+     "class": "StaticMeshActor",
+     "before": {
+      "actor_hidden": true,
+      "components": {
+       "StaticMeshComponent0": {
+        "visible": true,
+        "hidden_in_game": false
+       }
+      }
+     },
+     "after": {
+      "actor_hidden": true,
+      "components": {
+       "StaticMeshComponent0": {
+        "visible": false,
+        "hidden_in_game": true
+       }
+      }
+     }
+    }
+   ]
+  },
+  "args": {
+   "yaw_deg": null,
+   "camera_beats": {
+    "B05": 2880,
+    "B06": 3000
+   },
+   "max_camera_off_front_deg": 70.0,
+   "seat_top_offset_cm": null,
+   "sink_cm": 0.0,
+   "reveal": "rise_track",
+   "reveal_targets": "all",
+   "reveal_range_s": null,
+   "reveal_completion_mode": null,
+   "standin_labels": [
+    "source_Anim",
+    "Clam_with_Pearl_Clam_with_Pearl_0"
+   ],
+   "hide_standins": true,
+   "mobility": "MOVABLE",
+   "lid_open_deg": 80.0
+  }
+ },
+ "saved": true,
+ "applied": true,
+ "actor_paths": {
+  "Bottom": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_8",
+  "Lid": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_511",
+  "Mantle": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_512",
+  "Pearl": "/Game/InfinityStage/Dev/Maps/L_InfinityStage_V1VerticalSlice.L_InfinityStage_V1VerticalSlice:PersistentLevel.StaticMeshActor_513"
+ },
+ "reveal_binding_guids": {
+  "Bottom": "2C0181914D4EACA4C87825A79294BBEF",
+  "Lid": "27F65E0F420843E773C89EB50B1B3368",
+  "Mantle": "65C9D1694E4EA9D1780DA7A318EDAE4D",
+  "Pearl": "ACFEE7DD4E278F7CB3053AA452707F32"
+ },
+ "census_before": {
+  "content": [],
+  "maps": []
+ },
+ "manifest_sha256": "e8c60c01309a6f9732037a162e3e79a58d8c718a682ab00db1125df4f30ffd98",
+ "backup": "E:/PussStage/Backups/PreS3PearlClam-S3PROPS-20261007-183435"
+}

@@ -12,7 +12,7 @@
  "completion_note": "KEEP_STATE matches the Fold section and the transform holds (S1-S4 APPLIED 7 Oct). Proposed, not Gary's.",
  "hold_note": "hold absent/TRANSFORM = the transform hold (confirm '<MODE> S<n>HOLD'); FLOAT = non-transform hold (confirm '<MODE> S<n>FLOATHOLD', record s<n>_hangar_float_hold_record.json). hold_kinds subset of float/visibility/bool. PIEPROBE: probe_phase scrub|read, master_frame (scrub), optional segment_start_master + ticks_per_frame.",
  "scene_note": "scene in {1,2,3,4}. Last transform run: APPLY S3HOLD (S3HOLD-20261007-104009, record s3_hangar_hold_record.json).",
- "decided_by": "Gary 7 Oct (own words, conductor session): Yes, hold visibility \u2014 figures/clams/millstone stay revealed past the 31 s rise end; float hold re-applied with visibility; old pedestal binding excluded (hidden)",
+ "decided_by": "Gary 7 Oct (own words): Yes, hold visibility \u2014 re-applied to include the new PearlClam parts (4 reveal bindings) after CLAM_APPLY S3PROPS-20261007-183435",
  "exclude_bindings": [
   "tg0pfjxda_tier_0"
  ]

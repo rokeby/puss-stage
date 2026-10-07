@@ -257,3 +257,9 @@
 - CD1 patch ready from the cueing stream (07308d5, check OK at e094b6a): adds CueSheet + DirectorHud script panel +
   PageUp/PageDown/F5 bindings → next build window (conductor review of shared HUD/GameMode edits).
 - Directing: S3 sack poke-through backstop (thickness/iterations/capsules → masked copies → shrink) — low priority.
+- **PearlClam PLACED** CLAM_APPLY S3PROPS-20261007-183435: root StaticMeshActor_8 at world (14424.4,159997.1,122.0) on the
+  stone top, yaw 42.7 (from B05/B06 cameras), lid open roll −80 exposed (not keyed), Fab stand-ins hidden; all 4 meshes,
+  12 textures (8K: shell BC, interiors BC/N, mantle BC/N), 5 materials imported (S3PROPS-…182307..183406). Mantle 8K added to
+  the allow-list. Hold re-applied to cover the clam reveal: REVERT 184135 → APPLY S3FLOATHOLD-20261007-184155 (63 tracks).
+- Gary: back backdrop "no longer really makes sense behind the ocean" (replace?); pearl "more iridescent, slightly less
+  perfectly spherical". CD2 patch ready (stacks on CD1; c554a48).

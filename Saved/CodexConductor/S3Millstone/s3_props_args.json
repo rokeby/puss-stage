@@ -1,8 +1,8 @@
 {
  "mode": "DRY",
  "confirm": "",
- "run": "S3PROPS-20261007-173458",
- "prop": "GraniteMillstone",
+ "run": "S3PROPS-20261007-183441",
+ "prop": "PearlClam",
  "textures": null,
  "apply": {
   "prop": "GraniteMillstone",
@@ -22,5 +22,8 @@
   "reveal": "rise_track"
  },
  "placements_file": "s3_props_placements.json",
- "decided_by": "Gary 7 Oct (own words, conductor session): millstone replaces the pedestal; clam on top at 1.3 m; Place now, accept (stand-in keyed clam temporarily inside the stone)"
+ "decided_by": "Gary 7 Oct: PearlClam approved as exported; seated on the millstone, hinge away from B05/B06 (computed yaw 42.7 from CLAM_DRY S3PROPS-20261007-183419); Fab stand-ins hidden",
+ "part": "Pearl",
+ "tex_set": "Mantle",
+ "material": "Mantle"
 }
